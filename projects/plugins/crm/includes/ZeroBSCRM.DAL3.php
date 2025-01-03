@@ -1640,8 +1640,8 @@ class zbsDAL {
 
         if ( !empty( $key ) ){
 
-			if ( isset( self::$mitigation_cache_for_issue_3504[ $key ] ) ) {
-				return self::$mitigation_cache_for_issue_3504[ $key ];
+			if ( isset( static::$mitigation_cache_for_issue_3504[ $key ] ) ) {
+				return static::$mitigation_cache_for_issue_3504[ $key ];
 			}
             return $this->getSetting(array(
 
@@ -1721,8 +1721,8 @@ class zbsDAL {
         ); foreach ($defaultArgs as $argK => $argV){ $$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$$argK = $newData;} else { $$argK = $args[$argK]; } } }
         #} =========== / LOAD ARGS =============
 
-		if ( ! $fullDetails && isset( self::$mitigation_cache_for_issue_3504[ $key ] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-			return self::$mitigation_cache_for_issue_3504[ $key ]; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+		if ( ! $fullDetails && isset( static::$mitigation_cache_for_issue_3504[ $key ] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			return static::$mitigation_cache_for_issue_3504[ $key ]; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 		}
 
         #} Check key
@@ -1812,7 +1812,7 @@ class zbsDAL {
                         $setting = $this->tidy_settingSingular($potentialRes);
 
 						// We only update the mitigation cache when $fullDetails is false.
-						self::$mitigation_cache_for_issue_3504[ $key ] = $setting; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+						static::$mitigation_cache_for_issue_3504[ $key ] = $setting; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
                         // cache (commonly retrieved)
                         $this->update_cache_var( 'setting_' . $key, $setting );
@@ -1827,7 +1827,7 @@ class zbsDAL {
 
 		if ( ! $fullDetails ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 			// We only update the mitigation cache when $fullDetails is false.
-			self::$mitigation_cache_for_issue_3504[ $key ] = $default; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			static::$mitigation_cache_for_issue_3504[ $key ] = $default; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 		}
 
         return $default;
@@ -1845,8 +1845,8 @@ class zbsDAL {
     public function getSettings($args=array()){
 		// If we have already loaded something in our cache, return it.
 		// In this function we won't care if the values have changed or not because when they become invalid due to other functions, these functions should clear the cache.
-		if ( ! empty( self::$mitigation_cache_for_issue_3504 ) ) {
-			return self::$mitigation_cache_for_issue_3504;
+		if ( ! empty( static::$mitigation_cache_for_issue_3504 ) ) {
+			return static::$mitigation_cache_for_issue_3504;
 		}
 
         #} ============ LOAD ARGS =============
@@ -1920,7 +1920,7 @@ class zbsDAL {
             #} Has results, tidy + return 
             foreach ($potentialRes as $resDataLine) {
 				// We are only caching the singular setting (i.e. the value), because it is good enough.
-				self::$mitigation_cache_for_issue_3504[ $resDataLine->zbsset_key ] = $this->tidy_settingSingular( $resDataLine ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				static::$mitigation_cache_for_issue_3504[ $resDataLine->zbsset_key ] = $this->tidy_settingSingular( $resDataLine ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 				if ( $fullDetails ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 					$resArr                = $this->tidy_setting( $resDataLine ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -2035,7 +2035,7 @@ class zbsDAL {
         #} =========== / LOAD ARGS ============
 
 		// Invalidates our whole cache.
-		self::$mitigation_cache_for_issue_3504 = array();
+		static::$mitigation_cache_for_issue_3504 = array();
 
         #} ========== CHECK FIELDS ============
 
