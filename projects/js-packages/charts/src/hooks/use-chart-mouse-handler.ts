@@ -81,7 +81,7 @@ const useChartMouseHandler = ( {
 		onMouseMove,
 		onMouseLeave,
 		tooltipOpen,
-		tooltipData,
+		tooltipData: tooltipData || null,
 		tooltipLeft,
 		tooltipTop,
 	};

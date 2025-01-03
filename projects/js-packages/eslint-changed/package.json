@@ -23,7 +23,7 @@
 	},
 	"dependencies": {
 		"chalk": "5.4.1",
-		"commander": "9.3.0",
+		"commander": "13.0.0",
 		"parse-diff": "0.8.1"
 	},
 	"devDependencies": {

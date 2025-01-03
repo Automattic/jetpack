@@ -74,6 +74,13 @@ abstract class Product {
 	const EXPIRATION_CUTOFF_TIME = '+2 months';
 
 	/**
+	 * Whether this module is a Jetpack feature
+	 *
+	 * @var boolean
+	 */
+	public static $is_feature = false;
+
+	/**
 	 * Whether this product requires a site connection
 	 *
 	 * @var string
@@ -182,6 +189,7 @@ abstract class Product {
 			'is_plugin_active'                => static::is_plugin_active(),
 			'is_upgradable'                   => static::is_upgradable(),
 			'is_upgradable_by_bundle'         => static::is_upgradable_by_bundle(),
+			'is_feature'                      => static::$is_feature,
 			'supported_products'              => static::get_supported_products(),
 			'wpcom_product_slug'              => static::get_wpcom_product_slug(),
 			'requires_user_connection'        => static::$requires_user_connection,

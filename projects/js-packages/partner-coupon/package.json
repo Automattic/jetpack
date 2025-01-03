@@ -44,7 +44,7 @@
 		"@automattic/jetpack-connection": "workspace:*",
 		"@wordpress/i18n": "5.14.0",
 		"clsx": "2.1.1",
-		"prop-types": "15.7.2"
+		"prop-types": "15.8.1"
 	},
 	"exports": {
 		".": "./index.jsx"

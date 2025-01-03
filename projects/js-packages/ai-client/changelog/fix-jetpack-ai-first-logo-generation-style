@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AI Client: add style parameter to first logo generator so it doesn't fall in a dall-e situation
