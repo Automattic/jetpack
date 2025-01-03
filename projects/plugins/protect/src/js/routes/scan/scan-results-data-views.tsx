@@ -3,16 +3,14 @@ import { type Threat } from '@automattic/jetpack-scan';
 import { useCallback } from 'react';
 import useScanStatusQuery from '../../data/scan/use-scan-status-query';
 import useModal from '../../hooks/use-modal';
+import ScanToggleGroupControl from './scan-toggle-group-control';
 
 /**
- * Scan Results Data View
+ * Scan Results Data Views
  *
- * @param {object}      props        - Component props.
- * @param {JSX.Element} props.header - Header component.
- *
- * @return {JSX.Element} ScanResultDataView component.
+ * @return {JSX.Element} ScanResultDataViews component.
  */
-export default function ScanResultsDataViews( { header }: { header: JSX.Element } ) {
+export default function ScanResultsDataViews() {
 	const { data: status } = useScanStatusQuery( { usePolling: true } );
 
 	const { setModal } = useModal();
@@ -36,7 +34,7 @@ export default function ScanResultsDataViews( { header }: { header: JSX.Element 
 			data={ status ? status.threats : [] }
 			onFixThreats={ onFixThreats }
 			onIgnoreThreats={ onIgnoreThreats }
-			header={ header }
+			header={ <ScanToggleGroupControl /> }
 		/>
 	);
 }

@@ -3,35 +3,37 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
+import { useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import useHistoryQuery from '../../data/scan/use-history-query';
 import useScanStatusQuery from '../../data/scan/use-scan-status-query';
 import styles from './styles.module.scss';
 
 /**
  * ToggleGroupControl component for filtering threats by status.
- * @param {object}   props                      - Component props.
- * @param {boolean}  props.viewingHistory       - Whether the user is viewing the history.
- * @param {Function} props.onStatusFilterChange - Callback function to handle status filter changes.
  *
  * @return {JSX.Element|null} The component or null.
  */
-export default function StatusToggleGroupControl( {
-	viewingHistory = true,
-	onStatusFilterChange,
-}: {
-	viewingHistory?: boolean;
-	onStatusFilterChange?: ( newStatus: string ) => void;
-} ): JSX.Element {
+export default function ScanToggleGroupControl(): JSX.Element {
+	const location = useLocation();
+	const navigate = useNavigate();
 	const { data: status } = useScanStatusQuery();
 	const { data: history } = useHistoryQuery();
 	const numActiveThreats = status ? status.threats.length : 0;
 	const numHistoricThreats = history ? history.threats.length : 0;
 
+	const selectedValue = location.pathname.includes( '/history' ) ? 'historic' : 'active';
+
+	const onChange = useCallback(
+		( value: string ) => {
+			navigate( value === 'active' ? '/scan' : '/scan/history' );
+		},
+		[ navigate ]
+	);
+
 	if ( ! ( numHistoricThreats + numActiveThreats ) ) {
 		return null;
 	}
-
-	const selectedValue = viewingHistory === true ? 'historic' : 'active';
 
 	try {
 		return (
@@ -39,7 +41,7 @@ export default function StatusToggleGroupControl( {
 				<div className={ styles[ 'toggle-group-control' ] }>
 					<ToggleGroupControl
 						value={ selectedValue }
-						onChange={ onStatusFilterChange }
+						onChange={ onChange }
 						isBlock
 						hideLabelFromVision
 						__nextHasNoMarginBottom

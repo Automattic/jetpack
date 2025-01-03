@@ -61,7 +61,6 @@ const ScanPage = () => {
 						>
 							<Col>
 								<div ref={ setScanResultsAnchor }>
-									{ /* TODO: Pass header */ }
 									<ScanResultsDataViews />
 								</div>
 								{ !! status && ! isScanInProgress( status ) && (

@@ -4,16 +4,14 @@ import { useCallback, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import useHistoryQuery from '../../../data/scan/use-history-query';
 import useModal from '../../../hooks/use-modal';
+import ScanToggleGroupControl from '../scan-toggle-group-control';
 
 /**
- * Scan Results Data View
+ * Scan History Data Viewd
  *
- * @param {object}      props        - Component props.
- * @param {JSX.Element} props.header - Header component.
- *
- * @return {JSX.Element} ScanResultDataView component.
+ * @return {JSX.Element} HistoryDataViews component.
  */
-export default function HistoryDataViews( { header }: { header?: JSX.Element } ) {
+export default function HistoryDataViews() {
 	const { filter } = useParams();
 	const { data: history } = useHistoryQuery();
 	const { setModal } = useModal();
@@ -42,7 +40,7 @@ export default function HistoryDataViews( { header }: { header?: JSX.Element } )
 			data={ history ? history.threats : [] }
 			filters={ filters }
 			onUnignoreThreats={ onUnignoreThreats }
-			header={ header }
+			header={ <ScanToggleGroupControl /> }
 		/>
 	);
 }
