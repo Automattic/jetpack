@@ -1,13 +1,18 @@
 import { Text } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { useMemo } from 'react';
 import AdminSectionHero from '../../components/admin-section-hero';
 import ErrorAdminSectionHero from '../../components/error-admin-section-hero';
 import useHistoryQuery from '../../data/scan/use-history-query';
 import styles from './styles.module.scss';
 
-const HistoryAdminSectionHero: React.FC = () => {
+const HistoryAdminSectionHero: React.FC = ( {
+	size = 'normal',
+}: {
+	size?: 'normal' | 'large';
+} ) => {
 	const { data: history } = useHistoryQuery();
 	const numThreats = history ? history.threats.length : 0;
 
@@ -35,7 +40,12 @@ const HistoryAdminSectionHero: React.FC = () => {
 
 	return (
 		<AdminSectionHero>
-			<AdminSectionHero.Main>
+			<AdminSectionHero.Main
+				className={ clsx( styles[ 'hero-main' ], {
+					[ styles[ 'hero-main--large' ] ]: size === 'large',
+				} ) }
+			>
+				{ ' ' }
 				<Text mb={ 2 }>
 					{ oldestFirstDetected ? (
 						<span className={ styles[ 'subheading-content' ] }>
