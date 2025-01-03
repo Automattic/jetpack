@@ -1,4 +1,4 @@
-import { getThreatType, type Threat } from '@automattic/jetpack-scan';
+import { getFixerAction, getThreatType, type Threat } from '@automattic/jetpack-scan';
 import {
 	type Action,
 	type ActionButton,
@@ -447,10 +447,12 @@ export default function ThreatsDataViews( {
 	const actions = useMemo( () => {
 		const result: Action< Threat >[] = [];
 
-		if ( dataFields.includes( 'fixable' ) ) {
+		if ( dataFields.includes( 'fixable' ) && view.type === 'list' ) {
 			result.push( {
 				id: THREAT_ACTION_FIX,
-				label: __( 'Auto-fix', 'jetpack-components' ),
+				label: items => {
+					return getFixerAction( items[ 0 ] );
+				},
 				isPrimary: true,
 				callback: onFixThreats,
 				isEligible( item ) {
@@ -505,6 +507,7 @@ export default function ThreatsDataViews( {
 
 		return result;
 	}, [
+		view.type,
 		dataFields,
 		onFixThreats,
 		onIgnoreThreats,
