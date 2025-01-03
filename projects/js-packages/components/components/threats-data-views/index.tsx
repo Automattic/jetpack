@@ -19,6 +19,9 @@ import Badge from '../badge';
 import ThreatFixerButton from '../threat-fixer-button';
 import ThreatSeverityBadge from '../threat-severity-badge';
 import {
+	ACTIVE_TABLE_FIELDS,
+	HISTORIC_TABLE_FIELDS,
+	LIST_FIELDS,
 	THREAT_ACTION_FIX,
 	THREAT_ACTION_IGNORE,
 	THREAT_ACTION_UNIGNORE,
@@ -105,26 +108,14 @@ export default function ThreatsDataViews( {
 	const defaultLayouts: SupportedLayouts = {
 		table: {
 			...baseView,
-			fields: historic
-				? [
-						THREAT_FIELD_SEVERITY,
-						THREAT_FIELD_TYPE,
-						THREAT_FIELD_FIRST_DETECTED,
-						THREAT_FIELD_FIXED_ON,
-				  ]
-				: [ THREAT_FIELD_SEVERITY, THREAT_FIELD_TYPE, THREAT_FIELD_AUTO_FIX ],
+			fields: historic ? HISTORIC_TABLE_FIELDS : ACTIVE_TABLE_FIELDS,
 			titleField: THREAT_FIELD_TITLE,
 			descriptionField: THREAT_FIELD_DESCRIPTION,
 			showMedia: false,
 		},
 		list: {
 			...baseView,
-			fields: [
-				THREAT_FIELD_SEVERITY,
-				THREAT_FIELD_TYPE,
-				THREAT_FIELD_EXTENSION,
-				THREAT_FIELD_SIGNATURE,
-			],
+			fields: LIST_FIELDS,
 			titleField: THREAT_FIELD_TITLE,
 			mediaField: THREAT_FIELD_ICON,
 			showMedia: true,
@@ -248,28 +239,6 @@ export default function ThreatsDataViews( {
 							<Icon icon={ THREAT_ICONS[ getThreatType( item ) ] } size={ 20 } />
 						</div>
 					);
-				},
-			},
-			{
-				id: THREAT_FIELD_STATUS,
-				label: __( 'Status', 'jetpack-components' ),
-				elements: THREAT_STATUSES,
-				getValue( { item }: { item: Threat } ) {
-					if ( ! item.status ) {
-						return 'current';
-					}
-					return (
-						THREAT_STATUSES.find( ( { value } ) => value === item.status )?.value ?? item.status
-					);
-				},
-				render( { item }: { item: Threat } ) {
-					if ( item.status ) {
-						const status = THREAT_STATUSES.find( ( { value } ) => value === item.status );
-						if ( status ) {
-							return <Badge variant={ status?.variant }>{ status.label }</Badge>;
-						}
-					}
-					return <Badge variant="warning">{ __( 'Active', 'jetpack-components' ) }</Badge>;
 				},
 			},
 			{
