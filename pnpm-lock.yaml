@@ -2999,8 +2999,8 @@ importers:
         specifier: 6.28.1
         version: 6.28.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       tus-js-client:
-        specifier: 4.1.0
-        version: 4.1.0
+        specifier: 4.2.3
+        version: 4.2.3
     devDependencies:
       '@automattic/calypso-color-schemes':
         specifier: 3.1.3
@@ -4044,8 +4044,8 @@ importers:
         specifier: 1.4.2
         version: 1.4.2
       tus-js-client:
-        specifier: 2.3.0
-        version: 2.3.0
+        specifier: 4.2.3
+        version: 4.2.3
       webpack:
         specifier: 5.94.0
         version: 5.94.0(webpack-cli@4.9.1)
@@ -8922,9 +8922,6 @@ packages:
   buffer-crc32@0.2.13:
     resolution: {integrity: sha512-VO9Ht/+p3SN7SKWqcrgEzjGbRSJYTx+Q1pTQC0wrWqHx0vpJraQ6GtHx8tvcg1rlK1byhU5gccxgOgj7B0TDkQ==}
 
-  buffer-from@0.1.2:
-    resolution: {integrity: sha512-RiWIenusJsmI2KcvqQABB83tLxCByE3upSP8QU3rJDMVFGPWLvPQJt/O1Su9moRWeH7d+Q2HYb68f6+v+tw2vg==}
-
   buffer-from@1.1.2:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
 
@@ -11376,9 +11373,6 @@ packages:
   jquery@3.6.0:
     resolution: {integrity: sha512-JVzAR/AjBvVt2BmYhxRCSYysDsPcssdmTFnzyLEts9qNwmjmu4JTAMYubEfwVOSwpQ1I1sKKFcxhZCI2buerfw==}
 
-  js-base64@2.6.4:
-    resolution: {integrity: sha512-pZe//GGmwJndub7ZghVHz7vjb2LgC1m8B07Au3eYqeqv9emhESByMXxaEgkUkEqJe87oBbSniGYoQNIBklc7IQ==}
-
   js-base64@3.7.7:
     resolution: {integrity: sha512-7rCnleh0z2CkXhH67J8K1Ytz0b2Y+yxTPL+/KOJoa20hfnVQ/3/T6W/KflYI4bRHRagNeXeU2bkNGI3v1oS/lw==}
 
@@ -12745,10 +12739,6 @@ packages:
   prop-types@15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
 
-  proper-lockfile@2.0.1:
-    resolution: {integrity: sha512-rjaeGbsmhNDcDInmwi4MuI6mRwJu6zq8GjYCLuSuE7GF+4UjgzkL69sVKKJ2T2xH61kK7rXvGYpvaTu909oXaQ==}
-    engines: {node: '>=4.0.0'}
-
   proper-lockfile@4.1.2:
     resolution: {integrity: sha512-TjNPblN4BwAWMXU8s9AEz4JmQxnD1NNL7bNOY/AKUzyamc379FWASUhc/K1pL2noVb+XmZKLL68cjzLsiOAMaA==}
 
@@ -13199,9 +13189,6 @@ packages:
   restore-cursor@2.0.0:
     resolution: {integrity: sha512-6IzJLuGi4+R14vwagDHX+JrXmPVtPpn4mffDJ1UdR7/Edm87fl6yi8mMBIVvFtJaNTUvjughmW4hwLhRG7gC1Q==}
     engines: {node: '>=4'}
-
-  retry@0.10.1:
-    resolution: {integrity: sha512-ZXUSQYTHdl3uS7IuCehYfMzKyIDBNoAuUblvy5oGO5UJSUTmStUUVPXbA9Qxd173Bgre53yCQczQuHgRWAdvJQ==}
 
   retry@0.12.0:
     resolution: {integrity: sha512-9LkiTwjUh6rT555DtE9rTX+BKByPfrMzEAtnlEtdEwr3Nkffwiihqe2bWADg+OQRjt9gl6ICdmB/ZFDCGAtSow==}
@@ -14194,11 +14181,8 @@ packages:
   turndown@7.1.2:
     resolution: {integrity: sha512-ntI9R7fcUKjqBP6QU8rBK2Ehyt8LAzt3UBT9JR9tgo6GtuKvyUzpayWmeMKJw1DPdXzktvtIT8m2mVXz+bL/Qg==}
 
-  tus-js-client@2.3.0:
-    resolution: {integrity: sha512-I4cSwm6N5qxqCmBqenvutwSHe9ntf81lLrtf6BmLpG2v4wTl89atCQKqGgqvkodE6Lx+iKIjMbaXmfvStTg01g==}
-
-  tus-js-client@4.1.0:
-    resolution: {integrity: sha512-e/nC/kJahvNYBcnwcqzuhFIvVELMMpbVXIoOOKdUn74SdQCvJd2JjqV2jZLv2EFOVbV4qLiO0lV7BxBXF21b6Q==}
+  tus-js-client@4.2.3:
+    resolution: {integrity: sha512-UkQUCeDWKh5AwArcasIJWcL5EP66XPypKQtsdPu82wNnTea8eAUHdpDx3DcfZgDERAiCII895zMYkXri4M1wzw==}
     engines: {node: '>=18'}
 
   type-check@0.4.0:
@@ -20771,7 +20755,7 @@ snapshots:
 
   ast-types@0.16.1:
     dependencies:
-      tslib: 2.8.1
+      tslib: 2.5.0
 
   async@3.2.6: {}
 
@@ -21058,8 +21042,6 @@ snapshots:
   buffer-builder@0.2.0: {}
 
   buffer-crc32@0.2.13: {}
-
-  buffer-from@0.1.2: {}
 
   buffer-from@1.1.2: {}
 
@@ -21612,12 +21594,12 @@ snapshots:
   css-tree@2.2.1:
     dependencies:
       mdn-data: 2.0.28
-      source-map-js: 1.2.1
+      source-map-js: 1.2.0
 
   css-tree@2.3.1:
     dependencies:
       mdn-data: 2.0.30
-      source-map-js: 1.2.1
+      source-map-js: 1.2.0
 
   css-what@6.1.0: {}
 
@@ -24176,8 +24158,6 @@ snapshots:
 
   jquery@3.6.0: {}
 
-  js-base64@2.6.4: {}
-
   js-base64@3.7.7: {}
 
   js-tokens@4.0.0: {}
@@ -25734,11 +25714,6 @@ snapshots:
       object-assign: 4.1.1
       react-is: 16.13.1
 
-  proper-lockfile@2.0.1:
-    dependencies:
-      graceful-fs: 4.2.11
-      retry: 0.10.1
-
   proper-lockfile@4.1.2:
     dependencies:
       graceful-fs: 4.2.11
@@ -26071,7 +26046,7 @@ snapshots:
       esprima: 4.0.1
       source-map: 0.6.1
       tiny-invariant: 1.3.3
-      tslib: 2.8.1
+      tslib: 2.5.0
 
   rechoir@0.7.1:
     dependencies:
@@ -26283,8 +26258,6 @@ snapshots:
       onetime: 2.0.1
       signal-exit: 3.0.7
 
-  retry@0.10.1: {}
-
   retry@0.12.0: {}
 
   retry@0.13.1: {}
@@ -26379,7 +26352,7 @@ snapshots:
 
   rxjs@7.8.1:
     dependencies:
-      tslib: 2.8.1
+      tslib: 2.5.0
 
   safe-array-concat@1.1.2:
     dependencies:
@@ -26506,7 +26479,7 @@ snapshots:
     dependencies:
       chokidar: 3.5.3
       immutable: 4.3.7
-      source-map-js: 1.2.1
+      source-map-js: 1.2.0
 
   sax@1.4.1: {}
 
@@ -27281,17 +27254,7 @@ snapshots:
     dependencies:
       domino: 2.1.6
 
-  tus-js-client@2.3.0:
-    dependencies:
-      buffer-from: 0.1.2
-      combine-errors: 3.0.3
-      is-stream: 2.0.1
-      js-base64: 2.6.4
-      lodash.throttle: 4.1.1
-      proper-lockfile: 2.0.1
-      url-parse: 1.5.10
-
-  tus-js-client@4.1.0:
+  tus-js-client@4.2.3:
     dependencies:
       buffer-from: 1.1.2
       combine-errors: 3.0.3
