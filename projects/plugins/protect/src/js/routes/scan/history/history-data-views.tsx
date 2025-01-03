@@ -1,21 +1,21 @@
 import { ThreatsDataViews } from '@automattic/jetpack-components';
-import { Threat } from '@automattic/jetpack-scan';
+import { type Threat } from '@automattic/jetpack-scan';
 import { useCallback } from 'react';
-import useHistoryQuery from '../../data/scan/use-history-query';
-import useModal from '../../hooks/use-modal';
+import useHistoryQuery from '../../../data/scan/use-history-query';
+import useModal from '../../../hooks/use-modal';
 
 /**
- * Scan History Data View
+ * Scan Results Data View
  *
  * @param {object}      props        - Component props.
  * @param {JSX.Element} props.header - Header component.
  *
- * @return {JSX.Element} ScanHistoryDataView component.
+ * @return {JSX.Element} ScanResultDataView component.
  */
-export default function ScanHistoryDataView( { header }: { header: JSX.Element } ) {
-	const { setModal } = useModal();
-
+export default function HistoryDataViews( { header }: { header?: JSX.Element } ) {
 	const { data: history } = useHistoryQuery();
+
+	const { setModal } = useModal();
 
 	const onUnignoreThreats = useCallback(
 		( threats: Threat[] ) => {
@@ -27,7 +27,6 @@ export default function ScanHistoryDataView( { header }: { header: JSX.Element }
 	return (
 		<ThreatsDataViews
 			data={ history ? history.threats : [] }
-			filters={ [] }
 			onUnignoreThreats={ onUnignoreThreats }
 			header={ header }
 		/>

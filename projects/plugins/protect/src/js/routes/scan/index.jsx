@@ -1,6 +1,5 @@
 import { AdminSection, Container, Col } from '@automattic/jetpack-components';
-import { useMemo, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useState } from 'react';
 import AdminPage from '../../components/admin-page';
 import OnboardingPopover from '../../components/onboarding-popover';
 import useHistoryQuery from '../../data/scan/use-history-query';
@@ -22,8 +21,6 @@ import styles from './styles.module.scss';
  */
 const ScanPage = () => {
 	const { hasPlan } = usePlan();
-	const location = useLocation();
-	const { filter } = useParams();
 	const { data: status } = useScanStatusQuery( { usePolling: true } );
 	const { data: history } = useHistoryQuery();
 
@@ -41,26 +38,6 @@ const ScanPage = () => {
 	const hasActiveThreats = status && status.threats.length;
 	const hasHistory = history && history.threats.length;
 	const showResults = hasActiveThreats || hasHistory;
-
-	const filters = useMemo( () => {
-		if ( location.pathname.includes( '/scan/history' ) ) {
-			return [
-				{
-					field: 'status',
-					value: filter ? [ filter ] : [ 'fixed', 'ignored' ],
-					operator: 'isAny',
-				},
-			];
-		}
-
-		return [
-			{
-				field: 'status',
-				value: [ 'current' ],
-				operator: 'isAny',
-			},
-		];
-	}, [ filter, location.pathname ] );
 
 	// Track view for Protect admin page.
 	useAnalyticsTracks( {
