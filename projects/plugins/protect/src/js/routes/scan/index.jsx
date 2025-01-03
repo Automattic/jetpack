@@ -51,7 +51,7 @@ const ScanPage = () => {
 	return (
 		<OnboardingContext.Provider value={ onboardingSteps }>
 			<AdminPage>
-				<ScanAdminSectionHero size={ hasActiveThreats ? 'normal' : 'large' } />
+				<ScanAdminSectionHero size={ showResults ? 'normal' : 'large' } />
 				{ showResults && (
 					<AdminSection>
 						<Container

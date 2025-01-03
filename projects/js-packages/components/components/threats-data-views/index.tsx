@@ -251,6 +251,28 @@ export default function ThreatsDataViews( {
 				},
 			},
 			{
+				id: THREAT_FIELD_STATUS,
+				label: __( 'Status', 'jetpack-components' ),
+				elements: THREAT_STATUSES,
+				getValue( { item }: { item: Threat } ) {
+					if ( ! item.status ) {
+						return 'current';
+					}
+					return (
+						THREAT_STATUSES.find( ( { value } ) => value === item.status )?.value ?? item.status
+					);
+				},
+				render( { item }: { item: Threat } ) {
+					if ( item.status ) {
+						const status = THREAT_STATUSES.find( ( { value } ) => value === item.status );
+						if ( status ) {
+							return <Badge variant={ status?.variant }>{ status.label }</Badge>;
+						}
+					}
+					return <Badge variant="warning">{ __( 'Active', 'jetpack-components' ) }</Badge>;
+				},
+			},
+			{
 				id: THREAT_FIELD_TYPE,
 				label: __( 'Type', 'jetpack-components' ),
 				elements: THREAT_TYPES,

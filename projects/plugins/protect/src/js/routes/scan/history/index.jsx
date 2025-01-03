@@ -23,7 +23,7 @@ const HistoryPage = () => {
 
 	return (
 		<AdminPage>
-			<HistoryAdminSectionHero size={ hasHistory ? 'normal' : 'large' } />
+			<HistoryAdminSectionHero size={ showResults ? 'normal' : 'large' } />
 			{ showResults && (
 				<AdminSection>
 					<Container
