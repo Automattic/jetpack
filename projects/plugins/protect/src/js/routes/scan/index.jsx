@@ -1,5 +1,5 @@
 import { AdminSection, Container, Col } from '@automattic/jetpack-components';
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import AdminPage from '../../components/admin-page';
 import OnboardingPopover from '../../components/onboarding-popover';
@@ -8,7 +8,6 @@ import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-s
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { OnboardingContext } from '../../hooks/use-onboarding';
 import usePlan from '../../hooks/use-plan';
-import HistoryAdminSectionHero from './history-admin-section-hero';
 import onboardingSteps from './onboarding-steps';
 import ScanAdminSectionHero from './scan-admin-section-hero';
 import ScanResultsDataView from './scan-results-data-view';
@@ -29,11 +28,6 @@ const ScanPage = () => {
 	const { data: history } = useHistoryQuery();
 
 	const [ scanResultsAnchor, setScanResultsAnchor ] = useState( null );
-	const [ statusFilter, setStatusFilter ] = useState( 'active' );
-
-	const handleStatusFilterChange = useCallback( newStatusFilter => {
-		setStatusFilter( newStatusFilter );
-	}, [] );
 
 	let currentScanStatus;
 	if ( status.error ) {
@@ -80,11 +74,7 @@ const ScanPage = () => {
 	return (
 		<OnboardingContext.Provider value={ onboardingSteps }>
 			<AdminPage>
-				{ 'historic' === statusFilter ? (
-					<HistoryAdminSectionHero />
-				) : (
-					<ScanAdminSectionHero size={ showResults ? 'normal' : 'large' } />
-				) }
+				<ScanAdminSectionHero size={ showResults ? 'normal' : 'large' } />
 				{ showResults && (
 					<AdminSection>
 						<Container
@@ -94,10 +84,7 @@ const ScanPage = () => {
 						>
 							<Col>
 								<div ref={ setScanResultsAnchor }>
-									<ScanResultsDataView
-										filters={ filters }
-										onStatusFilterChange={ hasPlan ? handleStatusFilterChange : null }
-									/>
+									<ScanResultsDataView filters={ filters } />
 								</div>
 								{ !! status && ! isScanInProgress( status ) && (
 									<OnboardingPopover

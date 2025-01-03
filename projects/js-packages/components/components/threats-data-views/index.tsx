@@ -14,7 +14,7 @@ import {
 import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
-import { useCallback, useMemo, useState, useEffect } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import Badge from '../badge';
 import ThreatFixerButton from '../threat-fixer-button';
 import ThreatSeverityBadge from '../threat-severity-badge';
@@ -55,7 +55,6 @@ import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-contr
  * @param {Function} props.isThreatEligibleForFix      - Function to determine if a threat is eligible for fixing.
  * @param {Function} props.isThreatEligibleForIgnore   - Function to determine if a threat is eligible for ignoring.
  * @param {Function} props.isThreatEligibleForUnignore - Function to determine if a threat is eligible for unignoring.
- * @param {Function} props.onStatusFilterChange        - Callback function run when the status filter changes.
  *
  * @return {JSX.Element} The ThreatsDataViews component.
  */
@@ -69,7 +68,6 @@ export default function ThreatsDataViews( {
 	onFixThreats,
 	onIgnoreThreats,
 	onUnignoreThreats,
-	onStatusFilterChange,
 }: {
 	data: Threat[];
 	filters?: Filter[];
@@ -80,7 +78,6 @@ export default function ThreatsDataViews( {
 	onFixThreats?: ( threats: Threat[] ) => void;
 	onIgnoreThreats?: ActionButton< Threat >[ 'callback' ];
 	onUnignoreThreats?: ActionButton< Threat >[ 'callback' ];
-	onStatusFilterChange?: ( newStatus: 'active' | 'historic' | null ) => void;
 } ): JSX.Element {
 	const baseView = {
 		sort: {
@@ -534,11 +531,6 @@ export default function ThreatsDataViews( {
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#getitemid-function
 	 */
 	const getItemId = useCallback( ( item: Threat ) => item.id.toString(), [] );
-
-	// Notify the consumer whenever the selectedStatusFilter changes
-	useEffect( () => {
-		onStatusFilterChange?.( selectedStatusFilter );
-	}, [ selectedStatusFilter, onStatusFilterChange ] );
 
 	return (
 		<DataViews
