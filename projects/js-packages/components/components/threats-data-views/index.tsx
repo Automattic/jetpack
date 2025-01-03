@@ -1,4 +1,4 @@
-import { getThreatType, type Threat, type ThreatStatus } from '@automattic/jetpack-scan';
+import { getThreatType, type Threat } from '@automattic/jetpack-scan';
 import {
 	type Action,
 	type ActionButton,
@@ -239,6 +239,28 @@ export default function ThreatsDataViews( {
 				},
 			},
 			{
+				id: THREAT_FIELD_STATUS,
+				label: __( 'Status', 'jetpack-components' ),
+				elements: THREAT_STATUSES,
+				getValue( { item }: { item: Threat } ) {
+					if ( ! item.status ) {
+						return 'current';
+					}
+					return (
+						THREAT_STATUSES.find( ( { value } ) => value === item.status )?.value ?? item.status
+					);
+				},
+				render( { item }: { item: Threat } ) {
+					if ( item.status ) {
+						const status = THREAT_STATUSES.find( ( { value } ) => value === item.status );
+						if ( status ) {
+							return <Badge variant={ status?.variant }>{ status.label }</Badge>;
+						}
+					}
+					return <Badge variant="warning">{ __( 'Active', 'jetpack-components' ) }</Badge>;
+				},
+			},
+			{
 				id: THREAT_FIELD_TYPE,
 				label: __( 'Type', 'jetpack-components' ),
 				elements: THREAT_TYPES,
@@ -278,33 +300,6 @@ export default function ThreatsDataViews( {
 					return item.extension ? item.extension.slug : '';
 				},
 			},
-			...( dataFields.includes( 'status' )
-				? [
-						{
-							id: THREAT_FIELD_STATUS,
-							label: __( 'Status', 'jetpack-components' ),
-							elements: THREAT_STATUSES,
-							getValue( { item }: { item: Threat } ) {
-								if ( ! item.status ) {
-									return 'current';
-								}
-								return (
-									THREAT_STATUSES.find( ( { value } ) => value === item.status )?.value ??
-									item.status
-								);
-							},
-							render( { item }: { item: Threat } ) {
-								if ( item.status ) {
-									const status = THREAT_STATUSES.find( ( { value } ) => value === item.status );
-									if ( status ) {
-										return <Badge variant={ status?.variant }>{ status.label }</Badge>;
-									}
-								}
-								return <Badge variant="warning">{ __( 'Active', 'jetpack-components' ) }</Badge>;
-							},
-						},
-				  ]
-				: [] ),
 			...( dataFields.includes( 'severity' )
 				? [
 						{
@@ -481,33 +476,6 @@ export default function ThreatsDataViews( {
 	] );
 
 	/**
-	 * Memoized function to determine if a status filter is selected.
-	 *
-	 * @param {Array} threatStatuses - List of threat statuses.
-	 */
-	const isStatusFilterSelected = useMemo(
-		() => ( threatStatuses: ThreatStatus[] ) =>
-			view.filters.some(
-				filter =>
-					filter.field === 'status' &&
-					Array.isArray( filter.value ) &&
-					filter.value.length === threatStatuses.length &&
-					threatStatuses.every( threatStatus => filter.value.includes( threatStatus ) )
-			),
-		[ view.filters ]
-	);
-
-	const selectedStatusFilter = useMemo( () => {
-		if ( isStatusFilterSelected( [ 'current' ] ) ) {
-			return 'active' as const;
-		}
-		if ( isStatusFilterSelected( [ 'fixed', 'ignored' ] ) ) {
-			return 'historic' as const;
-		}
-		return null;
-	}, [ isStatusFilterSelected ] );
-
-	/**
 	 * Apply the view settings (i.e. filters, sorting, pagination) to the dataset.
 	 *
 	 * @see https://github.com/WordPress/gutenberg/blob/trunk/packages/dataviews/src/filter-and-sort-data-view.ts
@@ -548,7 +516,6 @@ export default function ThreatsDataViews( {
 					data={ data }
 					view={ view }
 					onChangeView={ onChangeView }
-					selectedStatusFilter={ selectedStatusFilter }
 				/>
 			}
 		/>

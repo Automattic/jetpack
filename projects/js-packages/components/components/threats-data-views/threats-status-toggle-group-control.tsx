@@ -10,23 +10,20 @@ import styles from './styles.module.scss';
 
 /**
  * ToggleGroupControl component for filtering threats by status.
- * @param {object}     props                      - Component props.
- * @param { Threat[]}  props.data                 - Threats data.
- * @param { View }     props.view                 - The current view.
- * @param { string }   props.selectedStatusFilter - The selected status filter.
- * @param { Function } props.onChangeView         - Callback function to handle view changes.
+ * @param {object}     props              - Component props.
+ * @param { Threat[]}  props.data         - Threats data.
+ * @param { View }     props.view         - The current view.
+ * @param { Function } props.onChangeView - Callback function to handle view changes.
  *
  * @return {JSX.Element|null} The component or null.
  */
 export default function ThreatsStatusToggleGroupControl( {
 	data,
 	view,
-	selectedStatusFilter,
 	onChangeView,
 }: {
 	data: Threat[];
 	view: View;
-	selectedStatusFilter: string;
 	onChangeView: ( newView: View ) => void;
 } ): JSX.Element {
 	/**
@@ -91,6 +88,33 @@ export default function ThreatsStatusToggleGroupControl( {
 		[ view, onChangeView ]
 	);
 
+	/**
+	 * Memoized function to determine if a status filter is selected.
+	 *
+	 * @param {Array} threatStatuses - List of threat statuses.
+	 */
+	const isStatusFilterSelected = useMemo(
+		() => ( threatStatuses: ThreatStatus[] ) =>
+			view.filters.some(
+				filter =>
+					filter.field === 'status' &&
+					Array.isArray( filter.value ) &&
+					filter.value.length === threatStatuses.length &&
+					threatStatuses.every( threatStatus => filter.value.includes( threatStatus ) )
+			),
+		[ view.filters ]
+	);
+
+	const selectedValue = useMemo( () => {
+		if ( isStatusFilterSelected( [ 'current' ] ) ) {
+			return 'active' as const;
+		}
+		if ( isStatusFilterSelected( [ 'fixed', 'ignored' ] ) ) {
+			return 'historic' as const;
+		}
+		return '' as const;
+	}, [ isStatusFilterSelected ] );
+
 	if ( ! ( activeThreatsCount + historicThreatsCount ) ) {
 		return null;
 	}
@@ -100,7 +124,7 @@ export default function ThreatsStatusToggleGroupControl( {
 			<div>
 				<div className={ styles[ 'toggle-group-control' ] }>
 					<ToggleGroupControl
-						value={ selectedStatusFilter }
+						value={ selectedValue }
 						onChange={ onStatusFilterChange }
 						isBlock
 						hideLabelFromVision
