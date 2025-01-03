@@ -107,53 +107,57 @@ class GalleryImageEdit extends Component {
 				{ isTransient && <Spinner /> }
 			</Fragment>
 		);
-		// Disable reason: Figure itself is not meant to be interactive, but should direct image selection.
-		/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
+
 		return (
-			<figure
-				className={ clsx( 'tiled-gallery__item', {
-					'is-selected': isSelected,
-					'is-transient': isTransient,
-					[ `filter__${ imageFilter }` ]: !! imageFilter,
-				} ) }
+			// The image itself is not meant to be interactive, but the enclosing element should be.
+			<div
+				className={ clsx( 'tiled-gallery__item-container' ) }
 				tabIndex="0"
-				aria-label={ ariaLabel }
+				role="button"
 				onClick={ this.onImageClick }
 				onKeyDown={ this.onImageKeyDown }
-				/* eslint-enable jsx-a11y/no-noninteractive-element-interactions */
+				aria-label={ ariaLabel }
 			>
-				{ showMovers && (
-					<div className="tiled-gallery__item__move-menu">
+				<figure
+					className={ clsx( 'tiled-gallery__item', {
+						'is-selected': isSelected,
+						'is-transient': isTransient,
+						[ `filter__${ imageFilter }` ]: !! imageFilter,
+					} ) }
+				>
+					{ showMovers && (
+						<div className="tiled-gallery__item__move-menu">
+							<Button
+								icon={ columns === 1 ? upChevron : leftChevron }
+								onClick={ isFirstItem ? undefined : onMoveBackward }
+								className="tiled-gallery__item__move-backward"
+								label={ __( 'Move image backward', 'jetpack' ) }
+								aria-disabled={ isFirstItem }
+								disabled={ ! isSelected }
+							/>
+							<Button
+								icon={ columns === 1 ? downChevron : rightChevron }
+								onClick={ isLastItem ? undefined : onMoveForward }
+								className="tiled-gallery__item__move-forward"
+								label={ __( 'Move image forward', 'jetpack' ) }
+								aria-disabled={ isLastItem }
+								disabled={ ! isSelected }
+							/>
+						</div>
+					) }
+					<div className="tiled-gallery__item__inline-menu">
 						<Button
-							icon={ columns === 1 ? upChevron : leftChevron }
-							onClick={ isFirstItem ? undefined : onMoveBackward }
-							className="tiled-gallery__item__move-backward"
-							label={ __( 'Move image backward', 'jetpack' ) }
-							aria-disabled={ isFirstItem }
-							disabled={ ! isSelected }
-						/>
-						<Button
-							icon={ columns === 1 ? downChevron : rightChevron }
-							onClick={ isLastItem ? undefined : onMoveForward }
-							className="tiled-gallery__item__move-forward"
-							label={ __( 'Move image forward', 'jetpack' ) }
-							aria-disabled={ isLastItem }
+							icon={ close }
+							onClick={ onRemove }
+							className="tiled-gallery__item__remove"
+							label={ __( 'Remove image', 'jetpack' ) }
 							disabled={ ! isSelected }
 						/>
 					</div>
-				) }
-				<div className="tiled-gallery__item__inline-menu">
-					<Button
-						icon={ close }
-						onClick={ onRemove }
-						className="tiled-gallery__item__remove"
-						label={ __( 'Remove image', 'jetpack' ) }
-						disabled={ ! isSelected }
-					/>
-				</div>
-				{ /* Keep the <a> HTML structure, but ensure there is no navigation from edit */ }
-				{ href ? <a aria-hidden="true">{ img }</a> : img }
-			</figure>
+					{ /* Keep the <a> HTML structure, but ensure there is no navigation from edit */ }
+					{ href ? <a aria-hidden="true">{ img }</a> : img }
+				</figure>
+			</div>
 		);
 	}
 }
