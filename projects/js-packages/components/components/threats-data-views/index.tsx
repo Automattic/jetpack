@@ -1,4 +1,4 @@
-import { getThreatType, type Threat, type ThreatStatus } from '@automattic/jetpack-scan';
+import { getThreatType, type Threat } from '@automattic/jetpack-scan';
 import {
 	type Action,
 	type ActionButton,
@@ -14,7 +14,7 @@ import {
 import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
-import { useCallback, useMemo, useState, useEffect } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import Badge from '../badge';
 import ThreatFixerButton from '../threat-fixer-button';
 import ThreatSeverityBadge from '../threat-severity-badge';
@@ -40,22 +40,21 @@ import {
 	THREAT_TYPES,
 } from './constants';
 import styles from './styles.module.scss';
-import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-control';
 
 /**
  * DataViews component for displaying security threats.
  *
- * @param {object}   props                             - Component props.
- * @param {Array}    props.data                        - Threats data.
- * @param {Array}    props.filters                     - Initial DataView filters.
- * @param {Function} props.onChangeSelection           - Callback function run when an item is selected.
- * @param {Function} props.onFixThreats                - Threat fix action callback.
- * @param {Function} props.onIgnoreThreats             - Threat ignore action callback.
- * @param {Function} props.onUnignoreThreats           - Threat unignore action callback.
- * @param {Function} props.isThreatEligibleForFix      - Function to determine if a threat is eligible for fixing.
- * @param {Function} props.isThreatEligibleForIgnore   - Function to determine if a threat is eligible for ignoring.
- * @param {Function} props.isThreatEligibleForUnignore - Function to determine if a threat is eligible for unignoring.
- * @param {Function} props.onStatusFilterChange        - Callback function run when the status filter changes.
+ * @param {object}      props                             - Component props.
+ * @param {Array}       props.data                        - Threats data.
+ * @param {Array}       props.filters                     - Initial DataView filters.
+ * @param {Function}    props.onChangeSelection           - Callback function run when an item is selected.
+ * @param {Function}    props.onFixThreats                - Threat fix action callback.
+ * @param {Function}    props.onIgnoreThreats             - Threat ignore action callback.
+ * @param {Function}    props.onUnignoreThreats           - Threat unignore action callback.
+ * @param {Function}    props.isThreatEligibleForFix      - Function to determine if a threat is eligible for fixing.
+ * @param {Function}    props.isThreatEligibleForIgnore   - Function to determine if a threat is eligible for ignoring.
+ * @param {Function}    props.isThreatEligibleForUnignore - Function to determine if a threat is eligible for unignoring.
+ * @param {JSX.Element} props.header                      - Header component.
  *
  * @return {JSX.Element} The ThreatsDataViews component.
  */
@@ -69,7 +68,7 @@ export default function ThreatsDataViews( {
 	onFixThreats,
 	onIgnoreThreats,
 	onUnignoreThreats,
-	onStatusFilterChange,
+	header,
 }: {
 	data: Threat[];
 	filters?: Filter[];
@@ -80,7 +79,7 @@ export default function ThreatsDataViews( {
 	onFixThreats?: ( threats: Threat[] ) => void;
 	onIgnoreThreats?: ActionButton< Threat >[ 'callback' ];
 	onUnignoreThreats?: ActionButton< Threat >[ 'callback' ];
-	onStatusFilterChange?: ( newStatus: 'active' | 'historic' | null ) => void;
+	header?: JSX.Element;
 } ): JSX.Element {
 	const baseView = {
 		sort: {
@@ -484,33 +483,6 @@ export default function ThreatsDataViews( {
 	] );
 
 	/**
-	 * Memoized function to determine if a status filter is selected.
-	 *
-	 * @param {Array} threatStatuses - List of threat statuses.
-	 */
-	const isStatusFilterSelected = useMemo(
-		() => ( threatStatuses: ThreatStatus[] ) =>
-			view.filters.some(
-				filter =>
-					filter.field === 'status' &&
-					Array.isArray( filter.value ) &&
-					filter.value.length === threatStatuses.length &&
-					threatStatuses.every( threatStatus => filter.value.includes( threatStatus ) )
-			),
-		[ view.filters ]
-	);
-
-	const selectedStatusFilter = useMemo( () => {
-		if ( isStatusFilterSelected( [ 'current' ] ) ) {
-			return 'active' as const;
-		}
-		if ( isStatusFilterSelected( [ 'fixed', 'ignored' ] ) ) {
-			return 'historic' as const;
-		}
-		return null;
-	}, [ isStatusFilterSelected ] );
-
-	/**
 	 * Apply the view settings (i.e. filters, sorting, pagination) to the dataset.
 	 *
 	 * @see https://github.com/WordPress/gutenberg/blob/trunk/packages/dataviews/src/filter-and-sort-data-view.ts
@@ -535,11 +507,6 @@ export default function ThreatsDataViews( {
 	 */
 	const getItemId = useCallback( ( item: Threat ) => item.id.toString(), [] );
 
-	// Notify the consumer whenever the selectedStatusFilter changes
-	useEffect( () => {
-		onStatusFilterChange?.( selectedStatusFilter );
-	}, [ selectedStatusFilter, onStatusFilterChange ] );
-
 	return (
 		<DataViews
 			actions={ actions }
@@ -551,14 +518,7 @@ export default function ThreatsDataViews( {
 			onChangeView={ onChangeView }
 			paginationInfo={ paginationInfo }
 			view={ view }
-			header={
-				<ThreatsStatusToggleGroupControl
-					data={ data }
-					view={ view }
-					onChangeView={ onChangeView }
-					selectedStatusFilter={ selectedStatusFilter }
-				/>
-			}
+			header={ header }
 		/>
 	);
 }

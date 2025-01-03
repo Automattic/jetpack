@@ -11,7 +11,9 @@ import usePlan from '../../hooks/use-plan';
 import HistoryAdminSectionHero from './history-admin-section-hero';
 import onboardingSteps from './onboarding-steps';
 import ScanAdminSectionHero from './scan-admin-section-hero';
+import ScanHistoryDataView from './scan-history-data-view';
 import ScanResultsDataView from './scan-results-data-view';
+import StatusToggleGroupControl from './status-toggle-group-control';
 import styles from './styles.module.scss';
 
 /**
@@ -29,11 +31,11 @@ const ScanPage = () => {
 	const { data: history } = useHistoryQuery();
 
 	const [ scanResultsAnchor, setScanResultsAnchor ] = useState( null );
-	const [ statusFilter, setStatusFilter ] = useState( 'active' );
+	const [ currentFilter, setCurrentFilter ] = useState( 'active' );
 
-	const handleStatusFilterChange = useCallback( newStatusFilter => {
-		setStatusFilter( newStatusFilter );
-	}, [] );
+	const toggleViewingHistory = useCallback( newFilter => {
+		setCurrentFilter( newFilter );
+	}, [] ); // TODO: Improve this remove, no longer necessary code from the main component, set/remove fields, add counts, optimize
 
 	let currentScanStatus;
 	if ( status.error ) {
@@ -80,7 +82,7 @@ const ScanPage = () => {
 	return (
 		<OnboardingContext.Provider value={ onboardingSteps }>
 			<AdminPage>
-				{ 'historic' === statusFilter ? (
+				{ 'historic' === currentFilter ? (
 					<HistoryAdminSectionHero />
 				) : (
 					<ScanAdminSectionHero size={ showResults ? 'normal' : 'large' } />
@@ -94,10 +96,27 @@ const ScanPage = () => {
 						>
 							<Col>
 								<div ref={ setScanResultsAnchor }>
-									<ScanResultsDataView
-										filters={ filters }
-										onStatusFilterChange={ hasPlan ? handleStatusFilterChange : null }
-									/>
+									{ 'historic' === currentFilter ? (
+										<ScanHistoryDataView
+											filters={ [] }
+											header={
+												<StatusToggleGroupControl
+													selectedValue={ currentFilter }
+													onStatusFilterChange={ toggleViewingHistory }
+												/>
+											}
+										/>
+									) : (
+										<ScanResultsDataView
+											filters={ filters }
+											header={
+												<StatusToggleGroupControl
+													selectedValue={ currentFilter }
+													onStatusFilterChange={ toggleViewingHistory }
+												/>
+											}
+										/>
+									) }
 								</div>
 								{ !! status && ! isScanInProgress( status ) && (
 									<OnboardingPopover
