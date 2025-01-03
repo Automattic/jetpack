@@ -3,32 +3,35 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
+import useHistoryQuery from '../../data/scan/use-history-query';
+import useScanStatusQuery from '../../data/scan/use-scan-status-query';
 import styles from './styles.module.scss';
 
 /**
  * ToggleGroupControl component for filtering threats by status.
  * @param {object}   props                      - Component props.
- * @param {number}   props.activeThreatsCount   - Count of active threats.
- * @param {number}   props.historicThreatsCount - Count of historic threats.
- * @param {string}   props.selectedValue        - The selected value.
+ * @param {boolean}  props.viewingHistory       - Whether the user is viewing the history.
  * @param {Function} props.onStatusFilterChange - Callback function to handle status filter changes.
  *
  * @return {JSX.Element|null} The component or null.
  */
 export default function StatusToggleGroupControl( {
-	activeThreatsCount = 1,
-	historicThreatsCount = 1,
-	selectedValue = 'active',
+	viewingHistory = true,
 	onStatusFilterChange,
 }: {
-	activeThreatsCount?: number;
-	historicThreatsCount?: number;
-	selectedValue?: string;
+	viewingHistory?: boolean;
 	onStatusFilterChange?: ( newStatus: string ) => void;
 } ): JSX.Element {
-	if ( ! ( activeThreatsCount + historicThreatsCount ) ) {
+	const { data: status } = useScanStatusQuery();
+	const { data: history } = useHistoryQuery();
+	const numActiveThreats = status ? status.threats.length : 0;
+	const numHistoricThreats = history ? history.threats.length : 0;
+
+	if ( ! ( numHistoricThreats + numActiveThreats ) ) {
 		return null;
 	}
+
+	const selectedValue = viewingHistory === true ? 'historic' : 'active';
 
 	try {
 		return (
@@ -49,7 +52,7 @@ export default function StatusToggleGroupControl( {
 									'Active threats (%d)',
 									'jetpack-protect'
 								),
-								activeThreatsCount
+								numActiveThreats
 							) }
 						/>
 						<ToggleGroupControlOption
@@ -57,7 +60,7 @@ export default function StatusToggleGroupControl( {
 							label={ sprintf(
 								/* translators: %d: number of historic threats */
 								__( 'History (%d)', 'jetpack-protect' ),
-								historicThreatsCount
+								numHistoricThreats
 							) }
 						/>
 					</ToggleGroupControl>

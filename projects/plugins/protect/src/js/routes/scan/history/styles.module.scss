@@ -8,12 +8,7 @@
 	height: calc( 100vh - 408px );
 }
 
-.auto-fixers {
-	margin-top: calc( var( --spacing-base ) * 4 ); // 32px
-	width: fit-content;
-}
-
-.scan-results-container {
+.history-container {
 	padding-left: 0;
 	padding-right: 0;
 	overflow: hidden;
@@ -22,18 +17,4 @@
 		margin-left: calc( var( --spacing-base ) * -3 ); // -24px
 		margin-right: calc( var( --spacing-base ) * -3 ); // -24px
 	}
-}
-
-.progress-animation {
-	@media (max-width: 1099px) {
-		display: none;
-	}
-}
-
-.last-checked {
-	width: fit-content;
-}
-
-.toggle-group-control {
-	min-width: 300px;
 }
