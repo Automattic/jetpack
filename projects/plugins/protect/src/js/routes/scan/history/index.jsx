@@ -4,7 +4,6 @@ import useHistoryQuery from '../../../data/scan/use-history-query';
 import useScanStatusQuery from '../../../data/scan/use-scan-status-query';
 import HistoryAdminSectionHero from './history-admin-section-hero';
 import HistoryDataViews from './history-data-views';
-// import StatusToggleGroupControl from './status-toggle-group-control';
 import styles from './styles.module.scss';
 
 /**
@@ -33,7 +32,6 @@ const HistoryPage = () => {
 						horizontalGap={ 4 }
 					>
 						<Col>
-							{ /* TODO: Pass header */ }
 							<HistoryDataViews />
 						</Col>
 					</Container>

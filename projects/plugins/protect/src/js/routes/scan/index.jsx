@@ -61,7 +61,7 @@ const ScanPage = () => {
 						>
 							<Col>
 								<div ref={ setScanResultsAnchor }>
-									<ScanResultsDataView filters={ filters } />
+									<ScanResultsDataView />
 								</div>
 								{ !! status && ! isScanInProgress( status ) && (
 									<OnboardingPopover
