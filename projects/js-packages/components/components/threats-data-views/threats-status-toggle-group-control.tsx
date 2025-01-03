@@ -1,4 +1,4 @@
-import { type Threat } from '@automattic/jetpack-scan';
+import { type Threat, type ThreatStatus } from '@automattic/jetpack-scan';
 import {
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
