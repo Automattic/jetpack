@@ -62,20 +62,6 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Check if the current site is a self-hosted site.
-	 *
-	 * @return bool Whether the site is a self-hosted site.
-	 */
-	private function is_self_hosted_site() {
-		if ( ! function_exists( 'is_jetpack_site' ) || ! function_exists( 'is_blog_atomic' ) ) {
-			return true;
-		}
-		$blog_id = get_current_blog_id();
-
-		return is_jetpack_site( $blog_id ) && ! is_blog_atomic( get_blog_details( $blog_id ) );
-	}
-
-	/**
 	 * Get the Calypso or wp-admin link to CPT page.
 	 *
 	 * @param object $ptype_obj The post type object.
@@ -85,7 +71,8 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	public function get_cpt_menu_link( $ptype_obj ) {
 
 		$post_type                          = $ptype_obj->name;
-		$is_woocommerce_product_self_hosted = $post_type === 'product' && class_exists( 'WooCommerce' ) && $this->is_self_hosted_site();
+		$is_self_hosted_site                = ! ( new Host() )->is_wpcom_platform();
+		$is_woocommerce_product_self_hosted = $post_type === 'product' && class_exists( 'WooCommerce' ) && $is_self_hosted_site;
 
 		if ( ! $is_woocommerce_product_self_hosted && ( new Modules() )->is_active( 'sso' ) && $ptype_obj->show_in_rest ) {
 			return 'https://wordpress.com/types/' . $post_type . '/' . $this->domain;
