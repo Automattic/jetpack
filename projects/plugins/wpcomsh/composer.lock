@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "968ee97b016c98ecc588293d5e0b4d65",
+    "content-hash": "8c59e3217b08130af57bb70a9a912b62",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -2140,15 +2140,15 @@
         },
         {
             "name": "wordpress/classic-editor-plugin",
-            "version": "1.5",
+            "version": "1.6.7",
             "source": {
                 "type": "svn",
                 "url": "https://plugins.svn.wordpress.org/classic-editor/",
-                "reference": "tags/1.5/"
+                "reference": "tags/1.6.7/"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://downloads.wordpress.org/plugin/classic-editor.1.5.zip"
+                "url": "https://downloads.wordpress.org/plugin/classic-editor.1.6.7.zip"
             },
             "type": "library",
             "autoload": {

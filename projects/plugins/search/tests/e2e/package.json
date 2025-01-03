@@ -28,7 +28,7 @@
 	"devDependencies": {
 		"@playwright/test": "1.48.2",
 		"allure-playwright": "2.9.2",
-		"config": "3.3.7",
+		"config": "3.3.12",
 		"jetpack-e2e-commons": "workspace:*"
 	},
 	"browserslist": [],
