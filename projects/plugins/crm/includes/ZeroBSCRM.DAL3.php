@@ -1765,7 +1765,7 @@ class zbsDAL {
      */
     public function getSetting($args=array()){
 
-		$key         = isset( $args['key'] ) ? $args['key'] : 0;
+		$key         = isset( $args['key'] ) ? $args['key'] : false;
 		$fullDetails = isset( $args['fullDetails'] ) ? $args['fullDetails'] : false; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		if ( ! $fullDetails && static::mitigation_cache_for_issue_3504_contains_key( $key ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
