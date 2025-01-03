@@ -18,8 +18,8 @@ export default {
 	],
 };
 
-export const Default = args => <ThreatsDataViews { ...args } />;
-Default.args = {
+export const Active = args => <ThreatsDataViews { ...args } />;
+Active.args = {
 	data: [
 		{
 			id: 185869885,
@@ -40,20 +40,6 @@ Default.args = {
 				'3': 'HTML;',
 				marks: {},
 			},
-		},
-		{
-			id: 185869883,
-			signature: 'Suspicious.Files',
-			title: 'Malicious code found in file: fuzzy.php',
-			description:
-				'Our security scanners detected that this file is identical to a previously identified malicious file',
-			firstDetected: '2024-10-07T20:45:06.000Z',
-			fixedIn: null,
-			severity: 4,
-			fixable: false,
-			status: 'ignored',
-			filename: '/var/www/html/wp-content/fuzzy.php',
-			context: '',
 		},
 		{
 			id: 185868972,
@@ -117,19 +103,6 @@ Default.args = {
 			diff: "--- /tmp/wordpress/6.6.2/wordpress/wp-admin/index.php\t2024-10-07 20:40:04.887546480 +0000\n+++ /var/www/html/wp-admin/index.php\t2024-10-07 20:39:58.775512965 +0000\n@@ -210,3 +210,4 @@\n wp_print_community_events_templates();\n \n require_once ABSPATH . 'wp-admin/admin-footer.php';\n+if ( true === false ) exit();\n\\ No newline at end of file\n",
 		},
 		{
-			id: 13216959,
-			signature: 'Vulnerable.WP.Core',
-			title: 'Vulnerable WordPress Version (6.4.3)',
-			description: 'The installed version of WordPress (6.4.3) has a known vulnerability. ',
-			firstDetected: '2024-07-15T21:56:50.000Z',
-			severity: 4,
-			fixedOn: '2024-07-15T22:01:42.000Z',
-			status: 'fixed',
-			fixable: false,
-			version: '6.4.3',
-			source: '',
-		},
-		{
 			id: '7275a176-d579-471a-8492-df8edbdf27de',
 			title: 'WooCommerce <= 3.4.5 - Authenticated Stored XSS',
 			description:
@@ -151,6 +124,49 @@ Default.args = {
 			field: 'status',
 			operator: 'isAny',
 			value: [ 'current' ],
+		},
+	],
+	onFixThreats: () =>
+		alert( 'Threat fix action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
+	onIgnoreThreats: () =>
+		alert( 'Ignore threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
+	onUnignoreThreats: () =>
+		// eslint-disable-next-line no-alert
+		alert(
+			'Unignore threat action callback triggered! This is handled by the component consumer.'
+		),
+};
+
+export const Historic = args => <ThreatsDataViews { ...args } />;
+Historic.args = {
+	historic: true,
+	data: [
+		{
+			id: 185869883,
+			signature: 'Suspicious.Files',
+			title: 'Malicious code found in file: fuzzy.php',
+			description:
+				'Our security scanners detected that this file is identical to a previously identified malicious file',
+			firstDetected: '2024-10-07T20:45:06.000Z',
+			fixedIn: null,
+			severity: 4,
+			fixable: false,
+			status: 'ignored',
+			filename: '/var/www/html/wp-content/fuzzy.php',
+			context: '',
+		},
+		{
+			id: 13216959,
+			signature: 'Vulnerable.WP.Core',
+			title: 'Vulnerable WordPress Version (6.4.3)',
+			description: 'The installed version of WordPress (6.4.3) has a known vulnerability. ',
+			firstDetected: '2024-07-15T21:56:50.000Z',
+			severity: 4,
+			fixedOn: '2024-07-15T22:01:42.000Z',
+			status: 'fixed',
+			fixable: false,
+			version: '6.4.3',
+			source: '',
 		},
 	],
 	onFixThreats: () =>
