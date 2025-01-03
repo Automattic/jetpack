@@ -1697,6 +1697,9 @@ class zbsDAL {
      */
     public function getSetting($args=array()){
 
+		// Declare a variable that is going to be dynamically created below to satisfy our static analysis.
+		$key = 0;
+
         #} =========== LOAD ARGS ==============
         $defaultArgs = array(
 
