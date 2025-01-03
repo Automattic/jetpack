@@ -1,0 +1,9 @@
+Significance: patch
+Type: deprecated
+
+Default import is now deprecated in favor of named import and will be removed in future.
+
+```diff
+- import SocialLogos from 'social-logos';
++ import { SocialLogo } from 'social-logos';
+```

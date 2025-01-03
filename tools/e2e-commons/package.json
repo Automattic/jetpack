@@ -25,7 +25,7 @@
 		"allure-playwright": "2.9.2",
 		"axios": "1.7.4",
 		"chalk": "5.4.1",
-		"config": "3.3.7",
+		"config": "3.3.12",
 		"localtunnel": "2.0.2",
 		"lodash-es": "4.17.21",
 		"node-fetch": "2.6.7",
