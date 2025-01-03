@@ -128,9 +128,83 @@ class zbsDAL {
 	/**
 	 * This is a temporary fix for issue #3504, until we don't change how we load settings this should help to avoid slowing down websites.
 	 *
-	 * @var array
+	 * @var array Associative array used for caching settings (key: 'settings') and a flag to indicate if all settings were loaded (key: 'contains_all').
 	 */
-	private static $mitigation_cache_for_issue_3504 = array();
+	private static $mitigation_cache_for_issue_3504;
+
+	/**
+	 * Resets the mitigation cache for issue #3504.
+	 *
+	 * Initializes the static cache property to its default state, clearing cached settings
+	 * and resetting the "contains all" flag to false.
+	 *
+	 * @return void
+	 */
+	public static function reset_mitigation_cache_for_issue_3504() {
+		static::$mitigation_cache_for_issue_3504 = array(
+			'settings'     => array(),
+			'contains_all' => false,
+		);
+	}
+
+	/**
+	 * Retrieves a specific setting from the cache.
+	 *
+	 * @param string $key The setting key.
+	 * @return mixed|null The value of the setting or null if not found.
+	 */
+	private static function mitigation_cache_for_issue_3504_single_setting( $key ) {
+		return static::$mitigation_cache_for_issue_3504['settings'][ $key ] ?? null;
+	}
+
+	/**
+	 * Checks if a specific setting exists in the cache.
+	 *
+	 * @param string $key The setting key.
+	 * @return bool True if the setting exists, false otherwise.
+	 */
+	private static function mitigation_cache_for_issue_3504_contains_key( $key ) {
+		return isset( static::$mitigation_cache_for_issue_3504['settings'][ $key ] );
+	}
+
+	/**
+	 * Checks if all settings are loaded.
+	 *
+	 * @return bool True if all settings are loaded, false otherwise.
+	 */
+	private static function mitigation_cache_for_issue_3504_contains_all_settings() {
+		return static::$mitigation_cache_for_issue_3504['contains_all'];
+	}
+
+	/**
+	 * Sets a specific setting in the cache.
+	 *
+	 * @param string $key   The setting key.
+	 * @param mixed  $value The setting value.
+	 * @return void
+	 */
+	private static function mitigation_cache_for_issue_3504_set_single_setting( $key, $value ) {
+		static::$mitigation_cache_for_issue_3504['settings'][ $key ] = $value;
+	}
+
+	/**
+	 * Sets the "contains all" flag in the cache.
+	 *
+	 * @param bool $contains_all Whether all settings are loaded.
+	 * @return void
+	 */
+	private static function mitigation_cache_for_issue_3504_set_contains_all( $contains_all ) {
+		static::$mitigation_cache_for_issue_3504['contains_all'] = $contains_all;
+	}
+
+	/**
+	 * Retrieves all cached settings.
+	 *
+	 * @return array An array of all cached settings.
+	 */
+	private static function mitigation_cache_for_issue_3504_all_settings() {
+		return static::$mitigation_cache_for_issue_3504['settings'];
+	}
 
     // ===============================================================================
     // ===========  SUB DAL LAYERS  ==================================================
@@ -1637,22 +1711,16 @@ class zbsDAL {
      * @return bool result
      */
     public function setting( $key = '', $default = false, $accept_cached = false){
-
-        if ( !empty( $key ) ){
-
-			if ( isset( static::$mitigation_cache_for_issue_3504[ $key ] ) ) {
-				return static::$mitigation_cache_for_issue_3504[ $key ];
-			}
-            return $this->getSetting(array(
-
-                'key'            => $key,
-                'fullDetails'    => false,
-                'default'        => $default,
-                'accept_cached'  => $accept_cached
-
-            ));
-
-        }
+		if ( ! empty( $key ) ) {
+			return $this->getSetting(
+				array(
+					'key'           => $key,
+					'fullDetails'   => false,
+					'default'       => $default,
+					'accept_cached' => $accept_cached,
+				)
+			);
+		}
 
         return $default;
     }
@@ -1697,8 +1765,12 @@ class zbsDAL {
      */
     public function getSetting($args=array()){
 
-		// Declare a variable that is going to be dynamically created below to satisfy our static analysis.
-		$key = 0;
+		$key         = isset( $args['key'] ) ? $args['key'] : 0;
+		$fullDetails = isset( $args['fullDetails'] ) ? $args['fullDetails'] : false; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+		if ( ! $fullDetails && static::mitigation_cache_for_issue_3504_contains_key( $key ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			return static::mitigation_cache_for_issue_3504_single_setting( $key ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+		}
 
         #} =========== LOAD ARGS ==============
         $defaultArgs = array(
@@ -1720,10 +1792,6 @@ class zbsDAL {
 
         ); foreach ($defaultArgs as $argK => $argV){ $$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$$argK = $newData;} else { $$argK = $args[$argK]; } } }
         #} =========== / LOAD ARGS =============
-
-		if ( ! $fullDetails && isset( static::$mitigation_cache_for_issue_3504[ $key ] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-			return static::$mitigation_cache_for_issue_3504[ $key ]; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-		}
 
         #} Check key
         if (!empty($key)){            
@@ -1812,7 +1880,7 @@ class zbsDAL {
                         $setting = $this->tidy_settingSingular($potentialRes);
 
 						// We only update the mitigation cache when $fullDetails is false.
-						static::$mitigation_cache_for_issue_3504[ $key ] = $setting; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+						static::mitigation_cache_for_issue_3504_set_single_setting( $key, $setting ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
                         // cache (commonly retrieved)
                         $this->update_cache_var( 'setting_' . $key, $setting );
@@ -1827,7 +1895,7 @@ class zbsDAL {
 
 		if ( ! $fullDetails ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 			// We only update the mitigation cache when $fullDetails is false.
-			static::$mitigation_cache_for_issue_3504[ $key ] = $default; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			static::mitigation_cache_for_issue_3504_set_single_setting( $key, $default ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 		}
 
         return $default;
@@ -1843,11 +1911,13 @@ class zbsDAL {
      * @return array of settings lines
      */
     public function getSettings($args=array()){
-		// If we have already loaded something in our cache, return it.
-		// In this function we won't care if the values have changed or not because when they become invalid due to other functions, these functions should clear the cache.
-		if ( ! empty( static::$mitigation_cache_for_issue_3504 ) ) {
-			return static::$mitigation_cache_for_issue_3504;
+		// If we have already loaded all settings in our cache, return them.
+		// In this function we won't care if the values have changed or not because when they become invalid due to other functions, these functions should reset the cache.
+		if ( static::mitigation_cache_for_issue_3504_contains_all_settings() ) {
+			return static::mitigation_cache_for_issue_3504_all_settings();
 		}
+		// Reseting any single settings we may have already loaded.
+		static::reset_mitigation_cache_for_issue_3504();
 
         #} ============ LOAD ARGS =============
         $defaultArgs = array(
@@ -1920,7 +1990,7 @@ class zbsDAL {
             #} Has results, tidy + return 
             foreach ($potentialRes as $resDataLine) {
 				// We are only caching the singular setting (i.e. the value), because it is good enough.
-				static::$mitigation_cache_for_issue_3504[ $resDataLine->zbsset_key ] = $this->tidy_settingSingular( $resDataLine ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				static::mitigation_cache_for_issue_3504_set_single_setting( $resDataLine->zbsset_key, $this->tidy_settingSingular( $resDataLine ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 				if ( $fullDetails ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 					$resArr                = $this->tidy_setting( $resDataLine ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -1930,6 +2000,8 @@ class zbsDAL {
 				}
             }
         }
+
+		static::mitigation_cache_for_issue_3504_set_contains_all( true );
 
 		return $res;
     } 
@@ -2035,7 +2107,7 @@ class zbsDAL {
         #} =========== / LOAD ARGS ============
 
 		// Invalidates our whole cache.
-		static::$mitigation_cache_for_issue_3504 = array();
+		static::reset_mitigation_cache_for_issue_3504();
 
         #} ========== CHECK FIELDS ============
 
@@ -7804,3 +7876,6 @@ public function deleteContact(...$args){
     / Middle Man funcs (until DAL3.0)
    ====================================================== */
 } // / DAL class
+
+// Initialize the static mitigation cache.
+zbsDAL::reset_mitigation_cache_for_issue_3504();
