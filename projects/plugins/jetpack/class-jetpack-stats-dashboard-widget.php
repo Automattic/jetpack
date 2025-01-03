@@ -5,7 +5,6 @@
  * @package jetpack
  */
 
-use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
@@ -74,23 +73,6 @@ class Jetpack_Stats_Dashboard_Widget {
 				);
 				// Only load scripts when the widget is not hidden
 				$stats_widget->maybe_load_admin_scripts();
-			} else {
-				// Legacy widget.
-				wp_add_dashboard_widget(
-					Dashboard_Stats_Widget::DASHBOARD_WIDGET_ID,
-					$widget_title,
-					array( __CLASS__, 'render_widget' )
-				);
-				wp_enqueue_style(
-					'jetpack-dashboard-widget',
-					Assets::get_file_url_for_environment(
-						'css/dashboard-widget.min.css',
-						'css/dashboard-widget.css'
-					),
-					array(),
-					JETPACK__VERSION
-				);
-				wp_style_add_data( 'jetpack-dashboard-widget', 'rtl', 'replace' );
 			}
 		}
 	}
