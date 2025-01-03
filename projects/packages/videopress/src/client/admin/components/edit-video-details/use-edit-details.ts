@@ -6,7 +6,7 @@ import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 import { useState, useEffect } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 /**
  * Internal dependencies
  */
@@ -103,12 +103,12 @@ const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 };
 
 export default () => {
-	const history = useHistory();
+	const navigate = useNavigate();
 	const dispatch = useDispatch( STORE_ID );
 	const { isRegistered } = useConnection();
 
 	if ( ! isRegistered ) {
-		history.push( '/' );
+		navigate( '/' );
 	}
 
 	const { videoId: videoIdFromParams } = useParams();

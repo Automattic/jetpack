@@ -9,11 +9,12 @@ import {
 	ToolbarButton,
 	ToolbarGroup,
 	RangeControl,
-	BaseControl,
 	SVG,
 	G,
 	Polygon,
 	Path,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalNumberControl as NumberControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import Locations from './locations';
@@ -44,7 +45,6 @@ export default ( {
 	onKeyChange,
 	context,
 	mapRef,
-	instanceId,
 	minHeight,
 	removeAPIKey,
 	updateAPIKey,
@@ -56,38 +56,6 @@ export default ( {
 
 		// Allow one cycle for alignment change to take effect
 		if ( mapRef.current?.sizeMap ) {
-			setTimeout( mapRef.current.sizeMap, 0 );
-		}
-	};
-
-	/**
-	 * Change event handler for the map height sidebar control. Ensures the height is valid,
-	 * and updates both the height attribute, and the map component's height in the DOM.
-	 *
-	 * @param {Event} event - The change event object.
-	 */
-	const onHeightChange = event => {
-		const { mapHeight } = attributes;
-
-		let height = parseInt( event.target.value, 10 );
-
-		if ( isNaN( height ) ) {
-			// Set map height to default size and input box to empty string
-			height = null;
-		} else if ( null == mapHeight ) {
-			// There was previously no height defined, so set the default.
-			const ref = mapRef?.current?.mapRef ?? mapRef;
-			height = ref?.current.offsetHeight;
-		} else if ( height < minHeight ) {
-			// Set map height to minimum size
-			height = minHeight;
-		}
-
-		setAttributes( {
-			mapHeight: height,
-		} );
-
-		if ( mapRef.current.sizeMap ) {
 			setTimeout( mapRef.current.sizeMap, 0 );
 		}
 	};
@@ -120,36 +88,21 @@ export default ( {
 					{
 						value: attributes.markerColor,
 						onChange: value => setAttributes( { markerColor: value } ),
-						label: __( 'Marker Color', 'jetpack' ),
+						label: __( 'Marker', 'jetpack' ),
 					},
 				] }
 			/>
-			<PanelBody title={ __( 'Map Settings', 'jetpack' ) }>
-				<BaseControl
-					__nextHasNoMarginBottom={ true }
+			<PanelBody title={ __( 'Settings', 'jetpack' ) }>
+				<NumberControl
 					label={ __( 'Height in pixels', 'jetpack' ) }
-					id={ `block-jetpack-map-height-input-${ instanceId }` }
-				>
-					<input
-						type="number"
-						id={ `block-jetpack-map-height-input-${ instanceId }` }
-						className="wp-block-jetpack-map__height_input"
-						onChange={ event => {
-							setAttributes( { mapHeight: event.target.value } );
-							// If this input isn't focussed, the onBlur handler won't be triggered
-							// to commit the map size, so we need to check for that.
-							if ( event.target !== event.target.ownerDocument.activeElement ) {
-								if ( mapRef.current ) {
-									setTimeout( mapRef.current.sizeMap, 0 );
-								}
-							}
-						} }
-						onBlur={ onHeightChange }
-						value={ attributes.mapHeight || '' }
-						min={ minHeight }
-						step="10"
-					/>
-				</BaseControl>
+					value={ attributes.mapHeight || '' }
+					min={ minHeight }
+					onChange={ newValue => {
+						setAttributes( { mapHeight: newValue } );
+					} }
+					size="__unstable-large"
+					step={ 10 }
+				/>
 				<RangeControl
 					__nextHasNoMarginBottom={ true }
 					__next40pxDefaultSize
@@ -175,7 +128,7 @@ export default ( {
 				{ mapProvider === 'mapbox' ? (
 					<ToggleControl
 						__nextHasNoMarginBottom={ true }
-						label={ __( 'Show street names', 'jetpack' ) }
+						label={ __( 'Show labels', 'jetpack' ) }
 						checked={ attributes.mapDetails }
 						onChange={ value => setAttributes( { mapDetails: value } ) }
 					/>

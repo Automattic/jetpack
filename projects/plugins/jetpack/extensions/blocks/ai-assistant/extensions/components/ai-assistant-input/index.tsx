@@ -35,6 +35,7 @@ export type AiAssistantInputProps = {
 	close?: () => void;
 	undo?: () => void;
 	tryAgain?: () => void;
+	lastAction?: string;
 };
 
 const defaultClassNames = clsx(
@@ -57,6 +58,7 @@ export default function AiAssistantInput( {
 	close,
 	undo,
 	tryAgain,
+	lastAction,
 }: AiAssistantInputProps ): ReactElement {
 	const defaultPlaceholder = customPlaceholder
 		? customPlaceholder
@@ -102,8 +104,11 @@ export default function AiAssistantInput( {
 			block_type: blockType,
 		} );
 
+		// Reset the placeholder to the default placeholder.
+		setPlaceholder( defaultPlaceholder );
+
 		stopSuggestion?.();
-	}, [ blockType, stopSuggestion, tracks ] );
+	}, [ blockType, defaultPlaceholder, stopSuggestion, tracks ] );
 
 	function handleClose(): void {
 		close?.();
@@ -188,6 +193,8 @@ export default function AiAssistantInput( {
 			onTryAgain={ handleTryAgain }
 			wrapperRef={ wrapperRef }
 			ref={ inputRef }
+			lastAction={ lastAction }
+			blockType={ blockType }
 		/>
 	);
 }

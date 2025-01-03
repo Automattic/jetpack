@@ -38,7 +38,7 @@ const SupportSection = () => {
 					) }
 				</Text>
 				<Text className={ styles.link }>
-					<ExternalLink href={ getRedirectUrl( 'https://wordpress.com/support' ) }>
+					<ExternalLink href={ getRedirectUrl( 'jetpack-contact-support' ) }>
 						{ __( 'Contact Support', 'jetpack-social' ) }
 					</ExternalLink>
 				</Text>

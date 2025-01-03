@@ -45,6 +45,11 @@
 		"requestingState": {
 			"type": "string",
 			"default": "init"
+		},
+
+		"preTransformAction": {
+			"type": "string",
+			"default": null
 		}
 	},
 	"example": {
