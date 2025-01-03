@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 .hero-main {
 	max-width: 512px;
 }
@@ -12,10 +11,6 @@
 .auto-fixers {
 	margin-top: calc( var( --spacing-base ) * 4 ); // 32px
 	width: fit-content;
-=======
-.auto-fixers {
-	margin-top: calc( var( --spacing-base ) * 4 ); // 32px
->>>>>>> 3d878c74bf (Protect: Integrate ThreatsDataViews Component (#40076))
 }
 
 .scan-results-container {
@@ -28,7 +23,6 @@
 		margin-right: calc( var( --spacing-base ) * -3 ); // -24px
 	}
 }
-<<<<<<< HEAD
 
 .progress-animation {
 	@media (max-width: 1099px) {
@@ -39,5 +33,3 @@
 .last-checked {
 	width: fit-content;
 }
-=======
->>>>>>> 3d878c74bf (Protect: Integrate ThreatsDataViews Component (#40076))
