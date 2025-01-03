@@ -2,7 +2,12 @@
 .gitattributes    export-ignore
 node_modules      export-ignore
 
+# Files to include in the mirror repo, but excluded via gitignore
+# Remember to end all directories with `/**` to properly tag every file.
+/dist/**         production-include
+
 # Files to exclude from the mirror repo.
 /changelog/**     production-exclude
+/jest.config.cjs   production-exclude
 **/stories/**     production-exclude
 **/test/**        production-exclude

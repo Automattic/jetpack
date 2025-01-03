@@ -36,15 +36,18 @@ type JetpackModule =
 	| 'extras'
 	| 'ai'
 	| 'jetpack-ai'
+	| 'protect'
 	| 'scan'
 	| 'search'
 	| 'social'
-	| 'security'
-	| 'protect'
-	| 'videopress'
 	| 'stats'
+	| 'videopress'
+	| 'security'
 	| 'growth'
-	| 'complete';
+	| 'complete'
+	| 'site-accelerator'
+	| 'newsletter'
+	| 'related-posts';
 
 type ThreatItem = {
 	// Protect API properties (free plan)
@@ -174,6 +177,7 @@ interface Window {
 					has_paid_plan_for_product: boolean;
 					features_by_tier: Array< string >;
 					is_bundle: boolean;
+					is_feature: boolean;
 					is_plugin_active: boolean;
 					is_upgradable: boolean;
 					is_upgradable_by_bundle: string[];
