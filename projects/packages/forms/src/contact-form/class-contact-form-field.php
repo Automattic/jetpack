@@ -1033,7 +1033,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field .= "\n<div {$block_style} {$shell_field_class} >\n"; // new in Jetpack 6.8.0
 
 		// If they are logged in, and this is their site, don't pre-populate fields
-		if ( current_user_can( 'manage_options' ) ) {
+		if ( current_user_can( 'manage_options' ) && isset( $type ) && $type !== 'checkbox' ) {
 			$value = '';
 		}
 
