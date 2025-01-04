@@ -14,6 +14,7 @@ import styles from './styles.module.scss';
  * @param { Threat[]}  props.data         - Threats data.
  * @param { View }     props.view         - The current view.
  * @param { Function } props.onChangeView - Callback function to handle view changes.
+ *
  * @return {JSX.Element|null} The component or null.
  */
 export default function ThreatsStatusToggleGroupControl( {
