@@ -25,7 +25,7 @@ class Cornerstone_Pages_Entry implements Entry_Can_Get, Entry_Can_Set {
 		/**
 		 * Filters the list of cornerstone pages.
 		 *
-		 * @since $$next-version$$
+		 * @since 3.7.0
 		 *
 		 * @param array $urls An array of absolute URLs.
 		 */
