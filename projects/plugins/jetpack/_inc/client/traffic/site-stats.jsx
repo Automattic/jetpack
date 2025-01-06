@@ -47,7 +47,7 @@ class SiteStatsComponent extends React.Component {
 				if (
 					! [ 'administrator', 'editor', 'author', 'subscriber', 'contributor' ].includes( role )
 				) {
-					this.state[ `roles_${ role }` ] = includes( roles, role, false );
+					this.state[ `roles_${ role }` ] = true;
 				}
 			} );
 		}
@@ -57,7 +57,7 @@ class SiteStatsComponent extends React.Component {
 				if (
 					! [ 'administrator', 'editor', 'author', 'subscriber', 'contributor' ].includes( role )
 				) {
-					this.state[ `count_roles_${ role }` ] = includes( countRoles, role, false );
+					this.state[ `count_roles_${ role }` ] = true;
 				}
 			} );
 		}
