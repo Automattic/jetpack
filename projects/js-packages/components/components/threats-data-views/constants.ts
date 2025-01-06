@@ -43,7 +43,7 @@ export const THREAT_FIELD_FIRST_DETECTED = 'first-detected';
 export const THREAT_FIELD_FIXED_ON = 'fixed-on';
 export const THREAT_FIELD_AUTO_FIX = 'auto-fix';
 
-export const ACTIVE_TABLE_FIELDS = [
+export const CURRENT_TABLE_FIELDS = [
 	THREAT_FIELD_SEVERITY,
 	THREAT_FIELD_TYPE,
 	THREAT_FIELD_AUTO_FIX,

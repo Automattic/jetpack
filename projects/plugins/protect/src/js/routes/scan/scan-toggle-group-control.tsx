@@ -22,11 +22,11 @@ export default function ScanToggleGroupControl(): JSX.Element {
 	const numActiveThreats = status ? status.threats.length : 0;
 	const numHistoricThreats = history ? history.threats.length : 0;
 
-	const selectedValue = location.pathname.includes( '/history' ) ? 'historic' : 'active';
+	const selectedValue = location.pathname.includes( '/history' ) ? 'historic' : 'current';
 
 	const onChange = useCallback(
-		( value: string ) => {
-			navigate( value === 'active' ? '/scan' : '/scan/history' );
+		( value: 'current' | 'historic' ) => {
+			navigate( value === 'current' ? '/scan' : '/scan/history' );
 		},
 		[ navigate ]
 	);
@@ -48,10 +48,10 @@ export default function ScanToggleGroupControl(): JSX.Element {
 						__next40pxDefaultSize
 					>
 						<ToggleGroupControlOption
-							value={ 'active' }
+							value={ 'current' }
 							label={ sprintf(
-								/* translators: %d: number of active threats */ __(
-									'Active threats (%d)',
+								/* translators: %d: number of current threats */ __(
+									'Current threats (%d)',
 									'jetpack-protect'
 								),
 								numActiveThreats
