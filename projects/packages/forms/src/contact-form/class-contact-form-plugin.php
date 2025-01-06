@@ -1553,7 +1553,7 @@ class Contact_Form_Plugin {
 			 * Fetch post main data, because we need the subject and author data for the feedback form.
 			 */
 			$post_real_data = $this->get_parsed_field_contents_of_post( $post_id );
-			error_log( 'post_real_data ' . print_r( $post_real_data, true ) );
+
 			/**
 			 * Whether the feedback post has JSON data or not.
 			 * This is used as optional parameter on legacy functions.
@@ -1581,12 +1581,10 @@ class Contact_Form_Plugin {
 			 * Map parsed fields to proper field names
 			 */
 			$mapped_fields = $this->map_parsed_field_contents_of_post_to_field_names( $post_real_data, ! $post_has_json_data );
-			error_log( 'mapped_fields ' . print_r( $mapped_fields, true ) );
 			/**
 			 * Fetch post meta data.
 			 */
 			$post_meta_data = $this->get_post_meta_for_csv_export( $post_id, $post_has_json_data );
-			error_log( 'post_meta_data ' . print_r( $post_meta_data, true ) );
 			/**
 			 * If `$post_meta_data` is not an array or if it is empty, then there is no
 			 * extra feedback to work with. Create an empty array.
@@ -1613,7 +1611,6 @@ class Contact_Form_Plugin {
 			 */
 			$field_names = array_merge( $field_names, array_keys( $post_meta_data ) );
 		}
-		error_log( 'field_names ' . print_r( $field_names, true ) );
 		/**
 		 * Make sure the field names are unique, because we don't want duplicate data.
 		 */
@@ -1623,7 +1620,6 @@ class Contact_Form_Plugin {
 		 * Sort the field names by the field id number
 		 */
 		sort( $field_names, SORT_NUMERIC );
-		error_log( 'field_names AFTER UNIQUE AND SORT ' . print_r( $field_names, true ) );
 		$well_known_column_names = $this->get_well_known_column_names();
 		$result                  = array();
 

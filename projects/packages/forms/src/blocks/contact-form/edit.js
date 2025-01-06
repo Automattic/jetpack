@@ -165,7 +165,14 @@ export const JetpackContactFormEdit = forwardRef(
 		useEffect( () => {
 			if ( ! hiddenFields.length ) {
 				setAttributes( {
-					hiddenFields: [ { uuid: Math.random() * 1000000, name: '', value: '', edit: 'both' } ],
+					hiddenFields: [
+						{
+							uuid: crypto.getRandomValues( new Uint32Array( 1 ) )[ 0 ],
+							name: '',
+							value: '',
+							edit: 'both',
+						},
+					],
 				} );
 			}
 		} );
@@ -309,7 +316,7 @@ export const JetpackContactFormEdit = forwardRef(
 
 		const addNewHiddenField = () => {
 			const newField = {
-				uuid: Math.random() * 1000000,
+				uuid: crypto.getRandomValues( new Uint32Array( 1 ) )[ 0 ],
 				name: '',
 				value: '',
 				edit: 'both',
@@ -391,9 +398,6 @@ export const JetpackContactFormEdit = forwardRef(
 				</div>
 			);
 		};
-
-		// eslint-disable-next-line no-console
-		console.log( hiddenFields );
 
 		let elt;
 
