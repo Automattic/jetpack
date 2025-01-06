@@ -1,4 +1,5 @@
 import ThreatsDataViews from '..';
+import { HISTORIC_TABLE_FIELDS } from '../constants';
 
 export default {
 	title: 'JS Packages/Components/Threats Data Views',
@@ -18,8 +19,8 @@ export default {
 	],
 };
 
-export const Active = args => <ThreatsDataViews { ...args } />;
-Active.args = {
+export const Current = args => <ThreatsDataViews { ...args } />;
+Current.args = {
 	data: [
 		{
 			id: 185869885,
@@ -119,13 +120,6 @@ Active.args = {
 			},
 		},
 	],
-	filters: [
-		{
-			field: 'status',
-			operator: 'isAny',
-			value: [ 'current' ],
-		},
-	],
 	onFixThreats: () =>
 		alert( 'Threat fix action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
 	onIgnoreThreats: () =>
@@ -139,7 +133,7 @@ Active.args = {
 
 export const Historic = args => <ThreatsDataViews { ...args } />;
 Historic.args = {
-	historic: true,
+	status: 'historic',
 	data: [
 		{
 			id: 185869883,
@@ -169,6 +163,7 @@ Historic.args = {
 			source: '',
 		},
 	],
+	initialFields: HISTORIC_TABLE_FIELDS,
 	onFixThreats: () =>
 		alert( 'Threat fix action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
 	onIgnoreThreats: () =>
@@ -274,13 +269,6 @@ FixerStatuses.args = {
 				'11': 'HTML;',
 				marks: {},
 			},
-		},
-	],
-	filters: [
-		{
-			field: 'status',
-			operator: 'isAny',
-			value: [ 'current' ],
 		},
 	],
 	onFixThreats: () =>

@@ -1,5 +1,5 @@
 import { ThreatsDataViews } from '@automattic/jetpack-components';
-import { type Threat } from '@automattic/jetpack-scan';
+import { type Threat, HISTORIC_TABLE_FIELDS } from '@automattic/jetpack-scan';
 import { useCallback, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import useHistoryQuery from '../../../data/scan/use-history-query';
@@ -37,9 +37,10 @@ export default function HistoryDataViews() {
 
 	return (
 		<ThreatsDataViews
-			historic
+			status="historic"
 			data={ history ? history.threats : [] }
-			filters={ filters }
+			initialFilters={ filters }
+			initialFields={ HISTORIC_TABLE_FIELDS }
 			onUnignoreThreats={ onUnignoreThreats }
 			header={ <ScanToggleGroupControl /> }
 		/>

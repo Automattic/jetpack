@@ -19,8 +19,7 @@ import Badge from '../badge';
 import ThreatFixerButton from '../threat-fixer-button';
 import ThreatSeverityBadge from '../threat-severity-badge';
 import {
-	ACTIVE_TABLE_FIELDS,
-	HISTORIC_TABLE_FIELDS,
+	CURRENT_TABLE_FIELDS,
 	LIST_FIELDS,
 	THREAT_ACTION_FIX,
 	THREAT_ACTION_IGNORE,
@@ -48,9 +47,10 @@ import styles from './styles.module.scss';
  * DataViews component for displaying security threats.
  *
  * @param {object}      props                             - Component props.
- * @param {boolean}     props.historic                    - Flag to indicate if the threats are historic.
+ * @param {string}      props.status                      - Flag to indicate if the threats are current or historic.
  * @param {Array}       props.data                        - Threats data.
- * @param {Array}       props.filters                     - Initial DataView filters.
+ * @param {Array}       props.initialFilters              - Initial DataView filters.
+ * @param {Array}       props.initialFields               - Initial DataView fields.
  * @param {Function}    props.onChangeSelection           - Callback function run when an item is selected.
  * @param {Function}    props.onFixThreats                - Threat fix action callback.
  * @param {Function}    props.onIgnoreThreats             - Threat ignore action callback.
@@ -63,9 +63,10 @@ import styles from './styles.module.scss';
  * @return {JSX.Element} The ThreatsDataViews component.
  */
 export default function ThreatsDataViews( {
-	historic = false,
+	status = 'current',
 	data,
-	filters,
+	initialFields,
+	initialFilters,
 	onChangeSelection,
 	isThreatEligibleForFix,
 	isThreatEligibleForIgnore,
@@ -75,9 +76,10 @@ export default function ThreatsDataViews( {
 	onUnignoreThreats,
 	header,
 }: {
-	historic?: boolean;
+	status?: string;
 	data: Threat[];
-	filters?: Filter[];
+	initialFields?: string[];
+	initialFilters?: Filter[];
 	onChangeSelection?: ( selectedItemIds: string[] ) => void;
 	isThreatEligibleForFix?: ( threat: Threat ) => boolean;
 	isThreatEligibleForIgnore?: ( threat: Threat ) => boolean;
@@ -93,7 +95,7 @@ export default function ThreatsDataViews( {
 			direction: 'desc' as SortDirection,
 		},
 		search: '',
-		filters: filters || [],
+		filters: initialFilters || [],
 		page: 1,
 		perPage: 20,
 	};
@@ -108,7 +110,7 @@ export default function ThreatsDataViews( {
 	const defaultLayouts: SupportedLayouts = {
 		table: {
 			...baseView,
-			fields: historic ? HISTORIC_TABLE_FIELDS : ACTIVE_TABLE_FIELDS,
+			fields: initialFields || CURRENT_TABLE_FIELDS,
 			titleField: THREAT_FIELD_TITLE,
 			descriptionField: THREAT_FIELD_DESCRIPTION,
 			showMedia: false,
@@ -281,7 +283,7 @@ export default function ThreatsDataViews( {
 					return item.extension ? item.extension.slug : '';
 				},
 			},
-			...( historic && dataFields.includes( 'status' )
+			...( 'historic' === status && dataFields.includes( 'status' )
 				? [
 						{
 							id: THREAT_FIELD_STATUS,
@@ -298,12 +300,14 @@ export default function ThreatsDataViews( {
 							},
 							render( { item }: { item: Threat } ) {
 								if ( item.status ) {
-									const status = THREAT_STATUSES.find( ( { value } ) => value === item.status );
-									if ( status ) {
-										return <Badge variant={ status?.variant }>{ status.label }</Badge>;
+									const threatStatus = THREAT_STATUSES.find(
+										( { value } ) => value === item.status
+									);
+									if ( threatStatus ) {
+										return <Badge variant={ threatStatus?.variant }>{ threatStatus.label }</Badge>;
 									}
 								}
-								return <Badge variant="warning">{ __( 'Active', 'jetpack-components' ) }</Badge>;
+								return <Badge variant="warning">{ __( 'Current', 'jetpack-components' ) }</Badge>;
 							},
 						},
 				  ]
@@ -374,7 +378,7 @@ export default function ThreatsDataViews( {
 						},
 				  ]
 				: [] ),
-			...( ! historic && dataFields.includes( 'fixable' )
+			...( 'historic' !== status && dataFields.includes( 'fixable' )
 				? [
 						{
 							id: THREAT_FIELD_AUTO_FIX,
@@ -406,7 +410,7 @@ export default function ThreatsDataViews( {
 		];
 
 		return result;
-	}, [ dataFields, plugins, themes, signatures, historic, onFixThreats ] );
+	}, [ dataFields, plugins, themes, signatures, status, onFixThreats ] );
 
 	/**
 	 * DataView actions - collection of operations that can be performed upon each record.
