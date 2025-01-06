@@ -1,7 +1,5 @@
+import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { Button, TextControl, SVG, Circle } from '@wordpress/components';
-import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
 import {
 	useState,
 	useCallback,
@@ -12,8 +10,9 @@ import {
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import debugFactory from 'debug';
+import { SeoPlaceholder } from '../../../../plugins/seo/components/placeholder';
+import usePostContent from '../../hooks/use-post-content';
 import './style.scss';
-import { CoreSelect } from '../ai-assistant-plugin-sidebar/types';
 
 type StepType = 'input' | 'options' | 'completion';
 
@@ -77,7 +76,7 @@ const TypingMessage = () => {
 	);
 };
 
-export default function SeoAssistant( { busy, disabled, onStep }: SeoAssistantProps ) {
+export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ currentStep, setCurrentStep ] = useState( 0 );
 	const [ keywords, setKeywords ] = useState( '' );
@@ -86,16 +85,9 @@ export default function SeoAssistant( { busy, disabled, onStep }: SeoAssistantPr
 	const [ messages, setMessages ] = useState< Message[] >( [] );
 	const messagesEndRef = useRef< HTMLDivElement >( null );
 	const [ titleOptions, setTitleOptions ] = useState< Option[] >( [] );
-	// const postContent = usePostContent();
-	// const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } = useModuleStatus( 'seo-tools' );
-	const isViewable = useSelect( select => {
-		const postTypeName = select( editorStore ).getCurrentPostType();
-		const postTypeObject = ( select( coreStore ) as unknown as CoreSelect ).getPostType(
-			postTypeName
-		);
-
-		return postTypeObject?.viewable;
-	}, [] );
+	const postContent = usePostContent();
+	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
+		useModuleStatus( 'seo-tools' );
 
 	const [ metaDescriptionOptions, setMetaDescriptionOptions ] = useState< Option[] >( [] );
 
@@ -398,27 +390,6 @@ export default function SeoAssistant( { busy, disabled, onStep }: SeoAssistantPr
 		setMessages( [] );
 	};
 
-	// If the post type is not viewable, do not render my plugin.
-	if ( ! isViewable ) {
-		return null;
-	}
-
-	if ( ! isOpen ) {
-		return (
-			<div>
-				<p>{ __( 'Improve post engagement.', 'jetpack' ) }</p>
-				<Button
-					onClick={ () => setIsOpen( true ) }
-					variant="secondary"
-					disabled={ disabled }
-					isBusy={ busy }
-				>
-					{ __( 'SEO Assistant', 'jetpack' ) }
-				</Button>
-			</div>
-		);
-	}
-
 	const renderCurrentInput = () => {
 		if ( currentStepData.type === 'input' ) {
 			return (
@@ -490,36 +461,59 @@ export default function SeoAssistant( { busy, disabled, onStep }: SeoAssistantPr
 
 		return null;
 	};
+	debug( isModuleActive, isLoadingModules );
 
 	return (
-		<div className="seo-assistant-wizard">
-			<div className="seo-assistant-wizard__header">
-				<button className="seo-assistant-wizard__back" onClick={ handleBack }>
-					{ __( '←', 'jetpack' ) }
-				</button>
-				<h2>{ currentStepData.title }</h2>
-				<button className="seo-assistant-wizard__skip" onClick={ handleSkip }>
-					{ __( 'Skip', 'jetpack' ) }
-				</button>
-			</div>
+		<div>
+			<p>{ __( 'Improve post engagement.', 'jetpack' ) }</p>
+			{ ( isModuleActive || isLoadingModules ) && (
+				<Button
+					onClick={ () => setIsOpen( true ) }
+					variant="secondary"
+					disabled={ isLoadingModules || isOpen || ! postContent.trim?.() || disabled }
+					isBusy={ isLoadingModules || isOpen }
+				>
+					{ __( 'SEO Assistant', 'jetpack' ) }
+				</Button>
+			) }
+			{ ! isModuleActive && ! isLoadingModules && (
+				<SeoPlaceholder
+					isLoading={ isChangingStatus }
+					isModuleActive={ isModuleActive }
+					changeStatus={ changeStatus }
+				/>
+			) }
+			{ isOpen && (
+				<div className="seo-assistant-wizard">
+					<div className="seo-assistant-wizard__header">
+						<button className="seo-assistant-wizard__back" onClick={ handleBack }>
+							{ __( '←', 'jetpack' ) }
+						</button>
+						<h2>{ currentStepData.title }</h2>
+						<button className="seo-assistant-wizard__skip" onClick={ handleSkip }>
+							{ __( 'Skip', 'jetpack' ) }
+						</button>
+					</div>
 
-			<div className="seo-assistant-wizard__content">
-				<div className="seo-assistant-wizard__messages">
-					{ messages.map( message => (
-						<div
-							key={ message.id }
-							className={ clsx( 'seo-assistant-wizard__message', {
-								'is-user': message.isUser,
-							} ) }
-						>
-							{ message.content }
+					<div className="seo-assistant-wizard__content">
+						<div className="seo-assistant-wizard__messages">
+							{ messages.map( message => (
+								<div
+									key={ message.id }
+									className={ clsx( 'seo-assistant-wizard__message', {
+										'is-user': message.isUser,
+									} ) }
+								>
+									{ message.content }
+								</div>
+							) ) }
+							<div ref={ messagesEndRef } />
 						</div>
-					) ) }
-					<div ref={ messagesEndRef } />
-				</div>
 
-				<div className="seo-assistant-wizard__input-container">{ renderCurrentInput() }</div>
-			</div>
+						<div className="seo-assistant-wizard__input-container">{ renderCurrentInput() }</div>
+					</div>
+				</div>
+			) }
 		</div>
 	);
 }

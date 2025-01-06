@@ -72,6 +72,14 @@ const JetpackAndSettingsContent = ( {
 	const { checkoutUrl } = useAICheckout();
 	const { productPageUrl } = useAiProductPage();
 	const isBreveAvailable = getBreveAvailability();
+	const isViewable = useSelect( select => {
+		const postTypeName = select( editorStore ).getCurrentPostType();
+		const postTypeObject = ( select( coreStore ) as unknown as CoreSelect ).getPostType(
+			postTypeName
+		);
+
+		return postTypeObject?.viewable;
+	}, [] );
 
 	const currentTitleOptimizationSectionLabel = __( 'Optimize Publishing', 'jetpack' );
 	const SEOTitleOptimizationSectionLabel = __( 'Optimize Title', 'jetpack' );
@@ -89,7 +97,7 @@ const JetpackAndSettingsContent = ( {
 				</PanelRow>
 			) }
 
-			{ isSeoAssistantEnabled && (
+			{ isSeoAssistantEnabled && isViewable && (
 				<PanelRow
 					className={ `jetpack-ai-sidebar__feature-section ${
 						isBetaExtension( 'ai-seo-assistant' ) ? 'is-beta-extension' : ''
@@ -97,7 +105,7 @@ const JetpackAndSettingsContent = ( {
 				>
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>{ __( 'SEO', 'jetpack' ) }</BaseControl.VisualLabel>
-						<SeoAssistant busy={ false } disabled={ false } />
+						<SeoAssistant disabled={ false } />
 					</BaseControl>
 				</PanelRow>
 			) }
