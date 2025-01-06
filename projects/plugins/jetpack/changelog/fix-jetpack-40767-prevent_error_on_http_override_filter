@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Filters: Prevent error when `http_request_timeout` filter is used incorrectly.

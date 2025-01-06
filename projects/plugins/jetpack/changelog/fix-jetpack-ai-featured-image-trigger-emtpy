@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Jetpack AI: do not trigger featured image generation if title or content are just empty spaces
