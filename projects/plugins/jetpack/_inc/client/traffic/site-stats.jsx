@@ -42,11 +42,11 @@ class SiteStatsComponent extends React.Component {
 			wpcom_reader_views_enabled: props.getOptionValue( 'wpcom_reader_views_enabled' ),
 		};
 
+		const defaultRoles = [ 'administrator', 'editor', 'author', 'contributor', 'subscriber' ];
+
 		if ( roles?.length > 0 ) {
 			roles.forEach( role => {
-				if (
-					! [ 'administrator', 'editor', 'author', 'subscriber', 'contributor' ].includes( role )
-				) {
+				if ( ! defaultRoles.includes( role ) ) {
 					this.state[ `roles_${ role }` ] = true;
 				}
 			} );
@@ -54,9 +54,7 @@ class SiteStatsComponent extends React.Component {
 
 		if ( countRoles?.length > 0 ) {
 			countRoles.forEach( role => {
-				if (
-					! [ 'administrator', 'editor', 'author', 'subscriber', 'contributor' ].includes( role )
-				) {
+				if ( ! defaultRoles.includes( role ) ) {
 					this.state[ `count_roles_${ role }` ] = true;
 				}
 			} );
