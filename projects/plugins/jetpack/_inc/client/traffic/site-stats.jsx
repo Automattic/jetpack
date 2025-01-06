@@ -42,7 +42,7 @@ class SiteStatsComponent extends React.Component {
 			wpcom_reader_views_enabled: props.getOptionValue( 'wpcom_reader_views_enabled' ),
 		};
 
-		if ( roles ) {
+		if ( roles?.length > 0 ) {
 			roles.forEach( role => {
 				if (
 					! [ 'administrator', 'editor', 'author', 'subscriber', 'contributor' ].includes( role )
@@ -52,7 +52,7 @@ class SiteStatsComponent extends React.Component {
 			} );
 		}
 
-		if ( countRoles ) {
+		if ( countRoles?.length > 0 ) {
 			countRoles.forEach( role => {
 				if (
 					! [ 'administrator', 'editor', 'author', 'subscriber', 'contributor' ].includes( role )
