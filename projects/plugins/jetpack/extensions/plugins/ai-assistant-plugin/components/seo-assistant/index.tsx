@@ -293,7 +293,7 @@ export default function SeoAssistant( { busy, disabled, onStep }: SeoAssistantPr
 				__( "Hi there! 👋 Let's optimise your blog post for SEO.", 'jetpack' ),
 				createInterpolateElement(
 					__(
-						"Here's what we can improve:<br>1. Keywords<br>2. Title<br>3. Meta description",
+						"Here's what we can improve:<br />1. Keywords<br />2. Title<br />3. Meta description",
 						'jetpack'
 					),
 					{ br: <br /> }
