@@ -29,7 +29,7 @@ import { withDispatch, withSelect } from '@wordpress/data';
 import { forwardRef, Fragment, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { filter, every, get, isArray, map, remove } from 'lodash';
+import { filter, get, isArray, map, remove } from 'lodash';
 import { childBlocks } from './child-blocks';
 import InspectorHint from './components/inspector-hint';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
@@ -299,17 +299,23 @@ export const JetpackContactFormEdit = forwardRef(
 
 			remove( newHiddenFields, hf => ! hf.name.trim() && ! hf.value.trim() );
 
-			// if all hidden fields have some value, add an empty one at the end
-			every( newHiddenFields, 'value' ) &&
-				newHiddenFields.push( {
-					uuid: Math.random() * 1000000,
-					name: '',
-					value: '',
-					edit: 'both',
-				} );
-
 			setAttributes( {
 				hiddenFields: newHiddenFields,
+			} );
+		};
+
+		const addNewHiddenField = () => {
+			const newField = {
+				uuid: Math.random() * 1000000,
+				name: '',
+				value: '',
+				edit: 'both',
+			};
+
+			const updatedHiddenFields = [ ...hiddenFields, newField ];
+
+			setAttributes( {
+				hiddenFields: updatedHiddenFields,
 			} );
 		};
 
@@ -422,9 +428,21 @@ export const JetpackContactFormEdit = forwardRef(
 									'jetpack-forms'
 								) }
 							</InspectorHint>
-							{ map( hiddenFields, ( { uuid, name, value, edit } ) => {
-								return HiddenFieldInspector( { uuid, name, value, edit }, setHiddenField );
-							} ) }
+							<div className="jetpack-contact-form__hidden-fields-panel-wrapper">
+								{ map( hiddenFields, ( { uuid, name, value, edit } ) => {
+									return HiddenFieldInspector( { uuid, name, value, edit }, setHiddenField );
+								} ) }
+								<Button
+									variant="secondary"
+									className="jetpack-contact-form__add-hidden-field"
+									onClick={ () => addNewHiddenField() }
+									disabled={ hiddenFields.some(
+										field => ! field.name.trim() && ! field.value.trim()
+									) }
+								>
+									{ __( 'Add Hidden Field', 'jetpack-forms' ) }
+								</Button>
+							</div>
 						</PanelBody>
 					</InspectorControls>
 

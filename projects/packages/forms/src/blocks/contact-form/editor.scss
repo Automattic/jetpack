@@ -971,8 +971,18 @@
 	margin-bottom: 0;
 }
 
-.jetpack-contact-form__hidden-fields-panel {
-	& .components-base-control {
-		margin-bottom: 0;
+.jetpack-contact-form__hidden-fields-panel-wrapper {
+	margin-bottom: 15px;
+
+	.jetpack-contact-form__hidden-fields-panel {
+		& .components-base-control {
+			margin-bottom: 0;
+		}
+	}
+
+	.jetpack-contact-form__add-hidden-field {
+		margin-top: 10px;
+		display: block;
 	}
 }
+
