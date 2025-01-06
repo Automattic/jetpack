@@ -433,6 +433,19 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$r .= "\t</p>\n";
 			}
 
+			$hidden_fields_html = '';
+			if ( isset( $attributes['hiddenFields'] ) && is_array( $attributes['hiddenFields'] ) ) {
+				foreach ( $attributes['hiddenFields'] as $hidden_field ) {
+					if ( ! empty( $hidden_field['name'] ) && empty( $hidden_field['value'] ) ) {
+						$hidden_fields_html .= sprintf(
+							'<input type="hidden" name="%1$s" value="%2$s">',
+							esc_attr( $hidden_field['name'] ),
+							esc_attr( $hidden_field['value'] )
+						);
+					}
+				}
+			}
+			$r .= $hidden_fields_html;
 			$r .= "</form>\n";
 		}
 
@@ -1815,6 +1828,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 	/**
 	 * Extract hidden fields from contact-form blocks
+	 *
+	 * @param array $fields The hidden fields to be sent.
 	 */
 	public function hidden_fields_filter( $fields ) {
 		$content = get_the_content();
@@ -1848,6 +1863,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 	/**
 	 * Filter a blocks array in search of jetpack/contact-form blocks.
+	 *
+	 * @param array $block_array The array of blocks to search.
 	 */
 	public function get_jetpack_form_blocks_with_hidden_fields( $block_array ) {
 		$form_blocks = array();
