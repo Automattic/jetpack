@@ -46,4 +46,8 @@ export default {
 		type: 'array',
 		default: [],
 	},
+	warningMessage: {
+		type: 'string',
+		default: '',
+	},
 };

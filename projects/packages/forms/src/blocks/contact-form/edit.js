@@ -102,8 +102,10 @@ export const JetpackContactFormEdit = forwardRef(
 			jetpackCRM,
 			salesforceData,
 			hiddenFields,
+			warningMessage,
 		} = attributes;
 		const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
+		const [ localWarningText, setLocalWarningText ] = useState( '' );
 
 		const blockProps = useBlockProps();
 		const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
@@ -298,6 +300,7 @@ export const JetpackContactFormEdit = forwardRef(
 			} );
 
 			remove( newHiddenFields, hf => ! hf.name.trim() && ! hf.value.trim() );
+			checkForDuplicatesAndUpdateMessage( newHiddenFields );
 
 			setAttributes( {
 				hiddenFields: newHiddenFields,
@@ -319,6 +322,47 @@ export const JetpackContactFormEdit = forwardRef(
 			} );
 		};
 
+		const checkForDuplicatesAndUpdateMessage = () => {
+			const warningMessageText = __(
+				'Duplicate field names are not recommended.',
+				'jetpack-forms'
+			);
+
+			const hasAnyDuplicates = hiddenFields.some(
+				field =>
+					field.name.trim() !== '' &&
+					hiddenFields.filter( f => f.name.trim() === field.name.trim() ).length > 1
+			);
+
+			if ( hasAnyDuplicates ) {
+				setAttributes( {
+					warningMessage: warningMessageText,
+				} );
+			} else {
+				setAttributes( { warningMessage: '' } );
+			}
+		};
+
+		const validateHiddenFieldName = ( uuid, name ) => {
+			const isDuplicateName = hiddenFields.some(
+				field => field.uuid !== uuid && field.name.trim() === name.trim()
+			);
+			const warningMessageText = __(
+				'Duplicate field names are not recommended.',
+				'jetpack-forms'
+			);
+
+			if ( isDuplicateName ) {
+				setAttributes( {
+					warningMessage: warningMessageText,
+				} );
+				setLocalWarningText( warningMessageText );
+			} else {
+				checkForDuplicatesAndUpdateMessage( hiddenFields );
+				setLocalWarningText( '' );
+			}
+		};
+
 		const HiddenFieldInspector = ( props, setter ) => {
 			const { uuid, name, value, edit = 'both' } = props;
 			return (
@@ -332,6 +376,7 @@ export const JetpackContactFormEdit = forwardRef(
 							value={ name }
 							placeholder={ __( 'Field name', 'jetpack-forms' ) }
 							onChange={ fieldName => setter( uuid, fieldName, value, edit ) }
+							onBlur={ () => validateHiddenFieldName( uuid, name ) }
 						/>
 					) }
 					{ ( ! edit || edit === 'value' || edit === 'none' ) && <span>{ name }</span> }
@@ -432,6 +477,11 @@ export const JetpackContactFormEdit = forwardRef(
 								{ map( hiddenFields, ( { uuid, name, value, edit } ) => {
 									return HiddenFieldInspector( { uuid, name, value, edit }, setHiddenField );
 								} ) }
+								{ ( localWarningText || warningMessage ) && (
+									<p className="jetpack-contact-form__hidden-fields-warning-message">
+										{ localWarningText || warningMessage }
+									</p>
+								) }
 								<Button
 									variant="secondary"
 									className="jetpack-contact-form__add-hidden-field"
