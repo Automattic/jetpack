@@ -1,4 +1,7 @@
 import { Button, TextControl, SVG, Circle } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import {
 	useState,
 	useCallback,
@@ -10,6 +13,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import debugFactory from 'debug';
 import './style.scss';
+import { CoreSelect } from '../ai-assistant-plugin-sidebar/types';
 
 type StepType = 'input' | 'options' | 'completion';
 
@@ -82,6 +86,16 @@ export default function SeoAssistant( { busy, disabled, onStep }: SeoAssistantPr
 	const [ messages, setMessages ] = useState< Message[] >( [] );
 	const messagesEndRef = useRef< HTMLDivElement >( null );
 	const [ titleOptions, setTitleOptions ] = useState< Option[] >( [] );
+	// const postContent = usePostContent();
+	// const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } = useModuleStatus( 'seo-tools' );
+	const isViewable = useSelect( select => {
+		const postTypeName = select( editorStore ).getCurrentPostType();
+		const postTypeObject = ( select( coreStore ) as unknown as CoreSelect ).getPostType(
+			postTypeName
+		);
+
+		return postTypeObject?.viewable;
+	}, [] );
 
 	const [ metaDescriptionOptions, setMetaDescriptionOptions ] = useState< Option[] >( [] );
 
@@ -383,6 +397,11 @@ export default function SeoAssistant( { busy, disabled, onStep }: SeoAssistantPr
 		setCurrentStep( 0 );
 		setMessages( [] );
 	};
+
+	// If the post type is not viewable, do not render my plugin.
+	if ( ! isViewable ) {
+		return null;
+	}
 
 	if ( ! isOpen ) {
 		return (
