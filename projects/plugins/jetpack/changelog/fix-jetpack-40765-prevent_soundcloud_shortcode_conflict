@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Shortcodes: Prevent conflict with third-party SoundCloud shortcodes.

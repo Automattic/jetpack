@@ -389,7 +389,7 @@ class Colors_Manager_Common {
 		// register scripts
 		wp_register_script( 'Color.js', plugins_url( 'js/color.js', __FILE__ ), array(), '20121210', true );
 		wp_register_script( 'colors-instapreview', plugins_url( 'js/colors-theme-preview.js', __FILE__ ), array( 'customize-preview', 'jquery', 'Color.js' ), '20121210', true );
-		wp_register_script( 'colors-tool', plugins_url( 'js/colors-control.js', __FILE__ ), array( 'customize-controls', 'iris' ), '20160726', true );
+		wp_register_script( 'colors-tool', plugins_url( 'js/colors-control.js', __FILE__ ), array( 'customize-controls', 'iris' ), '20250102', true );
 		wp_register_script( 'spin', plugins_url( 'js/spin.js', __FILE__ ), array(), '1.3', true );
 		wp_register_script( 'jquery.spin', plugins_url( 'js/jquery.spin.js', __FILE__ ), array( 'spin' ), '20210111', true );
 	}
