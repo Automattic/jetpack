@@ -5,11 +5,6 @@
 ### Deprecated
 - Default import is now deprecated in favor of named import and will be removed in future.
 
-```diff
-- import SocialLogos from 'social-logos';
-+ import { SocialLogo } from 'social-logos';
-``` [#40801]
-
 ### Fixed
 - Fixed package.json exports to expose built in types [#40801]
 
