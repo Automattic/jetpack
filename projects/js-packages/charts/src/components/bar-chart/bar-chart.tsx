@@ -7,6 +7,7 @@ import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { FC, useCallback, type MouseEvent } from 'react';
 import { useChartTheme } from '../../providers/theme';
+import { GridControl } from '../grid-control';
 import { Legend } from '../legend';
 import { BaseTooltip } from '../tooltip';
 import styles from './bar-chart.module.scss';
@@ -18,13 +19,14 @@ type BarChartTooltipData = { value: number; xLabel: string; yLabel: string; seri
 
 const BarChart: FC< BarChartProps > = ( {
 	data,
-	width,
-	height,
+	width = 500, //TODO: replace when making the components responsive
+	height = 500, //TODO: replace when making the components responsive
 	margin = { top: 20, right: 20, bottom: 40, left: 40 },
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
 	className,
+	gridVisibility = 'x',
 } ) => {
 	const theme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
@@ -63,7 +65,7 @@ const BarChart: FC< BarChartProps > = ( {
 	const yMax = height - margins.top - margins.bottom;
 
 	// Get labels for x-axis from the first series (assuming all series have same labels)
-	const labels = data[ 0 ].data?.map( d => d?.label );
+	const labels = data[ 0 ].data?.map( d => d?.label || '' );
 
 	// Create scales
 	const xScale = scaleBand< string >( {
@@ -97,17 +99,24 @@ const BarChart: FC< BarChartProps > = ( {
 		<div className={ clsx( 'bar-chart', className, styles[ 'bar-chart' ] ) }>
 			<svg width={ width } height={ height }>
 				<Group left={ margins.left } top={ margins.top }>
+					<GridControl
+						width={ xMax }
+						height={ yMax }
+						xScale={ xScale }
+						yScale={ yScale }
+						gridVisibility={ gridVisibility }
+					/>
 					{ data.map( ( series, seriesIndex ) => (
 						<Group key={ seriesIndex }>
 							{ series.data.map( d => {
-								const xPos = xScale( d.label );
+								const xPos = xScale( d?.label || '' );
 								if ( xPos === undefined ) return null;
 
 								const barWidth = innerScale.bandwidth();
 								const barX = xPos + ( innerScale( seriesIndex.toString() ) ?? 0 );
 
-								const handleBarMouseMove = event =>
-									handleMouseMove( event, d.value, d.label, series.label, seriesIndex );
+								const handleBarMouseMove = ( event: MouseEvent< SVGRectElement > ) =>
+									handleMouseMove( event, d.value, d?.label || '', series.label, seriesIndex );
 
 								return (
 									<Bar
@@ -130,7 +139,7 @@ const BarChart: FC< BarChartProps > = ( {
 			</svg>
 
 			{ withTooltips && tooltipOpen && tooltipData && (
-				<BaseTooltip top={ tooltipTop } left={ tooltipLeft }>
+				<BaseTooltip top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
 					<div>
 						<div>{ tooltipData.yLabel }</div>
 						<div>

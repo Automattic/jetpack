@@ -15,7 +15,7 @@ import {
 	ResizableBox,
 } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
-import { withDispatch, useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getActiveStyleName } from '../../shared/block-styles';
@@ -55,9 +55,6 @@ const MapEdit = ( {
 	noticeUI,
 	notices,
 	isSelected,
-	instanceId,
-	onResizeStart,
-	onResizeStop,
 	noticeOperations,
 } ) => {
 	const {
@@ -70,6 +67,8 @@ const MapEdit = ( {
 		mapHeight,
 		showFullscreenButton,
 	} = attributes;
+
+	const { toggleSelection } = useDispatch( 'core/block-editor' );
 
 	const { isPreviewMode } = useSelect( select => {
 		const { getSettings } = select( blockEditorStore );
@@ -195,8 +194,7 @@ const MapEdit = ( {
 	 * @param {object}      delta     - Information about how far the element was resized.
 	 */
 	const onMapResize = ( event, direction, elt, delta ) => {
-		onResizeStop();
-
+		toggleSelection( true );
 		const ref = mapRef?.current?.mapRef ?? mapRef;
 
 		if ( ref ) {
@@ -322,7 +320,6 @@ const MapEdit = ( {
 						apiKeyControl={ apiKeyControl }
 						onKeyChange={ onKeyChange }
 						mapRef={ mapRef }
-						instanceId={ instanceId }
 						minHeight={ MIN_HEIGHT }
 						removeAPIKey={ removeAPIKey }
 						updateAPIKey={ updateAPIKey }
@@ -339,7 +336,7 @@ const MapEdit = ( {
 					showHandle={ isSelected }
 					minHeight={ MIN_HEIGHT }
 					enable={ RESIZABLE_BOX_ENABLE_OPTION }
-					onResizeStart={ onResizeStart }
+					onResizeStart={ () => toggleSelection( false ) }
 					onResizeStop={ onMapResize }
 				>
 					<div className="wp-block-jetpack-map__map_wrapper">
@@ -392,14 +389,4 @@ const MapEdit = ( {
 	);
 };
 
-export default compose( [
-	withNotices,
-	withDispatch( dispatch => {
-		const { toggleSelection } = dispatch( 'core/block-editor' );
-
-		return {
-			onResizeStart: () => toggleSelection( false ),
-			onResizeStop: () => toggleSelection( true ),
-		};
-	} ),
-] )( MapEdit );
+export default compose( withNotices )( MapEdit );

@@ -8,7 +8,7 @@ import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import SocialLogo from 'social-logos';
+import { SocialLogo } from 'social-logos';
 import Button from 'components/button';
 import FoldableCard from 'components/foldable-card';
 import { FormLabel, FormTextarea } from 'components/forms';

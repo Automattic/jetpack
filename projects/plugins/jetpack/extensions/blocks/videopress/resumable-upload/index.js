@@ -4,7 +4,7 @@
 import { Button, ExternalLink } from '@wordpress/components';
 import { useCallback, useContext, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import filesize from 'filesize';
+import { filesize } from 'filesize';
 /**
  * Internal Dependencies
  */
