@@ -247,7 +247,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 						),
 				  },
 		autoFirewallTooltip:
-			hasProtectPaidPlan && ! isAutoFirewallEnabled
+			( hasProtectPaidPlan && ! isAutoFirewallEnabled ) || ! wafSupported
 				? {
 						title: __( 'Auto-Firewall: Inactive', 'jetpack-my-jetpack' ),
 						text: wafSupported
