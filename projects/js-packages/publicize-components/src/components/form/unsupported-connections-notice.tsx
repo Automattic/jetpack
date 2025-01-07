@@ -3,16 +3,20 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { usePublicizeConfig } from '../../..';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import { checkConnectionCode } from '../../utils/connections';
 import Notice from '../notice';
+import { useService } from '../services/use-service';
 
 export const UnsupportedConnectionsNotice: React.FC = () => {
 	const { connections } = useSocialMediaConnections();
 
 	const { connectionsPageUrl } = usePublicizeConfig();
 
-	const unsupportedConnections = connections.filter( connection =>
-		checkConnectionCode( connection, 'unsupported' )
+	const getServices = useService();
+
+	const unsupportedConnections = connections.filter(
+		connection =>
+			// If getServices returns falsy, it means the service is unsupported.
+			! getServices( connection.service_name )
 	);
 
 	return (

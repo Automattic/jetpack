@@ -83,9 +83,7 @@ export function mergeConnections( freshConnections ) {
 		const prevConnections = select.getConnections();
 		const connections = [];
 		const defaults = {
-			done: false,
 			enabled: true,
-			toggleable: true,
 		};
 
 		/*
@@ -93,18 +91,14 @@ export function mergeConnections( freshConnections ) {
 		 * in order to refresh or update current connections.
 		 */
 		for ( const freshConnection of freshConnections ) {
-			const prevConnection = prevConnections.find( conn =>
-				conn.connection_id
-					? conn.connection_id === freshConnection.connection_id
-					: conn.id === freshConnection.id
+			const prevConnection = prevConnections.find(
+				conn => conn.connection_id === freshConnection.connection_id
 			);
 
 			const connection = {
 				...defaults,
 				...prevConnection,
 				...freshConnection,
-				shared: prevConnection?.shared,
-				is_healthy: freshConnection.test_success,
 			};
 			connections.push( connection );
 		}
@@ -378,7 +372,7 @@ export function createConnection( data, optimisticData = {} ) {
 					sprintf(
 						/* translators: %s is the name of the social media platform e.g. "Facebook" */
 						__( '%s account connected successfully.', 'jetpack-publicize-components' ),
-						connection.label
+						connection.service_label
 					),
 					{
 						type: 'snackbar',

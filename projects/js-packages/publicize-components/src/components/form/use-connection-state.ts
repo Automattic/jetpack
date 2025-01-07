@@ -31,17 +31,16 @@ export const useConnectionState = () => {
 	 */
 	const isInGoodShape = useCallback(
 		( connection: Connection ) => {
-			const { id, is_healthy, connection_id, status } = connection;
-			const currentId = connection_id ? connection_id : id;
+			const { connection_id: id, status } = connection;
 
 			// 1. Be healthy
-			const isHealthy = false !== is_healthy && status !== 'broken';
+			const isHealthy = status !== 'broken';
 
 			// 2. Have no validation errors
-			const hasValidationErrors = validationErrors[ currentId ] !== undefined && ! isConvertible;
+			const hasValidationErrors = validationErrors[ id ] !== undefined && ! isConvertible;
 
 			// 3. Not have a NO_MEDIA_ERROR when media is required
-			const hasNoMediaError = validationErrors[ currentId ] === NO_MEDIA_ERROR;
+			const hasNoMediaError = validationErrors[ id ] === NO_MEDIA_ERROR;
 
 			return isHealthy && ! hasValidationErrors && ! hasNoMediaError;
 		},
