@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { numberFormat } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import SimpleNotice from 'components/notice';

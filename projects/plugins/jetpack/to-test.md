@@ -1,4 +1,4 @@
-## Jetpack 14.1
+## Jetpack 14.2
 
 ### Before you start:
 
@@ -10,63 +10,68 @@
   - Or add the following to something like a code snippet plugin: `add_filter( 'jetpack_blocks_variation', function () { return 'beta'; } );`
 	- To test Breve further in the document please enable the feature with the following snippet: `add_filter( 'breve_enabled', '__return_true' );`
 
-## Growth Bundle 
- 
-In this release, we are introducing a new Growth bundle that includes Stats, Social, and Newsletter paid features. 
-
-#### Test functionality 
-   
-You need a site with the Jetpack Growth plan for this test. Make sure all features that come with Growth are working correctly and are not hidden behind paywalls or overlays. 
-
-- Go to the Stats page and ensure you can see all available stats with no upgrade overlays.
-- Go to `/wp-admin/admin.php?page=jetpack-social` and ensure you don't see any upsells and that all features are available.
-- Go to `/wp-admin/admin.php?page=jetpack#/newsletter` and activate Newsletter. Make sure you see no upsells and that all features are available.
-
-#### Bundle interstitials (including Growth) 
-  
-In My Jetpack, visit the following paths to make sure the bundle interstitials look good and the CTA's go to checkout with the correct item in the cart:
-
-- `/wp-admin/admin.php?page=my-jetpack#/add-security`
-- `/wp-admin/admin.php?page=my-jetpack#/add-growth`
-- `/wp-admin/admin.php?page=my-jetpack#/add-complete`
-
-Note: The images on the interstitials may be updated in the future, they've not been designed yet and we wanted to get this into the testing period so we shipped with existing images.
-
-#### Bundle recommendations (including Growth) 
- 
-On a new testing site, connect your account via the welcome banner in My Jetpack. Fill out the survey with the options "Grow my audience" and "Create quality content". You should see the Growth bundle as the first recommendation.
-
-- Ensure the Purchase and Learn More CTAs work correctly.
-- If you'd like, you can also play around with the survey to test the Complete and Security bundles too.
-
-#### Make sure Creator is no longer promoted in the plugin
-
-The Growth bundle is replacing the Creator product. Make sure you don't see any Creator upsells, ads, or promotions in the plugin.
- 
-## Ensure list-to-table AI transform works as expected 
-  
-- Create a new post and create a top-level list (this will not work for sublists). 
-- On the top level list click the AI Assistant icon. 
-- There should now be an option "Turn list into table" in the menu. 
-- Upon clicking this option the block should be converted to an AI Assistant block, and the list will be turned into a table. 
-- If you click the trash icon ("Discard") the original list should be restored. 
-- Bring up the AI Assistant menu again. Click "Accept" after converting the list and your original list should be replaced by the table. 
- 
-## Verify Slideshow block works as expected in Row and Column blocks 
-  
-- Add a Row block to a post. 
-- Add a Slideshow block inside the Row block. 
-- Add a few images to the Slideshow. 
-- Visit the post in the frontend and make sure the Slideshow works properly. 
-- Test the multiple Slideshow blocks inside a Row and inside Columns, and make sure it also works properly in the different scenarios. 
-
-### And More!
-
-Other particularly noteworthy changes in 14.0 include:
-
-- Support for Bluesky in Jetpack Social.
-- Related Posts block can now be used on non-post CPTs.
-
 You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
+
+## General testing
+
+Jetpack 14.2 has been affected by changes that aim to improve performance and reduce unused code. Please take note of any things that you think are wrong, if you see any such behavior. 
+
+## Jetpack AI
+
+### Featured Image
+
+Previousl when a featured image was already set, the Featured Image generator modal showed up empty on open. Since Jetpack 14.2 , if a featured image is set, we load it on the modal for visibility. To make sure it works as intended, open the editor with a new post. Click on Sidebar's "Set featured image" and select "Generate with AI".
+
+- Opening the featured image generator modal with not context (no post content nor title) should open and do nothing.
+- If you close the modal, add a title or some content on the post and open the modal again, this time an image generation should trigger.
+- If you set the generated image as featured image and close the modal and open the modal again, see the current featured image should show on the modal and no generation should be triggered.
+
+### Thumbs up/down on AI Logo Generator
+
+The Logo Generator now has thums up/down buttons for rating generated images. Testing them requires enabling beta blocks, as mentioned in the beginning of this document. To test this feature:
+
+- Create a new post, insert a logo block, and use the AI logo generator to generate a new logo or browse your existing logos.
+- Verify that there are no thumbs next to the "Use on block" button.
+- Enable the feature: with `add_filter( 'ai_response_feedback_enabled', '__return_true' );`
+- Reload your post and open the logo generator again.
+- Verify that a thumbs up/down appears next to the "Use on block" button.
+- You should be able to click on the thumbs up or down and observe that the thumb changes color.
+- Viewing other logos you have should show their rating (which will likely be no rating), and if you go back to a logo you already rated the same rating should be present.
+- Check that ratings are persisted after reload
+
+## Support for Instagram Reels in AMP
+
+In addition to support for Instagram Reel links Jetpack now supports reels and videos in AMP views. To test:
+
+- Go to Jetpack > Settings > Writing and enable Shortcodes.
+- Go to Plugins > Add New and install and activate the AMP plugin.
+- Open the AMP onboarding wizard, and enable "Reader" mode.
+- Go to Posts > Add New, make sure to add a shortcode block with the following content: `[instagram url="https://instagram.com/reel/COWmlFLB_7P/"]`
+- Publish your post and view it on the frontend.
+- You should see the embed work in regular view.
+- Click on the AMP option in the admin bar.
+- You should see the embed work in the AMP view too.
+
+## Restaurant Menu and Testimonials CPTs
+
+The Restaurant Menu Custom Post Type has been moved to a separate theme helper package. The package isn't being used yet, but we should make sure that nothing is being added via the package. To do that you would need to install and activate a theme that supports Restaurant Menus such as Confit:
+
+- Add several new menu items from the new Food Menu in the admin menu.
+- Add some new sections, and add menu items to specific sections (see the Menu Sections area in the menu editor). Ensure some sections are parents to other sections
+- Attempt adding multiple menu items at once using the 'Add Many Items' menu option.
+- Using quick edit from the main menu list for specific item, change the sections they belong to in some cases.
+- Try dragging and dropping menu items to different positions and sections.
+- Click save new order, everything should save correctly.
+
+In addition to that, the Testimonials CPT is also now included from a separate package. To make sure things are OK:
+
+- Ensure you can activate Testimonials via Jetpack > Settings > Writing (see the Custom Content Types section).
+- Test that Testimonial functionality works as expected: Create a new Testimonial via the Testimonial wp-admin menu. View it. Add it to another post via the testimonial shortcode 	(`[testimonials]`).
+- Test that a theme that supports Jetpack Testimonials auto-activates it: Make sure Testimonials are not active, and then install and activate the Lodestar theme. Testimonials should now be active.
+- Try visiting /wp-admin/edit.php?post_type=jetpack-testimonial when Testimonial is toggled off - you should see an 'invalid post type' message, and on the front-end on a post which made use of the Testimonials shortcode, you should see the unrendered shortcode.
+- Generally test that toggling on and off the Testimonials feature results in expected Testimonial functionality being visible and not visible - including the Testimonials menu item display in the main wp-admin menu.
+- Test as well with the toggles at `/wp-admin/options-writing.php` (noting that toggling off isn't possible when a theme supports Portfolios or Testimonials), and Calypso Blue at `https://wordpress.com/settings/writing/yoursiteurl.com`.
+- Test with Portfolios active and not active as well, in terms of how that impacts Testimonials, though there are some testing quirks around that depending on the theme (see below).
+- Make sure there are no deprecation notices in error logs while testing.
 
 **Thank you for all your help!**

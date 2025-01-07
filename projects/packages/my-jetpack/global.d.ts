@@ -22,7 +22,10 @@ type ProductStatus =
 	| 'needs_activation'
 	| 'needs_first_site_connection'
 	| 'user_connection_error'
-	| 'can_upgrade';
+	| 'can_upgrade'
+	| 'needs_attention'
+	| 'expired'
+	| 'expiring';
 
 type JetpackModule =
 	| 'anti-spam'
@@ -33,15 +36,18 @@ type JetpackModule =
 	| 'extras'
 	| 'ai'
 	| 'jetpack-ai'
+	| 'protect'
 	| 'scan'
 	| 'search'
 	| 'social'
-	| 'security'
-	| 'protect'
-	| 'videopress'
 	| 'stats'
+	| 'videopress'
+	| 'security'
 	| 'growth'
-	| 'complete';
+	| 'complete'
+	| 'site-accelerator'
+	| 'newsletter'
+	| 'related-posts';
 
 type ThreatItem = {
 	// Protect API properties (free plan)
@@ -69,6 +75,29 @@ type ScanItem = {
 	version: string;
 };
 
+type RewindStatus =
+	| 'missing_plan'
+	| 'no_connected_jetpack'
+	| 'no_connected_jetpack_with_credentials'
+	| 'vp_active_on_site'
+	| 'vp_can_transfer'
+	| 'host_not_supported'
+	| 'multisite_not_supported'
+	| 'no_site_found';
+
+type BackupStatus =
+	| 'started'
+	| 'finished'
+	| 'no-credentials'
+	| 'backups-deactivated'
+	| 'no-credentials-atomic'
+	| 'credential-error'
+	| 'http-only-error'
+	| 'not-accessible'
+	| 'backup-deactivated'
+	| 'Kill switch active'
+	| 'error'
+	| 'error-will-retry';
 interface Window {
 	myJetpackInitialState?: {
 		siteSuffix: string;
@@ -148,6 +177,7 @@ interface Window {
 					has_paid_plan_for_product: boolean;
 					features_by_tier: Array< string >;
 					is_bundle: boolean;
+					is_feature: boolean;
 					is_plugin_active: boolean;
 					is_upgradable: boolean;
 					is_upgradable_by_bundle: string[];
@@ -242,6 +272,7 @@ interface Window {
 				plugins: ScanItem[];
 				status: string;
 				themes: ScanItem[];
+				threats?: ThreatItem[];
 			};
 			wafConfig: {
 				automatic_rules_available: boolean;
@@ -359,6 +390,38 @@ interface Window {
 			[ key: `${ string }-bad-installation` ]: {
 				data: {
 					plugin: string;
+				};
+			};
+			backup_failure?: {
+				type: 'warning' | 'error';
+				data: {
+					source: 'rewind' | 'last_backup';
+					status: RewindStatus | BackupStatus;
+					last_updated: string;
+				};
+			};
+			[ key: `${ string }--plan_expired` ]: {
+				product_slug: string;
+				product_name?: string;
+				expiry_date?: string;
+				expiry_message?: string;
+				manage_url?: string;
+				products_effected?: string[];
+			};
+			[ key: `${ string }--plan_expiring_soon` ]: {
+				product_slug: string;
+				product_name?: string;
+				expiry_date?: string;
+				expiry_message?: string;
+				manage_url?: string;
+				products_effected?: string[];
+			};
+			protect_has_threats?: {
+				type: 'warning' | 'error';
+				data: {
+					threat_count: number;
+					critical_threat_count: number;
+					fixable_threat_ids: number[];
 				};
 			};
 		};

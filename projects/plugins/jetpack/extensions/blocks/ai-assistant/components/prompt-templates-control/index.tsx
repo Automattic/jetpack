@@ -1,6 +1,20 @@
 /*
  * External dependencies
  */
+import {
+	CORRECT_SPELLING_LABEL,
+	GENERATE_TITLE_LABEL,
+	PROMPT_TYPE_CONTINUE,
+	PROMPT_TYPE_GENERATE_TITLE,
+	PROMPT_TYPE_SUMMARY_BY_TITLE,
+	SIMPLIFY_LABEL,
+	SUMMARIZE_LABEL,
+	SUMMARY_BASED_ON_TITLE_LABEL,
+	CONTINUE_LABEL,
+	PROMPT_TYPE_SUMMARIZE,
+	PROMPT_TYPE_SIMPLIFY,
+	PROMPT_TYPE_CORRECT_SPELLING,
+} from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MenuItem, MenuGroup, ToolbarDropdownMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -134,23 +148,23 @@ export default function PromptTemplatesControl( {
 								<MenuItem
 									icon={ postContent }
 									iconPosition="left"
-									onClick={ () => onSuggestionSelect( 'continue' ) }
+									onClick={ () => onSuggestionSelect( PROMPT_TYPE_CONTINUE ) }
 								>
-									{ __( 'Continue writing', 'jetpack' ) }
+									{ CONTINUE_LABEL }
 								</MenuItem>
 								<MenuItem
 									icon={ termDescription }
 									iconPosition="left"
-									onClick={ () => onSuggestionSelect( 'correctSpelling' ) }
+									onClick={ () => onSuggestionSelect( PROMPT_TYPE_CORRECT_SPELLING ) }
 								>
-									{ __( 'Correct spelling and grammar', 'jetpack' ) }
+									{ CORRECT_SPELLING_LABEL }
 								</MenuItem>
 								<MenuItem
 									icon={ post }
 									iconPosition="left"
-									onClick={ () => onSuggestionSelect( 'simplify' ) }
+									onClick={ () => onSuggestionSelect( PROMPT_TYPE_SIMPLIFY ) }
 								>
-									{ __( 'Simplify', 'jetpack' ) }
+									{ SIMPLIFY_LABEL }
 								</MenuItem>
 							</MenuGroup>
 						) }
@@ -160,18 +174,18 @@ export default function PromptTemplatesControl( {
 									<MenuItem
 										icon={ postExcerpt }
 										iconPosition="left"
-										onClick={ () => onSuggestionSelect( 'summarize' ) }
+										onClick={ () => onSuggestionSelect( PROMPT_TYPE_SUMMARIZE ) }
 									>
-										{ __( 'Summarize', 'jetpack' ) }
+										{ SUMMARIZE_LABEL }
 									</MenuItem>
 								) }
 								{ hasContent && (
 									<MenuItem
 										icon={ title }
 										iconPosition="left"
-										onClick={ () => onSuggestionSelect( 'generateTitle' ) }
+										onClick={ () => onSuggestionSelect( PROMPT_TYPE_GENERATE_TITLE ) }
 									>
-										{ __( 'Generate a post title', 'jetpack' ) }
+										{ GENERATE_TITLE_LABEL }
 									</MenuItem>
 								) }
 							</MenuGroup>
@@ -181,9 +195,9 @@ export default function PromptTemplatesControl( {
 								<MenuItem
 									icon={ pencil }
 									iconPosition="left"
-									onClick={ () => onSuggestionSelect( 'titleSummary' ) }
+									onClick={ () => onSuggestionSelect( PROMPT_TYPE_SUMMARY_BY_TITLE ) }
 								>
-									{ __( 'Summary based on title', 'jetpack' ) }
+									{ SUMMARY_BASED_ON_TITLE_LABEL }
 								</MenuItem>
 							) }
 							{ promptTemplates.map( ( prompt: PromptTemplateProps, i: number ) => (

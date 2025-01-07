@@ -80,6 +80,7 @@ export function GoodreadsInspectorControls( { attributes, setAttributes } ) {
 
 				<TextControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					label={ __( 'Title', 'jetpack' ) }
 					value={ customTitle || GOODREADS_DEFAULT_TITLE }
 					onChange={ value => setAttributes( { customTitle: value } ) }
@@ -103,6 +104,7 @@ export function GoodreadsInspectorControls( { attributes, setAttributes } ) {
 
 				<TextControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					label={ __( 'Number of books', 'jetpack' ) }
 					type="number"
 					inputMode="numeric"

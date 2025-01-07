@@ -1,6 +1,6 @@
+import PropTypes from 'prop-types';
 import PluginInstallSection from 'components/plugin-install-section';
 import SectionHeader from 'components/section-header';
-import PropTypes from 'prop-types';
 
 import './style.scss';
 

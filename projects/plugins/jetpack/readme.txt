@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 14.0
+Stable tag: 14.1
 Requires at least: 6.6
 Requires PHP: 7.2
 Tested up to: 6.7
@@ -326,12 +326,29 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.1-a.7 - 2024-11-26
+### 14.2 - 2025-01-07
 #### Enhancements
-- Subscriptions: stops loading editor functionality (i.e. the block and panels) when subscriptions module is disabled.
+- Social: Improve Jetpack Likes behavior for better theme integration if the post has likes.
+- Stats: Allow programatically fetching stats for specific sites when using Jetpack's tools.
+- Stats: Enable sparkline chart in the WP Admin bar.
+- Stats: Sunset Legacy Stats experience.
+
+#### Improved compatibility
+- Google Photos Picker: Update UX opening picker right after pressing "change selection" CTA.
+- Jetpack Testimonials: Ensure feature loads via the Classic Theme Helper package instead of the module.
+- SEO: Ensure support for adding an SEO title and description for custom post types.
+- WordPress 6.7 Compatibility: Fix notices caused by translation calls happening too early in the load order.
 
 #### Bug fixes
-- Social: Fixed undefined index error on specific WordPress.com environments.
+- Facebook Embeds: Add a white background to embeds to avoid transparent background interfering with readability.
+- Form Block: Fix validation of URL input types to allow query strings.
+- Google Fonts: Clean up the Google Fonts data if either the Google Fonts module is disabled or Jetpack is disabled.
+- Import: Set WP_IMPORTING constant correctly when doing an import.
+- SEO: Ensure that SEO fields are not visible when another SEO plugin is active.
+- Shortcode embeds: Ensure Instagram reels are properly displayed in AMP views.
+- Shortcodes: Prevent conflict with third-party SoundCloud shortcodes.
+- Slideshow block: Fix block display when added within a Stack block.
+- WooCommerce Analytics: Fix fatal error when WooCommerce cart object is not available.
 
 --------
 

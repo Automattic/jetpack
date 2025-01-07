@@ -1,6 +1,6 @@
-import { Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useContext } from 'react';
+import { Button } from '@automattic/jetpack-components';
 import Text from '../text';
 import styles from './styles.module.scss';
 import { ThreatModalContext } from '.';
@@ -19,7 +19,7 @@ const ThreatSummary = (): JSX.Element => {
 			{ !! threat.source && (
 				<div>
 					<Button variant="link" isExternalLink={ true } weight="regular" href={ threat.source }>
-						{ __( 'See more technical details of this threat', 'jetpack' ) }
+						{ __( 'See more technical details of this threat', 'jetpack-components' ) }
 					</Button>
 				</div>
 			) }

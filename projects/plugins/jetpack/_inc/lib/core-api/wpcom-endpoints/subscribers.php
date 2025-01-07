@@ -57,6 +57,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 	 * Permission check. Only authors can access this endpoint.
 	 */
 	public function readable_permission_check() {
+		// @phan-suppress-next-line PhanDeprecatedFunction -- @todo Switch to current_user_can_for_site when we drop support for WP 6.6.
 		if ( ! current_user_can_for_blog( get_current_blog_id(), 'edit_posts' ) ) {
 			return new WP_Error( 'authorization_required', 'Only users with the permission to edit posts can see the subscriber count.', array( 'status' => 401 ) );
 		}

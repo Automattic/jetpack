@@ -14,7 +14,6 @@ import ShieldOff from './assets/shield-off.svg';
 import ShieldPartial from './assets/shield-partial.svg';
 import ShieldSuccess from './assets/shield-success.svg';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
-import type { PropsWithChildren, ReactElement } from 'react';
 
 export const ScanAndThreatStatus = () => {
 	const slug = 'protect';
@@ -69,11 +68,11 @@ export const ScanAndThreatStatus = () => {
 /**
  * ThreatStatus component
  *
- * @param {PropsWithChildren} props                     - The component props
- * @param {number}            props.numThreats          - The number of threats
- * @param {number}            props.criticalThreatCount - The number of critical threats
+ * @param props                     - The component props
+ * @param props.numThreats          - The number of threats
+ * @param props.criticalThreatCount - The number of critical threats
  *
- * @return {ReactElement} rendered component
+ * @return  rendered component
  */
 function ThreatStatus( {
 	numThreats,
@@ -139,10 +138,10 @@ function ThreatStatus( {
 								focusOnMount={ 'container' }
 								onClose={ hideTooltip }
 							>
-								<>
+								<div className="info-tooltip__content">
 									<h3>{ scanThreatsTooltip.title }</h3>
 									<p>{ scanThreatsTooltip.text }</p>
-								</>
+								</div>
 							</Popover>
 						) }
 					</div>
@@ -158,8 +157,20 @@ function ThreatStatus( {
 
 	return (
 		<>
-			<div className={ baseStyles.valueSectionHeading }>
+			<div className={ clsx( baseStyles.valueSectionHeading, 'value-section__heading' ) }>
 				{ __( 'Threats', 'jetpack-my-jetpack' ) }
+				<InfoTooltip
+					tracksEventName={ 'protect_card_tooltip_open' }
+					tracksEventProps={ {
+						location: 'threats',
+						feature: 'jetpack-protect',
+						has_paid_plan: true,
+						threats: numThreats,
+					} }
+				>
+					<h3>{ scanThreatsTooltip.title }</h3>
+					<p>{ scanThreatsTooltip.text }</p>
+				</InfoTooltip>
 			</div>
 			<div className="value-section__data">
 				<div className="scan-threats__threat-count">{ numThreats }</div>
@@ -171,10 +182,10 @@ function ThreatStatus( {
 /**
  * ScanStatus component
  *
- * @param {PropsWithChildren}             props        - The component props
- * @param {'success' | 'partial' | 'off'} props.status - The number of threats
+ * @param props        - The component props
+ * @param props.status - The number of threats
  *
- * @return { ReactElement} rendered component
+ * @return  rendered component
  */
 function ScanStatus( { status }: { status: 'success' | 'partial' | 'off' } ) {
 	const tooltipContent = useProtectTooltipCopy();
@@ -214,10 +225,8 @@ function ScanStatus( { status }: { status: 'success' | 'partial' | 'off' } ) {
 							threats: 0,
 						} }
 					>
-						<>
-							<h3>{ scanThreatsTooltip.title }</h3>
-							<p>{ scanThreatsTooltip.text }</p>
-						</>
+						<h3>{ scanThreatsTooltip.title }</h3>
+						<p>{ scanThreatsTooltip.text }</p>
 					</InfoTooltip>
 				</div>
 				<div className="value-section__data">

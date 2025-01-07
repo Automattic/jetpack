@@ -1,7 +1,8 @@
-import QRCodeLib from 'qrcode.react';
+import { QRCodeCanvas, QRCodeSVG } from 'qrcode.react';
 import type React from 'react';
 
-type QRCodeLibProps = React.ComponentProps< typeof QRCodeLib >;
+type QRCodeCanvasProps = React.ComponentProps< typeof QRCodeCanvas >;
+type QRCodeSVGProps = React.ComponentProps< typeof QRCodeSVG >;
 
 export type QRCodeProps = {
 	/**
@@ -22,7 +23,7 @@ export type QRCodeProps = {
 	/**
 	 * Error correction level of the QR code.
 	 */
-	level?: QRCodeLibProps[ 'level' ];
+	level?: QRCodeCanvasProps[ 'level' ] | QRCodeSVGProps[ 'level' ];
 
 	/**
 	 * Whether to include margin in the QR code.
@@ -32,7 +33,7 @@ export type QRCodeProps = {
 	/**
 	 * Render the QR code as a `canvas` or `svg`.
 	 */
-	renderAs?: QRCodeLibProps[ 'renderAs' ];
+	renderAs?: 'canvas' | 'svg';
 
 	/**
 	 * Size of the QR code.
@@ -42,7 +43,7 @@ export type QRCodeProps = {
 	/**
 	 * Image settings for the QR code.
 	 */
-	imageSettings?: QRCodeLibProps[ 'imageSettings' ];
+	imageSettings?: QRCodeCanvasProps[ 'imageSettings' ] | QRCodeSVGProps[ 'imageSettings' ];
 };
 
 /**
@@ -53,25 +54,27 @@ export type QRCodeProps = {
  */
 const QRCode: React.FC< QRCodeProps > = ( {
 	value = 'https://jetpack.com',
+	size = 248,
 	bgColor,
 	fgColor,
 	level,
 	includeMargin,
 	imageSettings,
 	renderAs = 'canvas',
-	size = 248,
 } ) => {
-	return (
-		<QRCodeLib
-			value={ value }
-			size={ size }
-			bgColor={ bgColor }
-			fgColor={ fgColor }
-			level={ level }
-			includeMargin={ includeMargin }
-			imageSettings={ imageSettings }
-			renderAs={ renderAs }
-		/>
+	const commonProps = {
+		value,
+		size,
+		bgColor,
+		fgColor,
+		level,
+		includeMargin,
+		imageSettings,
+	};
+	return renderAs === 'svg' ? (
+		<QRCodeSVG { ...commonProps } />
+	) : (
+		<QRCodeCanvas { ...commonProps } />
 	);
 };
 

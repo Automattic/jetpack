@@ -1,4 +1,5 @@
 import { useConnection } from '@automattic/jetpack-connection';
+import { type ScanStatus } from '@automattic/jetpack-scan';
 import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import {
@@ -10,7 +11,6 @@ import {
 	SCAN_STATUS_OPTIMISTICALLY_SCANNING,
 } from '../constants';
 import useNotices from '../hooks/use-notices';
-import { ScanStatus } from '../types/scans';
 
 /**
  * Connect Site Mutation

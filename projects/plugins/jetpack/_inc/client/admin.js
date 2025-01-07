@@ -1,11 +1,11 @@
 import * as WPElement from '@wordpress/element';
 import { _x } from '@wordpress/i18n';
-import accessibleFocus from 'lib/accessible-focus';
 import { assign } from 'lodash';
-import Main from 'main';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { HashRouter, Route, Switch } from 'react-router-dom';
+import accessibleFocus from 'lib/accessible-focus';
+import Main from 'main';
 import * as actionTypes from 'state/action-types';
 import store from 'state/redux-store';
 
@@ -13,6 +13,7 @@ import store from 'state/redux-store';
 accessibleFocus();
 
 // Add dispatch and actionTypes to the window object so we can use it from the browser's console
+// eslint-disable-next-line no-undef -- webpack sets process.env.NODE_ENV
 if ( 'undefined' !== typeof window && process.env.NODE_ENV === 'development' ) {
 	assign( window, {
 		actionTypes: actionTypes,

@@ -42,6 +42,7 @@
 	"prefer-stable": true,
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-scan",
+		"textdomain": "jetpack-scan",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-scan/compare/v${old}...v${new}"
 		},

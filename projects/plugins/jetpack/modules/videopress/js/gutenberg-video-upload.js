@@ -1,13 +1,12 @@
-/* globals wp, lodash */
+/* globals lodash */
 window.videoPressUploadPoster = function ( guid, data ) {
-	// eslint-disable-next-line no-undef
 	return new Promise( function ( resolve, reject ) {
 		wp.media.ajax( 'videopress-get-upload-token', { async: true } ).done( function ( response ) {
 			// Set auth header with upload token.
 			var headers = {},
 				options = {};
 			var body = new FormData();
-			headers[ 'Authorization' ] =
+			headers.Authorization =
 				'X_UPLOAD_TOKEN token="' +
 				response.upload_token +
 				'" blog_id="' +
@@ -74,7 +73,6 @@ window.videoPressGetPoster = function ( guid ) {
 };
 
 window.videoPressUploadTrack = function ( guid, kind, srcLang, label, vttFile ) {
-	// eslint-disable-next-line no-undef
 	return new Promise( function ( resolve, reject ) {
 		wp.media
 			.ajax( 'videopress-get-upload-token', { async: true, data: { filename: vttFile.name } } ) // todo: maybe remove filename from here (not needed)
@@ -83,7 +81,7 @@ window.videoPressUploadTrack = function ( guid, kind, srcLang, label, vttFile ) 
 				var headers = {},
 					options = {};
 				var body = new FormData();
-				headers[ 'Authorization' ] =
+				headers.Authorization =
 					'X_UPLOAD_TOKEN token="' +
 					response.upload_token +
 					'" blog_id="' +
@@ -115,14 +113,13 @@ window.videoPressUploadTrack = function ( guid, kind, srcLang, label, vttFile ) 
 };
 
 window.videoPressDeleteTrack = function ( guid, kind, srcLang ) {
-	// eslint-disable-next-line no-undef
 	return new Promise( function ( resolve, reject ) {
 		wp.media.ajax( 'videopress-get-upload-token', { async: true } ).done( function ( response ) {
 			// Set auth header with upload token.
 			var headers = {},
 				options = {};
 			var body = new FormData();
-			headers[ 'Authorization' ] =
+			headers.Authorization =
 				'X_UPLOAD_TOKEN token="' +
 				response.upload_token +
 				'" blog_id="' +

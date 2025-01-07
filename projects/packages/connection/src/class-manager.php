@@ -452,8 +452,9 @@ class Manager {
 
 		if (
 			empty( $token_key )
-		||
-			empty( $version ) || (string) $jetpack_api_version !== $version ) {
+				|| empty( $version )
+				|| (string) $jetpack_api_version !== $version
+		) {
 			return new \WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details', 'error_type' ) );
 		}
 
