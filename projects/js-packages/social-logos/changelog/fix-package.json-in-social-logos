@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Removed .module entry for it being a commonjs package
