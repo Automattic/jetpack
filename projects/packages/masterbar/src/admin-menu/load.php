@@ -64,7 +64,6 @@ function hide_customizer_menu_on_block_theme() {
 
 				remove_action( 'customize_register', 'Automattic\Jetpack\Masterbar\register_css_nudge_control' );
 
-				// @phan-suppress-next-line PhanUndeclaredClassInCallable
 				remove_action( 'customize_register', array( 'Jetpack_Custom_CSS_Enhancements', 'customize_register' ) );
 			}
 		}

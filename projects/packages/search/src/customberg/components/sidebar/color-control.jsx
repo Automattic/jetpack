@@ -5,8 +5,6 @@ import { __ } from '@wordpress/i18n';
 
 import './color-control.scss';
 
-/* eslint-disable react/jsx-no-bind */
-
 const DEFAULT_COLORS = [
 	{ name: 'Dull blue', color: '#463ECE' },
 	{ name: 'Jazzberry jam', color: '#C6446F' },

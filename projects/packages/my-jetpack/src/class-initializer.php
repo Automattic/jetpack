@@ -21,7 +21,6 @@ use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
-use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
@@ -42,7 +41,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.1.0';
+	const PACKAGE_VERSION = '5.3.0';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -234,7 +233,7 @@ class Initializer {
 			$previous_score = $speed_score_history->latest( 1 );
 		}
 		$latest_score['previousScores'] = $previous_score['scores'] ?? array();
-		$scan_data                      = Protect_Status::get_status();
+		$scan_data                      = Products\Protect::get_protect_data();
 		self::update_historically_active_jetpack_modules();
 
 		$waf_config = array();
@@ -927,7 +926,12 @@ class Initializer {
 			);
 			return $red_bubble_slugs;
 		} else {
-			return self::alert_if_missing_connection( $red_bubble_slugs );
+			return array_merge(
+				self::alert_if_missing_connection( $red_bubble_slugs ),
+				self::alert_if_last_backup_failed( $red_bubble_slugs ),
+				self::alert_if_paid_plan_expiring( $red_bubble_slugs ),
+				self::alert_if_protect_has_threats( $red_bubble_slugs )
+			);
 		}
 	}
 
@@ -964,6 +968,111 @@ class Initializer {
 				'is_error' => false,
 			);
 			return $red_bubble_slugs;
+		}
+
+		return $red_bubble_slugs;
+	}
+
+	/**
+	 * Add an alert slug if any paid plan/products are expiring or expired.
+	 *
+	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
+	 * @return array
+	 */
+	public static function alert_if_paid_plan_expiring( array $red_bubble_slugs ) {
+		$connection = new Connection_Manager();
+		if ( ! $connection->is_connected() ) {
+			return $red_bubble_slugs;
+		}
+		$product_classes    = Products::get_products_classes();
+		$not_shown_products = array(
+			'scan',
+			'extras',
+			'ai',
+			'newsletter',
+			'site-accelerator',
+			'related-posts',
+		);
+
+		$products_included_in_expiring_plan = array();
+		foreach ( $product_classes as $key => $product ) {
+			// Skip these- we don't show them in My Jetpack.
+			// ('ai' is a duplicate class of 'jetpack-ai', and therefore not needed).
+			// See `get_product_classes() in projects/packages/my-jetpack/src/class-products.php for more info.
+			if ( in_array( $key, $not_shown_products, true ) ) {
+				continue;
+			}
+
+			if ( $product::has_paid_plan_for_product() ) {
+				$purchase = $product::get_paid_plan_purchase_for_product();
+				if ( $purchase ) {
+					$redbubble_notice_data = array(
+						'product_slug'   => $purchase->product_slug,
+						'product_name'   => $purchase->product_name,
+						'expiry_date'    => $purchase->expiry_date,
+						'expiry_message' => $purchase->expiry_message,
+						'manage_url'     => $product::get_manage_paid_plan_purchase_url(),
+					);
+
+					if ( $product::is_paid_plan_expired() ) {
+						$red_bubble_slugs[ "$purchase->product_slug--plan_expired" ] = $redbubble_notice_data;
+						if ( ! $product::is_bundle_product() ) {
+							$products_included_in_expiring_plan[ "$purchase->product_slug--plan_expired" ][] = $product::get_name();
+						}
+					}
+					if ( $product::is_paid_plan_expiring() ) {
+						$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ]               = $redbubble_notice_data;
+						$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ]['manage_url'] = $product::get_renew_paid_plan_purchase_url();
+						if ( ! $product::is_bundle_product() ) {
+							$products_included_in_expiring_plan[ "$purchase->product_slug--plan_expiring_soon" ][] = $product::get_name();
+						}
+					}
+				}
+			}
+		}
+
+		foreach ( $products_included_in_expiring_plan as $expiring_plan => $products ) {
+			$red_bubble_slugs[ $expiring_plan ]['products_effected'] = $products;
+		}
+
+		return $red_bubble_slugs;
+	}
+
+	/**
+	 * Add an alert slug if Backups are failing or having an issue.
+	 *
+	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
+	 * @return array
+	 */
+	public static function alert_if_last_backup_failed( array $red_bubble_slugs ) {
+		// Make sure we're dealing with the Backup product only
+		if ( ! Products\Backup::has_paid_plan_for_product() ) {
+			return $red_bubble_slugs;
+		}
+
+		$backup_failed_status = Products\Backup::does_module_need_attention();
+		if ( $backup_failed_status ) {
+			$red_bubble_slugs['backup_failure'] = $backup_failed_status;
+		}
+
+		return $red_bubble_slugs;
+	}
+
+	/**
+	 * Add an alert slug if Protect has scan threats/vulnerabilities.
+	 *
+	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
+	 * @return array
+	 */
+	public static function alert_if_protect_has_threats( array $red_bubble_slugs ) {
+		// Make sure we're dealing with the Protect product only
+		if ( ! Products\Protect::has_paid_plan_for_product() ) {
+			return $red_bubble_slugs;
+		}
+
+		$protect_threats_status = Products\Protect::does_module_need_attention();
+		if ( $protect_threats_status ) {
+			$red_bubble_slugs['protect_has_threats'] = $protect_threats_status;
 		}
 
 		return $red_bubble_slugs;

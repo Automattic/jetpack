@@ -31,6 +31,8 @@ const ActionButton = props => {
 		isDisabled,
 		displayError = false,
 		errorMessage = __( 'An error occurred. Please try again.', 'jetpack-components' ),
+		variant = 'primary',
+		isExternalLink = false,
 		customClass,
 	} = props;
 
@@ -43,7 +45,8 @@ const ActionButton = props => {
 					className={ clsx( styles.button, 'jp-action-button--button', customClass ) }
 					label={ label }
 					onClick={ onClick }
-					variant="primary"
+					variant={ isExternalLink ? 'link' : variant }
+					isExternalLink={ isExternalLink }
 					disabled={ isLoading || isDisabled }
 				>
 					{ isLoading ? loadingContent : label }
@@ -70,6 +73,10 @@ ActionButton.propTypes = {
 	displayError: PropTypes.bool,
 	/** The error message string */
 	errorMessage: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
+	/** The type/variant of button */
+	variant: PropTypes.arrayOf( PropTypes.oneOf( [ 'primary', 'secondary', 'link' ] ) ),
+	/** Will display the button as a link with an external icon. */
+	isExternalLink: PropTypes.bool,
 };
 
 export default ActionButton;

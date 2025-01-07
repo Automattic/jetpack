@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Resolved an issue where revoked licenses were incorrectly treated as unattached. This caused users to be redirected to the license activation page after site connection, even when unattached licenses were not valid for activation.

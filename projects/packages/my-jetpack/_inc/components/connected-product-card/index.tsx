@@ -7,8 +7,7 @@ import { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
-import { MyJetpackRoutes } from '../../constants';
-import { PRODUCT_STATUSES } from '../../constants';
+import { MyJetpackRoutes, PRODUCT_STATUSES } from '../../constants';
 import useActivate from '../../data/products/use-activate';
 import useInstallStandalonePlugin from '../../data/products/use-install-standalone-plugin';
 import useProduct from '../../data/products/use-product';
@@ -67,7 +66,7 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 		manageUrl,
 	} = detail;
 
-	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.Connection );
+	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.ConnectionSkipPricing );
 
 	/*
 	 * Redirect only if connected
@@ -99,11 +98,7 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 	};
 
 	useEffect( () => {
-		if (
-			isRegistered &&
-			( status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR ||
-				status === PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION )
-		) {
+		if ( isRegistered ) {
 			refetch();
 		}
 	}, [ isRegistered, status, refetch ] );

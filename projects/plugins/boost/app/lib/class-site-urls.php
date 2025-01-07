@@ -14,7 +14,7 @@ class Site_Urls {
 			)
 		);
 
-		return array_slice(
+		$urls = array_slice(
 			array_merge(
 				$core_urls,
 				$post_urls
@@ -22,6 +22,16 @@ class Site_Urls {
 			0,
 			$limit
 		);
+
+		/**
+		 * Filters the list of site URLs used by the Image Size Analysis.
+		 *
+		 * @since 3.7.0
+		 *
+		 * @param array $urls An array of URLs.
+		 * @param int   $limit The maximum number of URLs that should be returned.
+		 */
+		return apply_filters( 'jetpack_boost_site_urls', $urls, $limit );
 	}
 
 	private static function get_wp_core_urls() {

@@ -94,4 +94,13 @@ trait Import {
 
 		return $response;
 	}
+
+	/**
+	 * Set the importing constant.
+	 */
+	public function set_importing() {
+		if ( ! defined( 'WP_IMPORTING' ) ) {
+			define( 'WP_IMPORTING', true );
+		}
+	}
 }

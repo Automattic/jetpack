@@ -7,11 +7,11 @@
 
 namespace Automattic\Jetpack\Publicize;
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
+use Automattic\Jetpack\Publicize\Services as Publicize_Services;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
@@ -20,6 +20,8 @@ use Jetpack_Options;
  * Publicize_Script_Data class.
  */
 class Publicize_Script_Data {
+
+	const SERVICES_TRANSIENT = 'jetpack_social_services_list';
 
 	/**
 	 * Get the publicize instance - properly typed
@@ -224,27 +226,7 @@ class Publicize_Script_Data {
 	 * @return array List of external services and their settings.
 	 */
 	public static function get_supported_services() {
-		$site_id = Manager::get_site_id();
-		if ( is_wp_error( $site_id ) ) {
-			return array();
-		}
-		$path     = sprintf( '/sites/%d/external-services', $site_id );
-		$response = Client::wpcom_json_api_request_as_user( $path );
-		if ( is_wp_error( $response ) ) {
-			return array();
-		}
-		$body = json_decode( wp_remote_retrieve_body( $response ) );
-
-		$services = $body->services ?? array();
-
-		return array_values(
-			array_filter(
-				(array) $services,
-				function ( $service ) {
-					return isset( $service->type ) && 'publicize' === $service->type;
-				}
-			)
-		);
+		return Publicize_Services::get_all();
 	}
 
 	/**
@@ -254,9 +236,9 @@ class Publicize_Script_Data {
 	 */
 	public static function get_api_paths() {
 
-		$is_simple_site = ( new Host() )->is_wpcom_simple();
+		$is_wpcom = ( new Host() )->is_wpcom_platform();
 
-		if ( $is_simple_site ) {
+		if ( $is_wpcom ) {
 			return array(
 				'refreshConnections' => '/wpcom/v2/publicize/connection-test-results',
 				'resharePost'        => '/wpcom/v2/posts/{postId}/publicize',
