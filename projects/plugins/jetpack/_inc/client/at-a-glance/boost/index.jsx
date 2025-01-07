@@ -176,7 +176,7 @@ const DashBoost = ( {
 						'jetpack'
 					),
 					bottom: __(
-						'Jetpack Boost enhance your site’s performance like top websites, no developer needed.',
+						'Jetpack Boost enhances your site’s performance like top websites, no developer needed.',
 						'jetpack'
 					),
 				};
