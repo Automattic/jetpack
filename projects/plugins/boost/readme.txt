@@ -183,14 +183,20 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.6.1 - 2024-11-28
+### 3.7.0 - 2025-01-06
+#### Added
+- Concatenate JS/CSS: Added a button that allows loading default excludes.
+- General: Added tracks events to clickable elements on the settings page.
+- General: Added WordPress filters to allow Cornerstone Pages list and Image Size Analyzer source data to be updated.
+- Concatenate JS/CSS: Added HTTP header to take advantage of WordPress.com edge caching
+- UI: Added notifications when interacting with dashboard settings.
+
 #### Changed
-- Image CDN: Improve performance.
-- General: Update minimum PHP version to 7.2.
-- General: Update minimum WordPress version to 6.6.
+- UI: Gave Page Cache, Concatenate JS/CSS and Image CDN - Image Quality modules a more unifed look.
 
 #### Fixed
-- Compatibility: Fixed situations where minify could break due to too many files being enqueued in the elementor editor.
+- Critical CSS: Improved UI responsiveness during a retry after failed generation.
+- UI: Fixed showing an error if no ISA report was found.
 
 --------
 

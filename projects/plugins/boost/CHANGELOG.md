@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.7.0] - 2025-01-06
+### Added
+- Concatenate JS/CSS: Added a button that allows loading default excludes. [#40496]
+- General: Added tracks events to clickable elements on the settings page. [#40246]
+- General: Added WordPress filters to allow Cornerstone Pages list and Image Size Analyzer source data to be updated. [#40442]
+- Concatenate JS/CSS: Added HTTP header to take advantage of WordPress.com edge caching [#40557]
+- UI: Added notifications when interacting with dashboard settings. [#40593]
+
+### Changed
+- UI: Gave Page Cache, Concatenate JS/CSS and Image CDN - Image Quality modules a more unifed look. [#40224]
+
+### Fixed
+- Critical CSS: Improved UI responsiveness during a retry after failed generation. [#40675]
+- UI: Fixed showing an error if no ISA report was found. [#40660]
+
 ## [3.6.1] - 2024-11-28
 ### Changed
 - Image CDN: Improve performance. [#39883]
@@ -552,6 +567,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[3.7.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.6.1...3.7.0
 [3.6.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.6.0...3.6.1
 [3.6.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.5.2...3.6.0
 [3.5.2]: https://github.com/Automattic/jetpack-boost-production/compare/3.5.1...3.5.2

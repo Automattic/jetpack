@@ -1,6 +1,6 @@
 import { localPoint } from '@visx/event';
 import { Group } from '@visx/group';
-import Pie, { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
+import Pie, { type PieArcDatum } from '@visx/shape/lib/shapes/Pie';
 import { Text } from '@visx/text';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
@@ -35,7 +35,7 @@ type ArcData = PieArcDatum< DataPointPercentage >;
 
 const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	data,
-	width,
+	width = 500, //TODO: replace when making the components responsive
 	label,
 	note,
 	className,
@@ -168,8 +168,8 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 						value: tooltipData.value,
 						valueDisplay: tooltipData.valueDisplay,
 					} }
-					top={ tooltipTop }
-					left={ tooltipLeft }
+					top={ tooltipTop || 0 }
+					left={ tooltipLeft || 0 }
 				/>
 			) }
 

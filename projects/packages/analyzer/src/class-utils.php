@@ -152,6 +152,11 @@ class Utils {
 			if ( ! $stmt instanceof Node\Stmt\Expression || ! $stmt->expr instanceof Node\Expr\FuncCall ) {
 				continue;
 			}
+
+			if ( $stmt->expr->name instanceof Node\Expr\Variable ) {
+				continue;
+			}
+
 			if ( false !== strpos( $stmt->expr->name->toCodeString(), $name ) ) {
 				return true;
 			}
