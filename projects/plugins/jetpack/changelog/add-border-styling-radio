@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Form: fixes the colour styling options of multiselect inputs
