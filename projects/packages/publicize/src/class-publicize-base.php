@@ -497,6 +497,19 @@ abstract class Publicize_Base {
 			return 'https://instagram.com/' . $cmeta['connection_data']['meta']['username'];
 		}
 
+		if ( 'linkedin' === $service_name ) {
+
+			$entity_type = $cmeta['connection_data']['meta']['entity_type'] ?? 'person';
+
+			if ( 'organization' === $entity_type && ! empty( $cmeta['connection_data']['meta']['external_name'] ) ) {
+				return 'https://www.linkedin.com/company/' . $cmeta['connection_data']['meta']['external_name'];
+			}
+
+			if ( 'person' === $entity_type && ! empty( $cmeta['external_name'] ) ) {
+				return 'https://www.linkedin.com/in/' . $cmeta['external_name'];
+			}
+		}
+
 		if ( 'threads' === $service_name && isset( $cmeta['external_name'] ) ) {
 			return 'https://www.threads.net/@' . $cmeta['external_name'];
 		}
@@ -519,28 +532,6 @@ abstract class Publicize_Base {
 
 		if ( 'bluesky' === $service_name ) {
 			return 'https://bsky.app/profile/' . $cmeta['external_id'];
-		}
-
-		if ( 'linkedin' === $service_name ) {
-			if ( ! isset( $cmeta['connection_data']['meta']['profile_url'] ) ) {
-				return false;
-			}
-
-			$profile_url_query      = wp_parse_url( $cmeta['connection_data']['meta']['profile_url'], PHP_URL_QUERY );
-			$profile_url_query_args = array();
-			wp_parse_str( $profile_url_query, $profile_url_query_args );
-
-			$id = null;
-
-			if ( isset( $profile_url_query_args['key'] ) ) {
-				$id = $profile_url_query_args['key'];
-			} elseif ( isset( $profile_url_query_args['id'] ) ) {
-				$id = $profile_url_query_args['id'];
-			} else {
-				return false;
-			}
-
-			return esc_url_raw( add_query_arg( 'id', rawurlencode( $id ), 'https://www.linkedin.com/profile/view' ) );
 		}
 
 		return false; // no fallback. we just won't link it.
