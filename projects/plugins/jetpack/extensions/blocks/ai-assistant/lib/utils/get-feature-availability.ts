@@ -1,3 +1,9 @@
+/*
+ * External dependencies
+ */
+import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
+
+// TODO: Move to the AI Client js-package
 export function getFeatureAvailability( feature: string ): boolean {
-	return window?.Jetpack_Editor_Initial_State?.available_blocks?.[ feature ]?.available === true;
+	return getJetpackExtensionAvailability( feature ).available === true;
 }

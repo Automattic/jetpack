@@ -1,4 +1,5 @@
 import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
 import { usePostMeta } from '../../hooks/use-post-meta';
 
@@ -11,9 +12,7 @@ export function useShareButtonText() {
 	const { shareMessage } = usePostMeta();
 	const { message, link } = useSelect(
 		select => {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const getEditedPostAttribute = ( select( 'core/editor' ) as any )
-				.getEditedPostAttribute satisfies ( attribute: string ) => unknown;
+			const { getEditedPostAttribute } = select( editorStore );
 
 			return {
 				link: getEditedPostAttribute( 'link' ),

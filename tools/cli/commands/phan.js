@@ -66,7 +66,7 @@ export async function builder( yargs ) {
 		} )
 		.option( 'concurrency', {
 			type: 'number',
-			description: 'Maximum number of phan tasks to run at once. Ignored with `--verbose`.',
+			description: 'Maximum number of phan tasks to run at once.',
 			default: os.cpus().length,
 			coerce: coerceConcurrency,
 		} )
@@ -457,7 +457,7 @@ export async function handler( argv ) {
 									}
 									throw new Error( 'Output is JSON but not an array' );
 								}
-							} catch ( e2 ) {
+							} catch {
 								if ( argv.v ) {
 									sstdout.write( stdout );
 								}

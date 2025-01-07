@@ -11,7 +11,6 @@ Here is the current list of tasks handled by this action:
 - Check Description (`checkDescription`): Checks the contents of a PR description, and ensure it matches our recommendations.
 - Add Labels (`addLabels`): Adds labels to PRs that touch specific features.
 - Clean Labels (`cleanLabels`): Removes Status labels once a PR or issue has been closed or merged.
-- WordPress.com Commit Reminder (`wpcomCommitReminder`): Posts a comment on merged PRs to remind Automatticians to commit the matching WordPress.com change.
 - Notify Design (`notifyDesign`): Sends a Slack Notification to the Design team to request feedback, based on labels applied to a PR.
 - Notify Editorial (`notifyEditorial`): Sends a Slack Notification to the Editorial team to request feedback, based on labels applied to a PR.
 - Flag OSS (`flagOss`): flags entries by external contributors, adds an "OSS Citizen" label to the PR, and sends a Slack message.
@@ -105,7 +104,7 @@ To get the channel ID of the channel where you'd like to post, copy one of the m
 Certain tasks require filesystem access to the PR, which `pull_request_target` does not provide. To accommodate this, you'll need to include a step to check the PR out in a subdirectory, like
 
 ```yaml
-     - name: Checkout the PR
+     - name: Check out the PR
        if: github.event_name == 'pull_request_target'
        uses: actions/checkout@v4
        with:

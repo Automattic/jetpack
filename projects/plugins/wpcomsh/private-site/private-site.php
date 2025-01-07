@@ -65,7 +65,7 @@ function admin_init() {
 	 */
 	if ( ( is_jetpack_connected() || site_is_private() ) && should_update_privacy_selector() ) {
 		// Prevent wp-admin from touching blog_public option.
-		add_action( 'whitelist_options', '\Private_Site\remove_privacy_option_from_whitelist' );
+		add_filter( 'allowed_options', '\Private_Site\remove_privacy_option_from_whitelist' );
 	}
 
 	if ( should_override_editor_with_classic_editor() ) {
@@ -647,7 +647,7 @@ function preprocess_comment( $comment ) {
  * @return bool
  */
 function is_jetpack_connected() {
-	return is_callable( 'Jetpack::is_connection_ready' ) && Jetpack::is_connection_ready();
+	return class_exists( 'Jetpack' ) && Jetpack::is_connection_ready();
 }
 
 /**
@@ -718,7 +718,7 @@ function access_denied_template_path() {
 }
 
 /**
- * Hooked into filter: `whitelist_options`.
+ * Hooked into filter: `allowed_options`.
  *
  * Prevents WordPress from saving blog_public option when site options are saved.
  *

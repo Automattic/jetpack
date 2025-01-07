@@ -3,9 +3,9 @@
 	import { TABS } from './Tabs.svelte';
 
 	const panel = {};
-	const { registerPanel, selectedPanel } = getContext(TABS);
+	const { registerPanel, selectedPanel } = getContext( TABS );
 
-	registerPanel(panel);
+	registerPanel( panel );
 </script>
 
 {#if $selectedPanel === panel}

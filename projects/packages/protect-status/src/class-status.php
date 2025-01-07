@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Protect_Status;
 
-use Automattic\Jetpack\Protect_Models\Extension_Model;
 use Automattic\Jetpack\Protect_Models\Status_Model;
 
 /**
@@ -15,7 +14,7 @@ use Automattic\Jetpack\Protect_Models\Status_Model;
  */
 class Status {
 
-	const PACKAGE_VERSION = '0.2.2';
+	const PACKAGE_VERSION = '0.4.1';
 	/**
 	 * Name of the option where status is stored
 	 *
@@ -179,7 +178,7 @@ class Status {
 	/**
 	 * Get threats found for WordPress core
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.3.0
 	 *
 	 * @return array
 	 */
@@ -190,7 +189,7 @@ class Status {
 	/**
 	 * Get threats found for themes
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.3.0
 	 *
 	 * @return array
 	 */
@@ -201,7 +200,7 @@ class Status {
 	/**
 	 * Get threats found for plugins
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.3.0
 	 *
 	 * @return array
 	 */
@@ -212,7 +211,7 @@ class Status {
 	/**
 	 * Get threats found for files
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.3.0
 	 *
 	 * @return array
 	 */
@@ -223,7 +222,7 @@ class Status {
 	/**
 	 * Get threats found for plugins
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.3.0
 	 *
 	 * @return array
 	 */
@@ -272,39 +271,9 @@ class Status {
 	}
 
 	/**
-	 * Check if the WordPress version that was checked matches the current installed version.
-	 *
-	 * @phan-suppress PhanDeprecatedFunction -- Maintaining backwards compatibility.
-	 *
-	 * @param object $core_check The object returned by Protect wpcom endpoint.
-	 * @return object The object representing the current status of core checks.
-	 */
-	protected static function normalize_core_information( $core_check ) {
-		global $wp_version;
-
-		$core = new Extension_Model(
-			array(
-				'type'    => 'core',
-				'name'    => 'WordPress',
-				'version' => $wp_version,
-				'checked' => false,
-			)
-		);
-
-		if ( isset( $core_check->version ) && $core_check->version === $wp_version ) {
-			if ( is_array( $core_check->vulnerabilities ) ) {
-				$core->checked = true;
-				$core->set_threats( $core_check->vulnerabilities );
-			}
-		}
-
-		return $core;
-	}
-
-	/**
 	 * Sort By Threats
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.3.0
 	 *
 	 * @param array<object> $threats Array of threats to sort.
 	 *

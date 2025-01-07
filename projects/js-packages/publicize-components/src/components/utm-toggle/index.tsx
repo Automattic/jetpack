@@ -1,8 +1,8 @@
 import { ToggleControl } from '@automattic/jetpack-components';
-import { store as socialStore } from '@automattic/jetpack-publicize-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import React from 'react';
+import { store as socialStore } from '@automattic/jetpack-publicize-components';
 
 type ToggleProps = {
 	/**

@@ -122,7 +122,7 @@ function fetchMapkitKey( mapkitObj, blogId, currentWindow ) {
 						currentWindow.mapkitIsInitializing = false;
 						currentWindow.mapkitIsInitialized = true;
 						resolve();
-					} catch ( error ) {
+					} catch {
 						reject();
 					}
 				},

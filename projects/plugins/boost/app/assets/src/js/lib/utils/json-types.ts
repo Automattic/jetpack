@@ -1,5 +1,3 @@
-/* eslint-disable no-use-before-define */
-
 import { z } from 'zod';
 
 /**

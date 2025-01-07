@@ -49,11 +49,10 @@ function AiAssistantExtensionToolbarDropdownContent( {
 		( request?: {
 			promptType: PromptTypeProp;
 			options?: AiAssistantDropdownOnChangeOptionsArgProps;
-			humanText?: string;
 		} ) => {
 			const selectedBlockIds = getSelectedBlockClientIds();
 			const [ clientId ] = selectedBlockIds;
-			const alwaysTransform = request.options.alwaysTransformToAIAssistant || false;
+			const alwaysTransform = request?.options?.alwaysTransformToAIAssistant || false;
 
 			if (
 				( selectedBlockIds.length < 2 ||
@@ -62,7 +61,7 @@ function AiAssistantExtensionToolbarDropdownContent( {
 			) {
 				// If there is only one selected block or the block cannot be transformed, proceed to open the extension input.
 				if ( request ) {
-					onRequestSuggestion?.( request.promptType, request.options, request.humanText );
+					onRequestSuggestion?.( request.promptType, request.options );
 				} else {
 					onAskAiAssistant?.();
 				}
@@ -83,17 +82,20 @@ function AiAssistantExtensionToolbarDropdownContent( {
 		]
 	);
 
-	const handleRequestSuggestion: OnRequestSuggestion = ( promptType, options, humanText ) => {
-		handleToolbarButtonClick( { promptType, options, humanText } );
+	const handleRequestSuggestion: OnRequestSuggestion = ( promptType, options ) => {
+		handleToolbarButtonClick( { promptType, options } );
 	};
 
 	const handleAskAiAssistant = async () => {
 		handleToolbarButtonClick();
 	};
 
+	const [ clientId ] = getSelectedBlockClientIds();
+
 	return (
 		<AiAssistantToolbarDropdownContent
 			blockType={ blockType }
+			clientId={ clientId }
 			onRequestSuggestion={ handleRequestSuggestion }
 			onAskAiAssistant={ handleAskAiAssistant }
 			disabled={ false }
@@ -139,13 +141,13 @@ export default function AiAssistantExtensionToolbarDropdown( {
 	}, [ blockType, onAskAiAssistant, tracks ] );
 
 	const handleRequestSuggestion = useCallback< OnRequestSuggestion >(
-		( promptType, options, humanText ) => {
+		( promptType, options ) => {
 			tracks.recordEvent( 'jetpack_editor_ai_assistant_extension_toolbar_button_click', {
 				suggestion: promptType,
 				block_type: blockType,
 			} );
 
-			onRequestSuggestion?.( promptType, options, humanText );
+			onRequestSuggestion?.( promptType, options );
 		},
 		[ blockType, onRequestSuggestion, tracks ]
 	);

@@ -73,7 +73,7 @@ export const CommentInputField = forwardRef(
 				);
 				// Wait fro the block editor to render.
 				setTimeout( () => setEditorState( 'LOADED' ), 100 );
-			} catch ( error ) {
+			} catch {
 				// Switch to the textarea if the editor fails to load.
 				setEditorState( 'ERROR' );
 				setIsGBEditorEnabled( false );

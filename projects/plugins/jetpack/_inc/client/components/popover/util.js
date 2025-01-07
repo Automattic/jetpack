@@ -294,8 +294,8 @@ function offset( pos, el, target ) {
  *
  * @param {TextRectangle} box - result from a `getBoundingClientRect()` call
  * @param {Document}      doc - Document instance to use
- * @return {Object} an object with `top` and `left` Number properties
- * @api private
+ * @return {object} an object with `top` and `left` Number properties
+ * @private
  */
 
 function _offset( box, doc ) {
@@ -314,7 +314,7 @@ function _offset( box, doc ) {
 
 /*
  * Constrain a left to keep the element in the window
- * @param  {Object} pl proposed left
+ * @param  {object} pl proposed left
  * @param  {Number} ew tip element width
  * @return {Number}    the best width
  */
@@ -329,7 +329,7 @@ const isElement = obj => {
 	try {
 		//Using W3 DOM2 (works for FF, Opera and Chrom)
 		return obj instanceof HTMLElement;
-	} catch ( error ) {
+	} catch {
 		return (
 			typeof obj === 'object' &&
 			obj.nodeType === 1 &&

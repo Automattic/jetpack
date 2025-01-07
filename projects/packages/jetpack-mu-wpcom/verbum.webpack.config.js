@@ -1,6 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require( 'path' );
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const jetpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const webpack = require( 'webpack' );
 

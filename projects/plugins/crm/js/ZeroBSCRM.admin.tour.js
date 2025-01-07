@@ -9,7 +9,7 @@
  */
 
 // Define the tour!
-var zbsTour = {
+const zbsTour = {
 	id: 'zbs-welcome-tour',
 	steps: [
 		{
@@ -56,7 +56,7 @@ var zbsTour = {
 			showPrevButton: true,
 			yOffset: -20,
 			onNext: function () {
-				window.location = zbs_tour.admin_url + 'admin.php?page=zerobscrm-notifications';
+				window.location = window.zbs_tour.admin_url + 'admin.php?page=zerobscrm-notifications';
 			},
 		},
 
@@ -121,7 +121,7 @@ var zbsTour = {
 				jQuery( '#zbs-manage-ext-tour' ).addClass( 'tourhighlight' );
 			},
 			onNext: function () {
-				window.location = zbs_tour.admin_url + 'admin.php?page=zerobscrm-extensions';
+				window.location = window.zbs_tour.admin_url + 'admin.php?page=zerobscrm-extensions';
 			},
 		},
 
@@ -134,14 +134,14 @@ var zbsTour = {
 			showPrevButton: true,
 			yOffset: -20,
 			onNext: function () {
-				window.location = zbs_tour.admin_url + 'admin.php?page=zerobscrm-plugin-settings';
+				window.location = window.zbs_tour.admin_url + 'admin.php?page=zerobscrm-plugin-settings';
 			},
 			//show cta :)
 			showCTAButton: true,
 			ctaLabel: window.zbs_tour.lang.step9.cta_label,
 			onCTA: function () {
 				//window.location = zbs_tour.cta_url;
-				window.open( zbs_tour.cta_url, '_blank', '' );
+				window.open( window.zbs_tour.cta_url, '_blank', '' );
 			},
 		},
 		{
@@ -157,8 +157,7 @@ var zbsTour = {
 			target: 'override-allusers',
 			placement: 'top',
 			xOffset: 'center',
-			onNext: function () {
-			},
+			onNext: function () {},
 		},
 		{
 			title: window.zbs_tour.lang.step13.title,
@@ -181,38 +180,6 @@ var zbsTour = {
 	],
 };
 
-jQuery( function ( $ ) {
-	// Start the tour!
-
-	/* ========== */
-	/* TOUR SETUP */
-	/* ========== */
-	addClickListener = function ( el, fn ) {
-		if ( el.addEventListener ) {
-			el.addEventListener( 'click', fn, false );
-		} else {
-			el.attachEvent( 'onclick', fn );
-		}
-	};
-
-	// DEBUG console.log("hopscotch state: " + hopscotch.getState());
-	// DEBUG console.log("ADMIN ROOT FOR TOUR " + zbs_tour.admin_url);
-
-	// hopscotch.startTour(tour);
-
-	//admin tour link
-	/*
-  tourBtnEl = document.getElementById("zbs-tour-top-menu");
-  if (tourBtnEl) {
-    addClickListener(tourBtnEl, function() {
-      if (!hopscotch.isActive) {
-        hopscotch.startTour(tour, 0);
-      }
-    });
-  }
-*/
-} );
-
 if ( typeof module !== 'undefined' ) {
-    module.exports = { zbsTour };
+	module.exports = { zbsTour };
 }

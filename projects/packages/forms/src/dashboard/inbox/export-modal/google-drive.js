@@ -37,7 +37,7 @@ const GoogleDriveExport = ( { onExport } ) => {
 
 				clearInterval( interval );
 				setIsConnected( true );
-			} catch ( error ) {
+			} catch {
 				clearInterval( interval );
 			}
 		}, 5000 );

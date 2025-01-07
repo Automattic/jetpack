@@ -25,8 +25,9 @@ const ManualLicenseKeyInput = props => {
 	return (
 		<TextControl
 			__nextHasNoMarginBottom={ true }
+			__next40pxDefaultSize
 			className={ className }
-			label={ __( 'License key', 'jetpack' ) }
+			label={ __( 'License key', 'jetpack-licensing' ) }
 			value={ value }
 			onChange={ onChange }
 			disabled={ disabled }
@@ -54,7 +55,7 @@ const SelectableLicenseKeyInput = props => {
 		if ( isFetching ) {
 			return [
 				{
-					label: __( 'Fetching available licenses…', 'jetpack' ),
+					label: __( 'Fetching available licenses…', 'jetpack-licensing' ),
 					value: '',
 				},
 			];
@@ -65,7 +66,7 @@ const SelectableLicenseKeyInput = props => {
 				return {
 					label: sprintf(
 						/* translators: placeholder is the product name and license key */
-						__( '%1$s - %2$s', 'jetpack' ),
+						__( '%1$s - %2$s', 'jetpack-licensing' ),
 						product,
 						license_key
 					),
@@ -73,7 +74,7 @@ const SelectableLicenseKeyInput = props => {
 				};
 			} ),
 			{
-				label: __( 'I want to add a license key manually', 'jetpack' ),
+				label: __( 'I want to add a license key manually', 'jetpack-licensing' ),
 				value: '',
 			},
 		];
@@ -101,7 +102,7 @@ const SelectableLicenseKeyInput = props => {
 				__nextHasNoMarginBottom={ true }
 				className={ className }
 				disabled={ disabled }
-				label={ __( 'Select a license key', 'jetpack' ) }
+				label={ __( 'Select a license key', 'jetpack-licensing' ) }
 				value={ selectedOption }
 				options={ options }
 				onChange={ onSelectionChange }
@@ -110,8 +111,9 @@ const SelectableLicenseKeyInput = props => {
 			{ ! isFetching && ! selectedOption && (
 				<TextControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					className={ className }
-					label={ __( 'Input a license key', 'jetpack' ) }
+					label={ __( 'Input a license key', 'jetpack-licensing' ) }
 					value={ value }
 					onChange={ onChange }
 					disabled={ disabled }
@@ -172,12 +174,12 @@ const ActivationScreenControls = props => {
 		<div className="jp-license-activation-screen-controls">
 			<div className="jp-license-activation-screen-controls--content">
 				<JetpackLogo showText={ false } height={ 48 } />
-				<h1>{ __( 'Add a license key', 'jetpack' ) }</h1>
+				<h1>{ __( 'Add a license key', 'jetpack-licensing' ) }</h1>
 				<p>
 					{ createInterpolateElement(
 						__(
 							'<strong>Check your email</strong> for your license key. You should have received it after making your purchase.',
-							'jetpack'
+							'jetpack-licensing'
 						),
 						{
 							strong: <strong></strong>,
@@ -210,7 +212,7 @@ const ActivationScreenControls = props => {
 					onClick={ activateLicense }
 					disabled={ ! license }
 				>
-					{ isActivating ? <Spinner /> : __( 'Activate', 'jetpack' ) }
+					{ isActivating ? <Spinner /> : __( 'Activate', 'jetpack-licensing' ) }
 				</Button>
 			</div>
 		</div>

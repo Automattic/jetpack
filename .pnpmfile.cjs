@@ -48,12 +48,18 @@ function fixDeps( pkg ) {
 				dep.startsWith( 'eslint-plugin-' ) ||
 				dep.endsWith( '/eslint-plugin' ) ||
 				dep.startsWith( 'eslint-config-' ) ||
-				dep.endsWith( '/eslint-config' )
+				dep.endsWith( '/eslint-config' ) ||
+				dep.startsWith( '@typescript-eslint/' )
 			) {
 				delete pkg.dependencies[ dep ];
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
 			}
 		}
+
+		// Doesn't really need these at all with eslint 9 and our config.
+		pkg.peerDependenciesMeta ??= {};
+		pkg.peerDependenciesMeta[ '@typescript-eslint/eslint-plugin' ] = { optional: true };
+		pkg.peerDependenciesMeta[ '@typescript-eslint/parser' ] = { optional: true };
 	}
 
 	// Unnecessarily explicit deps. I don't think we really even need @wordpress/babel-preset-default at all.
@@ -74,6 +80,16 @@ function fixDeps( pkg ) {
 	// Avoid annoying flip-flopping of sub-dep peer deps.
 	// https://github.com/localtunnel/localtunnel/issues/481
 	if ( pkg.name === 'localtunnel' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( ver.match( /^\d+(\.\d+)+$/ ) ) {
+				pkg.dependencies[ dep ] = '^' + ver;
+			}
+		}
+	}
+
+	// Seemingly unmaintained upstream, and has strict deps that are outdated.
+	// https://github.com/mbalabash/estimo/issues/50
+	if ( pkg.name === 'estimo' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( ver.match( /^\d+(\.\d+)+$/ ) ) {
 				pkg.dependencies[ dep ] = '^' + ver;
@@ -205,6 +221,16 @@ function afterAllResolved( lockfile ) {
 	// If there's only one "importer", it's probably pnpx rather than the monorepo. Don't interfere.
 	if ( Object.keys( lockfile.importers ).length === 1 ) {
 		return lockfile;
+	}
+
+	for ( const [ k, v ] of Object.entries( lockfile.packages ) ) {
+		// Forbid installing webpack without webpack-cli. It results in lots of spurious lockfile changes.
+		// https://github.com/pnpm/pnpm/issues/3935
+		if ( k.startsWith( 'webpack@' ) && ! v.optionalDependencies?.[ 'webpack-cli' ] ) {
+			throw new Error(
+				"Something you've done is trying to add a dependency on webpack without webpack-cli.\nThis is not allowed, as it tends to result in pnpm lockfile flip-flopping.\nSee https://github.com/pnpm/pnpm/issues/3935 for the upstream bug report.\n"
+			);
+		}
 	}
 
 	return lockfile;

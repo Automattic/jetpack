@@ -9,7 +9,6 @@ import { store, CONNECTION_SERVICE_BLUESKY } from '../../social-store';
 const BlueskyPreview = props => {
 	const { message } = useSocialMediaMessage();
 	const { content, siteName } = useSelect( select => {
-		// @ts-expect-error -- `@wordpress/editor` is a nightmare to work with TypeScript
 		const { getEditedPostAttribute } = select( editorStore );
 		// @ts-expect-error -- It says, "Property 'getUnstableBase' does not exist..." but it does
 		const { getUnstableBase } = select( coreStore );

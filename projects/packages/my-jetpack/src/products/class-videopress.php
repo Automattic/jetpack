@@ -69,6 +69,13 @@ class Videopress extends Hybrid_Product {
 	public static $has_free_offering = true;
 
 	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'videopress';
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string
@@ -174,30 +181,25 @@ class Videopress extends Hybrid_Product {
 	}
 
 	/**
-	 * Checks whether the site has a paid plan for this product
+	 * Get the product-slugs of the paid plans for this product (not including bundles)
 	 *
-	 * @return boolean
+	 * @return array
 	 */
-	public static function has_paid_plan_for_product() {
-		$plans_with_videopress = array(
+	public static function get_paid_plan_product_slugs() {
+		return array(
 			'jetpack_videopress',
-			'jetpack_complete',
-			'jetpack_business',
-			'jetpack_premium',
+			'jetpack_videopress_monthly',
+			'jetpack_videopress_bi_yearly',
 		);
-		$purchases_data        = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
-		}
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				foreach ( $plans_with_videopress as $plan ) {
-					if ( strpos( $purchase->product_slug, $plan ) !== false ) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
+	}
+
+	/**
+	 * Return product bundles list
+	 * that supports the product.
+	 *
+	 * @return boolean|array Products bundle list.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return array( 'complete' );
 	}
 }

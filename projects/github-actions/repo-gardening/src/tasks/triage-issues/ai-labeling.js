@@ -21,8 +21,8 @@ const sendOpenAiRequest = require( '../../utils/openai/send-request' );
 async function fetchOpenAiLabelsSuggestions( octokit, owner, repo, title, body ) {
 	const suggestions = { labels: [], explanations: {} };
 
-	// Get all the Feature and Feature Group labels in the repo.
-	const pattern = /^(\[Feature\]|\[Feature Group\])/;
+	// Get all the Feature, Feature Group labels, and Plugin feature labels in the repo.
+	const pattern = /^\[[^\]]*Feature/;
 	const repoLabels = await getAvailableLabels( octokit, owner, repo, pattern );
 
 	// If no labels are found, bail.
@@ -62,9 +62,10 @@ ${ repoLabels
 Analyze the issue and suggest relevant labels. Rules:
 - Use only existing labels provided.
 - Include 1 '[Feature Group]' label.
-- Include 1 to 3 '[Feature]' labels.
+- Include 1 to 3 '[Feature]' labels, or '["Plugin" Feature]' labels (where "Plugin" matches a plugin name) if more relevant.
 - Briefly explain each label choice in 1 sentence.
 - Format your response as a JSON object, with each suggested label as a key, and your explanation of the label choice as the value.
+- If the issue contents specify that a specific plugin is impacted, you must only suggest Feature labels related to that plugin.
 
 Example response format:
 {
@@ -95,6 +96,27 @@ Example response format:
 }
 
 /**
+ * Clean up the issue content for OpenAI processing.
+ * Remove links from the issue content.
+ *
+ * @param {string} content - Issue body content.
+ *
+ * @return {string} Cleaned up issue content.
+ */
+function cleanIssueContent( content ) {
+	// Remove links in the format [link text](url), but keep the link text.
+	content = content.replace( /\[(.*?)\](?:\([^)]+\))?/g, '$1' );
+
+	// Remove links in the format <a href="url">link text</a>, but keep the link text.
+	content = content.replace( /<a href="https?:\/\/\S+">(.*?)<\/a>/g, '$1' );
+
+	// Remove links in the format https://url, and replace with info that OpenAI can understand.
+	content = content.replace( /https?:\/\/\S+/g, 'this link with more information' );
+
+	return content;
+}
+
+/**
  * Automatically add labels to issues.
  *
  * When an issue is first opened, parse its contents, send them to OpenAI,
@@ -104,6 +126,8 @@ Example response format:
  *
  * @param {WebhookPayloadIssue} payload - Issue event payload.
  * @param {GitHub}              octokit - Initialized Octokit REST client.
+ *
+ * @return {Promise<Array>} Promise resolving to an array of all the labels on the issue after the task is over.
  */
 async function aiLabeling( payload, octokit ) {
 	const { issue, repository } = payload;
@@ -116,13 +140,31 @@ async function aiLabeling( payload, octokit ) {
 
 	if ( ! apiKey ) {
 		debug( `triage-issues > auto-label: No OpenAI key is provided. Bail.` );
-		return;
+		return issueLabels;
+	}
+
+	// If the issue already has [Feature] or [Feature Group] labels, bail.
+	if ( issueLabels.some( label => label.startsWith( '[Feature' ) ) ) {
+		debug(
+			`triage-issues > auto-label: Issue #${ number } already has [Feature] or [Feature Group] labels. Skipping.`
+		);
+		return issueLabels;
 	}
 
 	if (
 		! issueLabels.includes( '[Experiment] AI labels added' ) &&
 		! issueLabels.includes( '[Type] Task' )
 	) {
+		const issueContents = cleanIssueContent( body );
+
+		// Only process issues that have enough content to analyze (more than 100 characters).
+		if ( issueContents.length < 150 ) {
+			debug(
+				`triage-issues > auto-label: Issue #${ number } doesn't have enough content. Skipping OpenAI analysis.`
+			);
+			return issueLabels;
+		}
+
 		debug(
 			`triage-issues > auto-label: Fetching labels suggested by OpenAI for issue #${ number }`
 		);
@@ -131,7 +173,7 @@ async function aiLabeling( payload, octokit ) {
 			ownerLogin,
 			name,
 			title,
-			body
+			issueContents
 		);
 
 		if ( labels.length === 0 ) {
@@ -151,10 +193,16 @@ async function aiLabeling( payload, octokit ) {
 			} );
 
 			// During testing, post a comment on the issue with the explanations.
-			const explanationComment = `**OpenAI suggested the following labels for this issue:**
+			let explanationComment = `**OpenAI suggested the following labels for this issue:**
 ${ Object.entries( explanations )
 	.map( ( [ labelName, explanation ] ) => `- ${ labelName }: ${ explanation }` )
 	.join( '\n' ) }`;
+
+			if ( ownerLogin === 'automattic' ) {
+				explanationComment += `
+
+If you have feedback about the labels suggested, please let us know in #repo-gardening!`;
+			}
 
 			await octokit.rest.issues.createComment( {
 				owner: ownerLogin,
@@ -170,7 +218,12 @@ ${ Object.entries( explanations )
 				issue_number: number,
 				labels: [ '[Experiment] AI labels added' ],
 			} );
+
+			// Add the labels we've added to our existing array of labels.
+			issueLabels.push( ...labels, '[Experiment] AI labels added' );
 		}
 	}
+
+	return issueLabels;
 }
 module.exports = aiLabeling;

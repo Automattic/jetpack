@@ -46,7 +46,7 @@
 	"extra": {
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.2.x-dev"
+			"dev-trunk": "0.3.x-dev"
 		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-google-analytics/compare/v${old}...v${new}"

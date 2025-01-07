@@ -1,4 +1,4 @@
-## Jetpack 14.0
+## Jetpack 14.2
 
 ### Before you start:
 
@@ -10,90 +10,68 @@
   - Or add the following to something like a code snippet plugin: `add_filter( 'jetpack_blocks_variation', function () { return 'beta'; } );`
 	- To test Breve further in the document please enable the feature with the following snippet: `add_filter( 'breve_enabled', '__return_true' );`
 
-### AI Logo Generator
-
-On top of the already available AI Logo generator, we've now added a styles dropdown to allow more control for the user without depending entirely on the provided prompt.
-
-The logo generator is not available for free users, test with a plan or subscription. Also, it's currenlty available for a12s only (and will soon be open to public).
-
-- Load the editor and add a Logo block.
-- On the network tab you should see a request to `ai-assistant-feature`
-  - If using an a11n account (or focing the filter to `true`), the response should include `featuresControl['logo-generator'].styles` as a collection of style objects.
-  - If NOT using an a11n account, the `styles` property should be an empty array.
-```
-{
-  ...
-  featuresControl: {
-    'logo-generator': {
-      enabled: true,
-      styles: [ COLLECTION OF SYLES HERE ]
-    }
-  }
-}
-```
-- Use the block's AI toolbar button to open the Logo generator modal, you should see a style dropdown on the top-right corner
-- Feel free to play with the styles to achieve different results
-- Confirm that using style "Auto" will try to guess the style based on the prompt (AI query request) and set the style prior to sending the image generation request
-- If possible, try different combinations of plans and cases:
-  - use `add_filter( 'jetpack_ai_tier_licensed_quantity', function() { return 0 | 100 | 1; } );` on your `0-sandbox.php` file filter to mock free/tier100/unlimited plans
-	- sandbox the API, but then don't connect to sandbox to mock a disconnected situation
-
-### AI Image Generator
-
-The styles added to the logo generator are now also available on general image creation.
-It is currently only available for a12s as well, so test in a site where you are logged in with your A8c account.
-
-The testing steps are the same as the logo generator steps above, except that now you should add an Image block instead and click on the "Generate with AI" button.
-
-### Floating subscribe button
-
-- Go to Jetpack -> Settings -> Newsletter.
-- Enable the “floating subscribe button”. Enable newsletter features first if these toggles are disabled.
-- On the frontend of the site, you should now see a floating subscribe button at the bottom/right corner.
-- If you’re using a block theme, next to the toggle, you see “preview and edit.” Clicking this should bring you to the site editor, where you can modify the button’s appearance.
-
-### Email Preview dropdown
-
-- You can preview blog posts as an email from post editor’s “Preview” dropdown when using latest Gutenberg or current RC release of core WordPress.
-
-### Newsletter default settings
-
-- On a new Jetpack site, go to Jetpack -> Settings -> Newsletter, then:
-	- **Featured image**: “Whether to include the featured image in the email or not” setting default to disabled, can you can change it here. The emails have feature image set when enabled, when disabled no featured images in emails.
-	- **Excerpts**: From WordPress settings, set excerpt for RSS feeds enabled. In the newsletter settings, “For each new post email, include…” still defaults to “full text” and not to “excerpt”. New blog emails are sent in full, not as excerpt, while RSS feeds are shown with excerpts.
-	- **Replies**: default is set to “comments”, not to “no replies” or “reply to author”.
-
-### Don’t show subscription modals when a URL param is present
-
-- Enable subscription modals on posts (“popup”) and frontend (“overlay”) in the newsletter settings.
-- Try loading a post or the frontpage, the modal should pop up. Do not dismiss it!
-- Add `?jetpack_skip_subscription_popup` to the URL and load the page again.
-- The modal should not show anymore.
-- Remove `?jetpack_skip_subscription_popup` from the URL. The modal/popup should remain hidden on subsequent reloads.
-
-### Story block
-
-- Create a “Story” block in a post/page.
-- Upload a couple of images.
-- Check the front-end: clicking on the block should “run the story” by switching pictures, not simply reload the page.
-
-### WordPress 6.7 Compatibility
-
-- Install the WordPress Beta Tester plugin.
-- Go to Tools > Beta Testing, and set the plugin to use Beta/RC Only (as we’re now in the RC stage of the 6.7 release – nightly will give you 6.8).
-- Go to Dashboard > Updates, and update to the most recent Beta/RC version of WordPress.
-- Test the following:
-	- Ensure that Jetpack (and standalone) features work as expected. Note and report any errors/warnings in error logs and console logs.
-	- Add different blocks and test inspector controls.
-	- Change the site language (from Settings > General), update the language (from `/wp-admin/update-core.php`), and test Jetpack features. Check for errors in the site’s error log.
-
-### And More!
-
-Other particularly noteworthy changes in 14.0 include:
-
-- Support for Bluesky in Jetpack Social.
-- Related Posts block can now be used on non-post CPTs.
-
 You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
+
+## General testing
+
+Jetpack 14.2 has been affected by changes that aim to improve performance and reduce unused code. Please take note of any things that you think are wrong, if you see any such behavior. 
+
+## Jetpack AI
+
+### Featured Image
+
+Previousl when a featured image was already set, the Featured Image generator modal showed up empty on open. Since Jetpack 14.2 , if a featured image is set, we load it on the modal for visibility. To make sure it works as intended, open the editor with a new post. Click on Sidebar's "Set featured image" and select "Generate with AI".
+
+- Opening the featured image generator modal with not context (no post content nor title) should open and do nothing.
+- If you close the modal, add a title or some content on the post and open the modal again, this time an image generation should trigger.
+- If you set the generated image as featured image and close the modal and open the modal again, see the current featured image should show on the modal and no generation should be triggered.
+
+### Thumbs up/down on AI Logo Generator
+
+The Logo Generator now has thums up/down buttons for rating generated images. Testing them requires enabling beta blocks, as mentioned in the beginning of this document. To test this feature:
+
+- Create a new post, insert a logo block, and use the AI logo generator to generate a new logo or browse your existing logos.
+- Verify that there are no thumbs next to the "Use on block" button.
+- Enable the feature: with `add_filter( 'ai_response_feedback_enabled', '__return_true' );`
+- Reload your post and open the logo generator again.
+- Verify that a thumbs up/down appears next to the "Use on block" button.
+- You should be able to click on the thumbs up or down and observe that the thumb changes color.
+- Viewing other logos you have should show their rating (which will likely be no rating), and if you go back to a logo you already rated the same rating should be present.
+- Check that ratings are persisted after reload
+
+## Support for Instagram Reels in AMP
+
+In addition to support for Instagram Reel links Jetpack now supports reels and videos in AMP views. To test:
+
+- Go to Jetpack > Settings > Writing and enable Shortcodes.
+- Go to Plugins > Add New and install and activate the AMP plugin.
+- Open the AMP onboarding wizard, and enable "Reader" mode.
+- Go to Posts > Add New, make sure to add a shortcode block with the following content: `[instagram url="https://instagram.com/reel/COWmlFLB_7P/"]`
+- Publish your post and view it on the frontend.
+- You should see the embed work in regular view.
+- Click on the AMP option in the admin bar.
+- You should see the embed work in the AMP view too.
+
+## Restaurant Menu and Testimonials CPTs
+
+The Restaurant Menu Custom Post Type has been moved to a separate theme helper package. The package isn't being used yet, but we should make sure that nothing is being added via the package. To do that you would need to install and activate a theme that supports Restaurant Menus such as Confit:
+
+- Add several new menu items from the new Food Menu in the admin menu.
+- Add some new sections, and add menu items to specific sections (see the Menu Sections area in the menu editor). Ensure some sections are parents to other sections
+- Attempt adding multiple menu items at once using the 'Add Many Items' menu option.
+- Using quick edit from the main menu list for specific item, change the sections they belong to in some cases.
+- Try dragging and dropping menu items to different positions and sections.
+- Click save new order, everything should save correctly.
+
+In addition to that, the Testimonials CPT is also now included from a separate package. To make sure things are OK:
+
+- Ensure you can activate Testimonials via Jetpack > Settings > Writing (see the Custom Content Types section).
+- Test that Testimonial functionality works as expected: Create a new Testimonial via the Testimonial wp-admin menu. View it. Add it to another post via the testimonial shortcode 	(`[testimonials]`).
+- Test that a theme that supports Jetpack Testimonials auto-activates it: Make sure Testimonials are not active, and then install and activate the Lodestar theme. Testimonials should now be active.
+- Try visiting /wp-admin/edit.php?post_type=jetpack-testimonial when Testimonial is toggled off - you should see an 'invalid post type' message, and on the front-end on a post which made use of the Testimonials shortcode, you should see the unrendered shortcode.
+- Generally test that toggling on and off the Testimonials feature results in expected Testimonial functionality being visible and not visible - including the Testimonials menu item display in the main wp-admin menu.
+- Test as well with the toggles at `/wp-admin/options-writing.php` (noting that toggling off isn't possible when a theme supports Portfolios or Testimonials), and Calypso Blue at `https://wordpress.com/settings/writing/yoursiteurl.com`.
+- Test with Portfolios active and not active as well, in terms of how that impacts Testimonials, though there are some testing quirks around that depending on the theme (see below).
+- Make sure there are no deprecation notices in error logs while testing.
 
 **Thank you for all your help!**

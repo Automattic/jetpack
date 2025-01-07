@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.6
 Tested up to: 6.7
 Requires PHP: 7.2
-Stable tag: 3.5.2
+Stable tag: 3.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,22 +183,20 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.6.0-beta - 2024-11-04
+### 3.7.0 - 2025-01-06
 #### Added
-- Cornerstone Pages: Added feature to allow selecting important pages.
+- Concatenate JS/CSS: Added a button that allows loading default excludes.
+- General: Added tracks events to clickable elements on the settings page.
+- General: Added WordPress filters to allow Cornerstone Pages list and Image Size Analyzer source data to be updated.
+- Concatenate JS/CSS: Added HTTP header to take advantage of WordPress.com edge caching
+- UI: Added notifications when interacting with dashboard settings.
 
 #### Changed
-- Critical CSS: Improve logic that generates URLs for critical CSS generation.
-- Page Speed: Update speed scores to be based on first cornerstone page.
-- General: Improve compatibility with WordPress 6.7.
-- General: Update badges used to show state of features.
-
-#### Removed
-- Image Guide: Remove URL parameter based override.
+- UI: Gave Page Cache, Concatenate JS/CSS and Image CDN - Image Quality modules a more unifed look.
 
 #### Fixed
-- Page Speed: Fix typo in Overall Score tooltip.
-- Performance History: Fixed tooltip behavior.
+- Critical CSS: Improved UI responsiveness during a retry after failed generation.
+- UI: Fixed showing an error if no ISA report was found.
 
 --------
 

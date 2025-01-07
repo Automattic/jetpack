@@ -6,8 +6,7 @@ import { Button, Tooltip, SelectControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
 import debugFactory from 'debug';
-import { useCallback, useEffect, useState, useRef } from 'react';
-import { Dispatch, SetStateAction } from 'react';
+import { useCallback, useEffect, useState, useRef, Dispatch, SetStateAction } from 'react';
 /**
  * Internal dependencies
  */
@@ -42,22 +41,20 @@ export const AiModalPromptInput = ( {
 	prompt = '',
 	setPrompt = () => {},
 	disabled = false,
+	actionDisabled = false,
 	generateHandler = () => {},
 	placeholder = '',
 	buttonLabel = '',
-	minPromptLength = null,
 }: {
 	prompt: string;
 	setPrompt: Dispatch< SetStateAction< string > >;
 	disabled: boolean;
+	actionDisabled: boolean;
 	generateHandler: () => void;
 	placeholder?: string;
 	buttonLabel?: string;
-	minPromptLength?: number;
 } ) => {
 	const inputRef = useRef< HTMLDivElement | null >( null );
-	const hasPrompt =
-		prompt?.length >= ( minPromptLength === null ? MINIMUM_PROMPT_LENGTH : minPromptLength );
 
 	const onPromptInput = ( event: React.ChangeEvent< HTMLInputElement > ) => {
 		setPrompt( event.target.textContent || '' );
@@ -106,7 +103,7 @@ export const AiModalPromptInput = ( {
 	};
 
 	return (
-		<div className="jetpack-ai-logo-generator__prompt-query">
+		<div className="jetpack-ai-image-generator__prompt-query">
 			<div
 				role="textbox"
 				tabIndex={ 0 }
@@ -123,9 +120,9 @@ export const AiModalPromptInput = ( {
 			></div>
 			<Button
 				variant="primary"
-				className="jetpack-ai-logo-generator__prompt-submit"
+				className="jetpack-ai-image-generator__prompt-submit"
 				onClick={ generateHandler }
-				disabled={ disabled || ! hasPrompt }
+				disabled={ actionDisabled }
 			>
 				{ buttonLabel || __( 'Generate', 'jetpack-ai-client' ) }
 			</Button>
@@ -283,6 +280,7 @@ export const Prompt = ( { initialPrompt = '' }: PromptProps ) => {
 				setPrompt={ setPrompt }
 				generateHandler={ onGenerate }
 				disabled={ isBusy || requireUpgrade }
+				actionDisabled={ isBusy || requireUpgrade || ! hasPrompt }
 				placeholder={ __(
 					'Describe your site or simply ask for a logo specifying some details about it',
 					'jetpack-ai-client'
