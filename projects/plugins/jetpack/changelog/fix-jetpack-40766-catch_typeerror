@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-VideoPress: Catch TypeError when theme specifies $content_width as a string.

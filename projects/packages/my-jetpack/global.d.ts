@@ -393,9 +393,12 @@ interface Window {
 				};
 			};
 			backup_failure?: {
-				source: 'rewind' | 'last_backup';
-				status: RewindStatus | BackupStatus;
-				last_updated: string;
+				type: 'warning' | 'error';
+				data: {
+					source: 'rewind' | 'last_backup';
+					status: RewindStatus | BackupStatus;
+					last_updated: string;
+				};
 			};
 			[ key: `${ string }--plan_expired` ]: {
 				product_slug: string;
@@ -412,6 +415,14 @@ interface Window {
 				expiry_message?: string;
 				manage_url?: string;
 				products_effected?: string[];
+			};
+			protect_has_threats?: {
+				type: 'warning' | 'error';
+				data: {
+					threat_count: number;
+					critical_threat_count: number;
+					fixable_threat_ids: number[];
+				};
 			};
 		};
 		recommendedModules: {

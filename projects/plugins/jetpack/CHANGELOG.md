@@ -2,6 +2,24 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.2-beta - 2025-01-06
+### Bug fixes
+- Shortcodes: Prevent conflict with third-party SoundCloud shortcodes. [#40789]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add testing instructions for Jetpack 14.2. [#40752]
+- AI Assistant: Fix block inserter position for Form block with AI extension. [#40834]
+- E2E Tests: Only install single browser used by Playwright. [#40827]
+- Filters: Prevent error when `http_request_timeout` filter is used incorrectly. [#40791]
+- Jetpack AI: Adding AI feedback to Write Brief features. [#40756]
+- Jetpack AI: Do not trigger featured image generation if title or content are just empty spaces. [#40858]
+- Jetpack AI: Move AI Response Feedback feature out of beta. [#40859]
+- Jetpack API: Fixed a bug where invalid upload input caused a fatal error. [#40726]
+- Map block: Improve inspector control UI. [#40837]
+- Site Migration: Add new option to site options API. [#40552]
+- Updated package dependencies. [#40784] [#40792] [#40798] [#40800] [#40810] [#40811] [#40813] [#40815] [#40830] [#40831] [#40844]
+- VideoPress: Catch TypeError when theme specifies $content_width as a string. [#40790]
+
 ## 14.2-a.9 - 2024-12-30
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - AI Assistant: Add thumbs feedback for list-to-table feature. [#40755]
@@ -14,8 +32,8 @@
 - WooCommerce Analytics: Fix fatal error when WooCommerce cart object is not available. [#40729]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Jetpack AI: featured image generator modal now shows current featured image if present. [#40631]
-- Metadata: always return internal '_jetpack_dont_email_post_to_subs' meta. [#40723]
+- Jetpack AI: Show current featured image in Featured Image Generator modal if present. [#40631]
+- Metadata: Always return internal '_jetpack_dont_email_post_to_subs' meta. [#40723]
 
 ## 14.2-a.5 - 2024-12-23
 ### Bug fixes
@@ -23,48 +41,48 @@
 - Slideshow block: Fix block display when added within a Stack block. [#40383]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Custom Post Types: Ensuring Restaurant Menu mail class will not conflict with newly moved files in Classic Theme Helper package. [#40668]
+- Custom Post Types: Ensure Restaurant Menu mail class does not conflict with newly moved files in Classic Theme Helper package. [#40668]
 - Jetpack AI: Add thumbs up/down component to AI logo generator. [#40610]
-- Jetpack API: Moved wpcom/v2/publicize/connections endpoint to publicize package. [#40607]
-- Photon: Ensure VIP sites are correctly identified, to prevent unnecessary early Photonization of URLs. [#39941]
-- Premium Content: Fixes editor and display CSS for Premium Content buttons. [#40638]
+- Jetpack API: Move `wpcom/v2/publicize/connections` endpoint to publicize package. [#40607]
+- Photon: Ensure VIP sites are correctly identified to prevent unnecessary early Photonization of URLs. [#39941]
+- Premium Content: Fix editor and display CSS for Premium Content buttons. [#40638]
 - Restaurant Menu CPT: Convert much of the jQuery usage to JavaScript. [#40645]
 - Tests: Use updated theme in tests. [#40634]
 - Updated package dependencies. [#40693]
 
 ## 14.2-a.3 - 2024-12-16
 ### Enhancements
-- Social: Improved Jetpack likes behavior for better theme integration if the post has likes. [#40544]
+- Social: Improve Jetpack Likes behavior for better theme integration if the post has likes. [#40544]
 
 ### Improved compatibility
 - Jetpack Testimonials: Ensure feature loads via the Classic Theme Helper package instead of the module. [#40388]
 
 ### Bug fixes
 - Facebook Embeds: Add a white background to embeds to avoid transparent background interfering with readability. [#40547]
-- Form Block: fixed validation of URL input types to allow query strings. [#40490]
-- Import: Correctly setting the WP_IMPORTING constant when doing an import. [#40563]
+- Form Block: Fix validation of URL input types to allow query strings. [#40490]
+- Import: Set WP_IMPORTING constant correctly when doing an import. [#40563]
 - SEO: Ensure that SEO fields are not visible when another SEO plugin is active. [#40567]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- API Endpoints: Disable Bloganuary for 2025 and beyond. [#40491]
 - API Endpoints: Make sure manual plugin updates applied when auto update is disabled. [#40534]
-- Block Editor: We now trigger an error in cases where the media property does not exist so that the editor does not crash under some circumstances. [#40588]
-- Blogging prompts endpoint: disable bloganuary for 2025 and beyond. [#40491]
-- Carousel: Fixed a bug where under rare circumstances, the carousel would have made null requests when loading an image. [#40535]
+- Block Editor: Avoid crashes when the media property does not exist. [#40588]
+- Carousel: Avoid null requests when loading an image. [#40535]
 - Comments: Make list of allowable comment types filterable so custom types can be returned if needed. [#40530]
-- Infinite scroll: Remove deprecated code. [#40528]
-- Jetpack AI: Adding tooltips to AI feedback component. [#40506]
+- Infinite Scroll: Remove deprecated code. [#40528]
+- Jetpack AI: Add tooltips to AI feedback component. [#40506]
 - Jetpack AI: Add tracking to the thumbs up/down component, saving the component and rating to Tracks. [#40553]
-- General: Fixed lints following ESLint rule changes for TS. [#40584]
+- General: Fix lints following ESLint rule changes for TypeScript. [#40584]
 - Updated package dependencies. [#40515] [#40564]
 
 ## 14.2-a.1 - 2024-12-09
 ### Enhancements
-- Stats: Allow fetching stats for specific sites when programatically fetching stats using Jetpack's tools. [#40441]
+- Stats: Allow programatically fetching stats for specific sites when using Jetpack's tools. [#40441]
 - Stats: Sunset Legacy Stats experience. [#40384]
 - Stats: Enable sparkline chart in the WP Admin bar. [#40456]
 
 ### Improved compatibility
-- External media: Google Photos Picker: Update UX opening picker right after pressing "change selection" CTA. [#40410]
+- Google Photos Picker: Update UX opening picker right after pressing "change selection" CTA. [#40410]
 - SEO: Ensure support for adding an SEO title and description for custom post types. [#40334]
 - WordPress 6.7 Compatibility: Fix notices caused by translation calls happening too early in the load order. [#40474]
 
@@ -77,12 +95,12 @@
 - Blocks: Fix path validation notices. [#40450]
 - Google Photos Picker: Cover case with connection transition from Google Photos to Google Photos Picker. [#40416]
 - External media: Add logic to persist session in cookie. [#40382]
-- Jetpack AI: Adding AI feedback component and implementing it on the image carousel. [#40488]
+- Jetpack AI: Add AI feedback component and implementing it on the image carousel. [#40488]
 - Jetpack AI: Change placeholders on image generation modals to try and improve styles discoverability. [#40504]
 - Jetpack AI: Remove dead and deprecated code. [#40172]
-- Newsletter sidebar: Fix no space under the toggle. [#40376]
+- Newsletter: Fix no space under the sidebar toggle. [#40376]
 - General: Remove deprecated hooks and methods on Jetpack admin pages. [#40457]
-- Sync: synchronize Holiday snow option. [#40478]
+- Sync: Synchronize Holiday snow option. [#40478]
 - Testing: Remove old instructions. [#40444]
 - Updated package dependencies. [#40363]
 
