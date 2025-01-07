@@ -335,6 +335,44 @@
 		opacity: 1;
 	}
 
+	&.jetpack-field-checkbox .jetpack-field-checkbox__checkbox {
+		align-items: center;
+		all: initial;
+		appearance: none;
+		color: var(--jetpack--contact-form--border-color);
+
+		border: none;
+		font-size: var(--jetpack--contact-form--font-size);
+		font-family: var(--jetpack--contact-form--font-family);
+		height: var(--jetpack--contact-form--font-size);
+		justify-content: center;
+		margin: 0 10px 0 0;
+		outline: none;
+		position: relative;
+		width: var(--jetpack--contact-form--font-size);
+		pointer-events: none;
+		display: flex;
+
+		&::before {
+			all: initial;
+			color: inherit;
+			font-size: inherit;
+			font-family: inherit;
+			align-items: center;
+			border-color: currentColor;
+			border-radius: min(var(--jetpack--contact-form--button-outline--border-radius, 0px), 4px);
+			border-style: solid;
+			border-width: 1px;
+			box-sizing: border-box;
+			content: ' ';
+
+			font-weight: bold;
+			height: var(--jetpack--contact-form--font-size);
+			justify-content: center;
+			width: var(--jetpack--contact-form--font-size);
+		}
+	}
+
 	.jetpack-option__type.jetpack-option__type {
 		align-items: center;
 		all: initial;
@@ -461,6 +499,7 @@
 		align-items: baseline; /* Align input with first label line */
 
 		.jetpack-option__type:before {
+			color: var(--jetpack--contact-form--border-color);
 			display: block; /* display: flex causes baselines to not align */
 		}
 	}

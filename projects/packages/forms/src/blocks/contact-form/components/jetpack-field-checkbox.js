@@ -98,6 +98,11 @@ function JetpackFieldCheckbox( props ) {
 								onChange: value => setAttributes( { labelColor: value } ),
 								label: __( 'Label Text', 'jetpack-forms' ),
 							},
+							{
+								value: attributes.borderColor,
+								onChange: value => setAttributes( { borderColor: value } ),
+								label: __( 'Border', 'jetpack-forms' ),
+							},
 						] }
 					/>
 					<PanelBody

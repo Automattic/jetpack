@@ -78,6 +78,13 @@ const JetpackFieldControls = ( {
 		},
 	];
 
+	if ( isChoicesBlock ) {
+		colorSettings.push( {
+			value: attributes.borderColor,
+			onChange: value => setAttributes( { borderColor: value } ),
+			label: __( 'Border', 'jetpack-forms' ),
+		} );
+	}
 	if ( isChoicesBlock && blockStyle === 'button' ) {
 		colorSettings.push( {
 			value: attributes.buttonBackgroundColor,

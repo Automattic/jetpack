@@ -584,6 +584,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	border: solid 1px currentColor;
 
 	outline-offset: 4px;
+	color: var( --jetpack--contact-form--border-color );
 }
 
 .contact-form .grunion-field-wrap input.radio {
