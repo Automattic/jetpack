@@ -31,7 +31,7 @@ process.argv.slice( 2 ).forEach( arg => {
 const debug = msg => {
 	if ( verbose ) {
 		// Grey doesn't work well in GitHub's output
-		console.log( chalk[ isCI ? 'blue' : 'gray' ]( msg ) );
+		console.log( isCI ? chalk.blue( msg ) : chalk.gray( msg ) );
 	}
 };
 const error = ( file, line, msg, hint ) => {
