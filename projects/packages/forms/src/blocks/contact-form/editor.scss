@@ -497,6 +497,7 @@
 	.wp-block-jetpack-field-option-radio {
 		display: flex;
 		align-items: baseline; /* Align input with first label line */
+		color: var(--jetpack--contact-form--text-color);
 
 		.jetpack-option__type:before {
 			color: var(--jetpack--contact-form--border-color);
