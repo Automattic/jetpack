@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.5] - 2025-01-06
+### Changed
+- Updated package dependencies. [#40784] [#40792] [#40831]
+
 ## [0.10.4] - 2024-12-23
 ### Fixed
 - Exclude the wpcom_admin_interface from the admin_menu action. [#40669]
@@ -190,6 +194,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notifications: Change Icon [#37676]
 - Updated package dependencies. [#37669] [#37706]
 
+[0.10.5]: https://github.com/Automattic/jetpack-masterbar/compare/v0.10.4...v0.10.5
 [0.10.4]: https://github.com/Automattic/jetpack-masterbar/compare/v0.10.3...v0.10.4
 [0.10.3]: https://github.com/Automattic/jetpack-masterbar/compare/v0.10.2...v0.10.3
 [0.10.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.10.1...v0.10.2
