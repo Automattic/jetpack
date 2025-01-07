@@ -2,13 +2,13 @@ import { ToggleControl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import React, { useCallback } from 'react';
+import { connect } from 'react-redux';
 import { FormLegend, FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
-import React, { useCallback } from 'react';
-import { connect } from 'react-redux';
 import {
 	isCurrentUserLinked,
 	isUnavailableInOfflineMode,
@@ -38,6 +38,7 @@ function SubscriptionsSettings( props ) {
 		isStcEnabled,
 		isSmEnabled,
 		isSubscribeOverlayEnabled,
+		isSubscribeFloatingEnabled,
 		isSubscribePostEndEnabled,
 		isLoginNavigationEnabled,
 		isSubscribeNavigationEnabled,
@@ -69,10 +70,20 @@ function SubscriptionsSettings( props ) {
 			  } )
 			: null;
 
+	const subscribeFloatingEditorUrl =
+		siteAdminUrl && themeStylesheet
+			? addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
+					postType: 'wp_template_part',
+					postId: `${ themeStylesheet }//jetpack-subscribe-floating-button`,
+					canvas: 'edit',
+			  } )
+			: null;
+
 	const singlePostTemplateEditorUrl = siteAdminUrl
 		? addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
 				postType: 'wp_template',
 				postId: `${ themeStylesheet }//single`,
+				canvas: 'edit',
 		  } )
 		: null;
 
@@ -80,6 +91,7 @@ function SubscriptionsSettings( props ) {
 		? addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
 				postType: 'wp_template',
 				postId: `${ themeStylesheet }//index`,
+				canvas: 'edit',
 		  } )
 		: null;
 
@@ -97,6 +109,13 @@ function SubscriptionsSettings( props ) {
 
 	const handleSubscribeOverlayToggleChange = useCallback( () => {
 		updateFormStateModuleOption( SUBSCRIPTIONS_MODULE_NAME, 'jetpack_subscribe_overlay_enabled' );
+	}, [ updateFormStateModuleOption ] );
+
+	const handleSubscribeFloatingToggleChange = useCallback( () => {
+		updateFormStateModuleOption(
+			SUBSCRIPTIONS_MODULE_NAME,
+			'jetpack_subscribe_floating_button_enabled'
+		);
 	}, [ updateFormStateModuleOption ] );
 
 	const handleSubscribePostEndToggleChange = useCallback( () => {
@@ -202,6 +221,25 @@ function SubscriptionsSettings( props ) {
 							</span>
 						}
 					/>
+					<ToggleControl
+						checked={ isSubscriptionsActive && isSubscribeFloatingEnabled }
+						disabled={ isDisabled }
+						toggling={ isSavingAnyOption( [ 'jetpack_subscribe_floating_button_enabled' ] ) }
+						onChange={ handleSubscribeFloatingToggleChange }
+						label={
+							<span className="jp-form-toggle-explanation">
+								{ __( "Floating subscribe button on site's bottom corner", 'jetpack' ) }
+								{ isBlockTheme && subscribeFloatingEditorUrl && (
+									<>
+										{ '. ' }
+										<ExternalLink href={ subscribeFloatingEditorUrl }>
+											{ __( 'Preview and edit', 'jetpack' ) }
+										</ExternalLink>
+									</>
+								) }
+							</span>
+						}
+					/>
 				</FormFieldset>
 				{ isSubscriptionSiteEditSupported && (
 					<FormFieldset>
@@ -293,6 +331,9 @@ export default withModuleSettingsFormHelpers(
 			isStcEnabled: ownProps.getOptionValue( 'stc_enabled' ),
 			isSmEnabled: ownProps.getOptionValue( 'sm_enabled' ),
 			isSubscribeOverlayEnabled: ownProps.getOptionValue( 'jetpack_subscribe_overlay_enabled' ),
+			isSubscribeFloatingEnabled: ownProps.getOptionValue(
+				'jetpack_subscribe_floating_button_enabled'
+			),
 			isSubscribePostEndEnabled: ownProps.getOptionValue(
 				'jetpack_subscriptions_subscribe_post_end_enabled'
 			),

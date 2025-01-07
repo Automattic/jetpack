@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Super Cache: Fixed the apache_request_headers fallback so it works when that command is disabled

@@ -85,7 +85,7 @@ describe( 'reducer', () => {
 		expect( reducer( initialState, action ) ).toEqual( expectedState );
 	} );
 
-	it( 'should set the feature avalaible for Unlimited plan', () => {
+	it( 'should set the feature unavalaible for Unlimited plan when above fair usage limit', () => {
 		const initialState: PlanStateProps = {
 			plans: [],
 			features: {
@@ -101,7 +101,51 @@ describe( 'reducer', () => {
 					usagePeriod: {
 						currentStart: 'ai-assistant-tier-unlimited',
 						nextStart: '',
-						requestsCount: 4,
+						requestsCount: 2999,
+					},
+				},
+			},
+		};
+
+		const action = { type: ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT, count: 1 };
+
+		const expectedState = {
+			...initialState,
+			features: {
+				aiAssistant: {
+					...initialState.features.aiAssistant,
+					hasFeature: true,
+					isOverLimit: true,
+					requestsCount: 12346,
+					requireUpgrade: false,
+					usagePeriod: {
+						...initialState.features.aiAssistant.usagePeriod,
+						requestsCount: 3000,
+					},
+				},
+			},
+		};
+
+		expect( reducer( initialState, action ) ).toEqual( expectedState );
+	} );
+
+	it( 'should set the feature avalaible for Unlimited plan when below fair usage limit', () => {
+		const initialState: PlanStateProps = {
+			plans: [],
+			features: {
+				aiAssistant: {
+					hasFeature: true,
+					isOverLimit: false,
+					requestsCount: 12345,
+					requestsLimit: UNLIMITED_PLAN_REQUESTS_LIMIT,
+					requireUpgrade: false,
+					upgradeType: 'default',
+					currentTier: null,
+					nextTier: null,
+					usagePeriod: {
+						currentStart: 'ai-assistant-tier-unlimited',
+						nextStart: '',
+						requestsCount: 2998,
 					},
 				},
 			},
@@ -120,7 +164,7 @@ describe( 'reducer', () => {
 					requireUpgrade: false,
 					usagePeriod: {
 						...initialState.features.aiAssistant.usagePeriod,
-						requestsCount: 5,
+						requestsCount: 2999,
 					},
 				},
 			},

@@ -63,6 +63,7 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 		return (
 			<>
 				<ConnectBanner
+					block="Blogroll"
 					explanation={ __(
 						'Connect your WordPress.com account to use the Blogroll block.',
 						'jetpack'
@@ -108,21 +109,25 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 						label={ __( 'Show avatar', 'jetpack' ) }
 						checked={ !! show_avatar }
 						onChange={ () => setAttributes( { show_avatar: ! show_avatar } ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<ToggleControl
 						label={ __( 'Show description', 'jetpack' ) }
 						checked={ !! show_description }
 						onChange={ () => setAttributes( { show_description: ! show_description } ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<ToggleControl
 						label={ __( 'Open links in a new window', 'jetpack' ) }
 						checked={ !! open_links_new_window }
 						onChange={ () => setAttributes( { open_links_new_window: ! open_links_new_window } ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<ToggleControl
 						label={ __( 'Hide my own sites', 'jetpack' ) }
 						checked={ !! ignore_user_blogs }
 						onChange={ () => setAttributes( { ignore_user_blogs: ! ignore_user_blogs } ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</PanelBody>
 			</InspectorControls>

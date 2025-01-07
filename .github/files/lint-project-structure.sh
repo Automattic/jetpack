@@ -222,14 +222,6 @@ for PROJECT in projects/*/*; do
 		fi
 	fi
 
-	# - If a project uses react, it should include the react linting rules too.
-	if [[ -e "$PROJECT/package.json" ]] && jq -e '.dependencies.react // .devDependencies.react' "$PROJECT/package.json" >/dev/null && ! git grep eslintrc/react "$PROJECT"/.eslintrc.* &>/dev/null; then
-		EXIT=1
-		TMP=$( git ls-files "$PROJECT"/.eslintrc.* | head -n 1 ) || true
-		[[ -n "$TMP" ]] && TMP=" file=$TMP"
-		echo "::error${TMP}::Project $SLUG appears to use React but does not extend jetpack-js-tools/eslintrc/react in its eslint config. Please add that."
-	fi
-
 	# - composer.json must exist.
 	if [[ ! -e "$PROJECT/composer.json" ]]; then
 		EXIT=1
@@ -520,7 +512,7 @@ done
 
 # - Text domains in phpcs config should match composer.json.
 debug "Checking package textdomain usage in phpcs config"
-for FILE in $(git -c core.quotepath=off ls-files 'projects/packages/**/.phpcs.dir.xml'); do
+for FILE in $(git -c core.quotepath=off ls-files 'projects/*/**/.phpcs.dir.xml'); do
 	DOM="$(php -r '$doc = new DOMDocument(); $doc->load( $argv[1] ); $xpath = new DOMXPath( $doc ); echo $xpath->evaluate( "string(//rule[@ref=\"WordPress.WP.I18n\"]/properties/property[@name=\"text_domain\"]/element/@value)" );' "$FILE")"
 	[[ -z "$DOM" ]] && continue
 	DIR="$FILE"
@@ -528,7 +520,13 @@ for FILE in $(git -c core.quotepath=off ls-files 'projects/packages/**/.phpcs.di
 		DIR="${DIR%/*}"
 	done
 	SLUG="${DIR#projects/}"
-	DOM2="$(jq -r '.extra.textdomain // ""' "$DIR/composer.json")"
+	if [[ "$SLUG" == plugins/* ]]; then
+		WHAT='`.extra.wp-plugin-slug` or `.extra.beta-plugin-slug`'
+		DOM2="$(jq -r '.extra["wp-plugin-slug"] // .extra["beta-plugin-slug"] // ""' "$DIR/composer.json")"
+	else
+		WHAT='`.extra.textdomain`'
+		DOM2="$(jq -r '.extra.textdomain // ""' "$DIR/composer.json")"
+	fi
 	if [[ "$DOM" != "$DOM2" ]]; then
 		EXIT=1
 		LINE=$(grep --line-number --max-count=1 'name="text_domain"' "$FILE" || true)
@@ -536,34 +534,9 @@ for FILE in $(git -c core.quotepath=off ls-files 'projects/packages/**/.phpcs.di
 			LINE=",line=${LINE%%:*}"
 		fi
 		if [[ -z "$DOM2" ]]; then
-			echo "::error file=$FILE$LINE::PHPCS config sets textdomain \"$DOM\", but $SLUG's composer.json does not set \`.extra.textdomain\`."
+			echo "::error file=$FILE$LINE::PHPCS config sets textdomain \"$DOM\", but $SLUG's composer.json does not set $WHAT."
 		else
 			echo "::error file=$FILE$LINE::PHPCS config sets textdomain \"$DOM\", but $SLUG's composer.json sets domain \"$DOM2\"."
-		fi
-	fi
-done
-
-# - Text domains in eslint config should match composer.json.
-debug "Checking package textdomain usage in eslint config"
-for FILE in $(git -c core.quotepath=off ls-files 'projects/packages/**/.eslintrc.js' 'projects/packages/**/.eslintrc.cjs'); do
-	DOM="$(node -e 'const x = require( `./${ process.argv[1] }` ); console.log( x.rules?.["@wordpress/i18n-text-domain"]?.[1]?.allowedTextDomain ?? "" );' "$FILE")"
-	[[ -z "$DOM" ]] && continue
-	DIR="$FILE"
-	while ! [[ "$DIR" =~ ^projects/[^/]*/[^/]*$ ]]; do
-		DIR="${DIR%/*}"
-	done
-	SLUG="${DIR#projects/}"
-	DOM2="$(jq -r '.extra.textdomain // ""' "$DIR/composer.json")"
-	if [[ "$DOM" != "$DOM2" ]]; then
-		EXIT=1
-		LINE=$(grep --line-number --max-count=1 'allowedTextDomain' "$FILE" || true)
-		if [[ -n "$LINE" ]]; then
-			LINE=",line=${LINE%%:*}"
-		fi
-		if [[ -z "$DOM2" ]]; then
-			echo "::error file=$FILE$LINE::Eslint config sets textdomain \"$DOM\", but $SLUG's composer.json does not set \`.extra.textdomain\`."
-		else
-			echo "::error file=$FILE$LINE::Eslint config sets textdomain \"$DOM\", but $SLUG's composer.json sets domain \"$DOM2\"."
 		fi
 	fi
 done
@@ -580,8 +553,10 @@ for FILE in $(git -c core.quotepath=off ls-files 'projects/packages/**/block.jso
 	done
 	SLUG="${DIR#projects/}"
 	if [[ "$SLUG" == plugins/* ]]; then
-		DOM2="$(jq -r '.extra["wp-plugin-slug"] // .extra["wp-theme-slug"] // ""' "$DIR/composer.json")"
+		WHAT='`.extra.wp-plugin-slug` or `.extra.beta-plugin-slug`'
+		DOM2="$(jq -r '.extra["wp-plugin-slug"] // .extra["beta-plugin-slug"] // ""' "$DIR/composer.json")"
 	else
+		WHAT='`.extra.textdomain`'
 		DOM2="$(jq -r '.extra.textdomain // ""' "$DIR/composer.json")"
 	fi
 	if [[ "$DOM" != "$DOM2" ]]; then
@@ -591,7 +566,7 @@ for FILE in $(git -c core.quotepath=off ls-files 'projects/packages/**/block.jso
 			LINE=",line=${LINE%%:*}"
 		fi
 		if [[ -z "$DOM2" ]]; then
-			echo "::error file=$FILE$LINE::block.json sets textdomain \"$DOM\", but $SLUG's composer.json does not set \`.extra.textdomain\`."
+			echo "::error file=$FILE$LINE::block.json sets textdomain \"$DOM\", but $SLUG's composer.json does not set $WHAT."
 		else
 			echo "::error file=$FILE$LINE::block.json sets textdomain \"$DOM\", but $SLUG's composer.json sets domain \"$DOM2\"."
 		fi
@@ -642,6 +617,11 @@ if ! pnpm semver --range "$RANGE" "$PNPM_VERSION" &>/dev/null; then
 	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["engines","pnpm"] then input_line_number - 1 else empty end' package.json)
 	echo "::error file=package.json,line=$LINE::Pnpm version $PNPM_VERSION in .github/versions.sh does not satisfy requirement $RANGE from package.json"
 fi
+if ! jq -e --arg v "pnpm@$PNPM_VERSION" '.packageManager == $v' package.json &>/dev/null; then
+	EXIT=1
+	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["packageManager"] then input_line_number - 1 else empty end' package.json)
+	echo "::error file=package.json,line=$LINE::Version in package.json packageManager must be \"pnpm@$PNPM_VERSION\", to match .github/versions.sh."
+fi
 
 # - Check for incorrect next-version tokens.
 debug "Checking for incorrect next-version tokens."
@@ -654,5 +634,16 @@ while IFS= read -r FILE; do
 		echo "::error file=$FILE,line=$LINE,col=$COL::You probably mean \`\$\$next-version\$\$\` here rather than \`$X\`."
 	done < <( git grep -h --line-number --column -o "$RE" "$FILE" )
 done < <( git -c core.quotepath=off grep -l "$RE" )
+
+# - Check for `random(` in scss files.
+debug "Checking for SCSS random."
+while IFS= read -r FILE; do
+	EXIT=1
+	while IFS=: read -r LINE COL X; do
+		X=${X%(}
+		echo "::error file=$FILE,line=$LINE,col=$COL::Do not use SCSS \`$X()\`. It means that every build will have different CSS, dirtying the diffs (and making for redudant Simple deploys if this gets into a relevant plugin)."
+	done < <( git grep -h --line-number --column -o '\(random\|unique-id\)\s*(' "$FILE" )
+done < <( git -c core.quotepath=off grep -l '\(random\|unique-id\)\s*(' '*.sass' '*.scss' )
+
 
 exit $EXIT

@@ -182,7 +182,10 @@ class Scan_History {
 		$response = Client::wpcom_json_api_request_as_blog(
 			$api_url,
 			'2',
-			array( 'method' => 'GET' ),
+			array(
+				'method'  => 'GET',
+				'timeout' => 30,
+			),
 			null,
 			'wpcom'
 		);
@@ -203,6 +206,8 @@ class Scan_History {
 	/**
 	 * Normalize API Data
 	 * Formats the payload from the Scan API into an instance of History_Model.
+	 *
+	 * @phan-suppress PhanDeprecatedProperty -- Maintaining backwards compatibility.
 	 *
 	 * @param object $scan_data The data returned by the scan API.
 	 * @return History_Model
@@ -246,6 +251,8 @@ class Scan_History {
 
 	/**
 	 * Handles threats for extensions such as plugins or themes.
+	 *
+	 * @phan-suppress PhanDeprecatedProperty -- Maintaining backwards compatibility.
 	 *
 	 * @param object $threat The threat object.
 	 * @param object $history The history object.

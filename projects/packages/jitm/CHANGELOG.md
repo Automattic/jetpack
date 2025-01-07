@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.3] - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564]
+
+## [4.0.2] - 2024-12-04
+### Changed
+- Updated package dependencies. [#40363]
+
+## [4.0.1] - 2024-11-25
+### Changed
+- Updated package dependencies. [#40258] [#40288]
+
+## [4.0.0] - 2024-11-14
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## [3.1.29] - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999]
+
+## [3.1.28] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+## [3.1.27] - 2024-10-29
+### Changed
+- Internal updates.
+
+## [3.1.26] - 2024-10-14
+### Changed
+- Only include `wp-polyfill` as a script dependency when needed. [#39629]
+
 ## [3.1.25] - 2024-10-10
 ### Changed
 - Updated package dependencies. [#39707]
@@ -779,6 +811,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[4.0.3]: https://github.com/Automattic/jetpack-jitm/compare/v4.0.2...v4.0.3
+[4.0.2]: https://github.com/Automattic/jetpack-jitm/compare/v4.0.1...v4.0.2
+[4.0.1]: https://github.com/Automattic/jetpack-jitm/compare/v4.0.0...v4.0.1
+[4.0.0]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.29...v4.0.0
+[3.1.29]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.28...v3.1.29
+[3.1.28]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.27...v3.1.28
+[3.1.27]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.26...v3.1.27
+[3.1.26]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.25...v3.1.26
 [3.1.25]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.24...v3.1.25
 [3.1.24]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.23...v3.1.24
 [3.1.23]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.22...v3.1.23

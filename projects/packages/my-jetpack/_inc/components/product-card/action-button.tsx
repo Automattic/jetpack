@@ -7,14 +7,16 @@ import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useOutsideAlerter from '../../hooks/use-outside-alerter';
 import styles from './style.module.scss';
 import { ProductCardProps } from '.';
 import type { SecondaryButtonProps } from './secondary-button';
-import type { FC, ComponentProps } from 'react';
+import type { FC, ComponentProps, MouseEvent } from 'react';
 
 type ActionButtonProps< A = () => void > = ProductCardProps & {
-	onFixConnection?: A;
+	onFixUserConnection?: A;
+	onFixSiteConnection?: ( { e }: { e: MouseEvent< HTMLButtonElement > } ) => void;
 	onManage?: A;
 	onAdd?: A;
 	onInstall?: A;
@@ -34,7 +36,8 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	additionalActions,
 	primaryActionOverride,
 	onManage,
-	onFixConnection,
+	onFixUserConnection,
+	onFixSiteConnection,
 	isFetching,
 	isInstallingStandalone,
 	className,
@@ -44,10 +47,13 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	upgradeInInterstitial,
 	isOwned,
 } ) => {
+	const troubleshootBackupsUrl =
+		'https://jetpack.com/support/backup/troubleshooting-jetpack-backup/';
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
 	const [ currentAction, setCurrentAction ] = useState< ComponentProps< typeof Button > >( {} );
 	const { detail } = useProduct( slug );
-	const { manageUrl, purchaseUrl } = detail;
+	const { manageUrl, purchaseUrl, managePaidPlanPurchaseUrl, renewPaidPlanPurchaseUrl } = detail;
+	const { siteIsRegistering } = useMyJetpackConnection();
 	const isManageDisabled = ! manageUrl;
 	const dropdownRef = useRef( null );
 	const chevronRef = useRef( null );
@@ -55,7 +61,10 @@ const ActionButton: FC< ActionButtonProps > = ( {
 
 	slug === 'jetpack-ai' && debug( slug, detail );
 
-	const isBusy = isFetching || isInstallingStandalone;
+	const isBusy =
+		isFetching ||
+		isInstallingStandalone ||
+		( siteIsRegistering && status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR );
 	const hasAdditionalActions = additionalActions?.length > 0;
 
 	const buttonState = useMemo< Partial< SecondaryButtonProps > >( () => {
@@ -79,9 +88,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'primary',
 					label: buttonText,
 					onClick: onLearnMore,
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.ABSENT in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.ABSENT ] ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.ABSENT ] ?? {} ),
 				};
 			}
 			case PRODUCT_STATUSES.ABSENT_WITH_PLAN: {
@@ -91,9 +98,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'primary',
 					label: buttonText,
 					onClick: onInstall,
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.ABSENT_WITH_PLAN in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ] ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ] ?? {} ),
 				};
 			}
 			// The site or user have never been connected before and the connection is required
@@ -104,9 +109,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'primary',
 					label: __( 'Learn more', 'jetpack-my-jetpack' ),
 					onClick: onAdd,
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION ] ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION ] ?? {} ),
 				};
 			case PRODUCT_STATUSES.NEEDS_PLAN: {
 				const getPlanText = __( 'Get plan', 'jetpack-my-jetpack' );
@@ -119,9 +122,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'primary',
 					label: buttonText,
 					onClick: onAdd,
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.NEEDS_PLAN in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_PLAN ] ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.NEEDS_PLAN ] ?? {} ),
 				};
 			}
 			case PRODUCT_STATUSES.CAN_UPGRADE: {
@@ -135,9 +136,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'primary',
 					label: buttonText,
 					onClick: onAdd,
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.CAN_UPGRADE in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.CAN_UPGRADE ] ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.CAN_UPGRADE ] ?? {} ),
 				};
 			}
 			case PRODUCT_STATUSES.ACTIVE: {
@@ -150,31 +149,24 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'secondary',
 					label: buttonText,
 					onClick: onManage,
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.ACTIVE in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.ACTIVE ] ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.ACTIVE ] ?? {} ),
 				};
 			}
 			case PRODUCT_STATUSES.SITE_CONNECTION_ERROR:
 				return {
 					...buttonState,
-					href: '#/connection',
 					variant: 'primary',
 					label: __( 'Connect', 'jetpack-my-jetpack' ),
-					onClick: onFixConnection,
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.SITE_CONNECTION_ERROR in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.SITE_CONNECTION_ERROR ] ),
+					onClick: onFixSiteConnection,
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.SITE_CONNECTION_ERROR ] ?? {} ),
 				};
 			case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
 				return {
-					href: '#/connection',
+					href: '#/connection?skip_pricing=true',
 					variant: 'primary',
 					label: __( 'Connect', 'jetpack-my-jetpack' ),
-					onClick: onFixConnection,
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.USER_CONNECTION_ERROR in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.USER_CONNECTION_ERROR ] ),
+					onClick: onFixUserConnection,
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.USER_CONNECTION_ERROR ] ?? {} ),
 				};
 			case PRODUCT_STATUSES.INACTIVE:
 			case PRODUCT_STATUSES.MODULE_DISABLED:
@@ -184,19 +176,82 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'secondary',
 					label: __( 'Activate', 'jetpack-my-jetpack' ),
 					onClick: onActivate,
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.INACTIVE in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.INACTIVE ] ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.INACTIVE ] ?? {} ),
 				};
+			case PRODUCT_STATUSES.EXPIRING_SOON:
+				return {
+					...buttonState,
+					href: renewPaidPlanPurchaseUrl,
+					variant: 'primary',
+					label: __( 'Renew my plan', 'jetpack-my-jetpack' ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.EXPIRING_SOON ] ?? {} ),
+				};
+			case PRODUCT_STATUSES.EXPIRED:
+				return {
+					...buttonState,
+					href: managePaidPlanPurchaseUrl,
+					variant: 'primary',
+					label: __( 'Resume my plan', 'jetpack-my-jetpack' ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.EXPIRED ] ?? {} ),
+				};
+			case PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR: {
+				const defaultButton: Partial< SecondaryButtonProps > = {
+					...buttonState,
+					href: manageUrl,
+					variant: 'primary',
+					label: __( 'Troubleshoot', 'jetpack-my-jetpack' ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR ] ?? {} ),
+				};
+				switch ( slug ) {
+					case 'backup':
+						return {
+							...defaultButton,
+							href: troubleshootBackupsUrl,
+						};
+					case 'protect':
+						return {
+							...defaultButton,
+							label: __( 'Fix threats', 'jetpack-my-jetpack' ),
+						};
+					default:
+						return defaultButton;
+				}
+			}
+			case PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING: {
+				const defaultButton: Partial< SecondaryButtonProps > = {
+					...buttonState,
+					href: manageUrl,
+					variant: 'primary',
+					label: __( 'Troubleshoot', 'jetpack-my-jetpack' ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING ] ?? {} ),
+				};
+				switch ( slug ) {
+					case 'protect':
+						return {
+							...defaultButton,
+							label: __( 'Fix threats', 'jetpack-my-jetpack' ),
+						};
+					default:
+						return {
+							...defaultButton,
+						};
+				}
+			}
 			default:
-				return null;
+				return {
+					...buttonState,
+					href: purchaseUrl || `#/add-${ slug }`,
+					label: __( 'Learn more', 'jetpack-my-jetpack' ),
+					onClick: onAdd,
+				};
 		}
 	}, [
 		status,
 		buttonState,
 		slug,
 		onAdd,
-		onFixConnection,
+		onFixUserConnection,
+		onFixSiteConnection,
 		onActivate,
 		onInstall,
 		onLearnMore,
@@ -207,6 +262,8 @@ const ActionButton: FC< ActionButtonProps > = ( {
 		onManage,
 		primaryActionOverride,
 		isOwned,
+		managePaidPlanPurchaseUrl,
+		renewPaidPlanPurchaseUrl,
 	] );
 
 	const allActions = useMemo(

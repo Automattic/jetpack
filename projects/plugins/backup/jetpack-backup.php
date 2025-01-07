@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack VaultPress Backup
  * Plugin URI: https://jetpack.com/jetpack-backup
  * Description: Easily restore or download a backup of your site from a specific moment in time.
- * Version: 2.9
+ * Version: 3.0
  * Author: Automattic - Jetpack Backup team
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -29,7 +29,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-use Automattic\Jetpack\Backup\V0004\Jetpack_Backup as My_Jetpack_Backup;
+use Automattic\Jetpack\Backup\V0005\Jetpack_Backup as My_Jetpack_Backup;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -71,13 +71,15 @@ if ( is_wp_error( $jetpack_backup_meets_requirements ) ) {
 	add_action(
 		'admin_notices',
 		function () use ( $jetpack_backup_meets_requirements ) {
-			wp_admin_notice(
-				esc_html( $jetpack_backup_meets_requirements->get_error_message() ),
-				array(
-					'type'        => 'error',
-					'dismissible' => true,
-				)
-			);
+			?>
+		<div class="notice notice-error is-dismissible">
+			<p>
+				<?php
+				echo esc_html( $jetpack_backup_meets_requirements->get_error_message() );
+				?>
+			</p>
+		</div>
+			<?php
 		}
 	);
 
@@ -177,7 +179,7 @@ add_filter(
 	}
 );
 
-register_deactivation_hook( __FILE__, array( 'Automattic\\Jetpack\\Backup\\V0004\\Jetpack_Backup', 'plugin_deactivation' ) );
+register_deactivation_hook( __FILE__, array( 'Automattic\\Jetpack\\Backup\\V0005\\Jetpack_Backup', 'plugin_deactivation' ) );
 
 // Main plugin class.
 My_Jetpack_Backup::initialize();

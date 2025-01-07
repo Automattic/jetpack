@@ -1,6 +1,7 @@
 import { doesRepoExist } from '../../../helpers/github.js';
 
 /** @todo Fix these tests and un-skip them. They work locally, but not in CI. */
+// eslint-disable-next-line jest/no-disabled-tests
 describe.skip( 'doesRepoExist Integration Tests', function () {
 	test( 'checks for an existing mirror repo', async () => {
 		await expect( doesRepoExist( 'jetpack' ) ).resolves.toBe( true );

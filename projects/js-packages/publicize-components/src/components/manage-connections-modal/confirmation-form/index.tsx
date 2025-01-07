@@ -1,12 +1,14 @@
-import { Button, useGlobalNotices } from '@automattic/jetpack-components';
+import { Button, useGlobalNotices, getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	BaseControl,
 	FlexBlock,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	ExternalLink,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import Notice from '../../../components/notice';
 import { store as socialStore } from '../../../social-store';
 import { KeyringResult } from '../../../social-store/types';
 import { useSupportedServices } from '../../services/use-supported-services';
@@ -90,7 +92,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 		// If user account is supported, add it to the list
 		if ( ! service.external_users_only ) {
 			options.push( {
-				label: keyringResult.external_display,
+				label: keyringResult.external_display || keyringResult.external_name,
 				value: keyringResult.external_ID,
 				profile_picture: keyringResult.external_profile_picture,
 			} );
@@ -135,7 +137,9 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 			const external_user_ID = formData.get( 'external_user_ID' );
 
 			if ( ! external_user_ID ) {
-				createErrorNotice( __( 'Please select an account to connect.', 'jetpack' ) );
+				createErrorNotice(
+					__( 'Please select an account to connect.', 'jetpack-publicize-components' )
+				);
 				return;
 			}
 
@@ -150,7 +154,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 			);
 
 			if ( reconnectingAccount ) {
-				setReconnectingAccount( '' );
+				setReconnectingAccount( undefined );
 			}
 
 			// Do not await the connection creation to unblock the UI
@@ -186,9 +190,9 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 							? _x(
 									'No more accounts/pages found.',
 									'Message shown when there are no connections found to connect',
-									'jetpack'
+									'jetpack-publicize-components'
 							  )
-							: __( 'No accounts/pages found.', 'jetpack' )
+							: __( 'No accounts/pages found.', 'jetpack-publicize-components' )
 					}
 				</p>
 			) : (
@@ -196,9 +200,26 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 					<p className={ styles[ 'header-text' ] }>
 						{ __(
 							`Select the account you'd like to connect. All your new blog posts will be automatically shared to this account. You'll be able to change this option in the editor sidebar when you're writing a post.`,
-							'jetpack'
+							'jetpack-publicize-components'
 						) }
 					</p>
+					{ keyringResult?.show_linkedin_warning && (
+						<Notice type={ 'warning' }>
+							<p>
+								{ __(
+									'We could not retrieve which company pages you have access to. This is a known issue with the LinkedIn API. If you would like to connect a company page, please retry after 5 minutes.',
+									'jetpack-publicize-components'
+								) }
+								&nbsp;
+								<ExternalLink
+									key="linkedin-api-documentaion"
+									href={ getRedirectUrl( 'jetpack-linkedin-permissions-warning' ) }
+								>
+									{ __( 'Learn more', 'jetpack-publicize-components' ) }
+								</ExternalLink>
+							</p>
+						</Notice>
+					) }
 					<form className={ styles.form } onSubmit={ onConfirm } id="connection-confirmation-form">
 						{
 							//
@@ -215,14 +236,20 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 								// If we are reconnecting an account, preselect it,
 								// otherwise, preselect the first account
 								const defaultChecked = reconnectingAccount
-									? reconnectingAccount === `${ service?.ID }:${ option.value }`
+									? reconnectingAccount.service_name === service?.ID &&
+									  reconnectingAccount.external_id === option.value
 									: index === 0;
 
 								return (
-									// eslint-disable-next-line jsx-a11y/label-has-associated-control -- https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/869
-									<label key={ option.value } className={ styles[ 'account-label' ] } aria-required>
+									<label
+										key={ option.value }
+										htmlFor={ `external_user_ID__${ option.value }` }
+										className={ styles[ 'account-label' ] }
+										aria-required
+									>
 										<input
 											type="radio"
+											id={ `external_user_ID__${ option.value }` }
 											name="external_user_ID"
 											value={ option.value }
 											defaultChecked={ defaultChecked }
@@ -244,15 +271,15 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 								id="mark-connection-as-shared"
 								help={ `${ __(
 									'If enabled, the connection will be available to all administrators, editors, and authors.',
-									'jetpack'
-								) } ${ __( 'You can change this later.', 'jetpack' ) }` }
+									'jetpack-publicize-components'
+								) } ${ __( 'You can change this later.', 'jetpack-publicize-components' ) }` }
 							>
 								<HStack justify="flex-start" spacing={ 3 }>
 									<span>
 										<input type="checkbox" id="mark-connection-as-shared" name="shared" value="1" />
 									</span>
 									<FlexBlock as="label" htmlFor="mark-connection-as-shared">
-										{ __( 'Mark the connection as shared', 'jetpack' ) }
+										{ __( 'Mark the connection as shared', 'jetpack-publicize-components' ) }
 									</FlexBlock>
 								</HStack>
 							</BaseControl>
@@ -265,7 +292,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 
 			{ accounts.connected.length ? (
 				<section>
-					<h3>{ __( 'Already connected', 'jetpack' ) }</h3>
+					<h3>{ __( 'Already connected', 'jetpack-publicize-components' ) }</h3>
 					<ul>
 						{ accounts.connected.map( ( connection, i ) => (
 							<li key={ connection.label + i }>
@@ -281,11 +308,11 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 
 			<div className={ styles[ 'submit-wrap' ] }>
 				<Button variant="secondary" onClick={ onComplete }>
-					{ __( 'Cancel', 'jetpack' ) }
+					{ __( 'Cancel', 'jetpack-publicize-components' ) }
 				</Button>
 				{ accounts.not_connected.length ? (
 					<Button form="connection-confirmation-form" type="submit">
-						{ __( 'Confirm', 'jetpack' ) }
+						{ __( 'Confirm', 'jetpack-publicize-components' ) }
 					</Button>
 				) : null }
 			</div>

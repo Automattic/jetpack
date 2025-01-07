@@ -3,7 +3,7 @@
  * of the card with customized content.
  */
 
-/* global jetpackPluginSearch, JSON, jpTracksAJAX */
+/* global jetpackPluginSearch, jpTracksAJAX */
 
 var JetpackPSH = {};
 
@@ -13,7 +13,7 @@ var JetpackPSH = {};
 
 		/**
 		 * Get parent search hint element.
-		 * @returns {Element | null}
+		 * @return {Element | null}
 		 */
 		getCard: function () {
 			return document.querySelector( '.plugin-card-jetpack-plugin-search' );

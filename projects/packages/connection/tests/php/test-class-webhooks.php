@@ -125,7 +125,7 @@ class Test_Webhooks extends TestCase {
 	public function test_controller() {
 		$webhooks = $this->getMockBuilder( Webhooks::class )
 			->setConstructorArgs( array( new Manager() ) )
-			->setMethods( array( 'do_exit', 'handle_authorize', 'handle_authorize_redirect' ) )
+			->onlyMethods( array( 'do_exit', 'handle_authorize', 'handle_authorize_redirect' ) )
 			->getMock();
 
 		$webhooks->controller();
@@ -162,7 +162,7 @@ class Test_Webhooks extends TestCase {
 	public function test_handle_connect_url_redirect() {
 		$webhooks = $this->getMockBuilder( Webhooks::class )
 			->setConstructorArgs( array( new Manager() ) )
-			->setMethods( array( 'do_exit' ) )
+			->onlyMethods( array( 'do_exit' ) )
 			->getMock();
 
 		Constants::set_constant( 'JETPACK__API_BASE', 'https://example.com/api/base.' );

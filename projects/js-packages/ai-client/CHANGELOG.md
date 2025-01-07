@@ -5,6 +5,88 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.5] - 2025-01-06
+### Changed
+- Updated package dependencies. [#40798] [#40810] [#40811] [#40841]
+
+### Fixed
+- AI Client: Add style parameter to first logo generator so it doesn't fall in a DALL-E situation. [#40807]
+- Jetpack AI: Switch tracking data to camel_case to maintain Tracks' required property format. [#40774]
+
+## [0.25.4] - 2024-12-30
+### Added
+- AI Client: Add thumbs feedback on AI Assistant. [#40728]
+
+### Changed
+- AI Client: Move prompt types and update thumbs feedback event. [#40746]
+
+## [0.25.3] - 2024-12-23
+### Added
+- Jetpack AI: Add thumbs up/down component to AI logo generator. [#40610]
+
+## [0.25.2] - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564]
+
+### Fixed
+- Fixed lints following ESLint rule changes for TS. [#40584]
+
+## [0.25.1] - 2024-12-09
+### Changed
+- AI Assistant: Add disclaimer to image generation modals. [#40397]
+- Updated package dependencies. [#40363]
+
+## [0.25.0] - 2024-11-25
+### Added
+- AI Client: split disabled prop to allow disabling input and action button separately. [#40210]
+
+### Changed
+- AI Client: fix prompt cursor to text when editable. [#40247]
+- Updated package dependencies. [#40288]
+
+## [0.24.3] - 2024-11-18
+### Changed
+- AI Client: add effect on AiModalInputPrompt to update/set prompt on prop update. [#40113]
+
+## [0.24.2] - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999] [#40000]
+
+## [0.24.1] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Fixed
+- Jetpack AI: Fix for the "Generate with AI" for images text box triggering P2 keyboard shortcuts. [#39964]
+
+## [0.24.0] - 2024-10-29
+### Added
+- AI Client: export image generator hook constants [#39917]
+
+## [0.23.0] - 2024-10-28
+### Changed
+- AI Client: Decouple prompt input as component and export it for reusability. [#39864]
+- AI Client: Make reload handler prop optional. [#39848]
+
+### Fixed
+- AI Client: Fix initial state being mapped even when fetch fails. [#39846]
+
+## [0.22.0] - 2024-10-21
+### Changed
+- AI Client: Add types for AI assistant feature payload data branch featuresControl. [#39826]
+
+## [0.21.0] - 2024-10-14
+### Added
+- AI Client: Add image styles 'auto' and 'none' to the logo generator. Order styles so those are on top in the dropdown selector. [#39689]
+- AI Client: Add prompt processing and style guess function for logo generator [#39712]
+
+### Changed
+- AI Client: Change plans limit to use and accept new 3000 value. [#39705]
+- AI Client: Change upgrade copy edit and redirect URL. [#39671]
+- AI Client: If site details show empty or default, do not trigger a logo generation, use empty placeholders. [#39536]
+- AI Client: Remove provision of image styles via flag prop and internal definition, take it from ai-assistant-feature payload now. [#39589]
+- Updated package dependencies. [#39669] [#39707]
+
 ## [0.20.1] - 2024-10-07
 ### Changed
 - Updated package dependencies. [#39594]
@@ -189,8 +271,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - AI Client: change loading and error state handling on media recording hook. [#36001]
 - AI Client: publish audio information on the validation success callback of the audio validation hook. [#36094]
-- Updated package dependencies. [#36095]
-- Updated package dependencies. [#36143]
+- Updated package dependencies. [#36095] [#36143]
 
 ### Fixed
 - AI Client: fixed transcription request from P2 editor [#36081]
@@ -419,10 +500,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - AI Client: stop using smart document visibility handling on the fetchEventSource library, so it does not restart the completion when changing tabs. [#32004]
-- Updated package dependencies. [#31468]
-- Updated package dependencies. [#31659]
-- Updated package dependencies. [#31785]
+- Updated package dependencies. [#31468] [#31659] [#31785]
 
+[0.25.5]: https://github.com/Automattic/jetpack-ai-client/compare/v0.25.4...v0.25.5
+[0.25.4]: https://github.com/Automattic/jetpack-ai-client/compare/v0.25.3...v0.25.4
+[0.25.3]: https://github.com/Automattic/jetpack-ai-client/compare/v0.25.2...v0.25.3
+[0.25.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.25.1...v0.25.2
+[0.25.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.25.0...v0.25.1
+[0.25.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.24.3...v0.25.0
+[0.24.3]: https://github.com/Automattic/jetpack-ai-client/compare/v0.24.2...v0.24.3
+[0.24.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.24.1...v0.24.2
+[0.24.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.24.0...v0.24.1
+[0.24.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.23.0...v0.24.0
+[0.23.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.22.0...v0.23.0
+[0.22.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.21.0...v0.22.0
+[0.21.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.20.1...v0.21.0
 [0.20.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.20.0...v0.20.1
 [0.20.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.19.0...v0.20.0
 [0.19.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.18.1...v0.19.0

@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-/* eslint-disable no-console */
-
 import { createTokenAuth } from '@octokit/auth-token';
 import { Octokit } from '@octokit/rest';
 import chalk from 'chalk';

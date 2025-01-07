@@ -1,23 +1,23 @@
 /**
  * External dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
-import { register, select } from '@wordpress/data';
-import { addQueryArgs } from '@wordpress/url';
-import { set } from 'lodash';
 import { createStore, applyMiddleware } from 'redux';
-import createSagaMiddleware from 'redux-saga';
 import { call, put, takeLatest, delay } from 'redux-saga/effects';
+import createSagaMiddleware from 'redux-saga';
+import { set } from 'lodash';
 
 /**
  * WordPress dependencies
  */
+import { register, select } from '@wordpress/data';
+import apiFetch from '@wordpress/api-fetch';
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Internal dependencies
  */
 import metadata from './block.json';
-import { getBlockQueries, sanitizePostList } from './utils';
+import { getBlockQueries, sanitizePostList, recursivelyGetBlocks } from './utils';
 
 const { name } = metadata;
 export const STORE_NAMESPACE = `newspack-blocks/${ name }`;
@@ -89,7 +89,7 @@ const createCacheKey = JSON.stringify;
  * Get posts for a single block.
  *
  * @yield
- * @param {object} block - an object with a postsQuery and a clientId
+ * @param {Object} block an object with a postsQuery and a clientId
  */
 function* getPostsForBlock( block ) {
 	const cacheKey = createCacheKey( block.postsQuery );
@@ -138,15 +138,7 @@ const createFetchPostsSaga = blockNames => {
 
 		yield put( { type: 'DISABLE_UI' } );
 
-		// Ensure innerBlocks are populated for widget area blocks.
-		// See https://github.com/WordPress/gutenberg/issues/32607#issuecomment-890728216.
-		const blocks = getBlocks().map( block => {
-			const innerBlocks = select( 'core/block-editor' ).getBlocks( block.clientId );
-			return {
-				...block,
-				innerBlocks,
-			};
-		} );
+		const blocks = recursivelyGetBlocks( getBlocks );
 
 		const blockQueries = getBlockQueries( blocks, blockNames );
 

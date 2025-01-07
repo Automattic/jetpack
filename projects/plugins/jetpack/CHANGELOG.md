@@ -2,23 +2,283 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 14.0-a.1 - 2024-10-07
-### Enhancements
-- Sitemap: Improve sitemap write efficienty. [#39572]
-- CSS: Rely esclusively on individual CSS files instead of a combined one for the features used on each page to improve page loading. [#39518]
-- Social: Add support for Bluesky 🎉. [#39561]
-- Scan: Update Jetpack Scan link in the WP Admin menu. [#39619]
-
+## 14.2-beta - 2025-01-06
 ### Bug fixes
-- Social: Prevent text overflow in the share status tooltip. [#39599]
+- Shortcodes: Prevent conflict with third-party SoundCloud shortcodes. [#40789]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Admin menu: Adding tests to check for 'current' class when menu item selected. [#39374]
+- Add testing instructions for Jetpack 14.2. [#40752]
+- AI Assistant: Fix block inserter position for Form block with AI extension. [#40834]
+- E2E Tests: Only install single browser used by Playwright. [#40827]
+- Filters: Prevent error when `http_request_timeout` filter is used incorrectly. [#40791]
+- Jetpack AI: Adding AI feedback to Write Brief features. [#40756]
+- Jetpack AI: Do not trigger featured image generation if title or content are just empty spaces. [#40858]
+- Jetpack AI: Move AI Response Feedback feature out of beta. [#40859]
+- Jetpack API: Fixed a bug where invalid upload input caused a fatal error. [#40726]
+- Map block: Improve inspector control UI. [#40837]
+- Site Migration: Add new option to site options API. [#40552]
+- Updated package dependencies. [#40784] [#40792] [#40798] [#40800] [#40810] [#40811] [#40813] [#40815] [#40830] [#40831] [#40844]
+- VideoPress: Catch TypeError when theme specifies $content_width as a string. [#40790]
+
+## 14.2-a.9 - 2024-12-30
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Add thumbs feedback for list-to-table feature. [#40755]
+- AI Assistant: Enhance thumbs feedback on AI Assistant and extensions. [#40746]
+- Jetpack AI: Introduce new beta feature ai-seo-assistant. [#40744]
+- WordAds: Migration of ad formats from IPONWEB to WATL. [#40308]
+
+## 14.2-a.7 - 2024-12-25
+### Bug fixes
+- WooCommerce Analytics: Fix fatal error when WooCommerce cart object is not available. [#40729]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Jetpack AI: Show current featured image in Featured Image Generator modal if present. [#40631]
+- Metadata: Always return internal '_jetpack_dont_email_post_to_subs' meta. [#40723]
+
+## 14.2-a.5 - 2024-12-23
+### Bug fixes
+- Shortcode embeds: Ensure Instagram reels are properly displayed in AMP views. [#40682]
+- Slideshow block: Fix block display when added within a Stack block. [#40383]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Custom Post Types: Ensure Restaurant Menu mail class does not conflict with newly moved files in Classic Theme Helper package. [#40668]
+- Jetpack AI: Add thumbs up/down component to AI logo generator. [#40610]
+- Jetpack API: Move `wpcom/v2/publicize/connections` endpoint to publicize package. [#40607]
+- Photon: Ensure VIP sites are correctly identified to prevent unnecessary early Photonization of URLs. [#39941]
+- Premium Content: Fix editor and display CSS for Premium Content buttons. [#40638]
+- Restaurant Menu CPT: Convert much of the jQuery usage to JavaScript. [#40645]
+- Tests: Use updated theme in tests. [#40634]
+- Updated package dependencies. [#40693]
+
+## 14.2-a.3 - 2024-12-16
+### Enhancements
+- Social: Improve Jetpack Likes behavior for better theme integration if the post has likes. [#40544]
+
+### Improved compatibility
+- Jetpack Testimonials: Ensure feature loads via the Classic Theme Helper package instead of the module. [#40388]
+
+### Bug fixes
+- Facebook Embeds: Add a white background to embeds to avoid transparent background interfering with readability. [#40547]
+- Form Block: Fix validation of URL input types to allow query strings. [#40490]
+- Import: Set WP_IMPORTING constant correctly when doing an import. [#40563]
+- SEO: Ensure that SEO fields are not visible when another SEO plugin is active. [#40567]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- API Endpoints: Disable Bloganuary for 2025 and beyond. [#40491]
+- API Endpoints: Make sure manual plugin updates applied when auto update is disabled. [#40534]
+- Block Editor: Avoid crashes when the media property does not exist. [#40588]
+- Carousel: Avoid null requests when loading an image. [#40535]
+- Comments: Make list of allowable comment types filterable so custom types can be returned if needed. [#40530]
+- Infinite Scroll: Remove deprecated code. [#40528]
+- Jetpack AI: Add tooltips to AI feedback component. [#40506]
+- Jetpack AI: Add tracking to the thumbs up/down component, saving the component and rating to Tracks. [#40553]
+- General: Fix lints following ESLint rule changes for TypeScript. [#40584]
+- Updated package dependencies. [#40515] [#40564]
+
+## 14.2-a.1 - 2024-12-09
+### Enhancements
+- Stats: Allow programatically fetching stats for specific sites when using Jetpack's tools. [#40441]
+- Stats: Sunset Legacy Stats experience. [#40384]
+- Stats: Enable sparkline chart in the WP Admin bar. [#40456]
+
+### Improved compatibility
+- Google Photos Picker: Update UX opening picker right after pressing "change selection" CTA. [#40410]
+- SEO: Ensure support for adding an SEO title and description for custom post types. [#40334]
+- WordPress 6.7 Compatibility: Fix notices caused by translation calls happening too early in the load order. [#40474]
+
+### Bug fixes
+- Google Fonts: Clean up the Google Fonts data if either the Google Fonts module is disabled or Jetpack is disabled. [#40440]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Add disclaimer to image generation modals. [#40397]
+- AI Assistant: Add feature flag for AI feedback feature. [#40418]
+- Blocks: Fix path validation notices. [#40450]
+- Google Photos Picker: Cover case with connection transition from Google Photos to Google Photos Picker. [#40416]
+- External media: Add logic to persist session in cookie. [#40382]
+- Jetpack AI: Add AI feedback component and implementing it on the image carousel. [#40488]
+- Jetpack AI: Change placeholders on image generation modals to try and improve styles discoverability. [#40504]
+- Jetpack AI: Remove dead and deprecated code. [#40172]
+- Newsletter: Fix no space under the sidebar toggle. [#40376]
+- General: Remove deprecated hooks and methods on Jetpack admin pages. [#40457]
+- Sync: Synchronize Holiday snow option. [#40478]
+- Testing: Remove old instructions. [#40444]
+- Updated package dependencies. [#40363]
+
+## 14.1 - 2024-12-03
+### Enhancements
+- Image CDN: Use preconnect resource hints instead of dns-prefetch to improve performance. [#39883]
+- Likes Block: Allow hiding avatars. [#40282]
+- My Jetpack: Update the recommendations section in My Jetpack to include a slider interaction for the cards. [#39850]
+- Social: Add a new toggle for Social UTM tracking. [#39998]
+- Social: Add permissions warning for LinkedIn connections. [#40220]
+- Social: Post share status in the editor is now immediately available on page load. [#40301]
+- Subscriptions: Don't load editor functionality when the module is disabled. [#39802]
+- Use wp_register_block_metadata_collection() on WordPress 6.7+ to improve block registration performance by reducing filesystem operations. (See https://core.trac.wordpress.org/changeset/59132) [#40064]
+
+### Improved compatibility
+- Components: Update Shortlink and Toolbar related components to ensure compatibility. [#39960]
+- Dashboard: Fix toggle component to prevent console warnings. [#40164]
+- General: Update minimum PHP version to 7.2. [#40147]
+- General: Update minimum WordPress version to 6.6. [#40146]
+- Tiled Gallery: Increase accessibility by ensuring images are not classified as interactive when they shouldn't be. [#40241]
+
+### Bug fixes
+- AI Assistant: Fix bug with error message when user is not over requests limit. [#40235]
+- Comments: Fix reload after posting. [#40140]
+- Forms: Improve compatibility with third-party integrations. [#40183] [#40126]
+- Licensing: Resolve an issue where revoked licenses were incorrectly treated as unattached. [#40215]
+- Social: Fix bug with scheduled resharing when sharing another admin's posts. [#40048]
+- Social: Make resharing async in classic editor to fix timeout issues. [#40302]
+- Subscribe block: Fix block error when editing. [#40355]
+- Subscriptions: Fix template preview and edit links for three toggle settings. [#40142]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Actions: Ensure Deprecations class loads after translations to prevent errors. [#40085]
+- Admin: Update deprecation notices. [#39567]
+- AI Assistant: Add feature flag for list-to-table transform. [#40078]
+- AI Assistant: Add hotfix for input disabled bug (https://github.com/Automattic/wp-calypso/issues/96430). [#40198]
+- AI Assistant: Add styles support for featured image AI modal. [#40113]
+- AI Assistant: Add "transform list into table" functionality back to AI Assistant. [#40148]
+- AI Assistant: Ensure we validate that the transform option exists. [#40186]
+- AI Assistant: Fix image generation modal issues. [#40094]
+- AI Assistant: Display "turn list into table" menu item only for top-level lists. [#40177]
+- Backup: Add "next daily backup" schedule time on admin page. [#39914]
+- Bundles: Add growth icon to recommendation upsell. [#40347]
+- Classic Theme Helper: Add Testimonial custom post type content. [#40295]
+- Dashboard: Fix bug with connection cards in "promotions disabled" mode. [#40179]
+- Dashboard: Replace Creator recommendation with Growth. [#40212]
+- Deprecation notices: Ensure URLs are correctly generated. [#40093]
+- Docs: Update lists of social networks supported by Publicize, to include all the newer networks. [#40248]
+- Extra Sidebar Widgets: Update asset enqueuing strategy to ensure compatibility with the Elementor plugin. [#39820]
+- General: Add to-test changes for Jetpack 14.1. [#40331]
+- General: Fix TS errors following @wordpress/editor update. [#40291]
+- Google Photos Picker: Add Google Photos Picker flow backend API endpoints support. [#40242]
+- Google Photos Picker: Update Google Photos external media to support Google Photos Picker API. [#40087]
+- Jetpack AI: Check module availability for mapped blocks. [#40336]
+- Jetpack AI: Enable transform list to table functionality for all. [#40287]
+- Jetpack AI: Image generator modals now properly enable prompt input separately from action button. [#40210]
+- Jetpack AI: Increase response cache TTL, add error response caching and increase request timeout. [#40171]
+- Jetpack AI: Move transform list to table prompt to backend. [#40237]
+- Jetpack AI: Use the right feature control to pick the styles from. [#40265]
+- Likes Block: Add a filter to the iframe url to enable future expansion and modularity. [#40276]
+- Newsletter: Update form labels for welcome message in Settings. [#40254]
+- OpenGraph: Minor bug fixing. [#39749]
+- Plans: Add Jetpack Growth constants to prevent error on My Plan section. [#40176]
+- Podcast Player Block: Fix "Uncaught TypeError" error. [#40121]
+- Search: Add ability to customize order of results. [#36378]
+- Sharing: Fix infinite reload issue on Jetpack Sharing settings. [#40089]
+- Sharing: Optimize the Sharing module hook callback. [#40128]
+- Slideshow Block: Fix width when used inside a Row block. [#40041]
+- Social: Add UTM option to sync. [#40144]
+- Social: Change "Activate" button in the editor to link. [#40390]
+- Social: Change My Jetpack CTA from "Learn more" to "Activate". [#40359]
+- Social: Fix undefined index error on specific WordPress.com environments. [#40337]
+- Subscriptions: Ensure site URL is correctly detected when handling the comment subscription modal. [#40129]
+- Sync: Add test to ensure Full Sync order  matches config. [#40100]
+- Themes: Fix race condition when loading theme compatibility files. [#40075]
+- Update @wordpress/editor to the latest version. [#40373]
+- Updated composer.lock file. [#40032]
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#39999] [#40000] [#40060] [#40116] [#40232] [#40288]
+- Update feature for stats in growth to 10K instead of 100K. [#40312]
+- Widgets: Remove old migration code. [#40073]
+- Write Brief: Add alternative apostrophe char to spelling mistakes regex. [#40395]
+
+## 14.0 - 2024-11-07
+### Major enhancements
+- Newsletters: Add email previews and a floating subscribe button. [#37722] [#39782]
+- Social: Add support for Bluesky. [#39659] [#39561]
+
+### Enhancements
+- Newsletters: Allow skipping newsletter modals with the "jetpack_skip_subscription_popup" URL query param. [#39644]
+- Newsletters: Update the default "reply to" setting value from not allowed to replies being posted as public comments. [#39657]
+- Performance: Optimize CSS for better page load performance and improve sitemap write efficiency. [#39518] [#39572]
+
+### Improved compatibility
+- Embed Blocks: Append 'Embed' to Facebook and Instagram embed blocks' titles. [#39970]
+- Filters: Update "plugin_action_links" filter parameter to avoid conflicts with other plugins. [#39681]
+- General: Ensure correct display of notices when running an old version of WordPress. [#39745]
+- General: Indicate compatibility with WordPress 6.7. [#39786] [#39877]
+- Image Block: Make the external media picker button consistent with other Image Block buttons. [#39985]
+- Image CDN: URL encode image path parts for RSS feed compatibility. [#39560]
+- Related Posts: Allow Related Posts on non-post CPTs where the block is already able to be used. [#39730]
+
+### Bug fixes
+- AI Assistant: Fix false-positive spelling errors in Write Brief. [#39735] [#39880]
+- Carousel: Further improve accessibility by being more selective over which images to apply attributes to. [#39913]
+- Contact Form: Ensure that submitted forms can only be accessed by logged in users allowed to view form submissions. [#39759]
+- General: Include `wp-polyfill` as a script dependency only when needed. [#39629]
+- Goodreads Block: Avoid PHP warnings caused by missing attributes when rendering. [#39713]
+- Google Fonts: Fix module not fully loading in certain scenarios. [#39977]
+- Map Block: Prevent overlap with other blocks placed below. [#39744]
+- Newsletters: Fix "Enable featured image on your new post emails" and "Use excerpt" settings. [#39700] [#39815]
+- Sharing: Ensure the sharing settings can be accessed even when the user is not connected to WordPress.com. [#39677]
+- Slideshow Block: Ensure the block renders correctly inside an iframe editor. [#39551]
+- Social: Fix the maximum video length for Instagram Business reels. [#39930]
+- Social: Prevent share status styles from causing text overflow or affecting other elements on the page. [#39599] [#39991]
+- Stats: Fix top post card on the Insights page. [#39691]
+- Subscribe Block: Fix styling for the number of subscribers in the post editor sidebar. [#39929]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin Menu: Adding tests to check for 'current' class when menu item selected. [#39374]
+- Blocks: Initialize connection assets in Story block. [#39870]
 - Blogging Prompt: Preserve language on answers link. [#36730]
+- Code: Add missing deps in calls to the `useSelect` React hook. [#39421]
+- Code: Add null check to SAL_Site::posts_status_obj to avoid warnings. [#39727]
+- Code: Add siteFragment to JP initial state definition, avoid linter warnings. [#39589]
+- Code: Enable test coverage. [#39961]
+- Code: Fix PHPUnit coverage warnings. [#39989]
+- Code: Run coverage tests in parallel. [#39988]
+- Code: Updated package dependencies. [#39594] [#39639] [#39649] [#39653] [#39707]
+- Code: Update testing instructions for Jetpack 14.0. [#39957]
+- Code: Use React setState instead of directly modifying state. [#39421]
+- Connection: Add connection nudge for blocks that are missing it. [#39647]
+- Connection: Add tracks to connection banner. [#39732]
+- Connection: Fix issue where connection banner was showing for simple sites. [#39687]
+- Connection: Show connection nudge instead of error if user is not connected on blogroll block. [#39638]
+- Connection: Unify connection nudge design on Jetpack Settings. [#39591]
+- Connection: Unify connection related CTAs on At A Glance. [#39585]
+- Contact Info: Change block registration code. [#39892]
 - Email preview modal: Improve error state visuals. [#39476]
-- Unify connection nudge design on Jetpack Settings. [#39591]
-- Unify connection related CTAs on At A Glance. [#39585]
-- Updated package dependencies. [#39594] [#39639]
+- General: Skip pricing page when connecting from editor blocks. [#39865]
+- General: Updated package dependencies. [#39910]
+- Hooks: Change several action priorities to ensure translation loading is not triggered too early. [#39841]
+- Infinite Scroll: Add isset checks to validate input data. [#39618]
+- Jetpack AI: Add instructions to general image generation with styles to to-test file. [#39954]
+- Jetpack AI: Add styles dropdown on AI image generator modal. [#39917]
+- Jetpack AI: Add testing instructions to to-test.md. [#39866]
+- Jetpack AI: Change constant value for fair usage, accept both values on type definitions. [#39705]
+- Jetpack AI: Remove reload handler for logo generator modal call. [#39848]
+- Jetpack AI: Use new exported component for AI generation modal on GP image generation. [#39864]
+- JSON Endpoints: Handle null input for update post endpoint. [#39676]
+- Map Block: Display a static map image when the block is rendered in a pattern preview. [#39768]
+- Map Block: Remove preview attribute. [#39768]
+- Modules: Update any instances where functions are hooked into plugins_loaded, to use a later hook if needed. [#39993]
+- Newsletters: Fix 'class Jetpack_Subscriptions_Widget not found' fatal error during REST API. [#39765]
+- Related Posts: refine how related posts are made available on singular views in block themes. [#39784]
+- REST API: Add site_partner_bundle option to Sites API response. [#39905]
+- REST API: Fix upload media endpoint fatals coming from uploads with invalid media type. [#39858]
+- Scan: Update Jetpack Scan link in the WP Admin menu. [#39619]
+- Slideshow Block: Fix console warning related to images with the same key. [#39821]
+- Social: Change order of jetpack social connections. [#40020]
+- Social: Optimize the 'admin_init' hook callback for Sharing module. [#39737]
+- Stats: Optimize the Stats Admin Bar hook by narrowing down the callback. [#39857]
+- Story Block: Avoid error when previewing block styles in development version of the Gutenberg plugin. [#39807]
+- Story Block: Fix console warning related to 'key' not being a prop. [#39822]
+- Subscribe Block: adjust margin of the notice appearing in the block sidebar. [#39962]
+- Subscriptions: Add source attribute for stats to the floating subscribe button. [#39860]
+- Tests: Fix unit tests. [#39799]
+- Theme Tools: Ensure theme-compat files are still loaded when a compatible theme is used. [#39992]
+- Theme Tools: Fix race condition when loading theme compatibility files. [#40075]
+- Update "My Plan" page to only show Google Analytics for WoA sites. [#40044]
+- Verbum Comments: Update resize logic. [#39791]
+- VideoPress: Update VideoPress notice URL on Media Library. [#39731]
+- Widget Visibility: Add check to ensure post exists before accesing post_author. [#39746]
+- Write Brief: Load unconfident words from backend and update caching. [#39975]
+
+## 13.9.1 - 2024-10-14
+### Bug fixes
+- Contact Form: Ensure that submitted forms can only be accessed by logged in users allowed to view form submissions. [#39759]
 
 ## 13.9 - 2024-10-01
 ### Major Enhancements
@@ -116,9 +376,7 @@
 - Title Optimization: Handle enter/return key to trigger a generation when they are pressed. [#39399]
 - Title Optimization: improve button behaviors when handling errors. [#39554]
 - Title Optimization: Properly handle errors and show the correct UI for each. [#39340]
-- Updated package dependencies. [#39176] [#39278] [#39288]
-- Updated package dependencies. [#39302]
-- Updated package dependencies. [#39332]
+- Updated package dependencies. [#39176] [#39278] [#39288] [#39302] [#39332]
 - Updated to not check for onboarding option from the frontend. [#39246]
 - WP.com: Ensure portfolios are enabled and working properly on themes that support portfolios. [#39431]
 - Write Brief: Turn spelling mistakes and long sentences on by default when the tool is enabled. [#39495]
@@ -489,8 +747,7 @@
 - Stats: Point post stats icon to wp-admin. [#38013]
 - Subscribe overlay: Use home URL in skip link. [#37711]
 - Top Posts & Pages Block: Require that one content type is always set to display. [#36305]
-- Updated package dependencies. [#37669] [#37706]
-- Updated package dependencies. [#37767] [#37776] [#37795] [#37796]
+- Updated package dependencies. [#37669] [#37706] [#37767] [#37776] [#37795] [#37796]
 - Updated recommendation links for Social. [#37693]
 - Updated recommendations section links for Social. [#37678]
 - Use correct const to check for inline extensions availability. [#37758]
@@ -601,8 +858,7 @@
 - Subscriptions: Subscription overlay fixes. [#37503]
 - Tiled Gallery: Fix view rendering issues. [#37213]
 - Tiled Gallery: Force image aspect ratio for square and circle styles. [#37627]
-- Updated package dependencies. [#36964]
-- Updated package dependencies. [#37348] [#37379] [#37380] [#37382]
+- Updated package dependencies. [#36964] [#37348] [#37379] [#37380] [#37382]
 - Updated phan baseline files. [#37151]
 - Update invite user error response logging. [#37144]
 - Update sizes and spacings on Title Optimization. [#37333]
@@ -875,9 +1131,7 @@
 - Untangle: explicitly use Core admin bar color in Calypso color schemes [#36341]
 - Untangling: return untangled admin menu from wpcom/v2/admin-menu endpoint for early classic view. [#36601]
 - Update code references in docs and comments. [#36234]
-- Updated package dependencies. [#36309, #36325]
-- Updated package dependencies. [#36401]
-- Updated package dependencies. [#36585]
+- Updated package dependencies. [#36309] [#36325] [#36401] [#36585]
 - Update lockfiles. [#36195]
 - Update notification icon in top bar [#36297]
 - Use correct links in Settings -> Traffic -> GA when admin interface is wp-admin [#36493]
@@ -1313,8 +1567,7 @@
 - Fix failing E2E tests [#34796]
 - In editor view, the Like block now shows or hides the reblog button according to sidebar config [#34831]
 - Social: Removed obsolete code for Tweetstorms [#34330]
-- Updated package dependencies. [#34815]
-- Updated package dependencies. [#34816]
+- Updated package dependencies. [#34815] [#34816]
 
 ## 13.0-a.11 - 2024-01-02
 ### Bug fixes
@@ -2399,8 +2652,7 @@
 - Fix typo [#31977]
 - Sites API: add was_migration_trial flag to data returned for site details. [#31907]
 - Transferred 'get_calypso_env()' method from Jetpack class to the Status package. [#31906]
-- Updated package dependencies. [#31923]
-- Updated package dependencies. [#32040]
+- Updated package dependencies. [#31923] [#32040]
 - Update props passed to JetpackFooter [#31627]
 - Whitelist jetpack_memberships_site_subscriber post meta to allow for syncing to WordPress.com [#31956]
 - Widget Visibility: add new filter to allow third-parties to add Widget Visibility support to their own blocks. [#31928]
@@ -2483,8 +2735,7 @@
 - Add wpcom_site_setup property to /sites/{siteId} endpoint [#31664]
 - Dashboard: update wording for Custom CSS section when using a Block theme. [#31634]
 - Sync wpcom_site_setup site option [#31662]
-- Updated package dependencies. [#31659]
-- Updated package dependencies. [#31661]
+- Updated package dependencies. [#31659] [#31661]
 - WordPress.com Toolbar: only add Blaze Dashboard link once. [#31617]
 
 ## [12.3] - 2023-07-05

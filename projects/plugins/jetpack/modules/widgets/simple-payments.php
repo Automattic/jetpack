@@ -88,10 +88,6 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				add_action( 'wp_ajax_customize-jetpack-simple-payments-button-delete', array( $this, 'ajax_delete_payment_button' ) );
 			}
 
-			if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
-				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
-			}
-
 			add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_simple_payment_widget' ) );
 		}
 
@@ -418,6 +414,9 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 */
 		public function widget( $args, $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
+
+			// Enqueue front end assets.
+			$this->enqueue_style();
 
 			echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 

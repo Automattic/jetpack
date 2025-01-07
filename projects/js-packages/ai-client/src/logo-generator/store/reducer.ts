@@ -30,12 +30,7 @@ import {
 	ACTION_SET_IS_LOADING_HISTORY,
 } from './constants.js';
 import INITIAL_STATE from './initial-state.js';
-import type {
-	AiFeatureStateProps,
-	LogoGeneratorStateProp,
-	RequestError,
-	TierLimitProp,
-} from './types.js';
+import type { AiFeatureStateProps, RequestError, TierLimitProp } from './types.js';
 import type { SiteDetails } from '../types.js';
 
 /**
@@ -325,6 +320,16 @@ export default function reducer(
 		case ACTION_SET_FEATURE_FETCH_ERROR:
 			return {
 				...state,
+				features: {
+					...state.features,
+					aiAssistantFeature: {
+						...state?.features?.aiAssistantFeature,
+						_meta: {
+							...state?.features?.aiAssistantFeature?._meta,
+							isRequesting: false,
+						},
+					},
+				},
 				_meta: {
 					...( state._meta ?? {} ),
 					featureFetchError: action.error,

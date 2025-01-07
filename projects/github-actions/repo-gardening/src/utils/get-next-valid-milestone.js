@@ -1,4 +1,4 @@
-const compareVersions = require( 'compare-versions' );
+const { compareVersions } = require( 'compare-versions' );
 const moment = require( 'moment' );
 
 /* global GitHub, OktokitIssuesListMilestonesForRepoResponseItem */

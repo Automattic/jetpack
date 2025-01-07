@@ -103,6 +103,7 @@ const initializeMailchimpBlocks = () => {
 		try {
 			activateSubscription( block, blog_id );
 		} catch ( err ) {
+			// eslint-disable-next-line no-undef -- webpack sets process.env.NODE_ENV
 			if ( 'production' !== process.env.NODE_ENV ) {
 				// eslint-disable-next-line no-console
 				console.error( err );

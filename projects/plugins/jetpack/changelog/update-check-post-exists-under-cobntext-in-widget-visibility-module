@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Widget Visibility. Added check to ensure post exists before accesing post_author

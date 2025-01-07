@@ -87,6 +87,9 @@ class WPCOM_Features {
 	private const JETPACK_SECURITY_DAILY_MONTHLY              = 'jetpack_security_daily_monthly'; // 2011
 	private const JETPACK_SECURITY_REALTIME                   = 'jetpack_security_realtime'; // 2012
 	private const JETPACK_SECURITY_REALTIME_MONTHLY           = 'jetpack_security_realtime_monthly'; // 2013
+	private const JETPACK_GROWTH_BI_YEARLY                    = 'jetpack_growth_bi_yearly'; // 2023
+	private const JETPACK_GROWTH_YEARLY                       = 'jetpack_growth_yearly'; // 2022
+	private const JETPACK_GROWTH_MONTHLY                      = 'jetpack_growth_monthly'; // 2021
 	private const JETPACK_COMPLETE_BI_YEARLY                  = 'jetpack_complete_bi_yearly'; // 2035
 	private const JETPACK_COMPLETE                            = 'jetpack_complete'; // 2014
 	private const JETPACK_COMPLETE_MONTHLY                    = 'jetpack_complete_monthly'; // 2015
@@ -225,6 +228,7 @@ class WPCOM_Features {
 	private const JETPACK_BUSINESS_PLANS = array( self::JETPACK_BUSINESS, self::JETPACK_BUSINESS_MONTHLY );
 	private const JETPACK_PREMIUM_PLANS  = array( self::JETPACK_PREMIUM, self::JETPACK_PREMIUM_MONTHLY );
 	private const JETPACK_PERSONAL_PLANS = array( self::JETPACK_PERSONAL, self::JETPACK_PERSONAL_MONTHLY );
+	private const JETPACK_GROWTH_PLANS   = array( self::JETPACK_GROWTH_BI_YEARLY, self::JETPACK_GROWTH_YEARLY, self::JETPACK_GROWTH_MONTHLY );
 	private const JETPACK_COMPLETE_PLANS = array( self::JETPACK_COMPLETE_BI_YEARLY, self::JETPACK_COMPLETE, self::JETPACK_COMPLETE_MONTHLY );
 	private const JETPACK_STARTER_PLANS  = array( self::JETPACK_STARTER_YEARLY, self::JETPACK_STARTER_MONTHLY );
 
@@ -340,6 +344,7 @@ class WPCOM_Features {
 	public const CDN                               = 'cdn';
 	public const CLASSIC_SEARCH                    = 'search';
 	public const CLOUD_CRITICAL_CSS                = 'cloud-critical-css';
+	public const CORNERSTONE_TEN_PAGES             = 'cornerstone-10-pages';
 	public const CLOUDFLARE_ANALYTICS              = 'cloudflare-analytics';
 	public const CLOUDFLARE_CDN                    = 'cloudflare-cdn';
 	public const CONCIERGE                         = 'concierge';
@@ -427,8 +432,11 @@ class WPCOM_Features {
 	public const SPACE_UPGRADED_STORAGE            = 'space-upgraded-storage';
 	public const SSH                               = 'ssh';
 	public const STAGING_SITES                     = 'staging-sites';
+	public const STATS_BASIC_TEMP                  = 'stats-basic';
+	public const STATS_COMMERCIAL                  = 'stats-commercial';
 	public const STATS_FREE                        = 'stats-free';
 	public const STATS_PAID                        = 'stats-paid';
+	public const STUDIO_SYNC                       = 'studio-sync';
 	public const SUBSCRIBER_UNLIMITED_IMPORTS      = 'subscriber-unlimited-imports';
 	public const SUBSCRIPTION_GIFTING              = 'subscription-gifting';
 	public const SUPPORT                           = 'support';
@@ -467,6 +475,7 @@ class WPCOM_Features {
 		self::AI_ASSISTANT                      => array(
 			self::JETPACK_AI_PLANS,
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
 		),
 		self::AD_CREDIT_VOUCHERS                => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -580,6 +589,10 @@ class WPCOM_Features {
 			self::JETPACK_BOOST_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
 		),
+		self::CORNERSTONE_TEN_PAGES             => array(
+			self::JETPACK_BOOST_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
+		),
 		self::CLOUDFLARE_ANALYTICS              => array(
 			self::JETPACK_PREMIUM_AND_HIGHER,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -599,6 +612,7 @@ class WPCOM_Features {
 		),
 		self::COPY_SITE                         => array(
 			self::WPCOM_BUSINESS_PLANS,
+			self::WPCOM_ECOMMERCE_PLANS,
 		),
 		// CORE_AUDIO - core/audio requires a paid plan for uploading audio files.
 		self::CORE_AUDIO                        => array(
@@ -1018,6 +1032,7 @@ class WPCOM_Features {
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_PREMIUM_AND_HIGHER,
 			self::JETPACK_CREATOR_PLANS,
+			self::JETPACK_GROWTH_PLANS,
 		),
 		self::SITE_PREVIEW_LINKS                => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -1043,17 +1058,15 @@ class WPCOM_Features {
 			self::BUNDLE_ENTERPRISE,
 			self::JETPACK_SOCIAL_V1_PLANS,
 			self::JETPACK_SOCIAL_PLANS,
+			self::JETPACK_GROWTH_PLANS,
 		),
 		self::SOCIAL_IMAGE_GENERATOR            => array(
-			array(
-				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
-				'before' => '1900-01-01',
-				self::JETPACK_SOCIAL_ADVANCED_PLANS,
-				self::JETPACK_COMPLETE_PLANS,
-				self::BUNDLE_ENTERPRISE,
-				self::JETPACK_SOCIAL_V1_PLANS,
-				self::JETPACK_SOCIAL_PLANS,
-			),
+			self::JETPACK_SOCIAL_ADVANCED_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
+			self::BUNDLE_ENTERPRISE,
+			self::JETPACK_SOCIAL_V1_PLANS,
+			self::JETPACK_SOCIAL_PLANS,
+			self::JETPACK_GROWTH_PLANS,
 		),
 		self::SOCIAL_MASTODON_CONNECTION        => array(
 			array(
@@ -1137,22 +1150,53 @@ class WPCOM_Features {
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
 		),
+		// Gives near full access to all stats features. All features except new commercial level modules like UTM and device stats.
 		self::STATS_FREE                        => array(
 			self::JETPACK_STATS_PLANS,
-		),
-		self::STATS_PAID                        => array(
+			self::JETPACK_GROWTH_PLANS,
+			// Provides legacy access for free and personal sites created before 2024-01-09.
+			// Can be removed once we are ready to paywall all free and/or old personal sites.
 			array(
 				'before' => '2024-01-09',
-				self::WPCOM_PERSONAL_PLANS,
+				self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 				self::WPCOM_ALL_SITES,
 			),
+		),
+		// Provides limited stats for free and personal sites created before 2024-12-06.
+		// Features: Posts/Locations/Emails/File downloads
+		// Can be removed once we are ready to paywall all free sites.
+		self::STATS_BASIC_TEMP                  => array(
+			array(
+				'before' => '2024-12-12',
+				self::WPCOM_ALL_SITES,
+			),
+		),
+		// Provides personal sites and higher access to all stats features except commercial level modules.
+		// Features: Posts/Locations/Emails/File downloads/Referrers/Clicks
+		self::STATS_PAID                        => array(
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::WP_P2_PLUS_MONTHLY,
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_STATS_PWYW,
 			self::JETPACK_STATS_MONTHLY,
 			self::JETPACK_STATS_BI_YEARLY,
 			self::JETPACK_STATS_YEARLY,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_BUSINESS_PLANS,
+			self::JETPACK_GROWTH_PLANS,
+		),
+		// Provides premium sites and higher access to all stats features.
+		// Features: STATS_PAID + UTM & Devices modules
+		self::STATS_COMMERCIAL                  => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::JETPACK_STATS_MONTHLY,
+			self::JETPACK_STATS_BI_YEARLY,
+			self::JETPACK_STATS_YEARLY,
+			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_BUSINESS_PLANS,
+			self::JETPACK_GROWTH_PLANS,
+		),
+		self::STUDIO_SYNC                       => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 
 		// Importing subscribers to the site without limits.
@@ -1164,6 +1208,7 @@ class WPCOM_Features {
 			self::JETPACK_SOCIAL_ADVANCED_PLANS,
 			self::JETPACK_SOCIAL_V1_PLANS,
 			self::JETPACK_CREATOR_PLANS,
+			self::JETPACK_GROWTH_PLANS,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_MIGRATION_TRIAL_PLANS,
 				self::WPCOM_HOSTING_TRIAL_PLANS,
@@ -1374,6 +1419,7 @@ class WPCOM_Features {
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_PREMIUM_AND_HIGHER,
 			self::JETPACK_CREATOR_PLANS,
+			self::JETPACK_GROWTH_PLANS,
 		),
 
 		/*
@@ -1428,6 +1474,7 @@ class WPCOM_Features {
 		33534099, // developer.wordpress.com
 		22994, // theme.wordpress.com
 		16390, // learn.wordpress.com
+		54117, // automattic.wordpress.com
 	);
 
 	/**

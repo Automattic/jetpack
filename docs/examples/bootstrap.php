@@ -9,9 +9,9 @@
 $_plugin_root = dirname( __DIR__, 2 );
 
 // Locate WordPress or wordpress-develop. We look in several places.
-if ( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
+if ( false !== getenv( 'WORDPRESS_DEVELOP_DIR' ) ) {
 	// Jetpack Monorepo environment variable.
-	$_tests_dir = getenv( 'WP_DEVELOP_DIR' );
+	$_tests_dir = getenv( 'WORDPRESS_DEVELOP_DIR' );
 	if ( file_exists( "$_tests_dir/tests/phpunit/" ) ) {
 		$_tests_dir .= '/tests/phpunit/';
 	}
@@ -38,7 +38,7 @@ if ( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
 if ( ! isset( $_tests_dir ) || ! file_exists( $_tests_dir . '/includes/bootstrap.php' ) ) {
 	echo 'Failed to automatically locate WordPress or wordpress-develop to run tests.' . PHP_EOL;
 	echo PHP_EOL;
-	echo 'Set the WP_DEVELOP_DIR environment variable to point to a copy of WordPress' . PHP_EOL;
+	echo 'Set the WORDPRESS_DEVELOP_DIR environment variable to point to a copy of WordPress' . PHP_EOL;
 	echo 'or wordpress-develop.' . PHP_EOL;
 	exit( 1 );
 }
@@ -64,6 +64,12 @@ function _manually_load_plugin() {
 	require $_plugin_root . '/plugin.php';
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
+
+// Override WP_TESTS_CONFIG_FILE_PATH via environment.
+// Important for monorepo CI, if you don't do this then different test runs might collide!
+if ( false !== getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) ) {
+	define( 'WP_TESTS_CONFIG_FILE_PATH', getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) );
+}
 
 // Start up the WP testing environment.
 require $_tests_dir . '/includes/bootstrap.php';

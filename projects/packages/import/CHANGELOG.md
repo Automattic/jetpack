@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.2] - 2024-12-16
+### Fixed
+- Import: setting WP_IMPORTING when doing an import. [#40563]
+
+## [0.9.1] - 2024-11-25
+### Changed
+- Updated dependencies. [#40286]
+
+## [0.9.0] - 2024-11-18
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## [0.8.11] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+## [0.8.10] - 2024-10-29
+### Changed
+- Internal updates. [#39303]
+
 ## [0.8.9] - 2024-09-23
 ### Changed
 - Update dependencies. [#39303]
@@ -114,6 +134,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed various imported resources hierarchies [#29012]
 
+[0.9.2]: https://github.com/Automattic/jetpack-import/compare/v0.9.1...v0.9.2
+[0.9.1]: https://github.com/Automattic/jetpack-import/compare/v0.9.0...v0.9.1
+[0.9.0]: https://github.com/Automattic/jetpack-import/compare/v0.8.11...v0.9.0
+[0.8.11]: https://github.com/Automattic/jetpack-import/compare/v0.8.10...v0.8.11
+[0.8.10]: https://github.com/Automattic/jetpack-import/compare/v0.8.9...v0.8.10
 [0.8.9]: https://github.com/Automattic/jetpack-import/compare/v0.8.8...v0.8.9
 [0.8.8]: https://github.com/Automattic/jetpack-import/compare/v0.8.7...v0.8.8
 [0.8.7]: https://github.com/Automattic/jetpack-import/compare/v0.8.6...v0.8.7

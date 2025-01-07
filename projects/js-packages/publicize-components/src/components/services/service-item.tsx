@@ -1,6 +1,6 @@
 import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Panel, PanelBody } from '@wordpress/components';
-import { useReducer } from '@wordpress/element';
+import { useEffect, useReducer, useRef } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import { ConnectForm } from './connect-form';
@@ -8,7 +8,9 @@ import { ServiceItemDetails, ServicesItemDetailsProps } from './service-item-det
 import { ServiceStatus } from './service-status';
 import styles from './style.module.scss';
 
-export type ServicesItemProps = ServicesItemDetailsProps;
+export type ServicesItemProps = ServicesItemDetailsProps & {
+	isPanelDefaultOpen?: boolean;
+};
 
 /**
  * Service item component
@@ -17,10 +19,22 @@ export type ServicesItemProps = ServicesItemDetailsProps;
  *
  * @return {import('react').ReactNode} Service item component
  */
-export function ServiceItem( { service, serviceConnections }: ServicesItemProps ) {
+export function ServiceItem( {
+	service,
+	serviceConnections,
+	isPanelDefaultOpen,
+}: ServicesItemProps ) {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
-	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, false );
+	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, isPanelDefaultOpen );
+	const panelRef = useRef< HTMLDivElement >( null );
+
+	useEffect( () => {
+		if ( isPanelDefaultOpen ) {
+			panelRef.current?.scrollIntoView( { block: 'center', behavior: 'smooth' } );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
 	const areCustomInputsVisible = isPanelOpen && service.needsCustomInputs;
 
@@ -40,8 +54,8 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 
 	const buttonLabel =
 		brokenConnections.length > 1
-			? _x( 'Fix connections', 'Fix the social media connections', 'jetpack' )
-			: _x( 'Fix connection', 'Fix social media connection', 'jetpack' );
+			? _x( 'Fix connections', 'Fix the social media connections', 'jetpack-publicize-components' )
+			: _x( 'Fix connection', 'Fix social media connection', 'jetpack-publicize-components' );
 
 	return (
 		<div className={ styles[ 'service-item' ] }>
@@ -87,14 +101,14 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 						className={ styles[ 'learn-more' ] }
 						variant="tertiary"
 						onClick={ togglePanel }
-						aria-label={ __( 'Learn more', 'jetpack' ) }
+						aria-label={ __( 'Learn more', 'jetpack-publicize-components' ) }
 					>
 						{ <Icon className={ styles.chevron } icon={ isPanelOpen ? chevronUp : chevronDown } /> }
 					</Button>
 				</div>
 			</div>
 
-			<Panel className={ styles[ 'service-panel' ] }>
+			<Panel className={ styles[ 'service-panel' ] } ref={ panelRef }>
 				<PanelBody opened={ isPanelOpen } onToggle={ togglePanel }>
 					<ServiceItemDetails service={ service } serviceConnections={ serviceConnections } />
 					{
@@ -106,7 +120,7 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 									service={ service }
 									displayInputs
 									isSmall={ false }
-									buttonLabel={ __( 'Connect', 'jetpack' ) }
+									buttonLabel={ __( 'Connect', 'jetpack-publicize-components' ) }
 								/>
 							</div>
 						) : null

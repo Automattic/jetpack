@@ -69,6 +69,11 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 							return array_map( 'absint', $param );
 						},
 					),
+					'async'               => array(
+						'description' => __( 'Whether to share the post asynchronously.', 'jetpack' ),
+						'type'        => 'boolean',
+						'default'     => false,
+					),
 				),
 			),
 			// override = true because this API route was commandeered from the file
@@ -121,7 +126,7 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 			}
 
 			$publicize = publicize_init();
-			$result    = $publicize->republicize_post( (int) $post_id, $message, $skip_connection_ids, true, ! $async );
+			$result    = $publicize->republicize_post( (int) $post_id, $message, $skip_connection_ids, true, ! $async, get_current_user_id() );
 			if ( false === $result ) {
 				return new WP_Error( 'not_found', 'Cannot find that post', array( 'status' => 404 ) );
 			}

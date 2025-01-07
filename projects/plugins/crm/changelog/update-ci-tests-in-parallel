@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Use WP_TESTS_CONFIG_FILE_PATH env var in tests.
+
+

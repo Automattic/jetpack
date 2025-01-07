@@ -17,8 +17,6 @@ import ThemeControl from './theme-control';
 
 const { isFreePlan = false } = window[ SERVER_OBJECT_NAME ];
 
-/* eslint-disable react/jsx-no-bind */
-
 /**
  * Customization/configuration tab for the sidebar.
  *
@@ -104,6 +102,7 @@ export default function SidebarOptions() {
 					value={ sort }
 					options={ sortOptions }
 					onChange={ setSort }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<SelectControl
 					className="jp-search-configure-overlay-trigger-select"
@@ -121,6 +120,7 @@ export default function SidebarOptions() {
 						},
 					] }
 					onChange={ setTrigger }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<ToggleControl
 					className="jp-search-configure-filtering-opens-overlay-toggle"
@@ -132,6 +132,7 @@ export default function SidebarOptions() {
 					) }
 					label={ __( 'Open overlay from filter links', 'jetpack-search-pkg' ) }
 					onChange={ setFilteringOpensOverlay }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<ExcludedPostTypesControl
 					disabled={ isDisabled }
@@ -147,6 +148,7 @@ export default function SidebarOptions() {
 					disabled={ isDisabled }
 					label={ __( 'Show sort selector', 'jetpack-search-pkg' ) }
 					onChange={ setSortEnabled }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<ToggleControl
 					className="jp-search-configure-infinite-scroll-toggle"
@@ -154,6 +156,7 @@ export default function SidebarOptions() {
 					disabled={ isDisabled }
 					label={ __( 'Enable infinite scroll', 'jetpack-search-pkg' ) }
 					onChange={ setInfiniteScroll }
+					__nextHasNoMarginBottom={ true }
 				/>
 				{ 'expanded' === resultFormat && (
 					<ToggleControl
@@ -162,6 +165,7 @@ export default function SidebarOptions() {
 						disabled={ isDisabled }
 						label={ __( 'Show post date', 'jetpack-search-pkg' ) }
 						onChange={ setPostDate }
+						__nextHasNoMarginBottom={ true }
 					/>
 				) }
 				{ ! isFreePlan && (
@@ -171,6 +175,7 @@ export default function SidebarOptions() {
 						disabled={ isDisabled }
 						label={ __( 'Show "Powered by Jetpack"', 'jetpack-search-pkg' ) }
 						onChange={ setShowLogo }
+						__nextHasNoMarginBottom={ true }
 					/>
 				) }
 			</PanelBody>

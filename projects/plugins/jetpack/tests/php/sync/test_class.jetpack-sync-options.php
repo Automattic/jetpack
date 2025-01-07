@@ -91,6 +91,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'stc_enabled'                                  => false,
 			'sm_enabled'                                   => false,
 			'jetpack_subscribe_overlay_enabled'            => false,
+			'jetpack_subscribe_floating_button_enabled'    => false,
 			'jetpack_subscriptions_subscribe_post_end_enabled' => false,
 			'jetpack_subscriptions_login_navigation_enabled' => false,
 			'jetpack_subscriptions_subscribe_navigation_enabled' => false,
@@ -164,6 +165,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'carousel_background_color'                    => 'pineapple',
 			'carousel_display_exif'                        => 'pineapple',
 			'carousel_display_comments'                    => 'pineapple',
+			'jetpack_holiday_snow_enabled'                 => false,
 			'jetpack_portfolio'                            => 'pineapple',
 			'jetpack_portfolio_posts_per_page'             => 'pineapple',
 			'jetpack_testimonial'                          => 'pineapple',
@@ -235,6 +237,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack-memberships-has-connected-account'    => true,
 			'jetpack_publicize_options'                    => array(),
 			'jetpack_social_notes_config'                  => array(),
+			'jetpack_social_utm_settings'                  => array(),
 			'jetpack_social_settings'                      => array( 'image' => true ),
 			'jetpack_sync_non_blocking'                    => false,
 			'jetpack_sync_settings_dedicated_sync_enabled' => false,
@@ -277,7 +280,6 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_waf_share_data'                       => true,
 			'jetpack_waf_share_debug_data'                 => false,
 			'jetpack_waf_automatic_rules_last_updated_timestamp' => 0,
-			'woocommerce_analytics_first_activation'       => false,
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );

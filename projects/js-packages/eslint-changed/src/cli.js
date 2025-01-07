@@ -1,12 +1,16 @@
 import { spawnSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import util from 'util';
 import chalk from 'chalk';
 import { Command } from 'commander';
-import { ESLint } from 'eslint';
+import * as ESLintPkg from 'eslint';
 import parseDiff from 'parse-diff';
 
 const APP_VERSION = '2.0.9';
+
+const { ESLint } = ESLintPkg;
+const loadESLint = ESLintPkg.loadESLint ?? ( () => ESLint );
 
 /**
  * Create a Commander instance.
@@ -54,6 +58,10 @@ export function createProgram( process = global.process ) {
 
 		.option( '--debug', 'Enable debug output.' )
 		.option(
+			'--eslint-options <name=value...>',
+			'Options to pass to ESLint API. Value is interpreted as JSON if possible, otherwise as a string. Use `--` to separate options from filenames if necessary.\nSee https://eslint.org/docs/latest/integrate/nodejs-api#-new-eslintoptions'
+		)
+		.option(
 			'--ext <list>',
 			'Comma-separated list of JavaScript file extensions. Ignored if files are listed.',
 			'.js'
@@ -63,8 +71,13 @@ export function createProgram( process = global.process ) {
 			'Only include messages on lines changed in the diff. This may miss things like deleting a `var` that leads to a new `no-undef` elsewhere.'
 		)
 		.option( '--format <name>', 'ESLint format to use for output.', 'stylish' )
+		// If we uncomment this line, `program` becomes a simple object when passed to main() rather than a `Command` object.
+		// .argument( '[filenames...]', 'Specified filenames to check.' )
 		.version( APP_VERSION )
 		.action( main.bind( program, process ) );
+
+	// We should document the optional extra args with `program.argument()` but this doesn't seem to work (see above).
+	program.allowExcessArguments();
 
 	return program;
 }
@@ -140,8 +153,32 @@ async function main( process, argv, program ) {
 		return res.stdout;
 	}
 
-	const eslint = new ESLint();
 	debug( 'Using ESLint version', ESLint.version );
+
+	// Parse --eslint-options.
+	const eslintOptions = {};
+	if ( argv.eslintOptions ) {
+		while ( argv.eslintOptions.length > 0 ) {
+			let k = argv.eslintOptions.shift(),
+				v;
+			const i = k.indexOf( '=' );
+			if ( i >= 0 ) {
+				v = k.substring( i + 1 );
+				k = k.substring( 0, i );
+			} else {
+				v = argv.eslintOptions.shift();
+			}
+			try {
+				eslintOptions[ k ] = JSON.parse( v );
+			} catch {
+				eslintOptions[ k ] = v;
+			}
+		}
+		debug( 'eslintOptions =', util.inspect( eslintOptions ) );
+	}
+
+	const DefaultEslintClass = await loadESLint();
+	const eslint = new DefaultEslintClass( eslintOptions );
 	const formatter = await eslint.loadFormatter( argv.format );
 
 	let diff, diffBase, files, eslintOrig, eslintNew;

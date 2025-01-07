@@ -4,7 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.0",
+		"php": ">=7.2",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev",
 		"automattic/jetpack-sync": "@dev",
@@ -14,7 +14,7 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "dev-master"
+		"automattic/wordbless": "^0.4.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -29,6 +29,9 @@
 		],
 		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+		],
 		"test-php": [
 			"@composer phpunit"
 		]
@@ -52,7 +55,7 @@
 	"extra": {
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.2.x-dev"
+			"dev-trunk": "0.4.x-dev"
 		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-protect-status/compare/v${old}...v${new}"

@@ -233,6 +233,19 @@ class WPCOM_Stats {
 	}
 
 	/**
+	 * Get site's views by location.
+	 *
+	 * @param string $geo_mode The type of location to fetch views for (country, region, city).
+	 * @param array  $args     Optional query parameters.
+	 * @return array|WP_Error
+	 */
+	public function get_views_by_location( $geo_mode, $args = array() ) {
+		$this->resource = sprintf( 'location-views/%s', $geo_mode );
+
+		return $this->fetch_stats( $args );
+	}
+
+	/**
 	 * Get site's followers.
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/followers/

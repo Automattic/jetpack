@@ -1,0 +1,19 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"compilerOptions": {
+		"target": "es2018",
+		"lib": [ "dom", "esnext" ],
+		"jsx": "react-jsx",
+		"sourceMap": true,
+		"declaration": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"resolveJsonModule": true,
+		"allowSyntheticDefaultImports": true,
+		"downlevelIteration": true,
+		"typeRoots": [ "./node_modules/@types/", "src/*" ]
+	},
+	"include": [ "src" ],
+	"exclude": [ "node_modules", "dist" ]
+}

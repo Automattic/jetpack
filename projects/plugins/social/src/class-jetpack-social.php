@@ -47,17 +47,6 @@ class Jetpack_Social {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
-		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack Social', 'jetpack-social' ),
-			_x( 'Social', 'The Jetpack Social product name, without the Jetpack prefix', 'jetpack-social' ),
-			'manage_options',
-			'jetpack-social',
-			array( $this, 'plugin_settings_page' ),
-			4
-		);
-
-		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
-
 		// Init Jetpack packages
 		add_action(
 			'plugins_loaded',
@@ -93,6 +82,8 @@ class Jetpack_Social {
 			1
 		);
 
+		add_action( 'init', array( $this, 'do_init' ) );
+
 		// Activate the module as the plugin is activated
 		add_action( 'admin_init', array( $this, 'do_plugin_activation_activities' ) );
 		add_action( 'activated_plugin', array( $this, 'redirect_after_activation' ) );
@@ -105,7 +96,6 @@ class Jetpack_Social {
 				My_Jetpack_Initializer::init();
 			}
 		);
-		add_action( 'init', array( new Automattic\Jetpack\Social\Note(), 'init' ) );
 
 		$this->manager = $connection_manager ? $connection_manager : new Connection_Manager();
 
@@ -126,6 +116,27 @@ class Jetpack_Social {
 		add_filter( 'plugin_action_links_' . JETPACK_SOCIAL_PLUGIN_FOLDER . '/jetpack-social.php', array( $this, 'add_settings_link' ) );
 
 		add_shortcode( 'jp_shares_shortcode', array( $this, 'add_shares_shortcode' ) );
+
+		add_filter( 'jetpack_social_admin_script_data', array( $this, 'set_social_admin_script_data' ) );
+	}
+
+	/**
+	 * Initialize the parts of the plugin that have to be initialized later than
+	 * plugins_loaded is firing. This includes translated strings.
+	 */
+	public function do_init() {
+		$page_suffix = Admin_Menu::add_menu(
+			__( 'Jetpack Social', 'jetpack-social' ),
+			_x( 'Social', 'The Jetpack Social product name, without the Jetpack prefix', 'jetpack-social' ),
+			'manage_options',
+			'jetpack-social',
+			array( $this, 'plugin_settings_page' ),
+			4
+		);
+
+		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+
+		( new Automattic\Jetpack\Social\Note() )->init();
 	}
 
 	/**
@@ -213,6 +224,40 @@ class Jetpack_Social {
 			$shares_info = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
 		}
 		return ! is_wp_error( $shares_info ) ? $shares_info : null;
+	}
+
+	/**
+	 * Set the social admin script data.
+	 *
+	 * @param array $data The initial state data.
+	 * @return array
+	 */
+	public function set_social_admin_script_data( $data ) {
+
+		$data['plugin_info']['social'] = array(
+			'version' => $this->get_plugin_version(),
+		);
+
+		$data['settings']['socialPlugin'] = array(
+			'publicize_active' => self::is_publicize_active(),
+
+		);
+
+		if ( $this->is_connected() ) {
+
+			$note = new Automattic\Jetpack\Social\Note();
+
+			$data['settings']['socialPlugin'] = array_merge(
+				$data['settings']['socialPlugin'],
+				array(
+					'show_pricing_page'    => self::should_show_pricing_page(),
+					'social_notes_enabled' => $note->enabled(),
+					'social_notes_config'  => $note->get_config(),
+				)
+			);
+		}
+
+		return $data;
 	}
 
 	/**

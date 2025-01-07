@@ -1883,18 +1883,27 @@ EOT;
 	/**
 	 * Determines if the current post is able to use related posts.
 	 *
-	 * @uses self::get_options, is_admin, is_single, apply_filters
+	 * @since 14.0 Checks for singular instead of single to allow usage on non-posts CPTs in block themes.
+	 * @uses self::get_options, is_admin, is_singular, apply_filters
 	 * @return bool
 	 */
 	protected function enabled_for_request() {
-		$enabled = is_single()
+		/*
+		 * On block themes, allow usage on any singular view (post, page, CPT).
+		 * On classic themes, only allow usage on single posts by default.
+		 */
+		$enabled_on_singular_views = wp_is_block_theme()
+			? is_singular()
+			: is_single();
+
+		$enabled = $enabled_on_singular_views
 			&& ! is_attachment()
 			&& ! is_admin()
 			&& ! is_embed()
 			&& ( ! $this->allow_feature_toggle() || $this->get_option( 'enabled' ) );
 
 		/**
-		 * Filter the Enabled value to allow related posts to be shown on pages as well.
+		 * Filter the Enabled value to allow related posts to be selectively enabled/disabled.
 		 *
 		 * @module related-posts
 		 *

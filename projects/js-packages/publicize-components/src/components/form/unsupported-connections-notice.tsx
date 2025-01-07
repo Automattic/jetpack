@@ -9,7 +9,7 @@ import Notice from '../notice';
 export const UnsupportedConnectionsNotice: React.FC = () => {
 	const { connections } = useSocialMediaConnections();
 
-	const { connectionsAdminUrl } = usePublicizeConfig();
+	const { connectionsPageUrl } = usePublicizeConfig();
 
 	const unsupportedConnections = connections.filter( connection =>
 		checkConnectionCode( connection, 'unsupported' )
@@ -21,10 +21,10 @@ export const UnsupportedConnectionsNotice: React.FC = () => {
 				{ createInterpolateElement(
 					__(
 						'Twitter is not supported anymore. <moreInfo>Learn more here</moreInfo>.',
-						'jetpack'
+						'jetpack-publicize-components'
 					),
 					{
-						moreInfo: <ExternalLink href={ connectionsAdminUrl } />,
+						moreInfo: <ExternalLink href={ connectionsPageUrl } />,
 					}
 				) }
 			</Notice>

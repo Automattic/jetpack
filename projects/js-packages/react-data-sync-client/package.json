@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-react-data-sync-client",
-	"version": "0.1.5",
+	"version": "0.1.8",
 	"description": "DataSync client for React",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/react-data-sync-client/#readme",
 	"bugs": {
@@ -18,9 +18,8 @@
 		"build": "pnpm run clean && webpack",
 		"clean": "rm -rf build/",
 		"watch": "pnpm run build && pnpm webpack watch",
-		"reformat-files": "../../../tools/js-tools/node_modules/.bin/prettier --ignore-path .eslintignore --write --plugin-search-dir=. ./src/**/*.ts",
-		"lint": "pnpm run reformat-files && echo 'Running eslint...' && pnpm eslint src --fix && echo '✔ prettier and eslint ran successfully.'",
-		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs",
+		"test-coverage": "pnpm run test --coverage"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",

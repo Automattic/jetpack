@@ -24,6 +24,9 @@
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
 		],
+		"test-coverage": [
+			"pnpm run test-coverage"
+		],
 		"test-js": [
 			"pnpm run test"
 		]
@@ -41,6 +44,7 @@
 	"prefer-stable": true,
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-ai-client",
+		"textdomain": "jetpack-ai-client",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-ai-client/compare/v${old}...v${new}"
 		},

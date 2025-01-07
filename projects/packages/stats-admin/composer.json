@@ -4,7 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.0",
+		"php": ">=7.2",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-plans": "@dev",
@@ -15,7 +15,7 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "dev-master"
+		"automattic/wordbless": "^0.4.2"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -28,6 +28,9 @@
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -52,7 +55,7 @@
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-stats-admin",
 		"branch-alias": {
-			"dev-trunk": "0.22.x-dev"
+			"dev-trunk": "0.24.x-dev"
 		},
 		"textdomain": "jetpack-stats-admin",
 		"version-constants": {

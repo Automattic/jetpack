@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.2.2] - 2025-01-06
+### Added
+- Added tests to increase code coverage. [#39963]
+
+### Changed
+- Updated package dependencies. [#40831]
+
+## [6.2.1] - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564]
+
+## [6.2.0] - 2024-12-09
+### Added
+- Added a mechanism to use callbacks for package options. [#40474]
+- REST user provisioning with an app password. [#40447]
+
+## [6.1.1] - 2024-12-04
+### Changed
+- Updated package dependencies. [#40363]
+
+## [6.1.0] - 2024-11-25
+### Added
+- Allow using application password for site registration. [#40233]
+
+### Changed
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#40258] [#40288]
+
+## [6.0.1] - 2024-11-18
+### Fixed
+- Work around a WP user caching bug (https://core.trac.wordpress.org/ticket/62003). [#40188]
+
+## [6.0.0] - 2024-11-14
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## [5.1.7] - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999] [#40060]
+
+## [5.1.6] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+## [5.1.5] - 2024-10-25
+### Changed
+- Internal updates.
+
+## [5.1.4] - 2024-10-21
+### Changed
+- SSO: optimize 'admin_notices' action callback. [#39811]
+
 ## [5.1.3] - 2024-10-10
 ### Changed
 - Updated package dependencies.
@@ -1226,6 +1278,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[6.2.2]: https://github.com/Automattic/jetpack-connection/compare/v6.2.1...v6.2.2
+[6.2.1]: https://github.com/Automattic/jetpack-connection/compare/v6.2.0...v6.2.1
+[6.2.0]: https://github.com/Automattic/jetpack-connection/compare/v6.1.1...v6.2.0
+[6.1.1]: https://github.com/Automattic/jetpack-connection/compare/v6.1.0...v6.1.1
+[6.1.0]: https://github.com/Automattic/jetpack-connection/compare/v6.0.1...v6.1.0
+[6.0.1]: https://github.com/Automattic/jetpack-connection/compare/v6.0.0...v6.0.1
+[6.0.0]: https://github.com/Automattic/jetpack-connection/compare/v5.1.7...v6.0.0
+[5.1.7]: https://github.com/Automattic/jetpack-connection/compare/v5.1.6...v5.1.7
+[5.1.6]: https://github.com/Automattic/jetpack-connection/compare/v5.1.5...v5.1.6
+[5.1.5]: https://github.com/Automattic/jetpack-connection/compare/v5.1.4...v5.1.5
+[5.1.4]: https://github.com/Automattic/jetpack-connection/compare/v5.1.3...v5.1.4
 [5.1.3]: https://github.com/Automattic/jetpack-connection/compare/v5.1.2...v5.1.3
 [5.1.2]: https://github.com/Automattic/jetpack-connection/compare/v5.1.1...v5.1.2
 [5.1.1]: https://github.com/Automattic/jetpack-connection/compare/v5.1.0...v5.1.1

@@ -4,7 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.0",
+		"php": ">=7.2",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-plans": "@dev",
@@ -14,7 +14,7 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "@dev",
+		"automattic/wordbless": "^0.4.2",
 		"php-mock/php-mock-phpunit": "^2.10"
 	},
 	"suggest": {
@@ -28,6 +28,9 @@
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -53,7 +56,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.13.x-dev"
+			"dev-trunk": "0.14.x-dev"
 		},
 		"textdomain": "jetpack-scheduled-updates",
 		"version-constants": {

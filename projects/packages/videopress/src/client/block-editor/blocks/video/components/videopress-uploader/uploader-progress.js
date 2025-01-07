@@ -8,7 +8,7 @@ import { useState, useEffect } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
 import debugFactory from 'debug';
-import filesize from 'filesize';
+import { filesize } from 'filesize';
 /**
  * Internal dependencies
  */
@@ -209,6 +209,7 @@ const UploaderProgress = ( {
 				onChange={ newTitle => setAttributes( { title: newTitle } ) }
 				value={ title }
 				placeholder={ filename }
+				__nextHasNoMarginBottom={ true }
 			/>
 
 			<UploadingEditor

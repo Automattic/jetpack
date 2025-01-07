@@ -27,14 +27,19 @@ export function ConnectionName( { connection }: ConnectionNameProps ) {
 	return (
 		<div className={ styles[ 'connection-name' ] }>
 			{ ! connection.profile_link ? (
-				<span className={ styles[ 'profile-link' ] }>{ connection.display_name }</span>
+				<span className={ styles[ 'profile-link' ] }>
+					{ connection.display_name || connection.external_name }
+				</span>
 			) : (
 				<ExternalLink className={ styles[ 'profile-link' ] } href={ connection.profile_link }>
-					{ connection.display_name || connection.external_display }
+					{ connection.display_name || connection.external_display || connection.external_name }
 				</ExternalLink>
 			) }
 			{ isUpdating ? (
-				<Spinner color="black" aria-label={ __( 'Updating account', 'jetpack' ) } />
+				<Spinner
+					color="black"
+					aria-label={ __( 'Updating account', 'jetpack-publicize-components' ) }
+				/>
 			) : null }
 		</div>
 	);

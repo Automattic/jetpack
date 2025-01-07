@@ -11,6 +11,9 @@
 	"scripts": {
 		"test-js": [
 			"pnpm run test"
+		],
+		"test-coverage": [
+			"pnpm run test-coverage"
 		]
 	},
 	"repositories": [
@@ -23,5 +26,8 @@
 		}
 	],
 	"minimum-stability": "dev",
-	"prefer-stable": true
+	"prefer-stable": true,
+	"extra": {
+		"textdomain": "jetpack-licensing"
+	}
 }

@@ -1,6 +1,6 @@
 {
 	"name": "test-results-to-slack",
-	"version": "0.3.1",
+	"version": "0.3.2",
 	"description": "GitHub Action to send Slack notifications with test results",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -17,7 +17,7 @@
 		"@actions/core": "1.10.1",
 		"@actions/github": "6.0.0",
 		"@slack/web-api": "7.3.2",
-		"glob": "10.4.1",
+		"glob": "11.0.0",
 		"minimatch": "5.1.0"
 	},
 	"devDependencies": {
@@ -27,6 +27,7 @@
 	},
 	"scripts": {
 		"build": "ncc build src/index.js -o dist --source-map --license licenses.txt",
-		"test": "jest --config=tests/jest.config.js --verbose --runInBand"
+		"test": "jest --config=tests/jest.config.js --verbose --runInBand",
+		"test-coverage": "pnpm run test --coverage"
 	}
 }

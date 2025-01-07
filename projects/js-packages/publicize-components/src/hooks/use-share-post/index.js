@@ -35,26 +35,26 @@ function getHumanReadableError( result ) {
 		switch ( errorCode ) {
 			case 'http_request_failed':
 				// Define error message when external service is down.
-				errorMessage = __( 'Unable to share the Post', 'jetpack' );
+				errorMessage = __( 'Unable to share the Post', 'jetpack-publicize-components' );
 				break;
 			case 'rest_invalid_param':
 				// Error when something is wrong with the request.
-				errorMessage = __( 'Unable to share the Post', 'jetpack' );
+				errorMessage = __( 'Unable to share the Post', 'jetpack-publicize-components' );
 				break;
 
 			case 'rest_missing_callback_param':
 				// Error when something is wrong with the request.
-				errorMessage = __( 'Unable to share the Post', 'jetpack' );
+				errorMessage = __( 'Unable to share the Post', 'jetpack-publicize-components' );
 				break;
 
 			default:
-				errorMessage = __( 'Unable to share the Post', 'jetpack' );
+				errorMessage = __( 'Unable to share the Post', 'jetpack-publicize-components' );
 		}
 	}
 
 	// Im multiple requests, the response contains the errors array.
 	if ( hasSharingErrors ) {
-		errorMessage = __( 'Unable to share the Post', 'jetpack' );
+		errorMessage = __( 'Unable to share the Post', 'jetpack-publicize-components' );
 	}
 
 	return {

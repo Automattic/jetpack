@@ -58,11 +58,7 @@ export function Reconnect( { connection, service, variant = 'link' }: ReconnectP
 			return;
 		}
 
-		await setReconnectingAccount(
-			// Join service name and external ID
-			// just in case the external ID alone is not unique.
-			`${ connection.service_name }:${ connection.external_id }`
-		);
+		await setReconnectingAccount( connection );
 
 		const formData = new FormData();
 
@@ -70,8 +66,19 @@ export function Reconnect( { connection, service, variant = 'link' }: ReconnectP
 			formData.set( 'instance', connection.external_display );
 		}
 
-		requestAccess( formData );
-	}, [ connection, deleteConnectionById, requestAccess, service.ID, setReconnectingAccount ] );
+		if ( service.ID === 'bluesky' ) {
+			openConnectionsModal();
+		} else {
+			requestAccess( formData );
+		}
+	}, [
+		connection,
+		deleteConnectionById,
+		openConnectionsModal,
+		requestAccess,
+		service.ID,
+		setReconnectingAccount,
+	] );
 
 	if ( ! connection.can_disconnect ) {
 		return null;
@@ -85,8 +92,8 @@ export function Reconnect( { connection, service, variant = 'link' }: ReconnectP
 			variant={ variant }
 		>
 			{ isDisconnecting
-				? __( 'Disconnecting…', 'jetpack' )
-				: _x( 'Reconnect', 'Reconnect a social media account', 'jetpack' ) }
+				? __( 'Disconnecting…', 'jetpack-publicize-components' )
+				: _x( 'Reconnect', 'Reconnect a social media account', 'jetpack-publicize-components' ) }
 		</Button>
 	);
 }

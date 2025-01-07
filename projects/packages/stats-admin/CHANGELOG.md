@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.24.0 - 2025-01-06
+### Added
+- Stats: Add API support for location stats. [#40852]
+
+## 0.23.1 - 2024-11-25
+### Changed
+- Updated dependencies. [#40286]
+
+### Fixed
+- Stast: removed cache for purchases and usage endpoints [#40266]
+- Walk around an issue where custom code removes `ver` param [#40322]
+
+## 0.23.0 - 2024-11-18
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## 0.22.6 - 2024-11-11
+### Fixed
+- Fixed flaky tests [#40062]
+
+## 0.22.5 - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Fixed
+- API cache not refreshing when cache is bypassed. [#39955]
+
+## 0.22.4 - 2024-10-28
+### Changed
+- Odyssey Stats cache busting: Use option instead of transient. [#39887]
+
+## 0.22.3 - 2024-10-21
+### Changed
+- JITM: Expose function to render message. [#39714]
+
+## 0.22.2 - 2024-10-14
+### Fixed
+- Added missing fields for stats single post endpoint. [#39691]
+
 ## 0.22.1 - 2024-09-23
 ### Changed
 - Update dependencies. [#39303]

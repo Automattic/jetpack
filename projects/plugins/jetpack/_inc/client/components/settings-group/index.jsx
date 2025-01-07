@@ -1,10 +1,10 @@
 import clsx from 'clsx';
-import Card from 'components/card';
-import SupportInfo from 'components/support-info';
 import { includes, noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
+import Card from 'components/card';
+import SupportInfo from 'components/support-info';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,

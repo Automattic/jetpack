@@ -209,7 +209,7 @@ class Manager {
 		$deprecated,
 		$has_connected_owner,
 		$is_signed,
-		Jetpack_XMLRPC_Server $xmlrpc_server = null
+		?Jetpack_XMLRPC_Server $xmlrpc_server = null
 	) {
 		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ), 1000, 2 );
 		if ( $deprecated !== null ) {
@@ -452,8 +452,9 @@ class Manager {
 
 		if (
 			empty( $token_key )
-		||
-			empty( $version ) || (string) $jetpack_api_version !== $version ) {
+				|| empty( $version )
+				|| (string) $jetpack_api_version !== $version
+		) {
 			return new \WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details', 'error_type' ) );
 		}
 
@@ -1620,12 +1621,17 @@ class Manager {
 			return $cached_date;
 		}
 
+		/**
+		 * We don't use the 'ID' field, but need it to overcome a WP caching bug: https://core.trac.wordpress.org/ticket/62003
+		 *
+		 * @todo Remote the 'ID' field from users fetching when the issue is fixed and Jetpack-supported WP versions move beyond it.
+		 */
 		$earliest_registered_users  = get_users(
 			array(
 				'role'    => 'administrator',
 				'orderby' => 'user_registered',
 				'order'   => 'ASC',
-				'fields'  => array( 'user_registered' ),
+				'fields'  => array( 'ID', 'user_registered' ),
 				'number'  => 1,
 			)
 		);

@@ -29,8 +29,8 @@ const L10N = {
 	submittingForm: __( 'Submitting form', 'jetpack-forms' ),
 	/* translators: generic error message */
 	genericError: __( 'Please correct this field', 'jetpack-forms' ),
-	/* translators: message displayed when errors need to be fixed. %d is the number of errors. */
 	errorCount: d =>
+		/* translators: message displayed when errors need to be fixed. %d is the number of errors. */
 		_n( 'You need to fix %d error.', 'You need to fix %d errors.', d, 'jetpack-forms' ),
 };
 
@@ -248,7 +248,7 @@ const isDateFieldValid = input => {
 	if ( value && format && typeof $ !== 'undefined' ) {
 		try {
 			$.datepicker.parseDate( format, value );
-		} catch ( e ) {
+		} catch {
 			input.setCustomValidity( L10N.invalidDate );
 
 			return false;
@@ -476,8 +476,8 @@ const createError = str => {
 
 /**
  * Create a list of links to the invalid fields of a form.
- * @param {HTMLFormElement} form Form element
- * @param {HTMLElement[]} invalidFields Invalid fields
+ * @param {HTMLFormElement} form          Form element
+ * @param {HTMLElement[]}   invalidFields Invalid fields
  * @returns {HTMLUListElement} List element
  */
 const createInvalidFieldsList = ( form, invalidFields ) => {
@@ -584,9 +584,9 @@ const groupInputs = inputs => {
 
 /**
  * Clear all errors and remove all input event listeners in a form.
- * @param {HTMLFormElement} form Form element
- * @param {object} inputListenerMap Map of input event listeners (name: [event, handler])
- * @param {object} opts Form options
+ * @param {HTMLFormElement} form             Form element
+ * @param {object}          inputListenerMap Map of input event listeners (name: [event, handler])
+ * @param {object}          opts             Form options
  */
 const clearForm = ( form, inputListenerMap, opts ) => {
 	clearErrors( form, opts );
@@ -603,7 +603,7 @@ const clearForm = ( form, inputListenerMap, opts ) => {
 /**
  * Remove the errors in a form.
  * @param {HTMLFormElement} form Form element
- * @param {object} opts Form options
+ * @param {object}          opts Form options
  */
 const clearErrors = ( form, opts ) => {
 	clearFormError( form );
@@ -625,7 +625,7 @@ const clearFormError = form => {
 /**
  * Empty the error element of form fields and mark them as valid.
  * @param {HTMLFormElement} form Form element
- * @param {object} opts Form options
+ * @param {object}          opts Form options
  */
 const clearFieldErrors = ( form, opts ) => {
 	for ( const field of getInvalidFields( form ) ) {
@@ -658,7 +658,7 @@ const clearGroupInputError = fieldset => {
 /**
  * Empty the error element a simple field (unique input) and mark it as valid.
  * @param {HTMLElement} input Input element
- * @param {object} opts Form options
+ * @param {object}      opts  Form options
  */
 const clearInputError = ( input, opts ) => {
 	input.removeAttribute( 'aria-invalid' );
@@ -717,7 +717,7 @@ const showFormSubmittingIndicator = form => {
 /**
  * Show errors in the form and trigger revalidation on inputs blur.
  * @param {HTMLFormElement} form Form element
- * @param {object} opts Form options
+ * @param {object}          opts Form options
  * @returns {object} Map of the input event listeners set (name: handler)
  */
 const invalidateForm = ( form, opts ) => {
@@ -729,7 +729,7 @@ const invalidateForm = ( form, opts ) => {
 /**
  * Trigger the fields revalidation on a form inputs blur.
  * @param {HTMLFormElement} form Form element
- * @param {object} opts Form options
+ * @param {object}          opts Form options
  * @returns {object} Map of the input event listeners set (name: handler)
  */
 const listenToInvalidFields = ( form, opts ) => {
@@ -760,9 +760,9 @@ const listenToInvalidFields = ( form, opts ) => {
 /**
  * Trigger the revalidation of a Single Choice field on its inputs blur.
  * @param {HTMLFieldSetElement} fieldset Fieldset element
- * @param {Function} cb Function to call on event
- * @param {HTMLFormElement} form Form element
- * @param {object} opts Form options
+ * @param {Function}            cb       Function to call on event
+ * @param {HTMLFormElement}     form     Form element
+ * @param {object}              opts     Form options
  * @returns {object} Map of the input event listeners set (name: [event, handler])
  */
 const listenToInvalidSingleChoiceField = ( fieldset, cb, form, opts ) => {
@@ -793,9 +793,9 @@ const listenToInvalidSingleChoiceField = ( fieldset, cb, form, opts ) => {
 /**
  * Trigger the revalidation of a Multiple Choice field on its inputs blur.
  * @param {HTMLFieldSetElement} fieldset Fieldset element
- * @param {Function} cb Function to call on event
- * @param {HTMLFormElement} form Form element
- * @param {object} opts Form options
+ * @param {Function}            cb       Function to call on event
+ * @param {HTMLFormElement}     form     Form element
+ * @param {object}              opts     Form options
  * @returns {object} Map of the input event listeners set (name: [event, handler])
  */
 const listenToInvalidMultipleChoiceField = ( fieldset, cb, form, opts ) => {
@@ -825,10 +825,10 @@ const listenToInvalidMultipleChoiceField = ( fieldset, cb, form, opts ) => {
 
 /**
  * Trigger the revalidation of a simple field (single input) on its input blur.
- * @param {HTMLElement} input Input element
- * @param {Function} cb Function to call on event
- * @param {HTMLFormElement} form Form element
- * @param {object} opts Form options
+ * @param {HTMLElement}     input Input element
+ * @param {Function}        cb    Function to call on event
+ * @param {HTMLFormElement} form  Form element
+ * @param {object}          opts  Form options
  * @returns {object} Map of the input event listeners set (name: [event, handler])
  */
 const listenToInvalidSimpleField = ( input, cb, form, opts ) => {
@@ -874,7 +874,7 @@ const listenToInvalidSimpleField = ( input, cb, form, opts ) => {
 /**
  * Set form errors.
  * @param {HTMLFormElement} form Form element
- * @param {object} opts Form options
+ * @param {object}          opts Form options
  */
 const setErrors = ( form, opts ) => {
 	const invalidFields = setFieldErrors( form, opts );
@@ -884,9 +884,9 @@ const setErrors = ( form, opts ) => {
 
 /**
  * Set the error element of a form.
- * @param {HTMLFormElement} form Form element
- * @param {HTMLElement[]} invalidFields Invalid fields
- * @param {object} opts Options
+ * @param {HTMLFormElement} form          Form element
+ * @param {HTMLElement[]}   invalidFields Invalid fields
+ * @param {object}          opts          Options
  */
 const setFormError = ( form, invalidFields, opts = {} ) => {
 	let error = getFormError( form );
@@ -897,7 +897,7 @@ const setFormError = ( form, invalidFields, opts = {} ) => {
 		const submitBtn = getFormSubmitBtn( form );
 
 		if ( submitBtn ) {
-			submitBtn.parentNode.insertBefore( error, submitBtn );
+			submitBtn.parentNode.parentNode.insertBefore( error, submitBtn.parentNode );
 		} else {
 			form.appendChild( error );
 		}
@@ -930,7 +930,7 @@ const setFormError = ( form, invalidFields, opts = {} ) => {
 /**
  * Update the error message of a form based on its validity.
  * @param {HTMLFormElement} form Form element
- * @param {object} opts Form options
+ * @param {object}          opts Form options
  */
 const updateFormErrorMessage = form => {
 	clearFormError( form );
@@ -944,7 +944,7 @@ const updateFormErrorMessage = form => {
 /**
  * Set the error element of a form fields.
  * @param {HTMLFormElement} form Form element
- * @param {object} opts Form options
+ * @param {object}          opts Form options
  * @return {HTMLElement[]} Invalid fields
  */
 const setFieldErrors = ( form, opts ) => {
@@ -980,9 +980,9 @@ const setFieldErrors = ( form, opts ) => {
 
 /**
  * Set the error element of a simple field (single input) and mark it as invalid.
- * @param {HTMLElement} input Input element
- * @param {HTMLFormElement} form Parent form element
- * @param {object} opts Form options
+ * @param {HTMLElement}     input Input element
+ * @param {HTMLFormElement} form  Parent form element
+ * @param {object}          opts  Form options
  */
 const setSimpleFieldError = ( input, form, opts ) => {
 	const errorId = `${ input.name }-error`;
@@ -1010,8 +1010,8 @@ const setSimpleFieldError = ( input, form, opts ) => {
 /**
  * Set the error element of a Single Choice field.
  * @param {HTMLFieldSetElement} fieldset Fieldset element
- * @param {HTMLFormElement} form Parent form element
- * @param {object} opts Form options
+ * @param {HTMLFormElement}     form     Parent form element
+ * @param {object}              opts     Form options
  */
 const setSingleChoiceFieldError = ( fieldset, form, opts ) => {
 	setGroupInputError( fieldset, form, opts );
@@ -1020,8 +1020,8 @@ const setSingleChoiceFieldError = ( fieldset, form, opts ) => {
 /**
  * Set the error element of a Multiple Choice field.
  * @param {HTMLFieldSetElement} fieldset Fieldset element
- * @param {HTMLFormElement} form Parent form element
- * @param {object} opts Form options
+ * @param {HTMLFormElement}     form     Parent form element
+ * @param {object}              opts     Form options
  */
 const setMultipleChoiceFieldError = ( fieldset, form, opts ) => {
 	setGroupInputError( fieldset, form, {
@@ -1035,8 +1035,8 @@ const setMultipleChoiceFieldError = ( fieldset, form, opts ) => {
  * These types of inputs are handled differently because the error message and invalidity
  * apply to the group as a whole, not to each individual input.
  * @param {HTMLFieldSetElement} fieldset Fieldset element
- * @param {HTMLFormElement} form Parent form element
- * @param {object} opts Options
+ * @param {HTMLFormElement}     form     Parent form element
+ * @param {object}              opts     Options
  */
 const setGroupInputError = ( fieldset, form, opts ) => {
 	const firstInput = fieldset.querySelector( 'input' );

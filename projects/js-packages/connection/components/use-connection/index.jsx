@@ -14,6 +14,7 @@ export default ( {
 	autoTrigger,
 	from,
 	skipUserConnection,
+	skipPricingPage,
 } = {} ) => {
 	const { registerSite, connectUser, refreshConnectedPlugins } = useDispatch( STORE_ID );
 
@@ -45,7 +46,7 @@ export default ( {
 	 */
 	const handleConnectUser = () => {
 		if ( ! skipUserConnection ) {
-			return connectUser( { from, redirectUri } );
+			return connectUser( { from, redirectUri, skipPricingPage } );
 		} else if ( redirectUri ) {
 			window.location = redirectUri;
 			return Promise.resolve( redirectUri );

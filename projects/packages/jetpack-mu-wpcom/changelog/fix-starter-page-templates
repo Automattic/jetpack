@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Starter page templates: correctly insert the pattern to the Content block when rendering mode is template-locked

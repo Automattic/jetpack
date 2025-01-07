@@ -1,5 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import { Redirect, Route, Switch } from 'react-router-dom';
 import QueryIntroOffers from 'components/data/query-intro-offers';
 import QueryRecommendationsConditional from 'components/data/query-recommendations-conditional';
 import QueryRecommendationsData from 'components/data/query-recommendations-data';
@@ -10,9 +13,6 @@ import QuerySite from 'components/data/query-site';
 import QuerySiteDiscount from 'components/data/query-site-discount';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
-import React, { useEffect, useState } from 'react';
-import { connect } from 'react-redux';
-import { Redirect, Route, Switch } from 'react-router-dom';
 import { getNewRecommendations } from 'state/initial-state';
 import {
 	getStep,

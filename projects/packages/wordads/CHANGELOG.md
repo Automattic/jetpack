@@ -5,11 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.5] - 2025-01-06
+### Changed
+- Updated package dependencies. [#40792] [#40797] [#40813] [#40843]
+
+## [0.4.4] - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564]
+
+## [0.4.3] - 2024-12-09
+### Changed
+- Updated package dependencies. [#40363]
+
+## [0.4.2] - 2024-11-26
+### Changed
+- Update dependencies. [#39855]
+
+## [0.4.1] - 2024-11-25
+### Changed
+- Updated package dependencies. [#40288]
+
+## [0.4.0] - 2024-11-18
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## [0.3.39] - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999] [#40060]
+
+## [0.3.38] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+## [0.3.37] - 2024-10-21
+### Changed
+- Update dependencies. [#39781]
+
+## [0.3.36] - 2024-10-14
+### Changed
+- Updated package dependencies. [#39707]
+
 ## [0.3.35] - 2024-10-07
 ### Changed
-- Updated package dependencies. [#39592]
-- Updated package dependencies. [#39594]
-- Updated package dependencies. [#39639]
+- Updated package dependencies. [#39592] [#39594] [#39639]
 
 ## [0.3.34] - 2024-09-30
 ### Changed
@@ -189,8 +227,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.50] - 2023-09-04
 ### Changed
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
+- Updated package dependencies. [#32803] [#32804]
 
 ## [0.2.49] - 2023-08-28
 ### Changed
@@ -202,8 +239,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.47] - 2023-07-25
 ### Changed
-- Updated package dependencies. [#31923]
-- Updated package dependencies. [#32040]
+- Updated package dependencies. [#31923] [#32040]
 - Update props passed to JetpackFooter [#31627]
 
 ## [0.2.46] - 2023-07-17
@@ -422,6 +458,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
 - Updated package dependencies.
 
+[0.4.5]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.4...v0.4.5
+[0.4.4]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.3...v0.4.4
+[0.4.3]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.2...v0.4.3
+[0.4.2]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.1...v0.4.2
+[0.4.1]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/Automattic/jetpack-wordads/compare/v0.3.39...v0.4.0
+[0.3.39]: https://github.com/Automattic/jetpack-wordads/compare/v0.3.38...v0.3.39
+[0.3.38]: https://github.com/Automattic/jetpack-wordads/compare/v0.3.37...v0.3.38
+[0.3.37]: https://github.com/Automattic/jetpack-wordads/compare/v0.3.36...v0.3.37
+[0.3.36]: https://github.com/Automattic/jetpack-wordads/compare/v0.3.35...v0.3.36
 [0.3.35]: https://github.com/Automattic/jetpack-wordads/compare/v0.3.34...v0.3.35
 [0.3.34]: https://github.com/Automattic/jetpack-wordads/compare/v0.3.33...v0.3.34
 [0.3.33]: https://github.com/Automattic/jetpack-wordads/compare/v0.3.32...v0.3.33

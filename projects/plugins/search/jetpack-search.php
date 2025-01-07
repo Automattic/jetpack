@@ -27,7 +27,6 @@ define( 'JETPACK_SEARCH_PLUGIN__FILE', __FILE__ );
 define( 'JETPACK_SEARCH_PLUGIN__FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
 define( 'JETPACK_SEARCH_PLUGIN__SLUG', 'jetpack-search' );
 define( 'JETPACK_SEARCH_PLUGIN__VERSION', '3.0.1' );
-
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) || define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 
 defined( 'JETPACK__API_BASE' ) || define( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );

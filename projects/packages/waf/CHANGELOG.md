@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.1] - 2024-11-25
+### Changed
+- Updated dependencies. [#40286]
+
+## [0.23.0] - 2024-11-18
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## [0.22.3] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+## [0.22.2] - 2024-10-29
+### Changed
+- Internal updates. [#39263]
+
+## [0.22.1] - 2024-10-17
+### Fixed
+- WAF: Improve backwards compatibility for sites running outdated bootstrap scripts via standalone mode. [#39812]
+
+## [0.22.0] - 2024-10-14
+### Added
+- WAF: Add new properties to the WAF feature's REST API endpoint. [#39511]
+
+### Fixed
+- Improve backwards compatibility for sites running in standalone mode. [#39652]
+- WAF: Reduce amount of classes autoloaded during standalone mode execution. [#38944]
+
 ## [0.21.0] - 2024-10-07
 ### Added
 - Firewall Runtime: Added support for rule files to specify body parser type. [#39516]
@@ -382,6 +410,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.23.1]: https://github.com/Automattic/jetpack-waf/compare/v0.23.0...v0.23.1
+[0.23.0]: https://github.com/Automattic/jetpack-waf/compare/v0.22.3...v0.23.0
+[0.22.3]: https://github.com/Automattic/jetpack-waf/compare/v0.22.2...v0.22.3
+[0.22.2]: https://github.com/Automattic/jetpack-waf/compare/v0.22.1...v0.22.2
+[0.22.1]: https://github.com/Automattic/jetpack-waf/compare/v0.22.0...v0.22.1
+[0.22.0]: https://github.com/Automattic/jetpack-waf/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/Automattic/jetpack-waf/compare/v0.20.1...v0.21.0
 [0.20.1]: https://github.com/Automattic/jetpack-waf/compare/v0.20.0...v0.20.1
 [0.20.0]: https://github.com/Automattic/jetpack-waf/compare/v0.19.0...v0.20.0

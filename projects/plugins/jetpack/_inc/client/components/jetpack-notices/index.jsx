@@ -1,16 +1,16 @@
-import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import ConnectionBanner from 'components/connection-banner';
-import NoticesList from 'components/global-notices';
-import SimpleNotice from 'components/notice';
-import NoticeAction from 'components/notice/notice-action.jsx';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import SocialLogo from 'social-logos';
+import { SocialLogo } from 'social-logos';
+import ConnectionBanner from 'components/connection-banner';
+import NoticesList from 'components/global-notices';
+import SimpleNotice from 'components/notice';
+import NoticeAction from 'components/notice/notice-action.jsx';
+import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import {
 	getSiteConnectionStatus,
 	getSiteOfflineMode,
@@ -31,6 +31,7 @@ import {
 } from 'state/initial-state';
 import { getLicensingError, clearLicensingError } from 'state/licensing';
 import { getSiteDataErrors } from 'state/site';
+import DeprecationNotice from './deprecation-notice';
 import DismissableNotices from './dismissable';
 import JetpackConnectionErrors from './jetpack-connection-errors';
 import PlanConflictWarning from './plan-conflict-warning';
@@ -175,6 +176,10 @@ UserUnlinked.propTypes = {
 class JetpackNotices extends React.Component {
 	static displayName = 'JetpackNotices';
 
+	dismissNotice = noticeKey => {
+		document.cookie = `jetpack_deprecate_dismissed[${ noticeKey }]=1; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/; Secure; SameSite=None`;
+	};
+
 	render() {
 		const siteDataErrors = this.props.siteDataErrors.filter( error =>
 			Object.hasOwn( error, 'action' )
@@ -234,6 +239,20 @@ class JetpackNotices extends React.Component {
 						onDismissClick={ this.props.clearLicensingError }
 					/>
 				) }
+
+				{ window.noticeInfo &&
+					Object.entries( window.noticeInfo ).map( ( [ noticeKey, { title, message, link } ] ) => (
+						<DeprecationNotice
+							key={ noticeKey }
+							noticeKey={ noticeKey }
+							// eslint-disable-next-line react/jsx-no-bind
+							dismissNotice={ () => this.dismissNotice( noticeKey ) }
+							title={ title }
+							message={ message }
+							link={ getRedirectUrl( link.url ) }
+							linkText={ link.label }
+						/>
+					) ) }
 			</div>
 		);
 	}

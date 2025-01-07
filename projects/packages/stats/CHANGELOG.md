@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.0] - 2025-01-06
+### Added
+- Stats: Add API support for location stats. [#40852]
+
+## [0.14.1] - 2024-11-25
+### Changed
+- Updated dependencies. [#40286]
+
+## [0.14.0] - 2024-11-18
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## [0.13.5] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+## [0.13.4] - 2024-10-29
+### Changed
+- Internal updates. [#39260]
+
 ## [0.13.3] - 2024-09-23
 ### Changed
 - Internal updates.
@@ -186,6 +206,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing static method which was called without self reference. [#26640]
 
+[0.15.0]: https://github.com/Automattic/jetpack-stats/compare/v0.14.1...v0.15.0
+[0.14.1]: https://github.com/Automattic/jetpack-stats/compare/v0.14.0...v0.14.1
+[0.14.0]: https://github.com/Automattic/jetpack-stats/compare/v0.13.5...v0.14.0
+[0.13.5]: https://github.com/Automattic/jetpack-stats/compare/v0.13.4...v0.13.5
+[0.13.4]: https://github.com/Automattic/jetpack-stats/compare/v0.13.3...v0.13.4
 [0.13.3]: https://github.com/Automattic/jetpack-stats/compare/v0.13.2...v0.13.3
 [0.13.2]: https://github.com/Automattic/jetpack-stats/compare/v0.13.1...v0.13.2
 [0.13.1]: https://github.com/Automattic/jetpack-stats/compare/v0.13.0...v0.13.1

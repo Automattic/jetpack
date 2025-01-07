@@ -43,7 +43,7 @@ class Utils {
 			|| $node instanceof Node\Stmt\Class_ ) {
 			$class_name = $node->name;
 		} elseif ( $node instanceof Node\Name ) {
-			$class_name = '\\' . implode( '\\', $node->parts );
+			$class_name = '\\' . implode( '\\', $node->getParts() );
 		} elseif ( $node instanceof Node\Expr\PropertyFetch ) {
 			$class_name =
 				'$'
@@ -152,6 +152,11 @@ class Utils {
 			if ( ! $stmt instanceof Node\Stmt\Expression || ! $stmt->expr instanceof Node\Expr\FuncCall ) {
 				continue;
 			}
+
+			if ( $stmt->expr->name instanceof Node\Expr\Variable ) {
+				continue;
+			}
+
 			if ( false !== strpos( $stmt->expr->name->toCodeString(), $name ) ) {
 				return true;
 			}

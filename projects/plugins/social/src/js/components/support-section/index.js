@@ -4,9 +4,8 @@ import {
 	getRedirectUrl,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
-import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
+import { hasSocialPaidFeatures } from '@automattic/jetpack-publicize-components';
 import { ExternalLink } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, lifesaver } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -15,9 +14,8 @@ import styles from './styles.module.scss';
 
 const SupportSection = () => {
 	const [ isAtLeastMedium ] = useBreakpointMatch( 'md', '>=' );
-	const hasPaidPlan = useSelect( select => select( SOCIAL_STORE_ID ).hasPaidPlan() );
 
-	if ( ! hasPaidPlan ) {
+	if ( ! hasSocialPaidFeatures() ) {
 		return null;
 	}
 
@@ -40,7 +38,7 @@ const SupportSection = () => {
 					) }
 				</Text>
 				<Text className={ styles.link }>
-					<ExternalLink href={ getRedirectUrl( 'https://wordpress.com/support' ) }>
+					<ExternalLink href={ getRedirectUrl( 'jetpack-contact-support' ) }>
 						{ __( 'Contact Support', 'jetpack-social' ) }
 					</ExternalLink>
 				</Text>

@@ -5,6 +5,74 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.34.5] - 2025-01-06
+### Changed
+- Updated package dependencies. [#40705] [#40784] [#40792] [#40800] [#40831]
+
+### Fixed
+- Form block: Fix submit button styles when there are errors. [#40762]
+
+## [0.34.4] - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564]
+
+### Fixed
+- Form Block: Fix validation of URL input types to allow query strings. [#40490]
+
+## [0.34.3] - 2024-12-09
+### Changed
+- Updated package dependencies. [#40363]
+
+## [0.34.2] - 2024-11-26
+### Changed
+- Update dependencies. [#39855]
+
+## [0.34.1] - 2024-11-25
+### Changed
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#40288]
+
+### Fixed
+- Forms: fixed arrow positioning on select elements [#40206]
+
+## [0.34.0] - 2024-11-18
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+### Fixed
+- Fix a fatal error occurring due to a function receiving an unexpected input type. [#40183]
+
+## [0.33.8] - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999] [#40060]
+
+## [0.33.7] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Fixed
+- Fix PHPUnit coverage warnings. [#39989]
+
+## [0.33.6] - 2024-10-29
+### Changed
+- Components: Add __nextHasNoMarginBottom to BaseControl-based components, preventing deprecation notices. [#39877]
+
+## [0.33.5] - 2024-10-28
+### Changed
+- Updated package dependencies. [#39910]
+
+## [0.33.4] - 2024-10-21
+### Changed
+- Update dependencies. [#39781]
+
+## [0.33.3] - 2024-10-14
+### Changed
+- Only include `wp-polyfill` as a script dependency when needed. [#39629]
+- Updated package dependencies. [#39707]
+
+### Fixed
+- Improve security of the form endpoint. [#39759]
+
 ## [0.33.2] - 2024-10-07
 ### Changed
 - Updated package dependencies. [#39594]
@@ -364,8 +432,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add Jetpack AI Form section to new Forms landing page [#32726]
 
 ### Changed
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
+- Updated package dependencies. [#32803] [#32804]
 
 ### Fixed
 - Fix block icons for display on wp.org [#32754]
@@ -546,8 +613,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Forms: Include bulk actions menu [#29766]
 - Forms: Update Dashboard inbox columns responsiveness and sticky items style [#29914]
 - Updated form responses endpoint to embed available filter data. [#29805]
-- Updated package dependencies. [#29854]
-- Updated package dependencies. [#29857]
+- Updated package dependencies. [#29854] [#29857]
 
 ### Fixed
 - Made feedback bulk actions more explicit and easier to work with. [#29884]
@@ -681,6 +747,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.34.5]: https://github.com/automattic/jetpack-forms/compare/v0.34.4...v0.34.5
+[0.34.4]: https://github.com/automattic/jetpack-forms/compare/v0.34.3...v0.34.4
+[0.34.3]: https://github.com/automattic/jetpack-forms/compare/v0.34.2...v0.34.3
+[0.34.2]: https://github.com/automattic/jetpack-forms/compare/v0.34.1...v0.34.2
+[0.34.1]: https://github.com/automattic/jetpack-forms/compare/v0.34.0...v0.34.1
+[0.34.0]: https://github.com/automattic/jetpack-forms/compare/v0.33.8...v0.34.0
+[0.33.8]: https://github.com/automattic/jetpack-forms/compare/v0.33.7...v0.33.8
+[0.33.7]: https://github.com/automattic/jetpack-forms/compare/v0.33.6...v0.33.7
+[0.33.6]: https://github.com/automattic/jetpack-forms/compare/v0.33.5...v0.33.6
+[0.33.5]: https://github.com/automattic/jetpack-forms/compare/v0.33.4...v0.33.5
+[0.33.4]: https://github.com/automattic/jetpack-forms/compare/v0.33.3...v0.33.4
+[0.33.3]: https://github.com/automattic/jetpack-forms/compare/v0.33.2...v0.33.3
 [0.33.2]: https://github.com/automattic/jetpack-forms/compare/v0.33.1...v0.33.2
 [0.33.1]: https://github.com/automattic/jetpack-forms/compare/v0.33.0...v0.33.1
 [0.33.0]: https://github.com/automattic/jetpack-forms/compare/v0.32.16...v0.33.0
