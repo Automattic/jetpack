@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+E2E Tests: Only install single browser used by Playwright.

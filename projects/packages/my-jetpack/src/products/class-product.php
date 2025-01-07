@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\My_Jetpack;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
-use Automattic\Jetpack\My_Jetpack\Products\Backup;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
 use Jetpack_Options;
@@ -725,8 +724,12 @@ abstract class Product {
 			} elseif ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
 				$status = Products::STATUS_USER_CONNECTION_ERROR;
 			} elseif ( static::has_paid_plan_for_product() ) {
-				if ( static::$slug === 'backup' && Backup::does_module_need_attention() ) {
-					$status = Products::STATUS_NEEDS_ATTENTION;
+				$needs_attention = static::does_module_need_attention();
+				if ( ! empty( $needs_attention ) && is_array( $needs_attention ) ) {
+					$status = Products::STATUS_NEEDS_ATTENTION__WARNING;
+					if ( isset( $needs_attention['type'] ) && 'error' === $needs_attention['type'] ) {
+						$status = Products::STATUS_NEEDS_ATTENTION__ERROR;
+					}
 				}
 				if ( static::is_paid_plan_expired() ) {
 					$status = Products::STATUS_EXPIRED;

@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Minify: Added HTTP header to take advantage of WordPress.com edge caching

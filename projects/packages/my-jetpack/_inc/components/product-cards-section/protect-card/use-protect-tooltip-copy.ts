@@ -28,10 +28,11 @@ export function useProtectTooltipCopy(): TooltipContent {
 	const slug = PRODUCT_SLUGS.PROTECT;
 	const { detail } = useProduct( slug );
 	const {
-		isPluginActive: isProtectPluginActive,
+		standalonePluginInfo,
 		hasPaidPlanForProduct: hasProtectPaidPlan,
 		manageUrl: protectDashboardUrl,
 	} = detail || {};
+	const { isStandaloneActive } = standalonePluginInfo || {};
 	const { recordEvent } = useAnalytics();
 	const {
 		plugins,
@@ -60,11 +61,11 @@ export function useProtectTooltipCopy(): TooltipContent {
 	}, [ threats ] );
 
 	const settingsLink = useMemo( () => {
-		if ( isProtectPluginActive ) {
+		if ( isStandaloneActive ) {
 			return 'admin.php?page=jetpack-protect#/firewall';
 		}
 		return isJetpackPluginActive() ? 'admin.php?page=jetpack#/settings' : null;
-	}, [ isProtectPluginActive ] );
+	}, [ isStandaloneActive ] );
 
 	const trackFirewallSettingsLinkClick = useCallback( () => {
 		recordEvent( 'jetpack_protect_card_tooltip_content_link_click', {
@@ -84,7 +85,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 		} );
 	}, [ recordEvent, protectDashboardUrl ] );
 
-	const isBruteForcePluginsActive = isProtectPluginActive || isJetpackPluginActive();
+	const isBruteForcePluginsActive = isStandaloneActive || isJetpackPluginActive();
 
 	const blockedLoginsTooltip = useMemo( () => {
 		if ( blockedLoginsCount === 0 ) {
@@ -107,7 +108,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 									'Brute Force Protection is disabled and not actively blocking malicious login attempts. Go to <a>%s</a> to activate it.',
 									'jetpack-my-jetpack'
 								),
-								isProtectPluginActive ? 'firewall settings' : 'Jetpack settings'
+								isStandaloneActive ? 'firewall settings' : 'Jetpack settings'
 							),
 							{
 								a: createElement( 'a', {
@@ -143,7 +144,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 									'Brute Force Protection is disabled and not actively blocking malicious login attempts. Go to <a>%s</a> to activate it.',
 									'jetpack-my-jetpack'
 								),
-								isProtectPluginActive ? 'firewall settings' : 'Jetpack settings'
+								isStandaloneActive ? 'firewall settings' : 'Jetpack settings'
 							),
 							{
 								a: createElement( 'a', {
@@ -162,7 +163,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 		blockedLoginsCount,
 		hasBruteForceProtection,
 		isBruteForcePluginsActive,
-		isProtectPluginActive,
+		isStandaloneActive,
 		settingsLink,
 		trackFirewallSettingsLinkClick,
 	] );
@@ -206,7 +207,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 											numThreats
 										),
 										criticalThreatCount,
-										isProtectPluginActive ? 'Protect' : 'Scan'
+										isStandaloneActive ? 'Protect' : 'Scan'
 									),
 									{
 										a: createElement( 'a', {
@@ -227,7 +228,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 											_n( '%d threat', '%d threats', numThreats, 'jetpack-my-jetpack' ),
 											numThreats
 										),
-										isProtectPluginActive ? 'Protect' : 'Scan'
+										isStandaloneActive ? 'Protect' : 'Scan'
 									),
 									{
 										a: createElement( 'a', {
