@@ -301,7 +301,7 @@ export const JetpackContactFormEdit = forwardRef(
 				};
 				if ( key === uuid ) {
 					hiddenField.name = editMode === 'both' || editMode === 'name' ? newName : name;
-					hiddenField.value = editMode === 'both' || editMode === 'name' ? newValue : value;
+					hiddenField.value = editMode === 'both' || editMode === 'value' ? newValue : value;
 				}
 				return hiddenField;
 			} );
@@ -386,7 +386,9 @@ export const JetpackContactFormEdit = forwardRef(
 							onBlur={ () => validateHiddenFieldName( uuid, name ) }
 						/>
 					) }
-					{ ( ! edit || edit === 'value' || edit === 'none' ) && <span>{ name }</span> }
+					{ ( ! edit || edit === 'value' || edit === 'none' ) && (
+						<span className="jetpack-contact-form__hidden-fields-panel-name">{ name }</span>
+					) }
 					{ ( edit === 'both' || edit === 'value' ) && (
 						<TextControl
 							value={ value }
@@ -394,7 +396,9 @@ export const JetpackContactFormEdit = forwardRef(
 							onChange={ fieldValue => setter( uuid, name, fieldValue, edit ) }
 						/>
 					) }
-					{ ( ! edit || edit === 'value' || edit === 'none' ) && <span>{ value }</span> }
+					{ ( ! edit || edit === 'name' || edit === 'none' ) && (
+						<span className="jetpack-contact-form__hidden-fields-panel-value">{ value }</span>
+					) }
 				</div>
 			);
 		};
@@ -448,6 +452,7 @@ export const JetpackContactFormEdit = forwardRef(
 						{ isSalesForceExtensionEnabled && salesforceData?.sendToSalesforce && (
 							<SalesforceLeadFormSettings
 								salesforceData={ salesforceData }
+								hiddenFields={ hiddenFields }
 								setAttributes={ setAttributes }
 								instanceId={ instanceId }
 							/>

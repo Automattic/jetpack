@@ -436,7 +436,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$hidden_fields_html = '';
 			if ( isset( $attributes['hiddenFields'] ) && is_array( $attributes['hiddenFields'] ) ) {
 				foreach ( $attributes['hiddenFields'] as $hidden_field ) {
-					if ( ! empty( $hidden_field['name'] ) && empty( $hidden_field['value'] ) ) {
+					if (
+						! empty( $hidden_field['name'] ) &&
+						$hidden_field['name'] !== 'organization_id'
+						&& empty( $hidden_field['value'] )
+						) {
 						$hidden_fields_html .= sprintf(
 							'<input type="hidden" name="%1$s" value="%2$s">',
 							esc_attr( $hidden_field['name'] ),

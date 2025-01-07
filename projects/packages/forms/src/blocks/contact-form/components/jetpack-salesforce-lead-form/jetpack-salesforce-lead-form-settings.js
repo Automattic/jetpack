@@ -1,5 +1,5 @@
 import { BaseControl, PanelBody, TextControl, ExternalLink, Path } from '@wordpress/components';
-import { Fragment, useState } from '@wordpress/element';
+import { Fragment, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import HelpMessage from '../../components/help-message';
 import { getIconColor } from '../../util/block-icons';
@@ -82,6 +82,14 @@ export const salesforceLeadFormVariation = {
 			organizationId: '',
 			sendToSalesforce: true,
 		},
+		hiddenFields: [
+			{
+				uuid: crypto.getRandomValues( new Uint32Array( 1 ) )[ 0 ],
+				name: 'organization_id',
+				value: '',
+				edit: 'value',
+			},
+		],
 		style: {
 			spacing: {
 				padding: {
@@ -95,22 +103,18 @@ export const salesforceLeadFormVariation = {
 	},
 };
 
-export default ( { salesforceData, setAttributes, instanceId } ) => {
+export default ( { salesforceData, hiddenFields, setAttributes, instanceId } ) => {
 	const [ organizationIdError, setOrganizationIdError ] = useState( false );
 
-	const setSalesforceData = attributePair => {
-		setAttributes( {
-			salesforceData: {
-				...salesforceData,
-				...attributePair,
-			},
-		} );
-	};
-
-	const setOrganizationId = value => {
-		setOrganizationIdError( false );
-		setSalesforceData( { organizationId: value.trim() } );
-	};
+	useEffect( () => {
+		if (
+			salesforceData.organizationId &&
+			! hiddenFields.find( field => field.name === 'organization_id' )?.value
+		) {
+			setOrganizationId( salesforceData.organizationId );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- we only want to run this once
+	}, [] );
 
 	const onBlurOrgIdField = e => {
 		setOrganizationIdError( ! e.target.value.trim().match( /^[a-zA-Z0-9]{15,18}$/ ) );
@@ -126,13 +130,29 @@ export default ( { salesforceData, setAttributes, instanceId } ) => {
 		'font-size': '11px',
 	};
 
+	const setOrganizationId = newValue => {
+		const updatedFields = hiddenFields.map( field => {
+			if ( field.name === 'organization_id' ) {
+				return {
+					...field,
+					value: newValue,
+				};
+			}
+			return field;
+		} );
+
+		setAttributes( {
+			hiddenFields: updatedFields,
+		} );
+	};
+
 	return (
 		<Fragment>
 			<PanelBody title={ __( 'Salesforce', 'jetpack-forms' ) } initialOpen={ true }>
 				<BaseControl __nextHasNoMarginBottom={ true }>
 					<TextControl
 						label={ __( 'Organization ID', 'jetpack-forms' ) }
-						value={ salesforceData.organizationId || '' }
+						value={ hiddenFields.find( field => field.name === 'organization_id' )?.value || '' }
 						placeholder={ __( 'Enter your Organization ID', 'jetpack-forms' ) }
 						onBlur={ onBlurOrgIdField }
 						onChange={ setOrganizationId }

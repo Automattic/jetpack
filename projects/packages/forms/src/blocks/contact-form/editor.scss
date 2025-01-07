@@ -975,8 +975,18 @@
 	margin-bottom: 15px;
 
 	.jetpack-contact-form__hidden-fields-panel {
+		align-items: center;
+
 		& .components-base-control {
 			margin-bottom: 0;
+		}
+
+		.jetpack-contact-form__hidden-fields-panel-name {
+			padding-right: 5px;
+		}
+
+		.jetpack-contact-form__hidden-fields-panel-value {
+			padding-left: 5px;
 		}
 	}
 

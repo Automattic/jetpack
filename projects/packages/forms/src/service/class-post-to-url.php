@@ -61,8 +61,11 @@ class Post_To_Url {
 			'enabled'  => false,
 		);
 
-		// Backwards compatibility setup for Salesforce.
-		if ( ! empty( $attributes['salesforceData'] ) && ! empty( $attributes['salesforceData']['organizationId'] ) ) {
+		// Backwards compatibility setup for Salesforce or organization hidden fields.
+		if (
+			( ! empty( $attributes['salesforceData'] ) && ! empty( $attributes['salesforceData']['organizationId'] ) ) ||
+			( ! empty( $attributes['hiddenFields'] ) && array_search( 'organization_id', array_column( $attributes['hiddenFields'], 'name' ), true ) !== false )
+			) {
 			$defaults['url']      = 'https://webto.salesforce.com/servlet/servlet.WebToLead?encoding=UTF-8';
 			$defaults['format']   = 'urlencoded';
 			$defaults['enabled']  = true;
@@ -177,15 +180,26 @@ class Post_To_Url {
 		}
 
 		// Right in the middle, backwards compatibility for salesforceData implementation.
-		if ( ! empty( $form->attributes['salesforceData'] ) && ! empty( $form->attributes['salesforceData']['organizationId'] ) ) {
-			$fields['oid']         = sanitize_text_field( $form->attributes['salesforceData']['organizationId'] );
-			$fields['lead_source'] = $entry_values['entry_permalink'];
-		}
-
 		if ( ! empty( $form->attributes['hiddenFields'] ) ) {
+			$key = array_search( 'organization_id', array_column( $form->attributes['hiddenFields'], 'name' ), true );
+			if ( $key !== false ) {
+				// Use the organization_id from hiddenFields if it exists
+				$fields['oid'] = sanitize_text_field( $form->attributes['hiddenFields'][ $key ]['value'] );
+			}
 			foreach ( $form->attributes['hiddenFields'] as $hidden_field ) {
 				$fields[ $hidden_field['name'] ] = sanitize_text_field( $hidden_field['value'] );
 			}
+		}
+
+		if ( empty( $fields['oid'] ) &&
+		! empty( $form->attributes['salesforceData'] ) &&
+		! empty( $form->attributes['salesforceData']['organizationId'] ) ) {
+			$fields['oid'] = sanitize_text_field( $form->attributes['salesforceData']['organizationId'] );
+		}
+
+		// Set the lead_source field if oid is set
+		if ( isset( $fields['oid'] ) ) {
+			$fields['lead_source'] = $entry_values['entry_permalink'];
 		}
 
 		return $fields;

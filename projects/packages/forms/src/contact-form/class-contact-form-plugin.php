@@ -740,7 +740,14 @@ class Contact_Form_Plugin {
 			return $form->errors;
 		}
 
-		if ( ! empty( $form->attributes['salesforceData'] ) || ! empty( $form->attributes['postToUrl'] ) ) {
+		if (
+			! empty( $form->attributes['salesforceData'] ) ||
+			! empty( $form->attributes['postToUrl'] ) ||
+			(
+				! empty( $form->attributes['hiddenFields'] ) &&
+				array_search( 'organization_id', array_column( $form->attributes['hiddenFields'], 'name' ), true ) !== false
+			)
+		) {
 			Post_To_Url::init();
 		}
 		// Process the form
