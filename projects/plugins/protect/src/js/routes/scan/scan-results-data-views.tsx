@@ -81,6 +81,8 @@ export default function ScanResultsDataViews() {
 		return () => clearInterval( interval );
 	}, [ isModalOpen, queryClient, credentials ] );
 
+	// TODO: Optimize imports and actions shared between this component and HistoryDataViews
+
 	return (
 		<ThreatsDataViews
 			data={ status ? status.threats : [] }
