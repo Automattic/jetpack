@@ -1,11 +1,12 @@
 import { localPoint } from '@visx/event';
 import { Group } from '@visx/group';
-import Pie, { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
+import Pie, { type PieArcDatum } from '@visx/shape/lib/shapes/Pie';
 import { Text } from '@visx/text';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { FC, useCallback } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
+import { Legend } from '../legend';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../shared/types';
@@ -34,13 +35,15 @@ type ArcData = PieArcDatum< DataPointPercentage >;
 
 const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	data,
-	width,
+	width = 500, //TODO: replace when making the components responsive
 	label,
 	note,
 	className,
 	withTooltips = false,
 	clockwise = true,
 	thickness = 0.4,
+	showLegend,
+	legendOrientation,
 } ) => {
 	const providerTheme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
@@ -97,6 +100,13 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 		},
 		[ handleMouseMove ]
 	);
+
+	// Create legend items
+	const legendItems = data.map( ( item, index ) => ( {
+		label: item.label,
+		value: item.valueDisplay || item.value.toString(),
+		color: accessors.fill( { ...item, index } ),
+	} ) );
 
 	return (
 		<div
@@ -158,8 +168,16 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 						value: tooltipData.value,
 						valueDisplay: tooltipData.valueDisplay,
 					} }
-					top={ tooltipTop }
-					left={ tooltipLeft }
+					top={ tooltipTop || 0 }
+					left={ tooltipLeft || 0 }
+				/>
+			) }
+
+			{ showLegend && (
+				<Legend
+					items={ legendItems }
+					orientation={ legendOrientation }
+					className={ styles[ 'pie-semi-circle-chart-legend' ] }
 				/>
 			) }
 		</div>

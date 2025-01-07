@@ -219,9 +219,23 @@ add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
 		if ( apply_filters( 'jetpack_ai_enabled', true ) &&
-			apply_filters( 'ai_response_feedback_enabled', false )
+			apply_filters( 'ai_response_feedback_enabled', true )
 		) {
 			\Jetpack_Gutenberg::set_extension_available( 'ai-response-feedback' );
+		}
+	}
+);
+
+/**
+ * Register the `ai-seo-assistant` extension.
+ */
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		if ( apply_filters( 'jetpack_ai_enabled', true ) &&
+			apply_filters( 'ai_seo_assistant_enabled', false )
+		) {
+			\Jetpack_Gutenberg::set_extension_available( 'ai-seo-assistant' );
 		}
 	}
 );

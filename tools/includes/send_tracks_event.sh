@@ -14,8 +14,8 @@ function get_uuid {
 # - 1: Event name
 # - 2: An optional JSON-formatted payload of extra tracks params, e.g. `{"a":1, "b":2}`
 function send_tracks_event {
-	# Bail if no event name is provided.
-	if [[ -z "$1" ]]; then
+	# Bail if no event name is provided or JP_DISABLE_TRACKS is set.
+	if [[ -z "$1" || $JP_DISABLE_TRACKS == 1 ]]; then
 		return
 	fi
 

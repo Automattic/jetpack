@@ -1,7 +1,7 @@
 {
 	"name": "homepage-articles",
 	"category": "newspack",
-	"textdomain": "jetpack-mu-wpcom",
+	"apiVersion": 3,
 	"attributes": {
 		"className": {
 			"type": "string",
@@ -11,11 +11,19 @@
 			"type": "boolean",
 			"default": true
 		},
+		"showFullContent": {
+			"type": "boolean",
+			"default": false
+		},
 		"excerptLength": {
 			"type": "number",
 			"default": 55
 		},
 		"showReadMore": {
+			"type": "boolean",
+			"default": false
+		},
+		"infiniteScroll": {
 			"type": "boolean",
 			"default": false
 		},
@@ -239,5 +247,6 @@
 			"type": "boolean",
 			"default": true
 		}
-	}
+	},
+	"textdomain": "jetpack-mu-wpcom"
 }

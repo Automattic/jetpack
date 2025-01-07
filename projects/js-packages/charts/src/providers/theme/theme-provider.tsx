@@ -1,4 +1,4 @@
-import { createContext, useContext, FC, ReactNode } from 'react';
+import { createContext, useContext, FC, type ReactNode } from 'react';
 import { defaultTheme } from './themes';
 import type { ChartTheme } from '../../components/shared/types';
 

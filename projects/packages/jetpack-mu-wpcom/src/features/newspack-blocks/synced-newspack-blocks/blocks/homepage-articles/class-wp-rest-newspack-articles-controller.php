@@ -38,87 +38,87 @@ class WP_REST_Newspack_Articles_Controller extends WP_REST_Controller {
 		register_rest_route(
 			$this->namespace,
 			'/articles',
-			array(
-				array(
+			[
+				[
 					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_items' ),
+					'callback'            => [ $this, 'get_items' ],
 					'args'                => $this->get_attribute_schema(),
 					'permission_callback' => '__return_true',
-				),
-			)
+				],
+			]
 		);
 
 		// Endpoint to get articles in the editor, in regular/query mode.
 		register_rest_route(
 			$this->namespace,
 			'/newspack-blocks-posts',
-			array(
+			[
 				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => array( 'Newspack_Blocks_API', 'posts_endpoint' ),
+				'callback'            => [ 'Newspack_Blocks_API', 'posts_endpoint' ],
 				'args'                => array_merge(
 					$this->get_attribute_schema(),
-					array(
-						'exclude' => array( // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
+					[
+						'exclude' => [ // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
 							'type'    => 'array',
 							'items'   => array(
 								'type' => 'integer',
 							),
 							'default' => array(),
-						),
-						'include' => array(
+						],
+						'include' => [
 							'type'    => 'array',
 							'items'   => array(
 								'type' => 'integer',
 							),
 							'default' => array(),
-						),
-					)
+						],
+					]
 				),
-				'permission_callback' => function () {
+				'permission_callback' => function() {
 					return current_user_can( 'edit_posts' );
 				},
-			)
+			]
 		);
 
 		// Endpoint to get articles in the editor, in specific posts mode.
 		register_rest_route(
 			$this->namespace,
 			'/newspack-blocks-specific-posts',
-			array(
+			[
 				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => array( 'Newspack_Blocks_API', 'specific_posts_endpoint' ),
-				'args'                => array(
-					'search'      => array(
+				'callback'            => [ 'Newspack_Blocks_API', 'specific_posts_endpoint' ],
+				'args'                => [
+					'search'      => [
 						'sanitize_callback' => 'sanitize_text_field',
-					),
-					'postsToShow' => array(
+					],
+					'postsToShow' => [
 						'sanitize_callback' => 'absint',
-					),
-					'postType'    => array(
+					],
+					'postType'    => [
 						'type'    => 'array',
 						'items'   => array(
 							'type' => 'string',
 						),
 						'default' => array(),
-					),
-				),
-				'permission_callback' => function () {
+					],
+				],
+				'permission_callback' => function() {
 					return current_user_can( 'edit_posts' );
 				},
-			)
+			]
 		);
 
 		// Endpoint to get styles in the editor.
 		register_rest_route(
 			$this->namespace,
 			'/homepage-articles-css',
-			array(
+			[
 				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => array( 'Newspack_Blocks_API', 'css_endpoint' ),
-				'permission_callback' => function () {
+				'callback'            => [ 'Newspack_Blocks_API', 'css_endpoint' ],
+				'permission_callback' => function() {
 					return current_user_can( 'edit_posts' );
 				},
-			)
+			]
 		);
 	}
 
@@ -129,13 +129,18 @@ class WP_REST_Newspack_Articles_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function get_items( $request ) {
-		$page        = $request->get_param( 'page' ) ?? 1;
-		$exclude_ids = $request->get_param( 'exclude_ids' ) ?? array();
+		$page        = (int) $request->get_param( 'page' ) ?? 1;
+		$exclude_ids = $request->get_param( 'exclude_ids' ) ?? [];
 		$next_page   = $page + 1;
 		$attributes  = wp_parse_args(
-			$request->get_params() ?? array(),
+			$request->get_params() ?? [],
 			wp_list_pluck( $this->get_attribute_schema(), 'default' )
 		);
+
+		$deduplicate = $request->get_param( 'deduplicate' ) ?? 1;
+		if ( ! $deduplicate ) {
+			$exclude_ids = [];
+		}
 
 		$article_query_args = Newspack_Blocks::build_articles_query( $attributes, apply_filters( 'newspack_blocks_block_name', 'newspack-blocks/homepage-articles' ) );
 
@@ -143,23 +148,23 @@ class WP_REST_Newspack_Articles_Controller extends WP_REST_Controller {
 		$query = ! empty( $exclude_ids ) ?
 			array_merge(
 				$article_query_args,
-				array(
+				[
 					'post__not_in' => $exclude_ids, // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
-				)
+				]
 			) :
 			array_merge(
 				$article_query_args,
-				array(
+				[
 					'paged' => $page,
-				)
+				]
 			);
 
 		// Run Query.
 		$article_query = new WP_Query( $query );
 
 		// Defaults.
-		$items    = array();
-		$ids      = array();
+		$items    = [];
+		$ids      = [];
 		$next_url = '';
 
 		Newspack_Blocks::filter_excerpt( $attributes );
@@ -169,9 +174,9 @@ class WP_REST_Newspack_Articles_Controller extends WP_REST_Controller {
 			$article_query->the_post();
 			$html = Newspack_Blocks::template_inc(
 				__DIR__ . '/templates/article.php',
-				array(
+				[
 					'attributes' => $attributes,
-				)
+				]
 			);
 
 			$items[]['html'] = $html;
@@ -186,26 +191,26 @@ class WP_REST_Newspack_Articles_Controller extends WP_REST_Controller {
 			$next_url = add_query_arg(
 				array_merge(
 					array_map(
-						function ( $attribute ) {
+						function( $attribute ) {
 							return false === $attribute ? '0' : $attribute;
 						},
 						$attributes
 					),
-					array(
+					[
 						'exclude_ids' => false,
 						'page'        => $next_page,
-					)
+					]
 				),
 				rest_url( '/newspack-blocks/v1/articles' )
 			);
 		}
 
 		return rest_ensure_response(
-			array(
+			[
 				'items' => $items,
 				'ids'   => $ids,
 				'next'  => $next_url,
-			)
+			]
 		);
 	}
 
@@ -223,15 +228,15 @@ class WP_REST_Newspack_Articles_Controller extends WP_REST_Controller {
 
 			$this->attribute_schema = array_merge(
 				$block_json['attributes'],
-				array(
-					'exclude_ids' => array(
+				[
+					'exclude_ids' => [
 						'type'    => 'array',
-						'default' => array(),
-						'items'   => array(
+						'default' => [],
+						'items'   => [
 							'type' => 'integer',
-						),
-					),
-				)
+						],
+					],
+				]
 			);
 		}
 		return $this->attribute_schema;

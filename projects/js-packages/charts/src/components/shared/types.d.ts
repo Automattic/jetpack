@@ -7,12 +7,14 @@ export type DataPoint = {
 
 export type DataPointDate = {
 	date: Date;
+	label?: string;
 	value: number;
 };
 
 export type SeriesData = {
+	group?: string;
 	label: string;
-	data: DataPointDate[];
+	data: DataPointDate[] | DataPoint[];
 };
 
 export type MultipleDataPointsDate = {
@@ -96,4 +98,50 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 * Whether to show tooltips on hover. False by default.
 	 */
 	withTooltips?: boolean;
+	/**
+	 * Whether to show legend
+	 */
+	showLegend?: boolean;
+	/**
+	 * Legend orientation
+	 */
+	legendOrientation?: 'horizontal' | 'vertical';
+	/**
+	 * Grid visibility. x is default.
+	 */
+	gridVisibility?: 'x' | 'y' | 'xy' | 'none';
+};
+
+/**
+ * Properties for grid components
+ */
+export type GridProps = {
+	/**
+	 * Width of the grid in pixels
+	 */
+	width: number;
+	/**
+	 * Height of the grid in pixels
+	 */
+	height: number;
+	/**
+	 * Grid visibility. x is default.
+	 */
+	gridVisibility?: 'x' | 'y' | 'xy' | 'none';
+	/**
+	 * X-axis scale for the grid
+	 * TODO: Fix any type after resolving visx scale type issues
+	 */
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	xScale: any;
+	/**
+	 * Y-axis scale for the grid
+	 * TODO: Fix any type after resolving visx scale type issues
+	 */
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	yScale: any;
+	/**
+	 * Top offset for the grid
+	 */
+	top?: number;
 };

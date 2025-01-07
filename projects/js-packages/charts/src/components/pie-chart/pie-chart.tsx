@@ -1,16 +1,18 @@
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import clsx from 'clsx';
-import { SVGProps } from 'react';
+import { SVGProps, type MouseEvent } from 'react';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
+import { Legend } from '../legend';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
-import type { BaseChartProps, DataPoint } from '../shared/types';
+import type { BaseChartProps, DataPointPercentage } from '../shared/types';
+import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
 
 // TODO: add animation
 
-interface PieChartProps extends BaseChartProps< DataPoint[] > {
+interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
 	 * Inner radius in pixels. If > 0, creates a donut chart. Defaults to 0.
 	 */
@@ -25,11 +27,13 @@ interface PieChartProps extends BaseChartProps< DataPoint[] > {
  */
 const PieChart = ( {
 	data,
-	width,
-	height,
+	width = 500, //TODO: replace when making the components responsive
+	height = 500, //TODO: replace when making the components responsive
 	withTooltips = false,
 	innerRadius = 0,
 	className,
+	showLegend,
+	legendOrientation,
 }: PieChartProps ) => {
 	const providerTheme = useChartTheme();
 	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
@@ -43,10 +47,17 @@ const PieChart = ( {
 	const centerY = height / 2;
 
 	const accessors = {
-		value: d => d.value,
+		value: ( d: PieArcDatum< DataPointPercentage > ) => d.value,
 		// Use the color property from the data object as a last resort. The theme provides colours by default.
-		fill: d => d.color || providerTheme.colors[ d.index ],
+		fill: ( d: PieArcDatum< DataPointPercentage > ) => d?.color || providerTheme.colors[ d.index ],
 	};
+
+	// Create legend items from data
+	const legendItems = data.map( ( item, index ) => ( {
+		label: item.label,
+		value: item.value.toString(),
+		color: providerTheme.colors[ index % providerTheme.colors.length ],
+	} ) );
 
 	return (
 		<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
@@ -62,7 +73,8 @@ const PieChart = ( {
 							return pie.arcs.map( ( arc, index ) => {
 								const [ centroidX, centroidY ] = pie.path.centroid( arc );
 								const hasSpaceForLabel = arc.endAngle - arc.startAngle >= 0.25;
-								const handleMouseMove = event => onMouseMove( event, arc.data );
+								const handleMouseMove = ( event: MouseEvent< SVGElement > ) =>
+									onMouseMove( event, arc.data );
 
 								const pathProps: SVGProps< SVGPathElement > = {
 									d: pie.path( arc ) || '',
@@ -99,11 +111,20 @@ const PieChart = ( {
 					</Pie>
 				</Group>
 			</svg>
+
+			{ showLegend && (
+				<Legend
+					items={ legendItems }
+					orientation={ legendOrientation }
+					className={ styles[ 'pie-chart-legend' ] }
+				/>
+			) }
+
 			{ withTooltips && tooltipOpen && tooltipData && (
 				<BaseTooltip
 					data={ tooltipData }
-					top={ tooltipTop }
-					left={ tooltipLeft }
+					top={ tooltipTop || 0 }
+					left={ tooltipLeft || 0 }
 					style={ {
 						transform: 'translate(-50%, -100%)',
 					} }

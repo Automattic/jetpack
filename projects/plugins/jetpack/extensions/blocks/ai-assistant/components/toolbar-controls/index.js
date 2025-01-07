@@ -1,6 +1,10 @@
 /**
  * External dependencies
  */
+import {
+	PROMPT_TYPE_CHANGE_TONE,
+	PROMPT_TYPE_CHANGE_LANGUAGE,
+} from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -8,7 +12,6 @@ import { update, check } from '@wordpress/icons';
 /*
  * Internal dependencies
  */
-import { PROMPT_TYPE_CHANGE_TONE, PROMPT_TYPE_CHANGE_LANGUAGE } from '../../lib/prompt';
 import I18nDropdownControl from '../i18n-dropdown-control';
 import ImproveToolbarDropdownMenu from '../improve-dropdown-control';
 import PromptTemplatesControl from '../prompt-templates-control';
