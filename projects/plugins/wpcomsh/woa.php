@@ -250,31 +250,10 @@ function wpcomsh_woa_post_process_maybe_enable_wordads( $args, $assoc_args ) {
 		return;
 	}
 
-	$allowed_options = array(
-		'wordads_display_front_page',
-		'wordads_display_post',
-		'wordads_display_page',
-		'wordads_display_archive',
-		'enable_header_ad',
-		'wordads_second_belowpost',
-		'wordads_inline_enabled',
-		'wordads_ccpa_enabled',
-		'wordads_ccpa_privacy_policy_url',
-		'wordads_active',
-		'wordads_approved',
-		'wordads_house',
-		'wordads_unsafe',
-		'wordads_custom_adstxt',
-		'wordads_custom_adstxt_enabled',
-		'wordads_cmp_enabled',
-	);
-
 	foreach ( $options_decoded as $option => $value ) {
-		if ( in_array( $option, $allowed_options, true ) ) {
-			// Convert boolean options to string first to work around update_option not setting the option if the value is false.
-			// This sets the option to either '1' if true or '' if false.
-			update_option( $option, is_bool( $value ) ? (string) $value : $value );
-		}
+		// Convert boolean options to string first to work around update_option not setting the option if the value is false.
+		// This sets the option to either '1' if true or '' if false.
+		update_option( $option, is_bool( $value ) ? (string) $value : $value );
 	}
 
 	if ( ! defined( 'JETPACK__VERSION' ) || ! class_exists( 'Jetpack' ) ) {
