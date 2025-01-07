@@ -339,7 +339,7 @@ export default function FeaturedImage( {
 	const generateAgainText = __( 'Generate another image', 'jetpack' );
 	const generateText = __( 'Generate', 'jetpack' );
 
-	const hasContent = postContent || postTitle ? true : false;
+	const hasContent = postContent.trim?.() || postTitle.trim?.() ? true : false;
 	const hasPrompt = hasContent ? prompt.length >= 0 : prompt.length >= 3;
 	const disableInput = notEnoughRequests || currentPointer?.generating || requireUpgrade;
 	const disableAction = disableInput || ( ! hasContent && ! hasPrompt );

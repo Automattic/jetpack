@@ -1,7 +1,7 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { Button } from '@wordpress/components';
 import clsx from 'clsx';
-import SocialIcon from 'social-logos';
+import { SocialLogo } from 'social-logos';
 import { getNameBySite } from './utils';
 import './style.scss';
 
@@ -31,7 +31,7 @@ const SharingButtonEdit = ( { attributes, context } ) => {
 		<>
 			<li { ...blockProps }>
 				<Button className={ sharingButtonClass } style={ buttonStyle }>
-					<SocialIcon icon={ service } size={ 24 } />
+					<SocialLogo icon={ service } size={ 24 } />
 					<span className={ 'jetpack-sharing-button__service-label' }>{ socialLinkLabel }</span>
 				</Button>
 			</li>

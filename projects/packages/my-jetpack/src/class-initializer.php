@@ -21,7 +21,6 @@ use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
-use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
@@ -42,7 +41,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.2.0';
+	const PACKAGE_VERSION = '5.3.0';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -234,7 +233,7 @@ class Initializer {
 			$previous_score = $speed_score_history->latest( 1 );
 		}
 		$latest_score['previousScores'] = $previous_score['scores'] ?? array();
-		$scan_data                      = Protect_Status::get_status();
+		$scan_data                      = Products\Protect::get_protect_data();
 		self::update_historically_active_jetpack_modules();
 
 		$waf_config = array();
@@ -930,7 +929,8 @@ class Initializer {
 			return array_merge(
 				self::alert_if_missing_connection( $red_bubble_slugs ),
 				self::alert_if_last_backup_failed( $red_bubble_slugs ),
-				self::alert_if_paid_plan_expiring( $red_bubble_slugs )
+				self::alert_if_paid_plan_expiring( $red_bubble_slugs ),
+				self::alert_if_protect_has_threats( $red_bubble_slugs )
 			);
 		}
 	}
@@ -1045,7 +1045,7 @@ class Initializer {
 	 * @return array
 	 */
 	public static function alert_if_last_backup_failed( array $red_bubble_slugs ) {
-		// Make sure we're dealing with the backup product only
+		// Make sure we're dealing with the Backup product only
 		if ( ! Products\Backup::has_paid_plan_for_product() ) {
 			return $red_bubble_slugs;
 		}
@@ -1053,6 +1053,26 @@ class Initializer {
 		$backup_failed_status = Products\Backup::does_module_need_attention();
 		if ( $backup_failed_status ) {
 			$red_bubble_slugs['backup_failure'] = $backup_failed_status;
+		}
+
+		return $red_bubble_slugs;
+	}
+
+	/**
+	 * Add an alert slug if Protect has scan threats/vulnerabilities.
+	 *
+	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
+	 * @return array
+	 */
+	public static function alert_if_protect_has_threats( array $red_bubble_slugs ) {
+		// Make sure we're dealing with the Protect product only
+		if ( ! Products\Protect::has_paid_plan_for_product() ) {
+			return $red_bubble_slugs;
+		}
+
+		$protect_threats_status = Products\Protect::does_module_need_attention();
+		if ( $protect_threats_status ) {
+			$red_bubble_slugs['protect_has_threats'] = $protect_threats_status;
 		}
 
 		return $red_bubble_slugs;

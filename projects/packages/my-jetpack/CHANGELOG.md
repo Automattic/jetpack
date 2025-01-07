@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.3.0] - 2025-01-06
+### Added
+- My Jetpack: Added a new status for when Protect detects threats on the site. [#40628]
+- My Jetpack: Adds a red bubble and notice when Protect threats are detected. [#40719]
+- My Jetpack: introduce feature cards for recommendations in My Jetpack. [#40639]
+
+### Changed
+- Updated package dependencies. [#40705] [#40798] [#40810] [#40841]
+
+### Fixed
+- Tests: Fix failure on 31 December. [#40781]
+
 ## [5.2.0] - 2024-12-23
 ### Added
 - My Jetpack: add features as possible modules to the recommendations list. [#40492]
@@ -1883,6 +1895,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.3.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.2.0...5.3.0
 [5.2.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.1.2...5.2.0
 [5.1.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.1.1...5.1.2
 [5.1.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.1.0...5.1.1
