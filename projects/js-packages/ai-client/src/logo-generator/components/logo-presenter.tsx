@@ -9,6 +9,7 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import AiFeedbackThumbs from '../../components/ai-feedback/index.js';
 import CheckIcon from '../assets/icons/check.js';
 import LogoIcon from '../assets/icons/logo.js';
 import MediaIcon from '../assets/icons/media.js';
@@ -152,11 +153,50 @@ const LogoEmpty: React.FC = () => {
 	);
 };
 
+const RateLogo: React.FC< {
+	disabled: boolean;
+	ratedItem: string;
+	onRate: ( rating: string ) => void;
+} > = ( { disabled, ratedItem, onRate } ) => {
+	const { logos, selectedLogo } = useLogoGenerator();
+	const savedRatings = logos
+		.filter( logo => logo.rating )
+		.reduce( ( acc, logo ) => {
+			acc[ logo.url ] = logo.rating;
+			return acc;
+		}, {} );
+
+	return (
+		<AiFeedbackThumbs
+			disabled={ disabled }
+			ratedItem={ ratedItem }
+			feature="logo-generator"
+			savedRatings={ savedRatings }
+			options={ {
+				mediaLibraryId: selectedLogo.mediaId,
+				prompt: selectedLogo.description,
+			} }
+			onRate={ onRate }
+		/>
+	);
+};
+
 const LogoReady: React.FC< {
 	siteId: string;
 	logo: Logo;
 	onApplyLogo: ( mediaId: number ) => void;
 } > = ( { siteId, logo, onApplyLogo } ) => {
+	const handleRateLogo = ( rating: string ) => {
+		// Update localStorage
+		updateLogo( {
+			siteId,
+			url: logo.url,
+			newUrl: logo.url,
+			mediaId: logo.mediaId,
+			rating,
+		} );
+	};
+
 	return (
 		<>
 			<img
@@ -171,6 +211,7 @@ const LogoReady: React.FC< {
 				<div className="jetpack-ai-logo-generator-modal-presenter__actions">
 					<SaveInLibraryButton siteId={ siteId } />
 					<UseOnSiteButton onApplyLogo={ onApplyLogo } />
+					<RateLogo ratedItem={ logo.url } disabled={ false } onRate={ handleRateLogo } />
 				</div>
 			</div>
 		</>

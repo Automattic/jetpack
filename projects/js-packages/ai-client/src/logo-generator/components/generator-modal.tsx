@@ -91,7 +91,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 
 			// Then generate the logo based on the prompt.
 			setLoadingState( 'generating' );
-			await generateLogo( { prompt } );
+			await generateLogo( { prompt, style: 'none' } );
 			setLoadingState( null );
 		} catch ( error ) {
 			debug( 'Error generating first logo', error );

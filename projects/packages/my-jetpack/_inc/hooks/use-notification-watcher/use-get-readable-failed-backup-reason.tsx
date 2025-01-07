@@ -15,7 +15,9 @@ export type ReasonContent = {
 export function useGetReadableFailedBackupReason(): ReasonContent {
 	const { backup_failure: backupFailure } =
 		getMyJetpackWindowInitialState( 'redBubbleAlerts' ) || {};
-	const { status } = backupFailure || {};
+	const {
+		data: { status },
+	} = backupFailure || { data: {} };
 
 	const reasonContent = useMemo( () => {
 		switch ( status ) {

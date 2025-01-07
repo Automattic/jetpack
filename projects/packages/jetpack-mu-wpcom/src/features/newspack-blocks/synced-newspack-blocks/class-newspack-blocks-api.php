@@ -16,7 +16,7 @@ class Newspack_Blocks_API {
 	 * @return array | bool Featured image if available, false if not.
 	 */
 	public static function newspack_blocks_get_image_src( $object_info ) {
-		$featured_image_set = array();
+		$featured_image_set = [];
 
 		if ( 0 === $object_info['featured_media'] ) {
 			return false;
@@ -80,7 +80,7 @@ class Newspack_Blocks_API {
 	 * @return array Author data.
 	 */
 	public static function newspack_blocks_get_author_info( $object_info ) {
-		$author_data = array();
+		$author_data = [];
 
 		if ( function_exists( 'coauthors_posts_links' ) && ! empty( get_coauthors() ) ) :
 			$authors = get_coauthors();
@@ -181,16 +181,16 @@ class Newspack_Blocks_API {
 			)
 		);
 		if ( ! empty( $sponsors ) ) {
-			$sponsor_info = array();
+			$sponsor_info = [];
 			foreach ( $sponsors as $sponsor ) {
-				$sponsor_info_item = array(
+				$sponsor_info_item = [
 					'flag'          => $sponsor['sponsor_flag'],
 					'sponsor_name'  => $sponsor['sponsor_name'],
 					'sponsor_url'   => $sponsor['sponsor_url'],
 					'byline_prefix' => $sponsor['sponsor_byline'],
 					'id'            => $sponsor['sponsor_id'],
 					'scope'         => $sponsor['sponsor_scope'],
-				);
+				];
 				if ( ! empty( $sponsor['sponsor_logo'] ) ) {
 					$sponsor_info_item['src']        = $sponsor['sponsor_logo']['src'];
 					$sponsor_info_item['img_width']  = $sponsor['sponsor_logo']['img_width'];
@@ -222,13 +222,13 @@ class Newspack_Blocks_API {
 		register_rest_route(
 			'newspack-blocks/v1',
 			'/video-playlist',
-			array(
+			[
 				'methods'             => 'GET',
-				'callback'            => array( 'Newspack_Blocks_API', 'video_playlist_endpoint' ),
-				'permission_callback' => function () {
+				'callback'            => [ 'Newspack_Blocks_API', 'video_playlist_endpoint' ],
+				'permission_callback' => function() {
 					return current_user_can( 'edit_posts' );
 				},
-			)
+			]
 		);
 	}
 
@@ -264,15 +264,15 @@ class Newspack_Blocks_API {
 		}
 
 		if ( isset( $attributes['showExcerpt'], $attributes['excerptLength'] ) ) {
-			$block_attributes = array(
+			$block_attributes = [
 				'showExcerpt'   => $attributes['showExcerpt'],
 				'excerptLength' => $attributes['excerptLength'],
-			);
+			];
 			Newspack_Blocks::filter_excerpt( $block_attributes );
 		}
 
 		$query = new WP_Query( $args );
-		$posts = array();
+		$posts = [];
 
 		foreach ( $query->posts as $post ) {
 			$GLOBALS['post'] = $post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -285,27 +285,28 @@ class Newspack_Blocks_API {
 			// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 
 			$meta = new WP_REST_Post_Meta_Fields( 'post' );
-			$data = array(
+			$data = [
 				'author'              => (int) $post->post_author,
-				'content'             => array(
+				'content'             => [
 					'rendered' => post_password_required( $post ) ? '' : $content,
-				),
+				],
 				'date'                => Newspack_Blocks::get_displayed_post_date( $post ),
 				'date_formatted'      => Newspack_Blocks::get_formatted_displayed_post_date( $post ),
 				'article_meta_footer' => Newspack_Blocks::get_article_meta_footer( $post ),
-				'excerpt'             => array(
+				'excerpt'             => [
 					'rendered' => post_password_required( $post ) ? '' : $excerpt,
-				),
+				],
+				'full_content'        => get_the_content( $post->ID ),
 				'featured_media'      => (int) get_post_thumbnail_id( $post->ID ),
 				'id'                  => $post->ID,
 				'meta'                => $meta->get_value( $post->ID, $request ),
-				'title'               => array(
+				'title'               => [
 					'rendered' => get_the_title( $post->ID ),
-				),
-			);
+				],
+			];
 
 			$sponsors = Newspack_Blocks::get_all_sponsors( $post->ID );
-			$add_ons  = array(
+			$add_ons  = [
 				'newspack_article_classes'          => Newspack_Blocks::get_term_classes( $data['id'] ),
 				'newspack_author_info'              => self::newspack_blocks_get_author_info( $data ),
 				'newspack_category_info'            => self::newspack_blocks_get_primary_category( $data ),
@@ -318,7 +319,7 @@ class Newspack_Blocks_API {
 				'post_status'                       => $post->post_status,
 				'post_type'                         => $post->post_type,
 				'post_link'                         => Newspack_Blocks::get_post_link( $post->ID ),
-			);
+			];
 
 			// Support Newspack Listings hide author/publish date options.
 			if ( class_exists( 'Newspack_Listings\Core' ) ) {
@@ -343,15 +344,15 @@ class Newspack_Blocks_API {
 	public static function specific_posts_endpoint( $request ) {
 		$params = $request->get_params();
 		if ( empty( $params['search'] ) ) {
-			return new \WP_REST_Response( array() );
+			return new \WP_REST_Response( [] );
 		}
-		add_filter( 'posts_where', array( 'Newspack_Blocks_API', 'add_post_title_wildcard_search' ), 10, 2 );
+		add_filter( 'posts_where', [ 'Newspack_Blocks_API', 'add_post_title_wildcard_search' ], 10, 2 );
 
-		$args = array(
+		$args = [
 			'post_status'           => 'publish',
 			'title_wildcard_search' => esc_sql( $params['search'] ),
 			'posts_per_page'        => $params['postsToShow'],
-		);
+		];
 
 		if ( $params['postType'] && count( $params['postType'] ) ) {
 			$args['post_type'] = $params['postType'];
@@ -360,14 +361,14 @@ class Newspack_Blocks_API {
 		}
 
 		$query = new WP_Query( $args );
-		remove_filter( 'posts_where', array( 'Newspack_Blocks_API', 'add_post_title_wildcard_search' ), 10, 2 );
+		remove_filter( 'posts_where', [ 'Newspack_Blocks_API', 'add_post_title_wildcard_search' ], 10, 2 );
 		return new \WP_REST_Response(
 			array_map(
-				function ( $post ) {
-					return array(
+				function( $post ) {
+					return [
 						'id'    => $post->ID,
 						'title' => $post->post_title,
-					);
+					];
 				},
 				$query->posts
 			),
@@ -394,10 +395,10 @@ class Newspack_Blocks_API {
 	 */
 	public static function css_endpoint() {
 		return newspack_blocks_get_homepage_articles_css_string(
-			array(
+			[
 				'typeScale'    => range( 1, 10 ),
-				'showSubtitle' => array( 1 ),
-			)
+				'showSubtitle' => [ 1 ],
+			]
 		);
 	}
 }
