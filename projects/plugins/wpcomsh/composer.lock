@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "968ee97b016c98ecc588293d5e0b4d65",
+    "content-hash": "8c59e3217b08130af57bb70a9a912b62",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -472,7 +472,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/classic-theme-helper",
-                "reference": "313ac02e74dbf44eec1ddbf485af492b66d96a9a"
+                "reference": "198fd841c5341850e247c46168d77b1bc6a13a34"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -490,7 +490,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.7.x-dev"
+                    "dev-trunk": "0.8.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-classic-theme-helper/compare/v${old}...v${new}"
@@ -1583,7 +1583,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "81b274e63676b0387a26b3982e70fa12a7a9168b"
+                "reference": "1c417716d5cc3ebd7c5901e07fafed23bd6f7a4e"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1610,7 +1610,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.14.x-dev"
+                    "dev-trunk": "0.15.x-dev"
                 },
                 "textdomain": "jetpack-stats"
             },
@@ -1650,7 +1650,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "e332c4c9c56ee97ecaac7cd6334764be889eae86"
+                "reference": "232ea7c6e2071e865da15242bf6c466ef66af891"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1674,7 +1674,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.23.x-dev"
+                    "dev-trunk": "0.24.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {
@@ -1787,7 +1787,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "60ef0ba8f14f719aa2f69b33c2526fb066596627"
+                "reference": "ece2cb5be16c8bc399fb6681a61ffa42b42e3cf5"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1820,7 +1820,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.1.x-dev"
+                    "dev-trunk": "4.2.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -2140,15 +2140,15 @@
         },
         {
             "name": "wordpress/classic-editor-plugin",
-            "version": "1.5",
+            "version": "1.6.7",
             "source": {
                 "type": "svn",
                 "url": "https://plugins.svn.wordpress.org/classic-editor/",
-                "reference": "tags/1.5/"
+                "reference": "tags/1.6.7/"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://downloads.wordpress.org/plugin/classic-editor.1.5.zip"
+                "url": "https://downloads.wordpress.org/plugin/classic-editor.1.6.7.zip"
             },
             "type": "library",
             "autoload": {

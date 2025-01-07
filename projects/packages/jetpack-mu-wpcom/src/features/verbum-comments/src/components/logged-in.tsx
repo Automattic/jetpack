@@ -10,10 +10,11 @@ import { NewPostsNotifications } from './new-posts-notifications';
 
 /**
  * Replace the first occurrence of %s in a string with a parameter.
- * @param s     - string to replace
- * @param param - parameter to replace with
+ * @param {string} s     - string to replace
+ * @param {string} param - parameter to replace with
+ * @return {string} The string with the first occurrence of %s replaced by the parameter.
  */
-function sprintf( s: string, param: string ) {
+function sprintf( s: string, param: string ): string {
 	return s.replace( '%s', param );
 }
 

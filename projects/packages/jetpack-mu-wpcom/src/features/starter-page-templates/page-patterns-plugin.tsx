@@ -28,6 +28,7 @@ type CoreNuxPlaceholder = {
  * Recursively finds the Content block if any.
  *
  * @param blocks - The current blocks
+ * @return Block found, if any
  */
 function findPostContentBlock( blocks: BlockInstance[] ): BlockInstance | null {
 	for ( const block of blocks ) {
@@ -45,9 +46,10 @@ function findPostContentBlock( blocks: BlockInstance[] ): BlockInstance | null {
 /**
  * Starter page templates feature plugin
  *
- * @param props - An object that receives the page patterns
+ * @param  props - An object that receives the page patterns
+ * @return {JSX.Element} The rendered page pattern modal component.
  */
-export function PagePatternsPlugin( props: PagePatternsPluginProps ) {
+export function PagePatternsPlugin( props: PagePatternsPluginProps ): JSX.Element {
 	const { setOpenState } = useDispatch( pageLayoutStore );
 	const { setUsedPageOrPatternsModal } = useDispatch( 'automattic/wpcom-welcome-guide' );
 	const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );

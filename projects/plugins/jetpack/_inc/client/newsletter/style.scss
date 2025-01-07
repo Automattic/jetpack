@@ -26,11 +26,15 @@
 	}
 }
 
-.newsletter-colapsable {
+.newsletter-collapsable {
 	grid-template-rows: 1fr;
 	transition: grid-template-rows 500ms;
 	display: grid;
 	position: relative;
+
+	p {
+		font-weight: 600;
+	}
 
 	.tree-dropdown {
 		animation: categories-slide-down 500ms;
@@ -38,16 +42,14 @@
 	}
 
 	&.hide {
-		.tree-dropdown {
-			animation: categories-slide-up 500ms;
-			overflow: hidden;
-		}
-
+		animation: categories-slide-up 500ms;
+		max-height: 0px;
+		overflow: hidden;
 		grid-template-rows: 0fr;
 	}
 }
 
-.newsletter-card-colapsable {
+.newsletter-card-collapsable {
 	transition: max-height 500ms;
 	max-height: 60px;
 

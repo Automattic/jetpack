@@ -131,7 +131,8 @@ const EvaluationRecommendations: FC = () => {
 					fluid
 				>
 					{ recommendedModules.map( module => {
-						const Card = JetpackModuleToProductCard[ module ];
+						const moduleName = module.replace( 'feature_', '' );
+						const Card = JetpackModuleToProductCard[ moduleName ];
 						return (
 							Card && (
 								<Col tagName="li" key={ module } lg={ 4 }>

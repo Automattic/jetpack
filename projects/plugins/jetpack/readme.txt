@@ -326,19 +326,29 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.2-a.1 - 2024-12-09
+### 14.2-beta - 2025-01-06
 #### Enhancements
-- Stats: Allow fetching stats for specific sites when programatically fetching stats using Jetpack's tools.
-- Stats: Sunset Legacy Stats experience.
+- Social: Improve Jetpack Likes behavior for better theme integration if the post has likes.
+- Stats: Allow programatically fetching stats for specific sites when using Jetpack's tools.
 - Stats: Enable sparkline chart in the WP Admin bar.
+- Stats: Sunset Legacy Stats experience.
 
 #### Improved compatibility
-- External media: Google Photos Picker: Update UX opening picker right after pressing "change selection" CTA.
+- Google Photos Picker: Update UX opening picker right after pressing "change selection" CTA.
+- Jetpack Testimonials: Ensure feature loads via the Classic Theme Helper package instead of the module.
 - SEO: Ensure support for adding an SEO title and description for custom post types.
 - WordPress 6.7 Compatibility: Fix notices caused by translation calls happening too early in the load order.
 
 #### Bug fixes
+- Facebook Embeds: Add a white background to embeds to avoid transparent background interfering with readability.
+- Form Block: Fix validation of URL input types to allow query strings.
 - Google Fonts: Clean up the Google Fonts data if either the Google Fonts module is disabled or Jetpack is disabled.
+- Import: Set WP_IMPORTING constant correctly when doing an import.
+- SEO: Ensure that SEO fields are not visible when another SEO plugin is active.
+- Shortcode embeds: Ensure Instagram reels are properly displayed in AMP views.
+- Shortcodes: Prevent conflict with third-party SoundCloud shortcodes.
+- Slideshow block: Fix block display when added within a Stack block.
+- WooCommerce Analytics: Fix fatal error when WooCommerce cart object is not available.
 
 --------
 

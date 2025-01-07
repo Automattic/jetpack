@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.47.5] - 2025-01-06
+### Changed
+- Updated package dependencies. [#40784] [#40792] [#40797] [#40813] [#40843]
+
+## [0.47.4] - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564]
+
+### Fixed
+- Fix missing instant search dialog for themes like Rebalance. [#40472]
+
 ## [0.47.3] - 2024-12-09
 ### Changed
 - Updated package dependencies. [#40363]
@@ -1096,6 +1107,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.47.5]: https://github.com/Automattic/jetpack-search/compare/v0.47.4...v0.47.5
+[0.47.4]: https://github.com/Automattic/jetpack-search/compare/v0.47.3...v0.47.4
 [0.47.3]: https://github.com/Automattic/jetpack-search/compare/v0.47.2...v0.47.3
 [0.47.2]: https://github.com/Automattic/jetpack-search/compare/v0.47.1...v0.47.2
 [0.47.1]: https://github.com/Automattic/jetpack-search/compare/v0.47.0...v0.47.1

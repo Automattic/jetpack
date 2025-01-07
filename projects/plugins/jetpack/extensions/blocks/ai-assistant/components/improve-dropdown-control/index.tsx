@@ -1,6 +1,11 @@
 /*
  * External dependencies
  */
+import {
+	PROMPT_TYPE_MAKE_LONGER,
+	PROMPT_TYPE_MAKE_SHORTER,
+	PROMPT_TYPE_SUMMARIZE,
+} from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import {
 	MenuItem,
@@ -14,38 +19,33 @@ import { __ } from '@wordpress/i18n';
 import { pencil } from '@wordpress/icons';
 
 export const IMPROVE_KEY_MAKE_LONGER = 'make-longer' as const;
-const IMPROVE_SUGGESTION_MAKE_LONGER = 'makeLonger' as const;
-
 export const IMPROVE_KEY_MAKE_SHORTER = 'make-shorter' as const;
-const IMPROVE_SUGGESTION_MAKE_SHORTER = 'makeShorter' as const;
-
 export const IMPROVE_KEY_SUMMARIZE = 'summarize' as const;
-const IMPROVE_SUGGESTION_SUMMARIZE = 'summarize' as const;
 
 type ImproveKeyProp =
 	| typeof IMPROVE_KEY_SUMMARIZE
 	| typeof IMPROVE_KEY_MAKE_LONGER
 	| typeof IMPROVE_KEY_MAKE_SHORTER;
 type ImproveSuggestionProp =
-	| typeof IMPROVE_SUGGESTION_SUMMARIZE
-	| typeof IMPROVE_SUGGESTION_MAKE_LONGER
-	| typeof IMPROVE_SUGGESTION_MAKE_SHORTER;
+	| typeof PROMPT_TYPE_SUMMARIZE
+	| typeof PROMPT_TYPE_MAKE_LONGER
+	| typeof PROMPT_TYPE_MAKE_SHORTER;
 
 const quickActionsList = [
 	{
 		name: __( 'Summarize', 'jetpack' ),
 		key: IMPROVE_KEY_SUMMARIZE,
-		aiSuggestion: IMPROVE_SUGGESTION_SUMMARIZE,
+		aiSuggestion: PROMPT_TYPE_SUMMARIZE,
 	},
 	{
 		name: __( 'Make longer', 'jetpack' ),
 		key: IMPROVE_KEY_MAKE_LONGER,
-		aiSuggestion: IMPROVE_SUGGESTION_MAKE_LONGER,
+		aiSuggestion: PROMPT_TYPE_MAKE_LONGER,
 	},
 	{
 		name: __( 'Make shorter', 'jetpack' ),
 		key: IMPROVE_KEY_MAKE_SHORTER,
-		aiSuggestion: IMPROVE_SUGGESTION_MAKE_SHORTER,
+		aiSuggestion: PROMPT_TYPE_MAKE_SHORTER,
 	},
 ];
 

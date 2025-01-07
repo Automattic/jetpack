@@ -2,12 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import { useFetchingErrorNotice } from './notices/use-fetching-error-notice';
-import type {
-	UseMutationOptions,
-	UseMutateFunction,
-	// This variable is being used as a type declaration
-	UseMutationResult,
-} from '@tanstack/react-query';
+import type { UseMutationOptions, UseMutateFunction } from '@tanstack/react-query';
 import type { APIFetchOptions } from '@wordpress/api-fetch';
 
 export type APIFetchOptionsWithQueryParams = APIFetchOptions & {
@@ -33,7 +28,7 @@ export type MutateCallback = UseMutateFunction<
  * @param {APIFetchOptions}                       params.query          - The options to be passed to the API fetch function for the mutation.
  * @param {Pick<UseMutationOptions, 'onSuccess'>} [params.options]      - Optional. Mutation options from react-query, currently supports only the 'onSuccess' option.
  * @param {string}                                [params.errorMessage] - Optional. A custom error message that can be displayed if the mutation fails.
- * @return {UseMutationResult<T>} The result object from the useMutation hook, containing data and state information about the mutation (e.g., isPending, isError).
+ * @return {import('@tanstack/react-query').UseMutationResult<T>} The result object from the useMutation hook, containing data and state information about the mutation (e.g., isPending, isError).
  */
 
 type QueryParams< T, E, V > = {
