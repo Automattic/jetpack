@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Don't replace RTL styles; no stylesheet exists
