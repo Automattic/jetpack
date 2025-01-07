@@ -1,5 +1,5 @@
 import { ThreatsDataViews } from '@automattic/jetpack-components';
-import { type Threat, CURRENT_TABLE_FIELDS } from '@automattic/jetpack-scan';
+import { type Threat } from '@automattic/jetpack-scan';
 import { useCallback } from 'react';
 import useScanStatusQuery from '../../data/scan/use-scan-status-query';
 import useModal from '../../hooks/use-modal';
@@ -32,7 +32,6 @@ export default function ScanResultsDataViews() {
 	return (
 		<ThreatsDataViews
 			data={ status ? status.threats : [] }
-			initialFields={ CURRENT_TABLE_FIELDS }
 			onFixThreats={ onFixThreats }
 			onIgnoreThreats={ onIgnoreThreats }
 			header={ <ScanToggleGroupControl /> }

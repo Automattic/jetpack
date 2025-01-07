@@ -1,5 +1,5 @@
-import { ThreatsDataViews } from '@automattic/jetpack-components';
-import { type Threat, HISTORIC_TABLE_FIELDS } from '@automattic/jetpack-scan';
+import { ThreatsDataViews, HISTORIC_TABLE_FIELDS } from '@automattic/jetpack-components';
+import { type Threat } from '@automattic/jetpack-scan';
 import { useCallback, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import useHistoryQuery from '../../../data/scan/use-history-query';
