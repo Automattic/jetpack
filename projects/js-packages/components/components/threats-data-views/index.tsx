@@ -43,6 +43,8 @@ import {
 } from './constants';
 import styles from './styles.module.scss';
 
+export { HISTORIC_TABLE_FIELDS } from './constants';
+
 /**
  * DataViews component for displaying security threats.
  *
