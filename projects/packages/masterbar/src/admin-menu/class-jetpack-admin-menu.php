@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Masterbar;
 use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Host;
 
 require_once __DIR__ . '/class-admin-menu.php';
 
