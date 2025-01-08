@@ -155,7 +155,7 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 	/**
 	 * Handle regeneration of Cloud CSS when a post is saved.
 	 */
-	public function handle_save_post( $post_id, $post ) {
+	public function handle_save_post( $post_id, $post ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( ! $post || ! isset( $post->post_type ) || ! is_post_publicly_viewable( $post ) ) {
 			return;
 		}
