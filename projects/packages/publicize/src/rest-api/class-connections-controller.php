@@ -247,7 +247,9 @@ class Connections_Controller extends Base_Controller {
 		}
 
 		$path = add_query_arg(
-			$args,
+			array(
+				'test_connections' => $args['test_connections'] ?? false,
+			),
 			sprintf( '/sites/%d/publicize/connections', $site_id )
 		);
 
