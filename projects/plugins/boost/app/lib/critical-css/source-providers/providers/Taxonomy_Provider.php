@@ -26,14 +26,14 @@ class Taxonomy_Provider extends Provider {
 	 *
 	 * @var integer
 	 */
-	const MAX_URLS = 20;
+	const MAX_URLS = 10;
 
 	/**
 	 * Minimum number of posts to have Critical CSS generated in order for the whole process to be successful.
 	 *
 	 * @var integer
 	 */
-	const MIN_SUCCESS_URLS = 10;
+	const MIN_SUCCESS_URLS = 5;
 
 	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
