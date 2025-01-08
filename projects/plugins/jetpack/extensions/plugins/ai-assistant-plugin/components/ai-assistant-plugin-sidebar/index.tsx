@@ -17,14 +17,14 @@ import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import useAiProductPage from '../../../../blocks/ai-assistant/hooks/use-ai-product-page';
 import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
-import { isBetaExtension } from '../../../../editor';
+// import { isBetaExtension } from '../../../../editor';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import { PLAN_TYPE_FREE, PLAN_TYPE_UNLIMITED, usePlanType } from '../../../../shared/use-plan-type';
 import { FeaturedImage } from '../ai-image';
 import { Breve, registerBreveHighlights, Highlight } from '../breve';
 import { getBreveAvailability, canWriteBriefBeEnabled } from '../breve/utils/get-availability';
 import Feedback from '../feedback';
-import SeoAssistant from '../seo-assistant';
+// import SeoAssistant from '../seo-assistant';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
 import {
@@ -60,7 +60,7 @@ const isAITitleOptimizationKeywordsFeatureAvailable = getFeatureAvailability(
 	'ai-title-optimization-keywords-support'
 );
 
-const isSeoAssistantEnabled = getFeatureAvailability( 'ai-seo-assistant' );
+// const isSeoAssistantEnabled = getFeatureAvailability( 'ai-seo-assistant' );
 
 const JetpackAndSettingsContent = ( {
 	placement,
@@ -72,14 +72,14 @@ const JetpackAndSettingsContent = ( {
 	const { checkoutUrl } = useAICheckout();
 	const { productPageUrl } = useAiProductPage();
 	const isBreveAvailable = getBreveAvailability();
-	const isViewable = useSelect( select => {
-		const postTypeName = select( editorStore ).getCurrentPostType();
-		const postTypeObject = ( select( coreStore ) as unknown as CoreSelect ).getPostType(
-			postTypeName
-		);
+	// const isViewable = useSelect( select => {
+	// 	const postTypeName = select( editorStore ).getCurrentPostType();
+	// 	const postTypeObject = ( select( coreStore ) as unknown as CoreSelect ).getPostType(
+	// 		postTypeName
+	// 	);
 
-		return postTypeObject?.viewable;
-	}, [] );
+	// 	return postTypeObject?.viewable;
+	// }, [] );
 
 	const currentTitleOptimizationSectionLabel = __( 'Optimize Publishing', 'jetpack' );
 	const SEOTitleOptimizationSectionLabel = __( 'Optimize Title', 'jetpack' );
@@ -97,7 +97,7 @@ const JetpackAndSettingsContent = ( {
 				</PanelRow>
 			) }
 
-			{ isSeoAssistantEnabled && isViewable && (
+			{ /* { isSeoAssistantEnabled && isViewable && (
 				<PanelRow
 					className={ `jetpack-ai-sidebar__feature-section ${
 						isBetaExtension( 'ai-seo-assistant' ) ? 'is-beta-extension' : ''
@@ -108,7 +108,7 @@ const JetpackAndSettingsContent = ( {
 						<SeoAssistant disabled={ false } />
 					</BaseControl>
 				</PanelRow>
-			) }
+			) } */ }
 
 			{ canWriteBriefBeEnabled() && isBreveAvailable && (
 				<PanelRow>
