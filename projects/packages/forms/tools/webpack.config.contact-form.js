@@ -120,9 +120,9 @@ const weirdRtlEntries = {};
 // Weird frontend CSS files, only a minified rtl is built (and without the ".min" extension).
 // The ltr version is apparently used unminified.
 for ( const name of [
-	'contact-form/css/grunion',
-	'contact-form/css/grunion-admin',
-	'contact-form/css/grunion-editor-ui',
+	'src/contact-form/css/grunion',
+	'src/contact-form/css/grunion-admin',
+	'src/contact-form/css/grunion-editor-ui',
 ] ) {
 	weirdRtlEntries[ name ] = path.join( __dirname, '..', name + '.css' );
 }
