@@ -857,7 +857,10 @@ class Main extends React.Component {
 					<AdminNotices />
 					<JetpackNotices />
 					{ this.shouldConnectUser() && this.connectUser() }
-					{ /* This is no longer supported as of react-router-dom v6: https://github.com/remix-run/react-router/issues/8139
+					{ /*
+					This component was removed as of react-router-dom v6: https://github.com/remix-run/react-router/issues/8139
+					It could probably be brought back with `unstable_usePrompt`, but that would require jumping through hoops with
+					createHashRouter(), etc., and is already not reliable cross-browser anyway.
 					<Prompt
 						when={ this.props.areThereUnsavedSettings }
 						message={ this.handleRouterWillLeave }
