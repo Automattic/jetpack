@@ -5,9 +5,9 @@ import { createRoot, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	Icon,
+	archive,
 	category,
 	commentContent,
-	gallery,
 	pages,
 	postComments,
 	tag,
@@ -23,7 +23,7 @@ const Notice = () => {
 	const icons = {
 		'edit.php': verse,
 		'edit.php?post_type=page': pages,
-		'edit.php?post_type=jetpack-portfolio': gallery,
+		'edit.php?post_type=jetpack-portfolio': archive,
 		'edit.php?post_type=jetpack-testimonial': commentContent,
 		'edit-comments.php': postComments,
 		'edit-tags.php?taxonomy=category': category,
