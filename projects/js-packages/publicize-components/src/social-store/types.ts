@@ -18,10 +18,6 @@ export type Connection = {
 	/**
 	 * @deprecated
 	 */
-	can_disconnect?: boolean;
-	/**
-	 * @deprecated
-	 */
 	done?: boolean;
 	/**
 	 * @deprecated Use `status` instead.

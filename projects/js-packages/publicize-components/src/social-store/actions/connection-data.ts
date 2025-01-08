@@ -362,7 +362,6 @@ export function createConnection( data, optimisticData = {} ) {
 					// Updating the connection will also override the connection_id.
 					updateConnection( tempId, {
 						...connection,
-						can_disconnect: true,
 						// For editor, we always enable the connection by default.
 						enabled: true,
 					} )
