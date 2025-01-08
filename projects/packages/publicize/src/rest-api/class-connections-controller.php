@@ -53,10 +53,9 @@ class Connections_Controller extends Base_Controller {
 						'scope'            => array(
 							'type'        => 'string',
 							'description' => __( 'Which connections to include in the response.', 'jetpack-publicize-pkg' )
-							. ' ' . __( 'By default, the endpoint returns the connections that belong to the current user.', 'jetpack-publicize-pkg' ),
+							. ' ' . __( 'By default, the endpoint returns the connections that belong to the current user and the shared ones.', 'jetpack-publicize-pkg' ),
 							'enum'        => array(
 								'site',
-								'shared',
 								'user',
 							),
 						),
@@ -199,10 +198,7 @@ class Connections_Controller extends Base_Controller {
 		if ( ( $args['scope'] ?? '' ) === 'site' ) {
 			$service_connections = $publicize->get_all_connections_for_blog_id( get_current_blog_id() );
 		} else {
-			// `false` means the default behavior, current user.
-			$user_id = 'shared' === ( $args['scope'] ?? '' ) ? 0 : false;
-
-			$service_connections = (array) $publicize->get_services( 'connected', false, $user_id );
+			$service_connections = (array) $publicize->get_services( 'connected' );
 		}
 
 		foreach ( $service_connections as $service_name => $connections ) {
