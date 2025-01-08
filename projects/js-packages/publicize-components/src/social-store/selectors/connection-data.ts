@@ -1,5 +1,8 @@
+import { getScriptData } from '@automattic/jetpack-script-data';
+import { store as coreStore } from '@wordpress/core-data';
+import { createRegistrySelector } from '@wordpress/data';
 import { REQUEST_TYPE_DEFAULT } from '../actions/constants';
-import { SocialStoreState } from '../types';
+import { Connection, SocialStoreState } from '../types';
 
 /**
  * Returns the connections list from the store.
@@ -227,3 +230,32 @@ export function getKeyringResult( state ) {
 export function isConnectionsModalOpen( state ) {
 	return state.connectionData?.isConnectionsModalOpen ?? false;
 }
+
+/**
+ * Whether the current user can manage the connection.
+ */
+export const canUserManageConnection = createRegistrySelector(
+	select =>
+		( state: SocialStoreState, connectionOrId: Connection | string ): boolean => {
+			const connection =
+				typeof connectionOrId === 'string'
+					? getConnectionById( state, connectionOrId )
+					: connectionOrId;
+
+			const { current_user } = getScriptData().user;
+
+			// If the current user is the connection owner.
+			if ( current_user.wpcom?.ID === connection.user_id ) {
+				return true;
+			}
+
+			const {
+				// @ts-expect-error getUser exists but `core-data` entities are not typed properly.
+				// Should work fine after https://github.com/WordPress/gutenberg/pull/67668 is released to npm.
+				getUser,
+			} = select( coreStore );
+
+			// The user has to be at least an editor to manage the connection.
+			return getUser( current_user.id )?.capabilities?.edit_others_posts ?? false;
+		}
+);
