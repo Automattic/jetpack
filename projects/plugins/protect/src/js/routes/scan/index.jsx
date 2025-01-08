@@ -7,9 +7,9 @@ import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-s
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { OnboardingContext } from '../../hooks/use-onboarding';
 import usePlan from '../../hooks/use-plan';
+import CurrentThreatsDataViews from './current-threats-data-views';
 import onboardingSteps from './onboarding-steps';
 import ScanAdminSectionHero from './scan-admin-section-hero';
-import ScanResultsDataViews from './scan-results-data-views';
 import styles from './styles.module.scss';
 
 /**
@@ -61,7 +61,7 @@ const ScanPage = () => {
 						>
 							<Col>
 								<div ref={ setScanResultsAnchor }>
-									<ScanResultsDataViews />
+									<CurrentThreatsDataViews />
 								</div>
 								{ !! status && ! isScanInProgress( status ) && (
 									<OnboardingPopover

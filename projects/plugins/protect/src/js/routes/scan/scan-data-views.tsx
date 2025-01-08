@@ -5,31 +5,45 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { QUERY_CREDENTIALS_KEY } from '../../constants';
 import useIgnoreThreatMutation from '../../data/scan/use-ignore-threat-mutation';
-import useScanStatusQuery from '../../data/scan/use-scan-status-query';
+import useUnIgnoreThreatMutation from '../../data/scan/use-unignore-threat-mutation';
 import useCredentialsQuery from '../../data/use-credentials-query';
-import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useFixers from '../../hooks/use-fixers';
-import usePlan from '../../hooks/use-plan';
-import useWafData from '../../hooks/use-waf-data';
 import ScanToggleGroupControl from './scan-toggle-group-control';
 
 /**
- * Scan Results Data Views
+ * ScanDataViews component for rendering ThreatsDataViews variants.
  *
- * @return {JSX.Element} ScanResultDataViews component.
+ * @param {object}                 props                        - Component properties.
+ * @param {'current' | 'historic'} props.status                 - The status of the data view, either 'current' or 'historic'.
+ * @param {Threat[]}               props.data                   - Array of threat objects to display.
+ * @param {Record<string, string>} props.initialFilters         - Initial filters to apply to the data view.
+ * @param {string[]}               props.initialFields          - Initial fields to display in the data view.
+ * @param {boolean}                props.isSupportedEnvironment - Indicates if the current environment supports the required features.
+ * @param {Function}               props.handleUpgradeClick     - Callback for handling upgrade button click.
+ *
+ * @return {JSX.Element} Rendered component.
  */
-export default function ScanResultsDataViews() {
+export default function ScanDataViews( {
+	status,
+	data,
+	initialFilters,
+	initialFields,
+	isSupportedEnvironment,
+	handleUpgradeClick,
+}: {
+	status?: 'current' | 'historic';
+	data: Threat[];
+	initialFilters?: { field: string; value: string; operator: string }[];
+	initialFields?: string[];
+	isSupportedEnvironment?: boolean;
+	handleUpgradeClick?: () => void;
+} ) {
 	const { siteSuffix, blogID } = window.jetpackProtectInitialState;
 	const queryClient = useQueryClient();
 
-	const { wafSupported } = useWafData();
-	const { data: status } = useScanStatusQuery();
-
-	const { recordEvent } = useAnalyticsTracks();
-	const { hasPlan, upgradePlan } = usePlan();
-
 	const { fixThreats } = useFixers();
 	const ignoreThreatMutation = useIgnoreThreatMutation();
+	const unignoreThreatMutation = useUnIgnoreThreatMutation();
 
 	const { data: credentials, isLoading: credentialsIsFetching } = useCredentialsQuery();
 	const { isUserConnected, hasConnectedOwner, userIsConnecting, handleConnectUser } = useConnection(
@@ -46,11 +60,6 @@ export default function ScanResultsDataViews() {
 	const onModalOpen = useCallback( () => setIsModalOpen( true ), [] );
 	const onModalClose = useCallback( () => setIsModalOpen( false ), [] );
 
-	const getScan = useCallback( () => {
-		recordEvent( 'jetpack_protect_threat_modal_get_scan_link_click' );
-		upgradePlan();
-	}, [ recordEvent, upgradePlan ] );
-
 	const handleFixClick = useCallback(
 		async ( threats: Threat[] ) => {
 			await fixThreats( [ threats[ 0 ].id as number ] );
@@ -63,6 +72,13 @@ export default function ScanResultsDataViews() {
 			await ignoreThreatMutation.mutateAsync( threats[ 0 ].id );
 		},
 		[ ignoreThreatMutation ]
+	);
+
+	const handleUnignoreClick = useCallback(
+		async ( threats: Threat[] ) => {
+			await unignoreThreatMutation.mutateAsync( threats[ 0 ].id );
+		},
+		[ unignoreThreatMutation ]
 	);
 
 	/**
@@ -81,15 +97,17 @@ export default function ScanResultsDataViews() {
 		return () => clearInterval( interval );
 	}, [ isModalOpen, queryClient, credentials ] );
 
-	// TODO: Optimize imports and actions shared between this component and HistoryDataViews
-
 	return (
 		<ThreatsDataViews
-			data={ status ? status.threats : [] }
-			isSupportedEnvironment={ wafSupported }
+			status={ status }
+			data={ data }
+			initialFilters={ initialFilters }
+			initialFields={ initialFields }
+			isSupportedEnvironment={ isSupportedEnvironment }
 			onFixThreats={ handleFixClick }
 			onIgnoreThreats={ handleIgnoreClick }
-			handleUpgradeClick={ ! hasPlan ? getScan : null }
+			onUnignoreThreats={ handleUnignoreClick }
+			handleUpgradeClick={ handleUpgradeClick }
 			isUserConnected={ isUserConnected }
 			hasConnectedOwner={ hasConnectedOwner }
 			userIsConnecting={ userIsConnecting }

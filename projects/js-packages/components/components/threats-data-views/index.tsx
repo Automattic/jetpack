@@ -79,7 +79,7 @@ export default function ThreatsDataViews( {
 	data,
 	initialFields,
 	initialFilters,
-	isSupportedEnvironment,
+	isSupportedEnvironment = true,
 	handleUpgradeClick,
 	onFixThreats,
 	onIgnoreThreats,
@@ -102,7 +102,7 @@ export default function ThreatsDataViews( {
 	data: Threat[];
 	initialFields?: string[];
 	initialFilters?: Filter[];
-	isSupportedEnvironment: boolean;
+	isSupportedEnvironment?: boolean;
 	handleUpgradeClick?: () => void;
 	onFixThreats?: ( threats: Threat[] ) => void;
 	onIgnoreThreats?: ( threats: Threat[] ) => void;
