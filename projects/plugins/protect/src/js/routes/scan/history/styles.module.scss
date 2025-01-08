@@ -1,0 +1,20 @@
+.hero-main {
+	max-width: 550px;
+}
+
+.hero-main--large {
+	flex: 1 auto;
+	align-content: center;
+	height: calc( 100vh - 408px );
+}
+
+.history-container {
+	padding-left: 0;
+	padding-right: 0;
+	overflow: hidden;
+
+	> * {
+		margin-left: calc( var( --spacing-base ) * -3 ); // -24px
+		margin-right: calc( var( --spacing-base ) * -3 ); // -24px
+	}
+}

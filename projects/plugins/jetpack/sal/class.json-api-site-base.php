@@ -1563,6 +1563,15 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Get site option for migration source site domain
+	 *
+	 * @return string
+	 */
+	public function get_migration_source_site_domain() {
+		return get_option( 'migration_source_site_domain', '' );
+	}
+
+	/**
 	 * Detect whether a site is WordPress.com Staging Site.
 	 *
 	 * @see class.json-api-site-jetpack.php for implementation.

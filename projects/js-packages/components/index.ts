@@ -46,7 +46,10 @@ export { default as SplitButton } from './components/split-button';
 export { default as ThemeProvider } from './components/theme-provider';
 export { default as ThreatFixerButton } from './components/threat-fixer-button';
 export { default as ThreatSeverityBadge } from './components/threat-severity-badge';
-export { default as ThreatsDataViews } from './components/threats-data-views';
+export {
+	default as ThreatsDataViews,
+	HISTORIC_TABLE_FIELDS,
+} from './components/threats-data-views';
 export { default as ThreatsModal } from './components/threats-modal';
 export { default as ShieldIcon } from './components/shield-icon';
 export { default as ScanReport } from './components/scan-report';
