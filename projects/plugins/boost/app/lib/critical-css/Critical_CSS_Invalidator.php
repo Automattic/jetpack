@@ -13,6 +13,7 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS_Followup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Deferred_Generation;
 
 /**
  * Handler for invalidating Critical CSS; both Cloud and Local. Watches relevant
@@ -55,6 +56,7 @@ class Critical_CSS_Invalidator {
 		}
 
 		Cloud_CSS_Followup::unschedule();
+		Deferred_Generation::clear();
 	}
 
 	/**
