@@ -296,6 +296,16 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	}
 
 	/**
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
+	 * @since  $$next-version$$
+	 * @group  jetpack_photon_filter_url_encoding
+	 */
+	public function test_photon_url_filter_encoded_url_should_not_be_encoded_again() {
+		$url = Image_CDN_Core::cdn_url( '//example.com/image%20with%20spaces.jpg', array(), 'https' );
+		$this->assertEquals( 'https://i0.wp.com/example.com/image%20with%20spaces.jpg', $url );
+	}
+
+	/**
 	 * @author aduth
 	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
