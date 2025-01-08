@@ -60,6 +60,11 @@ class Boost_Cache {
 	private $do_cache = false;
 
 	/**
+	 * @var string - The cookies that were removed from the cache parameters.
+	 */
+	private $removed_cookies = '';
+
+	/**
 	 * @param ?Storage\Storage $storage - Optionally provide a Storage subclass to handle actually storing and retrieving cached content. Defaults to a new instance of File_Storage.
 	 */
 	public function __construct( $storage = null ) {
@@ -142,7 +147,8 @@ class Boost_Cache {
 
 		if ( is_string( $cached ) ) {
 			$this->send_header( 'X-Jetpack-Boost-Cache: hit' );
-			Logger::debug( 'Serving cached page' );
+			$removed_cookies_message = $this->removed_cookies === '' ? '' : " and removed cookies: {$this->removed_cookies}";
+			Logger::debug( 'Serving cached page' . $removed_cookies_message );
 			echo $cached; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			die();
 		}
@@ -199,7 +205,8 @@ class Boost_Cache {
 			if ( $result instanceof Boost_Cache_Error ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 				Logger::debug( 'Error writing cache file: ' . $result->get_error_message() );
 			} else {
-				Logger::debug( 'Cache file created' );
+				$removed_cookies_message = $this->removed_cookies === '' ? '' : " and removed cookies: {$this->removed_cookies}";
+				Logger::debug( 'Cache file created' . $removed_cookies_message );
 			}
 		}
 
@@ -490,6 +497,7 @@ class Boost_Cache {
 		// JETPACK_BOOST_IGNORE_COOKIES is a comma-separated list of cookies to ignore.
 		if ( defined( 'JETPACK_BOOST_IGNORE_COOKIES' ) ) {
 			$cookies = explode( ',', constant( 'JETPACK_BOOST_IGNORE_COOKIES' ) );
+			$cookies = array_map( 'trim', $cookies );
 		} else {
 			$cookies = array();
 		}
@@ -512,8 +520,13 @@ class Boost_Cache {
 		foreach ( $cookies as $cookie ) {
 			if ( isset( $parameters['cookies'][ $cookie ] ) ) {
 				unset( $parameters['cookies'][ $cookie ] );
+				$this->removed_cookies .= $cookie . ',';
 			}
 		}
+		if ( $this->removed_cookies !== '' ) {
+			$this->removed_cookies = rtrim( $this->removed_cookies, ',' );
+		}
+
 		$params = $parameters;
 
 		return $parameters;
