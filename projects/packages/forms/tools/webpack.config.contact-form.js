@@ -90,9 +90,11 @@ const sharedWebpackConfig = {
 	],
 };
 
-// A bunch of the CSS here expects the RTL version to be named like "module-rtl.css" and "module-rtl.min.css"
-// rather than "module.rtl.css" and "module.min.rtl.css" like our Webpack config does it.
-// This minimal plugin renames the assets to conform to that style.
+// CSS files using `wp_style_add_data( $handle, 'rtl', 'replace' )` need the
+// RTL version to be named like "module-rtl.css" and "module-rtl.min.css"
+// rather than "module.rtl.css" and "module.min.rtl.css" like our Webpack
+// config does it.
+// This minimal plugin renames the relevant assets to conform to that style.
 const RenamerPlugin = {
 	apply( compiler ) {
 		compiler.hooks.thisCompilation.tap( 'Renamer', compilation => {
@@ -104,7 +106,9 @@ const RenamerPlugin = {
 				},
 				assets => {
 					for ( const [ name, asset ] of Object.entries( assets ) ) {
-						const m = name.match( /^(.*?)((?:\.min)?)\.rtl\.css$/ );
+						const m = name.match(
+							/^(css\/(?:grunion|grunion-admin|editor-ui))((?:\.min)?)\.rtl\.css$/
+						);
 						if ( m ) {
 							delete assets[ name ];
 							assets[ `${ m[ 1 ] }-rtl${ m[ 2 ] }.css` ] = asset;
@@ -116,32 +120,7 @@ const RenamerPlugin = {
 	},
 };
 
-const weirdRtlEntries = {};
-// Weird frontend CSS files, only a minified rtl is built (and without the ".min" extension).
-// The ltr version is apparently used unminified.
-for ( const name of [
-	'src/contact-form/css/grunion',
-	'src/contact-form/css/grunion-admin',
-	'src/contact-form/css/editor-ui',
-] ) {
-	weirdRtlEntries[ name ] = path.join( __dirname, '..', name + '.css' );
-}
-
 module.exports = [
-	{
-		...sharedWebpackConfig,
-		entry: weirdRtlEntries,
-		plugins: [
-			...sharedWebpackConfig.plugins,
-			// In some cases an output filename is the same as the input. Don't overwrite in that case.
-			new RemoveAssetWebpackPlugin( {
-				assets: Object.values( weirdRtlEntries )
-					.filter( n => typeof n === 'string' )
-					.map( n => path.relative( path.dirname( __dirname ), n ) ),
-			} ),
-			RenamerPlugin,
-		],
-	},
 	{
 		...sharedWebpackConfig,
 		entry: glob.sync( path.join( scriptSrcDir, '*.js' ) ).reduce( ( acc, filepath ) => {
@@ -155,5 +134,6 @@ module.exports = [
 			acc[ 'css/' + path.parse( filepath ).name ] = filepath;
 			return acc;
 		}, {} ),
+		plugins: [ ...sharedWebpackConfig.plugins, RenamerPlugin ],
 	},
 ];
