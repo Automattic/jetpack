@@ -3,7 +3,16 @@
 import { Guide } from '@wordpress/components';
 import { createRoot, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, check } from '@wordpress/icons';
+import {
+	Icon,
+	category,
+	commentContent,
+	gallery,
+	pages,
+	postComments,
+	tag,
+	verse,
+} from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
 import bgPattern from './removed-calypso-screen-bg-pattern.png';
 
@@ -11,6 +20,19 @@ import './removed-calypso-screen-notice.scss';
 
 const Notice = () => {
 	const [ isOpen, setIsOpen ] = useState( true );
+	const icons = {
+		'edit.php': verse,
+		'edit.php?post_type=page': pages,
+		'edit.php?post_type=jetpack-portfolio': gallery,
+		'edit.php?post_type=jetpack-testimonial': commentContent,
+		'edit-comments.php': postComments,
+		'edit-tags.php?taxonomy=category': category,
+		'edit-tags.php?taxonomy=post_tag': tag,
+	};
+
+	if ( ! Object.keys( icons ).includes( removedCalypsoScreenNoticeConfig.screen ) ) {
+		return null;
+	}
 
 	if ( ! isOpen ) {
 		return null;
@@ -48,7 +70,7 @@ const Notice = () => {
 								style={ { backgroundImage: `url(${ bgPattern })` } }
 							>
 								<Icon
-									icon={ check }
+									icon={ icons[ removedCalypsoScreenNoticeConfig.screen ] }
 									size={ 72 }
 									className="removed-calypso-screen-notice__icon"
 								></Icon>
