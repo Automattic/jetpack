@@ -28,16 +28,6 @@ class REST_Product_Data {
 				'permission_callback' => __CLASS__ . '::permissions_callback',
 			)
 		);
-
-		register_rest_route(
-			'my-jetpack/v1',
-			'/site/backup/count-items',
-			array(
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::count_things_that_can_be_backed_up',
-				'permission_callback' => __CLASS__ . '::permissions_callback',
-			)
-		);
 	}
 
 	/**
@@ -108,40 +98,5 @@ class REST_Product_Data {
 		}
 
 		return rest_ensure_response( $undo_event );
-	}
-
-	/**
-	 * This will collect a count of all the items that could be backed up
-	 * This is used to show what backup could be doing if it is not enabled
-	 *
-	 * @return WP_Error|\WP_REST_Response
-	 */
-	public static function count_things_that_can_be_backed_up() {
-		$image_mime_type = 'image';
-		$video_mime_type = 'video';
-		$audio_mime_type = 'audio';
-
-		$data = array();
-
-		// Add all post types together to get the total post count
-		$data['total_post_count'] = array_sum( (array) wp_count_posts( 'post' ) );
-
-		// Add all page types together to get the total page count
-		$data['total_page_count'] = array_sum( (array) wp_count_posts( 'page' ) );
-
-		// Add all comments together to get the total comment count
-		$comments                    = (array) wp_count_comments();
-		$data['total_comment_count'] = $comments ? $comments['total_comments'] : 0;
-
-		// Add all image attachments together to get the total image count
-		$data['total_image_count'] = array_sum( (array) wp_count_attachments( $image_mime_type ) );
-
-		// Add all video attachments together to get the total video count
-		$data['total_video_count'] = array_sum( (array) wp_count_attachments( $video_mime_type ) );
-
-		// Add all audio attachments together to get the total audio count
-		$data['total_audio_count'] = array_sum( (array) wp_count_attachments( $audio_mime_type ) );
-
-		return rest_ensure_response( $data );
 	}
 }

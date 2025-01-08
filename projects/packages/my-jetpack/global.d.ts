@@ -47,7 +47,8 @@ type JetpackModule =
 	| 'complete'
 	| 'site-accelerator'
 	| 'newsletter'
-	| 'related-posts';
+	| 'related-posts'
+	| 'brute-force';
 
 type ThreatItem = {
 	// Protect API properties (free plan)
