@@ -38,8 +38,8 @@ const ScanPage = () => {
 		currentScanStatus = 'active';
 	}
 
-	const hasActiveThreats = status && status.threats.length;
-	const hasHistory = history && history.threats.length;
+	const hasActiveThreats = status && !! status.threats.length;
+	const hasHistory = history && !! history.threats.length;
 	const showResults = hasActiveThreats || hasHistory;
 
 	const filters = useMemo( () => {
