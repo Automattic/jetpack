@@ -201,7 +201,7 @@ class Test_Products_Rest extends TestCase {
 		$data     = $response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertEquals( 'active', $data['status'] );
+		$this->assertEquals( 'can_upgrade', $data['status'] );
 		$this->assertTrue( is_plugin_active( $this->boost_mock_filename ) );
 	}
 
