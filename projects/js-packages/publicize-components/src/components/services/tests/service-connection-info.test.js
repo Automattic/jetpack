@@ -26,6 +26,16 @@ describe( 'ServiceConnectionInfo', () => {
 		icon: () => <svg aria-label="test-svg"></svg>,
 	};
 
+	beforeAll( () => {
+		global.JetpackScriptData = {
+			user: {
+				current_user: {
+					id: 123,
+				},
+			},
+		};
+	} );
+
 	const renderComponent = ( connOverrides = {}, serviceOverrides = {}, props = {} ) => {
 		render(
 			<ServiceConnectionInfo
