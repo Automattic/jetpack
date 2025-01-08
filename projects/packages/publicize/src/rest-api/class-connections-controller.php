@@ -50,13 +50,14 @@ class Connections_Controller extends Base_Controller {
 							'type'        => 'boolean',
 							'description' => __( 'Whether to test connections.', 'jetpack-publicize-pkg' ),
 						),
-						'include'          => array(
+						'scope'            => array(
 							'type'        => 'string',
-							'description' => __( 'Which connections to include.', 'jetpack-publicize-pkg' )
+							'description' => __( 'Which connections to include in the response.', 'jetpack-publicize-pkg' )
 							. ' ' . __( 'By default, the endpoint returns the connections that belong to the current user.', 'jetpack-publicize-pkg' ),
 							'enum'        => array(
-								'site-wide',
+								'site',
 								'shared',
+								'user',
 							),
 						),
 					),
@@ -179,7 +180,7 @@ class Connections_Controller extends Base_Controller {
 	 *
 	 * @param array $args Arguments
 	 *                    - 'test_connections': bool Whether to run connection tests.
-	 *                    - 'include': enum('site-wide', 'shared') Which connections to include.
+	 *                    - 'scope': enum('site', 'user') Which connections to include.
 	 *
 	 * @return array
 	 */
@@ -192,15 +193,14 @@ class Connections_Controller extends Base_Controller {
 		$items = array();
 
 		$run_tests = $args['test_connections'] ?? false;
-		$include   = $args['include'] ?? '';
 
 		$test_results = $run_tests ? self::get_connections_test_status() : array();
 
-		if ( 'site-wide' === $include ) {
+		if ( ( $args['scope'] ?? '' ) === 'site' ) {
 			$service_connections = $publicize->get_all_connections_for_blog_id( get_current_blog_id() );
 		} else {
 			// `false` means the default behavior, current user.
-			$user_id = 'shared' === $include ? 0 : false;
+			$user_id = 'shared' === ( $args['scope'] ?? '' ) ? 0 : false;
 
 			$service_connections = (array) $publicize->get_services( 'connected', false, $user_id );
 		}
@@ -264,9 +264,7 @@ class Connections_Controller extends Base_Controller {
 			sprintf( '/sites/%d/publicize/connections', $site_id )
 		);
 
-		$include = $args['include'] ?? '';
-
-		$blog_or_user = 'site-wide' === $include ? 'blog' : 'user';
+		$blog_or_user = ( $args['scope'] ?? '' ) === 'site' ? 'blog' : 'user';
 
 		$callback = array( Client::class, "wpcom_json_api_request_as_{$blog_or_user}" );
 
@@ -345,14 +343,14 @@ class Connections_Controller extends Base_Controller {
 			return $has_permissions;
 		}
 
-		if ( $request->get_param( 'include' ) === 'site-wide' ) {
+		if ( $request->get_param( 'scope' ) === 'site' ) {
 
 			$is_authorized = current_user_can( 'edit_others_posts' ) || self::is_authorized_blog_request();
 
 			if ( ! $is_authorized ) {
 				return new WP_Error(
 					'rest_forbidden_context',
-					__( 'Sorry, you are not allowed to access site-wide connections.', 'jetpack-publicize-pkg' ),
+					__( 'Sorry, you are not allowed to access all the site connections.', 'jetpack-publicize-pkg' ),
 					array( 'status' => rest_authorization_required_code() )
 				);
 			}
