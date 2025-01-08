@@ -37,11 +37,11 @@ export class NavigationSettings extends React.Component {
 	};
 
 	UNSAFE_componentWillMount() {
+		// We need to handle the search term not only on route update but also on page load in case of some external redirects.
 		this.onRouteChange( this.props.location );
 	}
 
 	componentDidUpdate( oldprops ) {
-		// We need to handle the search term not only on route update but also on page load in case of some external redirects
 		if ( oldprops.location !== this.props.location ) {
 			this.onRouteChange( this.props.location );
 		}
