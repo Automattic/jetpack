@@ -70,6 +70,13 @@ class Publicize_Script_Data {
 		$data['site']['wpcom']['blog_id'] = Manager::get_site_id( true );
 		$data['site']['suffix']           = ( new Status() )->get_site_suffix();
 
+		$wpcom_user_data = ( new Manager() )->get_connected_user_data();
+
+		$data['user']['current_user']['wpcom'] = array_merge(
+			$data['user']['current_user']['wpcom'] ?? array(),
+			$wpcom_user_data ? $wpcom_user_data : array()
+		);
+
 		return $data;
 	}
 
