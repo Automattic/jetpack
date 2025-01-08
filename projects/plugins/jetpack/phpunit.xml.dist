@@ -87,9 +87,6 @@
 		<testsuite name="carousel">
 			<directory prefix="test-" suffix=".php">tests/php/modules/carousel</directory>
 		</testsuite>
-		<testsuite name="geo-location">
-			<directory prefix="test_" suffix=".php">tests/php/modules/geo-location</directory>
-		</testsuite>
 		<testsuite name="deprecation">
 			<file>tests/php/test_deprecation.php</file>
 		</testsuite>
