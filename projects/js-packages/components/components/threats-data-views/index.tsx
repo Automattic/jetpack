@@ -603,7 +603,7 @@ export default function ThreatsDataViews( {
 				actions={ actions }
 				data={ processedData }
 				defaultLayouts={ defaultLayouts }
-				fields={ fields }
+				fields={ processedData.length ? fields : [] }
 				getItemId={ getItemId }
 				onChangeSelection={ onChangeSelection }
 				onChangeView={ onChangeView }

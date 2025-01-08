@@ -24,7 +24,7 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	min-height: 120px;
+	min-height: 100px;
 	cursor: pointer;
 
 	&:first-of-type {
@@ -42,8 +42,13 @@
 		align-items: center;
 	}
 
-	&__title {
+	&__description {
 		max-width: 512px;
+
+		&__title {
+			font-size: 20px;
+			font-weight: 500;
+		}
 	};
 
 	&__toggle {
