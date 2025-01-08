@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Cache: filter cookies so they do not cause a cache miss.
