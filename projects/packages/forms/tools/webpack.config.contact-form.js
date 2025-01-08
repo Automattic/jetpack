@@ -122,7 +122,7 @@ const weirdRtlEntries = {};
 for ( const name of [
 	'src/contact-form/css/grunion',
 	'src/contact-form/css/grunion-admin',
-	'src/contact-form/css/grunion-editor-ui',
+	'src/contact-form/css/editor-ui',
 ] ) {
 	weirdRtlEntries[ name ] = path.join( __dirname, '..', name + '.css' );
 }
