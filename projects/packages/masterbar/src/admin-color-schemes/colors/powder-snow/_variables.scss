@@ -15,14 +15,14 @@ $body-background: $studio-gray-0; // Calypso --color-surface-backdrop
 $menu-text: $studio-gray-80; // Calypso --color-sidebar-text
 $menu-background: $studio-gray-5; // Calypso --color-sidebar-background
 $menu-highlight-text: $studio-blue-60; // Calypso --color-sidebar-menu-hover-text
-$menu-highlight-icon: $studio-blue-30;
+$menu-highlight-icon: $studio-blue-60;
 $menu-highlight-background: $studio-white; // Calypso --color-sidebar-menu-hover-background
 $menu-current-text: $studio-white; // Calypso --color-sidebar-menu-selected-text
 $menu-current-icon: $menu-current-text;
 $menu-current-background: $studio-gray-60; // Calypso --color-sidebar-menu-selected-background
-$menu-submenu-text: $studio-gray-10; // Calypso --color-sidebar-submenu-text
-$menu-submenu-background: $studio-gray-80; // Calypso --color-sidebar-submenu-background
-$menu-submenu-focus-text: $studio-blue-30; // Calypso --color-sidebar-submenu-hover-text
+$menu-submenu-text: $studio-gray-80; // Calypso --color-sidebar-submenu-text
+$menu-submenu-background: $studio-gray-10; // Calypso --color-sidebar-submenu-background
+$menu-submenu-focus-text: $studio-blue-60; // Calypso --color-sidebar-submenu-hover-text
 $menu-submenu-current-text: $studio-gray-80; // Calypso --color-sidebar-submenu-selected-text
 $adminbar-avatar-frame: $studio-gray-90;
 
@@ -30,6 +30,8 @@ $adminbar-avatar-frame: $studio-gray-90;
 $masterbar-background: $studio-gray-100; // Calypso --color-masterbar-background
 $masterbar-highlight-background: $studio-gray-80; // Calypso --color-masterbar-item-hover-background
 $masterbar-active-background: $studio-gray-70; // Calypso --color-masterbar-item-active-background
+$masterbar-submenu-background: $studio-gray-80;
+$masterbar-submenu-background-alt: $studio-gray-70;
 
 // nav unification overrides
 $nav-unification-sidebar-border: $studio-gray-10; // Calypso --color-sidebar-border
@@ -48,3 +50,52 @@ $menu-nudge-text-color: $studio-black;
 $menu-nudge-cta-background: $highlight-color;
 $menu-nudge-cta-color: $studio-white;
 $menu-nudge-cta-background-hover: $studio-blue-60;
+
+// Specific overrides for this color scheme.
+.admin-color-powder-snow {
+	#wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item,
+	#wpadminbar:not(.mobile) .ab-top-menu > li > .ab-item:focus,
+	#wpadminbar.nojq .quicklinks .ab-top-menu > li > .ab-item:focus,
+	#wpadminbar.nojs .ab-top-menu > li.menupop:hover > .ab-item,
+	#wpadminbar .ab-top-menu > li.menupop.hover > .ab-item,
+	#wpadminbar:not(.mobile) > #wp-toolbar li:hover span.ab-label,
+	#wpadminbar:not(.mobile) > #wp-toolbar li.hover span.ab-label,
+	#wpadminbar:not(.mobile) > #wp-toolbar a:focus span.ab-label,
+	#wpadminbar:not(.mobile) li:hover .ab-icon:before,
+	#wpadminbar:not(.mobile) li:hover .ab-item:before,
+	#wpadminbar:not(.mobile) li:hover .ab-item:after,
+	#wpadminbar:not(.mobile) li:hover #adminbarsearch:before,
+	#wpadminbar .quicklinks .menupop ul li a:hover,
+	#wpadminbar .quicklinks .menupop ul li a:focus,
+	#wpadminbar .quicklinks .menupop ul li a:hover strong,
+	#wpadminbar .quicklinks .menupop ul li a:focus strong,
+	#wpadminbar .quicklinks .ab-sub-wrapper .menupop.hover > a,
+	#wpadminbar .quicklinks .menupop.hover ul li a:hover,
+	#wpadminbar .quicklinks .menupop.hover ul li a:focus,
+	#wpadminbar.nojs .quicklinks .menupop:hover ul li a:hover,
+	#wpadminbar.nojs .quicklinks .menupop:hover ul li a:focus,
+	#wpadminbar li:hover .ab-icon:before,
+	#wpadminbar li:hover .ab-item:before,
+	#wpadminbar li a:focus .ab-icon:before,
+	#wpadminbar li .ab-item:focus:before,
+	#wpadminbar li .ab-item:focus .ab-icon:before,
+	#wpadminbar li.hover .ab-icon:before,
+	#wpadminbar li.hover .ab-item:before,
+	#wpadminbar li:hover #adminbarsearch:before,
+	#wpadminbar li #adminbarsearch.adminbar-focused:before {
+		color: $studio-blue-30;
+	}
+
+	#wpadminbar .ab-submenu .ab-item,
+	#wpadminbar .quicklinks .menupop ul li a,
+	#wpadminbar .quicklinks .menupop.hover ul li a,
+	#wpadminbar.nojs .quicklinks .menupop:hover ul li a,
+	#wpadminbar #wp-admin-bar-user-info .display-name,
+	#wpadminbar #wp-admin-bar-user-info .username {
+		color: $studio-gray-10;
+	}
+
+	#wpadminbar #wp-admin-bar-user-info a:hover .display-name {
+		color: $studio-blue-30;
+	}
+}
