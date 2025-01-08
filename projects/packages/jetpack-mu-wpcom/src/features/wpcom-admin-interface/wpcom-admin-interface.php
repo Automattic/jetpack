@@ -496,7 +496,7 @@ function wpcom_show_removed_calypso_screen_notice() {
 	$clean_title = trim( $clean_title );
 	$config      = wp_json_encode(
 		array(
-			'imageUrl'     => plugins_url( 'screens/' . sanitize_title( $current_screen ) . '.webp', __FILE__ ),
+			'bgUrl'        => plugins_url( 'removed-calypso-screen-bg-pattern.png', __FILE__ ),
 			'title'        => $clean_title,
 			'screen'       => $current_screen,
 			'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
