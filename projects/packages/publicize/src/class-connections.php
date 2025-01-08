@@ -53,6 +53,51 @@ class Connections {
 	}
 
 	/**
+	 * Get all connections for the current user.
+	 *
+	 * @param array $args Arguments. Same as self::get_all().
+	 *
+	 * @see Automattic\Jetpack\Publicize\Connections::get_all()
+	 *
+	 * @return array
+	 */
+	public static function get_all_for_user( $args = array() ) {
+		$connections = self::get_all( $args );
+
+		$connections_for_user = array();
+
+		foreach ( $connections as $connection ) {
+
+			if ( $connection['shared'] || self::user_owns_connection( $connection ) ) {
+				$connections_for_user[] = $connection;
+			}
+		}
+
+		return $connections_for_user;
+	}
+
+	/**
+	 * Whether the current user owns a connection.
+	 *
+	 * @param array $connection The connection.
+	 * @param int   $user_id    The user ID. Defaults to the current user.
+	 *
+	 * @return bool
+	 */
+	public static function user_owns_connection( $connection, $user_id = null ) {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			$wpcom_user_id = get_current_user_id();
+		} else {
+
+			$wpcom_user_data = ( new Connection\Manager() )->get_connected_user_data( $user_id );
+
+			$wpcom_user_id = ! empty( $wpcom_user_data['ID'] ) ? $wpcom_user_data['ID'] : null;
+		}
+
+		return $wpcom_user_id && $connection['user_id'] === $wpcom_user_id;
+	}
+
+	/**
 	 * Retain deprecated fields.
 	 *
 	 * @param array $connections Connections.
@@ -61,9 +106,8 @@ class Connections {
 	private static function retain_deprecated_fields( $connections ) {
 		return array_map(
 			function ( $connection ) {
-				$wpcom_user_data = ( new Connection\Manager() )->get_connected_user_data();
 
-				$owns_connection = ! empty( $wpcom_user_data['ID'] ) && $wpcom_user_data['ID'] === $connection['user_id'];
+				$owns_connection = self::user_owns_connection( $connection );
 
 				$connection = array_merge(
 					$connection,
