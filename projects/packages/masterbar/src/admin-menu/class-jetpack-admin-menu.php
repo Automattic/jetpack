@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Masterbar;
 use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Modules;
-use Automattic\Jetpack\Status\Host;
 
 require_once __DIR__ . '/class-admin-menu.php';
 
@@ -71,11 +70,10 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 */
 	public function get_cpt_menu_link( $ptype_obj ) {
 
-		$post_type                          = $ptype_obj->name;
-		$is_self_hosted_site                = ! ( new Host() )->is_wpcom_platform();
-		$is_woocommerce_product_self_hosted = $post_type === 'product' && class_exists( 'WooCommerce' ) && $is_self_hosted_site;
+		$post_type              = $ptype_obj->name;
+		$is_woocommerce_product = $post_type === 'product' && class_exists( 'WooCommerce' );
 
-		if ( ! $is_woocommerce_product_self_hosted && ( new Modules() )->is_active( 'sso' ) && $ptype_obj->show_in_rest ) {
+		if ( ! $is_woocommerce_product && ( new Modules() )->is_active( 'sso' ) && $ptype_obj->show_in_rest ) {
 			return 'https://wordpress.com/types/' . $post_type . '/' . $this->domain;
 		} else {
 			return 'edit.php?post_type=' . $post_type;
