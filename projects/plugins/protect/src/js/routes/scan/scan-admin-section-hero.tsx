@@ -235,8 +235,9 @@ const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' 
 							</Button>
 						</div>
 						{ showModal && (
+							// TODO: Move credentials useEffect and props shared by ScanDataViews to hook
 							<ThreatsModal
-								actionToConfirm={ 'fix' }
+								actionToConfirm={ 'all' }
 								currentThreats={ fixableList }
 								isSupportedEnvironment={ wafSupported }
 								isUserConnected={ isUserConnected }
