@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { Route, Routes, useNavigate } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import QueryIntroOffers from 'components/data/query-intro-offers';
 import QueryRecommendationsConditional from 'components/data/query-recommendations-conditional';
 import QueryRecommendationsData from 'components/data/query-recommendations-data';
@@ -59,7 +59,6 @@ const useInitOnboarding = ( {
 
 const RecommendationsComponent = props => {
 	const { isLoading, step, newRecommendations } = props;
-	const navigate = useNavigate();
 
 	let redirectPath;
 
@@ -192,10 +191,6 @@ const RecommendationsComponent = props => {
 		return newRecommendations && newRecommendations.includes( stepSlug );
 	};
 
-	useEffect( () => {
-		navigate( '/recommendations' + redirectPath, { replace: true } );
-	}, [ redirectPath, navigate ] );
-
 	useInitOnboarding( props );
 
 	return (
@@ -217,15 +212,19 @@ const RecommendationsComponent = props => {
 				</div>
 			) : (
 				<Routes>
+					<Route
+						path=""
+						element={ <Navigate to={ '/recommendations' + redirectPath } replace /> }
+					/>
 					<Route path="site-type" element={ <SiteTypeQuestion /> } />
 					<Route path="product-suggestions" element={ <ProductSuggestions /> } />
 					<Route path="product-purchased" element={ <ProductPurchased /> } />
 					<Route path="agency" element={ <ResourcePrompt stepSlug="agency" /> } />
-					<Route path="/woocommerce" element={ <FeaturePrompt stepSlug="woocommerce" /> } />
-					<Route path="/monitor" element={ <FeaturePrompt stepSlug="monitor" /> } />
-					<Route path="/newsletter" element={ <FeaturePrompt stepSlug="newsletter" /> } />
-					<Route path="/related-posts" element={ <FeaturePrompt stepSlug="related-posts" /> } />
-					<Route path="/creative-mail" element={ <FeaturePrompt stepSlug="creative-mail" /> } />
+					<Route path="woocommerce" element={ <FeaturePrompt stepSlug="woocommerce" /> } />
+					<Route path="monitor" element={ <FeaturePrompt stepSlug="monitor" /> } />
+					<Route path="newsletter" element={ <FeaturePrompt stepSlug="newsletter" /> } />
+					<Route path="related-posts" element={ <FeaturePrompt stepSlug="related-posts" /> } />
+					<Route path="creative-mail" element={ <FeaturePrompt stepSlug="creative-mail" /> } />
 					<Route
 						path="/site-accelerator"
 						element={ <FeaturePrompt stepSlug="site-accelerator" /> }
