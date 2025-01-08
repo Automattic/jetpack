@@ -9,7 +9,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import jQuery from 'jquery';
 import React from 'react';
 import { connect } from 'react-redux';
-import { useLocation, useNavigate, unstable_usePrompt } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import AtAGlance from 'at-a-glance/index.jsx';
 import AdminNotices from 'components/admin-notices';
 import AppsCard from 'components/apps-card';
@@ -148,22 +148,6 @@ const settingsRoutes = [
 	'/traffic',
 	'/privacy',
 ];
-
-/**
- * A simple component to address the removal of Prompt in react-router-dom v6.
- * Its behavior is not consistent across browsers.
- *
- * See also: react-router-dom v6: https://github.com/remix-run/react-router/issues/8139
- *
- * @param {object}  _         - Params object.
- * @param {boolean} _.when    - Whether or not to prompt.
- * @param {string}  _.message - Message to display.
- * @return {null} Return nothing.
- */
-function Prompt( { when, message } ) {
-	unstable_usePrompt( { when, message } );
-	return null;
-}
 
 class Main extends React.Component {
 	constructor( props ) {
@@ -873,10 +857,12 @@ class Main extends React.Component {
 					<AdminNotices />
 					<JetpackNotices />
 					{ this.shouldConnectUser() && this.connectUser() }
+					{ /* This is no longer supported as of react-router-dom v6: https://github.com/remix-run/react-router/issues/8139
 					<Prompt
 						when={ this.props.areThereUnsavedSettings }
 						message={ this.handleRouterWillLeave }
 					/>
+					*/ }
 
 					{ this.renderMainContent( this.props.location.pathname ) }
 					{ this.shouldShowJetpackManageBanner() && (
