@@ -827,6 +827,11 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 				}
 			}
 
+			// Add a guard clause to prevent division by zero below.
+			if ( $columns <= 0 ) {
+				$columns = 1;
+			}
+
 			// add first and last classes to first and last items in a row
 			if ( ( $testimonial_index_number % $columns ) === 0 ) {
 				$class[] = 'testimonial-entry-first-item-row';
