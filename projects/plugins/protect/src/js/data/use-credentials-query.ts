@@ -16,6 +16,7 @@ export default function useCredentialsQuery(): UseQueryResult<
 		from: 'protect',
 		redirectUri: null,
 		skipUserConnection: true,
+		skipPricingPage: true,
 	} );
 
 	return useQuery( {
