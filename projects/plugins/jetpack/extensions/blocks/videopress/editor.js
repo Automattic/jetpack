@@ -6,7 +6,6 @@ import {
 	isAtomicSite,
 	isSimpleSite,
 	getJetpackExtensionAvailability,
-	withHasWarningIsInteractiveClassNames,
 } from '@automattic/jetpack-shared-extension-utils';
 import { createBlobURL } from '@wordpress/blob';
 import { useBlockEditContext, store as blockEditorStore } from '@wordpress/block-editor';
@@ -186,11 +185,6 @@ const addVideoPressSupport = ( settings, name ) => {
 	// Check if VideoPress is unavailable and filter the mediaplaceholder to limit options
 	if ( isNotAvailable ) {
 		addFilter( 'editor.MediaPlaceholder', 'jetpack/videopress', videoPressNoPlanMediaPlaceholder );
-		addFilter(
-			'editor.BlockListBlock',
-			`jetpack/videopress-with-has-warning-is-interactive-class-names`,
-			withHasWarningIsInteractiveClassNames( `core/video` )
-		);
 	} else if ( available ) {
 		if ( resumableUploadEnabled ) {
 			addFilter( 'editor.MediaPlaceholder', 'jetpack/videopress', videoPressMediaPlaceholder );
