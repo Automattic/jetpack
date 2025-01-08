@@ -25,7 +25,7 @@ import {
 	Notice,
 } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
-import { withDispatch, withSelect } from '@wordpress/data';
+import { withDispatch, withSelect, useSelect } from '@wordpress/data';
 import { forwardRef, Fragment, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -100,12 +100,15 @@ export const JetpackContactFormEdit = forwardRef(
 			customThankyouMessage,
 			customThankyouRedirect,
 			jetpackCRM,
+			formID,
 			salesforceData,
 			hiddenFields,
 			warningMessage,
 		} = attributes;
 		const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
 		const [ localWarningText, setLocalWarningText ] = useState( '' );
+
+		const currentPostId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
 
 		const blockProps = useBlockProps();
 		const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
@@ -176,6 +179,16 @@ export const JetpackContactFormEdit = forwardRef(
 				} );
 			}
 		} );
+
+		// Here we're using a default value for the formID, but this will be expanded to allow custom form IDs in the future.
+		useEffect( () => {
+			if ( ! formID ) {
+				if ( currentPostId ) {
+					setAttributes( { formID: currentPostId || '' } );
+				}
+			}
+			// eslint-disable-next-line react-hooks/exhaustive-deps -- we only want this to run once.
+		}, [] );
 
 		const renderSubmissionSettings = () => {
 			return (
