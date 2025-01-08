@@ -1,5 +1,5 @@
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
-import { Button, TextControl, SVG, Circle } from '@wordpress/components';
+import { Button, TextControl, SVG, Circle, Icon } from '@wordpress/components';
 import {
 	useState,
 	useCallback,
@@ -8,11 +8,13 @@ import {
 	createInterpolateElement,
 } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { arrowRight } from '@wordpress/icons';
 import clsx from 'clsx';
 import debugFactory from 'debug';
 import { SeoPlaceholder } from '../../../../plugins/seo/components/placeholder';
 import usePostContent from '../../hooks/use-post-content';
 import './style.scss';
+import bigSkyIcon from './big-sky-icon.svg';
 
 type StepType = 'input' | 'options' | 'completion';
 
@@ -20,6 +22,7 @@ interface Message {
 	id: string;
 	content: string | React.ReactNode;
 	isUser?: boolean;
+	showIcon?: boolean;
 }
 
 interface Option {
@@ -31,7 +34,7 @@ interface Option {
 interface BaseStep {
 	id: string;
 	title: string;
-	messages: string[] | React.ReactNode[];
+	messages: StepMessage[];
 	type: StepType;
 	onStart?: () => void;
 }
@@ -76,6 +79,11 @@ const TypingMessage = () => {
 	);
 };
 
+interface StepMessage {
+	content: string | React.ReactNode;
+	showIcon?: boolean;
+}
+
 export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ currentStep, setCurrentStep ] = useState( 0 );
@@ -99,13 +107,14 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 		scrollToBottom();
 	}, [ messages ] );
 
-	const addMessage = ( content: string | React.ReactNode, isUser = false ) => {
+	const addMessage = ( content: string | React.ReactNode, isUser = false, showIcon = ! isUser ) => {
 		setMessages( prev => [
 			...prev,
 			{
 				id: `message-${ prev.length }`,
 				content,
 				isUser,
+				showIcon,
 			},
 		] );
 	};
@@ -296,15 +305,30 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 			id: 'keywords',
 			title: __( 'Optimise for SEO', 'jetpack' ),
 			messages: [
-				__( "Hi there! 👋 Let's optimise your blog post for SEO.", 'jetpack' ),
-				createInterpolateElement(
-					__(
-						"Here's what we can improve:<br />1. Keywords<br />2. Title<br />3. Meta description",
+				{
+					content: createInterpolateElement(
+						__( "<b>Hi there! 👋 Let's optimise your blog post for SEO.</b>", 'jetpack' ),
+						{ b: <b /> }
+					),
+					showIcon: true,
+				},
+				{
+					content: createInterpolateElement(
+						__(
+							"Here's what we can improve:<br />1. Keywords<br />2. Title<br />3. Meta description",
+							'jetpack'
+						),
+						{ br: <br /> }
+					),
+					showIcon: false,
+				},
+				{
+					content: __(
+						'To start, please enter 1–3 focus keywords that describe your blog post.',
 						'jetpack'
 					),
-					{ br: <br /> }
-				),
-				__( 'To start, please enter 1–3 focus keywords that describe your blog post.', 'jetpack' ),
+					showIcon: true,
+				},
 			],
 			type: 'input',
 			placeholder: __( 'Photography, plants', 'jetpack' ),
@@ -313,7 +337,12 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 		{
 			id: 'title',
 			title: __( 'Optimise Title', 'jetpack' ),
-			messages: [ __( "Let's optimise your title.", 'jetpack' ) ],
+			messages: [
+				{
+					content: __( "Let's optimise your title.", 'jetpack' ),
+					showIcon: true,
+				},
+			],
 			type: 'options',
 			options: titleOptions,
 			onSelect: handleTitleSelect,
@@ -326,32 +355,50 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 		{
 			id: 'meta',
 			title: __( 'Add meta description', 'jetpack' ),
-			messages: [ __( "Now, let's optimize your meta description.", 'jetpack' ) ],
+			messages: [
+				{
+					content: __( "Now, let's optimize your meta description.", 'jetpack' ),
+					showIcon: true,
+				},
+			],
 			type: 'options',
 			options: metaDescriptionOptions,
 			onSelect: handleMetaDescriptionSelect,
 			onSubmit: handleMetaDescriptionSubmit,
 			submitCtaLabel: __( 'Insert', 'jetpack' ),
-			onRetry: handleMetaDescriptionRegenerate, // Reuse the same handler for now
+			onRetry: handleMetaDescriptionRegenerate,
 			onRetryCtaLabel: __( 'Regenerate', 'jetpack' ),
-			onStart: handleMetaDescriptionGenerate, // Reuse the same handler for now
+			onStart: handleMetaDescriptionGenerate,
 		},
 		{
 			id: 'completion',
 			title: __( 'Your post is SEO-ready', 'jetpack' ),
 			messages: [
-				__( "Here's your updated checklist:", 'jetpack' ),
-				createInterpolateElement(
-					__( '✅ Keywords<br/>✅ Title<br/>✅ Meta description', 'jetpack' ),
-					{ br: <br /> }
-				),
-				createInterpolateElement(
-					__(
-						'SEO optimization complete! 🎉<br/>Your blog post is now search-engine friendly.<br/>Happy blogging! 😊',
-						'jetpack'
+				{
+					content: __( "Here's your updated checklist:", 'jetpack' ),
+					showIcon: true,
+				},
+				{
+					content: createInterpolateElement(
+						__( '✅ Keywords<br/>✅ Title<br/>✅ Meta description', 'jetpack' ),
+						{ br: <br /> }
 					),
-					{ br: <br /> }
-				),
+					showIcon: false,
+				},
+				{
+					content: createInterpolateElement(
+						__(
+							'SEO optimization complete! 🎉<br/>Your blog post is now search-engine friendly.',
+							'jetpack'
+						),
+						{ br: <br /> }
+					),
+					showIcon: true,
+				},
+				{
+					content: __( 'Happy blogging! 😊', 'jetpack' ),
+					showIcon: false,
+				},
 			],
 			type: 'completion',
 		},
@@ -362,7 +409,9 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 	useEffect( () => {
 		if ( isOpen && messages.length === 0 ) {
 			// Initialize with first step messages
-			currentStepData.messages.forEach( message => addMessage( message ) );
+			currentStepData.messages.forEach( message =>
+				addMessage( message.content, false, message.showIcon )
+			);
 		}
 	}, [ isOpen, currentStepData.messages, messages ] );
 
@@ -371,7 +420,9 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 			debug( 'moving to ' + ( currentStep + 1 ), steps[ currentStep + 1 ] );
 			setCurrentStep( currentStep + 1 );
 			// Add next step messages
-			steps[ currentStep + 1 ].messages.forEach( message => addMessage( message ) );
+			steps[ currentStep + 1 ].messages.forEach( message =>
+				addMessage( message.content, false, message.showIcon )
+			);
 			steps[ currentStep + 1 ].onStart?.();
 		}
 	};
@@ -380,7 +431,9 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 		if ( currentStep > 0 ) {
 			setCurrentStep( currentStep - 1 );
 			// Re-add previous step messages
-			steps[ currentStep - 1 ].messages.forEach( message => addMessage( message ) );
+			steps[ currentStep - 1 ].messages.forEach( message =>
+				addMessage( message.content, false, message.showIcon )
+			);
 		}
 	};
 
@@ -406,8 +459,9 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 							currentStepData.onSubmit?.( keywords );
 							handleNext();
 						} }
+						size="small"
 					>
-						{ __( '↑', 'jetpack' ) }
+						↑
 					</Button>
 				</div>
 			);
@@ -415,36 +469,23 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 
 		if ( currentStepData.type === 'options' ) {
 			const selectedOption = currentStepData.options.find( opt => opt.selected );
-
 			return (
-				<div className="seo-assistant-wizard__options">
-					{ currentStepData.options.map( option => (
-						<button
-							key={ option.id }
-							className={ clsx( 'seo-assistant-wizard__option', {
-								'is-selected': option.selected,
-							} ) }
-							onClick={ () => currentStepData.onSelect( option ) }
-						>
-							{ option.content }
-						</button>
-					) ) }
-					<div className="seo-assistant-wizard__actions">
-						<Button variant="secondary" onClick={ currentStepData.onRetry }>
-							{ currentStepData.onRetryCtaLabel }
-						</Button>
-						{ selectedOption && (
-							<Button
-								variant="primary"
-								onClick={ () => {
-									currentStepData.onSubmit?.();
-									handleNext();
-								} }
-							>
-								{ currentStepData.submitCtaLabel }
-							</Button>
-						) }
-					</div>
+				<div className="seo-assistant-wizard__actions">
+					<Button variant="secondary" onClick={ currentStepData.onRetry }>
+						{ currentStepData.onRetryCtaLabel }
+					</Button>
+
+					<Button
+						variant="primary"
+						onClick={ () => {
+							currentStepData.onSubmit?.();
+							handleNext();
+						} }
+						disabled={ ! selectedOption }
+					>
+						{ currentStepData.submitCtaLabel }&nbsp;
+						<Icon icon={ arrowRight } size="small" />
+					</Button>
 				</div>
 			);
 		}
@@ -461,7 +502,51 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 
 		return null;
 	};
-	debug( isModuleActive, isLoadingModules );
+
+	const renderMessages = () => {
+		return messages.map( message => (
+			<div
+				key={ message.id }
+				className={ clsx( 'seo-assistant-wizard__message', {
+					'is-user': message.isUser,
+				} ) }
+			>
+				<div className="seo-assistant-wizard__message-icon">
+					{ message.showIcon && (
+						<img src={ bigSkyIcon } alt={ __( 'SEO Assistant avatar', 'jetpack' ) } />
+					) }
+				</div>
+				<div className="seo-assistant-wizard__message-text">{ message.content }</div>
+			</div>
+		) );
+	};
+
+	const renderOptions = () => {
+		if ( currentStepData.type !== 'options' || ! currentStepData.options.length ) {
+			return null;
+		}
+
+		return (
+			<div className="seo-assistant-wizard__message">
+				<div className="seo-assistant-wizard__message-icon"></div>
+				<div className="seo-assistant-wizard__message-text">
+					<div className="seo-assistant-wizard__options">
+						{ currentStepData.options.map( option => (
+							<button
+								key={ option.id }
+								className={ clsx( 'seo-assistant-wizard__option', {
+									'is-selected': option.selected,
+								} ) }
+								onClick={ () => currentStepData.onSelect( option ) }
+							>
+								{ option.content }
+							</button>
+						) ) }
+					</div>
+				</div>
+			</div>
+		);
+	};
 
 	return (
 		<div>
@@ -473,6 +558,8 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 					disabled={ isLoadingModules || isOpen || ! postContent.trim?.() || disabled }
 					isBusy={ isLoadingModules || isOpen }
 				>
+					<img src={ bigSkyIcon } alt={ __( 'SEO Assistant icon', 'jetpack' ) } />
+					&nbsp;
 					{ __( 'SEO Assistant', 'jetpack' ) }
 				</Button>
 			) }
@@ -497,16 +584,8 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 
 					<div className="seo-assistant-wizard__content">
 						<div className="seo-assistant-wizard__messages">
-							{ messages.map( message => (
-								<div
-									key={ message.id }
-									className={ clsx( 'seo-assistant-wizard__message', {
-										'is-user': message.isUser,
-									} ) }
-								>
-									{ message.content }
-								</div>
-							) ) }
+							{ renderMessages() }
+							{ renderOptions() }
 							<div ref={ messagesEndRef } />
 						</div>
 
