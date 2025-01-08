@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed the mobile layout in posts list when the thumbnail column is enabled and the post entry is expanded.

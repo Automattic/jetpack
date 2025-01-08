@@ -45,3 +45,9 @@ th.column-thumbnail + th a {
 th.column-thumbnail.hidden + th a {
 	margin-left:0;
 }
+
+@media screen and (max-width: 782px) {
+	.wp-list-table .is-expanded td.column-thumbnail {
+		display: table-cell !important;
+	}
+}
