@@ -81,6 +81,7 @@ class Boost_Cache {
 		add_action( 'wp_trash_post', array( $this, 'delete_on_post_trash' ), 10, 2 );
 		add_filter( 'wp_php_error_message', array( $this, 'disable_caching_on_error' ) );
 		add_filter( 'init', array( $this, 'init_do_cache' ) );
+		add_filter( 'jetpack_boost_cache_parameters', array( $this, 'ignore_cookies' ) );
 	}
 
 	/**
@@ -471,6 +472,51 @@ class Boost_Cache {
 	 */
 	public function invalidate_cache( $action = Filesystem_Utils::REBUILD_ALL ) {
 		return $this->invalidate_cache_for_url( home_url(), $action );
+	}
+
+	/**
+	 * Ignore certain cookies in the cache parameters so cached pages can be served to these visitors.
+	 *
+	 * @param array $parameters - The parameters with the cookies array to filter.
+	 * @return array - The parameters with cookies removed.
+	 */
+	public function ignore_cookies( $parameters ) {
+		static $params = false;
+
+		if ( $params ) {
+				return $params;
+		}
+
+		// JETPACK_BOOST_IGNORE_COOKIES is a comma-separated list of cookies to ignore.
+		if ( defined( 'JETPACK_BOOST_IGNORE_COOKIES' ) ) {
+			$cookies = explode( ',', constant( 'JETPACK_BOOST_IGNORE_COOKIES' ) );
+		} else {
+			$cookies = array();
+		}
+
+		/**
+		 * Filters the browser cookies so cached pages can be served to these visitors.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $cookies An array of cookie names to remove from the cookie list.
+		 */
+		$cookies = apply_filters(
+			'jetpack_boost_ignore_cookies',
+			array_merge(
+				$cookies,
+				array( 'cf_clearance', 'cf_chl_rc_i', 'cf_chl_rc_ni', 'cf_chl_rc_m', '_cfuvid', '__cfruid', '__cfwaitingroom', 'cf_ob_info', 'cf_use_ob', '__cfseq', '__cf_bm', '__cflb', 'sbsj_' )
+			)
+		);
+
+		foreach ( $cookies as $cookie ) {
+			if ( isset( $parameters['cookies'][ $cookie ] ) ) {
+				unset( $parameters['cookies'][ $cookie ] );
+			}
+		}
+		$params = $parameters;
+
+		return $parameters;
 	}
 
 	public function disable_caching_on_error( $message ) {
