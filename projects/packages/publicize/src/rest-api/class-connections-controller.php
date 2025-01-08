@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Publicize\REST_API;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Publicize\Publicize;
-use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -49,15 +48,6 @@ class Connections_Controller extends Base_Controller {
 						'test_connections' => array(
 							'type'        => 'boolean',
 							'description' => __( 'Whether to test connections.', 'jetpack-publicize-pkg' ),
-						),
-						'scope'            => array(
-							'type'        => 'string',
-							'description' => __( 'Which connections to include in the response.', 'jetpack-publicize-pkg' )
-							. ' ' . __( 'By default, the endpoint returns the connections that belong to the current user and the shared ones.', 'jetpack-publicize-pkg' ),
-							'enum'        => array(
-								'site',
-								'user',
-							),
 						),
 					),
 				),
@@ -195,7 +185,8 @@ class Connections_Controller extends Base_Controller {
 
 		$test_results = $run_tests ? self::get_connections_test_status() : array();
 
-		if ( ( $args['scope'] ?? '' ) === 'site' ) {
+		// If a (Jetpack) blog request, return all the connections for that site.
+		if ( self::is_authorized_blog_request() ) {
 			$service_connections = $publicize->get_all_connections_for_blog_id( get_current_blog_id() );
 		} else {
 			$service_connections = (array) $publicize->get_services( 'connected' );
@@ -288,7 +279,12 @@ class Connections_Controller extends Base_Controller {
 	public function get_items( $request ) {
 		$items = array();
 
-		foreach ( self::get_connections( $request->get_params() ) as $item ) {
+		// On Jetpack, we don't want to pass the 'scope' param to get_connections().
+		$args = array(
+			'test_connections' => $request->get_param( 'test_connections' ),
+		);
+
+		foreach ( self::get_connections( $args ) as $item ) {
 			$data = $this->prepare_item_for_response( $item, $request );
 
 			$items[] = $this->prepare_response_for_collection( $data );
@@ -324,34 +320,5 @@ class Connections_Controller extends Base_Controller {
 		}
 
 		return $test_results_map;
-	}
-
-	/**
-	 * Verify that the user can call the endpoint.
-	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return true|WP_Error
-	 */
-	public function get_items_permissions_check( $request ) {
-		$has_permissions = parent::get_items_permissions_check( $request );
-
-		if ( ! $has_permissions || is_wp_error( $has_permissions ) ) {
-			return $has_permissions;
-		}
-
-		if ( $request->get_param( 'scope' ) === 'site' ) {
-
-			$is_authorized = current_user_can( 'edit_others_posts' ) || self::is_authorized_blog_request();
-
-			if ( ! $is_authorized ) {
-				return new WP_Error(
-					'rest_forbidden_context',
-					__( 'Sorry, you are not allowed to access all the site connections.', 'jetpack-publicize-pkg' ),
-					array( 'status' => rest_authorization_required_code() )
-				);
-			}
-		}
-
-		return $has_permissions;
 	}
 }

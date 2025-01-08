@@ -97,11 +97,11 @@ abstract class Base_Controller extends WP_REST_Controller {
 			);
 		}
 
-		if ( $publicize->current_user_can_access_publicize_data() ) {
+		if ( $this->allow_requests_as_blog && self::is_authorized_blog_request() ) {
 			return true;
 		}
 
-		if ( $this->allow_requests_as_blog && self::is_authorized_blog_request() ) {
+		if ( $publicize->current_user_can_access_publicize_data() ) {
 			return true;
 		}
 
