@@ -23,19 +23,26 @@ class Connections {
 	 *
 	 * @param array $args Arguments
 	 *                - 'clear_cache': bool Whether to clear the cache.
-	 *                - 'test_connections': bool Whether to run connection tests.
 	 * @return array
 	 */
 	public static function get_all( $args = array() ) {
 
-		$run_tests = $args['test_connections'] ?? false;
-
 		$is_wpcom = ( new Host() )->is_wpcom_simple();
 
 		if ( $is_wpcom ) {
-			$connections = Connections_Controller::get_connections( $run_tests );
+			$connections = Connections_Controller::get_connections();
 		} else {
-			$connections = self::fetch_and_cache_connections( $run_tests );
+
+			if ( $args['clear_cache'] ?? false ) {
+				self::clear_cache();
+			}
+
+			$connections = get_transient( self::CONNECTIONS_TRANSIENT );
+
+			// This can be an empty array, so we need to check for false.
+			if ( false === $connections ) {
+				$connections = self::fetch_and_cache_connections();
+			}
 		}
 
 		// Let us add the deprecated fields for now.
@@ -80,15 +87,27 @@ class Connections {
 	/**
 	 * Fetch connections from the REST API and cache them.
 	 *
-	 * @param bool $run_tests Whether to run connection tests.
-	 *
 	 * @return array
 	 */
-	public static function fetch_and_cache_connections( $run_tests = false ) {
-		$connections = Connections_Controller::get_connections( $run_tests );
+	public static function fetch_and_cache_connections() {
+		$args = array(
+			// Request all connections.
+			'scope' => 'site',
+		);
 
-		// TODO Implement caching here.
+		$connections = Connections_Controller::get_connections( $args );
+
+		if ( is_array( $connections ) ) {
+			set_transient( self::CONNECTIONS_TRANSIENT, $connections, HOUR_IN_SECONDS * 4 );
+		}
 
 		return $connections;
+	}
+
+	/**
+	 * Clear the connections cache.
+	 */
+	public static function clear_cache() {
+		delete_transient( self::CONNECTIONS_TRANSIENT );
 	}
 }
