@@ -87,26 +87,8 @@ const sharedWebpackConfig = {
 			assets: name =>
 				name.startsWith( 'css' ) && ( name.endsWith( '.js' ) || name.endsWith( 'map' ) ),
 		} ),
-		RenamerPlugin,
 	],
 };
-
-module.exports = [
-	{
-		...sharedWebpackConfig,
-		entry: glob.sync( path.join( scriptSrcDir, '*.js' ) ).reduce( ( acc, filepath ) => {
-			acc[ 'js/' + path.parse( filepath ).name ] = filepath;
-			return acc;
-		}, {} ),
-	},
-	{
-		...sharedWebpackConfig,
-		entry: glob.sync( path.join( styleSrcDir, '*.css' ) ).reduce( ( acc, filepath ) => {
-			acc[ 'css/' + path.parse( filepath ).name ] = filepath;
-			return acc;
-		}, {} ),
-	},
-];
 
 // A bunch of the CSS here expects the RTL version to be named like "module-rtl.css" and "module-rtl.min.css"
 // rather than "module.rtl.css" and "module.min.rtl.css" like our Webpack config does it.
@@ -133,3 +115,45 @@ const RenamerPlugin = {
 		} );
 	},
 };
+
+const weirdRtlEntries = {};
+// Weird frontend CSS files, only a minified rtl is built (and without the ".min" extension).
+// The ltr version is apparently used unminified.
+for ( const name of [
+	'contact-form/css/grunion',
+	'contact-form/css/grunion-admin',
+	'contact-form/css/grunion-editor-ui',
+] ) {
+	weirdRtlEntries[ name ] = path.join( __dirname, '..', name + '.css' );
+}
+
+module.exports = [
+	{
+		...sharedWebpackConfig,
+		entry: weirdRtlEntries,
+		plugins: [
+			...sharedWebpackConfig.plugins,
+			// In some cases an output filename is the same as the input. Don't overwrite in that case.
+			new RemoveAssetWebpackPlugin( {
+				assets: Object.values( weirdRtlEntries )
+					.filter( n => typeof n === 'string' )
+					.map( n => path.relative( path.dirname( __dirname ), n ) ),
+			} ),
+			RenamerPlugin,
+		],
+	},
+	{
+		...sharedWebpackConfig,
+		entry: glob.sync( path.join( scriptSrcDir, '*.js' ) ).reduce( ( acc, filepath ) => {
+			acc[ 'js/' + path.parse( filepath ).name ] = filepath;
+			return acc;
+		}, {} ),
+	},
+	{
+		...sharedWebpackConfig,
+		entry: glob.sync( path.join( styleSrcDir, '*.css' ) ).reduce( ( acc, filepath ) => {
+			acc[ 'css/' + path.parse( filepath ).name ] = filepath;
+			return acc;
+		}, {} ),
+	},
+];
