@@ -1,5 +1,6 @@
 import ThreatsDataViews from '..';
-import { data } from './data';
+import { HISTORIC_TABLE_FIELDS } from '../constants';
+import { currentData, historicData } from './data';
 
 export default {
 	title: 'JS Packages/Components/Threats Data Views',
@@ -17,6 +18,40 @@ export default {
 			</div>
 		),
 	],
+};
+
+export const Current = args => <ThreatsDataViews { ...args } />;
+Current.args = {
+	data: currentData,
+	isSupportedEnvironment: true,
+	isUserConnected: true,
+	hasConnectedOwner: true,
+	handleConnectUser: () =>
+		alert( 'Connect user action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
+	credentials: [ { type: 'managed', role: 'main', still_valid: true } ],
+	isThreatEligibleForFix: () => true,
+	onFixThreats: () =>
+		alert( 'Threat fix action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
+	onIgnoreThreats: () =>
+		alert( 'Ignore threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
+};
+
+export const Historic = args => <ThreatsDataViews { ...args } />;
+Historic.args = {
+	status: 'historic',
+	data: historicData,
+	initialFields: HISTORIC_TABLE_FIELDS,
+	isSupportedEnvironment: true,
+	isUserConnected: true,
+	hasConnectedOwner: true,
+	handleConnectUser: () =>
+		alert( 'Connect user action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
+	credentials: [ { type: 'managed', role: 'main', still_valid: true } ],
+	onUnignoreThreats: () =>
+		// eslint-disable-next-line no-alert
+		alert(
+			'Unignore threat action callback triggered! This is handled by the component consumer.'
+		),
 };
 
 export const FixerStatuses = args => <ThreatsDataViews { ...args } />;
@@ -115,13 +150,6 @@ FixerStatuses.args = {
 			},
 		},
 	],
-	filters: [
-		{
-			field: 'status',
-			operator: 'isAny',
-			value: [ 'current' ],
-		},
-	],
 	isSupportedEnvironment: true,
 	isUserConnected: true,
 	hasConnectedOwner: true,
@@ -136,51 +164,11 @@ FixerStatuses.args = {
 		alert( 'Fix threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
 	onIgnoreThreats: () =>
 		alert( 'Ignore threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
-	onUnignoreThreats: () =>
-		// eslint-disable-next-line no-alert
-		alert(
-			'Unignore threat action callback triggered! This is handled by the component consumer.'
-		),
-};
-
-export const Default = args => <ThreatsDataViews { ...args } />;
-Default.args = {
-	data: data,
-	filters: [
-		{
-			field: 'status',
-			operator: 'isAny',
-			value: [ 'current' ],
-		},
-	],
-	isSupportedEnvironment: true,
-	isUserConnected: true,
-	hasConnectedOwner: true,
-	handleConnectUser: () =>
-		alert( 'Connect user action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
-	credentials: [ { type: 'managed', role: 'main', still_valid: true } ],
-	isThreatEligibleForFix: () => true,
-	onFixThreats: () =>
-		alert( 'Threat fix action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
-	onIgnoreThreats: () =>
-		alert( 'Ignore threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
-	onUnignoreThreats: () =>
-		// eslint-disable-next-line no-alert
-		alert(
-			'Unignore threat action callback triggered! This is handled by the component consumer.'
-		),
 };
 
 export const AdditionalConnectionsNeeded = args => <ThreatsDataViews { ...args } />;
 AdditionalConnectionsNeeded.args = {
-	data: data,
-	filters: [
-		{
-			field: 'status',
-			operator: 'isAny',
-			value: [ 'current' ],
-		},
-	],
+	data: currentData,
 	isSupportedEnvironment: true,
 	isUserConnected: false,
 	handleConnectUser: () =>
@@ -190,23 +178,11 @@ AdditionalConnectionsNeeded.args = {
 		alert( 'Threat fix action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
 	onIgnoreThreats: () =>
 		alert( 'Ignore threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
-	onUnignoreThreats: () =>
-		// eslint-disable-next-line no-alert
-		alert(
-			'Unignore threat action callback triggered! This is handled by the component consumer.'
-		),
 };
 
 export const UserConnectionNeeded = args => <ThreatsDataViews { ...args } />;
 UserConnectionNeeded.args = {
-	data: data,
-	filters: [
-		{
-			field: 'status',
-			operator: 'isAny',
-			value: [ 'current' ],
-		},
-	],
+	data: currentData,
 	isSupportedEnvironment: true,
 	isUserConnected: false,
 	handleConnectUser: () =>
@@ -217,16 +193,11 @@ UserConnectionNeeded.args = {
 		alert( 'Threat fix action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
 	onIgnoreThreats: () =>
 		alert( 'Ignore threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
-	onUnignoreThreats: () =>
-		// eslint-disable-next-line no-alert
-		alert(
-			'Unignore threat action callback triggered! This is handled by the component consumer.'
-		),
 };
 
 export const CredentialsRequired = args => <ThreatsDataViews { ...args } />;
 CredentialsRequired.args = {
-	data: data,
+	data: currentData,
 	isSupportedEnvironment: true,
 	isUserConnected: true,
 	hasConnectedOwner: true,
@@ -239,11 +210,6 @@ CredentialsRequired.args = {
 		alert( 'Threat fix action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
 	onIgnoreThreats: () =>
 		alert( 'Ignore threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
-	onUnignoreThreats: () =>
-		// eslint-disable-next-line no-alert
-		alert(
-			'Unignore threat action callback triggered! This is handled by the component consumer.'
-		),
 };
 
 export const FreeResults = args => <ThreatsDataViews { ...args } />;

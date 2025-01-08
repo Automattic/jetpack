@@ -4,7 +4,7 @@ export default {
 	title: 'JS Packages/Components/Badge',
 	component: Badge,
 	argTypes: {
-		type: {
+		variant: {
 			control: {
 				type: 'select',
 			},
@@ -17,6 +17,6 @@ const Template = args => <Badge { ...args } />;
 
 export const _default = Template.bind( {} );
 _default.args = {
-	type: 'info',
+	variant: 'info',
 	children: 'Hello World',
 };

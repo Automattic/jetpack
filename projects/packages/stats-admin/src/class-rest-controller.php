@@ -425,6 +425,17 @@ class REST_Controller {
 				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
+
+		// Get Location stats.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/stats/location-views/(?P<geo_mode>country|region|city)', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_location_stats' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
 	}
 
 	/**
@@ -972,6 +983,20 @@ class REST_Controller {
 			'v1.1',
 			array( 'timeout' => 10 )
 		);
+	}
+
+	/**
+	 * Get Location stats.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function get_location_stats( $req ) {
+		$params   = $req->get_params();
+		$geo_mode = $params['geo_mode'];
+		unset( $params['geo_mode'] );
+
+		return $this->wpcom_stats->get_views_by_location( $geo_mode, $params );
 	}
 
 	/**

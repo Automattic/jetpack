@@ -1,3 +1,13 @@
+## [3.1.16] - 2025-01-06
+### Changed
+- Updated package dependencies. [#40796] [#40798] [#40831]
+
+### Deprecated
+- Default import is now deprecated in favor of named import and will be removed in future.
+
+### Fixed
+- Fixed package.json exports to expose built in types [#40801]
+
 ## [3.1.15] - 2024-12-16
 ### Changed
 - Internal updates.
@@ -184,6 +194,7 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.1.16]: https://github.com/Automattic/social-logos/compare/v3.1.15...v3.1.16
 [3.1.15]: https://github.com/Automattic/social-logos/compare/v3.1.14...v3.1.15
 [3.1.14]: https://github.com/Automattic/social-logos/compare/v3.1.13...v3.1.14
 [3.1.13]: https://github.com/Automattic/social-logos/compare/v3.1.12...v3.1.13

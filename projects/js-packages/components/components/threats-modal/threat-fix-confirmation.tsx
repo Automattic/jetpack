@@ -107,8 +107,8 @@ const ThreatFixConfirmation = () => {
 								<Icon icon={ THREAT_ICONS[ getThreatType( threat ) ] } size={ 20 } />
 							</div>
 						) }
-						<div className={ styles.bulk__title }>
-							<Text variant="title-small">{ getLabel( threat ) }</Text>
+						<div className={ styles.bulk__description }>
+							<Text className={ styles.bulk__description__title }>{ getLabel( threat ) }</Text>
 							<ThreatFixDetails showTitle={ false } threat={ threat } />
 						</div>
 					</div>
