@@ -222,17 +222,6 @@ class Test_WPcom_Admin_Menu extends TestCase {
 	}
 
 	/**
-	 * Tests add_my_mailboxes_menu
-	 */
-	public function test_add_my_mailboxes_menu() {
-		global $menu;
-
-		static::$admin_menu->add_my_mailboxes_menu();
-
-		$this->assertSame( 'https://wordpress.com/mailboxes/' . static::$domain, $menu['4.64424'][2] );
-	}
-
-	/**
 	 * Tests add_users_menu
 	 */
 	public function test_add_users_menu() {

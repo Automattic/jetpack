@@ -73,11 +73,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$this->add_my_home_menu();
 		$this->remove_gutenberg_menu();
 
-		// We don't need the `My Mailboxes` when the interface is set to wp-admin or the site is a staging site,
-		if ( ! $this->use_wp_admin_interface() && ! get_option( 'wpcom_is_staging_site' ) ) {
-			$this->add_my_mailboxes_menu();
-		}
-
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
 			$this->add_site_card_menu();
