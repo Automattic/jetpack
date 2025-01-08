@@ -551,7 +551,7 @@ function wpcom_display_global_styles_launch_bar( $bar_controls ) {
 							class="launch-bar-global-styles-upgrade"
 							href="<?php echo esc_url( $upgrade_url ); ?>"
 						>
-							<?php echo esc_html__( 'Upgrade now (updated)', 'jetpack-mu-wpcom' ); ?>
+							<?php echo esc_html__( 'Upgrade now', 'jetpack-mu-wpcom' ); ?>
 						</a>
 						<a
 							class="launch-bar-global-styles-reset"
