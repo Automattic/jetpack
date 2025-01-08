@@ -87,6 +87,7 @@ const sharedWebpackConfig = {
 			assets: name =>
 				name.startsWith( 'css' ) && ( name.endsWith( '.js' ) || name.endsWith( 'map' ) ),
 		} ),
+		RenamerPlugin,
 	],
 };
 
@@ -106,3 +107,29 @@ module.exports = [
 		}, {} ),
 	},
 ];
+
+// A bunch of the CSS here expects the RTL version to be named like "module-rtl.css" and "module-rtl.min.css"
+// rather than "module.rtl.css" and "module.min.rtl.css" like our Webpack config does it.
+// This minimal plugin renames the assets to conform to that style.
+const RenamerPlugin = {
+	apply( compiler ) {
+		compiler.hooks.thisCompilation.tap( 'Renamer', compilation => {
+			compilation.hooks.processAssets.tap(
+				{
+					name: 'Renamer',
+					stage: jetpackWebpackConfig.webpack.Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE_INLINE,
+					additionalAssets: true,
+				},
+				assets => {
+					for ( const [ name, asset ] of Object.entries( assets ) ) {
+						const m = name.match( /^(.*?)((?:\.min)?)\.rtl\.css$/ );
+						if ( m ) {
+							delete assets[ name ];
+							assets[ `${ m[ 1 ] }-rtl${ m[ 2 ] }.css` ] = asset;
+						}
+					}
+				}
+			);
+		} );
+	},
+};
