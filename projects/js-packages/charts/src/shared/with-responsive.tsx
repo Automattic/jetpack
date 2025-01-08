@@ -12,11 +12,17 @@ import type { BaseChartProps } from '../types';
 export function withResponsive< T extends BaseChartProps< unknown > >(
 	WrappedComponent: ComponentType< T >
 ): FC< Omit< T, 'width' | 'height' > > {
+	const DEFAULT_SIZE = 300;
+
 	return function ResponsiveChart( props ) {
 		return (
 			<ParentSize>
 				{ ( { width, height } ) => (
-					<WrappedComponent { ...( props as T ) } width={ width } height={ height } />
+					<WrappedComponent
+						{ ...( props as T ) }
+						width={ width > 0 ? width : DEFAULT_SIZE }
+						height={ height > 0 ? height : DEFAULT_SIZE }
+					/>
 				) }
 			</ParentSize>
 		);
