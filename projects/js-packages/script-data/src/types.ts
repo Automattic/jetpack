@@ -34,7 +34,6 @@ export interface CurrentUserData {
 	display_name: string;
 	wpcom?: {
 		ID: number;
-		email: string;
 		login: string;
 	};
 }
