@@ -643,7 +643,7 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_upgradable() {
-		return false;
+		return ! static::has_paid_plan_for_product() && ! static::is_bundle_product();
 	}
 
 	/**

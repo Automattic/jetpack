@@ -44,7 +44,6 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	onAdd,
 	onInstall,
 	onLearnMore,
-	upgradeInInterstitial,
 	isOwned,
 } ) => {
 	const troubleshootBackupsUrl =
@@ -126,15 +125,11 @@ const ActionButton: FC< ActionButtonProps > = ( {
 				};
 			}
 			case PRODUCT_STATUSES.CAN_UPGRADE: {
-				const upgradeText = __( 'Upgrade', 'jetpack-my-jetpack' );
-				const purchaseText = __( 'Learn more', 'jetpack-my-jetpack' );
-				const buttonText = purchaseUrl || upgradeInInterstitial ? upgradeText : purchaseText;
-
 				return {
 					...buttonState,
 					href: purchaseUrl || `#/add-${ slug }`,
 					variant: 'primary',
-					label: buttonText,
+					label: __( 'Upgrade', 'jetpack-my-jetpack' ),
 					onClick: onAdd,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.CAN_UPGRADE ] ?? {} ),
 				};
@@ -256,7 +251,6 @@ const ActionButton: FC< ActionButtonProps > = ( {
 		onInstall,
 		onLearnMore,
 		purchaseUrl,
-		upgradeInInterstitial,
 		isManageDisabled,
 		manageUrl,
 		onManage,
