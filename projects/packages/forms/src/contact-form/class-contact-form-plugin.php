@@ -1188,6 +1188,20 @@ class Contact_Form_Plugin {
 			}
 		}
 
+		// Remove unprefixed duplicates of prefixed fields (affects hidden fields).
+		$prefixed_keys = array_filter(
+			array_keys( $md ),
+			static function ( $key ) {
+				return str_starts_with( $key, '85_' );
+			}
+		);
+		foreach ( $prefixed_keys as $prefixed_key ) {
+			$original_key = preg_replace( '/^85_/', '', $prefixed_key );
+			if ( $original_key && array_key_exists( $original_key, $md ) ) {
+				unset( $md[ $original_key ] );
+			}
+		}
+
 		// flatten and decode all values.
 		$result = array();
 		foreach ( $md as $key => $value ) {
@@ -1196,7 +1210,6 @@ class Contact_Form_Plugin {
 			}
 			$result[ $key ] = html_entity_decode( $value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 		}
-
 		return $result;
 	}
 
