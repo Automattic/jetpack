@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+General: Ensure that double encoding doesn't happen.
