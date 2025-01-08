@@ -1,5 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { connect } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import SimpleNotice from 'components/notice';
 import { getActiveSitePurchases } from 'state/site';
 
@@ -8,11 +9,11 @@ import { getActiveSitePurchases } from 'state/site';
  *
  * @param {object} root0                     - props
  * @param {Array}  root0.activeSitePurchases - active site purchases
- * @param {object} root0.location            - location object
- * @param {string} root0.location.pathname   - location pathname
  * @return {object} component
  */
-export function PlanConflictWarning( { activeSitePurchases, location: { pathname } } ) {
+export function PlanConflictWarning( { activeSitePurchases } ) {
+	const { pathname } = useLocation();
+
 	// Only show on plans page.
 	if ( '/plans' !== pathname ) {
 		return null;
