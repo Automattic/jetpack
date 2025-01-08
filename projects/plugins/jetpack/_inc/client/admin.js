@@ -49,7 +49,7 @@ function render() {
 						<Route path="/my-plan" element={ <Main routeName={ getRouteName( '/my-plan' ) } /> } />
 						<Route path="/plans" element={ <Main routeName={ getRouteName( '/plans' ) } /> } />
 						<Route
-							path="/recommendations"
+							path="/recommendations/*"
 							element={ <Main routeName={ getRouteName( '/recommendations' ) } /> }
 						/>
 						<Route

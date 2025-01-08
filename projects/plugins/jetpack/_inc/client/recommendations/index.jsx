@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { Route, Routes, Navigate } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import QueryIntroOffers from 'components/data/query-intro-offers';
 import QueryRecommendationsConditional from 'components/data/query-recommendations-conditional';
 import QueryRecommendationsData from 'components/data/query-recommendations-data';
@@ -59,6 +59,7 @@ const useInitOnboarding = ( {
 
 const RecommendationsComponent = props => {
 	const { isLoading, step, newRecommendations } = props;
+	const navigate = useNavigate();
 
 	let redirectPath;
 
@@ -191,6 +192,10 @@ const RecommendationsComponent = props => {
 		return newRecommendations && newRecommendations.includes( stepSlug );
 	};
 
+	useEffect( () => {
+		navigate( '/recommendations' + redirectPath, { replace: true } );
+	}, [ redirectPath, navigate ] );
+
 	useInitOnboarding( props );
 
 	return (
@@ -212,150 +217,121 @@ const RecommendationsComponent = props => {
 				</div>
 			) : (
 				<Routes>
-					{ /* TODO: Why we don't redirect improper step paths? */ }
+					<Route path="site-type" element={ <SiteTypeQuestion /> } />
+					<Route path="product-suggestions" element={ <ProductSuggestions /> } />
+					<Route path="product-purchased" element={ <ProductPurchased /> } />
+					<Route path="agency" element={ <ResourcePrompt stepSlug="agency" /> } />
+					<Route path="/woocommerce" element={ <FeaturePrompt stepSlug="woocommerce" /> } />
+					<Route path="/monitor" element={ <FeaturePrompt stepSlug="monitor" /> } />
+					<Route path="/newsletter" element={ <FeaturePrompt stepSlug="newsletter" /> } />
+					<Route path="/related-posts" element={ <FeaturePrompt stepSlug="related-posts" /> } />
+					<Route path="/creative-mail" element={ <FeaturePrompt stepSlug="creative-mail" /> } />
 					<Route
-						path="/recommendations"
-						element={ <Navigate to={ '/recommendations' + redirectPath } replace /> }
-					/>
-					<Route path="/recommendations/site-type" element={ <SiteTypeQuestion /> } />
-					<Route path="/recommendations/product-suggestions" element={ <ProductSuggestions /> } />
-					<Route path="/recommendations/product-purchased" element={ <ProductPurchased /> } />
-					<Route path="/recommendations/agency" element={ <ResourcePrompt stepSlug="agency" /> } />
-					<Route
-						path="/recommendations/woocommerce"
-						element={ <FeaturePrompt stepSlug="woocommerce" /> }
-					/>
-					<Route path="/recommendations/monitor" element={ <FeaturePrompt stepSlug="monitor" /> } />
-					<Route
-						path="/recommendations/newsletter"
-						element={ <FeaturePrompt stepSlug="newsletter" /> }
-					/>
-					<Route
-						path="/recommendations/related-posts"
-						element={ <FeaturePrompt stepSlug="related-posts" /> }
-					/>
-					<Route
-						path="/recommendations/creative-mail"
-						element={ <FeaturePrompt stepSlug="creative-mail" /> }
-					/>
-					<Route
-						path="/recommendations/site-accelerator"
+						path="/site-accelerator"
 						element={ <FeaturePrompt stepSlug="site-accelerator" /> }
 					/>
 					<Route
-						path="/recommendations/vaultpress-backup"
+						path="/vaultpress-backup"
 						element={ <ResourcePrompt stepSlug="vaultpress-backup" /> }
 					/>
 					<Route
-						path="/recommendations/vaultpress-for-woocommerce"
+						path="/vaultpress-for-woocommerce"
 						element={ <ResourcePrompt stepSlug="vaultpress-for-woocommerce" /> }
 					/>
 					<Route
-						path="/recommendations/publicize"
+						path="/publicize"
 						element={ <FeaturePrompt stepSlug="publicize" isNew={ isNew( 'publicize' ) } /> }
 					/>
 					<Route
-						path="/recommendations/protect"
+						path="/protect"
 						element={ <FeaturePrompt stepSlug="protect" isNew={ isNew( 'protect' ) } /> }
 					/>
 					<Route
-						path="/recommendations/anti-spam"
+						path="/anti-spam"
 						element={ <ResourcePrompt stepSlug="anti-spam" isNew={ isNew( 'anti-spam' ) } /> }
 					/>
 					<Route
-						path="/recommendations/videopress"
+						path="/videopress"
 						element={ <FeaturePrompt stepSlug="videopress" isNew={ isNew( 'videopress' ) } /> }
 					/>
 					<Route
-						path="/recommendations/backup-plan"
+						path="/backup-plan"
 						element={ <ResourcePrompt stepSlug="backup-plan" isNew={ isNew( 'backup-plan' ) } /> }
 					/>
 					<Route
-						path="/recommendations/boost"
+						path="/boost"
 						element={ <FeaturePrompt stepSlug="boost" isNew={ isNew( 'boost' ) } /> }
 					/>
+					<Route path="/welcome-backup" element={ <ResourcePrompt stepSlug="welcome__backup" /> } />
 					<Route
-						path="/recommendations/welcome-backup"
-						element={ <ResourcePrompt stepSlug="welcome__backup" /> }
-					/>
-					<Route
-						path="/recommendations/welcome-complete"
+						path="/welcome-complete"
 						element={ <ResourcePrompt stepSlug="welcome__complete" /> }
 					/>
 					<Route
-						path="/recommendations/welcome-starter"
+						path="/welcome-starter"
 						element={ <ResourcePrompt stepSlug="welcome__starter" /> }
 					/>
 					<Route
-						path="/recommendations/welcome-security"
+						path="/welcome-security"
 						element={ <ResourcePrompt stepSlug="welcome__security" /> }
 					/>
 					<Route
-						path="/recommendations/welcome-antispam"
+						path="/welcome-antispam"
 						element={ <ResourcePrompt stepSlug="welcome__antispam" /> }
 					/>
 					<Route
-						path="/recommendations/welcome-videopress"
+						path="/welcome-videopress"
 						element={ <ResourcePrompt stepSlug="welcome__videopress" /> }
 					/>
+					<Route path="/welcome-search" element={ <ResourcePrompt stepSlug="welcome__search" /> } />
+					<Route path="/welcome-scan" element={ <ResourcePrompt stepSlug="welcome__scan" /> } />
 					<Route
-						path="/recommendations/welcome-search"
-						element={ <ResourcePrompt stepSlug="welcome__search" /> }
-					/>
-					<Route
-						path="/recommendations/welcome-scan"
-						element={ <ResourcePrompt stepSlug="welcome__scan" /> }
-					/>
-					<Route
-						path="/recommendations/welcome-social-basic"
+						path="/welcome-social-basic"
 						element={ <ResourcePrompt stepSlug="welcome__social_basic" /> }
 					/>
 					<Route
-						path="/recommendations/welcome-social-v1"
+						path="/welcome-social-v1"
 						element={ <ResourcePrompt stepSlug="welcome__social_v1" /> }
 					/>
 					<Route
-						path="/recommendations/welcome-social-image-generator"
+						path="/welcome-social-image-generator"
 						element={ <ResourcePrompt stepSlug="welcome__social_image_generator" /> }
 					/>
 					<Route
-						path="/recommendations/welcome-golden-token"
+						path="/welcome-golden-token"
 						element={ <ResourcePrompt stepSlug="welcome__golden_token" /> }
 					/>
 					<Route
-						path="/recommendations/backup-activated"
+						path="/backup-activated"
 						element={ <ResourcePrompt stepSlug="backup-activated" /> }
 					/>
+					<Route path="/scan-activated" element={ <ResourcePrompt stepSlug="scan-activated" /> } />
 					<Route
-						path="/recommendations/scan-activated"
-						element={ <ResourcePrompt stepSlug="scan-activated" /> }
-					/>
-					<Route
-						path="/recommendations/unlimited-sharing-activated"
+						path="/unlimited-sharing-activated"
 						element={ <ResourcePrompt stepSlug="unlimited-sharing-activated" /> }
 					/>
 					<Route
-						path="/recommendations/social-v1-activated"
+						path="/social-v1-activated"
 						element={ <ResourcePrompt stepSlug="social-v1-activated" /> }
 					/>
 					<Route
-						path="/recommendations/antispam-activated"
+						path="/antispam-activated"
 						element={ <ResourcePrompt stepSlug="antispam-activated" /> }
 					/>
 					<Route
-						path="/recommendations/videopress-activated"
+						path="/videopress-activated"
 						element={ <ResourcePrompt stepSlug="videopress-activated" /> }
 					/>
 					<Route
-						path="/recommendations/search-activated"
+						path="/search-activated"
 						element={ <ResourcePrompt stepSlug="search-activated" /> }
 					/>
 					<Route
-						path="/recommendations/server-credentials"
+						path="/server-credentials"
 						element={ <ResourcePrompt stepSlug="server-credentials" /> }
 					/>
 					<Route
-						path="/recommendations/summary"
+						path="/summary"
 						element={ <Summary newRecommendations={ newRecommendations } /> }
 					/>
 				</Routes>
