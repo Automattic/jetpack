@@ -7,7 +7,6 @@
 		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Social Logos"
 	},
 	"main": "build/react/index.js",
-	"module": "build/react/index.js",
 	"types": "build/react/index.d.ts",
 	"exports": {
 		".": {
@@ -15,7 +14,7 @@
 			"default": "./build/react/index.js"
 		},
 		"./svg-sprite/*": {
-			"default": "./build/svg-sprite/*"
+			"default": "./build/svg-sprite/social-logos.svg"
 		},
 		"./font/*": {
 			"default": "./build/font/*"

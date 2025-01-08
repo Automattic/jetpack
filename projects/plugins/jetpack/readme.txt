@@ -326,7 +326,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.2-beta - 2025-01-06
+### 14.2 - 2025-01-07
 #### Enhancements
 - Social: Improve Jetpack Likes behavior for better theme integration if the post has likes.
 - Stats: Allow programatically fetching stats for specific sites when using Jetpack's tools.
