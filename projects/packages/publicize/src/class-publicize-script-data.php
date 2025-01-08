@@ -158,7 +158,7 @@ class Publicize_Script_Data {
 
 		return array(
 			'connectionData' => array(
-				'connections' => Connections::get_all(),
+				'connections' => Connections::get_all_for_user(),
 			),
 			'shareStatus'    => $share_status,
 		);
