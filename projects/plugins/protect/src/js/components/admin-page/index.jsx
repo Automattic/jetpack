@@ -69,6 +69,10 @@ const AdminPage = ( { children } ) => {
 							</>
 						}
 					/>
+					<Tab
+						link="/settings"
+						label={ <span className={ styles.tab }>{ __( 'Settings', 'jetpack-protect' ) }</span> }
+					/>
 				</Tabs>
 			</Container>
 			{ children }

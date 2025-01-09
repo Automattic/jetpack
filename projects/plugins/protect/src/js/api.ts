@@ -3,6 +3,18 @@ import apiFetch from '@wordpress/api-fetch';
 import camelize from 'camelize';
 
 const API = {
+	toggleAccountProtection: () =>
+		apiFetch( {
+			method: 'POST',
+			path: 'jetpack-protect/v1/toggle-account-protection',
+		} ),
+
+	getAccountProtection: () =>
+		apiFetch( {
+			path: 'jetpack-protect/v1/account-protection',
+			method: 'GET',
+		} ),
+
 	getWaf: (): Promise< WafStatus > =>
 		apiFetch( {
 			path: 'jetpack-protect/v1/waf',
