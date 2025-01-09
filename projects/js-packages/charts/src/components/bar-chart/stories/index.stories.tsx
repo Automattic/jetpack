@@ -28,6 +28,7 @@ export const Default: StoryType = {
 		data: [ data[ 0 ], data[ 1 ], data[ 2 ] ], // limit to 3 series for better readability
 		showLegend: false,
 		legendOrientation: 'horizontal',
+		gridVisibility: 'x',
 	},
 };
 

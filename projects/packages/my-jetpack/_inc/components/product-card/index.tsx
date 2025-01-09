@@ -73,8 +73,10 @@ const ProductCard: FC< ProductCardProps > = props => {
 	const isOwned = ownedProducts?.includes( slug );
 
 	const isError =
-		status === PRODUCT_STATUSES.EXPIRED || status === PRODUCT_STATUSES.NEEDS_ATTENTION;
-	const isWarning = status === PRODUCT_STATUSES.EXPIRING_SOON;
+		status === PRODUCT_STATUSES.EXPIRED || status === PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR;
+	const isWarning =
+		status === PRODUCT_STATUSES.EXPIRING_SOON ||
+		status === PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING;
 	const isAbsent =
 		status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.ABSENT_WITH_PLAN;
 	const isPurchaseRequired = status === PRODUCT_STATUSES.NEEDS_PLAN;
@@ -223,6 +225,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 						isFetching={ isLoading }
 						isInstallingStandalone={ isInstallingStandalone }
 						isOwned={ isOwned }
+						suppressNeedsAttention={ slug === 'protect' }
 					/>
 				</div>
 			) }

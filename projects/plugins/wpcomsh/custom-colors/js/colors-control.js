@@ -308,7 +308,8 @@
 			const morePaletteClickHandler = function () {
 				// Load palettes into a client-side cache 40 at a time
 				// and refresh that cache one page before it's necessary.
-				if ( ct.paletteIndex <= ct.palettes.length - ct.palettesAtATime ) {
+				const lastIndex = Math.max( ct.palettes.length, ct.palettes.length - ct.palettesAtATime );
+				if ( lastIndex > ct.paletteIndex ) {
 					ct.showPalettes( ct.paletteIndex );
 				}
 
@@ -766,6 +767,9 @@
 
 			// Construct the color palettes
 			for ( let i = paletteIndex, _len = paletteIndex + 6; i < _len; i++ ) {
+				if ( undefined === ct.palettes[ i ] ) {
+					continue;
+				}
 				const new_palette = $( '<ul/>' ).addClass( 'color-grid colour-lovers' );
 
 				for ( const color_key in ct.palettes[ i ].colors ) {

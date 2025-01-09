@@ -27,6 +27,8 @@ class Connections_Controller extends Base_Controller {
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'publicize/connections';
 
+		$this->allow_requests_as_blog = true;
+
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
@@ -41,7 +43,7 @@ class Connections_Controller extends Base_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_items' ),
-					'permission_callback' => array( $this, 'get_items_permission_check' ),
+					'permission_callback' => array( $this, 'get_items_permissions_check' ),
 					'args'                => array(
 						'test_connections' => array(
 							'type'        => 'boolean',
@@ -104,56 +106,7 @@ class Connections_Controller extends Base_Controller {
 			'type'       => 'object',
 			'properties' => array_merge(
 				$deprecated_fields,
-				array(
-					'connection_id'   => array(
-						'type'        => 'string',
-						'description' => __( 'Connection ID of the connected account.', 'jetpack-publicize-pkg' ),
-					),
-					'display_name'    => array(
-						'type'        => 'string',
-						'description' => __( 'Display name of the connected account.', 'jetpack-publicize-pkg' ),
-					),
-					'external_handle' => array(
-						'type'        => 'string',
-						'description' => __( 'The external handle or username of the connected account.', 'jetpack-publicize-pkg' ),
-					),
-					'external_id'     => array(
-						'type'        => 'string',
-						'description' => __( 'The external ID of the connected account.', 'jetpack-publicize-pkg' ),
-					),
-					'profile_link'    => array(
-						'type'        => 'string',
-						'description' => __( 'Profile link of the connected account.', 'jetpack-publicize-pkg' ),
-					),
-					'profile_picture' => array(
-						'type'        => 'string',
-						'description' => __( 'URL of the profile picture of the connected account.', 'jetpack-publicize-pkg' ),
-					),
-					'service_label'   => array(
-						'type'        => 'string',
-						'description' => __( 'Human-readable label for the Jetpack Social service.', 'jetpack-publicize-pkg' ),
-					),
-					'service_name'    => array(
-						'type'        => 'string',
-						'description' => __( 'Alphanumeric identifier for the Jetpack Social service.', 'jetpack-publicize-pkg' ),
-					),
-					'shared'          => array(
-						'type'        => 'boolean',
-						'description' => __( 'Whether the connection is shared with other users.', 'jetpack-publicize-pkg' ),
-					),
-					'status'          => array(
-						'type'        => 'string',
-						'description' => __( 'The connection status.', 'jetpack-publicize-pkg' ),
-						'enum'        => array(
-							'ok',
-							'broken',
-						),
-					),
-					'user_id'         => array(
-						'type'        => 'integer',
-						'description' => __( 'ID of the user the connection belongs to.', 'jetpack-publicize-pkg' ),
-					),
-				)
+				self::get_the_item_schema()
 			),
 		);
 
@@ -163,25 +116,92 @@ class Connections_Controller extends Base_Controller {
 	}
 
 	/**
-	 * Get all connections. Meant to be called directly only on WPCOM.
-	 *
-	 * @param bool $run_tests Whether to run tests on the connections.
+	 * Get the schema for the connection item.
 	 *
 	 * @return array
 	 */
-	protected static function get_all_connections( $run_tests = false ) {
+	public static function get_the_item_schema() {
+		return array(
+			'connection_id'   => array(
+				'type'        => 'string',
+				'description' => __( 'Connection ID of the connected account.', 'jetpack-publicize-pkg' ),
+			),
+			'display_name'    => array(
+				'type'        => 'string',
+				'description' => __( 'Display name of the connected account.', 'jetpack-publicize-pkg' ),
+			),
+			'external_handle' => array(
+				'type'        => 'string',
+				'description' => __( 'The external handle or username of the connected account.', 'jetpack-publicize-pkg' ),
+			),
+			'external_id'     => array(
+				'type'        => 'string',
+				'description' => __( 'The external ID of the connected account.', 'jetpack-publicize-pkg' ),
+			),
+			'profile_link'    => array(
+				'type'        => 'string',
+				'description' => __( 'Profile link of the connected account.', 'jetpack-publicize-pkg' ),
+			),
+			'profile_picture' => array(
+				'type'        => 'string',
+				'description' => __( 'URL of the profile picture of the connected account.', 'jetpack-publicize-pkg' ),
+			),
+			'service_label'   => array(
+				'type'        => 'string',
+				'description' => __( 'Human-readable label for the Jetpack Social service.', 'jetpack-publicize-pkg' ),
+			),
+			'service_name'    => array(
+				'type'        => 'string',
+				'description' => __( 'Alphanumeric identifier for the Jetpack Social service.', 'jetpack-publicize-pkg' ),
+			),
+			'shared'          => array(
+				'type'        => 'boolean',
+				'description' => __( 'Whether the connection is shared with other users.', 'jetpack-publicize-pkg' ),
+			),
+			'status'          => array(
+				'type'        => 'string',
+				'description' => __( 'The connection status.', 'jetpack-publicize-pkg' ),
+				'enum'        => array(
+					'ok',
+					'broken',
+				),
+			),
+			'user_id'         => array(
+				'type'        => 'integer',
+				'description' => __( 'ID of the user the connection belongs to. It is the user ID on wordpress.com', 'jetpack-publicize-pkg' ),
+			),
+		);
+	}
+
+	/**
+	 * Get all connections. Meant to be called directly only on WPCOM.
+	 *
+	 * @param array $args Arguments
+	 *                    - 'test_connections': bool Whether to run connection tests.
+	 *                    - 'scope': enum('site', 'user') Which connections to include.
+	 *
+	 * @return array
+	 */
+	protected static function get_all_connections( $args = array() ) {
 		/**
 		 * Publicize instance.
-		 *
-		 * @var \Automattic\Jetpack\Publicize\Publicize $publicize
 		 */
 		global $publicize;
 
 		$items = array();
 
+		$run_tests = $args['test_connections'] ?? false;
+
 		$test_results = $run_tests ? self::get_connections_test_status() : array();
 
-		foreach ( (array) $publicize->get_services( 'connected' ) as $service_name => $connections ) {
+		// If a (Jetpack) blog request, return all the connections for that site.
+		if ( self::is_authorized_blog_request() ) {
+			$service_connections = $publicize->get_all_connections_for_blog_id( get_current_blog_id() );
+		} else {
+			$service_connections = (array) $publicize->get_services( 'connected' );
+		}
+
+		foreach ( $service_connections as $service_name => $connections ) {
 			foreach ( $connections as $connection ) {
 
 				$connection_id = $publicize->get_connection_id( $connection );
@@ -219,13 +239,15 @@ class Connections_Controller extends Base_Controller {
 	/**
 	 * Get a list of publicize connections.
 	 *
-	 * @param bool $run_tests Whether to run tests on the connections.
+	 * @param array $args Arguments.
+	 *
+	 * @see Automattic\Jetpack\Publicize\REST_API\Connections_Controller::get_all_connections()
 	 *
 	 * @return array
 	 */
-	public static function get_connections( $run_tests = false ) {
+	public static function get_connections( $args = array() ) {
 		if ( self::is_wpcom() ) {
-			return self::get_all_connections( $run_tests );
+			return self::get_all_connections( $args );
 		}
 
 		$site_id = Manager::get_site_id( true );
@@ -234,11 +256,17 @@ class Connections_Controller extends Base_Controller {
 		}
 
 		$path = add_query_arg(
-			array( 'test_connections' => $run_tests ),
+			array(
+				'test_connections' => $args['test_connections'] ?? false,
+			),
 			sprintf( '/sites/%d/publicize/connections', $site_id )
 		);
 
-		$response = Client::wpcom_json_api_request_as_user( $path, 'v2', array( 'method' => 'GET' ) );
+		$blog_or_user = ( $args['scope'] ?? '' ) === 'site' ? 'blog' : 'user';
+
+		$callback = array( Client::class, "wpcom_json_api_request_as_{$blog_or_user}" );
+
+		$response = call_user_func( $callback, $path, 'v2', array( 'method' => 'GET' ), null, 'wpcom' );
 
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			// TODO log error.
@@ -262,9 +290,12 @@ class Connections_Controller extends Base_Controller {
 	public function get_items( $request ) {
 		$items = array();
 
-		$run_tests = $request->get_param( 'test_connections' );
+		// On Jetpack, we don't want to pass the 'scope' param to get_connections().
+		$args = array(
+			'test_connections' => $request->get_param( 'test_connections' ),
+		);
 
-		foreach ( self::get_connections( $run_tests ) as $item ) {
+		foreach ( self::get_connections( $args ) as $item ) {
 			$data = $this->prepare_item_for_response( $item, $request );
 
 			$items[] = $this->prepare_response_for_collection( $data );

@@ -321,16 +321,16 @@
 .contact-form .contact-form__select-wrapper::after {
 	position: absolute;
 	inset-inline-end: calc(var(--jetpack--contact-form--input-padding-left) + 4px);
-	top: calc(var(--jetpack--contact-form--input-padding-top) + var(--jetpack--contact-form--line-height) / 2);  
+	top: calc(var(--jetpack--contact-form--input-padding-top) + var(--jetpack--contact-form--line-height) / 2);
 
   content: "";
   display: block;
 	width: 8px;
 	height: 8px;
-  
+
 	border-bottom: 2px solid;
   border-right: 2px solid;
-  
+
 	transform: translateY(-50%) rotate(45deg);
 	transform-origin: center center;
 
@@ -594,7 +594,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .grunion-field-wrap input.checkbox-multiple:checked::before {
 	content: "\2713";
-	
+
 	position: absolute;
 	top: calc(var(--jetpack--contact-form--font-size) / 2);
 	left: calc(var(--jetpack--contact-form--font-size) / 2);
@@ -603,7 +603,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 	font-size: var(--jetpack--contact-form--font-size);
 	line-height: 1;
-	
+
   transform: translate(-50%, -50%);
 }
 
@@ -714,7 +714,6 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form__error {
-	margin-bottom: var(--wp--style--block-gap, 1.5rem);
 	padding: 1em;
 	gap: var(--warning-icon-margin);
 

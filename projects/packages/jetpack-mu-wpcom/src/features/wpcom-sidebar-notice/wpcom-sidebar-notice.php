@@ -10,7 +10,11 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
-if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
+$is_wp_admin = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
+
+if ( ! $is_wp_admin ) {
 	return;
 }
 

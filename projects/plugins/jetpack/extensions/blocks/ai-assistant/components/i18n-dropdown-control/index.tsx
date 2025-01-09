@@ -1,6 +1,7 @@
 /*
  * External dependencies
  */
+import { LANGUAGE_MAP, TRANSLATE_LABEL } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import {
 	MenuItem,
@@ -46,50 +47,9 @@ type LanguageDropdownControlProps = {
 const defaultLanguageLocale =
 	window?.Jetpack_Editor_Initial_State?.siteLocale || navigator?.language;
 
-export const TRANSLATE_LABEL = __( 'Translate', 'jetpack' );
-
 export const defaultLanguage = ( defaultLanguageLocale?.split( '-' )[ 0 ] || 'en' ) as LanguageProp;
 
 export const defaultLocale = defaultLanguageLocale?.split( '-' )?.[ 1 ] || null;
-
-export const LANGUAGE_MAP = {
-	en: {
-		label: __( 'English', 'jetpack' ),
-	},
-	es: {
-		label: __( 'Spanish', 'jetpack' ),
-	},
-	fr: {
-		label: __( 'French', 'jetpack' ),
-	},
-	de: {
-		label: __( 'German', 'jetpack' ),
-	},
-	it: {
-		label: __( 'Italian', 'jetpack' ),
-	},
-	pt: {
-		label: __( 'Portuguese', 'jetpack' ),
-	},
-	ru: {
-		label: __( 'Russian', 'jetpack' ),
-	},
-	zh: {
-		label: __( 'Chinese', 'jetpack' ),
-	},
-	ja: {
-		label: __( 'Japanese', 'jetpack' ),
-	},
-	ar: {
-		label: __( 'Arabic', 'jetpack' ),
-	},
-	hi: {
-		label: __( 'Hindi', 'jetpack' ),
-	},
-	ko: {
-		label: __( 'Korean', 'jetpack' ),
-	},
-};
 
 export const I18nMenuGroup = ( {
 	value,
@@ -107,12 +67,7 @@ export const I18nMenuGroup = ( {
 				return (
 					<MenuItem
 						key={ `key-${ language }` }
-						onClick={ () =>
-							onChange(
-								language + ' (' + LANGUAGE_MAP[ language ].label + ')',
-								LANGUAGE_MAP[ language ].label
-							)
-						}
+						onClick={ () => onChange( language + ' (' + LANGUAGE_MAP[ language ].label + ')' ) }
 						isSelected={ value === language }
 					>
 						{ LANGUAGE_MAP[ language ].label }

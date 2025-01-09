@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import SectionNav from 'components/section-nav';
 import NavItem from 'components/section-nav/item';
 import NavTabs from 'components/section-nav/tabs';
@@ -194,4 +194,4 @@ export default connect( state => {
 		adminUrl: getSiteAdminUrl( state ),
 		purchaseToken: getPurchaseToken( state ),
 	};
-} )( withRouter( Navigation ) );
+} )( props => <Navigation { ...props } location={ useLocation() } /> );

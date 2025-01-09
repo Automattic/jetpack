@@ -4,7 +4,7 @@ import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import Search from 'components/search';
 import SectionNav from 'components/section-nav';
@@ -37,9 +37,14 @@ export class NavigationSettings extends React.Component {
 	};
 
 	UNSAFE_componentWillMount() {
-		// We need to handle the search term not only on route update but also on page load in case of some external redirects
+		// We need to handle the search term not only on route update but also on page load in case of some external redirects.
 		this.onRouteChange( this.props.location );
-		this.props.history.listen( this.onRouteChange );
+	}
+
+	componentDidUpdate( oldprops ) {
+		if ( oldprops.location !== this.props.location ) {
+			this.onRouteChange( this.props.location );
+		}
 	}
 
 	UNSAFE_componentWillReceiveProps( nextProps ) {
@@ -309,4 +314,4 @@ export default connect(
 	dispatch => ( {
 		searchForTerm: term => dispatch( filterSearch( term ) ),
 	} )
-)( withRouter( NavigationSettings ) );
+)( props => <NavigationSettings { ...props } location={ useLocation() } /> );
