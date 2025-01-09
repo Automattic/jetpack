@@ -245,11 +245,11 @@ function GlobalStylesEditNotice() {
 	);
 
 	useEffect( () => {
-		if ( ( ! isSiteEditor && ! isPostEditor ) || isDistractionFree ) {
+		if ( ! isSiteEditor && ! isPostEditor ) {
 			return;
 		}
 
-		if ( globalStylesInUse ) {
+		if ( globalStylesInUse && ! isDistractionFree ) {
 			showNotice();
 		} else {
 			removeNotice( NOTICE_ID );
