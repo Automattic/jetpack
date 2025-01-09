@@ -39,7 +39,15 @@ const getCommonConfig = isESM => ( {
 	resolve: {
 		extensions: [ '.tsx', '.ts', '.js', '.jsx' ],
 	},
-	externals: [ 'react', 'react-dom', /^@visx\/.*/, '@react-spring/web', 'clsx', 'tslib' ],
+	externals: [
+		'react',
+		'react-dom',
+		/^@visx\/.*/,
+		'@react-spring/web',
+		'clsx',
+		'tslib',
+		'@babel/runtime',
+	],
 	plugins: [
 		new CleanWebpackPlugin(),
 		new MiniCssExtractPlugin( {
