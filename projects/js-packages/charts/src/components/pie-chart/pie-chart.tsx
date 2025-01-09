@@ -5,6 +5,7 @@ import { SVGProps, type MouseEvent } from 'react';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
 import { Legend } from '../legend';
+import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../../types';
@@ -140,4 +141,5 @@ const PieChart = ( {
 	);
 };
 
-export default PieChart;
+PieChart.displayName = 'PieChart';
+export default withResponsive< PieChartProps >( PieChart );
