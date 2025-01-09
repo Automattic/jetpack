@@ -180,7 +180,7 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 	/**
 	 * Check if the post is in the latest providers list.
 	 *
-	 * @param WP_Post $post The post to check.
+	 * @param int|\WP_Post $post The post to check.
 	 *
 	 * @return bool
 	 */
