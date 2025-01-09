@@ -97,7 +97,6 @@ class JPCRM_FeatureSniffer {
 	 *
 	 */
 	public function show_feature_alerts() {
-
 		// no untapped features, so no messaging needed
 		if ( count( $this->alerts ) == 0 ) {
 			return false;
