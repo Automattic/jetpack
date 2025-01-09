@@ -54,7 +54,8 @@ const PieChart = ( {
 	const accessors = {
 		value: ( d: DataPointPercentage ) => d.value,
 		// Use the color property from the data object as a last resort. The theme provides colours by default.
-		fill: ( d: DataPointPercentage ) => d?.color || providerTheme.colors[ d.index ],
+		fill: ( d: DataPointPercentage & { index: number } ) =>
+			d?.color || providerTheme.colors[ d.index ],
 	};
 
 	// Create legend items from data
