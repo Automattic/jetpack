@@ -64,7 +64,7 @@ const PieChart = ( {
 		<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
 			<svg width={ width } height={ height }>
 				<Group top={ centerY } left={ centerX }>
-					<Pie
+					<Pie< DataPointPercentage >
 						data={ data }
 						pieValue={ accessors.value }
 						outerRadius={ radius - 20 } // Leave space for labels/tooltips
