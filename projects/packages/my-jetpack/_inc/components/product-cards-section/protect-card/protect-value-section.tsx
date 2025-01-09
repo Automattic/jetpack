@@ -29,10 +29,8 @@ const ProtectValueSection = () => {
 							status: 'inactive',
 						} }
 					>
-						<>
-							<h3>{ pluginsThemesTooltip.title }</h3>
-							<p>{ pluginsThemesTooltip.text }</p>
-						</>
+						<h3>{ pluginsThemesTooltip.title }</h3>
+						<p>{ pluginsThemesTooltip.text }</p>
 					</InfoTooltip>
 				) }
 			</div>

@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import AppsBadge from 'components/apps-badge';
 import Card from 'components/card';
 import { imagePath } from 'constants/urls';
@@ -115,4 +115,4 @@ AppsCard.propTypes = {
 	className: PropTypes.string,
 };
 
-export default withRouter( AppsCard );
+export default props => <AppsCard { ...props } location={ useLocation() } />;

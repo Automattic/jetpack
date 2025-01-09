@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Ensure homepage cache gets flushed when a post is unpublished.

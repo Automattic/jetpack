@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Authors widget: Fix saving of unchecked "Display all authors" checkbox in the legacy widget editor.

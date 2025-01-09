@@ -60,6 +60,10 @@ function jetpack_boost_page_optimize_service_request() {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			$etag = '"' . md5( file_get_contents( $cache_file ) ) . '"';
 
+			// Check if we're on Atomic and take advantage of the Atomic Edge Cache.
+			if ( defined( 'ATOMIC_CLIENT_ID' ) ) {
+				header( 'A8c-Edge-Cache: cache' );
+			}
 			header( 'X-Page-Optimize: cached' );
 			header( 'Cache-Control: max-age=' . 31536000 );
 			header( 'ETag: ' . $etag );
@@ -76,6 +80,10 @@ function jetpack_boost_page_optimize_service_request() {
 
 	foreach ( $headers as $header ) {
 		header( $header );
+	}
+	// Check if we're on Atomic and take advantage of the Atomic Edge Cache.
+	if ( defined( 'ATOMIC_CLIENT_ID' ) ) {
+		header( 'A8c-Edge-Cache: cache' );
 	}
 	header( 'X-Page-Optimize: uncached' );
 	header( 'Cache-Control: max-age=' . 31536000 );

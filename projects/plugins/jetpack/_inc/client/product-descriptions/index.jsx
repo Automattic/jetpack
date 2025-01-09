@@ -1,8 +1,7 @@
 import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
 import { connect } from 'react-redux';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import QueryIntroOffers from 'components/data/query-intro-offers';
 import QuerySiteProducts from 'components/data/query-site-products';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
@@ -35,9 +34,11 @@ const ProductDescriptions = props => {
 			}
 
 			routes.push(
-				<Route key={ key } path={ `/product/${ key }` }>
-					<ProductDescription product={ product } />
-				</Route>
+				<Route
+					key={ key }
+					path={ `/product/${ key }` }
+					element={ <ProductDescription product={ product } /> }
+				/>
 			);
 		} );
 	}
@@ -52,7 +53,7 @@ const ProductDescriptions = props => {
 					<JetpackLoadingIcon />
 				</div>
 			) : (
-				<Switch>{ routes }</Switch>
+				<Routes>{ routes }</Routes>
 			) }
 		</>
 	);
