@@ -7,6 +7,7 @@ import clsx from 'clsx';
 import { FC, useCallback } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
+import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../../types';
@@ -184,4 +185,5 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	);
 };
 
-export default PieSemiCircleChart;
+PieSemiCircleChart.displayName = 'PieSemiCircleChart';
+export default withResponsive< PieSemiCircleChartProps >( PieSemiCircleChart );
