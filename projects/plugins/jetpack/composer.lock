@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "5759c4f178496fb03004955be649f379",
+	"content-hash": "2cdedc8e1601041b2fe68fd6d4fe0c9d",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -2623,16 +2623,16 @@
 		},
 		{
 			"name": "automattic/woocommerce-analytics",
-			"version": "v0.4.0",
+			"version": "v0.4.1",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/Automattic/woocommerce-analytics.git",
-				"reference": "3c6de2b9b56c8a6f62f1dc1d32c6db4853e56416"
+				"reference": "b3565fced86fde6241fd466592f3758c3cd95d49"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/Automattic/woocommerce-analytics/zipball/3c6de2b9b56c8a6f62f1dc1d32c6db4853e56416",
-				"reference": "3c6de2b9b56c8a6f62f1dc1d32c6db4853e56416",
+				"url": "https://api.github.com/repos/Automattic/woocommerce-analytics/zipball/b3565fced86fde6241fd466592f3758c3cd95d49",
+				"reference": "b3565fced86fde6241fd466592f3758c3cd95d49",
 				"shasum": ""
 			},
 			"require": {
@@ -2673,9 +2673,9 @@
 			],
 			"description": "Enhanced analytics for WooCommerce users.",
 			"support": {
-				"source": "https://github.com/Automattic/woocommerce-analytics/tree/v0.4.0"
+				"source": "https://github.com/Automattic/woocommerce-analytics/tree/v0.4.1"
 			},
-			"time": "2025-01-06T17:23:16+00:00"
+			"time": "2025-01-09T20:18:56+00:00"
 		},
 		{
 			"name": "scssphp/scssphp",
