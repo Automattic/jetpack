@@ -5,7 +5,7 @@ module.exports = {
 	...getCommonConfig( true ),
 	entry: getComponentEntries(),
 	output: {
-		path: path.resolve( './', 'dist' ),
+		path: path.resolve( './', 'dist/esm' ),
 		filename: pathData => {
 			const name = pathData.chunk.name;
 			if ( name === 'index' ) {

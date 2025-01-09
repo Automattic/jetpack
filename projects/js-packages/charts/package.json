@@ -79,14 +79,14 @@
 	},
 	"exports": {
 		".": {
-			"import": "./dist/index.js",
-			"require": "./dist/index.cjs",
-			"types": "./dist/index.d.ts"
+			"import": "./dist/esm/index.js",
+			"require": "./dist/cjs/index.cjs",
+			"types": "./dist/esm/index.d.ts"
 		},
 		"./components/*": {
-			"import": "./dist/components/*/index.js",
-			"require": "./dist/components/*/index.cjs",
-			"types": "./dist/components/*/index.d.ts"
+			"import": "./dist/esm/components/*/index.js",
+			"require": "./dist/cjs/components/*/index.cjs",
+			"types": "./dist/esm/components/*/index.d.ts"
 		},
 		"./style.css": "./dist/style.css"
 	},

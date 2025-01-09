@@ -5,13 +5,13 @@ module.exports = {
 	...getCommonConfig( false ),
 	entry: getComponentEntries(),
 	output: {
-		path: path.resolve( './', 'dist' ),
+		path: path.resolve( './', 'dist/cjs' ),
 		filename: pathData => {
 			const name = pathData.chunk.name;
 			if ( name === 'index' ) {
-				return 'index.cjs';
+				return 'index.js';
 			}
-			return `${ name }/index.cjs`;
+			return `${ name }/index.js`;
 		},
 		library: {
 			type: 'commonjs2',
