@@ -35,12 +35,12 @@
 	"exports": {
 		".": {
 			"import": "./dist/mjs/index.js",
-			"require": "./dist/cjs/index.cjs",
+			"require": "./dist/cjs/index.js",
 			"types": "./dist/types/*.d.ts"
 		},
 		"./components/*": {
 			"import": "./dist/mjs/components/*/index.js",
-			"require": "./dist/cjs/components/*/index.cjs",
+			"require": "./dist/cjs/components/*/index.js",
 			"types": "./dist/types/*.d.ts"
 		},
 		"./style.css": "./dist/cjs/style.css"
