@@ -22,6 +22,25 @@ export function getConnections() {
 		// Get the initial connections from the post meta
 		const connections = editor.getEditedPostAttribute( 'jetpack_publicize_connections' );
 
+		/**
+		 * If by any chance the REST meta validation fails,
+		 * the value can be in the following format:
+		 *
+		 * {
+		 * "errors": { "rest_invalid_type": [] },
+		 * "error_data": { "rest_invalid_type": { "param": "" } }
+		 * }
+		 *
+		 * It's because of https://github.com/Automattic/jetpack/blob/42a62f9821d4d5c89866e09813eafaad7648d243/projects/packages/publicize/src/class-connections-post-field.php#L224-L228
+		 *
+		 * So, we need to check if the value is actually an array or not.
+		 */
+		if ( ! Array.isArray( connections ) ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Invalid connections data received from the post meta.', connections );
+			return;
+		}
+
 		dispatch( setConnections( connections || [] ) );
 	};
 }
