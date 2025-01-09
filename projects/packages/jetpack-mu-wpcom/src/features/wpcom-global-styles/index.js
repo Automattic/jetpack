@@ -9,7 +9,6 @@ const showGlobalStylesComponents = () => {
 	registerPlugin( 'wpcom-global-styles', {
 		render: () => (
 			<QueryClientProvider client={ new QueryClient() }>
-				<GlobalStylesModal />
 				<GlobalStylesNotices />
 			</QueryClientProvider>
 		),
