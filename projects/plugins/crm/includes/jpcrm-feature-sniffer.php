@@ -97,6 +97,11 @@ class JPCRM_FeatureSniffer {
 	 *
 	 */
 	public function show_feature_alerts() {
+		// lets remove these in rebranded versions
+		if ( zeroBSCRM_isWL() ) {
+			return false;
+		}
+
 		// no untapped features, so no messaging needed
 		if ( count( $this->alerts ) == 0 ) {
 			return false;

@@ -12,7 +12,6 @@
 function jpcrm_autohide_admin_notices_for_specific_pages(){
 
     global $zbs;
-
     if ( isset( $zbs->hide_admin_pages ) && is_array( $zbs->hide_admin_pages ) ){
 
         if ( !empty( $zbs->zbsvar('page') ) && in_array( $zbs->zbsvar('page'), $zbs->hide_admin_pages ) ){
@@ -65,6 +64,11 @@ function jpcrm_woo_promo_admin_notice_banner(){
 
 add_action( 'admin_notices', 'jpcrm_usage_tracking_notice' );
 function jpcrm_usage_tracking_notice(){
+
+	// remove the notice if white label
+	if ( zeroBSCRM_isWL() ) {
+		return;
+	}
 
     global $zbs;
 
