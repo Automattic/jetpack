@@ -16,6 +16,11 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
     export DEBIAN_FRONTEND=noninteractive \
     && apt-get update \
     && apt-get install -y curl gpg language-pack-en-base software-properties-common \
+    # Install Docker CLI
+    && install -m 0755 -d /etc/apt/keyrings \
+    && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
+    && chmod a+r /etc/apt/keyrings/docker.gpg \
+    && echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" > /etc/apt/sources.list.d/docker.list \
     && add-apt-repository ppa:ondrej/php \
     && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
     && apt-get update \
@@ -23,6 +28,8 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
         git \
         unzip \
         zip \
+        docker-ce-cli \
+        docker-compose-plugin \
         "php${PHP_VERSION}" \
         "php${PHP_VERSION}-cli" \
         "php${PHP_VERSION}-curl" \

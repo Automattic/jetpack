@@ -941,8 +941,11 @@ importers:
   projects/js-packages/jetpack-cli:
     dependencies:
       chalk:
-        specifier: ^4.1.2
-        version: 4.1.2
+        specifier: ^5.4.1
+        version: 5.4.1
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.4.7
       prompts:
         specifier: ^2.4.2
         version: 2.4.2
@@ -9586,6 +9589,10 @@ packages:
 
   dotenv@16.0.2:
     resolution: {integrity: sha512-JvpYKUmzQhYoIFgK2MOnF3bciIZoItIIoryihy0rIA+H4Jy0FmgyKYAHCTN98P5ybGSJcIFbh6QKeJdtZd1qhA==}
+    engines: {node: '>=12'}
+
+  dotenv@16.4.7:
+    resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
     engines: {node: '>=12'}
 
   dunder-proto@1.0.0:
@@ -21745,6 +21752,8 @@ snapshots:
       type-fest: 4.31.0
 
   dotenv@16.0.2: {}
+
+  dotenv@16.4.7: {}
 
   dunder-proto@1.0.0:
     dependencies:

@@ -14,6 +14,9 @@ echo "Running command in monorepo container: $*"
 # Source the versions file
 source "$MONOREPO_ROOT/.github/versions.sh"
 
+# Export variables needed by docker-compose
+export HOST_CWD="$MONOREPO_ROOT"
+
 # Build the image if it doesn't exist
 if ! docker image inspect jetpack-monorepo:latest >/dev/null 2>&1; then
     if [ "${BUILD_LOCAL:-}" = "1" ]; then
@@ -37,9 +40,13 @@ fi
 docker run --rm -it \
     -v "$MONOREPO_ROOT:/workspace" \
     -v "$MONOREPO_ROOT/tools/docker/data/monorepo:/root" \
+    -v /var/run/docker.sock:/var/run/docker.sock \
     -w /workspace \
     -e TERM=$TERM \
     -e COLORTERM=$COLORTERM \
+    -e DOCKER_ROOT="$MONOREPO_ROOT/tools/docker" \
+    -e HOST_CWD="$MONOREPO_ROOT" \
+    -e WORKSPACE_PATH="$MONOREPO_ROOT" \
     -e NPM_CONFIG_USERCONFIG=/root/.npmrc \
     -e NPM_CONFIG_CACHE=/root/.npm \
     -e PNPM_HOME=/root/.local/share/pnpm \

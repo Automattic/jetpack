@@ -555,13 +555,22 @@ const execJtCmdHandler = argv => {
 };
 
 /**
+ * Generate Docker configuration files.
+ *
+ * @param {object} argv - The command line arguments
+ */
+async function generateConfig( argv ) {
+	await setConfig( argv );
+}
+
+/**
  * Definition for the Docker commands.
  *
  * @param {object} yargs - The Yargs dependency.
  * @return {object} Yargs with the Docker commands defined.
  */
 export function dockerDefine( yargs ) {
-	yargs.command( {
+	return yargs.command( {
 		command: 'docker <cmd>',
 		description: 'Docker stuff',
 		builder: yarg => {
@@ -832,9 +841,15 @@ export function dockerDefine( yargs ) {
 						const envOpts = buildEnv( argv );
 						composeExecutor( argv, opts, envOpts );
 					},
+				} )
+				.command( {
+					command: 'config',
+					description: 'Generate Docker configuration files',
+					builder: yargCmd => defaultOpts( yargCmd ),
+					handler: async argv => {
+						await generateConfig( argv );
+					},
 				} );
 		},
 	} );
-
-	return yargs;
 }
