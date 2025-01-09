@@ -25,7 +25,7 @@ class NonAdminView extends React.Component {
 		switch ( route ) {
 			case '/dashboard':
 			default:
-				this.props.history.replace( '/dashboard' );
+				this.props.navigate( '/dashboard', { replace: true } );
 				pageComponent = <AtAGlance { ...this.props } />;
 				break;
 			case '/settings':

@@ -250,18 +250,22 @@ function wpcomsh_woa_post_process_maybe_enable_wordads( $args, $assoc_args ) {
 		return;
 	}
 
+	// Set WordAds options.
 	foreach ( $options_decoded as $option => $value ) {
 		// Convert boolean options to string first to work around update_option not setting the option if the value is false.
 		// This sets the option to either '1' if true or '' if false.
 		update_option( $option, is_bool( $value ) ? (string) $value : $value );
 	}
 
-	if ( ! defined( 'JETPACK__VERSION' ) || ! class_exists( 'Jetpack' ) ) {
-		return;
-	}
+	// Activate the WordAds module.
+	WP_CLI::runcommand(
+		'jetpack module activate wordads',
+		array(
+			'launch'     => false,
+			'exit_error' => false,
+		)
+	);
 
-	if ( ! Jetpack::is_module_active( 'wordads' ) ) {
-		Jetpack::activate_module( 'wordads', false, false );
-	}
+	WP_CLI::success( 'WordAds options transferred and module activated' );
 }
 add_action( 'wpcomsh_woa_post_transfer', 'wpcomsh_woa_post_process_maybe_enable_wordads', 10, 2 );

@@ -49,6 +49,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 		jetpack_waf_automatic_rules: isAutoFirewallEnabled,
 		blocked_logins: blockedLoginsCount,
 		brute_force_protection: hasBruteForceProtection,
+		waf_supported: wafSupported,
 	} = wafData || {};
 
 	const pluginsCount = fromScanPlugins.length || Object.keys( plugins ).length;
@@ -246,21 +247,26 @@ export function useProtectTooltipCopy(): TooltipContent {
 						),
 				  },
 		autoFirewallTooltip:
-			hasProtectPaidPlan && ! isAutoFirewallEnabled
+			( hasProtectPaidPlan && ! isAutoFirewallEnabled ) || ! wafSupported
 				? {
 						title: __( 'Auto-Firewall: Inactive', 'jetpack-my-jetpack' ),
-						text: createInterpolateElement(
-							__(
-								'You have Auto-Firewall disabled, visit your Protect <a>firewall settings</a> to activate.',
-								'jetpack-my-jetpack'
-							),
-							{
-								a: createElement( 'a', {
-									href: settingsLink,
-									onClick: trackFirewallSettingsLinkClick,
-								} ),
-							}
-						),
+						text: wafSupported
+							? createInterpolateElement(
+									__(
+										'You have Auto-Firewall disabled, visit your Protect <a>firewall settings</a> to activate.',
+										'jetpack-my-jetpack'
+									),
+									{
+										a: createElement( 'a', {
+											href: settingsLink,
+											onClick: trackFirewallSettingsLinkClick,
+										} ),
+									}
+							  )
+							: __(
+									'Auto-Firewall is disabled as your hosting provider already includes a built-in firewall with similar rules for your site.',
+									'jetpack-my-jetpack'
+							  ),
 				  }
 				: {
 						title: __( 'Auto-Firewall: Inactive', 'jetpack-my-jetpack' ),
