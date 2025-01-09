@@ -25,6 +25,26 @@
 		"build:mjs": "webpack --config webpack-mjs.cjs --mode production",
 		"build:types": "tsc --emitDeclarationOnly --declaration --declarationDir dist/types"
 	},
+	"main": "./dist/cjs/index.js",
+	"module": "./dist/mjs/index.js",
+	"types": "./dist/types/index.d.ts",
+	"sideEffects": [
+		"*.css",
+		"*.scss"
+	],
+	"exports": {
+		".": {
+			"import": "./dist/mjs/index.js",
+			"require": "./dist/cjs/index.cjs",
+			"types": "./dist/types/*.d.ts"
+		},
+		"./components/*": {
+			"import": "./dist/mjs/components/*/index.js",
+			"require": "./dist/cjs/components/*/index.cjs",
+			"types": "./dist/types/*.d.ts"
+		},
+		"./style.css": "./dist/cjs/style.css"
+	},
 	"dependencies": {
 		"@babel/runtime": "7.26.0",
 		"@react-spring/web": "9.7.3",
@@ -76,25 +96,5 @@
 	"peerDependencies": {
 		"react": "^17.0.0 || ^18.0.0",
 		"react-dom": "^17.0.0 || ^18.0.0"
-	},
-	"exports": {
-		".": {
-			"import": "./dist/mjs/index.js",
-			"require": "./dist/cjs/index.cjs",
-			"types": "./dist/mjs/index.d.ts"
-		},
-		"./components/*": {
-			"import": "./dist/mjs/components/*/index.js",
-			"require": "./dist/cjs/components/*/index.cjs",
-			"types": "./dist/mjs/components/*/index.d.ts"
-		},
-		"./style.css": "./dist/style.css"
-	},
-	"main": "./dist/index.js",
-	"module": "./dist/index.mjs",
-	"types": "./dist/index.d.ts",
-	"sideEffects": [
-		"*.css",
-		"*.scss"
-	]
+	}
 }
