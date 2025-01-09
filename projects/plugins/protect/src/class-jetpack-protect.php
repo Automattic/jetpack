@@ -114,6 +114,9 @@ class Jetpack_Protect {
 
 				// Web application firewall package.
 				$config->ensure( 'waf' );
+
+				// Account protection package.
+				$config->ensure( 'account_protection' );
 			},
 			1
 		);
@@ -135,6 +138,7 @@ class Jetpack_Protect {
 		REST_Controller::init();
 		My_Jetpack_Initializer::init();
 		Site_Health::init();
+		Account_Protection::init();
 
 		// Sets up JITMS.
 		JITM::configure();
