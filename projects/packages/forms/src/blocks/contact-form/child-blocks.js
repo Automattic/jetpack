@@ -411,9 +411,9 @@ export const childBlocks = [
 			...FieldDefaults,
 			title: __( 'URL Field', 'jetpack-forms' ),
 			keywords: [
-				'url',
+				__( 'url', 'jetpack-forms' ),
 				__( 'internet page', 'jetpack-forms' ),
-				'link',
+				__( 'link', 'jetpack-forms' ),
 				__( 'website', 'jetpack-forms' ),
 			],
 			description: __( 'Collect a website address from your site visitors.', 'jetpack-forms' ),
@@ -435,7 +435,7 @@ export const childBlocks = [
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
-					default: 'Website',
+					default: __( 'Website', 'jetpack-forms' ),
 				},
 			},
 		},
