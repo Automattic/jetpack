@@ -190,7 +190,6 @@ function wpcom_global_styles_enqueue_block_editor_assets() {
 			'upgradeUrl'                 => $upgrade_url,
 			'wpcomBlogId'                => wpcom_global_styles_get_wpcom_current_blog_id(),
 			'planName'                   => $plan_name,
-			'modalImage'                 => plugins_url( 'image.svg', __FILE__ ),
 			'learnMoreAboutStylesUrl'    => $learn_more_about_styles_support_url,
 			'learnMoreAboutStylesPostId' => $learn_more_about_styles_post_id,
 		)
