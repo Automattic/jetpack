@@ -106,9 +106,10 @@
 		&.is-user {
 			background: #f3f4f6;
 			align-self: flex-end;
+			max-width: 85%;
 			
 			.seo-assistant-wizard__message-icon {
-				flex-basis: unset;
+				display: none;
 			}
 		}
 
@@ -167,7 +168,7 @@
 
 	&__option {
 		width: 100%;
-		padding: 16px;
+		padding: 12px;
 		background: #f3f4f6;
 		border: 2px solid transparent;
 		border-radius: 12px;
@@ -177,15 +178,16 @@
 		line-height: 1.4;
 		transition: all 0.2s ease;
 		animation: messageAppear 0.3s ease-out;
-
-		&:hover {
-			background: #e5e7eb;
-		}
+		color: inherit;
 
 		&.is-selected {
 			background: #fff;
 			border-color: var( --wp-components-color-accent, var( --wp-admin-theme-color, #007cba ) );
 			// box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+		}
+
+		&:hover:not( div ):not( .is-selected ) {
+			background: #e5e7eb;
 		}
 	}
 
@@ -231,9 +233,9 @@
 			// font-size: 14px;
 			// background: #4f46e5;
 
-			&:hover {
-				// background: #4338ca;
-			}
+			// &:hover {
+			// 	background: #4338ca;
+			// }
 		}
 	}
 }

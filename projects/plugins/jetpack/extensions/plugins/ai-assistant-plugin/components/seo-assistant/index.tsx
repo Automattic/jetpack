@@ -7,7 +7,7 @@ import {
 	useRef,
 	createInterpolateElement,
 } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { arrowRight } from '@wordpress/icons';
 import clsx from 'clsx';
 import debugFactory from 'debug';
@@ -15,17 +15,22 @@ import { SeoPlaceholder } from '../../../../plugins/seo/components/placeholder';
 import usePostContent from '../../hooks/use-post-content';
 import './style.scss';
 import bigSkyIcon from './big-sky-icon.svg';
+import { useKeywordsStep } from './use-keywords-step';
+import { useMetaDescriptionStep } from './use-meta-description-step';
+import { useTitleStep } from './use-title-step';
 
 type StepType = 'input' | 'options' | 'completion';
 
-interface Message {
-	id: string;
-	content: string | React.ReactNode;
+export interface Message {
+	id?: string;
+	content?: string | React.ReactNode;
 	isUser?: boolean;
 	showIcon?: boolean;
+	type?: string;
+	options?: Option[];
 }
 
-interface Option {
+export interface Option {
 	id: string;
 	content: string;
 	selected?: boolean;
@@ -43,6 +48,8 @@ interface InputStep extends BaseStep {
 	type: 'input';
 	placeholder: string;
 	onSubmit: ( value: string ) => void;
+	// value: string;
+	// setValue: React.Dispatch< React.SetStateAction< string > >;
 }
 
 interface OptionsStep extends BaseStep {
@@ -59,7 +66,7 @@ interface CompletionStep extends BaseStep {
 	type: 'completion';
 }
 
-type Step = InputStep | OptionsStep | CompletionStep;
+export type Step = InputStep | OptionsStep | CompletionStep;
 
 interface SeoAssistantProps {
 	busy?: boolean;
@@ -67,9 +74,17 @@ interface SeoAssistantProps {
 	onStep?: ( data: { value: string | Option | null } ) => void;
 }
 
+type StepHook = {
+	stepProps: Step;
+	value: string | Array< string >;
+	setValue:
+		| React.Dispatch< React.SetStateAction< string > >
+		| React.Dispatch< React.SetStateAction< Array< string > > >;
+};
+
 const debug = debugFactory( 'jetpack-ai:seo-assistant' );
 
-const TypingMessage = () => {
+export const TypingMessage = () => {
 	return (
 		<SVG viewBox="0 0 40 40" height="20" width="20" className="typing-loader">
 			<Circle className="typing-dot" cx="10" cy="30" r="3" style={ { fill: 'grey' } } />
@@ -87,17 +102,17 @@ interface StepMessage {
 export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ currentStep, setCurrentStep ] = useState( 0 );
-	const [ keywords, setKeywords ] = useState( '' );
-	const [ selectedTitle, setSelectedTitle ] = useState< string >();
-	const [ selectedMetaDescription, setSelectedMetaDescription ] = useState< string >();
+	// const [ keywords, setKeywords ] = useState( '' );
+	// const [ selectedTitle, setSelectedTitle ] = useState< string >();
+	// const [ selectedMetaDescription, setSelectedMetaDescription ] = useState< string >();
 	const [ messages, setMessages ] = useState< Message[] >( [] );
 	const messagesEndRef = useRef< HTMLDivElement >( null );
-	const [ titleOptions, setTitleOptions ] = useState< Option[] >( [] );
+	// const [ titleOptions, setTitleOptions ] = useState< Option[] >( [] );
 	const postContent = usePostContent();
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'seo-tools' );
 
-	const [ metaDescriptionOptions, setMetaDescriptionOptions ] = useState< Option[] >( [] );
+	// const [ metaDescriptionOptions, setMetaDescriptionOptions ] = useState< Option[] >( [] );
 
 	const scrollToBottom = () => {
 		messagesEndRef.current?.scrollIntoView( { behavior: 'smooth' } );
@@ -107,192 +122,40 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 		scrollToBottom();
 	}, [ messages ] );
 
-	const addMessage = ( content: string | React.ReactNode, isUser = false, showIcon = ! isUser ) => {
-		setMessages( prev => [
-			...prev,
-			{
-				id: `message-${ prev.length }`,
-				content,
-				isUser,
-				showIcon,
-			},
-		] );
+	const addMessage = ( message: Message | string ) => {
+		setMessages( prev => {
+			const newMessage = {
+				id:
+					typeof message === 'string'
+						? `message-${ prev.length }`
+						: message?.id || `message-${ prev.length }`,
+				content: typeof message === 'string' ? message : message.content,
+				isUser: typeof message === 'string' ? false : message?.isUser || false,
+				showIcon: typeof message === 'string' ? true : message?.showIcon ?? ! message.isUser,
+				type: typeof message === 'string' ? null : message?.type || null,
+				options: typeof message === 'string' ? [] : message?.options || [],
+			} as Message;
+			return [ ...prev, newMessage ];
+		} );
 	};
+
+	// const editMessage = useCallback( ( messageId: string, updatedMessage: Partial< Message > ) => {
+	// 	setMessages( prev =>
+	// 		prev.map( message =>
+	// 			message.id === messageId
+	// 				? {
+	// 						...message,
+	// 						...updatedMessage,
+	// 				  }
+	// 				: message
+	// 		)
+	// 	);
+	// }, [] );
 
 	/* Removes last message */
 	const removeLastMessage = () => {
 		setMessages( prev => prev.slice( 0, -1 ) );
 	};
-
-	const handleKeywordsSubmit = useCallback(
-		( value: string ) => {
-			setKeywords( value );
-			addMessage( value, true );
-			const keywordlist = value
-				.split( ',' )
-				.map( k => k.trim() )
-				.reduce( ( acc, curr, i, arr ) => {
-					if ( arr.length === 1 ) {
-						return curr;
-					}
-					if ( i === arr.length - 1 ) {
-						return `${ acc } </b>&<b> ${ curr }`;
-					}
-					return i === 0 ? curr : `${ acc }, ${ curr }`;
-				}, '' );
-			const message = createInterpolateElement(
-				/* Translators: wrapped string is list of keywords user has entered */
-				sprintf( __( `Got it! You're targeting <b>%s</b>. ✨✅`, 'jetpack' ), keywordlist ),
-				{
-					b: <b />,
-				}
-			);
-			addMessage( message );
-			if ( onStep ) {
-				onStep( { value: value } );
-			}
-		},
-		[ onStep ]
-	);
-
-	const handleTitleSelect = useCallback( ( option: Option ) => {
-		setSelectedTitle( option.content );
-		setTitleOptions( prev =>
-			prev.map( opt => ( {
-				...opt,
-				selected: opt.id === option.id,
-			} ) )
-		);
-	}, [] );
-
-	const handleTitleGenerate = useCallback( async () => {
-		let newTitles;
-		// we only generate if options are empty
-		if ( titleOptions.length === 0 ) {
-			debug( 'Generating titles...' );
-			addMessage( <TypingMessage /> );
-			newTitles = await new Promise( resolve =>
-				setTimeout(
-					() =>
-						resolve( [
-							{
-								id: '1',
-								content: 'A Photo Gallery for Gardening Enthusiasths: Flora Guide',
-							},
-							{
-								id: '2',
-								content:
-									'Flora Guide: Beautiful Photos of Flowers and Plants for Gardening Enthusiasts',
-							},
-						] ),
-					2000
-				)
-			);
-			removeLastMessage();
-		}
-		addMessage( 'Here are two suggestions based on your keywords. Select the one you prefer:' );
-		setTitleOptions( newTitles || titleOptions );
-	}, [ titleOptions ] );
-
-	const handleTitleRegenerate = useCallback( async () => {
-		// This would typically be an async call to generate new titles
-		debug( 'Regenerating titles...' );
-		setTitleOptions( [] );
-		addMessage( <TypingMessage /> );
-		const newTitles = await new Promise< Array< Option > >( resolve =>
-			setTimeout(
-				() =>
-					resolve( [
-						{
-							id: '1',
-							content: 'A Photo Gallery for Gardening Enthusiasths: Flora Guide',
-						},
-						{
-							id: '2',
-							content:
-								'Flora Guide: Beautiful Photos of Flowers and Plants for Gardening Enthusiasts',
-						},
-					] ),
-				2000
-			)
-		);
-		removeLastMessage();
-		addMessage( 'Here are two new suggestions based on your keywords. Select the one you prefer:' );
-		setTitleOptions( newTitles );
-	}, [] );
-
-	const handleTitleSubmit = useCallback( () => {
-		addMessage( selectedTitle, true );
-		addMessage( __( 'Title updated! ✅', 'jetpack' ) );
-		if ( onStep ) {
-			onStep( { value: selectedTitle } );
-		}
-	}, [ selectedTitle, onStep ] );
-
-	const handleMetaDescriptionSelect = useCallback( ( option: Option ) => {
-		setSelectedMetaDescription( option.content );
-		setMetaDescriptionOptions( prev =>
-			prev.map( opt => ( {
-				...opt,
-				selected: opt.id === option.id,
-			} ) )
-		);
-	}, [] );
-
-	const handleMetaDescriptionSubmit = useCallback( () => {
-		addMessage( selectedMetaDescription, true );
-		addMessage( __( 'Meta description updated! ✅', 'jetpack' ) );
-		if ( onStep ) {
-			onStep( { value: selectedMetaDescription } );
-		}
-	}, [ selectedMetaDescription, onStep ] );
-
-	const handleMetaDescriptionGenerate = useCallback( async () => {
-		let newMetaDescriptions;
-		// we only generate if options are empty
-		if ( metaDescriptionOptions.length === 0 ) {
-			debug( 'Generating titles...' );
-			addMessage( <TypingMessage /> );
-			newMetaDescriptions = await new Promise( resolve =>
-				setTimeout(
-					() =>
-						resolve( [
-							{
-								id: 'meta-1',
-								content:
-									'Explore breathtaking flower and plant photography in our Flora Guide, featuring tips and inspiration for gardening and plant enthusiasts to enhance their outdoor spaces.',
-							},
-						] ),
-					2000
-				)
-			);
-			removeLastMessage();
-		}
-		addMessage( "Here's a suggestion:" );
-		setMetaDescriptionOptions( newMetaDescriptions || metaDescriptionOptions );
-	}, [ metaDescriptionOptions ] );
-
-	const handleMetaDescriptionRegenerate = useCallback( async () => {
-		debug( 'Generating new meta description...' );
-		setMetaDescriptionOptions( [] );
-		addMessage( <TypingMessage /> );
-		const newMetaDescription = await new Promise< Array< Option > >( resolve =>
-			setTimeout(
-				() =>
-					resolve( [
-						{
-							id: 'meta-1',
-							content:
-								'Explore breathtaking flower and plant photography in our Flora Guide, featuring tips and inspiration for gardening and plant enthusiasts to enhance their outdoor spaces.',
-						},
-					] ),
-				2000
-			)
-		);
-		removeLastMessage();
-		addMessage( "Here's a new suggestion:" );
-		setMetaDescriptionOptions( newMetaDescription );
-	}, [] );
 
 	const handleDone = useCallback( () => {
 		setIsOpen( false );
@@ -300,76 +163,31 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 		setMessages( [] );
 	}, [] );
 
+	const {
+		stepProps: keywordsStep,
+		value: keywords,
+		setValue: setKeywords,
+	}: StepHook = useKeywordsStep( {
+		addMessage,
+		onStep,
+	} );
+
+	const { stepProps: titleStep }: StepHook = useTitleStep( {
+		addMessage,
+		removeLastMessage,
+		onStep,
+	} );
+
+	const { stepProps: metaStep }: StepHook = useMetaDescriptionStep( {
+		addMessage,
+		removeLastMessage,
+		onStep,
+	} );
+
 	const steps: Step[] = [
-		{
-			id: 'keywords',
-			title: __( 'Optimise for SEO', 'jetpack' ),
-			messages: [
-				{
-					content: createInterpolateElement(
-						__( "<b>Hi there! 👋 Let's optimise your blog post for SEO.</b>", 'jetpack' ),
-						{ b: <b /> }
-					),
-					showIcon: true,
-				},
-				{
-					content: createInterpolateElement(
-						__(
-							"Here's what we can improve:<br />1. Keywords<br />2. Title<br />3. Meta description",
-							'jetpack'
-						),
-						{ br: <br /> }
-					),
-					showIcon: false,
-				},
-				{
-					content: __(
-						'To start, please enter 1–3 focus keywords that describe your blog post.',
-						'jetpack'
-					),
-					showIcon: true,
-				},
-			],
-			type: 'input',
-			placeholder: __( 'Photography, plants', 'jetpack' ),
-			onSubmit: handleKeywordsSubmit,
-		},
-		{
-			id: 'title',
-			title: __( 'Optimise Title', 'jetpack' ),
-			messages: [
-				{
-					content: __( "Let's optimise your title.", 'jetpack' ),
-					showIcon: true,
-				},
-			],
-			type: 'options',
-			options: titleOptions,
-			onSelect: handleTitleSelect,
-			onSubmit: handleTitleSubmit,
-			submitCtaLabel: __( 'Insert', 'jetpack' ),
-			onRetry: handleTitleRegenerate,
-			onRetryCtaLabel: __( 'Regenerate', 'jetpack' ),
-			onStart: handleTitleGenerate,
-		},
-		{
-			id: 'meta',
-			title: __( 'Add meta description', 'jetpack' ),
-			messages: [
-				{
-					content: __( "Now, let's optimize your meta description.", 'jetpack' ),
-					showIcon: true,
-				},
-			],
-			type: 'options',
-			options: metaDescriptionOptions,
-			onSelect: handleMetaDescriptionSelect,
-			onSubmit: handleMetaDescriptionSubmit,
-			submitCtaLabel: __( 'Insert', 'jetpack' ),
-			onRetry: handleMetaDescriptionRegenerate,
-			onRetryCtaLabel: __( 'Regenerate', 'jetpack' ),
-			onStart: handleMetaDescriptionGenerate,
-		},
+		keywordsStep,
+		titleStep,
+		metaStep,
 		{
 			id: 'completion',
 			title: __( 'Your post is SEO-ready', 'jetpack' ),
@@ -410,7 +228,10 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 		if ( isOpen && messages.length === 0 ) {
 			// Initialize with first step messages
 			currentStepData.messages.forEach( message =>
-				addMessage( message.content, false, message.showIcon )
+				addMessage( {
+					content: message.content,
+					showIcon: message.showIcon,
+				} )
 			);
 		}
 	}, [ isOpen, currentStepData.messages, messages ] );
@@ -421,7 +242,10 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 			setCurrentStep( currentStep + 1 );
 			// Add next step messages
 			steps[ currentStep + 1 ].messages.forEach( message =>
-				addMessage( message.content, false, message.showIcon )
+				addMessage( {
+					content: message.content,
+					showIcon: message.showIcon,
+				} )
 			);
 			steps[ currentStep + 1 ].onStart?.();
 		}
@@ -432,7 +256,10 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 			setCurrentStep( currentStep - 1 );
 			// Re-add previous step messages
 			steps[ currentStep - 1 ].messages.forEach( message =>
-				addMessage( message.content, false, message.showIcon )
+				addMessage( {
+					content: message.content,
+					showIcon: message.showIcon,
+				} )
 			);
 		}
 	};
@@ -484,7 +311,7 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 						disabled={ ! selectedOption }
 					>
 						{ currentStepData.submitCtaLabel }&nbsp;
-						<Icon icon={ arrowRight } size="small" />
+						<Icon icon={ arrowRight } size="24" />
 					</Button>
 				</div>
 			);
@@ -503,6 +330,27 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 		return null;
 	};
 
+	const renderMessageText = message => {
+		if ( message.type === 'past-options' ) {
+			return (
+				<div className="seo-assistant-wizard__options">
+					{ message.options.map( option => (
+						<div
+							key={ option.id }
+							className={ clsx( 'seo-assistant-wizard__option', {
+								'is-selected': option.selected,
+							} ) }
+						>
+							{ option.content }
+						</div>
+					) ) }
+				</div>
+			);
+		}
+
+		return <div className="seo-assistant-wizard__message-text">{ message.content }</div>;
+	};
+
 	const renderMessages = () => {
 		return messages.map( message => (
 			<div
@@ -516,7 +364,7 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 						<img src={ bigSkyIcon } alt={ __( 'SEO Assistant avatar', 'jetpack' ) } />
 					) }
 				</div>
-				<div className="seo-assistant-wizard__message-text">{ message.content }</div>
+				{ renderMessageText( message ) }
 			</div>
 		) );
 	};
