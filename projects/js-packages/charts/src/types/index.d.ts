@@ -145,5 +145,3 @@ export type GridProps = {
 	 */
 	top?: number;
 };
-
-declare module '*.module.scss';
