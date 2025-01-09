@@ -86,7 +86,7 @@ class Boost_Cache {
 
 	private function load_extra() {
 		if ( file_exists( WP_CONTENT_DIR . '/boost-cache-extra.php' ) ) {
-				include_once WP_CONTENT_DIR . '/boost-cache-extra.php';
+			include_once WP_CONTENT_DIR . '/boost-cache-extra.php';
 		}
 	}
 
