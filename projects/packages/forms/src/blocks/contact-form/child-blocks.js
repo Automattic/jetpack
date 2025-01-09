@@ -430,7 +430,7 @@ export const childBlocks = [
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
-					default: 'URL',
+					default: 'Website',
 				},
 			},
 		},
