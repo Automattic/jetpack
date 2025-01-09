@@ -148,8 +148,6 @@ class Publicize extends Publicize_Base {
 
 		// Clear the cache.
 		Connections::clear_cache();
-		// Populate the cache with the new data.
-		Connections::get_all();
 
 		$expiry = 3600 * 4;
 		if ( ! set_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT, $publicize_connections, $expiry ) ) {
