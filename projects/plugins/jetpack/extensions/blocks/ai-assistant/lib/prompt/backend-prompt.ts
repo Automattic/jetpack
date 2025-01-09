@@ -1,5 +1,5 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
 import {
 	PROMPT_TYPE_SUMMARY_BY_TITLE,
@@ -14,10 +14,11 @@ import {
 	PROMPT_TYPE_CHANGE_LANGUAGE,
 	PROMPT_TYPE_USER_PROMPT,
 	PROMPT_TYPE_TRANSFORM_LIST_TO_TABLE,
-	PromptTypeProp,
-	PromptItemProps,
-	BuildPromptProps,
-} from './index';
+} from '@automattic/jetpack-ai-client';
+/**
+ * Internal dependencies
+ */
+import { PromptTypeProp, PromptItemProps, BuildPromptProps } from './index';
 
 /**
  * Constants

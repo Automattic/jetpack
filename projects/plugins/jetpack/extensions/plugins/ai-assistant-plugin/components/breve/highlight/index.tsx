@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { fixes } from '@automattic/jetpack-ai-client';
+import { fixes, Block, AiFeedbackThumbs } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { rawHandler, serialize } from '@wordpress/blocks';
 import { Button, Popover, Spinner } from '@wordpress/components';
@@ -31,7 +31,6 @@ import './style.scss';
  * Types
  */
 import type { BreveDispatch, BreveSelect } from '../types';
-import type { Block } from '@automattic/jetpack-ai-client';
 
 type CoreBlockEditorSelect = {
 	getBlock: ( clientId: string ) => Block;
@@ -347,10 +346,22 @@ export default function Highlight() {
 									? __( 'Click on the suggestion to insert it.', 'jetpack' )
 									: description ) }
 
-							<div className="jetpack-ai-breve__helper-buttons-wrapper">
-								<Button variant="link" onClick={ handleIgnoreSuggestion }>
-									{ __( 'Ignore', 'jetpack' ) }
-								</Button>
+							<div className="jetpack-ai-breve__helper-inner">
+								<AiFeedbackThumbs
+									disabled={ ! hasSuggestions }
+									ratedItem={ id }
+									iconSize={ 18 }
+									feature="write-brief"
+									options={ {
+										prompt: feature,
+									} }
+								/>
+
+								<div className="jetpack-ai-breve__helper-buttons-wrapper">
+									<Button variant="link" onClick={ handleIgnoreSuggestion }>
+										{ __( 'Ignore', 'jetpack' ) }
+									</Button>
+								</div>
 							</div>
 						</div>
 					</div>

@@ -28,13 +28,6 @@ abstract class Module_Product extends Product {
 	public static $module_name = null;
 
 	/**
-	 * Whether this module is a Jetpack feature
-	 *
-	 * @var boolean
-	 */
-	public static $is_feature = false;
-
-	/**
 	 * Get the plugin slug - ovewrite it ans return Jetpack's
 	 *
 	 * @return ?string

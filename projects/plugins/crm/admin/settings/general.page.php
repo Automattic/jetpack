@@ -14,7 +14,7 @@ global $wpdb, $zbs;  // } Req
 $confirmAct = false;
 
 // } Retrieve all settings
-$settings = $zbs->settings->getAll();
+$settings = $zbs->settings->getAll( true );
 
 // } #WH OR - need these lists?
 // } Autologgers:

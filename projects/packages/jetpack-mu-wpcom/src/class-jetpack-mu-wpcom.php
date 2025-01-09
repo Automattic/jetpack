@@ -143,6 +143,7 @@ class Jetpack_Mu_Wpcom {
 		if ( ! class_exists( 'A8C\FSE\Help_Center' ) ) {
 			require_once __DIR__ . '/features/help-center/class-help-center.php';
 		}
+		require_once __DIR__ . '/features/pages/pages.php';
 		require_once __DIR__ . '/features/replace-site-visibility/replace-site-visibility.php';
 		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
@@ -452,7 +453,7 @@ class Jetpack_Mu_Wpcom {
 	 * Load Odyssey Stats in Simple sites.
 	 */
 	public static function load_wpcom_simple_odyssey_stats() {
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' || wpcom_is_duplicate_views_experiment_enabled() ) {
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' || ( function_exists( 'wpcom_is_duplicate_views_experiment_enabled' ) && wpcom_is_duplicate_views_experiment_enabled() ) ) {
 			require_once __DIR__ . '/features/wpcom-simple-odyssey-stats/wpcom-simple-odyssey-stats.php';
 		}
 	}

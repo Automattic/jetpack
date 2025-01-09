@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Tiled Gallery block: ensure movement and close icons are visible when selecting image in editor, by changing focusable element.
