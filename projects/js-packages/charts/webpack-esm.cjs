@@ -1,5 +1,5 @@
 const path = require( 'path' );
-const { getCommonConfig, getComponentEntries } = require( './webpack.common.cjs' );
+const { getCommonConfig, getComponentEntries } = require( './tools/webpack.common.cjs' );
 
 module.exports = {
 	...getCommonConfig( true ),
