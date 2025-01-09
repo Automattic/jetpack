@@ -24,6 +24,7 @@ import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_JETPACK_BLAZE,
 	FEATURE_JETPACK_EARN,
+	FEATURE_JETPACK_ACCOUNT_PROTECTION,
 } from 'lib/plans/constants';
 import ProStatus from 'pro-status';
 import {
@@ -450,6 +451,24 @@ export const SettingsCard = inprops => {
 						title={ __( 'Connect your WordPress.com account to enable newsletters.', 'jetpack' ) }
 						callToAction={ connectLabel() }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_NEWSLETTER_JETPACK ) }
+						feature={ feature }
+						onClick={ handleConnectClick( feature ) }
+						rna
+					/>
+				);
+			case FEATURE_JETPACK_ACCOUNT_PROTECTION:
+				if ( props.hasConnectedOwner ) {
+					return '';
+				}
+
+				return (
+					<JetpackBanner
+						title={ __(
+							'Connect your WordPress.com account to enable Account Protection',
+							'jetpack'
+						) }
+						callToAction={ connectLabel() }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_JETPACK_ACCOUNT_PROTECTION ) }
 						feature={ feature }
 						onClick={ handleConnectClick( feature ) }
 						rna
