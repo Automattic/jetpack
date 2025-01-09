@@ -1,7 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import domReady from '@wordpress/dom-ready';
 import { registerPlugin } from '@wordpress/plugins';
-import GlobalStylesModal from './modal';
 import GlobalStylesNotices from './notices';
 import './store';
 
