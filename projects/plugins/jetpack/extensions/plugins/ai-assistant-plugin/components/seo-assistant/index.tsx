@@ -48,8 +48,6 @@ interface InputStep extends BaseStep {
 	type: 'input';
 	placeholder: string;
 	onSubmit: ( value: string ) => void;
-	// value: string;
-	// setValue: React.Dispatch< React.SetStateAction< string > >;
 }
 
 interface OptionsStep extends BaseStep {
@@ -102,17 +100,11 @@ interface StepMessage {
 export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ currentStep, setCurrentStep ] = useState( 0 );
-	// const [ keywords, setKeywords ] = useState( '' );
-	// const [ selectedTitle, setSelectedTitle ] = useState< string >();
-	// const [ selectedMetaDescription, setSelectedMetaDescription ] = useState< string >();
 	const [ messages, setMessages ] = useState< Message[] >( [] );
 	const messagesEndRef = useRef< HTMLDivElement >( null );
-	// const [ titleOptions, setTitleOptions ] = useState< Option[] >( [] );
 	const postContent = usePostContent();
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'seo-tools' );
-
-	// const [ metaDescriptionOptions, setMetaDescriptionOptions ] = useState< Option[] >( [] );
 
 	const scrollToBottom = () => {
 		messagesEndRef.current?.scrollIntoView( { behavior: 'smooth' } );
