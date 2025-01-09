@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enable test coverage. [#39961]
 
 ### Changed
-- Backup: added next daily backup schedule time on admin page [#39914]
+- Backup: Added next daily backup schedule time on admin page. [#39914]
 - Updated dependencies. [#40286]
 
 ### Removed

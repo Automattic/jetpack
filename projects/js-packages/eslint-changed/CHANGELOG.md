@@ -11,8 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enable test coverage. [#39961]
 
 ### Changed
-- Updated package dependencies. [#40786]
-- Updated package dependencies. [#40828]
+- Updated package dependencies. [#40786] [#40828]
 
 ### Fixed
 - Detect whether to use eslintrc or flat config in the same way eslint does. [#40446]

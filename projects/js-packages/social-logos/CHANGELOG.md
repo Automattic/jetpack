@@ -1,6 +1,6 @@
 ## [3.1.17] - 2025-01-09
 ### Fixed
-- Removed .module entry for it being a commonjs package [#40867]
+- Removed `module` in package.json given it's a CommonJS package. [#40867]
 
 ## [3.1.16] - 2025-01-06
 ### Changed

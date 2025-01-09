@@ -4,7 +4,7 @@
 
 ## [0.65.3] - 2025-01-09
 ### Changed
-- Updated social-logos import from default to named [#40816]
+- Updated social-logos import from default to named. [#40816]
 
 ## [0.65.2] - 2025-01-06
 ### Changed
