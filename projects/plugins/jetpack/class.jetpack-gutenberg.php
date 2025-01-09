@@ -629,28 +629,30 @@ class Jetpack_Gutenberg {
 		$blocks_dir = self::get_blocks_directory();
 
 		if ( ! self::should_load() ) {
-			/*
-			 * When the Blocks module is not active or the site is in Offline mode,
-			 * we modify the messages displayed in the block editor to inform site owners
-			 * that a Jetpack block is not supported.
-			 */
-			Assets::register_script(
-				'jetpack-blocks-placeholder',
-				"{$blocks_dir}placeholder.js",
-				JETPACK__PLUGIN_FILE,
-				array(
-					'textdomain' => 'jetpack',
-					'enqueue'    => true,
-				)
-			);
-			wp_localize_script(
-				'jetpack-blocks-placeholder',
-				'Jetpack_Blocks_Status',
-				array(
-					'isOfflineMode'  => $status->is_offline_mode(),
-					'isBlocksActive' => ( new Modules() )->is_active( 'blocks' ),
-				)
-			);
+			if ( current_user_can( 'jetpack_manage_modules' ) ) {
+				/*
+				* When the Blocks module is not active or the site is in Offline mode,
+				* we modify the messages displayed in the block editor to inform site owners
+				* that a Jetpack block is not supported.
+				*/
+				Assets::register_script(
+					'jetpack-blocks-placeholder',
+					"{$blocks_dir}placeholder.js",
+					JETPACK__PLUGIN_FILE,
+					array(
+						'textdomain' => 'jetpack',
+						'enqueue'    => true,
+					)
+				);
+				wp_localize_script(
+					'jetpack-blocks-placeholder',
+					'Jetpack_Blocks_Status',
+					array(
+						'isOfflineMode'  => $status->is_offline_mode(),
+						'isBlocksActive' => ( new Modules() )->is_active( 'blocks' ),
+					)
+				);
+			}
 
 			return;
 		}
