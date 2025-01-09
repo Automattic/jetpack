@@ -9,7 +9,7 @@ import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
-import type { BaseChartProps, DataPointPercentage } from '../shared/types';
+import type { BaseChartProps, DataPointPercentage } from '../../types';
 
 interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**

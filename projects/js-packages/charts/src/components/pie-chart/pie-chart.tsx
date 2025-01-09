@@ -7,7 +7,7 @@ import { useChartTheme, defaultTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
-import type { BaseChartProps, DataPointPercentage } from '../shared/types';
+import type { BaseChartProps, DataPointPercentage } from '../../types';
 import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
 
 // TODO: add animation

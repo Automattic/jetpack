@@ -11,7 +11,7 @@ import { FC } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import styles from './line-chart.module.scss';
-import type { BaseChartProps, DataPointDate, SeriesData } from '../shared/types';
+import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 
 // TODO: revisit grid and axis options - accept as props for frid lines, axis, values: x, y, all, none
 

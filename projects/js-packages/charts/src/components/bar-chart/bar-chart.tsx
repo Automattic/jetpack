@@ -11,7 +11,7 @@ import { GridControl } from '../grid-control';
 import { Legend } from '../legend';
 import { BaseTooltip } from '../tooltip';
 import styles from './bar-chart.module.scss';
-import type { BaseChartProps, SeriesData } from '../shared/types';
+import type { BaseChartProps, SeriesData } from '../../types';
 
 interface BarChartProps extends BaseChartProps< SeriesData[] > {}
 
