@@ -19,6 +19,13 @@ use WP_REST_Response;
 abstract class Base_Controller extends WP_REST_Controller {
 
 	/**
+	 * Whether to allow requests as blog.
+	 *
+	 * @var bool
+	 */
+	protected $allow_requests_as_blog = false;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -32,6 +39,22 @@ abstract class Base_Controller extends WP_REST_Controller {
 	 */
 	public static function is_wpcom() {
 		return ( new Host() )->is_wpcom_simple();
+	}
+
+	/**
+	 * Check if the request is authorized for the blog.
+	 *
+	 * @return bool
+	 */
+	protected static function is_authorized_blog_request() {
+		if ( self::is_wpcom() && is_jetpack_site( get_current_blog_id() ) ) {
+
+			$jp_auth_endpoint = new \WPCOM_REST_API_V2_Endpoint_Jetpack_Auth();
+
+			return $jp_auth_endpoint->is_jetpack_authorized_for_site() === true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -59,9 +82,11 @@ abstract class Base_Controller extends WP_REST_Controller {
 	/**
 	 * Verify that user can access Publicize data
 	 *
+	 * @param WP_REST_Request $request Full details about the request.
 	 * @return true|WP_Error
 	 */
-	public function get_items_permission_check() {
+	public function get_items_permissions_check( $request ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+
 		global $publicize;
 
 		if ( ! $publicize ) {
@@ -70,6 +95,10 @@ abstract class Base_Controller extends WP_REST_Controller {
 				__( 'Sorry, Jetpack Social is not available on your site right now.', 'jetpack-publicize-pkg' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
+		}
+
+		if ( $this->allow_requests_as_blog && self::is_authorized_blog_request() ) {
+			return true;
 		}
 
 		if ( $publicize->current_user_can_access_publicize_data() ) {
