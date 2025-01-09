@@ -52,7 +52,7 @@ add_action( 'admin_print_footer_scripts-edit.php', 'wpcom_add_tracking_for_posts
 function wpcom_post_list_add_stats_tracking() {
 	global $post_type;
 
-	if ( ! in_array( $post_type, array('post', 'page') ) ) {
+	if ( ! in_array( $post_type, array( 'post', 'page' ), true ) ) {
 		return;
 	}
 	?>
