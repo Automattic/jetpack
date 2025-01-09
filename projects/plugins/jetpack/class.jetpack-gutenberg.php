@@ -625,7 +625,33 @@ class Jetpack_Gutenberg {
 	 * @return void
 	 */
 	public static function enqueue_block_editor_assets() {
+		$status     = new Status();
+		$blocks_dir = self::get_blocks_directory();
+
 		if ( ! self::should_load() ) {
+			/*
+			 * When the Blocks module is not active or the site is in Offline mode,
+			 * we modify the messages displayed in the block editor to inform site owners
+			 * that a Jetpack block is not supported.
+			 */
+			Assets::register_script(
+				'jetpack-blocks-placeholder',
+				"{$blocks_dir}placeholder.js",
+				JETPACK__PLUGIN_FILE,
+				array(
+					'textdomain' => 'jetpack',
+					'enqueue'    => true,
+				)
+			);
+			wp_localize_script(
+				'jetpack-blocks-placeholder',
+				'Jetpack_Blocks_Status',
+				array(
+					'isOfflineMode'  => $status->is_offline_mode(),
+					'isBlocksActive' => ( new Modules() )->is_active( 'blocks' ),
+				)
+			);
+
 			return;
 		}
 
@@ -641,14 +667,11 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
-		$status = new Status();
-
 		// Required for Analytics. See _inc/lib/admin-pages/class.jetpack-admin-page.php.
 		if ( ! $status->is_offline_mode() && Jetpack::is_connection_ready() ) {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
-		$blocks_dir       = self::get_blocks_directory();
 		$blocks_variation = self::blocks_variation();
 
 		if ( 'production' !== $blocks_variation ) {

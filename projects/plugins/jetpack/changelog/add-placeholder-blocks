@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Blocks: improve the error message displayed for a block when it is not available because the Blocks feature is disabled, or because the site is in Offline mode.

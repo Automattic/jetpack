@@ -56,6 +56,10 @@ const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
 	return viewBlocks;
 }, {} );
 
+// Placeholder script to customize block error messages
+// when the Jetpack blocks are not available in the editor.
+const placeholderScript = path.join( __dirname, '../extensions', 'placeholder.js' );
+
 // Combines all the different production blocks into one editor.js script
 const editorScript = [
 	editorSetup,
@@ -198,6 +202,7 @@ module.exports = [
 	{
 		...sharedWebpackConfig,
 		entry: {
+			placeholder: placeholderScript,
 			editor: editorScript,
 			'editor-experimental': editorExperimentalScript,
 			'editor-beta': editorBetaScript,
