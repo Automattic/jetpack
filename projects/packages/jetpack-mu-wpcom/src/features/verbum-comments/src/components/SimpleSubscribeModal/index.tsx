@@ -9,7 +9,7 @@ import {
 	shouldShowSubscriptionModal,
 } from '../../utils';
 import { SimpleSubscribeModalLoggedIn, SimpleSubscribeSetModalShowLoggedIn } from './logged-in';
-import SimpleSubscribeModalLoggedOut from './logged-out';
+import { SimpleSubscribeModalLoggedOut } from './logged-out';
 import './style.scss';
 
 export const SimpleSubscribeModal = ( { closeModalHandler, email }: SimpleSubscribeModalProps ) => {
