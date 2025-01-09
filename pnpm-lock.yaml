@@ -416,9 +416,6 @@ importers:
       storybook:
         specifier: 8.4.7
         version: 8.4.7
-      ts-loader:
-        specifier: ^9.4.0
-        version: 9.5.1(typescript@5.7.2)(webpack@5.94.0)
       typescript:
         specifier: 5.7.2
         version: 5.7.2
@@ -14140,13 +14137,6 @@ packages:
       esbuild:
         optional: true
 
-  ts-loader@9.5.1:
-    resolution: {integrity: sha512-rNH3sK9kGZcH9dYzC7CewQm4NtxJTjSEVRJ2DyBZR7f8/wcta+iV44UPCXc5+nzDzivKtlzV6c9P4e+oFhDLYg==}
-    engines: {node: '>=12.0.0'}
-    peerDependencies:
-      typescript: '*'
-      webpack: ^5.0.0
-
   tsconfig-paths@3.15.0:
     resolution: {integrity: sha512-2Ac2RgzDe/cn48GvOe3M+o82pEFewD3UPbyoUHHdKasHwJKjds4fLXWf/Ux5kATBKN20oaFGu+jbElp1pos0mg==}
 
@@ -27091,7 +27081,7 @@ snapshots:
       schema-utils: 3.3.0
       serialize-javascript: 6.0.2
       terser: 5.37.0
-      webpack: 5.94.0(webpack-cli@4.9.1)
+      webpack: 5.94.0(webpack-cli@5.1.4)
 
   terser-webpack-plugin@5.3.3(webpack@5.94.0):
     dependencies:
@@ -27209,16 +27199,6 @@ snapshots:
       semver: 7.6.3
       typescript: 5.0.4
       yargs-parser: 21.1.1
-
-  ts-loader@9.5.1(typescript@5.7.2)(webpack@5.94.0):
-    dependencies:
-      chalk: 4.1.2
-      enhanced-resolve: 5.17.1
-      micromatch: 4.0.8
-      semver: 7.6.3
-      source-map: 0.7.4
-      typescript: 5.7.2
-      webpack: 5.94.0(webpack-cli@5.1.4)
 
   tsconfig-paths@3.15.0:
     dependencies:
