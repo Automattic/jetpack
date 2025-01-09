@@ -22,6 +22,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Create the desired menu output.
 	 */
 	public function reregister_menu_items() {
+
 		// Remove separators.
 		remove_menu_page( 'separator1' );
 		$this->add_stats_menu();
@@ -181,7 +182,6 @@ class Admin_Menu extends Base_Admin_Menu {
 		$submenus_to_update = array();
 
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'edit.php' ) ) {
-			$submenus_to_update['edit.php']     = 'https://wordpress.com/posts/' . $this->domain;
 			$submenus_to_update['post-new.php'] = 'https://wordpress.com/post/' . $this->domain;
 			$this->update_submenus( 'edit.php', $submenus_to_update );
 		}
