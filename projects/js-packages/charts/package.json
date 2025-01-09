@@ -19,13 +19,17 @@
 		"test-coverage": "pnpm run test --coverage",
 		"storybook": "cd ../storybook && pnpm run storybook:dev",
 		"compile-ts": "tsc --pretty",
-		"build": "rollup -c",
 		"build:prod": "rollup -c --environment NODE_ENV:production",
 		"build:dev": "rollup -c --environment NODE_ENV:development",
 		"build:watch": "rollup -c -w",
-		"clean-build": "rm -rf dist/"
+		"clean-build": "rm -rf dist/",
+		"build": "npm run build:types && npm run build:cjs && npm run build:esm",
+		"build:cjs": "webpack --config webpack-cjs.js --mode production",
+		"build:esm": "webpack --config webpack-esm.js --mode production",
+		"build:types": "tsc --emitDeclarationOnly --declaration --declarationDir dist"
 	},
 	"dependencies": {
+		"@babel/runtime": "7.26.0",
 		"@react-spring/web": "9.7.3",
 		"@visx/axis": "^3.12.0",
 		"@visx/event": "^3.8.0",
@@ -42,6 +46,11 @@
 		"tslib": "2.5.0"
 	},
 	"devDependencies": {
+		"@babel/core": "7.26.0",
+		"@babel/plugin-transform-runtime": "7.25.9",
+		"@babel/preset-env": "7.26.0",
+		"@babel/preset-react": "7.26.3",
+		"@babel/preset-typescript": "7.26.0",
 		"@rollup/plugin-commonjs": "26.0.1",
 		"@rollup/plugin-json": "6.1.0",
 		"@rollup/plugin-node-resolve": "15.3.0",
@@ -51,10 +60,15 @@
 		"@storybook/react": "8.4.7",
 		"@types/react": "18.3.18",
 		"@types/react-dom": "18.3.5",
+		"babel-loader": "9.1.2",
+		"clean-webpack-plugin": "^4.0.0",
+		"css-loader": "^6.7.0",
 		"jest": "29.7.0",
 		"jest-environment-jsdom": "29.7.0",
 		"jest-extended": "4.0.2",
+		"mini-css-extract-plugin": "^2.7.0",
 		"postcss": "8.4.47",
+		"postcss-loader": "^7.0.0",
 		"postcss-modules": "6.0.1",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
@@ -64,8 +78,12 @@
 		"rollup-plugin-postcss": "4.0.2",
 		"sass": "1.64.1",
 		"sass-embedded": "1.83.0",
+		"sass-loader": "^13.0.0",
 		"storybook": "8.4.7",
-		"typescript": "5.7.2"
+		"ts-loader": "^9.4.0",
+		"typescript": "5.7.2",
+		"webpack": "^5.88.0",
+		"webpack-cli": "^5.1.0"
 	},
 	"peerDependencies": {
 		"react": "^17.0.0 || ^18.0.0",
@@ -73,13 +91,13 @@
 	},
 	"exports": {
 		".": {
-			"import": "./dist/index.mjs",
-			"require": "./dist/index.js",
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs",
 			"types": "./dist/index.d.ts"
 		},
 		"./components/*": {
 			"import": "./dist/components/*/index.js",
-			"require": "./dist/components/*/index.cjs.js",
+			"require": "./dist/components/*/index.cjs",
 			"types": "./dist/components/*/index.d.ts"
 		},
 		"./style.css": "./dist/style.css"
