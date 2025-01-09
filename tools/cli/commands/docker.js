@@ -63,6 +63,13 @@ const buildEnv = argv => {
 	}
 
 	envOpts.COMPOSE_PROJECT_NAME = getProjectName( argv );
+
+	// Add versions from versions.sh
+	const versions = envfile.parse(
+		fs.readFileSync( `${ dockerFolder }/../../.github/versions.sh`, 'utf8' )
+	);
+	Object.assign( envOpts, versions );
+
 	return envOpts;
 };
 
@@ -801,6 +808,30 @@ export function dockerDefine( yargs ) {
 					command: 'jt-config',
 					description: 'Set jurassic tube config',
 					handler: argv => execJtCmdHandler( argv ),
+				} )
+				.command( {
+					command: 'monorepo',
+					description: 'Run commands in monorepo container',
+					builder: yargCmd =>
+						defaultOpts( yargCmd ).option( 'cmd', {
+							alias: 'c',
+							describe: 'Command to run',
+							type: 'string',
+							demandOption: true,
+						} ),
+					handler: argv => {
+						const opts = buildComposeFiles().concat( [
+							'run',
+							'--rm',
+							'monorepo',
+							'bash',
+							'-c',
+							argv.cmd,
+						] );
+
+						const envOpts = buildEnv( argv );
+						composeExecutor( argv, opts, envOpts );
+					},
 				} );
 		},
 	} );

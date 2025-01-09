@@ -49,3 +49,16 @@ services:
     environment:
       - HOST_PORT=${PORT_WORDPRESS:-80}
       - COMPOSE_PROJECT_NAME=$COMPOSE_PROJECT_NAME
+
+  monorepo:
+    build:
+      context: .
+      dockerfile: Dockerfile.monorepo
+      args:
+        PHP_VERSION: ${PHP_VERSION}
+        COMPOSER_VERSION: ${COMPOSER_VERSION}
+        NODE_VERSION: ${NODE_VERSION}
+        PNPM_VERSION: ${PNPM_VERSION}
+    volumes:
+      - ../..:${WORKSPACE_PATH:-/workspace}
+    working_dir: ${WORKSPACE_PATH:-/workspace}

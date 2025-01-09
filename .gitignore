@@ -57,3 +57,6 @@ phpcs.xml
 # VS Code setting files
 *.code-workspace
 /.vscode/settings.json
+
+.pnpm-debug.log
+.pnpm-error.log

@@ -938,6 +938,15 @@ importers:
         specifier: 4.9.1
         version: 4.9.1(webpack@5.94.0)
 
+  projects/js-packages/jetpack-cli:
+    dependencies:
+      chalk:
+        specifier: ^4.1.2
+        version: 4.1.2
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+
   projects/js-packages/licensing:
     dependencies:
       '@automattic/jetpack-analytics':

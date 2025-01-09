@@ -1,0 +1,19 @@
+{
+	"name": "@automattic/jetpack-cli",
+	"version": "0.1.0-beta.1",
+	"description": "Docker-based CLI for Jetpack development",
+	"bin": {
+		"jp": "bin/jp.js"
+	},
+	"files": [
+		"bin"
+	],
+	"type": "module",
+	"dependencies": {
+		"chalk": "^4.1.2",
+		"prompts": "^2.4.2"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}
