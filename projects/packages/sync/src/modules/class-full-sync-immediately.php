@@ -115,7 +115,7 @@ class Full_Sync_Immediately extends Module {
 		 *
 		 * @param array $full_sync_config Sync configuration for all sync modules.
 		 * @param array $range Range of the sync items, containing min and max IDs for some item types.
-		 * @param array $empty The modules with no items to sync during a full sync.
+		 * @param mixed $context The context where the full sync was initiated from.
 		 *
 		 * @since 1.6.3
 		 * @since-jetpack 4.2.0
