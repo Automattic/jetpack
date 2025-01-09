@@ -5,7 +5,7 @@
  * @package automattic/jetpack-publicize
  */
 
-namespace Automattic\Jetpack\Publicize;
+namespace Automattic\Jetpack\Publicize\REST_API;
 
 use WP_Error;
 use WP_Post;

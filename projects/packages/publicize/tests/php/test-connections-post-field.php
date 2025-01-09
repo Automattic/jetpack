@@ -133,7 +133,7 @@ class Test_Connections_Post_Field extends TestCase {
 		// Register REST routes.
 		$this->publicize->register_post_meta();
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ), 4 );
-		add_action( 'rest_api_init', array( new Connections_Post_Field(), 'register_fields' ), 5 );
+		add_action( 'rest_api_init', array( new REST_API\Connections_Post_Field(), 'register_fields' ), 5 );
 		do_action( 'rest_api_init' );
 
 		wp_set_current_user( $this->admin_id );
