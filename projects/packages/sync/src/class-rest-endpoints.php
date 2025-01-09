@@ -60,7 +60,7 @@ class REST_Endpoints {
 					),
 					'context'  => array(
 						'description' => __( 'Context for the Full Sync', 'jetpack-sync' ),
-						'type'        => 'array',
+						'type'        => 'string',
 						'required'    => false,
 					),
 				),
