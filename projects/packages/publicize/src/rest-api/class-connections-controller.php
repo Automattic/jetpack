@@ -106,62 +106,71 @@ class Connections_Controller extends Base_Controller {
 			'type'       => 'object',
 			'properties' => array_merge(
 				$deprecated_fields,
-				array(
-					'connection_id'   => array(
-						'type'        => 'string',
-						'description' => __( 'Connection ID of the connected account.', 'jetpack-publicize-pkg' ),
-					),
-					'display_name'    => array(
-						'type'        => 'string',
-						'description' => __( 'Display name of the connected account.', 'jetpack-publicize-pkg' ),
-					),
-					'external_handle' => array(
-						'type'        => 'string',
-						'description' => __( 'The external handle or username of the connected account.', 'jetpack-publicize-pkg' ),
-					),
-					'external_id'     => array(
-						'type'        => 'string',
-						'description' => __( 'The external ID of the connected account.', 'jetpack-publicize-pkg' ),
-					),
-					'profile_link'    => array(
-						'type'        => 'string',
-						'description' => __( 'Profile link of the connected account.', 'jetpack-publicize-pkg' ),
-					),
-					'profile_picture' => array(
-						'type'        => 'string',
-						'description' => __( 'URL of the profile picture of the connected account.', 'jetpack-publicize-pkg' ),
-					),
-					'service_label'   => array(
-						'type'        => 'string',
-						'description' => __( 'Human-readable label for the Jetpack Social service.', 'jetpack-publicize-pkg' ),
-					),
-					'service_name'    => array(
-						'type'        => 'string',
-						'description' => __( 'Alphanumeric identifier for the Jetpack Social service.', 'jetpack-publicize-pkg' ),
-					),
-					'shared'          => array(
-						'type'        => 'boolean',
-						'description' => __( 'Whether the connection is shared with other users.', 'jetpack-publicize-pkg' ),
-					),
-					'status'          => array(
-						'type'        => 'string',
-						'description' => __( 'The connection status.', 'jetpack-publicize-pkg' ),
-						'enum'        => array(
-							'ok',
-							'broken',
-						),
-					),
-					'user_id'         => array(
-						'type'        => 'integer',
-						'description' => __( 'ID of the user the connection belongs to.', 'jetpack-publicize-pkg' ),
-					),
-				)
+				self::get_the_item_schema()
 			),
 		);
 
 		$this->schema = $schema;
 
 		return $this->add_additional_fields_schema( $schema );
+	}
+
+	/**
+	 * Get the schema for the connection item.
+	 *
+	 * @return array
+	 */
+	public static function get_the_item_schema() {
+		return array(
+			'connection_id'   => array(
+				'type'        => 'string',
+				'description' => __( 'Connection ID of the connected account.', 'jetpack-publicize-pkg' ),
+			),
+			'display_name'    => array(
+				'type'        => 'string',
+				'description' => __( 'Display name of the connected account.', 'jetpack-publicize-pkg' ),
+			),
+			'external_handle' => array(
+				'type'        => 'string',
+				'description' => __( 'The external handle or username of the connected account.', 'jetpack-publicize-pkg' ),
+			),
+			'external_id'     => array(
+				'type'        => 'string',
+				'description' => __( 'The external ID of the connected account.', 'jetpack-publicize-pkg' ),
+			),
+			'profile_link'    => array(
+				'type'        => 'string',
+				'description' => __( 'Profile link of the connected account.', 'jetpack-publicize-pkg' ),
+			),
+			'profile_picture' => array(
+				'type'        => 'string',
+				'description' => __( 'URL of the profile picture of the connected account.', 'jetpack-publicize-pkg' ),
+			),
+			'service_label'   => array(
+				'type'        => 'string',
+				'description' => __( 'Human-readable label for the Jetpack Social service.', 'jetpack-publicize-pkg' ),
+			),
+			'service_name'    => array(
+				'type'        => 'string',
+				'description' => __( 'Alphanumeric identifier for the Jetpack Social service.', 'jetpack-publicize-pkg' ),
+			),
+			'shared'          => array(
+				'type'        => 'boolean',
+				'description' => __( 'Whether the connection is shared with other users.', 'jetpack-publicize-pkg' ),
+			),
+			'status'          => array(
+				'type'        => 'string',
+				'description' => __( 'The connection status.', 'jetpack-publicize-pkg' ),
+				'enum'        => array(
+					'ok',
+					'broken',
+				),
+			),
+			'user_id'         => array(
+				'type'        => 'integer',
+				'description' => __( 'ID of the user the connection belongs to. It is the user ID on wordpress.com', 'jetpack-publicize-pkg' ),
+			),
+		);
 	}
 
 	/**
