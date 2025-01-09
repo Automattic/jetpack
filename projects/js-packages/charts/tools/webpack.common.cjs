@@ -32,20 +32,7 @@ const getCommonConfig = isESM => ( {
 			},
 			{
 				test: /\.(scss|css)$/,
-				use: [
-					MiniCssExtractPlugin.loader,
-					{
-						loader: 'css-loader',
-						options: {
-							modules: {
-								localIdentName: '[name]__[local]__[hash:base64:5]',
-							},
-							importLoaders: 2,
-						},
-					},
-					'postcss-loader',
-					'sass-loader',
-				],
+				use: [ MiniCssExtractPlugin.loader, 'css-loader', 'postcss-loader', 'sass-loader' ],
 			},
 		],
 	},
