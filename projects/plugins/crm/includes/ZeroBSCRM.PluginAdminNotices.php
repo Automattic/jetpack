@@ -62,13 +62,9 @@ function jpcrm_woo_promo_admin_notice_banner(){
  * Usage Tracking
  */
 
+##WLREMOVE
 add_action( 'admin_notices', 'jpcrm_usage_tracking_notice' );
 function jpcrm_usage_tracking_notice(){
-
-	// remove the notice if white label
-	if ( zeroBSCRM_isWL() ) {
-		return;
-	}
 
     global $zbs;
 
@@ -86,6 +82,7 @@ function jpcrm_usage_tracking_notice(){
     }
 
 }
+##/WLREMOVE
 
 
 function jpcrm_usage_tracking_notice_banner(){
