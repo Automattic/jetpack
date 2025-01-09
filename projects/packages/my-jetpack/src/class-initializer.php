@@ -291,6 +291,7 @@ class Initializer {
 				'isUserFromKnownHost'    => self::is_user_from_known_host(),
 				'isCommercial'           => self::is_commercial_site(),
 				'sandboxedDomain'        => JETPACK__SANDBOX_DOMAIN,
+				'isDevVersion'           => Jetpack::is_development_version(),
 				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
 				'jetpackManage'          => array(
 					'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),

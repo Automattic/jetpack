@@ -11,6 +11,7 @@ import {
 	useBreakpointMatch,
 	ActionButton,
 } from '@automattic/jetpack-components';
+import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useState } from 'react';
 /*
@@ -27,6 +28,8 @@ import {
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import onKeyDownCallback from '../../data/utils/onKeyDownCallback';
+import resetJetpackOptions from '../../data/utils/reset-jetpack-options';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -42,7 +45,6 @@ import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, title, options } ) => {
 	const { recordEvent } = useAnalytics();
-
 	useEffect( () => {
 		const tracksArgs = options?.tracksArgs || {};
 
@@ -84,13 +86,13 @@ export default function MyJetpackScreen() {
 		variation: 'control',
 	} );
 	useNotificationWatcher();
-	const { redBubbleAlerts } = getMyJetpackWindowInitialState();
 	const {
 		isAtomic = false,
 		jetpackManage = {},
 		adminUrl,
 		sandboxedDomain,
 	} = getMyJetpackWindowInitialState();
+	const { redBubbleAlerts, isDevVersion, userIsAdmin } = getMyJetpackWindowInitialState();
 
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
 	const { isSectionVisible } = useEvaluationRecommendations();
@@ -140,12 +142,25 @@ export default function MyJetpackScreen() {
 		return null;
 	}
 
+	const resetOptionsMenuItem = {
+		label: _x(
+			'Reset Options (dev only)',
+			'Button for option to reset Jetpack Options',
+			'jetpack-my-jetpack'
+		),
+		title: __( 'Reset Options', 'jetpack-my-jetpack' ),
+		role: 'button',
+		onClick: () => resetJetpackOptions(),
+		onKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
+	};
+
 	return (
 		<AdminPage
 			siteAdminUrl={ adminUrl }
 			sandboxedDomain={ sandboxedDomain }
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
+			optionalMenuItems={ isDevVersion && userIsAdmin ? [ resetOptionsMenuItem ] : [] }
 		>
 			<hr className={ styles.separator } />
 
