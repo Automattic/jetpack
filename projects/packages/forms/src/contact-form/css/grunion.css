@@ -96,6 +96,8 @@
 
 .contact-form label.checkbox {
 	font-weight: normal;
+	margin-bottom: 0;
+	line-height: 1;
 }
 
 .contact-form label.checkbox-multiple,
@@ -580,6 +582,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 	box-sizing: border-box;
 	width: var(--jetpack--contact-form--font-size);
+	min-width: var(--jetpack--contact-form--font-size);
 	height: var(--jetpack--contact-form--font-size);
 	margin-inline-end: calc(var(--jetpack--contact-form--font-size) / 2);
 	padding: 0;
@@ -590,6 +593,9 @@ on production builds, the attributes are being reordered, causing side-effects
 
 	outline-offset: 4px;
 	color: var( --jetpack--contact-form--border-color );
+	background-color: var(--jetpack--contact-form--input-background);
+	font-family: var( --jetpack--contact-form--font-family );
+	flex-basis: content;
 }
 
 .contact-form .grunion-field-wrap input.radio {
@@ -612,6 +618,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	line-height: 1;
 
 	transform: translate(-50%, -50%);
+	color: var(--jetpack--contact-form--text-color);
 }
 
 .contact-form .grunion-field-wrap input.radio:checked::before {
@@ -624,6 +631,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	position: absolute;
 	transform: translate(-50%, -50%);
 	width: calc(var(--jetpack--contact-form--font-size) / 2);
+	color: var(--jetpack--contact-form--text-color);
 }
 
 .contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field,

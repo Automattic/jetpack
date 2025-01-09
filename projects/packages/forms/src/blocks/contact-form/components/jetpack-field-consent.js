@@ -6,6 +6,7 @@ import { withSharedFieldAttributes } from '../util/with-shared-field-attributes'
 import JetpackFieldLabel from './jetpack-field-label';
 import JetpackFieldWidth from './jetpack-field-width';
 import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
+import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
 const JetpackFieldConsent = ( {
 	instanceId,
@@ -16,9 +17,11 @@ const JetpackFieldConsent = ( {
 	setAttributes,
 	attributes,
 } ) => {
+	const { blockStyle } = useJetpackFieldStyles( attributes );
 	const blockProps = useBlockProps( {
 		id: `jetpack-field-consent-${ instanceId }`,
 		className: 'jetpack-field jetpack-field-consent',
+		style: blockStyle,
 	} );
 
 	return (
@@ -65,6 +68,11 @@ const JetpackFieldConsent = ( {
 							value: attributes.labelColor,
 							onChange: value => setAttributes( { labelColor: value } ),
 							label: __( 'Label Text', 'jetpack-forms' ),
+						},
+						{
+							value: attributes.borderColor,
+							onChange: value => setAttributes( { borderColor: value } ),
+							label: __( 'Border', 'jetpack-forms' ),
 						},
 					] }
 				/>
