@@ -144,6 +144,7 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/help-center/class-help-center.php';
 		}
 		require_once __DIR__ . '/features/pages/pages.php';
+		require_once __DIR__ . '/features/posts/posts.php';
 		require_once __DIR__ . '/features/replace-site-visibility/replace-site-visibility.php';
 		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
