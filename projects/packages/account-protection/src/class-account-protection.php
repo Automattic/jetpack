@@ -19,7 +19,7 @@ class Account_Protection {
 	/**
 	 * Initializes the configurations needed for the account protection module.
 	 */
-	public function init() {
+	public static function init() {
 		// Account protection activation/deactivation hooks
 		add_action( 'jetpack_activate_module_account-protection', __CLASS__ . '::on_account_protection_activation' );
 		add_action( 'jetpack_deactivate_module_account-protection', __CLASS__ . '::on_account_protection_deactivation' );
