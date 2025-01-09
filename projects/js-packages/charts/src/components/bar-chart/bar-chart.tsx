@@ -14,6 +14,13 @@ import { BaseTooltip } from '../tooltip';
 import styles from './bar-chart.module.scss';
 import type { BaseChartProps, SeriesData } from '../../types';
 
+type BarChartTooltipData = {
+	value: number;
+	xLabel: string;
+	yLabel: string;
+	seriesIndex: number;
+};
+
 interface BarChartProps extends BaseChartProps< SeriesData[] > {}
 
 const BarChart: FC< BarChartProps > = ( {
