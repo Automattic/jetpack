@@ -8,7 +8,6 @@ import { Legend } from '../legend';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../../types';
-import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
 
 // TODO: add animation
 
@@ -46,11 +45,16 @@ const PieChart = ( {
 	const centerX = width / 2;
 	const centerY = height / 2;
 
+	// Map the data to include index for color assignment
+	const dataWithIndex = data.map( ( d, index ) => ( {
+		...d,
+		index,
+	} ) );
+
 	const accessors = {
-		value: ( d: PieArcDatum< DataPointPercentage > ) => d.value,
+		value: ( d: DataPointPercentage ) => d.value,
 		// Use the color property from the data object as a last resort. The theme provides colours by default.
-		fill: ( d: PieArcDatum< DataPointPercentage > ) =>
-			d?.data?.color || providerTheme.colors[ d.index ],
+		fill: ( d: DataPointPercentage ) => d?.color || providerTheme.colors[ d.index ],
 	};
 
 	// Create legend items from data
@@ -64,8 +68,8 @@ const PieChart = ( {
 		<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
 			<svg width={ width } height={ height }>
 				<Group top={ centerY } left={ centerX }>
-					<Pie< DataPointPercentage >
-						data={ data }
+					<Pie< DataPointPercentage & { index: number } >
+						data={ dataWithIndex }
 						pieValue={ accessors.value }
 						outerRadius={ radius - 20 } // Leave space for labels/tooltips
 						innerRadius={ innerRadius }
@@ -79,7 +83,7 @@ const PieChart = ( {
 
 								const pathProps: SVGProps< SVGPathElement > = {
 									d: pie.path( arc ) || '',
-									fill: accessors.fill( arc ),
+									fill: accessors.fill( arc.data ),
 								};
 
 								if ( withTooltips ) {
