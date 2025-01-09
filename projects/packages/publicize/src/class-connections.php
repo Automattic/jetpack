@@ -22,7 +22,7 @@ class Connections {
 	 * Get all connections.
 	 *
 	 * @param array $args Arguments
-	 *                - 'clear_cache': bool Whether to clear the cache.
+	 *                - 'ignore_cache': bool Whether to ignore the cache and fetch the connections from the API.
 	 * @return array
 	 */
 	public static function get_all( $args = array() ) {
@@ -33,14 +33,11 @@ class Connections {
 			$connections = Connections_Controller::get_connections();
 		} else {
 
-			if ( $args['clear_cache'] ?? false ) {
-				self::clear_cache();
-			}
+			$ignore_cache = $args['ignore_cache'] ?? false;
 
 			$connections = get_transient( self::CONNECTIONS_TRANSIENT );
 
-			// This can be an empty array, so we need to check for false.
-			if ( false === $connections ) {
+			if ( $ignore_cache || false === $connections ) {
 				$connections = self::fetch_and_cache_connections();
 			}
 		}
@@ -142,7 +139,13 @@ class Connections {
 		$connections = Connections_Controller::get_connections( $args );
 
 		if ( is_array( $connections ) ) {
-			set_transient( self::CONNECTIONS_TRANSIENT, $connections, HOUR_IN_SECONDS * 4 );
+			if ( ! set_transient( self::CONNECTIONS_TRANSIENT, $connections, HOUR_IN_SECONDS * 4 ) ) {
+				// If the transient has beeen set in another request, the call to set_transient can fail.
+				// If so, we can delete the transient and try again.
+				self::clear_cache();
+
+				set_transient( self::CONNECTIONS_TRANSIENT, $connections, HOUR_IN_SECONDS * 4 );
+			}
 		}
 
 		return $connections;
