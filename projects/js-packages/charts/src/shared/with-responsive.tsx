@@ -1,30 +1,41 @@
-import { ParentSize } from '@visx/responsive';
-import { FC, ComponentType } from 'react';
-import type { BaseChartProps } from '../types';
+import { useScreenSize } from '@visx/responsive';
+import { ComponentType } from 'react';
+import type { BaseChartProps } from './types';
 
 /**
  * A higher-order component that provides responsive width and height
- * to the wrapped chart component using ParentSize from @visx/responsive.
+ * to the wrapped chart component using useScreenSize from @visx/responsive.
  *
  * @param WrappedComponent - The chart component to be wrapped.
  * @return A functional component that renders the wrapped component with responsive dimensions.
  */
 export function withResponsive< T extends BaseChartProps< unknown > >(
 	WrappedComponent: ComponentType< T >
-): FC< Omit< T, 'width' | 'height' > > {
-	const DEFAULT_SIZE = 300;
+) {
+	return function ResponsiveChart( props: Omit< T, 'width' | 'height' > ) {
+		const { width: screenWidth } = useScreenSize( {
+			debounceTime: 50,
+			initialSize: { width: 600, height: 400 },
+		} );
 
-	return function ResponsiveChart( props ) {
+		// Calculate dimensions maintaining aspect ratio
+		const containerWidth = Math.min( screenWidth - 40, 1200 ); // max width with padding
+		const containerHeight = containerWidth * 0.5; // 2:1 aspect ratio
+
 		return (
-			<ParentSize>
-				{ ( { width, height } ) => (
-					<WrappedComponent
-						{ ...( props as T ) }
-						width={ width > 0 ? width : DEFAULT_SIZE }
-						height={ height > 0 ? height : DEFAULT_SIZE }
-					/>
-				) }
-			</ParentSize>
+			<div
+				style={ {
+					width: containerWidth,
+					height: containerHeight,
+					margin: '0 auto',
+				} }
+			>
+				<WrappedComponent
+					{ ...( props as T ) }
+					width={ containerWidth }
+					height={ containerHeight }
+				/>
+			</div>
 		);
 	};
 }
