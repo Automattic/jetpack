@@ -21,7 +21,7 @@ test( 'Simple: open_comments_for_everyone - Anonymous', async ( { page } ) => {
 	await page.getByPlaceholder( 'Write a comment...' ).click();
 	await page.getByPlaceholder( 'Write a comment...' ).pressSequentially( randomComment );
 	await expect( page.getByRole( 'button', { name: 'Comment' } ) ).toBeVisible();
-	await expect( page.locator( '#comment-form__verbum' ) ).toContainText(
+	await expect( page.locator( '.comment-form__verbum' ) ).toContainText(
 		'Leave a comment. (log in optional)'
 	);
 	await page.getByRole( 'button', { name: 'Comment' } ).click();

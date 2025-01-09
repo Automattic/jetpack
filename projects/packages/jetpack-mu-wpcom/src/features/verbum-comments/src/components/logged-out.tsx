@@ -1,7 +1,8 @@
+import { Signal } from '@preact/signals';
 import clsx from 'clsx';
-import { useEffect, useState } from 'preact/hooks';
+import { useContext, useEffect, useState } from 'preact/hooks';
 import { translate } from '../i18n';
-import { commentParent } from '../state';
+import { VerbumSignals } from '../state';
 import { serviceData } from '../utils';
 import { EmailForm } from './EmailForm';
 
@@ -12,7 +13,7 @@ interface LoggedOutProps {
 	loginWindow: Window | null;
 }
 
-const getLoginCommentText = () => {
+const getLoginCommentText = ( commentParent: Signal ) => {
 	let defaultText = translate( 'Log in to leave a comment.' );
 	let optionalText = translate( 'Leave a comment. (log in optional)' );
 	let nameAndEmailRequired = translate(
@@ -80,13 +81,17 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 		setActiveService( service );
 	};
 
+	const { commentParent } = useContext( VerbumSignals );
+
 	return (
 		<div className="verbum-subscriptions logged-out">
 			<div className="verbum-subscriptions__wrapper">
 				<div className="verbum-subscriptions__login">
 					{ canWeAccessCookies && (
 						<>
-							<div className="verbum-subscriptions__login-header">{ getLoginCommentText() }</div>
+							<div className="verbum-subscriptions__login-header">
+								{ getLoginCommentText( commentParent ) }
+							</div>
 							<div
 								className={ clsx( 'verbum-logins', {
 									'logging-in': activeService,

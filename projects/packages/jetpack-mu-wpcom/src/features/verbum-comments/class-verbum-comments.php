@@ -96,7 +96,7 @@ class Verbum_Comments {
 			$color_scheme = 'transparent';
 		}
 
-		$verbum = '<div id="comment-form__verbum" class="' . $color_scheme . '"></div>' . $this->hidden_fields();
+		$verbum = '<div class="comment-form__verbum ' . $color_scheme . '"></div>' . $this->hidden_fields();
 
 		// If the blog requires login, Verbum need to be wrapped in a <form> to work.
 		// Verbum is given `mustLogIn` to handle the login flow.
@@ -180,7 +180,8 @@ class Verbum_Comments {
 		$comment_registration_enabled = boolval( get_blog_option( $this->blog_id, 'comment_registration' ) );
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$post_id = isset( $_GET['postid'] ) ? intval( $_GET['postid'] ) : get_queried_object_id();
-		$locale  = get_locale();
+		l( 'verbum-comments', $post_id );
+		$locale = get_locale();
 
 		$css_mtime        = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/block-editor.css' );
 		$js_mtime         = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/block-editor.min.js' );
@@ -535,12 +536,17 @@ HTML;
 	 * Get the hidden fields for the comment form.
 	 */
 	public function hidden_fields() {
+		// Ironically, get_queried_post_id doesn't work inside query loop.
+		// See: https://github.com/Automattic/wp-calypso/issues/98136
+		$queried_post    = get_post();
+		$queried_post_id = $queried_post ? $queried_post->ID : 0;
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$post_id = isset( $_GET['postid'] ) ? intval( $_GET['postid'] ) : get_queried_object_id();
+		$post_id = isset( $_GET['postid'] ) ? intval( $_GET['postid'] ) : $queried_post_id;
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$is_current_user_subscribed = isset( $_GET['is_current_user_subscribed'] ) ? intval( $_GET['is_current_user_subscribed'] ) : 0;
 		$nonce                      = wp_create_nonce( 'highlander_comment' );
-		$hidden_fields              = get_comment_id_fields( $post_id ) . '
+		l( 'verbum-comments2', $post_id );
+		$hidden_fields = get_comment_id_fields( $post_id ) . '
 			<input type="hidden" name="highlander_comment_nonce" id="highlander_comment_nonce" value="' . esc_attr( $nonce ) . '" />
 			<input type="hidden" name="verbum_show_subscription_modal" value="' . $this->subscription_modal_status() . '" />';
 
