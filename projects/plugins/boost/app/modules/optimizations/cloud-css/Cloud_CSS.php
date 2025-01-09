@@ -59,7 +59,6 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 		Generator::init();
 		Critical_CSS_Invalidator::init();
 		Cloud_CSS_Followup::init();
-		Deferred_Generation::init();
 
 		return true;
 	}
@@ -165,7 +164,7 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 		// included in the providers list that will be used to generate
 		// the Cloud CSS.
 		if ( $this->is_post_in_latest_providers_list( $post ) ) {
-			Deferred_Generation::schedule();
+			$this->regenerate_cloud_css( self::REGENERATE_REASON_SAVE_POST, $this->get_all_providers( array( $post ) ) );
 		}
 	}
 
