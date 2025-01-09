@@ -24,8 +24,8 @@
 		"build:watch": "rollup -c -w",
 		"clean-build": "rm -rf dist/",
 		"build": "npm run build:types && npm run build:cjs && npm run build:esm",
-		"build:cjs": "webpack --config webpack-cjs.js --mode production",
-		"build:esm": "webpack --config webpack-esm.js --mode production",
+		"build:cjs": "webpack --config webpack-cjs.cjs --mode production",
+		"build:esm": "webpack --config webpack-esm.cjs --mode production",
 		"build:types": "tsc --emitDeclarationOnly --declaration --declarationDir dist"
 	},
 	"dependencies": {
