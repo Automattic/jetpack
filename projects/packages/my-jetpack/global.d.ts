@@ -286,6 +286,7 @@ interface Window {
 				jetpack_waf_share_data: '1' | '';
 				jetpack_waf_share_debug_data: boolean;
 				standalone_mode: boolean;
+				waf_supported: boolean;
 			};
 		};
 		videopress: {

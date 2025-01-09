@@ -1,6 +1,8 @@
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { defineConfig, devices } from '@playwright/test';
 import config from 'config';
+import { resolveSiteUrl, setWpEnvVars } from '../helpers/utils-helper';
 
 const reporter = [
 	[ 'list' ],
@@ -14,7 +16,14 @@ const reporter = [
 ];
 
 if ( process.env.CI ) {
-	reporter.push( [ 'github' ] );
+	reporter.push(
+		[ 'github' ],
+		[
+			`${ fileURLToPath(
+				new URL( '../' + config.get( 'dirs.reporters' ), import.meta.url )
+			) }/flaky-tests-reporter.ts`,
+		]
+	);
 }
 
 // Fail early if the required test site config is not defined
@@ -32,16 +41,19 @@ fs.mkdirSync( config.get( 'dirs.temp' ), { recursive: true } );
 if ( ! fs.existsSync( config.get( 'temp.storage' ) ) ) {
 	fs.writeFileSync( config.get( 'temp.storage' ), '{}' );
 }
+// Ensure the environment variables for `@wordpress/e2e-test-utils-playwright` are set
+setWpEnvVars();
 
-const playwrightConfig = {
+const playwrightConfig = defineConfig( {
 	timeout: 300000,
-	retries: 0,
+	retries: process.env.CI ? 2 : 0,
 	workers: 1,
 	outputDir: config.get( 'dirs.results' ),
 	reporter,
+	forbidOnly: !! process.env.CI,
+	globalSetup: fileURLToPath( new URL( './global-setup.mjs', import.meta.url ).href ),
 	use: {
-		browserName: 'chromium',
-		channel: '',
+		baseURL: resolveSiteUrl(),
 		headless: true,
 		viewport: { width: 1280, height: 1600 },
 		ignoreHTTPSErrors: true,
@@ -55,8 +67,20 @@ const playwrightConfig = {
 		storageState: config.get( 'temp.storage' ),
 		userAgent:
 			'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36 wp-e2e-tests',
+		locale: 'en-US',
+		contextOptions: {
+			reducedMotion: 'reduce',
+			// TODO - Enable strictSelectors once all tests are updated.
+			// strictSelectors: true,
+		},
 	},
 	reportSlowTests: null,
-};
+	projects: [
+		{
+			name: 'chromium',
+			use: { ...devices[ 'Desktop Chrome' ] },
+		},
+	],
+} );
 
 export default playwrightConfig;
