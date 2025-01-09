@@ -1197,7 +1197,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "63f823f3817e4c126abd96fc971ad6c39c8f1f01"
+                "reference": "ed55315319c331275f4f0c715294d5a9350ed7ea"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1264,6 +1264,10 @@
                 ],
                 "post-update-cmd": [
                     "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [
