@@ -27,5 +27,16 @@ function wpcom_themes_remove_wpcom_actions() {
 			'in_footer' => true,
 		)
 	);
+
+	$site_slug = wp_parse_url( home_url(), PHP_URL_HOST );
+
+	wp_localize_script(
+		'wpcom-theme-actions',
+		'wpcomThemesActions',
+		array(
+			'addNewLabel' => esc_html__( 'Add New Theme', 'jetpack-mu-wpcom' ),
+			'addNewUrl'   => esc_url( "https://wordpress.com/themes/$site_slug?ref=wpcom-themes-add" ),
+		)
+	);
 }
 add_action( 'load-themes.php', 'wpcom_themes_remove_wpcom_actions' );

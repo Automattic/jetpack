@@ -1,3 +1,5 @@
+/* global wpcomThemesActions */
+
 const wpcomThemesRemoveWpcomActions = () => {
 	const themeOverlay = document.querySelector( '.theme-overlay' );
 	const themeBrowser = document.querySelector( '.theme-browser' );
@@ -19,6 +21,16 @@ const wpcomThemesRemoveWpcomActions = () => {
 	} );
 	observer.observe( themeOverlay, { childList: true } );
 	observer.observe( themeBrowser, { childList: true, subtree: true } );
+
+	// Add the "Add new theme" action to the page header, if there isn't one already.
+	const pageTitle = document.querySelector( '.wp-heading-inline' );
+	const addButton = document.querySelector( '.page-title-action' );
+	if ( pageTitle && ! addButton ) {
+		pageTitle.insertAdjacentHTML(
+			'afterend',
+			`<a href="${ wpcomThemesActions.addNewUrl }" class="page-title-action">${ wpcomThemesActions.addNewLabel }</a>`
+		);
+	}
 };
 
 document.addEventListener( 'DOMContentLoaded', wpcomThemesRemoveWpcomActions );
