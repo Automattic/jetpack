@@ -8,10 +8,25 @@ import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import dotenv from 'dotenv';
 import prompts from 'prompts';
+import updateNotifier from 'update-notifier';
 
 // Get package.json path relative to this file
 const __dirname = dirname( fileURLToPath( import.meta.url ) );
 const packageJson = JSON.parse( readFileSync( resolve( __dirname, '../package.json' ), 'utf8' ) );
+
+// Check for updates
+const notifier = updateNotifier( {
+	pkg: packageJson,
+	updateCheckInterval: 1000 * 60 * 60 * 24, // Check once per day
+} );
+
+// Show update notification
+notifier.notify( {
+	message:
+		'Update available for Jetpack CLI: {currentVersion} → {latestVersion}\n' +
+		'Run {updateCommand} to update',
+	isGlobal: true,
+} );
 
 /**
  * Check if a directory is the monorepo root.
