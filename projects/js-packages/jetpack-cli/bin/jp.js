@@ -50,10 +50,13 @@ const isMonorepoRoot = dir => {
  */
 const findMonorepoRoot = startDir => {
 	let dir = startDir;
-	while ( dir !== '/' ) {
+	let prevDir;
+	while ( dir !== prevDir ) {
+		// Keep going until dirname() stops changing the path
 		if ( isMonorepoRoot( dir ) ) {
 			return dir;
 		}
+		prevDir = dir;
 		dir = dirname( dir );
 	}
 	return null;
