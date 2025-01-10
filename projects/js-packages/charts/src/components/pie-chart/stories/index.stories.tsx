@@ -51,6 +51,10 @@ export default {
 				step: 1,
 			},
 		},
+		legendOrientation: {
+			control: 'radio',
+			options: [ 'horizontal', 'vertical' ],
+		},
 	},
 	decorators: [
 		( Story, { args } ) => (
