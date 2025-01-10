@@ -172,31 +172,6 @@ const main = async () => {
 					// Create empty .env file
 					fs.writeFileSync( resolve( monorepoRoot, 'tools/docker/.env' ), '' );
 
-					const images = [
-						{ name: 'mariadb:lts' },
-						{ name: 'automattic/jetpack-wordpress-dev:latest' },
-						{ name: 'phpmyadmin/phpmyadmin:latest', platform: 'linux/amd64' },
-						{ name: 'maildev/maildev', platform: 'linux/amd64' },
-						{ name: 'atmoz/sftp', platform: 'linux/amd64' },
-					];
-
-					for ( const image of images ) {
-						const inspect = spawnSync( 'docker', [ 'image', 'inspect', image.name ], {
-							stdio: 'ignore',
-						} );
-						if ( inspect.status !== 0 ) {
-							console.log( chalk.blue( `Pulling ${ image.name }...` ) );
-							const pullArgs = [ 'pull', image.name ];
-							if ( image.platform ) {
-								pullArgs.splice( 1, 0, '--platform', image.platform );
-							}
-							const pull = spawnSync( 'docker', pullArgs, { stdio: 'inherit' } );
-							if ( pull.status !== 0 ) {
-								throw new Error( `Failed to pull ${ image.name }` );
-							}
-						}
-					}
-
 					const configResult = spawnSync(
 						resolve( monorepoRoot, 'tools/docker/bin/monorepo' ),
 						[ 'pnpm', 'jetpack', 'docker', 'config' ],
