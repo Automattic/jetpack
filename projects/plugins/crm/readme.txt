@@ -362,60 +362,19 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.5.0 - 2025-01-10
-#### Added
-- Enable test coverage.
-
-#### Changed
-- API-events: Add the pagination result sort/order capability to the endpoint.
-- fixes some issues with the white label
-- General: Enable JavaScript linting.
-- General: indicate compatibility with the upcoming version of WordPress - 6.7.
-- Improve spec compliance of CSV output: `\"` sequences will now be correctly escaped by doubling the `"`.
-- Only include `wp-polyfill` as a script dependency when needed.
-- Updated dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
+### [6.5.0] - 2025-01-10
 
 #### Removed
-- General: Remove unused legacy code.
-- General: Update minimum WordPress version to 6.6.
-- Removed legacy beta feedback code.
-- Removed old build file.
-- Tests: Removed react-test-renderer.
+- General: Remove unused legacy code. [#40267]
+
+#### Changed
+- General: Update minimum WordPress version to 6.6. [#40146]
+- API: Allow sort order in endpoints. [#38838]
 
 #### Fixed
-- Code: Ensure we use Jetpack Autoloader throughout the codebase.
-- CRM: Fix bug which caused duplicated queries to run.
-- Dashboard: Fixed an issue where the CRM contacts graph displayed incorrect values in some instances
-- Dashboard: Show correct avatar for recent activity.
-- Fixed a fatal error that occurred when exporting contacts with a custom field that had the same name as a linked field (e.g., 'company').
-- Fixed lints following ESLint rule changes for TS
-- Fixing bugs in the default PDF template and other fixes. Created a new template to maintain backwards compatibility
-- Fix PHPUnit coverage warnings.
-- Lossless image optimization for images (should improve performance with no visible changes).
-- Migrations: Improve WP Playground compatibility.
-- Revert recent SVG image optimizations.
-
+- CRM: Fixed bug which caused duplicated queries to run. [#40711]
+- CRM: Fixed a fatal error that occurred when exporting contacts with a custom field that had the same name as a linked field (e.g., 'company'). [#38851]
+- Dashboard: Fixed an issue where the CRM contacts graph displayed incorrect values in some instances. [#38316]
+- Dashboard: Show correct avatar for recent activity. [#40280]
+- Invoices: Fixing bugs in the default PDF template and other fixes. Created a new template to maintain backwards compatibility [#40514]
+- Code: Ensure we use Jetpack Autoloader throughout the codebase. [#40061]

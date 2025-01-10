@@ -6,61 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [6.5.0] - 2025-01-10
-### Added
-- Enable test coverage. [#39961]
-
-### Changed
-- API-events: Add the pagination result sort/order capability to the endpoint. [#38838]
-- fixes some issues with the white label [#40919]
-- General: Enable JavaScript linting. [#40249]
-- General: indicate compatibility with the upcoming version of WordPress - 6.7. [#39786]
-- Improve spec compliance of CSV output: `\"` sequences will now be correctly escaped by doubling the `"`. [#39665]
-- Only include `wp-polyfill` as a script dependency when needed. [#39629]
-- Updated dependencies. [#40286]
-- Updated package dependencies. [#38662]
-- Updated package dependencies. [#38665]
-- Updated package dependencies. [#38822]
-- Updated package dependencies. [#39004]
-- Updated package dependencies. [#39111]
-- Updated package dependencies. [#39176]
-- Updated package dependencies. [#39278]
-- Updated package dependencies. [#39288]
-- Updated package dependencies. [#39302]
-- Updated package dependencies. [#39332]
-- Updated package dependencies. [#39594]
-- Updated package dependencies. [#39653]
-- Updated package dependencies. [#39707]
-- Updated package dependencies. [#39999]
-- Updated package dependencies. [#40000]
-- Updated package dependencies. [#40060]
-- Updated package dependencies. [#40116]
-- Updated package dependencies. [#40288]
-- Updated package dependencies. [#40363]
-- Updated package dependencies. [#40515]
-- Updated package dependencies. [#40564]
-- Updated package dependencies. [#40705]
-- Updated package dependencies. [#40798]
-- Updated package dependencies. [#40831]
 
 ### Removed
 - General: Remove unused legacy code. [#40267]
+
+### Changed
 - General: Update minimum WordPress version to 6.6. [#40146]
-- Removed legacy beta feedback code. [#40249]
-- Removed old build file. [#40249]
-- Tests: Removed react-test-renderer. [#38755]
+- API: Allow sort order in endpoints. [#38838]
 
 ### Fixed
-- Code: Ensure we use Jetpack Autoloader throughout the codebase. [#40061]
-- CRM: Fix bug which caused duplicated queries to run. [#40711]
-- Dashboard: Fixed an issue where the CRM contacts graph displayed incorrect values in some instances [#38316]
+- CRM: Fixed bug which caused duplicated queries to run. [#40711]
+- CRM: Fixed a fatal error that occurred when exporting contacts with a custom field that had the same name as a linked field (e.g., 'company'). [#38851]
+- Dashboard: Fixed an issue where the CRM contacts graph displayed incorrect values in some instances. [#38316]
 - Dashboard: Show correct avatar for recent activity. [#40280]
-- Fixed a fatal error that occurred when exporting contacts with a custom field that had the same name as a linked field (e.g., 'company'). [#38851]
-- Fixed lints following ESLint rule changes for TS [#40584]
-- Fixing bugs in the default PDF template and other fixes. Created a new template to maintain backwards compatibility [#40514]
-- Fix PHPUnit coverage warnings. [#39989]
-- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
-- Migrations: Improve WP Playground compatibility. [#39956]
-- Revert recent SVG image optimizations. [#38981]
+- Invoices: Fixing bugs in the default PDF template and other fixes. Created a new template to maintain backwards compatibility [#40514]
+- Code: Ensure we use Jetpack Autoloader throughout the codebase. [#40061]
 
 ## [6.4.4] - 2024-08-07
 ### Removed
