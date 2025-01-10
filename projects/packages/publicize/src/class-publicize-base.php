@@ -894,6 +894,7 @@ abstract class Publicize_Base {
 			$post_id = null;
 		}
 
+		// TODO Get these services->connections from the cache populated from the REST API.
 		$services = $this->get_services( 'connected' );
 		$all_done = $this->post_is_done_sharing( $post_id );
 
@@ -1002,19 +1003,27 @@ abstract class Publicize_Base {
 				}
 
 				$connection_list[] = array(
+					// REST Meta fields.
+					'connection_id'   => $connection_id,
+					'display_name'    => $this->get_display_name( $service_name, $connection ),
+					'enabled'         => $enabled,
+					'external_handle' => $this->get_external_handle( $service_name, $connection ),
+					'external_id'     => $connection_meta['external_id'] ?? '',
+					'profile_link'    => (string) $this->get_profile_link( $service_name, $connection ),
+					'profile_picture' => (string) $this->get_profile_picture( $connection ),
+					'service_label'   => static::get_service_label( $service_name ),
+					'service_name'    => $service_name,
+					'shared'          => ! $connection_data['user_id'],
+					'status'          => null,
+					'user_id'         => (int) $connection_data['user_id'],
+
+					// Deprecated fields.
 					'id'              => $connection_id,
 					'unique_id'       => $unique_id,
-					'service_name'    => $service_name,
-					'service_label'   => static::get_service_label( $service_name ),
-					'display_name'    => $this->get_display_name( $service_name, $connection ),
 					'username'        => $this->get_username( $service_name, $connection ),
-					'profile_picture' => $this->get_profile_picture( $connection ),
-					'enabled'         => $enabled,
 					'done'            => $done,
 					'toggleable'      => $toggleable,
 					'global'          => 0 == $connection_data['user_id'], // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,WordPress.PHP.StrictComparisons.LooseComparison -- Other types can be used at times.
-					'external_id'     => $connection_meta['external_id'] ?? '',
-					'user_id'         => $connection_data['user_id'],
 				);
 			}
 		}
