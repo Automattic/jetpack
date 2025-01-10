@@ -32,7 +32,6 @@ $args       = array(
 	'page'         => $pagination['page'],
 	'perPage'      => $pagination['per_page'],
 	'sortOrder'    => $pagination['order'],
-	'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_INVOICE ),
 );
 
 global $zbs;
