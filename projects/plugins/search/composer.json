@@ -4,18 +4,18 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-autoloader": "@dev",
-		"automattic/jetpack-composer-plugin": "@dev",
-		"automattic/jetpack-config": "@dev",
-		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-my-jetpack": "@dev",
-		"automattic/jetpack-search": "@dev",
-		"automattic/jetpack-stats": "@dev",
-		"automattic/jetpack-status": "@dev",
-		"automattic/jetpack-sync": "@dev"
+		"automattic/jetpack-autoloader": "^5.0.0",
+		"automattic/jetpack-composer-plugin": "^4.0.0",
+		"automattic/jetpack-config": "^3.0.0",
+		"automattic/jetpack-connection": "^6.2.2",
+		"automattic/jetpack-my-jetpack": "^5.3.1",
+		"automattic/jetpack-search": "^0.47.5",
+		"automattic/jetpack-stats": "^0.15.0",
+		"automattic/jetpack-status": "^5.0.1",
+		"automattic/jetpack-sync": "^4.3.0"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev",
+		"automattic/jetpack-changelogger": "^5.1.0",
 		"yoast/phpunit-polyfills": "^1.1.1"
 	},
 	"autoload": {
@@ -36,15 +36,7 @@
 		"build-production": "pnpm run build-production",
 		"build-development": "pnpm run build"
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		}
-	],
+	"repositories": [],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
