@@ -12,11 +12,18 @@ import type { BaseChartProps, DataPointPercentage } from '../../types';
 
 // TODO: add animation
 
-interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
+type OmitBaseChartProps = Omit< BaseChartProps< DataPointPercentage[] >, 'width' | 'height' >;
+
+interface PieChartProps extends OmitBaseChartProps {
 	/**
 	 * Inner radius in pixels. If > 0, creates a donut chart. Defaults to 0.
 	 */
 	innerRadius?: number;
+
+	/**
+	 * Size of the chart in pixels
+	 */
+	size?: number;
 }
 
 /**
@@ -27,8 +34,7 @@ interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
  */
 const PieChart = ( {
 	data,
-	width = 500, //TODO: replace when making the components responsive
-	height = 500, //TODO: replace when making the components responsive
+	size = 500, //TODO: replace when making the components responsive
 	withTooltips = false,
 	innerRadius = 0,
 	className,
@@ -40,6 +46,9 @@ const PieChart = ( {
 		useChartMouseHandler( {
 			withTooltips,
 		} );
+
+	const width = size;
+	const height = size;
 
 	// Calculate radius based on width/height
 	const radius = Math.min( width, height ) / 2;
@@ -73,7 +82,7 @@ const PieChart = ( {
 					<Pie< DataPointPercentage & { index: number } >
 						data={ dataWithIndex }
 						pieValue={ accessors.value }
-						outerRadius={ radius - 20 } // Leave space for labels/tooltips
+						outerRadius={ radius - 20 }
 						innerRadius={ innerRadius }
 					>
 						{ pie => {
