@@ -8,8 +8,6 @@ import * as utmSelectors from './utm-settings';
 
 /**
  * Returns whether the site settings are being saved.
- *
- * @type {() => boolean} Whether the site settings are being saved.
  */
 export const isSavingSiteSettings = createRegistrySelector( select => () => {
 	return select( coreStore ).isSavingEntityRecord( 'root', 'site', undefined );

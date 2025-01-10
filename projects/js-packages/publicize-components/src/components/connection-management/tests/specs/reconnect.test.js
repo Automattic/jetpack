@@ -17,8 +17,7 @@ describe( 'Reconnect', () => {
 
 	const mockConnection = {
 		connection_id: '123',
-		can_disconnect: true,
-		external_display: 'mockDisplay',
+		display_name: 'mockDisplay',
 	};
 
 	beforeEach( () => {
@@ -58,12 +57,8 @@ describe( 'Reconnect', () => {
 	} );
 
 	test( 'does not render the button if connection cannot be disconnected', () => {
-		const nonDisconnectableConnection = {
-			...mockConnection,
-			can_disconnect: false,
-		};
-
-		render( <Reconnect connection={ nonDisconnectableConnection } service={ mockService } /> );
+		setup( { canUserManageConnection: false } );
+		render( <Reconnect connection={ mockConnection } service={ mockService } /> );
 
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );

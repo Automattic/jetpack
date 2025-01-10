@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Social: Replaced can_disconnect with a store data selector

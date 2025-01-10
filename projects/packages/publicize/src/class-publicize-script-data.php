@@ -70,7 +70,30 @@ class Publicize_Script_Data {
 		$data['site']['wpcom']['blog_id'] = Manager::get_site_id( true );
 		$data['site']['suffix']           = ( new Status() )->get_site_suffix();
 
+		self::set_wpcom_user_data( $data['user']['current_user'] );
+
 		return $data;
+	}
+
+	/**
+	 * Set wpcom user data.
+	 *
+	 * @param array $user_data The user data.
+	 */
+	private static function set_wpcom_user_data( &$user_data ) {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			$wpcom_user_data = array(
+				'ID'    => get_current_user_id(),
+				'login' => wp_get_current_user()->user_login,
+			);
+		} else {
+			$wpcom_user_data = ( new Manager() )->get_connected_user_data();
+		}
+
+		$user_data['wpcom'] = array_merge(
+			$user_data['wpcom'] ?? array(),
+			$wpcom_user_data ? $wpcom_user_data : array()
+		);
 	}
 
 	/**
