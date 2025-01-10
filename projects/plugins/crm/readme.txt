@@ -362,11 +362,60 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.4.4 - 2024-08-07
+### 6.5.0 - 2025-01-10
+#### Added
+- Enable test coverage.
+
+#### Changed
+- API-events: Add the pagination result sort/order capability to the endpoint.
+- fixes some issues with the white label
+- General: Enable JavaScript linting.
+- General: indicate compatibility with the upcoming version of WordPress - 6.7.
+- Improve spec compliance of CSV output: `\"` sequences will now be correctly escaped by doubling the `"`.
+- Only include `wp-polyfill` as a script dependency when needed.
+- Updated dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
 
 #### Removed
-- MailPoet: Remove unused MailPoet use statements.
+- General: Remove unused legacy code.
+- General: Update minimum WordPress version to 6.6.
+- Removed legacy beta feedback code.
+- Removed old build file.
+- Tests: Removed react-test-renderer.
 
 #### Fixed
-- WooSync: Fix a warning message on sync and fatal error when a fee value is not a number
+- Code: Ensure we use Jetpack Autoloader throughout the codebase.
+- CRM: Fix bug which caused duplicated queries to run.
+- Dashboard: Fixed an issue where the CRM contacts graph displayed incorrect values in some instances
+- Dashboard: Show correct avatar for recent activity.
+- Fixed a fatal error that occurred when exporting contacts with a custom field that had the same name as a linked field (e.g., 'company').
+- Fixed lints following ESLint rule changes for TS
+- Fixing bugs in the default PDF template and other fixes. Created a new template to maintain backwards compatibility
+- Fix PHPUnit coverage warnings.
+- Lossless image optimization for images (should improve performance with no visible changes).
+- Migrations: Improve WP Playground compatibility.
+- Revert recent SVG image optimizations.
 
