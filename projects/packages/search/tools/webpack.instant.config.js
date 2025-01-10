@@ -24,15 +24,25 @@ function requestToExternal( request ) {
 	return defaultRequestToExternal( request );
 }
 
+/** @type {import('webpack').Configuration} */
 module.exports = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
 	entry: {
-		'jp-search': path.join( __dirname, '../src/instant-search/loader.js' ),
+		// 'jp-search': path.join( __dirname, '../src/instant-search/loader.js' ),
+		'@jetpack/instant-search': path.join( __dirname, '../src/instant-search/interactivity.js' ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,
 		path: path.join( __dirname, '../build/instant-search' ),
+		environment: { module: true },
+		module: true,
+		chunkFormat: 'module',
+		asyncChunks: false,
+	},
+	experiments: {
+		...jetpackWebpackConfig.experiments,
+		outputModule: true,
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
@@ -58,12 +68,7 @@ module.exports = {
 	},
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
-			DependencyExtractionPlugin: {
-				injectPolyfill: true,
-				useDefaults: false,
-				requestToExternal,
-				requestToHandle: defaultRequestToHandle,
-			},
+			DependencyExtractionPlugin: {},
 		} ),
 		// Replace 'debug' module with a dummy implementation in production
 		...( jetpackWebpackConfig.isDevelopment

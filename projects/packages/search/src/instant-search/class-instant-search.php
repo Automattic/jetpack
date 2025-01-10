@@ -81,6 +81,7 @@ class Instant_Search extends Classic_Search {
 
 			add_action( 'wp_enqueue_scripts', array( $this, 'load_assets' ) );
 			add_action( 'wp_footer', array( 'Automattic\Jetpack\Search\Helper', 'print_instant_search_sidebar' ) );
+			add_action( 'wp_footer', array( $this, 'inject_search_html' ) );
 			add_filter( 'body_class', array( $this, 'add_body_class' ), 10 );
 		} else {
 			add_action( 'update_option', array( $this, 'track_widget_updates' ), 10, 3 );
@@ -89,6 +90,12 @@ class Instant_Search extends Classic_Search {
 		add_action( 'widgets_init', array( $this, 'register_jetpack_instant_sidebar' ) );
 		add_action( 'jetpack_deactivate_module_search', array( $this, 'move_search_widgets_to_inactive' ) );
 	}
+
+	public function inject_search_html() {
+		$html = include __DIR__ . '/interactivity.php';
+		echo wp_interactivity_process_directives( $html );
+	}
+
 
 	/**
 	 * Loads assets for Jetpack Instant Search Prototype featuring Search As You Type experience.
@@ -116,6 +123,16 @@ class Instant_Search extends Classic_Search {
 		Assets::enqueue_script( 'jetpack-instant-search' );
 		$this->load_and_initialize_tracks();
 		$this->inject_javascript_options();
+		wp_register_script_module(
+			'@jetpack/instant-search',
+			plugins_url( 'build/instant-search/@jetpack/instant-search.js', $package_base_path . '/src' ),
+			array( '@wordpress/interactivity')
+		);
+		wp_enqueue_style(
+			'@jetpack/instant-search',
+			plugins_url( 'build/instant-search/@jetpack/instant-search.css', $package_base_path . '/src' )
+		);
+		wp_enqueue_script_module( '@jetpack/instant-search' );
 	}
 
 	/**
@@ -125,6 +142,7 @@ class Instant_Search extends Classic_Search {
 		$options = Helper::generate_initial_javascript_state();
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
 		wp_add_inline_script( 'jetpack-instant-search', 'var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $options ) ) . '"));', 'before' );
+		wp_interactivity_config( 'jetpack/instant-search', array('options' => $options ) );
 	}
 
 	/**
