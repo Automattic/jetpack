@@ -23,41 +23,6 @@ function jpcrm_autohide_admin_notices_for_specific_pages(){
     }
 }
 
-
-
-// admin notices
-// show/hide admin notice :)
-//add_action( 'admin_notices', 'jpcrm_woo_promo_admin_notice' );
-function jpcrm_woo_promo_admin_notice(){
-
-    global $zbs;
-    $bundle = false; if ($zbs->hasFreelancerBundleMin()) $bundle = true;
-
-    //default true if not set
-    $display_status = get_option( 'jpcrm_hide_woo_promo', 'show' );
-
-    /* Check transient, if available display notice */
-    if ( current_user_can( 'activate_plugins' )){
-        
-        if(is_plugin_active( 'woocommerce/woocommerce.php' ) && zeroBSCRM_isAdminPage() && !zeroBSCRM_isExtensionInstalled('woosync') && !$bundle && $display_status != "hide"){
-            jpcrm_woo_promo_admin_notice_banner();
-        }
-        
-    }else{
-
-    }
-
-}
-
-
-
-/**
- * WooCommerce promo if running one
- */
-function jpcrm_woo_promo_admin_notice_banner(){
-
-}
-
 ##WLREMOVE
 /**
  * Usage Tracking
