@@ -1,4 +1,4 @@
-export type ConnectionStatus = 'ok' | 'broken';
+export type ConnectionStatus = 'ok' | 'broken' | 'must_reauth';
 
 export type Connection = {
 	connection_id: string;
