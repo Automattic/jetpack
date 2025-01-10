@@ -9,7 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanPluginDuplicateConditionalNullCoalescing : 6 occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 8 occurrences
     // PhanTypeMismatchArgument : 6 occurrences
     // PhanTypeMismatchArgumentNullable : 3 occurrences
     // PhanDeprecatedFunction : 2 occurrences
@@ -29,6 +29,7 @@ return [
     // PhanTypeMismatchDefault : 1 occurrence
     // PhanTypeMismatchDimFetch : 1 occurrence
     // PhanTypeMismatchReturn : 1 occurrence
+    // PhanTypeSuspiciousNonTraversableForeach : 1 occurrence
     // PhanUndeclaredFunction : 1 occurrence
     // PhanUndeclaredMethod : 1 occurrence
 
@@ -40,8 +41,8 @@ return [
         'src/class-publicize-ui.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-publicize.php' => ['PhanParamSignatureMismatch', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMissingReturn'],
         'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/rest-api/class-base-controller.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
-        'src/rest-api/class-connections-controller.php' => ['PhanPluginMixedKeyNoKey', 'PhanUndeclaredMethod'],
+        'src/rest-api/class-base-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
+        'src/rest-api/class-connections-controller.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanUndeclaredMethod'],
         'src/rest-api/class-connections-post-field.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/social-image-generator/class-post-settings.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/social-image-generator/class-rest-settings-controller.php' => ['PhanPluginMixedKeyNoKey'],
