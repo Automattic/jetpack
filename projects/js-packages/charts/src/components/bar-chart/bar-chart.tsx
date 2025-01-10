@@ -32,7 +32,7 @@ const BarChart: FC< BarChartProps > = ( {
 	className,
 	gridVisibility = 'x',
 	width,
-	height,
+	height = 400,
 } ) => {
 	const theme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
