@@ -1,21 +1,19 @@
+import { useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { TypingMessage } from './index';
-import type { Step, Option } from './index';
+import TypingMessage from './typing-message';
+import type { Step, Option } from './types';
 
 export const useMetaDescriptionStep = ( {
 	addMessage,
 	removeLastMessage,
 	onStep,
-} ): {
-	stepProps: Step;
-	value: string;
-	setValue: React.Dispatch< React.SetStateAction< string > >;
-} => {
-	// const [ selectedTitle, setSelectedTitle ] = useState< string >();
-	// const [ titleOptions, setTitleOptions ] = useState< Option[] >( [] );
+	setIsBusy,
+} ): Step => {
 	const [ selectedMetaDescription, setSelectedMetaDescription ] = useState< string >();
 	const [ metaDescriptionOptions, setMetaDescriptionOptions ] = useState< Option[] >( [] );
+	const { editPost } = useDispatch( 'core/editor' );
+	const [ completed, setCompleted ] = useState( false );
 
 	const handleMetaDescriptionSelect = useCallback( ( option: Option ) => {
 		setSelectedMetaDescription( option.content );
@@ -27,15 +25,20 @@ export const useMetaDescriptionStep = ( {
 		);
 	}, [] );
 
-	const handleMetaDescriptionSubmit = useCallback( () => {
+	const handleMetaDescriptionSubmit = useCallback( async () => {
+		addMessage( { content: <TypingMessage /> } );
+		await editPost( { meta: { advanced_seo_description: selectedMetaDescription } } );
+		removeLastMessage();
 		addMessage( { content: selectedMetaDescription, isUser: true } );
 		addMessage( __( 'Meta description updated! ✅', 'jetpack' ) );
+		setCompleted( true );
 		if ( onStep ) {
 			onStep( { value: selectedMetaDescription } );
 		}
-	}, [ selectedMetaDescription, onStep, addMessage ] );
+	}, [ selectedMetaDescription, onStep, addMessage, editPost, removeLastMessage ] );
 
 	const handleMetaDescriptionGenerate = useCallback( async () => {
+		setIsBusy( true );
 		let newMetaDescriptions;
 		// we only generate if options are empty
 		if ( metaDescriptionOptions.length === 0 ) {
@@ -57,7 +60,8 @@ export const useMetaDescriptionStep = ( {
 		}
 		addMessage( "Here's a suggestion:" );
 		setMetaDescriptionOptions( newMetaDescriptions || metaDescriptionOptions );
-	}, [ metaDescriptionOptions, addMessage, removeLastMessage ] );
+		setIsBusy( false );
+	}, [ metaDescriptionOptions, addMessage, removeLastMessage, setIsBusy ] );
 
 	const handleMetaDescriptionRegenerate = useCallback( async () => {
 		setMetaDescriptionOptions( [] );
@@ -80,26 +84,34 @@ export const useMetaDescriptionStep = ( {
 		setMetaDescriptionOptions( newMetaDescription );
 	}, [ addMessage, removeLastMessage ] );
 
+	const handleSkip = useCallback( () => {
+		addMessage( __( 'Ok, leaving your meta description as is and moving on.', 'jetpack' ) );
+		if ( onStep ) {
+			onStep();
+		}
+	}, [ addMessage, onStep ] );
+
 	return {
-		stepProps: {
-			id: 'meta',
-			title: __( 'Add meta description', 'jetpack' ),
-			messages: [
-				{
-					content: __( "Now, let's optimize your meta description.", 'jetpack' ),
-					showIcon: true,
-				},
-			],
-			type: 'options',
-			options: metaDescriptionOptions,
-			onSelect: handleMetaDescriptionSelect,
-			onSubmit: handleMetaDescriptionSubmit,
-			submitCtaLabel: __( 'Insert', 'jetpack' ),
-			onRetry: handleMetaDescriptionRegenerate,
-			onRetryCtaLabel: __( 'Regenerate', 'jetpack' ),
-			onStart: handleMetaDescriptionGenerate,
-		},
+		id: 'meta',
+		title: __( 'Add meta description', 'jetpack' ),
+		messages: [
+			{
+				content: __( "Now, let's optimize your meta description.", 'jetpack' ),
+				showIcon: true,
+			},
+		],
+		type: 'options',
+		options: metaDescriptionOptions,
+		onSelect: handleMetaDescriptionSelect,
+		onSubmit: handleMetaDescriptionSubmit,
+		submitCtaLabel: __( 'Insert', 'jetpack' ),
+		onRetry: handleMetaDescriptionRegenerate,
+		onRetryCtaLabel: __( 'Regenerate', 'jetpack' ),
+		onStart: handleMetaDescriptionGenerate,
+		onSkip: handleSkip,
 		value: selectedMetaDescription,
 		setValue: setSelectedMetaDescription,
+		completed,
+		setCompleted,
 	};
 };

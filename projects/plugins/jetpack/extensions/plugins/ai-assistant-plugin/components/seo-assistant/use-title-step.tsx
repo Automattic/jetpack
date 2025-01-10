@@ -1,21 +1,20 @@
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { TypingMessage } from './index';
-import type { Step, Option } from './index';
+import TypingMessage from './typing-message';
+import type { Step, Option } from './types';
 
 export const useTitleStep = ( {
 	addMessage,
 	removeLastMessage,
 	onStep,
-} ): {
-	stepProps: Step;
-	value: string;
-	setValue: React.Dispatch< React.SetStateAction< string > >;
-} => {
+	contextData,
+	setIsBusy,
+} ): Step => {
 	const [ selectedTitle, setSelectedTitle ] = useState< string >();
 	const [ titleOptions, setTitleOptions ] = useState< Option[] >( [] );
 	const { editPost } = useDispatch( 'core/editor' );
+	const [ completed, setCompleted ] = useState( false );
 
 	const handleTitleSelect = useCallback( ( option: Option ) => {
 		setSelectedTitle( option.content );
@@ -27,7 +26,10 @@ export const useTitleStep = ( {
 		);
 	}, [] );
 
+	useEffect( () => setTitleOptions( [] ), [ contextData ] );
+
 	const handleTitleGenerate = useCallback( async () => {
+		setIsBusy( true );
 		let newTitles;
 		// we only generate if options are empty
 		if ( titleOptions.length === 0 ) {
@@ -51,11 +53,18 @@ export const useTitleStep = ( {
 			);
 			removeLastMessage();
 		}
-		addMessage( {
-			content: 'Here are two suggestions based on your keywords. Select the one you prefer:',
-		} );
+		if ( contextData ) {
+			addMessage( {
+				content: 'Here are two suggestions based on your keywords. Select the one you prefer:',
+			} );
+		} else {
+			addMessage( {
+				content: 'Here are two suggestions. Select the one you prefer:',
+			} );
+		}
 		setTitleOptions( newTitles || titleOptions );
-	}, [ titleOptions, addMessage, removeLastMessage ] );
+		setIsBusy( false );
+	}, [ titleOptions, addMessage, removeLastMessage, contextData, setIsBusy ] );
 
 	const replaceOptionsWithFauxUseMessages = useCallback( () => {
 		const optionsMessage = {
@@ -73,6 +82,9 @@ export const useTitleStep = ( {
 	}, [ titleOptions, addMessage ] );
 
 	const handleTitleRegenerate = useCallback( async () => {
+		// let the controller know we're working
+		setIsBusy( true );
+
 		// This would typically be an async call to generate new titles
 		replaceOptionsWithFauxUseMessages();
 		setTitleOptions( [] );
@@ -97,38 +109,59 @@ export const useTitleStep = ( {
 		removeLastMessage();
 		addMessage( 'Here are two new suggestions based on your keywords. Select the one you prefer:' );
 		setTitleOptions( newTitles );
-	}, [ addMessage, removeLastMessage, replaceOptionsWithFauxUseMessages ] );
+		setIsBusy( false );
+	}, [ addMessage, removeLastMessage, replaceOptionsWithFauxUseMessages, setIsBusy ] );
 
-	const handleTitleSubmit = useCallback( () => {
-		// addMessage( { content: selectedTitle, isUser: true } );
-		editPost( { meta: { jetpack_seo_html_title: selectedTitle } } );
+	const handleTitleSubmit = useCallback( async () => {
 		replaceOptionsWithFauxUseMessages();
+		addMessage( { content: <TypingMessage /> } );
+		await editPost( { title: selectedTitle, meta: { jetpack_seo_html_title: selectedTitle } } );
+		removeLastMessage();
 		addMessage( __( 'Title updated! ✅', 'jetpack' ) );
+		setCompleted( true );
 		if ( onStep ) {
 			onStep( { value: selectedTitle } );
 		}
-	}, [ selectedTitle, onStep, addMessage, replaceOptionsWithFauxUseMessages, editPost ] );
+	}, [
+		selectedTitle,
+		onStep,
+		addMessage,
+		replaceOptionsWithFauxUseMessages,
+		editPost,
+		removeLastMessage,
+	] );
+
+	const handleSkip = useCallback( () => {
+		if ( titleOptions.length ) {
+			replaceOptionsWithFauxUseMessages();
+		}
+		addMessage( __( 'Ok, leaving the title as is and moving on.', 'jetpack' ) );
+		if ( onStep ) {
+			onStep();
+		}
+	}, [ addMessage, onStep, titleOptions, replaceOptionsWithFauxUseMessages ] );
 
 	return {
-		stepProps: {
-			id: 'title',
-			title: __( 'Optimise Title', 'jetpack' ),
-			messages: [
-				{
-					content: __( "Let's optimise your title.", 'jetpack' ),
-					showIcon: true,
-				},
-			],
-			type: 'options',
-			options: titleOptions,
-			onSelect: handleTitleSelect,
-			onSubmit: handleTitleSubmit,
-			submitCtaLabel: __( 'Insert', 'jetpack' ),
-			onRetry: handleTitleRegenerate,
-			onRetryCtaLabel: __( 'Regenerate', 'jetpack' ),
-			onStart: handleTitleGenerate,
-		},
+		id: 'title',
+		title: __( 'Optimise Title', 'jetpack' ),
+		messages: [
+			{
+				content: __( "Let's optimise your title.", 'jetpack' ),
+				showIcon: true,
+			},
+		],
+		type: 'options',
+		options: titleOptions,
+		onSelect: handleTitleSelect,
+		onSubmit: handleTitleSubmit,
+		submitCtaLabel: __( 'Insert', 'jetpack' ),
+		onRetry: handleTitleRegenerate,
+		onRetryCtaLabel: __( 'Regenerate', 'jetpack' ),
+		onStart: handleTitleGenerate,
+		onSkip: handleSkip,
 		value: selectedTitle,
 		setValue: setSelectedTitle,
+		completed,
+		setCompleted,
 	};
 };

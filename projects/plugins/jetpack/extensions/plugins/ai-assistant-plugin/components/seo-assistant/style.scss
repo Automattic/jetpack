@@ -72,9 +72,7 @@
 	}
 
 	&__message {
-		// padding: 12px 16px;
 		border-radius: 16px;
-		// background: #e0e7ff;
 		white-space: pre-line;
 		animation: messageAppear 0.3s ease-out;
 		font-size: 13px;
@@ -84,11 +82,6 @@
 		min-width: 48px;
 
 		.seo-assistant-wizard__message-icon {
-			// height: 26px;
-			// width: 26px;
-			// text-align: center;
-			// line-height: 4;
-			// flex: 0 1 26px;
 			flex-shrink: 0;
 			align-self: center;
 			flex-basis: 26px;
@@ -112,17 +105,12 @@
 				display: none;
 			}
 		}
-
-		// &:not(.is-user) {
-			// border-bottom-left-radius: 4px;
-		// }
 	}
 
 	&__input-container {
 		flex: 0 0 auto;
 		padding: 16px;
 		background: white;
-		// border-top: 1px solid #e5e7eb;
 		border-radius: 0 0 16px 16px;
 		border-top: 1px solid var( --jp-gray-5, #e5e7eb );
 	}
@@ -151,7 +139,6 @@
 			border-radius: 12px;
 			box-shadow: none;
 			outline: 0;
-			// .components-text-control__input[type=text]
 		}
 	}
 
@@ -172,7 +159,6 @@
 		background: #f3f4f6;
 		border: 2px solid transparent;
 		border-radius: 12px;
-		cursor: pointer;
 		text-align: left;
 		font-size: 14px;
 		line-height: 1.4;
@@ -183,7 +169,11 @@
 		&.is-selected {
 			background: #fff;
 			border-color: var( --wp-components-color-accent, var( --wp-admin-theme-color, #007cba ) );
-			// box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+		}
+
+		// target buttons only
+		&:not( div ) {
+			cursor: pointer;
 		}
 
 		&:hover:not( div ):not( .is-selected ) {
@@ -195,47 +185,19 @@
 		display: flex;
 		justify-content: flex-end;
 		align-items: center;
-		// margin-top: 16px;
-		// padding-top: 16px;
-		// border-top: 1px solid #e5e7eb;
 		gap: 16px;
 
 		.components-button {
-			// height: 40px;
-			// padding: 8px 16px;
 			border-radius: 20px;
-			// font-size: 14px;
-
-			// &.is-secondary {
-			// 	color: #4b5563;
-			// }
-
-			// &.is-primary {
-			// 	background: #4f46e5;
-
-			// 	&:hover {
-			// 		background: #4338ca;
-			// 	}
-			// }
 		}
 	}
 
 	&__completion {
 		display: flex;
 		justify-content: flex-end;
-		// padding-top: 16px;
-		// border-top: 1px solid #e5e7eb;
 
 		.components-button {
-			// height: 40px;
-			// padding: 8px 24px;
 			border-radius: 20px;
-			// font-size: 14px;
-			// background: #4f46e5;
-
-			// &:hover {
-			// 	background: #4338ca;
-			// }
 		}
 	}
 }
@@ -265,6 +227,5 @@
 .typing-dot:nth-child(3) { animation-delay: 250ms }
 
 .typing-loader {
-	// background-color: #f1f1f1;
 	color: grey;
 }
