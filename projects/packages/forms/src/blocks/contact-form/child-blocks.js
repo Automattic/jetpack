@@ -409,7 +409,7 @@ export const childBlocks = [
 		name: 'field-url',
 		settings: {
 			...FieldDefaults,
-			title: __( 'URL Field', 'jetpack-forms' ),
+			title: __( 'Website Field', 'jetpack-forms' ),
 			keywords: [
 				__( 'url', 'jetpack-forms' ),
 				__( 'internet page', 'jetpack-forms' ),
