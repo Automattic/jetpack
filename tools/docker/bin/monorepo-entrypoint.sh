@@ -4,7 +4,7 @@
 set -e
 
 # Check and set PNPM store location
-EXPECTED_STORE="/usr/local/src/jetpack-monorepo/tools/docker/data/pnpm-store"
+EXPECTED_STORE="/workspace/tools/docker/data/pnpm-store"
 CURRENT_STORE=$(pnpm config get store-dir)
 
 if [ "$CURRENT_STORE" != "$EXPECTED_STORE" ]; then
