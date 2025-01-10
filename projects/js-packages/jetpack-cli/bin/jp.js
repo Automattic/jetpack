@@ -240,36 +240,63 @@ const main = async () => {
 				// Get project name (from docker.js)
 				const projectName = args.includes( '--type=e2e' ) ? 'jetpack_e2e' : 'jetpack_dev';
 
-				// Load versions from .github/versions.sh
-				const versionsPath = resolve( monorepoRoot, '.github/versions.sh' );
-				const versions = fs.readFileSync( versionsPath, 'utf8' );
-				const versionVars = {};
-				versions.split( '\n' ).forEach( line => {
-					const match = line.match( /^([A-Z_]+)=(.+)$/ );
-					if ( match ) {
-						versionVars[ match[ 1 ] ] = match[ 2 ].replace( /['"]/g, '' );
-					}
-				} );
-
 				// Build environment variables (from docker.js)
 				const envVars = {
-					...process.env,
-					// Load from default.env
-					...( fs.existsSync( resolve( monorepoRoot, 'tools/docker/default.env' ) )
-						? dotenv.parse( fs.readFileSync( resolve( monorepoRoot, 'tools/docker/default.env' ) ) )
-						: {} ),
-					// Load from .env if it exists
-					...( fs.existsSync( resolve( monorepoRoot, 'tools/docker/.env' ) )
-						? dotenv.parse( fs.readFileSync( resolve( monorepoRoot, 'tools/docker/.env' ) ) )
-						: {} ),
-					HOST_CWD: monorepoRoot,
-					PHP_VERSION: versionVars.PHP_VERSION,
-					COMPOSER_VERSION: versionVars.COMPOSER_VERSION,
-					NODE_VERSION: versionVars.NODE_VERSION,
-					PNPM_VERSION: versionVars.PNPM_VERSION,
-					COMPOSE_PROJECT_NAME: projectName,
-					PORT_WORDPRESS: args.includes( '--type=e2e' ) ? '8889' : '80',
+					...process.env, // Start with process.env
 				};
+
+				// Add default env vars if they exist
+				if ( fs.existsSync( resolve( monorepoRoot, 'tools/docker/default.env' ) ) ) {
+					Object.assign(
+						envVars,
+						dotenv.parse( fs.readFileSync( resolve( monorepoRoot, 'tools/docker/default.env' ) ) )
+					);
+				}
+
+				// Add user overrides from .env if they exist
+				if ( fs.existsSync( resolve( monorepoRoot, 'tools/docker/.env' ) ) ) {
+					Object.assign(
+						envVars,
+						dotenv.parse( fs.readFileSync( resolve( monorepoRoot, 'tools/docker/.env' ) ) )
+					);
+				}
+
+				// Only set these specific vars if they're not already set in .env
+				if ( ! envVars.COMPOSE_PROJECT_NAME ) {
+					envVars.COMPOSE_PROJECT_NAME = projectName;
+				}
+				if ( ! envVars.PORT_WORDPRESS ) {
+					envVars.PORT_WORDPRESS = args.includes( '--type=e2e' ) ? '8889' : '80';
+				}
+
+				// Load versions from .github/versions.sh if not already set
+				if (
+					! (
+						envVars.PHP_VERSION &&
+						envVars.COMPOSER_VERSION &&
+						envVars.NODE_VERSION &&
+						envVars.PNPM_VERSION
+					)
+				) {
+					const versionsPath = resolve( monorepoRoot, '.github/versions.sh' );
+					const versions = fs.readFileSync( versionsPath, 'utf8' );
+					const versionVars = {};
+					versions.split( '\n' ).forEach( line => {
+						const match = line.match( /^([A-Z_]+)=(.+)$/ );
+						if ( match ) {
+							versionVars[ match[ 1 ] ] = match[ 2 ].replace( /['"]/g, '' );
+						}
+					} );
+
+					// Only set version vars if they're not already set
+					if ( ! envVars.PHP_VERSION ) envVars.PHP_VERSION = versionVars.PHP_VERSION;
+					if ( ! envVars.COMPOSER_VERSION ) envVars.COMPOSER_VERSION = versionVars.COMPOSER_VERSION;
+					if ( ! envVars.NODE_VERSION ) envVars.NODE_VERSION = versionVars.NODE_VERSION;
+					if ( ! envVars.PNPM_VERSION ) envVars.PNPM_VERSION = versionVars.PNPM_VERSION;
+				}
+
+				// Always set HOST_CWD as it's required for Docker context
+				envVars.HOST_CWD = monorepoRoot;
 
 				// Build the list of compose files to use
 				const composeFiles = [
