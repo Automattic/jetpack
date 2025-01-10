@@ -39,9 +39,9 @@ $args = array(
 	// 'withAssigned'    => $withCustomerDeets,
 	'suppressContent' => true, // NO HTML!
 	'sortByField'     => 'ID',
-	'sortOrder'       => 'DESC',
 	'page'            => $pagination['page'],
 	'perPage'         => $pagination['per_page'],
+	'sortOrder'       => $pagination['order'],
 	'ignoreowner'     => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_QUOTE ),
 );
 
