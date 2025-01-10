@@ -1,14 +1,4 @@
-<?php
-	wp_interactivity_state(
-		'jetpack/instant-search',
-		array(
-			// Empty array is "hide", array with 1 element is "show".
-			// Array with more elements is "oops!" (don't do that).
-			'display' => array( 1 ),
-		)
-	);
-	ob_start();
-	?>
+<?php ob_start(); ?>
 <div
 	data-wp-interactive="jetpack/instant-search"
 	data-wp-router-region="jetpack/instant-search"
@@ -75,6 +65,7 @@
 						tabindex="0"
 						aria-label="Close search results"
 						class="jetpack-instant-search__overlay-close"
+						data-wp-on-async--click="handleClose"
 					>
 						<svg
 							focusable="false"
@@ -399,6 +390,7 @@
 				</div>
 				<button id="jetpack-instant-search__overlay-focus-anchor">Close Search</button>
 			</div>
+			<details open><summary>debug</summary><pre data-wp-text="state.debugResult"></pre></details>
 			<div class="jetpack-instant-search__jetpack-colophon">
 				<a
 					href="https://jetpack.com/upgrade/search/?utm_source=poweredby"

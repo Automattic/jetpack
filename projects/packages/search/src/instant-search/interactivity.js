@@ -32,6 +32,12 @@ const debounceMap = new WeakMap();
 
 console.log( iAPI.getConfig( 'jetpack/instant-search' ).options );
 const store = iAPI.store( 'jetpack/instant-search', {
+	state: {
+		get debugResult() {
+			return JSON.stringify( this.state.result, null, 2 );
+		},
+	},
+
 	/**
 	 * Handle search input.
 	 *
@@ -72,5 +78,9 @@ const store = iAPI.store( 'jetpack/instant-search', {
 		u.searchParams.set( 's', val );
 
 		yield Router.actions.navigate( u.href );
+	},
+
+	handleClose() {
+		store.state.display = [];
 	},
 } );

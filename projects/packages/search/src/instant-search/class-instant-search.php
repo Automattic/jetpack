@@ -92,10 +92,27 @@ class Instant_Search extends Classic_Search {
 	}
 
 	public function inject_search_html() {
-		$html = include __DIR__ . '/interactivity.php';
-		echo wp_interactivity_process_directives( $html );
-	}
+		$query   = get_query_var( 's' );
+		$display = $query ? array( null ) : array();
 
+		$args = array(
+			'query' => $query,
+		);
+
+		$res = $this->instant_api( $args );
+
+		wp_interactivity_state(
+			'jetpack/instant-search',
+			array(
+				// Empty array is "hide", array with 1 element is "show".
+				// Array with more elements is "oops!" (don't do that).
+				'display' => $display,
+				'result' => $res,
+			)
+		);
+
+		echo wp_interactivity_process_directives( include __DIR__ . '/interactivity.php' );
+	}
 
 	/**
 	 * Loads assets for Jetpack Instant Search Prototype featuring Search As You Type experience.
@@ -128,7 +145,11 @@ class Instant_Search extends Classic_Search {
 			plugins_url( 'build/instant-search/@jetpack/instant-search.js', $package_base_path . '/src' ),
 			array(
 				'@wordpress/interactivity',
-				array( 'import' => 'dynamic', 'id' => '@wordpress/interactivity-router' ),
+				array(
+					'import' => 'dynamic',
+					'id'     => '@wordpress/interactivity-router',
+				),
+				// '@wordpress/interactivity-router',
 			)
 		);
 		wp_enqueue_style(
@@ -145,7 +166,7 @@ class Instant_Search extends Classic_Search {
 		$options = Helper::generate_initial_javascript_state();
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
 		wp_add_inline_script( 'jetpack-instant-search', 'var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $options ) ) . '"));', 'before' );
-		wp_interactivity_config( 'jetpack/instant-search', array('options' => $options ) );
+		wp_interactivity_config( 'jetpack/instant-search', array( 'options' => $options ) );
 	}
 
 	/**
