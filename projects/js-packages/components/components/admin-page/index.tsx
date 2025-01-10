@@ -31,8 +31,8 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 	header,
 } ) => {
 	useEffect( () => {
-		restApi.setRoot( apiRoot );
-		restApi.setNonce( apiNonce );
+		restApi.setApiRoot( apiRoot );
+		restApi.setApiNonce( apiNonce );
 	}, [ apiRoot, apiNonce ] );
 
 	const rootClassName = clsx( styles[ 'admin-page' ], {
