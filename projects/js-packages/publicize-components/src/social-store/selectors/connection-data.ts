@@ -74,7 +74,7 @@ export function getFailedConnections( state ) {
 
 /**
  * Returns a list of Publicize connection service names that require reauthentication from users.
- * iFor example, when LinkedIn switched its API from v1 to v2.
+ * For example, when LinkedIn switched its API from v1 to v2.
  *
  * @param {import("../types").SocialStoreState} state - State object.
  * @return {Array<import("../types").Connection>} List of service names that need reauthentication.
@@ -82,7 +82,7 @@ export function getFailedConnections( state ) {
 export function getMustReauthConnections( state ) {
 	const connections = getConnections( state );
 	return connections
-		.filter( connection => 'broken' === connection.status )
+		.filter( connection => 'must_reauth' === connection.status )
 		.map( connection => connection.service_name );
 }
 

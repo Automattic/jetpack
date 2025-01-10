@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Restored UI changes to support must_reauth status

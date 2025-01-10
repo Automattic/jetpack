@@ -36,7 +36,7 @@ const state = {
 				external_handle: '@somename@mastodon.social',
 				enabled: false,
 				connection_id: '219876543',
-				status: 'ok',
+				status: 'must_reauth',
 			},
 		],
 	},
@@ -90,7 +90,7 @@ describe( 'Social store selectors: connectionData', () => {
 		it( 'should return must reauth connections', () => {
 			const mustReauthConnections = getMustReauthConnections( state );
 			expect( mustReauthConnections ).toEqual( [
-				state.connectionData.connections[ 1 ].service_name,
+				state.connectionData.connections[ 2 ].service_name,
 			] );
 		} );
 	} );
