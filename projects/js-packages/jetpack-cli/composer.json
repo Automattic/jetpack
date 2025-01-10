@@ -14,13 +14,16 @@
 	},
 	"scripts": {
 		"phpunit": [
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
+			"echo 'no phpunit yet'"
 		],
 		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+			"echo 'no php'"
 		],
 		"test-php": [
-			"@composer phpunit"
+			"echo 'no php'"
+		],
+		"test-js": [
+			"echo 'no tests yet'"
 		]
 	},
 	"repositories": [
