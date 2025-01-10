@@ -38,4 +38,19 @@ export type AdminPageProps = {
 	 * URL of the site WP Admin.
 	 */
 	siteAdminUrl?: string;
+
+	/**
+	 * The domain of the sanboxed API.
+	 */
+	sandboxedDomain?: string;
+
+	/**
+	 * The root URL of the API.
+	 */
+	apiRoot?: string;
+
+	/**
+	 * The nonce of the API.
+	 */
+	apiNonce?: string;
 };

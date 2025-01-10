@@ -85,7 +85,12 @@ export default function MyJetpackScreen() {
 	} );
 	useNotificationWatcher();
 	const { redBubbleAlerts } = getMyJetpackWindowInitialState();
-	const { isAtomic = false, jetpackManage = {}, adminUrl } = getMyJetpackWindowInitialState();
+	const {
+		isAtomic = false,
+		jetpackManage = {},
+		adminUrl,
+		sandboxedDomain,
+	} = getMyJetpackWindowInitialState();
 
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
 	const { isSectionVisible } = useEvaluationRecommendations();
@@ -136,7 +141,7 @@ export default function MyJetpackScreen() {
 	}
 
 	return (
-		<AdminPage siteAdminUrl={ adminUrl }>
+		<AdminPage siteAdminUrl={ adminUrl } sandboxedDomain={ sandboxedDomain }>
 			<hr className={ styles.separator } />
 
 			<IDCModal />
