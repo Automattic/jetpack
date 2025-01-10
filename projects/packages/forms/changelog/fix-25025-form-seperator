@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Improves the styling options of the seperator block when places inside the form block
