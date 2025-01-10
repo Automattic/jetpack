@@ -51,6 +51,8 @@ services:
       - COMPOSE_PROJECT_NAME=$COMPOSE_PROJECT_NAME
 
   monorepo:
+    profiles:
+      - dev
     build:
       context: ${HOST_CWD:-.}/tools/docker
       dockerfile: Dockerfile.monorepo

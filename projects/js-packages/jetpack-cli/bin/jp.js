@@ -286,7 +286,10 @@ const main = async () => {
 					resolve( monorepoRoot, 'tools/docker/compose-extras.built.yml' ),
 				];
 
-				const result = spawnSync( 'docker', [ 'compose', ...composeFiles, ...args.slice( 1 ) ], {
+				// Add dev profile for monorepo service
+				const composeArgs = [ 'compose', '--profile', 'dev', ...composeFiles, ...args.slice( 1 ) ];
+
+				const result = spawnSync( 'docker', composeArgs, {
 					stdio: 'inherit',
 					shell: true,
 					cwd: resolve( monorepoRoot, 'tools/docker' ),
