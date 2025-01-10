@@ -91,7 +91,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active_Test extends \WorDBless
 	/**
 	 * Test update_item.
 	 *
-	 * @covers update_item
+	 * @covers ::update_item
 	 */
 	public function test_active_is_true_by_default() {
 		$plugins   = array( 'gutenberg/gutenberg.php' );
@@ -124,7 +124,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active_Test extends \WorDBless
 	/**
 	 * Test update_item.
 	 *
-	 * @covers update_item
+	 * @covers ::update_item
 	 */
 	public function test_set_active_false_update_active_flag() {
 		$plugins   = array(
@@ -179,7 +179,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active_Test extends \WorDBless
 	/**
 	 * Test update_item.
 	 *
-	 * @covers update_item
+	 * @covers ::update_item
 	 */
 	public function test_run_inactive_schedule() {
 		$plugins   = array(
@@ -217,7 +217,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active_Test extends \WorDBless
 	/**
 	 * Test update_item.
 	 *
-	 * @covers update_item
+	 * @covers ::update_item
 	 */
 	public function test_run_active_schedule() {
 		$plugins   = array( 'gutenberg/gutenberg.php' );
@@ -251,7 +251,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active_Test extends \WorDBless
 	/**
 	 * Test update_item update cron.
 	 *
-	 * @covers update_item
+	 * @covers ::update_item
 	 */
 	public function test_set_active_false_update_sync_option() {
 		$plugins   = array(
