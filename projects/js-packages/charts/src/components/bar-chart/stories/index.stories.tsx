@@ -12,9 +12,13 @@ const meta: Meta< typeof BarChart > = {
 		Story => (
 			<div
 				style={ {
+					resize: 'both',
+					overflow: 'auto',
 					padding: '2rem',
 					width: '800px',
-					height: '500px',
+					minWidth: '400px',
+					maxWidth: '1200px',
+					border: '1px dashed #ccc',
 				} }
 			>
 				<Story />

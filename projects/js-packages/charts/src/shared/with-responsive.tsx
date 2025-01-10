@@ -25,11 +25,12 @@ export function withResponsive< T extends BaseChartProps< unknown > >(
 	return function ResponsiveChart( props: Omit< T, 'width' | 'height' > ) {
 		const { parentRef, width: parentWidth } = useParentSize( {
 			debounceTime,
+			enableDebounceLeadingCall: true,
 			initialSize: { width: 600, height: 400 },
 		} );
 
 		// Calculate dimensions
-		const containerWidth = Math.min( parentWidth || 0, maxWidth );
+		const containerWidth = parentWidth ? Math.min( parentWidth, maxWidth ) : 600;
 		const containerHeight = containerWidth * aspectRatio;
 
 		return (
@@ -37,14 +38,13 @@ export function withResponsive< T extends BaseChartProps< unknown > >(
 				ref={ parentRef }
 				style={ {
 					width: '100%',
-					position: 'relative', // Ensure proper size calculation
-					aspectRatio: `${ 1 / aspectRatio }`, // Use CSS aspect-ratio
+					minHeight: `${ containerHeight }px`,
 				} }
 			>
 				<WrappedComponent
 					{ ...( props as T ) }
-					width={ containerWidth || 600 } // Fallback to prevent 0 width
-					height={ containerHeight || 400 } // Fallback to prevent 0 height
+					width={ containerWidth }
+					height={ containerHeight }
 				/>
 			</div>
 		);
