@@ -14,38 +14,30 @@ test.beforeEach( async ( { page } ) => {
 		.build();
 } );
 
-test( 'Jetpack Social sidebar', async ( { page } ) => {
+test( 'Jetpack Social sidebar', async ( { page, editor, admin } ) => {
 	await test.step( 'Connect wordpress.com account', async () => {
 		await connect( page );
 	} );
 
+	const blockEditor = new BlockEditorPage( page );
+
 	await test.step( 'Goto post edit page', async () => {
-		logger.action( 'Hover over "Posts" in admin menu' );
-		await page.getByRole( 'link', { name: 'Posts', exact: true } ).hover();
+		logger.action( 'Create new post' );
+		await admin.createNewPost();
 
-		logger.action( 'Click on "Add New Post" in admin menu' );
-		await page.getByRole( 'link', { name: 'Add New Post' } ).click();
-
-		/**
-		 * @type {BlockEditorPage}
-		 */
-		const blockEditor = await BlockEditorPage.init( page );
-
-		await page.waitForURL( '**/post-new.php' );
-		await blockEditor.waitForEditor();
-
-		logger.action( 'Close "Welcome to the block editor" dialog' );
-		await blockEditor.closeWelcomeGuide();
-
-		await blockEditor.setTitle( 'Jetpack Social test post' );
+		await editor.canvas
+			.locator( 'role=textbox[name="Add title"i]' )
+			.fill( 'Jetpack Social test post' );
 	} );
 
 	await test.step( 'Check Social sidebar', async () => {
 		logger.action( 'Open Jetpack Social sidebar' );
-		await page.getByRole( 'button', { name: 'Jetpack Social', exact: true } ).click();
+		await blockEditor.openSettings( 'Jetpack Social' );
 
 		logger.action( 'Checking for "Preview" button' );
-		const previewButton = page.getByRole( 'button', { name: 'Open Social Previews', exact: true } );
+		const previewButton = blockEditor
+			.getEditorSettingsSidebar()
+			.getByRole( 'button', { name: 'Open Social Previews', exact: true } );
 		await expect( previewButton ).toBeVisible();
 	} );
 } );

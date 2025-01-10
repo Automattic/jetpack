@@ -83,11 +83,12 @@ const ConnectScreen: React.FC< Props > = ( {
 	return (
 		<ConnectScreenVisual
 			title={
-				title || __( 'Over 5 million WordPress sites are faster and more secure', 'jetpack' )
+				title ||
+				__( 'Over 5 million WordPress sites are faster and more secure', 'jetpack-connection-js' )
 			}
 			images={ images || [] }
 			assetBaseUrl={ assetBaseUrl }
-			buttonLabel={ buttonLabel || __( 'Set up Jetpack', 'jetpack' ) }
+			buttonLabel={ buttonLabel || __( 'Set up Jetpack', 'jetpack-connection-js' ) }
 			loadingLabel={ loadingLabel }
 			handleButtonClick={ handleRegisterSite }
 			displayButtonError={ displayButtonError }

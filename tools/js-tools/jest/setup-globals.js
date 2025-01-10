@@ -1,3 +1,5 @@
+/* global window, jest */
+
 if ( ! window.matchMedia ) {
 	window.matchMedia = query => ( {
 		matches: false,

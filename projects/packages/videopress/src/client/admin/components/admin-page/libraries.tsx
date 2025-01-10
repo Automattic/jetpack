@@ -7,7 +7,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
 import clsx from 'clsx';
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 /**
  * Internal dependencies
  */
@@ -122,7 +122,7 @@ const VideoLibraryWrapper = ( {
 };
 
 export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
-	const history = useHistory();
+	const navigate = useNavigate();
 	const { search } = useVideos();
 	const videosToDisplay = [
 		// First comes video upload errors
@@ -152,7 +152,7 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 	};
 
 	const handleClickEditDetails = video => {
-		history.push( `/video/${ video?.id }/edit` );
+		navigate( `/video/${ video?.id }/edit` );
 	};
 
 	const library =

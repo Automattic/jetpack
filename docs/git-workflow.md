@@ -80,7 +80,7 @@ If you're working directly with Jetpack trunk and need to update an external con
 This method assumes you are using the `gh` shorthand from the [Github CLI](https://cli.github.com/):
 
 ```sh
-# Use the Github CLI to checkout the PR with the PR number - for example gh pr checkout 12345.
+# Use the Github CLI to check out the PR with the PR number - for example gh pr checkout 12345.
 gh pr checkout xxxxx
 
 # Run merge-base to check where that branch differed from trunk - example git merge-base update/broken-jetpack-feature trunk.

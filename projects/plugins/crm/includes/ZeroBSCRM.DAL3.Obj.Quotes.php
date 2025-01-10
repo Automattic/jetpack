@@ -2071,7 +2071,6 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 	/**
 	 * Returns content body against a quote
-	 * ... Replaces zeroBS_getQuoteBuilderContent() really
 	 *
 	 * @param int id quote ID
 	 *

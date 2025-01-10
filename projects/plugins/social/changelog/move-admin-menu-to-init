@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Moved the admin menu initialization to the init hook.

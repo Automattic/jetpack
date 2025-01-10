@@ -135,6 +135,7 @@ class Scan_Status extends Status {
 
 	/**
 	 * Normalize API Data
+	 *
 	 * Formats the payload from the Scan API into an instance of Status_Model.
 	 *
 	 * @phan-suppress PhanDeprecatedProperty -- Maintaining backwards compatibility.
@@ -146,15 +147,35 @@ class Scan_Status extends Status {
 	private static function normalize_api_data( $scan_data ) {
 		global $wp_version;
 
-		$status                      = new Status_Model();
-		$status->data_source         = 'scan_api';
-		$status->status              = isset( $scan_data->state ) ? $scan_data->state : null;
-		$status->num_threats         = 0;
-		$status->num_themes_threats  = 0;
-		$status->num_plugins_threats = 0;
-		$status->has_unchecked_items = false;
-		$status->current_progress    = isset( $scan_data->current->progress ) ? $scan_data->current->progress : null;
+		$installed_plugins = Plugins_Installer::get_plugins();
+		$installed_themes  = Sync_Functions::get_themes();
 
+		$plugins = array();
+		$themes  = array();
+		$core    = new Extension_Model(
+			array(
+				'name'    => 'WordPress',
+				'slug'    => 'wordpress',
+				'version' => $wp_version,
+				'type'    => 'core',
+				'checked' => true, // to do: default to false once Scan API has manifest
+			)
+		);
+		$files   = array();
+
+		$status = new Status_Model(
+			array(
+				'data_source'         => 'scan_api',
+				'status'              => isset( $scan_data->state ) ? $scan_data->state : null,
+				'num_threats'         => 0,
+				'num_themes_threats'  => 0,
+				'num_plugins_threats' => 0,
+				'has_unchecked_items' => false,
+				'current_progress'    => isset( $scan_data->current->progress ) ? $scan_data->current->progress : null,
+			)
+		);
+
+		// Format the "last checked" timestamp.
 		if ( ! empty( $scan_data->most_recent->timestamp ) ) {
 			$date = new \DateTime( $scan_data->most_recent->timestamp );
 			if ( $date ) {
@@ -162,229 +183,158 @@ class Scan_Status extends Status {
 			}
 		}
 
-		$status->core = new Extension_Model(
-			array(
-				'type'    => 'core',
-				'name'    => 'WordPress',
-				'version' => $wp_version,
-				'checked' => true, // to do: default to false once Scan API has manifest
-			)
-		);
+		// Ensure all installed plugins and themes are represented in the status.
+		foreach ( $installed_plugins as $path => $installed_plugin ) {
+			$slug   = str_replace( '.php', '', explode( '/', $path )[0] );
+			$plugin = new Extension_Model(
+				array(
+					'name'    => $installed_plugin['Name'],
+					'version' => $installed_plugin['Version'],
+					'slug'    => $slug,
+					'type'    => 'plugins',
+					'checked' => true, // to do: default to false once Scan API has manifest
+				)
+			);
 
+			$plugins[ $slug ] = $plugin;
+		}
+		foreach ( $installed_themes as $path => $installed_theme ) {
+			$slug  = str_replace( '.php', '', explode( '/', $path )[0] );
+			$theme = new Extension_Model(
+				array(
+					'name'    => $installed_theme['Name'],
+					'version' => $installed_theme['Version'],
+					'slug'    => $slug,
+					'type'    => 'themes',
+					'checked' => true, // to do: default to false once Scan API has manifest
+				)
+			);
+
+			$themes[ $slug ] = $theme;
+		}
+
+		// Merge the threats into the status model.
 		if ( isset( $scan_data->threats ) && is_array( $scan_data->threats ) ) {
-			foreach ( $scan_data->threats as $threat ) {
-				if ( isset( $threat->fixable ) && $threat->fixable ) {
-					$status->fixable_threat_ids[] = $threat->id;
+			foreach ( $scan_data->threats as $scan_threat ) {
+				if ( isset( $scan_threat->fixable ) && $scan_threat->fixable ) {
+					$status->fixable_threat_ids[] = $scan_threat->id;
 				}
 
-				if ( isset( $threat->extension->type ) ) {
-					if ( 'plugin' === $threat->extension->type ) {
-						// add the extension if it does not yet exist in the status
-						if ( ! isset( $status->plugins[ $threat->extension->slug ] ) ) {
-							$status->plugins[ $threat->extension->slug ] = new Extension_Model(
-								array(
-									'name'    => isset( $threat->extension->name ) ? $threat->extension->name : null,
-									'slug'    => isset( $threat->extension->slug ) ? $threat->extension->slug : null,
-									'version' => isset( $threat->extension->version ) ? $threat->extension->version : null,
-									'type'    => 'plugin',
-									'checked' => true,
-									'threats' => array(),
-								)
-							);
-						}
+				$threat = new Threat_Model(
+					array(
+						'id'                        => isset( $scan_threat->id ) ? $scan_threat->id : null,
+						'signature'                 => isset( $scan_threat->signature ) ? $scan_threat->signature : null,
+						'title'                     => isset( $scan_threat->title ) ? $scan_threat->title : null,
+						'description'               => isset( $scan_threat->description ) ? $scan_threat->description : null,
+						'vulnerability_description' => isset( $scan_threat->vulnerability_description ) ? $scan_threat->vulnerability_description : null,
+						'fix_description'           => isset( $scan_threat->fix_description ) ? $scan_threat->fix_description : null,
+						'payload_subtitle'          => isset( $scan_threat->payload_subtitle ) ? $scan_threat->payload_subtitle : null,
+						'payload_description'       => isset( $scan_threat->payload_description ) ? $scan_threat->payload_description : null,
+						'first_detected'            => isset( $scan_threat->first_detected ) ? $scan_threat->first_detected : null,
+						'fixed_in'                  => isset( $scan_threat->fixer->fixer ) && 'update' === $scan_threat->fixer->fixer ? $scan_threat->fixer->target : null,
+						'severity'                  => isset( $scan_threat->severity ) ? $scan_threat->severity : null,
+						'fixable'                   => isset( $scan_threat->fixer ) ? $scan_threat->fixer : null,
+						'status'                    => isset( $scan_threat->status ) ? $scan_threat->status : null,
+						'filename'                  => isset( $scan_threat->filename ) ? $scan_threat->filename : null,
+						'context'                   => isset( $scan_threat->context ) ? $scan_threat->context : null,
+						'source'                    => isset( $scan_threat->source ) ? $scan_threat->source : null,
+					)
+				);
 
-						$threat_model = new Threat_Model(
-							array(
-								'id'                  => isset( $threat->id ) ? $threat->id : null,
-								'signature'           => isset( $threat->signature ) ? $threat->signature : null,
-								'title'               => isset( $threat->title ) ? $threat->title : null,
-								'description'         => isset( $threat->description ) ? $threat->description : null,
-								'vulnerability_description' => isset( $threat->vulnerability_description ) ? $threat->vulnerability_description : null,
-								'fix_description'     => isset( $threat->fix_description ) ? $threat->fix_description : null,
-								'payload_subtitle'    => isset( $threat->payload_subtitle ) ? $threat->payload_subtitle : null,
-								'payload_description' => isset( $threat->payload_description ) ? $threat->payload_description : null,
-								'first_detected'      => isset( $threat->first_detected ) ? $threat->first_detected : null,
-								'fixed_in'            => isset( $threat->fixer->fixer ) && 'update' === $threat->fixer->fixer ? $threat->fixer->target : null,
-								'severity'            => isset( $threat->severity ) ? $threat->severity : null,
-								'fixable'             => isset( $threat->fixer ) ? $threat->fixer : null,
-								'status'              => isset( $threat->status ) ? $threat->status : null,
-								'filename'            => isset( $threat->filename ) ? $threat->filename : null,
-								'context'             => isset( $threat->context ) ? $threat->context : null,
-								'source'              => isset( $threat->source ) ? $threat->source : null,
-							)
-						);
+				// Theme and Plugin Threats
+				if ( ! empty( $scan_threat->extension ) && in_array( $scan_threat->extension->type, array( 'plugin', 'theme' ), true ) ) {
+					$installed_extension = 'plugin' === $scan_threat->extension->type ? ( $plugins[ $scan_threat->extension->slug ] ?? null ) : ( $themes[ $scan_threat->extension->slug ] ?? null );
 
-						$status->plugins[ $threat->extension->slug ]->threats[] = $threat_model;
-						$status->threats[]                                      = $threat_model;
-
-						++$status->num_threats;
-						++$status->num_plugins_threats;
+					// If the extension is no longer installed, skip this threat.
+					// todo: use version_compare()
+					if ( ! $installed_extension ) {
 						continue;
 					}
 
-					if ( 'theme' === $threat->extension->type ) {
-						// add the extension if it does not yet exist in the status
-						if ( ! isset( $status->themes[ $threat->extension->slug ] ) ) {
-							$status->themes[ $threat->extension->slug ] = new Extension_Model(
-								array(
-									'name'    => isset( $threat->extension->name ) ? $threat->extension->name : null,
-									'slug'    => isset( $threat->extension->slug ) ? $threat->extension->slug : null,
-									'version' => isset( $threat->extension->version ) ? $threat->extension->version : null,
-									'type'    => 'theme',
-									'checked' => true,
-									'threats' => array(),
-								)
-							);
-						}
-
-						$threat_model = new Threat_Model(
-							array(
-								'id'                  => isset( $threat->id ) ? $threat->id : null,
-								'signature'           => isset( $threat->signature ) ? $threat->signature : null,
-								'title'               => isset( $threat->title ) ? $threat->title : null,
-								'description'         => isset( $threat->description ) ? $threat->description : null,
-								'vulnerability_description' => isset( $threat->vulnerability_description ) ? $threat->vulnerability_description : null,
-								'fix_description'     => isset( $threat->fix_description ) ? $threat->fix_description : null,
-								'payload_subtitle'    => isset( $threat->payload_subtitle ) ? $threat->payload_subtitle : null,
-								'payload_description' => isset( $threat->payload_description ) ? $threat->payload_description : null,
-								'first_detected'      => isset( $threat->first_detected ) ? $threat->first_detected : null,
-								'fixed_in'            => isset( $threat->fixer->fixer ) && 'update' === $threat->fixer->fixer ? $threat->fixer->target : null,
-								'severity'            => isset( $threat->severity ) ? $threat->severity : null,
-								'fixable'             => isset( $threat->fixer ) ? $threat->fixer : null,
-								'status'              => isset( $threat->status ) ? $threat->status : null,
-								'filename'            => isset( $threat->filename ) ? $threat->filename : null,
-								'context'             => isset( $threat->context ) ? $threat->context : null,
-								'source'              => isset( $threat->source ) ? $threat->source : null,
-							)
-						);
-
-						$status->themes[ $threat->extension->slug ]->threats[] = $threat_model;
-						$status->threats[]                                     = $threat_model;
-
-						++$status->num_threats;
-						++$status->num_themes_threats;
-						continue;
-					}
-				}
-
-				if ( isset( $threat->signature ) && 'Vulnerable.WP.Core' === $threat->signature ) {
-					if ( $threat->version !== $wp_version ) {
-						continue;
+					// Push the threat to the appropriate extension.
+					switch ( $scan_threat->extension->type ) {
+						case 'plugin':
+							$plugins[ $scan_threat->extension->slug ]->threats[] = clone $threat;
+							++$status->num_plugins_threats;
+							break;
+						case 'theme':
+							$themes[ $scan_threat->extension->slug ]->threats[] = clone $threat;
+							++$status->num_themes_threats;
+							break;
+						default:
+							break;
 					}
 
-					$threat_model = new Threat_Model(
+					$threat->extension = new Extension_Model(
 						array(
-							'id'             => $threat->id,
-							'signature'      => $threat->signature,
-							'title'          => $threat->title,
-							'description'    => $threat->description,
-							'first_detected' => $threat->first_detected,
-							'severity'       => $threat->severity,
+							'name'    => isset( $scan_threat->extension->name ) ? $scan_threat->extension->name : null,
+							'slug'    => isset( $scan_threat->extension->slug ) ? $scan_threat->extension->slug : null,
+							'version' => isset( $scan_threat->extension->version ) ? $scan_threat->extension->version : null,
+							'type'    => $scan_threat->extension->type . 's',
+							'checked' => $installed_extension->version === $scan_threat->extension->version,
 						)
 					);
+				} elseif ( isset( $threat->signature ) && 'Vulnerable.WP.Core' === $threat->signature ) {
+					// Vulnerable WordPress Core Version Threats
 
-					$status->core->threats[] = $threat_model;
-					$status->threats[]       = $threat_model;
+					// If the core version has changed, skip this threat.
+					// todo: use version_compare()
+					if ( $scan_threat->version !== $wp_version ) {
+						continue;
+					}
 
-					++$status->num_threats;
-
-					continue;
+					$core->threats[] = $threat;
+				} elseif ( ! empty( $threat->filename ) ) {
+					// File Threats
+					$files[] = $threat;
 				}
 
-				if ( ! empty( $threat->filename ) ) {
-					$threat_model      = new Threat_Model( $threat );
-					$status->files[]   = $threat_model;
-					$status->threats[] = $threat_model;
-					++$status->num_threats;
-					continue;
-				}
-
-				if ( ! empty( $threat->table ) ) {
-					$threat_model       = new Threat_Model( $threat );
-					$status->database[] = $threat_model;
-					$status->threats[]  = $threat_model;
-					++$status->num_threats;
-					continue;
-				}
+				$status->threats[] = $threat;
+				++$status->num_threats;
 			}
 		}
 
-		$installed_plugins = Plugins_Installer::get_plugins();
-		$status->plugins   = self::merge_installed_and_checked_lists( $installed_plugins, $status->plugins, array( 'type' => 'plugins' ), true );
+		$status->threats = static::sort_threats( $status->threats );
 
-		$installed_themes = Sync_Functions::get_themes();
-		$status->themes   = self::merge_installed_and_checked_lists( $installed_themes, $status->themes, array( 'type' => 'themes' ), true );
-
-		foreach ( array_merge( $status->themes, $status->plugins ) as $extension ) {
-			if ( ! $extension->checked ) {
-				$status->has_unchecked_items = true;
-				break;
-			}
-		}
+		// maintain deprecated properties for backwards compatibility
+		$status->plugins = array_values( $plugins );
+		$status->themes  = array_values( $themes );
+		$status->core    = $core;
+		$status->files   = $files;
 
 		return $status;
 	}
 
 	/**
-	 * Merges the list of installed extensions with the list of extensions that were checked for known vulnerabilities and return a normalized list to be used in the UI
+	 * Sort By Threats
 	 *
-	 * @phan-suppress PhanDeprecatedProperty -- Maintaining backwards compatibility.
-	 * @phan-suppress PhanDeprecatedFunction -- Maintaining backwards compatibility.
+	 * @param array<Threat_Model> $threats Array of threats to sort.
 	 *
-	 * @param array  $installed The list of installed extensions, where each attribute key is the extension slug.
-	 * @param object $checked   The list of checked extensions.
-	 * @param array  $append    Additional data to append to each result in the list.
-	 *
-	 * @return array Normalized list of extensions.
+	 * @return array<Threat_Model> The sorted $threats array.
 	 */
-	protected static function merge_installed_and_checked_lists( $installed, $checked, $append ) {
-		$new_list = array();
-		$checked  = (object) $checked;
-
-		foreach ( array_keys( $installed ) as $slug ) {
-			/**
-			 * Extension Type Map
-			 *
-			 * @var array $extension_type_map Key value pairs of extension types and their corresponding
-			 *                                 identifier used by the Scan API data source.
-			 */
-			$extension_type_map = array(
-				'themes'  => 'r1',
-				'plugins' => 'r2',
-			);
-
-			$version        = $installed[ $slug ]['Version'];
-			$short_slug     = str_replace( '.php', '', explode( '/', $slug )[0] );
-			$scanifest_slug = $extension_type_map[ $append['type'] ] . ":$short_slug@$version";
-
-			$extension = new Extension_Model(
-				array_merge(
-					array(
-						'name'    => $installed[ $slug ]['Name'],
-						'version' => $version,
-						'slug'    => $slug,
-						'threats' => array(),
-						'checked' => false,
-					),
-					$append
-				)
-			);
-
-			if ( ! isset( $checked->extensions ) // no extension data available from Scan API
-				|| is_array( $checked->extensions ) && in_array( $scanifest_slug, $checked->extensions, true ) // extension data matches Scan API
-			) {
-				$extension->checked = true;
-				if ( isset( $checked->{ $short_slug }->threats ) ) {
-					$extension->threats = $checked->{ $short_slug }->threats;
+	protected static function sort_threats( $threats ) {
+		usort(
+			$threats,
+			function ( $a, $b ) {
+				// Order by active status first...
+				if ( $a->status !== $b->status ) {
+					return 'active' === $a->status ? -1 : 1;
 				}
+
+				// ...then by severity...
+				if ( $a->severity !== $b->severity ) {
+					return $a->severity > $b->severity ? -1 : 1;
+				}
+
+				// ...then date added.
+				if ( $a->first_detected !== $b->first_detected ) {
+					return strtotime( $a->first_detected ) < strtotime( $b->first_detected ) ? -1 : 1;
+				}
+
+				return 0;
 			}
+		);
 
-			$new_list[] = $extension;
-
-		}
-
-		$new_list = parent::sort_threats( $new_list );
-
-		return $new_list;
+		return $threats;
 	}
 }

@@ -10,7 +10,7 @@ import { AutomatticBylineLogoProps } from './types';
  * @return {React.ReactNode} AutomatticBylineLogo component.
  */
 const AutomatticBylineLogo: React.FC< AutomatticBylineLogoProps > = ( {
-	title = __( 'An Automattic Airline', 'jetpack' ),
+	title = __( 'An Automattic Airline', 'jetpack-components' ),
 	height = 7,
 	className,
 	...otherProps

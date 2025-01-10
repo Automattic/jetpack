@@ -5,9 +5,10 @@ import TipLink from './tip-link';
 /**
  * Creates the tip content as an React element or text.
  *
- * @param text         - The tip description text string.
- * @param conversion   - The map used to convert the string to an element.
- * @param textFallback - The fallback text for the tip description.
+ * @param {string}                  text         - The tip description text string.
+ * @param {Record<string, Element>} conversion   - The map used to convert the string to an element.
+ * @param {string}                  textFallback - The fallback text for the tip description.
+ * @return {JSX.Element|string} The tip content as a React element or the fallback text.
  */
 function getTipDescription( text, conversion, textFallback ) {
 	if ( typeof createInterpolateElement !== 'undefined' ) {

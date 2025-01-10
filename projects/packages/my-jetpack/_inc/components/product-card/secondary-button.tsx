@@ -1,6 +1,6 @@
 import { Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import type { FC, ReactNode } from 'react';
+import type { FC, ReactNode, MouseEvent } from 'react';
 
 export type SecondaryButtonProps = {
 	href?: string;
@@ -9,7 +9,7 @@ export type SecondaryButtonProps = {
 	weight?: 'bold' | 'regular';
 	label?: string;
 	shouldShowButton?: () => boolean;
-	onClick?: () => void;
+	onClick?: ( () => void ) | ( ( { e }: { e: MouseEvent< HTMLButtonElement > } ) => void );
 	isExternalLink?: boolean;
 	icon?: ReactNode;
 	iconSize?: number;

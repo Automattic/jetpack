@@ -16,13 +16,13 @@ const FormLabel: FunctionComponent< Props & LabelProps > = ( {
 	required,
 	optional,
 	className, // Via LabelProps
+	htmlFor,
 	...labelProps
 } ) => {
 	const hasChildren: boolean = Children.count( children ) > 0;
 
 	return (
-		// eslint-disable-next-line jsx-a11y/label-has-associated-control
-		<label { ...labelProps } className={ clsx( className, 'form-label' ) }>
+		<label htmlFor={ htmlFor } { ...labelProps } className={ clsx( className, 'form-label' ) }>
 			{ children }
 			{ hasChildren && required && (
 				<small className="form-label__required">{ __( 'Required', 'jetpack-mu-wpcom' ) }</small>

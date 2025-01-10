@@ -11,7 +11,6 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import './style.scss';
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import useAnalytics from '../../../../blocks/ai-assistant/hooks/use-analytics';

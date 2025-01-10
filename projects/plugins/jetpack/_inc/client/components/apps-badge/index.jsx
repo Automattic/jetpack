@@ -1,10 +1,10 @@
-import { imagePath } from 'constants/urls';
 import { getUserLocale as getLocaleSlug } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { startsWith } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
+import { imagePath } from 'constants/urls';
 
 import './style.scss';
 

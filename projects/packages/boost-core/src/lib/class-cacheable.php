@@ -14,8 +14,9 @@ abstract class Cacheable implements \JsonSerializable {
 
 	/**
 	 * Default cache expiry.
+	 * Can be overridden by child classes.
 	 */
-	const DEFAULT_EXPIRY = 300; // 5 minutes.
+	protected const DEFAULT_EXPIRY = 300; // 5 minutes.
 
 	/**
 	 * The ID of this object, if cached as a transient.
@@ -31,7 +32,11 @@ abstract class Cacheable implements \JsonSerializable {
 	 *
 	 * @return mixed|void
 	 */
-	public function store( $expiry = self::DEFAULT_EXPIRY ) {
+	public function store( $expiry = null ) {
+		if ( null === $expiry ) {
+			$expiry = static::DEFAULT_EXPIRY;
+		}
+
 		if ( ! $this->cache_id ) {
 			$this->cache_id = $this->generate_cache_id();
 		}

@@ -1,9 +1,9 @@
 import { Button } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
+import { useCallback } from 'react';
 import { StepLabel } from 'crm/components/automations-admin/components/step-label';
 import { useMutateAutomationWorkflows } from 'crm/data/hooks/mutations';
-import { useCallback } from 'react';
 import { StepConfig } from '../step-config';
 import { TriggerInfo } from '../trigger-info';
 import styles from './styles.module.scss';
@@ -54,18 +54,18 @@ export const EditModal: React.FC< EditModalProps > = ( {
 	return (
 		isOpen && (
 			<div className={ styles.wrapper }>
-				<Modal className={ styles.modal } title={ modalTitle } onRequestClose={ () => onClose() }>
+				<Modal className={ styles.modal } title={ modalTitle } onRequestClose={ onClose }>
 					<div className={ styles.container }>
 						<div className={ styles.subheader }>
 							{ __( 'Define and customize the workflow', 'zero-bs-crm' ) }
 						</div>
 
 						{ workflow.triggers.map( ( trigger: Trigger ) => (
-							<TriggerInfo trigger={ trigger } />
+							<TriggerInfo key={ trigger.slug } trigger={ trigger } />
 						) ) }
 
 						{ steps.map( step => (
-							<div className={ styles[ 'step-container' ] }>
+							<div key={ step.id } className={ styles[ 'step-container' ] }>
 								<StepConfig workflowId={ workflow.id } step={ step } />
 								<StepLabel className={ styles[ 'step-label' ] } type={ step.step_type } />
 							</div>

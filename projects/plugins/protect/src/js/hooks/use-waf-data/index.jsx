@@ -131,9 +131,13 @@ const useWafData = () => {
 	 */
 	const toggleShareData = useCallback( async () => {
 		const value = ! waf.config.jetpackWafShareData;
-		await wafMutation.mutateAsync( { jetpack_waf_share_data: value } );
+		const mutationObj = { jetpack_waf_share_data: value };
+		if ( ! value ) {
+			mutationObj.jetpack_waf_share_debug_data = false;
+		}
+		await wafMutation.mutateAsync( mutationObj );
 		recordEvent(
-			value ? 'jetpack_protect_share_data_enabled' : 'jetpack_protect_share_data_disabled'
+			mutationObj ? 'jetpack_protect_share_data_enabled' : 'jetpack_protect_share_data_disabled'
 		);
 	}, [ recordEvent, waf.config.jetpackWafShareData, wafMutation ] );
 
@@ -144,9 +148,11 @@ const useWafData = () => {
 	 */
 	const toggleShareDebugData = useCallback( async () => {
 		const value = ! waf.config.jetpackWafShareDebugData;
-		await wafMutation.mutateAsync( {
-			jetpack_waf_share_debug_data: value,
-		} );
+		const mutationObj = { jetpack_waf_share_debug_data: value };
+		if ( value ) {
+			mutationObj.jetpack_waf_share_data = true;
+		}
+		await wafMutation.mutateAsync( mutationObj );
 		recordEvent(
 			value
 				? 'jetpack_protect_share_debug_data_enabled'

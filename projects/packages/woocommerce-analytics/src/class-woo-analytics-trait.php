@@ -53,6 +53,20 @@ trait Woo_Analytics_Trait {
 	protected $additional_blocks_on_checkout_page;
 
 	/**
+	 *  Session ID.
+	 *
+	 *  @var string
+	 */
+	protected $session_id;
+
+	/**
+	 *  Landing page where session started.
+	 *
+	 *  @var string
+	 */
+	protected $landing_page;
+
+	/**
 	 * Format Cart Items or Order Items to an array
 	 *
 	 * @param array|WC_Order_Item[] $items Cart Items or Order Items.
@@ -112,15 +126,12 @@ trait Woo_Analytics_Trait {
 		);
 
 		$enabled_payment_options = array_keys( $enabled_payment_options );
-		$cart_total              = wc_prices_include_tax() ? $cart->get_cart_contents_total() + $cart->get_cart_contents_tax() : $cart->get_cart_contents_total();
 		$shared_data             = array(
 			'products'                 => $this->format_items_to_json( $cart->get_cart() ),
 			'create_account'           => $create_account,
 			'guest_checkout'           => $guest_checkout,
 			'delayed_account_creation' => $delayed_account_creation,
 			'express_checkout'         => 'null', // TODO: not solved yet.
-			'products_count'           => $cart->get_cart_contents_count(),
-			'order_value'              => $cart_total,
 			'shipping_options_count'   => 'null', // TODO: not solved yet.
 			'coupon_used'              => $coupon_used,
 			'payment_options'          => $enabled_payment_options,
@@ -252,18 +263,35 @@ trait Woo_Analytics_Trait {
 	 * @return array Array of standard event props.
 	 */
 	public function get_common_properties() {
+		// phpcs:disable Squiz.PHP.CommentedOutCode.Found
+		// Disabled the below temporarily to avoid caching issues.
+		// $session_data       = json_decode( sanitize_text_field( wp_unslash( $_COOKIE['woocommerceanalytics_session'] ?? '' ) ), true ) ?? array();
+		// $session_id         = sanitize_text_field( $session_data['session_id'] ?? $this->session_id );
+		// $landing_page       = sanitize_url( $session_data['landing_page'] ?? $this->landing_page );
+		// phpcs:enable Squiz.PHP.CommentedOutCode.Found
 		$site_info          = array(
+			'session_id'                         => null,
 			'blog_id'                            => Jetpack_Connection::get_site_id(),
 			'store_id'                           => defined( '\\WC_Install::STORE_ID_OPTION' ) ? get_option( \WC_Install::STORE_ID_OPTION ) : false,
 			'ui'                                 => $this->get_user_id(),
 			'url'                                => home_url(),
+			'landing_page'                       => null,
 			'woo_version'                        => WC()->version,
+			'wp_version'                         => get_bloginfo( 'version' ),
 			'store_admin'                        => in_array( array( 'administrator', 'shop_manager' ), wp_get_current_user()->roles, true ) ? 1 : 0,
 			'device'                             => wp_is_mobile() ? 'mobile' : 'desktop',
 			'template_used'                      => $this->cart_checkout_templates_in_use ? '1' : '0',
 			'additional_blocks_on_cart_page'     => $this->additional_blocks_on_cart_page,
 			'additional_blocks_on_checkout_page' => $this->additional_blocks_on_checkout_page,
 			'store_currency'                     => get_woocommerce_currency(),
+			'timezone'                           => wp_timezone_string(),
+			'is_guest'                           => $this->get_user_id() === null,
+			'order_value'                        => $this->get_cart_subtotal(),
+			'order_total'                        => $this->get_cart_total(),
+			'total_tax'                          => $this->get_cart_taxes(),
+			'total_discount'                     => $this->get_total_discounts(),
+			'total_shipping'                     => $this->get_cart_shipping_total(),
+			'products_count'                     => $this->get_cart_items_count(),
 		);
 		$cart_checkout_info = $this->get_cart_checkout_info();
 		return array_merge( $site_info, $cart_checkout_info );
@@ -404,7 +432,7 @@ trait Woo_Analytics_Trait {
 			$userid = get_current_user_id();
 			return $blogid . ':' . $userid;
 		}
-		return 'null';
+		return null;
 	}
 
 	/**
@@ -489,7 +517,7 @@ trait Woo_Analytics_Trait {
 		$content                    = $this->cart_content_source;
 		$block_presence             = str_contains( $content, '<!-- wp:woocommerce/cart' );
 		$shortcode_presence         = str_contains( $content, '[woocommerce_cart]' );
-		$classic_shortcode_presence = str_contains( $content, '<!-- wp:woocommerce/classic-shortcode' );
+		$classic_shortcode_presence = str_contains( $content, '<!-- wp:woocommerce/classic-shortcode {"shortcode":"cart"}' );
 
 		$new_info['cart_page_contains_cart_block']     = $block_presence ? '1' : '0';
 		$new_info['cart_page_contains_cart_shortcode'] = $shortcode_presence || $classic_shortcode_presence ? '1' : '0';
@@ -507,7 +535,7 @@ trait Woo_Analytics_Trait {
 		$content                    = $this->checkout_content_source;
 		$block_presence             = str_contains( $content, '<!-- wp:woocommerce/checkout' );
 		$shortcode_presence         = str_contains( $content, '[woocommerce_checkout]' );
-		$classic_shortcode_presence = str_contains( $content, '<!-- wp:woocommerce/classic-shortcode' );
+		$classic_shortcode_presence = str_contains( $content, '<!-- wp:woocommerce/classic-shortcode {"shortcode":"checkout"}' );
 
 		$new_info['checkout_page_contains_checkout_block']     = $block_presence ? '1' : '0';
 		$new_info['checkout_page_contains_checkout_shortcode'] = $shortcode_presence || $classic_shortcode_presence ? '1' : '0';
@@ -562,5 +590,83 @@ trait Woo_Analytics_Trait {
 		);
 
 		return ( '0' !== $result ) ? 1 : 0;
+	}
+
+	/**
+	 * Get the cart total
+	 *
+	 * @return float
+	 */
+	public function get_cart_total() {
+		$cart = WC()->cart;
+		if ( $cart === null ) {
+			return 0;
+		}
+		return $cart->get_total( 'tracking' );
+	}
+
+	/**
+	 * Get the cart subtotal
+	 *
+	 * @return float
+	 */
+	public function get_cart_subtotal() {
+		$cart = WC()->cart;
+		if ( $cart === null ) {
+			return 0;
+		}
+		return $cart->get_subtotal();
+	}
+
+	/**
+	 * Get the cart shipping total
+	 *
+	 * @return float
+	 */
+	public function get_cart_shipping_total() {
+		$cart = WC()->cart;
+		if ( $cart === null ) {
+			return 0;
+		}
+		return $cart->get_shipping_total();
+	}
+
+	/**
+	 * Get the cart taxes
+	 *
+	 * @return float
+	 */
+	public function get_cart_taxes() {
+		$cart = WC()->cart;
+		if ( $cart === null ) {
+			return 0;
+		}
+		return $cart->get_taxes_total();
+	}
+
+	/**
+	 * Get the cart discount total
+	 *
+	 * @return float
+	 */
+	public function get_total_discounts() {
+		$cart = WC()->cart;
+		if ( $cart === null ) {
+			return 0;
+		}
+		return $cart->get_discount_total();
+	}
+
+	/**
+	 * Get number of items in the cart
+	 *
+	 * @return int
+	 */
+	public function get_cart_items_count() {
+		$cart = WC()->cart;
+		if ( $cart === null ) {
+			return 0;
+		}
+		return $cart->get_cart_contents_count();
 	}
 }

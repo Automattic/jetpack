@@ -56,6 +56,7 @@ export function TopPostsInspectorControls( {
 			<PanelBody title={ __( 'Block settings', 'jetpack' ) }>
 				<RangeControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					label={ __( 'Number of items', 'jetpack' ) }
 					value={ postsToShow }
 					onChange={ value => setAttributes( { postsToShow: Math.min( value, 10 ) } ) }

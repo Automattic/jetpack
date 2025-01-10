@@ -54,8 +54,8 @@ export function ServiceItem( {
 
 	const buttonLabel =
 		brokenConnections.length > 1
-			? _x( 'Fix connections', 'Fix the social media connections', 'jetpack' )
-			: _x( 'Fix connection', 'Fix social media connection', 'jetpack' );
+			? _x( 'Fix connections', 'Fix the social media connections', 'jetpack-publicize-components' )
+			: _x( 'Fix connection', 'Fix social media connection', 'jetpack-publicize-components' );
 
 	return (
 		<div className={ styles[ 'service-item' ] }>
@@ -101,7 +101,7 @@ export function ServiceItem( {
 						className={ styles[ 'learn-more' ] }
 						variant="tertiary"
 						onClick={ togglePanel }
-						aria-label={ __( 'Learn more', 'jetpack' ) }
+						aria-label={ __( 'Learn more', 'jetpack-publicize-components' ) }
 					>
 						{ <Icon className={ styles.chevron } icon={ isPanelOpen ? chevronUp : chevronDown } /> }
 					</Button>
@@ -120,7 +120,7 @@ export function ServiceItem( {
 									service={ service }
 									displayInputs
 									isSmall={ false }
-									buttonLabel={ __( 'Connect', 'jetpack' ) }
+									buttonLabel={ __( 'Connect', 'jetpack-publicize-components' ) }
 								/>
 							</div>
 						) : null

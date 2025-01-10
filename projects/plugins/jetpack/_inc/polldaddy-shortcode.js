@@ -2,7 +2,7 @@
 	function parseJSON( str ) {
 		try {
 			return str ? w.JSON.parse( str ) : null;
-		} catch ( error ) {
+		} catch {
 			return null;
 		}
 	}
@@ -24,7 +24,7 @@
 					let poll_url;
 					try {
 						poll_url = new w.URL( poll.url, 'https://invalid.tld' );
-					} catch ( error ) {
+					} catch {
 						return false;
 					}
 					if (

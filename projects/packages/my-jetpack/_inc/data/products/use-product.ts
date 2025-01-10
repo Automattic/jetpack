@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
-import { REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
-import { QUERY_PRODUCT_KEY } from '../constants';
+import { REST_API_SITE_PRODUCTS_ENDPOINT, QUERY_PRODUCT_KEY } from '../constants';
 import useSimpleQuery from '../use-simple-query';
 import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
 import mapObjectKeysToCamel from '../utils/to-camel';

@@ -16,6 +16,8 @@ import './style-tour.scss';
 
 /**
  * The Welcome Tour of the Launch.
+ *
+ * @return {JSX.Element|null} The welcome tour component or null.
  */
 function LaunchWpcomWelcomeTour() {
 	const { show, isNewPageLayoutModalOpen, isManuallyOpened } = useSelect(
@@ -80,8 +82,9 @@ function LaunchWpcomWelcomeTour() {
 /**
  * Display the welcome tour.
  *
- * @param props            - The props of the component.
- * @param props.siteIntent - The intent of the site.
+ * @param {object} props            - The props of the component.
+ * @param {string} props.siteIntent - The intent of the site.
+ * @return {JSX.Element|null} The WelcomeTour component if a theme name is found, otherwise null.
  */
 function WelcomeTour( { siteIntent } ) {
 	const sitePlan = useSitePlan( window._currentSiteId );

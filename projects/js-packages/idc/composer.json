@@ -15,5 +15,8 @@
 				"monorepo": true
 			}
 		}
-	]
+	],
+	"extra": {
+		"textdomain": "jetpack-idc"
+	}
 }

@@ -11,7 +11,6 @@ const notifyDesign = require( './tasks/notify-design' );
 const notifyEditorial = require( './tasks/notify-editorial' );
 const replyToCustomersReminder = require( './tasks/reply-to-customers-reminder' );
 const triageIssues = require( './tasks/triage-issues' );
-const wpcomCommitReminder = require( './tasks/wpcom-commit-reminder' );
 const debug = require( './utils/debug' );
 const ifNotClosed = require( './utils/if-not-closed' );
 const ifNotFork = require( './utils/if-not-fork' );
@@ -56,10 +55,6 @@ const automations = [
 		event: 'pull_request_target',
 		action: [ 'labeled' ],
 		task: ifNotClosed( notifyEditorial ),
-	},
-	{
-		event: 'push',
-		task: wpcomCommitReminder,
 	},
 	{
 		event: 'pull_request_target',

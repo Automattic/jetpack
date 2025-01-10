@@ -254,26 +254,7 @@ class Concatenate_JS extends WP_Scripts {
 				array_map( array( $this, 'print_extra_script' ), $js_array['handles'] );
 
 				if ( isset( $js_array['paths'] ) && count( $js_array['paths'] ) > 1 ) {
-					$fs_paths = array();
-					foreach ( $js_array['paths'] as $js_url ) {
-						$fs_paths[] = $this->dependency_path_mapping->uri_path_to_fs_path( $js_url );
-					}
-
-					$mtime = max( array_map( 'filemtime', $fs_paths ) );
-					if ( jetpack_boost_page_optimize_use_concat_base_dir() ) {
-						$path_str = implode( ',', array_map( 'jetpack_boost_page_optimize_remove_concat_base_prefix', $fs_paths ) );
-					} else {
-						$path_str = implode( ',', $js_array['paths'] );
-					}
-					$path_str = "$path_str?m=$mtime&cb=" . jetpack_boost_minify_cache_buster();
-
-					if ( $this->allow_gzip_compression ) {
-						// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-						$path_64 = base64_encode( gzcompress( $path_str ) );
-						if ( strlen( $path_str ) > ( strlen( $path_64 ) + 1 ) ) {
-							$path_str = '-' . $path_64;
-						}
-					}
+					$path_str = jetpack_boost_page_optimize_generate_concat_path( $js_array['paths'], $this->dependency_path_mapping );
 
 					$href = $siteurl . jetpack_boost_get_static_prefix() . '??' . $path_str;
 				} elseif ( isset( $js_array['paths'] ) && is_array( $js_array['paths'] ) ) {

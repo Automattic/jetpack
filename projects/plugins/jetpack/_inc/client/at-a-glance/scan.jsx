@@ -2,6 +2,10 @@ import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x } from '@wordpress/i18n';
+import { get, isArray, noop } from 'lodash';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
@@ -13,11 +17,7 @@ import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_SECURITY_SCANNING_JETPACK,
 } from 'lib/plans/constants';
-import { get, isArray, noop } from 'lodash';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import {
 	isFetchingVaultPressData,
 	getVaultPressScanThreatCount,

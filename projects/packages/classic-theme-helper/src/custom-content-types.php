@@ -22,10 +22,15 @@ if ( ! function_exists( 'jetpack_load_custom_post_types' ) ) {
 	 */
 	function jetpack_load_custom_post_types() {
 		include __DIR__ . '/custom-post-types/class-jetpack-portfolio.php';
+		include __DIR__ . '/custom-post-types/class-jetpack-testimonial.php';
 	}
 	add_action( 'init', array( '\Automattic\Jetpack\Classic_Theme_Helper\Jetpack_Portfolio', 'init' ) );
 	register_activation_hook( __FILE__, array( '\Automattic\Jetpack\Classic_Theme_Helper\Jetpack_Portfolio', 'activation_post_type_support' ) );
 	add_action( 'jetpack_activate_module_custom-content-types', array( '\Automattic\Jetpack\Classic_Theme_Helper\Jetpack_Portfolio', 'activation_post_type_support' ) );
+
+	add_action( 'init', array( '\Automattic\Jetpack\Classic_Theme_Helper\Jetpack_Testimonial', 'init' ) );
+	register_activation_hook( __FILE__, array( '\Automattic\Jetpack\Classic_Theme_Helper\Jetpack_Testimonial', 'activation_post_type_support' ) );
+	add_action( 'jetpack_activate_module_custom-content-types', array( '\Automattic\Jetpack\Classic_Theme_Helper\Jetpack_Testimonial', 'activation_post_type_support' ) );
 
 }
 

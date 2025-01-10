@@ -145,129 +145,184 @@ class Protect_Status extends Status {
 		$status->num_threats         = isset( $report_data->num_vulnerabilities ) ? $report_data->num_vulnerabilities : null;
 		$status->num_themes_threats  = isset( $report_data->num_themes_vulnerabilities ) ? $report_data->num_themes_vulnerabilities : null;
 		$status->num_plugins_threats = isset( $report_data->num_plugins_vulnerabilities ) ? $report_data->num_plugins_vulnerabilities : null;
-
-		// merge plugins from report with all installed plugins before mapping into the Status_Model
-		$installed_plugins   = Plugins_Installer::get_plugins();
-		$last_report_plugins = isset( $report_data->plugins ) ? $report_data->plugins : new \stdClass();
-		$status->plugins     = self::merge_installed_and_checked_lists( $installed_plugins, $last_report_plugins, array( 'type' => 'plugins' ) );
-
-		// merge themes from report with all installed plugins before mapping into the Status_Model
-		$installed_themes   = Sync_Functions::get_themes();
-		$last_report_themes = isset( $report_data->themes ) ? $report_data->themes : new \stdClass();
-		$status->themes     = self::merge_installed_and_checked_lists( $installed_themes, $last_report_themes, array( 'type' => 'themes' ) );
-
-		// normalize WordPress core report data and map into Status_Model
-		$status->core = self::normalize_core_information( isset( $report_data->core ) ? $report_data->core : new \stdClass() );
-
-		// loop through all items to merge threats and check if there are any unchecked items
-		$all_items                   = array_merge( $status->plugins, $status->themes, array( $status->core ) );
 		$status->has_unchecked_items = false;
-		foreach ( $all_items as $item ) {
-			if ( $item->threats ) {
-				$status->threats = array_merge( $status->threats, $item->threats );
-			}
-			if ( ! isset( $item->checked ) || ! $item->checked ) {
-				$status->has_unchecked_items = true;
-			}
-		}
+
+		// normalize extension information
+		self::normalize_extension_data( $status, $report_data, 'themes' );
+		self::normalize_extension_data( $status, $report_data, 'plugins' );
+		self::normalize_core_data( $status, $report_data );
+
+		// sort extensions by number of threats
+		$status->themes  = self::sort_threats( $status->themes );
+		$status->plugins = self::sort_threats( $status->plugins );
 
 		return $status;
 	}
 
 	/**
-	 * Merges the list of installed extensions with the list of extensions that were checked for known vulnerabilities and return a normalized list to be used in the UI
+	 * Normalize theme and plugin information from the Protect Report data source.
 	 *
 	 * @phan-suppress PhanDeprecatedProperty -- Maintaining backwards compatibility.
-	 * @phan-suppress PhanDeprecatedFunction -- Maintaining backwards compatibility.
 	 *
-	 * @param array  $installed The list of installed extensions, where each attribute key is the extension slug.
-	 * @param object $checked   The list of checked extensions.
-	 * @param array  $append    Additional data to append to each result in the list.
-	 * @return array Normalized list of extensions.
+	 * @param object $status The status object to normalize.
+	 * @param object $report_data Data from the Protect Report.
+	 * @param string $extension_type The type of extension to normalize. Either 'themes' or 'plugins'.
+	 *
+	 * @return void
 	 */
-	protected static function merge_installed_and_checked_lists( $installed, $checked, $append ) {
-		$new_list = array();
+	protected static function normalize_extension_data( &$status, $report_data, $extension_type ) {
+		if ( ! in_array( $extension_type, array( 'plugins', 'themes' ), true ) ) {
+			return;
+		}
 
-		foreach ( array_keys( $installed ) as $slug ) {
+		$installed_extensions = 'plugins' === $extension_type ? Plugins_Installer::get_plugins() : Sync_Functions::get_themes();
+		$checked_extensions   = isset( $report_data->{ $extension_type } ) ? $report_data->{ $extension_type } : new \stdClass();
 
-			$checked = (object) $checked;
+		/**
+		 * Extension slug <=> threats data map.
+		 *
+		 * @var Extension_Model[] $extension_threats Array of Extension_Model objects indexed by slug.
+		 */
+		$extension_threats = array();
+
+		// Initialize the extension threats map with all extensions currently installed on the site
+		foreach ( $installed_extensions as $slug => $installed_extension ) {
+			$extension_threats[ $slug ] = new Extension_Model(
+				array(
+					'slug'    => $slug,
+					'name'    => $installed_extension['Name'],
+					'version' => $installed_extension['Version'],
+					'type'    => $extension_type,
+					'checked' => isset( $checked_extensions->{ $slug } ),
+				)
+			);
+		}
+
+		foreach ( $checked_extensions as $slug => $checked_extension ) {
+			$installed_extension = $installed_extensions[ $slug ] ?? null;
+
+			// extension is no longer installed on the site
+			if ( ! $installed_extension ) {
+				continue;
+			}
 
 			$extension = new Extension_Model(
-				array_merge(
-					array(
-						'name'    => $installed[ $slug ]['Name'],
-						'version' => $installed[ $slug ]['Version'],
-						'slug'    => $slug,
-						'threats' => array(),
-						'checked' => false,
-					),
-					$append
+				array(
+					'name'    => $installed_extension['Name'],
+					'version' => $installed_extension['Version'],
+					'slug'    => $slug,
+					'checked' => false,
+					'type'    => $extension_type,
 				)
 			);
 
-			if ( isset( $checked->{ $slug } ) && $checked->{ $slug }->version === $installed[ $slug ]['Version'] ) {
-				$extension->version = $checked->{ $slug }->version;
-				$extension->checked = true;
-
-				if ( is_array( $checked->{ $slug }->vulnerabilities ) ) {
-					foreach ( $checked->{ $slug }->vulnerabilities as $threat ) {
-						$extension->threats[] = new Threat_Model(
-							array(
-								'id'          => $threat->id,
-								'title'       => $threat->title,
-								'fixed_in'    => $threat->fixed_in,
-								'description' => isset( $threat->description ) ? $threat->description : null,
-								'source'      => isset( $threat->id ) ? Redirect::get_url( 'jetpack-protect-vul-info', array( 'path' => $threat->id ) ) : null,
-							)
-						);
-					}
-				}
+			// extension version has changed since the report
+			if ( $installed_extension['Version'] !== $checked_extension->version ) {
+				// maintain $status->{ themes|plugins } for backwards compatibility.
+				$extension_threats[ $slug ] = $extension;
+				continue;
 			}
 
-			$new_list[] = $extension;
+			$extension->checked = true;
 
+			foreach ( $checked_extension->vulnerabilities as $vulnerability ) {
+				$threat         = new Threat_Model( $vulnerability );
+				$threat->source = isset( $vulnerability->id ) ? Redirect::get_url( 'jetpack-protect-vul-info', array( 'path' => $vulnerability->id ) ) : null;
+
+				$threat_extension            = clone $extension;
+				$extension_threat            = clone $threat;
+				$extension_threat->extension = null;
+
+				$extension_threats[ $slug ]->threats[] = $extension_threat;
+
+				$threat->extension = $threat_extension;
+				$status->threats[] = $threat;
+
+			}
 		}
 
-		$new_list = parent::sort_threats( $new_list );
-
-		return $new_list;
+		$status->{ $extension_type } = array_values( $extension_threats );
 	}
 
 	/**
-	 * Check if the WordPress version that was checked matches the current installed version.
+	 * Normalize the core information from the Protect Report data source.
 	 *
-	 * @phan-suppress PhanDeprecatedFunction -- Maintaining backwards compatibility.
+	 * @phan-suppress PhanDeprecatedProperty -- Maintaining backwards compatibility.
 	 *
-	 * @param object $core_check The object returned by Protect wpcom endpoint.
-	 * @return object The object representing the current status of core checks.
+	 * @param object $status The status object to normalize.
+	 * @param object $report_data Data from the Protect Report.
+	 *
+	 * @return void
 	 */
-	protected static function normalize_core_information( $core_check ) {
+	protected static function normalize_core_data( &$status, $report_data ) {
 		global $wp_version;
+
+		// Ensure the report data has the core property.
+		if ( ! $report_data->core || ! $report_data->core->version ) {
+			$report_data->core = new \stdClass();
+		}
 
 		$core = new Extension_Model(
 			array(
 				'type'    => 'core',
 				'name'    => 'WordPress',
+				'slug'    => 'wordpress',
 				'version' => $wp_version,
 				'checked' => false,
 			)
 		);
 
-		if ( isset( $core_check->version ) && $core_check->version === $wp_version ) {
-			if ( is_array( $core_check->vulnerabilities ) ) {
-				$core->checked = true;
-				$core->set_threats(
-					array_map(
-						function ( $vulnerability ) {
-							$vulnerability->source = isset( $vulnerability->id ) ? Redirect::get_url( 'jetpack-protect-vul-info', array( 'path' => $vulnerability->id ) ) : null;
-							return $vulnerability;
-						},
-						$core_check->vulnerabilities
+		// Core version has changed since the report.
+		if ( $report_data->core->version !== $wp_version ) {
+			// Maintain $status->core for backwards compatibility.
+			$status->core = $core;
+			return;
+		}
+
+		// If we've made it this far, the core version has been checked.
+		$core->checked = true;
+
+		// Extract threat data from the report.
+		if ( is_array( $report_data->core->vulnerabilities ) ) {
+			foreach ( $report_data->core->vulnerabilities as $vulnerability ) {
+				$threat = new Threat_Model(
+					array(
+						'id'          => $vulnerability->id,
+						'title'       => $vulnerability->title,
+						'fixed_in'    => $vulnerability->fixed_in,
+						'description' => isset( $vulnerability->description ) ? $vulnerability->description : null,
+						'source'      => isset( $vulnerability->id ) ? Redirect::get_url( 'jetpack-protect-vul-info', array( 'path' => $vulnerability->id ) ) : null,
 					)
 				);
+
+				$threat_extension = clone $core;
+				$extension_threat = clone $threat;
+
+				$core->threats[]   = $extension_threat;
+				$threat->extension = $threat_extension;
+
+				$status->threats[] = $threat;
 			}
 		}
 
-		return $core;
+		$status->core = $core;
+	}
+
+	/**
+	 * Sort By Threats
+	 *
+	 * @param array<Extension_Model> $threats Array of threats to sort.
+	 *
+	 * @return array<Extension_Model> The sorted $threats array.
+	 */
+	protected static function sort_threats( $threats ) {
+		usort(
+			$threats,
+			function ( $a, $b ) {
+				return count( $a->threats ) - count( $b->threats );
+			}
+		);
+
+		return $threats;
 	}
 }

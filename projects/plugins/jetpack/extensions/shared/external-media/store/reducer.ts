@@ -1,9 +1,14 @@
-import { SET_AUTHENTICATED, SetAuthenticatedAction } from './actions';
+import {
+	SET_AUTHENTICATED,
+	MEDIA_PHOTOS_PICKER_SESSION_SET,
+	SetAuthenticatedAction,
+	MediaPhotosPickerSessionAction,
+} from './actions';
 import { AuthState, initialAuthState } from './types';
 
 export default (
 	state: AuthState = initialAuthState,
-	action: SetAuthenticatedAction
+	action: SetAuthenticatedAction | MediaPhotosPickerSessionAction
 ): AuthState => {
 	switch ( action.type ) {
 		case SET_AUTHENTICATED:
@@ -14,6 +19,13 @@ export default (
 					action.payload.isAuthenticated
 				),
 			};
+
+		case MEDIA_PHOTOS_PICKER_SESSION_SET:
+			return {
+				...state,
+				mediaPhotosPickerSession: action.payload,
+			};
+
 		default:
 			return state;
 	}

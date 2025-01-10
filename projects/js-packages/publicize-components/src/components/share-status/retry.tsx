@@ -27,7 +27,6 @@ export type RetryProps = {
  */
 export function Retry( { shareItem }: RetryProps ) {
 	const { recordEvent } = useAnalytics();
-	// @ts-expect-error -- `@wordpress/editor` is badly typed, causes issue in CI
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const connections = useSelect( select => select( socialStore ).getConnections(), [] );
 
@@ -88,7 +87,7 @@ export function Retry( { shareItem }: RetryProps ) {
 				onClick={ connectionStillExists ? onRetry : undefined }
 				disabled={ ! connectionStillExists }
 			>
-				{ __( 'Retry', 'jetpack' ) }
+				{ __( 'Retry', 'jetpack-publicize-components' ) }
 			</Button>
 			{ ! connectionStillExists ? (
 				<IconTooltip shift placement="bottom-end">
@@ -96,11 +95,15 @@ export function Retry( { shareItem }: RetryProps ) {
 						// If we don't have external_id - in case of old share data,
 						// we can't be sure if the connection has been removed or reconnected
 						shareItem.external_id
-							? _x( 'This connection has been removed.', 'Social media connection', 'jetpack' )
+							? _x(
+									'This connection has been removed.',
+									'Social media connection',
+									'jetpack-publicize-components'
+							  )
 							: _x(
 									'This connection has been reconnected or removed.',
 									'Social media connection',
-									'jetpack'
+									'jetpack-publicize-components'
 							  )
 					}
 				</IconTooltip>

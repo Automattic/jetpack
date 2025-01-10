@@ -149,9 +149,26 @@
 				gap: 16px;
 			}
 
+			.jetpack-ai-breve__helper-inner {
+				display: flex;
+				gap: 8px;
+			}
+
 			.components-button {
 				padding: 0px;
 				color: #646970;
+			}
+
+			.ai-assistant-feedback {
+				&__selection {
+					.components-button:not(:disabled):hover {
+						color: var( --wp-components-color-accent, var( --wp-admin-theme-color, #3858e9 ) );
+					}
+				}
+
+				&__thumb-selected {
+					color: var( --wp-components-color-accent, var( --wp-admin-theme-color, #3858e9 ) );
+				}
 			}
 		}
 	}

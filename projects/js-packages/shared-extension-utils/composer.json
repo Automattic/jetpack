@@ -31,6 +31,7 @@
 		"autotagger": true,
 		"npmjs-autopublish": true,
 		"mirror-repo": "Automattic/jetpack-shared-extension-utils",
+		"textdomain": "jetpack-shared-extension-utils",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-shared-extension-utils/compare/${old}...${new}"
 		}

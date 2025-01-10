@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { JetpackEditorPanelLogo, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody, PanelRow, BaseControl, ExternalLink } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
@@ -10,7 +9,6 @@ import { PluginPrePublishPanel, PluginDocumentSettingPanel } from '@wordpress/ed
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
-import React from 'react';
 /**
  * Internal dependencies
  */
@@ -19,12 +17,14 @@ import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import useAiProductPage from '../../../../blocks/ai-assistant/hooks/use-ai-product-page';
 import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
+import { isBetaExtension } from '../../../../editor';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import { PLAN_TYPE_FREE, PLAN_TYPE_UNLIMITED, usePlanType } from '../../../../shared/use-plan-type';
 import { FeaturedImage } from '../ai-image';
 import { Breve, registerBreveHighlights, Highlight } from '../breve';
 import { getBreveAvailability, canWriteBriefBeEnabled } from '../breve/utils/get-availability';
 import Feedback from '../feedback';
+import SeoAssistant from '../seo-assistant';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
 import {
@@ -38,7 +38,6 @@ import './style.scss';
  * Types
  */
 import type { CoreSelect, JetpackSettingsContentProps } from './types';
-import type * as EditorSelectors from '@wordpress/editor/store/selectors';
 
 const debug = debugFactory( 'jetpack-ai-assistant-plugin:sidebar' );
 /**
@@ -60,6 +59,8 @@ const isAITitleOptimizationAvailable =
 const isAITitleOptimizationKeywordsFeatureAvailable = getFeatureAvailability(
 	'ai-title-optimization-keywords-support'
 );
+
+const isSeoAssistantEnabled = getFeatureAvailability( 'ai-seo-assistant' );
 
 const JetpackAndSettingsContent = ( {
 	placement,
@@ -84,6 +85,19 @@ const JetpackAndSettingsContent = ( {
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<FairUsageNotice variant="muted" />
+					</BaseControl>
+				</PanelRow>
+			) }
+
+			{ isSeoAssistantEnabled && (
+				<PanelRow
+					className={ `jetpack-ai-sidebar__feature-section ${
+						isBetaExtension( 'ai-seo-assistant' ) ? 'is-beta-extension' : ''
+					}` }
+				>
+					<BaseControl __nextHasNoMarginBottom={ true }>
+						<BaseControl.VisualLabel>{ __( 'SEO', 'jetpack' ) }</BaseControl.VisualLabel>
+						<SeoAssistant busy={ false } disabled={ false } />
 					</BaseControl>
 				</PanelRow>
 			) }
@@ -148,7 +162,7 @@ const JetpackAndSettingsContent = ( {
 			</PanelRow>
 
 			<PanelRow>
-				<ExternalLink href="https://automattic.com/ai-guidelines">
+				<ExternalLink href="https://jetpack.com/redirect/?source=ai-guidelines">
 					{ __( 'AI Guidelines', 'jetpack' ) }
 				</ExternalLink>
 			</PanelRow>
@@ -157,13 +171,11 @@ const JetpackAndSettingsContent = ( {
 };
 
 export default function AiAssistantPluginSidebar() {
-	const { requireUpgrade, upgradeType, currentTier, tierPlansEnabled, isOverLimit } =
-		useAiFeature();
-	const { checkoutUrl } = useAICheckout();
+	const { requireUpgrade, upgradeType, currentTier, isOverLimit } = useAiFeature();
 	const { tracks } = useAnalytics();
 
 	const isViewable = useSelect( select => {
-		const postTypeName = ( select( editorStore ) as typeof EditorSelectors ).getCurrentPostType();
+		const postTypeName = select( editorStore ).getCurrentPostType();
 		// The coreStore select type lacks the getPostType method, so we need to cast it to the correct type
 		const postTypeObject = ( select( coreStore ) as unknown as CoreSelect ).getPostType(
 			postTypeName
@@ -186,8 +198,7 @@ export default function AiAssistantPluginSidebar() {
 		tracks.recordEvent( 'jetpack_ai_panel_open', { placement } );
 	};
 
-	const showUsagePanel =
-		planType === PLAN_TYPE_FREE || ( tierPlansEnabled && planType !== PLAN_TYPE_UNLIMITED );
+	const showUsagePanel = planType === PLAN_TYPE_FREE;
 	const showFairUsageNotice = planType === PLAN_TYPE_UNLIMITED && isOverLimit;
 	const isBreveAvailable = getBreveAvailability();
 
@@ -245,14 +256,6 @@ export default function AiAssistantPluginSidebar() {
 						busy={ false }
 						disabled={ requireUpgrade }
 					/>
-					{ requireUpgrade && tierPlansEnabled && (
-						<Upgrade
-							placement={ PLACEMENT_PRE_PUBLISH }
-							type={ upgradeType }
-							currentTier={ currentTier }
-							upgradeUrl={ checkoutUrl }
-						/>
-					) }
 				</>
 			</PluginPrePublishPanel>
 		</>

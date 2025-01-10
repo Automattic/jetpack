@@ -1,6 +1,5 @@
 import { numberFormat } from '@automattic/jetpack-components';
-import { usePublicizeConfig } from '@automattic/jetpack-publicize-components';
-import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isSimpleSite, useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import {
 	ContrastChecker,
 	PanelColorSettings,
@@ -56,7 +55,7 @@ export default function SubscriptionControls( {
 	subscribePlaceholder = DEFAULT_SUBSCRIBE_PLACEHOLDER,
 	successMessage = DEFAULT_SUCCESS_MESSAGE,
 } ) {
-	const { isPublicizeEnabled } = usePublicizeConfig();
+	const { isModuleActive: isPublicizeEnabled } = useModuleStatus( 'publicize' );
 
 	return (
 		<>
@@ -167,6 +166,7 @@ export default function SubscriptionControls( {
 					} }
 					// This is changing in the future, and we need to do this to silence the deprecation warning.
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 				/>
 			</PanelBody>
 			<PanelBody
@@ -176,6 +176,7 @@ export default function SubscriptionControls( {
 			>
 				<RangeControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					value={ borderRadius }
 					label={ __( 'Border Radius', 'jetpack' ) }
 					min={ MIN_BORDER_RADIUS_VALUE }
@@ -187,6 +188,7 @@ export default function SubscriptionControls( {
 
 				<RangeControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					value={ borderWeight }
 					label={ __( 'Border Weight', 'jetpack' ) }
 					min={ MIN_BORDER_WEIGHT_VALUE }
@@ -203,6 +205,7 @@ export default function SubscriptionControls( {
 			>
 				<RangeControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					value={ padding }
 					label={ __( 'Space Inside', 'jetpack' ) }
 					min={ MIN_PADDING_VALUE }
@@ -213,6 +216,7 @@ export default function SubscriptionControls( {
 				/>
 				<RangeControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					value={ spacing }
 					label={ __( 'Space Between', 'jetpack' ) }
 					min={ MIN_SPACING_VALUE }

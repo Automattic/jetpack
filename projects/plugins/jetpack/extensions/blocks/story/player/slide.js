@@ -55,7 +55,6 @@ export const Slide = ( {
 		} );
 	}, [ preload, uploading ] );
 
-	/* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 	return (
 		<>
 			{ visible && ( loading || uploading || buffering ) && (
@@ -86,7 +85,6 @@ export const Slide = ( {
 			</div>
 		</>
 	);
-	/* eslint-enable jsx-a11y/no-noninteractive-tabindex */
 };
 
 export default Slide;

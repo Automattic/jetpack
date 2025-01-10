@@ -10,9 +10,7 @@ import { features } from '../../utils/constants';
  */
 export function usePostCanUseSig() {
 	const isJetpackSocialNote = useSelect( select => {
-		const currentPostType = select( editorStore )
-			// @ts-expect-error -- `@wordpress/editor` is a nightmare to work with TypeScript - getCurrentPostType exists on the editor store
-			.getCurrentPostType();
+		const currentPostType = select( editorStore ).getCurrentPostType();
 
 		return 'jetpack-social-note' === currentPostType;
 	}, [] );

@@ -25,7 +25,7 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 	showNotOffPrice = true,
 	hideDiscountLabel = true,
 	promoLabel = '',
-	legend = __( '/month, paid yearly', 'jetpack' ),
+	legend = __( '/month, paid yearly', 'jetpack-components' ),
 	isNotConvenientPrice = false,
 	hidePriceFraction = false,
 	children,
@@ -43,7 +43,7 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 
 	const showDiscountLabel = ! hideDiscountLabel && discount && discount > 0;
 
-	const discountElt = showDiscountLabel ? discount + __( '% off', 'jetpack' ) : null;
+	const discountElt = showDiscountLabel ? discount + __( '% off', 'jetpack-components' ) : null;
 
 	return (
 		<>

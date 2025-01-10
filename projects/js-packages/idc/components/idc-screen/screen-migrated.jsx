@@ -19,14 +19,14 @@ const ScreenMigrated = props => {
 	const wpcomHostName = extractHostname( props.wpcomHomeUrl );
 	const currentHostName = extractHostname( props.currentUrl );
 
-	const buttonLabel = __( 'Got it, thanks', 'jetpack' );
+	const buttonLabel = __( 'Got it, thanks', 'jetpack-idc' );
 
 	return (
 		<React.Fragment>
 			<h2>
 				{ customContent.migratedTitle
 					? createInterpolateElement( customContent.migratedTitle, { em: <em /> } )
-					: __( 'Your Jetpack settings have migrated successfully', 'jetpack' ) }
+					: __( 'Your Jetpack settings have migrated successfully', 'jetpack-idc' ) }
 			</h2>
 
 			<p>
@@ -36,7 +36,7 @@ const ScreenMigrated = props => {
 							/* translators: %1$s: The current site domain name. */
 							__(
 								'Safe Mode has been switched off for <hostname>%1$s</hostname> website and Jetpack is fully functional.',
-								'jetpack'
+								'jetpack-idc'
 							),
 							currentHostName
 						),

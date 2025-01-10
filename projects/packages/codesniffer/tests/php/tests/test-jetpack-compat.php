@@ -36,6 +36,7 @@ ini_get( 'zend.exception_string_param_max_len' );
 ini_get( 'fiber.stack_size' );
 ini_get( 'error_log_mode' );
 ini_get( 'zend.max_allowed_stack_size' );
+// TODO: Something for 8.4.
 
 EOF;
 
@@ -110,6 +111,7 @@ EOF;
 		yield array( 'Jetpack-Compat-81', self::SRC1, array_slice( $lines1, 4 ) );
 		yield array( 'Jetpack-Compat-82', self::SRC1, array_slice( $lines1, 5 ) );
 		yield array( 'Jetpack-Compat-83', self::SRC1, array_slice( $lines1, 6 ) );
+		yield array( 'Jetpack-Compat-84', self::SRC1, array_slice( $lines1, 7 ) );
 
 		$lines2 = array(
 			' 3 | WARNING | INI directive \'session.cookie_samesite\' is not present in PHP version 7.2 or earlier (PHPCompatibility.IniDirectives.NewIniDirectives.session_cookie_samesiteFound)',

@@ -17,9 +17,6 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\load_3rd_party_compat_filters', 
  * This is a refactor of load_3rd_party() to load the individual compat files only when needed instead of universally.
  */
 function load_3rd_party_compat_filters() {
-	// SalesForce
-	// @todo This one probably makes more sense to move to the Forms package (and the module until it is fully deprecated).
-	require_once JETPACK__PLUGIN_DIR . '/3rd-party/class-salesforce-lead-form.php'; // not a module but the handler for Salesforce forms
 
 	// bbPress
 	if ( function_exists( 'bbpress' ) ) {

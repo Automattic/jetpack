@@ -57,10 +57,6 @@ if ( $has_license ) {
 	if ( is_array( $migrations ) && count( $migrations ) > 0 ) {
 		$site_data['Migrations'] = count( $migrations ) . ' executed';
 
-		if ( zeroBSCRM_getSetting( 'migration300_timeout_issues' ) ) {
-			$site_data['Migrations'] .= ' | had timeouts';
-		}
-
 		$last_migration = '-';
 
 		foreach ( $migrations as $migration_key ) {

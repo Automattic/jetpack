@@ -340,18 +340,6 @@ function zeroBSCRM_mail_retrieveDefaultBodyTemplate($template='maintemplate'){
 	return $templatedHTML;
 }
 
-// v2.98.6 - change default from /html/notifications/email-default/ to /html/templates/_responsivewrap.html
-// v4.5.0 - deprecated in favour of core variant
-function zeroBSCRM_mail_retrieveWrapTemplate( $template = 'default' ) {
-
-	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_mail_retrieveWrapTemplate was deprecated in v4.5.0, please use the core function retrieve_template' );
-
-	return '';
-
-}
-
-
-
 /* ======================================================
 	/ ZBS Templating - Load Initial HTML
    ====================================================== */
@@ -919,17 +907,6 @@ function jpcrm_task_generate_notification_html( $return = true, $email = false, 
 /* ======================================================
 	ZBS Single Send Emails - Generate HTML
    ====================================================== */
-
-/*
-* Deprecated, included to avoid Error 500's in outdated extensions
-*/
-function zeroBSCRM_mailTemplates_directMsg( $return = true, $content = '', $title = '' ) {
-
-	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_mailTemplates_directMsg was deprecated in 4.4.0, Please use jpcrm_mailTemplates_single_send_templated()' );
-
-	return jpcrm_mailTemplates_single_send_templated( $return, $content, $title );
-
-}
 
 /**
  * Creates the html of a single send email based on passed details

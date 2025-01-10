@@ -1,8 +1,7 @@
 import { Container, Col, Text } from '@automattic/jetpack-components';
 import { Icon, Flex, FlexItem, DropdownMenu, Button } from '@wordpress/components';
 import { __, _n } from '@wordpress/i18n';
-import { moreHorizontalMobile } from '@wordpress/icons';
-import { chevronLeft, chevronRight } from '@wordpress/icons';
+import { moreHorizontalMobile, chevronLeft, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
@@ -132,7 +131,8 @@ const EvaluationRecommendations: FC = () => {
 					fluid
 				>
 					{ recommendedModules.map( module => {
-						const Card = JetpackModuleToProductCard[ module ];
+						const moduleName = module.replace( 'feature_', '' );
+						const Card = JetpackModuleToProductCard[ moduleName ];
 						return (
 							Card && (
 								<Col tagName="li" key={ module } lg={ 4 }>

@@ -12,6 +12,7 @@ import './style.scss';
 
 /**
  * The nux component.
+ * @return {JSX.Element} The WpcomNux component or null.
  */
 function WpcomNux() {
 	const { show, isNewPageLayoutModalOpen, isManuallyOpened } = useSelect( select => ( {
@@ -113,13 +114,14 @@ function getWpcomNuxPages() {
 /**
  * Display the Nux page
  *
- * @param props             - The props of the component.
- * @param props.pageNumber  - The number of page.
- * @param props.isLastPage  - Whether the current page is the last one.
- * @param props.alignBottom - Whether to align bottom.
- * @param props.heading     - The text of heading.
- * @param props.description - The text of description.
- * @param props.imgSrc      - The src of image.
+ * @param {object}  props                     - The props of the component.
+ * @param {number}  props.pageNumber          - The number of page.
+ * @param {boolean} props.isLastPage          - Whether the current page is the last one.
+ * @param {boolean} [props.alignBottom=false] - Whether to align bottom.
+ * @param {string}  props.heading             - The text of heading.
+ * @param {string}  props.description         - The text of description.
+ * @param {string}  props.imgSrc              - The src of image.
+ * @return {JSX.Element} The NuxPage component.
  */
 function NuxPage( { pageNumber, isLastPage, alignBottom = false, heading, description, imgSrc } ) {
 	useEffect( () => {

@@ -101,7 +101,7 @@ describe( 'reducer', () => {
 					usagePeriod: {
 						currentStart: 'ai-assistant-tier-unlimited',
 						nextStart: '',
-						requestsCount: 4,
+						requestsCount: 2999,
 					},
 				},
 			},
@@ -120,7 +120,7 @@ describe( 'reducer', () => {
 					requireUpgrade: false,
 					usagePeriod: {
 						...initialState.features.aiAssistant.usagePeriod,
-						requestsCount: 5,
+						requestsCount: 3000,
 					},
 				},
 			},
@@ -136,7 +136,7 @@ describe( 'reducer', () => {
 				aiAssistant: {
 					hasFeature: true,
 					isOverLimit: false,
-					requestsCount: 2998,
+					requestsCount: 12345,
 					requestsLimit: UNLIMITED_PLAN_REQUESTS_LIMIT,
 					requireUpgrade: false,
 					upgradeType: 'default',
@@ -145,7 +145,7 @@ describe( 'reducer', () => {
 					usagePeriod: {
 						currentStart: 'ai-assistant-tier-unlimited',
 						nextStart: '',
-						requestsCount: 4,
+						requestsCount: 2998,
 					},
 				},
 			},
@@ -160,11 +160,11 @@ describe( 'reducer', () => {
 					...initialState.features.aiAssistant,
 					hasFeature: true,
 					isOverLimit: false,
-					requestsCount: 2999,
+					requestsCount: 12346,
 					requireUpgrade: false,
 					usagePeriod: {
 						...initialState.features.aiAssistant.usagePeriod,
-						requestsCount: 5,
+						requestsCount: 2999,
 					},
 				},
 			},

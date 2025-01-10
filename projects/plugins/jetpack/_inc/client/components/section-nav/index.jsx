@@ -1,10 +1,10 @@
 /** @ssr-ready **/
 
 import clsx from 'clsx';
-import Search from 'components/search';
 import { isEqual } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
+import Search from 'components/search';
 import NavItem from './item';
 import NavTabs from './tabs';
 import './style.scss';

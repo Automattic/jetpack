@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Work around a WP user caching bug (https://core.trac.wordpress.org/ticket/62003).

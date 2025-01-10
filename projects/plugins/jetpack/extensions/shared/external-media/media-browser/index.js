@@ -20,6 +20,7 @@ function MediaBrowser( props ) {
 		media,
 		isCopying,
 		isLoading,
+		imageOnly,
 		pageHandle,
 		className,
 		multiple,
@@ -27,6 +28,7 @@ function MediaBrowser( props ) {
 		nextPage,
 		onCopy,
 		selectButtonText,
+		shouldProxyImg,
 	} = props;
 	const [ selected, setSelected ] = useState( [] );
 	const [ focused, setFocused ] = useState( -1 );
@@ -190,6 +192,7 @@ function MediaBrowser( props ) {
 				{ media.map( ( item, index ) => (
 					<MediaItem
 						item={ item }
+						imageOnly={ imageOnly }
 						index={ index }
 						key={ item.ID }
 						onClick={ handleMediaItemClick }
@@ -197,6 +200,7 @@ function MediaBrowser( props ) {
 						focus={ index === focused }
 						isSelected={ selected.find( toFind => toFind.ID === item.ID ) }
 						isCopying={ isCopying }
+						shouldProxyImg={ shouldProxyImg }
 					/>
 				) ) }
 

@@ -6,6 +6,10 @@
 		margin-left: 20px !important;
 	}
 
+	& > p:first-child {
+		margin-top: 0;
+	}
+
 	.head {
 		display: flex;
 		flex-direction: row;

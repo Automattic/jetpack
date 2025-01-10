@@ -255,24 +255,6 @@ function zeroBSCRM_isAdminPage() {
 	return $return;
 }
 
-function zeroBSCRM_is_edit_page( $new_edit = null ) {
-
-	// make sure we are on the backend
-	if ( ! is_admin() ) {
-		return false;
-	}
-
-	global $pagenow;
-
-	if ( $new_edit == 'edit' ) {
-		return in_array( $pagenow, array( 'post.php' ) );
-	} elseif ( $new_edit == 'new' ) { // check for new post page
-		return in_array( $pagenow, array( 'post-new.php' ) );
-	} else { // check for either new or edit
-		return in_array( $pagenow, array( 'post.php', 'post-new.php' ) );
-	}
-}
-
 	// returns true if on a zbs edit page
 	// (for any obj)
 function zeroBSCRM_is_zbs_edit_page( $specificType = false, $isNew = false ) {
@@ -554,23 +536,11 @@ function zeroBSCRM_is_company_view_page() {
 }
 
 function zeroBSCRM_is_company_new_page() {
-
-	// <v3.0
-	if ( zeroBS_isPage( array( 'post-new.php' ), array( 'zerobs_company' ) ) ) {
-		return true;
-	} else { // v3.0
-		return zeroBSCRM_is_zbs_edit_page( 'company', true );
-	}
+	return zeroBSCRM_is_zbs_edit_page( 'company', true );
 }
 
 function zeroBSCRM_is_company_edit_page() {
-
-	// <v3.0
-	if ( zeroBS_isPage( array( 'post.php' ), array( 'zerobs_company' ) ) ) {
-		return true;
-	} else { // v3.0
-		return zeroBSCRM_is_zbs_edit_page( 'company', false );
-	}
+	return zeroBSCRM_is_zbs_edit_page( 'company', false );
 }
 
 function zeroBSCRM_is_existingcompany_edit_page() {
@@ -628,23 +598,11 @@ function zeroBSCRM_is_transaction_list_page() {
 }
 
 function zeroBSCRM_is_transaction_new_page() {
-
-	// <v3.0
-	if ( zeroBS_isPage( array( 'post-new.php' ), array( 'zerobs_transaction' ) ) ) {
-		return true;
-	} else { // v3.0
-		return zeroBSCRM_is_zbs_edit_page( 'transaction', true );
-	}
+	return zeroBSCRM_is_zbs_edit_page( 'transaction', true );
 }
 
 function zeroBSCRM_is_transaction_edit_page() {
-
-	// <v3.0
-	if ( zeroBS_isPage( array( 'post.php' ), array( 'zerobs_transaction' ) ) ) {
-		return true;
-	} else { // v3.0
-		return zeroBSCRM_is_zbs_edit_page( 'transaction', false );
-	}
+	return zeroBSCRM_is_zbs_edit_page( 'transaction', false );
 }
 
 function zeroBSCRM_is_transactiontags_page() {
@@ -694,40 +652,22 @@ function zeroBSCRM_is_invoice_list_page() {
 }
 
 function zeroBSCRM_is_invoice_new_page() {
-
-	// <v3.0
-	if ( zeroBS_isPage( array( 'post-new.php' ), array( 'zerobs_invoice' ) ) ) {
-		return true;
-	} else { // v3.0
-		return zeroBSCRM_is_zbs_edit_page( 'invoice', true );
-	}
+	return zeroBSCRM_is_zbs_edit_page( 'invoice', true );
 }
 
 function zeroBSCRM_is_invoice_edit_page() {
-
-	// <v3.0
-	if ( zeroBS_isPage( array( 'post.php' ), array( 'zerobs_invoice' ) ) ) {
-		return true;
-	} else { // v3.0
-		return zeroBSCRM_is_zbs_edit_page( 'invoice', false );
-	}
+	return zeroBSCRM_is_zbs_edit_page( 'invoice', false );
 }
 
 function zeroBSCRM_is_invoicetags_page() {
-
-	// v3.0+ only
 	global $zbs;
-	if ( $zbs->isDAL3() ) {
-		return zeroBS_hasGETParamsWithValues(
-			array( 'admin.php' ),
-			array(
-				'page'    => $zbs->slugs['tagmanager'],
-				'tagtype' => 'invoice',
-			)
-		);
-	}
-
-	return false;
+	return zeroBS_hasGETParamsWithValues(
+		array( 'admin.php' ),
+		array(
+			'page'    => $zbs->slugs['tagmanager'],
+			'tagtype' => 'invoice',
+		)
+	);
 }
 
 	// ========= / INVOICES =================================================
@@ -763,76 +703,34 @@ function zeroBSCRM_is_quote_list_page() {
 }
 
 function zeroBSCRM_is_quo_new_page() {
-
-	// <v3.0
-	if ( zeroBS_isPage( array( 'post-new.php' ), array( 'zerobs_quote' ) ) ) {
-		return true;
-	} else { // v3.0
-		return zeroBSCRM_is_zbs_edit_page( 'quote', true );
-	}
+	return zeroBSCRM_is_zbs_edit_page( 'quote', true );
 }
 
 function zeroBSCRM_is_quo_edit_page() {
-
-	// <v3.0
-	if ( zeroBS_isPage( array( 'post.php' ), array( 'zerobs_quote' ) ) ) {
-		return true;
-	} else { // v3.0
-		return zeroBSCRM_is_zbs_edit_page( 'quote', false );
-	}
+	return zeroBSCRM_is_zbs_edit_page( 'quote', false );
 }
 
 function zeroBSCRM_is_quotetags_page() {
-
-	// v3.0+ only
 	global $zbs;
-	if ( $zbs->isDAL3() ) {
-		return zeroBS_hasGETParamsWithValues(
-			array( 'admin.php' ),
-			array(
-				'page'    => $zbs->slugs['tagmanager'],
-				'tagtype' => 'quote',
-			)
-		);
-	}
-
-	return false;
+	return zeroBS_hasGETParamsWithValues(
+		array( 'admin.php' ),
+		array(
+			'page'    => $zbs->slugs['tagmanager'],
+			'tagtype' => 'quote',
+		)
+	);
 }
 
 	// ========= / QUOTES =================================================
 
 	// ========= QUOTE TEMPLATES ==========================================
 
-	// backward compat
-function zeroBSCRM_is_quotem_new_page() {
-
-	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_is_quotem_new_page was deprecated in v4.10, please use zeroBSCRM_is_quotetemplate_new_page()' );
-	return zeroBSCRM_is_quotetemplate_new_page();
-}
-function zeroBSCRM_is_quotem_edit_page() {
-
-	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_is_quotem_edit_page was deprecated in v4.10, please use zeroBSCRM_is_quotetemplate_edit_page()' );
-	return zeroBSCRM_is_quotetemplate_edit_page();
-}
-
 function zeroBSCRM_is_quotetemplate_new_page() {
-
-	// <v3.0
-	if ( zeroBS_isPage( array( 'post-new.php' ), array( 'zerobs_quo_template' ) ) ) {
-		return true;
-	} else { // v3.0
-		return zeroBSCRM_is_zbs_edit_page( 'quotetemplate', true );
-	}
+	return zeroBSCRM_is_zbs_edit_page( 'quotetemplate', true );
 }
 
 function zeroBSCRM_is_quotetemplate_edit_page() {
-
-	// <v3.0
-	if ( zeroBS_isPage( array( 'post.php' ), array( 'zerobs_quo_template' ) ) ) {
-		return true;
-	} else { // v3.0
-		return zeroBSCRM_is_zbs_edit_page( 'quotetemplate', false );
-	}
+	return zeroBSCRM_is_zbs_edit_page( 'quotetemplate', false );
 }
 
 	// ========= / QUOTE TEMPLATES =========================================
@@ -862,23 +760,11 @@ function zeroBSCRM_isAnyTaskPage() {
 }
 
 function zeroBSCRM_is_task_new_page() {
-
-	// <v3.0
-	if ( zeroBS_isPage( array( 'post-new.php' ), array( 'zerobs_event' ) ) ) {
-		return true;
-	} else { // v3.0
-		return zeroBSCRM_is_zbs_edit_page( 'event', true );
-	}
+	return zeroBSCRM_is_zbs_edit_page( 'event', true );
 }
 
 function zeroBSCRM_is_task_edit_page() {
-
-	// <v3.0
-	if ( zeroBS_isPage( array( 'post.php' ), array( 'zerobs_event' ) ) ) {
-		return true;
-	} else { // v3.0
-		return zeroBSCRM_is_zbs_edit_page( 'event', false );
-	}
+	return zeroBSCRM_is_zbs_edit_page( 'event', false );
 }
 
 function zeroBSCRM_is_task_calendar_page() {
@@ -894,20 +780,14 @@ function zeroBSCRM_is_task_list_page() {
 }
 
 function zeroBSCRM_is_tasktags_page() {
-
-	// v3.0+ only
 	global $zbs;
-	if ( $zbs->isDAL3() ) {
-		return zeroBS_hasGETParamsWithValues(
-			array( 'admin.php' ),
-			array(
-				'page'    => $zbs->slugs['tagmanager'],
-				'tagtype' => 'event',
-			)
-		);
-	}
-
-	return false;
+	return zeroBS_hasGETParamsWithValues(
+		array( 'admin.php' ),
+		array(
+			'page'    => $zbs->slugs['tagmanager'],
+			'tagtype' => 'event',
+		)
+	);
 }
 
 	// ========= / TASKS =================================================
@@ -940,23 +820,11 @@ function zeroBSCRM_isAnyFormPage() {
 }
 
 function zeroBSCRM_is_form_new_page() {
-
-	// <v3.0
-	if ( zeroBS_isPage( array( 'post-new.php' ), array( 'zerobs_form' ) ) ) {
-		return true;
-	} else { // v3.0
-		return zeroBSCRM_is_zbs_edit_page( 'form', true );
-	}
+	return zeroBSCRM_is_zbs_edit_page( 'form', true );
 }
 
 function zeroBSCRM_is_form_edit_page() {
-
-	// <v3.0
-	if ( zeroBS_isPage( array( 'post.php' ), array( 'zerobs_form' ) ) ) {
-		return true;
-	} else { // v3.0
-		return zeroBSCRM_is_zbs_edit_page( 'form', false );
-	}
+	return zeroBSCRM_is_zbs_edit_page( 'form', false );
 }
 
 function zeroBSCRM_is_form_list_page() {
@@ -965,20 +833,14 @@ function zeroBSCRM_is_form_list_page() {
 }
 
 function zeroBSCRM_is_formtags_page() {
-
-	// v3.0+ only
 	global $zbs;
-	if ( $zbs->isDAL3() ) {
-		return zeroBS_hasGETParamsWithValues(
-			array( 'admin.php' ),
-			array(
-				'page'    => $zbs->slugs['tagmanager'],
-				'tagtype' => 'form',
-			)
-		);
-	}
-
-	return false;
+	return zeroBS_hasGETParamsWithValues(
+		array( 'admin.php' ),
+		array(
+			'page'    => $zbs->slugs['tagmanager'],
+			'tagtype' => 'form',
+		)
+	);
 }
 
 	// ========= / FORMS =================================================

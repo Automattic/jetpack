@@ -327,36 +327,6 @@ function jpcrm_template_missing_notification( $template_file = '' ) {
 
 }
 
-
-
-
-/*
-* Function to return html file related to PDF
-* we've done away with the need for this via the jpcrm_templating_placeholders class.
-*/
-function zeroBSCRM_retrievePDFTemplate($template='default'){
-
-	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_retrievePDFTemplate was deprecated in v4.5.0, please use the jpcrm_templating_placeholders class');
-
-	return '';
-
-}
-
-
-/*
-* Function to return html file of a quote template
-* we've done away with the need for this via the jpcrm_templating_placeholders class.
-*/
-function zeroBSCRM_retrieveQuoteTemplate($template='default'){
-
-	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_retrieveQuoteTemplate was deprecated in v4.5.0, please use the jpcrm_templating_placeholders class');
-
-	return '';
-
-}
-
-
-
 /* WH Notes:
 
 	There was all this note-age from old vers:
@@ -381,24 +351,22 @@ function zeroBSCRM_replace_customer_placeholders($html = '', $cID = -1, $contact
 		if (is_array($contactObj) && isset($contactObj['id']))
 			$contact = $contactObj;
 		else {
-			if ($zbs->isDAL3())
-				// v3.0
-				$contact = $zbs->DAL->contacts->getContact($cID,array(
-		            'withCustomFields'  => true,
-		            // need any of these?
-		            'withQuotes'        => false,
-		            'withInvoices'      => false,
-		            'withTransactions'  => false,
-		            'withLogs'          => false,
-		            'withLastLog'       => false,
-		            'withTags'          => false,
-		            'withCompanies'     => false,
-		            'withOwner'         => false,
-		            'withValues'        => false,
-            ));
-			else
-				// pre v3.0
-				$contact = zeroBS_getCustomerMeta($cID);
+			$contact = $zbs->DAL->contacts->getContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$cID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				array(
+					'withCustomFields' => true,
+					// need any of these?
+					'withQuotes'       => false,
+					'withInvoices'     => false,
+					'withTransactions' => false,
+					'withLogs'         => false,
+					'withLastLog'      => false,
+					'withTags'         => false,
+					'withCompanies'    => false,
+					'withOwner'        => false,
+					'withValues'       => false,
+				)
+			);
 		}
 
 		// replace all placeholders :)

@@ -37,7 +37,7 @@ return [
         'src/class-rest-zendesk-chat.php' => ['PhanParamTooMany'],
         'src/class-wpcom-products.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/products/class-anti-spam.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
-        'src/products/class-backup.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
+        'src/products/class-backup.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault', 'PhanTypeSuspiciousNonTraversableForeach'],
         'src/products/class-boost.php' => ['PhanTypeMismatchPropertyDefault'],
         'src/products/class-creator.php' => ['PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturnProbablyReal'],
         'src/products/class-crm.php' => ['PhanTypeMismatchPropertyDefault'],

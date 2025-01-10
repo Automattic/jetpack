@@ -116,7 +116,7 @@ const GsuiteBlockEdit = props => {
 		 * If the block is not the expected one, return the
 		 * original URL as is.
 		 */
-		if ( [] === patterns[ 0 ] || '' === type ) {
+		if ( patterns.length === 0 || '' === type ) {
 			return url;
 		}
 

@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
+use Automattic\Jetpack_Boost\Lib\Minify\File_Paths;
 
 /**
  * Get an extra cache key for requests. We can manually bump this when we want
@@ -198,6 +199,13 @@ function jetpack_boost_page_optimize_bail() {
 		return true;
 	}
 
+	// Bail in elementor preview
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( isset( $_GET['elementor-preview'] ) ) {
+		$should_bail = true;
+		return true;
+	}
+
 	return $should_bail;
 }
 
@@ -307,4 +315,24 @@ function jetpack_boost_minify_setup() {
 		// Disable Jetpack Site Accelerator CDN for static JS/CSS, if we're minifying this page.
 		add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
 	}
+}
+
+function jetpack_boost_page_optimize_generate_concat_path( $url_paths, $dependency_path_mapping ) {
+	$fs_paths = array();
+	foreach ( $url_paths as $url_path ) {
+		$fs_paths[] = $dependency_path_mapping->uri_path_to_fs_path( $url_path );
+	}
+
+	$mtime = max( array_map( 'filemtime', $fs_paths ) );
+	if ( jetpack_boost_page_optimize_use_concat_base_dir() ) {
+		$paths = array_map( 'jetpack_boost_page_optimize_remove_concat_base_prefix', $fs_paths );
+	} else {
+		$paths = $url_paths;
+	}
+
+	$file_paths = new File_Paths();
+	$file_paths->set( $paths, $mtime, jetpack_boost_minify_cache_buster() );
+	$file_paths->store();
+
+	return $file_paths->get_cache_id();
 }

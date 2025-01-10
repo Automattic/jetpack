@@ -36,7 +36,10 @@ export function ConnectionName( { connection }: ConnectionNameProps ) {
 				</ExternalLink>
 			) }
 			{ isUpdating ? (
-				<Spinner color="black" aria-label={ __( 'Updating account', 'jetpack' ) } />
+				<Spinner
+					color="black"
+					aria-label={ __( 'Updating account', 'jetpack-publicize-components' ) }
+				/>
 			) : null }
 		</div>
 	);

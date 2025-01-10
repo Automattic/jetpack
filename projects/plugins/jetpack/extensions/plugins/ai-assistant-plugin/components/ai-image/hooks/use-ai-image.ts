@@ -7,8 +7,8 @@ import {
 	ImageStyle,
 	askQuestionSync,
 } from '@automattic/jetpack-ai-client';
-import { useDispatch } from '@wordpress/data';
-import { useCallback, useRef, useState } from '@wordpress/element';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { cleanForSlug } from '@wordpress/url';
 /**
@@ -19,7 +19,7 @@ import useSaveToMediaLibrary from '../../../hooks/use-save-to-media-library';
 /**
  * Types
  */
-import { FEATURED_IMAGE_FEATURE_NAME, GENERAL_IMAGE_FEATURE_NAME } from '../types';
+import { CoreSelectors, FEATURED_IMAGE_FEATURE_NAME, GENERAL_IMAGE_FEATURE_NAME } from '../types';
 import type { CarrouselImageData, CarrouselImages } from '../components/carrousel';
 import type { RoleType } from '@automattic/jetpack-ai-client';
 import type { FeatureControl } from 'extensions/store/wordpress-com/types.js';
@@ -42,24 +42,30 @@ export default function useAiImage( {
 	type,
 	cost,
 	autoStart = true,
+	previousMediaId,
 }: {
 	feature: AiImageFeature;
 	type: AiImageType;
 	cost: number;
 	autoStart?: boolean;
+	previousMediaId?: number;
 } ) {
 	const { generateImageWithParameters } = useImageGenerator();
-	const { increaseRequestsCount } = useAiFeature();
+	const { increaseRequestsCount, featuresControl } = useAiFeature();
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { createNotice } = useDispatch( 'core/notices' );
 
 	/* Images Control */
+	// pointer keeps track of request/generation iteration
 	const pointer = useRef( 0 );
+	// and current keeps track of what is the image exposed at the moment
+	// TODO: should current be any relevant here? It's just modal/carrousel logic after all
 	const [ current, setCurrent ] = useState( 0 );
 	const [ images, setImages ] = useState< CarrouselImages >( [ { generating: autoStart } ] );
 
-	const { featuresControl } = useAiFeature();
-	const imageFeatureControl = featuresControl?.image as ImageFeatureControl;
+	// map feature-to-control prop, if this goes over 2 options, make a hook for it
+	const featureControl = feature === FEATURED_IMAGE_FEATURE_NAME ? 'featured-image' : 'image';
+	const imageFeatureControl = featuresControl?.[ featureControl ] as ImageFeatureControl;
 	const imageStyles: Array< ImageStyleObject > = imageFeatureControl?.styles;
 
 	/* Merge the image data with the new data. */
@@ -73,6 +79,25 @@ export default function useAiImage( {
 			return newImages;
 		} );
 	}, [] );
+
+	// the selec/useEffect combo...
+	const loadedMedia = useSelect(
+		( select: ( store ) => CoreSelectors ) => select( 'core' )?.getMedia?.( previousMediaId ),
+		[ previousMediaId ]
+	);
+	useEffect( () => {
+		if ( loadedMedia ) {
+			updateImages(
+				{
+					image: loadedMedia.source_url,
+					libraryId: loadedMedia.id,
+					libraryUrl: loadedMedia.source_url,
+					generating: false,
+				},
+				pointer.current
+			);
+		}
+	}, [ loadedMedia, updateImages ] );
 
 	/*
 	 * Function to show a snackbar notice on the editor.
@@ -122,6 +147,9 @@ export default function useAiImage( {
 			style?: string;
 		} ) => {
 			return new Promise< ImageResponse >( ( resolve, reject ) => {
+				if ( previousMediaId && pointer.current === 0 ) {
+					pointer.current++;
+				}
 				updateImages( { generating: true, error: null }, pointer.current );
 
 				// Ensure the site has enough requests to generate the image.
@@ -166,7 +194,9 @@ export default function useAiImage( {
 					.then( result => {
 						if ( result.data.length > 0 ) {
 							const image = 'data:image/png;base64,' + result.data[ 0 ].b64_json;
-							updateImages( { image }, pointer.current );
+							const prompt = userPrompt || null;
+							const revisedPrompt = result.data[ 0 ].revised_prompt || null;
+							updateImages( { image, prompt, revisedPrompt }, pointer.current );
 							updateRequestsCount();
 							saveToMediaLibrary( image, name )
 								.then( savedImage => {
@@ -180,7 +210,7 @@ export default function useAiImage( {
 										image,
 										libraryId: savedImage?.id,
 										libraryUrl: savedImage?.url,
-										revisedPrompt: result.data[ 0 ].revised_prompt || '',
+										revisedPrompt,
 									} );
 								} )
 								.catch( () => {
@@ -205,12 +235,13 @@ export default function useAiImage( {
 			saveToMediaLibrary,
 			showSnackbarNotice,
 			getImageNameSuggestion,
+			previousMediaId,
 		]
 	);
 
 	const handlePreviousImage = useCallback( () => {
 		setCurrent( Math.max( current - 1, 0 ) );
-	}, [ current, setCurrent ] );
+	}, [ current ] );
 
 	const handleNextImage = useCallback( () => {
 		setCurrent( Math.min( current + 1, images.length - 1 ) );

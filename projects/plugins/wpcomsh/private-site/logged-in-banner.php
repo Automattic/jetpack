@@ -199,6 +199,11 @@ function show_logged_in_banner() {
 
 			el.style.display = 'none';
 			document.addEventListener( 'DOMContentLoaded', function() {
+				// Don't show the banner if the site is previewed via an iframe.
+				if ( window.top !== window.self ) {
+					return;
+				}
+
 				var el = document.querySelector( '#wpcom-launch-banner-wrapper' );
 				if ( el ) {
 					el.style.display = null;

@@ -5,8 +5,8 @@ import './wpcom-global-styles-view.scss';
 
 /**
  * Records a Tracks click event.
- * @param button - {string} Identifier of the button that has been clicked.
- * @param props  - {object} Additional props to track.
+ * @param {string} button - Identifier of the button that has been clicked.
+ * @param {object} props  - Additional props to track.
  */
 function recordEvent( button, props = {} ) {
 	wpcomTrackEvent( 'wpcom_launchbar_button_click', {

@@ -30,31 +30,10 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 	public $wpcom_is_wpcom_only_endpoint = true;
 
 	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-		$this->namespace = 'wpcom/v2';
-		$this->rest_base = 'publicize/connections';
-
-		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
-	}
-
-	/**
 	 * Called automatically on `rest_api_init()`.
 	 */
 	public function register_routes() {
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base,
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_items' ),
-					'permission_callback' => array( $this, 'get_items_permission_check' ),
-				),
-				'schema' => array( $this, 'get_public_item_schema' ),
-			)
-		);
+		// Endpoint moved to publicize package.
 	}
 
 	/**

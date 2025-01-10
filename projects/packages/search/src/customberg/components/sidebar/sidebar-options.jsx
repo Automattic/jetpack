@@ -17,8 +17,6 @@ import ThemeControl from './theme-control';
 
 const { isFreePlan = false } = window[ SERVER_OBJECT_NAME ];
 
-/* eslint-disable react/jsx-no-bind */
-
 /**
  * Customization/configuration tab for the sidebar.
  *

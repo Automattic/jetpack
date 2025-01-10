@@ -27,25 +27,25 @@ export function useAvailableSerivces() {
 		() =>
 			[
 				{
-					title: __( 'Google Search', 'jetpack' ),
+					title: __( 'Google Search', 'jetpack-publicize-components' ),
 					icon: props => <SocialServiceIcon serviceName="google" { ...props } />,
 					name: 'google',
 					preview: GoogleSearch,
 				},
 				{
-					title: __( 'X', 'jetpack' ),
+					title: __( 'X', 'jetpack-publicize-components' ),
 					icon: props => <SocialServiceIcon serviceName="x" { ...props } />,
 					name: 'x',
 					preview: Twitter,
 				},
 				{
-					title: __( 'Facebook', 'jetpack' ),
+					title: __( 'Facebook', 'jetpack-publicize-components' ),
 					icon: props => <SocialServiceIcon serviceName="facebook" { ...props } />,
 					name: 'facebook',
 					preview: FacebookPreview,
 				},
 				{
-					title: __( 'Instagram', 'jetpack' ),
+					title: __( 'Instagram', 'jetpack-publicize-components' ),
 					icon: props => <SocialServiceIcon serviceName="instagram" { ...props } />,
 					name: 'instagram',
 					preview: Instagram,
@@ -55,7 +55,7 @@ export function useAvailableSerivces() {
 							title: _x(
 								'Threads',
 								'The name of the social media network - threads.net',
-								'jetpack'
+								'jetpack-publicize-components'
 							),
 							icon: props => <SocialServiceIcon serviceName="threads" { ...props } />,
 							name: 'threads',
@@ -63,31 +63,31 @@ export function useAvailableSerivces() {
 					  }
 					: null,
 				{
-					title: __( 'LinkedIn', 'jetpack' ),
+					title: __( 'LinkedIn', 'jetpack-publicize-components' ),
 					icon: props => <SocialServiceIcon serviceName="linkedin" { ...props } />,
 					name: 'linkedin',
 					preview: LinkedIn,
 				},
 				{
-					title: __( 'Nextdoor', 'jetpack' ),
+					title: __( 'Nextdoor', 'jetpack-publicize-components' ),
 					icon: props => <SocialServiceIcon serviceName="nextdoor" { ...props } />,
 					name: 'nextdoor',
 					preview: Nextdoor,
 				},
 				{
-					title: __( 'Tumblr', 'jetpack' ),
+					title: __( 'Tumblr', 'jetpack-publicize-components' ),
 					icon: props => <SocialServiceIcon serviceName="tumblr-alt" { ...props } />,
 					name: 'tumblr',
 					preview: TumblrPreview,
 				},
 				{
-					title: __( 'Mastodon', 'jetpack' ),
+					title: __( 'Mastodon', 'jetpack-publicize-components' ),
 					icon: props => <SocialServiceIcon serviceName="mastodon" { ...props } />,
 					name: 'mastodon',
 					preview: MastodonPreview,
 				},
 				{
-					title: __( 'Bluesky', 'jetpack' ),
+					title: __( 'Bluesky', 'jetpack-publicize-components' ),
 					icon: props => <SocialServiceIcon serviceName="bluesky" { ...props } />,
 					name: 'bluesky',
 					preview: BlueskyPreview,

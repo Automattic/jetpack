@@ -12,7 +12,7 @@ import ConnectionStatusCard from '../connection-status-card';
  */
 export default function ConnectionsSection() {
 	const { apiRoot, apiNonce, topJetpackMenuItemUrl, connectedPlugins } = useMyJetpackConnection();
-	const navigate = useMyJetpackNavigate( MyJetpackRoutes.Connection );
+	const navigate = useMyJetpackNavigate( MyJetpackRoutes.ConnectionSkipPricing );
 	const products = useAllProducts();
 	const onDisconnected = () => document?.location?.reload( true ); // TODO: replace with a better experience.
 	const productsThatRequireUserConnection = getProductSlugsThatRequireUserConnection( products );

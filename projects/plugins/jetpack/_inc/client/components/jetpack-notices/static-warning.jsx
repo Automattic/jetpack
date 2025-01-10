@@ -1,6 +1,6 @@
-import SimpleNotice from 'components/notice';
 import React from 'react';
 import { connect } from 'react-redux';
+import SimpleNotice from 'components/notice';
 import {
 	getJetpackNotices as _getJetpackNotices,
 	isNoticeDismissed as _isNoticeDismissed,

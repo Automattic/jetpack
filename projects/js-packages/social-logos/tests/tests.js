@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* eslint-disable no-console, no-process-exit */
+/* eslint-disable no-console, n/no-process-exit */
 
 // Exit codes:
 //   0: All is well

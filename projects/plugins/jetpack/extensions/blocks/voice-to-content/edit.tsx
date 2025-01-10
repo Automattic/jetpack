@@ -10,6 +10,7 @@ import { ThemeProvider } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Modal, Icon } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
@@ -24,7 +25,6 @@ import useTranscriptionInserter from './hooks/use-transcription-inserter';
 /**
  * Types
  */
-import type { Block } from '@automattic/jetpack-ai-client';
 import type {
 	RecordingState,
 	TranscriptionState,
@@ -62,9 +62,7 @@ export default function VoiceToContentEdit( { clientId } ) {
 		removeBlock: ( id: string ) => void;
 	};
 
-	const { getBlocks } = useSelect( select => select( 'core/editor' ), [] ) as {
-		getBlocks: () => Block[];
-	};
+	const { getBlocks } = useSelect( select => select( editorStore ), [] );
 
 	const destroyBlock = useCallback( () => {
 		// Remove the block from the editor

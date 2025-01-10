@@ -84,6 +84,7 @@ export interface KeyringResult extends KeyringAdditionalUser {
 	label: string;
 	service: string;
 	status: ConnectionStatus;
+	show_linkedin_warning?: boolean;
 }
 
 export type SocialImageGeneratorConfig = {
