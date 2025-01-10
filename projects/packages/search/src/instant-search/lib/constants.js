@@ -1,4 +1,6 @@
-import { __ } from '@wordpress/i18n';
+// @todo fixme: i18n woes
+//import { __ } from '@wordpress/i18n';
+const __ = s => s;
 
 export const MULTISITE_NO_GROUP_VALUE = '__NO_GROUP__';
 
