@@ -13,15 +13,6 @@
 		]
 	},
 	"scripts": {
-		"phpunit": [
-			"echo 'no phpunit yet'"
-		],
-		"test-coverage": [
-			"echo 'no php'"
-		],
-		"test-php": [
-			"echo 'no php'"
-		],
 		"test-js": [
 			"echo 'no tests yet'"
 		]
