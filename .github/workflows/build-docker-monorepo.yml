@@ -87,6 +87,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          platform: linux/arm64,linux/amd64
           build-args: |
             PHP_VERSION=${{ steps.buildargs.outputs.php-version }}
             COMPOSER_VERSION=${{ steps.buildargs.outputs.composer-version }}
