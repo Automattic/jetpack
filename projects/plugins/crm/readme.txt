@@ -365,16 +365,17 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 ### [6.5.0] - 2025-01-10
 
 #### Removed
-- General: Remove unused legacy code. [#40267]
+- General: Remove unused legacy code.
 
 #### Changed
-- General: Update minimum WordPress version to 6.6. [#40146]
-- API: Allow sort order in endpoints. [#38838]
+- General: Update minimum WordPress version to 6.6.
+- API: Allow sort order in endpoints.
 
 #### Fixed
-- CRM: Fixed bug which caused duplicated queries to run. [#40711]
-- CRM: Fixed a fatal error that occurred when exporting contacts with a custom field that had the same name as a linked field (e.g., 'company'). [#38851]
-- Dashboard: Fixed an issue where the CRM contacts graph displayed incorrect values in some instances. [#38316]
-- Dashboard: Show correct avatar for recent activity. [#40280]
-- Invoices: Fixing bugs in the default PDF template and other fixes. Created a new template to maintain backwards compatibility [#40514]
-- Code: Ensure we use Jetpack Autoloader throughout the codebase. [#40061]
+- CRM: Fix bug which caused duplicated queries to run.
+- CRM: Fix a fatal error that occurred when exporting contacts with a custom field that had the same name as a linked field (e.g., 'company').
+- Dashboard: Fix an issue where the CRM contacts graph displayed incorrect values in some instances.
+- Dashboard: Show correct avatar for recent activity.
+- Invoices: Fix bugs in the default PDF template and other fixes. Created a new template to maintain backwards compatibility.
+- Code: Ensure we use Jetpack Autoloader throughout the codebase.
+- Migrations: Improve WP Playground compatibility.

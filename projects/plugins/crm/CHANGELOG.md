@@ -15,12 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - API: Allow sort order in endpoints. [#38838]
 
 ### Fixed
-- CRM: Fixed bug which caused duplicated queries to run. [#40711]
-- CRM: Fixed a fatal error that occurred when exporting contacts with a custom field that had the same name as a linked field (e.g., 'company'). [#38851]
-- Dashboard: Fixed an issue where the CRM contacts graph displayed incorrect values in some instances. [#38316]
+- CRM: Fix bug which caused duplicated queries to run. [#40711]
+- CRM: Fix a fatal error that occurred when exporting contacts with a custom field that had the same name as a linked field (e.g., 'company'). [#38851]
+- Dashboard: Fix an issue where the CRM contacts graph displayed incorrect values in some instances. [#38316]
 - Dashboard: Show correct avatar for recent activity. [#40280]
-- Invoices: Fixing bugs in the default PDF template and other fixes. Created a new template to maintain backwards compatibility [#40514]
+- Invoices: Fix bugs in the default PDF template and other fixes. Created a new template to maintain backwards compatibility. [#40514]
 - Code: Ensure we use Jetpack Autoloader throughout the codebase. [#40061]
+- Migrations: Improve WP Playground compatibility. [#39956]
 
 ## [6.4.4] - 2024-08-07
 ### Removed
