@@ -34,6 +34,7 @@ $args = array(
 	'searchPhrase' => $search_phrase,
 	'page'         => $pagination['page'],
 	'perPage'      => $pagination['per_page'],
+	'sortOrder'    => $pagination['order'],
 );
 
 global $zbs;
