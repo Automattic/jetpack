@@ -249,7 +249,7 @@ class JPCRM_Acceptance extends WPBrowser {
 	/**
 	 * Get the JetpackCRM table name
 	 *
-	 * @param $name
+	 * @param string $name
 	 * @return string
 	 */
 	public function table( $name ) {
@@ -265,8 +265,8 @@ class JPCRM_Acceptance extends WPBrowser {
 	/**
 	 * Load a page from it's core slug
 	 *
-	 * @param $page_slug
-	 * @param string    $query
+	 * @param string $page_slug
+	 * @param string $query
 	 */
 	public function goToPageViaSlug( $page_slug, $query = '' ) {
 		$this->amOnAdminPage( 'admin.php?page=' . $this->slugs[ $page_slug ] . $query );

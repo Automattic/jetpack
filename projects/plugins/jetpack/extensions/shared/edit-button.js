@@ -1,5 +1,11 @@
-import { Button } from '@wordpress/components';
+import { ToolbarButton } from '@wordpress/components';
 
 export default ( { label, onClick } ) => (
-	<Button className="components-toolbar__control" label={ label } icon="edit" onClick={ onClick } />
+	<ToolbarButton
+		className="components-toolbar__control"
+		onClick={ onClick }
+		icon="edit"
+		title={ label }
+		showTooltip
+	></ToolbarButton>
 );

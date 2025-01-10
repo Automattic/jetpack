@@ -11,14 +11,12 @@ Here is the current list of tasks handled by this action:
 - Check Description (`checkDescription`): Checks the contents of a PR description, and ensure it matches our recommendations.
 - Add Labels (`addLabels`): Adds labels to PRs that touch specific features.
 - Clean Labels (`cleanLabels`): Removes Status labels once a PR or issue has been closed or merged.
-- WordPress.com Commit Reminder (`wpcomCommitReminder`): Posts a comment on merged PRs to remind Automatticians to commit the matching WordPress.com change.
 - Notify Design (`notifyDesign`): Sends a Slack Notification to the Design team to request feedback, based on labels applied to a PR.
 - Notify Editorial (`notifyEditorial`): Sends a Slack Notification to the Editorial team to request feedback, based on labels applied to a PR.
 - Flag OSS (`flagOss`): flags entries by external contributors, adds an "OSS Citizen" label to the PR, and sends a Slack message.
 - Triage Issues (`triageIssues`): Adds labels to issues based on issue content, and send Slack notifications depending on Priority.
 - Gather support references (`gatherSupportReferences`): Adds a new comment with a list of all support references on the issue, and escalates that issue via a Slack message if needed.
 - Reply to customers Reminder ( `replyToCustomersReminder` ): sends a Slack message about closed issues to remind Automatticians to update customers.
-- Update Board (`updateBoard`): this task updates specific columns in a GitHub Project board, based on labels applied to an issue.
 
 Some of the tasks are may not satisfy your needs. If that's the case, you can use the `tasks` option to limit the action to the list of tasks you need in your repo. See the example below to find out more.
 
@@ -84,9 +82,10 @@ The action relies on the following parameters.
 - (Optional) `slack_he_triage_channel` is the Slack public channel ID where messages for the HE Triage team will be posted. The value should be stored in a secret.
 - (Optional) `slack_quality_channel` is the Slack public channel ID where issues needing extra triage / escalation will be sent. The value should be stored in a secret.
 - (Optional) `reply_to_customers_threshold`. It is optional, and defaults to 10. It is the minimum number of support references needed to trigger an alert that we need to reply to customers.
-- (Optional) `triage_projects_token` is a [personal access token](https://github.com/settings/tokens/new) with `repo` and `project` scopes. The token should be stored in a secret. This is required if you want to use the `updateBoard` task.
-- (Optional) `project_board_url` is the URL of a GitHub Project Board. We'll automate some of the work on that board in the `updateBoard` task.
-- (Optional) `labels_team_assignments` is a list of features you can provide, with matching team names, as specified in the "Team" field of your GitHub Project Board used for the `updateBoard` task, and lists of labels in use in your repository.
+- (Optional) `triage_projects_token` is a [personal access token](https://github.com/settings/tokens/new) with `repo` and `project` scopes. The token should be stored in a secret. This is required if you want to use the `triageIssues` task.
+- (Optional) `project_board_url` is the URL of a GitHub Project Board. We'll automate some of the work on that board in the `triageIssues` task.
+- (Optional) `labels_team_assignments` is a list of features you can provide, with matching team names, as specified in the "Team" field of your GitHub Project Board used for the `triageIssues` task, and lists of labels in use in your repository.
+- (Optional) `openai_api_key` is the API key for OpenAI. This is required if you want to use the `triageIssues` task to automatically add labels to your issues. **Note**: this option is only available for Automattic-hosted repositories.
 
 #### How to create a Slack bot and get your SLACK_TOKEN
 
@@ -105,7 +104,7 @@ To get the channel ID of the channel where you'd like to post, copy one of the m
 Certain tasks require filesystem access to the PR, which `pull_request_target` does not provide. To accommodate this, you'll need to include a step to check the PR out in a subdirectory, like
 
 ```yaml
-     - name: Checkout the PR
+     - name: Check out the PR
        if: github.event_name == 'pull_request_target'
        uses: actions/checkout@v4
        with:

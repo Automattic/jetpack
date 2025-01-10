@@ -37,7 +37,7 @@ class Test_WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WP_Test_Jetpack
 	 */
 	public function test_attachment_fields_videopress_get() {
 		$mock = $this->getMockBuilder( 'Automattic\Jetpack\VideoPress\WPCOM_REST_API_V2_Attachment_VideoPress_Field' )
-						->setMethods( array( 'get_videopress_guid' ) )
+						->onlyMethods( array( 'get_videopress_guid' ) )
 						->getMock();
 
 		$mock->expects( $this->once() )

@@ -3,7 +3,7 @@ import { PreflightTestStatus } from './constants';
 /**
  * Returns the current status of the preflight tests.
  * @param {object} state - State tree
- * @returns {Array} Preflight statuses
+ * @return {Array} Preflight statuses
  */
 export const getPreflightStatus = state => {
 	if ( ! state.jetpack.rewind.preflight.featureEnabled ) {
@@ -16,8 +16,8 @@ export const getPreflightStatus = state => {
 /**
  * Returns true if currently requesting preflight tests.
  *
- * @param   {object}  state - State tree
- * @returns {boolean} Whether preflight status is being requested
+ * @param {object} state - State tree
+ * @return {boolean} Whether preflight status is being requested
  */
 export function isFetchingPreflightStatus( state ) {
 	return state.jetpack.rewind.preflight.isFetching;
@@ -26,8 +26,8 @@ export function isFetchingPreflightStatus( state ) {
 /**
  * Returns true if preflight tests has loaded.
  *
- * @param   {object}  state - State tree
- * @returns {boolean} Whether preflight status has been loaded
+ * @param {object} state - State tree
+ * @return {boolean} Whether preflight status has been loaded
  */
 export function hasLoadedPreflightStatus( state ) {
 	return state.jetpack.rewind.preflight.hasLoaded;

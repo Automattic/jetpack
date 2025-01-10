@@ -297,16 +297,7 @@ abstract class Publicize_Base {
 	 * @return bool
 	 */
 	public function has_feature_flag( $flag_name, $feature_name ): bool {
-		// If the option is set, use it.
-		if ( get_option( 'jetpack_social_has_' . $flag_name, false ) ) {
-			return true;
-		}
-		// If the constant is set, use it.
-		if ( defined( 'JETPACK_SOCIAL_HAS_' . strtoupper( $flag_name ) ) && constant( 'JETPACK_SOCIAL_HAS_' . strtoupper( $flag_name ) ) ) {
-			return true;
-		}
-
-		return Current_Plan::supports( 'social-' . $feature_name );
+		return Publicize_Script_Data::has_feature_flag( $feature_name );
 	}
 
 	/**
@@ -506,8 +497,8 @@ abstract class Publicize_Base {
 			return 'https://instagram.com/' . $cmeta['connection_data']['meta']['username'];
 		}
 
-		if ( 'threads' === $service_name && isset( $connection['external_name'] ) ) {
-			return 'https://www.threads.net/@' . $connection['external_name'];
+		if ( 'threads' === $service_name && isset( $cmeta['external_name'] ) ) {
+			return 'https://www.threads.net/@' . $cmeta['external_name'];
 		}
 
 		if ( 'mastodon' === $service_name && isset( $cmeta['external_name'] ) ) {
@@ -526,13 +517,17 @@ abstract class Publicize_Base {
 			return 'https://twitter.com/' . substr( $cmeta['external_display'], 1 ); // Has a leading '@'.
 		}
 
+		if ( 'bluesky' === $service_name ) {
+			return 'https://bsky.app/profile/' . $cmeta['external_id'];
+		}
+
 		if ( 'linkedin' === $service_name ) {
 			if ( ! isset( $cmeta['connection_data']['meta']['profile_url'] ) ) {
 				return false;
 			}
 
 			$profile_url_query      = wp_parse_url( $cmeta['connection_data']['meta']['profile_url'], PHP_URL_QUERY );
-			$profile_url_query_args = null;
+			$profile_url_query_args = array();
 			wp_parse_str( $profile_url_query, $profile_url_query_args );
 
 			$id = null;
@@ -594,17 +589,35 @@ abstract class Publicize_Base {
 	 * @return string
 	 */
 	public function get_username( $service_name, $connection ) {
+		$handle = $this->get_external_handle( $service_name, $connection );
+
+		return $handle ?? $this->get_display_name( $service_name, $connection );
+	}
+
+	/**
+	 * Returns the external handle for the Connection.
+	 *
+	 * @param string       $service_name 'facebook', 'linkedin', etc.
+	 * @param object|array $connection The Connection object (WordPress.com) or array (Jetpack).
+	 * @return string|null
+	 */
+	public function get_external_handle( $service_name, $connection ) {
 		$cmeta = $this->get_connection_meta( $connection );
 
-		if ( 'mastodon' === $service_name && isset( $cmeta['external_display'] ) ) {
-			return $cmeta['external_display'];
-		}
+		switch ( $service_name ) {
+			case 'mastodon':
+				return $cmeta['external_display'] ?? null;
 
-		if ( isset( $cmeta['connection_data']['meta']['username'] ) ) {
-			return $cmeta['connection_data']['meta']['username'];
-		}
+			case 'bluesky':
+			case 'threads':
+				return $cmeta['external_name'] ?? null;
 
-		return $this->get_display_name( $service_name, $connection );
+			case 'instagram-business':
+				return $cmeta['connection_data']['meta']['username'] ?? null;
+
+			default:
+				return null;
+		}
 	}
 
 	/**
@@ -613,7 +626,7 @@ abstract class Publicize_Base {
 	 * @param object|array $connection The Connection object (WordPress.com) or array (Jetpack).
 	 * @return string
 	 */
-	private function get_profile_picture( $connection ) {
+	public function get_profile_picture( $connection ) {
 		$cmeta = $this->get_connection_meta( $connection );
 
 		if ( isset( $cmeta['profile_picture'] ) ) {
@@ -881,6 +894,7 @@ abstract class Publicize_Base {
 			$post_id = null;
 		}
 
+		// TODO Get these services->connections from the cache populated from the REST API.
 		$services = $this->get_services( 'connected' );
 		$all_done = $this->post_is_done_sharing( $post_id );
 
@@ -989,19 +1003,27 @@ abstract class Publicize_Base {
 				}
 
 				$connection_list[] = array(
+					// REST Meta fields.
+					'connection_id'   => $connection_id,
+					'display_name'    => $this->get_display_name( $service_name, $connection ),
+					'enabled'         => $enabled,
+					'external_handle' => $this->get_external_handle( $service_name, $connection ),
+					'external_id'     => $connection_meta['external_id'] ?? '',
+					'profile_link'    => (string) $this->get_profile_link( $service_name, $connection ),
+					'profile_picture' => (string) $this->get_profile_picture( $connection ),
+					'service_label'   => static::get_service_label( $service_name ),
+					'service_name'    => $service_name,
+					'shared'          => ! $connection_data['user_id'],
+					'status'          => null,
+					'user_id'         => (int) $connection_data['user_id'],
+
+					// Deprecated fields.
 					'id'              => $connection_id,
 					'unique_id'       => $unique_id,
-					'service_name'    => $service_name,
-					'service_label'   => static::get_service_label( $service_name ),
-					'display_name'    => $this->get_display_name( $service_name, $connection ),
 					'username'        => $this->get_username( $service_name, $connection ),
-					'profile_picture' => $this->get_profile_picture( $connection ),
-					'enabled'         => $enabled,
 					'done'            => $done,
 					'toggleable'      => $toggleable,
 					'global'          => 0 == $connection_data['user_id'], // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,WordPress.PHP.StrictComparisons.LooseComparison -- Other types can be used at times.
-					'external_id'     => $connection_meta['external_id'] ?? '',
-					'user_id'         => $connection_data['user_id'],
 				);
 			}
 		}
@@ -2028,6 +2050,8 @@ abstract class Publicize_Base {
 	/**
 	 * Check if the auto-conversion feature is one of the active features.
 	 *
+	 * TODO: Remove this after certain releases of Jetpack v15.
+	 *
 	 * @param string $type Whether image or video.
 	 *
 	 * @return bool
@@ -2139,95 +2163,6 @@ abstract class Publicize_Base {
 	 */
 	public static function can_manage_connection( $connection_data ) {
 		return current_user_can( 'edit_others_posts' ) || get_current_user_id() === (int) $connection_data['user_id'];
-	}
-
-	/**
-	 * Display a Fediverse actor Open Graph tag when the post author has a Mastodon connection.
-	 *
-	 * @see https://blog.joinmastodon.org/2024/07/highlighting-journalism-on-mastodon/
-	 *
-	 * @param array $tags Current tags.
-	 *
-	 * @return array
-	 */
-	public function add_fediverse_creator_open_graph_tag( $tags ) {
-		global $post;
-
-		if (
-			! is_singular()
-			|| ! $post instanceof WP_Post
-			|| ! isset( $post->ID )
-			|| empty( $post->post_author )
-		) {
-			return $tags;
-		}
-
-		$post_mastodon_connections = array();
-
-		// Loop through active connections.
-		foreach ( (array) $this->get_services( 'connected' ) as $service_name => $connections ) {
-			if ( 'mastodon' !== $service_name ) {
-				continue;
-			}
-
-			// services can have multiple connections. Store them all in our array.
-			foreach ( $connections as $connection ) {
-				$connection_id   = $this->get_connection_id( $connection );
-				$mastodon_handle = $connection['external_display'] ?? '';
-
-				if ( empty( $mastodon_handle ) ) {
-					continue;
-				}
-
-				// Did we skip this connection for this post?
-				if ( get_post_meta( $post->ID, $this->POST_SKIP_PUBLICIZE . $connection_id, true ) ) {
-					continue;
-				}
-
-				$post_mastodon_connections[] = array(
-					'user_id'       => (int) $connection['user_id'],
-					'connection_id' => (int) $connection_id,
-					'handle'        => $mastodon_handle,
-					'global'        => $this->is_global_connection( $connection ),
-				);
-			}
-		}
-
-		// If we have no Mastodon connections, skip.
-		if ( empty( $post_mastodon_connections ) ) {
-			return $tags;
-		}
-
-		/*
-		 * Select a single Mastodon connection to use.
-		 * It should be either the first connection belonging to the post author,
-		 * or the first global connection.
-		 */
-		foreach ( $post_mastodon_connections as $mastodon_connection ) {
-			if ( $post->post_author === $mastodon_connection['user_id'] ) {
-				$tags['fediverse:creator'] = esc_attr( $mastodon_connection['handle'] );
-				break;
-			}
-
-			if ( $mastodon_connection['global'] ) {
-				$tags['fediverse:creator'] = esc_attr( $mastodon_connection['handle'] );
-				break;
-			}
-		}
-
-		return $tags;
-	}
-
-	/**
-	 * Update the markup for the Open Graph tag to match the expected output for Mastodon
-	 * (name instead of property).
-	 *
-	 * @param string $og_tag A single OG tag.
-	 *
-	 * @return string Result of the OG tag.
-	 */
-	public static function filter_fediverse_cards_output( $og_tag ) {
-		return ( str_contains( $og_tag, 'fediverse:' ) ) ? preg_replace( '/property="([^"]+)"/', 'name="\1"', $og_tag ) : $og_tag;
 	}
 }
 

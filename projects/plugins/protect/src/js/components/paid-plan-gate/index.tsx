@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import useProtectData from '../../hooks/use-protect-data';
+import usePlan from '../../hooks/use-plan';
 
 /**
  * Paid Plan Gate
@@ -10,7 +10,7 @@ import useProtectData from '../../hooks/use-protect-data';
  * @param {JSX.Element} props.children - The component to render if the user has a paid plan.
  * @param {string}      props.redirect - The alternate route to redirect to if the user does not have a paid plan.
  *
- * @returns {JSX.Element} The PaidPlanRoute component.
+ * @return {JSX.Element} The PaidPlanRoute component.
  */
 export default function PaidPlanGate( {
 	children,
@@ -19,9 +19,9 @@ export default function PaidPlanGate( {
 	children?: JSX.Element;
 	redirect?: string;
 } ): JSX.Element {
-	const { hasRequiredPlan } = useProtectData();
+	const { hasPlan } = usePlan();
 
-	if ( ! hasRequiredPlan ) {
+	if ( ! hasPlan ) {
 		return <Navigate to={ redirect } replace />;
 	}
 

@@ -1,8 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import QuerySite from 'components/data/query-site';
 import React from 'react';
 import { connect } from 'react-redux';
+import QuerySite from 'components/data/query-site';
 import {
 	isSiteConnected,
 	isOfflineMode,
@@ -47,6 +47,10 @@ export class Traffic extends React.Component {
 			siteUsesWpAdminInterface: this.props.siteUsesWpAdminInterface,
 		};
 
+		if ( ! this.props.searchTerm && ! this.props.active ) {
+			return null;
+		}
+
 		const foundSeo = this.props.isModuleFound( 'seo-tools' ),
 			foundStats = this.props.isModuleFound( 'stats' ),
 			foundShortlinks = this.props.isModuleFound( 'shortlinks' ),
@@ -55,10 +59,6 @@ export class Traffic extends React.Component {
 			foundSitemaps = this.props.isModuleFound( 'sitemaps' ),
 			foundAnalytics = this.props.isWoASite,
 			foundBlaze = this.props.isModuleFound( 'blaze' );
-
-		if ( ! this.props.searchTerm && ! this.props.active ) {
-			return null;
-		}
 
 		if (
 			! foundSeo &&

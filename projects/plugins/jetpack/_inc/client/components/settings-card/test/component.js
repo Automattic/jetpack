@@ -40,7 +40,6 @@ describe( 'SettingsCard', () => {
 			'markdown',
 			'infinite-scroll',
 			'gravatar-hovercards',
-			'custom-css',
 			'sharedaddy',
 			'widgets',
 			'shortcodes',
@@ -151,7 +150,6 @@ describe( 'SettingsCard', () => {
 					<Child />
 				</SettingsCard>
 			);
-			// eslint-disable-next-line jest-dom/prefer-in-document -- No, we really want to assert there's exactly 1.
 			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 1 );
 		} );
 	} );

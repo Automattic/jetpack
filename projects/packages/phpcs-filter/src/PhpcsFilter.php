@@ -88,7 +88,7 @@ class PhpcsFilter extends Filter {
 	 * @param PhpcsFilter|null         $copyFrom Used from getChildren().
 	 * @throws DeepExitException On error.
 	 */
-	public function __construct( $iterator, $basedir, Config $config, Ruleset $ruleset, PhpcsFilter $copyFrom = null ) {
+	public function __construct( $iterator, $basedir, Config $config, Ruleset $ruleset, ?PhpcsFilter $copyFrom = null ) {
 		parent::__construct( $iterator, $basedir, $config, $ruleset );
 
 		if ( $copyFrom ) {

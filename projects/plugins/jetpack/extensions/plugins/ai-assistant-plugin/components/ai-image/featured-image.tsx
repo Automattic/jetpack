@@ -1,11 +1,14 @@
 /**
  * External dependencies
  */
+import { ImageStyle } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
@@ -27,6 +30,10 @@ import {
 	IMAGE_GENERATION_MODEL_DALL_E_3,
 	PLACEMENT_MEDIA_SOURCE_DROPDOWN,
 } from './types';
+import type { ImageResponse } from './hooks/use-ai-image';
+import type { EditorSelectors } from './types';
+
+const debug = debugFactory( 'jetpack-ai:featured-image' );
 
 export default function FeaturedImage( {
 	busy,
@@ -44,9 +51,21 @@ export default function FeaturedImage( {
 	);
 	const siteType = useSiteType();
 	const postContent = usePostContent();
+	const { postTitle, postFeaturedMediaId, isEditorPanelOpened } = useSelect( select => {
+		return {
+			postTitle: select( editorStore ).getEditedPostAttribute( 'title' ),
+			postFeaturedMediaId: select( editorStore ).getEditedPostAttribute( 'featured_media' ),
+			isEditorPanelOpened:
+				select( editorStore ).isEditorPanelOpened ??
+				( select( 'core/edit-post' ) as EditorSelectors ).isEditorPanelOpened,
+		};
+	}, [] );
+
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
+	const [ requestStyle, setRequestStyle ] = useState< ImageStyle >( null );
+	const [ prompt, setPrompt ] = useState( '' );
 
 	// Editor actions
 	const { enableComplementaryArea } = useDispatch( 'core/interface' );
@@ -54,7 +73,7 @@ export default function FeaturedImage( {
 	const { toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditPost } =
 		useDispatch( 'core/edit-post' );
 	const { editPost, toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditor } =
-		useDispatch( 'core/editor' );
+		useDispatch( editorStore );
 
 	// Get feature data
 	const { requireUpgrade, requestsCount, requestsLimit, currentTier, costs } = useAiFeature();
@@ -72,14 +91,6 @@ export default function FeaturedImage( {
 	// https://github.com/WordPress/gutenberg/blob/fe4d8cb936df52945c01c1863f7b87b58b7cc69f/packages/edit-post/CHANGELOG.md?plain=1#L19
 	const toggleEditorPanelOpened =
 		toggleEditorPanelOpenedFromEditor ?? toggleEditorPanelOpenedFromEditPost;
-	const isEditorPanelOpened = useSelect( select => {
-		const isOpened =
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			( select( 'core/editor' ) as any ).isEditorPanelOpened ??
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			( select( 'core/edit-post' ) as any ).isEditorPanelOpened;
-		return isOpened;
-	}, [] );
 
 	const {
 		pointer,
@@ -91,11 +102,14 @@ export default function FeaturedImage( {
 		currentImage,
 		currentPointer,
 		images,
+		imageStyles,
+		guessStyle,
 	} = useAiImage( {
 		autoStart: false,
 		cost: featuredImageCost,
 		type: 'featured-image-generation',
 		feature: FEATURED_IMAGE_FEATURE_NAME,
+		previousMediaId: postFeaturedMediaId,
 	} );
 
 	const handleModalClose = useCallback( () => {
@@ -107,22 +121,47 @@ export default function FeaturedImage( {
 		setIsFeaturedImageModalVisible( true );
 	}, [] );
 
+	/**
+	 * Handle the guess style for the image. It is reworked here to include the post content.
+	 */
+	const handleGuessStyle = useCallback(
+		userPrompt => {
+			const content = postTitle + '\n\n' + postContent;
+			return guessStyle( userPrompt, 'featured-image-guess-style', content );
+		},
+		[ postContent, postTitle, guessStyle ]
+	);
+
 	const handleGenerate = useCallback(
-		( { userPrompt }: { userPrompt?: string } ) => {
+		( {
+			userPrompt,
+			style,
+		}: {
+			userPrompt?: string;
+			style?: string;
+		} ): Promise< void | ImageResponse > => {
 			// track the generate image event
 			recordEvent( 'jetpack_ai_featured_image_generation_generate_image', {
 				placement,
 				model: featuredImageActiveModel,
 				site_type: siteType,
+				style,
+				userPrompt,
 			} );
 
 			setIsFeaturedImageModalVisible( true );
-			processImageGeneration( { userPrompt, postContent, notEnoughRequests } ).catch( error => {
+			return processImageGeneration( {
+				userPrompt,
+				postContent: postTitle + '\n\n' + postContent,
+				notEnoughRequests,
+				style,
+			} ).catch( error => {
 				recordEvent( 'jetpack_ai_featured_image_generation_error', {
 					placement,
 					error: error?.message,
 					model: featuredImageActiveModel,
 					site_type: siteType,
+					style,
 				} );
 			} );
 		},
@@ -134,25 +173,46 @@ export default function FeaturedImage( {
 			processImageGeneration,
 			postContent,
 			notEnoughRequests,
+			postTitle,
 		]
 	);
 
+	const handleFirstGenerate = useCallback( async () => {
+		currentPointer.generating = true;
+		const guessedStyle = await handleGuessStyle( '' );
+		setRequestStyle( guessedStyle );
+
+		const response = await handleGenerate( { userPrompt: '', style: guessedStyle } );
+		if ( response ) {
+			debug( 'handleFirstGenerate', response.revisedPrompt );
+			setPrompt( response.revisedPrompt );
+		}
+	}, [ currentPointer, handleGenerate, handleGuessStyle ] );
+
 	const handleRegenerate = useCallback(
-		( { userPrompt }: { userPrompt?: string } ) => {
+		( { userPrompt, style }: { userPrompt?: string; style?: string } ) => {
 			// track the regenerate image event
 			recordEvent( 'jetpack_ai_featured_image_generation_generate_another_image', {
 				placement,
 				model: featuredImageActiveModel,
 				site_type: siteType,
+				style: style,
 			} );
 
-			setCurrent( crrt => crrt + 1 );
-			processImageGeneration( { userPrompt, postContent, notEnoughRequests } ).catch( error => {
+			setCurrent( () => images.length );
+			processImageGeneration( {
+				userPrompt,
+				postContent: postTitle + '\n\n' + postContent,
+				notEnoughRequests,
+				style,
+			} ).catch( error => {
 				recordEvent( 'jetpack_ai_featured_image_generation_error', {
 					placement,
 					error: error?.message,
 					model: featuredImageActiveModel,
 					site_type: siteType,
+					style,
+					userPrompt,
 				} );
 			} );
 		},
@@ -161,28 +221,37 @@ export default function FeaturedImage( {
 			placement,
 			featuredImageActiveModel,
 			siteType,
+			setCurrent,
 			processImageGeneration,
+			postTitle,
 			postContent,
 			notEnoughRequests,
-			setCurrent,
+			images,
 		]
 	);
 
 	const handleTryAgain = useCallback(
-		( { userPrompt }: { userPrompt?: string } ) => {
+		( { userPrompt, style }: { userPrompt?: string; style?: string } ) => {
 			// track the try again event
 			recordEvent( 'jetpack_ai_featured_image_generation_try_again', {
 				placement,
 				model: featuredImageActiveModel,
 				site_type: siteType,
+				style,
 			} );
 
-			processImageGeneration( { userPrompt, postContent, notEnoughRequests } ).catch( error => {
+			processImageGeneration( {
+				userPrompt,
+				postContent: postTitle + '\n\n' + postContent,
+				notEnoughRequests,
+				style,
+			} ).catch( error => {
 				recordEvent( 'jetpack_ai_featured_image_generation_error', {
 					placement,
 					error: error?.message,
 					model: featuredImageActiveModel,
 					site_type: siteType,
+					style,
 				} );
 			} );
 		},
@@ -194,6 +263,7 @@ export default function FeaturedImage( {
 			processImageGeneration,
 			postContent,
 			notEnoughRequests,
+			postTitle,
 		]
 	);
 
@@ -269,6 +339,11 @@ export default function FeaturedImage( {
 	const generateAgainText = __( 'Generate another image', 'jetpack' );
 	const generateText = __( 'Generate', 'jetpack' );
 
+	const hasContent = postContent.trim?.() || postTitle.trim?.() ? true : false;
+	const hasPrompt = hasContent ? prompt.length >= 0 : prompt.length >= 3;
+	const disableInput = notEnoughRequests || currentPointer?.generating || requireUpgrade;
+	const disableAction = disableInput || ( ! hasContent && ! hasPrompt );
+
 	const upgradeDescription = notEnoughRequests
 		? sprintf(
 				// Translators: %d is the cost of generating a featured image.
@@ -284,7 +359,11 @@ export default function FeaturedImage( {
 		<Button
 			onClick={ handleAccept }
 			variant="primary"
-			disabled={ ! currentImage?.image || currentImage?.generating }
+			disabled={
+				! currentImage?.image ||
+				currentImage?.generating ||
+				currentImage?.libraryId === postFeaturedMediaId
+			}
 		>
 			{ __( 'Set as featured image', 'jetpack' ) }
 		</Button>
@@ -307,9 +386,9 @@ export default function FeaturedImage( {
 				</>
 			) }
 			<AiImageModal
-				postContent={ postContent }
-				autoStart={ postContent !== '' }
-				autoStartAction={ handleGenerate }
+				postContent={ hasContent }
+				autoStart={ hasContent && ! postFeaturedMediaId }
+				autoStartAction={ handleFirstGenerate }
 				images={ images }
 				currentIndex={ current }
 				title={ __( 'Generate a featured image with AI', 'jetpack' ) }
@@ -318,7 +397,9 @@ export default function FeaturedImage( {
 				placement={ placement }
 				onClose={ handleModalClose }
 				onTryAgain={ handleTryAgain }
-				onGenerate={ pointer?.current > 0 ? handleRegenerate : handleGenerate }
+				onGenerate={
+					pointer?.current > 0 || postFeaturedMediaId ? handleRegenerate : handleGenerate
+				}
 				generating={ currentPointer?.generating }
 				notEnoughRequests={ notEnoughRequests }
 				requireUpgrade={ requireUpgrade }
@@ -332,9 +413,16 @@ export default function FeaturedImage( {
 				acceptButton={ acceptButton }
 				generateButtonLabel={ pointer?.current > 0 ? generateAgainText : generateText }
 				instructionsPlaceholder={ __(
-					"Describe the image you'd like to create, or have the prompt written for you if you've added content to your post.",
+					"Describe the featured image you'd like to create and select a style.",
 					'jetpack'
 				) }
+				imageStyles={ imageStyles }
+				onGuessStyle={ handleGuessStyle }
+				prompt={ prompt }
+				setPrompt={ setPrompt }
+				initialStyle={ requestStyle }
+				inputDisabled={ disableInput }
+				actionDisabled={ disableAction }
 			/>
 		</>
 	);

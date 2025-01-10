@@ -1,21 +1,21 @@
 /**
  * External dependencies
  */
-import { useLocation, useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 type SearchParamNameProp = 'page' | 'q';
 
 export const useSearchParams = () => {
 	const location = useLocation();
-	const history = useHistory();
+	const navigate = useNavigate();
 	const searchParams = new URLSearchParams( location.search );
 
 	/**
 	 * Gets a given parameter from the search query.
 	 *
 	 * @param {SearchParamNameProp} parameterName - The name of the parameter to get from the query string.
-	 * @param {string} defaultValue               - The default value to return if the given parameter is not set on the query string.
-	 * @returns {string|null}                       The value of the parameter if it's set. The defaultValue if the parameter is not set.
+	 * @param {string}              defaultValue  - The default value to return if the given parameter is not set on the query string.
+	 * @return {string|null}                       The value of the parameter if it's set. The defaultValue if the parameter is not set.
 	 */
 	const getParam = ( parameterName: SearchParamNameProp, defaultValue: string = null ): string => {
 		return searchParams.has( parameterName ) ? searchParams.get( parameterName ) : defaultValue;
@@ -25,7 +25,7 @@ export const useSearchParams = () => {
 	 * Sets a given parameter on the search query data, but does not refresh the URL.
 	 *
 	 * @param {SearchParamNameProp} parameterName - The name of the parameter to set on the query string.
-	 * @param {string} value                      - The value to be set for the parameter on the query string.
+	 * @param {string}              value         - The value to be set for the parameter on the query string.
 	 */
 	const setParam = ( parameterName: SearchParamNameProp, value: string = null ) => {
 		searchParams.set( parameterName, value );
@@ -46,8 +46,8 @@ export const useSearchParams = () => {
 	 */
 	const update = () => {
 		const searchFragment = '?' + searchParams.toString();
-		if ( searchFragment !== history.location.search ) {
-			history.push( {
+		if ( searchFragment !== location.search ) {
+			navigate( {
 				search: searchFragment,
 			} );
 		}
@@ -57,11 +57,14 @@ export const useSearchParams = () => {
 	 * Force an empty query string.
 	 */
 	const reset = () => {
-		if ( '' !== history.location.search ) {
-			history.replace( {
-				pathname: history.location.pathname,
-				search: '',
-			} );
+		if ( '' !== location.search ) {
+			navigate(
+				{
+					pathname: location.pathname,
+					search: '',
+				},
+				{ replace: true }
+			);
 		}
 	};
 

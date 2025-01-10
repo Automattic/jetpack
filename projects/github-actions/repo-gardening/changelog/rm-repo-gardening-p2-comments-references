@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Support references: stop gathering p2 comments in list of support references.

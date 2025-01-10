@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.1.0",
+		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
@@ -16,6 +16,9 @@
 	"scripts": {
 		"test-js": [
 			"pnpm run test"
+		],
+		"test-coverage": [
+			"pnpm run test-coverage"
 		]
 	},
 	"repositories": [
@@ -31,6 +34,7 @@
 	"prefer-stable": true,
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-publicize-components",
+		"textdomain": "jetpack-publicize-components",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-publicize-components/compare/v${old}...v${new}"
 		},

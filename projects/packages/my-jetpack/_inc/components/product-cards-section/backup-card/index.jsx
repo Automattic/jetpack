@@ -1,4 +1,4 @@
-import { numberFormat, Text, getRedirectUrl } from '@automattic/jetpack-components';
+import { Text, getRedirectUrl } from '@automattic/jetpack-components';
 import { VisuallyHidden } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -17,7 +17,10 @@ import useProduct from '../../../data/products/use-product';
 import useSimpleQuery from '../../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
+import { useGetReadableFailedBackupReason } from '../../../hooks/use-notification-watcher/use-get-readable-failed-backup-reason';
+import numberFormat from '../../../utils/format-number';
 import ProductCard from '../../connected-product-card';
+import { InfoTooltip } from '../../info-tooltip';
 import styles from './style.module.scss';
 
 const productSlug = PRODUCT_SLUGS.BACKUP;
@@ -127,12 +130,58 @@ const getTimeSinceLastRenewableEvent = lastRewindableEventTime => {
 const BackupCard = props => {
 	const { detail } = useProduct( productSlug );
 	const { status } = detail;
+	const { backup_failure: backupFailure } =
+		getMyJetpackWindowInitialState( 'redBubbleAlerts' ) || {};
+	const { status: lastBackupStatus } = backupFailure || {};
 	const hasBackups = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
+	const noDescription = () => null;
 
-	return hasBackups ? (
-		<WithBackupsValueSection slug={ productSlug } { ...props } />
-	) : (
-		<ProductCard slug={ productSlug } { ...props } />
+	const { title: errorTitle, text: errorDescription } = useGetReadableFailedBackupReason() || {};
+
+	if ( hasBackups ) {
+		return <WithBackupsValueSection slug={ productSlug } { ...props } />;
+	}
+
+	return (
+		// eslint-disable-next-line react/jsx-no-bind
+		<ProductCard slug={ productSlug } Description={ noDescription } { ...props }>
+			{ status === PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR && backupFailure && (
+				<div className={ styles.backupErrorContainer }>
+					<div className={ styles.iconContainer }>
+						<Gridicon icon="notice" size={ 16 } className={ styles.iconError } />
+					</div>
+					<div className={ styles.contentContainer }>
+						<Text variant="body-small" className="value-section__heading">
+							{ __( 'The last backup attempt failed.', 'jetpack-my-jetpack' ) }
+							<InfoTooltip
+								tracksEventName={ 'backup_card_tooltip_open' }
+								tracksEventProps={ {
+									location: 'backup-error',
+									status: status,
+									backup_status: lastBackupStatus,
+									feature: 'jetpack-backup',
+								} }
+								expandOnMobile={ true }
+							>
+								<>
+									<h3>{ errorTitle }</h3>
+									<p>{ errorDescription }</p>
+									<p>
+										{ __(
+											'Check out our troubleshooting guide or contact your hosting provider to resolve the issue.',
+											'jetpack-my-jetpack'
+										) }
+									</p>
+								</>
+							</InfoTooltip>
+						</Text>
+						<Text variant="body-small" className={ styles.error_description }>
+							{ __( 'Check out our troubleshooting guide.', 'jetpack-my-jetpack' ) }
+						</Text>
+					</div>
+				</div>
+			) }
+		</ProductCard>
 	);
 };
 
@@ -228,13 +277,10 @@ const NoBackupsValueSection = props => {
 		return data;
 	}, [ backupStats ] );
 
-	const shortenedNumberConfig = { maximumFractionDigits: 1, notation: 'compact' };
-
 	return (
 		<ProductCard { ...props } showMenu isDataLoading={ isLoading }>
 			<div className={ styles[ 'no-backup-stats' ] }>
 				{ /* role="list" is required for VoiceOver on Safari */ }
-				{ /* eslint-disable-next-line jsx-a11y/no-redundant-roles */ }
 				<ul className={ styles[ 'main-stats' ] } role="list">
 					{ sortedStats.map( ( item, i ) => {
 						const itemSlug = item[ 0 ].split( '_' )[ 1 ];
@@ -248,7 +294,7 @@ const NoBackupsValueSection = props => {
 								<>
 									<span className={ clsx( styles[ 'visual-stat' ] ) } aria-hidden="true">
 										{ getIcon( itemSlug ) }
-										<span>{ numberFormat( value, shortenedNumberConfig ) }</span>
+										<span>{ numberFormat( value ) }</span>
 									</span>
 									<VisuallyHidden>{ getStatRenderFn( itemSlug )( value ) }</VisuallyHidden>
 								</>
@@ -262,7 +308,7 @@ const NoBackupsValueSection = props => {
 };
 
 BackupCard.propTypes = {
-	admin: PropTypes.bool.isRequired,
+	admin: PropTypes.bool,
 };
 
 NoBackupsValueSection.propTypes = {

@@ -23,7 +23,7 @@ type ConnectBannerProps = {
  * Connect Banner component
  *
  * @param {ConnectBannerProps} props - component props
- * @returns {React.ReactElement}       Connect banner component.
+ * @return {React.ReactElement}       Connect banner component.
  */
 export default function ConnectBanner( {
 	onConnect,
@@ -31,13 +31,20 @@ export default function ConnectBanner( {
 	isConnected,
 	isConnecting,
 }: ConnectBannerProps ): React.ReactElement {
-	if ( isConnected ) {
+	if ( isConnected && isModuleActive ) {
 		return null;
 	}
 
-	let connectButtonText = __( 'Connect', 'jetpack-videopress-pkg' );
+	const needsActivation = isConnected && ! isModuleActive;
+
+	let connectButtonText = __( 'Connect Jetpack', 'jetpack-videopress-pkg' );
 	if ( isConnecting ) {
 		connectButtonText = __( 'Redirecting…', 'jetpack-videopress-pkg' );
+	}
+
+	let activateButtonText = __( 'Activate VideoPress', 'jetpack-videopress-pkg' );
+	if ( isConnecting ) {
+		activateButtonText = __( 'Activating…', 'jetpack-videopress-pkg' );
 	}
 
 	const connectYourAccountMessage = __(
@@ -58,11 +65,12 @@ export default function ConnectBanner( {
 					disabled={ isConnecting }
 					isBusy={ isConnecting }
 				>
-					{ connectButtonText }
+					{ needsActivation ? activateButtonText : connectButtonText }
 				</Button>
 			}
+			icon={ '' }
 		>
-			{ isModuleActive ? connectYourAccountMessage : connectJetpackModuleMessage }
+			{ needsActivation ? connectJetpackModuleMessage : connectYourAccountMessage }
 		</Banner>
 	);
 }

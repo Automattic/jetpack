@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Classic Widget: update assets' enqueuing strategy to ensure compatibility with the Elementor plugin.

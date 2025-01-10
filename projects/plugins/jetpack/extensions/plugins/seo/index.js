@@ -28,9 +28,6 @@ const Seo = () => {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'seo-tools' );
 
-	const requiredPlan = getRequiredPlan( 'advanced-seo' );
-	const canShowUpsell = isAtomicSite() || isSimpleSite();
-
 	const isViewable = useSelect( select => {
 		const postTypeName = select( editorStore ).getCurrentPostType();
 		const postTypeObject = select( coreStore ).getPostType( postTypeName );
@@ -41,6 +38,9 @@ const Seo = () => {
 	if ( ! isViewable ) {
 		return null;
 	}
+
+	const requiredPlan = getRequiredPlan( 'advanced-seo' );
+	const canShowUpsell = isAtomicSite() || isSimpleSite();
 
 	const jetpackSeoPanelProps = {
 		title: __( 'SEO', 'jetpack' ),

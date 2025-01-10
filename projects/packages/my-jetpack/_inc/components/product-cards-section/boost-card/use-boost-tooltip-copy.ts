@@ -5,10 +5,10 @@ import type { ReactElement } from 'react';
 /**
  * Gets the translated tooltip copy based on the Boost letter grade and other factors.
  *
- * @param {object} props - React props
- * @param {string} props.speedLetterGrade - The Boost score letter grade.
+ * @param {object}      props                    - React props
+ * @param {string}      props.speedLetterGrade   - The Boost score letter grade.
  * @param {number|null} props.boostScoreIncrease - The number of points the score increased.
- * @returns {ReactElement | string} A translated JSX Element or string.
+ * @return {ReactElement | string} A translated JSX Element or string.
  */
 export function useBoostTooltipCopy( {
 	speedLetterGrade,

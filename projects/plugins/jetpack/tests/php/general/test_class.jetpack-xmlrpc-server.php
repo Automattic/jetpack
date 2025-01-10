@@ -105,38 +105,12 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test remote_provision filter is working and adding the onboarding token.
-	 */
-	public function test_remote_provision_onboarding_filter() {
-		$request  = array(
-			'local_user' => 1,
-			'onboarding' => 1,
-		);
-		$response = ( new Jetpack_XMLRPC_Server() )->remote_provision( $request );
-
-		$this->assertArrayHasKey( 'onboarding_token', $response, 'onboard_token should be present in the response.' );
-		$this->assertNotEmpty( $response['onboarding_token'], 'onboard_token should not be empty.' );
-	}
-
-	/**
-	 * Test remote_provision filter is not adding onboard_token when it is not supposed to
-	 */
-	public function test_remote_provision_onboarding_filter_unchanged() {
-		$request  = array(
-			'local_user' => 1,
-		);
-		$response = ( new Jetpack_XMLRPC_Server() )->remote_provision( $request );
-
-		$this->assertArrayNotHasKey( 'onboarding_token', $response, 'onboard_token should not be present in the response.' );
-	}
-
-	/**
 	 * Asserts that the jetpack_remote_connect_end is properly hooked
 	 */
 	public function test_remote_connect_hook() {
 
 		$xml = $this->getMockBuilder( 'Jetpack_IXR_Client' )
-			->setMethods(
+			->onlyMethods(
 				array(
 					'query',
 					'isError',

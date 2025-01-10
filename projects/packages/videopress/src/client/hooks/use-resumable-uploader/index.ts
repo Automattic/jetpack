@@ -13,7 +13,6 @@ import type React from 'react';
 
 const debug = debugFactory( 'videopress:use-resumable-uploader' );
 
-// eslint-disable-next-line no-shadow
 type UploadingStatusProp = 'idle' | 'resumed' | 'aborted' | 'uploading' | 'done' | 'error';
 
 type UploadingDataProps = {
@@ -53,7 +52,7 @@ const useResumableUploader = ( { onProgress, onSuccess, onError } ): UseResumabl
 	 * Upload a file
 	 *
 	 * @param {File} file - the file to upload
-	 * @returns {*} ???
+	 * @return {*} ???
 	 */
 	async function uploadHandler( file: File ) {
 		const tokenData = await getMediaToken( 'upload-jwt' );

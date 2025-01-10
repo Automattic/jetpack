@@ -10,12 +10,12 @@ const conf = new Configstore( 'automattic/jetpack-cli' );
  * Checks if a GitHub repo exists.
  *
  * @param {string} name - Repo name to check.
- * @param {string} org - Github Organization. Defaults to Automattic.
- * @returns {boolean} If repo exists or not.
+ * @param {string} org  - Github Organization. Defaults to Automattic.
+ * @return {boolean} If repo exists or not.
  */
 export async function doesRepoExist( name, org = 'Automattic' ) {
 	let forceToken = false;
-	// eslint-disable-next-line no-constant-condition
+
 	while ( true ) {
 		try {
 			const auth = await getAuthToken( forceToken );
@@ -40,7 +40,7 @@ export async function doesRepoExist( name, org = 'Automattic' ) {
  * Authenticate with GitHub.
  *
  * @param {boolean} force - Force querying for an auth token.
- * @returns {object} GitHub auth object.
+ * @return {object} GitHub auth object.
  */
 async function getAuthToken( force ) {
 	if ( ! force && process.env.MB_TOKEN ) {

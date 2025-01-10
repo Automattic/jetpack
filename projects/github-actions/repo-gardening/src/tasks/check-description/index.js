@@ -13,28 +13,13 @@ const getLabels = require( '../../utils/labels/get-labels' );
 /* global GitHub, WebhookPayloadPullRequest */
 
 /**
- * Check for status labels on a PR.
- *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - PR number.
- * @returns {Promise<boolean>} Promise resolving to boolean.
- */
-async function hasStatusLabels( octokit, owner, repo, number ) {
-	const labels = await getLabels( octokit, owner, repo, number );
-	// We're only interested in status labels, but not the "Needs Reply" label since it can be added by the action.
-	return !! labels.find( label => label.match( /^\[Status\].*(?<!Author Reply)$/ ) );
-}
-
-/**
  * Check for a "Need Review" label on a PR.
  *
  * @param {GitHub} octokit - Initialized Octokit REST client.
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Promise<boolean>} Promise resolving to boolean.
+ * @return {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasNeedsReviewLabel( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
@@ -49,7 +34,7 @@ async function hasNeedsReviewLabel( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Promise<boolean>} Promise resolving to boolean.
+ * @return {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasProgressLabel( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
@@ -62,12 +47,12 @@ async function hasProgressLabel( octokit, owner, repo, number ) {
  *
  * @param {string} plugin        - Plugin name.
  * @param {object} nextMilestone - Information about next milestone as returnde by GitHub.
- * @returns {Promise<string>} Promise resolving to info about the release (code freeze, release date).
+ * @return {Promise<string>} Promise resolving to info about the release (code freeze, release date).
  */
 async function getMilestoneDates( plugin, nextMilestone ) {
 	let releaseDate = 'none scheduled';
 	let codeFreezeDate;
-	if ( nextMilestone && nextMilestone.hasOwnProperty( 'due_on' ) && nextMilestone.due_on ) {
+	if ( nextMilestone && Object.hasOwn( nextMilestone, 'due_on' ) && nextMilestone.due_on ) {
 		releaseDate = moment( nextMilestone.due_on ).format( 'LL' );
 
 		// Look for a code freeze date in the milestone description.
@@ -79,9 +64,9 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 			codeFreezeDate = moment( freezeDateDescription[ 1 ] ).format( 'LL' );
 		}
 	} else if ( plugin === 'wpcomsh' ) {
-		releaseDate = 'on demand (usually Mondays if not sooner)';
+		releaseDate = 'Atomic deploys happen twice daily on weekdays (p9o2xV-2EN-p2)';
 	} else if ( plugin === 'mu-wpcom' ) {
-		releaseDate = 'WordPress.com Simple releases happen daily';
+		releaseDate = 'WordPress.com Simple releases happen semi-continuously (PCYsg-Jjm-p2)';
 	}
 
 	const capitalizedName = plugin
@@ -100,7 +85,7 @@ ${
 	'Jetpack' === capitalizedName
 		? `The Jetpack plugin has different release cadences depending on the platform:
 
-- WordPress.com Simple releases happen daily.
+- WordPress.com Simple releases happen semi-continuously (PCYsg-Jjm-p2).
 - WoA releases happen weekly.
 - Releases to self-hosted sites happen monthly. The next release is scheduled for _${ releaseDate }_ (scheduled code freeze on _${ codeFreezeDate }_).`
 		: `
@@ -119,7 +104,7 @@ If you have any questions about the release process, please ask in the #jetpack-
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Promise<string>} Promise resolving to info about the next release for that plugin.
+ * @return {Promise<string>} Promise resolving to info about the next release for that plugin.
  */
 async function buildMilestoneInfo( octokit, owner, repo, number ) {
 	const plugins = await getPluginNames( octokit, owner, repo, number );
@@ -149,7 +134,7 @@ async function buildMilestoneInfo( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Promise<number>} Promise resolving to boolean.
+ * @return {Promise<number>} Promise resolving to boolean.
  */
 async function getCheckComment( octokit, owner, repo, number ) {
 	let commentID = 0;
@@ -157,14 +142,14 @@ async function getCheckComment( octokit, owner, repo, number ) {
 	debug( `check-description: Looking for a previous comment from this task in our PR.` );
 
 	const comments = await getComments( octokit, owner, repo, number );
-	comments.map( comment => {
+	for ( const comment of comments ) {
 		if (
 			comment.user.login === 'github-actions[bot]' &&
 			comment.body.includes( '**Thank you for your PR!**' )
 		) {
 			commentID = comment.id;
 		}
-	} );
+	}
 
 	return commentID;
 }
@@ -172,10 +157,10 @@ async function getCheckComment( octokit, owner, repo, number ) {
 /**
  * Compose a list item with appropriate status check and passed message
  *
- * @param {boolean} isFailure - Boolean condition to determine if check failed.
- * @param {string} checkMessage - Sentence describing successful check.
- * @param {string} severity - Optional. Check severity. Could be one of `error`, `warning`, `notice`
- * @returns {string} - List item with status emoji and a sentence describing check.
+ * @param {boolean} isFailure    - Boolean condition to determine if check failed.
+ * @param {string}  checkMessage - Sentence describing successful check.
+ * @param {string}  severity     - Optional. Check severity. Could be one of `error`, `warning`, `notice`
+ * @return {string} - List item with status emoji and a sentence describing check.
  */
 function statusEntry( isFailure, checkMessage, severity = 'error' ) {
 	const severityMap = {
@@ -196,7 +181,7 @@ function statusEntry( isFailure, checkMessage, severity = 'error' ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Array} - list of affected projects without changelog entry
+ * @return {Array} - list of affected projects without changelog entry
  */
 async function getChangelogEntries( octokit, owner, repo, number ) {
 	const baseDir = getPrWorkspace();
@@ -247,7 +232,7 @@ async function getChangelogEntries( octokit, owner, repo, number ) {
  *
  * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
  * @param {GitHub}                    octokit - Initialized Octokit REST client.
- * @returns {string} List of checks with appropriate status emojis.
+ * @return {string} List of checks with appropriate status emojis.
  */
 async function getStatusChecks( payload, octokit ) {
 	const { body, number, head, base } = payload.pull_request;
@@ -255,15 +240,30 @@ async function getStatusChecks( payload, octokit ) {
 	const ownerLogin = owner.login;
 
 	const hasLongDescription = body?.length > 200;
-	const isLabeled = await hasStatusLabels( octokit, ownerLogin, repo, number );
 	const hasTesting = !! body?.includes( 'Testing instructions' );
 	const hasPrivacy = !! body?.includes( 'data or activity we track or use' );
 	const projectsWithoutChangelog = await getChangelogEntries( octokit, ownerLogin, repo, number );
 	const isFromContributor = head.repo.full_name === base.repo.full_name;
 
+	const prLabels = await getLabels( octokit, ownerLogin, repo, number );
+	const { hasStatusLabels, hasTypeLabels } = prLabels.reduce(
+		( acc, label ) => {
+			// We're only interested in status labels, but not the "Needs Reply" label since it can be added by the action.
+			if ( label.match( /^\[Status\].*(?<!Author Reply)$/ ) ) {
+				acc.hasStatusLabels = true;
+			}
+			if ( label.match( /^\[Type\]/ ) ) {
+				acc.hasTypeLabels = true;
+			}
+			return acc;
+		},
+		{ hasStatusLabels: false, hasTypeLabels: false }
+	);
+
 	return {
 		hasLongDescription,
-		isLabeled,
+		hasStatusLabels,
+		hasTypeLabels,
 		hasTesting,
 		hasPrivacy,
 		projectsWithoutChangelog,
@@ -276,7 +276,7 @@ async function getStatusChecks( payload, octokit ) {
  * Compose a list of checks for the PR
  *
  * @param {object} statusChecks - Map of all checks with boolean as a value
- * @returns {string} part of the comment with list of checks
+ * @return {string} part of the comment with list of checks
  */
 function renderStatusChecks( statusChecks ) {
 	// No PR is too small to include a description of why you made a change
@@ -288,10 +288,20 @@ function renderStatusChecks( statusChecks ) {
 	// Use labels please!
 	// Only check this for PRs created by a12s. External contributors cannot add labels.
 	if ( statusChecks.isFromContributor ) {
-		debug( `check-description: this PR is correctly labeled: ${ statusChecks.isLabeled }` );
+		debug( `check-description: this PR has a Status label: ${ statusChecks.hasStatusLabels }` );
 		checks += statusEntry(
-			! statusChecks.isLabeled,
+			! statusChecks.hasStatusLabels,
 			'Add a "[Status]" label (In Progress, Needs Team Review, ...).'
+		);
+	}
+
+	// Add a [Type] label please.
+	// Only check this for PRs created by a12s. External contributors cannot add labels.
+	if ( statusChecks.isFromContributor ) {
+		debug( `check-description: this PR has a Type label: ${ statusChecks.hasTypeLabels }` );
+		checks += statusEntry(
+			! statusChecks.hasTypeLabels,
+			'Add a "[Type]" label (Bug, Enhancement, Janitorial, Task).'
 		);
 	}
 
@@ -321,7 +331,7 @@ function renderStatusChecks( statusChecks ) {
  * Compose a list of recommendations based on failed checks
  *
  * @param {object} statusChecks - Map of all checks with boolean as a value
- * @returns {string} part of the comment with recommendations
+ * @return {string} part of the comment with recommendations
  */
 function renderRecommendations( statusChecks ) {
 	const recommendations = {
@@ -366,8 +376,8 @@ Guidelines: [/docs/writing-a-good-changelog-entry.md](https://github.com/Automat
  * Creates or updates a comment on PR.
  *
  * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} comment - Comment string
+ * @param {GitHub}                    octokit - Initialized Octokit REST client.
+ * @param {string}                    comment - Comment string
  */
 async function postComment( payload, octokit, comment ) {
 	const { number } = payload.pull_request;
@@ -494,9 +504,22 @@ The e2e test report can be found [here](https://automattic.github.io/jetpack-e2e
 	if ( statusChecks.isFromContributor ) {
 		comment += `
 
-Once your PR is ready for review, check one last time that all required checks appearing at the bottom of this PR are passing or skipped.
-Then, add the "[Status] Needs Team Review" label and ask someone from your team review the code. Once reviewed, it can then be merged.
-If you need an extra review from someone familiar with the codebase, you can update the labels from "[Status] Needs Team Review" to "[Status] Needs Review", and in that case Jetpack Approvers will do a final review of your PR.`;
+**Follow this PR Review Process:**
+
+1. Ensure all required checks appearing at the bottom of this PR are passing.
+2. Choose a review path based on your changes:
+    - **A. Team Review:** add the "[Status] Needs Team Review" label
+        - For most changes, including minor cross-team impacts.
+        - Example: Updating a team-specific component or a small change to a shared library.
+    - **B. Crew Review:** add the "[Status] Needs Review" label
+        - For significant changes to core functionality.
+        - Example: Major updates to a shared library or complex features.
+    - **C. Both:** Start with Team, then request Crew
+        - For complex changes or when you need extra confidence.
+        - Example: Refactor affecting multiple systems.
+3. Get at least one approval before merging.
+
+Still unsure? Reach out in #jetpack-developers for guidance!`;
 	}
 
 	// Gather info about the next release for that plugin.

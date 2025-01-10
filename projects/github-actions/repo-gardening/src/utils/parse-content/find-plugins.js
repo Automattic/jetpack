@@ -4,7 +4,7 @@ const debug = require( '../debug' );
  * Find list of plugins impacted by issue, based off issue contents.
  *
  * @param {string} body - The issue content.
- * @returns {Array} Plugins concerned by issue.
+ * @return {Array} Plugins concerned by issue.
  */
 function findPlugins( body ) {
 	const regex = /###\sImpacted\splugin\n\n([a-zA-Z ,]*)\n\n/gm;

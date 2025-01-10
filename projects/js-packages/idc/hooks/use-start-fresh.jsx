@@ -8,7 +8,7 @@ import trackAndBumpMCStats from '../tools/tracking';
  * Custom hook to handle the migration action.
  *
  * @param {string} redirectUri - WP-admin URI to redirect user to after reconnecting.
- * @returns {{isStartingFresh: boolean, startFreshCallback: ((function(): void)|*)}} Hook values.
+ * @return {{isStartingFresh: boolean, startFreshCallback: ((function(): void)|*)}} Hook values.
  */
 export default redirectUri => {
 	const [ isStartingFresh, setIsStartingFresh ] = useState( false );

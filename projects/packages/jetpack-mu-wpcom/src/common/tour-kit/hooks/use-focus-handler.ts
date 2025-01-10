@@ -5,13 +5,15 @@ import { useEffect, useCallback, useState } from '@wordpress/element';
 
 /**
  * A hook that returns true/false if ref node receives focus by either tabbing or clicking into any of its children.
- * @param ref - React.MutableRefObject< null | HTMLElement >
+ * @param  ref - React.MutableRefObject< null | HTMLElement >
+ * @return {boolean} - True if the ref node has focus, false otherwise.
  */
 const useFocusHandler = ( ref: React.MutableRefObject< null | HTMLElement > ): boolean => {
 	const [ hasFocus, setHasFocus ] = useState( false );
 
 	const handleFocus = useCallback( () => {
-		if ( document.hasFocus() && ref.current?.contains( document.activeElement ) ) {
+		const doc = ref.current?.ownerDocument;
+		if ( doc && doc.hasFocus() && ref.current?.contains( doc.activeElement ) ) {
 			setHasFocus( true );
 		} else {
 			setHasFocus( false );

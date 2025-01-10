@@ -1,14 +1,14 @@
 import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import { Component } from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import DashItem from 'components/dash-item';
 import QueryProtectCount from 'components/data/query-dash-protect';
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { getProtectCount } from 'state/at-a-glance';
-import { isOfflineMode, hasConnectedOwner, connectUser } from 'state/connection';
+import { isOfflineMode, connectUser } from 'state/connection';
 import { isModuleAvailable } from 'state/modules';
 
 class DashProtect extends Component {
@@ -16,7 +16,6 @@ class DashProtect extends Component {
 		isOfflineMode: PropTypes.bool.isRequired,
 		protectCount: PropTypes.any.isRequired,
 		isModuleAvailable: PropTypes.bool.isRequired,
-		hasConnectedOwner: PropTypes.bool.isRequired,
 		connectUser: PropTypes.func.isRequired,
 	};
 
@@ -34,11 +33,7 @@ class DashProtect extends Component {
 			link: getRedirectUrl( 'jetpack-support-protect' ),
 		};
 
-		if (
-			this.props.getOptionValue( 'protect' ) &&
-			! this.props.isOfflineMode &&
-			this.props.hasConnectedOwner
-		) {
+		if ( this.props.getOptionValue( 'protect' ) && ! this.props.isOfflineMode ) {
 			const protectCount = this.props.protectCount;
 
 			if ( 'N/A' === protectCount ) {
@@ -87,25 +82,11 @@ class DashProtect extends Component {
 				module="protect"
 				support={ support }
 				className="jp-dash-item__is-inactive"
-				noToggle={ ! this.props.hasConnectedOwner }
 			>
 				<p className="jp-dash-item__description">
 					{ this.props.isOfflineMode && __( 'Unavailable in Offline Mode', 'jetpack' ) }
 
 					{ ! this.props.isOfflineMode &&
-						! this.props.hasConnectedOwner &&
-						createInterpolateElement(
-							__(
-								'<Button>Connect your WordPress.com</Button> account to keep your site protected from malicious sign in attempts.',
-								'jetpack'
-							),
-							{
-								Button: <Button className="jp-link-button" onClick={ this.connect } />,
-							}
-						) }
-
-					{ ! this.props.isOfflineMode &&
-						this.props.hasConnectedOwner &&
 						createInterpolateElement(
 							__(
 								'<Button>Activate Protect</Button> to keep your site protected from malicious sign in attempts.',
@@ -137,7 +118,6 @@ export default connect(
 		protectCount: getProtectCount( state ),
 		isOfflineMode: isOfflineMode( state ),
 		isModuleAvailable: isModuleAvailable( state, 'protect' ),
-		hasConnectedOwner: hasConnectedOwner( state ),
 	} ),
 	dispatch => ( {
 		connectUser: () => {

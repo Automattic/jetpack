@@ -14,8 +14,8 @@ import {
 /**
  * Yield actions to get Search Module Status
  *
- * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @yield {object} - an action object.
+ * @return {object} - an action object.
  */
 export function* getSearchModuleStatus() {
 	try {
@@ -23,7 +23,7 @@ export function* getSearchModuleStatus() {
 		if ( settings ) {
 			return setJetpackSettings( settings );
 		}
-	} catch ( e ) {
+	} catch {
 		return errorNotice( __( 'Error fetching settings…', 'jetpack-search-pkg' ) );
 	}
 }
@@ -31,8 +31,8 @@ export function* getSearchModuleStatus() {
 /**
  * Yield actions to get search plan info
  *
- * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @yield {object} - an action object.
+ * @return {object} - an action object.
  */
 export function* getSearchPlanInfo() {
 	try {
@@ -40,7 +40,7 @@ export function* getSearchPlanInfo() {
 		if ( planInfo ) {
 			return setSearchPlanInfo( planInfo );
 		}
-	} catch ( e ) {
+	} catch {
 		return errorNotice( __( 'Error fetching search plan…', 'jetpack-search-pkg' ) );
 	}
 }
@@ -48,8 +48,8 @@ export function* getSearchPlanInfo() {
 /**
  * Yield actions to get search stats
  *
- * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @yield {object} - an action object.
+ * @return {object} - an action object.
  */
 export function* getSearchStats() {
 	try {
@@ -57,7 +57,7 @@ export function* getSearchStats() {
 		if ( stats ) {
 			return setSearchStats( stats );
 		}
-	} catch ( e ) {
+	} catch {
 		return errorNotice( __( 'Error fetching search stats', 'jetpack-search-pkg' ) );
 	}
 }
@@ -65,8 +65,8 @@ export function* getSearchStats() {
 /**
  * Yield actions to get search pricing
  *
- * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @yield {object} - an action object.
+ * @return {object} - an action object.
  */
 export function* getSearchPricing() {
 	try {
@@ -74,7 +74,7 @@ export function* getSearchPricing() {
 		if ( pricing ) {
 			return setSearchPricing( pricing );
 		}
-	} catch ( e ) {
+	} catch {
 		// we just ignore the notice.
 	}
 }

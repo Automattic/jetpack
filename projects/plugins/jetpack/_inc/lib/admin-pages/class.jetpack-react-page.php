@@ -1,5 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
@@ -78,6 +79,21 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
+	 * Remove the main Jetpack submenu if a site is in offline mode or connected.
+	 * At that point, admins can access the Jetpack Dashboard instead.
+	 *
+	 * @since 13.8
+	 */
+	public function remove_jetpack_menu() {
+		if (
+			( new Status() )->is_offline_mode()
+			|| Jetpack::is_connection_ready()
+		) {
+			remove_submenu_page( 'jetpack', 'jetpack' );
+		}
+	}
+
+	/**
 	 * Add Jetpack Dashboard sub-link and point it to AAG if the user can view stats, manage modules or if Protect is active.
 	 *
 	 * Works in Dev Mode or when user is connected.
@@ -86,8 +102,14 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 */
 	public function jetpack_add_dashboard_sub_nav_item() {
 		if ( ( new Status() )->is_offline_mode() || Jetpack::is_connection_ready() ) {
-			add_submenu_page( 'jetpack', __( 'Dashboard', 'jetpack' ), __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'jetpack#/dashboard', '__return_null', 1 );
-			remove_submenu_page( 'jetpack', 'jetpack' );
+			Admin_Menu::add_menu(
+				__( 'Dashboard', 'jetpack' ),
+				__( 'Dashboard', 'jetpack' ),
+				'jetpack_admin_page',
+				Jetpack::admin_url( array( 'page' => 'jetpack#/dashboard' ) ),
+				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- See https://core.trac.wordpress.org/ticket/52539.
+				14
+			);
 		}
 	}
 
@@ -165,7 +187,14 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 */
 	public function jetpack_add_settings_sub_nav_item() {
 		if ( $this->can_access_settings() ) {
-			add_submenu_page( 'jetpack', __( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_admin_page', 'jetpack#/settings', '__return_null' );
+			Admin_Menu::add_menu(
+				__( 'Settings', 'jetpack' ),
+				__( 'Settings', 'jetpack' ),
+				'jetpack_admin_page',
+				Jetpack::admin_url( array( 'page' => 'jetpack#/settings' ) ),
+				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- See https://core.trac.wordpress.org/ticket/52539.
+				13
+			);
 		}
 	}
 

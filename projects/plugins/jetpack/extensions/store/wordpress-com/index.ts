@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { createReduxStore, register, select } from '@wordpress/data';
+import { createReduxStore, register } from '@wordpress/data';
 /**
  * Internal dependencies
  */
@@ -30,7 +30,7 @@ export const selectors = {
 	 * Return the AI Assistant feature.
 	 *
 	 * @param {PlanStateProps} state - The Plans state tree.
-	 * @returns {AiFeatureProps}       The AI Assistant feature data.
+	 * @return {AiFeatureProps}       The AI Assistant feature data.
 	 */
 	getAiAssistantFeature( state: PlanStateProps ): AiFeatureProps {
 		// Clean up the _meta property.
@@ -44,7 +44,7 @@ export const selectors = {
 	 * Get the isRequesting flag for the AI Assistant feature.
 	 *
 	 * @param {PlanStateProps} state - The Plans state tree.
-	 * @returns {boolean}              The isRequesting flag.
+	 * @return {boolean}              The isRequesting flag.
 	 */
 	getIsRequestingAiAssistantFeature( state: PlanStateProps ): boolean {
 		return state.features.aiAssistant?._meta?.isRequesting;
@@ -95,14 +95,6 @@ export const wordpressPlansStore = createReduxStore( store, {
 } );
 
 register( wordpressPlansStore );
-
-/*
- * Ensure to request the AI Assistant feature data
- * by calling the selector. Resolver will take care.
- */
-if ( window.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'is-enabled' ] ) {
-	select( store ).getAiAssistantFeature();
-}
 
 // Types
 

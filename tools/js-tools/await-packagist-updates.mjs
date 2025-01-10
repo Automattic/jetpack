@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-/* eslint-disable no-console, no-process-exit */
-
 import events from 'node:events';
 import http2 from 'node:http2';
 import path from 'node:path';
@@ -63,9 +61,9 @@ if ( http2Client ) {
 /**
  * Poll packagist until the specified version of the named package is available.
  *
- * @param {string} name - Package name to poll.
+ * @param {string} name         - Package name to poll.
  * @param {string} versionRange - Version number/range to look for.
- * @returns {object} Listr task object.
+ * @return {object} Listr task object.
  */
 function pollPackagist( name, versionRange ) {
 	const delay = 10 * 1000;

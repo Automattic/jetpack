@@ -35,7 +35,7 @@ function proceed_p {
 	fi
 
 	# Clear input before prompting
-	while read -r -t 0 OK; do read -r OK; done
+	while read -r -t 0.1 -n 10000 OK; do :; done
 
 	local PROMPT
 	[[ -n "$1" ]] && PROMPT="$1 "

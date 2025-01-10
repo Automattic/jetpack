@@ -17,12 +17,8 @@ use Automattic\Jetpack\Blocks;
  * registration if we need to.
  */
 function register_block() {
-	if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) && ! \Jetpack::is_connection_ready() ) {
-		return;
-	}
-
 	require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
-	if ( \Jetpack_Memberships::is_enabled_jetpack_recurring_payments() ) {
+	if ( \Jetpack_Memberships::should_enable_monetize_blocks_in_editor() ) {
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array(
@@ -61,7 +57,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function render_block( $attributes, $content ) {
-	\Jetpack_Gutenberg::load_styles_as_required( __DIR__ );
+	\Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	return $content;
 }

@@ -100,8 +100,7 @@ class Test_Domain_Only_Admin_Menu extends TestCase {
 	public function test_reregister_menu_items_without_email_subscriptions() {
 		global $menu;
 
-		// @phan-suppress-next-line PhanDeprecatedFunction -- Needed for PHP 7.0 and 7.1 CI tests. We can replace with onlyMethods once WP 6.7 comes out.
-		$mock_email_checker = $this->getMockBuilder( WPCOM_Email_Subscription_Checker::class )->setMethods( array( 'has_email' ) )->getMock();
+		$mock_email_checker = $this->getMockBuilder( WPCOM_Email_Subscription_Checker::class )->onlyMethods( array( 'has_email' ) )->getMock();
 		$mock_email_checker->method( 'has_email' )->willReturn( false ); // always returns false
 
 		static::$admin_menu->set_email_subscription_checker( $mock_email_checker );
@@ -120,8 +119,7 @@ class Test_Domain_Only_Admin_Menu extends TestCase {
 	public function test_reregister_menu_items_with_email_subscriptions() {
 		global $menu;
 
-		// @phan-suppress-next-line PhanDeprecatedFunction -- Needed for PHP 7.0 and 7.1 CI tests. We can replace with onlyMethods once WP 6.7 comes out.
-		$mock_email_checker = $this->getMockBuilder( WPCOM_Email_Subscription_Checker::class )->setMethods( array( 'has_email' ) )->getMock();
+		$mock_email_checker = $this->getMockBuilder( WPCOM_Email_Subscription_Checker::class )->onlyMethods( array( 'has_email' ) )->getMock();
 		$mock_email_checker->method( 'has_email' )->willReturn( true ); // always returns true
 
 		static::$admin_menu->set_email_subscription_checker( $mock_email_checker );

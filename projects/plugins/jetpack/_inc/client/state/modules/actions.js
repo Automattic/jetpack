@@ -1,8 +1,8 @@
 import restApi from '@automattic/jetpack-api';
 import { __, sprintf } from '@wordpress/i18n';
-import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import jQuery from 'jquery';
 import { forEach, some } from 'lodash';
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
 	JETPACK_MODULES_LIST_FETCH,
 	JETPACK_MODULES_LIST_FETCH_FAIL,
@@ -367,7 +367,7 @@ export function maybeHideNavMenuItem( module, values ) {
 }
 
 export function maybeReloadAfterAction( newOptionValue ) {
-	const reloadForOptionValues = [ 'masterbar', 'jetpack_testimonial', 'jetpack_portfolio' ];
+	const reloadForOptionValues = [ 'jetpack_testimonial', 'jetpack_portfolio' ];
 
 	if ( some( reloadForOptionValues, optionValue => optionValue in newOptionValue ) ) {
 		window.location.reload();

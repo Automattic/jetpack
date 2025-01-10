@@ -3,8 +3,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
-import { useState, JSXElementConstructor, ReactElement } from 'react';
+import React, { useState, JSXElementConstructor, ReactElement } from 'react';
 
 interface Props {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -17,11 +16,12 @@ interface Props {
 /**
  * Create the block description link.
  *
- * @param {Props} props                                                               - The component props.
+ * @param {Props}                                                      props          - The component props.
  * @param {string | ReactElement<string | JSXElementConstructor<any>>} props.children - The component children.
- * @param {string} props.title                                                        - Block title.
- * @param {string} props.url                                                          - Support link URL.
- * @param {number} props.postId                                                       - Post ID.
+ * @param {string}                                                     props.title    - Block title.
+ * @param {string}                                                     props.url      - Support link URL.
+ * @param {number}                                                     props.postId   - Post ID.
+ * @return {React.JSX.Element} The component to render.
  */
 export default function DescriptionSupportLink( {
 	children,

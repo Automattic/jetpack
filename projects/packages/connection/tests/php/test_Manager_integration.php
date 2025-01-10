@@ -27,6 +27,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	public function set_up() {
 		$this->manager = new Manager();
 		Constants::set_constant( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
+		$this->reset_connection_status();
 	}
 
 	/**
@@ -36,6 +37,20 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	 */
 	public function tear_down() {
 		Constants::clear_constants();
+		$this->reset_connection_status();
+	}
+
+	/**
+	 * Reset the connection status.
+	 * Needed because the connection status is memoized and not reset between tests.
+	 * WorDBless does not fire the options update hooks that would reset the connection status.
+	 */
+	public function reset_connection_status() {
+		static $manager = null;
+		if ( ! $manager ) {
+			$manager = new \Automattic\Jetpack\Connection\Manager();
+		}
+		$manager->reset_connection_status();
 	}
 
 	/**

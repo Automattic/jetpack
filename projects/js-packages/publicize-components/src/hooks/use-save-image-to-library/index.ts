@@ -1,10 +1,10 @@
 import { __ } from '@wordpress/i18n';
-import { MediaItem, uploadMedia } from '@wordpress/media-utils';
+import { uploadMedia, type Attachment } from '@wordpress/media-utils';
 import { useCallback, useMemo, useState } from 'react';
 
 export type SaveImageToLibraryOptions = {
 	onError?: ( error: Error ) => void;
-	onSuccess?: ( image: MediaItem ) => void;
+	onSuccess?: ( image: Partial< Attachment > ) => void;
 };
 
 export type SaveImageToLibrary = {
@@ -17,7 +17,7 @@ export type SaveImageToLibrary = {
  *
  * @param {SaveImageToLibraryOptions} options - Options for the hook.
  *
- * @returns {SaveImageToLibrary} The object.
+ * @return {SaveImageToLibrary} The object.
  */
 export function useSaveImageToLibrary( { onError, onSuccess }: SaveImageToLibraryOptions ) {
 	const [ isSaving, setIsSaving ] = useState( false );
@@ -30,7 +30,11 @@ export function useSaveImageToLibrary( { onError, onSuccess }: SaveImageToLibrar
 				const response = await fetch( imageUrl );
 
 				if ( ! response.ok ) {
-					onError( new Error( __( 'Failed to download image.', 'jetpack' ), { cause: response } ) );
+					onError(
+						new Error( __( 'Failed to download image.', 'jetpack-publicize-components' ), {
+							cause: response,
+						} )
+					);
 
 					return;
 				}
@@ -51,7 +55,9 @@ export function useSaveImageToLibrary( { onError, onSuccess }: SaveImageToLibrar
 					},
 					onError: error => {
 						onError(
-							new Error( __( 'Failed to save image to library.', 'jetpack' ), { cause: error } )
+							new Error( __( 'Failed to save image to library.', 'jetpack-publicize-components' ), {
+								cause: error,
+							} )
 						);
 
 						setIsSaving( false );
@@ -60,7 +66,9 @@ export function useSaveImageToLibrary( { onError, onSuccess }: SaveImageToLibrar
 				} );
 			} catch ( error ) {
 				onError(
-					new Error( __( 'Failed to save image to library.', 'jetpack' ), { cause: error } )
+					new Error( __( 'Failed to save image to library.', 'jetpack-publicize-components' ), {
+						cause: error,
+					} )
 				);
 			} finally {
 				setIsSaving( false );

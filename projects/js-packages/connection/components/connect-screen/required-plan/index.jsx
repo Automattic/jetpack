@@ -9,13 +9,16 @@ import ConnectScreenRequiredPlanVisual from './visual';
  * The Connection Screen Visual component for consumers that require a Plan.
  *
  * @param {object} props -- The properties.
- * @returns {React.Component} The `ConnectScreenForRequiredPlan` component.
+ * @return {React.Component} The `ConnectScreenForRequiredPlan` component.
  */
 const ConnectScreenRequiredPlan = props => {
 	const {
-		title = __( 'Over 5 million WordPress sites are faster and more secure', 'jetpack' ),
+		title = __(
+			'Over 5 million WordPress sites are faster and more secure',
+			'jetpack-connection-js'
+		),
 		autoTrigger = false,
-		buttonLabel = __( 'Set up Jetpack', 'jetpack' ),
+		buttonLabel = __( 'Set up Jetpack', 'jetpack-connection-js' ),
 		apiRoot,
 		apiNonce,
 		registrationNonce,

@@ -46,7 +46,10 @@ export const MediaRequirementsNotice: React.FC< MediaRequirementsNoticeProps > =
 	return (
 		<Notice type={ 'warning' }>
 			<p>
-				{ __( 'The selected media cannot be share to some social media platforms.', 'jetpack' ) }
+				{ __(
+					'The selected media cannot be share to some social media platforms.',
+					'jetpack-publicize-components'
+				) }
 			</p>
 			<ul>
 				{ /* Let us be a little more helpful and help them by listing the services that need attention */ }
@@ -58,8 +61,11 @@ export const MediaRequirementsNotice: React.FC< MediaRequirementsNoticeProps > =
 					return (
 						<li key={ errorType }>
 							<i>{ getErrorLabel( errorType ) }</i>
-							{ _x( ':', 'Colon to display before the list of social media platforms', 'jetpack' ) +
-								' ' }
+							{ _x(
+								':',
+								'Colon to display before the list of social media platforms',
+								'jetpack-publicize-components'
+							) + ' ' }
 							{
 								// Since Intl.ListFormat is not allowed in Jetpack yet,
 								// we join the strings with a comma and space
@@ -67,8 +73,11 @@ export const MediaRequirementsNotice: React.FC< MediaRequirementsNoticeProps > =
 									<Fragment key={ label }>
 										<b>{ label }</b>
 										{ i < length - 1 &&
-											_x( ',', 'Comma to separate list of social media platforms', 'jetpack' ) +
-												' ' }
+											_x(
+												',',
+												'Comma to separate list of social media platforms',
+												'jetpack-publicize-components'
+											) + ' ' }
 									</Fragment>
 								) )
 							}
@@ -77,7 +86,7 @@ export const MediaRequirementsNotice: React.FC< MediaRequirementsNoticeProps > =
 				} ) }
 			</ul>
 			<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
-				{ __( 'Troubleshooting tips', 'jetpack' ) }
+				{ __( 'Troubleshooting tips', 'jetpack-publicize-components' ) }
 			</ExternalLink>
 		</Notice>
 	);

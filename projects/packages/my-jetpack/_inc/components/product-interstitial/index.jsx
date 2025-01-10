@@ -16,6 +16,7 @@ import React, { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
+import { useParams } from 'react-router-dom';
 import { MyJetpackRoutes } from '../../constants';
 import useActivate from '../../data/products/use-activate';
 import useProduct from '../../data/products/use-product';
@@ -28,10 +29,11 @@ import GoBackLink from '../go-back-link';
 import ProductDetailCard from '../product-detail-card';
 import ProductDetailTable from '../product-detail-table';
 import boostImage from './boost.png';
+import completeImage from './complete.png';
 import crmImage from './crm.png';
 import extrasImage from './extras.png';
 import searchImage from './search.png';
-import socialImage from './social.png';
+import securityImage from './security.png';
 import statsImage from './stats.png';
 import styles from './style.module.scss';
 import videoPressImage from './videopress.png';
@@ -39,22 +41,23 @@ import videoPressImage from './videopress.png';
 /**
  * Product Interstitial component.
  *
- * @param {object} props                         - Component props.
- * @param {string} props.slug                    - Product slug
- * @param {string} props.bundle                  - Bundle including this product
- * @param {object} props.children                - Product additional content
- * @param {string} props.existingLicenseKeyUrl 	 - URL to enter an existing license key (e.g. Akismet)
- * @param {boolean} props.installsPlugin         - Whether the interstitial button installs a plugin*
- * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
- * @param {boolean} props.preferProductName      - Use product name instead of title
- * @param {string} props.imageContainerClassName - Append a class to the image container
- * @param {string} [props.ctaButtonLabel]        - The label for the Call To Action button
- * @param {boolean} [props.hideTOS]              - Whether to hide the Terms of Service text
- * @param {number} [props.quantity]              - The quantity of the product to purchase
- * @param {number} [props.directCheckout]        - Whether to go straight to the checkout page, e.g. for products with usage tiers
- * @param {boolean} [props.highlightLastFeature] - Whether to highlight the last feature in the list of features
- * @param {object} [props.ctaCallback]           - Callback when the product CTA is clicked. Triggered before any activation/checkout process occurs
- * @returns {object}                               ProductInterstitial react component.
+ * @param {object}          props                         - Component props.
+ * @param {string}          props.slug                    - Product slug
+ * @param {string}          props.bundle                  - Bundle including this product
+ * @param {object}          props.children                - Product additional content
+ * @param {string}          props.existingLicenseKeyUrl   - URL to enter an existing license key (e.g. Akismet)
+ * @param {boolean}         props.installsPlugin          - Whether the interstitial button installs a plugin*
+ * @param {React.ReactNode} props.supportingInfo          - Complementary links or support/legal text
+ * @param {boolean}         props.preferProductName       - Use product name instead of title
+ * @param {string}          props.imageContainerClassName - Append a class to the image container
+ * @param {string}          [props.ctaButtonLabel]        - The label for the Call To Action button
+ * @param {boolean}         [props.hideTOS]               - Whether to hide the Terms of Service text
+ * @param {number}          [props.quantity]              - The quantity of the product to purchase
+ * @param {number}          [props.directCheckout]        - Whether to go straight to the checkout page, e.g. for products with usage tiers
+ * @param {boolean}         [props.highlightLastFeature]  - Whether to highlight the last feature in the list of features
+ * @param {object}          [props.ctaCallback]           - Callback when the product CTA is clicked. Triggered before any activation/checkout process occurs
+ * @param {string}          [props.feature]               - The feature to highlight in the product detail card
+ * @return {object} ProductInterstitial react component.
  */
 export default function ProductInterstitial( {
 	bundle,
@@ -71,10 +74,18 @@ export default function ProductInterstitial( {
 	directCheckout = false,
 	highlightLastFeature = false,
 	ctaCallback = null,
+	feature = null,
 } ) {
 	const { detail } = useProduct( slug );
 	const { detail: bundleDetail } = useProduct( bundle );
-	const { activate, isPending: isActivating } = useActivate( slug );
+	const { activate, isPending: isActivating, isSuccess } = useActivate( slug );
+
+	// Get the post activation URL for the product.
+	let redirectUri = detail?.postActivationUrl || null;
+	// If the interstitial is highlighting a specific feature, use the post checkout URL for that feature, if available.
+	if ( feature && detail?.postActivationUrlsByFeature?.[ feature ] ) {
+		redirectUri = detail.postActivationUrlsByFeature[ feature ];
+	}
 
 	const { isUpgradableByBundle, tiers, pricingForUi } = detail;
 	const { recordEvent } = useAnalytics();
@@ -82,7 +93,7 @@ export default function ProductInterstitial( {
 	const { myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
-		redirectUri: detail.postActivationUrl ?? null,
+		redirectUri,
 	} );
 	const showBundledTOS = ! hideTOS && !! bundle;
 	const productName = detail?.title;
@@ -131,10 +142,6 @@ export default function ProductInterstitial( {
 
 	const clickHandler = useCallback(
 		( checkout, product, tier ) => {
-			let postCheckoutUrl = product?.postCheckoutUrl
-				? product?.postCheckoutUrl
-				: myJetpackCheckoutUri;
-
 			ctaCallback?.( { slug, product, tier } );
 
 			if ( product?.isBundle || directCheckout ) {
@@ -146,10 +153,14 @@ export default function ProductInterstitial( {
 			activate(
 				{ productId: slug },
 				{
-					onSettled: ( { productId: activatedProduct } ) => {
-						postCheckoutUrl = activatedProduct?.post_checkout_url
-							? activatedProduct.post_checkout_url
-							: myJetpackCheckoutUri;
+					onSettled: activatedProduct => {
+						let postCheckoutUrl = activatedProduct?.post_checkout_url || myJetpackCheckoutUri;
+
+						// If the interstitial is highlighting a specific feature, use the post checkout URL for that feature, if available.
+						if ( feature && activatedProduct?.post_checkout_urls_by_feature?.[ feature ] ) {
+							postCheckoutUrl = activatedProduct.post_checkout_urls_by_feature[ feature ];
+						}
+
 						// there is a separate hasRequiredTier, but it is not implemented
 						const hasPaidPlanForProduct = product?.hasPaidPlanForProduct;
 						const isFree = tier
@@ -170,8 +181,8 @@ export default function ProductInterstitial( {
 						// If no purchase is needed, redirect the user to the product screen.
 						if ( ! needsPurchase ) {
 							// for free products, we still initiate the site connection
-							handleRegisterSite().then( redirectUri => {
-								if ( ! redirectUri ) {
+							handleRegisterSite().then( postRegisterRedirectUri => {
+								if ( ! postRegisterRedirectUri ) {
 									// Fall back to the My Jetpack overview page.
 									return navigateToMyJetpackOverviewPage();
 								}
@@ -187,13 +198,14 @@ export default function ProductInterstitial( {
 			);
 		},
 		[
+			myJetpackCheckoutUri,
+			feature,
+			ctaCallback,
+			slug,
 			directCheckout,
 			activate,
-			navigateToMyJetpackOverviewPage,
-			slug,
-			myJetpackCheckoutUri,
-			ctaCallback,
 			handleRegisterSite,
+			navigateToMyJetpackOverviewPage,
 		]
 	);
 
@@ -231,6 +243,8 @@ export default function ProductInterstitial( {
 							trackProductButtonClick={ trackProductOrBundleClick }
 							preferProductName={ preferProductName }
 							isFetching={ isActivating || siteIsRegistering }
+							isFetchingSuccess={ isSuccess }
+							feature={ feature }
 						/>
 					) : (
 						<Container
@@ -252,6 +266,7 @@ export default function ProductInterstitial( {
 									quantity={ quantity }
 									highlightLastFeature={ highlightLastFeature }
 									isFetching={ isActivating || siteIsRegistering }
+									isFetchingSuccess={ isSuccess }
 								/>
 							</Col>
 							<Col
@@ -270,6 +285,8 @@ export default function ProductInterstitial( {
 										quantity={ quantity }
 										highlightLastFeature={ highlightLastFeature }
 										isFetching={ isActivating }
+										isFetchingSuccess={ isSuccess }
+										isUpsell={ true }
 									/>
 								) : (
 									children
@@ -293,7 +310,7 @@ export default function ProductInterstitial( {
 /**
  * AntiSpamInterstitial component
  *
- * @returns {object} AntiSpamInterstitial react component.
+ * @return {object} AntiSpamInterstitial react component.
  */
 export function AntiSpamInterstitial() {
 	const slug = 'anti-spam';
@@ -314,7 +331,7 @@ export function AntiSpamInterstitial() {
 /**
  * BackupInterstitial component
  *
- * @returns {object} BackupInterstitial react component.
+ * @return {object} BackupInterstitial react component.
  */
 export function BackupInterstitial() {
 	return <ProductInterstitial slug="backup" installsPlugin={ true } bundle="security" />;
@@ -323,7 +340,7 @@ export function BackupInterstitial() {
 /**
  * BoostInterstitial component
  *
- * @returns {object} BoostInterstitial react component.
+ * @return {object} BoostInterstitial react component.
  */
 export function BoostInterstitial() {
 	return (
@@ -334,18 +351,9 @@ export function BoostInterstitial() {
 }
 
 /**
- * CreatorInterstitial component
- *
- * @returns {object} CreatorInterstitial react component.
- */
-export function CreatorInterstitial() {
-	return <ProductInterstitial slug="creator" installsPlugin={ true } />;
-}
-
-/**
  * CRMInterstitial component
  *
- * @returns {object} CRMInterstitial react component.
+ * @return {object} CRMInterstitial react component.
  */
 export function CRMInterstitial() {
 	return (
@@ -358,7 +366,7 @@ export function CRMInterstitial() {
 /**
  * ExtrasInterstitial component
  *
- * @returns {object} ExtrasInterstitial react component.
+ * @return {object} ExtrasInterstitial react component.
  */
 export function ExtrasInterstitial() {
 	return (
@@ -371,23 +379,26 @@ export function ExtrasInterstitial() {
 /**
  * JetpackAiInterstitial component
  *
- * @returns {object} JetpackAiInterstitial react component.
+ * @return {object} JetpackAiInterstitial react component.
  */
 export { default as JetpackAiInterstitial } from './jetpack-ai';
 
 /**
  * ProtectInterstitial component
  *
- * @returns {object} ProtectInterstitial react component.
+ * @return {object} ProtectInterstitial react component.
  */
 export function ProtectInterstitial() {
-	return <ProductInterstitial slug="protect" installsPlugin={ true } />;
+	// Get the feature query parameter from the URL.
+	const { feature } = useParams();
+
+	return <ProductInterstitial slug="protect" feature={ feature } installsPlugin={ true } />;
 }
 
 /**
  * ScanInterstitial component
  *
- * @returns {object} ScanInterstitial react component.
+ * @return {object} ScanInterstitial react component.
  */
 export function ScanInterstitial() {
 	return <ProductInterstitial slug="scan" installsPlugin={ true } bundle="security" />;
@@ -396,26 +407,16 @@ export function ScanInterstitial() {
 /**
  * SocialInterstitial component
  *
- * @returns {object} SocialInterstitial react component.
+ * @return {object} SocialInterstitial react component.
  */
 export function SocialInterstitial() {
-	return (
-		<ProductInterstitial slug="social" installsPlugin={ true }>
-			<img
-				src={ socialImage }
-				alt={ __(
-					'Image displaying logos of social media platforms supported by Jetpack Social.',
-					'jetpack-my-jetpack'
-				) }
-			/>
-		</ProductInterstitial>
-	);
+	return <ProductInterstitial slug="social" installsPlugin={ true } bundle="growth" />;
 }
 
 /**
  * SearchInterstitial component
  *
- * @returns {object} SearchInterstitial react component.
+ * @return {object} SearchInterstitial react component.
  */
 export function SearchInterstitial() {
 	const { detail } = useProduct( 'search' );
@@ -444,7 +445,7 @@ export function SearchInterstitial() {
 /**
  * StatsInterstitial component
  *
- * @returns {object} StatsInterstitial react component.
+ * @return {object} StatsInterstitial react component.
  */
 export function StatsInterstitial() {
 	return (
@@ -453,27 +454,59 @@ export function StatsInterstitial() {
 			directCheckout={ true }
 			installsPlugin={ true }
 			ctaButtonLabel={ __( 'Get Stats', 'jetpack-my-jetpack' ) }
-		>
-			<img
-				src={ statsImage }
-				alt={ __(
-					'Illustration showing the Stats feature, highlighting important statistics for your site.',
-					'jetpack-my-jetpack'
-				) }
-			/>
-		</ProductInterstitial>
+			bundle="growth"
+		/>
 	);
 }
 
 /**
  * VideoPressInterstitial component
  *
- * @returns {object} VideoPressInterstitial react component.
+ * @return {object} VideoPressInterstitial react component.
  */
 export function VideoPressInterstitial() {
 	return (
 		<ProductInterstitial slug="videopress" installsPlugin={ true }>
 			<img src={ videoPressImage } alt="VideoPress" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * SecurityInterstitial component
+ *
+ * @return {object} SecurityInterstitial react component.
+ */
+export function SecurityInterstitial() {
+	return (
+		<ProductInterstitial slug="security" installsPlugin={ true }>
+			<img src={ securityImage } alt="Security" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * GrowthInterstitial component
+ *
+ * @return {object} GrowthInterstitial react component.
+ */
+export function GrowthInterstitial() {
+	return (
+		<ProductInterstitial slug="growth" installsPlugin={ true }>
+			<img src={ statsImage } alt="Growth" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * CompleteInterstitial component
+ *
+ * @return {object} CompleteInterstitial react component.
+ */
+export function CompleteInterstitial() {
+	return (
+		<ProductInterstitial slug="complete" installsPlugin={ true }>
+			<img src={ completeImage } alt="Complete" />
 		</ProductInterstitial>
 	);
 }

@@ -527,21 +527,99 @@ function jetpack_shortcode_youtube_dimensions( $query_args ) {
  * For bare URLs on their own line of the form
  * http://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US
  *
- * @param array $matches Regex partial matches against the URL passed.
- * @param array $attr    Attributes received in embed response.
- * @param array $url     Requested URL to be embedded.
+ * @param array  $matches Regex partial matches against the URL passed.
+ * @param array  $attr    Attributes received in embed response.
+ * @param string $url     Requested URL to be embedded.
  */
 function wpcom_youtube_embed_crazy_url( $matches, $attr, $url ) {
 	return youtube_id( $url );
 }
 
 /**
+ * Get the regex for Youtube URLs.
+ */
+function wpcom_youtube_get_regex() {
+	return '#https?://(?:www\.)?(?:youtube.com/(?:v/|playlist|watch[/\#?])|youtu\.be/).*#i';
+}
+
+/**
  * Add a new handler to automatically transform custom Youtube URLs (like playlists) into embeds.
  */
 function wpcom_youtube_embed_crazy_url_init() {
-	wp_embed_register_handler( 'wpcom_youtube_embed_crazy_url', '#https?://(?:www\.)?(?:youtube.com/(?:v/|playlist|watch[/\#?])|youtu\.be/).*#i', 'wpcom_youtube_embed_crazy_url' );
+	if ( ! defined( 'REST_API_REQUEST' ) ) {
+		return;
+	}
+
+	// Register the custom handler to provide the better support for the private video.
+	wp_embed_register_handler( 'wpcom_youtube_embed_crazy_url', wpcom_youtube_get_regex(), 'wpcom_youtube_embed_crazy_url' );
 }
 add_action( 'init', 'wpcom_youtube_embed_crazy_url_init' );
+
+/**
+ * Filters the oEmbed result before any HTTP requests are made for YouTube.
+ *
+ * @since 13.9
+ *
+ * @param null|string $result The UNSANITIZED (and potentially unsafe) HTML that should be used to embed. Default null.
+ * @param string      $url    The URL that should be inspected for discovery `<link>` tags.
+ * @param array       $args   oEmbed remote get arguments.
+ * @return null|string The UNSANITIZED (and potentially unsafe) HTML that should be used to embed.
+ *                     Null if the URL does not belong to the current site.
+ */
+function wpcom_youtube_filter_pre_oembed_result( $result, $url, $args ) {
+	// Return early if it's not a YouTube URL.
+	if ( ! preg_match( wpcom_youtube_get_regex(), $url, $matches ) ) {
+		return $result;
+	}
+
+	// Try to get the oembed data by the Core's approach.
+	$wp_oembed = _wp_oembed_get_object();
+	$data      = $wp_oembed->get_data( $url, $args );
+	if ( $data ) {
+		/** This filter is documented in wp-includes/class-wp-oembed.php */
+		return apply_filters( 'oembed_result', $wp_oembed->data2html( $data, $url ), $url, $args );
+	}
+
+	// Fallback to the custom handler if the oembed result is not found, especially for the private video.
+	return youtube_id( $url );
+}
+add_filter( 'pre_oembed_result', 'wpcom_youtube_filter_pre_oembed_result', 10, 3 );
+
+/**
+ * Remove the ending question mark from the video id of the YouTube URL.
+ *
+ * Example: https://www.youtube.com/watch?v=AVAWwXeOyyQ?
+ *
+ * @since 13.9
+ *
+ * @param string $provider URL of the oEmbed provider.
+ * @param string $url      URL of the content to be embedded.
+ *
+ * @return string
+ */
+function wpcom_youtube_oembed_fetch_url( $provider, $url ) {
+	if ( ! wp_startswith( $provider, 'https://www.youtube.com/oembed' ) ) {
+		return $provider;
+	}
+
+	$parsed = wp_parse_url( $url );
+	if ( ! isset( $parsed['query'] ) ) {
+		return $provider;
+	}
+
+	$query_vars = array();
+	wp_parse_str( $parsed['query'], $query_vars );
+	if ( isset( $query_vars['v'] ) && wp_endswith( $query_vars['v'], '?' ) ) {
+		$url = remove_query_arg( array( 'v' ), $url );
+		$url = add_query_arg( 'v', preg_replace( '/\?$/', '', $query_vars['v'] ), $url );
+	}
+
+	$provider = remove_query_arg( array( 'url' ), $provider );
+	$provider = add_query_arg( 'url', rawurlencode( $url ), $provider );
+
+	return $provider;
+}
+add_filter( 'oembed_fetch_url', 'wpcom_youtube_oembed_fetch_url', 10, 2 );
 
 if (
 	! is_admin()

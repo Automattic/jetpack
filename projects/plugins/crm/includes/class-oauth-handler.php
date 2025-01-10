@@ -3,7 +3,7 @@
  * Jetpack CRM
  * https://jetpackcrm.com
  *
- * OAuth connection handler. Requires PHP 7.3+
+ * OAuth connection handler.
  *
  */
 namespace Automattic\JetpackCRM;
@@ -18,7 +18,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit;
 class Oauth_Handler {
 
 	/* 
-	* Enabled (we disable oauth here if less than PHP <7.3 (req version))
+	* Enabled.
 	*/
 	private $enabled = true;
 
@@ -60,24 +60,11 @@ class Oauth_Handler {
 	 * Init
 	 */
 	public function __construct() {
+		// Add our action to the stack
+		add_filter( 'jpcrm_listener_actions', array( $this, 'add_listener_action' ), 1 );
 
-		global $zbs;
-
-		// require PHP 7.3
-		if ( $zbs->has_min_php_version( '7.3' ) ) {
-
-			// Add our action to the stack
-			add_filter( 'jpcrm_listener_actions', array( $this, 'add_listener_action' ), 1 );
-
-			// set action for endpoint listener to fire, so we can catch oauth requests (if any)
-			add_action( 'jpcrm_listener_oauth', array( $this, 'catch_oauth_request'), 10 );
-
-		} else {
-
-			$this->enabled = false;
-
-		}
-
+		// set action for endpoint listener to fire, so we can catch oauth requests (if any)
+		add_action( 'jpcrm_listener_oauth', array( $this, 'catch_oauth_request' ), 10 );
 	}
 
 
@@ -1092,13 +1079,7 @@ class Oauth_Handler {
 		// retrieve config
 		$provider_config = $this->get_provider_config( $provider_key );
 
-   		if ( is_array( $provider_config ) && !empty( $provider_config['token'] ) ){
-
-			global $zbs;
-
-			// Let's make sure we've loaded the Google API library:
-			// https://developers.google.com/gmail/api/quickstart/php
-			$zbs->autoload_libraries();
+		if ( is_array( $provider_config ) && ! empty( $provider_config['token'] ) ) {
 
 			//modified from: https://developers.google.com/people/quickstart/php  since we will always be getting 'offline' access so does not need to re-ask user
 			$client = new \Google_Client();

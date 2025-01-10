@@ -21,8 +21,7 @@ import {
  */
 import type { AskQuestionOptionsArgProps } from '../../ask-question/index.js';
 import type SuggestionsEventSource from '../../suggestions-event-source/index.js';
-import type { PromptProp, SuggestionErrorCode } from '../../types.js';
-import type { RequestingStateProp } from '../../types.js';
+import type { PromptProp, SuggestionErrorCode, RequestingStateProp } from '../../types.js';
 
 export type RequestingErrorProps = {
 	/*
@@ -134,7 +133,7 @@ type useAiSuggestionsProps = {
  * Get the error data for a given error code.
  *
  * @param {SuggestionErrorCode} errorCode - The error code.
- * @returns {RequestingErrorProps}          The error data.
+ * @return {RequestingErrorProps}          The error data.
  */
 export function getErrorData( errorCode: SuggestionErrorCode ): RequestingErrorProps {
 	switch ( errorCode ) {
@@ -194,7 +193,7 @@ export function getErrorData( errorCode: SuggestionErrorCode ): RequestingErrorP
  * Remove the llama artifact from a suggestion.
  *
  * @param {string} suggestion - The suggestion.
- * @returns {string}            The suggestion without the llama artifact.
+ * @return {string}            The suggestion without the llama artifact.
  */
 export function removeLlamaArtifact( suggestion: string ): string {
 	return suggestion.replace( /^<\|start_header_id\|>assistant<\|end_header_id\|>[\n]+/, '' );
@@ -205,7 +204,7 @@ export function removeLlamaArtifact( suggestion: string ): string {
  * by hitting the query endpoint.
  *
  * @param {useAiSuggestionsOptions} options - The options for the hook.
- * @returns {useAiSuggestionsProps}           The props for the hook.
+ * @return {useAiSuggestionsProps}           The props for the hook.
  */
 export default function useAiSuggestions( {
 	prompt,
@@ -230,7 +229,7 @@ export default function useAiSuggestions( {
 	 * onSuggestion function handler.
 	 *
 	 * @param {string} suggestion - The suggestion.
-	 * @returns {void}
+	 * @return {void}
 	 */
 	const handleSuggestion = useCallback(
 		( event: CustomEvent ) => {
@@ -250,7 +249,7 @@ export default function useAiSuggestions( {
 	 * onDone function handler.
 	 *
 	 * @param {string} content - The content.
-	 * @returns {void}
+	 * @return {void}
 	 */
 	const handleDone = useCallback(
 		( event: CustomEvent ) => {
@@ -300,9 +299,9 @@ export default function useAiSuggestions( {
 	/**
 	 * Request handler.
 	 *
-	 * @param {PromptProp} promptArg               - The messages array of the prompt.
-	 * @param {AskQuestionOptionsArgProps} options - The options for the askQuestion request. Uses the hook's askQuestionOptions by default.
-	 * @returns {Promise<void>} The promise.
+	 * @param {PromptProp}                 promptArg - The messages array of the prompt.
+	 * @param {AskQuestionOptionsArgProps} options   - The options for the askQuestion request. Uses the hook's askQuestionOptions by default.
+	 * @return {Promise<void>} The promise.
 	 */
 	const request = useCallback(
 		async (
@@ -352,7 +351,7 @@ export default function useAiSuggestions( {
 	/**
 	 * Reset the request state.
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	const reset = useCallback( () => {
 		setRequestingState( 'init' );
@@ -363,7 +362,7 @@ export default function useAiSuggestions( {
 	/**
 	 * Close the event source connection.
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	const closeEventSource = useCallback( () => {
 		if ( ! eventSourceRef?.current ) {
@@ -400,7 +399,7 @@ export default function useAiSuggestions( {
 	/**
 	 * Stop suggestion handler.
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	const stopSuggestion = useCallback( () => {
 		closeEventSource();

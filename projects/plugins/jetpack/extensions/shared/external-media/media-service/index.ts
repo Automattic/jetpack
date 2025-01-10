@@ -4,7 +4,9 @@ import { dispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { waitFor } from '../../wait-for';
+import { GOOGLE_PHOTOS_PICKER_SESSION } from '../constants';
 import { store as mediaStore } from '../store';
+import { PickerSession } from '../store/types';
 import { MediaSource } from './types';
 
 // Pexels constants
@@ -28,7 +30,6 @@ const DEFAULT_GOOGLE_PHOTOS_SEARCH: MediaSearch = {
 /**
  * External media endpoints.
  */
-// eslint-disable-next-line no-shadow
 enum WpcomMediaEndpoints {
 	List = '/wpcom/v2/external-media/list/',
 }
@@ -36,7 +37,6 @@ enum WpcomMediaEndpoints {
 /**
  * WPCOM media type of the WPCOM Media Api.
  */
-// eslint-disable-next-line no-shadow
 enum WpcomMediaItemType {
 	Image = 'image',
 	Video = 'video',
@@ -85,11 +85,25 @@ type WpcomMediaResponse = {
 };
 
 /**
+ * wpCookies global variable.
+ */
+declare global {
+	interface Window {
+		wpCookies: {
+			set: ( name: string, value: string, expires: number, path: string, domain?: string ) => void;
+			get: ( name: string ) => string | null;
+		};
+	}
+}
+
+const wpCookies = window.wpCookies;
+
+/**
  * Get media URL for a given MediaSource.
  *
- * @param {MediaSource} source - MediaSource to get URL for.
+ * @param {MediaSource} source      - MediaSource to get URL for.
  * @param {MediaSearch} mediaSearch - MediaCategorySearch to filter for.
- * @returns {string} Media URL.
+ * @return {string} Media URL.
  */
 const getMediaApiUrl = ( source: MediaSource, mediaSearch: MediaSearch ) =>
 	addQueryArgs( `${ WpcomMediaEndpoints.List }${ source }`, {
@@ -102,7 +116,7 @@ const getMediaApiUrl = ( source: MediaSource, mediaSearch: MediaSearch ) =>
  * Maps a WPCOM media item to a Gutenberg media item.
  *
  * @param {WpcomMediaItem} item - WPCOM media list item to map.
- * @returns {MediaItem} Mapped media category item.
+ * @return {MediaItem} Mapped media category item.
  */
 const mapWpcomMediaToMedia = ( item: WpcomMediaItem ): MediaItem => ( {
 	caption: item?.caption ?? '',
@@ -114,12 +128,12 @@ const mapWpcomMediaToMedia = ( item: WpcomMediaItem ): MediaItem => ( {
 /**
  * Builds a Gutenberg media category object.
  *
- * @param {string} name - Name of the media category.
- * @param {string} label - Label of the media category.
- * @param {string} searchPlaceholder - Search placeholder of the media category.
- * @param {MediaSource} source - MediaSource of the media category.
- * @param {MediaSearch} defaultSearch - Default search of the media category.
- * @returns {object} Media category object.
+ * @param {string}      name              - Name of the media category.
+ * @param {string}      label             - Label of the media category.
+ * @param {string}      searchPlaceholder - Search placeholder of the media category.
+ * @param {MediaSource} source            - MediaSource of the media category.
+ * @param {MediaSearch} defaultSearch     - Default search of the media category.
+ * @return {object} Media category object.
  */
 const buildMediaCategory = (
 	name: string,
@@ -165,7 +179,7 @@ const buildMediaCategory = (
 /**
  * Get Google Photos media category.
  *
- * @returns {object} Google Photos media category.
+ * @return {object} Google Photos media category.
  */
 const googlePhotosProvider = () =>
 	buildMediaCategory(
@@ -180,7 +194,7 @@ const googlePhotosProvider = () =>
  * Checks if a given MediaSource is connected and calls the callback with the response.
  *
  * @param {MediaSource} source - MediaSource to check.
- * @returns {void}
+ * @return {void}
  */
 const isMediaSourceConnected = async ( source: MediaSource ) =>
 	apiFetch< boolean | WpcomMediaResponse >( {
@@ -193,7 +207,7 @@ const isMediaSourceConnected = async ( source: MediaSource ) =>
 /**
  * Checks if the inserter is opened.
  *
- * @returns {boolean} True if the inserter is opened false otherwise.
+ * @return {boolean} True if the inserter is opened false otherwise.
  */
 const isInserterOpened = (): boolean => {
 	/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
@@ -217,7 +231,7 @@ const registerInInserter = ( mediaCategoryProvider: () => object ) =>
 /**
  * Get Pexels media category.
  *
- * @returns {object} Pexels media category.
+ * @return {object} Pexels media category.
  */
 const pexelsProvider = () =>
 	buildMediaCategory(
@@ -232,7 +246,7 @@ const pexelsProvider = () =>
  * Checks if a given MediaSource is authenticated in the store.
  *
  * @param {MediaSource} source - MediaSource to check.
- * @returns {boolean} True if the MediaSource is authenticated false otherwise.
+ * @return {boolean} True if the MediaSource is authenticated false otherwise.
  */
 const isAuthenticatedByWithMediaComponent = ( source: MediaSource ) =>
 	!! select( mediaStore ).isAuthenticated( source );
@@ -266,9 +280,48 @@ export const addPexelsToMediaInserter = () => {
 /**
  * Authenticates a given MediaSource.
  *
- * @param {MediaSource} source - MediaSource to authenticate.
- * @param {boolean} isAuthenticated - True if the MediaSource is authenticated false otherwise.
+ * @param {MediaSource} source          - MediaSource to authenticate.
+ * @param {boolean}     isAuthenticated - True if the MediaSource is authenticated false otherwise.
  */
 export const authenticateMediaSource = ( source: MediaSource, isAuthenticated: boolean ) => {
 	dispatch( mediaStore ).setAuthenticated( source, isAuthenticated );
+};
+
+/**
+ * Set Google Photos Picker session
+ * @param {PickerSession} session
+ */
+export const setGooglePhotosPickerSession = ( session: PickerSession ) => {
+	setGooglePhotosPickeCachedSessionId( session?.id || null );
+	dispatch( mediaStore ).mediaPhotosPickerSessionSet( session );
+};
+
+/**
+ * Get Google Photos Picker session
+ * @return {PickerSession} Media URL.
+ */
+export const getGooglePhotosPickerSession = () => {
+	return select( mediaStore ).mediaPhotosPickerSession();
+};
+
+/**
+ * Set Google Photos Picker session id to cookies
+ * @param {string|null} sessionId - Session id
+ */
+export const setGooglePhotosPickeCachedSessionId = ( sessionId: string | null ) => {
+	wpCookies.set(
+		GOOGLE_PHOTOS_PICKER_SESSION,
+		sessionId,
+		604800, // 7 days
+		'/',
+		`.${ window.location.hostname.split( '.' ).slice( -2 ).join( '.' ) }`
+	);
+};
+
+/**
+ * Get Google Photos Picker session id from cookies
+ * @return {string | null} Google Photos Picker session id
+ */
+export const getGooglePhotosPickerCachedSessionId = () => {
+	return wpCookies.get( GOOGLE_PHOTOS_PICKER_SESSION );
 };

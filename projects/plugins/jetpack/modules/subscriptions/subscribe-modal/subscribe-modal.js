@@ -3,13 +3,28 @@ const { domReady } = wp;
 domReady( () => {
 	const modal = document.querySelector( '.jetpack-subscribe-modal' );
 	const modalDismissedCookie = 'jetpack_post_subscribe_modal_dismissed';
+	const skipUrlParam = 'jetpack_skip_subscription_popup';
 
 	function hasEnoughTimePassed() {
 		const lastDismissed = localStorage.getItem( modalDismissedCookie );
 		return lastDismissed ? Date.now() - lastDismissed > Jetpack_Subscriptions.modalInterval : true;
 	}
 
-	if ( ! modal || ! hasEnoughTimePassed() ) {
+	// Subscriber ended up here e.g. from emails:
+	// we won't show the modal to them in future since they most likely are already a subscriber.
+	function skipModal() {
+		const url = new URL( window.location.href );
+		if ( url.searchParams.has( skipUrlParam ) ) {
+			url.searchParams.delete( skipUrlParam );
+			window.history.replaceState( {}, '', url );
+			storeCloseTimestamp();
+			return true;
+		}
+
+		return false;
+	}
+
+	if ( ! modal || ! hasEnoughTimePassed() || skipModal() ) {
 		return;
 	}
 

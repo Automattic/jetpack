@@ -70,9 +70,10 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 */
 	public function get_cpt_menu_link( $ptype_obj ) {
 
-		$post_type = $ptype_obj->name;
+		$post_type              = $ptype_obj->name;
+		$is_woocommerce_product = $post_type === 'product' && class_exists( 'WooCommerce' );
 
-		if ( ( new Modules() )->is_active( 'sso' ) && $ptype_obj->show_in_rest ) {
+		if ( ! $is_woocommerce_product && ( new Modules() )->is_active( 'sso' ) && $ptype_obj->show_in_rest ) {
 			return 'https://wordpress.com/types/' . $post_type . '/' . $this->domain;
 		} else {
 			return 'edit.php?post_type=' . $post_type;
@@ -265,7 +266,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		add_menu_page( esc_attr__( 'Tools', 'jetpack-masterbar' ), __( 'Tools', 'jetpack-masterbar' ), 'publish_posts', 'tools.php', null, 'dashicons-admin-tools', 75 );
 		add_submenu_page( 'tools.php', esc_attr__( 'Marketing', 'jetpack-masterbar' ), __( 'Marketing', 'jetpack-masterbar' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain );
 
-		if ( Blaze::should_initialize() ) {
+		if ( Blaze::should_initialize()['can_init'] ) {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_submenu_page( 'tools.php', esc_attr__( 'Advertising', 'jetpack-masterbar' ), __( 'Advertising', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/advertising/' . $this->domain, null, 1 );
 		}

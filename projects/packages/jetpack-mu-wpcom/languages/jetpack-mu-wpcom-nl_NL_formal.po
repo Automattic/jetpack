@@ -1,0 +1,490 @@
+# Translation of Plugins - WordPress.com Editing Toolkit - Stable (latest release) in Dutch
+# This file is distributed under the same license as the Plugins - WordPress.com Editing Toolkit - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2024-06-30 16:43:58+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/4.0.1\n"
+"Language: nl\n"
+"Project-Id-Version: Plugins - WordPress.com Editing Toolkit - Stable (latest release)\n"
+
+#: wpcom-global-styles/index.php:536
+msgid "Preview premium styles"
+msgstr "Bekijk premium stijlen"
+
+#: wpcom-global-styles/index.php:531
+#: wpcom-global-styles/dist/wpcom-global-styles.js:2730
+#: wpcom-global-styles/notices.js:170
+msgid "Remove premium styles"
+msgstr "Verwijder premium stijlen"
+
+#: wpcom-global-styles/index.php:521
+#: wpcom-global-styles/dist/wpcom-global-styles.js:2714
+#: wpcom-global-styles/notices.js:147
+msgid "Upgrade now"
+msgstr "Upgrade nu"
+
+#: wpcom-global-styles/index.php:547
+msgid "Upgrade required"
+msgstr "Upgrade vereist"
+
+#: wpcom-global-styles/index.php:544
+msgid "Upgrade"
+msgstr "Upgrade"
+
+#. translators: %1$s - documentation URL, %2$s - the name of the required plan
+#: wpcom-global-styles/index.php:497
+msgid "Your site includes <a href=\"%1$s\" target=\"_blank\">premium styles</a> that are only visible to visitors after upgrading to the %2$s plan or higher."
+msgstr "Uw site bevat <a href=\"%1$s\" target=\"_blank\">premium stijlen</a> die alleen zichtbaar zijn voor bezoekers nadat ze zijn geüpgraded naar het %2$s abonnement of hoger."
+
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1449
+#: newspack-blocks/dist/blog-posts-block-editor.js:5877
+#: newspack-blocks/dist/carousel-block-editor.js:5540
+#: newspack-blocks/synced-newspack-blocks/shared/js/utils.js:77
+msgid "Scheduled"
+msgstr "Gepland"
+
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1448
+#: newspack-blocks/dist/blog-posts-block-editor.js:5876
+#: newspack-blocks/dist/carousel-block-editor.js:5539
+#: newspack-blocks/synced-newspack-blocks/shared/js/utils.js:77
+msgid "Draft"
+msgstr "Concept"
+
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1415
+msgid "Jetpack donations is disabled in favour of Newspack donations."
+msgstr "Jetpack donaties is uitgeschakeld ten gunste van Newspack donaties."
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:8100
+#: wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:80
+msgid "Feel free to keep editing your homepage, or continue and launch your site."
+msgstr "Voel u vrij om uw homepage te blijven bewerken, of ga verder en lanceer uw site."
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:8109
+#: wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:94
+msgid "Continue and launch"
+msgstr "Doorgaan en lanceren"
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:8104
+#: wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:87
+msgid "Keep editing"
+msgstr "Doorgaan met bewerken"
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:8099
+#: wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:79
+msgid "You’ve added your first video!"
+msgstr "U heeft uw eerste video toegevoegd!"
+
+#: wpcom-global-styles/api/class-global-styles-status-rest-api.php:53
+msgid "Your user is not permitted to access this resource."
+msgstr "Het is de gebruiker niet toegestaan om toegang te krijgen tot deze bron."
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:6918
+#: wpcom-block-editor-nux/src/purchase-notice/index.jsx:19
+msgid "Congrats! Premium blocks are now available to use."
+msgstr "Gefeliciteerd! Premium blokken zijn nu beschikbaar om te gebruiken."
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:7049
+#: wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:119
+msgid "View your product"
+msgstr "Bekijk uw product"
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:7040
+#: wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:110
+msgid "Preview your product on your site before launching and sharing with others."
+msgstr "Bekijk een voorbeeld van uw product op uw site voordat u het lanceert en deelt met anderen."
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:7039
+#: wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:109
+msgid "You've added your first product!"
+msgstr "U heeft uw eerste product toegevoegd!"
+
+#: paragraph-block/index.php:60
+msgid "Add a post title"
+msgstr "Voeg een berichttitel toe"
+
+#: paragraph-block/index.php:33 paragraph-block/index.php:79
+msgid "Start writing or type '/' to insert a block"
+msgstr "Begin met schrijven of typ '/' om een blok in te voegen"
+
+#: global-styles/class-global-styles.php:272
+msgid "Fonts"
+msgstr "Lettertypen"
+
+#. Translators: This is a link which opens the block editor, and then opens the
+#. global styles sidebar.
+#: global-styles/class-global-styles-fonts-message-control.php:63
+msgid "Click here to open the Block Editor and change your fonts."
+msgstr "Klik hier om de blok-editor te openen en uw lettertypen te wijzigen."
+
+#. Translators: This is a link which opens:
+#. https://wordpress.com/support/custom-fonts/#changing-fonts-with-global-styles.
+#: global-styles/class-global-styles-fonts-message-control.php:40
+msgid "Learn more about changing fonts using Global Styles."
+msgstr "Meer informatie over het wijzigen van lettertypen met global stijlen."
+
+#: global-styles/class-global-styles-fonts-message-control.php:27
+msgid "You can change your fonts using Global Styles, which can be found in the Block Editor."
+msgstr "U kunt uw lettertypen wijzigen met behulp van global stijlen, die u kunt vinden in de blok-editor."
+
+#. translators: separates all but the last two sponsor names; needs a space at
+#. the end.
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1004
+msgid ", "
+msgstr ", "
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:7044
+#: wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:117
+msgid "Continue editing"
+msgstr "Doorgaan met bewerken"
+
+#: starter-page-templates/class-starter-page-templates.php:236
+msgid "Current"
+msgstr "Huidig"
+
+#. Plugin Name of the plugin
+#: full-site-editing-plugin.php
+msgid "WordPress.com Editing Toolkit"
+msgstr "WordPress.com Editing Toolkit"
+
+#: mailerlite/subscriber-popup.php:116
+msgid "UUID:"
+msgstr "UUID:"
+
+#. translators: link to documentation
+#: mailerlite/subscriber-popup.php:113
+msgid "Account ID <a href=\"%s\" target=\"_blank\">(instructions)</a>:"
+msgstr "Account ID <a href=\"%s\" target=\"_blank\">(instructies)</a>:"
+
+#. translators: %1$s - URL to manage the widget, %2$s - documentation URL.
+#: mailerlite/subscriber-popup.php:42
+msgid "You need to enter your numeric account ID and UUID for the <a href=\"%1$s\">Mailerlite Widget</a> to work correctly. <a href=\"%2$s\" target=\"_blank\">Full instructions</a>."
+msgstr "Voer uw account ID en UUID in cijfers in om de <a href=\"%1$s\">Mailerlite Widget</a> goed te laten werken. <a href=\"%2$s\" target=\"_blank\">Volledige instructies</a>."
+
+#: mailerlite/subscriber-popup.php:20
+msgid "Display Mailerlite subscriber popup"
+msgstr "Pop-up Mailerlite-abonnee weergeven"
+
+#: mailerlite/subscriber-popup.php:17
+msgid "Mailerlite subscriber popup"
+msgstr "Pop-up Mailerlite abonnee"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:277
+msgid "Play Slideshow"
+msgstr "Slideshow afspelen"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:276
+msgid "Pause Slideshow"
+msgstr "Slideshow pauzeren"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:231
+msgid "Previous Slide"
+msgstr "Vorige slide"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:232
+msgid "Next Slide"
+msgstr "Volgende slide"
+
+#. translators: %d: Slide number.
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:210
+msgid "Go to slide %d"
+msgstr "Ga naar slide %d"
+
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:900
+msgid "Common"
+msgstr "Algemeen"
+
+#: starter-page-templates/class-starter-page-templates.php:231
+msgid "Blank"
+msgstr "Leeg"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:223
+#: newspack-blocks/dist/blog-posts-block-editor.js:4516
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/edit.js:785
+msgid "Load more posts"
+msgstr "Meer berichten laden"
+
+#. translators: separates last two sponsor names; needs a space on either side.
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1001
+msgid " and "
+msgstr " en "
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:328
+#: newspack-blocks/dist/blog-posts-block-editor.js:5849
+#: newspack-blocks/dist/blog-posts-block-editor.js:5871
+#: newspack-blocks/dist/carousel-block-editor.js:5512
+#: newspack-blocks/dist/carousel-block-editor.js:5534
+#: newspack-blocks/synced-newspack-blocks/shared/js/utils.js:30
+#: newspack-blocks/synced-newspack-blocks/shared/js/utils.js:67
+msgctxt "post author"
+msgid " and "
+msgstr " en "
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:305
+#: newspack-blocks/dist/blog-posts-block-editor.js:5842
+#: newspack-blocks/dist/carousel-block-editor.js:5505
+#: newspack-blocks/synced-newspack-blocks/shared/js/utils.js:18
+msgctxt "post author"
+msgid "by"
+msgstr "door"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:231
+msgid "Something went wrong. Please refresh the page and/or try again."
+msgstr "Er is iets fout gegaan. Vernieuw de pagina en/of probeer het opnieuw."
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:228
+msgid "Loading..."
+msgstr "Laden..."
+
+#: dotcom-fse/blocks/site-credit/index.php:155
+msgid "WordPress Icon"
+msgstr "WordPress pictogram"
+
+#: dotcom-fse/blocks/site-credit/index.php:150
+msgid "Proudly powered by WordPress"
+msgstr "Met trots aangedreven door WordPress"
+
+#: dotcom-fse/templates/class-wp-template.php:149
+#: common/dist/data-stores.js:6621
+msgid "Footer"
+msgstr "Footer"
+
+#: dotcom-fse/templates/class-wp-template.php:147
+#: common/dist/data-stores.js:6616
+msgid "Header"
+msgstr "Header"
+
+#: dotcom-fse/blocks/navigation-menu/index.php:86
+msgid "collapsed"
+msgstr "ingevouwen"
+
+#: dotcom-fse/blocks/navigation-menu/index.php:85
+msgid "expanded"
+msgstr "uitgevouwen"
+
+#: dotcom-fse/blocks/navigation-menu/index.php:82
+msgid "Menu"
+msgstr "Menu"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:398
+msgctxt "Default page title"
+msgid "Contact"
+msgstr "Contact"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:386
+msgctxt "Default page title"
+msgid "About"
+msgstr "Over"
+
+#: starter-page-templates/class-wp-rest-sideload-image-controller.php:77
+msgid "Invalid parent type."
+msgstr "Ongeldig hoofdtype."
+
+#: starter-page-templates/class-starter-page-templates.php:221
+msgid "No templates available. Skipped showing modal window with template selection."
+msgstr "Geen templates beschikbaar. Modaal venster weergeven met template selectie overgeslagen."
+
+#: starter-page-templates/class-starter-page-templates.php:216
+msgid "No data received from the vertical API. Skipped showing modal window with template selection."
+msgstr "Geen gegevens ontvangen van de verticale API. Modaal venster weergeven met template selectie overgeslagen."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:503
+msgid "Back to template part types"
+msgstr "Terug naar template onderdeel types"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:502
+msgid "No template part types found."
+msgstr "Geen template onderdeel types gevonden."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:501
+msgid "Search Template Part Types"
+msgstr "Template onderdeel types zoeken"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:500
+msgid "Parent Template Part Type:"
+msgstr "Hoofd template onderdeel type:"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:499
+msgid "Parent Template Part Type"
+msgstr "Hoofd template onderdeel type"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:498
+msgid "New Template Part Type"
+msgstr "Nieuw template onderdeel type"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:497
+msgid "Add New Template Part Type"
+msgstr "Nieuw template onderdeel type toevoegen"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:496
+msgid "Update Template Part Type"
+msgstr "Update template onderdeel type"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:495
+msgid "View Template Part Type"
+msgstr "Bekijk template onderdeel type"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:494
+msgid "Edit Template Part Type"
+msgstr "Bewerk template onderdeel type"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:493
+msgid "All Template Part Types"
+msgstr "Alle template onderdeel types"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:492
+msgctxt "admin menu"
+msgid "Template Part Types"
+msgstr "Template onderdelen types"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:491
+msgctxt "taxonomy singular name"
+msgid "Template Part Type"
+msgstr "Template onderdeel type"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:490
+msgctxt "taxonomy general name"
+msgid "Template Part Types"
+msgstr "Template onderdeel types"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:455
+msgid "Template part updated."
+msgstr "Template onderdeel geüpdatet."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:454
+msgid "Template part scheduled."
+msgstr "Template onderdeel gepland."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:453
+msgid "Template part reverted to draft."
+msgstr "Template onderdeel teruggezet op concept."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:452
+msgid "Template part published privately."
+msgstr "Template onderdeel privé gepubliceerd."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:451
+msgid "Template part published."
+msgstr "Template onderdeel gepubliceerd."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:450
+msgid "Template parts list"
+msgstr "Lijst met template onderdelen"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:449
+msgid "Template parts list navigation"
+msgstr "Template onderdeel lijst navigatie"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:448
+msgid "Filter template parts list"
+msgstr "Filter template onderdeel lijst"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:447
+msgid "No template parts found in Trash."
+msgstr "Geen template onderdelen gevonden in prullenbak."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:446
+msgid "No template parts found."
+msgstr "Geen template onderdelen gevonden."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:445
+msgid "Search Template Parts"
+msgstr "Template onderdelen zoeken"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:444
+msgid "All Template Parts"
+msgstr "Alle template onderdelen"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:443
+msgid "View Template Part"
+msgstr "Bekijk template onderdeel"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:442
+msgid "Edit Template Part"
+msgstr "Bewerk template onderdeel"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:441
+msgid "New Template Part"
+msgstr "Nieuw template onderdeel"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:440
+msgid "Add New Template Part"
+msgstr "Nieuw template onderdeel toevoegen"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:438
+msgctxt "add new on admin bar"
+msgid "Template Part"
+msgstr "Template onderdeel"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:437
+msgctxt "admin menu"
+msgid "Template Parts"
+msgstr "Template onderdelen"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:436
+msgctxt "post type singular name"
+msgid "Template Part"
+msgstr "Template onderdeel"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:435
+msgctxt "post type general name"
+msgid "Template Parts"
+msgstr "Template onderdelen"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:439
+msgctxt "Template"
+msgid "Add New"
+msgstr "Nieuwe toevoegen"
+
+#: posts-list-block/class-posts-list-block.php:165
+msgid "Read more"
+msgstr "Meer informatie"
+
+#. translators: %s: Name of current post
+#: posts-list-block/class-posts-list-block.php:162
+msgid "Continue reading %s"
+msgstr "%s verder lezen"
+
+#: posts-list-block/templates/post-item.php:36
+msgid "Edit"
+msgstr "Bewerken"
+
+#: posts-list-block/templates/post-item.php:31
+msgctxt "designating the post author (eg: by John Doe"
+msgid "by"
+msgstr "door"
+
+#: posts-list-block/templates/post-item.php:23
+msgid "Featured"
+msgstr "Aanbevolen"
+
+#: posts-list-block/templates/posts-list.php:30
+msgid "View all posts"
+msgstr "Alle berichten weergeven"
+
+#. translators: 1: link to WP admin new post page.
+#: posts-list-block/templates/no-posts.php:17
+msgid "Ready to publish your first post? <a href=\"%1$s\">Get started here</a>."
+msgstr "Klaar om uw eerste bericht te publiceren? <a href=\"%1$s\">Ga hier aan de slag</a>."
+
+#: posts-list-block/templates/no-posts.php:11
+msgid "There are currently no posts to display."
+msgstr "Er zijn momenteel geen berichten om weer te geven."
+
+#. Author URI of the plugin
+#: full-site-editing-plugin.php
+msgid "https://automattic.com/wordpress-plugins/"
+msgstr "https://automattic.com/wordpress-plugins/"
+
+#. Author of the plugin
+#: full-site-editing-plugin.php
+msgid "Automattic"
+msgstr "Automattic"
+
+#. Description of the plugin
+#: full-site-editing-plugin.php
+msgid "Enhances your page creation workflow within the Block Editor."
+msgstr "Verbetert de workflow voor het aanmaken van pagina's binnen de blok-editor."

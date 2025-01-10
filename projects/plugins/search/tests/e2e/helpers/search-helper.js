@@ -4,7 +4,7 @@ import { SearchHomepage } from '../pages/index.js';
 
 /**
  * Enable Instant Search.
- * @returns {string} wp-cli command output
+ * @return {string} wp-cli command output
  */
 export async function enableInstantSearch() {
 	return execWpCommand( 'option update instant_search_enabled 1' );
@@ -12,7 +12,7 @@ export async function enableInstantSearch() {
 
 /**
  * Disable Instant Search.
- * @returns {string} wp-cli command output
+ * @return {string} wp-cli command output
  */
 export async function disableInstantSearch() {
 	return execWpCommand( 'option update instant_search_enabled 0' );
@@ -21,7 +21,7 @@ export async function disableInstantSearch() {
 /**
  * Set Search result format setting.
  * @param {string} format - Setting value.
- * @returns {string} wp-cli command output
+ * @return {string} wp-cli command output
  */
 export async function setResultFormat( format = 'expanded' ) {
 	return execWpCommand( `option update jetpack_search_result_format ${ format }` );
@@ -30,7 +30,7 @@ export async function setResultFormat( format = 'expanded' ) {
 /**
  * Set Search theme setting.
  * @param {string} theme - Setting value.
- * @returns {string} wp-cli command output
+ * @return {string} wp-cli command output
  */
 export async function setTheme( theme = 'light' ) {
 	return execWpCommand( `option update jetpack_search_result_format ${ theme }` );
@@ -39,7 +39,7 @@ export async function setTheme( theme = 'light' ) {
 /**
  * Set highlight color setting.
  * @param {string} color - Setting value.
- * @returns {string} wp-cli command output
+ * @return {string} wp-cli command output
  */
 export async function setHighlightColor( color = '"#FFFFFF"' ) {
 	return execWpCommand( `option update jetpack_search_highlight_color ${ color }` );
@@ -48,7 +48,7 @@ export async function setHighlightColor( color = '"#FFFFFF"' ) {
 /**
  * Set default sort setting.
  * @param {string} defaultSort - Setting value.
- * @returns {string} wp-cli command output
+ * @return {string} wp-cli command output
  */
 export async function setDefaultSort( defaultSort = 'relevance' ) {
 	return execWpCommand( `option update jetpack_search_default_sort ${ defaultSort }` );
@@ -56,7 +56,7 @@ export async function setDefaultSort( defaultSort = 'relevance' ) {
 
 /**
  * Enable Search auto-config
- * @returns {string} wp-cli command output
+ * @return {string} wp-cli command output
  */
 export async function searchAutoConfig() {
 	// Run auto config to add search widget / block with user ID `1`.
@@ -65,7 +65,7 @@ export async function searchAutoConfig() {
 
 /**
  * Clear Search plan info
- * @returns {string} wp-cli command output
+ * @return {string} wp-cli command output
  */
 export async function clearSearchPlanInfo() {
 	// When running locally, sometimes there could be data in the option - better clear it.

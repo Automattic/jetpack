@@ -1,16 +1,17 @@
 import { Button } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { createInterpolateElement, Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store } from '../../social-store';
 import { Connection } from '../../social-store/types';
+import { checkConnectionCode } from '../../utils/connections';
+import { getSocialScriptData } from '../../utils/script-data';
 import Notice from '../notice';
 import { useServiceLabel } from '../services/use-service-label';
 import styles from './styles.module.scss';
-import { checkConnectionCode } from './utils';
 
 export const BrokenConnectionsNotice: React.FC = () => {
 	const { connections } = useSocialMediaConnections();
@@ -25,9 +26,10 @@ export const BrokenConnectionsNotice: React.FC = () => {
 		);
 	} );
 
-	const { connectionsAdminUrl } = usePublicizeConfig();
+	const { connectionsPageUrl } = usePublicizeConfig();
 
-	const useAdminUiV1 = useSelect( select => select( store ).useAdminUiV1(), [] );
+	const { useAdminUiV1 } = getSocialScriptData().feature_flags;
+
 	const { openConnectionsModal } = useDispatch( store );
 
 	const fixLink = useAdminUiV1 ? (
@@ -37,7 +39,7 @@ export const BrokenConnectionsNotice: React.FC = () => {
 			className={ styles[ 'broken-connection-btn' ] }
 		/>
 	) : (
-		<ExternalLink href={ connectionsAdminUrl } />
+		<ExternalLink href={ connectionsPageUrl } />
 	);
 
 	const getServiceLabel = useServiceLabel();
@@ -62,7 +64,10 @@ export const BrokenConnectionsNotice: React.FC = () => {
 	return (
 		brokenConnections.length > 0 && (
 			<Notice type={ 'error' }>
-				{ __( 'Your following connections need to be reconnected:', 'jetpack' ) }
+				{ __(
+					'Your following connections need to be reconnected:',
+					'jetpack-publicize-components'
+				) }
 				<ul>
 					{ Object.entries( brokenConnectionsList ).map( ( [ service_name, connectionsList ] ) => {
 						const serviceLabel = getServiceLabel( service_name );
@@ -72,7 +77,11 @@ export const BrokenConnectionsNotice: React.FC = () => {
 								<div className={ styles[ 'broken-connection-service' ] }>
 									<span>
 										{ serviceLabel }
-										{ _x( ':', 'Colon to display before the list of connections', 'jetpack' ) }
+										{ _x(
+											':',
+											'Colon to display before the list of connections',
+											'jetpack-publicize-components'
+										) }
 										&nbsp;
 									</span>
 									{
@@ -84,8 +93,11 @@ export const BrokenConnectionsNotice: React.FC = () => {
 													{ display_name || external_display }
 												</span>
 												{ i < connectionsList.length - 1 &&
-													_x( ',', 'Comma to separate list of social media accounts', 'jetpack' ) +
-														' ' }
+													_x(
+														',',
+														'Comma to separate list of social media accounts',
+														'jetpack-publicize-components'
+													) + ' ' }
 											</Fragment>
 										) )
 									}
@@ -98,7 +110,7 @@ export const BrokenConnectionsNotice: React.FC = () => {
 					_x(
 						'Please reconnect them in the <fixLink>connections management</fixLink> section.',
 						'"them" refers to the broken connections.',
-						'jetpack'
+						'jetpack-publicize-components'
 					),
 					{
 						fixLink,

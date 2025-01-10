@@ -1,12 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { setup } from '../../../utils/test-factory';
-import { useSupportedServices } from '../../services/use-supported-services';
 import { ConfirmationForm } from '../confirmation-form';
-
-jest.mock( '../../services/use-supported-services', () => ( {
-	useSupportedServices: jest.fn(),
-} ) );
 
 describe( 'ConfirmationForm', () => {
 	let stubCreateConnection;
@@ -16,22 +11,18 @@ describe( 'ConfirmationForm', () => {
 		( { stubCreateConnection } = setup( {
 			connections: [
 				{
-					service_name: 'service-1',
-					external_id: 'test-account-1',
+					service_name: 'facebook',
+					external_id: 'additional-1',
 					external_name: 'Test Account',
 					external_profile_picture: 'https://example.com/profile.jpg',
 				},
 			],
 		} ) );
-
-		useSupportedServices.mockReturnValue( [
-			{ ID: 'service-1', external_users_only: false, multiple_external_user_ID_support: true },
-		] );
 	} );
 
 	const keyringResult = {
 		ID: 'service-1',
-		service: 'service-1',
+		service: 'facebook',
 		external_display: 'Test Account',
 		external_ID: 'test-account-1',
 		external_profile_picture: 'https://example.com/profile.jpg',
@@ -59,7 +50,6 @@ describe( 'ConfirmationForm', () => {
 		renderComponent();
 
 		expect( screen.getByText( /Select the account you'd like to connect/ ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Test Account' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Additional User 1' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Additional User 2' ) ).toBeInTheDocument();
 	} );
@@ -80,7 +70,7 @@ describe( 'ConfirmationForm', () => {
 				{
 					display_name: 'Additional User 2',
 					profile_picture: 'https://example.com/additional2.jpg',
-					service_name: 'service-1',
+					service_name: 'facebook',
 					external_id: 'additional-2',
 				}
 			)
@@ -96,15 +86,15 @@ describe( 'ConfirmationForm', () => {
 		await waitFor( () =>
 			expect( stubCreateConnection ).toHaveBeenCalledWith(
 				{
-					external_user_ID: 'additional-1',
+					external_user_ID: 'additional-2',
 					keyring_connection_ID: 'service-1',
 					shared: true,
 				},
 				{
-					display_name: 'Additional User 1',
-					profile_picture: 'https://example.com/additional1.jpg',
-					service_name: 'service-1',
-					external_id: 'additional-1',
+					display_name: 'Additional User 2',
+					profile_picture: 'https://example.com/additional2.jpg',
+					service_name: 'facebook',
+					external_id: 'additional-2',
 				}
 			)
 		);
@@ -123,7 +113,7 @@ describe( 'ConfirmationForm', () => {
 		renderComponent();
 
 		expect( screen.getByText( 'Already connected' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Test Account' ) ).toBeInTheDocument();
-		expect( screen.queryByLabelText( 'Test Account' ) ).not.toBeInTheDocument(); // Should not be selectable
+		expect( screen.getByText( 'Additional User 1' ) ).toBeInTheDocument();
+		expect( screen.queryByLabelText( 'Additional User 1' ) ).not.toBeInTheDocument(); // Should not be selectable
 	} );
 } );

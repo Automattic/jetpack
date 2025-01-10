@@ -20,7 +20,7 @@ class PublicizeConnection extends Component {
 	 * Displays a message when a connection requires reauthentication. We used this when migrating LinkedIn API usage from v1 to v2,
 	 * since the prevous OAuth1 tokens were incompatible with OAuth2.
 	 *
-	 * @returns {object|?null} Notice about reauthentication
+	 * @return {object|?null} Notice about reauthentication
 	 */
 	maybeDisplayLinkedInNotice = () =>
 		this.connectionNeedsReauth() && (
@@ -32,11 +32,11 @@ class PublicizeConnection extends Component {
 				<p>
 					{ __(
 						'Your LinkedIn connection needs to be reauthenticated to continue working – head to Sharing to take care of it.',
-						'jetpack'
+						'jetpack-publicize-components'
 					) }
 				</p>
 				<ExternalLink href={ `https://wordpress.com/marketing/connections/${ getSiteFragment() }` }>
-					{ __( 'Go to Sharing settings', 'jetpack' ) }
+					{ __( 'Go to Sharing settings', 'jetpack-publicize-components' ) }
 				</ExternalLink>
 			</Notice>
 		);
@@ -44,7 +44,7 @@ class PublicizeConnection extends Component {
 	/**
 	 * Check whether the connection needs to be reauthenticated.
 	 *
-	 * @returns {boolean} True if connection must be reauthenticated.
+	 * @return {boolean} True if connection must be reauthenticated.
 	 */
 	connectionNeedsReauth = () => this.props.mustReauthConnections.includes( this.props.name );
 

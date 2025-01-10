@@ -96,7 +96,7 @@ nocache_headers();
 				margin-top: 0 !important;
 			}
 			.wpcom-coming-soon-body {
-				background: #117ac9;
+				background: #3858e9;
 				color: #fff;
 				display: grid;
 				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;

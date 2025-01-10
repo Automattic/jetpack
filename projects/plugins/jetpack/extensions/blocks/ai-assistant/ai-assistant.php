@@ -139,18 +139,6 @@ add_action(
 );
 
 /**
- * Register the `ai-assistant-extensions-support` extension.
- */
-add_action(
-	'jetpack_register_gutenberg_extensions',
-	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) && apply_filters( 'jetpack_inline_extensions_enabled', false ) ) {
-			\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-extensions-support' );
-		}
-	}
-);
-
-/**
  * Register the `ai-assistant-experimental-image-generation-support` extension.
  */
 add_action(
@@ -194,6 +182,60 @@ add_action(
 	function () {
 		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
 			\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-site-logo-support' );
+		}
+	}
+);
+
+/**
+ * Register the `ai-title-optimization-keywords-support` extension.
+ */
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
+			\Jetpack_Gutenberg::set_extension_available( 'ai-title-optimization-keywords-support' );
+		}
+	}
+);
+
+/**
+ * Register the `ai-list-to-table-transform` extension.
+ */
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		if ( apply_filters( 'jetpack_ai_enabled', true ) &&
+			apply_filters( 'list_to_table_transform_enabled', false )
+		) {
+			\Jetpack_Gutenberg::set_extension_available( 'ai-list-to-table-transform' );
+		}
+	}
+);
+
+/**
+ * Register the `ai-response-feedback` extension.
+ */
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		if ( apply_filters( 'jetpack_ai_enabled', true ) &&
+			apply_filters( 'ai_response_feedback_enabled', true )
+		) {
+			\Jetpack_Gutenberg::set_extension_available( 'ai-response-feedback' );
+		}
+	}
+);
+
+/**
+ * Register the `ai-seo-assistant` extension.
+ */
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		if ( apply_filters( 'jetpack_ai_enabled', true ) &&
+			apply_filters( 'ai_seo_assistant_enabled', false )
+		) {
+			\Jetpack_Gutenberg::set_extension_available( 'ai-seo-assistant' );
 		}
 	}
 );

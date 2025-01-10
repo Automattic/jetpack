@@ -3,6 +3,7 @@ import {
 	InspectorControls,
 	PanelColorSettings,
 	BlockControls,
+	useBlockProps,
 } from '@wordpress/block-editor';
 import { PanelBody, ToggleControl } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
@@ -27,6 +28,11 @@ function JetpackFieldCheckbox( props ) {
 	} = props;
 
 	const { blockStyle } = useJetpackFieldStyles( attributes );
+	const blockProps = useBlockProps( {
+		id: `jetpack-field-checkbox-${ instanceId }`,
+		className: 'jetpack-field jetpack-field-checkbox',
+		style: blockStyle,
+	} );
 
 	return (
 		<>
@@ -37,11 +43,7 @@ function JetpackFieldCheckbox( props ) {
 				/>
 			</BlockControls>
 
-			<div
-				id={ `jetpack-field-checkbox-${ instanceId }` }
-				className="jetpack-field jetpack-field-checkbox"
-				style={ blockStyle }
-			>
+			<div { ...blockProps }>
 				<input
 					className="jetpack-field-checkbox__checkbox"
 					type="checkbox"
@@ -61,6 +63,7 @@ function JetpackFieldCheckbox( props ) {
 							label={ __( 'Checked by default', 'jetpack-forms' ) }
 							checked={ defaultValue }
 							onChange={ value => setAttributes( { defaultValue: value ? 'true' : '' } ) }
+							__nextHasNoMarginBottom={ true }
 						/>
 					</PanelBody>
 				</InspectorControls>
@@ -75,6 +78,7 @@ function JetpackFieldCheckbox( props ) {
 							checked={ required }
 							onChange={ value => setAttributes( { required: value } ) }
 							help={ __( 'You can edit the "required" label in the editor', 'jetpack-forms' ) }
+							__nextHasNoMarginBottom={ true }
 						/>
 						<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 
@@ -83,6 +87,7 @@ function JetpackFieldCheckbox( props ) {
 							checked={ attributes.shareFieldAttributes }
 							onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
 							help={ __( 'Deactivate for individual styling of this block', 'jetpack-forms' ) }
+							__nextHasNoMarginBottom={ true }
 						/>
 					</PanelBody>
 					<PanelColorSettings

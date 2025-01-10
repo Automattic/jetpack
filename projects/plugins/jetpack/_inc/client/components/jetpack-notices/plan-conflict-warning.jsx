@@ -1,16 +1,19 @@
 import { __, sprintf } from '@wordpress/i18n';
-import SimpleNotice from 'components/notice';
-import React from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import SimpleNotice from 'components/notice';
 import { getActiveSitePurchases } from 'state/site';
 
 /**
  * PlanConflictWarning component
  *
- * @returns {object} component
+ * @param {object} root0                     - props
+ * @param {Array}  root0.activeSitePurchases - active site purchases
+ * @return {object} component
  */
-export function PlanConflictWarning( { activeSitePurchases, location: { pathname } } ) {
+export function PlanConflictWarning( { activeSitePurchases } ) {
+	const { pathname } = useLocation();
+
 	// Only show on plans page.
 	if ( '/plans' !== pathname ) {
 		return null;
@@ -77,8 +80,6 @@ export function PlanConflictWarning( { activeSitePurchases, location: { pathname
 	);
 }
 
-const PlanConflictWarningWithRouter = withRouter( PlanConflictWarning );
-
 export default connect( state => ( {
 	activeSitePurchases: getActiveSitePurchases( state ),
-} ) )( PlanConflictWarningWithRouter );
+} ) )( PlanConflictWarning );

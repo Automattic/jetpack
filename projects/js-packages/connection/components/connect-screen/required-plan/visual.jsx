@@ -19,7 +19,7 @@ const debug = debugFactory( 'jetpack:connection:ConnectScreenRequiredPlanVisual'
  * The Connection Screen Visual component for consumers that require a Plan.
  *
  * @param {object} props -- The properties.
- * @returns {React.Component} The `ConnectScreenRequiredPlanVisual` component.
+ * @return {React.Component} The `ConnectScreenRequiredPlanVisual` component.
  */
 const ConnectScreenRequiredPlanVisual = props => {
 	const {
@@ -43,11 +43,11 @@ const ConnectScreenRequiredPlanVisual = props => {
 	debug( 'props are %o', props );
 
 	const withSubscription = createInterpolateElement(
-		__( 'Already have a subscription? <connectButton/>', 'jetpack' ),
+		__( 'Already have a subscription? <connectButton/>', 'jetpack-connection-js' ),
 		{
 			connectButton: (
 				<ActionButton
-					label={ __( 'Log in to get started', 'jetpack' ) }
+					label={ __( 'Log in to get started', 'jetpack-connection-js' ) }
 					onClick={ handleButtonClick }
 					isLoading={ buttonIsLoading }
 				/>
@@ -56,15 +56,18 @@ const ConnectScreenRequiredPlanVisual = props => {
 	);
 
 	const errorMessage = isOfflineMode
-		? createInterpolateElement( __( 'Unavailable in <a>Offline Mode</a>', 'jetpack' ), {
-				a: (
-					<a
-						href={ getRedirectUrl( 'jetpack-support-development-mode' ) }
-						target="_blank"
-						rel="noopener noreferrer"
-					/>
-				),
-		  } )
+		? createInterpolateElement(
+				__( 'Unavailable in <a>Offline Mode</a>', 'jetpack-connection-js' ),
+				{
+					a: (
+						<a
+							href={ getRedirectUrl( 'jetpack-support-development-mode' ) }
+							target="_blank"
+							rel="noopener noreferrer"
+						/>
+					),
+				}
+		  )
 		: undefined;
 
 	return (

@@ -57,6 +57,7 @@ class IDC_Simulator {
 		add_action( 'admin_post_store_current_options', array( $this, 'admin_post_store_current_options' ) );
 
 		add_action( 'admin_post_idc_send_remote_request', array( $this, 'admin_post_idc_send_remote_request' ) );
+		add_action( 'admin_post_idc_clear_options', array( $this, 'admin_post_idc_clear_options' ) );
 
 		if ( isset( $_GET['idc_notice'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			add_action( 'admin_notices', array( $this, 'display_notice' ) );
@@ -230,6 +231,11 @@ class IDC_Simulator {
 		<h4>jetpack_safe_mode_confirmed</h4>
 		<pre><?php var_dump( get_option( 'jetpack_safe_mode_confirmed' ) ); //phpcs:ignore ?></pre>
 
+		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
+			<input type="hidden" name="action" value="idc_clear_options">
+			<?php wp_nonce_field( 'idc-clear-options' ); ?>
+			<input type="submit" value="Clear IDC Status" class="button button-primary">
+		</form>
 		<?php
 	}
 
@@ -391,6 +397,19 @@ class IDC_Simulator {
 
 			$this->notice_type = 'request_success';
 		}
+
+		$this->admin_post_redirect_referrer();
+	}
+
+	/**
+	 * Clear the stored IDC options.
+	 */
+	public function admin_post_idc_clear_options() {
+		check_admin_referer( 'idc-clear-options' );
+
+		delete_option( 'jetpack_sync_error_idc' );
+		delete_option( 'jetpack_migrate_for_idc' );
+		delete_option( 'jetpack_safe_mode_confirmed' );
 
 		$this->admin_post_redirect_referrer();
 	}

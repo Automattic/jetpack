@@ -2,8 +2,9 @@
  * External dependencies
  */
 import { ExternalLink, Button } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, check, arrowRight } from '@wordpress/icons';
+import { Icon, check } from '@wordpress/icons';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -11,6 +12,7 @@ import clsx from 'clsx';
 import './style.scss';
 import errorExclamation from '../../icons/error-exclamation.js';
 import { ERROR_QUOTA_EXCEEDED } from '../../types.js';
+import AiFeedbackThumbs from '../ai-feedback/index.js';
 /**
  * Types
  */
@@ -22,21 +24,30 @@ export const MESSAGE_SEVERITY_ERROR = 'error';
 export const MESSAGE_SEVERITY_SUCCESS = 'success';
 export const MESSAGE_SEVERITY_INFO = 'info';
 
-const messageSeverityTypes = [
-	MESSAGE_SEVERITY_WARNING,
-	MESSAGE_SEVERITY_ERROR,
-	MESSAGE_SEVERITY_SUCCESS,
-	MESSAGE_SEVERITY_INFO,
-] as const;
+export type MessageSeverityProp =
+	| typeof MESSAGE_SEVERITY_WARNING
+	| typeof MESSAGE_SEVERITY_ERROR
+	| typeof MESSAGE_SEVERITY_SUCCESS
+	| typeof MESSAGE_SEVERITY_INFO
+	| null;
 
-export type MessageSeverityProp = ( typeof messageSeverityTypes )[ number ] | null;
+type AiFeedbackThumbsOptions = {
+	showAIFeedbackThumbs?: boolean;
+	ratedItem?: string;
+	prompt?: string;
+	block?: string | null;
+	onRate?: ( rating: string ) => void;
+};
 
 export type MessageProps = {
 	icon?: React.ReactNode;
 	severity?: MessageSeverityProp;
-	showSidebarIcon?: boolean;
-	onSidebarIconClick?: () => void;
+	aiFeedbackThumbsOptions?: AiFeedbackThumbsOptions;
 	children: React.ReactNode;
+};
+
+export type GuidelineMessageProps = {
+	aiFeedbackThumbsOptions?: AiFeedbackThumbsOptions;
 };
 
 export type OnUpgradeClick = ( event?: React.MouseEvent< HTMLButtonElement > ) => void;
@@ -67,13 +78,18 @@ const messageIconsMap = {
  * React component to render a block message.
  *
  * @param {MessageProps} props - Component props.
- * @returns {React.ReactElement }    Banner component.
+ * @return {React.ReactElement}    Banner component.
  */
 export default function Message( {
 	severity = MESSAGE_SEVERITY_INFO,
 	icon = null,
-	showSidebarIcon = false,
-	onSidebarIconClick = () => {},
+	aiFeedbackThumbsOptions = {
+		showAIFeedbackThumbs: false,
+		ratedItem: '',
+		prompt: '',
+		block: null,
+		onRate: () => {},
+	},
 	children,
 }: MessageProps ): React.ReactElement {
 	return (
@@ -86,39 +102,85 @@ export default function Message( {
 			{ ( messageIconsMap[ severity ] || icon ) && (
 				<Icon icon={ messageIconsMap[ severity ] || icon } />
 			) }
-			<div className="jetpack-ai-assistant__message-content">{ children }</div>
-			{ showSidebarIcon && (
-				<Button className="jetpack-ai-assistant__message-sidebar" onClick={ onSidebarIconClick }>
-					<Icon size={ 20 } icon={ arrowRight } />
-				</Button>
+			{ <div className="jetpack-ai-assistant__message-content">{ children }</div> }
+			{ aiFeedbackThumbsOptions.showAIFeedbackThumbs && aiFeedbackThumbsOptions.prompt && (
+				<AiFeedbackThumbs
+					disabled={ false }
+					ratedItem={ aiFeedbackThumbsOptions.ratedItem }
+					feature="ai-assistant"
+					options={ {
+						prompt: aiFeedbackThumbsOptions.prompt,
+						block: aiFeedbackThumbsOptions.block,
+					} }
+					onRate={ aiFeedbackThumbsOptions.onRate }
+				/>
 			) }
 		</div>
 	);
 }
 
 /**
+ * React component to render a learn more link.
+ *
+ * @return {React.ReactElement} - Learn more link component.
+ */
+function LearnMoreLink(): React.ReactElement {
+	return (
+		<ExternalLink href="https://jetpack.com/redirect/?source=ai-guidelines">
+			{ __( 'Learn more', 'jetpack-ai-client' ) }
+		</ExternalLink>
+	);
+}
+
+/**
  * React component to render a guideline message.
  *
- * @returns {React.ReactElement } - Message component.
+ * @param {GuidelineMessageProps} props - Component props.
+ * @return {React.ReactElement} - Message component.
  */
-export function GuidelineMessage(): React.ReactElement {
+export function GuidelineMessage( {
+	aiFeedbackThumbsOptions = {
+		showAIFeedbackThumbs: false,
+		ratedItem: '',
+		prompt: '',
+		block: null,
+		onRate: () => {},
+	},
+}: GuidelineMessageProps ): React.ReactElement {
 	return (
-		<Message>
+		<Message aiFeedbackThumbsOptions={ aiFeedbackThumbsOptions }>
 			<span>
 				{ __( 'AI-generated content could be inaccurate or biased.', 'jetpack-ai-client' ) }
 			</span>
-			<ExternalLink href="https://automattic.com/ai-guidelines">
-				{ __( 'Learn more', 'jetpack-ai-client' ) }
-			</ExternalLink>
+			<LearnMoreLink />
 		</Message>
 	);
+}
+
+/**
+ * React component to render a fair usage limit message.
+ *
+ * @return {React.ReactElement} - Message component.
+ */
+export function FairUsageLimitMessage(): React.ReactElement {
+	const message = __(
+		"You've reached this month's request limit, per our <link>fair usage policy</link>",
+		'jetpack-ai-client'
+	);
+	const element = createInterpolateElement( message, {
+		link: (
+			<ExternalLink href="https://jetpack.com/redirect/?source=ai-assistant-fair-usage-policy" />
+		),
+	} );
+
+	return <Message severity={ MESSAGE_SEVERITY_WARNING }>{ element }</Message>;
 }
 
 /**
  * React component to render an upgrade message for free tier users
  *
  * @param {number} requestsRemaining - Number of requests remaining.
- * @returns {React.ReactElement } - Message component.
+ * @return {React.ReactElement} - Message component.
  */
 export function UpgradeMessage( {
 	requestsRemaining,
@@ -157,7 +219,7 @@ export function UpgradeMessage( {
  * React component to render an error message
  *
  * @param {number} requestsRemaining - Number of requests remaining.
- * @returns {React.ReactElement } - Message component.
+ * @return {React.ReactElement} - Message component.
  */
 export function ErrorMessage( {
 	error,

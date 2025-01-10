@@ -59,7 +59,7 @@ const useBackupsState = ( shouldPoll = false ) => {
 						return;
 					}
 
-					if ( 'finished' === backup.status && backup.stats ) {
+					if ( 'finished' === backup.status && backup.stats && '0' === backup.discarded ) {
 						latestBackup = backup;
 						setBackupState( BACKUP_STATE.COMPLETE );
 					}

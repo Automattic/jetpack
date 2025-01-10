@@ -5,6 +5,106 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.14.3 - 2025-01-06
+### Changed
+- Updated package dependencies. [#40797]
+- Updated package dependencies. [#40813]
+
+## 0.14.2 - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564]
+
+## 0.14.1 - 2024-12-09
+### Changed
+- Internal updates.
+
+## 0.14.0 - 2024-12-04
+### Changed
+- Changed text domain from 'jetpack' to 'jetpack-licensing'. [#40368]
+- Updated package dependencies. [#40363]
+
+## 0.13.11 - 2024-11-26
+### Changed
+- Update dependencies. [#37982]
+
+## 0.13.10 - 2024-11-25
+### Changed
+- Updated package dependencies. [#40288]
+
+## 0.13.9 - 2024-11-18
+### Changed
+- Update dependencies. [#37982]
+
+## 0.13.8 - 2024-11-14
+### Changed
+- Update dependencies. [#37982]
+
+## 0.13.7 - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999] [#40060]
+
+## 0.13.6 - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+## 0.13.5 - 2024-10-15
+### Changed
+- Update dependencies. [#37982]
+
+## 0.13.4 - 2024-10-14
+### Changed
+- Update dependencies. [#37982]
+
+## 0.13.3 - 2024-10-10
+### Changed
+- Updated package dependencies. [#39707]
+
+## 0.13.2 - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## 0.13.1 - 2024-09-25
+### Changed
+- Update dependencies. [#37982]
+
+## 0.13.0 - 2024-09-16
+### Changed
+- Add more helpful error messages and help steps on license key activation error. [#39333]
+- Updated package dependencies. [#39332]
+
+## 0.12.30 - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## 0.12.29 - 2024-09-09
+### Changed
+- Updated package dependencies. [#39278]
+
+## 0.12.28 - 2024-09-05
+### Changed
+- Internal updates.
+
+## 0.12.27 - 2024-09-05
+### Changed
+- Adds a conditional Protect redirect post scan license activation [#39007]
+- Updated package dependencies. [#39176]
+
+## 0.12.26 - 2024-08-26
+### Changed
+- Updated package dependencies. [#39004]
+
+## 0.12.25 - 2024-08-21
+### Changed
+- Internal updates.
+
+## 0.12.24 - 2024-08-19
+### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
+## 0.12.23 - 2024-08-15
+### Changed
+- Updated package dependencies. [#38662]
+
 ## 0.12.22 - 2024-08-09
 ### Removed
 - Tests: Removed react-test-renderer. [#38755]
@@ -160,8 +260,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.11.5 - 2023-09-04
 ### Changed
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
+- Updated package dependencies. [#32803] [#32804]
 
 ## 0.11.4 - 2023-08-23
 ### Changed

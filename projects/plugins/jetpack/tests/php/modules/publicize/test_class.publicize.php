@@ -21,7 +21,7 @@ if ( ! function_exists( 'publicize_init' ) ) {
 
 /**
  * @group publicize
- * @covers Jetpack_Publicize
+ * @covers Automattic\Jetpack\Publicize\Publicize
  */
 class WP_Test_Publicize extends WP_UnitTestCase {
 
@@ -131,7 +131,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 
 	private function setup_publicize_mock() {
 		global $publicize;
-		$this->publicize = $this->getMockBuilder( Publicize::class )->setMethods( array( 'test_connection' ) )->getMock();
+		$this->publicize = $this->getMockBuilder( Publicize::class )->onlyMethods( array( 'test_connection' ) )->getMock();
 
 		$this->publicize->method( 'test_connection' )
 			->withAnyParameters()

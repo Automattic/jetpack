@@ -1,5 +1,113 @@
 # Changelog
 
+## 6.0.0 - 2024-12-04
+### Added
+- Add Growth to features in wpcomsh package. [#40187]
+- Enable test coverage. [#39961]
+- WordPress.com plan features: Added cornerstone 10 pages feature. [#40023]
+- WordPress.com plan features: Added studio-sync feature. [#39843]
+
+### Changed
+- Added wp-downgrade to the incompatible list. [#39264]
+- Admin dashboard: Disable portfolio toggle if theme supports portfolio and site is WoA. [#39508]
+- General: indicate compatibility with the upcoming version of WordPress - 6.7. [#39786]
+- Incompatible Plugins: whitelist duplicator pro. [#39775]
+- Introduced ESLint base config and fixed errors. [#39275]
+- Only include `wp-polyfill` as a script dependency when needed. [#39629]
+- Remove unused dev dependencies. [#40297]
+- Updated feature check. [#40120]
+- Updated package dependencies. [#39594] [#39653] [#40116] [#40261]
+- Update Jetpack Scan link. [#39619]
+- Update wc-calypso-bridge dependency to 2.7.1 [#39557]
+- Update wc-calypso-bridge dependency to 2.8.0 [#39613]
+- Update wc-calypso-bridge dependency to 2.8.1 [#39950]
+
+### Removed
+- General: Update minimum WordPress version to 6.6. [#40146]
+- Test remove redirection. [#39615]
+
+### Fixed
+- Fix function that add links to URLs in the page when having HTML attributes with "<" in the value. [#39931]
+- Move `load_muplugin_textdomain` call to `after_setup_theme` hook. [#39586]
+- Stats: Fix top post card on the Insight page. [#39691]
+- wpcom-block-editor: Support getting the canvas mode from the query string after GB 19.6. [#40045]
+
+## 5.10.0 - 2024-09-23
+### Added
+- Performance Profiler: Ensure the associated url created when the performance report is generated is accessible for each page or as part of site settings for the home/main url. [#39310]
+
+### Removed
+- Connection: Removed deprecated method features_available. [#39442] [#39475]
+
+### Fixed
+- Portfolios: Ensure these are enabled and working properly on themes that support portfolios. [#39431]
+
+## 5.9.0 - 2024-09-18
+### Changed
+- WPCOMSH: change call to so it doesn't trigger if not necessary [#39336]
+
+### Removed
+- Wpcomsh: Remove actions and filters related to the Masterbar module [#39367]
+
+### Fixed
+- Color Scheme: Avoid wpcom user data overriding the admin color after flushing cache [#39368]
+- WPCOM Features: Add INSTALL_THEMES feature to Jetpack sites so that they are not erroneously seeing the "upgrade" badge when looking at dotorg themes in the wordpress.com showcase [#39392]
+
+## 5.8.0 - 2024-09-10
+### Changed
+- Enable Users -> Profile (profile.php) on all sites [#39181]
+- SSO: Show wp-admin login form if site has local users [#39139]
+- Updated package dependencies. [#39288]
+- Update wc-calypso-bridge dependency to 2.6.0 [#39313]
+
+### Fixed
+- Checks an array key before attempting to read it. [#39240]
+
+## 5.7.0 - 2024-09-02
+### Added
+- WPCOM Marketplace: Added software manager to install marketplace products. [#38705]
+
+## 5.6.2 - 2024-08-30
+### Added
+- Added a switch that will enable rolling trunk releases. [#38994]
+
+## 5.6.1 - 2024-08-26
+### Changed
+- Internal updates.
+
+## 5.6.0 - 2024-08-23
+### Added
+- Added social share status feature [#39023]
+
+### Changed
+- SSO: Automatic logic for Calypso users of classic sites [#38996]
+- Updated package dependencies. [#39004]
+
+## 5.5.0 - 2024-08-21
+### Changed
+- Site Level User Profile: expose all relevant fields on profile.php [#38949]
+
+### Fixed
+- Revert recent SVG image optimizations. [#38981]
+
+## 5.4.1 - 2024-08-19
+### Added
+- Incompatible Plugins: Added one-click-ssl [#38918]
+
+### Changed
+- Updated package dependencies. [#38822]
+
+### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
+## 5.4.0 - 2024-08-13
+### Changed
+- rum data: include WooCommerce active status [#38846]
+
+## 5.3.3 - 2024-08-12
+### Changed
+- Internal updates.
+
 ## 5.3.2 - 2024-08-12
 ### Changed
 - Internal updates.

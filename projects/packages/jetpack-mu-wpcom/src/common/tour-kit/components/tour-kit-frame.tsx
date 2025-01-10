@@ -247,6 +247,7 @@ const TourKitFrame: React.FunctionComponent< Props > = ( { config } ) => {
 				<div
 					className="tour-kit-frame__container"
 					ref={ setPopperElement }
+					tabIndex={ -1 }
 					{ ...( stepRepositionProps as React.HTMLAttributes< HTMLDivElement > ) }
 				>
 					{ showArrowIndicator() && (

@@ -8,16 +8,16 @@
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 /**
- * Check if the site is a WordPress.com Simple site.
+ * Check if the site is a WordPress.com Atomic site.
  *
  * @return bool
  */
-function is_wpcom_simple() {
+function is_woa_site() {
 	if ( ! class_exists( 'Automattic\Jetpack\Status\Host' ) ) {
 		return false;
 	}
 	$host = new Automattic\Jetpack\Status\Host();
-	return $host->is_wpcom_simple();
+	return $host->is_woa_site();
 }
 
 /**
@@ -33,22 +33,38 @@ function wpcom_profile_settings_add_links_to_wpcom() {
 		true
 	);
 
-	$is_wpcom_simple = is_wpcom_simple();
+	$is_wpcom_atomic_classic = is_woa_site() && get_option( 'wpcom_admin_interface' ) === 'wp-admin';
 
 	wp_localize_script(
 		'wpcom-profile-settings-link-to-wpcom',
 		'wpcomProfileSettingsLinkToWpcom',
 		array(
-			'email'         => array(
+			'language'             => array(
 				'link' => esc_url( 'https://wordpress.com/me/account' ),
-				'text' => __( 'Your WordPress.com email is managed on WordPress.com Account settings', 'jetpack-mu-wpcom' ),
+				'text' => __( 'Manage your WordPress.com account language ↗', 'jetpack-mu-wpcom' ),
 			),
-			'password'      => array(
+			'name'                 => array(
+				'link' => esc_url( 'https://wordpress.com/me' ),
+				'text' => __( 'Manage your WordPress.com profile ↗', 'jetpack-mu-wpcom' ),
+			),
+			'website'              => array(
+				'link' => esc_url( 'https://wordpress.com/me' ),
+				'text' => __( 'Manage your WordPress.com profile website ↗', 'jetpack-mu-wpcom' ),
+			),
+			'bio'                  => array(
+				'link' => esc_url( 'https://wordpress.com/me' ),
+				'text' => __( 'Manage your WordPress.com profile bio ↗', 'jetpack-mu-wpcom' ),
+			),
+			'email'                => array(
+				'link' => esc_url( 'https://wordpress.com/me/account' ),
+				'text' => __( 'Manage your WordPress.com account email ↗', 'jetpack-mu-wpcom' ),
+			),
+			'password'             => array(
 				'link' => esc_url( 'https://wordpress.com/me/security' ),
-				'text' => __( 'Your WordPress.com password is managed on WordPress.com Security settings', 'jetpack-mu-wpcom' ),
+				'text' => __( 'Manage your WordPress.com password ↗', 'jetpack-mu-wpcom' ),
 			),
-			'isWpcomSimple' => $is_wpcom_simple,
+			'isWpcomAtomicClassic' => $is_wpcom_atomic_classic,
 		)
 	);
 }
-add_action( 'load-profile.php', 'wpcom_profile_settings_add_links_to_wpcom' );
+add_action( 'profile_personal_options', 'wpcom_profile_settings_add_links_to_wpcom' );

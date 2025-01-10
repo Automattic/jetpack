@@ -1,8 +1,8 @@
-import { Banner, connect as bannerConnect } from 'components/banner';
 import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect as reduxConnect } from 'react-redux';
+import { Banner, connect as bannerConnect } from 'components/banner';
 import { arePromotionsActive, userCanManageModules } from 'state/initial-state';
 
 export class JetpackBanner extends Banner {
@@ -25,6 +25,7 @@ export class JetpackBanner extends Banner {
 		title: PropTypes.node.isRequired,
 		noIcon: PropTypes.bool,
 		rna: PropTypes.bool,
+		isPromotion: PropTypes.bool,
 	};
 
 	static defaultProps = {
@@ -33,6 +34,7 @@ export class JetpackBanner extends Banner {
 		plan: '',
 		rna: false,
 		noIcon: false,
+		isPromotion: true,
 	};
 
 	componentDidMount() {
@@ -43,11 +45,13 @@ export class JetpackBanner extends Banner {
 
 	render() {
 		// Hide promotion banners from non-admins, since they can't upgrade the site.
-		if ( this.props.hidePromotionBanner ) {
+		if ( this.props.isPromotion && this.props.hidePromotionBanner ) {
 			return null;
 		}
 
-		return this.props.arePromotionsActive ? <Banner { ...this.props } /> : null;
+		return ! this.props.isPromotion || this.props.arePromotionsActive ? (
+			<Banner { ...this.props } />
+		) : null;
 	}
 }
 
@@ -55,7 +59,7 @@ export class JetpackBanner extends Banner {
  * Redux-connect a JetpackBanner or subclass.
  *
  * @param {JetpackBanner} Component - Component to connect.
- * @returns {Component} Wrapped component.
+ * @return {Component} Wrapped component.
  */
 export function connect( Component ) {
 	return reduxConnect( ( state, ownProps ) => {

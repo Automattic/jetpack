@@ -13,7 +13,7 @@ import { select } from '@wordpress/data';
  * to the current block, based on the given block clientId.
  *
  * @param {string} clientId - The current block clientId.
- * @returns {string}          The partial content.
+ * @return {string}          The partial content.
  */
 export function getPartialContentToBlock( clientId: string ): string {
 	if ( ! clientId ) {
@@ -35,7 +35,7 @@ export function getPartialContentToBlock( clientId: string ): string {
  * Returns content from all blocks,
  * by inspecting the blocks `content` attributes
  *
- * @returns {string} The content.
+ * @return {string} The content.
  */
 export function getContentFromBlocks(): string {
 	const editor = select( 'core/block-editor' );
@@ -51,7 +51,7 @@ export function getContentFromBlocks(): string {
 /**
  * Given a list of blocks, it returns their content as a string.
  * @param {Array} blocks - The list of blocks.
- * @returns {string}       The content of the blocks as a string.
+ * @return {string}       The content of the blocks as a string.
  */
 export function getBlocksContent( blocks ) {
 	return blocks
@@ -64,7 +64,7 @@ export function getBlocksContent( blocks ) {
  * Returns the text content of the inner blocks of a block.
  *
  * @param {string} clientId - The block clientId.
- * @returns {string}          The text content.
+ * @return {string}          The text content.
  */
 export function getTextContentFromInnerBlocks( clientId: string ) {
 	const block = select( 'core/block-editor' ).getBlock( clientId );
@@ -79,7 +79,7 @@ export function getTextContentFromInnerBlocks( clientId: string ) {
  * Extract raw text from HTML content
  *
  * @param {string} htmlString - The HTML content.
- * @returns {string}            The raw text.
+ * @return {string}            The raw text.
  */
 export function getRawTextFromHTML( htmlString: string ): string {
 	// Removes all continuous whitespace from the start to check if the string is empty

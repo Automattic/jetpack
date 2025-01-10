@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Jetpack.Functions.SetCookie: Support new options syntax from PHP 7.3+.

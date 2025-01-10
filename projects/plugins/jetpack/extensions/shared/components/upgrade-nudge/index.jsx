@@ -5,13 +5,13 @@ import clsx from 'clsx';
 import './style.scss';
 
 export const Nudge = ( {
-	align,
 	className,
-	title,
 	description,
+	align = null,
+	title = null,
 	buttonText = null,
 	visible = true,
-	context,
+	context = null,
 	checkoutUrl = null,
 	goToCheckoutPage = null,
 	isRedirecting = false,

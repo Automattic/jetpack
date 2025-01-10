@@ -8,7 +8,7 @@ import trackAndBumpMCStats from '../tools/tracking';
  * Custom hook to handle the migration action.
  *
  * @param {Function} onMigrated - The callback to be called when migration has completed.
- * @returns {{isMigrating: boolean, migrateCallback: ((function(): void)|*)}} Hook values.
+ * @return {{isMigrating: boolean, migrateCallback: ((function(): void)|*)}} Hook values.
  */
 export default onMigrated => {
 	const [ isMigrating, setIsMigrating ] = useState( false );

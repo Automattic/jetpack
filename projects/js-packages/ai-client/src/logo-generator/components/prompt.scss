@@ -5,16 +5,30 @@
 	flex-direction: column;
 	gap: 8px;
 	font-size: var(--font-body-small);
+
+	.components-button {
+		&:focus:not(:disabled):not(.is-primary) {
+			box-shadow: 0 0 0 2px var(--color-link, #3858e9);
+		}
+
+		&.is-link {
+			text-decoration: none;
+
+			&:not(:disabled) {
+				color: var(--color-link, #3858e9);
+			}
+		}
+	}
 }
 
 .jetpack-ai-logo-generator__prompt-header {
 	display: flex;
-	justify-content: space-between;
-	align-items: flex-start;
-	align-self: stretch;
+	gap: 16px;
+	align-items: center;
 
 	.jetpack-ai-logo-generator__prompt-label {
 		font-weight: 500;
+		flex-grow: 1;
 	}
 
 	.jetpack-ai-logo-generator__prompt-actions {
@@ -24,11 +38,13 @@
 
 		.jetpack-ai-logo-generator-icon {
 			margin-right: 4px;
+			// the svg icon with this class has no fill, only paths
+			stroke: currentColor;
 		}
 	}
 }
 
-.jetpack-ai-logo-generator__prompt-query {
+.jetpack-ai-image-generator__prompt-query {
 	display: flex;
 	padding: 8px 8px 8px var(--grid-unit-15, 16px);
 	justify-content: space-between;
@@ -62,12 +78,16 @@
 			color: var(--studio-gray-50, #646970);
 		}
 
+		&:not([contentEditable="false"]) {
+			cursor: text;
+		}
+
 		&[data-placeholder]:empty::before {
 			content: attr(data-placeholder);
 			color: var(--studio-gray-50, #646970);
 		}
 
-		&[data-placeholder]:empty:focus::before {
+		&[data-placeholder]:empty:focus::before:not([contentEditable="false"]) {
 			content: "";
 		}
 	}

@@ -17,8 +17,8 @@ export const reducer = combineReducers( {
 
 /**
  * Determines if the DevCard should be displayed.
- * @param  {Object}  state Global state tree
- * @return {Boolean}       whether the devCard can be displayed
+ * @param {object} state - Global state tree
+ * @return {boolean}       whether the devCard can be displayed
  */
 export function getPlanDuration( state ) {
 	return state.jetpack.plans.duration;

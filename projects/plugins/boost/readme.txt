@@ -2,10 +2,10 @@
 Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dilirity, donncha, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, luchad0res, pyronaur, rheinardkorf, scruffian, thingalon
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
-Requires at least: 5.5
-Tested up to: 6.6
-Requires PHP: 7.0
-Stable tag: 3.4.7
+Requires at least: 6.6
+Tested up to: 6.7
+Requires PHP: 7.2
+Stable tag: 3.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,9 +183,20 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.4.7 - 2024-07-10
-#### Security
-- General: Improved image and CSS proxy functionalities with CDN support, caching, and other enhancements.
+### 3.7.0 - 2025-01-06
+#### Added
+- Concatenate JS/CSS: Added a button that allows loading default excludes.
+- General: Added tracks events to clickable elements on the settings page.
+- General: Added WordPress filters to allow Cornerstone Pages list and Image Size Analyzer source data to be updated.
+- Concatenate JS/CSS: Added HTTP header to take advantage of WordPress.com edge caching
+- UI: Added notifications when interacting with dashboard settings.
+
+#### Changed
+- UI: Gave Page Cache, Concatenate JS/CSS and Image CDN - Image Quality modules a more unifed look.
+
+#### Fixed
+- Critical CSS: Improved UI responsiveness during a retry after failed generation.
+- UI: Fixed showing an error if no ISA report was found.
 
 --------
 

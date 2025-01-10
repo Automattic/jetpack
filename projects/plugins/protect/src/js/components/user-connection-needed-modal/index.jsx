@@ -1,13 +1,12 @@
 import { Button, Text } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { STORE_ID } from '../../state/store';
+import useModal from '../../hooks/use-modal';
 import Notice from '../notice';
 import styles from './styles.module.scss';
 
 const UserConnectionNeededModal = () => {
-	const { setModal } = useDispatch( STORE_ID );
+	const { setModal } = useModal();
 	const { userIsConnecting, handleConnectUser } = useConnection( {
 		redirectUri: 'admin.php?page=jetpack-protect',
 	} );

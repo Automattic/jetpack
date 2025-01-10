@@ -1,10 +1,10 @@
 import { getRedirectUrl, JetpackFooter, ThemeProvider } from '@automattic/jetpack-components';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import DevCard from 'components/dev-card';
-import analytics from 'lib/analytics';
 import React from 'react';
 import { connect } from 'react-redux';
+import DevCard from 'components/dev-card';
+import analytics from 'lib/analytics';
 import { isInIdentityCrisis, getSiteConnectionStatus } from 'state/connection';
 import { canDisplayDevCard, enableDevCard, resetOptions } from 'state/dev-version';
 import {
@@ -27,6 +27,7 @@ export class Footer extends React.Component {
 	static displayName = 'Footer';
 
 	resetOnClick = () => {
+		// eslint-disable-next-line no-alert -- @todo Is there a better dialog we could use?
 		if ( window.confirm( __( 'This will reset all Jetpack options, are you sure?', 'jetpack' ) ) ) {
 			this.props.resetOptions();
 		}

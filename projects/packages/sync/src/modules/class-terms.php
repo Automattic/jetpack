@@ -38,14 +38,28 @@ class Terms extends Module {
 	}
 
 	/**
-	 * The table in the database.
+	 * The table name.
 	 *
 	 * @access public
 	 *
 	 * @return string
+	 * @deprecated since 3.11.0 Use table() instead.
 	 */
 	public function table_name() {
+		_deprecated_function( __METHOD__, '3.11.0', 'Automattic\\Jetpack\\Sync\\Terms->table' );
 		return 'term_taxonomy';
+	}
+
+	/**
+	 * The table in the database with the prefix.
+	 *
+	 * @access public
+	 *
+	 * @return string|bool
+	 */
+	public function table() {
+		global $wpdb;
+		return $wpdb->term_taxonomy;
 	}
 
 	/**
@@ -259,12 +273,16 @@ class Terms extends Module {
 	}
 
 	/**
-	 * Filter out set_object_terms actions where the terms have not changed.
+	 * Filter out set_object_terms actions with blacklisted taxonomies or where the terms have not changed.
 	 *
 	 * @param array $args Hook args.
-	 * @return array|boolean False if no change in terms, the original hook args otherwise.
+	 * @return array|boolean False if blacklisted taxonomy or no change in terms, the original hook args otherwise.
 	 */
 	public function filter_set_object_terms_no_update( $args ) {
+		// Check if the taxonomy is blacklisted. $args[3] is the taxonomy.
+		if ( isset( $args[3] ) && in_array( $args[3], Settings::get_setting( 'taxonomies_blacklist' ), true ) ) {
+			return false;
+		}
 		// There is potential for other plugins to modify args, therefore lets validate # of and types.
 		// $args[2] is $tt_ids, $args[5] is $old_tt_ids see wp-includes/taxonomy.php L2740.
 		if ( 6 === count( $args ) && is_array( $args[2] ) && is_array( $args[5] ) ) {
@@ -284,7 +302,7 @@ class Terms extends Module {
 	 * @return array $args The expanded hook parameters.
 	 */
 	public function expand_term_taxonomy_id( $args ) {
-		list( $term_taxonomy_ids,  $previous_end ) = $args;
+		list( $term_taxonomy_ids, $previous_end ) = $args;
 
 		return array(
 			'terms'        => get_terms(

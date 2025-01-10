@@ -6,7 +6,7 @@
  *
  * @param {Function} callback - The function to call.
  * @param {number}   wait     - Number of milliseconds to wait.
- * @returns {Function} Debounced function.
+ * @return {Function} Debounced function.
  */
 export function debounce( callback, wait ) {
 	let timer;

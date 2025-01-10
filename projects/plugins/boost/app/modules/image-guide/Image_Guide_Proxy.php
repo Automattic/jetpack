@@ -36,10 +36,8 @@ class Image_Guide_Proxy {
 			wp_send_json_error( 'Invalid URL', 400 );
 		}
 
-		$photon_url        = Image_CDN_Core::cdn_url( $proxy_url );
-		$photon_url_domain = wp_parse_url( $photon_url, PHP_URL_HOST );
-		$photon_domain     = wp_parse_url( apply_filters( 'jetpack_photon_domain', 'https://i0.wp.com' ), PHP_URL_HOST );
-		if ( $photon_url_domain !== $photon_domain ) {
+		$photon_url = Image_CDN_Core::cdn_url( $proxy_url );
+		if ( ! Image_CDN_Core::is_cdn_url( $proxy_url ) ) {
 			wp_send_json_error( 'Failed to proxy the image.', 400 );
 		}
 

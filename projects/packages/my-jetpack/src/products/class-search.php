@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
@@ -78,6 +79,13 @@ class Search extends Hybrid_Product {
 	 * @var boolean
 	 */
 	public static $requires_user_connection = true;
+
+	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'search';
 
 	/**
 	 * Get the product name
@@ -222,22 +230,33 @@ class Search extends Hybrid_Product {
 	 */
 	public static function get_pricing_from_wpcom( $record_count ) {
 		static $pricings = array();
+		$connection      = new Connection_Manager();
+		$blog_id         = \Jetpack_Options::get_option( 'id' );
 
 		if ( isset( $pricings[ $record_count ] ) ) {
 			return $pricings[ $record_count ];
 		}
 
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			// For simple sites fetch the response directly.
+		// If the site is connected, request pricing with the blog token
+		if ( $blog_id ) {
+			$endpoint = sprintf( '/jetpack-search/pricing?record_count=%1$d&locale=%2$s', $record_count, get_user_locale() );
+
+			// If available in the user data, set the user's currency as one of the params
+			if ( $connection->is_user_connected() ) {
+				$user_details = $connection->get_connected_user_data();
+				if ( ! empty( $user_details['user_currency'] ) && $user_details['user_currency'] !== 'USD' ) {
+					$endpoint .= sprintf( '&currency=%s', $user_details['user_currency'] );
+				}
+			}
+
 			$response = Client::wpcom_json_api_request_as_blog(
-				sprintf( '/jetpack-search/pricing?record_count=%1$d&locale=%2$s', $record_count, get_user_locale() ),
+				$endpoint,
 				'2',
 				array( 'timeout' => 5 ),
 				null,
 				'wpcom'
 			);
 		} else {
-			// For non-simple sites we have to use the wp_remote_get, as connection might not be available.
 			$response = wp_remote_get(
 				sprintf( Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . '/wpcom/v2/jetpack-search/pricing?record_count=%1$d&locale=%2$s', $record_count, get_user_locale() ),
 				array( 'timeout' => 5 )
@@ -300,26 +319,16 @@ class Search extends Hybrid_Product {
 	}
 
 	/**
-	 * Checks if the site purchases contain a paid search plan
+	 * Get the product-slugs of the paid plans for this product (not including bundles)
 	 *
-	 * @return bool
+	 * @return array
 	 */
-	public static function has_paid_plan_for_product() {
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
-		}
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				// Search is available as standalone product and as part of the Complete plan.
-				if (
-					( str_contains( $purchase->product_slug, 'jetpack_search' ) && ! str_contains( $purchase->product_slug, 'jetpack_search_free' ) ) ||
-					str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
-					return true;
-				}
-			}
-		}
-		return false;
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_search',
+			'jetpack_search_monthly',
+			'jetpack_search_bi_yearly',
+		);
 	}
 
 	/**
@@ -378,5 +387,15 @@ class Search extends Hybrid_Product {
 	 */
 	public static function get_manage_url() {
 		return admin_url( 'admin.php?page=jetpack-search' );
+	}
+
+	/**
+	 * Return product bundles list
+	 * that supports the product.
+	 *
+	 * @return boolean|array Products bundle list.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return array( 'complete' );
 	}
 }

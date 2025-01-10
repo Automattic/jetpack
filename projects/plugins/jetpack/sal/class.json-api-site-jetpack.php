@@ -403,8 +403,6 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	/**
 	 * Defaults to false instead of returning the current site plan.
 	 *
-	 * @see /modules/masterbar/admin-menu/class-dashboard-switcher-tracking.php.
-	 *
 	 * @return bool
 	 */
 	public function get_plan() {

@@ -49,7 +49,7 @@ class SearchFilters extends Component {
 		);
 
 	renderStaticFilterComponent = configuration => {
-		if ( configuration.hasOwnProperty( 'visible' ) && ! configuration.visible ) {
+		if ( Object.hasOwn( configuration, 'visible' ) && ! configuration.visible ) {
 			return null;
 		}
 
@@ -82,7 +82,7 @@ class SearchFilters extends Component {
 				) }
 				{ this.props.showClearFiltersButton && this.hasActiveFilters() && (
 					<button
-						class="jetpack-instant-search__clear-filters-link"
+						className="jetpack-instant-search__clear-filters-link"
 						onClick={ this.onClearFilters }
 					>
 						{ __( 'Clear filters', 'jetpack-search-pkg' ) }

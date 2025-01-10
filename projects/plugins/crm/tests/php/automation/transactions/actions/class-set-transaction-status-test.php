@@ -11,7 +11,7 @@ use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_Test_Case;
 /**
  * Test Automation Workflow functionalities
  *
- * @covers Automattic\Jetpack\CRM\Automation\Actions\Set_Transaction_Status_Test
+ * @covers Automattic\Jetpack\CRM\Automation\Actions\Set_Transaction_Status
  */
 class Set_Transaction_Status_Test extends JPCRM_Base_Integration_Test_Case {
 

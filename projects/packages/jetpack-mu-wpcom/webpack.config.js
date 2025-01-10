@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const pkgDir = require( 'pkg-dir' );
@@ -17,6 +16,7 @@ module.exports = [
 				'./src/features/custom-css/custom-css/js/core-customizer-css-preview.js',
 			'customizer-control': './src/features/custom-css/custom-css/css/customizer-control.css',
 			'error-reporting': './src/features/error-reporting/index.js',
+			'holiday-snow': './src/features/holiday-snow/holiday-snow.scss',
 			'jetpack-global-styles': './src/features/jetpack-global-styles/index.js',
 			'jetpack-global-styles-customizer-fonts':
 				'./src/features/jetpack-global-styles/customizer-fonts/index.js',
@@ -38,6 +38,8 @@ module.exports = [
 			'wpcom-blocks-timeline-view': './src/features/wpcom-blocks/timeline/view.js',
 			'wpcom-block-description-links': './src/features/wpcom-block-description-links/index.tsx',
 			'wpcom-block-editor-nux': './src/features/wpcom-block-editor-nux/index.js',
+			'wpcom-dashboard-widgets':
+				'./src/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.js',
 			'wpcom-global-styles-editor': './src/features/wpcom-global-styles/index.js',
 			'wpcom-global-styles-frontend':
 				'./src/features/wpcom-global-styles/wpcom-global-styles-view.js',
@@ -49,6 +51,8 @@ module.exports = [
 				'./src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.ts',
 			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
 			'starter-page-templates': './src/features/starter-page-templates/index.tsx',
+			'removed-calypso-screen-notice':
+				'./src/features/wpcom-admin-interface/removed-calypso-screen-notice.tsx',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
@@ -124,6 +128,7 @@ module.exports = [
  * Note this is not the same as looking for `__dirname+'/node_modules/'+pkgName`, as the package may be in a parent
  * `node_modules`
  * @param {string} pkgName - Name of the package to search for.
+ * @return {string} - The absolute path of the package.
  */
 function findPackage( pkgName ) {
 	const fullPath = require.resolve( pkgName );

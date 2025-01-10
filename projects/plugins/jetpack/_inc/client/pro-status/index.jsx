@@ -1,14 +1,14 @@
 import { Status, getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _n, _x } from '@wordpress/i18n';
+import { get } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import analytics from 'lib/analytics';
-import { get } from 'lodash';
-import PropTypes from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
 import {
 	getVaultPressScanThreatCount,
 	getVaultPressData,
@@ -29,7 +29,7 @@ import { isFetchingPluginsData, isPluginActive, isPluginInstalled } from 'state/
  *
  * @param {string} type    - Status of a certain feature.
  * @param {string} feature - Slug of plugin or service.
- * @returns {undefined}
+ * @return {undefined}
  */
 const trackProStatusClick = ( type, feature ) =>
 	analytics.tracks.recordJetpackClick( {
@@ -43,7 +43,7 @@ const trackProStatusClick = ( type, feature ) =>
  *
  * @param {string} type    - Status of a certain feature.
  * @param {string} feature - Slug of plugin or service.
- * @returns {Function} Function to track a click.
+ * @return {Function} Function to track a click.
  */
 const handleClickForTracking = ( type, feature ) => () => trackProStatusClick( type, feature );
 
@@ -109,9 +109,10 @@ class ProStatus extends React.Component {
 				break;
 			case 'invalid_key':
 				return;
-			case 'rewind_connected':
+			case 'rewind_connected': {
 				const rewindMessage = this.getRewindMessage();
 				return <Status status={ rewindMessage.status } text={ rewindMessage.text } />;
+			}
 			case 'active':
 				return <Status status="active" />;
 		}
@@ -138,7 +139,7 @@ class ProStatus extends React.Component {
 	 * Return a button to Set Up a feature.
 	 *
 	 * @param {string} feature - Slug of the feature to set up.
-	 * @returns {React.ReactElement} A Button component.
+	 * @return {React.ReactElement} A Button component.
 	 */
 	getSetUpButton = feature => {
 		return (

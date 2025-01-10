@@ -44,7 +44,6 @@ describe( 'NavigationSettings', () => {
 			monitor: true,
 			vaultpress: true,
 			stats: true,
-			masterbar: true,
 			'google-analytics': true,
 			'seo-tools': true,
 			wordads: true,
@@ -112,9 +111,7 @@ describe( 'NavigationSettings', () => {
 				// eslint-disable-next-line react/jsx-no-bind
 				<NavigationSettings { ...currentTestProps } isModuleActivated={ m => 'publicize' !== m } />
 			);
-			// eslint-disable-next-line jest-dom/prefer-in-document -- No, we really want to assert there's exactly 1.
 			expect( screen.getAllByRole( 'menuitem' ) ).toHaveLength( 1 );
-			// eslint-disable-next-line jest-dom/prefer-in-document -- No, we really want to assert there's exactly 1.
 			expect( screen.getAllByRole( 'option' ) ).toHaveLength( 1 );
 			expect( screen.getByRole( 'menuitem', { name: 'Writing' } ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'option', { name: 'Writing' } ) ).toBeInTheDocument();
@@ -130,9 +127,7 @@ describe( 'NavigationSettings', () => {
 					isModuleActivated={ m => 'post-by-email' !== m }
 				/>
 			);
-			// eslint-disable-next-line jest-dom/prefer-in-document -- No, we really want to assert there's exactly 1.
 			expect( screen.getAllByRole( 'menuitem' ) ).toHaveLength( 1 );
-			// eslint-disable-next-line jest-dom/prefer-in-document -- No, we really want to assert there's exactly 1.
 			expect( screen.getAllByRole( 'option' ) ).toHaveLength( 1 );
 			expect( screen.queryByRole( 'menuitem', { name: 'Writing' } ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'option', { name: 'Writing' } ) ).not.toBeInTheDocument();

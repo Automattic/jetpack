@@ -195,26 +195,7 @@ class Concatenate_CSS extends WP_Styles {
 					}
 					continue;
 				} elseif ( count( $css ) > 1 ) {
-					$fs_paths = array();
-					foreach ( $css as $css_uri_path ) {
-						$fs_paths[] = $this->dependency_path_mapping->uri_path_to_fs_path( $css_uri_path );
-					}
-
-					$mtime = max( array_map( 'filemtime', $fs_paths ) );
-					if ( jetpack_boost_page_optimize_use_concat_base_dir() ) {
-						$path_str = implode( ',', array_map( 'jetpack_boost_page_optimize_remove_concat_base_prefix', $fs_paths ) );
-					} else {
-						$path_str = implode( ',', $css );
-					}
-					$path_str = "$path_str?m=$mtime&cb=" . jetpack_boost_minify_cache_buster();
-
-					if ( $this->allow_gzip_compression ) {
-						// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-						$path_64 = base64_encode( gzcompress( $path_str ) );
-						if ( strlen( $path_str ) > ( strlen( $path_64 ) + 1 ) ) {
-							$path_str = '-' . $path_64;
-						}
-					}
+					$path_str = jetpack_boost_page_optimize_generate_concat_path( $css, $this->dependency_path_mapping );
 
 					$href = $siteurl . jetpack_boost_get_static_prefix() . '??' . $path_str;
 				} else {

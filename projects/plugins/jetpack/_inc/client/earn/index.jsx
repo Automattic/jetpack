@@ -1,15 +1,14 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
+import { connect } from 'react-redux';
 import Card from 'components/card';
-import ConnectUserBar from 'components/connect-user-bar';
 import QuerySite from 'components/data/query-site';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import { FEATURE_SIMPLE_PAYMENTS_JETPACK } from 'lib/plans/constants';
-import React from 'react';
-import { connect } from 'react-redux';
 import {
 	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
@@ -24,7 +23,7 @@ import { Ads } from './ads';
  * Earn Feature description card.
  *
  * @param {object} props - Component props.
- * @returns {React.Component} Feature description and CTA.
+ * @return {React.Component} Feature description and CTA.
  */
 function EarnFeatureButton( props ) {
 	const {
@@ -78,18 +77,26 @@ function EarnFeatureButton( props ) {
  * Earn Section.
  *
  * @param {object} props - Component props.
- * @returns {React.Component} Earn settings component.
+ * @return {React.Component} Earn settings component.
  */
 function Earn( props ) {
-	const { active, hasConnectedOwner, isModuleFound, isOffline, searchTerm, siteRawUrl, blogID } =
-		props;
-
-	const foundAds = isModuleFound( 'wordads' ),
-		foundEarnBlocks = isModuleFound( 'earn' );
+	const {
+		active,
+		hasConnectedOwner,
+		isModuleFound,
+		isOffline,
+		searchTerm,
+		siteRawUrl,
+		blogID,
+		feature,
+	} = props;
 
 	if ( ! searchTerm && ! active ) {
 		return null;
 	}
+
+	const foundAds = isModuleFound( 'wordads' ),
+		foundEarnBlocks = isModuleFound( 'earn' );
 
 	if ( ! foundAds && ! foundEarnBlocks ) {
 		return null;
@@ -112,13 +119,8 @@ function Earn( props ) {
 					hideButton
 					module="earn"
 					header={ __( 'Collect payments', 'jetpack' ) }
-				>
-					<ConnectUserBar
-						feature="earn"
-						featureLabel={ __( 'Collect payments', 'jetpack' ) }
-						text={ __( 'Connect to discover tools to earn money with your site.', 'jetpack' ) }
-					/>
-				</SettingsCard>
+					feature={ feature }
+				/>
 			);
 		}
 

@@ -68,6 +68,13 @@ class Stats extends Module_Product {
 	public static $has_free_offering = true;
 
 	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'stats-paid';
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string
@@ -194,7 +201,10 @@ class Stats extends Module_Product {
 		if ( ! is_wp_error( $purchases_data ) && is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
 				// Jetpack complete includes Stats commercial & cannot be upgraded
-				if ( str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
+				if (
+					str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ||
+					str_starts_with( $purchase->product_slug, 'jetpack_growth' )
+				) {
 					return false;
 				} elseif (
 					// Stats commercial purchased with highest tier cannot be upgraded.
@@ -217,24 +227,17 @@ class Stats extends Module_Product {
 	}
 
 	/**
-	 * Checks if the site has a paid plan that supports this product
+	 * Get the product-slugs of the paid plans for this product (not including bundles)
 	 *
-	 * @return boolean
+	 * @return array
 	 */
-	public static function has_paid_plan_for_product() {
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
-		}
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				// Stats is available as standalone product and as part of the Complete plan.
-				if ( strpos( $purchase->product_slug, 'jetpack_stats' ) !== false || str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
-					return true;
-				}
-			}
-		}
-		return false;
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_stats_yearly',
+			'jetpack_stats_monthly',
+			'jetpack_stats_bi_yearly',
+			'jetpack_stats_pwyw_yearly',
+		);
 	}
 
 	/**
@@ -306,5 +309,15 @@ class Stats extends Module_Product {
 	 */
 	public static function get_manage_url() {
 		return admin_url( 'admin.php?page=stats' );
+	}
+
+	/**
+	 * Return product bundles list
+	 * that supports the product.
+	 *
+	 * @return boolean|array Products bundle list.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return array( 'growth', 'complete' );
 	}
 }

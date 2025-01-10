@@ -4,3 +4,4 @@ packages:
   - 'tools/cli'
   - 'tools/e2e-commons'
   - 'tools/js-tools'
+  - '.github/files/coverage-munger'

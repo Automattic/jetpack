@@ -138,7 +138,7 @@ class VideoPressEdit extends Component {
 			} );
 			const { metadata_token } = response;
 			this.setState( { metadataToken: metadata_token } );
-		} catch ( error ) {
+		} catch {
 			// eslint-disable-next-line no-console
 			console.error( `Couldn't fetch token of VideoPress video with ID = ${ guid }` );
 		}

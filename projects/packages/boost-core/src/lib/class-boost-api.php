@@ -27,7 +27,7 @@ class Boost_API {
 	 * Get the API client instance.
 	 *
 	 * @return Boost_API_Client
-	 * @deprecated $$next_version$$ Use get(), and post() directly instead.
+	 * @deprecated 3.1.1 Use get(), and post() directly instead.
 	 */
 	public static function get_client() {
 		return self::get_api_client();

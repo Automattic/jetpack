@@ -1,6 +1,7 @@
 name: Bug Report
 description: Report issues with one of our products.
 labels: [ 'Needs triage', '[Type] Bug' ]
+type: 'Bug'
 body:
   - type: markdown
     attributes:
@@ -91,12 +92,29 @@ body:
         - There is no user impact
     validations:
       required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        <br>
+
+  - type: textarea
+    id: workaround-detail
+    attributes:
+      label: If the above answer is "Yes...", outline the workaround.
+      placeholder: |
+        Provide details of the specific steps to take that resolve the issue, e.g.:
+          - Open "Setting X".
+          - Toggle "Option Y".
+          - Click "Button Z".
+
   - type: markdown
     attributes:
       value: |
         <br>
 
         ## Optional Information
+
         The following section is optional.
   - type: dropdown
     id: site-type

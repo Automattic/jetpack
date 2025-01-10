@@ -11,8 +11,8 @@ const lgCols = Number( styles.lgCols );
 /**
  * The basic Col component.
  *
- * @param {ColProps} props         - Component properties.
- * @returns {React.ReactElement}   Col component.
+ * @param {ColProps} props - Component properties.
+ * @return {React.ReactElement}   Col component.
  */
 const Col: React.FC< ColProps > = props => {
 	const { children, tagName = 'div', className } = props;

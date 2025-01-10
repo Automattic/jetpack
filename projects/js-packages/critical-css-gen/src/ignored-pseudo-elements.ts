@@ -14,7 +14,7 @@ let removePseudoElementRegex: RegExp;
  * Builds a RegExp for finding pseudo elements that should be ignored while matching
  * elements that are above the fold.
  *
- * @returns {RegExp} A RegExp to use when removing unwanted pseudo elements.
+ * @return {RegExp} A RegExp to use when removing unwanted pseudo elements.
  */
 function getRemovePseudoElementRegex(): RegExp {
 	if ( removePseudoElementRegex ) {
@@ -32,7 +32,7 @@ function getRemovePseudoElementRegex(): RegExp {
  *
  * @param {string} selector - selector to filter.
  *
- * @returns {string} selector with ignored pseudo elements removed.
+ * @return {string} selector with ignored pseudo elements removed.
  */
 export function removeIgnoredPseudoElements( selector: string ): string {
 	return selector.replace( getRemovePseudoElementRegex(), '' ).trim();

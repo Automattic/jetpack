@@ -401,32 +401,26 @@ function zeroBSCRM_unpackCustomFields() {
 
 	$customfields = $zbs->settings->get( 'customfields' );
 
-	$keyDrivenCustomFields = array(
-
+	$key_driven_custom_fields = array(
 		// these get DAL3 Custom fields
-			'customers' => ZBS_TYPE_CONTACT,
-		'companies'     => ZBS_TYPE_COMPANY,
-		'quotes'        => ZBS_TYPE_QUOTE,
-		'transactions'  => ZBS_TYPE_TRANSACTION,
-		'invoices'      => ZBS_TYPE_INVOICE,
-		'addresses'     => ZBS_TYPE_ADDRESS,
-
+		'customers'    => ZBS_TYPE_CONTACT,
+		'companies'    => ZBS_TYPE_COMPANY,
+		'quotes'       => ZBS_TYPE_QUOTE,
+		'transactions' => ZBS_TYPE_TRANSACTION,
+		'invoices'     => ZBS_TYPE_INVOICE,
+		'addresses'    => ZBS_TYPE_ADDRESS,
 	);
 
 	// Following overloading code is also replicated in AdminPages.php (settings page), search #FIELDOVERLOADINGDAL2+
 
-		// DAL3 ver (all objs in $keyDrivenCustomFields above)
-	if ( $zbs->isDAL3() ) {
+	foreach ( $key_driven_custom_fields as $key => $obj_type_id ) {
 
-		foreach ( $keyDrivenCustomFields as $key => $objTypeID ) {
+		if ( isset( $customfields ) && isset( $customfields[ $key ] ) ) {
 
-			if ( isset( $customfields ) && isset( $customfields[ $key ] ) ) {
-
-					// turn ZBS_TYPE_CONTACT (1) into "contact"
-					$typeStr = $zbs->DAL->objTypeKey( $objTypeID );
-				if ( ! empty( $typeStr ) ) {
-					$customfields[ $key ] = $zbs->DAL->setting( 'customfields_' . $typeStr, array() );
-				}
+				// turn ZBS_TYPE_CONTACT (1) into "contact"
+				$obj_type_str = $zbs->DAL->objTypeKey( $obj_type_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			if ( ! empty( $obj_type_str ) ) {
+				$customfields[ $key ] = $zbs->DAL->setting( 'customfields_' . $obj_type_str, array() ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			}
 		}
 	}
@@ -1338,16 +1332,13 @@ function zeroBSCRM_customFields_getSlugOrCreate( $fieldLabel = '', $objectTypeSt
 
 					// NOW SAVE DOWN
 
-					// update DAL 2 custom fields :)
-					if ( $zbs->isDAL2() ) {
-
 						if ( isset( $customFieldsArr['customers'] ) && is_array( $customFieldsArr['customers'] ) ) {
 
 							// slight array reconfig
 							$db2CustomFields = array();
 							foreach ( $customFieldsArr['customers'] as $cfArr ) {
 								$db2CustomFields[ $zbs->DAL->makeSlug( $cfArr[1] ) ] = $cfArr;
-							}
+						}
 
 							// simple maintain DAL2 (needs to also)
 							$zbs->DAL->updateActiveCustomFields(
@@ -1356,8 +1347,6 @@ function zeroBSCRM_customFields_getSlugOrCreate( $fieldLabel = '', $objectTypeSt
 									'fields'    => $db2CustomFields,
 								)
 							);
-
-						}
 					}
 
 					// } Brutal update
@@ -1469,11 +1458,6 @@ function zeroBSCRM_customFields_parseAutoNumberStr( $str = '' ) {
 function zeroBSCRM_customFields_getAutoNumber( $objTypeID = -1, $fK = '' ) {
 
 	global $zbs;
-
-	// needs at least this
-	if ( ! $zbs->isDAL2() ) {
-		return false;
-	}
 
 	// def
 	$return = false;

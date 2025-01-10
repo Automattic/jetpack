@@ -11,7 +11,7 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
 /**
  * Test Automation Workflow functionalities
  *
- * @covers Automattic\Jetpack\CRM\Automation
+ * @covers Automattic\Jetpack\CRM\Automation\Triggers\WP_User_Created
  */
 class WP_User_Trigger_Test extends JPCRM_Base_Integration_Test_Case {
 

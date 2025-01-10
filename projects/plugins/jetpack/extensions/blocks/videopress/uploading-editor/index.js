@@ -127,9 +127,13 @@ export const UploadingEditor = props => {
 						className="uploading-editor__title"
 						onChange={ onChangeTitle }
 						value={ title }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<div className="uploading-editor__content">
-						<BaseControl label={ __( 'Video poster (optional)', 'jetpack' ) }>
+						<BaseControl __nextHasNoMarginBottom={ true }>
+							<BaseControl.VisualLabel>
+								{ __( 'Video poster (optional)', 'jetpack' ) }
+							</BaseControl.VisualLabel>
 							{ canDisplayThumbnailScrubber ? (
 								<>
 									<div className="uploading-editor__video-container">
@@ -164,6 +168,7 @@ export const UploadingEditor = props => {
 											showTooltip={ false }
 											withInputField={ false }
 											onChange={ onRangeChange }
+											__nextHasNoMarginBottom={ true }
 										/>
 									</span>
 									<span className="uploading-editor__scrubber-help" style={ posterSelectedStyle }>

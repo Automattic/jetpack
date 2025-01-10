@@ -10,19 +10,19 @@ const RecipeSave = ( { attributes, className } ) => {
 		<div className={ className }>
 			<div className="wp-block-jetpack-recipe-details__detail">
 				<p>{ prepTimeLabel }</p>
-				<p itemprop="prepTime" content={ `PT${ prepTime.toUpperCase() }` }>
+				<p itemProp="prepTime" content={ `PT${ prepTime.toUpperCase() }` }>
 					{ prepTime }
 				</p>
 			</div>
 			<div className="wp-block-jetpack-recipe-details__detail">
 				<p>{ cookTimeLabel }</p>
-				<p itemprop="cookTime" content={ `PT${ cookTime.toUpperCase() }` }>
+				<p itemProp="cookTime" content={ `PT${ cookTime.toUpperCase() }` }>
 					{ cookTime }
 				</p>
 			</div>
 			<div className="wp-block-jetpack-recipe-details__detail">
 				<p>{ servingsLabel }</p>
-				<p itemprop="recipeYield">{ servings }</p>
+				<p itemProp="recipeYield">{ servings }</p>
 			</div>
 			<div className="wp-block-jetpack-recipe-details__detail wp-block-jetpack-recipe-details__detail--print">
 				<InnerBlocks.Content />

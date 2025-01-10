@@ -11,6 +11,6 @@ use Automattic\Jetpack\Status\Host;
 // @TODO Ideally we should remove this feature entirely and update Jetpack_Mu_Wpcom::load_features to initialize
 // Masterbar for both WoA and Simple sites.
 // This would require removing the relevant Masterbar code on WPCOM and rely on the package only.
-if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' && ( new Host() )->is_wpcom_simple() ) {
+if ( ( new Host() )->is_wpcom_simple() ) {
 	new Admin_Color_Schemes();
 }

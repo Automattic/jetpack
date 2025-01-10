@@ -16,7 +16,7 @@ import type { ButtonProps } from './types';
  * Button component
  *
  * @param {ButtonProps} props - Component Props
- * @returns {React.ReactNode} Rendered button
+ * @return {React.ReactNode} Rendered button
  */
 const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
 	const {
@@ -55,7 +55,7 @@ const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
 			<VisuallyHidden as="span">
 				{
 					/* translators: accessibility text */
-					__( '(opens in a new tab)', 'jetpack' )
+					__( '(opens in a new tab)', 'jetpack-components' )
 				}
 			</VisuallyHidden>
 		</>

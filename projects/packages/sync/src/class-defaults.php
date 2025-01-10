@@ -79,6 +79,7 @@ class Defaults {
 		'jetpack_comment_form_color_scheme',
 		'jetpack_comment_likes_enabled',
 		'jetpack_excluded_extensions',
+		'jetpack_holiday_snow_enabled',
 		'jetpack_mailchimp',
 		'jetpack_options',
 		'jetpack_portfolio',
@@ -89,7 +90,7 @@ class Defaults {
 		'jetpack_relatedposts',
 		'jetpack_social_notes_config',
 		'jetpack_social_settings',
-		'jetpack_social_autoconvert_images',
+		'jetpack_social_utm_settings',
 		'jetpack_sso_match_by_email',
 		'jetpack_sso_require_two_step',
 		'jetpack_sync_non_blocking', // is non-blocking Jetpack Sync flow enabled.
@@ -356,6 +357,7 @@ class Defaults {
 		'wp_version'                        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
 		'active_modules'                    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_active_modules' ),
 		'jetpack_connection_active_plugins' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_jetpack_connection_active_plugins' ),
+		'jetpack_sync_active_modules'       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_jetpack_sync_active_modules' ),
 	);
 
 	/**
@@ -459,8 +461,12 @@ class Defaults {
 		'wp_log', // WP Logging Plugin.
 		'wpephpcompat_jobs',
 		'wprss_feed_item',
-		'memberships_coupon',
-		'memberships_gift',
+		'tribe-ea-record', // The Events Calendar Plugin - Store Event Aggregator record information.
+		'wphb_minify_group', // Hummingbird Plugin - Used internally to keep data about assets minification.
+		'bigcommerce_task', // BigCommerce Plugin - Store import queue.
+		'secupress_log_err404', // SecuPress Plugin - Log 404 pages
+		'iw_omnibus_price_log', // Omnibus Plugin - Log price changes.
+		'od_url_metrics', // Optimization Detective - Log URL metrics.
 	);
 
 	/**
@@ -781,6 +787,7 @@ class Defaults {
 		'videopress_guid',
 		'vimeo_poster_image',
 		'_jetpack_blogging_prompt_key',
+		'footnotes', // Core footnotes block
 	);
 
 	/**
@@ -1289,41 +1296,58 @@ class Defaults {
 	 * @var array list of module names.
 	 */
 	public static $default_full_sync_config = array(
-		'comments'           => 1,
 		'constants'          => 1,
 		'functions'          => 1,
 		'options'            => 1,
-		'posts'              => 1,
-		'term_relationships' => 1,
 		'terms'              => 1,
 		'themes'             => 1,
-		'updates'            => 1,
 		'users'              => 1,
+		'posts'              => 1,
+		'comments'           => 1,
+		'updates'            => 1,
+		'term_relationships' => 1,
 	);
 
+	/**
+	 * Default Full Sync limits for one module.
+	 *
+	 * @var array list of limits.
+	 */
+	public static $default_full_sync_limits_per_module = array(
+		'chunk_size' => 100,
+		'max_chunks' => 10,
+	);
 	/**
 	 * Default Full Sync max objects to send on a single request.
 	 *
 	 * @var array list of module => max.
 	 */
 	public static $default_full_sync_limits = array(
-		'comments'           => array(
+		'comments'                => array(
 			'chunk_size' => 100,
 			'max_chunks' => 10,
 		),
-		'posts'              => array(
+		'posts'                   => array(
 			'chunk_size' => 100,
 			'max_chunks' => 1,
 		),
-		'term_relationships' => array(
+		'term_relationships'      => array(
 			'chunk_size' => 1000,
 			'max_chunks' => 10,
 		),
-		'terms'              => array(
+		'terms'                   => array(
 			'chunk_size' => 1000,
 			'max_chunks' => 10,
 		),
-		'users'              => array(
+		'users'                   => array(
+			'chunk_size' => 100,
+			'max_chunks' => 10,
+		),
+		'woocommerce'             => array(
+			'chunk_size' => 100,
+			'max_chunks' => 10,
+		),
+		'woocommerce_hpos_orders' => array(
 			'chunk_size' => 100,
 			'max_chunks' => 10,
 		),

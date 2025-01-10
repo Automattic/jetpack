@@ -1,10 +1,10 @@
-import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
-import { DashboardPage, PluginsPage, Sidebar } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
-import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.js';
-import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites.js';
-import { JetpackBoostPage } from '../../lib/pages/index.js';
+import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
+import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.js';
+import { DashboardPage, PluginsPage, Sidebar } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import playwrightConfig from 'jetpack-e2e-commons/playwright.config.mjs';
+import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
+import { JetpackBoostPage } from '../../lib/pages/index.js';
 
 test.afterAll( async ( { browser } ) => {
 	const page = await browser.newPage( playwrightConfig.use );

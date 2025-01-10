@@ -8,11 +8,11 @@ import ConnectionStatusCard from '../connection-status-card';
 /**
  * Plan section component.
  *
- * @returns {object} ConnectionsSection React component.
+ * @return {object} ConnectionsSection React component.
  */
 export default function ConnectionsSection() {
 	const { apiRoot, apiNonce, topJetpackMenuItemUrl, connectedPlugins } = useMyJetpackConnection();
-	const navigate = useMyJetpackNavigate( MyJetpackRoutes.Connection );
+	const navigate = useMyJetpackNavigate( MyJetpackRoutes.ConnectionSkipPricing );
 	const products = useAllProducts();
 	const onDisconnected = () => document?.location?.reload( true ); // TODO: replace with a better experience.
 	const productsThatRequireUserConnection = getProductSlugsThatRequireUserConnection( products );

@@ -17,6 +17,7 @@ const SeoNoindexPanel = ( { metaValue, updateMetaValue } ) => {
 			) }
 			checked={ !! metaValue }
 			onChange={ onCheckboxChange }
+			__nextHasNoMarginBottom={ true }
 		/>
 	);
 };

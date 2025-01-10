@@ -11,7 +11,7 @@ interface GetServiceLabel {
 /**
  * Returns the label for a service.
  *
- * @returns {GetServiceLabel} - The service label.
+ * @return {GetServiceLabel} - The service label.
  */
 export function useServiceLabel() {
 	const getService = useService();

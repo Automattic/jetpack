@@ -47,14 +47,14 @@ const getIconByLevel = ( level: NoticeStatusProp ) => {
 /**
  * VideoPress Logo component
  *
- * @param {object} props                      - Component props
- * @param {NoticeStatusProp} props.status     - Notice status severity
- * @param {boolean} props.isDismissible       - Whether the notice is dismissible
- * @param {string} props.className            - Additional class name
- * @param {Function} props.onRemove           - Callback when the notice is removed
- * @param {React.ReactNode} props.children    - Notice content
- * @param {Array} props.actions               - Notice actions
- * @returns {React.ReactElement}                Component template
+ * @param {object}           props               - Component props
+ * @param {NoticeStatusProp} props.status        - Notice status severity
+ * @param {boolean}          props.isDismissible - Whether the notice is dismissible
+ * @param {string}           props.className     - Additional class name
+ * @param {Function}         props.onRemove      - Callback when the notice is removed
+ * @param {React.ReactNode}  props.children      - Notice content
+ * @param {Array}            props.actions       - Notice actions
+ * @return {React.ReactElement}                Component template
  */
 export default function GlobalNotice( {
 	status = 'error',

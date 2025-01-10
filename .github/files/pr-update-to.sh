@@ -27,16 +27,9 @@ function update_tag {
 cd $(dirname "${BASH_SOURCE[0]}")/../..
 BASE="$PWD"
 
-# If this commit updated a changelog, assume it was a release and update the tag.
-echo "Checking for changes to changelogs..."
-FILES=()
-for FILE in projects/*/*/composer.json; do
-	PROJECT="${FILE%/composer.json}"
-	cd "$BASE/$PROJECT"
-	FILES+=( "$(realpath -m --relative-to="$BASE" "$(jq -r '.extra.changelogger.changelog // "CHANGELOG.md"' composer.json)")" )
-done
-cd "$BASE"
-for F in $(git -c core.quotepath=off diff --name-only HEAD^..HEAD "${FILES[@]}"); do
+# If this commit is creating a new project, we need to create the tag so future runs don't break.
+echo "Checking for new projects..."
+for F in $(git -c core.quotepath=off diff --no-renames --diff-filter=A --name-only HEAD^..HEAD 'projects/*/*/composer.json'); do
 	update_tag "pr-update-to-${F%/*}"
 done
 

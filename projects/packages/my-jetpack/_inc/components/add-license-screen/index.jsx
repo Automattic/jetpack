@@ -17,7 +17,7 @@ import GoBackLink from '../go-back-link';
 /**
  * The AddLicenseScreen component of the My Jetpack app.
  *
- * @returns {object} The AddLicenseScreen component.
+ * @return {object} The AddLicenseScreen component.
  */
 export default function AddLicenseScreen() {
 	const { recordEvent } = useAnalytics();

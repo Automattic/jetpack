@@ -26,6 +26,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 	public function set_up() {
 		Constants::set_constant( 'JETPACK_DISABLE_RAW_OPTIONS', true );
 		StatusCache::clear();
+		$this->reset_connection_status();
 	}
 
 	/**
@@ -43,6 +44,20 @@ class Test_Identity_Crisis extends BaseTestCase {
 		$instance->setAccessible( true );
 		$instance->setValue( null, null );
 		$instance->setAccessible( false );
+		$this->reset_connection_status();
+	}
+
+	/**
+	 * Reset the connection status.
+	 * Needed because the connection status is memoized and not reset between tests.
+	 * WorDBless does not fire the options update hooks that would reset the connection status.
+	 */
+	public function reset_connection_status() {
+		static $manager = null;
+		if ( ! $manager ) {
+			$manager = new \Automattic\Jetpack\Connection\Manager();
+		}
+		$manager->reset_connection_status();
 	}
 
 	/**

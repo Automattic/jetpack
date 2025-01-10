@@ -14,7 +14,7 @@ import IDCScreenVisual from './visual';
  * The IDC screen component.
  *
  * @param {object} props - The properties.
- * @returns {React.Component} The `ConnectScreen` component.
+ * @return {React.Component} The `ConnectScreen` component.
  */
 const IDCScreen = props => {
 	const {
@@ -55,11 +55,11 @@ const IDCScreen = props => {
 		initializeAnalytics( tracksEventData, tracksUserData );
 
 		if ( tracksEventData ) {
-			if ( tracksEventData.hasOwnProperty( 'isAdmin' ) && tracksEventData.isAdmin ) {
+			if ( Object.hasOwn( tracksEventData, 'isAdmin' ) && tracksEventData.isAdmin ) {
 				trackAndBumpMCStats( 'notice_view' );
 			} else {
 				trackAndBumpMCStats( 'non_admin_notice_view', {
-					page: tracksEventData.hasOwnProperty( 'currentScreen' )
+					page: Object.hasOwn( tracksEventData, 'currentScreen' )
 						? tracksEventData.currentScreen
 						: false,
 				} );

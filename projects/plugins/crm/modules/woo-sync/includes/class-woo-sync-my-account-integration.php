@@ -642,7 +642,7 @@ class Woo_Sync_My_Account_Integration {
 
 		$contact_id = zeroBS_getCustomerIDFromWPID( $wordpress_user_id );
 		$old_contact_data = $zbs->DAL->contacts->getContact( $contact_id );
-		$new_contact_data = zeroBS_buildCustomerMeta($_POST, $old_contact_data);
+		$new_contact_data = zeroBS_buildContactMeta( $_POST, $old_contact_data ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		// Here we check for fields already updated via core WordPress User integration
 		if ( defined( 'JPCRM_PROFILE_UPDATE_CHANGES' ) ){

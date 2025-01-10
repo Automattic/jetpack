@@ -32,7 +32,7 @@ export const postersArray = [
 /**
  * Return a random poster image
  *
- * @returns {string} Random poster image
+ * @return {string} Random poster image
  */
 export function randomPoster() {
 	const max = postersArray.length - 1;

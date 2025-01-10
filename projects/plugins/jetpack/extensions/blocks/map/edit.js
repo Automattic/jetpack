@@ -1,6 +1,11 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
-import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/block-editor';
+import {
+	BlockControls,
+	InspectorControls,
+	useBlockProps,
+	store as blockEditorStore,
+} from '@wordpress/block-editor';
 import {
 	Button,
 	ExternalLink,
@@ -10,7 +15,7 @@ import {
 	ResizableBox,
 } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
-import { withDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getActiveStyleName } from '../../shared/block-styles';
@@ -50,9 +55,6 @@ const MapEdit = ( {
 	noticeUI,
 	notices,
 	isSelected,
-	instanceId,
-	onResizeStart,
-	onResizeStop,
 	noticeOperations,
 } ) => {
 	const {
@@ -62,10 +64,19 @@ const MapEdit = ( {
 		zoom,
 		mapCenter,
 		markerColor,
-		preview,
 		mapHeight,
 		showFullscreenButton,
 	} = attributes;
+
+	const { toggleSelection } = useDispatch( 'core/block-editor' );
+
+	const { isPreviewMode } = useSelect( select => {
+		const { getSettings } = select( blockEditorStore );
+		const settings = getSettings();
+		return {
+			isPreviewMode: settings.__unstableIsPreviewMode,
+		};
+	}, [] );
 
 	const [ addPointVisibility, setAddPointVisibility ] = useState( false );
 	const [ apiState, setApiState ] = useState( API_STATE_LOADING );
@@ -149,16 +160,10 @@ const MapEdit = ( {
 	};
 
 	const addPoint = point => {
-		const newPoints = points.slice( 0 );
-		let duplicateFound = false;
-		points.map( existingPoint => {
-			if ( existingPoint.id === point.id ) {
-				duplicateFound = true;
-			}
-		} );
-		if ( duplicateFound ) {
+		if ( points.some( existingPoint => existingPoint.id === point.id ) ) {
 			return;
 		}
+		const newPoints = points.slice( 0 );
 		newPoints.push( point );
 		setAttributes( { points: newPoints } );
 		setAddPointVisibility( false );
@@ -183,14 +188,13 @@ const MapEdit = ( {
 	 * Event handler for the ResizableBox component. Updates both the height attribute,
 	 * and the map component's height in the DOM.
 	 *
-	 * @param {Event} event - The event object.
-	 * @param {string} direction - A string representing which resize handler was used.
-	 * @param {HTMLElement} elt - A ref to the ResizeableBox's container element.
-	 * @param {object} delta - Information about how far the element was resized.
+	 * @param {Event}       event     - The event object.
+	 * @param {string}      direction - A string representing which resize handler was used.
+	 * @param {HTMLElement} elt       - A ref to the ResizeableBox's container element.
+	 * @param {object}      delta     - Information about how far the element was resized.
 	 */
 	const onMapResize = ( event, direction, elt, delta ) => {
-		onResizeStop();
-
+		toggleSelection( true );
 		const ref = mapRef?.current?.mapRef ?? mapRef;
 
 		if ( ref ) {
@@ -229,7 +233,7 @@ const MapEdit = ( {
 
 	let content;
 
-	if ( preview ) {
+	if ( isPreviewMode ) {
 		const mapStyleObject = styles.find( styleObject => styleObject.name === mapStyle );
 
 		content = (
@@ -237,6 +241,7 @@ const MapEdit = ( {
 				<img
 					alt={ __( 'Map Preview', 'jetpack' ) }
 					src={ mapStyleObject ? mapStyleObject.preview : previewPlaceholder }
+					style={ { width: '100%', height: mapHeight || '400px', objectFit: 'cover' } }
 				/>
 			</div>
 		);
@@ -315,7 +320,6 @@ const MapEdit = ( {
 						apiKeyControl={ apiKeyControl }
 						onKeyChange={ onKeyChange }
 						mapRef={ mapRef }
-						instanceId={ instanceId }
 						minHeight={ MIN_HEIGHT }
 						removeAPIKey={ removeAPIKey }
 						updateAPIKey={ updateAPIKey }
@@ -332,7 +336,7 @@ const MapEdit = ( {
 					showHandle={ isSelected }
 					minHeight={ MIN_HEIGHT }
 					enable={ RESIZABLE_BOX_ENABLE_OPTION }
-					onResizeStart={ onResizeStart }
+					onResizeStart={ () => toggleSelection( false ) }
 					onResizeStop={ onMapResize }
 				>
 					<div className="wp-block-jetpack-map__map_wrapper">
@@ -385,14 +389,4 @@ const MapEdit = ( {
 	);
 };
 
-export default compose( [
-	withNotices,
-	withDispatch( dispatch => {
-		const { toggleSelection } = dispatch( 'core/block-editor' );
-
-		return {
-			onResizeStart: () => toggleSelection( false ),
-			onResizeStop: () => toggleSelection( true ),
-		};
-	} ),
-] )( MapEdit );
+export default compose( withNotices )( MapEdit );

@@ -5,12 +5,15 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.1.0",
+		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"scripts": {
 		"test-js": [
 			"pnpm run test"
+		],
+		"test-coverage": [
+			"pnpm run test-coverage"
 		]
 	},
 	"repositories": [
@@ -23,5 +26,8 @@
 		}
 	],
 	"minimum-stability": "dev",
-	"prefer-stable": true
+	"prefer-stable": true,
+	"extra": {
+		"textdomain": "jetpack-licensing"
+	}
 }

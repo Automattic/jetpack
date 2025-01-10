@@ -36,7 +36,7 @@ export type UseTranscriptionCreatorReturn = {
  * Hook to handle the creation of a transcription.
  *
  * @param {UseTranscriptionCreatorProps} props - Callbacks to handle the transcription when it's ready, updated or fails.
- * @returns {UseTranscriptionCreatorReturn} - Object with functions to handle transcription creation.
+ * @return {UseTranscriptionCreatorReturn} - Object with functions to handle transcription creation.
  */
 export default function useTranscriptionCreator( {
 	onReady,

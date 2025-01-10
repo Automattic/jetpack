@@ -1,10 +1,9 @@
-/* global jQuery, _ */ ( function ( $, _ ) {
-	var processEvent,
-		sendClientSideStat,
-		statBucket = 'classic-custom-background';
+/* global _ */
+( function ( $, _ ) {
+	const statBucket = 'classic-custom-background';
 
-	sendClientSideStat = function ( eventName ) {
-		var url =
+	const sendClientSideStat = function ( eventName ) {
+		const url =
 			document.location.protocol +
 			'//pixel.wp.com/g.gif?v=wpcom-no-pv&x_' +
 			statBucket +
@@ -15,22 +14,20 @@
 		new Image().src = url;
 	};
 
-	processEvent = function ( e ) {
-		var target = $( e.target ),
+	const processEvent = function ( e ) {
+		const target = $( e.target ),
 			eventName = target.data( 'event' );
 
 		return sendClientSideStat( eventName );
 	};
 
 	$( function () {
-		var colorChange, oldColorChange;
-
-		oldColorChange = $( '#background-color' ).iris( 'option', 'change' );
+		const oldColorChange = $( '#background-color' ).iris( 'option', 'change' );
 
 		// Replace the Iris change handler
 		// Debounce so we don't get too many colour change events from users
 		// trying to find the perfect colour
-		colorChange = _.debounce(
+		const colorChange = _.debounce(
 			function () {
 				$( '#background-color' ).trigger( 'custom-bg-color-change' );
 				oldColorChange.apply( null, arguments );

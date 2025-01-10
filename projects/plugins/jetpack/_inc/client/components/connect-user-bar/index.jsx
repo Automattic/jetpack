@@ -1,10 +1,10 @@
 import { __, sprintf } from '@wordpress/i18n';
-import Card from 'components/card';
-import ConnectButton from 'components/connect-button';
-import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
+import Card from 'components/card';
+import ConnectButton from 'components/connect-button';
+import analytics from 'lib/analytics';
 import { connectUser } from 'state/connection';
 import './style.scss';
 

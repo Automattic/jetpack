@@ -7,7 +7,7 @@ const debug = require( './debug' );
  * handler only if the PR is not currently closed.
  *
  * @param {WPAutomationTask} handler - Original task.
- * @returns {WPAutomationTask} Enhanced task.
+ * @return {WPAutomationTask} Enhanced task.
  */
 function ifNotClosed( handler ) {
 	const newHandler = ( payload, octokit ) => {

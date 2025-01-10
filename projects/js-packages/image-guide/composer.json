@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.1.0",
+		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
@@ -26,6 +26,9 @@
 		],
 		"test-js": [
 			"pnpm run test"
+		],
+		"test-coverage": [
+			"pnpm run test-coverage"
 		]
 	},
 	"repositories": [
@@ -42,6 +45,7 @@
 	"extra": {
 		"npmjs-autopublish": true,
 		"mirror-repo": "Automattic/jetpack-image-guide",
+		"textdomain": "jetpack-image-guide",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-image-guide/compare/v${old}...v${new}"
 		},

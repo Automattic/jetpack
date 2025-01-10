@@ -1,21 +1,20 @@
 import { __ } from '@wordpress/i18n';
-import Card from 'components/card';
-import QuerySite from 'components/data/query-site';
 import React from 'react';
 import { connect } from 'react-redux';
+import Card from 'components/card';
+import QuerySite from 'components/data/query-site';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,
 	isCurrentUserLinked,
 	getConnectUrl,
 } from 'state/connection';
-import { userCanManageModules, userCanEditPosts, isAtomicSite } from 'state/initial-state';
+import { userCanManageModules, userCanEditPosts } from 'state/initial-state';
 import { isModuleActivated, getModuleOverride, getModule } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
 import Composing from './composing';
 import CustomContentTypes from './custom-content-types';
-import { Masterbar } from './masterbar';
 import PostByEmail from './post-by-email';
 import ThemeEnhancements from './theme-enhancements';
 import Widgets from './widgets';
@@ -34,12 +33,14 @@ export class Writing extends React.Component {
 			getModuleOverride: this.props.getModuleOverride,
 		};
 
+		if ( ! this.props.searchTerm && ! this.props.active ) {
+			return null;
+		}
+
 		const found = [
 			'carousel',
 			'copy-post',
-			'custom-css',
 			'latex',
-			'masterbar',
 			'markdown',
 			'shortcodes',
 			'custom-content-types',
@@ -49,10 +50,6 @@ export class Writing extends React.Component {
 			'widget-visibility',
 			'blocks',
 		].some( this.props.isModuleFound );
-
-		if ( ! this.props.searchTerm && ! this.props.active ) {
-			return null;
-		}
 
 		if ( ! found ) {
 			return null;
@@ -92,9 +89,6 @@ export class Writing extends React.Component {
 						userCanManageModules={ this.props.userCanManageModules }
 					/>
 				) }
-				{ this.props.isModuleFound( 'masterbar' ) && ! this.props.masterbarIsAlwaysActive && (
-					<Masterbar connectUrl={ this.props.connectUrl } { ...commonProps } />
-				) }
 				{ ! showComposing && ! showPostByEmail && (
 					<Card>
 						{ __(
@@ -112,7 +106,6 @@ export default connect( state => {
 	return {
 		module: module_name => getModule( state, module_name ),
 		settings: getSettings( state ),
-		masterbarIsAlwaysActive: isAtomicSite( state ),
 		isOfflineMode: isOfflineMode( state ),
 		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		userCanEditPosts: userCanEditPosts( state ),

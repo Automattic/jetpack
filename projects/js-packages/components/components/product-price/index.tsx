@@ -16,7 +16,7 @@ import type React from 'react';
  * React component to render the price.
  *
  * @param {ProductPriceProps} props - Component props.
- * @returns {React.ReactNode} Price react component.
+ * @return {React.ReactNode} Price react component.
  */
 const ProductPrice: React.FC< ProductPriceProps > = ( {
 	price,
@@ -25,7 +25,7 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 	showNotOffPrice = true,
 	hideDiscountLabel = true,
 	promoLabel = '',
-	legend = __( '/month, paid yearly', 'jetpack' ),
+	legend = __( '/month, paid yearly', 'jetpack-components' ),
 	isNotConvenientPrice = false,
 	hidePriceFraction = false,
 	children,
@@ -43,7 +43,7 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 
 	const showDiscountLabel = ! hideDiscountLabel && discount && discount > 0;
 
-	const discountElt = showDiscountLabel ? discount + __( '% off', 'jetpack' ) : null;
+	const discountElt = showDiscountLabel ? discount + __( '% off', 'jetpack-components' ) : null;
 
 	return (
 		<>

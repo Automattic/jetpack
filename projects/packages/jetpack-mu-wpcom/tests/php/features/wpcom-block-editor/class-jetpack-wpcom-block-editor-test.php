@@ -11,7 +11,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\Jetpack_WPCOM_Block_E
 /**
  * Class Jetpack_WPCOM_Block_Editor.
  *
- * @covers Jetpack_WPCOM_Block_Editor
+ * @covers Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\Jetpack_WPCOM_Block_Editor
  */
 class Jetpack_WPCOM_Block_Editor_Test extends \WorDBless\BaseTestCase {
 	/**

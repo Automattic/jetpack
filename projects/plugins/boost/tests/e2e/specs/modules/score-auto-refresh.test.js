@@ -1,6 +1,6 @@
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
-import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import playwrightConfig from 'jetpack-e2e-commons/playwright.config.mjs';
+import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { JetpackBoostPage } from '../../lib/pages/index.js';
 
 test.describe( 'Auto refresh of speed scores', () => {

@@ -4,12 +4,12 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.0"
+		"php": ">=7.2"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.1.0",
+		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "dev-master"
+		"automattic/wordbless": "^0.4.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -19,6 +19,9 @@
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"test-php": [
 			"@composer phpunit"

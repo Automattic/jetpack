@@ -7,12 +7,11 @@ import jetpackManageIcon from './jetpack-manage.svg';
 /**
  * Jetpack Manager Banner component that renders a banner with CTAs.
  *
- * @param {object} props - Component props.
+ * @param {object}  props                 - Component props.
  * @param {boolean} props.isAgencyAccount - Whether users account is an Agency account or not.
- * @returns {object} The JetpackManageBanner component.
+ * @return {object} The JetpackManageBanner component.
  */
 const JetpackManageBanner = props => {
-	// eslint-disable-next-line no-unused-vars
 	const { isAgencyAccount = false } = props;
 	const { recordEvent } = useAnalytics();
 
@@ -36,6 +35,10 @@ const JetpackManageBanner = props => {
 	const handleAgencyInterestClick = useCallback( () => {
 		trackClick( 'jp-agencies-register-interest' );
 	}, [ trackClick ] );
+
+	if ( isAgencyAccount ) {
+		return null;
+	}
 
 	return (
 		<UpsellBanner

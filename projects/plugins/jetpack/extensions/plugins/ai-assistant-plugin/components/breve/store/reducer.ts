@@ -9,7 +9,7 @@ import features from '../features';
 /**
  * Types
  */
-import type { BreveState } from '../types';
+import type { Anchor, BreveState } from '../types';
 
 const enabledFromLocalStorage = window.localStorage.getItem( 'jetpack-ai-breve-enabled' );
 const disabledFeaturesFromLocalStorage = window.localStorage.getItem(
@@ -27,7 +27,7 @@ const initialConfiguration = {
 
 export function configuration(
 	state: BreveState[ 'configuration' ] = initialConfiguration,
-	action: { type: string; enabled?: boolean; feature?: string }
+	action: { type: string; enabled?: boolean; feature?: string; loading?: boolean }
 ) {
 	switch ( action.type ) {
 		case 'SET_PROOFREAD_ENABLED': {
@@ -65,23 +65,55 @@ export function configuration(
 				disabled,
 			};
 		}
+
+		case 'SET_DICTIONARY_LOADING': {
+			const loading = action.loading
+				? [ ...( state.loading ?? [] ), action.feature ]
+				: [ ...( state.loading ?? [] ) ].filter( feature => feature !== action.feature );
+
+			return {
+				...state,
+				loading,
+			};
+		}
+
+		case 'RELOAD_DICTIONARY': {
+			return {
+				...state,
+				reload: ! state.reload,
+			};
+		}
 	}
 
 	return state;
 }
 
+const HIGHLIGHT_HOVERED_CLASS = 'jetpack-ai-breve__highlight-hovered';
+
 export function popover(
 	state: BreveState[ 'popover' ] = {},
-	action: { type: string; isHover?: boolean; anchor?: HTMLElement | EventTarget }
+	action: { type: string; isHover?: boolean; anchor?: Anchor }
 ) {
+	const removeHoveredClass = () => {
+		state?.anchor?.target?.classList?.remove( HIGHLIGHT_HOVERED_CLASS );
+	};
+
 	switch ( action.type ) {
 		case 'SET_HIGHLIGHT_HOVER':
+			if ( ! state?.isPopoverHover && ! action?.isHover ) {
+				removeHoveredClass();
+			}
+
 			return {
 				...state,
 				isHighlightHover: action.isHover,
 			};
 
 		case 'SET_POPOVER_HOVER':
+			if ( ! state?.isHighlightHover && ! action?.isHover ) {
+				removeHoveredClass();
+			}
+
 			return {
 				...state,
 				isPopoverHover: action.isHover,
@@ -91,6 +123,16 @@ export function popover(
 			if ( ! action.anchor ) {
 				return state;
 			}
+
+			const current = state?.anchor?.target;
+			const next = action?.anchor?.target;
+
+			// Handle fast change of anchor
+			if ( current !== next ) {
+				removeHoveredClass();
+			}
+
+			next?.classList?.add( HIGHLIGHT_HOVERED_CLASS );
 
 			return {
 				...state,
@@ -170,6 +212,19 @@ export function suggestions(
 			return {
 				...current,
 				[ blockId ]: {},
+			};
+		}
+
+		case 'INVALIDATE_SINGLE_SUGGESTION': {
+			return {
+				...current,
+				[ blockId ]: {
+					...currentBlock,
+					[ feature ]: {
+						...( currentBlock[ feature ] ?? {} ),
+						[ id ]: {},
+					},
+				},
 			};
 		}
 

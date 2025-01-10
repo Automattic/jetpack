@@ -23,7 +23,7 @@ beforeAll( () => {
 		'blockEditor.useSetting.before',
 		'extensions/blocks/button/test/controls',
 		( value, path ) => {
-			if ( overrideSettings.hasOwnProperty( path ) ) {
+			if ( Object.hasOwn( overrideSettings, path ) ) {
 				return overrideSettings[ path ];
 			}
 			return value;
@@ -35,6 +35,17 @@ afterAll( () => {
 } );
 
 jest.mock( '@wordpress/notices', () => {}, { virtual: true } );
+
+jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
+	__esModule: true,
+	...jest.requireActual( '@automattic/jetpack-shared-extension-utils' ),
+	useModuleStatus: jest.fn().mockReturnValue( {
+		isModuleActive: true,
+		isLoadingModules: false,
+		isChangingStatus: false,
+		changeStatus: jest.fn(),
+	} ),
+} ) );
 
 const setButtonBackgroundColor = jest.fn();
 const setGradient = jest.fn();

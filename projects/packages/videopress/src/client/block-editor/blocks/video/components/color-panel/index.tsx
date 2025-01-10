@@ -26,7 +26,7 @@ import type React from 'react';
  * Sidebar Control component.
  *
  * @param {VideoControlProps} props - Component props.
- * @returns {React.ReactElement}    Component template
+ * @return {React.ReactElement}    Component template
  */
 export default function ColorPanel( { clientId, attributes, setAttributes }: VideoControlProps ) {
 	const { useAverageColor, seekbarColor, seekbarLoadingColor, seekbarPlayedColor } = attributes;
@@ -90,6 +90,7 @@ export default function ColorPanel( { clientId, attributes, setAttributes }: Vid
 				}
 				onChange={ newUseAverageColor => setAttributes( { useAverageColor: newUseAverageColor } ) }
 				checked={ useAverageColor }
+				__nextHasNoMarginBottom={ true }
 			/>
 
 			{ ! useAverageColor && (

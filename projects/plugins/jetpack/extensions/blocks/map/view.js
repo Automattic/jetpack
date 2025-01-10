@@ -19,7 +19,7 @@ domReady( function () {
 				const block = new MapBoxBlock( blockRoot );
 				block.init();
 			}
-		} catch ( e ) {
+		} catch {
 			// Ignore error.
 		}
 	} );

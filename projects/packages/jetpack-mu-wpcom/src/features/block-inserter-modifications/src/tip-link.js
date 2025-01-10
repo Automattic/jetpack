@@ -5,9 +5,10 @@ const isEditorIFramed = inIframe();
 /**
  * Create the link for the contextual tip.
  *
- * @param {object} props            - The function props.
- * @param {string} props.children   - The tip content.
- * @param {string} props.section    - The tip context section.
+ * @param {object} props          - The function props.
+ * @param {string} props.children - The tip content.
+ * @param {string} props.section  - The tip context section.
+ * @return {JSX.Element} The link element.
  */
 export default function ( { children, section } ) {
 	const { hostname } = window.location;

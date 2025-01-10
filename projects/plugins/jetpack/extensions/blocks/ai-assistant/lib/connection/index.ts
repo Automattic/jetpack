@@ -18,7 +18,7 @@ const debugOnce = content => {
 /**
  * Return the initial connection status.
  *
- * @returns {boolean} true if the user is connected, false otherwise.
+ * @return {boolean} true if the user is connected, false otherwise.
  */
 export function isUserConnected(): boolean {
 	if ( isSimpleSite() ) {

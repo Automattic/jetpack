@@ -5,6 +5,125 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.6] - 2025-01-10
+### Changed
+- Fixes the self-hosted link when WooCommerce is installed alongside SSO. [#40840]
+
+## [0.10.5] - 2025-01-06
+### Changed
+- Updated package dependencies. [#40784] [#40792] [#40831]
+
+## [0.10.4] - 2024-12-23
+### Fixed
+- Exclude the wpcom_admin_interface from the admin_menu action. [#40669]
+
+## [0.10.3] - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564]
+
+## [0.10.2] - 2024-12-04
+### Changed
+- Updated package dependencies. [#40363]
+
+## [0.10.1] - 2024-11-25
+### Changed
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#40258] [#40288]
+
+## [0.10.0] - 2024-11-18
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+### Fixed
+- Update the upgrade nudge for Additional CSS with the correct plan names. [#40107]
+
+## [0.9.9] - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999] [#40060]
+
+## [0.9.8] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Fixed
+- Fix PHPUnit coverage warnings. [#39989]
+
+## [0.9.7] - 2024-10-28
+### Changed
+- Updated package dependencies. [#39910]
+
+## [0.9.6] - 2024-10-14
+### Changed
+- Updated package dependencies. [#39707]
+
+### Fixed
+- Admin bar: Clean up WPCOM_ADMIN_BAR_UNIFICATION feature flag. [#39692]
+
+## [0.9.5] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+- Update Jetpack Scan link. [#39619]
+
+## [0.9.4] - 2024-09-30
+### Changed
+- Remove user connection nudges where they aren't needed. Add user connection nudges where needed [#39533]
+
+### Removed
+- Masterbar: Remove User Info side-panel [#39546]
+
+### Fixed
+- Admin bar: don't enqueue obsolete Core CSS overrides for Default scheme [#39453]
+
+## [0.9.3] - 2024-09-23
+### Changed
+- Update dependencies.
+
+## [0.9.2] - 2024-09-16
+### Fixed
+- Admin bar: align colors with Calypso's [#39314]
+- Help Center: Fix the icon color when previewing color scheme [#39371]
+
+## [0.9.1] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [0.9.0] - 2024-09-09
+### Added
+- Admin menu: Add text-overflow ellipsis for the site title and domain. [#39224]
+
+### Changed
+- Enable Users -> Profile (profile.php) on all sites [#39181]
+- Updated package dependencies. [#39176]
+
+### Fixed
+- Hosting Configuration: Make the menu title under the settings the same as the destination [#39183]
+
+## [0.8.1] - 2024-08-30
+### Changed
+- Updated package dependencies. [#39111]
+
+## [0.8.0] - 2024-08-23
+### Changed
+- Remove locale sync [#39009]
+- Updated package dependencies. [#39004]
+
+### Fixed
+- Inconsistent Color Scheme when previewing on Simple Default [#39048]
+
+## [0.7.0] - 2024-08-21
+### Changed
+- Site Level User Profile: expose all relevant fields on profile.php [#38949]
+
+### Fixed
+- Revert recent SVG image optimizations. [#38981]
+
+## [0.6.1] - 2024-08-19
+### Changed
+- Updated package dependencies. [#38662]
+
+### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
 ## [0.6.0] - 2024-07-29
 ### Changed
 - Remove Browse sites from sidebar as it's on WordPress logo in masterbar [#38547]
@@ -77,9 +196,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Auto-labeling: label changes to the Masterbar feature in the Masterbar package. [#37309]
 - Masterbar: Copy module code to package [#37342]
 - Notifications: Change Icon [#37676]
-- Updated package dependencies. [#37669]
-- Updated package dependencies. [#37706]
+- Updated package dependencies. [#37669] [#37706]
 
+[0.10.6]: https://github.com/Automattic/jetpack-masterbar/compare/v0.10.5...v0.10.6
+[0.10.5]: https://github.com/Automattic/jetpack-masterbar/compare/v0.10.4...v0.10.5
+[0.10.4]: https://github.com/Automattic/jetpack-masterbar/compare/v0.10.3...v0.10.4
+[0.10.3]: https://github.com/Automattic/jetpack-masterbar/compare/v0.10.2...v0.10.3
+[0.10.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.10.1...v0.10.2
+[0.10.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.10.0...v0.10.1
+[0.10.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.9...v0.10.0
+[0.9.9]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.8...v0.9.9
+[0.9.8]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.7...v0.9.8
+[0.9.7]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.6...v0.9.7
+[0.9.6]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.5...v0.9.6
+[0.9.5]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.4...v0.9.5
+[0.9.4]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.3...v0.9.4
+[0.9.3]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.2...v0.9.3
+[0.9.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.1...v0.9.2
+[0.9.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.0...v0.9.1
+[0.9.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.8.1...v0.9.0
+[0.8.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.8.0...v0.8.1
+[0.8.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.7.0...v0.8.0
+[0.7.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.6.1...v0.7.0
+[0.6.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.3.1...v0.4.0

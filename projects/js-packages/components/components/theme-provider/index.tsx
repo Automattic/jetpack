@@ -111,8 +111,8 @@ const setup = ( root: HTMLElement, id: string, withGlobalStyles?: boolean ) => {
 /**
  * ThemeProvider React component.
  *
- * @param {ThemeProviderProps} props           - Component properties.
- * @returns {React.ReactNode}        ThemeProvider component.
+ * @param {ThemeProviderProps} props - Component properties.
+ * @return {React.ReactNode}        ThemeProvider component.
  */
 const ThemeProvider: React.FC< ThemeProviderProps > = ( {
 	children = null,

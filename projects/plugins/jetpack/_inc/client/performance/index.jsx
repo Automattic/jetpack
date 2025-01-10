@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
-import QuerySite from 'components/data/query-site';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import QuerySite from 'components/data/query-site';
 import { isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound } from 'state/search';
@@ -19,13 +19,13 @@ class Performance extends Component {
 			hasConnectedOwner: this.props.hasConnectedOwner,
 		};
 
-		const found = [ 'photon', 'videopress', 'photon-cdn', 'search' ].some(
-			this.props.isModuleFound
-		);
-
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
 		}
+
+		const found = [ 'photon', 'videopress', 'photon-cdn', 'search' ].some(
+			this.props.isModuleFound
+		);
 
 		if ( ! found ) {
 			return null;

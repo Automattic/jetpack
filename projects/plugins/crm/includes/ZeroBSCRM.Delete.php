@@ -63,10 +63,10 @@ class zeroBSCRM_Delete{
         // $objID
 
 
-        global $zbs;
+		global $zbs;
 
-        // we load from DAL defaults, if objTypeID passed (overriding anything passed, if empty/false)
-        if (isset($this->objTypeID)){ //$zbs->isDAL3() && 
+		// we load from DAL defaults, if objTypeID passed (overriding anything passed, if empty/false)
+		if ( isset( $this->objTypeID ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
             $objTypeID = (int)$this->objTypeID;
             if ($objTypeID > 0){
@@ -90,8 +90,7 @@ class zeroBSCRM_Delete{
             }
 
             //echo 'loading from '.$this->objTypeID.':<pre>'.print_r(array($objTypeStr,$objSingular,$objPlural,$objSlug),1).'</pre>'; exit();
-
-        }
+		}
 
         // if objid - load $post
         $this->loadObject();
@@ -104,8 +103,7 @@ class zeroBSCRM_Delete{
 
         // anything to save?
         if ($this->canDelete) $this->catchPost();
-
-    }
+	}
 
     // automatically, generically, loads the single obj
     public function loadObject(){
@@ -113,23 +111,18 @@ class zeroBSCRM_Delete{
         // if objid - load $post
         if (isset($this->objID) && !empty($this->objID) && $this->objID > 0) {
 
-            global $zbs;
-
-            // DAL3 we can use generic getSingle
-            if ($zbs->isDAL3() && $this->objTypeID > 0){
-
+			global $zbs;
+			// DAL3 we can use generic getSingle
+			if ( $this->objTypeID > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
                 // this gets $zbs->DAL->contacts->getSingle()
                 $this->obj = $zbs->DAL->getObjectLayerByType($this->objTypeID)->getSingle($this->objID);
-
-            } else {
-
+			} else {
                 // DAL2
                 // customer currently only
                 $this->obj = zeroBS_getCustomer($this->objID);
-            }
-
-        }
-    }
+			}
+		}
+	}
 
     public function catchPost(){
 

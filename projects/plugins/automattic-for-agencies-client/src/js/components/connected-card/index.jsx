@@ -9,7 +9,7 @@ import styles from './styles.module.scss';
 /**
  * Connected Card component.
  *
- * @returns {React.Component} The `ConnectionCard` component.
+ * @return {React.Component} The `ConnectionCard` component.
  */
 export default function ConnectedCard() {
 	const navigateToDashboard = useCallback( () => {

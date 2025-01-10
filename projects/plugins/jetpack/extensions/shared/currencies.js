@@ -8,7 +8,7 @@ function removeTrailingDots( string ) {
 /**
  * Currencies we support and Stripe's minimum amount for a transaction in that currency.
  *
- * @link https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
+ * @see https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
  *
  * List has to be in with `Jetpack_Memberships::SUPPORTED_CURRENCIES` in modules/memberships/class-jetpack-memberships.php.
  */
@@ -53,7 +53,7 @@ export const CURRENCY_OPTIONS = Object.keys( SUPPORTED_CURRENCIES ).map( value =
  * known types it returns ...
  *
  * @param {string} currency_code - three character currency code to get minimum charge for
- * @returns {number} Minimum charge amount for the given currency_code
+ * @return {number} Minimum charge amount for the given currency_code
  */
 export function minimumTransactionAmountForCurrency( currency_code ) {
 	return SUPPORTED_CURRENCIES[ currency_code ];
@@ -63,7 +63,7 @@ export function minimumTransactionAmountForCurrency( currency_code ) {
  * Returns the default amounts for the given currency.
  *
  * @param {string} currency_code - three character currency code to get default amounts for
- * @returns {number[]} Default amounts for the given currency_code
+ * @return {number[]} Default amounts for the given currency_code
  */
 export function getDefaultDonationAmountsForCurrency( currency_code ) {
 	const minAmount = minimumTransactionAmountForCurrency( currency_code );
@@ -78,8 +78,8 @@ export function getDefaultDonationAmountsForCurrency( currency_code ) {
  * True if the price is a number and at least the minimum allowed amount.
  *
  * @param {string} currency - Currency for the given price.
- * @param {number} price - Price to check.
- * @returns {boolean} true if valid price
+ * @param {number} price    - Price to check.
+ * @return {boolean} true if valid price
  */
 export function isPriceValid( currency, price ) {
 	return ! isNaN( price ) && price >= minimumTransactionAmountForCurrency( currency );

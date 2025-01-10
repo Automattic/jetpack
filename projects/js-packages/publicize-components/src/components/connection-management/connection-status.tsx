@@ -17,7 +17,7 @@ export type ConnectionStatusProps = {
  *
  * @param {ConnectionStatusProps} props - component props
  *
- * @returns {import('react').ReactNode} - React element
+ * @return {import('react').ReactNode} - React element
  */
 export function ConnectionStatus( { connection, service }: ConnectionStatusProps ) {
 	if ( connection.status !== 'broken' ) {
@@ -28,12 +28,15 @@ export function ConnectionStatus( { connection, service }: ConnectionStatusProps
 		<div>
 			<span className="description">
 				{ service
-					? __( 'There is an issue with this connection.', 'jetpack' )
+					? __( 'There is an issue with this connection.', 'jetpack-publicize-components' )
 					: createInterpolateElement(
 							sprintf(
 								'%1$s %2$s',
-								__( 'This platform is no longer supported.', 'jetpack' ),
-								__( 'You can use our <link>Manual Sharing</link> feature instead.', 'jetpack' )
+								__( 'This platform is no longer supported.', 'jetpack-publicize-components' ),
+								__(
+									'You can use our <link>Manual Sharing</link> feature instead.',
+									'jetpack-publicize-components'
+								)
 							),
 							{
 								link: (

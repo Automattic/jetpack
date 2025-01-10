@@ -1,7 +1,7 @@
-import AtAGlance from 'at-a-glance/index.jsx';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
+import AtAGlance from 'at-a-glance/index.jsx';
 import SearchableSettings from 'settings/index.jsx';
 import { getSiteConnectionStatus } from 'state/connection';
 import {
@@ -25,7 +25,7 @@ class NonAdminView extends React.Component {
 		switch ( route ) {
 			case '/dashboard':
 			default:
-				this.props.history.replace( '/dashboard' );
+				this.props.navigate( '/dashboard', { replace: true } );
 				pageComponent = <AtAGlance { ...this.props } />;
 				break;
 			case '/settings':

@@ -11,18 +11,18 @@ return [
     // # Issue statistics:
     // PhanParamTooMany : 40+ occurrences
     // PhanTypeMismatchArgument : 40+ occurrences
-    // PhanDeprecatedFunction : 15+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 15+ occurrences
     // PhanTypeMismatchReturn : 15+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 9 occurrences
     // PhanTypeMismatchPropertyProbablyReal : 9 occurrences
     // PhanNoopNew : 8 occurrences
     // PhanTypeMismatchReturnProbablyReal : 8 occurrences
-    // PhanRedundantCondition : 5 occurrences
+    // PhanRedundantCondition : 6 occurrences
     // PhanTypeArraySuspiciousNullable : 5 occurrences
     // PhanTypeMismatchDefault : 5 occurrences
     // PhanTypeMismatchArgumentInternal : 3 occurrences
     // PhanTypeObjectUnsetDeclaredProperty : 3 occurrences
+    // PhanDeprecatedFunction : 2 occurrences
     // PhanNonClassMethodCall : 2 occurrences
     // PhanPluginUnreachableCode : 2 occurrences
     // PhanPossiblyUndeclaredVariable : 2 occurrences
@@ -60,19 +60,15 @@ return [
         'src/sso/class-user-admin.php' => ['PhanPluginUnreachableCode', 'PhanTypeMismatchArgument'],
         'src/webhooks/class-authorize-redirect.php' => ['PhanUndeclaredClassMethod'],
         'tests/php/test-class-nonce-handler.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanTypeMismatchArgument'],
-        'tests/php/test-class-webhooks.php' => ['PhanDeprecatedFunction'],
-        'tests/php/test-partner-coupon.php' => ['PhanDeprecatedFunction'],
         'tests/php/test-rest-endpoints.php' => ['PhanNoopNew', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'tests/php/test-tracking.php' => ['PhanDeprecatedFunction'],
         'tests/php/test_Error_Handler.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument'],
         'tests/php/test_Manager_integration.php' => ['PhanParamTooMany'],
         'tests/php/test_Manager_unit.php' => ['PhanDeprecatedFunction', 'PhanParamTooMany', 'PhanTypeArraySuspiciousNullable', 'PhanTypeObjectUnsetDeclaredProperty'],
-        'tests/php/test_Rest_Authentication.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgument'],
+        'tests/php/test_Rest_Authentication.php' => ['PhanTypeMismatchArgument'],
         'tests/php/test_Server_Sandbox.php' => ['PhanTypeArraySuspiciousNullable'],
         'tests/php/test_Signature.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'tests/php/test_Tokens.php' => ['PhanDeprecatedFunction', 'PhanTypeObjectUnsetDeclaredProperty'],
-        'tests/php/test_jetpack_xmlrpc_server.php' => ['PhanDeprecatedFunction', 'PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchArgument'],
-        'tests/php/test_package_version_tracker.php' => ['PhanDeprecatedFunction'],
+        'tests/php/test_Tokens.php' => ['PhanTypeObjectUnsetDeclaredProperty'],
+        'tests/php/test_jetpack_xmlrpc_server.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchArgument'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

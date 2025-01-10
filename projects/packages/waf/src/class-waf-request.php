@@ -329,23 +329,58 @@ class Waf_Request {
 	}
 
 	/**
-	 * Returns the POST variables
+	 * Returns the POST variables from a JSON body
 	 *
 	 * @return array{string, scalar}[]
 	 */
-	public function get_post_vars() {
+	private function get_json_post_vars() {
+		$decoded_json = json_decode( $this->get_body(), true ) ?? array();
+		return flatten_array( $decoded_json, 'json', true );
+	}
+
+	/**
+	 * Returns the POST variables from a urlencoded body
+	 *
+	 * @return array{string, scalar}[]
+	 */
+	private function get_urlencoded_post_vars() {
+		parse_str( $this->get_body(), $params );
+		return flatten_array( $params );
+	}
+
+	/**
+	 * Returns the POST variables
+	 *
+	 * @param string $body_processor Manually specifiy the method to use to process the body. Options are 'URLENCODED' and 'JSON'.
+	 *
+	 * @return array{string, scalar}[]
+	 */
+	public function get_post_vars( string $body_processor = '' ) {
+		$content_type = $this->get_header( 'content-type' );
+
+		// If the body processor is specified by the rules file, trust it.
+		if ( 'URLENCODED' === $body_processor ) {
+			return $this->get_urlencoded_post_vars();
+		}
+		if ( 'JSON' === $body_processor ) {
+			return $this->get_json_post_vars();
+		}
+
+		// Otherwise, use $_POST if it's not empty.
 		if ( ! empty( $_POST ) ) {
 			return flatten_array( $_POST );
-		} elseif ( strpos( $this->get_header( 'content-type' ), 'application/json' ) !== false ) {
-			// Attempt to decode JSON requests.
-			$decoded_json = json_decode( $this->get_body(), true ) ?? array();
-			return flatten_array( $decoded_json, 'json', true );
-		} else {
-			// Attempt to retrieve all parameters when method used isn't POST
-			$body = $this->get_body();
-			parse_str( $body, $params );
-			return flatten_array( $params );
 		}
+
+		// Lastly, try to parse the body based on the content type.
+		if ( strpos( $content_type, 'application/json' ) !== false ) {
+			return $this->get_json_post_vars();
+		}
+		if ( strpos( $content_type, 'application/x-www-form-urlencoded' ) !== false ) {
+			return $this->get_urlencoded_post_vars();
+		}
+
+		// Don't try to parse any other content types.
+		return array();
 	}
 
 	/**

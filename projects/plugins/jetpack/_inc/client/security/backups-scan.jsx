@@ -2,6 +2,10 @@ import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
+import { get, includes } from 'lodash';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Banner from 'components/banner';
 import Card from 'components/card';
 import QueryRewindStatus from 'components/data/query-rewind-status';
@@ -10,10 +14,6 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import { FEATURE_SECURITY_SCANNING_JETPACK } from 'lib/plans/constants';
-import { get, includes } from 'lodash';
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { getVaultPressData, getVaultPressScanThreatCount } from 'state/at-a-glance';
 import { showBackups } from 'state/initial-state';
 import { isModuleActivated } from 'state/modules';
@@ -147,16 +147,16 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 		};
 
 		getCardText() {
+			if ( this.props.isOfflineMode ) {
+				return __( 'Unavailable in Offline Mode.', 'jetpack' );
+			}
+
 			const backupsEnabled = get(
 					this.props.vaultPressData,
 					[ 'data', 'features', 'backups' ],
 					false
 				),
 				scanEnabled = get( this.props.vaultPressData, [ 'data', 'features', 'security' ], false );
-
-			if ( this.props.isOfflineMode ) {
-				return __( 'Unavailable in Offline Mode.', 'jetpack' );
-			}
 
 			// We check if the features are active first, rather than the plan because it's possible the site is on a
 			// VP-only plan, purchased before Jetpack plans existed.

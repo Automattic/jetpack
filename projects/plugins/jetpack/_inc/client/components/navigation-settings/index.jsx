@@ -1,16 +1,16 @@
 import { __, _x } from '@wordpress/i18n';
+import debugFactory from 'debug';
+import { noop } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import Search from 'components/search';
 import SectionNav from 'components/section-nav';
 import NavItem from 'components/section-nav/item';
 import NavTabs from 'components/section-nav/tabs';
-import debugFactory from 'debug';
 import analytics from 'lib/analytics';
-import { noop } from 'lodash';
-import PropTypes from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 import { isSiteConnected, isCurrentUserLinked } from 'state/connection';
 import {
 	userCanManageModules as _userCanManageModules,
@@ -37,9 +37,14 @@ export class NavigationSettings extends React.Component {
 	};
 
 	UNSAFE_componentWillMount() {
-		// We need to handle the search term not only on route update but also on page load in case of some external redirects
+		// We need to handle the search term not only on route update but also on page load in case of some external redirects.
 		this.onRouteChange( this.props.location );
-		this.props.history.listen( this.onRouteChange );
+	}
+
+	componentDidUpdate( oldprops ) {
+		if ( oldprops.location !== this.props.location ) {
+			this.onRouteChange( this.props.location );
+		}
 	}
 
 	UNSAFE_componentWillReceiveProps( nextProps ) {
@@ -143,7 +148,6 @@ export class NavigationSettings extends React.Component {
 						</NavItem>
 					) }
 					{ this.props.hasAnyOfTheseModules( [
-						'masterbar',
 						'markdown',
 						'custom-content-types',
 						'post-by-email',
@@ -310,4 +314,4 @@ export default connect(
 	dispatch => ( {
 		searchForTerm: term => dispatch( filterSearch( term ) ),
 	} )
-)( withRouter( NavigationSettings ) );
+)( props => <NavigationSettings { ...props } location={ useLocation() } /> );

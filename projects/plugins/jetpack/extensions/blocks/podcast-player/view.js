@@ -32,7 +32,6 @@ const initializeBlock = function ( id ) {
 	if ( ! block ) {
 		return;
 	}
-	const root = createRoot( block );
 
 	if ( block.getAttribute( 'data-jetpack-block-initialized' ) === 'true' ) {
 		return;
@@ -66,6 +65,7 @@ const initializeBlock = function ( id ) {
 
 	try {
 		// Prepare component.
+		const root = createRoot( block );
 		const component = createElement( PodcastPlayer, {
 			...data,
 			onError: function () {

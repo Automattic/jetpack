@@ -3,16 +3,14 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import ThemeIcon from './theme-icon';
 
-/* eslint-disable react/jsx-no-bind */
-
 /**
  * Theme control for use in SidebarOptions tab.
  *
- * @param {object} props - component properties.
- * @param {boolean} props.disabled - disables the control.
+ * @param {object}   props          - component properties.
+ * @param {boolean}  props.disabled - disables the control.
  * @param {Function} props.onChange - invoked with new theme value when a button is pressed.
- * @param {string} props.value - 'dark' or 'light'.
- * @returns {Element} component instance
+ * @param {string}   props.value    - 'dark' or 'light'.
+ * @return {Element} component instance
  */
 export default function ThemeControl( { disabled, value, onChange } ) {
 	return (

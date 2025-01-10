@@ -32,7 +32,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 
 		$this->queue = $this->getMockBuilder( 'Automattic\Jetpack\Sync\Queue' )
 			->setConstructorArgs( array( 'sync' ) )
-			->setMethods( array( 'is_locked', 'size', 'lag' ) )
+			->onlyMethods( array( 'is_locked', 'size', 'lag' ) )
 			->getMock();
 
 		// Delete the Last successful sync option to make sure it's not causing side effects.

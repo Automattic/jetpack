@@ -1,4 +1,3 @@
-import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { useMemo } from 'react';
 import { usePublicizeConfig } from '../../..';
@@ -8,18 +7,11 @@ import useMediaDetails from '../../hooks/use-media-details';
 import useMediaRestrictions from '../../hooks/use-media-restrictions';
 import { NO_MEDIA_ERROR } from '../../hooks/use-media-restrictions/constants';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
 
 export const useConnectionState = () => {
-	const { connections, enabledConnections } = useSocialMediaConnections();
+	const { connections } = useSocialMediaConnections();
 	const { isPublicizeEnabled, isPublicizeDisabledBySitePlan } = usePublicizeConfig();
-	const { showShareLimits, numberOfSharesRemaining } = useSelect( select => {
-		return {
-			showShareLimits: select( socialStore ).showShareLimits(),
-			numberOfSharesRemaining: select( socialStore ).numberOfSharesRemaining(),
-		};
-	}, [] );
 	const { attachedMedia } = useAttachedMedia();
 	const featuredImageId = useFeaturedImage();
 	const mediaId = attachedMedia[ 0 ]?.id || featuredImageId;
@@ -28,8 +20,6 @@ export const useConnectionState = () => {
 		connections,
 		useMediaDetails( mediaId )[ 0 ]
 	);
-
-	const outOfConnections = showShareLimits && numberOfSharesRemaining <= enabledConnections.length;
 
 	/**
 	 * Returns whether a connection is in good shape.
@@ -69,20 +59,14 @@ export const useConnectionState = () => {
 	 */
 	const shouldBeDisabled = useCallback(
 		( connection: Connection ) => {
-			const { enabled, toggleable } = connection;
-
-			const isOutOfConnections = ! enabled && toggleable && outOfConnections;
-			// A connection toggle should be disabled if
 			return (
 				// Publicize is disabled
 				! isPublicizeEnabled ||
-				// or if there are no more connections available
-				isOutOfConnections ||
 				// or the connection is not in good shape
 				! isInGoodShape( connection )
 			);
 		},
-		[ isInGoodShape, isPublicizeEnabled, outOfConnections ]
+		[ isInGoodShape, isPublicizeEnabled ]
 	);
 
 	/**

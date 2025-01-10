@@ -1,7 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import useAnalytics from '../../hooks/use-analytics';
-import { REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
-import { QUERY_ACTIVATE_PRODUCT_KEY } from '../constants';
+import { REST_API_SITE_PRODUCTS_ENDPOINT, QUERY_ACTIVATE_PRODUCT_KEY } from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
 import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
 import useProduct from './use-product';
@@ -33,7 +32,11 @@ const useActivate = ( productId: string ) => {
 	const { detail, refetch } = useProduct( productId );
 	const { recordEvent } = useAnalytics();
 
-	const { mutate: activate, isPending } = useSimpleMutation( {
+	const {
+		mutate: activate,
+		isPending,
+		isSuccess,
+	} = useSimpleMutation( {
 		name: QUERY_ACTIVATE_PRODUCT_KEY,
 		query: {
 			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/${ productId }`,
@@ -64,6 +67,7 @@ const useActivate = ( productId: string ) => {
 	return {
 		activate,
 		isPending,
+		isSuccess,
 	};
 };
 

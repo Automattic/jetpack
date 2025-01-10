@@ -1,11 +1,11 @@
 import { useRestoreConnection } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
-import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
-import NoticeAction from 'components/notice/notice-action';
-import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React, { useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+import NoticeAction from 'components/notice/notice-action';
+import analytics from 'lib/analytics';
 import {
 	CONNECT_URL_FETCH_SUCCESS,
 	SITE_RECONNECT,
@@ -42,7 +42,7 @@ const NoticeActionReconnect = props => {
 	/**
 	 * Initiate the restore connection process.
 	 *
-	 * @returns {Promise} - The API request promise.
+	 * @return {Promise} - The API request promise.
 	 */
 	const doReconnect = useCallback( () => {
 		props.beforeReconnectSite();

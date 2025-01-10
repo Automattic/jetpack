@@ -1,10 +1,10 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint jsx-a11y/no-onchange: 0 */
 
+import React from 'react';
 import Popover from 'components/popover';
 import PopoverMenu from 'components/popover/menu';
 import PopoverMenuItem from 'components/popover/menu-item';
-import React from 'react';
 
 class Popovers extends React.PureComponent {
 	static displayName = 'Popovers';
@@ -142,11 +142,11 @@ class Popovers extends React.PureComponent {
 
 	handleClick( i, positions ) {
 		return event => {
-			const index = parseInt( event.currentTarget.innerText );
 			if ( i === 4 ) {
 				return null;
 			}
 
+			const index = parseInt( event.currentTarget.innerText );
 			this.setState( {
 				showRubicPopover: ! this.state.showRubicPopover,
 				rubicPosition: positions[ index ],

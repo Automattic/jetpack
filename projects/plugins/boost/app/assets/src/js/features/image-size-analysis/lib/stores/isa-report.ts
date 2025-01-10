@@ -4,7 +4,7 @@ import {
 	useDataSyncAction,
 } from '@automattic/jetpack-react-data-sync-client';
 import { type isaGroupKeys } from '../isa-groups';
-import { IsaReport, IsaCounts } from './types';
+import { IsaReport, IsaCounts, ISAStatus } from './types';
 import { z } from 'zod';
 import { useMemo } from 'react';
 
@@ -79,6 +79,11 @@ export function useImageAnalysisRequest() {
 				queryClient.refetchQueries( {
 					queryKey: [ 'image_size_analysis_summary' ],
 				} );
+			},
+			optimisticUpdate: () => {
+				return {
+					status: ISAStatus.New,
+				};
 			},
 		},
 	} );

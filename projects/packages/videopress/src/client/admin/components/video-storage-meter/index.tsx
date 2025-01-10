@@ -4,7 +4,7 @@
 import { ProgressBar, Text } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import filesize from 'filesize';
+import { filesize } from 'filesize';
 /**
  * Internal dependencies
  */
@@ -23,7 +23,7 @@ import type React from 'react';
  * Video Storage Meter component
  *
  * @param {VideoStorageMeterProps} props - Component props.
- * @returns {React.ReactNode} - VideoStorageMeter react component.
+ * @return {React.ReactNode} - VideoStorageMeter react component.
  */
 const VideoStorageMeter: React.FC< VideoStorageMeterProps > = ( {
 	className,
@@ -59,6 +59,7 @@ const VideoStorageMeter: React.FC< VideoStorageMeterProps > = ( {
 
 export const ConnectVideoStorageMeter = props => {
 	const { storageUsed, uploadedVideoCount } = useVideos();
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const { features } = usePlan();
 	const { settings } = useVideoPressSettings();
 	const { siteType } = settings;

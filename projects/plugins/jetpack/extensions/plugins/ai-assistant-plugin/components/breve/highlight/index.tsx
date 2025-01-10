@@ -1,21 +1,15 @@
 /**
  * External dependencies
  */
-import { fixes } from '@automattic/jetpack-ai-client';
+import { fixes, Block, AiFeedbackThumbs } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { rawHandler } from '@wordpress/blocks';
-import { getBlockContent } from '@wordpress/blocks';
+import { rawHandler, serialize } from '@wordpress/blocks';
 import { Button, Popover, Spinner } from '@wordpress/components';
-import {
-	dispatch as globalDispatch,
-	select as globalSelect,
-	useDispatch,
-	useSelect,
-} from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { registerFormatType, removeFormat, RichTextValue } from '@wordpress/rich-text';
+import { reusableBlock as retry } from '@wordpress/icons';
 import clsx from 'clsx';
-import md5 from 'crypto-js/md5';
 import React from 'react';
 /**
  * Internal dependencies
@@ -23,20 +17,20 @@ import React from 'react';
 import { AiSVG } from '../../ai-icon';
 import { BREVE_FEATURE_NAME } from '../constants';
 import features from '../features';
-import registerEvents from '../features/events';
-import getBreveAvailability from '../utils/get-availability';
-import { getNodeTextIndex } from '../utils/get-node-text-index';
-import { getNonLinkAncestor } from '../utils/get-non-link-ancestor';
+import { LONG_SENTENCES } from '../features/long-sentences';
+import {
+	SPELLING_MISTAKES,
+	addTextToDictionary,
+	suggestSpellingFixes,
+} from '../features/spelling-mistakes';
+import getTargetText from '../utils/get-target-text';
 import { numberToOrdinal } from '../utils/number-to-ordinal';
-import highlight from './highlight';
+import replaceOccurrence from '../utils/replace-occurrence';
 import './style.scss';
 /**
  * Types
  */
 import type { BreveDispatch, BreveSelect } from '../types';
-import type { Block } from '@automattic/jetpack-ai-client';
-import type { WPFormat } from '@wordpress/rich-text/build-types/register-format-type';
-import type { RichTextFormatList } from '@wordpress/rich-text/build-types/types';
 
 type CoreBlockEditorSelect = {
 	getBlock: ( clientId: string ) => Block;
@@ -44,9 +38,13 @@ type CoreBlockEditorSelect = {
 
 // Setup the Breve highlights
 export default function Highlight() {
-	const { setPopoverHover, setSuggestions, invalidateSuggestions, ignoreSuggestion } = useDispatch(
-		'jetpack/ai-breve'
-	) as BreveDispatch;
+	const {
+		setPopoverHover,
+		setSuggestions,
+		invalidateSuggestions,
+		ignoreSuggestion,
+		invalidateSingleSuggestion,
+	} = useDispatch( 'jetpack/ai-breve' ) as BreveDispatch;
 
 	const { tracks } = useAnalytics();
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
@@ -55,6 +53,7 @@ export default function Highlight() {
 
 		return { getBlock: selector.getBlock };
 	}, [] );
+	const [ spellingSuggestions, setSpellingSuggestions ] = useState< string[] >( [] );
 
 	const {
 		anchor,
@@ -78,7 +77,7 @@ export default function Highlight() {
 		const defaultAnchor = { target: null, virtual: null };
 		const { target: anchorEl, virtual: virtualEl } =
 			breveSelect.getPopoverAnchor() ?? defaultAnchor;
-		const anchorFeature = anchorEl?.getAttribute?.( 'data-type' ) as string;
+		const anchorFeature = anchorEl?.getAttribute?.( 'data-breve-type' ) as string;
 		const anchorId = anchorEl?.getAttribute?.( 'data-id' ) as string;
 		const anchorBlockId = anchorEl?.getAttribute?.( 'data-block' ) as string;
 
@@ -116,7 +115,7 @@ export default function Highlight() {
 	}, [] );
 
 	const isPopoverOpen = popoverOpen && virtual;
-	const hasSuggestions = Boolean( suggestions?.suggestion );
+	const hasSuggestions = Boolean( suggestions?.suggestion ) || spellingSuggestions.length > 0;
 
 	const handleMouseEnter = () => {
 		setPopoverHover( true );
@@ -141,17 +140,7 @@ export default function Highlight() {
 			type: feature,
 		} );
 
-		const target = ( anchor as HTMLElement )?.innerText;
-		const parent = getNonLinkAncestor( anchor as HTMLElement );
-		// The text containing the target
-		const text = parent?.innerText as string;
-		// Get the index of the target in the parent
-		const startIndex = getNodeTextIndex( parent as HTMLElement, anchor as HTMLElement );
-		// Get the occurrences of the target in the sentence
-		const targetRegex = new RegExp( target, 'gi' );
-		const matches = Array.from( text.matchAll( targetRegex ) ).map( match => match.index );
-		// Get the right occurrence of the target in the sentence
-		const occurrence = Math.max( 1, matches.indexOf( startIndex ) + 1 );
+		const { target, text, occurrence } = getTargetText( anchor as HTMLElement );
 		const ordinalOccurence = numberToOrdinal( occurrence );
 
 		setSuggestions( {
@@ -198,21 +187,85 @@ export default function Highlight() {
 		} );
 	};
 
+	const handleApplySpellingFix = ( spellingSuggestion: string ) => {
+		const block = getBlock( blockId );
+
+		if ( ! block ) {
+			setPopoverHover( false );
+			return;
+		}
+
+		const { target, occurrence } = getTargetText( anchor as HTMLElement );
+
+		// The serialize function returns the block's HTML with its Gutenberg comments
+		const html = serialize( block );
+		const fixedHtml = replaceOccurrence( {
+			text: html,
+			target,
+			occurrence,
+			replacement: spellingSuggestion,
+		} );
+
+		const [ newBlock ] = rawHandler( { HTML: fixedHtml } );
+		invalidateSuggestions( blockId );
+		updateBlockAttributes( blockId, newBlock.attributes );
+		setPopoverHover( false );
+	};
+
+	const handleRetry = () => {
+		invalidateSingleSuggestion( feature, blockId, id );
+		handleSuggestions();
+
+		tracks.recordEvent( 'jetpack_ai_breve_retry', {
+			feature: BREVE_FEATURE_NAME,
+			type: feature,
+		} );
+	};
+
 	const handleIgnoreSuggestion = () => {
 		ignoreSuggestion( blockId, id );
 		setPopoverHover( false );
+
 		tracks.recordEvent( 'jetpack_ai_breve_ignore', {
 			feature: BREVE_FEATURE_NAME,
 			type: feature,
 		} );
 	};
 
+	const handleAddToDictionary = () => {
+		const { target } = getTargetText( anchor as HTMLElement );
+		addTextToDictionary( target );
+
+		tracks.recordEvent( 'jetpack_ai_breve_add_to_dictionary', {
+			feature: BREVE_FEATURE_NAME,
+			type: feature,
+			word: target,
+			language: 'en',
+		} );
+	};
+
+	useEffect( () => {
+		if ( feature === SPELLING_MISTAKES.name && isPopoverOpen ) {
+			// Get the typo
+			const typo = anchor?.innerText;
+
+			if ( ! typo ) {
+				return;
+			}
+
+			// Get the suggestions
+			setSpellingSuggestions( suggestSpellingFixes( typo ) );
+		} else {
+			setSpellingSuggestions( [] );
+		}
+	}, [ feature, isPopoverOpen, anchor ] );
+
 	return (
 		<>
-			{ isPopoverOpen && (
+			{ isPopoverOpen && anchor?.parentElement && (
 				<Popover
 					anchor={ virtual }
-					placement="bottom"
+					placement={ feature === LONG_SENTENCES.name ? 'bottom' : 'bottom-start' }
 					className="jetpack-ai-breve__highlight-popover"
 					variant="tooltip"
 					animate={ false }
@@ -227,44 +280,88 @@ export default function Highlight() {
 					>
 						<div className="jetpack-ai-breve__header-container">
 							<div className="jetpack-ai-breve__title">
-								<div className="jetpack-ai-breve__color" data-type={ feature } />
+								<div className="jetpack-ai-breve__color" data-breve-type={ feature } />
 								<div>{ title }</div>
 							</div>
-							{ ! hasSuggestions && (
+							{ feature !== SPELLING_MISTAKES.name && (
 								<div className="jetpack-ai-breve__action">
-									{ loading ? (
-										<div className="jetpack-ai-breve__loading">
-											<Spinner />
-										</div>
-									) : (
+									{ hasSuggestions ? (
 										<Button
-											className="jetpack-ai-breve__suggest"
-											icon={ AiSVG }
-											onClick={ handleSuggestions }
-										>
-											{ __( 'Suggest', 'jetpack' ) }
-										</Button>
+											showTooltip
+											size="small"
+											iconSize={ 20 }
+											icon={ retry }
+											label={ __( 'Retry', 'jetpack' ) }
+											onClick={ handleRetry }
+										/>
+									) : (
+										<>
+											{ loading ? (
+												<div className="jetpack-ai-breve__loading">
+													<Spinner />
+												</div>
+											) : (
+												<Button
+													className="jetpack-ai-breve__suggest"
+													icon={ AiSVG }
+													iconSize={ 18 }
+													onClick={ handleSuggestions }
+												>
+													{ __( 'Suggest', 'jetpack' ) }
+												</Button>
+											) }
+										</>
 									) }
 								</div>
 							) }
 						</div>
-						<div className="jetpack-ai-breve__bottom-container">
-							{ hasSuggestions && (
+						<div className="jetpack-ai-breve__suggestions-container">
+							{ feature !== SPELLING_MISTAKES.name && hasSuggestions && (
 								<Button variant="tertiary" onClick={ handleApplySuggestion }>
 									{ suggestions?.suggestion }
 								</Button>
 							) }
-							<div className="jetpack-ai-breve__helper">
-								{ hasSuggestions ? (
-									__( 'Click on the suggestion to insert it.', 'jetpack' )
-								) : (
-									<>
-										{ description }
-										<Button variant="link" onClick={ handleIgnoreSuggestion }>
-											{ __( 'Dismiss', 'jetpack' ) }
-										</Button>
-									</>
-								) }
+
+							{ feature === SPELLING_MISTAKES.name &&
+								spellingSuggestions.map( spellingSuggestion => (
+									<Button
+										variant="tertiary"
+										onClick={ () => handleApplySpellingFix( spellingSuggestion ) }
+										key={ spellingSuggestion }
+										className="jetpack-ai-breve__spelling-suggestion"
+									>
+										{ spellingSuggestion }
+									</Button>
+								) ) }
+						</div>
+						<div className="jetpack-ai-breve__helper">
+							{ feature === SPELLING_MISTAKES.name && (
+								<Button variant="link" onClick={ handleAddToDictionary }>
+									{ __( 'Add to dictionary', 'jetpack' ) }
+								</Button>
+							) }
+
+							{ feature !== SPELLING_MISTAKES.name &&
+								( hasSuggestions
+									? __( 'Click on the suggestion to insert it.', 'jetpack' )
+									: description ) }
+
+							<div className="jetpack-ai-breve__helper-inner">
+								<AiFeedbackThumbs
+									disabled={ ! hasSuggestions }
+									ratedItem={ id }
+									iconSize={ 18 }
+									feature="write-brief"
+									options={ {
+										prompt: feature,
+									} }
+								/>
+
+								<div className="jetpack-ai-breve__helper-buttons-wrapper">
+									<Button variant="link" onClick={ handleIgnoreSuggestion }>
+										{ __( 'Ignore', 'jetpack' ) }
+									</Button>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -272,90 +369,4 @@ export default function Highlight() {
 			) }
 		</>
 	);
-}
-
-export function registerBreveHighlights() {
-	features.forEach( feature => {
-		const { highlight: featureHighlight, config } = feature;
-		const { name, ...configSettings } = config;
-		const formatName = `jetpack/ai-proofread-${ name }`;
-
-		const settings = {
-			name: formatName,
-			interactive: false,
-			edit: () => {},
-			...configSettings,
-			__experimentalGetPropsForEditableTreePreparation( _select, { blockClientId } ) {
-				const { getIgnoredSuggestions, isFeatureEnabled, isProofreadEnabled } = globalSelect(
-					'jetpack/ai-breve'
-				) as BreveSelect;
-				const { getAiAssistantFeature } = globalSelect( 'wordpress-com/plans' );
-				const isFreePlan = getAiAssistantFeature().currentTier?.value === 0;
-
-				return {
-					isProofreadEnabled: isProofreadEnabled() && getBreveAvailability( isFreePlan ),
-					isFeatureEnabled: isFeatureEnabled( config.name ),
-					ignored: getIgnoredSuggestions( { blockId: blockClientId } ),
-				};
-			},
-			__experimentalCreatePrepareEditableTree(
-				{ isProofreadEnabled, isFeatureEnabled, ignored },
-				{ blockClientId, richTextIdentifier }
-			) {
-				return ( formats: Array< RichTextFormatList >, text: string ) => {
-					const { getBlock } = globalSelect( 'core/block-editor' ) as CoreBlockEditorSelect;
-					const { getBlockMd5 } = globalSelect( 'jetpack/ai-breve' ) as BreveSelect;
-					const { invalidateSuggestions, setBlockMd5 } = globalDispatch(
-						'jetpack/ai-breve'
-					) as BreveDispatch;
-
-					const record = { formats, text } as RichTextValue;
-					const type = formatName;
-
-					// Ignored suggestions
-					let ignoredList = ignored;
-
-					// Has to be defined here, as adding it to __experimentalGetPropsForEditableTreePreparation
-					// causes an issue with the block inserter. ref p1721746774569699-slack-C054LN8RNVA
-					const currentMd5 = getBlockMd5( blockClientId );
-
-					if ( text && isProofreadEnabled && isFeatureEnabled ) {
-						const block = getBlock( blockClientId );
-						// Only use block content for complex blocks like tables
-						const blockContent = richTextIdentifier === 'content' ? text : getBlockContent( block );
-						const textMd5 = md5( blockContent ).toString();
-
-						if ( currentMd5 !== textMd5 ) {
-							ignoredList = [];
-							invalidateSuggestions( blockClientId );
-							setBlockMd5( blockClientId, textMd5 );
-						}
-
-						const highlights = featureHighlight( text );
-						const applied = highlight( {
-							ignored: ignoredList,
-							content: record,
-							type,
-							indexes: highlights,
-							attributes: {
-								'data-type': config.name,
-								'data-identifier': richTextIdentifier ?? 'none',
-								'data-block': blockClientId,
-							},
-						} );
-
-						setTimeout( () => {
-							registerEvents( blockClientId );
-						}, 100 );
-
-						return applied.formats;
-					}
-
-					return removeFormat( record, type, 0, record.text.length ).formats;
-				};
-			},
-		} as WPFormat;
-
-		registerFormatType( formatName, settings );
-	} );
 }

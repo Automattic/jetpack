@@ -8,7 +8,7 @@ import { Popover } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { arrowUp, Icon } from '@wordpress/icons';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
@@ -20,13 +20,14 @@ import type { SetStateAction } from 'react';
 
 import './style.scss';
 
-const BoostSpeedScore: BoostSpeedScoreType = ( { shouldShowTooltip } ) => {
+const BoostSpeedScore: BoostSpeedScoreType = () => {
 	const { recordEvent } = useAnalytics();
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ speedLetterGrade, setSpeedLetterGrade ] = useState( '' );
 	const [ currentSpeedScore, setCurrentSpeedScore ] = useState< number | null >( null );
 	const [ previousSpeedScore, setPreviousSpeedScore ] = useState< number | null >( null );
 	const [ isSpeedScoreError, setIsSpeedScoreError ] = useState( false );
+	const [ shouldShowTooltip, setShouldShowTooltip ] = useState( false );
 	const [ hasTooltipBeenViewed, setHasTooltipBeenViewed ] = useState( false );
 	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
 
@@ -116,6 +117,14 @@ const BoostSpeedScore: BoostSpeedScoreType = ( { shouldShowTooltip } ) => {
 
 	const tooltipCopy = useBoostTooltipCopy( { speedLetterGrade, boostScoreIncrease } );
 
+	const handleEnter = useCallback( () => {
+		setShouldShowTooltip( true );
+	}, [ setShouldShowTooltip ] );
+
+	const handleOut = useCallback( () => {
+		setShouldShowTooltip( false );
+	}, [ setShouldShowTooltip ] );
+
 	useEffect( () => {
 		if ( latestBoostSpeedScores ) {
 			if ( isBoostActive ) {
@@ -152,7 +161,15 @@ const BoostSpeedScore: BoostSpeedScoreType = ( { shouldShowTooltip } ) => {
 
 	return (
 		! isSpeedScoreError && (
-			<div className="mj-boost-speed-score">
+			<div
+				className="mj-boost-speed-score"
+				role="presentation"
+				onMouseEnter={ handleEnter }
+				onMouseLeave={ handleOut }
+				onClick={ shouldShowTooltip ? handleOut : handleEnter }
+				onFocus={ handleEnter }
+				onBlur={ handleOut }
+			>
 				{ isLoading ? (
 					<Spinner color="#23282d" size={ 16 } />
 				) : (
@@ -161,7 +178,7 @@ const BoostSpeedScore: BoostSpeedScoreType = ( { shouldShowTooltip } ) => {
 							<span>{ __( 'Your website’s overall speed score:', 'jetpack-my-jetpack' ) }</span>
 							<span className="mj-boost-speed-score__grade--letter">
 								{ speedLetterGrade }
-								{ shouldShowTooltip && (
+								{ ! isLoading && shouldShowTooltip && (
 									<Popover
 										placement={ isMobileViewport ? 'top-end' : 'top-start' }
 										noArrow={ false }

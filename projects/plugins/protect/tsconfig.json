@@ -5,6 +5,6 @@
 		"sourceMap": true,
 		"outDir": "./build/",
 		"target": "esnext",
-		"typeRoots": [ "./node_modules/@types/", "./src/js/*" ]
+		"typeRoots": [ "./node_modules/@types/", "./src/js/types" ]
 	}
 }

@@ -116,7 +116,7 @@ class Actions {
 		}
 
 		if ( self::sync_via_cron_allowed() ) {
-			self::init_sync_cron_jobs();
+			add_action( 'init', array( __CLASS__, 'init_sync_cron_jobs' ), 1 );
 		} elseif ( wp_next_scheduled( 'jetpack_sync_cron' ) ) {
 			self::clear_sync_cron_jobs();
 		}
@@ -175,7 +175,9 @@ class Actions {
 		) ) {
 			self::initialize_sender();
 			add_action( 'shutdown', array( self::$sender, 'do_sync' ), 9998 );
-			add_action( 'shutdown', array( self::$sender, 'do_full_sync' ), 9999 );
+			if ( self::should_initialize_sender( true ) ) {
+				add_action( 'shutdown', array( self::$sender, 'do_full_sync' ), 9999 );
+			}
 		}
 	}
 
@@ -212,9 +214,11 @@ class Actions {
 	 * @access public
 	 * @static
 	 *
+	 * @param bool $full_sync Whether the Full Sync sender should run on shutdown for this request.
+	 *
 	 * @return bool
 	 */
-	public static function should_initialize_sender() {
+	public static function should_initialize_sender( $full_sync = false ) {
 
 		// Allow for explicit disable of Sync from request param jetpack_sync_read_only.
 		if ( isset( $_REQUEST['jetpack_sync_read_only'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
@@ -227,9 +231,10 @@ class Actions {
 		}
 
 		/**
-		 * For now, if dedicated Sync is enabled we will always initialize send, even for GET and unauthenticated requests.
+		 * For now, if dedicated Sync is enabled we will always initialize send, even for GET and unauthenticated requests
+		 * but not for Full Sync, since it will still happen on shutdown.
 		 */
-		if ( Settings::is_dedicated_sync_enabled() ) {
+		if ( false === $full_sync && Settings::is_dedicated_sync_enabled() ) {
 			return true;
 		}
 
@@ -304,15 +309,16 @@ class Actions {
 			return false;
 		}
 
-		if ( ( new Status() )->in_safe_mode() ) {
-			return false;
-		}
-
 		$connection = new Jetpack_Connection();
 		if ( ! $connection->is_connected() ) {
 			if ( ! doing_action( 'jetpack_site_registered' ) ) {
 				return false;
 			}
+		}
+
+		// By now, we know the site is connected, so we can return false if in safe mode.
+		if ( ( new Status() )->in_safe_mode() ) {
+			return false;
 		}
 
 		return true;

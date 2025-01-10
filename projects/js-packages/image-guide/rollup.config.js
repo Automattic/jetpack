@@ -10,7 +10,6 @@ import postcss from 'rollup-plugin-postcss';
 import svelte from 'rollup-plugin-svelte';
 import { svelteSVG } from 'rollup-plugin-svelte-svg';
 import sveltePreprocess from 'svelte-preprocess';
-import tsconfig from './tsconfig.json';
 
 const production = process.env.NODE_ENV === 'production';
 
@@ -89,7 +88,7 @@ export default {
 			inlineSources: ! production,
 			// In order to let @rollup/plugin-typescript hanlde TS files from js-packages
 			// we need to include those here and pass the custom tsconfig as well
-			include: tsconfig.include,
+			include: [ './src/**/*' ],
 			tsconfig: 'tsconfig.json',
 			declaration: true,
 		} ),

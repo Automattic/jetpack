@@ -1,0 +1,130 @@
+.trigger-wrapper {
+	margin-top: 1rem;
+	padding-block: 1rem;
+}
+
+.wrapper {
+	margin-top: 1rem;
+	padding-block: 1rem;
+}
+
+.modal {
+	width: 60rem;
+	min-height: 20rem;
+}
+
+.share-item-name-wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	flex: 1;
+	overflow: auto;
+}
+
+.share-item-name {
+	display: flex;
+	align-items: center;
+}
+
+.share-status-wrapper {
+	display: flex;
+	align-items: center;
+
+	&.share-status-success {
+		color: var(--jp-green-50);
+	}
+
+	&.share-status-failure {
+		color: var(--jp-red-50);
+		height: 29px;
+	}
+}
+
+.share-status-label {
+	flex: 1;
+}
+
+.share-status-icon-tooltip {
+	width: 24px;
+	top: 2px;
+	margin-inline-start: 2px;
+
+	> button {
+		color: var(--jp-red-50) !important;
+	}
+}
+
+.tooltip-text {
+	word-break: break-word;
+}
+
+.share-status-icon {
+	fill: var(--jp-green-50);
+}
+
+.dataview-wrapper {
+	/**
+	 * We have to use scoped import to avoid styles being added globally.
+	 * By importing the styles here, all the styles from dataviews package will be scoped to this component.
+	 * @see https://github.com/Automattic/jetpack/issues/39981
+	 */
+	// Use :global scope to avoid CSS encapsulation
+	:global {
+		// Use import without ".css" extension to avoid it being rendered as URL
+		@import '@wordpress/dataviews/build-style/style';
+	}
+
+	// Hide the table actions
+	:global(.dataviews__view-actions) {
+		display: none;
+	}
+
+	table {
+		// Avoid table shifting when there is tooltip in actions column
+		overflow: hidden;
+	}
+
+	// Make the table header buttons unclickable
+	:global(.dataviews-view-table-header-button) {
+		pointer-events: none;
+	}
+
+	// Make the actions column right-aligned
+	:global(.dataviews-view-table__row td:last-child) {
+		width: 1%;
+		// Making its content center-aligned
+		:global(.dataviews-view-table__cell-content-wrapper) {
+			justify-content: center;
+		}
+	}
+
+	.connection-name {
+		display: flex;
+		align-items: center;
+	}
+
+	// Reset link styles
+	:global(.components-external-link) {
+		color: #2271b1; // $blue-50 from WP common CSS.
+		font-weight: normal;
+	}
+}
+
+.retry-wrapper {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	button {
+		padding: 0;
+	}
+
+	// Fix tooltip icon alignment to center align it
+	:global(.icon-tooltip-wrapper) {
+		display: flex;
+
+		button span {
+			display: flex;
+		}
+	}
+}

@@ -144,7 +144,6 @@ $grid-size: 8px;
 	font-weight: 400;
 	line-height: 1.43;
 	color: var( --jp-gray-60 );
-	text-align: left;
 	margin: 0;
 }
 .jetpack-external-media-wrapper__jetpack_app_media-wrapper.has-no-image-uploaded {
@@ -373,6 +372,22 @@ $grid-size: 8px;
 	}
 }
 
+.jetpack-external-media-header__change-selection {
+	display: flex;
+	flex-grow: 1;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+
+	.components-button {
+		height: 40px;
+		margin: 1px 1px 9px 0;
+
+		@media only screen and ( min-width: 783px ) {
+			height: 30px;
+		}
+	}
+}
+
 .jetpack-external-media-header__filter,
 .jetpack-external-media-header__view {
 	label {
@@ -485,6 +500,32 @@ $grid-size: 8px;
 	}
 }
 
+.jetpack-external-media__google-photos-picker {
+	text-align: center;
+	margin-bottom: 48px;
+
+	h1 {
+		font-weight: 400;
+	}
+
+	p {
+		font-size: 16px;
+	}
+
+	.jetpack-external-media__google-photos-picker-button {
+		margin-bottom: 10px;
+	}
+
+	.jetpack-external-media-header__account {
+		justify-content: center;
+
+		.components-button {
+			display: block;
+			margin: auto;
+		}
+	}
+}
+
 /**
  * Basic Responsiveness
  */
@@ -527,13 +568,13 @@ $grid-size: 8px;
 }
 
 .jetpack-external-media-auth {
-	max-width: 340px;
+	max-width: 400px;
 	margin: 0 auto;
 	padding-bottom: 80px;
 	text-align: center;
 
 	p {
-		margin: 2em 0;
+		margin: 0 0 2em 0;
 	}
 }
 
@@ -543,33 +584,24 @@ $grid-size: 8px;
 }
 
 .jetpack-external-media-button-menu__dropdown {
-	width: 100%;
+	display: flex;
 
 	.jetpack-external-media-button-menu {
 		width: 100%;
 		flex-direction: row;
-		text-align: left;
 		padding-left: 12px;
 		padding-right: 12px;
-
-		.jetpack-external-media-button-menu__label {
-			flex-grow: 2;
-		}
 	}
 }
 
-// Set the wrapper as a flex container to allow displaying multiple buttons side by side.
 .jetpack-external-media-button-wrapper {
-	display: flex;
+	display: contents;
 }
 
 // Reset placeholder button margin.
 .components-placeholder__fieldset,
 .editor-post-featured-image {
 	.components-dropdown .jetpack-external-media-button-menu {
-		width: auto;
-		margin-bottom: 1em;
-
 		> svg {
 			display: none;
 		}

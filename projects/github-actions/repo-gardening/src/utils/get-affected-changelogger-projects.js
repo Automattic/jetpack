@@ -5,7 +5,7 @@ const getPrWorkspace = require( './get-pr-workspace' );
 /**
  * Returns a list of Projects that use changelogger package
  *
- * @returns {Array} list of changelogger packages
+ * @return {Array} list of changelogger packages
  */
 function getChangeloggerProjects() {
 	const projects = [];
@@ -29,7 +29,7 @@ function getChangeloggerProjects() {
  * Returns an object with project type and name
  *
  * @param {string} file - File path
- * @returns {object} Project type and name
+ * @return {object} Project type and name
  */
 function getProject( file ) {
 	const project = file.match( /projects\/(?<ptype>[^/]*)\/(?<pname>[^/]*)\// );
@@ -47,7 +47,7 @@ function getProject( file ) {
  * Returns a list of affected projects
  *
  * @param {Array} files - List of files
- * @returns {Array} List of affected projects
+ * @return {Array} List of affected projects
  */
 function getAffectedChangeloggerProjects( files ) {
 	const changeloggerProjects = getChangeloggerProjects();

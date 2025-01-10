@@ -17,18 +17,18 @@ import './style.scss';
 /**
  * Render the "Stay safe" button.
  *
- * @param {Function} callback - Button click callback.
- * @param {boolean} isDisabled - Whether the button should be disabled.
- * @returns {React.Component} - The rendered output.
+ * @param {Function} callback   - Button click callback.
+ * @param {boolean}  isDisabled - Whether the button should be disabled.
+ * @return {React.Component} - The rendered output.
  */
 
 const renderStaySafeButton = ( callback, isDisabled ) => {
 	return createInterpolateElement(
-		__( 'Or decide later and stay in <button>Safe mode</button>', 'jetpack' ),
+		__( 'Or decide later and stay in <button>Safe mode</button>', 'jetpack-idc' ),
 		{
 			button: (
 				<Button
-					label={ __( 'Safe mode', 'jetpack' ) }
+					label={ __( 'Safe mode', 'jetpack-idc' ) }
 					variant="link"
 					onClick={ callback }
 					disabled={ isDisabled }
@@ -41,13 +41,13 @@ const renderStaySafeButton = ( callback, isDisabled ) => {
 /**
  * Render the "staying safe" line.
  *
- * @returns {React.Component} - The rendered output.
+ * @return {React.Component} - The rendered output.
  */
 const renderStayingSafe = () => {
 	return (
 		<div className="jp-idc__safe-mode__staying-safe">
 			<Spinner color="black" />
-			<span>{ __( 'Finishing setting up Safe mode…', 'jetpack' ) }</span>
+			<span>{ __( 'Finishing setting up Safe mode…', 'jetpack-idc' ) }</span>
 		</div>
 	);
 };
@@ -56,13 +56,13 @@ const renderStayingSafe = () => {
  * Render the error message.
  *
  * @param {string} supportURL - The support page URL.
- * @returns {React.Component} The error message.
+ * @return {React.Component} The error message.
  */
 const renderError = supportURL => {
 	return (
 		<ErrorMessage>
 			{ createInterpolateElement(
-				__( 'Could not stay in safe mode. Retry or find out more <a>here</a>.', 'jetpack' ),
+				__( 'Could not stay in safe mode. Retry or find out more <a>here</a>.', 'jetpack-idc' ),
 				{
 					a: (
 						<a
@@ -90,7 +90,7 @@ const SafeMode = props => {
 	const [ isStayingSafe, setIsStayingSafe ] = useState( false );
 
 	const buttonLabel =
-		customContent.stayInSafeModeButtonLabel || __( 'Stay in Safe mode', 'jetpack' );
+		customContent.stayInSafeModeButtonLabel || __( 'Stay in Safe mode', 'jetpack-idc' );
 
 	const staySafeCallback = useCallback( () => {
 		if ( ! isActionInProgress ) {
@@ -139,7 +139,7 @@ const SafeMode = props => {
 						<h4>
 							{ customContent.safeModeTitle
 								? createInterpolateElement( customContent.safeModeTitle, { em: <em /> } )
-								: __( 'Stay in Safe Mode', 'jetpack' ) }
+								: __( 'Stay in Safe Mode', 'jetpack-idc' ) }
 						</h4>
 
 						<div>
@@ -151,7 +151,7 @@ const SafeMode = props => {
 											'<list><item>short-lived test sites</item><item>sites that will be cloned back to production after testing</item></list>' +
 											'<p><strong>Please note</strong> that staying in Safe mode will disable some Jetpack features, including security features such as SSO, firewall, and site monitor. ' +
 											'<safeModeLink>Learn more</safeModeLink>.</p>',
-										'jetpack'
+										'jetpack-idc'
 									),
 								{
 									p: <p />,

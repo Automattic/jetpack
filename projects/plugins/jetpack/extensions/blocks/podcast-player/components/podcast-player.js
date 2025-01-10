@@ -58,7 +58,7 @@ export class PodcastPlayer extends Component {
 	 *
 	 * @private
 	 * @param {number} track - The track number
-	 * @returns {boolean} Whether loading of the track was successful
+	 * @return {boolean} Whether loading of the track was successful
 	 */
 	loadTrack = track => {
 		const trackData = this.getTrack( track );
@@ -111,7 +111,7 @@ export class PodcastPlayer extends Component {
 	 *
 	 * @private
 	 * @param {number} track - The track number
-	 * @returns {object} Track object.
+	 * @return {object} Track object.
 	 */
 	getTrack = track => {
 		return this.props.tracks[ track ];

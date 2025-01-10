@@ -1,0 +1,28 @@
+.wrapper {
+	margin-bottom: 2em;
+	display: flex;
+	margin-left: auto;
+	margin-right: auto;
+
+
+	a {
+		text-decoration: underline;
+	}
+
+	h2 {
+		font-size: 22px;
+		margin-top: 0;
+	}
+
+	p {
+		margin: 1em 0;
+	}
+
+	.content {
+		width: 100%;
+	}
+
+	.content h3:focus-visible {
+		outline: none;
+	}
+}

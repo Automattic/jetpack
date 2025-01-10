@@ -8,6 +8,7 @@ export const REST_API_COUNT_BACKUP_ITEMS_ENDPOINT = `${ REST_API_NAMESPACE }/sit
 export const REST_API_CHAT_AVAILABILITY_ENDPOINT = `${ REST_API_NAMESPACE }/chat/availability`;
 export const REST_API_CHAT_AUTHENTICATION_ENDPOINT = `${ REST_API_NAMESPACE }/chat/authentication`;
 export const REST_API_SITE_PRODUCTS_ENDPOINT = `${ REST_API_NAMESPACE }/site/products`;
+export const REST_API_SITE_PRODUCTS_OWNERSHIP_ENDPOINT = `${ REST_API_NAMESPACE }/site/products-ownership`;
 export const REST_API_VIDEOPRESS_FEATURED_STATS = 'videopress/v1/stats/featured';
 export const REST_API_SITE_DISMISS_BANNER = `${ REST_API_NAMESPACE }/site/dismiss-welcome-banner`;
 export const REST_API_EVALUATE_SITE_RECOMMENDATIONS = `${ REST_API_NAMESPACE }/site/recommendations/evaluation`;
@@ -18,6 +19,7 @@ export const getStatsHighlightsEndpoint = ( blogId: string ) =>
 
 // Query names
 export const QUERY_PRODUCT_KEY = 'product';
+export const QUERY_PRODUCT_BY_OWNERSHIP_KEY = 'product ownership';
 export const QUERY_ACTIVATE_PRODUCT_KEY = 'activate product';
 export const QUERY_INSTALL_PRODUCT_KEY = 'install product';
 export const QUERY_VIDEOPRESS_STATS_KEY = 'videopress stats';
@@ -38,15 +40,21 @@ export const PRODUCT_SLUGS = {
 	ANTI_SPAM: 'anti-spam',
 	BACKUP: 'backup',
 	BOOST: 'boost',
+	BRUTE_FORCE: 'brute-force',
 	CRM: 'crm',
 	CREATOR: 'creator',
 	EXTRAS: 'extras',
 	JETPACK_AI: 'jetpack-ai',
+	NEWSLETTER: 'newsletter',
+	PROTECT: 'protect',
+	RELATED_POSTS: 'related-posts',
 	SCAN: 'scan',
 	SEARCH: 'search',
+	SITE_ACCELERATOR: 'site-accelerator',
 	SOCIAL: 'social',
-	SECURITY: 'security',
-	PROTECT: 'protect',
-	VIDEOPRESS: 'videopress',
 	STATS: 'stats',
+	VIDEOPRESS: 'videopress',
+	SECURITY: 'security',
+	GROWTH: 'growth',
+	COMPLETE: 'complete',
 } satisfies Record< string, JetpackModule >;

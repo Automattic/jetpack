@@ -20,12 +20,12 @@ import VideoNotOwnedWarning from '../video-not-owned-warning';
 /**
  * React component that renders the settings within the privacy and ratings panel.
  *
- * @param {object} props - Component props.
- * @param {object} props.attributes - Block attributes.
- * @param {Function} props.setAttributes - Function to set block attributes.
- * @param {boolean} props.privateEnabledForSite - True if the site's privacy is set to Private.
- * @param {boolean} props.videoBelongToSite - Determines if the video belongs to the current site.
- * @returns {import('react').ReactElement} - Settings to change video's privacy and ratings.
+ * @param {object}   props                       - Component props.
+ * @param {object}   props.attributes            - Block attributes.
+ * @param {Function} props.setAttributes         - Function to set block attributes.
+ * @param {boolean}  props.privateEnabledForSite - True if the site's privacy is set to Private.
+ * @param {boolean}  props.videoBelongToSite     - Determines if the video belongs to the current site.
+ * @return {import('react').ReactElement} - Settings to change video's privacy and ratings.
  */
 export default function PrivacyAndRatingSettings( {
 	attributes,
@@ -84,6 +84,7 @@ export default function PrivacyAndRatingSettings( {
 					setAttributes( { rating: value } );
 				} }
 				disabled={ ! videoBelongToSite }
+				__nextHasNoMarginBottom={ true }
 			/>
 
 			<SelectControl
@@ -104,6 +105,7 @@ export default function PrivacyAndRatingSettings( {
 				value={ String( privacySetting ) }
 				options={ [ privacyOptionSiteDefault, privacyOptionPublic, privacyOptionPrivate ] }
 				disabled={ ! videoBelongToSite }
+				__nextHasNoMarginBottom={ true }
 			/>
 
 			<ToggleControl
@@ -113,6 +115,7 @@ export default function PrivacyAndRatingSettings( {
 					setAttributes( { allowDownload: value } );
 				} }
 				disabled={ ! videoBelongToSite }
+				__nextHasNoMarginBottom={ true }
 			/>
 
 			<ToggleControl
@@ -126,6 +129,7 @@ export default function PrivacyAndRatingSettings( {
 					'jetpack-videopress-pkg'
 				) }
 				disabled={ ! videoBelongToSite }
+				__nextHasNoMarginBottom={ true }
 			/>
 
 			{ ! videoBelongToSite && <VideoNotOwnedWarning /> }

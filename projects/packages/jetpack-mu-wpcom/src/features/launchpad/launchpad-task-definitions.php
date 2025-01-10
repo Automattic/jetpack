@@ -21,16 +21,6 @@ function wpcom_launchpad_should_use_wp_admin_link() {
 }
 
 /**
- * Returns whether the task link should point to Jetpack Cloud page
- * instead of Calypso page.
- *
- * @return bool
- */
-function wpcom_launchpad_should_use_jetpack_cloud_link() {
-	return get_option( 'wpcom_admin_interface' ) === 'wp-admin';
-}
-
-/**
  * Get the task definitions for the Launchpad.
  *
  * @return Task[]
@@ -99,13 +89,28 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 		'first_post_published'            => array(
 			'get_title'             => function () {
-				return __( 'Write your first post', 'jetpack-mu-wpcom' );
+				$latest_draft_id = wpcom_launchpad_get_latest_draft_id();
+				return $latest_draft_id === false
+						? __( 'Write your first post', 'jetpack-mu-wpcom' )
+						: __( 'Continue to write your first post', 'jetpack-mu-wpcom' );
 			},
 			'add_listener_callback' => function () {
 				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task' );
 			},
 			'get_calypso_path'      => function ( $task, $default, $data ) {
-				$base_path = wpcom_launchpad_should_use_wp_admin_link()
+				$is_blog_onboarding_flow = in_array( get_option( 'site_intent' ), array( 'start-writing', 'design-first' ), true );
+				$use_wp_admin_link = wpcom_launchpad_should_use_wp_admin_link() || $is_blog_onboarding_flow;
+				$latest_draft_id = wpcom_launchpad_get_latest_draft_id();
+
+				if ( is_int( $latest_draft_id ) ) {
+					// There is a draft post, redirect the user to the draft instead of making a fresh post.
+					if ( $use_wp_admin_link ) {
+						return admin_url( 'post.php?action=edit&post=' . rawurlencode( $latest_draft_id ) );
+					}
+					return '/post/' . $data['site_slug_encoded'] . '/' . rawurlencode( $latest_draft_id );
+				}
+
+				$base_path = $use_wp_admin_link
 					? admin_url( 'post-new.php' )
 					: '/post/' . $data['site_slug_encoded'];
 
@@ -243,9 +248,6 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_jetpack_cloud_link() ) {
-					return 'https://cloud.jetpack.com/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
-				}
 				return '/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
 			},
 		),
@@ -511,9 +513,6 @@ function wpcom_launchpad_get_task_definitions() {
 			'target_repetitions'        => 10,
 			'repetition_count_callback' => 'wpcom_launchpad_get_newsletter_subscriber_count',
 			'get_calypso_path'          => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_jetpack_cloud_link() ) {
-					return 'https://cloud.jetpack.com/subscribers/' . $data['site_slug_encoded'];
-				}
 				return '/subscribers/' . $data['site_slug_encoded'];
 			},
 		),
@@ -537,9 +536,6 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_jetpack_cloud_link() ) {
-					return 'https://cloud.jetpack.com/subscribers/' . $data['site_slug_encoded'];
-				}
 				return '/subscribers/' . $data['site_slug_encoded'];
 			},
 		),
@@ -591,9 +587,6 @@ function wpcom_launchpad_get_task_definitions() {
 						'earn-launchpad'
 					);
 				}
-				if ( wpcom_launchpad_should_use_jetpack_cloud_link() ) {
-					return 'https://cloud.jetpack.com/monetize/payments/' . $data['site_slug_encoded'];
-				}
 				return '/earn/payments/' . $data['site_slug_encoded'];
 			},
 		),
@@ -604,9 +597,6 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_has_paid_membership_plans',
 			'is_visible_callback'  => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_jetpack_cloud_link() ) {
-					return 'https://cloud.jetpack.com/monetize/payments/' . $data['site_slug_encoded'] . '#add-new-payment-plan';
-				}
 				return '/earn/payments/' . $data['site_slug_encoded'] . '#add-new-payment-plan';
 			},
 		),
@@ -662,9 +652,6 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_jetpack_cloud_link() ) {
-					return 'https://cloud.jetpack.com/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
-				}
 				return '/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
 			},
 		),
@@ -813,6 +800,67 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
 			'get_calypso_path'     => function () {
 				return site_url( '/wp-admin/admin.php?page=wc-admin&task=launch_site' );
+			},
+		),
+		'migrating_site'                  => array(
+			'get_title'            => function () {
+				return __( 'Migrating the site', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => '__return_true',
+			'is_visible_callback'  => '__return_true',
+		),
+		// Post-migration tasks.
+		'review_site'                     => array(
+			'get_title'            => function () {
+				return __( "Review the site's content", 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => '__return_true',
+		),
+		'review_plugins'                  => array(
+			'get_title'             => function () {
+				return __( 'Review the migrated plugins', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback'  => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'   => '__return_true',
+			'add_listener_callback' => function () {
+				add_action( 'pre_current_active_plugins', 'wpcom_launchpad_mark_review_plugins_complete' );
+			},
+			'get_calypso_path'      => function () {
+				return admin_url( 'plugins.php' );
+			},
+		),
+		'connect_migration_domain'        => array(
+			'get_title'            => function () {
+				return __( 'Connect your domain', 'jetpack-mu-wpcom' );
+			},
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$site_id = get_current_blog_id();
+				// Attempt to get the domain from the pre-transfer site option if the function exists, otherwise check the current site option.
+				// @phan-suppress-next-line PhanUndeclaredFunction -- Being checked before being called.
+				$domain = function_exists( 'wpcom_get_migration_source_site_domain' ) ? wpcom_get_migration_source_site_domain( $site_id ) : get_option( 'migration_source_site_domain', null );
+				$path   = $domain ? '/domains/add/use-my-domain/' . $data['site_slug_encoded'] . '/?initialQuery=' . $domain : '/domains/add/use-my-domain/' . $data['site_slug_encoded'];
+				return $path;
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_domain_customize_completed',
+			'is_visible_callback'  => '__return_true',
+		),
+		'domain_dns_mapped'               => array(
+			'get_title'            => function () {
+				return __( "Update your domain's DNS", 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => '__return_true',
+		),
+		'check_ssl_status'                => array(
+			'get_title'            => function () {
+				return __( 'Provision SSL certificate', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_ssl_task_visible',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$domain = $data['site_slug_encoded'];
+				return '/domains/manage/' . $domain . '/edit/' . $domain;
 			},
 		),
 	);
@@ -1774,6 +1822,14 @@ function wpcom_track_site_launch_task() {
 }
 
 /**
+ * Mark the plugins reviewed task as complete.
+ *
+ * @return void
+ */
+function wpcom_launchpad_mark_review_plugins_complete() {
+	wpcom_mark_launchpad_task_complete( 'review_plugins' );
+}
+/**
  * Callback that conditionally adds the site launch listener based on platform.
  *
  * @return void
@@ -2147,11 +2203,14 @@ function wpcom_launchpad_find_site_about_page_id() {
 	$headstart_about_pages = array_filter(
 		$annotation['content'],
 		function ( $page ) {
-			if ( 'page' !== $page['post_type'] ) {
+			if ( isset( $page['post_type'] ) && 'page' !== $page['post_type'] ) {
 				return false;
 			}
 
-			if ( 'about' === $page['post_name'] || str_contains( $page['post_title'], 'About' ) ) {
+			if ( isset( $page['post_name'] ) && 'about' === $page['post_name'] ) {
+				return true;
+			}
+			if ( isset( $page['post_title'] ) && str_contains( $page['post_title'], 'About' ) ) {
 				return true;
 			}
 		}
@@ -2720,3 +2779,64 @@ function wpcom_launchpad_mark_theme_selected_complete( $new_theme, $old_theme ) 
 	wpcom_mark_launchpad_task_complete( 'site_theme_selected' );
 }
 add_action( 'jetpack_sync_current_theme_support', 'wpcom_launchpad_mark_theme_selected_complete', 10, 2 );
+
+/**
+ * Returns the latest draft post ID, otherwise false.
+ * Similar to wp_get_recent_posts, except we only need the ID.
+ *
+ * The response is cached for the lifetime of the current request.
+ *
+ * @return int | boolean
+ */
+function wpcom_launchpad_get_latest_draft_id() {
+	// The result is cached for the current request
+	static $cached_blog_id  = null;
+	static $cached_draft_id = null;
+
+	if ( $cached_blog_id === get_current_blog_id() && $cached_draft_id !== null ) {
+		return $cached_draft_id;
+	}
+
+	// Query for the latest draft post
+	$args = array(
+		'posts_per_page' => 1,
+		'post_status'    => 'draft',
+		'post_type'      => 'post',
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+		'fields'         => 'ids',
+	);
+
+	$latest_draft_id = get_posts( $args );
+
+	$cached_blog_id  = get_current_blog_id();
+	$cached_draft_id = reset( $latest_draft_id );
+
+	return $cached_draft_id;
+}
+
+/**
+ * Will return true if the primary domain is not a WPCOM domain.
+ *
+ * @return bool
+ */
+function wpcom_launchpad_is_ssl_task_visible() {
+	return ! wpcom_launchpad_is_primary_domain_wpcom();
+}
+
+/**
+ * Checks if the current site primary domain is a WPCOM domain.
+ *
+ * @return bool Will return true if the primary domain is a WPCOM domain.
+ */
+function wpcom_launchpad_is_primary_domain_wpcom() {
+	if ( ! ( new Automattic\Jetpack\Status\Host() )->is_wpcom_platform() ) {
+		return false;
+	}
+
+	$url  = home_url();
+	$host = wp_parse_url( $url, PHP_URL_HOST );
+
+	// If site_slug ends with .wpcomstaging.com return true
+	return str_ends_with( $host, '.wpcomstaging.com' );
+}

@@ -1,19 +1,12 @@
-import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
-import { useSelect } from '@wordpress/data';
+import { hasSocialPaidFeatures } from '@automattic/jetpack-publicize-components';
+import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import Logo from './../../logo';
 import styles from './styles.module.scss';
 
 const AdminPageHeader = () => {
-	const { showPricingPage, activateLicenseUrl } = useSelect( select => {
-		const store = select( SOCIAL_STORE_ID );
-
-		return {
-			showPricingPage: store.showPricingPage(),
-			activateLicenseUrl: `${ store.getAdminUrl() }admin.php?page=my-jetpack#/add-license`,
-		};
-	} );
+	const activateLicenseUrl = getMyJetpackUrl( '#/add-license' );
 
 	return (
 		<div className={ styles.header }>
@@ -21,7 +14,7 @@ const AdminPageHeader = () => {
 				<Logo />
 			</span>
 
-			{ showPricingPage && (
+			{ ! hasSocialPaidFeatures() && (
 				<p>
 					{ createInterpolateElement(
 						__(

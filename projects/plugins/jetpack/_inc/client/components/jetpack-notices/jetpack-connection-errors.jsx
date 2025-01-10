@@ -1,9 +1,9 @@
-import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import { __ } from '@wordpress/i18n';
-import SimpleNotice from 'components/notice';
-import NoticeAction from 'components/notice/notice-action.jsx';
 import PropTypes from 'prop-types';
 import React from 'react';
+import SimpleNotice from 'components/notice';
+import NoticeAction from 'components/notice/notice-action.jsx';
+import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import ErrorNoticeCycleConnection from './error-notice-cycle-connection';
 
 export default class JetpackConnectionErrors extends React.Component {
@@ -56,7 +56,7 @@ export default class JetpackConnectionErrors extends React.Component {
 			error.action,
 			error.message,
 			error.code,
-			error.hasOwnProperty( 'data' ) ? error.data : {},
+			Object.hasOwn( error, 'data' ) ? error.data : {},
 			supportURl
 		);
 
@@ -67,10 +67,10 @@ export default class JetpackConnectionErrors extends React.Component {
 
 	render() {
 		const errorsToDisplay = {};
-		const errors = this.props.errors.filter( error => error.hasOwnProperty( 'action' ) );
+		const errors = this.props.errors.filter( error => Object.hasOwn( error, 'action' ) );
 
 		for ( const error of errors ) {
-			if ( ! errorsToDisplay.hasOwnProperty( error.action ) ) {
+			if ( ! Object.hasOwn( errorsToDisplay, error.action ) ) {
 				errorsToDisplay[ error.action ] = error;
 			}
 		}

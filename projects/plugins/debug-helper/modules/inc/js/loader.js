@@ -2,7 +2,7 @@
  * Initialize the loader object, and retrieve the `on()` and `off()` methods.
  *
  * @param {Element} button - The button HTMLElement
- * @returns {{off: Function, on: Function}} The loader button.
+ * @return {{off: Function, on: Function}} The loader button.
  */
 export default function loaderButton( button ) {
 	const label = button.innerHTML;

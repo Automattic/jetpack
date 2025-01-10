@@ -21,9 +21,10 @@ $menu-current-text: #ffffff; // Calypso --color-sidebar-menu-selected-text
 $menu-current-icon: $menu-current-text;
 $menu-current-background: #0073aa; // Calypso --color-sidebar-menu-selected-background
 $menu-submenu-text: #b4b9be; // Calypso --color-sidebar-submenu-text
-$menu-submenu-background: #32373c; // Calypso --color-sidebar-submenu-background
+$menu-submenu-background: #333; // Calypso --color-sidebar-submenu-background
 $menu-submenu-focus-text: #00b9eb; // Calypso --color-sidebar-submenu-hover-text
 $menu-submenu-current-text: $studio-white; // Calypso --color-sidebar-submenu-selected-text
+$adminbar-avatar-frame: #333;
 
 // masterbar overrides
 $masterbar-background: $base-color; // Calypso --color-masterbar-background

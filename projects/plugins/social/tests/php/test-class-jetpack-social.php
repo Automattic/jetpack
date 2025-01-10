@@ -48,7 +48,7 @@ class Jetpack_Social_Test extends BaseTestCase {
 		// Publicize global is not available at the moment during these tests
 		$this->social = $this->getMockBuilder( Jetpack_Social::class )
 			->setConstructorArgs( array( $connection_manager ) )
-			->setMethods( array( 'calculate_scheduled_shares' ) )
+			->onlyMethods( array( 'calculate_scheduled_shares' ) )
 			->getMock();
 		$this->social->expects( $this->once() )->method( 'calculate_scheduled_shares' );
 

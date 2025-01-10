@@ -1,9 +1,10 @@
+/* global jQuery, wp, JetpackBeta */
 /**
  * Update message hooks.
  *
- * @param {jQuery}  $ - jQuery object.
- * @param {object}  wp - WP object.
- * @param {object}  i18n - I18n data.
+ * @param {jQuery} $    - jQuery object.
+ * @param {object} wp   - WP object.
+ * @param {object} i18n - I18n data.
  */
 ( function ( $, wp, i18n ) {
 	const $updateNotices = $( '.jetpack-beta__update-needed' ),
@@ -56,8 +57,6 @@
 	 */
 	function onError( response ) {
 		// Too bad we can't just use wp.updates.updatePluginError(), but it assumes it's on one of core's pages.
-		const $adminBarUpdates = $( '#wp-admin-bar-updates' );
-
 		if ( ! wp.updates.isValidResponse( response, 'update' ) ) {
 			return;
 		}
@@ -65,6 +64,8 @@
 		if ( wp.updates.maybeHandleCredentialError( response, 'update-plugin' ) ) {
 			return;
 		}
+
+		const $adminBarUpdates = $( '#wp-admin-bar-updates' );
 
 		let $notice;
 		if ( response.plugin ) {
@@ -100,15 +101,16 @@
 	 * @param {Event} event - Event interface.
 	 */
 	$updateNotices.on( 'click', '[data-plugin] .update-branch', function ( event ) {
-		const $button = $( event.target ),
-			$notice = $button.parents( '.dops-card' ),
-			$adminBarUpdates = $( '#wp-admin-bar-updates' );
+		const $button = $( event.target );
 
 		event.preventDefault();
 
 		if ( $button.hasClass( 'is-disabled' ) ) {
 			return;
 		}
+
+		const $notice = $button.parents( '.dops-card' ),
+			$adminBarUpdates = $( '#wp-admin-bar-updates' );
 
 		$notice.removeClass( 'is-error' );
 		$notice.find( '.error-message' ).remove();
@@ -131,4 +133,4 @@
 		$document.trigger( 'wp-plugin-updating', args );
 		wp.updates.ajax( 'update-plugin', args );
 	} );
-} )( jQuery, window.wp, window.JetpackBeta );
+} )( jQuery, wp, JetpackBeta );

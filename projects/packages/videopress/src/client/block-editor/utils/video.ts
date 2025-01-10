@@ -3,7 +3,7 @@
  * based on its mime type.
  *
  * @param {File} file - File to check.
- * @returns {boolean}   Whether the file is a video.
+ * @return {boolean}   Whether the file is a video.
  */
 export function isVideoFile( file: File ): boolean {
 	if ( ! file?.type ) {
@@ -17,7 +17,7 @@ export function isVideoFile( file: File ): boolean {
  * Filter an array of files to only include video files.
  *
  * @param {File[]} files - Array of files to filter.
- * @returns {File[]}       Array of video files.
+ * @return {File[]}       Array of video files.
  */
 export function filterVideoFiles( files: File[] ): File[] {
 	return files.filter( isVideoFile );

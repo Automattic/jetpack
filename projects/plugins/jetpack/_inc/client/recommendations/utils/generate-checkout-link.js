@@ -3,12 +3,12 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 /**
  * Return the URL of the checkout page with a given product in cart, for a specific site.
  *
- * @param {string} productSlug - Slug of the product to order
+ * @param {string} productSlug  - Slug of the product to order
  * @param {string} siteAdminUrl - Site admin URL
- * @param {string} siteRawUrl - Site URL
- * @param {string} couponCode - Coupon code
- * @param {string} blogID - Site URL
- * @returns {string} Checkout URL
+ * @param {string} siteRawUrl   - Site URL
+ * @param {string} couponCode   - Coupon code
+ * @param {string} blogID       - Site URL
+ * @return {string} Checkout URL
  */
 export const generateCheckoutLink = (
 	productSlug,

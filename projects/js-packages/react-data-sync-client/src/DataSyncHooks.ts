@@ -8,8 +8,7 @@ import {
 	useMutation,
 	QueryClientProvider,
 } from '@tanstack/react-query';
-import React from 'react';
-import { useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { z } from 'zod';
 import { DataSync } from './DataSync';
 import { DataSyncError } from './DataSyncError';
@@ -71,10 +70,10 @@ function buildQueryKey( key: string, params: Record< string, string | number > )
 /**
  * React Query hook for DataSync.
  * @param namespace - The namespace of the endpoint.
- * @param key - The key of the value that's being synced.
- * @param schema - The Zod schema to validate the value against.
- * @param config - React Query configuration.
- * @param params - key/value pairs to be used as GET parameters.
+ * @param key       - The key of the value that's being synced.
+ * @param schema    - The Zod schema to validate the value against.
+ * @param config    - React Query configuration.
+ * @param params    - key/value pairs to be used as GET parameters.
  * @returns A tuple of React Query hooks.
  * @see https://tanstack.com/query/v5/docs/react/reference/useQuery
  * @see https://tanstack.com/query/v5/docs/react/reference/useMutation
@@ -118,8 +117,8 @@ export function useDataSync<
 		initialData: () => {
 			try {
 				return datasync.getInitialValue();
-			} catch ( e ) {
-				return;
+			} catch {
+				return undefined;
 			}
 		},
 	};
@@ -313,7 +312,7 @@ export function useDataSyncAction<
 					queryClient.setQueryData( queryKey, data );
 				}
 				return data;
-			} catch ( e ) {
+			} catch {
 				return queryClient.getQueryData( queryKey );
 			}
 		},

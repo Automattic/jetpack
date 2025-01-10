@@ -6,10 +6,10 @@ import styles from './styles.module.scss';
 /**
  * Button Group
  *
- * @param {object} props                     - Component props.
+ * @param {object}            props          - Component props.
  * @param { React.ReactNode } props.children - Component children.
  *
- * @returns { React.ReactNode } The Button Group component.
+ * @return { React.ReactNode } The Button Group component.
  */
 function ButtonGroup( { children, ...props } ) {
 	return (

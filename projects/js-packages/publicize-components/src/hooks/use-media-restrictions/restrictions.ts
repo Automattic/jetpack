@@ -135,7 +135,7 @@ export const RESTRICTIONS = {
 			minLength: 3,
 		},
 	},
-	[ 'instagram-business' ]: {
+	'instagram-business': {
 		requiresMedia: true,
 		allowedMediaTypes: [ 'image/jpg', 'image/jpeg', MP4, MOV, VIDEOPRESS ],
 		image: {
@@ -148,7 +148,7 @@ export const RESTRICTIONS = {
 			},
 		},
 		video: {
-			maxLength: 90,
+			maxLength: 900,
 			minLength: 3,
 			maxSize: 1000,
 			maxWidth: 1920,

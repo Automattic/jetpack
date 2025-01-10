@@ -14,11 +14,11 @@ import type React from 'react';
  * All content must be passed as children wrapped in as many <AdminSection> elements as needed.
  *
  * @param {AdminPageProps} props - Component properties.
- * @returns {React.ReactNode} AdminPage component.
+ * @return {React.ReactNode} AdminPage component.
  */
 const AdminPage: React.FC< AdminPageProps > = ( {
 	children,
-	moduleName = __( 'Jetpack', 'jetpack' ),
+	moduleName = __( 'Jetpack', 'jetpack-components' ),
 	moduleNameHref,
 	showHeader = true,
 	showFooter = true,

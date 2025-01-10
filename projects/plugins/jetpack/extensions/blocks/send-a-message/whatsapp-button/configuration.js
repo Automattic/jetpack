@@ -28,14 +28,14 @@ export default function WhatsAppButtonConfiguration( { attributes, setAttributes
 	const [ isValidPhoneNumber, setIsValidPhoneNumber ] = useState( true );
 
 	const validatePhoneNumber = newPhoneNumber => {
+		if ( undefined === newPhoneNumber || newPhoneNumber.length < 1 ) {
+			return false;
+		}
+
 		// No alphabetical characters but allow dots, dashes, and brackets.
 		// These will be stripped for the WhatsApp API (only numbers), but retain
 		// them in the UI for a more readable number for the user.
 		const phoneNumberRegEx = RegExp( /^[+]?[\s./0-9]*[(]?[0-9]{1,4}[)]?[-\s./0-9]*$/, 'g' );
-
-		if ( undefined === newPhoneNumber || newPhoneNumber.length < 1 ) {
-			return false;
-		}
 
 		return phoneNumberRegEx.test( countryCode.replace( /\D/g, '' ) + newPhoneNumber );
 	};
@@ -74,14 +74,16 @@ export default function WhatsAppButtonConfiguration( { attributes, setAttributes
 	const settings = () => (
 		<>
 			<BaseControl
-				label={ __( 'Phone Number', 'jetpack' ) }
+				__nextHasNoMarginBottom={ true }
 				help={ __(
 					'Enter the phone number you use for WhatsApp and would like to be contacted on.',
 					'jetpack'
 				) }
 				className="jetpack-whatsapp-button__phonenumber"
 			>
+				<BaseControl.VisualLabel>{ __( 'Phone Number', 'jetpack' ) }</BaseControl.VisualLabel>
 				<SelectControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Country code', 'jetpack' ) }
 					value={ countryCode }
 					onChange={ value => setAttributes( { countryCode: value } ) }
@@ -90,6 +92,8 @@ export default function WhatsAppButtonConfiguration( { attributes, setAttributes
 				/>
 
 				<TextControl
+					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					placeholder={ __( 'Your phone number…', 'jetpack' ) }
 					onChange={ newPhoneNumber => {
 						setAttributes( { phoneNumber: newPhoneNumber } );
@@ -114,6 +118,7 @@ export default function WhatsAppButtonConfiguration( { attributes, setAttributes
 			{ context === 'inspector' && (
 				<>
 					<TextareaControl
+						__nextHasNoMarginBottom={ true }
 						label={ __( 'Default First Message', 'jetpack' ) }
 						help={ __(
 							'The default first message that will be sent by visitors when using this button.',
@@ -124,6 +129,7 @@ export default function WhatsAppButtonConfiguration( { attributes, setAttributes
 					/>
 
 					<ToggleControl
+						__nextHasNoMarginBottom={ true }
 						label={ __( 'Open in new tab', 'jetpack' ) }
 						checked={ openInNewTab }
 						onChange={ newValue => setAttributes( { openInNewTab: newValue } ) }

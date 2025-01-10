@@ -74,7 +74,7 @@ class zeroBSCRM_Edit{
         global $zbs;
 
         // we load from DAL defaults, if objTypeID passed (overriding anything passed, if empty/false)
-        if (isset($this->objTypeID)){ //$zbs->isDAL3() && 
+		if ( isset( $this->objTypeID ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
             $objTypeID = (int)$this->objTypeID;
             if ($objTypeID > 0){

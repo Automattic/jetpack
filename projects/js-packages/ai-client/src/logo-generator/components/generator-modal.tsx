@@ -5,13 +5,13 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Modal, Button } from '@wordpress/components';
 import { useDispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { external, Icon } from '@wordpress/icons';
 import clsx from 'clsx';
 import debugFactory from 'debug';
 import { useState, useEffect, useCallback, useRef } from 'react';
 /**
  * Internal dependencies
  */
+import AiModalFooter from '../../components/ai-modal-footer/index.js';
 import {
 	DEFAULT_LOGO_COST,
 	EVENT_MODAL_OPEN,
@@ -44,14 +44,15 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	isOpen,
 	onClose,
 	onApplyLogo,
-	onReload,
+	onReload = null,
 	siteDetails,
 	context,
 	placement,
 } ) => {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
-	const { setSiteDetails, fetchAiAssistantFeature, loadLogoHistory } = useDispatch( STORE_NAME );
+	const { setSiteDetails, fetchAiAssistantFeature, loadLogoHistory, setIsLoadingHistory } =
+		useDispatch( STORE_NAME );
 	const { getIsRequestingAiAssistantFeature } = select( STORE_NAME );
 	const [ loadingState, setLoadingState ] = useState<
 		'loadingFeature' | 'analyzing' | 'generating' | null
@@ -61,9 +62,18 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	const requestedFeatureData = useRef< boolean >( false );
 	const [ needsFeature, setNeedsFeature ] = useState( false );
 	const [ needsMoreRequests, setNeedsMoreRequests ] = useState( false );
-	const { selectedLogo, getAiAssistantFeature, generateFirstPrompt, generateLogo, setContext } =
-		useLogoGenerator();
-	const { featureFetchError, firstLogoPromptFetchError, clearErrors } = useRequestErrors();
+	const {
+		selectedLogo,
+		getAiAssistantFeature,
+		generateFirstPrompt,
+		generateLogo,
+		setContext,
+		tierPlansEnabled,
+		site,
+		requireUpgrade,
+	} = useLogoGenerator();
+	const { featureFetchError, setFeatureFetchError, firstLogoPromptFetchError, clearErrors } =
+		useRequestErrors();
 	const siteId = siteDetails?.ID;
 	const [ logoAccepted, setLogoAccepted ] = useState( false );
 	const { nextTierCheckoutURL: upgradeURL } = useCheckout();
@@ -81,7 +91,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 
 			// Then generate the logo based on the prompt.
 			setLoadingState( 'generating' );
-			await generateLogo( { prompt } );
+			await generateLogo( { prompt, style: 'none' } );
 			setLoadingState( null );
 		} catch ( error ) {
 			debug( 'Error generating first logo', error );
@@ -95,12 +105,23 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	 */
 	const initializeModal = useCallback( async () => {
 		try {
+			if ( ! siteId ) {
+				throw new Error( 'Site ID is missing' );
+			}
+
+			if ( ! feature?.featuresControl?.[ 'logo-generator' ]?.enabled ) {
+				setFeatureFetchError( 'Failed to fetch feature data' );
+				throw new Error( 'Failed to fetch feature data' );
+			}
+
 			const hasHistory = ! isLogoHistoryEmpty( String( siteId ) );
+
 			const logoCost = feature?.costs?.[ 'jetpack-ai-logo-generator' ]?.logo ?? DEFAULT_LOGO_COST;
 			const promptCreationCost = 1;
-			const currentLimit = feature?.currentTier?.value || 0;
+			const currentLimit = feature?.currentTier?.limit || 0;
+			const currentValue = feature?.currentTier?.value || 0;
 			const currentUsage = feature?.usagePeriod?.requestsCount || 0;
-			const isUnlimited = currentLimit === 1;
+			const isUnlimited = ! tierPlansEnabled ? currentValue > 0 : currentValue === 1;
 			const hasNoNextTier = ! feature?.nextTier; // If there is no next tier, the user cannot upgrade.
 
 			// The user needs an upgrade immediately if they have no logos and not enough requests remaining for one prompt and one logo generation.
@@ -108,31 +129,56 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 				! isUnlimited &&
 				! hasNoNextTier &&
 				! hasHistory &&
-				currentLimit - currentUsage < logoCost + promptCreationCost;
+				( tierPlansEnabled
+					? currentLimit - currentUsage < logoCost + promptCreationCost
+					: currentLimit < currentUsage );
 
 			// If the site requires an upgrade, show the upgrade screen immediately.
-			setNeedsFeature( ! feature?.hasFeature ?? true );
+			setNeedsFeature( currentValue === 0 );
 			setNeedsMoreRequests( siteNeedsMoreRequests );
-			if ( ! feature?.hasFeature || siteNeedsMoreRequests ) {
+
+			if ( currentValue === 0 || siteNeedsMoreRequests ) {
 				setLoadingState( null );
 				return;
 			}
 
+			setIsLoadingHistory( true );
 			// Load the logo history and clear any deleted media.
 			await clearDeletedMedia( String( siteId ) );
 			loadLogoHistory( siteId );
 
 			// If there is any logo, we do not need to generate a first logo again.
-			if ( ! isLogoHistoryEmpty( String( siteId ) ) ) {
+			if ( hasHistory ) {
 				setLoadingState( null );
+				setIsLoadingHistory( false );
 				return;
 			}
 
-			// If the site does not require an upgrade and has no logos stored, generate the first prompt based on the site's data.
-			generateFirstLogo();
+			// if site requires an upgrade, just return and set loaders to null,
+			// prompt component will take over the situation
+			if ( requireUpgrade ) {
+				setLoadingState( null );
+				setIsLoadingHistory( false );
+				return;
+			}
+
+			// If the site does not require an upgrade and has no logos stored
+			// and has title and description, generate the first prompt based on the site's data.
+			if (
+				site &&
+				site.name &&
+				site.description &&
+				site.name !== __( 'Site Title', 'jetpack-ai-client' )
+			) {
+				generateFirstLogo();
+			} else {
+				setLoadingState( null );
+				setIsLoadingHistory( false );
+			}
 		} catch ( error ) {
 			debug( 'Error fetching feature', error );
 			setLoadingState( null );
+			setIsLoadingHistory( false );
 		}
 	}, [
 		feature,
@@ -141,6 +187,8 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		clearDeletedMedia,
 		isLogoHistoryEmpty,
 		siteId,
+		requireUpgrade,
+		setFeatureFetchError,
 	] );
 
 	const handleModalOpen = useCallback( async () => {
@@ -159,8 +207,18 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		setNeedsMoreRequests( false );
 		clearErrors();
 		setLogoAccepted( false );
+		setIsLoadingHistory( false );
 		recordTracksEvent( EVENT_MODAL_CLOSE, { context, placement } );
 	};
+
+	const handleReload = useCallback( () => {
+		if ( ! onReload ) {
+			return;
+		}
+		closeModal();
+		requestedFeatureData.current = false;
+		onReload();
+	}, [ onReload, closeModal ] );
 
 	const handleApplyLogo = ( mediaId: number ) => {
 		setLogoAccepted( true );
@@ -190,7 +248,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	// Handles modal opening logic
 	useEffect( () => {
 		// While the modal is not open, the siteId is not set, or the feature data is not available, do nothing.
-		if ( ! isOpen || ! siteId || ! feature?.costs ) {
+		if ( ! isOpen ) {
 			return;
 		}
 
@@ -199,7 +257,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 			needsToHandleModalOpen.current = false;
 			handleModalOpen();
 		}
-	}, [ isOpen, siteId, handleModalOpen, feature ] );
+	}, [ isOpen, handleModalOpen ] );
 
 	let body: React.ReactNode;
 
@@ -209,10 +267,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		body = (
 			<FeatureFetchFailureScreen
 				onCancel={ closeModal }
-				onRetry={ () => {
-					closeModal();
-					onReload?.();
-				} }
+				onRetry={ onReload ? handleReload : null }
 			/>
 		);
 	} else if ( needsFeature || needsMoreRequests ) {
@@ -227,6 +282,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		body = (
 			<>
 				{ ! logoAccepted && <Prompt initialPrompt={ initialPrompt } /> }
+
 				<LogoPresenter
 					logo={ selectedLogo }
 					onApplyLogo={ handleApplyLogo }
@@ -246,16 +302,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 					<>
 						<HistoryCarousel />
 						<div className="jetpack-ai-logo-generator__footer">
-							<Button
-								variant="link"
-								className="jetpack-ai-logo-generator__feedback-button"
-								href="https://jetpack.com/redirect/?source=jetpack-ai-feedback"
-								target="_blank"
-								onClick={ handleFeedbackClick }
-							>
-								<span>{ __( 'Provide feedback', 'jetpack-ai-client' ) }</span>
-								<Icon icon={ external } className="icon" />
-							</Button>
+							<AiModalFooter onFeedbackClick={ handleFeedbackClick } />
 						</div>
 					</>
 				) }

@@ -6,7 +6,7 @@ import useSelectSocialMediaConnections from '../use-social-media-connections';
 /**
  * Hook that provides a function to refresh the connections.
  *
- * @returns { object } The refreshConnections function.
+ * @return { object } The refreshConnections function.
  */
 export default function useRefreshConnections() {
 	const shouldAutoRefresh = useRef( false );

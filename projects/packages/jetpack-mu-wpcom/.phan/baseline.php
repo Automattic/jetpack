@@ -9,19 +9,19 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgumentProbablyReal : 30+ occurrences
     // PhanTypeMismatchArgument : 15+ occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 15+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 8 occurrences
     // PhanTypeMismatchReturn : 6 occurrences
-    // PhanNoopNew : 4 occurrences
+    // PhanUndeclaredClassMethod : 6 occurrences
+    // PhanNoopNew : 5 occurrences
+    // PhanTypeMismatchArgumentInternal : 4 occurrences
     // PhanTypeMismatchReturnProbablyReal : 4 occurrences
     // PhanTypePossiblyInvalidDimOffset : 3 occurrences
-    // PhanUndeclaredClassMethod : 3 occurrences
     // PhanEmptyFQSENInCallable : 2 occurrences
     // PhanParamTooMany : 2 occurrences
     // PhanTypeArraySuspicious : 2 occurrences
     // PhanTypeArraySuspiciousNullable : 2 occurrences
-    // PhanTypeMismatchArgumentInternal : 2 occurrences
     // PhanTypeMismatchDefault : 2 occurrences
     // PhanTypeMissingReturn : 2 occurrences
     // PhanUndeclaredFunction : 2 occurrences
@@ -56,6 +56,7 @@ return [
         'src/features/verbum-comments/class-verbum-comments.php' => ['PhanImpossibleTypeComparison', 'PhanNoopNew', 'PhanParamTooMany', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredFunction'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-launchpad.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-site-migration-migrate-guru-key.php' => ['PhanUndeclaredClassMethod'],
+        'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-site-migration-wpcom-migration-key.php' => ['PhanUndeclaredClassMethod'],
         'tests/lib/functions-wordpress.php' => ['PhanRedefineFunction'],
         'tests/php/features/block-patterns/class-wpcom-block-patterns-from-api-test.php' => ['PhanDeprecatedFunction'],
         'tests/php/features/coming-soon/class-coming-soon-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],

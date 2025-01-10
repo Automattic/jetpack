@@ -15,7 +15,6 @@ class AddressEdit extends Component {
 	preventEnterKey( event ) {
 		if ( event.key === 'Enter' ) {
 			event.preventDefault();
-			return;
 		}
 	}
 
@@ -45,6 +44,7 @@ class AddressEdit extends Component {
 
 		const externalLink = (
 			<ToggleControl
+				__nextHasNoMarginBottom={ true }
 				label={ __( 'Link address to Google Maps', 'jetpack' ) }
 				checked={ linkToGoogleMaps }
 				onChange={ newlinkToGoogleMaps =>

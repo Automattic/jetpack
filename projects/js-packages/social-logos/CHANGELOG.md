@@ -1,3 +1,68 @@
+## [3.1.17] - 2025-01-09
+### Fixed
+- Removed `module` in package.json given it's a CommonJS package. [#40867]
+
+## [3.1.16] - 2025-01-06
+### Changed
+- Updated package dependencies. [#40796] [#40798] [#40831]
+
+### Deprecated
+- Default import is now deprecated in favor of named import and will be removed in future.
+
+### Fixed
+- Fixed package.json exports to expose built in types [#40801]
+
+## [3.1.15] - 2024-12-16
+### Changed
+- Internal updates.
+
+## [3.1.14] - 2024-12-09
+### Changed
+- Internal updates.
+
+## [3.1.13] - 2024-11-25
+### Changed
+- Update example with ids for jsx-a11y/label-has-associated-control. [#40199]
+
+## [3.1.12] - 2024-11-14
+### Changed
+- Update dependencies.
+
+## [3.1.11] - 2024-11-11
+### Added
+- Added post-build tests. [#38224]
+
+### Changed
+- Updated package dependencies. [#40000]
+
+## [3.1.10] - 2024-10-25
+### Changed
+- Updated package dependencies. [#39893]
+
+## [3.1.9] - 2024-10-14
+### Fixed
+- Add `key` in React example to make it more correct. [#39709]
+
+## [3.1.8] - 2024-09-05
+### Fixed
+- Address React usage issues found by eslint in example.tsx. [#39214]
+
+## [3.1.7] - 2024-08-23
+### Changed
+- Internal updates.
+
+## [3.1.6] - 2024-08-21
+### Fixed
+- Revert recent SVG image optimizations. [#38981]
+
+## [3.1.5] - 2024-08-19
+### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
+## [3.1.4] - 2024-08-15
+### Changed
+- Updated package dependencies. [#38665]
+
 ## [3.1.3] - 2024-06-26
 ### Added
 - Add: Substack logo [#38036]
@@ -133,6 +198,20 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.1.17]: https://github.com/Automattic/social-logos/compare/v3.1.16...v3.1.17
+[3.1.16]: https://github.com/Automattic/social-logos/compare/v3.1.15...v3.1.16
+[3.1.15]: https://github.com/Automattic/social-logos/compare/v3.1.14...v3.1.15
+[3.1.14]: https://github.com/Automattic/social-logos/compare/v3.1.13...v3.1.14
+[3.1.13]: https://github.com/Automattic/social-logos/compare/v3.1.12...v3.1.13
+[3.1.12]: https://github.com/Automattic/social-logos/compare/v3.1.11...v3.1.12
+[3.1.11]: https://github.com/Automattic/social-logos/compare/v3.1.10...v3.1.11
+[3.1.10]: https://github.com/Automattic/social-logos/compare/v3.1.9...v3.1.10
+[3.1.9]: https://github.com/Automattic/social-logos/compare/v3.1.8...v3.1.9
+[3.1.8]: https://github.com/Automattic/social-logos/compare/v3.1.7...v3.1.8
+[3.1.7]: https://github.com/Automattic/social-logos/compare/v3.1.6...v3.1.7
+[3.1.6]: https://github.com/Automattic/social-logos/compare/v3.1.5...v3.1.6
+[3.1.5]: https://github.com/Automattic/social-logos/compare/v3.1.4...v3.1.5
+[3.1.4]: https://github.com/Automattic/social-logos/compare/v3.1.3...v3.1.4
 [3.1.3]: https://github.com/Automattic/social-logos/compare/v3.1.2...v3.1.3
 [3.1.2]: https://github.com/Automattic/social-logos/compare/v3.1.1...v3.1.2
 [3.1.1]: https://github.com/Automattic/social-logos/compare/v3.1.0...v3.1.1

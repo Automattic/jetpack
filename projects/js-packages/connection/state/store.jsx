@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 
+import { getScriptData } from '@automattic/jetpack-script-data';
 import actions from './actions';
 import controls from './controls';
 import reducer from './reducers';
@@ -8,7 +9,7 @@ import selectors from './selectors';
 import storeHolder from './store-holder';
 import STORE_ID from './store-id';
 
-const initialState = window.JP_CONNECTION_INITIAL_STATE;
+const initialState = window.JP_CONNECTION_INITIAL_STATE || getScriptData()?.connection;
 
 if ( ! initialState ) {
 	console.error(

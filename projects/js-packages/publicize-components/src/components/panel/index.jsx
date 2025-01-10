@@ -12,8 +12,10 @@ import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useRefreshConnections from '../../hooks/use-refresh-connections';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
+import { getSocialScriptData } from '../../utils/script-data';
 import PublicizeForm from '../form';
 import { ManualSharing } from '../manual-sharing';
+import { ReSharingPanel } from '../resharing-panel';
 import { SharePostRow } from '../share-post';
 import styles from './styles.module.scss';
 import './global.scss';
@@ -21,6 +23,8 @@ import './global.scss';
 const PublicizePanel = ( { prePublish, children } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+	const { feature_flags } = getSocialScriptData();
+
 	const refreshConnections = useRefreshConnections();
 
 	const { isPublicizeEnabled, hidePublicizeFeature, togglePublicizeFeature } = usePublicizeConfig();
@@ -41,7 +45,7 @@ const PublicizePanel = ( { prePublish, children } ) => {
 	const PanelWrapper = prePublish ? Fragment : PanelBody;
 	const wrapperProps = prePublish
 		? {}
-		: { title: __( 'Share this post', 'jetpack' ), className: styles.panel };
+		: { title: __( 'Share this post', 'jetpack-publicize-components' ), className: styles.panel };
 
 	refreshConnections();
 
@@ -54,16 +58,17 @@ const PublicizePanel = ( { prePublish, children } ) => {
 						<ToggleControl
 							label={
 								isPublicizeEnabled
-									? __( 'Share when publishing', 'jetpack' )
+									? __( 'Share when publishing', 'jetpack-publicize-components' )
 									: __(
 											'Sharing is disabled',
-											'jetpack',
+											'jetpack-publicize-components',
 											/* dummy arg to avoid bad minification */ 0
 									  )
 							}
 							onChange={ togglePublicizeFeature }
 							checked={ isPublicizeEnabled && hasConnections }
 							disabled={ ! hasConnections }
+							__nextHasNoMarginBottom={ true }
 						/>
 					) }
 
@@ -71,7 +76,12 @@ const PublicizePanel = ( { prePublish, children } ) => {
 					<SharePostRow />
 				</Fragment>
 			) }
-			{ isPostPublished && <ManualSharing /> }
+			{ isPostPublished && (
+				<>
+					{ feature_flags.useShareStatus ? <ReSharingPanel /> : null }
+					<ManualSharing />
+				</>
+			) }
 		</PanelWrapper>
 	);
 };

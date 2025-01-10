@@ -8,7 +8,7 @@ import styles from './styles.module.scss';
  * @param {object} props           - Props.
  * @param {string} props.className - Optional component class name.
  * @param {string} props.color     - Optional icon color. Defaults to '#D63638'.
- * @returns { React.ReactNode }      The Alert Icon component.
+ * @return { React.ReactNode }      The Alert Icon component.
  */
 export default function AlertSVGIcon( { className, color = '#D63638' } ) {
 	return (

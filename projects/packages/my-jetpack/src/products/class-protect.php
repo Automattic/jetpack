@@ -8,19 +8,24 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\My_Jetpack\Product;
+use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
+use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
 use WP_Error;
 
 /**
  * Class responsible for handling the Protect product
  */
-class Protect extends Product {
+class Protect extends Hybrid_Product {
 
 	const FREE_TIER_SLUG             = 'free';
 	const UPGRADED_TIER_SLUG         = 'upgraded';
 	const UPGRADED_TIER_PRODUCT_SLUG = 'jetpack_scan';
+
+	const SCAN_FEATURE_SLUG     = 'scan';
+	const FIREWALL_FEATURE_SLUG = 'firewall';
 
 	/**
 	 * The product slug
@@ -67,6 +72,13 @@ class Protect extends Product {
 	 * @var bool
 	 */
 	public static $has_standalone_plugin = true;
+
+	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'scan';
 
 	/**
 	 * Get the product name
@@ -143,6 +155,15 @@ class Protect extends Product {
 		$body   = wp_remote_retrieve_body( $response );
 		$status = json_decode( $body );
 		return $status;
+	}
+
+	/**
+	 * Get the normalized protect/scan data
+	 *
+	 * @return Object|WP_Error
+	 */
+	public static function get_protect_data() {
+		return Protect_Status::get_status();
 	}
 
 	/**
@@ -262,33 +283,54 @@ class Protect extends Product {
 	}
 
 	/**
-	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 * Determines whether the module/plugin/product needs the users attention.
+	 * Typically due to some sort of error where user troubleshooting is needed.
 	 *
-	 * @return boolean
+	 * @return boolean|array
 	 */
-	public static function has_paid_plan_for_product() {
-		$plans_with_scan = array(
-			'jetpack_scan',
-			'jetpack_security',
-			'jetpack_complete',
-			'jetpack_premium',
-			'jetpack_business',
-		);
+	public static function does_module_need_attention() {
+		$protect_threat_status = false;
 
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
+		// Check if there are scan threats.
+		$protect_data = self::get_protect_data();
+		if ( is_wp_error( $protect_data ) ) {
+			return $protect_threat_status; // false
 		}
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				foreach ( $plans_with_scan as $plan ) {
-					if ( strpos( $purchase->product_slug, $plan ) !== false ) {
-						return true;
-					}
-				}
-			}
+		$critical_threat_count = false;
+		if ( ! empty( $protect_data->threats ) ) {
+			$critical_threat_count = array_reduce(
+				$protect_data->threats,
+				function ( $accum, $threat ) {
+					return $threat->severity >= 5 ? ++$accum : $accum;
+				},
+				0
+			);
+
+			$protect_threat_status = array(
+				'type' => $critical_threat_count ? 'error' : 'warning',
+				'data' => array(
+					'threat_count'          => count( $protect_data->threats ),
+					'critical_threat_count' => $critical_threat_count,
+					'fixable_threat_ids'    => $protect_data->fixable_threat_ids,
+				),
+			);
 		}
-		return false;
+
+		return $protect_threat_status;
+	}
+
+	/**
+	 * Get the product-slugs of the paid plans for this product.
+	 * (Do not include bundle plans, unless it's a bundle plan itself).
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_scan',
+			'jetpack_scan_monthly',
+			'jetpack_scan_bi_yearly',
+		);
 	}
 
 	/**
@@ -310,12 +352,42 @@ class Protect extends Product {
 	}
 
 	/**
+	 * Get the URL the user is taken after purchasing the product through the checkout for each product feature
+	 *
+	 * @return ?array
+	 */
+	public static function get_post_checkout_urls_by_feature() {
+		return array(
+			self::SCAN_FEATURE_SLUG     => self::get_post_checkout_url(),
+			self::FIREWALL_FEATURE_SLUG => admin_url( 'admin.php?page=jetpack-protect#/firewall' ),
+		);
+	}
+
+	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		return admin_url( 'admin.php?page=jetpack-protect' );
+		// check standalone first
+		if ( static::is_standalone_plugin_active() ) {
+			return admin_url( 'admin.php?page=jetpack-protect' );
+			// otherwise, check for the main Jetpack plugin
+		} elseif ( static::is_jetpack_plugin_active() ) {
+			return Redirect::get_url( 'my-jetpack-manage-scan' );
+		}
+	}
+
+	/**
+	 * Get the URL where the user manages the product for each product feature
+	 *
+	 * @return ?array
+	 */
+	public static function get_manage_urls_by_feature() {
+		return array(
+			self::SCAN_FEATURE_SLUG     => self::get_manage_url(),
+			self::FIREWALL_FEATURE_SLUG => admin_url( 'admin.php?page=jetpack-protect#/firewall' ),
+		);
 	}
 
 	/**

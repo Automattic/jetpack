@@ -5,7 +5,7 @@ const { WError } = require( 'error' );
 /**
  * Fetch the paths in the current PR.
  *
- * @returns {string[]} Paths.
+ * @return {string[]} Paths.
  */
 async function fetchPaths() {
 	const octokit = github.getOctokit( core.getInput( 'token', { required: true } ) );

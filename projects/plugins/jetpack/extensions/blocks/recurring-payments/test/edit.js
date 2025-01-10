@@ -84,7 +84,7 @@ describe( 'MembershipsButtonEdit', () => {
 	 * Get API response.
 	 *
 	 * @param {object} overrides - Data overrides.
-	 * @returns {Promise} Promise resolving to an API response.
+	 * @return {Promise} Promise resolving to an API response.
 	 */
 	// eslint-disable-next-line no-unused-vars
 	function getApiResponse( overrides ) {

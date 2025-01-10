@@ -10,12 +10,12 @@ import './style.scss';
 /**
  * The Activation Screen Illustration component.
  *
- * @param {object} props -- The properties.
- * @param {number} props.productId -- The id of the product activated
- * @param {string} props.siteRawUrl -- The url of the site
- * @param {string} props.siteAdminUrl -- URL of the Jetpack Site Admin
+ * @param {object} props                            -- The properties.
+ * @param {number} props.productId                  -- The id of the product activated
+ * @param {string} props.siteRawUrl                 -- The url of the site
+ * @param {string} props.siteAdminUrl               -- URL of the Jetpack Site Admin
  * @param {string} props.currentRecommendationsStep -- The current recommendation step
- * @returns {React.Component} The `ActivationSuccessInfo` component.
+ * @return {React.Component} The `ActivationSuccessInfo` component.
  */
 const ActivationSuccessInfo = props => {
 	const { productId, siteRawUrl, siteAdminUrl, currentRecommendationsStep } = props;

@@ -1,15 +1,13 @@
 import { fileURLToPath } from 'url';
 import fetch from 'node-fetch';
 
-/* eslint-disable no-process-exit */
-
 // Below call should be BEFORE requiring config, so library wil pick it up.
 process.env.NODE_CONFIG_DIR = fileURLToPath( new URL( '../config', import.meta.url ) );
 const { resolveSiteUrl, getSiteCredentials } = await import( '../helpers/utils-helper.js' );
 
 /**
  * Get HTTP Authentication header value
- * @returns {string} header value
+ * @return {string} header value
  */
 function getAuthHeader() {
 	const credentials = getSiteCredentials();
@@ -21,7 +19,7 @@ function getAuthHeader() {
 
 /**
  * Get Jetpack version from site
- * @returns {string} Version
+ * @return {string} Version
  */
 async function getJetpackVersionFromSite() {
 	let response;
@@ -65,7 +63,7 @@ async function forcePluginUpdates() {
 
 /**
  * Get latest version
- * @returns {string} Version
+ * @return {string} Version
  */
 async function getLatestVersion() {
 	const type = getVersionType();
@@ -105,7 +103,7 @@ async function waitForPluginUpdate() {
 
 /**
  * Get version type
- * @returns {string} 'trunk' or 'rc'
+ * @return {string} 'trunk' or 'rc'
  */
 function getVersionType() {
 	const refType = process.argv[ 2 ];

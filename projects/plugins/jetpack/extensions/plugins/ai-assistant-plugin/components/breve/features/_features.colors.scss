@@ -5,24 +5,29 @@ $features-colors: (
 	'complex-words': rgb( 240, 184, 73 ),
 	'unconfident-words': rgb( 9, 181, 133 ),
 	'long-sentences': rgb( 122, 0, 223 ),
+	'spelling-mistakes': rgb( 214, 54, 56 ),
 );
 
-@mixin properties( $feature, $color, $properties ) {
-	&[data-type='#{$feature}'] {
+@mixin properties( $feature, $color, $properties, $opacity: false ) {
+	&[data-breve-type='#{$feature}'] {
 		@each $property in $properties {
-			#{$property}: $color;
+			@if $opacity {
+				#{$property}: rgba( $color, $opacity );
+			} @else {
+				#{$property}: $color;
+			}
 		}
 	}
 }
 
-@mixin features-colors( $properties ) {
+@mixin features-colors( $properties, $opacity: false ) {
 	@each $feature, $color in $features-colors {
-		@include properties( $feature, $color, $properties );
+		@include properties( $feature, $color, $properties, $opacity );
 	}
 }
 
 @mixin pulse() {
-	$name: pulse-#{unique-id()};
+	$name: jetpack-ai-breve-loading-pulse;
 
 	@keyframes #{$name} {
 		0% {

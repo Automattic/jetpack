@@ -3,11 +3,11 @@ import { config } from '../../';
 /**
  * Makes an export request.
  *
- * @param  {string}  action    - Action name.
- * @param  {string}  nonceName - Nonce name.
- * @param  {object}  query     - Query parameters.
- * @param  {Array}   selection - Selected IDs.
- * @returns {Promise}           - Request promise.
+ * @param {string} action    - Action name.
+ * @param {string} nonceName - Nonce name.
+ * @param {object} query     - Query parameters.
+ * @param {Array}  selection - Selected IDs.
+ * @return {Promise}           - Request promise.
  */
 export const exportResponses = ( action, nonceName, query, selection ) => {
 	const data = new FormData();

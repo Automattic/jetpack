@@ -9,6 +9,7 @@ import { useAllProducts } from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useAnalytics from '../../hooks/use-analytics';
+import useConnectSite from '../../hooks/use-connect-site';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import cloud from './cloud.svg';
 import emptyAvatar from './empty-avatar.svg';
@@ -20,6 +21,7 @@ import type {
 	getSiteConnectionLineDataType,
 	getUserConnectionLineDataType,
 	ConnectionStatusCardType,
+	ConnectionItemButtonType,
 } from './types';
 import type { MouseEvent } from 'react';
 
@@ -31,6 +33,11 @@ const ConnectionListItem: ConnectionListItemType = ( {
 } ) => {
 	let icon = check;
 	let statusStyles = '';
+
+	if ( status === 'info' ) {
+		icon = null;
+		statusStyles = '';
+	}
 
 	if ( status === 'success' ) {
 		icon = check;
@@ -49,30 +56,44 @@ const ConnectionListItem: ConnectionListItemType = ( {
 
 	if ( status === 'unlock' ) {
 		icon = lockOutline;
-		statusStyles = styles.unlock;
+		statusStyles = '';
 	}
 
 	return (
 		<div className={ styles[ 'list-item' ] }>
 			<Text className={ clsx( styles[ 'list-item-text' ], statusStyles ) }>
-				<Icon icon={ icon } />
+				{ icon && <Icon icon={ icon } /> }
 				{ text }
 			</Text>
-			{ actionText && (
-				<Button variant="link" weight="regular" onClick={ onClick }>
-					{ actionText }
-				</Button>
+			{ actionText && status !== 'success' && (
+				<ConnectionItemButton actionText={ actionText } onClick={ onClick } />
 			) }
 		</div>
+	);
+};
+
+const ConnectionItemButton: ConnectionItemButtonType = ( { actionText, onClick } ) => {
+	return (
+		<Button variant="link" weight="regular" onClick={ onClick }>
+			{ actionText }
+		</Button>
 	);
 };
 
 const getSiteConnectionLineData: getSiteConnectionLineDataType = ( {
 	isRegistered,
 	hasSiteConnectionBrokenModules,
-	handleConnectUser,
+	handleConnectSite,
+	siteIsRegistering,
 	openManageSiteConnectionDialog,
 } ) => {
+	if ( siteIsRegistering ) {
+		return {
+			text: __( 'Connecting your site…', 'jetpack-my-jetpack' ),
+			status: 'info',
+		};
+	}
+
 	if ( isRegistered ) {
 		return {
 			onClick: openManageSiteConnectionDialog,
@@ -84,7 +105,7 @@ const getSiteConnectionLineData: getSiteConnectionLineDataType = ( {
 
 	if ( hasSiteConnectionBrokenModules ) {
 		return {
-			onClick: handleConnectUser,
+			onClick: handleConnectSite,
 			text: __( 'Missing site connection to enable some features.', 'jetpack-my-jetpack' ),
 			actionText: __( 'Connect', 'jetpack-my-jetpack' ),
 			status: 'error',
@@ -92,7 +113,7 @@ const getSiteConnectionLineData: getSiteConnectionLineDataType = ( {
 	}
 
 	return {
-		onClick: handleConnectUser,
+		onClick: handleConnectSite,
 		text: __( 'Start with Jetpack.', 'jetpack-my-jetpack' ),
 		actionText: __( 'Connect your site with one click', 'jetpack-my-jetpack' ),
 		status: 'warning',
@@ -142,15 +163,29 @@ const getUserConnectionLineData: getUserConnectionLineDataType = ( {
 		};
 	}
 
+	let userConnectionText = null;
+	if ( userConnectionData.currentUser?.isMaster ) {
+		userConnectionText = userConnectionData.currentUser?.wpcomUser?.display_name
+			? sprintf(
+					/* translators: placeholder is user name */
+					__( 'Connected as %1$s (Owner).', 'jetpack-my-jetpack' ),
+					userConnectionData.currentUser?.wpcomUser?.display_name
+			  )
+			: __( 'User connected (Owner).', 'jetpack-my-jetpack' );
+	} else {
+		userConnectionText = userConnectionData.currentUser?.wpcomUser?.display_name
+			? sprintf(
+					/* translators: placeholder is user name */
+					__( 'Connected as %1$s.', 'jetpack-my-jetpack' ),
+					userConnectionData.currentUser?.wpcomUser?.display_name
+			  )
+			: __( 'User connected.', 'jetpack-my-jetpack' );
+	}
+
 	return {
 		onClick: openManageUserConnectionDialog,
 		actionText: __( 'Manage', 'jetpack-my-jetpack' ),
-		text: sprintf(
-			/* translators: first placeholder is user name, second is either the (Owner) string or an empty string */
-			__( 'Connected as %1$s%2$s.', 'jetpack-my-jetpack' ),
-			userConnectionData.currentUser?.wpcomUser?.display_name,
-			userConnectionData.currentUser?.isMaster ? __( ' (Owner)', 'jetpack-my-jetpack' ) : ''
-		),
+		text: userConnectionText,
 		status: 'success',
 	};
 };
@@ -173,13 +208,16 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	const { isRegistered, isUserConnected, userConnectionData } = useMyJetpackConnection( {
 		redirectUri,
 	} );
-
+	const { siteIsRegistering } = useMyJetpackConnection( {
+		skipUserConnection: true,
+		redirectUri,
+	} );
+	const { lifecycleStats } = getMyJetpackWindowInitialState();
 	const { recordEvent } = useAnalytics();
 	const [ isManageConnectionDialogOpen, setIsManageConnectionDialogOpen ] = useState( false );
 	const { setConnectionStatus, setUserIsConnecting } = useDispatch( CONNECTION_STORE_ID );
 	const connectUserFn = onConnectUser || setUserIsConnecting;
 	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
-	const { lifecycleStats } = getMyJetpackWindowInitialState();
 	const { brokenModules } = lifecycleStats || {};
 	const products = useAllProducts();
 	const hasProductsThatRequireUserConnection =
@@ -251,6 +289,13 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		[ connectUserFn, recordEvent, tracksEventData ]
 	);
 
+	const { connectSite: handleConnectSite } = useConnectSite( {
+		tracksInfo: {
+			event: 'jetpack_myjetpack_connection_connect_site',
+			properties: tracksEventData,
+		},
+	} );
+
 	const getConnectionLineStyles = () => {
 		if ( isRegistered ) {
 			return '';
@@ -262,7 +307,8 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	const siteConnectionLineData = getSiteConnectionLineData( {
 		isRegistered,
 		hasSiteConnectionBrokenModules,
-		handleConnectUser,
+		handleConnectSite,
+		siteIsRegistering,
 		openManageSiteConnectionDialog,
 	} );
 
@@ -305,6 +351,14 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 						/>
 					) }
 				</div>
+				{ siteConnectionLineData?.status === 'success' && siteConnectionLineData?.actionText && (
+					<div className={ styles[ 'connect-action' ] }>
+						<ConnectionItemButton
+							onClick={ siteConnectionLineData?.onClick }
+							actionText={ siteConnectionLineData?.actionText }
+						/>
+					</div>
+				) }
 			</div>
 
 			<div>

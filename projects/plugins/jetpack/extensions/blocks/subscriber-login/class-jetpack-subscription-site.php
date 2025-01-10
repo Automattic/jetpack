@@ -3,7 +3,7 @@
  * Adds support for Jetpack Subscription Site feature.
  *
  * @package automattic/jetpack
- * @since $$next_version$$
+ * @since 13.3
  */
 
 namespace Automattic\Jetpack\Extensions\Subscriber_Login;

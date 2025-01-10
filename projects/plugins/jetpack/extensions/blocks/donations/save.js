@@ -4,7 +4,6 @@ import { getDefaultTexts } from './utils';
 const DEFAULT_TEXTS = getDefaultTexts();
 
 const Save = ( { attributes } ) => {
-	const blockProps = useBlockProps.save();
 	const { fallbackLinkUrl, oneTimeDonation, monthlyDonation, annualDonation } = attributes;
 
 	if (
@@ -15,6 +14,8 @@ const Save = ( { attributes } ) => {
 	) {
 		return null;
 	}
+
+	const blockProps = useBlockProps.save();
 
 	return (
 		<div { ...blockProps }>

@@ -3,16 +3,16 @@ import { ConnectButton } from '@automattic/jetpack-connection';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React, { useEffect, useCallback } from 'react';
+import analytics from 'lib/analytics';
 import './style.scss';
 
 /**
  * The Contextualized Connection component.
  *
  * @param {object} props -- The properties.
- * @returns {React.Component} The `ContextualizedConnection` component.
+ * @return {React.Component} The `ContextualizedConnection` component.
  */
 const ContextualizedConnection = props => {
 	const {

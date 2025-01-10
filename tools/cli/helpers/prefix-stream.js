@@ -14,13 +14,14 @@ export default class PrefixStream extends FilterStream {
 	/**
 	 * Constructor.
 	 *
-	 * @param {object} options - Options for stream constructors. In addition, the following options are recognized.
+	 * @param {object}                                               options        - Options for stream constructors. In addition, the following options are recognized.
 	 * @param {string|Buffer|number[]|ArrayBuffer|Uint8Array|object} options.prefix - Prefix. Anything accepted by `Buffer.from()` is ok.
-	 * @param {boolean|number} options.time - Include time-since-start on each line. Value is the start timestamp (e.g. `Date.now()`), or boolean true to use `Date.now()`.
+	 * @param {boolean|number}                                       options.time   - Include time-since-start on each line. Value is the start timestamp (e.g. `Date.now()`), or boolean true to use `Date.now()`.
 	 */
 	constructor( options = {} ) {
 		const opts = { ...options };
-		delete opts.prefix, opts.time;
+		delete opts.prefix;
+		delete opts.time;
 		super( s => this.#addPrefix( s ), opts );
 
 		this.#prefix = options.prefix || '';
@@ -35,7 +36,7 @@ export default class PrefixStream extends FilterStream {
 	 * Prefixer.
 	 *
 	 * @param {string} line - Line to prefix.
-	 * @returns {string} Prefixed line.
+	 * @return {string} Prefixed line.
 	 */
 	#addPrefix( line ) {
 		const parts = [];

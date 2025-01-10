@@ -16,9 +16,9 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 
 		global $zbs;
 
-			$useQuotes            = false; // not yet $useQuotes = zeroBSCRM_getSetting('feat_quotes');
-			$useInvoices          = zeroBSCRM_getSetting( 'feat_invs' );
-			$useTrans             = zeroBSCRM_getSetting( 'feat_transactions' );
+			$use_quotes           = false; // not yet implemented
+			$use_invoices         = zeroBSCRM_getSetting( 'feat_invs' );
+			$use_transactions     = zeroBSCRM_getSetting( 'feat_transactions' );
 			$useTasks             = zeroBSCRM_getSetting( 'feat_calendar' );
 			$second_address_label = zeroBSCRM_getSetting( 'secondaddresslabel' );
 		if ( empty( $second_address_label ) ) {
@@ -89,9 +89,9 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 			if ( isset( $company['total_value'] ) ) {
 				$company_total_value = $company['total_value'];
 			}
-			$companyQuotesValue = 0;
+			$company_quotes_value = 0;
 			if ( isset( $company['quotes_total'] ) ) {
-				$companyQuotesValue = $company['quotes_total'];
+				$company_quotes_value = $company['quotes_total'];
 			}
 			$company_invoices_value = 0;
 			if ( isset( $company['invoices_total'] ) ) {
@@ -181,13 +181,13 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 				}
 
 				// compiled addr str
-				$addrStr = '';
+				$addr_str = '';
 				if ( isset( $company ) ) {
-					$addrStr = zeroBS_companyAddr( $company['id'], $company, 'full', '<br />' );
+					$addr_str = zeroBS_companyAddr( $company['id'], $company, 'full', '<br />' );
 				}
-				$addr2Str = '';
+				$addr2_str = '';
 				if ( isset( $company ) ) {
-					$addr2Str = zeroBS_companySecondAddr( $company['id'], $company, 'full', '<br />' );
+					$addr2_str = zeroBS_companySecondAddr( $company['id'], $company, 'full', '<br />' );
 				}
 
 				// tels?
@@ -198,16 +198,6 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 				if ( isset( $company ) && isset( $company['sectel'] ) && ! empty( $company['sectel'] ) ) {
 					$tels['sectel'] = $company['sectel'];
 				}
-
-				/*
-				// socials
-				global $zbsSocialAccountTypes;
-				$zbsSocials = zeroBS_getCustomerSocialAccounts($id);
-					// empty empties.. hmmm
-					$zbsSocialsProper = array(); if (is_array($zbsSocials) && count($zbsSocials) > 0) foreach ($zbsSocials as $zbsSocialKey => $zbsSocialAcc) if (!empty($zbsSocialAcc)) $zbsSocialsProper[$zbsSocialKey] = $zbsSocialAcc;
-					$zbsSocials = $zbsSocialsProper; unset($zbsSocialsProper);
-
-				*/
 
 				// retrieve any additional tabs peeps have prepared
 				$companyVitalTabs = apply_filters( 'jetpack-crm-company-vital-tabs', array(), $id );
@@ -272,85 +262,87 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 					<table class="ui fixed single line celled table">
 						<tbody>
 						<?php
-						if ( $zbs->isDAL3() ) {
-							if ( $useInvoices == '1' || $useTrans == '1' ) :
-								?>
-							<tr>
-							<td class="zbs-view-vital-label"><strong><?php esc_html_e( 'Total Value', 'zero-bs-crm' ); ?><i class="circle info icon link" data-content="<?php esc_attr_e( "The Total Value can be set to include just transaction values, just invoice values, or both together. You can choose how it's calculated by going to the General Settings page.", 'zero-bs-crm' ); ?>" data-position="bottom center"></i></strong></td>
-							<td><strong><?php echo esc_html( zeroBSCRM_formatCurrency( $company_total_value ) ); ?></strong></td>
-							</tr>
-							<?php endif; ?>
-							<?php if ( $useQuotes == '1' ) : ?>
-							<tr>
-							<td class="zbs-view-vital-label"><?php esc_html_e( 'Quotes', 'zero-bs-crm' ); ?> <i class="circle info icon link" data-content="<?php esc_attr_e( 'Quotes: This shows the total sum of your quotes & count.', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></td>
-							<td>
-								<?php
-								if ( count( $company['quotes'] ) > 0 ) {
-										echo esc_html( zeroBSCRM_formatCurrency( $companyQuotesValue ) . ' (' . count( $company['quotes'] ) . ')' );
-								} else {
-									esc_html_e( 'None', 'zero-bs-crm' );
-								}
-								?>
-							</td>
-							</tr>
-								<?php
-							endif;
-						} // if dal3
-						if ( $useInvoices == '1' ) :
+						if ( $use_invoices == '1' || $use_transactions == '1' ) : // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 							?>
-						<tr class="zbs-view-vital-invoices">
-							<td class="zbs-view-vital-label"><?php esc_html_e( 'Invoices', 'zero-bs-crm' ); ?> <i class="circle info icon link" data-content="<?php esc_attr_e( 'Invoices: This shows the total sum of your invoices & count (excluding deleted status invoices).', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></td>
-							<td>
-							<?php
-							if ( $company_invoices_count > 0 ) {
-									echo esc_html( zeroBSCRM_formatCurrency( $company_invoices_value ) . ' (' . $company_invoices_count . ')' );
-							} else {
-								esc_html_e( 'None', 'zero-bs-crm' );
-							}
-							?>
-							</td>
-						</tr>
+							<tr>
+								<td class="zbs-view-vital-label"><strong><?php esc_html_e( 'Total Value', 'zero-bs-crm' ); ?><i class="circle info icon link" data-content="<?php esc_attr_e( "The Total Value can be set to include just transaction values, just invoice values, or both together. You can choose how it's calculated by going to the General Settings page.", 'zero-bs-crm' ); ?>" data-position="bottom center"></i></strong></td>
+								<td><strong><?php echo esc_html( zeroBSCRM_formatCurrency( $company_total_value ) ); ?></strong></td>
+							</tr>
 						<?php endif; ?>
-							<?php if ( $useTrans == '1' ) : ?>
-						<tr>
-							<td class="zbs-view-vital-label"><?php esc_html_e( 'Transactions', 'zero-bs-crm' ); ?> <i class="circle info icon link" data-content="<?php esc_attr_e( 'Transactions Total & count: This shows the sum of your succeeded transactions (set in settings)', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></td>
-							<td>
+						<?php
+						if ( $use_quotes == '1' ) :  // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+							?>
+							<tr>
+								<td class="zbs-view-vital-label"><?php esc_html_e( 'Quotes', 'zero-bs-crm' ); ?> <i class="circle info icon link" data-content="<?php esc_attr_e( 'Quotes: This shows the total sum of your quotes & count.', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></td>
+								<td>
+									<?php
+									if ( count( $company['quotes'] ) > 0 ) {
+											echo esc_html( zeroBSCRM_formatCurrency( $company_quotes_value ) . ' (' . count( $company['quotes'] ) . ')' );
+									} else {
+										esc_html_e( 'None', 'zero-bs-crm' );
+									}
+									?>
+								</td>
+							</tr>
+							<?php
+						endif;
+						if ( $use_invoices == '1' ) : // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+							?>
+							<tr class="zbs-view-vital-invoices">
+								<td class="zbs-view-vital-label"><?php esc_html_e( 'Invoices', 'zero-bs-crm' ); ?> <i class="circle info icon link" data-content="<?php esc_attr_e( 'Invoices: This shows the total sum of your invoices & count (excluding deleted status invoices).', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></td>
+								<td>
 								<?php
-								if ( count( $company['transactions'] ) > 0 ) {
-									echo esc_html( zeroBSCRM_formatCurrency( $company_transactions_value ) . ' (' . count( $company['transactions'] ) . ')' );
+								if ( $company_invoices_count > 0 ) {
+										echo esc_html( zeroBSCRM_formatCurrency( $company_invoices_value ) . ' (' . $company_invoices_count . ')' );
 								} else {
 									esc_html_e( 'None', 'zero-bs-crm' );
 								}
 								?>
-							</td>
-						</tr>
+								</td>
+							</tr>
+						<?php endif; ?>
+						<?php
+						if ( $use_transactions == '1' ) : // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+							?>
+							<tr>
+								<td class="zbs-view-vital-label"><?php esc_html_e( 'Transactions', 'zero-bs-crm' ); ?> <i class="circle info icon link" data-content="<?php esc_attr_e( 'Transactions Total & count: This shows the sum of your succeeded transactions (set in settings)', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></td>
+								<td>
+									<?php
+									if ( count( $company['transactions'] ) > 0 ) {
+										echo esc_html( zeroBSCRM_formatCurrency( $company_transactions_value ) . ' (' . count( $company['transactions'] ) . ')' );
+									} else {
+										esc_html_e( 'None', 'zero-bs-crm' );
+									}
+									?>
+								</td>
+							</tr>
 						<?php endif; ?>
 						<tr class="wraplines">
 							<td class="zbs-view-vital-label"><?php esc_html_e( 'Address Details', 'zero-bs-crm' ); ?></td>
-													<td>
-															<?php
-															if ( ! empty( $addrStr ) && empty( $addr2Str ) ) {
-																echo wp_kses( $addrStr, $zbs->acceptable_restricted_html );
-															} elseif ( empty( $addrStr ) && ! empty( $addr2Str ) ) {
-																echo wp_kses( $addr2Str, $zbs->acceptable_restricted_html );
-															} elseif ( ! empty( $addrStr ) && ! empty( $addr2Str ) ) {
-																?>
-																<div class="ui grid">
-																	<div class="eight wide column">
-																		<h4 class="ui dividing header" style="margin-bottom: 0.6em;"><?php esc_html_e( 'Main address', 'zero-bs-crm' ); ?></h4>
-																	<?php echo wp_kses( $addrStr, $zbs->acceptable_restricted_html ); ?>
-																	</div>
-																	<div class="eight wide column">
-																		<h4 class="ui dividing header" style="margin-bottom: 0.6em;"><?php echo esc_html( $second_address_label ); ?></h4>
-																	<?php echo wp_kses( $addr2Str, $zbs->acceptable_restricted_html ); ?>
-																	</div>
-																</div>
-																<?php
-															} else {
-																esc_html_e( 'No Address on File', 'zero-bs-crm' );
-															}
-															?>
-													</td>
+							<td>
+								<?php
+								if ( ! empty( $addr_str ) && empty( $addr2_str ) ) {
+									echo wp_kses( $addr_str, $zbs->acceptable_restricted_html );
+								} elseif ( empty( $addr_str ) && ! empty( $addr2_str ) ) {
+									echo wp_kses( $addr2_str, $zbs->acceptable_restricted_html );
+								} elseif ( ! empty( $addr_str ) && ! empty( $addr2_str ) ) {
+									?>
+									<div class="ui grid">
+										<div class="eight wide column">
+											<h4 class="ui dividing header" style="margin-bottom: 0.6em;"><?php esc_html_e( 'Main address', 'zero-bs-crm' ); ?></h4>
+											<?php echo wp_kses( $addr_str, $zbs->acceptable_restricted_html ); ?>
+										</div>
+										<div class="eight wide column">
+											<h4 class="ui dividing header" style="margin-bottom: 0.6em;"><?php echo esc_html( $second_address_label ); ?></h4>
+											<?php echo wp_kses( $addr2_str, $zbs->acceptable_restricted_html ); ?>
+										</div>
+									</div>
+									<?php
+								} else {
+									esc_html_e( 'No Address on File', 'zero-bs-crm' );
+								}
+								?>
+							</td>
 						</tr>
 						<tr>
 							<td class="zbs-view-vital-label"><?php esc_html_e( 'Telephone Contacts', 'zero-bs-crm' ); ?></td>
@@ -491,9 +483,9 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 
 					<div id="zbs-doc-menu">
 					<div class="ui top attached tabular menu">
-						<?php /* never, yet! if ($useQuotes == "1"){ ?><div data-tab="quotes" class="<?php if (!isset($activeTab)) { echo 'active '; $activeTab = 'quotes'; } ?>item"><?php _e('Quotes',"zero-bs-crm"); ?></div><?php } ?>*/ ?>
+						<?php /* never, yet! if ($use_quotes == "1"){ ?><div data-tab="quotes" class="<?php if (!isset($activeTab)) { echo 'active '; $activeTab = 'quotes'; } ?>item"><?php _e('Quotes',"zero-bs-crm"); ?></div><?php } ?>*/ ?>
 						<?php
-						if ( $useInvoices == '1' ) {
+						if ( $use_invoices == '1' ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 							?>
 							<div data-tab="invoices" class="
 							<?php
@@ -503,7 +495,7 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 							?>
 item"><?php esc_html_e( 'Invoices', 'zero-bs-crm' ); ?></div><?php } ?>                      
 						<?php
-						if ( $useTrans == '1' ) {
+						if ( $use_transactions == '1' ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 							?>
 							<div data-tab="transactions" class="
 							<?php
@@ -531,7 +523,9 @@ item"><?php esc_html_e( 'Transactions', 'zero-bs-crm' ); ?></div><?php } ?>
 item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 					</div>
 
-					<?php if ( $useInvoices == '1' ) { ?>
+					<?php
+					if ( $use_invoices == '1' ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+						?>
 					<div class="ui bottom attached 
 						<?php
 						if ( $activeTab == 'invoices' ) {
@@ -966,10 +960,8 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 				// moved to singleview.js
 				var zbsViewSettings = {
-
 					objid: <?php echo esc_html( $id ); ?>,
 					objdbname: 'company' <?php // echo $this->objType; ?>
-
 				};
 
 				</script>

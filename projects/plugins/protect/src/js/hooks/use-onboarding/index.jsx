@@ -1,7 +1,6 @@
-import { useDispatch, useSelect } from '@wordpress/data';
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import API from '../../api';
-import { STORE_ID } from '../../state/store';
+import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import useOnboardingProgressMutation from '../../data/onboarding/use-onboarding-progress-mutator';
+import useOnboardingProgressQuery from '../../data/onboarding/use-onboarding-progress-query';
 
 export const OnboardingContext = createContext( [] );
 export const OnboardingRenderedContext = createContext( [] );
@@ -17,18 +16,16 @@ export const OnboardingRenderedContextProvider = ( { children } ) => {
 };
 
 const useOnboarding = () => {
-	const { completeOnboardingSteps, fetchOnboardingProgress } = API;
-
 	const steps = useContext( OnboardingContext );
 	const { renderedSteps } = useContext( OnboardingRenderedContext );
 
-	const progress = useSelect( select => select( STORE_ID ).getOnboardingProgress() );
-	const { setOnboardingProgress } = useDispatch( STORE_ID );
+	const { data: progress } = useOnboardingProgressQuery();
+	const onboardingProgressMutation = useOnboardingProgressMutation();
 
 	/**
 	 * Current Step
 	 *
-	 * @returns {null|object}
+	 * @return {null|object}
 	 */
 	const { currentStep, currentStepCount, stepsCount } = useMemo( () => {
 		return steps.reduce(
@@ -52,12 +49,9 @@ const useOnboarding = () => {
 
 	const completeCurrentStep = useCallback( () => {
 		if ( currentStep ) {
-			// Complete the step immediately in the UI
-			setOnboardingProgress( [ ...progress, currentStep.id ] );
-			// Save the completion in the background
-			completeOnboardingSteps( [ currentStep.id ] );
+			onboardingProgressMutation.mutate( [ currentStep.id ] );
 		}
-	}, [ currentStep, setOnboardingProgress, progress, completeOnboardingSteps ] );
+	}, [ currentStep, onboardingProgressMutation ] );
 
 	/**
 	 * Complete All Free Steps
@@ -70,12 +64,8 @@ const useOnboarding = () => {
 			return carry;
 		}, [] );
 
-		// Complete the free steps immediately in the UI
-		const combinedProgress = [ ...progress, ...freeStepIds ];
-		setOnboardingProgress( [ ...new Set( combinedProgress ) ] );
-		// Save the completions in the background
-		completeOnboardingSteps( freeStepIds );
-	}, [ steps, progress, setOnboardingProgress, completeOnboardingSteps ] );
+		onboardingProgressMutation.mutate( freeStepIds );
+	}, [ steps, onboardingProgressMutation ] );
 
 	/**
 	 * Complete All Paid Steps
@@ -88,12 +78,8 @@ const useOnboarding = () => {
 			return carry;
 		}, [] );
 
-		// Complete the paid steps immediately in the UI
-		const combinedProgress = [ ...progress, ...paidStepIds ];
-		setOnboardingProgress( [ ...new Set( combinedProgress ) ] );
-		// Save the completions in the background
-		completeOnboardingSteps( paidStepIds );
-	}, [ steps, progress, setOnboardingProgress, completeOnboardingSteps ] );
+		onboardingProgressMutation.mutate( paidStepIds );
+	}, [ steps, onboardingProgressMutation ] );
 
 	/**
 	 * Complete All Current Steps
@@ -106,12 +92,6 @@ const useOnboarding = () => {
 			completeAllFreeSteps();
 		}
 	}, [ completeAllFreeSteps, completeAllPaidSteps, currentStep ] );
-
-	useEffect( () => {
-		if ( null === progress ) {
-			fetchOnboardingProgress().then( latestProgress => setOnboardingProgress( latestProgress ) );
-		}
-	}, [ fetchOnboardingProgress, progress, setOnboardingProgress ] );
 
 	return {
 		progress,

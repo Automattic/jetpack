@@ -9,7 +9,7 @@ export const FETCH_SEARCH_PRICING = 'FETCH_SEARCH_PRICING';
 /**
  * fetchJetpackSettings action
  *
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export const fetchJetpackSettings = () => {
 	return {
@@ -21,7 +21,7 @@ export const fetchJetpackSettings = () => {
  * updateJetpackSettings action
  *
  * @param {*} settings - Jetpack settings object.
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export const updateJetpackSettings = settings => {
 	return {
@@ -33,8 +33,8 @@ export const updateJetpackSettings = settings => {
 /**
  * fetchSearchPlanInfo action
  *
- * @yields {object} - an action object.
- * @returns {object} - an search plan object.
+ * @yield {object} - an action object.
+ * @return {object} - an search plan object.
  */
 export function* fetchSearchPlanInfo() {
 	const response = yield {
@@ -46,7 +46,7 @@ export function* fetchSearchPlanInfo() {
 /**
  * fetchSearchStats action
  *
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export const fetchSearchStats = () => {
 	return {
@@ -57,7 +57,7 @@ export const fetchSearchStats = () => {
 /**
  * fetchSearchPricing action
  *
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export const fetchSearchPricing = () => {
 	return {

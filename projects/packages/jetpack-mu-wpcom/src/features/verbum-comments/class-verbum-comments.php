@@ -96,7 +96,7 @@ class Verbum_Comments {
 			$color_scheme = 'transparent';
 		}
 
-		$verbum = '<div id="comment-form__verbum" class="' . $color_scheme . '"></div>' . $this->hidden_fields();
+		$verbum = '<div class="comment-form__verbum ' . $color_scheme . '"></div>' . $this->hidden_fields();
 
 		// If the blog requires login, Verbum need to be wrapped in a <form> to work.
 		// Verbum is given `mustLogIn` to handle the login flow.
@@ -175,6 +175,7 @@ class Verbum_Comments {
 		$jetpack_username             = isset( $__get['hc_username'] ) && is_string( $__get['hc_username'] ) ? $__get['hc_username'] : '';
 		$jetpack_user_id              = isset( $__get['hc_userid'] ) && is_numeric( $__get['hc_userid'] ) ? (int) $__get['hc_userid'] : 0;
 		$jetpack_signature            = isset( $__get['sig'] ) && is_string( $__get['sig'] ) ? $__get['sig'] : '';
+		$iframe_unique_id             = isset( $__get['iframe_unique_id'] ) && is_numeric( $__get['iframe_unique_id'] ) ? (int) $__get['iframe_unique_id'] : 0;
 		list( $jetpack_avatar )       = wpcom_get_avatar_url( "$email_hash@md5.gravatar.com" );
 		$comment_registration_enabled = boolval( get_blog_option( $this->blog_id, 'comment_registration' ) );
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -222,7 +223,7 @@ class Verbum_Comments {
 					'We\'ll keep you in the loop!'       => __( 'We\'ll keep you in the loop!', 'jetpack-mu-wpcom' ),
 					'Loading your comment...'            => __( 'Loading your comment...', 'jetpack-mu-wpcom' ),
 					/* translators: %s is the name of the site */
-					'Discover more from'                 => sprintf( __( 'Discover more from %s', 'jetpack-mu-wpcom' ), get_bloginfo( 'name' ) ),
+					'Discover more from'                 => sprintf( __( 'Discover more from %s', 'jetpack-mu-wpcom' ), html_entity_decode( get_bloginfo( 'name' ), ENT_QUOTES ) ),
 					'Subscribe now to keep reading and get access to the full archive.' => __( 'Subscribe now to keep reading and get access to the full archive.', 'jetpack-mu-wpcom' ),
 					'Continue reading'                   => __( 'Continue reading', 'jetpack-mu-wpcom' ),
 					'Never miss a beat!'                 => __( 'Never miss a beat!', 'jetpack-mu-wpcom' ),
@@ -255,6 +256,7 @@ class Verbum_Comments {
 					'verbumBundleUrl'                    => plugins_url( 'dist/index.js', __FILE__ ),
 					'isRTL'                              => is_rtl( $locale ),
 					'vbeCacheBuster'                     => $vbe_cache_buster,
+					'iframeUniqueId'                     => $iframe_unique_id,
 				)
 			),
 			'before'
@@ -533,8 +535,12 @@ HTML;
 	 * Get the hidden fields for the comment form.
 	 */
 	public function hidden_fields() {
+		// Ironically, get_queried_post_id doesn't work inside query loop.
+		// See: https://github.com/Automattic/wp-calypso/issues/98136
+		$queried_post    = get_post();
+		$queried_post_id = $queried_post ? $queried_post->ID : 0;
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$post_id = isset( $_GET['postid'] ) ? intval( $_GET['postid'] ) : get_queried_object_id();
+		$post_id = isset( $_GET['postid'] ) ? intval( $_GET['postid'] ) : $queried_post_id;
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$is_current_user_subscribed = isset( $_GET['is_current_user_subscribed'] ) ? intval( $_GET['is_current_user_subscribed'] ) : 0;
 		$nonce                      = wp_create_nonce( 'highlander_comment' );
@@ -583,7 +589,9 @@ HTML;
 	 */
 	public function should_show_subscription_modal() {
 		$modal_enabled = boolval( get_blog_option( $this->blog_id, 'jetpack_verbum_subscription_modal', true ) );
-		return ! is_user_member_of_blog( '', $this->blog_id ) && $modal_enabled;
+
+		$is_jetpack_site = 522232 === get_current_blog_id(); // Disable if verbum is served via 'jetpack.wordpress.com'
+		return ! $is_jetpack_site && ! is_user_member_of_blog( '', $this->blog_id ) && $modal_enabled;
 	}
 
 	/**

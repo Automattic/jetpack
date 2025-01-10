@@ -5,8 +5,6 @@ import { __ } from '@wordpress/i18n';
 
 import './color-control.scss';
 
-/* eslint-disable react/jsx-no-bind */
-
 const DEFAULT_COLORS = [
 	{ name: 'Dull blue', color: '#463ECE' },
 	{ name: 'Jazzberry jam', color: '#C6446F' },
@@ -16,11 +14,11 @@ const DEFAULT_COLORS = [
 /**
  * Color control for use in SidebarOptions tab.
  *
- * @param {object} props - component properties.
- * @param {boolean} props.disabled - disables the control.
+ * @param {object}   props          - component properties.
+ * @param {boolean}  props.disabled - disables the control.
  * @param {Function} props.onChange - invoked with a new color when the selected color has changed.
- * @param {string} props.value - color value prefixed with #.
- * @returns {Element} component instance
+ * @param {string}   props.value    - color value prefixed with #.
+ * @return {Element} component instance
  */
 export default function ColorControl( { disabled, value, onChange } ) {
 	const colors = useSelect( select => {

@@ -9,7 +9,7 @@ import styles from './styles.module.scss';
  * The RNA Connection Error Notice component.
  *
  * @param {object} props -- The properties.
- * @returns {React.Component} The `ConnectionErrorNotice` component.
+ * @return {React.Component} The `ConnectionErrorNotice` component.
  */
 const ConnectionErrorNotice = props => {
 	const { message, isRestoringConnection, restoreConnectionCallback, restoreConnectionError } =
@@ -50,7 +50,7 @@ const ConnectionErrorNotice = props => {
 			<Notice status={ 'error' } isDismissible={ false } className={ wrapperClassName }>
 				<div className={ styles.message }>
 					<Spinner color="#B32D2E" size={ 24 } />
-					{ __( 'Reconnecting Jetpack', 'jetpack' ) }
+					{ __( 'Reconnecting Jetpack', 'jetpack-connection-js' ) }
 				</div>
 			</Notice>
 		);
@@ -66,7 +66,7 @@ const ConnectionErrorNotice = props => {
 				{ icon }
 				{ sprintf(
 					/* translators: placeholder is the error. */
-					__( 'There was an error reconnecting Jetpack. Error: %s', 'jetpack' ),
+					__( 'There was an error reconnecting Jetpack. Error: %s', 'jetpack-connection-js' ),
 					restoreConnectionError
 				) }
 			</div>
@@ -88,7 +88,7 @@ const ConnectionErrorNotice = props => {
 						className={ styles.button }
 						href="#"
 					>
-						{ __( 'Restore Connection', 'jetpack' ) }
+						{ __( 'Restore Connection', 'jetpack-connection-js' ) }
 					</a>
 				) }
 			</Notice>

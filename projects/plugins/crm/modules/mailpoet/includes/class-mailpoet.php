@@ -270,7 +270,7 @@ class Mailpoet {
 		global $zbs;
 
 		// Contact Tabs
-		if ( $zbs->isDAL2() && zeroBSCRM_is_customer_view_page() ){
+		if ( zeroBSCRM_is_customer_view_page() ) {
 
 			require_once JPCRM_MAILPOET_ROOT_PATH . 'includes/jpcrm-mailpoet-contact-tabs.php';
 			$this->contact_tabs = Mailpoet_Contact_Tabs::instance();

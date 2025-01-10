@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed an issue where we showed the license message even with a plan

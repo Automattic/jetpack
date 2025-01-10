@@ -1,10 +1,10 @@
 import { isMobile } from '@automattic/viewport';
 import clsx from 'clsx';
-import Gridicon from 'components/gridicon';
-import analytics from 'lib/analytics';
 import { debounce, noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
+import Gridicon from 'components/gridicon';
+import analytics from 'lib/analytics';
 import SearchClearButton from './clear-btn';
 import SearchCloseButton from './close-btn';
 
@@ -19,7 +19,7 @@ const SEARCH_DEBOUNCE_MS = 300;
  * Listener for key events
  *
  * @param {Function} methodToCall - Method to call
- * @param {Event} event	- Event
+ * @param {Event}    event        - Event
  */
 function keyListener( methodToCall, event ) {
 	switch ( event.key ) {

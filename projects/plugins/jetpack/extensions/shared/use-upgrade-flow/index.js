@@ -7,18 +7,21 @@ import useAutosaveAndRedirect from '../use-autosave-and-redirect/index';
 const HOOK_OPEN_CHECKOUT_MODAL = 'a8c.wpcom-block-editor.openCheckoutModal';
 
 export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
-	const { checkoutUrl, planData } = useSelect( select => {
-		const editorSelector = select( 'core/editor' );
-		const planSelector = select( 'wordpress-com/plans' );
+	const { checkoutUrl, planData } = useSelect(
+		select => {
+			const editorSelector = select( 'core/editor' );
+			const planSelector = select( 'wordpress-com/plans' );
 
-		const { id: postId, type: postType } = editorSelector.getCurrentPost();
-		const plan = planSelector && planSelector.getPlan( planSlug );
+			const { id: postId, type: postType } = editorSelector.getCurrentPost();
+			const plan = planSelector && planSelector.getPlan( planSlug );
 
-		return {
-			checkoutUrl: getUpgradeUrl( { plan, planSlug, postId, postType } ),
-			planData: plan,
-		};
-	}, [] );
+			return {
+				checkoutUrl: getUpgradeUrl( { plan, planSlug, postId, postType } ),
+				planData: plan,
+			};
+		},
+		[ planSlug ]
+	);
 
 	const { autosave, autosaveAndRedirect, isRedirecting } = useAutosaveAndRedirect(
 		checkoutUrl,

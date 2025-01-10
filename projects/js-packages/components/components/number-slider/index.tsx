@@ -9,7 +9,7 @@ import './style.scss';
  * More support from the original ReactSlider component: https://zillow.github.io/react-slider/
  *
  * @param {NumberSliderProps} props - Props
- * @returns {React.ReactElement} - JSX element
+ * @return {React.ReactElement} - JSX element
  */
 const NumberSlider: React.FC< NumberSliderProps > = ( {
 	className,
@@ -68,7 +68,7 @@ const NumberSlider: React.FC< NumberSliderProps > = ( {
 				min={ minValue }
 				step={ step }
 				renderThumb={ renderThumbCallback } // eslint-disable-line react/jsx-no-bind
-				onChange={ onChange } // eslint-disable-line react/jsx-no-bind
+				onChange={ onChange }
 				onBeforeChange={ onBeforeChangeCallback } // eslint-disable-line react/jsx-no-bind
 				onAfterChange={ onAfterChangeCallback } // eslint-disable-line react/jsx-no-bind
 			/>

@@ -41,7 +41,8 @@ class Admin {
 			'Beta Tester',
 			'update_plugins',
 			'jetpack-beta',
-			array( self::class, 'render' )
+			array( self::class, 'render' ),
+			16
 		);
 
 		if ( false !== self::$hookname ) {

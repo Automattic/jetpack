@@ -1,7 +1,6 @@
 import clsx from 'clsx';
 
 export const Image = ( { title, alt, className, id, mediaRef, mime, sizes, srcset, url } ) => (
-	// eslint-disable-next-line jsx-a11y/media-has-caption
 	<img
 		ref={ mediaRef }
 		data-id={ id }
@@ -16,7 +15,6 @@ export const Image = ( { title, alt, className, id, mediaRef, mime, sizes, srcse
 );
 
 export const Video = ( { title, className, id, mediaRef, mime, url, poster } ) => (
-	// eslint-disable-next-line jsx-a11y/media-has-caption
 	<video
 		className={ clsx( 'wp-story-video', 'intrinsic-ignore', `wp-video-${ id }`, className ) }
 		ref={ mediaRef }

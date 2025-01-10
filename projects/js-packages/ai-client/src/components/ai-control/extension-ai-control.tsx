@@ -10,7 +10,12 @@ import React, { forwardRef } from 'react';
 /**
  * Internal dependencies
  */
-import { GuidelineMessage, ErrorMessage, UpgradeMessage } from '../message/index.js';
+import {
+	GuidelineMessage,
+	ErrorMessage,
+	UpgradeMessage,
+	FairUsageLimitMessage,
+} from '../message/index.js';
 import AIControl from './ai-control.js';
 import './style.scss';
 /**
@@ -31,6 +36,7 @@ type ExtensionAIControlProps = {
 	error?: RequestingErrorProps;
 	requestsRemaining?: number;
 	showUpgradeMessage?: boolean;
+	showFairUsageMessage?: boolean;
 	upgradeUrl?: string;
 	wrapperRef?: React.MutableRefObject< HTMLDivElement | null >;
 	onChange?: ( newValue: string ) => void;
@@ -40,14 +46,16 @@ type ExtensionAIControlProps = {
 	onUndo?: () => void;
 	onUpgrade?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 	onTryAgain?: () => void;
+	lastAction?: string;
+	blockType: string;
 };
 
 /**
  * ExtensionAIControl component. Used by the AI Assistant inline extensions, adding logic and components to the base AIControl component.
  *
- * @param {ExtensionAIControlProps} props  - Component props
- * @param {React.MutableRefObject} ref     - Ref to the component
- * @returns {ReactElement}                 Rendered component
+ * @param {ExtensionAIControlProps} props - Component props
+ * @param {React.MutableRefObject}  ref   - Ref to the component
+ * @return {ReactElement}                 Rendered component
  */
 export function ExtensionAIControl(
 	{
@@ -62,6 +70,7 @@ export function ExtensionAIControl(
 		error,
 		requestsRemaining,
 		showUpgradeMessage = false,
+		showFairUsageMessage = false,
 		upgradeUrl,
 		wrapperRef,
 		onChange,
@@ -71,6 +80,8 @@ export function ExtensionAIControl(
 		onUndo,
 		onUpgrade,
 		onTryAgain,
+		lastAction,
+		blockType,
 	}: ExtensionAIControlProps,
 	ref: React.MutableRefObject< HTMLInputElement >
 ): ReactElement {
@@ -78,6 +89,7 @@ export function ExtensionAIControl(
 	const [ editRequest, setEditRequest ] = useState( false );
 	const [ lastValue, setLastValue ] = useState( value || null );
 	const promptUserInputRef = useRef( null );
+	const isDone = value?.length <= 0 && state === 'done';
 
 	// Pass the ref to forwardRef.
 	useImperativeHandle( ref, () => promptUserInputRef.current );
@@ -176,7 +188,7 @@ export function ExtensionAIControl(
 							</Button>
 						</div>
 					) }
-					{ value?.length <= 0 && state === 'done' && (
+					{ isDone && (
 						<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
 							<ButtonGroup>
 								<Button
@@ -215,6 +227,8 @@ export function ExtensionAIControl(
 				upgradeUrl={ upgradeUrl }
 			/>
 		);
+	} else if ( showFairUsageMessage ) {
+		message = <FairUsageLimitMessage />;
 	} else if ( showUpgradeMessage ) {
 		message = (
 			<UpgradeMessage
@@ -224,7 +238,18 @@ export function ExtensionAIControl(
 			/>
 		);
 	} else if ( showGuideLine ) {
-		message = <GuidelineMessage />;
+		message = isDone ? (
+			<GuidelineMessage
+				aiFeedbackThumbsOptions={ {
+					showAIFeedbackThumbs: true,
+					ratedItem: 'ai-assistant',
+					prompt: lastAction,
+					block: blockType,
+				} }
+			/>
+		) : (
+			<GuidelineMessage />
+		);
 	}
 
 	return (

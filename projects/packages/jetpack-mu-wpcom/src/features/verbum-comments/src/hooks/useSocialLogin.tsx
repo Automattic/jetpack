@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useContext } from 'preact/hooks';
 import wpcomRequest from 'wpcom-proxy-request';
-import { userInfo } from '../state';
+import { VerbumSignals } from '../state';
 import { UserInfo } from '../types';
 import { serviceData, setUserInfoCookie } from '../utils';
 
@@ -26,18 +26,24 @@ const addWordPressDomain = window.location.hostname.endsWith( '.wordpress.com' )
 /**
  * Hook to retrieve user info from server, handle social login, and logout functionality.
  *
- * @returns {object} login, loginWindowRef, logout - login is a function to open the social login popup, loginWindowRef is a reference to the login popup window, and logout is a function to logout the user.
+ * @return {object} login, loginWindowRef, logout - login is a function to open the social login popup, loginWindowRef is a reference to the login popup window, and logout is a function to logout the user.
  */
 export default function useSocialLogin() {
 	const [ loginWindowRef, setLoginWindowRef ] = useState< Window >();
+	const { userInfo } = useContext( VerbumSignals );
 
 	useEffect( () => {
 		wpcomRequest< UserInfo >( {
 			path: '/verbum/auth',
 			apiNamespace: 'wpcom/v2',
-		} ).then( res => {
-			userInfo.value = res;
-		} );
+		} )
+			.then( res => {
+				userInfo.value = res;
+			} )
+			.catch( () => {
+				// User may not be logged in.
+			} );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
 	if ( VerbumComments.isJetpackCommentsLoggedIn ) {

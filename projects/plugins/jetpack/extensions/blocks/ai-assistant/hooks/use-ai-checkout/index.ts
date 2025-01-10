@@ -35,20 +35,18 @@ export default function useAICheckout(): {
 
 	const wpcomRedirectToURL = getWPComRedirectToURL();
 
-	const wpcomCheckoutUrl = tierPlansEnabled
-		? getRedirectUrl( 'jetpack-ai-yearly-tier-upgrade-nudge', {
-				site: getSiteFragment() as string,
-				path: `jetpack_ai_yearly:-q-${ nextTier?.limit }`,
-				query: `redirect_to=${ encodeURIComponent( wpcomRedirectToURL ) }`,
-		  } )
-		: getRedirectUrl( 'jetpack-ai-monthly-plan-ai-assistant-block-banner', {
-				site: getSiteFragment() as string,
-		  } );
+	const wpcomCheckoutUrl = getRedirectUrl( 'jetpack-ai-yearly-tier-upgrade-nudge', {
+		site: getSiteFragment() as string,
+		path: tierPlansEnabled ? `jetpack_ai_yearly:-q-${ nextTier?.limit }` : 'jetpack_ai_yearly',
+		query: `redirect_to=${ encodeURIComponent( wpcomRedirectToURL ) }`,
+	} );
 
-	const checkoutUrl =
-		isAtomicSite() || isSimpleSite()
-			? wpcomCheckoutUrl
-			: `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?redirect_to_referrer=1&page=my-jetpack#/add-jetpack-ai`;
+	const jetpackCheckoutUrl = getRedirectUrl( 'jetpack-ai-upgrade-url-for-jetpack-sites', {
+		site: getSiteFragment() as string,
+		path: 'jetpack_ai_yearly',
+	} );
+
+	const checkoutUrl = isAtomicSite() || isSimpleSite() ? wpcomCheckoutUrl : jetpackCheckoutUrl;
 
 	const { autosaveAndRedirect, isRedirecting } = useAutosaveAndRedirect( checkoutUrl );
 

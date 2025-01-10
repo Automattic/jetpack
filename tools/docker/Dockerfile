@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 VOLUME ["/var/www/html"]
 
@@ -41,6 +41,7 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
 		systemd-standalone-tmpfiles \
 		unzip \
 		vim \
+		xz-utils \
 		zip \
 	&& apt-get remove --purge --auto-remove -y gpg software-properties-common \
 	&& find /var/ -name '*-old' -delete && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib

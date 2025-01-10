@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { maybeStringify } from "../../../../packages/Async_Option/scripts/utils";
+	import { maybeStringify } from '../../../../packages/Async_Option/scripts/utils';
 
 	// eslint-disable-next-line
 	export let data: any;
 </script>
 
 <div>
-	<pre>{maybeStringify(data)}</pre>
+	<pre>{maybeStringify( data )}</pre>
 </div>
 
 <style>

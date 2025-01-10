@@ -2,7 +2,7 @@
  * Return the default texts defined in `donations.php` and injected client side by assigning them
  * to the `Jetpack_DonationsBlock` attribute of the window object.
  *
- * @returns {object} Defaut texts for the block.
+ * @return {object} Defaut texts for the block.
  */
 export function getDefaultTexts() {
 	if ( 'undefined' === typeof window ) {

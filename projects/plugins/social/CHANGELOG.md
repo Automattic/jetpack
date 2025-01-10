@@ -5,6 +5,77 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 5.5.1 - 2024-10-29
+### Changed
+- Components: Add __nextHasNoMarginBottom to BaseControl-based components, preventing deprecation notices. [#39877]
+- Updated package dependencies. [#39910]
+
+## 5.5.0 - 2024-10-25
+### Added
+- Added Bluesky to social previews [#39659]
+- Social Notes: add support for the ActivityPub Reply-To block. [#39738]
+
+### Changed
+- General: indicate compatibility with the upcoming version of WordPress - 6.7. [#39786]
+- Initial State: Migrated URLs to script data [#39797]
+- Only include `wp-polyfill` as a script dependency when needed. [#39629]
+- Updated package dependencies. [#39594] [#39653] [#39707]
+
+### Fixed
+- Added Jetpack Beta's slug to Social OG conflicting plugins [#39792]
+- Social: Fixed share status tooltip text overflow [#39599]
+
+## 5.4.1 - 2024-10-02
+### Changed
+- Internal updates.
+
+## 5.4.0 - 2024-10-01
+### Added
+- Added support for Bluesky 🎉 [#39561]
+- Social: adds hook for plugin developers to be able to pull social share URLs on save. [#39398]
+
+### Changed
+- Social: Migrated useAdminUiV1 feature flag to new script data [#39137]
+- Updated package dependencies. [#39278] [#39288] [#39302] [#39332]
+
+### Removed
+- Connection: Removed deprecated method features_available [#39442]
+- Connection: Removed features_enabled deprecated method [#39475]
+- Social: Cleaned up media auto-conversion backend logic [#38587]
+
+### Fixed
+- My Jetpack: visual update to the GlobalNotice component look better on mobile. [#39537]
+- Social: Updated social previews button styles to fit the translated string [#39430]
+
+## 5.3.1 - 2024-09-06
+### Changed
+- Internal updates.
+
+## 5.3.0 - 2024-09-05
+### Changed
+- Updated connection js to load its bundle via connection package [#38877]
+- Updated package dependencies. [#39176]
+
+### Fixed
+- Updated pricing table to clarify features [#39182]
+
+## 5.2.0 - 2024-08-29
+### Changed
+- Admin menu: change order of Jetpack sub-menu items [#39095]
+- Moved PostPublishPanels component to publicize-components package [#39049]
+- Social: Migrated shares data to the new script data [#38988]
+- Social: Updated intial state logic to use the new consolidated initial state [#38606]
+- Social: Updated the share status modal to render it globally [#39116]
+- Update composer lock file [#38942]
+- Updated package dependencies. [#38662] [#38665] [#38822] [#38822] [#39111]
+
+### Removed
+- Remove the unused Advanced plan nudge [#38926]
+- Social: Removed share limits UI and data logic [#38904]
+
+### Fixed
+- Revert recent SVG image optimizations. [#38981]
+
 ## 5.1.0 - 2024-08-08
 ### Added
 - Added feature flag management for social [#38669]

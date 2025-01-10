@@ -21,7 +21,6 @@ use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
-use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
@@ -42,7 +41,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.32.1';
+	const PACKAGE_VERSION = '5.3.1';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -60,11 +59,11 @@ class Initializer {
 		'jetpack-search',
 	);
 
-	const MY_JETPACK_SITE_INFO_TRANSIENT_KEY = 'my-jetpack-site-info';
-
+	const MY_JETPACK_SITE_INFO_TRANSIENT_KEY             = 'my-jetpack-site-info';
 	const UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY = 'update-historically-active-jetpack-modules';
-
-	const MISSING_CONNECTION_NOTIFICATION_KEY = 'missing-connection';
+	const MISSING_CONNECTION_NOTIFICATION_KEY            = 'missing-connection';
+	const VIDEOPRESS_STATS_KEY                           = 'my-jetpack-videopress-stats';
+	const VIDEOPRESS_PERIOD_KEY                          = 'my-jetpack-videopress-period';
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
@@ -99,16 +98,8 @@ class Initializer {
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
 
-		$page_suffix = Admin_Menu::add_menu(
-			__( 'My Jetpack', 'jetpack-my-jetpack' ),
-			__( 'My Jetpack', 'jetpack-my-jetpack' ),
-			'edit_posts',
-			'my-jetpack',
-			array( __CLASS__, 'admin_page' ),
-			-1
-		);
+		add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
 
-		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
 		// This is later than the admin-ui package, which runs on 1000
 		add_action( 'admin_init', array( __CLASS__, 'maybe_show_red_bubble' ), 1001 );
@@ -167,6 +158,23 @@ class Initializer {
 	}
 
 	/**
+	 * Add My Jetpack menu item to the admin menu.
+	 *
+	 * @return void
+	 */
+	public static function add_my_jetpack_menu_item() {
+		$page_suffix = Admin_Menu::add_menu(
+			__( 'My Jetpack', 'jetpack-my-jetpack' ),
+			__( 'My Jetpack', 'jetpack-my-jetpack' ),
+			'edit_posts',
+			'my-jetpack',
+			array( __CLASS__, 'admin_page' ),
+			-1
+		);
+		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+	}
+
+	/**
 	 * Callback for the load my jetpack page hook.
 	 *
 	 * @return void
@@ -192,12 +200,20 @@ class Initializer {
 
 		return $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
 	}
+
 	/**
 	 * Enqueue admin page assets.
 	 *
 	 * @return void
 	 */
 	public static function enqueue_scripts() {
+		/**
+		 * Fires after the My Jetpack page is initialized.
+		 * Allows for enqueuing additional scripts only on the My Jetpack page.
+		 *
+		 * @since 4.35.7
+		 */
+		do_action( 'myjetpack_enqueue_scripts' );
 		Assets::register_script(
 			'my_jetpack_main_app',
 			'../build/index.js',
@@ -217,8 +233,16 @@ class Initializer {
 			$previous_score = $speed_score_history->latest( 1 );
 		}
 		$latest_score['previousScores'] = $previous_score['scores'] ?? array();
-		$scan_data                      = Protect_Status::get_status();
+		$scan_data                      = Products\Protect::get_protect_data();
 		self::update_historically_active_jetpack_modules();
+
+		$waf_config    = array();
+		$waf_supported = false;
+
+		if ( class_exists( 'Automattic\Jetpack\Waf\Waf_Runner' ) ) {
+			$waf_config    = Waf_Runner::get_config();
+			$waf_supported = Waf_Runner::is_supported_environment();
+		}
 
 		wp_localize_script(
 			'my_jetpack_main_app',
@@ -259,8 +283,9 @@ class Initializer {
 				),
 				'redBubbleAlerts'        => self::get_red_bubble_alerts(),
 				'recommendedModules'     => array(
-					'modules'   => self::get_recommended_modules(),
-					'dismissed' => \Jetpack_Options::get_option( 'dismissed_recommendations', false ),
+					'modules'    => self::get_recommended_modules(),
+					'isFirstRun' => \Jetpack_Options::get_option( 'recommendations_first_run', true ),
+					'dismissed'  => \Jetpack_Options::get_option( 'dismissed_recommendations', false ),
 				),
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
 				'isUserFromKnownHost'    => self::is_user_from_known_host(),
@@ -274,7 +299,10 @@ class Initializer {
 				'protect'                => array(
 					'scanData'  => $scan_data,
 					'wafConfig' => array_merge(
-						Waf_Runner::get_config(),
+						$waf_config,
+						array(
+							'waf_supported' => $waf_supported,
+						),
 						array( 'blocked_logins' => (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) )
 					),
 				),
@@ -314,10 +342,49 @@ class Initializer {
 			);
 		}
 
+		$featured_stats = get_transient( self::VIDEOPRESS_STATS_KEY );
+
+		if ( $featured_stats ) {
+			return array(
+				'featuredStats' => $featured_stats,
+				'videoCount'    => $video_count,
+			);
+		}
+
+		$stats_period     = get_transient( self::VIDEOPRESS_PERIOD_KEY );
 		$videopress_stats = new VideoPress_Stats();
 
+		// If the stats period exists, retrieve that information without checking the view count.
+		// If it does not, check the view count of monthly stats and determine if we want to show yearly or monthly stats.
+		if ( $stats_period ) {
+			if ( $stats_period === 'day' ) {
+				$featured_stats = $videopress_stats->get_featured_stats( 60, 'day' );
+			} else {
+				$featured_stats = $videopress_stats->get_featured_stats( 2, 'year' );
+			}
+		} else {
+			$featured_stats = $videopress_stats->get_featured_stats( 60, 'day' );
+
+			if (
+				! is_wp_error( $featured_stats ) &&
+				$featured_stats &&
+				( $featured_stats['data']['views']['current'] < 500 || $featured_stats['data']['views']['previous'] < 500 )
+			) {
+				$featured_stats = $videopress_stats->get_featured_stats( 2, 'year' );
+			}
+		}
+
+		if ( is_wp_error( $featured_stats ) || ! $featured_stats ) {
+			return array(
+				'videoCount' => $video_count,
+			);
+		}
+
+		set_transient( self::VIDEOPRESS_PERIOD_KEY, $featured_stats['period'], WEEK_IN_SECONDS );
+		set_transient( self::VIDEOPRESS_STATS_KEY, $featured_stats, DAY_IN_SECONDS );
+
 		return array(
-			'featuredStats' => $videopress_stats->get_featured_stats(),
+			'featuredStats' => $featured_stats,
 			'videoCount'    => $video_count,
 		);
 	}
@@ -756,7 +823,7 @@ class Initializer {
 			self::get_red_bubble_alerts(),
 			function ( $alert ) {
 				// We don't want to show silent alerts
-				return ! $alert['is_silent'];
+				return empty( $alert['is_silent'] );
 			}
 		);
 
@@ -865,7 +932,12 @@ class Initializer {
 			);
 			return $red_bubble_slugs;
 		} else {
-			return self::alert_if_missing_connection( $red_bubble_slugs );
+			return array_merge(
+				self::alert_if_missing_connection( $red_bubble_slugs ),
+				self::alert_if_last_backup_failed( $red_bubble_slugs ),
+				self::alert_if_paid_plan_expiring( $red_bubble_slugs ),
+				self::alert_if_protect_has_threats( $red_bubble_slugs )
+			);
 		}
 	}
 
@@ -879,14 +951,7 @@ class Initializer {
 		$broken_modules = self::check_for_broken_modules();
 		$connection     = new Connection_Manager();
 
-		if ( ! empty( $broken_modules['needs_user_connection'] ) ) {
-			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
-				'type'     => 'user',
-				'is_error' => true,
-			);
-			return $red_bubble_slugs;
-		}
-
+		// Checking for site connection issues first.
 		if ( ! empty( $broken_modules['needs_site_connection'] ) ) {
 			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
 				'type'     => 'site',
@@ -895,10 +960,10 @@ class Initializer {
 			return $red_bubble_slugs;
 		}
 
-		if ( ! $connection->is_user_connected() && ! $connection->has_connected_owner() ) {
+		if ( ! empty( $broken_modules['needs_user_connection'] ) ) {
 			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
 				'type'     => 'user',
-				'is_error' => false,
+				'is_error' => true,
 			);
 			return $red_bubble_slugs;
 		}
@@ -909,6 +974,111 @@ class Initializer {
 				'is_error' => false,
 			);
 			return $red_bubble_slugs;
+		}
+
+		return $red_bubble_slugs;
+	}
+
+	/**
+	 * Add an alert slug if any paid plan/products are expiring or expired.
+	 *
+	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
+	 * @return array
+	 */
+	public static function alert_if_paid_plan_expiring( array $red_bubble_slugs ) {
+		$connection = new Connection_Manager();
+		if ( ! $connection->is_connected() ) {
+			return $red_bubble_slugs;
+		}
+		$product_classes    = Products::get_products_classes();
+		$not_shown_products = array(
+			'scan',
+			'extras',
+			'ai',
+			'newsletter',
+			'site-accelerator',
+			'related-posts',
+		);
+
+		$products_included_in_expiring_plan = array();
+		foreach ( $product_classes as $key => $product ) {
+			// Skip these- we don't show them in My Jetpack.
+			// ('ai' is a duplicate class of 'jetpack-ai', and therefore not needed).
+			// See `get_product_classes() in projects/packages/my-jetpack/src/class-products.php for more info.
+			if ( in_array( $key, $not_shown_products, true ) ) {
+				continue;
+			}
+
+			if ( $product::has_paid_plan_for_product() ) {
+				$purchase = $product::get_paid_plan_purchase_for_product();
+				if ( $purchase ) {
+					$redbubble_notice_data = array(
+						'product_slug'   => $purchase->product_slug,
+						'product_name'   => $purchase->product_name,
+						'expiry_date'    => $purchase->expiry_date,
+						'expiry_message' => $purchase->expiry_message,
+						'manage_url'     => $product::get_manage_paid_plan_purchase_url(),
+					);
+
+					if ( $product::is_paid_plan_expired() ) {
+						$red_bubble_slugs[ "$purchase->product_slug--plan_expired" ] = $redbubble_notice_data;
+						if ( ! $product::is_bundle_product() ) {
+							$products_included_in_expiring_plan[ "$purchase->product_slug--plan_expired" ][] = $product::get_name();
+						}
+					}
+					if ( $product::is_paid_plan_expiring() ) {
+						$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ]               = $redbubble_notice_data;
+						$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ]['manage_url'] = $product::get_renew_paid_plan_purchase_url();
+						if ( ! $product::is_bundle_product() ) {
+							$products_included_in_expiring_plan[ "$purchase->product_slug--plan_expiring_soon" ][] = $product::get_name();
+						}
+					}
+				}
+			}
+		}
+
+		foreach ( $products_included_in_expiring_plan as $expiring_plan => $products ) {
+			$red_bubble_slugs[ $expiring_plan ]['products_effected'] = $products;
+		}
+
+		return $red_bubble_slugs;
+	}
+
+	/**
+	 * Add an alert slug if Backups are failing or having an issue.
+	 *
+	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
+	 * @return array
+	 */
+	public static function alert_if_last_backup_failed( array $red_bubble_slugs ) {
+		// Make sure we're dealing with the Backup product only
+		if ( ! Products\Backup::has_paid_plan_for_product() ) {
+			return $red_bubble_slugs;
+		}
+
+		$backup_failed_status = Products\Backup::does_module_need_attention();
+		if ( $backup_failed_status ) {
+			$red_bubble_slugs['backup_failure'] = $backup_failed_status;
+		}
+
+		return $red_bubble_slugs;
+	}
+
+	/**
+	 * Add an alert slug if Protect has scan threats/vulnerabilities.
+	 *
+	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
+	 * @return array
+	 */
+	public static function alert_if_protect_has_threats( array $red_bubble_slugs ) {
+		// Make sure we're dealing with the Protect product only
+		if ( ! Products\Protect::has_paid_plan_for_product() ) {
+			return $red_bubble_slugs;
+		}
+
+		$protect_threats_status = Products\Protect::does_module_need_attention();
+		if ( $protect_threats_status ) {
+			$red_bubble_slugs['protect_has_threats'] = $protect_threats_status;
 		}
 
 		return $red_bubble_slugs;

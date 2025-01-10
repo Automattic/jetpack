@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Social;
 
+use Automattic\Jetpack\Constants;
+
 /**
  * Register the Jetpack Social Note custom post type.
  */
@@ -30,6 +32,19 @@ class Note {
 			return;
 		}
 		add_filter( 'allowed_block_types', array( $this, 'restrict_blocks_for_social_note' ), 10, 2 );
+
+		/*
+		 * The ActivityPub plugin has a block to set a Fediverse post that a new post is in reply to. This is perfect for Social Notes.
+		 */
+		if ( Constants::get_constant( 'ACTIVITYPUB_PLUGIN_VERSION' ) ) {
+			add_filter(
+				'jetpack_social_allowed_blocks',
+				function ( $allowed_blocks ) {
+					$allowed_blocks[] = 'activitypub/reply';
+					return $allowed_blocks;
+				}
+			);
+		}
 
 		self::register_cpt();
 		add_action( 'wp_insert_post_data', array( $this, 'set_empty_title' ), 10, 2 );
@@ -140,15 +155,26 @@ class Note {
 	 * @return array The allowed blocks.
 	 */
 	public function restrict_blocks_for_social_note( $allowed_blocks, $post ) {
-		if ( 'jetpack-social-note' === $post->post_type ) {
-			// Only allow the paragraph block and the featured image block.
-			$allowed_blocks = array(
-				'core/paragraph',
-				'core/post-featured-image',
-			);
+		if ( 'jetpack-social-note' !== $post->post_type ) { // Let 'em pass.
+			return $allowed_blocks;
 		}
 
-		return $allowed_blocks;
+		// Only allow the paragraph block and the featured image block.
+		$allowed_blocks = array(
+			'core/paragraph',
+			'core/post-featured-image',
+		);
+
+		/**
+		 * Filters the blocks available to the Social Notes CPT.
+		 *
+		 * Default is ['core/paragraph', 'core/post-featured-image']
+		 *
+		 * @since 5.5.0
+		 *
+		 * @param array $allowed_blocks A linear array of blocks allowed by the CPT.
+		 */
+		return apply_filters( 'jetpack_social_allowed_blocks', $allowed_blocks );
 	}
 
 	/**

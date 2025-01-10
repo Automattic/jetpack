@@ -61,6 +61,7 @@ function GoogleFilterView( props ) {
 				disabled={ isLoading || isCopying }
 				options={ remainingFilters }
 				onChange={ setCurrentFilter }
+				__nextHasNoMarginBottom={ true }
 			/>
 
 			<Button disabled={ isLoading || isCopying } variant="secondary" isSmall onClick={ setFilter }>

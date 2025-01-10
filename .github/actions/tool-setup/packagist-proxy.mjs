@@ -10,8 +10,6 @@
  * Note it needs to be passed paths to certificate key and crt files.
  */
 
-/* eslint-disable no-console */
-
 import * as fs from 'node:fs';
 import * as https from 'node:https';
 

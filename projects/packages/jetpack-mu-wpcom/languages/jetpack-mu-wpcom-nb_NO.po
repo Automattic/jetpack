@@ -1,0 +1,341 @@
+# Translation of Plugins - WordPress.com Editing Toolkit - Stable (latest release) in Norwegian (Bokmål)
+# This file is distributed under the same license as the Plugins - WordPress.com Editing Toolkit - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2021-10-01 13:11:40+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/4.0.1\n"
+"Language: nb_NO\n"
+"Project-Id-Version: Plugins - WordPress.com Editing Toolkit - Stable (latest release)\n"
+
+#: global-styles/class-global-styles.php:272
+msgid "Fonts"
+msgstr "Skrifter"
+
+#. translators: separates all but the last two sponsor names; needs a space at
+#. the end.
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1004
+msgid ", "
+msgstr ", "
+
+#: starter-page-templates/class-starter-page-templates.php:236
+msgid "Current"
+msgstr "Nåværende"
+
+#. Plugin Name of the plugin
+#: full-site-editing-plugin.php
+msgid "WordPress.com Editing Toolkit"
+msgstr "WordPress.com redigeringsverktøysett"
+
+#: mailerlite/subscriber-popup.php:116
+msgid "UUID:"
+msgstr "UUID:"
+
+#. translators: link to documentation
+#: mailerlite/subscriber-popup.php:113
+msgid "Account ID <a href=\"%s\" target=\"_blank\">(instructions)</a>:"
+msgstr "Konto-ID <a href=\"%s\" target=\"_blank\">(instruksjoner)</a>:"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:277
+msgid "Play Slideshow"
+msgstr "Spill av bildekarusell"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:276
+msgid "Pause Slideshow"
+msgstr "Pause bildekarusell"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:231
+msgid "Previous Slide"
+msgstr "Forrige karusellbilde"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:232
+msgid "Next Slide"
+msgstr "Neste lysbilde"
+
+#. translators: %d: Slide number.
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:210
+msgid "Go to slide %d"
+msgstr "Gå til lysbilde %d"
+
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:900
+msgid "Common"
+msgstr "Felles"
+
+#: starter-page-templates/class-starter-page-templates.php:231
+msgid "Blank"
+msgstr "Blank"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:223
+#: newspack-blocks/dist/blog-posts-block-editor.js:4516
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/edit.js:785
+msgid "Load more posts"
+msgstr "Last flere innlegg"
+
+#. translators: separates last two sponsor names; needs a space on either side.
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1001
+msgid " and "
+msgstr " og "
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:328
+#: newspack-blocks/dist/blog-posts-block-editor.js:5849
+#: newspack-blocks/dist/blog-posts-block-editor.js:5871
+#: newspack-blocks/dist/carousel-block-editor.js:5512
+#: newspack-blocks/dist/carousel-block-editor.js:5534
+#: newspack-blocks/synced-newspack-blocks/shared/js/utils.js:30
+#: newspack-blocks/synced-newspack-blocks/shared/js/utils.js:67
+msgctxt "post author"
+msgid " and "
+msgstr " og "
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:305
+#: newspack-blocks/dist/blog-posts-block-editor.js:5842
+#: newspack-blocks/dist/carousel-block-editor.js:5505
+#: newspack-blocks/synced-newspack-blocks/shared/js/utils.js:18
+msgctxt "post author"
+msgid "by"
+msgstr "av"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:231
+msgid "Something went wrong. Please refresh the page and/or try again."
+msgstr "Noe gikk galt. Vennligst oppfrisk siden og forsøk igjen."
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:228
+msgid "Loading..."
+msgstr "Laster..."
+
+#: dotcom-fse/blocks/site-credit/index.php:155
+msgid "WordPress Icon"
+msgstr "WordPress-ikon"
+
+#: dotcom-fse/blocks/site-credit/index.php:150
+msgid "Proudly powered by WordPress"
+msgstr "Stolt drevet av WordPress"
+
+#: dotcom-fse/templates/class-wp-template.php:149
+#: common/dist/data-stores.js:6621
+msgid "Footer"
+msgstr "Sidebunn"
+
+#: dotcom-fse/templates/class-wp-template.php:147
+#: common/dist/data-stores.js:6616
+msgid "Header"
+msgstr "Sidetopp"
+
+#: dotcom-fse/blocks/navigation-menu/index.php:86
+msgid "collapsed"
+msgstr "sammentrukket"
+
+#: dotcom-fse/blocks/navigation-menu/index.php:85
+msgid "expanded"
+msgstr "utvidet"
+
+#: dotcom-fse/blocks/navigation-menu/index.php:82
+msgid "Menu"
+msgstr "Meny"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:398
+msgctxt "Default page title"
+msgid "Contact"
+msgstr "Kontakt"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:386
+msgctxt "Default page title"
+msgid "About"
+msgstr "Om"
+
+#: starter-page-templates/class-wp-rest-sideload-image-controller.php:77
+msgid "Invalid parent type."
+msgstr "Ugyldig foreldertype."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:503
+msgid "Back to template part types"
+msgstr "Tilbake til delmaltyper"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:502
+msgid "No template part types found."
+msgstr "Ingen delmaltyper funnet."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:501
+msgid "Search Template Part Types"
+msgstr "Søk delmaltyper"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:498
+msgid "New Template Part Type"
+msgstr "Ny delmaltype"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:497
+msgid "Add New Template Part Type"
+msgstr "Legg til ny delmaltype"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:496
+msgid "Update Template Part Type"
+msgstr "Oppdater delmaltype"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:495
+msgid "View Template Part Type"
+msgstr "Se delmaltype"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:494
+msgid "Edit Template Part Type"
+msgstr "Rediger delmaltype"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:493
+msgid "All Template Part Types"
+msgstr "Legg til delmaltyper"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:492
+msgctxt "admin menu"
+msgid "Template Part Types"
+msgstr "Delmaltyper"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:491
+msgctxt "taxonomy singular name"
+msgid "Template Part Type"
+msgstr "Delmaltype"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:490
+msgctxt "taxonomy general name"
+msgid "Template Part Types"
+msgstr "Delmaltyper"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:455
+msgid "Template part updated."
+msgstr "Delmal oppdatert."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:454
+msgid "Template part scheduled."
+msgstr "Delmal planlagt."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:453
+msgid "Template part reverted to draft."
+msgstr "Delmal satt tilbake til kladd."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:452
+msgid "Template part published privately."
+msgstr "Delmal privat publisert."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:451
+msgid "Template part published."
+msgstr "Delmal publisert."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:450
+msgid "Template parts list"
+msgstr "Delmaloversikt"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:449
+msgid "Template parts list navigation"
+msgstr "Navigering i delmaloversikt"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:448
+msgid "Filter template parts list"
+msgstr "Filtrer delmaloversikt"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:447
+msgid "No template parts found in Trash."
+msgstr "Ingen delmaler funnet i papirkurven."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:446
+msgid "No template parts found."
+msgstr "Ingen delmaler funnet."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:445
+msgid "Search Template Parts"
+msgstr "Søk delmaler"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:444
+msgid "All Template Parts"
+msgstr "Alle delmaler"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:443
+msgid "View Template Part"
+msgstr "Se delmal"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:442
+msgid "Edit Template Part"
+msgstr "Rediger delmal"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:441
+msgid "New Template Part"
+msgstr "Ny delmal"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:440
+msgid "Add New Template Part"
+msgstr "Legg til ny delmal"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:438
+msgctxt "add new on admin bar"
+msgid "Template Part"
+msgstr "Delmal"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:437
+msgctxt "admin menu"
+msgid "Template Parts"
+msgstr "Delmaler"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:436
+msgctxt "post type singular name"
+msgid "Template Part"
+msgstr "Delmal"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:435
+msgctxt "post type general name"
+msgid "Template Parts"
+msgstr "Delmaler"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:439
+msgctxt "Template"
+msgid "Add New"
+msgstr "Legg til ny"
+
+#: posts-list-block/class-posts-list-block.php:165
+msgid "Read more"
+msgstr "Les mer"
+
+#. translators: %s: Name of current post
+#: posts-list-block/class-posts-list-block.php:162
+msgid "Continue reading %s"
+msgstr "Fortsett å lese %s"
+
+#: posts-list-block/templates/post-item.php:36
+msgid "Edit"
+msgstr "Rediger"
+
+#: posts-list-block/templates/post-item.php:31
+msgctxt "designating the post author (eg: by John Doe"
+msgid "by"
+msgstr "av"
+
+#: posts-list-block/templates/post-item.php:23
+msgid "Featured"
+msgstr "Fremhevede"
+
+#: posts-list-block/templates/posts-list.php:30
+msgid "View all posts"
+msgstr "Se alle innlegg"
+
+#. translators: 1: link to WP admin new post page.
+#: posts-list-block/templates/no-posts.php:17
+msgid "Ready to publish your first post? <a href=\"%1$s\">Get started here</a>."
+msgstr "Klar til å publisere ditt første innlegg? <a href=\"%1$s\">Kom i gang her</a>."
+
+#: posts-list-block/templates/no-posts.php:11
+msgid "There are currently no posts to display."
+msgstr "Det er for tiden ingen innlegg å vise."
+
+#. Author URI of the plugin
+#: full-site-editing-plugin.php
+msgid "https://automattic.com/wordpress-plugins/"
+msgstr "https://automattic.com/wordpress-plugins/"
+
+#. Author of the plugin
+#: full-site-editing-plugin.php
+msgid "Automattic"
+msgstr "Automattic"
+
+#. Description of the plugin
+#: full-site-editing-plugin.php
+msgid "Enhances your page creation workflow within the Block Editor."
+msgstr "Forbedre din arbeidsflyt for sidebygging i blokkredigeringen."

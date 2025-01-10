@@ -118,10 +118,9 @@ export default function reducer( state = INITIAL_STATE, action ) {
 				requestsLimit = state.features.aiAssistant.requestsLimit as TierLimitProp;
 			}
 
-			const currentCount =
-				isUnlimitedTierPlan || isFreeTierPlan // @todo: update once tier data is available
-					? requestsCount
-					: state.features.aiAssistant.usagePeriod?.requestsCount;
+			const currentCount = isFreeTierPlan
+				? requestsCount // Free tier plan counts all time requests
+				: state.features.aiAssistant.usagePeriod?.requestsCount; // Unlimited tier plan counts usage period requests
 
 			/**
 			 * Compute the AI Assistant Feature data optimistically,

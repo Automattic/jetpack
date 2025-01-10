@@ -52,7 +52,7 @@ export const ServiceConnectionInfo = ( {
 								<IconTooltip placement="top" inline={ false } shift>
 									{ __(
 										'If enabled, the connection will be available to all administrators, editors, and authors.',
-										'jetpack'
+										'jetpack-publicize-components'
 									) }
 								</IconTooltip>
 							</div>
@@ -66,7 +66,10 @@ export const ServiceConnectionInfo = ( {
 					return ! conn.can_disconnect ? (
 						<>
 							<Text className={ styles.description }>
-								{ __( 'This connection is added by a site administrator.', 'jetpack' ) }
+								{ __(
+									'This connection is added by a site administrator.',
+									'jetpack-publicize-components'
+								) }
 							</Text>
 							{ conn.status === 'broken' ? (
 								<ConnectionStatus connection={ conn } service={ service } />

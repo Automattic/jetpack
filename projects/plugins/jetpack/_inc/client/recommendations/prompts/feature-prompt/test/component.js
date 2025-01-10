@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 import userEvent from '@testing-library/user-event';
-import analytics from 'lib/analytics';
 import * as React from 'react';
+import analytics from 'lib/analytics';
 import * as recommendationsActions from 'state/recommendations/actions';
 import { render, screen } from 'test/test-utils';
 import * as featureUtils from '../../../feature-utils';
@@ -10,9 +10,9 @@ import { FeaturePrompt } from '../index';
 /**
  * Build initial state.
  *
- * @param {object} _ - Dummy positional parameter.
+ * @param {object} _                     - Dummy positional parameter.
  * @param {string} _.recommendationsStep - Value for jetpack.recommendations.step.
- * @returns {object} - State.
+ * @return {object} - State.
  */
 function buildInitialState( { recommendationsStep } = {} ) {
 	return {

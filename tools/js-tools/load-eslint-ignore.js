@@ -1,7 +1,7 @@
 const fs = require( 'fs' );
 const path = require( 'path' );
 const debugload = require( 'debug' )( 'load-eslint-ignore:load' );
-const debugrp = require( 'debug' )( 'load-eslint-ignore:reverse-prefix' );
+const debugrp = require( 'debug' )( 'load-eslint-ignore:rule-process' );
 const debugrules = require( 'debug' )( 'load-eslint-ignore:rules' );
 const makeIgnore = require( 'ignore' );
 
@@ -11,7 +11,7 @@ const rootdir = path.resolve( __dirname, '../..' ) + '/';
  * Load `.gitignore` and `.eslintignore` recursively.
  *
  * @param {string} basedir - Base directory to start from.
- * @returns {string[]} Ignore patterns.
+ * @return {string[]} Ignore patterns.
  */
 function loadIgnorePatterns( basedir ) {
 	const ignore = makeIgnore();
@@ -42,9 +42,12 @@ function loadIgnorePatterns( basedir ) {
 			reverseRulesPrefix = reverseRulesPrefixStr.split( '/' ).map( p => p + '/' );
 			if ( reverseRulesPrefix[ 0 ] === '../' ) {
 				reverseRulesPrefix = null;
+				debugrp( `No rulesPrefix or reverseRulesPrefix?` );
 			} else {
 				debugrp( `Checking reverse-prefix match on ${ reverseRulesPrefixStr }` );
 			}
+		} else {
+			debugrp( `Using rulesPrefix ${ rulesPrefix }` );
 		}
 
 		fs.readFileSync( file, { encoding: 'utf8' } )
@@ -72,7 +75,9 @@ function loadIgnorePatterns( basedir ) {
 
 				ignore.add( n + ignorePrefix + b );
 				if ( rulesPrefix ) {
-					rules.push( n + rulesPrefix + b );
+					const rule = ( rulesPrefix + b ).replace( /^\/+/, '' );
+					debugrp( ` Accepted ${ l } as ${ n + rule }` );
+					rules.push( n + rule );
 				}
 				if ( reverseRulesPrefix ) {
 					for ( const part of reverseRulesPrefix ) {
@@ -98,8 +103,9 @@ function loadIgnorePatterns( basedir ) {
 						}
 					}
 					if ( b ) {
-						debugrp( ` Accepted ${ l } as ${ n + '/' + b }` );
-						rules.push( n + '/' + b );
+						const rule = b.replace( /^\/+/, '' );
+						debugrp( ` Accepted ${ l } as ${ n + rule }` );
+						rules.push( n + rule );
 					} else {
 						debugrp( ` Rejected ${ l }` );
 					}

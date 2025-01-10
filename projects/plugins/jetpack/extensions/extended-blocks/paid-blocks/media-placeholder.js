@@ -31,7 +31,7 @@ export default createHigherOrderComponent(
 		 * This act as a fallback of `onFilesPreUpload()`.
 		 *
 		 * @param {Array} message - Error message provided by the callback.
-		 * @returns {*} Error handling.
+		 * @return {*} Error handling.
 		 */
 		const uploadingErrorHandler = useCallback(
 			message => {

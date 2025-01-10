@@ -1,6 +1,6 @@
 {
 	"name": "required-review",
-	"version": "4.0.1-alpha",
+	"version": "4.0.2",
 	"description": "Check that a Pull Request has reviews from required teams.",
 	"main": "index.js",
 	"author": "Automattic",
@@ -10,7 +10,7 @@
 		"@actions/github": "6.0.0",
 		"error": "10.4.0",
 		"js-yaml": "4.1.0",
-		"picomatch": "2.2.3"
+		"picomatch": "4.0.2"
 	},
 	"devDependencies": {
 		"@vercel/ncc": "0.36.1"

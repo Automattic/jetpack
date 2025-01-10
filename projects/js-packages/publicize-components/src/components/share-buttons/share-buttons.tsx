@@ -1,5 +1,4 @@
-import { SocialServiceIcon, Button, Text } from '@automattic/jetpack-components';
-import { CopyToClipboard } from '@automattic/jetpack-components';
+import { SocialServiceIcon, Button, Text, CopyToClipboard } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -19,7 +18,7 @@ export type ShareButtonsProps = {
  *
  * @param {ShareButtonsProps} props - Component props
  *
- * @returns {React.JSX.Element} - Rendered component
+ * @return {React.JSX.Element} - Rendered component
  */
 export function ShareButtons( { buttonStyle = 'icon', buttonVariant }: ShareButtonsProps ) {
 	const prepareText = useShareButtonText();
@@ -68,7 +67,7 @@ export function ShareButtons( { buttonStyle = 'icon', buttonVariant }: ShareButt
 
 				const text = sprintf(
 					/* translators: %s is the name of a social network, e.g. Twitter. */
-					__( 'Share on %s', 'jetpack' ),
+					__( 'Share on %s', 'jetpack-publicize-components' ),
 					label
 				);
 
@@ -111,7 +110,7 @@ export function ShareButtons( { buttonStyle = 'icon', buttonVariant }: ShareButt
 				>
 					{ 'icon' === buttonStyle ? null : (
 						<Text className={ styles.label } component="span">
-							{ __( 'Copy to clipboard', 'jetpack' ) }
+							{ __( 'Copy to clipboard', 'jetpack-publicize-components' ) }
 						</Text>
 					) }
 				</CopyToClipboard>

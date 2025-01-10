@@ -37,7 +37,7 @@ jobs:
           composer build-development
         working-directory: ./projects/github-actions/repo-gardening
 
-      - name: Checkout the PR
+      - name: Check out the PR
         if: github.event_name == 'pull_request_target' && github.event.pull_request.state != 'closed'
         uses: actions/checkout@v4
         with:
@@ -51,7 +51,7 @@ jobs:
         with:
           # Split issues and issue_comment triggers from the rest. Otherwise a lot of issue work can result in pushes to trunk timing out.
           events: ${{ ( github.event_name == 'issues' || github.event_name == 'issue_comment' ) && 'issues issue_comment' || '' }}
-          ignore-events: ${{ ( github.event_name == 'issues' || github.event_name == 'issue_comment' ) && '' || 'issues issue_comment' }}
+          ignore-events: ${{ ( github.event_name != 'issues' && github.event_name != 'issue_comment' ) && 'issues issue_comment' || '' }}
 
       - name: "Run the action (assign, manage milestones, for issues and PRs)"
         uses: ./projects/github-actions/repo-gardening
@@ -67,3 +67,4 @@ jobs:
           slack_quality_channel: ${{ secrets.SLACK_QUALITY_CHANNEL }}
           triage_projects_token: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
           project_board_url: ${{ secrets.PROJECT_BOARD_URL }}
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}

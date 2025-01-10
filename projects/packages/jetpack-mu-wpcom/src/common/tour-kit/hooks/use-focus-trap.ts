@@ -18,11 +18,17 @@ const useFocusTrap = ( ref: React.MutableRefObject< null | HTMLElement > ): void
 			if ( event.key === 'Tab' ) {
 				if ( event.shiftKey ) {
 					// Shift + Tab
-					if ( document.activeElement === firstFocusableElement ) {
+					if (
+						firstFocusableElement &&
+						firstFocusableElement.ownerDocument.activeElement === firstFocusableElement
+					) {
 						lastFocusableElement?.focus();
 						handled = true;
 					}
-				} else if ( document.activeElement === lastFocusableElement ) {
+				} else if (
+					lastFocusableElement &&
+					lastFocusableElement.ownerDocument.activeElement === lastFocusableElement
+				) {
 					// Tab
 					firstFocusableElement?.focus();
 					handled = true;

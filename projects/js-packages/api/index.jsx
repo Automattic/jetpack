@@ -5,7 +5,7 @@ import { addQueryArgs } from '@wordpress/url';
  * Helps create new custom error classes to better notify upper layers.
  *
  * @param {string} name - the Error name that will be availble in Error.name
- * @returns {Error}      a new custom error class.
+ * @return {Error}      a new custom error class.
  */
 function createCustomError( name ) {
 	class CustomError extends Error {
@@ -26,7 +26,7 @@ export const FetchNetworkError = createCustomError( 'FetchNetworkError' );
 /**
  * Create a Jetpack Rest Api Client
  *
- * @param {string} root - The API root
+ * @param {string} root  - The API root
  * @param {string} nonce - The API Nonce
  */
 function JetpackRestApiClient( root, nonce ) {
@@ -550,7 +550,7 @@ function JetpackRestApiClient( root, nonce ) {
 	 * The default callback to add a cachebuster parameter to route
 	 *
 	 * @param {string} route - the route
-	 * @returns {string} - the route with the cachebuster appended
+	 * @return {string} - the route with the cachebuster appended
 	 */
 	function addCacheBuster( route ) {
 		const parts = route.split( '?' ),
@@ -565,9 +565,9 @@ function JetpackRestApiClient( root, nonce ) {
 	/**
 	 * Generate a request promise for the route and params. Automatically adds a cachebuster.
 	 *
-	 * @param {string} route - the route
+	 * @param {string} route  - the route
 	 * @param {object} params - the params
-	 * @returns {Promise<Response>} - the http request promise
+	 * @return {Promise<Response>} - the http request promise
 	 */
 	function getRequest( route, params ) {
 		return fetch( cacheBusterCallback( route ), params );
@@ -576,10 +576,10 @@ function JetpackRestApiClient( root, nonce ) {
 	/**
 	 * Generate a POST request promise for the route and params. Automatically adds a cachebuster.
 	 *
-	 * @param {string} route - the route
+	 * @param {string} route  - the route
 	 * @param {object} params - the params
-	 * @param {string} body - the body
-	 * @returns {Promise<Response>} - the http response promise
+	 * @param {string} body   - the body
+	 * @return {Promise<Response>} - the http response promise
 	 */
 	function postRequest( route, params, body ) {
 		return fetch( route, Object.assign( {}, params, body ) ).catch( catchNetworkErrors );
@@ -589,7 +589,7 @@ function JetpackRestApiClient( root, nonce ) {
 	 * Returns the stats data URL for the given date range
 	 *
 	 * @param {string} range - the range
-	 * @returns {string} - the stats URL
+	 * @return {string} - the stats URL
 	 */
 	function statsDataUrl( range ) {
 		let url = `${ apiRoot }jetpack/v4/module/stats/data`;
@@ -605,7 +605,7 @@ function JetpackRestApiClient( root, nonce ) {
 	 * Returns stats data if possible, otherwise an empty object
 	 *
 	 * @param {object} statsData - the stats data or error
-	 * @returns {object} - the handled stats data
+	 * @return {object} - the handled stats data
 	 */
 	function handleStatsResponseError( statsData ) {
 		// If we get a .response property, it means that .com's response is errory.
@@ -628,7 +628,7 @@ export default restApi;
  * Check the status of the response. Throw an error if it was not OK
  *
  * @param {Response} response - the API response
- * @returns {Promise<object>} - a promise to return the parsed JSON body as an object
+ * @return {Promise<object>} - a promise to return the parsed JSON body as an object
  */
 function checkStatus( response ) {
 	// Regular success responses
@@ -660,7 +660,7 @@ function checkStatus( response ) {
  * Parse the JSON response
  *
  * @param {Response} response - the response object
- * @returns {Promise<object>} - promise to return the parsed json object
+ * @return {Promise<object>} - promise to return the parsed json object
  */
 function parseJsonResponse( response ) {
 	return response.json().catch( e => catchJsonParseError( e, response.redirected, response.url ) );
@@ -669,9 +669,9 @@ function parseJsonResponse( response ) {
 /**
  * Throw appropriate exception given an API error
  *
- * @param {Error} e - the error
+ * @param {Error}   e          - the error
  * @param {boolean} redirected - are we being redirected?
- * @param {string} url - the URL that returned the error
+ * @param {string}  url        - the URL that returned the error
  */
 function catchJsonParseError( e, redirected, url ) {
 	const err = redirected ? new JsonParseAfterRedirectError( url ) : new JsonParseError();

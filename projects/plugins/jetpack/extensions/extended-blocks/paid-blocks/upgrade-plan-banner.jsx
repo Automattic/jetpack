@@ -48,7 +48,7 @@ const UpgradePlanBanner = ( {
 
 			return null;
 		},
-		[ description ]
+		[ description, requiredPlan ]
 	);
 
 	return (

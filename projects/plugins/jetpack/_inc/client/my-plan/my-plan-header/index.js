@@ -4,6 +4,10 @@ import { isInTheFuture } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { find, isEmpty } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
 import { ProductActivated } from 'components/product-activated';
@@ -17,10 +21,6 @@ import {
 	JETPACK_BACKUP_PRODUCTS,
 	JETPACK_SCAN_PRODUCTS,
 } from 'lib/plans/constants';
-import { find, isEmpty } from 'lodash';
-import PropTypes from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
 import {
 	getUpgradeUrl,
 	getDateFormat,
@@ -484,6 +484,13 @@ class MyPlanHeader extends React.Component {
 					),
 					title: __( 'Jetpack Creator', 'jetpack' ),
 				};
+			case 'is-jetpack-growth-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __( 'Grow your audience effortlessly', 'jetpack' ),
+					title: __( 'Jetpack Growth', 'jetpack' ),
+				};
 
 			default:
 				return {
@@ -532,7 +539,7 @@ class MyPlanHeader extends React.Component {
 	 * Renders license related actions
 	 *
 	 * @param {'header'|'footer'} position - Whether the actions are for header or footer
-	 * @returns {React.ReactElement} The licence actions
+	 * @return {React.ReactElement} The licence actions
 	 */
 	renderLicensingActions = ( position = 'header' ) => {
 		const {

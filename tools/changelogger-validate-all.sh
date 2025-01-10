@@ -91,14 +91,8 @@ function checkpkg {
 	fi
 
 	debug "Checking version numbers $SLUG"
-	local CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 	local PRERELEASE=$(alpha_tag composer.json 0)
-	local VER
-	if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
-		VER=$(changelogger version next --default-first-version --prerelease=$PRERELEASE) || { err "$VER"; EXIT=1; continue; }
-	else
-		VER=$(changelogger version current --default-first-version --prerelease=$PRERELEASE) || { err "$VER"; EXIT=1; continue; }
-	fi
+	local VER=$(changelogger version current --default-first-version --prerelease=$PRERELEASE) || { err "$VER"; EXIT=1; continue; }
 	if ! $BASE/tools/project-version.sh "${ARGS2[@]}" $CHECK_OR_UPDATE "$VER" "$SLUG"; then
 		return 1
 	fi

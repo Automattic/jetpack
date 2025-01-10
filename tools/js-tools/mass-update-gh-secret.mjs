@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-/* eslint-disable no-console */
-
 import { createTokenAuth } from '@octokit/auth-token';
 import { Octokit } from '@octokit/rest';
 import chalk from 'chalk';
@@ -12,10 +10,10 @@ import sodium from 'libsodium-wrappers';
  * Update a secret.
  *
  * @param {Octokit} octokit - Octokit object.
- * @param {string}  slug - GitHub repo slug.
- * @param {string}  name - Secret name to create or update.
- * @param {string}  value - Value for the secret.
- * @returns {Promise} Result of the octokit.rest.actions.createOrUpdateRepoSecret call.
+ * @param {string}  slug    - GitHub repo slug.
+ * @param {string}  name    - Secret name to create or update.
+ * @param {string}  value   - Value for the secret.
+ * @return {Promise} Result of the octokit.rest.actions.createOrUpdateRepoSecret call.
  */
 async function updateSecret( octokit, slug, name, value ) {
 	const [ owner, repo ] = slug.split( '/', 2 );

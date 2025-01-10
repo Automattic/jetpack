@@ -7,6 +7,7 @@ import { dispatch, select } from '@wordpress/data';
  */
 import { showAiAssistantSection } from '../utils/show-ai-assistant-section';
 import getContainer from './container';
+import { LONG_SENTENCES } from './long-sentences';
 import features from './index';
 /**
  * Types
@@ -18,12 +19,15 @@ let anchorTimeout: number;
 
 let isFirstHover = ! localStorage.getItem( 'jetpack-ai-breve-first-hover' );
 
-function getHighlightEl( el: HTMLElement ) {
-	if ( el === document.body ) {
+function getHighlightEl( el: HTMLElement | null ) {
+	if ( el === document.body || el === null ) {
 		return null;
 	}
 
-	if ( el.getAttribute( 'data-type' ) === null ) {
+	const breveType = el.getAttribute( 'data-breve-type' );
+	const featureTypes: Array< string | null > = features.map( ( { config } ) => config.name );
+
+	if ( ! featureTypes.includes( breveType ) ) {
 		return getHighlightEl( el.parentElement );
 	}
 
@@ -58,9 +62,13 @@ async function handleMouseEnter( e: MouseEvent ) {
 		}
 
 		const el = getHighlightEl( e.target as HTMLElement );
-		let virtual = el;
 
-		const shouldPointToCursor = el.getAttribute( 'data-type' ) === 'long-sentences';
+		if ( ! el ) {
+			return;
+		}
+
+		let virtual = el;
+		const shouldPointToCursor = el.getAttribute( 'data-breve-type' ) === LONG_SENTENCES.name;
 
 		if ( shouldPointToCursor ) {
 			const rect = el.getBoundingClientRect();
@@ -89,10 +97,13 @@ async function handleMouseEnter( e: MouseEvent ) {
 			target: el,
 			virtual: virtual,
 		} as Anchor );
-	}, 100 );
+	}, 500 );
 }
 
 function handleMouseLeave() {
+	clearTimeout( highlightTimeout );
+	clearTimeout( anchorTimeout );
+
 	highlightTimeout = setTimeout( () => {
 		( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setHighlightHover( false );
 	}, 100 );
@@ -105,7 +116,7 @@ export default function registerEvents( clientId: string ) {
 
 	features.forEach( ( { config } ) => {
 		const items: NodeListOf< HTMLElement > | undefined = block?.querySelectorAll?.(
-			`[data-type='${ config.name }']`
+			`[data-breve-type='${ config.name }']`
 		);
 
 		if ( items && items?.length > 0 ) {
