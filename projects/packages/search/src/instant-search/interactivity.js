@@ -23,5 +23,54 @@ import './components/widget-area-container.scss';
 
 import * as iAPI from '@wordpress/interactivity';
 
+/* eslint-disable jsdoc/require-yields */
+
+const DEBOUNCE_TIMEOUT = 300;
+
+/** @type {WeakMap<()=>void, AbortController>} */
+const debounceMap = new WeakMap();
+
 console.log( iAPI.getConfig( 'jetpack/instant-search' ).options );
-const { state } = iAPI.store( 'jetpack/instant-search', {} );
+const store = iAPI.store( 'jetpack/instant-search', {
+	/**
+	 * Handle search input.
+	 *
+	 * @param {InputEvent} e - Input event.
+	 */
+	*onSearchInput( e ) {
+		const Router = yield import( '@wordpress/interactivity-router' ).catch( () => undefined );
+		if ( ! Router ) {
+			console.log( 'no router' );
+			return;
+		}
+
+		console.log( '%o', Router );
+
+		/** @type {string} */
+		const val = e.target.value;
+		console.log( '%o', val );
+
+		debounceMap.get( store.onSearchInput )?.abort( 'debounced' );
+		const abortController = new AbortController();
+		debounceMap.set( store.onSearchInput, abortController );
+		try {
+			yield new Promise( ( resolve, reject ) => {
+				const t = setTimeout( resolve, DEBOUNCE_TIMEOUT );
+				abortController.signal.addEventListener( 'abort', () => {
+					clearInterval( t );
+					reject( abortController.signal.reason );
+				} );
+			} );
+		} catch ( err ) {
+			if ( e === 'debounced' ) {
+				return;
+			}
+			throw e;
+		}
+
+		const u = new URL( document.location.href );
+		u.searchParams.set( 's', val );
+
+		yield Router.actions.navigate( u.href );
+	},
+} );

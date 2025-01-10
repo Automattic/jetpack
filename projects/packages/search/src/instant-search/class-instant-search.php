@@ -126,7 +126,10 @@ class Instant_Search extends Classic_Search {
 		wp_register_script_module(
 			'@jetpack/instant-search',
 			plugins_url( 'build/instant-search/@jetpack/instant-search.js', $package_base_path . '/src' ),
-			array( '@wordpress/interactivity')
+			array(
+				'@wordpress/interactivity',
+				array( 'import' => 'dynamic', 'id' => '@wordpress/interactivity-router' ),
+			)
 		);
 		wp_enqueue_style(
 			'@jetpack/instant-search',

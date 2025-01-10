@@ -9,7 +9,10 @@
 	);
 	ob_start();
 	?>
-<div data-wp-interactive="jetpack/instant-search"><template data-wp-each="state.display">
+<div
+	data-wp-interactive="jetpack/instant-search"
+	data-wp-router-region="jetpack/instant-search"
+><template data-wp-each="state.display">
 	<div
 		aria-hidden="false"
 		aria-labelledby="jetpack-instant-search__overlay-title"
@@ -57,7 +60,8 @@
 										placeholder="Search…"
 										type="search"
 										class="search-field jetpack-instant-search__box-input"
-									/><input type="button" value="clear" /><button
+										data-wp-on-async--input="onSearchInput"
+									><input type="button" value="clear"><button
 										tabindex="-1"
 										class="screen-reader-text assistive-text"
 									>
@@ -351,7 +355,7 @@
 																		name="uncategorized"
 																		type="checkbox"
 																		class="jetpack-instant-search__search-filter-list-input"
-																	/><label
+																	><label
 																		for="jetpack-instant-search__search-filter-2-taxonomies-uncategorized"
 																		class="jetpack-instant-search__search-filter-list-label"
 																		>Uncategorized (2)</label
@@ -375,7 +379,7 @@
 																		name="2025-01-01 00:00:00"
 																		type="checkbox"
 																		class="jetpack-instant-search__search-filter-list-input"
-																	/><label
+																	><label
 																		for="jetpack-instant-search__search-filter-3-dates-year_post_date-2025-01-01 00:00:00"
 																		class="jetpack-instant-search__search-filter-list-label"
 																		>2025 (3)</label
