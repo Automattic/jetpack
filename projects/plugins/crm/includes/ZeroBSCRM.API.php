@@ -38,28 +38,10 @@ add_action( 'init', 'zeroBS_api_rewrite_endpoint' );
  */
 function jpcrm_api_process_pagination() {
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended
-	if ( isset( $_GET['page'] ) && (int) $_GET['page'] >= 0 ) {
-		$page = (int) $_GET['page'];
-	} else {
-		$page = 0;
-	}
-
-	if ( isset( $_GET['perpage'] ) && (int) $_GET['perpage'] >= 0 ) {
-		$per_page = (int) $_GET['perpage'];
-	} else {
-		$per_page = 10;
-	}
-
-	$valid_orders = array( 'ASC', 'DESC' );
-	$order        = 'DESC';
-
-	if ( isset( $_GET['order'] ) ) {
-		$order = sanitize_key( $_GET['order'] );
-		if ( in_array( strtoupper( $order ), $valid_orders, true ) ) {
-			$order = strtoupper( $order );
-		}
-	}
-	// phpcs:enable WordPress.Security.NonceVerification.Recommended
+	$page     = isset( $_GET['page'] ) ? max( (int) $_GET['page'], 1 ) : 1;
+	$per_page = isset( $_GET['perpage'] ) ? max( (int) $_GET['perpage'], 1 ) : 10;
+	$order    = strtoupper( $_GET['order'] ?? '' ) === 'ASC' ? 'ASC' : 'DESC'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	// phpcs:enable WordPress.Security.NonceVerification.Recommended	
 
 	return array(
 		'page'     => $page,
