@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Instant search now uses the Interactivity API and is rendered on the server
