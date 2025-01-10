@@ -94,7 +94,7 @@ export default function MyJetpackScreen() {
 
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
 	const { isSectionVisible } = useEvaluationRecommendations();
-	const { siteIsRegistered } = useMyJetpackConnection();
+	const { siteIsRegistered, apiRoot, apiNonce } = useMyJetpackConnection();
 	const { currentNotice } = useContext( NoticeContext );
 	const {
 		message: noticeMessage,
@@ -141,7 +141,12 @@ export default function MyJetpackScreen() {
 	}
 
 	return (
-		<AdminPage siteAdminUrl={ adminUrl } sandboxedDomain={ sandboxedDomain }>
+		<AdminPage
+			siteAdminUrl={ adminUrl }
+			sandboxedDomain={ sandboxedDomain }
+			apiRoot={ apiRoot }
+			apiNonce={ apiNonce }
+		>
 			<hr className={ styles.separator } />
 
 			<IDCModal />
