@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Publicize\REST_API;
 
-use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Publicize\Publicize;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -20,11 +18,25 @@ use WP_REST_Server;
 class Connections_Controller extends Base_Controller {
 
 	/**
+	 * The API version.
+	 *
+	 * @var string
+	 */
+	protected $version = 'v2';
+
+	/**
+	 * The base API path.
+	 *
+	 * @var string
+	 */
+	protected $base_api_path = 'wpcom';
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		parent::__construct();
-		$this->namespace = 'wpcom/v2';
+		$this->namespace = "{$this->base_api_path}/{$this->version}";
 		$this->rest_base = 'publicize/connections';
 
 		$this->allow_requests_as_blog = true;
@@ -182,7 +194,7 @@ class Connections_Controller extends Base_Controller {
 	 *
 	 * @return array
 	 */
-	protected static function get_all_connections( $args = array() ) {
+	private static function wpcom_get_connections( $args = array() ) {
 		/**
 		 * Publicize instance.
 		 */
@@ -247,37 +259,26 @@ class Connections_Controller extends Base_Controller {
 	 */
 	public static function get_connections( $args = array() ) {
 		if ( self::is_wpcom() ) {
-			return self::get_all_connections( $args );
+			return self::wpcom_get_connections( $args );
 		}
 
-		$site_id = Manager::get_site_id( true );
-		if ( ! $site_id ) {
-			return array();
+		// Since we are inside a static method, we can't use $this->proxy_request_to_wpcom().
+		// So, lets us so an internal REST request.
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/publicize/connections' );
+		$request->set_param( 'test_connections', $args['test_connections'] ?? false );
+
+		$context = ( $args['scope'] ?? '' ) === 'site' ? 'blog' : 'user';
+		if ( ! defined( 'JETPACK_SOCIAL_REST_REQUEST_CONTEXT' ) ) {
+			define( 'JETPACK_SOCIAL_REST_REQUEST_CONTEXT', $context );
 		}
+		$response = rest_do_request( $request );
 
-		$path = add_query_arg(
-			array(
-				'test_connections' => $args['test_connections'] ?? false,
-			),
-			sprintf( '/sites/%d/publicize/connections', $site_id )
-		);
-
-		$blog_or_user = ( $args['scope'] ?? '' ) === 'site' ? 'blog' : 'user';
-
-		$callback = array( Client::class, "wpcom_json_api_request_as_{$blog_or_user}" );
-
-		$response = call_user_func( $callback, $path, 'v2', array( 'method' => 'GET' ), null, 'wpcom' );
-
-		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		if ( $response->is_error() || is_wp_error( $response ) ) {
 			// TODO log error.
 			return array();
 		}
 
-		$body = wp_remote_retrieve_body( $response );
-
-		$items = json_decode( $body, true );
-
-		return $items ? $items : array();
+		return $response->get_data();
 	}
 
 	/**
@@ -288,14 +289,24 @@ class Connections_Controller extends Base_Controller {
 	 * @return WP_REST_Response suitable for 1-page collection
 	 */
 	public function get_items( $request ) {
+		if ( self::is_wpcom() ) {
+			$args = array( 'test_connections' => $request->get_param( 'test_connections' ) );
+
+			$connections = self::wpcom_get_connections( $args );
+		} else {
+			// If this request was fired internally, we should have the constant defined.
+			$context = defined( 'JETPACK_SOCIAL_REST_REQUEST_CONTEXT' ) ? JETPACK_SOCIAL_REST_REQUEST_CONTEXT : 'user';
+
+			$connections = $this->proxy_request_to_wpcom( $request, '', $context );
+		}
+
+		if ( is_wp_error( $connections ) ) {
+			return $connections;
+		}
+
 		$items = array();
 
-		// On Jetpack, we don't want to pass the 'scope' param to get_connections().
-		$args = array(
-			'test_connections' => $request->get_param( 'test_connections' ),
-		);
-
-		foreach ( self::get_connections( $args ) as $item ) {
+		foreach ( $connections as $item ) {
 			$data = $this->prepare_item_for_response( $item, $request );
 
 			$items[] = $this->prepare_response_for_collection( $data );
