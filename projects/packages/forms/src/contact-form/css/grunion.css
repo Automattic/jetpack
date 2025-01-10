@@ -60,6 +60,7 @@
 .contact-form select {
 	padding: 14px 7px;
 	min-width: 150px;
+	height: auto;
 }
 
 .contact-form input[type='radio'],
