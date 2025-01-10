@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.2.1 - 2025-01-09
+### Bug fixes
+- WC Analytics: Temporarily disable setcookie to avoid caching issues. [#40937]
+
 ## 14.2 - 2025-01-07
 ### Enhancements
 - Social: Improve Jetpack Likes behavior for better theme integration if the post has likes. [#40544]
