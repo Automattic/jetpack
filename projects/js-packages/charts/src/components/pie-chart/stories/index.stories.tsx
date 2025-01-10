@@ -27,6 +27,30 @@ export default {
 			},
 			defaultValue: undefined,
 		},
+		size: {
+			control: {
+				type: 'range',
+				min: 100,
+				max: 800,
+				step: 1,
+			},
+		},
+		padding: {
+			control: {
+				type: 'range',
+				min: 0,
+				max: 100,
+				step: 1,
+			},
+		},
+		innerRadius: {
+			control: {
+				type: 'range',
+				min: 0,
+				max: 100,
+				step: 1,
+			},
+		},
 	},
 	decorators: [
 		( Story, { args } ) => (
@@ -41,8 +65,8 @@ export default {
 
 export const Default: StoryType = {
 	args: {
-		width: 400,
-		height: 400,
+		size: 400,
+		padding: 20,
 		withTooltips: false,
 		data,
 		theme: 'default',

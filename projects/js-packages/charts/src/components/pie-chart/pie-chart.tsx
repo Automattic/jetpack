@@ -24,6 +24,11 @@ interface PieChartProps extends OmitBaseChartProps {
 	 * Size of the chart in pixels
 	 */
 	size?: number;
+
+	/**
+	 * Add padding to the chart
+	 */
+	padding?: number;
 }
 
 /**
@@ -40,6 +45,7 @@ const PieChart = ( {
 	className,
 	showLegend,
 	legendOrientation,
+	padding = 20,
 }: PieChartProps ) => {
 	const providerTheme = useChartTheme();
 	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
@@ -82,7 +88,7 @@ const PieChart = ( {
 					<Pie< DataPointPercentage & { index: number } >
 						data={ dataWithIndex }
 						pieValue={ accessors.value }
-						outerRadius={ radius - 20 }
+						outerRadius={ radius - padding }
 						innerRadius={ innerRadius }
 					>
 						{ pie => {
