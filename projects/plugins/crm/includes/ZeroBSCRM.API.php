@@ -40,7 +40,7 @@ function jpcrm_api_process_pagination() {
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended
 	$page     = isset( $_GET['page'] ) ? max( (int) $_GET['page'], 1 ) : 1;
 	$per_page = isset( $_GET['perpage'] ) ? max( (int) $_GET['perpage'], 1 ) : 10;
-	$order    = strtoupper( $_GET['order'] ?? '' ) === 'ASC' ? 'ASC' : 'DESC'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	$order    = strtoupper( $_GET['order'] ?? '' ) === 'DESC' ? 'DESC' : 'ASC'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended	
 
 	return array(
