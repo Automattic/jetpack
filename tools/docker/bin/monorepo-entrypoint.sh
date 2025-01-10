@@ -14,7 +14,7 @@ if [ "$CURRENT_STORE" != "$EXPECTED_STORE" ]; then
 fi
 
 # Check if jetpack command is available
-if ! pnpm jetpack --help >/dev/null 2>&1; then
+if ! pnpm jetpack --help &>/dev/null; then
     echo "Setting up Jetpack CLI..."
     pnpm install
 fi
