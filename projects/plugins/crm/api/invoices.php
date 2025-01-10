@@ -30,6 +30,6 @@ $pagination = jpcrm_api_process_pagination();
 
 // needs moving to the $args version
 // v3.0 needs these objects refined, including textify for html
-$invoices = zeroBS_getInvoices( true, $pagination['per_page'], $pagination['page'] );
+$invoices = zeroBS_getInvoices( true, $pagination['per_page'], $pagination['page'], false, '', array(), 'ID', $pagination['order'] );
 
 wp_send_json( $invoices );
