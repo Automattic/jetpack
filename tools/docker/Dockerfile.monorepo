@@ -69,5 +69,20 @@ WORKDIR /workspace
 COPY bin/monorepo-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/monorepo-entrypoint.sh
 
+# Set up locale properly
+RUN apt-get update && apt-get install -y locales \
+    && locale-gen en_US.UTF-8 \
+    && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
+
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+
+# Set up PNPM global directory
+ENV PNPM_HOME=/usr/local/pnpm
+ENV PATH="${PNPM_HOME}:${PATH}"
+
+RUN mkdir -p "$PNPM_HOME" \
+    && chmod 777 "$PNPM_HOME"
+
 ENTRYPOINT ["/usr/local/bin/monorepo-entrypoint.sh"]
 CMD ["bash"]

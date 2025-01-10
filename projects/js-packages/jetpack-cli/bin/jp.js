@@ -277,14 +277,17 @@ const main = async () => {
 				envVars.HOST_CWD = monorepoRoot;
 
 				// Build the list of compose files to use
-				const composeFiles = [
-					'-f',
-					resolve( monorepoRoot, 'tools/docker/docker-compose.yml' ),
-					'-f',
-					resolve( monorepoRoot, 'tools/docker/compose-mappings.built.yml' ),
-					'-f',
-					resolve( monorepoRoot, 'tools/docker/compose-extras.built.yml' ),
-				];
+				const composeFiles =
+					args[ 0 ] === 'docker' && [ 'build-image', 'install' ].includes( args[ 1 ] )
+						? [ '-f', resolve( monorepoRoot, 'tools/docker/docker-compose-monorepo.yml' ) ]
+						: [
+								'-f',
+								resolve( monorepoRoot, 'tools/docker/docker-compose.yml' ),
+								'-f',
+								resolve( monorepoRoot, 'tools/docker/compose-mappings.built.yml' ),
+								'-f',
+								resolve( monorepoRoot, 'tools/docker/compose-extras.built.yml' ),
+						  ];
 
 				// Add dev profile for monorepo service
 				const composeArgs = [ 'compose', '--profile', 'dev', ...composeFiles, ...args.slice( 1 ) ];

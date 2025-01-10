@@ -49,18 +49,3 @@ services:
     environment:
       - HOST_PORT=${PORT_WORDPRESS:-80}
       - COMPOSE_PROJECT_NAME=$COMPOSE_PROJECT_NAME
-
-  monorepo:
-    profiles:
-      - dev
-    build:
-      context: ${HOST_CWD:-.}/tools/docker
-      dockerfile: Dockerfile.monorepo
-      args:
-        PHP_VERSION: ${PHP_VERSION}
-        COMPOSER_VERSION: ${COMPOSER_VERSION}
-        NODE_VERSION: ${NODE_VERSION}
-        PNPM_VERSION: ${PNPM_VERSION}
-    volumes:
-      - ${HOST_CWD:-.}:/usr/local/src/jetpack-monorepo
-    working_dir: /usr/local/src/jetpack-monorepo
