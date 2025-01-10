@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Holiday snow: Replace SCSS `random()` with pregenerated arrays of random numbers to make builds reproducable.
