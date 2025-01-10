@@ -1633,8 +1633,10 @@ final class ZeroBSCRM {
 		$this->dependency_checker = new JPCRM_DependencyChecker();
 
 		// load feature sniffer to alert user to available integrations
+		##WLREMOVE
 		$this->feature_sniffer = new JPCRM_FeatureSniffer();
 		$this->jpcrm_sniff_features();
+		##/WLREMOVE
 
 		// load WordPress User integrations
 		$this->wordpress_user_integration = new Automattic\JetpackCRM\Wordpress_User_Integration();
