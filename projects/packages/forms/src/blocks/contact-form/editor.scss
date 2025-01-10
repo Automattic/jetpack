@@ -93,6 +93,12 @@
 			&[data-type='jetpack/field-consent'] {
 				align-self: center;
 			}
+
+			&:where(.wp-block-separator:not(.is-style-wide):not(.is-style-dots):not(.alignwide):not(.alignfull)){
+				max-width: var(--wp--preset--spacing--60);
+				margin-left: auto;
+				margin-right: auto;
+			}
 		}
 	}
 
