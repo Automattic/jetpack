@@ -22,20 +22,24 @@ class Connections {
 	 * Get all connections.
 	 *
 	 * @param array $args Arguments
-	 *                - 'clear_cache': bool Whether to clear the cache.
-	 *                - 'test_connections': bool Whether to run connection tests.
+	 *                - 'ignore_cache': bool Whether to ignore the cache and fetch the connections from the API.
 	 * @return array
 	 */
 	public static function get_all( $args = array() ) {
 
-		$run_tests = $args['test_connections'] ?? false;
-
 		$is_wpcom = ( new Host() )->is_wpcom_simple();
 
 		if ( $is_wpcom ) {
-			$connections = Connections_Controller::get_connections( $run_tests );
+			$connections = Connections_Controller::get_connections();
 		} else {
-			$connections = self::fetch_and_cache_connections( $run_tests );
+
+			$ignore_cache = $args['ignore_cache'] ?? false;
+
+			$connections = get_transient( self::CONNECTIONS_TRANSIENT );
+
+			if ( $ignore_cache || false === $connections ) {
+				$connections = self::fetch_and_cache_connections();
+			}
 		}
 
 		// Let us add the deprecated fields for now.
@@ -43,6 +47,51 @@ class Connections {
 		$connections = self::retain_deprecated_fields( $connections );
 
 		return $connections;
+	}
+
+	/**
+	 * Get all connections for the current user.
+	 *
+	 * @param array $args Arguments. Same as self::get_all().
+	 *
+	 * @see Automattic\Jetpack\Publicize\Connections::get_all()
+	 *
+	 * @return array
+	 */
+	public static function get_all_for_user( $args = array() ) {
+		$connections = self::get_all( $args );
+
+		$connections_for_user = array();
+
+		foreach ( $connections as $connection ) {
+
+			if ( $connection['shared'] || self::user_owns_connection( $connection ) ) {
+				$connections_for_user[] = $connection;
+			}
+		}
+
+		return $connections_for_user;
+	}
+
+	/**
+	 * Whether the current user owns a connection.
+	 *
+	 * @param array $connection The connection.
+	 * @param int   $user_id    The user ID. Defaults to the current user.
+	 *
+	 * @return bool
+	 */
+	public static function user_owns_connection( $connection, $user_id = null ) {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			$wpcom_user_id = get_current_user_id();
+		} else {
+
+			$wpcom_user_data = ( new Connection\Manager() )->get_connected_user_data( $user_id );
+
+			$wpcom_user_id = ! empty( $wpcom_user_data['ID'] ) ? $wpcom_user_data['ID'] : null;
+		}
+
+		return $wpcom_user_id && $connection['user_id'] === $wpcom_user_id;
 	}
 
 	/**
@@ -54,9 +103,8 @@ class Connections {
 	private static function retain_deprecated_fields( $connections ) {
 		return array_map(
 			function ( $connection ) {
-				$wpcom_user_data = ( new Connection\Manager() )->get_connected_user_data();
 
-				$owns_connection = ! empty( $wpcom_user_data['ID'] ) && $wpcom_user_data['ID'] === $connection['user_id'];
+				$owns_connection = self::user_owns_connection( $connection );
 
 				$connection = array_merge(
 					$connection,
@@ -80,15 +128,33 @@ class Connections {
 	/**
 	 * Fetch connections from the REST API and cache them.
 	 *
-	 * @param bool $run_tests Whether to run connection tests.
-	 *
 	 * @return array
 	 */
-	public static function fetch_and_cache_connections( $run_tests = false ) {
-		$connections = Connections_Controller::get_connections( $run_tests );
+	public static function fetch_and_cache_connections() {
+		$args = array(
+			// Request all connections.
+			'scope' => 'site',
+		);
 
-		// TODO Implement caching here.
+		$connections = Connections_Controller::get_connections( $args );
+
+		if ( is_array( $connections ) ) {
+			if ( ! set_transient( self::CONNECTIONS_TRANSIENT, $connections, HOUR_IN_SECONDS * 4 ) ) {
+				// If the transient has beeen set in another request, the call to set_transient can fail.
+				// If so, we can delete the transient and try again.
+				self::clear_cache();
+
+				set_transient( self::CONNECTIONS_TRANSIENT, $connections, HOUR_IN_SECONDS * 4 );
+			}
+		}
 
 		return $connections;
+	}
+
+	/**
+	 * Clear the connections cache.
+	 */
+	public static function clear_cache() {
+		delete_transient( self::CONNECTIONS_TRANSIENT );
 	}
 }

@@ -145,6 +145,10 @@ class Publicize extends Publicize_Base {
 	 * @return true
 	 */
 	public function receive_updated_publicize_connections( $publicize_connections ) {
+
+		// Populate the cache with the new data.
+		Connections::get_all( array( 'ignore_cache' => true ) );
+
 		$expiry = 3600 * 4;
 		if ( ! set_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT, $publicize_connections, $expiry ) ) {
 			// If the transient has beeen set in another request, the call to set_transient can fail. If so,
