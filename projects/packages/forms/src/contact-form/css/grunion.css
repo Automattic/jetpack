@@ -596,6 +596,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	background-color: var(--jetpack--contact-form--input-background);
 	font-family: var( --jetpack--contact-form--font-family );
 	flex-basis: content;
+	text-align: left;
 }
 
 .contact-form .grunion-field-wrap input.radio {
