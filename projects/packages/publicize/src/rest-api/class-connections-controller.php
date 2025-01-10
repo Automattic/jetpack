@@ -164,6 +164,7 @@ class Connections_Controller extends Base_Controller {
 				'enum'        => array(
 					'ok',
 					'broken',
+					'must_reauth',
 				),
 			),
 			'user_id'         => array(
@@ -326,8 +327,11 @@ class Connections_Controller extends Base_Controller {
 		$test_results_map = array();
 
 		foreach ( $test_results as $test_result ) {
-			// Compare to `true` because the API returns a 'must_reauth' for LinkedIn.
-			$test_results_map[ $test_result['connectionID'] ] = true === $test_result['connectionTestPassed'] ? 'ok' : 'broken';
+			$result = $test_result['connectionTestPassed'];
+			if ( 'must_reauth' !== $result ) {
+				$result = $test_result['connectionTestPassed'] ? 'ok' : 'broken';
+			}
+			$test_results_map[ $test_result['connectionID'] ] = $result;
 		}
 
 		return $test_results_map;
