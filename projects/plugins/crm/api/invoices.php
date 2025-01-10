@@ -27,9 +27,16 @@ jpcrm_api_check_http_method( array( 'GET' ) );
 
 // Process the pagination parameters from the query
 $pagination = jpcrm_api_process_pagination();
+$args       = array(
+	'withAssigned' => false,
+	'page'         => $pagination['page'],
+	'perPage'      => $pagination['per_page'],
+	'sortOrder'    => $pagination['order'],
+	'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_INVOICE ),
+);
 
-// needs moving to the $args version
-// v3.0 needs these objects refined, including textify for html
-$invoices = zeroBS_getInvoices( true, $pagination['per_page'], $pagination['page'], false, '', array(), 'ID', $pagination['order'] );
+global $zbs;
+$invoices = $zbs->DAL->invoices->getInvoices( $args ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
 
 wp_send_json( $invoices );
