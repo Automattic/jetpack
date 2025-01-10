@@ -1,6 +1,21 @@
 /**
  * Internal dependencies
  */
+import {
+	PROMPT_TYPE_SUMMARIZE,
+	PROMPT_TYPE_CORRECT_SPELLING,
+	PROMPT_TYPE_USER_PROMPT,
+	PROMPT_TYPE_GENERATE_TITLE,
+	PROMPT_TYPE_MAKE_SHORTER,
+	PROMPT_TYPE_SUMMARY_BY_TITLE,
+	PROMPT_TYPE_TRANSFORM_LIST_TO_TABLE,
+	PROMPT_TYPE_CONTINUE,
+	PROMPT_TYPE_SIMPLIFY,
+	PROMPT_TYPE_MAKE_LONGER,
+	PROMPT_TYPE_CHANGE_TONE,
+	PROMPT_TYPE_CHANGE_LANGUAGE,
+	PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT,
+} from '@automattic/jetpack-ai-client';
 import { ToneProp } from '../../components/tone-dropdown-control';
 import {
 	buildInitialMessageForBackendPrompt,
@@ -9,20 +24,6 @@ import {
 /**
  * Types & consts
  */
-export const PROMPT_TYPE_SUMMARY_BY_TITLE = 'titleSummary' as const;
-export const PROMPT_TYPE_CONTINUE = 'continue' as const;
-export const PROMPT_TYPE_SIMPLIFY = 'simplify' as const;
-export const PROMPT_TYPE_CORRECT_SPELLING = 'correctSpelling' as const;
-export const PROMPT_TYPE_GENERATE_TITLE = 'generateTitle' as const;
-export const PROMPT_TYPE_MAKE_LONGER = 'makeLonger' as const;
-export const PROMPT_TYPE_MAKE_SHORTER = 'makeShorter' as const;
-export const PROMPT_TYPE_CHANGE_TONE = 'changeTone' as const;
-export const PROMPT_TYPE_SUMMARIZE = 'summarize' as const;
-export const PROMPT_TYPE_CHANGE_LANGUAGE = 'changeLanguage' as const;
-export const PROMPT_TYPE_USER_PROMPT = 'userPrompt' as const;
-export const PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT = 'jetpackFormCustomPrompt' as const;
-export const PROMPT_TYPE_TRANSFORM_LIST_TO_TABLE = 'transformListToTable' as const;
-
 export const PROMPT_TYPE_LIST = [
 	PROMPT_TYPE_SUMMARY_BY_TITLE,
 	PROMPT_TYPE_CONTINUE,

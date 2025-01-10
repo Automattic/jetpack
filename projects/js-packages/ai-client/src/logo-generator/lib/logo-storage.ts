@@ -10,21 +10,28 @@ const MAX_LOGOS = 10;
 /**
  * Add an entry to the site's logo history.
  *
- * @param {SaveToStorageProps}             saveToStorageProps             - The properties to save to storage
- * @param {SaveToStorageProps.siteId}      saveToStorageProps.siteId      - The site ID
- * @param {SaveToStorageProps.url}         saveToStorageProps.url         - The URL of the logo
- * @param {SaveToStorageProps.description} saveToStorageProps.description - The description of the logo, based on the prompt used to generate it
- * @param {SaveToStorageProps.mediaId}     saveToStorageProps.mediaId     - The media ID of the logo on the backend
- *
+ * @param {SaveToStorageProps}               saveToStorageProps               - The properties to save to storage
+ * @param {SaveToStorageProps.siteId}        saveToStorageProps.siteId        - The site ID
+ * @param {SaveToStorageProps.url}           saveToStorageProps.url           - The URL of the logo
+ * @param {SaveToStorageProps.description}   saveToStorageProps.description   - The description of the logo, based on the prompt used to generate it
+ * @param {SaveToStorageProps.mediaId}       saveToStorageProps.mediaId       - The media ID of the logo on the backend
+ * @param {SaveToStorageProps.revisedPrompt} saveToStorageProps.revisedPrompt - The revised prompt of the logo
  * @return {Logo} The logo that was saved
  */
-export function stashLogo( { siteId, url, description, mediaId }: SaveToStorageProps ) {
+export function stashLogo( {
+	siteId,
+	url,
+	description,
+	mediaId,
+	revisedPrompt,
+}: SaveToStorageProps ) {
 	const storedContent = getSiteLogoHistory( siteId );
 
 	const logo: Logo = {
 		url,
 		description,
 		mediaId,
+		revisedPrompt,
 	};
 
 	storedContent.push( logo );
@@ -45,9 +52,10 @@ export function stashLogo( { siteId, url, description, mediaId }: SaveToStorageP
  * @param {UpdateInStorageProps.url}     updateInStorageProps.url     - The URL of the logo to update
  * @param {UpdateInStorageProps.newUrl}  updateInStorageProps.newUrl  - The new URL of the logo
  * @param {UpdateInStorageProps.mediaId} updateInStorageProps.mediaId - The new media ID of the logo
+ * @param {UpdateInStorageProps.rating}  updateInStorageProps.rating  - The new rating of the logo
  * @return {Logo} The logo that was updated
  */
-export function updateLogo( { siteId, url, newUrl, mediaId }: UpdateInStorageProps ) {
+export function updateLogo( { siteId, url, newUrl, mediaId, rating }: UpdateInStorageProps ) {
 	const storedContent = getSiteLogoHistory( siteId );
 
 	const index = storedContent.findIndex( logo => logo.url === url );
@@ -55,6 +63,7 @@ export function updateLogo( { siteId, url, newUrl, mediaId }: UpdateInStoragePro
 	if ( index > -1 ) {
 		storedContent[ index ].url = newUrl;
 		storedContent[ index ].mediaId = mediaId;
+		storedContent[ index ].rating = rating;
 	}
 
 	localStorage.setItem(
@@ -96,6 +105,7 @@ export function getSiteLogoHistory( siteId: string ) {
 			url: logo.url,
 			description: logo.description,
 			mediaId: logo.mediaId,
+			rating: logo.rating,
 		} ) );
 
 	return storedContent;

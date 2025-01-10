@@ -128,20 +128,15 @@ class Anti_Spam extends Product {
 	}
 
 	/**
-	 * Determine if the site has an Akismet plan.
+	 * Check if the product has a free plan
+	 * In this case we are only checking for an API key. The has_paid_plan_for_product will check to see if the specific site has a paid plan
 	 *
-	 * @return bool - whether an API key was found
+	 * @return bool
 	 */
-	public static function has_paid_plan_for_product() {
-		if ( parent::has_paid_plan_for_product() ) {
-			return true;
-		}
-		// As a fallback, we're checking if the site has an API key for Akismet.
-		// Note that some Akismet Plans are free - we're just checking for an API key and don't have the perspective of the plan attached to it here
+	public static function has_free_plan_for_product() {
 		$akismet_api_key = apply_filters( 'akismet_get_api_key', defined( 'WPCOM_API_KEY' ) ? constant( 'WPCOM_API_KEY' ) : get_option( 'wordpress_api_key' ) );
 		if ( ! empty( $akismet_api_key ) ) {
 			return true;
-
 		}
 
 		return false;

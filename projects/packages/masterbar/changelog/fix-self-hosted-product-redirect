@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Fixes the self-hosted link when WooCommerce is installed alongside with the SSO.

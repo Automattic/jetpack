@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+To support adding a comment form inside a query loop

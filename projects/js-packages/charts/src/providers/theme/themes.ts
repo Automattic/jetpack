@@ -4,7 +4,8 @@ import type { ChartTheme } from '../../components/shared/types';
  * Default theme configuration
  */
 const defaultTheme: ChartTheme = {
-	backgroundColor: '#FFFFFF',
+	backgroundColor: '#FFFFFF', // chart background color
+	labelBackgroundColor: '#FFFFFF', // label background color
 	colors: [ '#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F' ],
 	gridStyles: {
 		stroke: '#787C82',
@@ -19,7 +20,8 @@ const defaultTheme: ChartTheme = {
  * Jetpack theme configuration
  */
 const jetpackTheme: ChartTheme = {
-	backgroundColor: '#FFFFFF',
+	backgroundColor: '#FFFFFF', // chart background color
+	labelBackgroundColor: '#FFFFFF', // label background color
 	colors: [ '#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F' ],
 	gridStyles: {
 		stroke: '#787C82',
@@ -34,7 +36,8 @@ const jetpackTheme: ChartTheme = {
  * Woo theme configuration
  */
 const wooTheme: ChartTheme = {
-	backgroundColor: '#FFFFFF',
+	backgroundColor: '#FFFFFF', // chart background color
+	labelBackgroundColor: '#FFFFFF', // label background color
 	colors: [ '#80C8FF', '#B999FF', '#3858E9' ],
 	gridStyles: {
 		stroke: '#787C82',

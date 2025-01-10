@@ -22,7 +22,6 @@ export class JetpackFormHandler extends BlockHandler {
 		super( clientId, [] );
 		this.behavior = 'action';
 		this.feature = 'jetpack-form-ai-extension';
-		this.adjustPosition = false;
 		this.startOpen = true;
 		this.hideOnBlockFocus = false;
 	}

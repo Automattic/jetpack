@@ -1,6 +1,6 @@
 import { translate } from './i18n';
 import { Facebook, Mail, WordPress } from './images';
-import type { UserInfo, VerbumComments } from './types';
+import type { UserInfo } from './types';
 
 export const serviceData = {
 	wordpress: {

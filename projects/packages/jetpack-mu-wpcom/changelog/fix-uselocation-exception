@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+wpcom-block-editor-nux: avoid using useLocation which now throws exception outside Site Editor in Gutenberg 19.9.0

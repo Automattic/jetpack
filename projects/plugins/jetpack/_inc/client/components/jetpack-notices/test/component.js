@@ -1,11 +1,31 @@
 import React from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import { render, screen } from 'test/test-utils';
 import { DevVersionNotice } from '../index';
 import { PlanConflictWarning } from '../plan-conflict-warning';
 
-describe( 'PlanConflictWarning', () => {
-	const location = { pathname: '/plans' };
+/**
+ * Wrap the component in a `<MemoryRouter>` for testing.
+ *
+ * @param {PlanConflictWarning} component - The `<PlanConflictWarning>` to wrap.
+ * @param {string[]}            entries   - Initial path entries.
+ * @return {MemoryRouter} Router to render..
+ */
+function wrapWithMemoryRouter( component, entries = [ '/plans' ] ) {
+	return (
+		<MemoryRouter
+			initialEntries={ entries }
+			future={
+				// Enable some forward-compat things so it doesn't console.warn about enabling them. Sigh.
+				{ v7_startTransition: true, v7_relativeSplatPath: true }
+			}
+		>
+			{ component }
+		</MemoryRouter>
+	);
+}
 
+describe( 'PlanConflictWarning', () => {
 	const personalPlan = {
 		product_slug: 'jetpack_personal',
 		product_name: 'Jetpack Personal',
@@ -27,44 +47,43 @@ describe( 'PlanConflictWarning', () => {
 	};
 
 	it( 'should not render when not in correct path', () => {
-		const { container } = render( <PlanConflictWarning location={ { pathname: '/test' } } /> );
+		const { container } = render( wrapWithMemoryRouter( <PlanConflictWarning />, [ '/test' ] ) );
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
 	it( 'should not render when there are no purchases', () => {
 		const { container } = render(
-			<PlanConflictWarning location={ location } activeSitePurchases={ [] } />
+			wrapWithMemoryRouter( <PlanConflictWarning activeSitePurchases={ [] } /> )
 		);
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
 	it( 'should not render when there is one purchase', () => {
 		const { container } = render(
-			<PlanConflictWarning location={ location } activeSitePurchases={ [ {} ] } />
+			wrapWithMemoryRouter( <PlanConflictWarning activeSitePurchases={ [ {} ] } /> )
 		);
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
 	it( 'should not render when there is no backup purchase', () => {
 		const { container } = render(
-			<PlanConflictWarning location={ location } activeSitePurchases={ [ personalPlan ] } />
+			wrapWithMemoryRouter( <PlanConflictWarning activeSitePurchases={ [ personalPlan ] } /> )
 		);
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
 	it( 'should not render when there is no site plan purchase', () => {
 		const { container } = render(
-			<PlanConflictWarning location={ location } activeSitePurchases={ [ dailyBackups ] } />
+			wrapWithMemoryRouter( <PlanConflictWarning activeSitePurchases={ [ dailyBackups ] } /> )
 		);
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
 	it( 'should not render with both real-time backups and a non-professional plan', () => {
 		const { container } = render(
-			<PlanConflictWarning
-				location={ location }
-				activeSitePurchases={ [ realTimeBackups, personalPlan ] }
-			/>
+			wrapWithMemoryRouter(
+				<PlanConflictWarning activeSitePurchases={ [ realTimeBackups, personalPlan ] } />
+			)
 		);
 		expect( container ).toBeEmptyDOMElement();
 	} );
@@ -75,20 +94,18 @@ describe( 'PlanConflictWarning', () => {
 			...realTimeBackups,
 		};
 		const { container } = render(
-			<PlanConflictWarning
-				location={ location }
-				activeSitePurchases={ [ realTimeBackupsMontly, personalPlan ] }
-			/>
+			wrapWithMemoryRouter(
+				<PlanConflictWarning activeSitePurchases={ [ realTimeBackupsMontly, personalPlan ] } />
+			)
 		);
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
 	it( 'should show warning with both daily backups and a plan', () => {
 		render(
-			<PlanConflictWarning
-				location={ location }
-				activeSitePurchases={ [ dailyBackups, personalPlan ] }
-			/>
+			wrapWithMemoryRouter(
+				<PlanConflictWarning activeSitePurchases={ [ dailyBackups, personalPlan ] } />
+			)
 		);
 		expect(
 			screen.getByText(
@@ -101,10 +118,9 @@ describe( 'PlanConflictWarning', () => {
 
 	it( 'should show warning with both real-time backups and a Professional plan', () => {
 		render(
-			<PlanConflictWarning
-				location={ location }
-				activeSitePurchases={ [ realTimeBackups, professionalPlan ] }
-			/>
+			wrapWithMemoryRouter(
+				<PlanConflictWarning activeSitePurchases={ [ realTimeBackups, professionalPlan ] } />
+			)
 		);
 		expect(
 			screen.getByText(

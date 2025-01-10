@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
-import { FormTokenField, Spinner } from '@wordpress/components';
-import { Component } from '@wordpress/element';
 import { debounce } from 'lodash';
 
 /**
  * WordPress dependencies
  */
+import { Component } from '@wordpress/element';
+import { FormTokenField, Spinner } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -68,7 +68,7 @@ class AutocompleteTokenField extends Component {
 	/**
 	 * Get a list of labels for input values.
 	 *
-	 * @param {Array} values - Array of values (ids, etc.).
+	 * @param {Array} values Array of values (ids, etc.).
 	 * @return {Array} array of valid labels corresponding to the values.
 	 */
 	getLabelsForValues( values ) {
@@ -83,7 +83,7 @@ class AutocompleteTokenField extends Component {
 	/**
 	 * Get a list of values for input labels.
 	 *
-	 * @param {Array} labels - Array of labels from the tokens.
+	 * @param {Array} labels Array of labels from the tokens.
 	 * @return {Array} Array of valid values corresponding to the labels.
 	 */
 	getValuesForLabels( labels ) {
@@ -100,7 +100,7 @@ class AutocompleteTokenField extends Component {
 	/**
 	 * Refresh the autocomplete dropdown.
 	 *
-	 * @param {string} input - Input to fetch suggestions for
+	 * @param {string} input Input to fetch suggestions for
 	 */
 	updateSuggestions( input ) {
 		const { fetchSuggestions } = this.props;
@@ -149,7 +149,7 @@ class AutocompleteTokenField extends Component {
 	/**
 	 * When a token is selected, we need to convert the string label into a recognized value suitable for saving as an attribute.
 	 *
-	 * @param {Array} tokenStrings - An array of token label strings.
+	 * @param {Array} tokenStrings An array of token label strings.
 	 */
 	handleOnChange( tokenStrings ) {
 		const { onChange } = this.props;

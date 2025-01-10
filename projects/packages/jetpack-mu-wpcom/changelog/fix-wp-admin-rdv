@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Exclude the wpcom_admin_interface from the admin_menu action

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Gutenberg 19.8.0 hotfix: don't show the template-locked rendering mode for pages

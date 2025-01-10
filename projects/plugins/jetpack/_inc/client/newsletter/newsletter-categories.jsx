@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
+import { createNotice } from 'components/global-notices/state/notices/actions';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
@@ -39,7 +40,6 @@ const mapCategoriesIds = category => {
  */
 function NewsletterCategories( props ) {
 	const {
-		updateFormStateModuleOption,
 		isSubscriptionsActive,
 		isNewsletterCategoriesEnabled,
 		newsletterCategories,
@@ -49,11 +49,8 @@ function NewsletterCategories( props ) {
 		updateFormStateOptionValue,
 		isSavingAnyOption,
 		siteHasConnectedUser,
+		dispatch,
 	} = props;
-
-	const handleEnableNewsletterCategoriesToggleChange = useCallback( () => {
-		updateFormStateModuleOption( SUBSCRIPTIONS_MODULE_NAME, NEWSLETTER_CATEGORIES_ENABLED_OPTION );
-	}, [ updateFormStateModuleOption ] );
 
 	const checkedCategoriesIds = newsletterCategories.map( mapCategoriesIds );
 
@@ -82,12 +79,40 @@ function NewsletterCategories( props ) {
 		[ checkedCategoriesIds, updateFormStateOptionValue ]
 	);
 
+	const handleEnableNewsletterCategoriesToggleChange = useCallback( () => {
+		updateFormStateOptionValue(
+			NEWSLETTER_CATEGORIES_ENABLED_OPTION,
+			! isNewsletterCategoriesEnabled
+		);
+	}, [ updateFormStateOptionValue, isNewsletterCategoriesEnabled ] );
+
 	const isSaving = isSavingAnyOption( [
 		NEWSLETTER_CATEGORIES_ENABLED_OPTION,
 		NEWSLETTER_CATEGORIES_OPTION,
 	] );
 	const disabled =
 		! siteHasConnectedUser || ! isSubscriptionsActive || unavailableInOfflineMode || isSaving;
+
+	const handleSubmitForm = useCallback(
+		event => {
+			if ( isNewsletterCategoriesEnabled && checkedCategoriesIds.length === 0 ) {
+				event.preventDefault();
+				dispatch(
+					createNotice(
+						'is-error',
+						__(
+							'Please select at least one category when newsletter categories are enabled.',
+							'jetpack'
+						),
+						{ id: 'newsletter-categories-error' }
+					)
+				);
+				return;
+			}
+			props.onSubmit?.( event );
+		},
+		[ isNewsletterCategoriesEnabled, checkedCategoriesIds, props, dispatch ]
+	);
 
 	return (
 		<SettingsCard
@@ -97,6 +122,7 @@ function NewsletterCategories( props ) {
 			module={ SUBSCRIPTIONS_MODULE_NAME }
 			saveDisabled={ isSaving }
 			isDisabled={ disabled }
+			onSubmit={ handleSubmitForm }
 		>
 			<SettingsGroup
 				hasChild
@@ -130,10 +156,16 @@ function NewsletterCategories( props ) {
 					/>
 				</div>
 				<div
-					className={ clsx( 'newsletter-colapsable', {
+					className={ clsx( 'newsletter-collapsable', {
 						hide: ! isNewsletterCategoriesEnabled || ! isSubscriptionsActive,
 					} ) }
 				>
+					<p>
+						{ __(
+							'Which categories will you use for newsletter subscribers? Select all that apply:',
+							'jetpack'
+						) }
+					</p>
 					<TreeDropdown
 						items={ mappedCategories }
 						selectedItems={ checkedCategoriesIds }
@@ -143,7 +175,7 @@ function NewsletterCategories( props ) {
 				</div>
 			</SettingsGroup>
 			<div
-				className={ clsx( 'newsletter-card-colapsable', {
+				className={ clsx( 'newsletter-card-collapsable', {
 					hide: ! isNewsletterCategoriesEnabled || ! isSubscriptionsActive,
 				} ) }
 			>
@@ -173,6 +205,7 @@ export default withModuleSettingsFormHelpers(
 			requiresConnection: requiresConnection( state, SUBSCRIPTIONS_MODULE_NAME ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
 			siteHasConnectedUser: hasConnectedOwner( state ),
+			dispatch: ownProps.dispatch,
 		};
 	} )( NewsletterCategories )
 );

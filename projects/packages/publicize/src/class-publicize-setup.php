@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Status\Host;
+
 /**
  * The class to configure and initialize the publicize package.
  */
@@ -27,6 +29,30 @@ class Publicize_Setup {
 	}
 
 	/**
+	 * Initialization of publicize logic that should always be loaded.
+	 */
+	public static function pre_initialization() {
+
+		$is_wpcom = ( new Host() )->is_wpcom_simple();
+
+		// Assets are to be loaded in all cases.
+		Publicize_Assets::configure();
+
+		$rest_controllers = array(
+			REST_API\Connections_Controller::class,
+		);
+
+		// Load the REST controllers.
+		foreach ( $rest_controllers as $controller ) {
+			if ( $is_wpcom ) {
+				wpcom_rest_api_v2_load_plugin( $controller );
+			} else {
+				new $controller();
+			}
+		}
+	}
+
+	/**
 	 * To configure the publicize package, when called via the Config package.
 	 */
 	public static function on_jetpack_feature_publicize_enabled() {
@@ -39,7 +65,7 @@ class Publicize_Setup {
 
 		// Adding on a higher priority to make sure we're the first field registered.
 		// The priority parameter can be removed once we deprecate WPCOM_REST_API_V2_Post_Publicize_Connections_Field
-		add_action( 'rest_api_init', array( new Connections_Post_Field(), 'register_fields' ), 5 );
+		add_action( 'rest_api_init', array( new REST_API\Connections_Post_Field(), 'register_fields' ), 5 );
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 		add_action( 'current_screen', array( static::class, 'init_sharing_limits' ) );
 

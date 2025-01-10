@@ -1,12 +1,12 @@
 /**
  * WordPress dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
-import { Button, QueryControls as BasicQueryControls, ToggleControl } from '@wordpress/components';
-import { Component } from '@wordpress/element';
-import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
+import { Component } from '@wordpress/element';
+import { Button, QueryControls as BasicQueryControls, ToggleControl } from '@wordpress/components';
+import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
+import { decodeEntities } from '@wordpress/html-entities';
 
 /**
  * Internal dependencies.
@@ -310,9 +310,9 @@ class QueryControls extends Component {
                         />
                     ) }
                     { onCustomTaxonomiesChange &&
-                        registeredCustomTaxonomies.map( tax => (
+                        registeredCustomTaxonomies.map( ( tax, index ) => (
                             <AutocompleteTokenField
-                                key={ `${ customTaxonomies[ tax.slug ] }-selector` }
+                                key={ index }
                                 tokens={ getTermsOfCustomTaxonomy( customTaxonomies, tax.slug ) }
                                 onChange={ value => {
                                     customTaxonomiesPrepareChange(

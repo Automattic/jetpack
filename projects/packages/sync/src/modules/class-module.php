@@ -405,7 +405,9 @@ abstract class Module {
 				$status['finished'] = true;
 				return $status;
 			}
-			$result = $this->send_action( $this->full_sync_action_name(), array( $objects, $status['last_sent'] ) );
+			$key = $this->full_sync_action_name() . '_' . crc32( wp_json_encode( $status['last_sent'] ) );
+
+			$result = $this->send_action( $this->full_sync_action_name(), array( $objects, $status['last_sent'] ), $key );
 			if ( is_wp_error( $result ) || $wpdb->last_error ) {
 				$status['error'] = true;
 				return $status;
@@ -443,10 +445,11 @@ abstract class Module {
 	 *
 	 * @param string $action_name The action.
 	 * @param array  $data The data associated with the action.
+	 * @param string $key The key to use for the action.
 	 */
-	public function send_action( $action_name, $data = null ) {
+	public function send_action( $action_name, $data = null, $key = null ) {
 		$sender = Sender::get_instance();
-		return $sender->send_action( $action_name, $data );
+		return $sender->send_action( $action_name, $data, $key );
 	}
 
 	/**
