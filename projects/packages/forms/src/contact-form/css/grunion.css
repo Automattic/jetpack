@@ -234,8 +234,9 @@
 	flex: 0 0 100%;
 	box-sizing: border-box;
 }
-.wp-block-jetpack-contact-form .wp-block-separator:not(.is-style-wide):not(.is-style-dots):not(.alignwide):not(.alignfull) {
-	max-width: var(--wp--preset--spacing--60);
+
+:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-default ) {
+	max-width: var(--wp-preset--spacing--80, 150px );
 }
 
 /* Added circa Nov 2022: container class assigned to topmost block div */
