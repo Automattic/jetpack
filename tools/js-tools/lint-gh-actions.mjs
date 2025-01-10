@@ -2,10 +2,10 @@
 
 /* eslint-env node */
 
-const fs = require( 'fs' );
-const chalk = require( 'chalk' );
-const { glob } = require( 'glob' );
-const YAML = require( 'yaml' );
+import fs from 'fs';
+import chalk from 'chalk';
+import { glob } from 'glob';
+import YAML from 'yaml';
 
 const isCI = !! process.env.CI;
 
