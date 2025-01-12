@@ -1,3 +1,4 @@
+import { useCallback, useMemo } from 'react';
 import ThreatFixerButton from '../index.js';
 
 export default {
@@ -13,99 +14,99 @@ export default {
 	parameters: {
 		layout: 'centered',
 	},
-};
-
-export const Default = args => <ThreatFixerButton { ...args } />;
-Default.args = {
-	threat: { fixable: { fixer: 'edit' } },
-	onClick: () => alert( 'Fixer callback triggered' ), // eslint-disable-line no-alert
-};
-
-export const DeletePlugin = args => <ThreatFixerButton { ...args } />;
-DeletePlugin.args = {
-	threat: { fixable: { fixer: 'delete' }, extension: { type: 'plugins' } },
-	onClick: () => alert( 'Delete fixer callback triggered' ), // eslint-disable-line no-alert
-};
-
-export const DeleteTheme = args => <ThreatFixerButton { ...args } />;
-DeleteTheme.args = {
-	threat: { fixable: { fixer: 'delete' }, extension: { type: 'themes' } },
-	onClick: () => alert( 'Delete fixer callback triggered' ), // eslint-disable-line no-alert
-};
-
-export const DeleteDirectory = args => <ThreatFixerButton { ...args } />;
-DeleteDirectory.args = {
-	threat: { fixable: { fixer: 'delete' }, filename: '/var/www/html/wp-content/uploads/' },
-	onClick: () => alert( 'Delete fixer callback triggered' ), // eslint-disable-line no-alert
-};
-
-export const DeleteCoreFile = args => <ThreatFixerButton { ...args } />;
-DeleteCoreFile.args = {
-	threat: {
-		fixable: { fixer: 'delete' },
-		signature: 'Core.File.Modification',
-		filename: '/var/www/html/wp-admin/index.php',
+	argTypes: {
+		threatType: {
+			name: 'Threat Type',
+			control: {
+				type: 'select',
+			},
+			options: [ 'plugins', 'themes', 'core', 'directory', 'file' ],
+		},
+		threatSignature: {
+			name: 'Threat Signature',
+			control: {
+				type: 'select',
+			},
+			options: [ 'Core.File.Modification', 'php_hardening_WP_Config_NoSalts_001' ],
+		},
+		fixerType: {
+			name: 'Fixer Type',
+			control: {
+				type: 'select',
+			},
+			options: [ 'edit', 'update', 'replace', 'delete' ],
+		},
+		fixerStatus: {
+			name: 'Fixer Status',
+			control: {
+				type: 'select',
+			},
+			options: [ 'not_started', 'in_progress', 'fixed', 'not_fixed' ],
+		},
+		fixerIsStale: {
+			name: 'Stale Fixer',
+			control: {
+				type: 'boolean',
+			},
+		},
+		fixerIsError: {
+			name: 'Error',
+			control: {
+				type: 'boolean',
+			},
+		},
 	},
-	onClick: () => alert( 'Delete fixer callback triggered' ), // eslint-disable-line no-alert
 };
 
-export const DeleteFile = args => <ThreatFixerButton { ...args } />;
-DeleteFile.args = {
-	threat: {
-		fixable: { fixer: 'delete' },
-		filename: '/var/www/html/wp-content/uploads/jptt_eicar.php',
-	},
-	onClick: () => alert( 'Delete fixer callback triggered' ), // eslint-disable-line no-alert
-};
+export const Default = args => {
+	const threat = useMemo( () => {
+		const t = {
+			id: '123',
+			fixable: {
+				fixer: args.fixerType || 'edit',
+				status: args.fixerStatus || 'not_started',
+				lastUpdated: args.fixerIsStale ? new Date( '1999-01-01' ).toISOString() : undefined,
+			},
+			fixer: {
+				fixer: args.fixerType || 'edit',
+				status: args.fixerStatus || 'not_started',
+				lastUpdated: args.fixerIsStale ? new Date( '1999-01-01' ).toISOString() : undefined,
+			},
+			filename: undefined,
+			extension:
+				args.fixerType === 'themes' || args.fixerType === 'plugins'
+					? {
+							type: args.extensionType || 'plugins',
+							slug: 'example-extension',
+							name: 'Example Extension',
+							version: '1.2.3',
+					  }
+					: undefined,
+			signature: args.threatSignature || undefined,
+			error: args.fixerIsError ? 'Example Error' : undefined,
+		};
 
-export const Update = args => <ThreatFixerButton { ...args } />;
-Update.args = {
-	threat: { fixable: { fixer: 'update' } },
-	onClick: () => alert( 'Update fixer callback triggered' ), // eslint-disable-line no-alert
-};
+		if ( args.fixerType === 'directory' ) {
+			t.filename = '/var/www/html/wp-content/uploads/';
+		} else if ( args.fixerType === 'file' ) {
+			if ( args.threatSignature === 'Core.File.Modification' ) {
+				t.filename = '/var/www/html/wp-admin/index.php';
+			} else {
+				t.filename = '/var/www/html/wp-content/uploads/jptt_eicar.php';
+			}
+		}
 
-export const ReplaceSaltKeys = args => <ThreatFixerButton { ...args } />;
-ReplaceSaltKeys.args = {
-	threat: { fixable: { fixer: 'replace' }, signature: 'php_hardening_WP_Config_NoSalts_001' },
-	onClick: () => alert( 'Replace fixer callback triggered' ), // eslint-disable-line no-alert
-};
+		return t;
+	}, [
+		args.fixerType,
+		args.extensionType,
+		args.threatSignature,
+		args.fixerStatus,
+		args.fixerIsStale,
+		args.fixerIsError,
+	] );
 
-export const ReplaceCoreFile = args => <ThreatFixerButton { ...args } />;
-ReplaceCoreFile.args = {
-	threat: {
-		fixable: { fixer: 'replace' },
-		signature: 'Core.File.Modification',
-		filename: '/var/www/html/wp-admin/index.php',
-	},
-	onClick: () => alert( 'Replace fixer callback triggered' ), // eslint-disable-line no-alert
-};
+	const onClick = useCallback( () => alert( 'Fixer callback triggered' ), [] ); // eslint-disable-line no-alert
 
-export const ReplaceFile = args => <ThreatFixerButton { ...args } />;
-ReplaceFile.args = {
-	threat: {
-		fixable: { fixer: 'replace' },
-		filename: '/var/www/html/wp-content/uploads/jptt_eicar.php',
-	},
-	onClick: () => alert( 'Replace fixer callback triggered' ), // eslint-disable-line no-alert
-};
-
-export const Loading = args => <ThreatFixerButton { ...args } />;
-Loading.args = {
-	threat: { fixable: { fixer: 'update' }, fixer: { status: 'in_progress' } },
-	onClick: () => alert( 'In progress fixer callback triggered' ), // eslint-disable-line no-alert
-};
-
-export const StaleFixer = args => <ThreatFixerButton { ...args } />;
-StaleFixer.args = {
-	threat: {
-		fixable: { fixer: 'update' },
-		fixer: { status: 'in_progress', lastUpdated: new Date( '1999-01-01' ).toISOString() },
-	},
-	onClick: () => alert( 'Stale fixer callback triggered.' ), // eslint-disable-line no-alert
-};
-
-export const ErrorFixer = args => <ThreatFixerButton { ...args } />;
-ErrorFixer.args = {
-	threat: { fixable: { fixer: 'update' }, fixer: { error: 'error' } },
-	onClick: () => alert( 'Error fixer callback triggered.' ), // eslint-disable-line no-alert
+	return <ThreatFixerButton threat={ threat } onClick={ onClick } />;
 };
