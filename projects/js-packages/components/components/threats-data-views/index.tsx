@@ -82,6 +82,17 @@ export default function ThreatsDataViews( {
 } ): JSX.Element {
 	const [ isSm ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
+	const baseView = {
+		sort: {
+			field: 'severity',
+			direction: 'desc' as SortDirection,
+		},
+		search: '',
+		filters: filters || [],
+		page: 1,
+		perPage: 20,
+	};
+
 	/**
 	 * DataView default layouts.
 	 *
@@ -89,19 +100,15 @@ export default function ThreatsDataViews( {
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#defaultlayouts-record-string-view
 	 */
-	const defaultLayouts: SupportedLayouts = useMemo( () => {
-		const baseView = {
-			sort: {
-				field: 'severity',
-				direction: 'desc' as SortDirection,
-			},
-			search: '',
-			filters: filters || [],
-			page: 1,
-			perPage: 20,
-		};
-
-		const listLayout = {
+	const defaultLayouts: SupportedLayouts = {
+		table: {
+			...baseView,
+			fields: [ THREAT_FIELD_SEVERITY, THREAT_FIELD_TYPE, THREAT_FIELD_AUTO_FIX ],
+			titleField: THREAT_FIELD_TITLE,
+			descriptionField: THREAT_FIELD_DESCRIPTION,
+			showMedia: false,
+		},
+		list: {
 			...baseView,
 			fields: [
 				THREAT_FIELD_SEVERITY,
@@ -112,41 +119,25 @@ export default function ThreatsDataViews( {
 			titleField: THREAT_FIELD_TITLE,
 			mediaField: THREAT_FIELD_ICON,
 			showMedia: true,
-		};
+		},
+	};
 
-		const tableLayout = {
-			...baseView,
-			fields: [ THREAT_FIELD_SEVERITY, THREAT_FIELD_TYPE, THREAT_FIELD_AUTO_FIX ],
-			titleField: THREAT_FIELD_TITLE,
-			descriptionField: THREAT_FIELD_DESCRIPTION,
-			showMedia: false,
-		};
-
-		return { table: tableLayout, list: listLayout };
-	}, [ filters ] );
-
-	const tableView: View = useMemo(
-		() => ( {
-			type: 'table',
-			...defaultLayouts.table,
-		} ),
-		[ defaultLayouts.table ]
-	);
-
-	const listView: View = useMemo(
-		() => ( {
-			type: 'list',
-			...defaultLayouts.list,
-		} ),
-		[ defaultLayouts.list ]
-	);
+	/**
+	 * Default View Type.
+	 *
+	 * Set the default view type (list or table) based on the initial screen size.
+	 */
+	const defaultViewType: 'list' | 'table' = isSm ? 'list' : 'table';
 
 	/**
 	 * DataView view object - configures how the dataset is visible to the user.
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#view-object
 	 */
-	const [ view, setView ] = useState< View >( isSm ? listView : tableView );
+	const [ view, setView ] = useState< View >( {
+		type: defaultViewType,
+		...defaultLayouts[ defaultViewType ],
+	} );
 
 	/**
 	 * Compute values from the provided threats data.
