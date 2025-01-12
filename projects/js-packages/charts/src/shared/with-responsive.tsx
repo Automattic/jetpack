@@ -1,6 +1,6 @@
 import { useParentSize } from '@visx/responsive';
 import { ComponentType } from 'react';
-import type { BaseChartProps } from './types';
+import type { BaseChartProps } from '../types';
 
 type ResponsiveConfig = {
 	maxWidth?: number;
