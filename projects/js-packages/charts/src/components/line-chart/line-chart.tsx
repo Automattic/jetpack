@@ -10,12 +10,15 @@ import clsx from 'clsx';
 import { FC } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
+import { withResponsive } from '../shared/with-responsive';
 import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 
 // TODO: revisit grid and axis options - accept as props for frid lines, axis, values: x, y, all, none
 
-interface LineChartProps extends BaseChartProps< SeriesData[] > {}
+interface LineChartProps extends BaseChartProps< SeriesData[] > {
+	margin?: { top: number; right: number; bottom: number; left: number };
+}
 
 type TooltipData = {
 	date: Date;
@@ -156,4 +159,4 @@ const LineChart: FC< LineChartProps > = ( {
 	);
 };
 
-export default LineChart;
+export default withResponsive< LineChartProps >( LineChart );
