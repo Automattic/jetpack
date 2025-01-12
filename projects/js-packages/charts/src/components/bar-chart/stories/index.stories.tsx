@@ -34,8 +34,6 @@ type Story = StoryObj< typeof BarChart >;
 // Default story with multiple series
 export const Default: Story = {
 	args: {
-		width: 800,
-		height: 500,
 		withTooltips: true,
 		data: [ data[ 0 ], data[ 1 ], data[ 2 ] ], // limit to 3 series for better readability
 		showLegend: false,

@@ -24,8 +24,6 @@ const Template: StoryFn< typeof LineChart > = args => <LineChart { ...args } />;
 // Default story with multiple series
 export const Default: StoryObj< typeof LineChart > = Template.bind( {} );
 Default.args = {
-	width: 500,
-	height: 300,
 	data: sampleData,
 	showLegend: false,
 	legendOrientation: 'horizontal',
