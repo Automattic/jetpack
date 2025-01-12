@@ -42,9 +42,10 @@ export function withResponsive< T extends BaseChartProps< unknown > >(
 				} }
 			>
 				<WrappedComponent
-					{ ...( props as T ) }
 					width={ containerWidth }
 					height={ containerHeight }
+					// When width and height are passed as props, they will override the responsive values, and the chart will become fixed size.
+					{ ...( props as T ) }
 				/>
 			</div>
 		);
