@@ -20,9 +20,9 @@ export default function HistoryDataViews() {
 		if ( filter ) {
 			return [
 				{
-					field: 'status',
+					field: 'status' as const,
 					value: filter,
-					operator: 'isAny',
+					operator: 'isAny' as const,
 				},
 			];
 		}
