@@ -1,15 +1,3 @@
-.scan-results-container {
-	:global {
-		@media ( max-width: 599px ) {
-			div.dataviews-wrapper .dataviews__view-actions {
-				flex-wrap: wrap;
-				justify-content: center;
-				gap: calc( var( --spacing-base ) * 1.5 ); // 12px;
-			}
-		}
-	}
-}
-
 .hero-main {
 	max-width: 512px;
 }
