@@ -67,8 +67,8 @@ export { HISTORIC_TABLE_FIELDS } from './constants';
 export default function ThreatsDataViews( {
 	status = 'current',
 	data,
-	initialFields,
-	initialFilters,
+	initialFields = CURRENT_TABLE_FIELDS,
+	initialFilters = [],
 	onChangeSelection,
 	isThreatEligibleForFix,
 	isThreatEligibleForIgnore,
@@ -97,7 +97,7 @@ export default function ThreatsDataViews( {
 			direction: 'desc' as SortDirection,
 		},
 		search: '',
-		filters: initialFilters || [],
+		filters: initialFilters,
 		page: 1,
 		perPage: 20,
 	};
@@ -112,7 +112,7 @@ export default function ThreatsDataViews( {
 	const defaultLayouts: SupportedLayouts = {
 		table: {
 			...baseView,
-			fields: initialFields || CURRENT_TABLE_FIELDS,
+			fields: initialFields,
 			titleField: THREAT_FIELD_TITLE,
 			descriptionField: THREAT_FIELD_DESCRIPTION,
 			showMedia: false,
