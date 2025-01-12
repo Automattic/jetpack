@@ -16,17 +16,20 @@ export default function HistoryDataViews() {
 	const { data: history } = useHistoryQuery();
 	const { setModal } = useModal();
 
-	const filters = useMemo( () => {
-		if ( filter ) {
-			return [
-				{
-					field: 'status' as const,
-					value: filter,
-					operator: 'isAny' as const,
-				},
-			];
-		}
-	}, [ filter ] );
+	// Apply initial status filtering based on optional params from the URL.
+	const initialFilters = useMemo(
+		() =>
+			filter
+				? [
+						{
+							field: 'status' as const,
+							value: filter,
+							operator: 'isAny' as const,
+						},
+				  ]
+				: [],
+		[ filter ]
+	);
 
 	const onUnignoreThreats = useCallback(
 		( threats: Threat[] ) => {
@@ -39,7 +42,7 @@ export default function HistoryDataViews() {
 		<ThreatsDataViews
 			status="historic"
 			data={ history ? history.threats : [] }
-			initialFilters={ filters }
+			initialFilters={ initialFilters }
 			initialFields={ HISTORIC_TABLE_FIELDS }
 			onUnignoreThreats={ onUnignoreThreats }
 			header={ <ScanToggleGroupControl /> }
