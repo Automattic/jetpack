@@ -33,7 +33,7 @@ class Page_Cache_Entry implements Entry_Can_Get, Entry_Can_Set {
 	 *
 	 * @return array The sanitized value.
 	 */
-	public function sanitize_value( $value ) {
+	private function sanitize_value( $value ) {
 		if ( is_array( $value ) ) {
 			$value = array_values( array_unique( array_filter( array_map( 'trim', array_map( 'strtolower', $value ) ) ) ) );
 
