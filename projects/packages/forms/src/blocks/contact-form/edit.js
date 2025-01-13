@@ -496,7 +496,6 @@ export const JetpackContactFormEdit = forwardRef(
 						{ isSalesForceExtensionEnabled && salesforceData?.sendToSalesforce && (
 							<SalesforceLeadFormSettings
 								salesforceData={ salesforceData }
-								hiddenFields={ hiddenFields }
 								setAttributes={ setAttributes }
 								instanceId={ instanceId }
 							/>
