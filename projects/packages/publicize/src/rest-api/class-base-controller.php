@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize\REST_API;
 
-use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Publicize\Publicize_Utils;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Request;
@@ -33,21 +33,12 @@ abstract class Base_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Check if we are on WPCOM.
-	 *
-	 * @return bool
-	 */
-	public static function is_wpcom() {
-		return ( new Host() )->is_wpcom_simple();
-	}
-
-	/**
 	 * Check if the request is authorized for the blog.
 	 *
 	 * @return bool
 	 */
 	protected static function is_authorized_blog_request() {
-		if ( self::is_wpcom() && is_jetpack_site( get_current_blog_id() ) ) {
+		if ( Publicize_Utils::is_wpcom() && is_jetpack_site( get_current_blog_id() ) ) {
 
 			$jp_auth_endpoint = new \WPCOM_REST_API_V2_Endpoint_Jetpack_Auth();
 
@@ -86,6 +77,15 @@ abstract class Base_Controller extends WP_REST_Controller {
 	 * @return true|WP_Error
 	 */
 	public function get_items_permissions_check( $request ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return $this->publicize_permissions_check();
+	}
+
+	/**
+	 * Verify that user can access Publicize data
+	 *
+	 * @return true|WP_Error
+	 */
+	protected function publicize_permissions_check() {
 
 		global $publicize;
 

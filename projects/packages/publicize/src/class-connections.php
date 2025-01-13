@@ -8,8 +8,8 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection;
-use Automattic\Jetpack\Publicize\REST_API\Connections_Controller;
-use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Publicize\REST_API\Proxy_Requests;
+use WP_REST_Request;
 
 /**
  * Publicize Connections class.
@@ -27,10 +27,8 @@ class Connections {
 	 */
 	public static function get_all( $args = array() ) {
 
-		$is_wpcom = ( new Host() )->is_wpcom_simple();
-
-		if ( $is_wpcom ) {
-			$connections = Connections_Controller::get_connections();
+		if ( Publicize_Utils::is_wpcom() ) {
+			$connections = self::wpcom_get_connections( array( 'context' => 'site' ) );
 		} else {
 
 			$ignore_cache = $args['ignore_cache'] ?? false;
@@ -82,7 +80,7 @@ class Connections {
 	 * @return bool
 	 */
 	public static function user_owns_connection( $connection, $user_id = null ) {
-		if ( ( new Host() )->is_wpcom_simple() ) {
+		if ( Publicize_Utils::is_wpcom() ) {
 			$wpcom_user_id = get_current_user_id();
 		} else {
 
@@ -131,12 +129,7 @@ class Connections {
 	 * @return array
 	 */
 	public static function fetch_and_cache_connections() {
-		$args = array(
-			// Request all connections.
-			'scope' => 'site',
-		);
-
-		$connections = Connections_Controller::get_connections( $args );
+		$connections = self::fetch_site_connections();
 
 		if ( is_array( $connections ) ) {
 			if ( ! set_transient( self::CONNECTIONS_TRANSIENT, $connections, HOUR_IN_SECONDS * 4 ) ) {
@@ -149,6 +142,143 @@ class Connections {
 		}
 
 		return $connections;
+	}
+
+	/**
+	 * Fetch connections for the site from WPCOM REST API.
+	 *
+	 * @return array
+	 */
+	public static function fetch_site_connections() {
+		$proxy = new Proxy_Requests( 'publicize/connections' );
+
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/publicize/connections' );
+
+		$connections = $proxy->proxy_request_to_wpcom( $request, '', 'blog' );
+
+		if ( is_wp_error( $connections ) ) {
+			// @todo log error.
+			return array();
+		}
+
+		return $connections;
+	}
+
+	/**
+	 * Get all connections. Meant to be called directly only on WPCOM.
+	 *
+	 * @param array $args Arguments
+	 *                    - 'test_connections': bool Whether to run connection tests.
+	 *                    - 'context': enum('blog', 'user') Whether to include connections for the current blog or user.
+	 *
+	 * @return array
+	 */
+	public static function wpcom_get_connections( $args = array() ) {
+		// Ensure that we are on WPCOM.
+		Publicize_Utils::assert_is_wpcom( __METHOD__ );
+
+		/**
+		 * Publicize instance.
+		 */
+		global $publicize;
+
+		$items = array();
+
+		$run_tests = $args['test_connections'] ?? false;
+
+		$test_results = $run_tests ? self::get_test_status() : array();
+
+		if ( isset( $args['context'] ) && 'blog' === $args['context'] ) {
+			$service_connections = $publicize->get_all_connections_for_blog_id( get_current_blog_id() );
+		} else {
+			$service_connections = (array) $publicize->get_services( 'connected' );
+		}
+
+		foreach ( $service_connections as $service_name => $connections ) {
+			foreach ( $connections as $connection ) {
+				$connection_id = $publicize->get_connection_id( $connection );
+
+				$item = self::wpcom_prepare_connection_data( $connection, $service_name );
+
+				$item['status'] = $test_results[ $connection_id ] ?? null;
+
+				$items[] = $item;
+			}
+		}
+
+		return $items;
+	}
+
+	/**
+	 * Filters out data based on ?_fields= request parameter
+	 *
+	 * @param mixed  $connection   Connection to prepare.
+	 * @param string $service_name Service name.
+	 *
+	 * @return array
+	 */
+	private static function wpcom_prepare_connection_data( $connection, $service_name ) {
+		// Ensure that we are on WPCOM.
+		Publicize_Utils::assert_is_wpcom( __METHOD__ );
+
+		/**
+		 * Publicize instance.
+		 */
+		global $publicize;
+
+		$connection_id = $publicize->get_connection_id( $connection );
+
+		$connection_meta = $publicize->get_connection_meta( $connection );
+		$connection_data = $connection_meta['connection_data'];
+
+		return array(
+			'connection_id'        => $connection_id,
+			'display_name'         => $publicize->get_display_name( $service_name, $connection ),
+			'external_handle'      => $publicize->get_external_handle( $service_name, $connection ),
+			'external_id'          => $connection_meta['external_id'] ?? '',
+			'profile_link'         => $publicize->get_profile_link( $service_name, $connection ),
+			'profile_picture'      => $publicize->get_profile_picture( $connection ),
+			'service_label'        => Publicize::get_service_label( $service_name ),
+			'service_name'         => $service_name,
+			'shared'               => ! $connection_data['user_id'],
+			'user_id'              => (int) $connection_data['user_id'],
+
+			// Deprecated fields.
+			'id'                   => (string) $publicize->get_connection_unique_id( $connection ),
+			'username'             => $publicize->get_username( $service_name, $connection ),
+			'profile_display_name' => ! empty( $connection_meta['profile_display_name'] ) ? $connection_meta['profile_display_name'] : '',
+			// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- We expect an integer, but do loose comparison below in case some other type is stored.
+			'global'               => 0 == $connection_data['user_id'],
+
+		);
+	}
+
+	/**
+	 * Get the connections test status.
+	 *
+	 * @return array
+	 */
+	public static function get_test_status() {
+		/**
+		 * Publicize instance.
+		 *
+		 * @var \Automattic\Jetpack\Publicize\Publicize $publicize
+		 */
+		global $publicize;
+
+		$test_results = $publicize->get_publicize_conns_test_results();
+
+		$test_results_map = array();
+
+		foreach ( $test_results as $test_result ) {
+			$result = $test_result['connectionTestPassed'];
+			if ( 'must_reauth' !== $result ) {
+				$result = $test_result['connectionTestPassed'] ? 'ok' : 'broken';
+			}
+			$test_results_map[ $test_result['connectionID'] ] = $result;
+		}
+
+		return $test_results_map;
 	}
 
 	/**
