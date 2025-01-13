@@ -87,6 +87,13 @@ class Boost_Cache {
 		add_filter( 'wp_php_error_message', array( $this, 'disable_caching_on_error' ) );
 		add_filter( 'init', array( $this, 'init_do_cache' ) );
 		add_filter( 'jetpack_boost_cache_parameters', array( $this, 'ignore_cookies' ) );
+		$this->load_extra();
+	}
+
+	private function load_extra() {
+		if ( file_exists( WP_CONTENT_DIR . '/boost-cache-extra.php' ) ) {
+			include_once WP_CONTENT_DIR . '/boost-cache-extra.php';
+		}
 	}
 
 	/**

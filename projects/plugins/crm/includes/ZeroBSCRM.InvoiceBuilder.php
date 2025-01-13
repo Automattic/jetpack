@@ -1000,11 +1000,11 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 	// due to withTotals parameter on get above, we now don't need ot calc anything here, just expose
 	$totals_table = '';
 
-	$totals_table .= '<table id="invoice_totals" class="table-totals zebra" style="width: 100%;"><tbody>';
+	$totals_table .= '<table id="invoice_totals" class="table-totals striped" style="width: 100%;;margin-left:0px;"><tbody>';
 	if ( $invsettings['invtax'] != 0 || $invsettings['invpandp'] != 0 || $invsettings['invdis'] != 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 		$totals_table .= '<tr class="total-top">';
 		$totals_table .= '<td  class="bord bord-l" style="text-align:right; width: 80%; text-transform: uppercase;">' . esc_html__( 'Subtotal', 'zero-bs-crm' ) . '</td>';
-		$totals_table .= '<td class="bord row-amount" style="text-align:right; "><span class="zbs-totals">';
+		$totals_table .= '<td class="bord row-amount" style="text-align:right;margin-left:-30px;"><span class="zbs-totals">';
 		if ( isset( $invoice['net'] ) && ! empty( $invoice['net'] ) ) {
 			$totals_table .= esc_html( zeroBSCRM_formatCurrency( $invoice['net'] ) );
 		} else {
@@ -1094,7 +1094,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 
 	$totals_table .= '<tr class="zbs_grand_total" style="line-height:30px;">
 		<td class="bord-l"  style="text-align:right; font-weight:bold;  border-radius: 0px;"><span class="zbs-total">' . __( 'Total', 'zero-bs-crm' ) . '</span></td>
-		<td class="row-amount" style="text-align:right; font-weight:bold; border: 3px double #111!important; "><span class="zbs-total">';
+		<td class="row-amount" style="text-align:right; font-weight:bold;"><span class="zbs-total">';
 	if ( isset( $invoice['total'] ) && ! empty( $invoice['total'] ) ) {
 		$totals_table .= esc_html( zeroBSCRM_formatCurrency( $invoice['total'] ) );
 	} else {
@@ -1109,9 +1109,9 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 	$partials_table = '';
 
 	if ( $invoice['total'] == 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
-		$partials_table .= '<table id="partials" class="hide table-totals zebra">';
+		$partials_table .= '<table id="partials" class="hide table-totals striped">';
 	} else {
-		$partials_table .= '<table id="partials" class="table-totals zebra">';
+		$partials_table .= '<table id="partials" class="table-totals striped">';
 	}
 
 	$balance = $invoice['total'];
@@ -1136,8 +1136,8 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 					$balance = $balance - $partial['total'];
 				}
 
-				$partials_table .= '<tr class="total-top">';
-				$partials_table .= '<td class="bord bord-l" style="text-align:right">' . esc_html__( 'Payment', 'zero-bs-crm' ) . '<br/>(' . esc_html( $partial['ref'] ) . ')</td>';
+				$partials_table .= '<tr id="invoice-payments" class="total-top">';
+				$partials_table .= '<td class="bord bord-l" style="text-align:right">' . esc_html( $partial['ref'] ) . '</td>';
 				$partials_table .= '<td class="bord row-amount"><span class="zbs-partial-value">';
 				if ( ! empty( $partial['total'] ) ) {
 					$partials_table .= esc_html( zeroBSCRM_formatCurrency( $partial['total'] ) );
@@ -1158,7 +1158,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 
 	$partials_table .= '<tr class="zbs_grand_total' . $balance_hide . '">';
 	$partials_table .= '<td class="bord bord-l" style="text-align:right; font-weight:bold;  border-radius: 0px;"><span class="zbs-minitotal">' . esc_html__( 'Amount due', 'zero-bs-crm' ) . '</span></td>';
-	$partials_table .= '<td class="bord row-amount"><span class="zbs-subtotal-value">' . esc_html( zeroBSCRM_formatCurrency( $balance ) ) . '</span></td>';
+	$partials_table .= '<td class="bord row-amount"  style="text-align:right;font-weight:bold;"><span class="zbs-subtotal-value">' . esc_html( zeroBSCRM_formatCurrency( $balance ) ) . '</span></td>';
 	$partials_table .= '</tr>';
 	$partials_table .= '</table>';
 
@@ -1573,9 +1573,9 @@ function zeroBSCRM_invoicing_generateInvPart_lineitems( $invlines = array() ) {
 		$line_item_html .= '
 			<tr class="jpcrm-invoice-lineitem">
 			<td class="jpcrm-invoice-lineitem-description"><span class="title">' . esc_html( $invline['title'] ) . '</span><br/><span class="subtitle">' . nl2br( esc_html( $invline['desc'] ) ) . '</span></td>
-			<td class="jpcrm-invoice-lineitem-quantity">' . esc_html( zeroBSCRM_format_quantity( $invline['quantity'] ) ) . '</td>
-			<td class="jpcrm-invoice-lineitem-price">' . esc_html( zeroBSCRM_formatCurrency( $invline['price'] ) ) . '</td>
-			<td class="jpcrm-invoice-lineitem-amount">' . esc_html( zeroBSCRM_formatCurrency( $invline['net'] ) ) . '</td>
+			<td class="jpcrm-invoice-lineitem-quantity" style="text-align:right;">' . esc_html( zeroBSCRM_format_quantity( $invline['quantity'] ) ) . '</td>
+			<td class="jpcrm-invoice-lineitem-price" style="text-align:right;">' . esc_html( zeroBSCRM_formatCurrency( $invline['price'] ) ) . '</td>
+			<td class="jpcrm-invoice-lineitem-amount" style="text-align:right;">' . esc_html( zeroBSCRM_formatCurrency( $invline['net'] ) ) . '</td>
 			</tr>';
 	}
 

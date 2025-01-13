@@ -93,6 +93,8 @@ jobs:
               - '.github/workflows/*.{yml,yaml}'
               - '.github/actions/*/action.{yml,yaml}'
               - 'projects/github-actions/*/action.{yml,yaml}'
+              # If we edit the linting JS files, we need to run it.
+              - 'tools/js-tools/lint-gh-actions.{js,mjs}'
             misc_php:
               # If composer, phpcs config, or the codesniffer package itself changed, there may be a new standard.
               - 'composer.json'
@@ -341,7 +343,7 @@ jobs:
         run: pnpm run lint-changed --git-base=$SHA $(jq -rn --argjson files "$FILES" '$files[]')
 
   ### Lints GitHub Actions yaml files.
-  # Local equivalent: `./tools/js-tools/lint-gh-actions.js <files>`
+  # Local equivalent: `./tools/js-tools/lint-gh-actions.mjs <files>`
   lint_gh_actions:
     name: Lint GitHub Actions yaml files
     runs-on: ubuntu-latest
@@ -358,7 +360,7 @@ jobs:
 
       - run: pnpm install
       - name: Run lint
-        run: ./tools/js-tools/lint-gh-actions.js -v '.github/workflows/*.{yml,yaml}' '.github/actions/*/action.{yml,yaml}' 'projects/github-actions/*/action.{yml,yaml}'
+        run: ./tools/js-tools/lint-gh-actions.mjs -v '.github/workflows/*.{yml,yaml}' '.github/actions/*/action.{yml,yaml}' 'projects/github-actions/*/action.{yml,yaml}'
 
   ### Checks that copied files (e.g. readme, license) are in sync
   # Local equivalent: `./tools/check-copied-files.sh`

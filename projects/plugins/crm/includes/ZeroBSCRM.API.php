@@ -37,20 +37,17 @@ add_action( 'init', 'zeroBS_api_rewrite_endpoint' );
  * Process the query and get page and items per page
  */
 function jpcrm_api_process_pagination() {
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended
+	$page     = isset( $_GET['page'] ) ? max( (int) $_GET['page'], 1 ) : 1;
+	$per_page = isset( $_GET['perpage'] ) ? max( (int) $_GET['perpage'], 1 ) : 10;
+	$order    = strtoupper( $_GET['order'] ?? '' ) === 'ASC' ? 'ASC' : 'DESC'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	// phpcs:enable WordPress.Security.NonceVerification.Recommended	
 
-	if ( isset( $_GET['page'] ) && (int) $_GET['page'] >= 0 ) {
-		$page = (int) $_GET['page'];
-	} else {
-		$page = 0;
-	}
-
-	if ( isset( $_GET['perpage'] ) && (int) $_GET['perpage'] >= 0 ) {
-		$per_page = (int) $_GET['perpage'];
-	} else {
-		$per_page = 10;
-	}
-
-	return array( $page, $per_page );
+	return array(
+		'page'     => $page,
+		'per_page' => $per_page,
+		'order'    => $order,
+	);
 }
 
 /**
