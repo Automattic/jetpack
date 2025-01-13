@@ -98,6 +98,11 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		remove_all_filters( 'wp_mail' );
 		remove_all_filters( 'grunion_still_email_spam' );
 		remove_all_filters( 'jetpack_contact_form_is_spam' );
+
+		// Reset the forms array
+		Contact_Form::$forms        = array();
+		Contact_Form::$last         = null;
+		Contact_Form::$current_form = null;
 	}
 
 	/**
