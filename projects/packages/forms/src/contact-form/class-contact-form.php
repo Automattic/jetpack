@@ -119,7 +119,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		if ( ! empty( self::$forms ) ) {
-			$attributes['id'] = $attributes['id'] . '-' . count( self::$forms ) + 1;
+			$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 );
 		}
 
 		$this->hash                 = sha1( wp_json_encode( $attributes ) );
