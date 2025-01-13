@@ -33,7 +33,8 @@ const FieldLabel = ( {
 					setAttributes( { label: value } );
 				} }
 				placeholder={ placeholder ?? __( 'Add label…', 'jetpack-forms' ) }
-				__unstableDisableFormats
+				withoutInteractiveFormatting
+				allowedFormats={ [ 'core/italic' ] }
 			/>
 			{ suffix && <span className="jetpack-field-label__suffix">{ suffix }</span> }
 			{ required && (
@@ -44,7 +45,8 @@ const FieldLabel = ( {
 					onChange={ value => {
 						setAttributes( { requiredText: value } );
 					} }
-					__unstableDisableFormats
+					withoutInteractiveFormatting
+					allowedFormats={ [ 'core/bold', 'core/italic' ] }
 				/>
 			) }
 		</div>
