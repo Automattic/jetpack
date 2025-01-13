@@ -60,10 +60,10 @@ const Template = args => <PieSemiCircleChart { ...args } />;
 export const Default = Template.bind( {} );
 Default.args = {
 	width: 500,
+	thickness: 0.4,
 	data,
 	label: 'OS',
 	note: 'Windows +10%',
-	thickness: 0.4,
 	clockwise: true,
 	showLegend: false,
 	legendOrientation: 'horizontal',
