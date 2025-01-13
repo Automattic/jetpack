@@ -100,7 +100,6 @@ export const JetpackContactFormEdit = forwardRef(
 			customThankyouMessage,
 			customThankyouRedirect,
 			jetpackCRM,
-			formID,
 			salesforceData,
 			hiddenFields,
 			warningMessage,
@@ -179,16 +178,6 @@ export const JetpackContactFormEdit = forwardRef(
 				} );
 			}
 		} );
-
-		// Here we're using a default value for the formID, but this will be expanded to allow custom form IDs in the future.
-		useEffect( () => {
-			if ( ! formID ) {
-				if ( currentPostId ) {
-					setAttributes( { formID: currentPostId || '' } );
-				}
-			}
-			// eslint-disable-next-line react-hooks/exhaustive-deps -- we only want this to run once.
-		}, [] );
 
 		const renderSubmissionSettings = () => {
 			return (
