@@ -188,11 +188,9 @@ class Connections {
 
 		$test_results = $run_tests ? self::get_test_status() : array();
 
-		if ( isset( $args['context'] ) && 'blog' === $args['context'] ) {
-			$service_connections = $publicize->get_all_connections_for_blog_id( get_current_blog_id() );
-		} else {
-			$service_connections = (array) $publicize->get_services( 'connected' );
-		}
+		$service_connections = $publicize->get_all_connections_for_blog_id( get_current_blog_id() );
+
+		$context = $args['context'] ?? 'user';
 
 		foreach ( $service_connections as $service_name => $connections ) {
 			foreach ( $connections as $connection ) {
@@ -202,7 +200,9 @@ class Connections {
 
 				$item['status'] = $test_results[ $connection_id ] ?? null;
 
-				$items[] = $item;
+				if ( 'blog' === $context || $item['shared'] || self::user_owns_connection( $item ) ) {
+					$items[] = $item;
+				}
 			}
 		}
 
