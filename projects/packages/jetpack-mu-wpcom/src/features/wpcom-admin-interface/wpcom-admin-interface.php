@@ -455,6 +455,23 @@ function wpcom_is_duplicate_views_experiment_enabled() {
  * the first time.
  */
 function wpcom_show_removed_calypso_screen_notice() {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		$blog_id = get_current_blog_id();
+	} else {
+		$jetpack_options = get_option( 'jetpack_options' );
+		if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
+			$blog_id = (int) $jetpack_options['id'];
+		} else {
+			$blog_id = get_current_blog_id();
+		}
+	}
+
+	// Do not show notice on sites created the experiment started.
+	// 240673796 is the ID of a site created on 2025-01-13.
+	if ( $blog_id > 240673796 ) {
+		return;
+	}
+
 	$admin_menu_class = wpcom_get_custom_admin_menu_class();
 	if ( ! $admin_menu_class ) {
 		return;
