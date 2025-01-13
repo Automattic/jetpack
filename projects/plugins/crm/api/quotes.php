@@ -26,7 +26,7 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 jpcrm_api_check_http_method( array( 'GET' ) );
 
 // Process the pagination parameters from the query
-list( $page, $per_page ) = jpcrm_api_process_pagination();
+$pagination = jpcrm_api_process_pagination();
 
 global $zbs;
 
@@ -39,9 +39,9 @@ $args = array(
 	// 'withAssigned'    => $withCustomerDeets,
 	'suppressContent' => true, // NO HTML!
 	'sortByField'     => 'ID',
-	'sortOrder'       => 'DESC',
-	'page'            => $page,
-	'perPage'         => $per_page,
+	'page'            => $pagination['page'],
+	'perPage'         => $pagination['per_page'],
+	'sortOrder'       => $pagination['order'],
 	'ignoreowner'     => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_QUOTE ),
 );
 

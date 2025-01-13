@@ -1,8 +1,8 @@
-import { BarChart } from '../index';
+import BarChart from '../bar-chart';
 import data from './sample-data';
 import type { Meta, StoryObj } from '@storybook/react';
 
-export default {
+const meta: Meta< typeof BarChart > = {
 	title: 'JS Packages/Charts/Types/Bar Chart',
 	component: BarChart,
 	parameters: {
@@ -10,20 +10,30 @@ export default {
 	},
 	decorators: [
 		Story => (
-			<div style={ { padding: '2rem' } }>
+			<div
+				style={ {
+					resize: 'both',
+					overflow: 'auto',
+					padding: '2rem',
+					width: '800px',
+					minWidth: '400px',
+					maxWidth: '1200px',
+					border: '1px dashed #ccc',
+				} }
+			>
 				<Story />
 			</div>
 		),
 	],
-} satisfies Meta< typeof BarChart >;
+};
 
-type StoryType = StoryObj< typeof BarChart >;
+export default meta;
+
+type Story = StoryObj< typeof BarChart >;
 
 // Default story with multiple series
-export const Default: StoryType = {
+export const Default: Story = {
 	args: {
-		width: 800,
-		height: 500,
 		withTooltips: true,
 		data: [ data[ 0 ], data[ 1 ], data[ 2 ] ], // limit to 3 series for better readability
 		showLegend: false,
@@ -33,7 +43,7 @@ export const Default: StoryType = {
 };
 
 // Story with single data series
-export const SingleSeries: StoryType = {
+export const SingleSeries: Story = {
 	args: {
 		...Default.args,
 		data: [ data[ 0 ] ],
@@ -48,7 +58,7 @@ export const SingleSeries: StoryType = {
 };
 
 // Story without tooltip
-export const ManyDataSeries: StoryType = {
+export const ManyDataSeries: Story = {
 	args: {
 		...Default.args,
 		width: 1200,
