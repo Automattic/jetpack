@@ -42,11 +42,14 @@ export function ServiceItem( {
 
 	const brokenConnections = serviceConnections.filter( ( { status } ) => status === 'broken' );
 
-	const hasOwnBrokenConnections = useSelect( select => {
-		const { canUserManageConnection, getBrokenConnections } = select( socialStore );
+	const hasOwnBrokenConnections = useSelect(
+		select => {
+			const { canUserManageConnection } = select( socialStore );
 
-		return getBrokenConnections().some( canUserManageConnection );
-	}, [] );
+			return brokenConnections.some( canUserManageConnection );
+		},
+		[ brokenConnections ]
+	);
 
 	const hideInitialConnectForm =
 		// For services with custom inputs, the initial Connect button opens the panel,
