@@ -109,7 +109,7 @@ export const JetpackContactFormEdit = forwardRef(
 		const [ localWarningText, setLocalWarningText ] = useState( '' );
 
 		const currentPostId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
-
+		const [ specialFields, setSpecialFields ] = useState( {} );
 		const blockProps = useBlockProps();
 		const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 			useModuleStatus( 'contact-form' );
@@ -364,6 +364,37 @@ export const JetpackContactFormEdit = forwardRef(
 		};
 
 		const validateHiddenFieldName = ( uuid, name ) => {
+			// Map through hiddenFields and update the specific field based on UUID
+			const newHiddenFields = hiddenFields.map( field => {
+				if ( field.uuid === uuid ) {
+					const updatedField = { ...field, name };
+
+					// We can specify custom 'template' hidden fields here, [post_id] is the first example.
+					if ( name === '[post_id]' ) {
+						updatedField.value = currentPostId;
+						updatedField.edit = 'name'; // Only the name is editable
+						setSpecialFields( prev => ( { ...prev, [ uuid ]: true } ) );
+					} else if ( specialFields[ uuid ] ) {
+						// If it was previously a special field, reset the value and make editable
+						updatedField.value = '';
+						updatedField.edit = 'both'; // Allow editing the value
+
+						setSpecialFields( prev => {
+							const newState = { ...prev };
+							delete newState[ uuid ];
+							return newState;
+						} );
+					}
+					return updatedField;
+				}
+
+				return field;
+			} );
+
+			setAttributes( {
+				hiddenFields: newHiddenFields,
+			} );
+
 			const isDuplicateName = hiddenFields.some(
 				field => field.uuid !== uuid && field.name.trim() === name.trim()
 			);
