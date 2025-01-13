@@ -77,6 +77,15 @@ abstract class Base_Controller extends WP_REST_Controller {
 	 * @return true|WP_Error
 	 */
 	public function get_items_permissions_check( $request ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return $this->publicize_permissions_check();
+	}
+
+	/**
+	 * Verify that user can access Publicize data
+	 *
+	 * @return true|WP_Error
+	 */
+	protected function publicize_permissions_check() {
 
 		global $publicize;
 
