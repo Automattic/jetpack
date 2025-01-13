@@ -116,6 +116,9 @@ class Boost_Cache_Utils {
 				// Remove double shashes.
 				$path = str_replace( '//', '/', $path );
 
+				// Remove leading ^ as they are included in the regex check.
+				$path = ltrim( $path, '^' );
+
 				// Make sure there's a leading slash.
 				$path = '/' . ltrim( $path, '/' );
 

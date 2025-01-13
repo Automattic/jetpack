@@ -106,7 +106,7 @@ class Request {
 
 		$bypass_patterns[] = 'wp-.*\.php';
 		foreach ( $bypass_patterns as $expr ) {
-			if ( ! empty( $expr ) && preg_match( "~$expr~", $request_uri ) ) {
+			if ( ! empty( $expr ) && preg_match( "~^$expr~", $request_uri ) ) {
 				return true;
 			}
 		}
