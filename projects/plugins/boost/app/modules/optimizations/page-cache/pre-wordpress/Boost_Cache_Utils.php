@@ -122,11 +122,13 @@ class Boost_Cache_Utils {
 				// Fix up any wildcards.
 				$path = self::sanitize_wildcards( $path );
 			}
+
+			$value = array_values( array_unique( array_filter( $value ) ) );
 		} else {
 			$value = array();
 		}
 
-		return array_values( array_unique( array_filter( $value ) ) );
+		return $value;
 	}
 
 	/**
