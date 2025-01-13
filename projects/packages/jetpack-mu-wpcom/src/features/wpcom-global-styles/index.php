@@ -467,13 +467,13 @@ function wpcom_should_show_global_styles_launch_bar() {
 
 	// The site is being previewed in Calypso or Gutenberg.
 	if (
-		isset( $_GET['iframe'] ) && 'true' === $_GET['iframe'] && (
-			( isset( $_GET['theme_preview'] ) && 'true' === $_GET['theme_preview'] ) ||
-			( isset( $_GET['preview'] ) && 'true' === $_GET['preview'] )
+		isset( $_GET['iframe'] ) && 'true' === $_GET['iframe'] && ( // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Not a form action
+			( isset( $_GET['theme_preview'] ) && 'true' === $_GET['theme_preview'] ) || // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Not a form action
+			( isset( $_GET['preview'] ) && 'true' === $_GET['preview'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Not a form action
 		) ||
-		isset( $_GET['widgetPreview'] ) || // Gutenberg < 9.2
-		isset( $_GET['widget-preview'] ) || // Gutenberg >= 9.2
-		( isset( $_GET['hide_banners'] ) && $_GET['hide_banners'] == 'true' )
+		isset( $_GET['widgetPreview'] ) || // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Not a form action (Gutenberg < 9.2)
+		isset( $_GET['widget-preview'] ) || // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Not a form action (Gutenberg >= 9.2)
+		( isset( $_GET['hide_banners'] ) && $_GET['hide_banners'] === 'true' )  // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Not a form action
 	) {
 		return false;
 	}
