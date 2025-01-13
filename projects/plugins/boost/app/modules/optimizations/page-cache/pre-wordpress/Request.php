@@ -102,8 +102,6 @@ class Request {
 		 */
 		$bypass_patterns = apply_filters( 'jetpack_boost_cache_bypass_patterns', $bypass_patterns );
 
-		$bypass_patterns = Boost_Cache_Utils::sanitize_bypass_patterns( $bypass_patterns );
-
 		$bypass_patterns[] = 'wp-.*\.php';
 		foreach ( $bypass_patterns as $expr ) {
 			if ( ! empty( $expr ) && preg_match( "~^$expr~", $request_uri ) ) {
