@@ -37,21 +37,15 @@ class Page_Cache_Entry implements Entry_Can_Get, Entry_Can_Set {
 		if ( is_array( $value ) ) {
 			$value = array_values( array_unique( array_filter( array_map( 'trim', array_map( 'strtolower', $value ) ) ) ) );
 
-			$home_url = home_url( '/' );
-
 			foreach ( $value as &$path ) {
-				// Strip home URL (both secure and non-secure).
-				$path = str_ireplace(
-					array(
-						$home_url,
-						str_replace( 'http:', 'https:', $home_url ),
-					),
-					array(
-						'/',
-						'/',
-					),
-					$path
-				);
+				// Strip home URL.
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+				$url_path = parse_url( $path, PHP_URL_PATH );
+				if ( $url_path === null ) {
+					$path = '/';
+				} else {
+					$path = $url_path;
+				}
 
 				// Remove double shashes.
 				$path = str_replace( '//', '/', $path );
