@@ -58,16 +58,6 @@
 		overflow-y: auto;
 		scroll-behavior: smooth;
 		align-items: flex-start;
-
-		/* Hide scrollbar for Chrome, Safari and Opera */
-		&::-webkit-scrollbar {
-			display: none;
-		}
-
-		/* Hide scrollbar for IE, Edge and Firefox */
-		-ms-overflow-style: none;
-		scrollbar-width: none;
-
 		mask-image: linear-gradient( 180deg, transparent, white 24px );
 	}
 
