@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Updated connections post field rest endpoint to use the updated schema
