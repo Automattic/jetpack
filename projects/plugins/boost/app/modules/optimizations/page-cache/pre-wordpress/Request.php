@@ -95,6 +95,8 @@ class Request {
 
 		/**
 		 * Filters the bypass patterns for the page cache.
+		 * If you need to sanitize them, do it before passing them to this filter,
+		 * as there's no sanitization done after this filter.
 		 *
 		 * @since 3.2.0
 		 *
