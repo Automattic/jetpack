@@ -210,10 +210,6 @@ add_action( 'enqueue_block_editor_assets', 'wpcom_global_styles_enqueue_block_ed
  * @return void
  */
 function wpcom_global_styles_enqueue_assets() {
-	if ( ! wpcom_should_show_global_styles_launch_bar() ) {
-		return;
-	}
-
 	$asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-global-styles-editor/wpcom-global-styles-editor.asset.php';
 
 	wp_enqueue_script(
@@ -241,7 +237,6 @@ function wpcom_global_styles_enqueue_assets() {
 		filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-global-styles-frontend/wpcom-global-styles-frontend.css' )
 	);
 }
-add_action( 'wp_enqueue_scripts', 'wpcom_global_styles_enqueue_assets' );
 
 /**
  * Removes the user styles from a site with limited global styles.
@@ -508,11 +503,6 @@ function wpcom_should_show_global_styles_launch_bar() {
  * Renders the global style notice banner to the launch bar.
  */
 function wpcom_display_global_styles_launch_bar() {
-	// Do not show the banner if the user can use global styles.
-	if ( ! wpcom_should_show_global_styles_launch_bar() ) {
-		return;
-	}
-
 	if ( method_exists( '\WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
 		$site_slug = WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
 	} else {
@@ -637,7 +627,38 @@ function wpcom_display_global_styles_launch_bar() {
 	</div>
 	<?php
 }
-add_filter( 'wp_footer', 'wpcom_display_global_styles_launch_bar' );
+
+/**
+ * Global Styles Banner.
+ */
+class Global_Styles_Upgrade_Banner {
+	/**
+	* Resolves if the global styles banner should be displayed and adds it to the banner list in necessary.
+	*
+	* @param array $banners Banners.
+	*
+	* @return array
+	*/
+	public function register( $banners ) {
+		// If the banner shouldn't display, don't inject it.
+		if ( ! wpcom_should_show_global_styles_launch_bar() ) {
+			return $banners;
+		}
+
+		return array_merge( $banners, array( 'wpcom_launch_banner' => array( $this, 'init' ) ) );
+	}
+
+	/**
+	 * Show the global styles banner for the current site.
+	 */
+	public function init() {
+		add_action( 'wp_head', 'wpcom_global_styles_enqueue_assets' );
+		add_filter( 'wp_footer', 'wpcom_display_global_styles_launch_bar' );
+	}
+}
+
+$global_styles_banner = new Global_Styles_Upgrade_Banner();
+add_filter( 'wpcom_register_banners', array( $global_styles_banner, 'register' ) );
 
 /**
  * Include the Rest API that returns the global style information for a give WordPress site.
