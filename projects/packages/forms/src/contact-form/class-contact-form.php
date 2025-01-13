@@ -1355,8 +1355,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		/**
-		 * HIDDEN FIELDS
-		 * Use jetpack_contact_form_hidden_fields filter
+		 * Allows site owners to add hidden fields to the contact form submission.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $all_values All the values from the contact form submission.
 		 */
 		$all_values = apply_filters( 'jetpack_contact_form_hidden_fields', $all_values );
 
@@ -1851,8 +1854,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 					 *
 					 * @since $$next-version$$
 					 *
-					 * @param string $form_html The complete form HTML.
-					 * @param array  $atts      The block attributes.
+					 * @param array $updated_field The updated_field attributes, including name, value, and original hidden field array.
+					 * @param array $hidden_field The original hidden field array containing the field's context.
 					 */
 					$updated_field = apply_filters(
 						'jetpack_contact_form_modify_hidden_fields',
@@ -1864,12 +1867,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 						$hidden_field
 					);
 					// Update the field name and value only if the filter modifies them
-					$field_name  = isset( $updated_field['name'] ) && $updated_field['name'] !== $field_name
-					? $updated_field['name']
-					: $field_name;
-					$field_value = isset( $updated_field['value'] ) && $updated_field['value'] !== $field_value
-					? $updated_field['value']
-					: $field_value;
+					if ( isset( $updated_field['name'] ) && $updated_field['name'] !== $field_name ) {
+						unset( $hidden_fields[ $field_name ] );
+						$field_name = $updated_field['name'];
+					}
+
+					if ( isset( $updated_field['value'] ) && $updated_field['value'] !== $field_value ) {
+						$field_value = $updated_field['value'];
+					}
+
 					break;
 				case 'value':
 					/**
@@ -1877,8 +1883,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 					 *
 					 * @since $$next-version$$
 					 *
-					 * @param string $form_html The complete form HTML.
-					 * @param array  $atts      The block attributes.
+					 * @param string $updated_field_value The updated field value.
+					 * @param string $field_value        The original field value.
+					 * @param string $field_name          The original field name.
+					 * @param array  $hidden_field        The original hidden field array containing the field's context.
 					 */
 					$updated_field_value = apply_filters( 'jetpack_contact_form_modify_hidden_field_value', $field_value, $field_name, $hidden_field );
 					// Update the value only if the filter modifies it
@@ -1893,13 +1901,21 @@ class Contact_Form extends Contact_Form_Shortcode {
 					 *
 					 * @since $$next-version$$
 					 *
-					 * @param string $form_html The complete form HTML.
-					 * @param array  $atts      The block attributes.
+					 * @param string $updated_field_name The updated field name.
+					 * @param string $field_value        The original field value.
+					 * @param string $field_name         The original field name.
+					 * @param array  $hidden_field       The original hidden field array containing the field's context.
 					 */
 					$updated_field_name = apply_filters( 'jetpack_contact_form_modify_hidden_field_name', $field_value, $field_name, $hidden_field );
 					// Update the name only if the filter modifies it
-					if ( $updated_field_name !== $field_value ) {
-						$field_name = isset( $updated_field_name ) ? $updated_field_name : $field_name;
+					if ( isset( $updated_field_name ) && $updated_field_name !== $field_name ) {
+						unset( $hidden_fields[ $field_name ] ); // Remove the old name entry.
+						$field_name = $updated_field_name;     // Set the new name.
+
+						// Add the updated name-value pair back to the array.
+						if ( ! empty( $field_name ) && is_string( $field_name ) ) {
+							$hidden_fields[ $field_name ] = $field_value;
+						}
 					}
 					break;
 
