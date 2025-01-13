@@ -398,13 +398,13 @@ class Connections_Controller extends Base_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function update_item( $request ) {
+		$connection_id = $request->get_param( 'connection_id' );
+
 		if ( Publicize_Utils::is_wpcom() ) {
 
 			$input = array(
 				'shared' => $request->get_param( 'shared' ),
 			);
-
-			$connection_id = $request->get_param( 'connection_id' );
 
 			$result = Connections::wpcom_update_connection( $connection_id, $input );
 
@@ -427,7 +427,7 @@ class Connections_Controller extends Base_Controller {
 
 		l( '>>>>>>>> UPDATE CONNECTION REQUEST', $request );
 
-		$response = $proxy->proxy_request_to_wpcom( $request );
+		$response = $proxy->proxy_request_to_wpcom( $request, $connection_id );
 
 		l( '>>>>>>>> UPDATE CONNECTION RESPONSE', $response );
 
