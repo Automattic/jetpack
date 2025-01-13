@@ -1914,11 +1914,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 					 * @param string $field_name         The original field name.
 					 * @param array  $hidden_field       The original hidden field array containing the field's context.
 					 */
-					$updated_field_name = apply_filters( 'jetpack_contact_form_modify_hidden_field_name', $field_value, $field_name, $hidden_field );
+					$updated_field_name = apply_filters( 'jetpack_contact_form_modify_hidden_field_name', $field_name, $field_value, $hidden_field );
 					// Update the name only if the filter modifies it
-					if ( isset( $updated_field_name ) && $updated_field_name !== $field_name ) {
+					if ( isset( $updated_field_name ) && $updated_field_name !== $field_name && $updated_field_name !== $field_value ) {
 						unset( $hidden_fields[ $field_name ] ); // Remove the old name entry.
-						$field_name = $updated_field_name;     // Set the new name.
+						$field_name = $updated_field_name;
 
 						// Add the updated name-value pair back to the array.
 						if ( ! empty( $field_name ) && is_string( $field_name ) ) {
