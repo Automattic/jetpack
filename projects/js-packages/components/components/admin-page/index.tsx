@@ -61,11 +61,11 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 		<div className={ rootClassName }>
 			{ showHeader && (
 				<Container horizontalSpacing={ 5 }>
-					<Col>{ header ? header : <JetpackLogo /> }</Col>
-					{ sandboxedDomain && (
-						<Col>
+					<Col className={ styles[ 'admin-page-header' ] }>
+						{ header ? header : <JetpackLogo /> }
+						{ sandboxedDomain && (
 							<code
-								id="sandbox-domain-badge"
+								className={ styles[ 'sandbox-domain-badge' ] }
 								onClick={ testConnection }
 								onKeyDown={ testConnection }
 								// eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
@@ -75,8 +75,8 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 							>
 								API Sandboxed
 							</code>
-						</Col>
-					) }
+						) }
+					</Col>
 				</Container>
 			) }
 			<Container fluid horizontalSpacing={ 0 }>
