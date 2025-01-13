@@ -236,9 +236,9 @@ class Publicize_Script_Data {
 	 */
 	public static function get_api_paths() {
 
-		$is_simple_site = ( new Host() )->is_wpcom_simple();
+		$is_wpcom = ( new Host() )->is_wpcom_platform();
 
-		if ( $is_simple_site ) {
+		if ( $is_wpcom ) {
 			return array(
 				'refreshConnections' => '/wpcom/v2/publicize/connection-test-results',
 				'resharePost'        => '/wpcom/v2/posts/{postId}/publicize',

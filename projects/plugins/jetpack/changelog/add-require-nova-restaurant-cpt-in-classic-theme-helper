@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Nova Restaurant: ensure that the custom post type is now loaded via the Classic Theme Helper package.

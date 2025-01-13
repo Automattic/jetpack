@@ -4,6 +4,7 @@
 import {
 	ERROR_NETWORK,
 	ERROR_QUOTA_EXCEEDED,
+	mapActionToHumanText,
 	useAiSuggestions,
 } from '@automattic/jetpack-ai-client';
 import { BlockControls, useBlockProps } from '@wordpress/block-editor';
@@ -86,6 +87,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const chatHistory = useRef< PromptMessagesProp >( [] );
 		// A human-readable action to be displayed in the input when a toolbar suggestion is requested, like "Translate: Japanese".
 		const [ action, setAction ] = useState< string >( '' );
+		// The last human-readable action performed by the user, to be used by the thumbs up/down buttons.
+		const [ lastAction, setLastAction ] = useState< string | null >( null );
 		// The last request made by the user, to be used when the user clicks the "Try Again" button.
 		const lastRequest = useRef< RequestOptions | null >( null );
 		// Ref to the requesting state to use it in the hideOnBlockFocus effect.
@@ -307,7 +310,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		// Called when a suggestion from the toolbar is requested, like "Change tone".
 		const handleRequestSuggestion = useCallback< OnRequestSuggestion >(
-			( promptType, options, humanText ) => {
+			( promptType, options ) => {
 				setShowAiControl( true );
 
 				// If the user needs to upgrade, don't make the request, but show the input with the upgrade message.
@@ -315,8 +318,11 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					return;
 				}
 
+				const humanText = mapActionToHumanText( promptType, options );
+
 				if ( humanText ) {
 					setAction( humanText );
+					setLastAction( humanText );
 				}
 
 				const messages = getRequestMessages( { promptType, options } );
@@ -345,6 +351,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			( userPrompt: string ) => {
 				const promptType = 'userPrompt';
 				const options = { userPrompt };
+				setLastAction( userPrompt );
 
 				enableAutoScroll();
 				handleRequestSuggestion( promptType, options );
@@ -363,11 +370,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// Called when the user clicks the "Try Again" button in the input error message.
 		const handleTryAgain = useCallback( () => {
 			if ( lastRequest.current ) {
-				handleRequestSuggestion(
-					lastRequest.current.promptType,
-					lastRequest.current.options,
-					lastRequest.current.humanText
-				);
+				handleRequestSuggestion( lastRequest.current.promptType, lastRequest.current.options );
 			}
 		}, [ lastRequest, handleRequestSuggestion ] );
 
@@ -516,6 +519,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						close={ handleClose }
 						undo={ handleUndo }
 						tryAgain={ handleTryAgain }
+						lastAction={ lastAction }
 					/>
 				) }
 

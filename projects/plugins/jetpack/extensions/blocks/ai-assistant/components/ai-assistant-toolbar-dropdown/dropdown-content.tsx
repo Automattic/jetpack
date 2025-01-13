@@ -1,17 +1,8 @@
 /*
  * External dependencies
  */
-import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
-import { MenuItem, MenuGroup, Notice } from '@wordpress/components';
-import { select } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
-import { post, postContent, postExcerpt, termDescription, blockTable } from '@wordpress/icons';
-import React from 'react';
-/**
- * Internal dependencies
- */
-import { EXTENDED_BLOCKS } from '../../extensions/constants';
 import {
+	aiAssistantIcon,
 	PROMPT_TYPE_CHANGE_TONE,
 	PROMPT_TYPE_CORRECT_SPELLING,
 	PROMPT_TYPE_MAKE_LONGER,
@@ -21,10 +12,25 @@ import {
 	PROMPT_TYPE_CHANGE_LANGUAGE,
 	PROMPT_TYPE_USER_PROMPT,
 	PROMPT_TYPE_TRANSFORM_LIST_TO_TABLE,
-} from '../../lib/prompt';
-import { capitalize } from '../../lib/utils/capitalize';
-import { I18nMenuDropdown, TRANSLATE_LABEL } from '../i18n-dropdown-control';
-import { TONE_LABEL, ToneDropdownMenu } from '../tone-dropdown-control';
+	CORRECT_SPELLING_LABEL,
+	SIMPLIFY_LABEL,
+	SUMMARIZE_LABEL,
+	MAKE_LONGER_LABEL,
+	MAKE_SHORTER_LABEL,
+	TURN_LIST_INTO_TABLE_LABEL,
+	WRITE_POST_FROM_LIST_LABEL,
+} from '@automattic/jetpack-ai-client';
+import { MenuItem, MenuGroup, Notice } from '@wordpress/components';
+import { select } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
+import { post, postContent, postExcerpt, termDescription, blockTable } from '@wordpress/icons';
+import React from 'react';
+/**
+ * Internal dependencies
+ */
+import { EXTENDED_BLOCKS } from '../../extensions/constants';
+import { I18nMenuDropdown } from '../i18n-dropdown-control';
+import { ToneDropdownMenu } from '../tone-dropdown-control';
 import './style.scss';
 /**
  * Types and constants
@@ -52,6 +58,12 @@ export const QUICK_EDIT_KEY_MAKE_SHORTER = 'make-shorter' as const;
 // Ask AI Assistant option
 export const KEY_ASK_AI_ASSISTANT = 'ask-ai-assistant' as const;
 
+// Quick edits option: "Turn list into a table"
+export const QUICK_EDIT_KEY_TURN_LIST_INTO_TABLE = 'turn-list-into-table' as const;
+
+// Quick edits option: "Write a post from this list"
+export const QUICK_EDIT_KEY_WRITE_POST_FROM_LIST = 'write-post-from-list' as const;
+
 const quickActionsList: {
 	[ key: string ]: {
 		name: string;
@@ -63,7 +75,7 @@ const quickActionsList: {
 } = {
 	default: [
 		{
-			name: __( 'Correct spelling and grammar', 'jetpack' ),
+			name: CORRECT_SPELLING_LABEL,
 			key: QUICK_EDIT_KEY_CORRECT_SPELLING,
 			aiSuggestion: PROMPT_TYPE_CORRECT_SPELLING,
 			icon: termDescription,
@@ -71,25 +83,25 @@ const quickActionsList: {
 	],
 	'core/paragraph': [
 		{
-			name: __( 'Simplify', 'jetpack' ),
+			name: SIMPLIFY_LABEL,
 			key: QUICK_EDIT_KEY_SIMPLIFY,
 			aiSuggestion: PROMPT_TYPE_SIMPLIFY,
 			icon: post,
 		},
 		{
-			name: __( 'Summarize', 'jetpack' ),
+			name: SUMMARIZE_LABEL,
 			key: QUICK_EDIT_KEY_SUMMARIZE,
 			aiSuggestion: PROMPT_TYPE_SUMMARIZE,
 			icon: postExcerpt,
 		},
 		{
-			name: __( 'Expand', 'jetpack' ),
+			name: MAKE_LONGER_LABEL,
 			key: QUICK_EDIT_KEY_MAKE_LONGER,
 			aiSuggestion: PROMPT_TYPE_MAKE_LONGER,
 			icon: postContent,
 		},
 		{
-			name: __( 'Make shorter', 'jetpack' ),
+			name: MAKE_SHORTER_LABEL,
 			key: QUICK_EDIT_KEY_MAKE_SHORTER,
 			aiSuggestion: PROMPT_TYPE_MAKE_SHORTER,
 			icon: postContent,
@@ -97,19 +109,19 @@ const quickActionsList: {
 	],
 	'core/list-item': [
 		{
-			name: __( 'Simplify', 'jetpack' ),
+			name: SIMPLIFY_LABEL,
 			key: QUICK_EDIT_KEY_SIMPLIFY,
 			aiSuggestion: PROMPT_TYPE_SIMPLIFY,
 			icon: post,
 		},
 		{
-			name: __( 'Expand', 'jetpack' ),
+			name: MAKE_LONGER_LABEL,
 			key: QUICK_EDIT_KEY_MAKE_LONGER,
 			aiSuggestion: PROMPT_TYPE_MAKE_LONGER,
 			icon: postContent,
 		},
 		{
-			name: __( 'Make shorter', 'jetpack' ),
+			name: MAKE_SHORTER_LABEL,
 			key: QUICK_EDIT_KEY_MAKE_SHORTER,
 			aiSuggestion: PROMPT_TYPE_MAKE_SHORTER,
 			icon: postContent,
@@ -118,26 +130,26 @@ const quickActionsList: {
 	'core/list': EXTENDED_BLOCKS.includes( 'core/list' )
 		? [
 				{
-					name: __( 'Simplify', 'jetpack' ),
+					name: SIMPLIFY_LABEL,
 					key: QUICK_EDIT_KEY_SIMPLIFY,
 					aiSuggestion: PROMPT_TYPE_SIMPLIFY,
 					icon: post,
 				},
 				{
-					name: __( 'Expand', 'jetpack' ),
+					name: MAKE_LONGER_LABEL,
 					key: QUICK_EDIT_KEY_MAKE_LONGER,
 					aiSuggestion: PROMPT_TYPE_MAKE_LONGER,
 					icon: postContent,
 				},
 				{
-					name: __( 'Make shorter', 'jetpack' ),
+					name: MAKE_SHORTER_LABEL,
 					key: QUICK_EDIT_KEY_MAKE_SHORTER,
 					aiSuggestion: PROMPT_TYPE_MAKE_SHORTER,
 					icon: postContent,
 				},
 				{
-					name: __( 'Turn list into a table', 'jetpack' ),
-					key: 'turn-into-table',
+					name: TURN_LIST_INTO_TABLE_LABEL,
+					key: QUICK_EDIT_KEY_TURN_LIST_INTO_TABLE,
 					aiSuggestion: PROMPT_TYPE_TRANSFORM_LIST_TO_TABLE,
 					icon: blockTable,
 					options: {
@@ -150,8 +162,8 @@ const quickActionsList: {
 				// Those actions are transformative in nature and are better suited for the AI Assistant block.
 				// TODO: Keep the action, but transforming the block.
 				{
-					name: __( 'Write a post from this list', 'jetpack' ),
-					key: 'write-post-from-list',
+					name: WRITE_POST_FROM_LIST_LABEL,
+					key: QUICK_EDIT_KEY_WRITE_POST_FROM_LIST,
 					aiSuggestion: PROMPT_TYPE_USER_PROMPT,
 					icon: post,
 					options: {
@@ -172,8 +184,7 @@ export type AiAssistantDropdownOnChangeOptionsArgProps = {
 
 export type OnRequestSuggestion = (
 	promptType: PromptTypeProp,
-	options?: AiAssistantDropdownOnChangeOptionsArgProps,
-	humanText?: string
+	options?: AiAssistantDropdownOnChangeOptionsArgProps
 ) => void;
 
 type AiAssistantToolbarDropdownContentProps = {
@@ -235,11 +246,9 @@ export default function AiAssistantToolbarDropdownContent( {
 								iconPosition="left"
 								key={ `key-${ quickAction.key }` }
 								onClick={ () => {
-									onRequestSuggestion(
-										quickAction.aiSuggestion,
-										{ ...( quickAction.options ?? {} ) },
-										quickAction.name
-									);
+									onRequestSuggestion( quickAction.aiSuggestion, {
+										...( quickAction.options ?? {} ),
+									} );
 								} }
 								disabled={ disabled }
 							>
@@ -250,22 +259,14 @@ export default function AiAssistantToolbarDropdownContent( {
 
 				<ToneDropdownMenu
 					onChange={ tone => {
-						onRequestSuggestion(
-							PROMPT_TYPE_CHANGE_TONE,
-							{ tone },
-							`${ TONE_LABEL }: ${ capitalize( tone ) }`
-						);
+						onRequestSuggestion( PROMPT_TYPE_CHANGE_TONE, { tone } );
 					} }
 					disabled={ disabled }
 				/>
 
 				<I18nMenuDropdown
-					onChange={ ( language, name ) => {
-						onRequestSuggestion(
-							PROMPT_TYPE_CHANGE_LANGUAGE,
-							{ language },
-							`${ TRANSLATE_LABEL }: ${ name }`
-						);
+					onChange={ language => {
+						onRequestSuggestion( PROMPT_TYPE_CHANGE_LANGUAGE, { language } );
 					} }
 					disabled={ disabled }
 				/>

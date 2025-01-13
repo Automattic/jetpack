@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Avoid trying to request reviews from bot accounts.

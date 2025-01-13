@@ -15,7 +15,7 @@ import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import { isSameSiteUrl } from '$lib/utils/is-same-site-url';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
-
+import { useNotices } from '$features/notice/context';
 const Meta = () => {
 	const cornerstonePagesSupportLink = getRedirectUrl( 'jetpack-boost-cornerstone-pages' );
 	const [ cornerstonePages, setCornerstonePages ] = useCornerstonePages();
@@ -24,11 +24,17 @@ const Meta = () => {
 	const premiumFeatures = usePremiumFeatures();
 	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
 	const regenerateAction = useRegenerateCriticalCssAction();
+	const { setNotice } = useNotices();
 
 	const updateCornerstonePages = ( newValue: string ) => {
 		const newItems = newValue.split( '\n' ).map( line => line.trim() );
 
 		setCornerstonePages( newItems, () => {
+			setNotice( {
+				id: 'cornerstone-pages-save',
+				type: 'success',
+				message: __( 'Cornerstone pages saved', 'jetpack-boost' ),
+			} );
 			refetchRegenerationReason();
 			if ( isPremium ) {
 				regenerateAction.mutate();
@@ -151,7 +157,6 @@ const List: React.FC< ListProps > = ( {
 	const premiumFeatures = usePremiumFeatures();
 	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
 	const cornerstonePagesProperties = useCornerstonePagesProperties();
-
 	const validateInputValue = ( value: string ) => {
 		setInputValue( value );
 		try {

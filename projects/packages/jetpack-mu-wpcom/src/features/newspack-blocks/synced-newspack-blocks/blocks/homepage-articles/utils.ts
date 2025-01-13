@@ -1,13 +1,14 @@
 /**
  * External dependencies
  */
-import { dispatch as wpDataDispatch } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
 import { times, isEqual, isNull, isUndefined, pick, pickBy } from 'lodash';
 
 /**
  * WordPress dependencies
  */
+import { __ } from '@wordpress/i18n';
+import { dispatch as wpDataDispatch } from '@wordpress/data';
+
 import { STORE_NAMESPACE } from './store';
 
 /**
@@ -49,8 +50,6 @@ const POST_QUERY_ATTRIBUTES = [
  * 1. Query-changing attributes of a block change
  * 2. The top-level blocks order changes. A Homepage Articles
  *    block might be nested somewhere.
- * @param prevProps
- * @param props
  */
 export const shouldReflow = (
 	prevProps: HomepageArticlesProps,
@@ -63,7 +62,6 @@ export const shouldReflow = (
 
 /**
  * Builds query criteria from given attributes.
- * @param attributes
  */
 export const queryCriteriaFromAttributes = ( attributes: Block[ 'attributes' ] ): PostsQuery => {
 	const {
@@ -91,23 +89,22 @@ export const queryCriteriaFromAttributes = ( attributes: Block[ 'attributes' ] )
 	const criteria: PostsQuery = pickBy(
 		isSpecificPostModeActive
 			? {
-					include: cleanPosts,
-					postsToShow: specificPosts.length,
-					postType,
-			  }
-			: {
-					postsToShow,
-					categories: validateAttributeCollection( categories ),
-					includeSubcategories,
-					authors: validateAttributeCollection( authors ),
-					tags: validateAttributeCollection( tags ),
-					tagExclusions: validateAttributeCollection( tagExclusions ),
-					categoryExclusions: validateAttributeCollection( categoryExclusions ),
-					customTaxonomyExclusions,
-					customTaxonomies,
-					postType,
-					includedPostStatuses,
-			  },
+				include: cleanPosts,
+				postsToShow: specificPosts.length,
+				postType,
+			} : {
+				postsToShow,
+				categories: validateAttributeCollection( categories ),
+				includeSubcategories,
+				authors: validateAttributeCollection( authors ),
+				tags: validateAttributeCollection( tags ),
+				tagExclusions: validateAttributeCollection( tagExclusions ),
+				categoryExclusions: validateAttributeCollection( categoryExclusions ),
+				customTaxonomyExclusions,
+				customTaxonomies,
+				postType,
+				includedPostStatuses,
+			},
 		( value: unknown ) => ! isUndefined( value )
 	);
 	criteria.excerptLength = excerptLength;
@@ -128,8 +125,6 @@ export const validateAttributeCollection = ( attr: Array< number > ) =>
  * This function is recursively traversing an array of blocks and creating an aray
  * of {postsQuery, clientId} objects.
  * The eligible blocks are identified by block name, passed in the second argument.
- * @param blocks
- * @param blockNames
  */
 export const getBlockQueries = (
 	blocks: Block[],
@@ -166,6 +161,7 @@ const generatePreviewPost = ( id: PostId ) => {
 		excerpt: {
 			rendered: '<p>' + __( 'The post excerpt.', 'jetpack-mu-wpcom' ) + '</p>',
 		},
+		full_content: __('Full post content.', 'jetpack-mu-wpcom'),
 		post_link: '/',
 		featured_media: '1',
 		id,
@@ -218,10 +214,6 @@ type Select = ( namespace: string ) => {
 
 /**
  * wordpress/data selector for blocks using this custom store.
- * @param select
- * @param root0
- * @param root0.clientId
- * @param root0.attributes
  */
 export const postsBlockSelector = (
 	select: Select,
@@ -259,7 +251,9 @@ export const postsBlockSelector = (
 		isUIDisabled: isUIDisabled(),
 		error: getError( { clientId } ),
 		topBlocksClientIdsInOrder: blocks.map( block => block.clientId ),
-		latestPosts: isEditorBlock ? getPosts( { clientId } ) : getPreviewPosts( attributes ), // For block preview, display static content.
+		latestPosts: isEditorBlock
+			? getPosts( { clientId } )
+			: getPreviewPosts( attributes ), // For block preview, display static content.
 	};
 
 	return props;
@@ -267,9 +261,6 @@ export const postsBlockSelector = (
 
 /**
  * wordpress/data dispatch for blocks using this custom store.
- * @param dispatch
- * @param root0
- * @param root0.isEditorBlock
  */
 export const postsBlockDispatch = (
 	dispatch: typeof wpDataDispatch,
@@ -280,4 +271,24 @@ export const postsBlockDispatch = (
 		// @ts-ignore It's a string.
 		triggerReflow: isEditorBlock ? dispatch( STORE_NAMESPACE ).reflow : () => undefined,
 	};
+};
+
+// Ensure innerBlocks are populated for some blocks (e.g. `widget-area` and `post-content`).
+// See https://github.com/WordPress/gutenberg/issues/32607#issuecomment-890728216.
+// See https://github.com/Automattic/wp-calypso/issues/91839.
+export const recursivelyGetBlocks = (
+	getBlocks: ( clientId?: string ) => Block[],
+	blocks: Block[] = getBlocks()
+) => {
+	return blocks.map( ( block ) => {
+		let innerBlocks =
+			block.innerBlocks.length === 0
+				? getBlocks( block.clientId )
+				: block.innerBlocks;
+		innerBlocks = recursivelyGetBlocks( getBlocks, innerBlocks );
+		return {
+			...block,
+			innerBlocks,
+		};
+	});
 };

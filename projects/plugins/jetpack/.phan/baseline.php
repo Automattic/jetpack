@@ -24,9 +24,9 @@ return [
     // PhanTypeMismatchArgumentNullable : 50+ occurrences
     // PhanParamTooMany : 40+ occurrences
     // PhanPluginDuplicateAdjacentStatement : 40+ occurrences
-    // PhanTypeExpectedObjectPropAccess : 40+ occurrences
     // PhanTypeMismatchArgumentInternal : 40+ occurrences
     // PhanUndeclaredProperty : 40+ occurrences
+    // PhanTypeExpectedObjectPropAccess : 35+ occurrences
     // PhanParamSignatureMismatch : 25+ occurrences
     // PhanTypeMismatchDefault : 25+ occurrences
     // PhanTypeMismatchPropertyProbablyReal : 25+ occurrences
@@ -35,12 +35,12 @@ return [
     // PhanPluginSimplifyExpressionBool : 20+ occurrences
     // PhanTypeArraySuspicious : 20+ occurrences
     // PhanTypeMismatchDimFetch : 20+ occurrences
-    // PhanTypeSuspiciousNonTraversableForeach : 20+ occurrences
     // PhanPluginMixedKeyNoKey : 15+ occurrences
     // PhanSuspiciousMagicConstant : 15+ occurrences
     // PhanTypeExpectedObjectPropAccessButGotNull : 15+ occurrences
     // PhanTypeMismatchArgumentNullableInternal : 15+ occurrences
     // PhanTypeMismatchPropertyDefault : 15+ occurrences
+    // PhanTypeSuspiciousNonTraversableForeach : 15+ occurrences
     // PhanPluginDuplicateExpressionAssignmentOperation : 10+ occurrences
     // PhanRedefineClass : 10+ occurrences
     // PhanRedundantConditionInLoop : 10+ occurrences
@@ -81,7 +81,6 @@ return [
     // PhanTypeMismatchArgumentInternalProbablyReal : 2 occurrences
     // PhanUndeclaredClassInCallable : 2 occurrences
     // PhanUndeclaredClassMethod : 2 occurrences
-    // PhanCommentParamWithoutRealParam : 1 occurrence
     // PhanDeprecatedPartiallySupportedCallable : 1 occurrence
     // PhanEmptyForeach : 1 occurrence
     // PhanPluginDuplicateSwitchCase : 1 occurrence
@@ -139,7 +138,7 @@ return [
         '_inc/lib/core-api/wpcom-endpoints/gutenberg-available-extensions.php' => ['PhanPluginMixedKeyNoKey'],
         '_inc/lib/core-api/wpcom-endpoints/memberships.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginUnreachableCode', 'PhanTypeArraySuspicious'],
         '_inc/lib/core-api/wpcom-endpoints/publicize-connection-test-results.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgument'],
-        '_inc/lib/core-api/wpcom-endpoints/publicize-connections.php' => ['PhanParamSignatureMismatch', 'PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgument'],
+        '_inc/lib/core-api/wpcom-endpoints/publicize-connections.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument'],
         '_inc/lib/core-api/wpcom-endpoints/publicize-services.php' => ['PhanParamSignatureMismatch', 'PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgument'],
         '_inc/lib/core-api/wpcom-endpoints/service-api-keys.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeMismatchReturnProbablyReal'],
         '_inc/lib/core-api/wpcom-endpoints/trait-wpcom-rest-api-proxy-request-trait.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanUndeclaredProperty'],
@@ -322,7 +321,6 @@ return [
         'modules/comments/subscription-modal-on-comment/class-jetpack-subscription-modal-on-comment.php' => ['PhanTypeMismatchReturnNullable'],
         'modules/copy-post.php' => ['PhanNoopNew'],
         'modules/custom-content-types.php' => ['PhanRedefineFunction'],
-        'modules/custom-post-types/nova.php' => ['PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeSuspiciousNonTraversableForeach'],
         'modules/geo-location.php' => ['PhanTypeMismatchArgumentNullable'],
         'modules/geo-location/class.jetpack-geo-location.php' => ['PhanTypeMismatchArgument'],
         'modules/google-fonts/current/class-jetpack-google-font-face.php' => ['PhanUndeclaredFunctionInCallable'],
@@ -381,7 +379,6 @@ return [
         'modules/shortcodes/ustream.php' => ['PhanTypeMismatchArgument'],
         'modules/shortcodes/vimeo.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
         'modules/shortcodes/vr.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
-        'modules/shortcodes/wordads.php' => ['PhanNoopNew'],
         'modules/shortcodes/youtube.php' => ['PhanRedefineFunction'],
         'modules/shortlinks.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal'],
         'modules/simple-payments/simple-payments.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn'],

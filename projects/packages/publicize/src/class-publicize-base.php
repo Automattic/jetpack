@@ -497,8 +497,8 @@ abstract class Publicize_Base {
 			return 'https://instagram.com/' . $cmeta['connection_data']['meta']['username'];
 		}
 
-		if ( 'threads' === $service_name && isset( $connection['external_name'] ) ) {
-			return 'https://www.threads.net/@' . $connection['external_name'];
+		if ( 'threads' === $service_name && isset( $cmeta['external_name'] ) ) {
+			return 'https://www.threads.net/@' . $cmeta['external_name'];
 		}
 
 		if ( 'mastodon' === $service_name && isset( $cmeta['external_name'] ) ) {
@@ -527,7 +527,7 @@ abstract class Publicize_Base {
 			}
 
 			$profile_url_query      = wp_parse_url( $cmeta['connection_data']['meta']['profile_url'], PHP_URL_QUERY );
-			$profile_url_query_args = null;
+			$profile_url_query_args = array();
 			wp_parse_str( $profile_url_query, $profile_url_query_args );
 
 			$id = null;
@@ -589,17 +589,35 @@ abstract class Publicize_Base {
 	 * @return string
 	 */
 	public function get_username( $service_name, $connection ) {
+		$handle = $this->get_external_handle( $service_name, $connection );
+
+		return $handle ?? $this->get_display_name( $service_name, $connection );
+	}
+
+	/**
+	 * Returns the external handle for the Connection.
+	 *
+	 * @param string       $service_name 'facebook', 'linkedin', etc.
+	 * @param object|array $connection The Connection object (WordPress.com) or array (Jetpack).
+	 * @return string|null
+	 */
+	public function get_external_handle( $service_name, $connection ) {
 		$cmeta = $this->get_connection_meta( $connection );
 
-		if ( 'mastodon' === $service_name && isset( $cmeta['external_display'] ) ) {
-			return $cmeta['external_display'];
-		}
+		switch ( $service_name ) {
+			case 'mastodon':
+				return $cmeta['external_display'] ?? null;
 
-		if ( isset( $cmeta['connection_data']['meta']['username'] ) ) {
-			return $cmeta['connection_data']['meta']['username'];
-		}
+			case 'bluesky':
+			case 'threads':
+				return $cmeta['external_name'] ?? null;
 
-		return $this->get_display_name( $service_name, $connection );
+			case 'instagram-business':
+				return $cmeta['connection_data']['meta']['username'] ?? null;
+
+			default:
+				return null;
+		}
 	}
 
 	/**
@@ -608,7 +626,7 @@ abstract class Publicize_Base {
 	 * @param object|array $connection The Connection object (WordPress.com) or array (Jetpack).
 	 * @return string
 	 */
-	private function get_profile_picture( $connection ) {
+	public function get_profile_picture( $connection ) {
 		$cmeta = $this->get_connection_meta( $connection );
 
 		if ( isset( $cmeta['profile_picture'] ) ) {
@@ -876,6 +894,7 @@ abstract class Publicize_Base {
 			$post_id = null;
 		}
 
+		// TODO Get these services->connections from the cache populated from the REST API.
 		$services = $this->get_services( 'connected' );
 		$all_done = $this->post_is_done_sharing( $post_id );
 
@@ -984,19 +1003,27 @@ abstract class Publicize_Base {
 				}
 
 				$connection_list[] = array(
+					// REST Meta fields.
+					'connection_id'   => $connection_id,
+					'display_name'    => $this->get_display_name( $service_name, $connection ),
+					'enabled'         => $enabled,
+					'external_handle' => $this->get_external_handle( $service_name, $connection ),
+					'external_id'     => $connection_meta['external_id'] ?? '',
+					'profile_link'    => (string) $this->get_profile_link( $service_name, $connection ),
+					'profile_picture' => (string) $this->get_profile_picture( $connection ),
+					'service_label'   => static::get_service_label( $service_name ),
+					'service_name'    => $service_name,
+					'shared'          => ! $connection_data['user_id'],
+					'status'          => null,
+					'user_id'         => (int) $connection_data['user_id'],
+
+					// Deprecated fields.
 					'id'              => $connection_id,
 					'unique_id'       => $unique_id,
-					'service_name'    => $service_name,
-					'service_label'   => static::get_service_label( $service_name ),
-					'display_name'    => $this->get_display_name( $service_name, $connection ),
 					'username'        => $this->get_username( $service_name, $connection ),
-					'profile_picture' => $this->get_profile_picture( $connection ),
-					'enabled'         => $enabled,
 					'done'            => $done,
 					'toggleable'      => $toggleable,
 					'global'          => 0 == $connection_data['user_id'], // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,WordPress.PHP.StrictComparisons.LooseComparison -- Other types can be used at times.
-					'external_id'     => $connection_meta['external_id'] ?? '',
-					'user_id'         => $connection_data['user_id'],
 				);
 			}
 		}

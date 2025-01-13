@@ -1,15 +1,16 @@
 import { localPoint } from '@visx/event';
 import { Group } from '@visx/group';
-import Pie, { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
+import Pie, { type PieArcDatum } from '@visx/shape/lib/shapes/Pie';
 import { Text } from '@visx/text';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { FC, useCallback } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
+import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
-import type { BaseChartProps, DataPointPercentage } from '../shared/types';
+import type { BaseChartProps, DataPointPercentage } from '../../types';
 
 interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
@@ -35,7 +36,7 @@ type ArcData = PieArcDatum< DataPointPercentage >;
 
 const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	data,
-	width,
+	width = 500, //TODO: replace when making the components responsive
 	label,
 	note,
 	className,
@@ -168,8 +169,8 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 						value: tooltipData.value,
 						valueDisplay: tooltipData.valueDisplay,
 					} }
-					top={ tooltipTop }
-					left={ tooltipLeft }
+					top={ tooltipTop || 0 }
+					left={ tooltipLeft || 0 }
 				/>
 			) }
 
@@ -184,4 +185,5 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	);
 };
 
-export default PieSemiCircleChart;
+PieSemiCircleChart.displayName = 'PieSemiCircleChart';
+export default withResponsive< PieSemiCircleChartProps >( PieSemiCircleChart );

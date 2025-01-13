@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useContext } from 'preact/hooks';
 import wpcomRequest from 'wpcom-proxy-request';
-import { subscriptionSettings } from '../state';
+import { VerbumSignals } from '../state';
 import { SubscriptionDetails, EmailPostsChange, EmailSubscriptionResponse } from '../types';
 
 const getSubscriptionDetails = async () => {
@@ -24,7 +24,8 @@ const getSubscriptionDetails = async () => {
  *
  * @return {object} Object containing functions to manage subscriptions.
  */
-export default function useSubscriptionApi(): object {
+export default function useSubscriptionApi() {
+	const { subscriptionSettings } = useContext( VerbumSignals );
 	const { siteId } = VerbumComments;
 	const [ subscriptionSettingsIsLoading, setSubscriptionSettingsIsLoading ] = useState( true );
 
@@ -61,6 +62,7 @@ export default function useSubscriptionApi(): object {
 			.finally( () => {
 				setSubscriptionSettingsIsLoading( false );
 			} );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
 	const setEmailPostsSubscription = async function ( change: EmailPostsChange ) {

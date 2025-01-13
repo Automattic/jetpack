@@ -1729,6 +1729,10 @@ class Search extends Module {
 		// wp.com martketplace search - @see https://wp.me/pdh6GB-Ax#comment-2104
 		'wpcom_marketplace_categories',
 
+		// wp.com a8c-support-theme taxonomies.
+		'kb_category',
+		'kb_tag',
+
 	); // end taxonomies.
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add webpack plugin to rename RTL files to match core WP expectations.

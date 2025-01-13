@@ -1,6 +1,6 @@
 import type { FC, MouseEvent } from 'react';
 
-type StatusType = 'warning' | 'error' | 'unlock' | 'success';
+type StatusType = 'warning' | 'error' | 'unlock' | 'success' | 'info';
 
 interface ConnectionListItemProps {
 	text: string;
@@ -19,7 +19,8 @@ export type ConnectionItemButtonType = FC< {
 interface getSiteConnectionLineDataProps {
 	isRegistered: boolean;
 	hasSiteConnectionBrokenModules: boolean;
-	handleConnectUser: ( e: MouseEvent< HTMLButtonElement > ) => void;
+	siteIsRegistering: boolean;
+	handleConnectSite: ( e: MouseEvent< HTMLButtonElement > ) => void;
 	openManageSiteConnectionDialog: ( e: MouseEvent ) => void;
 }
 

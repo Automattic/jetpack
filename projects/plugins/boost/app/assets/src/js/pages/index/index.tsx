@@ -27,6 +27,7 @@ const Index = () => {
 	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
 
 	const regenerateCssAction = useRegenerateCriticalCssAction();
+
 	const requestRegenerateCriticalCss = () => {
 		regenerateCssAction.mutate();
 	};

@@ -169,7 +169,7 @@ class Site_Accelerator extends Module_Product {
 	 *
 	 * @return null|WP_Error Null on success, WP_Error on invalid file.
 	 */
-	public static function activate_plugin() {
+	public static function activate_plugin(): ?WP_Error {
 		$plugin_filename = static::get_installed_plugin_filename( self::JETPACK_PLUGIN_SLUG );
 
 		if ( $plugin_filename ) {
