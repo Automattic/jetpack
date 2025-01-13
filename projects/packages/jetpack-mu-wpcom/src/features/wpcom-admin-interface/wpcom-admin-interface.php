@@ -513,11 +513,19 @@ function wpcom_show_removed_calypso_screen_notice() {
 			return;
 		}
 
-		$preferences  = json_decode( wp_remote_retrieve_body( $response ), true );
-		$is_dismissed = $preferences[ 'removed-calypso-screen-dismissed-notice-' . $current_screen ] ?? false;
-		if ( $is_dismissed ) {
-			$notices_dismissed_locally[] = $current_screen;
-			update_user_option( get_current_user_id(), 'wpcom_removed_calypso_screen_dismissed_notices', $notices_dismissed_locally, true );
+		$notices_dismissed_globally = array();
+		$preferences                = json_decode( wp_remote_retrieve_body( $response ), true );
+		foreach ( $preferences as $key => $value ) {
+			if ( $value && preg_match( '/^removed-calypso-screen-dismissed-notice-(.+)$/', $key, $matches ) ) {
+				$notices_dismissed_globally[] = $matches[1];
+			}
+		}
+
+		if ( array_diff( $notices_dismissed_globally, $notices_dismissed_locally ) ) {
+			update_user_option( get_current_user_id(), 'wpcom_removed_calypso_screen_dismissed_notices', $notices_dismissed_globally, true );
+		}
+
+		if ( in_array( $current_screen, $notices_dismissed_globally, true ) ) {
 			return;
 		}
 	}
