@@ -56,8 +56,10 @@ class Page_Cache_Entry implements Entry_Can_Get, Entry_Can_Set {
 				// Remove double shashes.
 				$path = str_replace( '//', '/', $path );
 
-				// Remove leading ^ as they are included in the regex check.
+				// Remove symbols, as they are included in the regex check.
 				$path = ltrim( $path, '^' );
+				$path = rtrim( $path, '$' );
+				$path = preg_replace( '/\/\?$/', '', $path );
 
 				// Make sure there's a leading slash.
 				$path = '/' . ltrim( $path, '/' );
