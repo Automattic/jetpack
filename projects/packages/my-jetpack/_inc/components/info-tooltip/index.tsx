@@ -3,18 +3,18 @@ import { Popover } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useState, useCallback, useRef } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
-import type { FC, ReactNode } from 'react';
+import type { PopoverProps } from './types';
+import type { FC } from 'react';
 
 import './style.scss';
 
-type Props = {
-	children: ReactNode;
+interface Props extends PopoverProps {
 	className?: string;
 	icon?: string;
 	iconSize?: number;
 	tracksEventName?: string;
 	tracksEventProps?: Record< Lowercase< string >, unknown >;
-};
+}
 
 export const InfoTooltip: FC< Props > = ( {
 	children,

@@ -37,7 +37,7 @@ jobs:
           composer build-development
         working-directory: ./projects/github-actions/repo-gardening
 
-      - name: Checkout the PR
+      - name: Check out the PR
         if: github.event_name == 'pull_request_target' && github.event.pull_request.state != 'closed'
         uses: actions/checkout@v4
         with:

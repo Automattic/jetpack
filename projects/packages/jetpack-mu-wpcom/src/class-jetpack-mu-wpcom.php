@@ -15,7 +15,7 @@ define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '6.0.0';
+	const PACKAGE_VERSION = '6.1.0';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -143,6 +143,7 @@ class Jetpack_Mu_Wpcom {
 		if ( ! class_exists( 'A8C\FSE\Help_Center' ) ) {
 			require_once __DIR__ . '/features/help-center/class-help-center.php';
 		}
+		require_once __DIR__ . '/features/pages/pages.php';
 		require_once __DIR__ . '/features/replace-site-visibility/replace-site-visibility.php';
 		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
@@ -452,7 +453,7 @@ class Jetpack_Mu_Wpcom {
 	 * Load Odyssey Stats in Simple sites.
 	 */
 	public static function load_wpcom_simple_odyssey_stats() {
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' || ( function_exists( 'wpcom_is_duplicate_views_experiment_enabled' ) && wpcom_is_duplicate_views_experiment_enabled() ) ) {
 			require_once __DIR__ . '/features/wpcom-simple-odyssey-stats/wpcom-simple-odyssey-stats.php';
 		}
 	}

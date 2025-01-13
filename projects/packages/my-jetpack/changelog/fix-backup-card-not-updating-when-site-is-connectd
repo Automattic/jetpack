@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix issue where backup card was not updating after site connection in some situations

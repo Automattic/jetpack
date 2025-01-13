@@ -17,8 +17,6 @@ type StatusTypes = {
 	cssState: CriticalCssState;
 	isCloud?: boolean;
 	showFatalError: boolean;
-	hasRetried: boolean;
-	retry: () => void;
 	highlightRegenerateButton?: boolean;
 	extraText?: string; // Optionally, provide a sentence to use after the main message to provide more context.
 	overrideText?: string; // Optionally, provide a custom message to display instead of the default.
@@ -28,8 +26,6 @@ const Status: React.FC< StatusTypes > = ( {
 	cssState,
 	isCloud = false,
 	showFatalError,
-	hasRetried,
-	retry,
 	highlightRegenerateButton = false,
 	extraText,
 	overrideText,
@@ -54,8 +50,6 @@ const Status: React.FC< StatusTypes > = ( {
 			<ShowStopperError
 				supportLink={ ( isCloud && 'https://jetpack.com/contact-support/' ) || undefined }
 				cssState={ cssState }
-				retry={ retry }
-				showRetry={ ! hasRetried }
 			/>
 		);
 	}

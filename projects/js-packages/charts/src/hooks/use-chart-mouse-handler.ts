@@ -1,7 +1,7 @@
 import { localPoint } from '@visx/event';
 import { useTooltip } from '@visx/tooltip';
 import { useCallback, type MouseEvent } from 'react';
-import type { DataPoint } from '../components/shared/types';
+import type { DataPoint } from '../types';
 
 type UseChartMouseHandlerProps = {
 	/**
@@ -81,7 +81,7 @@ const useChartMouseHandler = ( {
 		onMouseMove,
 		onMouseLeave,
 		tooltipOpen,
-		tooltipData,
+		tooltipData: tooltipData || null,
 		tooltipLeft,
 		tooltipTop,
 	};

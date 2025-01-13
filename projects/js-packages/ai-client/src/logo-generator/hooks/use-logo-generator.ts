@@ -412,10 +412,13 @@ User request:${ prompt }`;
 					throw error;
 				}
 
+				const revisedPrompt = image.data[ 0 ].revised_prompt || null;
+
 				// response_format=url returns object with url, otherwise b64_json
 				const logo: Logo = {
 					url: 'data:image/png;base64,' + image.data[ 0 ].b64_json,
 					description: prompt,
+					revisedPrompt,
 				};
 
 				try {
@@ -424,6 +427,7 @@ User request:${ prompt }`;
 						url: savedLogo.mediaURL,
 						description: prompt,
 						mediaId: savedLogo.mediaId,
+						revisedPrompt,
 					} );
 				} catch ( error ) {
 					storeLogo( logo );

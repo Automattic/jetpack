@@ -145,7 +145,7 @@ const BackupCard = props => {
 	return (
 		// eslint-disable-next-line react/jsx-no-bind
 		<ProductCard slug={ productSlug } Description={ noDescription } { ...props }>
-			{ status === PRODUCT_STATUSES.NEEDS_ATTENTION && backupFailure && (
+			{ status === PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR && backupFailure && (
 				<div className={ styles.backupErrorContainer }>
 					<div className={ styles.iconContainer }>
 						<Gridicon icon="notice" size={ 16 } className={ styles.iconError } />

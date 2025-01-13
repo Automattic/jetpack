@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { ThemeProvider, jetpackTheme, wooTheme } from '../.';
-import { LineChart, BarChart, PieSemiCircleChart } from '../../..';
+import { LineChart, BarChart, PieSemiCircleChart } from '../../../.';
 import barSampleData from '../../../components/bar-chart/stories/sample-data';
 
 const meta: Meta< typeof LineChart > = {

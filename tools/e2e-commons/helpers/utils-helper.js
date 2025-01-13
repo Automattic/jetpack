@@ -209,6 +209,17 @@ export function getSiteCredentials() {
 }
 
 /**
+ * Set environment variables expected by @wordpress/e2e-test-utils-playwright
+ */
+export function setWpEnvVars() {
+	const site = getConfigTestSite();
+
+	process.env.WP_BASE_URL = resolveSiteUrl();
+	process.env.WP_USERNAME = site.username;
+	process.env.WP_PASSWORD = site.password;
+}
+
+/**
  * Get DotCom credentials.
  *
  * @return {object} Credentials.

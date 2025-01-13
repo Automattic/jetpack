@@ -3,12 +3,17 @@
 /**
  * External dependencies
  */
+import { isEqual } from 'lodash';
+import classnames from 'classnames';
 
 /**
  * WordPress dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { InspectorControls } from '@wordpress/block-editor';
 // eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+import { dateI18n, __experimentalGetSettings } from '@wordpress/date';
+import { Component, createRef, Fragment, RawHTML } from '@wordpress/element';
 import {
 	BaseControl,
 	Button,
@@ -20,20 +25,16 @@ import {
 	Spinner,
 	ToggleControl,
 } from '@wordpress/components';
-import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
-import { dateI18n, __experimentalGetSettings } from '@wordpress/date';
-import { Component, createRef, Fragment, RawHTML } from '@wordpress/element';
+import { compose } from '@wordpress/compose';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
-import { isEqual } from 'lodash';
 
 /**
  * Internal dependencies
  */
-import { PostTypesPanel, PostStatusesPanel } from '../../components/editor-panels';
 import QueryControls from '../../components/query-controls';
+import { PostTypesPanel, PostStatusesPanel } from '../../components/editor-panels';
+import createSwiper from './create-swiper';
 import {
 	formatAvatars,
 	formatByline,
@@ -43,7 +44,6 @@ import {
 } from '../../shared/js/utils';
 // Use same posts store as Homepage Posts block.
 import { postsBlockSelector, postsBlockDispatch, shouldReflow } from '../homepage-articles/utils';
-import createSwiper from './create-swiper';
 
 // Max number of slides that can be shown at once.
 const MAX_NUMBER_OF_SLIDES = 6;
@@ -242,9 +242,7 @@ class Edit extends Component {
                 <div className={ classes } ref={ this.carouselRef }>
 					{ hasNoPosts && (
 						<Placeholder className="component-placeholder__align-center">
-							<div style={ { margin: 'auto' } }>
-								{ __( 'Sorry, no posts were found.', 'jetpack-mu-wpcom' ) }
-							</div>
+							<div style={ { margin: 'auto' } }>{ __( 'Sorry, no posts were found.', 'jetpack-mu-wpcom' ) }</div>
 						</Placeholder>
 					) }
 					{ ( ! this.state.swiperInitialized || ! latestPosts ) && (
@@ -302,9 +300,7 @@ class Edit extends Component {
 														) }
 														{ showCategory &&
 															( ! post.newspack_post_sponsors ||
-																post.newspack_sponsors_show_categories ) && (
-																<RawHTML>{ decodeEntities( post.newspack_category_info ) }</RawHTML>
-															) }
+																post.newspack_sponsors_show_categories ) && ( <RawHTML>{ decodeEntities( post.newspack_category_info ) }</RawHTML> ) }
 													</div>
 												) }
 												{ showTitle && (
@@ -337,15 +333,14 @@ class Edit extends Component {
 															{ dateI18n( dateFormat, post.date ) }
 														</time>
 													) }
-													{ ( showCaption || showCredit ) &&
-														post.newspack_featured_image_caption && (
-															<div
-																className="entry-caption"
-																dangerouslySetInnerHTML={ {
-																	__html: post.newspack_featured_image_caption,
-																} }
-															/>
-														) }
+													{ ( showCaption || showCredit ) && post.newspack_featured_image_caption && (
+														<div
+															className="entry-caption"
+															dangerouslySetInnerHTML={ {
+																__html: post.newspack_featured_image_caption,
+															} }
+														/>
+													) }
 												</div>
 											</div>
 										) }
@@ -433,10 +428,9 @@ class Edit extends Component {
 							help={
 								'cover' === imageFit
 									? __(
-											'The image will fill the entire slide and will be cropped if necessary.',
-											'jetpack-mu-wpcom'
-									  )
-									: __(
+										'The image will fill the entire slide and will be cropped if necessary.',
+										'jetpack-mu-wpcom'
+									) : __(
                                     'The image will be resized to fit inside the slide without being cropped.',
                                     'jetpack-mu-wpcom',
                                     0
@@ -470,10 +464,7 @@ class Edit extends Component {
 						</BaseControl>
 						<ToggleControl
 							label={ __( 'Hide Controls', 'jetpack-mu-wpcom' ) }
-							help={ __(
-								'Hide the slideshow UI. Useful when used with Autoplay.',
-								'jetpack-mu-wpcom'
-							) }
+							help={ __( 'Hide the slideshow UI. Useful when used with Autoplay.', 'jetpack-mu-wpcom' ) }
 							checked={ hideControls }
 							onChange={ _hideControls => {
 								setAttributes( { hideControls: _hideControls } );

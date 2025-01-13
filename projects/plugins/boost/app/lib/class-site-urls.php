@@ -26,7 +26,7 @@ class Site_Urls {
 		/**
 		 * Filters the list of site URLs used by the Image Size Analysis.
 		 *
-		 * @since $$next-version$$
+		 * @since 3.7.0
 		 *
 		 * @param array $urls An array of URLs.
 		 * @param int   $limit The maximum number of URLs that should be returned.

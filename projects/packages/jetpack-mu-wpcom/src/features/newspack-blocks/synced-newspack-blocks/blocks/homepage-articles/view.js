@@ -27,7 +27,7 @@ Array.prototype.forEach.call(
  * Creates internal state via closure to ensure all state is
  * isolated to a single Block + button instance.
  *
- * @param {HTMLElement} blockWrapperEl - the button that was clicked
+ * @param {HTMLElement} blockWrapperEl the button that was clicked
  */
 function buildLoadMoreHandler( blockWrapperEl ) {
 	const btnEl = blockWrapperEl.querySelector( '[data-next]' );
@@ -35,18 +35,27 @@ function buildLoadMoreHandler( blockWrapperEl ) {
 		return;
 	}
 	const postsContainerEl = blockWrapperEl.querySelector( '[data-posts]' );
+	const isInfiniteScroll = btnEl.getAttribute( 'data-infinite-scroll' );
 
 	// Set initial state flags.
-	let isFetching = false;
+	window.newspackBlocksIsFetching = window.newspackBlocksIsFetching || false;
+	window.newspackBlocksFetchQueue = window.newspackBlocksFetchQueue || [];
 	let isEndOfData = false;
+	let isPending = false;
 
-	btnEl.addEventListener( 'click', () => {
-		// Early return if still fetching or no more posts to render.
-		if ( isFetching || isEndOfData ) {
+	const maybeLoadMore = () => {
+		if ( isPending ) {
+			return;
+		}
+		isPending = true;
+		loadMore();
+	};
+
+	const loadMore = () => {
+		// Early return if no more posts to render.
+		if ( isEndOfData ) {
 			return false;
 		}
-
-		isFetching = true;
 
 		blockWrapperEl.classList.remove( 'is-error' );
 		blockWrapperEl.classList.add( 'is-loading' );
@@ -55,48 +64,86 @@ function buildLoadMoreHandler( blockWrapperEl ) {
 		const requestURL =
 			btnEl.getAttribute( 'data-next' ) + '&exclude_ids=' + getRenderedPostsIds().join( ',' );
 
+		// If there's already a fetch in progress, queue this one to run after it ends.
+		if ( window.newspackBlocksIsFetching ) {
+			window.newspackBlocksFetchQueue.push( loadMore );
+			return false;
+		}
+
+		window.newspackBlocksIsFetching = true;
 		fetchWithRetry( { url: requestURL, onSuccess, onError }, fetchRetryCount );
+	};
 
-		/**
-		 * @param {object} data - Post data
-		 */
-		function onSuccess( data ) {
-			// Validate received data.
-			if ( ! isPostsDataValid( data ) ) {
-				return onError();
-			}
-
-			if ( data.items.length ) {
-				// Render posts' HTML from string.
-				const postsHTML = data.items.map( item => item.html ).join( '' );
-				postsContainerEl.insertAdjacentHTML( 'beforeend', postsHTML );
-			}
-
-			if ( data.next ) {
-				// Save next URL as button's attribute.
-				btnEl.setAttribute( 'data-next', data.next );
-			}
-
-			if ( ! data.items.length || ! data.next ) {
-				isEndOfData = true;
-				blockWrapperEl.classList.remove( 'has-more-button' );
-			}
-
-			isFetching = false;
-
-			blockWrapperEl.classList.remove( 'is-loading' );
+	/**
+	 * @param {Object} data Post data
+	 */
+	function onSuccess( data ) {
+		// Validate received data.
+		if ( ! isPostsDataValid( data ) ) {
+			return onError();
 		}
 
-		/**
-		 * Handle fetching error
-		 */
-		function onError() {
-			isFetching = false;
-
-			blockWrapperEl.classList.remove( 'is-loading' );
-			blockWrapperEl.classList.add( 'is-error' );
+		if ( data.items.length ) {
+			// Render posts' HTML from string.
+			const postsHTML = data.items.map( item => item.html ).join( '' );
+			postsContainerEl.insertAdjacentHTML( 'beforeend', postsHTML );
 		}
-	} );
+
+		if ( data.next ) {
+			// Save next URL as button's attribute.
+			btnEl.setAttribute( 'data-next', data.next );
+		}
+
+		if ( ! data.items.length || ! data.next ) {
+			isEndOfData = true;
+			blockWrapperEl.classList.remove( 'has-more-button' );
+		}
+
+		onEnd();
+	}
+
+	/**
+	 * Handle fetching error
+	 */
+	function onError() {
+		blockWrapperEl.classList.add( 'is-error' );
+		onEnd();
+	}
+
+	/**
+	 * Callback to run after a fetch request is completed.
+	 */
+	function onEnd() {
+		window.newspackBlocksIsFetching = false;
+		blockWrapperEl.classList.remove( 'is-loading' );
+
+		// If there are queued fetches, run the next one.
+		if ( window.newspackBlocksFetchQueue.length ) {
+			window.newspackBlocksFetchQueue.shift()();
+		}
+		isPending = false;
+	}
+
+	btnEl.addEventListener( 'click', maybeLoadMore );
+
+	if ( isInfiniteScroll ) {
+		// Create an intersection observer instance
+		const btnObserver = new IntersectionObserver(
+			entries => {
+				entries.forEach( entry => {
+					if ( entry.isIntersecting ) {
+						maybeLoadMore();
+					}
+				} );
+			},
+			{
+				root: null,
+				rootMargin: '0px',
+				threshold: 1,
+			}
+		);
+		btnObserver.observe( btnEl );
+	}
 }
 
 /**
@@ -117,8 +164,8 @@ function getRenderedPostsIds() {
  * Wrapper for XMLHttpRequest that performs given number of retries when error
  * occurs.
  *
- * @param {object} options - XMLHttpRequest options
- * @param {number} n       - retry count before throwing
+ * @param {Object} options XMLHttpRequest options
+ * @param {number} n       retry count before throwing
  */
 function fetchWithRetry( options, n ) {
 	const xhr = new XMLHttpRequest();
@@ -174,7 +221,7 @@ function fetchWithRetry( options, n ) {
  * 	"required": ["items", "next"]
  * }
  *
- * @param {object} data - posts endpoint payload
+ * @param {Object} data posts endpoint payload
  */
 function isPostsDataValid( data ) {
 	let isValid = false;
@@ -202,8 +249,8 @@ function isPostsDataValid( data ) {
 /**
  * Checks if object has own property.
  *
- * @param {object} obj  - Object
- * @param {string} prop - Property to check
+ * @param {Object} obj  Object
+ * @param {string} prop Property to check
  */
 function hasOwnProp( obj, prop ) {
 	return Object.prototype.hasOwnProperty.call( obj, prop );

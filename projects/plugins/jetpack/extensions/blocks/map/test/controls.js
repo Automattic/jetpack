@@ -63,11 +63,11 @@ describe( 'Inspector controls', () => {
 		test( 'displays marker colors correctly', () => {
 			render( <MapControls { ...defaultProps } /> );
 
-			expect( screen.getByText( 'Marker Color' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Marker' ) ).toBeInTheDocument();
 		} );
 	} );
 
-	describe( 'Map settings panel', () => {
+	describe( 'Settings panel', () => {
 		test( 'height input shows correctly', () => {
 			render( <MapControls { ...defaultProps } /> );
 
@@ -83,7 +83,7 @@ describe( 'Inspector controls', () => {
 		test( 'street names toggle shows correctly when mapProvider is mapbox', () => {
 			render( <MapControls { ...defaultProps } /> );
 
-			expect( screen.getByText( 'Show street names' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Show labels' ) ).toBeInTheDocument();
 		} );
 
 		test( "street names toggle shows doesn't show when mapProvider is mapkit", () => {
@@ -91,7 +91,7 @@ describe( 'Inspector controls', () => {
 
 			render( <MapControls { ...props } /> );
 
-			expect( screen.queryByText( 'Show street names' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Show labels' ) ).not.toBeInTheDocument();
 		} );
 
 		test( 'scroll to zoom toggle shows correctly when mapProvider is mapbox', () => {

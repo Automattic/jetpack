@@ -2046,10 +2046,7 @@ class Contact_Form_Plugin {
 			if ( str_contains( $content, 'JSON_DATA' ) ) {
 				$chunks     = explode( "\nJSON_DATA", $content );
 				$all_values = json_decode( $chunks[1], true );
-				if ( is_array( $all_values ) ) {
-					$fields_array = array_keys( $all_values );
-				}
-				$lines = array_filter( explode( "\n", $chunks[0] ) );
+				$lines      = array_filter( explode( "\n", $chunks[0] ) );
 			} else {
 				$fields_array = preg_replace( '/.*Array\s\( (.*)\)/msx', '$1', $content );
 

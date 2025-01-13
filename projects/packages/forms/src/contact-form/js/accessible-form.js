@@ -897,7 +897,7 @@ const setFormError = ( form, invalidFields, opts = {} ) => {
 		const submitBtn = getFormSubmitBtn( form );
 
 		if ( submitBtn ) {
-			submitBtn.parentNode.insertBefore( error, submitBtn );
+			submitBtn.parentNode.parentNode.insertBefore( error, submitBtn.parentNode );
 		} else {
 			form.appendChild( error );
 		}

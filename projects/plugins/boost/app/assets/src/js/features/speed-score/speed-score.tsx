@@ -16,7 +16,7 @@ import { useDebouncedRefreshScore, useSpeedScores } from './lib/hooks';
 import styles from './speed-score.module.scss';
 import { useModulesState } from '$features/module/lib/stores';
 import { useCriticalCssState } from '$features/critical-css/lib/stores/critical-css-state';
-import { useLocalCriticalCssGeneratorStatus } from '$features/critical-css/local-generator/local-generator-provider';
+import { useLocalCriticalCssGeneratorStatus } from '$features/critical-css/critical-css-context/critical-css-context-provider';
 import { queryClient } from '@automattic/jetpack-react-data-sync-client';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import PopOut from './pop-out/pop-out';
