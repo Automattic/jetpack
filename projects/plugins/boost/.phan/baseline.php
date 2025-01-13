@@ -15,7 +15,7 @@ return [
     // PhanTypeArraySuspicious : 9 occurrences
     // PhanTypeMismatchArgument : 8 occurrences
     // PhanParamTooMany : 6 occurrences
-    // PhanPossiblyUndeclaredVariable : 6 occurrences
+    // PhanPossiblyUndeclaredVariable : 5 occurrences
     // PhanTypeMismatchReturnProbablyReal : 5 occurrences
     // PhanUndeclaredConstant : 5 occurrences
     // PhanTypeMismatchArgumentNullableInternal : 4 occurrences
