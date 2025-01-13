@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize\REST_API;
 
+use Automattic\Jetpack\Publicize\Connections;
 use Automattic\Jetpack\Publicize\Publicize_Utils;
 use WP_Error;
 use WP_REST_Controller;
@@ -73,16 +74,6 @@ abstract class Base_Controller extends WP_REST_Controller {
 	/**
 	 * Verify that user can access Publicize data
 	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return true|WP_Error
-	 */
-	public function get_items_permissions_check( $request ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return $this->publicize_permissions_check();
-	}
-
-	/**
-	 * Verify that user can access Publicize data
-	 *
 	 * @return true|WP_Error
 	 */
 	protected function publicize_permissions_check() {
@@ -110,5 +101,24 @@ abstract class Base_Controller extends WP_REST_Controller {
 			__( 'Sorry, you are not allowed to access Jetpack Social data on this site.', 'jetpack-publicize-pkg' ),
 			array( 'status' => rest_authorization_required_code() )
 		);
+	}
+
+	/**
+	 * Check whether the request is allowed to manage (update/delete) a connection.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return bool True if the request can manage connection, false otherwise.
+	 */
+	protected function manage_connection_permission_check( $request ) {
+		// Editors and above can manage any connection.
+		if ( current_user_can( 'edit_others_posts' ) ) {
+			return true;
+		}
+
+		$connection_id = $request->get_param( 'connection_id' );
+
+		$connection = Connections::get_by_id( $connection_id );
+
+		return Connections::user_owns_connection( $connection );
 	}
 }

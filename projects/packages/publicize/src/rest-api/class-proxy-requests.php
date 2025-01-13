@@ -100,6 +100,18 @@ class Proxy_Requests {
 			array( 'status' => rest_authorization_required_code() )
 		);
 
+		l(
+			array(
+				'api_url'         => $api_url,
+				'request_options' => $request_options,
+				'body'            => $body,
+				'context'         => $context,
+				'rest_base'       => $this->rest_base,
+				'base_api_path'   => $this->base_api_path,
+				'version'         => $this->version,
+			)
+		);
+
 		if ( 'user' === $context ) {
 			if ( ! $manager->is_user_connected() ) {
 				return $response;
