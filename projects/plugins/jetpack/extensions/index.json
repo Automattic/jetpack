@@ -71,7 +71,8 @@
 		"ai-general-purpose-image-generator",
 		"ai-proofread-breve",
 		"ai-assistant-site-logo-support",
-		"ai-title-optimization-keywords-support"
+		"ai-title-optimization-keywords-support",
+		"ai-response-feedback"
 	],
 	"beta": [
 		"google-docs-embed",
@@ -80,7 +81,6 @@
 		"videopress/video-chapters",
 		"ai-assistant-backend-prompts",
 		"ai-list-to-table-transform",
-		"ai-response-feedback",
 		"ai-seo-assistant"
 	],
 	"experimental": [],

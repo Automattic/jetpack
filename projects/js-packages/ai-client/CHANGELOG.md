@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.5] - 2025-01-06
+### Changed
+- Updated package dependencies. [#40798] [#40810] [#40811] [#40841]
+
+### Fixed
+- AI Client: Add style parameter to first logo generator so it doesn't fall in a DALL-E situation. [#40807]
+- Jetpack AI: Switch tracking data to camel_case to maintain Tracks' required property format. [#40774]
+
 ## [0.25.4] - 2024-12-30
 ### Added
 - AI Client: Add thumbs feedback on AI Assistant. [#40728]
@@ -494,6 +502,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI Client: stop using smart document visibility handling on the fetchEventSource library, so it does not restart the completion when changing tabs. [#32004]
 - Updated package dependencies. [#31468] [#31659] [#31785]
 
+[0.25.5]: https://github.com/Automattic/jetpack-ai-client/compare/v0.25.4...v0.25.5
 [0.25.4]: https://github.com/Automattic/jetpack-ai-client/compare/v0.25.3...v0.25.4
 [0.25.3]: https://github.com/Automattic/jetpack-ai-client/compare/v0.25.2...v0.25.3
 [0.25.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.25.1...v0.25.2

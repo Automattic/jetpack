@@ -96,7 +96,7 @@ class Verbum_Comments {
 			$color_scheme = 'transparent';
 		}
 
-		$verbum = '<div id="comment-form__verbum" class="' . $color_scheme . '"></div>' . $this->hidden_fields();
+		$verbum = '<div class="comment-form__verbum ' . $color_scheme . '"></div>' . $this->hidden_fields();
 
 		// If the blog requires login, Verbum need to be wrapped in a <form> to work.
 		// Verbum is given `mustLogIn` to handle the login flow.
@@ -535,8 +535,12 @@ HTML;
 	 * Get the hidden fields for the comment form.
 	 */
 	public function hidden_fields() {
+		// Ironically, get_queried_post_id doesn't work inside query loop.
+		// See: https://github.com/Automattic/wp-calypso/issues/98136
+		$queried_post    = get_post();
+		$queried_post_id = $queried_post ? $queried_post->ID : 0;
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$post_id = isset( $_GET['postid'] ) ? intval( $_GET['postid'] ) : get_queried_object_id();
+		$post_id = isset( $_GET['postid'] ) ? intval( $_GET['postid'] ) : $queried_post_id;
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$is_current_user_subscribed = isset( $_GET['is_current_user_subscribed'] ) ? intval( $_GET['is_current_user_subscribed'] ) : 0;
 		$nonce                      = wp_create_nonce( 'highlander_comment' );
