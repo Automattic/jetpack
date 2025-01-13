@@ -87,4 +87,14 @@ class Publicize_Utils {
 	public static function is_publicize_active() {
 		return ( new Modules() )->is_active( 'publicize' );
 	}
+
+	/**
+	 * Check if we are on WPCOM.
+	 *
+	 * @return bool
+	 */
+	public static function is_wpcom() {
+		return ( new Host() )->is_wpcom_simple();
+	}
+
 }
