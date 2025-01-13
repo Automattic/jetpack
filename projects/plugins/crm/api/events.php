@@ -26,7 +26,7 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 jpcrm_api_check_http_method( array( 'GET' ) );
 
 // Process the pagination parameters from the query
-list( $page, $per_page ) = jpcrm_api_process_pagination();
+$pagination = jpcrm_api_process_pagination();
 
 /**
  * Allow events to be filtered by owner. Docs are ambiguous about
@@ -44,8 +44,9 @@ if ( isset( $_GET['owner'] ) && (int) $_GET['owner'] > 0 ) {
 
 $args = array(
 	'withAssigned' => true,
-	'page'         => $page,
-	'perPage'      => $per_page,
+	'page'         => $pagination['page'],
+	'perPage'      => $pagination['per_page'],
+	'sortOrder'    => $pagination['order'],
 	'ownedBy'      => $owner,
 	'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_TASK ),
 );

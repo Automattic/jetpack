@@ -183,7 +183,7 @@
 
 .contact-form-submission .go-back-message .link {
 	font-weight: 200;
-	color: #000;
+	color: inherit;
 }
 
 .contact-form-submission .field-name {

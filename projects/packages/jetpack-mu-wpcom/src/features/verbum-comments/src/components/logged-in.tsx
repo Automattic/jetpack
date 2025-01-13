@@ -1,8 +1,9 @@
 import clsx from 'clsx';
+import { useContext } from 'preact/hooks';
 import useSubscriptionApi from '../hooks/useSubscriptionApi';
 import { translate } from '../i18n';
 import { Close } from '../images';
-import { isTrayOpen, subscriptionSettings, userInfo } from '../state';
+import { VerbumSignals } from '../state';
 import { serviceData, isFastConnection } from '../utils';
 import { NewCommentEmail } from './new-comment-email';
 import { NewPostsEmail } from './new-posts-email';
@@ -25,6 +26,7 @@ interface LoggedInProps {
 }
 
 export const LoggedIn = ( { toggleTray, logout }: LoggedInProps ) => {
+	const { isTrayOpen, subscriptionSettings, userInfo } = useContext( VerbumSignals );
 	const { setEmailPostsSubscription, setCommentSubscription, setNotificationSubscription } =
 		useSubscriptionApi();
 	const { subscribeToComment, subscribeToBlog } = VerbumComments;

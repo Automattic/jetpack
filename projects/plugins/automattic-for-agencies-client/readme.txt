@@ -44,17 +44,23 @@ Once connected, your site will display within Automattic for Agencies.
 1. Manage your connection to the agency dashboard from the Settings screen in your WordPress dashboard.
 
 == Changelog ==
-### 0.3.0 - 2024-11-11
+### 0.4.0 - 2025-01-09
 #### Changed
-- General: indicate compatibility with the upcoming version of WordPress - 6.7.
-- Only include `wp-polyfill` as a script dependency when needed.
+- Updated dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
 - Updated package dependencies.
 
 #### Removed
-- Connection: Removed deprecated method features_available
-- Connection: Removed features_enabled deprecated method
-- General: update WordPress version requirements to WordPress 6.5.
+- General: Update minimum PHP version to 7.2.
+- General: Update minimum WordPress version to 6.6.
 
 #### Fixed
-- Lossless image optimization of images
+- E2E Tests: Only install single browser used by Playwright.
 

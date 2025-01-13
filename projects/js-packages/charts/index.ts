@@ -15,5 +15,5 @@ export { ThemeProvider } from './src/providers/theme';
 export { default as useChartMouseHandler } from './src/hooks/use-chart-mouse-handler';
 
 // Types
-export type * from './src/components/shared/types';
+export type * from './src/types';
 export type { BaseTooltipProps } from './src/components/tooltip';

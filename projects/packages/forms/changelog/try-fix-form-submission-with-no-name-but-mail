@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix form submission view if name field kept empty, email entry shows in name field

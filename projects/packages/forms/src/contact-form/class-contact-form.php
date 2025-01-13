@@ -508,6 +508,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 				if ( $meta_key ) {
 					if ( isset( $content_fields[ "_feedback_{$meta_key}" ] ) ) {
+						if ( 'name' === $type ) {
+							// If a form contains both email and name fields but the user doesn't provide a name, we don't need to show the name field
+							// in the success message after submision. We have this specific check because in the above case the `author` field gets
+							// a fallback value of the provided email and is used in the backend in various places.
+							if ( isset( $content_fields['_feedback_author_email'] ) && $content_fields['_feedback_author'] === $content_fields['_feedback_author_email'] ) {
+								continue;
+							}
+						}
 						$value = $content_fields[ "_feedback_{$meta_key}" ];
 					}
 				} else {

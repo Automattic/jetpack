@@ -1,4 +1,4 @@
-import type { SeriesData } from '../../shared/types';
+import type { SeriesData } from '../../../types';
 
 // Sample data
 const temperatureData: SeriesData[] = [
