@@ -38,9 +38,9 @@ function findPriority( body ) {
 		}
 
 		const impactIndicators = {
-			isolated: 'Less than 20% of all',
-			scattered: 'Between 20% and 60% of all',
-			widespread: 'More than 60% of all',
+			isolated: 'Fewer than 20% of the total website/platform users',
+			scattered: 'Between 20% and 60% of the total website/platform users',
+			widespread: 'More than 60% of the total website/platform users',
 		};
 
 		if ( severity === 'Critical' ) {
