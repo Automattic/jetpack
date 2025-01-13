@@ -290,13 +290,11 @@ export default function SeoAssistantWizard( { isOpen, close, onStep }: SeoAssist
 						<div ref={ messagesEndRef } />
 					</div>
 
-					<div className="seo-assistant-wizard__input-container">
-						<WizardInput
-							currentStepData={ currentStepData }
-							handleDone={ handleDone }
-							handleSubmit={ handleSubmit }
-						/>
-					</div>
+					<WizardInput
+						currentStepData={ currentStepData }
+						handleDone={ handleDone }
+						handleSubmit={ handleSubmit }
+					/>
 				</div>
 			</div>
 		)
