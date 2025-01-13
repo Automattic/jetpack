@@ -517,6 +517,12 @@ class Boost_Cache {
 				array( 'cf_clearance', 'cf_chl_rc_i', 'cf_chl_rc_ni', 'cf_chl_rc_m', '_cfuvid', '__cfruid', '__cfwaitingroom', 'cf_ob_info', 'cf_use_ob', '__cfseq', '__cf_bm', '__cflb', 'sbsj_' )
 			)
 		);
+		$cookies = array_unique(
+			array_map(
+				'trim',
+				$cookies
+			)
+		);
 
 		foreach ( $cookies as $cookie ) {
 			if ( isset( $parameters['cookies'][ $cookie ] ) ) {
