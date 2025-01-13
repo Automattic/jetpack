@@ -213,7 +213,7 @@ class Connections_Controller extends Base_Controller {
 					'connection_id'        => (string) $connection_id,
 					'display_name'         => (string) $publicize->get_display_name( $service_name, $connection ),
 					'external_handle'      => (string) $publicize->get_external_handle( $service_name, $connection ),
-					'external_id'          => (string) $connection_meta['external_id'] ?? '',
+					'external_id'          => $connection_meta['external_id'] ?? '',
 					'profile_link'         => (string) $publicize->get_profile_link( $service_name, $connection ),
 					'profile_picture'      => (string) $publicize->get_profile_picture( $connection ),
 					'service_label'        => (string) Publicize::get_service_label( $service_name ),
