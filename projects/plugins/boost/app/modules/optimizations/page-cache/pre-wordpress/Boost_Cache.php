@@ -490,8 +490,9 @@ class Boost_Cache {
 	public function ignore_cookies( $parameters ) {
 		static $params = false;
 
+		// Only run this once as it may be called multiple times on uncached pages.
 		if ( $params ) {
-				return $params;
+			return $params;
 		}
 
 		// JETPACK_BOOST_IGNORE_COOKIES is a comma-separated list of cookies to ignore.
