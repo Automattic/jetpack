@@ -1,5 +1,7 @@
+import { Button, Icon, Tooltip } from '@wordpress/components';
 import { useState, useCallback, useEffect, useRef, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { next, closeSmall, chevronLeft } from '@wordpress/icons';
 import debugFactory from 'debug';
 import './style.scss';
 import { useCompletionStep } from './use-completion-step';
@@ -200,13 +202,20 @@ export default function SeoAssistantWizard( { isOpen, close, onStep }: SeoAssist
 		isOpen && (
 			<div className="seo-assistant-wizard">
 				<div className="seo-assistant-wizard__header">
-					<button className="seo-assistant-wizard__back" onClick={ handleBack }>
-						{ __( '←', 'jetpack' ) }
-					</button>
+					<Button variant="link" disabled={ isBusy } onClick={ handleBack }>
+						<Icon icon={ chevronLeft } size="24" />
+					</Button>
 					<h2>{ currentStepData.title }</h2>
-					<button disabled={ isBusy } className="seo-assistant-wizard__skip" onClick={ handleSkip }>
-						{ __( 'Skip', 'jetpack' ) }
-					</button>
+					<div>
+						<Tooltip text={ __( 'Skip', 'jetpack' ) }>
+							<Button variant="link" disabled={ isBusy } onClick={ handleSkip }>
+								<Icon icon={ next } size="24" />
+							</Button>
+						</Tooltip>
+						<Button variant="link" onClick={ handleDone }>
+							<Icon icon={ closeSmall } size="24" />
+						</Button>
+					</div>
 				</div>
 
 				<div className="seo-assistant-wizard__content">
