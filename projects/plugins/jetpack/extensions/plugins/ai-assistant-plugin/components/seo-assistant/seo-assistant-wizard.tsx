@@ -4,14 +4,14 @@ import {
 	useEffect,
 	useRef,
 	useMemo,
-	createInterpolateElement,
+	// createInterpolateElement,
 } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import debugFactory from 'debug';
 import './style.scss';
 import bigSkyIcon from './big-sky-icon.svg';
-// import { useCompletionStep } from './use-completion-step';
+import { useCompletionStep } from './use-completion-step';
 import { useKeywordsStep } from './use-keywords-step';
 import { useMetaDescriptionStep } from './use-meta-description-step';
 import { useTitleStep } from './use-title-step';
@@ -25,7 +25,6 @@ export default function SeoAssistantWizard( { isOpen, close, onStep }: SeoAssist
 	const [ messages, setMessages ] = useState< Message[] >( [] );
 	const messagesEndRef = useRef< HTMLDivElement >( null );
 	const [ isBusy, setIsBusy ] = useState( false );
-	const [ monitors, setMonitors ] = useState( [] );
 
 	const scrollToBottom = () => {
 		messagesEndRef.current?.scrollIntoView( { behavior: 'smooth' } );
@@ -57,23 +56,6 @@ export default function SeoAssistantWizard( { isOpen, close, onStep }: SeoAssist
 		setMessages( prev => prev.slice( 0, -1 ) );
 	};
 
-	const addMonitor = step => setMonitors( prev => [ ...prev, step ] );
-
-	const updateMonitor = useCallback(
-		step =>
-			setMonitors( prev =>
-				prev.map( ( stepMonitor: { id: string } ) => {
-					return step.id === stepMonitor.id
-						? {
-								...stepMonitor,
-								...step,
-						  }
-						: stepMonitor;
-				} )
-			),
-		[ setMonitors ]
-	);
-
 	const keywordsStep: Step = useKeywordsStep( {
 		addMessage,
 		onStep,
@@ -94,60 +76,36 @@ export default function SeoAssistantWizard( { isOpen, close, onStep }: SeoAssist
 		setIsBusy,
 	} );
 
-	// const completionStep: Step = useCompletionStep( {
-	// 	steps: [ keywordsStep, titleStep, metaStep ],
-	// 	addMessage,
-	// } );
+	const completionStep: Step = useCompletionStep( {
+		steps: [ keywordsStep, titleStep, metaStep ],
+		addMessage,
+	} );
 
 	const steps: Step[] = useMemo(
 		() => [
 			keywordsStep,
 			titleStep,
 			metaStep,
-			{
-				id: 'completion',
-				title: __( 'Your post is SEO-ready', 'jetpack' ),
-				// onStart: handleSummaryChecks,
-				messages: [
-					{
-						content: __( "Here's your updated checklist:", 'jetpack' ),
-						showIcon: true,
-					},
-					{
-						content: createInterpolateElement(
-							monitors
-								.map( stepMonitor =>
-									stepMonitor.completed ? `✅ ${ stepMonitor.label }` : `❌ ${ stepMonitor.label }`
-								)
-								.join( '<br />' ),
-							{ br: <br /> }
-						),
-						showIcon: false,
-					},
-					{
-						content: createInterpolateElement(
-							__(
-								'SEO optimization complete! 🎉<br/>Your blog post is now search-engine friendly.',
-								'jetpack'
-							),
-							{ br: <br /> }
-						),
-						showIcon: true,
-					},
-					{
-						content: __( 'Happy blogging! 😊', 'jetpack' ),
-						showIcon: false,
-					},
-				],
-				type: 'completion',
-				value: '',
-				setValue: () => {},
-			},
+			// {
+			// 	id: 'completion',
+			// 	title: __( 'Your post is SEO-ready', 'jetpack' ),
+			// 	// onStart: handleSummaryChecks,
+			// 	messages: [
+			// 		{
+			// 			content: __( "Here's your updated checklist:", 'jetpack' ),
+			// 			showIcon: true,
+			// 		},
+			// 	],
+			// 	type: 'completion',
+			// 	value: '',
+			// 	setValue: () => {},
+			// },
+			completionStep,
 		],
-		[ keywordsStep, titleStep, metaStep, monitors ]
+		[ keywordsStep, metaStep, titleStep, completionStep ]
 	);
 
-	const currentStepData = useMemo( () => steps[ currentStep ], [ steps, currentStep ] );
+	const currentStepData = steps[ currentStep ];
 
 	// initialize wizard, set completion monitors
 	useEffect( () => {
@@ -156,16 +114,6 @@ export default function SeoAssistantWizard( { isOpen, close, onStep }: SeoAssist
 		}
 		if ( messages.length === 0 ) {
 			debug( 'init' );
-			// Initialize the completion monitor
-			steps
-				.filter( step => step.type !== 'completion' )
-				.forEach( step => {
-					addMonitor( {
-						id: step.id,
-						label: step.label || step.title,
-						completed: false,
-					} );
-				} );
 			// Initialize with first step messages
 			currentStepData.messages.forEach( message =>
 				addMessage( {
@@ -174,7 +122,7 @@ export default function SeoAssistantWizard( { isOpen, close, onStep }: SeoAssist
 				} )
 			);
 		}
-	}, [ isOpen, currentStepData.messages, messages, addMessage, steps ] );
+	}, [ isOpen, currentStepData.messages, messages, addMessage ] );
 
 	const handleNext = useCallback( () => {
 		if ( currentStep < steps.length - 1 ) {
@@ -189,18 +137,44 @@ export default function SeoAssistantWizard( { isOpen, close, onStep }: SeoAssist
 					showIcon: message.showIcon,
 				} )
 			);
+			// If we're on last step, process completion
+			// if ( currentStep + 1 === steps.length - 1 ) {
+			// 	addMessage( {
+			// 		content: createInterpolateElement(
+			// 			steps
+			// 				.filter( step => step.type !== 'completion' )
+			// 				.map( step => {
+			// 					const label = step.label || step.title;
+			// 					return step.completed ? `✅ ${ label }` : `❌ ${ label }`;
+			// 				} )
+			// 				.join( '<br />' ),
+			// 			{ br: <br /> }
+			// 		),
+			// 		showIcon: false,
+			// 	} );
+			// 	addMessage( {
+			// 		content: createInterpolateElement(
+			// 			__(
+			// 				'SEO optimization complete! 🎉<br/>Your blog post is now search-engine friendly.',
+			// 				'jetpack'
+			// 			),
+			// 			{ br: <br /> }
+			// 		),
+			// 		showIcon: true,
+			// 	} );
+			// 	addMessage( {
+			// 		content: __( 'Happy blogging! 😊', 'jetpack' ),
+			// 		showIcon: false,
+			// 	} );
+			// }
 			steps[ currentStep + 1 ].onStart?.();
 		}
 	}, [ currentStep, steps, setCurrentStep, addMessage ] );
 
 	const handleSubmit = useCallback( async () => {
 		await currentStepData.onSubmit?.();
-		updateMonitor( {
-			id: currentStepData.id,
-			completed: true,
-		} );
 		handleNext();
-	}, [ currentStepData, updateMonitor, handleNext ] );
+	}, [ currentStepData, handleNext ] );
 
 	const handleBack = () => {
 		if ( currentStep > 0 ) {
@@ -225,8 +199,10 @@ export default function SeoAssistantWizard( { isOpen, close, onStep }: SeoAssist
 		close();
 		setCurrentStep( 0 );
 		setMessages( [] );
-		setMonitors( [] );
-	}, [ close ] );
+		steps
+			.filter( step => step.type !== 'completion' )
+			.forEach( step => step.setCompleted( false ) );
+	}, [ close, steps ] );
 
 	const renderMessageText = message => {
 		if ( message.type === 'past-options' ) {

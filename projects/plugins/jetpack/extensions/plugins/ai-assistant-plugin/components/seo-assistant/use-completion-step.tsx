@@ -2,7 +2,7 @@ import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import type { Step, CompletionStepHookProps } from './types';
 
-export const useCompletionStep = ( { addMessage, steps }: CompletionStepHookProps ): Step => {
+export const useCompletionStep = ( { steps }: CompletionStepHookProps ): Step => {
 	const getSummaryCheck = useCallback( () => {
 		const summaryString = steps
 			.map( step => {
@@ -13,26 +13,26 @@ export const useCompletionStep = ( { addMessage, steps }: CompletionStepHookProp
 		return createInterpolateElement( summaryString, { br: <br /> } );
 	}, [ steps ] );
 
-	const handleStart = useCallback( async () => {
-		// await new Promise( resolve => setTimeout( () => resolve( 'done' ), 1000 ) );
-		const summary = getSummaryCheck();
-		// these were put here because handleNext wouldn't give enough time to update the completed state
-		addMessage( { content: summary, showIcon: false } );
-		addMessage( {
-			content: createInterpolateElement(
-				__(
-					'SEO optimization complete! 🎉<br/>Your blog post is now search-engine friendly.',
-					'jetpack'
-				),
-				{ br: <br /> }
-			),
-			showIcon: true,
-		} );
-		addMessage( {
-			content: __( 'Happy blogging! 😊', 'jetpack' ),
-			showIcon: false,
-		} );
-	}, [ addMessage, getSummaryCheck ] );
+	// const handleStart = useCallback( async () => {
+	// 	// await new Promise( resolve => setTimeout( () => resolve( 'done' ), 1000 ) );
+	// 	const summary = getSummaryCheck();
+	// 	// these were put here because handleNext wouldn't give enough time to update the completed state
+	// 	addMessage( { content: summary, showIcon: false } );
+	// 	addMessage( {
+	// 		content: createInterpolateElement(
+	// 			__(
+	// 				'SEO optimization complete! 🎉<br/>Your blog post is now search-engine friendly.',
+	// 				'jetpack'
+	// 			),
+	// 			{ br: <br /> }
+	// 		),
+	// 		showIcon: true,
+	// 	} );
+	// 	addMessage( {
+	// 		content: __( 'Happy blogging! 😊', 'jetpack' ),
+	// 		showIcon: false,
+	// 	} );
+	// }, [ addMessage, getSummaryCheck ] );
 
 	return {
 		id: 'completion',
@@ -63,7 +63,7 @@ export const useCompletionStep = ( { addMessage, steps }: CompletionStepHookProp
 			},
 		],
 		type: 'completion',
-		onStart: handleStart,
+		// onStart: handleStart,
 		value: null,
 		setValue: () => null,
 	};
