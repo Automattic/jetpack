@@ -70,8 +70,8 @@ function findPriority( body ) {
 
 	debug(
 		`find-priority: ${
-			priority === 'TBD' ? 'No ' : ' '
-		}priority indicators found. Priority set to ${ priority }.`
+			priority === 'TBD' ? 'No' : priority
+		} priority indicators found. Priority set to ${ priority }.`
 	);
 	return priority;
 }
