@@ -1,6 +1,5 @@
 import { createBlock } from '@wordpress/blocks';
 import { Path } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { filter, isEmpty, map, startsWith, trim } from 'lodash';
 import JetpackField from './components/jetpack-field';
@@ -418,17 +417,11 @@ export const childBlocks = [
 			],
 			description: __( 'Collect a website address from your site visitors.', 'jetpack-forms' ),
 			icon: renderMaterialIcon(
-				<>
-					<Path
-						fill={ getIconColor() }
-						d="M4.47118 8.5H3V12.9489C3 14.4653 4.14479 15.5 5.94723 15.5C7.74479 15.5 8.88958 14.4653 8.88958 12.9489V8.5H7.4184V12.8059C7.4184 13.688 6.88742 14.265 5.94723 14.265C5.00216 14.265 4.47118 13.688 4.47118 12.8059V8.5Z"
-					/>
-					<Path
-						fill={ getIconColor() }
-						d="M11.5348 9.62534H12.7867C13.5175 9.62534 13.9754 10.0545 13.9754 10.7221C13.9754 11.404 13.5418 11.8188 12.8014 11.8188H11.5348V9.62534ZM11.5348 12.8631H12.7137L14.0241 15.3808H15.6901L14.2092 12.6485C15.0179 12.3386 15.4855 11.5756 15.4855 10.6935C15.4855 9.33447 14.5599 8.5 12.9426 8.5H10.0636V15.3808H11.5348V12.8631Z"
-					/>
-					<Path fill={ getIconColor() } d="M21 14.1887H17.9261V8.5H16.4549V15.3808H21V14.1887Z" />
-				</>
+				// `link` from `@wordpress/icons`
+				<Path
+					fill={ getIconColor() }
+					d="M10 17.389H8.444A5.194 5.194 0 1 1 8.444 7H10v1.5H8.444a3.694 3.694 0 0 0 0 7.389H10v1.5ZM14 7h1.556a5.194 5.194 0 0 1 0 10.39H14v-1.5h1.556a3.694 3.694 0 0 0 0-7.39H14V7Zm-4.5 6h5v-1.5h-5V13Z"
+				/>
 			),
 			edit: editField( 'url' ),
 			attributes: {
