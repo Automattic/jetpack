@@ -108,11 +108,17 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	/**
 	 * Adds the field values to the global $_POST value.
 	 *
-	 * @param array $values Array of field key value pairs.
+	 * @param array  $values Array of form fields and values.
+	 * @param string $form_id Optional form ID. If not provided, will use $this->post->ID.
 	 */
-	private function add_field_values( $values ) {
+	private function add_field_values( $values, $form_id = null ) {
+		$prefix = $form_id ? $form_id : 'g' . $this->post->ID;
 		foreach ( $values as $key => $val ) {
-			$_POST[ 'g' . $this->post->ID . '-' . $key ] = $val;
+			if ( strpos( $key, 'contact-form' ) === 0 || strpos( $key, 'action' ) === 0 ) {
+				$_POST[ $key ] = $val;
+			} else {
+				$_POST[ $prefix . '-' . $key ] = $val;
+			}
 		}
 	}
 
@@ -2071,5 +2077,29 @@ EOT;
 			$expected,
 			Util::grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
 		);
+	}
+
+	/**
+	 * Tests that multiple instances of the same form work correctly with unique IDs.
+	 */
+	public function test_multiple_form_instances_with_unique_ids() {
+		// Create two instances of the same form
+		$form1 = new Contact_Form( array(), "[contact-field label='Name' type='name' required='1'/][contact-field label='Message' type='textarea' required='1'/]" );
+		$form2 = new Contact_Form( array(), "[contact-field label='Name' type='name' required='1'/][contact-field label='Message' type='textarea' required='1'/]" );
+
+		// Verify that the forms have different IDs
+		$this->assertNotEquals( $form1->get_attribute( 'id' ), $form2->get_attribute( 'id' ), 'Forms should have unique IDs' );
+
+		// Submit first form
+		$this->add_field_values(
+			array(
+				'name'    => 'First form name',
+				'message' => 'First form message',
+			),
+			$form1->get_attribute( 'id' )
+		);
+		$result1 = $form1->process_submission();
+		$this->assertTrue( is_string( $result1 ), 'First form submission should be successful' );
+		// TODO: Test that the both froms submissions are saved with the correct information.
 	}
 } // end class
