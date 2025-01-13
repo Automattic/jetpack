@@ -103,7 +103,7 @@ class Boost_Cache_Utils {
 	 *
 	 * @param mixed $value The value to sanitize.
 	 *
-	 * @return string The sanitized value, as a list.
+	 * @return array The sanitized value.
 	 */
 	public static function sanitize_bypass_patterns( $value ) {
 		if ( is_array( $value ) ) {
