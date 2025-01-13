@@ -29,6 +29,11 @@ interface PieChartProps extends OmitBaseChartProps {
 	 * Add padding to the chart
 	 */
 	padding?: number;
+
+	/**
+	 * Thickness of the pie chart. A value between 0 and 1
+	 */
+	thickness?: number;
 }
 
 /**
@@ -40,8 +45,8 @@ interface PieChartProps extends OmitBaseChartProps {
 const PieChart = ( {
 	data,
 	size = 500, //TODO: replace when making the components responsive
+	thickness = 1,
 	withTooltips = false,
-	innerRadius = 0,
 	className,
 	showLegend,
 	legendOrientation,
@@ -67,6 +72,9 @@ const PieChart = ( {
 		index,
 	} ) );
 
+	const outerRadius = radius - padding;
+	const innerRadius = outerRadius * ( 1 - thickness );
+
 	const accessors = {
 		value: ( d: DataPointPercentage ) => d.value,
 		// Use the color property from the data object as a last resort. The theme provides colours by default.
@@ -88,7 +96,7 @@ const PieChart = ( {
 					<Pie< DataPointPercentage & { index: number } >
 						data={ dataWithIndex }
 						pieValue={ accessors.value }
-						outerRadius={ radius - padding }
+						outerRadius={ outerRadius }
 						innerRadius={ innerRadius }
 					>
 						{ pie => {
