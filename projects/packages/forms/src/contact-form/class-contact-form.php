@@ -118,6 +118,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$default_to      .= $post_author->user_email;
 		}
 
+		if ( ! empty( self::$forms ) ) {
+			$attributes['id'] = $attributes['id'] . '-' . count( self::$forms ) + 1;
+		}
+
 		$this->hash                 = sha1( wp_json_encode( $attributes ) );
 		self::$forms[ $this->hash ] = $this;
 
