@@ -454,10 +454,6 @@ function wpcom_should_show_global_styles_launch_bar() {
 
 	$current_blog_id = get_current_blog_id();
 
-	if ( is_graylisted( $current_blog_id ) ) {
-		return false;
-	}
-
 	if ( ! (
 		is_user_member_of_blog( $current_user_id, $current_blog_id ) &&
 		current_user_can( 'manage_options' )
