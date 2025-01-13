@@ -210,11 +210,7 @@ add_action( 'enqueue_block_editor_assets', 'wpcom_global_styles_enqueue_block_ed
  * @return void
  */
 function wpcom_global_styles_enqueue_assets() {
-	if (
-		! wpcom_global_styles_current_user_can_edit_wp_global_styles() ||
-		! wpcom_should_limit_global_styles() ||
-		! wpcom_global_styles_in_use()
-	) {
+	if ( ! wpcom_should_show_global_styles_launch_bar() ) {
 		return;
 	}
 
@@ -450,16 +446,71 @@ function wpcom_premium_global_styles_is_site_exempt( $blog_id = 0 ) {
 }
 
 /**
- * Adds the global style notice banner to the launch bar controls.
+ * Returns whether the global style banner should be shown or not.
  *
- * @param array $bar_controls List of launch bar controls.
- *
- * return array The collection of launch bar controls to render.
+ * @return bool Whether the global styles upgrade banner should be rendered.
  */
-function wpcom_display_global_styles_launch_bar( $bar_controls ) {
-	// Do not show the banner if the user can use global styles.
+function wpcom_should_show_global_styles_launch_bar() {
+	$current_user_id = get_current_user_id();
+
+	if ( ! $current_user_id ) {
+		return false;
+	}
+
+	$current_blog_id = get_current_blog_id();
+
+	if ( is_graylisted( $current_blog_id ) ) {
+		return false;
+	}
+
+	if ( ! (
+		is_user_member_of_blog( $current_user_id, $current_blog_id ) &&
+		current_user_can( 'manage_options' )
+	) ) {
+		return false;
+	}
+
+	if ( has_blog_sticker( 'difm-lite-in-progress' ) ) {
+		return false;
+	}
+
+	// The site is being previewed in Calypso or Gutenberg.
+	if (
+		isset( $_GET['iframe'] ) && 'true' === $_GET['iframe'] && (
+			( isset( $_GET['theme_preview'] ) && 'true' === $_GET['theme_preview'] ) ||
+			( isset( $_GET['preview'] ) && 'true' === $_GET['preview'] )
+		) ||
+		isset( $_GET['widgetPreview'] ) || // Gutenberg < 9.2
+		isset( $_GET['widget-preview'] ) || // Gutenberg >= 9.2
+		( isset( $_GET['hide_banners'] ) && $_GET['hide_banners'] == 'true' )
+	) {
+		return false;
+	}
+
+	// Do not show the lanuch banner when previewed in the customizer
+	if ( is_customize_preview() ) {
+		return false;
+	}
+
+	// No banner for agency-managed sites.
+	if ( ! empty( get_option( 'is_fully_managed_agency_site' ) ) ) {
+		return false;
+	}
+
 	if ( ! wpcom_should_limit_global_styles() || ! wpcom_global_styles_in_use() ) {
-		return $bar_controls;
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * Renders the global style notice banner to the launch bar.
+ */
+function wpcom_display_global_styles_launch_bar() {
+	// Do not show the banner if the user can use global styles.
+	if ( ! wpcom_should_show_global_styles_launch_bar() ) {
+		return;
 	}
 
 	if ( method_exists( '\WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
