@@ -39,13 +39,7 @@ class Page_Cache_Entry implements Entry_Can_Get, Entry_Can_Set {
 
 			foreach ( $value as &$path ) {
 				// Strip home URL.
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
-				$url_path = parse_url( $path, PHP_URL_PATH );
-				if ( $url_path === null ) {
-					$path = '/';
-				} else {
-					$path = $url_path;
-				}
+				$path = $this->strip_home_url( $path );
 
 				// Remove double shashes.
 				$path = str_replace( '//', '/', $path );
@@ -61,6 +55,33 @@ class Page_Cache_Entry implements Entry_Can_Get, Entry_Can_Set {
 		}
 
 		return array_values( array_unique( array_filter( $value ) ) );
+	}
+
+	/**
+	 * Strip the home URL from the given path.
+	 *
+	 * @param string $path The path to strip.
+	 *
+	 * @return string The stripped path.
+	 */
+	private function strip_home_url( $path ) {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+		$parsed = parse_url( $path );
+
+		// Only strip if the host is different from the current host.
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		if ( isset( $parsed['host'] ) && strtolower( $parsed['host'] ) !== ( isset( $_SERVER['HTTP_HOST'] ) ? strtolower( $_SERVER['HTTP_HOST'] ) : '' ) ) {
+			return $path;
+		}
+
+		// It's probably just the home URL.
+		if ( ! isset( $parsed['path'] ) ) {
+			$path = '/';
+		} else {
+			$path = $parsed['path'];
+		}
+
+		return $path;
 	}
 
 	/**
