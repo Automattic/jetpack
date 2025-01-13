@@ -1,6 +1,7 @@
 import { createBlock } from '@wordpress/blocks';
-import { Path } from '@wordpress/components';
+import { Path, Icon } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
+import { link } from '@wordpress/icons';
 import { filter, isEmpty, map, startsWith, trim } from 'lodash';
 import JetpackField from './components/jetpack-field';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
@@ -416,11 +417,12 @@ export const childBlocks = [
 				__( 'website', 'jetpack-forms' ),
 			],
 			description: __( 'Collect a website address from your site visitors.', 'jetpack-forms' ),
-			icon: renderMaterialIcon(
-				// `link` from `@wordpress/icons`
-				<Path
-					fill={ getIconColor() }
-					d="M10 17.389H8.444A5.194 5.194 0 1 1 8.444 7H10v1.5H8.444a3.694 3.694 0 0 0 0 7.389H10v1.5ZM14 7h1.556a5.194 5.194 0 0 1 0 10.39H14v-1.5h1.556a3.694 3.694 0 0 0 0-7.39H14V7Zm-4.5 6h5v-1.5h-5V13Z"
+			icon: (
+				<Icon
+					icon={ link }
+					style={ {
+						fill: getIconColor(),
+					} }
 				/>
 			),
 			edit: editField( 'url' ),
