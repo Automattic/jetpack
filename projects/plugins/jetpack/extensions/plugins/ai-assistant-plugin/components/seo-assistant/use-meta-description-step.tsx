@@ -85,7 +85,7 @@ export const useMetaDescriptionStep = ( {
 	}, [ addMessage, removeLastMessage ] );
 
 	const handleSkip = useCallback( () => {
-		addMessage( __( 'Ok, leaving your meta description as is and moving on.', 'jetpack' ) );
+		addMessage( __( 'Skipped!', 'jetpack' ) );
 		if ( onStep ) {
 			onStep();
 		}

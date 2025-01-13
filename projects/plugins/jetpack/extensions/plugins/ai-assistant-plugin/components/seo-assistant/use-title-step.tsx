@@ -135,7 +135,7 @@ export const useTitleStep = ( {
 		if ( titleOptions.length ) {
 			replaceOptionsWithFauxUseMessages();
 		}
-		addMessage( __( 'Ok, leaving the title as is and moving on.', 'jetpack' ) );
+		addMessage( __( 'Skipped!', 'jetpack' ) );
 		if ( onStep ) {
 			onStep();
 		}
