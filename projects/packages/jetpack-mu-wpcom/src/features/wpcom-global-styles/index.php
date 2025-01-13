@@ -625,36 +625,30 @@ function wpcom_display_global_styles_launch_bar() {
 }
 
 /**
- * Global Styles Banner.
+ * Maybe registers the global styles banner.
+ *
+ * @param array $banners Banners.
+ *
+ * @return array
  */
-class Global_Styles_Upgrade_Banner {
-	/**
-	* Resolves if the global styles banner should be displayed and adds it to the banner list in necessary.
-	*
-	* @param array $banners Banners.
-	*
-	* @return array
-	*/
-	public function register( $banners ) {
-		// If the banner shouldn't display, don't inject it.
-		if ( ! wpcom_should_show_global_styles_launch_bar() ) {
-			return $banners;
-		}
-
-		return array_merge( $banners, array( 'wpcom_launch_banner' => array( $this, 'init' ) ) );
+function wpcom_register_global_styles_launch_bar( $banners ) {
+	// If the banner shouldn't display, don't inject it.
+	if ( ! wpcom_should_show_global_styles_launch_bar() ) {
+		return $banners;
 	}
 
-	/**
-	 * Show the global styles banner for the current site.
-	 */
-	public function init() {
-		add_action( 'wp_head', 'wpcom_global_styles_enqueue_assets' );
-		add_filter( 'wp_footer', 'wpcom_display_global_styles_launch_bar' );
-	}
+	return array_merge( $banners, array( 'wpcom_launch_banner' => 'wpcom_init_global_styles_launch_bar' ) );
 }
 
-$global_styles_banner = new Global_Styles_Upgrade_Banner();
-add_filter( 'wpcom_register_banners', array( $global_styles_banner, 'register' ) );
+/**
+ * Show the global styles banner for the current site.
+ */
+function wpcom_init_global_styles_launch_bar() {
+	add_action( 'wp_head', 'wpcom_global_styles_enqueue_assets' );
+	add_filter( 'wp_footer', 'wpcom_display_global_styles_launch_bar' );
+}
+
+add_filter( 'wpcom_register_banners', 'wpcom_register_global_styles_launch_bar' );
 
 /**
  * Include the Rest API that returns the global style information for a give WordPress site.
