@@ -36,6 +36,7 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
         docker-ce-cli \
         docker-buildx-plugin \
         docker-compose-plugin \
+        jq \
         "php${PHP_VERSION}" \
         "php${PHP_VERSION}-cli" \
         "php${PHP_VERSION}-curl" \
@@ -43,6 +44,7 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
         "php${PHP_VERSION}-mbstring" \
         "php${PHP_VERSION}-xml" \
         "php${PHP_VERSION}-zip" \
+        rsync \
     && apt-get remove --purge --auto-remove -y gpg software-properties-common \
     && find /var/ -name '*-old' -delete && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
 
