@@ -7,9 +7,8 @@
 
 namespace Automattic\Jetpack\Publicize\REST_API;
 
-use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\Publicize\Publicize;
+use Automattic\Jetpack\Publicize\Connections;
+use Automattic\Jetpack\Publicize\Publicize_Utils;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -20,11 +19,25 @@ use WP_REST_Server;
 class Connections_Controller extends Base_Controller {
 
 	/**
+	 * The API version.
+	 *
+	 * @var string
+	 */
+	protected $version = 'v2';
+
+	/**
+	 * The base API path.
+	 *
+	 * @var string
+	 */
+	protected $base_api_path = 'wpcom';
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		parent::__construct();
-		$this->namespace = 'wpcom/v2';
+		$this->namespace = "{$this->base_api_path}/{$this->version}";
 		$this->rest_base = 'publicize/connections';
 
 		$this->allow_requests_as_blog = true;
@@ -175,113 +188,6 @@ class Connections_Controller extends Base_Controller {
 	}
 
 	/**
-	 * Get all connections. Meant to be called directly only on WPCOM.
-	 *
-	 * @param array $args Arguments
-	 *                    - 'test_connections': bool Whether to run connection tests.
-	 *                    - 'scope': enum('site', 'user') Which connections to include.
-	 *
-	 * @return array
-	 */
-	protected static function get_all_connections( $args = array() ) {
-		/**
-		 * Publicize instance.
-		 */
-		global $publicize;
-
-		$items = array();
-
-		$run_tests = $args['test_connections'] ?? false;
-
-		$test_results = $run_tests ? self::get_connections_test_status() : array();
-
-		// If a (Jetpack) blog request, return all the connections for that site.
-		if ( self::is_authorized_blog_request() ) {
-			$service_connections = $publicize->get_all_connections_for_blog_id( get_current_blog_id() );
-		} else {
-			$service_connections = (array) $publicize->get_services( 'connected' );
-		}
-
-		foreach ( $service_connections as $service_name => $connections ) {
-			foreach ( $connections as $connection ) {
-
-				$connection_id = $publicize->get_connection_id( $connection );
-
-				$connection_meta = $publicize->get_connection_meta( $connection );
-				$connection_data = $connection_meta['connection_data'];
-
-				$items[] = array(
-					'connection_id'        => $connection_id,
-					'display_name'         => $publicize->get_display_name( $service_name, $connection ),
-					'external_handle'      => $publicize->get_external_handle( $service_name, $connection ),
-					'external_id'          => $connection_meta['external_id'] ?? '',
-					'profile_link'         => $publicize->get_profile_link( $service_name, $connection ),
-					'profile_picture'      => $publicize->get_profile_picture( $connection ),
-					'service_label'        => Publicize::get_service_label( $service_name ),
-					'service_name'         => $service_name,
-					'shared'               => ! $connection_data['user_id'],
-					'status'               => $test_results[ $connection_id ] ?? null,
-					'user_id'              => (int) $connection_data['user_id'],
-
-					// Deprecated fields.
-					'id'                   => (string) $publicize->get_connection_unique_id( $connection ),
-					'username'             => $publicize->get_username( $service_name, $connection ),
-					'profile_display_name' => ! empty( $connection_meta['profile_display_name'] ) ? $connection_meta['profile_display_name'] : '',
-					// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- We expect an integer, but do loose comparison below in case some other type is stored.
-					'global'               => 0 == $connection_data['user_id'],
-
-				);
-			}
-		}
-
-		return $items;
-	}
-
-	/**
-	 * Get a list of publicize connections.
-	 *
-	 * @param array $args Arguments.
-	 *
-	 * @see Automattic\Jetpack\Publicize\REST_API\Connections_Controller::get_all_connections()
-	 *
-	 * @return array
-	 */
-	public static function get_connections( $args = array() ) {
-		if ( self::is_wpcom() ) {
-			return self::get_all_connections( $args );
-		}
-
-		$site_id = Manager::get_site_id( true );
-		if ( ! $site_id ) {
-			return array();
-		}
-
-		$path = add_query_arg(
-			array(
-				'test_connections' => $args['test_connections'] ?? false,
-			),
-			sprintf( '/sites/%d/publicize/connections', $site_id )
-		);
-
-		$blog_or_user = ( $args['scope'] ?? '' ) === 'site' ? 'blog' : 'user';
-
-		$callback = array( Client::class, "wpcom_json_api_request_as_{$blog_or_user}" );
-
-		$response = call_user_func( $callback, $path, 'v2', array( 'method' => 'GET' ), null, 'wpcom' );
-
-		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			// TODO log error.
-			return array();
-		}
-
-		$body = wp_remote_retrieve_body( $response );
-
-		$items = json_decode( $body, true );
-
-		return $items ? $items : array();
-	}
-
-	/**
 	 * Get list of connected Publicize connections.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
@@ -289,14 +195,26 @@ class Connections_Controller extends Base_Controller {
 	 * @return WP_REST_Response suitable for 1-page collection
 	 */
 	public function get_items( $request ) {
+		if ( Publicize_Utils::is_wpcom() ) {
+			$args = array(
+				'context'          => self::is_authorized_blog_request() ? 'blog' : 'user',
+				'test_connections' => $request->get_param( 'test_connections' ),
+			);
+
+			$connections = Connections::wpcom_get_connections( $args );
+		} else {
+			$proxy = new Proxy_Requests( $this->rest_base );
+
+			$connections = $proxy->proxy_request_to_wpcom( $request );
+		}
+
+		if ( is_wp_error( $connections ) ) {
+			return $connections;
+		}
+
 		$items = array();
 
-		// On Jetpack, we don't want to pass the 'scope' param to get_connections().
-		$args = array(
-			'test_connections' => $request->get_param( 'test_connections' ),
-		);
-
-		foreach ( self::get_connections( $args ) as $item ) {
+		foreach ( $connections as $item ) {
 			$data = $this->prepare_item_for_response( $item, $request );
 
 			$items[] = $this->prepare_response_for_collection( $data );
@@ -307,33 +225,5 @@ class Connections_Controller extends Base_Controller {
 		$response->header( 'X-WP-TotalPages', '1' );
 
 		return $response;
-	}
-
-	/**
-	 * Get the connections test status.
-	 *
-	 * @return array
-	 */
-	protected static function get_connections_test_status() {
-		/**
-		 * Publicize instance.
-		 *
-		 * @var \Automattic\Jetpack\Publicize\Publicize $publicize
-		 */
-		global $publicize;
-
-		$test_results = $publicize->get_publicize_conns_test_results();
-
-		$test_results_map = array();
-
-		foreach ( $test_results as $test_result ) {
-			$result = $test_result['connectionTestPassed'];
-			if ( 'must_reauth' !== $result ) {
-				$result = $test_result['connectionTestPassed'] ? 'ok' : 'broken';
-			}
-			$test_results_map[ $test_result['connectionID'] ] = $result;
-		}
-
-		return $test_results_map;
 	}
 }

@@ -97,4 +97,16 @@ class Publicize_Utils {
 		return ( new Host() )->is_wpcom_simple();
 	}
 
+	/**
+	 * Assert that the method is only called on WPCOM.
+	 *
+	 * @param string $method The method name.
+	 *
+	 * @throws \Exception If the method is not called on WPCOM.
+	 */
+	public static function assert_is_wpcom( $method ) {
+		if ( ! self::is_wpcom() ) {
+			throw new \Exception( esc_html( "Method $method can only be called on WordPress.com." ) );
+		}
+	}
 }
