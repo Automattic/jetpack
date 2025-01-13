@@ -60,7 +60,7 @@ class Page_Cache_Entry implements Entry_Can_Get, Entry_Can_Set {
 			$value = array();
 		}
 
-		return $value;
+		return array_values( array_unique( array_filter( $value ) ) );
 	}
 
 	/**
