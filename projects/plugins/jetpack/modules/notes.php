@@ -194,9 +194,7 @@ class Jetpack_Notifications {
 		$title = self::get_notes_markup();
 
 		// The default fallback is `en_US`. Remove underscore if present, noting that lang codes can be more than three chars.
-		if ( str_contains( '_' ) ) {
-			$user_locale = strtolower( explode( '_', $user_locale, 2 )[0] );
-		}
+		$user_locale = strtolower( explode( '_', $user_locale, 2 )[0] );
 
 		$wp_admin_bar->add_menu(
 			array(
