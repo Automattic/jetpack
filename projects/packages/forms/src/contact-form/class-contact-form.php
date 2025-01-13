@@ -433,23 +433,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$r .= "\t</p>\n";
 			}
 
-			$hidden_fields_html = '';
-			if ( isset( $attributes['hiddenFields'] ) && is_array( $attributes['hiddenFields'] ) ) {
-				foreach ( $attributes['hiddenFields'] as $hidden_field ) {
-					if (
-						! empty( $hidden_field['name'] ) &&
-						$hidden_field['name'] !== 'organization_id'
-						&& empty( $hidden_field['value'] )
-						) {
-						$hidden_fields_html .= sprintf(
-							'<input type="hidden" name="%1$s" value="%2$s">',
-							esc_attr( $hidden_field['name'] ),
-							esc_attr( $hidden_field['value'] )
-						);
-					}
-				}
-			}
-			$r .= $hidden_fields_html;
 			$r .= "</form>\n";
 		}
 
@@ -1857,8 +1840,77 @@ class Contact_Form extends Contact_Form_Shortcode {
 				continue;
 			}
 
-			// we could even be more strict here, like a preg_replace for non [a-zA-Z0-9]_- characters on field names
 			$hidden_fields[ Contact_Form_Plugin::strip_tags( $hidden_field['name'] ) ] = Contact_Form_Plugin::strip_tags( $hidden_field['value'] );
+			$field_name  = Contact_Form_Plugin::strip_tags( $hidden_field['name'] );
+			$field_value = Contact_Form_Plugin::strip_tags( $hidden_field['value'] );
+
+			switch ( $hidden_field['edit'] ) {
+				case 'both':
+					/**
+					 * Custom filter to modify hidden field values and / or names before they are added to the form.
+					 *
+					 * @since $$next-version$$
+					 *
+					 * @param string $form_html The complete form HTML.
+					 * @param array  $atts      The block attributes.
+					 */
+					$updated_field = apply_filters(
+						'jetpack_contact_form_modify_hidden_fields',
+						array(
+							'name'  => $field_name,
+							'value' => $field_value,
+							'field' => $hidden_field, // This gives full context of the field
+						),
+						$hidden_field
+					);
+					// Update the field name and value only if the filter modifies them
+					$field_name  = isset( $updated_field['name'] ) && $updated_field['name'] !== $field_name
+					? $updated_field['name']
+					: $field_name;
+					$field_value = isset( $updated_field['value'] ) && $updated_field['value'] !== $field_value
+					? $updated_field['value']
+					: $field_value;
+					break;
+				case 'value':
+					/**
+					 * Custom filter to modify hidden field values before they are added to the form.
+					 *
+					 * @since $$next-version$$
+					 *
+					 * @param string $form_html The complete form HTML.
+					 * @param array  $atts      The block attributes.
+					 */
+					$updated_field_value = apply_filters( 'jetpack_contact_form_modify_hidden_field_value', $field_value, $field_name, $hidden_field );
+					// Update the value only if the filter modifies it
+					$field_value = isset( $updated_field_value ) && $updated_field_value !== $field_value
+					? $updated_field_value
+					: $field_value;
+					break;
+
+				case 'name':
+					/**
+					 * Custom filter to modify hidden field names before they are added to the form.
+					 *
+					 * @since $$next-version$$
+					 *
+					 * @param string $form_html The complete form HTML.
+					 * @param array  $atts      The block attributes.
+					 */
+					$updated_field_name = apply_filters( 'jetpack_contact_form_modify_hidden_field_name', $field_value, $field_name, $hidden_field );
+					// Update the name only if the filter modifies it
+					if ( $updated_field_name !== $field_value ) {
+						$field_name = isset( $updated_field_name ) ? $updated_field_name : $field_name;
+					}
+					break;
+
+				default:
+					// If edit is neither 'both', 'value', nor 'name', leave it unchanged
+					break;
+			}
+
+			if ( ! empty( $field_name ) && is_string( $field_name ) ) {
+				$hidden_fields[ $field_name ] = $field_value;
+			}
 		}
 
 		// Original/non-hidden fields have priority, shouldn't overwrite with hidden fields.

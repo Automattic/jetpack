@@ -149,18 +149,7 @@ class Contact_Form_Block {
 
 		self::load_view_scripts();
 
-		$form_html = Contact_Form::parse( $atts, do_blocks( $content ) );
-
-		/**
-		 * Custom filter to modify the rendered contact form HTML,
-		 * useful for populating hidden fields.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param string $form_html The complete form HTML.
-		 * @param array  $atts      The block attributes.
-		 */
-		return apply_filters( 'grunion_modify_rendered_contact_form_html', $form_html, $atts );
+		return Contact_Form::parse( $atts, do_blocks( $content ) );
 	}
 
 	/**
