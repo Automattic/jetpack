@@ -5,6 +5,7 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
 
 class Page_Cache_Entry implements Entry_Can_Get, Entry_Can_Set {
 	public function get( $_fallback = false ) {
@@ -21,93 +22,8 @@ class Page_Cache_Entry implements Entry_Can_Get, Entry_Can_Set {
 	public function set( $value ) {
 		$cache_settings = Boost_Cache_Settings::get_instance();
 
-		$value['bypass_patterns'] = $this->sanitize_value( $value['bypass_patterns'] );
+		$value['bypass_patterns'] = Boost_Cache_Utils::sanitize_bypass_patterns( $value['bypass_patterns'] );
 
 		$cache_settings->set( $value );
-	}
-
-	/**
-	 * Sanitizes the given value, ensuring that it is list of valid patterns.
-	 *
-	 * @param mixed $value The value to sanitize.
-	 *
-	 * @return string The sanitized value, as a list.
-	 */
-	private function sanitize_value( $value ) {
-		if ( is_array( $value ) ) {
-			$value = array_values( array_unique( array_filter( array_map( 'trim', array_map( 'strtolower', $value ) ) ) ) );
-
-			foreach ( $value as &$path ) {
-				// Strip home URL.
-				$path = $this->strip_home_url( $path );
-
-				// Remove double shashes.
-				$path = str_replace( '//', '/', $path );
-
-				// Make sure there's a leading slash.
-				$path = '/' . ltrim( $path, '/' );
-
-				// Fix up any wildcards.
-				$path = $this->sanitize_wildcards( $path );
-			}
-		} else {
-			$value = array();
-		}
-
-		return array_values( array_unique( array_filter( $value ) ) );
-	}
-
-	/**
-	 * Strip the home URL from the given path.
-	 *
-	 * @param string $path The path to strip.
-	 *
-	 * @return string The stripped path.
-	 */
-	private function strip_home_url( $path ) {
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
-		$parsed = parse_url( $path );
-
-		// Only strip if the host is different from the current host.
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-		if ( isset( $parsed['host'] ) && strtolower( $parsed['host'] ) !== ( isset( $_SERVER['HTTP_HOST'] ) ? strtolower( $_SERVER['HTTP_HOST'] ) : '' ) ) {
-			return $path;
-		}
-
-		// It's probably just the home URL.
-		if ( ! isset( $parsed['path'] ) ) {
-			$path = '/';
-		} else {
-			$path = $parsed['path'];
-		}
-
-		return $path;
-	}
-
-	/**
-	 * Sanitize wildcards in a given path.
-	 *
-	 * @param string $path The path to sanitize.
-	 * @return string The sanitized path.
-	 */
-	private function sanitize_wildcards( $path ) {
-		if ( ! $path ) {
-			return '';
-		}
-
-		$path_components = explode( '/', $path );
-		$arr             = array(
-			'.*'   => '(.*)',
-			'*'    => '(.*)',
-			'(*)'  => '(.*)',
-			'(.*)' => '(.*)',
-		);
-
-		foreach ( $path_components as &$path_component ) {
-			$path_component = strtr( $path_component, $arr );
-		}
-		$path = implode( '/', $path_components );
-
-		return $path;
 	}
 }
