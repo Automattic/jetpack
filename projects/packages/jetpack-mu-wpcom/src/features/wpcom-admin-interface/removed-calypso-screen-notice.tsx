@@ -14,7 +14,6 @@ import {
 	verse,
 } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
-import bgPattern from './removed-calypso-screen-bg-pattern.png';
 
 import './removed-calypso-screen-notice.scss';
 
@@ -29,6 +28,7 @@ const Notice = () => {
 		'edit-tags.php?taxonomy=category': category,
 		'edit-tags.php?taxonomy=post_tag': tag,
 	};
+	const backgroundPattern = `https://s0.wp.com/i/welcome-notices/removed-calypso-screen-bg-pattern.png`;
 
 	if ( ! Object.keys( icons ).includes( removedCalypsoScreenNoticeConfig.screen ) ) {
 		return null;
@@ -67,7 +67,7 @@ const Notice = () => {
 						<>
 							<div
 								className="removed-calypso-screen-notice__image"
-								style={ { backgroundImage: `url(${ bgPattern })` } }
+								style={ { backgroundImage: `url(${ backgroundPattern })` } }
 							>
 								<Icon
 									icon={ icons[ removedCalypsoScreenNoticeConfig.screen ] }
