@@ -1,15 +1,12 @@
 @import '@wordpress/dataviews/build-style/style.css';
 
-.threat__title {
-	color: var( --jp-gray-80 );
-	font-weight: 510;
-	white-space: initial;
+:root {
+	--spacing-base: 8px;
 }
 
 .threat__description {
-	color: var( --jp-gray-80 );
 	font-size: 12px;
-	white-space: initial;
+	white-space: wrap;
 }
 
 .threat__fixedOn,

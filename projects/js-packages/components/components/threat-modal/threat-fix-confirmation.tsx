@@ -1,7 +1,9 @@
 import { __ } from '@wordpress/i18n';
 import { useContext } from 'react';
+import ContextualUpgradeTrigger from '../contextual-upgrade-trigger';
 import ThreatActions from './threat-actions';
 import ThreatFixDetails from './threat-fix-details';
+import ThreatIgnoreDetails from './threat-ignore-details';
 import ThreatNotice from './threat-notice';
 import ThreatSummary from './threat-summary';
 import ThreatTechnicalDetails from './threat-technical-details';
@@ -13,12 +15,14 @@ import { ThreatModalContext } from '.';
  * @return {JSX.Element} The rendered fix confirmation.
  */
 const ThreatFixConfirmation = () => {
-	const { userConnectionNeeded, siteCredentialsNeeded } = useContext( ThreatModalContext );
+	const { actionToConfirm, userConnectionNeeded, siteCredentialsNeeded, handleUpgradeClick } =
+		useContext( ThreatModalContext );
 	return (
 		<>
 			<ThreatSummary />
 			<ThreatTechnicalDetails />
-			<ThreatFixDetails />
+			{ [ 'all', 'fix' ].includes( actionToConfirm ) && <ThreatFixDetails /> }
+			{ [ 'all', 'ignore' ].includes( actionToConfirm ) && <ThreatIgnoreDetails /> }
 			{ siteCredentialsNeeded && userConnectionNeeded && (
 				<ThreatNotice
 					title={ 'Additional connections needed' }
@@ -44,6 +48,16 @@ const ThreatFixConfirmation = () => {
 						'Your server credentials allow Jetpack to access the server that’s powering your website. This information is securely saved and only used to ignore and auto-fix threats detected on your site.',
 						'jetpack-components'
 					) }
+				/>
+			) }
+			{ handleUpgradeClick && (
+				<ContextualUpgradeTrigger
+					description={ __(
+						'Looking for advanced scan results and one-click fixes?',
+						'jetpack-components'
+					) }
+					cta={ __( 'Upgrade Jetpack now', 'jetpack-components' ) }
+					onClick={ handleUpgradeClick }
 				/>
 			) }
 			<ThreatActions />

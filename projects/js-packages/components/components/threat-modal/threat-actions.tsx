@@ -15,6 +15,7 @@ const ThreatActions = (): JSX.Element => {
 	const {
 		closeModal,
 		threat,
+		actionToConfirm,
 		handleFixThreatClick,
 		handleIgnoreThreatClick,
 		handleUnignoreThreatClick,
@@ -64,15 +65,17 @@ const ThreatActions = (): JSX.Element => {
 				) }
 				{ threat.status === 'current' && (
 					<>
-						<Button
-							isDestructive={ true }
-							variant="secondary"
-							onClick={ onIgnoreClick }
-							disabled={ disabled || ( fixerState.inProgress && ! fixerState.stale ) }
-						>
-							{ __( 'Ignore threat', 'jetpack-components' ) }
-						</Button>
-						{ threat.fixable && (
+						{ [ 'all', 'ignore' ].includes( actionToConfirm ) && (
+							<Button
+								isDestructive={ true }
+								variant="secondary"
+								onClick={ onIgnoreClick }
+								disabled={ disabled || ( fixerState.inProgress && ! fixerState.stale ) }
+							>
+								{ __( 'Ignore threat', 'jetpack-components' ) }
+							</Button>
+						) }
+						{ threat.fixable && [ 'all', 'fix' ].includes( actionToConfirm ) && (
 							<Button
 								isPrimary
 								disabled={ disabled || ( fixerState.inProgress && ! fixerState.stale ) }

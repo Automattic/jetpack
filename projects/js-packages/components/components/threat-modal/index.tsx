@@ -8,6 +8,8 @@ import ThreatFixConfirmation from './threat-fix-confirmation';
 interface ThreatModalContextType {
 	closeModal: () => void;
 	threat: Threat;
+	isSupportedEnvironment: boolean;
+	actionToConfirm: string | null;
 	handleUpgradeClick?: () => void;
 	userConnectionNeeded: boolean;
 	handleConnectUser: () => void;
@@ -27,6 +29,7 @@ export const ThreatModalContext = createContext< ThreatModalContextType | null >
  *
  * @param {object}   props                           - The props.
  * @param {object}   props.threat                    - The threat.
+ * @param {boolean}  props.isSupportedEnvironment    - Whether the environment is supported.
  * @param {boolean}  props.isUserConnected           - Whether the user is connected.
  * @param {boolean}  props.hasConnectedOwner         - Whether the user has a connected owner.
  * @param {boolean}  props.userIsConnecting          - Whether the user is connecting.
@@ -38,11 +41,13 @@ export const ThreatModalContext = createContext< ThreatModalContextType | null >
  * @param {Function} props.handleFixThreatClick      - The handleFixThreatClick function.
  * @param {Function} props.handleIgnoreThreatClick   - The handleIgnoreThreatClick function.
  * @param {Function} props.handleUnignoreThreatClick - The handleUnignoreThreatClick function.
+ * @param {string}   props.actionToConfirm           - The action to confirm.
  *
  * @return {JSX.Element} The threat modal.
  */
 export default function ThreatModal( {
 	threat,
+	isSupportedEnvironment,
 	isUserConnected,
 	hasConnectedOwner,
 	userIsConnecting,
@@ -54,9 +59,11 @@ export default function ThreatModal( {
 	handleFixThreatClick,
 	handleIgnoreThreatClick,
 	handleUnignoreThreatClick,
+	actionToConfirm,
 	...modalProps
 }: {
 	threat: Threat;
+	isSupportedEnvironment: boolean;
 	isUserConnected: boolean;
 	hasConnectedOwner: boolean;
 	userIsConnecting: boolean;
@@ -68,6 +75,7 @@ export default function ThreatModal( {
 	handleFixThreatClick?: ( threats: Threat[] ) => void;
 	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
+	actionToConfirm: string | null;
 } & React.ComponentProps< typeof Modal > ): JSX.Element {
 	const userConnectionNeeded = ! isUserConnected || ! hasConnectedOwner;
 	const siteCredentialsNeeded = ! credentials || credentials.length === 0;
@@ -88,6 +96,8 @@ export default function ThreatModal( {
 					value={ {
 						closeModal: modalProps.onRequestClose,
 						threat,
+						isSupportedEnvironment,
+						actionToConfirm,
 						handleUpgradeClick,
 						userConnectionNeeded,
 						handleConnectUser,

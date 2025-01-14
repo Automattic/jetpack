@@ -45,9 +45,30 @@ const data = [
 	},
 ];
 
+const mockProps = {
+	filters: [],
+	isSupportedEnvironment: true,
+	handleUpgradeClick: () => {},
+	onFixThreats: () => {},
+	onIgnoreThreats: () => {},
+	onUnignoreThreats: () => {},
+	isThreatEligibleForFix: () => true,
+	isThreatEligibleForIgnore: () => true,
+	isThreatEligibleForUnignore: () => true,
+	isUserConnected: true,
+	hasConnectedOwner: true,
+	userIsConnecting: false,
+	handleConnectUser: () => {},
+	credentials: [],
+	credentialsIsFetching: false,
+	credentialsRedirectUrl: '/redirect-url',
+	onModalOpen: () => {},
+	onModalClose: () => {},
+};
+
 describe( 'ThreatsDataViews', () => {
 	it( 'renders threat data', () => {
-		render( <ThreatsDataViews data={ data } /> );
+		render( <ThreatsDataViews data={ data } { ...mockProps } /> );
 		expect( screen.getByText( 'Malicious code found in file: index.php' ) ).toBeInTheDocument();
 		expect(
 			screen.getByText( 'WooCommerce <= 3.2.3 - Authenticated PHP Object Injection' )

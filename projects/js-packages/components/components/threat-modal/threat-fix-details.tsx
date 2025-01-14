@@ -1,7 +1,6 @@
 import { getFixerDescription } from '@automattic/jetpack-scan';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useMemo, useContext } from 'react';
-import ContextualUpgradeTrigger from '../contextual-upgrade-trigger';
 import Text from '../text';
 import styles from './styles.module.scss';
 import { ThreatModalContext } from '.';
@@ -12,7 +11,7 @@ import { ThreatModalContext } from '.';
  * @return {JSX.Element | null} The rendered fix details or null if no fixable details are available.
  */
 const ThreatFixDetails = (): JSX.Element => {
-	const { threat, handleUpgradeClick } = useContext( ThreatModalContext );
+	const { threat } = useContext( ThreatModalContext );
 
 	const title = useMemo( () => {
 		if ( threat.status === 'fixed' ) {
@@ -48,16 +47,6 @@ const ThreatFixDetails = (): JSX.Element => {
 		<div className={ styles.section }>
 			<Text variant="title-small">{ title }</Text>
 			<Text>{ fix }</Text>
-			{ handleUpgradeClick && (
-				<ContextualUpgradeTrigger
-					description={ __(
-						'Looking for advanced scan results and one-click fixes?',
-						'jetpack-components'
-					) }
-					cta={ __( 'Upgrade Jetpack now', 'jetpack-components' ) }
-					onClick={ handleUpgradeClick }
-				/>
-			) }
 		</div>
 	);
 };
