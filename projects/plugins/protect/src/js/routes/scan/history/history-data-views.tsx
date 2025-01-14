@@ -1,10 +1,8 @@
-import { ThreatsDataViews, HISTORIC_TABLE_FIELDS } from '@automattic/jetpack-components';
-import { type Threat } from '@automattic/jetpack-scan';
-import { useCallback, useMemo } from 'react';
+import { HISTORIC_TABLE_FIELDS } from '@automattic/jetpack-components';
+import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import useHistoryQuery from '../../../data/scan/use-history-query';
-import useModal from '../../../hooks/use-modal';
-import ScanToggleGroupControl from '../scan-toggle-group-control';
+import ScanDataViews from '../scan-data-views';
 
 /**
  * Scan History Data Viewd
@@ -14,38 +12,25 @@ import ScanToggleGroupControl from '../scan-toggle-group-control';
 export default function HistoryDataViews() {
 	const { filter } = useParams();
 	const { data: history } = useHistoryQuery();
-	const { setModal } = useModal();
 
-	// Apply initial status filtering based on optional params from the URL.
-	const initialFilters = useMemo(
-		() =>
-			filter
-				? [
-						{
-							field: 'status' as const,
-							value: filter,
-							operator: 'isAny' as const,
-						},
-				  ]
-				: [],
-		[ filter ]
-	);
-
-	const onUnignoreThreats = useCallback(
-		( threats: Threat[] ) => {
-			setModal( { type: 'UNIGNORE_THREAT', props: { threat: threats[ 0 ] } } );
-		},
-		[ setModal ]
-	);
+	const filters = useMemo( () => {
+		if ( filter ) {
+			return [
+				{
+					field: 'status',
+					value: filter,
+					operator: 'isAny',
+				},
+			];
+		}
+	}, [ filter ] );
 
 	return (
-		<ThreatsDataViews
+		<ScanDataViews
 			status="historic"
 			data={ history ? history.threats : [] }
-			initialFilters={ initialFilters }
+			initialFilters={ filters }
 			initialFields={ HISTORIC_TABLE_FIELDS }
-			onUnignoreThreats={ onUnignoreThreats }
-			header={ <ScanToggleGroupControl /> }
 		/>
 	);
 }

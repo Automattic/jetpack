@@ -1,5 +1,8 @@
+import { CONTACT_SUPPORT_URL } from '@automattic/jetpack-scan';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
+import { Button } from '@automattic/jetpack-components';
 import styles from './styles.module.scss';
 import ThreatNotice from './threat-notice.js';
 
@@ -19,14 +22,28 @@ const FixerStateNotice = ( {
 }: {
 	fixerState: { inProgress: boolean; error: boolean; stale: boolean };
 } ) => {
+	const getInterpolatedContent = (): JSX.Element => {
+		return createInterpolateElement(
+			__( 'Please try again or <supportLink>contact support</supportLink>.', 'jetpack-components' ),
+			{
+				supportLink: <Button variant="link" isExternalLink={ true } href={ CONTACT_SUPPORT_URL } />,
+			}
+		);
+	};
+
 	const { status, title, content } = useMemo( () => {
 		if ( fixerState.error ) {
 			return {
 				status: 'error' as const,
 				title: __( 'An error occurred auto-fixing this threat', 'jetpack-components' ),
-				content: __(
-					'Jetpack encountered a filesystem error while attempting to auto-fix this threat. Please try again later or contact support.',
-					'jetpack-components'
+				content: (
+					<>
+						{ __(
+							'Jetpack encountered a filesystem error while attempting to auto-fix this threat.',
+							'jetpack-components'
+						) }{ ' ' }
+						{ getInterpolatedContent() }
+					</>
 				),
 			};
 		}
@@ -35,9 +52,14 @@ const FixerStateNotice = ( {
 			return {
 				status: 'error' as const,
 				title: __( 'The auto-fixer is taking longer than expected', 'jetpack-components' ),
-				content: __(
-					'Jetpack has been attempting to auto-fix this threat for too long, and something may have gone wrong. Please try again later or contact support.',
-					'jetpack-components'
+				content: (
+					<>
+						{ __(
+							'Jetpack has been attempting to auto-fix this threat for too long, and something may have gone wrong.',
+							'jetpack-components'
+						) }{ ' ' }
+						{ getInterpolatedContent() }
+					</>
 				),
 			};
 		}
@@ -55,7 +77,7 @@ const FixerStateNotice = ( {
 
 	return title ? (
 		<div className={ styles[ 'fixer-notice' ] }>
-			<ThreatNotice status={ status } title={ title } content={ content } />
+			<ThreatNotice status={ status } title={ title } content={ content } showActions={ false } />
 		</div>
 	) : null;
 };

@@ -9,10 +9,11 @@ import { ThreatModalContext } from './index.js';
 /**
  * ThreatNotice component
  *
- * @param {object} props         - The component props.
- * @param {string} props.status  - The status of the notice.
- * @param {string} props.title   - The title of the notice.
- * @param {string} props.content - The content of the notice.
+ * @param {object}             props             - The component props.
+ * @param {string}             props.status      - The status of the notice.
+ * @param {string}             props.title       - The title of the notice.
+ * @param {string|JSX.Element} props.content     - The content of the notice.
+ * @param {boolean}            props.showActions - Whether to show the actions or not.
  *
  * @return {JSX.Element} The rendered ThreatNotice component.
  */
@@ -20,12 +21,15 @@ const ThreatNotice = ( {
 	status = 'warning',
 	title,
 	content,
+	showActions = true,
 }: {
 	status?: 'warning' | 'error' | 'success' | undefined;
 	title: string;
-	content: string;
+	content: string | JSX.Element;
+	showActions?: boolean;
 } ): JSX.Element => {
 	const {
+		threat,
 		userConnectionNeeded,
 		userIsConnecting,
 		handleConnectUser,
@@ -33,6 +37,10 @@ const ThreatNotice = ( {
 		credentialsRedirectUrl,
 		credentialsIsFetching,
 	} = useContext( ThreatModalContext );
+
+	if ( ! threat?.status || threat.status === 'fixed' ) {
+		return null;
+	}
 
 	return (
 		<Notice
@@ -51,30 +59,32 @@ const ThreatNotice = ( {
 						</Text>
 					</div>
 					<Text>{ content }</Text>
-					<div className={ styles.notice__actions }>
-						{ userConnectionNeeded && (
-							<Button
-								className={ styles.notice__action }
-								isExternalLink={ true }
-								weight="regular"
-								isLoading={ userIsConnecting }
-								onClick={ handleConnectUser }
-							>
-								{ __( 'Connect your user account', 'jetpack-components' ) }
-							</Button>
-						) }
-						{ siteCredentialsNeeded && (
-							<Button
-								className={ styles.notice__action }
-								isExternalLink={ true }
-								weight="regular"
-								href={ credentialsRedirectUrl }
-								isLoading={ credentialsIsFetching }
-							>
-								{ __( 'Enter server credentials', 'jetpack-components' ) }
-							</Button>
-						) }
-					</div>
+					{ showActions && (
+						<div className={ styles.notice__actions }>
+							{ userConnectionNeeded && (
+								<Button
+									className={ styles.notice__action }
+									isExternalLink={ true }
+									weight="regular"
+									isLoading={ userIsConnecting }
+									onClick={ handleConnectUser }
+								>
+									{ __( 'Connect your user account', 'jetpack-components' ) }
+								</Button>
+							) }
+							{ siteCredentialsNeeded && (
+								<Button
+									className={ styles.notice__action }
+									isExternalLink={ true }
+									weight="regular"
+									href={ credentialsRedirectUrl }
+									isLoading={ credentialsIsFetching }
+								>
+									{ __( 'Enter server credentials', 'jetpack-components' ) }
+								</Button>
+							) }
+						</div>
+					) }
 				</div>
 			}
 		/>

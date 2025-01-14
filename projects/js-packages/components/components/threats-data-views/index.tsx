@@ -1,7 +1,6 @@
 import { getFixerAction, getThreatType, type Threat } from '@automattic/jetpack-scan';
 import {
 	type Action,
-	type ActionButton,
 	type Field,
 	type FieldType,
 	type Filter,
@@ -18,6 +17,7 @@ import { useCallback, useMemo, useState } from 'react';
 import Badge from '../badge/index.js';
 import useBreakpointMatch from '../layout/use-breakpoint-match/index.js';
 import ThreatFixerButton from '../threat-fixer-button/index.js';
+import ThreatModal from '../threat-modal/index.js';
 import ThreatSeverityBadge from '../threat-severity-badge/index.js';
 import {
 	CURRENT_TABLE_FIELDS,
@@ -53,43 +53,73 @@ export { HISTORIC_TABLE_FIELDS } from './constants.js';
  * @param {string}      props.status                      - Flag to indicate if the threats are current or historic.
  * @param {Array}       props.data                        - Threats data.
  * @param {Array}       props.initialFilters              - Initial DataView filters.
- * @param {Array}       props.initialFields               - Initial DataView fields.
- * @param {Function}    props.onChangeSelection           - Callback function run when an item is selected.
+ * @param {Array}       props.initialFields               - Initial DataView fields.                  - Initial DataView filters.
+ * @param {boolean}     props.isSupportedEnvironment      - Whether the environment is supported.
+ * @param {Function}    props.handleUpgradeClick          - Callback function run when the upgrade button is clicked.
  * @param {Function}    props.onFixThreats                - Threat fix action callback.
  * @param {Function}    props.onIgnoreThreats             - Threat ignore action callback.
  * @param {Function}    props.onUnignoreThreats           - Threat unignore action callback.
  * @param {Function}    props.isThreatEligibleForFix      - Function to determine if a threat is eligible for fixing.
  * @param {Function}    props.isThreatEligibleForIgnore   - Function to determine if a threat is eligible for ignoring.
  * @param {Function}    props.isThreatEligibleForUnignore - Function to determine if a threat is eligible for unignoring.
- * @param {JSX.Element} props.header                      - Header component.
+ * @param {boolean}     props.isUserConnected             - Whether the user is connected.
+ * @param {boolean}     props.hasConnectedOwner           - Whether the site has a connected owner.
+ * @param {boolean}     props.userIsConnecting            - Whether the user is connecting.
+ * @param {Function}    props.handleConnectUser           - Function to handle the user connection process.
+ * @param {object[]}    props.credentials                 - The credentials.
+ * @param {boolean}     props.credentialsIsFetching       - Whether the credentials are fetching.
+ * @param {string}      props.credentialsRedirectUrl      - The credentials redirect URL.
+ * @param {Function}    props.onModalOpen                 - Callback function on modal open.
+ * @param {Function}    props.onModalClose                - Callback function on modal close.
+ * @param {JSX.Element} props.header                      - The header element.
  *
  * @return {JSX.Element} The ThreatsDataViews component.
  */
 export default function ThreatsDataViews( {
 	status = 'current',
 	data,
-	initialFields = CURRENT_TABLE_FIELDS,
-	initialFilters = [],
-	onChangeSelection,
-	isThreatEligibleForFix,
-	isThreatEligibleForIgnore,
-	isThreatEligibleForUnignore,
+	initialFields,
+	initialFilters,
+	isSupportedEnvironment = true,
+	handleUpgradeClick,
 	onFixThreats,
 	onIgnoreThreats,
 	onUnignoreThreats,
+	isThreatEligibleForFix,
+	isThreatEligibleForIgnore,
+	isThreatEligibleForUnignore,
+	isUserConnected,
+	hasConnectedOwner,
+	userIsConnecting,
+	handleConnectUser,
+	credentials,
+	credentialsIsFetching,
+	credentialsRedirectUrl,
+	onModalOpen,
+	onModalClose,
 	header,
 }: {
 	status?: string;
 	data: Threat[];
 	initialFields?: string[];
 	initialFilters?: Filter[];
-	onChangeSelection?: ( selectedItemIds: string[] ) => void;
+	isSupportedEnvironment?: boolean;
+	handleUpgradeClick?: () => void;
+	onFixThreats?: ( threats: Threat[] ) => void;
+	onIgnoreThreats?: ( threats: Threat[] ) => void;
+	onUnignoreThreats?: ( threats: Threat[] ) => void;
 	isThreatEligibleForFix?: ( threat: Threat ) => boolean;
 	isThreatEligibleForIgnore?: ( threat: Threat ) => boolean;
 	isThreatEligibleForUnignore?: ( threat: Threat ) => boolean;
-	onFixThreats?: ( threats: Threat[] ) => void;
-	onIgnoreThreats?: ActionButton< Threat >[ 'callback' ];
-	onUnignoreThreats?: ActionButton< Threat >[ 'callback' ];
+	isUserConnected: boolean;
+	hasConnectedOwner: boolean;
+	userIsConnecting: boolean;
+	handleConnectUser: () => void;
+	credentials: false | Record< string, unknown >[];
+	credentialsIsFetching: boolean;
+	credentialsRedirectUrl: string;
+	onModalOpen: () => void;
+	onModalClose: () => void;
 	header?: JSX.Element;
 } ): JSX.Element {
 	const [ isSm ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
@@ -100,7 +130,7 @@ export default function ThreatsDataViews( {
 			direction: 'desc' as SortDirection,
 		},
 		search: '',
-		filters: initialFilters,
+		filters: initialFilters || [],
 		page: 1,
 		perPage: 20,
 	};
@@ -115,7 +145,7 @@ export default function ThreatsDataViews( {
 	const defaultLayouts: SupportedLayouts = {
 		table: {
 			...baseView,
-			fields: initialFields,
+			fields: initialFields || CURRENT_TABLE_FIELDS,
 			titleField: THREAT_FIELD_TITLE,
 			descriptionField: THREAT_FIELD_DESCRIPTION,
 			showMedia: false,
@@ -145,6 +175,24 @@ export default function ThreatsDataViews( {
 		type: defaultViewType,
 		...defaultLayouts[ defaultViewType ],
 	} );
+
+	const [ selectedThreat, setSelectedThreat ] = useState< Threat | null >( null );
+	const [ actionToConfirm, setActionToConfirm ] = useState< string >( 'all' );
+
+	const showThreatModal = useCallback(
+		( threat: Threat, action: string ) => () => {
+			onModalOpen?.();
+			setSelectedThreat( threat );
+			setActionToConfirm( action );
+		},
+		[ onModalOpen ]
+	);
+
+	const hideThreatModal = useCallback( () => {
+		onModalClose?.();
+		setSelectedThreat( null );
+		setActionToConfirm( 'all' );
+	}, [ onModalClose ] );
 
 	/**
 	 * Compute values from the provided threats data.
@@ -414,7 +462,13 @@ export default function ThreatsDataViews( {
 									return null;
 								}
 
-								return <ThreatFixerButton threat={ item } onClick={ onFixThreats } />;
+								if ( isThreatEligibleForFix && ! isThreatEligibleForFix( item ) ) {
+									return null;
+								}
+
+								return (
+									<ThreatFixerButton threat={ item } onClick={ showThreatModal( item, 'fix' ) } />
+								);
 							},
 						},
 				  ]
@@ -422,7 +476,7 @@ export default function ThreatsDataViews( {
 		];
 
 		return result;
-	}, [ dataFields, plugins, themes, signatures, status, onFixThreats ] );
+	}, [ plugins, themes, dataFields, signatures, status, isThreatEligibleForFix, showThreatModal ] );
 
 	/**
 	 * DataView actions - collection of operations that can be performed upon each record.
@@ -439,7 +493,9 @@ export default function ThreatsDataViews( {
 					return getFixerAction( items[ 0 ] );
 				},
 				isPrimary: true,
-				callback: onFixThreats,
+				callback: ( items: Threat[] ) => {
+					showThreatModal( items[ 0 ], 'fix' )();
+				},
 				isEligible( item ) {
 					if ( ! onFixThreats ) {
 						return false;
@@ -456,9 +512,9 @@ export default function ThreatsDataViews( {
 			result.push( {
 				id: THREAT_ACTION_IGNORE,
 				label: __( 'Ignore', 'jetpack-components' ),
-				isPrimary: true,
-				isDestructive: true,
-				callback: onIgnoreThreats,
+				callback: ( items: Threat[] ) => {
+					showThreatModal( items[ 0 ], 'ignore' )();
+				},
 				isEligible( item ) {
 					if ( ! onIgnoreThreats ) {
 						return false;
@@ -475,9 +531,9 @@ export default function ThreatsDataViews( {
 			result.push( {
 				id: THREAT_ACTION_UNIGNORE,
 				label: __( 'Unignore', 'jetpack-components' ),
-				isPrimary: true,
-				isDestructive: true,
-				callback: onUnignoreThreats,
+				callback: ( items: Threat[] ) => {
+					showThreatModal( items[ 0 ], 'unignore' )();
+				},
 				isEligible( item ) {
 					if ( ! onUnignoreThreats ) {
 						return false;
@@ -494,6 +550,7 @@ export default function ThreatsDataViews( {
 	}, [
 		view.type,
 		dataFields,
+		showThreatModal,
 		onFixThreats,
 		onIgnoreThreats,
 		onUnignoreThreats,
@@ -521,24 +578,70 @@ export default function ThreatsDataViews( {
 	}, [] );
 
 	/**
-	 * DataView getItemId function - returns the unique ID for each record in the dataset.
+	 * DataViews getItemId function - returns the unique ID for each record in the dataset.
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#getitemid-function
 	 */
 	const getItemId = useCallback( ( item: Threat ) => item.id.toString(), [] );
 
+	/**
+	 * DataViews onClickItem function - render the threat modal on media or primary field click.
+	 */
+	const onClickItem = useCallback(
+		( item: Threat ) => {
+			showThreatModal( item, 'all' )();
+		},
+		[ showThreatModal ]
+	);
+
+	/**
+	 * DataViews onChangeSelection function - render the threat modal on list row selection.
+	 */
+	const onChangeSelection = useCallback(
+		( selectedItemIds: string[] ) => {
+			const selectedItem = data.find( item => item.id === parseInt( selectedItemIds[ 0 ] ) );
+
+			if ( selectedItem ) {
+				showThreatModal( selectedItem, 'all' )();
+			}
+		},
+		[ data, showThreatModal ]
+	);
+
 	return (
-		<DataViews
-			actions={ actions }
-			data={ processedData }
-			defaultLayouts={ defaultLayouts }
-			fields={ fields }
-			getItemId={ getItemId }
-			onChangeSelection={ onChangeSelection }
-			onChangeView={ onChangeView }
-			paginationInfo={ paginationInfo }
-			view={ view }
-			header={ header }
-		/>
+		<>
+			<DataViews
+				actions={ actions }
+				data={ processedData }
+				defaultLayouts={ defaultLayouts }
+				fields={ fields }
+				getItemId={ getItemId }
+				onChangeSelection={ onChangeSelection }
+				onChangeView={ onChangeView }
+				paginationInfo={ paginationInfo }
+				onClickItem={ onClickItem }
+				view={ view }
+				header={ header }
+			/>
+			{ selectedThreat ? (
+				<ThreatModal
+					threat={ selectedThreat }
+					isSupportedEnvironment={ isSupportedEnvironment }
+					isUserConnected={ isUserConnected }
+					hasConnectedOwner={ hasConnectedOwner }
+					userIsConnecting={ userIsConnecting }
+					handleConnectUser={ handleConnectUser }
+					credentials={ credentials }
+					credentialsIsFetching={ credentialsIsFetching }
+					credentialsRedirectUrl={ credentialsRedirectUrl }
+					handleUpgradeClick={ handleUpgradeClick }
+					handleFixThreatClick={ onFixThreats }
+					handleIgnoreThreatClick={ onIgnoreThreats }
+					handleUnignoreThreatClick={ onUnignoreThreats }
+					onRequestClose={ hideThreatModal }
+					actionToConfirm={ actionToConfirm }
+				/>
+			) : null }
+		</>
 	);
 }

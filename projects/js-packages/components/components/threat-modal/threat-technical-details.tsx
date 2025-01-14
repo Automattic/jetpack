@@ -17,6 +17,11 @@ const ThreatTechnicalDetails = (): JSX.Element => {
 
 	const [ open, setOpen ] = useState( false );
 
+	let toggleContent = __( 'Show the technical details', 'jetpack-components' );
+	if ( open ) {
+		toggleContent = __( 'Hide the technical details', 'jetpack-components' );
+	}
+
 	const toggleOpen = useCallback( () => {
 		setOpen( ! open );
 	}, [ open ] );
@@ -37,9 +42,7 @@ const ThreatTechnicalDetails = (): JSX.Element => {
 				>
 					<div className={ styles.section__toggle__content }>
 						<Text variant="title-small" mb={ 0 }>
-							{ open
-								? __( 'Hide the technical details', 'jetpack-components' )
-								: __( 'Show the technical details', 'jetpack-components' ) }
+							{ toggleContent }
 						</Text>
 						<Icon icon={ open ? chevronUp : chevronDown } size={ 24 } />
 					</div>

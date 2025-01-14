@@ -8,12 +8,15 @@ import { QUERY_CREDENTIALS_KEY } from '../constants';
  *
  * @return {UseQueryResult} useQuery result.
  */
-export default function useCredentialsQuery(): UseQueryResult< [ Record< string, unknown > ] > {
+export default function useCredentialsQuery(): UseQueryResult<
+	false | [] | [ Record< string, unknown > ]
+> {
 	const { isRegistered } = useConnection( {
 		autoTrigger: false,
 		from: 'protect',
 		redirectUri: null,
 		skipUserConnection: true,
+		skipPricingPage: true,
 	} );
 
 	return useQuery( {
