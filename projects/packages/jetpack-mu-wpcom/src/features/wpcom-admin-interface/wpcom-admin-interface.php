@@ -12,6 +12,32 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 /**
+ * Add the Action Bar display setting on the General settings page.
+ * This setting allows users to hide the Action Bar on the front end of their site.
+ * The setting is stored in the `wpcom_show_action_bar` option.
+ * The setting is displayed only if the has the wp-admin interface selected.
+ */
+function wpcomsh_wpcom_show_action_bar_settings_field() {
+	add_settings_field( 'wpcom_show_action_bar', '', 'wpcom_show_action_bar_display', 'general', 'default' );
+
+	register_setting( 'general', 'wpcom_show_action_bar', array( 'sanitize_callback' => 'esc_attr' ) );
+}
+
+/**
+ * Display the `wpcom_show_action_bar setting` on the General settings page.
+ */
+function wpcom_show_action_bar_display() {
+	$value = get_option( 'wpcom_show_action_bar', 1 );
+
+	echo '<tr valign="top"><th scope="row">' . esc_html__( 'Action Bar visibility', 'jetpack-mu-wpcom' ) . '</th>';
+	echo '<td><label for="wpcom_show_action_bar">';
+	echo '<input type="checkbox" id="wpcom_show_action_bar" name="wpcom_show_action_bar" value="1" ' . checked( $value, 1, false ) . ' />';
+	echo esc_html__( 'Show the Action Bar on the front end of the site.', 'jetpack-mu-wpcom' ) . '</label>';
+	echo '<p class="description"><a href="https://en.support.wordpress.com/action-bar/">' . esc_html__( 'Learn more about Action Bar.', 'jetpack-mu-wpcom' ) . '</a></p></td></tr>';
+}
+add_action( 'admin_init', 'wpcomsh_wpcom_show_action_bar_settings_field' );
+
+/**
  * Add the Admin Interface Style setting on the General settings page.
  * This setting allows users to switch between the classic WP-Admin interface and the WordPress.com legacy dashboard.
  * The setting is stored in the wpcom_admin_interface option.
