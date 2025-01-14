@@ -318,6 +318,11 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 	public function test_get_block_name_from_path_convention_matches_get_block_name() {
 		$extensions = Jetpack_Gutenberg::get_available_extensions();
 
+		// Having no extensions results in a "no assertions" warning, so skip the test if there are no extensions.
+		if ( count( $extensions ) === 0 ) {
+			$this->markTestSkipped( 'No extensions found to test' );
+		}
+
 		foreach ( $extensions as $extension ) {
 			$dirname         = 'blocks';
 			$path            = __DIR__ . "/../../../extensions/{$dirname}/{$extension}";
