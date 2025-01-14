@@ -19,6 +19,7 @@ function findPriority( body ) {
 	while ( ( match = priorityRegex.exec( body ) ) ) {
 		const { impact = '', extra = '' } = match.groups || {};
 		let { severity = '' } = match.groups || {};
+		const extras = extra.split( ', ' );
 
 		debug(
 			`find-priority: Reported priority indicators for issue: "${ impact }" / "${ severity }" / "${ extra }"`
@@ -26,13 +27,16 @@ function findPriority( body ) {
 
 		// Folks can provide additional information that can bump severity.
 		// We also do not want that extra information to downgrade the severity.
-		if ( extra !== '' && extra !== '_No response_' && extra !== 'No revenue impact' ) {
+		if ( extra !== '' && extra !== '_No response_' && ! extras.includes( 'No revenue impact' ) ) {
 			if (
-				( extra === 'Individual site owner revenue' || extra === 'Agency or developer revenue' ) &&
+				( extras.includes( 'Individual site owner revenue' ) ||
+					extras.includes( 'Agency or developer revenue' ) ) &&
 				severity !== 'Critical'
 			) {
 				severity = 'Major';
-			} else if ( extra === 'Platform revenue' ) {
+			}
+			// Bump severity to the max if platform revenue is impacted too.
+			if ( extras.includes( 'Platform revenue' ) ) {
 				severity = 'Critical';
 			}
 		}
