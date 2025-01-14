@@ -138,6 +138,36 @@ if ( is_readable( $boost_packages_path ) ) {
 /**
  * Setup Minify service.
  */
+add_action(
+	'template_redirect',
+	function () {
+		// We only want to hijack the 404 page.
+		if ( ! is_404() ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '';
+		if ( stripos( $request_uri, '/boost-cache/static/' ) === false ) {
+			return;
+		}
+
+		// @todo - Get hash and check database for files related to it.
+		// If not found, return a 404.
+		// If found, get their content, minify it, and print.
+
+		// Load minify library code.
+		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/Utils.php';
+		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/Config.php';
+		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/Dependency_Path_Mapping.php';
+		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-helpers.php';
+		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-service.php';
+
+		jetpack_boost_page_optimize_service_request_new();
+		exit;
+	}
+);
+
 // Potential improvement: Make concat URL dir configurable
 // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 if ( isset( $_SERVER['REQUEST_URI'] ) ) {

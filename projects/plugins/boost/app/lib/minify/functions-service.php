@@ -102,6 +102,182 @@ function jetpack_boost_page_optimize_service_request() {
 	die();
 }
 
+function jetpack_boost_page_optimize_service_request_new() {
+	$utils                             = new Utils();
+	$jetpack_boost_page_optimize_types = jetpack_boost_page_optimize_types();
+
+	// Config
+	$concat_max_files = 150;
+	$concat_unique    = true;
+
+	// We handle the cache here, tell other caches not to.
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', true );
+	}
+
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '';
+	// Extract the filename from the path
+	$path_parts = explode( '/boost-cache/static/', $request_uri );
+	if ( count( $path_parts ) !== 2 ) {
+		jetpack_boost_page_optimize_status_exit( 404 );
+	}
+
+	// Remove any query parameters
+	$filename = explode( '?', $path_parts[1] )[0];
+	if ( ! preg_match( '/\.(js|css)$/', $filename ) ) {
+		jetpack_boost_page_optimize_status_exit( 404 );
+	}
+
+	$filename_parts = explode( '.', $filename );
+	$file_hash      = $filename_parts[0];
+
+	$file_paths = jetpack_boost_page_optimize_get_file_paths( $file_hash );
+
+	// file_paths contain something like array( '/foo/bar.css', '/foo1/bar/baz.css' )
+	// @todo - what do we do if we're over the maximum number of files? Maybe we just don't concatenate?
+	if ( count( $file_paths ) > $concat_max_files ) {
+		jetpack_boost_page_optimize_status_exit( 400 );
+	}
+
+	// If we're in a subdirectory context, use that as the root.
+	// We can't assume that the root serves the same content as the subdir.
+	$subdir_path_prefix = '';
+	$request_path       = $utils->parse_url( $request_uri, PHP_URL_PATH );
+	$_static_index      = strpos( $request_path, jetpack_boost_get_static_prefix() );
+	if ( $_static_index > 0 ) {
+		$subdir_path_prefix = substr( $request_path, 0, $_static_index );
+	}
+	unset( $request_path, $_static_index );
+
+	$last_modified = 0;
+	$pre_output    = '';
+	$output        = '';
+
+	foreach ( $file_paths as $uri ) {
+		$fullpath = jetpack_boost_page_optimize_get_path( $uri );
+
+		if ( ! file_exists( $fullpath ) ) {
+			jetpack_boost_page_optimize_status_exit( 404 );
+		}
+
+		$mime_type = jetpack_boost_page_optimize_get_mime_type( $fullpath );
+		if ( ! in_array( $mime_type, $jetpack_boost_page_optimize_types, true ) ) {
+			jetpack_boost_page_optimize_status_exit( 400 );
+		}
+
+		if ( $concat_unique ) {
+			if ( ! isset( $last_mime_type ) ) {
+				$last_mime_type = $mime_type;
+			}
+
+			if ( $last_mime_type !== $mime_type ) {
+				jetpack_boost_page_optimize_status_exit( 400 );
+			}
+		}
+
+		$stat = stat( $fullpath );
+		if ( false === $stat ) {
+			jetpack_boost_page_optimize_status_exit( 500 );
+		}
+
+		if ( $stat['mtime'] > $last_modified ) {
+			$last_modified = $stat['mtime'];
+		}
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$buf = file_get_contents( $fullpath );
+		if ( false === $buf ) {
+			jetpack_boost_page_optimize_status_exit( 500 );
+		}
+
+		if ( 'text/css' === $mime_type ) {
+			$dirpath = jetpack_boost_strip_parent_path( $subdir_path_prefix, dirname( $uri ) );
+
+			// url(relative/path/to/file) -> url(/absolute/and/not/relative/path/to/file)
+			$buf = jetpack_boost_page_optimize_relative_path_replace( $buf, $dirpath );
+
+			// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+			// This regex changes things like AlphaImageLoader(...src='relative/path/to/file'...) to AlphaImageLoader(...src='/absolute/path/to/file'...)
+			$buf = preg_replace(
+				'/(Microsoft.AlphaImageLoader\s*\([^\)]*src=(?:\'|")?)([^\/\'"\s\)](?:(?<!http:|https:).)*)\)/isU',
+				'$1' . ( $dirpath === '/' ? '/' : $dirpath . '/' ) . '$2)',
+				$buf
+			);
+
+			// The @charset rules must be on top of the output
+			if ( str_starts_with( $buf, '@charset' ) ) {
+				preg_replace_callback(
+					'/(?P<charset_rule>@charset\s+[\'"][^\'"]+[\'"];)/i',
+					function ( $match ) use ( &$pre_output ) {
+						if ( str_starts_with( $pre_output, '@charset' ) ) {
+							return '';
+						}
+
+						$pre_output = $match[0] . "\n" . $pre_output;
+
+						return '';
+					},
+					$buf
+				);
+			}
+
+			// Move the @import rules on top of the concatenated output.
+			// Only @charset rule are allowed before them.
+			if ( str_contains( $buf, '@import' ) ) {
+				$buf = preg_replace_callback(
+					'/(?P<pre_path>@import\s+(?:url\s*\()?[\'"\s]*)(?P<path>[^\'"\s](?:https?:\/\/.+\/?)?.+?)(?P<post_path>[\'"\s\)]*;)/i',
+					function ( $match ) use ( $dirpath, &$pre_output ) {
+						if ( ! str_starts_with( $match['path'], 'http' ) && '/' !== $match['path'][0] ) {
+							$pre_output .= $match['pre_path'] . ( $dirpath === '/' ? '/' : $dirpath . '/' ) .
+											$match['path'] . $match['post_path'] . "\n";
+						} else {
+							$pre_output .= $match[0] . "\n";
+						}
+
+						return '';
+					},
+					$buf
+				);
+			}
+
+			// If filename indicates it's already minified, don't minify it again.
+			if ( ! preg_match( '/\.min\.css$/', $fullpath ) ) {
+				// Minify CSS.
+				$buf = Minify::css( $buf );
+			}
+			$output .= "$buf";
+		} else {
+			// If filename indicates it's already minified, don't minify it again.
+			if ( ! preg_match( '/\.min\.js$/', $fullpath ) ) {
+				// Minify JS
+				$buf = Minify::js( $buf );
+			}
+
+			$output .= "$buf;\n";
+		}
+	}
+
+	// Don't let trailing whitespace ruin everyone's day. Seems to get stripped by batcache
+	// resulting in ns_error_net_partial_transfer errors.
+	$output = rtrim( $output );
+
+	status_header( 200 );
+	header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $last_modified ) . ' GMT' );
+	header( 'Content-Type: ' . $mime_type );
+	// Check if we're on Atomic and take advantage of the Atomic Edge Cache.
+	if ( defined( 'ATOMIC_CLIENT_ID' ) ) {
+		header( 'A8c-Edge-Cache: cache' );
+	}
+	header( 'X-Page-Optimize: uncached' );
+	header( 'Cache-Control: max-age=' . 31536000 );
+	header( 'ETag: "' . md5( $output ) . '"' );
+	echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- We need to trust this unfortunately.
+
+	// @todo - Store the output in a file.
+	exit;
+}
+
 /**
  * Strip matching parent paths off a string. Returns $path without $parent_path.
  */
