@@ -33,6 +33,7 @@
 	.contact-form input[type='email'],
 	.contact-form input[type='tel'],
 	.contact-form input[type='url'],
+	.contact-form input[type='number'],
 	.contact-form textarea
 ) {
 	box-sizing: border-box;
@@ -203,11 +204,13 @@
 .textwidget .contact-form input[type='email'],
 .textwidget .contact-form input[type='tel'],
 .textwidget .contact-form input[type='url'],
+.textwidget .contact-form input[type='number'],
 .textwidget .contact-form textarea,
 .wp-block-column .contact-form input[type='text'],
 .wp-block-column .contact-form input[type='email'],
 .wp-block-column .contact-form input[type='tel'],
 .wp-block-column .contact-form input[type='url'],
+.wp-block-column .contact-form input[type='number'],
 .wp-block-column .contact-form textarea {
 	width: 100%;
 }
@@ -309,7 +312,8 @@
 	.contact-form input[type='text'],
 	.contact-form input[type='email'],
 	.contact-form input[type='tel'],
-	.contact-form input[type='url'] {
+	.contact-form input[type='url'],
+	.contact-form input[type='number'] {
 		width: 50%;
 	}
 
@@ -321,7 +325,8 @@
 	.wp-block-jetpack-contact-form input[type='text'],
 	.wp-block-jetpack-contact-form input[type='email'],
 	.wp-block-jetpack-contact-form input[type='tel'],
-	.wp-block-jetpack-contact-form input[type='url'] {
+	.wp-block-jetpack-contact-form input[type='url'],
+	.wp-block-jetpack-contact-form input[type='number'] {
 		width: 100%;
 	}
 }
