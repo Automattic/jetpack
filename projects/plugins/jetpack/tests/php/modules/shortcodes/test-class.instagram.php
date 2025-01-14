@@ -181,10 +181,17 @@ BODY;
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertStringContainsString(
+		$this->assertStringContainsStringIgnoringNewLines(
 			'<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' . $instagram_url,
 			$shortcode_content
 		);
+	}
+
+	private function assertStringContainsStringIgnoringNewLines( $needle, $haystack ) {
+		$needle   = str_replace( array( "\r", "\n" ), '', $needle );
+		$haystack = str_replace( array( "\r", "\n" ), '', $haystack );
+
+		return $this->assertStringContainsString( $needle, $haystack );
 	}
 
 	/**
@@ -207,7 +214,7 @@ BODY;
 		$actual = ob_get_clean();
 		wp_reset_postdata();
 
-		$this->assertStringContainsString(
+		$this->assertStringContainsStringIgnoringNewLines(
 			'<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' . $expected,
 			$actual
 		);
@@ -258,7 +265,7 @@ BODY;
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertStringContainsString(
+		$this->assertStringContainsStringIgnoringNewLines(
 			'<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' . $instagram_url,
 			$shortcode_content
 		);
