@@ -16,11 +16,11 @@ interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] 
 	/**
 	 * Label text to display above the chart
 	 */
-	label: string;
+	label?: string;
 	/**
 	 * Note text to display below the label
 	 */
-	note: string;
+	note?: string;
 	/**
 	 * Direction of chart rendering
 	 * true for clockwise, false for counter-clockwise
@@ -113,7 +113,12 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 		<div
 			className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
 		>
-			<svg width={ width } height={ height }>
+			<svg
+				width="100%"
+				height="100%"
+				viewBox={ `0 0 ${ width } ${ height }` }
+				preserveAspectRatio="xMidYMid meet"
+			>
 				{ /* Main chart group that contains both the pie and text elements */ }
 				<Group top={ centerX } left={ centerX }>
 					{ /* Pie chart */ }
