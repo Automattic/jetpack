@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.57.3] - 2025-01-14
+### Fixed
+- Social: Fix failure on post save with LinkedIn connection enabled. [#41000]
+
 ## [0.57.2] - 2025-01-13
 ### Added
 - Publicize: Allow filtering of connections in publicize rest endpoint. [#40914]
@@ -803,6 +807,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.57.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.2...v0.57.3
 [0.57.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.1...v0.57.2
 [0.57.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.0...v0.57.1
 [0.57.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.56.5...v0.57.0

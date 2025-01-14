@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.3.2] - 2025-01-14
+### Fixed
+- Fix bug where description doesn't show up on backup card in specific scenarios. [#40904]
+
 ## [5.3.1] - 2025-01-10
 ### Added
 - Add new WAF status on Protect card for when WAF is unsupported. [#40880]
@@ -1902,6 +1906,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.3.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.3.1...5.3.2
 [5.3.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.3.0...5.3.1
 [5.3.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.2.0...5.3.0
 [5.2.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.1.2...5.2.0
