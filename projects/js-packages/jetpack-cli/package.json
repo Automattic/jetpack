@@ -5,6 +5,15 @@
 	"bin": {
 		"jp": "bin/jp.js"
 	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/jetpack-cli"
+	},
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Jetpack Cli"
+	},
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/jetpack-cli/#readme",
 	"files": [
 		"bin"
 	],
