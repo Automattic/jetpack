@@ -1,19 +1,6 @@
 # Docker environment for Jetpack Development
 
-Jetpack development uses two Docker environments:
-
-## Development Environment
-
-A separate monorepo container provides development tools:
-
-* PHP and Composer for PHP development
-* Node.js and pnpm for JavaScript development
-* All build tools and dependencies needed for development
-* Automatically used by the [`jp` CLI](../../projects/js-packages/jetpack-cli/README.md) for building and testing
-
-## Testing Environment
-
-The main WordPress testing environment provides:
+Unified environment for developing Jetpack using Docker containers providing following goodies:
 
 * An Ubuntu base operating system.
 * Latest stable version of WordPress.
@@ -22,7 +9,7 @@ The main WordPress testing environment provides:
 * WP-CLI installed.
 * MailDev to catch all the emails leaving WordPress so that you can observe them from browser.
 * phpMyAdmin to aid in viewing the database.
-* Handy shorthand commands like `jp docker up` and `jp docker phpunit` to simplify the usage.
+* Handy shorthand commands like `jetpack docker up` and `jetpack docker phpunit` to simplify the usage.
 
 ## To get started
 
@@ -48,12 +35,12 @@ Anything you put in `.env` overrides values in `default.env`. You should modify 
 
 Once you're all set with the above, spin up the containers:
 ```sh
-jp docker up
+jetpack docker up
 ```
 
 Non-installed WordPress is running at [http://localhost](http://localhost) now. To install WordPress and configure some useful defaults, run
 ```sh
-jp docker install
+jetpack docker install
 ```
 
 At this point, to connect Jetpack, you'd need to set up a service that can create local HTTP tunnels, such as [the Jurassic Tube Tunneling Service](#jurassic-tube-tunneling-service) (available to Automatticians only), [ngrok](#using-ngrok-with-jetpack), or [another similar service](https://alternativeto.net/software/ngrok/).
@@ -112,7 +99,7 @@ The default config file `tools/docker/jetpack-docker-config-default.yml` include
 You can just quickly install WordPress and activate Jetpack via command line. Ensure you have your domain modified in `.env` file, spin up the containers and then run:
 
 ```sh
-jp docker install
+jetpack docker install
 ```
 
 This will give you a single site with user/pass `wordpress` (unless you changed these from `./tools/docker/.env` file). You will still have to connect Jetpack to WordPress.com manually.
@@ -120,19 +107,19 @@ This will give you a single site with user/pass `wordpress` (unless you changed 
 To convert installed single site into a multisite, run:
 
 ```sh
-jp docker multisite-convert
+jetpack docker multisite-convert
 ```
 
 To remove WordPress installation and start over, run:
 
 ```sh
-jp docker uninstall
+jetpack docker uninstall
 ```
 
 ### Start containers
 
 ```sh
-jp docker up
+jetpack docker up
 ```
 
 Start the containers (WordPress, MySQL and MailDev) defined in `docker-compose.yml`.
@@ -142,19 +129,19 @@ This command will rebuild the WordPress container if you made any changes to `do
 For running the containers in the background, use:
 
 ```sh
-jp docker up -d
+jetpack docker up -d
 ```
 
 ### Stop containers
 
 ```sh
-jp docker stop
+jetpack docker stop
 ```
 
 Stops all containers.
 
 ```sh
-jp docker down
+jetpack docker down
 ```
 
 Will stop all of the containers created by this Docker compose configuration and remove them, too. It won’t remove the images. Just the containers that have just been stopped.
@@ -164,18 +151,18 @@ Will stop all of the containers created by this Docker compose configuration and
 These commands require the WordPress container to be running.
 
 ```sh
-jp docker phpunit
+jetpack docker phpunit
 ```
 
 This will run unit tests for Jetpack. You can pass arguments to `phpunit` like so:
 
 ```sh
-jp docker phpunit -- --filter=Protect
+jetpack docker phpunit -- --filter=Protect
 ```
 
 This command runs the tests as a multi site install
 ```sh
-jp docker phpunit-multisite -- --filter=Protect
+jetpack docker phpunit-multisite -- --filter=Protect
 ```
 
 To run tests for specific packages, you can run the tests locally, from within the package's directory:
@@ -189,7 +176,7 @@ composer phpunit
 To remove all docker images, all MySQL data, and all docker-related files from your local machine run:
 
 ```sh
-jp docker clean
+jetpack docker clean
 ```
 
 **Note:** this command does not work in Windows.
@@ -199,22 +186,22 @@ jp docker clean
 You can run [WP CLI](https://make.wordpress.org/cli/) commands inside WordPress container:
 
 ```sh
-jp docker wp COMMAND
+jetpack docker wp COMMAND
 ```
 
 For example run [`cron event list`](https://developer.wordpress.org/cli/commands/cron/event/list/):
 
 ```sh
-jp docker wp cron event list
+jetpack docker wp cron event list
 ```
 
 [`shell`](https://developer.wordpress.org/cli/commands/shell/) is a handy WP-CLI command you can use like so:
 
 ```bash
-jp docker wp shell
+jetpack docker wp shell
 ```
 
-By default it will use rich REPL [`PsySH`](https://psysh.org/), to run the default REPL use `jp docker wp shell --basic`
+By default it will use rich REPL [`PsySH`](https://psysh.org/), to run the default REPL use `jetpack docker wp shell --basic`
 
 Shell allows you to evaluate PHP code while having your installed WordPress loaded, so you could do things like:
 
@@ -233,7 +220,7 @@ You can also access it via phpMyAdmin at [http://localhost:8181](http://localhos
 
 Another way to accessing the database is MySQL client using the following command:
 ```sh
-jp docker db command "show tables;"
+jetpack docker db
 ```
 This command utilizes credentials from the config file (`~/.my.cnf`) to log you into MySQL without entering any connection information.
 
@@ -269,29 +256,29 @@ define( 'JETPACK__SANDBOX_DOMAIN', '{your sandbox}.wordpress.com' );
 
 This is for Automatticians only. More information: PCYsg-snO-p2.
 
-If you have persistent trouble with the `jp docker jt-*` commands complaining that "Tunneling scripts are not installed", it could be because Docker wasn't running properly when you ran the installer.
+If you have persistent trouble with the `jetpack docker jt-*` commands complaining that "Tunneling scripts are not installed", it could be because Docker wasn't running properly when you ran the installer.
 
 To solve this problem, run these commands from the repo root:
 
 ```
-jp docker up -d
+jetpack docker up -d
 chmod +x tools/docker/bin/jt/installer.sh && tools/docker/bin/jt/installer.sh
 ```
 
 Once you have successfull installed Jurassic Tube, you can use these commands during development:
 
-* Start the tunnel: `jp docker jt-up your-username your-subdomain`
-* Break the connection: `jp docker jt-down`
+* Start the tunnel: `jetpack docker jt-up your-username your-subdomain`
+* Break the connection: `jetpack docker jt-down`
 
 You can also set default values:
 
 ```shell script
-jp docker jt-config username your-username
-jp docker jt-config subdomain your-subdomain
+jetpack docker jt-config username your-username
+jetpack docker jt-config subdomain your-subdomain
 ```
 That will let you omit those parameters while initiating the connection:
 ```shell script
-jp docker jt-up
+jetpack docker jt-up
 ```
 
 ## Using Ngrok with Jetpack
@@ -322,7 +309,7 @@ tunnels:
 
 ngrok support is integrated into a jetpack cli, so to start a docker container with mapped tunnel, simply run:
 ```bash
-jp docker up --ngrok
+jetpack docker up --ngrok
 ```
 
 ### Ngrok SFTP Tunnel with Jetpack
@@ -345,7 +332,7 @@ See more configuration options from [Ngrok documentation](https://ngrok.com/docs
 
 You can now start both tunnels:
 ```bash
-jp docker up --ngrok sftp
+jetpack docker up --ngrok sftp
 ```
 
 You can inspect traffic between your WordPress/Jetpack container and WordPress.com using [the inspector](https://ngrok.com/docs#inspect).
@@ -367,7 +354,7 @@ Jetpack Docker environment can be wonderful for developing your own plugins and 
 
 Since everything under `mu-plugins` and `wordpress/wp-content` is git-ignored, you'll want to keep those folders outside Jetpack repository folder and link them as volumes to your Docker instance.
 
-1. First ensure your containers are stopped (`jp docker stop`).
+1. First ensure your containers are stopped (`jetpack docker stop`).
 2. Edit `tools/docker/jetpack-docker-config.yml`. Changes to this file won't be tracked by git.
 3. To add a single custom plugin, you would for example have this in that file:
     ```yml
@@ -381,11 +368,11 @@ Since everything under `mu-plugins` and `wordpress/wp-content` is git-ignored, y
    ```
 4. Start containers and include your custom volumes by running:
    ```bash
-   jp docker up
+   jetpack docker up
    ```
 
 Note that any folder within the `projects/plugins` directory will be automatically linked.
-If you're starting a new monorepo plugin, you may need to `jp docker stop` and `jp docker up` to re-run the initial linking step so it can be added.
+If you're starting a new monorepo plugin, you may need to `jetpack docker stop` and `jetpack docker up` to re-run the initial linking step so it can be added.
 
 You can add your plugin to the list of plugins not allowed to be deleted or updated by adding this to a new file at `tools/docker/mu-plugins`:
 
@@ -412,7 +399,7 @@ Logs are stored in your file system under `./tools/docker/logs` directory.
 To `tail -f` the PHP error log, run:
 
 ```sh
-jp docker tail
+jetpack docker tail
 ```
 
 #### MySQL Slow Query Log
@@ -425,7 +412,7 @@ We recommend to regularly review the log to make sure performance issues don't g
 
 ### Debugging emails
 
-Emails don't leave your WordPress and are caught by [MailDev](http://danfarrelly.nyc/MailDev/) SMTP server container instead.
+Emails don’t leave your WordPress and are caught by [MailDev](http://danfarrelly.nyc/MailDev/) SMTP server container instead.
 
 To debug emails via web-interface, open [http://localhost:1080](http://localhost:1080)
 
@@ -435,7 +422,7 @@ To debug emails via web-interface, open [http://localhost:1080](http://localhost
 You can use the [WP CLI](https://make.wordpress.org/cli/) to update the version of WordPress running inside the Docker container. Example command:
 
 ```
-jp docker wp core update --version=5.3.4 --force
+jetpack docker wp core update --version=5.3.4 --force
 ```
 
 This is useful if you want to check your code is compatible with the minimum version of WP Jetpack supports, which can be found in the [readme.txt](../readme.txt). We always support the latest patched version of the branch we specify as "Requires at least" in the readme file. You can match it with the exact version on the [WordPress Releases page](https://wordpress.org/download/releases/).
@@ -444,7 +431,7 @@ This is useful if you want to check your code is compatible with the minimum ver
 
 The WordPress image is leveraged with Xdebug present as a PHP Extension.
 
-You'll likely need to install a browser extension like the following:
+You’ll likely need to install a browser extension like the following:
 
 * [The easiest Xdebug](https://addons.mozilla.org/en-US/firefox/addon/the-easiest-xdebug/) for Mozilla Firefox
 * [Xdebug Helper](https://chrome.google.com/webstore/detail/xdebug-helper/eadndfjplgieldjbigjakmdgkmoaaaoc) for Google Chrome
@@ -558,64 +545,4 @@ function my_plugin_add_profile_parameter( $should_add, $url, $host ) {
 	}
 	return $should_add;
 }
-```
-
-### Using ngrok with Jetpack
-
-```sh
-jp docker ngrok-up
-```
-
-This command will start ngrok tunnel for you. The configuration for the tunnel can be found in `tools/docker/ngrok.yml`.
-
-To stop the tunnel:
-
-```sh
-jp docker ngrok-down
-```
-
-### Using Jurassic Tube with Jetpack
-
-```sh
-jp docker jt-up
-```
-
-This command will start Jurassic Tube tunnel for you.
-
-To stop the tunnel:
-
-```sh
-jp docker jt-down
-```
-
-### Using Xdebug
-
-To use Xdebug with PHPStorm you can run:
-
-```sh
-XDEBUG_CONFIG="remote_host=host.docker.internal" jp docker phpunit --filter=Protect
-```
-
-### Running a shell inside the container
-
-```sh
-jp docker exec -- bash
-```
-
-### Running wp-cli commands
-
-```sh
-jp docker wp cli info
-```
-
-### Watching for changes
-
-```sh
-jp docker watch
-```
-
-### Building assets
-
-```sh
-jp docker build plugins/jetpack
 ```

@@ -47,20 +47,19 @@ All projects should be compatible with PHP versions WordPress supports. That's c
 
 First time working with the monorepo? We got you covered.
 
-Install the Jetpack CLI:
+For the first time only:
 
-```bash
-npm install -g @automattic/jetpack-cli
-```
+* From the root of the repo, run `pnpm install && pnpm jetpack cli link` (if you want the `jetpack` CLI tool installed globally) or `pnpm install` (if you don't).
+* That’s it. You won’t need to do that again unless you nuke your node_modules directory.
 
-Once installed, you can run `jp` anywhere in the Jetpack repo. Run `jp --help` to see all available commands.
+Once you’ve done that, it’s easy: run `jetpack` (or `pnpm jetpack`) while anywhere in the Jetpack repo. To explore on your own, run `jetpack --help` to see the available commands.
 
 ## Jetpack Generate Wizard
 
 Starting a new project? Great! Let the Jetpack Generate Wizard help jumpstart the files you need. To get started:
 
 * Make sure you're checked out to the branch you want.
-* Use the CLI command `jp generate` to start the process.
+* Use the CLI command `jetpack generate` to start the process.
 * The wizard will walk you through the steps of starting a new package, plugin, or Github action.
 
 ### Accepted Arguments
@@ -70,7 +69,7 @@ The wizard accepts a few arguments to speed things up:
 * `[project type]` - Accepted values: `package`, `plugin`, `github-action`
 * `--name`, `--n` - The name of your project (no spaces)
 
-Example: `jp generate plugin --name my_cool_plugin` will generate plugin files for a plugin called `my_cool_plugin` under `../jetpack/projects/plugins`
+Example: `jetpack generate plugin --name my_cool_plugin` will generate plugin files for a plugin called `my_cool_plugin` under `../jetpack/projects/plugins`
 
 ### What's Included
 
@@ -457,29 +456,29 @@ The body is separated from the headers by a blank line, and is the text that act
 
 The changelogger tool can be used via [Jetpack's CLI tool](#first-time). You may use the following command to generate changelog entries for each project that needs one:
 
-`jp changelog add`
+`jetpack changelog add`
 
 **Does it matter what the change file is named?** Starting the file name with `.` should not be used. Also consider avoiding names that have extensions like `.php` or `.js` to avoid confusing other tools.
 
-**What if a change is so trivial that it doesn't need a changelog entry?** The change file is still required. If you specify the significance as "patch", changelogger will allow the body section to be empty so as to not generate an entry in the changelog. In this case, use the "Comment" header instead, for example:
+**What if a change is so trivial that it doesn’t need a changelog entry?** The change file is still required. If you specify the significance as “patch”, changelogger will allow the body section to be empty so as to not generate an entry in the changelog. In this case, use the “Comment” header instead, for example:
 
-```bash
+```
 Significance: patch
 Type: compat
 Comment: Update composer.lock, no need for a changelog entry
 ```
 
-**Adding the first PR to a project after a release?** If a PR is the first to Jetpack after a release, version numbers may need to be bumped. This also applies to the first semantic versioning "minor" or "major" change to any projects that use semantic versioning.
+**Adding the first PR to a project after a release?** If a PR is the first to Jetpack after a release, version numbers may need to be bumped. This also applies to the first semantic versioning “minor” or “major” change to any projects that use semantic versioning.
 
-The "Linting / Changelogger validity" GitHub Actions check will help in making sure that all these version numbers are in sync with the version inferred from the changelog and change files. You can also check this locally with `tools/changelogger-validate-all.sh`.
+The “Linting / Changelogger validity” GitHub Actions check will help in making sure that all these version numbers are in sync with the version inferred from the changelog and change files. You can also check this locally with `tools/changelogger-validate-all.sh`.
 
-Within a single project, changlogger's `version next` command can tell you the next version, and the monorepo script `tools/project-version.sh` can be used to check and update the version numbers.
+Within a single project, changlogger’s `version next` command can tell you the next version, and the monorepo script `tools/project-version.sh` can be used to check and update the version numbers.
 
 ## New Projects
 
 To begin,
 * For Automatticians, drop us a line in #jetpack-crew to discuss your needs, just to be sure we don't have something already. For others, it would probably be best to open an issue to discuss it.
-* Use the `jp generate` command to create a skeleton project.
+* Use the `jetpack generate` command to create a skeleton project.
 * Create your project based on the skeleton and submit a PR as usual.
 
 Once we're sure that the project will be created and what its name will be, someone (you or the Crew team) does the following:
