@@ -180,9 +180,9 @@ class Connections_Controller extends Base_Controller {
 					'must_reauth',
 				),
 			),
-			'user_id'         => array(
+			'wpcom_user_id'   => array(
 				'type'        => 'integer',
-				'description' => __( 'ID of the user the connection belongs to. It is the user ID on wordpress.com', 'jetpack-publicize-pkg' ),
+				'description' => __( 'wordpress.com ID of the user the connection belongs to.', 'jetpack-publicize-pkg' ),
 			),
 		);
 	}
