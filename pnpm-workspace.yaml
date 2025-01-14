@@ -1,5 +1,6 @@
 packages:
   - 'projects/*/*'
+  - '!projects/js-packages/jetpack-cli'
   - 'projects/plugins/*/tests/e2e'
   - 'tools/cli'
   - 'tools/e2e-commons'
