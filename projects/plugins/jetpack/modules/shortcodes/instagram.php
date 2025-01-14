@@ -29,7 +29,7 @@ function jetpack_instagram_embed_handler( $matches, $attr, $url ) {
 	$url = str_replace( '/reels', '/reel', $url );
 
 	// Remove the username from the Instagram post URL using regex.
-	$url = preg_replace( '/https?:\/\/(www\.)?instagram\.com\/[^\/]+\/(p|reel|reels|tv)\/([^\/]+)\/?/', 'https://www.instagram.com/$2/$3/', $url );
+	$url = preg_replace( '/https?:\/\/(www\.)?nstagr(\.am|am\.com)\/[^\/]+\/(p|reel|reels|tv)\/([^\/]+)\/?/', 'https://www.instagram.com/$2/$3/', $url );
 
 	$embed = sprintf(
 		'<blockquote
@@ -51,11 +51,6 @@ function jetpack_instagram_embed_handler( $matches, $attr, $url ) {
 		JETPACK__VERSION,
 		true
 	);
-
-	// Skip rendering scripts in an AMP context.
-	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
-		return $embed;
-	}
 
 	// since Instagram is a faux embed, we need to load the JS SDK in the wpview embed iframe.
 	if (
@@ -89,6 +84,27 @@ function jetpack_shortcode_instagram( $atts ) {
 
 	if ( ! preg_match( JETPACK_INSTAGRAM_EMBED_REGEX, $atts['url'] ) ) {
 		return;
+	}
+
+	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+		$url_pattern = '#http(s?)://(www\.)?instagr(\.am|am\.com)/(p|tv|reel)/([^/?]+)#i';
+		preg_match( $url_pattern, $atts['url'], $matches );
+		if ( ! $matches ) {
+			return sprintf(
+				'<a href="%1$s" class="amp-wp-embed-fallback">%1$s</a>',
+				esc_url( $atts['url'] )
+			);
+		}
+
+		$shortcode_id = end( $matches );
+		$width        = ! empty( $atts['width'] ) ? $atts['width'] : 600;
+		$height       = ! empty( $atts['height'] ) ? $atts['height'] : 600;
+		return sprintf(
+			'<amp-instagram data-shortcode="%1$s" layout="responsive" width="%2$d" height="%3$d" data-captioned></amp-instagram>',
+			esc_attr( $shortcode_id ),
+			absint( $width ),
+			absint( $height )
+		);
 	}
 
 	return $wp_embed->shortcode( $atts, $atts['url'] );
