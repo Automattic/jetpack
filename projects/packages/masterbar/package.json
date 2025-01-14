@@ -21,7 +21,7 @@
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
 		"clean": "rm -rf dist/ .cache/",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern dist/",
-		"watch": "pnpm run build && pnpm webpack watch"
+		"watch": "pnpm run build && pnpm webpack watch --config tools/webpack.config.js"
 	},
 	"dependencies": {
 		"@automattic/calypso-color-schemes": "3.1.3",
