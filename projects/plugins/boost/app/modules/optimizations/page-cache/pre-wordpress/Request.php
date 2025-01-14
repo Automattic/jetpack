@@ -52,7 +52,19 @@ class Request {
 		return $this->request_uri;
 	}
 
+	/**
+	 * Returns the parameters for the current request.
+	 *
+	 * @return array The parameters for the current request, made up of cookies and get parameters.
+	 */
 	public function get_parameters() {
+		/**
+		 * Filters the parameters for the current request to identify the cache key.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $parameters The parameters for the current request, made up of cookies and get parameters.
+		 */
 		return apply_filters( 'jetpack_boost_cache_parameters', $this->request_parameters );
 	}
 
