@@ -14,7 +14,6 @@ import {
 	verse,
 } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
-import bgPattern from './removed-calypso-screen-bg-pattern.png';
 
 import './removed-calypso-screen-notice.scss';
 
@@ -191,10 +190,7 @@ const Notice = () => {
 			pages={ [
 				{
 					image: (
-						<div
-							className="removed-calypso-screen-notice__image"
-							style={ { backgroundImage: `url(${ bgPattern })` } }
-						>
+						<div className="removed-calypso-screen-notice__image">
 							<Icon
 								icon={ config[ removedCalypsoScreenNoticeConfig.screen ].icon }
 								size={ 72 }
