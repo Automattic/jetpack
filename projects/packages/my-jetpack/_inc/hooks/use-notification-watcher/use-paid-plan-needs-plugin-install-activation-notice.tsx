@@ -42,7 +42,7 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 
 	const alert = redBubbleAlerts[ pluginsNeedingActionAlerts[ 0 ] ];
 	const alertSlug = pluginsNeedingActionAlerts[ 0 ];
-	const planSlug = alertSlug.split( '--' )[ 0 ];
+	const planSlug = alertSlug?.split( '--' )[ 0 ];
 	const planPurchase = useMemo( () => {
 		return (
 			isPurchasesDataLoaded && purchases.find( purchase => purchase.product_slug === planSlug )
@@ -77,7 +77,7 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 		} else if ( needs_installed ) {
 			return needs_installed.map( getPluginInfo );
 		}
-		return needs_activated_only.map( getPluginInfo );
+		return needs_activated_only?.map( getPluginInfo );
 	}, [ getPluginInfo, needs_activated_only, needs_installed, numPluginsNeedingAction ] );
 
 	const actionNoun = useMemo( () => {
