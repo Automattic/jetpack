@@ -455,6 +455,23 @@ function wpcom_is_duplicate_views_experiment_enabled() {
  * the first time.
  */
 function wpcom_show_removed_calypso_screen_notice() {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		$blog_id = get_current_blog_id();
+	} else {
+		$jetpack_options = get_option( 'jetpack_options' );
+		if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
+			$blog_id = (int) $jetpack_options['id'];
+		} else {
+			$blog_id = get_current_blog_id();
+		}
+	}
+
+	// Do not show notice on sites created the experiment started.
+	// 240673796 is the ID of a site created on 2025-01-13.
+	if ( $blog_id > 240673796 ) {
+		return;
+	}
+
 	$admin_menu_class = wpcom_get_custom_admin_menu_class();
 	if ( ! $admin_menu_class ) {
 		return;
@@ -466,9 +483,51 @@ function wpcom_show_removed_calypso_screen_notice() {
 		return;
 	}
 
-	$dismissed_notices = get_user_option( 'wpcom_removed_calypso_screen_dismissed_notices' );
-	if ( is_array( $dismissed_notices ) && in_array( $current_screen, $dismissed_notices, true ) ) {
-		return;
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		$preferences  = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
+		$is_dismissed = $preferences[ 'removed-calypso-screen-dismissed-notice-' . $current_screen ] ?? false;
+		if ( $is_dismissed ) {
+			return;
+		}
+	} else {
+		$notices_dismissed_locally = get_user_option( 'wpcom_removed_calypso_screen_dismissed_notices' );
+		if ( ! is_array( $notices_dismissed_locally ) ) {
+			$notices_dismissed_locally = array();
+		}
+
+		if ( in_array( $current_screen, $notices_dismissed_locally, true ) ) {
+			return;
+		}
+
+		if ( ! ( new Jetpack_Connection() )->is_user_connected() ) {
+			return;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user( '/me/preferences', 'v2' );
+		if ( is_wp_error( $response ) ) {
+			return;
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $response_code ) {
+			return;
+		}
+
+		$notices_dismissed_globally = array();
+		$preferences                = json_decode( wp_remote_retrieve_body( $response ), true );
+		foreach ( $preferences as $key => $value ) {
+			if ( $value && preg_match( '/^removed-calypso-screen-dismissed-notice-(.+)$/', $key, $matches ) ) {
+				$notices_dismissed_globally[] = $matches[1];
+			}
+		}
+
+		if ( array_diff( $notices_dismissed_globally, $notices_dismissed_locally ) ) {
+			update_user_option( get_current_user_id(), 'wpcom_removed_calypso_screen_dismissed_notices', $notices_dismissed_globally, true );
+		}
+
+		if ( in_array( $current_screen, $notices_dismissed_globally, true ) ) {
+			return;
+		}
 	}
 
 	if ( ! wpcom_is_duplicate_views_experiment_enabled() ) {
@@ -531,18 +590,32 @@ function wpcom_get_custom_admin_menu_class() {
 }
 
 /**
- * Handles the AJAX request to dismiss a notice of a removed Calypsos screen.
+ * Handles the AJAX request to dismiss a notice of a removed Calypso screen.
  */
 function wpcom_dismiss_removed_calypso_screen_notice() {
 	check_ajax_referer( 'wpcom_dismiss_removed_calypso_screen_notice' );
 	if ( isset( $_REQUEST['screen'] ) ) {
-		$screen            = sanitize_text_field( wp_unslash( $_REQUEST['screen'] ) );
-		$dismissed_notices = get_user_option( 'wpcom_removed_calypso_screen_dismissed_notices' );
-		if ( ! is_array( $dismissed_notices ) ) {
-			$dismissed_notices = array();
+		$screen = sanitize_text_field( wp_unslash( $_REQUEST['screen'] ) );
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			$preferences = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
+			$preferences[ 'removed-calypso-screen-dismissed-notice-' . $screen ] = true;
+			update_user_attribute( get_current_user_id(), 'calypso_preferences', $preferences );
+		} else {
+			Client::wpcom_json_api_request_as_user(
+				'/me/preferences',
+				'2',
+				array(
+					'method' => 'POST',
+				),
+				array( 'calypso_preferences' => (object) array( 'removed-calypso-screen-dismissed-notice-' . $screen => true ) )
+			);
+			$notices_dismissed_locally = get_user_option( 'wpcom_removed_calypso_screen_dismissed_notices' );
+			if ( ! is_array( $notices_dismissed_locally ) ) {
+				$notices_dismissed_locally = array();
+			}
+			$notices_dismissed_locally[] = $screen;
+			update_user_option( get_current_user_id(), 'wpcom_removed_calypso_screen_dismissed_notices', $notices_dismissed_locally, true );
 		}
-		$dismissed_notices[] = $screen;
-		update_user_option( get_current_user_id(), 'wpcom_removed_calypso_screen_dismissed_notices', $dismissed_notices, true );
 	}
 	wp_die();
 }

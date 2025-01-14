@@ -24,9 +24,9 @@ return [
     // PhanTypeMismatchArgumentNullable : 50+ occurrences
     // PhanParamTooMany : 40+ occurrences
     // PhanPluginDuplicateAdjacentStatement : 40+ occurrences
-    // PhanTypeExpectedObjectPropAccess : 40+ occurrences
     // PhanTypeMismatchArgumentInternal : 40+ occurrences
     // PhanUndeclaredProperty : 40+ occurrences
+    // PhanTypeExpectedObjectPropAccess : 35+ occurrences
     // PhanParamSignatureMismatch : 25+ occurrences
     // PhanTypeMismatchDefault : 25+ occurrences
     // PhanTypeMismatchPropertyProbablyReal : 25+ occurrences
@@ -35,12 +35,12 @@ return [
     // PhanPluginSimplifyExpressionBool : 20+ occurrences
     // PhanTypeArraySuspicious : 20+ occurrences
     // PhanTypeMismatchDimFetch : 20+ occurrences
-    // PhanTypeSuspiciousNonTraversableForeach : 20+ occurrences
     // PhanPluginMixedKeyNoKey : 15+ occurrences
     // PhanSuspiciousMagicConstant : 15+ occurrences
     // PhanTypeExpectedObjectPropAccessButGotNull : 15+ occurrences
     // PhanTypeMismatchArgumentNullableInternal : 15+ occurrences
     // PhanTypeMismatchPropertyDefault : 15+ occurrences
+    // PhanTypeSuspiciousNonTraversableForeach : 15+ occurrences
     // PhanPluginDuplicateExpressionAssignmentOperation : 10+ occurrences
     // PhanRedefineClass : 10+ occurrences
     // PhanRedundantConditionInLoop : 10+ occurrences
@@ -321,7 +321,6 @@ return [
         'modules/comments/subscription-modal-on-comment/class-jetpack-subscription-modal-on-comment.php' => ['PhanTypeMismatchReturnNullable'],
         'modules/copy-post.php' => ['PhanNoopNew'],
         'modules/custom-content-types.php' => ['PhanRedefineFunction'],
-        'modules/custom-post-types/nova.php' => ['PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeSuspiciousNonTraversableForeach'],
         'modules/geo-location.php' => ['PhanTypeMismatchArgumentNullable'],
         'modules/geo-location/class.jetpack-geo-location.php' => ['PhanTypeMismatchArgument'],
         'modules/google-fonts/current/class-jetpack-google-font-face.php' => ['PhanUndeclaredFunctionInCallable'],

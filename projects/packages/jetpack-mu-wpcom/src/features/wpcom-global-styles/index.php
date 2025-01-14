@@ -210,22 +210,22 @@ add_action( 'enqueue_block_editor_assets', 'wpcom_global_styles_enqueue_block_ed
  * @return void
  */
 function wpcom_global_styles_enqueue_assets() {
-	if (
-		! wpcom_global_styles_current_user_can_edit_wp_global_styles() ||
-		! wpcom_should_limit_global_styles() ||
-		! wpcom_global_styles_in_use()
-	) {
-		return;
-	}
-
-	$asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-global-styles-editor/wpcom-global-styles-editor.asset.php';
-
+	$asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-global-styles-frontend/wpcom-global-styles-frontend.asset.php';
 	wp_enqueue_script(
 		'wpcom-global-styles-frontend',
 		plugins_url( 'build/wpcom-global-styles-frontend/wpcom-global-styles-frontend.js', Jetpack_Mu_Wpcom::BASE_FILE ),
 		$asset_file['dependencies'] ?? array(),
 		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-global-styles-frontend/wpcom-global-styles-frontend.js' ),
 		true
+	);
+	wp_add_inline_script(
+		'wpcom-global-styles-frontend',
+		'const launchBarUserData = ' . wp_json_encode(
+			array(
+				'blogId' => get_current_blog_id(),
+			)
+		),
+		'before'
 	);
 	Common\wpcom_enqueue_tracking_scripts( 'wpcom-global-styles-frontend' );
 
@@ -236,7 +236,6 @@ function wpcom_global_styles_enqueue_assets() {
 		filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-global-styles-frontend/wpcom-global-styles-frontend.css' )
 	);
 }
-add_action( 'wp_enqueue_scripts', 'wpcom_global_styles_enqueue_assets' );
 
 /**
  * Removes the user styles from a site with limited global styles.
@@ -441,18 +440,64 @@ function wpcom_premium_global_styles_is_site_exempt( $blog_id = 0 ) {
 }
 
 /**
- * Adds the global style notice banner to the launch bar controls.
+ * Returns whether the global style banner should be shown or not.
  *
- * @param array $bar_controls List of launch bar controls.
- *
- * return array The collection of launch bar controls to render.
+ * @return bool Whether the global styles upgrade banner should be rendered.
  */
-function wpcom_display_global_styles_launch_bar( $bar_controls ) {
-	// Do not show the banner if the user can use global styles.
-	if ( ! wpcom_should_limit_global_styles() || ! wpcom_global_styles_in_use() ) {
-		return $bar_controls;
+function wpcom_should_show_global_styles_launch_bar() {
+	$current_user_id = get_current_user_id();
+
+	if ( ! $current_user_id ) {
+		return false;
 	}
 
+	$current_blog_id = get_current_blog_id();
+
+	if ( ! (
+		is_user_member_of_blog( $current_user_id, $current_blog_id ) &&
+		current_user_can( 'manage_options' )
+	) ) {
+		return false;
+	}
+
+	if ( has_blog_sticker( 'difm-lite-in-progress' ) ) {
+		return false;
+	}
+
+	// The site is being previewed in Calypso or Gutenberg.
+	if (
+		isset( $_GET['iframe'] ) && 'true' === $_GET['iframe'] && ( // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Not a form action
+			( isset( $_GET['theme_preview'] ) && 'true' === $_GET['theme_preview'] ) || // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Not a form action
+			( isset( $_GET['preview'] ) && 'true' === $_GET['preview'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Not a form action
+		) ||
+		isset( $_GET['widgetPreview'] ) || // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Not a form action (Gutenberg < 9.2)
+		isset( $_GET['widget-preview'] ) || // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Not a form action (Gutenberg >= 9.2)
+		( isset( $_GET['hide_banners'] ) && $_GET['hide_banners'] === 'true' )  // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Not a form action
+	) {
+		return false;
+	}
+
+	// Do not show the lanuch banner when previewed in the customizer
+	if ( is_customize_preview() ) {
+		return false;
+	}
+
+	// No banner for agency-managed sites.
+	if ( ! empty( get_option( 'is_fully_managed_agency_site' ) ) ) {
+		return false;
+	}
+
+	if ( ! wpcom_should_limit_global_styles() || ! wpcom_global_styles_in_use() ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * Renders the global style notice banner to the launch bar.
+ */
+function wpcom_display_global_styles_launch_bar() {
 	if ( method_exists( '\WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
 		$site_slug = WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
 	} else {
@@ -474,109 +519,135 @@ function wpcom_display_global_styles_launch_bar( $bar_controls ) {
 		$preview_location = remove_query_arg( 'hide-global-styles' );
 	}
 
-	ob_start(); ?>
-		<div class="launch-bar-global-styles-button">
-			<?php if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) : // Workaround for the shadow DOM used on Atomic sites. ?>
-				<style id="wpcom-launch-bar-global-styles-button-style">
-					<?php include __DIR__ . '/dist/wpcom-global-styles-view.css'; ?>
-					.hidden { display: none; }
-				</style>
-				<script id="wpcom-launch-bar-global-styles-button-script">
-					<?php
-					include __DIR__ . '/dist/wpcom-global-styles-view.min.js';
-					$asset_file   = plugin_dir_path( __FILE__ ) . 'dist/wpcom-global-styles-view.asset.php';
-					$asset        = file_exists( $asset_file ) ? require $asset_file : null;
-					$dependencies = $asset['dependencies'] ?? array();
-					foreach ( $dependencies as $dep ) {
-						$dep_script = wp_scripts()->registered[ $dep ];
-						if ( ! $dep_script ) {
-							continue;
-						}
-						include ABSPATH . $dep_script->src;
-					}
-					?>
-				</script>
-			<?php endif; ?>
-			<div class="launch-bar-global-styles-popover hidden">
-				<div class="launch-bar-global-styles-close">
-					<svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 96 960 960" width="48"><path d="m249 849-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"/></svg>
-				</div>
-				<div class="launch-bar-global-styles-message">
-					<?php
-					$support_url = function_exists( 'localized_wpcom_url' )
-						? localized_wpcom_url( 'https://wordpress.com/support/using-styles/' )
-						// phpcs:ignore WPCOM.I18nRules.LocalizedUrl.UnlocalizedUrl
-						: 'https://wordpress.com/support/using-styles/';
+	?>
 
-					$message = sprintf(
-						/* translators: %1$s - documentation URL, %2$s - the name of the required plan */
-						__(
-							'Your site includes <a href="%1$s" target="_blank">premium styles</a> that are only visible to visitors after upgrading to the %2$s plan or higher.',
-							'jetpack-mu-wpcom'
-						),
-						$support_url,
-						get_store_product( $gs_upgrade_plan )->product_name
-					);
-					printf(
-						wp_kses(
-							$message,
-							array(
-								'a' => array(
-									'href'   => array(),
-									'target' => array(),
+	<div class="launch-banner" id="launch-banner" style="display:none;">
+		<div class="launch-banner-content">
+			<div class="launch-banner-section bar-controls">
+				<div class="launch-bar-global-styles-button">
+					<?php if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) : // Workaround for the shadow DOM used on Atomic sites. ?>
+						<style id="wpcom-launch-bar-global-styles-button-style">
+							<?php include __DIR__ . '/dist/wpcom-global-styles-view.css'; ?>
+							.hidden { display: none; }
+						</style>
+						<script id="wpcom-launch-bar-global-styles-button-script">
+							const launchBarUserData = {
+								blogId: <?php echo method_exists( '\Jetpack_Options', 'get_option' ) ? (int) \Jetpack_Options::get_option( 'id' ) : get_current_blog_id(); ?>,
+								isAtomic: true,
+							};
+							<?php
+							include __DIR__ . '/dist/wpcom-global-styles-view.min.js';
+							$asset_file   = plugin_dir_path( __FILE__ ) . 'dist/wpcom-global-styles-view.asset.php';
+							$asset        = file_exists( $asset_file ) ? require $asset_file : null;
+							$dependencies = $asset['dependencies'] ?? array();
+							foreach ( $dependencies as $dep ) {
+								$dep_script = wp_scripts()->registered[ $dep ];
+								if ( ! $dep_script ) {
+									continue;
+								}
+								include ABSPATH . $dep_script->src;
+							}
+							?>
+						</script>
+					<?php endif; ?>
+					<div class="launch-bar-global-styles-popover hidden">
+						<div class="launch-bar-global-styles-close">
+							<svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 96 960 960" width="48"><path d="m249 849-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"/></svg>
+						</div>
+						<div class="launch-bar-global-styles-message">
+							<?php
+							$support_url = function_exists( 'localized_wpcom_url' )
+								? localized_wpcom_url( 'https://wordpress.com/support/using-styles/' )
+								// phpcs:ignore WPCOM.I18nRules.LocalizedUrl.UnlocalizedUrl
+								: 'https://wordpress.com/support/using-styles/';
+
+							$message = sprintf(
+								/* translators: %1$s - documentation URL, %2$s - the name of the required plan */
+								__(
+									'Your site includes <a href="%1$s" target="_blank">premium styles</a> that are only visible to visitors after upgrading to the %2$s plan or higher.',
+									'jetpack-mu-wpcom'
 								),
-							)
-						)
-					);
-					?>
+								$support_url,
+								get_store_product( $gs_upgrade_plan )->product_name
+							);
+							printf(
+								wp_kses(
+									$message,
+									array(
+										'a' => array(
+											'href'   => array(),
+											'target' => array(),
+										),
+									)
+								)
+							);
+							?>
+						</div>
+						<a
+							class="launch-bar-global-styles-upgrade"
+							href="<?php echo esc_url( $upgrade_url ); ?>"
+						>
+							<?php echo esc_html__( 'Upgrade now', 'jetpack-mu-wpcom' ); ?>
+						</a>
+						<a
+							class="launch-bar-global-styles-reset"
+							href="https://wordpress.com/support/using-styles/#reset-all-styles"
+							target="_blank"
+						>
+							<svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M5.8125 5.6875C5.8125 4.75552 6.56802 4 7.5 4C8.43198 4 9.1875 4.75552 9.1875 5.6875C9.1875 6.55621 8.53108 7.2716 7.6872 7.36473C7.58427 7.37609 7.5 7.45895 7.5 7.5625V8.5M7.5 9.25V10.375M13.5 7C13.5 10.3137 10.8137 13 7.5 13C4.18629 13 1.5 10.3137 1.5 7C1.5 3.68629 4.18629 1 7.5 1C10.8137 1 13.5 3.68629 13.5 7Z" stroke="#1E1E1E" stroke-width="1.5"/>
+							</svg>
+							<?php echo esc_html__( 'Remove premium styles', 'jetpack-mu-wpcom' ); ?>
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false"><path d="M18.2 17c0 .7-.6 1.2-1.2 1.2H7c-.7 0-1.2-.6-1.2-1.2V7c0-.7.6-1.2 1.2-1.2h3.2V4.2H7C5.5 4.2 4.2 5.5 4.2 7v10c0 1.5 1.2 2.8 2.8 2.8h10c1.5 0 2.8-1.2 2.8-2.8v-3.6h-1.5V17zM14.9 3v1.5h3.7l-6.4 6.4 1.1 1.1 6.4-6.4v3.7h1.5V3h-6.3z"></path></svg>
+						</a>
+						<a class="launch-bar-global-styles-preview" href="<?php echo esc_url( $preview_location ); ?>">
+							<label><input type="checkbox" <?php echo wpcom_is_previewing_global_styles() ? 'checked' : ''; ?>><span></span></label>
+							<?php echo esc_html__( 'Preview premium styles', 'jetpack-mu-wpcom' ); ?>
+						</a>
+					</div>
+					<a class="launch-bar-global-styles-toggle" href="#">
+						<svg width="25" height="25" viewBox="0 96 960 960" xmlns="http://www.w3.org/2000/svg">
+							<path d="M479.982 776q14.018 0 23.518-9.482 9.5-9.483 9.5-23.5 0-14.018-9.482-23.518-9.483-9.5-23.5-9.5-14.018 0-23.518 9.482-9.5 9.483-9.5 23.5 0 14.018 9.482 23.518 9.483 9.5 23.5 9.5ZM453 623h60V370h-60v253Zm27.266 353q-82.734 0-155.5-31.5t-127.266-86q-54.5-54.5-86-127.341Q80 658.319 80 575.5q0-82.819 31.5-155.659Q143 347 197.5 293t127.341-85.5Q397.681 176 480.5 176q82.819 0 155.659 31.5Q709 239 763 293t85.5 127Q880 493 880 575.734q0 82.734-31.5 155.5T763 858.316q-54 54.316-127 86Q563 976 480.266 976Zm.234-60Q622 916 721 816.5t99-241Q820 434 721.188 335 622.375 236 480 236q-141 0-240.5 98.812Q140 433.625 140 576q0 141 99.5 240.5t241 99.5Zm-.5-340Z" style="fill: orange"/>
+						</svg>
+						<span class="is-mobile">
+							<?php echo esc_html__( 'Upgrade', 'jetpack-mu-wpcom' ); ?>
+						</span>
+						<span class="is-desktop">
+							<?php echo esc_html__( 'Upgrade required', 'jetpack-mu-wpcom' ); ?>
+						</span>
+					</a>
 				</div>
-				<a
-					class="launch-bar-global-styles-upgrade"
-					href="<?php echo esc_url( $upgrade_url ); ?>"
-				>
-					<?php echo esc_html__( 'Upgrade now', 'jetpack-mu-wpcom' ); ?>
-				</a>
-				<a
-					class="launch-bar-global-styles-reset"
-					href="https://wordpress.com/support/using-styles/#reset-all-styles"
-					target="_blank"
-				>
-					<svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path d="M5.8125 5.6875C5.8125 4.75552 6.56802 4 7.5 4C8.43198 4 9.1875 4.75552 9.1875 5.6875C9.1875 6.55621 8.53108 7.2716 7.6872 7.36473C7.58427 7.37609 7.5 7.45895 7.5 7.5625V8.5M7.5 9.25V10.375M13.5 7C13.5 10.3137 10.8137 13 7.5 13C4.18629 13 1.5 10.3137 1.5 7C1.5 3.68629 4.18629 1 7.5 1C10.8137 1 13.5 3.68629 13.5 7Z" stroke="#1E1E1E" stroke-width="1.5"/>
-					</svg>
-					<?php echo esc_html__( 'Remove premium styles', 'jetpack-mu-wpcom' ); ?>
-					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false"><path d="M18.2 17c0 .7-.6 1.2-1.2 1.2H7c-.7 0-1.2-.6-1.2-1.2V7c0-.7.6-1.2 1.2-1.2h3.2V4.2H7C5.5 4.2 4.2 5.5 4.2 7v10c0 1.5 1.2 2.8 2.8 2.8h10c1.5 0 2.8-1.2 2.8-2.8v-3.6h-1.5V17zM14.9 3v1.5h3.7l-6.4 6.4 1.1 1.1 6.4-6.4v3.7h1.5V3h-6.3z"></path></svg>
-				</a>
-				<a class="launch-bar-global-styles-preview" href="<?php echo esc_url( $preview_location ); ?>">
-					<label><input type="checkbox" <?php echo wpcom_is_previewing_global_styles() ? 'checked' : ''; ?>><span></span></label>
-					<?php echo esc_html__( 'Preview premium styles', 'jetpack-mu-wpcom' ); ?>
-				</a>
 			</div>
-			<a class="launch-bar-global-styles-toggle" href="#">
-				<svg width="25" height="25" viewBox="0 96 960 960" xmlns="http://www.w3.org/2000/svg">
-					<path d="M479.982 776q14.018 0 23.518-9.482 9.5-9.483 9.5-23.5 0-14.018-9.482-23.518-9.483-9.5-23.5-9.5-14.018 0-23.518 9.482-9.5 9.483-9.5 23.5 0 14.018 9.482 23.518 9.483 9.5 23.5 9.5ZM453 623h60V370h-60v253Zm27.266 353q-82.734 0-155.5-31.5t-127.266-86q-54.5-54.5-86-127.341Q80 658.319 80 575.5q0-82.819 31.5-155.659Q143 347 197.5 293t127.341-85.5Q397.681 176 480.5 176q82.819 0 155.659 31.5Q709 239 763 293t85.5 127Q880 493 880 575.734q0 82.734-31.5 155.5T763 858.316q-54 54.316-127 86Q563 976 480.266 976Zm.234-60Q622 916 721 816.5t99-241Q820 434 721.188 335 622.375 236 480 236q-141 0-240.5 98.812Q140 433.625 140 576q0 141 99.5 240.5t241 99.5Zm-.5-340Z" style="fill: orange"/>
-				</svg>
-				<span class="is-mobile">
-					<?php echo esc_html__( 'Upgrade', 'jetpack-mu-wpcom' ); ?>
-				</span>
-				<span class="is-desktop">
-					<?php echo esc_html__( 'Upgrade required', 'jetpack-mu-wpcom' ); ?>
-				</span>
-			</a>
 		</div>
+	</div>
 	<?php
-	$global_styles_bar_control = ob_get_clean();
-
-	$launch_site_control_key = array_search( 'launch-site', array_keys( $bar_controls ), true );
-
-	if ( $launch_site_control_key ) {
-		array_splice( $bar_controls, $launch_site_control_key, 0, $global_styles_bar_control );
-	} else {
-		$bar_controls[] = $global_styles_bar_control;
-	}
-	return $bar_controls;
 }
-add_filter( 'wpcom_launch_bar_controls', 'wpcom_display_global_styles_launch_bar' );
+
+/**
+ * Maybe registers the global styles banner.
+ *
+ * @param array $banners Banners.
+ *
+ * @return array
+ */
+function wpcom_register_global_styles_launch_bar( $banners ) {
+	// If the banner shouldn't display, don't inject it.
+	if ( ! wpcom_should_show_global_styles_launch_bar() ) {
+		return $banners;
+	}
+
+	return array_merge( $banners, array( 'wpcom_launch_banner' => 'wpcom_init_global_styles_launch_bar' ) );
+}
+
+/**
+ * Show the global styles banner for the current site.
+ */
+function wpcom_init_global_styles_launch_bar() {
+	add_action( 'wp_head', 'wpcom_global_styles_enqueue_assets' );
+	add_filter( 'wp_footer', 'wpcom_display_global_styles_launch_bar' );
+}
+
+add_filter( 'wpcom_register_banners', 'wpcom_register_global_styles_launch_bar' );
 
 /**
  * Include the Rest API that returns the global style information for a give WordPress site.

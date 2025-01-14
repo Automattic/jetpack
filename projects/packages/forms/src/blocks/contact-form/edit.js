@@ -15,7 +15,6 @@ import {
 } from '@wordpress/block-editor';
 import { createBlock, registerBlockVariation } from '@wordpress/blocks';
 import {
-	BaseControl,
 	Button,
 	Modal,
 	PanelBody,
@@ -198,18 +197,14 @@ export const JetpackContactFormEdit = forwardRef(
 					) }
 
 					{ 'redirect' === customThankyou && (
-						<BaseControl
-							label={ __( 'Redirect Address', 'jetpack-forms' ) }
-							id={ `contact-form-${ instanceId }-thankyou-url` }
-							__nextHasNoMarginBottom={ true }
-						>
+						<div>
 							<URLInput
-								id={ `contact-form-${ instanceId }-thankyou-url` }
+								label={ __( 'Redirect Address', 'jetpack-forms' ) }
 								value={ customThankyouRedirect }
 								className="jetpack-contact-form__thankyou-redirect-url"
 								onChange={ newURL => setAttributes( { customThankyouRedirect: newURL } ) }
 							/>
-						</BaseControl>
+						</div>
 					) }
 				</>
 			);
