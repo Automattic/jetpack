@@ -82,6 +82,8 @@ function jetpack_shortcode_instagram( $atts ) {
 		return;
 	}
 
+	$atts = jetpack_instagram_get_allowed_parameters( $atts['url'], $atts );
+
 	if ( ! preg_match( JETPACK_INSTAGRAM_EMBED_REGEX, $atts['url'] ) ) {
 		return;
 	}
