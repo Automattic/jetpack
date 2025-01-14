@@ -1,4 +1,4 @@
-Significance: major
+Significance: patch
 Type: other
 
-Upsell nudge: fix click in Safari
+Block nudges: ensure clicking on a banner button leads to Plans page in Safari.
