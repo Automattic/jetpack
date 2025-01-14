@@ -55,6 +55,7 @@ const ALLOWED_BLOCKS = [
 	'core/columns',
 	'core/group',
 	'core/heading',
+	'core/html',
 	'core/image',
 	'core/list',
 	'core/paragraph',
