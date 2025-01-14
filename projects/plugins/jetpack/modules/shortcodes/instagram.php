@@ -81,10 +81,7 @@ function jetpack_instagram_shortcode_handler( $atts ) {
 		return;
 	}
 
-	if ( ! preg_match( JETPACK_INSTAGRAM_EMBED_REGEX, $atts['url'] )
-	&& ! preg_match( JETPACK_INSTAGRAM_PHOTO_EMBED_REGEX, $atts['url'] )
-	&& ! preg_match( JETPACK_INSTAGRAM_VIDEO_EMBED_REGEX, $atts['url'] )
-	&& ! preg_match( JETPACK_INSTAGRAM_VIDEO_ALTERNATE_EMBED_REGEX, $atts['url'] ) ) {
+	if ( ! preg_match( JETPACK_INSTAGRAM_EMBED_REGEX, $atts['url'] ) ) {
 		return;
 	}
 
