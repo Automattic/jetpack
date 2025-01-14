@@ -45,7 +45,6 @@ const HistoryAdminSectionHero: React.FC = ( {
 					[ styles[ 'hero-main--large' ] ]: size === 'large',
 				} ) }
 			>
-				{ ' ' }
 				<Text mb={ 2 }>
 					{ oldestFirstDetected ? (
 						<span className={ styles[ 'subheading-content' ] }>
