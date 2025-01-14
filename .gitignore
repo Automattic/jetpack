@@ -20,7 +20,7 @@ jetpack_vendor/
 /tools/docker/jetpack-docker-config.yml
 /tools/phpcs.log
 
-# File for personal customiziations, if desired.
+# File for personal customizations, if desired.
 /tools/docker/mu-plugins/0-sandbox.php
 .idea
 *.iml
