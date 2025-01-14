@@ -226,3 +226,46 @@ function wpcomsh_woa_post_transfer_install_marketplace_software( $args, $assoc_a
 	}
 }
 add_action( 'wpcomsh_woa_post_transfer', 'wpcomsh_woa_post_transfer_install_marketplace_software', 10, 2 );
+
+/**
+ * Sets WordAds options and enables the WordAds Jetpack module if required.
+ *
+ * @param array $args Arguments.
+ * @param array $assoc_args Associated arguments.
+ *
+ * @return void
+ */
+function wpcomsh_woa_post_process_maybe_enable_wordads( $args, $assoc_args ) {
+
+	// wordads-options is expected to be a JSON object with option name=>value pairs.
+	$wordads_options = WP_CLI\Utils\get_flag_value( $assoc_args, 'wordads-options', false );
+
+	if ( false === $wordads_options ) {
+		return;
+	}
+
+	$options_decoded = json_decode( $wordads_options, true );
+
+	if ( ! is_array( $options_decoded ) ) {
+		return;
+	}
+
+	// Set WordAds options.
+	foreach ( $options_decoded as $option => $value ) {
+		// Convert boolean options to string first to work around update_option not setting the option if the value is false.
+		// This sets the option to either '1' if true or '' if false.
+		update_option( $option, is_bool( $value ) ? (string) $value : $value );
+	}
+
+	// Activate the WordAds module.
+	WP_CLI::runcommand(
+		'jetpack module activate wordads',
+		array(
+			'launch'     => false,
+			'exit_error' => false,
+		)
+	);
+
+	WP_CLI::success( 'WordAds options transferred and module activated' );
+}
+add_action( 'wpcomsh_woa_post_transfer', 'wpcomsh_woa_post_process_maybe_enable_wordads', 10, 2 );

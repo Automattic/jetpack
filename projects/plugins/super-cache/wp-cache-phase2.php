@@ -3192,6 +3192,7 @@ function wpsc_post_transition( $new_status, $old_status, $post ) {
 		}
 		list( $permalink, $post_name ) = get_sample_permalink( $post );
 		$post_url                      = str_replace( array( '%postname%', '%pagename%' ), $post->post_name, $permalink );
+		wp_cache_post_edit( $post->ID );
 	} elseif ( $old_status !== 'publish' && $new_status === 'publish' ) { // post published
 		wp_cache_post_edit( $post->ID );
 		return;

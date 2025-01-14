@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix custom roles settings are not sticking for Jetpack Stats

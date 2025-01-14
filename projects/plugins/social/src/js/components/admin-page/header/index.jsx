@@ -1,17 +1,11 @@
-import { store as socialStore } from '@automattic/jetpack-publicize-components';
+import { hasSocialPaidFeatures } from '@automattic/jetpack-publicize-components';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
-import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import Logo from './../../logo';
 import styles from './styles.module.scss';
 
 const AdminPageHeader = () => {
-	const { showPricingPage } = useSelect( select => {
-		return {
-			showPricingPage: select( socialStore ).getSocialPluginSettings().show_pricing_page,
-		};
-	} );
 	const activateLicenseUrl = getMyJetpackUrl( '#/add-license' );
 
 	return (
@@ -20,7 +14,7 @@ const AdminPageHeader = () => {
 				<Logo />
 			</span>
 
-			{ showPricingPage && (
+			{ ! hasSocialPaidFeatures() && (
 				<p>
 					{ createInterpolateElement(
 						__(

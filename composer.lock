@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "8f2d11d1b20847517f10a70eef2e362084bdffdc"
+                "reference": "689f55eccad70543d91b2536a7055937eb62511c"
             },
             "require": {
                 "php": ">=7.2"
@@ -30,7 +30,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "2.1.x-dev"
+                    "dev-trunk": "3.0.x-dev"
                 }
             },
             "autoload": {
@@ -63,7 +63,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "4968238af15e427ec78daccdc5ddb6dd3bc6d069"
+                "reference": "686f7115142bafa2a91ada334a821142443f4e61"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
@@ -86,7 +86,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.0.x-dev"
+                    "dev-trunk": "5.0.x-dev"
                 }
             },
             "autoload": {
@@ -187,7 +187,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "0425b29cbd8e6ee012478f89f605f593f3beda54"
+                "reference": "f41ae07ce664c89fc9ecc4fa0a8c1d11e2b0cdbe"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
@@ -201,7 +201,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-trunk": "2.0.x-dev"
+                    "dev-trunk": "3.0.x-dev"
                 }
             },
             "autoload": {
