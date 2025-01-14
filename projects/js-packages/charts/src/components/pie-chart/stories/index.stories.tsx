@@ -59,12 +59,12 @@ export default {
 				step: 0.01,
 			},
 		},
-		cornerRadius: {
+		cornerScale: {
 			control: {
 				type: 'range',
 				min: 0,
-				max: 100,
-				step: 1,
+				max: 1,
+				step: 0.01,
 			},
 		},
 		legendOrientation: {
@@ -89,7 +89,7 @@ export const Default: StoryType = {
 		thickness: 1,
 		gapScale: 0,
 		padding: 20,
-		cornerRadius: 0,
+		cornerScale: 0,
 		withTooltips: false,
 		data,
 		theme: 'default',

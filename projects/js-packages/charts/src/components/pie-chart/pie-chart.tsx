@@ -39,10 +39,15 @@ interface PieChartProps extends OmitBaseChartProps {
 
 	/**
 	 * Scale of the gap between groups in the pie chart
-	 * A value between 0 and 1, where 0 means no gap
-	 * and 1 means the maximum possible gap.
+	 * A value between 0 and 1, where 0 means no gap.
 	 */
 	gapScale?: number;
+
+	/**
+	 * Scale of the corner radius for the pie chart segments.
+	 * A value between 0 and 1, where 0 means no corner radius.
+	 */
+	cornerScale?: number;
 }
 
 /**
@@ -62,7 +67,7 @@ const PieChart = ( {
 	thickness = 1,
 	padding = 20,
 	gapScale = 0,
-	cornerRadius = 0,
+	cornerScale = 0,
 }: PieChartProps ) => {
 	const providerTheme = useChartTheme();
 	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
@@ -83,6 +88,9 @@ const PieChart = ( {
 
 	const outerRadius = radius - padding;
 	const innerRadius = outerRadius * ( 1 - thickness );
+
+	const maxCornerRadius = ( outerRadius - innerRadius ) / 2;
+	const cornerRadius = cornerScale ? Math.min( cornerScale * outerRadius, maxCornerRadius ) : 0;
 
 	// Map the data to include index for color assignment
 	const dataWithIndex = data.map( ( d, index ) => ( {
