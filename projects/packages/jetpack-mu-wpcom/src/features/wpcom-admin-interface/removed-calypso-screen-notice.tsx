@@ -28,7 +28,6 @@ const Notice = () => {
 		'edit-tags.php?taxonomy=category': category,
 		'edit-tags.php?taxonomy=post_tag': tag,
 	};
-	const backgroundPattern = `https://s0.wp.com/i/welcome-notices/removed-calypso-screen-bg-pattern.png`;
 
 	if ( ! Object.keys( icons ).includes( removedCalypsoScreenNoticeConfig.screen ) ) {
 		return null;
@@ -65,10 +64,7 @@ const Notice = () => {
 				{
 					image: (
 						<>
-							<div
-								className="removed-calypso-screen-notice__image"
-								style={ { backgroundImage: `url(${ backgroundPattern })` } }
-							>
+							<div className="removed-calypso-screen-notice__image">
 								<Icon
 									icon={ icons[ removedCalypsoScreenNoticeConfig.screen ] }
 									size={ 72 }
