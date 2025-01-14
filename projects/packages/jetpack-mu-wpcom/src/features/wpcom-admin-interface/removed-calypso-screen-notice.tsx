@@ -193,7 +193,6 @@ const Notice = () => {
 						<div className="removed-calypso-screen-notice__image">
 							<Icon
 								icon={ config[ removedCalypsoScreenNoticeConfig.screen ].icon }
-								size={ 72 }
 								className="removed-calypso-screen-notice__icon"
 							></Icon>
 						</div>
