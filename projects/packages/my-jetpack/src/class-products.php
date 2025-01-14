@@ -116,6 +116,20 @@ class Products {
 	);
 
 	/**
+	 * List of product slugs that are Not displayed on the main My Jetpack page
+	 *
+	 * @var array
+	 */
+	public static $not_shown_products = array(
+		'scan',
+		'extras',
+		'ai', // 'ai' is a duplicate class of 'jetpack-ai', and therefore not needed.
+		'newsletter',
+		'site-accelerator',
+		'related-posts',
+	);
+
+	/**
 	 * Get the list of Products classes
 	 *
 	 * Here's where all the existing Products are registered
@@ -179,13 +193,24 @@ class Products {
 	/**
 	 * Product data
 	 *
+	 * @param array $product_slugs (optional) An array of specified product slugs.
 	 * @return array Jetpack products on the site and their availability.
 	 */
-	public static function get_products() {
+	public static function get_products( $product_slugs = array() ) {
 		$products = array();
-		foreach ( self::get_products_classes() as $class ) {
-			$product_slug              = $class::$slug;
-			$products[ $product_slug ] = $class::get_info();
+		if ( ! $product_slugs ) {
+			foreach ( self::get_products_classes() as $class ) {
+				$product_slug              = $class::$slug;
+				$products[ $product_slug ] = $class::get_info();
+			}
+			return $products;
+		}
+		$all_classes = self::get_products_classes();
+		foreach ( $product_slugs as $product_slug ) {
+			if ( isset( $all_classes[ $product_slug ] ) ) {
+				$class                     = $all_classes[ $product_slug ];
+				$products[ $product_slug ] = $class::get_info();
+			}
 		}
 		return $products;
 	}
