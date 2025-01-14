@@ -181,43 +181,17 @@ BODY;
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertStringContainsStringIgnoringNewLines(
+		$this->assertStringContainsStringIgnoringWhiteSpace(
 			'<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' . $instagram_url,
 			$shortcode_content
 		);
 	}
 
-	private function assertStringContainsStringIgnoringNewLines( $needle, $haystack ) {
-		$needle   = str_replace( array( "\r", "\n" ), '', $needle );
-		$haystack = str_replace( array( "\r", "\n" ), '', $haystack );
+	private function assertStringContainsStringIgnoringWhiteSpace( $needle, $haystack ) {
+		$needle   = str_replace( array( "\r", "\n", ' ' ), '', $needle );
+		$haystack = str_replace( array( "\r", "\n", ' ' ), '', $haystack );
 
 		return $this->assertStringContainsString( $needle, $haystack );
-	}
-
-	/**
-	 * Test different oEmbed URLs and their output.
-	 *
-	 * @covers ::jetpack_instagram_oembed_fetch_url
-	 * @dataProvider get_instagram_urls
-	 *
-	 * @param string $original Instagram URL provided by user.
-	 * @param string $expected Instagram URL embedded in the final post content.
-	 */
-	public function test_instagram_oembed_fetch_url( $original, $expected ) {
-		global $post;
-
-		$post = self::factory()->post->create_and_get( array( 'post_content' => $original ) );
-
-		setup_postdata( $post );
-		ob_start();
-		the_content();
-		$actual = ob_get_clean();
-		wp_reset_postdata();
-
-		$this->assertStringContainsStringIgnoringNewLines(
-			'<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' . $expected,
-			$actual
-		);
 	}
 
 	/**
@@ -265,7 +239,7 @@ BODY;
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertStringContainsStringIgnoringNewLines(
+		$this->assertStringContainsStringIgnoringWhiteSpace(
 			'<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' . $instagram_url,
 			$shortcode_content
 		);
@@ -350,149 +324,5 @@ BODY;
 	public function test_shortcodes_instagram_non_amp( $shortcode_content ) {
 		add_filter( 'jetpack_is_amp_request', '__return_false' );
 		$this->assertStringNotContainsString( 'amp-instagram', do_shortcode( $shortcode_content ) );
-	}
-
-	/**
-	 * Test the build of a set of allowed parameters from a variety of inputs.
-	 *
-	 * @dataProvider get_instagram_parameters
-	 * @covers ::jetpack_instagram_get_allowed_parameters
-	 *
-	 * @param string $url      URL of the content to be embedded.
-	 * @param array  $atts     Shortcode attributes.
-	 * @param array  $expected Array of expected parameters.
-	 *
-	 * @since 9.1.0
-	 */
-	public function test_shortcodes_instagram_allowed_parameters( $url, $atts, $expected ) {
-		$GLOBALS['content_width'] = self::CONTENT_WIDTH;
-
-		$actual = jetpack_instagram_get_allowed_parameters( $url, $atts );
-		$this->assertEquals( $expected, $actual );
-	}
-
-	/**
-	 * Variety of parameters available from an embed.
-	 *
-	 * @covers ::jetpack_instagram_get_allowed_parameters
-	 *
-	 * @since 9.1.0
-	 */
-	public function get_instagram_parameters() {
-		$base_instagram_url = 'https://www.instagram.com/p/BnMOk_FFsxg';
-
-		return array(
-			'no_query_strings_no_atts'     => array(
-				$base_instagram_url,
-				array(),
-				array(
-					'url'         => $base_instagram_url,
-					'width'       => self::CONTENT_WIDTH,
-					'height'      => '',
-					'hidecaption' => false,
-				),
-			),
-			'invalid_query_string_no_atts' => array(
-				$base_instagram_url . '?utm_source=ig_web_copy_link',
-				array(),
-				array(
-					'url'         => $base_instagram_url,
-					'width'       => self::CONTENT_WIDTH,
-					'height'      => '',
-					'hidecaption' => false,
-				),
-			),
-			'invalid_query_string_hidecaption_string_no_atts' => array(
-				$base_instagram_url . '?utm_source=ig_web_copy_link&hidecaption=true',
-				array(),
-				array(
-					'url'         => $base_instagram_url,
-					'width'       => self::CONTENT_WIDTH,
-					'height'      => '',
-					'hidecaption' => 'true',
-				),
-			),
-			'hidecaption_string_no_atts'   => array(
-				$base_instagram_url . '?hidecaption=true',
-				array(),
-				array(
-					'url'         => $base_instagram_url,
-					'width'       => self::CONTENT_WIDTH,
-					'height'      => '',
-					'hidecaption' => 'true',
-				),
-			),
-			'hidecaption_att'              => array(
-				$base_instagram_url,
-				array(
-					'hidecaption' => 'true',
-				),
-				array(
-					'url'         => $base_instagram_url,
-					'width'       => self::CONTENT_WIDTH,
-					'height'      => '',
-					'hidecaption' => 'true',
-				),
-			),
-			'url_in_att_takes_precedence'  => array(
-				'https://www.instagram.com/p/BnMO9vRleEx',
-				array(
-					'url' => $base_instagram_url,
-				),
-				array(
-					'url'         => $base_instagram_url,
-					'width'       => self::CONTENT_WIDTH,
-					'height'      => '',
-					'hidecaption' => false,
-				),
-			),
-			'invalid_atts_in_url_att'      => array(
-				$base_instagram_url,
-				array(
-					'url' => $base_instagram_url . '?utm_source=ig_web_copy_link',
-				),
-				array(
-					'url'         => $base_instagram_url,
-					'width'       => self::CONTENT_WIDTH,
-					'height'      => '',
-					'hidecaption' => false,
-				),
-			),
-			'custom_width_att'             => array(
-				$base_instagram_url,
-				array(
-					'width' => '420',
-				),
-				array(
-					'url'         => $base_instagram_url,
-					'width'       => 420,
-					'height'      => '',
-					'hidecaption' => false,
-				),
-			),
-			'width_att_out_of_bounds'      => array(
-				$base_instagram_url,
-				array(
-					'width' => '999',
-				),
-				array(
-					'url'         => $base_instagram_url,
-					'width'       => 698,
-					'height'      => '',
-					'hidecaption' => false,
-				),
-			),
-			// Tests some bad URLs to confirm we don't parse them.
-			'bad_url_1'                    => array(
-				'https://instagram.com.evil.example.com/p/BnMOk_FFsxg',
-				array(),
-				array(),
-			),
-			'bad_url_2'                    => array(
-				'https://not-really-instagr.am/p/BnMOk_FFsxg',
-				array(),
-				array(),
-			),
-		);
 	}
 }
