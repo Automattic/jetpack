@@ -307,9 +307,8 @@ class Connections {
 		global $publicize;
 
 		$connection = $publicize->get_connection( $result['service'], (int) $result['ID'] );
-		l( '>>>>>>>>..$connection BEFORE', $connection );
+
 		$connection = self::wpcom_prepare_connection_data( $connection, $result['service'] );
-		l( '>>>>>>>>..$connection AFTER', $connection );
 
 		return (string) $result['ID'];
 	}

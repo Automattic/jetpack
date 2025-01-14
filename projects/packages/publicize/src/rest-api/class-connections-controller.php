@@ -332,7 +332,6 @@ class Connections_Controller extends Base_Controller {
 			}
 
 			$connection = Connections::get_by_id( $result );
-			l( '>>>>>>>> CONNECTION CREATED', $connection );
 
 			$response = $this->prepare_item_for_response( $connection, $request );
 			$response = rest_ensure_response( $response );
@@ -346,8 +345,6 @@ class Connections_Controller extends Base_Controller {
 		$proxy = new Proxy_Requests( $this->rest_base );
 
 		$response = $proxy->proxy_request_to_wpcom( $request, '', 'user', array( 'timeout' => 120 ) );
-
-		l( '>>>>>>>> CREATE CONNECTION RESPONSE', $response );
 
 		if ( is_wp_error( $response ) ) {
 			return new WP_Error(
@@ -413,7 +410,6 @@ class Connections_Controller extends Base_Controller {
 			}
 
 			$connection = Connections::get_by_id( $connection_id );
-			l( '>>>>>>>> CONNECTION UPDATED', $connection );
 
 			$response = $this->prepare_item_for_response( $connection, $request );
 			$response = rest_ensure_response( $response );
@@ -425,11 +421,7 @@ class Connections_Controller extends Base_Controller {
 
 		$proxy = new Proxy_Requests( $this->rest_base );
 
-		l( '>>>>>>>> UPDATE CONNECTION REQUEST', $request );
-
 		$response = $proxy->proxy_request_to_wpcom( $request, $connection_id, 'user', array( 'timeout' => 120 ) );
-
-		l( '>>>>>>>> UPDATE CONNECTION RESPONSE', $response );
 
 		if ( is_wp_error( $response ) ) {
 			return new WP_Error(
@@ -475,8 +467,6 @@ class Connections_Controller extends Base_Controller {
 
 			$result = Connections::wpcom_delete_connection( $connection_id );
 
-			l( '>>>>>>>> CONNECTION DELETED', $result );
-
 			if ( is_wp_error( $result ) ) {
 				return $result;
 			}
@@ -491,8 +481,6 @@ class Connections_Controller extends Base_Controller {
 		$proxy = new Proxy_Requests( $this->rest_base );
 
 		$response = $proxy->proxy_request_to_wpcom( $request, $connection_id, 'user', array( 'timeout' => 120 ) );
-
-		l( '>>>>>>>> DELETE CONNECTION RESPONSE', $response );
 
 		if ( is_wp_error( $response ) ) {
 			return new WP_Error(
