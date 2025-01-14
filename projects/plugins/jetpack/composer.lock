@@ -1741,7 +1741,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/masterbar",
-				"reference": "f4317f289a90af787f81e695268be1ef00cd0255"
+				"reference": "f26d6309fe2d4ef4298d616f25f4e4d815c388bd"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1814,6 +1814,10 @@
 				"test-php": [
 					"pnpm run build-production",
 					"@composer phpunit"
+				],
+				"watch": [
+					"Composer\\Config::disableProcessTimeout",
+					"pnpm run watch"
 				]
 			},
 			"license": [
