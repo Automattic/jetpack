@@ -126,7 +126,7 @@ trait WPCOM_REST_API_Proxy_Request {
 	/**
 	 * Proxy request to wpcom servers on behalf of a user.
 	 *
-	 * @param WP_Rest_Request $request Request to proxy.
+	 * @param WP_REST_Request $request Request to proxy.
 	 * @param string          $path Path to append to the rest base.
 	 *
 	 * @return mixed|WP_Error           Response from wpcom servers or an error.
@@ -138,7 +138,7 @@ trait WPCOM_REST_API_Proxy_Request {
 	/**
 	 * Proxy request to wpcom servers using the Site-level Connection (blog token).
 	 *
-	 * @param WP_Rest_Request $request Request to proxy.
+	 * @param WP_REST_Request $request Request to proxy.
 	 * @param string          $path Path to append to the rest base.
 	 *
 	 * @return mixed|WP_Error           Response from wpcom servers or an error.
