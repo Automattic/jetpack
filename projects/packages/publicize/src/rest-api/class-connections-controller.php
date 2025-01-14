@@ -210,13 +210,13 @@ class Connections_Controller extends Base_Controller {
 				$connection_data = $connection_meta['connection_data'];
 
 				$items[] = array(
-					'connection_id'        => $connection_id,
-					'display_name'         => $publicize->get_display_name( $service_name, $connection ),
-					'external_handle'      => $publicize->get_external_handle( $service_name, $connection ),
+					'connection_id'        => (string) $connection_id,
+					'display_name'         => (string) $publicize->get_display_name( $service_name, $connection ),
+					'external_handle'      => (string) $publicize->get_external_handle( $service_name, $connection ),
 					'external_id'          => $connection_meta['external_id'] ?? '',
-					'profile_link'         => $publicize->get_profile_link( $service_name, $connection ),
-					'profile_picture'      => $publicize->get_profile_picture( $connection ),
-					'service_label'        => Publicize::get_service_label( $service_name ),
+					'profile_link'         => (string) $publicize->get_profile_link( $service_name, $connection ),
+					'profile_picture'      => (string) $publicize->get_profile_picture( $connection ),
+					'service_label'        => (string) Publicize::get_service_label( $service_name ),
 					'service_name'         => $service_name,
 					'shared'               => ! $connection_data['user_id'],
 					'status'               => $test_results[ $connection_id ] ?? null,

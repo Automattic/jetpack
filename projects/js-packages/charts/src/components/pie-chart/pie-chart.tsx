@@ -12,11 +12,28 @@ import type { BaseChartProps, DataPointPercentage } from '../../types';
 
 // TODO: add animation
 
-interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
+type OmitBaseChartProps = Omit< BaseChartProps< DataPointPercentage[] >, 'width' | 'height' >;
+
+interface PieChartProps extends OmitBaseChartProps {
 	/**
 	 * Inner radius in pixels. If > 0, creates a donut chart. Defaults to 0.
 	 */
 	innerRadius?: number;
+
+	/**
+	 * Size of the chart in pixels
+	 */
+	size?: number;
+
+	/**
+	 * Add padding to the chart
+	 */
+	padding?: number;
+
+	/**
+	 * Thickness of the pie chart. A value between 0 and 1
+	 */
+	thickness?: number;
 }
 
 /**
@@ -27,19 +44,22 @@ interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
  */
 const PieChart = ( {
 	data,
-	width = 500, //TODO: replace when making the components responsive
-	height = 500, //TODO: replace when making the components responsive
+	size = 500, //TODO: replace when making the components responsive
+	thickness = 1,
 	withTooltips = false,
-	innerRadius = 0,
 	className,
 	showLegend,
 	legendOrientation,
+	padding = 20,
 }: PieChartProps ) => {
 	const providerTheme = useChartTheme();
 	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
 		useChartMouseHandler( {
 			withTooltips,
 		} );
+
+	const width = size;
+	const height = size;
 
 	// Calculate radius based on width/height
 	const radius = Math.min( width, height ) / 2;
@@ -51,6 +71,9 @@ const PieChart = ( {
 		...d,
 		index,
 	} ) );
+
+	const outerRadius = radius - padding;
+	const innerRadius = outerRadius * ( 1 - thickness );
 
 	const accessors = {
 		value: ( d: DataPointPercentage ) => d.value,
@@ -73,7 +96,7 @@ const PieChart = ( {
 					<Pie< DataPointPercentage & { index: number } >
 						data={ dataWithIndex }
 						pieValue={ accessors.value }
-						outerRadius={ radius - 20 } // Leave space for labels/tooltips
+						outerRadius={ outerRadius }
 						innerRadius={ innerRadius }
 					>
 						{ pie => {

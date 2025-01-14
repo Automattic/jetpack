@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-11-20 22:54:07+0000\n"
+"PO-Revision-Date: 2025-01-10 17:02:49+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -8,6 +8,70 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: ar\n"
 "Project-Id-Version: WordPress.com - jetpack-mu-wpcom\n"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:286
+msgid "Got it!"
+msgstr "انا أفهم!"
+
+#: src/features/post-categories/quick-actions.php:78
+msgid "Default category changed successfully."
+msgstr "تم تغيير التصنيف الافتراضي بنجاح."
+
+#: src/features/post-categories/quick-actions.php:36
+msgid "Set as default"
+msgstr "تعيين كافتراضي"
+
+#. translators: category name
+#: src/features/post-categories/quick-actions.php:35
+msgid "Set &#8220;%s&#8221; as the default category"
+msgstr "تعيين \"%s\" على أنه التصنيف الافتراضي"
+
+#: src/features/pages/quick-actions.php:169
+msgid "Posts page changed successfully."
+msgstr ""
+
+#: src/features/pages/quick-actions.php:143
+msgid "Homepage changed successfully."
+msgstr ""
+
+#: src/features/pages/quick-actions.php:57
+msgid "Set as posts page"
+msgstr ""
+
+#: src/features/pages/quick-actions.php:57
+msgid "Unset as posts page"
+msgstr ""
+
+#. translators: page title
+#: src/features/pages/quick-actions.php:56
+msgid "Set &#8220;%s&#8221; as the page that displays your latest posts"
+msgstr ""
+
+#. translators: page title
+#: src/features/pages/quick-actions.php:56
+msgid "Unset &#8220;%s&#8221; as the page that displays your latest posts"
+msgstr ""
+
+#: src/features/pages/quick-actions.php:48
+msgid "Set as homepage"
+msgstr ""
+
+#. translators: page title
+#: src/features/pages/quick-actions.php:47
+msgid "Set &#8220;%s&#8221; as your site's homepage"
+msgstr ""
+
+#: src/features/holiday-snow/class-holiday-snow.php:226
+msgid "Show falling snow on my site until January 4<sup>th</sup>."
+msgstr "إظهار تساقط الثلوج على موقعي حتى <sup>الرابع</sup> من يناير."
+
+#: src/features/holiday-snow/class-holiday-snow.php:205
+msgid "Snow"
+msgstr "ثلج"
+
+#: src/features/holiday-snow/class-holiday-snow.php:194
+msgid "Show falling snow on my site"
+msgstr "إظهار تساقط الثلوج على موقعي"
 
 #: src/features/wpcom-blocks/timeline/block.json
 msgctxt "block keyword"
@@ -65,40 +129,39 @@ msgstr "لا تتردد في متابعة تحرير صفحتك الرئيسية
 msgid "You’ve added your first video!"
 msgstr "لقد أضفتَ أول فيديو لك!"
 
-#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:121
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:122
 msgid "View your product"
 msgstr "عرض منتجك"
 
-#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:119
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:120
 msgid "Continue editing"
 msgstr "مواصلة التحرير"
 
-#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:112
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:113
 msgid "Preview your product on your site before launching and sharing with others."
 msgstr "قم بمعاينة منتجك على موقعك قبل إطلاقه ومشاركته مع الآخرين."
 
-#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:111
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:112
 msgid "You've added your first product!"
 msgstr "لقد أضفت منتجك الأول!"
 
-#: src/features/wpcom-block-editor-nux/src/purchase-notice/index.jsx:22
+#: src/features/wpcom-block-editor-nux/src/purchase-notice/index.jsx:23
 msgid "Congrats! Premium blocks are now available to use."
 msgstr "تهانينا! المكوِّنات المميزة متاحة الآن لاستخدامها."
 
-#: src/features/block-theme-previews/modal.jsx:58
+#: src/features/block-theme-previews/modal.jsx:59
 msgid "Start customizing"
 msgstr "بدء التخصيص"
 
-#: src/features/block-theme-previews/modal.jsx:50
+#: src/features/block-theme-previews/modal.jsx:51
 msgid "Try customizing your theme styles to get your site looking just right."
 msgstr "حاول تخصيص أنماط قالبك لجعل موقعك يبدو مناسبًا تمامًا."
 
-#: src/features/block-theme-previews/modal.jsx:44
+#: src/features/block-theme-previews/modal.jsx:45
 msgid "Changes you make in the editor won’t be applied to your site until you activate the theme."
 msgstr "لن تنطبق التغييرات التي أجريتها في المحرر على موقعك حتى تقوم بتفعيل القالب."
 
-#. translators: %s: theme name
-#: src/features/block-theme-previews/modal.jsx:38
+#: src/features/block-theme-previews/modal.jsx:39
 msgid "You’re previewing %s"
 msgstr "تقوم بمعاينة %s"
 
@@ -349,28 +412,28 @@ msgstr "موسعة"
 msgid "Menu"
 msgstr "القائمة"
 
-#: src/features/wpcom-global-styles/index.php:548
+#: src/features/wpcom-global-styles/index.php:563
 msgid "Upgrade required"
 msgstr "الترقية مطلوبة"
 
-#: src/features/wpcom-global-styles/index.php:545
+#: src/features/wpcom-global-styles/index.php:560
 msgid "Upgrade"
 msgstr "ترقية"
 
-#: src/features/wpcom-global-styles/index.php:537
+#: src/features/wpcom-global-styles/index.php:552
 msgid "Preview premium styles"
 msgstr "معاينة الأنماط المتميزة"
 
-#: src/features/wpcom-global-styles/index.php:532
+#: src/features/wpcom-global-styles/index.php:547
 msgid "Remove premium styles"
 msgstr "إزالة الأنماط المتميزة"
 
-#: src/features/wpcom-global-styles/index.php:522
+#: src/features/wpcom-global-styles/index.php:537
 msgid "Upgrade now"
 msgstr "قم بالترقية الآن"
 
 #. translators: %1$s - documentation URL, %2$s - the name of the required plan
-#: src/features/wpcom-global-styles/index.php:498
+#: src/features/wpcom-global-styles/index.php:513
 msgid "Your site includes <a href=\"%1$s\" target=\"_blank\">premium styles</a> that are only visible to visitors after upgrading to the %2$s plan or higher."
 msgstr "يتضمن موقعك <a href=\"%1$s\" target=\"_blank\">أنماطًا متميزة</a> لا تكون مرئية إلا أمام الزائرين بعد الترقية إلى خطة ⁦%2$s⁩ أو خطة أعلى."
 
@@ -540,72 +603,68 @@ msgstr "صفحتي الرئيسية"
 msgid "Hosting"
 msgstr "الاستضافة"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:268
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:380
 msgid "Admin interface style changed."
 msgstr "تم تغيير نمط واجهة المشرف"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:231
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:343
 msgid "Click here to access your sites, domains, Reader, account settings, and more."
 msgstr "انقر هنا للوصول إلى مواقعك ونطاقاتك والقارئ وإعدادات الحساب والمزيد."
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:230
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:342
 msgid "All your sites"
 msgstr "كل مواقعك"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:224
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:336
 msgid "Access the new site management panel and all developer tools such as hosting configuration, GitHub deployments, metrics, PHP logs, and server logs."
 msgstr "يمكنك الوصول إلى لوحة إدارة الموقع الجديدة وكل أدوات المطور، مثل: تكوين الاستضافة وعمليات نشر GitHub والمقاييس وسجلات PHP وسجلات الخادم."
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:223
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:335
 msgid "Hosting overview"
 msgstr "نظرة عامة على الاستضافة"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:217
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:329
 msgid "The Hosting menu contains the My Home page and all items from the Upgrades menu, including Plans, Domains, Emails, Purchases, and more."
 msgstr "تحتوي قائمة الاستضافة على صفحة \"صفحتي الرئيسية\" وكل العناصر من قائمة الترقيات، بما في ذلك الخطط والنطاقات ورسائل البريد الإلكتروني وعمليات الشراء والمزيد."
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:216
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:328
 msgid "Upgrades is now Hosting"
 msgstr "أصبحت الترقيات الآن استضافة"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:174
-msgid "Got it!"
-msgstr "فهمت!"
-
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:173
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:285
 msgid "Next"
 msgstr "التالي"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:172
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:284
 msgid "Previous"
 msgstr "السابق"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:171
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:283
 msgid "Step {{currentStep}} of {{totalSteps}}"
 msgstr "خطوة {{currentStep}} من {{totalSteps}}"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:167
-#: src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php:67
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:279
+#: src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php:133
 msgid "Dismiss"
 msgstr "تجاهل"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:31
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:35
 msgid "Use WordPress.com’s native dashboard to manage your site."
 msgstr "استخدم لوحة التحكم الأصلية لووردبريس.كوم لإدارة موقعك."
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:31
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:35
 msgid "Default style"
 msgstr "النمط الافتراضي"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:30
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:34
 msgid "Use WP-Admin to manage your site."
 msgstr "استخدم مشرف ووردبريس لإدارة موقعك."
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:30
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:34
 msgid "Classic style"
 msgstr "النمط التقليدي"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:32
 msgid "Admin Interface Style"
 msgstr "نمط واجهة المشرف"
 
@@ -906,61 +965,61 @@ msgstr "إضافة عنوان المقالة"
 msgid "Start writing or type '/' to insert a block"
 msgstr "البدء بالكتابة أو اكتب \"/\" لإدراج مكوِّن"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1607
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1459
 msgid " per "
 msgstr " لكل "
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1604
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1456
 msgid " once"
 msgstr " مرة واحدة"
 
 #. Translators: %s is the %s is the frequency.
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1578
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1430
 msgid "per %s"
 msgstr "لكل %s"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1438
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1290
 msgid "Scheduled"
 msgstr "مجدول"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1437
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1289
 msgid "Draft"
 msgstr "مسودة"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1404
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1256
 msgid "Jetpack donations is disabled in favour of Newspack donations."
 msgstr "يتم تعطيل تبرعات Jetpack لصالح تبرعات Newspack."
 
 #. translators: separates all but the last two sponsor names; needs a space at
 #. the end.
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:993
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:955
 msgid ", "
 msgstr "،"
 
 #. translators: separates last two sponsor names; needs a space on either side.
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:990
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:952
 msgid " and "
 msgstr " و "
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:889
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:851
 msgid "Common"
 msgstr "شائع"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:490
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:495
 msgctxt "post author"
 msgid " and "
 msgstr " و "
 
-#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:473
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:478
 msgctxt "post author"
 msgid "by"
 msgstr "بواسطة"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:400
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:404
 msgid "Something went wrong. Please refresh the page and/or try again."
 msgstr "هناك خطأ ما. يرجى إعادة تحميل الصفحة و/أو المحاولة مرة أخرى."
 
-#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:393
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:397
 msgid "Load more posts"
 msgstr "تحميل المزيد من المقالات"
 
@@ -1411,21 +1470,21 @@ msgstr "معرِّف الحساب الآلي المطلوب للحصول على 
 msgid "Help"
 msgstr "مساعدة"
 
-#: src/features/custom-css/custom-css.php:1206
+#: src/features/custom-css/custom-css.php:1203
 msgid "Switch"
 msgstr "تبديل"
 
 #. translators: how long ago the stylesheet was modified.
-#: src/features/custom-css/custom-css.php:1187
-#: src/features/custom-css/custom-css.php:1199
+#: src/features/custom-css/custom-css.php:1184
+#: src/features/custom-css/custom-css.php:1196
 msgid "(modified %s ago)"
 msgstr "(تم التعديل منذ %s مضت)"
 
-#: src/features/custom-css/custom-css.php:1177
+#: src/features/custom-css/custom-css.php:1174
 msgid "Select a theme&hellip;"
 msgstr "تحديد قالب..."
 
-#: src/features/custom-css/custom-css.php:1175
+#: src/features/custom-css/custom-css.php:1172
 msgid "Select another theme to view its custom CSS."
 msgstr "اختر قالبًا آخر لعرض CSS المخصص الخاص به."
 

@@ -5,14 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.57.2] - 2025-01-13
+### Added
+- Publicize: Allow filtering of connections in publicize rest endpoint. [#40914]
+
+### Changed
+- Update connections post field rest endpoint to use the updated schema. [#40916]
+
 ## [0.57.1] - 2024-12-30
 ### Fixed
 - Social: Ensure that broken connection notices work fine on WoA sites. [#40732]
 
 ## [0.57.0] - 2024-12-23
 ### Changed
-- Moved wpcom/v2/publicize/connections endpoint to publicize package. [#40607]
-- Script data: Don't call service endpoint on wpcom. [#40596]
+- Move wpcom/v2/publicize/connections endpoint to publicize package. [#40607]
+- Script data: Don't call service endpoint on WP.com. [#40596]
 
 ## [0.56.5] - 2024-12-16
 ### Changed
@@ -28,23 +35,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.56.2] - 2024-11-26
 ### Fixed
-- Fixed undefined index error on Atomic sites. [#40337]
+- Fix undefined index error on Atomic sites. [#40337]
 
 ## [0.56.1] - 2024-11-25
 ### Added
-- Added initial post share status to the initial state. [#40301]
+- Add initial post share status to the initial state. [#40301]
 
 ### Changed
 - Updated package dependencies. [#40286] [#40288]
 
 ### Fixed
-- Fixed initial state error in the editor for Simple sites. [#40319]
+- Fix initial state error in the editor for Simple sites. [#40319]
 - Fix page-detection util methods to stop unnecessary API calls to WordPress.com. [#40311]
-- Fixed call to undefined method on WordPress.com. [#40328]
+- Fix call to undefined method on WordPress.com. [#40328]
 
 ## [0.56.0] - 2024-11-18
 ### Added
-- Added a new toggle for UTM tracking [#39998]
+- Add a new toggle for UTM tracking. [#39998]
 
 ### Removed
 - General: Update minimum PHP version to 7.2. [#40147]
@@ -796,6 +803,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.57.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.1...v0.57.2
 [0.57.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.0...v0.57.1
 [0.57.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.56.5...v0.57.0
 [0.56.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.56.4...v0.56.5
