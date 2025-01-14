@@ -146,7 +146,7 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 
 		// Send the request to the Cloud.
 		$payload              = array( 'providers' => $grouped_urls );
-		$payload['requestId'] = md5( wp_json_encode( $payload ) );
+		$payload['requestId'] = md5( wp_json_encode( $payload ) . time() );
 		$payload['reason']    = $reason;
 		return Boost_API::post( 'cloud-css', $payload );
 	}
