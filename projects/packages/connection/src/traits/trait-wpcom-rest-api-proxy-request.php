@@ -22,21 +22,21 @@ trait WPCOM_REST_API_Proxy_Request {
 	 *
 	 * @var string
 	 */
-	public $base_api_path;
+	protected $base_api_path;
 
 	/**
 	 * Version of the API.
 	 *
 	 * @var string
 	 */
-	public $version;
+	protected $version;
 
 	/**
-	 * REST Base.
+	 * The base of the controller's route.
 	 *
 	 * @var string
 	 */
-	public $rest_base;
+	protected $rest_base;
 
 	/**
 	 * Proxy request to wpcom servers on behalf of a user or using the Site-level Connection (blog token).
