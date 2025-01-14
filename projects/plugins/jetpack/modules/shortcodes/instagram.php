@@ -31,8 +31,6 @@ function jetpack_instagram_embed_handler( $matches, $attr, $url ) {
 	// Remove the username from the Instagram post URL using regex.
 	$url = preg_replace( '/https?:\/\/(www\.)?instagram\.com\/[^\/]+\/(p|reel|reels|tv)\/([^\/]+)\/?/', 'https://www.instagram.com/$2/$3/', $url );
 
-	l( $attr );
-
 	$embed = sprintf(
 		'<blockquote
 			class="instagram-media"
