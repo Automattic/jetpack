@@ -13,6 +13,7 @@ import JetpackFieldMultipleChoiceItem from './components/jetpack-field-multiple-
 import JetpackFieldSingleChoice from './components/jetpack-field-single-choice';
 import JetpackFieldSingleChoiceItem from './components/jetpack-field-single-choice/item';
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
+import IntegrationEdit from './integration/edit';
 import { getIconColor } from './util/block-icons';
 import { useFormWrapper } from './util/form';
 import getFieldLabel from './util/get-field-label';
@@ -278,6 +279,18 @@ const editField = type => props => {
 	);
 };
 
+const editIntegration = type => props => {
+	return (
+		<IntegrationEdit
+			type={ type }
+			clientId={ props.clientId }
+			setAttributes={ props.setAttributes }
+			isSelected={ props.isSelected }
+			attributes={ props.attributes }
+		/>
+	);
+};
+
 const EditTextarea = props => {
 	useFormWrapper( props );
 
@@ -356,6 +369,24 @@ export const childBlocks = [
 					type: 'string',
 					default: 'Text',
 				},
+			},
+		},
+	},
+	{
+		name: 'zapier-integration',
+		settings: {
+			...FieldDefaults,
+			title: __( 'Zappier Intergration', 'jetpack-forms' ),
+			description: __( 'Collect short text responses from site visitors.', 'jetpack-forms' ),
+			icon: renderMaterialIcon(
+				<Path
+					d="m15 12.004c0 .893-.165 1.746-.461 2.535-.787.297-1.643.461-2.535.461h-.009c-.893 0-1.745-.165-2.534-.461-.297-.789-.461-1.643-.461-2.535v-.009c0-.893.164-1.745.461-2.534.789-.297 1.642-.461 2.534-.461h.009c.893 0 1.748.164 2.535.462.297.788.461 1.641.461 2.535zm8.835-2.004h-7.005l4.948-4.952c-.39-.548-.82-1.06-1.295-1.533-.473-.474-.985-.907-1.53-1.296l-4.954 4.949v-7.003c-.649-.104-1.313-.165-1.995-.165h-.01c-.68 0-1.346.061-1.995.165v7.005l-4.95-4.949c-.549.386-1.06.821-1.534 1.294-.474.474-.908.987-1.296 1.533l4.949 4.952h-7.003s-.165 1.316-.165 1.995v.009c0 .68.061 1.348.165 1.995h7.005l-4.949 4.952c.777 1.096 1.733 2.051 2.827 2.83l4.952-4.95v7.004c.648.105 1.313.165 1.991.165h.017c.679 0 1.344-.06 1.991-.165v-7.004l4.952 4.95c.548-.375 1.06-.812 1.529-1.29h.005c.473-.465.906-.976 1.296-1.531l-4.95-4.949h7.004c.105-.645.165-1.304.165-1.98v-.031c0-.678-.06-1.343-.165-1.99"
+					fill="#ff4a00"
+				/>
+			),
+			edit: editIntegration( 'zapier' ),
+			attributes: {
+				url: 'string',
 			},
 		},
 	},
