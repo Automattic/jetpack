@@ -7,7 +7,7 @@ export const useKeywordsStep = ( { addMessage, onStep } ): Step => {
 	const [ completed, setCompleted ] = useState( false );
 
 	const handleSkip = useCallback( () => {
-		addMessage( __( 'Skipped!', 'jetpack' ) );
+		addMessage( { content: __( 'Skipped!', 'jetpack' ) } );
 		if ( onStep ) {
 			onStep( { value: '' } );
 		}

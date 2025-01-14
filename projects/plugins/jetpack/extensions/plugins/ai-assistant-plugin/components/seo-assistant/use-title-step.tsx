@@ -55,11 +55,14 @@ export const useTitleStep = ( {
 		}
 		if ( contextData ) {
 			addMessage( {
-				content: 'Here are two suggestions based on your keywords. Select the one you prefer:',
+				content: __(
+					'Here are two suggestions based on your keywords. Select the one you prefer:',
+					'jetpack'
+				),
 			} );
 		} else {
 			addMessage( {
-				content: 'Here are two suggestions. Select the one you prefer:',
+				content: __( 'Here are two suggestions. Select the one you prefer:', 'jetpack' ),
 			} );
 		}
 		setTitleOptions( newTitles || titleOptions );
@@ -107,7 +110,12 @@ export const useTitleStep = ( {
 			)
 		);
 		removeLastMessage();
-		addMessage( 'Here are two new suggestions based on your keywords. Select the one you prefer:' );
+		addMessage( {
+			content: __(
+				'Here are two new suggestions based on your keywords. Select the one you prefer:',
+				'jetpack'
+			),
+		} );
 		setTitleOptions( newTitles );
 		setIsBusy( false );
 	}, [ addMessage, removeLastMessage, replaceOptionsWithFauxUseMessages, setIsBusy ] );
@@ -117,7 +125,7 @@ export const useTitleStep = ( {
 		addMessage( { content: <TypingMessage /> } );
 		await editPost( { title: selectedTitle, meta: { jetpack_seo_html_title: selectedTitle } } );
 		removeLastMessage();
-		addMessage( __( 'Title updated! ✅', 'jetpack' ) );
+		addMessage( { content: __( 'Title updated! ✅', 'jetpack' ) } );
 		setCompleted( true );
 		if ( onStep ) {
 			onStep( { value: selectedTitle } );

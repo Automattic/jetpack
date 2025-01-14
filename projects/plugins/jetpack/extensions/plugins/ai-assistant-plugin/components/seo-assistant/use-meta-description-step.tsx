@@ -30,7 +30,7 @@ export const useMetaDescriptionStep = ( {
 		await editPost( { meta: { advanced_seo_description: selectedMetaDescription } } );
 		removeLastMessage();
 		addMessage( { content: selectedMetaDescription, isUser: true } );
-		addMessage( __( 'Meta description updated! ✅', 'jetpack' ) );
+		addMessage( { content: __( 'Meta description updated! ✅', 'jetpack' ) } );
 		setCompleted( true );
 		if ( onStep ) {
 			onStep( { value: selectedMetaDescription } );
@@ -58,7 +58,7 @@ export const useMetaDescriptionStep = ( {
 			);
 			removeLastMessage();
 		}
-		addMessage( "Here's a suggestion:" );
+		addMessage( { content: __( "Here's a suggestion:", 'jetpack' ) } );
 		setMetaDescriptionOptions( newMetaDescriptions || metaDescriptionOptions );
 		setIsBusy( false );
 	}, [ metaDescriptionOptions, addMessage, removeLastMessage, setIsBusy ] );
@@ -80,12 +80,12 @@ export const useMetaDescriptionStep = ( {
 			)
 		);
 		removeLastMessage();
-		addMessage( "Here's a new suggestion:" );
+		addMessage( { content: __( "Here's a new suggestion:", 'jetpack' ) } );
 		setMetaDescriptionOptions( newMetaDescription );
 	}, [ addMessage, removeLastMessage ] );
 
 	const handleSkip = useCallback( () => {
-		addMessage( __( 'Skipped!', 'jetpack' ) );
+		addMessage( { content: __( 'Skipped!', 'jetpack' ) } );
 		if ( onStep ) {
 			onStep();
 		}

@@ -19,6 +19,7 @@ export default function SeoAssistantWizard( { isOpen, close, onStep }: SeoAssist
 	const [ messages, setMessages ] = useState< Message[] >( [] );
 	const messagesEndRef = useRef< HTMLDivElement >( null );
 	const [ isBusy, setIsBusy ] = useState( false );
+	// const [ messageQueue, setMessageQueue ] = useState( [] );
 
 	const scrollToBottom = () => {
 		messagesEndRef.current?.scrollIntoView( { behavior: 'smooth' } );
@@ -28,18 +29,21 @@ export default function SeoAssistantWizard( { isOpen, close, onStep }: SeoAssist
 		scrollToBottom();
 	}, [ messages ] );
 
-	const addMessage = useCallback( async ( message: Message | string ) => {
+	// const queueMessage = message => {
+	// 	const delay = messageQueue.length * 100 + ( message.delay || 10 );
+	// 	setTimeout(
+	// 		() => setMessages( prev => { return [ ...prev, message ]; } ),
+	// 		delay
+	// 	);
+	// 	setMessageQueue( prev => [ ...prev, message ] );
+	// };
+
+	const addMessage = useCallback( async ( message: Message ) => {
 		setMessages( prev => {
 			const newMessage = {
-				id:
-					typeof message === 'string'
-						? `message-${ prev.length }`
-						: message?.id || `message-${ prev.length }`,
-				content: typeof message === 'string' ? message : message.content,
-				isUser: typeof message === 'string' ? false : message?.isUser || false,
-				showIcon: typeof message === 'string' ? true : message?.showIcon ?? ! message.isUser,
-				type: typeof message === 'string' ? null : message?.type || null,
-				options: typeof message === 'string' ? [] : message?.options || [],
+				...message,
+				id: message?.id || `message-${ prev.length }`,
+				showIcon: message.showIcon === false ? false : ! message.isUser,
 			} as Message;
 			return [ ...prev, newMessage ];
 		} );
