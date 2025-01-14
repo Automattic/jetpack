@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 27c49bf2f318cd2fb105e5bd9719a910def72a53.
+ * Stubs automatically generated from WordPress.com commit b97a8d79ff4f32395c77389fb22c900517a9d1a1.
  */
 
 namespace {
@@ -107,6 +107,9 @@ namespace {
          * @return array|false|WP_Error
          */
         public function republicize_post($post_id, $message, $skip_connections, $check_feature = \false, $sync = \true, $_user_id = \null)
+        {
+        }
+        public function get_all_connections_for_blog_id($_blog_id = \false, $format = 'complete')
         {
         }
     }
@@ -458,6 +461,24 @@ namespace {
         {
         }
         public static function filter_blog($blog_id, $filters)
+        {
+        }
+    }
+    class Social_Connections_Rest_Helper
+    {
+        /**
+         * @return Jetpack_Social_Connections
+         */
+        public static function init()
+        {
+        }
+        public function delete_publicize_connection($publicize_connection_id, $blog_id = \false)
+        {
+        }
+        public function create_publicize_connection($input)
+        {
+        }
+        public function update_connection($publicize_connection_id, $input, $blog_id = \false)
         {
         }
     }
