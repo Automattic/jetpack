@@ -469,9 +469,9 @@ class Connections_Controller extends Base_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function delete_item( $request ) {
-		if ( Publicize_Utils::is_wpcom() ) {
+		$connection_id = $request->get_param( 'connection_id' );
 
-			$connection_id = $request->get_param( 'connection_id' );
+		if ( Publicize_Utils::is_wpcom() ) {
 
 			$result = Connections::wpcom_delete_connection( $connection_id );
 
@@ -490,7 +490,7 @@ class Connections_Controller extends Base_Controller {
 
 		$proxy = new Proxy_Requests( $this->rest_base );
 
-		$response = $proxy->proxy_request_to_wpcom( $request );
+		$response = $proxy->proxy_request_to_wpcom( $request, $connection_id );
 
 		l( '>>>>>>>> DELETE CONNECTION RESPONSE', $response );
 
