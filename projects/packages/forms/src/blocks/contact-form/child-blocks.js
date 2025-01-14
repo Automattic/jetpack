@@ -1,7 +1,7 @@
 import { createBlock } from '@wordpress/blocks';
 import { Path, Icon } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
-import { link } from '@wordpress/icons';
+import { globe } from '@wordpress/icons';
 import { filter, isEmpty, map, startsWith, trim } from 'lodash';
 import JetpackField from './components/jetpack-field';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
@@ -419,7 +419,7 @@ export const childBlocks = [
 			description: __( 'Collect a website address from your site visitors.', 'jetpack-forms' ),
 			icon: (
 				<Icon
-					icon={ link }
+					icon={ globe }
 					style={ {
 						fill: getIconColor(),
 					} }
