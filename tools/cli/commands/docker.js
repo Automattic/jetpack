@@ -819,30 +819,6 @@ export function dockerDefine( yargs ) {
 					handler: argv => execJtCmdHandler( argv ),
 				} )
 				.command( {
-					command: 'monorepo',
-					description: 'Run commands in monorepo container',
-					builder: yargCmd =>
-						defaultOpts( yargCmd ).option( 'cmd', {
-							alias: 'c',
-							describe: 'Command to run',
-							type: 'string',
-							demandOption: true,
-						} ),
-					handler: argv => {
-						const opts = buildComposeFiles().concat( [
-							'run',
-							'--rm',
-							'monorepo',
-							'bash',
-							'-c',
-							argv.cmd,
-						] );
-
-						const envOpts = buildEnv( argv );
-						composeExecutor( argv, opts, envOpts );
-					},
-				} )
-				.command( {
 					command: 'config',
 					description: 'Generate Docker configuration files',
 					builder: yargCmd => defaultOpts( yargCmd ),
