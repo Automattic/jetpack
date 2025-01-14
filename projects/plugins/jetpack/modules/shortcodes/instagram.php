@@ -78,11 +78,11 @@ function jetpack_instagram_embed_handler( $matches, $attr, $url ) {
 function jetpack_shortcode_instagram( $atts ) {
 	global $wp_embed;
 
+	$atts = jetpack_instagram_get_allowed_parameters( $atts['url'], $atts );
+
 	if ( empty( $atts['url'] ) ) {
 		return;
 	}
-
-	$atts = jetpack_instagram_get_allowed_parameters( $atts['url'], $atts );
 
 	if ( ! preg_match( JETPACK_INSTAGRAM_EMBED_REGEX, $atts['url'] ) ) {
 		return;
