@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-11-21 09:54:07+0000\n"
+"PO-Revision-Date: 2025-01-11 07:51:26+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -8,6 +8,70 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: ko_KR\n"
 "Project-Id-Version: WordPress.com - jetpack-mu-wpcom\n"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:286
+msgid "Got it!"
+msgstr "확인 완료!"
+
+#: src/features/post-categories/quick-actions.php:78
+msgid "Default category changed successfully."
+msgstr "기본 카테고리가 변경되었습니다."
+
+#: src/features/post-categories/quick-actions.php:36
+msgid "Set as default"
+msgstr "기본값으로 설정"
+
+#. translators: category name
+#: src/features/post-categories/quick-actions.php:35
+msgid "Set &#8220;%s&#8221; as the default category"
+msgstr "\"%s\"을(를) 기본 카테고리로 지정"
+
+#: src/features/pages/quick-actions.php:169
+msgid "Posts page changed successfully."
+msgstr ""
+
+#: src/features/pages/quick-actions.php:143
+msgid "Homepage changed successfully."
+msgstr ""
+
+#: src/features/pages/quick-actions.php:57
+msgid "Set as posts page"
+msgstr ""
+
+#: src/features/pages/quick-actions.php:57
+msgid "Unset as posts page"
+msgstr ""
+
+#. translators: page title
+#: src/features/pages/quick-actions.php:56
+msgid "Set &#8220;%s&#8221; as the page that displays your latest posts"
+msgstr ""
+
+#. translators: page title
+#: src/features/pages/quick-actions.php:56
+msgid "Unset &#8220;%s&#8221; as the page that displays your latest posts"
+msgstr ""
+
+#: src/features/pages/quick-actions.php:48
+msgid "Set as homepage"
+msgstr "홈페이지로 설정"
+
+#. translators: page title
+#: src/features/pages/quick-actions.php:47
+msgid "Set &#8220;%s&#8221; as your site's homepage"
+msgstr ""
+
+#: src/features/holiday-snow/class-holiday-snow.php:226
+msgid "Show falling snow on my site until January 4<sup>th</sup>."
+msgstr "1월<sup></sup> 4일까지 내 사이트에 눈 내림을 표시합니다."
+
+#: src/features/holiday-snow/class-holiday-snow.php:205
+msgid "Snow"
+msgstr "눈"
+
+#: src/features/holiday-snow/class-holiday-snow.php:194
+msgid "Show falling snow on my site"
+msgstr "내 사이트에 눈 내림 표시"
 
 #: src/features/wpcom-blocks/timeline/block.json
 msgctxt "block keyword"
@@ -65,40 +129,39 @@ msgstr "언제든지 홈페이지를 계속 편집하거나 계속해서 사이�
 msgid "You’ve added your first video!"
 msgstr "첫 번째 비디오를 추가하셨습니다!"
 
-#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:121
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:122
 msgid "View your product"
 msgstr "상품 보기"
 
-#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:119
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:120
 msgid "Continue editing"
 msgstr "편집 계속"
 
-#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:112
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:113
 msgid "Preview your product on your site before launching and sharing with others."
 msgstr "상품을 출시하고 다른 사람과 공유하기 전에 사이트에서 미리보기"
 
-#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:111
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:112
 msgid "You've added your first product!"
 msgstr "첫 번째 상품을 추가하셨습니다!"
 
-#: src/features/wpcom-block-editor-nux/src/purchase-notice/index.jsx:22
+#: src/features/wpcom-block-editor-nux/src/purchase-notice/index.jsx:23
 msgid "Congrats! Premium blocks are now available to use."
 msgstr "축하합니다! 이제 프리미엄 블록을 이용하실 수 있습니다."
 
-#: src/features/block-theme-previews/modal.jsx:58
+#: src/features/block-theme-previews/modal.jsx:59
 msgid "Start customizing"
 msgstr "사용자 정의 시작"
 
-#: src/features/block-theme-previews/modal.jsx:50
+#: src/features/block-theme-previews/modal.jsx:51
 msgid "Try customizing your theme styles to get your site looking just right."
 msgstr "테마 스타일을 사용자 정의하여 사이트를 멋지게 꾸며보세요."
 
-#: src/features/block-theme-previews/modal.jsx:44
+#: src/features/block-theme-previews/modal.jsx:45
 msgid "Changes you make in the editor won’t be applied to your site until you activate the theme."
 msgstr "편집기에서 변경한 내용은 테마를 활성화할 때까지 사이트에 적용되지 않습니다."
 
-#. translators: %s: theme name
-#: src/features/block-theme-previews/modal.jsx:38
+#: src/features/block-theme-previews/modal.jsx:39
 msgid "You’re previewing %s"
 msgstr "%s을(를) 미리보고 있습니다."
 
@@ -349,28 +412,28 @@ msgstr "확장됨"
 msgid "Menu"
 msgstr "메뉴"
 
-#: src/features/wpcom-global-styles/index.php:548
+#: src/features/wpcom-global-styles/index.php:563
 msgid "Upgrade required"
 msgstr "업그레이드 필수"
 
-#: src/features/wpcom-global-styles/index.php:545
+#: src/features/wpcom-global-styles/index.php:560
 msgid "Upgrade"
 msgstr "업그레이드"
 
-#: src/features/wpcom-global-styles/index.php:537
+#: src/features/wpcom-global-styles/index.php:552
 msgid "Preview premium styles"
 msgstr "프리미엄 스타일 미리보기"
 
-#: src/features/wpcom-global-styles/index.php:532
+#: src/features/wpcom-global-styles/index.php:547
 msgid "Remove premium styles"
 msgstr "프리미엄 스타일 제거"
 
-#: src/features/wpcom-global-styles/index.php:522
+#: src/features/wpcom-global-styles/index.php:537
 msgid "Upgrade now"
 msgstr "지금 업그레이드"
 
 #. translators: %1$s - documentation URL, %2$s - the name of the required plan
-#: src/features/wpcom-global-styles/index.php:498
+#: src/features/wpcom-global-styles/index.php:513
 msgid "Your site includes <a href=\"%1$s\" target=\"_blank\">premium styles</a> that are only visible to visitors after upgrading to the %2$s plan or higher."
 msgstr "%2$s 요금제 이상으로 업그레이드한 후에만 방문자에게 표시되는 <a href=\"%1$s\" target=\"_blank\">프리미엄 스타일</a>이 사이트에 포함되어 있습니다."
 
@@ -540,72 +603,68 @@ msgstr "내 홈"
 msgid "Hosting"
 msgstr "호스팅"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:268
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:380
 msgid "Admin interface style changed."
 msgstr "관리자 인터페이스 스타일이 변경되었습니다."
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:231
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:343
 msgid "Click here to access your sites, domains, Reader, account settings, and more."
 msgstr "여기를 클릭하여 사이트, 도메인, 리더, 계정 설정 등에 접근하세요."
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:230
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:342
 msgid "All your sites"
 msgstr "모든 사이트"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:224
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:336
 msgid "Access the new site management panel and all developer tools such as hosting configuration, GitHub deployments, metrics, PHP logs, and server logs."
 msgstr "새로운 사이트 관리 패널과 호스팅 구성, GitHub 배포, 지표, PHP 로그, 서버 로그와 같은 모든 개발자 도구에 접근하세요."
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:223
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:335
 msgid "Hosting overview"
 msgstr "호스팅 개요"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:217
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:329
 msgid "The Hosting menu contains the My Home page and all items from the Upgrades menu, including Plans, Domains, Emails, Purchases, and more."
 msgstr "호스팅 메뉴에는 내 홈 페이지와 요금제, 도메인, 이메일 주소, 구매 명세 등을 포함한 업그레이드 메뉴의 모든 항목이 포함되어 있습니다."
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:216
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:328
 msgid "Upgrades is now Hosting"
 msgstr "이제 업그레이드를 호스팅"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:174
-msgid "Got it!"
-msgstr "확인 완료"
-
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:173
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:285
 msgid "Next"
 msgstr "다음"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:172
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:284
 msgid "Previous"
 msgstr "이전"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:171
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:283
 msgid "Step {{currentStep}} of {{totalSteps}}"
 msgstr "{{currentStep}}/{{totalSteps}}단계"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:167
-#: src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php:67
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:279
+#: src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php:133
 msgid "Dismiss"
 msgstr "해제"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:31
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:35
 msgid "Use WordPress.com’s native dashboard to manage your site."
 msgstr "워드프레스닷컴의 기본 알림판을 사용하여 사이트를 관리합니다."
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:31
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:35
 msgid "Default style"
 msgstr "기본 스타일"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:30
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:34
 msgid "Use WP-Admin to manage your site."
 msgstr "WP-Admin을 사용하여 사이트를 관리합니다."
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:30
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:34
 msgid "Classic style"
 msgstr "클래식 스타일"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:32
 msgid "Admin Interface Style"
 msgstr "관리자 인터페이스 스타일"
 
@@ -906,61 +965,61 @@ msgstr "글 제목 추가"
 msgid "Start writing or type '/' to insert a block"
 msgstr "쓰기 시작 또는 '/'를 입력하여 블록 선택"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1607
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1459
 msgid " per "
 msgstr " 기준 "
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1604
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1456
 msgid " once"
 msgstr " 한 번"
 
 #. Translators: %s is the %s is the frequency.
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1578
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1430
 msgid "per %s"
 msgstr "%s 기준"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1438
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1290
 msgid "Scheduled"
 msgstr "예약됨"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1437
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1289
 msgid "Draft"
 msgstr "임시글"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1404
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1256
 msgid "Jetpack donations is disabled in favour of Newspack donations."
 msgstr "Newspack 기부의 편의를 위해 젯팩 기부가 비활성화되었습니다."
 
 #. translators: separates all but the last two sponsor names; needs a space at
 #. the end.
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:993
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:955
 msgid ", "
 msgstr ","
 
 #. translators: separates last two sponsor names; needs a space on either side.
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:990
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:952
 msgid " and "
 msgstr " 및 "
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:889
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:851
 msgid "Common"
 msgstr "공통"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:490
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:495
 msgctxt "post author"
 msgid " and "
 msgstr " 및 "
 
-#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:473
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:478
 msgctxt "post author"
 msgid "by"
 msgstr "게시자:"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:400
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:404
 msgid "Something went wrong. Please refresh the page and/or try again."
 msgstr "문제가 발생했습니다. 페이지를 새로 고친 후 다시 시도하세요."
 
-#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:393
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:397
 msgid "Load more posts"
 msgstr "더 많은 글 로드"
 
@@ -1411,21 +1470,21 @@ msgstr "채팅을 진행할 봇 ID입니다."
 msgid "Help"
 msgstr "도움말"
 
-#: src/features/custom-css/custom-css.php:1206
+#: src/features/custom-css/custom-css.php:1203
 msgid "Switch"
 msgstr "전환"
 
 #. translators: how long ago the stylesheet was modified.
-#: src/features/custom-css/custom-css.php:1187
-#: src/features/custom-css/custom-css.php:1199
+#: src/features/custom-css/custom-css.php:1184
+#: src/features/custom-css/custom-css.php:1196
 msgid "(modified %s ago)"
 msgstr "(%s 전에 수정됨)"
 
-#: src/features/custom-css/custom-css.php:1177
+#: src/features/custom-css/custom-css.php:1174
 msgid "Select a theme&hellip;"
 msgstr "테마 선택..."
 
-#: src/features/custom-css/custom-css.php:1175
+#: src/features/custom-css/custom-css.php:1172
 msgid "Select another theme to view its custom CSS."
 msgstr "다른 테마를 선택하여 해당 사용자 정의 CSS를 보세요."
 

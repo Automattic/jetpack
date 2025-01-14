@@ -1,0 +1,18 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;",
+				"language": "ar",
+				"project_id_version": "WordPress.com - jetpack-mu-wpcom"
+			},
+			"We've adopted WordPress's main %s view to bring improvements to you and millions of WordPress users worldwide.": [
+				"\u0644\u0642\u062f \u0642\u0645\u0646\u0627 \u0628\u062a\u0646\u0641\u064a\u0630 \u0639\u0631\u0636 %s \u0627\u0644\u0627\u0641\u062a\u0631\u0627\u0636\u064a\u0629 \u0644\u0640 WordPress \u062d\u062a\u0649 \u0646\u062a\u0645\u0643\u0646 \u0645\u0646 \u062a\u0642\u062f\u064a\u0645 \u062a\u062d\u0633\u064a\u0646\u0627\u062a \u0634\u0627\u0645\u0644\u0629 \u0644\u0643 \u0648\u0644\u0645\u0644\u0627\u064a\u064a\u0646 \u0645\u0633\u062a\u062e\u062f\u0645\u064a WordPress \u062d\u0648\u0644 \u0627\u0644\u0639\u0627\u0644\u0645."
+			],
+			"The %s view just got better": [
+				"\u062a\u0645 \u062a\u062d\u0633\u064a\u0646 \u0639\u0631\u0636 %s \u0627\u0644\u0622\u0646"
+			],
+			"Got it": [ "\u0641\u0647\u0645\u062a!" ]
+		}
+	}
+}

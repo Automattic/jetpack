@@ -17,6 +17,21 @@ function recordEvent( button, props = {} ) {
 }
 
 document.addEventListener( 'DOMContentLoaded', () => {
+	const launchBanner = document.querySelector( '.launch-banner' );
+
+	if ( ! launchBanner ) {
+		return;
+	}
+
+	// Don't show the banner if the site is previewed via an iframe.
+	if ( window.top !== window.self ) {
+		return;
+	}
+
+	document.body.style.marginTop = '50px';
+	document.body.style.scrollPaddingTop = '50px';
+	launchBanner.style.display = null;
+
 	let container;
 	if ( launchBarUserData?.isAtomic ) {
 		const isShadowDOM = !! ( document.head.attachShadow || document.head.createShadowRoot );

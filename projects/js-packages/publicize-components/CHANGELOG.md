@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.75.3] - 2025-01-13
+### Fixed
+- Social: Handle publicize connections meta error gracefully. [#40916]
+
 ## [0.75.2] - 2025-01-06
 ### Changed
 - Updated package dependencies. [#40792] [#40797] [#40798]
@@ -1046,6 +1050,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.75.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.75.2...v0.75.3
 [0.75.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.75.1...v0.75.2
 [0.75.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.75.0...v0.75.1
 [0.75.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.74.2...v0.75.0
