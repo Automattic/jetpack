@@ -5,7 +5,7 @@
  * Sort Order: 4
  * First Introduced: 14.3
  * Requires Connection: Yes
- * Requires User Connection: Yes
+ * Requires User Connection: No
  * Auto Activate: Yes
  * Module Tags: Account Protection
  * Feature: Security
