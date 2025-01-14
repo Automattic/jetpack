@@ -11,13 +11,14 @@ return [
     // # Issue statistics:
     // PhanPluginDuplicateConditionalNullCoalescing : 8 occurrences
     // PhanTypeMismatchArgument : 6 occurrences
+    // PhanUndeclaredClassMethod : 5 occurrences
+    // PhanUndeclaredFunction : 4 occurrences
+    // PhanPluginMixedKeyNoKey : 3 occurrences
     // PhanTypeMismatchArgumentNullable : 3 occurrences
     // PhanDeprecatedFunction : 2 occurrences
-    // PhanPluginMixedKeyNoKey : 2 occurrences
     // PhanPossiblyUndeclaredVariable : 2 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
     // PhanTypeMissingReturn : 2 occurrences
-    // PhanUndeclaredClassMethod : 2 occurrences
     // PhanImpossibleCondition : 1 occurrence
     // PhanNoopNew : 1 occurrence
     // PhanParamSignatureMismatch : 1 occurrence
@@ -30,12 +31,11 @@ return [
     // PhanTypeMismatchDimFetch : 1 occurrence
     // PhanTypeMismatchReturn : 1 occurrence
     // PhanTypeSuspiciousNonTraversableForeach : 1 occurrence
-    // PhanUndeclaredFunction : 1 occurrence
     // PhanUndeclaredMethod : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-connections.php' => ['PhanUndeclaredMethod'],
+        'src/class-connections.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredFunction', 'PhanUndeclaredMethod'],
         'src/class-keyring-helper.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault'],
         'src/class-publicize-base.php' => ['PhanImpossibleCondition', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturn'],
         'src/class-publicize-setup.php' => ['PhanNoopNew', 'PhanTypeMismatchArgument'],
