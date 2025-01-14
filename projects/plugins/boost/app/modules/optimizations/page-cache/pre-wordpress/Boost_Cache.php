@@ -512,16 +512,19 @@ class Boost_Cache {
 
 		/**
 		 * Filters the browser cookies so cached pages can be served to these visitors.
+		 * The list is an array of regex patterns. The default list contains the
+		 * cookies used by Cloudflare, and the regex pattern for the sbsj_ cookies
+		 * used by sourcebuster.js
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param array $cookies An array of cookie names to remove from the cookie list.
+		 * @param array $cookies An array of regexes to remove items from the cookie list.
 		 */
 		$cookies = apply_filters(
 			'jetpack_boost_ignore_cookies',
 			array_merge(
 				$cookies,
-				array( 'cf_clearance', 'cf_chl_rc_i', 'cf_chl_rc_ni', 'cf_chl_rc_m', '_cfuvid', '__cfruid', '__cfwaitingroom', 'cf_ob_info', 'cf_use_ob', '__cfseq', '__cf_bm', '__cflb', 'sbsj_' )
+				array( 'cf_clearance', 'cf_chl_rc_i', 'cf_chl_rc_ni', 'cf_chl_rc_m', '_cfuvid', '__cfruid', '__cfwaitingroom', 'cf_ob_info', 'cf_use_ob', '__cfseq', '__cf_bm', '__cflb', 'sbsj_(.*)' )
 			)
 		);
 
@@ -533,9 +536,11 @@ class Boost_Cache {
 		);
 
 		foreach ( $cookies as $cookie ) {
-			if ( isset( $parameters['cookies'][ $cookie ] ) ) {
-				unset( $parameters['cookies'][ $cookie ] );
-				$this->ignored_cookies .= $cookie . ',';
+			foreach ( array_keys( $parameters['cookies'] ) as $cookie_name ) {
+				if ( preg_match( '/^' . $cookie . '$/', $cookie_name ) ) {
+					unset( $parameters['cookies'][ $cookie_name ] );
+					$this->ignored_cookies .= $cookie_name . ',';
+				}
 			}
 		}
 		if ( $this->ignored_cookies !== '' ) {
