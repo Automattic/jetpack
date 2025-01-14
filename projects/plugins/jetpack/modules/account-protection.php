@@ -6,7 +6,7 @@
  * First Introduced: 14.3
  * Requires Connection: Yes
  * Requires User Connection: No
- * Auto Activate: Yes
+ * Auto Activate: No
  * Module Tags: Account Protection
  * Feature: Security
  *
