@@ -62,6 +62,7 @@ const PieChart = ( {
 	thickness = 1,
 	padding = 20,
 	gapScale = 0,
+	cornerRadius = 0,
 }: PieChartProps ) => {
 	const providerTheme = useChartTheme();
 	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
@@ -113,6 +114,7 @@ const PieChart = ( {
 						outerRadius={ outerRadius }
 						innerRadius={ innerRadius }
 						padAngle={ padAngle }
+						cornerRadius={ cornerRadius }
 					>
 						{ pie => {
 							return pie.arcs.map( ( arc, index ) => {
