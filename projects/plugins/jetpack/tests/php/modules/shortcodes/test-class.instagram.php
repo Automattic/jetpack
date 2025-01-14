@@ -188,8 +188,8 @@ BODY;
 	}
 
 	private function assertStringContainsStringIgnoringWhiteSpace( $needle, $haystack ) {
-		$needle   = str_replace( array( "\r", "\n", ' ' ), '', $needle );
-		$haystack = str_replace( array( "\r", "\n", ' ' ), '', $haystack );
+		$needle   = preg_replace( '/\s*/', '', $needle );
+		$haystack = preg_replace( '/\s*/', '', $haystack );
 
 		return $this->assertStringContainsString( $needle, $haystack );
 	}
