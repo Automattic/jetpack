@@ -1,333 +1,96 @@
 <?php
 /**
- * Instagram Embeds.
- *
- * Full links: https://www.instagram.com/p/BnMOk_FFsxg/
- * https://www.instagram.com/tv/BkQjCfsBIzi/
- * [instagram url=https://www.instagram.com/p/BnMOk_FFsxg/]
- * [instagram url=https://www.instagram.com/p/BZoonmAHvHf/ width=320]
- * Embeds can be converted to a shortcode when the author does not have unfiltered_html caps:
- * <blockquote class="instagram-media" data-instgrm-captioned data-instgrm-version="2" style=" background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px; max-width:658px; padding:0; width:99.375%; width:-webkit-calc(100% - 2px); width:calc(100% - 2px);"><div style="padding:8px;"><div style=" background:#F8F8F8; line-height:0; margin-top:40px; padding-bottom:55%; padding-top:45%; text-align:center; width:100%;"><div style="position:relative;"><div style=" -webkit-animation:dkaXkpbBxI 1s ease-out infinite; animation:dkaXkpbBxI 1s ease-out infinite; background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAsCAMAAAApWqozAAAAGFBMVEUiIiI9PT0eHh4gIB4hIBkcHBwcHBwcHBydr+JQAAAACHRSTlMABA4YHyQsM5jtaMwAAADfSURBVDjL7ZVBEgMhCAQBAf//42xcNbpAqakcM0ftUmFAAIBE81IqBJdS3lS6zs3bIpB9WED3YYXFPmHRfT8sgyrCP1x8uEUxLMzNWElFOYCV6mHWWwMzdPEKHlhLw7NWJqkHc4uIZphavDzA2JPzUDsBZziNae2S6owH8xPmX8G7zzgKEOPUoYHvGz1TBCxMkd3kwNVbU0gKHkx+iZILf77IofhrY1nYFnB/lQPb79drWOyJVa/DAvg9B/rLB4cC+Nqgdz/TvBbBnr6GBReqn/nRmDgaQEej7WhonozjF+Y2I/fZou/qAAAAAElFTkSuQmCC); display:block; height:44px; margin:0 auto -44px; position:relative; top:-44px; width:44px;"></div><span style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:12px; font-style:normal; font-weight:bold; position:relative; top:15px;">Loading</span></div></div><p style=" font-family:Arial,sans-serif; font-size:14px; line-height:17px; margin:8px 0 0 0; padding:0 4px; word-wrap:break-word;"> Balloons</p><p style=" line-height:32px; margin-bottom:0; margin-top:8px; padding:0; text-align:center;"> <a href="https://instagram.com/p/r9vfPrmjeB/" style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:normal; text-decoration:none;" target="_top"> View on Instagram</a></p></div><style>@-webkit-keyframes"dkaXkpbBxI"{ 0%{opacity:0.5;} 50%{opacity:1;} 100%{opacity:0.5;} } @keyframes"dkaXkpbBxI"{ 0%{opacity:0.5;} 50%{opacity:1;} 100%{opacity:0.5;} }</style></blockquote>
- * <script async defer src="https://platform.instagram.com/en_US/embeds.js"></script>
+ * Instagram embeds
  *
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Status;
+define( 'JETPACK_INSTAGRAM_EMBED_REGEX', '/https?:\/\/(www.)?instagram\.com\/(p|reel|reels)\/(.*)?/' );
 
-if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-	add_action( 'init', 'jetpack_instagram_enable_embeds' );
-} else {
-	jetpack_instagram_enable_embeds();
-}
+/*
+ * Example URL: https://www.instagram.com/p/DDp9QYpy-Cg/
+ * Example URL: https://www.instagram.com/reels/DC2gSRjS68t/
+ */
+wp_embed_register_handler( 'instagram', JETPACK_INSTAGRAM_EMBED_REGEX, 'jetpack_instagram_embed_handler' );
 
 /**
- * Register Instagram as oembed provider, and add required filters for the API request.
- * Add filter to reverse iframes to shortcode. Register [instagram] shortcode.
+ * Callback to modify output of embedded Instagram posts.
  *
- * @since 9.1.0
+ * @param array  $matches Regex partial matches against the URL passed.
+ * @param array  $attr    Attributes received in embed response.
+ * @param string $url     Requested URL to be embedded.
+ * @return string Instagram embed markup.
  */
-function jetpack_instagram_enable_embeds() {
-	wp_oembed_add_provider(
-		'#https?://(www\.)?instagr(\.am|am\.com)/(p|tv|reel)/.*#i',
-		'https://graph.facebook.com/v5.0/instagram_oembed/',
+function jetpack_instagram_embed_handler( $matches, $attr, $url ) {
+	// Transform reels URLs to into reel. Only singulars are embeddable.
+	$url = str_replace( '/reels', '/reel', $url );
+
+	// <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DDiv2a5JqaF/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14" style=" background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px; max-width:540px; min-width:326px; padding:0; width:99.375%; width:-webkit-calc(100% - 2px); width:calc(100% - 2px);"><div style="padding:16px;"> <a href="https://www.instagram.com/reel/DDiv2a5JqaF/?utm_source=ig_embed&amp;utm_campaign=loading" style=" background:#FFFFFF; line-height:0; padding:0 0; text-align:center; text-decoration:none; width:100%;" target="_blank"> <div style=" display: flex; flex-direction: row; align-items: center;"> <div style="background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 40px; margin-right: 14px; width: 40px;"></div> <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center;"> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 100px;"></div> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 60px;"></div></div></div><div style="padding: 19% 0;"></div> <div style="display:block; height:50px; margin:0 auto 12px; width:50px;"><svg width="50px" height="50px" viewBox="0 0 60 60" version="1.1" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g transform="translate(-511.000000, -20.000000)" fill="#000000"><g><path d="M556.869,30.41 C554.814,30.41 553.148,32.076 553.148,34.131 C553.148,36.186 554.814,37.852 556.869,37.852 C558.924,37.852 560.59,36.186 560.59,34.131 C560.59,32.076 558.924,30.41 556.869,30.41 M541,60.657 C535.114,60.657 530.342,55.887 530.342,50 C530.342,44.114 535.114,39.342 541,39.342 C546.887,39.342 551.658,44.114 551.658,50 C551.658,55.887 546.887,60.657 541,60.657 M541,33.886 C532.1,33.886 524.886,41.1 524.886,50 C524.886,58.899 532.1,66.113 541,66.113 C549.9,66.113 557.115,58.899 557.115,50 C557.115,41.1 549.9,33.886 541,33.886 M565.378,62.101 C565.244,65.022 564.756,66.606 564.346,67.663 C563.803,69.06 563.154,70.057 562.106,71.106 C561.058,72.155 560.06,72.803 558.662,73.347 C557.607,73.757 556.021,74.244 553.102,74.378 C549.944,74.521 548.997,74.552 541,74.552 C533.003,74.552 532.056,74.521 528.898,74.378 C525.979,74.244 524.393,73.757 523.338,73.347 C521.94,72.803 520.942,72.155 519.894,71.106 C518.846,70.057 518.197,69.06 517.654,67.663 C517.244,66.606 516.755,65.022 516.623,62.101 C516.479,58.943 516.448,57.996 516.448,50 C516.448,42.003 516.479,41.056 516.623,37.899 C516.755,34.978 517.244,33.391 517.654,32.338 C518.197,30.938 518.846,29.942 519.894,28.894 C520.942,27.846 521.94,27.196 523.338,26.654 C524.393,26.244 525.979,25.756 528.898,25.623 C532.057,25.479 533.004,25.448 541,25.448 C548.997,25.448 549.943,25.479 553.102,25.623 C556.021,25.756 557.607,26.244 558.662,26.654 C560.06,27.196 561.058,27.846 562.106,28.894 C563.154,29.942 563.803,30.938 564.346,32.338 C564.756,33.391 565.244,34.978 565.378,37.899 C565.522,41.056 565.552,42.003 565.552,50 C565.552,57.996 565.522,58.943 565.378,62.101 M570.82,37.631 C570.674,34.438 570.167,32.258 569.425,30.349 C568.659,28.377 567.633,26.702 565.965,25.035 C564.297,23.368 562.623,22.342 560.652,21.575 C558.743,20.834 556.562,20.326 553.369,20.18 C550.169,20.033 549.148,20 541,20 C532.853,20 531.831,20.033 528.631,20.18 C525.438,20.326 523.257,20.834 521.349,21.575 C519.376,22.342 517.703,23.368 516.035,25.035 C514.368,26.702 513.342,28.377 512.574,30.349 C511.834,32.258 511.326,34.438 511.181,37.631 C511.035,40.831 511,41.851 511,50 C511,58.147 511.035,59.17 511.181,62.369 C511.326,65.562 511.834,67.743 512.574,69.651 C513.342,71.625 514.368,73.296 516.035,74.965 C517.703,76.634 519.376,77.658 521.349,78.425 C523.257,79.167 525.438,79.673 528.631,79.82 C531.831,79.965 532.853,80.001 541,80.001 C549.148,80.001 550.169,79.965 553.369,79.82 C556.562,79.673 558.743,79.167 560.652,78.425 C562.623,77.658 564.297,76.634 565.965,74.965 C567.633,73.296 568.659,71.625 569.425,69.651 C570.167,67.743 570.674,65.562 570.82,62.369 C570.966,59.17 571,58.147 571,50 C571,41.851 570.966,40.831 570.82,37.631"></path></g></g></g></svg></div><div style="padding-top: 8px;"> <div style=" color:#3897f0; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:550; line-height:18px;">View this post on Instagram</div></div><div style="padding: 12.5% 0;"></div> <div style="display: flex; flex-direction: row; margin-bottom: 14px; align-items: center;"><div> <div style="background-color: #F4F4F4; border-radius: 50%; height: 12.5px; width: 12.5px; transform: translateX(0px) translateY(7px);"></div> <div style="background-color: #F4F4F4; height: 12.5px; transform: rotate(-45deg) translateX(3px) translateY(1px); width: 12.5px; flex-grow: 0; margin-right: 14px; margin-left: 2px;"></div> <div style="background-color: #F4F4F4; border-radius: 50%; height: 12.5px; width: 12.5px; transform: translateX(9px) translateY(-18px);"></div></div><div style="margin-left: 8px;"> <div style=" background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 20px; width: 20px;"></div> <div style=" width: 0; height: 0; border-top: 2px solid transparent; border-left: 6px solid #f4f4f4; border-bottom: 2px solid transparent; transform: translateX(16px) translateY(-4px) rotate(30deg)"></div></div><div style="margin-left: auto;"> <div style=" width: 0px; border-top: 8px solid #F4F4F4; border-right: 8px solid transparent; transform: translateY(16px);"></div> <div style=" background-color: #F4F4F4; flex-grow: 0; height: 12px; width: 16px; transform: translateY(-4px);"></div> <div style=" width: 0; height: 0; border-top: 8px solid #F4F4F4; border-left: 8px solid transparent; transform: translateY(-4px) translateX(8px);"></div></div></div> <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center; margin-bottom: 24px;"> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 224px;"></div> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 144px;"></div></div></a><p style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; line-height:17px; margin-bottom:0; margin-top:8px; overflow:hidden; padding:8px 0 7px; text-align:center; text-overflow:ellipsis; white-space:nowrap;"><a href="https://www.instagram.com/reel/DDiv2a5JqaF/?utm_source=ig_embed&amp;utm_campaign=loading" style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:normal; line-height:17px; text-decoration:none;" target="_blank">A post shared by Catherine Kubinec Bilyk - HHP, CMWC (@ckubinec)</a></p></div></blockquote> <script async src="//www.instagram.com/embed.js"></script>
+
+	$embed = sprintf(
+		'<blockquote
+			class="instagram-media"
+			data-instgrm-captioned
+			data-instgrm-permalink="%s"
+			data-instgrm-version="14" style="
+			background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px; max-width:540px; min-width:326px; height:920px; padding:0; width:99.375%%; width:-webkit-calc(100%% - 2px); width:calc(100%% - 2px);"
+		>
+			<div style="padding:16px;"></div>
+		</blockquote>',
+		esc_url( $url )
+	);
+
+	wp_register_script(
+		'jetpack-instagram-embed',
+		'https://www.instagram.com/embed.js',
+		array(),
+		JETPACK__VERSION,
 		true
 	);
 
-	/**
-	 * Handle an alternate Instagram URL format, where the username is also part of the URL.
-	 */
-	wp_oembed_add_provider(
-		'#https?://(?:www\.)?instagr(?:\.am|am\.com)/(?:[^/]*)/(p|tv|reel)/([^\/]*)#i',
-		'https://graph.facebook.com/v5.0/instagram_oembed/',
-		true
-	);
-
-	/**
-	 * Add auth token required by Instagram's oEmbed REST API, or proxy through WP.com.
-	 */
-	add_filter( 'oembed_fetch_url', 'jetpack_instagram_oembed_fetch_url', 10, 3 );
-
-	/**
-	 * Add JP auth headers if we're proxying through WP.com.
-	 */
-	add_filter( 'oembed_remote_get_args', 'jetpack_instagram_oembed_remote_get_args', 10, 2 );
-
-	/**
-	 * Embed reversal: Convert an embed code from Instagram.com to an oEmbeddable URL.
-	 */
-	add_filter( 'pre_kses', 'jetpack_instagram_embed_reversal' );
-
-	/**
-	 * Add the shortcode.
-	 */
-	add_shortcode( 'instagram', 'jetpack_shortcode_instagram' );
-}
-
-/**
- * Embed Reversal for Instagram
- *
- * Hooked to pre_kses, converts an embed code from Instagram.com to an oEmbeddable URL.
- *
- * @param string $content Post content.
- *
- * @return string The filtered or the original content.
- **/
-function jetpack_instagram_embed_reversal( $content ) {
-	if ( ! is_string( $content ) || false === stripos( $content, 'instagram.com' ) ) {
-		return $content;
+	// Skip rendering scripts in an AMP context.
+	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+		return $embed;
 	}
 
-	/*
-	 * Sample embed code:
-	 * <blockquote class="instagram-media" data-instgrm-captioned data-instgrm-version="2" style=" background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px; max-width:658px; padding:0; width:99.375%; width:-webkit-calc(100% - 2px); width:calc(100% - 2px);"><div style="padding:8px;"><div style=" background:#F8F8F8; line-height:0; margin-top:40px; padding-bottom:55%; padding-top:45%; text-align:center; width:100%;"><div style="position:relative;"><div style=" -webkit-animation:dkaXkpbBxI 1s ease-out infinite; animation:dkaXkpbBxI 1s ease-out infinite; background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAsCAMAAAApWqozAAAAGFBMVEUiIiI9PT0eHh4gIB4hIBkcHBwcHBwcHBydr+JQAAAACHRSTlMABA4YHyQsM5jtaMwAAADfSURBVDjL7ZVBEgMhCAQBAf//42xcNbpAqakcM0ftUmFAAIBE81IqBJdS3lS6zs3bIpB9WED3YYXFPmHRfT8sgyrCP1x8uEUxLMzNWElFOYCV6mHWWwMzdPEKHlhLw7NWJqkHc4uIZphavDzA2JPzUDsBZziNae2S6owH8xPmX8G7zzgKEOPUoYHvGz1TBCxMkd3kwNVbU0gKHkx+iZILf77IofhrY1nYFnB/lQPb79drWOyJVa/DAvg9B/rLB4cC+Nqgdz/TvBbBnr6GBReqn/nRmDgaQEej7WhonozjF+Y2I/fZou/qAAAAAElFTkSuQmCC); display:block; height:44px; margin:0 auto -44px; position:relative; top:-44px; width:44px;"></div><span style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:12px; font-style:normal; font-weight:bold; position:relative; top:15px;">Loading</span></div></div><p style=" font-family:Arial,sans-serif; font-size:14px; line-height:17px; margin:8px 0 0 0; padding:0 4px; word-wrap:break-word;"> Balloons</p><p style=" line-height:32px; margin-bottom:0; margin-top:8px; padding:0; text-align:center;"> <a href="https://instagram.com/p/r9vfPrmjeB/" style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:normal; text-decoration:none;" target="_top"> View on Instagram</a></p></div><style>@-webkit-keyframes"dkaXkpbBxI"{ 0%{opacity:0.5;} 50%{opacity:1;} 100%{opacity:0.5;} } @keyframes"dkaXkpbBxI"{ 0%{opacity:0.5;} 50%{opacity:1;} 100%{opacity:0.5;} }</style></blockquote>
-	 * <script async defer src="https://platform.instagram.com/en_US/embeds.js"></script>
-	*/
-
-	$regexes = array();
-
-	// new style js.
-	$regexes[] = '#<blockquote[^>]+?class="instagram-media"[^>].+?>(.+?)</blockquote><script[^>]+?src="(https?:)?//platform\.instagram\.com/(.+?)/embeds\.js"></script>#ix';
-
-	// Let's play nice with the visual editor too.
-	$regexes[] = '#&lt;blockquote(?:[^&]|&(?!gt;))+?class="instagram-media"(?:[^&]|&(?!gt;)).+?&gt;(.+?)&lt;/blockquote&gt;&lt;script(?:[^&]|&(?!gt;))+?src="(https?:)?//platform\.instagram\.com/(.+?)/embeds\.js"(?:[^&]|&(?!gt;))*+&gt;&lt;/script&gt;#ix';
-
-	// old style iframe.
-	$regexes[] = '#<iframe[^>]+?src="((?:https?:)?//(?:www\.)?instagram\.com/p/([^"\'/]++)[^"\']*?)"[^>]*+>\s*?</iframe>#i';
-
-	// Let's play nice with the visual editor too.
-	$regexes[] = '#&lt;iframe(?:[^&]|&(?!gt;))+?src="((?:https?:)?//(?:www\.)instagram\.com/p/([^"\'/]++)[^"\']*?)"(?:[^&]|&(?!gt;))*+&gt;\s*?&lt;/iframe&gt;#i';
-
-	foreach ( $regexes as $regex ) {
-		if ( ! preg_match_all( $regex, $content, $matches, PREG_SET_ORDER ) ) {
-			continue;
-		}
-
-		foreach ( $matches as $match ) {
-			if ( ! preg_match( '#(https?:)?//(?:www\.)?instagr(\.am|am\.com)/p/([^/]*)#i', $match[1], $url_matches ) ) {
-				continue;
-			}
-
-			// Since we support Instagram via oEmbed, we simply leave a link on a line by itself.
-			$replace_regex = sprintf( '#\s*%s\s*#', preg_quote( $match[0], '#' ) );
-			$url           = esc_url( $url_matches[0] );
-
-			$content = preg_replace( $replace_regex, sprintf( "\n\n%s\n\n", $url ), $content );
-			/** This action is documented in modules/shortcodes/youtube.php */
-			do_action( 'jetpack_embed_to_shortcode', 'instagram', $url );
-		}
-	}
-
-	return $content;
-}
-
-/**
- * List of allowed and sanitized parameters
- * that can be used with the Instagram oEmbed endpoint.
- *
- * Those parameters can be provided via the Instagram URL, or via shortcode parameters.
- *
- * @see https://developers.facebook.com/docs/graph-api/reference/instagram-oembed#parameters
- *
- * @since 9.1.0
- *
- * @param string $url  URL of the content to be embedded.
- * @param array  $atts Shortcode attributes.
- *
- * @return array $params Array of parameters to be used in Instagram query.
- */
-function jetpack_instagram_get_allowed_parameters( $url, $atts = array() ) {
-	global $content_width;
-
-	// Any URL passed via a shortcode attribute takes precedence.
-	if ( ! empty( $atts['url'] ) ) {
-		$url = $atts['url'];
-		unset( $atts['url'] );
-	}
-
-	/*
-	 * Get URL and parameters from the URL if possible.
-	 *
-	 * We'll also clean any other query params from the URL since Facebook's new API for Instagram
-	 * embeds does not like query parameters. See p7H4VZ-2DU-p2.
-	 */
-	$parsed_url = wp_parse_url( $url );
-	if ( $parsed_url && isset( $parsed_url['host'] ) && isset( $parsed_url['path'] ) ) {
-		// Bail early if this is not an Instagram URL.
-		if ( ! preg_match( '/(?:^|\.)instagr(?:\.am|am\.com)$/', $parsed_url['host'] ) ) {
-			return array();
-		}
-
-		$url = 'https://www.instagram.com' . $parsed_url['path'];
-
-		// If we have any parameters as part of the URL, we merge them with our attributes.
-		if ( ! empty( $parsed_url['query'] ) ) {
-			$query_args = array();
-			wp_parse_str( $parsed_url['query'], $query_args );
-
-			$atts = array_merge( $atts, $query_args );
-		}
+	// since Instagram is a faux embed, we need to load the JS SDK in the wpview embed iframe.
+	if (
+		defined( 'DOING_AJAX' )
+		&& DOING_AJAX
+		// No need to check for a nonce here, that's already handled by Core further up.
+		&& ! empty( $_POST['action'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		&& 'parse-embed' === $_POST['action'] // phpcs:ignore WordPress.Security.NonceVerification.Missing
+	) {
+		ob_start();
+		wp_scripts()->do_items( array( 'jetpack-instagram-embed' ) );
+		$scripts = ob_get_clean();
+		return $embed . $scripts;
 	} else {
-		return array();
+		wp_enqueue_script( 'jetpack-instagram-embed' );
+		return $embed;
 	}
-
-	$max_width = 698;
-	$min_width = 320;
-
-	$params = shortcode_atts(
-		array(
-			'url'         => $url,
-			'width'       => ( is_numeric( $content_width ) && $content_width > 0 ) ? $content_width : $max_width,
-			'height'      => '',
-			'hidecaption' => false,
-		),
-		$atts,
-		'instagram'
-	);
-
-	// Ensure width is within bounds.
-	$params['width'] = absint( $params['width'] );
-	if ( $params['width'] > $max_width ) {
-		$params['width'] = $max_width;
-	} elseif ( $params['width'] < $min_width ) {
-		$params['width'] = $min_width;
-	}
-
-	return $params;
 }
 
 /**
- * Add auth token required by Instagram's oEmbed REST API, or proxy through WP.com.
- *
- * @since 9.1.0
- *
- * @param string $provider URL of the oEmbed provider.
- * @param string $url      URL of the content to be embedded.
- * @param array  $args      Additional arguments for retrieving embed HTML.
- *
- * @return string
- */
-function jetpack_instagram_oembed_fetch_url( $provider, $url, $args ) {
-	if ( ! wp_startswith( $provider, 'https://graph.facebook.com/v5.0/instagram_oembed/' ) ) {
-		return $provider;
-	}
-
-	// Get a set of URL and parameters supported by Facebook.
-	$clean_parameters = jetpack_instagram_get_allowed_parameters( $url, $args );
-
-	// Replace existing URL by our clean version.
-	if ( ! empty( $clean_parameters['url'] ) ) {
-		$provider = add_query_arg( 'url', rawurlencode( $clean_parameters['url'] ), $provider );
-	}
-
-	// Our shortcode supports the width param, but the API expects maxwidth.
-	if ( ! empty( $clean_parameters['width'] ) ) {
-		$provider = add_query_arg( 'maxwidth', $clean_parameters['width'], $provider );
-	}
-
-	if ( ! empty( $clean_parameters['hidecaption'] ) ) {
-		$provider = add_query_arg( 'hidecaption', true, $provider );
-	}
-
-	$access_token = jetpack_instagram_get_access_token();
-
-	if ( ! empty( $access_token ) ) {
-		return add_query_arg( 'access_token', $access_token, $provider );
-	}
-
-	// If we don't have an access token, we go through the WP.com proxy instead.
-	// To that end, we need to make sure that we're connected to WP.com.
-	if ( ! Jetpack::is_connection_ready() || ( new Status() )->is_offline_mode() ) {
-		return $provider;
-	}
-
-	// @TODO Use Core's /oembed/1.0/proxy endpoint on WP.com
-	// (Currently not global but per-site, i.e. /oembed/1.0/sites/1234567/proxy)
-	// and deprecate /oembed-proxy/instagram endpoint.
-	$wpcom_oembed_proxy = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . '/wpcom/v2/oembed-proxy/instagram/';
-	return str_replace( 'https://graph.facebook.com/v5.0/instagram_oembed/', $wpcom_oembed_proxy, $provider );
-}
-
-/**
- * Add JP auth headers if we're proxying through WP.com.
- *
- * @param array  $args oEmbed remote get arguments.
- * @param string $url  URL to be inspected.
- */
-function jetpack_instagram_oembed_remote_get_args( $args, $url ) {
-	if ( ! wp_startswith( $url, Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . '/wpcom/v2/oembed-proxy/instagram/' ) ) {
-		return $args;
-	}
-
-	$method         = 'GET';
-	$signed_request = Client::build_signed_request(
-		compact( 'url', 'method' )
-	);
-
-	return $signed_request['request'];
-}
-
-/**
- * Fetches a Facebook API access token used for query for Instagram embed information, if one is set.
- *
- * @return string The access token or ''
- */
-function jetpack_instagram_get_access_token() {
-	/**
-	 * Filters the Instagram embed token that is used for querying the Facebook API.
-	 *
-	 * When this token is set, requests are not proxied through the WordPress.com API. Instead, a request is made directly to the
-	 * Facebook API to query for information about the embed which should provide a performance benefit.
-	 *
-	 * @module shortcodes
-	 *
-	 * @since  9.0.0
-	 *
-	 * @param string string The access token set via the JETPACK_INSTAGRAM_EMBED_TOKEN constant.
-	 */
-	return (string) apply_filters( 'jetpack_instagram_embed_token', (string) Constants::get_constant( 'JETPACK_INSTAGRAM_EMBED_TOKEN' ) );
-}
-
-/**
- * Display the Instagram shortcode.
+ * Shortcode handler.
  *
  * @param array $atts Shortcode attributes.
  */
-function jetpack_shortcode_instagram( $atts ) {
+function jetpack_instagram_shortcode_handler( $atts ) {
 	global $wp_embed;
 
 	if ( empty( $atts['url'] ) ) {
-		return '';
+		return;
 	}
 
-	$atts = jetpack_instagram_get_allowed_parameters( $atts['url'], $atts );
-
-	if ( empty( $atts['url'] ) ) {
-		return '';
-	}
-
-	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
-		$url_pattern = '#http(s?)://(www\.)?instagr(\.am|am\.com)/(p|tv|reel)/([^/?]+)#i';
-		preg_match( $url_pattern, $atts['url'], $matches );
-		if ( ! $matches ) {
-			return sprintf(
-				'<a href="%1$s" class="amp-wp-embed-fallback">%1$s</a>',
-				esc_url( $atts['url'] )
-			);
-		}
-
-		$shortcode_id = end( $matches );
-		$width        = ! empty( $atts['width'] ) ? $atts['width'] : 600;
-		$height       = ! empty( $atts['height'] ) ? $atts['height'] : 600;
-		return sprintf(
-			'<amp-instagram data-shortcode="%1$s" layout="responsive" width="%2$d" height="%3$d" data-captioned></amp-instagram>',
-			esc_attr( $shortcode_id ),
-			absint( $width ),
-			absint( $height )
-		);
+	if ( ! preg_match( JETPACK_INSTAGRAM_EMBED_REGEX, $atts['url'] )
+	&& ! preg_match( JETPACK_INSTAGRAM_PHOTO_EMBED_REGEX, $atts['url'] )
+	&& ! preg_match( JETPACK_INSTAGRAM_VIDEO_EMBED_REGEX, $atts['url'] )
+	&& ! preg_match( JETPACK_INSTAGRAM_VIDEO_ALTERNATE_EMBED_REGEX, $atts['url'] ) ) {
+		return;
 	}
 
 	return $wp_embed->shortcode( $atts, $atts['url'] );
 }
+
+add_shortcode( 'instagram', 'jetpack_instagram_shortcode_handler' );
