@@ -1,3 +1,15 @@
+.scan-results-container {
+	:global {
+		@media ( max-width: 599px ) {
+			div.dataviews-wrapper .dataviews__view-actions {
+				flex-wrap: wrap;
+				justify-content: center;
+				gap: calc( var( --spacing-base ) * 1.5 ); // 12px;
+			}
+		}
+	}
+}
+
 .hero-main {
 	max-width: 550px;
 }
@@ -17,11 +29,6 @@
 	padding-left: 0;
 	padding-right: 0;
 	overflow: hidden;
-
-	> * {
-		margin-left: calc( var( --spacing-base ) * -3 ); // -24px
-		margin-right: calc( var( --spacing-base ) * -3 ); // -24px
-	}
 }
 
 .progress-animation {
@@ -32,4 +39,8 @@
 
 .last-checked {
 	width: fit-content;
+}
+
+.toggle-group-control {
+	min-width: 300px;
 }
