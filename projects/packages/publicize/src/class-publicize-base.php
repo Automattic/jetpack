@@ -1015,7 +1015,6 @@ abstract class Publicize_Base {
 					'service_name'    => $service_name,
 					'shared'          => ! $connection_data['user_id'],
 					'status'          => null,
-					'user_id'         => (int) $connection_data['user_id'],
 
 					// Deprecated fields.
 					'id'              => $connection_id,
@@ -1024,6 +1023,7 @@ abstract class Publicize_Base {
 					'done'            => $done,
 					'toggleable'      => $toggleable,
 					'global'          => 0 == $connection_data['user_id'], // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,WordPress.PHP.StrictComparisons.LooseComparison -- Other types can be used at times.
+					'user_id'         => (int) $connection_data['user_id'],
 				);
 			}
 		}
