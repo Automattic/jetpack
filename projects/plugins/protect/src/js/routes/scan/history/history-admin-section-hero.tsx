@@ -3,9 +3,9 @@ import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useMemo } from 'react';
-import AdminSectionHero from '../../components/admin-section-hero';
-import ErrorAdminSectionHero from '../../components/error-admin-section-hero';
-import useHistoryQuery from '../../data/scan/use-history-query';
+import AdminSectionHero from '../../../components/admin-section-hero';
+import ErrorAdminSectionHero from '../../../components/error-admin-section-hero';
+import useHistoryQuery from '../../../data/scan/use-history-query';
 import styles from './styles.module.scss';
 
 const HistoryAdminSectionHero: React.FC = ( {

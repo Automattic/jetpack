@@ -30,7 +30,12 @@ const FirewallAdminSectionHero = () => {
 		if ( status === 'on' ) {
 			return standaloneMode
 				? __( 'Standalone mode', 'jetpack-protect' )
-				: __( 'Active', 'jetpack-protect', 0 );
+				: __(
+						'Active',
+						'jetpack-protect',
+						// @ts-expect-error TS2554 - dummy arg to avoid bad minification
+						0
+				  );
 		}
 
 		return __( 'Inactive', 'jetpack-protect' );
@@ -47,7 +52,8 @@ const FirewallAdminSectionHero = () => {
 							: __(
 									'Firewall is on',
 									'jetpack-protect',
-									/* dummy arg to avoid bad minification */ 0
+									// @ts-expect-error TS2554 - dummy arg to avoid bad minification
+									0
 							  ) ) }
 				</>
 			);
@@ -63,7 +69,8 @@ const FirewallAdminSectionHero = () => {
 							: __(
 									'Firewall is off',
 									'jetpack-protect',
-									/* dummy arg to avoid bad minification */ 0
+									// @ts-expect-error TS2554 - dummy arg to avoid bad minification
+									0
 							  ) ) }
 				</>
 			);
