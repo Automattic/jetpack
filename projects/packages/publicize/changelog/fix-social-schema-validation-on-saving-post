@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social | Fix failure on post save with LinkedIn connection enabled
