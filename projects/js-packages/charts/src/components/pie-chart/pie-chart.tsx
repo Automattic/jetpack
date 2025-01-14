@@ -31,9 +31,18 @@ interface PieChartProps extends OmitBaseChartProps {
 	padding?: number;
 
 	/**
-	 * Thickness of the pie chart. A value between 0 and 1
+	 * Thickness of the pie chart.
+	 * A value between 0 and 1, where 0 means no thickness
+	 * and 1 means the maximum thickness.
 	 */
 	thickness?: number;
+
+	/**
+	 * Scale of the gap between groups in the pie chart
+	 * A value between 0 and 1, where 0 means no gap
+	 * and 1 means the maximum possible gap.
+	 */
+	gapScale?: number;
 }
 
 /**
@@ -44,13 +53,15 @@ interface PieChartProps extends OmitBaseChartProps {
  */
 const PieChart = ( {
 	data,
-	size = 500, //TODO: replace when making the components responsive
-	thickness = 1,
 	withTooltips = false,
 	className,
 	showLegend,
 	legendOrientation,
+
+	size = 500, //TODO: replace when making the components responsive
+	thickness = 1,
 	padding = 20,
+	gapScale = 0,
 }: PieChartProps ) => {
 	const providerTheme = useChartTheme();
 	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
@@ -66,14 +77,17 @@ const PieChart = ( {
 	const centerX = width / 2;
 	const centerY = height / 2;
 
+	// Calculate the angle between each
+	const padAngle = gapScale * ( ( 2 * Math.PI ) / data.length );
+
+	const outerRadius = radius - padding;
+	const innerRadius = outerRadius * ( 1 - thickness );
+
 	// Map the data to include index for color assignment
 	const dataWithIndex = data.map( ( d, index ) => ( {
 		...d,
 		index,
 	} ) );
-
-	const outerRadius = radius - padding;
-	const innerRadius = outerRadius * ( 1 - thickness );
 
 	const accessors = {
 		value: ( d: DataPointPercentage ) => d.value,
@@ -98,6 +112,7 @@ const PieChart = ( {
 						pieValue={ accessors.value }
 						outerRadius={ outerRadius }
 						innerRadius={ innerRadius }
+						padAngle={ padAngle }
 					>
 						{ pie => {
 							return pie.arcs.map( ( arc, index ) => {
