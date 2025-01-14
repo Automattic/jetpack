@@ -1,6 +1,6 @@
-import { ThreatsDataViews, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { type Threat } from '@automattic/jetpack-scan';
+import { type Threat, ThreatsDataViews } from '@automattic/jetpack-scan';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { QUERY_CREDENTIALS_KEY } from '../../constants';

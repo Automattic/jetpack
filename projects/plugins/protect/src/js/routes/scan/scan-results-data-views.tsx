@@ -1,5 +1,4 @@
-import { ThreatsDataViews } from '@automattic/jetpack-components';
-import { type Threat } from '@automattic/jetpack-scan';
+import { type Threat, ThreatsDataViews } from '@automattic/jetpack-scan';
 import { useCallback } from 'react';
 import useScanStatusQuery from '../../data/scan/use-scan-status-query';
 import useModal from '../../hooks/use-modal';

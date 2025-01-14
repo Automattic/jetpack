@@ -440,9 +440,6 @@ importers:
       '@automattic/jetpack-boost-score-api':
         specifier: workspace:*
         version: link:../boost-score-api
-      '@automattic/jetpack-scan':
-        specifier: workspace:*
-        version: link:../scan
       '@babel/runtime':
         specifier: ^7
         version: 7.26.0
@@ -458,9 +455,6 @@ importers:
       '@wordpress/data':
         specifier: 10.14.0
         version: 10.14.0(react@18.3.1)
-      '@wordpress/dataviews':
-        specifier: 4.10.0
-        version: 4.10.0(patch_hash=of6mtpeubmoicukrgy5ohupf6a)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/date':
         specifier: 5.14.0
         version: 5.14.0
@@ -1298,15 +1292,30 @@ importers:
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../base-styles
+      '@automattic/jetpack-components':
+        specifier: workspace:*
+        version: link:../components
       '@wordpress/api-fetch':
         specifier: 7.14.0
         version: 7.14.0
+      '@wordpress/components':
+        specifier: 29.0.0
+        version: 29.0.0(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/dataviews':
+        specifier: 4.10.0
+        version: 4.10.0(patch_hash=of6mtpeubmoicukrgy5ohupf6a)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/date':
+        specifier: 5.14.0
+        version: 5.14.0
       '@wordpress/element':
         specifier: 6.14.0
         version: 6.14.0
       '@wordpress/i18n':
         specifier: 5.14.0
         version: 5.14.0
+      '@wordpress/icons':
+        specifier: 10.14.0
+        version: 10.14.0(react@18.3.1)
       '@wordpress/url':
         specifier: 4.14.0
         version: 4.14.0

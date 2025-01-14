@@ -1,4 +1,5 @@
-import { AdminSection, Container, Col, ScanReport } from '@automattic/jetpack-components';
+import { AdminSection, Container, Col } from '@automattic/jetpack-components';
+import { ScanReport } from '@automattic/jetpack-scan';
 import { useMemo } from 'react';
 import AdminPage from '../../components/admin-page';
 import { SCAN_IN_PROGRESS_STATUSES } from '../../constants';

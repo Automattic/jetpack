@@ -44,18 +44,17 @@ export { default as CopyToClipboard } from './components/copy-to-clipboard';
 export * from './components/icons';
 export { default as SplitButton } from './components/split-button';
 export { default as ThemeProvider } from './components/theme-provider';
-export { default as ThreatFixerButton } from './components/threat-fixer-button';
-export { default as ThreatSeverityBadge } from './components/threat-severity-badge';
+export { default as ThreatFixerButton } from '../scan/src/components/threat-fixer-button';
 export {
 	default as ThreatsDataViews,
 	HISTORIC_TABLE_FIELDS,
-} from './components/threats-data-views';
+} from '../scan/src/components/threats-data-views';
 export { default as ShieldIcon } from './components/shield-icon';
-export { default as ScanReport } from './components/scan-report';
 export { default as Text, H2, H3, Title } from './components/text';
 export { default as ToggleControl } from './components/toggle-control';
 export { default as numberFormat } from './components/number-format';
 export { default as QRCode } from './components/qr-code';
+export { default as Badge } from './components/badge';
 export { default as Button } from './components/button';
 export type { ButtonProps } from './components/button/types';
 export { default as LoadingPlaceholder } from './components/loading-placeholder';
