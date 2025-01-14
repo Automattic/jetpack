@@ -5,6 +5,26 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2025-01-10
+### Added
+- Enable test coverage. [#39961]
+
+### Changed
+- General: Indicate compatibility with the upcoming version of WordPress - 6.7. [#39786]
+- Updated package dependencies. [#38822] [#38870] [#39004] [#39278] [#39288] [#39653] [#40116] [#40515]
+
+### Removed
+- Cleaned up legacy code. [#40200]
+- General: Update minimum PHP version to 7.2. [#40147]
+- General: Update minimum WordPress version to 6.6. [#40146]
+
+### Fixed
+- Caching: make sure there is cache content to serve, even if the cache file was found [#40342]
+- Ensure homepage cache gets flushed when a post is unpublished. [#40879]
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750] [#38981]
+- Move trailing space out of i18n message. [#39305]
+- Fix apache_request_headers fallback so it works when that command is disabled. [#39951]
+
 ## [1.12.4] - 2024-07-17
 ### Removed
 - General: update WordPress version requirements to WordPress 6.5. [#38382]
@@ -764,6 +784,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Misc fixes
 
+[2.0.0]: https://github.com/Automattic/wp-super-cache/compare/v1.12.4...v2.0.0
 [1.12.4]: https://github.com/Automattic/wp-super-cache/compare/v1.12.3...v1.12.4
 [1.12.3]: https://github.com/Automattic/wp-super-cache/compare/v1.12.2...v1.12.3
 [1.12.2]: https://github.com/Automattic/wp-super-cache/compare/v1.12.1...v1.12.2

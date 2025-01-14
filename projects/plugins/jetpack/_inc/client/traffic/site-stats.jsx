@@ -42,9 +42,22 @@ class SiteStatsComponent extends React.Component {
 			wpcom_reader_views_enabled: props.getOptionValue( 'wpcom_reader_views_enabled' ),
 		};
 
-		if ( roles ) {
-			this.addCustomCountRolesState( countRoles );
-			this.addCustomRolesState( roles );
+		const defaultRoles = [ 'administrator', 'editor', 'author', 'contributor', 'subscriber' ];
+
+		if ( roles?.length > 0 ) {
+			roles.forEach( role => {
+				if ( ! defaultRoles.includes( role ) ) {
+					this.state[ `roles_${ role }` ] = true;
+				}
+			} );
+		}
+
+		if ( countRoles?.length > 0 ) {
+			countRoles.forEach( role => {
+				if ( ! defaultRoles.includes( role ) ) {
+					this.state[ `count_roles_${ role }` ] = true;
+				}
+			} );
 		}
 	}
 
@@ -106,38 +119,6 @@ class SiteStatsComponent extends React.Component {
 	handleRoleToggleChange = ( role, setting ) => {
 		return () => this.updateOptions( role, setting );
 	};
-
-	/**
-	 * Allows for custom roles 'count logged in page views' stats settings to be added to the current state.
-	 *
-	 * @param {Array} countRoles - All roles (including custom) that have 'count logged in page views' enabled.
-	 */
-	addCustomCountRolesState( countRoles ) {
-		countRoles.forEach( role => {
-			if (
-				! [ 'administrator', 'editor', 'author', 'subscriber', 'contributor' ].includes(
-					countRoles
-				)
-			) {
-				this.setState( { [ `count_roles_${ role }` ]: includes( countRoles, role, false ) } );
-			}
-		} );
-	}
-
-	/**
-	 * Allows for custom roles 'allow stats reports' stats settings to be added to the current state.
-	 *
-	 * @param {Array} roles - All roles (including custom) that have 'allow stats reports' enabled.
-	 */
-	addCustomRolesState( roles ) {
-		roles.forEach( role => {
-			if (
-				! [ 'administrator', 'editor', 'author', 'subscriber', 'contributor' ].includes( role )
-			) {
-				this.setState( { [ `roles_${ role }` ]: includes( roles, role, false ) } );
-			}
-		} );
-	}
 
 	handleStatsOptionToggle( option_slug ) {
 		return () => this.props.updateFormStateModuleOption( 'stats', option_slug );

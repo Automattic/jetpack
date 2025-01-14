@@ -2,7 +2,7 @@ import { GlobalNotices, ThemeProvider } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import Discussion from 'discussion';
 import Earn from 'earn';
 import Subscriptions from 'newsletter';
@@ -113,4 +113,4 @@ export default connect( state => {
 	return {
 		isModuleActivated: module => isModuleActivatedSelector( state, module ),
 	};
-} )( withRouter( Settings ) );
+} )( props => <Settings { ...props } location={ useLocation() } /> );

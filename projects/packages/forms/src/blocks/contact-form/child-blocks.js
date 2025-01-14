@@ -410,7 +410,12 @@ export const childBlocks = [
 		settings: {
 			...FieldDefaults,
 			title: __( 'URL Field', 'jetpack-forms' ),
-			keywords: [ 'url', __( 'internet page', 'jetpack-forms' ), 'link' ],
+			keywords: [
+				__( 'url', 'jetpack-forms' ),
+				__( 'internet page', 'jetpack-forms' ),
+				__( 'link', 'jetpack-forms' ),
+				__( 'website', 'jetpack-forms' ),
+			],
 			description: __( 'Collect a website address from your site visitors.', 'jetpack-forms' ),
 			icon: renderMaterialIcon(
 				<>
@@ -430,7 +435,7 @@ export const childBlocks = [
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
-					default: 'URL',
+					default: __( 'Website', 'jetpack-forms' ),
 				},
 			},
 		},
