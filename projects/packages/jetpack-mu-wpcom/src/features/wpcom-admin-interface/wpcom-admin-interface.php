@@ -405,7 +405,7 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 		return $is_enabled;
 	}
 
-	$option_name = 'duplicate_views_experiment_assignment';
+	$option_name = 'remove_duplicate_views_experiment_assignment';
 	$variation   = get_user_option( $option_name, get_current_user_id() );
 
 	if ( false !== $variation ) {
