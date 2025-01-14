@@ -451,7 +451,7 @@ async function addHappinessLabel( payload, octokit ) {
 		return false;
 	}
 
-	const message = `This issue has been labeled as a Customer Report. It may need some extra attention.`;
+	const message = `This issue has been labeled as a Customer Report. Please complete first-line triage within 24 hours.`;
 	const slackMessageFormat = formatSlackMessage( payload, channel, message );
 	await sendSlackMessage( message, channel, payload, slackMessageFormat );
 }
