@@ -84,6 +84,11 @@ function jetpack_shortcode_instagram( $atts ) {
 
 	$atts = jetpack_instagram_get_allowed_parameters( $atts );
 
+	// jetpack_instagram_get_allowed_parameters may remove the URL attribute if it's not a valid Instagram URL.
+	if ( ! isset( $atts['url'] ) ) {
+		return;
+	}
+
 	if ( ! preg_match( JETPACK_INSTAGRAM_EMBED_REGEX, $atts['url'] ) ) {
 		return;
 	}
