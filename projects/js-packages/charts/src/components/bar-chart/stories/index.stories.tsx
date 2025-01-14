@@ -92,3 +92,19 @@ export const WithVerticalLegend = {
 		legendOrientation: 'vertical',
 	},
 };
+
+export const FixedDimensions: Story = {
+	args: {
+		...Default.args,
+		width: 800,
+		height: 400,
+		data: [ data[ 0 ], data[ 1 ], data[ 2 ] ],
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: 'Bar chart with fixed dimensions that override the responsive behavior.',
+			},
+		},
+	},
+};

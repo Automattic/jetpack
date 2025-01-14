@@ -165,3 +165,21 @@ export const WithTooltipsDoughnut: StoryType = {
 		},
 	},
 };
+
+export const FixedDimensions: StoryType = {
+	args: {
+		...Default.args,
+		size: 400,
+		thickness: 1,
+		padding: 20,
+		withTooltips: true,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Pie chart with fixed dimensions that override the responsive behavior. Uses size prop instead of width/height.',
+			},
+		},
+	},
+};

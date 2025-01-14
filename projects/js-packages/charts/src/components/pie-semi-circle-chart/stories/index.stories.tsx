@@ -101,3 +101,20 @@ WithVerticalLegend.args = {
 	showLegend: true,
 	legendOrientation: 'vertical',
 };
+
+export const FixedDimensions = Template.bind( {} );
+FixedDimensions.args = {
+	...Default.args,
+	width: 400,
+	thickness: 0.4,
+	label: 'Fixed Dimensions',
+	note: 'Non-responsive chart',
+};
+FixedDimensions.parameters = {
+	docs: {
+		description: {
+			story:
+				'Semi-circle pie chart with fixed dimensions that override the responsive behavior. Only width is needed as height is calculated internally.',
+		},
+	},
+};

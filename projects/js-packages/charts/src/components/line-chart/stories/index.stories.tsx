@@ -86,3 +86,19 @@ WithVerticalLegend.args = {
 	showLegend: true,
 	legendOrientation: 'vertical',
 };
+
+// Add after existing stories
+export const FixedDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
+FixedDimensions.args = {
+	width: 800,
+	height: 400,
+	data: sampleData,
+	withTooltips: true,
+};
+FixedDimensions.parameters = {
+	docs: {
+		description: {
+			story: 'Line chart with fixed dimensions that override the responsive behavior.',
+		},
+	},
+};
