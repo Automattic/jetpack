@@ -210,8 +210,7 @@ add_action( 'enqueue_block_editor_assets', 'wpcom_global_styles_enqueue_block_ed
  * @return void
  */
 function wpcom_global_styles_enqueue_assets() {
-	$asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-global-styles-editor/wpcom-global-styles-editor.asset.php';
-
+	$asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-global-styles-frontend/wpcom-global-styles-frontend.asset.php';
 	wp_enqueue_script(
 		'wpcom-global-styles-frontend',
 		plugins_url( 'build/wpcom-global-styles-frontend/wpcom-global-styles-frontend.js', Jetpack_Mu_Wpcom::BASE_FILE ),
