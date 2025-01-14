@@ -75,7 +75,17 @@ export default {
 	decorators: [
 		( Story, { args } ) => (
 			<ThemeProvider theme={ args.theme }>
-				<div style={ { padding: '2rem' } }>
+				<div
+					style={ {
+						resize: 'both',
+						overflow: 'auto',
+						padding: '2rem',
+						width: '800px',
+						minWidth: '400px',
+						maxWidth: '1200px',
+						border: '1px dashed #ccc',
+					} }
+				>
 					<Story />
 				</div>
 			</ThemeProvider>
