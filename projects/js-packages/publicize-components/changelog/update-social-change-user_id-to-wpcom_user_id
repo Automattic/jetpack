@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Social | Changed user_id to wpcom_user_id in connections schema

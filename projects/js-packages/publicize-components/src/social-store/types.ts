@@ -12,7 +12,7 @@ export type Connection = {
 	service_name: string;
 	shared: boolean;
 	status: ConnectionStatus;
-	user_id: number;
+	wpcom_user_id: number;
 
 	/* DEPRECATED FIELDS  */
 	/**

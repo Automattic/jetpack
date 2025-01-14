@@ -89,7 +89,7 @@ class Connections {
 			$wpcom_user_id = ! empty( $wpcom_user_data['ID'] ) ? $wpcom_user_data['ID'] : null;
 		}
 
-		return $wpcom_user_id && $connection['user_id'] === $wpcom_user_id;
+		return $wpcom_user_id && $connection['wpcom_user_id'] === $wpcom_user_id;
 	}
 
 	/**
@@ -243,7 +243,7 @@ class Connections {
 			'service_label'        => (string) Publicize::get_service_label( $service_name ),
 			'service_name'         => $service_name,
 			'shared'               => ! $connection_data['user_id'],
-			'user_id'              => (int) $connection_data['user_id'],
+			'wpcom_user_id'        => (int) $connection_data['user_id'],
 
 			// Deprecated fields.
 			'id'                   => (string) $publicize->get_connection_unique_id( $connection ),

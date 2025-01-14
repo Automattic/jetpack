@@ -245,7 +245,7 @@ export const canUserManageConnection = createRegistrySelector(
 			const { current_user } = getScriptData().user;
 
 			// If the current user is the connection owner.
-			if ( current_user.wpcom?.ID === connection.user_id ) {
+			if ( current_user.wpcom?.ID === connection.wpcom_user_id ) {
 				return true;
 			}
 
