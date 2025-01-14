@@ -18,6 +18,27 @@ use WP_REST_Request;
 trait WPCOM_REST_API_Proxy_Request {
 
 	/**
+	 * Base path for the API.
+	 *
+	 * @var string
+	 */
+	public $base_api_path;
+
+	/**
+	 * Version of the API.
+	 *
+	 * @var string
+	 */
+	public $version;
+
+	/**
+	 * REST Base.
+	 *
+	 * @var string
+	 */
+	public $rest_base;
+
+	/**
 	 * Proxy request to wpcom servers on behalf of a user or using the Site-level Connection (blog token).
 	 *
 	 * @param WP_REST_Request $request Request to proxy.
@@ -93,8 +114,8 @@ trait WPCOM_REST_API_Proxy_Request {
 		$response_body   = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( $response_status >= 400 ) {
-			$code    = isset( $response_body['code'] ) ? $response_body['code'] : 'unknown_error';
-			$message = isset( $response_body['message'] ) ? $response_body['message'] : __( 'An unknown error occurred.', 'jetpack-connection' );
+			$code    = $response_body['code'] ?? 'unknown_error';
+			$message = $response_body['message'] ?? __( 'An unknown error occurred.', 'jetpack-connection' );
 
 			return new WP_Error( $code, $message, array( 'status' => $response_status ) );
 		}
