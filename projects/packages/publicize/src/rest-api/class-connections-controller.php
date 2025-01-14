@@ -299,7 +299,7 @@ class Connections_Controller extends Base_Controller {
 	public function create_item_permissions_check( $request ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$permissions = parent::publicize_permissions_check();
 
-		if ( is_wp_error( $permissions ) || ! $permissions ) {
+		if ( is_wp_error( $permissions ) ) {
 			return $permissions;
 		}
 
@@ -370,13 +370,17 @@ class Connections_Controller extends Base_Controller {
 	public function update_item_permissions_check( $request ) {
 		$permissions = parent::publicize_permissions_check();
 
-		if ( is_wp_error( $permissions ) || ! $permissions ) {
+		if ( is_wp_error( $permissions ) ) {
 			return $permissions;
 		}
 
 		// If the user cannot manage the connection, they can't update it either.
 		if ( ! $this->manage_connection_permission_check( $request ) ) {
-			return false;
+			return new WP_Error(
+				'rest_cannot_edit',
+				__( 'Sorry, you are not allowed to update this connection.', 'jetpack-publicize-pkg' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
 		}
 
 		// If the connection is being marked/unmarked as shared.
@@ -447,7 +451,7 @@ class Connections_Controller extends Base_Controller {
 	public function delete_item_permissions_check( $request ) {
 		$permissions = parent::publicize_permissions_check();
 
-		if ( is_wp_error( $permissions ) || ! $permissions ) {
+		if ( is_wp_error( $permissions ) ) {
 			return $permissions;
 		}
 

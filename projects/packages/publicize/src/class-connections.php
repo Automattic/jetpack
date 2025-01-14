@@ -306,7 +306,7 @@ class Connections {
 
 		global $publicize;
 
-		$connection = $publicize->get_connection( $result['service'], (int) $result['ID'] );
+		$connection = $publicize->get_connection( $result['service'], $result['ID'] );
 
 		$connection = self::wpcom_prepare_connection_data( $connection, $result['service'] );
 
