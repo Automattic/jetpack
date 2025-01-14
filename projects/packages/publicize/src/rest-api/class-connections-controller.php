@@ -345,7 +345,7 @@ class Connections_Controller extends Base_Controller {
 
 		$proxy = new Proxy_Requests( $this->rest_base );
 
-		$response = $proxy->proxy_request_to_wpcom( $request );
+		$response = $proxy->proxy_request_to_wpcom( $request, '', 'user', array( 'timeout' => 120 ) );
 
 		l( '>>>>>>>> CREATE CONNECTION RESPONSE', $response );
 
@@ -427,7 +427,7 @@ class Connections_Controller extends Base_Controller {
 
 		l( '>>>>>>>> UPDATE CONNECTION REQUEST', $request );
 
-		$response = $proxy->proxy_request_to_wpcom( $request, $connection_id );
+		$response = $proxy->proxy_request_to_wpcom( $request, $connection_id, 'user', array( 'timeout' => 120 ) );
 
 		l( '>>>>>>>> UPDATE CONNECTION RESPONSE', $response );
 
@@ -490,7 +490,7 @@ class Connections_Controller extends Base_Controller {
 
 		$proxy = new Proxy_Requests( $this->rest_base );
 
-		$response = $proxy->proxy_request_to_wpcom( $request, $connection_id );
+		$response = $proxy->proxy_request_to_wpcom( $request, $connection_id, 'user', array( 'timeout' => 120 ) );
 
 		l( '>>>>>>>> DELETE CONNECTION RESPONSE', $response );
 

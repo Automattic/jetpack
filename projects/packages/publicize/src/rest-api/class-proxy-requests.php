@@ -63,10 +63,11 @@ class Proxy_Requests {
 	 * @param WP_Rest_Request $request Request to proxy.
 	 * @param string          $path Path to append to the rest base.
 	 * @param string          $context Can be Either 'user' or 'blog'. Defaults to 'user'.
+	 * @param array           $request_options Request options to pass to wp_remote_request.
 	 *
 	 * @return mixed|WP_Error           Response from wpcom servers or an error.
 	 */
-	public function proxy_request_to_wpcom( $request, $path = '', $context = 'user' ) {
+	public function proxy_request_to_wpcom( $request, $path = '', $context = 'user', $request_options = array() ) {
 		$blog_id      = \Jetpack_Options::get_option( 'id' );
 		$path         = '/sites/' . rawurldecode( $blog_id ) . '/' . rawurldecode( ltrim( $this->rest_base, '/' ) ) . ( $path ? '/' . rawurldecode( ltrim( $path, '/' ) ) : '' );
 		$query_params = $request->get_query_params();
@@ -83,12 +84,15 @@ class Proxy_Requests {
 		}
 		$api_url = add_query_arg( $query_params, $path );
 
-		$request_options = array(
-			'headers' => array(
-				'Content-Type'    => 'application/json',
-				'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
+		$request_options = array_replace_recursive(
+			array(
+				'headers' => array(
+					'Content-Type'    => 'application/json',
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
+				),
+				'method'  => $request->get_method(),
 			),
-			'method'  => $request->get_method(),
+			$request_options
 		);
 
 		// If no body is present, passing it as $request->get_body() will cause an error.
