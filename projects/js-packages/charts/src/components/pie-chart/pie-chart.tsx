@@ -75,13 +75,10 @@ const PieChart = ( {
 			withTooltips,
 		} );
 
-	const width = size;
-	const height = size;
-
-	// Calculate radius based on width/height
-	const radius = Math.min( width, height ) / 2;
-	const centerX = width / 2;
-	const centerY = height / 2;
+	// Calculate radius based on the smallest dimension
+	const radius = Math.min( size ) / 2;
+	const centerX = size / 2;
+	const centerY = size / 2;
 
 	// Calculate the angle between each
 	const padAngle = gapScale * ( ( 2 * Math.PI ) / data.length );
@@ -114,7 +111,7 @@ const PieChart = ( {
 
 	return (
 		<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
-			<svg width={ width } height={ height }>
+			<svg viewBox={ `0 0 ${ size } ${ size }` } preserveAspectRatio="xMidYMid meet">
 				<Group top={ centerY } left={ centerX }>
 					<Pie< DataPointPercentage & { index: number } >
 						data={ dataWithIndex }
