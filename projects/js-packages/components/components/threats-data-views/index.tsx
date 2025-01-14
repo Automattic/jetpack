@@ -15,6 +15,7 @@ import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import Badge from '../badge';
+import useBreakpointMatch from '../layout/use-breakpoint-match';
 import ThreatFixerButton from '../threat-fixer-button';
 import ThreatSeverityBadge from '../threat-severity-badge';
 import ThreatsModal from '../threats-modal';
@@ -120,6 +121,8 @@ export default function ThreatsDataViews( {
 	onModalClose: () => void;
 	header?: JSX.Element;
 } ): JSX.Element {
+	const [ isSm ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+
 	const baseView = {
 		sort: {
 			field: 'severity',
@@ -156,13 +159,20 @@ export default function ThreatsDataViews( {
 	};
 
 	/**
+	 * Default View Type.
+	 *
+	 * Set the default view type (list or table) based on the initial screen size.
+	 */
+	const defaultViewType: 'list' | 'table' = isSm ? 'list' : 'table';
+
+	/**
 	 * DataView view object - configures how the dataset is visible to the user.
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#view-object
 	 */
 	const [ view, setView ] = useState< View >( {
-		type: 'table',
-		...defaultLayouts.table,
+		type: defaultViewType,
+		...defaultLayouts[ defaultViewType ],
 	} );
 
 	const [ selectedThreat, setSelectedThreat ] = useState< Threat | null >( null );

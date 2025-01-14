@@ -362,11 +362,20 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.4.4 - 2024-08-07
+### [6.5.0] - 2025-01-10
 
 #### Removed
-- MailPoet: Remove unused MailPoet use statements.
+- General: Remove unused legacy code.
+
+#### Changed
+- General: Update minimum WordPress version to 6.6.
+- API: Allow sort order in endpoints.
 
 #### Fixed
-- WooSync: Fix a warning message on sync and fatal error when a fee value is not a number
-
+- CRM: Fix bug which caused duplicated queries to run.
+- CRM: Fix a fatal error that occurred when exporting contacts with a custom field that had the same name as a linked field (e.g., 'company').
+- Dashboard: Fix an issue where the CRM contacts graph displayed incorrect values in some instances.
+- Dashboard: Show correct avatar for recent activity.
+- Invoices: Fix bugs in the default PDF template and other fixes. Created a new template to maintain backwards compatibility.
+- Code: Ensure we use Jetpack Autoloader throughout the codebase.
+- Migrations: Improve WP Playground compatibility.

@@ -348,14 +348,14 @@
 		color: var(--jetpack--contact-form--text-color);
 		display: flex;
 		border: none;
-		font-size: var(--jetpack--contact-form--font-size);
+		font-size: var(--jetpack--contact-form--font-size, 16px );
 		font-family: var(--jetpack--contact-form--font-family);
-		height: var(--jetpack--contact-form--font-size);
+		height: var(--jetpack--contact-form--font-size, 16px );
 		justify-content: center;
 		margin: 0 10px 0 0;
 		outline: none;
 		position: relative;
-		width: var(--jetpack--contact-form--font-size);
+		width: var(--jetpack--contact-form--font-size, 16px);
 		pointer-events: none;
 
 		&::after, &::before {
@@ -375,9 +375,9 @@
 			content: ' ';
 			display: flex;
 			font-weight: bold;
-			height: var(--jetpack--contact-form--font-size);
+			height: var(--jetpack--contact-form--font-size, 16px);
 			justify-content: center;
-			width: var(--jetpack--contact-form--font-size);
+			width: var(--jetpack--contact-form--font-size, 16px);
 		}
 
 		&[type="radio"]::before {
@@ -458,7 +458,7 @@
 			margin: 0 5px 0 0;
 		}
 	}
-	
+
 	.jetpack-field-option.field-option-checkbox,
 	.jetpack-field-option.field-option-radio,
 	.wp-block-jetpack-field-option-checkbox,
@@ -661,7 +661,7 @@
 		border-radius: var(--jetpack--contact-form--border-radius);
 		background-color: var(--jetpack--contact-form--input-background);
 		color: var(--jetpack--contact-form--text-color);
-		font-size: var(--jetpack--contact-form--font-size);
+		font-size: var(--jetpack--contact-form--font-size, 16px);
 		line-height: var(--jetpack--contact-form--line-height);
 		padding: var(--jetpack--contact-form--input-padding);
 		display: flex;
@@ -702,7 +702,7 @@
 		border-radius: var(--jetpack--contact-form--border-radius);
 		background-color: var(--jetpack--contact-form--input-background);
 		color: var(--jetpack--contact-form--text-color);
-		font-size: var(--jetpack--contact-form--font-size);
+		font-size: var(--jetpack--contact-form--font-size, 16px);
 		max-height: 165px;
 		overflow: auto;
 		padding: 0;

@@ -1,4 +1,0 @@
-Significance: minor
-Type: removed
-
-`MediaWiki.Usage.DoubleNotOperator` has been removed. `Universal.CodeAnalysis.NoDoubleNegative.FoundDouble`, which serves the same purpose, will be included via the WordPress-Extra ruleset v3.1.0.

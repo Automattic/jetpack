@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from WooCommerce 9.5.1
+ * Stubs automatically generated from WooCommerce 9.7.0-dev
  * using the definition file `tools/stubs/woocommerce-internal-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -43,7 +43,6 @@ namespace Automattic\WooCommerce\Internal\DataStores\Orders {
      */
     class CustomOrdersTableController
     {
-        use \Automattic\WooCommerce\Internal\Traits\AccessiblePrivateMethods;
     }
     /**
      * This class is the standard data store to be used when the custom orders table is in use.

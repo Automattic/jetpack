@@ -26,15 +26,15 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 jpcrm_api_check_http_method( array( 'GET' ) );
 
 // Process the pagination parameters from the query
-list( $page, $per_page ) = jpcrm_api_process_pagination();
-
+$pagination                  = jpcrm_api_process_pagination();
 $search_phrase               = jpcrm_api_process_search();
 $replace_hyphens_in_response = jpcrm_api_process_replace_hyphens_in_json_keys();
 
 $args = array(
 	'searchPhrase' => $search_phrase,
-	'perPage'      => $per_page,
-	'page'         => $page,
+	'page'         => $pagination['page'],
+	'perPage'      => $pagination['per_page'],
+	'sortOrder'    => $pagination['order'],
 );
 
 global $zbs;

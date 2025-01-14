@@ -41,7 +41,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.3.0';
+	const PACKAGE_VERSION = '5.3.1';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -236,9 +236,12 @@ class Initializer {
 		$scan_data                      = Products\Protect::get_protect_data();
 		self::update_historically_active_jetpack_modules();
 
-		$waf_config = array();
+		$waf_config    = array();
+		$waf_supported = false;
+
 		if ( class_exists( 'Automattic\Jetpack\Waf\Waf_Runner' ) ) {
-			$waf_config = Waf_Runner::get_config();
+			$waf_config    = Waf_Runner::get_config();
+			$waf_supported = Waf_Runner::is_supported_environment();
 		}
 
 		wp_localize_script(
@@ -297,6 +300,9 @@ class Initializer {
 					'scanData'  => $scan_data,
 					'wafConfig' => array_merge(
 						$waf_config,
+						array(
+							'waf_supported' => $waf_supported,
+						),
 						array( 'blocked_logins' => (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) )
 					),
 				),
