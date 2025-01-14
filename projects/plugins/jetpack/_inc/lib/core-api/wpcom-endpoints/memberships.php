@@ -6,7 +6,7 @@
  * @since      7.3.0
  */
 
-require_once __DIR__ . '/trait-wpcom-rest-api-proxy-request-trait.php';
+use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Memberships
@@ -14,7 +14,7 @@ require_once __DIR__ . '/trait-wpcom-rest-api-proxy-request-trait.php';
  */
 class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 
-	use WPCOM_REST_API_Proxy_Request_Trait;
+	use WPCOM_REST_API_Proxy_Request;
 
 	/**
 	 * WPCOM_REST_API_V2_Endpoint_Memberships constructor.
