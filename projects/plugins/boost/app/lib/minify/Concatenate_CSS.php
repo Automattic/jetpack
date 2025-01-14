@@ -197,7 +197,7 @@ class Concatenate_CSS extends WP_Styles {
 				} elseif ( count( $css ) > 1 ) {
 					$path_str = jetpack_boost_page_optimize_generate_concat_path( $css, $this->dependency_path_mapping );
 
-					$href = $siteurl . jetpack_boost_get_static_prefix() . '??' . $path_str;
+					$href = $siteurl . jetpack_boost_get_static_prefix() . $path_str . '.css';
 				} else {
 					$href = jetpack_boost_page_optimize_cache_bust_mtime( current( $css ), $siteurl );
 				}
