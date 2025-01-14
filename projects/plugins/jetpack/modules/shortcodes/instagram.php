@@ -78,11 +78,11 @@ function jetpack_instagram_embed_handler( $matches, $attr, $url ) {
 function jetpack_shortcode_instagram( $atts ) {
 	global $wp_embed;
 
-	$atts = jetpack_instagram_get_allowed_parameters( $atts['url'], $atts );
-
 	if ( empty( $atts['url'] ) ) {
 		return;
 	}
+
+	$atts = jetpack_instagram_get_allowed_parameters( $atts );
 
 	if ( ! preg_match( JETPACK_INSTAGRAM_EMBED_REGEX, $atts['url'] ) ) {
 		return;
@@ -122,19 +122,14 @@ function jetpack_shortcode_instagram( $atts ) {
  *
  * @since 9.1.0
  *
- * @param string $url  URL of the content to be embedded.
- * @param array  $atts Shortcode attributes.
+ * @param array $atts Shortcode attributes.
  *
  * @return array $params Array of parameters to be used in Instagram query.
  */
-function jetpack_instagram_get_allowed_parameters( $url, $atts = array() ) {
+function jetpack_instagram_get_allowed_parameters( $atts = array() ) {
 	global $content_width;
 
-	// Any URL passed via a shortcode attribute takes precedence.
-	if ( ! empty( $atts['url'] ) ) {
-		$url = $atts['url'];
-		unset( $atts['url'] );
-	}
+	$url = $atts['url'];
 
 	/*
 	 * Get URL and parameters from the URL if possible.
