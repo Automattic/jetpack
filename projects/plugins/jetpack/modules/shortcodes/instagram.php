@@ -78,7 +78,7 @@ function jetpack_instagram_embed_handler( $matches, $attr, $url ) {
 function jetpack_shortcode_instagram( $atts ) {
 	global $wp_embed;
 
-	if ( empty( $atts['url'] ) ) {
+	if ( ! isset( $atts['url'] ) ) {
 		return;
 	}
 
