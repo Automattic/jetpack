@@ -200,6 +200,8 @@ class Connections {
 
 				$item['status'] = $test_results[ $connection_id ] ?? null;
 
+				// For blog context, return all connections.
+				// Otherwise, return only connections owned by the user and the shared ones.
 				if ( 'blog' === $context || $item['shared'] || self::user_owns_connection( $item ) ) {
 					$items[] = $item;
 				}
