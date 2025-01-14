@@ -13,6 +13,7 @@ import { CheckoutProvider } from './hooks/use-plan';
 import FirewallRoute from './routes/firewall';
 import HomeRoute from './routes/home';
 import ScanRoute from './routes/scan';
+import HistoryRoute from './routes/scan/history';
 import SetupRoute from './routes/setup';
 import './styles.module.scss';
 
@@ -63,7 +64,7 @@ function render() {
 											path="/scan/history"
 											element={
 												<PaidPlanGate>
-													<ScanRoute />
+													<HistoryRoute />
 												</PaidPlanGate>
 											}
 										/>
@@ -71,7 +72,7 @@ function render() {
 											path="/scan/history/:filter"
 											element={
 												<PaidPlanGate>
-													<ScanRoute />
+													<HistoryRoute />
 												</PaidPlanGate>
 											}
 										/>
