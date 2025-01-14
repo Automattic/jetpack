@@ -4,8 +4,10 @@ on:
   pull_request:
   push:
     branches: [ 'trunk', '*/branch-*' ]
+
 concurrency:
-  group: tests-${{ github.event_name }}-${{ github.ref }}
+  # Trunk runs need to not be cancelled for concurrency, mainly for code coverage. Everything else can be.
+  group: tests-${{ github.event_name }}-${{ github.ref }}-${{ github.event_name == 'push' && github.ref == 'refs/heads/trunk' && github.run_id || '' }}
   cancel-in-progress: true
 
 env:
@@ -54,7 +56,7 @@ jobs:
 
     # Note matrix-job outputs are kind of weird. Last-to-run job that sets a non-empty value wins.
     outputs:
-      did-coverage: ${{ ( steps.process-coverage.conclusion == 'success' && steps.upload-artifacts.conclusion == 'success' ) && 'true' || '' }}
+      did-coverage: ${{ ( steps.run-tests.conclusion != 'cancelled' && steps.process-coverage.conclusion == 'success' && steps.upload-artifacts.conclusion == 'success' ) && 'true' || '' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -118,6 +120,7 @@ jobs:
         run: .github/files/setup-wordpress-env.sh
 
       - name: Run project tests
+        id: run-tests
         env:
           FORCE_PACKAGE_TESTS: ${{ matrix.force-package-tests && 'true' || 'false' }}
           CHANGED: ${{ steps.changed.outputs.projects }}
