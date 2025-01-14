@@ -5,7 +5,7 @@ import path from 'node:path';
 import url from 'node:url';
 import mimeTypes from 'mime-types';
 
-/* eslint-disable no-console, no-process-exit */
+/* eslint-disable no-console, n/no-process-exit */
 
 if ( process.argv[ 2 ] !== 'child' ) {
 	const cp = childProcess.fork( url.fileURLToPath( import.meta.url ), [ 'child' ], {

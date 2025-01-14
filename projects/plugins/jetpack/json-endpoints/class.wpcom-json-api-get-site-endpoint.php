@@ -211,6 +211,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'blogging_prompts_settings',
 		'launchpad_screen',
 		'launchpad_checklist_tasks_statuses',
+		'migration_source_site_domain',
 		'wpcom_production_blog_id',
 		'wpcom_staging_blog_ids',
 		'can_blaze',
@@ -901,6 +902,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'launchpad_checklist_tasks_statuses':
 					$options[ $key ] = $site->get_launchpad_checklist_tasks_statuses();
+					break;
+				case 'migration_source_site_domain':
+					$options[ $key ] = $site->get_migration_source_site_domain();
 					break;
 				case 'wpcom_production_blog_id':
 					$options[ $key ] = $site->get_wpcom_production_blog_id();

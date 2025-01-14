@@ -37,12 +37,6 @@ export function canAIAssistantBeEnabled(): boolean {
 		return false;
 	}
 
-	// Do not enable if there is an error getting the feature.
-	const { errorCode } = select( 'wordpress-com/plans' )?.getAiAssistantFeature?.() || {};
-	if ( errorCode ) {
-		return false;
-	}
-
 	/*
 	 * Do not enable if the AI Assistant block is hidden
 	 * ToDo: the `editPostStore` is undefined for P2 sites.

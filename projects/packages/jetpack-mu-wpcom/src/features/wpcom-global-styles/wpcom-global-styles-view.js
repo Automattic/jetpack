@@ -5,8 +5,8 @@ import './wpcom-global-styles-view.scss';
 
 /**
  * Records a Tracks click event.
- * @param button - {string} Identifier of the button that has been clicked.
- * @param props  - {object} Additional props to track.
+ * @param {string} button - Identifier of the button that has been clicked.
+ * @param {object} props  - Additional props to track.
  */
 function recordEvent( button, props = {} ) {
 	wpcomTrackEvent( 'wpcom_launchbar_button_click', {
@@ -17,6 +17,21 @@ function recordEvent( button, props = {} ) {
 }
 
 document.addEventListener( 'DOMContentLoaded', () => {
+	const launchBanner = document.querySelector( '.launch-banner' );
+
+	if ( ! launchBanner ) {
+		return;
+	}
+
+	// Don't show the banner if the site is previewed via an iframe.
+	if ( window.top !== window.self ) {
+		return;
+	}
+
+	document.body.style.marginTop = '50px';
+	document.body.style.scrollPaddingTop = '50px';
+	launchBanner.style.display = null;
+
 	let container;
 	if ( launchBarUserData?.isAtomic ) {
 		const isShadowDOM = !! ( document.head.attachShadow || document.head.createShadowRoot );

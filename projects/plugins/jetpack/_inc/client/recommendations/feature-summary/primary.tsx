@@ -1,8 +1,8 @@
 import clsx from 'clsx';
-import Button from 'components/button';
-import analytics from 'lib/analytics';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
+import Button from 'components/button';
+import analytics from 'lib/analytics';
 import { stepToRoute } from 'state/recommendations';
 import { getSummaryPrimaryProps } from '../feature-utils';
 import type { MouseEventHandler } from 'react';

@@ -3,10 +3,10 @@
  * It may not accurately detect a touch screen, but may be close enough depending on the use case.
  *
  * @copyright Modernizr © 2009-2015.
- * @license See CREDITS.md.
- * @see https://github.com/Modernizr/Modernizr/blob/master/feature-detects/touchevents.js
+ * @license MIT
+ * @see https://github.com/Modernizr/Modernizr/blob/d5f881a4de0d5fc1af85921ce9c7dc3919c6d335/feature-detects/touchevents.js
  *
- * @return {Boolean} whether touch screen is available
+ * @return {boolean} whether touch screen is available
  */
 export function hasTouch() {
 	/* global DocumentTouch:true */

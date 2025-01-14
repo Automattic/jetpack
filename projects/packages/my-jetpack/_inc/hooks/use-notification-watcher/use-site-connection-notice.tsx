@@ -4,27 +4,34 @@ import { useContext, useEffect } from 'react';
 import { MyJetpackRoutes } from '../../constants';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
-import { NOTICE_SITE_CONNECTED } from '../../context/notices/noticeTemplates';
 import { useAllProducts } from '../../data/products/use-product';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useAnalytics from '../use-analytics';
+import useConnectSite from '../use-connect-site';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
 import useMyJetpackNavigate from '../use-my-jetpack-navigate';
 import type { NoticeOptions } from '../../context/notices/types';
+import type { MouseEvent } from 'react';
 
 type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
 
 const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const { recordEvent } = useAnalytics();
 	const { setNotice, resetNotice } = useContext( NoticeContext );
-	const { handleRegisterSite, siteIsRegistering } = useMyJetpackConnection( {
+	const { siteIsRegistering, isSiteConnected } = useMyJetpackConnection( {
 		skipUserConnection: true,
 	} );
 	const products = useAllProducts();
-	const navToConnection = useMyJetpackNavigate( MyJetpackRoutes.Connection );
+	const navToConnection = useMyJetpackNavigate( MyJetpackRoutes.ConnectionSkipPricing );
 	const redBubbleSlug = 'missing-connection';
 	const connectionError = redBubbleAlerts[ redBubbleSlug ];
+	const { connectSite } = useConnectSite( {
+		tracksInfo: {
+			event: 'jetpack_my_jetpack_site_connection_notice_cta',
+			properties: {},
+		},
+	} );
 
 	const { refetch: refetchOwnershipData } = useProductsByOwnership();
 
@@ -37,20 +44,13 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			getProductSlugsThatRequireUserConnection( products );
 		const requiresUserConnection = connectionError.type === 'user';
 
-		const onActionButtonClick = () => {
+		const onActionButtonClick = ( { e }: { e: MouseEvent< HTMLButtonElement > } ) => {
 			if ( requiresUserConnection ) {
 				recordEvent( 'jetpack_my_jetpack_user_connection_notice_cta_click' );
 				navToConnection();
+			} else {
+				connectSite( e );
 			}
-
-			recordEvent( 'jetpack_my_jetpack_site_connection_notice_cta_click' );
-			handleRegisterSite().then( () => {
-				setNotice( NOTICE_SITE_CONNECTED, resetNotice );
-				delete redBubbleAlerts[ redBubbleSlug ];
-				window.myJetpackInitialState.redBubbleAlerts = redBubbleAlerts;
-
-				refetchOwnershipData();
-			} );
 		};
 
 		const oneProductMessage = sprintf(
@@ -121,7 +121,8 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			options: noticeOptions,
 		} );
 	}, [
-		handleRegisterSite,
+		isSiteConnected,
+		connectSite,
 		navToConnection,
 		products,
 		recordEvent,

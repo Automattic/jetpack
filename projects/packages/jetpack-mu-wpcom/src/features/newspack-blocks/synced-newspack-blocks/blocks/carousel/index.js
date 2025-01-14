@@ -36,11 +36,7 @@ export const settings = {
 		foreground: '#36f',
 	},
 	category: 'newspack',
-	keywords: [
-		__( 'posts', 'jetpack-mu-wpcom' ),
-		__( 'slideshow', 'jetpack-mu-wpcom' ),
-		__( 'carousel', 'jetpack-mu-wpcom' ),
-	],
+	keywords: [ __( 'posts', 'jetpack-mu-wpcom' ), __( 'slideshow', 'jetpack-mu-wpcom' ), __( 'carousel', 'jetpack-mu-wpcom' ) ],
 	description: __( 'A carousel of posts.', 'jetpack-mu-wpcom' ),
 	attributes: {
 		className: {

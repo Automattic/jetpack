@@ -2,6 +2,7 @@
  * @jest-environment jsdom
  */
 
+// eslint-disable-next-line testing-library/no-dom-import -- Not actually React code.
 const { screen, fireEvent } = require( '@testing-library/dom' );
 
 /*

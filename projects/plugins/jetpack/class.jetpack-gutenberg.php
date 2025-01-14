@@ -715,6 +715,7 @@ class Jetpack_Gutenberg {
 			$modules              = $module_list_endpoint->get_modules();
 		}
 
+		$jetpack_plan  = Jetpack_Plan::get();
 		$initial_state = array(
 			'available_blocks'    => self::get_availability(),
 			'blocks_variation'    => $blocks_variation,
@@ -731,6 +732,9 @@ class Jetpack_Gutenberg {
 				// this is the equivalent of JP initial state siteData.showMyJetpack (class-jetpack-redux-state-helper)
 				// used to determine if we can link to My Jetpack from the block editor
 				'is_my_jetpack_available'       => My_Jetpack_Initializer::should_initialize(),
+				'jetpack_plan'                  => array(
+					'data' => $jetpack_plan['product_slug'],
+				),
 				/**
 				 * Enable the RePublicize UI in the block editor context.
 				 *
@@ -1333,6 +1337,32 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Temporarily bypasses _doing_it_wrong() notices for block metadata collection registration.
+	 *
+	 * WordPress 6.7 introduced block metadata collections (with strict path validation).
+	 * Any sites using symlinks for plugins will fail the validation which causes the metadata
+	 * collection to not be registered. However, the blocks will still fall back to the regular
+	 * registration and no functionality is affected.
+	 * While this validation is being discussed in WordPress Core (#62140),
+	 * this method allows registration to proceed by temporarily disabling
+	 * the relevant notice.
+	 *
+	 * @since 14.2
+	 *
+	 * @param bool   $trigger       Whether to trigger the error.
+	 * @param string $function      The function that was called.
+	 * @param string $message       A message explaining what was done incorrectly.
+	 * @param string $version       The version of WordPress where the message was added.
+	 * @return bool Whether to trigger the error.
+	 */
+	public static function bypass_block_metadata_doing_it_wrong( $trigger, $function, $message, $version ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( $function === 'WP_Block_Metadata_Registry::register_collection' ) {
+			return false;
+		}
+		return $trigger;
+	}
+
+	/**
 	 * Register block metadata collection for Jetpack blocks.
 	 * This allows for more efficient block metadata loading by avoiding
 	 * individual block.json file reads at runtime.
@@ -1351,11 +1381,15 @@ class Jetpack_Gutenberg {
 	public static function register_block_metadata_collection() {
 		$meta_file_path = JETPACK__PLUGIN_DIR . '_inc/blocks/blocks-manifest.php';
 		if ( function_exists( 'wp_register_block_metadata_collection' ) && file_exists( $meta_file_path ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- New in WP 6.7. We're checking if it exists first.
+			add_filter( 'doing_it_wrong_trigger_error', array( __CLASS__, 'bypass_block_metadata_doing_it_wrong' ), 10, 4 );
+
+			// @phan-suppress-next-line PhanUndeclaredFunction -- New in WP 6.7. We're checking if it exists first. @phan-suppress-current-line UnusedPluginSuppression
 			wp_register_block_metadata_collection(
 				JETPACK__PLUGIN_DIR . '_inc/blocks/',
 				$meta_file_path
 			);
+
+			remove_filter( 'doing_it_wrong_trigger_error', array( __CLASS__, 'bypass_block_metadata_doing_it_wrong' ), 10 );
 		}
 	}
 }

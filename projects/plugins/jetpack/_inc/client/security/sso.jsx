@@ -3,14 +3,14 @@ import { useConnection } from '@automattic/jetpack-connection';
 import { Button, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import * as cookie from 'cookie';
+import { useState, Component } from 'react';
+import ReactDOM from 'react-dom';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import * as cookie from 'cookie';
-import { useState, Component } from 'react';
-import ReactDOM from 'react-dom';
 import { FEATURE_SSO } from '../lib/plans/constants';
 
 const SSOSurveyNotice = () => {

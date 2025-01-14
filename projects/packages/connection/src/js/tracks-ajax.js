@@ -1,4 +1,4 @@
-/* global jpTracksAJAX */
+/* global jQuery, jpTracksAJAX */
 ( function ( $, jpTracksAJAX ) {
 	window.jpTracksAJAX = window.jpTracksAJAX || {};
 	const debugSet = localStorage.getItem( 'debug' ) === 'dops:analytics';

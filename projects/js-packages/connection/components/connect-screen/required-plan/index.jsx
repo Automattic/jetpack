@@ -13,9 +13,12 @@ import ConnectScreenRequiredPlanVisual from './visual';
  */
 const ConnectScreenRequiredPlan = props => {
 	const {
-		title = __( 'Over 5 million WordPress sites are faster and more secure', 'jetpack' ),
+		title = __(
+			'Over 5 million WordPress sites are faster and more secure',
+			'jetpack-connection-js'
+		),
 		autoTrigger = false,
-		buttonLabel = __( 'Set up Jetpack', 'jetpack' ),
+		buttonLabel = __( 'Set up Jetpack', 'jetpack-connection-js' ),
 		apiRoot,
 		apiNonce,
 		registrationNonce,

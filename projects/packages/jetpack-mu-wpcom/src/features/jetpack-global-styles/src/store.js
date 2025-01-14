@@ -74,7 +74,7 @@ export const store = createReduxStore( STORE_NAME, {
 			try {
 				alreadyFetchedOptions = true;
 				options = yield actions.fetchOptions();
-			} catch ( error ) {
+			} catch {
 				options = {};
 			}
 			cache = options;

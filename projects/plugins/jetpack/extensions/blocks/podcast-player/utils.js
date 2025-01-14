@@ -67,8 +67,14 @@ export function makeCancellable( promise ) {
  *   primaryColor: '…',
  *   customPrimaryColor: '…',
  * } );
- * @param Object config with all color-related block attributes.
- * @returns Object with color details.
+ * @param {object} config                         - with all color-related block attributes.
+ * @param {string} [config.primaryColor]          - Primary color name.
+ * @param {string} [config.customPrimaryColor]    - Primary color.
+ * @param {string} [config.secondaryColor]        - Secondary color name.
+ * @param {string} [config.customSecondaryColor]  - Secondary color.
+ * @param {string} [config.backgroundColor]       - Background color name.
+ * @param {string} [config.customBackgroundColor] - Background color.
+ * @return {object} with color details.
  */
 const generateColorsObject = ( {
 	primaryColor,

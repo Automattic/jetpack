@@ -34,15 +34,10 @@ const WelcomeFlow: FC< Props > = ( {
 	const { dismissWelcomeBanner } = useWelcomeBanner();
 	const { recommendedModules, submitEvaluation, saveEvaluationResult } =
 		useEvaluationRecommendations();
-	const {
-		siteIsRegistered,
-		siteIsRegistering,
-		isUserConnected,
-		isSiteConnected,
-		handleRegisterSite,
-	} = useMyJetpackConnection( {
-		skipUserConnection: true,
-	} );
+	const { siteIsRegistered, siteIsRegistering, isUserConnected, isSiteConnected } =
+		useMyJetpackConnection( {
+			skipUserConnection: true,
+		} );
 	const [ isProcessingEvaluation, setIsProcessingEvaluation ] = useState( false );
 	const [ prevStep, setPrevStep ] = useState( '' );
 
@@ -128,7 +123,7 @@ const WelcomeFlow: FC< Props > = ( {
 				await saveEvaluationResult( recommendations );
 
 				dismissWelcomeBanner();
-			} catch ( error ) {
+			} catch {
 				setIsProcessingEvaluation( false );
 			}
 		},
@@ -162,7 +157,6 @@ const WelcomeFlow: FC< Props > = ( {
 					>
 						{ 'connection' === currentStep && (
 							<ConnectionStep
-								onActivateSite={ handleRegisterSite }
 								onUpdateWelcomeFlowExperiment={ setWelcomeFlowExperiment }
 								isActivating={ siteIsRegistering || welcomeFlowExperiment.isLoading }
 							/>

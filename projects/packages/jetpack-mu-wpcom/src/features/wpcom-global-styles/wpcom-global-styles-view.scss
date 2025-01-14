@@ -1,4 +1,134 @@
 /* stylelint-disable declaration-property-unit-allowed-list */
+.launch-banner {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+	font-size: 16px;
+	font-style: normal;
+	height: 48px;
+	line-height: normal;
+	background: #24282D;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	z-index: 99998;
+
+
+	.is-mobile {
+		display: none;
+	}
+}
+
+.admin-bar #launch-banner.launch-banner {
+	top: 32px;
+	text-transform: initial;
+}
+
+.has-marketing-bar .launch-banner {
+	margin-top: 49px;
+}
+
+.launch-banner-content {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+}
+
+.launch-banner-content a,
+.launch-banner-content button {
+	border: none;
+	align-items: center;
+	color: #fff;
+	cursor: pointer;
+	display: flex;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+	font-size: 13px;
+	font-style: normal;
+	min-height: 48px;
+	outline: none;
+	padding: 0 20px;
+	text-decoration: none !important;
+}
+
+.launch-banner-content a:hover,
+.launch-banner-content button:hover {
+	background: #34383D;
+	cursor: pointer;
+}
+
+.launch-banner-content a:hover span,
+.launch-banner-content button:hover span {
+	color: #fff;
+}
+
+.launch-banner-section.bar-controls {
+	display: flex;
+	justify-content: center;
+	flex-grow: 1;
+}
+
+.launch-banner-section.bar-controls>* {
+	border-left: 1px solid #424446;
+}
+
+.launch-banner-section.bar-controls a,
+.launch-banner-section.bar-controls button {
+	font-weight: 500;
+}
+
+.launch-banner-section.bar-controls> :last-child {
+	border-right: 1px solid #424446;
+}
+
+.launch-banner-section .icon {
+	margin-right: 5px;
+	fill: none;
+}
+
+.launch-banner-section .icon path,
+.launch-banner-section .icon rect {
+	stroke: #b0b2b3;
+}
+
+@media screen and (max-width: 782px) {
+	.admin-bar #launch-banner.launch-banner {
+		top: 46px;
+	}
+
+	.launch-banner {
+		position: absolute;
+	}
+}
+
+@media screen and (max-width: 960px) {
+	.launch-banner .is-desktop {
+		display: none;
+	}
+
+	.launch-banner .is-mobile {
+		display: block;
+	}
+
+	.launch-banner-content .bar-controls>* {
+		border-left: none;
+	}
+
+	.launch-banner-content .bar-controls a {
+		padding: 0 12px;
+	}
+
+	.launch-banner-section.bar-controls> :last-child {
+		border-right: none;
+	}
+}
+
+@media screen and (max-width: 460px) {
+
+	.launch-banner-section.bar-controls {
+		overflow-y: scroll;
+	}
+}
 
 .launch-bar-global-styles-button {
 	position: relative;

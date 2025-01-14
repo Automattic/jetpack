@@ -1,13 +1,13 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import { Component } from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
 import analytics from 'lib/analytics';
-import PropTypes from 'prop-types';
-import { Component } from 'react';
-import { connect } from 'react-redux';
 import { isOfflineMode, hasConnectedOwner, connectUser } from 'state/connection';
 import { isModuleAvailable } from 'state/modules';
 

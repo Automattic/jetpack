@@ -1,7 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import useAnalytics from '../../hooks/use-analytics';
-import { REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
-import { QUERY_ACTIVATE_PRODUCT_KEY } from '../constants';
+import { REST_API_SITE_PRODUCTS_ENDPOINT, QUERY_ACTIVATE_PRODUCT_KEY } from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
 import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
 import useProduct from './use-product';

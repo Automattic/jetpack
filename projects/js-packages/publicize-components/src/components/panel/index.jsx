@@ -45,7 +45,7 @@ const PublicizePanel = ( { prePublish, children } ) => {
 	const PanelWrapper = prePublish ? Fragment : PanelBody;
 	const wrapperProps = prePublish
 		? {}
-		: { title: __( 'Share this post', 'jetpack' ), className: styles.panel };
+		: { title: __( 'Share this post', 'jetpack-publicize-components' ), className: styles.panel };
 
 	refreshConnections();
 
@@ -58,10 +58,10 @@ const PublicizePanel = ( { prePublish, children } ) => {
 						<ToggleControl
 							label={
 								isPublicizeEnabled
-									? __( 'Share when publishing', 'jetpack' )
+									? __( 'Share when publishing', 'jetpack-publicize-components' )
 									: __(
 											'Sharing is disabled',
-											'jetpack',
+											'jetpack-publicize-components',
 											/* dummy arg to avoid bad minification */ 0
 									  )
 							}

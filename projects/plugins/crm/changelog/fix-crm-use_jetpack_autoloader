@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Code: Ensure we use Jetpack Autoloader throughout the codebase.

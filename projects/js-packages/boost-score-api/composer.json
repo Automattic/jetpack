@@ -45,6 +45,7 @@
 	"extra": {
 		"npmjs-autopublish": true,
 		"mirror-repo": "Automattic/jetpack-boost-score-api",
+		"textdomain": "boost-score-api",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-boost-score-api/compare/v${old}...v${new}"
 		},

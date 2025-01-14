@@ -2,10 +2,10 @@ import { ProgressBar } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import Button from 'components/button';
-import analytics from 'lib/analytics';
 import React, { useEffect, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
+import Button from 'components/button';
+import analytics from 'lib/analytics';
 import { ProductSpotlight } from 'recommendations/sidebar/product-spotlight';
 import {
 	addViewedRecommendation as addViewedRecommendationAction,

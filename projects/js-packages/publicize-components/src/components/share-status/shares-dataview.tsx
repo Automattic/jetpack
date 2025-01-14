@@ -28,10 +28,10 @@ export function SharesDataView( { postShareStatus }: SharesDataViewProps ) {
 				<table className="dataviews-view-table">
 					<thead>
 						<tr className="dataviews-view-table__row">
-							<th>{ __( 'Connection', 'jetpack' ) }</th>
-							<th>{ __( 'Time', 'jetpack' ) }</th>
-							<th>{ __( 'Status', 'jetpack' ) }</th>
-							<th>{ __( 'Actions', 'jetpack' ) }</th>
+							<th>{ __( 'Connection', 'jetpack-publicize-components' ) }</th>
+							<th>{ __( 'Time', 'jetpack-publicize-components' ) }</th>
+							<th>{ __( 'Status', 'jetpack-publicize-components' ) }</th>
+							<th>{ __( 'Actions', 'jetpack-publicize-components' ) }</th>
 						</tr>
 					</thead>
 					<tbody>

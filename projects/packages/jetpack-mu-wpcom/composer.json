@@ -45,7 +45,11 @@
 		"build-production": "pnpm run build-production-js",
 		"build-development": "pnpm run build-js",
 		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		]
 	},
 	"repositories": [
 		{
@@ -65,7 +69,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "5.66.x-dev"
+			"dev-trunk": "6.1.x-dev"
 		},
 		"textdomain": "jetpack-mu-wpcom",
 		"version-constants": {

@@ -11,6 +11,7 @@ import tipsList from './list';
  * @param {string}   props.searchTerm    - Search term text.
  * @param {boolean}  props.random        - Whether to choose a random tooltip on multiple matches.
  * @param {Function} props.canUserCreate - Function to check user permission.
+ * @return {JSX.Element|null} - The contextual tip element or null if no tip is found.
  */
 function ContextualTip( { searchTerm, random = false, canUserCreate } ) {
 	if ( ! searchTerm ) {

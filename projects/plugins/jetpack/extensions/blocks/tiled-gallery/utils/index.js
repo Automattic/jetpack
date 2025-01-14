@@ -4,10 +4,22 @@ import {
 	isSimpleSite,
 } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL } from '@wordpress/blob';
+import { select } from '@wordpress/data';
 import { range } from 'lodash';
 import photon from 'photon';
 import isOfflineMode from '../../../shared/is-offline-mode';
 import { PHOTON_MAX_RESIZE } from '../constants';
+
+let jetpackPlanFromState;
+
+window.addEventListener( 'load', function () {
+	const hasImageCompare = select( 'core/block-editor' )
+		.getBlocks()
+		.some( block => block.name === 'jetpack/image-compare' );
+	if ( hasImageCompare && ! jetpackPlanFromState ) {
+		jetpackPlanFromState = window?.Jetpack_Editor_Initial_State?.jetpack?.jetpack_plan;
+	}
+} );
 
 export function isSquareishLayout( layout ) {
 	return [ 'circle', 'square' ].includes( layout );
@@ -112,9 +124,14 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 }
 function isVIP() {
 	/*global jetpack_plan*/
-	if ( typeof jetpack_plan !== 'undefined' && jetpack_plan.data === 'vip' ) {
-		return true;
+	// Use `jetpackPlanFromState` if available, otherwise fall back to `jetpack_plan` defined within the render function in tiled-gallery.php.
+	let jetpackPlan;
+	if ( typeof jetpackPlanFromState !== 'undefined' ) {
+		jetpackPlan = jetpackPlanFromState;
+	} else if ( typeof jetpack_plan !== 'undefined' ) {
+		jetpackPlan = jetpack_plan;
 	}
+	return jetpackPlan && jetpackPlan?.data === 'vip';
 }
 
 /**

@@ -4,13 +4,13 @@ import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getFragment } from '@wordpress/url';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import QuerySiteBenefits from 'components/data/query-site-benefits';
 import JetpackBanner from 'components/jetpack-banner';
 import analytics from 'lib/analytics';
-import PropTypes from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
 import {
 	getSiteConnectionStatus as _getSiteConnectionStatus,
 	isDisconnectingSite as _isDisconnectingSite,

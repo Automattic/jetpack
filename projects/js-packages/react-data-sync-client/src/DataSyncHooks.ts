@@ -8,8 +8,7 @@ import {
 	useMutation,
 	QueryClientProvider,
 } from '@tanstack/react-query';
-import React from 'react';
-import { useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { z } from 'zod';
 import { DataSync } from './DataSync';
 import { DataSyncError } from './DataSyncError';
@@ -118,7 +117,7 @@ export function useDataSync<
 		initialData: () => {
 			try {
 				return datasync.getInitialValue();
-			} catch ( e ) {
+			} catch {
 				return undefined;
 			}
 		},
@@ -313,7 +312,7 @@ export function useDataSyncAction<
 					queryClient.setQueryData( queryKey, data );
 				}
 				return data;
-			} catch ( e ) {
+			} catch {
 				return queryClient.getQueryData( queryKey );
 			}
 		},

@@ -192,7 +192,7 @@ async function generateForKeys(
 	const CriticalCSSGenerator = await criticalCssGenerator();
 	try {
 		CriticalCSSGeneratorSchema.parse( CriticalCSSGenerator );
-	} catch ( err ) {
+	} catch {
 		recordBoostEvent( 'critical_css_library_failure', {} );
 		throw new Error( 'css-gen-library-failure' );
 	}

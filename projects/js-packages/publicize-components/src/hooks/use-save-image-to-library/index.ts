@@ -30,7 +30,11 @@ export function useSaveImageToLibrary( { onError, onSuccess }: SaveImageToLibrar
 				const response = await fetch( imageUrl );
 
 				if ( ! response.ok ) {
-					onError( new Error( __( 'Failed to download image.', 'jetpack' ), { cause: response } ) );
+					onError(
+						new Error( __( 'Failed to download image.', 'jetpack-publicize-components' ), {
+							cause: response,
+						} )
+					);
 
 					return;
 				}
@@ -51,7 +55,9 @@ export function useSaveImageToLibrary( { onError, onSuccess }: SaveImageToLibrar
 					},
 					onError: error => {
 						onError(
-							new Error( __( 'Failed to save image to library.', 'jetpack' ), { cause: error } )
+							new Error( __( 'Failed to save image to library.', 'jetpack-publicize-components' ), {
+								cause: error,
+							} )
 						);
 
 						setIsSaving( false );
@@ -60,7 +66,9 @@ export function useSaveImageToLibrary( { onError, onSuccess }: SaveImageToLibrar
 				} );
 			} catch ( error ) {
 				onError(
-					new Error( __( 'Failed to save image to library.', 'jetpack' ), { cause: error } )
+					new Error( __( 'Failed to save image to library.', 'jetpack-publicize-components' ), {
+						cause: error,
+					} )
 				);
 			} finally {
 				setIsSaving( false );

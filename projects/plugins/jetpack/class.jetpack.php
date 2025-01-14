@@ -3488,16 +3488,6 @@ p {
 	}
 
 	/**
-	 * Doesn't do anything anymore.
-	 *
-	 * @deprecated 13.9 We no longer show the "Help" button.
-	 *
-	 * @since Jetpack (1.2.3)
-	 * @return void
-	 */
-	public function admin_help() {}
-
-	/**
 	 * Add action links for the Jetpack plugin.
 	 *
 	 * @param array $actions Plugin actions.
@@ -4512,6 +4502,7 @@ endif;
 				if ( is_a( $jp_user, 'WP_User' ) ) {
 					wp_set_current_user( $jp_user->ID );
 					$user_can = is_multisite()
+						// @phan-suppress-next-line PhanDeprecatedFunction -- @todo Switch to current_user_can_for_site when we drop support for WP 6.6.
 						? current_user_can_for_blog( get_current_blog_id(), 'manage_options' )
 						: current_user_can( 'manage_options' );
 					if ( $user_can ) {

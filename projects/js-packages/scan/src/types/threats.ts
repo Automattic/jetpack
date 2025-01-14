@@ -61,6 +61,6 @@ export type Threat = {
 		slug: string;
 		name: string;
 		version: string;
-		type: 'plugin' | 'theme' | 'core';
+		type: 'plugins' | 'themes' | 'core';
 	};
 };

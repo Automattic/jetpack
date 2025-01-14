@@ -55,7 +55,7 @@ const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
 			<VisuallyHidden as="span">
 				{
 					/* translators: accessibility text */
-					__( '(opens in a new tab)', 'jetpack' )
+					__( '(opens in a new tab)', 'jetpack-components' )
 				}
 			</VisuallyHidden>
 		</>

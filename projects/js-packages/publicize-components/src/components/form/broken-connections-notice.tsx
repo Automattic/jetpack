@@ -64,7 +64,10 @@ export const BrokenConnectionsNotice: React.FC = () => {
 	return (
 		brokenConnections.length > 0 && (
 			<Notice type={ 'error' }>
-				{ __( 'Your following connections need to be reconnected:', 'jetpack' ) }
+				{ __(
+					'Your following connections need to be reconnected:',
+					'jetpack-publicize-components'
+				) }
 				<ul>
 					{ Object.entries( brokenConnectionsList ).map( ( [ service_name, connectionsList ] ) => {
 						const serviceLabel = getServiceLabel( service_name );
@@ -74,7 +77,11 @@ export const BrokenConnectionsNotice: React.FC = () => {
 								<div className={ styles[ 'broken-connection-service' ] }>
 									<span>
 										{ serviceLabel }
-										{ _x( ':', 'Colon to display before the list of connections', 'jetpack' ) }
+										{ _x(
+											':',
+											'Colon to display before the list of connections',
+											'jetpack-publicize-components'
+										) }
 										&nbsp;
 									</span>
 									{
@@ -86,8 +93,11 @@ export const BrokenConnectionsNotice: React.FC = () => {
 													{ display_name || external_display }
 												</span>
 												{ i < connectionsList.length - 1 &&
-													_x( ',', 'Comma to separate list of social media accounts', 'jetpack' ) +
-														' ' }
+													_x(
+														',',
+														'Comma to separate list of social media accounts',
+														'jetpack-publicize-components'
+													) + ' ' }
 											</Fragment>
 										) )
 									}
@@ -100,7 +110,7 @@ export const BrokenConnectionsNotice: React.FC = () => {
 					_x(
 						'Please reconnect them in the <fixLink>connections management</fixLink> section.',
 						'"them" refers to the broken connections.',
-						'jetpack'
+						'jetpack-publicize-components'
 					),
 					{
 						fixLink,

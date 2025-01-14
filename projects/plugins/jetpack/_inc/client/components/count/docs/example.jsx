@@ -1,5 +1,5 @@
-import Count from 'components/count';
 import React from 'react';
+import Count from 'components/count';
 
 export default class extends React.PureComponent {
 	static displayName = 'Count';

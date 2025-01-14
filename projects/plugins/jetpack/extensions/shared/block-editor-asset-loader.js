@@ -36,7 +36,7 @@ export function isElementInEditorIframe( elementRef ) {
 function canIframeAccessParentWindow( currentWindow ) {
 	try {
 		return !! currentWindow?.parent?.location.href;
-	} catch ( e ) {
+	} catch {
 		return false;
 	}
 }
@@ -114,7 +114,7 @@ export function loadBlockEditorAssets( resources, callbacks, elementRef ) {
 
 	try {
 		editorAssetsUrl = new URL( 'editor-assets', __webpack_public_path__ );
-	} catch ( e ) {
+	} catch {
 		return;
 	}
 

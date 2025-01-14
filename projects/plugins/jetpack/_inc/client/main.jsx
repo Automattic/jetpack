@@ -1,4 +1,3 @@
-import { imagePath } from 'constants/urls';
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
@@ -7,6 +6,10 @@ import ConnectScreenBody from '@automattic/jetpack-my-jetpack/components/connect
 import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 import { withDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
+import jQuery from 'jquery';
+import React from 'react';
+import { connect } from 'react-redux';
+import { useLocation, useNavigate } from 'react-router-dom';
 import AtAGlance from 'at-a-glance/index.jsx';
 import AdminNotices from 'components/admin-notices';
 import AppsCard from 'components/apps-card';
@@ -21,14 +24,11 @@ import NonAdminView from 'components/non-admin-view';
 import ReconnectModal from 'components/reconnect-modal';
 import SupportCard from 'components/support-card';
 import Tracker from 'components/tracker';
-import jQuery from 'jquery';
+import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 import MyPlan from 'my-plan/index.jsx';
 import ProductDescriptions from 'product-descriptions';
 import { productDescriptionRoutes } from 'product-descriptions/constants';
-import React from 'react';
-import { connect } from 'react-redux';
-import { withRouter, Prompt } from 'react-router-dom';
 import { Recommendations } from 'recommendations';
 import SearchableSettings from 'settings/index.jsx';
 import {
@@ -193,10 +193,13 @@ class Main extends React.Component {
 			! this.props.hasSeenWCConnectionModal &&
 			this.props.userCanManageModules
 		) {
-			this.props.history.replace( {
-				pathname: '/woo-setup',
-				state: { previousPath: this.props.location.pathname },
-			} );
+			this.props.navigate(
+				{
+					pathname: '/woo-setup',
+					state: { previousPath: this.props.location.pathname },
+				},
+				{ replace: true }
+			);
 		}
 	}
 
@@ -211,6 +214,7 @@ class Main extends React.Component {
 			'jetpack'
 		);
 
+		// eslint-disable-next-line no-alert -- Needs a blocking dialog.
 		if ( confirm( question ) ) {
 			window.setTimeout( this.props.clearUnsavedSettingsFlag, 10 );
 			return true;
@@ -513,7 +517,7 @@ class Main extends React.Component {
 				break;
 			case '/setup':
 				if ( this.props.isSiteConnected ) {
-					this.props.history.replace( '/dashboard' );
+					this.props.navigate( '/dashboard', { replace: true } );
 					pageComponent = this.getAtAGlance();
 				}
 				break;
@@ -565,7 +569,7 @@ class Main extends React.Component {
 						/>
 					);
 				} else {
-					this.props.history.replace( '/dashboard' );
+					this.props.navigate( '/dashboard', { replace: true } );
 					pageComponent = this.getAtAGlance();
 				}
 				break;
@@ -612,7 +616,7 @@ class Main extends React.Component {
 				if ( this.props.showRecommendations ) {
 					pageComponent = <Recommendations />;
 				} else {
-					this.props.history.replace( '/dashboard' );
+					this.props.navigate( '/dashboard', { replace: true } );
 					pageComponent = this.getAtAGlance();
 				}
 				break;
@@ -622,7 +626,7 @@ class Main extends React.Component {
 					break;
 				}
 
-				this.props.history.replace( '/dashboard' );
+				this.props.navigate( '/dashboard', { replace: true } );
 				pageComponent = this.getAtAGlance();
 				break;
 		}
@@ -725,7 +729,7 @@ class Main extends React.Component {
 	}
 
 	closeReconnectModal() {
-		this.props.history.replace( '/dashboard' );
+		this.props.navigate( '/dashboard', { replace: true } );
 	}
 
 	/**
@@ -772,7 +776,7 @@ class Main extends React.Component {
 	 */
 	connectUser() {
 		this.props.resetConnectUser();
-		this.props.history.replace( '/connect-user' );
+		this.props.navigate( '/connect-user', { replace: true } );
 	}
 
 	/**
@@ -853,10 +857,15 @@ class Main extends React.Component {
 					<AdminNotices />
 					<JetpackNotices />
 					{ this.shouldConnectUser() && this.connectUser() }
+					{ /*
+					This component was removed as of react-router-dom v6: https://github.com/remix-run/react-router/issues/8139
+					It could probably be brought back with `unstable_usePrompt`, but that is broken with the hash router and normal links,
+					and is already not reliable cross-browser anyway.
 					<Prompt
 						when={ this.props.areThereUnsavedSettings }
 						message={ this.handleRouterWillLeave }
 					/>
+					*/ }
 
 					{ this.renderMainContent( this.props.location.pathname ) }
 					{ this.shouldShowJetpackManageBanner() && (
@@ -957,7 +966,7 @@ export default connect(
 				dispatch( CONNECTION_STORE_ID ).setConnectionStatus( connectionStatus );
 			},
 		};
-	} )( withRouter( Main ) )
+	} )( props => <Main { ...props } location={ useLocation() } navigate={ useNavigate() } /> )
 );
 
 // eslint-disable-next-line jsdoc/require-returns-check

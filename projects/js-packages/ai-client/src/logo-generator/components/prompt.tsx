@@ -6,8 +6,7 @@ import { Button, Tooltip, SelectControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
 import debugFactory from 'debug';
-import { useCallback, useEffect, useState, useRef } from 'react';
-import { Dispatch, SetStateAction } from 'react';
+import { useCallback, useEffect, useState, useRef, Dispatch, SetStateAction } from 'react';
 /**
  * Internal dependencies
  */
@@ -104,7 +103,7 @@ export const AiModalPromptInput = ( {
 	};
 
 	return (
-		<div className="jetpack-ai-logo-generator__prompt-query">
+		<div className="jetpack-ai-image-generator__prompt-query">
 			<div
 				role="textbox"
 				tabIndex={ 0 }
@@ -121,7 +120,7 @@ export const AiModalPromptInput = ( {
 			></div>
 			<Button
 				variant="primary"
-				className="jetpack-ai-logo-generator__prompt-submit"
+				className="jetpack-ai-image-generator__prompt-submit"
 				onClick={ generateHandler }
 				disabled={ actionDisabled }
 			>

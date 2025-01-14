@@ -57,14 +57,20 @@ export function criticalCssErrorState( message: string ): CriticalCssState {
  * All Critical CSS State actions return a success flag and the new state. This hook wraps the
  * common logic for handling the result of these actions.
  *
- * @param {string}      action    - The name of the action.
- * @param {z.ZodSchema} schema    - The schema for the action request.
- * @param {Function}    onSuccess - Optional callback for handling the new state.
+ * @param {string}           action          - The name of the action.
+ * @param {z.ZodSchema}      schema          - The schema for the action request.
+ * @param {CriticalCssState} optimisticState - The state to use for optimistic updates.
+ * @param {Function}         onSuccess       - Optional callback for handling the new state.
  */
 function useCriticalCssAction<
 	ActionSchema extends z.ZodSchema,
 	ActionRequestData extends z.infer< ActionSchema >,
->( action: string, schema: ActionRequestData, onSuccess?: ( state: CriticalCssState ) => void ) {
+>(
+	action: string,
+	schema: ActionRequestData,
+	optimisticState?: CriticalCssState,
+	onSuccess?: ( state: CriticalCssState ) => void
+) {
 	const responseSchema = z.object( {
 		success: z.boolean(),
 		state: CriticalCssStateSchema,
@@ -90,6 +96,13 @@ function useCriticalCssAction<
 			action_response: responseSchema,
 		},
 		callbacks: {
+			optimisticUpdate: ( _requestData, state: CriticalCssState ) => {
+				if ( optimisticState ) {
+					return optimisticState;
+				}
+
+				return state;
+			},
 			onResult: ( result, _state ): CriticalCssState => {
 				if ( result.success ) {
 					if ( onSuccess ) {
@@ -150,10 +163,23 @@ export function useSetProviderErrorsAction() {
 
 /**
  * Hook which creates a callable action for regenerating Critical CSS.
+ *
+ * @param {Function} callback - Optional callback to call when a regeneration starts successfully.
  */
-export function useRegenerateCriticalCssAction() {
+export function useRegenerateCriticalCssAction( callback?: () => void ) {
 	const [ , resetReason ] = useRegenerationReason();
-	return useCriticalCssAction( 'request-regenerate', z.void(), resetReason );
+
+	const onSuccess = () => {
+		if ( callback ) {
+			callback();
+		}
+
+		resetReason();
+	};
+
+	// Optimistically update the state to hide any errors and immediately show the pending state.
+	const optimisticState: CriticalCssState = { status: 'pending', providers: [] };
+	return useCriticalCssAction( 'request-regenerate', z.void(), optimisticState, onSuccess );
 }
 
 /**

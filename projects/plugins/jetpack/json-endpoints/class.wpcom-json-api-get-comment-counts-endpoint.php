@@ -54,6 +54,7 @@ class WPCOM_JSON_API_GET_Comment_Counts_Endpoint extends WPCOM_JSON_API_Endpoint
 			return new WP_Error( 'authorization_required', 'An active access token must be used to retrieve comment counts.', 403 );
 		}
 
+		// @phan-suppress-next-line PhanDeprecatedFunction -- @todo Switch to current_user_can_for_site when we drop support for WP 6.6.
 		if ( ! current_user_can_for_blog( $blog_id, 'edit_posts' ) ) {
 			return new WP_Error( 'authorization_required', 'You are not authorized to view comment counts for this blog.', 403 );
 		}

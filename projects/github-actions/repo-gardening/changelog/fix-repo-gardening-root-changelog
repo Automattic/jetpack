@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Auto-labeling: do not add a "Docs" label when a changelog.md file is modified on the root of the repo.

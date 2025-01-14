@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.2.2] - 2025-01-06
+### Added
+- Added tests to increase code coverage. [#39963]
+
+### Changed
+- Updated package dependencies. [#40831]
+
+## [6.2.1] - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564]
+
+## [6.2.0] - 2024-12-09
+### Added
+- Added a mechanism to use callbacks for package options. [#40474]
+- REST user provisioning with an app password. [#40447]
+
+## [6.1.1] - 2024-12-04
+### Changed
+- Updated package dependencies. [#40363]
+
 ## [6.1.0] - 2024-11-25
 ### Added
 - Allow using application password for site registration. [#40233]
@@ -1258,6 +1278,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[6.2.2]: https://github.com/Automattic/jetpack-connection/compare/v6.2.1...v6.2.2
+[6.2.1]: https://github.com/Automattic/jetpack-connection/compare/v6.2.0...v6.2.1
+[6.2.0]: https://github.com/Automattic/jetpack-connection/compare/v6.1.1...v6.2.0
+[6.1.1]: https://github.com/Automattic/jetpack-connection/compare/v6.1.0...v6.1.1
 [6.1.0]: https://github.com/Automattic/jetpack-connection/compare/v6.0.1...v6.1.0
 [6.0.1]: https://github.com/Automattic/jetpack-connection/compare/v6.0.0...v6.0.1
 [6.0.0]: https://github.com/Automattic/jetpack-connection/compare/v5.1.7...v6.0.0

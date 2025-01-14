@@ -1,0 +1,18 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "tr",
+				"project_id_version": "WordPress.com - jetpack-mu-wpcom"
+			},
+			"We've adopted WordPress's main %s view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Size ve d\u00fcnya \u00e7ap\u0131ndaki milyonlarca WordPress kullan\u0131c\u0131s\u0131na iyile\u015ftirmeler sunmak i\u00e7in WordPress'in ana %s g\u00f6r\u00fcn\u00fcm\u00fcn\u00fc uyarlad\u0131k."
+			],
+			"The %s view just got better": [
+				"%s sayfas\u0131n\u0131n g\u00f6r\u00fcn\u00fcm\u00fc art\u0131k daha iyi"
+			],
+			"Got it": [ "Anlad\u0131m!" ]
+		}
+	}
+}

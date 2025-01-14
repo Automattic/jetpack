@@ -142,7 +142,6 @@ const OldPricingComponent = ( { sendToCart } ) => {
 					ctaText={ __( 'Get Jetpack Search', 'jetpack-search-pkg' ) }
 					icon="data:image/svg+xml,%3Csvg width='32' height='32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M21 19l-5.154-5.154C16.574 12.742 17 11.42 17 10c0-3.866-3.134-7-7-7s-7 3.134-7 7 3.134 7 7 7c1.42 0 2.742-.426 3.846-1.154L19 21l2-2zM5 10c0-2.757 2.243-5 5-5s5 2.243 5 5-2.243 5-5 5-5-2.243-5-5z' fill='%23000'/%3E%3C/svg%3E"
 					infoText={ priceAfter === priceBefore ? basicInfoText : onSaleInfoText }
-					// eslint-disable-next-line react/jsx-no-bind
 					onCtaClick={ sendToCart }
 					priceAfter={ priceAfter }
 					priceBefore={ priceBefore }

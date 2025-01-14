@@ -41,7 +41,7 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 				{ name: __( 'Schedule posting', 'jetpack-social' ) },
 				{
 					name: __(
-						'Instagram, Facebook, Mastodon, LinkedIn, Nextdoor, & Tumblr',
+						'Share to Facebook, Instagram, LinkedIn, Mastodon, Tumblr, Threads, Bluesky, and Nextdoor',
 						'jetpack-social'
 					),
 				},

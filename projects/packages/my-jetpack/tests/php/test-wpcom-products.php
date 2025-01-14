@@ -108,8 +108,9 @@ class Test_Wpcom_Products extends TestCase {
 				'currency_code'          => 'BRL',
 				'product_term'           => 'month',
 				'sale_coupon'            => (object) array(
-					'start_date' => gmdate( 'Y' ) . '-01-01',
-					'expires'    => gmdate( 'Y' ) . '-12-31',
+					// Random dates (or are they?) so we always get the sale price.
+					'start_date' => '2003-05-27',
+					'expires'    => '2063-04-05',
 					'discount'   => 50,
 				),
 			),

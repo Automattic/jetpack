@@ -8,8 +8,7 @@ import React, { createContext } from 'react';
 import SuggestionsEventSource from '../suggestions-event-source/index.js';
 import type { AskQuestionOptionsArgProps } from '../ask-question/index.js';
 import type { RequestingErrorProps } from '../hooks/use-ai-suggestions/index.js';
-import type { PromptProp } from '../types.js';
-import type { RequestingStateProp } from '../types.js';
+import type { PromptProp, RequestingStateProp } from '../types.js';
 
 export type AiDataContextProps = {
 	/*

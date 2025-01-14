@@ -25,7 +25,7 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 	let primaryBlockSettings;
 	try {
 		primaryBlockSettings = blocks.find( block => block.name === blockName ).settings;
-	} catch ( err ) {
+	} catch {
 		throw new Error( `Settings can't be found for main block under test: ${ blockName }` );
 	}
 
@@ -39,7 +39,6 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 
 	describe( 'Test block content parsing', () => {
 		blockBasenames.forEach( basename => {
-			// eslint-disable-next-line jest/valid-title
 			test( `all content versions parse correctly for block ${ blockName }`, () => {
 				const { filename: htmlFixtureFileName, file: htmlFixtureContent } =
 					getBlockFixtureHTML( basename );
@@ -183,7 +182,7 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 				} );
 				try {
 					expect( errors ).toHaveLength( 0 );
-				} catch ( error ) {
+				} catch {
 					throw new Error( 'Problem(s) with fixture files:\n\n' + errors.join( '\n' ) );
 				}
 			} );
@@ -315,7 +314,7 @@ function normalizeParsedBlocks( blocks ) {
 function readFixtureFile( fixturesDir, filename ) {
 	try {
 		return fs.readFileSync( path.join( fixturesDir, filename ), 'utf8' );
-	} catch ( err ) {
+	} catch {
 		return null;
 	}
 }

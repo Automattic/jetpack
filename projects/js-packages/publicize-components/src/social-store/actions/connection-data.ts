@@ -300,10 +300,13 @@ export function deleteConnectionById( { connectionId, showSuccessNotice = true }
 			dispatch( deleteConnection( connectionId ) );
 
 			if ( showSuccessNotice ) {
-				createSuccessNotice( __( 'Account disconnected successfully.', 'jetpack' ), {
-					type: 'snackbar',
-					isDismissible: true,
-				} );
+				createSuccessNotice(
+					__( 'Account disconnected successfully.', 'jetpack-publicize-components' ),
+					{
+						type: 'snackbar',
+						isDismissible: true,
+					}
+				);
 			}
 
 			// If we are on post editor, sync the connections to the post meta.
@@ -313,7 +316,7 @@ export function deleteConnectionById( { connectionId, showSuccessNotice = true }
 
 			return true;
 		} catch ( error ) {
-			let message = __( 'Error disconnecting account.', 'jetpack' );
+			let message = __( 'Error disconnecting account.', 'jetpack-publicize-components' );
 
 			if ( typeof error === 'object' && 'message' in error && error.message ) {
 				message = `${ message } ${ error.message }`;
@@ -374,7 +377,7 @@ export function createConnection( data, optimisticData = {} ) {
 				createSuccessNotice(
 					sprintf(
 						/* translators: %s is the name of the social media platform e.g. "Facebook" */
-						__( '%s account connected successfully.', 'jetpack' ),
+						__( '%s account connected successfully.', 'jetpack-publicize-components' ),
 						connection.label
 					),
 					{
@@ -389,7 +392,7 @@ export function createConnection( data, optimisticData = {} ) {
 				}
 			}
 		} catch ( error ) {
-			let message = __( 'Error connecting account.', 'jetpack' );
+			let message = __( 'Error connecting account.', 'jetpack-publicize-components' );
 
 			if ( typeof error === 'object' && 'message' in error && error.message ) {
 				message = `${ message } ${ error.message }`;
@@ -477,13 +480,16 @@ export function updateConnectionById( connectionId, data ) {
 			const connection = await apiFetch( { method: 'POST', path, data } );
 
 			if ( connection ) {
-				createSuccessNotice( __( 'Account updated successfully.', 'jetpack' ), {
-					type: 'snackbar',
-					isDismissible: true,
-				} );
+				createSuccessNotice(
+					__( 'Account updated successfully.', 'jetpack-publicize-components' ),
+					{
+						type: 'snackbar',
+						isDismissible: true,
+					}
+				);
 			}
 		} catch ( error ) {
-			let message = __( 'Error updating account.', 'jetpack' );
+			let message = __( 'Error updating account.', 'jetpack-publicize-components' );
 
 			if ( typeof error === 'object' && 'message' in error && error.message ) {
 				message = `${ message } ${ error.message }`;

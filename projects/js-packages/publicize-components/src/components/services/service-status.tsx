@@ -32,9 +32,14 @@ export function ServiceStatus( { serviceConnections, brokenConnections }: Servic
 				{ canFix
 					? __(
 							'Please fix the broken connections or disconnect them to create more connections.',
-							'jetpack'
+							'jetpack-publicize-components'
 					  )
-					: _n( 'Broken connection', 'Broken connections', brokenConnections.length, 'jetpack' ) }
+					: _n(
+							'Broken connection',
+							'Broken connections',
+							brokenConnections.length,
+							'jetpack-publicize-components'
+					  ) }
 			</Alert>
 		);
 	}
@@ -44,10 +49,10 @@ export function ServiceStatus( { serviceConnections, brokenConnections }: Servic
 			{ serviceConnections.length > 1
 				? sprintf(
 						// translators: %d: Number of connections
-						__( '%d connections', 'jetpack' ),
+						__( '%d connections', 'jetpack-publicize-components' ),
 						serviceConnections.length
 				  )
-				: __( 'Connected', 'jetpack' ) }
+				: __( 'Connected', 'jetpack-publicize-components' ) }
 		</span>
 	);
 }

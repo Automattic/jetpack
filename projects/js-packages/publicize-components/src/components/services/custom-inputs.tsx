@@ -26,7 +26,11 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 		return (
 			<div className={ styles[ 'fields-item' ] }>
 				<label htmlFor={ `${ id }-handle` }>
-					{ _x( 'Handle', 'The handle of a social media account.', 'jetpack' ) }
+					{ _x(
+						'Handle',
+						'The handle of a social media account.',
+						'jetpack-publicize-components'
+					) }
 				</label>
 				<input
 					id={ `${ id }-handle` }
@@ -37,12 +41,15 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 					autoCapitalize="off"
 					autoCorrect="off"
 					spellCheck="false"
-					aria-label={ __( 'Mastodon handle', 'jetpack' ) }
+					aria-label={ __( 'Mastodon handle', 'jetpack-publicize-components' ) }
 					aria-describedby={ `${ id }-handle-description` }
 					placeholder={ '@mastodon@mastodon.social' }
 				/>
 				<p className="description" id={ `${ id }-handle-description` }>
-					{ __( 'You can find the handle in your Mastodon profile.', 'jetpack' ) }
+					{ __(
+						'You can find the handle in your Mastodon profile.',
+						'jetpack-publicize-components'
+					) }
 				</p>
 			</div>
 		);
@@ -53,7 +60,11 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 			<>
 				<div className={ styles[ 'fields-item' ] }>
 					<label htmlFor={ `${ id }-handle` }>
-						{ _x( 'Handle', 'The handle of a social media account.', 'jetpack' ) }
+						{ _x(
+							'Handle',
+							'The handle of a social media account.',
+							'jetpack-publicize-components'
+						) }
 					</label>
 					<input
 						id={ `${ id }-handle` }
@@ -69,16 +80,21 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 						autoCapitalize="off"
 						autoCorrect="off"
 						spellCheck="false"
-						aria-label={ __( 'Bluesky handle', 'jetpack' ) }
+						aria-label={ __( 'Bluesky handle', 'jetpack-publicize-components' ) }
 						aria-describedby={ `${ id }-handle-description` }
 						placeholder={ 'username.bsky.social' }
 					/>
 					<p className="description" id={ `${ id }-handle-description` }>
-						{ __( 'You can find the handle in your Bluesky profile.', 'jetpack' ) }
+						{ __(
+							'You can find the handle in your Bluesky profile.',
+							'jetpack-publicize-components'
+						) }
 					</p>
 				</div>
 				<div className={ styles[ 'fields-item' ] }>
-					<label htmlFor={ `${ id }-password` }>{ __( 'App password', 'jetpack' ) }</label>
+					<label htmlFor={ `${ id }-password` }>
+						{ __( 'App password', 'jetpack-publicize-components' ) }
+					</label>
 					<input
 						id={ `${ id }-password` }
 						required
@@ -88,7 +104,7 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 						autoCapitalize="off"
 						autoCorrect="off"
 						spellCheck="false"
-						aria-label={ __( 'App password', 'jetpack' ) }
+						aria-label={ __( 'App password', 'jetpack-publicize-components' ) }
 						aria-describedby={ `${ id }-password-description` }
 						placeholder={ 'xxxx-xxxx-xxxx-xxxx' }
 					/>
@@ -96,7 +112,7 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 						{ createInterpolateElement(
 							__(
 								'App password is needed to safely connect your account. App password is different from your account password. You can <link>generate it in Bluesky</link>.',
-								'jetpack'
+								'jetpack-publicize-components'
 							),
 							{
 								link: <ExternalLink href="https://bsky.app/settings/app-passwords" />,
@@ -105,7 +121,10 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 					</p>
 					{ reconnectingAccount?.service_name === 'bluesky' && (
 						<Alert level="error" showIcon={ false }>
-							{ __( 'Please provide an app password to fix the connection.', 'jetpack' ) }
+							{ __(
+								'Please provide an app password to fix the connection.',
+								'jetpack-publicize-components'
+							) }
 						</Alert>
 					) }
 				</div>

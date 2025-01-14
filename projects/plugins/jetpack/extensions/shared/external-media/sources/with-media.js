@@ -169,6 +169,10 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 					parse: window.wpcomFetch === undefined,
 				} )
 					.then( result => {
+						// If we don't have media available, we should show an error instead of crashing the editor.
+						if ( result.media === undefined ) {
+							throw { code: 'internal_server_error' };
+						}
 						this.setState( {
 							account: result.meta.account,
 							media: this.mergeMedia( media, result.media ),
@@ -239,7 +243,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 			};
 
 			createPickerSession = () => {
-				apiFetch( {
+				return apiFetch( {
 					path: '/wpcom/v2/external-media/session/google_photos',
 					method: 'POST',
 				} )
@@ -249,22 +253,34 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 						}
 						return response;
 					} )
-					.then( setGooglePhotosPickerSession )
-					.catch( this.handleApiError );
+					.then( session => {
+						setGooglePhotosPickerSession( session );
+						return session;
+					} );
 			};
 
 			fetchPickerSession = sessionId => {
-				apiFetch( {
+				return apiFetch( {
 					path: `/wpcom/v2/external-media/session/google_photos/${ sessionId }`,
 					method: 'GET',
-				} ).then( setGooglePhotosPickerSession );
+				} )
+					.then( response => {
+						if ( 'code' in response ) {
+							throw response;
+						}
+						return response;
+					} )
+					.then( session => {
+						setGooglePhotosPickerSession( session );
+						return session;
+					} );
 			};
 
-			deletePickerSession = sessionId => {
-				apiFetch( {
+			deletePickerSession = ( sessionId, updateState = true ) => {
+				return apiFetch( {
 					path: `/wpcom/v2/external-media/session/google_photos/${ sessionId }`,
 					method: 'DELETE',
-				} ).then( () => setGooglePhotosPickerSession( null ) );
+				} ).then( () => updateState && setGooglePhotosPickerSession( null ) );
 			};
 
 			getPickerStatus = () => {
@@ -321,8 +337,6 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 					this.state;
 				const { allowedTypes, multiple = false, noticeUI, onClose } = this.props;
 
-				// eslint-disable-next-line no-nested-ternary
-
 				const defaultTitle =
 					mediaSource !== 'jetpack_app_media' ? __( 'Select media', 'jetpack' ) : '';
 
@@ -377,7 +391,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 								onChangePath={ this.onChangePath }
 								pickerSession={ this.props.pickerSession }
 								createPickerSession={ this.createPickerSession }
-								featchPickerSession={ this.fetchPickerSession }
+								fetchPickerSession={ this.fetchPickerSession }
 								deletePickerSession={ this.deletePickerSession }
 								getPickerStatus={ this.getPickerStatus }
 							/>

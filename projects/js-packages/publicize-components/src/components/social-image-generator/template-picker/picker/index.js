@@ -38,10 +38,11 @@ const TemplatePicker = ( { value = null, onTemplateSelected = null } ) => {
 				>
 					<img src={ template.image } alt={ template.label } />
 					<span className="screen-reader-text">
-						{
+						{ sprintf(
 							/* translators: %s is the name of the template */
-							sprintf( __( 'Pick the %s template', 'jetpack' ), template.label )
-						}
+							__( 'Pick the %s template', 'jetpack-publicize-components' ),
+							template.label
+						) }
 					</span>
 				</button>
 			) ) }

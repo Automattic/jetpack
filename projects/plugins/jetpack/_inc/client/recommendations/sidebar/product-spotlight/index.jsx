@@ -1,9 +1,9 @@
-import { imagePath } from 'constants/urls';
 import { ExternalLink } from '@wordpress/components';
-import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
+import { imagePath } from 'constants/urls';
+import analytics from 'lib/analytics';
 import { getProductCardData, getProductCardDataStepOverrides } from 'recommendations/feature-utils';
 
 // Styles for this component are the same as the discount card

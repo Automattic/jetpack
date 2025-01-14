@@ -22,7 +22,7 @@ const ExternalIcon: React.FC = () => (
 		<span className="jp-dashboard-footer__accessible-external-link">
 			{
 				/* translators: accessibility text */
-				__( '(opens in a new tab)', 'jetpack' )
+				__( '(opens in a new tab)', 'jetpack-components' )
 			}
 		</span>
 	</>
@@ -35,7 +35,7 @@ const ExternalIcon: React.FC = () => (
  * @return {React.ReactNode} JetpackFooter component.
  */
 const JetpackFooter: React.FC< JetpackFooterProps > = ( {
-	moduleName = __( 'Jetpack', 'jetpack' ),
+	moduleName = __( 'Jetpack', 'jetpack-components' ),
 	className,
 	moduleNameHref = 'https://jetpack.com',
 	menu,
@@ -69,8 +69,8 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 
 	let items: JetpackFooterMenuItem[] = [
 		{
-			label: _x( 'About', 'Link to learn more about Jetpack.', 'jetpack' ),
-			title: __( 'About Jetpack', 'jetpack' ),
+			label: _x( 'About', 'Link to learn more about Jetpack.', 'jetpack-components' ),
+			title: __( 'About Jetpack', 'jetpack-components' ),
 			href: areAdminLinksEnabled
 				? new URL( 'admin.php?page=jetpack_about', siteAdminUrl ).href
 				: getRedirectUrl( 'jetpack-about' ),
@@ -78,8 +78,8 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 			onClick: onAboutClick,
 		},
 		{
-			label: _x( 'Privacy', 'Shorthand for Privacy Policy.', 'jetpack' ),
-			title: __( "Automattic's Privacy Policy", 'jetpack' ),
+			label: _x( 'Privacy', 'Shorthand for Privacy Policy.', 'jetpack-components' ),
+			title: __( "Automattic's Privacy Policy", 'jetpack-components' ),
 			href: areAdminLinksEnabled
 				? new URL( 'admin.php?page=jetpack#/privacy', siteAdminUrl ).href
 				: getRedirectUrl( 'a8c-privacy' ),
@@ -87,8 +87,8 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 			onClick: onPrivacyClick,
 		},
 		{
-			label: _x( 'Terms', 'Shorthand for Terms of Service.', 'jetpack' ),
-			title: __( 'WordPress.com Terms of Service', 'jetpack' ),
+			label: _x( 'Terms', 'Shorthand for Terms of Service.', 'jetpack-components' ),
+			title: __( 'WordPress.com Terms of Service', 'jetpack-components' ),
 			href: getRedirectUrl( 'wpcom-tos' ),
 			target: '_blank',
 			onClick: onTermsClick,
@@ -117,7 +117,7 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 				},
 				className
 			) }
-			aria-label={ __( 'Jetpack', 'jetpack' ) }
+			aria-label={ __( 'Jetpack', 'jetpack-components' ) }
 			{ ...otherProps }
 		>
 			<ul>
@@ -160,7 +160,7 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 								? new URL( 'admin.php?page=jetpack_about', siteAdminUrl ).href
 								: getRedirectUrl( 'a8c-about' )
 						}
-						aria-label={ __( 'An Automattic Airline', 'jetpack' ) }
+						aria-label={ __( 'An Automattic Airline', 'jetpack-components' ) }
 					>
 						<AutomatticBylineLogo aria-hidden="true" />
 					</a>

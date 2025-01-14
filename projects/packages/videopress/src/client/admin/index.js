@@ -5,7 +5,7 @@ import { ThemeProvider } from '@automattic/jetpack-components';
 import * as WPElement from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useEffect } from 'react';
-import { HashRouter, Switch, Route, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 /**
  * Internal dependencies
  */
@@ -50,14 +50,10 @@ const VideoPress = () => {
 		<ThemeProvider>
 			<HashRouter>
 				<ScrollToTop />
-				<Switch>
-					<Route exact path="/">
-						<AdminPage />
-					</Route>
-					<Route path="/video/:videoId/edit">
-						<EditVideoDetails />
-					</Route>
-				</Switch>
+				<Routes>
+					<Route path="/" element={ <AdminPage /> } />
+					<Route path="/video/:videoId/edit" element={ <EditVideoDetails /> } />
+				</Routes>
 			</HashRouter>
 		</ThemeProvider>
 	);

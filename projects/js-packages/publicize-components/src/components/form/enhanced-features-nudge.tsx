@@ -33,7 +33,7 @@ export const EnhancedFeaturesNudge: React.FC = () => {
 				{ _x(
 					'Unlock enhanced media sharing features.',
 					'Call to action to buy a new plan',
-					'jetpack'
+					'jetpack-publicize-components'
 				) }
 			</Button>
 		</PanelRow>

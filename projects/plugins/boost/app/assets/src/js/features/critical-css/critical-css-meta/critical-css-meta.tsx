@@ -4,8 +4,7 @@ import ProgressBar from '$features/ui/progress-bar/progress-bar';
 import styles from './critical-css-meta.module.scss';
 import { useCriticalCssState } from '../lib/stores/critical-css-state';
 import { RegenerateCriticalCssSuggestion, useRegenerationReason } from '..';
-import { useLocalCriticalCssGenerator } from '../local-generator/local-generator-provider';
-import { useRetryRegenerate } from '../lib/use-retry-regenerate';
+import { useLocalCriticalCssGenerator } from '../critical-css-context/critical-css-context-provider';
 import { isFatalError } from '../lib/critical-css-errors';
 
 /**
@@ -14,12 +13,11 @@ import { isFatalError } from '../lib/critical-css-errors';
  */
 export default function CriticalCssMeta() {
 	const [ cssState ] = useCriticalCssState();
-	const [ hasRetried, retry ] = useRetryRegenerate();
 	const [ { data: regenerateReason } ] = useRegenerationReason();
 	const { progress } = useLocalCriticalCssGenerator();
 	const showFatalError = isFatalError( cssState );
 
-	if ( cssState.status === 'pending' ) {
+	if ( cssState.status === 'pending' || cssState.status === 'not_generated' ) {
 		return (
 			<div className="jb-critical-css-progress">
 				<div className={ styles[ 'progress-label' ] }>
@@ -39,8 +37,6 @@ export default function CriticalCssMeta() {
 				cssState={ cssState }
 				isCloud={ false }
 				showFatalError={ showFatalError }
-				hasRetried={ hasRetried }
-				retry={ retry }
 				highlightRegenerateButton={ !! regenerateReason }
 				extraText={ __(
 					'Remember to regenerate each time you make changes that affect your HTML or CSS structure.',

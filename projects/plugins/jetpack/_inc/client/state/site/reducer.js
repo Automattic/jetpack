@@ -1,4 +1,6 @@
 import { __ } from '@wordpress/i18n';
+import { assign, find, get, merge } from 'lodash';
+import { combineReducers } from 'redux';
 import {
 	getPlanClass,
 	isJetpackBackup,
@@ -12,8 +14,6 @@ import {
 	isSecurityComparableJetpackLegacyPlan,
 	isJetpackSocial,
 } from 'lib/plans/constants';
-import { assign, find, get, merge } from 'lodash';
-import { combineReducers } from 'redux';
 import {
 	JETPACK_SITE_DATA_FETCH,
 	JETPACK_SITE_DATA_FETCH_RECEIVE,

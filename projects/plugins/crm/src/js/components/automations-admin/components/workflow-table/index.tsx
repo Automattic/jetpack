@@ -1,5 +1,5 @@
-import { Workflow } from 'crm/state/automations-admin/types';
 import { useCallback, useState } from 'react';
+import { Workflow } from 'crm/state/automations-admin/types';
 import { WorkflowRow } from '../workflow-row';
 import { WorkflowTableHeader } from '../workflow-table-header';
 import styles from './styles.module.scss';

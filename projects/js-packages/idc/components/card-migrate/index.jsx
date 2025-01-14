@@ -20,7 +20,7 @@ const renderError = supportURL => {
 	return (
 		<ErrorMessage>
 			{ createInterpolateElement(
-				__( 'Could not move your settings. Retry or find out more <a>here</a>.', 'jetpack' ),
+				__( 'Could not move your settings. Retry or find out more <a>here</a>.', 'jetpack-idc' ),
 				{
 					a: (
 						<a
@@ -54,7 +54,7 @@ const CardMigrate = props => {
 		hasError = false,
 	} = props;
 
-	const buttonLabel = customContent.migrateButtonLabel || __( 'Move your settings', 'jetpack' );
+	const buttonLabel = customContent.migrateButtonLabel || __( 'Move your settings', 'jetpack-idc' );
 
 	return (
 		<div
@@ -67,7 +67,7 @@ const CardMigrate = props => {
 				<h4>
 					{ customContent.migrateCardTitle
 						? createInterpolateElement( customContent.migrateCardTitle, { em: <em /> } )
-						: __( 'Move Jetpack data', 'jetpack' ) }
+						: __( 'Move Jetpack data', 'jetpack-idc' ) }
 				</h4>
 
 				<p>
@@ -77,7 +77,7 @@ const CardMigrate = props => {
 								/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
 								__(
 									'Move all your settings, stats and subscribers to your other URL, <hostname>%1$s</hostname>. <hostname>%2$s</hostname> will be disconnected from Jetpack.',
-									'jetpack'
+									'jetpack-idc'
 								),
 								currentHostName,
 								wpcomHostName

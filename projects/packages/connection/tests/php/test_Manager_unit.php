@@ -716,4 +716,78 @@ class ManagerTest extends TestCase {
 
 		$this->assertTrue( $is_ready );
 	}
+
+	/**
+	 * Test the case when no token nor signature are set in GET parameters.
+	 *
+	 * @return void
+	 */
+	public function test_verify_xml_rpc_signature_returns_false_no_signature() {
+		unset( $_GET['token'] );
+		unset( $_GET['signature'] );
+		$this->assertFalse( $this->manager->verify_xml_rpc_signature() );
+	}
+
+	/**
+	 * Test the case when a token lookup results in an error.
+	 *
+	 * @return void
+	 */
+	public function test_verify_xml_rpc_signature_token_lookup_error() {
+		$_GET['token']     = 'abcde:1:0';
+		$_GET['signature'] = 'bogus signature';
+		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
+
+		$access_token = new WP_Error( 'test_error' );
+		$this->tokens->expects( $this->once() )
+			->method( 'get_access_token' )
+			->willReturn( $access_token );
+
+		$error = null;
+		add_action(
+			'jetpack_verify_signature_error',
+			function ( $e ) use ( &$error ) {
+				$error = $e;
+			}
+		);
+
+		$this->assertFalse( $this->manager->verify_xml_rpc_signature() );
+		$this->assertSame( $access_token, $error );
+	}
+
+	public function signature_data_provider() {
+		return array(
+			array( 'abcde:1:aaa', 'bogus signature', 'malformed_user_id' ),
+			array( 'bogus token', 'bogus signature', 'malformed_token' ),
+			array( 'abcde:1:987', 'bogus signature', 'unknown_user' ),
+			array( 'abcde:1:0', 'bogus signature', 'unknown_token' ),
+		);
+	}
+	/**
+	 * Test the case where internal verification function encounters malformed data.
+	 *
+	 * @dataProvider signature_data_provider
+	 * @param String $token auth token.
+	 * @param String $signature auth signature.
+	 * @param String $error_code the returned error code.
+	 * @return void
+	 */
+	public function test_verify_xml_rpc_signature_malformed_user_id( $token, $signature, $error_code ) {
+		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
+
+		$_GET['token']     = $token;
+		$_GET['signature'] = $signature;
+
+		$error = null;
+		add_action(
+			'jetpack_verify_signature_error',
+			function ( $e ) use ( &$error ) {
+				$error = $e;
+			}
+		);
+
+		$this->assertFalse( $this->manager->verify_xml_rpc_signature() );
+		$this->assertNotNull( $error );
+		$this->assertEquals( $error_code, $error->get_error_code() );
+	}
 }

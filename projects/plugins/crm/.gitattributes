@@ -21,8 +21,6 @@
 # Files to exclude from the mirror repo, but included in the monorepo.
 # Remember to end all directories with `/**` to properly tag every file.
 /.babelrc                                        production-exclude
-/.eslintrc.js                                    production-exclude
-/.eslintignore                                   production-exclude
 /.gitattributes                                  production-exclude
 /.gitignore                                      production-exclude
 /.wp-env.json                                    production-exclude
