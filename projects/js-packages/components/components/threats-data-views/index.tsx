@@ -1,4 +1,4 @@
-import { getThreatType, type Threat } from '@automattic/jetpack-scan';
+import { getFixerAction, getThreatType, type Threat } from '@automattic/jetpack-scan';
 import {
 	type Action,
 	type ActionButton,
@@ -19,6 +19,8 @@ import Badge from '../badge/index.js';
 import ThreatFixerButton from '../threat-fixer-button/index.js';
 import ThreatSeverityBadge from '../threat-severity-badge/index.js';
 import {
+	CURRENT_TABLE_FIELDS,
+	LIST_FIELDS,
 	THREAT_ACTION_FIX,
 	THREAT_ACTION_IGNORE,
 	THREAT_ACTION_UNIGNORE,
@@ -40,27 +42,33 @@ import {
 	THREAT_TYPES,
 } from './constants.js';
 import styles from './styles.module.scss';
-import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-control.js';
+
+export { HISTORIC_TABLE_FIELDS } from './constants.js';
 
 /**
  * DataViews component for displaying security threats.
  *
- * @param {object}   props                             - Component props.
- * @param {Array}    props.data                        - Threats data.
- * @param {Array}    props.filters                     - Initial DataView filters.
- * @param {Function} props.onChangeSelection           - Callback function run when an item is selected.
- * @param {Function} props.onFixThreats                - Threat fix action callback.
- * @param {Function} props.onIgnoreThreats             - Threat ignore action callback.
- * @param {Function} props.onUnignoreThreats           - Threat unignore action callback.
- * @param {Function} props.isThreatEligibleForFix      - Function to determine if a threat is eligible for fixing.
- * @param {Function} props.isThreatEligibleForIgnore   - Function to determine if a threat is eligible for ignoring.
- * @param {Function} props.isThreatEligibleForUnignore - Function to determine if a threat is eligible for unignoring.
+ * @param {object}      props                             - Component props.
+ * @param {string}      props.status                      - Flag to indicate if the threats are current or historic.
+ * @param {Array}       props.data                        - Threats data.
+ * @param {Array}       props.initialFilters              - Initial DataView filters.
+ * @param {Array}       props.initialFields               - Initial DataView fields.
+ * @param {Function}    props.onChangeSelection           - Callback function run when an item is selected.
+ * @param {Function}    props.onFixThreats                - Threat fix action callback.
+ * @param {Function}    props.onIgnoreThreats             - Threat ignore action callback.
+ * @param {Function}    props.onUnignoreThreats           - Threat unignore action callback.
+ * @param {Function}    props.isThreatEligibleForFix      - Function to determine if a threat is eligible for fixing.
+ * @param {Function}    props.isThreatEligibleForIgnore   - Function to determine if a threat is eligible for ignoring.
+ * @param {Function}    props.isThreatEligibleForUnignore - Function to determine if a threat is eligible for unignoring.
+ * @param {JSX.Element} props.header                      - Header component.
  *
  * @return {JSX.Element} The ThreatsDataViews component.
  */
 export default function ThreatsDataViews( {
+	status = 'current',
 	data,
-	filters,
+	initialFields = CURRENT_TABLE_FIELDS,
+	initialFilters = [],
 	onChangeSelection,
 	isThreatEligibleForFix,
 	isThreatEligibleForIgnore,
@@ -68,9 +76,12 @@ export default function ThreatsDataViews( {
 	onFixThreats,
 	onIgnoreThreats,
 	onUnignoreThreats,
+	header,
 }: {
+	status?: string;
 	data: Threat[];
-	filters?: Filter[];
+	initialFields?: string[];
+	initialFilters?: Filter[];
 	onChangeSelection?: ( selectedItemIds: string[] ) => void;
 	isThreatEligibleForFix?: ( threat: Threat ) => boolean;
 	isThreatEligibleForIgnore?: ( threat: Threat ) => boolean;
@@ -78,6 +89,7 @@ export default function ThreatsDataViews( {
 	onFixThreats?: ( threats: Threat[] ) => void;
 	onIgnoreThreats?: ActionButton< Threat >[ 'callback' ];
 	onUnignoreThreats?: ActionButton< Threat >[ 'callback' ];
+	header?: JSX.Element;
 } ): JSX.Element {
 	const baseView = {
 		sort: {
@@ -85,7 +97,7 @@ export default function ThreatsDataViews( {
 			direction: 'desc' as SortDirection,
 		},
 		search: '',
-		filters: filters || [],
+		filters: initialFilters,
 		page: 1,
 		perPage: 20,
 	};
@@ -100,19 +112,14 @@ export default function ThreatsDataViews( {
 	const defaultLayouts: SupportedLayouts = {
 		table: {
 			...baseView,
-			fields: [ THREAT_FIELD_SEVERITY, THREAT_FIELD_TYPE, THREAT_FIELD_AUTO_FIX ],
+			fields: initialFields,
 			titleField: THREAT_FIELD_TITLE,
 			descriptionField: THREAT_FIELD_DESCRIPTION,
 			showMedia: false,
 		},
 		list: {
 			...baseView,
-			fields: [
-				THREAT_FIELD_SEVERITY,
-				THREAT_FIELD_TYPE,
-				THREAT_FIELD_EXTENSION,
-				THREAT_FIELD_SIGNATURE,
-			],
+			fields: LIST_FIELDS,
 			titleField: THREAT_FIELD_TITLE,
 			mediaField: THREAT_FIELD_ICON,
 			showMedia: true,
@@ -239,28 +246,6 @@ export default function ThreatsDataViews( {
 				},
 			},
 			{
-				id: THREAT_FIELD_STATUS,
-				label: __( 'Status', 'jetpack-components' ),
-				elements: THREAT_STATUSES,
-				getValue( { item }: { item: Threat } ) {
-					if ( ! item.status ) {
-						return 'current';
-					}
-					return (
-						THREAT_STATUSES.find( ( { value } ) => value === item.status )?.value ?? item.status
-					);
-				},
-				render( { item }: { item: Threat } ) {
-					if ( item.status ) {
-						const status = THREAT_STATUSES.find( ( { value } ) => value === item.status );
-						if ( status ) {
-							return <Badge variant={ status?.variant }>{ status.label }</Badge>;
-						}
-					}
-					return <Badge variant="warning">{ __( 'Active', 'jetpack-components' ) }</Badge>;
-				},
-			},
-			{
 				id: THREAT_FIELD_TYPE,
 				label: __( 'Type', 'jetpack-components' ),
 				elements: THREAT_TYPES,
@@ -300,6 +285,35 @@ export default function ThreatsDataViews( {
 					return item.extension ? item.extension.slug : '';
 				},
 			},
+			...( 'historic' === status && dataFields.includes( 'status' )
+				? [
+						{
+							id: THREAT_FIELD_STATUS,
+							label: __( 'Status', 'jetpack-components' ),
+							elements: THREAT_STATUSES,
+							getValue( { item }: { item: Threat } ) {
+								if ( ! item.status ) {
+									return 'current';
+								}
+								return (
+									THREAT_STATUSES.find( ( { value } ) => value === item.status )?.value ??
+									item.status
+								);
+							},
+							render( { item }: { item: Threat } ) {
+								if ( item.status ) {
+									const threatStatus = THREAT_STATUSES.find(
+										( { value } ) => value === item.status
+									);
+									if ( threatStatus ) {
+										return <Badge variant={ threatStatus?.variant }>{ threatStatus.label }</Badge>;
+									}
+								}
+								return <Badge variant="warning">{ __( 'Current', 'jetpack-components' ) }</Badge>;
+							},
+						},
+				  ]
+				: [] ),
 			...( dataFields.includes( 'severity' )
 				? [
 						{
@@ -366,7 +380,7 @@ export default function ThreatsDataViews( {
 						},
 				  ]
 				: [] ),
-			...( dataFields.includes( 'fixable' )
+			...( 'historic' !== status && dataFields.includes( 'fixable' )
 				? [
 						{
 							id: THREAT_FIELD_AUTO_FIX,
@@ -398,7 +412,7 @@ export default function ThreatsDataViews( {
 		];
 
 		return result;
-	}, [ dataFields, plugins, themes, signatures, onFixThreats ] );
+	}, [ dataFields, plugins, themes, signatures, status, onFixThreats ] );
 
 	/**
 	 * DataView actions - collection of operations that can be performed upon each record.
@@ -408,10 +422,12 @@ export default function ThreatsDataViews( {
 	const actions = useMemo( () => {
 		const result: Action< Threat >[] = [];
 
-		if ( dataFields.includes( 'fixable' ) ) {
+		if ( dataFields.includes( 'fixable' ) && view.type === 'list' ) {
 			result.push( {
 				id: THREAT_ACTION_FIX,
-				label: __( 'Auto-fix', 'jetpack-components' ),
+				label: items => {
+					return getFixerAction( items[ 0 ] );
+				},
 				isPrimary: true,
 				callback: onFixThreats,
 				isEligible( item ) {
@@ -466,6 +482,7 @@ export default function ThreatsDataViews( {
 
 		return result;
 	}, [
+		view.type,
 		dataFields,
 		onFixThreats,
 		onIgnoreThreats,
@@ -511,13 +528,7 @@ export default function ThreatsDataViews( {
 			onChangeView={ onChangeView }
 			paginationInfo={ paginationInfo }
 			view={ view }
-			header={
-				<ThreatsStatusToggleGroupControl
-					data={ data }
-					view={ view }
-					onChangeView={ onChangeView }
-				/>
-			}
+			header={ header }
 		/>
 	);
 }
