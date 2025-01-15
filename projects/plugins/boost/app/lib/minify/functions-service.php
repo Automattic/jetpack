@@ -278,7 +278,7 @@ function jetpack_boost_page_optimize_service_request_new() {
 	$use_cache = Config::can_use_static_cache();
 	if ( $use_cache ) {
 		$cache_dir       = Config::get_static_cache_dir_path();
-		$cache_file_path = $cache_dir . '/' . $file_hash . '.' . $file_extension;
+		$cache_file_path = $cache_dir . '/' . $file_hash . '.min.' . $file_extension;
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		file_put_contents( $cache_file_path, $output );
