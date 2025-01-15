@@ -1,3 +1,5 @@
+import React from 'react';
+import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
 import { PieChart } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -22,37 +24,39 @@ const data = [
 	},
 ];
 
-const ResponsiveDecorator = Story => (
-	<div
-		style={ {
-			resize: 'both',
-			overflow: 'hidden',
-			padding: '2rem',
-			width: '800px',
-			height: '600px',
-			minWidth: '400px',
-			minHeight: '300px',
-			maxWidth: '1200px',
-			border: '1px dashed #ccc',
-		} }
-	>
-		<Story />
-	</div>
-);
-
 const meta = {
 	title: 'JS Packages/Charts/Types/Pie Chart',
 	component: PieChart,
 	parameters: {
 		layout: 'centered',
 	},
-	// decorators: [ ResponsiveDecorator ],
+	decorators: [
+		( Story, { args } ) => (
+			<ThemeProvider theme={ args.theme }>
+				<div
+					style={ {
+						resize: 'both',
+						overflow: 'auto',
+						padding: '2rem',
+						width: '800px',
+						aspectRatio: '1/1',
+						minWidth: '400px',
+						maxWidth: '1200px',
+						border: '1px dashed #ccc',
+						display: 'inline-block',
+					} }
+				>
+					<Story />
+				</div>
+			</ThemeProvider>
+		),
+	],
 	argTypes: {
 		size: {
 			control: {
 				type: 'range',
-				min: 0,
-				max: 1000,
+				min: 100,
+				max: 800,
 				step: 10,
 			},
 		},
@@ -92,26 +96,16 @@ const meta = {
 			control: 'radio',
 			options: [ 'horizontal', 'vertical' ],
 		},
+		theme: {
+			control: 'select',
+			options: {
+				default: undefined,
+				jetpack: jetpackTheme,
+				woo: wooTheme,
+			},
+			defaultValue: undefined,
+		},
 	},
-	decorators: [
-		( Story, { args } ) => (
-			<ThemeProvider theme={ args.theme }>
-				<div
-					style={ {
-						resize: 'both',
-						overflow: 'auto',
-						padding: '2rem',
-						width: '800px',
-						minWidth: '400px',
-						maxWidth: '1200px',
-						border: '1px dashed #ccc',
-					} }
-				>
-					<Story />
-				</div>
-			</ThemeProvider>
-		),
-	],
 } satisfies Meta< typeof PieChart >;
 
 export default meta;
@@ -119,6 +113,7 @@ type Story = StoryObj< typeof PieChart >;
 
 export const Default: Story = {
 	args: {
+		size: 400,
 		thickness: 1,
 		gapScale: 0,
 		padding: 20,

@@ -1,3 +1,4 @@
+import React from 'react';
 import { PieSemiCircleChart } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -29,9 +30,8 @@ const ResponsiveDecorator = Story => (
 			overflow: 'hidden',
 			padding: '2rem',
 			width: '800px',
-			height: '600px',
+			aspectRatio: '2/1',
 			minWidth: '400px',
-			minHeight: '300px',
 			maxWidth: '1200px',
 			border: '1px dashed #ccc',
 		} }
@@ -48,10 +48,10 @@ const meta = {
 	},
 	decorators: [ ResponsiveDecorator ],
 	argTypes: {
-		width: {
+		size: {
 			control: {
 				type: 'range',
-				min: 0,
+				min: 100,
 				max: 1000,
 				step: 10,
 			},
@@ -64,6 +64,14 @@ const meta = {
 				step: 0.01,
 			},
 		},
+		padding: {
+			control: {
+				type: 'range',
+				min: 0,
+				max: 100,
+				step: 5,
+			},
+		},
 	},
 } satisfies Meta< typeof PieSemiCircleChart >;
 
@@ -72,7 +80,9 @@ type Story = StoryObj< typeof PieSemiCircleChart >;
 
 export const Default: Story = {
 	args: {
+		size: 400,
 		thickness: 0.4,
+		padding: 20,
 		data,
 		label: 'OS',
 		note: 'Windows +10%',
@@ -84,10 +94,15 @@ export const Default: Story = {
 
 export const WithTooltips: Story = {
 	args: {
-		data,
-		label: 'OS',
-		note: 'Windows +10%',
+		...Default.args,
 		withTooltips: true,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: 'Semi-circle pie chart with interactive tooltips that appear on hover.',
+			},
+		},
 	},
 };
 
@@ -114,8 +129,9 @@ export const FixedDimensions: Story = {
 		</div>
 	),
 	args: {
-		width: 400,
+		size: 400,
 		thickness: 0.4,
+		padding: 20,
 		data,
 		label: 'Fixed Dimensions',
 		note: 'Non-responsive chart',
@@ -126,7 +142,7 @@ export const FixedDimensions: Story = {
 		docs: {
 			description: {
 				story:
-					'Semi-circle pie chart with fixed dimensions that override the responsive behavior. Only width is needed as height is calculated internally.',
+					'Semi-circle pie chart with fixed dimensions that override the responsive behavior. Uses size prop for unified width/height handling.',
 			},
 		},
 	},

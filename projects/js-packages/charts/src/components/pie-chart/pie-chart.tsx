@@ -62,8 +62,7 @@ const PieChart = ( {
 	className,
 	showLegend,
 	legendOrientation,
-
-	size = 500, //TODO: replace when making the components responsive
+	size,
 	thickness = 1,
 	padding = 20,
 	gapScale = 0,
@@ -111,16 +110,7 @@ const PieChart = ( {
 
 	return (
 		<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
-<<<<<<< HEAD
 			<svg viewBox={ `0 0 ${ size } ${ size }` } preserveAspectRatio="xMidYMid meet">
-=======
-			<svg
-				width={ size }
-				height={ finalHeight }
-				viewBox={ `0 0 ${ size } ${ finalHeight }` }
-				preserveAspectRatio="xMidYMid meet"
-			>
->>>>>>> e71abf84cb (add fixed dimension stories)
 				<Group top={ centerY } left={ centerX }>
 					<Pie< DataPointPercentage & { index: number } >
 						data={ dataWithIndex }
