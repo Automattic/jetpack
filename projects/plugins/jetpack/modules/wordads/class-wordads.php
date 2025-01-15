@@ -123,15 +123,6 @@ class WordAds {
 	}
 
 	/**
-	 * Increment the AMP section ID and return the value
-	 *
-	 * @return int
-	 */
-	public static function get_amp_section_id() {
-		return self::$amp_section_id++;
-	}
-
-	/**
 	 * Convenience function for grabbing options from params->options
 	 *
 	 * @param  string $option the option to grab.
@@ -305,9 +296,7 @@ class WordAds {
 		}
 
 		if ( $this->option( 'enable_header_ad', true ) ) {
-			if ( self::is_amp() ) {
-				add_filter( 'the_content', array( $this, 'insert_header_ad_amp' ) );
-			} else {
+			if ( ! self::is_amp() ) {
 				add_action( 'wordads_header_ad', array( $this, 'insert_header_ad' ), 100 );
 				add_action( 'wp_footer', array( $this, 'insert_header_ad' ), 100 );
 			}
@@ -603,22 +592,6 @@ HTML;
 	}
 
 	/**
-	 * Header unit for AMP
-	 *
-	 * @param string $content Content of the page.
-	 *
-	 * @since 7.5.0
-	 */
-	public function insert_header_ad_amp( $content ) {
-
-		$ad_type = $this->option( 'wordads_house' ) ? 'house' : 'iponweb';
-		if ( 'house' === $ad_type ) {
-			return $content;
-		}
-		return $this->get_ad( 'top_amp', $ad_type ) . $content;
-	}
-
-	/**
 	 * Filter the latest ads.txt to include custom user entries. Strips any tags or whitespace.
 	 *
 	 * @param  string $adstxt The ads.txt being filtered.
@@ -663,11 +636,6 @@ HTML;
 			} elseif ( 'inline' === $spot ) {
 				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '5';
 				$snippet    = $this->get_dynamic_ad_snippet( $section_id, 'square', $spot );
-			} elseif ( 'top_amp' === $spot ) {
-				// Ad unit which can safely be inserted below title, above content in a variety of themes.
-				$width   = 300;
-				$height  = 250;
-				$snippet = $this->get_ad_div( $spot, $this->get_amp_snippet( $height, $width ) );
 			}
 		} elseif ( 'house' === $type ) {
 			$leaderboard = 'top' === $spot && ! $this->params->mobile_device;
@@ -678,29 +646,6 @@ HTML;
 		}
 
 		return $snippet;
-	}
-
-	/**
-	 * Returns the AMP snippet to be inserted
-	 *
-	 * @param  int $height Height.
-	 * @param  int $width  Width.
-	 * @return string
-	 *
-	 * @since 8.7
-	 */
-	public function get_amp_snippet( $height, $width ) {
-		$height         = esc_attr( $height + 15 ); // this will ensure enough padding for "Report this ad".
-		$width          = esc_attr( $width );
-		$amp_section_id = esc_attr( self::get_amp_section_id() );
-		$site_id        = esc_attr( $this->params->blog_id );
-		return <<<HTML
-		<amp-ad width="$width" height="$height"
-		    type="pubmine"
-		    data-siteid="$site_id"
-		    data-section="$amp_section_id">
-		</amp-ad>
-HTML;
 	}
 
 	/**
@@ -718,7 +663,7 @@ HTML;
 	 */
 	public function get_ad_snippet( $section_id, $height, $width, $location = '', $css = '' ) {
 		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
-			return $this->get_amp_snippet( $height, $width );
+			return '';
 		}
 
 		$this->ads[] = array(
