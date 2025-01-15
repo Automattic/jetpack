@@ -137,15 +137,20 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 	 * with a specific post.
 	 */
 	public function generate_cloud_css( $reason, $providers = array() ) {
-		$grouped_urls = array();
+		$grouped_urls   = array();
+		$grouped_ratios = array();
 
 		foreach ( $providers as $source ) {
-			$provider                  = $source['key'];
-			$grouped_urls[ $provider ] = $source['urls'];
+			$provider                    = $source['key'];
+			$grouped_urls[ $provider ]   = $source['urls'];
+			$grouped_ratios[ $provider ] = $source['success_ratio'];
 		}
 
 		// Send the request to the Cloud.
-		$payload              = array( 'providers' => $grouped_urls );
+		$payload              = array(
+			'providers'     => $grouped_urls,
+			'successRatios' => $grouped_ratios,
+		);
 		$payload['requestId'] = md5( wp_json_encode( $payload ) . time() );
 		$payload['reason']    = $reason;
 		return Boost_API::post( 'cloud-css', $payload );
