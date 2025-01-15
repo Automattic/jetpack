@@ -16,9 +16,9 @@ const meta: Meta< typeof LineChart > = {
 					overflow: 'auto',
 					padding: '2rem',
 					width: '800px',
-					minWidth: '400px',
 					maxWidth: '1200px',
 					border: '1px dashed #ccc',
+					display: 'inline-block',
 				} }
 			>
 				<Story />
@@ -40,8 +40,6 @@ Default.args = {
 // Story with single data series
 export const SingleSeries: StoryObj< typeof LineChart > = Template.bind( {} );
 SingleSeries.args = {
-	width: 500,
-	height: 300,
 	data: [ sampleData[ 0 ] ], // Only London temperature data
 };
 
