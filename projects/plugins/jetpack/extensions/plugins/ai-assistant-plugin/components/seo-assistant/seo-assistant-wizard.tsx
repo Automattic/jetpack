@@ -29,24 +29,42 @@ export default function SeoAssistantWizard( { isOpen, close, onStep }: SeoAssist
 		scrollToBottom();
 	}, [ messages ] );
 
-	// const queueMessage = message => {
-	// 	const delay = messageQueue.length * 100 + ( message.delay || 10 );
-	// 	setTimeout(
-	// 		() => setMessages( prev => { return [ ...prev, message ]; } ),
-	// 		delay
-	// 	);
-	// 	setMessageQueue( prev => [ ...prev, message ] );
-	// };
+	// const queueMessage = useCallback(
+	// 	message => {
+	// 		setMessageQueue( prev => {
+	// 			const delay = prev.length * 200 + ( message.delay || 200 );
+	// 			debug( 'delay', delay );
+	// 			setTimeout( () => {
+	// 				debug( 'setting message' );
+	// 				setMessageQueue( prevMessageQueue => [ ...prevMessageQueue.splice( 1 ) ] );
+	// 				setMessages( prevMessages => {
+	// 					return [ ...prevMessages, { ...message, id: `message-${ prevMessages.length }` } ];
+	// 				} );
+	// 			}, delay );
+	// 			return [ ...prev, { ...message, id: `message-${ prev.length }` } ];
+	// 		} );
+	// 	},
+	// 	[ setMessages, setMessageQueue ]
+	// );
 
 	const addMessage = useCallback( async ( message: Message ) => {
+		const newMessage = {
+			...message,
+			showIcon: message.showIcon === false ? false : ! message.isUser,
+		} as Message;
+
 		setMessages( prev => {
-			const newMessage = {
-				...message,
-				id: message?.id || `message-${ prev.length }`,
-				showIcon: message.showIcon === false ? false : ! message.isUser,
-			} as Message;
-			return [ ...prev, newMessage ];
+			return [ ...prev, { ...newMessage, id: `message-${ prev.length }` } ];
 		} );
+
+		// if ( newMessage.isUser ) {
+		// 	setMessages( prev => {
+		// 		return [ ...prev, { ...newMessage, id: `message-${ prev.length }` } ];
+		// 	} );
+		// } else {
+		// 	debug( 'queueing message' );
+		// 	queueMessage( newMessage );
+		// }
 	}, [] );
 
 	/* Removes last message */
@@ -110,15 +128,14 @@ export default function SeoAssistantWizard( { isOpen, close, onStep }: SeoAssist
 		if ( ! isOpen ) {
 			return;
 		}
+		// add messageQueue.length check here for delayed messages
 		if ( messages.length === 0 ) {
 			debug( 'init' );
 			// Initialize with first step messages
-			currentStepData.messages.forEach( message =>
-				addMessage( {
-					content: message.content,
-					showIcon: message.showIcon,
-				} )
-			);
+			currentStepData.messages.forEach( message => {
+				debug( 'adding initial message' );
+				addMessage( message );
+			} );
 		}
 	}, [ isOpen, currentStepData.messages, messages, addMessage ] );
 
