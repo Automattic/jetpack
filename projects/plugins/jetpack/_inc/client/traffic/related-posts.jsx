@@ -1,5 +1,4 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
-import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import React from 'react';
 import Card from 'components/card';
@@ -97,11 +96,9 @@ class RelatedPostsComponent extends React.Component {
 		return (
 			<>
 				<p>
-					{ createInterpolateElement(
-						__(
-							'Keep your visitors engaged with related content at the bottom of each post.',
-							'jetpack'
-						)
+					{ __(
+						'Keep your visitors engaged with related content at the bottom of each post.',
+						'jetpack'
 					) }
 				</p>
 				<ModuleToggle
