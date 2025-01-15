@@ -131,6 +131,7 @@ function jetpack_boost_page_optimize_service_request_new() {
 
 	$filename_parts = explode( '.', $filename );
 	$file_hash      = $filename_parts[0];
+	$file_extension = $filename_parts[1];
 
 	$file_paths = jetpack_boost_page_optimize_get_file_paths( $file_hash );
 
@@ -274,7 +275,14 @@ function jetpack_boost_page_optimize_service_request_new() {
 	header( 'ETag: "' . md5( $output ) . '"' );
 	echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- We need to trust this unfortunately.
 
-	// @todo - Store the output in a file.
+	$use_cache = Config::can_use_static_cache();
+	if ( $use_cache ) {
+		$cache_dir       = Config::get_static_cache_dir_path();
+		$cache_file_path = $cache_dir . '/' . $file_hash . '.' . $file_extension;
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		file_put_contents( $cache_file_path, $output );
+	}
 	exit;
 }
 
