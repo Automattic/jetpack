@@ -11,13 +11,11 @@ const DiscountBadge = ( { className, discount, suffix } ) => {
 
 	return (
 		<div className={ clsx( 'jp-recommendations-discount-badge', className ) }>
-			{ /* eslint-disable */ }
 			{ sprintf(
 				// translators: %d is the percentage value, %% the percentage symbol
 				__( '%d%% off', 'jetpack' ), // @wordpress/valid-sprintf doesn't understand that the % symbol must be escaped
 				discount
 			) }
-			{ /* eslint-enable */ }
 			{ suffix }
 		</div>
 	);
