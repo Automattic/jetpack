@@ -232,7 +232,10 @@ class Jetpack_Protect {
 			'jetpackScan'        => My_Jetpack_Products::get_product( 'scan' ),
 			'hasPlan'            => Plan::has_required_plan(),
 			'onboardingProgress' => Onboarding::get_current_user_progress(),
-			'accountProtection'  => Account_Protection::is_enabled(),
+			'accountProtection'  => array(
+				'isEnabled' => Account_Protection::is_enabled(),
+				'settings'  => Account_Protection::get_settings(),
+			),
 			'waf'                => array(
 				'wafSupported'        => Waf_Runner::is_supported_environment(),
 				'currentIp'           => IP_Utils::get_ip(),
