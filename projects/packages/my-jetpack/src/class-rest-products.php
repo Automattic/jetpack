@@ -307,7 +307,7 @@ class REST_Products {
 				return $activate_product_result;
 			}
 		}
-		set_transient( 'my_jetpack_product_activated', implode( ', ', $products_array, 10 ) );
+		set_transient( 'my_jetpack_product_activated', implode( ', ', $products_array ), 10 );
 
 		return rest_ensure_response( Products::get_products( $products_array ), 200 );
 	}
