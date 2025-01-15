@@ -121,7 +121,7 @@ jobs:
           echo "Host jpwpcomsh" > ~/.ssh/config
           echo "  Hostname sftp.wp.com" >> ~/.ssh/config
           echo "  User wpcom-jetpackisbestpack-default-237778992" >> ~/.ssh/config
-          echo "  IdentityFile ~/.ssh/id_jetpackisbestpack" >> ~/.ssh/config
+          echo "  IdentityFile ~/.ssh/id_site" >> ~/.ssh/config
           echo "  IdentitiesOnly yes" >> ~/.ssh/config
 
           echo "::endgroup::"
