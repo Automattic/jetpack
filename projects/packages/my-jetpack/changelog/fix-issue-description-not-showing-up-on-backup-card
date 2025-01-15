@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix bug where description doesn't show up on backup card in specific scenarios
