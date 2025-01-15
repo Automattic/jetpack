@@ -165,7 +165,7 @@ for PROJECT in projects/*/*; do
 			echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::Set \`.repository.type\` to \"git\", as the monorepo is a git repository."
 		fi
 		URL="$(jq -r '.url' <<<"$JSON")"
-		if [[ "$URL" != "https://github.com/Automattic/jetpack.git" && "$URL" != "https://github.com/Automattic/jetpack" ]]; then
+		if [[ "$URL" != "git+https://github.com/Automattic/jetpack.git" && "$URL" != "https://github.com/Automattic/jetpack" ]]; then
 			EXIT=1
 			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["repository","url"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
 			echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::Set \`.repository.url\` to point to the monorepo, i.e. \"https://github.com/Automattic/jetpack\"."
@@ -324,7 +324,7 @@ for PROJECT in projects/*/*; do
 	if jq -e '.extra["npmjs-autopublish"]' "$PROJECT/composer.json" >/dev/null; then
 		if ! jq -e '.repository' "$PROJECT/package.json" >/dev/null; then
 			EXIT=1
-			JSON="$(jq --tab --arg dir "$PROJECT" -n '{ type: "git", url: "https://github.com/Automattic/jetpack.git", directory: $dir }')"
+			JSON="$(jq --tab --arg dir "$PROJECT" -n '{ type: "git", url: "git+https://github.com/Automattic/jetpack.git", directory: $dir }')"
 			echo "---" # Bracket message containing newlines for better visibility in GH's logs.
 			echo "::error file=$PROJECT/package.json::Package $SLUG is published to npmjs but does not specify \`.repository\`.%0A\`\`\`%0A\"repository\": ${JSON//$'\n'/%0A},%0A\`\`\`"
 			echo "---"

@@ -13,7 +13,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
+		"url": "git+https://github.com/Automattic/jetpack.git",
 		"directory": "projects/packages/wordads"
 	},
 	"license": "GPL-2.0-or-later",

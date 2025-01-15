@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Updated package.json repo to match npm convention.
+
+
