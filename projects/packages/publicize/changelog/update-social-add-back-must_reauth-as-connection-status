@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Added must_reauth as status in connection REST schema
