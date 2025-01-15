@@ -302,7 +302,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								}
 								toggling={ this.props.isSavingAnyOption( [ 'wordads_bottom_sticky_enabled' ] ) }
 								onChange={ this.handleChange( 'wordads_bottom_sticky_enabled' ) }
-								label={ __( 'Stick to bottom of the page', 'jetpack' ) }
+								label={ __( 'Stick to the bottom of each page', 'jetpack' ) }
 							/>
 							<ToggleControl
 								checked={ wordads_sidebar_sticky_right_enabled }
@@ -315,7 +315,7 @@ export const Ads = withModuleSettingsFormHelpers(
 									'wordads_sidebar_sticky_right_enabled',
 								] ) }
 								onChange={ this.handleChange( 'wordads_sidebar_sticky_right_enabled' ) }
-								label={ __( 'Stick to right side of the page', 'jetpack' ) }
+								label={ __( 'Stick to the right side of each page', 'jetpack' ) }
 							/>
 						</FormFieldset>
 					</SettingsGroup>
