@@ -57,7 +57,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 	const siteName = useSelect( select => {
 		const { getUnstableBase } = select( coreStore );
 
-		return decodeEntities( getUnstableBase()?.name );
+		return decodeEntities( getUnstableBase( undefined )?.name );
 	}, [] );
 
 	const hasMedia = media?.some(

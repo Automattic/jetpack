@@ -14,7 +14,7 @@ const BlueskyPreview = props => {
 
 		return {
 			content: getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ],
-			siteName: decodeEntities( getUnstableBase().name ),
+			siteName: decodeEntities( getUnstableBase( undefined ).name ),
 		};
 	}, [] );
 
