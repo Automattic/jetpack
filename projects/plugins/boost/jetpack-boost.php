@@ -162,6 +162,7 @@ add_action(
 		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/Dependency_Path_Mapping.php';
 		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-helpers.php';
 		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-service.php';
+		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-service-new.php';
 
 		// Send a status 200 header, otherwise the browser will return a 404.
 		status_header( 200 );
