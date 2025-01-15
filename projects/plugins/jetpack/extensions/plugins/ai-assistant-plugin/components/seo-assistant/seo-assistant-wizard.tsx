@@ -1,4 +1,5 @@
 import { Button, Icon, Tooltip } from '@wordpress/components';
+// import { useDebounce } from '@wordpress/compose';
 import { useState, useCallback, useEffect, useRef, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { next, closeSmall, chevronLeft } from '@wordpress/icons';
@@ -121,7 +122,7 @@ export default function SeoAssistantWizard( { isOpen, close, onStep }: SeoAssist
 		[ keywordsStep, metaStep, titleStep, completionStep ]
 	);
 
-	const currentStepData = steps[ currentStep ];
+	const currentStepData = useMemo( () => steps[ currentStep ], [ steps, currentStep ] );
 
 	// initialize wizard, set completion monitors
 	useEffect( () => {
