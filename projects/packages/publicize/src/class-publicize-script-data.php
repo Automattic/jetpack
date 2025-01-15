@@ -71,6 +71,9 @@ class Publicize_Script_Data {
 
 		$data['site']['wpcom']['blog_id'] = Manager::get_site_id( true );
 		$data['site']['suffix']           = ( new Status() )->get_site_suffix();
+		if ( ! isset( $data['site']['host'] ) ) {
+			$data['site']['host'] = ( new Host() )->get_known_host_guess();
+		}
 
 		return $data;
 	}
@@ -100,7 +103,6 @@ class Publicize_Script_Data {
 			'shares_data'          => array(),
 			'urls'                 => array(),
 			'settings'             => self::get_social_settings(),
-			'is_woa_site'          => ( new Host() )->is_woa_site(),
 		);
 
 		if ( ! Utils::is_publicize_active() ) {

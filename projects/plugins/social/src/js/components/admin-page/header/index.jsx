@@ -1,5 +1,5 @@
 import { hasSocialPaidFeatures } from '@automattic/jetpack-publicize-components';
-import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
+import { getMyJetpackUrl, getScriptData } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import Logo from './../../logo';
@@ -7,7 +7,6 @@ import styles from './styles.module.scss';
 
 const AdminPageHeader = () => {
 	const activateLicenseUrl = getMyJetpackUrl( '#/add-license' );
-	const isWoaSite = Boolean( window.JetpackScriptData?.social?.is_woa_site );
 
 	return (
 		<div className={ styles.header }>
@@ -15,7 +14,7 @@ const AdminPageHeader = () => {
 				<Logo />
 			</span>
 
-			{ ! hasSocialPaidFeatures() && ! isWoaSite && (
+			{ ! hasSocialPaidFeatures() && getScriptData().site.host !== 'woa' && (
 				<p>
 					{ createInterpolateElement(
 						__(
