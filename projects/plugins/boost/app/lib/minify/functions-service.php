@@ -122,7 +122,7 @@ function jetpack_boost_minify_get_file_parts( $request_uri ) {
 		return false;
 	}
 
-	$allowed_extensions = array( 'css', 'js' );
+	$allowed_extensions = array_keys( jetpack_boost_page_optimize_types() );
 	if ( ! in_array( $file_info['extension'], $allowed_extensions, true ) ) {
 		return false;
 	}
