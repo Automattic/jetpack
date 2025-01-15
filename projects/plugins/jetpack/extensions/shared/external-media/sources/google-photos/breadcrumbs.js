@@ -1,7 +1,7 @@
+import { PATH_ROOT } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { Fragment, memo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { PATH_ROOT } from '../../constants';
 
 function Breadcrumbs( { path, setPath } ) {
 	return (

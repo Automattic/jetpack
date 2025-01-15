@@ -1,12 +1,15 @@
+import {
+	SOURCE_PEXELS,
+	PEXELS_EXAMPLE_QUERIES,
+	MediaBrowser,
+	MediaSource,
+	getExternalMediaApiUrl,
+	withMedia,
+} from '@automattic/jetpack-shared-extension-utils';
 import { TextControl, Button } from '@wordpress/components';
 import { useRef, useCallback, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { sample } from 'lodash';
-import { SOURCE_PEXELS, PEXELS_EXAMPLE_QUERIES } from '../constants';
-import MediaBrowser from '../media-browser';
-import { MediaSource } from '../media-service/types';
-import { getApiUrl } from './api';
-import withMedia from './with-media';
 
 function PexelsMedia( props ) {
 	const { media, isCopying, isLoading, pageHandle, multiple, copyMedia, getMedia } = props;
@@ -16,7 +19,7 @@ function PexelsMedia( props ) {
 
 	const onCopy = useCallback(
 		items => {
-			copyMedia( items, getApiUrl( 'copy', SOURCE_PEXELS ), SOURCE_PEXELS );
+			copyMedia( items, getExternalMediaApiUrl( 'copy', SOURCE_PEXELS ), SOURCE_PEXELS );
 		},
 		[ copyMedia ]
 	);
@@ -25,7 +28,7 @@ function PexelsMedia( props ) {
 		( event, reset = false ) => {
 			if ( searchQuery ) {
 				getMedia(
-					getApiUrl( 'list', SOURCE_PEXELS, {
+					getExternalMediaApiUrl( 'list', SOURCE_PEXELS, {
 						number: 20,
 						path: 'recent',
 						search: searchQuery,

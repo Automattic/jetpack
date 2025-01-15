@@ -2,12 +2,19 @@ import { TextControl, Button } from '@wordpress/components';
 import { useRef, useCallback, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { sample } from 'lodash';
+import React from 'react';
 import { SOURCE_OPENVERSE, PEXELS_EXAMPLE_QUERIES } from '../constants';
 import MediaBrowser from '../media-browser';
 import { MediaSource } from '../media-service/types';
-import { getApiUrl } from './api';
+import { getExternalMediaApiUrl } from './api';
 import withMedia from './with-media';
 
+/**
+ * OpenverseMedia component
+ *
+ * @param {object} props - The component props
+ * @return {React.ReactElement} - JSX element
+ */
 function OpenverseMedia( props ) {
 	const { media, isCopying, isLoading, pageHandle, multiple, copyMedia, getMedia } = props;
 
@@ -16,7 +23,7 @@ function OpenverseMedia( props ) {
 
 	const onCopy = useCallback(
 		items => {
-			copyMedia( items, getApiUrl( 'copy', SOURCE_OPENVERSE ), SOURCE_OPENVERSE );
+			copyMedia( items, getExternalMediaApiUrl( 'copy', SOURCE_OPENVERSE ), SOURCE_OPENVERSE );
 		},
 		[ copyMedia ]
 	);
@@ -25,7 +32,7 @@ function OpenverseMedia( props ) {
 		( event, reset = false ) => {
 			if ( searchQuery ) {
 				getMedia(
-					getApiUrl( 'list', SOURCE_OPENVERSE, {
+					getExternalMediaApiUrl( 'list', SOURCE_OPENVERSE, {
 						number: 20,
 						search: searchQuery,
 					} ),
@@ -76,7 +83,7 @@ function OpenverseMedia( props ) {
 				onSubmit={ onSearch }
 			>
 				<TextControl
-					aria-label={ __( 'Search', 'jetpack' ) }
+					aria-label={ __( 'Search', 'jetpack-shared-extension-utils' ) }
 					type="search"
 					value={ searchQuery }
 					onChange={ setSearchQuery }
@@ -91,7 +98,7 @@ function OpenverseMedia( props ) {
 						! searchQuery.length || searchQuery === previousSearchQueryValue.current || isCopying
 					}
 				>
-					{ __( 'Search', 'jetpack' ) }
+					{ __( 'Search', 'jetpack-shared-extension-utils' ) }
 				</Button>
 			</form>
 
