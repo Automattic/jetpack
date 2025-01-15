@@ -56,7 +56,9 @@
 	}
 
 	&__share-data-popover {
-		margin-left: 8px;
+		display: flex;
+		align-items: center;
+		margin-left: 4px;
 	}
 
 	&__upgrade-popover {
@@ -189,4 +191,24 @@
 
 .jp-form-settings-group p {
 	margin-bottom: 0.5rem;
+}
+
+.account-protection__settings {
+	&__toggle-setting {
+		flex-wrap: wrap;
+		display: flex;
+		margin-bottom: 24px;
+
+			&__label {
+				display: flex;
+				align-items: center;
+			}
+	}
+
+	&__strict-mode-popover {
+		display: flex;
+		align-items: center;
+		margin-left: 4px;
+	}
+
 }

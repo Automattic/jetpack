@@ -14,7 +14,9 @@ use Automattic\Jetpack\Modules;
  */
 class Account_Protection {
 
-	const PACKAGE_VERSION = '1.0.0-alpha';
+	const PACKAGE_VERSION                = '1.0.0-alpha';
+	const ACCOUNT_PROTECTION_MODULE_NAME = 'account-protection';
+	const STRICT_MODE_OPTION_NAME        = 'jetpack_account_protection_strict_mode';
 
 	/**
 	 * Initializes the configurations needed for the account protection module.
@@ -23,6 +25,9 @@ class Account_Protection {
 		// Account protection activation/deactivation hooks
 		add_action( 'jetpack_activate_module_account-protection', __CLASS__ . '::on_account_protection_activation' );
 		add_action( 'jetpack_deactivate_module_account-protection', __CLASS__ . '::on_account_protection_deactivation' );
+
+		// Register REST routes
+		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 	}
 
 	/**
