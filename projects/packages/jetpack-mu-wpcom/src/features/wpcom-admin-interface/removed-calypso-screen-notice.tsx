@@ -146,17 +146,7 @@ const Notice = () => {
 		},
 	};
 
-	const icons = {
-		'edit.php': verse,
-		'edit.php?post_type=page': pages,
-		'edit.php?post_type=jetpack-portfolio': archive,
-		'edit.php?post_type=jetpack-testimonial': commentContent,
-		'edit-comments.php': postComments,
-		'edit-tags.php?taxonomy=category': category,
-		'edit-tags.php?taxonomy=post_tag': tag,
-	};
-
-	if ( ! Object.keys( icons ).includes( removedCalypsoScreenNoticeConfig.screen ) ) {
+	if ( ! Object.keys( config ).includes( removedCalypsoScreenNoticeConfig.screen ) ) {
 		return null;
 	}
 
