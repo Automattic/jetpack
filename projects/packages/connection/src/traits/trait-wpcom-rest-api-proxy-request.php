@@ -128,11 +128,12 @@ trait WPCOM_REST_API_Proxy_Request {
 	 *
 	 * @param WP_REST_Request $request Request to proxy.
 	 * @param string          $path Path to append to the rest base.
+	 * @param array           $request_options Request options to pass to wp_remote_request.
 	 *
 	 * @return mixed|WP_Error           Response from wpcom servers or an error.
 	 */
-	public function proxy_request_to_wpcom_as_user( $request, $path = '' ) {
-		return $this->proxy_request_to_wpcom( $request, $path, 'user' );
+	public function proxy_request_to_wpcom_as_user( $request, $path = '', $request_options = array() ) {
+		return $this->proxy_request_to_wpcom( $request, $path, 'user', false, $request_options );
 	}
 
 	/**
@@ -140,10 +141,11 @@ trait WPCOM_REST_API_Proxy_Request {
 	 *
 	 * @param WP_REST_Request $request Request to proxy.
 	 * @param string          $path Path to append to the rest base.
+	 * @param array           $request_options Request options to pass to wp_remote_request.
 	 *
 	 * @return mixed|WP_Error           Response from wpcom servers or an error.
 	 */
-	public function proxy_request_to_wpcom_as_blog( $request, $path = '' ) {
-		return $this->proxy_request_to_wpcom( $request, $path, 'blog' );
+	public function proxy_request_to_wpcom_as_blog( $request, $path = '', $request_options = array() ) {
+		return $this->proxy_request_to_wpcom( $request, $path, 'blog', false, $request_options );
 	}
 }
