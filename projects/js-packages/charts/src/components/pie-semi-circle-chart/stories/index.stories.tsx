@@ -1,5 +1,5 @@
 import { PieSemiCircleChart } from '../index';
-import type { Meta } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 
 const data = [
 	{
@@ -22,29 +22,31 @@ const data = [
 	},
 ];
 
-export default {
+const ResponsiveDecorator = Story => (
+	<div
+		style={ {
+			resize: 'both',
+			overflow: 'hidden',
+			padding: '2rem',
+			width: '800px',
+			height: '600px',
+			minWidth: '400px',
+			minHeight: '300px',
+			maxWidth: '1200px',
+			border: '1px dashed #ccc',
+		} }
+	>
+		<Story />
+	</div>
+);
+
+const meta = {
 	title: 'JS Packages/Charts/Types/Pie Semi Circle Chart',
 	component: PieSemiCircleChart,
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: [
-		Story => (
-			<div
-				style={ {
-					resize: 'both',
-					overflow: 'auto',
-					padding: '2rem',
-					width: '800px',
-					minWidth: '400px',
-					maxWidth: '1200px',
-					border: '1px dashed #ccc',
-				} }
-			>
-				<Story />
-			</div>
-		),
-	],
+	decorators: [ ResponsiveDecorator ],
 	argTypes: {
 		width: {
 			control: {
@@ -65,56 +67,67 @@ export default {
 	},
 } satisfies Meta< typeof PieSemiCircleChart >;
 
-const Template = args => <PieSemiCircleChart { ...args } />;
+export default meta;
+type Story = StoryObj< typeof PieSemiCircleChart >;
 
-export const Default = Template.bind( {} );
-Default.args = {
-	width: 500,
-	thickness: 0.4,
-	data,
-	label: 'OS',
-	note: 'Windows +10%',
-	clockwise: true,
-	showLegend: false,
-	legendOrientation: 'horizontal',
+export const Default: Story = {
+	args: {
+		thickness: 0.4,
+		data,
+		label: 'OS',
+		note: 'Windows +10%',
+		clockwise: true,
+		showLegend: false,
+		legendOrientation: 'horizontal',
+	},
 };
 
-export const WithTooltips = Template.bind( {} );
-WithTooltips.args = {
-	width: 500,
-	data,
-	label: 'OS',
-	note: 'Windows +10%',
-	withTooltips: true,
+export const WithTooltips: Story = {
+	args: {
+		data,
+		label: 'OS',
+		note: 'Windows +10%',
+		withTooltips: true,
+	},
 };
 
-export const WithHorizontalLegend = Template.bind( {} );
-WithHorizontalLegend.args = {
-	...Default.args,
-	showLegend: true,
-	legendOrientation: 'horizontal',
+export const WithHorizontalLegend: Story = {
+	args: {
+		...Default.args,
+		showLegend: true,
+		legendOrientation: 'horizontal',
+	},
 };
 
-export const WithVerticalLegend = Template.bind( {} );
-WithVerticalLegend.args = {
-	...Default.args,
-	showLegend: true,
-	legendOrientation: 'vertical',
+export const WithVerticalLegend: Story = {
+	args: {
+		...Default.args,
+		showLegend: true,
+		legendOrientation: 'vertical',
+	},
 };
 
-export const FixedDimensions = Template.bind( {} );
-FixedDimensions.args = {
-	...Default.args,
-	width: 400,
-	thickness: 0.4,
-	label: 'Fixed Dimensions',
-	note: 'Non-responsive chart',
-};
-FixedDimensions.parameters = {
-	docs: {
-		description: {
-			story:
-				'Semi-circle pie chart with fixed dimensions that override the responsive behavior. Only width is needed as height is calculated internally.',
+export const FixedDimensions: Story = {
+	render: args => (
+		<div style={ { width: '400px' } }>
+			<PieSemiCircleChart { ...args } />
+		</div>
+	),
+	args: {
+		width: 400,
+		thickness: 0.4,
+		data,
+		label: 'Fixed Dimensions',
+		note: 'Non-responsive chart',
+		clockwise: true,
+		showLegend: false,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Semi-circle pie chart with fixed dimensions that override the responsive behavior. Only width is needed as height is calculated internally.',
+			},
 		},
 	},
 };
