@@ -8,7 +8,6 @@ import { NoticeContext } from '../../context/notices/noticeContext';
 import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
 import useActivateMultiple from '../../data/products/use-activate-multiple';
 import useInstallMultipleStandalonePlugins from '../../data/products/use-install-multiple-standalone-plugins';
-import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -195,17 +194,17 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 				{
 					label: buttonLabel,
 					onClick: handleInstallActivateInOneClick,
-					isLoading: isInstalling || isActivating,
+					isLoading: isActivating || isInstalling,
 					loadingText:
 						actionVerb === 'activate'
 							? sprintf(
 									/* translators: %s is the singular or plural "plugin" or "plugins". */
-									__( 'Activating %s', 'jetpack-my-jetpack' ),
+									__( 'Activating %s…', 'jetpack-my-jetpack' ),
 									_n( 'plugin', 'plugins', numPluginsNeedingAction, 'jetpack-my-jetpack' )
 							  )
 							: sprintf(
 									/* translators: %s is the singular or plural "plugin" or "plugins". */
-									__( 'Installing and activating %s', 'jetpack-my-jetpack' ),
+									__( 'Installing and activating %s…', 'jetpack-my-jetpack' ),
 									_n( 'plugin', 'plugins', numPluginsNeedingAction, 'jetpack-my-jetpack' )
 							  ),
 					noDefaultClasses: true,

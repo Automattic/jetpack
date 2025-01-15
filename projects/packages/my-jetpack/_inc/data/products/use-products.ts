@@ -1,7 +1,6 @@
-import { useQueries } from '@tanstack/react-query';
-import apiFetch from '@wordpress/api-fetch';
 import { useCallback } from 'react';
 import { REST_API_SITE_PRODUCTS_ENDPOINT, QUERY_PRODUCT_KEY } from '../constants';
+import useSimpleQuery from '../use-simple-query';
 import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
 import mapObjectKeysToCamel from '../utils/to-camel';
 import type { ProductCamelCase, ProductSnakeCase, WP_Error } from '../types';
@@ -34,12 +33,15 @@ export const useAllProducts = (): { [ key: string ]: ProductCamelCase } => {
 
 // Create query to fetch new product data from the server
 const useFetchProducts = ( productIds: string[] ) => {
-	const queries =
-		productIds?.map( productId => ( {
-			queryKey: [ QUERY_PRODUCT_KEY, productId ],
-			queryFn: () => apiFetch( { path: REST_API_SITE_PRODUCTS_ENDPOINT } ),
-		} ) ) ?? [];
-	const queryResult = useQueries( { queries } );
+	const slugsQueryArg =
+		productIds && productIds?.length ? `?slugs=${ productIds?.join( ',' ) }` : '';
+	const queryResult = useSimpleQuery< ProductSnakeCase[] >( {
+		name: `${ QUERY_PRODUCT_KEY }`,
+		query: {
+			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }${ slugsQueryArg }`,
+		},
+		options: { enabled: false },
+	} );
 
 	return queryResult;
 };
@@ -52,8 +54,8 @@ const refetchProducts = async (
 ) => {
 	const { data: refetchedProducts } = await refetch();
 
-	refetchedProducts.forEach( product => {
-		window.myJetpackInitialState.products.items[ product.slug ] = product;
+	Object.keys( refetchedProducts ).forEach( productSlug => {
+		window.myJetpackInitialState.products.items[ productSlug ] = refetchedProducts[ productSlug ];
 	} );
 };
 

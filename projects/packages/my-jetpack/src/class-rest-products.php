@@ -25,6 +25,13 @@ class REST_Products {
 					'methods'             => \WP_REST_Server::READABLE,
 					'callback'            => __CLASS__ . '::get_products',
 					'permission_callback' => __CLASS__ . '::permissions_callback',
+					'args'                => array(
+						'slugs' => array(
+							'description' => __( 'Comma seperated list of product slugs that should be retrieved.', 'jetpack-my-jetpack' ),
+							'type'        => 'string',
+							'required'    => false,
+						),
+					),
 				),
 				'schema' => array( $this, 'get_products_schema' ),
 			)
@@ -205,10 +212,14 @@ class REST_Products {
 	/**
 	 * Site products endpoint.
 	 *
+	 * @param \WP_REST_Request $request The request object.
 	 * @return array of site products list.
 	 */
-	public static function get_products() {
-		$response = Products::get_products();
+	public static function get_products( $request ) {
+		$slugs         = $request->get_param( 'slugs' );
+		$product_slugs = ! empty( $slugs ) ? array_map( 'trim', explode( ',', $slugs ) ) : array();
+
+		$response = Products::get_products( $product_slugs );
 		return rest_ensure_response( $response, 200 );
 	}
 
