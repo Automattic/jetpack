@@ -55,7 +55,6 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 	);
 
 	const siteName = useSelect( select => {
-		// @ts-expect-error `getUnstableBase` exists in the store but is not typed
 		const { getUnstableBase } = select( coreStore );
 
 		return decodeEntities( getUnstableBase()?.name );

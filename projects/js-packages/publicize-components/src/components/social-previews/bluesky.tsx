@@ -10,7 +10,6 @@ const BlueskyPreview = props => {
 	const { message } = useSocialMediaMessage();
 	const { content, siteName } = useSelect( select => {
 		const { getEditedPostAttribute } = select( editorStore );
-		// @ts-expect-error -- It says, "Property 'getUnstableBase' does not exist..." but it does
 		const { getUnstableBase } = select( coreStore );
 
 		return {
