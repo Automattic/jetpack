@@ -54,4 +54,5 @@ export interface SocialScriptData {
 	store_initial_state: SocialStoreState;
 	supported_services: Array< ConnectionService >;
 	urls: SocialUrls;
+	is_woa_site: boolean;
 }

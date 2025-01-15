@@ -100,6 +100,7 @@ class Publicize_Script_Data {
 			'shares_data'          => array(),
 			'urls'                 => array(),
 			'settings'             => self::get_social_settings(),
+			'is_woa_site'          => ( new Host() )->is_woa_site(),
 		);
 
 		if ( ! Utils::is_publicize_active() ) {
