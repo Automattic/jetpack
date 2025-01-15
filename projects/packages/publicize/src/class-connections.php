@@ -29,7 +29,7 @@ class Connections {
 	public static function get_all( $args = array() ) {
 
 		if ( Publicize_Utils::is_wpcom() ) {
-			$connections = self::wpcom_get_connections( array( 'context' => 'site' ) );
+			$connections = self::wpcom_get_connections( array( 'context' => 'blog' ) );
 		} else {
 
 			$ignore_cache = $args['ignore_cache'] ?? false;
