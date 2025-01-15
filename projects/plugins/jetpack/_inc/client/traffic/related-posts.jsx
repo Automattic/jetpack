@@ -51,23 +51,7 @@ class RelatedPostsComponent extends React.Component {
 		const { isBlockThemeActive, lastPostUrl, siteAdminUrl } = this.props;
 
 		if ( isBlockThemeActive ) {
-			return (
-				<Card
-					compact
-					className="jp-settings-card__configure-link"
-					onClick={ this.trackConfigureClick }
-					href={ getRedirectUrl( 'jetpack-support-related-posts', {
-						anchor: 'adding-related-posts-block-theme',
-					} ) }
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					{ __(
-						'Add a Related Posts Block to your site’s template in the site editor',
-						'jetpack'
-					) }
-				</Card>
-			);
+			return null;
 		}
 
 		return (
@@ -89,23 +73,39 @@ class RelatedPostsComponent extends React.Component {
 		);
 	}
 
-	render() {
-		const isRelatedPostsActive = this.props.getOptionValue( 'related-posts' ),
-			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'related-posts' );
-		return (
-			<SettingsCard { ...this.props } hideButton module="related-posts">
-				<SettingsGroup
-					hasChild
-					disableInOfflineMode
-					module={ this.props.getModule( 'related-posts' ) }
-					support={ {
-						text: __(
-							'The feature helps visitors find more of your content by displaying related posts at the bottom of each post.',
+	renderSettings() {
+		const { isBlockThemeActive } = this.props;
+
+		if ( isBlockThemeActive ) {
+			return (
+				<p>
+					{ createInterpolateElement(
+						__(
+							'<a>Add a Related Posts Block to your site’s template in the site editor</a> to keep your visitors engaged with related content at the bottom of each post.',
 							'jetpack'
 						),
-						link: getRedirectUrl( 'jetpack-support-related-posts' ),
-					} }
-				>
+						{
+							a: (
+								<a
+									onClick={ this.trackConfigureClick }
+									href={ getRedirectUrl( 'jetpack-support-related-posts', {
+										anchor: 'adding-related-posts-block-theme',
+									} ) }
+									target="_blank"
+									rel="noopener noreferrer"
+								/>
+							),
+						}
+					) }
+				</p>
+			)
+		}
+
+		const isRelatedPostsActive = this.props.getOptionValue( 'related-posts' )
+		const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'related-posts' );
+
+		return (
+			<>
 					<p>
 						{ createInterpolateElement(
 							__(
@@ -226,6 +226,27 @@ class RelatedPostsComponent extends React.Component {
 							</div>
 						) }
 					</FormFieldset>
+			</>
+		)
+	}
+
+	render() {
+		const isRelatedPostsActive = this.props.getOptionValue( 'related-posts' )
+		return (
+			<SettingsCard { ...this.props } hideButton module="related-posts">
+				<SettingsGroup
+					hasChild
+					disableInOfflineMode
+					module={ this.props.getModule( 'related-posts' ) }
+					support={ {
+						text: __(
+							'The feature helps visitors find more of your content by displaying related posts at the bottom of each post.',
+							'jetpack'
+						),
+						link: getRedirectUrl( 'jetpack-support-related-posts' ),
+					} }
+				>
+					{ this.renderSettings() }
 				</SettingsGroup>
 				{ ! this.props.isUnavailableInOfflineMode( 'related-posts' ) &&
 					isRelatedPostsActive &&
