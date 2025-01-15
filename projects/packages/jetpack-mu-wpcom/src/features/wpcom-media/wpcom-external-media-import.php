@@ -40,7 +40,7 @@ function enqueue_wpcom_external_media_import_page() {
  */
 function render_wpcom_external_media_import_page() {
 	$title                  = __( 'Import Media', 'jetpack-mu-wpcom' );
-	$description            = __( 'WordPress allows you to import media from various platforms directly into the Media Library. To begin, select a platform from the options below:', 'jetpack-mu-wpcom' );
+	$description            = __( 'WordPress.com allows you to import media from various platforms directly into the Media Library. To begin, select a platform from the options below:', 'jetpack-mu-wpcom' );
 	$external_media_sources = array(
 		array(
 			'id'          => 'google_photos',
