@@ -6,7 +6,7 @@ import { useContext, useEffect, useMemo, useCallback } from 'react';
 import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
-import useActivate from '../../data/products/use-activate';
+import useActivateMultiple from '../../data/products/use-activate-multiple';
 import useInstallMultipleStandalonePlugins from '../../data/products/use-install-multiple-standalone-plugins';
 import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
@@ -72,13 +72,13 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 	);
 
 	const pluginsList = useMemo( () => {
-		if ( ( needs_installed && needs_activated_only ) || numPluginsNeedingAction > 1 ) {
+		if ( needs_installed && needs_activated_only ) {
 			return [ ...needs_installed, ...needs_activated_only ].map( getPluginInfo );
 		} else if ( needs_installed ) {
 			return needs_installed.map( getPluginInfo );
 		}
 		return needs_activated_only?.map( getPluginInfo );
-	}, [ getPluginInfo, needs_activated_only, needs_installed, numPluginsNeedingAction ] );
+	}, [ getPluginInfo, needs_activated_only, needs_installed ] );
 
 	const actionNoun = useMemo( () => {
 		if ( needs_installed && needs_activated_only ) {
@@ -100,23 +100,25 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 
 	const { install: installAndActivatePlugins, isPending: isInstalling } =
 		useInstallMultipleStandalonePlugins( needs_installed );
+	const { activate: activatePlugins, isPending: isActivating } =
+		useActivateMultiple( needs_activated_only );
 
-	const handleInstallActivateInOneClick = () => {
-		if ( ( needs_installed && needs_activated_only ) || numPluginsNeedingAction > 1 ) {
-			// Both:
-		} else if ( needs_installed ) {
-			// Needs installed only code:
+	const handleInstallActivateInOneClick = useCallback( () => {
+		recordEvent( 'jetpack_my_jetpack_plugin_needs_installed_notice_cta_click' );
+
+		if ( needs_installed ) {
 			installAndActivatePlugins();
 		}
-		// Needs activated only code:
-	};
-
-	const onCtaClick = useCallback( () => {
-		window.open( '#' );
-		recordEvent( 'jetpack_my_jetpack_plugin_needs_installed_notice_cta_click', {
-			plugin_slug: '[plugin_slug]',
-		} );
-	}, [ recordEvent ] );
+		if ( needs_activated_only ) {
+			activatePlugins();
+		}
+	}, [
+		recordEvent,
+		needs_installed,
+		needs_activated_only,
+		installAndActivatePlugins,
+		activatePlugins,
+	] );
 
 	useEffect( () => {
 		if ( pluginsNeedingActionAlerts.length === 0 || ! isPurchasesDataLoaded ) {
@@ -193,7 +195,19 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 				{
 					label: buttonLabel,
 					onClick: handleInstallActivateInOneClick,
-					isLoading: isInstalling,
+					isLoading: isInstalling || isActivating,
+					loadingText:
+						actionVerb === 'activate'
+							? sprintf(
+									/* translators: %s is the singular or plural "plugin" or "plugins". */
+									__( 'Activating %s', 'jetpack-my-jetpack' ),
+									_n( 'plugin', 'plugins', numPluginsNeedingAction, 'jetpack-my-jetpack' )
+							  )
+							: sprintf(
+									/* translators: %s is the singular or plural "plugin" or "plugins". */
+									__( 'Installing and activating %s', 'jetpack-my-jetpack' ),
+									_n( 'plugin', 'plugins', numPluginsNeedingAction, 'jetpack-my-jetpack' )
+							  ),
 					noDefaultClasses: true,
 				},
 			],
@@ -210,24 +224,16 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 		actionVerb,
 		isPurchasesDataLoaded,
 		numPluginsNeedingAction,
-		onCtaClick,
+		handleInstallActivateInOneClick,
 		planName,
 		planPurchase,
 		pluginsList,
 		pluginsNeedingActionAlerts.length,
 		setNotice,
 		siteSuffix,
+		isInstalling,
+		isActivating,
 	] );
 };
 
 export default usePaidPlanNeedsPluginInstallActivationNotice;
-
-/**
- * Compare two arrays (simple, flat arrays).
- * @param arr1 - array Array 1
- * @param arr2 - array Array 2
- * @return bool Returns true if the arrays are the same, otherwise false.
- */
-function arraysAreSame( arr1, arr2 ) {
-	return arr1?.length === arr2?.length && arr1.reduce( ( a, b ) => a && arr2.includes( b ), true );
-}

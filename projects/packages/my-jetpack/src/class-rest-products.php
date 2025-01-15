@@ -51,11 +51,26 @@ class REST_Products {
 
 		register_rest_route(
 			'my-jetpack/v1',
-			'site/products/install-products-plugins',
+			'site/products/install-multiple-plugins',
 			array(
 				array(
 					'methods'             => \WP_REST_Server::EDITABLE,
-					'callback'            => __CLASS__ . '::install_products_plugins',
+					'callback'            => __CLASS__ . '::install_multiple_plugins',
+					'permission_callback' => __CLASS__ . '::edit_permissions_callback',
+					'args'                => array(
+						'products' => $products_arg,
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			'my-jetpack/v1',
+			'site/products/activate-multiple-plugins',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::activate_multiple_products',
 					'permission_callback' => __CLASS__ . '::edit_permissions_callback',
 					'args'                => array(
 						'products' => $products_arg,
@@ -264,6 +279,40 @@ class REST_Products {
 	}
 
 	/**
+	 * Callback for activating multiple products
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 * @return \WP_REST_Response
+	 */
+	public static function activate_multiple_products( $request ) {
+		$products_array = $request->get_param( 'products' );
+
+		foreach ( $products_array as $product_slug ) {
+			$product = Products::get_product( $product_slug );
+			if ( ! isset( $product['class'] ) ) {
+				return new \WP_Error(
+					'product_class_handler_not_found',
+					sprintf(
+						/* translators: %s is the product_slug */
+						__( 'The product slug %s does not have an associated class handler.', 'jetpack-my-jetpack' ),
+						$product_slug
+					),
+					array( 'status' => 501 )
+				);
+			}
+
+			$activate_product_result = call_user_func( array( $product['class'], 'activate' ) );
+			if ( is_wp_error( $activate_product_result ) ) {
+				$activate_product_result->add_data( array( 'status' => 400 ) );
+				return $activate_product_result;
+			}
+		}
+		set_transient( 'my_jetpack_product_activated', implode( ', ', $products_array, 10 ) );
+
+		return rest_ensure_response( Products::get_products( $products_array ), 200 );
+	}
+
+	/**
 	 * Callback for deactivating a product
 	 *
 	 * @param \WP_REST_Request $request The request object.
@@ -321,7 +370,7 @@ class REST_Products {
 	 * @param \WP_REST_Request $request The request object.
 	 * @return \WP_REST_Response
 	 */
-	public static function install_products_plugins( $request ) {
+	public static function install_multiple_plugins( $request ) {
 		$products_array = $request->get_param( 'products' );
 
 		foreach ( $products_array as $product_slug ) {

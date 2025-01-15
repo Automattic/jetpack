@@ -198,6 +198,7 @@ class Products {
 	 */
 	public static function get_products( $product_slugs = array() ) {
 		$products = array();
+		// If no array of $product_slugs are passed, return All products
 		if ( ! $product_slugs ) {
 			foreach ( self::get_products_classes() as $class ) {
 				$product_slug              = $class::$slug;
@@ -205,6 +206,7 @@ class Products {
 			}
 			return $products;
 		}
+		// Otherwise return only the products specified in $product_slugs array.
 		$all_classes = self::get_products_classes();
 		foreach ( $product_slugs as $product_slug ) {
 			if ( isset( $all_classes[ $product_slug ] ) ) {

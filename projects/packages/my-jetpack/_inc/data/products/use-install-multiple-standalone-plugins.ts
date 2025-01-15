@@ -9,16 +9,17 @@ const useInstallMultipleStandalonePlugins = ( productIds: string[] ) => {
 	const { mutate: install, isPending } = useSimpleMutation( {
 		name: QUERY_INSTALL_PRODUCT_KEY,
 		query: {
-			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/install-products-plugins`,
+			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/install-multiple-plugins`,
 			method: 'POST',
 			data: { products: productIds },
 		},
 		options: {
 			onSuccess: refetch,
 		},
-		errorMessage: __(
-			'Failed to install standalone plugins. Please try again',
-			'jetpack-my-jetpack'
+		errorMessage: sprintf(
+			// translators: %s is the Jetpack product name or comma seperated list of multiple Jetpack product names.
+			__( 'There was a problem installing and activating %s.', 'jetpack-my-jetpack' ),
+			products?.map( product => product.name ).join( ', ' )
 		),
 	} );
 
