@@ -27,6 +27,50 @@ export default {
 			},
 			defaultValue: undefined,
 		},
+		size: {
+			control: {
+				type: 'range',
+				min: 100,
+				max: 800,
+				step: 1,
+			},
+		},
+		thickness: {
+			control: {
+				type: 'range',
+				min: 0,
+				max: 1,
+				step: 0.01,
+			},
+		},
+		padding: {
+			control: {
+				type: 'range',
+				min: 0,
+				max: 100,
+				step: 1,
+			},
+		},
+		gapScale: {
+			control: {
+				type: 'range',
+				min: 0,
+				max: 1,
+				step: 0.01,
+			},
+		},
+		cornerScale: {
+			control: {
+				type: 'range',
+				min: 0,
+				max: 1,
+				step: 0.01,
+			},
+		},
+		legendOrientation: {
+			control: 'radio',
+			options: [ 'horizontal', 'vertical' ],
+		},
 	},
 	decorators: [
 		( Story, { args } ) => (
@@ -41,12 +85,14 @@ export default {
 
 export const Default: StoryType = {
 	args: {
-		width: 400,
-		height: 400,
+		size: 400,
+		thickness: 1,
+		gapScale: 0,
+		padding: 20,
+		cornerScale: 0,
 		withTooltips: false,
 		data,
 		theme: 'default',
-		innerRadius: 0,
 		showLegend: false,
 		legendOrientation: 'horizontal',
 	},
@@ -71,12 +117,12 @@ export const WithVerticalLegend: StoryType = {
 export const Doughnut: StoryType = {
 	args: {
 		...Default.args,
-		innerRadius: 80,
+		thickness: 0.5,
 	},
 	parameters: {
 		docs: {
 			description: {
-				story: 'Doughnut chart variant with inner radius of 80px.',
+				story: 'Doughnut chart variant with the thickness set to 0.5 (50%).',
 			},
 		},
 	},
@@ -100,7 +146,6 @@ export const WithTooltipsDoughnut: StoryType = {
 	args: {
 		...Default.args,
 		withTooltips: true,
-		innerRadius: 100,
 	},
 	parameters: {
 		docs: {

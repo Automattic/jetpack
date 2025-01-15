@@ -323,9 +323,16 @@ function jetpack_boost_page_optimize_get_file_paths( $args ) {
 	return $args;
 }
 
+/**
+ * Exit with a given HTTP status code.
+ *
+ * @param int $status HTTP status code.
+ *
+ * @return never
+ */
 function jetpack_boost_page_optimize_status_exit( $status ) {
 	http_response_code( $status );
-	exit;
+	exit( 0 ); // This is a workaround, until a bug in phan is fixed - https://github.com/phan/phan/issues/4888
 }
 
 function jetpack_boost_page_optimize_get_mime_type( $file ) {

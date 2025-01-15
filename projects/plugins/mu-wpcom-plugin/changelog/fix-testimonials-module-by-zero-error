@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Testimonials: fix a shortcode related bug which ccurs if the column attribute is added and set to 0

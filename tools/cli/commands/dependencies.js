@@ -24,6 +24,7 @@ infrastructureFileSets.test = new Set( [
 	'.github/files/coverage-munger/package.json',
 	'.github/files/coverage-munger/extract-php-summary-data.php',
 	'.github/files/coverage-munger/process-coverage.sh',
+	'.github/files/coverage-munger/upload-coverage.sh',
 	'.github/files/setup-wordpress-env.sh',
 	'.github/workflows/tests.yml',
 ] );

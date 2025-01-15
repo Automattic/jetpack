@@ -41,7 +41,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.3.0';
+	const PACKAGE_VERSION = '5.3.2';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -290,6 +290,7 @@ class Initializer {
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
 				'isUserFromKnownHost'    => self::is_user_from_known_host(),
 				'isCommercial'           => self::is_commercial_site(),
+				'sandboxedDomain'        => JETPACK__SANDBOX_DOMAIN,
 				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
 				'jetpackManage'          => array(
 					'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
