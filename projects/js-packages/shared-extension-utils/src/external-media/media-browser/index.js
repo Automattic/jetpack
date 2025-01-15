@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { UP, DOWN, LEFT, RIGHT, SPACE, ENTER } from '@wordpress/keycodes';
 import clsx from 'clsx';
 import { debounce } from 'lodash';
+import React from 'react';
 import MediaItem from './media-item';
 import MediaPlaceholder from './placeholder';
 
@@ -11,10 +12,18 @@ const MAX_SELECTED = 10;
 
 const EmptyResults = memo( () => (
 	<div className="jetpack-external-media-browser__empty">
-		<p>{ __( 'Sorry, but nothing matched your search criteria.', 'jetpack' ) }</p>
+		<p>
+			{ __( 'Sorry, but nothing matched your search criteria.', 'jetpack-shared-extension-utils' ) }
+		</p>
 	</div>
 ) );
 
+/**
+ * MediaBrowser component
+ *
+ * @param {object} props - The component props
+ * @return {React.ReactElement} - JSX element
+ */
 function MediaBrowser( props ) {
 	const {
 		media,
@@ -168,9 +177,13 @@ function MediaBrowser( props ) {
 		const disabled = selected.length === 0 || isCopying;
 		const defaultLabel = selectProps?.labelText
 			? selectProps?.labelText( selected.length )
-			: __( 'Select', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
+			: __(
+					'Select',
+					'jetpack-shared-extension-utils',
+					/* dummy arg to avoid bad minification */ 0
+			  );
 
-		const label = isCopying ? __( 'Inserting…', 'jetpack' ) : defaultLabel;
+		const label = isCopying ? __( 'Inserting…', 'jetpack-shared-extension-utils' ) : defaultLabel;
 
 		return (
 			<div className="jetpack-external-media-browser__media__toolbar">
@@ -195,8 +208,8 @@ function MediaBrowser( props ) {
 						imageOnly={ imageOnly }
 						index={ index }
 						key={ item.ID }
-						onClick={ handleMediaItemClick }
-						onKeyDown={ handleMediaItemKeyDown }
+						onClick={ handleMediaItemClick } // eslint-disable-line react/jsx-no-bind
+						onKeyDown={ handleMediaItemKeyDown } // eslint-disable-line react/jsx-no-bind
 						focus={ index === focused }
 						isSelected={ selected.find( toFind => toFind.ID === item.ID ) }
 						isCopying={ isCopying }
@@ -212,9 +225,9 @@ function MediaBrowser( props ) {
 						variant="secondary"
 						className="jetpack-external-media-browser__loadmore"
 						disabled={ isLoading || isCopying }
-						onClick={ onLoadMoreClick }
+						onClick={ onLoadMoreClick } // eslint-disable-line react/jsx-no-bind
 					>
-						{ __( 'Load More', 'jetpack' ) }
+						{ __( 'Load More', 'jetpack-shared-extension-utils' ) }
 					</Button>
 				) }
 			</ul>

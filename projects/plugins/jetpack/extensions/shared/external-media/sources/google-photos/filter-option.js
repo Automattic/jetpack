@@ -1,8 +1,3 @@
-import { SelectControl, Button } from '@wordpress/components';
-import { useState, Fragment } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { omit } from 'lodash';
-import NumberControl from '../../../components/number-control';
 import {
 	GOOGLE_PHOTOS_CATEGORIES,
 	GOOGLE_PHOTOS_DATE_PRESETS,
@@ -10,7 +5,12 @@ import {
 	DATE_RANGE_CUSTOM,
 	MONTH_SELECT_OPTIONS,
 	CURRENT_YEAR,
-} from '../../constants';
+} from '@automattic/jetpack-shared-extension-utils';
+import { SelectControl, Button } from '@wordpress/components';
+import { useState, Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { omit } from 'lodash';
+import NumberControl from '../../../components/number-control';
 
 function CategoryOption( { value, updateFilter } ) {
 	return (

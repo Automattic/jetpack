@@ -1,9 +1,11 @@
+import {
+	MediaLoadingPlaceholder,
+	getGooglePhotosPickerCachedSessionId,
+	MediaSource,
+	withMedia,
+} from '@automattic/jetpack-shared-extension-utils';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
-import MediaLoadingPlaceholder from '../../media-browser/placeholder';
-import { getGooglePhotosPickerCachedSessionId } from '../../media-service';
-import { MediaSource } from '../../media-service/types';
-import withMedia from '../with-media';
 import GooglePhotosAuth from './google-photos-auth';
 import GooglePhotosAuthUpgrade from './google-photos-auth-upgrade';
 import GooglePhotosMedia from './google-photos-media';

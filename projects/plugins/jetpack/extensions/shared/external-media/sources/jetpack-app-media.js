@@ -1,12 +1,10 @@
 import { QRCode } from '@automattic/jetpack-components';
+import { MediaBrowser, MediaSource, withMedia } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { JetpackAppIcon } from '../../icons';
 import useRefInterval from '../../use-ref-interval';
-import MediaBrowser from '../media-browser';
-import { MediaSource } from '../media-service/types';
-import withMedia from './with-media';
 
 function JetpackAppMedia( props ) {
 	const { media, insertMedia, isCopying, multiple, getMedia } = props;

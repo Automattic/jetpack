@@ -20,8 +20,11 @@ const DEFAULT_PEXELS_SEARCH: MediaSearch = {
 
 // Google Photos constants
 const GOOGLE_PHOTOS_ID = 'google_photos';
-const GOOGLE_PHOTOS_NAME = __( 'Google Photos', 'jetpack' );
-const GOOGLE_PHOTOS_SEARCH_PLACEHOLDER = __( 'Search Google Photos', 'jetpack' );
+const GOOGLE_PHOTOS_NAME = __( 'Google Photos', 'jetpack-shared-extension-utils' );
+const GOOGLE_PHOTOS_SEARCH_PLACEHOLDER = __(
+	'Search Google Photos',
+	'jetpack-shared-extension-utils'
+);
 const DEFAULT_GOOGLE_PHOTOS_SEARCH: MediaSearch = {
 	per_page: 25,
 	search: '',
@@ -289,7 +292,7 @@ export const authenticateMediaSource = ( source: MediaSource, isAuthenticated: b
 
 /**
  * Set Google Photos Picker session
- * @param {PickerSession} session
+ * @param {PickerSession} session - Media URL.
  */
 export const setGooglePhotosPickerSession = ( session: PickerSession ) => {
 	setGooglePhotosPickeCachedSessionId( session?.id || null );

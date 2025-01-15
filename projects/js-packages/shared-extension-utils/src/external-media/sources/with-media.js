@@ -15,6 +15,12 @@ import {
 } from '../media-service';
 import { MediaSource } from '../media-service/types';
 
+/**
+ * withMedia
+ *
+ * @param {MediaSource} mediaSource - External media sources.
+ * @return {Function} - The function to create higher order component.
+ */
 export default function withMedia( mediaSource = MediaSource.Unknown ) {
 	return createHigherOrderComponent( OriginalComponent => {
 		// Legacy class as it was ported from an older codebase.
@@ -338,18 +344,22 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 				const { allowedTypes, multiple = false, noticeUI, onClose } = this.props;
 
 				const defaultTitle =
-					mediaSource !== 'jetpack_app_media' ? __( 'Select media', 'jetpack' ) : '';
+					mediaSource !== 'jetpack_app_media'
+						? __( 'Select media', 'jetpack-shared-extension-utils' )
+						: '';
 
-				const title = isCopying ? __( 'Inserting media', 'jetpack' ) : defaultTitle;
+				const title = isCopying
+					? __( 'Inserting media', 'jetpack-shared-extension-utils' )
+					: defaultTitle;
 
 				const description = isCopying
 					? __(
 							'When the media is finished copying and inserting, you will be returned to the editor.',
-							'jetpack'
+							'jetpack-shared-extension-utils'
 					  )
 					: __(
 							'Select the media you would like to insert into the editor.',
-							'jetpack',
+							'jetpack-shared-extension-utils',
 							/* dummy arg to avoid bad minification */ 0
 					  );
 

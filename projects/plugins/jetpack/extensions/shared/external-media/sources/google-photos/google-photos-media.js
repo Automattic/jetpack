@@ -1,15 +1,15 @@
-import { Button, SelectControl } from '@wordpress/components';
-import { useRef, useState, useCallback, useEffect } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import {
 	SOURCE_GOOGLE_PHOTOS,
 	PATH_RECENT,
 	PATH_ROOT,
 	PATH_OPTIONS,
 	DATE_RANGE_ANY,
-} from '../../constants';
-import MediaBrowser from '../../media-browser';
-import { getApiUrl } from '../api';
+	MediaBrowser,
+	getExternalMediaApiUrl,
+} from '@automattic/jetpack-shared-extension-utils';
+import { Button, SelectControl } from '@wordpress/components';
+import { useRef, useState, useCallback, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import Breadcrumbs from './breadcrumbs';
 import GoogleFilterOption from './filter-option';
 import getFilterRequest from './filter-request';
@@ -62,7 +62,7 @@ function GooglePhotosMedia( props ) {
 		params.session_id = pickerSession.id;
 	}
 
-	const listUrl = getApiUrl( 'list', SOURCE_GOOGLE_PHOTOS, params );
+	const listUrl = getExternalMediaApiUrl( 'list', SOURCE_GOOGLE_PHOTOS, params );
 
 	const getNextPage = useCallback(
 		( event, reset = false ) => {
@@ -84,7 +84,7 @@ function GooglePhotosMedia( props ) {
 		items => {
 			copyMedia(
 				items,
-				getApiUrl( 'copy', SOURCE_GOOGLE_PHOTOS ),
+				getExternalMediaApiUrl( 'copy', SOURCE_GOOGLE_PHOTOS ),
 				SOURCE_GOOGLE_PHOTOS,
 				pickerFeatureEnabled
 			);

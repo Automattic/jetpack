@@ -3,7 +3,14 @@ import { Spinner } from '@wordpress/components';
 import { useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import React from 'react';
 
+/**
+ * MediaItem component
+ *
+ * @param {object} props - The component props
+ * @return {React.ReactElement} - JSX element
+ */
 function MediaItem( props ) {
 	const onClick = event => {
 		const { item, index, imageOnly } = props;
@@ -101,7 +108,7 @@ function MediaItem( props ) {
 				<div className="jetpack-external-media-browser__media__copying_indicator">
 					<Spinner />
 					<div className="jetpack-external-media-browser__media__copying_indicator__label">
-						{ __( 'Inserting Image…', 'jetpack' ) }
+						{ __( 'Inserting Image…', 'jetpack-shared-extension-utils' ) }
 					</div>
 				</div>
 			) }

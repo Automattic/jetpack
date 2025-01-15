@@ -1,9 +1,11 @@
+import {
+	SOURCE_GOOGLE_PHOTOS,
+	getExternalMediaApiUrl,
+} from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { Button } from '@wordpress/components';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { SOURCE_GOOGLE_PHOTOS } from '../../constants';
-import { getApiUrl } from '../api';
 
 const GooglePhotosDisconnect = ( { setAuthenticated, buttonVariant = 'secondary' } ) => {
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
@@ -13,7 +15,7 @@ const GooglePhotosDisconnect = ( { setAuthenticated, buttonVariant = 'secondary'
 
 		apiFetch( {
 			method: 'DELETE',
-			path: getApiUrl( 'connection', SOURCE_GOOGLE_PHOTOS ),
+			path: getExternalMediaApiUrl( 'connection', SOURCE_GOOGLE_PHOTOS ),
 		} )
 			.then( () => setAuthenticated( false ) )
 			.catch( () => setIsDisconnecting( false ) );
