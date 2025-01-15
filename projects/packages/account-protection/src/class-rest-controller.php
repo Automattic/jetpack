@@ -58,11 +58,9 @@ class REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public static function get_settings() {
-		return rest_ensure_response(
-			array(
-				Account_Protection::STRICT_MODE_OPTION_NAME => get_option( Account_Protection::STRICT_MODE_OPTION_NAME ),
-			)
-		);
+		$settings = Account_Protection::get_settings();
+
+		return rest_ensure_response( $settings );
 	}
 
 	/**

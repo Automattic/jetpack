@@ -8,18 +8,22 @@ import {
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, warning } from '@wordpress/icons';
-import { useCallback } from 'react';
 import AdminPage from '../../components/admin-page';
-import useAccountProtectionQuery from '../../data/account-protection/use-account-protection-query';
-import useToggleAccountProtectionMutation from '../../data/account-protection/use-toggle-account-protection-mutation';
+import useAccountProtectionData from '../../hooks/use-account-protection-data';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import usePlan from '../../hooks/use-plan';
 import styles from './styles.module.scss';
 
 const SettingsPage = () => {
 	const { hasPlan } = usePlan();
-	const toggleAccountProtectionMutation = useToggleAccountProtectionMutation();
-	const { data: isAccountProtectionEnabled } = useAccountProtectionQuery();
+	const {
+		settings: { jetpackAccountProtectionStrictMode: strictMode },
+		isEnabled: isAccountProtectionEnabled,
+		toggleAccountProtection,
+		toggleStrictMode,
+		isToggling,
+		isUpdating,
+	} = useAccountProtectionData();
 
 	// Track view for Protect Account Protection page.
 	useAnalyticsTracks( {
@@ -29,22 +33,13 @@ const SettingsPage = () => {
 		},
 	} );
 
-	/**
-	 * Toggle Account Protection Module
-	 *
-	 * Flips the switch on the Account Protection module, and then refreshes the data.
-	 */
-	const toggleAccountProtection = useCallback( async () => {
-		toggleAccountProtectionMutation.mutate();
-	}, [ toggleAccountProtectionMutation ] );
-
 	const accountProtectionSettings = (
 		<div className={ styles[ 'toggle-section' ] }>
 			<div className={ styles[ 'toggle-section__control' ] }>
 				<ToggleControl
 					checked={ isAccountProtectionEnabled }
 					onChange={ toggleAccountProtection }
-					disabled={ toggleAccountProtectionMutation.isPending }
+					disabled={ isToggling }
 				/>
 			</div>
 			<div className={ styles[ 'toggle-section__content' ] }>
@@ -70,9 +65,9 @@ const SettingsPage = () => {
 		<div className={ styles[ 'toggle-section' ] }>
 			<div className={ styles[ 'toggle-section__control' ] }>
 				<ToggleControl
-					checked={ isAccountProtectionEnabled }
-					onChange={ toggleAccountProtection }
-					disabled={ toggleAccountProtectionMutation.isPending }
+					checked={ strictMode }
+					onChange={ toggleStrictMode }
+					disabled={ isUpdating }
 				/>
 			</div>
 			<div className={ styles[ 'toggle-section__content' ] }>

@@ -78,4 +78,17 @@ class Account_Protection {
 		}
 		return ( new Modules() )->deactivate( 'account-protection' );
 	}
+
+	/**
+	 * Get the account protection settings.
+	 *
+	 * @return array
+	 */
+	public static function get_settings() {
+		$settings = array(
+			self::STRICT_MODE_OPTION_NAME => get_option( self::STRICT_MODE_OPTION_NAME, false ),
+		);
+
+		return $settings;
+	}
 }
