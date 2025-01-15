@@ -1487,25 +1487,27 @@ class Colors_Manager_Common {
 	 *
 	 * @param array $editor_settings Block editor settings.
 	 */
-	public static function add_block_editor_css( $editor_settings) {
+	public static function add_block_editor_css( $editor_settings ) {
 		if ( ! self::should_enable_colors() ) {
 			return $editor_settings;
 		}
 
 		$css = self::get_theme_css();
-		
-		if( is_array( $editor_settings['styles'] ) ) {
-			$editor_settings['styles'] []= array(
+
+		if ( is_array( $editor_settings['styles'] ) ) {
+			$editor_settings['styles'] [] = array(
 				'css'            => $css,
 				'__unstableType' => 'theme',
 				'isGlobalStyles' => false,
 			);
 		} else {
-			$editor_settings['styles'] = array( array(
-				'css'            => $css,
-				'__unstableType' => 'theme',
-				'isGlobalStyles' => false,
-			) );
+			$editor_settings['styles'] = array(
+				array(
+					'css'            => $css,
+					'__unstableType' => 'theme',
+					'isGlobalStyles' => false,
+				),
+			);
 		}
 		return $editor_settings;
 	}
