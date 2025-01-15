@@ -1,38 +1,59 @@
-import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
 import { PieChart } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const data = [
-	{ label: 'A', value: 30 },
-	{ label: 'B', value: 20 },
-	{ label: 'C', value: 15 },
-	{ label: 'D', value: 35 },
+	{
+		label: 'MacOS',
+		value: 30000,
+		valueDisplay: '30K',
+		percentage: 5,
+	},
+	{
+		label: 'Linux',
+		value: 22000,
+		valueDisplay: '22K',
+		percentage: 1,
+	},
+	{
+		label: 'Windows',
+		value: 80000,
+		valueDisplay: '80K',
+		percentage: 2,
+	},
 ];
 
-type StoryType = StoryObj< typeof PieChart >;
+const ResponsiveDecorator = Story => (
+	<div
+		style={ {
+			resize: 'both',
+			overflow: 'hidden',
+			padding: '2rem',
+			width: '800px',
+			height: '600px',
+			minWidth: '400px',
+			minHeight: '300px',
+			maxWidth: '1200px',
+			border: '1px dashed #ccc',
+		} }
+	>
+		<Story />
+	</div>
+);
 
-export default {
+const meta = {
 	title: 'JS Packages/Charts/Types/Pie Chart',
 	component: PieChart,
 	parameters: {
 		layout: 'centered',
 	},
+	// decorators: [ ResponsiveDecorator ],
 	argTypes: {
-		theme: {
-			control: 'select',
-			options: {
-				default: undefined,
-				jetpack: jetpackTheme,
-				woo: wooTheme,
-			},
-			defaultValue: undefined,
-		},
 		size: {
 			control: {
 				type: 'range',
-				min: 100,
-				max: 800,
-				step: 1,
+				min: 0,
+				max: 1000,
+				step: 10,
 			},
 		},
 		thickness: {
@@ -93,9 +114,11 @@ export default {
 	],
 } satisfies Meta< typeof PieChart >;
 
-export const Default: StoryType = {
+export default meta;
+type Story = StoryObj< typeof PieChart >;
+
+export const Default: Story = {
 	args: {
-		size: 400,
 		thickness: 1,
 		gapScale: 0,
 		padding: 20,
@@ -108,7 +131,7 @@ export const Default: StoryType = {
 	},
 };
 
-export const WithHorizontalLegend: StoryType = {
+export const WithHorizontalLegend: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
@@ -116,7 +139,7 @@ export const WithHorizontalLegend: StoryType = {
 	},
 };
 
-export const WithVerticalLegend: StoryType = {
+export const WithVerticalLegend: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
@@ -124,7 +147,7 @@ export const WithVerticalLegend: StoryType = {
 	},
 };
 
-export const Doughnut: StoryType = {
+export const Doughnut: Story = {
 	args: {
 		...Default.args,
 		thickness: 0.5,
@@ -138,7 +161,7 @@ export const Doughnut: StoryType = {
 	},
 };
 
-export const WithTooltips: StoryType = {
+export const WithTooltips: Story = {
 	args: {
 		...Default.args,
 		withTooltips: true,
@@ -152,9 +175,10 @@ export const WithTooltips: StoryType = {
 	},
 };
 
-export const WithTooltipsDoughnut: StoryType = {
+export const WithTooltipsDoughnut: Story = {
 	args: {
 		...Default.args,
+		thickness: 0.5,
 		withTooltips: true,
 	},
 	parameters: {
@@ -166,13 +190,20 @@ export const WithTooltipsDoughnut: StoryType = {
 	},
 };
 
-export const FixedDimensions: StoryType = {
+export const FixedDimensions: Story = {
+	render: args => (
+		<div style={ { width: '400px' } }>
+			<PieChart { ...args } />
+		</div>
+	),
 	args: {
-		...Default.args,
 		size: 400,
 		thickness: 1,
 		padding: 20,
+		data,
 		withTooltips: true,
+		theme: 'default',
+		showLegend: false,
 	},
 	parameters: {
 		docs: {
