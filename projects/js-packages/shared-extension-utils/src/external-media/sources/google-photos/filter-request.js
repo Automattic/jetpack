@@ -1,3 +1,4 @@
+import moment from 'moment';
 import {
 	DATE_RANGE_LAST_7_DAYS,
 	DATE_RANGE_CUSTOM,
@@ -5,10 +6,15 @@ import {
 	DATE_RANGE_LAST_6_MONTHS,
 	DATE_RANGE_LAST_12_MONTHS,
 } from '@automattic/jetpack-shared-extension-utils';
-import moment from 'moment';
 
 const TODAY = moment();
 
+/**
+ * Get filter request
+ *
+ * @param {Array} filters - The filters
+ * @return {Array|null}   - The query
+ */
 export default function getFilterRequest( filters ) {
 	const { mediaType, category, favorite, date } = filters;
 	const query = [];

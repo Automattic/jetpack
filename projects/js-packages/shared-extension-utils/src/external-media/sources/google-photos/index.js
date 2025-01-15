@@ -1,16 +1,22 @@
+import moment from 'moment';
+import React, { useEffect, useState } from 'react';
 import {
 	MediaLoadingPlaceholder,
 	getGooglePhotosPickerCachedSessionId,
 	MediaSource,
 	withMedia,
 } from '@automattic/jetpack-shared-extension-utils';
-import moment from 'moment';
-import { useEffect, useState } from 'react';
 import GooglePhotosAuth from './google-photos-auth';
 import GooglePhotosAuthUpgrade from './google-photos-auth-upgrade';
 import GooglePhotosMedia from './google-photos-media';
 import GooglePhotosPickerButton from './google-photos-picker-button';
 
+/**
+ * GooglePhotos component
+ *
+ * @param {object} props - The component props
+ * @return {React.ReactElement} - JSX Element
+ */
 function GooglePhotos( props ) {
 	const {
 		isAuthenticated,

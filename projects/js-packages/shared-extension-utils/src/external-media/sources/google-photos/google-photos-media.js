@@ -1,3 +1,7 @@
+import { Button, SelectControl } from '@wordpress/components';
+import { useRef, useState, useCallback, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import React from 'react';
 import {
 	SOURCE_GOOGLE_PHOTOS,
 	PATH_RECENT,
@@ -7,9 +11,6 @@ import {
 	MediaBrowser,
 	getExternalMediaApiUrl,
 } from '@automattic/jetpack-shared-extension-utils';
-import { Button, SelectControl } from '@wordpress/components';
-import { useRef, useState, useCallback, useEffect } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import Breadcrumbs from './breadcrumbs';
 import GoogleFilterOption from './filter-option';
 import getFilterRequest from './filter-request';
@@ -18,6 +19,12 @@ import GooglePhotosAccount from './google-photos-account';
 
 const isImageOnly = allowed => allowed && allowed.length === 1 && allowed[ 0 ] === 'image';
 
+/**
+ * GooglePhotosMedia component
+ *
+ * @param {object} props - The component props
+ * @return {React.ReactElement} - JSX Element
+ */
 function GooglePhotosMedia( props ) {
 	const {
 		account,
@@ -117,7 +124,7 @@ function GooglePhotosMedia( props ) {
 						{
 							<SelectControl
 								className="jetpack-external-media-header__select"
-								label={ __( 'View', 'jetpack' ) }
+								label={ __( 'View', 'jetpack-shared-extension-utils' ) }
 								value={ path.ID !== PATH_RECENT ? PATH_ROOT : PATH_RECENT }
 								disabled={ isLoading || isCopying }
 								options={ PATH_OPTIONS }
@@ -159,7 +166,7 @@ function GooglePhotosMedia( props ) {
 							disabled={ selectionChanged }
 							onClick={ onChangeSelection }
 						>
-							{ __( 'Change selection', 'jetpack' ) }
+							{ __( 'Change selection', 'jetpack-shared-extension-utils' ) }
 						</Button>
 					</div>
 				) }

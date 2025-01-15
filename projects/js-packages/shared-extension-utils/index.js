@@ -1,3 +1,4 @@
+export * from './src/block-icons';
 export * from './src/external-media';
 export { default as getJetpackData, JETPACK_DATA_PATH } from './src/get-jetpack-data';
 export { default as getSiteFragment } from './src/get-site-fragment';
@@ -13,6 +14,7 @@ export {
 	isStillUsableWithFreePlan,
 	getUsableBlockProps,
 } from './src/plan-utils';
+export * from './src/icons';
 export { default as isCurrentUserConnected } from './src/is-current-user-connected';
 export { default as useAnalytics } from './src/hooks/use-analytics';
 export { default as useModuleStatus } from './src/hooks/use-module-status';
