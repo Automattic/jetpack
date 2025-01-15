@@ -330,7 +330,7 @@ trait Woo_Analytics_Trait {
 	/**
 	 * In case session_id is empty. A new session should be created.
 	 *
-	 * @return string|void
+	 * @return void
 	 */
 	public function maybe_start_session() {
 		if ( ! isset( $_COOKIE['woocommerceanalytics_session'] ) ) {
