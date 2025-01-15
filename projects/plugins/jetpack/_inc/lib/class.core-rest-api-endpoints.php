@@ -2871,13 +2871,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'wordads',
 			),
-			'wordads_second_belowpost'                  => array(
-				'description'       => esc_html__( 'Display second ad below post?', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 1,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'wordads',
-			),
 			'wordads_inline_enabled'                    => array(
 				'description'       => esc_html__( 'Display inline ad within post content?', 'jetpack' ),
 				'type'              => 'boolean',

@@ -119,10 +119,6 @@ export const Ads = withModuleSettingsFormHelpers(
 			const isAdsActive = this.props.getOptionValue( 'wordads' );
 			const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'wordads' );
 			const enable_header_ad = this.props.getOptionValue( 'enable_header_ad', 'wordads' );
-			const wordads_second_belowpost = this.props.getOptionValue(
-				'wordads_second_belowpost',
-				'wordads'
-			);
 			const wordads_inline_enabled = this.props.getOptionValue(
 				'wordads_inline_enabled',
 				'wordads'
@@ -262,17 +258,6 @@ export const Ads = withModuleSettingsFormHelpers(
 								toggling={ this.props.isSavingAnyOption( [ 'enable_header_ad' ] ) }
 								onChange={ this.handleChange( 'enable_header_ad' ) }
 								label={ __( 'Top of each page', 'jetpack' ) }
-							/>
-							<ToggleControl
-								checked={ wordads_second_belowpost }
-								disabled={
-									! isAdsActive ||
-									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads' ] )
-								}
-								toggling={ this.props.isSavingAnyOption( [ 'wordads_second_belowpost' ] ) }
-								onChange={ this.handleChange( 'wordads_second_belowpost' ) }
-								label={ __( 'Second ad below post', 'jetpack' ) }
 							/>
 							<ToggleControl
 								checked={ wordads_inline_enabled }

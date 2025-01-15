@@ -176,7 +176,6 @@ class Defaults {
 		'wordads_display_front_page',
 		'wordads_display_page',
 		'wordads_display_post',
-		'wordads_second_belowpost',
 		'wordads_inline_enabled',
 		'woocommerce_custom_orders_table_enabled',
 		'wp_mobile_app_promos',

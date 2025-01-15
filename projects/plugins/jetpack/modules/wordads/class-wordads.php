@@ -672,9 +672,6 @@ HTML;
 		} elseif ( 'house' === $type ) {
 			$leaderboard = 'top' === $spot && ! $this->params->mobile_device;
 			$snippet     = $this->get_house_ad( $leaderboard ? 'leaderboard' : 'mrec' );
-			if ( 'belowpost' === $spot && $this->option( 'wordads_second_belowpost', true ) ) {
-				$snippet .= $this->get_house_ad( $leaderboard ? 'leaderboard' : 'mrec' );
-			}
 		}
 
 		return $snippet;

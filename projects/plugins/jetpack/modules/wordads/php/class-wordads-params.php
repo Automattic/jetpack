@@ -91,7 +91,6 @@ class WordAds_Params {
 			'wordads_house'                        => true,
 			'wordads_unsafe'                       => false,
 			'enable_header_ad'                     => true,
-			'wordads_second_belowpost'             => true,
 			'wordads_inline_enabled'               => true,
 			'wordads_bottom_sticky_enabled'        => false,
 			'wordads_sidebar_sticky_right_enabled' => false,
