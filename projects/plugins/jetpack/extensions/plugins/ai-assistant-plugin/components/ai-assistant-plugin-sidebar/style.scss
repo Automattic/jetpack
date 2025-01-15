@@ -1,9 +1,23 @@
 .jetpack-ai-sidebar__feature-section {
 	margin-bottom: 2em;
+	display: block;
 
 	p, p > * {
 		text-wrap: pretty;
 	}
+
+	button {
+		width: 100%;
+		justify-content: center;
+	}
+}
+
+.jetpack-ai-sidebar__external-link {
+	min-height: unset;
+}
+
+.jetpack-ai-assistant__help-text {
+	color: #757575;
 }
 
 .jetpack-ai-feedback__label {
@@ -11,6 +25,14 @@
 	gap: 16px;
 	.components-toggle-control {
 		margin-bottom: 8px;
+	}
+}
+
+.jetpack-ai-sidebar__warning-content {
+	p {
+		border-left: 4px solid #F0B849;
+		background: color-mix(in srgb, #FFF 80%, #F0B849);
+		padding: 8px 4px;
 	}
 }
 

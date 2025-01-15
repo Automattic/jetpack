@@ -20,6 +20,7 @@ import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/util
 import { isBetaExtension } from '../../../../editor';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import { PLAN_TYPE_FREE, PLAN_TYPE_UNLIMITED, usePlanType } from '../../../../shared/use-plan-type';
+import usePostContent from '../../hooks/use-post-content';
 import { FeaturedImage } from '../ai-image';
 import { Breve, registerBreveHighlights, Highlight } from '../breve';
 import { getBreveAvailability, canWriteBriefBeEnabled } from '../breve/utils/get-availability';
@@ -102,23 +103,22 @@ const JetpackAndSettingsContent = ( {
 				</PanelRow>
 			) }
 
+			{ ! usePostContent() && (
+				<PanelRow className="jetpack-ai-sidebar__warning-content">
+					<p>{ __( 'The following features requie content to work.', 'jetpack' ) }</p>
+				</PanelRow>
+			) }
+
 			{ canWriteBriefBeEnabled() && isBreveAvailable && (
 				<PanelRow>
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>
-							{ __( 'Write Brief with AI (BETA)', 'jetpack' ) }
+							{ __( 'Write Brief (Beta)', 'jetpack' ) }
 						</BaseControl.VisualLabel>
 						<Breve />
 					</BaseControl>
 				</PanelRow>
 			) }
-
-			<PanelRow className="jetpack-ai-sidebar__feature-section">
-				<BaseControl __nextHasNoMarginBottom={ true }>
-					<BaseControl.VisualLabel>{ __( 'AI Feedback', 'jetpack' ) }</BaseControl.VisualLabel>
-					<Feedback placement={ placement } busy={ false } disabled={ requireUpgrade } />
-				</BaseControl>
-			</PanelRow>
 
 			{ isAITitleOptimizationAvailable && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
@@ -128,16 +128,25 @@ const JetpackAndSettingsContent = ( {
 					</BaseControl>
 				</PanelRow>
 			) }
+
 			{ isAIFeaturedImageAvailable && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>
-							{ __( 'AI Featured Image', 'jetpack' ) }
+							{ __( 'Get Featured Image', 'jetpack' ) }
 						</BaseControl.VisualLabel>
 						<FeaturedImage busy={ false } disabled={ requireUpgrade } placement={ placement } />
 					</BaseControl>
 				</PanelRow>
 			) }
+
+			<PanelRow className="jetpack-ai-sidebar__feature-section">
+				<BaseControl __nextHasNoMarginBottom={ true }>
+					<BaseControl.VisualLabel>{ __( 'Get Feedback', 'jetpack' ) }</BaseControl.VisualLabel>
+					<Feedback placement={ placement } busy={ false } disabled={ requireUpgrade } />
+				</BaseControl>
+			</PanelRow>
+
 			{ requireUpgrade && ! isUsagePanelAvailable && (
 				<PanelRow>
 					<Upgrade placement={ placement } type={ upgradeType } upgradeUrl={ checkoutUrl } />
@@ -149,21 +158,21 @@ const JetpackAndSettingsContent = ( {
 				</PanelRow>
 			) }
 
-			<PanelRow>
-				<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-ai-feedback">
-					{ __( 'Provide feedback', 'jetpack' ) }
-				</ExternalLink>
-			</PanelRow>
-
-			<PanelRow>
+			<PanelRow className="jetpack-ai-sidebar__external-link">
 				<ExternalLink href={ productPageUrl }>
 					{ __( 'Learn more about Jetpack AI', 'jetpack' ) }
 				</ExternalLink>
 			</PanelRow>
 
-			<PanelRow>
+			<PanelRow className="jetpack-ai-sidebar__external-link">
+				<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-ai-feedback">
+					{ __( 'Give us feedback', 'jetpack' ) }
+				</ExternalLink>
+			</PanelRow>
+
+			<PanelRow className="jetpack-ai-sidebar__external-link">
 				<ExternalLink href="https://jetpack.com/redirect/?source=ai-guidelines">
-					{ __( 'AI Guidelines', 'jetpack' ) }
+					{ __( 'AI guidelines', 'jetpack' ) }
 				</ExternalLink>
 			</PanelRow>
 		</>
