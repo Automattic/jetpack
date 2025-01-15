@@ -8,12 +8,15 @@ import {
 	SOURCE_JETPACK_AI_FEATURED_IMAGE,
 	SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_MEDIA_SOURCE,
 	SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_BLOCK,
+	GooglePhotosIcon,
+	GooglePhotosMedia,
+	OpenverseIcon,
 	OpenverseMedia,
+	PexelsIcon,
 	PexelsMedia,
+	JetpackMobileAppIcon,
 } from '@automattic/jetpack-shared-extension-utils';
 import { __ } from '@wordpress/i18n';
-import { GooglePhotosIcon, OpenverseIcon, PexelsIcon, JetpackMobileAppIcon } from '../../icons';
-import GooglePhotosMedia from './google-photos';
 import JetpackAIFeaturedImage from './jetpack-ai-featured-image';
 import JetpackAIGeneralPurposeImageForBlock from './jetpack-ai-general-purpose-image-for-block';
 import JetpackAIGeneralPurposeImageForMediaSource from './jetpack-ai-general-purpose-image-for-media-source';

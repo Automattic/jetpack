@@ -1,11 +1,11 @@
-import {
-	SOURCE_GOOGLE_PHOTOS,
-	getExternalMediaApiUrl,
-} from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { Button } from '@wordpress/components';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import {
+	SOURCE_GOOGLE_PHOTOS,
+	getExternalMediaApiUrl,
+} from '@automattic/jetpack-shared-extension-utils';
 
 const GooglePhotosDisconnect = ( { setAuthenticated, buttonVariant = 'secondary' } ) => {
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
@@ -29,7 +29,7 @@ const GooglePhotosDisconnect = ( { setAuthenticated, buttonVariant = 'secondary'
 			disabled={ isDisconnecting }
 			isBusy={ isDisconnecting }
 		>
-			{ __( 'Disconnect from Google Photos', 'jetpack' ) }
+			{ __( 'Disconnect from Google Photos', 'jetpack-shared-extension-utils' ) }
 		</Button>
 	);
 };

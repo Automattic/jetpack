@@ -1,7 +1,10 @@
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import {
+	isAtomicSite,
+	isSimpleSite,
+	JetpackLogo,
+} from '@automattic/jetpack-shared-extension-utils';
 import { getCategories, setCategories, registerBlockCollection } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
-import { JetpackLogo } from './icons';
 
 const isWpcom = isSimpleSite() || isAtomicSite();
 
