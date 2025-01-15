@@ -1,0 +1,100 @@
+<?php
+/**
+ * Class use to register REST API endpoints used by the Accont Protection module.
+ *
+ * @package automattic/jetpack-waf
+ */
+
+namespace Automattic\Jetpack\Account_Protection;
+
+use Automattic\Jetpack\Connection\REST_Connector;
+use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
+use WP_REST_Server;
+
+/**
+ * Defines our endponts.
+ */
+class REST_Controller {
+	/**
+	 * Register REST API endpoints.
+	 *
+	 * @return void
+	 */
+	public static function register_rest_routes() {
+		// Ensure routes are only initialized once.
+		static $routes_registered = false;
+		if ( $routes_registered ) {
+			return;
+		}
+
+		register_rest_route(
+			'jetpack/v4',
+			'/account-protection',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_settings',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/account-protection',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::update_settings',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+			)
+		);
+
+		$routes_registered = true;
+	}
+
+	/**
+	 * Account Protection Settings Endpoint
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function get_settings() {
+		return rest_ensure_response(
+			array(
+				Account_Protection::STRICT_MODE_OPTION_NAME => get_option( Account_Protection::STRICT_MODE_OPTION_NAME ),
+			)
+		);
+	}
+
+	/**
+	 * Update Account Protection Settings Endpoint
+	 *
+	 * @param WP_REST_Request $request The API request.
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function update_settings( $request ) {
+		// Strict Mode
+		if ( isset( $request[ Account_Protection::STRICT_MODE_OPTION_NAME ] ) ) {
+			update_option( Account_Protection::STRICT_MODE_OPTION_NAME, $request[ Account_Protection::STRICT_MODE_OPTION_NAME ] ? '1' : '' );
+		}
+
+		return self::get_settings();
+	}
+
+	/**
+	 * Account Protection Endpoint Permissions Callback
+	 *
+	 * @return bool|WP_Error True if user can view the Jetpack admin page.
+	 */
+	public static function permissions_callback() {
+		if ( current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_manage_options',
+			REST_Connector::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+}
