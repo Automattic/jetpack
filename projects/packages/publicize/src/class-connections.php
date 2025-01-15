@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection;
 use Automattic\Jetpack\Publicize\REST_API\Proxy_Requests;
+use WP_Error;
 use WP_REST_Request;
 
 /**
@@ -45,6 +46,26 @@ class Connections {
 		$connections = self::retain_deprecated_fields( $connections );
 
 		return $connections;
+	}
+
+	/**
+	 * Get a connection by connection_id.
+	 *
+	 * @param string $connection_id Connection ID.
+	 *
+	 * @return array|null
+	 */
+	public static function get_by_id( $connection_id ) {
+
+		$connections = self::get_all();
+
+		foreach ( $connections as $connection ) {
+			if ( $connection['connection_id'] === $connection_id ) {
+				return $connection;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -219,7 +240,7 @@ class Connections {
 	 *
 	 * @return array
 	 */
-	private static function wpcom_prepare_connection_data( $connection, $service_name ) {
+	public static function wpcom_prepare_connection_data( $connection, $service_name ) {
 		// Ensure that we are on WPCOM.
 		Publicize_Utils::assert_is_wpcom( __METHOD__ );
 
@@ -253,6 +274,98 @@ class Connections {
 			'global'               => 0 == $connection_data['user_id'],
 
 		);
+	}
+
+	/**
+	 * Create a connection. Meant to be called directly only on WPCOM.
+	 *
+	 * @param mixed $input Input data.
+	 *
+	 * @return string|WP_Error Connection ID or WP_Error.
+	 */
+	public static function wpcom_create_connection( $input ) {
+		// Ensure that we are on WPCOM.
+		Publicize_Utils::assert_is_wpcom( __METHOD__ );
+
+		require_lib( 'social-connections-rest-helper' );
+
+		$connections_helper = \Social_Connections_Rest_Helper::init();
+
+		$result = $connections_helper->create_publicize_connection( $input );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		if ( ! isset( $result['ID'] ) ) {
+			return new WP_Error(
+				'wpcom_connection_creation_failed',
+				__( 'Something went wrong while creating a connection.', 'jetpack-publicize-pkg' )
+			);
+		}
+
+		return (string) $result['ID'];
+	}
+
+	/**
+	 * Update a connection. Meant to be called directly only on WPCOM.
+	 *
+	 * @param string $connection_id Connection ID.
+	 * @param mixed  $input Input data.
+	 *
+	 * @return string|WP_Error Connection ID or WP_Error.
+	 */
+	public static function wpcom_update_connection( $connection_id, $input ) {
+		// Ensure that we are on WPCOM.
+		Publicize_Utils::assert_is_wpcom( __METHOD__ );
+
+		require_lib( 'social-connections-rest-helper' );
+		$connections_helper = \Social_Connections_Rest_Helper::init();
+
+		$result = $connections_helper->update_connection( $connection_id, $input );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		if ( ! $result ) {
+			return new WP_Error(
+				'wpcom_connection_updation_failed',
+				__( 'Something went wrong while updating the connection.', 'jetpack-publicize-pkg' )
+			);
+		}
+
+		return (string) $connection_id;
+	}
+
+	/**
+	 * Delete a connection. Meant to be called directly only on WPCOM.
+	 *
+	 * @param string $connection_id Connection ID.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function wpcom_delete_connection( $connection_id ) {
+		// Ensure that we are on WPCOM.
+		Publicize_Utils::assert_is_wpcom( __METHOD__ );
+
+		require_lib( 'social-connections-rest-helper' );
+		$connections_helper = \Social_Connections_Rest_Helper::init();
+
+		$result = $connections_helper->delete_publicize_connection( $connection_id );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		if ( ! $result ) {
+			return new WP_Error(
+				'wpcom_connection_deletion_failed',
+				__( 'Something went wrong while deleting the connection.', 'jetpack-publicize-pkg' )
+			);
+		}
+
+		return true;
 	}
 
 	/**

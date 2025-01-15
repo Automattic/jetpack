@@ -282,7 +282,7 @@ export function deleteConnectionById( { connectionId, showSuccessNotice = true }
 		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
 
 		try {
-			const path = `/jetpack/v4/social/connections/${ connectionId }`;
+			const path = `/wpcom/v2/publicize/connections/${ connectionId }`;
 
 			// Abort the refresh connections request.
 			dispatch( abortRefreshConnectionsRequest() );
@@ -341,7 +341,7 @@ export function createConnection( data, optimisticData = {} ) {
 		const tempId = `new-${ ++uniqueId }`;
 
 		try {
-			const path = `/jetpack/v4/social/connections/`;
+			const path = `/wpcom/v2/publicize/connections/`;
 
 			dispatch(
 				addConnection( {
@@ -460,7 +460,7 @@ export function updateConnectionById( connectionId, data ) {
 		const prevConnection = select.getConnectionById( connectionId );
 
 		try {
-			const path = `/jetpack/v4/social/connections/${ connectionId }`;
+			const path = `/wpcom/v2/publicize/connections/${ connectionId }`;
 
 			// Abort the refresh connections request.
 			dispatch( abortRefreshConnectionsRequest() );
