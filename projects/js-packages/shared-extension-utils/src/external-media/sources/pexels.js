@@ -1,3 +1,8 @@
+import { TextControl, Button } from '@wordpress/components';
+import { useRef, useCallback, useState, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { sample } from 'lodash';
+import React from 'react';
 import {
 	SOURCE_PEXELS,
 	PEXELS_EXAMPLE_QUERIES,
@@ -6,11 +11,13 @@ import {
 	getExternalMediaApiUrl,
 	withMedia,
 } from '@automattic/jetpack-shared-extension-utils';
-import { TextControl, Button } from '@wordpress/components';
-import { useRef, useCallback, useState, useEffect } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { sample } from 'lodash';
 
+/**
+ * PexelsMedia component
+ *
+ * @param {object} props - The component props
+ * @return {React.ReactElement} - JSX element
+ */
 function PexelsMedia( props ) {
 	const { media, isCopying, isLoading, pageHandle, multiple, copyMedia, getMedia } = props;
 
@@ -81,7 +88,7 @@ function PexelsMedia( props ) {
 				onSubmit={ onSearch }
 			>
 				<TextControl
-					aria-label={ __( 'Search', 'jetpack' ) }
+					aria-label={ __( 'Search', 'jetpack-shared-extension-utils' ) }
 					type="search"
 					value={ searchQuery }
 					onChange={ setSearchQuery }
@@ -96,7 +103,7 @@ function PexelsMedia( props ) {
 						! searchQuery.length || searchQuery === previousSearchQueryValue.current || isCopying
 					}
 				>
-					{ __( 'Search', 'jetpack' ) }
+					{ __( 'Search', 'jetpack-shared-extension-utils' ) }
 				</Button>
 			</form>
 

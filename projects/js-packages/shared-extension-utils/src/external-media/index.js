@@ -5,4 +5,5 @@ export * from './media-service';
 export * from './media-service/types';
 export * from './sources/api';
 export { default as OpenverseMedia } from './sources/openverse';
+export { default as PexelsMedia } from './sources/pexels';
 export { default as withMedia } from './sources/with-media';
