@@ -102,7 +102,71 @@ function jetpack_boost_page_optimize_service_request() {
 	die();
 }
 
+function jetpack_boost_minify_get_file_parts( $request_uri ) {
+	$path_parts = explode( '/wp-content/boost-cache/static/', $request_uri );
+	if ( count( $path_parts ) !== 2 ) {
+		return false;
+	}
+
+	// Remove any query parameters
+	$filename = explode( '?', $path_parts[1] )[0];
+	if ( ! preg_match( '/\.(js|css)$/', $filename ) ) {
+		return false;
+	}
+
+	$filename_parts = explode( '.', $filename );
+	$file_name      = $filename_parts[0];
+	$file_extension = end( $filename_parts );
+
+	return array(
+		'file_name'      => $file_name,
+		'file_extension' => $file_extension,
+	);
+}
+
 function jetpack_boost_page_optimize_service_request_new() {
+	// We handle the cache here, tell other caches not to.
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', true );
+	}
+
+	$output  = jetpack_boost_page_optimize_build_output_new();
+	$content = $output['content'];
+	$headers = $output['headers'];
+
+	status_header( 200 );
+	foreach ( $headers as $header ) {
+		header( $header );
+	}
+
+	// Check if we're on Atomic and take advantage of the Atomic Edge Cache.
+	if ( defined( 'ATOMIC_CLIENT_ID' ) ) {
+		header( 'A8c-Edge-Cache: cache' );
+	}
+
+	header( 'X-Page-Optimize: uncached' );
+	header( 'Cache-Control: max-age=' . 31536000 );
+	header( 'ETag: "' . md5( $content ) . '"' );
+
+	echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- We need to trust this unfortunately.
+
+	// Cache the generated data, if possible.
+	$use_cache = Config::can_use_static_cache();
+	if ( $use_cache ) {
+		$utils = new Utils();
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		$request_uri     = isset( $_SERVER['REQUEST_URI'] ) ? $utils->unslash( $_SERVER['REQUEST_URI'] ) : '';
+		$file_parts      = jetpack_boost_minify_get_file_parts( $request_uri );
+		$cache_dir       = Config::get_static_cache_dir_path();
+		$cache_file_path = $cache_dir . '/' . $file_parts['file_name'] . '.min.' . $file_parts['file_extension'];
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		file_put_contents( $cache_file_path, $content );
+	}
+	exit;
+}
+
+function jetpack_boost_page_optimize_build_output_new() {
 	$utils                             = new Utils();
 	$jetpack_boost_page_optimize_types = jetpack_boost_page_optimize_types();
 
@@ -110,30 +174,14 @@ function jetpack_boost_page_optimize_service_request_new() {
 	$concat_max_files = 150;
 	$concat_unique    = true;
 
-	// We handle the cache here, tell other caches not to.
-	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
-		define( 'DONOTCACHEPAGE', true );
-	}
-
 	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '';
-	// Extract the filename from the path
-	$path_parts = explode( '/wp-content/boost-cache/static/', $request_uri );
-	if ( count( $path_parts ) !== 2 ) {
+	$file_parts  = jetpack_boost_minify_get_file_parts( $request_uri );
+	if ( ! $file_parts ) {
 		jetpack_boost_page_optimize_status_exit( 404 );
 	}
 
-	// Remove any query parameters
-	$filename = explode( '?', $path_parts[1] )[0];
-	if ( ! preg_match( '/\.(js|css)$/', $filename ) ) {
-		jetpack_boost_page_optimize_status_exit( 404 );
-	}
-
-	$filename_parts = explode( '.', $filename );
-	$file_hash      = $filename_parts[0];
-	$file_extension = $filename_parts[1];
-
-	$file_paths = jetpack_boost_page_optimize_get_file_paths( $file_hash );
+	$file_paths = jetpack_boost_page_optimize_get_file_paths( $file_parts['file_name'] );
 
 	// file_paths contain something like array( '/foo/bar.css', '/foo1/bar/baz.css' )
 	// @todo - what do we do if we're over the maximum number of files? Maybe we just don't concatenate?
@@ -263,27 +311,15 @@ function jetpack_boost_page_optimize_service_request_new() {
 	// resulting in ns_error_net_partial_transfer errors.
 	$output = rtrim( $output );
 
-	status_header( 200 );
-	header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $last_modified ) . ' GMT' );
-	header( 'Content-Type: ' . $mime_type );
-	// Check if we're on Atomic and take advantage of the Atomic Edge Cache.
-	if ( defined( 'ATOMIC_CLIENT_ID' ) ) {
-		header( 'A8c-Edge-Cache: cache' );
-	}
-	header( 'X-Page-Optimize: uncached' );
-	header( 'Cache-Control: max-age=' . 31536000 );
-	header( 'ETag: "' . md5( $output ) . '"' );
-	echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- We need to trust this unfortunately.
+	$headers = array(
+		'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $last_modified ) . ' GMT',
+		"Content-Type: $mime_type",
+	);
 
-	$use_cache = Config::can_use_static_cache();
-	if ( $use_cache ) {
-		$cache_dir       = Config::get_static_cache_dir_path();
-		$cache_file_path = $cache_dir . '/' . $file_hash . '.min.' . $file_extension;
-
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		file_put_contents( $cache_file_path, $output );
-	}
-	exit;
+	return array(
+		'headers' => $headers,
+		'content' => $pre_output . $output,
+	);
 }
 
 /**
