@@ -95,11 +95,9 @@ class RelatedPostsComponent extends React.Component {
 		if ( isBlockThemeActive ) {
 			return (
 				<p>
-					{ createInterpolateElement(
-						__(
-							'Keep your visitors engaged with related content at the bottom of each post.',
-							'jetpack'
-						)
+					{ __(
+						'Keep your visitors engaged with related content at the bottom of each post.',
+						'jetpack'
 					) }
 				</p>
 			);
