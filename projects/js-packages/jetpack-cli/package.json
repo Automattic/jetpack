@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-cli",
-	"version": "0.1.0-alpha",
+	"version": "1.0.0",
 	"description": "Docker-based CLI for Jetpack development",
 	"bin": {
 		"jp": "bin/jp.js"
