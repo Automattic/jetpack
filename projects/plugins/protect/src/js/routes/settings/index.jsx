@@ -49,7 +49,7 @@ const SettingsPage = () => {
 			</div>
 			<div className={ styles[ 'toggle-section__content' ] }>
 				<Text variant="title-medium" mb={ 2 }>
-					{ __( 'Require strong passwords', 'jetpack-protect' ) }
+					{ __( 'Account protection', 'jetpack-protect' ) }
 				</Text>
 				<Text mb={ 2 } className={ styles[ 'toggle-section__description' ] }>
 					{ createInterpolateElement(
@@ -62,20 +62,46 @@ const SettingsPage = () => {
 						}
 					) }
 				</Text>
-				{ isAccountProtectionEnabled && (
-					<Text className={ styles[ 'toggle-section__warning' ] }>
-						<Icon icon={ warning } />
-						{ createInterpolateElement(
-							__(
-								'Jetpack recommends activating this setting. Please be <link>mindful of the risks.</link>',
-								'jetpack-protect'
-							),
-							{
-								link: <a href={ '#' } />, // TODO: Update this redirect URL
-							}
-						) }
-					</Text>
-				) }
+			</div>
+		</div>
+	);
+
+	const strictModeSettings = (
+		<div className={ styles[ 'toggle-section' ] }>
+			<div className={ styles[ 'toggle-section__control' ] }>
+				<ToggleControl
+					checked={ isAccountProtectionEnabled }
+					onChange={ toggleAccountProtection }
+					disabled={ toggleAccountProtectionMutation.isPending }
+				/>
+			</div>
+			<div className={ styles[ 'toggle-section__content' ] }>
+				<Text variant="title-medium" mb={ 2 }>
+					{ __( 'Require strongs passwords', 'jetpack-protect' ) }
+				</Text>
+				<Text mb={ 2 } className={ styles[ 'toggle-section__description' ] }>
+					{ createInterpolateElement(
+						__(
+							'When enabled, users can only set passwords that meet strong <link>security standards</link>, helping protect their accounts and your site.',
+							'jetpack-protect'
+						),
+						{
+							link: <a href={ '#' } />, // TODO: Update this redirect URL
+						}
+					) }
+				</Text>
+				<Text className={ styles[ 'toggle-section__warning' ] }>
+					<Icon icon={ warning } />
+					{ createInterpolateElement(
+						__(
+							'Jetpack recommends activating this setting. Please be <link>mindful of the risks.</link>',
+							'jetpack-protect'
+						),
+						{
+							link: <a href={ '#' } />, // TODO: Update this redirect URL
+						}
+					) }
+				</Text>
 			</div>
 		</div>
 	);
@@ -88,7 +114,10 @@ const SettingsPage = () => {
 			<AdminSectionHero>
 				<Container className={ styles.container } horizontalSpacing={ 8 } horizontalGap={ 4 }>
 					<Col>
-						<div className={ styles[ 'toggle-wrapper' ] }>{ accountProtectionSettings }</div>
+						<div className={ styles[ 'toggle-wrapper' ] }>
+							{ accountProtectionSettings }
+							{ isAccountProtectionEnabled && strictModeSettings }
+						</div>
 					</Col>
 				</Container>
 			</AdminSectionHero>
