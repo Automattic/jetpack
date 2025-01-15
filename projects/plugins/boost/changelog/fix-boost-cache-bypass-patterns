@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Page Cache: Fixed bypass patterns getting applied to the whole URL instead of the start.

@@ -51,6 +51,22 @@ export default {
 				step: 1,
 			},
 		},
+		gapScale: {
+			control: {
+				type: 'range',
+				min: 0,
+				max: 1,
+				step: 0.01,
+			},
+		},
+		cornerScale: {
+			control: {
+				type: 'range',
+				min: 0,
+				max: 1,
+				step: 0.01,
+			},
+		},
 		legendOrientation: {
 			control: 'radio',
 			options: [ 'horizontal', 'vertical' ],
@@ -71,7 +87,9 @@ export const Default: StoryType = {
 	args: {
 		size: 400,
 		thickness: 1,
+		gapScale: 0,
 		padding: 20,
+		cornerScale: 0,
 		withTooltips: false,
 		data,
 		theme: 'default',

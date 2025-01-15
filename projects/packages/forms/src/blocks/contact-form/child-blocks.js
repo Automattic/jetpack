@@ -1,7 +1,7 @@
 import { createBlock } from '@wordpress/blocks';
 import { Path, Icon } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
-import { globe } from '@wordpress/icons';
+import { globe, envelope, mobile } from '@wordpress/icons';
 import { filter, isEmpty, map, startsWith, trim } from 'lodash';
 import JetpackField from './components/jetpack-field';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
@@ -388,11 +388,12 @@ export const childBlocks = [
 			title: __( 'Email Field', 'jetpack-forms' ),
 			keywords: [ __( 'e-mail', 'jetpack-forms' ), __( 'mail', 'jetpack-forms' ), 'email' ],
 			description: __( 'Collect email addresses from your visitors.', 'jetpack-forms' ),
-			icon: renderMaterialIcon(
-				<Path
-					fill={ getIconColor() }
-					fillRule="evenodd"
-					d="M5.5 8.41665V16C5.5 16.2761 5.72386 16.5 6 16.5H18C18.2761 16.5 18.5 16.2761 18.5 16V8.41633L11.9998 13.9879L5.5 8.41665ZM17.2642 7.5H6.73546L11.9998 12.0123L17.2642 7.5ZM6 6C4.89543 6 4 6.89543 4 8V16C4 17.1046 4.89543 18 6 18H18C19.1046 18 20 17.1046 20 16V8C20 6.89543 19.1046 6 18 6H6Z"
+			icon: (
+				<Icon
+					icon={ envelope }
+					style={ {
+						fill: getIconColor(),
+					} }
 				/>
 			),
 			edit: editField( 'email' ),
@@ -477,11 +478,12 @@ export const childBlocks = [
 				__( 'Mobile', 'jetpack-forms' ),
 			],
 			description: __( 'Collect phone numbers from site visitors.', 'jetpack-forms' ),
-			icon: renderMaterialIcon(
-				<Path
-					fill={ getIconColor() }
-					fillRule="evenodd"
-					d="M9 5.5H15C15.2761 5.5 15.5 5.72386 15.5 6V18C15.5 18.2761 15.2761 18.5 15 18.5H9C8.72386 18.5 8.5 18.2761 8.5 18V6C8.5 5.72386 8.72386 5.5 9 5.5ZM7 6C7 4.89543 7.89543 4 9 4H15C16.1046 4 17 4.89543 17 6V18C17 19.1046 16.1046 20 15 20H9C7.89543 20 7 19.1046 7 18V6ZM13 16H11V17.5H13V16Z"
+			icon: (
+				<Icon
+					icon={ mobile }
+					style={ {
+						fill: getIconColor(),
+					} }
 				/>
 			),
 			edit: editField( 'tel' ),

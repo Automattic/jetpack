@@ -63,6 +63,13 @@ const buildEnv = argv => {
 	}
 
 	envOpts.COMPOSE_PROJECT_NAME = getProjectName( argv );
+
+	// Add versions from versions.sh
+	const versions = envfile.parse(
+		fs.readFileSync( `${ dockerFolder }/../../.github/versions.sh`, 'utf8' )
+	);
+	Object.assign( envOpts, versions );
+
 	return envOpts;
 };
 
@@ -548,13 +555,22 @@ const execJtCmdHandler = argv => {
 };
 
 /**
+ * Generate Docker configuration files.
+ *
+ * @param {object} argv - The command line arguments
+ */
+async function generateConfig( argv ) {
+	await setConfig( argv );
+}
+
+/**
  * Definition for the Docker commands.
  *
  * @param {object} yargs - The Yargs dependency.
  * @return {object} Yargs with the Docker commands defined.
  */
 export function dockerDefine( yargs ) {
-	yargs.command( {
+	return yargs.command( {
 		command: 'docker <cmd>',
 		description: 'Docker stuff',
 		builder: yarg => {
@@ -801,9 +817,15 @@ export function dockerDefine( yargs ) {
 					command: 'jt-config',
 					description: 'Set jurassic tube config',
 					handler: argv => execJtCmdHandler( argv ),
+				} )
+				.command( {
+					command: 'config',
+					description: 'Generate Docker configuration files',
+					builder: yargCmd => defaultOpts( yargCmd ),
+					handler: async argv => {
+						await generateConfig( argv );
+					},
 				} );
 		},
 	} );
-
-	return yargs;
 }

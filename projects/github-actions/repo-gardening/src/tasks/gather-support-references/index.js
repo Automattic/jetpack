@@ -412,13 +412,19 @@ async function createOrUpdateComment( payload, octokit, issueReferences, issueCo
 /**
  * Add a label to the issue, if it does not exist yet.
  *
- * @param {GitHub} octokit    - Initialized Octokit REST client.
- * @param {string} ownerLogin - Repository owner login.
- * @param {string} repo       - Repository name.
- * @param {number} number     - Issue number.
+ * @param {WebhookPayloadIssue} payload - Issue or issue comment event payload.
+ * @param {GitHub}              octokit - Initialized Octokit REST client.
  * @return {Promise<void>}
  */
-async function addHappinessLabel( octokit, ownerLogin, repo, number ) {
+async function addHappinessLabel( payload, octokit ) {
+	const {
+		issue: { number },
+		repository: {
+			name: repo,
+			owner: { login: ownerLogin },
+		},
+	} = payload;
+
 	const happinessLabel = 'Customer Report';
 
 	const labels = await getLabels( octokit, ownerLogin, repo, number );
@@ -436,6 +442,18 @@ async function addHappinessLabel( octokit, ownerLogin, repo, number ) {
 		issue_number: number,
 		labels: [ happinessLabel ],
 	} );
+
+	// Send Slack notification, if we have the necessary tokens.
+	// No Slack tokens, we won't be able to escalate. Bail.
+	const slackToken = getInput( 'slack_token' );
+	const channel = getInput( 'slack_quality_channel' );
+	if ( ! slackToken || ! channel ) {
+		return false;
+	}
+
+	const message = `This issue has been labeled as a Customer Report. Please complete first-line triage within 24 hours.`;
+	const slackMessageFormat = formatSlackMessage( payload, channel, message );
+	await sendSlackMessage( message, channel, payload, slackMessageFormat );
 }
 
 /**
@@ -464,7 +482,7 @@ async function gatherSupportReferences( payload, octokit ) {
 	if ( issueReferences.length > 0 ) {
 		debug( `gather-support-references: Found ${ issueReferences.length } references.` );
 		await createOrUpdateComment( payload, octokit, issueReferences, issueComments );
-		await addHappinessLabel( octokit, owner.login, repo, number );
+		await addHappinessLabel( payload, octokit );
 	}
 }
 
