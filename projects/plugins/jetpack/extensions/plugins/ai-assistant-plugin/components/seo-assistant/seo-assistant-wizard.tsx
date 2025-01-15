@@ -224,17 +224,17 @@ export default function SeoAssistantWizard( { isOpen, close, onStep }: SeoAssist
 			<div className="seo-assistant-wizard">
 				<div className="seo-assistant-wizard__header">
 					<Button variant="link" disabled={ isBusy } onClick={ handleBack }>
-						<Icon icon={ chevronLeft } size="24" />
+						<Icon icon={ chevronLeft } size={ 24 } />
 					</Button>
 					<h2>{ currentStepData.title }</h2>
 					<div>
 						<Tooltip text={ __( 'Skip', 'jetpack' ) }>
 							<Button variant="link" disabled={ isBusy } onClick={ handleSkip }>
-								<Icon icon={ next } size="24" />
+								<Icon icon={ next } size={ 24 } />
 							</Button>
 						</Tooltip>
 						<Button variant="link" onClick={ handleDone }>
-							<Icon icon={ closeSmall } size="24" />
+							<Icon icon={ closeSmall } size={ 24 } />
 						</Button>
 					</div>
 				</div>

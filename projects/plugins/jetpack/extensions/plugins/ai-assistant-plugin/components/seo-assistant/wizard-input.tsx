@@ -34,7 +34,7 @@ export default function WizardInput( { currentStepData, handleSubmit, handleDone
 
 					<Button variant="primary" onClick={ handleSubmit } disabled={ ! selectedOption }>
 						{ currentStepData.submitCtaLabel }&nbsp;
-						<Icon icon={ arrowRight } size="24" />
+						<Icon icon={ arrowRight } size={ 24 } />
 					</Button>
 				</div>
 			) }
