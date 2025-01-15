@@ -102,39 +102,52 @@ function jetpack_boost_page_optimize_service_request() {
 	die();
 }
 
+/**
+ * Get the file name and extension from the request URI.
+ *
+ * @param string $request_uri The request URI.
+ * @return array|false The file name and extension, or false if the request URI is invalid.
+ */
 function jetpack_boost_minify_get_file_parts( $request_uri ) {
-	$path_parts = explode( '/wp-content/boost-cache/static/', $request_uri );
-	if ( count( $path_parts ) !== 2 ) {
+	$utils       = new Utils();
+	$request_uri = $utils->unslash( $request_uri );
+
+	$file_path = $utils->parse_url( $request_uri, PHP_URL_PATH );
+	if ( $file_path === false ) {
 		return false;
 	}
 
-	// Remove any query parameters
-	$filename = explode( '?', $path_parts[1] )[0];
-	if ( ! preg_match( '/\.(js|css)$/', $filename ) ) {
+	$file_info = pathinfo( $file_path );
+	if ( $file_info['dirname'] !== '/wp-content/boost-cache/static' ) {
 		return false;
 	}
 
-	$filename_parts = explode( '.', $filename );
-	$file_name      = $filename_parts[0];
-	$file_extension = end( $filename_parts );
+	$allowed_extensions = array( 'css', 'js' );
+	if ( ! in_array( $file_info['extension'], $allowed_extensions, true ) ) {
+		return false;
+	}
+
+	// The base name (without the extension) might contain ".min".
+	// Example - 777873a36e.min
+	$file_name_parts = explode( '.', $file_info['basename'] );
+	$file_name       = $file_name_parts[0];
 
 	return array(
 		'file_name'      => $file_name,
-		'file_extension' => $file_extension,
+		'file_extension' => $file_info['extension'],
 	);
 }
 
-function jetpack_boost_page_optimize_service_request_new() {
+function jetpack_boost_handle_minify_request( $request_uri ) {
 	// We handle the cache here, tell other caches not to.
 	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
 		define( 'DONOTCACHEPAGE', true );
 	}
 
-	$output  = jetpack_boost_page_optimize_build_output_new();
+	$output  = jetpack_boost_build_minify_output();
 	$content = $output['content'];
 	$headers = $output['headers'];
 
-	status_header( 200 );
 	foreach ( $headers as $header ) {
 		header( $header );
 	}
@@ -153,20 +166,19 @@ function jetpack_boost_page_optimize_service_request_new() {
 	// Cache the generated data, if possible.
 	$use_cache = Config::can_use_static_cache();
 	if ( $use_cache ) {
-		$utils = new Utils();
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-		$request_uri     = isset( $_SERVER['REQUEST_URI'] ) ? $utils->unslash( $_SERVER['REQUEST_URI'] ) : '';
-		$file_parts      = jetpack_boost_minify_get_file_parts( $request_uri );
-		$cache_dir       = Config::get_static_cache_dir_path();
-		$cache_file_path = $cache_dir . '/' . $file_parts['file_name'] . '.min.' . $file_parts['file_extension'];
+		$file_parts = jetpack_boost_minify_get_file_parts( $request_uri );
+		if ( $file_parts ) {
+			$cache_dir       = Config::get_static_cache_dir_path();
+			$cache_file_path = $cache_dir . '/' . $file_parts['file_name'] . '.min.' . $file_parts['file_extension'];
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		file_put_contents( $cache_file_path, $content );
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			file_put_contents( $cache_file_path, $content );
+		}
 	}
 	exit;
 }
 
-function jetpack_boost_page_optimize_build_output_new() {
+function jetpack_boost_build_minify_output() {
 	$utils                             = new Utils();
 	$jetpack_boost_page_optimize_types = jetpack_boost_page_optimize_types();
 
