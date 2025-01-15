@@ -90,39 +90,18 @@ class RelatedPostsComponent extends React.Component {
 	}
 
 	renderSettings() {
-		const { isBlockThemeActive } = this.props;
-
-		if ( isBlockThemeActive ) {
-			return (
-				<p>
-					{ __(
-						'Keep your visitors engaged with related content at the bottom of each post.',
-						'jetpack'
-					) }
-				</p>
-			);
-		}
-
 		const isRelatedPostsActive = this.props.getOptionValue( 'related-posts' );
 		const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'related-posts' );
+		const { isBlockThemeActive } = this.props;
 
 		return (
 			<>
 				<p>
 					{ createInterpolateElement(
 						__(
-							'Keep your visitors engaged with related content at the bottom of each post. These settings won’t apply to <a>related posts added using the block editor</a>.',
+							'Keep your visitors engaged with related content at the bottom of each post.',
 							'jetpack'
-						),
-						{
-							a: (
-								<a
-									href={ getRedirectUrl( 'jetpack-support-related-posts' ) }
-									target="_blank"
-									rel="noopener noreferrer"
-								/>
-							),
-						}
+						)
 					) }
 				</p>
 				<ModuleToggle
@@ -136,98 +115,100 @@ class RelatedPostsComponent extends React.Component {
 						{ __( 'Show related content after posts', 'jetpack' ) }
 					</span>
 				</ModuleToggle>
-				<FormFieldset>
-					<ToggleControl
-						checked={ this.props.getOptionValue( 'show_headline', 'related-posts' ) }
-						disabled={
-							! isRelatedPostsActive ||
-							unavailableInOfflineMode ||
-							this.props.isSavingAnyOption( [ 'related-posts' ] )
-						}
-						toggling={ this.props.isSavingAnyOption( [ 'show_headline' ] ) }
-						onChange={ this.handleShowHeadlineToggleChange }
-						label={
-							<span className="jp-form-toggle-explanation">
-								{ __( 'Highlight related content with a heading', 'jetpack' ) }
-							</span>
-						}
-					/>
-					<ToggleControl
-						checked={ this.props.getOptionValue( 'show_thumbnails', 'related-posts' ) }
-						disabled={
-							! isRelatedPostsActive ||
-							unavailableInOfflineMode ||
-							this.props.isSavingAnyOption( [ 'related-posts' ] )
-						}
-						toggling={ this.props.isSavingAnyOption( [ 'show_thumbnails' ] ) }
-						onChange={ this.handleShowThumbnailsToggleChange }
-						label={
-							<span className="jp-form-toggle-explanation">
-								{ __( 'Show a thumbnail image where available', 'jetpack' ) }
-							</span>
-						}
-					/>
-					{ isRelatedPostsActive && (
-						<div>
-							<FormLabel className="jp-form-label-wide">
-								{ _x(
-									'Preview',
-									'A header for a preview area in the configuration screen.',
-									'jetpack'
-								) }
-							</FormLabel>
-							<Card className="jp-related-posts-preview">
-								{ this.state.show_headline && (
-									<div className="jp-related-posts-preview__title">
-										{ __( 'Related', 'jetpack' ) }
-									</div>
-								) }
-								{ [
-									{
-										url: 'cat-blog.png',
-										text: __( 'Big iPhone/iPad Update Now Available', 'jetpack' ),
-										context: _x(
-											'In "Mobile"',
-											'It refers to the category where a post was found. Used in an example preview.',
-											'jetpack'
-										),
-									},
-									{
-										url: 'devices.jpg',
-										text: __( 'The WordPress for Android App Gets a Big Facelift', 'jetpack' ),
-										context: _x(
-											'In "Mobile"',
-											'It refers to the category where a post was found. Used in an example preview.',
-											'jetpack'
-										),
-									},
-									{
-										url: 'mobile-wedding.jpg',
-										text: __( 'Upgrade Focus: VideoPress For Weddings', 'jetpack' ),
-										context: _x(
-											'In "Upgrade"',
-											'It refers to the category where a post was found. Used in an example preview.',
-											'jetpack'
-										),
-									},
-								].map( ( item, index ) => (
-									<div key={ `preview_${ index }` } className="jp-related-posts-preview__item">
-										{ this.state.show_thumbnails && (
-											<img
-												src={ `https://jetpackme.files.wordpress.com/2019/03/${ item.url }` }
-												alt={ item.text }
-											/>
-										) }
-										<h4 className="jp-related-posts-preview__post-title">
-											<a href="#/traffic">{ item.text }</a>
-										</h4>
-										<p className="jp-related-posts-preview__post-context">{ item.context }</p>
-									</div>
-								) ) }
-							</Card>
-						</div>
-					) }
-				</FormFieldset>
+				{ ! isBlockThemeActive && (
+					<FormFieldset>
+						<ToggleControl
+							checked={ this.props.getOptionValue( 'show_headline', 'related-posts' ) }
+							disabled={
+								! isRelatedPostsActive ||
+								unavailableInOfflineMode ||
+								this.props.isSavingAnyOption( [ 'related-posts' ] )
+							}
+							toggling={ this.props.isSavingAnyOption( [ 'show_headline' ] ) }
+							onChange={ this.handleShowHeadlineToggleChange }
+							label={
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Highlight related content with a heading', 'jetpack' ) }
+								</span>
+							}
+						/>
+						<ToggleControl
+							checked={ this.props.getOptionValue( 'show_thumbnails', 'related-posts' ) }
+							disabled={
+								! isRelatedPostsActive ||
+								unavailableInOfflineMode ||
+								this.props.isSavingAnyOption( [ 'related-posts' ] )
+							}
+							toggling={ this.props.isSavingAnyOption( [ 'show_thumbnails' ] ) }
+							onChange={ this.handleShowThumbnailsToggleChange }
+							label={
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Show a thumbnail image where available', 'jetpack' ) }
+								</span>
+							}
+						/>
+						{ isRelatedPostsActive && (
+							<div>
+								<FormLabel className="jp-form-label-wide">
+									{ _x(
+										'Preview',
+										'A header for a preview area in the configuration screen.',
+										'jetpack'
+									) }
+								</FormLabel>
+								<Card className="jp-related-posts-preview">
+									{ this.state.show_headline && (
+										<div className="jp-related-posts-preview__title">
+											{ __( 'Related', 'jetpack' ) }
+										</div>
+									) }
+									{ [
+										{
+											url: 'cat-blog.png',
+											text: __( 'Big iPhone/iPad Update Now Available', 'jetpack' ),
+											context: _x(
+												'In "Mobile"',
+												'It refers to the category where a post was found. Used in an example preview.',
+												'jetpack'
+											),
+										},
+										{
+											url: 'devices.jpg',
+											text: __( 'The WordPress for Android App Gets a Big Facelift', 'jetpack' ),
+											context: _x(
+												'In "Mobile"',
+												'It refers to the category where a post was found. Used in an example preview.',
+												'jetpack'
+											),
+										},
+										{
+											url: 'mobile-wedding.jpg',
+											text: __( 'Upgrade Focus: VideoPress For Weddings', 'jetpack' ),
+											context: _x(
+												'In "Upgrade"',
+												'It refers to the category where a post was found. Used in an example preview.',
+												'jetpack'
+											),
+										},
+									].map( ( item, index ) => (
+										<div key={ `preview_${ index }` } className="jp-related-posts-preview__item">
+											{ this.state.show_thumbnails && (
+												<img
+													src={ `https://jetpackme.files.wordpress.com/2019/03/${ item.url }` }
+													alt={ item.text }
+												/>
+											) }
+											<h4 className="jp-related-posts-preview__post-title">
+												<a href="#/traffic">{ item.text }</a>
+											</h4>
+											<p className="jp-related-posts-preview__post-context">{ item.context }</p>
+										</div>
+									) ) }
+								</Card>
+							</div>
+						) }
+					</FormFieldset>
+				) }
 			</>
 		);
 	}
