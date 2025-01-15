@@ -397,6 +397,7 @@ function jetpack_is_file_supported_for_sideloading( $file ) {
 	$supported_mime_types = apply_filters(
 		'jetpack_supported_media_sideload_types',
 		array(
+			'application/pdf',
 			'image/png',
 			'image/jpeg',
 			'image/gif',
