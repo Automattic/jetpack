@@ -89,7 +89,7 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 						<JetpackFooter
 							moduleName={ moduleName }
 							moduleNameHref={ moduleNameHref }
-							optionalMenuItems={ optionalMenuItems }
+							menu={ optionalMenuItems }
 						/>
 					</Col>
 				</Container>

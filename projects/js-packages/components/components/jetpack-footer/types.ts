@@ -48,9 +48,4 @@ export type JetpackFooterProps = {
 	 * Function called when the Terms link is clicked.
 	 */
 	onTermsClick?: () => void;
-
-	/**
-	 * Optional additional menu items to be displayed.
-	 */
-	optionalMenuItems?: JetpackFooterMenuItem[];
 };

@@ -42,7 +42,6 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 	onAboutClick,
 	onPrivacyClick,
 	onTermsClick,
-	optionalMenuItems,
 	...otherProps
 } ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm', '<=' );
@@ -95,10 +94,6 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 			onClick: onTermsClick,
 		},
 	];
-
-	if ( optionalMenuItems ) {
-		items = [ ...items, ...optionalMenuItems ];
-	}
 
 	if ( menu ) {
 		items = [ ...items, ...menu ];
