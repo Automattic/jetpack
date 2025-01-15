@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Sync\Settings;
 
 /**
@@ -725,6 +726,24 @@ EOT;
 			esc_html__( 'Show context (category or tag)', 'jetpack' ),
 			esc_html__( 'Preview:', 'jetpack' )
 		);
+
+		// The above settings does not take effect on block themes.
+		if ( wp_is_block_theme() ) {
+			$ui_settings = sprintf(
+				'<p><a href="%s" target="_blank" rel="noopener noreferrer">%s</a> %s</p>',
+				esc_url(
+					Redirect::get_url(
+						'jetpack-support-related-posts',
+						array(
+							'anchor' => 'adding-related-posts-block-theme',
+							'site'   => $this->get_blog_id(),
+						)
+					)
+				),
+				esc_html__( 'Add a Related Posts Block to your site’s template in the site editor', 'jetpack' ),
+				esc_html__( 'to keep your visitors engaged with related content at the bottom of each post.', 'jetpack' )
+			);
+		}
 
 		if ( ! $this->allow_feature_toggle() ) {
 			$template = <<<EOT
