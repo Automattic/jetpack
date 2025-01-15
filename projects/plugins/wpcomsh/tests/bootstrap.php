@@ -47,6 +47,8 @@ require_once $_tests_dir . '/includes/functions.php';
  * Manually load the plugin being tested.
  */
 function _manually_load_plugin() {
+
+	require_once __DIR__ . '/lib/polyfills.php';
 	if ( file_exists( WPMU_PLUGIN_DIR . '/wpcomsh-loader.php' ) ) {
 		return;
 	}
@@ -58,17 +60,6 @@ tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 // Important for monorepo CI, if you don't do this then different test runs might collide!
 if ( false !== getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) ) {
 	define( 'WP_TESTS_CONFIG_FILE_PATH', getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) );
-}
-
-if ( ! function_exists( 'wp_cache_flush_runtime' ) ) {
-	/**
-	 * Removes all cache items from the in-memory runtime cache.
-	 *
-	 * @return bool True on success, false on failure.
-	 */
-	function wp_cache_flush_runtime() {
-		return wp_cache_flush();
-	}
 }
 
 // Start up the WP testing environment.
