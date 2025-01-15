@@ -148,7 +148,7 @@ add_action(
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '';
-		if ( stripos( $request_uri, '/boost-cache/static/' ) === false ) {
+		if ( stripos( $request_uri, '/wp-content/boost-cache/static/' ) === false ) {
 			return;
 		}
 

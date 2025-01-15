@@ -118,7 +118,7 @@ function jetpack_boost_page_optimize_service_request_new() {
 	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '';
 	// Extract the filename from the path
-	$path_parts = explode( '/boost-cache/static/', $request_uri );
+	$path_parts = explode( '/wp-content/boost-cache/static/', $request_uri );
 	if ( count( $path_parts ) !== 2 ) {
 		jetpack_boost_page_optimize_status_exit( 404 );
 	}

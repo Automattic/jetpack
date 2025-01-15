@@ -260,17 +260,21 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 }
 
 /**
- * Get the URL prefix for static minify/concat resources. Defaults to /boost-cache/static/, but can be
+ * Get the URL prefix for static minify/concat resources. Defaults to /_jb_static/, but can be
  * overridden by defining JETPACK_BOOST_STATIC_PREFIX.
  */
 function jetpack_boost_get_static_prefix() {
-	$prefix = defined( 'JETPACK_BOOST_STATIC_PREFIX' ) ? JETPACK_BOOST_STATIC_PREFIX : '/boost-cache/static/';
+	$prefix = defined( 'JETPACK_BOOST_STATIC_PREFIX' ) ? JETPACK_BOOST_STATIC_PREFIX : '/_jb_static/';
 
 	if ( ! str_starts_with( $prefix, '/' ) ) {
 		$prefix = '/' . $prefix;
 	}
 
 	return trailingslashit( $prefix );
+}
+
+function jetpack_boost_get_minify_url( $file_name, $siteurl ) {
+	return $siteurl . '/wp-content/boost-cache/static/' . $file_name;
 }
 
 /**
