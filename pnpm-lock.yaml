@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: elvoqfz3hkxf3joxybwjpabdjm
+pnpmfileChecksum: 4dabxzjqxv2glgjc2d7l77h7ii
 
 patchedDependencies:
   '@wordpress/dataviews@4.12.0':
@@ -8319,6 +8319,9 @@ packages:
   '@wordpress/upload-media@0.1.0':
     resolution: {integrity: sha512-K0B9XlHrqOJ6YwwVchP6v6ohduD/mfJKNQxDauZiCqcWim8r8rcTrFp+nBUw3TujDCKas23aVMl09aQpA8zcMw==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+    peerDependencies:
+      '@babel/runtime': ^7
+      react: ^18
 
   '@wordpress/url@4.16.0':
     resolution: {integrity: sha512-A9kkw/ye2qL9ZHvm1Eew8bvGVnNMq4fW0t5dakdDuVXyXtSOvZVT268JhP9QaD0FYzOFrmxL5Ks8Z6ufP1yLwg==}
@@ -18727,7 +18730,7 @@ snapshots:
       '@wordpress/rich-text': 7.16.0(react@18.3.1)
       '@wordpress/style-engine': 2.16.0
       '@wordpress/token-list': 3.16.0
-      '@wordpress/upload-media': 0.1.0(@babel/core@7.26.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(webpack@5.94.0)
+      '@wordpress/upload-media': 0.1.0(@babel/core@7.26.0)(@babel/runtime@7.25.7)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(webpack@5.94.0)
       '@wordpress/url': 4.16.0
       '@wordpress/warning': 3.16.0
       '@wordpress/wordcount': 4.16.0
@@ -18790,7 +18793,7 @@ snapshots:
       '@wordpress/rich-text': 7.16.0(react@18.3.1)
       '@wordpress/style-engine': 2.16.0
       '@wordpress/token-list': 3.16.0
-      '@wordpress/upload-media': 0.1.0(@babel/core@7.26.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/upload-media': 0.1.0(@babel/core@7.26.0)(@babel/runtime@7.25.7)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url': 4.16.0
       '@wordpress/warning': 3.16.0
       '@wordpress/wordcount': 4.16.0
@@ -18853,7 +18856,7 @@ snapshots:
       '@wordpress/rich-text': 7.16.0(react@18.3.1)
       '@wordpress/style-engine': 2.16.0
       '@wordpress/token-list': 3.16.0
-      '@wordpress/upload-media': 0.1.0(@babel/core@7.26.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(webpack@5.94.0)
+      '@wordpress/upload-media': 0.1.0(@babel/core@7.26.0)(@babel/runtime@7.25.7)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(webpack@5.94.0)
       '@wordpress/url': 4.16.0
       '@wordpress/warning': 3.16.0
       '@wordpress/wordcount': 4.16.0
@@ -18916,7 +18919,7 @@ snapshots:
       '@wordpress/rich-text': 7.16.0(react@18.3.1)
       '@wordpress/style-engine': 2.16.0
       '@wordpress/token-list': 3.16.0
-      '@wordpress/upload-media': 0.1.0(@babel/core@7.26.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(webpack@5.94.0)
+      '@wordpress/upload-media': 0.1.0(@babel/core@7.26.0)(@babel/runtime@7.25.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(webpack@5.94.0)
       '@wordpress/url': 4.16.0
       '@wordpress/warning': 3.16.0
       '@wordpress/wordcount': 4.16.0
@@ -18979,7 +18982,7 @@ snapshots:
       '@wordpress/rich-text': 7.16.0(react@18.3.1)
       '@wordpress/style-engine': 2.16.0
       '@wordpress/token-list': 3.16.0
-      '@wordpress/upload-media': 0.1.0(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/upload-media': 0.1.0(@babel/runtime@7.25.7)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url': 4.16.0
       '@wordpress/warning': 3.16.0
       '@wordpress/wordcount': 4.16.0
@@ -20961,8 +20964,9 @@ snapshots:
       '@babel/runtime': 7.25.7
       '@wordpress/is-shallow-equal': 5.16.0
 
-  '@wordpress/upload-media@0.1.0(@babel/core@7.26.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@wordpress/upload-media@0.1.0(@babel/core@7.26.0)(@babel/runtime@7.25.7)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
+      '@babel/runtime': 7.25.7
       '@shopify/web-worker': 6.4.0(@babel/core@7.26.0)
       '@wordpress/api-fetch': 7.16.0
       '@wordpress/blob': 4.16.0
@@ -20973,19 +20977,20 @@ snapshots:
       '@wordpress/preferences': 4.16.0(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/private-apis': 1.16.0
       '@wordpress/url': 4.16.0
+      react: 18.3.1
       uuid: 9.0.1
     transitivePeerDependencies:
       - '@babel/core'
       - '@emotion/is-prop-valid'
       - '@types/react'
-      - react
       - react-dom
       - supports-color
       - webpack
       - webpack-virtual-modules
 
-  '@wordpress/upload-media@0.1.0(@babel/core@7.26.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(webpack@5.94.0)':
+  '@wordpress/upload-media@0.1.0(@babel/core@7.26.0)(@babel/runtime@7.25.7)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(webpack@5.94.0)':
     dependencies:
+      '@babel/runtime': 7.25.7
       '@shopify/web-worker': 6.4.0(@babel/core@7.26.0)(webpack@5.94.0)
       '@wordpress/api-fetch': 7.16.0
       '@wordpress/blob': 4.16.0
@@ -20996,19 +21001,20 @@ snapshots:
       '@wordpress/preferences': 4.16.0(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/private-apis': 1.16.0
       '@wordpress/url': 4.16.0
+      react: 18.3.1
       uuid: 9.0.1
     transitivePeerDependencies:
       - '@babel/core'
       - '@emotion/is-prop-valid'
       - '@types/react'
-      - react
       - react-dom
       - supports-color
       - webpack
       - webpack-virtual-modules
 
-  '@wordpress/upload-media@0.1.0(@babel/core@7.26.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(webpack@5.94.0)':
+  '@wordpress/upload-media@0.1.0(@babel/core@7.26.0)(@babel/runtime@7.25.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(webpack@5.94.0)':
     dependencies:
+      '@babel/runtime': 7.25.7
       '@shopify/web-worker': 6.4.0(@babel/core@7.26.0)(webpack@5.94.0)
       '@wordpress/api-fetch': 7.16.0
       '@wordpress/blob': 4.16.0
@@ -21019,19 +21025,20 @@ snapshots:
       '@wordpress/preferences': 4.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/private-apis': 1.16.0
       '@wordpress/url': 4.16.0
+      react: 18.3.1
       uuid: 9.0.1
     transitivePeerDependencies:
       - '@babel/core'
       - '@emotion/is-prop-valid'
       - '@types/react'
-      - react
       - react-dom
       - supports-color
       - webpack
       - webpack-virtual-modules
 
-  '@wordpress/upload-media@0.1.0(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@wordpress/upload-media@0.1.0(@babel/runtime@7.25.7)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
+      '@babel/runtime': 7.25.7
       '@shopify/web-worker': 6.4.0
       '@wordpress/api-fetch': 7.16.0
       '@wordpress/blob': 4.16.0
@@ -21042,12 +21049,12 @@ snapshots:
       '@wordpress/preferences': 4.16.0(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/private-apis': 1.16.0
       '@wordpress/url': 4.16.0
+      react: 18.3.1
       uuid: 9.0.1
     transitivePeerDependencies:
       - '@babel/core'
       - '@emotion/is-prop-valid'
       - '@types/react'
-      - react
       - react-dom
       - supports-color
       - webpack
