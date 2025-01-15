@@ -49,24 +49,28 @@ class REST_Products {
 			'validate_callback' => __CLASS__ . '::check_products_argument',
 		);
 
-		$products_arg = array(
-			'description'       => __( 'Array of Product slugs', 'jetpack-my-jetpack' ),
-			'type'              => 'array',
-			'items'             => array(
-				'enum' => Products::get_products_slugs(),
-				'type' => 'string',
-			),
-			'required'          => true,
-			'validate_callback' => __CLASS__ . '::check_products_argument',
+		register_rest_route(
+			'my-jetpack/v1',
+			'site/products/install-multiple-plugins',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::install_multiple_plugins',
+					'permission_callback' => __CLASS__ . '::edit_permissions_callback',
+					'args'                => array(
+						'products' => $products_arg,
+					),
+				),
+			)
 		);
 
 		register_rest_route(
 			'my-jetpack/v1',
-			'site/products/install-products-plugins',
+			'site/products/activate-multiple-plugins',
 			array(
 				array(
 					'methods'             => \WP_REST_Server::EDITABLE,
-					'callback'            => __CLASS__ . '::install_products_plugins',
+					'callback'            => __CLASS__ . '::activate_multiple_products',
 					'permission_callback' => __CLASS__ . '::edit_permissions_callback',
 					'args'                => array(
 						'products' => $products_arg,
@@ -199,26 +203,6 @@ class REST_Products {
 		return true;
 	}
 
-	/**
-	 * Check Products argument.
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @param  mixed $value - Value of the 'product' argument.
-	 * @return true|WP_Error   True if the value is valid, WP_Error otherwise.
-	 */
-	public static function check_products_argument( $value ) {
-		if ( ! is_array( $value ) ) {
-			return new WP_Error(
-				'rest_invalid_param',
-				esc_html__( 'The product argument must be an array.', 'jetpack-my-jetpack' ),
-				array( 'status' => 400 )
-			);
-		}
-
-		return true;
-	}
 	/**
 	 * Check Products argument.
 	 *
@@ -388,7 +372,7 @@ class REST_Products {
 	 * @param \WP_REST_Request $request The request object.
 	 * @return \WP_REST_Response
 	 */
-	public static function install_products_plugins( $request ) {
+	public static function install_multiple_plugins( $request ) {
 		$products_array = $request->get_param( 'products' );
 
 		foreach ( $products_array as $product_slug ) {
