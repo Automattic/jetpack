@@ -9,6 +9,7 @@ import {
 	SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_MEDIA_SOURCE,
 	SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_BLOCK,
 	OpenverseMedia,
+	PexelsMedia,
 } from '@automattic/jetpack-shared-extension-utils';
 import { __ } from '@wordpress/i18n';
 import { GooglePhotosIcon, OpenverseIcon, PexelsIcon, JetpackMobileAppIcon } from '../../icons';
@@ -17,7 +18,6 @@ import JetpackAIFeaturedImage from './jetpack-ai-featured-image';
 import JetpackAIGeneralPurposeImageForBlock from './jetpack-ai-general-purpose-image-for-block';
 import JetpackAIGeneralPurposeImageForMediaSource from './jetpack-ai-general-purpose-image-for-media-source';
 import JetpackAppMedia from './jetpack-app-media';
-import PexelsMedia from './pexels';
 
 export const internalMediaSources = [
 	{
