@@ -61,8 +61,6 @@ export const SingleSeries: Story = {
 export const ManyDataSeries: Story = {
 	args: {
 		...Default.args,
-		width: 1200,
-		height: 700,
 		data,
 	},
 	parameters: {
