@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Updated package.json repo URL format to align with what NPM wants (npm pkg fix)
+
+
