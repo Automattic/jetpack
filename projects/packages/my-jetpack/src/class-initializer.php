@@ -1113,6 +1113,13 @@ class Initializer {
 	 * @return array
 	 */
 	public static function alert_if_paid_plan_requires_plugin_install_or_activation( array $red_bubble_slugs ) {
+		$connection = new Connection_Manager();
+		// Don't trigger red bubble (and show notice) when the site is not connected or if the
+		// user doesn't have plugin installation/activation permissions.
+		if ( ! $connection->is_connected() || ! current_user_can( 'activate_plugins' ) ) {
+			return $red_bubble_slugs;
+		}
+
 		$plugins_needing_installed_activated = self::get_paid_plans_plugins_requirements();
 		if ( empty( $plugins_needing_installed_activated ) ) {
 			return $red_bubble_slugs;

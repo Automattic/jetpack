@@ -19,10 +19,9 @@ type RedBubbleAlerts = MyJetpackInitialState[ 'redBubbleAlerts' ];
 type Purchase = MyJetpackInitialState[ 'purchases' ][ 'items' ][ 0 ];
 
 const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
-	const { setNotice } = useContext( NoticeContext );
+	const { setNotice, resetNotice } = useContext( NoticeContext );
 	const { recordEvent } = useAnalytics();
 
-	const userIsAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
 	const { isSiteConnected } = useMyJetpackConnection();
 	const response = useSimpleQuery( {
 		name: QUERY_PURCHASES_KEY,
@@ -106,16 +105,29 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 		recordEvent( 'jetpack_my_jetpack_plugin_needs_installed_notice_cta_click' );
 
 		if ( needs_installed ) {
-			installAndActivatePlugins();
+			installAndActivatePlugins( null, {
+				onSuccess: () => {
+					delete redBubbleAlerts[ pluginsNeedingActionAlerts[ 0 ] ];
+					resetNotice();
+				},
+			} );
 		}
 		if ( needs_activated_only ) {
-			activatePlugins();
+			activatePlugins( null, {
+				onSuccess: () => {
+					delete redBubbleAlerts[ pluginsNeedingActionAlerts[ 0 ] ];
+					resetNotice();
+				},
+			} );
 		}
 	}, [
 		recordEvent,
 		needs_installed,
 		needs_activated_only,
 		installAndActivatePlugins,
+		redBubbleAlerts,
+		pluginsNeedingActionAlerts,
+		resetNotice,
 		activatePlugins,
 	] );
 
@@ -143,7 +155,7 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 							sprintf(
 								// translators: %1$s is the name of the Jetpack paid plan, i.e.- "Jetpack Security", %2$s is either "the [plugin name] plugin" or "the following plugins", and %3$s is a verb being either "installed", or "activated", or "installed and/or activated".
 								__(
-									'To get the most out of your <link>%1$s paid subscription</link> and to have access to all it’s features, we recommend you %2$s the following %3$s:',
+									'To get the most out of your <link>%1$s paid subscription</link> and have access to all it’s features, we recommend you %2$s the following %3$s:',
 									'jetpack-my-jetpack'
 								),
 								planName,
@@ -187,6 +199,8 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 			_n( 'plugin', 'plugins', numPluginsNeedingAction, 'jetpack-my-jetpack' )
 		);
 
+		const isinstallingOrActivating = isActivating || isInstalling;
+
 		const noticeOptions: NoticeOptions = {
 			id: 'plugin_needs_installed_activated',
 			level: 'warning',
@@ -194,7 +208,7 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 				{
 					label: buttonLabel,
 					onClick: handleInstallActivateInOneClick,
-					isLoading: isActivating || isInstalling,
+					isLoading: isinstallingOrActivating,
 					loadingText:
 						actionVerb === 'activate'
 							? sprintf(
@@ -210,7 +224,7 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 					noDefaultClasses: true,
 				},
 			],
-			priority: NOTICE_PRIORITY_MEDIUM,
+			priority: NOTICE_PRIORITY_MEDIUM + ( isinstallingOrActivating ? 1 : 0 ),
 		};
 
 		setNotice( {
