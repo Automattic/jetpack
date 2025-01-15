@@ -144,7 +144,7 @@ function jetpack_boost_handle_minify_request( $request_uri ) {
 		define( 'DONOTCACHEPAGE', true );
 	}
 
-	$output  = jetpack_boost_build_minify_output();
+	$output  = jetpack_boost_build_minify_output( $request_uri );
 	$content = $output['content'];
 	$headers = $output['headers'];
 
@@ -178,7 +178,7 @@ function jetpack_boost_handle_minify_request( $request_uri ) {
 	exit;
 }
 
-function jetpack_boost_build_minify_output() {
+function jetpack_boost_build_minify_output( $request_uri ) {
 	$utils                             = new Utils();
 	$jetpack_boost_page_optimize_types = jetpack_boost_page_optimize_types();
 
@@ -186,9 +186,7 @@ function jetpack_boost_build_minify_output() {
 	$concat_max_files = 150;
 	$concat_unique    = true;
 
-	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '';
-	$file_parts  = jetpack_boost_minify_get_file_parts( $request_uri );
+	$file_parts = jetpack_boost_minify_get_file_parts( $request_uri );
 	if ( ! $file_parts ) {
 		jetpack_boost_page_optimize_status_exit( 404 );
 	}
