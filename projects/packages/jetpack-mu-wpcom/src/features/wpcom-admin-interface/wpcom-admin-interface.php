@@ -393,7 +393,7 @@ add_action( 'admin_notices', 'wpcom_show_admin_interface_notice' );
  */
 function wpcom_is_duplicate_views_experiment_enabled() {
 	$experiment_platform = 'calypso';
-	$experiment_name     = "{$experiment_platform}_post_onboarding_holdout_120924";
+	$experiment_name     = "{$experiment_platform}_post_onboarding_holdout_160125";
 	$aa_test_name        = "{$experiment_platform}_post_onboarding_aa_150125";
 
 	static $is_enabled = null;
