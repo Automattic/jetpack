@@ -31,7 +31,7 @@ export default [
 			},
 			{
 				date: new Date( '2024-01-07' ),
-				value: 2607.4,
+				value: 2607,
 			},
 			{
 				date: new Date( '2024-01-08' ),
@@ -183,7 +183,7 @@ export default [
 			},
 			{
 				date: new Date( '2024-01-13' ),
-				value: 1218.7,
+				value: 1218,
 			},
 			{
 				date: new Date( '2024-01-14' ),
