@@ -175,6 +175,7 @@ export const JetpackContactFormEdit = forwardRef(
 						] }
 						onChange={ newMessage => setAttributes( { customThankyou: newMessage } ) }
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 
 					{ 'redirect' !== customThankyou && (

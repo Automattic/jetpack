@@ -98,6 +98,7 @@ const JetpackDatePicker = props => {
 									'jetpack-forms'
 								) }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 						),
 					},
