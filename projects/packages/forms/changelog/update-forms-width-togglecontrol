@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Forms: update width control to use more modern ToggleGroupControl

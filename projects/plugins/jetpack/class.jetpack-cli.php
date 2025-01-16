@@ -1036,7 +1036,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				}
 
 				// Kick off a full sync.
-				if ( Actions::do_full_sync( $modules ) ) {
+				if ( Actions::do_full_sync( $modules, 'jetpack_cli' ) ) {
 					if ( $modules ) {
 						/* translators: %s is a comma separated list of Jetpack modules */
 						WP_CLI::log( sprintf( __( 'Initialized a new full sync with modules: %s', 'jetpack' ), implode( ', ', array_keys( $modules ) ) ) );

@@ -1,10 +1,8 @@
 import {
 	getJetpackExtensionAvailability,
-	withHasWarningIsInteractiveClassNames,
 	requiresPaidPlan,
 } from '@automattic/jetpack-shared-extension-utils';
 import { registerBlockType } from '@wordpress/blocks';
-import { addFilter } from '@wordpress/hooks';
 
 /**
  * Registers a gutenberg block if the availability requirements are met.
@@ -33,14 +31,6 @@ export default function registerJetpackBlock( name, settings, childBlocks = [], 
 	}
 
 	const result = registerBlockType( jpPrefix + name, settings );
-
-	if ( requiredPlan ) {
-		addFilter(
-			'editor.BlockListBlock',
-			`${ jpPrefix + name }-with-has-warning-is-interactive-class-names`,
-			withHasWarningIsInteractiveClassNames( jpPrefix + name )
-		);
-	}
 
 	// Register child blocks. Using `registerBlockType()` directly avoids availability checks -- if
 	// their parent is available, we register them all, without checking for their individual availability.

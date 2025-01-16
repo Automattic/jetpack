@@ -27,6 +27,16 @@ Default.args = {
 	data: sampleData,
 	showLegend: false,
 	legendOrientation: 'horizontal',
+	options: {
+		axis: {
+			x: {
+				orientation: 'bottom',
+			},
+			y: {
+				orientation: 'left',
+			},
+		},
+	},
 };
 
 // Story with single data series

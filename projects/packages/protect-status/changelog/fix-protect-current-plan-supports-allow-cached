@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Protect-status package: Fix Current_Plan::supports() call from breaking cache on every call.

@@ -131,7 +131,7 @@ class Connections_Controller extends Base_Controller {
 				'description' => __( 'Display name of the connected account.', 'jetpack-publicize-pkg' ),
 			),
 			'external_handle' => array(
-				'type'        => 'string',
+				'type'        => array( 'string', 'null' ),
 				'description' => __( 'The external handle or username of the connected account.', 'jetpack-publicize-pkg' ),
 			),
 			'external_id'     => array(
@@ -159,11 +159,12 @@ class Connections_Controller extends Base_Controller {
 				'description' => __( 'Whether the connection is shared with other users.', 'jetpack-publicize-pkg' ),
 			),
 			'status'          => array(
-				'type'        => 'string',
+				'type'        => array( 'string', 'null' ),
 				'description' => __( 'The connection status.', 'jetpack-publicize-pkg' ),
 				'enum'        => array(
 					'ok',
 					'broken',
+					null,
 				),
 			),
 			'user_id'         => array(

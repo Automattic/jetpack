@@ -8,6 +8,7 @@ import { useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { useState, useEffect, useMemo, useContext } from '@wordpress/element';
+import clsx from 'clsx';
 import { PaidBlockContext, PaidBlockProvider } from './components';
 import UpgradePlanBanner from './upgrade-plan-banner';
 import { trackUpgradeBannerImpression, trackUpgradeClickEvent } from './utils';
@@ -80,14 +81,14 @@ const withUpgradeBanner = createHigherOrderComponent(
 
 		const blockProps = useBlockProps();
 		// Fix for width of cover block because otherwise the div defaults to content-size as max width
-		const cssFixForCoverBlock = { 'max-width': 'unset' };
+		const cssFixForCoverBlock = { maxwidth: 'unset' };
 
 		return (
 			<PaidBlockProvider
 				onBannerVisibilityChange={ setIsVisible }
 				hasParentBanner={ isBannerVisible }
 			>
-				<div ref={ blockProps.ref } style={ cssFixForCoverBlock }>
+				<div { ...blockProps } style={ { ...cssFixForCoverBlock, ...blockProps.style } }>
 					<UpgradePlanBanner
 						className={ `is-${ name.replace( /\//, '-' ) }-paid-block` }
 						title={ null }
@@ -98,7 +99,7 @@ const withUpgradeBanner = createHigherOrderComponent(
 						context={ bannerContext }
 						onRedirect={ () => trackUpgradeClickEvent( trackEventData ) }
 					/>
-					<BlockEdit { ...props } />
+					<BlockEdit { ...props } className={ clsx( blockProps.className, 'has-warning' ) } />
 				</div>
 			</PaidBlockProvider>
 		);
