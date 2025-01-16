@@ -121,9 +121,13 @@ class Products {
 	 * @var array
 	 */
 	public static $not_shown_products = array(
-		'scan',
+		'creator',
 		'extras',
 		'ai', // 'ai' is a duplicate class of 'jetpack-ai', and therefore not needed.
+		'scan',
+		'security',
+		'growth',
+		'complete',
 		'newsletter',
 		'site-accelerator',
 		'related-posts',

@@ -1074,9 +1074,18 @@ class Initializer {
 	 * @return array
 	 */
 	public static function alert_if_last_backup_failed( array $red_bubble_slugs ) {
-		// Make sure we're dealing with the Backup product only
+		// Make sure there's a Backup paid plan
 		if ( ! Products\Backup::has_paid_plan_for_product() ) {
 			return $red_bubble_slugs;
+		}
+		// Make sure the plan isn't just recently purchased in last 30min.
+		// Give some time to queue & run the first backup.
+		$purchase = Products\Backup::get_paid_plan_purchase_for_product();
+		if ( $purchase ) {
+			$thirty_minutes_after_plan_purchase = strtotime( $purchase->subscribed_date . ' +30 minutes' );
+			if ( strtotime( 'now' ) < $thirty_minutes_after_plan_purchase ) {
+				return $red_bubble_slugs;
+			}
 		}
 
 		$backup_failed_status = Products\Backup::does_module_need_attention();
