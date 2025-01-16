@@ -21,7 +21,7 @@ export default function JetpackFieldWidth( { setAttributes, width } ) {
 				aria-label={ __( 'Field Width', 'jetpack-forms' ) }
 				isBlock
 				label={ __( 'Field Width', 'jetpack-forms' ) }
-				onClick={ value => setAttributes( { width: value } ) }
+				onChange={ value => setAttributes( { width: value } ) }
 				value={ width }
 			>
 				{ [ 25, 50, 75, 100 ].map( widthValue => {
