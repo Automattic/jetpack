@@ -59,12 +59,14 @@ export const settings = {
 		color: {
 			link: true,
 			gradients: true,
+			button: true,
 		},
 		html: false,
 		spacing: {
 			padding: true,
 			margin: true,
 		},
+		typography: true,
 		align: [ 'wide', 'full' ],
 	},
 	attributes: defaultAttributes,
