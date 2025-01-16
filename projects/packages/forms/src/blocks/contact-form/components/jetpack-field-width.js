@@ -19,9 +19,9 @@ export default function JetpackFieldWidth( { setAttributes, width } ) {
 			<ToggleGroupControl
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom
-				aria-label={ __( 'Field Width', 'jetpack-forms' ) }
+				aria-label={ __( 'Width', 'jetpack-forms' ) }
 				isBlock
-				label={ __( 'Field Width', 'jetpack-forms' ) }
+				label={ __( 'Width', 'jetpack-forms' ) }
 				onChange={ value => setAttributes( { width: value } ) }
 				value={ width }
 			>
