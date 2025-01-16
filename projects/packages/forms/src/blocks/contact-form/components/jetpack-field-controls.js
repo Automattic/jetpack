@@ -120,6 +120,7 @@ const JetpackFieldControls = ( {
 				key="placeholderField"
 				label={ __( 'Placeholder text', 'jetpack-forms' ) }
 				value={ placeholder || '' }
+				className="jetpack-field-label__placeholder"
 				onChange={ value => setAttributes( { [ placeholderField ]: value } ) }
 				help={ __(
 					'Show visitors an example of the type of content expected. Otherwise, leave blank.',
