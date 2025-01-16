@@ -42,7 +42,6 @@ const meta = {
 						minWidth: '400px',
 						maxWidth: '1200px',
 						border: '1px dashed #ccc',
-						display: 'inline-block',
 					} }
 				>
 					<Story />
