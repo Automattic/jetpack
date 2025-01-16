@@ -1,5 +1,4 @@
 import { Button, Icon, Tooltip } from '@wordpress/components';
-// import { useDebounce } from '@wordpress/compose';
 import { useState, useCallback, useEffect, useRef, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { next, closeSmall, chevronLeft } from '@wordpress/icons';
@@ -20,7 +19,6 @@ export default function SeoAssistantWizard( { isOpen, close, onStep }: SeoAssist
 	const [ messages, setMessages ] = useState< Message[] >( [] );
 	const messagesEndRef = useRef< HTMLDivElement >( null );
 	const [ isBusy, setIsBusy ] = useState( false );
-	// const [ messageQueue, setMessageQueue ] = useState( [] );
 
 	const scrollToBottom = () => {
 		messagesEndRef.current?.scrollIntoView( { behavior: 'smooth' } );
@@ -30,42 +28,13 @@ export default function SeoAssistantWizard( { isOpen, close, onStep }: SeoAssist
 		scrollToBottom();
 	}, [ messages ] );
 
-	// const queueMessage = useCallback(
-	// 	message => {
-	// 		setMessageQueue( prev => {
-	// 			const delay = prev.length * 200 + ( message.delay || 200 );
-	// 			debug( 'delay', delay );
-	// 			setTimeout( () => {
-	// 				debug( 'setting message' );
-	// 				setMessageQueue( prevMessageQueue => [ ...prevMessageQueue.splice( 1 ) ] );
-	// 				setMessages( prevMessages => {
-	// 					return [ ...prevMessages, { ...message, id: `message-${ prevMessages.length }` } ];
-	// 				} );
-	// 			}, delay );
-	// 			return [ ...prev, { ...message, id: `message-${ prev.length }` } ];
-	// 		} );
-	// 	},
-	// 	[ setMessages, setMessageQueue ]
-	// );
-
 	const addMessage = useCallback( async ( message: Message ) => {
 		const newMessage = {
 			...message,
 			showIcon: message.showIcon === false ? false : ! message.isUser,
 		} as Message;
 
-		setMessages( prev => {
-			return [ ...prev, { ...newMessage, id: `message-${ prev.length }` } ];
-		} );
-
-		// if ( newMessage.isUser ) {
-		// 	setMessages( prev => {
-		// 		return [ ...prev, { ...newMessage, id: `message-${ prev.length }` } ];
-		// 	} );
-		// } else {
-		// 	debug( 'queueing message' );
-		// 	queueMessage( newMessage );
-		// }
+		setMessages( prev => [ ...prev, { ...newMessage, id: `message-${ prev.length }` } ] );
 	}, [] );
 
 	/* Removes last message */
@@ -99,26 +68,7 @@ export default function SeoAssistantWizard( { isOpen, close, onStep }: SeoAssist
 	} );
 
 	const steps: Step[] = useMemo(
-		() => [
-			keywordsStep,
-			titleStep,
-			metaStep,
-			// {
-			// 	id: 'completion',
-			// 	title: __( 'Your post is SEO-ready', 'jetpack' ),
-			// 	// onStart: handleSummaryChecks,
-			// 	messages: [
-			// 		{
-			// 			content: __( "Here's your updated checklist:", 'jetpack' ),
-			// 			showIcon: true,
-			// 		},
-			// 	],
-			// 	type: 'completion',
-			// 	value: '',
-			// 	setValue: () => {},
-			// },
-			completionStep,
-		],
+		() => [ keywordsStep, titleStep, metaStep, completionStep ],
 		[ keywordsStep, metaStep, titleStep, completionStep ]
 	);
 
@@ -133,10 +83,7 @@ export default function SeoAssistantWizard( { isOpen, close, onStep }: SeoAssist
 		if ( messages.length === 0 ) {
 			debug( 'init' );
 			// Initialize with first step messages
-			currentStepData.messages.forEach( message => {
-				debug( 'adding initial message' );
-				addMessage( message );
-			} );
+			currentStepData.messages.forEach( addMessage );
 		}
 	}, [ isOpen, currentStepData.messages, messages, addMessage ] );
 
@@ -147,42 +94,7 @@ export default function SeoAssistantWizard( { isOpen, close, onStep }: SeoAssist
 			// Add next step messages
 			// TODO: can we capture completion step here and craft the messages?
 			// Nothing else has worked so far to keep track of step completions
-			steps[ currentStep + 1 ].messages.forEach( message =>
-				addMessage( {
-					content: message.content,
-					showIcon: message.showIcon,
-				} )
-			);
-			// If we're on last step, process completion
-			// if ( currentStep + 1 === steps.length - 1 ) {
-			// 	addMessage( {
-			// 		content: createInterpolateElement(
-			// 			steps
-			// 				.filter( step => step.type !== 'completion' )
-			// 				.map( step => {
-			// 					const label = step.label || step.title;
-			// 					return step.completed ? `✅ ${ label }` : `❌ ${ label }`;
-			// 				} )
-			// 				.join( '<br />' ),
-			// 			{ br: <br /> }
-			// 		),
-			// 		showIcon: false,
-			// 	} );
-			// 	addMessage( {
-			// 		content: createInterpolateElement(
-			// 			__(
-			// 				'SEO optimization complete! 🎉<br/>Your blog post is now search-engine friendly.',
-			// 				'jetpack'
-			// 			),
-			// 			{ br: <br /> }
-			// 		),
-			// 		showIcon: true,
-			// 	} );
-			// 	addMessage( {
-			// 		content: __( 'Happy blogging! 😊', 'jetpack' ),
-			// 		showIcon: false,
-			// 	} );
-			// }
+			steps[ currentStep + 1 ].messages.forEach( addMessage );
 			steps[ currentStep + 1 ].onStart?.();
 		}
 	}, [ currentStep, steps, setCurrentStep, addMessage ] );

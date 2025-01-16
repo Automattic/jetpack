@@ -1,10 +1,11 @@
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 import { SeoPlaceholder } from '../../../../plugins/seo/components/placeholder';
-import usePostContent from '../../hooks/use-post-content';
 import './style.scss';
 import bigSkyIcon from './big-sky-icon.svg';
 import SeoAssistantWizard from './seo-assistant-wizard';
@@ -14,7 +15,7 @@ const debug = debugFactory( 'jetpack-ai:seo-assistant' );
 
 export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) {
 	const [ isOpen, setIsOpen ] = useState( false );
-	const postContent = usePostContent();
+	const postIsEmpty = useSelect( select => select( editorStore ).isEditedPostEmpty(), [] );
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'seo-tools' );
 
@@ -26,7 +27,7 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 				<Button
 					onClick={ () => setIsOpen( true ) }
 					variant="secondary"
-					disabled={ isLoadingModules || isOpen || ! postContent.trim?.() || disabled }
+					disabled={ isLoadingModules || isOpen || postIsEmpty || disabled }
 					isBusy={ isLoadingModules || isOpen }
 				>
 					<img src={ bigSkyIcon } alt={ __( 'SEO Assistant icon', 'jetpack' ) } />
