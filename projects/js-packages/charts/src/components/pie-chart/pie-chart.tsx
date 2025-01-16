@@ -5,18 +5,49 @@ import { SVGProps, type MouseEvent } from 'react';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
 import { Legend } from '../legend';
+import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
-import type { BaseChartProps, DataPointPercentage } from '../shared/types';
-import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
+import type { BaseChartProps, DataPointPercentage } from '../../types';
 
 // TODO: add animation
 
-interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
+type OmitBaseChartProps = Omit< BaseChartProps< DataPointPercentage[] >, 'width' | 'height' >;
+
+interface PieChartProps extends OmitBaseChartProps {
 	/**
 	 * Inner radius in pixels. If > 0, creates a donut chart. Defaults to 0.
 	 */
 	innerRadius?: number;
+
+	/**
+	 * Size of the chart in pixels
+	 */
+	size?: number;
+
+	/**
+	 * Add padding to the chart
+	 */
+	padding?: number;
+
+	/**
+	 * Thickness of the pie chart.
+	 * A value between 0 and 1, where 0 means no thickness
+	 * and 1 means the maximum thickness.
+	 */
+	thickness?: number;
+
+	/**
+	 * Scale of the gap between groups in the pie chart
+	 * A value between 0 and 1, where 0 means no gap.
+	 */
+	gapScale?: number;
+
+	/**
+	 * Scale of the corner radius for the pie chart segments.
+	 * A value between 0 and 1, where 0 means no corner radius.
+	 */
+	cornerScale?: number;
 }
 
 /**
@@ -27,13 +58,16 @@ interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
  */
 const PieChart = ( {
 	data,
-	width = 500, //TODO: replace when making the components responsive
-	height = 500, //TODO: replace when making the components responsive
 	withTooltips = false,
-	innerRadius = 0,
 	className,
 	showLegend,
 	legendOrientation,
+
+	size = 500, //TODO: replace when making the components responsive
+	thickness = 1,
+	padding = 20,
+	gapScale = 0,
+	cornerScale = 0,
 }: PieChartProps ) => {
 	const providerTheme = useChartTheme();
 	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
@@ -41,15 +75,34 @@ const PieChart = ( {
 			withTooltips,
 		} );
 
+	const width = size;
+	const height = size;
+
 	// Calculate radius based on width/height
 	const radius = Math.min( width, height ) / 2;
 	const centerX = width / 2;
 	const centerY = height / 2;
 
+	// Calculate the angle between each
+	const padAngle = gapScale * ( ( 2 * Math.PI ) / data.length );
+
+	const outerRadius = radius - padding;
+	const innerRadius = outerRadius * ( 1 - thickness );
+
+	const maxCornerRadius = ( outerRadius - innerRadius ) / 2;
+	const cornerRadius = cornerScale ? Math.min( cornerScale * outerRadius, maxCornerRadius ) : 0;
+
+	// Map the data to include index for color assignment
+	const dataWithIndex = data.map( ( d, index ) => ( {
+		...d,
+		index,
+	} ) );
+
 	const accessors = {
-		value: ( d: PieArcDatum< DataPointPercentage > ) => d.value,
+		value: ( d: DataPointPercentage ) => d.value,
 		// Use the color property from the data object as a last resort. The theme provides colours by default.
-		fill: ( d: PieArcDatum< DataPointPercentage > ) => d?.color || providerTheme.colors[ d.index ],
+		fill: ( d: DataPointPercentage & { index: number } ) =>
+			d?.color || providerTheme.colors[ d.index ],
 	};
 
 	// Create legend items from data
@@ -63,11 +116,13 @@ const PieChart = ( {
 		<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
 			<svg width={ width } height={ height }>
 				<Group top={ centerY } left={ centerX }>
-					<Pie
-						data={ data }
+					<Pie< DataPointPercentage & { index: number } >
+						data={ dataWithIndex }
 						pieValue={ accessors.value }
-						outerRadius={ radius - 20 } // Leave space for labels/tooltips
+						outerRadius={ outerRadius }
 						innerRadius={ innerRadius }
+						padAngle={ padAngle }
+						cornerRadius={ cornerRadius }
 					>
 						{ pie => {
 							return pie.arcs.map( ( arc, index ) => {
@@ -78,7 +133,7 @@ const PieChart = ( {
 
 								const pathProps: SVGProps< SVGPathElement > = {
 									d: pie.path( arc ) || '',
-									fill: accessors.fill( arc ),
+									fill: accessors.fill( arc.data ),
 								};
 
 								if ( withTooltips ) {
@@ -134,4 +189,5 @@ const PieChart = ( {
 	);
 };
 
-export default PieChart;
+PieChart.displayName = 'PieChart';
+export default withResponsive< PieChartProps >( PieChart );

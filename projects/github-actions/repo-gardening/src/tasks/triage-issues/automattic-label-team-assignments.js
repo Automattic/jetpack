@@ -205,7 +205,7 @@ export const automatticAssignments = {
 		board_id: 'https://github.com/orgs/Automattic/projects/908/views/1',
 	},
 	VideoPress: {
-		team: 'Agora',
+		team: 'Nexus',
 		labels: [ '[Package] VideoPress', '[Feature] VideoPress', '[Plugin] VideoPress' ],
 		slack_id: 'C02TQF5VAJD',
 		board_id: 'https://github.com/orgs/Automattic/projects/460',

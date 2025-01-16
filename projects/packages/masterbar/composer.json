@@ -47,6 +47,10 @@
 		"test-php": [
 			"pnpm run build-production",
 			"@composer phpunit"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
 		]
 	},
 	"repositories": [

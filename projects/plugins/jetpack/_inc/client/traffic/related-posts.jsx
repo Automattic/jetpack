@@ -1,5 +1,4 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
-import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import React from 'react';
 import Card from 'components/card';
@@ -89,51 +88,31 @@ class RelatedPostsComponent extends React.Component {
 		);
 	}
 
-	render() {
-		const isRelatedPostsActive = this.props.getOptionValue( 'related-posts' ),
-			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'related-posts' );
+	renderSettings() {
+		const isRelatedPostsActive = this.props.getOptionValue( 'related-posts' );
+		const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'related-posts' );
+		const { isBlockThemeActive } = this.props;
+
 		return (
-			<SettingsCard { ...this.props } hideButton module="related-posts">
-				<SettingsGroup
-					hasChild
-					disableInOfflineMode
-					module={ this.props.getModule( 'related-posts' ) }
-					support={ {
-						text: __(
-							'The feature helps visitors find more of your content by displaying related posts at the bottom of each post.',
-							'jetpack'
-						),
-						link: getRedirectUrl( 'jetpack-support-related-posts' ),
-					} }
+			<>
+				<p>
+					{ __(
+						'Keep your visitors engaged with related content at the bottom of each post.',
+						'jetpack'
+					) }
+				</p>
+				<ModuleToggle
+					slug="related-posts"
+					disabled={ unavailableInOfflineMode }
+					activated={ isRelatedPostsActive }
+					toggling={ this.props.isSavingAnyOption( 'related-posts' ) }
+					toggleModule={ this.props.toggleModuleNow }
 				>
-					<p>
-						{ createInterpolateElement(
-							__(
-								'Keep your visitors engaged with related content at the bottom of each post. These settings won’t apply to <a>related posts added using the block editor</a>.',
-								'jetpack'
-							),
-							{
-								a: (
-									<a
-										href={ getRedirectUrl( 'jetpack-support-related-posts' ) }
-										target="_blank"
-										rel="noopener noreferrer"
-									/>
-								),
-							}
-						) }
-					</p>
-					<ModuleToggle
-						slug="related-posts"
-						disabled={ unavailableInOfflineMode }
-						activated={ isRelatedPostsActive }
-						toggling={ this.props.isSavingAnyOption( 'related-posts' ) }
-						toggleModule={ this.props.toggleModuleNow }
-					>
-						<span className="jp-form-toggle-explanation">
-							{ __( 'Show related content after posts', 'jetpack' ) }
-						</span>
-					</ModuleToggle>
+					<span className="jp-form-toggle-explanation">
+						{ __( 'Show related content after posts', 'jetpack' ) }
+					</span>
+				</ModuleToggle>
+				{ ! isBlockThemeActive && (
 					<FormFieldset>
 						<ToggleControl
 							checked={ this.props.getOptionValue( 'show_headline', 'related-posts' ) }
@@ -226,6 +205,28 @@ class RelatedPostsComponent extends React.Component {
 							</div>
 						) }
 					</FormFieldset>
+				) }
+			</>
+		);
+	}
+
+	render() {
+		const isRelatedPostsActive = this.props.getOptionValue( 'related-posts' );
+		return (
+			<SettingsCard { ...this.props } hideButton module="related-posts">
+				<SettingsGroup
+					hasChild
+					disableInOfflineMode
+					module={ this.props.getModule( 'related-posts' ) }
+					support={ {
+						text: __(
+							'The feature helps visitors find more of your content by displaying related posts at the bottom of each post.',
+							'jetpack'
+						),
+						link: getRedirectUrl( 'jetpack-support-related-posts' ),
+					} }
+				>
+					{ this.renderSettings() }
 				</SettingsGroup>
 				{ ! this.props.isUnavailableInOfflineMode( 'related-posts' ) &&
 					isRelatedPostsActive &&

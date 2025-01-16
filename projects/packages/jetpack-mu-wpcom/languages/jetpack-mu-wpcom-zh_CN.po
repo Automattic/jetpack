@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-11-21 15:54:04+0000\n"
+"PO-Revision-Date: 2025-01-12 18:31:34+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -8,6 +8,70 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: zh_CN\n"
 "Project-Id-Version: WordPress.com - jetpack-mu-wpcom\n"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:286
+msgid "Got it!"
+msgstr "知道了！"
+
+#: src/features/post-categories/quick-actions.php:78
+msgid "Default category changed successfully."
+msgstr "默认分类更改成功。"
+
+#: src/features/post-categories/quick-actions.php:36
+msgid "Set as default"
+msgstr "设为默认"
+
+#. translators: category name
+#: src/features/post-categories/quick-actions.php:35
+msgid "Set &#8220;%s&#8221; as the default category"
+msgstr "将“%s”设为默认分类"
+
+#: src/features/pages/quick-actions.php:169
+msgid "Posts page changed successfully."
+msgstr ""
+
+#: src/features/pages/quick-actions.php:143
+msgid "Homepage changed successfully."
+msgstr ""
+
+#: src/features/pages/quick-actions.php:57
+msgid "Set as posts page"
+msgstr ""
+
+#: src/features/pages/quick-actions.php:57
+msgid "Unset as posts page"
+msgstr ""
+
+#. translators: page title
+#: src/features/pages/quick-actions.php:56
+msgid "Set &#8220;%s&#8221; as the page that displays your latest posts"
+msgstr ""
+
+#. translators: page title
+#: src/features/pages/quick-actions.php:56
+msgid "Unset &#8220;%s&#8221; as the page that displays your latest posts"
+msgstr ""
+
+#: src/features/pages/quick-actions.php:48
+msgid "Set as homepage"
+msgstr ""
+
+#. translators: page title
+#: src/features/pages/quick-actions.php:47
+msgid "Set &#8220;%s&#8221; as your site's homepage"
+msgstr ""
+
+#: src/features/holiday-snow/class-holiday-snow.php:226
+msgid "Show falling snow on my site until January 4<sup>th</sup>."
+msgstr "1 月 4<sup> </sup>日之前在我的站点上显示飘落的雪花。"
+
+#: src/features/holiday-snow/class-holiday-snow.php:205
+msgid "Snow"
+msgstr "雪"
+
+#: src/features/holiday-snow/class-holiday-snow.php:194
+msgid "Show falling snow on my site"
+msgstr "在我的站点上显示飘落的雪花"
 
 #: src/features/wpcom-blocks/timeline/block.json
 msgctxt "block keyword"
@@ -65,40 +129,39 @@ msgstr "随时继续编辑您的主页，或者继续并发布您的站点。"
 msgid "You’ve added your first video!"
 msgstr "您已添加第一个视频！"
 
-#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:121
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:122
 msgid "View your product"
 msgstr "查看您的产品"
 
-#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:119
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:120
 msgid "Continue editing"
 msgstr "继续编辑"
 
-#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:112
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:113
 msgid "Preview your product on your site before launching and sharing with others."
 msgstr "先在站点预览您的产品，然后再推出并与其他人共享。"
 
-#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:111
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:112
 msgid "You've added your first product!"
 msgstr "您已添加第一个产品！"
 
-#: src/features/wpcom-block-editor-nux/src/purchase-notice/index.jsx:22
+#: src/features/wpcom-block-editor-nux/src/purchase-notice/index.jsx:23
 msgid "Congrats! Premium blocks are now available to use."
 msgstr "恭喜！ 现在可以使用高级版区块啦。"
 
-#: src/features/block-theme-previews/modal.jsx:58
+#: src/features/block-theme-previews/modal.jsx:59
 msgid "Start customizing"
 msgstr "开始自定义"
 
-#: src/features/block-theme-previews/modal.jsx:50
+#: src/features/block-theme-previews/modal.jsx:51
 msgid "Try customizing your theme styles to get your site looking just right."
 msgstr "尝试自定义您的主题样式，让您的站点看起来恰到好处。"
 
-#: src/features/block-theme-previews/modal.jsx:44
+#: src/features/block-theme-previews/modal.jsx:45
 msgid "Changes you make in the editor won’t be applied to your site until you activate the theme."
 msgstr "在激活主题之前，您在编辑器中所做的更改不会应用到您的站点上。"
 
-#. translators: %s: theme name
-#: src/features/block-theme-previews/modal.jsx:38
+#: src/features/block-theme-previews/modal.jsx:39
 msgid "You’re previewing %s"
 msgstr "您正在预览 %s"
 
@@ -349,28 +412,28 @@ msgstr "已展开"
 msgid "Menu"
 msgstr "菜单"
 
-#: src/features/wpcom-global-styles/index.php:548
+#: src/features/wpcom-global-styles/index.php:563
 msgid "Upgrade required"
 msgstr "需要升级"
 
-#: src/features/wpcom-global-styles/index.php:545
+#: src/features/wpcom-global-styles/index.php:560
 msgid "Upgrade"
 msgstr "升级"
 
-#: src/features/wpcom-global-styles/index.php:537
+#: src/features/wpcom-global-styles/index.php:552
 msgid "Preview premium styles"
 msgstr "预览高级样式"
 
-#: src/features/wpcom-global-styles/index.php:532
+#: src/features/wpcom-global-styles/index.php:547
 msgid "Remove premium styles"
 msgstr "删除高级样式"
 
-#: src/features/wpcom-global-styles/index.php:522
+#: src/features/wpcom-global-styles/index.php:537
 msgid "Upgrade now"
 msgstr "立即升级"
 
 #. translators: %1$s - documentation URL, %2$s - the name of the required plan
-#: src/features/wpcom-global-styles/index.php:498
+#: src/features/wpcom-global-styles/index.php:513
 msgid "Your site includes <a href=\"%1$s\" target=\"_blank\">premium styles</a> that are only visible to visitors after upgrading to the %2$s plan or higher."
 msgstr "您的站点包含<a href=\"%1$s\" target=\"_blank\">高级样式</a>，这些样式仅对升级到 %2$s 套餐或更高级别套餐的访客可见。"
 
@@ -540,72 +603,68 @@ msgstr "我的主页"
 msgid "Hosting"
 msgstr "托管服务"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:268
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:380
 msgid "Admin interface style changed."
 msgstr "管理员界面样式已更改。"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:231
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:343
 msgid "Click here to access your sites, domains, Reader, account settings, and more."
 msgstr "点击此处即可访问您的站点、域名、阅读器、账户设置等。"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:230
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:342
 msgid "All your sites"
 msgstr "您的所有站点"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:224
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:336
 msgid "Access the new site management panel and all developer tools such as hosting configuration, GitHub deployments, metrics, PHP logs, and server logs."
 msgstr "访问新的站点管理面板和所有开发者工具，例如托管服务配置、Github 部署、指标、PHP 日志、服务器日志等。"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:223
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:335
 msgid "Hosting overview"
 msgstr "托管服务概述"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:217
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:329
 msgid "The Hosting menu contains the My Home page and all items from the Upgrades menu, including Plans, Domains, Emails, Purchases, and more."
 msgstr "“托管服务”菜单包含“我的主页”页面和“升级”菜单中的所有项，包括套餐、域名、电子邮件、购买等。"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:216
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:328
 msgid "Upgrades is now Hosting"
 msgstr "升级现在属于托管服务"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:174
-msgid "Got it!"
-msgstr "知道了！"
-
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:173
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:285
 msgid "Next"
 msgstr "下一个"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:172
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:284
 msgid "Previous"
 msgstr "上一页"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:171
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:283
 msgid "Step {{currentStep}} of {{totalSteps}}"
 msgstr "第 {{currentStep}} 步，共 {{totalSteps}} 步"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:167
-#: src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php:67
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:279
+#: src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php:133
 msgid "Dismiss"
 msgstr "忽略"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:31
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:35
 msgid "Use WordPress.com’s native dashboard to manage your site."
 msgstr "使用 WordPress.com 的本地仪表盘来管理您的站点。"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:31
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:35
 msgid "Default style"
 msgstr "默认样式"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:30
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:34
 msgid "Use WP-Admin to manage your site."
 msgstr "使用 WP-Admin 来管理您的站点。"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:30
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:34
 msgid "Classic style"
 msgstr "经典样式"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:32
 msgid "Admin Interface Style"
 msgstr "管理员界面样式"
 
@@ -906,61 +965,61 @@ msgstr "添加文章标题"
 msgid "Start writing or type '/' to insert a block"
 msgstr "开始写作或输入“/”来插入区块"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1607
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1459
 msgid " per "
 msgstr " 每 "
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1604
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1456
 msgid " once"
 msgstr " 一次"
 
 #. Translators: %s is the %s is the frequency.
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1578
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1430
 msgid "per %s"
 msgstr "每 %s"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1438
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1290
 msgid "Scheduled"
 msgstr "预发布"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1437
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1289
 msgid "Draft"
 msgstr "草稿"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1404
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1256
 msgid "Jetpack donations is disabled in favour of Newspack donations."
 msgstr "Jetpack 捐赠已禁用，由 Newspack 捐赠替代。"
 
 #. translators: separates all but the last two sponsor names; needs a space at
 #. the end.
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:993
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:955
 msgid ", "
 msgstr "，"
 
 #. translators: separates last two sponsor names; needs a space on either side.
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:990
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:952
 msgid " and "
 msgstr "和"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:889
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:851
 msgid "Common"
 msgstr "常见"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:490
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:495
 msgctxt "post author"
 msgid " and "
 msgstr "和"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:473
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:478
 msgctxt "post author"
 msgid "by"
 msgstr "作者"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:400
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:404
 msgid "Something went wrong. Please refresh the page and/or try again."
 msgstr "出错了。请刷新页面并/或重试。"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:393
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:397
 msgid "Load more posts"
 msgstr "加载更多文章"
 
@@ -1411,21 +1470,21 @@ msgstr "要获取聊天信息的机器人 ID。"
 msgid "Help"
 msgstr "帮助"
 
-#: src/features/custom-css/custom-css.php:1206
+#: src/features/custom-css/custom-css.php:1203
 msgid "Switch"
 msgstr "切换"
 
 #. translators: how long ago the stylesheet was modified.
-#: src/features/custom-css/custom-css.php:1187
-#: src/features/custom-css/custom-css.php:1199
+#: src/features/custom-css/custom-css.php:1184
+#: src/features/custom-css/custom-css.php:1196
 msgid "(modified %s ago)"
 msgstr "（修改于 %s 前）"
 
-#: src/features/custom-css/custom-css.php:1177
+#: src/features/custom-css/custom-css.php:1174
 msgid "Select a theme&hellip;"
 msgstr "选择主题…"
 
-#: src/features/custom-css/custom-css.php:1175
+#: src/features/custom-css/custom-css.php:1172
 msgid "Select another theme to view its custom CSS."
 msgstr "选择另一个主题，查看其自定义 CSS。"
 

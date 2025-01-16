@@ -2,6 +2,31 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.3-a.1 - 2025-01-13
+### Improved compatibility
+- Nova Restaurant: ensure that the custom post type is now loaded via the Classic Theme Helper package. [#40782]
+
+### Bug fixes
+- Authors widget: Fix saving of unchecked "Display all authors" checkbox in the legacy widget editor. [#40878]
+- Stats: Fix saving of custom roles settings. [#40853]
+- Pages and Posts: Fix the layout on mobile when details are open. [#40872]
+- Testimonials: Fix shortcode-related bug. [#40896]
+- Tiled Gallery block: Ensure icons are visible when selecting image in editor. [#40779]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Jetpack AI: Enable ratings feedback thumbs for all. [#40772]
+- Newsletter: Update category settings to clarify that one or more categories must be selected to allow people to subscribe. [#40727]
+- Notifications: Support three-letter language code translations. [#40973]
+- Post list: Ensure copy quick link is added after quick edit. [#40889]
+- Stats: Load the adminbar stats graph lazily. [#40865]
+- Stats: Remove legacy Stats widget loader. [#40839]
+- Updated dependencies. [#40773]
+- Update social-logos import from default to named. [#40816]
+
+## 14.2.1 - 2025-01-09
+### Bug fixes
+- WC Analytics: Temporarily disable setcookie to avoid caching issues. [#40937]
+
 ## 14.2 - 2025-01-07
 ### Enhancements
 - Social: Improve Jetpack Likes behavior for better theme integration if the post has likes. [#40544]

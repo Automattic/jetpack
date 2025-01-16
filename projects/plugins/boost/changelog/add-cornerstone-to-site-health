@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Critical CSS: Flag a site-health issue if critical CSS is not fresh after cornerstone pages changed.

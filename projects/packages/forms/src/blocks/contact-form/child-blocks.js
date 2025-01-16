@@ -1,7 +1,7 @@
 import { createBlock } from '@wordpress/blocks';
-import { Path } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
+import { Path, Icon } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
+import { globe, envelope, mobile } from '@wordpress/icons';
 import { filter, isEmpty, map, startsWith, trim } from 'lodash';
 import JetpackField from './components/jetpack-field';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
@@ -388,11 +388,12 @@ export const childBlocks = [
 			title: __( 'Email Field', 'jetpack-forms' ),
 			keywords: [ __( 'e-mail', 'jetpack-forms' ), __( 'mail', 'jetpack-forms' ), 'email' ],
 			description: __( 'Collect email addresses from your visitors.', 'jetpack-forms' ),
-			icon: renderMaterialIcon(
-				<Path
-					fill={ getIconColor() }
-					fillRule="evenodd"
-					d="M5.5 8.41665V16C5.5 16.2761 5.72386 16.5 6 16.5H18C18.2761 16.5 18.5 16.2761 18.5 16V8.41633L11.9998 13.9879L5.5 8.41665ZM17.2642 7.5H6.73546L11.9998 12.0123L17.2642 7.5ZM6 6C4.89543 6 4 6.89543 4 8V16C4 17.1046 4.89543 18 6 18H18C19.1046 18 20 17.1046 20 16V8C20 6.89543 19.1046 6 18 6H6Z"
+			icon: (
+				<Icon
+					icon={ envelope }
+					style={ {
+						fill: getIconColor(),
+					} }
 				/>
 			),
 			edit: editField( 'email' ),
@@ -409,28 +410,28 @@ export const childBlocks = [
 		name: 'field-url',
 		settings: {
 			...FieldDefaults,
-			title: __( 'URL Field', 'jetpack-forms' ),
-			keywords: [ 'url', __( 'internet page', 'jetpack-forms' ), 'link' ],
+			title: __( 'Website Field', 'jetpack-forms' ),
+			keywords: [
+				__( 'url', 'jetpack-forms' ),
+				__( 'internet page', 'jetpack-forms' ),
+				__( 'link', 'jetpack-forms' ),
+				__( 'website', 'jetpack-forms' ),
+			],
 			description: __( 'Collect a website address from your site visitors.', 'jetpack-forms' ),
-			icon: renderMaterialIcon(
-				<>
-					<Path
-						fill={ getIconColor() }
-						d="M4.47118 8.5H3V12.9489C3 14.4653 4.14479 15.5 5.94723 15.5C7.74479 15.5 8.88958 14.4653 8.88958 12.9489V8.5H7.4184V12.8059C7.4184 13.688 6.88742 14.265 5.94723 14.265C5.00216 14.265 4.47118 13.688 4.47118 12.8059V8.5Z"
-					/>
-					<Path
-						fill={ getIconColor() }
-						d="M11.5348 9.62534H12.7867C13.5175 9.62534 13.9754 10.0545 13.9754 10.7221C13.9754 11.404 13.5418 11.8188 12.8014 11.8188H11.5348V9.62534ZM11.5348 12.8631H12.7137L14.0241 15.3808H15.6901L14.2092 12.6485C15.0179 12.3386 15.4855 11.5756 15.4855 10.6935C15.4855 9.33447 14.5599 8.5 12.9426 8.5H10.0636V15.3808H11.5348V12.8631Z"
-					/>
-					<Path fill={ getIconColor() } d="M21 14.1887H17.9261V8.5H16.4549V15.3808H21V14.1887Z" />
-				</>
+			icon: (
+				<Icon
+					icon={ globe }
+					style={ {
+						fill: getIconColor(),
+					} }
+				/>
 			),
 			edit: editField( 'url' ),
 			attributes: {
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
-					default: 'URL',
+					default: __( 'Website', 'jetpack-forms' ),
 				},
 			},
 		},
@@ -477,11 +478,12 @@ export const childBlocks = [
 				__( 'Mobile', 'jetpack-forms' ),
 			],
 			description: __( 'Collect phone numbers from site visitors.', 'jetpack-forms' ),
-			icon: renderMaterialIcon(
-				<Path
-					fill={ getIconColor() }
-					fillRule="evenodd"
-					d="M9 5.5H15C15.2761 5.5 15.5 5.72386 15.5 6V18C15.5 18.2761 15.2761 18.5 15 18.5H9C8.72386 18.5 8.5 18.2761 8.5 18V6C8.5 5.72386 8.72386 5.5 9 5.5ZM7 6C7 4.89543 7.89543 4 9 4H15C16.1046 4 17 4.89543 17 6V18C17 19.1046 16.1046 20 15 20H9C7.89543 20 7 19.1046 7 18V6ZM13 16H11V17.5H13V16Z"
+			icon: (
+				<Icon
+					icon={ mobile }
+					style={ {
+						fill: getIconColor(),
+					} }
 				/>
 			),
 			edit: editField( 'tel' ),
