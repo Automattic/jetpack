@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize\REST_API;
 
+use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 use Automattic\Jetpack\Publicize\Connections;
 use Automattic\Jetpack\Publicize\Publicize_Utils;
 use WP_Error;
@@ -19,25 +20,17 @@ use WP_REST_Server;
  */
 class Connections_Controller extends Base_Controller {
 
-	/**
-	 * The API version.
-	 *
-	 * @var string
-	 */
-	protected $version = 'v2';
-
-	/**
-	 * The base API path.
-	 *
-	 * @var string
-	 */
-	protected $base_api_path = 'wpcom';
+	use WPCOM_REST_API_Proxy_Request;
 
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		parent::__construct();
+
+		$this->base_api_path = 'wpcom';
+		$this->version       = 'v2';
+
 		$this->namespace = "{$this->base_api_path}/{$this->version}";
 		$this->rest_base = 'publicize/connections';
 
@@ -266,9 +259,7 @@ class Connections_Controller extends Base_Controller {
 
 			$connections = Connections::wpcom_get_connections( $args );
 		} else {
-			$proxy = new Proxy_Requests( $this->rest_base );
-
-			$connections = $proxy->proxy_request_to_wpcom( $request );
+			$connections = $this->proxy_request_to_wpcom_as_user( $request );
 		}
 
 		if ( is_wp_error( $connections ) ) {
@@ -342,9 +333,7 @@ class Connections_Controller extends Base_Controller {
 
 		}
 
-		$proxy = new Proxy_Requests( $this->rest_base );
-
-		$response = $proxy->proxy_request_to_wpcom( $request, '', 'user', array( 'timeout' => 120 ) );
+		$response = $this->proxy_request_to_wpcom_as_user( $request, '', array( 'timeout' => 120 ) );
 
 		if ( is_wp_error( $response ) ) {
 			return new WP_Error(
@@ -423,9 +412,7 @@ class Connections_Controller extends Base_Controller {
 			return $response;
 		}
 
-		$proxy = new Proxy_Requests( $this->rest_base );
-
-		$response = $proxy->proxy_request_to_wpcom( $request, $connection_id, 'user', array( 'timeout' => 120 ) );
+		$response = $this->proxy_request_to_wpcom_as_user( $request, $connection_id, array( 'timeout' => 120 ) );
 
 		if ( is_wp_error( $response ) ) {
 			return new WP_Error(
@@ -482,9 +469,7 @@ class Connections_Controller extends Base_Controller {
 			return $response;
 		}
 
-		$proxy = new Proxy_Requests( $this->rest_base );
-
-		$response = $proxy->proxy_request_to_wpcom( $request, $connection_id, 'user', array( 'timeout' => 120 ) );
+		$response = $this->proxy_request_to_wpcom_as_user( $request, $connection_id, array( 'timeout' => 120 ) );
 
 		if ( is_wp_error( $response ) ) {
 			return new WP_Error(

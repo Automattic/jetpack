@@ -175,7 +175,7 @@ class Connections {
 
 		$request = new WP_REST_Request( 'GET', '/wpcom/v2/publicize/connections' );
 
-		$connections = $proxy->proxy_request_to_wpcom( $request, '', 'blog' );
+		$connections = $proxy->proxy_request_to_wpcom_as_blog( $request );
 
 		if ( is_wp_error( $connections ) ) {
 			// @todo log error.
