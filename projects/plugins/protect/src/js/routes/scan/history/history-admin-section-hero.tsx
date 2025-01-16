@@ -17,7 +17,7 @@ const HistoryAdminSectionHero: React.FC = ( {
 	const numThreats = history ? history.threats.length : 0;
 
 	const oldestFirstDetected = useMemo( () => {
-		if ( ! history ) {
+		if ( ! history || ! history.threats.length ) {
 			return null;
 		}
 
