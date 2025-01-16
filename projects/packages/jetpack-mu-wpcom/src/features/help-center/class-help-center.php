@@ -297,7 +297,7 @@ class Help_Center {
 		$controller = new WP_REST_Help_Center_Odie();
 		$controller->register_rest_route();
 
-		require_once __DIR__ . '/class-wp-rest-help-center-open-state.php';
+		require_once __DIR__ . '/class-wp-rest-help-center-persisted-open-state.php';
 		$controller = new WP_REST_Help_Center_Persisted_Open_State();
 		$controller->register_rest_route();
 
