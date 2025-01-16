@@ -85,6 +85,6 @@ GridientFilled.args = {
 	data: webTrafficData,
 	withGradientFill: 'gradient',
 	options: {
-		axis: { y: { orientation: 'right' } },
+		axis: { x: { numTicks: 10 }, y: { orientation: 'right' } },
 	},
 };
