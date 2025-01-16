@@ -38,7 +38,7 @@ class WP_REST_Help_Center_Persisted_Open_State extends \WP_REST_Controller {
 				),
 				// Set the open state
 				array(
-					'methods'             => \WP_REST_Server::CREATABLE,
+					'methods'             => \WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'set_state' ),
 					'permission_callback' => 'is_user_logged_in',
 				),
