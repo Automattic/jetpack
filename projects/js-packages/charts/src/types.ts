@@ -73,6 +73,10 @@ export type ChartTheme = {
 declare type AxisOptions = {
 	orientation?: OrientationType;
 	numTicks?: number;
+	axisClassName?: string;
+	axisLineClassName?: string;
+	labelClassName?: string;
+	tickClassName?: string;
 };
 
 /**
