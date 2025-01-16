@@ -129,9 +129,9 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 * More options for the chart.
 	 */
 	options?: {
-		axis: {
-			x: AxisOptions;
-			y: AxisOptions;
+		axis?: {
+			x?: AxisOptions;
+			y?: AxisOptions;
 		};
 	};
 };
