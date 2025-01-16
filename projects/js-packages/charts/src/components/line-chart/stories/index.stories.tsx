@@ -28,6 +28,7 @@ Default.args = {
 	data: sampleData,
 	showLegend: false,
 	legendOrientation: 'horizontal',
+	withGradientFill: false,
 	options: {
 		axis: {
 			x: {
@@ -83,7 +84,7 @@ export const GridientFilled: StoryObj< typeof LineChart > = Template.bind( {} );
 GridientFilled.args = {
 	...Default.args,
 	data: webTrafficData,
-	withGradientFill: 'gradient',
+	withGradientFill: true,
 	options: {
 		axis: { x: { numTicks: 10 }, y: { orientation: 'right' } },
 	},
