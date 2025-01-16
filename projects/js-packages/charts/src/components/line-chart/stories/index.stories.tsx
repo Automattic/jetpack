@@ -1,5 +1,6 @@
 import LineChart from '../line-chart';
 import sampleData from './sample-data';
+import webTrafficData from './site-traffic-sample';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof LineChart > = {
@@ -81,6 +82,6 @@ WithVerticalLegend.args = {
 export const GridientFilled: StoryObj< typeof LineChart > = Template.bind( {} );
 GridientFilled.args = {
 	...Default.args,
-	data: [ sampleData[ 0 ] ],
+	data: webTrafficData,
 	withGradientFill: 'gradient',
 };

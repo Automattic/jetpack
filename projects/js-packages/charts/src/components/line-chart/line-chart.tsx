@@ -18,7 +18,7 @@ import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 
 interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	margin?: { top: number; right: number; bottom: number; left: number };
-	fillWithGradient: boolean;
+	withGradientFill: boolean;
 }
 
 type TooltipData = {
@@ -136,7 +136,8 @@ const LineChart: FC< LineChartProps > = ( {
 				<AnimatedAxis orientation="left" numTicks={ 4 } { ...options?.axis?.y } />
 
 				{ data.map( ( seriesData, index ) => {
-					const stroke = theme.colors[ index % theme.colors.length ];
+					const stroke = seriesData.options?.stroke ?? theme.colors[ index % theme.colors.length ];
+
 					return (
 						<>
 							<LinearGradient
@@ -144,23 +145,25 @@ const LineChart: FC< LineChartProps > = ( {
 								from={ stroke }
 								to="white"
 								toOpacity={ 0.1 }
-								{ ...seriesData?.gradient }
+								{ ...seriesData.options?.gradient }
 							/>
 							<AnimatedLineSeries
 								key={ seriesData?.label }
 								dataKey={ seriesData?.label }
 								data={ seriesData.data as DataPointDate[] } // TODO: this needs fixing or a more specific type for each chart
 								{ ...accessors }
-								stroke={ theme.colors[ index % theme.colors.length ] }
+								stroke={ stroke }
 								strokeWidth={ 2 }
 							/>
+							{ /** Theoretically the area series should work without the line series; however it outlines the area with borders, which isn't ideal. */ }
+							{ /** TODO: Investigate whehter we could leverage area series alone. */ }
 							{ withGradientFill && (
 								<AnimatedAreaSeries
 									key={ seriesData?.label }
 									dataKey={ seriesData?.label }
 									data={ seriesData.data as DataPointDate[] } // TODO: this needs fixing or a more specific type for each chart
 									{ ...accessors }
-									stroke={ theme.colors[ index % theme.colors.length ] }
+									stroke={ stroke }
 									strokeWidth={ 0 }
 									fill={ `url(#area-gradient-${ index + 1 })` }
 									renderLine={ false }
