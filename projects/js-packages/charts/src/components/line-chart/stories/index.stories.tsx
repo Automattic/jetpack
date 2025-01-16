@@ -1,4 +1,3 @@
-import React from 'react';
 import LineChart from '../line-chart';
 import sampleData from './sample-data';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';

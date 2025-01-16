@@ -1,4 +1,3 @@
-import React from 'react';
 import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
 import { PieChart } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
