@@ -20,6 +20,5 @@ class Test_Environment_Test extends BaseTestCase {
 		$this->assertTrue( function_exists( 'add_action' ) );
 		$this->assertTrue( function_exists( 'do_action' ) );
 		$this->assertTrue( defined( 'ABSPATH' ) );
-		$this->assertTrue( defined( 'WORDBLESS_RUNNING' ) );
 	}
 }

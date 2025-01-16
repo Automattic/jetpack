@@ -4,8 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.2",
-		"automattic/wordbless": "^0.4.2"
+		"php": ">=7.2"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^1.1.1",
@@ -25,9 +24,7 @@
 		],
 		"test-php": [
 			"@composer phpunit"
-		],
-		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+		]
 	},
 	"repositories": [
 		{

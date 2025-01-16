@@ -38,12 +38,22 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
         docker-compose-plugin \
         jq \
         "php${PHP_VERSION}" \
+        "php${PHP_VERSION}-bcmath" \
         "php${PHP_VERSION}-cli" \
         "php${PHP_VERSION}-curl" \
         "php${PHP_VERSION}-dom" \
+        "php${PHP_VERSION}-gd" \
+        "php${PHP_VERSION}-igbinary" \
+        "php${PHP_VERSION}-imagick" \
+        "php${PHP_VERSION}-intl" \
         "php${PHP_VERSION}-mbstring" \
+        "php${PHP_VERSION}-mysqli" \
         "php${PHP_VERSION}-xml" \
         "php${PHP_VERSION}-zip" \
+        "imagemagick" \
+        "libssl-dev" \
+        "libwebp-dev" \
+        "libavif-dev" \
         rsync \
     && apt-get remove --purge --auto-remove -y gpg software-properties-common \
     && find /var/ -name '*-old' -delete && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib

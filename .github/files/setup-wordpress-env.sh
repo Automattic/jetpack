@@ -33,6 +33,12 @@ git clone --depth=1 --branch "$WORDPRESS_TAG" git://develop.git.wordpress.org/ "
 # We need a built version of WordPress to test against, so download that into the src directory instead of what's in wordpress-develop.
 rm -rf "/tmp/wordpress-$WP_BRANCH/src"
 git clone --depth=1 --branch "$WORDPRESS_TAG" git://core.git.wordpress.org/ "/tmp/wordpress-$WP_BRANCH/src"
+
+echo "::group::Setting up WordPress uploads directory"
+mkdir -p "/tmp/wordpress-$WP_BRANCH/src/wp-content/uploads"
+chmod -R 777 "/tmp/wordpress-$WP_BRANCH/src/wp-content/uploads"
+echo "::endgroup::"
+
 echo "::endgroup::"
 
 if [[ -n "$GITHUB_ENV" ]]; then

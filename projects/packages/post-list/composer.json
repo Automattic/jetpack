@@ -8,7 +8,7 @@
 		"automattic/jetpack-assets": "@dev"
 	},
 	"require-dev": {
-		"automattic/wordbless": "^0.4.2",
+		"automattic/jetpack-test-environment": "@dev",
 		"automattic/jetpack-changelogger": "@dev",
 		"yoast/phpunit-polyfills": "^1.1.1"
 	},
@@ -38,9 +38,7 @@
 		],
 		"test-php": [
 			"@composer phpunit"
-		],
-		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+		]
 	},
 	"minimum-stability": "dev",
 	"prefer-stable": true,

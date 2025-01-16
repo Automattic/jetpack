@@ -93,6 +93,21 @@ jobs:
             echo "::endgroup::"
           fi
 
+          echo "::group::Composer"
+          composer install --working-dir=tools/php-test-env
+          if [[ "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ]]; then
+            VER=$(composer --format=json --working-dir="tools/php-test-env" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
+            if [[ -n "$VER" ]]; then
+              INSVER=$WORDPRESS_TAG
+              [[ "$WORDPRESS_TAG" == 'trunk' ]] && INSVER="dev-main as $VER"
+              echo "Supposed to run tests against WordPress $WORDPRESS_TAG, so setting roots/wordpress and roots/wordpress-no-content to \"$INSVER\""
+              # Composer seems to sometimes have issues with deleting the wordpress dir on its own, so do it manually first.
+              rm -rf "tools/php-test-env/wordpress"
+              composer --working-dir="tools/php-test-env" require --dev "roots/wordpress:$INSVER" "roots/wordpress-no-content:$INSVER"
+            fi
+          fi
+          echo "::endgroup::"
+
       - name: Detect changed projects
         id: changed
         run: |
@@ -204,7 +219,7 @@ jobs:
                         echo "Supposed to run tests against WordPress $WORDPRESS_TAG, so setting roots/wordpress and roots/wordpress-no-content to \"$INSVER\""
                         # Composer seems to sometimes have issues with deleting the wordpress dir on its own, so do it manually first.
                         rm -rf "$DIR/wordpress"
-                        composer --working-dir="$DIR" require --dev roots/wordpress="$INSVER" roots/wordpress-no-content="$INSVER"
+                        composer --working-dir="$DIR" require --dev "roots/wordpress:$INSVER" "roots/wordpress-no-content:$INSVER"
                       fi
                     fi
                   fi
