@@ -13,8 +13,10 @@ const INSERTING_HOOK_NAMESPACE = 'automattic/full-site-editing/inserting-pattern
 interface PagePatternsPluginProps {
 	patterns: PatternDefinition[];
 }
-type CoreEditorPlaceholder = {
+type CoreBlockEditorPlaceholder = {
 	getBlocks: ( ...args: unknown[] ) => BlockInstance[];
+};
+type CoreEditorPlaceholder = {
 	getEditedPostAttribute: ( ...args: unknown[] ) => unknown;
 };
 type CoreEditPostPlaceholder = {
@@ -58,8 +60,15 @@ export function PagePatternsPlugin( props: PagePatternsPluginProps ): JSX.Elemen
 	const { disableTips } = useDispatch( 'core/nux' );
 
 	const selectProps = useSelect( select => {
+		const getMetaNew = () =>
+			( select( 'core/editor' ) as CoreEditorPlaceholder ).getEditedPostAttribute( 'meta' );
+		const currentBlocks = (
+			select( 'core/block-editor' ) as CoreBlockEditorPlaceholder
+		 ).getBlocks();
 		const { isOpen, isPatternPicker } = select( pageLayoutStore );
 		return {
+			getMeta: getMetaNew,
+			postContentBlock: findPostContentBlock( currentBlocks ),
 			isOpen: isOpen(),
 			isWelcomeGuideActive: (
 				select( 'core/edit-post' ) as CoreEditPostPlaceholder
@@ -75,15 +84,7 @@ export function PagePatternsPlugin( props: PagePatternsPluginProps ): JSX.Elemen
 		};
 	}, [] );
 
-	const { getMeta, postContentBlock } = useSelect( select => {
-		const getMetaNew = () =>
-			( select( 'core/editor' ) as CoreEditorPlaceholder ).getEditedPostAttribute( 'meta' );
-		const currentBlocks = ( select( 'core/editor' ) as CoreEditorPlaceholder ).getBlocks();
-		return {
-			getMeta: getMetaNew,
-			postContentBlock: findPostContentBlock( currentBlocks ),
-		};
-	}, [] );
+	const { getMeta, postContentBlock } = selectProps;
 
 	const savePatternChoice = useCallback(
 		( name: string, selectedCategory: string | null ) => {
