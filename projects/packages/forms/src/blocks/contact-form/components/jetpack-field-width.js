@@ -5,6 +5,8 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
+const PERCENTAGE_WIDTHS = [ 25, 50, 75, 100 ];
+
 export default function JetpackFieldWidth( { setAttributes, width } ) {
 	return (
 		<BaseControl
@@ -12,7 +14,6 @@ export default function JetpackFieldWidth( { setAttributes, width } ) {
 				'Adjust the width of the field to include multiple fields on a single line.',
 				'jetpack-forms'
 			) }
-			className="jetpack-field-label__width"
 			__nextHasNoMarginBottom={ true }
 		>
 			<ToggleGroupControl
@@ -24,7 +25,7 @@ export default function JetpackFieldWidth( { setAttributes, width } ) {
 				onChange={ value => setAttributes( { width: value } ) }
 				value={ width }
 			>
-				{ [ 25, 50, 75, 100 ].map( widthValue => {
+				{ PERCENTAGE_WIDTHS.map( widthValue => {
 					return (
 						<ToggleGroupControlOption
 							key={ widthValue }
