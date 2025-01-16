@@ -161,8 +161,7 @@
 		$due_task_reminders = $zbs->DAL->eventreminders->getEventreminders(
 			array(
 
-				'dueBefore' => time() + 3600, // anytime within next hour
-				'dueAfter'  => time() - 3600, // anytime from -1h
+				'dueBefore' => time() + 3600, // anytime within next hour (this time is related to the reminder due date, not the task).
 				'sent'      => false, // reminders which hasn't been sent
 
 			)
