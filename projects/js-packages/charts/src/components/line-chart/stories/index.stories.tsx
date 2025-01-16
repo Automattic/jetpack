@@ -35,6 +35,18 @@ const Template: StoryFn< typeof LineChart > = args => <LineChart { ...args } />;
 export const Default: StoryObj< typeof LineChart > = Template.bind( {} );
 Default.args = {
 	data: sampleData,
+	showLegend: false,
+	legendOrientation: 'horizontal',
+	options: {
+		axis: {
+			x: {
+				orientation: 'bottom',
+			},
+			y: {
+				orientation: 'left',
+			},
+		},
+	},
 };
 
 // Story with single data series
