@@ -114,7 +114,7 @@ class Filesystem_Utils {
 		 * @since   1.0.0
 		 * @deprecated $$next-version$$
 		 */
-		$key_components = apply_filters_deprecated( 'boost_cache_key_components', $parameters, '$$next-version$$', 'jetpack_boost_cache_parameters' );
+		$key_components = apply_filters_deprecated( 'boost_cache_key_components', array( $parameters ), '$$next-version$$', 'jetpack_boost_cache_parameters' );
 
 		return md5( json_encode( $key_components ) ) . '.html'; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 	}
