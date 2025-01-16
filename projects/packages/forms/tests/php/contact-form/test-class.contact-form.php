@@ -58,7 +58,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	public function set_up_test_case() {
 		// Avoid actually trying to send any mail.
 		add_filter( 'pre_wp_mail', '__return_true', PHP_INT_MAX );
-
+		$this->track_feedback_inserted = array();
 		$this->set_globals();
 
 		$author_id = wp_insert_user(
@@ -2095,7 +2095,6 @@ EOT;
 	public function test_multiple_form_instances_with_unique_ids() {
 		global $post;
 
-		$this->track_feedback_inserted = array();
 		add_action( 'grunion_after_feedback_post_inserted', array( $this, 'track_feedback_inserted' ), 10, 1 );
 
 		$this->add_field_values(
@@ -2128,13 +2127,19 @@ EOT;
 		// Verify that the forms have different IDs
 		$this->assertNotEquals( $form1->get_attribute( 'id' ), $form2->get_attribute( 'id' ), 'Forms should have unique IDs' );
 
-		remove_action( 'grunion_after_feedback_post_inserted', array( $this, 'track_feedback_inserted' ), 10, 1 );
+		remove_action( 'grunion_after_feedback_post_inserted', array( $this, 'track_feedback_inserted' ), 10 );
 
-		$this->assertTrue( count( $this->track_feedback_inserted ) === 2 );
+		$this->assertCount( 2, $this->track_feedback_inserted, 'The number of feedback forms that were inserted does not match! Expected 2.' );
 
+		// Add assertion to ensure array is not empty
+		$this->assertNotEmpty( $this->track_feedback_inserted, 'No feedback forms were inserted' );
+
+		$count = 1;
 		foreach ( $this->track_feedback_inserted as $feedback_id ) {
 			$feedback = get_post( $feedback_id );
-			$this->assertStringContainsString( 'First form name', $feedback->post_content );
+			$this->assertStringContainsString( 'First form name ' . $count, $feedback->post_content );
+			$this->assertStringContainsString( 'First form message ' . $count, $feedback->post_content );
+			++$count;
 		}
 	}
 } // end class

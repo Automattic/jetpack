@@ -43,14 +43,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * The most recent (inclusive) contact-form shortcode processed.
 	 *
-	 * @var Contact_Form
+	 * @var Contact_Form|null
 	 */
 	public static $last;
 
 	/**
 	 * Form we are currently looking at. If processed, will become $last
 	 *
-	 * @var Contact_Form
+	 * @var Contact_Form|null
 	 */
 	public static $current_form;
 
