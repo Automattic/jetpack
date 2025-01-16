@@ -74,10 +74,15 @@ const PieChart = ( {
 			withTooltips,
 		} );
 
-	// Calculate radius based on the smallest dimension
-	const radius = Math.min( size ) / 2;
-	const centerX = size / 2;
-	const centerY = size / 2;
+	const width = size;
+	const height = size;
+
+	// Calculate radius based on width/height
+	const radius = Math.min( width, height ) / 2;
+
+	// Center the chart in the available space
+	const centerX = width / 2;
+	const centerY = height / 2;
 
 	// Calculate the angle between each
 	const padAngle = gapScale * ( ( 2 * Math.PI ) / data.length );
