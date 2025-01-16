@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { JetpackEditorPanelLogo, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { PanelBody, PanelRow, BaseControl, ExternalLink } from '@wordpress/components';
+import { PanelBody, PanelRow, BaseControl, ExternalLink, Notice } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { PluginPrePublishPanel, PluginDocumentSettingPanel } from '@wordpress/edit-post';
@@ -105,7 +105,9 @@ const JetpackAndSettingsContent = ( {
 
 			{ ! usePostContent() && (
 				<PanelRow className="jetpack-ai-sidebar__warning-content">
-					<p>{ __( 'The following features requie content to work.', 'jetpack' ) }</p>
+					<Notice isDismissible={ false } status="warning">
+						{ __( 'The following features requie content to work.', 'jetpack' ) }
+					</Notice>
 				</PanelRow>
 			) }
 

@@ -1,8 +1,6 @@
 @import './features/features.colors';
 
 .jetpack-ai-proofread {
-	margin-bottom: 24px;
-
 	.components-checkbox-control {
 		&__input:not( :disabled ) {
 			@include features-colors( ( 'border-color' ) );

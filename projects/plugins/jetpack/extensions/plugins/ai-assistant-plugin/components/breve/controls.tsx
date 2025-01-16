@@ -103,27 +103,9 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 
 	return (
 		<div className="jetpack-ai-proofread">
-			<p> { __( 'Improve your writing with AI.', 'jetpack' ) }</p>
-			<PanelRow>
-				<BaseControl __nextHasNoMarginBottom={ true }>
-					<div className="grade-level-container">
-						{ gradeLevel === null ? (
-							<p className="jetpack-ai-proofread__help-text">
-								{ __( 'Write to see your grade level.', 'jetpack' ) }
-							</p>
-						) : (
-							<Tooltip text={ __( 'To make it easy to read, aim for level 8–12', 'jetpack' ) }>
-								<p>
-									{ gradeLevel }
-									<span className="jetpack-ai-proofread__grade-label">
-										{ __( 'Reading grade score', 'jetpack' ) }
-									</span>
-								</p>
-							</Tooltip>
-						) }
-					</div>
-				</BaseControl>
-			</PanelRow>
+			<p className="jetpack-ai-assistant__help-text">
+				{ __( 'Visualize issues and apply AI suggestions.', 'jetpack' ) }
+			</p>
 
 			<PanelRow>
 				<BaseControl __nextHasNoMarginBottom={ true }>
@@ -148,6 +130,27 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 										__nextHasNoMarginBottom={ true }
 									/>
 								)
+						) }
+					</div>
+				</BaseControl>
+			</PanelRow>
+
+			<PanelRow>
+				<BaseControl __nextHasNoMarginBottom={ true }>
+					<div className="grade-level-container">
+						{ gradeLevel === null ? (
+							<p className="jetpack-ai-proofread__help-text">
+								{ __( 'Write to see your grade level.', 'jetpack' ) }
+							</p>
+						) : (
+							<Tooltip text={ __( 'To make it easy to read, aim for level 8–12', 'jetpack' ) }>
+								<p>
+									{ gradeLevel }
+									<span className="jetpack-ai-proofread__grade-label">
+										{ __( 'Reading grade score', 'jetpack' ) }
+									</span>
+								</p>
+							</Tooltip>
 						) }
 					</div>
 				</BaseControl>
