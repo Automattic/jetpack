@@ -1,5 +1,9 @@
 <?php
 
+if ( 0 === did_action( 'template_redirect' ) ) {
+	die( 'Jetpack Boost Minify Loader must be called from the template_redirect action.' );
+}
+
 // Load minify library code.
 require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/Utils.php';
 require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/Config.php';
