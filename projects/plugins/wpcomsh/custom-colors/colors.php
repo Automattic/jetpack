@@ -1494,21 +1494,16 @@ class Colors_Manager_Common {
 
 		$css = self::get_theme_css();
 
-		if ( is_array( $editor_settings['styles'] ) ) {
-			$editor_settings['styles'] [] = array(
-				'css'            => $css,
-				'__unstableType' => 'theme',
-				'isGlobalStyles' => false,
-			);
-		} else {
-			$editor_settings['styles'] = array(
-				array(
-					'css'            => $css,
-					'__unstableType' => 'theme',
-					'isGlobalStyles' => false,
-				),
-			);
+		if ( ! is_array( $editor_settings['styles'] ) ) {
+			$editor_settings['styles'] = array();
 		}
+
+		$editor_settings['styles'] [] = array(
+			'css'            => $css,
+			'__unstableType' => 'theme',
+			'isGlobalStyles' => false,
+		);
+
 		return $editor_settings;
 	}
 
