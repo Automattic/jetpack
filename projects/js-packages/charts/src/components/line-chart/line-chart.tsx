@@ -1,6 +1,8 @@
+import { LinearGradient } from '@visx/gradient';
 import {
 	XYChart,
 	AnimatedLineSeries,
+	AnimatedAreaSeries,
 	AnimatedAxis,
 	AnimatedGrid,
 	Tooltip,
@@ -14,10 +16,9 @@ import { withResponsive } from '../shared/with-responsive';
 import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 
-// TODO: revisit grid and axis options - accept as props for frid lines, axis, values: x, y, all, none
-
 interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	margin?: { top: number; right: number; bottom: number; left: number };
+	fillWithGradient: boolean;
 }
 
 type TooltipData = {
@@ -83,6 +84,7 @@ const LineChart: FC< LineChartProps > = ( {
 	withTooltips = true,
 	showLegend = false,
 	legendOrientation = 'horizontal',
+	withGradientFill = false,
 	options = {},
 } ) => {
 	const providerTheme = useChartTheme();
@@ -133,16 +135,40 @@ const LineChart: FC< LineChartProps > = ( {
 				/>
 				<AnimatedAxis orientation="left" numTicks={ 4 } { ...options?.axis?.y } />
 
-				{ data.map( ( seriesData, index ) => (
-					<AnimatedLineSeries
-						key={ seriesData?.label }
-						dataKey={ seriesData?.label }
-						data={ seriesData.data as DataPointDate[] } // TODO: this needs fixing or a more specific type for each chart
-						{ ...accessors }
-						stroke={ theme.colors[ index % theme.colors.length ] }
-						strokeWidth={ 2 }
-					/>
-				) ) }
+				{ data.map( ( seriesData, index ) => {
+					const stroke = theme.colors[ index % theme.colors.length ];
+					return (
+						<>
+							<LinearGradient
+								id={ `area-gradient-${ index + 1 }` }
+								from={ stroke }
+								to="white"
+								toOpacity={ 0.1 }
+								{ ...seriesData?.gradient }
+							/>
+							<AnimatedLineSeries
+								key={ seriesData?.label }
+								dataKey={ seriesData?.label }
+								data={ seriesData.data as DataPointDate[] } // TODO: this needs fixing or a more specific type for each chart
+								{ ...accessors }
+								stroke={ theme.colors[ index % theme.colors.length ] }
+								strokeWidth={ 2 }
+							/>
+							{ withGradientFill && (
+								<AnimatedAreaSeries
+									key={ seriesData?.label }
+									dataKey={ seriesData?.label }
+									data={ seriesData.data as DataPointDate[] } // TODO: this needs fixing or a more specific type for each chart
+									{ ...accessors }
+									stroke={ theme.colors[ index % theme.colors.length ] }
+									strokeWidth={ 0 }
+									fill={ `url(#area-gradient-${ index + 1 })` }
+									renderLine={ false }
+								/>
+							) }
+						</>
+					);
+				} ) }
 
 				{ withTooltips && (
 					<Tooltip

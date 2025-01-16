@@ -76,3 +76,11 @@ WithVerticalLegend.args = {
 	showLegend: true,
 	legendOrientation: 'vertical',
 };
+
+// Story with gradient filled line chart
+export const GridientFilled: StoryObj< typeof LineChart > = Template.bind( {} );
+GridientFilled.args = {
+	...Default.args,
+	data: [ sampleData[ 0 ] ],
+	withGradientFill: 'gradient',
+};

@@ -20,6 +20,7 @@ export type SeriesData = {
 	group?: string;
 	label: string;
 	data: DataPointDate[] | DataPoint[];
+	gradient?: { from: string; to: string; toOpacity?: number };
 };
 
 export type MultipleDataPointsDate = {
