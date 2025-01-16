@@ -281,14 +281,14 @@ add_filter( 'wp_admin_bar_class', 'wpcom_custom_wpcom_admin_bar_class' );
  *
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
-function wpcom_edit_site_menu( $wp_admin_bar ) {
+function wpcom_edit_site_menu_override( $wp_admin_bar ) {
 	if ( $wp_admin_bar->get_node( 'site-editor' ) ) {
 		$args = array(
 			'id'   => 'site-editor',
-			'href' => home_url( '/wp-admin/site-editor.php' ),
+			'href' => admin_url( 'site-editor.php' ),
 		);
 
 		$wp_admin_bar->add_node( $args );
 	}
 }
-add_action( 'admin_bar_menu', 'wpcom_edit_site_menu', 9999 );
+add_action( 'admin_bar_menu', 'wpcom_edit_site_menu_override', 9999 );
