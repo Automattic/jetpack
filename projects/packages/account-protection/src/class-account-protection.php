@@ -45,10 +45,13 @@ class Account_Protection {
 				2
 			);
 
+			// Register AJAX resend password reset email action
+			add_action( 'wp_ajax_resend_password_reset', array( 'Automattic\Jetpack\Account_Protection\Password_Detection', 'ajax_resend_password_reset_email' ) );
+
 			// Remove password detection usermeta on password reset
 			add_action(
 				'after_password_reset',
-				function ( $user, $new_pass ) {
+				function ( $user ) {
 					Password_Detection::remove_password_detection_usermeta( $user->ID );
 				},
 				10,
@@ -58,16 +61,23 @@ class Account_Protection {
 			// Remove password detection usermeta on profile password update
 			add_action(
 				'profile_update',
-				function ( $user_id, $old_user_data ) {
-					// Profile updates should include validation, but we should reset user meta to be safe
-					if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
-						// TODO: Ensure this only happens if the password is actually updated
-						Password_Detection::remove_password_detection_usermeta( $user_id );
+				function ( $user_id ) {
+					// TODO: Ensure nonce verfication works as expected
+					if (
+						! empty( $_POST['_wpnonce'] ) &&
+						wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'update-user_' . $user_id )
+					) {
+							// Profile updates should include validation, but we should reset user meta to be safe
+						if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
+							// TODO: Ensure this only happens if the password is actually updated
+							Password_Detection::remove_password_detection_usermeta( $user_id );
+						}
 					}
 				},
 				10,
 				2
 			);
+
 		}
 	}
 
