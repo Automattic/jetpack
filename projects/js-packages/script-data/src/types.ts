@@ -18,6 +18,7 @@ export interface PublicSiteData {
 export interface AdminSiteData {
 	admin_url: string;
 	date_format: string;
+	host?: 'woa' | 'atomic' | 'newspack' | 'vip' | 'wpcom' | 'unknown';
 	is_multisite: boolean;
 	plan: SitePlan;
 	rest_nonce: string;

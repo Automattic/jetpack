@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add an optional sandboxed tag to show if the current user is sandboxing their API. This is mostly for devs

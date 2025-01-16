@@ -85,11 +85,16 @@ export default function MyJetpackScreen() {
 	} );
 	useNotificationWatcher();
 	const { redBubbleAlerts } = getMyJetpackWindowInitialState();
-	const { isAtomic = false, jetpackManage = {}, adminUrl } = getMyJetpackWindowInitialState();
+	const {
+		isAtomic = false,
+		jetpackManage = {},
+		adminUrl,
+		sandboxedDomain,
+	} = getMyJetpackWindowInitialState();
 
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
 	const { isSectionVisible } = useEvaluationRecommendations();
-	const { siteIsRegistered } = useMyJetpackConnection();
+	const { siteIsRegistered, apiRoot, apiNonce } = useMyJetpackConnection();
 	const { currentNotice } = useContext( NoticeContext );
 	const {
 		message: noticeMessage,
@@ -136,7 +141,12 @@ export default function MyJetpackScreen() {
 	}
 
 	return (
-		<AdminPage siteAdminUrl={ adminUrl }>
+		<AdminPage
+			siteAdminUrl={ adminUrl }
+			sandboxedDomain={ sandboxedDomain }
+			apiRoot={ apiRoot }
+			apiNonce={ apiNonce }
+		>
 			<hr className={ styles.separator } />
 
 			<IDCModal />

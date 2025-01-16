@@ -449,6 +449,7 @@ interface Window {
 		};
 		topJetpackMenuItemUrl: string;
 		isAtomic: boolean;
+		sandboxedDomain: string;
 		userIsAdmin: string;
 		userIsNewToJetpack: string;
 	};

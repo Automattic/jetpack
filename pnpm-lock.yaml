@@ -437,6 +437,9 @@ importers:
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
+      '@automattic/jetpack-api':
+        specifier: workspace:*
+        version: link:../api
       '@automattic/jetpack-boost-score-api':
         specifier: workspace:*
         version: link:../boost-score-api

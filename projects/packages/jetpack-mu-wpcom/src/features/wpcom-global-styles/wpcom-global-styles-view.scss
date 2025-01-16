@@ -204,6 +204,10 @@
 			color: #676767;
 		}
 	}
+
+	&.hidden {
+		display: none;
+	}
 }
 
 .launch-banner-content .launch-bar-global-styles-preview {

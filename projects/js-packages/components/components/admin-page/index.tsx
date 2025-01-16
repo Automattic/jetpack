@@ -1,5 +1,7 @@
-import { __ } from '@wordpress/i18n';
+import restApi from '@automattic/jetpack-api';
+import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { useEffect, useCallback } from 'react';
 import JetpackFooter from '../jetpack-footer';
 import JetpackLogo from '../jetpack-logo';
 import Col from '../layout/col';
@@ -23,17 +25,58 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 	showHeader = true,
 	showFooter = true,
 	showBackground = true,
+	sandboxedDomain = '',
+	apiRoot = '',
+	apiNonce = '',
 	header,
 } ) => {
+	useEffect( () => {
+		restApi.setApiRoot( apiRoot );
+		restApi.setApiNonce( apiNonce );
+	}, [ apiRoot, apiNonce ] );
+
 	const rootClassName = clsx( styles[ 'admin-page' ], {
 		[ styles.background ]: showBackground,
 	} );
+
+	const testConnection = useCallback( async () => {
+		try {
+			const connectionTest = await restApi.fetchSiteConnectionTest();
+
+			// eslint-disable-next-line no-alert
+			window.alert( connectionTest.message );
+		} catch ( error ) {
+			// eslint-disable-next-line no-alert
+			window.alert(
+				sprintf(
+					/* translators: placeholder is an error message. */
+					__( 'There was an error testing Jetpack. Error: %s', 'jetpack-components' ),
+					error.message
+				)
+			);
+		}
+	}, [] );
 
 	return (
 		<div className={ rootClassName }>
 			{ showHeader && (
 				<Container horizontalSpacing={ 5 }>
-					<Col>{ header ? header : <JetpackLogo /> }</Col>
+					<Col className={ styles[ 'admin-page-header' ] }>
+						{ header ? header : <JetpackLogo /> }
+						{ sandboxedDomain && (
+							<code
+								className={ styles[ 'sandbox-domain-badge' ] }
+								onClick={ testConnection }
+								onKeyDown={ testConnection }
+								// eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
+								role="button"
+								tabIndex={ 0 }
+								title={ `Sandboxing via ${ sandboxedDomain }. Click to test connection.` }
+							>
+								API Sandboxed
+							</code>
+						) }
+					</Col>
 				</Container>
 			) }
 			<Container fluid horizontalSpacing={ 0 }>
