@@ -1,11 +1,15 @@
 import '../../common/public-path';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import WpcomLaunchpadWidget from './wpcom-launchpad-widget';
 import WpcomSiteManagementWidget from './wpcom-site-management-widget';
-
 const data = typeof window === 'object' ? window.JETPACK_MU_WPCOM_DASHBOARD_WIDGETS : {};
 
 const widgets = [
+	{
+		id: 'wpcom_launchpad_widget_main',
+		Widget: WpcomLaunchpadWidget,
+	},
 	{
 		id: 'wpcom_site_preview_widget_main',
 		Widget: WpcomSiteManagementWidget,
