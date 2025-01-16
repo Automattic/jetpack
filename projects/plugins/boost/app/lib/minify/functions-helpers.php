@@ -23,6 +23,7 @@ function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file
 
 	if ( $cache_folder !== Config::get_static_cache_dir_path() ) {
 		// Cleanup static cache folder
+		jetpack_boost_cache_maintenance();
 		jetpack_boost_page_optimize_cache_cleanup( Config::get_static_cache_dir_path(), WEEK_IN_SECONDS );
 	}
 

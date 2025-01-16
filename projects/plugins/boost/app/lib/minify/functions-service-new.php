@@ -44,6 +44,27 @@ function jetpack_boost_handle_minify_request( $request_uri ) {
 	exit;
 }
 
+function jetpack_boost_cache_maintenance() {
+	$files = glob( Config::get_static_cache_dir_path() . '/*.min.*' );
+	foreach ( $files as $file ) {
+		if ( ! file_exists( $file ) ) {
+			continue;
+		}
+		$file_parts = pathinfo( $file );
+		$file_paths = jetpack_boost_page_optimize_get_file_paths( $file_parts['basename'] );
+		$file_mtime = filemtime( $file );
+		foreach ( $file_paths as $file_path ) {
+			$file_path_mtime = filemtime( $file_path );
+			if ( ! $file_path_mtime ) {
+				continue; // problem getting file mtime.
+			}
+			if ( $file_path_mtime > $file_mtime ) {
+				wp_delete_file( $file ); // remove the file from the cache because it's stale.
+			}
+		}
+	}
+}
+
 function jetpack_boost_build_minify_output( $request_uri ) {
 	$utils                             = new Utils();
 	$jetpack_boost_page_optimize_types = jetpack_boost_page_optimize_types();
