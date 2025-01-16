@@ -859,7 +859,7 @@ class Initializer {
 		// check for stored alerts
 		$stored_alerts = get_transient( self::MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY );
 		// Cache bypass for red bubbles should only happen on the My Jetpack page
-		if ( $stored_alerts !== false && $bypass_cache !== true ) {
+		if ( $stored_alerts !== false && ! ( $bypass_cache ) ) {
 			return $stored_alerts;
 		}
 
