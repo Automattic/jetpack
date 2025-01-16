@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Task: Task reminders are now sent if they are due or past due, instead of within a one-hour window.
