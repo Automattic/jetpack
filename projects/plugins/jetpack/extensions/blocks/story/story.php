@@ -467,6 +467,8 @@ function render_block( $attributes ) {
 		)
 	);
 
+	$story_title = in_the_loop() ? get_the_title() : __( 'Story', 'jetpack' );
+
 	return sprintf(
 		'<div class="%1$s" data-id="%2$s" data-settings="%3$s">
 			<div class="wp-story-app">
@@ -500,7 +502,7 @@ function render_block( $attributes ) {
 		__( 'Play story in new tab', 'jetpack' ),
 		__( 'Site icon', 'jetpack' ),
 		esc_attr( get_blavatar_or_site_icon_url( 80, includes_url( 'images/w-logo-blue.png' ) ) ),
-		esc_html( get_the_title() ),
+		esc_html( $story_title ),
 		render_static_slide( $media_files ),
 		render_top_right_icon( $settings ),
 		render_pagination( $settings )
