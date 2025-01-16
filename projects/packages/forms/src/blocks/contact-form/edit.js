@@ -184,6 +184,7 @@ export const JetpackContactFormEdit = forwardRef(
 							placeholder={ __( 'Your message has been sent', 'jetpack-forms' ) }
 							onChange={ newHeading => setAttributes( { customThankyouHeading: newHeading } ) }
 							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize={ true }
 						/>
 					) }
 

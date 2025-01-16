@@ -126,6 +126,7 @@ const JetpackFieldControls = ( {
 					'jetpack-forms'
 				) }
 				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize={ true }
 			/>
 		),
 		<JetpackFieldWidth key="width" setAttributes={ setAttributes } width={ width } />,
@@ -274,6 +275,7 @@ const JetpackFieldControls = ( {
 						'jetpack-forms'
 					) }
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize={ true }
 				/>
 			</InspectorAdvancedControls>
 		</>
