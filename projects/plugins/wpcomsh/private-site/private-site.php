@@ -92,13 +92,6 @@ function init() {
 	// Update `wpcom_coming_soon` cached value when it's updated on WP.com.
 	add_filter( 'rest_api_update_site_settings', '\Private_Site\cache_option_on_update_site_settings', 10, 2 );
 
-	// Logged-in blog users for an 'unlaunched' or 'coming soon' site see a banner.
-	// Only load the logged in private and public coming soon modes.
-	if ( site_is_private() || site_is_public_coming_soon() ) {
-		require __DIR__ . '/logged-in-banner.php';
-		add_action( 'wp_body_open', '\Private_Site\show_logged_in_banner', -1000 );
-	}
-
 	if ( ! site_is_private() ) {
 		return;
 	}
