@@ -14,7 +14,7 @@ function jetpack_boost_minify_cache_buster() {
 
 /**
  * Cleanup the given cache folder, removing all files that haven't been accessed in $file_age seconds.
- * If a file is older than a week, it will be removed regardless of its access time.
+ * If a file is older than 2 * $file_age, it will be removed regardless of its access time.
  *
  * @param string $cache_folder The path to the cache folder to cleanup.
  * @param int    $file_age The age of files to purge, in seconds.
@@ -60,7 +60,7 @@ function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file
 			wp_delete_file( $cache_file );
 		}
 
-		if ( ( time() - WEEK_IN_SECONDS ) > filemtime( $cache_file ) ) {
+		if ( ( time() - ( 2 * $file_age ) ) > filemtime( $cache_file ) ) {
 			wp_delete_file( $cache_file );
 		}
 	}
