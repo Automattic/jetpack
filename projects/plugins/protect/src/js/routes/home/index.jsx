@@ -1,8 +1,7 @@
 import { AdminSection, Container, Col, ScanReport } from '@automattic/jetpack-components';
 import { useMemo } from 'react';
 import AdminPage from '../../components/admin-page';
-import { SCAN_IN_PROGRESS_STATUSES } from '../../constants';
-import useScanStatusQuery from '../../data/scan/use-scan-status-query';
+import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import HomeAdminSectionHero from './home-admin-section-hero';
 import styles from './styles.module.scss';
 
@@ -34,8 +33,7 @@ const HomePage = () => {
 		[ status ]
 	);
 
-	const showReport =
-		!! status.lastChecked || SCAN_IN_PROGRESS_STATUSES.indexOf( status?.status ) >= 0;
+	const showReport = ! isScanInProgress( status );
 
 	return (
 		<AdminPage>
