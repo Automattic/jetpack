@@ -474,9 +474,8 @@ function wpcom_show_removed_calypso_screen_notice() {
 		}
 	}
 
-	// Do not show notice on sites created the experiment started.
-	// 240673796 is the ID of a site created on 2025-01-13.
-	if ( $blog_id > 240673796 ) {
+	// Do not show notice on sites created after the experiment started (2025-01-16).
+	if ( $blog_id > 240790000 ) { // 240790000 is the ID of a site created on 2025-01-16.
 		return;
 	}
 
