@@ -24,6 +24,14 @@ function load_wpcom_dashboard_widgets() {
 		),
 	);
 
+	if ( get_option( 'launch-status' ) !== 'launched' ) {
+		$wpcom_dashboard_widgets[] = array(
+			'id'       => 'wpcom_launchpad_widget',
+			'name'     => __( 'Site Setup', 'jetpack-mu-wpcom' ),
+			'priority' => 'high',
+		);
+	}
+
 	foreach ( $wpcom_dashboard_widgets as $wpcom_dashboard_widget ) {
 		wp_add_dashboard_widget(
 			$wpcom_dashboard_widget['id'],
@@ -34,7 +42,7 @@ function load_wpcom_dashboard_widgets() {
 				'id'   => $wpcom_dashboard_widget['id'],
 				'name' => $wpcom_dashboard_widget['name'],
 			),
-			$wpcom_dashboard_widget['context'],
+			$wpcom_dashboard_widget['context'] ?? 'normal',
 			$wpcom_dashboard_widget['priority']
 		);
 	}
@@ -53,12 +61,14 @@ function enqueue_wpcom_dashboard_widgets() {
 			'siteUrl'      => home_url(),
 			'siteIconUrl'  => get_site_icon_url( 38 ),
 			'isBlockTheme' => wp_is_block_theme(),
+			'siteDomain'   => wp_parse_url( home_url(), PHP_URL_HOST ),
+			'siteIntent'   => get_option( 'site_intent' ),
 		)
 	);
 
 	wp_add_inline_script(
 		$handle,
-		"var JETPACK_MU_WPCOM_DASHBOARD_WIDGETS = $data;",
+		"var JETPACK_MU_WPCOM_DASHBOARD_WIDGETS = $data;var configData = {};",
 		'before'
 	);
 }
