@@ -83,16 +83,7 @@ const LineChart: FC< LineChartProps > = ( {
 	withTooltips = true,
 	showLegend = false,
 	legendOrientation = 'horizontal',
-	options = {
-		axis: {
-			x: {
-				orientation: 'bottom',
-			},
-			y: {
-				orientation: 'left',
-			},
-		},
-	},
+	options = {},
 } ) => {
 	const providerTheme = useChartTheme();
 
@@ -134,8 +125,13 @@ const LineChart: FC< LineChartProps > = ( {
 				yScale={ { type: 'linear', nice: true } }
 			>
 				<AnimatedGrid columns={ false } numTicks={ 4 } />
-				<AnimatedAxis numTicks={ 5 } tickFormat={ formatDateTick } { ...options.axis.x } />
-				<AnimatedAxis numTicks={ 4 } { ...options.axis.y } />
+				<AnimatedAxis
+					orientation="bottom"
+					numTicks={ 5 }
+					tickFormat={ formatDateTick }
+					{ ...options?.axis?.x }
+				/>
+				<AnimatedAxis orientation="left" numTicks={ 4 } { ...options?.axis?.y } />
 
 				{ data.map( ( seriesData, index ) => (
 					<AnimatedLineSeries
