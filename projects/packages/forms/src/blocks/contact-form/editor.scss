@@ -267,16 +267,6 @@
 	.components-base-control {
 		margin-top: -1px;
 		margin-bottom: -3px;
-
-		&.jetpack-field-label__required {
-			.components-form-toggle {
-				margin: 2px 8px 0 16px;
-			}
-
-			.components-toggle-control__label {
-				word-break: normal;
-			}
-		}
 	}
 
 	.rich-text.jetpack-field-label__input {
@@ -498,12 +488,6 @@
 	.components-base-control__field {
 		margin-bottom: 12px;
 	}
-}
-
-.jetpack-field-label__width,
-.jetpack-field-label__required,
-.jetpack-field-label__placeholder {
-	margin-bottom: 1em;
 }
 
 // Duplicated to elevate specificity in order to overwrite core styles
