@@ -119,6 +119,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		if ( ! empty( self::$forms ) ) {
+			// Ensure 'id' exists in $attributes before trying to modify it
+			if ( ! isset( $attributes['id'] ) ) {
+				$attributes['id'] = '';
+			}
 			$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 );
 		}
 
