@@ -23,6 +23,8 @@ export default function HistoryDataViews() {
 				},
 			];
 		}
+
+		return [];
 	}, [ filter ] );
 
 	return (
