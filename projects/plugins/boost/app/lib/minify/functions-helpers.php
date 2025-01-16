@@ -13,12 +13,19 @@ function jetpack_boost_minify_cache_buster() {
 }
 
 /**
- * Cleanup the given cache folder, removing all files older than $file_age seconds.
+ * Cleanup the given cache folder, removing all files that haven't been accessed in $file_age seconds.
+ * If a file is older than a week, it will be removed regardless of its access time.
  *
  * @param string $cache_folder The path to the cache folder to cleanup.
  * @param int    $file_age The age of files to purge, in seconds.
  */
 function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file_age = DAY_IN_SECONDS ) {
+
+	if ( $cache_folder !== Config::get_static_cache_dir_path() ) {
+		// Cleanup static cache folder
+		jetpack_boost_page_optimize_cache_cleanup( Config::get_static_cache_dir_path(), $file_age );
+	}
+
 	if ( ! is_dir( $cache_folder ) ) {
 		return;
 	}
@@ -37,7 +44,11 @@ function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file
 	}
 
 	// Grab all files in the cache directory
-	$cache_files = glob( $cache_folder . '/page-optimize-cache-*' );
+	if ( $cache_folder === Config::get_static_cache_dir_path() ) {
+		$cache_files = glob( $cache_folder . '/*min*' );
+	} else {
+		$cache_files = glob( $cache_folder . '/page-optimize-cache-*' );
+	}
 
 	// Cleanup all files older than $file_age
 	foreach ( $cache_files as $cache_file ) {
@@ -45,7 +56,11 @@ function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file
 			continue;
 		}
 
-		if ( ( time() - $file_age ) > filemtime( $cache_file ) ) {
+		if ( ( time() - $file_age ) > fileatime( $cache_file ) ) {
+			wp_delete_file( $cache_file );
+		}
+
+		if ( ( time() - WEEK_IN_SECONDS ) > filemtime( $cache_file ) ) {
 			wp_delete_file( $cache_file );
 		}
 	}
