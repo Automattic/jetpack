@@ -64,6 +64,7 @@ class Initializer {
 	const MISSING_CONNECTION_NOTIFICATION_KEY            = 'missing-connection';
 	const VIDEOPRESS_STATS_KEY                           = 'my-jetpack-videopress-stats';
 	const VIDEOPRESS_PERIOD_KEY                          = 'my-jetpack-videopress-period';
+	const MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY            = 'my-jetpack-red-bubble-transient';
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
@@ -281,7 +282,8 @@ class Initializer {
 					'purchases'                 => self::get_purchases(),
 					'modules'                   => self::get_active_modules(),
 				),
-				'redBubbleAlerts'        => self::get_red_bubble_alerts(),
+				// Only in the My Jetpack context, we get the alerts without the cache to make sure we have the most up-to-date info
+				'redBubbleAlerts'        => self::get_red_bubble_alerts( true ),
 				'recommendedModules'     => array(
 					'modules'    => self::get_recommended_modules(),
 					'isFirstRun' => \Jetpack_Options::get_option( 'recommendations_first_run', true ),
@@ -843,17 +845,28 @@ class Initializer {
 	/**
 	 * Collect all possible alerts that we might use a red bubble notification for
 	 *
+	 * @param bool $bypass_cache - whether to bypass the red bubble cache.
 	 * @return array
 	 */
-	public static function get_red_bubble_alerts() {
+	public static function get_red_bubble_alerts( bool $bypass_cache = false ) {
 		static $red_bubble_alerts = array();
 
 		// using a static cache since we call this function more than once in the class
 		if ( ! empty( $red_bubble_alerts ) ) {
 			return $red_bubble_alerts;
 		}
+
+		// check for stored alerts
+		$stored_alerts = get_transient( self::MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY );
+		// Cache bypass for red bubbles should only happen on the My Jetpack page
+		if ( $stored_alerts !== false && $bypass_cache !== true ) {
+			return $stored_alerts;
+		}
+
 		// go find the alerts
 		$red_bubble_alerts = apply_filters( 'my_jetpack_red_bubble_notification_slugs', $red_bubble_alerts );
+		// cache the alerts for one hour
+		set_transient( self::MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY, $red_bubble_alerts, 3600 );
 
 		return $red_bubble_alerts;
 	}
