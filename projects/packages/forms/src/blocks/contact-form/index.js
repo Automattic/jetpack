@@ -66,7 +66,11 @@ export const settings = {
 			padding: true,
 			margin: true,
 		},
-		typography: true,
+		typography: {
+			fontSize: true,
+			lineHeight: true,
+			textAlign: true,
+		},
 		align: [ 'wide', 'full' ],
 	},
 	attributes: defaultAttributes,
