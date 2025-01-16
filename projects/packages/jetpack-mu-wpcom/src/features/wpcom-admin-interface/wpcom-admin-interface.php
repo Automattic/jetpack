@@ -394,6 +394,7 @@ add_action( 'admin_notices', 'wpcom_show_admin_interface_notice' );
 function wpcom_is_duplicate_views_experiment_enabled() {
 	$experiment_platform = 'calypso';
 	$experiment_name     = "{$experiment_platform}_post_onboarding_holdout_120924";
+	$aa_test_name        = "{$experiment_platform}_post_onboarding_aa_150125";
 
 	static $is_enabled = null;
 	if ( $is_enabled !== null ) {
@@ -401,6 +402,7 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 	}
 
 	if ( ( new Host() )->is_wpcom_simple() ) {
+		\ExPlat\assign_current_user( $aa_test_name );
 		$is_enabled = 'treatment' === \ExPlat\assign_current_user( $experiment_name );
 		return $is_enabled;
 	}
@@ -417,6 +419,12 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 		$is_enabled = false;
 		return $is_enabled;
 	}
+
+	$aa_test_request_path = add_query_arg(
+		array( 'experiment_name' => $aa_test_name ),
+		"/experiments/0.1.0/assignments/{$experiment_platform}"
+	);
+	Client::wpcom_json_api_request_as_user( $aa_test_request_path, 'v2' );
 
 	$request_path = add_query_arg(
 		array( 'experiment_name' => $experiment_name ),
@@ -466,9 +474,8 @@ function wpcom_show_removed_calypso_screen_notice() {
 		}
 	}
 
-	// Do not show notice on sites created the experiment started.
-	// 240673796 is the ID of a site created on 2025-01-13.
-	if ( $blog_id > 240673796 ) {
+	// Do not show notice on sites created after the experiment started (2025-01-16).
+	if ( $blog_id > 240790000 ) { // 240790000 is the ID of a site created on 2025-01-16.
 		return;
 	}
 
