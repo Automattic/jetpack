@@ -1,30 +1,38 @@
-import { getFixerAction, getThreatType, type Threat } from '@automattic/jetpack-scan';
 import {
-	type Action,
+	getThreatType,
+	THREAT_ACTION_FIX,
+	THREAT_ACTION_IGNORE,
+	THREAT_ACTION_UNIGNORE,
+	THREAT_ACTIONS,
+	ThreatAction,
+	ThreatsContext,
+	type Threat,
+} from '@automattic/jetpack-scan';
+import {
 	type Field,
 	type FieldType,
 	type Filter,
 	type SortDirection,
 	type SupportedLayouts,
 	type View,
+	Action,
 	DataViews,
 	filterSortAndPaginate,
 } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useContext, useImperativeHandle, useMemo, useState } from 'react';
 import Badge from '../badge';
 import useBreakpointMatch from '../layout/use-breakpoint-match';
 import ThreatFixerButton from '../threat-fixer-button';
-import ThreatModal from '../threat-modal';
+import ThreatDetailsModal from '../threat-modals/details-modal';
+import ThreatFixerModal from '../threat-modals/fixer-modal';
+import ThreatIgnoreModal from '../threat-modals/ignore-modal';
 import ThreatSeverityBadge from '../threat-severity-badge';
 import {
 	CURRENT_TABLE_FIELDS,
 	LIST_FIELDS,
-	THREAT_ACTION_FIX,
-	THREAT_ACTION_IGNORE,
-	THREAT_ACTION_UNIGNORE,
 	THREAT_FIELD_AUTO_FIX,
 	THREAT_FIELD_DESCRIPTION,
 	THREAT_FIELD_EXTENSION,
@@ -44,84 +52,44 @@ import {
 } from './constants';
 import styles from './styles.module.scss';
 
-export { HISTORIC_TABLE_FIELDS } from './constants';
+export { HISTORIC_TABLE_FIELDS, THREAT_FIELD_AUTO_FIX } from './constants';
 
-/**
- * DataViews component for displaying security threats.
- *
- * @param {object}      props                             - Component props.
- * @param {string}      props.status                      - Flag to indicate if the threats are current or historic.
- * @param {Array}       props.data                        - Threats data.
- * @param {Array}       props.initialFilters              - Initial DataView filters.
- * @param {Array}       props.initialFields               - Initial DataView fields.                  - Initial DataView filters.
- * @param {boolean}     props.isSupportedEnvironment      - Whether the environment is supported.
- * @param {Function}    props.handleUpgradeClick          - Callback function run when the upgrade button is clicked.
- * @param {Function}    props.onFixThreats                - Threat fix action callback.
- * @param {Function}    props.onIgnoreThreats             - Threat ignore action callback.
- * @param {Function}    props.onUnignoreThreats           - Threat unignore action callback.
- * @param {Function}    props.isThreatEligibleForFix      - Function to determine if a threat is eligible for fixing.
- * @param {Function}    props.isThreatEligibleForIgnore   - Function to determine if a threat is eligible for ignoring.
- * @param {Function}    props.isThreatEligibleForUnignore - Function to determine if a threat is eligible for unignoring.
- * @param {boolean}     props.isUserConnected             - Whether the user is connected.
- * @param {boolean}     props.hasConnectedOwner           - Whether the site has a connected owner.
- * @param {boolean}     props.userIsConnecting            - Whether the user is connecting.
- * @param {Function}    props.handleConnectUser           - Function to handle the user connection process.
- * @param {object[]}    props.credentials                 - The credentials.
- * @param {boolean}     props.credentialsIsFetching       - Whether the credentials are fetching.
- * @param {string}      props.credentialsRedirectUrl      - The credentials redirect URL.
- * @param {Function}    props.onModalOpen                 - Callback function on modal open.
- * @param {Function}    props.onModalClose                - Callback function on modal close.
- * @param {JSX.Element} props.header                      - The header element.
- *
- * @return {JSX.Element} The ThreatsDataViews component.
- */
-export default function ThreatsDataViews( {
-	status = 'current',
-	data,
-	initialFields,
-	initialFilters,
-	isSupportedEnvironment = true,
-	handleUpgradeClick,
-	onFixThreats,
-	onIgnoreThreats,
-	onUnignoreThreats,
-	isThreatEligibleForFix,
-	isThreatEligibleForIgnore,
-	isThreatEligibleForUnignore,
-	isUserConnected,
-	hasConnectedOwner,
-	userIsConnecting,
-	handleConnectUser,
-	credentials,
-	credentialsIsFetching,
-	credentialsRedirectUrl,
-	onModalOpen,
-	onModalClose,
-	header,
-}: {
-	status?: string;
+type ThreatsDataViewsProps = {
 	data: Threat[];
+	header?: JSX.Element;
 	initialFields?: string[];
 	initialFilters?: Filter[];
-	isSupportedEnvironment?: boolean;
-	handleUpgradeClick?: () => void;
-	onFixThreats?: ( threats: Threat[] ) => void;
-	onIgnoreThreats?: ( threats: Threat[] ) => void;
-	onUnignoreThreats?: ( threats: Threat[] ) => void;
-	isThreatEligibleForFix?: ( threat: Threat ) => boolean;
-	isThreatEligibleForIgnore?: ( threat: Threat ) => boolean;
-	isThreatEligibleForUnignore?: ( threat: Threat ) => boolean;
-	isUserConnected: boolean;
-	hasConnectedOwner: boolean;
-	userIsConnecting: boolean;
-	handleConnectUser: () => void;
-	credentials: false | Record< string, unknown >[];
-	credentialsIsFetching: boolean;
-	credentialsRedirectUrl: string;
-	onModalOpen: () => void;
-	onModalClose: () => void;
-	header?: JSX.Element;
-} ): JSX.Element {
+	disableFields?: string[];
+};
+
+/**
+ * DataViews component for displaying threats data.
+ *
+ * @param {object} props                - Component props.
+ * @param {Array}  props.data           - DataViews data.
+ * @param {Array}  props.header         - DataViews header.
+ * @param {Array}  props.initialFields  - Initial DataViews fields.
+ * @param {Array}  props.initialFilters - Initial DataViews filters.
+ * @param {Array}  props.disableFields  - Fields to hide from the DataView.
+ *
+ * @return {JSX.Element} The threats data views component.
+ */
+const ThreatsDataViews = ( {
+	data,
+	header,
+	initialFields,
+	initialFilters,
+	disableFields,
+}: ThreatsDataViewsProps ): JSX.Element => {
+	const context = useContext( ThreatsContext );
+	const {
+		actionCallbacks,
+		selectedThreat,
+		setSelectedThreat,
+		actionToConfirm,
+		setActionToConfirm,
+	} = context;
+
 	const [ isSm ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
 	const baseView = {
@@ -152,7 +120,7 @@ export default function ThreatsDataViews( {
 		},
 		list: {
 			...baseView,
-			fields: LIST_FIELDS,
+			fields: initialFields || LIST_FIELDS,
 			titleField: THREAT_FIELD_TITLE,
 			mediaField: THREAT_FIELD_ICON,
 			showMedia: true,
@@ -176,23 +144,17 @@ export default function ThreatsDataViews( {
 		...defaultLayouts[ defaultViewType ],
 	} );
 
-	const [ selectedThreat, setSelectedThreat ] = useState< Threat | null >( null );
-	const [ actionToConfirm, setActionToConfirm ] = useState< string >( 'all' );
-
-	const showThreatModal = useCallback(
-		( threat: Threat, action: string ) => () => {
-			onModalOpen?.();
-			setSelectedThreat( threat );
-			setActionToConfirm( action );
+	const onClickFix = useCallback(
+		( threat: Threat ) => () => {
+			setActionToConfirm( { id: 'fix', items: [ threat ] } );
 		},
-		[ onModalOpen ]
+		[ setActionToConfirm ]
 	);
 
-	const hideThreatModal = useCallback( () => {
-		onModalClose?.();
+	const onRequestClose = useCallback( () => {
 		setSelectedThreat( null );
-		setActionToConfirm( 'all' );
-	}, [ onModalClose ] );
+		setActionToConfirm( undefined );
+	}, [ setSelectedThreat, setActionToConfirm ] );
 
 	/**
 	 * Compute values from the provided threats data.
@@ -225,7 +187,10 @@ export default function ThreatsDataViews( {
 							break;
 						case 'plugins':
 							if ( ! acc.plugins.find( ( { value } ) => value === threat.extension.slug ) ) {
-								acc.plugins.push( { value: threat.extension.slug, label: threat.extension.name } );
+								acc.plugins.push( {
+									value: threat.extension.slug,
+									label: threat.extension.name,
+								} );
 							}
 							break;
 						default:
@@ -343,7 +308,7 @@ export default function ThreatsDataViews( {
 					return item.extension ? item.extension.slug : '';
 				},
 			},
-			...( 'historic' === status && dataFields.includes( 'status' )
+			...( dataFields.includes( 'status' )
 				? [
 						{
 							id: THREAT_FIELD_STATUS,
@@ -438,7 +403,7 @@ export default function ThreatsDataViews( {
 						},
 				  ]
 				: [] ),
-			...( 'historic' !== status && dataFields.includes( 'fixable' )
+			...( dataFields.includes( 'fixable' )
 				? [
 						{
 							id: THREAT_FIELD_AUTO_FIX,
@@ -462,102 +427,75 @@ export default function ThreatsDataViews( {
 									return null;
 								}
 
-								if ( isThreatEligibleForFix && ! isThreatEligibleForFix( item ) ) {
-									return null;
-								}
-
-								return (
-									<ThreatFixerButton threat={ item } onClick={ showThreatModal( item, 'fix' ) } />
-								);
+								return <ThreatFixerButton threat={ item } onClick={ onClickFix( item ) } />;
 							},
 						},
 				  ]
 				: [] ),
 		];
 
-		return result;
-	}, [ plugins, themes, dataFields, signatures, status, isThreatEligibleForFix, showThreatModal ] );
+		return result.filter( field => ! disableFields?.includes( field.id ) );
+	}, [ plugins, themes, dataFields, signatures, onClickFix, disableFields ] );
 
 	/**
 	 * DataView actions - collection of operations that can be performed upon each record.
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#actions-object
 	 */
-	const actions = useMemo( () => {
-		const result: Action< Threat >[] = [];
-
-		if ( dataFields.includes( 'fixable' ) && view.type === 'list' ) {
-			result.push( {
+	const actions: Action< Threat >[] = useMemo( () => {
+		const callbacks = {
+			[ THREAT_ACTION_FIX ]: {
 				id: THREAT_ACTION_FIX,
-				label: items => {
-					return getFixerAction( items[ 0 ] );
+				callback: ( items: Threat[], { onActionPerformed } ) => {
+					setActionToConfirm( { id: THREAT_ACTION_FIX, items } );
+					onActionPerformed?.( items );
 				},
-				isPrimary: true,
-				callback: ( items: Threat[] ) => {
-					showThreatModal( items[ 0 ], 'fix' )();
-				},
-				isEligible( item ) {
-					if ( ! onFixThreats ) {
-						return false;
-					}
-					if ( isThreatEligibleForFix ) {
-						return isThreatEligibleForFix( item );
-					}
-					return !! item.fixable;
-				},
-			} );
-		}
-
-		if ( dataFields.includes( 'status' ) ) {
-			result.push( {
+			},
+			[ THREAT_ACTION_IGNORE ]: {
 				id: THREAT_ACTION_IGNORE,
-				label: __( 'Ignore', 'jetpack-components' ),
-				callback: ( items: Threat[] ) => {
-					showThreatModal( items[ 0 ], 'ignore' )();
+				callback: ( items: Threat[], { onActionPerformed } ) => {
+					setActionToConfirm( { id: THREAT_ACTION_IGNORE, items } );
+					onActionPerformed?.( items );
 				},
-				isEligible( item ) {
-					if ( ! onIgnoreThreats ) {
-						return false;
-					}
-					if ( isThreatEligibleForIgnore ) {
-						return isThreatEligibleForIgnore( item );
-					}
-					return item.status === 'current';
-				},
-			} );
-		}
-
-		if ( dataFields.includes( 'status' ) ) {
-			result.push( {
+			},
+			[ THREAT_ACTION_UNIGNORE ]: {
 				id: THREAT_ACTION_UNIGNORE,
-				label: __( 'Unignore', 'jetpack-components' ),
-				callback: ( items: Threat[] ) => {
-					showThreatModal( items[ 0 ], 'unignore' )();
+				callback: async ( items: Threat[], { onActionPerformed } ) => {
+					actionCallbacks[ THREAT_ACTION_UNIGNORE ]( items, { onActionPerformed } );
 				},
-				isEligible( item ) {
-					if ( ! onUnignoreThreats ) {
-						return false;
-					}
-					if ( isThreatEligibleForUnignore ) {
-						return isThreatEligibleForUnignore( item );
-					}
-					return item.status === 'ignored';
-				},
-			} );
-		}
+			},
+		};
 
-		return result;
-	}, [
-		view.type,
-		dataFields,
-		showThreatModal,
-		onFixThreats,
-		onIgnoreThreats,
-		onUnignoreThreats,
-		isThreatEligibleForFix,
-		isThreatEligibleForIgnore,
-		isThreatEligibleForUnignore,
-	] );
+		const axns = Object.values( THREAT_ACTIONS ).map( ( threatAction: ThreatAction ) => {
+			const action: Action< Threat > = {
+				id: threatAction.id,
+				label: ( items: Threat[] ) => {
+					if ( typeof threatAction.label === 'function' ) {
+						return items[ 0 ] ? threatAction.label( items[ 0 ] ) : '';
+					}
+
+					return threatAction.label || '';
+				},
+				callback: callbacks[ threatAction.id ],
+				isEligible: ( item: Threat ) => {
+					return threatAction.isEligible( item, context );
+				},
+			};
+
+			return action;
+		} );
+
+		return [
+			{
+				id: 'view',
+				label: __( 'View Details', 'jetpack-components' ),
+				callback: ( items: Threat[] ) => {
+					setSelectedThreat( items[ 0 ] );
+				},
+			},
+			...axns,
+		];
+	}, [ actionCallbacks, context, setActionToConfirm, setSelectedThreat ] );
 
 	/**
 	 * Apply the view settings (i.e. filters, sorting, pagination) to the dataset.
@@ -589,24 +527,33 @@ export default function ThreatsDataViews( {
 	 */
 	const onClickItem = useCallback(
 		( item: Threat ) => {
-			showThreatModal( item, 'all' )();
+			setSelectedThreat( item );
 		},
-		[ showThreatModal ]
+		[ setSelectedThreat ]
 	);
 
-	/**
-	 * DataViews onChangeSelection function - render the threat modal on list row selection.
-	 */
-	const onChangeSelection = useCallback(
-		( selectedItemIds: string[] ) => {
-			const selectedItem = data.find( item => item.id === parseInt( selectedItemIds[ 0 ] ) );
-
-			if ( selectedItem ) {
-				showThreatModal( selectedItem, 'all' )();
+	const ModalComponent = useMemo( () => {
+		if ( actionToConfirm ) {
+			switch ( actionToConfirm.id ) {
+				case THREAT_ACTION_FIX:
+					return ThreatFixerModal;
+				case THREAT_ACTION_IGNORE:
+					return ThreatIgnoreModal;
+				default:
+					break;
 			}
-		},
-		[ data, showThreatModal ]
-	);
+		}
+
+		if ( selectedThreat ) {
+			return ThreatDetailsModal;
+		}
+
+		return null;
+	}, [ actionToConfirm, selectedThreat ] );
+
+	useImperativeHandle( ref, () => ( {
+		getSelectedRows: () => null,
+	} ) );
 
 	return (
 		<>
@@ -616,32 +563,15 @@ export default function ThreatsDataViews( {
 				defaultLayouts={ defaultLayouts }
 				fields={ fields }
 				getItemId={ getItemId }
-				onChangeSelection={ onChangeSelection }
 				onChangeView={ onChangeView }
 				paginationInfo={ paginationInfo }
 				onClickItem={ onClickItem }
 				view={ view }
 				header={ header }
 			/>
-			{ selectedThreat ? (
-				<ThreatModal
-					threat={ selectedThreat }
-					isSupportedEnvironment={ isSupportedEnvironment }
-					isUserConnected={ isUserConnected }
-					hasConnectedOwner={ hasConnectedOwner }
-					userIsConnecting={ userIsConnecting }
-					handleConnectUser={ handleConnectUser }
-					credentials={ credentials }
-					credentialsIsFetching={ credentialsIsFetching }
-					credentialsRedirectUrl={ credentialsRedirectUrl }
-					handleUpgradeClick={ handleUpgradeClick }
-					handleFixThreatClick={ onFixThreats }
-					handleIgnoreThreatClick={ onIgnoreThreats }
-					handleUnignoreThreatClick={ onUnignoreThreats }
-					onRequestClose={ hideThreatModal }
-					actionToConfirm={ actionToConfirm }
-				/>
-			) : null }
+			{ ModalComponent && <ModalComponent onRequestClose={ onRequestClose } /> }
 		</>
 	);
-}
+};
+
+export default ThreatsDataViews;

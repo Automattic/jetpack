@@ -8,9 +8,13 @@ import ScanDataViews from './scan-data-views';
 /**
  * Current Threats Data Views
  *
+ * @param {object}   props                    - Component properties.
+ * @param {object}   props.actionToConfirm    - Action to confirm.
+ * @param {Function} props.setActionToConfirm - Set action to confirm.
+ *
  * @return {JSX.Element} CurrentThreatsDataViews component.
  */
-export default function CurrentThreatsDataViews() {
+export default function CurrentThreatsDataViews( { actionToConfirm, setActionToConfirm } ) {
 	const { wafSupported } = useWafData();
 	const { data: status } = useScanStatusQuery();
 
@@ -27,6 +31,8 @@ export default function CurrentThreatsDataViews() {
 			data={ status ? status.threats : [] }
 			isSupportedEnvironment={ wafSupported }
 			handleUpgradeClick={ ! hasPlan ? getScan : null }
+			actionToConfirm={ actionToConfirm }
+			setActionToConfirm={ setActionToConfirm }
 		/>
 	);
 }

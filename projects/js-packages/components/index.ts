@@ -49,6 +49,7 @@ export { default as ThreatSeverityBadge } from './components/threat-severity-bad
 export {
 	default as ThreatsDataViews,
 	HISTORIC_TABLE_FIELDS,
+	THREAT_FIELD_AUTO_FIX,
 } from './components/threats-data-views';
 export { default as ShieldIcon } from './components/shield-icon';
 export { default as ScanReport } from './components/scan-report';

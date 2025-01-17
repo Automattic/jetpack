@@ -1,3 +1,4 @@
+import { ThreatsContext } from '@automattic/jetpack-scan';
 import ThreatsDataViews from '..';
 import { HISTORIC_TABLE_FIELDS } from '../constants';
 import { currentData, historicData } from './data';
@@ -13,9 +14,27 @@ export default {
 	},
 	decorators: [
 		Story => (
-			<div style={ { maxWidth: '100%', backgroundColor: 'white' } }>
-				<Story />
-			</div>
+			<ThreatsContext.Provider
+				value={ {
+					actionCallbacks: {},
+					credentials: {
+						available: true,
+						fetching: false,
+						redirectUrl: '#',
+					},
+					connection: {
+						connected: true,
+						connecting: false,
+						connect: () => {},
+					},
+					referToCodeable: true,
+					upgradePlan: () => {},
+				} }
+			>
+				<div style={ { maxWidth: '100%', backgroundColor: 'white' } }>
+					<Story />
+				</div>
+			</ThreatsContext.Provider>
 		),
 	],
 };

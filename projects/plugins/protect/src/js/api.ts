@@ -1,4 +1,4 @@
-import { type FixersStatus, type ScanStatus } from '@automattic/jetpack-scan';
+import { Threat, type FixersStatus, type ScanStatus } from '@automattic/jetpack-scan';
 import apiFetch from '@wordpress/api-fetch';
 import camelize from 'camelize';
 import { WafStatus } from './types/waf';
@@ -66,7 +66,7 @@ const API = {
 			method: 'GET',
 		} ).then( camelize ),
 
-	fixThreats: ( threatIds: number[] ): Promise< FixersStatus > =>
+	fixThreats: ( threatIds: Array< Threat[ 'id' ] > ): Promise< FixersStatus > =>
 		apiFetch( {
 			path: `jetpack-protect/v1/fix-threats`,
 			method: 'POST',

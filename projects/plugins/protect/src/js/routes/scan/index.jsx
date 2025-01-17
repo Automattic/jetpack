@@ -48,10 +48,16 @@ const ScanPage = () => {
 		},
 	} );
 
+	const [ actionToConfirm, setActionToConfirm ] = useState( null );
+
 	return (
 		<OnboardingContext.Provider value={ onboardingSteps }>
 			<AdminPage>
-				<ScanAdminSectionHero size={ showResults ? 'normal' : 'large' } />
+				<ScanAdminSectionHero
+					size={ showResults ? 'normal' : 'large' }
+					actionToConfirm={ actionToConfirm }
+					setActionToConfirm={ setActionToConfirm }
+				/>
 				{ showResults && (
 					<AdminSection>
 						<Container
@@ -61,7 +67,10 @@ const ScanPage = () => {
 						>
 							<Col>
 								<div ref={ setScanResultsAnchor }>
-									<CurrentThreatsDataViews />
+									<CurrentThreatsDataViews
+										actionToConfirm={ actionToConfirm }
+										setActionToConfirm={ setActionToConfirm }
+									/>
 								</div>
 								{ !! status && ! isScanInProgress( status ) && (
 									<OnboardingPopover

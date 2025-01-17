@@ -224,7 +224,7 @@ class Jetpack_Protect {
 			'siteSuffix'         => ( new Jetpack_Status() )->get_site_suffix(),
 			'blogID'             => Connection_Manager::get_site_id( true ),
 			'jetpackScan'        => My_Jetpack_Products::get_product( 'scan' ),
-			'hasPlan'            => Plan::has_required_plan(),
+			'hasPlan'            => Plan::has_required_plan( true ),
 			'onboardingProgress' => Onboarding::get_current_user_progress(),
 			'waf'                => array(
 				'wafSupported'        => Waf_Runner::is_supported_environment(),

@@ -10,16 +10,22 @@ import OnboardingPopover from '../../components/onboarding-popover';
 import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useFixers from '../../hooks/use-fixers';
-import useModal from '../../hooks/use-modal';
+// import useModal from '../../hooks/use-modal';
 import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
 import ScanningAdminSectionHero from './scanning-admin-section-hero';
 import styles from './styles.module.scss';
 
-const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' | 'large' } ) => {
+const ScanAdminSectionHero: React.FC = ( {
+	size = 'normal',
+	setActionToConfirm,
+}: {
+	size?: 'normal' | 'large';
+	setActionToConfirm: unknown;
+} ) => {
 	const { recordEvent } = useAnalyticsTracks();
 	const { hasPlan, upgradePlan } = usePlan();
-	const { setModal } = useModal();
+	// const { setModal } = useModal();
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const { data: status } = useScanStatusQuery();
 	const { isThreatFixInProgress, isThreatFixStale } = useFixers();
@@ -84,10 +90,7 @@ const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' 
 	const handleShowAutoFixersClick = threatList => {
 		return event => {
 			event.preventDefault();
-			setModal( {
-				type: 'FIX_ALL_THREATS',
-				props: { threatList },
-			} );
+			setActionToConfirm( { id: 'fix', items: threatList } );
 		};
 	};
 

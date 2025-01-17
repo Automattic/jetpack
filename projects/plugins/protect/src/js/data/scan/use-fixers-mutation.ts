@@ -1,3 +1,4 @@
+import { ThreatFixStatus } from '@automattic/jetpack-scan';
 import { useMutation, type UseMutationResult, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import API from '../../api';
@@ -29,7 +30,20 @@ export default function useFixersMutation(): UseMutationResult {
 			}
 
 			// The data returned from the API is the same as the data we need to update the cache.
-			queryClient.setQueryData( [ QUERY_FIXERS_KEY ], data );
+			queryClient.setQueryData( [ QUERY_FIXERS_KEY ], ( previousData: ThreatFixStatus ) => {
+				let previousThreats = {};
+				if ( previousData && 'threats' in previousData ) {
+					previousThreats = previousData.threats;
+				}
+
+				return {
+					...data,
+					threats: {
+						...previousThreats,
+						...data.threats,
+					},
+				};
+			} );
 
 			// Show a success notice.
 			showSuccessNotice(

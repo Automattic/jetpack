@@ -57,7 +57,7 @@ class Status {
 	 * @return Status_Model
 	 */
 	public static function get_status( $refresh_from_wpcom = false ) {
-		$use_scan_status = Plan::has_required_plan();
+		$use_scan_status = Plan::has_required_plan( $refresh_from_wpcom );
 
 		if ( defined( 'JETPACK_PROTECT_DEV__DATA_SOURCE' ) ) {
 			if ( 'scan_api' === JETPACK_PROTECT_DEV__DATA_SOURCE ) {

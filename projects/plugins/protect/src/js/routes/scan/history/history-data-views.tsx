@@ -1,4 +1,4 @@
-import { HISTORIC_TABLE_FIELDS } from '@automattic/jetpack-components';
+import { HISTORIC_TABLE_FIELDS, THREAT_FIELD_AUTO_FIX } from '@automattic/jetpack-components';
 import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import useHistoryQuery from '../../../data/scan/use-history-query';
@@ -29,10 +29,10 @@ export default function HistoryDataViews() {
 
 	return (
 		<ScanDataViews
-			status="historic"
 			data={ history ? history.threats : [] }
 			initialFilters={ filters }
 			initialFields={ HISTORIC_TABLE_FIELDS }
+			disableFields={ [ THREAT_FIELD_AUTO_FIX ] }
 		/>
 	);
 }
