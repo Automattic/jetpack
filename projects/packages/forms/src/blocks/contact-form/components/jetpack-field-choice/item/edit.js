@@ -21,8 +21,7 @@ function useEnter( props ) {
 	propsRef.current = props;
 	return useRefEffect( element => {
 		function onKeyDown( event ) {
-			// Keycode for ENTER is `13`.
-			if ( event.defaultPrevented || event.keyCode !== 13 ) {
+			if ( event.defaultPrevented || event.key !== 'Enter' ) {
 				return;
 			}
 			const { content, clientId } = propsRef.current;
