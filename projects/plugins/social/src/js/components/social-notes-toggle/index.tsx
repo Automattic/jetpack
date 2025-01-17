@@ -33,12 +33,11 @@ const handleStateUpdating = async (
 const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) => {
 	const { isEnabled, notesConfig, isUpdating } = useSelect( select => {
 		const store = select( socialStore );
-		const settings = store.getSocialPluginSettings();
 
 		return {
-			isEnabled: settings.social_notes_enabled,
-			notesConfig: settings.social_notes_config,
-			isUpdating: store.isSavingSocialPluginSettings(),
+			isEnabled: store.getSocialNotesEnabled(),
+			notesConfig: store.getSocialNotesConfig(),
+			isUpdating: store.isSavingSiteSettings(),
 		};
 	}, [] );
 
@@ -49,46 +48,38 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
-	const { updateSocialPluginSettings } = useDispatch( socialStore );
+	const { setSocialNotesEnabled, updateSocialNotesConfig } = useDispatch( socialStore );
 
 	const toggleStatus = useCallback( async () => {
-		handleStateUpdating( () =>
-			updateSocialPluginSettings( {
-				social_notes_enabled: ! isEnabled,
-			} )
-		);
-	}, [ isEnabled, updateSocialPluginSettings ] );
+		handleStateUpdating( () => setSocialNotesEnabled( ! isEnabled ) );
+	}, [ isEnabled, setSocialNotesEnabled ] );
 
 	const onToggleAppendLink = useCallback(
 		( append_link: boolean ) => {
 			handleStateUpdating(
 				() =>
-					updateSocialPluginSettings( {
-						social_notes_config: {
-							...notesConfig,
-							append_link,
-						},
+					updateSocialNotesConfig( {
+						...notesConfig,
+						append_link,
 					} ),
 				setIsAppendLinkToggleUpdating
 			);
 		},
-		[ notesConfig, updateSocialPluginSettings ]
+		[ notesConfig, updateSocialNotesConfig ]
 	);
 
 	const onChangeLinkFormat = useCallback(
 		( link_format: string ) => {
 			handleStateUpdating(
 				() =>
-					updateSocialPluginSettings( {
-						social_notes_config: {
-							...notesConfig,
-							link_format: link_format as ( typeof notesConfig )[ 'link_format' ],
-						},
+					updateSocialNotesConfig( {
+						...notesConfig,
+						link_format: link_format as ( typeof notesConfig )[ 'link_format' ],
 					} ),
 				setIsLinkFormatUpdating
 			);
 		},
-		[ notesConfig, updateSocialPluginSettings ]
+		[ notesConfig, updateSocialNotesConfig ]
 	);
 
 	const appendLink = notesConfig.append_link ?? true;
@@ -122,23 +113,23 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 				{ __( 'Create a note', 'jetpack-social' ) }
 			</Button>
 
-			{ isEnabled && ! isUpdating ? (
+			{ isEnabled ? (
 				<div className={ styles[ 'notes-options-wrapper' ] }>
 					<ToggleControl
 						label={ __( 'Append post link', 'jetpack-social' ) }
 						checked={ appendLink }
-						disabled={ isAppendLinkToggleUpdating || isLinkFormatUpdating }
+						disabled={ isAppendLinkToggleUpdating || isLinkFormatUpdating || isUpdating }
 						className={ styles.toggle }
 						onChange={ onToggleAppendLink }
 						help={ __( 'Whether to append the post link when sharing a note.', 'jetpack-social' ) }
 						__nextHasNoMarginBottom={ true }
 					/>
-					{ appendLink && ! isAppendLinkToggleUpdating ? (
+					{ appendLink ? (
 						<SelectControl
 							label={ __( 'Link format', 'jetpack-social' ) }
 							value={ notesConfig.link_format ?? 'full_url' }
 							onChange={ onChangeLinkFormat }
-							disabled={ isLinkFormatUpdating }
+							disabled={ isLinkFormatUpdating || isUpdating || isAppendLinkToggleUpdating }
 							options={ [
 								{ label: __( 'Full URL', 'jetpack-social' ), value: 'full_url' },
 								{ label: __( 'Shortlink', 'jetpack-social' ), value: 'shortlink' },

@@ -96,6 +96,11 @@ export type UtmSettingsConfig = {
 	enabled: boolean;
 };
 
+export type SocialNotesConfig = {
+	append_link: boolean;
+	link_format: 'full_url' | 'shortlink' | 'permashortcitation';
+};
+
 export type SocialPluginSettings = {
 	publicize_active: boolean;
 	show_pricing_page: boolean;
