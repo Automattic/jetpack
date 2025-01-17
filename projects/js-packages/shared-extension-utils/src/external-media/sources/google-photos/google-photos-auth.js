@@ -4,10 +4,8 @@ import { Button } from '@wordpress/components';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import {
-	SOURCE_GOOGLE_PHOTOS,
-	getExternalMediaApiUrl,
-} from '@automattic/jetpack-shared-extension-utils';
+import { SOURCE_GOOGLE_PHOTOS } from '../../constants';
+import { getExternalMediaApiUrl } from '../api';
 import AuthInstructions from './auth-instructions';
 import AuthProgress from './auth-progress';
 

@@ -8,9 +8,9 @@ import {
 	PATH_ROOT,
 	PATH_OPTIONS,
 	DATE_RANGE_ANY,
-	MediaBrowser,
-	getExternalMediaApiUrl,
-} from '@automattic/jetpack-shared-extension-utils';
+} from '../../constants';
+import MediaBrowser from '../../media-browser';
+import { getExternalMediaApiUrl } from '../api';
 import Breadcrumbs from './breadcrumbs';
 import GoogleFilterOption from './filter-option';
 import getFilterRequest from './filter-request';
