@@ -4520,7 +4520,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 	 * @param int[] $obj_ids     Array of object ids.
 	 * @param int   $obj_type_id Object type ID.
 	 *
-	 * @return json success/error
+	 * @return void Outputs JSON and exits.
 	 */
 function zeroBSCRM_bulkAction_enact_addTags( $obj_ids = array(), $obj_type_id = -1 ) {
 
@@ -4588,7 +4588,7 @@ function zeroBSCRM_bulkAction_enact_addTags( $obj_ids = array(), $obj_type_id = 
 	 * @param int[] $obj_ids     Array of object ids.
 	 * @param int   $obj_type_id Object type ID.
 	 *
-	 * @return json success/error
+	 * @return void Outputs JSON and exits.
 	 */
 function zeroBSCRM_bulkAction_enact_removeTags( $obj_ids = array(), $obj_type_id = -1 ) {
 
