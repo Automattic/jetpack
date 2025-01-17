@@ -57,6 +57,7 @@ class Jetpack_Google_Font_Face {
 		$fonts = WP_Font_Face_Resolver::get_fonts_from_theme_json();
 		echo '<h1>DebugFonts</h1>';
 		echo '<pre>';
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 		print_r( $fonts );
 		echo '</pre>';
 
