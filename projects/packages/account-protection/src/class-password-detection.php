@@ -18,6 +18,22 @@ class Password_Detection {
 	const PASSWORD_DETECTION_USER_META_KEY = 'jetpack_account_protection_password_status';
 
 	/**
+	 * Password reset email dependency.
+	 *
+	 * @var Password_Reset_Email
+	 */
+	private $password_reset_email;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param Password_Reset_Email|null $password_reset_email Password reset email dependency.
+	 */
+	public function __construct( Password_Reset_Email $password_reset_email = null ) {
+		$this->password_reset_email = $password_reset_email ?? new Password_Reset_Email();
+	}
+
+	/**
 	 * Redirect to the password detection page.
 	 *
 	 * @return string The URL to redirect to.
@@ -99,7 +115,7 @@ class Password_Detection {
 			if ( isset( $_POST['_wpnonce_reset_password'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce_reset_password'] ) ), 'reset_password_action' ) ) {
 				// Send password reset email
 				if ( ! $email_sent_flag ) {
-					$email_sent = ( new Password_Reset_Email() )->send( $current_user );
+					$email_sent = $this->password_reset_email->send( $current_user );
 					if ( $email_sent ) {
 						// Set transient to mark the email as sent
 						set_transient( $transient_key, true, 15 * MINUTE_IN_SECONDS );
@@ -126,7 +142,7 @@ class Password_Detection {
 			}
 		}
 
-		$this->render_password_detection_template( $reset, $context, $error, ( new Password_Reset_Email() )->mask_email_address( $current_user->user_email ) );
+		$this->render_password_detection_template( $reset, $context, $error, $this->password_reset_email->mask_email_address( $current_user->user_email ) );
 		exit;
 	}
 
@@ -175,7 +191,7 @@ class Password_Detection {
 		$email        = $current_user->user_email;
 
 		// Resend the email
-		$email_sent = ( new Password_Reset_Email() )->send( $current_user, $email );
+		$email_sent = $this->password_reset_email->send( $current_user, $email );
 		if ( $email_sent ) {
 			wp_send_json_success( array( 'message' => 'Resend successful.' ) );
 		} else {

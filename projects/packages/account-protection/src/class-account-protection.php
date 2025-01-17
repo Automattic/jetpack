@@ -19,6 +19,31 @@ class Account_Protection {
 	const STRICT_MODE_OPTION_NAME        = 'jetpack_account_protection_strict_mode';
 
 	/**
+	 * Modules dependency.
+	 *
+	 * @var Modules
+	 */
+	private $modules;
+
+	/**
+	 * Password Detection dependency.
+	 *
+	 * @var Password_Detection
+	 */
+	private $password_detection;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param Modules|null            $modules Modules dependency.
+	 * @param Password_Detection|null $password_detection Password detection dependency.
+	 */
+	public function __construct( Modules $modules = null, Password_Detection $password_detection = null ) {
+		$this->modules            = $modules ?? new Modules();
+		$this->password_detection = $password_detection ?? new Password_Detection();
+	}
+
+	/**
 	 * Initializes the configurations needed for the account protection module.
 	 */
 	public function init() {
@@ -35,24 +60,24 @@ class Account_Protection {
 
 		if ( $this->is_enabled() ) {
 			// Validate password after successful login
-			add_action( 'wp_authenticate_user', array( new Password_Detection(), 'login_form_password_detection' ), 10, 2 );
+			add_action( 'wp_authenticate_user', array( $this->password_detection, 'login_form_password_detection' ), 10, 2 );
 
 			// Add password detection flow for users with unsafe passwords
 			add_action(
 				'login_form_password-detection',
-				array( new Password_Detection(), 'render_password_detection_page' ),
+				array( $this->password_detection, 'render_password_detection_page' ),
 				10,
 				2
 			);
 
 			// Register AJAX resend password reset email action
-			add_action( 'wp_ajax_resend_password_reset', array( new Password_Detection(), 'ajax_resend_password_reset_email' ) );
+			add_action( 'wp_ajax_resend_password_reset', array( $this->password_detection, 'ajax_resend_password_reset_email' ) );
 
 			// Remove password detection usermeta on password reset
 			add_action(
 				'after_password_reset',
 				function ( $user ) {
-					( new Password_Detection() )->remove_password_detection_usermeta( $user->ID );
+					$this->password_detection->remove_password_detection_usermeta( $user->ID );
 				},
 				10,
 				2
@@ -68,7 +93,7 @@ class Account_Protection {
 					) {
 							// Profile updates should include validation, but we should reset user meta to be safe
 						if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
-							( new Password_Detection() )->remove_password_detection_usermeta( $user_id );
+							$this->password_detection->remove_password_detection_usermeta( $user_id );
 						}
 					}
 				},
@@ -83,6 +108,7 @@ class Account_Protection {
 	 * Activate the account protection on module activation.
 	 */
 	public function on_account_protection_activation() {
+		// Activation logic can be added here
 	}
 
 	/**
@@ -92,7 +118,7 @@ class Account_Protection {
 		// Remove user meta on deactivation
 		$users = get_users();
 		foreach ( $users as $user ) {
-			( new Password_Detection() )->remove_password_detection_usermeta( $user->ID );
+			$this->password_detection->remove_password_detection_usermeta( $user->ID );
 			// TODO: Remove usermeta on plugin deactivation
 		}
 	}
@@ -103,7 +129,7 @@ class Account_Protection {
 	 * @return bool
 	 */
 	public function is_enabled() {
-		return ( new Modules() )->is_active( 'account-protection' );
+		return $this->modules->is_active( 'account-protection' );
 	}
 
 	/**
@@ -116,7 +142,7 @@ class Account_Protection {
 		if ( $this->is_enabled() ) {
 			return true;
 		}
-		return ( new Modules() )->activate( 'account-protection', false, false );
+		return $this->modules->activate( 'account-protection', false, false );
 	}
 
 	/**
@@ -129,7 +155,7 @@ class Account_Protection {
 		if ( ! $this->is_enabled() ) {
 			return true;
 		}
-		return ( new Modules() )->deactivate( 'account-protection' );
+		return $this->modules->deactivate( 'account-protection' );
 	}
 
 	/**
