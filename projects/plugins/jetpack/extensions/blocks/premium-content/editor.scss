@@ -1,5 +1,9 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
+.editor-styles-wrapper .wp-block-jetpack-payment-buttons {
+	--jetpack-payment-buttons-gap: 0.5em;
+}
+
 .wp-block-premium-content-container .premium-content-tabs {
 	align-items: center;
 	background: $white;
@@ -49,6 +53,8 @@
 /* Subscribe/Login buttons */
 
 .wp-block-buttons .wp-block[data-type='jetpack/recurring-payments'] {
+	--jetpack-payment-buttons-gap: 0.5em;
+	
 	display: inline-block;
 	margin: 0 0.5em 0 0;
 	width: auto;

@@ -17,4 +17,23 @@
 
 .wp-block-jetpack-calendly .wp-block-jetpack-button {
 	color: #ffffff;
+
+	&.aligncenter {
+		display: block;
+
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	&.alignleft {
+		display: block;
+
+		margin-right: auto;
+	}
+
+	&.alignright {
+		display: block;
+
+		margin-left: auto;
+	}
 }
