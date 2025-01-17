@@ -13,7 +13,6 @@ use Automattic\Jetpack\Modules;
  * Class Account_Protection
  */
 class Account_Protection {
-
 	const PACKAGE_VERSION                = '1.0.0-alpha';
 	const ACCOUNT_PROTECTION_MODULE_NAME = 'account-protection';
 	const STRICT_MODE_OPTION_NAME        = 'jetpack_account_protection_strict_mode';
@@ -46,7 +45,7 @@ class Account_Protection {
 	/**
 	 * Initializes the configurations needed for the account protection module.
 	 */
-	public function init() {
+	public function init(): void {
 		$this->register_hooks();
 
 		if ( $this->is_enabled() ) {
@@ -57,10 +56,10 @@ class Account_Protection {
 	/**
 	 * Register hooks for module activation and environment validation.
 	 */
-	private function register_hooks() {
+	private function register_hooks(): void {
 		// Account protection activation/deactivation hooks
-		add_action( 'jetpack_activate_module_account-protection', array( $this, 'on_account_protection_activation' ) );
-		add_action( 'jetpack_deactivate_module_account-protection', array( $this, 'on_account_protection_deactivation' ) );
+		add_action( 'jetpack_activate_module_' . self::ACCOUNT_PROTECTION_MODULE_NAME, array( $this, 'on_account_protection_activation' ) );
+		add_action( 'jetpack_deactivate_module_' . self::ACCOUNT_PROTECTION_MODULE_NAME, array( $this, 'on_account_protection_deactivation' ) );
 
 		// Do not run in unsupported environments
 		add_action( 'jetpack_get_available_modules', array( $this, 'remove_module_on_unsupported_environments' ) );
@@ -73,11 +72,11 @@ class Account_Protection {
 	/**
 	 * Register hooks for runtime operations.
 	 */
-	private function register_runtime_hooks() {
+	private function register_runtime_hooks(): void {
 		// Validate password after successful login
 		add_action( 'wp_authenticate_user', array( $this->password_detection, 'login_form_password_detection' ), 10, 2 );
 
-		// Add password detection flow for users with unsafe passwords
+		// Add password detection flow
 		add_action( 'login_form_password-detection', array( $this->password_detection, 'render_password_detection_page' ), 10, 2 );
 
 		// Remove password detection usermeta after password reset and on profile password update
@@ -91,14 +90,14 @@ class Account_Protection {
 	/**
 	 * Activate the account protection on module activation.
 	 */
-	public function on_account_protection_activation() {
+	public function on_account_protection_activation(): void {
 		// Activation logic can be added here
 	}
 
 	/**
 	 * Deactivate the account protection on module deactivation.
 	 */
-	public function on_account_protection_deactivation() {
+	public function on_account_protection_deactivation(): void {
 		// Remove user meta on deactivation
 		$users = get_users();
 		foreach ( $users as $user ) {
@@ -113,7 +112,7 @@ class Account_Protection {
 	 * @return bool
 	 */
 	public function is_enabled() {
-		return $this->modules->is_active( 'account-protection' );
+		return $this->modules->is_active( self::ACCOUNT_PROTECTION_MODULE_NAME );
 	}
 
 	/**
@@ -126,7 +125,7 @@ class Account_Protection {
 		if ( $this->is_enabled() ) {
 			return true;
 		}
-		return $this->modules->activate( 'account-protection', false, false );
+		return $this->modules->activate( self::ACCOUNT_PROTECTION_MODULE_NAME, false, false );
 	}
 
 	/**
@@ -134,12 +133,12 @@ class Account_Protection {
 	 *
 	 * @return bool
 	 */
-	public function disable() {
+	public function disable(): bool {
 		// Return true if already disabled.
 		if ( ! $this->is_enabled() ) {
 			return true;
 		}
-		return $this->modules->deactivate( 'account-protection' );
+		return $this->modules->deactivate( self::ACCOUNT_PROTECTION_MODULE_NAME );
 	}
 
 	/**
@@ -147,7 +146,7 @@ class Account_Protection {
 	 *
 	 * @return bool
 	 */
-	public function is_supported_environment() {
+	public function is_supported_environment(): bool {
 		// Do not run when killswitch is enabled
 		if ( defined( 'DISABLE_JETPACK_ACCOUNT_PROTECTION' ) && DISABLE_JETPACK_ACCOUNT_PROTECTION ) {
 			return false;
@@ -163,10 +162,10 @@ class Account_Protection {
 	 *
 	 * @return array Array of module slugs.
 	 */
-	public function remove_module_on_unsupported_environments( $modules ) {
+	public function remove_module_on_unsupported_environments( array $modules ): array {
 		if ( ! $this->is_supported_environment() ) {
 			// Account protection should never be available on unsupported platforms.
-			unset( $modules['account-protection'] );
+			unset( $modules[ self::ACCOUNT_PROTECTION_MODULE_NAME ] );
 		}
 
 		return $modules;
@@ -179,13 +178,13 @@ class Account_Protection {
 	 *
 	 * @return array Array of module slugs.
 	 */
-	public function remove_standalone_module_on_unsupported_environments( $modules ) {
+	public function remove_standalone_module_on_unsupported_environments( array $modules ): array {
 		if ( ! $this->is_supported_environment() ) {
 			// Account Protection should never be available on unsupported platforms.
 			$modules = array_filter(
 				$modules,
 				function ( $module ) {
-					return $module !== 'account-protection';
+					return $module !== self::ACCOUNT_PROTECTION_MODULE_NAME;
 				}
 			);
 
@@ -199,7 +198,7 @@ class Account_Protection {
 	 *
 	 * @return array
 	 */
-	public function get_settings() {
+	public function get_settings(): array {
 		$settings = array(
 			self::STRICT_MODE_OPTION_NAME => get_option( self::STRICT_MODE_OPTION_NAME, false ),
 		);

@@ -38,18 +38,18 @@ class Password_Detection {
 	 *
 	 * @return string The URL to redirect to.
 	 */
-	public function password_detection_redirect() {
+	public function password_detection_redirect(): string {
 		return home_url( '/wp-login.php?action=password-detection' );
 	}
 
 	/**
 	 * Check if the password is safe after login.
 	 *
-	 * @param WP_User $user The user object.
-	 * @param string  $password The password.
-	 * @return WP_User The user object.
+	 * @param \WP_User $user The user object.
+	 * @param string   $password The password.
+	 * @return \WP_User|\WP_Error The user object.
 	 */
-	public function login_form_password_detection( $user, $password ) {
+	public function login_form_password_detection( \WP_User $user, string $password ): \WP_User {
 		// Check if the user is already a WP_Error object
 		if ( is_wp_error( $user ) ) {
 			return $user;
@@ -76,11 +76,9 @@ class Password_Detection {
 	/**
 	 * Render password detection page.
 	 *
-	 * This page is shown to users with unsafe passwords after login.
-	 *
 	 * @return void
 	 */
-	public function render_password_detection_page() {
+	public function render_password_detection_page(): void {
 		// Restrict direct access to logged in users
 		$current_user = wp_get_current_user();
 		if ( 0 === $current_user->ID ) {
@@ -147,8 +145,10 @@ class Password_Detection {
 
 	/**
 	 * Enqueue the resend password reset email scripts.
+	 *
+	 * @return void
 	 */
-	public function enqueue_resend_password_reset_scripts() {
+	public function enqueue_resend_password_reset_scripts(): void {
 		wp_enqueue_script( 'resend-password-reset', plugin_dir_url( __FILE__ ) . 'js/resend-password-reset.js', array( 'jquery' ), Account_Protection::PACKAGE_VERSION, true );
 
 		// Pass AJAX URL and nonce to the script
@@ -164,8 +164,10 @@ class Password_Detection {
 
 	/**
 	 * Enqueue the password detection page styles.
+	 *
+	 * @return void
 	 */
-	public function enqueue_password_detection_styles() {
+	public function enqueue_password_detection_styles(): void {
 		wp_enqueue_style(
 			'password-detection-styles',
 			plugin_dir_url( __FILE__ ) . 'css/password-detection.css',
@@ -204,7 +206,7 @@ class Password_Detection {
 	 * @param string $password The password to validate.
 	 * @return bool True if the password is valid, false otherwise.
 	 */
-	public function validate_password( $password ) {
+	public function validate_password( string $password ): bool {
 		// TODO: Uncomment out once endpoint is live
 		// Check compromised and common passwords
 		// $weak_password = self::check_weak_passwords( $password );
@@ -216,9 +218,9 @@ class Password_Detection {
 	 * Check if the password is in the list of common/compromised passwords.
 	 *
 	 * @param string $password The password to check.
-	 * @return bool|WP_Error True if the password is in the list of common/compromised passwords, false otherwise.
+	 * @return bool|\WP_Error True if the password is in the list of common/compromised passwords, false otherwise.
 	 */
-	public function check_weak_passwords( $password ) {
+	public function check_weak_passwords( string $password ) {
 		$api_url = '/jetpack-protect-weak-password';
 
 		$is_connected = ( new Connection_Manager() )->is_connected();
@@ -261,7 +263,7 @@ class Password_Detection {
 	 *
 	 * @param int $user_id The user ID.
 	 */
-	public function get_password_detection_usermeta( $user_id ) {
+	public function get_password_detection_usermeta( int $user_id ) {
 		return get_user_meta( $user_id, self::PASSWORD_DETECTION_USER_META_KEY, true );
 	}
 
@@ -271,7 +273,7 @@ class Password_Detection {
 	 * @param int    $user_id The user ID.
 	 * @param string $setting The password detection setting.
 	 */
-	public function update_password_detection_usermeta( $user_id, $setting ) {
+	public function update_password_detection_usermeta( int $user_id, string $setting ) {
 		update_user_meta( $user_id, self::PASSWORD_DETECTION_USER_META_KEY, $setting );
 	}
 
@@ -280,16 +282,16 @@ class Password_Detection {
 	 *
 	 * @param int $user_id The user ID.
 	 */
-	public function delete_password_detection_usermeta( $user_id ) {
+	public function delete_password_detection_usermeta( int $user_id ) {
 		delete_user_meta( $user_id, self::PASSWORD_DETECTION_USER_META_KEY );
 	}
 
 	/**
 	 * Delete the password detection usermeta after password reset.
 	 *
-	 * @param WP_User $user The user object.
+	 * @param \WP_User $user The user object.
 	 */
-	public function delete_password_detection_usermeta_after_password_reset( $user ) {
+	public function delete_password_detection_usermeta_after_password_reset( \WP_User $user ) {
 		$this->delete_password_detection_usermeta( $user->ID );
 	}
 
@@ -298,7 +300,7 @@ class Password_Detection {
 	 *
 	 * @param int $user_id The user ID.
 	 */
-	public function delete_password_detection_usermeta_on_profile_update( $user_id ) {
+	public function delete_password_detection_usermeta_on_profile_update( int $user_id ) {
 		if (
 			! empty( $_POST['_wpnonce'] ) &&
 			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'update-user_' . $user_id )
@@ -316,8 +318,9 @@ class Password_Detection {
 	 * @param string $context      The context for the password detection page.
 	 * @param string $error        The error message to display.
 	 * @param string $masked_email The masked email address.
+	 * @return void
 	 */
-	public function render_password_detection_template( $reset, $context, $error, $masked_email ) {
+	public function render_password_detection_template( bool $reset, string $context, string $error, string $masked_email ): void {
 		defined( 'ABSPATH' ) || exit;
 		?>
 		<!DOCTYPE html>
