@@ -2737,11 +2737,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$response = WPCOM_JSON_API::serializable_error( $response );
 		}
 
-		$response = wp_json_encode( $response );
-
 		if ( $request->get_param( 'http_envelope' ) ) {
-			$response = wp_json_encode( WPCOM_JSON_API::wrap_http_envelope( $status_code, $response, 'application/json' ) );
+			$response = WPCOM_JSON_API::wrap_http_envelope( $status_code, $response, 'application/json' );
 		}
+
+		$response = wp_json_encode( $response );
 
 		$nonce = wp_generate_password( 10, false );
 		$hmac  = hash_hmac( 'sha1', $nonce . $response, $token->secret );
