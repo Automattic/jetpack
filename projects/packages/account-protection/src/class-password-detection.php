@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\Account_Protection;
 
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+
 /**
  * Class Password_Detection
  */
@@ -31,6 +34,16 @@ class Password_Detection {
 	 * @return WP_User The user object.
 	 */
 	public static function login_form_password_detection( $user, $password ) {
+		// Check if the user is already a WP_Error object
+		if ( is_wp_error( $user ) ) {
+			return $user;
+		}
+
+		// Ensure the password is correct for this user
+		if ( ! wp_check_password( $password, $user->user_pass, $user->ID ) ) {
+			return $user;
+		}
+
 		if ( ! self::validate_password( $password ) ) {
 			// TODO: Ensure this usermeta is always up to date
 			self::add_password_detection_usermeta( $user->ID, 'unsafe' );
@@ -177,8 +190,55 @@ class Password_Detection {
 	 * @return bool True if the password is valid, false otherwise.
 	 */
 	public static function validate_password( $password ) {
-		// TODO: Update to use custom password validation method(s) when available.
+		// TODO: Uncomment out once endpoint is live
+		// Check compromised and common passwords
+		// $weak_password = self::check_weak_passwords( $password );
+
 		return $password ? false : true;
+	}
+
+	/**
+	 * Check if the password is in the list of common/compromised passwords.
+	 *
+	 * @param string $password The password to check.
+	 * @return bool|WP_Error True if the password is in the list of common/compromised passwords, false otherwise.
+	 */
+	public static function check_weak_passwords( $password ) {
+		$api_url = '/jetpack-protect-weak-password';
+
+		$is_connected = ( new Connection_Manager() )->is_connected();
+
+		if ( ! $is_connected ) {
+			return new \WP_Error( 'site_not_connected' );
+		}
+
+		// Hash pass with sha1, and pass first 5 characters to the API
+		$hashed_password = sha1( $password );
+		$password_prefix = substr( $hashed_password, 0, 5 );
+
+		$response = Client::wpcom_json_api_request_as_blog(
+			$api_url . '/' . $password_prefix,
+			'2',
+			array( 'method' => 'GET' ),
+			null,
+			'wpcom'
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+
+		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response['body'] ) ) {
+			return new \WP_Error( 'failed_fetching_weak_passwords', 'Failed to fetch weak passwords from the server', array( 'status' => $response_code ) );
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		// Check if the password is in the list of common/compromised passwords
+		$password_suffix = substr( $hashed_password, 5 );
+		if ( in_array( $password_suffix, $body['compromised'] ?? array(), true ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
