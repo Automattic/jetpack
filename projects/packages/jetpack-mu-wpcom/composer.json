@@ -22,7 +22,8 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "^0.4.2"
+		"automattic/wordbless": "^0.4.2",
+		"automattic/jetpack-wpcomsh": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -70,6 +71,11 @@
 		"autotagger": true,
 		"branch-alias": {
 			"dev-trunk": "6.1.x-dev"
+		},
+		"dependencies": {
+			"test-only": [
+				"packages/jetpack-wpcomsh"
+			]
 		},
 		"textdomain": "jetpack-mu-wpcom",
 		"version-constants": {
