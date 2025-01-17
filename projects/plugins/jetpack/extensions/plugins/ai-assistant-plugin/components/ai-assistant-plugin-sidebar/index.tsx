@@ -107,7 +107,7 @@ const JetpackAndSettingsContent = ( {
 			{ isPostEmpty && (
 				<PanelRow className="jetpack-ai-sidebar__warning-content">
 					<Notice isDismissible={ false } status="warning">
-						{ __( 'The following features requie content to work.', 'jetpack' ) }
+						{ __( 'The following features require content to work.', 'jetpack' ) }
 					</Notice>
 				</PanelRow>
 			) }
