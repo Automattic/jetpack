@@ -49,6 +49,7 @@
 		"@react-spring/web": "9.7.3",
 		"@visx/axis": "^3.12.0",
 		"@visx/event": "^3.8.0",
+		"@visx/gradient": "3.12.0",
 		"@visx/grid": "^3.12.0",
 		"@visx/group": "^3.12.0",
 		"@visx/legend": "^3.12.0",

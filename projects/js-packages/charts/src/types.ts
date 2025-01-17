@@ -1,4 +1,9 @@
+import { Orientation } from '@visx/axis';
 import type { CSSProperties } from 'react';
+
+type ValueOf< T > = T[ keyof T ];
+
+declare type OrientationType = ValueOf< typeof Orientation >;
 
 export type DataPoint = {
 	label: string;
@@ -15,6 +20,7 @@ export type SeriesData = {
 	group?: string;
 	label: string;
 	data: DataPointDate[] | DataPoint[];
+	options: { gradient?: { from: string; to: string; toOpacity?: number }; stroke?: string };
 };
 
 export type MultipleDataPointsDate = {
@@ -65,6 +71,15 @@ export type ChartTheme = {
 	gridColorDark: string;
 };
 
+declare type AxisOptions = {
+	orientation?: OrientationType;
+	numTicks?: number;
+	axisClassName?: string;
+	axisLineClassName?: string;
+	labelClassName?: string;
+	tickClassName?: string;
+};
+
 /**
  * Base properties shared across all chart components
  */
@@ -110,6 +125,16 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 * Grid visibility. x is default.
 	 */
 	gridVisibility?: 'x' | 'y' | 'xy' | 'none';
+
+	/**
+	 * More options for the chart.
+	 */
+	options?: {
+		axis?: {
+			x?: AxisOptions;
+			y?: AxisOptions;
+		};
+	};
 };
 
 /**

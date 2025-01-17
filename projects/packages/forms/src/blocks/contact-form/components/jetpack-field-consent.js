@@ -79,6 +79,7 @@ const JetpackFieldConsent = ( {
 							] }
 							onChange={ value => setAttributes( { consentType: value } ) }
 							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize={ true }
 						/>
 					</BaseControl>
 				</PanelBody>

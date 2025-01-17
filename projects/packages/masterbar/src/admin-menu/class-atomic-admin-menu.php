@@ -415,7 +415,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_options_menu() {
 		parent::add_options_menu();
 
-		if ( Jetpack_Plan::supports( 'security-settings' ) ) {
+		if ( Jetpack_Plan::supports( 'security-settings' ) &&
+			function_exists( 'wpcom_is_duplicate_views_experiment_enabled' ) &&
+			! wpcom_is_duplicate_views_experiment_enabled()
+		) {
 			add_submenu_page(
 				'options-general.php',
 				esc_attr__( 'Security', 'jetpack-masterbar' ),

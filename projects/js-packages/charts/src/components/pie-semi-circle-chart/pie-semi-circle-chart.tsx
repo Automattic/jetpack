@@ -11,32 +11,37 @@ import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../../types';
-
 interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
+	/**
+	 * Size of the chart in pixels
+	 */
+	size?: number;
+
+	/**
+	 * Thickness of the pie chart. A value between 0 and 1
+	 */
+	thickness?: number;
+
 	/**
 	 * Label text to display above the chart
 	 */
-	label: string;
+	label?: string;
 	/**
 	 * Note text to display below the label
 	 */
-	note: string;
+	note?: string;
 	/**
 	 * Direction of chart rendering
 	 * true for clockwise, false for counter-clockwise
 	 */
 	clockwise?: boolean;
-	/**
-	 * Thickness of the pie chart. A value between 0 and 1
-	 */
-	thickness?: number;
 }
 
 type ArcData = PieArcDatum< DataPointPercentage >;
 
 const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	data,
-	width = 500, //TODO: replace when making the components responsive
+	size = 500,
 	label,
 	note,
 	className,
@@ -50,9 +55,9 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentage >();
 
-	const centerX = width / 2;
-	const height = width / 2;
-	const radius = width / 2;
+	const centerX = size / 2;
+	const height = size / 2;
+	const radius = size / 2;
 	const pad = 0.03;
 	const innerRadius = radius * ( 1 - thickness + pad );
 
@@ -113,7 +118,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 		<div
 			className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
 		>
-			<svg width={ width } height={ height }>
+			<svg viewBox={ `0 0 ${ size } ${ height }` }>
 				{ /* Main chart group that contains both the pie and text elements */ }
 				<Group top={ centerX } left={ centerX }>
 					{ /* Pie chart */ }

@@ -109,7 +109,6 @@ const JetpackFieldControls = ( {
 		<ToggleControl
 			key="required"
 			label={ __( 'Field is required', 'jetpack-forms' ) }
-			className="jetpack-field-label__required"
 			checked={ required }
 			onChange={ value => setAttributes( { required: value } ) }
 			help={ __( 'You can edit the "required" label in the editor', 'jetpack-forms' ) }
@@ -126,6 +125,7 @@ const JetpackFieldControls = ( {
 					'jetpack-forms'
 				) }
 				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize={ true }
 			/>
 		),
 		<JetpackFieldWidth key="width" setAttributes={ setAttributes } width={ width } />,
@@ -169,9 +169,7 @@ const JetpackFieldControls = ( {
 					<JetpackManageResponsesSettings isChildBlock />
 				</PanelBody>
 				<PanelBody title={ __( 'Field Settings', 'jetpack-forms' ) }>
-					{ fieldSettings.filter( Boolean ).map( ( elt, index ) => (
-						<div key={ index }>{ elt }</div>
-					) ) }
+					<>{ fieldSettings }</>
 				</PanelBody>
 				<PanelColorSettings
 					title={ __( 'Color', 'jetpack-forms' ) }
@@ -274,6 +272,7 @@ const JetpackFieldControls = ( {
 						'jetpack-forms'
 					) }
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize={ true }
 				/>
 			</InspectorAdvancedControls>
 		</>
