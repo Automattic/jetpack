@@ -819,7 +819,7 @@ class Initializer {
 		$plugin_requirements = array();
 		foreach ( Products::get_products_classes() as $slug => $product_class ) {
 			// Skip these- we don't show them in My Jetpack.
-			if ( in_array( $slug, Products::$not_shown_products, true ) ) {
+			if ( in_array( $slug, Products::get_not_shown_products(), true ) ) {
 				continue;
 			}
 			if ( ! $product_class::has_paid_plan_for_product() ) {
@@ -1028,7 +1028,7 @@ class Initializer {
 		$products_included_in_expiring_plan = array();
 		foreach ( $product_classes as $key => $product ) {
 			// Skip these- we don't show them in My Jetpack.
-			if ( in_array( $key, Products::$not_shown_products, true ) ) {
+			if ( in_array( $key, Products::get_not_shown_products(), true ) ) {
 				continue;
 			}
 

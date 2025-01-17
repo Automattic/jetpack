@@ -116,24 +116,6 @@ class Products {
 	);
 
 	/**
-	 * List of product slugs that are Not displayed on the main My Jetpack page
-	 *
-	 * @var array
-	 */
-	public static $not_shown_products = array(
-		'creator',
-		'extras',
-		'ai', // 'ai' is a duplicate class of 'jetpack-ai', and therefore not needed.
-		'scan',
-		'security',
-		'growth',
-		'complete',
-		'newsletter',
-		'site-accelerator',
-		'related-posts',
-	);
-
-	/**
 	 * Get the list of Products classes
 	 *
 	 * Here's where all the existing Products are registered
@@ -192,6 +174,33 @@ class Products {
 		}
 
 		return $final_classes;
+	}
+
+	/**
+	 * List of product slugs that are displayed on the main My Jetpack page
+	 *
+	 * @var array
+	 */
+	public static $shown_products = array(
+		'anti-spam',
+		'backup',
+		'boost',
+		'crm',
+		'jetpack-ai',
+		'search',
+		'social',
+		'protect',
+		'videopress',
+		'stats',
+	);
+
+	/**
+	 * Gets the list of product slugs that are Not displayed on the main My Jetpack page
+	 *
+	 * @return array
+	 */
+	public static function get_not_shown_products() {
+		return array_diff( array_keys( static::get_products_classes() ), self::$shown_products );
 	}
 
 	/**
