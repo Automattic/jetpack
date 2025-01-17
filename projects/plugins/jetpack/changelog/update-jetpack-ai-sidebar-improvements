@@ -1,0 +1,10 @@
+Significance: patch
+Type: other
+
+Jetpack AI: Updates / clean up to Jetpack AI assistant sidebar
+* Buttons now have 100% width and are 40px tall
+* Updated text in various places
+* Added message that displays when a post has no content
+* Cleaned up spacing in a few places
+* Changed color of some text
+* Write Brief checkboxes are hidden by toggle now
