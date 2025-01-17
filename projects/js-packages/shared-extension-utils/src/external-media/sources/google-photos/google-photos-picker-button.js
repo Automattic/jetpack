@@ -2,7 +2,7 @@ import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import React, { useEffect } from 'react';
-import mediaImage from '../../../images/media.svg';
+import { GooglePhotosMediaIcon } from '../../../icons';
 import GooglePhotosAccount from './google-photos-account';
 
 /**
@@ -28,12 +28,7 @@ export default function GooglePhotosPickerButton( props ) {
 
 	return (
 		<div className="jetpack-external-media__google-photos-picker">
-			<img
-				src={ mediaImage }
-				width="150"
-				alt={ __( 'Google Photos', 'jetpack-shared-extension-utils' ) }
-			/>
-
+			<GooglePhotosMediaIcon width="150" />
 			<h1>{ __( 'Google Photos', 'jetpack-shared-extension-utils' ) }</h1>
 			<p>
 				{ __(
