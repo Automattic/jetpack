@@ -47,6 +47,17 @@ class Account_Protection {
 	 * Initializes the configurations needed for the account protection module.
 	 */
 	public function init() {
+		$this->register_hooks();
+
+		if ( $this->is_enabled() ) {
+			$this->register_runtime_hooks();
+		}
+	}
+
+	/**
+	 * Register hooks for module activation and environment validation.
+	 */
+	private function register_hooks() {
 		// Account protection activation/deactivation hooks
 		add_action( 'jetpack_activate_module_account-protection', array( $this, 'on_account_protection_activation' ) );
 		add_action( 'jetpack_deactivate_module_account-protection', array( $this, 'on_account_protection_deactivation' ) );
@@ -57,51 +68,24 @@ class Account_Protection {
 
 		// Register REST routes
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+	}
 
-		if ( $this->is_enabled() ) {
-			// Validate password after successful login
-			add_action( 'wp_authenticate_user', array( $this->password_detection, 'login_form_password_detection' ), 10, 2 );
+	/**
+	 * Register hooks for runtime operations.
+	 */
+	private function register_runtime_hooks() {
+		// Validate password after successful login
+		add_action( 'wp_authenticate_user', array( $this->password_detection, 'login_form_password_detection' ), 10, 2 );
 
-			// Add password detection flow for users with unsafe passwords
-			add_action(
-				'login_form_password-detection',
-				array( $this->password_detection, 'render_password_detection_page' ),
-				10,
-				2
-			);
+		// Add password detection flow for users with unsafe passwords
+		add_action( 'login_form_password-detection', array( $this->password_detection, 'render_password_detection_page' ), 10, 2 );
 
-			// Register AJAX resend password reset email action
-			add_action( 'wp_ajax_resend_password_reset', array( $this->password_detection, 'ajax_resend_password_reset_email' ) );
+		// Remove password detection usermeta after password reset and on profile password update
+		add_action( 'after_password_reset', array( $this->password_detection, 'delete_password_detection_usermeta_after_password_reset' ), 10, 2 );
+		add_action( 'profile_update', array( $this->password_detection, 'delete_password_detection_usermeta_on_profile_update' ), 10, 2 );
 
-			// Remove password detection usermeta on password reset
-			add_action(
-				'after_password_reset',
-				function ( $user ) {
-					$this->password_detection->remove_password_detection_usermeta( $user->ID );
-				},
-				10,
-				2
-			);
-
-			// Remove password detection usermeta on profile password update
-			add_action(
-				'profile_update',
-				function ( $user_id ) {
-					if (
-						! empty( $_POST['_wpnonce'] ) &&
-						wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'update-user_' . $user_id )
-					) {
-							// Profile updates should include validation, but we should reset user meta to be safe
-						if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
-							$this->password_detection->remove_password_detection_usermeta( $user_id );
-						}
-					}
-				},
-				10,
-				2
-			);
-
-		}
+		// Register AJAX resend password reset email action
+		add_action( 'wp_ajax_resend_password_reset', array( $this->password_detection, 'ajax_resend_password_reset_email' ) );
 	}
 
 	/**
@@ -118,7 +102,7 @@ class Account_Protection {
 		// Remove user meta on deactivation
 		$users = get_users();
 		foreach ( $users as $user ) {
-			$this->password_detection->remove_password_detection_usermeta( $user->ID );
+			$this->password_detection->delete_password_detection_usermeta( $user->ID );
 			// TODO: Remove usermeta on plugin deactivation
 		}
 	}

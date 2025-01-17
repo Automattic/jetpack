@@ -62,13 +62,12 @@ class Password_Detection {
 
 		if ( ! $this->validate_password( $password ) ) {
 			// TODO: Ensure this usermeta is always up to date
-			$this->add_password_detection_usermeta( $user->ID, 'unsafe' );
+			$this->update_password_detection_usermeta( $user->ID, 'unsafe' );
 
 			// Redirect to the password detection page
 			add_filter( 'login_redirect', array( $this, 'password_detection_redirect' ), 10, 3 );
 		} else {
-			$this->add_password_detection_usermeta( $user->ID, 'safe' );
-
+			$this->update_password_detection_usermeta( $user->ID, 'safe' );
 		}
 
 		return $user;
@@ -258,31 +257,56 @@ class Password_Detection {
 	}
 
 	/**
-	 * Add the password detection usermeta.
-	 *
-	 * @param int    $user_id The user ID.
-	 * @param string $setting The password detection setting.
-	 */
-	public function add_password_detection_usermeta( $user_id, $setting ) {
-		update_user_meta( $user_id, self::PASSWORD_DETECTION_USER_META_KEY, $setting );
-	}
-
-	/**
-	 * Remove the password detection usermeta.
-	 *
-	 * @param int $user_id The user ID.
-	 */
-	public function remove_password_detection_usermeta( $user_id ) {
-		delete_user_meta( $user_id, self::PASSWORD_DETECTION_USER_META_KEY );
-	}
-
-	/**
 	 * Get the password detection usermeta.
 	 *
 	 * @param int $user_id The user ID.
 	 */
 	public function get_password_detection_usermeta( $user_id ) {
 		return get_user_meta( $user_id, self::PASSWORD_DETECTION_USER_META_KEY, true );
+	}
+
+	/**
+	 * Update the password detection usermeta.
+	 *
+	 * @param int    $user_id The user ID.
+	 * @param string $setting The password detection setting.
+	 */
+	public function update_password_detection_usermeta( $user_id, $setting ) {
+		update_user_meta( $user_id, self::PASSWORD_DETECTION_USER_META_KEY, $setting );
+	}
+
+	/**
+	 * Delete the password detection usermeta.
+	 *
+	 * @param int $user_id The user ID.
+	 */
+	public function delete_password_detection_usermeta( $user_id ) {
+		delete_user_meta( $user_id, self::PASSWORD_DETECTION_USER_META_KEY );
+	}
+
+	/**
+	 * Delete the password detection usermeta after password reset.
+	 *
+	 * @param WP_User $user The user object.
+	 */
+	public function delete_password_detection_usermeta_after_password_reset( $user ) {
+		$this->delete_password_detection_usermeta( $user->ID );
+	}
+
+	/**
+	 * Delete the password detection usermeta on profile password update.
+	 *
+	 * @param int $user_id The user ID.
+	 */
+	public function delete_password_detection_usermeta_on_profile_update( $user_id ) {
+		if (
+			! empty( $_POST['_wpnonce'] ) &&
+			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'update-user_' . $user_id )
+		) {
+			if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
+				$this->delete_password_detection_usermeta( $user_id );
+			}
+		}
 	}
 
 	/**
