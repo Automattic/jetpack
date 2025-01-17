@@ -3,14 +3,11 @@ import { useRef, useCallback, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { sample } from 'lodash';
 import React from 'react';
-import {
-	SOURCE_PEXELS,
-	PEXELS_EXAMPLE_QUERIES,
-	MediaBrowser,
-	MediaSource,
-	getExternalMediaApiUrl,
-	withMedia,
-} from '@automattic/jetpack-shared-extension-utils';
+import { SOURCE_PEXELS, PEXELS_EXAMPLE_QUERIES } from '../constants';
+import MediaBrowser from '../media-browser';
+import { MediaSource } from '../media-service/types';
+import { getExternalMediaApiUrl } from './api';
+import withMedia from './with-media';
 
 /**
  * PexelsMedia component

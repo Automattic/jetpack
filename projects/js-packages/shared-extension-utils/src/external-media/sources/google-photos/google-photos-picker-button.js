@@ -2,7 +2,7 @@ import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import React, { useEffect } from 'react';
-import mediaImage from '../../../../../images/media.svg';
+import mediaImage from '../../../images/media.svg';
 import GooglePhotosAccount from './google-photos-account';
 
 /**
