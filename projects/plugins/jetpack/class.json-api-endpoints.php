@@ -1380,7 +1380,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	public function get_author( $author, $show_email_and_ip = false ) {
 		$is_jetpack = null;
-		$login      = null;
+		$login      = 'null';
 		$email      = null;
 		$name       = null;
 		$first_name = null;
@@ -1391,7 +1391,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		if ( isset( $author->comment_author_email ) ) {
 			$id          = ( isset( $author->user_id ) && $author->user_id ) ? $author->user_id : 0;
-			$login       = '';
+			$login       = 'test4';
 			$email       = $author->comment_author_email;
 			$name        = $author->comment_author;
 			$first_name  = '';
@@ -1452,7 +1452,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				}
 				$id         = $user->ID;
 				$email      = $user->user_email;
-				$login      = $user->user_login;
+				$login      = $user->user_login . 'test2';
 				$name       = $user->display_name;
 				$first_name = $user->first_name;
 				$last_name  = $user->last_name;
@@ -1504,7 +1504,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		$author = array(
 			'ID'          => (int) $id,
-			'login'       => (string) $login,
+			'login'       => (string) $login . 'test3',
 			'email'       => $email, // string|bool.
 			'name'        => (string) $name,
 			'first_name'  => (string) $first_name,
