@@ -5,7 +5,7 @@ import {
 	DATE_RANGE_LAST_30_DAYS,
 	DATE_RANGE_LAST_6_MONTHS,
 	DATE_RANGE_LAST_12_MONTHS,
-} from '@automattic/jetpack-shared-extension-utils';
+} from '../../constants';
 
 const TODAY = moment();
 
