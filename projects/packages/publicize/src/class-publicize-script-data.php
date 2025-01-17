@@ -184,7 +184,7 @@ class Publicize_Script_Data {
 
 		return array(
 			'connectionData' => array(
-				'connections' => Connections::get_all_for_user(),
+				'connections' => self::has_feature_flag( 'connections-management' ) ? Connections::get_all_for_user() : array(),
 			),
 			'shareStatus'    => $share_status,
 		);
