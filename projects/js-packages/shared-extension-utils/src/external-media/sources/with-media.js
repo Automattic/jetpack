@@ -412,7 +412,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 		}
 
 		return withSelect( select => {
-			const currentPost = select( 'core/editor' ).getCurrentPost();
+			const currentPost = select( 'core/editor' )?.getCurrentPost();
 			// Templates and template parts' numerical ID is stored in `wp_id`.
 			const currentPostId =
 				typeof currentPost?.id === 'number' ? currentPost.id : currentPost?.wp_id;

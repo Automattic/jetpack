@@ -43,37 +43,37 @@ function render_wpcom_external_media_import_page() {
 	$description            = __( 'WordPress.com allows you to import media from various platforms directly into the Media Library. To begin, select a platform from the options below:', 'jetpack-mu-wpcom' );
 	$external_media_sources = array(
 		array(
-			'id'          => 'google_photos',
+			'slug'        => 'google_photos',
 			'name'        => __( 'Google Photos', 'jetpack-mu-wpcom' ),
 			'description' => __( 'Import media from your Google Photos account.', 'jetpack-mu-wpcom' ),
 		),
 		array(
-			'id'          => 'pexels',
+			'slug'        => 'pexels',
 			'name'        => __( 'Pexels free photos', 'jetpack-mu-wpcom' ),
 			'description' => __( 'Free stock photos, royalty free images shared by creators.', 'jetpack-mu-wpcom' ),
 		),
 		array(
-			'id'          => 'openverse',
+			'slug'        => 'openverse',
 			'name'        => __( 'Openverse', 'jetpack-mu-wpcom' ),
 			'description' => __( 'Explore more than 800 million creative works.', 'jetpack-mu-wpcom' ),
 		),
 	);
 
 	?>
-	<div class="wrap">
+	<div id="wpcom-external-media-import" class="wrap">
 		<h1><?php echo esc_html( $title ); ?></h1>
 		<p><?php echo esc_html( $description ); ?></p>
 		<table class="widefat importers striped">
 			<?php
 			foreach ( $external_media_sources as $external_media_source ) {
-				$id          = $external_media_source['id'];
+				$slug        = $external_media_source['slug'];
 				$name        = $external_media_source['name'];
 				$description = $external_media_source['description'];
 				$action      = sprintf(
-					'<a id="%1$s" aria-label="%2$s">%3$s</a>',
-					esc_attr( $id ),
+					'<a aria-label="%1$s" data-slug="%2$s">%3$s</a>',
 					/* translators: %s: The name of the external media source. */
 					esc_attr( sprintf( __( 'Import %s', 'jetpack-mu-wpcom' ), $name ) ),
+					esc_attr( $slug ),
 					__( 'Import now', 'jetpack-mu-wpcom' )
 				);
 
@@ -93,6 +93,7 @@ function render_wpcom_external_media_import_page() {
 			}
 			?>
 		</table>
+		<div id="wpcom-external-media-import-modal"></div>
 	</div>
 	<?php
 }
