@@ -1,21 +1,18 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import {
-	getSiteFragment,
-	isAtomicSite,
-	isSimpleSite,
-} from '@automattic/jetpack-shared-extension-utils';
+import { AdminSiteData, getScriptData } from '@automattic/jetpack-script-data';
+import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelRow } from '@wordpress/components';
 import { _x } from '@wordpress/i18n';
 import { hasSocialPaidFeatures } from '../../utils';
 import styles from './styles.module.scss';
 import { useAutoSaveAndRedirect } from './use-auto-save-and-redirect';
 
+const DISABLE_NUDGE_FOR: Array< AdminSiteData[ 'host' ] > = [ 'wpcom', 'atomic', 'woa', 'vip' ];
+
 export const EnhancedFeaturesNudge: React.FC = () => {
 	const autosaveAndRedirect = useAutoSaveAndRedirect();
 
-	const isWpcom = isSimpleSite() || isAtomicSite();
-
-	if ( isWpcom || hasSocialPaidFeatures() ) {
+	if ( hasSocialPaidFeatures() || DISABLE_NUDGE_FOR.includes( getScriptData().site.host ) ) {
 		return null;
 	}
 
