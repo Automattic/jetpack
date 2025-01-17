@@ -54,6 +54,7 @@ class Jetpack_Google_Font_Face {
 	 * Print fonts that are used in global styles or block-level settings.
 	 */
 	public function print_font_faces() {
+		echo '<h1>This is a test</h1>';
 		$fonts             = WP_Font_Face_Resolver::get_fonts_from_theme_json();
 		$font_slug_aliases = $this->get_font_slug_aliases();
 		$fonts_to_print    = array();
