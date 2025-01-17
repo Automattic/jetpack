@@ -23,11 +23,20 @@ class Jetpack_Google_Font_Face {
 	 */
 	public function __construct() {
 		// Turns off hooks to print fonts
+		add_action( 'wp_loaded', array( $this, 'wp_loaded' ) );
 		add_action( 'current_screen', array( $this, 'current_screen' ), 10 );
 
 		// Collect and print fonts in use
-		add_action( 'wp_head', array( $this, 'print_font_faces' ), 10 );
+		add_action( 'wp_head', array( $this, 'print_font_faces' ), 50 );
 		add_filter( 'pre_render_block', array( $this, 'collect_block_fonts' ), 10, 2 );
+	}
+
+	/**
+	 * Turn off hooks to print fonts on frontend
+	 */
+	public function wp_loaded() {
+		remove_action( 'wp_head', 'wp_print_fonts', 50 );
+		remove_action( 'wp_head', 'wp_print_font_faces', 50 );
 	}
 
 	/**
@@ -45,8 +54,12 @@ class Jetpack_Google_Font_Face {
 	 * Print fonts that are used in global styles or block-level settings.
 	 */
 	public function print_font_faces() {
-		echo '<h1>This is a test</h1>';
-		$fonts             = WP_Font_Face_Resolver::get_fonts_from_theme_json();
+		$fonts = WP_Font_Face_Resolver::get_fonts_from_theme_json();
+		echo '<h1>DebugFonts</h1>';
+		echo '<pre>';
+		print_r( $fonts );
+		echo '</pre>';
+
 		$font_slug_aliases = $this->get_font_slug_aliases();
 		$fonts_to_print    = array();
 
