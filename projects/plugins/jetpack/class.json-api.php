@@ -401,7 +401,7 @@ class WPCOM_JSON_API {
 	public function serve( $exit = true ) {
 		ini_set( 'display_errors', false ); // phpcs:ignore WordPress.PHP.IniSet.display_errors_Blacklisted
 
-		$this->exit = (bool) $exit( 0 );
+		$this->exit = (bool) $exit;
 
 		// This was causing problems with Jetpack, but is necessary for wpcom
 		// @see https://github.com/Automattic/jetpack/pull/2603
@@ -617,14 +617,14 @@ class WPCOM_JSON_API {
 	 * @param string $content_type Content type of the response.
 	 */
 	public function output_early( $status_code, $response = null, $content_type = 'application/json' ) {
-		$exit       = $this->exit( 0 );
+		$exit       = $this->exit;
 		$this->exit = false;
 		if ( is_wp_error( $response ) ) {
 			$this->output_error( $response );
 		} else {
 			$this->output( $status_code, $response, $content_type );
 		}
-		$this->exit = $exit( 0 );
+		$this->exit = $exit;
 		if ( ! defined( 'XMLRPC_REQUEST' ) || ! XMLRPC_REQUEST ) {
 			$this->finish_request();
 		}
