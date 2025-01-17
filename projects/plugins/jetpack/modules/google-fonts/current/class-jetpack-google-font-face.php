@@ -23,19 +23,11 @@ class Jetpack_Google_Font_Face {
 	 */
 	public function __construct() {
 		// Turns off hooks to print fonts
-		add_action( 'wp_loaded', array( $this, 'wp_loaded' ) );
 		add_action( 'current_screen', array( $this, 'current_screen' ), 10 );
 
 		// Collect and print fonts in use
 		add_action( 'wp_head', array( $this, 'print_font_faces' ), 10 );
 		add_filter( 'pre_render_block', array( $this, 'collect_block_fonts' ), 10, 2 );
-	}
-
-	/**
-	 * Turn off hooks to print fonts on frontend
-	 */
-	public function wp_loaded() {
-		remove_action( 'wp_head', 'wp_print_font_faces', 50 );
 	}
 
 	/**
