@@ -116,24 +116,6 @@ class Products {
 	);
 
 	/**
-	 * List of product slugs that are Not displayed on the main My Jetpack page
-	 *
-	 * @var array
-	 */
-	public static $not_shown_products = array(
-		'creator',
-		'extras',
-		'ai', // 'ai' is a duplicate class of 'jetpack-ai', and therefore not needed.
-		'scan',
-		'security',
-		'growth',
-		'complete',
-		'newsletter',
-		'site-accelerator',
-		'related-posts',
-	);
-
-	/**
 	 * Get the list of Products classes
 	 *
 	 * Here's where all the existing Products are registered
