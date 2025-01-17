@@ -1485,7 +1485,7 @@ class Woo_Sync {
 		$log[] = 'fini';
 		//update_option('wlogtemp', $log, false);
 
-		exit();
+		exit( 0 );
 
 
 	}

@@ -215,8 +215,6 @@ class zeroBS__Metabox_Task extends zeroBS__Metabox {
 			}
 			$task['reminders'] = $task_reminders;
 
-			//  echo 'Task owned by '.$owner.':<pre>'.print_r($task,1).'</pre>'; exit();
-
 			// add/update
 			$addUpdateReturn = $zbs->DAL->events->addUpdateEvent(
 				array(

@@ -328,12 +328,10 @@ class Oauth_Handler {
 			exit( 0 );
 
 		} elseif ( empty( $_GET['state'] ) || ( $_GET['state'] !== $_SESSION['oauth2state'] ) ) {
-
-		    // State is invalid, possible CSRF attack in progress
-		    // (though to get here we'd need to be admin, so probably this'll never fire)
-		    unset( $_SESSION['oauth2state'] );
-		    exit();
-
+			// State is invalid, possible CSRF attack in progress
+			// (though to get here we'd need to be admin, so probably this'll never fire)
+			unset( $_SESSION['oauth2state'] );
+			exit( 0 );
 		} else {
 
 			try {
@@ -1044,7 +1042,7 @@ class Oauth_Handler {
 
 			?></div></body></html><?php
 
-			exit();
+			exit( 0 );
 
 		}
 

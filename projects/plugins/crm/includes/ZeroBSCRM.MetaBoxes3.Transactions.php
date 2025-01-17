@@ -88,7 +88,6 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
                 	$transaction = $zbsObjDataPrefill;
                 }
 
-                // debug echo '<pre>'; print_r(array($transaction,$metabox)); echo '</pre>'; exit();
                 global $zbs;
 
 

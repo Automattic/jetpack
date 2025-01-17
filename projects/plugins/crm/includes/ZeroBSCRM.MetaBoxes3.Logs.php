@@ -172,9 +172,6 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                     if ((!isset($this->postType) || $this->postType == false) && !empty($objTypeStr)) $this->postType = $objTypeStr;
 
                 }
-
-                //echo 'loading from '.$this->objTypeID.':<pre>'.print_r(array($objTypeStr,$objSingular,$objPlural,$objSlug),1).'</pre>'; exit();
-
             }
 
 

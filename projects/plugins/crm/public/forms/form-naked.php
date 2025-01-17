@@ -52,4 +52,4 @@ if ( isset( $_GET['fid'] ) ) { // phpcs:ignore WordPress.Security.NonceVerificat
 	}
 }
 
-exit();
+exit( 0 );

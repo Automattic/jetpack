@@ -88,21 +88,6 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
                 $placeholder_list = $placeholder_templating->get_placeholders_for_tooling( array( 'quote', 'contact', 'global' ), false, false );
                 echo '<script>var jpcrm_placeholder_list = ' . json_encode( $placeholder_templating->simplify_placeholders_for_wysiwyg( $placeholder_list ) ) . ';</script>';
 
-                // Fields:
-                // CPT just had Title + Content
-                // DAL3 has more :)
-
-                #} Retrieve fields from global
-                /* this is all debug
-                global $zbsCustomerQuoteFields; $fields2 = $zbsCustomerQuoteFields;
-                // Debug 
-                echo 'Fields:<pre>'.print_r($fields2,1).'</pre>';
-
-                $fields3 = $zbs->DAL->quotetemplates->generateFieldsGlobalArr();
-                echo 'Fields2:<pre>'.print_r($fields3,1).'</pre>';
-                exit();
-                */
-
                 // for mvp v3.0 we now just hard-type these, as there a lesser obj rarely used.
                 $fields = array(
 
@@ -195,8 +180,6 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
                     // Think this was here in err... if (isset($_POST['zbs_quote_template_id_used'])) $quote['template'] = (int)sanitize_text_field($_POST['zbs_quote_template_id_used']);
 
                 }
-
-                // Debug echo 'updating: <pre>'.print_r($quoteTemplate,1).'</pre>'; exit();
 
                 // add/update
                 $addUpdateReturn = $zbs->DAL->quotetemplates->addUpdateQuoteTemplate(array(

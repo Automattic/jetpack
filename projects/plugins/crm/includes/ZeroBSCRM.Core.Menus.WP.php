@@ -1304,7 +1304,6 @@ function zeroBSCRM_menus_removeWPSubMenu( $slug = '', $subpage = '' ) {
 	// Global
 	global $submenu;
 
-	// Use this to debug:   print_r($submenu); exit();
 	if ( isset( $submenu[ $slug ] ) && is_array( $submenu[ $slug ] ) ) {
 
 		$newArr = array();

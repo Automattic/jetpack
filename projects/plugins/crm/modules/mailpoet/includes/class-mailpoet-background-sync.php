@@ -291,7 +291,7 @@ class Mailpoet_Background_Sync {
 			);
 			$mailpoet_latest_stats = $this->mailpoet()->get_jpcrm_mailpoet_latest_stats();
 			echo json_encode( array_merge( $mailpoet_latest_stats, $mailpoetsync_status_array ) );
-			exit();
+			exit( 0 );
 
 		}
 

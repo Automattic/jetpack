@@ -114,7 +114,7 @@ function zeroBSCRM_send_email_thread_ajax() {
 	jpcrm_send_single_email_from_box( $send_to_email, $thread_id, $delivery_method, true, false );
 
 	// fini
-	exit();
+	exit( 0 );
 }
 add_action( 'wp_ajax_zbs_email_send_thread_ui', 'zeroBSCRM_send_email_thread_ajax' );
 
@@ -210,7 +210,7 @@ function jpcrm_send_single_email_from_box( $send_to_email = '', $thread_id = -1,
 		if ( $exit_json ) {
 			exit( '{processed:-1}' );
 		} else {
-			exit();
+			exit( 0 );
 		}
 	}
 
@@ -358,7 +358,7 @@ function jpcrm_send_single_email_from_box( $send_to_email = '', $thread_id = -1,
 	if ( $exit_json ) {
 
 		echo wp_json_encode( $m );
-		exit();
+		exit( 0 );
 
 	} else {
 

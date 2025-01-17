@@ -37,7 +37,7 @@ if ( ! is_array( $new_customer ) ) {
 			'message' => 'Invalid JSON data',
 		)
 	);
-	exit(); }
+	exit( 0 ); }
 
 		// no tags assumption, etc.
 		$we_have_tags = false;
@@ -295,4 +295,4 @@ if ( $external_api_name !== false ) {
 				}
 
 				wp_send_json( array( 'errors' => 1 ) );
-				exit();
+				exit( 0 );

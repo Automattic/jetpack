@@ -422,7 +422,7 @@ class Woo_Sync_Background_Sync {
 			);
 			$woosync_latest_stats = $this->woosync()->get_jpcrm_woo_latest_stats();
 			echo json_encode( array_merge( $woosync_latest_stats, $woosync_status_array ) );
-			exit();
+			exit( 0 );
 
 		}
 

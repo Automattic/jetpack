@@ -181,8 +181,6 @@ function zeroBSCRM_html_contactTimeline($contactID=-1,$logs=false,$contactObj=fa
 		$logs = zeroBSCRM_getContactLogs($contactID,true,100,0,'',false);
 
 	}
-	//echo 'zeroBSCRM_html_contactTimeline<pre>'.print_r($logs,1).'</pre>'; exit();
-
 
 	// Compile a list of actions to show
 	// - if under 10, show them all

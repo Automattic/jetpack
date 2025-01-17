@@ -41,7 +41,7 @@ function zeroBSCRM_forms_templateRedirect() {
 
 		// require template
 		require_once( ZEROBSCRM_PATH . 'public/forms/form-'.$potentialForm.'.php' ); 
-		exit();
+		exit( 0 );
 
 	}
 

@@ -159,7 +159,7 @@ function zeroBSCRM_migrations_run( $settingsArr = false, $run_at = 'init' ){
 
 						// stop running migrations, reload the page
 						header("Refresh:0");
-						exit();
+						exit( 0 );
 
 					} else {
 

@@ -346,7 +346,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateWPMail() {
 
 	header( 'Content-Type: application/json' );
 	echo json_encode( $res );
-	exit();
+	exit( 0 );
 }
 
 // } Attempts to validate mail delivery SMTP settings, send test email, & save's if validated
@@ -358,7 +358,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTP() {
 
 	// } Perms?
 	if ( ! zeroBSCRM_permsMailCampaigns() ) {
-		exit();
+		exit( 0 );
 	}
 
 	// } Retrieve...
@@ -504,7 +504,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTP() {
 
 	header( 'Content-Type: application/json' );
 	echo wp_json_encode( $res, JSON_UNESCAPED_UNICODE );
-	exit();
+	exit( 0 );
 }
 
 // } quickly checks if ports are open (pre smtp check)
@@ -516,7 +516,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTPPorts() {
 
 	// } Perms?
 	if ( ! zeroBSCRM_permsMailCampaigns() ) {
-		exit();
+		exit( 0 );
 	}
 
 	// } Retrieve...
@@ -574,7 +574,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTPPorts() {
 	$res['open'] = $okay;
 	header( 'Content-Type: application/json' );
 	echo wp_json_encode( $res, JSON_UNESCAPED_UNICODE );
-	exit();
+	exit( 0 );
 }
 
 /*
@@ -728,7 +728,7 @@ function jpcrm_ajax_mail_delivery_validate_api_oauth() {
 	// return
 	header( 'Content-Type: application/json' );
 	echo json_encode( $return );
-	exit();
+	exit( 0 );
 }
 
 // } Attempts to send a test email from a stored mail delivery method
@@ -740,7 +740,7 @@ function zeroBSCRM_AJAX_mailDelivery_testEmail() {
 
 	// } Perms?
 	if ( ! zeroBSCRM_permsMailCampaigns() ) {
-		exit();
+		exit( 0 );
 	}
 
 	// } Starting
@@ -823,7 +823,7 @@ function zeroBSCRM_AJAX_mailDelivery_removeMailDelivery() {
 
 	// } Perms?
 	if ( ! zeroBSCRM_permsMailCampaigns() ) {
-		exit();
+		exit( 0 );
 	}
 
 	// } Starting
@@ -897,7 +897,7 @@ function zeroBSCRM_AJAX_mailDelivery_removeMailDelivery() {
 
 	header( 'Content-Type: application/json' );
 	echo json_encode( $res );
-	exit();
+	exit( 0 );
 }
 
 // } Attempts to set a delivery route default
@@ -909,7 +909,7 @@ function zeroBSCRM_AJAX_mailDelivery_setMailDeliveryAsDefault() {
 
 	// } Perms?
 	if ( ! zeroBSCRM_permsMailCampaigns() ) {
-		exit();
+		exit( 0 );
 	}
 
 	// } Starting
@@ -935,5 +935,5 @@ function zeroBSCRM_AJAX_mailDelivery_setMailDeliveryAsDefault() {
 
 	header( 'Content-Type: application/json' );
 	echo json_encode( $res );
-	exit();
+	exit( 0 );
 }

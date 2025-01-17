@@ -249,4 +249,4 @@ if ( $external_api_name !== false ) {
 					}
 				}
 
-				exit();
+				exit( 0 );

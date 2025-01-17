@@ -1865,7 +1865,7 @@ final class ZeroBSCRM {
 							// Redirect to our "no rights" page
 							// OLD WAY header("Location: edit.php?post_type=".$postType."&page=".$this->slugs['zbs-noaccess']."&id=".$postID);
 							header( 'Location: admin.php?page=' . $this->slugs['zbs-noaccess'] . '&zbsid=' . $obj_id . '&zbstype=' . $obj_type_str );
-							exit();
+							exit( 0 );
 
 						} // / no rights.
 
@@ -1878,7 +1878,7 @@ final class ZeroBSCRM {
 		} // / !is admin
 
 		// debug
-		// print_r($GLOBALS['wp_post_types']['zerobs_quo_template']); exit();
+		// print_r($GLOBALS['wp_post_types']['zerobs_quo_template']); exit( 0 );
 
 		// ====================================================================
 		// ==================== General Perf Testing ==========================
@@ -2042,14 +2042,11 @@ final class ZeroBSCRM {
 			return;
 		}
 
-		// if($this->pre_deactivation_check_exts_deactivated()){
-
 			##WLREMOVE
 
 			// Remove roles :)
 			zeroBSCRM_clearUserRoles();
 
-			// Debug delete_option('zbsfeedback');exit();
 			$feedbackAlready = get_option( 'zbsfeedback' );
 
 			// if php notice, (e.g. php ver to low, skip this)
@@ -2073,7 +2070,7 @@ final class ZeroBSCRM {
 
 					// } require template
 					require_once ZEROBSCRM_PATH . 'admin/activation/before-you-go.php';
-					exit();
+					exit( 0 );
 
 				} catch ( Exception $e ) {
 
@@ -2175,7 +2172,7 @@ final class ZeroBSCRM {
 		if ( $run_count <= 0 || $force_wizard ) {
 			// require welcome wizard template
 			require_once ZEROBSCRM_PATH . 'admin/activation/welcome-to-jpcrm.php';
-			exit();
+			exit( 0 );
 		}
 		##/WLREMOVE
 	}
@@ -2384,7 +2381,7 @@ final class ZeroBSCRM {
 				$redirect = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : home_url( '/' );
 				if ( current_user_can( 'zerobs_customer' ) ) {
 					wp_redirect( $redirect );
-					exit();
+					exit( 0 );
 				}
 			}
 
@@ -2530,7 +2527,7 @@ final class ZeroBSCRM {
 		$pageTitle = ( ( $adminTitle == '' ) ? __( 'Jetpack CRM', 'zero-bs-crm' ) : $adminTitle );
 
 		// useful? global $post, $title, $action, $current_screen;
-		// global $zbsPage; print_r($zbsPage); exit();
+		// global $zbsPage; print_r($zbsPage); exit( 0 );
 
 		// we only need to do this for pages where we're using custom setups (not added via wp_add_menu whatever)
 		if ( $this->zbsvar( 'page' ) != -1 ) {

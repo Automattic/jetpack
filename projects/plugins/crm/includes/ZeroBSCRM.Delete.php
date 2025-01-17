@@ -82,8 +82,6 @@ class zeroBSCRM_Delete{
                 if ((!isset($this->listViewSlug) || $this->listViewSlug == false) && !empty($objSlug)) $this->listViewSlug = $objSlug;
 
             }
-
-            //echo 'loading from '.$this->objTypeID.':<pre>'.print_r(array($objTypeStr,$objSingular,$objPlural,$objSlug),1).'</pre>'; exit();
 		}
 
         // if objid - load $post

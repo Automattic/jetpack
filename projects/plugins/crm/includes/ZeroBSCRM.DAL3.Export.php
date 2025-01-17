@@ -439,7 +439,7 @@ function jpcrm_export_process_file_export() {
 
 					// send end
 					fclose( $output );
-					exit();
+					exit( 0 );
 
 					// == / file fini ==================================================
 

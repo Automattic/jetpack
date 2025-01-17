@@ -252,11 +252,6 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
                 }
 
-                /* debug 
-                echo '_POST:<pre>'.print_r($_POST,1).'</pre>';
-                echo 'dataArr:<pre>'.print_r($dataArr,1).'</pre>'; exit();
-                */
-
                 // now we check whether a user with this email already exists (separate to this company id), so we can warn them
                 // ... that it wont have changed the email
                 if (isset($dataArr['email']) && !empty($dataArr['email'])){

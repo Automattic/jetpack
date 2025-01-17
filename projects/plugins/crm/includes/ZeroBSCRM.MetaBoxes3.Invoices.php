@@ -778,9 +778,6 @@ class zeroBS__Metabox_InvoiceTags extends zeroBS__Metabox_Tags{
         }
 
         public function html( $invoice, $metabox ) {
-
-            // debug print_r($invoice); exit();
-
             ?><div class="zbs-generic-save-wrap">
 
                     <div class="ui medium dividing header"><i class="save icon"></i> <?php esc_html_e('Invoice Actions','zero-bs-crm'); ?></div>
