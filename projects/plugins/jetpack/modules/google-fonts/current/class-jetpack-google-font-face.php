@@ -35,7 +35,6 @@ class Jetpack_Google_Font_Face {
 	 * Turn off hooks to print fonts on frontend
 	 */
 	public function wp_loaded() {
-		remove_action( 'wp_head', 'wp_print_fonts', 50 );
 		remove_action( 'wp_head', 'wp_print_font_faces', 50 );
 	}
 
