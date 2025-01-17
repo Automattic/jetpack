@@ -499,7 +499,7 @@ class Share_Email_Block extends Sharing_Source_Block {
 			wp_send_json_success();
 		} else {
 			wp_safe_redirect( get_permalink( $post->ID ) . '?shared=email&msg=fail' );
-			exit;
+			exit( 0 );
 		}
 
 		wp_die();

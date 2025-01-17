@@ -333,7 +333,7 @@ class Jetpack_Network {
 					}
 
 					wp_safe_redirect( $url );
-					exit;
+					exit( 0 );
 
 				case 'subsitedisconnect':
 					check_admin_referer( 'jetpack-subsite-disconnect' );

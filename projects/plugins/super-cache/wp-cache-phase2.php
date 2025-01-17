@@ -1259,7 +1259,7 @@ if ( !isset( $_SERVER[ "PHP_AUTH_USER" ] ) || ( $_SERVER[ "PHP_AUTH_USER" ] != "
 	header( "WWW-Authenticate: Basic realm=\"WP-Super-Cache Debug Log\"" );
 	header( $_SERVER[ "SERVER_PROTOCOL" ] . " 401 Unauthorized" );
 	echo "You must login to view the debug log";
-	exit;
+	exit( 0 );
 }' . PHP_EOL;
 
 	$fp = fopen( $cache_path . 'view_' . $wp_cache_debug_log, 'w' );

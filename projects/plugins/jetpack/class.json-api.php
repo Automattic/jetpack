@@ -401,7 +401,7 @@ class WPCOM_JSON_API {
 	public function serve( $exit = true ) {
 		ini_set( 'display_errors', false ); // phpcs:ignore WordPress.PHP.IniSet.display_errors_Blacklisted
 
-		$this->exit = (bool) $exit;
+		$this->exit = (bool) $exit( 0 );
 
 		// This was causing problems with Jetpack, but is necessary for wpcom
 		// @see https://github.com/Automattic/jetpack/pull/2603
@@ -573,7 +573,7 @@ class WPCOM_JSON_API {
 					}
 				}
 			}
-			exit;
+			exit( 0 );
 		}
 
 		if ( $endpoint->in_testing && ! WPCOM_JSON_API__DEBUG ) {
@@ -617,14 +617,14 @@ class WPCOM_JSON_API {
 	 * @param string $content_type Content type of the response.
 	 */
 	public function output_early( $status_code, $response = null, $content_type = 'application/json' ) {
-		$exit       = $this->exit;
+		$exit       = $this->exit( 0 );
 		$this->exit = false;
 		if ( is_wp_error( $response ) ) {
 			$this->output_error( $response );
 		} else {
 			$this->output( $status_code, $response, $content_type );
 		}
-		$this->exit = $exit;
+		$this->exit = $exit( 0 );
 		if ( ! defined( 'XMLRPC_REQUEST' ) || ! XMLRPC_REQUEST ) {
 			$this->finish_request();
 		}
@@ -654,7 +654,7 @@ class WPCOM_JSON_API {
 		// In case output() was called before the callback returned.
 		if ( $this->did_output ) {
 			if ( $this->exit ) {
-				exit;
+				exit( 0 );
 			}
 			return $content_type;
 		}
@@ -684,7 +684,7 @@ class WPCOM_JSON_API {
 			}
 			echo $response; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			if ( $this->exit ) {
-				exit;
+				exit( 0 );
 			}
 
 			return $content_type;
@@ -737,7 +737,7 @@ class WPCOM_JSON_API {
 		}
 
 		if ( $this->exit ) {
-			exit;
+			exit( 0 );
 		}
 
 		return $content_type;
@@ -1246,7 +1246,7 @@ class WPCOM_JSON_API {
 		// We still want to exit so that code execution stops where it should.
 		// Attach the JSON output to the WordPress shutdown handler.
 		add_action( 'shutdown', array( $this, 'output_trapped_error' ), 0 );
-		exit;
+		exit( 0 );
 	}
 
 	/**

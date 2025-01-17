@@ -6,7 +6,7 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 require __DIR__ . '/classes/class-jetpack-woocommerce-analytics-trait.php';

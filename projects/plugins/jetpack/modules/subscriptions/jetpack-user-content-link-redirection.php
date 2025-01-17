@@ -67,7 +67,7 @@ EOF;
 </html>
 EOF;
     // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
-	exit;
+	exit( 0 );
 }
 
 // The WPCOM_USER_CONTENT_LINK_REDIRECTION flag prevents this redirection logic from running
