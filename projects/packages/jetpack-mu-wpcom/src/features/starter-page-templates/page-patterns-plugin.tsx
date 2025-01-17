@@ -5,7 +5,6 @@ import { useCallback } from '@wordpress/element';
 import { addFilter, removeFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { pageLayoutStore } from './store';
-import '@wordpress/nux';
 
 const INSERTING_HOOK_NAME = 'isInsertingPagePattern';
 const INSERTING_HOOK_NAMESPACE = 'automattic/full-site-editing/inserting-pattern';
