@@ -20,7 +20,7 @@ export const getSocialNotesEnabled = createRegistrySelector( select => () => {
 		settings?.[ SOCIAL_NOTES_ENABLED_KEY ] ??
 		getSocialScriptData().settings?.socialPlugin?.social_notes_enabled
 	);
-} ) as ( state: object ) => boolean;
+} );
 
 /**
  * Returns the Social Notes Config for the current site.

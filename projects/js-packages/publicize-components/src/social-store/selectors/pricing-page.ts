@@ -17,4 +17,4 @@ export const getShouldShowPricingPage = createRegistrySelector( select => () => 
 		settings?.[ SHOW_PRICING_PAGE_KEY ] ??
 		getSocialScriptData().settings?.socialPlugin?.show_pricing_page
 	);
-} ) as ( state: object ) => boolean;
+} );
