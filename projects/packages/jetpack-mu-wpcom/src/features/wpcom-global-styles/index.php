@@ -790,7 +790,7 @@ function wpcom_site_has_global_styles_in_personal_plan( $blog_id = 0 ) {
 		$blog_id = get_current_blog_id();
 	}
 
-	$cache_key                          = "global-styles-on-personal-$blog_id";
+	$cache_key                          = "global-styles-on-personal-feb-2025-$blog_id";
 	$found_in_cache                     = false;
 	$has_global_styles_in_personal_plan = wp_cache_get( $cache_key, 'a8c_experiments', false, $found_in_cache );
 	if ( $found_in_cache ) {
@@ -807,7 +807,8 @@ function wpcom_site_has_global_styles_in_personal_plan( $blog_id = 0 ) {
 		return false;
 	}
 
-	$experiment_assignment              = \ExPlat\assign_given_user( 'calypso_global_styles_personal_v2', $owner );
+	// Placeholder experiment key, we need to update this to the new experiment key once it's created.
+	$experiment_assignment              = \ExPlat\assign_given_user( 'calypso_post_onboarding_holdout_160125', $owner );
 	$has_global_styles_in_personal_plan = 'treatment' === $experiment_assignment;
 	// Cache the experiment assignment to prevent duplicate DB queries in the frontend.
 	wp_cache_set( $cache_key, $has_global_styles_in_personal_plan, 'a8c_experiments', MONTH_IN_SECONDS );
