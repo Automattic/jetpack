@@ -11,7 +11,6 @@ use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Publicize\Publicize_Script_Data;
 use Automattic\Jetpack\Publicize\Social_Image_Generator\Templates;
-use Automattic\Jetpack\Social\Note;
 
 /**
  * This class is used to get and update Jetpack_Social_Settings.
@@ -47,8 +46,9 @@ class Settings {
 	);
 
 	// Legacy named options.
-	const JETPACK_SOCIAL_NOTE_CPT_ENABLED  = 'jetpack-social-note';
-	const JETPACK_SOCIAL_SHOW_PRICING_PAGE = 'jetpack-social_show_pricing_page';
+	const JETPACK_SOCIAL_NOTE_CPT_ENABLED   = 'jetpack-social-note';
+	const JETPACK_SOCIAL_SHOW_PRICING_PAGE  = 'jetpack-social_show_pricing_page';
+	const NOTES_FLUSH_REWRITE_RULES_FLUSHED = 'jetpack_social_rewrite_rules_flushed';
 
 	/**
 	 * Feature flags. Each item has 3 keys because of the naming conventions:
@@ -355,7 +355,7 @@ class Settings {
 		// Social Notes.
 		if ( self::JETPACK_SOCIAL_NOTE_CPT_ENABLED === $name ) {
 			// Delete this option, so the rules get flushed in maybe_flush_rewrite_rules when the CPT is registered.
-			delete_option( Note::FLUSH_REWRITE_RULES_FLUSHED );
+			delete_option( self::NOTES_FLUSH_REWRITE_RULES_FLUSHED );
 			return update_option( self::JETPACK_SOCIAL_NOTE_CPT_ENABLED, (bool) $value );
 		}
 		if ( self::OPTION_PREFIX . self::NOTES_CONFIG === $name ) {
