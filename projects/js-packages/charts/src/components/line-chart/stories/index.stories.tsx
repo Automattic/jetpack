@@ -1,5 +1,6 @@
 import LineChart from '../line-chart';
 import sampleData from './sample-data';
+import webTrafficData from './site-traffic-sample';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof LineChart > = {
@@ -37,6 +38,7 @@ Default.args = {
 	data: sampleData,
 	showLegend: false,
 	legendOrientation: 'horizontal',
+	withGradientFill: false,
 	options: {
 		axis: {
 			x: {
@@ -93,10 +95,22 @@ FixedDimensions.args = {
 	data: sampleData,
 	withTooltips: true,
 };
+
 FixedDimensions.parameters = {
 	docs: {
 		description: {
 			story: 'Line chart with fixed dimensions that override the responsive behavior.',
 		},
+	},
+};
+
+// Story with gradient filled line chart
+export const GridientFilled: StoryObj< typeof LineChart > = Template.bind( {} );
+GridientFilled.args = {
+	...Default.args,
+	data: webTrafficData,
+	withGradientFill: true,
+	options: {
+		axis: { x: { numTicks: 10 }, y: { orientation: 'right' } },
 	},
 };

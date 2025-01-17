@@ -307,6 +307,9 @@ importers:
       '@visx/event':
         specifier: ^3.8.0
         version: 3.12.0
+      '@visx/gradient':
+        specifier: 3.12.0
+        version: 3.12.0(react@18.3.1)
       '@visx/grid':
         specifier: ^3.12.0
         version: 3.12.0(react@18.3.1)
@@ -7782,6 +7785,11 @@ packages:
     resolution: {integrity: sha512-E9ST9MoPNyXQzjZxYYAGXT4CbBpnB90Qhx8UvUUM2/n/SZUNeH+m6UiB/CzT0jGK2b0lPHF91mlOiQ8JXBRhYg==}
     peerDependencies:
       react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
+
+  '@visx/gradient@3.12.0':
+    resolution: {integrity: sha512-QRatjjdUEPbcp4pqRca1JlChpAnmmIAO3r3ZscLK7D1xEIANlIjzjl3uNgrmseYmBAYyPCcJH8Zru07R97ovOg==}
+    peerDependencies:
+      react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
 
   '@visx/grid@3.12.0':
     resolution: {integrity: sha512-L4ex2ooSYhwNIxJ3XFIKRhoSvEGjPc2Y3YCrtNB4TV5Ofdj4q0UMOsxfrH23Pr8HSHuQhb6VGMgYoK0LuWqDmQ==}
@@ -18344,6 +18352,12 @@ snapshots:
       '@visx/group': 3.12.0(react@18.3.1)
       classnames: 2.5.1
       d3-shape: 1.3.7
+      prop-types: 15.8.1
+      react: 18.3.1
+
+  '@visx/gradient@3.12.0(react@18.3.1)':
+    dependencies:
+      '@types/react': 18.3.18
       prop-types: 15.8.1
       react: 18.3.1
 
