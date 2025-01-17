@@ -1765,6 +1765,8 @@ importers:
         specifier: 4.9.1
         version: 4.9.1(webpack@5.94.0)
 
+  projects/packages/account-protection: {}
+
   projects/packages/admin-ui: {}
 
   projects/packages/assets:
