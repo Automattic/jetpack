@@ -61,13 +61,13 @@ class Password_Detection {
 		}
 
 		if ( ! $this->validate_password( $password ) ) {
-			// TODO: Ensure this usermeta is always up to date
-			$this->update_password_detection_usermeta( $user->ID, 'unsafe' );
+			// TODO: Ensure usermeta is always up to date
+			$this->update_usermeta( $user->ID, 'unsafe' );
 
 			// Redirect to the password detection page
 			add_filter( 'login_redirect', array( $this, 'password_detection_redirect' ), 10, 3 );
 		} else {
-			$this->update_password_detection_usermeta( $user->ID, 'safe' );
+			$this->update_usermeta( $user->ID, 'safe' );
 		}
 
 		return $user;
@@ -78,7 +78,7 @@ class Password_Detection {
 	 *
 	 * @return void
 	 */
-	public function render_password_detection_page(): void {
+	public function render_page(): void {
 		// Restrict direct access to logged in users
 		$current_user = wp_get_current_user();
 		if ( 0 === $current_user->ID ) {
@@ -87,7 +87,7 @@ class Password_Detection {
 		}
 
 		// Restrict direct access to users with unsafe passwords
-		$user_password_status = $this->get_password_detection_usermeta( $current_user->ID );
+		$user_password_status = $this->get_usermeta( $current_user->ID );
 		if ( ! $user_password_status || 'safe' === $user_password_status ) {
 			wp_safe_redirect( admin_url() );
 			exit;
@@ -102,7 +102,7 @@ class Password_Detection {
 		$context = 'Your current password was found in a public leak, which means your account might be at risk.';
 		$error   = '';
 
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_password_detection_styles' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 
 		// Handle reset_password_action form submission
 		if ( isset( $_POST['reset-password'] ) ) {
@@ -139,7 +139,7 @@ class Password_Detection {
 			}
 		}
 
-		$this->render_password_detection_template( $reset, $context, $error, $this->password_reset_email->mask_email_address( $current_user->user_email ) );
+		$this->render_content( $reset, $context, $error, $this->password_reset_email->mask_email_address( $current_user->user_email ) );
 		exit;
 	}
 
@@ -167,7 +167,7 @@ class Password_Detection {
 	 *
 	 * @return void
 	 */
-	public function enqueue_password_detection_styles(): void {
+	public function enqueue_styles(): void {
 		wp_enqueue_style(
 			'password-detection-styles',
 			plugin_dir_url( __FILE__ ) . 'css/password-detection.css',
@@ -263,7 +263,7 @@ class Password_Detection {
 	 *
 	 * @param int $user_id The user ID.
 	 */
-	public function get_password_detection_usermeta( int $user_id ) {
+	public function get_usermeta( int $user_id ) {
 		return get_user_meta( $user_id, self::PASSWORD_DETECTION_USER_META_KEY, true );
 	}
 
@@ -273,8 +273,18 @@ class Password_Detection {
 	 * @param int    $user_id The user ID.
 	 * @param string $setting The password detection setting.
 	 */
-	public function update_password_detection_usermeta( int $user_id, string $setting ) {
+	public function update_usermeta( int $user_id, string $setting ) {
 		update_user_meta( $user_id, self::PASSWORD_DETECTION_USER_META_KEY, $setting );
+	}
+
+	/**
+	 * Delete password detection usermeta for all users.
+	 */
+	public function delete_all_usermeta() {
+		$users = get_users();
+		foreach ( $users as $user ) {
+			$this->delete_usermeta( $user->ID );
+		}
 	}
 
 	/**
@@ -282,7 +292,7 @@ class Password_Detection {
 	 *
 	 * @param int $user_id The user ID.
 	 */
-	public function delete_password_detection_usermeta( int $user_id ) {
+	public function delete_usermeta( int $user_id ) {
 		delete_user_meta( $user_id, self::PASSWORD_DETECTION_USER_META_KEY );
 	}
 
@@ -291,8 +301,8 @@ class Password_Detection {
 	 *
 	 * @param \WP_User $user The user object.
 	 */
-	public function delete_password_detection_usermeta_after_password_reset( \WP_User $user ) {
-		$this->delete_password_detection_usermeta( $user->ID );
+	public function delete_usermeta_after_password_reset( \WP_User $user ) {
+		$this->delete_usermeta( $user->ID );
 	}
 
 	/**
@@ -300,19 +310,19 @@ class Password_Detection {
 	 *
 	 * @param int $user_id The user ID.
 	 */
-	public function delete_password_detection_usermeta_on_profile_update( int $user_id ) {
+	public function delete_usermeta_on_profile_update( int $user_id ) {
 		if (
 			! empty( $_POST['_wpnonce'] ) &&
 			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'update-user_' . $user_id )
 		) {
 			if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
-				$this->delete_password_detection_usermeta( $user_id );
+				$this->delete_usermeta( $user_id );
 			}
 		}
 	}
 
 	/**
-	 * Render template for password detection page.
+	 * Render content for password detection page.
 	 *
 	 * @param bool   $reset        Whether the user is resetting their password.
 	 * @param string $context      The context for the password detection page.
@@ -320,7 +330,7 @@ class Password_Detection {
 	 * @param string $masked_email The masked email address.
 	 * @return void
 	 */
-	public function render_password_detection_template( bool $reset, string $context, string $error, string $masked_email ): void {
+	public function render_content( bool $reset, string $context, string $error, string $masked_email ): void {
 		defined( 'ABSPATH' ) || exit;
 		?>
 		<!DOCTYPE html>

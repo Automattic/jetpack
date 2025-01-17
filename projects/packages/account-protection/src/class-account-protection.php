@@ -77,11 +77,11 @@ class Account_Protection {
 		add_action( 'wp_authenticate_user', array( $this->password_detection, 'login_form_password_detection' ), 10, 2 );
 
 		// Add password detection flow
-		add_action( 'login_form_password-detection', array( $this->password_detection, 'render_password_detection_page' ), 10, 2 );
+		add_action( 'login_form_password-detection', array( $this->password_detection, 'render_page' ), 10, 2 );
 
 		// Remove password detection usermeta after password reset and on profile password update
-		add_action( 'after_password_reset', array( $this->password_detection, 'delete_password_detection_usermeta_after_password_reset' ), 10, 2 );
-		add_action( 'profile_update', array( $this->password_detection, 'delete_password_detection_usermeta_on_profile_update' ), 10, 2 );
+		add_action( 'after_password_reset', array( $this->password_detection, 'delete_usermeta_after_password_reset' ), 10, 2 );
+		add_action( 'profile_update', array( $this->password_detection, 'delete_usermeta_on_profile_update' ), 10, 2 );
 
 		// Register AJAX resend password reset email action
 		add_action( 'wp_ajax_resend_password_reset', array( $this->password_detection, 'ajax_resend_password_reset_email' ) );
@@ -98,12 +98,9 @@ class Account_Protection {
 	 * Deactivate the account protection on module deactivation.
 	 */
 	public function on_account_protection_deactivation(): void {
-		// Remove user meta on deactivation
-		$users = get_users();
-		foreach ( $users as $user ) {
-			$this->password_detection->delete_password_detection_usermeta( $user->ID );
-			// TODO: Remove usermeta on plugin deactivation
-		}
+		// Remove password detection user meta on deactivation
+		// TODO: Run on Jetpack and Protect deactivation
+		$this->password_detection->delete_all_usermeta();
 	}
 
 	/**
