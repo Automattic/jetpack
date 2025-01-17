@@ -291,4 +291,4 @@ function wpcom_edit_site_menu_override( $wp_admin_bar ) {
 		$wp_admin_bar->add_node( $args );
 	}
 }
-add_action( 'admin_bar_menu', 'wpcom_edit_site_menu_override', 9999 );
+add_action( 'admin_bar_menu', 'wpcom_edit_site_menu_override', 41 );
