@@ -113,8 +113,6 @@ class Password_Detection {
 			}
 		}
 
-		// TODO: Remove this once we decide which template approach is best - ensure the functionality is 1:1
-		// include plugin_dir_path( __FILE__ ) . 'templates/password-detection-template.php';
 		self::render_password_detection_template( $reset, $context, $error, Password_Reset_Email::mask_email_address( $current_user->user_email ) );
 		exit;
 	}
