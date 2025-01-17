@@ -623,7 +623,7 @@ function stats_reports_page( $main_chart_only = false ) {
 	}
 
 	if ( isset( $_GET['noheader'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		die;
+		die( 0 );
 	}
 }
 

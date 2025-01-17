@@ -26,7 +26,7 @@ namespace Automattic\Jetpack_Boost;
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
-	die;
+	die( 0 );
 }
 
 define( 'JETPACK_BOOST_VERSION', '3.7.0' );
