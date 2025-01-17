@@ -660,7 +660,7 @@ class VaultPress {
 			delete_option( 'vaultpress_auto_register' );
 
 			wp_redirect( admin_url( 'admin.php?page=vaultpress&delete-vp-settings=1' ) );
-			exit();
+			exit( 0 );
 		}
 
 		// run code that might be updating the registration key
@@ -681,7 +681,7 @@ class VaultPress {
 							esc_html( $registration_key->get_error_message() ), 'http://vaultpress.com/contact/' )
 					);
 					wp_redirect( admin_url( 'admin.php?page=vaultpress&error=true' ) );
-					exit();
+					exit( 0 );
 				}
 			} else {
 			$registration_key = trim( $_POST[ 'registration_key' ] );
@@ -697,7 +697,7 @@ class VaultPress {
 					)
 				);
 				wp_redirect( admin_url( 'admin.php?page=vaultpress&error=true' ) );
-				exit();
+				exit( 0 );
 			}
 
 			// try to register the plugin
@@ -710,7 +710,7 @@ class VaultPress {
 				$this->update_option( 'connection_error_code',    $response['faultCode'] );
 				$this->update_option( 'connection_error_message', $response['faultString'] );
 				wp_redirect( admin_url( 'admin.php?page=vaultpress&error=true' ) );
-				exit();
+				exit( 0 );
 			}
 
 			// make sure the returned data looks valid
@@ -718,7 +718,7 @@ class VaultPress {
 				$this->update_option( 'connection_error_code', 1 );
 				$this->update_option( 'connection_error_message', sprintf( __( 'There was a problem trying to register your subscription. Please try again. If you&rsquo;re still having issues please <a href="%1$s">contact the VaultPress&nbsp;Safekeepers</a>.', 'vaultpress' ), 'http://vaultpress.com/contact/' ) );
 				wp_redirect( admin_url( 'admin.php?page=vaultpress&error=true' ) );
-				exit();
+				exit( 0 );
 			}
 
 			// need to update these values in the db so the servers can try connecting to the plugin
@@ -726,14 +726,14 @@ class VaultPress {
 			$this->update_option( 'secret', $response['secret'] );
 			if ( $this->check_connection( true ) ) {
 				wp_redirect( admin_url( 'admin.php?page=vaultpress' ) );
-				exit();
+				exit( 0 );
 			}
 
 			// reset the key and secret
 			$this->update_option( 'key', '' );
 			$this->update_option( 'secret', '' );
 			wp_redirect( admin_url( 'admin.php?page=vaultpress&error=true' ) );
-			exit();
+			exit( 0 );
 		}
 	}
 

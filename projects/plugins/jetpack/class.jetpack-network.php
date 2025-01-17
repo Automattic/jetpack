@@ -594,7 +594,7 @@ class Jetpack_Network {
 					network_admin_url( 'admin.php' )
 				)
 			);
-			exit();
+			exit( 0 );
 		}
 
 		// Try to save the Protect allow list before anything else, since that action can result in errors.
@@ -612,7 +612,7 @@ class Jetpack_Network {
 					network_admin_url( 'admin.php' )
 				)
 			);
-			exit();
+			exit( 0 );
 		}
 
 		/*
@@ -646,7 +646,7 @@ class Jetpack_Network {
 				network_admin_url( 'admin.php' )
 			)
 		);
-		exit();
+		exit( 0 );
 	}
 
 	/**

@@ -129,7 +129,7 @@ class Admin {
 			) {
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				wp_safe_redirect( Utils::admin_url( $_GET ) );
-				exit();
+				exit( 0 );
 			}
 		}
 
@@ -168,7 +168,7 @@ class Admin {
 		}
 
 		wp_safe_redirect( Utils::admin_url( $plugin ? array( 'plugin' => $plugin_name ) : array() ) );
-		exit();
+		exit( 0 );
 	}
 
 	/**

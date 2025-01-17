@@ -321,7 +321,7 @@ function wp_cache_serve_cache_file() {
 				if ( $remote_mod_time !== null && $remote_mod_time == $local_mod_time ) {
 					wp_cache_debug( 'wp_cache_serve_cache_file: Send 304 Not Modified header.' );
 					header( $_SERVER['SERVER_PROTOCOL'] . ' 304 Not Modified' );
-					exit();
+					exit( 0 );
 				} else {
 					wp_cache_debug( 'wp_cache_serve_cache_file: 304 browser caching not possible as timestamps differ.' );
 				}
@@ -329,7 +329,7 @@ function wp_cache_serve_cache_file() {
 			}
 
 			echo $cachefiledata;
-			exit();
+			exit( 0 );
 		} else {
 			wp_cache_debug( 'No wp-cache file exists. Must generate a new one.' );
 			return false;
