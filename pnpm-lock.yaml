@@ -1902,6 +1902,8 @@ importers:
 
   projects/packages/account-protection: {}
 
+  projects/packages/account-protection: {}
+
   projects/packages/admin-ui: {}
 
   projects/packages/assets:
