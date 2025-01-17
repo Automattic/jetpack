@@ -402,9 +402,17 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 	}
 
 	if ( ( new Host() )->is_wpcom_simple() ) {
+		if ( is_automattician() ) {
+			return true;
+		}
 		\ExPlat\assign_current_user( $aa_test_name );
 		$is_enabled = 'treatment' === \ExPlat\assign_current_user( $experiment_name );
 		return $is_enabled;
+	}
+
+	$is_proxied = defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST;
+	if ( $is_proxied && ! WPCOMSH_Support_Session_Detect::is_probably_support_session() ) {
+		return true;
 	}
 
 	$option_name = 'remove_duplicate_views_experiment_assignment';
