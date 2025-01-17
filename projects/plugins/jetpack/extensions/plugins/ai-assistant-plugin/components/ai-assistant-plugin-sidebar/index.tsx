@@ -20,7 +20,6 @@ import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/util
 import { isBetaExtension } from '../../../../editor';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import { PLAN_TYPE_FREE, PLAN_TYPE_UNLIMITED, usePlanType } from '../../../../shared/use-plan-type';
-import usePostContent from '../../hooks/use-post-content';
 import { FeaturedImage } from '../ai-image';
 import { Breve, registerBreveHighlights, Highlight } from '../breve';
 import { getBreveAvailability, canWriteBriefBeEnabled } from '../breve/utils/get-availability';
@@ -74,6 +73,8 @@ const JetpackAndSettingsContent = ( {
 	const { productPageUrl } = useAiProductPage();
 	const isBreveAvailable = getBreveAvailability();
 
+	const isPostEmpty = useSelect( select => select( editorStore ).isEditedPostEmpty(), [] );
+
 	const currentTitleOptimizationSectionLabel = __( 'Optimize Publishing', 'jetpack' );
 	const SEOTitleOptimizationSectionLabel = __( 'Optimize Title', 'jetpack' );
 	const titleOptimizationSectionLabel = isAITitleOptimizationKeywordsFeatureAvailable
@@ -103,7 +104,7 @@ const JetpackAndSettingsContent = ( {
 				</PanelRow>
 			) }
 
-			{ ! usePostContent() && (
+			{ isPostEmpty && (
 				<PanelRow className="jetpack-ai-sidebar__warning-content">
 					<Notice isDismissible={ false } status="warning">
 						{ __( 'The following features requie content to work.', 'jetpack' ) }

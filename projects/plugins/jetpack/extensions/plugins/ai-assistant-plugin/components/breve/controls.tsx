@@ -8,10 +8,14 @@ import {
 	CheckboxControl,
 	ToggleControl,
 	Tooltip,
+	Card,
+	CardBody,
+	CardFooter,
 } from '@wordpress/components';
 import { compose, useDebounce } from '@wordpress/compose';
 import { useDispatch, useSelect, withSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { Icon, help } from '@wordpress/icons';
 /**
  * External dependencies
  */
@@ -112,49 +116,55 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 					<ToggleControl
 						checked={ isProofreadEnabled }
 						onChange={ handleAiFeedbackToggle }
-						label={ __( 'Show suggestions', 'jetpack' ) }
+						label={ __( 'Show issues & suggestions', 'jetpack' ) }
 						__nextHasNoMarginBottom={ true }
 					/>
-					<div className="feature-checkboxes-container">
-						{ features.map(
-							feature =>
-								canWriteBriefFeatureBeEnabled( feature.config.name ) && (
-									<CheckboxControl
-										className={ isProofreadEnabled ? '' : 'is-disabled' }
-										disabled={ ! isProofreadEnabled }
-										data-breve-type={ feature.config.name }
-										key={ feature.config.name }
-										label={ feature.config.title }
-										checked={ ! disabledFeatures.includes( feature.config.name ) }
-										onChange={ handleToggleFeature( feature.config.name ) }
-										__nextHasNoMarginBottom={ true }
-									/>
-								)
-						) }
-					</div>
 				</BaseControl>
 			</PanelRow>
 
-			<PanelRow>
-				<BaseControl __nextHasNoMarginBottom={ true }>
-					<div className="grade-level-container">
-						{ gradeLevel === null ? (
-							<p className="jetpack-ai-proofread__help-text">
-								{ __( 'Write to see your grade level.', 'jetpack' ) }
-							</p>
-						) : (
-							<Tooltip text={ __( 'To make it easy to read, aim for level 8–12', 'jetpack' ) }>
-								<p>
-									{ gradeLevel }
-									<span className="jetpack-ai-proofread__grade-label">
-										{ __( 'Reading grade score', 'jetpack' ) }
-									</span>
+			{ isProofreadEnabled && (
+				<PanelRow>
+					<Card size="small" className="jetpack-ai__write-brief-card">
+						<CardBody size="small">
+							<BaseControl __nextHasNoMarginBottom={ true }>
+								<div className="feature-checkboxes-container">
+									{ features.map(
+										feature =>
+											canWriteBriefFeatureBeEnabled( feature.config.name ) && (
+												<CheckboxControl
+													className={ isProofreadEnabled ? '' : 'is-disabled' }
+													disabled={ ! isProofreadEnabled }
+													data-breve-type={ feature.config.name }
+													key={ feature.config.name }
+													label={ feature.config.title }
+													checked={ ! disabledFeatures.includes( feature.config.name ) }
+													onChange={ handleToggleFeature( feature.config.name ) }
+													__nextHasNoMarginBottom={ true }
+												/>
+											)
+									) }
+								</div>
+							</BaseControl>
+						</CardBody>
+						<CardFooter size="small" className="jetpack-ai-proofread__grade-level-container">
+							{ gradeLevel === null ? (
+								<p className="jetpack-ai-proofread__help-text">
+									{ __( 'Write to see your grade level.', 'jetpack' ) }
 								</p>
-							</Tooltip>
-						) }
-					</div>
-				</BaseControl>
-			</PanelRow>
+							) : (
+								<>
+									<div className="jetpack-ai-proofread__grade-label">
+										{ gradeLevel } { __( 'Reading grade score', 'jetpack' ) }
+									</div>
+									<Tooltip text={ __( 'To make it easy to read, aim for level 8–12', 'jetpack' ) }>
+										<Icon icon={ help } size={ 20 } />
+									</Tooltip>
+								</>
+							) }
+						</CardFooter>
+					</Card>
+				</PanelRow>
+			) }
 		</div>
 	);
 };
