@@ -22,9 +22,6 @@ type CoreEditorPlaceholder = {
 type CoreEditPostPlaceholder = {
 	isFeatureActive: ( ...args: unknown[] ) => boolean;
 };
-type CoreNuxPlaceholder = {
-	areTipsEnabled: ( ...args: unknown[] ) => boolean;
-};
 
 /**
  * Recursively finds the Content block if any.
@@ -57,7 +54,6 @@ export function PagePatternsPlugin( props: PagePatternsPluginProps ): JSX.Elemen
 	const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
 	const { editPost } = useDispatch( 'core/editor' );
 	const { toggleFeature } = useDispatch( 'core/edit-post' );
-	const { disableTips } = useDispatch( 'core/nux' );
 
 	const selectProps = useSelect( select => {
 		const getMetaNew = () =>
@@ -73,7 +69,6 @@ export function PagePatternsPlugin( props: PagePatternsPluginProps ): JSX.Elemen
 			isWelcomeGuideActive: (
 				select( 'core/edit-post' ) as CoreEditPostPlaceholder
 			 ).isFeatureActive( 'welcomeGuide' ) as boolean,
-			areTipsEnabled: ( select( 'core/nux' ) as CoreNuxPlaceholder ).areTipsEnabled() as boolean,
 			...( isPatternPicker() && {
 				title: __( 'Choose a Pattern', 'jetpack-mu-wpcom' ),
 				description: __(
@@ -124,17 +119,13 @@ export function PagePatternsPlugin( props: PagePatternsPluginProps ): JSX.Elemen
 		[ editPost, postContentBlock, replaceInnerBlocks ]
 	);
 
-	const { isWelcomeGuideActive, areTipsEnabled } = selectProps;
+	const { isWelcomeGuideActive } = selectProps;
 
 	const hideWelcomeGuide = useCallback( () => {
 		if ( isWelcomeGuideActive ) {
-			// Gutenberg 7.2.0 or higher.
 			toggleFeature( 'welcomeGuide' );
-		} else if ( areTipsEnabled ) {
-			// Gutenberg 7.1.0 or lower.
-			disableTips();
 		}
-	}, [ areTipsEnabled, disableTips, isWelcomeGuideActive, toggleFeature ] );
+	}, [ isWelcomeGuideActive, toggleFeature ] );
 
 	const handleClose = useCallback( () => {
 		setOpenState( 'CLOSED' );
