@@ -138,6 +138,7 @@ export default ( { salesforceData, setAttributes, instanceId } ) => {
 						onChange={ setOrganizationId }
 						help={ __( 'Enter the Salesforce organization ID to send Leads to.', 'jetpack-forms' ) }
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 					{ organizationIdError && (
 						<HelpMessage isError id={ `contact-form-${ instanceId }-email-error` }>

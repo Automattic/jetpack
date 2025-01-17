@@ -11,7 +11,17 @@ const meta: Meta< typeof LineChart > = {
 	},
 	decorators: [
 		Story => (
-			<div style={ { padding: '2rem' } }>
+			<div
+				style={ {
+					resize: 'both',
+					overflow: 'auto',
+					padding: '2rem',
+					width: '800px',
+					maxWidth: '1200px',
+					border: '1px dashed #ccc',
+					display: 'inline-block',
+				} }
+			>
 				<Story />
 			</div>
 		),
@@ -44,8 +54,6 @@ Default.args = {
 // Story with single data series
 export const SingleSeries: StoryObj< typeof LineChart > = Template.bind( {} );
 SingleSeries.args = {
-	width: 500,
-	height: 300,
 	data: [ sampleData[ 0 ] ], // Only London temperature data
 };
 
@@ -77,6 +85,23 @@ WithVerticalLegend.args = {
 	...Default.args,
 	showLegend: true,
 	legendOrientation: 'vertical',
+};
+
+// Add after existing stories
+export const FixedDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
+FixedDimensions.args = {
+	width: 800,
+	height: 400,
+	data: sampleData,
+	withTooltips: true,
+};
+
+FixedDimensions.parameters = {
+	docs: {
+		description: {
+			story: 'Line chart with fixed dimensions that override the responsive behavior.',
+		},
+	},
 };
 
 // Story with gradient filled line chart
