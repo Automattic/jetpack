@@ -448,7 +448,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		// Hide Settings > Performance when the interface is set to wp-admin.
 		// This is due to these settings are mostly also available in Jetpack > Settings, in the Performance tab.
-		if ( $this->use_wp_admin_interface() || ( function_exists( 'wpcom_is_duplicate_views_experiment_enabled' ) && wpcom_is_duplicate_views_experiment_enabled() ) ) {
+		if ( $this->use_wp_admin_interface() ) {
 			$this->hide_submenu_page( 'options-general.php', 'https://wordpress.com/settings/performance/' . $this->domain );
 		}
 	}
