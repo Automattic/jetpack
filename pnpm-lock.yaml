@@ -1364,39 +1364,69 @@ importers:
 
   projects/js-packages/shared-extension-utils:
     dependencies:
+      '@automattic/color-studio':
+        specifier: 4.0.0
+        version: 4.0.0
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../analytics
+      '@automattic/jetpack-base-styles':
+        specifier: workspace:*
+        version: link:../base-styles
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../components
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../connection
+      '@automattic/popup-monitor':
+        specifier: 1.0.2
+        version: 1.0.2
+      '@automattic/request-external-access':
+        specifier: 1.0.1
+        version: 1.0.1
       '@wordpress/api-fetch':
         specifier: 7.14.0
         version: 7.14.0
+      '@wordpress/components':
+        specifier: 29.0.0
+        version: 29.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/compose':
         specifier: 7.14.0
         version: 7.14.0(react@18.3.1)
       '@wordpress/data':
         specifier: 10.14.0
         version: 10.14.0(react@18.3.1)
+      '@wordpress/date':
+        specifier: 5.14.0
+        version: 5.14.0
       '@wordpress/element':
         specifier: 6.14.0
         version: 6.14.0
       '@wordpress/i18n':
         specifier: 5.14.0
         version: 5.14.0
+      '@wordpress/icons':
+        specifier: 10.14.0
+        version: 10.14.0(react@18.3.1)
+      '@wordpress/keycodes':
+        specifier: 4.14.0
+        version: 4.14.0
       '@wordpress/plugins':
         specifier: 7.14.0
         version: 7.14.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url':
         specifier: 4.14.0
         version: 4.14.0
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       lodash:
         specifier: 4.17.21
         version: 4.17.21
+      moment:
+        specifier: 2.30.1
+        version: 2.30.1
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -1410,6 +1440,9 @@ importers:
       '@babel/preset-react':
         specifier: 7.26.3
         version: 7.26.3(@babel/core@7.26.0)
+      '@babel/runtime':
+        specifier: 7.26.0
+        version: 7.26.0
       '@testing-library/dom':
         specifier: 10.4.0
         version: 10.4.0
@@ -3908,9 +3941,6 @@ importers:
       '@automattic/popup-monitor':
         specifier: 1.0.2
         version: 1.0.2
-      '@automattic/request-external-access':
-        specifier: 1.0.0
-        version: 1.0.0
       '@automattic/social-previews':
         specifier: 2.1.0-beta.8
         version: 2.1.0-beta.8(@babel/runtime@7.26.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -5078,8 +5108,8 @@ packages:
   '@automattic/popup-monitor@1.0.2':
     resolution: {integrity: sha512-Y4LMfdkV8iDmezu/7Ov/18JaFJ0QAy5vCntiP0S5AhLt4R/kjLtBt4ifNXNbdKTthGxlL17+LJ1bNtHBVCzPwg==}
 
-  '@automattic/request-external-access@1.0.0':
-    resolution: {integrity: sha512-vhN72lwPFzhCVMP1l2ODBqt7fI5jfeJz1JyBnq/AUCg9PpsJfdk4vZxhSOLhSSds8VMkU5WaNnaztkYfkkYOiA==}
+  '@automattic/request-external-access@1.0.1':
+    resolution: {integrity: sha512-i7q2yhhQ5V1iLzkVxGG+oCkPIBgkZEfLj0mqCky5qeIleUk+XSXcOFJ1IerOmNeAYxho596rpqlfUyD2evWuLA==}
 
   '@automattic/social-previews@2.1.0-beta.8':
     resolution: {integrity: sha512-DakeRnV8JUhi8eD2Ft3HhrPPSnMgWnQDb0K/fuhrolNNbl/gVNng1gAF8Y8WrpGRVN5h0xdVhuszJeG6r4RotA==}
@@ -14981,9 +15011,10 @@ snapshots:
       events: 3.3.0
       lodash: 4.17.21
 
-  '@automattic/request-external-access@1.0.0':
+  '@automattic/request-external-access@1.0.1':
     dependencies:
       '@automattic/popup-monitor': 1.0.2
+      '@babel/runtime': 7.26.0
 
   '@automattic/social-previews@2.1.0-beta.8(@babel/runtime@7.26.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
