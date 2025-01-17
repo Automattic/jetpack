@@ -7,7 +7,7 @@
 
 $_tests_dir      = getenv( 'WP_TESTS_DIR' );
 $_core_dir       = getenv( 'WP_CORE_DIR' );
-$_wp_content_dir = getenv( 'WP_CONTENT_DIR' ) ?? $_core_dir;
+$_wp_content_dir = getenv( 'WP_CONTENT_DIR' ) ?: $_core_dir; // phpcs:ignore Universal.Operators
 $wp_branch       = getenv( 'WP_BRANCH' );
 
 if ( ! $_tests_dir ) {
