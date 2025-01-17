@@ -48,7 +48,6 @@ require_once $_tests_dir . '/includes/functions.php';
  */
 function _manually_load_plugin() {
 
-	require_once __DIR__ . '/lib/polyfills.php';
 	if ( file_exists( WPMU_PLUGIN_DIR . '/wpcomsh-loader.php' ) ) {
 		return;
 	}
