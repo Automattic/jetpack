@@ -1186,15 +1186,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'is_fully_managed_agency_site':
+				case 'wpcom_hide_action_bar':
 					$coerce_value = (int) (bool) $value;
 					if ( update_option( $key, $coerce_value ) ) {
 						$updated[ $key ] = (bool) $coerce_value;
 					}
-					break;
-
-				case 'wpcom_hide_action_bar':
-					update_option( $key, (int) (bool) $value );
-					$updated[ $key ] = (int) (bool) $value;
 					break;
 
 				default:
