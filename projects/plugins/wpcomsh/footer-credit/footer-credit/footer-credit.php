@@ -89,6 +89,7 @@ function footercredit_replace_theme( $credit ) {
 	return '';
 }
 add_filter( 'wpcom_better_footer_theme_link', 'footercredit_replace_theme', 10, 2 );
+add_filter( 'infinite_scroll_credit', 'footercredit_replace_theme', 10, 2 );
 
 /**
  * The footer credits available in the UI - add future options here
