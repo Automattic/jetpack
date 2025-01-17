@@ -364,6 +364,10 @@ class Settings {
 			return update_option( self::OPTION_PREFIX . self::NOTES_CONFIG, $new_config );
 		}
 
+		if ( self::JETPACK_SOCIAL_SHOW_PRICING_PAGE === $name ) {
+			return update_option( self::JETPACK_SOCIAL_SHOW_PRICING_PAGE, (int) $value );
+		}
+
 		return $updated;
 	}
 
