@@ -386,7 +386,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $field_type The field type.
 	 * @param string $field_id The field id.
 	 *
-	 * @return string;
+	 * @return string
 	 */
 	public function get_computed_field_value( $field_type, $field_id ) {
 		global $current_user, $user_identity;
