@@ -15,6 +15,6 @@ export const getShouldShowPricingPage = createRegistrySelector( select => () => 
 	// If the settings are not available in the store yet, use the default settings.
 	return (
 		settings?.[ SHOW_PRICING_PAGE_KEY ] ??
-		getSocialScriptData().settings.socialPlugin.show_pricing_page
+		getSocialScriptData().settings?.socialPlugin?.show_pricing_page
 	);
 } ) as ( state: object ) => boolean;
