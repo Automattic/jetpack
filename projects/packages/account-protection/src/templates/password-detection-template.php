@@ -23,7 +23,7 @@ $masked_email = Password_Reset_Email::mask_email_address( $email );
 	</head>
 	<body class="password-detection-wrapper">
 		<div class="password-detection">
-			<?php require plugin_dir_path( __FILE__ ) . '../assets/jetpack-logo.php'; ?>
+			<?php require plugin_dir_path( __FILE__ ) . '../assets/jetpack-logo.svg'; ?>
 			<p class="password-detection-title"><?php echo $reset ? 'Take action to stay secure' : "Let's secure your account"; ?></p>
 			<?php if ( $reset ) : ?>
 				<p><?php echo esc_html( $context ); ?></p>
