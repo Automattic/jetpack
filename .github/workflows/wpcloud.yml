@@ -5,8 +5,9 @@ on:
   push:
     branches: ['trunk', '*/branch-*']
 concurrency:
-  group: wpcloud-${{ github.event_name }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: wpcloud-wpcomsh
+  cancel-in-progress: false
+  # Concurrency is set up to make sure we can only run one WPCloud testing job at the same time.
 
 jobs:
   build:
