@@ -229,7 +229,13 @@ class Publicize_Script_Data {
 	 * @return array List of external services and their settings.
 	 */
 	public static function get_supported_services() {
-		return Publicize_Services::get_all();
+		/**
+		 * Disable caching for now to avoid nonce errors
+		 * for secondary users trying to connect an account
+		 *
+		 * @link https://github.com/Automattic/jetpack/pull/41149
+		 */
+		return Publicize_Services::get_all( true /* Ignore cache */ );
 	}
 
 	/**

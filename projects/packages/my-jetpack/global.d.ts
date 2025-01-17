@@ -450,6 +450,7 @@ interface Window {
 		topJetpackMenuItemUrl: string;
 		isAtomic: boolean;
 		sandboxedDomain: string;
+		isDevVersion: boolean;
 		userIsAdmin: string;
 		userIsNewToJetpack: string;
 	};

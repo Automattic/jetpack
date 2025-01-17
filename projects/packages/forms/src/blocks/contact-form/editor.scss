@@ -267,16 +267,6 @@
 	.components-base-control {
 		margin-top: -1px;
 		margin-bottom: -3px;
-
-		&.jetpack-field-label__required {
-			.components-form-toggle {
-				margin: 2px 8px 0 16px;
-			}
-
-			.components-toggle-control__label {
-				word-break: normal;
-			}
-		}
 	}
 
 	.rich-text.jetpack-field-label__input {
@@ -487,16 +477,6 @@
 	.jetpack-field__input, .jetpack-field__textarea {
 		padding-left: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 		padding-right: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
-	}
-}
-
-.jetpack-field-label__width {
-	.components-button-group {
-		display: block;
-	}
-
-	.components-base-control__field {
-		margin-bottom: 12px;
 	}
 }
 

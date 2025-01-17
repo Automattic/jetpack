@@ -163,7 +163,7 @@ class Colors_Manager_Common {
 				self::override_themecolors();
 
 				// NOTE: Using `get_called_class()` here is crucial for the Gutenberg styles to be processed.
-				add_action( 'enqueue_block_editor_assets', array( get_called_class(), 'print_block_editor_css' ) );
+				add_filter( 'block_editor_settings_all', array( get_called_class(), 'add_block_editor_css' ), 10, 2 );
 			}
 		} else {
 			// Classic Background stats
@@ -1483,17 +1483,28 @@ class Colors_Manager_Common {
 	}
 
 	/**
-	 * Print block editor CSS.
+	 * Adds block editor CSS to the block editor settings.
+	 *
+	 * @param array $editor_settings Block editor settings.
 	 */
-	public static function print_block_editor_css() {
+	public static function add_block_editor_css( $editor_settings ) {
 		if ( ! self::should_enable_colors() ) {
-			return;
+			return $editor_settings;
 		}
+
 		$css = self::get_theme_css();
 
-		wp_register_style( 'custom-colors-editor-css', false, array(), '20210311' ); // Register an empty stylesheet to append custom CSS to.
-		wp_enqueue_style( 'custom-colors-editor-css' );
-		wp_add_inline_style( 'custom-colors-editor-css', $css ); // Append inline style to our new stylesheet
+		if ( ! is_array( $editor_settings['styles'] ) ) {
+			$editor_settings['styles'] = array();
+		}
+
+		$editor_settings['styles'] [] = array(
+			'css'            => $css,
+			'__unstableType' => 'theme',
+			'isGlobalStyles' => false,
+		);
+
+		return $editor_settings;
 	}
 
 	/**

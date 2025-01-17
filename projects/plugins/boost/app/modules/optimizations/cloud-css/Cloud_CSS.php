@@ -159,7 +159,13 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 			return;
 		}
 
-		$this->regenerate_cloud_css( self::REGENERATE_REASON_SAVE_POST, $this->get_all_providers( array( $post ) ) );
+		// This checks against the latest providers list, not the list
+		// stored in the database because newly added posts are always
+		// included in the providers list that will be used to generate
+		// the Cloud CSS.
+		if ( $this->is_post_in_latest_providers_list( $post ) ) {
+			$this->regenerate_cloud_css( self::REGENERATE_REASON_SAVE_POST, $this->get_all_providers( array( $post ) ) );
+		}
 	}
 
 	public function regenerate_cloud_css( $reason, $providers ) {
@@ -169,6 +175,26 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 			$state->set_error( $result->get_error_message() )->save();
 		}
 		return $result;
+	}
+
+	/**
+	 * Check if the post is in the latest providers list.
+	 *
+	 * @param int|\WP_Post $post The post to check.
+	 *
+	 * @return bool
+	 */
+	public function is_post_in_latest_providers_list( $post ) {
+		$post_link = get_permalink( $post );
+		$providers = $this->get_all_providers();
+
+		foreach ( $providers as $provider ) {
+			if ( in_array( $post_link, $provider['urls'], true ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
