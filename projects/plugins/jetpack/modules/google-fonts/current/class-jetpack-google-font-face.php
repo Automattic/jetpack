@@ -27,7 +27,7 @@ class Jetpack_Google_Font_Face {
 		add_action( 'current_screen', array( $this, 'current_screen' ), 10 );
 
 		// Collect and print fonts in use
-		add_action( 'wp_head', array( $this, 'print_font_faces' ), 20 );
+		add_action( 'wp_head', array( $this, 'print_font_faces' ), 10 );
 		add_filter( 'pre_render_block', array( $this, 'collect_block_fonts' ), 10, 2 );
 	}
 
