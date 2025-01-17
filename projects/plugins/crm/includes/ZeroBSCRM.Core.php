@@ -1766,9 +1766,12 @@ final class ZeroBSCRM {
 		// } Brutal override for feeding in json data to typeahead
 		// WH: should these be removed now we're using REST?
 		if ( isset( $_GET['zbscjson'] ) && is_user_logged_in() && zeroBSCRM_permsCustomers() ) {
-			exit( zeroBSCRM_cjson() ); }
-		if ( isset( $_GET['zbscojson'] ) && is_user_logged_in() && zeroBSCRM_permsCustomers() ) {
-			exit( zeroBSCRM_cojson() ); }
+			// This function outputs JSON-encoded contacts and exits.
+			zeroBSCRM_cjson();
+		} elseif ( isset( $_GET['zbscojson'] ) && is_user_logged_in() && zeroBSCRM_permsCustomers() ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			// This function outputs JSON-encoded companies and exits.
+			zeroBSCRM_cojson();
+		}
 
 		// } Brutal override for inv previews
 		// No longer req. v3.0 + this is delivered via HASH URL

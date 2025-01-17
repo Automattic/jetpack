@@ -4568,9 +4568,8 @@ function zeroBSCRM_bulkAction_enact_addTags( $obj_ids = array(), $obj_type_id = 
 
 			$passBack['tagged'] = $tagged;
 
-			// } Return
+			// This function outputs JSON and exits.
 			zeroBSCRM_sendJSONSuccess( $passBack );
-			exit( 0 );
 
 	} else {
 
@@ -4637,9 +4636,8 @@ function zeroBSCRM_bulkAction_enact_removeTags( $obj_ids = array(), $obj_type_id
 
 			$passBack['untagged'] = $untagged;
 
-			// } Return
+			// This function outputs JSON and exits.
 			zeroBSCRM_sendJSONSuccess( $passBack );
-			exit( 0 );
 
 	} else {
 
