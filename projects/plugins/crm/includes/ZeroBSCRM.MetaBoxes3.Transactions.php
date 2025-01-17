@@ -9,13 +9,7 @@
  * Date: 20/02/2019
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 
@@ -574,7 +568,7 @@
 
                     // redir
                     wp_redirect( jpcrm_esc_link('edit',$zbsJustInsertedMetaboxID,$this->objType) );
-                    exit;
+				exit( 0 );
 
                 }
 
@@ -733,7 +727,6 @@ class zeroBS__Metabox_TransactionTags extends zeroBS__Metabox_Tags{
         // saved via main metabox
     }
 
-
-/* ======================================================
-  / Transaction Action Metabox
-   ====================================================== */
+/**
+ * End of Transaction Action Metabox
+ */

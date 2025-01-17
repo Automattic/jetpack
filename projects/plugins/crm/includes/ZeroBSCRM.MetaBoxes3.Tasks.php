@@ -15,7 +15,7 @@
 	Breaking Checks ( stops direct access )
 	====================================================== */
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 /*
 ======================================================
@@ -288,7 +288,7 @@ class zeroBS__Metabox_Task extends zeroBS__Metabox {
 
 				// redir
 				wp_redirect( jpcrm_esc_link( 'edit', $zbsJustInsertedMetaboxID, $this->objType ) );
-				exit;
+				exit( 0 );
 
 			}
 		}

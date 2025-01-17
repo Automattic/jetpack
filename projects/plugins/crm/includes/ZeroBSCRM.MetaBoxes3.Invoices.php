@@ -12,7 +12,7 @@
 /* ======================================================
   Breaking Checks ( stops direct access )
    ====================================================== */
-if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 /* ======================================================
   / Breaking Checks
    ====================================================== */
@@ -418,7 +418,7 @@ class zeroBS__Metabox_Invoice extends zeroBS__Metabox {
 
 				// redir
 				wp_redirect( jpcrm_esc_link( 'edit', $zbsJustInsertedMetaboxID, $this->objType ) );
-				exit;
+				exit( 0 );
 
 			}
 

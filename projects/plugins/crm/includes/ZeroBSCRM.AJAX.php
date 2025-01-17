@@ -16,7 +16,7 @@ use Automattic\JetpackCRM\Segment_Condition_Exception;
 	Breaking Checks ( stops direct access )
 	====================================================== */
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 /*
 ======================================================

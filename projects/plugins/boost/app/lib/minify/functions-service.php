@@ -43,7 +43,7 @@ function jetpack_boost_page_optimize_service_request() {
 				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 				if ( strtotime( $utils->unslash( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) < filemtime( $cache_file ) ) {
 					header( 'HTTP/1.1 304 Not Modified' );
-					exit;
+					exit( 0 );
 				}
 			}
 

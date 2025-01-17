@@ -6,7 +6,7 @@
 
 // stop direct access
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 // optional right-floated notice

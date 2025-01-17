@@ -8,7 +8,7 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
+	exit( 0 ); // Exit if accessed directly.
 }
 
 /**
@@ -2119,7 +2119,7 @@ final class ZeroBSCRM {
 			// Send the user to the Dash board
 			global $zbs;
 			if ( wp_redirect( zeroBSCRM_getAdminURL( $zbs->slugs['dash'] ) ) ) {
-				exit;
+				exit( 0 );
 			}
 		}
 	}
@@ -3350,7 +3350,7 @@ final class ZeroBSCRM {
 			set_transient( $transient_key, $this->pageMessages, MINUTE_IN_SECONDS );
 		}
 		wp_redirect( jpcrm_esc_link( 'edit', $inserted_id, $obj_type ) );
-		exit;
+		exit( 0 );
 	}
 
 	public function catch_preheader_interrupts() {

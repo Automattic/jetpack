@@ -9,7 +9,7 @@
 namespace Automattic\JetpackCRM;
 
 // block direct access
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 #} the WooCommerce API
 use Automattic\WooCommerce\Client;

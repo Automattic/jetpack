@@ -13,7 +13,7 @@ use Google\Client;
 use Google\Service\Gmail;
 
 // block direct access
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 class Oauth_Handler {
 
@@ -325,7 +325,7 @@ class Oauth_Handler {
 		    $authorisation_url = $provider->getAuthorizationUrl(['prompt' => 'consent', 'access_type' => 'offline']);
 		    $_SESSION['oauth2state'] = $provider->getState();
 		    header( 'Location: ' . $authorisation_url );
-		    exit;
+			exit( 0 );
 
 		} elseif ( empty( $_GET['state'] ) || ( $_GET['state'] !== $_SESSION['oauth2state'] ) ) {
 

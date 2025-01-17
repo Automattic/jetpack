@@ -10,7 +10,7 @@
  */
 
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 /**

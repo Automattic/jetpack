@@ -78,7 +78,7 @@ class Admin {
 		if ( is_network_admin() && ! is_plugin_active_for_network( JPBETA__PLUGIN_FOLDER . '/jetpack-beta.php' ) ) {
 			$exception = new \RuntimeException( __( 'Jetpack Beta Tester must be activated for the network to be used from Network Admin.', 'jetpack-beta' ) );
 			require_once __DIR__ . '/admin/exception.template.php';
-			exit;
+			exit( 0 );
 		}
 
 		ob_start();

@@ -8,7 +8,7 @@
  */
 
 // block direct access
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
  * Page: MailPoet Sync Hub
@@ -275,5 +275,4 @@ function jpcrm_mailpoet_render_hub_page_debug_mode(){
 		</div>
 		<p style="text-align: center;margin-top:2em"><a href="<?php echo jpcrm_esc_link( $zbs->modules->mailpoet->slugs['hub'] ) ?>" class="ui button green"><?php esc_html_e( 'Go back to MailPoet Sync Hub', 'zero-bs-crm' ); ?></a>
 	</div><?php
-
 }

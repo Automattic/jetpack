@@ -20,7 +20,7 @@
 
 // stops direct access
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 // Enabling THIS will start LOGGING PERFORMANCE TESTS

@@ -317,7 +317,7 @@ class Manager {
 		nocache_headers();
 		$wp_xmlrpc_server->serve_request();
 
-		exit;
+		exit( 0 );
 	}
 
 	/**

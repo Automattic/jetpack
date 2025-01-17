@@ -12,7 +12,7 @@
 
 // block direct access
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 // This fires post CRM init

@@ -7,7 +7,7 @@
 
 // prevent direct access
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 if ( isset( $_GET['fid'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended

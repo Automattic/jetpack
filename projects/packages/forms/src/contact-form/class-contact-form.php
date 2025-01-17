@@ -1635,7 +1635,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- We intentially allow external redirects here.
 		wp_redirect( $redirect );
-		exit;
+		exit( 0 );
 	}
 
 	/**
