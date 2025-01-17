@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social Disable caching for publicize services list to avoid stale nonces

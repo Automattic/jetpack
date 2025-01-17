@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social | Fixed the status field for connections to allow null

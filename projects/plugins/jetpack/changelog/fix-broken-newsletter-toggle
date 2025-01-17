@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix: newsletter toggle in editor sidebar has a visually broken active state.

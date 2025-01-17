@@ -16,9 +16,9 @@ const meta: Meta< typeof BarChart > = {
 					overflow: 'auto',
 					padding: '2rem',
 					width: '800px',
-					minWidth: '400px',
 					maxWidth: '1200px',
 					border: '1px dashed #ccc',
+					display: 'inline-block',
 				} }
 			>
 				<Story />
@@ -61,8 +61,6 @@ export const SingleSeries: Story = {
 export const ManyDataSeries: Story = {
 	args: {
 		...Default.args,
-		width: 1200,
-		height: 700,
 		data,
 	},
 	parameters: {
@@ -90,5 +88,21 @@ export const WithVerticalLegend = {
 		data: [ data[ 0 ] ],
 		showLegend: true,
 		legendOrientation: 'vertical',
+	},
+};
+
+export const FixedDimensions: Story = {
+	args: {
+		...Default.args,
+		width: 800,
+		height: 400,
+		data: [ data[ 0 ], data[ 1 ], data[ 2 ] ],
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: 'Bar chart with fixed dimensions that override the responsive behavior.',
+			},
+		},
 	},
 };

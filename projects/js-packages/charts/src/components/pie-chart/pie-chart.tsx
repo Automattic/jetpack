@@ -62,8 +62,7 @@ const PieChart = ( {
 	className,
 	showLegend,
 	legendOrientation,
-
-	size = 500, //TODO: replace when making the components responsive
+	size,
 	thickness = 1,
 	padding = 20,
 	gapScale = 0,
@@ -80,6 +79,8 @@ const PieChart = ( {
 
 	// Calculate radius based on width/height
 	const radius = Math.min( width, height ) / 2;
+
+	// Center the chart in the available space
 	const centerX = width / 2;
 	const centerY = height / 2;
 
@@ -114,7 +115,7 @@ const PieChart = ( {
 
 	return (
 		<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
-			<svg width={ width } height={ height }>
+			<svg viewBox={ `0 0 ${ size } ${ size }` } preserveAspectRatio="xMidYMid meet">
 				<Group top={ centerY } left={ centerX }>
 					<Pie< DataPointPercentage & { index: number } >
 						data={ dataWithIndex }

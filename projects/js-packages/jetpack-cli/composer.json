@@ -7,16 +7,6 @@
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev"
 	},
-	"autoload": {
-		"classmap": [
-			"src/"
-		]
-	},
-	"scripts": {
-		"test-js": [
-			"echo 'no tests yet'"
-		]
-	},
 	"repositories": [
 		{
 			"type": "path",
@@ -27,5 +17,10 @@
 		}
 	],
 	"minimum-stability": "dev",
-	"prefer-stable": true
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-cli",
+		"npmjs-autopublish": true,
+		"autotagger": true
+	}
 }
