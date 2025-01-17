@@ -375,7 +375,7 @@ abstract class Sharing_Source_Block {
 
 		// We set up this custom header to indicate to search engines not to index this page.
 		header( 'X-Robots-Tag: noindex, nofollow' );
-		die();
+		die( 0 );
 	}
 }
 
@@ -738,7 +738,7 @@ class Share_Pinterest_Block extends Sharing_Source_Block {
 			parent::redirect_request( $pinterest_url );
 		} else {
 			echo '// share count bumped';
-			die();
+			die( 0 );
 		}
 	}
 }

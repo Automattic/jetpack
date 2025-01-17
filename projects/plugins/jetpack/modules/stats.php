@@ -613,7 +613,7 @@ function stats_reports_page( $main_chart_only = false ) {
 			header( 'Content-Type: ' . $type );
 			header( 'Content-Length: ' . strlen( $img ) );
 			echo $img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			die();
+			die( 0 );
 		}
 	}
 

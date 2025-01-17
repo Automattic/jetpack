@@ -25,7 +25,7 @@ if ( $ZBSuseQuotes < 0 ) {
 	status_header( 404 );
 	nocache_headers();
 	include get_query_template( '404' );
-	die();
+	die( 0 );
 }
 
 add_action( 'wp_enqueue_scripts', array( $portal, 'portal_enqueue_scripts_and_styles' ) );

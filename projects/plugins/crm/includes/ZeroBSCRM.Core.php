@@ -2024,7 +2024,7 @@ final class ZeroBSCRM {
 			// instead re-direct to one of our pages which tells them about making sure extensions are
 			// deactivated before deactivating core
 			wp_safe_redirect( admin_url( 'admin.php?page=' . $zbs->slugs['extensions-active'] ) );
-			die(); // will killing it here stop deactivation?
+			die( 0 ); // will killing it here stop deactivation?
 
 			// failsafe?
 			return false;

@@ -67,7 +67,7 @@ function zbs_create_email_templates() {
 		$m['message'] = 'no permissions';
 	}
 	echo json_encode( $m );
-	die();
+	die( 0 );
 }
 
 	// save email template
@@ -156,7 +156,7 @@ function zbs_save_email_status() {
 	}
 
 	echo json_encode( $m );
-	die();
+	die( 0 );
 	// nonce field is zbs-save-email_active
 }
 
@@ -1595,7 +1595,7 @@ function zbs_lead_form_capture() {
 			$r['message'] = 'Contact received.';
 			$r['code']    = 'success';
 			echo json_encode( $r );
-			die();
+			die( 0 );
 
 	}
 }
@@ -5567,7 +5567,7 @@ function zbs_invoice_mark_paid() {
 	// } Check id + perms + em
 	if ( $zbs_invID < 1 || ! zeroBSCRM_permsInvoices() ) {
 
-		die();
+		die( 0 );
 
 	} else {
 
@@ -5584,7 +5584,7 @@ function zbs_invoice_mark_paid() {
 
 	}
 
-	die(); // exiting ... yarp..
+	die( 0 ); // exiting ... yarp..
 }
 
 // } and send test so they can test before actually sending the invoice
@@ -5611,14 +5611,14 @@ function zbs_invoice_send_test_invoice() {
 	if ( ! zeroBSCRM_validateEmail( $em ) ) {
 		$r['message'] = 'Not a valid email';
 		echo json_encode( $r );
-		die();
+		die( 0 );
 	} else {
 		$email = $em;
 	}
 
 	// } Check id + perms + em
 	if ( $zbs_invID <= 0 || empty( $em ) || ! zeroBSCRM_permsInvoices() ) {
-		die();
+		die( 0 );
 	}
 
 	$body = zeroBSCRM_invoice_generateNotificationHTML( $zbs_invID, true );
@@ -5702,7 +5702,7 @@ function zbs_invoice_send_test_invoice() {
 	// sends the invoice via wp_mail (for now)...
 	$r['message'] = 'All done OK';
 	echo json_encode( $r );
-	die(); // exiting ... yarp..
+	die( 0 ); // exiting ... yarp..
 }
 
 /*
@@ -5838,7 +5838,7 @@ function zeroBSCRM_ajax_mark_task_complete() {
 
 		$m['message'] = 'Marked ' . $way;
 		echo json_encode( $m, true );
-		die();
+		die( 0 );
 
 	}
 

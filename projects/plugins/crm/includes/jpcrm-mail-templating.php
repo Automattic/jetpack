@@ -282,7 +282,7 @@ function zeroBSCRM_preview_email_template(){
 
 	    	}
 
-			die();
+			die( 0 );
 
 		}
 	}

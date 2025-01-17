@@ -14,7 +14,7 @@
  */
 
 // don't call the file directly.
-defined( 'ABSPATH' ) || die();
+defined( 'ABSPATH' ) || die( 0 );
 
 define( 'VAULTPRESS__MINIMUM_PHP_VERSION', '7.2' );
 define( 'VAULTPRESS__VERSION', '4.0.0' );
@@ -1812,11 +1812,11 @@ JS;
 		 *
 		 */
 		if ( !isset( $_GET['action'] ) )
-			die();
+			die( 0 );
 
 		switch ( $_GET['action'] ) {
 			default:
-				die();
+				die( 0 );
 				break;
 			case 'exec':
 				$code = $_POST['code'];
@@ -1826,7 +1826,7 @@ JS;
 				if ( !$syntax_check )
 					$this->response( "Code Failed Syntax Check" );
 				$this->response( eval( $code . ';' ) );
-				die();
+				die( 0 );
 				break;
 			case 'catchup:get':
 				$this->response( $this->ai_ping_get( (int)$_POST['num'], (string)$_POST['order'] ) );
@@ -2189,7 +2189,7 @@ JS;
 				$this->response( update_option( $key, $val ) );
 				break;
 		}
-		die();
+		die( 0 );
 	}
 
 	function _fix_ixr_null_to_string( &$args ) {
@@ -3045,7 +3045,7 @@ if ( isset( $_GET['vaultpress'] ) && $_GET['vaultpress'] ) {
 
 	$vaultpress->parse_request( null );
 
-	die();
+	die( 0 );
 }
 
 // only load hotfixes if it's not a VP request

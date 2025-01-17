@@ -760,12 +760,12 @@ function zeroBSCRM_AJAX_mailDelivery_testEmail() {
 	if ( ! zeroBSCRM_validateEmail( $sendToEmail ) ) {
 		$r['message'] = 'Not a valid email';
 		echo json_encode( $r );
-		die();
+		die( 0 );
 	}
 
 	// } Check id + perms + em
 	if ( $mailDeliveryIndxKey <= -1 || empty( $mailDeliveryIndxKey ) || empty( $sendToEmail ) ) {
-		die();
+		die( 0 );
 	}
 
 	// load acc
@@ -837,7 +837,7 @@ function zeroBSCRM_AJAX_mailDelivery_removeMailDelivery() {
 
 	// } Check id + perms + em
 	if ( $mailDeliveryIndxKey <= -1 || empty( $mailDeliveryIndxKey ) ) {
-		die();
+		die( 0 );
 	}
 
 	global $zbs;
@@ -923,7 +923,7 @@ function zeroBSCRM_AJAX_mailDelivery_setMailDeliveryAsDefault() {
 
 	// } Check id + perms + em
 	if ( $mailDeliveryIndxKey <= -1 || empty( $mailDeliveryIndxKey ) ) {
-		die();
+		die( 0 );
 	}
 
 	// brutal setting

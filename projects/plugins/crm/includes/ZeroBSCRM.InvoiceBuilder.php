@@ -316,7 +316,7 @@ function zeroBSCRM_invoicing_generateStatementPDF( $contactID = -1, $returnPDF =
     $contactID = (int)$contactID;
     #} If user has no perms, or id not present, die
     if (!zeroBSCRM_permsInvoices() || empty($contactID) || $contactID <= 0){
-        die();
+		die( 0 );
     }
 
     $html = zeroBSCRM_invoicing_generateStatementHTML($contactID);

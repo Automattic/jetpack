@@ -29,7 +29,7 @@ function zeroBSCRM_star_email_thread() {
 	$wpdb->query( $sql );
 	$m = array( 'message' => 'success' );
 	echo wp_json_encode( $m );
-	die();
+	die( 0 );
 }
 add_action( 'wp_ajax_zbs_email_star_thread', 'zeroBSCRM_star_email_thread' );
 
@@ -51,7 +51,7 @@ function zeroBSCRM_unstar_email_thread() {
 	$wpdb->query( $sql );
 	$m = array( 'message' => 'success' );
 	echo wp_json_encode( $m );
-	die();
+	die( 0 );
 }
 add_action( 'wp_ajax_zbs_email_unstar_thread', 'zeroBSCRM_unstar_email_thread' );
 
@@ -72,7 +72,7 @@ function zeroBSCRM_delete_email_thread() {
 	$wpdb->query( $sql );
 	$m = array( 'message' => 'success' );
 	echo wp_json_encode( $m );
-	die();
+	die( 0 );
 }
 add_action( 'wp_ajax_zbs_delete_email_thread', 'zeroBSCRM_delete_email_thread' );
 
@@ -175,7 +175,7 @@ function zeroBSCRM_emails_customer_panel() {
 	$ret['email'] = $email_ret;
 
 	echo wp_json_encode( $ret, true );
-	die();
+	die( 0 );
 }
 add_action( 'wp_ajax_zbs_email_customer_panel', 'zeroBSCRM_emails_customer_panel' );
 

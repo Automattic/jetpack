@@ -528,7 +528,7 @@ function zeroBSCRM_notifyme_get_notifications_ajax(){
         $res['count'] = count($res['notifications']);
       }
       echo json_encode($res,true);
-      die();
+	die( 0 );
 }
 
 

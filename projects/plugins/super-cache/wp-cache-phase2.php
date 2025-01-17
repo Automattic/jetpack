@@ -404,7 +404,7 @@ function wp_cache_serve_cache_file() {
 	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- this is the cached version of the current page. It will have been escaped already.
 	echo $cache;
 	wp_cache_debug( 'exit request', 5 );
-	die();
+	die( 0 );
 }
 
 function wp_cache_get_legacy_cache( $cache_file ) {

@@ -1083,7 +1083,7 @@ function jpcrm_perms_error() {
 		'disabled warning sign',
 		'bad_perms'
 	);
-	die();
+	die( 0 );
 }
 
 /**
