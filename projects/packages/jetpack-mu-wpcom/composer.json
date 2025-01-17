@@ -23,7 +23,7 @@
 		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "^0.4.2",
-		"automattic/jetpack-wpcomsh": "@dev"
+		"automattic/wpcomsh": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -74,7 +74,7 @@
 		},
 		"dependencies": {
 			"test-only": [
-				"packages/jetpack-wpcomsh"
+				"plugins/wpcomsh"
 			]
 		},
 		"textdomain": "jetpack-mu-wpcom",
