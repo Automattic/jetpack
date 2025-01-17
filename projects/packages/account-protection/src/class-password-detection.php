@@ -22,7 +22,7 @@ class Password_Detection {
 	 *
 	 * @return string The URL to redirect to.
 	 */
-	public static function password_detection_redirect() {
+	public function password_detection_redirect() {
 		return home_url( '/wp-login.php?action=password-detection' );
 	}
 
@@ -33,7 +33,7 @@ class Password_Detection {
 	 * @param string  $password The password.
 	 * @return WP_User The user object.
 	 */
-	public static function login_form_password_detection( $user, $password ) {
+	public function login_form_password_detection( $user, $password ) {
 		// Check if the user is already a WP_Error object
 		if ( is_wp_error( $user ) ) {
 			return $user;
@@ -44,14 +44,14 @@ class Password_Detection {
 			return $user;
 		}
 
-		if ( ! self::validate_password( $password ) ) {
+		if ( ! $this->validate_password( $password ) ) {
 			// TODO: Ensure this usermeta is always up to date
-			self::add_password_detection_usermeta( $user->ID, 'unsafe' );
+			$this->add_password_detection_usermeta( $user->ID, 'unsafe' );
 
 			// Redirect to the password detection page
-			add_filter( 'login_redirect', __CLASS__ . '::password_detection_redirect', 10, 3 );
+			add_filter( 'login_redirect', array( $this, 'password_detection_redirect' ), 10, 3 );
 		} else {
-			self::add_password_detection_usermeta( $user->ID, 'safe' );
+			$this->add_password_detection_usermeta( $user->ID, 'safe' );
 
 		}
 
@@ -65,7 +65,7 @@ class Password_Detection {
 	 *
 	 * @return void
 	 */
-	public static function render_password_detection_page() {
+	public function render_password_detection_page() {
 		// Restrict direct access to logged in users
 		$current_user = wp_get_current_user();
 		if ( 0 === $current_user->ID ) {
@@ -74,7 +74,7 @@ class Password_Detection {
 		}
 
 		// Restrict direct access to users with unsafe passwords
-		$user_password_status = self::get_password_detection_usermeta( $current_user->ID );
+		$user_password_status = $this->get_password_detection_usermeta( $current_user->ID );
 		if ( ! $user_password_status || 'safe' === $user_password_status ) {
 			wp_safe_redirect( admin_url() );
 			exit;
@@ -89,7 +89,7 @@ class Password_Detection {
 		$context = 'Your current password was found in a public leak, which means your account might be at risk.';
 		$error   = '';
 
-		add_action( 'wp_enqueue_scripts', __CLASS__ . '::enqueue_password_detection_styles' );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_password_detection_styles' ) );
 
 		// Handle reset_password_action form submission
 		if ( isset( $_POST['reset-password'] ) ) {
@@ -99,7 +99,7 @@ class Password_Detection {
 			if ( isset( $_POST['_wpnonce_reset_password'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce_reset_password'] ) ), 'reset_password_action' ) ) {
 				// Send password reset email
 				if ( ! $email_sent_flag ) {
-					$email_sent = Password_Reset_Email::send( $current_user );
+					$email_sent = ( new Password_Reset_Email() )->send( $current_user );
 					if ( $email_sent ) {
 						// Set transient to mark the email as sent
 						set_transient( $transient_key, true, 15 * MINUTE_IN_SECONDS );
@@ -108,7 +108,7 @@ class Password_Detection {
 					}
 				}
 
-				add_action( 'wp_enqueue_scripts', __CLASS__ . '::enqueue_resend_password_reset_scripts' );
+				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_resend_password_reset_scripts' ) );
 			} else {
 				$error = 'reset_passowrd_nonce_verification_error';
 			}
@@ -126,14 +126,14 @@ class Password_Detection {
 			}
 		}
 
-		self::render_password_detection_template( $reset, $context, $error, Password_Reset_Email::mask_email_address( $current_user->user_email ) );
+		$this->render_password_detection_template( $reset, $context, $error, ( new Password_Reset_Email() )->mask_email_address( $current_user->user_email ) );
 		exit;
 	}
 
 	/**
 	 * Enqueue the resend password reset email scripts.
 	 */
-	public static function enqueue_resend_password_reset_scripts() {
+	public function enqueue_resend_password_reset_scripts() {
 		wp_enqueue_script( 'resend-password-reset', plugin_dir_url( __FILE__ ) . 'js/resend-password-reset.js', array( 'jquery' ), Account_Protection::PACKAGE_VERSION, true );
 
 		// Pass AJAX URL and nonce to the script
@@ -150,7 +150,7 @@ class Password_Detection {
 	/**
 	 * Enqueue the password detection page styles.
 	 */
-	public static function enqueue_password_detection_styles() {
+	public function enqueue_password_detection_styles() {
 		wp_enqueue_style(
 			'password-detection-styles',
 			plugin_dir_url( __FILE__ ) . 'css/password-detection.css',
@@ -162,7 +162,7 @@ class Password_Detection {
 	/**
 	 * Run AJAX request to resend password reset email.
 	 */
-	public static function ajax_resend_password_reset_email() {
+	public function ajax_resend_password_reset_email() {
 		// Verify the nonce for security
 		check_ajax_referer( 'resend_password_reset_nonce', 'security' );
 
@@ -175,7 +175,7 @@ class Password_Detection {
 		$email        = $current_user->user_email;
 
 		// Resend the email
-		$email_sent = Password_Reset_Email::send( $current_user, $email );
+		$email_sent = ( new Password_Reset_Email() )->send( $current_user, $email );
 		if ( $email_sent ) {
 			wp_send_json_success( array( 'message' => 'Resend successful.' ) );
 		} else {
@@ -189,7 +189,7 @@ class Password_Detection {
 	 * @param string $password The password to validate.
 	 * @return bool True if the password is valid, false otherwise.
 	 */
-	public static function validate_password( $password ) {
+	public function validate_password( $password ) {
 		// TODO: Uncomment out once endpoint is live
 		// Check compromised and common passwords
 		// $weak_password = self::check_weak_passwords( $password );
@@ -203,7 +203,7 @@ class Password_Detection {
 	 * @param string $password The password to check.
 	 * @return bool|WP_Error True if the password is in the list of common/compromised passwords, false otherwise.
 	 */
-	public static function check_weak_passwords( $password ) {
+	public function check_weak_passwords( $password ) {
 		$api_url = '/jetpack-protect-weak-password';
 
 		$is_connected = ( new Connection_Manager() )->is_connected();
@@ -247,7 +247,7 @@ class Password_Detection {
 	 * @param int    $user_id The user ID.
 	 * @param string $setting The password detection setting.
 	 */
-	public static function add_password_detection_usermeta( $user_id, $setting ) {
+	public function add_password_detection_usermeta( $user_id, $setting ) {
 		update_user_meta( $user_id, self::PASSWORD_DETECTION_USER_META_KEY, $setting );
 	}
 
@@ -256,7 +256,7 @@ class Password_Detection {
 	 *
 	 * @param int $user_id The user ID.
 	 */
-	public static function remove_password_detection_usermeta( $user_id ) {
+	public function remove_password_detection_usermeta( $user_id ) {
 		delete_user_meta( $user_id, self::PASSWORD_DETECTION_USER_META_KEY );
 	}
 
@@ -265,7 +265,7 @@ class Password_Detection {
 	 *
 	 * @param int $user_id The user ID.
 	 */
-	public static function get_password_detection_usermeta( $user_id ) {
+	public function get_password_detection_usermeta( $user_id ) {
 		return get_user_meta( $user_id, self::PASSWORD_DETECTION_USER_META_KEY, true );
 	}
 
@@ -277,7 +277,7 @@ class Password_Detection {
 	 * @param string $error        The error message to display.
 	 * @param string $masked_email The masked email address.
 	 */
-	public static function render_password_detection_template( $reset, $context, $error, $masked_email ) {
+	public function render_password_detection_template( $reset, $context, $error, $masked_email ) {
 		defined( 'ABSPATH' ) || exit;
 		?>
 		<!DOCTYPE html>

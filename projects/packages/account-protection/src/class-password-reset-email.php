@@ -18,7 +18,7 @@ class Password_Reset_Email {
 	 * @param string $email The email address to mask.
 	 * @return string The masked email address.
 	 */
-	public static function mask_email_address( $email ) {
+	public function mask_email_address( $email ) {
 		$parts  = explode( '@', $email );
 		$name   = $parts[0];
 		$domain = $parts[1];
@@ -39,7 +39,7 @@ class Password_Reset_Email {
 	 * @param WP_User $user The user object.
 	 * @return bool True if the email was sent successfully, false otherwise.
 	 */
-	public static function send( $user ) {
+	public function send( $user ) {
 		// $site_url    = home_url();
 		// $parsed_url  = wp_parse_url( $site_url );
 		// $domain_name = $parsed_url['host'];

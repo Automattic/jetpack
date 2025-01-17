@@ -21,38 +21,38 @@ class Account_Protection {
 	/**
 	 * Initializes the configurations needed for the account protection module.
 	 */
-	public static function init() {
+	public function init() {
 		// Account protection activation/deactivation hooks
-		add_action( 'jetpack_activate_module_account-protection', __CLASS__ . '::on_account_protection_activation' );
-		add_action( 'jetpack_deactivate_module_account-protection', __CLASS__ . '::on_account_protection_deactivation' );
+		add_action( 'jetpack_activate_module_account-protection', array( $this, 'on_account_protection_activation' ) );
+		add_action( 'jetpack_deactivate_module_account-protection', array( $this, 'on_account_protection_deactivation' ) );
 
 		// Do not run in unsupported environments
-		add_action( 'jetpack_get_available_modules', __CLASS__ . '::remove_module_on_unsupported_environments' );
-		add_action( 'jetpack_get_available_standalone_modules', __CLASS__ . '::remove_standalone_module_on_unsupported_environments' );
+		add_action( 'jetpack_get_available_modules', array( $this, 'remove_module_on_unsupported_environments' ) );
+		add_action( 'jetpack_get_available_standalone_modules', array( $this, 'remove_standalone_module_on_unsupported_environments' ) );
 
 		// Register REST routes
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 
-		if ( self::is_enabled() ) {
+		if ( $this->is_enabled() ) {
 			// Validate password after successful login
-			add_action( 'wp_authenticate_user', array( 'Automattic\Jetpack\Account_Protection\Password_Detection', 'login_form_password_detection' ), 10, 2 );
+			add_action( 'wp_authenticate_user', array( new Password_Detection(), 'login_form_password_detection' ), 10, 2 );
 
 			// Add password detection flow for users with unsafe passwords
 			add_action(
 				'login_form_password-detection',
-				array( 'Automattic\Jetpack\Account_Protection\Password_Detection', 'render_password_detection_page' ),
+				array( new Password_Detection(), 'render_password_detection_page' ),
 				10,
 				2
 			);
 
 			// Register AJAX resend password reset email action
-			add_action( 'wp_ajax_resend_password_reset', array( 'Automattic\Jetpack\Account_Protection\Password_Detection', 'ajax_resend_password_reset_email' ) );
+			add_action( 'wp_ajax_resend_password_reset', array( new Password_Detection(), 'ajax_resend_password_reset_email' ) );
 
 			// Remove password detection usermeta on password reset
 			add_action(
 				'after_password_reset',
 				function ( $user ) {
-					Password_Detection::remove_password_detection_usermeta( $user->ID );
+					( new Password_Detection() )->remove_password_detection_usermeta( $user->ID );
 				},
 				10,
 				2
@@ -68,7 +68,7 @@ class Account_Protection {
 					) {
 							// Profile updates should include validation, but we should reset user meta to be safe
 						if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
-							Password_Detection::remove_password_detection_usermeta( $user_id );
+							( new Password_Detection() )->remove_password_detection_usermeta( $user_id );
 						}
 					}
 				},
@@ -82,17 +82,17 @@ class Account_Protection {
 	/**
 	 * Activate the account protection on module activation.
 	 */
-	public static function on_account_protection_activation() {
+	public function on_account_protection_activation() {
 	}
 
 	/**
 	 * Deactivate the account protection on module deactivation.
 	 */
-	public static function on_account_protection_deactivation() {
+	public function on_account_protection_deactivation() {
 		// Remove user meta on deactivation
 		$users = get_users();
 		foreach ( $users as $user ) {
-			Password_Detection::remove_password_detection_usermeta( $user->ID );
+			( new Password_Detection() )->remove_password_detection_usermeta( $user->ID );
 			// TODO: Remove usermeta on plugin deactivation
 		}
 	}
@@ -102,7 +102,7 @@ class Account_Protection {
 	 *
 	 * @return bool
 	 */
-	public static function is_enabled() {
+	public function is_enabled() {
 		return ( new Modules() )->is_active( 'account-protection' );
 	}
 
@@ -111,9 +111,9 @@ class Account_Protection {
 	 *
 	 * @return bool
 	 */
-	public static function enable() {
+	public function enable() {
 		// Return true if already enabled.
-		if ( self::is_enabled() ) {
+		if ( $this->is_enabled() ) {
 			return true;
 		}
 		return ( new Modules() )->activate( 'account-protection', false, false );
@@ -124,9 +124,9 @@ class Account_Protection {
 	 *
 	 * @return bool
 	 */
-	public static function disable() {
+	public function disable() {
 		// Return true if already disabled.
-		if ( ! self::is_enabled() ) {
+		if ( ! $this->is_enabled() ) {
 			return true;
 		}
 		return ( new Modules() )->deactivate( 'account-protection' );
@@ -137,7 +137,7 @@ class Account_Protection {
 	 *
 	 * @return bool
 	 */
-	public static function is_supported_environment() {
+	public function is_supported_environment() {
 		// Do not run when killswitch is enabled
 		if ( defined( 'DISABLE_JETPACK_ACCOUNT_PROTECTION' ) && DISABLE_JETPACK_ACCOUNT_PROTECTION ) {
 			return false;
@@ -153,8 +153,8 @@ class Account_Protection {
 	 *
 	 * @return array Array of module slugs.
 	 */
-	public static function remove_module_on_unsupported_environments( $modules ) {
-		if ( ! self::is_supported_environment() ) {
+	public function remove_module_on_unsupported_environments( $modules ) {
+		if ( ! $this->is_supported_environment() ) {
 			// Account protection should never be available on unsupported platforms.
 			unset( $modules['account-protection'] );
 		}
@@ -169,8 +169,8 @@ class Account_Protection {
 	 *
 	 * @return array Array of module slugs.
 	 */
-	public static function remove_standalone_module_on_unsupported_environments( $modules ) {
-		if ( ! self::is_supported_environment() ) {
+	public function remove_standalone_module_on_unsupported_environments( $modules ) {
+		if ( ! $this->is_supported_environment() ) {
 			// Account Protection should never be available on unsupported platforms.
 			$modules = array_filter(
 				$modules,
@@ -189,7 +189,7 @@ class Account_Protection {
 	 *
 	 * @return array
 	 */
-	public static function get_settings() {
+	public function get_settings() {
 		$settings = array(
 			self::STRICT_MODE_OPTION_NAME => get_option( self::STRICT_MODE_OPTION_NAME, false ),
 		);
