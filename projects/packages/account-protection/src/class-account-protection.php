@@ -62,14 +62,12 @@ class Account_Protection {
 			add_action(
 				'profile_update',
 				function ( $user_id ) {
-					// TODO: Ensure nonce verfication works as expected
 					if (
 						! empty( $_POST['_wpnonce'] ) &&
 						wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'update-user_' . $user_id )
 					) {
 							// Profile updates should include validation, but we should reset user meta to be safe
 						if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
-							// TODO: Ensure this only happens if the password is actually updated
 							Password_Detection::remove_password_detection_usermeta( $user_id );
 						}
 					}

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Class used to define Password Reset Email.
  *
@@ -38,20 +37,20 @@ class Password_Reset_Email {
 	 * Send password reset email.
 	 *
 	 * @param WP_User $user The user object.
-	 * @param string  $email The user email.
 	 * @return bool True if the email was sent successfully, false otherwise.
 	 */
-	public static function send( $user, $email ) {
-		$site_url    = home_url();
-		$parsed_url  = parse_url( $site_url );
-		$domain_name = $parsed_url['host'];
-		$username    = $user->user_login;
+	public static function send( $user ) {
+		// $site_url    = home_url();
+		// $parsed_url  = wp_parse_url( $site_url );
+		// $domain_name = $parsed_url['host'];
+		// $username    = $user->user_login;
+		// $email       = $user->user_email;
 
-		$key                 = get_password_reset_key( $user );
-		$locale              = get_user_locale( $user );
-		$password_reset_link = network_site_url( 'wp-login.php?login=' . rawurlencode( $username ) . "&key=$key&action=rp", 'login' ) . '&wp_lang=' . $locale;
+		// $key                 = get_password_reset_key( $user );
+		// $locale              = get_user_locale( $user );
+		// $password_reset_link = network_site_url( 'wp-login.php?login=' . rawurlencode( $username ) . "&key=$key&action=rp", 'login' ) . '&wp_lang=' . $locale;
 
 		// TODO: Update to use custom email method when available, passing $domain_name, $email, $username, and $password_reset_link
-		return true;
+		return $user ? true : false;
 	}
 }
