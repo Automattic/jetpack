@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Code: Use function-style exit() and die() with a default status code of 0.
