@@ -25,6 +25,19 @@ export const settings = {
 				fontSize: true,
 			},
 		},
+		__experimentalBorder: {
+			color: true,
+			radius: true,
+			style: true,
+			width: true,
+			__experimentalSkipSerialization: true,
+			__experimentalDefaultControls: {
+				color: true,
+				radius: true,
+				style: true,
+				width: true,
+			},
+		},
 	},
 	styles: [
 		{ name: 'fill', label: __( 'Fill', 'jetpack' ), isDefault: true },
