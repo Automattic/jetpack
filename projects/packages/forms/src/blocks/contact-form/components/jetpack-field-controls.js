@@ -35,8 +35,14 @@ const JetpackFieldControls = ( {
 	extraFieldSettings = [],
 } ) => {
 	const formStyle = useFormStyle( clientId );
-	const blockStyle = getBlockStyle( blockClassNames );
+
+	const blockStyle =
+		getBlockStyle( blockClassNames ) !== ''
+			? getBlockStyle( blockClassNames )
+			: attributes?.className && getBlockStyle( attributes.className );
+
 	const isChoicesBlock = [ 'radio', 'checkbox' ].includes( type );
+	const isRadioButton = type === 'radio' && blockStyle === 'button';
 
 	const setNumberAttribute =
 		( key, parse = parseInt ) =>
@@ -78,14 +84,7 @@ const JetpackFieldControls = ( {
 		},
 	];
 
-	if ( isChoicesBlock ) {
-		colorSettings.push( {
-			value: attributes.borderColor,
-			onChange: value => setAttributes( { borderColor: value } ),
-			label: __( 'Border', 'jetpack-forms' ),
-		} );
-	}
-	if ( isChoicesBlock && blockStyle === 'button' ) {
+	if ( blockStyle === 'button' ) {
 		colorSettings.push( {
 			value: attributes.buttonBackgroundColor,
 			onChange: value => setAttributes( { buttonBackgroundColor: value } ),
@@ -93,13 +92,15 @@ const JetpackFieldControls = ( {
 		} );
 	}
 
-	if ( ! isChoicesBlock || formStyle === FORM_STYLE.OUTLINED ) {
+	if ( formStyle === FORM_STYLE.OUTLINED ) {
 		colorSettings.push( {
 			value: attributes.fieldBackgroundColor,
 			onChange: value => setAttributes( { fieldBackgroundColor: value } ),
 			label: backgroundColorLabel,
 		} );
+	}
 
+	if ( ! isRadioButton ) {
 		colorSettings.push( {
 			value: attributes.borderColor,
 			onChange: value => setAttributes( { borderColor: value } ),
