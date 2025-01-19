@@ -45,7 +45,7 @@ jQuery( function () {
 	window.invoice_id = jQuery( '.zbs_invoice_html_canvas' ).data( 'invid' );
 
 	//draw the invoice HTML UI (v2.98) start by drawing the data from the DB (drawing / getting)
-	zbscrm_JS_retrieve_invoice_data( invoice_id );
+	zbscrm_JS_retrieve_invoice_data( window.invoice_id );
 
 	// hack for weird tax bug
 	if ( jQuery( '#invoice_tax_total' ).val() > 0 ) {
