@@ -22,6 +22,7 @@ window.zbs_invoice = false; // stores data of this inv (post init)
 window.zbs_tax = false; // ?
 window.zbs_tax_table = false; // stores tax table
 window.zbsInvBlocker = false; // this is a blocker... ctrl F it
+window.invoice_id = 0;
 
 // ========================================================================
 // ======= /Globals
