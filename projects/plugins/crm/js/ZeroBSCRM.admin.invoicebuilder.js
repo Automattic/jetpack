@@ -41,7 +41,7 @@ jQuery( function () {
 	// but DAL3.0 should return the next available ID and reserve it?
 	// WH - how do we handle the case where YOU and I make a new invoice (same time)
 	// we fill it in, and the ID is the same - won't we have a race condition here?
-	const invoice_id = jQuery( '.zbs_invoice_html_canvas' ).data( 'invid' );
+	window.invoice_id = jQuery( '.zbs_invoice_html_canvas' ).data( 'invid' );
 
 	//draw the invoice HTML UI (v2.98) start by drawing the data from the DB (drawing / getting)
 	zbscrm_JS_retrieve_invoice_data( invoice_id );
