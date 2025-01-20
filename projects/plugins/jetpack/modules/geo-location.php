@@ -1,6 +1,7 @@
-<?php
+<?php // phpcs:ignore Squiz.Commenting.FileComment.Missing
 /**
- * Module: geo-location
+ * Module Name: Geo Location
+ * Module Description: Add location data to your posts.
  *
  * @package automattic/jetpack
  */
