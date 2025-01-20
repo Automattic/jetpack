@@ -34,10 +34,10 @@ class Account_Protection {
 	/**
 	 * Account_Protection constructor.
 	 *
-	 * @param Modules            $modules            Modules instance.
-	 * @param Password_Detection $password_detection Password detection instance.
+	 * @param ?Modules            $modules            Modules instance.
+	 * @param ?Password_Detection $password_detection Password detection instance.
 	 */
-	public function __construct( Modules $modules = null, Password_Detection $password_detection = null ) {
+	public function __construct( ?Modules $modules = null, ?Password_Detection $password_detection = null ) {
 		$this->modules            = $modules ?? new Modules();
 		$this->password_detection = $password_detection ?? new Password_Detection();
 	}
