@@ -41,7 +41,6 @@ function jetpack_boost_handle_minify_request( $request_uri ) {
 			file_put_contents( $cache_file_path, $content );
 		}
 	}
-	exit;
 }
 
 function jetpack_boost_cache_maintenance() {
@@ -100,6 +99,8 @@ function jetpack_boost_build_minify_output( $request_uri ) {
 	$pre_output    = '';
 	$output        = '';
 
+	$mime_type = '';
+
 	foreach ( $file_paths as $uri ) {
 		$fullpath = jetpack_boost_page_optimize_get_path( $uri );
 
@@ -153,7 +154,7 @@ function jetpack_boost_build_minify_output( $request_uri ) {
 
 			// The @charset rules must be on top of the output
 			if ( str_starts_with( $buf, '@charset' ) ) {
-				preg_replace_callback(
+				$buf = preg_replace_callback(
 					'/(?P<charset_rule>@charset\s+[\'"][^\'"]+[\'"];)/i',
 					function ( $match ) use ( &$pre_output ) {
 						if ( str_starts_with( $pre_output, '@charset' ) ) {
@@ -240,7 +241,7 @@ function jetpack_boost_minify_get_file_parts( $request_uri ) {
 	}
 
 	$allowed_extensions = array_keys( jetpack_boost_page_optimize_types() );
-	if ( ! in_array( $file_info['extension'], $allowed_extensions, true ) ) {
+	if ( ! isset( $file_info['extension'] ) || ! in_array( $file_info['extension'], $allowed_extensions, true ) ) {
 		return false;
 	}
 
@@ -251,6 +252,6 @@ function jetpack_boost_minify_get_file_parts( $request_uri ) {
 
 	return array(
 		'file_name'      => $file_name,
-		'file_extension' => $file_info['extension'],
+		'file_extension' => $file_info['extension'] ?? '',
 	);
 }
