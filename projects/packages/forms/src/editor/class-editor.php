@@ -88,7 +88,7 @@ class Editor {
 		// load editor assets
 		\do_action( 'enqueue_block_assets' );
 
-		// Styles.
+		\do_action( 'enqueue_block_editor_assets' );
 	}
 
 	/**
