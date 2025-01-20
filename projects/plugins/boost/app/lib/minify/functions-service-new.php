@@ -43,6 +43,11 @@ function jetpack_boost_handle_minify_request( $request_uri ) {
 	}
 }
 
+/**
+ * This function is used to clean up the static cache folder.
+ * It removes files that are stale and no longer needed.
+ * A file is considered stale if it's older than the files it depends on.
+ */
 function jetpack_boost_cache_maintenance() {
 	$files = glob( Config::get_static_cache_dir_path() . '/*.min.*' );
 	foreach ( $files as $file ) {
