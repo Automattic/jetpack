@@ -273,6 +273,7 @@ class Image_CDN_Core {
 	 */
 	private static function escape_path( $path ) {
 		$parts = explode( '/', $path );
+		$parts = array_map( 'rawurldecode', $parts );
 		$parts = array_map( 'rawurlencode', $parts );
 		return implode( '/', $parts );
 	}

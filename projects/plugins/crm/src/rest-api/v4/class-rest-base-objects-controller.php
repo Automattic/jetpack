@@ -9,7 +9,7 @@ namespace Automattic\Jetpack\CRM\REST_API\V4;
 
 use zbsDAL_ObjectLayer;
 
-defined( 'ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || exit( 0 );
 
 /**
  * Abstract base controller class for DAL objects.

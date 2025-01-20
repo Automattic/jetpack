@@ -95,6 +95,8 @@ class Request {
 
 		/**
 		 * Filters the bypass patterns for the page cache.
+		 * If you need to sanitize them, do it before passing them to this filter,
+		 * as there's no sanitization done after this filter.
 		 *
 		 * @since 3.2.0
 		 *
@@ -104,7 +106,7 @@ class Request {
 
 		$bypass_patterns[] = 'wp-.*\.php';
 		foreach ( $bypass_patterns as $expr ) {
-			if ( ! empty( $expr ) && preg_match( "~$expr~", $request_uri ) ) {
+			if ( ! empty( $expr ) && preg_match( "~^$expr/?$~", $request_uri ) ) {
 				return true;
 			}
 		}

@@ -21,7 +21,7 @@ use Automattic\Jetpack\Waf\Waf_Compatibility;
 
 // Disable direct access.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 // Load WP_Error for error messages.

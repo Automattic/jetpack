@@ -26,7 +26,7 @@ function jetpack_user_content_link_redirection() {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if ( empty( $_SERVER['QUERY_STRING'] ) || empty( $_SERVER['HTTP_HOST'] ) || empty( $_GET['blog_id'] ) ) {
 		wp_safe_redirect( get_home_url() );
-		exit();
+		exit( 0 );
 	}
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -35,7 +35,7 @@ function jetpack_user_content_link_redirection() {
 
 	if ( $actual_blog_id !== $request_blog_id ) {
 		wp_die( esc_html__( 'Invalid link.', 'jetpack' ), 400 );
-		exit();
+		exit( 0 );
 	}
 
 	$query_params = sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) );
@@ -67,7 +67,7 @@ EOF;
 </html>
 EOF;
     // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
-	exit;
+	exit( 0 );
 }
 
 // The WPCOM_USER_CONTENT_LINK_REDIRECTION flag prevents this redirection logic from running

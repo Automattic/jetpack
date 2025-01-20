@@ -9,13 +9,7 @@
  * Date: 26/02/18
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 class zeroBSCRM_Edit{
 
@@ -96,9 +90,6 @@ class zeroBSCRM_Edit{
                 if ((!isset($this->listViewSlug) || $this->listViewSlug == false) && !empty($objSlug)) $this->listViewSlug = $objSlug;
 
             }
-
-            //echo 'loading from '.$this->objTypeID.':<pre>'.print_r(array($objTypeStr,$objSingular,$objPlural,$objSlug),1).'</pre>'; exit();
-
         } else $this->isNewRecord = true;
 
         // if objid - load $post

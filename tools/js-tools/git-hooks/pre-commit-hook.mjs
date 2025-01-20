@@ -439,7 +439,7 @@ function runCheckGitHubActionsYamlFiles() {
 		return;
 	}
 
-	const result = spawnSync( './tools/js-tools/lint-gh-actions.js', files, {
+	const result = spawnSync( './tools/js-tools/lint-gh-actions.mjs', files, {
 		stdio: 'inherit',
 	} );
 	if ( result && result.status ) {

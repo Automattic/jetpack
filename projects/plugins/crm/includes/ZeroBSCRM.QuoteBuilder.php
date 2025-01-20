@@ -12,7 +12,7 @@
 
 // block direct access
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 // This fires post CRM init
@@ -30,12 +30,12 @@ function jpcrm_quote_generate_posted_pdf() {
 
 		// Check nonce
 		if ( ! wp_verify_nonce( $_POST['jpcrm_quote_pdf_gen_nonce'], 'jpcrm-quote-pdf-gen' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			exit();
+			exit( 0 );
 		}
 
 		// check permissions
 		if ( ! zeroBSCRM_permsQuotes() ) {
-			exit();
+			exit( 0 );
 		}
 
 		// Check ID
@@ -45,7 +45,7 @@ function jpcrm_quote_generate_posted_pdf() {
 		}
 
 		if ( $quote_id <= 0 ) {
-			exit();
+			exit( 0 );
 		}
 
 		// generate the PDF
@@ -67,7 +67,7 @@ function jpcrm_quote_generate_posted_pdf() {
 
 		}
 
-		exit();
+		exit( 0 );
 	}
 }
 

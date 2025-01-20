@@ -18,14 +18,20 @@ use WP_REST_Server;
  */
 class REST_Controller {
 	/**
+	 * Tracks whether routes have already been registered.
+	 *
+	 * @var bool
+	 */
+	private $routes_registered = false;
+
+	/**
 	 * Register REST API endpoints.
 	 *
 	 * @return void
 	 */
 	public function register_rest_routes() {
 		// Ensure routes are only initialized once.
-		$routes_registered = false;
-		if ( $routes_registered ) {
+		if ( $this->routes_registered ) {
 			return;
 		}
 
@@ -49,7 +55,7 @@ class REST_Controller {
 			)
 		);
 
-		$routes_registered = true;
+		$this->routes_registered = true;
 	}
 
 	/**

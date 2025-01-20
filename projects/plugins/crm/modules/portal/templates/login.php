@@ -8,9 +8,9 @@
  * @package 	Templates/Portal/Login
  * @see			https://jetpackcrm.com/kb/
  * @version     3.0
- * 
  */
-if ( ! defined( 'ABSPATH' ) ) exit; 
+
+defined( 'ABSPATH' ) || exit( 0 );
 
 global $zbs;
 $portal = $zbs->modules->portal;

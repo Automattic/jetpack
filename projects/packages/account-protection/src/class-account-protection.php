@@ -13,29 +13,29 @@ use Automattic\Jetpack\Modules;
  * Class Account_Protection
  */
 class Account_Protection {
-	const PACKAGE_VERSION                = '1.0.0-alpha';
+	const PACKAGE_VERSION                = '0.1.0-alpha';
 	const ACCOUNT_PROTECTION_MODULE_NAME = 'account-protection';
 	const STRICT_MODE_OPTION_NAME        = 'jetpack_account_protection_strict_mode';
 
 	/**
-	 * Modules dependency.
+	 * Modules instance.
 	 *
 	 * @var Modules
 	 */
 	private $modules;
 
 	/**
-	 * Password Detection dependency.
+	 * Password detection instance.
 	 *
 	 * @var Password_Detection
 	 */
 	private $password_detection;
 
 	/**
-	 * Constructor.
+	 * Account_Protection constructor.
 	 *
-	 * @param Modules|null            $modules Modules dependency.
-	 * @param Password_Detection|null $password_detection Password detection dependency.
+	 * @param Modules            $modules            Modules instance.
+	 * @param Password_Detection $password_detection Password detection instance.
 	 */
 	public function __construct( Modules $modules = null, Password_Detection $password_detection = null ) {
 		$this->modules            = $modules ?? new Modules();

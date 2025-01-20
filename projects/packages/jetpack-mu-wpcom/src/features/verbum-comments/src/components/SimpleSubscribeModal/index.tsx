@@ -1,7 +1,7 @@
 import clsx from 'clsx';
-import { useEffect, useState, useRef } from 'preact/hooks';
+import { useEffect, useState, useRef, useContext } from 'preact/hooks';
 import { translate } from '../../i18n';
-import { userInfo, userLoggedIn, commentUrl, subscribeModalStatus } from '../../state';
+import { VerbumSignals } from '../../state';
 import { SimpleSubscribeModalProps } from '../../types';
 import {
 	getSubscriptionModalViewCount,
@@ -13,6 +13,7 @@ import { SimpleSubscribeModalLoggedOut } from './logged-out';
 import './style.scss';
 
 export const SimpleSubscribeModal = ( { closeModalHandler, email }: SimpleSubscribeModalProps ) => {
+	const { userInfo, userLoggedIn, commentUrl, subscribeModalStatus } = useContext( VerbumSignals );
 	const [ subscribeState, setSubscribeState ] = useState<
 		'SUBSCRIBING' | 'LOADING' | 'SUBSCRIBED'
 	>();
@@ -51,6 +52,13 @@ export const SimpleSubscribeModal = ( { closeModalHandler, email }: SimpleSubscr
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
+	// This is used to track how many times the modal was shown to the user.
+	useEffect( () => {
+		const userId = userInfo.value?.uid || 0;
+		const currentViewCount = getSubscriptionModalViewCount( userId );
+		setSubscriptionModalViewCount( currentViewCount + 1, userId );
+	}, [ userInfo ] );
+
 	if ( ! commentUrl.value ) {
 		// When not showing the modal, we check for modal conditions to show it.
 		// This is done to avoid subscriptionApi calls for logged out users.
@@ -68,14 +76,6 @@ export const SimpleSubscribeModal = ( { closeModalHandler, email }: SimpleSubscr
 		closeModalHandler();
 		return null;
 	}
-
-	// This is used to track how many times the modal was shown to the user.
-	// eslint-disable-next-line react-hooks/rules-of-hooks
-	useEffect( () => {
-		const userId = userInfo.value?.uid || 0;
-		const currentViewCount = getSubscriptionModalViewCount( userId );
-		setSubscriptionModalViewCount( currentViewCount + 1, userId );
-	}, [] );
 
 	if ( subscribeState === 'LOADING' ) {
 		return (

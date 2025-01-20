@@ -1,19 +1,10 @@
 {
-	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"extends": "jetpack-js-tools/tsconfig.tsc-declaration-only.json",
 	"compilerOptions": {
-		"target": "es2018",
-		"lib": [ "dom", "esnext" ],
-		"jsx": "react-jsx",
-		"sourceMap": true,
-		"declaration": true,
-		"esModuleInterop": true,
-		"skipLibCheck": true,
-		"strict": true,
-		"resolveJsonModule": true,
-		"allowSyntheticDefaultImports": true,
-		"downlevelIteration": true,
-		"typeRoots": [ "./node_modules/@types/", "src/*" ]
+		"typeRoots": [ "./node_modules/@types/", "src/*" ],
+		"outDir": "./dist/types"
 	},
-	"include": [ "src" ],
-	"exclude": [ "node_modules", "dist" ]
+	// List all sources and source-containing subdirs.
+	"include": [ "./src/index.ts" ],
+	"exclude": [ "node_modules", "dist", "**/stories/**" ]
 }
