@@ -38,4 +38,4 @@ export const getSocialNotesConfig = createRegistrySelector( select => () => {
 		settings?.[ SOCIAL_NOTES_CONFIG_KEY ] ??
 		getSocialScriptData().settings?.socialPlugin?.social_notes_config
 	);
-} ) as ( state: object ) => SocialNotesConfig;
+} );
