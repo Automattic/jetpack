@@ -44,11 +44,11 @@ class Password_Detection {
 	/**
 	 * Check if the password is safe after login.
 	 *
-	 * @param \WP_User $user The user object.
-	 * @param string   $password The password.
+	 * @param \WP_User|\WP_Error $user The user or error object.
+	 * @param string             $password The password.
 	 * @return \WP_User|\WP_Error The user object.
 	 */
-	public function login_form_password_detection( \WP_User $user, string $password ): \WP_User {
+	public function login_form_password_detection( $user, string $password ) {
 		// Check if the user is already a WP_Error object
 		if ( is_wp_error( $user ) ) {
 			return $user;
@@ -75,9 +75,9 @@ class Password_Detection {
 	/**
 	 * Render password detection page.
 	 *
-	 * @return void
+	 * @return never
 	 */
-	public function render_page(): void {
+	public function render_page(): never {
 		// Restrict direct access to logged in users
 		$current_user = wp_get_current_user();
 		if ( 0 === $current_user->ID ) {
@@ -111,7 +111,7 @@ class Password_Detection {
 			if ( isset( $_POST['_wpnonce_reset_password'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce_reset_password'] ) ), 'reset_password_action' ) ) {
 				// Send password reset email
 				if ( ! $email_sent_flag ) {
-					$email_sent = $this->password_reset_email->send( $current_user );
+					$email_sent = $this->password_reset_email->send();
 					if ( $email_sent ) {
 						// Set transient to mark the email as sent
 						set_transient( $transient_key, true, 15 * MINUTE_IN_SECONDS );
@@ -187,11 +187,8 @@ class Password_Detection {
 			wp_send_json_error( array( 'message' => 'User not authenticated' ) );
 		}
 
-		$current_user = wp_get_current_user();
-		$email        = $current_user->user_email;
-
 		// Resend the email
-		$email_sent = $this->password_reset_email->send( $current_user, $email );
+		$email_sent = $this->password_reset_email->send();
 		if ( $email_sent ) {
 			wp_send_json_success( array( 'message' => 'Resend successful.' ) );
 		} else {

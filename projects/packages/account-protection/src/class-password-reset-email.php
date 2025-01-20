@@ -36,11 +36,10 @@ class Password_Reset_Email {
 	/**
 	 * Send password reset email.
 	 *
-	 * @param \WP_User $user The user object.
 	 * @return bool True if the email was sent successfully, false otherwise.
 	 */
-	public function send( \WP_User $user ): bool {
+	public function send(): bool {
 		// TODO: Update to use custom email method when available
-		return $user ? true : false;
+		return true;
 	}
 }
