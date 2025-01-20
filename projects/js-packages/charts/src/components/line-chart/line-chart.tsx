@@ -156,10 +156,24 @@ const LineChart: FC< LineChartProps > = ( {
 								dataKey={ seriesData?.label }
 								data={ seriesData.data as DataPointDate[] } // TODO: this needs fixing or a more specific type for each chart
 								{ ...accessors }
-								fill={ withGradientFill ? `url(#area-gradient-${ index + 1 })` : undefined }
-								renderLine={ true }
-								curve={ curveNatural }
+								stroke={ stroke }
+								strokeWidth={ 2 }
 							/>
+							{ /** Theoretically the area series should work without the line series; however it outlines the area with borders, which isn't ideal. */ }
+							{ /** TODO: Investigate whehter we could leverage area series alone. */ }
+							{ withGradientFill && (
+								<AnimatedAreaSeries
+									data-testid="line-gradient"
+									key={ seriesData?.label }
+									dataKey={ seriesData?.label }
+									data={ seriesData.data as DataPointDate[] } // TODO: this needs fixing or a more specific type for each chart
+									{ ...accessors }
+									stroke={ stroke }
+									strokeWidth={ 0 }
+									fill={ `url(#area-gradient-${ index + 1 })` }
+									renderLine={ false }
+								/>
+							) }
 						</>
 					);
 				} ) }
