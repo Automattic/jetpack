@@ -18,7 +18,7 @@ import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 
 interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	margin?: { top: number; right: number; bottom: number; left: number };
-	withGradientFill: boolean;
+	withGradientFill?: boolean;
 }
 
 type TooltipData = {
@@ -123,6 +123,7 @@ const LineChart: FC< LineChartProps > = ( {
 	return (
 		<div className={ clsx( 'line-chart', styles[ 'line-chart' ], className ) }>
 			<XYChart
+				data-testid="line-chart-svg"
 				theme={ theme }
 				width={ width }
 				height={ height }
