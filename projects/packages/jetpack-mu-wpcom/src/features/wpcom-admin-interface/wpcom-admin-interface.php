@@ -406,7 +406,7 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 		return $is_enabled;
 	}
 
-	$variation   = get_user_option( RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, get_current_user_id() );
+	$variation = get_user_option( RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, get_current_user_id() );
 
 	if ( false !== $variation ) {
 		$is_enabled = 'treatment' === $variation;
@@ -462,7 +462,6 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 	}
 }
 
-die('hehehe');
 /**
  * Force a variation (control/treatment) for the Remove Duplicate Views experiment.
  *
@@ -473,7 +472,7 @@ function wpcom_force_assign_variation_for_remove_duplicate_views_experiment() {
 		return;
 	}
 
-	$assignment = in_array( $_GET['force-assign-rdv-variation'], array( 'control', 'treatment' ), true ) ? $_GET['force-assign-rdv-variation'] : false;
+	$assignment = in_array(  $_GET['force-assign-rdv-variation'], array( 'control', 'treatment' ), true ) ? wp_unslash( $_GET['force-assign-rdv-variation'] ) : false;
 
 	if ( ! $assignment ) {
 		return;
