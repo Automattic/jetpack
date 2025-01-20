@@ -1,0 +1,41 @@
+
+.jetpack-forms-sidebar {
+	background: $white;
+	border-left: $border-width solid $gray-200;
+	border-top: $border-width solid $gray-200;
+	bottom: 0;
+	color: $gray-900;
+	height: 100vh;
+	overflow: hidden;
+	position: fixed;
+	right: 0;
+	top: 0;
+	width: $sidebar-width;
+
+	@include break-small() {
+		-webkit-overflow-scrolling: touch;
+		height: auto;
+		overflow: auto;
+		top: $admin-bar-height-big + $header-height;
+
+	}
+
+	@include break-medium() {
+		top: $admin-bar-height + $header-height;
+	}
+
+	@include break-small() {
+		display: block;
+	}
+
+	> .components-panel {
+		border-left: 0;
+		border-right: 0;
+		margin-bottom: -1px;
+		margin-top: -1px;
+	}
+
+	.block-editor-block-inspector__card {
+		margin: 0;
+	}
+}

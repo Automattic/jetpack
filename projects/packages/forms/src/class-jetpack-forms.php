@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Forms;
 
 use Automattic\Jetpack\Forms\ContactForm\Util;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard;
+use Automattic\Jetpack\Forms\Editor\Editor;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 /**
  * Understands the Jetpack Forms package.
@@ -28,6 +29,11 @@ class Jetpack_Forms {
 
 			$dashboard = new Dashboard( $view_switch );
 			$dashboard->init();
+		}
+
+		if ( is_admin() ) {
+			$editor = new Editor();
+			$editor->init();
 		}
 
 		if ( is_admin() && apply_filters_deprecated( 'tmp_grunion_allow_editor_view', array( true ), '0.30.5', '', 'This functionality will be removed in an upcoming version.' ) ) {

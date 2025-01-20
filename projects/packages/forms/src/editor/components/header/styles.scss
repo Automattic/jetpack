@@ -1,0 +1,15 @@
+.jetpack-forms-header {
+	align-items: center;
+	background: $white;
+	display: flex;
+	height: $header-height;
+	justify-content: space-between;
+	left: 0 !important;
+}
+
+@include editor-left(".jetpack-forms-header");
+
+.jetpack-forms-header__title {
+	font-size: 16px;
+	padding: 0 20px;
+}
