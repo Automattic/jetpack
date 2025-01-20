@@ -15,4 +15,4 @@
 
 use Automattic\Jetpack\Account_Protection\Account_Protection;
 
-Account_Protection::init();
+( new Account_Protection() )->init();

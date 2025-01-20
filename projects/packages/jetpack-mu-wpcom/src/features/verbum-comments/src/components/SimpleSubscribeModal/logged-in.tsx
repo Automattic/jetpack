@@ -1,6 +1,7 @@
+import { useContext } from 'preact/hooks';
 import useSubscriptionApi from '../../hooks/useSubscriptionApi';
 import { translate } from '../../i18n';
-import { subscriptionSettings, userInfo, commentUrl, subscribeModalStatus } from '../../state';
+import { VerbumSignals } from '../../state';
 import { SimpleSubscribeModalProps } from '../../types';
 import { shouldShowSubscriptionModal } from '../../utils';
 import SubscriptionModal from './subscription-modal';
@@ -8,6 +9,7 @@ import SubscriptionModal from './subscription-modal';
 // This determines if the modal should be shown to the user.
 // It's called before the modal is rendered.
 export const SimpleSubscribeSetModalShowLoggedIn = () => {
+	const { subscriptionSettings, userInfo, subscribeModalStatus } = useContext( VerbumSignals );
 	const { email } = subscriptionSettings.value ?? {
 		email: {
 			send_posts: false,
@@ -27,6 +29,7 @@ export const SimpleSubscribeModalLoggedIn = ( {
 	closeModalHandler,
 }: SimpleSubscribeModalProps ) => {
 	const { setEmailPostsSubscription } = useSubscriptionApi();
+	const { userInfo, commentUrl } = useContext( VerbumSignals );
 
 	/**
 	 * Handle the subscribe button click.

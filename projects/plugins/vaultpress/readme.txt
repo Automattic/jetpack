@@ -32,11 +32,24 @@ View our full list of FAQs at [http://help.vaultpress.com/faq/](http://help.vaul
 A Jetpack VaultPress subscription is for a single WordPress site.
 
 == Changelog ==
-### 3.0.0 - 2024-02-21
+### 4.0.0 - 2025-01-10
+#### Added
+- Enable test coverage.
+- Hook into red bubble notification when bad installation is detected.
+
 #### Changed
-- General: indicate compatibility with the upcoming version of WordPress, 6.5.
-- General: updated PHP requirement to PHP 7.0+
+- General: Indicate compatibility with the upcoming version of WordPress - 6.6.
+- General: Indicate compatibility with the upcoming version of WordPress - 6.7.
+- General: Use wp_admin_notice function introduced in WP 6.4 to display notices.
+- Only show installation errors on plugins page.
 - Updated package dependencies.
+
+#### Removed
+- Cleaned up legacy code.
+- General: Update minimum PHP version to 7.2.
+
+#### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes).
 
 --------
 

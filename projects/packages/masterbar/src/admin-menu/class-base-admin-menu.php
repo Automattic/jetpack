@@ -712,13 +712,13 @@ abstract class Base_Admin_Menu {
 			if ( isset( $menu_mappings[ $current_screen ] ) ) {
 				// Using `wp_redirect` intentionally because we're redirecting to Calypso.
 				wp_redirect( $menu_mappings[ $current_screen ] . $this->domain ); // phpcs:ignore WordPress.Security.SafeRedirect
-				exit;
+				exit( 0 );
 			}
 		} elseif ( self::CLASSIC_VIEW === $preferred_view ) {
 			// Removes the `preferred-view` param from the URL to avoid issues with
 			// screens that don't expect this param to be present in the URL.
 			wp_safe_redirect( remove_query_arg( 'preferred-view' ) );
-			exit;
+			exit( 0 );
 		}
 		// phpcs:enable WordPress.Security.NonceVerification
 	}

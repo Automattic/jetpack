@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Support References: send Slack message when an issue is labeled as customer report.

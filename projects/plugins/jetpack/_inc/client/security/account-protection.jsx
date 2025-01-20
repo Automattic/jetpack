@@ -142,7 +142,7 @@ const AccountProtection = class extends Component {
 									label={
 										<div className="account-protection__settings__toggle-setting__label">
 											<span className="jp-form-toggle-explanation">
-												{ __( 'Reqiure strong passwords', 'jetpack' ) }
+												{ __( 'Require strong passwords', 'jetpack' ) }
 											</span>
 											<InfoPopover
 												position="right"

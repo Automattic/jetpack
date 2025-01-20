@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-CRM: Fix bug which caused duplicated queries to run.

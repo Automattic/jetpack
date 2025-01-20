@@ -17,17 +17,22 @@ function recordEvent( button, props = {} ) {
 }
 
 document.addEventListener( 'DOMContentLoaded', () => {
-	let container;
-	if ( launchBarUserData?.isAtomic ) {
-		const isShadowDOM = !! ( document.head.attachShadow || document.head.createShadowRoot );
-		if ( isShadowDOM ) {
-			container = document.querySelector( '#wpcom-launch-banner-wrapper' ).shadowRoot;
-		} else {
-			container = document.querySelector( '#wpcom-launch-banner-wrapper' );
-		}
-	} else {
-		container = document;
+	const launchBanner = document.querySelector( '.launch-banner' );
+
+	if ( ! launchBanner ) {
+		return;
 	}
+
+	// Don't show the banner if the site is previewed via an iframe.
+	if ( window.top !== window.self ) {
+		return;
+	}
+
+	document.body.style.marginTop = '50px';
+	document.body.style.scrollPaddingTop = '50px';
+	launchBanner.style.display = null;
+
+	const container = document;
 	const popoverToggle = container.querySelector( '.launch-bar-global-styles-toggle' );
 	const popover = container.querySelector( '.launch-bar-global-styles-popover' );
 	const upgradeButton = container.querySelector( '.launch-bar-global-styles-upgrade' );

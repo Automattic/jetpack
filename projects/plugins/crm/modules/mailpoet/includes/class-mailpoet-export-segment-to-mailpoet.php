@@ -8,7 +8,7 @@
 namespace Automattic\JetpackCRM;
 
 // block direct access
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
  * Export CRM segment to MailPoet list class
@@ -169,7 +169,7 @@ class Mailpoet_Export_Segment_To_MailPoet {
 									)
 								)
 							);
-							exit();
+							exit( 0 );
 						}
 					}
 				} catch (\Throwable $th) {
@@ -183,7 +183,7 @@ class Mailpoet_Export_Segment_To_MailPoet {
 							)
 						)
 					);
-					exit();
+					exit( 0 );
 				}
 			}
 
@@ -198,7 +198,7 @@ class Mailpoet_Export_Segment_To_MailPoet {
 					)
 				)
 			);
-			exit();
+			exit( 0 );
 
 			
 	   	} );
@@ -216,12 +216,12 @@ class Mailpoet_Export_Segment_To_MailPoet {
 
 				if ( ! current_user_can( 'admin_zerobs_customers' ) ) {
 					echo esc_html__( 'Not enough permissions.', 'zero-bs-crm' );
-					exit();
+					exit( 0 );
 				}
 
 				if ( ! isset( $_POST['segment_id'] ) || ! isset( $_POST['mailpoet_id'] ) ) {
 					echo esc_html__( 'Not enough data provided to perform export.', 'zero-bs-crm' );
-					exit();
+					exit( 0 );
 				}
 
 				$segment_id = (int) sanitize_text_field( $_POST['segment_id'] );
@@ -247,7 +247,7 @@ class Mailpoet_Export_Segment_To_MailPoet {
 							'is_last_batch' => $is_last_batch
 						)
 					);
-					exit();
+					exit( 0 );
 
 				} else {
 
@@ -262,7 +262,7 @@ class Mailpoet_Export_Segment_To_MailPoet {
 							)
 						)
 					);
-					exit();
+					exit( 0 );
 
 				}
 
@@ -279,7 +279,7 @@ class Mailpoet_Export_Segment_To_MailPoet {
 						)
 					)
 				);
-				exit();
+				exit( 0 );
 
 			}
 
@@ -299,12 +299,12 @@ class Mailpoet_Export_Segment_To_MailPoet {
 
 				if ( ! current_user_can( 'admin_zerobs_customers' ) ) {
 					echo esc_html__( 'Not enough permissions.', 'zero-bs-crm' );
-					exit();
+					exit( 0 );
 				}
 
 				if ( ! isset( $_POST['list_name'] ) ) {
 					echo esc_html__( 'Not enough data provided to perform export.', 'zero-bs-crm' );
-					exit();
+					exit( 0 );
 				}
 
 				$list_name = sanitize_text_field( $_POST['list_name'] );
@@ -321,21 +321,21 @@ class Mailpoet_Export_Segment_To_MailPoet {
 				if ( ! is_array( $list_details ) ) {
 
 					// nope
-	    			zeroBSCRM_sendJSONSuccess( false );
-	    			exit();
+					zeroBSCRM_sendJSONSuccess( false );
+					exit( 0 );
 
 				} else {
 
 					// success
 	    			zeroBSCRM_sendJSONSuccess( $list_details );
-					exit();
+					exit( 0 );
 
 				}
 
 			} catch (\Throwable $th) {
 
-			    zeroBSCRM_sendJSONError( array( 'fail' => 1 ) );
-			    exit();
+				zeroBSCRM_sendJSONError( array( 'fail' => 1 ) );
+				exit( 0 );
 
 			}
 

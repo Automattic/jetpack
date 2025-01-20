@@ -72,7 +72,7 @@ const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = 
 		>
 			<Text className={ styles.text }>
 				{ __(
-					'When enabled, Social Image Generator will automatically generate social images for your posts. You can use the button below to choose a default template for new posts.',
+					'When enabled, Social Image Generator will automatically generate social images for your posts. You can use the button below to choose a default template for new posts. This feature is only supported in the block editor.',
 					'jetpack-social'
 				) }
 			</Text>
