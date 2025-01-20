@@ -23,15 +23,6 @@ if ( ! window.CSS ) {
 	};
 }
 
-// Needed by `@wordpress/compose' >=5.7.0
-if ( ! global.ResizeObserver ) {
-	global.ResizeObserver = class ResizeObserver {
-		observe() {}
-		unobserve() {}
-		disconnect() {}
-	};
-}
-
 // Needed for react-dom 18
 if ( ! global.TextEncoder ) {
 	const { TextEncoder, TextDecoder } = require( 'node:util' );

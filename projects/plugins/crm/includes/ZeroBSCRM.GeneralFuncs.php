@@ -9,13 +9,7 @@
  * Date: 01/11/16
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
  * Wrapper for zerobscrm_doing_it_wrong.
@@ -163,10 +157,10 @@ function zeroBSCRM_stripSlashesFromArr( $value ) { // phpcs:ignore WordPress.Nam
 
    # from http://wordpress.stackexchange.com/questions/91900/how-to-force-a-404-on-wordpress
 	function zeroBSCRM_force_404() {
-        status_header( 404 );
-        nocache_headers();
-        include( get_query_template( '404' ) );
-        die();
+		status_header( 404 );
+		nocache_headers();
+		include get_query_template( '404' );
+		die( 0 );
 	}
 
 	// WH not sure why we need this, shuttled off into zeroBSCRM_generateHash which is cleaner.

@@ -71,6 +71,9 @@ class Publicize_Script_Data {
 
 		$data['site']['wpcom']['blog_id'] = Manager::get_site_id( true );
 		$data['site']['suffix']           = ( new Status() )->get_site_suffix();
+		if ( ! isset( $data['site']['host'] ) ) {
+			$data['site']['host'] = ( new Host() )->get_known_host_guess();
+		}
 
 		return $data;
 	}
@@ -226,7 +229,13 @@ class Publicize_Script_Data {
 	 * @return array List of external services and their settings.
 	 */
 	public static function get_supported_services() {
-		return Publicize_Services::get_all();
+		/**
+		 * Disable caching for now to avoid nonce errors
+		 * for secondary users trying to connect an account
+		 *
+		 * @link https://github.com/Automattic/jetpack/pull/41149
+		 */
+		return Publicize_Services::get_all( true /* Ignore cache */ );
 	}
 
 	/**

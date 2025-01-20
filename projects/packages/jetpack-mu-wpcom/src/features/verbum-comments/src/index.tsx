@@ -1,7 +1,7 @@
 import { effect } from '@preact/signals';
 import clsx from 'clsx';
 import { render } from 'preact';
-import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
+import { useState, useEffect, useRef, useCallback, useContext } from 'preact/hooks';
 import { SimpleSubscribeModal } from './components/SimpleSubscribeModal';
 import { CommentFooter } from './components/comment-footer';
 import { CommentInputField } from './components/comment-input-field';
@@ -11,31 +11,32 @@ import { LoggedOut } from './components/logged-out';
 import useFormMutations from './hooks/useFormMutations';
 import useSocialLogin from './hooks/useSocialLogin';
 import { translate } from './i18n';
-import {
-	hasOpenedTrayOnce,
-	isEmptyComment,
-	isSavingComment,
-	isTrayOpen,
-	mailLoginData,
-	shouldStoreEmailData,
-	userInfo,
-	userLoggedIn,
-	commentUrl,
-	commentParent,
-	subscribeModalStatus,
-} from './state';
+import { createSignals, VerbumSignals } from './state';
 import {
 	canWeAccessCookies,
 	setUserInfoCookie,
 	addWordPressDomain,
 	hasSubscriptionOptionsVisible,
 } from './utils';
-import type { VerbumComments } from './types';
+import type { VerbumAppProps, VerbumComments } from './types';
 
 import './style.scss';
 
-const Verbum = ( { siteId }: VerbumComments ) => {
-	const formRef = useRef< HTMLFormElement >( null );
+const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
+	const {
+		hasOpenedTrayOnce,
+		isEmptyComment,
+		isSavingComment,
+		isTrayOpen,
+		mailLoginData,
+		shouldStoreEmailData,
+		userInfo,
+		userLoggedIn,
+		commentUrl,
+		commentParent,
+		subscribeModalStatus,
+	} = useContext( VerbumSignals );
+
 	const [ showMessage, setShowMessage ] = useState( '' );
 	const [ isErrorMessage, setIsErrorMessage ] = useState( false );
 
@@ -43,7 +44,7 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 	const [ email, setEmail ] = useState( '' );
 	const [ ignoreSubscriptionModal, setIgnoreSubscriptionModal ] = useState( false );
 	const { login, loginWindowRef, logout } = useSocialLogin();
-	useFormMutations();
+	useFormMutations( parentForm );
 
 	const dispose = effect( () => {
 		// The tray, when there is no sub options, is pretty minimal.
@@ -59,16 +60,14 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 	}, [] );
 
 	useEffect( () => {
-		formRef.current = document.getElementById( 'commentform' ) as HTMLFormElement | null;
-
-		if ( formRef.current ) {
-			formRef.current.addEventListener( 'submit', handleCommentSubmit );
+		if ( parentForm ) {
+			parentForm.addEventListener( 'submit', handleCommentSubmit );
 			return () => {
-				formRef.current.removeEventListener( 'submit', handleCommentSubmit );
+				parentForm.removeEventListener( 'submit', handleCommentSubmit );
 			};
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
+	}, [ parentForm ] );
 
 	useEffect( () => {
 		if ( ! isEmptyComment.value ) {
@@ -117,8 +116,8 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 		event.preventDefault();
 		setShowMessage( '' );
 
-		const formAction = formRef.current.getAttribute( 'action' );
-		const formData = new FormData( formRef.current );
+		const formAction = parentForm.getAttribute( 'action' );
+		const formData = new FormData( parentForm );
 
 		// if formData email address is set, set the newUserEmail state
 		if ( formData.get( 'email' ) ) {
@@ -155,8 +154,8 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 		// If no error message and not redirect, we re-submit the form as usual instead of using fetch.
 		setIgnoreSubscriptionModal( true );
 		isSavingComment.value = false;
-		const submitFormFunction = Object.getPrototypeOf( formRef.current ).submit;
-		submitFormFunction.call( formRef.current );
+		const submitFormFunction = Object.getPrototypeOf( parentForm ).submit;
+		submitFormFunction.call( parentForm );
 	};
 
 	const handleCommentSubmit = async event => {
@@ -246,4 +245,11 @@ const { siteId } = {
 	...VerbumComments,
 };
 
-render( <Verbum siteId={ siteId } />, document.getElementById( 'comment-form__verbum' ) );
+document.querySelectorAll( '.comment-form__verbum' ).forEach( element => {
+	render(
+		<VerbumSignals.Provider value={ createSignals() }>
+			<Verbum siteId={ siteId } parentForm={ element.parentNode as HTMLFormElement } />
+		</VerbumSignals.Provider>,
+		element
+	);
+} );

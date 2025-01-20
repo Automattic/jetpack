@@ -107,7 +107,7 @@ function zeroBSCRM_generateClientPortalUser() { // phpcs:ignore WordPress.Naming
 			$m['success'] = true;
 			$m['user_id'] = $created;
 			echo wp_json_encode( $m );
-			die();
+			die( 0 );
 
 		} else {
 
@@ -123,7 +123,7 @@ function zeroBSCRM_generateClientPortalUser() { // phpcs:ignore WordPress.Naming
 			$m['success'] = false;
 			$m['email']   = $email;
 			echo wp_json_encode( $m );
-			die();
+			die( 0 );
 
 		}
 	}

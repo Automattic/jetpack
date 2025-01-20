@@ -30,8 +30,7 @@
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-wp-js-data-sync": "@dev",
-		"matthiasmullie/minify": "^1.3",
-		"tubalmartin/cssmin": "^4.1"
+		"matthiasmullie/minify": "^1.3"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",

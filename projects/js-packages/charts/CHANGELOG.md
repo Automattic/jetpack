@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2025-01-12
+### Changed
+- make charts responsive [#40922]
+
+### Fixed
+- Fixed React reference [#40978]
+
+## [0.2.3] - 2025-01-12
+### Changed
+- Replace Rollup with Webpack for charts [#40912]
+- Updated package dependencies. [#40841]
+
 ## [0.2.2] - 2025-01-03
 ### Changed
 - Switching esbuild to rollup for better treeshaking. [#40817]
@@ -42,6 +54,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.3.0]: https://github.com/Automattic/charts/compare/v0.2.3...v0.3.0
+[0.2.3]: https://github.com/Automattic/charts/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/Automattic/charts/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/Automattic/charts/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Automattic/charts/compare/v0.1.0...v0.2.0

@@ -31,7 +31,7 @@ class Page_Cache_Entry implements Entry_Can_Get, Entry_Can_Set {
 	 *
 	 * @param mixed $value The value to sanitize.
 	 *
-	 * @return string The sanitized value, as a list.
+	 * @return array The sanitized value.
 	 */
 	private function sanitize_value( $value ) {
 		if ( is_array( $value ) ) {
@@ -56,12 +56,19 @@ class Page_Cache_Entry implements Entry_Can_Get, Entry_Can_Set {
 				// Remove double shashes.
 				$path = str_replace( '//', '/', $path );
 
+				// Remove symbols, as they are included in the regex check.
+				$path = ltrim( $path, '^' );
+				$path = rtrim( $path, '$' );
+				$path = preg_replace( '/\/\?$/', '', $path );
+
 				// Make sure there's a leading slash.
 				$path = '/' . ltrim( $path, '/' );
 
 				// Fix up any wildcards.
 				$path = $this->sanitize_wildcards( $path );
 			}
+
+			$value = array_values( array_unique( array_filter( $value ) ) );
 		} else {
 			$value = array();
 		}

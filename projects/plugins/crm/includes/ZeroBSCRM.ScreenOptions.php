@@ -9,13 +9,7 @@
  * Date: 27/05/18
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 // outputs top of page screen options panel :)
 // (based on rights + pagekey)
@@ -238,5 +232,4 @@ function zeroBS_canUpdateScreenOptions(){
 	if ($id > 0) return true;
 
 	return false;
-
 }

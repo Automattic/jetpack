@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [3.1] - 2025-01-10
+### Changed
+- Resolve an issue where revoked licenses were incorrectly treated as unattached. This caused users to be redirected to the license activation page after site connection, even when unattached licenses were not valid for activation. [#40215]
+- Social: Change My Jetpack CTA for Social from "Learn more" to "Activate". [#40359]
+- Update backup plugin screenshots [#40386]
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#40515]
+
 ## [3.0] - 2024-11-14
 ### Added
 - Display next scheduled daily backup time on the admin page.
@@ -255,6 +263,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Use `absoluteRuntime` in babel JS build to avoid module not found errors.
 
 [2.2-beta]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.1...2.2-beta
+[3.1]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.0...3.1
 [3.0]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.9...3.0
 [2.9]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.8...2.9
 [2.8]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.7...2.8

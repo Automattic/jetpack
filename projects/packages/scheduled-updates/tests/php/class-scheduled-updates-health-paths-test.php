@@ -11,7 +11,7 @@ use Automattic\Jetpack\Scheduled_Updates_Health_Paths;
 /**
  * Test class for Scheduled_Updates_Health_Paths.
  *
- * @coversDefaultClass Scheduled_Updates_Health_Paths
+ * @coversDefaultClass Automattic\Jetpack\Scheduled_Updates_Health_Paths
  */
 class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 

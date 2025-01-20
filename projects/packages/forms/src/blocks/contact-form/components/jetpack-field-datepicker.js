@@ -82,6 +82,7 @@ const JetpackDatePicker = props => {
 						index: 1,
 						element: (
 							<SelectControl
+								key="date-format"
 								label={ __( 'Date Format', 'jetpack-forms' ) }
 								options={ DATE_FORMATS.map( ( { value, label: optionLabel, example } ) => ( {
 									value,
@@ -98,6 +99,7 @@ const JetpackDatePicker = props => {
 									'jetpack-forms'
 								) }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 						),
 					},
