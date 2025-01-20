@@ -138,12 +138,7 @@ if ( is_readable( $boost_packages_path ) ) {
 /**
  * Setup Minify service.
  */
-add_action(
-	'template_redirect',
-	function () {
-		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/loader.php';
-	}
-);
+require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/loader.php';
 
 // Potential improvement: Make concat URL dir configurable
 // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
