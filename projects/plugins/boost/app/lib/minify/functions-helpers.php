@@ -22,9 +22,11 @@ function jetpack_boost_minify_cache_buster() {
 function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file_age = DAY_IN_SECONDS ) {
 
 	if ( $cache_folder !== Config::get_static_cache_dir_path() ) {
-		// Cleanup static cache folder
-		jetpack_boost_cache_maintenance();
-		jetpack_boost_page_optimize_cache_cleanup( Config::get_static_cache_dir_path(), WEEK_IN_SECONDS );
+		if ( $file_age !== 0 ) {
+			// Cleanup obsolete files in static cache folder
+			jetpack_boost_cache_maintenance();
+		}
+		jetpack_boost_page_optimize_cache_cleanup( Config::get_static_cache_dir_path(), $file_age !== 0 ? WEEK_IN_SECONDS : 0 );
 	}
 
 	if ( ! is_dir( $cache_folder ) ) {
@@ -54,6 +56,11 @@ function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file
 	// Cleanup all files older than $file_age
 	foreach ( $cache_files as $cache_file ) {
 		if ( ! is_file( $cache_file ) ) {
+			continue;
+		}
+
+		if ( $file_age === 0 ) {
+			wp_delete_file( $cache_file );
 			continue;
 		}
 
