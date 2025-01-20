@@ -24,6 +24,16 @@
 			padding: 10px;
 		}
 
+		.name{
+			font-weight: 500;
+			font-size: 14px;
+		}
+		.email{
+			color: #3C434A;
+			font-weight: 400;
+			font-size: 12px;
+		}
+
 		/* min-width except for checkbox column */
 		th:not(:first-child), td:not(:first-child) {
 			min-width: 120px;

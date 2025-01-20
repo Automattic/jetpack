@@ -15,7 +15,7 @@
 	Breaking Checks ( stops direct access )
 	====================================================== */
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 /*
 ======================================================
@@ -61,8 +61,6 @@ function zeroBSCRM_clearCloseState( $key = '' ) {
 	// use: add_filter('post_updated_messages', 'zeroBSCRM_improvedPostMsgsBookings'); on init
 function zeroBSCRM_improvedPostMsgsCustomers( $messages ) {
 
-	// print_r($messages); exit();
-
 	$messages['post'] = array(
 		0  => '', // Unused. Messages start at index 1.
 		1  => sprintf(
@@ -98,8 +96,6 @@ function zeroBSCRM_improvedPostMsgsCustomers( $messages ) {
 }
 function zeroBSCRM_improvedPostMsgsCompanies( $messages ) {
 
-	// print_r($messages); exit();
-
 	$messages['post'] = array(
 		0  => '', // Unused. Messages start at index 1.
 		1  => sprintf( __( jpcrm_label_company() . ' updated. <a href="%s">Back to ' . jpcrm_label_company( true ) . '</a>', 'zero-bs-crm' ), esc_url( 'edit.php?post_type=zerobs_company&page=manage-companies' ) ), // get_permalink($post_ID) ) ),
@@ -118,8 +114,6 @@ function zeroBSCRM_improvedPostMsgsCompanies( $messages ) {
 	return $messages;
 }
 function zeroBSCRM_improvedPostMsgsInvoices( $messages ) {
-
-	// print_r($messages); exit();
 
 	$messages['post'] = array(
 		0  => '', // Unused. Messages start at index 1.
@@ -140,8 +134,6 @@ function zeroBSCRM_improvedPostMsgsInvoices( $messages ) {
 }
 function zeroBSCRM_improvedPostMsgsQuotes( $messages ) {
 
-	// print_r($messages); exit();
-
 	$messages['post'] = array(
 		0  => '', // Unused. Messages start at index 1.
 		1  => sprintf( __( 'Quote updated. <a href="%s">Back to Quotes</a>', 'zero-bs-crm' ), esc_url( 'edit.php?post_type=zerobs_quote&page=manage-quotes' ) ), // get_permalink($post_ID) ) ),
@@ -160,8 +152,6 @@ function zeroBSCRM_improvedPostMsgsQuotes( $messages ) {
 	return $messages;
 }
 function zeroBSCRM_improvedPostMsgsTransactions( $messages ) {
-
-	// print_r($messages); exit();
 
 	global $zbs;
 
@@ -316,19 +306,17 @@ function zeroBSCRM_stopFrontEnd() {
 		if ( is_user_logged_in() ) {
 			// } No need here :)
 			header( 'Location: ' . admin_url( 'admin.php?page=' . $zbs->slugs['managecontacts'] ) );
-			exit();
+			exit( 0 );
 
 		} else {
 			// } No need here :)
 			header( 'Location: ' . wp_login_url() );
-			exit();
+			exit( 0 );
 		}
 	}
 }
 
 function zeroBSCRM_catchDashboard() {
-
-	// debug echo 'api:'.zeroBSCRM_isAPIRequest().' portal:'.zeroBSCRM_isClientPortalPage().'!'; exit();
 
 		// } Only if not API / Client portal
 	if ( ! zeroBSCRM_isAPIRequest() && ! zeroBSCRM_isClientPortalPage() ) {

@@ -6,7 +6,7 @@ use Automattic\Jetpack\Tracking;
 
 // Disable direct access/execution to/of the widget code.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {

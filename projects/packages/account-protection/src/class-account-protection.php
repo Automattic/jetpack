@@ -14,7 +14,7 @@ use Automattic\Jetpack\Modules;
  */
 class Account_Protection {
 
-	const PACKAGE_VERSION                = '1.0.0-alpha';
+	const PACKAGE_VERSION                = '0.1.0-alpha';
 	const ACCOUNT_PROTECTION_MODULE_NAME = 'account-protection';
 	const STRICT_MODE_OPTION_NAME        = 'jetpack_account_protection_strict_mode';
 

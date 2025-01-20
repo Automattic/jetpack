@@ -13,6 +13,12 @@
 add_filter(
 	'register_post_type_args',
 	function ( $args ) {
+		if ( current_user_can( 'manage_options' ) ) {
+			// Admins still need default_rendering_mode for the site editor to select the correct default template.
+			// See: p1736989403607879-slack-C02FMH4G8
+			return $args;
+		}
+
 		unset( $args['default_rendering_mode'] );
 		return $args;
 	},

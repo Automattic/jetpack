@@ -50,46 +50,18 @@ body:
     attributes:
       label: Steps to reproduce
       placeholder: |
+        E.g., What happened, and what did you expect to happen? Add images,
+        GIFs, and videos if you have them on hand.
+
         1. Start at `site-domain.com/blog`.
         2. Click on any blog post.
         3. Click on the 'Like' button.
         4. ...
-    validations:
-      required: true
-  - type: textarea
-    id: expected
-    attributes:
-      label: A clear and concise description of what you expected to happen.
-      placeholder: |
-        eg. Post should be liked.
-  - type: textarea
-    id: actual
-    attributes:
-      label: What actually happened
-      placeholder: |
-        eg. Clicking the button does nothing visibly.
-  - type: dropdown
-    id: users-affected
-    attributes:
-      label: Impact
-      description: Approximately how many users are impacted?
-      options:
-        - One
-        - Some (< 50%)
-        - Most (> 50%)
-        - All
-    validations:
-      required: true
-  - type: dropdown
-    id: workarounds
-    attributes:
-      label: Available workarounds?
-      options:
-        - No and the platform is unusable
-        - No but the platform is still usable
-        - Yes, difficult to implement
-        - Yes, easy to implement
-        - There is no user impact
+
+        Add any information that may be relevant, such as:
+          - Browser/Platform
+          - Theme
+          - Logs/Errors
     validations:
       required: true
 
@@ -98,15 +70,47 @@ body:
       value: |
         <br>
 
-  - type: textarea
-    id: workaround-detail
+        ## Impact
+        Please help us understand more about the impact of this issue to help determine next steps.
+        If you are unsure about anything, please use your judgment to make an educated guess.
+  - type: dropdown
+    id: impact
     attributes:
-      label: If the above answer is "Yes...", outline the workaround.
-      placeholder: |
-        Provide details of the specific steps to take that resolve the issue, e.g.:
-          - Open "Setting X".
-          - Toggle "Option Y".
-          - Click "Button Z".
+      label: Site owner impact
+      description: Approximately what percentage of the total users of the platform are impacted? Unsure? Please provide your most educated guess!
+      options:
+        - Fewer than 20% of the total website/platform users
+        - Between 20% and 60% of the total website/platform users
+        - More than 60% of the total website/platform users
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: What is the severity of this issue? Please take a look at the descriptions below for further context.<br>
+        <br> - **Critical:** Prevents core functionality or has severe impact on the website/platform.
+        <br> - **Major:** Significantly impairs important features or has notable impact on the website/platform.
+        <br> - **Moderate:** Affects non-critical features or has limited impact on the website/platform.
+        <br> - **Minor:** Causes inconvenience or has minimal impact on functionality.
+      options:
+        - Critical
+        - Major
+        - Moderate
+        - Minor
+    validations:
+      required: true
+  - type: dropdown
+    id: additional-impact
+    attributes:
+      label: What other impact(s) does this issue have?
+      description: You may select more than one
+      options:
+        - Platform revenue
+        - Agency or developer revenue
+        - Individual site owner revenue
+        - No revenue impact
+      multiple: true
 
   - type: markdown
     attributes:
@@ -115,7 +119,16 @@ body:
 
         ## Optional Information
 
-        The following section is optional.
+  - type: textarea
+    id: workaround
+    attributes:
+      label: If a workaround is available, please outline it here.
+      placeholder: |
+        Provide details of the specific steps to take that resolve the issue, e.g.:
+          - Open "Setting X".
+          - Toggle "Option Y".
+          - Click "Button Z".
+
   - type: dropdown
     id: site-type
     attributes:
@@ -126,12 +139,3 @@ body:
         - Atomic
         - Self-hosted
       multiple: true
-  - type: textarea
-    id: logs
-    attributes:
-      label: Logs or notes
-      placeholder: |
-        Add any information that may be relevant, such as:
-          - Browser/Platform
-          - Theme
-          - Logs/Errors

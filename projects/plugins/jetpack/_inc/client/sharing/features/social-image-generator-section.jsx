@@ -16,7 +16,7 @@ const SocialImageGeneratorSection = () => {
 						<strong>{ __( 'Enable Social Image Generator', 'jetpack' ) }</strong>
 					</Text>
 					{ __(
-						'With Social Image Generator enabled you can automatically generate social images for your posts. You can use the button below to choose a default template for new posts.',
+						'With Social Image Generator enabled you can automatically generate social images for your posts. You can use the button below to choose a default template for new posts. This feature is only supported in the block editor.',
 						'jetpack'
 					) }
 				</div>

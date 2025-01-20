@@ -11,7 +11,7 @@
  */
 
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 $json_params    = file_get_contents( 'php://input' );

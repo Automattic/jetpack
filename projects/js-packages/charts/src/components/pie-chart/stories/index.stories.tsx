@@ -3,21 +3,97 @@ import { PieChart } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const data = [
-	{ label: 'A', value: 30 },
-	{ label: 'B', value: 20 },
-	{ label: 'C', value: 15 },
-	{ label: 'D', value: 35 },
+	{
+		label: 'MacOS',
+		value: 30000,
+		valueDisplay: '30K',
+		percentage: 5,
+	},
+	{
+		label: 'Linux',
+		value: 22000,
+		valueDisplay: '22K',
+		percentage: 1,
+	},
+	{
+		label: 'Windows',
+		value: 80000,
+		valueDisplay: '80K',
+		percentage: 2,
+	},
 ];
 
-type StoryType = StoryObj< typeof PieChart >;
-
-export default {
+const meta = {
 	title: 'JS Packages/Charts/Types/Pie Chart',
 	component: PieChart,
 	parameters: {
 		layout: 'centered',
 	},
+	decorators: [
+		( Story, { args } ) => (
+			<ThemeProvider theme={ args.theme }>
+				<div
+					style={ {
+						resize: 'both',
+						overflow: 'auto',
+						padding: '2rem',
+						width: '800px',
+						aspectRatio: '1/1',
+						minWidth: '400px',
+						maxWidth: '1200px',
+						border: '1px dashed #ccc',
+					} }
+				>
+					<Story />
+				</div>
+			</ThemeProvider>
+		),
+	],
 	argTypes: {
+		size: {
+			control: {
+				type: 'range',
+				min: 100,
+				max: 800,
+				step: 10,
+			},
+		},
+		thickness: {
+			control: {
+				type: 'range',
+				min: 0,
+				max: 1,
+				step: 0.01,
+			},
+		},
+		padding: {
+			control: {
+				type: 'range',
+				min: 0,
+				max: 100,
+				step: 1,
+			},
+		},
+		gapScale: {
+			control: {
+				type: 'range',
+				min: 0,
+				max: 1,
+				step: 0.01,
+			},
+		},
+		cornerScale: {
+			control: {
+				type: 'range',
+				min: 0,
+				max: 1,
+				step: 0.01,
+			},
+		},
+		legendOrientation: {
+			control: 'radio',
+			options: [ 'horizontal', 'vertical' ],
+		},
 		theme: {
 			control: 'select',
 			options: {
@@ -28,31 +104,27 @@ export default {
 			defaultValue: undefined,
 		},
 	},
-	decorators: [
-		( Story, { args } ) => (
-			<ThemeProvider theme={ args.theme }>
-				<div style={ { padding: '2rem' } }>
-					<Story />
-				</div>
-			</ThemeProvider>
-		),
-	],
 } satisfies Meta< typeof PieChart >;
 
-export const Default: StoryType = {
+export default meta;
+type Story = StoryObj< typeof PieChart >;
+
+export const Default: Story = {
 	args: {
-		width: 400,
-		height: 400,
+		size: 400,
+		thickness: 1,
+		gapScale: 0,
+		padding: 20,
+		cornerScale: 0,
 		withTooltips: false,
 		data,
 		theme: 'default',
-		innerRadius: 0,
 		showLegend: false,
 		legendOrientation: 'horizontal',
 	},
 };
 
-export const WithHorizontalLegend: StoryType = {
+export const WithHorizontalLegend: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
@@ -60,7 +132,7 @@ export const WithHorizontalLegend: StoryType = {
 	},
 };
 
-export const WithVerticalLegend: StoryType = {
+export const WithVerticalLegend: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
@@ -68,21 +140,21 @@ export const WithVerticalLegend: StoryType = {
 	},
 };
 
-export const Doughnut: StoryType = {
+export const Doughnut: Story = {
 	args: {
 		...Default.args,
-		innerRadius: 80,
+		thickness: 0.5,
 	},
 	parameters: {
 		docs: {
 			description: {
-				story: 'Doughnut chart variant with inner radius of 80px.',
+				story: 'Doughnut chart variant with the thickness set to 0.5 (50%).',
 			},
 		},
 	},
 };
 
-export const WithTooltips: StoryType = {
+export const WithTooltips: Story = {
 	args: {
 		...Default.args,
 		withTooltips: true,
@@ -96,16 +168,41 @@ export const WithTooltips: StoryType = {
 	},
 };
 
-export const WithTooltipsDoughnut: StoryType = {
+export const WithTooltipsDoughnut: Story = {
 	args: {
 		...Default.args,
+		thickness: 0.5,
 		withTooltips: true,
-		innerRadius: 100,
 	},
 	parameters: {
 		docs: {
 			description: {
 				story: 'Doughnut chart with interactive tooltips that appear on hover.',
+			},
+		},
+	},
+};
+
+export const FixedDimensions: Story = {
+	render: args => (
+		<div style={ { width: '400px' } }>
+			<PieChart { ...args } />
+		</div>
+	),
+	args: {
+		size: 400,
+		thickness: 1,
+		padding: 20,
+		data,
+		withTooltips: true,
+		theme: 'default',
+		showLegend: false,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Pie chart with fixed dimensions that override the responsive behavior. Uses size prop instead of width/height.',
 			},
 		},
 	},

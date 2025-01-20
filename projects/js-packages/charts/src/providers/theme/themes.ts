@@ -1,4 +1,4 @@
-import type { ChartTheme } from '../../components/shared/types';
+import type { ChartTheme } from '../../types';
 
 /**
  * Default theme configuration

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Image CDN: Ensure that double encoding doesn't happen.

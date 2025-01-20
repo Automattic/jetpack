@@ -137,15 +137,20 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 	 * with a specific post.
 	 */
 	public function generate_cloud_css( $reason, $providers = array() ) {
-		$grouped_urls = array();
+		$grouped_urls   = array();
+		$grouped_ratios = array();
 
 		foreach ( $providers as $source ) {
-			$provider                  = $source['key'];
-			$grouped_urls[ $provider ] = $source['urls'];
+			$provider                    = $source['key'];
+			$grouped_urls[ $provider ]   = $source['urls'];
+			$grouped_ratios[ $provider ] = $source['success_ratio'];
 		}
 
 		// Send the request to the Cloud.
-		$payload              = array( 'providers' => $grouped_urls );
+		$payload              = array(
+			'providers'     => $grouped_urls,
+			'successRatios' => $grouped_ratios,
+		);
 		$payload['requestId'] = md5( wp_json_encode( $payload ) . time() );
 		$payload['reason']    = $reason;
 		return Boost_API::post( 'cloud-css', $payload );
@@ -159,7 +164,13 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 			return;
 		}
 
-		$this->regenerate_cloud_css( self::REGENERATE_REASON_SAVE_POST, $this->get_all_providers( array( $post ) ) );
+		// This checks against the latest providers list, not the list
+		// stored in the database because newly added posts are always
+		// included in the providers list that will be used to generate
+		// the Cloud CSS.
+		if ( $this->is_post_in_latest_providers_list( $post ) ) {
+			$this->regenerate_cloud_css( self::REGENERATE_REASON_SAVE_POST, $this->get_all_providers( array( $post ) ) );
+		}
 	}
 
 	public function regenerate_cloud_css( $reason, $providers ) {
@@ -169,6 +180,26 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 			$state->set_error( $result->get_error_message() )->save();
 		}
 		return $result;
+	}
+
+	/**
+	 * Check if the post is in the latest providers list.
+	 *
+	 * @param int|\WP_Post $post The post to check.
+	 *
+	 * @return bool
+	 */
+	public function is_post_in_latest_providers_list( $post ) {
+		$post_link = get_permalink( $post );
+		$providers = $this->get_all_providers();
+
+		foreach ( $providers as $provider ) {
+			if ( in_array( $post_link, $provider['urls'], true ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

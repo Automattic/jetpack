@@ -154,18 +154,7 @@ class Colors_Manager_Common {
 			return;
 		}
 
-		if ( self::is_gutenberg() ) {
-			// This will load the annotations.
-			self::has_annotations();
-
-			// CSS only to be printed if colors are set, on the editor.
-			if ( self::theme_has_set_colors() ) {
-				self::override_themecolors();
-
-				// NOTE: Using `get_called_class()` here is crucial for the Gutenberg styles to be processed.
-				add_action( 'enqueue_block_editor_assets', array( get_called_class(), 'print_block_editor_css' ) );
-			}
-		} else {
+		if ( ! self::is_gutenberg() ) {
 			// Classic Background stats
 			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_classic_stats' ) );
 			// always load ajax actions
@@ -616,7 +605,7 @@ class Colors_Manager_Common {
 
 		header( 'Content-Type: text/javascript' );
 		echo wp_json_encode( $response );
-		die;
+		die( 0 );
 	}
 
 	/**
@@ -628,7 +617,7 @@ class Colors_Manager_Common {
 		$response = self::get_generated_palette( $_REQUEST );  // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this is a GET request that doesn't change anything.
 		header( 'Content-Type: text/javascript' );
 		echo wp_json_encode( $response );
-		die;
+		die( 0 );
 	}
 
 	/**
@@ -643,7 +632,7 @@ class Colors_Manager_Common {
 
 		header( 'Content-Type: text/javascript' );
 		echo wp_json_encode( $response );
-		die;
+		die( 0 );
 	}
 
 	/**
@@ -658,7 +647,7 @@ class Colors_Manager_Common {
 
 		header( 'Content-Type: text/javascript' );
 		echo wp_json_encode( $response );
-		die;
+		die( 0 );
 	}
 
 	/**
@@ -1480,20 +1469,6 @@ class Colors_Manager_Common {
 			wp_strip_all_tags( $css ), // phpcs:ignore -- CSS can't be properly escaped with esc_html
 			"\n"
 		);
-	}
-
-	/**
-	 * Print block editor CSS.
-	 */
-	public static function print_block_editor_css() {
-		if ( ! self::should_enable_colors() ) {
-			return;
-		}
-		$css = self::get_theme_css();
-
-		wp_register_style( 'custom-colors-editor-css', false, array(), '20210311' ); // Register an empty stylesheet to append custom CSS to.
-		wp_enqueue_style( 'custom-colors-editor-css' );
-		wp_add_inline_style( 'custom-colors-editor-css', $css ); // Append inline style to our new stylesheet
 	}
 
 	/**

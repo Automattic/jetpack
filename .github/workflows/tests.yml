@@ -4,8 +4,10 @@ on:
   pull_request:
   push:
     branches: [ 'trunk', '*/branch-*' ]
+
 concurrency:
-  group: tests-${{ github.event_name }}-${{ github.ref }}
+  # Trunk runs need to not be cancelled for concurrency, mainly for code coverage. Everything else can be.
+  group: tests-${{ github.event_name }}-${{ github.ref }}-${{ github.event_name == 'push' && github.ref == 'refs/heads/trunk' && github.run_id || '' }}
   cancel-in-progress: true
 
 env:
@@ -51,6 +53,10 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson( needs.create-matrix.outputs.matrix ) }}
+
+    # Note matrix-job outputs are kind of weird. Last-to-run job that sets a non-empty value wins.
+    outputs:
+      did-coverage: ${{ ( steps.run-tests.conclusion != 'cancelled' && steps.process-coverage.conclusion == 'success' && steps.upload-artifacts.conclusion == 'success' ) && 'true' || '' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -114,6 +120,7 @@ jobs:
         run: .github/files/setup-wordpress-env.sh
 
       - name: Run project tests
+        id: run-tests
         env:
           FORCE_PACKAGE_TESTS: ${{ matrix.force-package-tests && 'true' || 'false' }}
           CHANGED: ${{ steps.changed.outputs.projects }}
@@ -249,6 +256,7 @@ jobs:
           exit $EXIT
 
       - name: Process coverage results
+        id: process-coverage
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
         if: matrix.script == 'test-coverage' && always()
@@ -266,6 +274,7 @@ jobs:
             echo "any=false" >> "$GITHUB_OUTPUT"
           fi
       - name: Upload artifacts
+        id: upload-artifacts
         if: always() && steps.check-artifacts.outputs.any == 'true'
         uses: actions/upload-artifact@v4
         with:
@@ -274,11 +283,34 @@ jobs:
           include-hidden-files: true
           retention-days: 7
 
+  publish-coverage-data:
+    name: Publish coverage data
+    runs-on: ubuntu-latest
+    timeout-minutes: 10 # 2025-01-10 Wild guess
+    needs: run-tests
+    if: always() && needs.run-tests.outputs.did-coverage == 'true' && ( github.event_name == 'pull_request' || github.ref == 'refs/heads/trunk' )
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: 'Code coverage'
+          path: coverage
+
+      - name: Upload coverage results
+        env:
+          PR_ID: ${{ github.event_name != 'pull_request' && 'trunk' || github.event.pull_request.number }}
+          SECRET: ${{ secrets.CODECOV_SECRET }}
+        run: .github/files/coverage-munger/upload-coverage.sh
+
   storybook-test:
     name: Storybook tests
     runs-on: ubuntu-latest
     timeout-minutes: 20 # 2024-02-23 Wild guess
-    continue-on-error: true # Until it passes
     steps:
       - uses: actions/checkout@v4
 

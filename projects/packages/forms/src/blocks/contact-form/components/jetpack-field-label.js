@@ -34,7 +34,7 @@ const FieldLabel = ( {
 				} }
 				placeholder={ placeholder ?? __( 'Add label…', 'jetpack-forms' ) }
 				withoutInteractiveFormatting
-				allowedFormats={ [ 'core/bold', 'core/italic' ] }
+				allowedFormats={ [ 'core/italic' ] }
 			/>
 			{ suffix && <span className="jetpack-field-label__suffix">{ suffix }</span> }
 			{ required && (
