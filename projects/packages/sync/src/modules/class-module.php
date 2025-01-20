@@ -405,13 +405,16 @@ abstract class Module {
 				$status['finished'] = true;
 				return $status;
 			}
-			$key = $this->full_sync_action_name() . '_' . crc32( wp_json_encode( $status['last_sent'] ) );
-
-			$result = $this->send_action( $this->full_sync_action_name(), array( $objects, $status['last_sent'] ), $key );
-			if ( is_wp_error( $result ) || $wpdb->last_error ) {
-				$status['error'] = true;
-				return $status;
+			// If we don't have objects as a key it means get_next_chunk is being overridden, we need to check for it being an empty array.
+			if ( ! isset( $objects['objects'] ) || array() !== $objects['objects'] ) {
+				$key    = $this->full_sync_action_name() . '_' . crc32( wp_json_encode( $status['last_sent'] ) );
+				$result = $this->send_action( $this->full_sync_action_name(), array( $objects, $status['last_sent'] ), $key );
+				if ( is_wp_error( $result ) || $wpdb->last_error ) {
+					$status['error'] = true;
+					return $status;
+				}
 			}
+
 			// Updated the sent and last_sent status.
 			$status = $this->set_send_full_sync_actions_status( $status, $objects );
 			if ( $last_item === $status['last_sent'] ) {

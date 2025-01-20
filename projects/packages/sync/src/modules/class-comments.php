@@ -499,8 +499,31 @@ class Comments extends Module {
 	 * @return array The expanded hook parameters.
 	 */
 	public function expand_comment_ids( $args ) {
-		list( $comment_ids, $previous_interval_end ) = $args;
-		$comments                                    = get_comments(
+		list( $filtered_comments, $previous_end ) = $args;
+		return array(
+			$filtered_comments['objects'],
+			$filtered_comments['meta'],
+			$previous_end,
+		);
+	}
+
+	/**
+	 * Given the Module Configuration and Status return the next chunk of items to send.
+	 * This function also expands the posts and metadata and filters them based on the maximum size constraints.
+	 *
+	 * @param array $config This module Full Sync configuration.
+	 * @param array $status This module Full Sync status.
+	 * @param int   $chunk_size Chunk size.
+	 *
+	 * @return array
+	 */
+	public function get_next_chunk( $config, $status, $chunk_size ) {
+
+		$comment_ids = parent::get_next_chunk( $config, $status, $chunk_size );
+		if ( empty( $comment_ids ) ) {
+			return array();
+		}
+		$comments = get_comments(
 			array(
 				'include_unapproved' => true,
 				'comment__in'        => $comment_ids,
@@ -508,11 +531,31 @@ class Comments extends Module {
 				'order'              => 'DESC',
 			)
 		);
-
+		if ( empty( $comments ) ) {
+			return array();
+		}
 		return array(
-			$comments,
-			$this->get_metadata( $comment_ids, 'comment', Settings::get_setting( 'comment_meta_whitelist' ) ),
-			$previous_interval_end,
+			'object_ids' => $comment_ids,
+			'objects'    => $comments,
+			'meta'       => $this->get_metadata( $comment_ids, 'comment', Settings::get_setting( 'comment_meta_whitelist' ) ),
 		);
+	}
+
+	/**
+	 * Set the status of the full sync action based on the objects that were sent.
+	 *
+	 * @access public
+	 *
+	 * @param array $status This module Full Sync status.
+	 * @param array $objects This module Full Sync objects.
+	 *
+	 * @return array The updated status.
+	 */
+	public function set_send_full_sync_actions_status( $status, $objects ) {
+
+		$object_ids          = $objects['object_ids'];
+		$status['last_sent'] = end( $object_ids );
+		$status['sent']     += count( $object_ids );
+		return $status;
 	}
 }

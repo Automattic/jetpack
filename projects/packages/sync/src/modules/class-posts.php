@@ -809,13 +809,12 @@ class Posts extends Module {
 	 * @return array $args The expanded hook parameters.
 	 */
 	public function add_term_relationships( $args ) {
-		list( $filtered_posts, $previous_interval_end )                       = $args;
-		list( $filtered_post_ids, $filtered_posts, $filtered_posts_metadata ) = $filtered_posts;
+		list( $filtered_posts, $previous_interval_end ) = $args;
 
 		return array(
-			$filtered_posts,
-			$filtered_posts_metadata,
-			$this->get_term_relationships( $filtered_post_ids ),
+			$filtered_posts['objects'],
+			$filtered_posts['meta'],
+			$this->get_term_relationships( $filtered_posts['object_ids'] ),
 			$previous_interval_end,
 		);
 	}
@@ -882,9 +881,9 @@ class Posts extends Module {
 		// Filter posts and metadata based on maximum size constraints.
 		list( $filtered_post_ids, $filtered_posts, $filtered_posts_metadata ) = $this->filter_posts_and_metadata_max_size( $posts, $posts_metadata );
 		return array(
-			$filtered_post_ids,
-			$filtered_posts,
-			$filtered_posts_metadata,
+			'object_ids' => $filtered_post_ids,
+			'objects'    => $filtered_posts,
+			'meta'       => $filtered_posts_metadata,
 		);
 	}
 
@@ -964,8 +963,10 @@ class Posts extends Module {
 	 * @return array The updated status.
 	 */
 	public function set_send_full_sync_actions_status( $status, $objects ) {
-		$status['last_sent'] = end( $objects[0] );
-		$status['sent']     += count( $objects[0] );
+
+		$object_ids          = $objects['object_ids'];
+		$status['last_sent'] = end( $object_ids );
+		$status['sent']     += count( $object_ids );
 		return $status;
 	}
 }
