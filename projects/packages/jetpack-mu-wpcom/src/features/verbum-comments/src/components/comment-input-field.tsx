@@ -1,8 +1,9 @@
+/* global verbumBlockEditor */
 import clsx from 'clsx';
 import { forwardRef, type TargetedEvent } from 'preact/compat';
-import { useEffect, useState } from 'preact/hooks';
+import { useContext, useEffect, useState } from 'preact/hooks';
 import { translate } from '../i18n';
-import { commentParent, commentValue } from '../state';
+import { VerbumSignals } from '../state';
 import { isFastConnection } from '../utils';
 import { EditorPlaceholder } from './editor-placeholder';
 
@@ -35,6 +36,7 @@ export const CommentInputField = forwardRef(
 		{ handleOnKeyUp }: CommentInputFieldProps,
 		ref: React.MutableRefObject< HTMLTextAreaElement | null >
 	) => {
+		const { commentParent, commentValue } = useContext( VerbumSignals );
 		const [ editorState, setEditorState ] = useState< 'LOADING' | 'LOADED' | 'ERROR' >( null );
 		const [ isGBEditorEnabled, setIsGBEditorEnabled ] = useState( false );
 

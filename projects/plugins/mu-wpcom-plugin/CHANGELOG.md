@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.7.0 - 2025-01-10
+### Added
+- WordPress.com Features: Add Holiday Snow functionality. [#40478]
+
+### Changed
+- Newspack Blocks: Update to version 4.5.2. [#40636]
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#40116] [#40515]
+
+### Fixed
+- Global Styles: Stop showing the limited global styles notice in distraction-free mode. [#40907]
+- Testimonials: Fix a shortcode related bug which ccurs if the column attribute is added and set to 0. [#40896]
+
 ## 2.6.1 - 2024-11-11
 ### Changed
 - Internal updates.

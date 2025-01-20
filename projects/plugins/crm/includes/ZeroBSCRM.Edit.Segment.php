@@ -9,15 +9,9 @@
  * Date: 09/01/18
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-if (! defined('ZEROBSCRM_PATH')) {
-    exit;
+if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
+	exit( 0 );
 }
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
 
 function zeroBSCRM_pages_addEditSegment($potentialID = -1)
 {

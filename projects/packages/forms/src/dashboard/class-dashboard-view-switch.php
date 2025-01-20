@@ -251,7 +251,7 @@ CSS
 
 		update_user_option( get_current_user_id(), 'jetpack_forms_admin_preferred_view', $view );
 		wp_safe_redirect( remove_query_arg( 'dashboard-preferred-view' ) );
-		exit;
+		exit( 0 );
 	}
 
 	/**

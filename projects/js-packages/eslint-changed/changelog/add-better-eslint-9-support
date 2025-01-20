@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-Detect whether to use eslintrc or flat config in the same way eslint does.

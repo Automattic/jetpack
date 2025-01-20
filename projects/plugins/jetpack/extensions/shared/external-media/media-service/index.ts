@@ -11,8 +11,8 @@ import { MediaSource } from './types';
 
 // Pexels constants
 const PEXELS_ID = 'pexels';
-const PEXELS_NAME = __( 'Pexels Free Photos', 'jetpack' );
-const PEXELS_SEARCH_PLACEHOLDER = __( 'Search Pexels Free Photos', 'jetpack' );
+const PEXELS_NAME = __( 'Pexels free photos', 'jetpack' );
+const PEXELS_SEARCH_PLACEHOLDER = __( 'Search Pexels free photos', 'jetpack' );
 const DEFAULT_PEXELS_SEARCH: MediaSearch = {
 	per_page: 10,
 	search: 'mountain',

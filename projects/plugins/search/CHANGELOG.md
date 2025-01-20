@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2025-01-10
+### Added
+- Enable test coverage. [#39961]
+- My Jetpack: Update recommendations section in My Jetpack to include a slider interaction for the cards. [#39850]
+- Search: Added ability to customize results. [#36378]
+
+### Changed
+- Classic Widget: Update asset enqueuing strategy to ensure compatibility with the Elementor plugin. [#39820]
+- General: Indicate compatibility with the upcoming version of WordPress - 6.7. [#39786]
+- Include `wp-polyfill` as a script dependency only when needed. [#39629]
+- Resolve an issue where revoked licenses were incorrectly treated as unattached. This caused users to be redirected to the license activation page after site connection, even when unattached licenses were not valid for activation. [#40215]
+- Social: Changed My Jetpack CTA for Social from "Learn more" to "Activate" [#40359]
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#39288] [#39653] [#40116] [#40515] [#40693] [#40815]
+
+### Removed
+- Connection: Removed deprecated `features_available` method. [#39442]
+- Connection: Removed deprecated `features_enabled` method. [#39475]
+- General: Update minimum PHP version to 7.2. [#40147]
+- General: Update minimum WordPress version to 6.6. [#40146]
+
+### Fixed
+- E2E Tests: Only install single browser used by Playwright. [#40827]
+- My Jetpack: Update GlobalNotice component to look better on mobile. [#39537]
+
 ## [3.0.1] - 2024-09-06
 ### Changed
 - Internal updates.
@@ -149,6 +174,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [1.1.0-beta]: https://github.com/Automattic/jetpack-search-plugin/compare/1.0.0...1.1.0-beta
 [1.2.0-beta]: https://github.com/Automattic/jetpack-search-plugin/compare/1.1.0...1.2.0-beta
+[4.0.0]: https://github.com/Automattic/jetpack-search-plugin/compare/3.0.1...4.0.0
 [3.0.1]: https://github.com/Automattic/jetpack-search-plugin/compare/3.0.0...3.0.1
 [3.0.0]: https://github.com/Automattic/jetpack-search-plugin/compare/2.1.0...3.0.0
 [2.1.0]: https://github.com/Automattic/jetpack-search-plugin/compare/2.0.0...2.1.0

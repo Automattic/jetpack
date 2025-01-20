@@ -608,7 +608,7 @@ class Actions {
 			'network_options' => true,
 		);
 
-		self::do_full_sync( $initial_sync_config );
+		self::do_full_sync( $initial_sync_config, 'initial_sync' );
 	}
 
 	/**
@@ -633,9 +633,10 @@ class Actions {
 	 * @static
 	 *
 	 * @param array $modules  The sync modules should be included in this full sync. All will be included if null.
+	 * @param mixed $context  The context where the full sync was initiated from.
 	 * @return bool           True if full sync was successfully started.
 	 */
-	public static function do_full_sync( $modules = null ) {
+	public static function do_full_sync( $modules = null, $context = null ) {
 		if ( ! self::sync_allowed() ) {
 			return false;
 		}
@@ -649,7 +650,7 @@ class Actions {
 
 		self::initialize_listener();
 
-		$full_sync_module->start( $modules );
+		$full_sync_module->start( $modules, $context );
 
 		return true;
 	}

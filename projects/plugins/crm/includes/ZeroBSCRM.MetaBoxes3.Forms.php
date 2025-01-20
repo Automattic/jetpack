@@ -9,13 +9,7 @@
  * Date: 20/02/2019
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 
@@ -251,7 +245,7 @@
 
                     // redir
                     wp_redirect( jpcrm_esc_link('edit',$zbsJustInsertedMetaboxID,$this->objType) );
-                    exit;
+				exit( 0 );
 
                 }
 
@@ -759,7 +753,6 @@
         // saved via main metabox
     }
 
-
-/* ======================================================
-  / Form Action Metabox
-   ====================================================== */
+/**
+ * End of Form Action Metabox
+ */
