@@ -318,8 +318,14 @@ class Comments extends Module {
 	 * @access public
 	 */
 	public function init_before_send() {
+
 		// Full sync.
-		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_comments', array( $this, 'expand_comment_ids' ) );
+		$sync_module = Modules::get_module( 'full-sync' );
+		if ( $sync_module instanceof Full_Sync_Immediately ) {
+			add_filter( 'jetpack_sync_before_send_jetpack_full_sync_comments', array( $this, 'extract_comments_and_meta' ) );
+		} else {
+			add_filter( 'jetpack_sync_before_send_jetpack_full_sync_comments', array( $this, 'expand_comment_ids' ) );
+		}
 	}
 
 	/**
@@ -499,6 +505,32 @@ class Comments extends Module {
 	 * @return array The expanded hook parameters.
 	 */
 	public function expand_comment_ids( $args ) {
+		list( $comment_ids, $previous_interval_end ) = $args;
+		$comments                                    = get_comments(
+			array(
+				'include_unapproved' => true,
+				'comment__in'        => $comment_ids,
+				'orderby'            => 'comment_ID',
+				'order'              => 'DESC',
+			)
+		);
+
+		return array(
+			$comments,
+			$this->get_metadata( $comment_ids, 'comment', Settings::get_setting( 'comment_meta_whitelist' ) ),
+			$previous_interval_end,
+		);
+	}
+
+	/**
+	 * Expand the comment IDs to comment objects and meta before being serialized and sent to the server.
+	 *
+	 * @access public
+	 *
+	 * @param array $args The hook parameters.
+	 * @return array The expanded hook parameters.
+	 */
+	public function extract_comments_and_meta( $args ) {
 		list( $filtered_comments, $previous_end ) = $args;
 		return array(
 			$filtered_comments['objects'],
