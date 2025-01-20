@@ -70,7 +70,7 @@ function render_wpcom_external_media_import_page() {
 				$name        = $external_media_source['name'];
 				$description = $external_media_source['description'];
 				$action      = sprintf(
-					'<a aria-label="%1$s" data-slug="%2$s">%3$s</a>',
+					'<a aria-label="%1$s" style="cursor:pointer;" data-slug="%2$s">%3$s</a>',
 					/* translators: %s: The name of the external media source. */
 					esc_attr( sprintf( __( 'Import %s', 'jetpack-mu-wpcom' ), $name ) ),
 					esc_attr( $slug ),
