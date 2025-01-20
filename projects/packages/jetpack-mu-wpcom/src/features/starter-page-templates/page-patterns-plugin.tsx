@@ -52,7 +52,7 @@ function findPostContentBlock( blocks: BlockInstance[] ): BlockInstance | null {
 export function PagePatternsPlugin( props: PagePatternsPluginProps ): JSX.Element {
 	const { setOpenState } = useDispatch( pageLayoutStore );
 	const { setUsedPageOrPatternsModal } = useDispatch( 'automattic/wpcom-welcome-guide' );
-	const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
+	const { insertBlocks } = useDispatch( 'core/block-editor' );
 	const { editPost } = useDispatch( 'core/editor' );
 	const { toggleFeature } = useDispatch( 'core/edit-post' );
 	const { disableTips } = useDispatch( 'core/nux' );
@@ -115,12 +115,12 @@ export function PagePatternsPlugin( props: PagePatternsPluginProps ): JSX.Elemen
 			}
 
 			// Replace blocks.
-			replaceInnerBlocks( postContentBlock ? postContentBlock.clientId : '', blocks, false );
+			insertBlocks( blocks, undefined, postContentBlock ? postContentBlock.clientId : '', false );
 
 			// Remove filter.
 			removeFilter( INSERTING_HOOK_NAME, INSERTING_HOOK_NAMESPACE );
 		},
-		[ editPost, postContentBlock, replaceInnerBlocks ]
+		[ editPost, postContentBlock, insertBlocks ]
 	);
 
 	const { isWelcomeGuideActive, areTipsEnabled } = selectProps;
