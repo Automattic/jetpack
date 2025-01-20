@@ -47,10 +47,10 @@ It's fine to have multiple components in a single file, but if the file is getti
 ```
 
 * `index.tsx` and `main.tsx` - The entry files for the app. `main.tsx` has the router.
-* `features/` - Most of the app's code goes here. Every feature should be placed in it's own directory.
+* `features/` - Most of the app's code goes here. Every feature should be placed in its own directory.
 * `lib/` - Any generic code that is not directly tied to specific components.
 	* `lib/stores/` - Some shared hooks.
-* `pages/` - The pages of the app. Each page should be placed in it's own directory.
+* `pages/` - The pages of the app. Each page should be placed in its own directory.
 * `layout/` - Global layout components. These are components that are used in multiple pages, such as the header, footer, etc.
 
 ### Feature Structure
