@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Sync: Full sync doesn't send actions for posts and comments with no items
