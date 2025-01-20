@@ -22,9 +22,9 @@ class REST_Controller {
 	 *
 	 * @return void
 	 */
-	public static function register_rest_routes() {
+	public function register_rest_routes() {
 		// Ensure routes are only initialized once.
-		static $routes_registered = false;
+		$routes_registered = false;
 		if ( $routes_registered ) {
 			return;
 		}
@@ -34,8 +34,8 @@ class REST_Controller {
 			'/account-protection',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_settings',
-				'permission_callback' => __CLASS__ . '::permissions_callback',
+				'callback'            => array( $this, 'get_settings' ),
+				'permission_callback' => array( $this, 'permissions_callback' ),
 			)
 		);
 
@@ -44,8 +44,8 @@ class REST_Controller {
 			'/account-protection',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::update_settings',
-				'permission_callback' => __CLASS__ . '::permissions_callback',
+				'callback'            => array( $this, 'update_settings' ),
+				'permission_callback' => array( $this, 'permissions_callback' ),
 			)
 		);
 
@@ -57,7 +57,7 @@ class REST_Controller {
 	 *
 	 * @return WP_REST_Response
 	 */
-	public static function get_settings() {
+	public function get_settings() {
 		return rest_ensure_response(
 			array(
 				Account_Protection::STRICT_MODE_OPTION_NAME => get_option( Account_Protection::STRICT_MODE_OPTION_NAME ),
@@ -72,13 +72,13 @@ class REST_Controller {
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public static function update_settings( $request ) {
+	public function update_settings( $request ) {
 		// Strict Mode
 		if ( isset( $request[ Account_Protection::STRICT_MODE_OPTION_NAME ] ) ) {
 			update_option( Account_Protection::STRICT_MODE_OPTION_NAME, $request[ Account_Protection::STRICT_MODE_OPTION_NAME ] ? '1' : '' );
 		}
 
-		return self::get_settings();
+		return $this->get_settings();
 	}
 
 	/**
@@ -86,7 +86,7 @@ class REST_Controller {
 	 *
 	 * @return bool|WP_Error True if user can view the Jetpack admin page.
 	 */
-	public static function permissions_callback() {
+	public function permissions_callback() {
 		if ( current_user_can( 'manage_options' ) ) {
 			return true;
 		}

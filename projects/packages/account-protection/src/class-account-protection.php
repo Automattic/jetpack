@@ -21,10 +21,10 @@ class Account_Protection {
 	/**
 	 * Initializes the configurations needed for the account protection module.
 	 */
-	public static function init() {
+	public function init() {
 		// Account protection activation/deactivation hooks
-		add_action( 'jetpack_activate_module_account-protection', __CLASS__ . '::on_account_protection_activation' );
-		add_action( 'jetpack_deactivate_module_account-protection', __CLASS__ . '::on_account_protection_deactivation' );
+		add_action( 'jetpack_activate_module_' . self::ACCOUNT_PROTECTION_MODULE_NAME, array( $this, 'on_account_protection_activation' ) );
+		add_action( 'jetpack_deactivate_module_' . self::ACCOUNT_PROTECTION_MODULE_NAME, array( $this, 'on_account_protection_deactivation' ) );
 
 		// Register REST routes
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
@@ -33,14 +33,14 @@ class Account_Protection {
 	/**
 	 * Activate the account protection on module activation.
 	 */
-	public static function on_account_protection_activation() {
+	public function on_account_protection_activation() {
 		// Account protection activated
 	}
 
 	/**
 	 * Deactivate the account protection on module activation.
 	 */
-	public static function on_account_protection_deactivation() {
+	public function on_account_protection_deactivation() {
 		// Account protection deactivated
 	}
 
@@ -49,8 +49,8 @@ class Account_Protection {
 	 *
 	 * @return bool
 	 */
-	public static function is_enabled() {
-		return ( new Modules() )->is_active( 'account-protection' );
+	public function is_enabled() {
+		return ( new Modules() )->is_active( self::ACCOUNT_PROTECTION_MODULE_NAME );
 	}
 
 	/**
@@ -58,12 +58,12 @@ class Account_Protection {
 	 *
 	 * @return bool
 	 */
-	public static function enable() {
+	public function enable() {
 		// Return true if already enabled.
-		if ( self::is_enabled() ) {
+		if ( $this->is_enabled() ) {
 			return true;
 		}
-		return ( new Modules() )->activate( 'account-protection', false, false );
+		return ( new Modules() )->activate( self::ACCOUNT_PROTECTION_MODULE_NAME, false, false );
 	}
 
 	/**
@@ -71,11 +71,11 @@ class Account_Protection {
 	 *
 	 * @return bool
 	 */
-	public static function disable() {
+	public function disable() {
 		// Return true if already disabled.
-		if ( ! self::is_enabled() ) {
+		if ( ! $this->is_enabled() ) {
 			return true;
 		}
-		return ( new Modules() )->deactivate( 'account-protection' );
+		return ( new Modules() )->deactivate( self::ACCOUNT_PROTECTION_MODULE_NAME );
 	}
 }
