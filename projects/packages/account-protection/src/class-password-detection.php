@@ -26,9 +26,9 @@ class Password_Detection {
 	/**
 	 * Password_Detection constructor.
 	 *
-	 * @param Password_Reset_Email $password_reset_email Password reset email instance.
+	 * @param ?Password_Reset_Email $password_reset_email Password reset email instance.
 	 */
-	public function __construct( Password_Reset_Email $password_reset_email = null ) {
+	public function __construct( ?Password_Reset_Email $password_reset_email = null ) {
 		$this->password_reset_email = $password_reset_email ?? new Password_Reset_Email();
 	}
 
@@ -138,7 +138,7 @@ class Password_Detection {
 			}
 		}
 
-		$this->render_content( $reset, $context, $error,  $this->password_reset_email->mask_email_address( $current_user->user_email ) );
+		$this->render_content( $reset, $context, $error, $this->password_reset_email->mask_email_address( $current_user->user_email ) );
 		exit;
 	}
 
