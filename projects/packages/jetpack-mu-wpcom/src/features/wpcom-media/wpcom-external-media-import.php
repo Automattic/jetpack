@@ -32,7 +32,7 @@ add_action( 'admin_menu', 'add_wpcom_external_media_import_page' );
  * Enqueue the assets of the wpcom external media page.
  */
 function enqueue_wpcom_external_media_import_page() {
-	jetpack_mu_wpcom_enqueue_assets( 'wpcom-external-media-import-page', array( 'js' ) );
+	jetpack_mu_wpcom_enqueue_assets( 'wpcom-external-media-import-page', array( 'js', 'css' ) );
 }
 
 /**

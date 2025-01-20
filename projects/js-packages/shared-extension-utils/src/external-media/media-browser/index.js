@@ -7,6 +7,7 @@ import { debounce } from 'lodash';
 import React from 'react';
 import MediaItem from './media-item';
 import MediaPlaceholder from './placeholder';
+import './style.scss';
 
 const MAX_SELECTED = 10;
 

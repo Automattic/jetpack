@@ -3,19 +3,20 @@ import { useRef, useCallback, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { sample } from 'lodash';
 import React from 'react';
-import { SOURCE_PEXELS, PEXELS_EXAMPLE_QUERIES } from '../constants';
-import MediaBrowser from '../media-browser';
-import { MediaSource } from '../media-service/types';
-import { getExternalMediaApiUrl } from './api';
-import withMedia from './with-media';
+import { SOURCE_OPENVERSE, PEXELS_EXAMPLE_QUERIES } from '../../constants';
+import MediaBrowser from '../../media-browser';
+import { MediaSource } from '../../media-service/types';
+import { getExternalMediaApiUrl } from '../api';
+import withMedia from '../with-media';
+import './style.scss';
 
 /**
- * PexelsMedia component
+ * OpenverseMedia component
  *
  * @param {object} props - The component props
  * @return {React.ReactElement} - JSX element
  */
-function PexelsMedia( props ) {
+function OpenverseMedia( props ) {
 	const { media, isCopying, isLoading, pageHandle, multiple, copyMedia, getMedia } = props;
 
 	const [ searchQuery, setSearchQuery ] = useState( sample( PEXELS_EXAMPLE_QUERIES ) );
@@ -23,7 +24,7 @@ function PexelsMedia( props ) {
 
 	const onCopy = useCallback(
 		items => {
-			copyMedia( items, getExternalMediaApiUrl( 'copy', SOURCE_PEXELS ), SOURCE_PEXELS );
+			copyMedia( items, getExternalMediaApiUrl( 'copy', SOURCE_OPENVERSE ), SOURCE_OPENVERSE );
 		},
 		[ copyMedia ]
 	);
@@ -32,9 +33,8 @@ function PexelsMedia( props ) {
 		( event, reset = false ) => {
 			if ( searchQuery ) {
 				getMedia(
-					getExternalMediaApiUrl( 'list', SOURCE_PEXELS, {
+					getExternalMediaApiUrl( 'list', SOURCE_OPENVERSE, {
 						number: 20,
-						path: 'recent',
 						search: searchQuery,
 					} ),
 					reset
@@ -61,13 +61,12 @@ function PexelsMedia( props ) {
 	const searchFormEl = useRef( null );
 
 	const focusSearchInput = () => {
-		if ( ! searchFormEl.current ) {
+		if ( ! searchFormEl?.current ) {
 			return;
 		}
 
-		const formElements = Array.from( searchFormEl.current.elements );
 		// TextControl does not support ref forwarding, so we need to find the input:
-		const searchInputEl = formElements.find( element => element.type === 'search' );
+		const searchInputEl = searchFormEl.current.querySelector( "input[type='search']" );
 
 		if ( searchInputEl ) {
 			searchInputEl.focus();
@@ -78,10 +77,10 @@ function PexelsMedia( props ) {
 	useEffect( focusSearchInput, [] );
 
 	return (
-		<div className="jetpack-external-media-wrapper__pexels">
+		<div className="jetpack-external-media-wrapper__openverse">
 			<form
 				ref={ searchFormEl }
-				className="jetpack-external-media-header__pexels"
+				className="jetpack-external-media-header__openverse"
 				onSubmit={ onSearch }
 			>
 				<TextControl
@@ -93,7 +92,7 @@ function PexelsMedia( props ) {
 					__nextHasNoMarginBottom={ true }
 				/>
 				<Button
-					variant="primary"
+					isPrimary
 					onClick={ onSearch }
 					type="submit"
 					disabled={
@@ -106,7 +105,7 @@ function PexelsMedia( props ) {
 
 			<MediaBrowser
 				key={ lastSearchQuery }
-				className="jetpack-external-media-browser__pexels"
+				className="jetpack-external-media-browser__openverse"
 				media={ media }
 				isCopying={ isCopying }
 				isLoading={ isLoading }
@@ -119,4 +118,4 @@ function PexelsMedia( props ) {
 	);
 }
 
-export default withMedia( MediaSource.Pexels )( PexelsMedia );
+export default withMedia( MediaSource.Openverse )( OpenverseMedia );
