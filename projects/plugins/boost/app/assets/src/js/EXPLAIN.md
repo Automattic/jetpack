@@ -22,6 +22,7 @@ It's fine to have multiple components in a single file, but if the file is getti
 	- features/ # Features
 		- ui # generic, reusable components
 			- back-button
+			- ...
 		- critical-css # critical-css related components
 			- critical-css-meta # a component
 				- critical-css-meta.tsx # the main react component
@@ -36,11 +37,13 @@ It's fine to have multiple components in a single file, but if the file is getti
 			- critical-css-advanced.tsx # a component that represents a page in the UI.
 		- purchase-success
 			- purchase-success.tsx
-		- p2, etc.
+		- p2
+		- ...
 	- layout/ # Global layout components
 		- header
 		- footer
-		- wrapper, etc.
+		- wrapper
+		- ...
 ```
 
 * `index.tsx` and `main.tsx` - The entry files for the app. `main.tsx` has the router.
