@@ -1,6 +1,6 @@
 import { Dialog, ProductOffer, TermsOfService } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import React from 'react';
 import background from './background.svg';
 import illustration from './illustration.png';
@@ -23,7 +23,7 @@ const ConnectionScreen = () => {
 					<ProductOffer
 						className={ styles.offer }
 						slug={ 'jetpack-social' }
-						title={ __( 'Jetpack Social', 'jetpack-publicize-components' ) }
+						title={ _x( 'Jetpack Social', 'Plugin name', 'jetpack-publicize-components' ) }
 						subTitle={ __(
 							'Share your posts with your social media network and increase your site’s traffic',
 							'jetpack-publicize-components'
