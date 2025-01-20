@@ -2190,6 +2190,8 @@ class Manager {
 
 		( new Nonce_Handler() )->clean_all();
 
+		Heartbeat::init()->deactivate();
+
 		/**
 		 * Fires before a site is disconnected.
 		 *

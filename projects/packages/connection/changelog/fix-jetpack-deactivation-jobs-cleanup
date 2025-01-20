@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add heartbeat deactivation on site disconnection.
