@@ -371,8 +371,9 @@ class REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public static function api_toggle_account_protection() {
-		if ( Account_Protection::is_enabled() ) {
-			$disabled = Account_Protection::disable();
+		$account_protection = new Account_Protection();
+		if ( $account_protection->is_enabled() ) {
+			$disabled = $account_protection->disable();
 			if ( ! $disabled ) {
 				return new WP_Error(
 					'account_protection_disable_failed',
@@ -384,7 +385,7 @@ class REST_Controller {
 			return rest_ensure_response( true );
 		}
 
-		$enabled = Account_Protection::enable();
+		$enabled = $account_protection->enable();
 		if ( ! $enabled ) {
 			return new WP_Error(
 				'account_protection_enable_failed',
@@ -402,7 +403,7 @@ class REST_Controller {
 	 * @return WP_Rest_Response
 	 */
 	public static function api_get_account_protection() {
-		return new WP_REST_Response( Account_Protection::is_enabled() );
+		return new WP_REST_Response( ( new Account_Protection() )->is_enabled() );
 	}
 
 	/**

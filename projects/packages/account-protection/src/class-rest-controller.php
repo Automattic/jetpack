@@ -57,7 +57,7 @@ class REST_Controller {
 	 *
 	 * @return WP_REST_Response
 	 */
-	public static function get_settings() {
+	public function get_settings() {
 		$settings = ( new Account_Protection() )->get_settings();
 
 		return rest_ensure_response( $settings );
