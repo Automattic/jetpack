@@ -241,7 +241,7 @@ function jetpack_boost_minify_get_file_parts( $request_uri ) {
 	}
 
 	$file_info = pathinfo( $file_path );
-	if ( $file_info['dirname'] !== '/wp-content/boost-cache/static' ) {
+	if ( stripos( $file_info['dirname'], '/wp-content/boost-cache/static' ) === false ) {
 		return false;
 	}
 
