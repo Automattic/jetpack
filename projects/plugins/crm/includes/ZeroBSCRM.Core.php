@@ -1880,9 +1880,6 @@ final class ZeroBSCRM {
 
 		} // / !is admin
 
-		// debug
-		// print_r($GLOBALS['wp_post_types']['zerobs_quo_template']); exit( 0 );
-
 		// ====================================================================
 		// ==================== General Perf Testing ==========================
 		if ( defined( 'ZBSPERFTEST' ) ) {
@@ -2528,9 +2525,6 @@ final class ZeroBSCRM {
 
 		// default
 		$pageTitle = ( ( $adminTitle == '' ) ? __( 'Jetpack CRM', 'zero-bs-crm' ) : $adminTitle );
-
-		// useful? global $post, $title, $action, $current_screen;
-		// global $zbsPage; print_r($zbsPage); exit( 0 );
 
 		// we only need to do this for pages where we're using custom setups (not added via wp_add_menu whatever)
 		if ( $this->zbsvar( 'page' ) != -1 ) {
