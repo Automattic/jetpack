@@ -86,7 +86,7 @@ if ( ! $disable_blog_posts_block ) {
 	);
 
 	add_action(
-		is_admin() ? 'enqueue_block_assets' : 'enqueue_block_editor_assets',
+		'enqueue_block_editor_assets',
 		function () {
 			$handle = \jetpack_mu_wpcom_enqueue_assets( 'newspack-blocks-blog-posts-editor', array( 'js', 'css' ) );
 			enqueue_newspack_blocks_data( $handle );
@@ -112,7 +112,7 @@ if ( ! $disable_posts_carousel_block ) {
 	);
 
 	add_action(
-		is_admin() ? 'enqueue_block_assets' : 'enqueue_block_editor_assets',
+		'enqueue_block_editor_assets',
 		function () {
 			$handle = \jetpack_mu_wpcom_enqueue_assets( 'newspack-blocks-carousel-editor', array( 'js', 'css' ) );
 			enqueue_newspack_blocks_data( $handle );

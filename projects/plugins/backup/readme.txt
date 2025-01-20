@@ -175,18 +175,13 @@ No, Jetpack VaultPress Backup does not currently support split site or split hom
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 3.0 - 2024-11-14
-#### Added
-- Display next scheduled daily backup time on the admin page.
-
+### 3.1 - 2025-01-10
 #### Changed
-- Exclude discarded backups from being counted as successful on the admin page.
-- General: Indicate compatibility with WordPress version 6.7.
+- Resolve an issue where revoked licenses were incorrectly treated as unattached. This caused users to be redirected to the license activation page after site connection, even when unattached licenses were not valid for activation.
+- Social: Change My Jetpack CTA for Social from "Learn more" to "Activate".
+- Update backup plugin screenshots
+- Updated dependencies.
 - Updated package dependencies.
-- Various internal updates and improvements.
-
-#### Fixed
-- Resolved an issue on the pricing page where the loading placeholder remained visible after the price loaded.
 
 --------
 

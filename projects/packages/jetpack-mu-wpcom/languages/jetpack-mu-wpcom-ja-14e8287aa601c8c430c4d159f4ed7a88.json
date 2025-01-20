@@ -1,0 +1,18 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "ja_JP",
+				"project_id_version": "WordPress.com - jetpack-mu-wpcom"
+			},
+			"We've adopted WordPress's main %s view to bring improvements to you and millions of WordPress users worldwide.": [
+				"\u3042\u306a\u305f\u3092\u542b\u3081\u3001\u5168\u4e16\u754c\u306e\u591a\u304f\u306e\u30ef\u30fc\u30c9\u30d7\u30ec\u30b9\u30e6\u30fc\u30b6\u30fc\u306b\u3001\u3088\u308a\u826f\u3044\u3082\u306e\u3092\u5c4a\u3051\u308b\u305f\u3081\u306b\u3001\u30ef\u30fc\u30c9\u30d7\u30ec\u30b9\u672c\u6765\u306e%s\u30d3\u30e5\u30fc\u3092\u53d6\u308a\u5165\u308c\u307e\u3057\u305f\u3002"
+			],
+			"The %s view just got better": [
+				"%s\u30d3\u30e5\u30fc\u304c\u6539\u5584\u3055\u308c\u307e\u3057\u305f"
+			],
+			"Got it": [ "\u5206\u304b\u308a\u307e\u3057\u305f\u3002" ]
+		}
+	}
+}

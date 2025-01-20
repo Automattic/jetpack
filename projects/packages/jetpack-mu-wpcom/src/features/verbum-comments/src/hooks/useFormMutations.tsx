@@ -1,12 +1,15 @@
-import { useEffect } from 'preact/hooks';
-import { commentParent } from '../state';
+import { useEffect, useContext } from 'preact/hooks';
+import { VerbumSignals } from '../state';
 
 /**
  * Hook to observe comment form changes and update state according to comment_parent changes.
+ *
+ * @param formElement - The form element to observe.
  */
-export default function useFormMutations() {
+export default function useFormMutations( formElement: HTMLFormElement ) {
+	const { commentParent } = useContext( VerbumSignals );
+
 	useEffect( () => {
-		const formElement = document.querySelector( '#commentform' ) as HTMLFormElement;
 		const commentParentInput = formElement.querySelector( '#comment_parent' );
 
 		if ( ! formElement || ! commentParentInput ) {
@@ -28,5 +31,5 @@ export default function useFormMutations() {
 		return () => {
 			mutationObserver.disconnect();
 		};
-	}, [] );
+	}, [ formElement, commentParent ] );
 }

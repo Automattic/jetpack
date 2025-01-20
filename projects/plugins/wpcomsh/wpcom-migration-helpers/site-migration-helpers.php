@@ -38,7 +38,7 @@ function wpcomsh_redirect_if_active_migration() {
 		);
 
 		wp_safe_redirect( $redirect_url, 302 );
-		exit();
+		exit( 0 );
 	}
 }
 add_action( 'admin_init', 'wpcomsh_redirect_if_active_migration' );

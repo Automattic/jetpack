@@ -175,7 +175,7 @@ class Jetpack_Sitemap_Manager {
 
 		echo $the_content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- All content created by Jetpack.
 
-		die();
+		die( 0 );
 	}
 
 	/**

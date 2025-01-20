@@ -430,7 +430,7 @@ class Sender {
 		}
 
 		if ( $do_real_exit ) {
-			exit;
+			exit( 0 );
 		}
 	}
 

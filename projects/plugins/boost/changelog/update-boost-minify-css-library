@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Concatenate CSS: Fixed cases where minification might cause a file to load slower.

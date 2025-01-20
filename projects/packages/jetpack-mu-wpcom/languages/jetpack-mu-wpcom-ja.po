@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-11-21 09:54:03+0000\n"
+"PO-Revision-Date: 2025-01-12 11:50:08+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -8,6 +8,70 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: ja_JP\n"
 "Project-Id-Version: WordPress.com - jetpack-mu-wpcom\n"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:286
+msgid "Got it!"
+msgstr "分かりました。"
+
+#: src/features/post-categories/quick-actions.php:78
+msgid "Default category changed successfully."
+msgstr "デフォルトカテゴリーの変更が完了しました。"
+
+#: src/features/post-categories/quick-actions.php:36
+msgid "Set as default"
+msgstr "デフォルトとして設定"
+
+#. translators: category name
+#: src/features/post-categories/quick-actions.php:35
+msgid "Set &#8220;%s&#8221; as the default category"
+msgstr " デフォルトのカテゴリーを「%s」に設定"
+
+#: src/features/pages/quick-actions.php:169
+msgid "Posts page changed successfully."
+msgstr ""
+
+#: src/features/pages/quick-actions.php:143
+msgid "Homepage changed successfully."
+msgstr ""
+
+#: src/features/pages/quick-actions.php:57
+msgid "Set as posts page"
+msgstr "投稿ページとして設定"
+
+#: src/features/pages/quick-actions.php:57
+msgid "Unset as posts page"
+msgstr ""
+
+#. translators: page title
+#: src/features/pages/quick-actions.php:56
+msgid "Set &#8220;%s&#8221; as the page that displays your latest posts"
+msgstr ""
+
+#. translators: page title
+#: src/features/pages/quick-actions.php:56
+msgid "Unset &#8220;%s&#8221; as the page that displays your latest posts"
+msgstr ""
+
+#: src/features/pages/quick-actions.php:48
+msgid "Set as homepage"
+msgstr "ホームページとして設定"
+
+#. translators: page title
+#: src/features/pages/quick-actions.php:47
+msgid "Set &#8220;%s&#8221; as your site's homepage"
+msgstr ""
+
+#: src/features/holiday-snow/class-holiday-snow.php:226
+msgid "Show falling snow on my site until January 4<sup>th</sup>."
+msgstr "1月4日までサイトに雪を降らせる。<sup></sup>"
+
+#: src/features/holiday-snow/class-holiday-snow.php:205
+msgid "Snow"
+msgstr "雪"
+
+#: src/features/holiday-snow/class-holiday-snow.php:194
+msgid "Show falling snow on my site"
+msgstr "サイトに雪を降らせる"
 
 #: src/features/wpcom-blocks/timeline/block.json
 msgctxt "block keyword"
@@ -65,40 +129,39 @@ msgstr "ホームページの編集を続行するのも、そのままサイト
 msgid "You’ve added your first video!"
 msgstr "最初の動画が追加されました !"
 
-#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:121
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:122
 msgid "View your product"
 msgstr "製品を表示"
 
-#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:119
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:120
 msgid "Continue editing"
 msgstr "編集を続行する"
 
-#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:112
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:113
 msgid "Preview your product on your site before launching and sharing with others."
 msgstr "製品を発売し、他の人と共有する前に、自分のサイトで製品をプレビューします。"
 
-#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:111
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:112
 msgid "You've added your first product!"
 msgstr "最初の製品を追加しました。"
 
-#: src/features/wpcom-block-editor-nux/src/purchase-notice/index.jsx:22
+#: src/features/wpcom-block-editor-nux/src/purchase-notice/index.jsx:23
 msgid "Congrats! Premium blocks are now available to use."
 msgstr "おめでとうございます ! プレミアムブロックが使用できるようになりました。"
 
-#: src/features/block-theme-previews/modal.jsx:58
+#: src/features/block-theme-previews/modal.jsx:59
 msgid "Start customizing"
 msgstr "カスタマイズをスタート"
 
-#: src/features/block-theme-previews/modal.jsx:50
+#: src/features/block-theme-previews/modal.jsx:51
 msgid "Try customizing your theme styles to get your site looking just right."
 msgstr "テーマのスタイルをカスタマイズして、サイトの外観を適切にしましょう。"
 
-#: src/features/block-theme-previews/modal.jsx:44
+#: src/features/block-theme-previews/modal.jsx:45
 msgid "Changes you make in the editor won’t be applied to your site until you activate the theme."
 msgstr "エディターで行った変更はテーマを有効化するまでサイトに適用されません。"
 
-#. translators: %s: theme name
-#: src/features/block-theme-previews/modal.jsx:38
+#: src/features/block-theme-previews/modal.jsx:39
 msgid "You’re previewing %s"
 msgstr "%s をプレビュー中です"
 
@@ -349,28 +412,28 @@ msgstr "展開表示"
 msgid "Menu"
 msgstr "メニュー"
 
-#: src/features/wpcom-global-styles/index.php:548
+#: src/features/wpcom-global-styles/index.php:563
 msgid "Upgrade required"
 msgstr "アップグレードが必要です"
 
-#: src/features/wpcom-global-styles/index.php:545
+#: src/features/wpcom-global-styles/index.php:560
 msgid "Upgrade"
 msgstr "アップグレード"
 
-#: src/features/wpcom-global-styles/index.php:537
+#: src/features/wpcom-global-styles/index.php:552
 msgid "Preview premium styles"
 msgstr "プレミアムスタイルをプレビュー"
 
-#: src/features/wpcom-global-styles/index.php:532
+#: src/features/wpcom-global-styles/index.php:547
 msgid "Remove premium styles"
 msgstr "プレミアムスタイルを削除"
 
-#: src/features/wpcom-global-styles/index.php:522
+#: src/features/wpcom-global-styles/index.php:537
 msgid "Upgrade now"
 msgstr "今すぐアップグレード"
 
 #. translators: %1$s - documentation URL, %2$s - the name of the required plan
-#: src/features/wpcom-global-styles/index.php:498
+#: src/features/wpcom-global-styles/index.php:513
 msgid "Your site includes <a href=\"%1$s\" target=\"_blank\">premium styles</a> that are only visible to visitors after upgrading to the %2$s plan or higher."
 msgstr "サイトに<a href=\"%1$s\" target=\"_blank\">プレミアムスタイル</a>が含まれています。これは、%2$s プラン以上のプランにアップグレードした場合にのみ訪問者に表示されるスタイルです。"
 
@@ -540,72 +603,68 @@ msgstr "ホーム"
 msgid "Hosting"
 msgstr "ホスティング"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:268
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:380
 msgid "Admin interface style changed."
 msgstr "管理インターフェースのスタイルを変更しました。"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:231
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:343
 msgid "Click here to access your sites, domains, Reader, account settings, and more."
 msgstr "こちらをクリックすると、サイト、ドメイン、Reader、アカウント設定などにアクセスできます。"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:230
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:342
 msgid "All your sites"
 msgstr "すべてのサイト"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:224
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:336
 msgid "Access the new site management panel and all developer tools such as hosting configuration, GitHub deployments, metrics, PHP logs, and server logs."
 msgstr "新しいサイト管理パネルと、ホスティング設定、GitHub デプロイメント、メトリクス、PHP ログ、サーバーログなどすべての開発者ツールにアクセスできます。"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:223
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:335
 msgid "Hosting overview"
 msgstr "ホスティングの概要"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:217
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:329
 msgid "The Hosting menu contains the My Home page and all items from the Upgrades menu, including Plans, Domains, Emails, Purchases, and more."
 msgstr "「ホスティング」メニューには、「ホーム」ページのほか、プラン、ドメイン、メール、購入などアップグレードメニューのすべての項目が含まれています。"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:216
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:328
 msgid "Upgrades is now Hosting"
 msgstr "アップグレードは現在「ホスティング」です"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:174
-msgid "Got it!"
-msgstr "分かりました。"
-
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:173
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:285
 msgid "Next"
 msgstr "次へ"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:172
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:284
 msgid "Previous"
 msgstr "前"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:171
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:283
 msgid "Step {{currentStep}} of {{totalSteps}}"
 msgstr "{{currentStep}}/{{totalSteps}}ステップ"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:167
-#: src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php:67
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:279
+#: src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php:133
 msgid "Dismiss"
 msgstr "閉じる"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:31
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:35
 msgid "Use WordPress.com’s native dashboard to manage your site."
 msgstr "WordPress.com のネイティブダッシュボードを使用してサイトを管理します。"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:31
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:35
 msgid "Default style"
 msgstr "デフォルトスタイル"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:30
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:34
 msgid "Use WP-Admin to manage your site."
 msgstr "WP-Admin を使用してサイトを管理します。"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:30
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:34
 msgid "Classic style"
 msgstr "クラシックスタイル"
 
-#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:32
 msgid "Admin Interface Style"
 msgstr "管理インターフェースのスタイル"
 
@@ -906,61 +965,61 @@ msgstr "投稿タイトルを追加"
 msgid "Start writing or type '/' to insert a block"
 msgstr "文章を入力、または「/」を入力してブロックを挿入"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1607
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1459
 msgid " per "
 msgstr " / "
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1604
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1456
 msgid " once"
 msgstr " 1回"
 
 #. Translators: %s is the %s is the frequency.
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1578
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1430
 msgid "per %s"
 msgstr "/ %s"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1438
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1290
 msgid "Scheduled"
 msgstr "予約済み"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1437
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1289
 msgid "Draft"
 msgstr "下書き"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1404
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1256
 msgid "Jetpack donations is disabled in favour of Newspack donations."
 msgstr "Jetpack の寄付を無効化し、Newspack の寄付を優先しています。"
 
 #. translators: separates all but the last two sponsor names; needs a space at
 #. the end.
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:993
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:955
 msgid ", "
 msgstr ", "
 
 #. translators: separates last two sponsor names; needs a space on either side.
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:990
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:952
 msgid " and "
 msgstr "と"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:889
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:851
 msgid "Common"
 msgstr "共通"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:490
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:495
 msgctxt "post author"
 msgid " and "
 msgstr "と"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:473
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:478
 msgctxt "post author"
 msgid "by"
 msgstr "招待者 :"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:400
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:404
 msgid "Something went wrong. Please refresh the page and/or try again."
 msgstr "エラーが発生しました。ページを再読み込みして、もう一度お試しください。"
 
-#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:393
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:397
 msgid "Load more posts"
 msgstr "さらに投稿を読み込む"
 
@@ -1411,21 +1470,21 @@ msgstr "取得するチャットのボット ID。"
 msgid "Help"
 msgstr "ヘルプ"
 
-#: src/features/custom-css/custom-css.php:1206
+#: src/features/custom-css/custom-css.php:1203
 msgid "Switch"
 msgstr "切り替え"
 
 #. translators: how long ago the stylesheet was modified.
-#: src/features/custom-css/custom-css.php:1187
-#: src/features/custom-css/custom-css.php:1199
+#: src/features/custom-css/custom-css.php:1184
+#: src/features/custom-css/custom-css.php:1196
 msgid "(modified %s ago)"
 msgstr "(%s前に編集)"
 
-#: src/features/custom-css/custom-css.php:1177
+#: src/features/custom-css/custom-css.php:1174
 msgid "Select a theme&hellip;"
 msgstr "テーマを選択…"
 
-#: src/features/custom-css/custom-css.php:1175
+#: src/features/custom-css/custom-css.php:1172
 msgid "Select another theme to view its custom CSS."
 msgstr "カスタム CSS を表示する別のテーマを選択してください。"
 

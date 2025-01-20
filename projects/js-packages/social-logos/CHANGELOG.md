@@ -1,3 +1,7 @@
+## [3.1.17] - 2025-01-09
+### Fixed
+- Removed `module` in package.json given it's a CommonJS package. [#40867]
+
 ## [3.1.16] - 2025-01-06
 ### Changed
 - Updated package dependencies. [#40796] [#40798] [#40831]
@@ -194,6 +198,7 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.1.17]: https://github.com/Automattic/social-logos/compare/v3.1.16...v3.1.17
 [3.1.16]: https://github.com/Automattic/social-logos/compare/v3.1.15...v3.1.16
 [3.1.15]: https://github.com/Automattic/social-logos/compare/v3.1.14...v3.1.15
 [3.1.14]: https://github.com/Automattic/social-logos/compare/v3.1.13...v3.1.14

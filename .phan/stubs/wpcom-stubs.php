@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 27c49bf2f318cd2fb105e5bd9719a910def72a53.
+ * Stubs automatically generated from WordPress.com commit c22dbf3bcf2334f7010cf491a7817654b95c54fe.
  */
 
 namespace {
@@ -107,6 +107,9 @@ namespace {
          * @return array|false|WP_Error
          */
         public function republicize_post($post_id, $message, $skip_connections, $check_feature = \false, $sync = \true, $_user_id = \null)
+        {
+        }
+        public function get_all_connections_for_blog_id($_blog_id = \false, $format = 'complete')
         {
         }
     }
@@ -248,6 +251,18 @@ namespace {
     }
     function global_css()
     {
+    }
+    class WPCOM_External_Connections
+    {
+        /**
+         * @return WPCOM_External_Connections
+         */
+        static function init()
+        {
+        }
+        public function get_external_services_list($type = \false, $blog_id = \false)
+        {
+        }
     }
     class WPCOM_Google_Sheets_Helper
     {
@@ -458,6 +473,24 @@ namespace {
         {
         }
         public static function filter_blog($blog_id, $filters)
+        {
+        }
+    }
+    class Social_Connections_Rest_Helper
+    {
+        /**
+         * @return Jetpack_Social_Connections
+         */
+        public static function init()
+        {
+        }
+        public function delete_publicize_connection($publicize_connection_id, $blog_id = \false)
+        {
+        }
+        public function create_publicize_connection($input)
+        {
+        }
+        public function update_connection($publicize_connection_id, $input, $blog_id = \false)
         {
         }
     }
@@ -1428,6 +1461,14 @@ namespace ExPlat {
      * @return string|null
      */
     function assign_current_user(string $experiment_name): ?string
+    {
+    }
+    /**
+     * @param string $experiment_name
+     * @param \WP_User $user
+     * @return string|null
+     */
+    function assign_given_user(string $experiment_name, \WP_User $user): ?string
     {
     }
 }

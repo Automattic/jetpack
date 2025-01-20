@@ -1,6 +1,6 @@
 import { createContext, useContext, FC, type ReactNode } from 'react';
 import { defaultTheme } from './themes';
-import type { ChartTheme } from '../../components/shared/types';
+import type { ChartTheme } from '../../types';
 
 /**
  * Context for sharing theme configuration across components
