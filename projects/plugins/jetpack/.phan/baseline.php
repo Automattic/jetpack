@@ -25,8 +25,8 @@ return [
     // PhanParamTooMany : 40+ occurrences
     // PhanPluginDuplicateAdjacentStatement : 40+ occurrences
     // PhanTypeMismatchArgumentInternal : 40+ occurrences
-    // PhanUndeclaredProperty : 40+ occurrences
     // PhanTypeExpectedObjectPropAccess : 35+ occurrences
+    // PhanUndeclaredProperty : 35+ occurrences
     // PhanParamSignatureMismatch : 25+ occurrences
     // PhanTypeMismatchDefault : 25+ occurrences
     // PhanTypeMismatchPropertyProbablyReal : 25+ occurrences
@@ -320,8 +320,6 @@ return [
         'modules/comments/subscription-modal-on-comment/class-jetpack-subscription-modal-on-comment.php' => ['PhanTypeMismatchReturnNullable'],
         'modules/copy-post.php' => ['PhanNoopNew'],
         'modules/custom-content-types.php' => ['PhanRedefineFunction'],
-        'modules/geo-location.php' => ['PhanTypeMismatchArgumentNullable'],
-        'modules/geo-location/class.jetpack-geo-location.php' => ['PhanTypeMismatchArgument'],
         'modules/google-fonts/current/class-jetpack-google-font-face.php' => ['PhanUndeclaredFunctionInCallable'],
         'modules/google-fonts/current/load-google-fonts.php' => ['PhanNoopNew', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/gravatar-hovercards.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentProbablyReal'],
@@ -506,7 +504,6 @@ return [
         'tests/php/json-api/test_class.json-api-platform-jetpack.php' => ['PhanTypeMismatchArgument'],
         'tests/php/media/test-class.jetpack-media-extractor.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/media/test-class.jetpack-post-images.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'tests/php/modules/geo-location/test_class.jetpack-geo-location.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/modules/photon/test_class.jetpack-photon-static-asset-cdn.php' => ['PhanTypeMismatchProperty'],
         'tests/php/modules/post-by-email/test-class.post-by-email-api.php' => ['PhanParamTooMany'],
         'tests/php/modules/publicize/test_class.publicize.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
