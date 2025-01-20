@@ -472,7 +472,7 @@ function wpcom_force_assign_variation_for_remove_duplicate_views_experiment() {
 		return;
 	}
 
-	$assignment = in_array(  $_GET['force-assign-rdv-variation'], array( 'control', 'treatment' ), true ) ? wp_unslash( $_GET['force-assign-rdv-variation'] ) : false;
+	$assignment = in_array( $_GET['force-assign-rdv-variation'], array( 'control', 'treatment' ), true ) ? sanitize_text_field( wp_unslash( $_GET['force-assign-rdv-variation'] ) ) : false;
 
 	if ( ! $assignment ) {
 		return;
