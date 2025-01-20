@@ -108,3 +108,14 @@ export type Purchase = {
 	total_refund_text: string;
 	check_dns: boolean;
 };
+
+export type SiteFeatures = {
+	active: Array< string >;
+	available: Array< string >;
+};
+
+export type MyJetpackProduct = {
+	slug: string;
+	description: string;
+	is_bundle: boolean;
+};
