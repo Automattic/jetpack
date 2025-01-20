@@ -74,10 +74,8 @@ class Password_Detection {
 
 	/**
 	 * Render password detection page.
-	 *
-	 * @return never
 	 */
-	public function render_page(): never {
+	public function render_page() {
 		// Restrict direct access to logged in users
 		$current_user = wp_get_current_user();
 		if ( 0 === $current_user->ID ) {
