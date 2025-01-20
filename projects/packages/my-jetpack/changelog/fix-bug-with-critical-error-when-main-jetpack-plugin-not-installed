@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix bug where My Jetpack would throw critical error if only a standalone plugin is not installed
