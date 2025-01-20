@@ -28,9 +28,9 @@ class Account_Protection {
 	/**
 	 * Account_Protection constructor.
 	 *
-	 * @param Modules $modules Modules instance.
+	 * @param ?Modules $modules Modules instance.
 	 */
-	public function __construct( Modules $modules = null ) {
+	public function __construct( ?Modules $modules = null ) {
 		$this->modules = $modules ?? new Modules();
 	}
 
