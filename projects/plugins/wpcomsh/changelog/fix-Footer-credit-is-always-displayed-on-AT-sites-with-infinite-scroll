@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix: Footer credit is always displayed on AT sites with infinite scroll.
