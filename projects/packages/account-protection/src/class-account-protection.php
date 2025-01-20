@@ -19,22 +19,6 @@ class Account_Protection {
 	const STRICT_MODE_OPTION_NAME        = 'jetpack_account_protection_strict_mode';
 
 	/**
-	 * Modules dependency.
-	 *
-	 * @var Modules
-	 */
-	private $modules;
-
-	/**
-	 * Constructor.
-	 *
-	 * @param Modules|null $modules Modules dependency.
-	 */
-	public function __construct( Modules $modules = null ) {
-		$this->modules = $modules ?? new Modules();
-	}
-
-	/**
 	 * Initializes the configurations needed for the account protection module.
 	 */
 	public function init() {
@@ -66,7 +50,7 @@ class Account_Protection {
 	 * @return bool
 	 */
 	public function is_enabled() {
-		return $this->modules->is_active( self::ACCOUNT_PROTECTION_MODULE_NAME );
+		return ( new Modules() )->is_active( self::ACCOUNT_PROTECTION_MODULE_NAME );
 	}
 
 	/**
@@ -79,7 +63,7 @@ class Account_Protection {
 		if ( $this->is_enabled() ) {
 			return true;
 		}
-		return $this->modules->activate( self::ACCOUNT_PROTECTION_MODULE_NAME, false, false );
+		return ( new Modules() )->activate( self::ACCOUNT_PROTECTION_MODULE_NAME, false, false );
 	}
 
 	/**
@@ -92,7 +76,7 @@ class Account_Protection {
 		if ( ! $this->is_enabled() ) {
 			return true;
 		}
-		return $this->modules->deactivate( self::ACCOUNT_PROTECTION_MODULE_NAME );
+		return ( new Modules() )->deactivate( self::ACCOUNT_PROTECTION_MODULE_NAME );
 	}
 
 	/**
