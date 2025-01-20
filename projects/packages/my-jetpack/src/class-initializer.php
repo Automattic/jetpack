@@ -240,6 +240,13 @@ class Initializer {
 		$waf_config    = array();
 		$waf_supported = false;
 
+		$sandboxed_domain = '';
+		$is_dev_version   = false;
+		if ( class_exists( 'Jetpack' ) ) {
+			$is_dev_version   = Jetpack::is_development_version();
+			$sandboxed_domain = defined( 'JETPACK__SANDBOX_DOMAIN' ) ? JETPACK__SANDBOX_DOMAIN : '';
+		}
+
 		if ( class_exists( 'Automattic\Jetpack\Waf\Waf_Runner' ) ) {
 			$waf_config    = Waf_Runner::get_config();
 			$waf_supported = Waf_Runner::is_supported_environment();
@@ -292,8 +299,8 @@ class Initializer {
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
 				'isUserFromKnownHost'    => self::is_user_from_known_host(),
 				'isCommercial'           => self::is_commercial_site(),
-				'sandboxedDomain'        => JETPACK__SANDBOX_DOMAIN,
-				'isDevVersion'           => Jetpack::is_development_version(),
+				'sandboxedDomain'        => $sandboxed_domain,
+				'isDevVersion'           => $is_dev_version,
 				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
 				'jetpackManage'          => array(
 					'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
