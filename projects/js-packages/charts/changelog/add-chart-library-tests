@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Charts: adds dependencies and config for jest testing. Adds some initial tests to pie chart component

@@ -22,12 +22,23 @@ function fixDeps( pkg ) {
 
 	// Missing dep or peer dep on react.
 	// https://github.com/WordPress/gutenberg/issues/55171
+	// https://github.com/WordPress/gutenberg/issues/68694
 	if (
-		pkg.name === '@wordpress/icons' &&
+		( pkg.name === '@wordpress/icons' || pkg.name === '@wordpress/upload-media' ) &&
 		! pkg.dependencies?.react &&
 		! pkg.peerDependencies?.react
 	) {
 		pkg.peerDependencies.react = '^18';
+	}
+
+	// Missing dep or peer dep on @babel/runtime and react
+	// https://github.com/WordPress/gutenberg/issues/68694
+	if (
+		pkg.name === '@wordpress/upload-media' &&
+		! pkg.dependencies?.[ '@babel/runtime' ] &&
+		! pkg.peerDependencies?.[ '@babel/runtime' ]
+	) {
+		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
 	}
 
 	// Missing dep or peer dep.

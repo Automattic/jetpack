@@ -317,7 +317,7 @@ class Manager {
 		nocache_headers();
 		$wp_xmlrpc_server->serve_request();
 
-		exit;
+		exit( 0 );
 	}
 
 	/**
@@ -935,7 +935,7 @@ class Manager {
 
 		// Using wp_redirect intentionally because we're redirecting outside.
 		wp_redirect( $this->get_authorization_url( $user, $redirect_url ) ); // phpcs:ignore WordPress.Security.SafeRedirect
-		exit();
+		exit( 0 );
 	}
 
 	/**

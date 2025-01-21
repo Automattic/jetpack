@@ -831,7 +831,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 				admin_url( 'edit.php' )
 			);
 			wp_safe_redirect( $redirect );
-			exit;
+			exit( 0 );
 		}
 
 		/**
@@ -1036,7 +1036,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 				admin_url( 'edit.php' )
 			);
 			wp_safe_redirect( $redirect );
-			exit;
+			exit( 0 );
 		}
 
 		/**
@@ -1138,7 +1138,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 				&& 'POST' === strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) )
 			) {
 				$this->process_form_request();
-				exit;
+				exit( 0 );
 			}
 
 			$this->enqueue_many_items_scripts();
@@ -1234,11 +1234,11 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 			endforeach;
 
 			if ( $is_ajax ) {
-				exit;
+				exit( 0 );
 			}
 
 			wp_safe_redirect( admin_url( 'edit.php?post_type=' . self::MENU_ITEM_POST_TYPE ) );
-			exit;
+			exit( 0 );
 		}
 
 		/**

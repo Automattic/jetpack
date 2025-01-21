@@ -1,6 +1,12 @@
 .jetpack-block-width-controls {
 	display: flex;
 	align-items: center;
+	gap: 0.5em;
+
+	&> .components-base-control {
+		width: 65%;
+		margin-bottom: 8px; // To cater for toggle control hidden label
+	}
 
 	.components-button-group {
 		display: flex;
@@ -10,6 +16,7 @@
 	&:not(.is-aligned) {
 		.components-unit-control-wrapper {
 			flex: 1;
+			flex-shrink: 0;
 		}
 	}
 }

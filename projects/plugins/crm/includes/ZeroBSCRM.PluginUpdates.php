@@ -4,13 +4,7 @@
  * https://jetpackcrm.com
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 
@@ -941,9 +935,6 @@ class zeroBSCRM_Plugin_Updater {
 
 			// if checks out...
 			if ( ! empty( $to_path ) && $to_path !== $from_path ) {
-
-				//echo 'from:'.$from_path.'<br>to:'.$to_path;
-				//exit();
 
 				if ( true === $wp_filesystem->move( $from_path, $to_path ) ) {
 					return trailingslashit( $to_path );

@@ -87,4 +87,26 @@ class Publicize_Utils {
 	public static function is_publicize_active() {
 		return ( new Modules() )->is_active( 'publicize' );
 	}
+
+	/**
+	 * Check if we are on WPCOM.
+	 *
+	 * @return bool
+	 */
+	public static function is_wpcom() {
+		return ( new Host() )->is_wpcom_simple();
+	}
+
+	/**
+	 * Assert that the method is only called on WPCOM.
+	 *
+	 * @param string $method The method name.
+	 *
+	 * @throws \Exception If the method is not called on WPCOM.
+	 */
+	public static function assert_is_wpcom( $method ) {
+		if ( ! self::is_wpcom() ) {
+			throw new \Exception( esc_html( "Method $method can only be called on WordPress.com." ) );
+		}
+	}
 }

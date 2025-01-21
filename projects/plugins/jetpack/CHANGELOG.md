@@ -2,6 +2,35 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.3-a.3 - 2025-01-20
+### Enhancements
+- Forms: Allow HTML block within forms. [#41040]
+- Show Infinite Scroll options in Simple Classic. [#41144]
+
+### Bug fixes
+- Fix: Newsletter toggle in editor sidebar has a visually broken active state. [#41036]
+- Forms: Fix dropdown icon style. [#41074]
+- Photon: Fix double encoding image urls. [#40886]
+- Sharing: Fix the location of the sharing dialog so it is not always the first sharing element on the page. [#41002]
+- Social: Fix wordpress.com login error when connecting Social accounts. [#41149]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
+- Embeds: Fix the Descript block variation icon SVG path. [#41017]
+- Full Sync: Send context on initial sync action. [#40930]
+- Hide related posts options for block themes. [#41075]
+- Jetpack AI: Add message that displays when a post has no content. [#41161]
+- Jetpack AI: Add PoC for SEO assistant (hardcoded and no actionables yet). [#40802]
+- Jetpack AI: Buttons now have 100% width and are 40px tall. [#41161]
+- Jetpack AI: Changed color of some text. [#41161]
+- Jetpack AI: Updated text and spacing in various places. [#41161]
+- Jetpack AI: Write Brief checkboxes are hidden by toggle now. [#41161]
+- Move WPCOM_REST_API_Proxy_Request trait to the connection package. [#41023]
+- Social Image Generator: Change description for toggle. [#40991]
+- Update composer.lock files. [#41066]
+- Updated package dependencies. [#40980] [#41099]
+- Pexels: Update title of option to be sentence case. [#41024]
+
 ## 14.3-a.1 - 2025-01-13
 ### Improved compatibility
 - Nova Restaurant: ensure that the custom post type is now loaded via the Classic Theme Helper package. [#40782]

@@ -1341,7 +1341,7 @@ EOT;
 
 		echo wp_json_encode( $response );
 
-		exit();
+		exit( 0 );
 	}
 
 	/**
