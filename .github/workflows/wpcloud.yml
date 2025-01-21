@@ -17,9 +17,6 @@ jobs:
       wpcomsh: ${{ steps.changed.outputs.wpcomsh }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          # codecov.io requires a fetch depth > 1.
-          fetch-depth: 2
 
       # For pull requests, list-changed-projects.sh needs the merge base.
       # But it doesn't have to be checked out.
