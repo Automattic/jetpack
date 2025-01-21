@@ -89,11 +89,14 @@ const JetpackEmailConnectionSettings = ( {
 		<>
 			<ToggleControl
 				checked={ !! sendEmailOnSubmission }
-				label={ __( 'Enable email notifications', 'jetpack-forms' ) }
+				label={ __( 'Receive email notifications', 'jetpack-forms' ) }
 				onChange={ newValue => {
 					setAttributes( { sendEmailOnSubmission: newValue } );
 				} }
-				help={ __( 'Get incoming form responses sent to your email inbox.', 'jetpack-forms' ) }
+				help={ __(
+					'Disable this option if you do not want to receive email notifications when the form is submitted.',
+					'jetpack-forms'
+				) }
 			/>
 			{ sendEmailOnSubmission && (
 				<>
