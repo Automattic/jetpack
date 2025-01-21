@@ -212,17 +212,17 @@ function get_button_styles( $attributes ) {
 	}
 
 	if ( $has_named_border_color ) {
-		$border_styles['color'] = sprintf( 'border-color: %s;', $attributes['borderColor'] );
+		$border_styles['color'] = "var:preset|color|{$attributes['borderColor']}";
 	} elseif ( $has_custom_border_color ) {
-		$border_styles['color'] = sprintf( 'border-color: %s;', $attributes['style']['border']['color'] );
+		$border_styles['color'] = $attributes['style']['border']['color'];
 	}
 
 	if ( $has_border_style ) {
-		$border_styles['style'] = sprintf( 'border-style: %s;', $attributes['style']['border']['style'] );
+		$border_styles['style'] = $attributes['style']['border']['style'];
 	}
 
 	if ( $has_border_width ) {
-		$border_styles['width'] = sprintf( 'border-width: %s;', $attributes['style']['border']['width'] );
+		$border_styles['width'] = $attributes['style']['border']['width'];
 	}
 
 	if ( $has_individual_borders ) {
