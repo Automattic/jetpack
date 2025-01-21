@@ -28,10 +28,10 @@
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
 	"devDependencies": {
+		"@automattic/jetpack-js-tools": "workspace:*",
 		"eslint": "9.16.0",
 		"husky": "9.1.7",
-		"jetpack-cli": "workspace:*",
-		"jetpack-js-tools": "workspace:*"
+		"jetpack-cli": "workspace:*"
 	},
 	"engines": {
 		"node": "^22.9.0",

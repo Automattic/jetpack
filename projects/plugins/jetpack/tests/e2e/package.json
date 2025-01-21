@@ -34,10 +34,10 @@
 		"test-encrypt-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in config/local.cjs -out ./config/encrypted.enc"
 	},
 	"devDependencies": {
+		"@automattic/jetpack-e2e-commons": "workspace:*",
 		"@playwright/test": "1.48.2",
 		"allure-playwright": "2.9.2",
-		"config": "3.3.12",
-		"jetpack-e2e-commons": "workspace:*"
+		"config": "3.3.12"
 	},
 	"browserslist": [],
 	"ci": {

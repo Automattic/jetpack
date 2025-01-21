@@ -28,10 +28,10 @@
 		"prepare:e2e": "pnpm jetpack docker --type e2e --name t1 exec-silent -- chown -R www-data .htaccess wp-config.php wp-content"
 	},
 	"devDependencies": {
+		"@automattic/jetpack-e2e-commons": "workspace:*",
 		"@playwright/test": "1.48.2",
 		"allure-playwright": "2.9.2",
-		"config": "3.3.12",
-		"jetpack-e2e-commons": "workspace:*"
+		"config": "3.3.12"
 	},
 	"browserslist": [],
 	"ci": {
