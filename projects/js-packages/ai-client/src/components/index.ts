@@ -1,5 +1,6 @@
 export { AIControl, BlockAIControl, ExtensionAIControl } from './ai-control/index.js';
 export { default as AiFeedbackThumbs } from './ai-feedback/index.js';
+export { default as AiIcon, AiSVG } from './ai-icon';
 export {
 	FeaturedImage,
 	GeneralPurposeImage,
@@ -16,4 +17,4 @@ export {
 	default as FooterMessage,
 } from './message/index.js';
 export { default as AiAssistantModal } from './modal';
-export { default as QuotaExceededMessage } from './quota-exceeded-message';
+export { default as QuotaExceededMessage, FairUsageNotice } from './quota-exceeded-message';

@@ -6,10 +6,10 @@ import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronLeft, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
-import { AiFeedbackThumbs } from '@automattic/jetpack-ai-client';
 /**
  * Internal dependencies
  */
+import AiFeedbackThumbs from '../../ai-feedback';
 import AiIcon from '../../ai-icon';
 import './carrousel.scss';
 

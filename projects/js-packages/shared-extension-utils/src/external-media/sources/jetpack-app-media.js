@@ -2,13 +2,11 @@ import { QRCode } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
-import {
-	MediaBrowser,
-	MediaSource,
-	withMedia,
-	JetpackAppIcon,
-	useRefInterval,
-} from '@automattic/jetpack-shared-extension-utils';
+import useRefInterval from '../../hooks/use-ref-interval';
+import { JetpackAppIcon } from '../../icons';
+import MediaBrowser from '../media-browser';
+import { MediaSource } from '../media-service/types';
+import withMedia from './with-media';
 
 /**
  *

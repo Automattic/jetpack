@@ -4,7 +4,8 @@
 import { Modal, Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
-import { AiStatusIndicator, RequestingStateProp } from '@automattic/jetpack-ai-client';
+import AiStatusIndicator from '../ai-status-indicator';
+import type { RequestingStateProp } from '../../types';
 /**
  * Internal dependencies
  */

@@ -1,3 +1,5 @@
+export * from './connection';
+
 export {
 	MarkdownToHTML,
 	HTMLToMarkdown,

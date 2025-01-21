@@ -5,23 +5,21 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { cleanForSlug } from '@wordpress/url';
-import {
-	useImageGenerator,
-	ImageStyleObject,
-	ImageStyle,
-	askQuestionSync,
-} from '@automattic/jetpack-ai-client';
+
 /**
  * Internal dependencies
  */
+import askQuestionSync from '../../../ask-question/sync';
 import useAiFeature from '../../../hooks/use-ai-feature';
+import useImageGenerator from '../../../hooks/use-image-generator';
+import { ImageStyleObject, ImageStyle } from '../../../hooks/use-image-generator/constants';
 import useSaveToMediaLibrary from '../../../hooks/use-save-to-media-library';
 /**
  * Types
  */
 import { CoreSelectors, FEATURED_IMAGE_FEATURE_NAME, GENERAL_IMAGE_FEATURE_NAME } from '../types';
+import type { RoleType } from '../../../types';
 import type { CarrouselImageData, CarrouselImages } from '../components/carrousel';
-import type { RoleType } from '@automattic/jetpack-ai-client';
 import type { FeatureControl } from 'extensions/store/wordpress-com/types.js';
 
 type ImageFeatureControl = FeatureControl & {

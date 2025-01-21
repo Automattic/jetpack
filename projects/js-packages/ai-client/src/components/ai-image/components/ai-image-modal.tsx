@@ -6,17 +6,17 @@ import { SelectControl } from '@wordpress/components';
 import { useCallback, useRef, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
+/**
+ * Internal dependencies
+ */
 import {
-	AiModalPromptInput,
 	IMAGE_STYLE_NONE,
 	IMAGE_STYLE_AUTO,
 	ImageStyleObject,
 	ImageStyle,
-	AiModalFooter,
-} from '@automattic/jetpack-ai-client';
-/**
- * Internal dependencies
- */
+} from '../../../hooks/use-image-generator/constants';
+import { AiModalPromptInput } from '../../../logo-generator';
+import AiModalFooter from '../../ai-modal-footer';
 import AiAssistantModal from '../../modal';
 import QuotaExceededMessage from '../../quota-exceeded-message';
 import Carrousel, { CarrouselImages } from './carrousel';

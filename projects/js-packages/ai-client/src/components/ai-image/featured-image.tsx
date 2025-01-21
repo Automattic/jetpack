@@ -12,13 +12,13 @@ import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import debugFactory from 'debug';
-import { ImageStyle } from '@automattic/jetpack-ai-client';
 /**
  * Internal dependencies
  */
 import './style.scss';
 import { PLACEMENT_JETPACK_SIDEBAR, PLACEMENT_DOCUMENT_SETTINGS } from '../../constants';
 import useAiFeature from '../../hooks/use-ai-feature';
+import { ImageStyle } from '../../hooks/use-image-generator/constants';
 import usePostContent from '../../hooks/use-post-content';
 import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library';
 import AiImageModal from './components/ai-image-modal';

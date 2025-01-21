@@ -1,4 +1,4 @@
-import useAutosaveAndRedirect from '@automattic/jetpack-shared-extension-utils';
+import { useAutosaveAndRedirect } from '@automattic/jetpack-shared-extension-utils';
 import {
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';

@@ -9,11 +9,10 @@ import {
 	ERROR_SERVICE_UNAVAILABLE,
 	ERROR_UNCLEAR_PROMPT,
 	QuotaExceededMessage,
-	useAutoSaveAndRedirect,
 	usePostContent,
 	AiAssistantModal,
 } from '@automattic/jetpack-ai-client';
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { useAnalytics, useAutosaveAndRedirect } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Spinner, ExternalLink, Notice } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
@@ -106,7 +105,7 @@ export default function TitleOptimization( {
 	const [ error, setError ] = useState< TitleOptimizationError | null >( null );
 	const [ optimizationKeywords, setOptimizationKeywords ] = useState( '' );
 	const { editPost } = useDispatch( 'core/editor' );
-	const { autosave } = useAutoSaveAndRedirect();
+	const { autosave } = useAutosaveAndRedirect();
 	const { increaseAiAssistantRequestsCount } = useDispatch( 'wordpress-com/plans' );
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
