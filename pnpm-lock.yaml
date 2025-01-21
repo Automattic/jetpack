@@ -15,6 +15,9 @@ importers:
 
   .:
     devDependencies:
+      '@automattic/jetpack-js-tools':
+        specifier: workspace:*
+        version: link:tools/js-tools
       eslint:
         specifier: 9.16.0
         version: 9.16.0
@@ -24,9 +27,6 @@ importers:
       jetpack-cli:
         specifier: workspace:*
         version: link:tools/cli
-      jetpack-js-tools:
-        specifier: workspace:*
-        version: link:tools/js-tools
 
   .github/files/coverage-munger:
     devDependencies:
@@ -479,6 +479,9 @@ importers:
       '@automattic/jetpack-scan':
         specifier: workspace:*
         version: link:../scan
+      '@automattic/social-logos':
+        specifier: workspace:*
+        version: link:../social-logos
       '@babel/runtime':
         specifier: ^7
         version: 7.26.0
@@ -524,9 +527,6 @@ importers:
       react-slider:
         specifier: 2.0.5
         version: 2.0.5(@babel/runtime@7.26.0)(react@18.3.1)
-      social-logos:
-        specifier: workspace:*
-        version: link:../social-logos
       uplot:
         specifier: 1.6.31
         version: 1.6.31
@@ -1428,6 +1428,9 @@ importers:
         specifier: 4.17.21
         version: 4.17.21
     devDependencies:
+      '@automattic/jetpack-js-tools':
+        specifier: workspace:*
+        version: link:../../../tools/js-tools
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../webpack-config
@@ -1461,9 +1464,6 @@ importers:
       jest-environment-jsdom:
         specifier: 29.7.0
         version: 29.7.0
-      jetpack-js-tools:
-        specifier: workspace:*
-        version: link:../../../tools/js-tools
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -3457,6 +3457,9 @@ importers:
 
   projects/plugins/automattic-for-agencies-client/tests/e2e:
     devDependencies:
+      '@automattic/jetpack-e2e-commons':
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       '@playwright/test':
         specifier: 1.48.2
         version: 1.48.2
@@ -3466,9 +3469,6 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
 
   projects/plugins/boost:
     dependencies:
@@ -3614,6 +3614,9 @@ importers:
 
   projects/plugins/boost/tests/e2e:
     devDependencies:
+      '@automattic/jetpack-e2e-commons':
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       '@playwright/test':
         specifier: 1.48.2
         version: 1.48.2
@@ -3623,9 +3626,6 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
 
   projects/plugins/classic-theme-helper-plugin:
     dependencies:
@@ -3705,6 +3705,9 @@ importers:
 
   projects/plugins/classic-theme-helper-plugin/tests/e2e:
     devDependencies:
+      '@automattic/jetpack-e2e-commons':
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       '@playwright/test':
         specifier: 1.48.2
         version: 1.48.2
@@ -3714,9 +3717,6 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
 
   projects/plugins/crm:
     dependencies:
@@ -3941,6 +3941,9 @@ importers:
       '@automattic/request-external-access':
         specifier: 1.0.0
         version: 1.0.0
+      '@automattic/social-logos':
+        specifier: workspace:*
+        version: link:../../js-packages/social-logos
       '@automattic/social-previews':
         specifier: 2.1.0-beta.8
         version: 2.1.0-beta.8(@babel/runtime@7.26.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4091,9 +4094,6 @@ importers:
       semver:
         specifier: 7.6.3
         version: 7.6.3
-      social-logos:
-        specifier: workspace:*
-        version: link:../../js-packages/social-logos
       swiper:
         specifier: 6.7.0
         version: 6.7.0
@@ -4249,6 +4249,9 @@ importers:
 
   projects/plugins/jetpack/tests/e2e:
     devDependencies:
+      '@automattic/jetpack-e2e-commons':
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       '@playwright/test':
         specifier: 1.48.2
         version: 1.48.2
@@ -4258,9 +4261,6 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
 
   projects/plugins/mu-wpcom-plugin: {}
 
@@ -4374,6 +4374,9 @@ importers:
 
   projects/plugins/search/tests/e2e:
     devDependencies:
+      '@automattic/jetpack-e2e-commons':
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       '@playwright/test':
         specifier: 1.48.2
         version: 1.48.2
@@ -4383,9 +4386,6 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
 
   projects/plugins/social:
     dependencies:
@@ -4513,6 +4513,9 @@ importers:
 
   projects/plugins/social/tests/e2e:
     devDependencies:
+      '@automattic/jetpack-e2e-commons':
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       '@playwright/test':
         specifier: 1.48.2
         version: 1.48.2
@@ -4522,9 +4525,6 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
 
   projects/plugins/starter-plugin:
     dependencies:
@@ -4604,6 +4604,9 @@ importers:
 
   projects/plugins/starter-plugin/tests/e2e:
     devDependencies:
+      '@automattic/jetpack-e2e-commons':
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       '@playwright/test':
         specifier: 1.48.2
         version: 1.48.2
@@ -4613,9 +4616,6 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
 
   projects/plugins/super-cache: {}
 
@@ -4709,6 +4709,9 @@ importers:
 
   projects/plugins/videopress/tests/e2e:
     devDependencies:
+      '@automattic/jetpack-e2e-commons':
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       '@playwright/test':
         specifier: 1.48.2
         version: 1.48.2
@@ -4718,9 +4721,6 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
 
   projects/plugins/wpcomsh:
     devDependencies:
