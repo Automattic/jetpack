@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update naming convention in package.json to match other Automattic properties.
