@@ -170,10 +170,12 @@ function get_button_styles( $attributes ) {
 	$has_typography_styles       = array_key_exists( 'style', $attributes ) && array_key_exists( 'typography', $attributes['style'] );
 	$has_custom_font_size        = $has_typography_styles && array_key_exists( 'fontSize', $attributes['style']['typography'] );
 	$has_custom_text_transform   = $has_typography_styles && array_key_exists( 'textTransform', $attributes['style']['typography'] );
+	$border_styles               = array();
 	$has_named_border_color      = array_key_exists( 'borderColor', $attributes );
 	$has_custom_border_color     = array_key_exists( 'style', $attributes ) && array_key_exists( 'border', $attributes['style'] ) && array_key_exists( 'color', $attributes['style']['border'] );
 	$has_border_style            = array_key_exists( 'style', $attributes ) && array_key_exists( 'border', $attributes['style'] ) && array_key_exists( 'style', $attributes['style']['border'] );
 	$has_border_width            = array_key_exists( 'style', $attributes ) && array_key_exists( 'border', $attributes['style'] ) && array_key_exists( 'width', $attributes['style']['border'] );
+	$has_individual_borders      = array_key_exists( 'style', $attributes ) && array_key_exists( 'border', $attributes['style'] ) && ( array_key_exists( 'top', $attributes['style']['border'] ) || array_key_exists( 'right', $attributes['style']['border'] ) || array_key_exists( 'bottom', $attributes['style']['border'] ) || array_key_exists( 'left', $attributes['style']['border'] ) );
 
 	if ( $has_font_family ) {
 		$styles[] = sprintf( 'font-family: %s;', $attributes['fontFamily'] );
@@ -210,19 +212,33 @@ function get_button_styles( $attributes ) {
 	}
 
 	if ( $has_named_border_color ) {
-		$styles[] = sprintf( 'border-color: %s;', $attributes['borderColor'] );
-	}
-
-	if ( $has_custom_border_color ) {
-		$styles[] = sprintf( 'border-color: %s;', $attributes['style']['border']['color'] );
+		$border_styles['color'] = sprintf( 'border-color: %s;', $attributes['borderColor'] );
+	} elseif ( $has_custom_border_color ) {
+		$border_styles['color'] = sprintf( 'border-color: %s;', $attributes['style']['border']['color'] );
 	}
 
 	if ( $has_border_style ) {
-		$styles[] = sprintf( 'border-style: %s;', $attributes['style']['border']['style'] );
+		$border_styles['style'] = sprintf( 'border-style: %s;', $attributes['style']['border']['style'] );
 	}
 
 	if ( $has_border_width ) {
-		$styles[] = sprintf( 'border-width: %s;', $attributes['style']['border']['width'] );
+		$border_styles['width'] = sprintf( 'border-width: %s;', $attributes['style']['border']['width'] );
+	}
+
+	if ( $has_individual_borders ) {
+		foreach ( array( 'top', 'right', 'bottom', 'left' ) as $side ) {
+			$border                 = $attributes['style']['border'][ $side ] ?? null;
+			$border_side_values     = array(
+				'width' => isset( $border['width'] ) ? $border['width'] : null,
+				'color' => isset( $border['color'] ) ? $border['color'] : null,
+				'style' => isset( $border['style'] ) ? $border['style'] : null,
+			);
+			$border_styles[ $side ] = $border_side_values;
+		}
+	}
+
+	if ( isset( wp_style_engine_get_styles( array( 'border' => $border_styles ) )['css'] ) ) {
+		$styles[] = wp_style_engine_get_styles( array( 'border' => $border_styles ) )['css'];
 	}
 
 	return implode( ' ', $styles );

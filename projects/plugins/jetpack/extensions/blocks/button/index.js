@@ -27,13 +27,11 @@ export const settings = {
 		},
 		__experimentalBorder: {
 			color: true,
-			radius: true,
 			style: true,
 			width: true,
 			__experimentalSkipSerialization: true,
 			__experimentalDefaultControls: {
 				color: true,
-				radius: true,
 				style: true,
 				width: true,
 			},
