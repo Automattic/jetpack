@@ -1,5 +1,3 @@
 Significance: patch
-Type: other
-Comment: Testing the commit process.
-
-
+Type: enhancement
+Comment: REST API: Enhance author details by including additional data when user_id, site_id, or both are available.
