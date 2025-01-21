@@ -308,6 +308,7 @@ jobs:
           SECRET: ${{ secrets.CODECOV_SECRET }}
           STATUS: ${{ needs.run-tests.outputs.coverage-status }}
           PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
         run: .github/files/coverage-munger/upload-coverage.sh
 
   storybook-test:

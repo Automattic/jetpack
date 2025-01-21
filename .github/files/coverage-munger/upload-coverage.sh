@@ -3,6 +3,7 @@
 ## Environment used by this script:
 #
 # Required:
+# - API_TOKEN_GITHUB: GitHub API token.
 # - GITHUB_API_URL: GitHub API URL.
 # - GITHUB_TOKEN: GitHub API token.
 # - GITHUB_REPOSITORY: GitHub repo.
@@ -114,7 +115,7 @@ if [[ "$PR_ID" != "trunk" ]]; then
 	jq . <<<"$JSON"
 	curl -v -L --fail \
 		--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/$( jq --arg V "$PR_HEAD" -nr '$V | @uri' )" \
-		--header "authorization: Bearer $API_TOKEN" \
+		--header "authorization: Bearer $API_TOKEN_GITHUB" \
 		--header 'content-type: application/json' \
 		--data "$( jq -c --arg PR "$PR_ID" '{
 			context: "Code coverage requirement",
@@ -128,7 +129,7 @@ if [[ "$PR_ID" != "trunk" ]]; then
 	while true; do
 		J=$( curl -v -L fail \
 			--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${ID}/comments?per_page=100&page=$PAGE" \
-			--header "authorization: Bearer $API_TOKEN"
+			--header "authorization: Bearer $API_TOKEN_GITHUB"
 		)
 		CID=$( jq -r --arg CID "$CID" '[ { id: $CID }, ( .[] | select( .user.login == "github-actions[bot]" ) | select( .body | test( "^### Code Coverage Summary" ) ) ) ] | last | .id' <<<"$J" )
 		if jq -e 'length < 100' <<<"$J"; then
@@ -142,7 +143,7 @@ if [[ "$PR_ID" != "trunk" ]]; then
 			curl -v -L --fail \
 				-X PATCH
 				--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/comments/${CID}" \
-				--header "authorization: Bearer $API_TOKEN" \
+				--header "authorization: Bearer $API_TOKEN_GITHUB" \
 				--header 'content-type: application/json' \
 				--data "$( jq -c '{
 					body: "### Code Coverage Summary\n\n\( .msg )\n\n\( .footer )",
@@ -151,7 +152,7 @@ if [[ "$PR_ID" != "trunk" ]]; then
 			curl -v -L --fail \
 				-X POST
 				--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${ID}/comments" \
-				--header "authorization: Bearer $API_TOKEN" \
+				--header "authorization: Bearer $API_TOKEN_GITHUB" \
 				--header 'content-type: application/json' \
 				--data "$( jq -c '{
 					body: "### Code Coverage Summary\n\n\( .msg )\n\n\( .footer )",
@@ -162,7 +163,7 @@ if [[ "$PR_ID" != "trunk" ]]; then
 		curl -v -L --fail \
 			-X delete
 			--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/comments/${CID}" \
-			--header "authorization: Bearer $API_TOKEN"
+			--header "authorization: Bearer $API_TOKEN_GITHUB"
 	fi
 	echo "::endgroup::"
 fi
