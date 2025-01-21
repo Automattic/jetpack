@@ -132,6 +132,11 @@ export type UtmSettingsConfig = {
 	enabled: boolean;
 };
 
+export type SocialNotesConfig = {
+	append_link: boolean;
+	link_format: 'full_url' | 'shortlink' | 'permashortcitation';
+};
+
 export type SocialPluginSettings = {
 	publicize_active: boolean;
 	show_pricing_page: boolean;
@@ -145,4 +150,7 @@ export type SocialPluginSettings = {
 export type SocialSettingsFields = {
 	jetpack_social_image_generator_settings: SocialImageGeneratorConfig;
 	jetpack_social_utm_settings: UtmSettingsConfig;
+	[ 'jetpack-social-note' ]: boolean;
+	jetpack_social_notes_config: SocialNotesConfig;
+	[ 'jetpack-social_show_pricing_page' ]: boolean;
 };

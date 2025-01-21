@@ -1,4 +1,5 @@
 import { useBlockProps } from '@wordpress/block-editor';
+import { createBlock, getDefaultBlockName } from '@wordpress/blocks';
 import { SelectControl } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
@@ -34,7 +35,7 @@ const DATE_FORMATS = [
 ];
 
 const JetpackDatePicker = props => {
-	const { attributes, clientId, isSelected, name, setAttributes } = props;
+	const { attributes, clientId, isSelected, name, setAttributes, insertBlocksAfter } = props;
 	const { id, label, required, requiredText, width, placeholder, dateFormat } = attributes;
 
 	useFormWrapper( { attributes, clientId, name } );
@@ -67,6 +68,12 @@ const JetpackDatePicker = props => {
 					style={ fieldStyle }
 					type="text"
 					value={ placeholder }
+					onKeyDown={ event => {
+						if ( event.defaultPrevented || event.key !== 'Enter' ) {
+							return;
+						}
+						insertBlocksAfter( createBlock( getDefaultBlockName() ) );
+					} }
 				/>
 			</div>
 

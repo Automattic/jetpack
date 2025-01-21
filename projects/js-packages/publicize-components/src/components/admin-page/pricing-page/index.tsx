@@ -23,14 +23,14 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 	const blogID = getScriptData().site.wpcom.blog_id;
 	const siteSuffix = getScriptData().site.suffix;
 
-	const { updateSocialPluginSettings } = useDispatch( socialStore );
+	const { setShowPricingPage } = useDispatch( socialStore );
 
 	const [ isLarge ] = useBreakpointMatch( 'lg' );
 
 	const hidePricingPage = useCallback( () => {
-		updateSocialPluginSettings( { show_pricing_page: false } );
+		setShowPricingPage( false );
 		onDismiss();
-	}, [ updateSocialPluginSettings, onDismiss ] );
+	}, [ setShowPricingPage, onDismiss ] );
 
 	return (
 		<PricingTable
