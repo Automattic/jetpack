@@ -28,9 +28,6 @@ jobs:
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
-        with:
-          php: ${{ matrix.php }}
-          node: ${{ matrix.node }}
       - name: Monorepo install
         run: |
           echo "::group::Pnpm"
