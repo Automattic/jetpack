@@ -168,7 +168,7 @@ for PROJECT in projects/*/*; do
 		if [ "$URL" != "git+https://github.com/Automattic/jetpack.git" ]; then
 			EXIT=1
 			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["repository","url"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
-			echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::Set \`.repository.url\` to point to the monorepo, i.e. \"https://github.com/Automattic/jetpack\"."
+			echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::Set \`.repository.url\` to point to the monorepo, i.e. \"git+https://github.com/Automattic/jetpack.git\"."
 		fi
 		TMP="$(jq -r '.directory' <<<"$JSON")"
 		if [[ "$TMP" != "$PROJECT" ]]; then
