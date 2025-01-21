@@ -2,14 +2,16 @@
  * External dependencies
  */
 import { useConnection } from '@automattic/jetpack-connection';
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import {
+	useAnalytics,
+	useAutosaveAndRedirect,
+	Nudge,
+} from '@automattic/jetpack-shared-extension-utils';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect } from 'react';
 /*
  * Internal dependencies
  */
-import useAutosaveAndRedirect from '../../use-autosave-and-redirect';
-import { Nudge } from '../upgrade-nudge';
 import type { MouseEvent, FC } from 'react';
 
 interface ConnectBannerProps {

@@ -1,12 +1,9 @@
 /*
  * External dependencies
  */
+import { Nudge } from '@automattic/jetpack-ai-client';
+import useAutosaveAndRedirect from '@automattic/jetpack-shared-extension-utils';
 import { __ } from '@wordpress/i18n';
-/*
- * Internal dependencies
- */
-import { Nudge } from '../../../../shared/components/upgrade-nudge';
-import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
 
 const EnableJetpackSearchPrompt = () => {
 	let wpAdminUrl = window?.Jetpack_Editor_Initial_State?.adminUrl || '';

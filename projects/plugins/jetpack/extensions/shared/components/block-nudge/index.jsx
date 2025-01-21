@@ -1,8 +1,7 @@
-import { Warning } from '@wordpress/block-editor';
+import { Warning, useAutosaveAndRedirect } from '@wordpress/block-editor';
 import { Button, ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import useAutosaveAndRedirect from '../../../shared/use-autosave-and-redirect/index';
 
 import './style.scss';
 
