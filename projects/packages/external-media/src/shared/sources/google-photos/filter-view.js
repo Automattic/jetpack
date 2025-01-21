@@ -4,10 +4,10 @@ import { __ } from '@wordpress/i18n';
 import React from 'react';
 
 const FILTERS = [
-	{ label: __( 'Category', 'jetpack-shared-extension-utils' ), value: 'category' },
-	{ label: __( 'Date', 'jetpack-shared-extension-utils' ), value: 'date' },
-	{ label: __( 'Favorites', 'jetpack-shared-extension-utils' ), value: 'favorite' },
-	{ label: __( 'Media Type', 'jetpack-shared-extension-utils' ), value: 'mediaType' },
+	{ label: __( 'Category', 'jetpack-external-media' ), value: 'category' },
+	{ label: __( 'Date', 'jetpack-external-media' ), value: 'date' },
+	{ label: __( 'Favorites', 'jetpack-external-media' ), value: 'favorite' },
+	{ label: __( 'Media Type', 'jetpack-external-media' ), value: 'mediaType' },
 ];
 
 /**
@@ -88,7 +88,7 @@ function GoogleFilterView( props ) {
 	return (
 		<Fragment>
 			<SelectControl
-				label={ __( 'Filters', 'jetpack-shared-extension-utils' ) }
+				label={ __( 'Filters', 'jetpack-external-media' ) }
 				value={ currentFilter }
 				disabled={ isLoading || isCopying }
 				options={ remainingFilters }
@@ -98,7 +98,7 @@ function GoogleFilterView( props ) {
 
 			{ /* eslint-disable-next-line react/jsx-no-bind */ }
 			<Button disabled={ isLoading || isCopying } variant="secondary" isSmall onClick={ setFilter }>
-				{ __( 'Add Filter', 'jetpack-shared-extension-utils' ) }
+				{ __( 'Add Filter', 'jetpack-external-media' ) }
 			</Button>
 		</Fragment>
 	);

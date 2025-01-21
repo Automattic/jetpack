@@ -1,14 +1,19 @@
+import { useBlockEditContext } from '@wordpress/block-editor';
+import { addFilter } from '@wordpress/hooks';
 import {
 	isCurrentUserConnected,
 	addPexelsToMediaInserter,
 	addGooglePhotosToMediaInserter,
 	MediaButton,
 	mediaSources,
-} from '@automattic/jetpack-shared-extension-utils';
-import { useBlockEditContext } from '@wordpress/block-editor';
-import { addFilter } from '@wordpress/hooks';
+} from '../../shared';
 import './editor.scss';
 
+/**
+ *
+ * @param settings
+ * @param name
+ */
 function insertExternalMediaBlocks( settings, name ) {
 	if ( name !== 'core/image' ) {
 		return settings;

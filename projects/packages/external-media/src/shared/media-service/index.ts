@@ -3,19 +3,16 @@ import apiFetch from '@wordpress/api-fetch';
 import { dispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import { waitFor } from '../../wait-for';
 import { GOOGLE_PHOTOS_PICKER_SESSION } from '../constants';
 import { store as mediaStore } from '../store';
 import { PickerSession } from '../store/types';
+import { waitFor } from '../utils/wait-for';
 import { MediaSource } from './types';
 
 // Pexels constants
 const PEXELS_ID = 'pexels';
-const PEXELS_NAME = __( 'Pexels free photos', 'jetpack-shared-extension-utils' );
-const PEXELS_SEARCH_PLACEHOLDER = __(
-	'Search Pexels free photos',
-	'jetpack-shared-extension-utils'
-);
+const PEXELS_NAME = __( 'Pexels free photos', 'jetpack-external-media' );
+const PEXELS_SEARCH_PLACEHOLDER = __( 'Search Pexels free photos', 'jetpack-external-media' );
 const DEFAULT_PEXELS_SEARCH: MediaSearch = {
 	per_page: 10,
 	search: 'mountain',
@@ -23,11 +20,8 @@ const DEFAULT_PEXELS_SEARCH: MediaSearch = {
 
 // Google Photos constants
 const GOOGLE_PHOTOS_ID = 'google_photos';
-const GOOGLE_PHOTOS_NAME = __( 'Google Photos', 'jetpack-shared-extension-utils' );
-const GOOGLE_PHOTOS_SEARCH_PLACEHOLDER = __(
-	'Search Google Photos',
-	'jetpack-shared-extension-utils'
-);
+const GOOGLE_PHOTOS_NAME = __( 'Google Photos', 'jetpack-external-media' );
+const GOOGLE_PHOTOS_SEARCH_PLACEHOLDER = __( 'Search Google Photos', 'jetpack-external-media' );
 const DEFAULT_GOOGLE_PHOTOS_SEARCH: MediaSearch = {
 	per_page: 25,
 	search: '',

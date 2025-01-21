@@ -22,18 +22,18 @@ function MediaButtonMenu( props ) {
 		);
 	}
 
-	let label = __( 'Select Image', 'jetpack-shared-extension-utils' );
+	let label = __( 'Select Image', 'jetpack-external-media' );
 
 	if ( mediaProps.multiple ) {
-		label = __( 'Select Images', 'jetpack-shared-extension-utils' );
+		label = __( 'Select Images', 'jetpack-external-media' );
 	}
 
 	if ( mediaProps.allowedTypes.length > 1 ) {
-		label = __( 'Select Media', 'jetpack-shared-extension-utils' );
+		label = __( 'Select Media', 'jetpack-external-media' );
 	}
 
 	if ( isFeatured ) {
-		label = __( 'Replace Image', 'jetpack-shared-extension-utils' );
+		label = __( 'Replace Image', 'jetpack-external-media' );
 	}
 
 	return (
@@ -75,7 +75,7 @@ function MediaButtonMenu( props ) {
 									open();
 								} }
 							>
-								{ __( 'Media Library', 'jetpack-shared-extension-utils' ) }
+								{ __( 'Media Library', 'jetpack-external-media' ) }
 							</MenuItem>
 
 							<MediaSources

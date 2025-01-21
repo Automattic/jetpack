@@ -48,7 +48,7 @@ function GooglePhotosAuth( props ) {
 			{ isAuthing ? <AuthProgress /> : <AuthInstructions /> }
 
 			<Button variant="primary" disabled={ isAuthing } onClick={ onAuthorize }>
-				{ __( 'Connect to Google Photos', 'jetpack-shared-extension-utils' ) }
+				{ __( 'Connect to Google Photos', 'jetpack-external-media' ) }
 			</Button>
 		</div>
 	);

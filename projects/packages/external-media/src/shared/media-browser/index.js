@@ -12,9 +12,7 @@ const MAX_SELECTED = 10;
 
 const EmptyResults = memo( () => (
 	<div className="jetpack-external-media-browser__empty">
-		<p>
-			{ __( 'Sorry, but nothing matched your search criteria.', 'jetpack-shared-extension-utils' ) }
-		</p>
+		<p>{ __( 'Sorry, but nothing matched your search criteria.', 'jetpack-external-media' ) }</p>
 	</div>
 ) );
 
@@ -177,13 +175,9 @@ function MediaBrowser( props ) {
 		const disabled = selected.length === 0 || isCopying;
 		const defaultLabel = selectProps?.labelText
 			? selectProps?.labelText( selected.length )
-			: __(
-					'Select',
-					'jetpack-shared-extension-utils',
-					/* dummy arg to avoid bad minification */ 0
-			  );
+			: __( 'Select', 'jetpack-external-media', /* dummy arg to avoid bad minification */ 0 );
 
-		const label = isCopying ? __( 'Inserting…', 'jetpack-shared-extension-utils' ) : defaultLabel;
+		const label = isCopying ? __( 'Inserting…', 'jetpack-external-media' ) : defaultLabel;
 
 		return (
 			<div className="jetpack-external-media-browser__media__toolbar">
@@ -227,7 +221,7 @@ function MediaBrowser( props ) {
 						disabled={ isLoading || isCopying }
 						onClick={ onLoadMoreClick } // eslint-disable-line react/jsx-no-bind
 					>
-						{ __( 'Load More', 'jetpack-shared-extension-utils' ) }
+						{ __( 'Load More', 'jetpack-external-media' ) }
 					</Button>
 				) }
 			</ul>

@@ -17,7 +17,7 @@ function Breadcrumbs( { path, setPath } ) {
 		<Fragment>
 			{ /* eslint-disable-next-line react/jsx-no-bind */ }
 			<Button variant="tertiary" onClick={ () => setPath( PATH_ROOT ) }>
-				{ __( 'Albums', 'jetpack-shared-extension-utils' ) }
+				{ __( 'Albums', 'jetpack-external-media' ) }
 			</Button>
 			→ &nbsp; { path.name }
 		</Fragment>

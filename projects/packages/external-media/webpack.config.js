@@ -4,7 +4,7 @@ const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpac
 module.exports = [
 	{
 		entry: {
-			'jetpack-external-media': 'src/apps/jetpack-external-media/index.js',
+			'jetpack-external-media-editor': 'src/features/editor/index.js',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,

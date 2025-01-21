@@ -1,9 +1,8 @@
 import { QRCode } from '@automattic/jetpack-components';
+import { useRefInterval, JetpackAppIcon } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
-import useRefInterval from '../../hooks/use-ref-interval';
-import { JetpackAppIcon } from '../../icons';
 import MediaBrowser from '../media-browser';
 import { MediaSource } from '../media-service/types';
 import withMedia from './with-media';
@@ -57,33 +56,28 @@ function JetpackAppMedia( props ) {
 		return selectedImages
 			? sprintf(
 					/* translators: %1$d is the number of images that were selected. */
-					_n(
-						'Add %1$d image',
-						'Add %1$d images',
-						selectedImages,
-						'jetpack-shared-extension-utils'
-					),
+					_n( 'Add %1$d image', 'Add %1$d images', selectedImages, 'jetpack-external-media' ),
 					selectedImages
 			  )
-			: __( 'Add images', 'jetpack-shared-extension-utils' );
+			: __( 'Add images', 'jetpack-external-media' );
 	};
 	return (
 		<div className={ wrapperClassname }>
 			<JetpackAppIcon />
 			<h2 className="jetpack-external-media-wrapper__jetpack_app_media-title">
-				{ hasImageUploaded && __( 'Select images to be added', 'jetpack-shared-extension-utils' ) }
-				{ ! hasImageUploaded && __( 'Upload from your phone', 'jetpack-shared-extension-utils' ) }
+				{ hasImageUploaded && __( 'Select images to be added', 'jetpack-external-media' ) }
+				{ ! hasImageUploaded && __( 'Upload from your phone', 'jetpack-external-media' ) }
 			</h2>
 			<p className="jetpack-external-media-wrapper__jetpack_app_media-description">
 				{ hasImageUploaded &&
 					__(
 						'Select the images below to add, or continue adding more from your device.',
-						'jetpack-shared-extension-utils'
+						'jetpack-external-media'
 					) }
 				{ ! hasImageUploaded &&
 					__(
 						'Scan the QR code with your iPhone or Android camera to upload from your photos.',
-						'jetpack-shared-extension-utils'
+						'jetpack-external-media'
 					) }
 			</p>
 			{ ! hasImageUploaded && (

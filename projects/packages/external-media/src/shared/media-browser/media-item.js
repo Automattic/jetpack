@@ -108,7 +108,7 @@ function MediaItem( props ) {
 				<div className="jetpack-external-media-browser__media__copying_indicator">
 					<Spinner />
 					<div className="jetpack-external-media-browser__media__copying_indicator__label">
-						{ __( 'Inserting Image…', 'jetpack-shared-extension-utils' ) }
+						{ __( 'Inserting Image…', 'jetpack-external-media' ) }
 					</div>
 				</div>
 			) }

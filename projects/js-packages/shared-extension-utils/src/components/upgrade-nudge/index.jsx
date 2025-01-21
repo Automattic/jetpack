@@ -1,6 +1,7 @@
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import React from 'react';
 
 import './style.scss';
 

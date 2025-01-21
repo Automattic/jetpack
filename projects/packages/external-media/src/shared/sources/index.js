@@ -1,6 +1,11 @@
 import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
+import {
+	GooglePhotosIcon,
+	OpenverseIcon,
+	PexelsIcon,
+	JetpackMobileAppIcon,
+} from '@automattic/jetpack-shared-extension-utils';
 import { __ } from '@wordpress/i18n';
-import { GooglePhotosIcon, OpenverseIcon, PexelsIcon, JetpackMobileAppIcon } from '../../icons';
 import {
 	SOURCE_WORDPRESS,
 	SOURCE_GOOGLE_PHOTOS,
@@ -22,7 +27,7 @@ import PexelsMedia from './pexels';
 export const internalMediaSources = [
 	{
 		id: SOURCE_JETPACK_APP_MEDIA,
-		label: __( 'Your Phone', 'jetpack-shared-extension-utils' ),
+		label: __( 'Your Phone', 'jetpack-external-media' ),
 		icon: <JetpackMobileAppIcon className="components-menu-items__item-icon" />,
 		keyword: 'jetpack mobile app',
 	},
@@ -34,7 +39,7 @@ export const internalMediaSources = [
 export const featuredImageExclusiveMediaSources = [
 	{
 		id: SOURCE_JETPACK_AI_FEATURED_IMAGE,
-		label: __( 'Generate with AI', 'jetpack-shared-extension-utils' ),
+		label: __( 'Generate with AI', 'jetpack-external-media' ),
 		icon: aiAssistantIcon,
 		keyword: 'jetpack ai',
 	},
@@ -46,7 +51,7 @@ export const featuredImageExclusiveMediaSources = [
 export const generalPurposeImageExclusiveMediaSources = [
 	{
 		id: SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_MEDIA_SOURCE,
-		label: __( 'Generate with AI', 'jetpack-shared-extension-utils' ),
+		label: __( 'Generate with AI', 'jetpack-external-media' ),
 		icon: aiAssistantIcon,
 		keyword: 'jetpack ai',
 	},
@@ -55,19 +60,19 @@ export const generalPurposeImageExclusiveMediaSources = [
 export const externalMediaSources = [
 	{
 		id: SOURCE_GOOGLE_PHOTOS,
-		label: __( 'Google Photos', 'jetpack-shared-extension-utils' ),
+		label: __( 'Google Photos', 'jetpack-external-media' ),
 		icon: <GooglePhotosIcon className="components-menu-items__item-icon" />,
 		keyword: 'google photos',
 	},
 	{
 		id: SOURCE_PEXELS,
-		label: __( 'Pexels free photos', 'jetpack-shared-extension-utils' ),
+		label: __( 'Pexels free photos', 'jetpack-external-media' ),
 		icon: <PexelsIcon className="components-menu-items__item-icon" />,
 		keyword: 'pexels',
 	},
 	{
 		id: SOURCE_OPENVERSE,
-		label: __( 'Openverse', 'jetpack-shared-extension-utils' ),
+		label: __( 'Openverse', 'jetpack-external-media' ),
 		icon: <OpenverseIcon className="components-menu-items__item-icon" />,
 		keyword: 'openverse',
 	},

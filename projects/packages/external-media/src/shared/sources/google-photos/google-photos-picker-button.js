@@ -1,8 +1,8 @@
+import { GooglePhotosMediaIcon } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import React, { useEffect } from 'react';
-import { GooglePhotosMediaIcon } from '../../../icons';
 import GooglePhotosAccount from './google-photos-account';
 
 /**
@@ -29,11 +29,11 @@ export default function GooglePhotosPickerButton( props ) {
 	return (
 		<div className="jetpack-external-media__google-photos-picker">
 			<GooglePhotosMediaIcon width="150" />
-			<h1>{ __( 'Google Photos', 'jetpack-shared-extension-utils' ) }</h1>
+			<h1>{ __( 'Google Photos', 'jetpack-external-media' ) }</h1>
 			<p>
 				{ __(
 					'Select photos directly from your Google Photos library.',
-					'jetpack-shared-extension-utils'
+					'jetpack-external-media'
 				) }
 			</p>
 
@@ -44,7 +44,7 @@ export default function GooglePhotosPickerButton( props ) {
 				className="jetpack-external-media__google-photos-picker-button"
 				onClick={ openPicker } // eslint-disable-line react/jsx-no-bind
 			>
-				{ __( 'Open Google Photos Picker', 'jetpack-shared-extension-utils' ) }
+				{ __( 'Open Google Photos Picker', 'jetpack-external-media' ) }
 				&nbsp;
 				<Icon icon={ external } size={ 18 } />
 			</Button>

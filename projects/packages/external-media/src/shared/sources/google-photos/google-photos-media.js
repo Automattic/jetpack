@@ -124,7 +124,7 @@ function GooglePhotosMedia( props ) {
 						{
 							<SelectControl
 								className="jetpack-external-media-header__select"
-								label={ __( 'View', 'jetpack-shared-extension-utils' ) }
+								label={ __( 'View', 'jetpack-external-media' ) }
 								value={ path.ID !== PATH_RECENT ? PATH_ROOT : PATH_RECENT }
 								disabled={ isLoading || isCopying }
 								options={ PATH_OPTIONS }
@@ -166,7 +166,7 @@ function GooglePhotosMedia( props ) {
 							disabled={ selectionChanged }
 							onClick={ onChangeSelection }
 						>
-							{ __( 'Change selection', 'jetpack-shared-extension-utils' ) }
+							{ __( 'Change selection', 'jetpack-external-media' ) }
 						</Button>
 					</div>
 				) }

@@ -1,6 +1,6 @@
+import { GooglePhotosLogo } from '@automattic/jetpack-shared-extension-utils';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import { GooglePhotosLogo } from '../../../icons';
 import GooglePhotosDisconnect from './google-photos-disconnect';
 
 /**
@@ -18,7 +18,7 @@ export default function GooglePhotosAuthUpgrade( props ) {
 			<p>
 				{ __(
 					"We've updated our Google Photos service. You will need to disconnect and reconnect to continue accessing your photos.",
-					'jetpack-shared-extension-utils'
+					'jetpack-external-media'
 				) }
 			</p>
 

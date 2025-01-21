@@ -1,9 +1,9 @@
+import { NumberControl } from '@automattic/jetpack-shared-extension-utils';
 import { SelectControl, Button } from '@wordpress/components';
 import { useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { omit } from 'lodash';
 import React from 'react';
-import NumberControl from '../../../components/number-control';
 import {
 	GOOGLE_PHOTOS_CATEGORIES,
 	GOOGLE_PHOTOS_DATE_PRESETS,
@@ -24,7 +24,7 @@ import {
 function CategoryOption( { value, updateFilter } ) {
 	return (
 		<SelectControl
-			label={ __( 'Category', 'jetpack-shared-extension-utils' ) }
+			label={ __( 'Category', 'jetpack-external-media' ) }
 			value={ value }
 			options={ GOOGLE_PHOTOS_CATEGORIES }
 			onChange={ updateFilter }
@@ -50,7 +50,7 @@ function DateOption( { value, updateFilter } ) {
 	return (
 		<div className="jetpack-external-media-date-filter">
 			<SelectControl
-				label={ __( 'Filter by time period', 'jetpack-shared-extension-utils' ) }
+				label={ __( 'Filter by time period', 'jetpack-external-media' ) }
 				value={ selectedRange }
 				options={ GOOGLE_PHOTOS_DATE_PRESETS }
 				onChange={ range => updateFilter( { range } ) } // eslint-disable-line react/jsx-no-bind
@@ -59,7 +59,7 @@ function DateOption( { value, updateFilter } ) {
 			{ selectedRange === DATE_RANGE_CUSTOM && (
 				<Fragment>
 					<SelectControl
-						label={ __( 'Month', 'jetpack-shared-extension-utils' ) }
+						label={ __( 'Month', 'jetpack-external-media' ) }
 						value={ month }
 						options={ MONTH_SELECT_OPTIONS }
 						onChange={ setMonth }
@@ -67,7 +67,7 @@ function DateOption( { value, updateFilter } ) {
 					/>
 					<NumberControl
 						className="components-base-control"
-						label={ __( 'Year', 'jetpack-shared-extension-utils' ) }
+						label={ __( 'Year', 'jetpack-external-media' ) }
 						value={ year }
 						min={ 1970 }
 						onChange={ setYear }
@@ -77,7 +77,7 @@ function DateOption( { value, updateFilter } ) {
 						disabled={ value?.month === month && value?.year === year }
 						onClick={ () => updateFilter( { range: selectedRange, month, year } ) } // eslint-disable-line react/jsx-no-bind
 					>
-						{ __( 'Apply', 'jetpack-shared-extension-utils' ) }
+						{ __( 'Apply', 'jetpack-external-media' ) }
 					</Button>
 				</Fragment>
 			) }
@@ -91,7 +91,7 @@ function DateOption( { value, updateFilter } ) {
  * @return {React.ReactElement} - JSX Element
  */
 function FavoriteOption() {
-	return <span>{ __( 'Favorites', 'jetpack-shared-extension-utils' ) }</span>;
+	return <span>{ __( 'Favorites', 'jetpack-external-media' ) }</span>;
 }
 
 /**
@@ -104,14 +104,14 @@ function FavoriteOption() {
  */
 function MediaTypeOption( { value, updateFilter } ) {
 	const options = [
-		{ label: __( 'All', 'jetpack-shared-extension-utils' ), value: '' },
-		{ label: __( 'Images', 'jetpack-shared-extension-utils' ), value: 'photo' },
-		{ label: __( 'Videos', 'jetpack-shared-extension-utils' ), value: 'video' },
+		{ label: __( 'All', 'jetpack-external-media' ), value: '' },
+		{ label: __( 'Images', 'jetpack-external-media' ), value: 'photo' },
+		{ label: __( 'Videos', 'jetpack-external-media' ), value: 'video' },
 	];
 
 	return (
 		<SelectControl
-			label={ __( 'Type', 'jetpack-shared-extension-utils' ) }
+			label={ __( 'Type', 'jetpack-external-media' ) }
 			value={ value }
 			options={ options }
 			onChange={ updateFilter }
@@ -163,7 +163,7 @@ function FilterOption( { children, removeFilter, isRemovable = false } ) {
 
 			{ !! isRemovable && (
 				<Button onClick={ removeFilter } isSmall>
-					{ __( 'Remove Filter', 'jetpack-shared-extension-utils' ) }
+					{ __( 'Remove Filter', 'jetpack-external-media' ) }
 				</Button>
 			) }
 		</div>

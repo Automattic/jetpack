@@ -344,22 +344,18 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 				const { allowedTypes, multiple = false, noticeUI, onClose } = this.props;
 
 				const defaultTitle =
-					mediaSource !== 'jetpack_app_media'
-						? __( 'Select media', 'jetpack-shared-extension-utils' )
-						: '';
+					mediaSource !== 'jetpack_app_media' ? __( 'Select media', 'jetpack-external-media' ) : '';
 
-				const title = isCopying
-					? __( 'Inserting media', 'jetpack-shared-extension-utils' )
-					: defaultTitle;
+				const title = isCopying ? __( 'Inserting media', 'jetpack-external-media' ) : defaultTitle;
 
 				const description = isCopying
 					? __(
 							'When the media is finished copying and inserting, you will be returned to the editor.',
-							'jetpack-shared-extension-utils'
+							'jetpack-external-media'
 					  )
 					: __(
 							'Select the media you would like to insert into the editor.',
-							'jetpack-shared-extension-utils',
+							'jetpack-external-media',
 							/* dummy arg to avoid bad minification */ 0
 					  );
 

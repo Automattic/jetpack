@@ -5,7 +5,6 @@ import './shared/public-path';
 import './shared/block-category';
 import './shared/plan-upgrade-notification';
 import './shared/stripe-connection-notification';
-import './shared/external-media';
 import './extended-blocks/core-embed';
 import './extended-blocks/core-site-logo/index.js';
 import './extended-blocks/core-social-links';

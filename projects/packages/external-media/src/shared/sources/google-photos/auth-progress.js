@@ -8,7 +8,7 @@ import React from 'react';
  * @return {React.ReactElement} - JSX Element
  */
 function AuthProgress() {
-	return <p>{ __( 'Awaiting authorization', 'jetpack-shared-extension-utils' ) }</p>;
+	return <p>{ __( 'Awaiting authorization', 'jetpack-external-media' ) }</p>;
 }
 
 export default memo( AuthProgress );

@@ -20,7 +20,7 @@ function MediaAiButton( props ) {
 			} }
 		>
 			<div className="jetpack-external-media-button-menu__label">
-				{ __( 'Generate with AI', 'jetpack-shared-extension-utils' ) }
+				{ __( 'Generate with AI', 'jetpack-external-media' ) }
 			</div>
 		</Button>
 	);

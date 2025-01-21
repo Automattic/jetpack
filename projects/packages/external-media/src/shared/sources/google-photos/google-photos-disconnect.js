@@ -27,7 +27,7 @@ const GooglePhotosDisconnect = ( { setAuthenticated, buttonVariant = 'secondary'
 			disabled={ isDisconnecting }
 			isBusy={ isDisconnecting }
 		>
-			{ __( 'Disconnect from Google Photos', 'jetpack-shared-extension-utils' ) }
+			{ __( 'Disconnect from Google Photos', 'jetpack-external-media' ) }
 		</Button>
 	);
 };
