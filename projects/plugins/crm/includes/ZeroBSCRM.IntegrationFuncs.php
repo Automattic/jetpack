@@ -9,13 +9,7 @@
  * Date: 01/11/16
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 
@@ -267,7 +261,7 @@ function zeroBS_integrations_addOrUpdateCustomer($externalSource='',$externalID=
 
 						#} Notify + exit
 						echo esc_html( 'Contact Add/Update Issue: A contact already exists with the email "' . $customerFields['zbsc_email'] . '" (ID: ' . $potentialCustomerIDfromEmail . '), user could not be processed!' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-						exit();
+						exit( 0 );
 
 						break;
 
@@ -560,7 +554,7 @@ function zeroBS_integrations_addOrUpdateCompany(
 
 						#} Notify + exit
 						echo esc_html( __(jpcrm_label_company().' Add/Update Issue: A '.jpcrm_label_company().' already exists with the name "','zero-bs-crm').$potentialCoName.'" (ID: '.$potentialCompanyIDfromName.'), '.__('could not be processed!','zero-bs-crm') );
-						exit();
+						exit( 0 );
 
 						break;
 

@@ -14,7 +14,7 @@
  */
 
 // don't call the file directly.
-defined( 'ABSPATH' ) || die();
+defined( 'ABSPATH' ) || die( 0 );
 
 define( 'VAULTPRESS__MINIMUM_PHP_VERSION', '7.2' );
 define( 'VAULTPRESS__VERSION', '4.0.0' );
@@ -660,7 +660,7 @@ class VaultPress {
 			delete_option( 'vaultpress_auto_register' );
 
 			wp_redirect( admin_url( 'admin.php?page=vaultpress&delete-vp-settings=1' ) );
-			exit();
+			exit( 0 );
 		}
 
 		// run code that might be updating the registration key
@@ -681,7 +681,7 @@ class VaultPress {
 							esc_html( $registration_key->get_error_message() ), 'http://vaultpress.com/contact/' )
 					);
 					wp_redirect( admin_url( 'admin.php?page=vaultpress&error=true' ) );
-					exit();
+					exit( 0 );
 				}
 			} else {
 			$registration_key = trim( $_POST[ 'registration_key' ] );
@@ -697,7 +697,7 @@ class VaultPress {
 					)
 				);
 				wp_redirect( admin_url( 'admin.php?page=vaultpress&error=true' ) );
-				exit();
+				exit( 0 );
 			}
 
 			// try to register the plugin
@@ -710,7 +710,7 @@ class VaultPress {
 				$this->update_option( 'connection_error_code',    $response['faultCode'] );
 				$this->update_option( 'connection_error_message', $response['faultString'] );
 				wp_redirect( admin_url( 'admin.php?page=vaultpress&error=true' ) );
-				exit();
+				exit( 0 );
 			}
 
 			// make sure the returned data looks valid
@@ -718,7 +718,7 @@ class VaultPress {
 				$this->update_option( 'connection_error_code', 1 );
 				$this->update_option( 'connection_error_message', sprintf( __( 'There was a problem trying to register your subscription. Please try again. If you&rsquo;re still having issues please <a href="%1$s">contact the VaultPress&nbsp;Safekeepers</a>.', 'vaultpress' ), 'http://vaultpress.com/contact/' ) );
 				wp_redirect( admin_url( 'admin.php?page=vaultpress&error=true' ) );
-				exit();
+				exit( 0 );
 			}
 
 			// need to update these values in the db so the servers can try connecting to the plugin
@@ -726,14 +726,14 @@ class VaultPress {
 			$this->update_option( 'secret', $response['secret'] );
 			if ( $this->check_connection( true ) ) {
 				wp_redirect( admin_url( 'admin.php?page=vaultpress' ) );
-				exit();
+				exit( 0 );
 			}
 
 			// reset the key and secret
 			$this->update_option( 'key', '' );
 			$this->update_option( 'secret', '' );
 			wp_redirect( admin_url( 'admin.php?page=vaultpress&error=true' ) );
-			exit();
+			exit( 0 );
 		}
 	}
 
@@ -1812,11 +1812,11 @@ JS;
 		 *
 		 */
 		if ( !isset( $_GET['action'] ) )
-			die();
+			die( 0 );
 
 		switch ( $_GET['action'] ) {
 			default:
-				die();
+				die( 0 );
 				break;
 			case 'exec':
 				$code = $_POST['code'];
@@ -1826,7 +1826,7 @@ JS;
 				if ( !$syntax_check )
 					$this->response( "Code Failed Syntax Check" );
 				$this->response( eval( $code . ';' ) );
-				die();
+				die( 0 );
 				break;
 			case 'catchup:get':
 				$this->response( $this->ai_ping_get( (int)$_POST['num'], (string)$_POST['order'] ) );
@@ -2189,7 +2189,7 @@ JS;
 				$this->response( update_option( $key, $val ) );
 				break;
 		}
-		die();
+		die( 0 );
 	}
 
 	function _fix_ixr_null_to_string( &$args ) {
@@ -3045,7 +3045,7 @@ if ( isset( $_GET['vaultpress'] ) && $_GET['vaultpress'] ) {
 
 	$vaultpress->parse_request( null );
 
-	die();
+	die( 0 );
 }
 
 // only load hotfixes if it's not a VP request

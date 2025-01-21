@@ -150,7 +150,7 @@ class Boost_Cache {
 			$this->send_header( 'X-Jetpack-Boost-Cache: hit' );
 			Logger::debug( 'Serving cached page' );
 			echo $cached; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			die();
+			die( 0 );
 		}
 
 		$cache_status = $rebuild_found ? 'rebuild' : 'miss';
