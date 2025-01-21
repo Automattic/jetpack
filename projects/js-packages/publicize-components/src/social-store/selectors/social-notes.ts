@@ -6,7 +6,7 @@ import { SOCIAL_NOTES_CONFIG_KEY, SOCIAL_NOTES_ENABLED_KEY } from '../constants'
 /**
  * Returns if Social Notes are enabled for the current site.
  */
-export const getSocialNotesEnabled = createRegistrySelector( select => () => {
+export const isSocialNotesEnabled = createRegistrySelector( select => () => {
 	const { getSite } = select( coreStore );
 
 	const settings = getSite( undefined, {

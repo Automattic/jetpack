@@ -4,9 +4,9 @@ import { getSocialScriptData } from '../../utils';
 import { SHOW_PRICING_PAGE_KEY } from '../constants';
 
 /**
- * Returns the UTM state.
+ * Returns the Show Pricing Page enabled status for the current site.
  */
-export const getShouldShowPricingPage = createRegistrySelector( select => () => {
+export const shouldShowPricingPage = createRegistrySelector( select => () => {
 	const { getSite } = select( coreStore );
 
 	const settings = getSite( undefined, { _fields: SHOW_PRICING_PAGE_KEY } );

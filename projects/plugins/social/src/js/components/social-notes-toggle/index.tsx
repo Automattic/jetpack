@@ -35,7 +35,7 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 		const store = select( socialStore );
 
 		return {
-			isEnabled: store.getSocialNotesEnabled(),
+			isEnabled: store.isSocialNotesEnabled(),
 			notesConfig: store.getSocialNotesConfig(),
 			isUpdating: store.isSavingSiteSettings(),
 		};
@@ -48,11 +48,11 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
-	const { setSocialNotesEnabled, updateSocialNotesConfig } = useDispatch( socialStore );
+	const { toggleSocialNotes, updateSocialNotesConfig } = useDispatch( socialStore );
 
 	const toggleStatus = useCallback( async () => {
-		handleStateUpdating( () => setSocialNotesEnabled( ! isEnabled ) );
-	}, [ isEnabled, setSocialNotesEnabled ] );
+		handleStateUpdating( () => toggleSocialNotes( ! isEnabled ) );
+	}, [ isEnabled, toggleSocialNotes ] );
 
 	const onToggleAppendLink = useCallback(
 		( append_link: boolean ) => {

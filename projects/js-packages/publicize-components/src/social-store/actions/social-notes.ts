@@ -9,7 +9,7 @@ import { SocialNotesConfig } from '../types';
  *
  * @return {Function} A thunk.
  */
-export function setSocialNotesEnabled( isEnabled: boolean ) {
+export function toggleSocialNotes( isEnabled: boolean ) {
 	return async function ( { registry } ) {
 		const { saveSite } = registry.dispatch( coreStore );
 

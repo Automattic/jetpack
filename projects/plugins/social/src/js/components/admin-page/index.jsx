@@ -42,7 +42,7 @@ const Admin = () => {
 
 		return {
 			isModuleEnabled: settings.publicize_active,
-			showPricingPage: store.getShouldShowPricingPage(),
+			showPricingPage: store.shouldShowPricingPage(),
 			isUpdatingJetpackSettings: store.isSavingSocialPluginSettings(),
 		};
 	} );
