@@ -229,6 +229,10 @@
 	flex-grow: 1;
 	gap: var(--wp--style--block-gap, 1.5rem);
 }
+:where( .wp-block-jetpack-contact-form .wp-block-separator ) {
+	margin-top: 0;
+	margin-bottom: 0;
+}
 
 .wp-block-jetpack-contact-form > *:not(.wp-block-jetpack-button) {
 	flex: 0 0 100%;
