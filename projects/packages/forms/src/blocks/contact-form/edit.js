@@ -95,6 +95,7 @@ export const JetpackContactFormEdit = forwardRef(
 		const {
 			to,
 			subject,
+			sendEmailOnSubmission,
 			customThankyou,
 			customThankyouHeading,
 			customThankyouMessage,
@@ -313,6 +314,7 @@ export const JetpackContactFormEdit = forwardRef(
 								emailSubject={ subject }
 								instanceId={ instanceId }
 								postAuthorEmail={ postAuthorEmail }
+								sendEmailOnSubmission={ sendEmailOnSubmission }
 								setAttributes={ setAttributes }
 							/>
 						</PanelBody>

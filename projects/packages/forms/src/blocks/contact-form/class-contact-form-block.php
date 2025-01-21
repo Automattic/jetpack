@@ -173,8 +173,9 @@ class Contact_Form_Block {
 
 		$data = array(
 			'defaults' => array(
-				'to'      => wp_get_current_user()->user_email,
-				'subject' => '[' . get_bloginfo( 'name' ) . ']' . ( isset( $post ) ? ' ' . esc_html( $post->post_title ) : '' ),
+				'to'                    => wp_get_current_user()->user_email,
+				'subject'               => '[' . get_bloginfo( 'name' ) . ']' . ( isset( $post ) ? ' ' . esc_html( $post->post_title ) : '' ),
+				'sendEmailOnSubmission' => apply_filters( 'grunion_should_send_email', true ),
 			),
 		);
 

@@ -9,6 +9,10 @@ export default {
 		type: 'string',
 		default: window.jpFormsBlocks?.defaults?.to || '',
 	},
+	sendEmailOnSubmission: {
+		type: 'boolean',
+		default: window.jpFormsBlocks?.defaults?.sendEmailOnSubmission ?? true,
+	},
 	customThankyou: {
 		type: 'string',
 		default: '',

@@ -1545,23 +1545,27 @@ class Contact_Form extends Contact_Form_Shortcode {
 			wp_schedule_event( time() + 250, 'daily', 'grunion_scheduled_delete' );
 		}
 
-		if (
-			$is_spam !== true &&
-			/**
-			 * Filter to choose whether an email should be sent after each successful contact form submission.
-			 *
-			 * @module contact-form
-			 *
-			 * @since 2.6.0
-			 *
-			 * @param bool true Should an email be sent after a form submission. Default to true.
-			 * @param int $post_id Post ID.
-			 */
-			true === apply_filters( 'grunion_should_send_email', true, $post_id )
-		) {
-			self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
+		if ( $is_spam !== true ) {
+			// We first need to check if `sendEmailOnSubmission` prop is set and prioritize that.
+			$send_email_on_submission = $this->attributes['sendEmailOnSubmission'];
+			if ( isset( $send_email_on_submission ) ) {
+				if ( $send_email_on_submission ) {
+					self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
+				}
+			} elseif (
+				/**
+				 * Filter to choose whether an email should be sent after each successful contact form submission.
+				 *
+				 * @module contact-form
+				 *
+				 * @since 2.6.0
+				 *
+				 * @param bool true Should an email be sent after a form submission. Default to true.
+				 */
+				true === apply_filters( 'grunion_should_send_email', true ) ) {
+				self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
+			}
 		} elseif (
-			true === $is_spam &&
 			/**
 			 * Choose whether an email should be sent for each spam contact form submission.
 			 *
