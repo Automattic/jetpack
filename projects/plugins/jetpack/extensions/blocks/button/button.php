@@ -110,6 +110,7 @@ function get_button_classes( $attributes ) {
 	$has_custom_gradient         = array_key_exists( 'customGradient', $attributes );
 	$has_border_radius           = array_key_exists( 'borderRadius', $attributes );
 	$has_font_size               = array_key_exists( 'fontSize', $attributes );
+	$has_named_border_color      = array_key_exists( 'borderColor', $attributes );
 
 	if ( $has_font_size ) {
 		$classes[] = 'has-' . $attributes['fontSize'] . '-font-size';
@@ -125,6 +126,10 @@ function get_button_classes( $attributes ) {
 	}
 	if ( $has_named_text_color ) {
 		$classes[] = sprintf( 'has-%s-color', $attributes['textColor'] );
+	}
+
+	if ( $has_named_border_color ) {
+		$classes[] = sprintf( 'has-%s-border-color', $attributes['borderColor'] );
 	}
 
 	if (
@@ -171,7 +176,6 @@ function get_button_styles( $attributes ) {
 	$has_custom_font_size        = $has_typography_styles && array_key_exists( 'fontSize', $attributes['style']['typography'] );
 	$has_custom_text_transform   = $has_typography_styles && array_key_exists( 'textTransform', $attributes['style']['typography'] );
 	$border_styles               = array();
-	$has_named_border_color      = array_key_exists( 'borderColor', $attributes );
 	$has_custom_border_color     = array_key_exists( 'style', $attributes ) && array_key_exists( 'border', $attributes['style'] ) && array_key_exists( 'color', $attributes['style']['border'] );
 	$has_border_style            = array_key_exists( 'style', $attributes ) && array_key_exists( 'border', $attributes['style'] ) && array_key_exists( 'style', $attributes['style']['border'] );
 	$has_border_width            = array_key_exists( 'style', $attributes ) && array_key_exists( 'border', $attributes['style'] ) && array_key_exists( 'width', $attributes['style']['border'] );
@@ -211,9 +215,7 @@ function get_button_styles( $attributes ) {
 		$styles[] = sprintf( 'border-radius: %spx;', $attributes['borderRadius'] );
 	}
 
-	if ( $has_named_border_color ) {
-		$border_styles['color'] = "var:preset|color|{$attributes['borderColor']}";
-	} elseif ( $has_custom_border_color ) {
+	if ( $has_custom_border_color ) {
 		$border_styles['color'] = $attributes['style']['border']['color'];
 	}
 
