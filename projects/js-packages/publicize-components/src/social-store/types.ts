@@ -64,6 +64,7 @@ export type ConnectionData = {
 	reconnectingAccount?: Connection;
 	keyringResult?: KeyringResult;
 	abortControllers?: Record< string, Array< AbortController > >;
+	isConnectionsModalOpen?: boolean;
 };
 
 export type JetpackSettings = {
