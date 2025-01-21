@@ -1,4 +1,4 @@
-const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
+const baseConfig = require( '@automattic/jetpack-js-tools/jest/config.base.js' );
 
 module.exports = {
 	...baseConfig,

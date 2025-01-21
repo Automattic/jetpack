@@ -1,5 +1,5 @@
 {
-	"extends": "jetpack-js-tools/tsconfig.tsc.json",
+	"extends": "@automattic/jetpack-js-tools/tsconfig.tsc.json",
 	"include": [ "src/browser.ts", "src/playwright.ts" ],
 	"exclude": [ "node_modules/**/*" ],
 	"compilerOptions": {

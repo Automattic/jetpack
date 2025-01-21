@@ -40,7 +40,7 @@ module.exports = {
 	setupFiles: [ path.join( __dirname, 'setup-globals.js' ) ],
 	setupFilesAfterEnv: [ path.join( __dirname, 'setup-after-env.js' ) ],
 	extensionsToTreatAsEsm: [ '.jsx', '.ts', '.tsx' ],
-	resolver: require.resolve( 'jetpack-js-tools/jest/jest-resolver.js' ),
+	resolver: require.resolve( '@automattic/jetpack-js-tools/jest/jest-resolver.js' ),
 
 	...require( './config.coverage.js' ),
 };

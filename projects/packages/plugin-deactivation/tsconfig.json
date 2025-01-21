@@ -1,5 +1,5 @@
 {
-	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"extends": "@automattic/jetpack-js-tools/tsconfig.base.json",
 	"include": [ "./src/assets/js" ],
 	"compilerOptions": {
 		"typeRoots": [ "./node_modules/@types/", "src/assets/js" ],

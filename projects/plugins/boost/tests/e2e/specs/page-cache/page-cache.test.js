@@ -1,8 +1,8 @@
-import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
-import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
-import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
-import { WPLoginPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
-import playwrightConfig from 'jetpack-e2e-commons/playwright.config.mjs';
+import { test, expect } from '@automattic/jetpack-e2e-commons/fixtures/base-test.js';
+import { resolveSiteUrl } from '@automattic/jetpack-e2e-commons/helpers/utils-helper.js';
+import { PostFrontendPage } from '@automattic/jetpack-e2e-commons/pages/index.js';
+import { WPLoginPage } from '@automattic/jetpack-e2e-commons/pages/wp-admin/index.js';
+import playwrightConfig from '@automattic/jetpack-e2e-commons/playwright.config.mjs';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { JetpackBoostPage, PermalinksPage } from '../../lib/pages/index.js';
 

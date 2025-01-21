@@ -1,6 +1,6 @@
-import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
-import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
-import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
+import { prerequisitesBuilder, Plans } from '@automattic/jetpack-e2e-commons/env/index.js';
+import { test, expect } from '@automattic/jetpack-e2e-commons/fixtures/base-test.js';
+import { resolveSiteUrl } from '@automattic/jetpack-e2e-commons/helpers/utils-helper.js';
 import {
 	enableInstantSearch,
 	disableInstantSearch,

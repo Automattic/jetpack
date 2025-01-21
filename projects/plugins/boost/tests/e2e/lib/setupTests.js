@@ -1,5 +1,5 @@
+import { prerequisitesBuilder } from '@automattic/jetpack-e2e-commons/env/prerequisites.js';
 import { chromium } from '@playwright/test';
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites.js';
 import { boostPrerequisitesBuilder } from './env/prerequisites.js';
 
 /**

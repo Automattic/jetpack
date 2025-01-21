@@ -1,5 +1,5 @@
-import makeBaseConfig from 'jetpack-js-tools/eslintrc/base.mjs';
-import playwrightConfig from 'jetpack-js-tools/eslintrc/playwright.mjs';
+import makeBaseConfig from '@automattic/jetpack-js-tools/eslintrc/base.mjs';
+import playwrightConfig from '@automattic/jetpack-js-tools/eslintrc/playwright.mjs';
 
 /**
  * Create eslint config for E2Es.

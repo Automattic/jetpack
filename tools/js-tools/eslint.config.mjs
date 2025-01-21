@@ -1,5 +1,5 @@
-import makeBaseConfig, { config } from 'jetpack-js-tools/eslintrc/base.mjs';
-import jestConfig from 'jetpack-js-tools/eslintrc/jest.mjs';
+import makeBaseConfig, { config } from '@automattic/jetpack-js-tools/eslintrc/base.mjs';
+import jestConfig from '@automattic/jetpack-js-tools/eslintrc/jest.mjs';
 
 export default [
 	...makeBaseConfig( import.meta.url, { envs: [ 'node' ] } ),

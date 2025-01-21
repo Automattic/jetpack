@@ -481,13 +481,14 @@ function generateJsPackage( answers, pkgDir ) {
 		};
 		switch ( answers.typescript ) {
 			case 'ts-src':
-				xtends = '\n\t"extends": "jetpack-js-tools/tsconfig.base.json",';
+				xtends = '\n\t"extends": "@automattic/jetpack-js-tools/tsconfig.base.json",';
 				break;
 			case 'ts-webpack':
-				xtends = '\n\t"extends": "jetpack-js-tools/tsconfig.tsc-declaration-only.json",';
+				xtends =
+					'\n\t"extends": "@automattic/jetpack-js-tools/tsconfig.tsc-declaration-only.json",';
 				break;
 			case 'ts-tsc':
-				xtends = '\n\t"extends": "jetpack-js-tools/tsconfig.tsc.json",';
+				xtends = '\n\t"extends": "@automattic/jetpack-js-tools/tsconfig.tsc.json",';
 				break;
 		}
 

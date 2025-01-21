@@ -1,5 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import makeBaseConfig, { typescriptFiles } from 'jetpack-js-tools/eslintrc/base.mjs';
+import makeBaseConfig, { typescriptFiles } from '@automattic/jetpack-js-tools/eslintrc/base.mjs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 

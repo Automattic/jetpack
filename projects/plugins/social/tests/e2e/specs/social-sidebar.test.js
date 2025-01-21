@@ -1,7 +1,7 @@
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites.js';
-import { expect, test } from 'jetpack-e2e-commons/fixtures/base-test.js';
-import logger from 'jetpack-e2e-commons/logger.js';
-import BlockEditorPage from 'jetpack-e2e-commons/pages/wp-admin/block-editor.js';
+import { prerequisitesBuilder } from '@automattic/jetpack-e2e-commons/env/prerequisites.js';
+import { expect, test } from '@automattic/jetpack-e2e-commons/fixtures/base-test.js';
+import logger from '@automattic/jetpack-e2e-commons/logger.js';
+import BlockEditorPage from '@automattic/jetpack-e2e-commons/pages/wp-admin/block-editor.js';
 import { connect } from '../flows/index.js';
 
 test.beforeEach( async ( { page } ) => {

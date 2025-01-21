@@ -1,11 +1,11 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { SocialLogo } from '@automattic/social-logos';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import { SocialLogo } from 'social-logos';
 import ConnectionBanner from 'components/connection-banner';
 import NoticesList from 'components/global-notices';
 import SimpleNotice from 'components/notice';

@@ -1,5 +1,5 @@
 const path = require( 'path' );
-const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
+const baseConfig = require( '@automattic/jetpack-js-tools/jest/config.base.js' );
 
 module.exports = {
 	...baseConfig,
@@ -12,7 +12,7 @@ module.exports = {
 	],
 	transform: {
 		...baseConfig.transform,
-		'\\.[jt]sx?$': require( 'jetpack-js-tools/jest/babel-jest-config-factory.js' )(
+		'\\.[jt]sx?$': require( '@automattic/jetpack-js-tools/jest/babel-jest-config-factory.js' )(
 			require.resolve
 		),
 	},

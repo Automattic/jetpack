@@ -1,6 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import makeBaseConfig from 'jetpack-js-tools/eslintrc/base.mjs';
-import svelteConfig from 'jetpack-js-tools/eslintrc/svelte.mjs';
+import makeBaseConfig from '@automattic/jetpack-js-tools/eslintrc/base.mjs';
+import svelteConfig from '@automattic/jetpack-js-tools/eslintrc/svelte.mjs';
 
 export default [
 	...makeBaseConfig( import.meta.url ),

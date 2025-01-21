@@ -1,4 +1,4 @@
-import coverageConfig from 'jetpack-js-tools/jest/config.coverage.js';
+import coverageConfig from '@automattic/jetpack-js-tools/jest/config.coverage.js';
 
 export default {
 	...coverageConfig,

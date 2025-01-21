@@ -1,7 +1,7 @@
 // Base eslint config generator for normal projects. If for some reason you need to override the config, use this something like
 //
 // ```
-// import makeBaseConfig from 'jetpack-js-tools/eslintrc/base.mjs';
+// import makeBaseConfig from '@automattic/jetpack-js-tools/eslintrc/base.mjs';
 //
 // export default [
 //     ...makeBaseConfig( import.meta.url ),
