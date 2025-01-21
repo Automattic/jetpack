@@ -123,8 +123,10 @@ if [[ "$PR_ID" != "trunk" ]]; then
 			target_url: "https://jetpackcodecoverage.atomicsites.blog/prs/\( $PR | @uri )/",
 			description: .description,
 		}' <<<"$JSON" )"
+	echo "::endgroup::"
 
 	# Find the last comment starting with "### Code Coverage Summary"
+	echo "::group::Looking for existing comment"
 	PAGE=1
 	while true; do
 		J=$( curl -v -L fail \
@@ -132,38 +134,49 @@ if [[ "$PR_ID" != "trunk" ]]; then
 			--header "authorization: Bearer $API_TOKEN_GITHUB"
 		)
 		CID=$( jq -r --arg CID "$CID" '[ { id: $CID }, ( .[] | select( .user.login == "github-actions[bot]" ) | select( .body | test( "^### Code Coverage Summary" ) ) ) ] | last | .id' <<<"$J" )
-		if jq -e 'length < 100' <<<"$J"; then
+		if jq -e 'length < 100' <<<"$J" &>/dev/null; then
 			break
 		fi
 		PAGE=$(( PAGE + 1 ))
 	done
+	echo "::endgroup::"
+	if [[ -n "$CID" ]]; then
+		echo "Existing comment ID=$CID"
+	else
+		echo "No existing comment found"
+	fi
 
-	if jq -e '.msg != ""' <<<"$JSON"; then
+	if jq -e '.msg != ""' <<<"$JSON" &>/dev/null; then
 		if [[ -n "$CID" ]]; then
+			echo "::group::Updating comment"
 			curl -v -L --fail \
-				-X PATCH
+				-X PATCH \
 				--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/comments/${CID}" \
 				--header "authorization: Bearer $API_TOKEN_GITHUB" \
 				--header 'content-type: application/json' \
 				--data "$( jq -c '{
 					body: "### Code Coverage Summary\n\n\( .msg )\n\n\( .footer )",
 				}' <<<"$JSON" )"
+			echo "::endgroup::"
 		else
+			echo "::group::Creating comment"
 			curl -v -L --fail \
-				-X POST
+				-X POST \
 				--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${ID}/comments" \
 				--header "authorization: Bearer $API_TOKEN_GITHUB" \
 				--header 'content-type: application/json' \
 				--data "$( jq -c '{
 					body: "### Code Coverage Summary\n\n\( .msg )\n\n\( .footer )",
 				}' <<<"$JSON" )"
+			echo "::endgroup::"
 		fi
 	elif [[ -n "$CID" ]]; then
 		# No message, delete existing comment.
+		echo "::group::Deleting comment"
 		curl -v -L --fail \
-			-X delete
+			-X DELETE \
 			--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/comments/${CID}" \
 			--header "authorization: Bearer $API_TOKEN_GITHUB"
+		echo "::endgroup::"
 	fi
-	echo "::endgroup::"
 fi
