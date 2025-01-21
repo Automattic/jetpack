@@ -1,8 +1,10 @@
 import { store as coreStore } from '@wordpress/core-data';
 import { createRegistrySelector } from '@wordpress/data';
 import * as connectionDataSelectors from './connection-data';
+import * as pricingPageSelectors from './pricing-page';
 import * as shareStatusSelectors from './share-status';
 import * as sigSelectors from './social-image-generator';
+import * as socialNoteSelectors from './social-notes';
 import * as socialPluginSelectors from './social-plugin-settings';
 import * as utmSelectors from './utm-settings';
 
@@ -19,6 +21,8 @@ const selectors = {
 	isSavingSiteSettings,
 	...sigSelectors,
 	...utmSelectors,
+	...socialNoteSelectors,
+	...pricingPageSelectors,
 	...socialPluginSelectors,
 };
 

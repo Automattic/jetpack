@@ -1,4 +1,5 @@
 import { useBlockProps } from '@wordpress/block-editor';
+import { createBlock, getDefaultBlockName } from '@wordpress/blocks';
 import { createHigherOrderComponent, compose } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
 import clsx from 'clsx';
@@ -21,6 +22,7 @@ const JetpackField = props => {
 		setAttributes,
 		placeholder,
 		width,
+		insertBlocksAfter,
 	} = props;
 
 	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
@@ -50,6 +52,12 @@ const JetpackField = props => {
 					style={ fieldStyle }
 					type="text"
 					value={ placeholder }
+					onKeyDown={ event => {
+						if ( event.defaultPrevented || event.key !== 'Enter' ) {
+							return;
+						}
+						insertBlocksAfter( createBlock( getDefaultBlockName() ) );
+					} }
 				/>
 			</div>
 
