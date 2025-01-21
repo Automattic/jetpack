@@ -98,12 +98,15 @@ export default function Feedback( {
 					<div className="ai-assistant-post-feedback__suggestion">{ suggestion }</div>
 				</AiAssistantModal>
 			) }
-			<p>{ __( 'Get feedback on content structure.', 'jetpack' ) }</p>
+			<p className="jetpack-ai-assistant__help-text">
+				{ __( 'Get feedback on content structure.', 'jetpack' ) }
+			</p>
 			<Button
 				onClick={ handleRequest }
 				variant="secondary"
 				disabled={ ! postContent || disabled }
 				isBusy={ busy }
+				__next40pxDefaultSize
 			>
 				{ __( 'Generate feedback', 'jetpack' ) }
 			</Button>

@@ -9,7 +9,7 @@
 
 // stop direct access
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 if ( ! zeroBSCRM_isZBSAdminOrAdmin() ) {

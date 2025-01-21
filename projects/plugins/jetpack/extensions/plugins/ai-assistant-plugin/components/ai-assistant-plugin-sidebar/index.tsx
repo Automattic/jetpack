@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { JetpackEditorPanelLogo, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { PanelBody, PanelRow, BaseControl, ExternalLink } from '@wordpress/components';
+import { PanelBody, PanelRow, BaseControl, ExternalLink, Notice } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { PluginPrePublishPanel, PluginDocumentSettingPanel } from '@wordpress/edit-post';
@@ -81,6 +81,8 @@ const JetpackAndSettingsContent = ( {
 	// 	return postTypeObject?.viewable;
 	// }, [] );
 
+	const isPostEmpty = useSelect( select => select( editorStore ).isEditedPostEmpty(), [] );
+
 	const currentTitleOptimizationSectionLabel = __( 'Optimize Publishing', 'jetpack' );
 	const SEOTitleOptimizationSectionLabel = __( 'Optimize Title', 'jetpack' );
 	const titleOptimizationSectionLabel = isAITitleOptimizationKeywordsFeatureAvailable
@@ -110,23 +112,24 @@ const JetpackAndSettingsContent = ( {
 				</PanelRow>
 			) } */ }
 
+			{ isPostEmpty && (
+				<PanelRow className="jetpack-ai-sidebar__warning-content">
+					<Notice isDismissible={ false } status="warning">
+						{ __( 'The following features require content to work.', 'jetpack' ) }
+					</Notice>
+				</PanelRow>
+			) }
+
 			{ canWriteBriefBeEnabled() && isBreveAvailable && (
 				<PanelRow>
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>
-							{ __( 'Write Brief with AI (BETA)', 'jetpack' ) }
+							{ __( 'Write Brief (Beta)', 'jetpack' ) }
 						</BaseControl.VisualLabel>
 						<Breve />
 					</BaseControl>
 				</PanelRow>
 			) }
-
-			<PanelRow className="jetpack-ai-sidebar__feature-section">
-				<BaseControl __nextHasNoMarginBottom={ true }>
-					<BaseControl.VisualLabel>{ __( 'AI Feedback', 'jetpack' ) }</BaseControl.VisualLabel>
-					<Feedback placement={ placement } busy={ false } disabled={ requireUpgrade } />
-				</BaseControl>
-			</PanelRow>
 
 			{ isAITitleOptimizationAvailable && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
@@ -136,16 +139,25 @@ const JetpackAndSettingsContent = ( {
 					</BaseControl>
 				</PanelRow>
 			) }
+
 			{ isAIFeaturedImageAvailable && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>
-							{ __( 'AI Featured Image', 'jetpack' ) }
+							{ __( 'Get Featured Image', 'jetpack' ) }
 						</BaseControl.VisualLabel>
 						<FeaturedImage busy={ false } disabled={ requireUpgrade } placement={ placement } />
 					</BaseControl>
 				</PanelRow>
 			) }
+
+			<PanelRow className="jetpack-ai-sidebar__feature-section">
+				<BaseControl __nextHasNoMarginBottom={ true }>
+					<BaseControl.VisualLabel>{ __( 'Get Feedback', 'jetpack' ) }</BaseControl.VisualLabel>
+					<Feedback placement={ placement } busy={ false } disabled={ requireUpgrade } />
+				</BaseControl>
+			</PanelRow>
+
 			{ requireUpgrade && ! isUsagePanelAvailable && (
 				<PanelRow>
 					<Upgrade placement={ placement } type={ upgradeType } upgradeUrl={ checkoutUrl } />
@@ -157,21 +169,21 @@ const JetpackAndSettingsContent = ( {
 				</PanelRow>
 			) }
 
-			<PanelRow>
-				<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-ai-feedback">
-					{ __( 'Provide feedback', 'jetpack' ) }
-				</ExternalLink>
-			</PanelRow>
-
-			<PanelRow>
+			<PanelRow className="jetpack-ai-sidebar__external-link">
 				<ExternalLink href={ productPageUrl }>
 					{ __( 'Learn more about Jetpack AI', 'jetpack' ) }
 				</ExternalLink>
 			</PanelRow>
 
-			<PanelRow>
+			<PanelRow className="jetpack-ai-sidebar__external-link">
+				<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-ai-feedback">
+					{ __( 'Give us feedback', 'jetpack' ) }
+				</ExternalLink>
+			</PanelRow>
+
+			<PanelRow className="jetpack-ai-sidebar__external-link">
 				<ExternalLink href="https://jetpack.com/redirect/?source=ai-guidelines">
-					{ __( 'AI Guidelines', 'jetpack' ) }
+					{ __( 'AI guidelines', 'jetpack' ) }
 				</ExternalLink>
 			</PanelRow>
 		</>
