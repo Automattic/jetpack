@@ -20,9 +20,10 @@ class WPCOM_API_Request_Faker_Module {
 	/**
 	 * WPCOM_API_Request_Faker constructor.
 	 */
-	public function __construct() {
-		add_action( 'admin_menu', array( $this, 'register_submenu_page' ), 2000 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+	public static function init() {
+		$module = new static();
+		add_action( 'admin_menu', array( $module, 'register_submenu_page' ), 2000 );
+		add_action( 'admin_enqueue_scripts', array( $module, 'enqueue_scripts' ) );
 	}
 
 	/**
@@ -56,6 +57,11 @@ class WPCOM_API_Request_Faker_Module {
 	 */
 	public function render() {
 		$version = '2';
+
+		if ( ! class_exists( 'Automattic\Jetpack\Connection\Client' ) || ! class_exists( 'Automattic\Jetpack\Connection\Manager' ) ) {
+			echo '<p>Error: This helper requires a jetpack connection to work. Please ensure that you have set one up before using.</p>';
+			return;
+		}
 
 		// Handle the form submit
 		if ( ! empty( $_POST ) ) {
@@ -150,4 +156,4 @@ class WPCOM_API_Request_Faker_Module {
 	}
 }
 
-new WPCOM_API_Request_Faker_Module();
+WPCOM_API_Request_Faker_Module::init();
