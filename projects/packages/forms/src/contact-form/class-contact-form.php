@@ -1227,7 +1227,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Is it spam?
 		/** This filter is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 		$is_spam = apply_filters( 'jetpack_contact_form_is_spam', false, $akismet_values );
-		$is_spam = false;
 		if ( is_wp_error( $is_spam ) ) { // WP_Error to abort
 			return $is_spam; // abort
 		} elseif ( $is_spam === true ) {  // TRUE to flag a spam
