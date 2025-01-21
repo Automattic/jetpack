@@ -4,7 +4,7 @@ use Automattic\Jetpack\Assets;
 
 // Exit if file is accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 /**

@@ -274,6 +274,7 @@ const editField = type => props => {
 			id={ props.attributes.id }
 			width={ props.attributes.width }
 			attributes={ props.attributes }
+			insertBlocksAfter={ props.insertBlocksAfter }
 		/>
 	);
 };

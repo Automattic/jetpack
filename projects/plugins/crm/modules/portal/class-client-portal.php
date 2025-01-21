@@ -8,7 +8,7 @@
 */
 namespace Automattic\JetpackCRM;
 
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 require_once plugin_dir_path( __FILE__ ) . 'class-client-portal-endpoint.php';
 
@@ -530,7 +530,7 @@ class Client_Portal {
 		// if there's a valid referrer, and it's not the default log-in screen + it's got our post
 		if ( !empty($referrer) && !strstr($referrer,'wp-login') && !strstr($referrer,'wp-admin') && isset($_POST['fromzbslogin'])) {
 				wp_redirect(zeroBS_portal_link('dash') . '?login=failed' );  // let's append some information (login=failed) to the URL for the theme to use
-				exit;
+				exit( 0 );
 		}
 	}
 

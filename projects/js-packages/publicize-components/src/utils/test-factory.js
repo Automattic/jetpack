@@ -13,16 +13,16 @@ jest.mock( '../hooks/use-social-media-connections', () => ( {
 
 export const setup = ( {
 	connections = [
-		{ service_name: 'twitter', connection_id: '1', display_name: 'Twitter', can_disconnect: true },
+		{ service_name: 'twitter', connection_id: '1', display_name: 'Twitter' },
 		{
 			service_name: 'facebook',
 			connection_id: '2',
 			display_name: 'Facebook',
-			can_disconnect: true,
 		},
 	],
 	getDeletingConnections = [],
 	getUpdatingConnections = [],
+	canUserManageConnection = true,
 } = {} ) => {
 	let storeSelect;
 	renderHook( () => useSelect( select => ( storeSelect = select( store ) ) ) );
@@ -36,6 +36,10 @@ export const setup = ( {
 		.mockReset()
 		.mockReturnValue( getUpdatingConnections );
 	const stubGetKeyringResult = jest.spyOn( storeSelect, 'getKeyringResult' ).mockReset();
+	jest
+		.spyOn( storeSelect, 'canUserManageConnection' )
+		.mockReset()
+		.mockReturnValue( canUserManageConnection );
 
 	const { result: dispatch } = renderHook( () => useDispatch( store ) );
 	const stubDeleteConnectionById = jest

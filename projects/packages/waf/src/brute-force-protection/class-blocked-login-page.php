@@ -769,6 +769,6 @@ class Brute_Force_Protection_Blocked_Login_Page {
 		</body>
 		</html>
 		<?php
-		die();
+		die( 0 );
 	}
 }

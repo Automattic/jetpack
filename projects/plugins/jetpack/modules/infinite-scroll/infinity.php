@@ -1351,7 +1351,7 @@ class The_Neverending_Home_Page {
 	 */
 	public function query() {
 		if ( ! isset( $_REQUEST['page'] ) || ! current_theme_supports( 'infinite-scroll' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes to the site.
-			die;
+			die( 0 );
 		}
 
 		// @todo see if we should validate this nonce since we use it to form a query.

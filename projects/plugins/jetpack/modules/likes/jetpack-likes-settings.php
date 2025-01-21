@@ -733,7 +733,7 @@ class Jetpack_Likes_Settings {
 				/** This action is documented in modules/sharedaddy/sharing.php */
 				do_action( 'sharing_admin_update' );
 				wp_safe_redirect( admin_url( 'options-general.php?page=sharing&update=saved' ) );
-				die();
+				die( 0 );
 			}
 		}
 	}

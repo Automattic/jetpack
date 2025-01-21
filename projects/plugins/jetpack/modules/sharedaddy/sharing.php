@@ -120,7 +120,7 @@ class Sharing_Admin {
 			do_action( 'sharing_admin_update' );
 
 			wp_safe_redirect( admin_url( 'options-general.php?page=sharing&update=saved' ) );
-			die();
+			die( 0 );
 		}
 	}
 
@@ -165,7 +165,7 @@ class Sharing_Admin {
 				explode( ',', sanitize_text_field( wp_unslash( $_POST['visible'] ) ) ),
 				explode( ',', sanitize_text_field( wp_unslash( $_POST['hidden'] ) ) )
 			);
-			die();
+			die( 0 );
 		}
 	}
 
@@ -195,7 +195,7 @@ class Sharing_Admin {
 				$service->button_style = 'icon-text';
 				$this->output_preview( $service );
 
-				die();
+				die( 0 );
 			}
 		}
 
@@ -249,7 +249,7 @@ class Sharing_Admin {
 			echo '<!--->';
 			$service->button_style = 'icon-text';
 			$this->output_preview( $service );
-			die();
+			die( 0 );
 		}
 	}
 
