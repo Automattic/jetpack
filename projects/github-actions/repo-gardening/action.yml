@@ -60,6 +60,10 @@ inputs:
     description: "OpenAI API key"
     required: false
     default: ""
+  labels_source_repo:
+    description: "Repository to fetch labels from"
+    required: false
+    default: "https://github.com/automattic/jetpack"
 runs:
   using: node20
   main: "dist/index.js"

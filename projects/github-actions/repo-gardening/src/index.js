@@ -10,6 +10,7 @@ const gatherSupportReferences = require( './tasks/gather-support-references' );
 const notifyDesign = require( './tasks/notify-design' );
 const notifyEditorial = require( './tasks/notify-editorial' );
 const replyToCustomersReminder = require( './tasks/reply-to-customers-reminder' );
+const syncLabels = require( './tasks/sync-labels' );
 const triageIssues = require( './tasks/triage-issues' );
 const debug = require( './utils/debug' );
 const ifNotClosed = require( './utils/if-not-closed' );
@@ -80,6 +81,10 @@ const automations = [
 		event: 'issues',
 		action: [ 'closed' ],
 		task: replyToCustomersReminder,
+	},
+	{
+		event: 'workflow_dispatch',
+		task: syncLabels,
 	},
 ];
 

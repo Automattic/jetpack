@@ -15,7 +15,7 @@ const { WebClient, ErrorCode } = require( '@slack/web-api' );
 async function sendSlackMessage( message, channel, payload, customMessageFormat = {} ) {
 	const token = getInput( 'slack_token' );
 	if ( ! token ) {
-		setFailed( 'triage-issues: Input slack_token is required but missing. Aborting.' );
+		setFailed( 'slack notifications: Input slack_token is required but missing. Aborting.' );
 		return;
 	}
 
