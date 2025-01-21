@@ -182,9 +182,11 @@ class Publicize_Script_Data {
 			$share_status[ $post->ID ] = self::publicize()->get_post_share_status( $post->ID );
 		}
 
+		$should_have_connections = self::has_feature_flag( 'connections-management' ) || self::has_feature_flag( 'editor-preview' );
+
 		return array(
 			'connectionData' => array(
-				'connections' => self::has_feature_flag( 'connections-management' ) ? Connections::get_all_for_user() : array(),
+				'connections' => $should_have_connections ? Connections::get_all_for_user() : array(),
 			),
 			'shareStatus'    => $share_status,
 		);
