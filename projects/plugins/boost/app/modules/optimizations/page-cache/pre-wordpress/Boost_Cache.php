@@ -562,6 +562,10 @@ class Boost_Cache {
 			return $params;
 		}
 
+		$default_cookies = array( 'cf_clearance', 'cf_chl_rc_i', 'cf_chl_rc_ni', 'cf_chl_rc_m', '_cfuvid', '__cfruid', '__cfwaitingroom', 'cf_ob_info', 'cf_use_ob', '__cfseq', '__cf_bm', '__cflb', 'sbjs_(.*)' );
+		$jetpack_cookies = array( 'tk_ai', 'tk_qs' );
+		$cookies         = array_merge( $default_cookies, $jetpack_cookies );
+
 		/**
 		 * Filters the browser cookies so cached pages can be served to these visitors.
 		 * The list is an array of regex patterns. The default list contains the
@@ -574,7 +578,7 @@ class Boost_Cache {
 		 */
 		$cookies = apply_filters(
 			'jetpack_boost_ignore_cookies',
-			array( 'cf_clearance', 'cf_chl_rc_i', 'cf_chl_rc_ni', 'cf_chl_rc_m', '_cfuvid', '__cfruid', '__cfwaitingroom', 'cf_ob_info', 'cf_use_ob', '__cfseq', '__cf_bm', '__cflb', 'sbjs_(.*)' )
+			$cookies
 		);
 
 		$cookies = array_unique(
