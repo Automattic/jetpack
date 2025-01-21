@@ -7,6 +7,7 @@
 # - GITHUB_TOKEN: GitHub API token.
 # - GITHUB_REPOSITORY: GitHub repo.
 # - GITHUB_SHA: Commit SHA.
+# - PR_HEAD: SHA for the PR head commit (versus GITHUB_SHA which is a merge commit)
 # - PR_ID: PR number or "trunk".
 # - SECRET: Shared secret.
 # - STATUS: Status of the coverage run.
@@ -112,7 +113,7 @@ if [[ "$PR_ID" != "trunk" ]]; then
 	fi
 	jq . <<<"$JSON"
 	curl -v -L --fail \
-		--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
+		--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/$( jq --arg V "$PR_HEAD" -nr '$V | @uri' )" \
 		--header "authorization: Bearer $API_TOKEN" \
 		--header 'content-type: application/json' \
 		--data "$( jq -c --arg PR "$PR_ID" '{

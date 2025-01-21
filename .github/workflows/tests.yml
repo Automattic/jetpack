@@ -307,6 +307,7 @@ jobs:
           PR_ID: ${{ github.event_name != 'pull_request' && 'trunk' || github.event.pull_request.number }}
           SECRET: ${{ secrets.CODECOV_SECRET }}
           STATUS: ${{ needs.run-tests.outputs.coverage-status }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
         run: .github/files/coverage-munger/upload-coverage.sh
 
   storybook-test:
