@@ -85,6 +85,29 @@ jobs:
           pnpm install
           echo "::endgroup::"
 
+      - name: Detect changed projects
+        id: changed
+        run: |
+          CHANGED="$(EXTRA=test .github/files/list-changed-projects.sh)"
+
+          # Only test certain plugins in combination with WC
+          if [[ "$WITH_WOOCOMMERCE" == true ]]; then
+            echo "Testing with WooCommerce, filtering for projects that have WooCommerce-specific tests."
+            CHANGED=$( jq -c 'with_entries( select( .key == "plugins/jetpack" ) )' <<<"$CHANGED" )
+          fi
+
+          ANY_PLUGINS="$(jq --argjson changed "$CHANGED" -n '$changed | with_entries( select( .key | startswith( "plugins/" ) ) ) | any')"
+          echo "projects=${CHANGED}" >> "$GITHUB_OUTPUT"
+          echo "projects=${CHANGED}"
+          echo "any-plugins=${ANY_PLUGINS}" >> "$GITHUB_OUTPUT"
+          echo "any-plugins=${ANY_PLUGINS}"
+
+      - name: Select WordPress version
+        if: steps.changed.outputs.any-plugins != 'true' && matrix.wp != 'none'
+        run: .github/files/select-wordpress-tag.sh
+
+      - name: Composer Install
+        run: |
           # If we're going to be making WorDBless use WP "nightlies", remove the relevant package from Composer's cache to get the latest version.
           if [[ "$WP_BRANCH" == 'trunk' && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) ]]; then
             echo "::group::Clear composer cache for roots/wordpress"
@@ -107,25 +130,6 @@ jobs:
             fi
           fi
           echo "::endgroup::"
-
-      - name: Detect changed projects
-        id: changed
-        run: |
-          CHANGED="$(EXTRA=test .github/files/list-changed-projects.sh)"
-
-          # Only test certain plugins in combination with WC
-          if [[ "$WITH_WOOCOMMERCE" == true ]]; then
-            echo "Testing with WooCommerce, filtering for projects that have WooCommerce-specific tests."
-            CHANGED=$( jq -c 'with_entries( select( .key == "plugins/jetpack" ) )' <<<"$CHANGED" )
-          fi
-
-          ANY_PLUGINS="$(jq --argjson changed "$CHANGED" -n '$changed | with_entries( select( .key | startswith( "plugins/" ) ) ) | any')"
-          echo "projects=${CHANGED}" >> "$GITHUB_OUTPUT"
-          echo "any-plugins=${ANY_PLUGINS}" >> "$GITHUB_OUTPUT"
-
-      - name: Select WordPress version
-        if: steps.changed.outputs.any-plugins != 'true' && matrix.wp != 'none'
-        run: .github/files/select-wordpress-tag.sh
 
       - name: Setup WordPress environment for plugin tests
         env:
