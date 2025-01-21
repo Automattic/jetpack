@@ -4,7 +4,7 @@ import { dispatch as coreDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { getSocialScriptData } from '../../utils/script-data';
-import { Connection } from '../types';
+import { Connection, KeyringResult } from '../types';
 import {
 	ADD_CONNECTION,
 	DELETE_CONNECTION,
@@ -23,10 +23,10 @@ import {
 
 /**
  * Set connections list
- * @param {Array<import('../types').Connection>} connections - list of connections
- * @return {object} - an action object.
+ * @param connections - list of connections
+ * @return An action object.
  */
-export function setConnections( connections ) {
+export function setConnections( connections: Array< Connection > ) {
 	return {
 		type: SET_CONNECTIONS,
 		connections,
@@ -36,11 +36,11 @@ export function setConnections( connections ) {
 /**
  * Set keyring result
  *
- * @param {import('../types').KeyringResult} [keyringResult] - keyring result
+ * @param keyringResult - keyring result
  *
- * @return {object} - an action object.
+ * @return An action object.
  */
-export function setKeyringResult( keyringResult ) {
+export function setKeyringResult( keyringResult?: KeyringResult ) {
 	return {
 		type: SET_KEYRING_RESULT,
 		keyringResult,
@@ -49,10 +49,10 @@ export function setKeyringResult( keyringResult ) {
 
 /**
  * Add connection to the list
- * @param {import('../types').Connection} connection - connection object
- * @return {object} - an action object.
+ * @param connection - connection object
+ * @return An action object.
  */
-export function addConnection( connection ) {
+export function addConnection( connection: Partial< Connection > ) {
 	return {
 		type: ADD_CONNECTION,
 		connection,
@@ -61,11 +61,11 @@ export function addConnection( connection ) {
 
 /**
  * Toggle connection enable status.
- * @param {string} connectionId - Connection ID to switch.
+ * @param connectionId - Connection ID to switch.
  *
- * @return {object} Switch connection enable-status action.
+ * @return Switch connection enable-status action.
  */
-export function toggleConnection( connectionId ) {
+export function toggleConnection( connectionId: string ) {
 	return {
 		type: TOGGLE_CONNECTION,
 		connectionId,
@@ -74,13 +74,13 @@ export function toggleConnection( connectionId ) {
 
 /**
  * Merge connections with fresh connections.
- * @param {Array} freshConnections - list of fresh connections
- * @return {Function} - a function to merge connections.
+ * @param freshConnections - list of fresh connections
+ * @return A thunk to merge connections.
  */
-export function mergeConnections( freshConnections ) {
+export function mergeConnections( freshConnections: Array< Connection > ) {
 	return function ( { dispatch, select } ) {
 		// Combine current connections with new connections.
-		const prevConnections = select.getConnections();
+		const prevConnections: Array< Connection > = select.getConnections();
 		const connections = [];
 		const defaults = {
 			enabled: true,
@@ -108,12 +108,12 @@ export function mergeConnections( freshConnections ) {
 
 /**
  * Create an abort controller.
- * @param {AbortController} abortController - Abort controller.
- * @param {string}          requestType     - Type of abort request.
+ * @param abortController - Abort controller.
+ * @param requestType     - Type of abort request.
  *
- * @return {object} - an action object.
+ * @return An action object.
  */
-export function createAbortController( abortController, requestType ) {
+export function createAbortController( abortController: AbortController, requestType: string ) {
 	return {
 		type: ADD_ABORT_CONTROLLER,
 		requestType,
@@ -124,11 +124,11 @@ export function createAbortController( abortController, requestType ) {
 /**
  * Remove abort controllers.
  *
- * @param {string} requestType - Type of abort request.
+ * @param requestType - Type of abort request.
  *
- * @return {object} - an action object.
+ * @return An action object.
  */
-export function removeAbortControllers( requestType ) {
+export function removeAbortControllers( requestType: string ) {
 	return {
 		type: REMOVE_ABORT_CONTROLLERS,
 		requestType,
@@ -138,11 +138,11 @@ export function removeAbortControllers( requestType ) {
 /**
  * Abort a request.
  *
- * @param {string} requestType - Type of abort request.
+ * @param requestType - Type of abort request.
  *
- * @return {Function} - a function to abort a request.
+ * @return A thunk to abort a request.
  */
-export function abortRequest( requestType ) {
+export function abortRequest( requestType: string ) {
 	return function ( { dispatch, select } ) {
 		const abortControllers = select.getAbortControllers( requestType );
 
@@ -158,7 +158,7 @@ export function abortRequest( requestType ) {
 /**
  * Abort the refresh connections request.
  *
- * @return {Function} - a function to abort a request.
+ * @return A thunk to abort a request.
  */
 export function abortRefreshConnectionsRequest() {
 	return abortRequest( REQUEST_TYPE_REFRESH_CONNECTIONS );
@@ -167,8 +167,8 @@ export function abortRefreshConnectionsRequest() {
 /**
  * Effect handler which will refresh the connection test results.
  *
- * @param {boolean} syncToMeta - Whether to sync the connection state to the post meta.
- * @return {Function} Refresh connection test results action.
+ * @param syncToMeta - Whether to sync the connection state to the post meta.
+ * @return A thunk to refresh connection test results.
  */
 export function refreshConnectionTestResults( syncToMeta = false ) {
 	return async function ( { dispatch, select } ) {
@@ -188,7 +188,10 @@ export function refreshConnectionTestResults( syncToMeta = false ) {
 			dispatch( createAbortController( abortController, REQUEST_TYPE_REFRESH_CONNECTIONS ) );
 
 			// Pass the abort controller signal to the fetch request.
-			const freshConnections = await apiFetch( { path, signal: abortController.signal } );
+			const freshConnections = await apiFetch< Array< Connection > >( {
+				path,
+				signal: abortController.signal,
+			} );
 
 			dispatch( mergeConnections( freshConnections ) );
 
@@ -208,7 +211,7 @@ export function refreshConnectionTestResults( syncToMeta = false ) {
 /**
  * Syncs the connections to the post meta.
  *
- * @return {Function} Sync connections to post meta action.
+ * @return A thunk to sync connections to post meta.
  */
 export function syncConnectionsToPostMeta() {
 	return function ( { registry, select } ) {
@@ -224,11 +227,11 @@ export function syncConnectionsToPostMeta() {
 /**
  * Toggles the connection enable-status.
  *
- * @param {string}  connectionId - Connection ID to switch.
- * @param {boolean} syncToMeta   - Whether to sync the connection state to the post meta.
- * @return {object} Switch connection enable-status action.
+ * @param connectionId - Connection ID to switch.
+ * @param syncToMeta   - Whether to sync the connection state to the post meta.
+ * @return A think to switch connection enable-status.
  */
-export function toggleConnectionById( connectionId, syncToMeta = true ) {
+export function toggleConnectionById( connectionId: string, syncToMeta = true ) {
 	return function ( { dispatch } ) {
 		dispatch( toggleConnection( connectionId ) );
 
@@ -241,11 +244,11 @@ export function toggleConnectionById( connectionId, syncToMeta = true ) {
 /**
  * Deletes a connection.
  *
- * @param {string} connectionId - Connection ID to delete.
+ * @param connectionId - Connection ID to delete.
  *
- * @return {object} Delete connection action.
+ * @return An action object.
  */
-export function deleteConnection( connectionId ) {
+export function deleteConnection( connectionId: string ) {
 	return {
 		type: DELETE_CONNECTION,
 		connectionId,
@@ -255,12 +258,12 @@ export function deleteConnection( connectionId ) {
 /**
  * Marks a connection as being deleted.
  *
- * @param {string}  connectionId - Connection ID to delete.
- * @param {boolean} deleting     - Whether the connection is being deleted.
+ * @param connectionId - Connection ID to delete.
+ * @param deleting     - Whether the connection is being deleted.
  *
- * @return {object} Deleting connection action.
+ * @return An action object.
  */
-export function deletingConnection( connectionId, deleting = true ) {
+export function deletingConnection( connectionId: string, deleting = true ) {
 	return {
 		type: DELETING_CONNECTION,
 		connectionId,
@@ -271,13 +274,19 @@ export function deletingConnection( connectionId, deleting = true ) {
 /**
  * Deletes a connection by disconnecting it.
  *
- * @param {object}          args                     - Arguments.
- * @param {string | number} args.connectionId        - Connection ID to delete.
- * @param {boolean}         [args.showSuccessNotice] - Whether to show a success notice.
+ * @param args                   - Arguments.
+ * @param args.connectionId      - Connection ID to delete.
+ * @param args.showSuccessNotice - Whether to show a success notice.
  *
- * @return {boolean} Whether the connection was deleted.
+ * @return A thunk that resolves to true if the connection was deleted, false otherwise.
  */
-export function deleteConnectionById( { connectionId, showSuccessNotice = true } ) {
+export function deleteConnectionById( {
+	connectionId,
+	showSuccessNotice = true,
+}: {
+	connectionId: string;
+	showSuccessNotice?: boolean;
+} ) {
 	return async function ( { registry, dispatch } ) {
 		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
 
@@ -330,11 +339,15 @@ let uniqueId = 1;
 /**
  * Creates a connection.
  *
- * @param {Record<string, any>} data           - The data for API call.
- * @param {Record<string, any>} optimisticData - Optimistic data for the connection.
- * @return {void}
+ * @param data           - The data for API call.
+ * @param optimisticData - Optimistic data for the connection.
+ *
+ * @return A thunk to create a connection.
  */
-export function createConnection( data, optimisticData = {} ) {
+export function createConnection(
+	data: Record< string, unknown >,
+	optimisticData: Partial< Connection > = {}
+) {
 	return async function ( { registry, dispatch } ) {
 		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
 
@@ -403,12 +416,12 @@ export function createConnection( data, optimisticData = {} ) {
 /**
  * Updates a connection.
  *
- * @param {string}              connectionId - Connection ID to update.
- * @param {Record<string, any>} data         - The data.
+ * @param connectionId - Connection ID to update.
+ * @param data         - The data.
  *
- * @return {object} Delete connection action.
+ * @return An action object.
  */
-export function updateConnection( connectionId, data ) {
+export function updateConnection( connectionId: string, data: Partial< Connection > ) {
 	return {
 		type: UPDATE_CONNECTION,
 		connectionId,
@@ -419,12 +432,12 @@ export function updateConnection( connectionId, data ) {
 /**
  * Marks a connection as being updating.
  *
- * @param {string}  connectionId - Connection ID being updated.
- * @param {boolean} updating     - Whether the connection is being updated.
+ * @param connectionId - Connection ID being updated.
+ * @param updating     - Whether the connection is being updated.
  *
- * @return {object} Deleting connection action.
+ * @return An action object.
  */
-export function updatingConnection( connectionId, updating = true ) {
+export function updatingConnection( connectionId: string, updating = true ) {
 	return {
 		type: UPDATING_CONNECTION,
 		connectionId,
@@ -435,11 +448,11 @@ export function updatingConnection( connectionId, updating = true ) {
 /**
  * Sets the reconnecting account.
  *
- * @param {import('../types').Connection} reconnectingAccount - Account being reconnected.
+ * @param reconnectingAccount - Account being reconnected.
  *
- * @return {object} Reconnecting account action.
+ * @return An action object.
  */
-export function setReconnectingAccount( reconnectingAccount ) {
+export function setReconnectingAccount( reconnectingAccount: Connection ) {
 	return {
 		type: SET_RECONNECTING_ACCOUNT,
 		reconnectingAccount,
@@ -449,11 +462,11 @@ export function setReconnectingAccount( reconnectingAccount ) {
 /**
  * Updates a connection.
  *
- * @param {string}              connectionId - Connection ID to update.
- * @param {Record<string, any>} data         - The data for API call.
- * @return {void}
+ * @param connectionId - Connection ID to update.
+ * @param data         - The data for API call.
+ * @return A thunk to update a connection.
  */
-export function updateConnectionById( connectionId, data ) {
+export function updateConnectionById( connectionId: string, data: Partial< Connection > ) {
 	return async function ( { dispatch, select } ) {
 		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
 
@@ -501,11 +514,11 @@ export function updateConnectionById( connectionId, data ) {
 /**
  * Toggles the connections modal.
  *
- * @param {boolean} isOpen - Whether the modal is open.
+ * @param isOpen - Whether the modal is open.
  *
- * @return {object} - An action object.
+ * @return An action object.
  */
-export function toggleConnectionsModal( isOpen ) {
+export function toggleConnectionsModal( isOpen: boolean ) {
 	return {
 		type: TOGGLE_CONNECTIONS_MODAL,
 		isOpen,
@@ -515,7 +528,7 @@ export function toggleConnectionsModal( isOpen ) {
 /**
  * Opens the connections modal.
  *
- * @return {object} - An action object.
+ * @return An action object.
  */
 export function openConnectionsModal() {
 	return toggleConnectionsModal( true );
@@ -523,7 +536,7 @@ export function openConnectionsModal() {
 
 /**
  * Closes the connections modal.
- * @return {object} - An action object.
+ * @return An action object.
  */
 export function closeConnectionsModal() {
 	return toggleConnectionsModal( false );
