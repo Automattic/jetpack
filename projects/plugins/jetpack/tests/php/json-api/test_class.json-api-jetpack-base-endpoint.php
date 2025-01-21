@@ -29,6 +29,13 @@ class WP_Test_Jetpack_Base_Json_Api_Endpoints extends WP_UnitTestCase {
 	private static $super_admin_alt_user_id;
 
 	/**
+	 * A contributor user used for test.
+	 *
+	 * @var int
+	 */
+	private static $contributor_user_id;
+
+	/**
 	 * Inserts globals needed to initialize the endpoint.
 	 */
 	private function set_globals() {
@@ -45,6 +52,21 @@ class WP_Test_Jetpack_Base_Json_Api_Endpoints extends WP_UnitTestCase {
 	public static function wpSetUpBeforeClass( $factory ) {
 		self::$super_admin_user_id     = $factory->user->create( array( 'role' => 'administrator' ) );
 		self::$super_admin_alt_user_id = $factory->user->create( array( 'role' => 'administrator' ) );
+		self::$contributor_user_id     = $factory->user->create(
+			array(
+				'user_login'    => 'john_doe',
+				'user_pass'     => 'password123',
+				'user_nicename' => 'John Doe',
+				'user_email'    => 'john.doe@example.com',
+				'user_url'      => 'https://example.com',
+				'display_name'  => 'John Doe',
+				'nickname'      => 'Johnny',
+				'first_name'    => 'John',
+				'last_name'     => 'Doe',
+				'description'   => 'This is a dummy user for testing.',
+				'role'          => 'subscriber',
+			)
+		);
 	}
 
 	/**
@@ -111,6 +133,31 @@ class WP_Test_Jetpack_Base_Json_Api_Endpoints extends WP_UnitTestCase {
 		// The user should be the same as the one passed as object to the method.
 		$this->assertIsObject( $author );
 		$this->assertSame( self::$super_admin_user_id, $author->ID );
+	}
+
+	public function test_get_author_should_provide_additional_data_when_user_id_is_specified() {
+		$endpoint                            = $this->get_dummy_endpoint();
+		$commment_data                       = new stdClass();
+		$commment_data->comment_author_email = 'foo@bar.foo';
+		$commment_data->comment_author       = 'John Doe';
+		$commment_data->comment_author_url   = 'https://foo.bar.foo';
+		$commment_data->user_id              = static::$contributor_user_id;
+		$comment                             = new WP_Comment( $commment_data );
+
+		$author = $endpoint->get_author( $comment );
+		$this->assertIsObject( $author );
+		$this->assertIsObject( $author );
+		$this->assertSame( $commment_data->comment_author_email, $author->email );
+		$this->assertSame( $commment_data->comment_author, $author->name );
+		$this->assertSame( $commment_data->comment_author_url, $author->url );
+
+		$user = get_user_by( 'id', static::$contributor_user_id );
+		// The user should be the same as the one passed as object to the method.
+		$this->assertSame( static::$contributor_user_id, $author->ID );
+		$this->assertSame( $user->login, $author->email );
+		$this->assertSame( $user->first_name, $author->first_name );
+		$this->assertSame( $user->last_name, $author->last_name );
+		$this->assertSame( $user->user_nicename, $author->user_nicename );
 	}
 
 	/**
