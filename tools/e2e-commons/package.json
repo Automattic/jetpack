@@ -1,5 +1,5 @@
 {
-	"name": "jetpack-e2e-commons",
+	"name": "@automattic/jetpack-e2e-commons",
 	"description": "Jetpack end-to-end tests commons",
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",

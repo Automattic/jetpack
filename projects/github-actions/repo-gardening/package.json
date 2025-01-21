@@ -1,5 +1,5 @@
 {
-	"name": "repo-gardening",
+	"name": "@automattic/action-repo-gardening",
 	"version": "6.0.0",
 	"description": "Manage Pull Requests and issues in your Open Source project (automate labelling, milestones, feedback to PR authors, ...)",
 	"author": "Automattic",

@@ -1,5 +1,5 @@
 {
-	"name": "jetpack-search",
+	"name": "@automattic/jetpack-search",
 	"version": "0.47.6",
 	"description": "Package for Jetpack Search products",
 	"main": "main.js",

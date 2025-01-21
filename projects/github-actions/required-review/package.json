@@ -1,5 +1,5 @@
 {
-	"name": "required-review",
+	"name": "@automattic/action-required-review",
 	"version": "4.0.2",
 	"description": "Check that a Pull Request has reviews from required teams.",
 	"main": "index.js",

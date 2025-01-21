@@ -1,5 +1,5 @@
 {
-	"name": "jetpack-js-tools",
+	"name": "@automattic/jetpack-js-tools",
 	"private": true,
 	"description": "Avoid cluttering the monorepo root with random JS script deps by putting them in a workspace. This is intended for simple scripts and third-party scripts that we will only run directly or from the monorepo root.",
 	"bin": {

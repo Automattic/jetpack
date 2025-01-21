@@ -1,5 +1,5 @@
 {
-	"name": "jetpack-boost",
+	"name": "@automattic/jetpack-boost-production",
 	"version": "3.7.0",
 	"description": "Boost your WordPress site's performance, from the creators of Jetpack",
 	"directories": {

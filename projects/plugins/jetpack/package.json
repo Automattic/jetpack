@@ -1,5 +1,5 @@
 {
-	"name": "Jetpack",
+	"name": "@automattic/jetpack-production",
 	"version": "14.3.0-a.3",
 	"private": true,
 	"description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
