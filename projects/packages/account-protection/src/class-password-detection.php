@@ -74,6 +74,8 @@ class Password_Detection {
 
 	/**
 	 * Render password detection page.
+	 *
+	 * @return never
 	 */
 	public function render_page() {
 		// Restrict direct access to logged in users
