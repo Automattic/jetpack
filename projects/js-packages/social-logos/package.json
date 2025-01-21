@@ -1,5 +1,5 @@
 {
-	"name": "@automattic/social-logos",
+	"name": "social-logos",
 	"version": "3.1.17",
 	"description": "A repository of all the social logos used on WordPress.com.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/social-logos/",

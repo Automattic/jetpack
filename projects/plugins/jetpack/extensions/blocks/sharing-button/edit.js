@@ -1,7 +1,7 @@
-import { SocialLogo } from '@automattic/social-logos';
 import { useBlockProps } from '@wordpress/block-editor';
 import { Button } from '@wordpress/components';
 import clsx from 'clsx';
+import { SocialLogo } from 'social-logos';
 import { getNameBySite } from './utils';
 import './style.scss';
 

@@ -1,5 +1,5 @@
-import { SocialLogo } from '@automattic/social-logos';
 import { __ } from '@wordpress/i18n';
+import { SocialLogo } from 'social-logos';
 
 export const variations = [
 	{
