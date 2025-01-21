@@ -467,12 +467,12 @@ function wpcom_is_duplicate_views_experiment_enabled() {
  *
  * This is needed to override the ExPlat variation assignment in order to be able to revert the variation for some users.
  *
- * @param string|null $assignment
+ * @param string|null $assignment The experiment variation.
  * @return void
  */
 function wpcom_set_remove_duplicate_views_calypso_preference( $assignment ) {
 	if ( ( new Host() )->is_wpcom_simple() ) {
-		$preferences = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
+		$preferences                                       = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
 		$preferences[ RDV_EXPERIMENT_FORCE_ASSIGN_OPTION ] = $assignment;
 		update_user_attribute( get_current_user_id(), 'calypso_preferences', $preferences );
 	} else {
