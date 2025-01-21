@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack_Boost\Lib\Minify;
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
+use Automattic\Jetpack_Boost\Lib\Minify\File_Paths;
 use Automattic\Jetpack_Boost\Lib\Minify\Utils;
 
 function jetpack_boost_handle_minify_request( $request_uri ) {
@@ -54,16 +55,21 @@ function jetpack_boost_cache_maintenance() {
 		if ( ! file_exists( $file ) ) {
 			continue;
 		}
-		$file_parts = pathinfo( $file );
-		$file_paths = jetpack_boost_page_optimize_get_file_paths( $file_parts['basename'] );
+
 		$file_mtime = filemtime( $file );
-		foreach ( $file_paths as $file_path ) {
-			$file_path_mtime = filemtime( $file_path );
-			if ( ! $file_path_mtime ) {
-				continue; // problem getting file mtime.
+		$file_parts = pathinfo( $file );
+		$hash       = substr( $file_parts['basename'], 0, strpos( $file_parts['basename'], '.' ) );
+		$paths      = File_Paths::get( $hash );
+		if ( $paths ) {
+			$args = $paths->get_paths();
+			if ( ! is_array( $args ) ) {
+				continue;
 			}
-			if ( $file_path_mtime > $file_mtime ) {
-				wp_delete_file( $file ); // remove the file from the cache because it's stale.
+
+			foreach ( $args as $filename ) {
+				if ( ! file_exists( ABSPATH . $filename ) || filemtime( ABSPATH . $filename ) > $file_mtime ) {
+					wp_delete_file( $file ); // remove the file from the cache because it's stale.
+				}
 			}
 		}
 	}
