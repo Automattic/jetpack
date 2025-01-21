@@ -1,0 +1,32 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-external-media",
+	"version": "0.1.0-alpha",
+	"description": "The external media feature allows users to select and import photos from external media",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/external-media/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] External Media"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/external-media"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "echo 'Not implemented.'",
+		"build-js": "pnpm clean && webpack",
+		"build-production": "echo 'Not implemented.'",
+		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm build-js",
+		"clean": "rm -rf src/build/",
+		"watch": "pnpm run build-production-js && pnpm webpack watch"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*"
+	},
+	"dependencies": {
+		"react": "18.3.1",
+		"react-dom": "18.3.1"
+	}
+}
