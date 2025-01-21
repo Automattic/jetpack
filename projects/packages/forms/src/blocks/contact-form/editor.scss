@@ -473,10 +473,8 @@
 	.wp-block-jetpack-field-option-radio {
 		display: flex;
 		align-items: baseline; /* Align input with first label line */
-		color: var(--jetpack--contact-form--text-color);
 
 		.jetpack-option__type:before {
-			color: var(--jetpack--contact-form--border-color);
 			display: block; /* display: flex causes baselines to not align */
 		}
 	}
@@ -485,6 +483,19 @@
 	.wp-block-jetpack-field-option-radio {
 		.jetpack-option__type {
 			transform: translateY(15%); /* Small offset to compensate the slightly odd perceived alignment that's due to the circular shape */
+		}
+	}
+}
+
+.jetpack-field.has-colors {
+	.jetpack-field-option.field-option-checkbox,
+	.jetpack-field-option.field-option-radio,
+	.wp-block-jetpack-field-option-checkbox,
+	.wp-block-jetpack-field-option-radio {
+		color: var(--jetpack--contact-form--text-color);
+
+		.jetpack-option__type:before {
+			color: var(--jetpack--contact-form--border-color);
 		}
 	}
 }

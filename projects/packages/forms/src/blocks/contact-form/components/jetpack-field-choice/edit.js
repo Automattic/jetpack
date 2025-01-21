@@ -23,6 +23,7 @@ const JetpackFieldChoiceEdit = props => {
 	const classes = clsx( className, 'jetpack-field jetpack-field-multiple', {
 		'is-selected': isSelected,
 		'has-placeholder': ( options && options.length ) || innerBlocks.length,
+		'has-colors': attributes.inputColor || attributes.labelColor,
 	} );
 	const formStyle = useFormStyle( clientId );
 	const { blockStyle } = useJetpackFieldStyles( attributes );
