@@ -463,6 +463,31 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 }
 
 /**
+ * Set the Calypso preference for rdv.
+ *
+ * This is needed to override the ExPlat variation assignment in order to be able to revert the variation for some users.
+ *
+ * @param string|null $assignment
+ * @return void
+ */
+function wpcom_set_remove_duplicate_views_calypso_preference( $assignment ) {
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		$preferences = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
+		$preferences[ RDV_EXPERIMENT_FORCE_ASSIGN_OPTION ] = $assignment;
+		update_user_attribute( get_current_user_id(), 'calypso_preferences', $preferences );
+	} else {
+		Client::wpcom_json_api_request_as_user(
+			'/me/preferences',
+			'2',
+			array(
+				'method' => 'POST',
+			),
+			array( 'calypso_preferences' => (object) array( RDV_EXPERIMENT_FORCE_ASSIGN_OPTION => $assignment ) )
+		);
+	}
+}
+
+/**
  * Force a variation (control/treatment) for the Remove Duplicate Views experiment.
  *
  * @return void
@@ -478,6 +503,8 @@ function wpcom_force_assign_variation_for_remove_duplicate_views_experiment() {
 		return;
 	}
 
+	wpcom_set_remove_duplicate_views_calypso_preference( $assignment );
+
 	/**
 	 * Setting the option globally (third parameter) will have the following behavior:
 	 * - On Simple Sites, the option will be shared between them.
@@ -488,7 +515,7 @@ function wpcom_force_assign_variation_for_remove_duplicate_views_experiment() {
 	 * For example, if the option is set on a Simple Site, every other site will get it, except for the Atomic ones.
 	 * If the option is set on an Atomic Site, this will apply only on this site - it won't be shared between the other Atomic Sites OR Simple Sites.
 	 *
-	 * Since this should be used only in exceptional cases, there's no need to implement something better.
+	 *  This option is also not moved from Simple to Atomic on AT transfer.
 	 */
 	update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, $assignment, true );
 }
@@ -503,6 +530,8 @@ function wpcom_reset_assignment_for_remove_duplicate_views_experiment() {
 		return;
 	}
 
+	wpcom_set_remove_duplicate_views_calypso_preference( null );
+
 	/**
 	 * Setting the option globally (third parameter) will have the following behavior:
 	 * - On Simple Sites, the option will be shared between them.
@@ -512,6 +541,8 @@ function wpcom_reset_assignment_for_remove_duplicate_views_experiment() {
 	 *
 	 * For example, if the option is set on a Simple Site, every other site will get it, except for the Atomic ones.
 	 * If the option is set on an Atomic Site, this will apply only on this site - it won't be shared between the other Atomic Sites OR Simple Sites.
+	 *
+	 * This option is also not moved from Simple to Atomic on AT transfer.
 	 *
 	 * Since this should be used only in exceptional cases, there's no need to implement something better.
 	 */
