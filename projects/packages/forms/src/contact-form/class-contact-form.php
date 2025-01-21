@@ -153,6 +153,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'hiddenFields'           => null,
 		);
 
+		if ( isset( $attributes['sendEmailOnSubmission'] ) ) {
+			$this->defaults['sendEmailOnSubmission'] = $attributes['sendEmailOnSubmission'];
+		}
+
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
 
 		// We only enable the contact-field shortcode temporarily while processing the contact-form shortcode.
@@ -1223,6 +1227,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Is it spam?
 		/** This filter is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 		$is_spam = apply_filters( 'jetpack_contact_form_is_spam', false, $akismet_values );
+		$is_spam = false;
 		if ( is_wp_error( $is_spam ) ) { // WP_Error to abort
 			return $is_spam; // abort
 		} elseif ( $is_spam === true ) {  // TRUE to flag a spam
@@ -1547,9 +1552,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		if ( $is_spam !== true ) {
 			// We first need to check if `sendEmailOnSubmission` prop is set and prioritize that.
-			$send_email_on_submission = $this->attributes['sendEmailOnSubmission'];
-			if ( isset( $send_email_on_submission ) ) {
-				if ( $send_email_on_submission ) {
+			if ( isset( $this->attributes['sendEmailOnSubmission'] ) ) {
+				if ( $this->attributes['sendEmailOnSubmission'] ) {
+					$message .= 'other flow';
 					self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
 				}
 			} elseif (
@@ -1561,8 +1566,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 				 * @since 2.6.0
 				 *
 				 * @param bool true Should an email be sent after a form submission. Default to true.
+				 * @param int $post_id Post ID.
 				 */
-				true === apply_filters( 'grunion_should_send_email', true ) ) {
+				true === apply_filters( 'grunion_should_send_email', true, $post_id ) ) {
 				self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
 			}
 		} elseif (
