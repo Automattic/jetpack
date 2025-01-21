@@ -41,15 +41,14 @@ function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file
 		$file_age = 0;
 	}
 
-	// If the cache folder changed since queueing, purge it
-	if ( $using_cache && $cache_folder !== $defined_cache_dir ) {
-		$file_age = 0;
-	}
-
 	// Grab all files in the cache directory
 	if ( $cache_folder === Config::get_static_cache_dir_path() ) {
 		$cache_files = glob( $cache_folder . '/*min*' );
 	} else {
+		// If the cache folder changed since queueing, purge it
+		if ( $using_cache && $cache_folder !== $defined_cache_dir ) {
+			$file_age = 0;
+		}
 		$cache_files = glob( $cache_folder . '/page-optimize-cache-*' );
 	}
 
