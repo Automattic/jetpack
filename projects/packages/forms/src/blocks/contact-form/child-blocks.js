@@ -1,3 +1,4 @@
+import { InnerBlocks } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { Path, Icon } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
@@ -594,7 +595,14 @@ export const childBlocks = [
 		name: JetpackFieldSingleChoice.name,
 		settings: mergeSettings( FieldDefaults, {
 			...JetpackFieldSingleChoice.settings,
-			deprecated: [ multiFieldV1( 'radio' ) ],
+			deprecated: [
+				{
+					save() {
+						return <InnerBlocks.Content />;
+					},
+				},
+				multiFieldV1( 'radio' ),
+			],
 		} ),
 	},
 	JetpackFieldSingleChoiceItem,
@@ -602,7 +610,14 @@ export const childBlocks = [
 		name: JetpackFieldMultipleChoice.name,
 		settings: mergeSettings( FieldDefaults, {
 			...JetpackFieldMultipleChoice.settings,
-			deprecated: [ multiFieldV1( 'checkbox' ) ],
+			deprecated: [
+				{
+					save() {
+						return <InnerBlocks.Content />;
+					},
+				},
+				multiFieldV1( 'checkbox' ),
+			],
 		} ),
 	},
 	JetpackFieldMultipleChoiceItem,
