@@ -72,7 +72,8 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"exports": {
-		".": "./index.ts"
+		".": "./index.ts",
+		"./tools/jp-redirect": "./tools/jp-redirect/index.ts"
 	},
 	"sideEffects": [
 		"*.css",

@@ -1,7 +1,7 @@
 /*
  * External dependencies
  */
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import {
 	isAtomicSite,
 	isSimpleSite,
