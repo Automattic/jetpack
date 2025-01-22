@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.8] - 2025-01-22
 ### Added
-- Added wpcom data for current user [#40679]
+- Add wpcom data for current user. [#40679]
 
 ## [0.1.7] - 2025-01-20
 ### Changed
