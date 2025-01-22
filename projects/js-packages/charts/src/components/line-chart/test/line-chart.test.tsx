@@ -33,7 +33,7 @@ describe( 'LineChart', () => {
 	describe( 'Data Validation', () => {
 		test( 'handles empty data array', () => {
 			renderWithTheme( { data: [] } );
-			expect( screen.getByText( /empty/i ) ).toBeInTheDocument();
+			expect( screen.getByText( /no data available/i ) ).toBeInTheDocument();
 		} );
 
 		test( 'handles single data point', () => {
@@ -65,7 +65,22 @@ describe( 'LineChart', () => {
 					},
 				],
 			} );
-			expect( screen.getByRole( 'img', { name: /line chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByText( /invalid data/i ) ).toBeInTheDocument();
+		} );
+
+		test( 'handles invalid date values', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( 'invalid' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+					},
+				],
+			} );
+			expect( screen.getByText( /invalid data/i ) ).toBeInTheDocument();
 		} );
 	} );
 
