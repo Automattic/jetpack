@@ -491,14 +491,7 @@ function jetpack_current_user_data() {
 		'email'       => $current_user->user_email,
 		'id'          => $current_user->ID,
 		'wpcomUser'   => $dotcom_data,
-		'gravatar'    => get_avatar_url(
-			$current_user->ID,
-			array(
-				'size'          => 64,
-				'default'       => 'mm',
-				'force_default' => true,
-			)
-		),
+		'gravatar'    => get_avatar_url( $current_user->ID ),
 		'permissions' => array(
 			'admin_page'         => current_user_can( 'jetpack_admin_page' ),
 			'connect'            => current_user_can( 'jetpack_connect' ),
