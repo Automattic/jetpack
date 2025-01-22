@@ -231,9 +231,9 @@ function get_button_styles( $attributes ) {
 		foreach ( array( 'top', 'right', 'bottom', 'left' ) as $side ) {
 			$border                 = $attributes['style']['border'][ $side ] ?? null;
 			$border_side_values     = array(
-				'width' => isset( $border['width'] ) ? $border['width'] : null,
-				'color' => isset( $border['color'] ) ? $border['color'] : null,
-				'style' => isset( $border['style'] ) ? $border['style'] : null,
+				'width' => $border['width'] ?? null,
+				'color' => $border['color'] ?? null,
+				'style' => $border['style'] ?? null,
 			);
 			$border_styles[ $side ] = $border_side_values;
 		}
