@@ -24,7 +24,7 @@ function load_wpcom_dashboard_widgets() {
 		),
 	);
 
-	if ( get_option( 'launch-status' ) !== 'launched' ) {
+	if ( get_option( 'launch-status', 'launched' ) !== 'launched' ) {
 		$wpcom_dashboard_widgets[] = array(
 			'id'       => 'wpcom_launchpad_widget',
 			'name'     => __( 'Site Setup', 'jetpack-mu-wpcom' ),
