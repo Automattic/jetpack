@@ -365,7 +365,7 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertCount( 1, $stored_errors );
 		$this->assertArrayHasKey( 'unknown_token', $stored_errors );
 		$this->assertCount( 1, $stored_errors['unknown_token'] );
-		$this->assertArrayHasKey( '1', $stored_errors['unknown_token'] );
+		$this->assertArrayHasKey( 0, $stored_errors['unknown_token'] );
 		$this->assertArrayHasKey( 'error_code', $stored_errors['unknown_token']['0'] );
 		$this->assertArrayHasKey( 'error_type', $stored_errors['unknown_token']['0'] );
 		$this->assertEquals( 'rest', $stored_errors['unknown_token']['0']['error_type'] );
@@ -373,7 +373,7 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertCount( 1, $verified_errors );
 		$this->assertArrayHasKey( 'unknown_token', $verified_errors );
 		$this->assertCount( 1, $verified_errors['unknown_token'] );
-		$this->assertArrayHasKey( '1', $verified_errors['unknown_token'] );
+		$this->assertArrayHasKey( 0, $verified_errors['unknown_token'] );
 		$this->assertArrayHasKey( 'error_code', $verified_errors['unknown_token']['0'] );
 		$this->assertEquals( 'rest', $verified_errors['unknown_token']['0']['error_type'] );
 	}
