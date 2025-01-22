@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.40] - 2025-01-20
+### Changed
+- Updated package dependencies. [#41099]
+
 ## [0.6.39] - 2024-12-16
 ### Changed
 - Updated package dependencies. [#40564]
@@ -341,6 +345,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Node 16.7.0 in tooling. This shouldn't change the behavior of the code itself.
 
+[0.6.40]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.39...0.6.40
 [0.6.39]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.38...0.6.39
 [0.6.38]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.37...0.6.38
 [0.6.37]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.36...0.6.37

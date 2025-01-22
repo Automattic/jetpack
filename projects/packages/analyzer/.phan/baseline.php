@@ -20,7 +20,6 @@ return [
     // PhanTypeArraySuspiciousNullable : 5 occurrences
     // PhanTypeMismatchArgumentNullable : 5 occurrences
     // PhanUndeclaredTypeParameter : 4 occurrences
-    // PhanDeprecatedEncapsVar : 2 occurrences
     // PhanNonClassMethodCall : 2 occurrences
     // PhanPluginDuplicateCatchStatementBody : 2 occurrences
     // PhanTypeMismatchDeclaredParam : 2 occurrences
@@ -36,7 +35,6 @@ return [
         'scripts/core-calls.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchDeclaredParam', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
         'scripts/core-definitions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchDeclaredParam', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
         'scripts/example.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'scripts/jetpack-slurper.php' => ['PhanDeprecatedEncapsVar'],
         'scripts/jetpack-svn.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
         'src/Declarations/class-declaration.php' => ['PhanUndeclaredProperty'],
         'src/Differences/class-class-const-missing.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
@@ -56,7 +54,6 @@ return [
         'src/class-invocations.php' => ['PhanPluginDuplicateCatchStatementBody'],
         'src/class-utils.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredMethod', 'PhanUndeclaredProperty', 'PhanUndeclaredTypeParameter'],
         'src/class-warnings.php' => ['PhanUndeclaredMethod'],
-        'src/diff-generator.php' => ['PhanDeprecatedEncapsVar'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

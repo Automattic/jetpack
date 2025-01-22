@@ -267,7 +267,7 @@ class Broken_Token_Connection_Errors {
 	public function admin_post_refresh_verified_errors_list() {
 		check_admin_referer( 'refresh-verified-errors' );
 		$this->print_verified_errors();
-		exit;
+		exit( 0 );
 	}
 
 	/**

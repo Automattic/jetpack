@@ -1,5 +1,7 @@
 import { Alert } from '@automattic/jetpack-components';
+import { useSelect } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
 import styles from './style.module.scss';
 
@@ -16,13 +18,16 @@ export type ServiceStatusProps = {
  * @return {import('react').ReactNode} Service status component
  */
 export function ServiceStatus( { serviceConnections, brokenConnections }: ServiceStatusProps ) {
+	const canFix = useSelect(
+		select => brokenConnections.some( select( socialStore ).canUserManageConnection ),
+		[ brokenConnections ]
+	);
+
 	if ( ! serviceConnections.length ) {
 		return null;
 	}
 
 	if ( brokenConnections.length > 0 ) {
-		const canFix = brokenConnections.some( ( { can_disconnect } ) => can_disconnect );
-
 		return (
 			<Alert
 				level={ canFix ? 'error' : 'warning' }

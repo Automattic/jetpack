@@ -215,12 +215,12 @@ function zbs_wizard_fin() {
 		$r['message'] = 'success';
 		$r['success'] = 1;
 		echo wp_json_encode( $r );
-		die();
+		die( 0 );
 	} else {
 		$r['message'] = 'Unauthorised to do this...';
 		$r['success'] = 0;
 		echo wp_json_encode( $r );
-		die();
+		die( 0 );
 	}
 }
 add_action( 'wp_ajax_nopriv_zbs_wizard_fin', 'zbs_wizard_fin' );

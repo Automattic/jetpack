@@ -119,22 +119,14 @@ describe( 'Social store actions: connectionData', () => {
 
 			const freshConnections = connections.map( connection => ( {
 				...connection,
-				test_success: false,
+				status: 'broken',
 			} ) );
 
 			registry.dispatch( socialStore ).mergeConnections( freshConnections );
 
 			const connectionsAfterMerge = registry.select( socialStore ).getConnections();
 
-			expect( connectionsAfterMerge ).toEqual(
-				freshConnections.map( connection => ( {
-					...connection,
-					// These 3 are added while merging
-					done: false,
-					toggleable: true,
-					is_healthy: false,
-				} ) )
-			);
+			expect( connectionsAfterMerge ).toEqual( freshConnections );
 		} );
 	} );
 
@@ -156,10 +148,7 @@ describe( 'Social store actions: connectionData', () => {
 				if ( path.startsWith( refreshConnections ) ) {
 					return connections.map( connection => ( {
 						...connection,
-						can_refresh: false,
-						refresh_url: '',
-						test_message: 'Some message',
-						test_success: true,
+						status: 'broken',
 					} ) );
 				}
 
@@ -184,14 +173,7 @@ describe( 'Social store actions: connectionData', () => {
 			expect( connectionsAfterRefresh ).toEqual(
 				connections.map( connection => ( {
 					...connection,
-					can_refresh: false,
-					refresh_url: '',
-					test_message: 'Some message',
-					test_success: true,
-					// These 3 are added while merging
-					done: false,
-					toggleable: true,
-					is_healthy: true,
+					status: 'broken',
 				} ) )
 			);
 

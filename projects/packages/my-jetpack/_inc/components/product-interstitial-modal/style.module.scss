@@ -1,0 +1,52 @@
+.component-product-interstitial-modal {
+	:global(.components-modal__header) + div {
+		height: 100%;
+	}
+}
+
+
+.wrapper {
+	height: 100%;
+}
+
+.primary {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.primary-content {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.primary-footer {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+.secondary {
+	max-width: 100%;
+	height: auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+
+	img {
+		max-width: 100%;
+		height: auto;
+		max-height: 100%;
+		object-fit: contain;
+		display: flex;
+		align-items: center;
+		overflow: hidden;
+	}
+}
+
+.additional {
+	display: flex;
+	flex-direction: column;
+}

@@ -15,7 +15,7 @@
 	Breaking Checks ( stops direct access )
 	====================================================== */
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 /*
 ======================================================
@@ -146,7 +146,7 @@ function jpcrm_csvimporter_lite_preflight_checks( $stage ) {
 	if ( ! isset( $_POST['zbscrmcsvimportnonce'] ) || ! wp_verify_nonce( $_POST['zbscrmcsvimportnonce'], 'zbscrm_csv_import' ) ) {
 		// hard no
 		zeroBSCRM_html_msg( -1, __( 'There was an error processing your CSV file. Please try again.', 'zero-bs-crm' ) );
-		exit();
+		exit( 0 );
 	}
 
 	// eventually update this to use the zbscrm-store/_wip replacement

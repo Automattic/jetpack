@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Moved WPCOM_REST_API_Proxy_Request trait to the connection package
