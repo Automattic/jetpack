@@ -6,4 +6,7 @@
 	&:not(.is-style-outline) button {
 		border: none;
 	}
+	.wp-block-button__link {
+		width: inherit;
+	}
 }
