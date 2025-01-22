@@ -3493,7 +3493,7 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
+      _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
 
@@ -3650,7 +3650,7 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
+      _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
 
@@ -3741,7 +3741,7 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
+      _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
 
@@ -4285,7 +4285,7 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
+      _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
 
@@ -4410,7 +4410,7 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
+      _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
 
@@ -4549,7 +4549,7 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
+      _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
 
@@ -4640,7 +4640,7 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
+      _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
 
@@ -4745,7 +4745,7 @@ importers:
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
+      _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
 
