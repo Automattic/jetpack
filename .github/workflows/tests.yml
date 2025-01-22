@@ -116,6 +116,13 @@ jobs:
 
           echo "::group::Composer"
           composer install --working-dir=tools/php-test-env
+
+          # Add WordBless for image-cdn package tests
+          if [[ "$TEST_SCRIPT" =~ ^test-(php|coverage)$ ]] && jq -e '.name == "automattic/jetpack-image-cdn"' projects/packages/image-cdn/composer.json >/dev/null; then
+            echo "Adding WordBless for image-cdn tests"
+            composer require --working-dir=projects/packages/image-cdn automattic/wordbless:^0.4.2 --dev
+          fi
+
           if [[ "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ]]; then
             VER=$(composer --format=json --working-dir="tools/php-test-env" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
             if [[ -n "$VER" ]]; then
