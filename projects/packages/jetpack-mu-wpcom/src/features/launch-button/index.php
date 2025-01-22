@@ -1,7 +1,15 @@
 <?php
+/**
+ * Adds a "launch site" button to the admin bar.
+ */
 
 use Automattic\Jetpack\Status;
 
+/**
+ * Adds a "launch site" button to the admin bar.
+ * 
+ * @param WP_Admin_Bar $admin_bar The WordPress admin bar.
+ */
 function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 	$is_launched = true;
 	$blog_id = get_current_blog_id();
@@ -21,7 +29,7 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 			'id'     => 'menu-id',
 			'parent' => null,
 			'group'  => null,
-			'title'  => __( 'Launch site' ),
+			'title'  => __( 'Launch site', 'jetpack-mu-wpcom' ),
 			'href'   => 'https://wordpress.com/start/launch-site?siteSlug=' . $blog_domain,
 			'meta'   => array(
 				'class' => 'launch-site',
@@ -30,6 +38,9 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 	);
 }
 
+/**
+ * Enqueue the necessary styles for the admin bar button.
+ */
 function wpcom_enqueue_launch_button_styles() {
 	wp_enqueue_style( 'launch-banner', plugins_url( 'style.css', __FILE__ ) );
 }
