@@ -600,6 +600,13 @@ class Boost_Cache {
 			$parameters['cookies']['eucookielaw'] = 1;
 		}
 
+		/**
+		 * This is for the personalized ads consent cookie.
+		 */
+		if ( isset( $parameters['cookies']['personalized-ads-consent'] ) ) {
+			$parameters['cookies']['personalized-ads-consent'] = 1;
+		}
+
 		foreach ( $cookies as $cookie ) {
 			foreach ( array_keys( $parameters['cookies'] ) as $cookie_name ) {
 				if ( preg_match( '/^' . $cookie . '$/', $cookie_name ) ) {
