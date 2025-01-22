@@ -13,8 +13,8 @@ import {
 	FREE_PLAN_REQUESTS_LIMIT,
 	UNLIMITED_PLAN_REQUESTS_LIMIT,
 	ACTION_SET_TIER_PLANS_ENABLED,
-} from './constants';
-import type { PlanStateProps, TierLimitProp } from './types';
+} from './constants.js';
+import type { PlanStateProps, TierLimitProp } from './types.js';
 
 const INITIAL_STATE: PlanStateProps = {
 	plans: [],
@@ -49,6 +49,12 @@ const INITIAL_STATE: PlanStateProps = {
 	},
 };
 
+/**
+ * The reducer of the plan state
+ * @param {PlanStateProps} state  - The plan state.
+ * @param {object}         action - The action.
+ * @return {PlanStateProps} - The plan state.
+ */
 export default function reducer( state = INITIAL_STATE, action ) {
 	switch ( action.type ) {
 		case ACTION_SET_PLANS:

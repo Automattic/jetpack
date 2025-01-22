@@ -1,6 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
+import '@automattic/jetpack-ai-client/store/wordpress-com';
 import './shared/public-path';
 import './shared/block-category';
 import './shared/plan-upgrade-notification';
@@ -13,7 +14,6 @@ import './shared/styles/slideshow-fix.scss';
 // Register media source store to the centralized data registry.
 import './store/media-source';
 import './store/membership-products';
-import './store/wordpress-com';
 import extensionList from './index.json';
 import './index.scss';
 

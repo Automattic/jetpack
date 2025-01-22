@@ -5,12 +5,12 @@ import { createReduxStore, register } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import actions from './actions';
-import reducer from './reducer';
+import actions from './actions.js';
+import reducer from './reducer.js';
 /**
  * Types
  */
-import type { AiFeatureProps, PlanStateProps } from './types';
+import type { AiFeatureProps, PlanStateProps } from './types.js';
 
 const store = 'wordpress-com/plans';
 
