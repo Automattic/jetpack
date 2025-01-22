@@ -22,9 +22,10 @@ const wpcomAddSiteUrl = () => {
 
 	// Create the Site Address (URL) row
 	if ( ! document.getElementById( 'home' ) ) {
+		const homeUrlLabel = __( 'Site Address (URL)', 'jetpack-mu-wpcom' );
 		const homeUrlRow = document.createElement( 'tr' );
 		homeUrlRow.innerHTML = `
-					<th scope="row"><label for="home">Site Address (URL)</label></th>
+					<th scope="row"><label for="home">${ homeUrlLabel }</label></th>
 					<td><input type="url" id="home" value="${ window.wpcomSiteUrl.homeUrl }" class="regular-text code disabled" disabled="disabled" /></td>
 			`;
 		// On UI, `Site Address (URL)` is rendered after `WordPress Address (URL)`
@@ -33,9 +34,10 @@ const wpcomAddSiteUrl = () => {
 
 	// Create the WordPress Address (URL) row
 	if ( ! document.getElementById( 'siteurl' ) ) {
+		const siteUrlLabel = __( 'WordPress Address (URL)', 'jetpack-mu-wpcom' );
 		const siteUrlRow = document.createElement( 'tr' );
 		siteUrlRow.innerHTML = `
-				<th scope="row"><label for="siteurl">WordPress Address (URL)</label></th>
+				<th scope="row"><label for="siteurl">${ siteUrlLabel }</label></th>
 				<td><input type="url" id="siteurl" value="${ window.wpcomSiteUrl.siteUrl }" class="regular-text code disabled" disabled="disabled" /></td>
 		`;
 		settingsTable.insertBefore( siteUrlRow, previousSibling.nextSibling );
@@ -61,7 +63,7 @@ function wpcomAddDomainSettingsLinks() {
 	const domainSettingsLink = document.createElement( 'p' );
 	domainSettingsLink.className = 'description';
 	domainSettingsLink.innerHTML = sprintf(
-		// translators: %s: site slug
+		// translators: %1$s is the site slug, %2$s is the URL to the General Settings page.
 		__(
 			'Buy a <a href="https://wordpress.com/domains/add/%1$s?redirect_to=%2$s">custom domain</a>, ' +
 				'<a href="https://wordpress.com/domains/add/mapping/%1$s?redirect_to=%2$s">map</a> a domain you already own, ' +
