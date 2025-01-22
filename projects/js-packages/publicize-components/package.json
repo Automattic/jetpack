@@ -71,7 +71,8 @@
 		"react-dom": "18.3.1"
 	},
 	"exports": {
-		".": "./index.ts"
+		".": "./index.ts",
+		"./social-admin-page": "./src/components/admin-page/entry-point.tsx"
 	},
 	"peerDependencies": {
 		"react-dom": "^18.0.0"
