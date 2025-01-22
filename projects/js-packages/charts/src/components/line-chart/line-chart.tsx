@@ -112,7 +112,7 @@ const LineChart: FC< LineChartProps > = ( {
 	withTooltips = true,
 	showLegend = false,
 	legendOrientation = 'horizontal',
-	withGradientFill = true,
+	withGradientFill = false,
 	options = {},
 } ) => {
 	const providerTheme = useChartTheme();
@@ -135,16 +135,12 @@ const LineChart: FC< LineChartProps > = ( {
 	};
 
 	return (
-		<div className={ clsx( styles[ 'line-chart' ], className ) }>
-			{ showLegend && (
-				<Legend
-					items={ legendItems }
-					orientation={ legendOrientation }
-					className={ styles[ 'line-chart__legend' ] }
-				/>
-			) }
+		<div
+			className={ clsx( styles[ 'line-chart' ], className ) }
+			data-testid="line-chart"
+			style={ { width, height } }
+		>
 			<XYChart
-				data-testid="line-chart-svg"
 				theme={ theme }
 				width={ width }
 				height={ height }
@@ -164,7 +160,7 @@ const LineChart: FC< LineChartProps > = ( {
 				{ data.map( ( seriesData, index ) => {
 					const stroke = seriesData.options?.stroke ?? theme.colors[ index % theme.colors.length ];
 					return (
-						<>
+						<g key={ `series-${ seriesData.label }-${ index }` }>
 							{ withGradientFill && (
 								<LinearGradient
 									data-testid="line-gradient"
@@ -195,7 +191,7 @@ const LineChart: FC< LineChartProps > = ( {
 									renderLine={ false }
 								/>
 							) }
-						</>
+						</g>
 					);
 				} ) }
 
@@ -208,12 +204,11 @@ const LineChart: FC< LineChartProps > = ( {
 					/>
 				) }
 			</XYChart>
-
 			{ showLegend && (
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
-					className={ styles[ 'line-chart-legend' ] }
+					className={ styles[ 'line-chart__legend' ] }
 				/>
 			) }
 		</div>
