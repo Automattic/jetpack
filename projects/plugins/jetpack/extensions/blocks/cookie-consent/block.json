@@ -15,7 +15,8 @@
 		"anchor": false,
 		"color": {
 			"gradients": true,
-			"link": true
+			"link": true,
+			"background": true
 		},
 		"spacing": {
 			"padding": true
@@ -38,7 +39,7 @@
 			"default": {
 				"color": {
 					"text": "var(--wp--preset--color--contrast)",
-					"background": "var(--wp--preset--color--tertiary)",
+					"background": "var(--wp--preset--color--tertiary, #fff)",
 					"link": "var(--wp--preset--color--contrast)"
 				},
 				"spacing": {
