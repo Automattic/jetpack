@@ -1,4 +1,5 @@
-import { Warning, useAutosaveAndRedirect } from '@wordpress/block-editor';
+import { useAutosaveAndRedirect } from '@automattic/jetpack-shared-extension-utils';
+import { Warning } from '@wordpress/block-editor';
 import { Button, ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
