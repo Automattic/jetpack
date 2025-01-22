@@ -34,7 +34,6 @@
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "0.4.2",
 		"brain/monkey": "^2.6.2",
 		"yoast/phpunit-polyfills": "^1.1.1"
 	},
@@ -58,9 +57,7 @@
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
-		],
-		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+		]
 	},
 	"autoload-dev": {
 		"psr-4": {
@@ -79,7 +76,6 @@
 		},
 		"autoloader-suffix": "b1e77e6231d50e7663f84529b6a3dfda_jetpack_boostⓥ3_7_0",
 		"allow-plugins": {
-			"roots/wordpress-core-installer": true,
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		}
