@@ -309,14 +309,24 @@ export const PluginDocumentSettingPanelAiExcerpt = () => {
 		return null;
 	}
 
-	const pluginPanel = (
-		<PluginDocumentSettingPanel
-			className={ isBetaExtension( 'ai-content-lens' ) ? 'is-beta-extension inset-shadow' : '' }
-			name="ai-content-lens-plugin"
-			title={ __( 'Excerpt', 'jetpack' ) }
-		>
-			<AiPostExcerpt />
-		</PluginDocumentSettingPanel>
-	 ) as ReactElement;
-	return <PostTypeSupportCheck supportKeys="excerpt">{ pluginPanel }</PostTypeSupportCheck>;
+	const SettingPanel = props => {
+		const Panel = PluginDocumentSettingPanel as unknown as React.ComponentType< {
+			className?: string;
+			name?: string;
+			title?: string;
+		} >;
+		return ( <Panel { ...props } /> ) as ReactElement;
+	};
+
+	return (
+		<PostTypeSupportCheck supportKeys="excerpt">
+			<SettingPanel
+				className={ isBetaExtension( 'ai-content-lens' ) ? 'is-beta-extension inset-shadow' : '' }
+				name="ai-content-lens-plugin"
+				title={ __( 'Excerpt', 'jetpack' ) }
+			>
+				<AiPostExcerpt />
+			</SettingPanel>
+		</PostTypeSupportCheck>
+	);
 };
