@@ -200,7 +200,7 @@ const DefaultUpgradePrompt = ( {
 
 	return (
 		<Nudge
-			buttonText={ 'Upgrade' }
+			buttonText={ __( 'Upgrade', 'jetpack-ai-client' ) }
 			checkoutUrl={ checkoutUrl }
 			className={ 'jetpack-ai-upgrade-banner' }
 			description={ createInterpolateElement(
