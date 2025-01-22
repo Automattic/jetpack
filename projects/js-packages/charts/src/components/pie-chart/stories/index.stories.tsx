@@ -7,19 +7,19 @@ const data = [
 		label: 'MacOS',
 		value: 30000,
 		valueDisplay: '30K',
-		percentage: 5,
+		percentage: 23,
 	},
 	{
 		label: 'Linux',
 		value: 22000,
 		valueDisplay: '22K',
-		percentage: 1,
+		percentage: 17,
 	},
 	{
 		label: 'Windows',
 		value: 80000,
 		valueDisplay: '80K',
-		percentage: 2,
+		percentage: 60,
 	},
 ];
 
@@ -203,6 +203,48 @@ export const FixedDimensions: Story = {
 			description: {
 				story:
 					'Pie chart with fixed dimensions that override the responsive behavior. Uses size prop instead of width/height.',
+			},
+		},
+	},
+};
+
+export const ErrorStates: Story = {
+	render: () => (
+		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
+			<div>
+				<h3>Empty Data</h3>
+				<PieChart size={ 300 } data={ [] } />
+			</div>
+			<div>
+				<h3>Invalid Percentage Total</h3>
+				<PieChart
+					size={ 300 }
+					data={ [
+						{ label: 'A', value: 30, percentage: 30 },
+						{ label: 'B', value: 40, percentage: 40 },
+					] } // Only adds up to 70%
+				/>
+			</div>
+			<div>
+				<h3>Negative Values</h3>
+				<PieChart
+					size={ 300 }
+					data={ [
+						{ label: 'A', value: -30, percentage: -30 },
+						{ label: 'B', value: 130, percentage: 130 },
+					] }
+				/>
+			</div>
+			<div>
+				<h3>Single Data Point</h3>
+				<PieChart size={ 300 } data={ [ { label: 'A', value: 100, percentage: 100 } ] } />
+			</div>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story: 'Examples of how the pie chart handles various error states and edge cases.',
 			},
 		},
 	},

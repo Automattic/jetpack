@@ -45,11 +45,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			},
 			0
 		);
-
-		// Add notices to the settings pages when there is a Calypso page available.
-		if ( $this->use_wp_admin_interface() ) {
-			add_action( 'current_screen', array( $this, 'add_settings_page_notice' ) );
-		}
 	}
 
 	/**
@@ -529,56 +524,5 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$jitm->dismiss( sanitize_text_field( wp_unslash( $_REQUEST['id'] ) ), sanitize_text_field( wp_unslash( $_REQUEST['feature_class'] ) ) );
 		}
 		wp_die();
-	}
-
-	/**
-	 * Adds a notice above each settings page while using the Classic view to indicate
-	 * that the Default view offers more features. Links to the default view.
-	 *
-	 * @return void
-	 */
-	public function add_settings_page_notice() {
-		if ( ! is_admin() ) {
-			return;
-		}
-
-		$current_screen = get_current_screen();
-
-		if ( ! $current_screen instanceof \WP_Screen ) {
-			return;
-		}
-
-		// Show the notice for the following screens and map them to the Calypso page.
-		$screen_map = array(
-			'options-general' => 'general',
-			'options-reading' => 'reading',
-		);
-
-		$mapped_screen = $screen_map[ $current_screen->id ] ?? false;
-
-		if ( ! $mapped_screen ) {
-			return;
-		}
-
-		$switch_url = sprintf( 'https://wordpress.com/settings/%s/%s', $mapped_screen, $this->domain );
-
-		// Close over the $switch_url variable.
-		$admin_notices = function () use ( $switch_url ) {
-			wp_admin_notice(
-				wp_kses(
-					sprintf(
-						// translators: %s is a link to the Calypso settings page.
-						__( 'You are currently using the Classic view, which doesn’t offer the same set of features as the Default view. To access additional settings and features, <a href="%s">switch to the Default view</a>. ', 'jetpack-masterbar' ),
-						esc_url( $switch_url )
-					),
-					array( 'a' => array( 'href' => array() ) )
-				),
-				array(
-					'type' => 'warning',
-				)
-			);
-		};
-
-		add_action( 'admin_notices', $admin_notices );
 	}
 }

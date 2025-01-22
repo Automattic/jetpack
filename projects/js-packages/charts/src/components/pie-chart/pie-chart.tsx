@@ -51,6 +51,32 @@ interface PieChartProps extends OmitBaseChartProps {
 }
 
 /**
+ * Validates the pie chart data
+ * @param data - The data to validate
+ * @return Object containing validation result and error message
+ */
+const validateData = ( data: DataPointPercentage[] ) => {
+	if ( ! data.length ) {
+		return { isValid: false, message: 'No data available' };
+	}
+
+	// Check for negative values
+	const hasNegativeValues = data.some( item => item.percentage < 0 || item.value < 0 );
+	if ( hasNegativeValues ) {
+		return { isValid: false, message: 'Invalid data: Negative values are not allowed' };
+	}
+
+	// Validate total percentage
+	const totalPercentage = data.reduce( ( sum, item ) => sum + item.percentage, 0 );
+	if ( Math.abs( totalPercentage - 100 ) > 0.01 ) {
+		// Using small epsilon for floating point comparison
+		return { isValid: false, message: 'Invalid percentage total: Must equal 100' };
+	}
+
+	return { isValid: true, message: '' };
+};
+
+/**
  * Renders a pie or donut chart using the provided data.
  *
  * @param {PieChartProps} props - Component props
@@ -73,6 +99,16 @@ const PieChart = ( {
 		useChartMouseHandler( {
 			withTooltips,
 		} );
+
+	const { isValid, message } = validateData( data );
+
+	if ( ! isValid ) {
+		return (
+			<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
+				<div className={ styles[ 'error-message' ] }>{ message }</div>
+			</div>
+		);
+	}
 
 	const width = size;
 	const height = size;
