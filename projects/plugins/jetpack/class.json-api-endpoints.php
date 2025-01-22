@@ -1523,7 +1523,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$author['site_visible'] = $site_visible;
 		}
 
-		// Get the WordPress.com user data only if the fields are requested.
+		// Only include WordPress.com user data on Jetpack sites when author_wpcom_data is enabled.
 		$args              = $this->query_args();
 		$author_wpcom_data = isset( $args['author_wpcom_data'] ) && $args['author_wpcom_data'];
 

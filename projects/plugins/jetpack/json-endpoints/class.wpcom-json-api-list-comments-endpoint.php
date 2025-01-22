@@ -189,7 +189,7 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 					'all'        => 'Return comments of all statuses.',
 				),
 				'author_wpcom_data' => array(
-					'false' => 'Do not add wpcom_id and wpcom_login fields to Jetpack comment authorresponses (default)',
+					'false' => 'Do not add wpcom_id and wpcom_login fields to Jetpack comment author responses (default)',
 					'true'  => 'Add wpcom_id and wpcom_login fields to Jetpack comment author responses',
 				),
 			)
