@@ -588,6 +588,18 @@ class Boost_Cache {
 			)
 		);
 
+		/**
+		 * The Jetpack Cookie Banner plugin sets a cookie to indicate that the
+		 * user has accepted the cookie policy.
+		 * The value of the cookie is the expiry date of the cookie, which means
+		 * that everyone who has accepted the cookie policy will use a different
+		 * cache file.
+		 * Set it to 1 here so those visitors will use the same cache file.
+		 */
+		if ( isset( $parameters['cookies']['eucookielaw'] ) ) {
+			$parameters['cookies']['eucookielaw'] = 1;
+		}
+
 		foreach ( $cookies as $cookie ) {
 			foreach ( array_keys( $parameters['cookies'] ) as $cookie_name ) {
 				if ( preg_match( '/^' . $cookie . '$/', $cookie_name ) ) {
