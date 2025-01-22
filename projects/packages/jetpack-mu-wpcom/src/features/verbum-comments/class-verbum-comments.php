@@ -256,7 +256,7 @@ class Verbum_Comments {
 					'allowedBlocks'                      => \Verbum_Block_Utils::get_allowed_blocks(),
 					'embedNonce'                         => wp_create_nonce( 'embed_nonce' ),
 					'verbumBundleUrl'                    => plugins_url( 'dist/index.js', __FILE__ ),
-					'isRTL'                              => is_rtl( $locale ),
+					'isRTL'                              => is_rtl(),
 					'vbeCacheBuster'                     => $vbe_cache_buster,
 					'iframeUniqueId'                     => $iframe_unique_id,
 				)
