@@ -9,7 +9,7 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-changelogger",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
