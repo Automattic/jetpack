@@ -72,7 +72,8 @@ class Social_Admin_Page {
 			$plugin_version = $plugin_data['Version'];
 
 			// If it's the old social version, remove the submenu page.
-			if ( version_compare( $plugin_version, '6.0.0', '<=' ) ) {
+			// TODO Update the version and operator before next Social release.
+			if ( version_compare( $plugin_version, '6.0.0', '<' ) ) {
 				remove_submenu_page( 'jetpack', 'jetpack-social' );
 			}
 		}
