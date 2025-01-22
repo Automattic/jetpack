@@ -1,6 +1,6 @@
 import { localPoint } from '@visx/event';
 import { Group } from '@visx/group';
-import Pie, { type PieArcDatum } from '@visx/shape/lib/shapes/Pie';
+import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
@@ -11,6 +11,8 @@ import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../../types';
+import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
+
 interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
 	 * Size of the chart in pixels
