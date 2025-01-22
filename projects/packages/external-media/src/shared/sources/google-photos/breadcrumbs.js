@@ -15,7 +15,6 @@ import { PATH_ROOT } from '../../constants';
 function Breadcrumbs( { path, setPath } ) {
 	return (
 		<Fragment>
-			{ /* eslint-disable-next-line react/jsx-no-bind */ }
 			<Button variant="tertiary" onClick={ () => setPath( PATH_ROOT ) }>
 				{ __( 'Albums', 'jetpack-external-media' ) }
 			</Button>

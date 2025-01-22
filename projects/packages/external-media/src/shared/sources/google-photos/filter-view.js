@@ -96,7 +96,6 @@ function GoogleFilterView( props ) {
 				__nextHasNoMarginBottom={ true }
 			/>
 
-			{ /* eslint-disable-next-line react/jsx-no-bind */ }
 			<Button disabled={ isLoading || isCopying } variant="secondary" isSmall onClick={ setFilter }>
 				{ __( 'Add Filter', 'jetpack-external-media' ) }
 			</Button>

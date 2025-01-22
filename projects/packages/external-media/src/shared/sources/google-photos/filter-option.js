@@ -53,7 +53,7 @@ function DateOption( { value, updateFilter } ) {
 				label={ __( 'Filter by time period', 'jetpack-external-media' ) }
 				value={ selectedRange }
 				options={ GOOGLE_PHOTOS_DATE_PRESETS }
-				onChange={ range => updateFilter( { range } ) } // eslint-disable-line react/jsx-no-bind
+				onChange={ range => updateFilter( { range } ) }
 				__nextHasNoMarginBottom={ true }
 			/>
 			{ selectedRange === DATE_RANGE_CUSTOM && (
@@ -75,7 +75,7 @@ function DateOption( { value, updateFilter } ) {
 					<Button
 						variant="secondary"
 						disabled={ value?.month === month && value?.year === year }
-						onClick={ () => updateFilter( { range: selectedRange, month, year } ) } // eslint-disable-line react/jsx-no-bind
+						onClick={ () => updateFilter( { range: selectedRange, month, year } ) }
 					>
 						{ __( 'Apply', 'jetpack-external-media' ) }
 					</Button>
@@ -207,7 +207,6 @@ function GoogleFilterOption( { filters, setFilters, canChangeMedia } ) {
 	const options = Object.keys( filters )
 		.filter( item => canChangeMedia || item !== 'mediaType' )
 		.map( key => (
-			// eslint-disable-next-line react/jsx-no-bind
 			<FilterOption key={ key } removeFilter={ () => setFilters( omit( filters, key ) ) }>
 				{ getFilterOption( key, filters[ key ], value =>
 					setFilters( getUpdatedFilters( filters, key, value ) )

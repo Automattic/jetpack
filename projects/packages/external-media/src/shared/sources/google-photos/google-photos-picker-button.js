@@ -42,7 +42,7 @@ export default function GooglePhotosPickerButton( props ) {
 				isBusy={ isButtonBusy }
 				disabled={ isButtonBusy }
 				className="jetpack-external-media__google-photos-picker-button"
-				onClick={ openPicker } // eslint-disable-line react/jsx-no-bind
+				onClick={ openPicker }
 			>
 				{ __( 'Open Google Photos Picker', 'jetpack-external-media' ) }
 				&nbsp;

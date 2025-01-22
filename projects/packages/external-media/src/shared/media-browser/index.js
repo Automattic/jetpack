@@ -202,8 +202,8 @@ function MediaBrowser( props ) {
 						imageOnly={ imageOnly }
 						index={ index }
 						key={ item.ID }
-						onClick={ handleMediaItemClick } // eslint-disable-line react/jsx-no-bind
-						onKeyDown={ handleMediaItemKeyDown } // eslint-disable-line react/jsx-no-bind
+						onClick={ handleMediaItemClick }
+						onKeyDown={ handleMediaItemKeyDown }
 						focus={ index === focused }
 						isSelected={ selected.find( toFind => toFind.ID === item.ID ) }
 						isCopying={ isCopying }
@@ -219,7 +219,7 @@ function MediaBrowser( props ) {
 						variant="secondary"
 						className="jetpack-external-media-browser__loadmore"
 						disabled={ isLoading || isCopying }
-						onClick={ onLoadMoreClick } // eslint-disable-line react/jsx-no-bind
+						onClick={ onLoadMoreClick }
 					>
 						{ __( 'Load More', 'jetpack-external-media' ) }
 					</Button>

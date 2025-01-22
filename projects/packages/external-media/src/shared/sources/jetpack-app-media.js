@@ -110,7 +110,7 @@ function JetpackAppMedia( props ) {
 					onCopy={ onCopy }
 					pageHandle={ false }
 					multiple={ multiple }
-					selectButtonText={ selectButtonText } // eslint-disable-line react/jsx-no-bind
+					selectButtonText={ selectButtonText }
 				/>
 			) }
 		</div>
