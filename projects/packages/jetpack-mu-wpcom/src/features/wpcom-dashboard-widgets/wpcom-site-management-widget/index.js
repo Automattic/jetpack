@@ -3,6 +3,7 @@ import React from 'react';
 import './style.scss';
 
 const WpcomSiteManagementWidget = ( { siteName, siteUrl, siteIconUrl } ) => {
+	const siteDomain = new URL( siteUrl ).hostname;
 	return (
 		<>
 			<div className="wpcom_site_preview_wrapper">
@@ -29,12 +30,12 @@ const WpcomSiteManagementWidget = ( { siteName, siteUrl, siteIconUrl } ) => {
 				<div className="wpcom_site_management_widget__site-info">
 					<div className="wpcom_site_management_widget__site-name">{ siteName }</div>
 					<div className="wpcom_site_management_widget__site-url">
-						{ new URL( siteUrl ).hostname }
+						<a href={ siteUrl }>{ siteDomain }</a>
 					</div>
 				</div>
 				<div className="wpcom_site_management_widget__site-actions">
-					<a className="button-secondary" href={ siteUrl }>
-						{ __( 'Visit Site', 'jetpack-mu-wpcom' ) }
+					<a className="button-secondary" href={ `https://wordpress.com/overview/${ siteDomain }` }>
+						{ __( 'Hosting Overview', 'jetpack-mu-wpcom' ) }
 					</a>
 					<a className="button-secondary" href={ `site-editor.php` }>
 						{ __( 'Edit Site', 'jetpack-mu-wpcom' ) }
