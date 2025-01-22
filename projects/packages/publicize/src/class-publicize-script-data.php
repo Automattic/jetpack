@@ -124,6 +124,7 @@ class Publicize_Script_Data {
 			'shares_data'          => array(),
 			'urls'                 => array(),
 			'settings'             => self::get_social_settings(),
+			'plugin_info'          => self::get_plugin_info(),
 		);
 
 		if ( ! Utils::is_publicize_active() ) {
@@ -161,7 +162,41 @@ class Publicize_Script_Data {
 		return array(
 			'socialImageGenerator' => $settings->get_image_generator_settings(),
 			'utmSettings'          => $settings->get_utm_settings(),
-			'socialPlugin'         => array(),
+			// TODO remove this and use the settings via publicize package.
+			'socialPlugin'         => array(
+				'social_notes_config' => array(),
+			),
+		);
+	}
+
+	/**
+	 * Get the plugin info.
+	 *
+	 * @return array
+	 */
+	public static function get_plugin_info() {
+
+		$social_version  = '0.0.0';
+		$jetpack_version = '0.0.0';
+
+		if ( defined( 'JETPACK_SOCIAL_PLUGIN_ROOT_FILE' ) ) {
+
+			$plugin_data = get_plugin_data( (string) constant( 'JETPACK_SOCIAL_PLUGIN_ROOT_FILE' ), false, false );
+
+			$social_version = $plugin_data['Version'];
+		}
+
+		if ( defined( 'JETPACK__VERSION' ) ) {
+			$jetpack_version = constant( 'JETPACK__VERSION' );
+		}
+
+		return array(
+			'social'  => array(
+				'version' => $social_version,
+			),
+			'jetpack' => array(
+				'version' => $jetpack_version,
+			),
 		);
 	}
 
