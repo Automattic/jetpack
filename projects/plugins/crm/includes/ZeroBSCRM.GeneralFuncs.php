@@ -1707,7 +1707,7 @@ function jpcrm_get_mimetype( $file_path ) {
 		$credentials = request_filesystem_credentials( site_url() );
 		wp_filesystem( $credentials );
 	}
-	$lines = $wp_filesystem->get_contents_array( $file_path, 8 );
+	$lines = $wp_filesystem->get_contents_array( $file_path );
 	if ( $lines === false ) {
 		return 'application/octet-stream';
 	}
