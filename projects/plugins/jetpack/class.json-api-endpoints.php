@@ -1514,6 +1514,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'avatar_URL'  => (string) esc_url_raw( $avatar_url ),
 			'profile_URL' => (string) esc_url_raw( $profile_url ),
 			'ip_address'  => $ip_address, // string|bool.
+			'wpcom_id'    => $id > 0 ? (int) get_user_meta( $id, 'wpcom_user_id', true ) : null,
+			'wpcom_login' => $id > 0 ? (string) get_user_meta( $id, 'wpcom_user_login', true ) : null,
 		);
 
 		if ( $site_id > -1 ) {
