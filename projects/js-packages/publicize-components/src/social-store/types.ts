@@ -1,25 +1,60 @@
-export type ConnectionStatus = 'ok' | 'broken';
+export type ConnectionStatus = 'ok' | 'broken' | 'must_reauth';
 
 export type Connection = {
-	id: string;
-	service_name: string;
-	label?: string;
-	display_name: string;
-	external_display?: string;
-	external_id: string;
-	external_name?: string;
-	username: string;
-	enabled: boolean;
-	done: boolean;
-	toggleable: boolean;
 	connection_id: string;
-	is_healthy?: boolean;
-	error_code?: string;
-	can_disconnect: boolean;
-	profile_picture: string;
+	display_name: string;
+	enabled: boolean;
+	external_handle: string;
+	external_id: string;
 	profile_link: string;
+	profile_picture: string;
+	service_label: string;
+	service_name: string;
 	shared: boolean;
 	status: ConnectionStatus;
+	wpcom_user_id: number;
+
+	/* DEPRECATED FIELDS  */
+	/**
+	 * @deprecated
+	 */
+	done?: boolean;
+	/**
+	 * @deprecated Use `status` instead.
+	 */
+	error_code?: string;
+	/**
+	 * @deprecated Use `display_name` instead.
+	 */
+	external_display?: string;
+	/**
+	 * @deprecated Use `external_handle` instead.
+	 */
+	external_name?: string;
+	/**
+	 * @deprecated Use `connection_id` instead.
+	 */
+	id?: string;
+	/**
+	 * @deprecated Use `status` instead.
+	 */
+	is_healthy?: boolean;
+	/**
+	 * @deprecated Use `service_label` instead.
+	 */
+	label?: string;
+	/**
+	 * @deprecated Use `status` instead.
+	 */
+	test_success?: boolean;
+	/**
+	 * @deprecated
+	 */
+	toggleable?: boolean;
+	/**
+	 * @deprecated Use `external_handle` instead.
+	 */
+	username?: string;
 };
 
 export type ConnectionData = {
@@ -29,6 +64,7 @@ export type ConnectionData = {
 	reconnectingAccount?: Connection;
 	keyringResult?: KeyringResult;
 	abortControllers?: Record< string, Array< AbortController > >;
+	isConnectionsModalOpen?: boolean;
 };
 
 export type JetpackSettings = {
@@ -96,6 +132,11 @@ export type UtmSettingsConfig = {
 	enabled: boolean;
 };
 
+export type SocialNotesConfig = {
+	append_link: boolean;
+	link_format: 'full_url' | 'shortlink' | 'permashortcitation';
+};
+
 export type SocialPluginSettings = {
 	publicize_active: boolean;
 	show_pricing_page: boolean;
@@ -109,4 +150,7 @@ export type SocialPluginSettings = {
 export type SocialSettingsFields = {
 	jetpack_social_image_generator_settings: SocialImageGeneratorConfig;
 	jetpack_social_utm_settings: UtmSettingsConfig;
+	[ 'jetpack-social-note' ]: boolean;
+	jetpack_social_notes_config: SocialNotesConfig;
+	[ 'jetpack-social_show_pricing_page' ]: boolean;
 };

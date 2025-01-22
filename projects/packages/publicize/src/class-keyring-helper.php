@@ -246,7 +246,7 @@ class Keyring_Helper {
 						)
 					);
 					wp_redirect( $redirect ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- The API URL is an external URL and is filterable.
-					exit;
+					exit( 0 );
 
 				case 'completed':
 					/*

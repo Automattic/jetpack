@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Change `${var}` to `{$var}`, as the former is deprecated in php 8.4.
+
+

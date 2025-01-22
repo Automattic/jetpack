@@ -80,7 +80,7 @@ class CSS_Proxy {
 			// Outputting proxied CSS contents unescaped.
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo wp_strip_all_tags( $css );
-			die();
+			die( 0 );
 		}
 	}
 }

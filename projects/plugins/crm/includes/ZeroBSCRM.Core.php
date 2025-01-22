@@ -8,7 +8,7 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
+	exit( 0 ); // Exit if accessed directly.
 }
 
 /**
@@ -1766,9 +1766,12 @@ final class ZeroBSCRM {
 		// } Brutal override for feeding in json data to typeahead
 		// WH: should these be removed now we're using REST?
 		if ( isset( $_GET['zbscjson'] ) && is_user_logged_in() && zeroBSCRM_permsCustomers() ) {
-			exit( zeroBSCRM_cjson() ); }
-		if ( isset( $_GET['zbscojson'] ) && is_user_logged_in() && zeroBSCRM_permsCustomers() ) {
-			exit( zeroBSCRM_cojson() ); }
+			// This function outputs JSON-encoded contacts and exits.
+			zeroBSCRM_cjson();
+		} elseif ( isset( $_GET['zbscojson'] ) && is_user_logged_in() && zeroBSCRM_permsCustomers() ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			// This function outputs JSON-encoded companies and exits.
+			zeroBSCRM_cojson();
+		}
 
 		// } Brutal override for inv previews
 		// No longer req. v3.0 + this is delivered via HASH URL
@@ -1865,7 +1868,7 @@ final class ZeroBSCRM {
 							// Redirect to our "no rights" page
 							// OLD WAY header("Location: edit.php?post_type=".$postType."&page=".$this->slugs['zbs-noaccess']."&id=".$postID);
 							header( 'Location: admin.php?page=' . $this->slugs['zbs-noaccess'] . '&zbsid=' . $obj_id . '&zbstype=' . $obj_type_str );
-							exit();
+							exit( 0 );
 
 						} // / no rights.
 
@@ -1876,9 +1879,6 @@ final class ZeroBSCRM {
 			} // / is setting usercangiveownership
 
 		} // / !is admin
-
-		// debug
-		// print_r($GLOBALS['wp_post_types']['zerobs_quo_template']); exit();
 
 		// ====================================================================
 		// ==================== General Perf Testing ==========================
@@ -2024,7 +2024,7 @@ final class ZeroBSCRM {
 			// instead re-direct to one of our pages which tells them about making sure extensions are
 			// deactivated before deactivating core
 			wp_safe_redirect( admin_url( 'admin.php?page=' . $zbs->slugs['extensions-active'] ) );
-			die(); // will killing it here stop deactivation?
+			die( 0 ); // will killing it here stop deactivation?
 
 			// failsafe?
 			return false;
@@ -2042,14 +2042,11 @@ final class ZeroBSCRM {
 			return;
 		}
 
-		// if($this->pre_deactivation_check_exts_deactivated()){
-
 			##WLREMOVE
 
 			// Remove roles :)
 			zeroBSCRM_clearUserRoles();
 
-			// Debug delete_option('zbsfeedback');exit();
 			$feedbackAlready = get_option( 'zbsfeedback' );
 
 			// if php notice, (e.g. php ver to low, skip this)
@@ -2073,7 +2070,7 @@ final class ZeroBSCRM {
 
 					// } require template
 					require_once ZEROBSCRM_PATH . 'admin/activation/before-you-go.php';
-					exit();
+					exit( 0 );
 
 				} catch ( Exception $e ) {
 
@@ -2119,7 +2116,7 @@ final class ZeroBSCRM {
 			// Send the user to the Dash board
 			global $zbs;
 			if ( wp_redirect( zeroBSCRM_getAdminURL( $zbs->slugs['dash'] ) ) ) {
-				exit;
+				exit( 0 );
 			}
 		}
 	}
@@ -2175,7 +2172,7 @@ final class ZeroBSCRM {
 		if ( $run_count <= 0 || $force_wizard ) {
 			// require welcome wizard template
 			require_once ZEROBSCRM_PATH . 'admin/activation/welcome-to-jpcrm.php';
-			exit();
+			exit( 0 );
 		}
 		##/WLREMOVE
 	}
@@ -2384,7 +2381,7 @@ final class ZeroBSCRM {
 				$redirect = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : home_url( '/' );
 				if ( current_user_can( 'zerobs_customer' ) ) {
 					wp_redirect( $redirect );
-					exit();
+					exit( 0 );
 				}
 			}
 
@@ -2528,9 +2525,6 @@ final class ZeroBSCRM {
 
 		// default
 		$pageTitle = ( ( $adminTitle == '' ) ? __( 'Jetpack CRM', 'zero-bs-crm' ) : $adminTitle );
-
-		// useful? global $post, $title, $action, $current_screen;
-		// global $zbsPage; print_r($zbsPage); exit();
 
 		// we only need to do this for pages where we're using custom setups (not added via wp_add_menu whatever)
 		if ( $this->zbsvar( 'page' ) != -1 ) {
@@ -3350,7 +3344,7 @@ final class ZeroBSCRM {
 			set_transient( $transient_key, $this->pageMessages, MINUTE_IN_SECONDS );
 		}
 		wp_redirect( jpcrm_esc_link( 'edit', $inserted_id, $obj_type ) );
-		exit;
+		exit( 0 );
 	}
 
 	public function catch_preheader_interrupts() {

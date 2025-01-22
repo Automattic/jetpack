@@ -27,7 +27,6 @@ describe( 'Marking a connection as shared', () => {
 					service_name: 'facebook',
 					connection_id: '2',
 					display_name: 'Facebook',
-					can_disconnect: true,
 				} }
 			/>
 		);

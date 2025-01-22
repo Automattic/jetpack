@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fix the rendering of jetpack google fonts font faces for classic themes.

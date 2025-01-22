@@ -326,16 +326,17 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.3-a.1 - 2025-01-13
-#### Improved compatibility
-- Nova Restaurant: ensure that the custom post type is now loaded via the Classic Theme Helper package.
+### 14.3-a.3 - 2025-01-20
+#### Enhancements
+- Forms: Allow HTML block within forms.
+- Show Infinite Scroll options in Simple Classic.
 
 #### Bug fixes
-- Authors widget: Fix saving of unchecked "Display all authors" checkbox in the legacy widget editor.
-- Stats: Fix saving of custom roles settings.
-- Pages and Posts: Fix the layout on mobile when details are open.
-- Testimonials: Fix shortcode-related bug.
-- Tiled Gallery block: Ensure icons are visible when selecting image in editor.
+- Fix: Newsletter toggle in editor sidebar has a visually broken active state.
+- Forms: Fix dropdown icon style.
+- Photon: Fix double encoding image urls.
+- Sharing: Fix the location of the sharing dialog so it is not always the first sharing element on the page.
+- Social: Fix wordpress.com login error when connecting Social accounts.
 
 --------
 
