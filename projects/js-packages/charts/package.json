@@ -21,7 +21,9 @@
 		"compile-ts": "tsc --pretty",
 		"clean-build": "rm -rf dist/",
 		"build": "pnpm run build:prod",
-		"build:prod": "pnpm run clean-build && webpack --config webpack.config.cjs --mode production && bash ./tools/fixup.sh && pnpm run build:types",
+		"build:prod": "rollup -c --environment NODE_ENV:production && bash ./tools/fixup.sh",
+		"build:dev": "rollup -c --environment NODE_ENV:development",
+		"build:webpack": "pnpm run clean-build && webpack --config webpack.config.cjs --mode production && bash ./tools/fixup.sh && pnpm run build:types",
 		"build:types": "tsc --emitDeclarationOnly --declaration --declarationDir dist/types"
 	},
 	"main": "./dist/cjs/index.js",
@@ -35,14 +37,13 @@
 		".": {
 			"import": "./dist/mjs/index.js",
 			"require": "./dist/cjs/index.js",
-			"types": "./dist/types/*.d.ts"
+			"types": "./dist/index.d.ts"
 		},
 		"./components/*": {
 			"import": "./dist/mjs/components/*/index.js",
-			"require": "./dist/cjs/components/*/index.js",
-			"types": "./dist/types/*.d.ts"
+			"require": "./dist/cjs/components/*/index.js"
 		},
-		"./style.css": "./dist/cjs/style.css"
+		"./style.css": "./dist/mjs/style.css"
 	},
 	"dependencies": {
 		"@babel/runtime": "7.26.0",
@@ -68,6 +69,11 @@
 		"@babel/preset-env": "7.26.0",
 		"@babel/preset-react": "7.26.3",
 		"@babel/preset-typescript": "7.26.0",
+		"@rollup/plugin-commonjs": "26.0.1",
+		"@rollup/plugin-json": "6.1.0",
+		"@rollup/plugin-node-resolve": "15.3.0",
+		"@rollup/plugin-terser": "0.4.3",
+		"@rollup/plugin-typescript": "12.1.0",
 		"@storybook/blocks": "8.4.7",
 		"@storybook/react": "8.4.7",
 		"@types/react": "18.3.18",
@@ -85,6 +91,10 @@
 		"postcss-modules": "6.0.1",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
+		"rollup": "3.29.5",
+		"rollup-plugin-dts": "6.1.1",
+		"rollup-plugin-peer-deps-external": "2.2.4",
+		"rollup-plugin-postcss": "4.0.2",
 		"sass": "1.64.1",
 		"sass-embedded": "1.83.0",
 		"sass-loader": "^13.0.0",
