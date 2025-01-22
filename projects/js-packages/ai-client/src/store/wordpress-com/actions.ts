@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
+import apiFetch from '../../api-fetch/index.js';
 /**
  * Types & Constants
  */
