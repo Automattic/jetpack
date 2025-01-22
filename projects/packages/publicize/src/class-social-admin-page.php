@@ -67,7 +67,7 @@ class Social_Admin_Page {
 
 		if ( defined( 'JETPACK_SOCIAL_PLUGIN_ROOT_FILE' ) ) {
 
-			$plugin_data = get_plugin_data( JETPACK_SOCIAL_PLUGIN_ROOT_FILE, false, false );
+			$plugin_data = get_plugin_data( (string) constant( 'JETPACK_SOCIAL_PLUGIN_ROOT_FILE' ), false, false );
 
 			$plugin_version = $plugin_data['Version'];
 
