@@ -604,19 +604,13 @@ function zeroBSCRM_retrieveFile( $url, $filepath, $args = array() ) {
 
 					if (file_exists($filepath) && file_exists($expandTo)){
 
-							$archive = new PclZip($filepath);
-
-							if ($archive->extract(PCLZIP_OPT_PATH, $expandTo) == 0) {
-							    
-							    return false;
-
-							} else {
-							    
-							    return true;
-
-							}
-
-
+					$archive = new PclZip( $filepath );
+					// @phan-suppress-next-line PhanParamTooMany -- PclZip functions use func_get_args.
+					if ( $archive->extract( PCLZIP_OPT_PATH, $expandTo ) === 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						return false;
+					} else {
+						return true;
+					}
 					}
 
 				} catch (Exception $ex){
