@@ -8,6 +8,7 @@
 		"automattic/jetpack-schema": "@dev"
 	},
 	"require-dev": {
+		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"suggest": {
@@ -18,7 +19,17 @@
 			"src/"
 		]
 	},
-	"scripts": {},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+		],
+		"test-php": [
+			"@composer phpunit"
+		]
+	},
 	"repositories": [
 		{
 			"type": "path",

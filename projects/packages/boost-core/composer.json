@@ -8,6 +8,7 @@
 		"automattic/jetpack-connection": "@dev"
 	},
 	"require-dev": {
+		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
@@ -15,7 +16,17 @@
 			"src/"
 		]
 	},
-	"scripts": {},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+		],
+		"test-php": [
+			"@composer phpunit"
+		]
+	},
 	"repositories": [
 		{
 			"type": "path",
@@ -27,6 +38,11 @@
 	],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
+		}
+	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-boost-core",
 		"changelogger": {

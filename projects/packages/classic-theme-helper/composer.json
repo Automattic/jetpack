@@ -8,6 +8,7 @@
 		"automattic/jetpack-assets": "@dev"
 	},
 	"require-dev": {
+		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
@@ -21,6 +22,15 @@
 		],
 		"build-development": [
 			"pnpm run build"
+		],
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+		],
+		"test-php": [
+			"@composer phpunit"
 		]
 	},
 	"repositories": [
@@ -34,6 +44,11 @@
 	],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
+		}
+	},
 	"extra": {
 		"autotagger": true,
 		"branch-alias": {

@@ -7,9 +7,24 @@
 		"php": ">=7.2"
 	},
 	"require-dev": {
+		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev"
 	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
 	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+		],
+		"test-php": [
+			"@composer phpunit"
+		],
 		"build-production": [
 			"pnpm run build-production"
 		],
@@ -32,6 +47,11 @@
 	],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
+		}
+	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-chatbot",
 		"changelogger": {

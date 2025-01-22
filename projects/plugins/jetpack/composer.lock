@@ -560,14 +560,15 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/boost-core",
-				"reference": "8bcc64aaf20a3091f429a1f8100a8629abec2224"
+				"reference": "715c5830a88270b83c2bf60b6d83ba40d442927b"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
 				"php": ">=7.2"
 			},
 			"require-dev": {
-				"automattic/jetpack-changelogger": "@dev"
+				"automattic/jetpack-changelogger": "@dev",
+				"yoast/phpunit-polyfills": "^1.1.1"
 			},
 			"suggest": {
 				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -587,6 +588,17 @@
 			"autoload": {
 				"classmap": [
 					"src/"
+				]
+			},
+			"scripts": {
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+				],
+				"test-php": [
+					"@composer phpunit"
 				]
 			},
 			"license": [
@@ -667,14 +679,15 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/classic-theme-helper",
-				"reference": "a2f9aef4ba66a88d475ca476bc4ba92541bd50da"
+				"reference": "eb9b07c795fe03af499d61e299dd16fcc574dfb3"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
 				"php": ">=7.2"
 			},
 			"require-dev": {
-				"automattic/jetpack-changelogger": "@dev"
+				"automattic/jetpack-changelogger": "@dev",
+				"yoast/phpunit-polyfills": "^1.1.1"
 			},
 			"suggest": {
 				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -705,6 +718,15 @@
 				],
 				"build-development": [
 					"pnpm run build"
+				],
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+				],
+				"test-php": [
+					"@composer phpunit"
 				]
 			},
 			"license": [
@@ -1367,7 +1389,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/import",
-				"reference": "91cf79b556696326ae2393b691c6efe603e4d2dc"
+				"reference": "7da07139436c008261976be3a1ecdabed368829b"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -1375,7 +1397,8 @@
 				"php": ">=7.2"
 			},
 			"require-dev": {
-				"automattic/jetpack-changelogger": "@dev"
+				"automattic/jetpack-changelogger": "@dev",
+				"yoast/phpunit-polyfills": "^1.1.1"
 			},
 			"suggest": {
 				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -1398,6 +1421,17 @@
 			"autoload": {
 				"classmap": [
 					"src/"
+				]
+			},
+			"scripts": {
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+				],
+				"test-php": [
+					"@composer phpunit"
 				]
 			},
 			"license": [
