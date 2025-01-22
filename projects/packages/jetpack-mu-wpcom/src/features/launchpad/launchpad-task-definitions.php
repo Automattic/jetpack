@@ -114,11 +114,6 @@ function wpcom_launchpad_get_task_definitions() {
 					? admin_url( 'post-new.php' )
 					: '/post/' . $data['site_slug_encoded'];
 
-				// Add a new_prompt query param for Write sites.
-				if ( 'write' === get_option( 'site_intent' ) ) {
-					return add_query_arg( 'new_prompt', 'true', $base_path );
-				}
-
 				return $base_path;
 			},
 		),
