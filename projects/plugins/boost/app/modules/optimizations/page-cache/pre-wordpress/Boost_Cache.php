@@ -562,10 +562,6 @@ class Boost_Cache {
 			return $params;
 		}
 
-		if ( ! isset( $parameters['cookies'] ) || ! is_array( $parameters['cookies'] ) ) {
-			return $parameters;
-		}
-
 		$default_cookies = array( 'cf_clearance', 'cf_chl_rc_i', 'cf_chl_rc_ni', 'cf_chl_rc_m', '_cfuvid', '__cfruid', '__cfwaitingroom', 'cf_ob_info', 'cf_use_ob', '__cfseq', '__cf_bm', '__cflb', 'sbjs_(.*)' );
 		$jetpack_cookies = array( 'tk_ai', 'tk_qs' );
 		$cookies         = array_merge( $default_cookies, $jetpack_cookies );
@@ -611,8 +607,15 @@ class Boost_Cache {
 			$parameters['cookies']['personalized-ads-consent'] = 1;
 		}
 
+		$cookie_keys = array();
+		if ( isset( $parameters['cookies'] ) && is_array( $parameters['cookies'] ) ) {
+			$cookie_keys = array_keys( $parameters['cookies'] );
+		} else {
+			return $parameters;
+		}
+
 		foreach ( $cookies as $cookie ) {
-			foreach ( array_keys( $parameters['cookies'] ) as $cookie_name ) {
+			foreach ( $cookie_keys as $cookie_name ) {
 				if ( preg_match( '/^' . $cookie . '$/', $cookie_name ) ) {
 					unset( $parameters['cookies'][ $cookie_name ] );
 					$this->ignored_cookies .= $cookie_name . ',';
