@@ -448,6 +448,17 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 
 	if ( isset( $data['variations'] ) && isset( $data['variations'][ $experiment_name ] ) ) {
 		$variation = $data['variations'][ $experiment_name ];
+		/**
+		 * If the variation is null chances are this is an a11n (since ExPlat returns null for a12s).
+		 *
+		 * We want to set the treatment for all a12s.
+		 *
+		 * In our case, the experiment is released to all users, which means everybody should get a variation (except for a12s).
+		 */
+		if ( ! in_array( $variation, array( 'treatment', 'control' ), true ) ) {
+			$variation = 'treatment';
+		}
+
 		update_user_option( get_current_user_id(), $option_name, $variation, true );
 
 		$is_enabled = 'treatment' === $variation;
