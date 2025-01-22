@@ -1,7 +1,7 @@
+import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockEditContext } from '@wordpress/block-editor';
 import { addFilter } from '@wordpress/hooks';
 import {
-	isCurrentUserConnected,
 	addPexelsToMediaInserter,
 	addGooglePhotosToMediaInserter,
 	MediaButton,
