@@ -557,10 +557,9 @@ class Comments extends Module {
 		}
 		$comments = get_comments(
 			array(
-				'include_unapproved' => true,
-				'comment__in'        => $comment_ids,
-				'orderby'            => 'comment_ID',
-				'order'              => 'DESC',
+				'comment__in' => $comment_ids,
+				'orderby'     => 'comment_ID',
+				'order'       => 'DESC',
 			)
 		);
 		if ( empty( $comments ) ) {
