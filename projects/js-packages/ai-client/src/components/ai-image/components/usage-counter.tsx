@@ -15,11 +15,9 @@ type UsageCounterProps = {
 };
 
 /**
- *
- * @param root0
- * @param root0.currentLimit
- * @param root0.currentUsage
- * @param root0.cost
+ * UsageCounter component
+ * @param {UsageCounterProps} props - The component properties.
+ * @return {React.ReactElement} - rendered component.
  */
 export default function UsageCounter( { currentLimit, currentUsage, cost }: UsageCounterProps ) {
 	const requestsBalance = currentLimit - currentUsage;
@@ -32,8 +30,8 @@ export default function UsageCounter( { currentLimit, currentUsage, cost }: Usag
 		}
 	);
 	const requestsAvailable = createInterpolateElement(
-		// Translators: %d is the current requests balance.
 		sprintf(
+			// Translators: %d is the current requests balance.
 			__( 'Requests available: <counter>%d</counter>', 'jetpack-ai-client' ),
 			requestsBalance
 		),

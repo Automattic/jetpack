@@ -3,10 +3,11 @@ import { useState } from '@wordpress/element';
 import { noop } from 'lodash';
 
 /**
- *
- * @param url
- * @param callback
- * @param shouldOpenNewWindow
+ * To handle the redirection
+ * @param {string}   url                 - The redirect URL.
+ * @param {Function} callback            - The callback of the redirection.
+ * @param {boolean}  shouldOpenNewWindow - Whether to open the new window.
+ * @return {Window | null} - The open window.
  */
 function redirect( url, callback, shouldOpenNewWindow = false ) {
 	if ( callback ) {
@@ -17,9 +18,11 @@ function redirect( url, callback, shouldOpenNewWindow = false ) {
 }
 
 /**
+ * Hook to get properties for AiImage
  *
- * @param redirectUrl
- * @param onRedirect
+ * @param {string}   redirectUrl - The redirect URL.
+ * @param {Function} onRedirect  - To handle the redirection.
+ * @return {object} - Object containing properties to handle autosave and redirect.
  */
 export default function useAutosaveAndRedirect( redirectUrl, onRedirect = noop ) {
 	const [ isRedirecting, setIsRedirecting ] = useState( false );

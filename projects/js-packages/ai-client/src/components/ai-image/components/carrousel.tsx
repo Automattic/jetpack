@@ -9,8 +9,8 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import AiFeedbackThumbs from '../../ai-feedback';
-import AiIcon from '../../ai-icon';
+import AiFeedbackThumbs from '../../ai-feedback/index.js';
+import AiIcon from '../../ai-icon/index.js';
 import './carrousel.scss';
 
 export type CarrouselImageData = {
@@ -27,14 +27,18 @@ export type CarrouselImageData = {
 
 export type CarrouselImages = CarrouselImageData[];
 
+type BlankImageProps = {
+	children: React.ReactNode;
+	isDotted?: boolean;
+	contentClassName?: string;
+};
+
 /**
- *
- * @param root0
- * @param root0.children
- * @param root0.isDotted
- * @param root0.contentClassName
+ * BlankImage component
+ * @param {BlankImageProps} props - The component properties.
+ * @return {React.ReactElement} - rendered component.
  */
-function BlankImage( { children, isDotted = false, contentClassName = '' } ) {
+function BlankImage( { children, isDotted = false, contentClassName = '' }: BlankImageProps ) {
 	const blankImage = (
 		<img
 			className="ai-assistant-image__carrousel-image"
@@ -57,14 +61,18 @@ function BlankImage( { children, isDotted = false, contentClassName = '' } ) {
 	);
 }
 
+type CarrouselProps = {
+	images: CarrouselImages;
+	current: number;
+	handlePreviousImage: () => void;
+	handleNextImage: () => void;
+	actions?: React.JSX.Element;
+};
+
 /**
- *
- * @param root0
- * @param root0.images
- * @param root0.current
- * @param root0.handlePreviousImage
- * @param root0.handleNextImage
- * @param root0.actions
+ * Carrousel component
+ * @param {CarrouselProps} props - The component properties.
+ * @return {React.ReactElement} - rendered component.
  */
 export default function Carrousel( {
 	images,
@@ -72,13 +80,7 @@ export default function Carrousel( {
 	handlePreviousImage,
 	handleNextImage,
 	actions = null,
-}: {
-	images: CarrouselImages;
-	current: number;
-	handlePreviousImage: () => void;
-	handleNextImage: () => void;
-	actions?: React.JSX.Element;
-} ) {
+}: CarrouselProps ) {
 	const [ imageFeedbackDisabled, setImageFeedbackDisabled ] = useState( false );
 	const prevButton = (
 		<button className="ai-carrousel__prev" onClick={ handlePreviousImage }>

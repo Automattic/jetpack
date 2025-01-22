@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { useAiSuggestions, useAiFeature, QuotaExceededMessage } from '@automattic/jetpack-ai-client';
+import {
+	useAiSuggestions,
+	useAiFeature,
+	QuotaExceededMessage,
+} from '@automattic/jetpack-ai-client';
 import {
 	isAtomicSite,
 	isSimpleSite,

@@ -6,6 +6,7 @@ import {
 	JetpackMobileAppIcon,
 } from '@automattic/jetpack-shared-extension-utils';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
 import {
 	SOURCE_WORDPRESS,
 	SOURCE_GOOGLE_PHOTOS,
@@ -81,8 +82,9 @@ export const externalMediaSources = [
 export const mediaSources = externalMediaSources.concat( internalMediaSources );
 
 /**
- *
- * @param props
+ * Whether we can display the placeholder
+ * @param {object} props - The properties.
+ * @return {boolean} True if we can display the placeholder, otherwise false.
  */
 export function canDisplayPlaceholder( props ) {
 	const { disableMediaButtons, dropZoneUIOnly } = props;
@@ -110,8 +112,9 @@ export function canDisplayPlaceholder( props ) {
 }
 
 /**
- *
- * @param type
+ * Get the external library
+ * @param {string} type - The type of external sources.
+ * @return {React.Component} - The external library.
  */
 export function getExternalLibrary( type ) {
 	if ( type === SOURCE_PEXELS ) {
@@ -133,8 +136,9 @@ export function getExternalLibrary( type ) {
 }
 
 /**
- *
- * @param type
+ * Get the external source
+ * @param {string} type - The type of external sources.
+ * @return {object} The external source.
  */
 export function getExternalSource( type ) {
 	return mediaSources.find( item => item.id === type );

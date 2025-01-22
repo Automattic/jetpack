@@ -3,13 +3,15 @@ import { useRefInterval, JetpackAppIcon } from '@automattic/jetpack-shared-exten
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
+import React from 'react';
 import MediaBrowser from '../media-browser';
 import { MediaSource } from '../media-service/types';
 import withMedia from './with-media';
 
 /**
- *
- * @param props
+ * JetpackAppMedia component
+ * @param {object} props - The component properties.
+ * @return {React.ReactElement} The `JetpackAppMedia` component.
  */
 function JetpackAppMedia( props ) {
 	const { media, insertMedia, isCopying, multiple, getMedia } = props;
@@ -108,7 +110,7 @@ function JetpackAppMedia( props ) {
 					onCopy={ onCopy }
 					pageHandle={ false }
 					multiple={ multiple }
-					selectButtonText={ selectButtonText }
+					selectButtonText={ selectButtonText } // eslint-disable-line react/jsx-no-bind
 				/>
 			) }
 		</div>

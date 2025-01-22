@@ -1,5 +1,6 @@
 import { useBlockEditContext } from '@wordpress/block-editor';
 import { useState } from '@wordpress/element';
+import React from 'react';
 import { getExternalLibrary } from '../sources';
 import MediaAiButton from './media-ai-button';
 import MediaButtonMenu from './media-menu';
@@ -25,8 +26,9 @@ const isGeneralPurposeImageGeneratorBetaEnabled =
 const hasLargeButtons = window?.Jetpack_Editor_Initial_State?.next40pxDefaultSize;
 
 /**
- *
- * @param props
+ * MediaButton component
+ * @param {object} props - The component properties.
+ * @return {React.ReactElement} The `MediaButton` component.
  */
 function MediaButton( props ) {
 	const { name } = useBlockEditContext();

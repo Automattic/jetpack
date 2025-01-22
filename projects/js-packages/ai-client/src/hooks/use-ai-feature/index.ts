@@ -9,7 +9,8 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import type { WordPressPlansSelectors } from 'extensions/store/wordpress-com';
 
 /**
- *
+ * Hook to get properties for AiFeature
+ * @return {object} - Object containing properties for AiFeature.
  */
 export default function useAiFeature() {
 	const { data, loading, requestsLimit, requestsCount } = useSelect( select => {

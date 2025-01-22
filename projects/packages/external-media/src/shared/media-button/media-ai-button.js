@@ -1,10 +1,12 @@
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
 import { SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_BLOCK } from '../constants';
 
 /**
- *
- * @param props
+ * MediaAiButton component
+ * @param {object} props - The component properties.
+ * @return {React.ReactElement} The `MediaAiButton` component.
  */
 function MediaAiButton( props ) {
 	const { setSelectedSource, hasLargeButtons } = props;

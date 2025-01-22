@@ -1,11 +1,13 @@
 import { Button, MenuItem, MenuGroup, Dropdown, NavigableMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, media } from '@wordpress/icons';
+import React from 'react';
 import MediaSources from './media-sources';
 
 /**
- *
- * @param props
+ * MediaButtonMenu component
+ * @param {object} props - The component properties.
+ * @return {React.ReactElement} The `MediaButtonMenu` component.
  */
 function MediaButtonMenu( props ) {
 	const { mediaProps, open, setSelectedSource, isFeatured, isReplace, hasImage, hasLargeButtons } =

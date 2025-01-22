@@ -6,7 +6,7 @@ import { useSelect } from '@wordpress/data';
 /**
  * Types
  */
-import { renderMarkdownFromHTML } from '../libs/markdown';
+import { renderMarkdownFromHTML } from '../libs/markdown/index.js';
 import type * as BlockEditorSelectors from '@wordpress/block-editor/store/selectors';
 /**
  * Internal dependencies

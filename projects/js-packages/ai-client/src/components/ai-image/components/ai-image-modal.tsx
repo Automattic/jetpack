@@ -14,86 +14,16 @@ import {
 	IMAGE_STYLE_AUTO,
 	ImageStyleObject,
 	ImageStyle,
-} from '../../../hooks/use-image-generator/constants';
-import { AiModalPromptInput } from '../../../logo-generator';
-import AiModalFooter from '../../ai-modal-footer';
-import AiAssistantModal from '../../modal';
-import QuotaExceededMessage from '../../quota-exceeded-message';
-import Carrousel, { CarrouselImages } from './carrousel';
-import UsageCounter from './usage-counter';
+} from '../../../hooks/use-image-generator/constants.js';
+import { AiModalPromptInput } from '../../../logo-generator/index.js';
+import AiModalFooter from '../../ai-modal-footer/index.js';
+import AiAssistantModal from '../../modal/index.js';
+import QuotaExceededMessage from '../../quota-exceeded-message/index.js';
+import Carrousel, { CarrouselImages } from './carrousel.js';
+import UsageCounter from './usage-counter.js';
 import './ai-image-modal.scss';
 
-const FEATURED_IMAGE_UPGRADE_PROMPT_PLACEMENT = 'ai-image-generator';
-
-const debug = debugFactory( 'jetpack-ai-client:ai-image-modal' );
-
-/**
- *
- * @param root0
- * @param root0.title
- * @param root0.cost
- * @param root0.open
- * @param root0.placement
- * @param root0.images
- * @param root0.currentIndex
- * @param root0.onClose
- * @param root0.onTryAgain
- * @param root0.onGenerate
- * @param root0.generating
- * @param root0.notEnoughRequests
- * @param root0.requireUpgrade
- * @param root0.currentLimit
- * @param root0.currentUsage
- * @param root0.isUnlimited
- * @param root0.upgradeDescription
- * @param root0.hasError
- * @param root0.postContent
- * @param root0.handlePreviousImage
- * @param root0.handleNextImage
- * @param root0.acceptButton
- * @param root0.autoStart
- * @param root0.autoStartAction
- * @param root0.generateButtonLabel
- * @param root0.instructionsPlaceholder
- * @param root0.imageStyles
- * @param root0.onGuessStyle
- * @param root0.prompt
- * @param root0.setPrompt
- * @param root0.initialStyle
- * @param root0.inputDisabled
- * @param root0.actionDisabled
- */
-export default function AiImageModal( {
-	title,
-	cost,
-	open,
-	images,
-	currentIndex = 0,
-	onClose = null,
-	onTryAgain = null,
-	onGenerate = null,
-	generating = false,
-	notEnoughRequests = false,
-	requireUpgrade = false,
-	currentLimit = null,
-	currentUsage = null,
-	isUnlimited = false,
-	upgradeDescription = null,
-	hasError = false,
-	handlePreviousImage = () => {},
-	handleNextImage = () => {},
-	acceptButton = null,
-	autoStart = false,
-	autoStartAction = null,
-	instructionsPlaceholder = null,
-	imageStyles = [],
-	onGuessStyle = null,
-	prompt = '',
-	setPrompt = () => {},
-	initialStyle = null,
-	inputDisabled = false,
-	actionDisabled = false,
-}: {
+type AiImageModalProps = {
 	title: string;
 	cost: number;
 	open: boolean;
@@ -126,7 +56,48 @@ export default function AiImageModal( {
 	initialStyle?: ImageStyle;
 	inputDisabled?: boolean;
 	actionDisabled?: boolean;
-} ) {
+};
+
+const FEATURED_IMAGE_UPGRADE_PROMPT_PLACEMENT = 'ai-image-generator';
+
+const debug = debugFactory( 'jetpack-ai-client:ai-image-modal' );
+
+/**
+ * AiImageModal component
+ * @param {AiImageModalProps} props - The component properties.
+ * @return {React.ReactElement} - rendered component.
+ */
+export default function AiImageModal( {
+	title,
+	cost,
+	open,
+	images,
+	currentIndex = 0,
+	onClose = null,
+	onTryAgain = null,
+	onGenerate = null,
+	generating = false,
+	notEnoughRequests = false,
+	requireUpgrade = false,
+	currentLimit = null,
+	currentUsage = null,
+	isUnlimited = false,
+	upgradeDescription = null,
+	hasError = false,
+	handlePreviousImage = () => {},
+	handleNextImage = () => {},
+	acceptButton = null,
+	autoStart = false,
+	autoStartAction = null,
+	instructionsPlaceholder = null,
+	imageStyles = [],
+	onGuessStyle = null,
+	prompt = '',
+	setPrompt = () => {},
+	initialStyle = null,
+	inputDisabled = false,
+	actionDisabled = false,
+}: AiImageModalProps ) {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
 	const triggeredAutoGeneration = useRef( false );

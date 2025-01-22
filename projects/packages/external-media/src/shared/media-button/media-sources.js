@@ -1,5 +1,6 @@
 import { MenuItem } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
+import React from 'react';
 import {
 	internalMediaSources,
 	externalMediaSources,
@@ -18,13 +19,14 @@ const isGeneralPurposeImageGeneratorBetaEnabled =
 	]?.available === true;
 
 /**
- *
- * @param root0
- * @param root0.originalButton
- * @param root0.onClick
- * @param root0.open
- * @param root0.setSource
- * @param root0.isFeatured
+ * MediaSources component
+ * @param {object}   props                - The component properties.
+ * @param {Function} props.originalButton - The function to render original button.
+ * @param {Function} props.onClick        - To handle the click event.
+ * @param {Function} props.open           - To handle the open.
+ * @param {Function} props.setSource      - To set the source.
+ * @param {boolean}  props.isFeatured     - Whether it's featured.
+ * @return {React.ReactElement} The `MediaSources` component.
  */
 function MediaSources( {
 	originalButton = null,

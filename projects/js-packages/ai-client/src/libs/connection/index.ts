@@ -41,7 +41,9 @@ export function isUserConnected(): boolean {
 }
 
 /**
+ * Return whether the user can purchase plan.
  *
+ * @return {boolean} true if the user can purchase plan, false otherwise.
  */
 export function canUserPurchasePlan(): boolean {
 	if ( isSimpleSite() ) {

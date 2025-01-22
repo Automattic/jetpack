@@ -8,7 +8,7 @@ import {
 	getSiteFragment,
 	useAutosaveAndRedirect,
 } from '@automattic/jetpack-shared-extension-utils';
-import useAiFeature from '../use-ai-feature';
+import useAiFeature from '../use-ai-feature/index.js';
 /*
  * Types
  */
@@ -26,14 +26,18 @@ const getWPComRedirectToURL = () => {
 	return `https://wordpress.com/home/${ site }`;
 };
 
-/**
- *
- */
-export default function useAICheckout(): {
+type UseAICheckoutReturn = {
 	checkoutUrl: string;
 	autosaveAndRedirect: ( event: MouseEvent< HTMLButtonElement > ) => void;
 	isRedirecting: boolean;
-} {
+};
+
+/**
+ * The hook to get properties for AICheckout
+ *
+ * @return {UseAICheckoutReturn} - Object containing properties for AICheckout.
+ */
+export default function useAICheckout(): UseAICheckoutReturn {
 	const { nextTier, tierPlansEnabled } = useAiFeature();
 
 	const wpcomRedirectToURL = getWPComRedirectToURL();

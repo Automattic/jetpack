@@ -5,21 +5,25 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { cleanForSlug } from '@wordpress/url';
-
+import React from 'react';
 /**
  * Internal dependencies
  */
-import askQuestionSync from '../../../ask-question/sync';
-import useAiFeature from '../../../hooks/use-ai-feature';
-import useImageGenerator from '../../../hooks/use-image-generator';
-import { ImageStyleObject, ImageStyle } from '../../../hooks/use-image-generator/constants';
-import useSaveToMediaLibrary from '../../../hooks/use-save-to-media-library';
+import askQuestionSync from '../../../ask-question/sync.js';
+import useAiFeature from '../../../hooks/use-ai-feature/index.js';
+import { ImageStyleObject, ImageStyle } from '../../../hooks/use-image-generator/constants.js';
+import useImageGenerator from '../../../hooks/use-image-generator/index.js';
+import useSaveToMediaLibrary from '../../../hooks/use-save-to-media-library.js';
 /**
  * Types
  */
-import { CoreSelectors, FEATURED_IMAGE_FEATURE_NAME, GENERAL_IMAGE_FEATURE_NAME } from '../types';
-import type { RoleType } from '../../../types';
-import type { CarrouselImageData, CarrouselImages } from '../components/carrousel';
+import {
+	CoreSelectors,
+	FEATURED_IMAGE_FEATURE_NAME,
+	GENERAL_IMAGE_FEATURE_NAME,
+} from '../types.js';
+import type { RoleType } from '../../../types.js';
+import type { CarrouselImageData, CarrouselImages } from '../components/carrousel.js';
 import type { FeatureControl } from 'extensions/store/wordpress-com/types.js';
 
 type ImageFeatureControl = FeatureControl & {
@@ -35,14 +39,46 @@ export type ImageResponse = {
 	revisedPrompt?: string;
 };
 
+type ProcessImageGenerationProps = {
+	userPrompt?: string | null;
+	postContent?: string | null;
+	notEnoughRequests: boolean;
+	style?: string;
+};
+
+type GuessStyleFunction = (
+	prompt: string,
+	requestType: string,
+	content: string
+) => Promise< ImageStyle | null >;
+
+type UseAiImageProps = {
+	feature: AiImageFeature;
+	type: AiImageType;
+	cost: number;
+	autoStart?: boolean;
+	previousMediaId?: number;
+};
+
+type UseAiImageReturn = {
+	current: number;
+	setCurrent: ( value: number ) => void;
+	processImageGeneration: ( props: ProcessImageGenerationProps ) => Promise< ImageResponse >;
+	handlePreviousImage: () => void;
+	handleNextImage: () => void;
+	currentImage: CarrouselImageData;
+	currentPointer: CarrouselImageData;
+	images: CarrouselImages;
+	pointer: React.RefObject< number >;
+	imageStyles: Array< ImageStyleObject >;
+	guessStyle: GuessStyleFunction;
+};
+
 /**
+ * Hook to get properties for AiImage
  *
- * @param root0
- * @param root0.feature
- * @param root0.type
- * @param root0.cost
- * @param root0.autoStart
- * @param root0.previousMediaId
+ * @param {UseAiImageProps} props - The component properties.
+ * @return {UseAiImageReturn} - Object containing properties for AiImage.
  */
 export default function useAiImage( {
 	feature,
@@ -50,13 +86,7 @@ export default function useAiImage( {
 	cost,
 	autoStart = true,
 	previousMediaId,
-}: {
-	feature: AiImageFeature;
-	type: AiImageType;
-	cost: number;
-	autoStart?: boolean;
-	previousMediaId?: number;
-} ) {
+}: UseAiImageProps ) {
 	const { generateImageWithParameters } = useImageGenerator();
 	const { increaseRequestsCount, featuresControl } = useAiFeature();
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
@@ -147,12 +177,7 @@ export default function useAiImage( {
 			postContent,
 			notEnoughRequests,
 			style = null,
-		}: {
-			userPrompt?: string | null;
-			postContent?: string | null;
-			notEnoughRequests: boolean;
-			style?: string;
-		} ) => {
+		}: ProcessImageGenerationProps ) => {
 			return new Promise< ImageResponse >( ( resolve, reject ) => {
 				if ( previousMediaId && pointer.current === 0 ) {
 					pointer.current++;

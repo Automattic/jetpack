@@ -10,9 +10,10 @@ import {
 import './editor.scss';
 
 /**
- *
- * @param settings
- * @param name
+ * Insert external media blocks
+ * @param {object} settings - The block settings.
+ * @param {string} name     - The block name.
+ * @return {object} - The inserted block settings.
  */
 function insertExternalMediaBlocks( settings, name ) {
 	if ( name !== 'core/image' ) {

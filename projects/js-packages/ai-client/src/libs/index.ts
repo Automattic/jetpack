@@ -1,4 +1,4 @@
-export * from './connection';
+export * from './connection/index.js';
 
 export {
 	MarkdownToHTML,

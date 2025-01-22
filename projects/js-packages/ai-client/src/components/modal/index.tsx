@@ -4,11 +4,11 @@
 import { Modal, Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
-import AiStatusIndicator from '../ai-status-indicator';
-import type { RequestingStateProp } from '../../types';
 /**
  * Internal dependencies
  */
+import AiStatusIndicator from '../ai-status-indicator/index.js';
+import type { RequestingStateProp } from '../../types.js';
 import './style.scss';
 
 const ModalHeader = ( {
@@ -31,15 +31,19 @@ const ModalHeader = ( {
 	);
 };
 
+type AiAssistantModalProps = {
+	children: React.ReactNode;
+	handleClose: () => void;
+	hideHeader?: boolean;
+	requestingState?: RequestingStateProp;
+	title?: string;
+	maxWidth?: number;
+};
+
 /**
- *
- * @param root0
- * @param root0.children
- * @param root0.handleClose
- * @param root0.hideHeader
- * @param root0.requestingState
- * @param root0.title
- * @param root0.maxWidth
+ * AiAssistantModal component
+ * @param {AiAssistantModalProps} props - The component properties.
+ * @return {React.ReactElement} - rendered component.
  */
 export default function AiAssistantModal( {
 	children,
@@ -48,14 +52,7 @@ export default function AiAssistantModal( {
 	requestingState = 'init',
 	title = __( 'AI Assistant', 'jetpack-ai-client' ),
 	maxWidth = 720,
-}: {
-	children: React.ReactNode;
-	handleClose: () => void;
-	hideHeader?: boolean;
-	requestingState?: RequestingStateProp;
-	title?: string;
-	maxWidth?: number;
-} ) {
+}: AiAssistantModalProps ) {
 	return (
 		<Modal
 			__experimentalHideHeader={ hideHeader }

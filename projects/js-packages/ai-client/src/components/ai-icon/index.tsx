@@ -29,6 +29,11 @@ export const AiSVG = (
 	</SVG>
 );
 
+/**
+ * AiIcon component
+ * @param {string} className - The wrapper class name.
+ * @return {React.ReactElement} The `AiIcon` component.
+ */
 export default function AiIcon( { className, size = 42 }: { className?: string; size?: number } ) {
 	return <Icon icon={ AiSVG } width={ size } height={ size } className={ className } />;
 }
