@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Jetpack Sync Settings: Use static vs self for calling 'get_setting' within class
+
+
