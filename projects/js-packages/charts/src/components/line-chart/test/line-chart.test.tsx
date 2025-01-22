@@ -150,10 +150,8 @@ describe( 'LineChart', () => {
 				width: 800,
 				height: 400,
 			} );
-			// Using data-testid is a better approach than querySelector
-			const svg = screen.getByTestId( 'line-chart-svg' );
-			expect( svg ).toHaveAttribute( 'width', '800' );
-			expect( svg ).toHaveAttribute( 'height', '400' );
+			const container = screen.getByTestId( 'line-chart' );
+			expect( container ).toHaveStyle( { width: '800px', height: '400px' } );
 		} );
 	} );
 } );
