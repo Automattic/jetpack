@@ -562,6 +562,10 @@ class Boost_Cache {
 			return $params;
 		}
 
+		if ( ! isset( $parameters['cookies'] ) || ! is_array( $parameters['cookies'] ) ) {
+			return $parameters;
+		}
+
 		$default_cookies = array( 'cf_clearance', 'cf_chl_rc_i', 'cf_chl_rc_ni', 'cf_chl_rc_m', '_cfuvid', '__cfruid', '__cfwaitingroom', 'cf_ob_info', 'cf_use_ob', '__cfseq', '__cf_bm', '__cflb', 'sbjs_(.*)' );
 		$jetpack_cookies = array( 'tk_ai', 'tk_qs' );
 		$cookies         = array_merge( $default_cookies, $jetpack_cookies );
