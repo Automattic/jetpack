@@ -9,8 +9,11 @@ import {
 } from '@automattic/jetpack-shared-extension-utils';
 import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
-import { store as editorStore, PostTypeSupportCheck } from '@wordpress/editor';
+import {
+	store as editorStore,
+	PostTypeSupportCheck,
+	PluginDocumentSettingPanel,
+} from '@wordpress/editor';
 import { useState, useEffect, useCallback } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { count } from '@wordpress/wordcount';
