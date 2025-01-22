@@ -21,9 +21,8 @@ interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	withGradientFill?: boolean;
 }
 
-type TooltipData = {
-	date: Date;
-	[ key: string ]: number | Date;
+type TooltipData = DataPointDate & {
+	[ key: string ]: number | Date | string;
 };
 
 type TooltipDatum = {
@@ -67,6 +66,35 @@ const renderTooltip = ( {
 	);
 };
 
+// Validation functions
+const isValidDate = ( date: Date ) => ! isNaN( date.getTime() );
+const isValidValue = ( value: number | null | undefined ): value is number =>
+	typeof value === 'number' && ! isNaN( value );
+
+const validateData = ( data: SeriesData[] ) => {
+	if ( ! data?.length ) {
+		return 'no data available';
+	}
+
+	for ( const series of data ) {
+		if ( ! series.data?.length ) {
+			return 'invalid data';
+		}
+
+		for ( const point of series.data ) {
+			if (
+				! ( 'date' in point ) ||
+				! isValidDate( point.date as Date ) ||
+				! isValidValue( point.value )
+			) {
+				return 'invalid data';
+			}
+		}
+	}
+
+	return null;
+};
+
 const formatDateTick = ( value: number ) => {
 	const date = new Date( value );
 	return date.toLocaleDateString( undefined, {
@@ -88,24 +116,10 @@ const LineChart: FC< LineChartProps > = ( {
 	options = {},
 } ) => {
 	const providerTheme = useChartTheme();
+	const error = validateData( data );
 
-	const theme = useMemo( () => {
-		const seriesColors =
-			data?.map( series => series.options?.stroke ?? '' ).filter( Boolean ) ?? [];
-		return buildChartTheme( {
-			backgroundColor: providerTheme.backgroundColor,
-			colors: [ ...seriesColors, ...providerTheme.colors ],
-			gridStyles: providerTheme.gridStyles,
-			tickLength: providerTheme?.tickLength || 0,
-			gridColor: providerTheme?.gridColor || '',
-			gridColorDark: providerTheme?.gridColorDark || '',
-		} );
-	}, [ providerTheme, data ] );
-
-	if ( ! data?.length ) {
-		return (
-			<div className={ clsx( 'line-chart-empty', styles[ 'line-chart-empty' ] ) }>Empty...</div>
-		);
+	if ( error ) {
+		return <div className={ clsx( styles[ 'line-chart' ], className ) }>{ error }</div>;
 	}
 
 	// Create legend items from group labels, this iterates over groups rather than data points
@@ -121,7 +135,14 @@ const LineChart: FC< LineChartProps > = ( {
 	};
 
 	return (
-		<div className={ clsx( 'line-chart', styles[ 'line-chart' ], className ) }>
+		<div className={ clsx( styles[ 'line-chart' ], className ) }>
+			{ showLegend && (
+				<Legend
+					items={ legendItems }
+					orientation={ legendOrientation }
+					className={ styles[ 'line-chart__legend' ] }
+				/>
+			) }
 			<XYChart
 				data-testid="line-chart-svg"
 				theme={ theme }
@@ -144,29 +165,29 @@ const LineChart: FC< LineChartProps > = ( {
 					const stroke = seriesData.options?.stroke ?? theme.colors[ index % theme.colors.length ];
 					return (
 						<>
-							<LinearGradient
-								id={ `area-gradient-${ index + 1 }` }
-								from={ stroke }
-								to="white"
-								toOpacity={ 0.1 }
-								{ ...seriesData.options?.gradient }
-							/>
-							<AnimatedAreaSeries
+							{ withGradientFill && (
+								<LinearGradient
+									data-testid="line-gradient"
+									id={ `area-gradient-${ index + 1 }` }
+									from={ stroke }
+									to="white"
+									toOpacity={ 0.1 }
+									{ ...seriesData.options?.gradient }
+								/>
+							) }
+							<AnimatedLineSeries
 								key={ seriesData?.label }
 								dataKey={ seriesData?.label }
-								data={ seriesData.data as DataPointDate[] } // TODO: this needs fixing or a more specific type for each chart
+								data={ seriesData.data as DataPointDate[] }
 								{ ...accessors }
 								stroke={ stroke }
 								strokeWidth={ 2 }
 							/>
-							{ /** Theoretically the area series should work without the line series; however it outlines the area with borders, which isn't ideal. */ }
-							{ /** TODO: Investigate whehter we could leverage area series alone. */ }
 							{ withGradientFill && (
 								<AnimatedAreaSeries
-									data-testid="line-gradient"
-									key={ seriesData?.label }
-									dataKey={ seriesData?.label }
-									data={ seriesData.data as DataPointDate[] } // TODO: this needs fixing or a more specific type for each chart
+									key={ `${ seriesData?.label }-area` }
+									dataKey={ `${ seriesData?.label }-area` }
+									data={ seriesData.data as DataPointDate[] }
 									{ ...accessors }
 									stroke={ stroke }
 									strokeWidth={ 0 }
@@ -179,10 +200,10 @@ const LineChart: FC< LineChartProps > = ( {
 				} ) }
 
 				{ withTooltips && (
-					<Tooltip
+					<Tooltip< DataPointDate >
 						snapTooltipToDatumX
 						snapTooltipToDatumY
-						showSeriesGlyphs
+						showVerticalCrosshair
 						renderTooltip={ renderTooltip }
 					/>
 				) }
@@ -199,4 +220,4 @@ const LineChart: FC< LineChartProps > = ( {
 	);
 };
 
-export default withResponsive< LineChartProps >( LineChart );
+export default withResponsive( LineChart );
