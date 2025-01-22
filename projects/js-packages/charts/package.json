@@ -21,7 +21,7 @@
 		"compile-ts": "tsc --pretty",
 		"clean-build": "rm -rf dist/",
 		"build": "pnpm run build:prod",
-		"build:prod": "pnpm run clean && rollup -c --environment NODE_ENV:production && bash ./tools/fixup.sh",
+		"build:prod": "pnpm run clean && rollup -c --environment NODE_ENV:production",
 		"build:dev": "rollup -c --environment NODE_ENV:development",
 		"build:webpack": "pnpm run clean-build && webpack --config webpack.config.cjs --mode production && bash ./tools/fixup.sh && pnpm run build:types",
 		"build:types": "tsc --emitDeclarationOnly --declaration --declarationDir dist/types"
