@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2025-01-22
+### Added
+- Added passing through options for X, Y axis [#41109]
+- Add gradient fill for line chart [#41143]
+- Charts: add responsive chart stories [#41018]
+- Charts: adds dependencies and config for jest testing. Adds some initial tests to pie chart component [#41148]
+- Charts: adds more pie chart tests [#41175]
+
+### Changed
+- Changed back to build with Rollup [#41234]
+- Introduce gapScale and cornerScale properties [#41033]
+- PieChart: iterate a bit over component API [#40993]
+
 ## [0.3.0] - 2025-01-12
 ### Changed
 - make charts responsive [#40922]
@@ -54,6 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.4.0]: https://github.com/Automattic/charts/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Automattic/charts/compare/v0.2.3...v0.3.0
 [0.2.3]: https://github.com/Automattic/charts/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/Automattic/charts/compare/v0.2.1...v0.2.2
