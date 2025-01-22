@@ -39,7 +39,7 @@ export default function AssistantWizard( { close, tasks } ) {
 	}, [ tasks, keywordsStepData, titleStepData, metaStepData ] );
 
 	const handleNext = () => {
-		if ( currentStep + 1 < 4 ) {
+		if ( currentStep + 1 < steps.length ) {
 			debug( 'moving to ' + ( currentStep + 1 ) );
 			setCurrentStep( currentStep + 1 );
 			setCurrentStepData( steps[ currentStep + 1 ] );
