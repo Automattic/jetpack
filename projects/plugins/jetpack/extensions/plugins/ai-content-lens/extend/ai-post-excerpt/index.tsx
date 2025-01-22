@@ -30,6 +30,7 @@ import { AiExcerptControl } from '../../components/ai-excerpt-control';
 import type { LanguageProp } from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
 import type { ToneProp } from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
 import type { AiModelTypeProp, PromptProp } from '@automattic/jetpack-ai-client';
+import type { ReactElement } from 'react';
 
 import './style.scss';
 
@@ -307,15 +308,15 @@ export const PluginDocumentSettingPanelAiExcerpt = () => {
 	if ( isExcerptUsedAsDescription ) {
 		return null;
 	}
-	return (
-		<PostTypeSupportCheck supportKeys="excerpt">
-			<PluginDocumentSettingPanel
-				className={ isBetaExtension( 'ai-content-lens' ) ? 'is-beta-extension inset-shadow' : '' }
-				name="ai-content-lens-plugin"
-				title={ __( 'Excerpt', 'jetpack' ) }
-			>
-				<AiPostExcerpt />
-			</PluginDocumentSettingPanel>
-		</PostTypeSupportCheck>
-	);
+
+	const pluginPanel = (
+		<PluginDocumentSettingPanel
+			className={ isBetaExtension( 'ai-content-lens' ) ? 'is-beta-extension inset-shadow' : '' }
+			name="ai-content-lens-plugin"
+			title={ __( 'Excerpt', 'jetpack' ) }
+		>
+			<AiPostExcerpt />
+		</PluginDocumentSettingPanel>
+	 ) as ReactElement;
+	return <PostTypeSupportCheck supportKeys="excerpt">{ pluginPanel }</PostTypeSupportCheck>;
 };
