@@ -771,6 +771,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 					'is_super_admin' => '(bool)',
 					'roles'          => '(array:string)',
 					'ip_address'     => '(string|false)',
+					'wpcom_id'       => '(int|null)',
+					'wpcom_login'    => '(string|null)',
 				);
 				$return[ $key ] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
 				break;
@@ -1514,13 +1516,24 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'avatar_URL'  => (string) esc_url_raw( $avatar_url ),
 			'profile_URL' => (string) esc_url_raw( $profile_url ),
 			'ip_address'  => $ip_address, // string|bool.
-			'wpcom_id'    => $id > 0 ? (int) get_user_meta( $id, 'wpcom_user_id', true ) : null,
-			'wpcom_login' => $id > 0 ? (string) get_user_meta( $id, 'wpcom_user_login', true ) : null,
 		);
 
 		if ( $site_id > -1 ) {
 			$author['site_ID']      = (int) $site_id;
 			$author['site_visible'] = $site_visible;
+		}
+
+		// Get the WordPress.com user data only if the fields are requested.
+		$args              = $this->query_args();
+		$author_wpcom_data = isset( $args['author_wpcom_data'] ) && $args['author_wpcom_data'];
+
+		if ( $author_wpcom_data && ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) ) {
+			$connection_manager = new \Automattic\Jetpack\Connection\Manager();
+			$wpcom_user_data    = $connection_manager->get_connected_user_data( $id );
+			if ( $wpcom_user_data && isset( $wpcom_user_data['ID'] ) ) {
+				$author['wpcom_id']    = (int) $wpcom_user_data['ID'];
+				$author['wpcom_login'] = isset( $wpcom_user_data['login'] ) ? $wpcom_user_data['login'] : '';
+			}
 		}
 
 		return (object) $author;
