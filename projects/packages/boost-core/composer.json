@@ -38,11 +38,6 @@
 	],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
-	"config": {
-		"allow-plugins": {
-			"roots/wordpress-core-installer": true
-		}
-	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-boost-core",
 		"changelogger": {

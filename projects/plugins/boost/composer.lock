@@ -267,7 +267,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/boost-core",
-                "reference": "715c5830a88270b83c2bf60b6d83ba40d442927b"
+                "reference": "f29fb32cba33427db5d3930bf6e0d7206b44d3c3"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1929,7 +1929,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wp-js-data-sync",
-                "reference": "8f950db1e6343fb97a5d751eeff966d7228f3e66"
+                "reference": "17e6c045e094d23981083584fd5120babd07c8d8"
             },
             "require": {
                 "automattic/jetpack-schema": "@dev",

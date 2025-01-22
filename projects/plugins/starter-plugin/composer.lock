@@ -267,7 +267,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/boost-core",
-                "reference": "715c5830a88270b83c2bf60b6d83ba40d442927b"
+                "reference": "f29fb32cba33427db5d3930bf6e0d7206b44d3c3"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",

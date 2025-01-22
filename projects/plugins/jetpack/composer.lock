@@ -560,7 +560,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/boost-core",
-				"reference": "715c5830a88270b83c2bf60b6d83ba40d442927b"
+				"reference": "f29fb32cba33427db5d3930bf6e0d7206b44d3c3"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -679,7 +679,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/classic-theme-helper",
-				"reference": "eb9b07c795fe03af499d61e299dd16fcc574dfb3"
+				"reference": "e2ac519d2776f60636505adb1f5b8e3df0f53b8d"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1389,7 +1389,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/import",
-				"reference": "7da07139436c008261976be3a1ecdabed368829b"
+				"reference": "54df12d5e8aaf2150c251cf7149241aad19ff661"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
