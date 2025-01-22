@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Simplify rollup config and remove a cjs import
