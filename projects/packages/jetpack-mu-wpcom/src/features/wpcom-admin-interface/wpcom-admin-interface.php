@@ -470,7 +470,7 @@ function wpcom_is_duplicate_views_experiment_enabled() {
  * @param string|null $assignment The experiment variation.
  * @return void
  */
-function wpcom_set_remove_duplicate_views_calypso_preference( $assignment ) {
+function wpcom_set_rdv_calypso_preference( $assignment ) {
 	if ( ( new Host() )->is_wpcom_simple() ) {
 		$preferences                                       = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
 		$preferences[ RDV_EXPERIMENT_FORCE_ASSIGN_OPTION ] = $assignment;
@@ -482,7 +482,7 @@ function wpcom_set_remove_duplicate_views_calypso_preference( $assignment ) {
 			array(
 				'method' => 'POST',
 			),
-			array( 'calypso_preferences' => (object) array( RDV_EXPERIMENT_FORCE_ASSIGN_OPTION => $assignment ) )
+			array( 'calypso_preferences' => array( RDV_EXPERIMENT_FORCE_ASSIGN_OPTION => $assignment ) )
 		);
 	}
 }
@@ -503,7 +503,7 @@ function wpcom_force_assign_variation_for_remove_duplicate_views_experiment() {
 		return;
 	}
 
-	wpcom_set_remove_duplicate_views_calypso_preference( $assignment );
+	wpcom_set_rdv_calypso_preference( $assignment );
 
 	/**
 	 * Setting the option globally (third parameter) will have the following behavior:
@@ -530,7 +530,7 @@ function wpcom_reset_assignment_for_remove_duplicate_views_experiment() {
 		return;
 	}
 
-	wpcom_set_remove_duplicate_views_calypso_preference( null );
+	wpcom_set_rdv_calypso_preference( null );
 
 	/**
 	 * Setting the option globally (third parameter) will have the following behavior:
