@@ -2,18 +2,14 @@ import { useDispatch } from '@wordpress/data';
 import { useCallback, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import TypingMessage from './typing-message';
+import { useMessages } from './wizard-messages';
 import type { Step, Option } from './types';
 
-export const useTitleStep = ( {
-	addMessage,
-	removeLastMessage,
-	onStep,
-	contextData,
-	setIsBusy,
-} ): Step => {
+export const useTitleStep = (): Step => {
 	const [ selectedTitle, setSelectedTitle ] = useState< string >();
 	const [ titleOptions, setTitleOptions ] = useState< Option[] >( [] );
 	const { editPost } = useDispatch( 'core/editor' );
+	const { messages, setMessages, addMessage, removeLastMessage } = useMessages();
 	const [ completed, setCompleted ] = useState( false );
 
 	const handleTitleSelect = useCallback( ( option: Option ) => {
@@ -26,10 +22,16 @@ export const useTitleStep = ( {
 		);
 	}, [] );
 
-	useEffect( () => setTitleOptions( [] ), [ contextData ] );
+	useEffect( () => {
+		setMessages( [
+			{
+				content: __( "Let's optimise your title.", 'jetpack' ),
+				showIcon: true,
+			},
+		] );
+	}, [ setMessages ] );
 
 	const handleTitleGenerate = useCallback( async () => {
-		setIsBusy( true );
 		let newTitles;
 		// we only generate if options are empty
 		if ( titleOptions.length === 0 ) {
@@ -53,21 +55,14 @@ export const useTitleStep = ( {
 			);
 			removeLastMessage();
 		}
-		if ( contextData ) {
-			addMessage( {
-				content: __(
-					'Here are two suggestions based on your keywords. Select the one you prefer:',
-					'jetpack'
-				),
-			} );
-		} else {
-			addMessage( {
-				content: __( 'Here are two suggestions. Select the one you prefer:', 'jetpack' ),
-			} );
-		}
+		addMessage( {
+			content: __(
+				'Here are two suggestions based on your keywords. Select the one you prefer:',
+				'jetpack'
+			),
+		} );
 		setTitleOptions( newTitles || titleOptions );
-		setIsBusy( false );
-	}, [ titleOptions, addMessage, removeLastMessage, contextData, setIsBusy ] );
+	}, [ titleOptions, addMessage, removeLastMessage ] );
 
 	const replaceOptionsWithFauxUseMessages = useCallback( () => {
 		const optionsMessage = {
@@ -85,9 +80,6 @@ export const useTitleStep = ( {
 	}, [ titleOptions, addMessage ] );
 
 	const handleTitleRegenerate = useCallback( async () => {
-		// let the controller know we're working
-		setIsBusy( true );
-
 		// This would typically be an async call to generate new titles
 		replaceOptionsWithFauxUseMessages();
 		setTitleOptions( [] );
@@ -117,8 +109,7 @@ export const useTitleStep = ( {
 			),
 		} );
 		setTitleOptions( newTitles );
-		setIsBusy( false );
-	}, [ addMessage, removeLastMessage, replaceOptionsWithFauxUseMessages, setIsBusy ] );
+	}, [ addMessage, removeLastMessage, replaceOptionsWithFauxUseMessages ] );
 
 	const handleTitleSubmit = useCallback( async () => {
 		replaceOptionsWithFauxUseMessages();
@@ -127,12 +118,8 @@ export const useTitleStep = ( {
 		removeLastMessage();
 		addMessage( { content: __( 'Title updated! ✅', 'jetpack' ) } );
 		setCompleted( true );
-		if ( onStep ) {
-			onStep( { value: selectedTitle } );
-		}
 	}, [
 		selectedTitle,
-		onStep,
 		addMessage,
 		replaceOptionsWithFauxUseMessages,
 		editPost,
@@ -143,28 +130,20 @@ export const useTitleStep = ( {
 		if ( titleOptions.length ) {
 			replaceOptionsWithFauxUseMessages();
 		}
-		addMessage( __( 'Skipped!', 'jetpack' ) );
-		if ( onStep ) {
-			onStep();
-		}
-	}, [ addMessage, onStep, titleOptions, replaceOptionsWithFauxUseMessages ] );
+		addMessage( { content: __( 'Skipped!', 'jetpack' ) } );
+	}, [ addMessage, titleOptions, replaceOptionsWithFauxUseMessages ] );
 
 	return {
 		id: 'title',
 		title: __( 'Optimise Title', 'jetpack' ),
-		messages: [
-			{
-				content: __( "Let's optimise your title.", 'jetpack' ),
-				showIcon: true,
-			},
-		],
+		messages,
 		type: 'options',
 		options: titleOptions,
 		onSelect: handleTitleSelect,
 		onSubmit: handleTitleSubmit,
 		submitCtaLabel: __( 'Insert', 'jetpack' ),
 		onRetry: handleTitleRegenerate,
-		onRetryCtaLabel: __( 'Regenerate', 'jetpack' ),
+		retryCtaLabel: __( 'Regenerate', 'jetpack' ),
 		onStart: handleTitleGenerate,
 		onSkip: handleSkip,
 		value: selectedTitle,

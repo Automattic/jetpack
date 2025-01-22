@@ -11,6 +11,10 @@
 	z-index: 1000;
 	display: flex;
 	flex-direction: column;
+	// countering the Jetpack sidebar ai-feature styles:
+	button {
+		width: unset;
+	}
 
 	&__header {
 		flex: 0 0 auto;
@@ -69,7 +73,7 @@
 		line-height: 1.5;
 		display: flex;
 		align-items: center;
-		min-width: 48px;
+		min-width: 80%;
 
 		.seo-assistant-wizard__message-icon {
 			flex-shrink: 0;
@@ -90,6 +94,7 @@
 			background: #f3f4f6;
 			align-self: flex-end;
 			max-width: 85%;
+			min-width: 15%;
 			
 			.seo-assistant-wizard__message-icon {
 				display: none;

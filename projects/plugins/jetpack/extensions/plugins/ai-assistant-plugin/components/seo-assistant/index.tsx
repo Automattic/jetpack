@@ -9,15 +9,16 @@ import { SeoPlaceholder } from '../../../../plugins/seo/components/placeholder';
 import './style.scss';
 import bigSkyIcon from './big-sky-icon.svg';
 import SeoAssistantWizard from './seo-assistant-wizard';
-import type { SeoAssistantProps } from './types';
 
 const debug = debugFactory( 'jetpack-ai:seo-assistant' );
 
-export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) {
+export default function SeoAssistant( { disabled } ) {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const postIsEmpty = useSelect( select => select( editorStore ).isEditedPostEmpty(), [] );
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'seo-tools' );
+
+	const handleClose = () => setIsOpen( false );
 
 	debug( 'rendering seo-assistant entry point' );
 	return (
@@ -28,11 +29,10 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 					onClick={ () => setIsOpen( true ) }
 					variant="secondary"
 					disabled={ isLoadingModules || isOpen || postIsEmpty || disabled }
-					isBusy={ isLoadingModules || isOpen }
 				>
 					<img src={ bigSkyIcon } alt={ __( 'SEO Assistant icon', 'jetpack' ) } />
 					&nbsp;
-					{ __( 'SEO Assistant', 'jetpack' ) }
+					{ __( 'Optimize with AI', 'jetpack' ) }
 				</Button>
 			) }
 			{ ! isModuleActive && ! isLoadingModules && (
@@ -42,7 +42,7 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 					changeStatus={ changeStatus }
 				/>
 			) }
-			<SeoAssistantWizard isOpen={ isOpen } onStep={ onStep } close={ () => setIsOpen( false ) } />
+			{ isOpen && <SeoAssistantWizard close={ handleClose } /> }
 		</div>
 	);
 }
