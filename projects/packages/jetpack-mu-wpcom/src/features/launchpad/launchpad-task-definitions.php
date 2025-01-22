@@ -279,15 +279,6 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/subscribers/' . $data['site_slug_encoded'];
 			},
 		),
-		'write_welcome_message'           => array(
-			'get_title'            => function () {
-				return __( 'Write a welcome message', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/settings/newsletter/' . $data['site_slug_encoded'] . '#messages';
-			},
-		),
 
 		// Link in bio tasks.
 		'link_in_bio_launched'            => array(
