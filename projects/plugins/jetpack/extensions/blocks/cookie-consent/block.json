@@ -39,7 +39,7 @@
 			"default": {
 				"color": {
 					"text": "var(--wp--preset--color--contrast)",
-					"background": "var(--wp--preset--color--tertiary, #fff)",
+					"background": "var(--wp--preset--color--tertiary)",
 					"link": "var(--wp--preset--color--contrast)"
 				},
 				"spacing": {
