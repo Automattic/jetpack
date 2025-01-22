@@ -148,8 +148,22 @@ class Contact_Form_Block {
 		}
 
 		self::load_view_scripts();
-
+		$content = self::add_tabindex_to_button( $content );
 		return Contact_Form::parse( $atts, do_blocks( $content ) );
+	}
+	/**
+	 * Add tabindex to button submit button so that it can be focused.
+	 *
+	 * @param string $block_content The block content.
+	 *
+	 * @return string
+	 */
+	public static function add_tabindex_to_button( $block_content ) {
+		if ( false === strpos( $block_content, '<button ' ) ) {
+			return $block_content;
+		}
+		$block_content = str_replace( '<button ', '<button tabindex="0" ', $block_content );
+		return $block_content;
 	}
 
 	/**

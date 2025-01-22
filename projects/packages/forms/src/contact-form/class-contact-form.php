@@ -412,7 +412,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 					$submit_button_text = $form->get_attribute( 'submit_button_text' );
 				}
 
-				$r .= "\t\t<button type='submit' class='" . esc_attr( $submit_button_class ) . "'";
+				$r .= "\t\t<button tabindex='0' type='submit' class='" . esc_attr( $submit_button_class ) . "'";
 				if ( ! empty( $submit_button_styles ) ) {
 					$r .= " style='" . esc_attr( $submit_button_styles ) . "'";
 				}
