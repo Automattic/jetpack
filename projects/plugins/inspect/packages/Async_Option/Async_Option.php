@@ -2,8 +2,6 @@
 
 namespace Automattic\Jetpack\Packages\Async_Option;
 
-use Automattic\Jetpack\Packages\Async_Option\Storage\Storage;
-
 class Async_Option {
 
 	/**
@@ -12,7 +10,7 @@ class Async_Option {
 	private $key;
 
 	/**
-	 * @var Storage
+	 * @var WP_Option
 	 */
 	protected $storage;
 
