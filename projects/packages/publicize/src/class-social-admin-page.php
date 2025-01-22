@@ -72,8 +72,7 @@ class Social_Admin_Page {
 			$plugin_version = $plugin_data['Version'];
 
 			// If it's the old social version, remove the submenu page.
-			// TODO Update the version and operator before next Social release.
-			if ( version_compare( $plugin_version, '6.0.0', '<' ) ) {
+			if ( version_compare( $plugin_version, '6.0.0', '<=' ) ) {
 				remove_submenu_page( 'jetpack', 'jetpack-social' );
 			}
 		}
@@ -95,7 +94,10 @@ class Social_Admin_Page {
 				4
 			);
 
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+			/**
+			 * Use priority 20 to ensure that we can dequeue the old Social assets.
+			 */
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ), 20 );
 		}
 	}
 
@@ -116,6 +118,10 @@ class Social_Admin_Page {
 		if ( empty( $screen ) || 'jetpack_page_jetpack-social' !== $screen->base ) {
 			return;
 		}
+
+		// Dequeue the old Social assets.
+		wp_dequeue_script( 'jetpack-social' );
+		wp_dequeue_style( 'jetpack-social' );
 
 		Assets::register_script(
 			'social-admin-page',
