@@ -565,10 +565,12 @@ class Comments extends Module {
 		if ( empty( $comments ) ) {
 			return array();
 		}
+		// Get the comment IDs from the comments that were fetched.
+		$fetched_comment_ids = wp_list_pluck( $comments, 'comment_ID' );
 		return array(
-			'object_ids' => $comment_ids,
+			'object_ids' => $comment_ids, // Still send the original comment IDs since we need them to update the status.
 			'objects'    => $comments,
-			'meta'       => $this->get_metadata( $comment_ids, 'comment', Settings::get_setting( 'comment_meta_whitelist' ) ),
+			'meta'       => $this->get_metadata( $fetched_comment_ids, 'comment', Settings::get_setting( 'comment_meta_whitelist' ) ),
 		);
 	}
 
