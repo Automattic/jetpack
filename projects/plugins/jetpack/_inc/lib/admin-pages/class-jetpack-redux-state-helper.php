@@ -314,7 +314,7 @@ class Jetpack_Redux_State_Helper {
 		// This allows us to embed videopress videos into the release post.
 		add_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10, 2 );
 		$content = wp_kses_post( $post['content'] );
-		remove_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10, 2 );
+		remove_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10 );
 
 		$post_title = isset( $post['title'] ) ? $post['title'] : null;
 		$title      = wp_kses( $post_title, array() );

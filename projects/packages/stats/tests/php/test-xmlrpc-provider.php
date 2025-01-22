@@ -79,7 +79,7 @@ class Test_XMLRPC_Provider extends StatsBaseTestCase {
 	public function test_xmlrpc_methods_with_active_stats_module() {
 		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
 		$xmlrpc_methods = $this->xmlrpc_instance->xmlrpc_methods( array() );
-		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
+		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10 );
 		$this->assertArrayHasKey( 'jetpack.getBlog', $xmlrpc_methods );
 	}
 
