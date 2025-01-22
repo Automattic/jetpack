@@ -19,8 +19,7 @@ import {
 	NEW_ASYNC_REQUEST_TIMER_INTERVAL,
 	ACTION_SET_TIER_PLANS_ENABLED,
 } from './constants.js';
-import type { Plan, AiFeatureProps } from './types.js';
-import type { SiteAIAssistantFeatureEndpointResponseProps } from '../../../../../plugins/jetpack/extensions/types.js';
+import type { Plan, AiFeatureProps, SiteAIAssistantFeatureEndpointResponseProps } from './types.js';
 
 /**
  * Map the response from the `sites/$site/ai-assistant-feature`

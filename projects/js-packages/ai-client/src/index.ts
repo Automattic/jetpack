@@ -60,3 +60,4 @@ export * from './logo-generator/index.js';
  * Stores
  */
 export * from './store/wordpress-com/index.js';
+export * from './store/wordpress-com/types.js';

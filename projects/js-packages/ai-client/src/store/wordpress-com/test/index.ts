@@ -1,14 +1,14 @@
 /**
  * Internal dependencies
  */
-import actions from '../actions';
+import actions from '../actions.js';
 import {
 	ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
 	FREE_PLAN_REQUESTS_LIMIT,
 	UNLIMITED_PLAN_REQUESTS_LIMIT,
-} from '../constants';
-import reducer from '../reducer';
-import { AiFeatureProps, PlanStateProps } from '../types';
+} from '../constants.js';
+import reducer from '../reducer.js';
+import { AiFeatureProps, PlanStateProps } from '../types.js';
 
 describe( 'actions', () => {
 	it( 'should create an action to store the AI Assistant feature', () => {
