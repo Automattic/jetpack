@@ -43,6 +43,8 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'meta'         => '(object) Meta data',
 		'can_moderate' => '(bool) Whether current user can moderate the comment.',
 		'i_replied'    => '(bool) Has the current user replied to this comment?',
+		'wpcom_id'     => '(int|null) The user\'s WordPress.com ID if available.',
+		'wpcom_login'  => '(string|null) The user\'s WordPress.com username if available.',
 	);
 
 	/**
@@ -242,6 +244,16 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 							'count'   => true,
 						)
 					);
+					break;
+				case 'wpcom_id':
+					if ( isset( $comment->user_id ) && $comment->user_id ) {
+						$response[ $key ] = (int) get_user_meta( $comment->user_id, 'wpcom_user_id', true );
+					}
+					break;
+				case 'wpcom_login':
+					if ( isset( $comment->user_id ) && $comment->user_id ) {
+						$response[ $key ] = (string) get_user_meta( $comment->user_id, 'wpcom_user_login', true );
+					}
 					break;
 			}
 		}
