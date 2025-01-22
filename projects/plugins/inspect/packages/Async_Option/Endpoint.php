@@ -70,8 +70,10 @@ class Endpoint {
 
 	/**
 	 * Handle GET Requests
+	 *
+	 * @param \WP_REST_Request $request Currently unused.
 	 */
-	public function handle_get() {
+	public function handle_get( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return $this->option->get();
 	}
 
