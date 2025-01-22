@@ -11,6 +11,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Jetpack just in time messaging through out the admin
@@ -32,6 +33,7 @@ class JITM {
 		'woo',
 		'shop',
 		'product',
+		'themes',
 	);
 
 	/**
@@ -48,7 +50,7 @@ class JITM {
 	 * @return Post_Connection_JITM|Pre_Connection_JITM JITM instance.
 	 */
 	public static function get_instance() {
-		if ( ( new Connection_Manager() )->is_connected() ) {
+		if ( self::is_connected() ) {
 			$jitm = new Post_Connection_JITM();
 		} else {
 			$jitm = new Pre_Connection_JITM();
@@ -139,6 +141,7 @@ class JITM {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'admin_notices', array( $this, 'ajax_message' ) );
 			add_action( 'edit_form_top', array( $this, 'ajax_message' ) );
+
 		}
 	}
 
@@ -393,5 +396,20 @@ class JITM {
 		}
 
 		return $params;
+	}
+
+	/**
+	 * Check if the current site is connected.
+	 * On WordPress.com Simple, it is always connected.
+	 *
+	 * @return true
+	 */
+	private static function is_connected() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return true;
+		}
+
+		$connection = new Connection_Manager();
+		return $connection->is_connected();
 	}
 }
