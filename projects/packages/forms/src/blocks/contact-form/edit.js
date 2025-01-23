@@ -25,7 +25,7 @@ import {
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { Fragment, useEffect, useRef, useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filter, get, isArray, map } from 'lodash';
@@ -174,62 +174,22 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
-	const renderSubmissionSettings = () => {
-		return (
-			<>
-				<InspectorHint>
-					{ __( 'Customize the view after form submission:', 'jetpack-forms' ) }
-				</InspectorHint>
-				<SelectControl
-					label={ __( 'On Submission', 'jetpack-forms' ) }
-					value={ customThankyou }
-					options={ [
-						{ label: __( 'Show a summary of submitted fields', 'jetpack-forms' ), value: '' },
-						{ label: __( 'Show a custom text message', 'jetpack-forms' ), value: 'message' },
-						{ label: __( 'Redirect to another webpage', 'jetpack-forms' ), value: 'redirect' },
-					] }
-					onChange={ newMessage => setAttributes( { customThankyou: newMessage } ) }
-					__nextHasNoMarginBottom={ true }
-					__next40pxDefaultSize={ true }
+	let elt;
+
+	if ( ! isModuleActive ) {
+		if ( isLoadingModules ) {
+			elt = <ContactFormSkeletonLoader />;
+		} else {
+			elt = (
+				<ContactFormPlaceholder
+					changeStatus={ changeStatus }
+					isModuleActive={ isModuleActive }
+					isLoading={ isChangingStatus }
 				/>
-
-				{ 'redirect' !== customThankyou && (
-					<TextControl
-						label={ __( 'Message Heading', 'jetpack-forms' ) }
-						value={ customThankyouHeading }
-						placeholder={ __( 'Your message has been sent', 'jetpack-forms' ) }
-						onChange={ newHeading => setAttributes( { customThankyouHeading: newHeading } ) }
-						__nextHasNoMarginBottom={ true }
-						__next40pxDefaultSize={ true }
-					/>
-				) }
-
-				{ 'message' === customThankyou && (
-					<TextareaControl
-						label={ __( 'Message Text', 'jetpack-forms' ) }
-						value={ customThankyouMessage }
-						placeholder={ __( 'Thank you for your submission!', 'jetpack-forms' ) }
-						onChange={ newMessage => setAttributes( { customThankyouMessage: newMessage } ) }
-						__nextHasNoMarginBottom={ true }
-					/>
-				) }
-
-				{ 'redirect' === customThankyou && (
-					<div>
-						<URLInput
-							label={ __( 'Redirect Address', 'jetpack-forms' ) }
-							value={ customThankyouRedirect }
-							className="jetpack-contact-form__thankyou-redirect-url"
-							onChange={ newURL => setAttributes( { customThankyouRedirect: newURL } ) }
-						/>
-					</div>
-				) }
-			</>
-		);
-	};
-
-	const renderVariationPicker = () => {
-		return (
+			);
+		}
+	} else if ( ! hasInnerBlocks && registerBlockVariation ) {
+		elt = (
 			<div className={ formClassnames }>
 				<BlockVariationPicker
 					icon={ get( blockType, [ 'icon', 'src' ] ) }
@@ -284,24 +244,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				) }
 			</div>
 		);
-	};
-
-	let elt;
-
-	if ( ! isModuleActive ) {
-		if ( isLoadingModules ) {
-			elt = <ContactFormSkeletonLoader />;
-		} else {
-			elt = (
-				<ContactFormPlaceholder
-					changeStatus={ changeStatus }
-					isModuleActive={ isModuleActive }
-					isLoading={ isChangingStatus }
-				/>
-			);
-		}
-	} else if ( ! hasInnerBlocks && registerBlockVariation ) {
-		elt = renderVariationPicker();
 	} else {
 		const { generateStyleVariables } = window.jetpackForms;
 		const style = generateStyleVariables( innerRef.current );
@@ -322,7 +264,56 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						<JetpackManageResponsesSettings setAttributes={ setAttributes } />
 					</PanelBody>
 					<PanelBody title={ __( 'Submission Settings', 'jetpack-forms' ) } initialOpen={ false }>
-						{ renderSubmissionSettings() }
+						<InspectorHint>
+							{ __( 'Customize the view after form submission:', 'jetpack-forms' ) }
+						</InspectorHint>
+						<SelectControl
+							label={ __( 'On Submission', 'jetpack-forms' ) }
+							value={ customThankyou }
+							options={ [
+								{ label: __( 'Show a summary of submitted fields', 'jetpack-forms' ), value: '' },
+								{ label: __( 'Show a custom text message', 'jetpack-forms' ), value: 'message' },
+								{
+									label: __( 'Redirect to another webpage', 'jetpack-forms' ),
+									value: 'redirect',
+								},
+							] }
+							onChange={ newMessage => setAttributes( { customThankyou: newMessage } ) }
+							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize={ true }
+						/>
+
+						{ 'redirect' !== customThankyou && (
+							<TextControl
+								label={ __( 'Message Heading', 'jetpack-forms' ) }
+								value={ customThankyouHeading }
+								placeholder={ __( 'Your message has been sent', 'jetpack-forms' ) }
+								onChange={ newHeading => setAttributes( { customThankyouHeading: newHeading } ) }
+								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
+							/>
+						) }
+
+						{ 'message' === customThankyou && (
+							<TextareaControl
+								label={ __( 'Message Text', 'jetpack-forms' ) }
+								value={ customThankyouMessage }
+								placeholder={ __( 'Thank you for your submission!', 'jetpack-forms' ) }
+								onChange={ newMessage => setAttributes( { customThankyouMessage: newMessage } ) }
+								__nextHasNoMarginBottom={ true }
+							/>
+						) }
+
+						{ 'redirect' === customThankyou && (
+							<div>
+								<URLInput
+									label={ __( 'Redirect Address', 'jetpack-forms' ) }
+									value={ customThankyouRedirect }
+									className="jetpack-contact-form__thankyou-redirect-url"
+									onChange={ newURL => setAttributes( { customThankyouRedirect: newURL } ) }
+								/>
+							</div>
+						) }
 					</PanelBody>
 					<PanelBody title={ __( 'Email Connection', 'jetpack-forms' ) }>
 						<JetpackEmailConnectionSettings
@@ -342,7 +333,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						/>
 					) }
 					{ ! ( isSimpleSite() || isAtomicSite() ) && (
-						<Fragment>
+						<>
 							{ canUserInstallPlugins && (
 								<PanelBody title={ __( 'CRM Connection', 'jetpack-forms' ) } initialOpen={ false }>
 									<CRMIntegrationSettings
@@ -354,7 +345,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							<PanelBody title={ __( 'Creative Mail', 'jetpack-forms' ) } initialOpen={ false }>
 								<NewsletterIntegrationSettings />
 							</PanelBody>
-						</Fragment>
+						</>
 					) }
 				</InspectorControls>
 
