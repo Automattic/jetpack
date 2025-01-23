@@ -1523,16 +1523,23 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$author['site_visible'] = $site_visible;
 		}
 
-		// Only include WordPress.com user data on Jetpack sites when author_wpcom_data is enabled.
+		// Only include WordPress.com user data when author_wpcom_data is enabled.
 		$args              = $this->query_args();
 		$author_wpcom_data = isset( $args['author_wpcom_data'] ) && $args['author_wpcom_data'];
 
-		if ( ! empty( $id ) && $author_wpcom_data && ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) ) {
-			$connection_manager = new \Automattic\Jetpack\Connection\Manager();
-			$wpcom_user_data    = $connection_manager->get_connected_user_data( $id );
-			if ( $wpcom_user_data && isset( $wpcom_user_data['ID'] ) ) {
-				$author['wpcom_id']    = (int) $wpcom_user_data['ID'];
-				$author['wpcom_login'] = isset( $wpcom_user_data['login'] ) ? $wpcom_user_data['login'] : '';
+		if ( ! empty( $id ) && $author_wpcom_data ) {
+			// If this is a Jetpack site, use the connection manager to get the user data.
+			if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+				$connection_manager = new \Automattic\Jetpack\Connection\Manager();
+				$wpcom_user_data    = $connection_manager->get_connected_user_data( $id );
+				if ( $wpcom_user_data && isset( $wpcom_user_data['ID'] ) ) {
+					$author['wpcom_id']    = (int) $wpcom_user_data['ID'];
+					$author['wpcom_login'] = isset( $wpcom_user_data['login'] ) ? $wpcom_user_data['login'] : '';
+				}
+			} else {
+				$user                  = get_user_by( 'id', $id );
+				$author['wpcom_id']    = isset( $user->ID ) ? (int) $user->ID : null;
+				$author['wpcom_login'] = isset( $user->user_login ) ? $user->user_login : '';
 			}
 		}
 
