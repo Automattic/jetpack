@@ -9,14 +9,14 @@
 
 namespace Automattic\Jetpack;
 
-if ( empty( $_GET['jetpack_external_media_import_page'] ) ) { // phpcs:disable WordPress.Security.NonceVerification.Recommended
-	return;
-}
-
 /**
  * Register the Jetpack external media page to Media > Import.
  */
 function add_jetpack_external_media_import_page() {
+	if ( empty( $_GET['jetpack_external_media_import_page'] ) ) { // phpcs:disable WordPress.Security.NonceVerification.Recommended
+		return;
+	}
+
 	$external_media_import_page_hook = add_submenu_page(
 		'upload.php',
 		__( 'Import Media', 'jetpack-external-media' ),
@@ -42,10 +42,12 @@ function enqueue_jetpack_external_media_import_page() {
 		$assets_base_path . "$asset_name/$asset_name.js",
 		External_Media::BASE_FILE,
 		array(
-			'enqueue'    => true,
+			'in_footer'  => true,
 			'textdomain' => 'jetpack-external-media',
 		)
 	);
+
+	Assets::enqueue_script( $asset_name );
 }
 
 /**
@@ -56,37 +58,37 @@ function render_jetpack_external_media_import_page() {
 	$description            = __( 'WordPress allows you to import media from various platforms directly into the Media Library. To begin, select a platform from the options below:', 'jetpack-external-media' );
 	$external_media_sources = array(
 		array(
-			'id'          => 'google_photos',
+			'slug'        => 'google_photos',
 			'name'        => __( 'Google Photos', 'jetpack-external-media' ),
 			'description' => __( 'Import media from your Google Photos account.', 'jetpack-external-media' ),
 		),
 		array(
-			'id'          => 'pexels',
+			'slug'        => 'pexels',
 			'name'        => __( 'Pexels free photos', 'jetpack-external-media' ),
 			'description' => __( 'Free stock photos, royalty free images shared by creators.', 'jetpack-external-media' ),
 		),
 		array(
-			'id'          => 'openverse',
+			'slug'        => 'openverse',
 			'name'        => __( 'Openverse', 'jetpack-external-media' ),
 			'description' => __( 'Explore more than 800 million creative works.', 'jetpack-external-media' ),
 		),
 	);
 
 	?>
-	<div class="wrap">
+	<div id="jetpack-external-media-import" class="wrap">
 		<h1><?php echo esc_html( $title ); ?></h1>
 		<p><?php echo esc_html( $description ); ?></p>
 		<table class="widefat importers striped">
 			<?php
 			foreach ( $external_media_sources as $external_media_source ) {
-				$id          = $external_media_source['id'];
+				$slug        = $external_media_source['slug'];
 				$name        = $external_media_source['name'];
 				$description = $external_media_source['description'];
 				$action      = sprintf(
-					'<a id="%1$s" aria-label="%2$s">%3$s</a>',
-					esc_attr( $id ),
+					'<a aria-label="%1$s" style="cursor:pointer;" data-slug="%2$s">%3$s</a>',
 					/* translators: %s: The name of the external media source. */
 					esc_attr( sprintf( __( 'Import %s', 'jetpack-external-media' ), $name ) ),
+					esc_attr( $slug ),
 					__( 'Import now', 'jetpack-external-media' )
 				);
 
@@ -106,6 +108,7 @@ function render_jetpack_external_media_import_page() {
 			}
 			?>
 		</table>
+		<div id="jetpack-external-media-import-modal"></div>
 	</div>
 	<?php
 }
