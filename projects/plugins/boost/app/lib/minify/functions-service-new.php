@@ -45,6 +45,43 @@ function jetpack_boost_handle_minify_request( $request_uri ) {
 }
 
 /**
+ * Using a crafted request, we can check if is_404() is working in wp-content/
+ */
+function jetpack_boost_check_404_handler( $request_uri ) {
+	if ( strpos( $request_uri, 'wp-content/boost-cache/static/testing_404' ) === false ) {
+		return;
+	}
+
+	if ( is_404() ) {
+		if ( ! is_dir( Config::get_static_cache_dir_path() ) ) {
+			mkdir( Config::get_static_cache_dir_path(), 0775, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+		}
+		file_put_contents( Config::get_static_cache_dir_path() . '/404', '1' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		return true;
+	} else {
+		wp_delete_file( Config::get_static_cache_dir_path() . '/404' );
+		return false;
+	}
+}
+
+/**
+ * This function is used to test if is_404() is working in wp-content/
+ * It sends a request to a non-existent URL, that will execute the 404 handler
+ * in jetpack_boost_check_404_handler().
+ *
+ * This function is called when the Minify_CSS or Minify_JS module is activated.
+ */
+function jetpack_boost_404_tester() {
+	wp_remote_get( home_url( '/wp-content/boost-cache/static/testing_404' ) );
+	if ( file_exists( Config::get_static_cache_dir_path() . '/404' ) ) {
+		wp_delete_file( Config::get_static_cache_dir_path() . '/404' );
+		update_option( 'jetpack_boost_static_minification', true );
+	} else {
+		update_option( 'jetpack_boost_static_minification', false );
+	}
+}
+
+/**
  * This function is used to clean up the static cache folder.
  * It removes files that are stale and no longer needed.
  * A file is considered stale if it's older than the files it depends on.
