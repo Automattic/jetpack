@@ -61,7 +61,7 @@ class Request {
 		/**
 		 * Filters the parameters for the current request to identify the cache key.
 		 *
-		 * @since $$next-version$$
+		 * @since 3.8.0
 		 *
 		 * @param array $parameters The parameters for the current request, made up of cookies and get parameters.
 		 */

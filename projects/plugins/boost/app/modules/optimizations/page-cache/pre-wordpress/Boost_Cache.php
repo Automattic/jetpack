@@ -515,7 +515,7 @@ class Boost_Cache {
 		 * The list is an array of regex patterns. The default list contains the
 		 * most common GET parameters used by analytics services.
 		 *
-		 * @since $$next-version$$
+		 * @since 3.8.0
 		 *
 		 * @param array $get_parameters An array of regexes to remove items from the GET parameter list.
 		 */
@@ -572,7 +572,7 @@ class Boost_Cache {
 		 * cookies used by Cloudflare, and the regex pattern for the sbjs_ cookies
 		 * used by sourcebuster.js
 		 *
-		 * @since $$next-version$$
+		 * @since 3.8.0
 		 *
 		 * @param array $cookies An array of regexes to remove items from the cookie list.
 		 */

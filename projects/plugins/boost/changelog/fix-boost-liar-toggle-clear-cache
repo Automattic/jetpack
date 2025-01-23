@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Page Cache: Clear Page Cache when Image CDN Auto Resize Lazy Images is toggled.

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Cache: filter cookies and GET parameters so they do not cause a cache miss.
