@@ -25,7 +25,7 @@ import {
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { forwardRef, Fragment, useEffect, useState } from '@wordpress/element';
+import { forwardRef, Fragment, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filter, get, isArray, map } from 'lodash';
@@ -123,8 +123,8 @@ export const JetpackContactFormEdit = forwardRef(
 			[ clientId, name ]
 		);
 		const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
-
-		const blockProps = useBlockProps();
+		const wrapperRef = useRef();
+		const blockProps = useBlockProps( { ref: wrapperRef } );
 		const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 			useModuleStatus( 'contact-form' );
 
@@ -309,7 +309,7 @@ export const JetpackContactFormEdit = forwardRef(
 			elt = renderVariationPicker();
 		} else {
 			elt = (
-				<ThemeProvider targetDom={ ref }>
+				<>
 					<InspectorControls>
 						{ ! attributes.formTitle && (
 							<PanelBody>
@@ -371,11 +371,15 @@ export const JetpackContactFormEdit = forwardRef(
 							templateInsertUpdatesSelection={ false }
 						/>
 					</div>
-				</ThemeProvider>
+				</>
 			);
 		}
 
-		return <div { ...blockProps }>{ elt }</div>;
+		return (
+			<ThemeProvider targetDom={ wrapperRef.current }>
+				<div { ...blockProps }>{ elt }</div>
+			</ThemeProvider>
+		);
 	}
 );
 
