@@ -100,6 +100,22 @@ describe( 'BarChart', () => {
 			} );
 			expect( screen.getByText( /invalid data/i ) ).toBeInTheDocument();
 		} );
+
+		test( 'handles invalid label values', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ label: '', value: 10 }, // Empty label
+							{ label: 'Label 2', value: 20 },
+						],
+						options: {},
+					},
+				],
+			} );
+			expect( screen.getByText( /invalid data/i ) ).toBeInTheDocument();
+		} );
 	} );
 
 	describe( 'Legend', () => {

@@ -23,20 +23,14 @@ type BarChartTooltipData = {
 
 interface BarChartProps extends BaseChartProps< SeriesData[] > {}
 
-const BarChart: FC< BarChartProps > = ( {
-	data,
-	margin = { top: 20, right: 20, bottom: 40, left: 40 },
-	withTooltips = false,
-	showLegend = false,
-	legendOrientation = 'horizontal',
-	className,
-	gridVisibility = 'x',
-	width,
-	height = 400,
-} ) => {
+const BarChart: FC< BarChartProps > = props => {
 	const theme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< BarChartTooltipData >();
+
+	const handleMouseLeave = useCallback( () => {
+		hideTooltip();
+	}, [ hideTooltip ] );
 
 	const handleMouseMove = useCallback(
 		(
@@ -48,7 +42,6 @@ const BarChart: FC< BarChartProps > = ( {
 		) => {
 			const coords = localPoint( event );
 			if ( ! coords ) return;
-
 			showTooltip( {
 				tooltipData: { value, xLabel, yLabel, seriesIndex },
 				tooltipLeft: coords.x,
@@ -58,12 +51,37 @@ const BarChart: FC< BarChartProps > = ( {
 		[ showTooltip ]
 	);
 
-	const handleMouseLeave = useCallback( () => {
-		hideTooltip();
-	}, [ hideTooltip ] );
+	const {
+		data,
+		margin = { top: 20, right: 20, bottom: 40, left: 40 },
+		withTooltips = false,
+		showLegend = false,
+		legendOrientation = 'horizontal',
+		className,
+		gridVisibility = 'x',
+		width,
+		height = 400,
+	} = props;
 
+	// Check for empty data
 	if ( ! data?.length ) {
-		return <div className={ clsx( 'bar-chart-empty', styles[ 'bat-chart-empty' ] ) }>Empty...</div>;
+		return <div className={ clsx( styles[ 'bar-chart-empty' ] ) }>No data available</div>;
+	}
+
+	// Add date validation to hasInvalidData check
+	const hasInvalidData = data.some( series =>
+		series.data.some(
+			d =>
+				d.value === null ||
+				d.value === undefined ||
+				isNaN( d.value ) ||
+				! d.label ||
+				( d.date && isNaN( d.date.getTime() ) ) // Add date validation
+		)
+	);
+
+	if ( hasInvalidData ) {
+		return <div className={ clsx( styles[ 'bar-chart-error' ] ) }>Invalid data</div>;
 	}
 
 	const margins = margin;
@@ -102,7 +120,13 @@ const BarChart: FC< BarChartProps > = ( {
 	} ) );
 
 	return (
-		<div className={ clsx( 'bar-chart', className, styles[ 'bar-chart' ] ) }>
+		<div
+			className={ clsx( styles[ 'bar-chart' ], className ) }
+			data-testid="bar-chart"
+			style={ { width, height } }
+			role="img"
+			aria-label="bar chart"
+		>
 			<svg width={ width } height={ height }>
 				<Group left={ margins.left } top={ margins.top }>
 					<GridControl
@@ -159,7 +183,7 @@ const BarChart: FC< BarChartProps > = ( {
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
-					className={ styles[ 'bar-chart-legend' ] }
+					className={ styles[ 'bar-chart__legend' ] }
 				/>
 			) }
 		</div>
