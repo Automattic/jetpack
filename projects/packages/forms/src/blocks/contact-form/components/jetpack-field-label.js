@@ -44,12 +44,16 @@ const FieldLabel = ( {
 	requiredText,
 	setAttributes,
 	insertBlocksAfter,
+	style,
 } ) => {
 	const { labelStyle } = useJetpackFieldStyles( attributes );
 	const useEnterRef = useEnter( { insertBlocksAfter } );
 
 	return (
-		<div className={ clsx( className, 'jetpack-field-label' ) } style={ labelStyle }>
+		<div
+			className={ clsx( className, 'jetpack-field-label' ) }
+			style={ { ...labelStyle, ...style } }
+		>
 			<RichText
 				ref={ useEnterRef }
 				tagName="label"
@@ -85,9 +89,9 @@ const FieldLabel = ( {
 };
 
 const JetpackFieldLabel = props => {
-	const { style } = props;
+	const { style, blockProps } = props;
 
-	const classes = clsx( {
+	const classes = clsx( blockProps?.className, {
 		'notched-label__label': style === FORM_STYLE.OUTLINED,
 		'animated-label__label': style === FORM_STYLE.ANIMATED,
 		'below-label__label': style === FORM_STYLE.BELOW,
@@ -105,7 +109,7 @@ const JetpackFieldLabel = props => {
 		);
 	}
 
-	return <FieldLabel className={ classes } { ...props } />;
+	return <FieldLabel className={ classes } { ...props } style={ blockProps?.style } />;
 };
 
 export default JetpackFieldLabel;

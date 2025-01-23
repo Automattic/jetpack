@@ -75,6 +75,50 @@ class Contact_Form_Block {
 	 * We are registering child blocks only when Contact Form plugin is Active
 	 */
 	public static function register_child_blocks() {
+		// Field inner block types.
+		Blocks::jetpack_register_block(
+			'jetpack/field-input',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_input' ),
+			)
+		);
+		Blocks::jetpack_register_block(
+			'jetpack/field-label',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_label' ),
+			)
+		);
+		// V2 fields using inner blocks.
+		Blocks::jetpack_register_block(
+			'jetpack/field-text-v2',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_text_v2' ),
+			)
+		);
+		Blocks::jetpack_register_block(
+			'jetpack/field-name-v2',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_text_v2' ),
+			)
+		);
+		Blocks::jetpack_register_block(
+			'jetpack/field-email-v2',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_text_v2' ),
+			)
+		);
+		Blocks::jetpack_register_block(
+			'jetpack/field-url-v2',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_text_v2' ),
+			)
+		);
+		Blocks::jetpack_register_block(
+			'jetpack/field-telephone-v2',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_text_v2' ),
+			)
+		);
 		// Field render methods.
 		Blocks::jetpack_register_block(
 			'jetpack/field-text',

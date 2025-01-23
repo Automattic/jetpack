@@ -279,12 +279,23 @@
 	justify-content: flex-start;
 	align-items: baseline;
 
+	/*
+     * Quick and dirty hacks but can be done properly by skipping serialization and applying
+	 * the styles to the inner block elements eg. `label` and `input`
+	 */
+	&[style*='color'] > * {
+		color: inherit;
+	}
+	&[style*='font-weight'] > * {
+		font-weight: inherit;
+	}
+	
 	.components-base-control {
 		margin-top: -1px;
 		margin-bottom: -3px;
 	}
 
-	.rich-text.jetpack-field-label__input {
+	:where(.rich-text.jetpack-field-label__input) {
 		cursor: text;
 		font-weight: bold;
 		margin-bottom: 0.25em;
@@ -321,15 +332,20 @@
 }
 
 .jetpack-field {
-	.jetpack-field__input, .jetpack-field__textarea {
-		width: 100%;
-		font: inherit;
-		box-sizing: border-box;
-		box-shadow: unset;
+	:where(.jetpack-field__input),
+	:where(.jetpack-field__textarea) {
 		border: 1px solid #8c8f94;
 		border-radius: 0;
+		font: inherit;
 		padding: 16px;
 		margin: 0;
+	}
+
+	.jetpack-field__input,
+	.jetpack-field__textarea {
+		width: 100%;
+		box-sizing: border-box;
+		box-shadow: unset;
 	}
 
 	.jetpack-field__textarea {
@@ -705,10 +721,9 @@
 }
 
 .jetpack-contact-form {
-	.jetpack-field {
-		.jetpack-field__input, .jetpack-field__textarea {
-			color: #787c82; //Simulates a placeholder color
-		}
+	:where(.jetpack-field .jetpack-field__input),
+	:where(.jetpack-field .jetpack-field__textarea) {
+		color: #787c82; //Simulates a placeholder color
 	}
 
 	&.is-style-outlined, &.is-style-animated {

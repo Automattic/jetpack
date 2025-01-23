@@ -331,6 +331,24 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Render the v2 text field.
+	 *
+	 * TODO: This all needs updating, it's only temporary and mostly just a blind copy of
+	 * existing text field stuff. In particular, there'll need to be processing of the
+	 * inner block attributes into whatever is needed for the shortcodes
+	 * e.g. label/placeholder text, classes, styles etc.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_text_v2( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, $atts['type'] ?? 'text' );
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
 	 * Render the name field.
 	 *
 	 * @param array  $atts - the block attributes.
