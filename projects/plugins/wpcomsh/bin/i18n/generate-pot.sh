@@ -9,19 +9,19 @@ find -L . \
     -or -path './vendor/*/wordpress' \
     -or -path './vendor/*/node_modules' \
     -or -path './vendor/*/jetpack_vendor' \
+    -or -path './jetpack_vendor/*/vendor' \
+    -or -path './jetpack_vendor/*/wordpress' \
+    -or -path './jetpack_vendor/*/node_modules' \
+    -or -path './jetpack_vendor/*/jetpack_vendor' \
   \) \
   -prune \
   -or \
   -name '*.php' -and ! -path './build/*' -and ! -path './custom-colors/*' \
   -and \( \
     ! -path './vendor/*' \
-    -or -path './vendor/automattic/jetpack-mu-wpcom/*' \
     -or -path './vendor/automattic/at-pressable-podcasting/*' \
     -or -path './vendor/automattic/custom-fonts-typekit/*' \
     -or -path './vendor/automattic/custom-fonts/*' \
-    -or -path './vendor/automattic/jetpack-assets/*' \
-    -or -path './vendor/automattic/jetpack-config/*' \
-    -or -path './vendor/automattic/jetpack-post-list/*' \
  \) \
  -print \
 | sed -e 's,^\./,,' \
