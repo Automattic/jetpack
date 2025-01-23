@@ -1,10 +1,10 @@
 import { Gridicon, ConfettiAnimation } from '@automattic/components';
 import { Button, Modal, Tooltip } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
-import { useState } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { Icon, copy } from '@wordpress/icons';
-// import { recordTracksEvent } from 'calypso/state/analytics/actions';
 import { useTranslate } from 'i18n-calypso';
+import { wpcomTrackEvent } from '../../../common/tracks';
 
 import './celebrate-launch-modal.scss';
 
@@ -27,19 +27,16 @@ export default function CelebrateLaunchModal( {
 	siteUrl,
 	hasCustomDomain,
 } ) {
-	// const dispatch = useDispatch();
 	const translate = useTranslate();
 	const isPaidPlan = ! sitePlan.is_free;
 	const isBilledMonthly = sitePlan.product_slug?.includes( 'monthly' );
 	const [ clipboardCopied, setClipboardCopied ] = useState( false );
 
-	// useEffect( () => {
-	// 	dispatch(
-	// 		recordTracksEvent( `calypso_launchpad_celebration_modal_view`, {
-	// 			product_slug: sitePlan.product_slug,
-	// 		} )
-	// 	);
-	// }, [] );
+	useEffect( () => {
+		wpcomTrackEvent( `calypso_launchpad_celebration_modal_view`, {
+			product_slug: sitePlan.product_slug,
+		} );
+	}, [ sitePlan.product_slug ] );
 
 	/**
 	 * Render the upsell content.
@@ -93,13 +90,11 @@ export default function CelebrateLaunchModal( {
 				<Button
 					variant="primary"
 					href={ buttonHref }
-					// onClick={ () =>
-					// 	dispatch(
-					// 		recordTracksEvent( `calypso_launchpad_celebration_modal_upsell_clicked`, {
-					// 			product_slug: sitePlan.product_slug,
-					// 		} )
-					// 	)
-					// }
+					onClick={ () =>
+						wpcomTrackEvent( `calypso_launchpad_celebration_modal_upsell_clicked`, {
+							product_slug: sitePlan.product_slug,
+						} )
+					}
 				>
 					<span>{ buttonText }</span>
 				</Button>
