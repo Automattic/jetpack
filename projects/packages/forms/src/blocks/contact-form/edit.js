@@ -12,6 +12,7 @@ import {
 	useBlockProps,
 	__experimentalBlockVariationPicker as BlockVariationPicker, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalBlockPatternSetup as BlockPatternSetup, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import { createBlock, registerBlockVariation } from '@wordpress/blocks';
 import {
@@ -24,7 +25,7 @@ import {
 	Notice,
 } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
-import { withDispatch, withSelect } from '@wordpress/data';
+import { useDispatch, withSelect } from '@wordpress/data';
 import { forwardRef, Fragment, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -79,8 +80,6 @@ export const JetpackContactFormEdit = forwardRef(
 			setAttributes,
 			postAuthorEmail,
 			hasInnerBlocks,
-			replaceInnerBlocks,
-			selectBlock,
 			clientId,
 			instanceId,
 			className,
@@ -102,6 +101,8 @@ export const JetpackContactFormEdit = forwardRef(
 			jetpackCRM,
 			salesforceData,
 		} = attributes;
+
+		const { replaceInnerBlocks, selectBlock } = useDispatch( blockEditorStore );
 		const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
 
 		const blockProps = useBlockProps();
@@ -393,10 +394,6 @@ export default compose( [
 			hasInnerBlocks: innerBlocks.length > 0,
 			postAuthorEmail: authorEmail,
 		};
-	} ),
-	withDispatch( dispatch => {
-		const { replaceInnerBlocks, selectBlock } = dispatch( 'core/block-editor' );
-		return { replaceInnerBlocks, selectBlock };
 	} ),
 	withInstanceId,
 	withThemeProvider,
