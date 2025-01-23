@@ -62,11 +62,11 @@ class REST_Products {
 
 		register_rest_route(
 			'my-jetpack/v1',
-			'site/products/install-multiple-plugins',
+			'site/products/install',
 			array(
 				array(
 					'methods'             => \WP_REST_Server::EDITABLE,
-					'callback'            => __CLASS__ . '::install_multiple_plugins',
+					'callback'            => __CLASS__ . '::install_plugins',
 					'permission_callback' => __CLASS__ . '::edit_permissions_callback',
 					'args'                => array(
 						'products' => $products_arg,
@@ -77,11 +77,11 @@ class REST_Products {
 
 		register_rest_route(
 			'my-jetpack/v1',
-			'site/products/activate-multiple-plugins',
+			'site/products/activate',
 			array(
 				array(
 					'methods'             => \WP_REST_Server::EDITABLE,
-					'callback'            => __CLASS__ . '::activate_multiple_products',
+					'callback'            => __CLASS__ . '::activate_products',
 					'permission_callback' => __CLASS__ . '::edit_permissions_callback',
 					'args'                => array(
 						'products' => $products_arg,
@@ -402,7 +402,7 @@ class REST_Products {
 	 * @param \WP_REST_Request $request The request object.
 	 * @return \WP_REST_Response
 	 */
-	public static function install_multiple_plugins( $request ) {
+	public static function install_plugins( $request ) {
 		$products_array = $request->get_param( 'products' );
 
 		foreach ( $products_array as $product_slug ) {
