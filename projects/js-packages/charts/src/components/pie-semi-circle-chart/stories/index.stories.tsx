@@ -32,6 +32,7 @@ const ResponsiveDecorator = Story => (
 			aspectRatio: '2/1',
 			minWidth: '400px',
 			maxWidth: '1200px',
+			height: '450px',
 			border: '1px dashed #ccc',
 		} }
 	>
@@ -47,7 +48,7 @@ const meta = {
 	},
 	decorators: [ ResponsiveDecorator ],
 	argTypes: {
-		size: {
+		width: {
 			control: {
 				type: 'range',
 				min: 100,
@@ -79,7 +80,7 @@ type Story = StoryObj< typeof PieSemiCircleChart >;
 
 export const Default: Story = {
 	args: {
-		size: 400,
+		width: 600,
 		thickness: 0.4,
 		padding: 20,
 		data,
@@ -108,6 +109,7 @@ export const WithTooltips: Story = {
 export const WithHorizontalLegend: Story = {
 	args: {
 		...Default.args,
+		width: 600,
 		showLegend: true,
 		legendOrientation: 'horizontal',
 	},
@@ -121,27 +123,15 @@ export const WithVerticalLegend: Story = {
 	},
 };
 
-export const FixedDimensions: Story = {
-	render: args => (
-		<div style={ { width: '400px' } }>
-			<PieSemiCircleChart { ...args } />
-		</div>
-	),
-	args: {
-		size: 400,
-		thickness: 0.4,
-		padding: 20,
-		data,
-		label: 'Fixed Dimensions',
-		note: 'Non-responsive chart',
-		clockwise: true,
-		showLegend: false,
-	},
+const responsiveArgs = { ...Default.args };
+delete responsiveArgs.width;
+export const Responsiveness: Story = {
+	args: responsiveArgs,
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Semi-circle pie chart with fixed dimensions that override the responsive behavior. Uses size prop for unified width/height handling.',
+					'Semi-circle pie chart with responsive behavior. Uses width prop for unified width/height handling.',
 			},
 		},
 	},

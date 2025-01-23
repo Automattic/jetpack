@@ -1,7 +1,7 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
+import { SocialAdminPage } from '@automattic/jetpack-publicize-components';
 import * as WPElement from '@wordpress/element';
 import React from 'react';
-import AdminPage from './components/admin-page';
 
 /**
  * Initial render function.
@@ -15,7 +15,7 @@ function render() {
 
 	const component = (
 		<ThemeProvider targetDom={ document.body }>
-			<AdminPage />
+			<SocialAdminPage />
 		</ThemeProvider>
 	);
 	WPElement.createRoot( container ).render( component );

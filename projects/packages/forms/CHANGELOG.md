@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.35.0] - 2025-01-20
+### Added
+- Forms: Allow HTML block within forms. [#41040]
+- Forms: Handle `Enter` on empty radio/checkbox input. [#41082]
+
+### Changed
+- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
+- Forms: rename "URL" field to "Website" [#41029]
+- Forms: settings, opt-in for default 40px size in gutenberg [#41127]
+- Forms: update width control to use more modern ToggleGroupControl [#41130]
+- Forms: use core icons for phone and email fields [#41034]
+- Updated package dependencies. [#41099]
+
+### Fixed
+- Forms: Fix dropdown icon styling. [#41074]
+- Forms: Fix redirect field styles [#41030]
+- Forms: fix spacing issue in sidebar settings [#41133]
+- Forms: Properly support formatting options for labels and required text [#40924]
+
 ## [0.34.6] - 2025-01-13
 ### Fixed
 - Add webpack plugin to rename RTL files to match core WP expectations. [#40881]
@@ -754,6 +773,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.35.0]: https://github.com/automattic/jetpack-forms/compare/v0.34.6...v0.35.0
 [0.34.6]: https://github.com/automattic/jetpack-forms/compare/v0.34.5...v0.34.6
 [0.34.5]: https://github.com/automattic/jetpack-forms/compare/v0.34.4...v0.34.5
 [0.34.4]: https://github.com/automattic/jetpack-forms/compare/v0.34.3...v0.34.4
