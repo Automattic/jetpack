@@ -22,6 +22,8 @@ add_action(
 			return;
 		}
 
+		jetpack_boost_check_404_handler( $request_uri );
+
 		// Send a status 200 header, otherwise the browser will return a 404.
 		status_header( 200 );
 		jetpack_boost_handle_minify_request( $request_uri );
