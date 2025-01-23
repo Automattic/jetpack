@@ -123,8 +123,8 @@ const LineChart: FC< LineChartProps > = ( {
 				width={ width }
 				height={ height }
 				margin={ margin }
-				xScale={ { type: 'time' } }
-				yScale={ { type: 'linear', nice: true } }
+				xScale={ { type: 'time', ...options?.xScale } }
+				yScale={ { type: 'linear', nice: true, zero: false, ...options?.yScale } }
 			>
 				<AnimatedGrid columns={ false } numTicks={ 4 } />
 				<AnimatedAxis

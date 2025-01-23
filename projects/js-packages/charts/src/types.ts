@@ -1,4 +1,5 @@
 import { Orientation } from '@visx/axis';
+import { ScaleType } from '@visx/scale';
 import type { CSSProperties } from 'react';
 
 type ValueOf< T > = T[ keyof T ];
@@ -130,6 +131,8 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 * More options for the chart.
 	 */
 	options?: {
+		yScale?: { type?: ScaleType; zero?: boolean };
+		xScale?: { type?: ScaleType };
 		axis?: {
 			x?: AxisOptions;
 			y?: AxisOptions;
