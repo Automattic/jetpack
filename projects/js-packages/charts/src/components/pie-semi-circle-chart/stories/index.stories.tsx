@@ -79,7 +79,7 @@ type Story = StoryObj< typeof PieSemiCircleChart >;
 
 export const Default: Story = {
 	args: {
-		size: 400,
+		width: 400,
 		thickness: 0.4,
 		padding: 20,
 		data,
@@ -128,7 +128,7 @@ export const FixedDimensions: Story = {
 		</div>
 	),
 	args: {
-		size: 400,
+		width: 400,
 		thickness: 0.4,
 		padding: 20,
 		data,
@@ -141,7 +141,7 @@ export const FixedDimensions: Story = {
 		docs: {
 			description: {
 				story:
-					'Semi-circle pie chart with fixed dimensions that override the responsive behavior. Uses size prop for unified width/height handling.',
+					'Semi-circle pie chart with fixed dimensions that override the responsive behavior. Uses width prop for unified width/height handling.',
 			},
 		},
 	},
