@@ -27,6 +27,7 @@
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-device-detection": "@dev",
 		"automattic/jetpack-error": "@dev",
+		"automattic/jetpack-external-media": "@dev",
 		"automattic/jetpack-forms": "@dev",
 		"automattic/jetpack-image-cdn": "@dev",
 		"automattic/jetpack-import": "@dev",

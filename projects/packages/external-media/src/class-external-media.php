@@ -34,8 +34,13 @@ class External_Media {
 			$assets_base_path . "$asset_name/$asset_name.js",
 			__FILE__,
 			array(
-				'enqueue'  => true,
-				'css_path' => $assets_base_path . "$asset_name/$asset_name" . is_rtl() ? '.rtl.css' : '.css',
+				'enqueue'      => true,
+				'textdomain'   => 'jetpack-external-media',
+
+				/**
+				 * It depends on the `jetpack-blocks-editor` since the feature requires `Jetpack_Editor_Initial_State`.
+				 */
+				'dependencies' => array( 'jetpack-blocks-editor' ),
 			)
 		);
 	}
