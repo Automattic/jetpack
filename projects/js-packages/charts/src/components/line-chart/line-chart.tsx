@@ -1,4 +1,3 @@
-import { curveNatural } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
 import {
 	XYChart,
@@ -150,7 +149,6 @@ const LineChart: FC< LineChartProps > = ( {
 								{ ...accessors }
 								fill={ withGradientFill ? `url(#area-gradient-${ index + 1 })` : undefined }
 								renderLine={ true }
-								curve={ curveNatural }
 							/>
 						</>
 					);
