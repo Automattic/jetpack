@@ -41,6 +41,7 @@ const meta = {
 						aspectRatio: '1/1',
 						minWidth: '400px',
 						maxWidth: '1200px',
+						height: '800px',
 						border: '1px dashed #ccc',
 					} }
 				>
@@ -56,6 +57,7 @@ const meta = {
 				min: 100,
 				max: 800,
 				step: 10,
+				default: 400,
 			},
 		},
 		thickness: {
@@ -111,7 +113,7 @@ type Story = StoryObj< typeof PieChart >;
 
 export const Default: Story = {
 	args: {
-		size: 400,
+		size: 600,
 		thickness: 1,
 		gapScale: 0,
 		padding: 20,
@@ -128,6 +130,7 @@ export const WithHorizontalLegend: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
+		size: 600,
 		legendOrientation: 'horizontal',
 	},
 };
@@ -136,6 +139,7 @@ export const WithVerticalLegend: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
+		size: 600,
 		legendOrientation: 'vertical',
 	},
 };
@@ -183,26 +187,14 @@ export const WithTooltipsDoughnut: Story = {
 	},
 };
 
-export const FixedDimensions: Story = {
-	render: args => (
-		<div style={ { width: '400px' } }>
-			<PieChart { ...args } />
-		</div>
-	),
-	args: {
-		size: 400,
-		thickness: 1,
-		padding: 20,
-		data,
-		withTooltips: true,
-		theme: 'default',
-		showLegend: false,
-	},
+const responsiveArgs = { ...Default.args };
+delete responsiveArgs.size;
+export const Responsiveness: Story = {
+	args: responsiveArgs,
 	parameters: {
 		docs: {
 			description: {
-				story:
-					'Pie chart with fixed dimensions that override the responsive behavior. Uses size prop instead of width/height.',
+				story: 'Pie chart with responsive behavior. Uses size prop instead of width/height.',
 			},
 		},
 	},

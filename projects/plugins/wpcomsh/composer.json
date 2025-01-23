@@ -18,7 +18,6 @@
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "0.4.2",
 		"yoast/phpunit-polyfills": "^1.1.1"
 	},
 	"autoload": {
@@ -58,9 +57,7 @@
 		],
 		"test-php": [
 			"@composer phpunit"
-		],
-		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+		]
 	},
 	"repositories": [
 		{
@@ -125,8 +122,7 @@
 	"config": {
 		"allow-plugins": {
 			"dealerdirect/phpcodesniffer-composer-installer": true,
-			"composer/installers": true,
-			"roots/wordpress-core-installer": true
+			"composer/installers": true
 		},
 		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ6_0_0"
 	},

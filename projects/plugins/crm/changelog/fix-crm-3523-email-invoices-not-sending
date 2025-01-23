@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Invoices: Fix bug introduced in 6.5.0 that prevented email invoices from being sent.

@@ -264,7 +264,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 				'service_name'     => 'facebook',
 				'connection_id'    => 123,
 				'can_disconnect'   => true,
-				'profile_link'     => false,
+				'profile_link'     => '',
 				'shared'           => false,
 				'status'           => 'ok',
 			),
