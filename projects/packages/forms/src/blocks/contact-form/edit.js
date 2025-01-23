@@ -39,6 +39,7 @@ import JetpackManageResponsesSettings from './components/jetpack-manage-response
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
 import SalesforceLeadFormSettings from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
 import defaultVariations from './variations';
+import './util/form-styles.js';
 
 const validFields = filter( childBlocks, ( { settings } ) => {
 	return (
@@ -245,8 +246,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			</div>
 		);
 	} else {
-		const { generateStyleVariables } = window.jetpackForms;
-		const style = generateStyleVariables( innerRef.current );
+		const style = window.jetpackForms.generateStyleVariables( innerRef.current );
 		elt = (
 			<>
 				<InspectorControls>
