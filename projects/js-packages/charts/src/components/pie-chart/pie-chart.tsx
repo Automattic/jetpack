@@ -151,7 +151,12 @@ const PieChart = ( {
 
 	return (
 		<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
-			<svg viewBox={ `0 0 ${ size } ${ size }` } preserveAspectRatio="xMidYMid meet">
+			<svg
+				viewBox={ `0 0 ${ size } ${ size }` }
+				preserveAspectRatio="xMidYMid meet"
+				width={ size }
+				height={ size }
+			>
 				<Group top={ centerY } left={ centerX }>
 					<Pie< DataPointPercentage & { index: number } >
 						data={ dataWithIndex }

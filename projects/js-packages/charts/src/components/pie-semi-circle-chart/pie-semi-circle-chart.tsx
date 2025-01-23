@@ -43,7 +43,7 @@ type ArcData = PieArcDatum< DataPointPercentage >;
 
 const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	data,
-	width = 500,
+	width,
 	label,
 	note,
 	className,
@@ -120,7 +120,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 		<div
 			className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
 		>
-			<svg viewBox={ `0 0 ${ width } ${ height }` }>
+			<svg viewBox={ `0 0 ${ width } ${ height }` } width={ width } height={ height }>
 				{ /* Main chart group that contains both the pie and text elements */ }
 				<Group top={ centerX } left={ centerX }>
 					{ /* Pie chart */ }
