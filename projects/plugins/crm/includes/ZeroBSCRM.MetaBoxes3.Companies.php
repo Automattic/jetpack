@@ -9,13 +9,7 @@
  * Date: 20/02/2019
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 
@@ -257,11 +251,6 @@
                     if ($potentialOwner > 0) $owner = $potentialOwner;
 
                 }
-
-                /* debug 
-                echo '_POST:<pre>'.print_r($_POST,1).'</pre>';
-                echo 'dataArr:<pre>'.print_r($dataArr,1).'</pre>'; exit();
-                */
 
                 // now we check whether a user with this email already exists (separate to this company id), so we can warn them
                 // ... that it wont have changed the email

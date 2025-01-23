@@ -11,7 +11,6 @@ import {
 	HasSeenVideoCelebrationModalProvider,
 	ShouldShowFirstPostPublishedModalProvider,
 } from '../../../common/tour-kit';
-import { BloggingPromptsModal } from './blogging-prompts-modal';
 import DraftPostModal from './draft-post-modal';
 import FirstPostPublishedModal from './first-post-published-modal';
 import PurchaseNotice from './purchase-notice';
@@ -106,7 +105,6 @@ registerPlugin( 'wpcom-block-editor-nux', {
 					<SellerCelebrationModal />
 					<PurchaseNotice />
 					<VideoPressCelebrationModal />
-					<BloggingPromptsModal />
 				</ShouldShowFirstPostPublishedModalProvider>
 			</HasSeenVideoCelebrationModalProvider>
 		</HasSeenSellerCelebrationModalProvider>

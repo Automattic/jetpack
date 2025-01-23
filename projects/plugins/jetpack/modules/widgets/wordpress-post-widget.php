@@ -15,7 +15,7 @@
  * Disable direct access/execution to/of the widget code.
  */
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 require __DIR__ . '/wordpress-post-widget/class.jetpack-display-posts-widget-base.php';

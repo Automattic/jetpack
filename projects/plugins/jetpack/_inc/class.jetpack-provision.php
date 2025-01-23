@@ -46,7 +46,7 @@ class Jetpack_Provision {
 		// If Jetpack is currently connected, and is not in Safe Mode already, kick off a sync of the current
 		// functions/callables so that we can test if this site is in IDC.
 		if ( Jetpack::is_connection_ready() && ! Identity_Crisis::validate_sync_error_idc_option() && Actions::sync_allowed() ) {
-			Actions::do_full_sync( array( 'functions' => true ) );
+			Actions::do_full_sync( array( 'functions' => true ), 'provision' );
 			Actions::$sender->do_full_sync();
 		}
 

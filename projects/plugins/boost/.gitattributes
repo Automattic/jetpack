@@ -13,7 +13,6 @@ vendor/automattic/**                            production-include
 vendor/composer/**                              production-include
 vendor/jetpack-autoloader/**                    production-include
 vendor/tedivm/**                                production-include
-vendor/tubalmartin/**                           production-include
 vendor/matthiasmullie/**                        production-include
 vendor/wikimedia/aho-corasick/**                production-include
 

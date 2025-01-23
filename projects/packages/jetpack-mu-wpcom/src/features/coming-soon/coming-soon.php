@@ -236,6 +236,6 @@ function coming_soon_page( $template ) {
 	}
 
 	render_fallback_coming_soon_page();
-	die();
+	die( 0 );
 }
 add_filter( 'template_include', __NAMESPACE__ . '\coming_soon_page' );
