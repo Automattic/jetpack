@@ -101,6 +101,7 @@ jobs:
           echo "any-plugins=${ANY_PLUGINS}" >> "$GITHUB_OUTPUT"
 
       - name: Select WordPress version
+        if: matrix.wp != 'none'
         run: .github/files/select-wordpress-tag.sh
 
       - name: Composer Install
@@ -122,7 +123,7 @@ jobs:
             composer require --working-dir=projects/packages/image-cdn automattic/wordbless:^0.4.2 --dev
           fi
 
-          if [[ "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ]]; then
+          if [[ ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) && ( "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ) ]]; then
             VER=$(composer --format=json --working-dir="tools/php-test-env" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
             if [[ -n "$VER" ]]; then
               INSVER=$WORDPRESS_TAG
