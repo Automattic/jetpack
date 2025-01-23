@@ -139,6 +139,8 @@ const LineChart: FC< LineChartProps > = ( {
 			className={ clsx( styles[ 'line-chart' ], className ) }
 			data-testid="line-chart"
 			style={ { width, height } }
+			role="img"
+			aria-label="line chart"
 		>
 			<XYChart
 				theme={ theme }
