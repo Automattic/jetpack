@@ -497,7 +497,7 @@ function wpcom_launchpad_get_task_definitions() {
 
 		'customize_welcome_message'       => array(
 			'get_title'            => function () {
-				return __( 'Customize welcome message', 'jetpack-mu-wpcom' );
+				return __( 'Write a welcome message', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
