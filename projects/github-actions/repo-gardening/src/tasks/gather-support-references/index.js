@@ -414,7 +414,7 @@ async function createOrUpdateComment( payload, octokit, issueReferences, issueCo
  */
 async function addHappinessLabel( payload, octokit ) {
 	const {
-		issue: { number },
+		issue: { number, state },
 		repository: {
 			name: repo,
 			owner: { login: ownerLogin },
@@ -441,9 +441,10 @@ async function addHappinessLabel( payload, octokit ) {
 
 	// Send Slack notification, if we have the necessary tokens.
 	// No Slack tokens, we won't be able to escalate. Bail.
+	// If the issue is already closed, do not send any Slack reminder.
 	const slackToken = getInput( 'slack_token' );
 	const channel = getInput( 'slack_quality_channel' );
-	if ( ! slackToken || ! channel ) {
+	if ( ! slackToken || ! channel || state === 'closed' ) {
 		return false;
 	}
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Jetpack AI: excerpt panel now uses PluginDocumentSettingPanel slotfill for compatibility with site and post editor
