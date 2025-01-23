@@ -1,13 +1,15 @@
 <?php
 /**
  * Adds a "launch site" button to the admin bar.
+ *
+ * @package automattic/jetpack-mu-wpcom
  */
 
 use Automattic\Jetpack\Status;
 
 /**
  * Adds a "launch site" button to the admin bar.
- * 
+ *
  * @param WP_Admin_Bar $admin_bar The WordPress admin bar.
  */
 function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
@@ -15,8 +17,8 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 		$blog_domain = ( new Status() )->get_site_suffix();
 	} else {
-		$blog_id = get_current_blog_id();
-		$blog_domain  = preg_replace( '!^https?://!', '', get_primary_redirect( $blog_id ) );
+		$blog_id     = get_current_blog_id();
+		$blog_domain = preg_replace( '!^https?://!', '', get_primary_redirect( $blog_id ) );
 	}
 	if ( $is_launched ) {
 		return;
@@ -39,7 +41,8 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
  * Enqueue the necessary styles for the admin bar button.
  */
 function wpcom_enqueue_launch_button_styles() {
-	wp_enqueue_style( 'launch-banner', plugins_url( 'style.css', __FILE__ ) );
+	$version = filemtime( __DIR__ . '/style.css' );
+	wp_enqueue_style( 'launch-banner', plugins_url( 'style.css', __FILE__ ), array(), $version );
 }
 
 add_action( 'admin_bar_menu', 'wpcom_add_launch_button_to_admin_bar', 500 );
