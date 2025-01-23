@@ -560,7 +560,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/boost-core",
-				"reference": "d39cf9555e3edd6cd71349c9e828a9006f41b6fc"
+				"reference": "f29fb32cba33427db5d3930bf6e0d7206b44d3c3"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -568,7 +568,6 @@
 			},
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
-				"automattic/wordbless": "^0.4.2",
 				"yoast/phpunit-polyfills": "^1.1.1"
 			},
 			"suggest": {
@@ -600,18 +599,6 @@
 				],
 				"test-php": [
 					"@composer phpunit"
-				],
-				"build-production": [
-					"echo 'Add your build step to composer.json, please!'"
-				],
-				"build-development": [
-					"echo 'Add your build step to composer.json, please!'"
-				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
 				]
 			},
 			"license": [
@@ -628,7 +615,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/boost-speed-score",
-				"reference": "0eb6e9f50de070ab933fe0f12992ad2389e351a5"
+				"reference": "6c5f2fce242a09a6cec0d26328026664046dd17a"
 			},
 			"require": {
 				"automattic/jetpack-boost-core": "@dev",
@@ -676,18 +663,6 @@
 				],
 				"test-php": [
 					"@composer phpunit"
-				],
-				"build-production": [
-					"echo 'Add your build step to composer.json, please!'"
-				],
-				"build-development": [
-					"echo 'Add your build step to composer.json, please!'"
-				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
 				]
 			},
 			"license": [
@@ -704,7 +679,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/classic-theme-helper",
-				"reference": "97a68997e5f3dc805df942c53586bab3f2137427"
+				"reference": "e2ac519d2776f60636505adb1f5b8e3df0f53b8d"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -712,7 +687,6 @@
 			},
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
-				"automattic/wordbless": "^0.4.2",
 				"yoast/phpunit-polyfills": "^1.1.1"
 			},
 			"suggest": {
@@ -747,12 +721,6 @@
 				],
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
-				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
 				],
 				"test-coverage": [
 					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
@@ -1421,7 +1389,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/import",
-				"reference": "ce1f897e2725e7fdb0b0c394952c9941b5911ae5"
+				"reference": "54df12d5e8aaf2150c251cf7149241aad19ff661"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -1430,7 +1398,6 @@
 			},
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
-				"automattic/wordbless": "^0.4.2",
 				"yoast/phpunit-polyfills": "^1.1.1"
 			},
 			"suggest": {
@@ -1465,18 +1432,6 @@
 				],
 				"test-php": [
 					"@composer phpunit"
-				],
-				"build-production": [
-					"echo 'Add your build step to composer.json, please!'"
-				],
-				"build-development": [
-					"echo 'Add your build step to composer.json, please!'"
-				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
 				]
 			},
 			"license": [

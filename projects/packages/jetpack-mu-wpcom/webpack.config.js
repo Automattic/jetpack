@@ -56,6 +56,10 @@ module.exports = [
 			'starter-page-templates': './src/features/starter-page-templates/index.tsx',
 			'removed-calypso-screen-notice':
 				'./src/features/wpcom-admin-interface/removed-calypso-screen-notice.tsx',
+			'wpcom-fiverr': [
+				'./src/features/wpcom-fiverr/wpcom-fiverr.ts',
+				'./src/features/wpcom-fiverr/wpcom-fiverr.scss',
+			],
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,

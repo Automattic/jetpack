@@ -158,6 +158,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
 		require_once __DIR__ . '/features/wpcom-siteurl/siteurl.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
+		require_once __DIR__ . '/features/wpcom-fiverr/wpcom-fiverr.php';
 
 		// Only load the Calypsoify and Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
@@ -172,6 +173,13 @@ class Jetpack_Mu_Wpcom {
 	 * Can be removed once the feature no longer exists in the ETK plugin.
 	 */
 	public static function load_etk_features_flags() {
+		// Don't load on agency sites.
+		if ( is_fully_managed_agency_site() ) {
+			return;
+		}
+
+		// Don't load if the user is not a wpcom user on WP Admin.
+		// The features is still required on the frontend page regardless of the user.
 		if ( is_admin() && ! is_wpcom_user() ) {
 			return;
 		}
@@ -205,6 +213,13 @@ class Jetpack_Mu_Wpcom {
 	 * Can be moved back to load_features() once the feature no longer exists in the ETK plugin.
 	 */
 	public static function load_etk_features() {
+		// Don't load on agency sites.
+		if ( is_fully_managed_agency_site() ) {
+			return;
+		}
+
+		// Don't load if the user is not a wpcom user on WP Admin.
+		// The features is still required on the frontend page regardless of the user.
 		if ( is_admin() && ! is_wpcom_user() ) {
 			return;
 		}

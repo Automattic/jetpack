@@ -9,8 +9,11 @@ import {
 } from '@automattic/jetpack-shared-extension-utils';
 import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
-import { store as editorStore, PostTypeSupportCheck } from '@wordpress/editor';
+import {
+	store as editorStore,
+	PostTypeSupportCheck,
+	PluginDocumentSettingPanel,
+} from '@wordpress/editor';
 import { useState, useEffect, useCallback } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { count } from '@wordpress/wordcount';
@@ -27,6 +30,7 @@ import { AiExcerptControl } from '../../components/ai-excerpt-control';
 import type { LanguageProp } from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
 import type { ToneProp } from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
 import type { AiModelTypeProp, PromptProp } from '@automattic/jetpack-ai-client';
+import type { ReactElement } from 'react';
 
 import './style.scss';
 
@@ -304,15 +308,25 @@ export const PluginDocumentSettingPanelAiExcerpt = () => {
 	if ( isExcerptUsedAsDescription ) {
 		return null;
 	}
+
+	const SettingPanel = props => {
+		const Panel = PluginDocumentSettingPanel as unknown as React.ComponentType< {
+			className?: string;
+			name?: string;
+			title?: string;
+		} >;
+		return ( <Panel { ...props } /> ) as ReactElement;
+	};
+
 	return (
 		<PostTypeSupportCheck supportKeys="excerpt">
-			<PluginDocumentSettingPanel
+			<SettingPanel
 				className={ isBetaExtension( 'ai-content-lens' ) ? 'is-beta-extension inset-shadow' : '' }
 				name="ai-content-lens-plugin"
 				title={ __( 'Excerpt', 'jetpack' ) }
 			>
 				<AiPostExcerpt />
-			</PluginDocumentSettingPanel>
+			</SettingPanel>
 		</PostTypeSupportCheck>
 	);
 };
