@@ -194,8 +194,7 @@ export const Responsiveness: Story = {
 	parameters: {
 		docs: {
 			description: {
-				story:
-					'Pie chart with fixed dimensions that override the responsive behavior. Uses size prop instead of width/height.',
+				story: 'Pie chart with responsive behavior. Uses size prop instead of width/height.',
 			},
 		},
 	},

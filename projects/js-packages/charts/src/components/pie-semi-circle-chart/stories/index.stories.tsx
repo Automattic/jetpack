@@ -131,7 +131,7 @@ export const Responsiveness: Story = {
 		docs: {
 			description: {
 				story:
-					'Semi-circle pie chart with fixed dimensions that override the responsive behavior. Uses width prop for unified width/height handling.',
+					'Semi-circle pie chart with responsive behavior. Uses width prop for unified width/height handling.',
 			},
 		},
 	},
