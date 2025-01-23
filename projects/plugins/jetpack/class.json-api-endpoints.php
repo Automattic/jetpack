@@ -1527,7 +1527,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$args              = $this->query_args();
 		$author_wpcom_data = isset( $args['author_wpcom_data'] ) && $args['author_wpcom_data'];
 
-		if ( $author_wpcom_data && ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) ) {
+		if ( ! empty( $id ) && $author_wpcom_data && ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) ) {
 			$connection_manager = new \Automattic\Jetpack\Connection\Manager();
 			$wpcom_user_data    = $connection_manager->get_connected_user_data( $id );
 			if ( $wpcom_user_data && isset( $wpcom_user_data['ID'] ) ) {
