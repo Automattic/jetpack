@@ -1,10 +1,12 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { useGlobalNotices } from '@automattic/jetpack-components';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { REST_API_SITE_PRODUCTS_ENDPOINT, QUERY_INSTALL_PRODUCT_KEY } from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
 import useProducts from './use-products';
 
 const useInstallPlugins = ( productIds: string[] ) => {
 	const { products, refetch } = useProducts( productIds );
+	const { createSuccessNotice } = useGlobalNotices();
 
 	const { mutate: install, isPending } = useSimpleMutation( {
 		name: QUERY_INSTALL_PRODUCT_KEY,
@@ -14,7 +16,17 @@ const useInstallPlugins = ( productIds: string[] ) => {
 			data: { products: productIds },
 		},
 		options: {
-			onSuccess: refetch,
+			onSuccess: () => {
+				refetch().then( () => {
+					createSuccessNotice(
+						sprintf(
+							/* translators: %s is the word "Plugin" or "Pluigns" (singular or plural). */
+							__( '%s installed successfully!', 'jetpack-my-jetpack' ),
+							_n( 'Plugin', 'Plugins', products?.length, 'jetpack-my-jetpack' )
+						)
+					);
+				} );
+			},
 		},
 		errorMessage: sprintf(
 			// translators: %s is the Jetpack product name or comma seperated list of multiple Jetpack product names.
