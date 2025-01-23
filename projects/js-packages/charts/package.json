@@ -102,7 +102,7 @@
 		"tsconfig-paths-webpack-plugin": "4.2.0",
 		"typescript": "5.7.2",
 		"webpack": "^5.88.0",
-		"webpack-cli": "^5.1.0",
+		"webpack-cli": "^6.0.0",
 		"@testing-library/react": "^14.0.0",
 		"@testing-library/jest-dom": "^6.0.0",
 		"@types/jest": "^29.0.0",
