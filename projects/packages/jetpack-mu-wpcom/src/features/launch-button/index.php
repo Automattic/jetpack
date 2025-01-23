@@ -11,14 +11,11 @@ use Automattic\Jetpack\Status;
  * @param WP_Admin_Bar $admin_bar The WordPress admin bar.
  */
 function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
-	$is_launched = true;
-	$blog_id = get_current_blog_id();
-
+	$is_launched = get_option( 'launch-status' ) !== 'unlaunched';
 	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
-		$is_launched = get_option( 'launch-status' ) === 'launched';
 		$blog_domain = ( new Status() )->get_site_suffix();
-	} else if ( function_exists( '\WPCOM\Lib\Launch_Site\is_launched' ) ) {
-		$is_launched = \WPCOM\Lib\Launch_Site\is_launched( $blog_id );
+	} else {
+		$blog_id = get_current_blog_id();
 		$blog_domain  = preg_replace( '!^https?://!', '', get_primary_redirect( $blog_id ) );
 	}
 	if ( $is_launched ) {
