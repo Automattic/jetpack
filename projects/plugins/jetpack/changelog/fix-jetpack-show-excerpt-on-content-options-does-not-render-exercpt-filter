@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix: Jetpack show excerpt on Content options does not includes theme filters.
