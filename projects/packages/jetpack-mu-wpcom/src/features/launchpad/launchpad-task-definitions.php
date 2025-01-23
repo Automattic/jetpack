@@ -269,7 +269,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 		),
 
-		// intent-newsletter-v2 tasks
+		// intent-newsletter-goal tasks
 		'start_building_your_audience'    => array(
 			'get_title'            => function () {
 				return __( 'Start building your audience', 'jetpack-mu-wpcom' );

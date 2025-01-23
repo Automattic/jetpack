@@ -102,7 +102,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'intent-newsletter-v2'    => array(
+		'intent-newsletter-goal'  => array(
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -1106,17 +1106,17 @@ function wpcom_launchpad_is_paid_newsletter_enabled() {
 }
 
 /**
- * Checks if the Newsletter v2 flow task list is enabled.
+ * Checks if the Newsletter goal flow task list is enabled.
  *
  * @return bool True if the task list is enabled, false otherwise.
  */
-function wpcom_launchpad_is_newsletter_v2_enabled() {
+function wpcom_launchpad_is_newsletter_goal_enabled() {
 	$intent = get_option( 'site_intent', false );
-	if ( 'intent-newsletter-v2' !== $intent ) {
+	if ( 'intent-newsletter-goal' !== $intent ) {
 		return false;
 	}
 
-	return apply_filters( 'wpcom_launchpad_intent_newsletter_v2_enabled', false );
+	return apply_filters( 'wpcom_launchpad_intent_newsletter_goal_enabled', false );
 }
 /**
  * Add launchpad options to Jetpack Sync.
