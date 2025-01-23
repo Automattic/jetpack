@@ -6,7 +6,6 @@ import {
 	useBlockProps,
 } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
-import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { IS_GRADIENT_AVAILABLE } from './constants';
@@ -39,8 +38,7 @@ export function ButtonEdit( props ) {
 		style: { width },
 	} );
 
-	const textRef = useRef();
-	const fallbackColors = useFallbackColors( textRef );
+	const [ fallbackColors, textRef ] = useFallbackColors();
 
 	const buttonClasses = clsx( 'wp-block-button__link', {
 		'has-background': backgroundColor.color || gradientValue,

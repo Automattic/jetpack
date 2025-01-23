@@ -1,37 +1,36 @@
-import { useLayoutEffect, useState } from '@wordpress/element';
+import { useRefEffect } from '@wordpress/compose';
+import { useState } from '@wordpress/element';
 
-export default function useFallbackColors( textRef ) {
+export default function useFallbackColors() {
 	const [ fallbacks, setFallbacks ] = useState();
 
-	useLayoutEffect( () => {
-		// If the textRef is not available or the fallback colors are already set, do nothing.
-		if (
-			! textRef.current ||
-			( fallbacks?.fallbackTextColor && fallbacks?.fallbackBackgroundColor )
-		) {
-			return;
-		}
+	const ref = useRefEffect( node => {
+		const observer = new MutationObserver( () => {
+			const fallbackBackgroundColor = getComputedStyle( node ).backgroundColor;
+			const fallbackTextColor = getComputedStyle( node ).color;
 
-		const fallbackBackgroundColor = getComputedStyle( textRef.current ).backgroundColor;
-		const fallbackTextColor = getComputedStyle( textRef.current ).color;
+			// Don't update the fallback colors if they haven't changed.
+			if (
+				fallbackBackgroundColor === fallbacks?.fallbackBackgroundColor &&
+				fallbackTextColor === fallbacks?.fallbackTextColor
+			) {
+				return;
+			}
 
-		// Don't update the fallback colors if they haven't changed.
-		if (
-			fallbackBackgroundColor === fallbacks?.fallbackBackgroundColor &&
-			fallbackTextColor === fallbacks?.fallbackTextColor
-		) {
-			return;
-		}
-
-		setFallbacks( {
-			fallbackBackgroundColor,
-			fallbackTextColor,
+			setFallbacks( {
+				fallbackBackgroundColor,
+				fallbackTextColor,
+			} );
 		} );
 
-		// Disable reason, this shouldn't re-run when `fallbackColors` is updated.
-		// textRef is a ref, so doesn't need to be included in the dependency array.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		observer.observe( node, {
+			attributeFilter: [ 'style', 'class' ],
+		} );
+
+		return () => {
+			observer.disconnect();
+		};
 	}, [] );
 
-	return fallbacks;
+	return [ fallbacks, ref ];
 }
