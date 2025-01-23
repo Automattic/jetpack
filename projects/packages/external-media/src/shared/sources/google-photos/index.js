@@ -8,6 +8,7 @@ import GooglePhotosAuth from './google-photos-auth';
 import GooglePhotosAuthUpgrade from './google-photos-auth-upgrade';
 import GooglePhotosMedia from './google-photos-media';
 import GooglePhotosPickerButton from './google-photos-picker-button';
+import './style.scss';
 
 /**
  * GooglePhotos component
