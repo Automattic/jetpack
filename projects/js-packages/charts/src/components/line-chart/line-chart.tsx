@@ -155,6 +155,7 @@ const LineChart: FC< LineChartProps > = ( {
 								{ ...accessors }
 								stroke={ stroke }
 								strokeWidth={ 2 }
+								curve={ curveNatural }
 							/>
 							{ /** Theoretically the area series should work without the line series; however it outlines the area with borders, which isn't ideal. */ }
 							{ /** TODO: Investigate whehter we could leverage area series alone. */ }
