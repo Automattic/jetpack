@@ -23,7 +23,7 @@ import {
 	TextControl,
 	Notice,
 } from '@wordpress/components';
-import { compose, withInstanceId } from '@wordpress/compose';
+import { useInstanceId } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { forwardRef, Fragment, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -73,7 +73,7 @@ const RESPONSES_PATH = `${ get( getJetpackData(), 'adminUrl', false ) }edit.php?
 const CUSTOMIZING_FORMS_URL = 'https://jetpack.com/support/jetpack-blocks/contact-form/';
 
 export const JetpackContactFormEdit = forwardRef(
-	( { name, attributes, setAttributes, clientId, instanceId, className, style }, ref ) => {
+	( { name, attributes, setAttributes, clientId, className, style }, ref ) => {
 		const {
 			to,
 			subject,
@@ -85,6 +85,7 @@ export const JetpackContactFormEdit = forwardRef(
 			salesforceData,
 		} = attributes;
 
+		const instanceId = useInstanceId( JetpackContactFormEdit );
 		const { replaceInnerBlocks, selectBlock } = useDispatch( 'core/block-editor' );
 		const {
 			blockType,
@@ -308,7 +309,7 @@ export const JetpackContactFormEdit = forwardRef(
 			elt = renderVariationPicker();
 		} else {
 			elt = (
-				<>
+				<ThemeProvider targetDom={ ref }>
 					<InspectorControls>
 						{ ! attributes.formTitle && (
 							<PanelBody>
@@ -370,7 +371,7 @@ export const JetpackContactFormEdit = forwardRef(
 							templateInsertUpdatesSelection={ false }
 						/>
 					</div>
-				</>
+				</ThemeProvider>
 			);
 		}
 
@@ -378,12 +379,4 @@ export const JetpackContactFormEdit = forwardRef(
 	}
 );
 
-const withThemeProvider = WrappedComponent => props => (
-	<ThemeProvider>
-		<WrappedComponent { ...props } />
-	</ThemeProvider>
-);
-
-export default compose( [ withInstanceId, withThemeProvider ] )(
-	withStyleVariables( JetpackContactFormEdit )
-);
+export default withStyleVariables( JetpackContactFormEdit );
