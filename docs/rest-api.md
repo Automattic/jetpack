@@ -457,6 +457,24 @@ Dismiss a Jetpack notice by Id.
 	* `"feedback_dash_request"`
 	* `"welcome"`.
 
+### Jetpack Features (not modules)
+
+This has primarily been introduced to distinguish between former modules moved to the Classic Theme Helper package (predominantly Custom Content Types), and existing modules.
+
+#### GET wp-json/jetpack/v4/feature/:feature-slug
+
+Get a single feature status and over-ride property by its slug.
+
+**Example response** for `/feature/custom-post-types`
+
+```json
+{
+    "active": true,
+    "over_ride": false,
+}
+```
+
+
 ### Site information
 
 Operations related to information about the site.
