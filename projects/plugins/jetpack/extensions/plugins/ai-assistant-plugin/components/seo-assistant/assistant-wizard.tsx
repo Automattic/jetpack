@@ -1,12 +1,12 @@
 import { Button, Icon, Tooltip } from '@wordpress/components';
-import { useState, useEffect, useRef } from '@wordpress/element';
+import { useState, useEffect, useRef, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { next, closeSmall, chevronLeft } from '@wordpress/icons';
 import debugFactory from 'debug';
 import { useKeywordsStep } from './use-keywords-step';
 import { useMetaDescriptionStep } from './use-meta-description-step';
 import { useTitleStep } from './use-title-step';
-import { OptionsInput, TextInput } from './wizard-input';
+import { OptionsInput, TextInput, CompletionInput } from './wizard-input';
 import WizardStep from './wizard-step';
 import type { Step } from './types';
 
@@ -16,7 +16,6 @@ export default function AssistantWizard( { close, tasks } ) {
 	const [ currentStep, setCurrentStep ] = useState( 0 );
 	const [ currentStepData, setCurrentStepData ] = useState< Step >();
 	const [ isBusy ] = useState( false );
-	const [ steps, setSteps ] = useState( [] );
 	const stepsEndRef = useRef( null );
 	const scrollToBottom = () => {
 		stepsEndRef.current?.scrollIntoView( { behavior: 'smooth' } );
@@ -28,15 +27,22 @@ export default function AssistantWizard( { close, tasks } ) {
 	}, [ currentStep ] );
 
 	// Keywords
-	// TODO: going back doesn't restart
 	const keywordsStepData = useKeywordsStep();
 	const titleStepData = useTitleStep();
 	const metaStepData = useMetaDescriptionStep();
 
+	// Memoize steps array to prevent unnecessary recreations
+	const steps = useMemo(
+		() => [ tasks[ 0 ], keywordsStepData, titleStepData, metaStepData, tasks[ 1 ] ],
+		[ tasks, keywordsStepData, titleStepData, metaStepData ]
+	);
+
+	// Initialize current step data
 	useEffect( () => {
-		setSteps( [ tasks[ 0 ], keywordsStepData, titleStepData, metaStepData, tasks[ 1 ] ] );
-		setCurrentStepData( tasks[ 0 ] );
-	}, [ tasks, keywordsStepData, titleStepData, metaStepData ] );
+		if ( currentStep === 0 ) {
+			setCurrentStepData( steps[ 0 ] );
+		}
+	}, [ currentStep, steps ] );
 
 	const handleNext = () => {
 		if ( currentStep + 1 < steps.length ) {
@@ -52,7 +58,6 @@ export default function AssistantWizard( { close, tasks } ) {
 			debug( 'moving to ' + ( currentStep - 1 ) );
 			setCurrentStep( currentStep - 1 );
 			setCurrentStepData( steps[ currentStep - 1 ] );
-			// Re-add previous step messages
 		}
 	};
 
@@ -104,19 +109,34 @@ export default function AssistantWizard( { close, tasks } ) {
 				{ currentStep === 1 && (
 					<TextInput
 						ref={ keywordsInputRef }
-						placeholder={ steps[ 1 ].placeholder }
-						value={ steps[ 1 ].value }
-						setValue={ steps[ 1 ].setValue }
-						handleSubmit={ steps[ 1 ].onSubmit }
+						placeholder={ steps[ currentStep ].placeholder }
+						value={ steps[ currentStep ].value }
+						setValue={ steps[ currentStep ].setValue }
+						handleSubmit={ steps[ currentStep ].onSubmit }
 					/>
 				) }
 				{ currentStep === 2 && (
 					<OptionsInput
-						disabled={ ! steps[ 2 ].value }
-						submitCtaLabel={ steps[ 2 ].submitCtaLabel }
-						retryCtaLabel={ steps[ 2 ].retryCtaLabel }
-						handleRetry={ steps[ 2 ].onRetry }
-						handleSubmit={ steps[ 2 ].onSubmit }
+						disabled={ ! steps[ currentStep ].value }
+						submitCtaLabel={ steps[ currentStep ].submitCtaLabel }
+						retryCtaLabel={ steps[ currentStep ].retryCtaLabel }
+						handleRetry={ steps[ currentStep ].onRetry }
+						handleSubmit={ steps[ currentStep ].onSubmit }
+					/>
+				) }
+				{ currentStep === 3 && (
+					<OptionsInput
+						disabled={ ! steps[ currentStep ].value }
+						submitCtaLabel={ steps[ currentStep ].submitCtaLabel }
+						retryCtaLabel={ steps[ currentStep ].retryCtaLabel }
+						handleRetry={ steps[ currentStep ].onRetry }
+						handleSubmit={ steps[ currentStep ].onSubmit }
+					/>
+				) }
+				{ currentStep === steps.length - 1 && (
+					<CompletionInput
+						submitCtaLabel={ steps[ currentStep ].submitCtaLabel }
+						handleSubmit={ steps[ currentStep ].onSubmit }
 					/>
 				) }
 			</div>

@@ -44,6 +44,8 @@ export default function SeoAssistantWizard( { close }: { close?: () => void } ) 
 					title: __( 'Your post is SEO-ready', 'jetpack' ),
 					label: 'completion',
 					type: 'completion',
+					submitCtaLabel: __( 'Done!', 'jetpack' ),
+					onSubmit: () => close(),
 					messages: [
 						{
 							content: __( "Here's your updated checklist:", 'jetpack' ),

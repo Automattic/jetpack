@@ -108,6 +108,7 @@
 		background: white;
 		border-radius: 0 0 16px 16px;
 		border-top: 1px solid var( --jp-gray-5, #e5e7eb );
+		flex-basis: 77px; // seems better than min-height
 	}
 
 	&__input {
@@ -118,6 +119,7 @@
 		align-items: center;
 		padding-right: 6px;
 		height: 44px;
+		animation: messageAppear 0.3s ease-out;
 
 		&:focus-within {
 			outline-width: 2px;
@@ -181,6 +183,7 @@
 		justify-content: flex-end;
 		align-items: center;
 		gap: 16px;
+		animation: messageAppear 0.3s ease-out;
 
 		.components-button {
 			border-radius: 20px;

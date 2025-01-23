@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import bigSkyIcon from './big-sky-icon.svg';
@@ -10,11 +10,14 @@ const randomId = () => Math.random().toString( 32 ).substring( 2, 8 );
 export const useMessages = () => {
 	const [ messages, setMessages ] = useState< Message[] >( [] );
 
-	// useEffect( () => {
-	// 	setMessages(
-	// 		initialMessages.map( rawMessage => ( { ...rawMessage, id: rawMessage.id || randomId() } ) )
-	// 	);
-	// }, [ initialMessages ] );
+	const wrapMessagesWithId = useCallback(
+		rawMessages => {
+			setMessages(
+				rawMessages.map( rawMessage => ( { ...rawMessage, id: rawMessage.id || randomId() } ) )
+			);
+		},
+		[ setMessages ]
+	);
 
 	const addMessage = async ( message: Message ) => {
 		const newMessage = {
@@ -33,8 +36,7 @@ export const useMessages = () => {
 
 	return {
 		messages,
-		setMessages,
-		// setMessages: setMessagesWithId,
+		setMessages: wrapMessagesWithId,
 		addMessage,
 		removeLastMessage,
 	};

@@ -2,7 +2,6 @@ import { createInterpolateElement, useCallback, useState, useEffect } from '@wor
 import { __, sprintf } from '@wordpress/i18n';
 import TypingMessage from './typing-message';
 import { useMessages } from './wizard-messages';
-import WizardStep from './wizard-step';
 import type { InputStep } from './types';
 
 export const useKeywordsStep = (): InputStep => {
@@ -77,8 +76,4 @@ export const useKeywordsStep = (): InputStep => {
 		value: keywords,
 		setValue: setKeywords,
 	};
-};
-
-export const KeywordsStep = ( { visible = true, messages } ) => {
-	return <WizardStep visible={ visible } messages={ messages } className="keywords-step" />;
 };

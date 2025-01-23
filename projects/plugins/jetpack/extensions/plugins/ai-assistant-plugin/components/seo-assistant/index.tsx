@@ -2,7 +2,7 @@ import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useState } from '@wordpress/element';
+import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 import { SeoPlaceholder } from '../../../../plugins/seo/components/placeholder';
@@ -18,7 +18,8 @@ export default function SeoAssistant( { disabled } ) {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'seo-tools' );
 
-	const handleClose = () => setIsOpen( false );
+	const handleOpen = useCallback( () => setIsOpen( true ), [] );
+	const handleClose = useCallback( () => setIsOpen( false ), [] );
 
 	debug( 'rendering seo-assistant entry point' );
 	return (
@@ -26,7 +27,7 @@ export default function SeoAssistant( { disabled } ) {
 			<p>{ __( 'Improve post engagement.', 'jetpack' ) }</p>
 			{ ( isModuleActive || isLoadingModules ) && (
 				<Button
-					onClick={ () => setIsOpen( true ) }
+					onClick={ handleOpen }
 					variant="secondary"
 					disabled={ isLoadingModules || isOpen || postIsEmpty || disabled }
 				>

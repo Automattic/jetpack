@@ -41,3 +41,13 @@ function UnforwardedKeywordsInput( { placeholder, value, setValue, handleSubmit 
 }
 
 export const TextInput = forwardRef( UnforwardedKeywordsInput );
+
+export const CompletionInput = ( { submitCtaLabel, handleSubmit } ) => {
+	return (
+		<div className="seo-assistant-wizard__completion">
+			<Button variant="primary" className="seo-assistant-wizard__done" onClick={ handleSubmit }>
+				{ submitCtaLabel }
+			</Button>
+		</div>
+	);
+};
