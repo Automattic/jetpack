@@ -8,7 +8,7 @@
     "packages": [
         {
             "name": "automattic/jetpack-admin-ui",
-            "version": "dev-main",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
@@ -67,7 +67,7 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-main",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
@@ -268,7 +268,7 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-changelogger",
-            "version": "dev-main",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",

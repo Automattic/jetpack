@@ -8,7 +8,7 @@
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/a8c-mc-stats",
@@ -61,7 +61,7 @@
 		},
 		{
 			"name": "automattic/jetpack-admin-ui",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/admin-ui",
@@ -120,7 +120,7 @@
 		},
 		{
 			"name": "automattic/jetpack-assets",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/assets",
@@ -189,7 +189,7 @@
 		},
 		{
 			"name": "automattic/jetpack-autoloader",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/autoloader",
@@ -257,7 +257,7 @@
 		},
 		{
 			"name": "automattic/jetpack-backup",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/backup",
@@ -341,7 +341,7 @@
 		},
 		{
 			"name": "automattic/jetpack-backup-helper-script-manager",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/backup-helper-script-manager",
@@ -395,7 +395,7 @@
 		},
 		{
 			"name": "automattic/jetpack-blaze",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/blaze",
@@ -470,7 +470,7 @@
 		},
 		{
 			"name": "automattic/jetpack-blocks",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/blocks",
@@ -526,7 +526,7 @@
 		},
 		{
 			"name": "automattic/jetpack-boost-core",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/boost-core",
@@ -581,7 +581,7 @@
 		},
 		{
 			"name": "automattic/jetpack-boost-speed-score",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/boost-speed-score",
@@ -645,7 +645,7 @@
 		},
 		{
 			"name": "automattic/jetpack-classic-theme-helper",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/classic-theme-helper",
@@ -709,7 +709,7 @@
 		},
 		{
 			"name": "automattic/jetpack-compat",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/compat",
@@ -746,7 +746,7 @@
 		},
 		{
 			"name": "automattic/jetpack-composer-plugin",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/composer-plugin",
@@ -806,7 +806,7 @@
 		},
 		{
 			"name": "automattic/jetpack-config",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/config",
@@ -878,7 +878,7 @@
 		},
 		{
 			"name": "automattic/jetpack-connection",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/connection",
@@ -964,7 +964,7 @@
 		},
 		{
 			"name": "automattic/jetpack-constants",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/constants",
@@ -1018,7 +1018,7 @@
 		},
 		{
 			"name": "automattic/jetpack-device-detection",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/device-detection",
@@ -1071,7 +1071,7 @@
 		},
 		{
 			"name": "automattic/jetpack-error",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/error",
@@ -1124,7 +1124,7 @@
 		},
 		{
 			"name": "automattic/jetpack-explat",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/explat",
@@ -1199,7 +1199,7 @@
 		},
 		{
 			"name": "automattic/jetpack-forms",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
@@ -1277,7 +1277,7 @@
 		},
 		{
 			"name": "automattic/jetpack-image-cdn",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/image-cdn",
@@ -1337,7 +1337,7 @@
 		},
 		{
 			"name": "automattic/jetpack-import",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/import",
@@ -1396,7 +1396,7 @@
 		},
 		{
 			"name": "automattic/jetpack-ip",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/ip",
@@ -1454,7 +1454,7 @@
 		},
 		{
 			"name": "automattic/jetpack-jitm",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/jitm",
@@ -1529,7 +1529,7 @@
 		},
 		{
 			"name": "automattic/jetpack-licensing",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/licensing",
@@ -1585,7 +1585,7 @@
 		},
 		{
 			"name": "automattic/jetpack-logo",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/logo",
@@ -1638,7 +1638,7 @@
 		},
 		{
 			"name": "automattic/jetpack-masterbar",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/masterbar",
@@ -1725,7 +1725,7 @@
 		},
 		{
 			"name": "automattic/jetpack-my-jetpack",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
@@ -1823,7 +1823,7 @@
 		},
 		{
 			"name": "automattic/jetpack-password-checker",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/password-checker",
@@ -1878,7 +1878,7 @@
 		},
 		{
 			"name": "automattic/jetpack-plans",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/plans",
@@ -1940,7 +1940,7 @@
 		},
 		{
 			"name": "automattic/jetpack-plugins-installer",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/plugins-installer",
@@ -1996,7 +1996,7 @@
 		},
 		{
 			"name": "automattic/jetpack-post-list",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/post-list",
@@ -2055,7 +2055,7 @@
 		},
 		{
 			"name": "automattic/jetpack-protect-models",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/protect-models",
@@ -2119,7 +2119,7 @@
 		},
 		{
 			"name": "automattic/jetpack-protect-status",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/protect-status",
@@ -2188,7 +2188,7 @@
 		},
 		{
 			"name": "automattic/jetpack-publicize",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
@@ -2264,7 +2264,7 @@
 		},
 		{
 			"name": "automattic/jetpack-redirect",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/redirect",
@@ -2319,7 +2319,7 @@
 		},
 		{
 			"name": "automattic/jetpack-roles",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/roles",
@@ -2373,7 +2373,7 @@
 		},
 		{
 			"name": "automattic/jetpack-search",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/search",
@@ -2455,7 +2455,7 @@
 		},
 		{
 			"name": "automattic/jetpack-stats",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/stats",
@@ -2516,7 +2516,7 @@
 		},
 		{
 			"name": "automattic/jetpack-stats-admin",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/stats-admin",
@@ -2583,7 +2583,7 @@
 		},
 		{
 			"name": "automattic/jetpack-status",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/status",
@@ -2647,7 +2647,7 @@
 		},
 		{
 			"name": "automattic/jetpack-sync",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/sync",
@@ -2719,7 +2719,7 @@
 		},
 		{
 			"name": "automattic/jetpack-videopress",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/videopress",
@@ -2796,7 +2796,7 @@
 		},
 		{
 			"name": "automattic/jetpack-waf",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/waf",
@@ -2864,7 +2864,7 @@
 		},
 		{
 			"name": "automattic/jetpack-wordads",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/wordads",
@@ -2943,7 +2943,7 @@
 		},
 		{
 			"name": "automattic/woocommerce-analytics",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/woocommerce-analytics",
@@ -3189,7 +3189,7 @@
 		},
 		{
 			"name": "automattic/jetpack-changelogger",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/changelogger",
@@ -3266,7 +3266,7 @@
 		},
 		{
 			"name": "automattic/patchwork-redefine-exit",
-			"version": "dev-main",
+			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
 				"url": "../../packages/patchwork-redefine-exit",

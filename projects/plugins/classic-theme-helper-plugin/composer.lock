@@ -8,7 +8,7 @@
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
-            "version": "dev-main",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/a8c-mc-stats",
@@ -61,7 +61,7 @@
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "dev-main",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
@@ -130,7 +130,7 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-main",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
@@ -198,7 +198,7 @@
         },
         {
             "name": "automattic/jetpack-classic-theme-helper",
-            "version": "dev-main",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/classic-theme-helper",
@@ -262,7 +262,7 @@
         },
         {
             "name": "automattic/jetpack-composer-plugin",
-            "version": "dev-main",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/composer-plugin",
@@ -322,7 +322,7 @@
         },
         {
             "name": "automattic/jetpack-config",
-            "version": "dev-main",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
@@ -394,7 +394,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-main",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/constants",
@@ -448,7 +448,7 @@
         },
         {
             "name": "automattic/jetpack-plugins-installer",
-            "version": "dev-main",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/plugins-installer",
@@ -504,7 +504,7 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "dev-main",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
@@ -570,7 +570,7 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-changelogger",
-            "version": "dev-main",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",

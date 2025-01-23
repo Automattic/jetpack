@@ -8,7 +8,7 @@
     "packages": [
         {
             "name": "automattic/jetpack-assets",
-            "version": "dev-main",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
@@ -77,7 +77,7 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-main",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
@@ -145,7 +145,7 @@
         },
         {
             "name": "automattic/jetpack-composer-plugin",
-            "version": "dev-main",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/composer-plugin",
@@ -205,7 +205,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-main",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/constants",
@@ -598,7 +598,7 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-changelogger",
-            "version": "dev-main",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
