@@ -12,7 +12,6 @@ import {
 	useBlockProps,
 	__experimentalBlockVariationPicker as BlockVariationPicker, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalBlockPatternSetup as BlockPatternSetup, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import { createBlock, registerBlockVariation } from '@wordpress/blocks';
 import {
@@ -25,7 +24,7 @@ import {
 	Notice,
 } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
-import { useDispatch, withSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { forwardRef, Fragment, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -74,23 +73,7 @@ const RESPONSES_PATH = `${ get( getJetpackData(), 'adminUrl', false ) }edit.php?
 const CUSTOMIZING_FORMS_URL = 'https://jetpack.com/support/jetpack-blocks/contact-form/';
 
 export const JetpackContactFormEdit = forwardRef(
-	(
-		{
-			attributes,
-			setAttributes,
-			postAuthorEmail,
-			hasInnerBlocks,
-			clientId,
-			instanceId,
-			className,
-			blockType,
-			variations,
-			defaultVariation,
-			canUserInstallPlugins,
-			style,
-		},
-		ref
-	) => {
+	( { name, attributes, setAttributes, clientId, instanceId, className, style }, ref ) => {
 		const {
 			to,
 			subject,
@@ -102,7 +85,42 @@ export const JetpackContactFormEdit = forwardRef(
 			salesforceData,
 		} = attributes;
 
-		const { replaceInnerBlocks, selectBlock } = useDispatch( blockEditorStore );
+		const { replaceInnerBlocks, selectBlock } = useDispatch( 'core/block-editor' );
+		const {
+			blockType,
+			canUserInstallPlugins,
+			defaultVariation,
+			variations,
+			hasInnerBlocks,
+			postAuthorEmail,
+		} = useSelect(
+			select => {
+				const { getBlockType, getBlockVariations, getDefaultBlockVariation } =
+					select( 'core/blocks' );
+				const { getBlocks } = select( 'core/block-editor' );
+				const { getEditedPostAttribute } = select( 'core/editor' );
+				const { getUser, canUser } = select( 'core' );
+				const innerBlocks = getBlocks( clientId );
+
+				const authorId = getEditedPostAttribute( 'author' );
+				const authorEmail = authorId && getUser( authorId ) && getUser( authorId ).email;
+				const submitButton = innerBlocks.find( block => block.name === 'jetpack/button' );
+				if ( submitButton && ! submitButton.attributes.lock ) {
+					const lock = { move: false, remove: true };
+					submitButton.attributes.lock = lock;
+				}
+
+				return {
+					blockType: getBlockType && getBlockType( name ),
+					canUserInstallPlugins: canUser( 'create', 'plugins' ),
+					defaultVariation: getDefaultBlockVariation && getDefaultBlockVariation( name, 'block' ),
+					variations: getBlockVariations && getBlockVariations( name, 'block' ),
+					hasInnerBlocks: innerBlocks.length > 0,
+					postAuthorEmail: authorEmail,
+				};
+			},
+			[ clientId, name ]
+		);
 		const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
 
 		const blockProps = useBlockProps();
@@ -119,8 +137,8 @@ export const JetpackContactFormEdit = forwardRef(
 			];
 
 		const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
-			const blocks = map( innerBlocksTemplate, ( [ name, attr, innerBlocks = [] ] ) =>
-				createBlock( name, attr, createBlocksFromInnerBlocksTemplate( innerBlocks ) )
+			const blocks = map( innerBlocksTemplate, ( [ blockName, attr, innerBlocks = [] ] ) =>
+				createBlock( blockName, attr, createBlocksFromInnerBlocksTemplate( innerBlocks ) )
 			);
 
 			return blocks;
@@ -366,35 +384,6 @@ const withThemeProvider = WrappedComponent => props => (
 	</ThemeProvider>
 );
 
-export default compose( [
-	withSelect( ( select, props ) => {
-		const { getBlockType, getBlockVariations, getDefaultBlockVariation } = select( 'core/blocks' );
-		const { getBlocks } = select( 'core/block-editor' );
-		const { getEditedPostAttribute } = select( 'core/editor' );
-		const { getUser, canUser } = select( 'core' );
-		const innerBlocks = getBlocks( props.clientId );
-
-		const authorId = getEditedPostAttribute( 'author' );
-		const authorEmail = authorId && getUser( authorId ) && getUser( authorId ).email;
-		const canUserInstallPlugins = canUser( 'create', 'plugins' );
-
-		const submitButton = innerBlocks.find( block => block.name === 'jetpack/button' );
-		if ( submitButton && ! submitButton.attributes.lock ) {
-			const lock = { move: false, remove: true };
-			submitButton.attributes.lock = lock;
-		}
-
-		return {
-			blockType: getBlockType && getBlockType( props.name ),
-			canUserInstallPlugins,
-			defaultVariation: getDefaultBlockVariation && getDefaultBlockVariation( props.name, 'block' ),
-			variations: getBlockVariations && getBlockVariations( props.name, 'block' ),
-
-			innerBlocks,
-			hasInnerBlocks: innerBlocks.length > 0,
-			postAuthorEmail: authorEmail,
-		};
-	} ),
-	withInstanceId,
-	withThemeProvider,
-] )( withStyleVariables( JetpackContactFormEdit ) );
+export default compose( [ withInstanceId, withThemeProvider ] )(
+	withStyleVariables( JetpackContactFormEdit )
+);
