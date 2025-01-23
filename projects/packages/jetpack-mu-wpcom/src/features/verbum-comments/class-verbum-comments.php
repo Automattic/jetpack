@@ -124,6 +124,8 @@ class Verbum_Comments {
 
 		if ( strpos( $primary_redirect, '.wordpress.com' ) === false ) {
 			$connect_url = add_query_arg( 'domain', $primary_redirect, $connect_url );
+		} else {
+			$connect_url = add_query_arg( 'from_comments', 'yes', $connect_url );
 		}
 
 		// Enqueue styles and scripts

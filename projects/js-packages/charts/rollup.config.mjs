@@ -1,4 +1,3 @@
-// Import necessary plugins for building the library
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
@@ -9,110 +8,41 @@ import dts from 'rollup-plugin-dts';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 import postcss from 'rollup-plugin-postcss';
 
-// Common plugins used across all build configurations
-const commonPlugins = [
-	// Automatically externalize peer dependencies
-	peerDepsExternal( {
-		includeDependencies: true,
-	} ),
-	// Locate and bundle third-party dependencies from node_modules
-	resolve( {
-		preferBuiltins: true,
-		extensions: [ '.tsx', '.ts', '.js', '.jsx' ],
-	} ),
-	// Convert CommonJS modules to ES6
-	commonjs(),
-	// Allow importing JSON files
-	json(),
-	// Process SCSS/CSS modules
-	postcss( {
-		// Configure CSS modules with scoped names
-		modules: {
-			generateScopedName: '[name]__[local]__[hash:base64:5]',
-		},
-		extract: 'style.css',
-		autoModules: false,
-		use: [ 'sass' ],
-	} ),
-];
-
-// Main bundle configuration for the entire library
 const mainConfig = {
-	// Entry point for the bundle
 	input: 'src/index.ts',
-	// Output configuration for different module formats
 	output: [
 		{
-			file: './dist/cjs/index.js',
-			format: 'cjs', // CommonJS format for Node.js
-			sourcemap: true,
-			sourcemapPathTransform: relativeSourcePath => {
-				return `/@automattic/charts/${ relativeSourcePath }`;
-			},
-		},
-		{
-			file: './dist/mjs/index.js',
-			format: 'esm', // ES modules for modern bundlers
-			sourcemap: true,
-		},
-	],
-	// Mark all dependencies as external to avoid bundling them
-	external: [ 'react', 'react-dom', /^@visx\/.*/, '@react-spring/web', 'clsx', 'tslib' ],
-	plugins: [
-		...commonPlugins,
-		// TypeScript compilation
-		typescript( {
-			tsconfig: './tsconfig.json',
-			declaration: false, // Declarations handled by dts plugin
-			sourceMap: true,
-			compilerOptions: {
-				verbatimModuleSyntax: true,
-			},
-		} ),
-		terser(),
-	],
-	// Handle circular dependencies warning
-	onwarn( warning, warn ) {
-		if ( warning.code === 'CIRCULAR_DEPENDENCY' ) {
-			return;
-		}
-		warn( warning );
-	},
-};
-
-// List of components to build individually
-const components = [
-	'components/bar-chart',
-	'components/line-chart',
-	'components/pie-chart',
-	'components/pie-semi-circle-chart',
-	'components/tooltip',
-	'components/legend',
-	'components/grid-control',
-	'providers/theme',
-];
-
-// Generate individual bundles for each component
-const componentConfigs = components.map( component => ( {
-	// Component entry point - try both .tsx and .ts extensions
-	input: `src/${ component }/index`,
-	// Output both ESM and CJS formats
-	output: [
-		{
-			file: `dist/mjs/${ component }/index.js`,
-			format: 'esm',
-			sourcemap: true,
-		},
-		{
-			file: `dist/cjs/${ component }/index.js`,
+			dir: './dist/cjs/',
 			format: 'cjs',
+			preserveModules: true,
+			preserveModulesRoot: 'src',
+			sourcemap: true,
+			sourcemapPathTransform: relativeSourcePath => `/@automattic/charts/${ relativeSourcePath }`,
+		},
+		{
+			dir: './dist/mjs/',
+			format: 'esm',
+			preserveModules: true,
+			preserveModulesRoot: 'src',
 			sourcemap: true,
 		},
 	],
-	// Same external config as main bundle
 	external: [ 'react', 'react-dom', /^@visx\/.*/, '@react-spring/web', 'clsx', 'tslib' ],
 	plugins: [
-		...commonPlugins,
+		peerDepsExternal( { includeDependencies: true } ),
+		resolve( {
+			preferBuiltins: true,
+			extensions: [ '.tsx', '.ts', '.js', '.jsx' ],
+		} ),
+		commonjs(),
+		json(),
+		postcss( {
+			extract: true, // Generate individual CSS files
+			autoModules: true, // Automatically handle .module.scss as CSS modules
+			modules: true, // Enable CSS modules
+			use: [ 'sass' ], // Enable SCSS support
+			minimize: true, // Minify the CSS
+		} ),
 		typescript( {
 			tsconfig: './tsconfig.json',
 			declaration: false,
@@ -123,12 +53,18 @@ const componentConfigs = components.map( component => ( {
 		} ),
 		terser(),
 	],
-} ) );
+	onwarn( warning, warn ) {
+		if ( warning.code === 'CIRCULAR_DEPENDENCY' ) {
+			return;
+		}
+		warn( warning );
+	},
+};
 
 // Configuration for generating TypeScript declaration files
-const typesConfig = {
+const dtsConfig = {
 	input: 'src/index.ts',
-	output: [ { file: 'dist/index.d.ts', format: 'es' } ],
+	output: [ { file: 'dist/index.d.ts' } ],
 	plugins: [
 		dts( {
 			respectExternal: true,
@@ -138,5 +74,4 @@ const typesConfig = {
 	external: [ /\.scss$/, /\.css$/, 'react', /@types\/.*/, /^@visx\/.*/, 'react/jsx-runtime' ],
 };
 
-// Export all configurations to be built in parallel
-export default defineConfig( [ mainConfig, ...componentConfigs, typesConfig ] );
+export default defineConfig( [ mainConfig, dtsConfig ] );

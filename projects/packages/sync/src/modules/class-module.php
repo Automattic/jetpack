@@ -405,20 +405,24 @@ abstract class Module {
 				$status['finished'] = true;
 				return $status;
 			}
-			$key = $this->full_sync_action_name() . '_' . crc32( wp_json_encode( $status['last_sent'] ) );
-
-			$result = $this->send_action( $this->full_sync_action_name(), array( $objects, $status['last_sent'] ), $key );
-			if ( is_wp_error( $result ) || $wpdb->last_error ) {
-				$status['error'] = true;
-				return $status;
+			// If we have objects as a key it means get_next_chunk is being overridden, we need to check for it being an empty array.
+			// In case it is an empty array, we should not send the action or increase the chunks_sent, we just need to update the status.
+			if ( ! isset( $objects['objects'] ) || array() !== $objects['objects'] ) {
+				$key    = $this->full_sync_action_name() . '_' . crc32( wp_json_encode( $status['last_sent'] ) );
+				$result = $this->send_action( $this->full_sync_action_name(), array( $objects, $status['last_sent'] ), $key );
+				if ( is_wp_error( $result ) || $wpdb->last_error ) {
+					$status['error'] = true;
+					return $status;
+				}
+				++$chunks_sent;
 			}
+
 			// Updated the sent and last_sent status.
 			$status = $this->set_send_full_sync_actions_status( $status, $objects );
 			if ( $last_item === $status['last_sent'] ) {
 				$status['finished'] = true;
 				return $status;
 			}
-			++$chunks_sent;
 		}
 
 		return $status;
