@@ -1,6 +1,8 @@
 import { Launchpad } from '@automattic/launchpad';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useRefEffect } from '@wordpress/compose';
+import { useState } from '@wordpress/element';
+import CelebrateLaunchModal from './celebrate-launch-modal';
 
 import './style.scss';
 
@@ -33,7 +35,8 @@ function useSetHrefBase() {
 	}, [] );
 }
 
-export default ( { siteDomain, siteIntent } ) => {
+export default ( { siteDomain, siteIntent, sitePlan, siteUrl, hasCustomDomain } ) => {
+	const [ celebrateLaunchModalIsOpen, setCelebrateLaunchModalIsOpen ] = useState( false );
 	return (
 		<QueryClientProvider client={ queryClient }>
 			<div ref={ useSetHrefBase() }>
@@ -41,8 +44,21 @@ export default ( { siteDomain, siteIntent } ) => {
 					siteSlug={ siteDomain }
 					checklistSlug={ siteIntent }
 					launchpadContext="dashboard-widget"
+					onSiteLaunched={ () => {
+						setCelebrateLaunchModalIsOpen( true );
+						document.getElementById( 'wpcom_launchpad_widget' ).remove();
+					} }
 				/>
 			</div>
+			{ celebrateLaunchModalIsOpen && (
+				<CelebrateLaunchModal
+					onRequestClose={ () => setCelebrateLaunchModalIsOpen( false ) }
+					sitePlan={ sitePlan }
+					siteUrl={ siteUrl }
+					siteSlug={ siteDomain }
+					hasCustomDomain={ hasCustomDomain }
+				/>
+			) }
 		</QueryClientProvider>
 	);
 };

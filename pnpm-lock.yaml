@@ -2405,6 +2405,9 @@ importers:
       '@automattic/color-studio':
         specifier: 4.0.0
         version: 4.0.0
+      '@automattic/components':
+        specifier: 2.2.0
+        version: 2.2.0(@babel/runtime@7.24.7)(@types/react@18.3.18)(@wordpress/data@10.16.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/i18n-utils':
         specifier: 1.2.3
         version: 1.2.3
@@ -2486,6 +2489,9 @@ importers:
       events:
         specifier: ^3.3.0
         version: 3.3.0
+      i18n-calypso:
+        specifier: 7.0.0
+        version: 7.0.0(@types/react@18.3.18)(react@18.3.1)
       preact:
         specifier: ^10.13.1
         version: 10.22.1

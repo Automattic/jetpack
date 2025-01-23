@@ -55,14 +55,19 @@ add_action( 'wp_dashboard_setup', 'load_wpcom_dashboard_widgets' );
 function enqueue_wpcom_dashboard_widgets() {
 	$handle = jetpack_mu_wpcom_enqueue_assets( 'wpcom-dashboard-widgets', array( 'js', 'css' ) );
 
+	require_once WP_CONTENT_DIR . '/admin-plugins/wpcom-billing.php';
+	$current_plan = WPCOM_Store_API::get_current_plan( get_current_blog_id() );
+
 	$data = wp_json_encode(
 		array(
-			'siteName'     => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
-			'siteUrl'      => home_url(),
-			'siteIconUrl'  => get_site_icon_url( 38 ),
-			'isBlockTheme' => wp_is_block_theme(),
-			'siteDomain'   => wp_parse_url( home_url(), PHP_URL_HOST ),
-			'siteIntent'   => get_option( 'site_intent' ),
+			'siteName'        => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
+			'siteUrl'         => home_url(),
+			'siteIconUrl'     => get_site_icon_url( 38 ),
+			'isBlockTheme'    => wp_is_block_theme(),
+			'siteDomain'      => wp_parse_url( home_url(), PHP_URL_HOST ),
+			'siteIntent'      => get_option( 'site_intent' ),
+			'sitePlan'        => $current_plan,
+			'hasCustomDomain' => wpcom_site_has_feature( 'custom-domain' ),
 		)
 	);
 
