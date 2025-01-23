@@ -101,7 +101,6 @@ jobs:
           echo "any-plugins=${ANY_PLUGINS}" >> "$GITHUB_OUTPUT"
 
       - name: Select WordPress version
-        if: steps.changed.outputs.any-plugins != 'false' && matrix.wp != 'none'
         run: .github/files/select-wordpress-tag.sh
 
       - name: Composer Install
