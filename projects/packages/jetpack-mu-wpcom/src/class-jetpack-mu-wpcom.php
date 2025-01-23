@@ -263,7 +263,7 @@ class Jetpack_Mu_Wpcom {
 		 * See: https://developer.wordpress.org/reference/functions/get_plugin_data/
 		 */
 		$fse_plugin                 = 'full-site-editing/full-site-editing-plugin.php';
-		$fse_plugin_path            = WP_PLUGIN_DIR . '/'. $fse_plugin;
+		$fse_plugin_path            = WP_PLUGIN_DIR . '/' . $fse_plugin;
 		$invalid_fse_version_active =
 			is_plugin_active( $fse_plugin ) &&
 			file_exists( $fse_plugin_path ) &&
