@@ -5,6 +5,7 @@ module.exports = [
 	{
 		entry: {
 			'jetpack-external-media-editor': './src/features/editor/index.js',
+			'jetpack-external-media-import-page': './src/features/admin/external-media-import.js',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,

@@ -23,6 +23,13 @@ class External_Media {
 	 * Add hooks and filters.
 	 */
 	public static function init() {
+		// Load external media import page on WordPress.com sites first.
+		// We will continue to enable the feature on all sites.
+		$host = new Host();
+		if ( $host->is_wpcom_simple() || $host->is_woa_site() ) {
+			require_once __DIR__ . '/features/admin/external-media-import.php';
+		}
+
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 	}
 
@@ -36,7 +43,7 @@ class External_Media {
 		Assets::register_script(
 			$asset_name,
 			$assets_base_path . "$asset_name/$asset_name.js",
-			__FILE__,
+			self::BASE_FILE,
 			array(
 				'enqueue'    => true,
 				'textdomain' => 'jetpack-external-media',
