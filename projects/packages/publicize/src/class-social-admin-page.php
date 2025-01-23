@@ -39,19 +39,7 @@ class Social_Admin_Page {
 	 * The constructor.
 	 */
 	private function __construct() {
-		/**
-		 * We want to hook into init after the old Social plugin,
-		 * to ensure that the new sub menu item is added after the old one.
-		 *
-		 * Thus, we use a priority of 20 instead of the default 10.
-		 *
-		 * The reason being that `add_submenu_page` allows multiple submenus with the same slug,
-		 * but `remove_submenu_page` only removes the first one it finds with the given slug.
-		 *
-		 * @see https://developer.wordpress.org/reference/functions/add_submenu_page
-		 * @see https://developer.wordpress.org/reference/functions/remove_submenu_page
-		 */
-		add_action( 'init', array( $this, 'do_init' ), 20 );
+		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 
 		/**
 		 * Admin_Menu::add_menu uses 1000, so we use 2000
@@ -74,15 +62,28 @@ class Social_Admin_Page {
 			// If it's the old social version, remove the submenu page.
 			// TODO Update the version and operator before next Social release.
 			if ( version_compare( $plugin_version, '6.0.0', '<' ) ) {
+				/**
+				 * `add_submenu_page` allows multiple submenus with the same slug,
+				 * but `remove_submenu_page` only removes the first one it finds with the given slug.
+				 *
+				 * We add the menu using `admin_menu` hook unlike the old Social plugin,
+				 * which used the `init` hook, which runs before `admin_menu`.
+				 * So, the old Social plugin's menu is before the new one in $submenu global.
+				 *
+				 * So, `remove_submenu_page` should remove the menu added by the old Social plugin.
+				 *
+				 * @see https://developer.wordpress.org/reference/functions/add_submenu_page
+				 * @see https://developer.wordpress.org/reference/functions/remove_submenu_page
+				 */
 				remove_submenu_page( 'jetpack', 'jetpack-social' );
 			}
 		}
 	}
 
 	/**
-	 * Initialize.
+	 * Add the admin menu.
 	 */
-	public function do_init() {
+	public function add_menu() {
 
 		// If Social plugin is active.
 		if ( defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) ) {
