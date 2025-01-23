@@ -258,6 +258,22 @@ class Jetpack_Mu_Wpcom {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
+		/**
+		 * Explicitly pass $markup = false in get_plugin_data to avoid indirectly calling wptexturize that could cause unintended side effects.
+		 * See: https://developer.wordpress.org/reference/functions/get_plugin_data/
+		 */
+		$fse_plugin                 = 'full-site-editing/full-site-editing-plugin.php';
+		$fse_plugin_path            = WP_PLUGIN_DIR . '/'. $fse_plugin;
+		$invalid_fse_version_active =
+			is_plugin_active( $fse_plugin ) &&
+			file_exists( $fse_plugin_path ) &&
+			is_file( $fse_plugin_path ) &&
+			version_compare( get_plugin_data( $fse_plugin_path, false )['Version'], '3.56084', '<' );
+
+		if ( $invalid_fse_version_active ) {
+			return;
+		}
+
 		if (
 			( defined( 'WPCOM_PUBLIC_COMING_SOON' ) && WPCOM_PUBLIC_COMING_SOON ) ||
 			apply_filters( 'a8c_enable_public_coming_soon', false )
