@@ -10,6 +10,9 @@
 		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev"
 	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+	},
 	"autoload": {
 		"classmap": [
 			"src/"
@@ -40,6 +43,11 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"mirror-repo": "Automattic/jetpack-external-media",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-external-media/compare/v${old}...v${new}"
+		},
+		"autotagger": true,
 		"branch-alias": {
 			"dev-trunk": "0.1.x-dev"
 		},
@@ -48,7 +56,9 @@
 			"::PACKAGE_VERSION": "src/class-external-media.php"
 		}
 	},
-	"suggest": {
-		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
+		}
 	}
 }
