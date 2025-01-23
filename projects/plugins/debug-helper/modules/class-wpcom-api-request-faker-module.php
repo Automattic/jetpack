@@ -57,6 +57,7 @@ class WPCOM_API_Request_Faker_Module {
 	 */
 	public function render() {
 		$version = '2';
+		$method  = 'get';
 
 		if ( ! class_exists( 'Automattic\Jetpack\Connection\Client' ) || ! class_exists( 'Automattic\Jetpack\Connection\Manager' ) ) {
 			echo '<p>Error: This helper requires a jetpack connection to work. Please ensure that you have set one up before using.</p>';
@@ -78,12 +79,18 @@ class WPCOM_API_Request_Faker_Module {
 
 			$api_url = '/' . sanitize_text_field( wp_unslash( $_POST['url'] ?? '' ) );
 			$version = sanitize_text_field( wp_unslash( $_POST['version'] ?? '2' ) );
+			$method  = sanitize_text_field( wp_unslash( $_POST['method'] ?? 'get' ) );
+
+			$body = null;
+			if ( 'post' === $_POST['method'] || 'put' === $_POST['method'] ) {
+				$body = json_decode( sanitize_text_field( wp_unslash( $_POST['body'] ?? '' ) ), true );
+			}
 
 			$response = Client::wpcom_json_api_request_as_blog(
 				$api_url,
 				$version,
-				array( 'method' => 'GET' ),
-				null,
+				array( 'method' => sanitize_text_field( wp_unslash( $_POST['method'] ?? '2' ) ) ),
+				$body,
 				'wpcom'
 			);
 
@@ -119,7 +126,10 @@ class WPCOM_API_Request_Faker_Module {
 						<label for="api-tester-method">Method:</label>
 						<div class="api-tester-field">
 							<select name="method" id="api-tester-method">
-								<option value="get">GET</option>
+								<option value="get" <?php echo $method === 'get' ? 'selected="selected"' : ''; ?>>GET</option>
+								<option value="post" <?php echo $method === 'post' ? 'selected="selected"' : ''; ?>>POST</option>
+								<option value="put" <?php echo $method === 'put' ? 'selected="selected"' : ''; ?>>PUT</option>
+								<option value="delete" <?php echo $method === 'delete' ? 'selected="selected"' : ''; ?>>DELETE</option>
 							</select>
 						</div>
 					</div>
@@ -140,6 +150,22 @@ class WPCOM_API_Request_Faker_Module {
 						<div class="api-tester-field">
 							<span class="rest-route-prefix">/</span>
 							<input type="text" name="url" class="input-url" id="api-tester-url" value="<?php echo esc_attr( sanitize_text_field( wp_unslash( $_POST['url'] ?? '' ) ) ); ?>">
+						</div>
+					</div>
+
+					<div class="api-tester-block api-tester-filter-post">
+						<label for="api-tester-content-type">Content-Type:<br><small>ignored if irrelevant</small></label>
+						<div class="api-tester-field">
+							<select name="content-type" id="api-tester-content-type">
+								<option name="application/json">application/json</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="api-tester-block api-tester-filter-post">
+						<label for="api-tester-body">Body:<br><small>ignored if irrelevant</small></label>
+						<div class="api-tester-field">
+							<textarea name="body" id="api-tester-body"><?php echo esc_html( sanitize_text_field( wp_unslash( $_POST['body'] ?? '' ) ) ); ?></textarea>
 						</div>
 					</div>
 
