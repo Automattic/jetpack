@@ -1,7 +1,7 @@
+import { curveNatural } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
 import {
 	XYChart,
-	AnimatedLineSeries,
 	AnimatedAreaSeries,
 	AnimatedAxis,
 	AnimatedGrid,
@@ -9,7 +9,7 @@ import {
 	buildChartTheme,
 } from '@visx/xychart';
 import clsx from 'clsx';
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { withResponsive } from '../shared/with-responsive';
@@ -89,6 +89,19 @@ const LineChart: FC< LineChartProps > = ( {
 } ) => {
 	const providerTheme = useChartTheme();
 
+	const theme = useMemo( () => {
+		const seriesColors =
+			data?.map( series => series.options?.stroke ?? '' ).filter( Boolean ) ?? [];
+		return buildChartTheme( {
+			backgroundColor: providerTheme.backgroundColor,
+			colors: [ ...seriesColors, ...providerTheme.colors ],
+			gridStyles: providerTheme.gridStyles,
+			tickLength: providerTheme?.tickLength || 0,
+			gridColor: providerTheme?.gridColor || '',
+			gridColorDark: providerTheme?.gridColorDark || '',
+		} );
+	}, [ providerTheme, data ] );
+
 	if ( ! data?.length ) {
 		return (
 			<div className={ clsx( 'line-chart-empty', styles[ 'line-chart-empty' ] ) }>Empty...</div>
@@ -107,15 +120,6 @@ const LineChart: FC< LineChartProps > = ( {
 		yAccessor: ( d: DataPointDate ) => d.value,
 	};
 
-	const theme = buildChartTheme( {
-		backgroundColor: providerTheme.backgroundColor,
-		colors: providerTheme.colors,
-		gridStyles: providerTheme.gridStyles,
-		tickLength: providerTheme?.tickLength || 0,
-		gridColor: providerTheme?.gridColor || '',
-		gridColorDark: providerTheme?.gridColorDark || '',
-	} );
-
 	return (
 		<div className={ clsx( 'line-chart', styles[ 'line-chart' ], className ) }>
 			<XYChart
@@ -127,17 +131,9 @@ const LineChart: FC< LineChartProps > = ( {
 				yScale={ { type: 'linear', nice: true } }
 			>
 				<AnimatedGrid columns={ false } numTicks={ 4 } />
-				<AnimatedAxis
-					orientation="bottom"
-					numTicks={ 5 }
-					tickFormat={ formatDateTick }
-					{ ...options?.axis?.x }
-				/>
-				<AnimatedAxis orientation="left" numTicks={ 4 } { ...options?.axis?.y } />
 
 				{ data.map( ( seriesData, index ) => {
 					const stroke = seriesData.options?.stroke ?? theme.colors[ index % theme.colors.length ];
-
 					return (
 						<>
 							<LinearGradient
@@ -147,31 +143,27 @@ const LineChart: FC< LineChartProps > = ( {
 								toOpacity={ 0.1 }
 								{ ...seriesData.options?.gradient }
 							/>
-							<AnimatedLineSeries
+							<AnimatedAreaSeries
 								key={ seriesData?.label }
 								dataKey={ seriesData?.label }
 								data={ seriesData.data as DataPointDate[] } // TODO: this needs fixing or a more specific type for each chart
 								{ ...accessors }
-								stroke={ stroke }
-								strokeWidth={ 2 }
+								fill={ withGradientFill ? `url(#area-gradient-${ index + 1 })` : undefined }
+								renderLine={ true }
+								curve={ curveNatural }
 							/>
-							{ /** Theoretically the area series should work without the line series; however it outlines the area with borders, which isn't ideal. */ }
-							{ /** TODO: Investigate whehter we could leverage area series alone. */ }
-							{ withGradientFill && (
-								<AnimatedAreaSeries
-									key={ seriesData?.label }
-									dataKey={ seriesData?.label }
-									data={ seriesData.data as DataPointDate[] } // TODO: this needs fixing or a more specific type for each chart
-									{ ...accessors }
-									stroke={ stroke }
-									strokeWidth={ 0 }
-									fill={ `url(#area-gradient-${ index + 1 })` }
-									renderLine={ false }
-								/>
-							) }
 						</>
 					);
 				} ) }
+
+				<AnimatedAxis
+					orientation="bottom"
+					numTicks={ 5 }
+					tickFormat={ formatDateTick }
+					{ ...options?.axis?.x }
+				/>
+
+				<AnimatedAxis orientation="left" numTicks={ 4 } { ...options?.axis?.y } />
 
 				{ withTooltips && (
 					<Tooltip
