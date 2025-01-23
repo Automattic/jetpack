@@ -6,8 +6,8 @@ import { useContext, useEffect, useMemo, useCallback } from 'react';
 import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
-import useActivateMultiple from '../../data/products/use-activate-multiple';
-import useInstallMultipleStandalonePlugins from '../../data/products/use-install-multiple-standalone-plugins';
+import useActivatePlugins from '../../data/products/use-activate-plugins';
+import useInstallPlugins from '../../data/products/use-install-plugins';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -97,9 +97,9 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 	}, [ needs_activated_only, needs_installed ] );
 
 	const { install: installAndActivatePlugins, isPending: isInstalling } =
-		useInstallMultipleStandalonePlugins( needs_installed );
+		useInstallPlugins( needs_installed );
 	const { activate: activatePlugins, isPending: isActivating } =
-		useActivateMultiple( needs_activated_only );
+		useActivatePlugins( needs_activated_only );
 
 	const handleInstallActivateInOneClick = useCallback( () => {
 		recordEvent( 'jetpack_my_jetpack_plugin_needs_installed_notice_cta_click' );

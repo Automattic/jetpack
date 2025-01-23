@@ -10,6 +10,7 @@ import {
 	ZendeskChat,
 	useBreakpointMatch,
 	ActionButton,
+	GlobalNotices,
 } from '@automattic/jetpack-components';
 import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useState } from 'react';
@@ -140,6 +141,7 @@ export default function MyJetpackScreen() {
 			<hr className={ styles.separator } />
 
 			<IDCModal />
+			<GlobalNotices />
 			{ ! isNewUser && (
 				<Container horizontalSpacing={ 0 }>
 					<Col>

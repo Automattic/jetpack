@@ -3,13 +3,13 @@ import { REST_API_SITE_PRODUCTS_ENDPOINT, QUERY_INSTALL_PRODUCT_KEY } from '../c
 import useSimpleMutation from '../use-simple-mutation';
 import useProducts from './use-products';
 
-const useInstallMultipleStandalonePlugins = ( productIds: string[] ) => {
+const useInstallPlugins = ( productIds: string[] ) => {
 	const { products, refetch } = useProducts( productIds );
 
 	const { mutate: install, isPending } = useSimpleMutation( {
 		name: QUERY_INSTALL_PRODUCT_KEY,
 		query: {
-			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/install-multiple-plugins`,
+			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/install`,
 			method: 'POST',
 			data: { products: productIds },
 		},
@@ -29,4 +29,4 @@ const useInstallMultipleStandalonePlugins = ( productIds: string[] ) => {
 	};
 };
 
-export default useInstallMultipleStandalonePlugins;
+export default useInstallPlugins;

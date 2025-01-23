@@ -1,4 +1,5 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { useGlobalNotices } from '@automattic/jetpack-components';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import useAnalytics from '../../hooks/use-analytics';
 import { REST_API_SITE_PRODUCTS_ENDPOINT, QUERY_ACTIVATE_PRODUCT_KEY } from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
@@ -8,6 +9,9 @@ import type { ProductCamelCase } from '../types';
 
 const setPluginActiveState = ( productId: string ) => {
 	const { items } = getMyJetpackWindowInitialState( 'products' );
+	if ( items[ productId ]?.plugin_slug === 'jetpack' ) {
+		return;
+	}
 	if ( items[ productId ]?.standalone_plugin_info.has_standalone_plugin ) {
 		window.myJetpackInitialState.products.items[
 			productId
@@ -28,9 +32,10 @@ const getIsPluginAlreadyActive = ( detail: ProductCamelCase ) => {
 	return isPluginActive;
 };
 
-const useActivateMultiple = ( productIds: string[] ) => {
+const useActivatePlugins = ( productIds: string[] ) => {
 	const { products, refetch } = useProducts( productIds );
 	const { recordEvent } = useAnalytics();
+	const { createSuccessNotice } = useGlobalNotices();
 
 	const {
 		mutate: activate,
@@ -39,13 +44,13 @@ const useActivateMultiple = ( productIds: string[] ) => {
 	} = useSimpleMutation( {
 		name: QUERY_ACTIVATE_PRODUCT_KEY,
 		query: {
-			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/activate-multiple-plugins`,
+			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/activate`,
 			method: 'POST',
 			data: { products: productIds },
 		},
 		options: {
 			onSuccess: () => {
-				products.forEach( product => {
+				products?.forEach( product => {
 					if ( ! getIsPluginAlreadyActive( product ) ) {
 						recordEvent( 'jetpack_myjetpack_product_activated', {
 							product: product.slug,
@@ -57,7 +62,15 @@ const useActivateMultiple = ( productIds: string[] ) => {
 						setPluginActiveState( product.slug );
 					}
 				} );
-				refetch();
+				refetch().then( () => {
+					createSuccessNotice(
+						sprintf(
+							/* translators: %s is the word "Plugin" or "Pluigns" (singular or plural). */
+							__( '%s activated successfully!', 'jetpack-my-jetpack' ),
+							_n( 'Plugin', 'Plugins', products?.length, 'jetpack-my-jetpack' )
+						)
+					);
+				} );
 			},
 		},
 		errorMessage: sprintf(
@@ -74,4 +87,4 @@ const useActivateMultiple = ( productIds: string[] ) => {
 	};
 };
 
-export default useActivateMultiple;
+export default useActivatePlugins;

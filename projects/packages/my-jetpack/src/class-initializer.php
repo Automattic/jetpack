@@ -1075,7 +1075,7 @@ class Initializer {
 	 */
 	public static function alert_if_last_backup_failed( array $red_bubble_slugs ) {
 		// Make sure there's a Backup paid plan
-		if ( ! Products\Backup::has_paid_plan_for_product() ) {
+		if ( ! Products\Backup::is_plugin_active() || ! Products\Backup::has_paid_plan_for_product() ) {
 			return $red_bubble_slugs;
 		}
 		// Make sure the plan isn't just recently purchased in last 30min.
