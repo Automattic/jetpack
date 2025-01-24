@@ -157,6 +157,7 @@ const LineChart: FC< LineChartProps > = ( {
 								{ ...accessors }
 								fill={ withGradientFill ? `url(#area-gradient-${ index + 1 })` : undefined }
 								renderLine={ true }
+								curve={ curveNatural }
 							/>
 						</>
 					);
