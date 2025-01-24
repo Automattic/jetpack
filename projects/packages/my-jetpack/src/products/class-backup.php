@@ -44,6 +44,13 @@ class Backup extends Hybrid_Product {
 	public static $plugin_slug = 'jetpack-backup';
 
 	/**
+	 * The category of the product
+	 *
+	 * @var string
+	 */
+	public static $category = 'security';
+
+	/**
 	 * Backup has a standalone plugin
 	 *
 	 * @var bool

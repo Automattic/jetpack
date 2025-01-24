@@ -39,6 +39,13 @@ class Social extends Hybrid_Product {
 	public static $plugin_slug = 'jetpack-social';
 
 	/**
+	 * The category of the product
+	 *
+	 * @var string
+	 */
+	public static $category = 'growth';
+
+	/**
 	 * Social has a standalone plugin
 	 *
 	 * @var bool

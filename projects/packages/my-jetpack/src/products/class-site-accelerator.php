@@ -23,6 +23,13 @@ class Site_Accelerator extends Module_Product {
 	public static $slug = 'site-accelerator';
 
 	/**
+	 * The category of the product
+	 *
+	 * @var string
+	 */
+	public static $category = 'performance';
+
+	/**
 	 * The slug of the plugin associated with this product.
 	 * Site Accelerator is a feature available as part of the Jetpack plugin.
 	 *
