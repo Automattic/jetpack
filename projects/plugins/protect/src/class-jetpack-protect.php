@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+use Automattic\Jetpack\Account_Protection\Account_Protection;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
@@ -58,6 +59,7 @@ class Jetpack_Protect {
 	);
 	const JETPACK_WAF_MODULE_SLUG                    = 'waf';
 	const JETPACK_BRUTE_FORCE_PROTECTION_MODULE_SLUG = 'protect';
+	const JETPACK_ACCOUNT_PROTECTION_MODULE_SLUG     = 'account-protection';
 	const JETPACK_PROTECT_ACTIVATION_OPTION          = JETPACK_PROTECT_SLUG . '_activated';
 
 	/**
@@ -112,6 +114,9 @@ class Jetpack_Protect {
 
 				// Web application firewall package.
 				$config->ensure( 'waf' );
+
+				// Account protection package.
+				$config->ensure( 'account_protection' );
 			},
 			1
 		);
@@ -133,6 +138,7 @@ class Jetpack_Protect {
 		REST_Controller::init();
 		My_Jetpack_Initializer::init();
 		Site_Health::init();
+		( new Account_Protection() )->init();
 
 		// Sets up JITMS.
 		JITM::configure();
@@ -208,6 +214,7 @@ class Jetpack_Protect {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$refresh_status_from_wpcom = isset( $_GET['checkPlan'] );
 		$status                    = Status::get_status( $refresh_status_from_wpcom );
+		$account_protection        = new Account_Protection();
 
 		$initial_state = array(
 			'apiRoot'            => esc_url_raw( rest_url() ),
@@ -226,6 +233,10 @@ class Jetpack_Protect {
 			'jetpackScan'        => My_Jetpack_Products::get_product( 'scan' ),
 			'hasPlan'            => Plan::has_required_plan(),
 			'onboardingProgress' => Onboarding::get_current_user_progress(),
+			'accountProtection'  => array(
+				'isEnabled' => $account_protection->is_enabled(),
+				'settings'  => $account_protection->get_settings(),
+			),
 			'waf'                => array(
 				'wafSupported'        => Waf_Runner::is_supported_environment(),
 				'currentIp'           => IP_Utils::get_ip(),
@@ -281,6 +292,7 @@ class Jetpack_Protect {
 		delete_option( self::JETPACK_PROTECT_ACTIVATION_OPTION );
 		( new Modules() )->activate( self::JETPACK_WAF_MODULE_SLUG, false, false );
 		( new Modules() )->activate( self::JETPACK_BRUTE_FORCE_PROTECTION_MODULE_SLUG, false, false );
+		( new Modules() )->activate( self::JETPACK_ACCOUNT_PROTECTION_MODULE_SLUG, false, false );
 	}
 
 	/**
@@ -338,7 +350,7 @@ class Jetpack_Protect {
 	 * @return array
 	 */
 	public function protect_filter_available_modules( $modules ) {
-		return array_merge( array( self::JETPACK_WAF_MODULE_SLUG, self::JETPACK_BRUTE_FORCE_PROTECTION_MODULE_SLUG ), $modules );
+		return array_merge( array( self::JETPACK_WAF_MODULE_SLUG, self::JETPACK_BRUTE_FORCE_PROTECTION_MODULE_SLUG, self::JETPACK_ACCOUNT_PROTECTION_MODULE_SLUG ), $modules );
 	}
 
 	/**
