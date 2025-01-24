@@ -1,5 +1,3 @@
-export * from './connection/index.js';
-
 export {
 	MarkdownToHTML,
 	HTMLToMarkdown,

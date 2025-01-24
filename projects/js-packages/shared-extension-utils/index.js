@@ -27,3 +27,4 @@ export { getBlockIconComponent, getBlockIconProp } from './src/get-block-icon-fr
 export { default as getJetpackBlocksVariation } from './src/get-jetpack-blocks-variation';
 export * from './src/modules-state';
 export { default as isMyJetpackAvailable } from './src/is-my-jetpack-available';
+export * from './src/libs';

@@ -1,7 +1,7 @@
 /*
  * External dependencies
  */
-import { isUserConnected } from '@automattic/jetpack-ai-client';
+import { isUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import { getBlockType } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
 /*

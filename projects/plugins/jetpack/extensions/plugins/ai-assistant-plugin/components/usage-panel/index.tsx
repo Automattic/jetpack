@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useAICheckout, useAiFeature, canUserPurchasePlan } from '@automattic/jetpack-ai-client';
+import { useAICheckout, useAiFeature } from '@automattic/jetpack-ai-client';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	isAtomicSite,
@@ -11,6 +11,7 @@ import {
 	PLAN_TYPE_TIERED,
 	usePlanType,
 	PlanType,
+	canUserPurchasePlan,
 } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';

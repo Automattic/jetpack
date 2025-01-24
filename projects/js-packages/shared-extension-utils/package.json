@@ -33,6 +33,7 @@
 		"@wordpress/plugins": "7.17.0",
 		"@wordpress/url": "4.17.0",
 		"clsx": "2.1.1",
+		"debug": "4.4.0",
 		"lodash": "4.17.21"
 	},
 	"devDependencies": {

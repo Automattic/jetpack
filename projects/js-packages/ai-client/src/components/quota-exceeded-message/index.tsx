@@ -2,7 +2,11 @@
  * External dependencies
  */
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
-import { useAnalytics, Nudge as StandardNudge } from '@automattic/jetpack-shared-extension-utils';
+import {
+	useAnalytics,
+	Nudge as StandardNudge,
+	canUserPurchasePlan,
+} from '@automattic/jetpack-shared-extension-utils';
 import { Notice } from '@wordpress/components';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -12,7 +16,6 @@ import debugFactory from 'debug';
  */
 import useAICheckout from '../../hooks/use-ai-checkout/index.js';
 import useAiFeature from '../../hooks/use-ai-feature/index.js';
-import { canUserPurchasePlan } from '../../libs/connection/index.js';
 import { LightNudge } from './light-nudge.js';
 import type { ReactElement } from 'react';
 import './style.scss';

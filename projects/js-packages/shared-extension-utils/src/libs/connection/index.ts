@@ -1,11 +1,11 @@
 /**
  * External dependencies
  */
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import debugFactory from 'debug';
+import { isAtomicSite, isSimpleSite } from '../../site-type-utils';
 
 const initialState = window?.JP_CONNECTION_INITIAL_STATE;
-const debug = debugFactory( 'jetpack-ai-client:connection' );
+const debug = debugFactory( 'shared-extension-utils:connection' );
 let hasCheckedConnection = false;
 
 const debugOnce = content => {

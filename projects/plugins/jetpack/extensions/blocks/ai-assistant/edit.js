@@ -11,13 +11,13 @@ import {
 	FairUsageNotice,
 	useAICheckout,
 	useAiFeature,
-	isUserConnected,
 } from '@automattic/jetpack-ai-client';
 import {
 	useAnalytics,
 	PLAN_TYPE_FREE,
 	PLAN_TYPE_UNLIMITED,
 	usePlanType,
+	isUserConnected,
 } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { rawHandler } from '@wordpress/blocks';
