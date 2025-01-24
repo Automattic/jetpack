@@ -112,8 +112,8 @@ importers:
         specifier: 29.7.0
         version: 29.7.0
       undici:
-        specifier: 5.28.4
-        version: 5.28.4
+        specifier: 5.28.5
+        version: 5.28.5
 
   projects/js-packages/ai-client:
     dependencies:
@@ -304,6 +304,9 @@ importers:
       '@visx/axis':
         specifier: ^3.12.0
         version: 3.12.0(react@18.3.1)
+      '@visx/curve':
+        specifier: 3.12.0
+        version: 3.12.0
       '@visx/event':
         specifier: ^3.8.0
         version: 3.12.0
@@ -368,6 +371,21 @@ importers:
       '@jest/globals':
         specifier: ^29.0.0
         version: 29.7.0
+      '@rollup/plugin-commonjs':
+        specifier: 26.0.1
+        version: 26.0.1(rollup@3.29.5)
+      '@rollup/plugin-json':
+        specifier: 6.1.0
+        version: 6.1.0(rollup@3.29.5)
+      '@rollup/plugin-node-resolve':
+        specifier: 15.3.0
+        version: 15.3.0(rollup@3.29.5)
+      '@rollup/plugin-terser':
+        specifier: 0.4.3
+        version: 0.4.3(rollup@3.29.5)
+      '@rollup/plugin-typescript':
+        specifier: 12.1.0
+        version: 12.1.0(rollup@3.29.5)(tslib@2.5.0)(typescript@5.7.2)
       '@storybook/blocks':
         specifier: 8.4.7
         version: 8.4.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.4.7)
@@ -440,6 +458,18 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+      rollup:
+        specifier: 3.29.5
+        version: 3.29.5
+      rollup-plugin-dts:
+        specifier: 6.1.1
+        version: 6.1.1(rollup@3.29.5)(typescript@5.7.2)
+      rollup-plugin-peer-deps-external:
+        specifier: 2.2.4
+        version: 2.2.4(rollup@3.29.5)
+      rollup-plugin-postcss:
+        specifier: 4.0.2
+        version: 4.0.2(postcss@8.4.47)
       sass:
         specifier: 1.64.1
         version: 1.64.1
@@ -13285,9 +13315,21 @@ packages:
   robust-predicates@3.0.2:
     resolution: {integrity: sha512-IXgzBWvWQwE6PrDI05OvmXUIruQTcoMDzRsOd5CDvHCVLcLHMTSYvOK5Cm46kWqlV3yAbuSpBZdJ5oP5OUoStg==}
 
+  rollup-plugin-dts@6.1.1:
+    resolution: {integrity: sha512-aSHRcJ6KG2IHIioYlvAOcEq6U99sVtqDDKVhnwt70rW6tsz3tv5OSjEiWcgzfsHdLyGXZ/3b/7b/+Za3Y6r1XA==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      rollup: ^3.29.4 || ^4
+      typescript: ^4.5 || ^5.0
+
   rollup-plugin-livereload@2.0.5:
     resolution: {integrity: sha512-vqQZ/UQowTW7VoiKEM5ouNW90wE5/GZLfdWuR0ELxyKOJUIaj+uismPZZaICU4DnWPVjnpCDDxEqwU7pcKY/PA==}
     engines: {node: '>=8.3'}
+
+  rollup-plugin-peer-deps-external@2.2.4:
+    resolution: {integrity: sha512-AWdukIM1+k5JDdAqV/Cxd+nejvno2FVLVeZ74NKggm3Q5s9cbbcOgUPGdbxPi4BXu7xGaZ8HG12F+thImYu/0g==}
+    peerDependencies:
+      rollup: '*'
 
   rollup-plugin-postcss@4.0.2:
     resolution: {integrity: sha512-05EaY6zvZdmvPUDi3uCcAQoESDcYnv8ogJJQRp6V5kZ6J6P7uAVJlrTZcaaA20wTH527YTnKfkAoPxWI/jPp4w==}
@@ -14407,8 +14449,8 @@ packages:
   undici-types@6.20.0:
     resolution: {integrity: sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg==}
 
-  undici@5.28.4:
-    resolution: {integrity: sha512-72RFADWFqKmUb2hmmvNODKL3p9hcB6Gt2DOQMis1SEBaV6a4MH8soBvzg+95CYhCKPFedut2JY9bMfrDl9D23g==}
+  undici@5.28.5:
+    resolution: {integrity: sha512-zICwjrDrcrUE0pyyJc1I2QzBkLM8FINsgOrt6WjA+BgajVq9Nxu2PbFFXUrAggLfDXlZGZBVZYw7WNV5KiBiBA==}
     engines: {node: '>=14.0'}
 
   unicode-canonical-property-names-ecmascript@2.0.1:
@@ -14960,12 +15002,12 @@ snapshots:
       '@octokit/core': 5.2.0
       '@octokit/plugin-paginate-rest': 9.2.1(@octokit/core@5.2.0)
       '@octokit/plugin-rest-endpoint-methods': 10.4.1(@octokit/core@5.2.0)
-      undici: 5.28.4
+      undici: 5.28.5
 
   '@actions/http-client@2.2.3':
     dependencies:
       tunnel: 0.0.6
-      undici: 5.28.4
+      undici: 5.28.5
 
   '@adobe/css-tools@4.4.1': {}
 
@@ -17152,6 +17194,15 @@ snapshots:
       '@rollup/pluginutils': 5.1.4(rollup@3.29.5)
       resolve: 1.22.10
       typescript: 5.0.4
+    optionalDependencies:
+      rollup: 3.29.5
+      tslib: 2.5.0
+
+  '@rollup/plugin-typescript@12.1.0(rollup@3.29.5)(tslib@2.5.0)(typescript@5.7.2)':
+    dependencies:
+      '@rollup/pluginutils': 5.1.4(rollup@3.29.5)
+      resolve: 1.22.10
+      typescript: 5.7.2
     optionalDependencies:
       rollup: 3.29.5
       tslib: 2.5.0
@@ -27180,12 +27231,24 @@ snapshots:
 
   robust-predicates@3.0.2: {}
 
+  rollup-plugin-dts@6.1.1(rollup@3.29.5)(typescript@5.7.2):
+    dependencies:
+      magic-string: 0.30.17
+      rollup: 3.29.5
+      typescript: 5.7.2
+    optionalDependencies:
+      '@babel/code-frame': 7.26.2
+
   rollup-plugin-livereload@2.0.5:
     dependencies:
       livereload: 0.9.3
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
+
+  rollup-plugin-peer-deps-external@2.2.4(rollup@3.29.5):
+    dependencies:
+      rollup: 3.29.5
 
   rollup-plugin-postcss@4.0.2(postcss@8.4.47):
     dependencies:
@@ -28327,7 +28390,7 @@ snapshots:
 
   undici-types@6.20.0: {}
 
-  undici@5.28.4:
+  undici@5.28.5:
     dependencies:
       '@fastify/busboy': 2.1.1
 

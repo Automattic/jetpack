@@ -47,9 +47,9 @@ function register_block() {
 
 	Blocks::jetpack_register_block(
 		__DIR__,
-		array( 'render_callback' => __NAMESPACE__ . '\load_assets' ),
 		array(
-			'attributes' => array(
+			'render_callback' => __NAMESPACE__ . '\load_assets',
+			'attributes'      => array(
 				'render_from_template' => array(
 					'default' => false,
 					'type'    => 'boolean',

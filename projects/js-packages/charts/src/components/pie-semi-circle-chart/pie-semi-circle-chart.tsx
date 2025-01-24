@@ -1,6 +1,6 @@
 import { localPoint } from '@visx/event';
 import { Group } from '@visx/group';
-import Pie, { type PieArcDatum } from '@visx/shape/lib/shapes/Pie';
+import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
@@ -11,11 +11,13 @@ import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../../types';
+import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
+
 interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
-	 * Size of the chart in pixels
+	 * Width of the chart in pixels; height would be half of this value calculated automatically.
 	 */
-	size?: number;
+	width?: number;
 
 	/**
 	 * Thickness of the pie chart. A value between 0 and 1
@@ -41,7 +43,7 @@ type ArcData = PieArcDatum< DataPointPercentage >;
 
 const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	data,
-	size = 500,
+	width,
 	label,
 	note,
 	className,
@@ -55,9 +57,9 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentage >();
 
-	const centerX = size / 2;
-	const height = size / 2;
-	const radius = size / 2;
+	const centerX = width / 2;
+	const height = width / 2;
+	const radius = width / 2;
 	const pad = 0.03;
 	const innerRadius = radius * ( 1 - thickness + pad );
 
@@ -118,7 +120,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 		<div
 			className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
 		>
-			<svg viewBox={ `0 0 ${ size } ${ height }` }>
+			<svg viewBox={ `0 0 ${ width } ${ height }` } width={ width } height={ height }>
 				{ /* Main chart group that contains both the pie and text elements */ }
 				<Group top={ centerX } left={ centerX }>
 					{ /* Pie chart */ }
