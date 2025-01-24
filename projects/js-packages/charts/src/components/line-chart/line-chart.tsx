@@ -18,11 +18,12 @@ import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 
 interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	margin?: { top: number; right: number; bottom: number; left: number };
-	withGradientFill?: boolean;
+	withGradientFill: boolean;
 }
 
-type TooltipData = DataPointDate & {
-	[ key: string ]: number | Date | string;
+type TooltipData = {
+	date: Date;
+	[ key: string ]: number | Date;
 };
 
 type TooltipDatum = {
@@ -66,41 +67,29 @@ const renderTooltip = ( {
 	);
 };
 
-// Validation functions
-const isValidDate = ( date: Date ) => ! isNaN( date.getTime() );
-const isValidValue = ( value: number | null | undefined ): value is number =>
-	typeof value === 'number' && ! isNaN( value );
-
-const validateData = ( data: SeriesData[] ) => {
-	if ( ! data?.length ) {
-		return 'no data available';
-	}
-
-	for ( const series of data ) {
-		if ( ! series.data?.length ) {
-			return 'invalid data';
-		}
-
-		for ( const point of series.data ) {
-			if (
-				! ( 'date' in point ) ||
-				! isValidDate( point.date as Date ) ||
-				! isValidValue( point.value )
-			) {
-				return 'invalid data';
-			}
-		}
-	}
-
-	return null;
-};
-
 const formatDateTick = ( value: number ) => {
 	const date = new Date( value );
 	return date.toLocaleDateString( undefined, {
 		month: 'short',
 		day: 'numeric',
 	} );
+};
+
+const validateData = ( data: SeriesData[] ) => {
+	if ( ! data?.length ) return 'No data available';
+
+	const hasInvalidData = data.some( series =>
+		series.data.some(
+			point =>
+				isNaN( point.value as number ) ||
+				point.value === null ||
+				point.value === undefined ||
+				isNaN( point.date.getTime() )
+		)
+	);
+
+	if ( hasInvalidData ) return 'Invalid data';
+	return null;
 };
 
 const LineChart: FC< LineChartProps > = ( {
@@ -116,10 +105,23 @@ const LineChart: FC< LineChartProps > = ( {
 	options = {},
 } ) => {
 	const providerTheme = useChartTheme();
-	const error = validateData( data );
 
+	const theme = useMemo( () => {
+		const seriesColors =
+			data?.map( series => series.options?.stroke ?? '' ).filter( Boolean ) ?? [];
+		return buildChartTheme( {
+			backgroundColor: providerTheme.backgroundColor,
+			colors: [ ...seriesColors, ...providerTheme.colors ],
+			gridStyles: providerTheme.gridStyles,
+			tickLength: providerTheme?.tickLength || 0,
+			gridColor: providerTheme?.gridColor || '',
+			gridColorDark: providerTheme?.gridColorDark || '',
+		} );
+	}, [ providerTheme, data ] );
+
+	const error = validateData( data );
 	if ( error ) {
-		return <div className={ clsx( styles[ 'line-chart' ], className ) }>{ error }</div>;
+		return <div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>{ error }</div>;
 	}
 
 	// Create legend items from group labels, this iterates over groups rather than data points
@@ -136,7 +138,7 @@ const LineChart: FC< LineChartProps > = ( {
 
 	return (
 		<div
-			className={ clsx( styles[ 'line-chart' ], className ) }
+			className={ clsx( 'line-chart', styles[ 'line-chart' ], className ) }
 			data-testid="line-chart"
 			role="img"
 			aria-label="line chart"
@@ -161,59 +163,49 @@ const LineChart: FC< LineChartProps > = ( {
 				{ data.map( ( seriesData, index ) => {
 					const stroke = seriesData.options?.stroke ?? theme.colors[ index % theme.colors.length ];
 					return (
-						<g key={ `series-${ seriesData.label }-${ index }` }>
+						<g key={ seriesData?.label || index }>
 							{ withGradientFill && (
 								<LinearGradient
-									data-testid="line-gradient"
 									id={ `area-gradient-${ index + 1 }` }
 									from={ stroke }
 									to="white"
 									toOpacity={ 0.1 }
 									{ ...seriesData.options?.gradient }
+									data-testid="line-gradient"
 								/>
 							) }
-							<AnimatedLineSeries
+							<AnimatedAreaSeries
 								key={ seriesData?.label }
 								dataKey={ seriesData?.label }
 								data={ seriesData.data as DataPointDate[] }
 								{ ...accessors }
-								stroke={ stroke }
-								strokeWidth={ 2 }
+								fill={ withGradientFill ? `url(#area-gradient-${ index + 1 })` : undefined }
+								renderLine={ true }
+								curve={ curveNatural }
 							/>
-							{ withGradientFill && (
-								<AnimatedAreaSeries
-									key={ `${ seriesData?.label }-area` }
-									dataKey={ `${ seriesData?.label }-area` }
-									data={ seriesData.data as DataPointDate[] }
-									{ ...accessors }
-									stroke={ stroke }
-									strokeWidth={ 0 }
-									fill={ `url(#area-gradient-${ index + 1 })` }
-									renderLine={ false }
-								/>
-							) }
 						</g>
 					);
 				} ) }
 
 				{ withTooltips && (
-					<Tooltip< DataPointDate >
+					<Tooltip
 						snapTooltipToDatumX
 						snapTooltipToDatumY
-						showVerticalCrosshair
+						showSeriesGlyphs
 						renderTooltip={ renderTooltip }
 					/>
 				) }
 			</XYChart>
+
 			{ showLegend && (
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
-					className={ styles[ 'line-chart__legend' ] }
+					className={ styles[ 'line-chart-legend' ] }
 				/>
 			) }
 		</div>
 	);
 };
 
-export default withResponsive( LineChart );
+export default withResponsive< LineChartProps >( LineChart );
