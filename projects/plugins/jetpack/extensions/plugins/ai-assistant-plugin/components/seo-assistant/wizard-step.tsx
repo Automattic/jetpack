@@ -8,7 +8,7 @@ export default function WizardStep( {
 	visible,
 	loading = false,
 	options = [],
-	onSelect = () => {},
+	onSelect,
 } ) {
 	const stepRef = useRef( null );
 	const classes = clsx( 'assistant-wizard-step', className );

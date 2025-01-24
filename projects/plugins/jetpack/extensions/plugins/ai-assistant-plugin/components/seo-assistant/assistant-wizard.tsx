@@ -8,7 +8,7 @@ import { useMetaDescriptionStep } from './use-meta-description-step';
 import { useTitleStep } from './use-title-step';
 import { OptionsInput, TextInput, CompletionInput } from './wizard-input';
 import WizardStep from './wizard-step';
-import type { Step } from './types';
+import type { Step, Option } from './types';
 
 const debug = debugFactory( 'jetpack-seo:assistant-wizard' );
 
@@ -52,6 +52,26 @@ export default function AssistantWizard( { close, tasks } ) {
 		// always give half a second before moving forward
 		setTimeout( handleNext, 500 );
 	}, [ currentStep, handleNext, steps ] );
+
+	const jumpToStep = useCallback(
+		stepNumber => {
+			if ( stepNumber < steps.length - 1 ) {
+				setCurrentStep( stepNumber );
+				setCurrentStepData( stepNumber );
+			}
+		},
+		[ steps ]
+	);
+
+	const handleSelect = useCallback(
+		( stepNumber: number, option: Option ) => {
+			if ( stepNumber !== currentStep ) {
+				jumpToStep( stepNumber );
+			}
+			steps[ stepNumber ].onSelect?.( option );
+		},
+		[ currentStep, jumpToStep, steps ]
+	);
 
 	// Initialize current step data
 	useEffect( () => {
@@ -109,7 +129,7 @@ export default function AssistantWizard( { close, tasks } ) {
 						messages={ step.messages }
 						visible={ currentStep >= index }
 						options={ step.options || [] }
-						onSelect={ step.onSelect ? step.onSelect : () => {} }
+						onSelect={ option => handleSelect( index, option ) }
 					/>
 				) ) }
 				<div ref={ stepsEndRef } />
