@@ -1069,7 +1069,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 				$project_type_link = get_term_link( $project_type, self::CUSTOM_TAXONOMY_TYPE );
 
 				if ( is_wp_error( $project_type_link ) ) {
-					return $project_type_link;
+					return '';
 				}
 
 				$types[] = '<a href="' . esc_url( $project_type_link ) . '" rel="tag">' . esc_html( $project_type->name ) . '</a>';
@@ -1102,7 +1102,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 				$project_tag_link = get_term_link( $project_tag, self::CUSTOM_TAXONOMY_TYPE );
 
 				if ( is_wp_error( $project_tag_link ) ) {
-					return $project_tag_link;
+					return '';
 				}
 
 				$tags[] = '<a href="' . esc_url( $project_tag_link ) . '" rel="tag">' . esc_html( $project_tag->name ) . '</a>';

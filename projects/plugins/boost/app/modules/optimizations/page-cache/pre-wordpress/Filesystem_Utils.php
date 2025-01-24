@@ -112,8 +112,9 @@ class Filesystem_Utils {
 		 * @param array $parameters The array of components, url, cookies, get parameters, etc.
 		 *
 		 * @since   1.0.0
+		 * @deprecated 3.8.0
 		 */
-		$key_components = apply_filters( 'boost_cache_key_components', $parameters );
+		$key_components = apply_filters_deprecated( 'boost_cache_key_components', array( $parameters ), '3.8.0', 'jetpack_boost_cache_parameters' );
 
 		return md5( json_encode( $key_components ) ) . '.html'; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 	}
