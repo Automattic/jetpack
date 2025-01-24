@@ -75,6 +75,23 @@ const formatDateTick = ( value: number ) => {
 	} );
 };
 
+const validateData = ( data: SeriesData[] ) => {
+	if ( ! data?.length ) return 'No data available';
+
+	const hasInvalidData = data.some( series =>
+		series.data.some(
+			point =>
+				isNaN( point.value as number ) ||
+				point.value === null ||
+				point.value === undefined ||
+				isNaN( point.date.getTime() )
+		)
+	);
+
+	if ( hasInvalidData ) return 'Invalid data';
+	return null;
+};
+
 const LineChart: FC< LineChartProps > = ( {
 	data,
 	width,
@@ -102,10 +119,9 @@ const LineChart: FC< LineChartProps > = ( {
 		} );
 	}, [ providerTheme, data ] );
 
-	if ( ! data?.length ) {
-		return (
-			<div className={ clsx( 'line-chart-empty', styles[ 'line-chart-empty' ] ) }>Empty...</div>
-		);
+	const error = validateData( data );
+	if ( error ) {
+		return <div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>{ error }</div>;
 	}
 
 	// Create legend items from group labels, this iterates over groups rather than data points
@@ -121,7 +137,12 @@ const LineChart: FC< LineChartProps > = ( {
 	};
 
 	return (
-		<div className={ clsx( 'line-chart', styles[ 'line-chart' ], className ) }>
+		<div
+			className={ clsx( 'line-chart', styles[ 'line-chart' ], className ) }
+			data-testid="line-chart"
+			role="img"
+			aria-label="line chart"
+		>
 			<XYChart
 				theme={ theme }
 				width={ width }
@@ -142,24 +163,27 @@ const LineChart: FC< LineChartProps > = ( {
 				{ data.map( ( seriesData, index ) => {
 					const stroke = seriesData.options?.stroke ?? theme.colors[ index % theme.colors.length ];
 					return (
-						<>
-							<LinearGradient
-								id={ `area-gradient-${ index + 1 }` }
-								from={ stroke }
-								to="white"
-								toOpacity={ 0.1 }
-								{ ...seriesData.options?.gradient }
-							/>
+						<g key={ seriesData?.label || index }>
+							{ withGradientFill && (
+								<LinearGradient
+									id={ `area-gradient-${ index + 1 }` }
+									from={ stroke }
+									to="white"
+									toOpacity={ 0.1 }
+									{ ...seriesData.options?.gradient }
+									data-testid="line-gradient"
+								/>
+							) }
 							<AnimatedAreaSeries
 								key={ seriesData?.label }
 								dataKey={ seriesData?.label }
-								data={ seriesData.data as DataPointDate[] } // TODO: this needs fixing or a more specific type for each chart
+								data={ seriesData.data as DataPointDate[] }
 								{ ...accessors }
 								fill={ withGradientFill ? `url(#area-gradient-${ index + 1 })` : undefined }
 								renderLine={ true }
 								curve={ curveNatural }
 							/>
-						</>
+						</g>
 					);
 				} ) }
 

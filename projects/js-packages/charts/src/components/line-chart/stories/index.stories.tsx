@@ -115,3 +115,69 @@ GridientFilled.args = {
 		axis: { x: { numTicks: 10 }, y: { orientation: 'right' } },
 	},
 };
+
+export const ErrorStates: StoryObj< typeof LineChart > = {
+	render: () => (
+		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
+			<div>
+				<h3>Empty Data</h3>
+				<LineChart width={ 300 } height={ 200 } data={ [] } />
+			</div>
+			<div>
+				<h3>Invalid Date Values</h3>
+				<LineChart
+					width={ 300 }
+					height={ 200 }
+					data={ [
+						{
+							label: 'Invalid Dates',
+							data: [
+								{ date: new Date( 'invalid' ), value: 10 },
+								{ date: new Date( '2024-01-02' ), value: 20 },
+							],
+							options: {},
+						},
+					] }
+				/>
+			</div>
+			<div>
+				<h3>Invalid Values</h3>
+				<LineChart
+					width={ 300 }
+					height={ 200 }
+					data={ [
+						{
+							label: 'Invalid Values',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: NaN },
+								{ date: new Date( '2024-01-02' ), value: null as number | null },
+							],
+							options: {},
+						},
+					] }
+				/>
+			</div>
+			<div>
+				<h3>Single Data Point</h3>
+				<LineChart
+					width={ 300 }
+					height={ 200 }
+					data={ [
+						{
+							label: 'Single Point',
+							data: [ { date: new Date( '2024-01-01' ), value: 100 } ],
+							options: {},
+						},
+					] }
+				/>
+			</div>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story: 'Examples of how the line chart handles various error states and edge cases.',
+			},
+		},
+	},
+};

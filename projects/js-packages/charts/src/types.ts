@@ -13,8 +13,8 @@ export type DataPoint = {
 
 export type DataPointDate = {
 	date: Date;
+	value: number | null;
 	label?: string;
-	value: number;
 };
 
 export type SeriesData = {
