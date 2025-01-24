@@ -133,6 +133,11 @@ class Contact_Form_Block {
 	 * @return string
 	 */
 	public static function gutenblock_render_form( $atts, $content ) {
+		// If the user has not selected any type of form lets not display the default form but display nothing.
+		if ( empty( $atts ) && trim( $content ) === '<div class="wp-block-jetpack-contact-form"></div>' ) {
+			return '';
+		}
+
 		// We should not render block is module is disabled
 		if ( ! Jetpack::is_module_active( 'contact-form' ) ) {
 			return '';
