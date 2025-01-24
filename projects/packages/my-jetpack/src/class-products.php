@@ -210,17 +210,17 @@ class Products {
 	 * @return array Jetpack products on the site and their availability.
 	 */
 	public static function get_products( $product_slugs = array() ) {
-		$products = array();
+		$all_classes = self::get_products_classes();
+		$products    = array();
 		// If no array of $product_slugs are passed, return All products
 		if ( ! $product_slugs ) {
-			foreach ( self::get_products_classes() as $class ) {
-				$product_slug              = $class::$slug;
-				$products[ $product_slug ] = $class::get_info();
+			foreach ( $all_classes as $slug => $class ) {
+				$products[ $slug ] = $class::get_info();
 			}
+
 			return $products;
 		}
 		// Otherwise return only the products specified in $product_slugs array.
-		$all_classes = self::get_products_classes();
 		foreach ( $product_slugs as $product_slug ) {
 			if ( isset( $all_classes[ $product_slug ] ) ) {
 				$class                     = $all_classes[ $product_slug ];

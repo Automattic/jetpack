@@ -1,44 +1,18 @@
 import { useCallback } from 'react';
 import { REST_API_SITE_PRODUCTS_ENDPOINT, QUERY_PRODUCT_KEY } from '../constants';
 import useSimpleQuery from '../use-simple-query';
-import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
-import mapObjectKeysToCamel from '../utils/to-camel';
-import type { ProductCamelCase, ProductSnakeCase, WP_Error } from '../types';
+import { useAllProducts } from './use-all-products';
+import type { ProductSnakeCase, WP_Error } from '../types';
 import type { RefetchOptions, QueryObserverResult } from '@tanstack/react-query';
-
-const getFullPricePerMonth = ( product: ProductCamelCase ) => {
-	return product.pricingForUi.productTerm === 'year'
-		? Math.round( ( product.pricingForUi.fullPrice / 12 ) * 100 ) / 100
-		: product.pricingForUi.fullPrice;
-};
-
-const getDiscountPricePerMonth = ( product: ProductCamelCase ) => {
-	return product.pricingForUi.productTerm === 'year'
-		? Math.round( ( product.pricingForUi.discountPrice / 12 ) * 100 ) / 100
-		: product.pricingForUi.discountPrice;
-};
-
-export const useAllProducts = (): { [ key: string ]: ProductCamelCase } => {
-	const { items: products } = getMyJetpackWindowInitialState( 'products' );
-
-	if ( ! products ) {
-		return {};
-	}
-
-	return Object.entries( products ).reduce(
-		( acc, [ key, product ] ) => ( { ...acc, [ key ]: prepareProductData( product ) } ),
-		{}
-	);
-};
 
 // Create query to fetch new product data from the server
 const useFetchProducts = ( productIds: string[] ) => {
-	const slugsQueryArg =
-		productIds && productIds?.length ? `?slugs=${ productIds?.join( ',' ) }` : '';
-	const queryResult = useSimpleQuery< ProductSnakeCase[] >( {
+	const productsQueryArg =
+		productIds && productIds?.length ? `?products=${ productIds?.join( ',' ) }` : '';
+	const queryResult = useSimpleQuery< { [ key: string ]: ProductSnakeCase } >( {
 		name: `${ QUERY_PRODUCT_KEY }`,
 		query: {
-			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }${ slugsQueryArg }`,
+			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }${ productsQueryArg }`,
 		},
 		options: { enabled: false },
 	} );
@@ -50,28 +24,13 @@ const useFetchProducts = ( productIds: string[] ) => {
 const refetchProducts = async (
 	refetch: (
 		options?: RefetchOptions
-	) => Promise< QueryObserverResult< ProductSnakeCase[], WP_Error > >
+	) => Promise< QueryObserverResult< { [ key: string ]: ProductSnakeCase }, WP_Error > >
 ) => {
 	const { data: refetchedProducts } = await refetch();
 
 	Object.keys( refetchedProducts ).forEach( productSlug => {
 		window.myJetpackInitialState.products.items[ productSlug ] = refetchedProducts[ productSlug ];
 	} );
-};
-
-const prepareProductData = ( product: ProductSnakeCase ) => {
-	// The mapObjectKeysToCamel is typed correctly, however we are adding new fields
-	// to the product object that don't exist on the global state object
-	// Therefore we still need to cast the object to the correct type
-	const camelProduct = mapObjectKeysToCamel( product ) as ProductCamelCase;
-
-	camelProduct.features = camelProduct.features || [];
-	camelProduct.supportedProducts = camelProduct.supportedProducts || [];
-
-	camelProduct.pricingForUi.fullPricePerMonth = getFullPricePerMonth( camelProduct );
-	camelProduct.pricingForUi.discountPricePerMonth = getDiscountPricePerMonth( camelProduct );
-
-	return camelProduct;
 };
 
 const useProducts = ( productIds: string[] ) => {

@@ -26,23 +26,16 @@ class REST_Products {
 					'callback'            => __CLASS__ . '::get_products',
 					'permission_callback' => __CLASS__ . '::permissions_callback',
 					'args'                => array(
-						'slugs' => array(
-							'description' => __( 'Comma seperated list of product slugs that should be retrieved.', 'jetpack-my-jetpack' ),
-							'type'        => 'string',
-							'required'    => false,
+						'products' => array(
+							'description'       => __( 'Comma seperated list of product slugs that should be retrieved.', 'jetpack-my-jetpack' ),
+							'type'              => 'string',
+							'required'          => false,
+							'validate_callback' => __CLASS__ . '::check_products_string',
 						),
 					),
 				),
 				'schema' => array( $this, 'get_products_schema' ),
 			)
-		);
-
-		$product_arg = array(
-			'description'       => __( 'Product slug', 'jetpack-my-jetpack' ),
-			'type'              => 'string',
-			'enum'              => Products::get_products_slugs(),
-			'required'          => true,
-			'validate_callback' => __CLASS__ . '::check_product_argument',
 		);
 
 		$products_arg = array(
@@ -88,43 +81,15 @@ class REST_Products {
 
 		register_rest_route(
 			'my-jetpack/v1',
-			'site/products/(?P<product>[a-z\-]+)',
+			'site/products/deactivate',
 			array(
-				array(
-					'methods'             => \WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_product',
-					'permission_callback' => __CLASS__ . '::permissions_callback',
-					'args'                => array(
-						'product' => $product_arg,
-					),
-				),
-				array(
-					'methods'             => \WP_REST_Server::EDITABLE,
-					'callback'            => __CLASS__ . '::activate_product',
-					'permission_callback' => __CLASS__ . '::edit_permissions_callback',
-					'args'                => array(
-						'product' => $product_arg,
-					),
-				),
 				array(
 					'methods'             => \WP_REST_Server::DELETABLE,
-					'callback'            => __CLASS__ . '::deactivate_product',
+					'callback'            => __CLASS__ . '::deactivate_products',
 					'permission_callback' => __CLASS__ . '::edit_permissions_callback',
 					'args'                => array(
-						'product' => $product_arg,
+						'products' => $products_arg,
 					),
-				),
-			)
-		);
-
-		register_rest_route(
-			'my-jetpack/v1',
-			'site/products/(?P<product>[a-z\-]+)/install-standalone',
-			array(
-				array(
-					'methods'             => \WP_REST_Server::EDITABLE,
-					'callback'            => __CLASS__ . '::install_standalone',
-					'permission_callback' => __CLASS__ . '::edit_permissions_callback',
 				),
 			)
 		);
@@ -169,7 +134,7 @@ class REST_Products {
 	}
 
 	/**
-	 * Check Product arguments.
+	 * Check Products string (comma separated string).
 	 *
 	 * @access public
 	 * @static
@@ -177,13 +142,32 @@ class REST_Products {
 	 * @param  mixed $value - Value of the 'product' argument.
 	 * @return true|WP_Error   True if the value is valid, WP_Error otherwise.
 	 */
-	public static function check_product_argument( $value ) {
+	public static function check_products_string( $value ) {
 		if ( ! is_string( $value ) ) {
 			return new WP_Error(
 				'rest_invalid_param',
 				esc_html__( 'The product argument must be a string.', 'jetpack-my-jetpack' ),
 				array( 'status' => 400 )
 			);
+		}
+
+		$products_array = explode( ',', $value );
+		$all_products   = Products::get_products_slugs();
+
+		foreach ( $products_array as $product_slug ) {
+			if ( ! in_array( $product_slug, $all_products, true ) ) {
+				return new WP_Error(
+					'rest_invalid_param',
+					esc_html(
+						sprintf(
+							/* translators: %s is the product_slug, it should Not be translated. */
+							__( 'The specified product argument %s is an invalid product.', 'jetpack-my-jetpack' ),
+							$product_slug
+						)
+					),
+					array( 'status' => 400 )
+				);
+			}
 		}
 
 		return true;
@@ -194,11 +178,11 @@ class REST_Products {
 	 * @access public
 	 * @static
 	 *
-	 * @param  array $products_array - An array of product slug strings.
+	 * @param  mixed $value - Value of the 'product' argument.
 	 * @return true|WP_Error   True if the value is valid, WP_Error otherwise.
 	 */
-	public static function check_products_argument( $products_array ) {
-		if ( ! is_array( $products_array ) ) {
+	public static function check_products_argument( $value ) {
+		if ( ! is_array( $value ) ) {
 			return new WP_Error(
 				'rest_invalid_param',
 				esc_html__( 'The product argument must be an array.', 'jetpack-my-jetpack' ),
@@ -216,7 +200,7 @@ class REST_Products {
 	 * @return array of site products list.
 	 */
 	public static function get_products( $request ) {
-		$slugs         = $request->get_param( 'slugs' );
+		$slugs         = $request->get_param( 'products' );
 		$product_slugs = ! empty( $slugs ) ? array_map( 'trim', explode( ',', $slugs ) ) : array();
 
 		$response = Products::get_products( $product_slugs );
@@ -237,17 +221,6 @@ class REST_Products {
 	}
 
 	/**
-	 * Site single product endpoint.
-	 *
-	 * @param \WP_REST_Request $request The request object.
-	 * @return array of site products list.
-	 */
-	public static function get_product( $request ) {
-		$product_slug = $request->get_param( 'product' );
-		return rest_ensure_response( Products::get_product( $product_slug ), 200 );
-	}
-
-	/**
 	 * Check permission to edit product
 	 *
 	 * @return bool
@@ -260,33 +233,6 @@ class REST_Products {
 			return false;
 		}
 		return true;
-	}
-
-	/**
-	 * Callback for activating a product
-	 *
-	 * @param \WP_REST_Request $request The request object.
-	 * @return \WP_REST_Response
-	 */
-	public static function activate_product( $request ) {
-		$product_slug = $request->get_param( 'product' );
-		$product      = Products::get_product( $product_slug );
-		if ( ! isset( $product['class'] ) ) {
-			return new \WP_Error(
-				'not_implemented',
-				esc_html__( 'The product class handler is not implemented', 'jetpack-my-jetpack' ),
-				array( 'status' => 501 )
-			);
-		}
-
-		$activate_product_result = call_user_func( array( $product['class'], 'activate' ) );
-		if ( is_wp_error( $activate_product_result ) ) {
-			$activate_product_result->add_data( array( 'status' => 400 ) );
-			return $activate_product_result;
-		}
-		set_transient( 'my_jetpack_product_activated', $product_slug, 10 );
-
-		return rest_ensure_response( Products::get_product( $product_slug ), 200 );
 	}
 
 	/**
@@ -324,52 +270,33 @@ class REST_Products {
 	}
 
 	/**
-	 * Callback for deactivating a product
+	 * Callback for deactivating products
 	 *
 	 * @param \WP_REST_Request $request The request object.
 	 * @return \WP_REST_Response
 	 */
-	public static function deactivate_product( $request ) {
-		$product_slug = $request->get_param( 'product' );
-		$product      = Products::get_product( $product_slug );
-		if ( ! isset( $product['class'] ) ) {
-			return new \WP_Error(
-				'not_implemented',
-				esc_html__( 'The product class handler is not implemented', 'jetpack-my-jetpack' ),
-				array( 'status' => 501 )
-			);
-		}
+	public static function deactivate_products( $request ) {
+		$products_array = $request->get_param( 'products' );
 
-		$deactivate_product_result = call_user_func( array( $product['class'], 'deactivate' ) );
-		if ( is_wp_error( $deactivate_product_result ) ) {
-			$deactivate_product_result->add_data( array( 'status' => 400 ) );
-			return $deactivate_product_result;
-		}
+		foreach ( $products_array as $product_slug ) {
+			$product = Products::get_product( $product_slug );
+			if ( ! isset( $product['class'] ) ) {
+				return new \WP_Error(
+					'product_class_handler_not_found',
+					sprintf(
+						/* translators: %s is the product_slug */
+						__( 'The product slug %s does not have an associated class handler.', 'jetpack-my-jetpack' ),
+						$product_slug
+					),
+					array( 'status' => 501 )
+				);
+			}
 
-		return rest_ensure_response( Products::get_product( $product_slug ), 200 );
-	}
-
-	/**
-	 * Callback for installing the standalone plugin on a Hybrid Product.
-	 *
-	 * @param \WP_REST_Request $request The request object.
-	 * @return \WP_REST_Response
-	 */
-	public static function install_standalone( $request ) {
-		$product_slug = $request->get_param( 'product' );
-		$product      = Products::get_product( $product_slug );
-		if ( ! isset( $product['class'] ) ) {
-			return new \WP_Error(
-				'not_implemented',
-				__( 'The product class handler is not implemented', 'jetpack-my-jetpack' ),
-				array( 'status' => 501 )
-			);
-		}
-
-		$install_product_result = call_user_func( array( $product['class'], 'install_and_activate_standalone' ) );
-		if ( is_wp_error( $install_product_result ) ) {
-			$install_product_result->add_data( array( 'status' => 400 ) );
-			return $install_product_result;
+			$deactivate_product_result = call_user_func( array( $product['class'], 'deactivate' ) );
+			if ( is_wp_error( $deactivate_product_result ) ) {
+				$deactivate_product_result->add_data( array( 'status' => 400 ) );
+				return $deactivate_product_result;
+			}
 		}
 
 		return rest_ensure_response( Products::get_product( $product_slug ), 200 );
