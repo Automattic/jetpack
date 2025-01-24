@@ -64,24 +64,9 @@ export const useTitleStep = (): Step => {
 		setTitleOptions( newTitles || titleOptions );
 	}, [ titleOptions, addMessage, removeLastMessage ] );
 
-	const replaceOptionsWithFauxUseMessages = useCallback( () => {
-		const optionsMessage = {
-			id: 'title-options-' + Math.random(),
-			content: '',
-			type: 'past-options',
-			options: [],
-			showIcon: false,
-		};
-		// removeLastMessage();
-		titleOptions.forEach( titleOption => {
-			optionsMessage.options.push( { ...titleOption } );
-		} );
-		addMessage( optionsMessage );
-	}, [ titleOptions, addMessage ] );
-
 	const handleTitleRegenerate = useCallback( async () => {
 		// This would typically be an async call to generate new titles
-		replaceOptionsWithFauxUseMessages();
+		// replaceOptionsWithFauxUseMessages();
 		setTitleOptions( [] );
 		addMessage( { content: <TypingMessage /> } );
 		const newTitles = await new Promise< Array< Option > >( resolve =>
@@ -109,29 +94,19 @@ export const useTitleStep = (): Step => {
 			),
 		} );
 		setTitleOptions( newTitles );
-	}, [ addMessage, removeLastMessage, replaceOptionsWithFauxUseMessages ] );
+	}, [ addMessage, removeLastMessage ] );
 
 	const handleTitleSubmit = useCallback( async () => {
-		replaceOptionsWithFauxUseMessages();
 		addMessage( { content: <TypingMessage /> } );
 		await editPost( { title: selectedTitle, meta: { jetpack_seo_html_title: selectedTitle } } );
 		removeLastMessage();
 		addMessage( { content: __( 'Title updated! ✅', 'jetpack' ) } );
 		setCompleted( true );
-	}, [
-		selectedTitle,
-		addMessage,
-		replaceOptionsWithFauxUseMessages,
-		editPost,
-		removeLastMessage,
-	] );
+	}, [ selectedTitle, addMessage, editPost, removeLastMessage ] );
 
 	const handleSkip = useCallback( () => {
-		if ( titleOptions.length ) {
-			replaceOptionsWithFauxUseMessages();
-		}
 		addMessage( { content: __( 'Skipped!', 'jetpack' ) } );
-	}, [ addMessage, titleOptions, replaceOptionsWithFauxUseMessages ] );
+	}, [ addMessage ] );
 
 	return {
 		id: 'title',
