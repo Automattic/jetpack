@@ -230,7 +230,7 @@ class Doc_Parser {
 
 					$result .= $expression_children['name'] . '(';
 					$first   = true;
-					// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+
 					foreach ( $children['args']->children as $argument ) {
 						if ( $first ) {
 							$first = false;
