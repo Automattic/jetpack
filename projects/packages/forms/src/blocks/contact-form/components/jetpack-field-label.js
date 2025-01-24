@@ -1,8 +1,36 @@
 import { RichText } from '@wordpress/block-editor';
+import { createBlock, getDefaultBlockName } from '@wordpress/blocks';
+import { useRefEffect } from '@wordpress/compose';
+import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { FORM_STYLE } from '../util/form';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
+
+function useEnter( props ) {
+	const propsRef = useRef( props );
+	propsRef.current = props;
+
+	return useRefEffect( element => {
+		const { insertBlocksAfter } = propsRef.current;
+		if ( ! insertBlocksAfter ) {
+			return;
+		}
+		function onKeyDown( event ) {
+			if ( event.defaultPrevented || event.key !== 'Enter' || event.shiftKey ) {
+				return;
+			}
+
+			event.preventDefault();
+			insertBlocksAfter( createBlock( getDefaultBlockName() ) );
+		}
+
+		element.addEventListener( 'keydown', onKeyDown );
+		return () => {
+			element.removeEventListener( 'keydown', onKeyDown );
+		};
+	}, [] );
+}
 
 const FieldLabel = ( {
 	attributes,
@@ -15,12 +43,15 @@ const FieldLabel = ( {
 	required,
 	requiredText,
 	setAttributes,
+	insertBlocksAfter,
 } ) => {
 	const { labelStyle } = useJetpackFieldStyles( attributes );
+	const useEnterRef = useEnter( { insertBlocksAfter } );
 
 	return (
 		<div className={ clsx( className, 'jetpack-field-label' ) } style={ labelStyle }>
 			<RichText
+				ref={ useEnterRef }
 				tagName="label"
 				value={ label }
 				className="jetpack-field-label__input"
