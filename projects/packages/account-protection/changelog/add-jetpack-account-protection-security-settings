@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Adds handling for module activation and deactivation
