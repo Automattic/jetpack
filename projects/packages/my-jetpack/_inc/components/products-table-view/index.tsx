@@ -2,7 +2,7 @@ import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import { useMemo, useCallback, useState } from 'react';
 import useProduct from '../../data/products/use-product';
-import ListButton from './ListButton';
+import ActionButton from '../action-button';
 import CategoryFilterControl from './category-filter-control';
 import {
 	PRODUCT_TABLE_TITLE,
@@ -119,7 +119,7 @@ const getFields = () => {
 				const { product } = item;
 				const { slug } = product;
 
-				return <ListButton slug={ slug } />;
+				return <ActionButton slug={ slug } tracksIdentifier="product_list_item" />;
 			},
 		},
 	];
