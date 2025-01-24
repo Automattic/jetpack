@@ -4,6 +4,7 @@ import { useCallback, useEffect } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
+import useConnectSite from '../../hooks/use-connect-site';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import ActionButton from '../action-button';
 import SecondaryButton from '../action-button/secondary-button';
@@ -13,7 +14,7 @@ import RecommendationActions from './recommendation-actions';
 import Status from './status';
 import styles from './style.module.scss';
 import type { AdditionalAction, SecondaryAction } from '../action-button/types';
-import type { FC, MouseEventHandler, ReactNode } from 'react';
+import type { FC, MouseEventHandler, ReactNode, MouseEvent } from 'react';
 
 export type ProductCardProps = {
 	children?: ReactNode;
@@ -21,7 +22,6 @@ export type ProductCardProps = {
 	Description: FC;
 	admin: boolean;
 	recommendation?: boolean;
-	isFetching?: boolean;
 	isDataLoading?: boolean;
 	isManageDisabled?: boolean;
 	slug: JetpackModule;
@@ -43,7 +43,6 @@ const ProductCard: FC< ProductCardProps > = props => {
 		name,
 		Description,
 		status,
-		isFetching,
 		isDataLoading,
 		slug,
 		additionalActions,
@@ -80,8 +79,13 @@ const ProductCard: FC< ProductCardProps > = props => {
 
 	const { recordEvent } = useAnalytics();
 	const { siteIsRegistering } = useMyJetpackConnection();
-	const isLoading =
-		isFetching || ( siteIsRegistering && status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR );
+	const { connectSite } = useConnectSite( {
+		tracksInfo: {
+			event: `jetpack_myjetpack_product_card_fix_site_connection`,
+			properties: {},
+		},
+	} );
+	const isLoading = siteIsRegistering && status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR;
 
 	const manageHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_manage_click', {
@@ -96,6 +100,16 @@ const ProductCard: FC< ProductCardProps > = props => {
 			onClick: manageHandler,
 		};
 	}
+
+	/**
+	 * Calls the passed function onFixSiteConnection after firing Tracks event
+	 */
+	const fixSiteConnectionHandler = useCallback(
+		( { e }: { e: MouseEvent< HTMLButtonElement > } ) => {
+			connectSite( e );
+		},
+		[ connectSite ]
+	);
 
 	/**
 	 * Sends an event when the card loads
@@ -135,10 +149,9 @@ const ProductCard: FC< ProductCardProps > = props => {
 						) }
 						<ActionButton
 							slug={ slug }
-							isFetching={ isFetching }
-							className={ styles.button }
 							additionalActions={ additionalActions }
 							primaryActionOverride={ primaryActionOverride }
+							fixSiteConnectionHandler={ fixSiteConnectionHandler }
 							tracksIdentifier="product_card"
 						/>
 						{ secondaryAction && ! secondaryAction?.positionFirst && (

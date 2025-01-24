@@ -9,7 +9,6 @@ import useInstallStandalonePlugin from '../../data/products/use-install-standalo
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
-import useConnectSite from '../../hooks/use-connect-site';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import useOutsideAlerter from '../../hooks/use-outside-alerter';
@@ -22,7 +21,7 @@ type ActionButtonProps = {
 	slug: JetpackModule;
 	additionalActions?: AdditionalAction[];
 	primaryActionOverride?: Record< string, AdditionalAction >;
-	isFetching?: boolean;
+	fixSiteConnectionHandler?: ( { e }: { e: MouseEvent< HTMLButtonElement > } ) => void;
 	className?: string;
 	tracksIdentifier?: `${ string }_${ string }`;
 };
@@ -31,7 +30,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	slug,
 	additionalActions,
 	primaryActionOverride,
-	isFetching,
+	fixSiteConnectionHandler,
 	className,
 	tracksIdentifier,
 } ) => {
@@ -40,7 +39,8 @@ const ActionButton: FC< ActionButtonProps > = ( {
 
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
 	const [ currentAction, setCurrentAction ] = useState< ComponentProps< typeof Button > >( {} );
-	const { detail } = useProduct( slug );
+	const { detail, isLoading: isProductDataLoading } = useProduct( slug );
+
 	const {
 		manageUrl,
 		purchaseUrl,
@@ -59,16 +59,10 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	const { activate, isPending: isActivating } = useActivate( slug );
 	const { install: installStandalonePlugin, isPending: isInstalling } =
 		useInstallStandalonePlugin( slug );
-	const { connectSite } = useConnectSite( {
-		tracksInfo: {
-			event: `jetpack_myjetpack_${ tracksIdentifier }_fix_site_connection`,
-			properties: {},
-		},
-	} );
 
 	const isBusy =
 		isActivating ||
-		isFetching ||
+		isProductDataLoading ||
 		isInstalling ||
 		( siteIsRegistering && status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR );
 	const hasAdditionalActions = additionalActions?.length > 0;
@@ -157,16 +151,6 @@ const ActionButton: FC< ActionButtonProps > = ( {
 		} );
 		installStandalonePlugin();
 	}, [ slug, installStandalonePlugin, recordEvent, tracksIdentifier ] );
-
-	/**
-	 * Calls the passed function onFixSiteConnection after firing Tracks event
-	 */
-	const fixSiteConnectionHandler = useCallback(
-		( { e }: { e: MouseEvent< HTMLButtonElement > } ) => {
-			connectSite( e );
-		},
-		[ connectSite ]
-	);
 
 	const getStatusAction = useCallback( (): SecondaryButtonProps => {
 		switch ( status ) {
@@ -335,10 +319,6 @@ const ActionButton: FC< ActionButtonProps > = ( {
 		status,
 		buttonState,
 		slug,
-		fixSiteConnectionHandler,
-		fixUserConnectionHandler,
-		installStandaloneHandler,
-		learnMoreHandler,
 		purchaseUrl,
 		isManageDisabled,
 		manageUrl,
@@ -346,8 +326,12 @@ const ActionButton: FC< ActionButtonProps > = ( {
 		isOwned,
 		managePaidPlanPurchaseUrl,
 		renewPaidPlanPurchaseUrl,
-		handleActivate,
 		addHandler,
+		fixSiteConnectionHandler,
+		fixUserConnectionHandler,
+		handleActivate,
+		installStandaloneHandler,
+		learnMoreHandler,
 		manageHandler,
 	] );
 
