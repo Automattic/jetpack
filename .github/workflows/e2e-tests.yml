@@ -211,6 +211,7 @@ jobs:
           CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
           SUITE: ${{ matrix.suite }}
           PROJECT_NAME: ${{ matrix.project }}
+          HOST_CWD: ${{ github.workspace }}
         run: |
           echo "::group::Decrypt config"
           pnpm run config:decrypt

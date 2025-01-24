@@ -275,3 +275,20 @@ function wpcom_custom_wpcom_admin_bar_class( $wp_admin_bar_class ) {
 	return '\Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Admin_Bar';
 }
 add_filter( 'wp_admin_bar_class', 'wpcom_custom_wpcom_admin_bar_class' );
+
+/**
+ * Changes the edit site menu to point to the top-level site editor.
+ *
+ * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
+ */
+function wpcom_edit_site_menu_override( $wp_admin_bar ) {
+	if ( $wp_admin_bar->get_node( 'site-editor' ) ) {
+		$args = array(
+			'id'   => 'site-editor',
+			'href' => admin_url( 'site-editor.php' ),
+		);
+
+		$wp_admin_bar->add_node( $args );
+	}
+}
+add_action( 'admin_bar_menu', 'wpcom_edit_site_menu_override', 41 );

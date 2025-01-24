@@ -183,7 +183,7 @@
 
 .contact-form-submission .go-back-message .link {
 	font-weight: 200;
-	color: #000;
+	color: inherit;
 }
 
 .contact-form-submission .field-name {
@@ -320,8 +320,8 @@
 
 .contact-form .contact-form__select-wrapper::after {
 	position: absolute;
-	inset-inline-end: calc(var(--jetpack--contact-form--input-padding-left) + 4px);
-	top: calc(var(--jetpack--contact-form--input-padding-top) + var(--jetpack--contact-form--line-height) / 2);
+	inset-inline-end: 20px;
+	top: 50%;
 
   content: "";
   display: block;

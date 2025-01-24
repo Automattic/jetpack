@@ -79,6 +79,8 @@ class Environment_Change_Detector {
 			self::ENV_CHANGE_POST_SAVED,
 			self::ENV_CHANGE_SWITCHED_THEME,
 			self::ENV_CHANGE_PLUGIN_CHANGE,
+			self::ENV_CHANGE_CORNERSTONE_PAGE_SAVED,
+			self::ENV_CHANGE_CORNERSTONE_PAGES_LIST_UPDATED,
 		);
 	}
 

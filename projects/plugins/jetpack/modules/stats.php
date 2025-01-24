@@ -233,7 +233,7 @@ function stats_admin_menu() {
 		$relative_pos = strpos( $redirect_url, '/wp-admin/' );
 		if ( false !== $relative_pos ) {
 			wp_safe_redirect( admin_url( substr( $redirect_url, $relative_pos + 10 ) ) );
-			exit;
+			exit( 0 );
 		}
 	}
 
@@ -389,7 +389,7 @@ function jetpack_admin_ui_stats_report_page_wrapper() {
 function stats_reports_page( $main_chart_only = false ) {
 	if ( isset( $_GET['dashboard'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		stats_dashboard_widget_content();
-		exit; // @phan-suppress-current-line PhanPluginUnreachableCode -- Safer to include it even though stats_dashboard_widget_content() never returns.
+		exit( 0 ); // @phan-suppress-current-line PhanPluginUnreachableCode -- Safer to include it even though stats_dashboard_widget_content() never returns.
 	}
 
 	$blog_id               = Stats_Options::get_option( 'blog_id' );
@@ -613,7 +613,7 @@ function stats_reports_page( $main_chart_only = false ) {
 			header( 'Content-Type: ' . $type );
 			header( 'Content-Length: ' . strlen( $img ) );
 			echo $img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			die();
+			die( 0 );
 		}
 	}
 
@@ -623,7 +623,7 @@ function stats_reports_page( $main_chart_only = false ) {
 	}
 
 	if ( isset( $_GET['noheader'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		die;
+		die( 0 );
 	}
 }
 
@@ -821,7 +821,7 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
 	$menu = array(
 		'id'    => 'stats',
 		'href'  => add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) ), // no menu_page_url() blog-side.
-		'title' => "<div><img src='$img_src' srcset='$img_src 1x, $img_src_2x 2x' width='112' height='24' alt='$alt' title='$title'></div>",
+		'title' => "<div><img fetchpriority='low' loading='lazy' decoding='async' src='$img_src' srcset='$img_src 1x, $img_src_2x 2x' width='112' height='24' alt='$alt' title='$title'></div>",
 	);
 
 	$wp_admin_bar->add_menu( $menu );
@@ -1178,7 +1178,7 @@ function stats_dashboard_widget_content() {
 	</div>
 </div>
 	<?php
-	exit;
+	exit( 0 );
 }
 
 /**

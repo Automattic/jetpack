@@ -8,7 +8,6 @@ import { SocialImageGeneratorConfig, SocialSettingsFields } from '../types';
  * Returns the Social Image Generator settings for the current site.
  */
 export const getSocialImageGeneratorConfig = createRegistrySelector( select => () => {
-	// @ts-expect-error TS2339 - https://github.com/WordPress/gutenberg/issues/67847
 	const { getSite } = select( coreStore );
 
 	const settings = getSite( undefined, { _fields: SIG_SETTINGS_KEY } ) as SocialSettingsFields;

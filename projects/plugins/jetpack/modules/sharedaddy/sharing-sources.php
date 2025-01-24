@@ -625,7 +625,7 @@ abstract class Sharing_Source {
 
 		// We set up this custom header to indicate to search engines not to index this page.
 		header( 'X-Robots-Tag: noindex, nofollow' );
-		die();
+		die( 0 );
 	}
 
 	/**
@@ -978,7 +978,7 @@ class Share_Email extends Sharing_Source {
 			wp_send_json_success();
 		} else {
 			wp_safe_redirect( get_permalink( $post->ID ) . '?shared=email&msg=fail' );
-			exit;
+			exit( 0 );
 		}
 
 		wp_die();
@@ -2141,7 +2141,7 @@ class Share_PressThis extends Sharing_Source {
 
 		if ( empty( $blogs ) ) {
 			wp_safe_redirect( get_permalink( $post->ID ) );
-			die();
+			die( 0 );
 		}
 
 		$blog = current( $blogs );
@@ -2761,7 +2761,7 @@ class Share_Pinterest extends Sharing_Source {
 			parent::redirect_request( $pinterest_url );
 		} else {
 			echo '// share count bumped';
-			die();
+			die( 0 );
 		}
 	}
 

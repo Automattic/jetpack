@@ -7,7 +7,7 @@ import { Command } from 'commander';
 import * as ESLintPkg from 'eslint';
 import parseDiff from 'parse-diff';
 
-const APP_VERSION = '2.0.9';
+const APP_VERSION = '2.1.0';
 
 const { ESLint } = ESLintPkg;
 const loadESLint = ESLintPkg.loadESLint ?? ( () => ESLint );

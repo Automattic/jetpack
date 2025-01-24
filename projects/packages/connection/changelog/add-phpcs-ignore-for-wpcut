@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Add phpcs:ignore for wpcom. No changes to functionality.
+
+

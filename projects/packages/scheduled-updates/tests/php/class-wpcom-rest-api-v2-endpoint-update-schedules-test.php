@@ -385,7 +385,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	/**
 	 * Can't have more than two schedules.
 	 *
-	 * @covers ::create
+	 * @covers ::create_item
 	 */
 	public function test_empty_last_run() {
 		$plugins = array( 'gutenberg/gutenberg.php' );

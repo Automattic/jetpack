@@ -9,24 +9,30 @@ import { FC, useCallback, type MouseEvent } from 'react';
 import { useChartTheme } from '../../providers/theme';
 import { GridControl } from '../grid-control';
 import { Legend } from '../legend';
+import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './bar-chart.module.scss';
-import type { BaseChartProps, SeriesData } from '../shared/types';
+import type { BaseChartProps, SeriesData } from '../../types';
+
+type BarChartTooltipData = {
+	value: number;
+	xLabel: string;
+	yLabel: string;
+	seriesIndex: number;
+};
 
 interface BarChartProps extends BaseChartProps< SeriesData[] > {}
 
-type BarChartTooltipData = { value: number; xLabel: string; yLabel: string; seriesIndex: number };
-
 const BarChart: FC< BarChartProps > = ( {
 	data,
-	width = 500, //TODO: replace when making the components responsive
-	height = 500, //TODO: replace when making the components responsive
 	margin = { top: 20, right: 20, bottom: 40, left: 40 },
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
 	className,
 	gridVisibility = 'x',
+	width,
+	height = 400,
 } ) => {
 	const theme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
@@ -161,4 +167,4 @@ const BarChart: FC< BarChartProps > = ( {
 };
 
 BarChart.displayName = 'BarChart';
-export default BarChart;
+export default withResponsive< BarChartProps >( BarChart );

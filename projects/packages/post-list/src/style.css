@@ -45,3 +45,13 @@ th.column-thumbnail + th a {
 th.column-thumbnail.hidden + th a {
 	margin-left:0;
 }
+
+@media screen and (max-width: 782px) {
+	/*
+	 * Keep it as a table-cell.
+	 * See https://github.com/WordPress/wordpress-develop/blob/4a9a928dbcd1c91d3633c8de51614dd90d8ea0ac/src/wp-admin/css/list-tables.css#L1969.
+	 */
+	.wp-list-table .is-expanded td:not(.hidden).column-thumbnail {
+		display: table-cell !important;
+	}
+}

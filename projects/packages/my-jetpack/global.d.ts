@@ -47,7 +47,8 @@ type JetpackModule =
 	| 'complete'
 	| 'site-accelerator'
 	| 'newsletter'
-	| 'related-posts';
+	| 'related-posts'
+	| 'brute-force';
 
 type ThreatItem = {
 	// Protect API properties (free plan)
@@ -286,6 +287,7 @@ interface Window {
 				jetpack_waf_share_data: '1' | '';
 				jetpack_waf_share_debug_data: boolean;
 				standalone_mode: boolean;
+				waf_supported: boolean;
 			};
 		};
 		videopress: {
@@ -447,6 +449,8 @@ interface Window {
 		};
 		topJetpackMenuItemUrl: string;
 		isAtomic: boolean;
+		sandboxedDomain: string;
+		isDevVersion: boolean;
 		userIsAdmin: string;
 		userIsNewToJetpack: string;
 	};

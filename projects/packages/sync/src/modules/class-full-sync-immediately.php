@@ -60,10 +60,11 @@ class Full_Sync_Immediately extends Module {
 	 * @access public
 	 *
 	 * @param array $full_sync_config Full sync configuration.
+	 * @param mixed $context The context where the full sync was initiated from.
 	 *
 	 * @return bool Always returns true at success.
 	 */
-	public function start( $full_sync_config = null ) {
+	public function start( $full_sync_config = null, $context = null ) {
 		// There was a full sync in progress.
 		if ( $this->is_started() && ! $this->is_finished() ) {
 			/**
@@ -114,15 +115,15 @@ class Full_Sync_Immediately extends Module {
 		 *
 		 * @param array $full_sync_config Sync configuration for all sync modules.
 		 * @param array $range Range of the sync items, containing min and max IDs for some item types.
-		 * @param array $empty The modules with no items to sync during a full sync.
+		 * @param mixed $context The context where the full sync was initiated from.
 		 *
 		 * @since 1.6.3
 		 * @since-jetpack 4.2.0
 		 * @since-jetpack 7.3.0 Added $range arg.
-		 * @since-jetpack 7.4.0 Added $empty arg.
+		 * @since 4.4.0 Added $context arg.
 		 */
 		do_action( 'jetpack_full_sync_start', $full_sync_config, $range );
-		$this->send_action( 'jetpack_full_sync_start', array( $full_sync_config, $range ) );
+		$this->send_action( 'jetpack_full_sync_start', array( $full_sync_config, $range, $context ) );
 
 		return true;
 	}

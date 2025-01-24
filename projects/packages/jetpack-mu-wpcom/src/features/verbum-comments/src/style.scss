@@ -89,7 +89,7 @@
 			display: none;
 		}
 
-		#comment-form__verbum {
+		.comment-form__verbum {
 			@include color-schemes;
 
 			&.dark {
