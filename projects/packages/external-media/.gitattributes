@@ -11,6 +11,7 @@ src/build/**      production-include
 # Files to exclude from the mirror repo, but included in the monorepo.
 # Remember to end all directories with `/**` to properly tag every file.
 .gitignore        production-exclude
+babel.config.js   production-exclude
 changelog/**      production-exclude
 phpunit.xml.dist  production-exclude
 .phpcs.dir.xml    production-exclude
