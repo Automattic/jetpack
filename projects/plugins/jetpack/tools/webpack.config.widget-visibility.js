@@ -8,7 +8,6 @@ module.exports = {
 	entry: {
 		index: {
 			import: path.join( __dirname, '../modules/widget-visibility/editor/index.jsx' ),
-			uniqueName: 'WidgetVisibility',
 			library: {
 				name: 'WidgetVisibility',
 				type: 'window',

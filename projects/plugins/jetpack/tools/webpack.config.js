@@ -113,7 +113,6 @@ for ( const module of moduleSources ) {
 	};
 	if ( libraryDefs[ name ] ) {
 		moduleEntries[ name ].library = libraryDefs[ name ];
-		moduleEntries[ name ].uniqueName = libraryDefs[ name ].name;
 	}
 }
 
@@ -138,7 +137,6 @@ module.exports = [
 			admin: {
 				import: path.join( __dirname, '../_inc/client', 'admin.js' ),
 				// I don't know if we really need to export this. We were in the past, maybe some third party uses it.
-				uniqueName: 'getRouteName',
 				library: {
 					name: 'getRouteName',
 					type: 'window',

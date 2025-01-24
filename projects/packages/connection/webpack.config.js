@@ -71,7 +71,6 @@ module.exports = [
 			'tracks-ajax': './src/js/tracks-ajax.js',
 			'tracks-callables': {
 				import: './src/js/tracks-callables.js',
-				uniqueName: 'analytics',
 				library: {
 					name: 'analytics',
 					type: 'window',
@@ -91,7 +90,6 @@ module.exports = [
 		entry: {
 			'jetpack-connection': {
 				import: './src/js/jetpack-connection.js',
-				uniqueName: 'JetpackConnection',
 				library: {
 					name: 'JetpackConnection',
 					type: 'umd',
