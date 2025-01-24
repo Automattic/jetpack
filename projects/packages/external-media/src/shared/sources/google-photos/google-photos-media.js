@@ -35,6 +35,7 @@ function GooglePhotosMedia( props ) {
 		isLoading,
 		media,
 		multiple,
+		selectButtonText,
 		onChangePath,
 		pageHandle,
 		path,
@@ -187,6 +188,7 @@ function GooglePhotosMedia( props ) {
 				onCopy={ onCopy }
 				pageHandle={ pageHandle }
 				multiple={ multiple }
+				selectButtonText={ selectButtonText }
 				setPath={ setPath }
 				shouldProxyImg={ pickerFeatureEnabled }
 			/>

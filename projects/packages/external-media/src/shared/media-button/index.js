@@ -1,7 +1,7 @@
 import { useBlockEditContext } from '@wordpress/block-editor';
 import { useState } from '@wordpress/element';
 import React from 'react';
-import { getExternalLibrary } from '../sources';
+import { getExternalLibrary, getExternalSource } from '../sources';
 import { isGeneralPurposeImageGeneratorBetaEnabled } from '../utils/is-general-purpose-image-generator-beta-enabled';
 import MediaAiButton from './media-ai-button';
 import MediaButtonMenu from './media-menu';
@@ -23,6 +23,7 @@ function MediaButton( props ) {
 	const { mediaProps } = props;
 	const [ selectedSource, setSelectedSource ] = useState( null );
 	const ExternalLibrary = getExternalLibrary( selectedSource );
+	const externalSource = getExternalSource( selectedSource );
 	const isFeatured = isFeaturedImage( mediaProps );
 	const hasAiButtonSupport = blocksWithAiButtonSupport.includes( name );
 
@@ -58,7 +59,13 @@ function MediaButton( props ) {
 				<MediaAiButton setSelectedSource={ setSelectedSource } />
 			) }
 
-			{ ExternalLibrary && <ExternalLibrary { ...mediaProps } onClose={ closeLibrary } /> }
+			{ ExternalLibrary && (
+				<ExternalLibrary
+					{ ...mediaProps }
+					externalSource={ externalSource }
+					onClose={ closeLibrary }
+				/>
+			) }
 		</div>
 	);
 }

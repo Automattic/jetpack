@@ -17,7 +17,16 @@ import './style.scss';
  * @return {React.ReactElement} - JSX element
  */
 function OpenverseMedia( props ) {
-	const { media, isCopying, isLoading, pageHandle, multiple, copyMedia, getMedia } = props;
+	const {
+		media,
+		isCopying,
+		isLoading,
+		pageHandle,
+		multiple,
+		selectButtonText,
+		copyMedia,
+		getMedia,
+	} = props;
 
 	const [ searchQuery, setSearchQuery ] = useState( sample( PEXELS_EXAMPLE_QUERIES ) );
 	const [ lastSearchQuery, setLastSearchQuery ] = useState( '' );
@@ -113,6 +122,7 @@ function OpenverseMedia( props ) {
 				onCopy={ onCopy }
 				pageHandle={ pageHandle }
 				multiple={ multiple }
+				selectButtonText={ selectButtonText }
 			/>
 		</div>
 	);

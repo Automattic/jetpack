@@ -72,6 +72,19 @@ function JetpackAppMedia( props ) {
 		: 'jetpack-external-media-wrapper__jetpack_app_media-wrapper has-no-image-uploaded';
 
 	const selectButtonText = selectedImages => {
+		if ( isCopying ) {
+			return sprintf(
+				/* translators: %1$d is the number of images that were selected. */
+				_n(
+					'Inserting… %1$d image',
+					'Inserting… %1$d images',
+					selectedImages,
+					'jetpack-external-media'
+				),
+				selectedImages
+			);
+		}
+
 		return selectedImages
 			? sprintf(
 					/* translators: %1$d is the number of images that were selected. */

@@ -1,7 +1,7 @@
-import { sprintf, _n } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 import { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import { getExternalLibrary } from '../../shared';
+import { getExternalLibrary, getExternalSource } from '../../shared';
 
 const JETPACK_EXTERNAL_MEDIA_IMPORT_PAGE_CONTAINER = 'jetpack-external-media-import';
 const JETPACK_EXTERNAL_MEDIA_IMPORT_PAGE_MODAL = 'jetpack-external-media-import-modal';
@@ -24,6 +24,24 @@ const JetpackExternalMediaImport = () => {
 		}
 	};
 
+	const selectButtonText = ( selectedImages, isCopying ) => {
+		if ( isCopying ) {
+			return sprintf(
+				/* translators: %1$d is the number of media that were selected. */
+				__( 'Importing… %1$d media', 'jetpack-external-media' ),
+				selectedImages
+			);
+		}
+
+		return selectedImages
+			? sprintf(
+					/* translators: %1$d is the number of media that were selected. */
+					__( 'Import %1$d media', 'jetpack-external-media' ),
+					selectedImages
+			  )
+			: __( 'Import media', 'jetpack-external-media' );
+	};
+
 	const handleSelect = media => {
 		if ( ! media || media.length === 0 ) {
 			return;
@@ -31,13 +49,8 @@ const JetpackExternalMediaImport = () => {
 
 		showNotice(
 			sprintf(
-				/* translators: %d is the number of the media file */
-				_n(
-					'%d media file imported successfully.',
-					'%d media files imported successfully.',
-					media.length,
-					'jetpack-external-media'
-				),
+				/* translators: %d is the number of the media */
+				__( '%d media imported successfully.', 'jetpack-external-media' ),
 				media.length
 			)
 		);
@@ -80,7 +93,16 @@ const JetpackExternalMediaImport = () => {
 		return null;
 	}
 
-	return <ExternalLibrary multiple onSelect={ handleSelect } onClose={ closeLibrary } />;
+	return (
+		<ExternalLibrary
+			externalSource={ getExternalSource( selectedSource ) }
+			multiple
+			isImport
+			selectButtonText={ selectButtonText }
+			onSelect={ handleSelect }
+			onClose={ closeLibrary }
+		/>
+	);
 };
 
 const container = document.getElementById( JETPACK_EXTERNAL_MEDIA_IMPORT_PAGE_MODAL );

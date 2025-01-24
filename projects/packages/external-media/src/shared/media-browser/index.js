@@ -174,11 +174,12 @@ function MediaBrowser( props ) {
 
 	const SelectButton = selectProps => {
 		const disabled = selected.length === 0 || isCopying;
-		const defaultLabel = selectProps?.labelText
-			? selectProps?.labelText( selected.length )
+		const defaultLabel = isCopying
+			? __( 'Inserting…', 'jetpack-external-media' )
 			: __( 'Select', 'jetpack-external-media', /* dummy arg to avoid bad minification */ 0 );
-
-		const label = isCopying ? __( 'Inserting…', 'jetpack-external-media' ) : defaultLabel;
+		const label = selectProps?.labelText
+			? selectProps?.labelText( selected.length, isCopying )
+			: defaultLabel;
 
 		return (
 			<div className="jetpack-external-media-browser__media__toolbar">

@@ -3,7 +3,7 @@ import { withNotices, Modal } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
 import { Component } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
 import clsx from 'clsx';
 import { uniqBy } from 'lodash';
@@ -338,26 +338,68 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 				this.setState( { path }, cb );
 			};
 
-			render() {
-				const { account, isAuthenticated, isCopying, isLoading, media, nextHandle, path } =
-					this.state;
-				const { allowedTypes, multiple = false, noticeUI, onClose } = this.props;
-
+			getTitle = () => {
+				const { getTitle } = this.props;
+				const { isCopying } = this.state;
 				const defaultTitle =
 					mediaSource !== 'jetpack_app_media' ? __( 'Select media', 'jetpack-external-media' ) : '';
 
 				const title = isCopying ? __( 'Inserting media', 'jetpack-external-media' ) : defaultTitle;
+				if ( getTitle ) {
+					return getTitle( { title, isCopying } );
+				}
 
-				const description = isCopying
-					? __(
-							'When the media is finished copying and inserting, you will be returned to the editor.',
-							'jetpack-external-media'
-					  )
-					: __(
-							'Select the media you would like to insert into the editor.',
-							'jetpack-external-media',
-							/* dummy arg to avoid bad minification */ 0
-					  );
+				return title;
+			};
+
+			getTexts = () => {
+				const { externalSource, isImport } = this.props;
+				const { isCopying } = this.state;
+
+				if ( isImport ) {
+					return {
+						title: sprintf(
+							/* translators: %s is the name of the external media */
+							__( 'Import from %s', 'jetpack-external-media' ),
+							externalSource.label
+						),
+						description: sprintf(
+							/* translators: %s is the name of the external media */
+							__( 'Import media from %s into the Media Library.', 'jetpack-external-media' ),
+							externalSource.label
+						),
+					};
+				}
+
+				const defaultTitle =
+					mediaSource !== 'jetpack_app_media'
+						? sprintf(
+								/* translators: %s is the name of the external media */
+								__( 'Select media from %s', 'jetpack-external-media' ),
+								externalSource.label
+						  )
+						: '';
+				return {
+					title: isCopying ? __( 'Inserting media', 'jetpack-external-media' ) : defaultTitle,
+					description: isCopying
+						? __(
+								'When the media is finished copying and inserting, you will be returned to the editor.',
+								'jetpack-external-media'
+						  )
+						: __(
+								'Select the media you would like to insert into the editor.',
+								'jetpack-external-media',
+								/* dummy arg to avoid bad minification */ 0
+						  ),
+				};
+			};
+
+			render() {
+				const { account, isAuthenticated, isCopying, isLoading, media, nextHandle, path } =
+					this.state;
+				const { allowedTypes, multiple = false, selectButtonText, noticeUI, onClose } = this.props;
+
+				const { title, description } = this.getTexts();
 
 				const describedby = 'jetpack-external-media-browser__description';
 				const classes = clsx( {
@@ -393,6 +435,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 								isAuthenticated={ isAuthenticated }
 								setAuthenticated={ this.setAuthenticated }
 								multiple={ multiple }
+								selectButtonText={ selectButtonText }
 								path={ path }
 								onChangePath={ this.onChangePath }
 								pickerSession={ this.props.pickerSession }
