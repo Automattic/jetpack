@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack;
 
+use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTextNode;
 use PHPStan\PhpDocParser\Lexer\Lexer;
 use PHPStan\PhpDocParser\Parser\ConstExprParser;
 use PHPStan\PhpDocParser\Parser\PhpDocParser;
@@ -151,7 +152,7 @@ class Doc_Parser {
 				$docblock = array();
 
 				// Lines are zero indexed.
-				$start = $block['line_start'] - 2;
+				$start = $block['line'] - 2;
 
 				while ( ! $splfile->eof() && $start >= 0 ) {
 					$splfile->seek( $start-- );
@@ -166,12 +167,31 @@ class Doc_Parser {
 
 				$tokens     = new TokenIterator( $this->lexer->tokenize( $docblock ) );
 				$phpDocNode = $this->pdparser->parse( $tokens );
-				$paramTags  = $phpDocNode->getParamTagValues(); //phpcs:ignore
+				$paramTags  = $phpDocNode->getParamTagValues();
+
+				$block['doc']                = array();
+				$block['doc']['description'] = '';
+				foreach ( $phpDocNode->children as $entry ) {
+					if ( ! $entry instanceof PhpDocTextNode ) {
+						continue;
+					}
+
+					$block['doc']['description'] .= $entry->text;
+				}
+
+				$parameters = array();
+				foreach ( $paramTags as $paramTag ) {
+					$parameters[] = (string) $paramTag . PHP_EOL;
+				}
+
+				if ( ! empty( $parameters ) ) {
+					$block['doc']['description'] .= "\n\n" . implode( "\n", $parameters );
+				}
 			}
 
-			$blocks = array(
-				...$blocks,
-				...$file_blocks,
+			$blocks[] = array(
+				'file'  => $file,
+				'hooks' => $file_blocks,
 			);
 		}
 
@@ -192,33 +212,36 @@ class Doc_Parser {
 		if ( $node instanceof \ast\Node ) {
 			$node_kind = \ast\get_kind_name( $node->kind );
 
-			foreach ( $node->children as $i => $child ) {
-				if ( $i === 'docComment' ) {
-					continue;
-				}
+			$result = '';
 
-				switch ( $node_kind ) {
-					case 'AST_VAR':
-						$result .= ' $' . $this->flatten_ast_node( $child );
-						break;
-					case 'AST_CALL':
-						$result .= $child->children['expr']->children['name'] . '(';
-						$first   = true;
-						// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-						while ( $argument = array_unshift( $child->children['args']->children ) ) {
-							if ( $first ) {
-								$first = false;
-							} else {
-								$result .= ', ';
-							}
-							$result .= $this->flatten_ast_node( $argument );
+			switch ( $node_kind ) {
+				case 'AST_VAR':
+					$result .= ' $' . $node->children['name'];
+					break;
+				case 'AST_CALL':
+					$result .= $node->children['expr']->children['name'] . '(';
+					$first   = true;
+					// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+					foreach ( $node->children['args']->children as $argument ) {
+						if ( $first ) {
+							$first = false;
+						} else {
+							$result .= ', ';
 						}
-						$result .= ')';
-						break;
-					default:
+						$result .= $this->flatten_ast_node( $argument );
+					}
+					$result .= ')';
+
+					break;
+				default:
+					foreach ( $node->children as $i => $child ) {
+						if ( $i === 'docComment' ) {
+							continue;
+						}
 						$result .= $this->flatten_ast_node( $child );
-				}
+					}
 			}
+
 			return $result;
 		} elseif ( $node === null ) {
 			return 'null';
@@ -252,6 +275,7 @@ class Doc_Parser {
 						$argument = $this->flatten_ast_node( $argument );
 					}
 					$new_block = array(
+						'type'     => 'filter',
 						'line'     => $tree->lineno,
 						'end_line' => $tree->endLineno ?? $tree->lineno,
 						'name'     => $argument,
@@ -264,6 +288,8 @@ class Doc_Parser {
 						}
 						array_push( $new_block['arguments'], $argument );
 					}
+
+					$blocks[] = $new_block;
 				}
 			}
 
