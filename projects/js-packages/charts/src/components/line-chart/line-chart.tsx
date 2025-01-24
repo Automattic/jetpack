@@ -130,6 +130,13 @@ const LineChart: FC< LineChartProps > = ( {
 				yScale={ { type: 'linear', nice: true } }
 			>
 				<AnimatedGrid columns={ false } numTicks={ 4 } />
+				<AnimatedAxis
+					orientation="bottom"
+					numTicks={ 5 }
+					tickFormat={ formatDateTick }
+					{ ...options?.axis?.x }
+				/>
+				<AnimatedAxis orientation="left" numTicks={ 4 } { ...options?.axis?.y } />
 
 				{ data.map( ( seriesData, index ) => {
 					const stroke = seriesData.options?.stroke ?? theme.colors[ index % theme.colors.length ];
@@ -153,15 +160,6 @@ const LineChart: FC< LineChartProps > = ( {
 						</>
 					);
 				} ) }
-
-				<AnimatedAxis
-					orientation="bottom"
-					numTicks={ 5 }
-					tickFormat={ formatDateTick }
-					{ ...options?.axis?.x }
-				/>
-
-				<AnimatedAxis orientation="left" numTicks={ 4 } { ...options?.axis?.y } />
 
 				{ withTooltips && (
 					<Tooltip
