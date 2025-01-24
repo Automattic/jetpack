@@ -163,21 +163,24 @@ class Post_List {
 	 * @param string $post_type The post type associated with the current request.
 	 */
 	public function maybe_add_copy_link_action( $post_type ) {
-		if ( is_post_type_viewable( $post_type ) ) {
-			wp_add_inline_script(
-				'common',
-				'function copyLinkQuickAction( event ) {
-					event.preventDefault();
-					window.navigator.clipboard.writeText( event.target.getAttribute("href") ).then(() => {
-						event.target.textContent = "' . esc_js( __( 'Copied!', 'jetpack-post-list' ) ) . '";
-						setTimeout(() => {
-							event.target.textContent = "' . esc_js( __( 'Copy link', 'jetpack-post-list' ) ) . '";
-						}, 2000);
-					});
-				}'
-			);
-			add_filter( 'post_row_actions', array( $this, 'add_copy_link_action' ), 20, 2 );
+		if ( ! is_post_type_viewable( $post_type ) ) {
+			return;
 		}
+
+		wp_add_inline_script(
+			'common',
+			'function copyLinkQuickAction( event ) {
+				event.preventDefault();
+				window.navigator.clipboard.writeText( event.target.getAttribute("href") ).then(() => {
+					event.target.textContent = "' . esc_js( __( 'Copied!', 'jetpack-post-list' ) ) . '";
+					setTimeout(() => {
+						event.target.textContent = "' . esc_js( __( 'Copy link', 'jetpack-post-list' ) ) . '";
+					}, 2000);
+				});
+			}'
+		);
+		add_filter( 'post_row_actions', array( $this, 'add_copy_link_action' ), 20, 2 );
+		add_filter( 'page_row_actions', array( $this, 'add_copy_link_action' ), 20, 2 );
 	}
 
 	/**
@@ -194,7 +197,7 @@ class Post_List {
 		}
 
 		$post_actions['copy-link'] = sprintf(
-			' <a href="%1$s" aria-label="%2$s" onclick="copyLinkQuickAction(event)">%3$s</a>',
+			'<a href="%1$s" aria-label="%2$s" onclick="copyLinkQuickAction(event)">%3$s</a>',
 			esc_url( get_permalink( $post ) ),
 			esc_html__( 'Copy link to clipboard', 'jetpack-post-list' ),
 			esc_html__( 'Copy link', 'jetpack-post-list' )
