@@ -51,7 +51,7 @@ $differences = new Automattic\Jetpack\Analyzer\Differences();
 $differences->find( $jetpack_new_declarations, $jetpack_old_declarations, $jetpack_new_path );
 
 foreach ( glob( $slurper_path . '/*' ) as $folder_name ) {
-	echo "Looking for invocations in:\n${folder_name}\n\n";
+	echo "Looking for invocations in:\n{$folder_name}\n\n";
 	$invocations = new Automattic\Jetpack\Analyzer\Invocations();
 	$invocations->scan( $folder_name );
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Social | Fix publicize error in the editor due to malformed connections data

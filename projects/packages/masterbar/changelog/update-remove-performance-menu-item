@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Hides the calypso based Performance menu item on wordpress.com, shows page-optimize based Performance menu item on Atomic sites.

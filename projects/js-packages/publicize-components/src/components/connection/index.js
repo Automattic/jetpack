@@ -62,7 +62,7 @@ class PublicizeConnection extends Component {
 	}
 
 	isDisabled() {
-		return this.props.disabled || this.connectionIsFailing() || this.connectionNeedsReauth();
+		return this.props.disabled || this.connectionIsFailing();
 	}
 
 	render() {
