@@ -70,6 +70,7 @@ $grid-size: 8px;
 		padding-top: 50%;
 		display: inline-flex;
 		position: relative;
+		cursor: pointer;
 
 		// Unset button appearance.
 		border: 0;
@@ -82,11 +83,51 @@ $grid-size: 8px;
 			left: $grid-size;
 			width: calc( 100% - #{$grid-size * 2} );
 			height: calc( 100% - #{$grid-size * 2} );
-			object-fit: contain;
+			object-fit: cover;
+			border: 1px solid rgba(0,0,0,0.1);
+			border-radius: 4px;
 		}
 
-		&.is-transient img {
-			opacity: 0.3;
+		&::after {
+			display: block;
+			content: "";
+			position: absolute;
+			top: $grid-size;
+			left: $grid-size;
+			width: calc( 100% - #{$grid-size * 2} );
+			height: calc( 100% - #{$grid-size * 2} );
+			background: transparent;
+		}
+
+		&:hover img {
+			border-color: rgba(0,0,0,0.2);
+		}
+
+		&:focus img {
+			border-color: var(--wp-admin-theme-color);
+			outline: 0.5px solid var(--wp-admin-theme-color);
+		}
+
+		&__selected {
+			img {
+				border-color: var(--wp-admin-theme-color);
+			}
+
+			&::after {
+				background: var(--wp-admin-theme-color);
+				opacity: 0.2;
+			}
+		}
+
+		&.is-transient {
+			img {
+				border-color: rgba(0, 0, 0, 0.1);
+			}
+
+			&::after {
+				background: white;
+				opacity: 0.8;
+			}
 		}
 	}
 
@@ -101,6 +142,7 @@ $grid-size: 8px;
 		justify-content: center;
 		align-items: center;
 		text-align: center;
+		z-index: 1;
 
 		.components-spinner {
 			margin-bottom: $grid-size;
@@ -135,29 +177,6 @@ $grid-size: 8px;
 		padding: 3px 4px;
 		border-radius: 8px;
 		margin-bottom: auto;
-	}
-
-	// Resting, focus and selected.
-	$border-width: 8px;
-
-	.jetpack-external-media-browser__media__item {
-		border: $border-width solid transparent;
-
-		&:focus {
-			outline: none;
-			box-shadow: inset 0 0 0 2px var(--wp-admin-theme-color);
-			border-radius: 2px + $border-width; // Add the 4px from the transparent.
-		}
-
-		&__selected {
-			box-shadow: inset 0 0 0 6px var(--wp-admin-theme-color);
-			border-radius: 2px + $border-width; // Add the 4px from the transparent.
-		}
-
-		&__selected:focus {
-			box-shadow: inset 0 0 0 2px var(--wp-admin-theme-color), inset 0 0 0 3px white,
-				inset 0 0 0 6px var(--wp-admin-theme-color);
-		}
 	}
 
 	// Transient placeholder when media are loading.
