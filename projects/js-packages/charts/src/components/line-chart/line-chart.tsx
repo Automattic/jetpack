@@ -138,7 +138,6 @@ const LineChart: FC< LineChartProps > = ( {
 		<div
 			className={ clsx( styles[ 'line-chart' ], className ) }
 			data-testid="line-chart"
-			style={ { width, height } }
 			role="img"
 			aria-label="line chart"
 		>
