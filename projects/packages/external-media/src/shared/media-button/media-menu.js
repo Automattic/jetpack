@@ -10,8 +10,7 @@ import MediaSources from './media-sources';
  * @return {React.ReactElement} The `MediaButtonMenu` component.
  */
 function MediaButtonMenu( props ) {
-	const { mediaProps, open, setSelectedSource, isFeatured, isReplace, hasImage, hasLargeButtons } =
-		props;
+	const { mediaProps, open, setSelectedSource, isFeatured, isReplace, hasImage } = props;
 	const originalComponent = mediaProps.render;
 
 	if ( isReplace ) {
@@ -55,7 +54,7 @@ function MediaButtonMenu( props ) {
 					}
 					return (
 						<Button
-							__next40pxDefaultSize={ hasLargeButtons }
+							__next40pxDefaultSize
 							variant="secondary"
 							className="jetpack-external-media-button-menu"
 							aria-haspopup="true"

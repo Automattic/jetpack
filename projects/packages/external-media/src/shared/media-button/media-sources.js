@@ -7,16 +7,7 @@ import {
 	featuredImageExclusiveMediaSources,
 	generalPurposeImageExclusiveMediaSources,
 } from '../sources';
-
-/**
- * Temporary feature flag to control generalPurposeImageExclusiveMediaSources
- * visibility.
- */
-const GENERAL_PURPOSE_IMAGE_GENERATOR_BETA_FLAG = 'ai-general-purpose-image-generator';
-const isGeneralPurposeImageGeneratorBetaEnabled =
-	window?.Jetpack_Editor_Initial_State?.available_blocks?.[
-		GENERAL_PURPOSE_IMAGE_GENERATOR_BETA_FLAG
-	]?.available === true;
+import { isGeneralPurposeImageGeneratorBetaEnabled } from '../utils/is-general-purpose-image-generator-beta-enabled';
 
 /**
  * MediaSources component
@@ -66,7 +57,7 @@ function MediaSources( {
 				) ) }
 
 			{ ! isFeatured &&
-				isGeneralPurposeImageGeneratorBetaEnabled &&
+				isGeneralPurposeImageGeneratorBetaEnabled() &&
 				generalPurposeImageExclusiveMediaSources.map( ( { icon, id, label } ) => (
 					<MenuItem
 						icon={ icon }

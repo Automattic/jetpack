@@ -9,11 +9,11 @@ import { SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_BLOCK } from '../constants'
  * @return {React.ReactElement} The `MediaAiButton` component.
  */
 function MediaAiButton( props ) {
-	const { setSelectedSource, hasLargeButtons } = props;
+	const { setSelectedSource } = props;
 
 	return (
 		<Button
-			__next40pxDefaultSize={ hasLargeButtons }
+			__next40pxDefaultSize
 			variant="secondary"
 			className="jetpack-external-media-button-menu"
 			aria-haspopup="false"

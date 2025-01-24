@@ -2,6 +2,7 @@ import { useBlockEditContext } from '@wordpress/block-editor';
 import { useState } from '@wordpress/element';
 import React from 'react';
 import { getExternalLibrary } from '../sources';
+import { isGeneralPurposeImageGeneratorBetaEnabled } from '../utils/is-general-purpose-image-generator-beta-enabled';
 import MediaAiButton from './media-ai-button';
 import MediaButtonMenu from './media-menu';
 
@@ -11,19 +12,6 @@ const isFeaturedImage = props =>
 const isReplaceMenu = props => props.multiple === undefined && ! isFeaturedImage( props );
 
 const blocksWithAiButtonSupport = [ 'core/image', 'core/gallery', 'jetpack/slideshow' ];
-
-/**
- * Temporary feature flag to control generalPurposeImageExclusiveMediaSources
- * visibility.
- */
-const GENERAL_PURPOSE_IMAGE_GENERATOR_BETA_FLAG = 'ai-general-purpose-image-generator';
-const isGeneralPurposeImageGeneratorBetaEnabled =
-	window?.Jetpack_Editor_Initial_State?.available_blocks?.[
-		GENERAL_PURPOSE_IMAGE_GENERATOR_BETA_FLAG
-	]?.available === true;
-
-// to-do: remove when Jetpack requires WordPress 6.7.
-const hasLargeButtons = window?.Jetpack_Editor_Initial_State?.next40pxDefaultSize;
 
 /**
  * MediaButton component
@@ -65,13 +53,9 @@ function MediaButton( props ) {
 				isReplace={ isReplaceMenu( mediaProps ) }
 				isFeatured={ isFeatured }
 				hasImage={ mediaProps.value > 0 }
-				hasLargeButtons={ hasLargeButtons }
 			/>
-			{ isGeneralPurposeImageGeneratorBetaEnabled && ! isFeatured && hasAiButtonSupport && (
-				<MediaAiButton
-					setSelectedSource={ setSelectedSource }
-					hasLargeButtons={ hasLargeButtons }
-				/>
+			{ isGeneralPurposeImageGeneratorBetaEnabled() && ! isFeatured && hasAiButtonSupport && (
+				<MediaAiButton setSelectedSource={ setSelectedSource } />
 			) }
 
 			{ ExternalLibrary && <ExternalLibrary { ...mediaProps } onClose={ closeLibrary } /> }

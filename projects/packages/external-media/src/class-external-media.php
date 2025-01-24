@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Status\Host;
+use Jetpack_Options;
 
 /**
  * Class External_Media
@@ -41,6 +43,41 @@ class External_Media {
 			)
 		);
 
+		wp_add_inline_script(
+			$asset_name,
+			sprintf( 'var JetpackExternalMediaData = %s;', self::get_data() ),
+			'before'
+		);
+
 		Connection_Initial_State::render_script( $asset_name );
+	}
+
+	/**
+	 * Get the initial state data.
+	 *
+	 * @return array
+	 */
+	private static function get_data() {
+		$host = new Host();
+		if ( $host->is_wpcom_simple() ) {
+			$blog_id = get_current_blog_id();
+		} else {
+			$blog_id = Jetpack_Options::get_option( 'id', 0 );
+		}
+
+		$jetpack_ai_enabled = false;
+		if ( $host->is_wpcom_simple() || $host->is_woa_site() ) {
+			$jetpack_ai_enabled = true;
+		}
+
+		return wp_json_encode(
+			array(
+				'wpcomBlogId'    => $blog_id,
+				'pluginBasePath' => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
+				'ai-assistant'   => array(
+					'is-enabled' => apply_filters( 'jetpack_ai_enabled', $jetpack_ai_enabled ),
+				),
+			)
+		);
 	}
 }

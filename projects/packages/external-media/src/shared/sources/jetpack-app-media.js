@@ -8,6 +8,22 @@ import MediaBrowser from '../media-browser';
 import { MediaSource } from '../media-service/types';
 import withMedia from './with-media';
 
+const getWpcomBlogId = () =>
+	window?.Jetpack_Editor_Initial_State?.wpcomBlogId ||
+	window?.JetpackExternalMediaData?.wpcomBlogId ||
+	0;
+
+const getImagePath = () => {
+	let pluginBasePath = '';
+	if ( window?.Jetpack_Editor_Initial_State ) {
+		pluginBasePath = window?.Jetpack_Editor_Initial_State?.pluginBasePath;
+	} else if ( window?.JetpackExternalMediaData ) {
+		pluginBasePath = window?.JetpackExternalMediaData?.pluginBasePath;
+	}
+
+	return pluginBasePath + '/images/';
+};
+
 /**
  * JetpackAppMedia component
  * @param {object} props - The component properties.
@@ -16,8 +32,8 @@ import withMedia from './with-media';
 function JetpackAppMedia( props ) {
 	const { media, insertMedia, isCopying, multiple, getMedia } = props;
 
-	const wpcomBlogId = window?.Jetpack_Editor_Initial_State?.wpcomBlogId || 0;
-	const imagePath = window?.Jetpack_Editor_Initial_State?.pluginBasePath + '/images/';
+	const wpcomBlogId = getWpcomBlogId();
+	const imagePath = getImagePath();
 
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 	// get the current time and store it in the state
