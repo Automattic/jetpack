@@ -276,7 +276,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/subscribers/' . $data['site_slug_encoded'];
+				return '/subscribers/' . $data['site_slug_encoded'] . '#building-your-audience-task';
 			},
 		),
 
