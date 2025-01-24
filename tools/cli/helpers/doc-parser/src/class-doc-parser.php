@@ -10,6 +10,7 @@ namespace Automattic\Jetpack;
 use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTextNode;
 use PHPStan\PhpDocParser\Lexer\Lexer;
 use PHPStan\PhpDocParser\Parser\ConstExprParser;
+use PHPStan\PhpDocParser\Parser\ParserException;
 use PHPStan\PhpDocParser\Parser\PhpDocParser;
 use PHPStan\PhpDocParser\Parser\TokenIterator;
 use PHPStan\PhpDocParser\Parser\TypeParser;
@@ -143,7 +144,7 @@ class Doc_Parser {
 		foreach ( $files as $file ) {
 			$file_blocks = array();
 
-			$ast = \ast\parse_file( $files[0], 110 );
+			$ast = \ast\parse_file( $file, 110 );
 			$this->get_filter_calls( $ast, $file_blocks );
 
 			$splfile = new \SplFileObject( $file );
@@ -154,20 +155,33 @@ class Doc_Parser {
 				// Lines are zero indexed.
 				$start = $block['line'] - 2;
 
+				$first = true;
 				while ( ! $splfile->eof() && $start >= 0 ) {
 					$splfile->seek( $start-- );
 					$line = $splfile->current();
-					array_unshift( $docblock, $line );
 
+					if ( $first && false === strpos( $line, '*/' ) ) {
+
+						break;
+					} else {
+						$first = false;
+					}
+
+					array_unshift( $docblock, $line );
 					if ( false !== strpos( $line, '/**' ) ) {
 						break;
 					}
 				}
 				$docblock = implode( '', $docblock );
 
-				$tokens     = new TokenIterator( $this->lexer->tokenize( $docblock ) );
-				$phpDocNode = $this->pdparser->parse( $tokens );
-				$paramTags  = $phpDocNode->getParamTagValues();
+				try {
+					$tokens     = new TokenIterator( $this->lexer->tokenize( $docblock ) );
+					$phpDocNode = $this->pdparser->parse( $tokens );
+				} catch ( ParserException $e ) {
+					continue;
+				}
+
+				$paramTags = $phpDocNode->getParamTagValues();
 
 				$block['doc']                = array();
 				$block['doc']['description'] = '';
@@ -287,8 +301,7 @@ class Doc_Parser {
 					$arguments = $children['args']->children;
 					'@phan-var array<int, \ast\Node|string> $arguments';
 
-					$argument = array_unshift( $arguments );
-					'@phan-var string|\ast\Node $argument';
+					$argument = array_shift( $arguments );
 
 					if ( $argument instanceof \ast\Node ) {
 						$argument = $this->flatten_ast_node( $argument );
@@ -301,7 +314,7 @@ class Doc_Parser {
 					);
 
 					$new_block['arguments'] = array();
-					foreach ( $children['args']->children as $argument ) {
+					foreach ( $arguments as $argument ) {
 						if ( $argument instanceof \ast\Node ) {
 							$argument = $this->flatten_ast_node( $argument );
 						}
