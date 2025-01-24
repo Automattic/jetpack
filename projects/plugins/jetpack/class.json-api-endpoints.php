@@ -6,7 +6,9 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 require_once __DIR__ . '/json-api-config.php';
 require_once __DIR__ . '/sal/class.json-api-links.php';
@@ -1527,18 +1529,17 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$args = $this->query_args();
 
 		if ( ! empty( $id ) && ! empty( $args['author_wpcom_data'] ) ) {
-			// If this is a Jetpack site, use the connection manager to get the user data.
-			if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
-				$connection_manager = new \Automattic\Jetpack\Connection\Manager();
-				$wpcom_user_data    = $connection_manager->get_connected_user_data( $id );
+			if ( ( new Host() )->is_wpcom_simple() ) {
+				$user                  = get_user_by( 'id', $id );
+				$author['wpcom_id']    = isset( $user->ID ) ? (int) $user->ID : null;
+				$author['wpcom_login'] = $user->user_login ?? '';
+			} else {
+				// If this is a Jetpack site, use the connection manager to get the user data.
+				$wpcom_user_data = ( new Manager() )->get_connected_user_data( $id );
 				if ( $wpcom_user_data && isset( $wpcom_user_data['ID'] ) ) {
 					$author['wpcom_id']    = (int) $wpcom_user_data['ID'];
 					$author['wpcom_login'] = $wpcom_user_data['login'] ?? '';
 				}
-			} else {
-				$user                  = get_user_by( 'id', $id );
-				$author['wpcom_id']    = isset( $user->ID ) ? (int) $user->ID : null;
-				$author['wpcom_login'] = $user->user_login ?? '';
 			}
 		}
 
