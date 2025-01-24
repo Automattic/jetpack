@@ -234,6 +234,21 @@ class Contact_Form_Block {
 	 * @return bool
 	 */
 	public static function can_manage_block() {
+		if (
+			/**
+			 * Allow third-parties to override the form block's visibility.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @module contact-form
+			 *
+			 * @param bool $can_manage_block Whether the current user can manage the block.
+			 */
+			apply_filters( 'jetpack_contact_form_can_manage_block', false )
+		) {
+			return true;
+		}
+
 		if ( ! class_exists( 'Jetpack' ) ) {
 			return true;
 		}
