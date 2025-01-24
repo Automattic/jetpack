@@ -216,13 +216,22 @@ class Doc_Parser {
 
 			switch ( $node_kind ) {
 				case 'AST_VAR':
-					$result .= ' $' . $node->children['name'];
+					$children = $node->children;
+					'@phan-var array<string, string> $children';
+
+					$result .= ' $' . $children['name'];
 					break;
 				case 'AST_CALL':
-					$result .= $node->children['expr']->children['name'] . '(';
+					$children = $node->children;
+					'@phan-var array<string, \ast\Node> $children';
+
+					$expression_children = $children['expr']->children;
+					'@phan-var array<string, string> $expression_children';
+
+					$result .= $expression_children['name'] . '(';
 					$first   = true;
 					// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-					foreach ( $node->children['args']->children as $argument ) {
+					foreach ( $children['args']->children as $argument ) {
 						if ( $first ) {
 							$first = false;
 						} else {
@@ -265,13 +274,23 @@ class Doc_Parser {
 			$result = \ast\get_kind_name( $tree->kind );
 
 			if ( 'AST_CALL' === $result ) {
-				$name = $tree->children['expr']->children['name'];
+				$children = $tree->children;
+				'@phan-var array<string, \ast\Node> $children';
+
+				$expression_children = $children['expr']->children;
+				'@phan-var array<string, string> $expression_children';
+
+				$name = $expression_children['name'];
 
 				if ( 'apply_filters' === $name ) {
 
-					$argument = array_unshift( $tree->children['args']->children );
+					$arguments = $children['args']->children;
+					'@phan-var array<int, \ast\Node|string> $arguments';
 
-					if ( $argument instanceof ast\Node ) {
+					$argument = array_unshift( $arguments );
+					'@phan-var string|\ast\Node $argument';
+
+					if ( $argument instanceof \ast\Node ) {
 						$argument = $this->flatten_ast_node( $argument );
 					}
 					$new_block = array(
@@ -282,7 +301,7 @@ class Doc_Parser {
 					);
 
 					$new_block['arguments'] = array();
-					foreach ( $tree->children['args']->children as $argument ) {
+					foreach ( $children['args']->children as $argument ) {
 						if ( $argument instanceof \ast\Node ) {
 							$argument = $this->flatten_ast_node( $argument );
 						}
