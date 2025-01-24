@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sitemaps: ensures a valid news sitemap is present even if no posts are eligible.
