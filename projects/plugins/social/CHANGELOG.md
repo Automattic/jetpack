@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 6.0.0 - 2025-01-14
+### Added
+- Add Bluesky to social feature copy. [#40487]
+- Add a new toggle for UTM tracking. [#39998]
+- Add LinkedIn permissions warning. [#40220]
+- Enable test coverage. [#39961]
+- Make Post share status immediately available in the editor on page load. [#40301]
+- My Jetpack: Update recommendations section in My Jetpack to include a slider interaction for the cards. [#39850]
+
+### Changed
+- Change My Jetpack CTA from "Learn more" to "Activate". [#40359]
+- Change order of connections. [#40020]
+- Clean up unused TypeScript types [#40033]
+- E2E Tests: Update tests to use @wordpress/e2e-test-utils-playwright. [#40750]
+- Ensure the support link points to Jetpack support. [#40760]
+- Image Generator: Change description for toggle. [#40991]
+- Image Generator: Move settings to new store. [#39904]
+- Migrate settings to new script data. [#40032]
+- Migrate the last bits of social store to new script data. [#40081]
+- Move the admin menu initialization to the init hook. [#40474]
+- Readme: Update documentation to include all supported social networks. [#40248]
+- Remove some unused code. [#40122]
+- Resolve an issue where revoked licenses were incorrectly treated as unattached. This caused users to be redirected to the license activation page after site connection, even when unattached licenses were not valid for activation. [#40215]
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#39999] [#40000] [#40060] [#40116] [#40258] [#40288] [#40363] [#40515] [#40564] [#40693] [#40784] [#40792] [#40798] [#40815] [#40980]
+
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+- General: Update minimum WordPress version to 6.6. [#40146]
+
+### Fixed
+- E2E Tests: Only install single browser used by Playwright. [#40827]
+- Fix an issue where we showed the license message even with a plan. [#40931]
+- Fix the infinite reload issue on Jetpack Sharing settings. [#40089]
+- Fix the Instagram max video length. [#39930]
+- Page & Post: Fix the layout on mobile when details are open. [#40872]
+- Prevent dataviews styles imported in share status from being added globally. [#39991]
+
 ## 5.5.1 - 2024-10-29
 ### Changed
 - Components: Add __nextHasNoMarginBottom to BaseControl-based components, preventing deprecation notices. [#39877]

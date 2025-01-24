@@ -2,6 +2,8 @@
 /**
  * Unit Tests for Automattic\Jetpack\Forms\Contact_Form.
  *
+ * To run the test visit the packages/forms directory and run composer test-php
+ *
  * @package automattic/jetpack-forms
  */
 
@@ -20,6 +22,8 @@ use WorDBless\Posts;
 class WP_Test_Contact_Form extends BaseTestCase {
 
 	private $post;
+
+	private $track_feedback_inserted;
 
 	private $plugin;
 
@@ -54,7 +58,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	public function set_up_test_case() {
 		// Avoid actually trying to send any mail.
 		add_filter( 'pre_wp_mail', '__return_true', PHP_INT_MAX );
-
+		$this->track_feedback_inserted = array();
 		$this->set_globals();
 
 		$author_id = wp_insert_user(
@@ -98,16 +102,28 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		remove_all_filters( 'wp_mail' );
 		remove_all_filters( 'grunion_still_email_spam' );
 		remove_all_filters( 'jetpack_contact_form_is_spam' );
+
+		// Reset the forms array
+		Contact_Form::$forms        = array();
+		Contact_Form::$last         = null;
+		Contact_Form::$current_form = null;
 	}
 
 	/**
 	 * Adds the field values to the global $_POST value.
 	 *
-	 * @param array $values Array of field key value pairs.
+	 * @param array  $values Array of form fields and values.
+	 * @param string $form_id Optional form ID. If not provided, will use $this->post->ID.
 	 */
-	private function add_field_values( $values ) {
+	private function add_field_values( $values, $form_id = null ) {
+		$prefix = $form_id ? $form_id : 'g' . $this->post->ID;
+		$_POST  = array();
 		foreach ( $values as $key => $val ) {
-			$_POST[ 'g' . $this->post->ID . '-' . $key ] = $val;
+			if ( strpos( $key, 'contact-form' ) === 0 || strpos( $key, 'action' ) === 0 ) {
+				$_POST[ $key ] = $val;
+			} else {
+				$_POST[ $prefix . '-' . $key ] = $val;
+			}
 		}
 	}
 
@@ -2066,5 +2082,64 @@ EOT;
 			$expected,
 			Util::grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
 		);
+	}
+	/**
+	 * Helper function that tracks the ids of the feedbacks that got created.
+	 */
+	public function track_feedback_inserted( $post_id ) {
+		$this->track_feedback_inserted[] = $post_id;
+	}
+	/**
+	 * Tests that multiple instances of the same form work correctly with unique IDs.
+	 */
+	public function test_multiple_form_instances_with_unique_ids() {
+		global $post;
+
+		add_action( 'grunion_after_feedback_post_inserted', array( $this, 'track_feedback_inserted' ), 10, 1 );
+
+		$this->add_field_values(
+			array(
+				'name'    => 'First form name 1',
+				'message' => 'First form message 1',
+			),
+			'g' . $post->ID
+		);
+
+		$form1 = new Contact_Form( array(), "[contact-field label='Name' type='name' required='1'/][contact-field label='Message' type='textarea' required='1'/]" );
+		// Submit first form
+		$result1 = $form1->process_submission();
+
+		$this->assertTrue( is_string( $result1 ), 'First form submission should be successful' );
+
+		$this->add_field_values(
+			array(
+				'name'    => 'First form name 2',
+				'message' => 'First form message 2',
+			),
+			'g' . $post->ID . '-2'
+		);
+
+		$form2   = new Contact_Form( array(), "[contact-field label='Name' type='name' required='1'/][contact-field label='Message' type='textarea' required='1'/]" );
+		$result2 = $form2->process_submission();
+
+		$this->assertTrue( is_string( $result2 ), 'First form submission should be successful' );
+
+		// Verify that the forms have different IDs
+		$this->assertNotEquals( $form1->get_attribute( 'id' ), $form2->get_attribute( 'id' ), 'Forms should have unique IDs' );
+
+		remove_action( 'grunion_after_feedback_post_inserted', array( $this, 'track_feedback_inserted' ), 10 );
+
+		$this->assertCount( 2, $this->track_feedback_inserted, 'The number of feedback forms that were inserted does not match! Expected 2.' );
+
+		// Add assertion to ensure array is not empty
+		$this->assertNotEmpty( $this->track_feedback_inserted, 'No feedback forms were inserted' );
+
+		$count = 1;
+		foreach ( $this->track_feedback_inserted as $feedback_id ) {
+			$feedback = get_post( $feedback_id );
+			$this->assertStringContainsString( 'First form name ' . $count, $feedback->post_content );
+			$this->assertStringContainsString( 'First form message ' . $count, $feedback->post_content );
+			++$count;
+		}
 	}
 } // end class

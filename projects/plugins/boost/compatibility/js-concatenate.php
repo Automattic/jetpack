@@ -10,6 +10,8 @@ function maybe_do_not_concat( $do_concat, $handle ) {
 		// Plugin: `event-tickets`
 		'tribe-tickets-block',
 		'tribe-tickets-provider',
+		// Plugin: `woocommerce-shipping`
+		'woocommerce-shipping-checkout-address-validation',
 	);
 
 	if ( in_array( $handle, $excluded_handles, true ) ) {

@@ -132,6 +132,12 @@ export function cliDefine( yargs ) {
 				'Symlink the CLI for global use or development.',
 				() => {},
 				argv => {
+					if ( process.env.JETPACK_MONOREPO_ENV ) {
+						console.log(
+							chalk.yellow( 'CLI linking is not needed within the monorepo container.' )
+						);
+						return;
+					}
 					cliLink( argv );
 					if ( argv.v ) {
 						console.log( argv );
@@ -143,6 +149,12 @@ export function cliDefine( yargs ) {
 				'Unlink the CLI.',
 				() => {},
 				argv => {
+					if ( process.env.JETPACK_MONOREPO_ENV ) {
+						console.log(
+							chalk.yellow( 'CLI unlinking is not needed within the monorepo container.' )
+						);
+						return;
+					}
 					cliUnlink( argv );
 					if ( argv.v ) {
 						console.log( argv );

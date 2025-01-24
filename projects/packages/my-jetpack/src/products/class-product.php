@@ -73,6 +73,13 @@ abstract class Product {
 	const EXPIRATION_CUTOFF_TIME = '+2 months';
 
 	/**
+	 * Transient key for storing site features
+	 *
+	 * @var string;
+	 */
+	const MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY = 'my-jetpack-site-features';
+
+	/**
 	 * Whether this module is a Jetpack feature
 	 *
 	 * @var boolean
@@ -221,6 +228,12 @@ abstract class Product {
 			return $features;
 		}
 
+		// Check for a cached value before doing lookup
+		$stored_features = get_transient( self::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY );
+		if ( $stored_features !== false ) {
+			return $stored_features;
+		}
+
 		$site_id  = Jetpack_Options::get_option( 'id' );
 		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/features', $site_id ), '1.1' );
 
@@ -236,6 +249,8 @@ abstract class Product {
 			'active'    => $feature_return->active,
 			'available' => $feature_return->available,
 		);
+		// set a short transient to help with multiple lookups on the same page load.
+		set_transient( self::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, $features, 15 );
 
 		return $features;
 	}
@@ -643,7 +658,7 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_upgradable() {
-		return false;
+		return ! static::has_paid_plan_for_product() && ! static::is_bundle_product();
 	}
 
 	/**

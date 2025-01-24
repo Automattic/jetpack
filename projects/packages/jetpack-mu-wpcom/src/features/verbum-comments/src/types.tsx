@@ -36,6 +36,10 @@ export type EmailPostsChange =
 			trackSource: 'verbum-subscription-modal' | 'verbum-toggle';
 	  };
 
+export type VerbumAppProps = {
+	parentForm: HTMLFormElement;
+	siteId?: number;
+};
 export interface VerbumComments {
 	loginPostMessage?: UserInfo;
 	siteId?: number;
@@ -67,6 +71,7 @@ export interface VerbumComments {
 	 * Contains the time we started loading Highlander.
 	 */
 	fullyLoadedTime: number;
+	vbeCacheBuster: string;
 }
 
 export type EmailSubscriptionResponse = {

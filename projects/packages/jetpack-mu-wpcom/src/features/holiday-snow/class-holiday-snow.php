@@ -3,7 +3,7 @@
  * Holiday Snow
  * Adds falling snow to a blog starting December 1 and ending January 3.
  *
- * @since $$next-version$$
+ * @since 6.1.0
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -40,7 +40,7 @@ class Holiday_Snow {
 		 * It allows to change the start and end dates of the season,
 		 * for regions where the holiday season may be different.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.1.0
 		 *
 		 * @param bool $is_holiday_snow_season Is it the  snow season?
 		 */
@@ -52,7 +52,7 @@ class Holiday_Snow {
 	 * p2 is currently not compatible with Holiday Snow.
 	 * This covers both P2 and P2020 themes.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 6.1.0
 	 *
 	 * @return bool
 	 */
@@ -95,7 +95,7 @@ class Holiday_Snow {
 	 * Add the snowstorm markup to the footer.
 	 *
 	 * @return void
-	 * @since $$next-version$$
+	 * @since 6.1.0
 	 */
 	public static function holiday_snow_markup() {
 		echo '<div id="jetpack-holiday-snow"></div>';
@@ -111,7 +111,7 @@ class Holiday_Snow {
 			/**
 			 * Allow short-circuiting the snow, even when enabled on the site in settings.
 			 *
-			 * @since $$next-version$$
+			 * @since 6.1.0
 			 *
 			 * @param bool true Whether to show the snow.
 			 */
@@ -123,15 +123,15 @@ class Holiday_Snow {
 		/**
 		 * Fires when the snow is falling.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.1.0
 		 */
 		do_action( 'jetpack_stats_extra', 'holiday_snow', 'snowing' );
 
 		/**
 		 * Filter the URL of the snowstorm script.
 		 *
-		 * @since $$next-version$$
-		 * @deprecated $$next-version$$ We've switched to a CSS-only snow effect.
+		 * @since 6.1.0
+		 * @deprecated 6.1.0 We've switched to a CSS-only snow effect.
 		 *
 		 * @param string $snowstorm_url URL of the snowstorm script.
 		 */

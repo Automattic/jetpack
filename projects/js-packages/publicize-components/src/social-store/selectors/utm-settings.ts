@@ -8,7 +8,6 @@ import { SocialSettingsFields, UtmSettingsConfig } from '../types';
  * Returns the UTM state.
  */
 export const getUtmSettings = createRegistrySelector( select => () => {
-	// @ts-expect-error TS2339 - https://github.com/WordPress/gutenberg/issues/67847
 	const { getSite } = select( coreStore );
 
 	const settings = getSite( undefined, { _fields: UTM_ENABLED_KEY } ) as SocialSettingsFields;

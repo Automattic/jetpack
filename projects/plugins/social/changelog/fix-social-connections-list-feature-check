@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix publicize error in the editor due to malformed connections data

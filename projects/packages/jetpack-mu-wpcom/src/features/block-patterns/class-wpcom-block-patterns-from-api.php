@@ -103,7 +103,7 @@ class Wpcom_Block_Patterns_From_Api {
 		// We prefer to show the starter page patterns modal of wpcom instead of core
 		// if it's available. Hence, we have to update the block types of patterns
 		// to disable the core's.
-		if ( class_exists( '\A8C\FSE\Starter_Page_Templates' ) || class_exists( '\Automattic\Jetpack\Jetpack_Mu_Wpcom\Starter_Page_Templates' ) ) {
+		if ( class_exists( '\A8C\FSE\Starter_Page_Templates', false ) || class_exists( '\Automattic\Jetpack\Jetpack_Mu_Wpcom\Starter_Page_Templates', false ) ) {
 			$this->update_pattern_block_types();
 		}
 

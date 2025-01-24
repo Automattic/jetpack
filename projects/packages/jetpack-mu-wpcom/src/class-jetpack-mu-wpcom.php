@@ -15,7 +15,7 @@ define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '6.0.0';
+	const PACKAGE_VERSION = '6.1.0';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -151,11 +151,14 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
 		require_once __DIR__ . '/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php';
 		require_once __DIR__ . '/features/wpcom-locale/sync-locale-from-calypso-to-atomic.php';
+		require_once __DIR__ . '/features/wpcom-media/wpcom-external-media-import.php';
 		require_once __DIR__ . '/features/wpcom-plugins/wpcom-plugins.php';
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php';
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
+		require_once __DIR__ . '/features/wpcom-siteurl/siteurl.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
+		require_once __DIR__ . '/features/wpcom-fiverr/wpcom-fiverr.php';
 
 		// Only load the Calypsoify and Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
@@ -170,6 +173,13 @@ class Jetpack_Mu_Wpcom {
 	 * Can be removed once the feature no longer exists in the ETK plugin.
 	 */
 	public static function load_etk_features_flags() {
+		// Don't load on agency sites.
+		if ( is_fully_managed_agency_site() ) {
+			return;
+		}
+
+		// Don't load if the user is not a wpcom user on WP Admin.
+		// The features is still required on the frontend page regardless of the user.
 		if ( is_admin() && ! is_wpcom_user() ) {
 			return;
 		}
@@ -203,6 +213,13 @@ class Jetpack_Mu_Wpcom {
 	 * Can be moved back to load_features() once the feature no longer exists in the ETK plugin.
 	 */
 	public static function load_etk_features() {
+		// Don't load on agency sites.
+		if ( is_fully_managed_agency_site() ) {
+			return;
+		}
+
+		// Don't load if the user is not a wpcom user on WP Admin.
+		// The features is still required on the frontend page regardless of the user.
 		if ( is_admin() && ! is_wpcom_user() ) {
 			return;
 		}
@@ -259,9 +276,13 @@ class Jetpack_Mu_Wpcom {
 		 * Explicitly pass $markup = false in get_plugin_data to avoid indirectly calling wptexturize that could cause unintended side effects.
 		 * See: https://developer.wordpress.org/reference/functions/get_plugin_data/
 		 */
+		$fse_plugin                 = 'full-site-editing/full-site-editing-plugin.php';
+		$fse_plugin_path            = WP_PLUGIN_DIR . '/' . $fse_plugin;
 		$invalid_fse_version_active =
-			is_plugin_active( 'full-site-editing/full-site-editing-plugin.php' ) &&
-			version_compare( get_plugin_data( WP_PLUGIN_DIR . '/full-site-editing/full-site-editing-plugin.php', false )['Version'], '3.56084', '<' );
+			file_exists( $fse_plugin_path ) &&
+			is_file( $fse_plugin_path ) &&
+			is_plugin_active( $fse_plugin ) &&
+			version_compare( get_plugin_data( $fse_plugin_path, false )['Version'], '3.56084', '<' );
 
 		if ( $invalid_fse_version_active ) {
 			return;
