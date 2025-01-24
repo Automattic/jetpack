@@ -102,6 +102,20 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
+		'intent-newsletter-goal'  => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
+			'task_ids'            => array(
+				'site_title',
+				'start_building_your_audience',
+				'customize_welcome_message',
+				'add_about_page',
+				'first_post_published',
+				'preview_site',
+			),
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
+		),
 		'videopress'              => array(
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
@@ -1091,6 +1105,19 @@ function wpcom_launchpad_is_paid_newsletter_enabled() {
 	return wpcom_launchpad_has_goal_paid_subscribers() && apply_filters( 'wpcom_launchpad_intent_paid_newsletter_enabled', false );
 }
 
+/**
+ * Checks if the Newsletter goal flow task list is enabled.
+ *
+ * @return bool True if the task list is enabled, false otherwise.
+ */
+function wpcom_launchpad_is_newsletter_goal_enabled() {
+	$intent = get_option( 'site_intent', false );
+	if ( 'intent-newsletter-goal' !== $intent ) {
+		return false;
+	}
+
+	return apply_filters( 'wpcom_launchpad_intent_newsletter_goal_enabled', false );
+}
 /**
  * Add launchpad options to Jetpack Sync.
  *
