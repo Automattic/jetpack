@@ -27,14 +27,18 @@ export class Writing extends React.Component {
 	constructor( props ) {
 		super( props );
 
-		const preloadedCustomContentTypeStatus =
-			typeof custom_content_types_active !== 'undefined'
-				? custom_content_types_active // eslint-disable-line no-undef
-				: false;
+		const customContentTypeStatusInitialState = window?.CUSTOM_CONTENT_TYPE__INITIAL_STATE?.active
+			? window.CUSTOM_CONTENT_TYPE__INITIAL_STATE.active
+			: false;
+
+		const customContentTypeOverrideStatusInitialState = window?.CUSTOM_CONTENT_TYPE__INITIAL_STATE
+			?.over_ride
+			? window.CUSTOM_CONTENT_TYPE__INITIAL_STATE.over_ride
+			: false;
 
 		this.state = {
-			customContentTypeIsActive: preloadedCustomContentTypeStatus,
-			customContentTypeIsOverridden: false,
+			customContentTypeIsActive: customContentTypeStatusInitialState,
+			customContentTypeIsOverridden: customContentTypeOverrideStatusInitialState,
 		};
 
 		// Call async initialization directly
