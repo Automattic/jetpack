@@ -1,5 +1,5 @@
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useState, useEffect } from '@wordpress/element';
+import { useCallback, useState, useEffect, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import TypingMessage from './typing-message';
 import { useMessages } from './wizard-messages';
@@ -8,18 +8,20 @@ import type { Step, Option } from './types';
 export const useMetaDescriptionStep = (): Step => {
 	const [ selectedMetaDescription, setSelectedMetaDescription ] = useState< string >();
 	const [ metaDescriptionOptions, setMetaDescriptionOptions ] = useState< Option[] >( [] );
-	const { messages, setMessages, addMessage, removeLastMessage } = useMessages();
+	const { messages, setMessages, addMessage, removeLastMessage, editLastMessage } = useMessages();
 	const { editPost } = useDispatch( 'core/editor' );
 	const [ completed, setCompleted ] = useState( false );
 
 	useEffect( () => {
-		setMessages( [
-			{
-				content: __( "Now, let's optimize your meta description.", 'jetpack' ),
-				showIcon: true,
-			},
-		] );
-	}, [ setMessages ] );
+		if ( messages.length === 0 ) {
+			setMessages( [
+				{
+					content: __( "Now, let's optimize your meta description.", 'jetpack' ),
+					showIcon: true,
+				},
+			] );
+		}
+	}, [ setMessages, messages ] );
 
 	const handleMetaDescriptionSelect = useCallback( ( option: Option ) => {
 		setSelectedMetaDescription( option.content );
@@ -35,7 +37,6 @@ export const useMetaDescriptionStep = (): Step => {
 		addMessage( { content: <TypingMessage /> } );
 		await editPost( { meta: { advanced_seo_description: selectedMetaDescription } } );
 		removeLastMessage();
-		addMessage( { content: selectedMetaDescription, isUser: true } );
 		addMessage( { content: __( 'Meta description updated! ✅', 'jetpack' ) } );
 		setCompleted( true );
 	}, [ selectedMetaDescription, addMessage, editPost, removeLastMessage ] );
@@ -60,12 +61,18 @@ export const useMetaDescriptionStep = (): Step => {
 			);
 			removeLastMessage();
 		}
-		addMessage( { content: __( "Here's a suggestion:", 'jetpack' ) } );
+		const editedFirstMessage = createInterpolateElement(
+			__( "Now, let's optimize your meta description.<br />Here's a suggestion:", 'jetpack' ),
+			{ br: <br /> }
+		);
+		// addMessage( { content: __( "Here's a suggestion:", 'jetpack' ) } );
+		editLastMessage( editedFirstMessage );
 		setMetaDescriptionOptions( newMetaDescriptions || metaDescriptionOptions );
-	}, [ metaDescriptionOptions, addMessage, removeLastMessage ] );
+	}, [ metaDescriptionOptions, addMessage, removeLastMessage, editLastMessage ] );
 
 	const handleMetaDescriptionRegenerate = useCallback( async () => {
 		setMetaDescriptionOptions( [] );
+		editLastMessage( __( "Now, let's optimize your meta description.", 'jetpack' ) );
 		addMessage( { content: <TypingMessage /> } );
 		const newMetaDescription = await new Promise< Array< Option > >( resolve =>
 			setTimeout(
@@ -81,9 +88,14 @@ export const useMetaDescriptionStep = (): Step => {
 			)
 		);
 		removeLastMessage();
-		addMessage( { content: __( "Here's a new suggestion:", 'jetpack' ) } );
+		// addMessage( { content: __( "Here's a new suggestion:", 'jetpack' ) } );
+		const editedFirstMessage = createInterpolateElement(
+			__( "Now, let's optimize your meta description.<br />Here's a new suggestion:", 'jetpack' ),
+			{ br: <br /> }
+		);
+		editLastMessage( editedFirstMessage );
 		setMetaDescriptionOptions( newMetaDescription );
-	}, [ addMessage, removeLastMessage ] );
+	}, [ addMessage, removeLastMessage, editLastMessage ] );
 
 	const handleSkip = useCallback( () => {
 		addMessage( { content: __( 'Skipped!', 'jetpack' ) } );
