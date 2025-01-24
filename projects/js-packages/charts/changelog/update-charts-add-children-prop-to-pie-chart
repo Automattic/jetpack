@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Introduce `children` PieChart property

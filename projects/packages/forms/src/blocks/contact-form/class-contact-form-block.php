@@ -156,7 +156,6 @@ class Contact_Form_Block {
 	 * Loads scripts
 	 */
 	public static function load_editor_scripts() {
-		global $post;
 
 		$handle = 'jp-forms-blocks';
 
@@ -171,10 +170,14 @@ class Contact_Form_Block {
 			)
 		);
 
+		// Create a Contact_Form instance to get the default values
+		$contact_form = new Contact_Form( array() );
+		$defaults     = $contact_form->defaults;
+
 		$data = array(
 			'defaults' => array(
-				'to'      => wp_get_current_user()->user_email,
-				'subject' => '[' . get_bloginfo( 'name' ) . ']' . ( isset( $post ) ? ' ' . esc_html( $post->post_title ) : '' ),
+				'to'      => $defaults['to'],
+				'subject' => $defaults['subject'],
 			),
 		);
 

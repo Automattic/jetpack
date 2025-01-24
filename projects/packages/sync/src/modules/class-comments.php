@@ -318,8 +318,14 @@ class Comments extends Module {
 	 * @access public
 	 */
 	public function init_before_send() {
+
 		// Full sync.
-		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_comments', array( $this, 'expand_comment_ids' ) );
+		$sync_module = Modules::get_module( 'full-sync' );
+		if ( $sync_module instanceof Full_Sync_Immediately ) {
+			add_filter( 'jetpack_sync_before_send_jetpack_full_sync_comments', array( $this, 'extract_comments_and_meta' ) );
+		} else {
+			add_filter( 'jetpack_sync_before_send_jetpack_full_sync_comments', array( $this, 'expand_comment_ids' ) );
+		}
 	}
 
 	/**
@@ -514,5 +520,75 @@ class Comments extends Module {
 			$this->get_metadata( $comment_ids, 'comment', Settings::get_setting( 'comment_meta_whitelist' ) ),
 			$previous_interval_end,
 		);
+	}
+
+	/**
+	 * Expand the comment IDs to comment objects and meta before being serialized and sent to the server.
+	 *
+	 * @access public
+	 *
+	 * @param array $args The hook parameters.
+	 * @return array The expanded hook parameters.
+	 */
+	public function extract_comments_and_meta( $args ) {
+		list( $filtered_comments, $previous_end ) = $args;
+		return array(
+			$filtered_comments['objects'],
+			$filtered_comments['meta'],
+			$previous_end,
+		);
+	}
+
+	/**
+	 * Given the Module Configuration and Status return the next chunk of items to send.
+	 * This function also expands the posts and metadata and filters them based on the maximum size constraints.
+	 *
+	 * @param array $config This module Full Sync configuration.
+	 * @param array $status This module Full Sync status.
+	 * @param int   $chunk_size Chunk size.
+	 *
+	 * @return array
+	 */
+	public function get_next_chunk( $config, $status, $chunk_size ) {
+
+		$comment_ids = parent::get_next_chunk( $config, $status, $chunk_size );
+		if ( empty( $comment_ids ) ) {
+			return array();
+		}
+		$comments = get_comments(
+			array(
+				'comment__in' => $comment_ids,
+				'orderby'     => 'comment_ID',
+				'order'       => 'DESC',
+			)
+		);
+		if ( empty( $comments ) ) {
+			return array();
+		}
+		// Get the comment IDs from the comments that were fetched.
+		$fetched_comment_ids = wp_list_pluck( $comments, 'comment_ID' );
+		return array(
+			'object_ids' => $comment_ids, // Still send the original comment IDs since we need them to update the status.
+			'objects'    => $comments,
+			'meta'       => $this->get_metadata( $fetched_comment_ids, 'comment', Settings::get_setting( 'comment_meta_whitelist' ) ),
+		);
+	}
+
+	/**
+	 * Set the status of the full sync action based on the objects that were sent.
+	 *
+	 * @access public
+	 *
+	 * @param array $status This module Full Sync status.
+	 * @param array $objects This module Full Sync objects.
+	 *
+	 * @return array The updated status.
+	 */
+	public function set_send_full_sync_actions_status( $status, $objects ) {
+
+		$object_ids          = $objects['object_ids'];
+		$status['last_sent'] = end( $object_ids );
+		$status['sent']     += count( $object_ids );
+		return $status;
 	}
 }

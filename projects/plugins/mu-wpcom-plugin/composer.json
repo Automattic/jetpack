@@ -4,6 +4,7 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-mu-wpcom": "@dev"
 	},
 	"require-dev": {
@@ -45,6 +46,9 @@
 		"release-branch-prefix": "mu-wpcom"
 	},
 	"config": {
-		"autoloader-suffix": "d9d132a783958a00a2c7cccff60ca42d_jetpack_mu_wpcom_pluginⓥ2_7_0"
+		"autoloader-suffix": "d9d132a783958a00a2c7cccff60ca42d_jetpack_mu_wpcom_pluginⓥ2_7_0",
+		"allow-plugins": {
+			"automattic/jetpack-composer-plugin": true
+		}
 	}
 }
