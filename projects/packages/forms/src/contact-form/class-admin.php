@@ -1200,6 +1200,14 @@ class Admin {
 			if ( ! wp_trash_post( $post_id ) ) {
 				wp_die( esc_html__( 'Error in moving to Trash.', 'jetpack-forms' ) );
 			}
+		} elseif ( $_POST['make_it'] === 'delete' ) {
+			if ( ! current_user_can( $post_type_object->cap->delete_post, $post_id ) ) {
+				wp_die( esc_html__( 'You are not allowed to move this item to the Trash.', 'jetpack-forms' ) );
+			}
+
+			if ( ! wp_delete_post( $post_id, true ) ) {
+				wp_die( esc_html__( 'Error in deleting post.', 'jetpack-forms' ) );
+			}
 		}
 
 		$sql          = "

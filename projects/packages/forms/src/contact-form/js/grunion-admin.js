@@ -187,6 +187,11 @@ jQuery( function ( $ ) {
 				e.preventDefault();
 				updateStatus( postId, 'publish', '#59C859' );
 			}
+
+			if ( $( e.target ).parent().hasClass( 'delete' ) ) {
+				e.preventDefault();
+				updateStatus( postId, 'delete', '#FF7979' );
+			}
 		} );
 	} );
 
