@@ -1,4 +1,4 @@
-import { Button, TextControl, Icon } from '@wordpress/components';
+import { Button, TextControl, Icon, KeyboardShortcuts } from '@wordpress/components';
 import { forwardRef } from '@wordpress/element';
 import { arrowRight } from '@wordpress/icons';
 
@@ -25,8 +25,10 @@ export const OptionsInput = ( {
 
 function UnforwardedKeywordsInput( { placeholder, value, setValue, handleSubmit }, ref ) {
 	return (
-		<div ref={ ref } className="seo-assistant-wizard__input">
-			<TextControl value={ value } onChange={ setValue } placeholder={ placeholder } />
+		<div ref={ ref } className="assistant-wizard__input">
+			<KeyboardShortcuts shortcuts={ { enter: handleSubmit } }>
+				<TextControl value={ value } onChange={ setValue } placeholder={ placeholder } />
+			</KeyboardShortcuts>
 			<Button
 				variant="primary"
 				className="assistant-wizard__submit"
