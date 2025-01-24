@@ -1,5 +1,5 @@
 import { Button, Icon, Tooltip } from '@wordpress/components';
-import { useState, useEffect, useRef, useMemo } from '@wordpress/element';
+import { useState, useEffect, useRef, useMemo, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { next, closeSmall, chevronLeft } from '@wordpress/icons';
 import debugFactory from 'debug';
@@ -37,21 +37,31 @@ export default function AssistantWizard( { close, tasks } ) {
 		[ tasks, keywordsStepData, titleStepData, metaStepData ]
 	);
 
-	// Initialize current step data
-	useEffect( () => {
-		if ( currentStep === 0 ) {
-			setCurrentStepData( steps[ 0 ] );
-		}
-	}, [ currentStep, steps ] );
-
-	const handleNext = () => {
+	const handleNext = useCallback( () => {
 		if ( currentStep + 1 < steps.length ) {
 			debug( 'moving to ' + ( currentStep + 1 ) );
 			setCurrentStep( currentStep + 1 );
 			setCurrentStepData( steps[ currentStep + 1 ] );
 			steps[ currentStep + 1 ].onStart?.();
 		}
-	};
+	}, [ currentStep, steps ] );
+
+	const handleStepSubmit = useCallback( async () => {
+		await steps[ currentStep ]?.onSubmit?.();
+		debug( 'step submitted, moving next' );
+		// always give half a second before moving forward
+		setTimeout( handleNext, 500 );
+	}, [ currentStep, handleNext, steps ] );
+
+	// Initialize current step data
+	useEffect( () => {
+		if ( currentStep === 0 ) {
+			setCurrentStepData( steps[ 0 ] );
+			if ( steps[ 0 ].autoAdvance ) {
+				setTimeout( handleNext, steps[ 0 ].autoAdvance );
+			}
+		}
+	}, [ currentStep, steps, handleNext ] );
 
 	const handleBack = () => {
 		if ( currentStep > 1 ) {
@@ -112,7 +122,7 @@ export default function AssistantWizard( { close, tasks } ) {
 						placeholder={ steps[ currentStep ].placeholder }
 						value={ steps[ currentStep ].value }
 						setValue={ steps[ currentStep ].setValue }
-						handleSubmit={ steps[ currentStep ].onSubmit }
+						handleSubmit={ handleStepSubmit }
 					/>
 				) }
 				{ currentStep === 2 && (
@@ -121,7 +131,7 @@ export default function AssistantWizard( { close, tasks } ) {
 						submitCtaLabel={ steps[ currentStep ].submitCtaLabel }
 						retryCtaLabel={ steps[ currentStep ].retryCtaLabel }
 						handleRetry={ steps[ currentStep ].onRetry }
-						handleSubmit={ steps[ currentStep ].onSubmit }
+						handleSubmit={ handleStepSubmit }
 					/>
 				) }
 				{ currentStep === 3 && (
@@ -130,7 +140,7 @@ export default function AssistantWizard( { close, tasks } ) {
 						submitCtaLabel={ steps[ currentStep ].submitCtaLabel }
 						retryCtaLabel={ steps[ currentStep ].retryCtaLabel }
 						handleRetry={ steps[ currentStep ].onRetry }
-						handleSubmit={ steps[ currentStep ].onSubmit }
+						handleSubmit={ handleStepSubmit }
 					/>
 				) }
 				{ currentStep === steps.length - 1 && (
