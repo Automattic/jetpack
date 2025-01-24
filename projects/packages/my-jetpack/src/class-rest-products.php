@@ -299,7 +299,7 @@ class REST_Products {
 			}
 		}
 
-		return rest_ensure_response( Products::get_product( $product_slug ), 200 );
+		return rest_ensure_response( Products::get_products( $products_array ), 200 );
 	}
 
 	/**
