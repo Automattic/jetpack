@@ -212,21 +212,22 @@ class Products {
 	public static function get_products( $product_slugs = array() ) {
 		$all_classes = self::get_products_classes();
 		$products    = array();
-		// If no array of $product_slugs are passed, return All products
-		if ( ! $product_slugs ) {
-			foreach ( $all_classes as $slug => $class ) {
-				$products[ $slug ] = $class::get_info();
+		// If an array of $product_slugs are passed, return only the products specified in $product_slugs array
+		if ( $product_slugs ) {
+			foreach ( $product_slugs as $product_slug ) {
+				if ( isset( $all_classes[ $product_slug ] ) ) {
+					$class                     = $all_classes[ $product_slug ];
+					$products[ $product_slug ] = $class::get_info();
+				}
 			}
 
 			return $products;
 		}
-		// Otherwise return only the products specified in $product_slugs array.
-		foreach ( $product_slugs as $product_slug ) {
-			if ( isset( $all_classes[ $product_slug ] ) ) {
-				$class                     = $all_classes[ $product_slug ];
-				$products[ $product_slug ] = $class::get_info();
-			}
+		// Otherwise return All products.
+		foreach ( $all_classes as $slug => $class ) {
+			$products[ $slug ] = $class::get_info();
 		}
+
 		return $products;
 	}
 
