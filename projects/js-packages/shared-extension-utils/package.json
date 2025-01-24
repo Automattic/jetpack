@@ -54,6 +54,8 @@
 		"react-dom": "18.3.1"
 	},
 	"exports": {
-		".": "./index.js"
+		".": "./index.js",
+		"./store/wordpress-com": "./src/store/wordpress-com/index.ts",
+		"./store/wordpress-com/types": "./src/store/wordpress-com/types.ts"
 	}
 }

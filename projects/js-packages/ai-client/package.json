@@ -40,11 +40,6 @@
 			"jetpack:src": "./src/index.ts",
 			"types": "./build/index.d.ts",
 			"default": "./build/index.js"
-		},
-		"./store/wordpress-com": {
-			"jetpack:src": "./src/store/wordpress-com/index.ts",
-			"types": "./build/store/wordpress-com/index.d.ts",
-			"default": "./build/store/wordpress-com/index.js"
 		}
 	},
 	"main": "./build/index.js",

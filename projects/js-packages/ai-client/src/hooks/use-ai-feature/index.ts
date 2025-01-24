@@ -6,7 +6,7 @@ import {
 	usePlanType as getPlanType,
 } from '@automattic/jetpack-shared-extension-utils';
 import { useDispatch, useSelect } from '@wordpress/data';
-import type { WordPressPlansSelectors } from '../../store/wordpress-com/index.js';
+import type { WordPressPlansSelectors } from '@automattic/jetpack-shared-extension-utils/store/wordpress-com';
 
 /**
  * Hook to get properties for AiFeature

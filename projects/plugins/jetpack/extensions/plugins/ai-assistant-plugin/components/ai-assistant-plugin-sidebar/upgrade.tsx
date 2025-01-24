@@ -1,11 +1,11 @@
 /**
  * External dependencies
  */
-import { TierProp } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import type { TierProp } from '@automattic/jetpack-shared-extension-utils/store/wpcom/types';
 
 export default function Upgrade( {
 	onClick,

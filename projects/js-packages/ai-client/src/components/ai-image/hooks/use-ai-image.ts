@@ -22,9 +22,9 @@ import {
 	FEATURED_IMAGE_FEATURE_NAME,
 	GENERAL_IMAGE_FEATURE_NAME,
 } from '../types.js';
-import type { FeatureControl } from '../../../store/wordpress-com/types.js';
 import type { RoleType } from '../../../types.js';
 import type { CarrouselImageData, CarrouselImages } from '../components/carrousel.js';
+import type { FeatureControl } from '@automattic/jetpack-shared-extension-utils/store/wordpress-com/types';
 
 type ImageFeatureControl = FeatureControl & {
 	styles: Array< ImageStyleObject > | [];
