@@ -245,21 +245,7 @@ function zeroBSCRM_API_get_api_endpoint( $template_name, $args = array(), $tempa
 
 // function similar to is_user_logged_in()
 function jpcrm_is_api_request_authorised() {
-
-	// WH - I've added api_secret here to bolster security,
 	// We should switch authentication method to "headers" not parameters - will be cleaner :)
-
-	// unclear if we're still needing this...
-	// we are coming from GROOVE HQ - define in wp-config.php
-	if ( defined( 'GROOVE_API_TOKEN' ) && ! empty( $_GET['api_token'] ) ) {
-		if ( hash_equals( sanitize_text_field( $_GET['api_token'], GROOVE_API_TOKEN ) ) ) {
-			// and define that we've checked
-			if ( ! defined( 'ZBSGROOVECHECKED' ) ) {
-				define( 'ZBSGROOVECHECKED', time() );
-			}
-			return true;
-		}
-	}
 
 	// the the API key/secret are currently in the URL
 	$possible_api_key    = isset( $_GET['api_key'] ) ? sanitize_text_field( $_GET['api_key'] ) : '';

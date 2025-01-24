@@ -1,8 +1,10 @@
 import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Panel, PanelBody } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { useEffect, useReducer, useRef } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
+import { store as socialStore } from '../../social-store';
 import { ConnectForm } from './connect-form';
 import { ServiceItemDetails, ServicesItemDetailsProps } from './service-item-details';
 import { ServiceStatus } from './service-status';
@@ -40,8 +42,13 @@ export function ServiceItem( {
 
 	const brokenConnections = serviceConnections.filter( ( { status } ) => status === 'broken' );
 
-	const hasOwnBrokenConnections = brokenConnections.some(
-		( { can_disconnect } ) => can_disconnect
+	const hasOwnBrokenConnections = useSelect(
+		select => {
+			const { canUserManageConnection } = select( socialStore );
+
+			return brokenConnections.some( canUserManageConnection );
+		},
+		[ brokenConnections ]
 	);
 
 	const hideInitialConnectForm =

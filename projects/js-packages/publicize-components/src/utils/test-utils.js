@@ -33,34 +33,28 @@ export const testPost = {
 
 export const connections = [
 	{
-		id: '123456789',
 		service_name: 'facebook',
 		display_name: 'Some name',
 		profile_picture: 'https://wordpress.com/some-url-of-a-picture',
-		username: 'username',
+		external_handle: 'username',
 		enabled: false,
 		connection_id: '987654321',
-		test_success: true,
 	},
 	{
-		id: '234567891',
 		service_name: 'tumblr',
 		display_name: 'Some name',
 		profile_picture: 'https://wordpress.com/some-url-of-another-picture',
-		username: 'username',
+		external_handle: 'username',
 		enabled: false,
 		connection_id: '198765432',
-		test_success: false,
 	},
 	{
-		id: '345678912',
 		service_name: 'mastodon',
 		display_name: 'somename',
 		profile_picture: 'https://wordpress.com/some-url-of-one-more-picture',
-		username: '@somename@mastodon.social',
+		external_handle: '@somename@mastodon.social',
 		enabled: false,
 		connection_id: '219876543',
-		test_success: 'must_reauth',
 	},
 ];
 

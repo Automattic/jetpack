@@ -52,9 +52,14 @@ module.exports = [
 			'wpcom-profile-settings-link-to-wpcom':
 				'./src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.ts',
 			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
+			'wpcom-siteurl': './src/features/wpcom-siteurl/siteurl.js',
 			'starter-page-templates': './src/features/starter-page-templates/index.tsx',
 			'removed-calypso-screen-notice':
 				'./src/features/wpcom-admin-interface/removed-calypso-screen-notice.tsx',
+			'wpcom-fiverr': [
+				'./src/features/wpcom-fiverr/wpcom-fiverr.ts',
+				'./src/features/wpcom-fiverr/wpcom-fiverr.scss',
+			],
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,

@@ -245,14 +245,14 @@ class Jetpack_Social {
 
 		if ( $this->is_connected() ) {
 
-			$note = new Automattic\Jetpack\Social\Note();
+			$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
 
 			$data['settings']['socialPlugin'] = array_merge(
 				$data['settings']['socialPlugin'],
 				array(
 					'show_pricing_page'    => self::should_show_pricing_page(),
-					'social_notes_enabled' => $note->enabled(),
-					'social_notes_config'  => $note->get_config(),
+					'social_notes_enabled' => $jetpack_social_settings->is_social_notes_enabled(),
+					'social_notes_config'  => $jetpack_social_settings->get_social_notes_config(),
 				)
 			);
 		}
@@ -284,8 +284,6 @@ class Jetpack_Social {
 			$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
 			$initial_state           = $jetpack_social_settings->get_initial_state();
 
-			$note = new Automattic\Jetpack\Social\Note();
-
 			$state = array_merge(
 				$state,
 				array(
@@ -296,8 +294,8 @@ class Jetpack_Social {
 						'isEnhancedPublishingEnabled'    => $publicize->has_enhanced_publishing_feature(),
 						'dismissedNotices'               => Dismissed_Notices::get_dismissed_notices(),
 						'supportedAdditionalConnections' => $publicize->get_supported_additional_connections(),
-						'social_notes_enabled'           => $note->enabled(),
-						'social_notes_config'            => $note->get_config(),
+						'social_notes_enabled'           => $jetpack_social_settings->is_social_notes_enabled(),
+						'social_notes_config'            => $jetpack_social_settings->get_social_notes_config(),
 					),
 					'sharesData'      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
 				),

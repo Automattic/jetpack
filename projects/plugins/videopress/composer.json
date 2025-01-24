@@ -15,9 +15,7 @@
 		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "^1.1.1",
-		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "0.4.2"
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -25,9 +23,7 @@
 		]
 	},
 	"scripts": {
-		"watch": "echo 'This script is actually watching the Jetpack VideoPress package' && jetpack watch packages/videopress",
-		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+		"watch": "echo 'This script is actually watching the Jetpack VideoPress package' && jetpack watch packages/videopress"
 	},
 	"repositories": [
 		{
