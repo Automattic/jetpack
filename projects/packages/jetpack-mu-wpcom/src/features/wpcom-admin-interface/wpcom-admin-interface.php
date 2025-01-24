@@ -455,7 +455,7 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 		/**
 		 * If the variations array is set but the variation value is null chances are this is an a11n (since ExPlat returns null for a12s).
 		 *
-		 * We want to set the treatment for all a12s.
+		 * We set treatment for all a12s.
 		 */
 		update_user_option( get_current_user_id(), $option_name, 'treatment', true );
 		$is_enabled = true;
