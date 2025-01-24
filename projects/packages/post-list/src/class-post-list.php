@@ -153,6 +153,53 @@ class Post_List {
 
 		$this->maybe_customize_columns( $current_screen->post_type );
 		$this->maybe_add_share_action( $current_screen->post_type );
+		$this->maybe_add_copy_link_action( $current_screen->post_type );
+	}
+
+	/**
+	 * Checks the current post type and adds the Copy link post
+	 * action if it is appropriate to do so.
+	 *
+	 * @param string $post_type The post type associated with the current request.
+	 */
+	public function maybe_add_copy_link_action( $post_type ) {
+		if ( is_post_type_viewable( $post_type ) ) {
+			wp_add_inline_script(
+				'common',
+				'function copyLinkQuickAction( event ) {
+					event.preventDefault();
+					window.navigator.clipboard.writeText( event.target.getAttribute("href") ).then(() => {
+						event.target.textContent = "' . esc_js( __( 'Copied!', 'jetpack-post-list' ) ) . '";
+						setTimeout(() => {
+							event.target.textContent = "' . esc_js( __( 'Copy link', 'jetpack-post-list' ) ) . '";
+						}, 2000);
+					});
+				}'
+			);
+			add_filter( 'post_row_actions', array( $this, 'add_copy_link_action' ), 20, 2 );
+		}
+	}
+
+	/**
+	 * Adds the Copy link post action which copies the post link to the clipboard.
+	 *
+	 * @param array   $post_actions The current array of post actions.
+	 * @param WP_Post $post The current post in the post list table.
+	 *
+	 * @return array The modified post actions array.
+	 */
+	public function add_copy_link_action( $post_actions, $post ) {
+		if ( ! is_post_publicly_viewable( $post ) ) {
+			return $post_actions;
+		}
+
+		$post_actions['copy-link'] = sprintf(
+			' <a href="%1$s" aria-label="%2$s" onclick="copyLinkQuickAction(event)">%3$s</a>',
+			esc_url( get_permalink( $post ) ),
+			esc_html__( 'Copy link to clipboard', 'jetpack-post-list' ),
+			esc_html__( 'Copy link', 'jetpack-post-list' )
+		);
+		return $post_actions;
 	}
 
 	/**
