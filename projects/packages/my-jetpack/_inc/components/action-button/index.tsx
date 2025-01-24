@@ -2,69 +2,80 @@ import { Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronDown, external, check } from '@wordpress/icons';
 import clsx from 'clsx';
-import debugFactory from 'debug';
 import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
-import { PRODUCT_STATUSES } from '../../constants';
+import { PRODUCT_STATUSES, MyJetpackRoutes } from '../../constants';
+import useActivate from '../../data/products/use-activate';
+import useInstallStandalonePlugin from '../../data/products/use-install-standalone-plugin';
 import useProduct from '../../data/products/use-product';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
+import useConnectSite from '../../hooks/use-connect-site';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import useOutsideAlerter from '../../hooks/use-outside-alerter';
 import styles from './style.module.scss';
-import { ProductCardProps } from '.';
 import type { SecondaryButtonProps } from './secondary-button';
+import type { AdditionalAction } from './types';
 import type { FC, ComponentProps, MouseEvent } from 'react';
 
-type ActionButtonProps< A = () => void > = ProductCardProps & {
-	onFixUserConnection?: A;
-	onFixSiteConnection?: ( { e }: { e: MouseEvent< HTMLButtonElement > } ) => void;
-	onManage?: A;
-	onAdd?: A;
-	onInstall?: A;
-	onLearnMore?: A;
+type ActionButtonProps = {
+	slug: JetpackModule;
+	additionalActions?: AdditionalAction[];
+	primaryActionOverride?: Record< string, AdditionalAction >;
+	isFetching?: boolean;
 	className?: string;
-	isOwned?: boolean;
+	tracksIdentifier?: `${ string }_${ string }`;
 };
 
-const debug = debugFactory( 'my-jetpack:product-card:action-button' );
-
 const ActionButton: FC< ActionButtonProps > = ( {
-	status,
-	admin,
-	name,
 	slug,
-	onActivate,
 	additionalActions,
 	primaryActionOverride,
-	onManage,
-	onFixUserConnection,
-	onFixSiteConnection,
 	isFetching,
-	isInstallingStandalone,
 	className,
-	onAdd,
-	onInstall,
-	onLearnMore,
-	isOwned,
+	tracksIdentifier,
 } ) => {
-	const troubleshootBackupsUrl =
-		'https://jetpack.com/support/backup/troubleshooting-jetpack-backup/';
+	const { userIsAdmin, lifecycleStats } = getMyJetpackWindowInitialState();
+	const { ownedProducts } = lifecycleStats;
+
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
 	const [ currentAction, setCurrentAction ] = useState< ComponentProps< typeof Button > >( {} );
 	const { detail } = useProduct( slug );
-	const { manageUrl, purchaseUrl, managePaidPlanPurchaseUrl, renewPaidPlanPurchaseUrl } = detail;
-	const { siteIsRegistering } = useMyJetpackConnection();
+	const {
+		manageUrl,
+		purchaseUrl,
+		managePaidPlanPurchaseUrl,
+		renewPaidPlanPurchaseUrl,
+		status,
+		name,
+		requiresUserConnection,
+	} = detail;
+	const { siteIsRegistering, isRegistered, isUserConnected } = useMyJetpackConnection();
 	const isManageDisabled = ! manageUrl;
 	const dropdownRef = useRef( null );
 	const chevronRef = useRef( null );
 	const { recordEvent } = useAnalytics();
-
-	slug === 'jetpack-ai' && debug( slug, detail );
+	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.ConnectionSkipPricing );
+	const { activate, isPending: isActivating } = useActivate( slug );
+	const { install: installStandalonePlugin, isPending: isInstalling } =
+		useInstallStandalonePlugin( slug );
+	const { connectSite } = useConnectSite( {
+		tracksInfo: {
+			event: `jetpack_myjetpack_${ tracksIdentifier }_fix_site_connection`,
+			properties: {},
+		},
+	} );
 
 	const isBusy =
+		isActivating ||
 		isFetching ||
-		isInstallingStandalone ||
+		isInstalling ||
 		( siteIsRegistering && status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR );
 	const hasAdditionalActions = additionalActions?.length > 0;
+	const isOwned = ownedProducts?.includes( slug );
+	const admin = !! userIsAdmin;
+	const troubleshootBackupsUrl =
+		'https://jetpack.com/support/backup/troubleshooting-jetpack-backup/';
 
 	const buttonState = useMemo< Partial< SecondaryButtonProps > >( () => {
 		return {
@@ -76,8 +87,88 @@ const ActionButton: FC< ActionButtonProps > = ( {
 		};
 	}, [ isBusy, className ] );
 
+	/*
+	 * Redirect only if connected
+	 */
+	const handleActivate = useCallback( () => {
+		if ( ( ! isRegistered || ! isUserConnected ) && requiresUserConnection ) {
+			navigateToConnectionPage();
+			return;
+		}
+
+		recordEvent( `jetpack_myjetpack_${ tracksIdentifier }_activate_click`, {
+			product: slug,
+		} );
+
+		activate();
+	}, [
+		activate,
+		isRegistered,
+		isUserConnected,
+		requiresUserConnection,
+		navigateToConnectionPage,
+		recordEvent,
+		slug,
+		tracksIdentifier,
+	] );
+
+	/**
+	 * Calls when the "Learn more" button is clicked
+	 */
+	const learnMoreHandler = useCallback( () => {
+		recordEvent( `jetpack_myjetpack_${ tracksIdentifier }_learnmore_click`, {
+			product: slug,
+		} );
+	}, [ slug, recordEvent, tracksIdentifier ] );
+
+	/**
+	 * Calls the passed function onFixConnection after firing Tracks event
+	 */
+	const fixUserConnectionHandler = useCallback( () => {
+		recordEvent( `jetpack_myjetpack_${ tracksIdentifier }_fixconnection_click`, {
+			product: slug,
+		} );
+	}, [ slug, recordEvent, tracksIdentifier ] );
+
+	/**
+	 * Calls the passed function onAdd after firing Tracks event
+	 */
+	const addHandler = useCallback( () => {
+		recordEvent( `jetpack_myjetpack_${ tracksIdentifier }_add_click`, {
+			product: slug,
+		} );
+	}, [ slug, recordEvent, tracksIdentifier ] );
+
+	/**
+	 * Calls the passed function onManage after firing Tracks event
+	 */
+	const manageHandler = useCallback( () => {
+		recordEvent( `jetpack_myjetpack_${ tracksIdentifier }_manage_click`, {
+			product: slug,
+		} );
+	}, [ slug, recordEvent, tracksIdentifier ] );
+
+	/**
+	 * Use a Tracks event to count a standalone plugin install request
+	 */
+	const installStandaloneHandler = useCallback( () => {
+		recordEvent( `jetpack_myjetpack_${ tracksIdentifier }_install_standalone_plugin_click`, {
+			product: slug,
+		} );
+		installStandalonePlugin();
+	}, [ slug, installStandalonePlugin, recordEvent, tracksIdentifier ] );
+
+	/**
+	 * Calls the passed function onFixSiteConnection after firing Tracks event
+	 */
+	const fixSiteConnectionHandler = useCallback(
+		( { e }: { e: MouseEvent< HTMLButtonElement > } ) => {
+			connectSite( e );
+		},
+		[ connectSite ]
+	);
+
 	const getStatusAction = useCallback( (): SecondaryButtonProps => {
-		slug === 'jetpack-ai' && debug( slug, status );
 		switch ( status ) {
 			case PRODUCT_STATUSES.ABSENT: {
 				const buttonText = __( 'Learn more', 'jetpack-my-jetpack' );
@@ -86,7 +177,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					href: `#/add-${ slug }`,
 					variant: 'primary',
 					label: buttonText,
-					onClick: onLearnMore,
+					onClick: learnMoreHandler,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.ABSENT ] ?? {} ),
 				};
 			}
@@ -96,7 +187,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					...buttonState,
 					variant: 'primary',
 					label: buttonText,
-					onClick: onInstall,
+					onClick: installStandaloneHandler,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ] ?? {} ),
 				};
 			}
@@ -107,7 +198,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					href: purchaseUrl || `#/add-${ slug }`,
 					variant: 'primary',
 					label: __( 'Learn more', 'jetpack-my-jetpack' ),
-					onClick: onAdd,
+					onClick: addHandler,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION ] ?? {} ),
 				};
 			case PRODUCT_STATUSES.NEEDS_PLAN: {
@@ -120,7 +211,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					href: purchaseUrl || `#/add-${ slug }`,
 					variant: 'primary',
 					label: buttonText,
-					onClick: onAdd,
+					onClick: addHandler,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.NEEDS_PLAN ] ?? {} ),
 				};
 			}
@@ -130,7 +221,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					href: purchaseUrl || `#/add-${ slug }`,
 					variant: 'primary',
 					label: __( 'Upgrade', 'jetpack-my-jetpack' ),
-					onClick: onAdd,
+					onClick: addHandler,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.CAN_UPGRADE ] ?? {} ),
 				};
 			}
@@ -143,7 +234,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					href: manageUrl,
 					variant: 'secondary',
 					label: buttonText,
-					onClick: onManage,
+					onClick: manageHandler,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.ACTIVE ] ?? {} ),
 				};
 			}
@@ -152,7 +243,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					...buttonState,
 					variant: 'primary',
 					label: __( 'Connect', 'jetpack-my-jetpack' ),
-					onClick: onFixSiteConnection,
+					onClick: fixSiteConnectionHandler,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.SITE_CONNECTION_ERROR ] ?? {} ),
 				};
 			case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
@@ -160,7 +251,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					href: '#/connection?skip_pricing=true',
 					variant: 'primary',
 					label: __( 'Connect', 'jetpack-my-jetpack' ),
-					onClick: onFixUserConnection,
+					onClick: fixUserConnectionHandler,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.USER_CONNECTION_ERROR ] ?? {} ),
 				};
 			case PRODUCT_STATUSES.INACTIVE:
@@ -170,7 +261,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					...buttonState,
 					variant: 'secondary',
 					label: __( 'Activate', 'jetpack-my-jetpack' ),
-					onClick: onActivate,
+					onClick: handleActivate,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.INACTIVE ] ?? {} ),
 				};
 			case PRODUCT_STATUSES.EXPIRING_SOON:
@@ -237,27 +328,27 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					...buttonState,
 					href: purchaseUrl || `#/add-${ slug }`,
 					label: __( 'Learn more', 'jetpack-my-jetpack' ),
-					onClick: onAdd,
+					onClick: addHandler,
 				};
 		}
 	}, [
 		status,
 		buttonState,
 		slug,
-		onAdd,
-		onFixUserConnection,
-		onFixSiteConnection,
-		onActivate,
-		onInstall,
-		onLearnMore,
+		fixSiteConnectionHandler,
+		fixUserConnectionHandler,
+		installStandaloneHandler,
+		learnMoreHandler,
 		purchaseUrl,
 		isManageDisabled,
 		manageUrl,
-		onManage,
 		primaryActionOverride,
 		isOwned,
 		managePaidPlanPurchaseUrl,
 		renewPaidPlanPurchaseUrl,
+		handleActivate,
+		addHandler,
+		manageHandler,
 	] );
 
 	const allActions = useMemo(
@@ -267,11 +358,11 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	);
 
 	const recordDropdownStateChange = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_dropdown_toggle', {
+		recordEvent( `jetpack_myjetpack_${ tracksIdentifier }_dropdown_toggle`, {
 			product: slug,
 			state: ! isDropdownOpen ? 'open' : 'closed',
 		} );
-	}, [ isDropdownOpen, recordEvent, slug ] );
+	}, [ isDropdownOpen, recordEvent, slug, tracksIdentifier ] );
 
 	const onChevronClick = useCallback( () => {
 		setIsDropdownOpen( ! isDropdownOpen );
@@ -312,7 +403,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 						setCurrentAction( allActions[ index ] );
 						setIsDropdownOpen( false );
 
-						recordEvent( 'jetpack_myjetpack_product_card_dropdown_action_click', {
+						recordEvent( `jetpack_myjetpack_${ tracksIdentifier }_dropdown_action_click`, {
 							product: slug,
 							action: label,
 						} );
