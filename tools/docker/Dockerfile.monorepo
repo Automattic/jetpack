@@ -47,7 +47,9 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
         "php${PHP_VERSION}-zip" \
         rsync \
     && apt-get remove --purge -y python3-apt \
-    && apt-get remove --purge --auto-remove -y gpg software-properties-common
+    && apt-get remove --purge --auto-remove -y gpg software-properties-common \
+    && apt-get clean \
+    && find /var/ -name '*-old' -delete && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
 
 # Install Composer
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
@@ -61,7 +63,9 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
     && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$N.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
     && apt-get -q update \
     && VER="$(apt-cache show nodejs | sed -n "/^Version: ${NODE_VERSION}-/ { s/^Version: /=/p; q }" )" \
-    && apt-get install -y nodejs$VER
+    && apt-get install -y nodejs$VER \
+    && apt-get clean \
+    && find /var/ -name '*-old' -delete && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
 
 # Install pnpm
 RUN npm install --global pnpm@$PNPM_VERSION \
@@ -77,6 +81,7 @@ RUN chmod +x /usr/local/bin/monorepo-entrypoint.sh
 RUN apt-get update && apt-get install -y locales \
     && locale-gen en_US.UTF-8 \
     && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
+    && apt-get clean \
     && find /var/ -name '*-old' -delete && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
 
 ENV LANG=en_US.UTF-8
