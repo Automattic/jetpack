@@ -45,7 +45,7 @@ class External_Media {
 
 		wp_add_inline_script(
 			$asset_name,
-			sprintf( 'var JetpackExternalMediaData = %s;', self::get_data() ),
+			sprintf( 'var JetpackExternalMediaData = %s;', wp_json_encode( self::get_data() ) ),
 			'before'
 		);
 
@@ -70,14 +70,12 @@ class External_Media {
 			$jetpack_ai_enabled = true;
 		}
 
-		return wp_json_encode(
-			array(
-				'wpcomBlogId'    => $blog_id,
-				'pluginBasePath' => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
-				'ai-assistant'   => array(
-					'is-enabled' => apply_filters( 'jetpack_ai_enabled', $jetpack_ai_enabled ),
-				),
-			)
+		return array(
+			'wpcomBlogId'    => $blog_id,
+			'pluginBasePath' => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
+			'ai-assistant'   => array(
+				'is-enabled' => apply_filters( 'jetpack_ai_enabled', $jetpack_ai_enabled ),
+			),
 		);
 	}
 }
