@@ -1,4 +1,4 @@
-import { NumberControl } from '@automattic/jetpack-shared-extension-utils';
+import { NumberControl } from '@automattic/jetpack-components';
 import { SelectControl, Button } from '@wordpress/components';
 import { useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';

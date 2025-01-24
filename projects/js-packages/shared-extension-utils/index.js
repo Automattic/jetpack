@@ -22,7 +22,6 @@ export * from './src/hooks/use-plan-type';
 export { default as useRefInterval } from './src/hooks/use-ref-interval';
 export { default as useModuleStatus } from './src/hooks/use-module-status';
 export { default as JetpackEditorPanelLogo } from './src/components/jetpack-editor-panel-logo';
-export { default as NumberControl } from './src/components/number-control';
 export { Nudge } from './src/components/upgrade-nudge';
 export { getBlockIconComponent, getBlockIconProp } from './src/get-block-icon-from-metadata';
 export { default as getJetpackBlocksVariation } from './src/get-jetpack-blocks-variation';
