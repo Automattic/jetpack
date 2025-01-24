@@ -1427,18 +1427,17 @@ function jetpack_hotfix_block_editor_script( $scripts ) {
 		return;
 	}
 
-	$default_version = GUTENBERG_VERSION . '-hotfix';
-	$path            = gutenberg_dir_path() . 'build/block-editor/index.min.js';
-	$handle          = 'wp-block-editor';
-	$asset_file      = substr( $path, 0, - ( strlen( '.js' ) ) ) . '.asset.php';
-	$asset           = file_exists( $asset_file ) ? require $asset_file : null;
-	$dependencies    = isset( $asset['dependencies'] ) ? $asset['dependencies'] : array();
-	$version         = isset( $asset['version'] ) ? ( $asset['version'] . '-hotfix' ) : $default_version;
+	$path         = gutenberg_dir_path() . 'build/block-editor/index.min.js';
+	$handle       = 'wp-block-editor';
+	$asset_file   = substr( $path, 0, - ( strlen( '.js' ) ) ) . '.asset.php';
+	$asset        = file_exists( $asset_file ) ? require $asset_file : null;
+	$dependencies = isset( $asset['dependencies'] ) ? $asset['dependencies'] : array();
+	$version      = isset( $asset['version'] ) ? $asset['version'] : GUTENBERG_VERSION;
 	gutenberg_override_script(
 		$scripts,
 		$handle,
 		Assets::get_file_url_for_environment(
-			'_inc/build/block-editor-hotfix-' . GUTENBERG_VERSION . '.min.js',
+			'_inc/block-editor-hotfix-' . GUTENBERG_VERSION . '.min.js',
 			'_inc/block-editor-hotfix-' . GUTENBERG_VERSION . '.min.js'
 		),
 		$dependencies,
