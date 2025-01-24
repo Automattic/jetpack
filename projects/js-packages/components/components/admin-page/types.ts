@@ -1,3 +1,5 @@
+import type { JetpackFooterMenuItem } from '../jetpack-footer/types';
+
 export type AdminPageProps = {
 	/**
 	 * The page content
@@ -53,4 +55,9 @@ export type AdminPageProps = {
 	 * The nonce of the API.
 	 */
 	apiNonce?: string;
+
+	/**
+	 * Optional menu items to be displayed
+	 */
+	optionalMenuItems?: JetpackFooterMenuItem[];
 };

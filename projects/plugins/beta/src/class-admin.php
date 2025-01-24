@@ -78,7 +78,7 @@ class Admin {
 		if ( is_network_admin() && ! is_plugin_active_for_network( JPBETA__PLUGIN_FOLDER . '/jetpack-beta.php' ) ) {
 			$exception = new \RuntimeException( __( 'Jetpack Beta Tester must be activated for the network to be used from Network Admin.', 'jetpack-beta' ) );
 			require_once __DIR__ . '/admin/exception.template.php';
-			exit;
+			exit( 0 );
 		}
 
 		ob_start();
@@ -129,7 +129,7 @@ class Admin {
 			) {
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				wp_safe_redirect( Utils::admin_url( $_GET ) );
-				exit();
+				exit( 0 );
 			}
 		}
 
@@ -168,7 +168,7 @@ class Admin {
 		}
 
 		wp_safe_redirect( Utils::admin_url( $plugin ? array( 'plugin' => $plugin_name ) : array() ) );
-		exit();
+		exit( 0 );
 	}
 
 	/**

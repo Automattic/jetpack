@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { addFilter, removeFilter } from '@wordpress/hooks';
 import { DEFAULT_FONTSIZE_VALUE } from '../constants';
@@ -97,9 +97,11 @@ describe( 'Inspector controls', () => {
 			const user = userEvent.setup();
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 			await user.click( screen.getByText( 'Button Background', { ignore: '[aria-hidden=true]' } ) );
-			await user.click( screen.getByRole( 'tab', { name: 'Color' } ) );
+			// eslint-disable-next-line testing-library/no-node-access
+			const popoverContainer = document.querySelector( '.components-popover__fallback-container' );
+			await user.click( within( popoverContainer ).getByRole( 'tab', { name: 'Color' } ) );
 			await user.click(
-				screen.queryAllByLabelText( /Color: (?!Black)/i, { selector: 'button' } )[ 0 ]
+				within( popoverContainer ).getAllByRole( 'option', { name: /White/ } )[ 0 ]
 			);
 
 			expect( setButtonBackgroundColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );

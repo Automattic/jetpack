@@ -3,7 +3,7 @@
 use Automattic\Jetpack\Plugins_Installer;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 /**
@@ -104,7 +104,7 @@ class WC_Services_Installer {
 
 		wp_safe_redirect( $redirect );
 
-		exit;
+		exit( 0 );
 	}
 
 	/**

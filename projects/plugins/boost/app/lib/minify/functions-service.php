@@ -43,7 +43,7 @@ function jetpack_boost_page_optimize_service_request() {
 				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 				if ( strtotime( $utils->unslash( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) < filemtime( $cache_file ) ) {
 					header( 'HTTP/1.1 304 Not Modified' );
-					exit;
+					exit( 0 );
 				}
 			}
 
@@ -69,7 +69,7 @@ function jetpack_boost_page_optimize_service_request() {
 			header( 'ETag: ' . $etag );
 
 			echo file_get_contents( $cache_file ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- We need to trust this unfortunately.
-			die();
+			die( 0 );
 		}
 	}
 
@@ -99,7 +99,7 @@ function jetpack_boost_page_optimize_service_request() {
 		file_put_contents( $cache_file_meta, wp_json_encode( array( 'headers' => $headers ) ) );
 	}
 
-	die();
+	die( 0 );
 }
 
 /**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social | Fix editor invalid parameters error for old Jetpack versions.

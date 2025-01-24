@@ -18,7 +18,7 @@ namespace Automattic\Jetpack\Search_Plugin;
 use Automattic\Jetpack\Assets;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 // Constant definitions.

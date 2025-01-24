@@ -3,6 +3,7 @@ import {
 	useModuleStatus,
 	isSimpleSite,
 	isAtomicSite,
+	getJetpackExtensionAvailability,
 	getRequiredPlan,
 } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody, PanelRow } from '@wordpress/components';
@@ -12,7 +13,9 @@ import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { isBetaExtension } from '../../editor';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
+import SeoAssistant from '../ai-assistant-plugin/components/seo-assistant';
 import { SeoPlaceholder } from './components/placeholder';
 import { SeoSkeletonLoader } from './components/skeleton-loader';
 import UpsellNotice from './components/upsell';
@@ -23,6 +26,9 @@ import SeoTitlePanel from './title-panel';
 import './editor.scss';
 
 export const name = 'seo';
+
+const isSeoAssistantEnabled =
+	getJetpackExtensionAvailability( 'ai-seo-assistant' )?.available === true;
 
 const Seo = () => {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
@@ -95,6 +101,15 @@ const Seo = () => {
 		<Fragment>
 			<JetpackPluginSidebar>
 				<PanelBody className="jetpack-seo-panel" { ...jetpackSeoPanelProps }>
+					{ isSeoAssistantEnabled && isViewable && (
+						<PanelRow
+							className={ `jetpack-ai-sidebar__feature-section ${
+								isBetaExtension( 'ai-seo-assistant' ) ? 'is-beta-extension' : ''
+							}` }
+						>
+							<SeoAssistant disabled={ false } />
+						</PanelRow>
+					) }
 					<PanelRow>
 						<SeoTitlePanel />
 					</PanelRow>

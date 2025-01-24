@@ -96,7 +96,7 @@ function jetpack_matt_random_redirect() {
 	// @phan-suppress-next-line PhanTypeMismatchArgument
 	$permalink = get_permalink( $random_id );
 	wp_safe_redirect( $permalink );
-	exit;
+	exit( 0 );
 }
 
 add_action( 'template_redirect', 'jetpack_matt_random_redirect' );

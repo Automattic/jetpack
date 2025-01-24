@@ -7,9 +7,10 @@
 
 namespace Automattic\Jetpack\Publicize\REST_API;
 
-use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\Publicize\Publicize;
+use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
+use Automattic\Jetpack\Publicize\Connections;
+use Automattic\Jetpack\Publicize\Publicize_Utils;
+use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -19,12 +20,18 @@ use WP_REST_Server;
  */
 class Connections_Controller extends Base_Controller {
 
+	use WPCOM_REST_API_Proxy_Request;
+
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		parent::__construct();
-		$this->namespace = 'wpcom/v2';
+
+		$this->base_api_path = 'wpcom';
+		$this->version       = 'v2';
+
+		$this->namespace = "{$this->base_api_path}/{$this->version}";
 		$this->rest_base = 'publicize/connections';
 
 		$this->allow_requests_as_blog = true;
@@ -50,6 +57,58 @@ class Connections_Controller extends Base_Controller {
 							'description' => __( 'Whether to test connections.', 'jetpack-publicize-pkg' ),
 						),
 					),
+				),
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'create_item' ),
+					'permission_callback' => array( $this, 'create_item_permissions_check' ),
+					'args'                => array(
+						'keyring_connection_ID' => array(
+							'description' => __( 'Keyring connection ID.', 'jetpack-publicize-pkg' ),
+							'type'        => 'integer',
+							'required'    => true,
+						),
+						'external_user_ID'      => array(
+							'description' => __( 'External User Id - in case of services like Facebook.', 'jetpack-publicize-pkg' ),
+							'type'        => 'string',
+						),
+						'shared'                => array(
+							'description' => __( 'Whether the connection is shared with other users.', 'jetpack-publicize-pkg' ),
+							'type'        => 'boolean',
+						),
+					),
+				),
+				'schema' => array( $this, 'get_public_item_schema' ),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<connection_id>[0-9]+)',
+			array(
+				'args'   => array(
+					'connection_id' => array(
+						'description' => __( 'Unique identifier for the connection.', 'jetpack-publicize-pkg' ),
+						'type'        => 'string',
+						'required'    => true,
+					),
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'update_item' ),
+					'permission_callback' => array( $this, 'update_item_permissions_check' ),
+					'args'                => array(
+						'shared' => array(
+							'description' => __( 'Whether the connection is shared with other users.', 'jetpack-publicize-pkg' ),
+							'type'        => 'boolean',
+						),
+					),
+				),
+				array(
+					'methods'             => WP_REST_Server::DELETABLE,
+					'callback'            => array( $this, 'delete_item' ),
+					'permission_callback' => array( $this, 'delete_item_permissions_check' ),
+
 				),
 				'schema' => array( $this, 'get_public_item_schema' ),
 			)
@@ -164,121 +223,25 @@ class Connections_Controller extends Base_Controller {
 				'enum'        => array(
 					'ok',
 					'broken',
+					'must_reauth',
 					null,
 				),
 			),
-			'user_id'         => array(
+			'wpcom_user_id'   => array(
 				'type'        => 'integer',
-				'description' => __( 'ID of the user the connection belongs to. It is the user ID on wordpress.com', 'jetpack-publicize-pkg' ),
+				'description' => __( 'wordpress.com ID of the user the connection belongs to.', 'jetpack-publicize-pkg' ),
 			),
 		);
 	}
 
 	/**
-	 * Get all connections. Meant to be called directly only on WPCOM.
+	 * Verify that the request has access to connectoins list.
 	 *
-	 * @param array $args Arguments
-	 *                    - 'test_connections': bool Whether to run connection tests.
-	 *                    - 'scope': enum('site', 'user') Which connections to include.
-	 *
-	 * @return array
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return true|WP_Error
 	 */
-	protected static function get_all_connections( $args = array() ) {
-		/**
-		 * Publicize instance.
-		 */
-		global $publicize;
-
-		$items = array();
-
-		$run_tests = $args['test_connections'] ?? false;
-
-		$test_results = $run_tests ? self::get_connections_test_status() : array();
-
-		// If a (Jetpack) blog request, return all the connections for that site.
-		if ( self::is_authorized_blog_request() ) {
-			$service_connections = $publicize->get_all_connections_for_blog_id( get_current_blog_id() );
-		} else {
-			$service_connections = (array) $publicize->get_services( 'connected' );
-		}
-
-		foreach ( $service_connections as $service_name => $connections ) {
-			foreach ( $connections as $connection ) {
-
-				$connection_id = $publicize->get_connection_id( $connection );
-
-				$connection_meta = $publicize->get_connection_meta( $connection );
-				$connection_data = $connection_meta['connection_data'];
-
-				$items[] = array(
-					'connection_id'        => (string) $connection_id,
-					'display_name'         => (string) $publicize->get_display_name( $service_name, $connection ),
-					'external_handle'      => (string) $publicize->get_external_handle( $service_name, $connection ),
-					'external_id'          => $connection_meta['external_id'] ?? '',
-					'profile_link'         => (string) $publicize->get_profile_link( $service_name, $connection ),
-					'profile_picture'      => (string) $publicize->get_profile_picture( $connection ),
-					'service_label'        => (string) Publicize::get_service_label( $service_name ),
-					'service_name'         => $service_name,
-					'shared'               => ! $connection_data['user_id'],
-					'status'               => $test_results[ $connection_id ] ?? null,
-					'user_id'              => (int) $connection_data['user_id'],
-
-					// Deprecated fields.
-					'id'                   => (string) $publicize->get_connection_unique_id( $connection ),
-					'username'             => $publicize->get_username( $service_name, $connection ),
-					'profile_display_name' => ! empty( $connection_meta['profile_display_name'] ) ? $connection_meta['profile_display_name'] : '',
-					// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- We expect an integer, but do loose comparison below in case some other type is stored.
-					'global'               => 0 == $connection_data['user_id'],
-
-				);
-			}
-		}
-
-		return $items;
-	}
-
-	/**
-	 * Get a list of publicize connections.
-	 *
-	 * @param array $args Arguments.
-	 *
-	 * @see Automattic\Jetpack\Publicize\REST_API\Connections_Controller::get_all_connections()
-	 *
-	 * @return array
-	 */
-	public static function get_connections( $args = array() ) {
-		if ( self::is_wpcom() ) {
-			return self::get_all_connections( $args );
-		}
-
-		$site_id = Manager::get_site_id( true );
-		if ( ! $site_id ) {
-			return array();
-		}
-
-		$path = add_query_arg(
-			array(
-				'test_connections' => $args['test_connections'] ?? false,
-			),
-			sprintf( '/sites/%d/publicize/connections', $site_id )
-		);
-
-		$blog_or_user = ( $args['scope'] ?? '' ) === 'site' ? 'blog' : 'user';
-
-		$callback = array( Client::class, "wpcom_json_api_request_as_{$blog_or_user}" );
-
-		$response = call_user_func( $callback, $path, 'v2', array( 'method' => 'GET' ), null, 'wpcom' );
-
-		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			// TODO log error.
-			return array();
-		}
-
-		$body = wp_remote_retrieve_body( $response );
-
-		$items = json_decode( $body, true );
-
-		return $items ? $items : array();
+	public function get_items_permissions_check( $request ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return $this->publicize_permissions_check();
 	}
 
 	/**
@@ -289,14 +252,24 @@ class Connections_Controller extends Base_Controller {
 	 * @return WP_REST_Response suitable for 1-page collection
 	 */
 	public function get_items( $request ) {
+		if ( Publicize_Utils::is_wpcom() ) {
+			$args = array(
+				'context'          => self::is_authorized_blog_request() ? 'blog' : 'user',
+				'test_connections' => $request->get_param( 'test_connections' ),
+			);
+
+			$connections = Connections::wpcom_get_connections( $args );
+		} else {
+			$connections = $this->proxy_request_to_wpcom_as_user( $request );
+		}
+
+		if ( is_wp_error( $connections ) ) {
+			return $connections;
+		}
+
 		$items = array();
 
-		// On Jetpack, we don't want to pass the 'scope' param to get_connections().
-		$args = array(
-			'test_connections' => $request->get_param( 'test_connections' ),
-		);
-
-		foreach ( self::get_connections( $args ) as $item ) {
+		foreach ( $connections as $item ) {
 			$data = $this->prepare_item_for_response( $item, $request );
 
 			$items[] = $this->prepare_response_for_collection( $data );
@@ -310,27 +283,207 @@ class Connections_Controller extends Base_Controller {
 	}
 
 	/**
-	 * Get the connections test status.
+	 * Checks if a given request has access to create a connection.
 	 *
-	 * @return array
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return true|WP_Error True if the request has access to create items, WP_Error object otherwise.
 	 */
-	protected static function get_connections_test_status() {
-		/**
-		 * Publicize instance.
-		 *
-		 * @var \Automattic\Jetpack\Publicize\Publicize $publicize
-		 */
-		global $publicize;
+	public function create_item_permissions_check( $request ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$permissions = parent::publicize_permissions_check();
 
-		$test_results = $publicize->get_publicize_conns_test_results();
-
-		$test_results_map = array();
-
-		foreach ( $test_results as $test_result ) {
-			// Compare to `true` because the API returns a 'must_reauth' for LinkedIn.
-			$test_results_map[ $test_result['connectionID'] ] = true === $test_result['connectionTestPassed'] ? 'ok' : 'broken';
+		if ( is_wp_error( $permissions ) ) {
+			return $permissions;
 		}
 
-		return $test_results_map;
+		return current_user_can( 'publish_posts' );
+	}
+
+	/**
+	 * Creates a new connection.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function create_item( $request ) {
+		if ( Publicize_Utils::is_wpcom() ) {
+
+			$input = array(
+				'keyring_connection_ID' => $request->get_param( 'keyring_connection_ID' ),
+				'shared'                => $request->get_param( 'shared' ),
+			);
+
+			$external_user_id = $request->get_param( 'external_user_ID' );
+			if ( ! empty( $external_user_id ) ) {
+				$input['external_user_ID'] = $external_user_id;
+			}
+
+			$result = Connections::wpcom_create_connection( $input );
+
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+
+			$connection = Connections::get_by_id( $result );
+
+			$response = $this->prepare_item_for_response( $connection, $request );
+			$response = rest_ensure_response( $response );
+
+			$response->set_status( 201 );
+
+			return $response;
+
+		}
+
+		$response = $this->proxy_request_to_wpcom_as_user( $request, '', array( 'timeout' => 120 ) );
+
+		if ( is_wp_error( $response ) ) {
+			return new WP_Error(
+				'jp_connection_update_failed',
+				__( 'Something went wrong while creating a connection.', 'jetpack-publicize-pkg' ),
+				$response->get_error_message()
+			);
+		}
+
+		$response = rest_ensure_response( $response );
+
+		$response->set_status( 201 );
+
+		return $response;
+	}
+
+	/**
+	 * Checks if a given request has access to update a connection.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return true|WP_Error True if the request has access to create items, WP_Error object otherwise.
+	 */
+	public function update_item_permissions_check( $request ) {
+		$permissions = parent::publicize_permissions_check();
+
+		if ( is_wp_error( $permissions ) ) {
+			return $permissions;
+		}
+
+		// If the user cannot manage the connection, they can't update it either.
+		if ( ! $this->manage_connection_permission_check( $request ) ) {
+			return new WP_Error(
+				'rest_cannot_edit',
+				__( 'Sorry, you are not allowed to update this connection.', 'jetpack-publicize-pkg' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		// If the connection is being marked/unmarked as shared.
+		if ( $request->has_param( 'shared' ) ) {
+			// Only editors and above can mark a connection as shared.
+			return current_user_can( 'edit_others_posts' );
+		}
+
+		return current_user_can( 'publish_posts' );
+	}
+
+	/**
+	 * Update a connection.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function update_item( $request ) {
+		$connection_id = $request->get_param( 'connection_id' );
+
+		if ( Publicize_Utils::is_wpcom() ) {
+
+			$input = array(
+				'shared' => $request->get_param( 'shared' ),
+			);
+
+			$result = Connections::wpcom_update_connection( $connection_id, $input );
+
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+
+			$connection = Connections::get_by_id( $connection_id );
+
+			$response = $this->prepare_item_for_response( $connection, $request );
+			$response = rest_ensure_response( $response );
+
+			$response->set_status( 201 );
+
+			return $response;
+		}
+
+		$response = $this->proxy_request_to_wpcom_as_user( $request, $connection_id, array( 'timeout' => 120 ) );
+
+		if ( is_wp_error( $response ) ) {
+			return new WP_Error(
+				'jp_connection_updation_failed',
+				__( 'Something went wrong while updating the connection.', 'jetpack-publicize-pkg' ),
+				$response->get_error_message()
+			);
+		}
+
+		$response = rest_ensure_response( $response );
+
+		$response->set_status( 201 );
+
+		return $response;
+	}
+
+	/**
+	 * Checks if a given request has access to delete a connection.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return true|WP_Error True if the request has access to create items, WP_Error object otherwise.
+	 */
+	public function delete_item_permissions_check( $request ) {
+		$permissions = parent::publicize_permissions_check();
+
+		if ( is_wp_error( $permissions ) ) {
+			return $permissions;
+		}
+
+		return $this->manage_connection_permission_check( $request );
+	}
+
+	/**
+	 * Delete a connection.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function delete_item( $request ) {
+		$connection_id = $request->get_param( 'connection_id' );
+
+		if ( Publicize_Utils::is_wpcom() ) {
+
+			$result = Connections::wpcom_delete_connection( $connection_id );
+
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+
+			$response = rest_ensure_response( $result );
+
+			$response->set_status( 201 );
+
+			return $response;
+		}
+
+		$response = $this->proxy_request_to_wpcom_as_user( $request, $connection_id, array( 'timeout' => 120 ) );
+
+		if ( is_wp_error( $response ) ) {
+			return new WP_Error(
+				'jp_connection_deletion_failed',
+				__( 'Something went wrong while deleting the connection.', 'jetpack-publicize-pkg' ),
+				$response->get_error_message()
+			);
+		}
+
+		$response = rest_ensure_response( $response );
+
+		$response->set_status( 201 );
+
+		return $response;
 	}
 }
