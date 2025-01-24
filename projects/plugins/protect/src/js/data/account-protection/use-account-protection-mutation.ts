@@ -48,7 +48,7 @@ export default function useAccountProtectionMutation(): UseMutationResult<
 			showSuccessNotice( __( 'Changes saved.', 'jetpack-protect' ) );
 		},
 		onError: ( error, variables, context ) => {
-			// Reset the WAF config to its previous state.
+			// Reset the account protection config to its previous state.
 			queryClient.setQueryData( [ QUERY_ACCOUNT_PROTECTION_KEY ], context.initialValue );
 
 			showErrorNotice( __( 'Error saving changes.', 'jetpack-protect' ) );
