@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+
 /**
  * Class External_Media
  */
@@ -34,14 +36,11 @@ class External_Media {
 			$assets_base_path . "$asset_name/$asset_name.js",
 			__FILE__,
 			array(
-				'enqueue'      => true,
-				'textdomain'   => 'jetpack-external-media',
-
-				/**
-				 * It depends on the `jetpack-blocks-editor` since the feature requires `Jetpack_Editor_Initial_State`.
-				 */
-				'dependencies' => array( 'jetpack-blocks-editor' ),
+				'enqueue'    => true,
+				'textdomain' => 'jetpack-external-media',
 			)
 		);
+
+		Connection_Initial_State::render_script( $asset_name );
 	}
 }
