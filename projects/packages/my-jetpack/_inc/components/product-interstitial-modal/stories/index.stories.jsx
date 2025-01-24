@@ -1,7 +1,8 @@
-import { Text, ProductPrice } from '@automattic/jetpack-components';
+import { ProductPrice } from '@automattic/jetpack-components';
 import React from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
-import ProductInterstitialModal from '..';
+import ProductInterstitialFeatureList from '../product-interstifial-feature-list';
+import ProductInterstitialModal from '../product-interstitial-modal';
 import boostImage from './boost.png';
 
 export default {
@@ -10,15 +11,11 @@ export default {
 };
 
 const DefaultArgs = {
-	title: 'Product Interstitial Modal',
+	title: 'Jetpack Boost',
+	description: 'Boost your site with Jetpack Boost',
 	children: (
-		<div style={ { display: 'flex', flexDirection: 'column', gap: '1rem' } }>
-			<Text>
-				Lorem ipsum dolor <b>sit amet</b>, consectetur adipiscing elit. Cras rutrum neque odio, vel
-				viverra lectus vulputate et. Lorem ipsum dolor <b>sit amet</b>, consectetur adipiscing elit.
-				Cras rutrum neque odio, vel viverra lectus vulputate et. Lorem ipsum dolor <b>sit amet</b>,
-				consectetur adipiscing elit. Cras rutrum neque odio, vel viverra lectus vulputate et.
-			</Text>
+		<>
+			<ProductInterstitialFeatureList features={ [ 'Feature 1', 'Feature 2', 'Feature 3' ] } />
 			<ProductPrice
 				currency="USD"
 				price={ 24.92 }
@@ -30,10 +27,9 @@ const DefaultArgs = {
 				promoLabel="NEW"
 				legend="/month, paid yearly"
 			/>
-		</div>
+		</>
 	),
 	triggerButton: 'Open Modal',
-	hideCloseButton: false,
 	buttonContent: 'Upgrade now',
 	secondaryColumn: <img src={ boostImage } alt="Boost" />,
 	buttonExternalLink: 'https://jetpack.com',
