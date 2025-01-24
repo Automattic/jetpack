@@ -54,7 +54,7 @@ const SettingsPage = () => {
 				<Text mb={ 2 } className={ styles[ 'toggle-section__description' ] }>
 					{ createInterpolateElement(
 						__(
-							'When enabled, users can only set passwords that meet strong <link>security standards</link>, helping protect their accounts and your site.',
+							'Protect your site with enhanced password detection and profile management security.',
 							'jetpack-protect'
 						),
 						{
