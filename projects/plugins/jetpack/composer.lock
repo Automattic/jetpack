@@ -1203,10 +1203,13 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/external-media",
-				"reference": "4514a5174122e4ffb6f483d0f6448dec58140166"
+				"reference": "75d507a6f36e4571f7ae617063e1cbf87ae9b3bb"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
+				"automattic/jetpack-connection": "@dev",
+				"automattic/jetpack-constants": "@dev",
+				"automattic/jetpack-status": "@dev",
 				"php": ">=7.2"
 			},
 			"require-dev": {
