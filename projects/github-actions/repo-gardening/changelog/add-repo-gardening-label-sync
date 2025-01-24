@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Label sync: add new task to synchronize labels between repos.
