@@ -43,22 +43,30 @@ if ( ! function_exists( 'jetpack_load_custom_post_types' ) ) {
 
 if ( ! function_exists( 'jetpack_custom_post_types_loaded' ) ) {
 	/**
-	 * Pass the active status to the front-end.
+	 * Pass the active status to the front-end in it's initial state.
 	 */
 	function jetpack_custom_post_types_loaded() {
+		$initial_state = 'var CUSTOM_CONTENT_TYPE__INITIAL_STATE; typeof CUSTOM_CONTENT_TYPE__INITIAL_STATE === "object" || (CUSTOM_CONTENT_TYPE__INITIAL_STATE = JSON.parse(decodeURIComponent("' . rawurlencode(
+			wp_json_encode(
+				array(
+					'active'    => true,
+					'over_ride' => false,
+				)
+			)
+		) . '")));';
 
 			// Create a global variable with the custom content type feature status so that the value is available
 			// earlier than the API method above allows, preventing delayed loading of the settings card.
-			wp_register_script( 'custom-content-types-active', '', array(), '0.1.0', true );
-			wp_enqueue_script( 'custom-content-types-active' );
+			wp_register_script( 'custom-content-types-data', '', array(), '0.1.0', true );
+			wp_enqueue_script( 'custom-content-types-data' );
 			wp_add_inline_script(
-				'custom-content-types-active',
-				'const custom_content_types_active = true'
+				'custom-content-types-data',
+				$initial_state,
+				'before'
 			);
 	}
 	add_action( 'init', 'jetpack_custom_post_types_loaded' );
 }
-
 if ( ! function_exists( 'register_rest_route_custom_content_types' ) ) {
 	/**
 	 * Register the REST route for the custom content types.
