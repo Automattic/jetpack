@@ -93,6 +93,7 @@ class WPCom_Markdown {
 		$this->add_default_post_type_support();
 		$this->maybe_load_actions_and_filters();
 		if ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) {
+			// phpcs:ignore WPCUT.SwitchBlog.SwitchBlog -- wpcom flags **every** use of switch_blog, apparently expecting valid instances to ignore or suppress the sniff.
 			add_action( 'switch_blog', array( $this, 'maybe_load_actions_and_filters' ), 10, 2 );
 		}
 		add_action( 'admin_init', array( $this, 'register_setting' ) );
