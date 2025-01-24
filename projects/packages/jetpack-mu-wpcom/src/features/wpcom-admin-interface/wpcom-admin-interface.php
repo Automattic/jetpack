@@ -462,7 +462,7 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 		 *
 		 * We set treatment for all a12s.
 		 */
-		update_user_option( get_current_user_id(), $option_name, 'treatment', true );
+		update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, 'treatment', true );
 		$is_enabled = true;
 	} else {
 		$is_enabled = false;
