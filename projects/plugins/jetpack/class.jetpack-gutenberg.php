@@ -1439,7 +1439,7 @@ function jetpack_hotfix_block_editor_script( $scripts ) {
 		$handle,
 		Assets::get_file_url_for_environment(
 			'_inc/build/block-editor-hotfix-' . GUTENBERG_VERSION . '.min.js',
-			'_inc/block-editor-hotfix-' . GUTENBERG_VERSION . '.js'
+			'_inc/block-editor-hotfix-' . GUTENBERG_VERSION . '.min.js'
 		),
 		$dependencies,
 		$version,
