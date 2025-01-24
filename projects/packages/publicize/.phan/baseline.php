@@ -11,13 +11,13 @@ return [
     // # Issue statistics:
     // PhanPluginDuplicateConditionalNullCoalescing : 6 occurrences
     // PhanTypeMismatchArgument : 6 occurrences
+    // PhanPluginMixedKeyNoKey : 3 occurrences
     // PhanTypeMismatchArgumentNullable : 3 occurrences
+    // PhanUndeclaredClassMethod : 3 occurrences
     // PhanDeprecatedFunction : 2 occurrences
-    // PhanPluginMixedKeyNoKey : 2 occurrences
     // PhanPossiblyUndeclaredVariable : 2 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
     // PhanTypeMissingReturn : 2 occurrences
-    // PhanUndeclaredClassMethod : 2 occurrences
     // PhanImpossibleCondition : 1 occurrence
     // PhanNoopNew : 1 occurrence
     // PhanParamSignatureMismatch : 1 occurrence
@@ -29,19 +29,19 @@ return [
     // PhanTypeMismatchDefault : 1 occurrence
     // PhanTypeMismatchDimFetch : 1 occurrence
     // PhanTypeMismatchReturn : 1 occurrence
-    // PhanUndeclaredFunction : 1 occurrence
+    // PhanTypeSuspiciousNonTraversableForeach : 1 occurrence
     // PhanUndeclaredMethod : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        'src/class-connections.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredMethod'],
         'src/class-keyring-helper.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault'],
         'src/class-publicize-base.php' => ['PhanImpossibleCondition', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturn'],
         'src/class-publicize-setup.php' => ['PhanNoopNew', 'PhanTypeMismatchArgument'],
         'src/class-publicize-ui.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-publicize.php' => ['PhanParamSignatureMismatch', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMissingReturn'],
         'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/rest-api/class-base-controller.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
-        'src/rest-api/class-connections-controller.php' => ['PhanPluginMixedKeyNoKey', 'PhanUndeclaredMethod'],
+        'src/rest-api/class-connections-controller.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeSuspiciousNonTraversableForeach'],
         'src/rest-api/class-connections-post-field.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/social-image-generator/class-post-settings.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/social-image-generator/class-rest-settings-controller.php' => ['PhanPluginMixedKeyNoKey'],

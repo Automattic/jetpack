@@ -5,8 +5,17 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [6.5.0] - 2025-01-10
+## [6.5.1] - 2025-01-22
+### Changed
+- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
 
+### Removed
+- Remove legacy Groove code. [#41247]
+
+### Fixed
+- Invoices: Fix bug introduced in 6.5.0 that prevented email invoices from being sent. [#41172]
+
+## [6.5.0] - 2025-01-10
 ### Removed
 - General: Remove unused legacy code. [#40267]
 
@@ -3617,6 +3626,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tested across 4 common web hosts
 - Tested with extensions: WooCommerce CRM Sync, PayPal CRM Sync, CSV Importer, ZBS CRM Mail Campaigns, and CRM Sales Dashboard
 
+[6.5.1]: https://github.com/Automattic/jetpack-crm/compare/6.5.0...6.5.1
 [6.5.0]: https://github.com/Automattic/jetpack-crm/compare/6.4.4...6.5.0
 [6.4.4]: https://github.com/Automattic/jetpack-crm/compare/6.4.3...6.4.4
 [6.4.3]: https://github.com/Automattic/jetpack-crm/compare/6.4.2...6.4.3

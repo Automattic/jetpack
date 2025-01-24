@@ -17,7 +17,7 @@ import styles from './styles.module.scss';
 
 const SettingsPage = () => {
 	const { hasPlan } = usePlan();
-	const { data: accountProtection } = useAccountProtectionQuery();
+	const { data: accountProtectionIsEnabled } = useAccountProtectionQuery();
 	const toggleAccountProtection = useToggleAccountProtectionMutation();
 
 	// Track view for Protect Account Protection page.
@@ -32,7 +32,7 @@ const SettingsPage = () => {
 		<div className={ styles[ 'toggle-section' ] }>
 			<div className={ styles[ 'toggle-section__control' ] }>
 				<ToggleControl
-					checked={ accountProtection }
+					checked={ accountProtectionIsEnabled }
 					onChange={ toggleAccountProtection }
 					disabled={ toggleAccountProtection.isPending }
 				/>
@@ -52,7 +52,7 @@ const SettingsPage = () => {
 						}
 					) }
 				</Text>
-				{ accountProtection && (
+				{ accountProtectionIsEnabled && (
 					<Text className={ styles[ 'toggle-section__warning' ] }>
 						<Icon icon={ warning } />
 						{ createInterpolateElement(

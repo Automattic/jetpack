@@ -52,34 +52,9 @@ if ( isset( $_GET['email'] ) ) {
 		)
 	);
 
+	// Send an empty array if no matches.
 	if ( ! $customer_matches ) {
 		wp_send_json( array() );
-	}
-
-	// Groove Sidebar has extra information, will do this way, for file compatibility
-	if ( isset( $_GET['api_token'] ) && defined( 'ZBSGROOVECHECKED' ) ) {
-		// then it's coming from Groove, so send back total value and last purchased information
-		$customerID                      = $customer_matches['id'];
-		$total_value                     = zeroBS_customerTotalValue( $customerID, $customer_matches['invoices'], $customer_matches['transactions'] );
-		$customer_matches['total_value'] = $total_value;
-
-		// also needs
-		/**
-		 * purchase_item
-		 * purchase_value
-		 * purchase_date
-		 */
-
-		if ( isset( $customer_matches['transactions'] ) && is_array( $customer_matches['transactions'] ) && count( $customer_matches['transactions'] ) > 0 ) {
-
-			$customer_matches['purchase_item']  = $customer_matches['transactions'][0]['meta']['item'];
-			$customer_matches['purchase_value'] = $customer_matches['transactions'][0]['meta']['total'];
-			$customer_matches['purchase_date']  = $customer_matches['transactions'][0]['created'];
-
-		}
-
-		/* should also format the bl00dy dates */
-
 	}
 } else {
 	// could be more matches (don't return financial data - unperformant)

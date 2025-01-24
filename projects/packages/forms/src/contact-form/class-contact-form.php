@@ -43,14 +43,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * The most recent (inclusive) contact-form shortcode processed.
 	 *
-	 * @var Contact_Form
+	 * @var Contact_Form|null
 	 */
 	public static $last;
 
 	/**
 	 * Form we are currently looking at. If processed, will become $last
 	 *
-	 * @var Contact_Form
+	 * @var Contact_Form|null
 	 */
 	public static $current_form;
 
@@ -116,6 +116,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$attributes['id'] = $post->ID;
 			$post_author      = get_userdata( $post->post_author );
 			$default_to      .= $post_author->user_email;
+		}
+
+		if ( ! empty( self::$forms ) ) {
+			// Ensure 'id' exists in $attributes before trying to modify it
+			if ( ! isset( $attributes['id'] ) ) {
+				$attributes['id'] = '';
+			}
+			$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 );
 		}
 
 		$this->hash                 = sha1( wp_json_encode( $attributes ) );
