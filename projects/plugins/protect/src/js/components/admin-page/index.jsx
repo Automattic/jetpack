@@ -57,6 +57,10 @@ const AdminPage = ( { children } ) => {
 						}
 					/>
 					<Tab link="/firewall" label={ __( 'Firewall', 'jetpack-protect' ) } />
+					<Tab
+						link="/settings"
+						label={ <span className={ styles.tab }>{ __( 'Settings', 'jetpack-protect' ) }</span> }
+					/>
 				</Tabs>
 			</Container>
 			{ children }
