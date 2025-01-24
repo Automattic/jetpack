@@ -17,6 +17,7 @@ export default function SeoAssistantWizard( { close }: { close?: () => void } ) 
 					title: __( 'Optimise for SEO', 'jetpack' ),
 					label: 'welcome',
 					type: 'welcome',
+					autoAdvance: 1000,
 					messages: [
 						{
 							content: createInterpolateElement(
