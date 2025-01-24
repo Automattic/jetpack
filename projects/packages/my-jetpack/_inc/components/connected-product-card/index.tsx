@@ -46,7 +46,7 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 	customLoadTracks,
 } ) => {
 	const { isRegistered } = useMyJetpackConnection();
-	const { detail, refetch, isLoading: isProductDataLoading } = useProduct( slug );
+	const { detail, refetch } = useProduct( slug );
 	const { name, description: defaultDescription, status, manageUrl } = detail;
 
 	const DefaultDescription = () => {
@@ -73,7 +73,6 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 			status={ status }
 			admin={ admin }
 			recommendation={ recommendation }
-			isFetching={ isProductDataLoading }
 			isDataLoading={ isDataLoading }
 			additionalActions={ additionalActions }
 			primaryActionOverride={ primaryActionOverride }
