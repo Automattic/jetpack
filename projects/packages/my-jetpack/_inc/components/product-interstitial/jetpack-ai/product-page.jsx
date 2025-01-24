@@ -26,6 +26,8 @@ import { useGoBack } from '../../../hooks/use-go-back';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../../go-back-link';
+import { ProductInterstitialPlugin } from '../../product-interstitial-modal';
+import jetpackAiImage from '../jetpack-ai.png';
 import styles from './style.module.scss';
 
 const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai-product-page' );
@@ -227,13 +229,16 @@ export default function () {
 								) }
 							</div>
 							{ ! shouldContactUs && ! hasUnlimited && (
-								<Button
-									variant="primary"
-									onClick={ upgradeClickHandler }
-									className={ styles[ 'product-interstitial__hero-cta' ] }
-								>
-									{ __( 'Get more requests', 'jetpack-my-jetpack' ) }
-								</Button>
+								<>
+									<ProductInterstitialPlugin
+										slug="jetpack-ai"
+										// onClick={ upgradeClickHandler } // from interst.
+										triggerButton={ __( 'Get more requests', 'jetpack-my-jetpack' ) }
+										buttonContent={ __( 'Upgrade', 'jetpack-my-jetpack' ) }
+										secondaryColumn={ <img src={ jetpackAiImage } alt="Jetpack AI" /> }
+										buttonExternalLink="https://jetpack.com/ai/"
+									/>
+								</>
 							) }
 							{ shouldContactUs && (
 								<Button
