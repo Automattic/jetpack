@@ -510,6 +510,16 @@ function JetpackRestApiClient( root, nonce ) {
 			getRequest( `${ wpcomOriginApiUrl }jetpack/v4/search/stats`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
+		fetchAccountProtectionSettings: () =>
+			getRequest( `${ apiRoot }jetpack/v4/account-protection`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		updateAccountProtectionSettings: newSettings =>
+			postRequest( `${ apiRoot }jetpack/v4/account-protection`, postParams, {
+				body: JSON.stringify( newSettings ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 		fetchWafSettings: () =>
 			getRequest( `${ apiRoot }jetpack/v4/waf`, getParams )
 				.then( checkStatus )

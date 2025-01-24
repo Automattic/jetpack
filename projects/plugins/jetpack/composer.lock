@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "7b6c53f88fcb9c7098d80137fd6d13c1",
+	"content-hash": "cbb88a4e4e1b0088ff12393af82e5cdc",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -55,6 +55,78 @@
 				"GPL-2.0-or-later"
 			],
 			"description": "Used to record internal usage stats for Automattic. Not visible to site owners.",
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
+			"name": "automattic/jetpack-account-protection",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/account-protection",
+				"reference": "badc1036552f26a900a69608df22284e603981ed"
+			},
+			"require": {
+				"automattic/jetpack-connection": "@dev",
+				"automattic/jetpack-status": "@dev",
+				"php": ">=7.2"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"automattic/wordbless": "dev-master",
+				"yoast/phpunit-polyfills": "^1.1.1"
+			},
+			"suggest": {
+				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+			},
+			"type": "jetpack-library",
+			"extra": {
+				"autotagger": true,
+				"branch-alias": {
+					"dev-trunk": "0.1.x-dev"
+				},
+				"changelogger": {
+					"link-template": "https://github.com/Automattic/jetpack-account-protection/compare/v${old}...v${new}"
+				},
+				"mirror-repo": "Automattic/jetpack-account-protection",
+				"textdomain": "jetpack-account-protection",
+				"version-constants": {
+					"::PACKAGE_VERSION": "src/class-account-protection.php"
+				}
+			},
+			"autoload": {
+				"classmap": [
+					"src/"
+				]
+			},
+			"scripts": {
+				"build-development": [
+					"echo 'Add your build step to composer.json, please!'"
+				],
+				"build-production": [
+					"echo 'Add your build step to composer.json, please!'"
+				],
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"post-install-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"post-update-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "Account protection",
 			"transport-options": {
 				"relative": true
 			}
@@ -6084,6 +6156,7 @@
 	"minimum-stability": "dev",
 	"stability-flags": {
 		"automattic/jetpack-a8c-mc-stats": 20,
+		"automattic/jetpack-account-protection": 20,
 		"automattic/jetpack-admin-ui": 20,
 		"automattic/jetpack-assets": 20,
 		"automattic/jetpack-autoloader": 20,
