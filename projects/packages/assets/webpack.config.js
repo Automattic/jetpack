@@ -31,6 +31,7 @@ module.exports = [
 		entry: {
 			'i18n-loader': {
 				import: './src/js/i18n-loader.js',
+				uniqueName: 'wp.jpI18nLoader',
 				library: {
 					name: [ 'wp', 'jpI18nLoader' ],
 					type: 'window',
@@ -43,6 +44,7 @@ module.exports = [
 		entry: {
 			'jetpack-script-data': {
 				import: './src/js/script-data.js',
+				uniqueName: 'JetpackScriptDataModule',
 				library: {
 					name: 'JetpackScriptDataModule',
 					type: 'umd',
