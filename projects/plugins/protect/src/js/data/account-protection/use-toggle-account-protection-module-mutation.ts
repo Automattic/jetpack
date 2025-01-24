@@ -18,13 +18,9 @@ export default function useToggleAccountProtectionMutation(): UseMutationResult 
 		onMutate: () => {
 			showSavingNotice();
 
-			// Get the current Account Protection settings.
 			const initialValue = queryClient.getQueryData( [ QUERY_ACCOUNT_PROTECTION_KEY ] );
 
-			console.log( initialValue ); // TODO: Test the toggleAccountProtection mutation...
-
-			// Optimistically update the Account Protection settings.
-			// queryClient.setQueryData( [ QUERY_ACCOUNT_PROTECTION_KEY ], () => ! initialValue );
+			queryClient.setQueryData( [ QUERY_ACCOUNT_PROTECTION_KEY ], ! initialValue );
 
 			return { initialValue };
 		},
@@ -32,7 +28,10 @@ export default function useToggleAccountProtectionMutation(): UseMutationResult 
 			showSuccessNotice( __( 'Changes saved.', 'jetpack-protect' ) );
 		},
 		onError: () => {
-			showErrorNotice( __( 'Error savings changes.', 'jetpack-protect' ) );
+			showErrorNotice( __( 'An error occurred.', 'jetpack-protect' ) );
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries( { queryKey: [ QUERY_ACCOUNT_PROTECTION_KEY ] } );
 		},
 	} );
 }
