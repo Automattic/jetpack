@@ -180,17 +180,6 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/me/account';
 			},
 		),
-		'verify_email_hidden_if_verified' => array(
-			'get_title'            => function () {
-				return __( 'Verify email address', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => 'wpcom_launchpad_is_email_verified',
-			'is_disabled_callback' => 'wpcom_launchpad_is_email_verified',
-			'is_visible_callback'  => 'wpcom_launchpad_is_email_unverified',
-			'get_calypso_path'     => function () {
-				return '/me/account';
-			},
-		),
 		'preview_site'                    => array(
 			'get_title'            => function () {
 				return __( 'Preview your site', 'jetpack-mu-wpcom' );
@@ -1895,22 +1884,6 @@ function wpcom_launchpad_is_email_verified() {
 	}
 
 	return ! Email_Verification::is_email_unverified();
-}
-
-/**
- * Callback for email verification incompletion.
- *
- * @return bool True if email is unverified, false otherwise.
- */
-function wpcom_launchpad_is_email_unverified() {
-	// TODO: handle the edge case where an Atomic user can be unverified.
-	if ( ! class_exists( 'Email_Verification' ) ) {
-		// Function is used when deciding visilibity of the verify email task.
-		// If we can't determine the email verification status, we should keep the task hidden.
-		return false;
-	}
-
-	return Email_Verification::is_email_unverified();
 }
 
 /**
