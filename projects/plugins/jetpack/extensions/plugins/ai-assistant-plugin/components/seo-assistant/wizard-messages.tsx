@@ -60,22 +60,22 @@ export const useMessages = () => {
 export const MessageBubble = ( { message } ) => {
 	return (
 		<div
-			className={ clsx( 'seo-assistant-wizard__message', {
+			className={ clsx( 'assistant-wizard__message', {
 				'is-user': message.isUser,
 			} ) }
 		>
-			<div className="seo-assistant-wizard__message-icon">
+			<div className="assistant-wizard__message-icon">
 				{ message.showIcon && (
 					<img src={ bigSkyIcon } alt={ __( 'SEO Assistant avatar', 'jetpack' ) } />
 				) }
 			</div>
 
 			{ message.type === 'past-options' && (
-				<div className="seo-assistant-wizard__options">
+				<div className="assistant-wizard__options">
 					{ message.options.map( option => (
 						<div
 							key={ option.id }
-							className={ clsx( 'seo-assistant-wizard__option', {
+							className={ clsx( 'assistant-wizard__option', {
 								'is-selected': option.selected,
 							} ) }
 						>
@@ -86,7 +86,7 @@ export const MessageBubble = ( { message } ) => {
 			) }
 
 			{ ( ! message.type || message.type === 'chat' ) && (
-				<div className="seo-assistant-wizard__message-text">{ message.content }</div>
+				<div className="assistant-wizard__message-text">{ message.content }</div>
 			) }
 		</div>
 	);
@@ -98,14 +98,14 @@ const OptionMessages = ( { options = [], onSelect } ) => {
 	}
 
 	return (
-		<div className="seo-assistant-wizard__message">
-			<div className="seo-assistant-wizard__message-icon"></div>
-			<div className="seo-assistant-wizard__message-text">
-				<div className="seo-assistant-wizard__options">
+		<div className="assistant-wizard__message">
+			<div className="assistant-wizard__message-icon"></div>
+			<div className="assistant-wizard__message-text">
+				<div className="assistant-wizard__options">
 					{ options.map( option => (
 						<button
 							key={ option.id }
-							className={ clsx( 'seo-assistant-wizard__option', {
+							className={ clsx( 'assistant-wizard__option', {
 								'is-selected': option.selected,
 							} ) }
 							onClick={ () => onSelect( option ) }
@@ -131,7 +131,7 @@ export default function Messages( { options, onSelect, messages, loading } ) {
 
 	return (
 		<>
-			<div className="seo-assistant-wizard__messages">
+			<div className="assistant-wizard__messages">
 				{ messages.map( message => (
 					<MessageBubble key={ message.id } message={ message } />
 				) ) }

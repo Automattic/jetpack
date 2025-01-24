@@ -10,7 +10,7 @@ export const OptionsInput = ( {
 	submitCtaLabel,
 } ) => {
 	return (
-		<div className="seo-assistant-wizard__actions">
+		<div className="assistant-wizard__actions">
 			<Button variant="secondary" onClick={ handleRetry }>
 				{ retryCtaLabel }
 			</Button>
@@ -29,7 +29,7 @@ function UnforwardedKeywordsInput( { placeholder, value, setValue, handleSubmit 
 			<TextControl value={ value } onChange={ setValue } placeholder={ placeholder } />
 			<Button
 				variant="primary"
-				className="seo-assistant-wizard__submit"
+				className="assistant-wizard__submit"
 				onClick={ handleSubmit }
 				size="small"
 				disabled={ ! value }
@@ -44,8 +44,8 @@ export const TextInput = forwardRef( UnforwardedKeywordsInput );
 
 export const CompletionInput = ( { submitCtaLabel, handleSubmit } ) => {
 	return (
-		<div className="seo-assistant-wizard__completion">
-			<Button variant="primary" className="seo-assistant-wizard__done" onClick={ handleSubmit }>
+		<div className="assistant-wizard__completion">
+			<Button variant="primary" className="assistant-wizard__done" onClick={ handleSubmit }>
 				{ submitCtaLabel }
 			</Button>
 		</div>

@@ -104,8 +104,8 @@ export default function AssistantWizard( { close, tasks } ) {
 	};
 
 	return (
-		<div className="seo-assistant-wizard">
-			<div className="seo-assistant-wizard__header">
+		<div className="assistant-wizard">
+			<div className="assistant-wizard__header">
 				<Button variant="link" disabled={ isBusy } onClick={ handleBack }>
 					<Icon icon={ chevronLeft } size={ 24 } />
 				</Button>
@@ -122,7 +122,7 @@ export default function AssistantWizard( { close, tasks } ) {
 				</div>
 			</div>
 
-			<div className="seo-assistant-wizard__content" style={ { overflow: 'auto' } }>
+			<div className="assistant-wizard__content" style={ { overflow: 'auto' } }>
 				{ steps.map( ( step, index ) => (
 					<WizardStep
 						key={ step.id }
@@ -135,7 +135,7 @@ export default function AssistantWizard( { close, tasks } ) {
 				<div ref={ stepsEndRef } />
 			</div>
 
-			<div className="seo-assistant-wizard__input-container">
+			<div className="assistant-wizard__input-container">
 				{ currentStep === 1 && (
 					<TextInput
 						ref={ keywordsInputRef }
