@@ -79,8 +79,8 @@ const LineChart: FC< LineChartProps > = ( {
 	data,
 	width,
 	height,
-	margin = { top: 20, right: 20, bottom: 40, left: 40 },
 	className,
+	margin = {},
 	withTooltips = true,
 	showLegend = false,
 	legendOrientation = 'horizontal',
@@ -122,9 +122,9 @@ const LineChart: FC< LineChartProps > = ( {
 				theme={ theme }
 				width={ width }
 				height={ height }
-				margin={ margin }
-				xScale={ { type: 'time' } }
-				yScale={ { type: 'linear', nice: true } }
+				margin={ { top: 20, right: 20, bottom: 40, left: 40, ...margin } }
+				xScale={ { type: 'time', ...options?.xScale } }
+				yScale={ { type: 'linear', nice: true, zero: false, ...options?.yScale } }
 			>
 				<AnimatedGrid columns={ false } numTicks={ 4 } />
 				<AnimatedAxis
