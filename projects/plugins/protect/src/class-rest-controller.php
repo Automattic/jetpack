@@ -403,7 +403,7 @@ class REST_Controller {
 	 * @return WP_Rest_Response
 	 */
 	public static function api_get_account_protection() {
-		return new WP_REST_Response( ( new Account_Protection() )->get_settings() );
+		return new WP_REST_Response( ( new Account_Protection() )->is_enabled() );
 	}
 
 	/**

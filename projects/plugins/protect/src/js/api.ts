@@ -17,13 +17,6 @@ const API = {
 			path: 'jetpack-protect/v1/toggle-account-protection',
 		} ),
 
-	updateAccountProtection: data =>
-		apiFetch( {
-			method: 'POST',
-			path: 'jetpack/v4/account-protection',
-			data,
-		} ).then( camelize ),
-
 	getWaf: (): Promise< WafStatus > =>
 		apiFetch( {
 			path: 'jetpack-protect/v1/waf',

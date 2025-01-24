@@ -3,7 +3,6 @@ import { __ } from '@wordpress/i18n';
 import API from '../../api';
 import { QUERY_ACCOUNT_PROTECTION_KEY } from '../../constants';
 import useNotices from '../../hooks/use-notices';
-import { AccountProtectionStatus } from '../../types/account-protection';
 
 /**
  * Toggle Account Protection Mutatation
@@ -20,18 +19,12 @@ export default function useToggleAccountProtectionMutation(): UseMutationResult 
 			showSavingNotice();
 
 			// Get the current Account Protection settings.
-			const initialValue = queryClient.getQueryData( [
-				QUERY_ACCOUNT_PROTECTION_KEY,
-			] ) as AccountProtectionStatus;
+			const initialValue = queryClient.getQueryData( [ QUERY_ACCOUNT_PROTECTION_KEY ] );
+
+			console.log( initialValue ); // TODO: Test the toggleAccountProtection mutation...
 
 			// Optimistically update the Account Protection settings.
-			queryClient.setQueryData(
-				[ QUERY_ACCOUNT_PROTECTION_KEY ],
-				( accountProtectionStatus: AccountProtectionStatus ) => ( {
-					...accountProtectionStatus,
-					isEnabled: ! initialValue.isEnabled,
-				} )
-			);
+			// queryClient.setQueryData( [ QUERY_ACCOUNT_PROTECTION_KEY ], () => ! initialValue );
 
 			return { initialValue };
 		},
