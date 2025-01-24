@@ -388,6 +388,11 @@ function wpcom_show_admin_interface_notice() {
 add_action( 'admin_notices', 'wpcom_show_admin_interface_notice' );
 
 /**
+ * Option to force and cache the Remove duplicate Views experiment assigned variation.
+ */
+const RDV_EXPERIMENT_FORCE_ASSIGN_OPTION = 'remove_duplicate_views_experiment_assignment';
+
+/**
  * Check if the duplicate views experiment is enabled.
  *
  * @return boolean
@@ -402,17 +407,16 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 		return $is_enabled;
 	}
 
-	if ( ( new Host() )->is_wpcom_simple() ) {
-		\ExPlat\assign_current_user( $aa_test_name );
-		$is_enabled = 'treatment' === \ExPlat\assign_current_user( $experiment_name );
-		return $is_enabled;
-	}
-
-	$option_name = 'remove_duplicate_views_experiment_assignment';
-	$variation   = get_user_option( $option_name, get_current_user_id() );
+	$variation = get_user_option( RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, get_current_user_id() );
 
 	if ( false !== $variation ) {
 		$is_enabled = 'treatment' === $variation;
+		return $is_enabled;
+	}
+
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		\ExPlat\assign_current_user( $aa_test_name );
+		$is_enabled = 'treatment' === \ExPlat\assign_current_user( $experiment_name );
 		return $is_enabled;
 	}
 
@@ -449,7 +453,7 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 
 	if ( isset( $data['variations'] ) && isset( $data['variations'][ $experiment_name ] ) ) {
 		$variation = $data['variations'][ $experiment_name ];
-		update_user_option( get_current_user_id(), $option_name, $variation, true );
+		update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, $variation, true );
 
 		$is_enabled = 'treatment' === $variation;
 		return $is_enabled;
@@ -457,6 +461,98 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 		$is_enabled = false;
 		return $is_enabled;
 	}
+}
+
+/**
+ * Set the Calypso preference for rdv.
+ *
+ * This is needed to override the ExPlat variation assignment in order to be able to revert the variation for some users.
+ *
+ * @param string|null $assignment The experiment variation.
+ * @return void
+ */
+function wpcom_set_rdv_calypso_preference( $assignment ) {
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		$preferences                                       = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
+		$preferences[ RDV_EXPERIMENT_FORCE_ASSIGN_OPTION ] = $assignment;
+		update_user_attribute( get_current_user_id(), 'calypso_preferences', $preferences );
+	} else {
+		Client::wpcom_json_api_request_as_user(
+			'/me/preferences',
+			'2',
+			array(
+				'method' => 'POST',
+			),
+			array( 'calypso_preferences' => array( RDV_EXPERIMENT_FORCE_ASSIGN_OPTION => $assignment ) )
+		);
+	}
+}
+
+/**
+ * Force a variation (control/treatment) for the Remove Duplicate Views experiment.
+ *
+ * @return void
+ */
+function wpcom_force_assign_variation_for_remove_duplicate_views_experiment() {
+	if ( ! isset( $_GET['force-assign-rdv-variation'] ) ) {
+		return;
+	}
+
+	$assignment = in_array( $_GET['force-assign-rdv-variation'], array( 'control', 'treatment' ), true ) ? sanitize_text_field( wp_unslash( $_GET['force-assign-rdv-variation'] ) ) : false;
+
+	if ( ! $assignment ) {
+		return;
+	}
+
+	wpcom_set_rdv_calypso_preference( $assignment );
+
+	/**
+	 * Setting the option globally (third parameter) will have the following behavior:
+	 * - On Simple Sites, the option will be shared between them.
+	 * - On Atomic Sites, the option will NOT be shared.
+	 *
+	 * This also means that if a user has a Simple Sites and Atomic sites, the option will not be shared between them.
+	 *
+	 * For example, if the option is set on a Simple Site, every other site will get it, except for the Atomic ones.
+	 * If the option is set on an Atomic Site, this will apply only on this site - it won't be shared between the other Atomic Sites OR Simple Sites.
+	 *
+	 *  This option is also not moved from Simple to Atomic on AT transfer.
+	 */
+	update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, $assignment, true );
+}
+
+/**
+ * Reset the assignment cache for the Remove duplicate views experiment.
+ *
+ * @return void
+ */
+function wpcom_reset_assignment_for_remove_duplicate_views_experiment() {
+	if ( ! isset( $_GET['force-reset-rdv-variation'] ) ) {
+		return;
+	}
+
+	wpcom_set_rdv_calypso_preference( null );
+
+	/**
+	 * Setting the option globally (third parameter) will have the following behavior:
+	 * - On Simple Sites, the option will be shared between them.
+	 * - On Atomic Sites, the option will NOT be shared.
+	 *
+	 * This also means that if a user has a Simple Sites and Atomic sites, the option will not be shared between them.
+	 *
+	 * For example, if the option is set on a Simple Site, every other site will get it, except for the Atomic ones.
+	 * If the option is set on an Atomic Site, this will apply only on this site - it won't be shared between the other Atomic Sites OR Simple Sites.
+	 *
+	 * This option is also not moved from Simple to Atomic on AT transfer.
+	 *
+	 * Since this should be used only in exceptional cases, there's no need to implement something better.
+	 */
+	delete_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, true );
+}
+
+if ( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST || defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) {
+	add_action( 'admin_init', 'wpcom_force_assign_variation_for_remove_duplicate_views_experiment' );
+	add_action( 'admin_init', 'wpcom_reset_assignment_for_remove_duplicate_views_experiment' );
 }
 
 /**

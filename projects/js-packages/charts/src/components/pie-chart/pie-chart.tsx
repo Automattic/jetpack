@@ -48,6 +48,11 @@ interface PieChartProps extends OmitBaseChartProps {
 	 * A value between 0 and 1, where 0 means no corner radius.
 	 */
 	cornerScale?: number;
+
+	/**
+	 * Use the children prop to render additional elements on the chart.
+	 */
+	children?: React.ReactNode;
 }
 
 /**
@@ -93,6 +98,7 @@ const PieChart = ( {
 	padding = 20,
 	gapScale = 0,
 	cornerScale = 0,
+	children = null,
 }: PieChartProps ) => {
 	const providerTheme = useChartTheme();
 	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
@@ -206,6 +212,8 @@ const PieChart = ( {
 							} );
 						} }
 					</Pie>
+
+					{ children }
 				</Group>
 			</svg>
 
