@@ -7,12 +7,44 @@
 
 namespace Automattic\Jetpack;
 
+use PHPStan\PhpDocParser\Lexer\Lexer;
+use PHPStan\PhpDocParser\Parser\ConstExprParser;
+use PHPStan\PhpDocParser\Parser\PhpDocParser;
+use PHPStan\PhpDocParser\Parser\TokenIterator;
+use PHPStan\PhpDocParser\Parser\TypeParser;
+use PHPStan\PhpDocParser\ParserConfig;
+
 /**
  * Converts PHPDoc markup into a template ready for import to a WordPress blog.
  */
 class Doc_Parser {
 
 	const PACKAGE_VERSION = '0.1.0-alpha';
+
+	/**
+	 * The PhpDocParser library lexer object for processing comment blocks.
+	 *
+	 * @var Lexer
+	 * */
+	public $lexer;
+
+	/**
+	 * The parser object to be used for parsing PHPDoc comments.
+	 *
+	 * @var PhpDocParser
+	 * */
+	public $pdparser;
+
+	/**
+	 * Constructor for the Doc_Parser class.
+	 */
+	public function __construct() {
+		$config          = new ParserConfig( array() );
+		$this->lexer     = new Lexer( $config );
+		$constExprParser = new ConstExprParser( $config );
+		$typeParser      = new TypeParser( $config, $constExprParser );
+		$this->pdparser  = new PhpDocParser( $config, $typeParser, $constExprParser );
+	}
 
 	/**
 	 * Generate a JSON file containing the PHPDoc markup, and save to filesystem.
@@ -105,14 +137,139 @@ class Doc_Parser {
 		);
 
 		// Extract PHPDoc.
-		ob_start();
-		$output = \WP_Parser\parse_files( $files, $path );
-		ob_end_clean();
+		$blocks = array();
 
-		if ( 'json' === $format ) {
-			$output = json_encode( $output, JSON_PRETTY_PRINT );
+		foreach ( $files as $file ) {
+			$file_blocks = array();
+
+			$ast = \ast\parse_file( $files[0], 110 );
+			$this->get_filter_calls( $ast, $file_blocks );
+
+			$splfile = new \SplFileObject( $file );
+			foreach ( $file_blocks as &$block ) {
+
+				$docblock = array();
+
+				// Lines are zero indexed.
+				$start = $block['line_start'] - 2;
+
+				while ( ! $splfile->eof() && $start >= 0 ) {
+					$splfile->seek( $start-- );
+					$line = $splfile->current();
+					array_unshift( $docblock, $line );
+
+					if ( false !== strpos( $line, '/**' ) ) {
+						break;
+					}
+				}
+				$docblock = implode( '', $docblock );
+
+				$tokens     = new TokenIterator( $this->lexer->tokenize( $docblock ) );
+				$phpDocNode = $this->pdparser->parse( $tokens );
+				$paramTags  = $phpDocNode->getParamTagValues(); //phpcs:ignore
+			}
+
+			$blocks = array(
+				...$blocks,
+				...$file_blocks,
+			);
 		}
 
-		return $output;
+		if ( 'json' === $format ) {
+			$blocks = json_encode( $blocks, JSON_PRETTY_PRINT );
+		}
+
+		return $blocks;
+	}
+
+	/**
+	 * Returns a "flattened" string representation of an AST node.
+	 *
+	 * @param \ast\Node $node the node to be flattened.
+	 * @return string a string representation of the node.
+	 */
+	public function flatten_ast_node( $node ): string {
+		if ( $node instanceof \ast\Node ) {
+			$node_kind = \ast\get_kind_name( $node->kind );
+
+			foreach ( $node->children as $i => $child ) {
+				if ( $i === 'docComment' ) {
+					continue;
+				}
+
+				switch ( $node_kind ) {
+					case 'AST_VAR':
+						$result .= ' $' . $this->flatten_ast_node( $child );
+						break;
+					case 'AST_CALL':
+						$result .= $child->children['expr']->children['name'] . '(';
+						$first   = true;
+						// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+						while ( $argument = array_unshift( $child->children['args']->children ) ) {
+							if ( $first ) {
+								$first = false;
+							} else {
+								$result .= ', ';
+							}
+							$result .= $this->flatten_ast_node( $argument );
+						}
+						$result .= ')';
+						break;
+					default:
+						$result .= $this->flatten_ast_node( $child );
+				}
+			}
+			return $result;
+		} elseif ( $node === null ) {
+			return 'null';
+		} elseif ( is_string( $node ) ) {
+			return $node;
+		} else {
+			return (string) $node;
+		}
+	}
+
+	/**
+	 * Returns an array of docblock annotations for apply_filter function calls, with keys being names of filters
+	 * used.
+	 *
+	 * @param mixed $tree Abstract syntax tree, or nodes of it.
+	 * @param array $blocks An array to gather code blocks into.
+	 * @return void
+	 */
+	public function get_filter_calls( $tree, &$blocks ) {
+		if ( $tree instanceof \ast\Node ) {
+			$result = \ast\get_kind_name( $tree->kind );
+
+			if ( 'AST_CALL' === $result ) {
+				$name = $tree->children['expr']->children['name'];
+
+				if ( 'apply_filters' === $name ) {
+
+					$argument = array_unshift( $tree->children['args']->children );
+
+					if ( $argument instanceof ast\Node ) {
+						$argument = $this->flatten_ast_node( $argument );
+					}
+					$new_block = array(
+						'line'     => $tree->lineno,
+						'end_line' => $tree->endLineno ?? $tree->lineno,
+						'name'     => $argument,
+					);
+
+					$new_block['arguments'] = array();
+					foreach ( $tree->children['args']->children as $argument ) {
+						if ( $argument instanceof \ast\Node ) {
+							$argument = $this->flatten_ast_node( $argument );
+						}
+						array_push( $new_block['arguments'], $argument );
+					}
+				}
+			}
+
+			foreach ( $tree->children as $child ) {
+				$this->get_filter_calls( $child, $blocks );
+			}
+		}
 	}
 }
