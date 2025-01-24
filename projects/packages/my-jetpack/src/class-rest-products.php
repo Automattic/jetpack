@@ -239,11 +239,11 @@ class REST_Products {
 	 * @access public
 	 * @static
 	 *
-	 * @param  array $products_array - An array of product slug strings.
+	 * @param  mixed $value - Value of the 'product' argument.
 	 * @return true|WP_Error   True if the value is valid, WP_Error otherwise.
 	 */
-	public static function check_products_argument( $products_array ) {
-		if ( ! is_array( $products_array ) ) {
+	public static function check_products_argument( $value ) {
+		if ( ! is_array( $value ) ) {
 			return new WP_Error(
 				'rest_invalid_param',
 				esc_html__( 'The product argument must be an array.', 'jetpack-my-jetpack' ),
