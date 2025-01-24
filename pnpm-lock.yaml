@@ -2684,6 +2684,9 @@ importers:
       '@wordpress/data':
         specifier: 10.16.0
         version: 10.16.0(react@18.3.1)
+      '@wordpress/dataviews':
+        specifier: 4.12.0
+        version: 4.12.0(patch_hash=uzs6glhpt3sq2uqjvqzk6vk2ze)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/date':
         specifier: 5.16.0
         version: 5.16.0

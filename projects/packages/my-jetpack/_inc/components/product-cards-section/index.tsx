@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { PRODUCT_SLUGS } from '../../data/constants';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import ProductsTableView from '../products-table-view';
 import StatsSection from '../stats-section';
 import AiCard from './ai-card';
 import AntiSpamCard from './anti-spam-card';
@@ -27,19 +28,7 @@ type DisplayItemType = Record<
 	// 'jetpack-ai' is the official slug for the AI module, so we also exclude 'ai'.
 	// The backend still supports the 'ai' slug, so it is part of the JetpackModule type.
 	// Related-posts, newsletter, and site-accelerator are features, not products.
-	Exclude<
-		JetpackModule,
-		| 'extras'
-		| 'scan'
-		| 'security'
-		| 'ai'
-		| 'creator'
-		| 'growth'
-		| 'complete'
-		| 'site-accelerator'
-		| 'newsletter'
-		| 'related-posts'
-	>,
+	JetpackModuleWithCard,
 	FC< { admin: boolean } >
 >;
 
@@ -116,7 +105,19 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 	}, [ ownedProducts.length ] );
 
 	const filterProducts = ( products: JetpackModule[] ) => {
-		const productsWithNoCard = [ 'scan', 'security', 'growth', 'extras', 'complete' ];
+		const productsWithNoCard = [
+			'extras',
+			'scan',
+			'security',
+			'ai',
+			'creator',
+			'growth',
+			'complete',
+			'site-accelerator',
+			'newsletter',
+			'related-posts',
+			'brute-force',
+		];
 		return products.filter( product => {
 			if ( productsWithNoCard.includes( product ) ) {
 				return false;
@@ -127,6 +128,7 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 
 	const filteredOwnedProducts = filterProducts( ownedProducts );
 	const filteredUnownedProducts = filterProducts( unownedProducts );
+	const testUnownedProducts = filterProducts( [ ...unownedProducts, ...ownedProducts ] );
 
 	return (
 		<>
@@ -150,8 +152,7 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 						<Col sm={ 4 } md={ 8 } lg={ 12 } className={ styles.cardListTitle }>
 							<Text variant="headline-small">{ unownedSectionTitle }</Text>
 						</Col>
-
-						<DisplayItems slugs={ filteredUnownedProducts } />
+						<ProductsTableView products={ testUnownedProducts } />
 					</Col>
 				</Container>
 			) }

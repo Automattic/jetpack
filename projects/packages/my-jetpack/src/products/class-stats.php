@@ -33,6 +33,13 @@ class Stats extends Module_Product {
 	public static $module_name = 'stats';
 
 	/**
+	 * The category of the product
+	 *
+	 * @var string
+	 */
+	public static $category = 'growth';
+
+	/**
 	 * The Plugin slug associated with stats
 	 *
 	 * @var string|null
