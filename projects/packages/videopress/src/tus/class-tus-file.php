@@ -11,7 +11,7 @@ use InvalidArgumentException;
 
 // Avoid direct calls to this file.
 if ( ! defined( 'ABSPATH' ) ) {
-	die();
+	die( 0 );
 }
 
 /**

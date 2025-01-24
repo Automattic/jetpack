@@ -1,0 +1,16 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "zh_TW",
+				"project_id_version": "WordPress.com - jetpack-mu-wpcom"
+			},
+			"We've adopted WordPress's main %s view to bring improvements to you and millions of WordPress users worldwide.": [
+				"\u6211\u5011\u5df2\u7d93\u63a1\u7d0d WordPress \u7684\u4e3b\u8981 %s \u6aa2\u8996\u65b9\u5f0f\uff0c\u8b93\u4f60\u548c\u5168\u4e16\u754c\u6578\u767e\u842c WordPress \u4f7f\u7528\u8005\u90fd\u80fd\u4eab\u6709\u6539\u5584\u7684\u6210\u679c\u3002"
+			],
+			"The %s view just got better": [ "%s \u6aa2\u8996\u65b9\u5f0f\u5df2\u6709\u6539\u5584" ],
+			"Got it": [ "\u77e5\u9053\u4e86\uff01" ]
+		}
+	}
+}

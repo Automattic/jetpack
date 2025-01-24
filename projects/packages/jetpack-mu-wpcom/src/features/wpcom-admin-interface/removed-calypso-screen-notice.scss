@@ -1,13 +1,17 @@
+@import "@wordpress/base-styles/breakpoints";
+
 .components-modal__frame.removed-calypso-screen-notice {
 	width: 512px;
 
 	.removed-calypso-screen-notice__image {
-		height: 300px;
+		max-height: 300px;
+		flex-grow: 1;
 		background-color: #3858e9;
 		background-size: 30px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		background-image: url('https://s0.wp.com/i/welcome-notices/removed-calypso-screen-bg-pattern.png');
 	}
 
 	.removed-calypso-screen-notice__icon {
@@ -16,6 +20,16 @@
 		padding: 48px;
 		border-radius: 12px;
 		box-sizing: content-box;
+		width: 72px;
+		height: 72px;
+		margin: 66px 0;
+
+		@media (max-height: #{ ($break-mobile) }) {
+			width: 24px;
+			height: 24px;
+			padding: 16px;
+			margin: 24px 0;
+		}
 	}
 
 	h1 {

@@ -45,7 +45,7 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		/**
 		 * Version number used when enqueuing all resources (css and js).
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @var string
 		 */
@@ -54,7 +54,7 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		/**
 		 * Default markup for the menu items.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @var array
 		 */
@@ -72,7 +72,7 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		/**
 		 * Array of markup for the menu items.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @var array
 		 */
@@ -81,7 +81,7 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		/**
 		 * Last term ID of a loop of menu items.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @var bool|int
 		 */
@@ -90,7 +90,7 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		/**
 		 * Current term ID of a loop of menu items.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @var bool|int
 		 */
@@ -99,14 +99,14 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		/**
 		 * Initialize class.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param array $menu_item_loop_markup Array of markup for the menu items.
 		 *
 		 * @return Automattic\Jetpack\Classic_Theme_Helper\Nova_Restaurant
 		 */
 		public static function init( $menu_item_loop_markup = array() ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			return Automattic\Jetpack\Classic_Theme_Helper\Nova_Restaurant::init( $menu_item_loop_markup );
 		}
 
@@ -155,12 +155,12 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		/**
 		 * Should this Custom Post Type be made available?
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @return bool
 		 */
 		public function site_supports_nova() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			return $this->new_instance->site_supports_nova();
 		}
 
@@ -169,109 +169,109 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		/**
 		 * Register Taxonomies and Post Type
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 */
 		public function register_taxonomies() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->register_taxonomies();
 		}
 
 		/**
 		 * Register our Post Type.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 */
 		public function register_post_types() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->register_post_types();
 		}
 
 		/**
 		 * Update messages for the Menu Item admin.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param array $messages Existing post update messages.
 		 *
 		 * @return array $messages Updated post update messages.
 		 */
 		public function updated_messages( $messages ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			return $this->new_instance->updated_messages( $messages );
 		}
 
 		/**
 		 * Nova styles and scripts.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param string $hook Page hook.
 		 *
 		 * @return void
 		 */
 		public function enqueue_nova_styles( $hook ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->enqueue_nova_styles( $hook );
 		}
 
 		/**
 		 * Change ‘Enter Title Here’ text for the Menu Item.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param string $title Default title placeholder text.
 		 *
 		 * @return string
 		 */
 		public function change_default_title( $title ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			return $this->new_instance->change_default_title( $title );
 		}
 
 		/**
 		 * Add to Dashboard At A Glance
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @return void
 		 */
 		public function add_to_dashboard() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->add_to_dashboard();
 		}
 
 		/**
 		 * If the WP query for our menu items.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param WP_Query $query WP Query.
 		 *
 		 * @return bool
 		 */
 		public function is_menu_item_query( $query ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			return $this->new_instance->is_menu_item_query( $query );
 		}
 
 		/**
 		 * Custom sort the menu item queries by menu order.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param WP_Query $query WP Query.
 		 *
 		 * @return void
 		 */
 		public function sort_menu_item_queries_by_menu_order( $query ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->sort_menu_item_queries_by_menu_order( $query );
 		}
 
 		/**
 		 * Custom sort the menu item queries by menu taxonomies.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param WP_Post[] $posts Array of post objects.
 		 * @param WP_Query  $query The WP_Query instance.
@@ -279,43 +279,43 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		 * @return WP_Post[]
 		 */
 		public function sort_menu_item_queries_by_menu_taxonomy( $posts, $query ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			return $this->new_instance->sort_menu_item_queries_by_menu_taxonomy( $posts, $query );
 		}
 
 		/**
 		 * Add new "Add many items" submenu, custom colunmns, and custom bulk actions.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @return void
 		 */
 		public function add_admin_menus() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->add_admin_menus();
 		}
 
 		/**
 		 * Custom Nova Icon CSS
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @return void
 		 */
 		public function set_custom_font_icon() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->set_custom_font_icon();
 		}
 
 		/**
 		 * Load Nova menu management tools on the CPT admin screen.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @return void
 		 */
 		public function current_screen_load() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->current_screen_load();
 		}
 
@@ -324,59 +324,59 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		/**
 		 * Display a notice in wp-admin after items have been changed.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @return void
 		 */
 		public function admin_notices() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->admin_notices();
 		}
 
 		/**
 		 * Do not allow sorting by title.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param array $columns An array of sortable columns.
 		 *
 		 * @return array $columns.
 		 */
 		public function no_title_sorting( $columns ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			return $this->new_instance->no_title_sorting( $columns );
 		}
 
 		/**
 		 * Set up custom columns for our Nova menu.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @return void
 		 */
 		public function setup_menu_item_columns() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->setup_menu_item_columns();
 		}
 
 		/**
 		 * Add custom columns to the Nova menu item list.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param array $columns An array of columns.
 		 *
 		 * @return array $columns.
 		 */
 		public function menu_item_columns( $columns ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			return $this->new_instance->menu_item_columns( $columns );
 		}
 
 		/**
 		 * Display custom data in each new custom column we created.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param string $column  The name of the column to display.
 		 * @param int    $post_id The current post ID.
@@ -384,31 +384,31 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		 * @return void
 		 */
 		public function menu_item_column_callback( $column, $post_id ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->menu_item_column_callback( $column, $post_id );
 		}
 
 		/**
 		 * Get menu item by post ID.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param int $post_id Post ID.
 		 *
 		 * @return bool|WP_Term
 		 */
 		public function get_menu_by_post_id( $post_id = null ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			return $this->new_instance->get_menu_by_post_id( $post_id );
 		}
 
 		/**
 		 * Fires on a menu edit page. We might have drag-n-drop reordered
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 */
 		public function maybe_reorder_menu_items() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->maybe_reorder_menu_items();
 		}
 
@@ -416,38 +416,38 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		 * Handle changes to menu items.
 		 * (process actions, update data, enqueue necessary scripts).
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @return void
 		 */
 		public function edit_menu_items_page_load() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->edit_menu_items_page_load();
 		}
 
 		/**
 		 * Process actions to move menu items around.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @return void
 		 */
 		public function handle_menu_item_actions() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->handle_menu_item_actions();
 		}
 
 		/**
 		 * Add menu title rows to the list table
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param WP_Post $post The Post object.
 		 *
 		 * @return void
 		 */
 		public function show_menu_titles_in_menu_item_list( $post ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->show_menu_titles_in_menu_item_list( $post );
 		}
 
@@ -457,48 +457,48 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		 * Handle form submissions that aim to add many menu items at once.
 		 * (process posted data and enqueue necessary script).
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @return void
 		 */
 		public function add_many_new_items_page_load() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->add_many_new_items_page_load();
 		}
 
 		/**
 		 * Enqueue script to create many items at once.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @return void
 		 */
 		public function enqueue_many_items_scripts() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->enqueue_many_items_scripts();
 		}
 
 		/**
 		 * Process form request to create many items at once.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @return void
 		 */
 		public function process_form_request() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->process_form_request();
 		}
 
 		/**
 		 * Admin page contents for adding many menu items at once.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @return void
 		 */
 		public function add_many_new_items_page() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->add_many_new_items_page();
 		}
 
@@ -508,38 +508,38 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		 * Create admin meta box to save price for a menu item,
 		 * and add script to add extra checkboxes to the UI.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @return void
 		 */
 		public function register_menu_item_meta_boxes() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->register_menu_item_meta_boxes();
 		}
 
 		/**
 		 * Meta box to edit the price of a menu item.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param WP_Post $post The post object.
 		 *
 		 * @return void
 		 */
 		public function menu_item_price_meta_box( $post ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->menu_item_price_meta_box( $post );
 		}
 
 		/**
 		 * Save the price of a menu item.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param int $post_id Post ID.
 		 */
 		public function add_post_meta( $post_id ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->add_post_meta( $post_id );
 		}
 
@@ -548,63 +548,63 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		/**
 		 * Get ordered array of menu items.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param array $args Optional argumments.
 		 *
 		 * @return array
 		 */
 		public function get_menus( $args = array() ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			return $this->new_instance->get_menus( $args );
 		}
 
 		/**
 		 * Get first menu taxonomy "leaf".
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param int $post_id Post ID.
 		 *
 		 * @return bool|WP_Term|WP_Error|null
 		 */
 		public function get_menu_item_menu_leaf( $post_id ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			return $this->new_instance->get_menu_item_menu_leaf( $post_id );
 		}
 
 		/**
 		 * Get a list of the labels linked to a menu item.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param int $post_id Post ID.
 		 *
 		 * @return void
 		 */
 		public function list_labels( $post_id = 0 ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->list_labels( $post_id );
 		}
 
 		/**
 		 * Get a list of the labels linked to a menu item, with links to manage them.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param int $post_id Post ID.
 		 *
 		 * @return void
 		 */
 		public function list_admin_labels( $post_id = 0 ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->list_admin_labels( $post_id );
 		}
 
 		/**
 		 * Update post meta with the price defined in meta box.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param int    $post_id Post ID.
 		 * @param string $price   Price.
@@ -612,35 +612,35 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		 * @return int|bool
 		 */
 		public function set_price( $post_id = 0, $price = '' ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			return $this->new_instance->set_price( $post_id, $price );
 		}
 
 		/**
 		 * Get the price of a menu item.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param int $post_id Post ID.
 		 *
 		 * @return bool|string
 		 */
 		public function get_price( $post_id = 0 ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			return $this->new_instance->get_price( $post_id );
 		}
 
 		/**
 		 * Echo the price of a menu item.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param int $post_id Post ID.
 		 *
 		 * @return void
 		 */
 		public function display_price( $post_id = 0 ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->display_price( $post_id );
 		}
 
@@ -650,14 +650,14 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		 * Get markup for a menu item.
 		 * Note: Does not support nested loops.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param null|string $field The field to get the value for.
 		 *
 		 * @return array
 		 */
 		public function get_menu_item_loop_markup( $field = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			return $this->new_instance->get_menu_item_loop_markup( $field );
 		}
 
@@ -666,14 +666,14 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		 * Attached to the 'template_include' *filter*,
 		 * which fires only during a real blog view (not in admin, feeds, etc.)
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param string $template Template File.
 		 *
 		 * @return string Template File.  VERY Important.
 		 */
 		public function setup_menu_item_loop_markup__in_filter( $template ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			return $this->new_instance->setup_menu_item_loop_markup__in_filter( $template );
 		}
 
@@ -681,14 +681,14 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		 * If the Query is a Menu Item Query, start outputing the Menu Item Loop Marku
 		 * Attached to the 'loop_start' action.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param WP_Query $query Post query.
 		 *
 		 * @return void
 		 */
 		public function start_menu_item_loop( $query ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->start_menu_item_loop( $query );
 		}
 
@@ -696,14 +696,14 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		 * Outputs the Menu Item Loop Marku
 		 * Attached to the 'the_post' action.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param WP_Post $post Post object.
 		 *
 		 * @return void
 		 */
 		public function menu_item_loop_each_post( $post ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->menu_item_loop_each_post( $post );
 		}
 
@@ -711,68 +711,68 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		 * If the Query is a Menu Item Query, stop outputing the Menu Item Loop Marku
 		 * Attached to the 'loop_end' action.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param WP_Query $query Post query.
 		 *
 		 * @return void
 		 */
 		public function stop_menu_item_loop( $query ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->stop_menu_item_loop( $query );
 		}
 
 		/**
 		 * Outputs the Menu Group Header
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @return void
 		 */
 		public function menu_item_loop_header() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->menu_item_loop_header();
 		}
 
 		/**
 		 * Outputs a Menu Item Markup element opening tag
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param string $field - Menu Item Markup settings field.
 		 *
 		 * @return void
 		 */
 		public function menu_item_loop_open_element( $field ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->menu_item_loop_open_element( $field );
 		}
 
 		/**
 		 * Outputs a Menu Item Markup element closing tag
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param string $field - Menu Item Markup settings field.
 		 *
 		 * @return void
 		 */
 		public function menu_item_loop_close_element( $field ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			$this->new_instance->menu_item_loop_close_element( $field );
 		}
 
 		/**
 		 * Returns a Menu Item Markup element's class attribute.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 14.3 Moved to Classic Theme Helper package.
 		 *
 		 * @param  string $class Class name.
 		 *
 		 * @return string HTML class attribute with leading whitespace.
 		 */
 		public function menu_item_loop_class( $class ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			return $this->new_instance->menu_item_loop_class( $class );
 		}
 	}

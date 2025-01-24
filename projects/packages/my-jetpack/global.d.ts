@@ -47,7 +47,8 @@ type JetpackModule =
 	| 'complete'
 	| 'site-accelerator'
 	| 'newsletter'
-	| 'related-posts';
+	| 'related-posts'
+	| 'brute-force';
 
 type ThreatItem = {
 	// Protect API properties (free plan)
@@ -448,6 +449,8 @@ interface Window {
 		};
 		topJetpackMenuItemUrl: string;
 		isAtomic: boolean;
+		sandboxedDomain: string;
+		isDevVersion: boolean;
 		userIsAdmin: string;
 		userIsNewToJetpack: string;
 	};

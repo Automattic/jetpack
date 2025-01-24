@@ -65,6 +65,7 @@ export function TopPostsInspectorControls( {
 				/>
 				<SelectControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					label={ __( 'Stats period', 'jetpack' ) }
 					value={ period }
 					onChange={ value => setAttributes( { period: value } ) }

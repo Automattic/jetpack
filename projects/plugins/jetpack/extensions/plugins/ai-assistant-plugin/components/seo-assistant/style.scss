@@ -1,0 +1,221 @@
+.seo-assistant-wizard {
+	position: fixed;
+	bottom: 32px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 384px;
+	height: 434px;
+	background: white;
+	border-radius: 24px;
+	outline: 0.5px solid var( --jp-gray-5 );
+	z-index: 1000;
+	display: flex;
+	flex-direction: column;
+
+	&__header {
+		flex: 0 0 auto;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 16px;
+		// border-bottom: 1px solid #e5e7eb;
+		background: white;
+		border-radius: 16px 16px 0 0;
+
+		h2 {
+			margin: 0;
+			font-size: 16px;
+			font-weight: 600;
+		}
+
+		button {
+			background: none;
+			border: none;
+			cursor: pointer;
+			padding: 8px;
+			color: #6b7280;
+
+			&:hover {
+				color: #374151;
+			}
+		}
+	}
+
+	&__content {
+		flex: 1 1 auto;
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		overflow: hidden;
+	}
+
+	&__messages {
+		flex: 1 1 auto;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		padding: 16px 24px;
+		overflow-y: auto;
+		scroll-behavior: smooth;
+		align-items: flex-start;
+		mask-image: linear-gradient( 180deg, transparent, white 24px );
+	}
+
+	&__message {
+		border-radius: 16px;
+		white-space: pre-line;
+		animation: messageAppear 0.3s ease-out;
+		font-size: 13px;
+		line-height: 1.5;
+		display: flex;
+		align-items: center;
+		min-width: 48px;
+
+		.seo-assistant-wizard__message-icon {
+			flex-shrink: 0;
+			align-self: center;
+			flex-basis: 26px;
+
+			img {
+				vertical-align: middle;
+			}
+		}
+
+		.seo-assistant-wizard__message-text {
+			padding: 4px 12px;
+			// flex: 1 0 200px;
+		}
+
+		&.is-user {
+			background: #f3f4f6;
+			align-self: flex-end;
+			max-width: 85%;
+			
+			.seo-assistant-wizard__message-icon {
+				display: none;
+			}
+		}
+	}
+
+	&__input-container {
+		flex: 0 0 auto;
+		padding: 16px;
+		background: white;
+		border-radius: 0 0 16px 16px;
+		border-top: 1px solid var( --jp-gray-5, #e5e7eb );
+	}
+
+	&__input {
+		display: flex;
+		gap: 8px;
+		border-radius: 12px;
+		outline: 1px solid var( --jp-gray-10, #c3c3c3 );
+		align-items: center;
+		padding-right: 6px;
+		height: 44px;
+
+		&:focus-within {
+			outline-width: 2px;
+			outline-color: var( --wp-components-color-accent, var( --wp-admin-theme-color, #007cba ) );
+		}
+
+		.components-base-control {
+			flex-grow: 1;
+		}
+		.components-text-control__input,
+		.components-text-control__input:focus {
+			padding: 8px;
+			border: 0;
+			border-radius: 12px;
+			box-shadow: none;
+			outline: 0;
+		}
+	}
+
+	&__submit {
+		border-radius: 20px;
+		max-height: 34px;
+	}
+
+	&__options {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	&__option {
+		width: 100%;
+		padding: 12px;
+		background: #f3f4f6;
+		border: 2px solid transparent;
+		border-radius: 12px;
+		text-align: left;
+		font-size: 14px;
+		line-height: 1.4;
+		transition: all 0.2s ease;
+		animation: messageAppear 0.3s ease-out;
+		color: inherit;
+
+		&.is-selected {
+			background: #fff;
+			border-color: var( --wp-components-color-accent, var( --wp-admin-theme-color, #007cba ) );
+		}
+
+		// target buttons only
+		&:not( div ) {
+			cursor: pointer;
+		}
+
+		&:hover:not( div ):not( .is-selected ) {
+			background: #e5e7eb;
+		}
+	}
+
+	&__actions {
+		display: flex;
+		justify-content: flex-end;
+		align-items: center;
+		gap: 16px;
+
+		.components-button {
+			border-radius: 20px;
+		}
+	}
+
+	&__completion {
+		display: flex;
+		justify-content: flex-end;
+
+		.components-button {
+			border-radius: 20px;
+		}
+	}
+}
+
+@keyframes messageAppear {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+// Keep this around for magic:
+@keyframes typing-blink {
+	30% { cy: 30; }
+	50% { cy: 25; fill: lightgrey }
+	70% { cy: 30; }
+}
+.typing-dot {
+	animation: 1s typing-blink linear infinite;
+	fill: grey;
+}
+.typing-dot:nth-child(2) { animation-delay: 150ms }
+.typing-dot:nth-child(3) { animation-delay: 250ms }
+
+.typing-loader {
+	color: grey;
+}

@@ -1,7 +1,7 @@
 <?php
 namespace Automattic\JetpackCRM;
 
-if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 class Single_Quote_Endpoint extends Client_Portal_Endpoint {
 

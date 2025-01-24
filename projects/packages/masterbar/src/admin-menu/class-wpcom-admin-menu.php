@@ -419,7 +419,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		update_user_attribute( $user_id, 'calypso_preferences', $value );
 
-		die();
+		die( 0 );
 	}
 
 	/**

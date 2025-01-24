@@ -1,0 +1,91 @@
+FROM ubuntu:24.04
+
+# Import version variables from .github/versions.sh
+ARG PHP_VERSION
+ARG COMPOSER_VERSION
+ARG NODE_VERSION
+ARG PNPM_VERSION
+
+ENV LANG=en_US.UTF-8 \
+    LC_ALL=en_US.UTF-8 \
+    JETPACK_MONOREPO_ENV=1
+
+WORKDIR /app
+
+# Install basic packages and PHP
+RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
+    export DEBIAN_FRONTEND=noninteractive \
+    && apt-get update \
+    && apt-get install -y curl gpg language-pack-en-base software-properties-common ca-certificates \
+    && add-apt-repository ppa:ondrej/php \
+    && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+    # Add Docker's official GPG key
+    && install -m 0755 -d /etc/apt/keyrings \
+    && curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc \
+    && chmod a+r /etc/apt/keyrings/docker.asc \
+    # Add Docker repository
+    && echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+      $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+      tee /etc/apt/sources.list.d/docker.list > /dev/null \
+    && apt-get update \
+    && apt-get --purge install -y \
+        git \
+        unzip \
+        zip \
+        docker-ce-cli \
+        docker-buildx-plugin \
+        docker-compose-plugin \
+        jq \
+        "php${PHP_VERSION}" \
+        "php${PHP_VERSION}-cli" \
+        "php${PHP_VERSION}-curl" \
+        "php${PHP_VERSION}-dom" \
+        "php${PHP_VERSION}-mbstring" \
+        "php${PHP_VERSION}-xml" \
+        "php${PHP_VERSION}-zip" \
+        rsync \
+    && apt-get remove --purge --auto-remove -y gpg software-properties-common \
+    && find /var/ -name '*-old' -delete && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
+
+# Install Composer
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+    && php composer-setup.php --install-dir=/usr/local/bin --filename=composer --version=$COMPOSER_VERSION \
+    && php -r "unlink('composer-setup.php');"
+
+# Install Node.js
+RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
+    export DEBIAN_FRONTEND=noninteractive \
+    && N=${NODE_VERSION%%.*} \
+    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$N.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
+    && apt-get -q update \
+    && VER="$(apt-cache show nodejs | sed -n "/^Version: ${NODE_VERSION}-/ { s/^Version: /=/p; q }" )" \
+    && apt-get install -y nodejs$VER
+
+# Install pnpm
+RUN npm install --global pnpm@$PNPM_VERSION \
+    && SHELL=/bin/bash pnpm setup
+
+WORKDIR /workspace
+
+# Add entrypoint script
+COPY bin/monorepo-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/monorepo-entrypoint.sh
+
+# Set up locale properly
+RUN apt-get update && apt-get install -y locales \
+    && locale-gen en_US.UTF-8 \
+    && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
+
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+
+# Set up PNPM global directory
+ENV PNPM_HOME=/usr/local/pnpm
+ENV PATH="${PNPM_HOME}:${PATH}"
+
+RUN mkdir -p "$PNPM_HOME" \
+    && chmod 777 "$PNPM_HOME"
+
+ENTRYPOINT ["/usr/local/bin/monorepo-entrypoint.sh"]
+CMD ["bash"]

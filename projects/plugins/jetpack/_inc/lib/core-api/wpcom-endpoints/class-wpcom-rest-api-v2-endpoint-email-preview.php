@@ -6,10 +6,10 @@
  */
 
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Status\Host;
 
-require_once __DIR__ . '/trait-wpcom-rest-api-proxy-request-trait.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 
 /**
@@ -19,7 +19,7 @@ require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subsc
  */
 class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 
-	use WPCOM_REST_API_Proxy_Request_Trait;
+	use WPCOM_REST_API_Proxy_Request;
 
 	/**
 	 * Constructor.

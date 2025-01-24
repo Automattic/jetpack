@@ -15,7 +15,6 @@ import {
 } from '@wordpress/block-editor';
 import { createBlock, registerBlockVariation } from '@wordpress/blocks';
 import {
-	BaseControl,
 	Button,
 	Modal,
 	PanelBody,
@@ -56,6 +55,7 @@ const ALLOWED_BLOCKS = [
 	'core/columns',
 	'core/group',
 	'core/heading',
+	'core/html',
 	'core/image',
 	'core/list',
 	'core/paragraph',
@@ -195,6 +195,7 @@ export const JetpackContactFormEdit = forwardRef(
 						] }
 						onChange={ newMessage => setAttributes( { customThankyou: newMessage } ) }
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 
 					{ 'redirect' !== customThankyou && (
@@ -204,6 +205,7 @@ export const JetpackContactFormEdit = forwardRef(
 							placeholder={ __( 'Your message has been sent', 'jetpack-forms' ) }
 							onChange={ newHeading => setAttributes( { customThankyouHeading: newHeading } ) }
 							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize={ true }
 						/>
 					) }
 
@@ -218,18 +220,14 @@ export const JetpackContactFormEdit = forwardRef(
 					) }
 
 					{ 'redirect' === customThankyou && (
-						<BaseControl
-							label={ __( 'Redirect Address', 'jetpack-forms' ) }
-							id={ `contact-form-${ instanceId }-thankyou-url` }
-							__nextHasNoMarginBottom={ true }
-						>
+						<div>
 							<URLInput
-								id={ `contact-form-${ instanceId }-thankyou-url` }
+								label={ __( 'Redirect Address', 'jetpack-forms' ) }
 								value={ customThankyouRedirect }
 								className="jetpack-contact-form__thankyou-redirect-url"
 								onChange={ newURL => setAttributes( { customThankyouRedirect: newURL } ) }
 							/>
-						</BaseControl>
+						</div>
 					) }
 				</>
 			);
