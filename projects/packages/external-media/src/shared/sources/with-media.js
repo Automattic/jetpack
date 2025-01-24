@@ -414,6 +414,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 						title={ title }
 						aria={ { describedby } }
 						className={ classes }
+						size="fill"
 					>
 						<div ref={ this.contentRef }>
 							{ noticeUI }
