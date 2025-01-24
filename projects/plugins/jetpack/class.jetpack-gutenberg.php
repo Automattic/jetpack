@@ -73,9 +73,8 @@ class Jetpack_Gutenberg {
 	 * @param array  $version_requirements An array containing the required Gutenberg version and, if known, the WordPress version that was released with this minimum version.
 	 * @param string $slug The slug of the block or plugin that has the gutenberg version requirement.
 	 *
-	 * @since 8.3.0
-	 *
 	 * @return boolean True if the version of gutenberg required by the block or plugin is available.
+	 * @since 8.3.0
 	 */
 	public static function is_gutenberg_version_available( $version_requirements, $slug ) {
 		global $wp_version;
@@ -140,6 +139,7 @@ class Jetpack_Gutenberg {
 		if ( str_starts_with( $extension_name, 'jetpack/' ) || str_starts_with( $extension_name, 'jetpack-' ) ) {
 			return substr( $extension_name, strlen( 'jetpack/' ) );
 		}
+
 		return $extension_name;
 	}
 
@@ -183,9 +183,9 @@ class Jetpack_Gutenberg {
 				 * When this is changed to default to `true`, you should also update `modules/memberships/class-jetpack-memberships.php`
 				 * See https://github.com/Automattic/jetpack/pull/13394#pullrequestreview-293063378
 				 *
-				 * @since 7.7.0
-				 *
 				 * @param boolean
+				 *
+				 * @since 7.7.0
 				 */
 				! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false )
 				/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
@@ -235,9 +235,9 @@ class Jetpack_Gutenberg {
 		/**
 		 * Filter to select Gutenberg blocks directory
 		 *
-		 * @since 6.9.0
-		 *
 		 * @param string default: '_inc/blocks/'
+		 *
+		 * @since 6.9.0
 		 */
 		return apply_filters( 'jetpack_blocks_directory', '_inc/blocks/' );
 	}
@@ -262,7 +262,7 @@ class Jetpack_Gutenberg {
 	 */
 	public static function get_preset( $preset ) {
 		return json_decode(
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			file_get_contents( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $preset . '.json' )
 		);
 	}
@@ -284,7 +284,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Returns a diff from a combined list of allowed extensions and extensions determined to be excluded
 	 *
-	 * @param  array $allowed_extensions An array of allowed extensions.
+	 * @param array $allowed_extensions An array of allowed extensions.
 	 *
 	 * @return array A list of blocks: eg array( 'publicize', 'markdown' )
 	 */
@@ -328,6 +328,7 @@ class Jetpack_Gutenberg {
 		if ( null === self::$cached_availability ) {
 			self::$cached_availability = self::get_availability();
 		}
+
 		return self::$cached_availability;
 	}
 
@@ -371,9 +372,8 @@ class Jetpack_Gutenberg {
 	/**
 	 * Return the list of extensions that are available.
 	 *
-	 * @since 11.9
-	 *
 	 * @return array A list of block and plugins and their availability status.
+	 * @since 11.9
 	 */
 	public static function get_extensions() {
 		if ( ! static::should_load() ) {
@@ -384,9 +384,9 @@ class Jetpack_Gutenberg {
 			/**
 			 * Filter the list of block editor extensions that are available through Jetpack.
 			 *
-			 * @since 7.0.0
-			 *
 			 * @param array
+			 *
+			 * @since 7.0.0
 			 */
 			self::$extensions = apply_filters( 'jetpack_set_available_extensions', self::get_available_extensions() );
 		}
@@ -397,11 +397,10 @@ class Jetpack_Gutenberg {
 	/**
 	 * Check if an extension/block is already registered
 	 *
-	 * @since 7.2
-	 *
 	 * @param string $slug Name of extension/block to check.
 	 *
 	 * @return bool
+	 * @since 7.2
 	 */
 	public static function is_registered( $slug ) {
 		return WP_Block_Type_Registry::get_instance()->is_registered( $slug );
@@ -410,9 +409,8 @@ class Jetpack_Gutenberg {
 	/**
 	 * Check if Gutenberg editor is available
 	 *
-	 * @since 6.7.0
-	 *
 	 * @return bool
+	 * @since 6.7.0
 	 */
 	public static function is_gutenberg_available() {
 		return true;
@@ -424,9 +422,8 @@ class Jetpack_Gutenberg {
 	 * Loading blocks and plugins is enabled by default and may be disabled via filter:
 	 *   add_filter( 'jetpack_gutenberg', '__return_false' );
 	 *
-	 * @since 6.9.0
-	 *
 	 * @return bool
+	 * @since 6.9.0
 	 */
 	public static function should_load() {
 		if ( ! Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode() ) {
@@ -444,10 +441,11 @@ class Jetpack_Gutenberg {
 		 *
 		 * Defaults to true if (connected or in offline mode) and the Blocks module is active.
 		 *
-		 * @since 6.5.0
+		 * @param bool true Whether to load Gutenberg blocks
+		 *
 		 * @since 13.9 Filter is able to activate or deactivate Gutenberg blocks.
 		 *
-		 * @param bool true Whether to load Gutenberg blocks
+		 * @since 6.5.0
 		 */
 		return (bool) apply_filters( 'jetpack_gutenberg', $return );
 	}
@@ -481,7 +479,7 @@ class Jetpack_Gutenberg {
 	 *
 	 * @param string $type Slug of the block or absolute path to the block source code directory.
 	 * @param array  $script_dependencies Script dependencies. Will be merged with automatically
-	 *                                    detected script dependencies from the webpack build.
+	 *                                     detected script dependencies from the webpack build.
 	 *
 	 * @return void
 	 */
@@ -511,9 +509,8 @@ class Jetpack_Gutenberg {
 	 *
 	 * @param string $type Slug of the block.
 	 *
-	 * @since 7.2.0
-	 *
 	 * @return void
+	 * @since 7.2.0
 	 */
 	public static function load_styles_as_required( $type ) {
 		if ( is_admin() ) {
@@ -545,11 +542,10 @@ class Jetpack_Gutenberg {
 	 *
 	 * @param string $type Slug of the block.
 	 * @param array  $script_dependencies Script dependencies. Will be merged with automatically
-	 *                             detected script dependencies from the webpack build.
-	 *
-	 * @since 7.2.0
+	 *                              detected script dependencies from the webpack build.
 	 *
 	 * @return void
+	 * @since 7.2.0
 	 */
 	public static function load_scripts_as_required( $type, $script_dependencies = array() ) {
 		if ( is_admin() ) {
@@ -620,9 +616,8 @@ class Jetpack_Gutenberg {
 	/**
 	 * Load Gutenberg editor assets
 	 *
-	 * @since 6.7.0
-	 *
 	 * @return void
+	 * @since 6.7.0
 	 */
 	public static function enqueue_block_editor_assets() {
 		if ( ! self::should_load() ) {
@@ -740,10 +735,11 @@ class Jetpack_Gutenberg {
 				 *
 				 * @module publicize
 				 *
-				 * @since 10.3.0
+				 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
+				 *
 				 * @deprecated 11.5 This is a feature flag that is no longer used.
 				 *
-				 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
+				 * @since 10.3.0
 				 */
 				'republicize_enabled'           => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
 			),
@@ -861,9 +857,8 @@ class Jetpack_Gutenberg {
 	 * Determine whether a site should use the default set of blocks, or a custom set.
 	 * Possible variations are currently beta, experimental, and production.
 	 *
-	 * @since 8.1.0
-	 *
 	 * @return string $block_varation production|beta|experimental
+	 * @since 8.1.0
 	 */
 	public static function blocks_variation() {
 		// Default to production blocks.
@@ -880,13 +875,14 @@ class Jetpack_Gutenberg {
 		}
 
 		/**
-		* Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
-		*
-		* @since 6.9.0
-		* @deprecated 11.8.0 Use jetpack_blocks_variation filter instead.
-		*
-		* @param boolean
-		*/
+		 * Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
+		 *
+		 * @param boolean
+		 *
+		 * @deprecated 11.8.0 Use jetpack_blocks_variation filter instead.
+		 *
+		 * @since 6.9.0
+		 */
 		$is_beta = apply_filters_deprecated(
 			'jetpack_load_beta_blocks',
 			array( false ),
@@ -910,13 +906,14 @@ class Jetpack_Gutenberg {
 		}
 
 		/**
-		* Alternative to `JETPACK_EXPERIMENTAL_BLOCKS`, set to `true` to load Experimental Blocks.
-		*
-		* @since 6.9.0
-		* @deprecated 11.8.0 Use jetpack_blocks_variation filter instead.
-		*
-		* @param boolean
-		*/
+		 * Alternative to `JETPACK_EXPERIMENTAL_BLOCKS`, set to `true` to load Experimental Blocks.
+		 *
+		 * @param boolean
+		 *
+		 * @deprecated 11.8.0 Use jetpack_blocks_variation filter instead.
+		 *
+		 * @since 6.9.0
+		 */
 		$is_experimental = apply_filters_deprecated(
 			'jetpack_load_experimental_blocks',
 			array( false ),
@@ -943,9 +940,9 @@ class Jetpack_Gutenberg {
 		 * Allow customizing the variation of blocks in use on a site.
 		 * Overwrites any previously set values, whether by constant or filter.
 		 *
-		 * @since 8.1.0
-		 *
 		 * @param string $block_variation Can be beta, experimental, and production. Defaults to production.
+		 *
+		 * @since 8.1.0
 		 */
 		return apply_filters( 'jetpack_blocks_variation', $block_varation );
 	}
@@ -953,17 +950,16 @@ class Jetpack_Gutenberg {
 	/**
 	 * Get a list of extensions available for the variation you chose.
 	 *
-	 * @since 8.1.0
-	 *
 	 * @param object $preset_extensions_manifest List of extensions available in Jetpack.
-	 * @param string $blocks_variation           Subset of blocks. production|beta|experimental.
+	 * @param string $blocks_variation Subset of blocks. production|beta|experimental.
 	 *
 	 * @return array $preset_extensions Array of extensions for that variation
+	 * @since 8.1.0
 	 */
 	public static function get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation ) {
-		$preset_extensions = isset( $preset_extensions_manifest->{ $blocks_variation } )
-				? (array) $preset_extensions_manifest->{ $blocks_variation }
-				: array();
+		$preset_extensions = isset( $preset_extensions_manifest->{$blocks_variation} )
+			? (array) $preset_extensions_manifest->{$blocks_variation}
+			: array();
 
 		/*
 		 * Experimental and Beta blocks need the production blocks as well.
@@ -1002,13 +998,12 @@ class Jetpack_Gutenberg {
 	/**
 	 * Validate a URL used in a SSR block.
 	 *
-	 * @since 8.3.0
-	 *
-	 * @param string $url      URL saved as an attribute in block.
-	 * @param array  $allowed  Array of allowed hosts for that block, or regexes to check against.
+	 * @param string $url URL saved as an attribute in block.
+	 * @param array  $allowed Array of allowed hosts for that block, or regexes to check against.
 	 * @param bool   $is_regex Array of regexes matching the URL that could be used in block.
 	 *
 	 * @return bool|string
+	 * @since 8.3.0
 	 */
 	public static function validate_block_embed_url( $url, $allowed = array(), $is_regex = false ) {
 		if (
@@ -1069,11 +1064,10 @@ class Jetpack_Gutenberg {
 	 * Determines whether a preview of the block with an upgrade nudge should
 	 * be displayed for admins on the site frontend.
 	 *
-	 * @since 8.4.0
-	 *
 	 * @param array $availability_for_block The availability for the block.
 	 *
 	 * @return bool
+	 * @since 8.4.0
 	 */
 	public static function should_show_frontend_preview( $availability_for_block ) {
 		return (
@@ -1086,14 +1080,14 @@ class Jetpack_Gutenberg {
 	/**
 	 * Output an UpgradeNudge Component on the frontend of a site.
 	 *
-	 * @since 8.4.0
-	 *
 	 * @param string $plan The plan that users need to purchase to make the block work.
 	 *
 	 * @return string
+	 * @since 8.4.0
 	 */
 	public static function upgrade_nudge( $plan ) {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/components.php';
+
 		return Jetpack_Components::render_upgrade_nudge(
 			array(
 				'plan' => $plan,
@@ -1104,13 +1098,12 @@ class Jetpack_Gutenberg {
 	/**
 	 * Output a notice within a block.
 	 *
-	 * @since 8.6.0
-	 *
 	 * @param string $message Notice we want to output.
-	 * @param string $status  Status of the notice. Can be one of success, info, warning, error. info by default.
+	 * @param string $status Status of the notice. Can be one of success, info, warning, error. info by default.
 	 * @param string $classes List of CSS classes.
 	 *
 	 * @return string
+	 * @since 8.6.0
 	 */
 	public static function notice( $message, $status = 'info', $classes = '' ) {
 		if (
@@ -1166,9 +1159,8 @@ class Jetpack_Gutenberg {
 	 * We intentionally don't use object caching or any other type of persistent caching,
 	 * in order to avoid complex cache invalidation on subscription addition or removal.
 	 *
-	 * @since 10.7
-	 *
 	 * @return array
+	 * @since 10.7
 	 */
 	private static function get_site_specific_features() {
 		$current_blog_id = get_current_blog_id();
@@ -1198,6 +1190,7 @@ class Jetpack_Gutenberg {
 
 		if ( Jetpack_Plan::supports( $slug ) ) {
 			self::set_extension_available( $slug );
+
 			return;
 		}
 
@@ -1260,6 +1253,7 @@ class Jetpack_Gutenberg {
 					// If the upgrade nudge isn't already being displayed by a parent block, display the nudge.
 					if ( isset( $block->attributes['shouldDisplayFrontendBanner'] ) && $block->attributes['shouldDisplayFrontendBanner'] ) {
 						$upgrade_nudge = self::upgrade_nudge( $availability[ $bare_slug ]['details']['required_plan'] );
+
 						return $upgrade_nudge . $block_preview;
 					}
 
@@ -1275,12 +1269,11 @@ class Jetpack_Gutenberg {
 	 * Display a message to site editors and roles above when a block is no longer supported.
 	 * This is only displayed on the frontend.
 	 *
-	 * @since 12.3
-	 *
 	 * @param string $block_content The block content.
-	 * @param array  $block         The full block, including name and attributes.
+	 * @param array  $block The full block, including name and attributes.
 	 *
 	 * @return string
+	 * @since 12.3
 	 */
 	public static function display_deprecated_block_message( $block_content, $block ) {
 		if ( in_array( $block['blockName'], self::$deprecated_blocks, true ) ) {
@@ -1301,13 +1294,12 @@ class Jetpack_Gutenberg {
 	/**
 	 * Check whether the environment supports the newer default size of elements, gradually introduced starting with WP 6.4.
 	 *
-	 * @since 14.0
-	 *
+	 * @return bool
 	 * @see https://make.wordpress.org/core/2023/10/16/editor-components-updates-in-wordpress-6-4/#improving-size-consistency-for-ui-components
 	 *
 	 * @to-do: Deprecate this method and the logic around it when Jetpack requires WordPress 6.7.
 	 *
-	 * @return bool
+	 * @since 14.0
 	 */
 	public static function site_supports_next_default_size() {
 		/*
@@ -1347,18 +1339,19 @@ class Jetpack_Gutenberg {
 	 * this method allows registration to proceed by temporarily disabling
 	 * the relevant notice.
 	 *
-	 * @since 14.2
+	 * @param bool   $trigger Whether to trigger the error.
+	 * @param string $function The function that was called.
+	 * @param string $message A message explaining what was done incorrectly.
+	 * @param string $version The version of WordPress where the message was added.
 	 *
-	 * @param bool   $trigger       Whether to trigger the error.
-	 * @param string $function      The function that was called.
-	 * @param string $message       A message explaining what was done incorrectly.
-	 * @param string $version       The version of WordPress where the message was added.
 	 * @return bool Whether to trigger the error.
+	 * @since 14.2
 	 */
 	public static function bypass_block_metadata_doing_it_wrong( $trigger, $function, $message, $version ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( $function === 'WP_Block_Metadata_Registry::register_collection' ) {
 			return false;
 		}
+
 		return $trigger;
 	}
 
@@ -1375,13 +1368,21 @@ class Jetpack_Gutenberg {
 	 * blocks register themselves on init.
 	 *
 	 * @static
-	 * @since 14.1
 	 * @return void
+	 * @since 14.1
 	 */
 	public static function register_block_metadata_collection() {
 		$meta_file_path = JETPACK__PLUGIN_DIR . '_inc/blocks/blocks-manifest.php';
 		if ( function_exists( 'wp_register_block_metadata_collection' ) && file_exists( $meta_file_path ) ) {
-			add_filter( 'doing_it_wrong_trigger_error', array( __CLASS__, 'bypass_block_metadata_doing_it_wrong' ), 10, 4 );
+			add_filter(
+				'doing_it_wrong_trigger_error',
+				array(
+					__CLASS__,
+					'bypass_block_metadata_doing_it_wrong',
+				),
+				10,
+				4
+			);
 
 			// @phan-suppress-next-line PhanUndeclaredFunction -- New in WP 6.7. We're checking if it exists first. @phan-suppress-current-line UnusedPluginSuppression
 			wp_register_block_metadata_collection(
@@ -1389,7 +1390,14 @@ class Jetpack_Gutenberg {
 				$meta_file_path
 			);
 
-			remove_filter( 'doing_it_wrong_trigger_error', array( __CLASS__, 'bypass_block_metadata_doing_it_wrong' ), 10 );
+			remove_filter(
+				'doing_it_wrong_trigger_error',
+				array(
+					__CLASS__,
+					'bypass_block_metadata_doing_it_wrong',
+				),
+				10
+			);
 		}
 	}
 }
@@ -1404,3 +1412,38 @@ if ( ( new Host() )->is_woa_site() ) {
 	 */
 	add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
 }
+
+/**
+ * Overrides the `wp-block-editor` script with a hotfix to prevent a performance issue.
+ *
+ * @param WP_Scripts $scripts WP_Scripts instance.
+ */
+function jetpack_hotfix_block_editor_script( $scripts ) {
+	if ( ! defined( 'GUTENBERG_VERSION' ) ) {
+		return;
+	}
+
+	if ( ! in_array( GUTENBERG_VERSION, array( '19.9.0', '20.0.0', '20.1.0' ), true ) ) {
+		return;
+	}
+
+	$default_version = GUTENBERG_VERSION . '-hotfix';
+	$path            = gutenberg_dir_path() . 'build/block-editor/index.min.js';
+	$handle          = 'wp-block-editor';
+	$asset_file      = substr( $path, 0, - ( strlen( '.js' ) ) ) . '.asset.php';
+	$asset           = file_exists( $asset_file ) ? require $asset_file : null;
+	$dependencies    = isset( $asset['dependencies'] ) ? $asset['dependencies'] : array();
+	$version         = isset( $asset['version'] ) ? ( $asset['version'] . '-hotfix' ) : $default_version;
+	gutenberg_override_script(
+		$scripts,
+		$handle,
+		Assets::get_file_url_for_environment(
+			'_inc/build/block-editor-hotfix-' . GUTENBERG_VERSION . '.min.js',
+			'_inc/block-editor-hotfix-' . GUTENBERG_VERSION . '.js'
+		),
+		$dependencies,
+		$version,
+		true
+	);
+}
+add_action( 'wp_default_scripts', 'jetpack_hotfix_block_editor_script', 11 );
