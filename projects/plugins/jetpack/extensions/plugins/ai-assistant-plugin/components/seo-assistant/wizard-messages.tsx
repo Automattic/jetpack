@@ -34,11 +34,26 @@ export const useMessages = () => {
 		setMessages( prev => prev.slice( 0, -1 ) );
 	};
 
+	/* Edits content of last message */
+	const editLastMessage = ( content: Message[ 'content' ] ) => {
+		setMessages( prev => {
+			const prevMessages = [ ...prev ];
+			if ( prevMessages.length > 0 ) {
+				prevMessages[ prevMessages.length - 1 ] = {
+					...prevMessages[ prevMessages.length - 1 ],
+					content,
+				};
+			}
+			return prevMessages;
+		} );
+	};
+
 	return {
 		messages,
 		setMessages: wrapMessagesWithId,
 		addMessage,
 		removeLastMessage,
+		editLastMessage,
 	};
 };
 
