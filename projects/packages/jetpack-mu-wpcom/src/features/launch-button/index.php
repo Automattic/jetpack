@@ -53,3 +53,4 @@ function wpcom_enqueue_launch_button_styles() {
 
 add_action( 'admin_bar_menu', 'wpcom_add_launch_button_to_admin_bar', 500 );
 add_action( 'wp_enqueue_scripts', 'wpcom_enqueue_launch_button_styles' );
+add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_launch_button_styles' );
