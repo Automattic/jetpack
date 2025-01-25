@@ -13,6 +13,9 @@ use Automattic\Jetpack\Status;
  * @param WP_Admin_Bar $admin_bar The WordPress admin bar.
  */
 function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
 	$is_launched = get_option( 'launch-status' ) !== 'unlaunched';
 	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 		$blog_domain = ( new Status() )->get_site_suffix();
@@ -41,6 +44,9 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
  * Enqueue the necessary styles for the admin bar button.
  */
 function wpcom_enqueue_launch_button_styles() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
 	$version = filemtime( __DIR__ . '/style.css' );
 	wp_enqueue_style( 'launch-banner', plugins_url( 'style.css', __FILE__ ), array(), $version );
 }
