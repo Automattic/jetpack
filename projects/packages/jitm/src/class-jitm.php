@@ -255,8 +255,8 @@ class JITM {
 	 * @param bool   $full_jp_logo_exists Is there a big JP logo already displayed on this screen.
 	 */
 	public function generate_icon( $content_icon, $full_jp_logo_exists ) {
-		$date_now   = new DateTime();
-		$feb_4_date = new DateTime( '02-04-2025' );
+		$date_now   = new \DateTime();
+		$feb_4_date = new \DateTime( '02-04-2025' );
 		switch ( $content_icon ) {
 			case 'jetpack':
 				$jetpack_logo = new Jetpack_Logo();
@@ -264,8 +264,9 @@ class JITM {
 				break;
 			case 'woocommerce':
 				// Don't show the new Woo svg logo until after Feb 4th, 2025
-				// After Feb 4th, 2025 we can remove this date condition check and the old svg logo.
-				$content_icon = $date_now >= $feb_4_date
+				// After Feb 4th 2025, we can remove this date condition check ( & filter) and the old svg logo.
+				$content_icon = apply_filters( 'woo_jitm_use_new_logo', $date_now >= $feb_4_date )
+					// New Woo logo
 					? '<div class="jp-emblem"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 							viewBox="0 0 183.6 47.5" style="enable-background:new 0 0 183.6 47.5;" xml:space="preserve">
 						<style type="text/css">
@@ -285,6 +286,7 @@ class JITM {
 								c-5.2,0-8.5-3.8-8.5-9.1s3.4-9.2,8.5-9.2s8.6,3.9,8.6,9.2S164.9,32.9,159.7,32.9z"/>
 						</g>
 						</svg></div>'
+					// Old Woo logo
 					: '<div class="jp-emblem"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 168 100" xml:space="preserve" enable-background="new 0 0 168 100" width="50" height="30"><style type="text/css">
 							.st0{clip-path:url(#SVGID_2_);enable-background:new    ;}
 							.st1{clip-path:url(#SVGID_4_);}
