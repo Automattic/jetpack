@@ -126,9 +126,6 @@ class Social_Admin_Page {
 		wp_dequeue_script( 'jetpack-social' );
 		wp_dequeue_style( 'jetpack-social' );
 
-		// TODO: Work out whether this should be done somewhere else, or only on WPCOM.
-		do_action( 'enqueue_block_editor_assets' );
-
 		Assets::register_script(
 			'social-admin-page',
 			'../build/social-admin-page.js',
