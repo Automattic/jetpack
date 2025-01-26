@@ -81,7 +81,7 @@ const WpcomMediaUrlUploadForm = ( { ajaxUrl, action, nonce, isSiteEditor } ) => 
 			buttonText = __( 'Uploading…', 'jetpack-mu-wpcom' );
 		}
 		return (
-			<form onSubmit="return false;">
+			<form onSubmit={ handleSubmit }>
 				<input
 					type="url"
 					value={ url }
@@ -91,10 +91,10 @@ const WpcomMediaUrlUploadForm = ( { ajaxUrl, action, nonce, isSiteEditor } ) => 
 					readOnly={ isUploading }
 				/>
 				<button
+					type="submit"
 					className={ clsx( 'button', 'button-primary', {
 						'updating-message': isUploading,
 					} ) }
-					onClick={ handleSubmit }
 					readOnly={ isUploading }
 				>
 					{ buttonText }
