@@ -45,9 +45,9 @@ function wpcom_handle_media_url_upload() {
 
 	$url = esc_url_raw( wp_unslash( $_POST['url'] ) );
 
-	$tmp = download_url( $url );
-	if ( is_wp_error( $tmp ) ) {
-		return wp_send_json_error( $tmp );
+	$tmp_file = download_url( $url );
+	if ( is_wp_error( $tmp_file ) ) {
+		return wp_send_json_error( $tmp_file );
 	}
 
 	if ( is_multisite() ) {
@@ -57,12 +57,12 @@ function wpcom_handle_media_url_upload() {
 	$attachment_id = media_handle_sideload(
 		array(
 			'name'     => basename( wp_parse_url( $url, PHP_URL_PATH ) ),
-			'tmp_name' => $tmp,
+			'tmp_name' => $tmp_file,
 		)
 	);
 
-	if ( file_exists( $tmp ) ) {
-		wp_delete_file( $tmp );
+	if ( file_exists( $tmp_file ) ) {
+		wp_delete_file( $tmp_file );
 	}
 
 	if ( is_wp_error( $attachment_id ) ) {
