@@ -111,7 +111,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'site_title',
 				'start_building_your_audience',
 				'customize_welcome_message',
-				'add_about_page',
 				'first_post_published',
 				'preview_site',
 			),
