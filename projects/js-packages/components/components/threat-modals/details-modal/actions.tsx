@@ -11,7 +11,7 @@ import { Button } from '@automattic/jetpack-components';
  */
 export default function ThreatDetailsModalActions(): JSX.Element {
 	const {
-		actionCallbacks,
+		actions,
 		selectedThreat: threat,
 		setSelectedThreat,
 		setActionToConfirm,
@@ -38,7 +38,7 @@ export default function ThreatDetailsModalActions(): JSX.Element {
 				icon: seen,
 				title: __( 'Stop Ignoring', 'jetpack-components' ),
 				onClick: () => {
-					actionCallbacks?.[ THREAT_ACTION_UNIGNORE ]?.( [ threat ], {
+					actions?.[ THREAT_ACTION_UNIGNORE ]?.callback( [ threat ], {
 						onActionPerformed: () => {
 							setActionToConfirm( undefined );
 							setSelectedThreat( null );
@@ -53,7 +53,7 @@ export default function ThreatDetailsModalActions(): JSX.Element {
 			result.push( {
 				id: 'fix',
 				icon: seen,
-				title: __( 'Auto-Fix', 'jetpack-components' ),
+				title: __( 'Show Auto-Fix', 'jetpack-components' ),
 				onClick: () => {
 					setActionToConfirm( { id: 'fix', items: [ threat ] } );
 				},
@@ -62,7 +62,7 @@ export default function ThreatDetailsModalActions(): JSX.Element {
 		}
 
 		return result;
-	}, [ threat, setActionToConfirm, actionCallbacks, setSelectedThreat ] );
+	}, [ threat, setActionToConfirm, actions, setSelectedThreat ] );
 
 	return (
 		<>

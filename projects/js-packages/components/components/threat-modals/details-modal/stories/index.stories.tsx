@@ -1,4 +1,4 @@
-import { storybookThreat, ThreatsContext } from '@automattic/jetpack-scan';
+import { storybookThreat, ThreatsContextProvider } from '@automattic/jetpack-scan';
 import { Meta } from '@storybook/react';
 import { useCallback, useState } from 'react';
 import Button from '../../../button/index.js';
@@ -23,25 +23,26 @@ export default {
 				credentials,
 				connection,
 			} = context.args;
+			const noop = useCallback( () => {}, [] );
 			return (
-				<ThreatsContext.Provider
-					value={ {
-						selectedThreat: { ...threatPreset, ...threatFixerProps },
-						actionCallbacks: actionsEnabled
+				<ThreatsContextProvider
+					initialSelectedThreat={ { ...threatPreset, ...threatFixerProps } }
+					credentials={ credentials }
+					connection={ connection }
+					referToCodeable={ referToCodeable }
+					upgradePlan={ actionsEnabled ? undefined : noop }
+					actionCallbacks={
+						actionsEnabled
 							? {
 									ignore: () => {},
 									unignore: () => {},
 									fix: () => {},
 							  }
-							: null,
-						credentials,
-						connection,
-						referToCodeable,
-						upgradePlan: actionsEnabled ? undefined : () => {},
-					} }
+							: null
+					}
 				>
 					<Story { ...context.args } />
-				</ThreatsContext.Provider>
+				</ThreatsContextProvider>
 			);
 		},
 	],

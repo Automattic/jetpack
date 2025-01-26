@@ -28,18 +28,27 @@ const ThreatDetailsModalTechnicalDetails = (): JSX.Element => {
 		setOpen( ! open );
 	}, [ open ] );
 
-	if (
-		! (
-			threat.firstDetected ||
-			threat.signature ||
-			threat.filename ||
-			threat.context ||
-			threat.diff ||
-			threat.severity ||
-			threat.vulnerabilities?.length
-		)
-	) {
+	const hasTechnicalDetails =
+		threat.firstDetected ||
+		threat.signature ||
+		threat.filename ||
+		threat.context ||
+		threat.diff ||
+		threat.severity ||
+		threat.vulnerabilities?.length;
+
+	if ( ! hasTechnicalDetails && ! threat.source ) {
 		return null;
+	}
+
+	if ( ! hasTechnicalDetails && threat.source ) {
+		return (
+			<div>
+				<Button variant="link" isExternalLink={ true } weight="regular" href={ threat.source }>
+					{ __( 'See more technical details of this threat', 'jetpack-components' ) }
+				</Button>
+			</div>
+		);
 	}
 
 	return (
@@ -66,7 +75,8 @@ const ThreatDetailsModalTechnicalDetails = (): JSX.Element => {
 						threat.filename ||
 						threat.context ||
 						threat.diff ||
-						threat.severity ) && (
+						threat.severity ||
+						threat.source ) && (
 						<div>
 							<div className={ styles.properties }>
 								{ !! threat.firstDetected && (
@@ -99,7 +109,7 @@ const ThreatDetailsModalTechnicalDetails = (): JSX.Element => {
 										</Text>
 									</>
 								) }
-								{ threat.filename && (
+								{ !! threat.filename && (
 									<>
 										<Text>{ __( 'File', 'jetpack-components' ) }</Text>
 										<div>
@@ -107,7 +117,7 @@ const ThreatDetailsModalTechnicalDetails = (): JSX.Element => {
 										</div>
 									</>
 								) }
-								{ threat.context && (
+								{ !! threat.context && (
 									<>
 										<Text>{ __( 'Context', 'jetpack-components' ) }</Text>
 										<div>
@@ -115,11 +125,26 @@ const ThreatDetailsModalTechnicalDetails = (): JSX.Element => {
 										</div>
 									</>
 								) }
-								{ threat.diff && (
+								{ !! threat.diff && (
 									<>
 										<Text>{ __( 'Diff', 'jetpack-components' ) }</Text>
 										<div>
 											<DiffViewer diff={ threat.diff } />
+										</div>
+									</>
+								) }
+								{ !! threat.source && (
+									<>
+										<Text>{ __( 'Source', 'jetpack-components' ) }</Text>
+										<div>
+											<Button
+												variant="link"
+												isExternalLink={ true }
+												weight="regular"
+												href={ threat.source }
+											>
+												{ __( 'See more technical details of this threat', 'jetpack-components' ) }
+											</Button>
 										</div>
 									</>
 								) }
@@ -128,37 +153,35 @@ const ThreatDetailsModalTechnicalDetails = (): JSX.Element => {
 					) }
 
 					{ !! threat.vulnerabilities?.length && (
-						<>
-							<div>
-								<Panel>
-									{ threat.vulnerabilities.map( ( vulnerability, index ) => (
-										<PanelBody title={ vulnerability.title } key={ index } initialOpen={ false }>
-											<PanelRow>
-												<div>
-													<Text variant="body-small" mb={ vulnerability.source ? 2 : 0 }>
-														{ vulnerability.description }
-													</Text>
-													{ vulnerability.source && (
-														<Button
-															variant="link"
-															isExternalLink={ true }
-															weight="regular"
-															size="small"
-															href={ vulnerability.source }
-														>
-															{ __(
-																'See more technical details of this vulnerability',
-																'jetpack-components'
-															) }
-														</Button>
-													) }
-												</div>
-											</PanelRow>
-										</PanelBody>
-									) ) }
-								</Panel>
-							</div>
-						</>
+						<div>
+							<Panel>
+								{ threat.vulnerabilities.map( ( vulnerability, index ) => (
+									<PanelBody title={ vulnerability.title } key={ index } initialOpen={ false }>
+										<PanelRow>
+											<div>
+												<Text variant="body-small" mb={ vulnerability.source ? 2 : 0 }>
+													{ vulnerability.description }
+												</Text>
+												{ vulnerability.source && (
+													<Button
+														variant="link"
+														isExternalLink={ true }
+														weight="regular"
+														size="small"
+														href={ vulnerability.source }
+													>
+														{ __(
+															'See more technical details of this vulnerability',
+															'jetpack-components'
+														) }
+													</Button>
+												) }
+											</div>
+										</PanelRow>
+									</PanelBody>
+								) ) }
+							</Panel>
+						</div>
 					) }
 				</>
 			) }

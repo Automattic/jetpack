@@ -1,11 +1,11 @@
 import { ThreatsContext } from '@automattic/jetpack-scan';
 import { Modal } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
-import { useCallback, useContext } from 'react';
-import Button from '../../button';
-import Text from '../../text';
-import useFixer from '../../threat-fixers/use-fixer';
-import styles from '../styles.module.scss';
+import { _n } from '@wordpress/i18n';
+import { useContext, useMemo, useState } from 'react';
+import ThreatFixersModalContent from './bulk';
+import ConnectionNeededContent from './connection';
+import CredentialsNeededContent from './credentials';
+import { ThreatFixerModalContent } from './single';
 
 /**
  * Threat Fixer Modal Content
@@ -14,41 +14,49 @@ import styles from '../styles.module.scss';
  *
  * @return {JSX.Element} ThreatFixerModalContent Component.
  */
-export default function ThreatFixerModal( props ) {
-	const { actionToConfirm, setActionToConfirm } = useContext( ThreatsContext );
+export default function ThreatFixerModal(
+	props: React.ComponentProps< typeof Modal >
+): JSX.Element {
+	const { actionToConfirm, connection, credentials } = useContext( ThreatsContext );
 
-	// const threats = actionToConfirm?.items || []; // to do
-	const threat = actionToConfirm?.items[ 0 ];
+	const threats = actionToConfirm?.items || [];
+	const [ selectedThreatIds, setSelectedThreatIds ] = useState< string[] >(
+		actionToConfirm?.items.map( item => `${ item.id }` ) || []
+	);
 
-	const { title, description, actions, icon } = useFixer( { threat } );
+	const modal = useMemo( () => {
+		if ( ! connection.connected ) {
+			return <ConnectionNeededContent />;
+		}
 
-	const onCancelClick = useCallback( () => {
-		setActionToConfirm( undefined );
-	}, [ setActionToConfirm ] );
+		if ( ! credentials.available ) {
+			return <CredentialsNeededContent />;
+		}
+
+		if ( actionToConfirm?.items.length > 1 ) {
+			return (
+				<ThreatFixersModalContent
+					selectedThreatIds={ selectedThreatIds }
+					setSelectedThreatIds={ setSelectedThreatIds }
+				/>
+			);
+		}
+
+		return <ThreatFixerModalContent />;
+	}, [
+		actionToConfirm?.items.length,
+		connection.connected,
+		credentials.available,
+		selectedThreatIds,
+	] );
 
 	return (
 		<Modal
-			title={ __( 'Auto-Fix Threat', 'jetpack-components' ) }
+			title={ _n( 'Auto-Fix Threat', 'Auto-Fix Threats', threats.length, 'jetpack-components' ) }
 			focusOnMount={ false }
 			{ ...props }
 		>
-			<div className={ styles[ 'threat-modal__content' ] }>
-				<div className={ styles[ 'threat-modal__section' ] }>
-					<Text className={ styles[ 'threat-modal__section__title' ] }>
-						{ icon }
-						{ title }
-					</Text>
-					<Text>{ description }</Text>
-				</div>
-			</div>
-			<div className={ styles[ 'threat-modal__footer' ] }>
-				<div className={ styles[ 'threat-modal__footer__actions' ] }>
-					<Button variant="tertiary" onClick={ onCancelClick }>
-						{ __( 'Cancel', 'jetpack-components' ) }
-					</Button>
-					{ actions }
-				</div>
-			</div>
+			{ modal }
 		</Modal>
 	);
 }

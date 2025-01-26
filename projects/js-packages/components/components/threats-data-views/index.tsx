@@ -2,9 +2,6 @@ import {
 	getThreatType,
 	THREAT_ACTION_FIX,
 	THREAT_ACTION_IGNORE,
-	THREAT_ACTION_UNIGNORE,
-	THREAT_ACTIONS,
-	ThreatAction,
 	ThreatsContext,
 	type Threat,
 } from '@automattic/jetpack-scan';
@@ -15,14 +12,13 @@ import {
 	type SortDirection,
 	type SupportedLayouts,
 	type View,
-	Action,
 	DataViews,
 	filterSortAndPaginate,
 } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
-import { useCallback, useContext, useImperativeHandle, useMemo, useState } from 'react';
+import { useCallback, useContext, useMemo, useState } from 'react';
 import Badge from '../badge';
 import useBreakpointMatch from '../layout/use-breakpoint-match';
 import ThreatFixerButton from '../threat-fixer-button';
@@ -81,16 +77,10 @@ const ThreatsDataViews = ( {
 	initialFilters,
 	disableFields,
 }: ThreatsDataViewsProps ): JSX.Element => {
-	const context = useContext( ThreatsContext );
-	const {
-		actionCallbacks,
-		selectedThreat,
-		setSelectedThreat,
-		actionToConfirm,
-		setActionToConfirm,
-	} = context;
-
 	const [ isSm ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+
+	const { actions, selectedThreat, setSelectedThreat, actionToConfirm, setActionToConfirm } =
+		useContext( ThreatsContext );
 
 	const baseView = {
 		sort: {
@@ -144,6 +134,9 @@ const ThreatsDataViews = ( {
 		...defaultLayouts[ defaultViewType ],
 	} );
 
+	/**
+	 * Callback function to handle the fix action.
+	 */
 	const onClickFix = useCallback(
 		( threat: Threat ) => () => {
 			setActionToConfirm( { id: 'fix', items: [ threat ] } );
@@ -151,8 +144,11 @@ const ThreatsDataViews = ( {
 		[ setActionToConfirm ]
 	);
 
+	/**
+	 * Callback function to handle dismissing the modal.
+	 */
 	const onRequestClose = useCallback( () => {
-		setSelectedThreat( null );
+		setSelectedThreat( undefined );
 		setActionToConfirm( undefined );
 	}, [ setSelectedThreat, setActionToConfirm ] );
 
@@ -438,66 +434,6 @@ const ThreatsDataViews = ( {
 	}, [ plugins, themes, dataFields, signatures, onClickFix, disableFields ] );
 
 	/**
-	 * DataView actions - collection of operations that can be performed upon each record.
-	 *
-	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#actions-object
-	 */
-	const actions: Action< Threat >[] = useMemo( () => {
-		const callbacks = {
-			[ THREAT_ACTION_FIX ]: {
-				id: THREAT_ACTION_FIX,
-				callback: ( items: Threat[], { onActionPerformed } ) => {
-					setActionToConfirm( { id: THREAT_ACTION_FIX, items } );
-					onActionPerformed?.( items );
-				},
-			},
-			[ THREAT_ACTION_IGNORE ]: {
-				id: THREAT_ACTION_IGNORE,
-				callback: ( items: Threat[], { onActionPerformed } ) => {
-					setActionToConfirm( { id: THREAT_ACTION_IGNORE, items } );
-					onActionPerformed?.( items );
-				},
-			},
-			[ THREAT_ACTION_UNIGNORE ]: {
-				id: THREAT_ACTION_UNIGNORE,
-				callback: async ( items: Threat[], { onActionPerformed } ) => {
-					actionCallbacks[ THREAT_ACTION_UNIGNORE ]( items, { onActionPerformed } );
-				},
-			},
-		};
-
-		const axns = Object.values( THREAT_ACTIONS ).map( ( threatAction: ThreatAction ) => {
-			const action: Action< Threat > = {
-				id: threatAction.id,
-				label: ( items: Threat[] ) => {
-					if ( typeof threatAction.label === 'function' ) {
-						return items[ 0 ] ? threatAction.label( items[ 0 ] ) : '';
-					}
-
-					return threatAction.label || '';
-				},
-				callback: callbacks[ threatAction.id ],
-				isEligible: ( item: Threat ) => {
-					return threatAction.isEligible( item, context );
-				},
-			};
-
-			return action;
-		} );
-
-		return [
-			{
-				id: 'view',
-				label: __( 'View Details', 'jetpack-components' ),
-				callback: ( items: Threat[] ) => {
-					setSelectedThreat( items[ 0 ] );
-				},
-			},
-			...axns,
-		];
-	}, [ actionCallbacks, context, setActionToConfirm, setSelectedThreat ] );
-
-	/**
 	 * Apply the view settings (i.e. filters, sorting, pagination) to the dataset.
 	 *
 	 * @see https://github.com/WordPress/gutenberg/blob/trunk/packages/dataviews/src/filter-and-sort-data-view.ts
@@ -532,6 +468,9 @@ const ThreatsDataViews = ( {
 		[ setSelectedThreat ]
 	);
 
+	/**
+	 * Modal component to render based on the selected threat or action to confirm.
+	 */
 	const ModalComponent = useMemo( () => {
 		if ( actionToConfirm ) {
 			switch ( actionToConfirm.id ) {
@@ -551,14 +490,10 @@ const ThreatsDataViews = ( {
 		return null;
 	}, [ actionToConfirm, selectedThreat ] );
 
-	useImperativeHandle( ref, () => ( {
-		getSelectedRows: () => null,
-	} ) );
-
 	return (
 		<>
 			<DataViews
-				actions={ actions }
+				actions={ Object.values( actions ) }
 				data={ processedData }
 				defaultLayouts={ defaultLayouts }
 				fields={ fields }

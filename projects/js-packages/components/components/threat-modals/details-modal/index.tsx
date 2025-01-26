@@ -1,40 +1,14 @@
-import { Threat, ThreatsContext } from '@automattic/jetpack-scan';
+import { ThreatsContext } from '@automattic/jetpack-scan';
 import { Modal } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useContext } from 'react';
-import Button from '../../button';
 import ContextualUpgradeTrigger from '../../contextual-upgrade-trigger';
 import Text from '../../text';
 import ThemeProvider from '../../theme-provider';
-import ThreatSeverityBadge from '../../threat-severity-badge';
 import styles from '../styles.module.scss';
 import ThreatDetailsModalActions from './actions';
 import ThreatDetailsModalTechnicalDetails from './technical-details';
-
-const ThreatDetailsModalTitle = ( { threat }: { threat: Threat } ) => {
-	let title: string;
-	switch ( threat.status ) {
-		case 'ignored':
-			title = __( 'Ignored Threat', 'jetpack-components' );
-			break;
-		case 'fixed':
-			title = __( 'Fixed Threat', 'jetpack-components' );
-			break;
-		case 'current':
-		default:
-			title = __( 'Active Threat', 'jetpack-components' );
-			break;
-	}
-
-	return (
-		<div className={ styles[ 'threat-modal__title' ] }>
-			{ title }
-			{ !! threat.severity && threat.status === 'current' && (
-				<ThreatSeverityBadge severity={ threat.severity } showLabel />
-			) }
-		</div>
-	);
-};
+import ThreatDetailsModalTitle from './title';
 
 /**
  * ThreatDetailsModal component
@@ -48,7 +22,7 @@ const ThreatDetailsModal = props => {
 
 	return (
 		<ThemeProvider>
-			<Modal title={ <ThreatDetailsModalTitle threat={ threat } /> } { ...props }>
+			<Modal title={ <ThreatDetailsModalTitle /> } { ...props }>
 				<div className={ styles[ 'threat-modal__content' ] }>
 					<div className={ styles[ 'threat-modal__section' ] }>
 						{ !! threat.title && (
@@ -57,17 +31,20 @@ const ThreatDetailsModal = props => {
 
 						{ !! threat.description && <Text>{ threat.description }</Text> }
 
-						{ !! threat.source && (
-							<div>
-								<Button
-									variant="link"
-									isExternalLink={ true }
-									weight="regular"
-									href={ threat.source }
-								>
-									{ __( 'See more technical details of this threat', 'jetpack-components' ) }
-								</Button>
-							</div>
+						{ ! threat.fixable && threat.fixedIn && (
+							<>
+								<Text className={ styles[ 'threat-modal__section__title' ] }>
+									{ __( 'How to fix it?', 'jetpack-components' ) }
+								</Text>
+								<Text>
+									{ sprintf(
+										/* translators: Translates to Updates to version. %1$s: Name. %2$s: Fixed version */
+										__( 'Update %1$s to version %2$s.', 'jetpack-components' ),
+										threat.extension.name,
+										threat.fixedIn
+									) }
+								</Text>
+							</>
 						) }
 					</div>
 					<ThreatDetailsModalTechnicalDetails />

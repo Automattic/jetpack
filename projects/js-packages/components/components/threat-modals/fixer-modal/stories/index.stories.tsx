@@ -1,4 +1,4 @@
-import { storybookThreat, ThreatsContext } from '@automattic/jetpack-scan';
+import { storybookThreat, ThreatsContextProvider } from '@automattic/jetpack-scan';
 import { Meta } from '@storybook/react';
 import { useCallback, useState } from 'react';
 import Button from '../../../button/index.js';
@@ -9,9 +9,17 @@ export default {
 	component: ThreatFixerModal,
 	argTypes: {
 		...storybookThreat.argTypes,
+		batch: {
+			name: 'Batch Fixer',
+			description: 'Show a batch fixer modal.',
+			control: {
+				type: 'boolean',
+			},
+		},
 	},
 	args: {
 		...storybookThreat.args,
+		batch: false,
 	},
 	decorators: [
 		( Story, context ) => {
@@ -22,26 +30,46 @@ export default {
 				referToCodeable,
 				credentials,
 				connection,
+				batch,
 			} = context.args;
+			const threat = { ...threatPreset, ...threatFixerProps };
+			const noop = useCallback( () => {}, [] );
 			return (
-				<ThreatsContext.Provider
-					value={ {
-						selectedThreat: { ...threatPreset, ...threatFixerProps },
-						actionCallbacks: actionsEnabled
+				<ThreatsContextProvider
+					initialSelectedThreat={ threat }
+					credentials={ credentials }
+					connection={ connection }
+					referToCodeable={ referToCodeable }
+					upgradePlan={ actionsEnabled ? undefined : noop }
+					actionCallbacks={
+						actionsEnabled
 							? {
 									ignore: () => {},
 									unignore: () => {},
 									fix: () => {},
 							  }
-							: null,
-						credentials,
-						connection,
-						referToCodeable,
-						upgradePlan: () => {},
+							: null
+					}
+					fixersStatus={ {
+						ok: true,
+						threats: {
+							[ threat.id + '1' ]: { inProgress: false },
+							[ threat.id ]: { ...threatFixerProps?.fixer },
+						},
+					} }
+					initialActionToConfirm={ {
+						id: 'fix',
+						items: batch
+							? [
+									{ ...threat, id: threat.id + '1' },
+									{ ...threat, id: threat.id + '2' },
+									{ ...threat, id: threat.id + '3' },
+							  ]
+							: [ threat ],
 					} }
 				>
 					<Story { ...context.args } />
-				</ThreatsContext.Provider>
+				</ThreatsContextProvider>
 			);
 		},
 	],
@@ -60,21 +88,7 @@ export const Default = args => {
 	);
 };
 
-export const VulnerableExtension = Default.bind( {} );
-VulnerableExtension.args = {
-	threat: {
-		id: 184847701,
-		signature: 'Vulnerable.WP.Extension',
-		title: 'Vulnerable Plugin: WP Super Cache (version 1.6.3)',
-		description:
-			'The plugin WP Super Cache (version 1.6.3) has a known vulnerability. The WP Super Cache plugin before version 1.7.2 is vulnerable to an authenticated RCE in the settings page.',
-		fixedIn: '1.12.4',
-		source: 'https://wpscan.com/vulnerability/733d8a02-0d44-4b78-bbb2-37e447acd2f3',
-		extension: {
-			name: 'WP Super Cache',
-			slug: 'wp-super-cache',
-			version: '1.6.3',
-			type: 'plugins',
-		},
-	},
+export const BatchFixer = Default.bind( {} );
+BatchFixer.args = {
+	batch: true,
 };

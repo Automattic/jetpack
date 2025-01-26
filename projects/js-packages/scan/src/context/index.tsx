@@ -1,4 +1,6 @@
-import { createContext } from 'react';
+import { __ } from '@wordpress/i18n';
+import { createContext, useMemo, useState } from 'react';
+import { THREAT_ACTIONS, ThreatAction } from '../actions/index.js';
 import { FixersStatus } from '../types/fixers.js';
 import { Threat } from '../types/threats.js';
 
@@ -6,14 +8,8 @@ import { Threat } from '../types/threats.js';
  * Generic context for threat components.
  */
 export type ThreatsContextInterface = {
-	/** Callback functions for threat actions. */
-	actionCallbacks: Record<
-		string,
-		(
-			items: Threat[],
-			{ onActionPerformed }: { onActionPerformed: ( i: Threat[] ) => void }
-		) => void
-	>;
+	/** Threat actions. */
+	actions: Record< string, ThreatAction >;
 
 	/** The pending action to confirm. */
 	actionToConfirm?: {
@@ -36,6 +32,10 @@ export type ThreatsContextInterface = {
 		fetching: boolean;
 		/** The post-connection redirect URL. */
 		redirectUrl: string;
+		/** Callback function to start polling the credentials status. */
+		startPolling?: () => void;
+		/** Callback function to stop polling the credentials status. */
+		stopPolling?: () => void;
 	};
 
 	/** The site's Jetpack connection state. */
@@ -64,4 +64,96 @@ export type ThreatsContextInterface = {
 	upgradePlan?: () => void;
 };
 
+type ThreatsContextProviderProps = Partial< ThreatsContextInterface > & {
+	/** Callback functions keyed by threat action ID. */
+	actionCallbacks?: Record<
+		string,
+		(
+			items: Threat[],
+			{ onActionPerformed }: { onActionPerformed: ( i: Threat[] ) => void }
+		) => void
+	>;
+
+	/** Threat data to use in initial component state. */
+	initialSelectedThreat?: Threat;
+
+	/** Action confirmation data to use in initial component state. */
+	initialActionToConfirm?: { id: string; items: Threat[] };
+
+	/** Component children. */
+	children: React.ReactNode;
+};
+
 export const ThreatsContext = createContext< ThreatsContextInterface | null >( null );
+
+export const ThreatsContextProvider = ( {
+	actionCallbacks,
+	connection,
+	credentials,
+	fixersStatus,
+	referToCodeable,
+	upgradePlan,
+	children,
+	initialSelectedThreat,
+	initialActionToConfirm,
+}: ThreatsContextProviderProps ): JSX.Element => {
+	const [ selectedThreat, setSelectedThreat ] = useState( initialSelectedThreat );
+	const [ actionToConfirm, setActionToConfirm ] = useState( initialActionToConfirm );
+
+	/**
+	 * Threat Actions
+	 */
+	const actions: Record< string, ThreatAction > = useMemo( () => {
+		// Merge the default actions with the provided actions.
+		return Object.values( THREAT_ACTIONS ).reduce(
+			( result, action ) => {
+				const threatAction: ThreatAction = {
+					...action,
+					callback: ( items: Threat[], { onActionPerformed } = {} ) => {
+						// Handle actions that require confirmation.
+						if (
+							action.requiresConfirmation &&
+							( ! actionToConfirm || actionToConfirm.id !== action.id )
+						) {
+							setActionToConfirm( { id: action.id, items } );
+							onActionPerformed?.( items );
+							return;
+						}
+
+						// Run the action.
+						actionCallbacks[ action.id ]( items, { onActionPerformed } );
+					},
+				};
+				result[ action.id ] = threatAction;
+				return result;
+			},
+			{
+				view: {
+					id: 'view',
+					label: __( 'Show Details', 'jetpack-scan' ),
+					callback: ( items: Threat[] ) => {
+						setSelectedThreat( items[ 0 ] );
+					},
+				},
+			}
+		);
+	}, [ actionCallbacks, actionToConfirm ] );
+
+	return (
+		<ThreatsContext.Provider
+			value={ {
+				actions,
+				selectedThreat,
+				setSelectedThreat,
+				actionToConfirm,
+				setActionToConfirm,
+				connection,
+				credentials,
+				fixersStatus,
+				referToCodeable,
+				upgradePlan,
+			} }
+			children={ children }
+		/>
+	);
+};

@@ -29,6 +29,7 @@
 	display: flex;
 	flex-direction: column;
 	gap: calc( var( --spacing-base ) * 2 ); // 16px
+	padding-right: var( --spacing-base ); // 8px
 }
 
 .threat-modal__section__title {
@@ -131,3 +132,33 @@ svg.spinner {
 	}
 }
 
+.fixers {
+	display: flex;
+	flex-direction: column;
+	gap: var( --spacing-base ); // 8px
+
+	.fixers__toggle + .fixers__toggle {
+		border-top: 1px solid var( --jp-gray-5 );
+		padding-top: var( --spacing-base );
+	}
+
+	:global {
+		.components-toggle-control {
+			--spacing-base: 16px;
+
+			.components-toggle-control__label {
+				font-size: var( --font-body );
+				font-weight: 500;
+			}
+
+			.components-h-stack {
+				gap: var( --spacing-base );
+			}
+			
+			.components-toggle-control__help {
+				font-size: var( --font-body-small );
+				color: inherit;
+			}
+		}
+    }
+}

@@ -1,4 +1,4 @@
-import { AdminSection, Container, Col } from '@automattic/jetpack-components';
+import { AdminSection, Container, Col, ThreatsDataViews } from '@automattic/jetpack-components';
 import { useState } from 'react';
 import AdminPage from '../../components/admin-page';
 import OnboardingPopover from '../../components/onboarding-popover';
@@ -7,9 +7,10 @@ import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-s
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { OnboardingContext } from '../../hooks/use-onboarding';
 import usePlan from '../../hooks/use-plan';
-import CurrentThreatsDataViews from './current-threats-data-views';
+import ScanContextProvider from './context-provider';
 import onboardingSteps from './onboarding-steps';
 import ScanAdminSectionHero from './scan-admin-section-hero';
+import ScanToggleGroupControl from './scan-toggle-group-control';
 import styles from './styles.module.scss';
 
 /**
@@ -48,49 +49,45 @@ const ScanPage = () => {
 		},
 	} );
 
-	const [ actionToConfirm, setActionToConfirm ] = useState( null );
-
 	return (
 		<OnboardingContext.Provider value={ onboardingSteps }>
-			<AdminPage>
-				<ScanAdminSectionHero
-					size={ showResults ? 'normal' : 'large' }
-					actionToConfirm={ actionToConfirm }
-					setActionToConfirm={ setActionToConfirm }
-				/>
-				{ showResults && (
-					<AdminSection>
-						<Container
-							className={ styles[ 'scan-results-container' ] }
-							horizontalSpacing={ 5 }
-							horizontalGap={ 4 }
-						>
-							<Col>
-								<div ref={ setScanResultsAnchor }>
-									<CurrentThreatsDataViews
-										actionToConfirm={ actionToConfirm }
-										setActionToConfirm={ setActionToConfirm }
-									/>
-								</div>
-								{ !! status && ! isScanInProgress( status ) && (
-									<OnboardingPopover
-										id={ hasPlan ? 'paid-scan-results' : 'free-scan-results' }
-										anchor={ scanResultsAnchor }
-										position={ 'top' }
-									/>
-								) }
-								{ !! status && ! isScanInProgress( status ) && hasPlan && (
-									<OnboardingPopover
-										id={ 'paid-understand-severity' }
-										anchor={ scanResultsAnchor }
-										position={ 'top' }
-									/>
-								) }
-							</Col>
-						</Container>
-					</AdminSection>
-				) }
-			</AdminPage>
+			<ScanContextProvider>
+				<AdminPage>
+					<ScanAdminSectionHero size={ showResults ? 'normal' : 'large' } />
+					{ showResults && (
+						<AdminSection>
+							<Container
+								className={ styles[ 'scan-results-container' ] }
+								horizontalSpacing={ 5 }
+								horizontalGap={ 4 }
+							>
+								<Col>
+									<div ref={ setScanResultsAnchor }>
+										<ThreatsDataViews
+											data={ status ? status.threats : [] }
+											header={ <ScanToggleGroupControl /> }
+										/>
+									</div>
+									{ !! status && ! isScanInProgress( status ) && (
+										<OnboardingPopover
+											id={ hasPlan ? 'paid-scan-results' : 'free-scan-results' }
+											anchor={ scanResultsAnchor }
+											position={ 'top' }
+										/>
+									) }
+									{ !! status && ! isScanInProgress( status ) && hasPlan && (
+										<OnboardingPopover
+											id={ 'paid-understand-severity' }
+											anchor={ scanResultsAnchor }
+											position={ 'top' }
+										/>
+									) }
+								</Col>
+							</Container>
+						</AdminSection>
+					) }
+				</AdminPage>
+			</ScanContextProvider>
 		</OnboardingContext.Provider>
 	);
 };
