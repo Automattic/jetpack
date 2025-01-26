@@ -46,13 +46,13 @@ const WpcomMediaUrlUploadForm = ( { ajaxUrl, action, nonce, isSiteEditor } ) => 
 						const mediaLibraryTab = window.wp.media.frame.state( 'library' );
 						mediaLibraryTab.trigger( 'open' );
 
-						window.wp.media.frame.content.get().collection.add( attachment );
+						window.wp.media.frame.controller.browserView.collection.add( attachment );
 
 						const selection = mediaLibraryTab.get( 'selection' );
 						selection.reset();
 						selection.add( [ attachment ] );
 					} else {
-						window.wp.media.frame.content.get().collection.add( attachment );
+						window.wp.media.frame.controller.browserView.collection.add( attachment );
 					}
 
 					setIsUploading( false );
