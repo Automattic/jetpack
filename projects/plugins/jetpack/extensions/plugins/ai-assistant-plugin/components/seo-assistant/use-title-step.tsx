@@ -1,5 +1,5 @@
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useState, useEffect } from '@wordpress/element';
+import { useCallback, useState, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import TypingMessage from './typing-message';
 import { useMessages } from './wizard-messages';
@@ -11,6 +11,7 @@ export const useTitleStep = (): Step => {
 	const { editPost } = useDispatch( 'core/editor' );
 	const { messages, setMessages, addMessage, removeLastMessage } = useMessages();
 	const [ completed, setCompleted ] = useState( false );
+	const [ prevStepValue, setPrevStepValue ] = useState( '' );
 
 	const handleTitleSelect = useCallback( ( option: Option ) => {
 		setSelectedTitle( option.content );
@@ -22,63 +23,81 @@ export const useTitleStep = (): Step => {
 		);
 	}, [] );
 
-	useEffect( () => {
-		setMessages( [
-			{
-				content: __( "Let's optimise your title.", 'jetpack' ),
-				showIcon: true,
-			},
-		] );
-	}, [ setMessages ] );
-
-	const handleTitleGenerate = useCallback( async () => {
-		let newTitles;
-		// we only generate if options are empty
-		if ( titleOptions.length === 0 ) {
-			addMessage( { content: <TypingMessage /> } );
-			newTitles = await new Promise( resolve =>
-				setTimeout(
-					() =>
-						resolve( [
-							{
-								id: '1',
-								content: 'A Photo Gallery for Gardening Enthusiasths: Flora Guide',
-							},
-							{
-								id: '2',
-								content:
-									'Flora Guide: Beautiful Photos of Flowers and Plants for Gardening Enthusiasts',
-							},
-						] ),
-					2000
-				)
-			);
-			removeLastMessage();
-		}
-		addMessage( {
-			content: __(
-				'Here are two suggestions based on your keywords. Select the one you prefer:',
-				'jetpack'
-			),
-		} );
-		setTitleOptions( newTitles || titleOptions );
-	}, [ titleOptions, addMessage, removeLastMessage ] );
+	const handleTitleGenerate = useCallback(
+		async ( { fromSkip, stepValue: keywords } ) => {
+			const prevStepHasChanged = keywords !== prevStepValue;
+			const initialMessage = fromSkip
+				? {
+						content: createInterpolateElement(
+							__( "Skipped!<br />Let's optimise your title.", 'jetpack' ),
+							{ br: <br /> }
+						),
+						showIcon: true,
+				  }
+				: {
+						content: __( "Let's optimise your title.", 'jetpack' ),
+						showIcon: true,
+				  };
+			setMessages( [ initialMessage ] );
+			if ( prevStepHasChanged ) {
+				setTitleOptions( [] );
+			}
+			let newTitles;
+			// we only generate if options are empty
+			if ( titleOptions.length === 0 || prevStepHasChanged ) {
+				setPrevStepValue( keywords );
+				addMessage( { content: <TypingMessage /> } );
+				newTitles = await new Promise( resolve =>
+					setTimeout(
+						() =>
+							resolve( [
+								{
+									id: '1',
+									content: 'A Photo Gallery for Gardening Enthusiasths: Flora Guide',
+								},
+								{
+									id: '2',
+									content:
+										'Flora Guide: Beautiful Photos of Flowers and Plants for Gardening Enthusiasts',
+								},
+							] ),
+						2000
+					)
+				);
+				removeLastMessage();
+			}
+			if ( keywords ) {
+				addMessage( {
+					content: __(
+						'Here are some suggestions for a better title based on your keywords:',
+						'jetpack'
+					),
+				} );
+			} else {
+				addMessage( {
+					content: __(
+						'Here are some suggestions for a better title based on your post:',
+						'jetpack'
+					),
+				} );
+			}
+			setTitleOptions( newTitles || titleOptions );
+		},
+		[ titleOptions, addMessage, removeLastMessage, setMessages, prevStepValue ]
+	);
 
 	const handleTitleRegenerate = useCallback( async () => {
-		// This would typically be an async call to generate new titles
-		// replaceOptionsWithFauxUseMessages();
-		setTitleOptions( [] );
 		addMessage( { content: <TypingMessage /> } );
 		const newTitles = await new Promise< Array< Option > >( resolve =>
 			setTimeout(
 				() =>
 					resolve( [
 						{
-							id: '1',
+							id: '1' + Math.random(),
 							content: 'A Photo Gallery for Gardening Enthusiasths: Flora Guide',
 						},
 						{
-							id: '2',
+							id: '2' + Math.random(),
 							content:
 								'Flora Guide: Beautiful Photos of Flowers and Plants for Gardening Enthusiasts',
 						},
@@ -87,14 +106,8 @@ export const useTitleStep = (): Step => {
 			)
 		);
 		removeLastMessage();
-		addMessage( {
-			content: __(
-				'Here are two new suggestions based on your keywords. Select the one you prefer:',
-				'jetpack'
-			),
-		} );
-		setTitleOptions( newTitles );
-	}, [ addMessage, removeLastMessage ] );
+		setTitleOptions( [ ...titleOptions, ...newTitles ] );
+	}, [ addMessage, removeLastMessage, titleOptions ] );
 
 	const handleTitleSubmit = useCallback( async () => {
 		addMessage( { content: <TypingMessage /> } );
