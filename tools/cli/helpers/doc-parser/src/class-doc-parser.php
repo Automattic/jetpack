@@ -201,6 +201,14 @@ class Doc_Parser {
 				if ( ! empty( $parameters ) ) {
 					$block['doc']['description'] .= "\n\n" . implode( "\n", $parameters );
 				}
+
+				$sinceTags = $phpDocNode->getTagsByName( '@since' );
+				foreach ( $sinceTags as $sinceTag ) {
+					$block['doc']['tags'][] = array(
+						'name'  => 'since',
+						'value' => (string) $sinceTag->value,
+					);
+				}
 			}
 
 			$blocks[] = array(
