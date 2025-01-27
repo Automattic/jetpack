@@ -181,15 +181,6 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/me/account';
 			},
 		),
-		'preview_site'                    => array(
-			'get_title'            => function () {
-				return __( 'Preview your site', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/view/' . $data['site_slug_encoded'];
-			},
-		),
 
 		// Newsletter pre-launch tasks.
 		'first_post_published_newsletter' => array(
