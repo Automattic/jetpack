@@ -28,6 +28,7 @@ function load_wpcom_dashboard_widgets() {
 		$wpcom_dashboard_widgets[] = array(
 			'id'       => 'wpcom_launchpad_widget',
 			'name'     => __( 'Site Setup', 'jetpack-mu-wpcom' ),
+			'context'  => 'normal',
 			'priority' => 'high',
 		);
 	}
@@ -42,7 +43,7 @@ function load_wpcom_dashboard_widgets() {
 				'id'   => $wpcom_dashboard_widget['id'],
 				'name' => $wpcom_dashboard_widget['name'],
 			),
-			$wpcom_dashboard_widget['context'] ?? 'normal',
+			$wpcom_dashboard_widget['context'],
 			$wpcom_dashboard_widget['priority']
 		);
 	}
