@@ -416,7 +416,14 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 
 	if ( ( new Host() )->is_wpcom_simple() ) {
 		\ExPlat\assign_current_user( $aa_test_name );
-		$is_enabled = 'treatment' === \ExPlat\assign_current_user( $experiment_name );
+		$assigned_variation = \ExPlat\assign_current_user( $experiment_name );
+		$is_enabled         = 'treatment' === $assigned_variation;
+
+		if ( null === $assigned_variation ) {
+			update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, 'treatment', true );
+			$is_enabled = true;
+		}
+
 		return $is_enabled;
 	}
 
