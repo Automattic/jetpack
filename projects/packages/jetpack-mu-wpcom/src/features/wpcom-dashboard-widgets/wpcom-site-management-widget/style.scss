@@ -10,12 +10,12 @@
 	.wpcom_site_preview_wrapper {
 		background: #f0f0f1;
 		margin-bottom: 12px;
-		padding-top: 12px;
+		padding: 12px 12px 0;
 	}
 
 	.wpcom_site_preview {
 		display: block;
-		width: 425px;
+		max-width: 425px;
 		height: 200px;
 		pointer-events: none;
 		overflow: hidden;
