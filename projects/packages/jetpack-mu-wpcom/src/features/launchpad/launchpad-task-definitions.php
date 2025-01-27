@@ -168,6 +168,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'isLaunchTask'          => true,
 			'is_complete_callback'  => 'wpcom_launchpad_is_site_launched',
+			'is_disabled_callback'  => 'wpcom_launchpad_is_site_launched_disabled',
 			'add_listener_callback' => 'wpcom_launchpad_add_site_launch_listener',
 		),
 		'verify_email'                    => array(
@@ -906,6 +907,15 @@ function wpcom_launchpad_is_site_launched( $task, $is_complete ) {
 	} else {
 		return false;
 	}
+}
+
+/**
+ * Disabled when the site is already launched.
+ *
+ * @return boolean
+ */
+function wpcom_launchpad_is_site_launched_disabled() {
+	return 'launched' === get_option( 'launch-status' );
 }
 
 /**
