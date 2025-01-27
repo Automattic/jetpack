@@ -19,8 +19,8 @@ $pseudoProjects = json_decode( preg_replace( '#^\s*\/\/.*#m', '', file_get_conte
 $config = make_phan_config(
 	dirname( __DIR__ ),
 	array(
-		'stubs'              => array(),
-		'exclude_file_regex' => array_merge(
+		'stubs'                           => array(),
+		'exclude_file_regex'              => array_merge(
 			array(
 				// For the monorepo itself, we want to exclude all the projects. Those are processed individually instead.
 				'projects/',
@@ -33,6 +33,9 @@ $config = make_phan_config(
 			),
 			// Also any pseudo-projects are processed separately.
 			array_values( $pseudoProjects )
+		),
+		'exclude_analysis_directory_list' => array(
+			'tools/php-test-env/vendor',
 		),
 	)
 );
