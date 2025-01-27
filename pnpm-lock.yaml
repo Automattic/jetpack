@@ -1849,6 +1849,8 @@ importers:
         specifier: 4.9.1
         version: 4.9.1(webpack@5.94.0)
 
+  projects/packages/account-protection: {}
+
   projects/packages/admin-ui: {}
 
   projects/packages/assets:
@@ -3490,15 +3492,15 @@ importers:
       '@playwright/test':
         specifier: 1.48.2
         version: 1.48.2
+      _jetpack-e2e-commons:
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
 
   projects/plugins/boost:
     dependencies:
@@ -3647,15 +3649,15 @@ importers:
       '@playwright/test':
         specifier: 1.48.2
         version: 1.48.2
+      _jetpack-e2e-commons:
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
 
   projects/plugins/classic-theme-helper-plugin:
     dependencies:
@@ -3738,15 +3740,15 @@ importers:
       '@playwright/test':
         specifier: 1.48.2
         version: 1.48.2
+      _jetpack-e2e-commons:
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
 
   projects/plugins/crm:
     dependencies:
@@ -4282,15 +4284,15 @@ importers:
       '@playwright/test':
         specifier: 1.48.2
         version: 1.48.2
+      _jetpack-e2e-commons:
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
 
   projects/plugins/mu-wpcom-plugin: {}
 
@@ -4407,15 +4409,15 @@ importers:
       '@playwright/test':
         specifier: 1.48.2
         version: 1.48.2
+      _jetpack-e2e-commons:
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
 
   projects/plugins/social:
     dependencies:
@@ -4546,15 +4548,15 @@ importers:
       '@playwright/test':
         specifier: 1.48.2
         version: 1.48.2
+      _jetpack-e2e-commons:
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
 
   projects/plugins/starter-plugin:
     dependencies:
@@ -4637,15 +4639,15 @@ importers:
       '@playwright/test':
         specifier: 1.48.2
         version: 1.48.2
+      _jetpack-e2e-commons:
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
 
   projects/plugins/super-cache: {}
 
@@ -4742,15 +4744,15 @@ importers:
       '@playwright/test':
         specifier: 1.48.2
         version: 1.48.2
+      _jetpack-e2e-commons:
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
       config:
         specifier: 3.3.12
         version: 3.3.12
-      jetpack-e2e-commons:
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
 
   projects/plugins/wpcomsh:
     devDependencies:
