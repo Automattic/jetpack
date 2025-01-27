@@ -711,18 +711,17 @@ function wpcom_dismiss_removed_calypso_screen_notice() {
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			$preferences = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
 
-			// Ensure $preferences is an array
-			if ( ! is_array( $preferences ) ) {
-				if ( function_exists( 'log2logstash' ) ) {
-					log2logstash(
-						array(
-							'feature' => 'wpcom-dismiss-wp-admin-notice',
-							'message' => 'Retrieved a non-array value from Calypso preferences.',
-							'extra'   => wp_json_encode( $preferences ),
-						)
-					);
-				}
-				$preferences = array();
+			// If $preferences is not array we log the contents so that we can further debug.
+			if ( ! is_array( $preferences ) && function_exists( 'log2logstash' ) ) {
+				log2logstash(
+					array(
+						'feature' => 'wpcom-dismiss-wp-admin-notice',
+						'message' => 'Retrieved a non-array value from Calypso preferences.',
+						'extra'   => wp_json_encode( $preferences ),
+					)
+				);
+				// Bail if we can't update the preferences array.
+				wp_die();
 			}
 
 			$preferences[ 'removed-calypso-screen-dismissed-notice-' . $screen ] = true;
