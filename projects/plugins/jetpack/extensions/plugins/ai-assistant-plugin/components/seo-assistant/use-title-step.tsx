@@ -105,8 +105,8 @@ export const useTitleStep = (): Step => {
 	}, [ selectedTitle, addMessage, editPost, removeLastMessage ] );
 
 	const handleSkip = useCallback( () => {
-		addMessage( { content: __( 'Skipped!', 'jetpack' ) } );
-	}, [ addMessage ] );
+		// addMessage( { content: __( 'Skipped!', 'jetpack' ) } );
+	}, [] );
 
 	return {
 		id: 'title',

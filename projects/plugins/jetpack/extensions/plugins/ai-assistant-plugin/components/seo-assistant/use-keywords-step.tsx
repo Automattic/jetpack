@@ -22,8 +22,8 @@ export const useKeywordsStep = (): InputStep => {
 	}, [ setMessages ] );
 
 	const handleSkip = useCallback( () => {
-		addMessage( { content: __( 'Skipped!', 'jetpack' ) } );
-	}, [ addMessage ] );
+		// addMessage( { content: __( 'Skipped!', 'jetpack' ) } );
+	}, [] );
 
 	const handleKeywordsSubmit = useCallback( async () => {
 		if ( ! keywords.trim() ) {
