@@ -202,12 +202,24 @@ class Doc_Parser {
 					$block['doc']['description'] .= "\n\n" . implode( "\n", $parameters );
 				}
 
-				$sinceTags = $phpDocNode->getTagsByName( '@since' );
-				foreach ( $sinceTags as $sinceTag ) {
-					$block['doc']['tags'][] = array(
-						'name'  => 'since',
-						'value' => (string) $sinceTag->value,
-					);
+				foreach (
+					array(
+						'@since',
+						'@module',
+						'@deprecated',
+						'@see',
+						'@uses',
+						'@link',
+						'@type',
+					) as $tagType
+				) {
+					$sinceTags = $phpDocNode->getTagsByName( $tagType );
+					foreach ( $sinceTags as $sinceTag ) {
+						$block['doc']['tags'][] = array(
+							'name'  => substr( $tagType, 1 ),
+							'value' => (string) $sinceTag->value,
+						);
+					}
 				}
 			}
 
@@ -237,6 +249,19 @@ class Doc_Parser {
 			$result = '';
 
 			switch ( $node_kind ) {
+				case 'AST_ARRAY':
+					$result .= 'array( ';
+					$first   = true;
+					foreach ( $node->children as $item ) {
+						if ( $first ) {
+							$first = false;
+						} else {
+							$result .= ', ';
+						}
+						$result .= $this->flatten_ast_node( $item );
+					}
+					$result .= ' )';
+					break;
 				case 'AST_VAR':
 					$children = $node->children;
 					'@phan-var array<string, string> $children';
@@ -264,6 +289,54 @@ class Doc_Parser {
 					$result .= ')';
 
 					break;
+				case 'AST_STATIC_CALL':
+					$children = $node->children;
+					'@phan-var array<string, \ast\Node> $children';
+
+					$expression_children = $children['class']->children;
+					'@phan-var array<string, string> $expression_children';
+
+					$result .= $expression_children['name'] . '::' . $children['method'] . '(';
+					$first   = true;
+
+					foreach ( $children['args']->children as $argument ) {
+						if ( $first ) {
+							$first = false;
+						} else {
+							$result .= ', ';
+						}
+						$result .= $this->flatten_ast_node( $argument );
+					}
+					$result .= ')';
+
+					break;
+				case 'AST_PROP':
+					$children = $node->children;
+					'@phan-var array<string, \ast\Node> $children';
+
+					$child_kind = \ast\get_kind_name( $children['expr']->kind );
+
+					// This is incorrect, needs to be changed to an inverse if.
+					if ( 'AST_PROP' === $child_kind ) {
+						$result .= $this->flatten_ast_node( $children['expr'] ) . '->' . $children['prop'];
+					} else {
+						$expression_children = $children['expr']->children;
+						'@phan-var array<string, string> $expression_children';
+
+						$result .= $expression_children['name'] . '->' . $children['prop'];
+					}
+					break;
+
+				case 'AST_BINARY_OP':
+					$flags = $this->format_flags( $node->kind, $node->flags );
+					if ( false !== strpos( 'BINARY_CONCAT', $flags ) ) {
+						$result .=
+							$this->flatten_ast_node( $node->children['left'] )
+							. '.'
+							. $this->flatten_ast_node( $node->children['right'] );
+						break;
+					}
+					// Break intentionally omitted.
 				default:
 					foreach ( $node->children as $i => $child ) {
 						if ( $i === 'docComment' ) {
@@ -275,9 +348,16 @@ class Doc_Parser {
 
 			return $result;
 		} elseif ( $node === null ) {
-			return 'null';
+			return ' null ';
+
+		} elseif ( is_string( $node ) && 'null' === $node ) {
+			return ' null ';
+		} elseif ( is_string( $node ) && 'true' === $node ) {
+			return ' true ';
+		} elseif ( is_string( $node ) && 'false' === $node ) {
+			return ' false ';
 		} elseif ( is_string( $node ) ) {
-			return $node;
+			return '\'' . $node . '\'';
 		} else {
 			return (string) $node;
 		}
@@ -331,11 +411,97 @@ class Doc_Parser {
 
 					$blocks[] = $new_block;
 				}
+
+				if ( 'do_action' === $name ) {
+					$arguments = $children['args']->children;
+					'@phan-var array<int, \ast\Node|string> $arguments';
+
+					$argument = array_shift( $arguments );
+
+					$new_block = array(
+						'type'     => 'action',
+						'line'     => $tree->lineno,
+						'end_line' => $tree->endLineno ?? $tree->lineno,
+						'name'     => $argument,
+					);
+
+					$blocks[] = $new_block;
+				}
 			}
 
 			foreach ( $tree->children as $child ) {
 				$this->get_filter_calls( $child, $blocks );
 			}
 		}
+	}
+
+	/**
+	 * Utility for getting AST flag info.
+	 *
+	 * @see https://github.com/nikic/php-ast/blob/master/util.php
+	 * @return array AST flags.
+	 * */
+	protected function get_flag_info(): array {
+		static $info;
+		if ( $info !== null ) {
+			return $info;
+		}
+
+		foreach ( \ast\get_metadata() as $data ) {
+			if ( empty( $data->flags ) ) {
+				continue;
+			}
+
+			$flagMap = array();
+			foreach ( $data->flags as $fullName ) {
+				$shortName                        = substr( $fullName, strrpos( $fullName, '\\' ) + 1 );
+				$flagMap[ constant( $fullName ) ] = $shortName;
+			}
+
+			$info[ (int) $data->flagsCombinable ][ $data->kind ] = $flagMap;
+		}
+
+		return $info;
+	}
+
+	/**
+	 * Utility for getting combinable flag factor.
+	 *
+	 * @see https://github.com/nikic/php-ast/blob/master/util.php
+	 *
+	 * @param int $kind the flag identifier.
+	 * @return boolean if flag is combinable.
+	 */
+	protected function is_combinable_flag( int $kind ): bool {
+		return isset( $this->get_flag_info()[1][ $kind ] );
+	}
+
+	/**
+	 * Utility to return formatted flag strings.
+	 *
+	 * @param int $kind  the flag identifier.
+	 * @param int $flags the flags for which to get the string.
+	 * @return string formatted flags value.
+	 */
+	protected function format_flags( int $kind, int $flags ): string {
+		list( $exclusive, $combinable ) = $this->get_flag_info();
+		if ( isset( $exclusive[ $kind ] ) ) {
+			$flagInfo = $exclusive[ $kind ];
+			if ( isset( $flagInfo[ $flags ] ) ) {
+				return $flagInfo[ $flags ];
+			}
+		} elseif ( isset( $combinable[ $kind ] ) ) {
+			$flagInfo = $combinable[ $kind ];
+			$names    = array();
+			foreach ( $flagInfo as $flag => $name ) {
+				if ( $flags & $flag ) {
+					$names[] = $name;
+				}
+			}
+			if ( ! empty( $names ) ) {
+				return implode( ' | ', $names );
+			}
+		}
+		return (string) $flags;
 	}
 }
