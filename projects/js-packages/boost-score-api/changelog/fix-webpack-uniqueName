@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Set webpack `output.uniqueName` to match `output.library.name`, to account for a change in js-packages/webpack-config.
-
-

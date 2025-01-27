@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Set `output.uniqueName` by default. Note this may change output for things setting `output.library.name`.
