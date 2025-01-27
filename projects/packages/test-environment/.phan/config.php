@@ -10,4 +10,17 @@
 // Require base config.
 require __DIR__ . '/../../../../.phan/config.base.php';
 
-return make_phan_config( dirname( __DIR__ ) );
+// Get absolute path to WorDBless
+$wordbless_path = dirname( __DIR__, 4 ) . '/tools/php-test-env/vendor/automattic/wordbless';
+
+return make_phan_config(
+	dirname( __DIR__ ),
+	array(
+		'directory_list'                  => array(
+			$wordbless_path . '/src',
+		),
+		'exclude_analysis_directory_list' => array(
+			$wordbless_path,
+		),
+	)
+);
