@@ -60,6 +60,7 @@ class Social_Admin_Page {
 			$plugin_version = $plugin_data['Version'];
 
 			// If it's the old social version, remove the submenu page.
+			// TODO Update the version and operator before next Social release.
 			if ( version_compare( $plugin_version, '6.1.0', '<' ) ) {
 				/**
 				 * `add_submenu_page` allows multiple submenus with the same slug,
