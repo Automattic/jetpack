@@ -41,34 +41,58 @@ export const useMetaDescriptionStep = (): Step => {
 		setCompleted( true );
 	}, [ selectedMetaDescription, addMessage, editPost, removeLastMessage ] );
 
-	const handleMetaDescriptionGenerate = useCallback( async () => {
-		let newMetaDescriptions;
-		// we only generate if options are empty
-		if ( metaDescriptionOptions.length === 0 ) {
-			addMessage( { content: <TypingMessage /> } );
-			newMetaDescriptions = await new Promise( resolve =>
-				setTimeout(
-					() =>
-						resolve( [
-							{
-								id: 'meta-1',
-								content:
-									'Explore breathtaking flower and plant photography in our Flora Guide, featuring tips and inspiration for gardening and plant enthusiasts to enhance their outdoor spaces.',
-							},
-						] ),
-					2000
-				)
-			);
-			removeLastMessage();
-		}
-		const editedFirstMessage = createInterpolateElement(
-			__( "Now, let's optimize your meta description.<br />Here's a suggestion:", 'jetpack' ),
-			{ br: <br /> }
-		);
-		// addMessage( { content: __( "Here's a suggestion:", 'jetpack' ) } );
-		editLastMessage( editedFirstMessage );
-		setMetaDescriptionOptions( newMetaDescriptions || metaDescriptionOptions );
-	}, [ metaDescriptionOptions, addMessage, removeLastMessage, editLastMessage ] );
+	const handleMetaDescriptionGenerate = useCallback(
+		async ( { fromSkip } ) => {
+			const initialMessage = fromSkip
+				? {
+						content: createInterpolateElement(
+							__( "Skipped!<br />Now, let's optimize your meta description.", 'jetpack' ),
+							{ br: <br /> }
+						),
+						showIcon: true,
+				  }
+				: {
+						content: __( "Now, let's optimize your meta description.", 'jetpack' ),
+						showIcon: true,
+				  };
+			setMessages( [ initialMessage ] );
+			let newMetaDescriptions;
+			// we only generate if options are empty
+			if ( metaDescriptionOptions.length === 0 ) {
+				addMessage( { content: <TypingMessage /> } );
+				newMetaDescriptions = await new Promise( resolve =>
+					setTimeout(
+						() =>
+							resolve( [
+								{
+									id: 'meta-1',
+									content:
+										'Explore breathtaking flower and plant photography in our Flora Guide, featuring tips and inspiration for gardening and plant enthusiasts to enhance their outdoor spaces.',
+								},
+							] ),
+						2000
+					)
+				);
+				removeLastMessage();
+			}
+			const editedFirstMessage = fromSkip
+				? createInterpolateElement(
+						__(
+							"Skipped!<br />Now, let's optimize your meta description.<br />Here's a suggestion:",
+							'jetpack'
+						),
+						{ br: <br /> }
+				  )
+				: createInterpolateElement(
+						__( "Now, let's optimize your meta description.<br />Here's a suggestion:", 'jetpack' ),
+						{ br: <br /> }
+				  );
+			// addMessage( { content: __( "Here's a suggestion:", 'jetpack' ) } );
+			editLastMessage( editedFirstMessage );
+			setMetaDescriptionOptions( newMetaDescriptions || metaDescriptionOptions );
+		},
+		[ metaDescriptionOptions, addMessage, removeLastMessage, editLastMessage, setMessages ]
+	);
 
 	const handleMetaDescriptionRegenerate = useCallback( async () => {
 		setMetaDescriptionOptions( [] );
