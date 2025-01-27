@@ -123,7 +123,6 @@ const BarChart: FC< BarChartProps > = props => {
 		<div
 			className={ clsx( styles[ 'bar-chart' ], className ) }
 			data-testid="bar-chart"
-			style={ { width, height } }
 			role="img"
 			aria-label="bar chart"
 		>
