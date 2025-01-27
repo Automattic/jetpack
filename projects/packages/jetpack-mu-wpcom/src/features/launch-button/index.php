@@ -5,8 +5,6 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Status;
-
 /**
  * Adds a "launch site" button to the admin bar.
  *
@@ -17,15 +15,10 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 		return;
 	}
 	$is_launched = get_option( 'launch-status' ) !== 'unlaunched';
-	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
-		$blog_domain = ( new Status() )->get_site_suffix();
-	} else {
-		$blog_id     = get_current_blog_id();
-		$blog_domain = preg_replace( '!^https?://!', '', get_primary_redirect( $blog_id ) );
-	}
 	if ( $is_launched ) {
 		return;
 	}
+	$blog_domain = wp_parse_url( home_url(), PHP_URL_HOST );
 	$admin_bar->add_menu(
 		array(
 			'id'     => 'menu-id',
