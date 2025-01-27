@@ -1419,6 +1419,10 @@ if ( ( new Host() )->is_woa_site() ) {
  * @param WP_Scripts $scripts WP_Scripts instance.
  */
 function jetpack_hotfix_block_editor_script( $scripts ) {
+	if ( defined( 'GUTENBERG_DEVELOPMENT_MODE' ) && GUTENBERG_DEVELOPMENT_MODE ) {
+		return;
+	}
+
 	if ( ! defined( 'GUTENBERG_VERSION' ) ) {
 		return;
 	}
