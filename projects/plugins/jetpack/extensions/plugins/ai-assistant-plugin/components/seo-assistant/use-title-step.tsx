@@ -134,10 +134,6 @@ export const useTitleStep = (): Step => {
 		return selectedTitle;
 	}, [ selectedTitle, addMessage, editPost, removeLastMessage ] );
 
-	const handleSkip = useCallback( () => {
-		// addMessage( { content: __( 'Skipped!', 'jetpack' ) } );
-	}, [] );
-
 	return {
 		id: 'title',
 		title: __( 'Optimise Title', 'jetpack' ),
@@ -150,7 +146,6 @@ export const useTitleStep = (): Step => {
 		onRetry: handleTitleRegenerate,
 		retryCtaLabel: __( 'Regenerate', 'jetpack' ),
 		onStart: handleTitleGenerate,
-		onSkip: handleSkip,
 		value: selectedTitle,
 		setValue: setSelectedTitle,
 		completed,

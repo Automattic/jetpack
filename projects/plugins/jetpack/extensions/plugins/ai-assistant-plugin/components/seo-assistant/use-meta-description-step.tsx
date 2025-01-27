@@ -88,7 +88,6 @@ export const useMetaDescriptionStep = (): Step => {
 						__( "Now, let's optimize your meta description.<br />Here's a suggestion:", 'jetpack' ),
 						{ br: <br /> }
 				  );
-			// addMessage( { content: __( "Here's a suggestion:", 'jetpack' ) } );
 			editLastMessage( editedFirstMessage );
 			setMetaDescriptionOptions( newMetaDescriptions || metaDescriptionOptions );
 		},
@@ -113,7 +112,6 @@ export const useMetaDescriptionStep = (): Step => {
 			)
 		);
 		removeLastMessage();
-		// addMessage( { content: __( "Here's a new suggestion:", 'jetpack' ) } );
 		const editedFirstMessage = createInterpolateElement(
 			__( "Now, let's optimize your meta description.<br />Here's a new suggestion:", 'jetpack' ),
 			{ br: <br /> }
@@ -121,10 +119,6 @@ export const useMetaDescriptionStep = (): Step => {
 		editLastMessage( editedFirstMessage );
 		setMetaDescriptionOptions( newMetaDescription );
 	}, [ addMessage, removeLastMessage, editLastMessage ] );
-
-	const handleSkip = useCallback( () => {
-		// addMessage( { content: __( 'Skipped!', 'jetpack' ) } );
-	}, [] );
 
 	return {
 		id: 'meta',
@@ -138,7 +132,6 @@ export const useMetaDescriptionStep = (): Step => {
 		onRetry: handleMetaDescriptionRegenerate,
 		retryCtaLabel: __( 'Regenerate', 'jetpack' ),
 		onStart: handleMetaDescriptionGenerate,
-		onSkip: handleSkip,
 		value: selectedMetaDescription,
 		setValue: setSelectedMetaDescription,
 		completed,

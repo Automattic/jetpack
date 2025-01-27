@@ -21,10 +21,6 @@ export const useKeywordsStep = (): InputStep => {
 		] );
 	}, [ setMessages ] );
 
-	const handleSkip = useCallback( () => {
-		// addMessage( { content: __( 'Skipped!', 'jetpack' ) } );
-	}, [] );
-
 	const handleKeywordsSubmit = useCallback( async () => {
 		if ( ! keywords.trim() ) {
 			return '';
@@ -75,7 +71,6 @@ export const useKeywordsStep = (): InputStep => {
 		type: 'input',
 		placeholder: __( 'Photography, plants', 'jetpack' ),
 		onSubmit: handleKeywordsSubmit,
-		onSkip: handleSkip,
 		completed,
 		setCompleted,
 		value: keywords,
