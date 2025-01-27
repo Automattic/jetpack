@@ -125,8 +125,14 @@ jobs:
 
           # Add WorDBles for publicize package tests since concurrency can nuke uploads that are in use.
           if [[ "$TEST_SCRIPT" =~ ^test-(php|coverage)$ ]] && jq -e '.name == "automattic/jetpack-publicize"' projects/packages/publicize/composer.json >/dev/null; then
-            echo "Adding WorDBles for publicize tests"
+            echo "Adding WorDBless for publicize tests"
             composer require --working-dir=projects/packages/publicize automattic/wordbless:^0.4.2 --dev
+          fi
+
+          # Add WorDBles for videopress package tests since concurrency can nuke uploads that are in use.
+          if [[ "$TEST_SCRIPT" =~ ^test-(php|coverage)$ ]] && jq -e '.name == "automattic/jetpack-videopress"' projects/packages/videopress/composer.json >/dev/null; then
+            echo "Adding WorDBless for videopress tests"
+            composer require --working-dir=projects/packages/videopress automattic/wordbless:^0.4.2 --dev
           fi
 
           if [[ ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) && ( "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ) ]]; then
