@@ -49,9 +49,10 @@ function enqueue_wpcom_dashboard_widgets() {
 
 	$data = wp_json_encode(
 		array(
-			'siteName'    => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
-			'siteUrl'     => home_url(),
-			'siteIconUrl' => get_site_icon_url( 38 ),
+			'siteName'     => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
+			'siteUrl'      => home_url(),
+			'siteIconUrl'  => get_site_icon_url( 38 ),
+			'isBlockTheme' => wp_is_block_theme(),
 		)
 	);
 

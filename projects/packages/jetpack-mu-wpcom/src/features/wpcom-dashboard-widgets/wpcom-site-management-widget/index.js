@@ -2,7 +2,7 @@ import { __ } from '@wordpress/i18n';
 import React from 'react';
 import './style.scss';
 
-const WpcomSiteManagementWidget = ( { siteName, siteUrl, siteIconUrl } ) => {
+const WpcomSiteManagementWidget = ( { siteName, siteUrl, siteIconUrl, isBlockTheme } ) => {
 	const siteDomain = new URL( siteUrl ).hostname;
 	return (
 		<>
@@ -37,9 +37,11 @@ const WpcomSiteManagementWidget = ( { siteName, siteUrl, siteIconUrl } ) => {
 					<a className="button-secondary" href={ `https://wordpress.com/overview/${ siteDomain }` }>
 						{ __( 'Hosting Overview', 'jetpack-mu-wpcom' ) }
 					</a>
-					<a className="button-secondary" href={ `site-editor.php` }>
-						{ __( 'Edit Site', 'jetpack-mu-wpcom' ) }
-					</a>
+					{ isBlockTheme ? (
+						<a className="button-secondary" href={ `site-editor.php` }>
+							{ __( 'Edit Site', 'jetpack-mu-wpcom' ) }
+						</a>
+					) : null }
 				</div>
 			</div>
 		</>
