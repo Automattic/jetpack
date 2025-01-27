@@ -504,7 +504,7 @@ function wpcom_launchpad_get_task_definitions() {
 				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
 					return admin_url( 'admin.php?page=jetpack#/newsletter' );
 				}
-				return '/settings/newsletter/' . $data['site_slug_encoded'];
+				return '/settings/newsletter/' . $data['site_slug_encoded'] . '#messages';
 			},
 		),
 		'enable_subscribers_modal'        => array(
