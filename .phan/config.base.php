@@ -143,7 +143,9 @@ function make_phan_config( $dir, $options = array() ) {
 				// Use absolute path to ensure WorDBless is found
 				$wordbless_path = dirname( __DIR__ ) . '/tools/php-test-env/vendor/automattic/wordbless';
 				if ( is_dir( $wordbless_path ) ) {
-					$options['directory_list'][]                  = $wordbless_path;
+					// Only include the src directory
+					$options['directory_list'][] = $wordbless_path . '/src';
+					// Exclude from analysis
 					$options['exclude_analysis_directory_list'][] = $wordbless_path;
 				}
 				break;
