@@ -1440,10 +1440,7 @@ function jetpack_hotfix_block_editor_script( $scripts ) {
 	gutenberg_override_script(
 		$scripts,
 		$handle,
-		Assets::get_file_url_for_environment(
-			'_inc/block-editor-hotfix-' . GUTENBERG_VERSION . '.min.js',
-			'_inc/block-editor-hotfix-' . GUTENBERG_VERSION . '.min.js'
-		),
+		plugins_url( '_inc/block-editor-hotfix-' . GUTENBERG_VERSION . '.min.js', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
 		$dependencies,
 		$version,
 		true
