@@ -9,7 +9,7 @@
  * Plugin Name:       Jetpack Boost
  * Plugin URI:        https://jetpack.com/boost
  * Description:       Boost your WordPress site's performance, from the creators of Jetpack
- * Version: 3.7.0
+ * Version: 3.8.0
  * Author:            Automattic - Jetpack Site Speed team
  * Author URI:        https://jetpack.com/boost/
  * License:           GPL-2.0+
@@ -26,10 +26,10 @@ namespace Automattic\Jetpack_Boost;
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
-	die;
+	die( 0 );
 }
 
-define( 'JETPACK_BOOST_VERSION', '3.7.0' );
+define( 'JETPACK_BOOST_VERSION', '3.8.0' );
 define( 'JETPACK_BOOST_SLUG', 'jetpack-boost' );
 
 if ( ! defined( 'JETPACK_BOOST_CLIENT_NAME' ) ) {
@@ -150,7 +150,7 @@ if ( isset( $_SERVER['REQUEST_URI'] ) ) {
 		define( 'JETPACK_BOOST_CONCAT_USE_WP', true );
 
 		require_once JETPACK_BOOST_DIR_PATH . '/serve-minified-content.php';
-		exit;
+		exit( 0 );
 	}
 }
 
@@ -186,7 +186,7 @@ function jetpack_boost_plugin_activation( $plugin ) {
 		( new \Automattic\Jetpack\Paths() )->is_current_request_activating_plugin_from_plugins_screen( JETPACK_BOOST_PLUGIN_BASE )
 	) {
 		wp_safe_redirect( esc_url( admin_url( 'admin.php?page=jetpack-boost' ) ) );
-		exit;
+		exit( 0 );
 	}
 }
 

@@ -776,7 +776,7 @@ class Contact_Form_Plugin {
 			);
 		}
 
-		die;
+		die( 0 );
 	}
 
 	/**
@@ -1828,7 +1828,7 @@ class Contact_Form_Plugin {
 		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 
 		$this->record_tracks_event( 'forms_export_responses', array( 'format' => 'csv' ) );
-		exit();
+		exit( 0 );
 	}
 
 	/**

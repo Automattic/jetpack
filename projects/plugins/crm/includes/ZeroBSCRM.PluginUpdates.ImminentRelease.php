@@ -8,13 +8,7 @@
 // ... should have been introduced way earlier than 2.98+, but better late than never
 // notes: https://wisdomplugin.com/add-inline-plugin-update-message/
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 

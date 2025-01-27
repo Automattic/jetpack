@@ -8,8 +8,7 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^1.1.1",
-		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "^0.4.2"
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -35,9 +34,7 @@
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
-		],
-		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+		]
 	},
 	"repositories": [
 		{
@@ -50,11 +47,6 @@
 	],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
-	"config": {
-		"allow-plugins": {
-			"roots/wordpress-core-installer": true
-		}
-	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-chatbot",
 		"changelogger": {

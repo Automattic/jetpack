@@ -424,7 +424,7 @@ function send_access_denied_error_response() {
 	}
 
 	require access_denied_template_path();
-	exit;
+	exit( 0 );
 }
 
 /**
@@ -433,7 +433,7 @@ function send_access_denied_error_response() {
 function parse_request() {
 	if ( maybe_print_robots_txt() ) {
 		// If robots.txt was requested, go ahead & serve our hard-coded version & bail
-		exit;
+		exit( 0 );
 	}
 
 	if ( should_prevent_site_access() ) {
@@ -629,7 +629,7 @@ function remove_mask_site_name_filter() {
 function preprocess_comment( $comment ) {
 	if ( should_prevent_site_access() ) {
 		require access_denied_template_path();
-		exit;
+		exit( 0 );
 	}
 	return $comment;
 }
@@ -769,7 +769,7 @@ function hide_opml() {
 	</head>
 </opml>
 		<?php
-		exit;
+		exit( 0 );
 	}
 }
 

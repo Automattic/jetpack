@@ -12,7 +12,7 @@ use Automattic\JetpackBeta\Utils;
 
 // Check that the file is not accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 // Wrap in a function to avoid leaking all the variables we create to subsequent runs.

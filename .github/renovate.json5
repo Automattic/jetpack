@@ -87,6 +87,14 @@
 			matchPackageNames: [ 'docker/**' ],
 		},
 
+		// Separate this from 'monorepo:wordpress' while it's still considered unstable.
+		{
+			groupName: '@wordpress/dataviews',
+			matchPackageNames: [ '@wordpress/dataviews' ],
+			separateMajorMinor: false,
+			prPriority: 1,
+		},
+
 		// 🤷
 		{
 			groupName: 'Instant Search Dependency Updates',

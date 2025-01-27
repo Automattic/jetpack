@@ -362,20 +362,13 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### [6.5.0] - 2025-01-10
+### 6.5.1 - 2025-01-22
+#### Changed
+- Code: Use function-style exit() and die() with a default status code of 0.
 
 #### Removed
-- General: Remove unused legacy code.
-
-#### Changed
-- General: Update minimum WordPress version to 6.6.
-- API: Allow sort order in endpoints.
+- Remove legacy Groove code.
 
 #### Fixed
-- CRM: Fix bug which caused duplicated queries to run.
-- CRM: Fix a fatal error that occurred when exporting contacts with a custom field that had the same name as a linked field (e.g., 'company').
-- Dashboard: Fix an issue where the CRM contacts graph displayed incorrect values in some instances.
-- Dashboard: Show correct avatar for recent activity.
-- Invoices: Fix bugs in the default PDF template and other fixes. Created a new template to maintain backwards compatibility.
-- Code: Ensure we use Jetpack Autoloader throughout the codebase.
-- Migrations: Improve WP Playground compatibility.
+- Invoices: Fix bug introduced in 6.5.0 that prevented email invoices from being sent.
+

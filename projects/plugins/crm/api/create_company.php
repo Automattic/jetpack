@@ -17,7 +17,7 @@
 	Breaking Checks ( stops direct access )
 	====================================================== */
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 /*
 ======================================================
@@ -249,4 +249,4 @@ if ( $external_api_name !== false ) {
 					}
 				}
 
-				exit();
+				exit( 0 );
