@@ -1,11 +1,11 @@
 import { useGlobalNotices } from '@automattic/jetpack-components';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import useAnalytics from '../../hooks/use-analytics';
 import { REST_API_SITE_PRODUCTS_ENDPOINT, QUERY_ACTIVATE_PRODUCT_KEY } from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
 import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
 import useProducts from './use-products';
-import type { ProductCamelCase } from '../types';
+import type { ProductCamelCase, ProductSnakeCase } from '../types';
 
 const setPluginActiveState = ( productId: string ) => {
 	const { items } = getMyJetpackWindowInitialState( 'products' );
@@ -41,7 +41,7 @@ const useActivatePlugins = ( productIds: string[] ) => {
 		mutate: activate,
 		isPending,
 		isSuccess,
-	} = useSimpleMutation( {
+	} = useSimpleMutation< { [ key: string ]: ProductSnakeCase } >( {
 		name: QUERY_ACTIVATE_PRODUCT_KEY,
 		query: {
 			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/activate`,
@@ -65,9 +65,9 @@ const useActivatePlugins = ( productIds: string[] ) => {
 				refetch().then( () => {
 					createSuccessNotice(
 						sprintf(
-							/* translators: %s is the word "Plugin" or "Pluigns" (singular or plural). */
+							/* translators: %s is either the product name, i.e.- "Jetpack Backup" or the word "Plugins". */
 							__( '%s activated successfully!', 'jetpack-my-jetpack' ),
-							_n( 'Plugin', 'Plugins', products?.length, 'jetpack-my-jetpack' )
+							products?.length === 1 ? products[ 0 ].title : __( 'Plugins', 'jetpack-my-jetpack' )
 						)
 					);
 				} );
