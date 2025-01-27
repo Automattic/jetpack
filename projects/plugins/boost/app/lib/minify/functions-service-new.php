@@ -75,9 +75,24 @@ function jetpack_boost_404_tester() {
 	wp_remote_get( home_url( '/wp-content/boost-cache/static/testing_404' ) );
 	if ( file_exists( Config::get_static_cache_dir_path() . '/404' ) ) {
 		wp_delete_file( Config::get_static_cache_dir_path() . '/404' );
-		update_option( 'jetpack_boost_static_minification', true );
+		update_option( 'jetpack_boost_static_minification', 1 );
 	} else {
-		update_option( 'jetpack_boost_static_minification', false );
+		update_option( 'jetpack_boost_static_minification', 0 );
+	}
+}
+add_action( 'jetpack_boost_404_tester_cron', 'jetpack_boost_404_tester' );
+
+/**
+ * Setup the 404 tester.
+ *
+ * Schedule the 404 tester in three seconds if the concatenation modules
+ * haven't been toggled since this feature was released.
+ * Only run this in wp-admin to avoid excessive updates to the option.
+ */
+function jetpack_boost_404_setup() {
+	if ( is_admin() && get_option( 'jetpack_boost_static_minification', 'na' ) === 'na' ) {
+		update_option( 'jetpack_boost_static_minification', 0 ); // Add a default value if not set to avoid an extra SQL query.
+		wp_schedule_single_event( time() + 3, 'jetpack_boost_404_tester_cron' );
 	}
 }
 

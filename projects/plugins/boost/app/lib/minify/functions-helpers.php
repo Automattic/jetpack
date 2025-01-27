@@ -341,6 +341,8 @@ function jetpack_boost_minify_setup() {
 		// Disable Jetpack Site Accelerator CDN for static JS/CSS, if we're minifying this page.
 		add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
 	}
+
+	jetpack_boost_404_setup();
 }
 
 function jetpack_boost_page_optimize_generate_concat_path( $url_paths, $dependency_path_mapping ) {
