@@ -134,6 +134,23 @@ function make_phan_config( $dir, $options = array() ) {
 		$internal_stubs[ $stub ] = $stub_file_path;
 	}
 
+	// Check if test-environment is a dependency and add WorDBless if it is
+	$composer_json = $dir . '/composer.json';
+	if ( file_exists( $composer_json ) ) {
+		$composer_data = json_decode( file_get_contents( $composer_json ), true );
+		foreach ( array( 'require', 'require-dev' ) as $require_type ) {
+			if ( isset( $composer_data[ $require_type ]['automattic/jetpack-test-environment'] ) ) {
+				// Use absolute path to ensure WorDBless is found
+				$wordbless_path = dirname( __DIR__ ) . '/tools/php-test-env/vendor/automattic/wordbless';
+				if ( is_dir( $wordbless_path ) ) {
+					$options['directory_list'][]                  = $wordbless_path;
+					$options['exclude_analysis_directory_list'][] = $wordbless_path;
+				}
+				break;
+			}
+		}
+	}
+
 	$config = array(
 		// Apparently this is only useful when upgrading from php 5, not for 7-to-8.
 		'backward_compatibility_checks'          => false,
