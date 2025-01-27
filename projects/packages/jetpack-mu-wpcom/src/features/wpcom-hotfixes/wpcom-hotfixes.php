@@ -24,3 +24,29 @@ add_filter(
 	},
 	20
 );
+
+/**
+ * Hotfix for a {Gutenberg 20.0.0, WP 6.7.x} bug causing the Content block to output truncated HTML.
+ * See: https://github.com/WordPress/gutenberg/issues/68614
+ */
+if (
+	// WordPress 6.7.x contains the buggy remove_serialized_parent_block() function.
+	version_compare( get_bloginfo( 'version' ), '6.8', '<' ) ) {
+
+	add_filter(
+		'the_content',
+		function ( $content ) {
+			if ( has_filter( 'the_content', 'remove_serialized_parent_block' ) ) {
+				// We will revert the content manipulation done in https://github.com/WordPress/gutenberg/pull/67272.
+
+				// Reverts https://github.com/WordPress/gutenberg/pull/67272/files#diff-611d9e2b5a9b00eb2fbe68d044eccb195759a422e36f525186d43d752bee3d71R65-R68
+				remove_filter( 'the_content', 'remove_serialized_parent_block', 8 );
+
+				// Reverts https://github.com/WordPress/gutenberg/pull/67272/files#diff-611d9e2b5a9b00eb2fbe68d044eccb195759a422e36f525186d43d752bee3d71R57-R63
+				return remove_serialized_parent_block( $content );
+			}
+			return $content;
+		},
+		1
+	);
+}
