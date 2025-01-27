@@ -12,7 +12,7 @@
  */
 
  
-if ( ! defined( 'ABSPATH' ) ) exit; // Don't allow direct access
+defined( 'ABSPATH' ) || exit( 0 ); // Don't allow direct access
 
 global $zbs;
 $portal = $zbs->modules->portal;

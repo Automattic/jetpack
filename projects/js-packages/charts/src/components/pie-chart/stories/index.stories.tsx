@@ -1,3 +1,5 @@
+import { Group } from '@visx/group';
+import { Text } from '@visx/text';
 import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
 import { PieChart } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -7,19 +9,19 @@ const data = [
 		label: 'MacOS',
 		value: 30000,
 		valueDisplay: '30K',
-		percentage: 5,
+		percentage: 23,
 	},
 	{
 		label: 'Linux',
 		value: 22000,
 		valueDisplay: '22K',
-		percentage: 1,
+		percentage: 17,
 	},
 	{
 		label: 'Windows',
 		value: 80000,
 		valueDisplay: '80K',
-		percentage: 2,
+		percentage: 60,
 	},
 ];
 
@@ -41,6 +43,7 @@ const meta = {
 						aspectRatio: '1/1',
 						minWidth: '400px',
 						maxWidth: '1200px',
+						height: '800px',
 						border: '1px dashed #ccc',
 					} }
 				>
@@ -56,6 +59,7 @@ const meta = {
 				min: 100,
 				max: 800,
 				step: 10,
+				default: 400,
 			},
 		},
 		thickness: {
@@ -111,7 +115,6 @@ type Story = StoryObj< typeof PieChart >;
 
 export const Default: Story = {
 	args: {
-		size: 400,
 		thickness: 1,
 		gapScale: 0,
 		padding: 20,
@@ -128,6 +131,7 @@ export const WithHorizontalLegend: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
+		size: 600,
 		legendOrientation: 'horizontal',
 	},
 };
@@ -136,6 +140,7 @@ export const WithVerticalLegend: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
+		size: 600,
 		legendOrientation: 'vertical',
 	},
 };
@@ -144,6 +149,19 @@ export const Doughnut: Story = {
 	args: {
 		...Default.args,
 		thickness: 0.5,
+		padding: 0,
+		gapScale: 0.03,
+		cornerScale: 0.03,
+		children: (
+			<Group>
+				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
+					🍩 Doughnut
+				</Text>
+				<Text textAnchor="middle" verticalAnchor="middle" fill="#008A20" fontSize={ 18 } y={ 16 }>
+					Three donuts for the price of one!
+				</Text>
+			</Group>
+		),
 	},
 	parameters: {
 		docs: {
@@ -183,26 +201,56 @@ export const WithTooltipsDoughnut: Story = {
 	},
 };
 
-export const FixedDimensions: Story = {
-	render: args => (
-		<div style={ { width: '400px' } }>
-			<PieChart { ...args } />
-		</div>
-	),
-	args: {
-		size: 400,
-		thickness: 1,
-		padding: 20,
-		data,
-		withTooltips: true,
-		theme: 'default',
-		showLegend: false,
-	},
+const responsiveArgs = { ...Default.args };
+delete responsiveArgs.size;
+export const Responsiveness: Story = {
+	args: responsiveArgs,
 	parameters: {
 		docs: {
 			description: {
-				story:
-					'Pie chart with fixed dimensions that override the responsive behavior. Uses size prop instead of width/height.',
+				story: 'Pie chart with responsive behavior. Uses size prop instead of width/height.',
+			},
+		},
+	},
+};
+
+export const ErrorStates: Story = {
+	render: () => (
+		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
+			<div>
+				<h3>Empty Data</h3>
+				<PieChart size={ 300 } data={ [] } />
+			</div>
+			<div>
+				<h3>Invalid Percentage Total</h3>
+				<PieChart
+					size={ 300 }
+					data={ [
+						{ label: 'A', value: 30, percentage: 30 },
+						{ label: 'B', value: 40, percentage: 40 },
+					] } // Only adds up to 70%
+				/>
+			</div>
+			<div>
+				<h3>Negative Values</h3>
+				<PieChart
+					size={ 300 }
+					data={ [
+						{ label: 'A', value: -30, percentage: -30 },
+						{ label: 'B', value: 130, percentage: 130 },
+					] }
+				/>
+			</div>
+			<div>
+				<h3>Single Data Point</h3>
+				<PieChart size={ 300 } data={ [ { label: 'A', value: 100, percentage: 100 } ] } />
+			</div>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story: 'Examples of how the pie chart handles various error states and edge cases.',
 			},
 		},
 	},

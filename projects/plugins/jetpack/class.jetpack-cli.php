@@ -1966,12 +1966,12 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * @param array $assoc_args Associative parameters defined in the scaffold() method.
 	 */
 	public function block( $args, $assoc_args ) {
-		if ( isset( $args[1] ) ) {
-			$title = ucwords( $args[1] );
-		} else {
+		if ( ! isset( $args[1] ) ) {
 			WP_CLI::error( esc_html__( 'The title parameter is required.', 'jetpack' ) . ' 👻' );
 			exit( 1 );
 		}
+
+		$title = ucwords( $args[1] );
 
 		$slug = isset( $assoc_args['slug'] )
 			? $assoc_args['slug']

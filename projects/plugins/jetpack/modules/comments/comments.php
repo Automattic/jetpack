@@ -723,7 +723,7 @@ HTML;
 		</body>
 		</html>
 		<?php
-		exit;
+		exit( 0 );
 	}
 
 	/** Capabilities **********************************************************/
@@ -849,7 +849,7 @@ HTML;
 	 */
 	public function capture_comment_duplicate_trigger() {
 		if ( ! isset( $_GET['for'] ) || 'jetpack' !== $_GET['for'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			exit;
+			exit( 0 );
 		}
 
 		?>
@@ -928,7 +928,7 @@ HTML;
 		</body>
 		</html>
 		<?php
-		exit;
+		exit( 0 );
 	}
 
 	/**
@@ -1067,7 +1067,7 @@ HTML;
 		</body>
 		</html>
 		<?php
-		exit;
+		exit( 0 );
 	}
 }
 

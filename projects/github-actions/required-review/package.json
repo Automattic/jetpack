@@ -1,6 +1,5 @@
 {
-	"name": "required-review",
-	"version": "4.0.2",
+	"private": true,
 	"description": "Check that a Pull Request has reviews from required teams.",
 	"main": "index.js",
 	"author": "Automattic",

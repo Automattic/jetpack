@@ -48,7 +48,38 @@ interface PieChartProps extends OmitBaseChartProps {
 	 * A value between 0 and 1, where 0 means no corner radius.
 	 */
 	cornerScale?: number;
+
+	/**
+	 * Use the children prop to render additional elements on the chart.
+	 */
+	children?: React.ReactNode;
 }
+
+/**
+ * Validates the pie chart data
+ * @param data - The data to validate
+ * @return Object containing validation result and error message
+ */
+const validateData = ( data: DataPointPercentage[] ) => {
+	if ( ! data.length ) {
+		return { isValid: false, message: 'No data available' };
+	}
+
+	// Check for negative values
+	const hasNegativeValues = data.some( item => item.percentage < 0 || item.value < 0 );
+	if ( hasNegativeValues ) {
+		return { isValid: false, message: 'Invalid data: Negative values are not allowed' };
+	}
+
+	// Validate total percentage
+	const totalPercentage = data.reduce( ( sum, item ) => sum + item.percentage, 0 );
+	if ( Math.abs( totalPercentage - 100 ) > 0.01 ) {
+		// Using small epsilon for floating point comparison
+		return { isValid: false, message: 'Invalid percentage total: Must equal 100' };
+	}
+
+	return { isValid: true, message: '' };
+};
 
 /**
  * Renders a pie or donut chart using the provided data.
@@ -67,12 +98,23 @@ const PieChart = ( {
 	padding = 20,
 	gapScale = 0,
 	cornerScale = 0,
+	children = null,
 }: PieChartProps ) => {
 	const providerTheme = useChartTheme();
 	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
 		useChartMouseHandler( {
 			withTooltips,
 		} );
+
+	const { isValid, message } = validateData( data );
+
+	if ( ! isValid ) {
+		return (
+			<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
+				<div className={ styles[ 'error-message' ] }>{ message }</div>
+			</div>
+		);
+	}
 
 	const width = size;
 	const height = size;
@@ -115,7 +157,12 @@ const PieChart = ( {
 
 	return (
 		<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
-			<svg viewBox={ `0 0 ${ size } ${ size }` } preserveAspectRatio="xMidYMid meet">
+			<svg
+				viewBox={ `0 0 ${ size } ${ size }` }
+				preserveAspectRatio="xMidYMid meet"
+				width={ size }
+				height={ size }
+			>
 				<Group top={ centerY } left={ centerX }>
 					<Pie< DataPointPercentage & { index: number } >
 						data={ dataWithIndex }
@@ -165,6 +212,8 @@ const PieChart = ( {
 							} );
 						} }
 					</Pie>
+
+					{ children }
 				</Group>
 			</svg>
 

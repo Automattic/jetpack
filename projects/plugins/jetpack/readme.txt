@@ -326,16 +326,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.3-a.1 - 2025-01-13
-#### Improved compatibility
-- Nova Restaurant: ensure that the custom post type is now loaded via the Classic Theme Helper package.
+### 14.3-a.5 - 2025-01-27
+#### Enhancements
+- Forms: Add Checkbox and Consent field enter action to create a new block.
 
 #### Bug fixes
-- Authors widget: Fix saving of unchecked "Display all authors" checkbox in the legacy widget editor.
-- Stats: Fix saving of custom roles settings.
-- Pages and Posts: Fix the layout on mobile when details are open.
-- Testimonials: Fix shortcode-related bug.
-- Tiled Gallery block: Ensure icons are visible when selecting image in editor.
+- Forms: Make the icons show up as expected in the style editor.
+- Sitemaps: Ensure a valid news sitemap is present even if no posts are eligible.
+- Social: Fix profile links for LinkedIn connections.
+- Social: Fix Publicize error in the editor due to malformed connections data.
+- VideoPress: Fix issue with VideoPress block with zero height and width.
 
 --------
 
