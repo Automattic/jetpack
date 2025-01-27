@@ -315,11 +315,19 @@ const EditCheckbox = props => {
 			id={ props.attributes.id }
 			width={ props.attributes.width }
 			attributes={ props.attributes }
+			insertBlocksAfter={ props.insertBlocksAfter }
 		/>
 	);
 };
 
-const EditConsent = ( { attributes, clientId, isSelected, name, setAttributes } ) => {
+const EditConsent = ( {
+	attributes,
+	clientId,
+	isSelected,
+	name,
+	setAttributes,
+	insertBlocksAfter,
+} ) => {
 	useFormWrapper( { attributes, clientId, name } );
 
 	const { id, width, consentType, implicitConsentMessage, explicitConsentMessage } = attributes;
@@ -334,6 +342,7 @@ const EditConsent = ( { attributes, clientId, isSelected, name, setAttributes } 
 			explicitConsentMessage={ explicitConsentMessage }
 			setAttributes={ setAttributes }
 			attributes={ attributes }
+			insertBlocksAfter={ insertBlocksAfter }
 		/>
 	);
 };

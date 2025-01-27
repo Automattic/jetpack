@@ -171,14 +171,12 @@ class Publicize_Script_Data {
 	 */
 	public static function get_store_initial_state() {
 
-		$is_wpcom = ( new Host() )->is_wpcom_platform();
-
 		$post = get_post();
 
 		$share_status = array();
 
 		// get_post_share_status is not available on WPCOM yet.
-		if ( Utils::should_block_editor_have_social() && $post && ! $is_wpcom ) {
+		if ( Utils::should_block_editor_have_social() && $post && self::has_feature_flag( 'share-status' ) ) {
 			$share_status[ $post->ID ] = self::publicize()->get_post_share_status( $post->ID );
 		}
 

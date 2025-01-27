@@ -451,16 +451,24 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 
 	$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
-	if ( isset( $data['variations'] ) && isset( $data['variations'][ $experiment_name ] ) ) {
+	if ( isset( $data['variations'][ $experiment_name ] ) ) {
 		$variation = $data['variations'][ $experiment_name ];
 		update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, $variation, true );
 
 		$is_enabled = 'treatment' === $variation;
-		return $is_enabled;
+	} elseif ( isset( $data['variations'] ) ) {
+		/**
+		 * If the variations array is set but the variation value is null chances are this is an a11n (since ExPlat returns null for a12s).
+		 *
+		 * We set treatment for all a12s.
+		 */
+		update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, 'treatment', true );
+		$is_enabled = true;
 	} else {
 		$is_enabled = false;
-		return $is_enabled;
 	}
+
+	return $is_enabled;
 }
 
 /**
