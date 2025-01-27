@@ -13,7 +13,7 @@
 function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 	$current_blog_id = get_current_blog_id();
 
-	if ( is_graylisted( $current_blog_id ) ) {
+	if ( function_exists( 'is_graylisted' ) && is_graylisted( $current_blog_id ) ) {
 		return false;
 	}
 
