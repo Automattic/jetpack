@@ -12,8 +12,7 @@ const WpcomSiteManagementWidget = ( { siteName, siteUrl, siteIconUrl, isBlockThe
 						loading="lazy"
 						title="Site Preview"
 						src={ `${ siteUrl }/?hide_banners=true&preview_overlay=true&preview=true` }
-						tabIndex="-1"
-						aria-hidden
+						inert="true"
 					></iframe>
 				</div>
 			</div>
