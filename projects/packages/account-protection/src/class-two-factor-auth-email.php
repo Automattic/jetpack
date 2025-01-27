@@ -1,6 +1,6 @@
 <?php
 /**
- * Class used to define Password Reset Email.
+ * Class used to define Two Factor Auth Email.
  *
  * @package automattic/jetpack-account-protection
  */
@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Account_Protection;
 /**
  * Class Password_Reset_Email
  */
-class Password_Reset_Email {
+class Two_Factor_Auth_Email {
 
 	/**
 	 * Mask an email address like d*****@g*****.com.
@@ -34,11 +34,12 @@ class Password_Reset_Email {
 	}
 
 	/**
-	 * Send password reset email.
+	 * Send two factor auth email.
 	 *
 	 * @return bool True if the email was sent successfully, false otherwise.
 	 */
 	public function send(): bool {
+		// TODO: Attempt to send via wp_mail() first
 		// TODO: Update to use custom email method when available
 		return true;
 	}

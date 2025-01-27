@@ -79,8 +79,8 @@ class Account_Protection {
 		add_action( 'after_password_reset', array( $this->password_detection, 'delete_usermeta_after_password_reset' ), 10, 2 );
 		add_action( 'profile_update', array( $this->password_detection, 'delete_usermeta_on_profile_update' ), 10, 2 );
 
-		// Register AJAX resend password reset email action
-		add_action( 'wp_ajax_resend_password_reset', array( $this->password_detection, 'ajax_resend_password_reset_email' ) );
+		// Register AJAX resend two factor auth email action
+		add_action( 'wp_ajax_resend_two_factor_auth', array( $this->password_detection, 'ajax_resend_two_factor_auth_email' ) );
 	}
 
 	/**

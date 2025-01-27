@@ -4,10 +4,10 @@
 		const attemptLimit = 3;
 		let attempts = 0;
 
-		$( '#resend-password-reset' ).on( 'click', function ( e ) {
+		$( '#resend-code' ).on( 'click', function ( e ) {
 			e.preventDefault(); // Prevent the default action
 
-			const message = $( '#resend-password-reset-message' );
+			const message = $( '#resend-code-message' );
 			const button = $( this );
 
 			// Store the original text of the message
@@ -24,7 +24,7 @@
 				url: ajaxObject.ajax_url,
 				type: 'POST',
 				data: {
-					action: 'resend_password_reset',
+					action: 'resend_two_factor_auth',
 					security: ajaxObject.nonce,
 				},
 				success: function ( response ) {
