@@ -37,6 +37,10 @@ export const useKeywordsStep = (): InputStep => {
 				const commaSeparatedKeywords = keywords
 					.split( ',' )
 					.map( k => k.trim() )
+					// remove empty entries
+					.filter( v => v )
+					// remove duped entries, inefficient but we don't expect a lot of entries here
+					.filter( ( v, i, arr ) => arr.indexOf( v ) === i )
 					.reduce( ( acc, curr, i, arr ) => {
 						if ( arr.length === 1 ) {
 							return curr;
