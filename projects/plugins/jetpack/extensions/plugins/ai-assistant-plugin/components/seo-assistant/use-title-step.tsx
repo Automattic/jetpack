@@ -9,7 +9,7 @@ export const useTitleStep = (): Step => {
 	const [ selectedTitle, setSelectedTitle ] = useState< string >();
 	const [ titleOptions, setTitleOptions ] = useState< Option[] >( [] );
 	const { editPost } = useDispatch( 'core/editor' );
-	const { messages, setMessages, addMessage, removeLastMessage } = useMessages();
+	const { messages, setMessages, addMessage, removeLastMessage, editLastMessage } = useMessages();
 	const [ completed, setCompleted ] = useState( false );
 	const [ prevStepValue, setPrevStepValue ] = useState( '' );
 
@@ -66,24 +66,40 @@ export const useTitleStep = (): Step => {
 				);
 				removeLastMessage();
 			}
+			let editedMessage;
 			if ( keywords ) {
-				addMessage( {
-					content: __(
+				if ( fromSkip ) {
+					editedMessage = createInterpolateElement(
+						__(
+							'Skipped!<br />Here are some suggestions for a better title based on your keywords:',
+							'jetpack'
+						),
+						{ br: <br /> }
+					);
+				} else {
+					editedMessage = __(
 						'Here are some suggestions for a better title based on your keywords:',
 						'jetpack'
-					),
-				} );
-			} else {
-				addMessage( {
-					content: __(
-						'Here are some suggestions for a better title based on your post:',
+					);
+				}
+			} else if ( fromSkip ) {
+				editedMessage = createInterpolateElement(
+					__(
+						'Skipped!<br />Here are some suggestions for a better title based on your post:',
 						'jetpack'
 					),
-				} );
+					{ br: <br /> }
+				);
+			} else {
+				editedMessage = __(
+					'Here are some suggestions for a better title based on your post:',
+					'jetpack'
+				);
 			}
+			editLastMessage( editedMessage );
 			setTitleOptions( newTitles || titleOptions );
 		},
-		[ titleOptions, addMessage, removeLastMessage, setMessages, prevStepValue ]
+		[ titleOptions, addMessage, removeLastMessage, setMessages, prevStepValue, editLastMessage ]
 	);
 
 	const handleTitleRegenerate = useCallback( async () => {
