@@ -21,7 +21,7 @@ interface BaseStep {
 	label?: string;
 	messages: Message[];
 	type: StepType;
-	onStart?: () => void;
+	onStart?: OnStartFunction;
 	onSubmit?: () => void;
 	onSkip?: () => void;
 	value?: string;
@@ -51,3 +51,5 @@ interface CompletionStep extends BaseStep {
 }
 
 export type Step = InputStep | OptionsStep | CompletionStep;
+
+export type OnStartFunction = ( options?: { fromSkip: boolean; stepValue: string } ) => void;
