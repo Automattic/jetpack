@@ -1,9 +1,9 @@
 {
-	"name": "jetpack-e2e-commons",
+	"private": true,
+	"name": "_jetpack-e2e-commons",
 	"description": "Jetpack end-to-end tests commons",
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
-	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
 		"distclean": "rm -rf node_modules",
