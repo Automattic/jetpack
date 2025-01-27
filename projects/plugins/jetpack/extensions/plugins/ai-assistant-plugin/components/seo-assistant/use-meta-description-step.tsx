@@ -39,6 +39,7 @@ export const useMetaDescriptionStep = (): Step => {
 		removeLastMessage();
 		addMessage( { content: __( 'Meta description updated! ✅', 'jetpack' ) } );
 		setCompleted( true );
+		return selectedMetaDescription;
 	}, [ selectedMetaDescription, addMessage, editPost, removeLastMessage ] );
 
 	const handleMetaDescriptionGenerate = useCallback(

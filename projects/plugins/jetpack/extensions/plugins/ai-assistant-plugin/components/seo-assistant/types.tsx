@@ -22,7 +22,7 @@ interface BaseStep {
 	messages: Message[];
 	type: StepType;
 	onStart?: OnStartFunction;
-	onSubmit?: () => void;
+	onSubmit?: () => Promise< string >;
 	onSkip?: () => void;
 	value?: string;
 	setValue?:

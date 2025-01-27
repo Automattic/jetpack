@@ -115,6 +115,7 @@ export const useTitleStep = (): Step => {
 		removeLastMessage();
 		addMessage( { content: __( 'Title updated! ✅', 'jetpack' ) } );
 		setCompleted( true );
+		return selectedTitle;
 	}, [ selectedTitle, addMessage, editPost, removeLastMessage ] );
 
 	const handleSkip = useCallback( () => {

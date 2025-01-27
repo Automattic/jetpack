@@ -27,7 +27,7 @@ export const useKeywordsStep = (): InputStep => {
 
 	const handleKeywordsSubmit = useCallback( async () => {
 		if ( ! keywords.trim() ) {
-			return handleSkip();
+			return '';
 		}
 		addMessage( { content: keywords, isUser: true } );
 		addMessage( { content: <TypingMessage /> } );
@@ -60,7 +60,8 @@ export const useKeywordsStep = (): InputStep => {
 		);
 		addMessage( { content: message } );
 		setCompleted( true );
-	}, [ addMessage, keywords, handleSkip, removeLastMessage ] );
+		return keywords;
+	}, [ addMessage, keywords, removeLastMessage ] );
 
 	return {
 		id: 'keywords',

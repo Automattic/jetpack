@@ -38,7 +38,7 @@ export default function AssistantWizard( { close, tasks } ) {
 	);
 
 	const handleNext = useCallback(
-		( options?: Parameters< OnStartFunction >[ 0 ] ) => {
+		( options: Parameters< OnStartFunction >[ 0 ] ) => {
 			debug( steps[ currentStep ].value );
 			debug( steps[ currentStep + 1 ].value );
 			if ( currentStep + 1 < steps.length ) {
@@ -52,10 +52,10 @@ export default function AssistantWizard( { close, tasks } ) {
 	);
 
 	const handleStepSubmit = useCallback( async () => {
-		await steps[ currentStep ]?.onSubmit?.();
+		const stepValue = await steps[ currentStep ]?.onSubmit?.();
 		debug( 'step submitted, moving next' );
 		// always give half a second before moving forward
-		setTimeout( handleNext, 500 );
+		setTimeout( () => handleNext( { fromSkip: ! stepValue.trim(), stepValue } ), 500 );
 	}, [ currentStep, handleNext, steps ] );
 
 	const jumpToStep = useCallback(
