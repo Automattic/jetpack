@@ -1,6 +1,5 @@
 {
-	"name": "jetpack-boost",
-	"version": "3.8.0",
+	"private": true,
 	"description": "Boost your WordPress site's performance, from the creators of Jetpack",
 	"directories": {
 		"test": "tests"
@@ -73,7 +72,6 @@
 		"test-e2e:stop": "pnpm --prefix tests/e2e run tunnel:down && pnpm --prefix tests/e2e run env:down",
 		"test-e2e:decrypt-config": "pnpm --prefix tests/e2e run config:decrypt"
 	},
-	"private": true,
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Automattic/jetpack",

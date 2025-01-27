@@ -1,3 +1,5 @@
+import { Group } from '@visx/group';
+import { Text } from '@visx/text';
 import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
 import { PieChart } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -113,7 +115,6 @@ type Story = StoryObj< typeof PieChart >;
 
 export const Default: Story = {
 	args: {
-		size: 600,
 		thickness: 1,
 		gapScale: 0,
 		padding: 20,
@@ -148,6 +149,19 @@ export const Doughnut: Story = {
 	args: {
 		...Default.args,
 		thickness: 0.5,
+		padding: 0,
+		gapScale: 0.03,
+		cornerScale: 0.03,
+		children: (
+			<Group>
+				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
+					🍩 Doughnut
+				</Text>
+				<Text textAnchor="middle" verticalAnchor="middle" fill="#008A20" fontSize={ 18 } y={ 16 }>
+					Three donuts for the price of one!
+				</Text>
+			</Group>
+		),
 	},
 	parameters: {
 		docs: {

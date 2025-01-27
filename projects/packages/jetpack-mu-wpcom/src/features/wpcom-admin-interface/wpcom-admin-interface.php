@@ -451,16 +451,24 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 
 	$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
-	if ( isset( $data['variations'] ) && isset( $data['variations'][ $experiment_name ] ) ) {
+	if ( isset( $data['variations'][ $experiment_name ] ) ) {
 		$variation = $data['variations'][ $experiment_name ];
 		update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, $variation, true );
 
 		$is_enabled = 'treatment' === $variation;
-		return $is_enabled;
+	} elseif ( isset( $data['variations'] ) ) {
+		/**
+		 * If the variations array is set but the variation value is null chances are this is an a11n (since ExPlat returns null for a12s).
+		 *
+		 * We set treatment for all a12s.
+		 */
+		update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, 'treatment', true );
+		$is_enabled = true;
 	} else {
 		$is_enabled = false;
-		return $is_enabled;
 	}
+
+	return $is_enabled;
 }
 
 /**
@@ -702,6 +710,20 @@ function wpcom_dismiss_removed_calypso_screen_notice() {
 		$screen = sanitize_text_field( wp_unslash( $_REQUEST['screen'] ) );
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			$preferences = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
+
+			// If $preferences is not array we log the contents so that we can further debug.
+			if ( ! is_array( $preferences ) && function_exists( 'log2logstash' ) ) {
+				log2logstash(
+					array(
+						'feature' => 'wpcom-dismiss-wp-admin-notice',
+						'message' => 'Retrieved a non-array value from Calypso preferences.',
+						'extra'   => wp_json_encode( $preferences ),
+					)
+				);
+				// Bail if we can't update the preferences array.
+				wp_die();
+			}
+
 			$preferences[ 'removed-calypso-screen-dismissed-notice-' . $screen ] = true;
 			update_user_attribute( get_current_user_id(), 'calypso_preferences', $preferences );
 		} else {

@@ -100,13 +100,6 @@ class Wpcom_Block_Patterns_From_Api {
 			}
 		}
 
-		// We prefer to show the starter page patterns modal of wpcom instead of core
-		// if it's available. Hence, we have to update the block types of patterns
-		// to disable the core's.
-		if ( class_exists( '\A8C\FSE\Starter_Page_Templates', false ) || class_exists( '\Automattic\Jetpack\Jetpack_Mu_Wpcom\Starter_Page_Templates', false ) ) {
-			$this->update_pattern_block_types();
-		}
-
 		// Temporarily removing the call to `update_pattern_post_types` while we investigate
 		// https://github.com/Automattic/wp-calypso/issues/79145.
 
@@ -200,31 +193,6 @@ class Wpcom_Block_Patterns_From_Api {
 
 				$pattern['postTypes'] = $post_types;
 				$pattern_name         = $pattern['name'];
-				unset( $pattern['name'] );
-				register_block_pattern( $pattern_name, $pattern );
-			}
-		}
-	}
-
-	/**
-	 * Ensure that all patterns with a blockType property are registered with appropriate postTypes.
-	 */
-	private function update_pattern_block_types() {
-		if ( ! class_exists( 'WP_Block_Patterns_Registry' ) ) {
-			return;
-		}
-		foreach ( \WP_Block_Patterns_Registry::get_instance()->get_all_registered() as $pattern ) {
-			if ( ! array_key_exists( 'blockTypes', $pattern ) || empty( $pattern['blockTypes'] ) ) {
-				continue;
-			}
-
-			$post_content_offset = array_search( 'core/post-content', $pattern['blockTypes'], true );
-			$is_page_pattern     = empty( $pattern['postTypes'] ) || in_array( 'page', $pattern['postTypes'], true );
-			if ( $post_content_offset !== false && $is_page_pattern ) {
-				unregister_block_pattern( $pattern['name'] );
-
-				array_splice( $pattern['blockTypes'], $post_content_offset, 1 );
-				$pattern_name = $pattern['name'];
 				unset( $pattern['name'] );
 				register_block_pattern( $pattern_name, $pattern );
 			}

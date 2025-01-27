@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.35.1] - 2025-01-27
+### Added
+- Add Checkbox and Consent field enter action to create a new block. [#41297]
+- Forms: Create new default block when pressing Enter on text inputs. [#41177]
+
+### Changed
+- Forms: Remove wrapping <div> element from form block. [#41274]
+
+### Fixed
+- Adds missing deprecation for checkboxes and radio fields. [#41198]
+- Form: fix the default checkstate for admins. [#40847]
+- Forms: Add unique ids to each form. [#40998]
+- Forms: fix send to settings for multiple authors. [#41290]
+- Forms: Make the icons show up as expected in the style editor. [#41314]
+- Updates the icon colours to the new standard. [#41250]
+
 ## [0.35.0] - 2025-01-20
 ### Added
 - Forms: Allow HTML block within forms. [#41040]
@@ -773,6 +789,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.35.1]: https://github.com/automattic/jetpack-forms/compare/v0.35.0...v0.35.1
 [0.35.0]: https://github.com/automattic/jetpack-forms/compare/v0.34.6...v0.35.0
 [0.34.6]: https://github.com/automattic/jetpack-forms/compare/v0.34.5...v0.34.6
 [0.34.5]: https://github.com/automattic/jetpack-forms/compare/v0.34.4...v0.34.5

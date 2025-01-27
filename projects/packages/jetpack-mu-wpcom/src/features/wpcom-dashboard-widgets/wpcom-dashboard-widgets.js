@@ -7,7 +7,7 @@ const data = typeof window === 'object' ? window.JETPACK_MU_WPCOM_DASHBOARD_WIDG
 
 const widgets = [
 	{
-		id: 'wpcom_site_management_widget_main',
+		id: 'wpcom_site_preview_widget_main',
 		Widget: WpcomSiteManagementWidget,
 	},
 ];
