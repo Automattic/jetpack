@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Account_Protection;
 
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Jetpack_Options;
+
 /**
  * Class Email_Service
  */
@@ -14,71 +18,118 @@ class Email_Service {
 	/**
 	 * Send auth email.
 	 *
-	 * @param string $email The email address to send the email to.
-	 * @param string $auth_code The authentication code.
+	 * @param WP_User $user The user.
+	 * @param string  $auth_code The authentication code.
 	 * @return bool True if the email was sent successfully, false otherwise.
 	 */
-	public function send_auth_email( $email, $auth_code ): bool {
-		// $wp_send = $this->wp_send_auth_email( $email, $auth_code );
+	public function send_auth_email( $user, $auth_code ): bool {
+		$wp_send = $this->wp_send_auth_email( $user, $auth_code );
 
-		// if ( ! $wp_send ) {
-		// $api_send = $this->api_send_auth_email( $email, $auth_code );
-		// return $api_send;
-		// }
+		if ( ! $wp_send ) {
+			$api_send = $this->api_send_auth_email( $user, $auth_code );
 
-		return false;
+			return $api_send;
+		}
+
+		return true;
 	}
 
 	/**
 	 * Send the email using wp_mail().
 	 *
-	 * @param string $email The email address to send the email to.
-	 * @param string $auth_code The authentication code.
+	 * @param WP_User $user The user.
+	 * @param string  $auth_code The authentication code.
 	 * @return bool True if the email was sent successfully, false otherwise.
 	 */
-	private function wp_send_auth_email( $email, $auth_code ) {
-		$subject = 'Your Authentication Code';
-		$message = "Hello,\n\nWe detected a password issue with your account. To proceed, please use the following authentication code:\n\nAuth Code: $auth_code\n\nThis code is valid for 10 minutes.\n\nThank you,\nThe Team";
-		$headers = array( 'Content-Type: text/plain; charset=UTF-8' );
+	private function wp_send_auth_email( $user, $auth_code ) {
+		$blog_name = esc_html( get_bloginfo( 'name' ) );
+		$user_url  = ! empty( $user->user_url ) ? esc_url( $user->user_url ) : esc_url( home_url() );
 
-		return wp_mail( $email, $subject, $message, $headers );
+		$subject = 'Verify your identity at Jetpack';
+		$message = sprintf(
+			'
+			<p>Hi %s,</p>
+			<p>Your current password for <a href="%s">%s</a> was found in a public leak, which means your account might be at risk.</p>
+			<p>To help protect your account, please enter this code at the login prompt:</p>
+			<p><strong>%s</strong></p>
+			<p>If you didn\'t just log into %s, please do so now and change your password.</p>
+			<p>Stay secure,<br>Jetpack</p>
+			',
+			esc_html( $user->user_login ),
+			$user_url,
+			$blog_name,
+			esc_html( $auth_code ),
+			$user_url,
+			$blog_name
+		);
+
+		$headers = array( 'Content-Type: text/html; charset=UTF-8' );
+
+		return wp_mail( $user->user_email, $subject, $message, $headers );
 	}
 
 	/**
 	 * Send the email using the API.
 	 *
-	 * @param string $email The email address to send the email to.
-	 * @param string $auth_code The authentication code.
+	 * @param WP_User $user The user.
+	 * @param string  $auth_code The authentication code.
 	 * @return bool True if the email was sent successfully, false otherwise.
 	 */
-	private function api_send_auth_email( $email, $auth_code ) {
-		// TODO: Hook up to API to send email
-		return true;
+	private function api_send_auth_email( $user, $auth_code ) {
+		$blog_id      = Jetpack_Options::get_option( 'id' );
+		$is_connected = ( new Connection_Manager() )->is_connected();
+
+		if ( ! $blog_id || ! $is_connected ) {
+			return false;
+		}
+
+		$body = array(
+			'user_login' => $user->user_login,
+			'user_email' => $user->user_email,
+			'code'       => $auth_code,
+		);
+
+		$response = Client::wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/jetpack-protect-send-verification-code', $blog_id ),
+			'2',
+			array(
+				'method' => 'POST',
+			),
+			$body,
+			'wpcom'
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response['body'] ) ) {
+			return false;
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		return $body['success'] ?? false;
 	}
 
 	/**
 	 * Resend email attempts.
 	 *
-	 * @param string $email The email address to send the email to.
-	 * @param array  $transient_data The transient data.
-	 * @param string $token The token.
+	 * @param WP_User $user The user.
+	 * @param array   $transient_data The transient data.
+	 * @param string  $token The token.
 	 * @return bool True if the email was resent successfully, false otherwise.
 	 */
-	public function resend_auth_email( $email, $transient_data, $token ): bool {
-		++$transient_data['resend_attempts'];
-
-		if ( $transient_data['resend_attempts'] > Config::MAX_RESEND_ATTEMPTS ) {
+	public function resend_auth_email( $user, $transient_data, $token ): bool {
+		if ( $transient_data['resend_attempts'] >= Config::MAX_RESEND_ATTEMPTS ) {
 			return false;
 		}
 
 		$auth_code                   = $this->generate_auth_code();
 		$transient_data['auth_code'] = $auth_code;
+		++$transient_data['resend_attempts'];
 
 		if ( ! set_transient( Config::TRANSIENT_PREFIX . "_{$token}", $transient_data, Config::EMAIL_SENT_EXPIRATION ) ) {
 			return false;
 		}
 
-		if ( ! $this->send_auth_email( $email, $auth_code ) ) {
+		if ( ! $this->send_auth_email( $user, $auth_code ) ) {
 			return false;
 		}
 
@@ -88,10 +139,10 @@ class Email_Service {
 	/**
 	 * Generate an auth code.
 	 *
-	 * @return int The generated auth code.
+	 * @return string The generated auth code.
 	 */
-	public function generate_auth_code(): int {
-		return wp_rand( 100000, 999999 );
+	public function generate_auth_code(): string {
+		return (string) wp_rand( 100000, 999999 );
 	}
 
 	/**

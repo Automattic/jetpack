@@ -48,11 +48,11 @@ class Password_Detection {
 			return $user;
 		}
 
-		if ( ! $this->validation_service->validate_password( $password ) ) {
+		if ( ! $this->validation_service->check_weak_passwords( $password ) ) {
 			// TODO: Every time the user logs in we generate a new token based transient. This is not ideal.
 			$transient = $this->generate_and_store_transient_data( $user->ID );
 
-			$email_sent = $this->email_service->send_auth_email( $user->user_email, $transient['auth_code'] );
+			$email_sent = $this->email_service->send_auth_email( $user, $transient['auth_code'] );
 			if ( ! $email_sent ) {
 				// $this->add_error( 'email_send_error', 'Failed to send the authentication email.' );
 			}
@@ -110,7 +110,7 @@ class Password_Detection {
 
 		// Handle resend email request
 		if ( isset( $_GET['resend_email'] ) && $_GET['resend_email'] === '1' ) {
-			$email_resent = $this->email_service->resend_auth_email( $current_user->user_email, $transient_data, $token );
+			$email_resent = $this->email_service->resend_auth_email( $current_user, $transient_data, $token );
 
 			if ( ! $email_resent ) {
 				// $this->add_error( 'email_resend_error', 'Failed to resend the authentication email.' );

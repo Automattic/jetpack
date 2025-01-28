@@ -15,25 +15,11 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
  */
 class Validation_Service {
 	/**
-	 * Password validation.
+	 * Check if the password is in the list of common/compromised passwords.
 	 *
-	 * @param string $password The password to validate.
-	 * @return bool True if the password is valid, false otherwise.
+	 * @param string $password The password to check.
+	 * @return bool|\WP_Error True if the password is in the list of common/compromised passwords, false otherwise.
 	 */
-	public function validate_password( string $password ): bool {
-		// TODO: Uncomment out once endpoint is live
-		// Check compromised and common passwords
-		// $weak_password = self::check_weak_passwords( $password );
-
-		return $password ? false : true;
-	}
-
-		/**
-		 * Check if the password is in the list of common/compromised passwords.
-		 *
-		 * @param string $password The password to check.
-		 * @return bool|\WP_Error True if the password is in the list of common/compromised passwords, false otherwise.
-		 */
 	public function check_weak_passwords( string $password ) {
 		$api_url = '/jetpack-protect-weak-password';
 
@@ -61,9 +47,12 @@ class Validation_Service {
 
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 
-		// TODO: Check if the password is in the list of common/compromised passwords
 		$password_suffix = substr( $hashed_password, 5 );
 		if ( in_array( $password_suffix, $body['compromised'] ?? array(), true ) ) {
+			return true;
+		}
+
+		if ( in_array( $password_suffix, $body['common'] ?? array(), true ) ) {
 			return true;
 		}
 
