@@ -886,7 +886,7 @@ class Posts extends Module {
 			);
 		}
 		// Get the post IDs from the posts that were fetched.
-		$fetched_post_ids = wp_list_pluck( $posts, 'post_ID' );
+		$fetched_post_ids = wp_list_pluck( $posts, 'ID' );
 		$metadata         = $this->get_metadata( $fetched_post_ids, 'post', Settings::get_setting( 'post_meta_whitelist' ) );
 
 		// Filter the posts and metadata based on the maximum size constraints.
