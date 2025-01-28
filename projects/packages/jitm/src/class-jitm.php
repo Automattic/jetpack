@@ -257,15 +257,24 @@ class JITM {
 	public function generate_icon( $content_icon, $full_jp_logo_exists ) {
 		$date_now   = new \DateTime();
 		$feb_4_date = new \DateTime( '02-04-2025' );
+		// Don't show the new Woo svg logo until after Feb 4th, 2025
+		$show_new_logo = $date_now >= $feb_4_date;
+
 		switch ( $content_icon ) {
 			case 'jetpack':
 				$jetpack_logo = new Jetpack_Logo();
 				$content_icon = '<div class="jp-emblem">' . ( ( $full_jp_logo_exists ) ? $jetpack_logo->get_jp_emblem() : $jetpack_logo->get_jp_emblem_larger() ) . '</div>';
 				break;
 			case 'woocommerce':
-				// Don't show the new Woo svg logo until after Feb 4th, 2025
 				// After Feb 4th 2025, we can remove this date condition check ( & filter) and the old svg logo.
-				$content_icon = apply_filters( 'woo_jitm_use_new_logo', $date_now >= $feb_4_date )
+				/**
+				 * Filter to force display the new Woo logo in Woo JITM's, or not.
+				 *
+				 * @since $$next-version$$
+				 *
+				 * @param bool $show_woo_logo Whether to show the new Woo logo or not.
+				 */
+				$content_icon = apply_filters( 'jetpack_jitm_use_new_woo_logo', $show_new_logo )
 					// New Woo logo
 					? '<div class="jp-emblem"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 							viewBox="0 0 183.6 47.5" style="enable-background:new 0 0 183.6 47.5;" xml:space="preserve">
