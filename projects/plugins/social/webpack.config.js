@@ -64,21 +64,4 @@ module.exports = [
 			],
 		},
 	},
-	{
-		...socialWebpackConfig,
-		entry: {
-			index: './src/js/index.js',
-		},
-		module: {
-			...socialWebpackConfig.module,
-			rules: [
-				...socialWebpackConfig.module.rules,
-				// Handle CSS.
-				jetpackWebpackConfig.CssRule( {
-					extensions: [ 'css', 'sass', 'scss' ],
-					extraLoaders: [ postcssLoader, 'sass-loader' ],
-				} ),
-			],
-		},
-	},
 ];
