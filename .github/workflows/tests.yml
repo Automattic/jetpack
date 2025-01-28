@@ -57,6 +57,7 @@ jobs:
     # Note matrix-job outputs are kind of weird. Last-to-run job that sets a non-empty value wins.
     outputs:
       did-coverage: ${{ ( steps.run-tests.conclusion != 'cancelled' && steps.process-coverage.conclusion == 'success' && steps.upload-artifacts.conclusion == 'success' ) && 'true' || '' }}
+      coverage-status: ${{ matrix.script == 'test-coverage' && steps.run-tests.conclusion || '' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -305,6 +306,9 @@ jobs:
         env:
           PR_ID: ${{ github.event_name != 'pull_request' && 'trunk' || github.event.pull_request.number }}
           SECRET: ${{ secrets.CODECOV_SECRET }}
+          STATUS: ${{ needs.run-tests.outputs.coverage-status }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
         run: .github/files/coverage-munger/upload-coverage.sh
 
   storybook-test:

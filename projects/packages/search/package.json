@@ -91,7 +91,7 @@
 		"sass-loader": "12.4.0",
 		"size-limit": "11.1.6",
 		"webpack": "5.94.0",
-		"webpack-cli": "4.9.1"
+		"webpack-cli": "6.0.1"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"

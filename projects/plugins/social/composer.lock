@@ -1539,9 +1539,10 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "4f697dcdd12b550101de882bd997839907281ba6"
+				"reference": "65042f11130f6641281e873ad49d6ce66033a7b0"
 			},
 			"require": {
+				"automattic/jetpack-admin-ui": "@dev",
 				"automattic/jetpack-assets": "@dev",
 				"automattic/jetpack-autoloader": "@dev",
 				"automattic/jetpack-config": "@dev",

@@ -11,9 +11,25 @@
  * @param WP_Admin_Bar $admin_bar The WordPress admin bar.
  */
 function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
+	$current_blog_id = get_current_blog_id();
+
+	if ( function_exists( 'is_graylisted' ) && is_graylisted( $current_blog_id ) ) {
+		return false;
+	}
+
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
+
+	if ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'difm-lite-in-progress' ) ) {
+		return false;
+	}
+
+	// No button for agency-managed sites.
+	if ( ! empty( get_option( 'is_fully_managed_agency_site' ) ) ) {
+		return false;
+	}
+
 	$is_launched = get_option( 'launch-status' ) !== 'unlaunched';
 	if ( $is_launched ) {
 		return;
