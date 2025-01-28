@@ -255,8 +255,11 @@ class JITM {
 	 * @param bool   $full_jp_logo_exists Is there a big JP logo already displayed on this screen.
 	 */
 	public function generate_icon( $content_icon, $full_jp_logo_exists ) {
-		$date_now   = new \DateTime();
+		$timezone = wp_timezone();
+		$date_now = new \DateTime();
+		$date_now->setTimezone( $timezone );
 		$feb_4_date = new \DateTime( '02-04-2025' );
+		$feb_4_date->setTimezone( $timezone );
 		// Don't show the new Woo svg logo until after Feb 4th, 2025
 		$show_new_logo = $date_now >= $feb_4_date;
 
