@@ -9,13 +9,12 @@ namespace Automattic\Jetpack\Account_Protection;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use WP_Error;
 
 /**
  * Class Password_Detection
  */
 class Password_Detection {
-	const PASSWORD_DETECTION_USER_META_KEY = 'jetpack_account_protection_password_status';
-
 	/**
 	 * Two factor auth email dependency.
 	 *
@@ -33,12 +32,21 @@ class Password_Detection {
 	}
 
 	/**
-	 * Redirect to the password detection page.
+	 * Handle password detection login failure.
 	 *
-	 * @return string The URL to redirect to.
+	 * @param string   $username The username.
+	 * @param WP_Error $error The error object.
+	 * @return never
 	 */
-	public function password_detection_redirect(): string {
-		return home_url( '/wp-login.php?action=password-detection' );
+	public function handle_password_detection_login_failure( $username, $error ) {
+		// Check for the validation error
+		if ( isset( $error->errors['password_detection_validation_error'] ) ) {
+			// Get the token from the error data
+			$token = $error->get_error_data()['token'];
+			// Redirect the user back to the login page with a custom error message
+			wp_safe_redirect( home_url( '/wp-login.php?action=password-detection&token=' . $token ) );
+			exit;
+		}
 	}
 
 	/**
@@ -54,19 +62,36 @@ class Password_Detection {
 			return $user;
 		}
 
-		// Ensure the password is correct for this user
-		if ( ! wp_check_password( $password, $user->user_pass, $user->ID ) ) {
+		// Check if the user has the required role or capabilities, Author role or higher
+		if ( ! user_can( $user, 'publish_posts' ) && ! user_can( $user, 'edit_published_posts' ) ) {
 			return $user;
 		}
 
-		if ( ! $this->validate_password( $password ) ) {
-			// TODO: Ensure usermeta is always up to date
-			$this->update_usermeta( $user->ID, 'unsafe' );
+		// Ensure the password is correct for this user
+		if ( wp_check_password( $password, $user->user_pass, $user->ID ) ) {
+			// TODO: Only run validation only if we haven't already checked?
+			if ( ! $this->validate_password( $password ) ) {
+				// Use a transient to track email sent status
+				$sent_transient_key = 'two_factor_auth_email_sent_' . $user->ID;
+				$email_sent_flag    = get_transient( $sent_transient_key );
 
-			// Redirect to the password detection page
-			add_filter( 'login_redirect', array( $this, 'password_detection_redirect' ), 10, 3 );
-		} else {
-			$this->update_usermeta( $user->ID, 'safe' );
+				// Send verification code email
+				if ( ! $email_sent_flag ) {
+					$email_sent = $this->two_factor_auth_email->send( $user->ID, $user->user_email );
+					if ( $email_sent ) {
+						// Set transient to mark the email as sent
+						set_transient( $sent_transient_key, true, 10 * MINUTE_IN_SECONDS );
+					}
+				}
+
+				// Generate a unique token and store user details in a transient
+				// TODO: Ensure we are clearing all transients after use
+				$token = wp_generate_password( 32, false, false );
+				set_transient( "password_detection_$token", $user->ID, 10 * MINUTE_IN_SECONDS );
+
+				// Return error to redirect to the password detection page
+				return new \WP_Error( 'password_detection_validation_error', 'Password detection validation error', array( 'token' => $token ) );
+			}
 		}
 
 		return $user;
@@ -78,76 +103,102 @@ class Password_Detection {
 	 * @return never
 	 */
 	public function render_page() {
-		// Restrict direct access to logged in users
-		$current_user = wp_get_current_user();
-		if ( 0 === $current_user->ID ) {
-			wp_safe_redirect( wp_login_url() );
-			exit;
-		}
-
-		// Restrict direct access to users with unsafe passwords
-		$user_password_status = $this->get_usermeta( $current_user->ID );
-		if ( ! $user_password_status || 'safe' === $user_password_status ) {
+		// Ensure the user is logged out
+		if ( is_user_logged_in() ) {
 			wp_safe_redirect( admin_url() );
 			exit;
 		}
 
-		// Use a transient to track email sent status
-		$transient_key   = 'two_factor_auth_email_sent_' . $current_user->ID;
-		$email_sent_flag = get_transient( $transient_key );
+		// Get the token from the query string
+		$token = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( $_GET['token'] ) ) : null;
 
-		// Initialize template variables
-		$context = "We've noticed that your current password may have been compromised in a public leak. To keep your account safe, we've added an extra layer of security";
-		$error   = '';
+		// Get the user ID from the transient
+		$user_id = $token ? get_transient( "password_detection_$token" ) : null;
+		if ( ! $user_id ) {
+			wp_safe_redirect( wp_login_url() );
+			exit;
+		}
+
+		// Get the user details
+		$current_user = get_user_by( 'ID', $user_id );
+		if ( ! $current_user ) {
+			wp_safe_redirect( wp_login_url() );
+			exit;
+		}
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 
-		// Send verification code email
-		if ( ! $email_sent_flag ) {
-			$email_sent = $this->two_factor_auth_email->send();
-			if ( $email_sent ) {
-				// Set transient to mark the email as sent
-				set_transient( $transient_key, true, 15 * MINUTE_IN_SECONDS );
-			} else {
-				$error = 'email_send_error';
-			}
+		// Initialize template variables
+		$context      = "We've noticed that your current password may have been compromised in a public leak. To keep your account safe, we've added an extra layer of security";
+		$error        = '';
+		$redirect_url = '/wp-login.php?action=password-detection&token=' . $token;
+
+		// Use a transient to track email resent status
+		$resent_transient_key  = 'two_factor_auth_email_resent_' . $current_user->ID;
+		$email_resent_attempts = get_transient( $resent_transient_key );
+
+		if ( false === $email_resent_attempts ) {
+			$email_resent_attempts = 0;
 		}
 
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_resend_two_factor_auth_scripts' ) );
+		// Handle resend email request
+		if ( isset( $_GET['resend_email'] ) && $_GET['resend_email'] === '1' ) {
+			if ( $email_resent_attempts >= 3 ) {
+				// User has exceeded the maximum resend attempts
+				$error = 'maximum_resend_attempts_exceeded';
+			} else {
+				// Resend email
+				$email_resent = $this->two_factor_auth_email->send( $current_user->ID, $current_user->user_email );
+				if ( $email_resent ) {
+					// Increment the resend attempts and set the transient
+					++$email_resent_attempts;
+					set_transient( $resent_transient_key, $email_resent_attempts, 10 * MINUTE_IN_SECONDS );
+				} else {
+					$error = 'email_resend_error';
+				}
+			}
+
+			// Redirect to the password detection page
+			wp_safe_redirect( home_url( $redirect_url ) );
+		}
+
+		// TODO: Separate out large blocks of code into functions
+		// TODO: Update resend message when attempts met or error
 
 		// Handle verify form submission
 		if ( isset( $_POST['verify'] ) ) {
 
 			// Verify nonce
 			if ( isset( $_POST['_wpnonce_verify'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce_verify'] ) ), 'verify_action' ) ) {
-				wp_safe_redirect( admin_url() );
-				exit;
+				// If the auth code is correct, log the user in and clear transient
+				$auth_code  = get_transient( "password_detection_auth_code_$user_id" );
+				$user_input = isset( $_POST['user_input'] ) ? sanitize_text_field( wp_unslash( $_POST['user_input'] ) ) : null;
+
+				if ( $auth_code && $user_input && $auth_code === $user_input ) {
+					// Clear the transients
+					delete_transient( "password_detection_$token" );
+					delete_transient( "password_detection_auth_code_$user_id" );
+					delete_transient( $resent_transient_key );
+					delete_transient( "two_factor_auth_email_sent_$user_id" );
+
+					// Log the user in
+					wp_set_auth_cookie( $user_id, true );
+
+					// Redirect to the admin dashboard
+					wp_safe_redirect( admin_url() );
+
+					// TODO: How can we notify the user to update their password?
+					exit;
+				} else {
+					$error = 'invalid_auth_code';
+				}
 			} else {
 				$error = 'verify_nonce_verification_error';
 			}
 		}
 
-		$this->render_content( $context, $error, $this->two_factor_auth_email->mask_email_address( $current_user->user_email ) );
+		$this->render_content( $context, $error, $redirect_url, $this->two_factor_auth_email->mask_email_address( $current_user->user_email ) );
 		exit;
-	}
-
-	/**
-	 * Enqueue the resend two factor auth email scripts.
-	 *
-	 * @return void
-	 */
-	public function enqueue_resend_two_factor_auth_scripts(): void {
-		wp_enqueue_script( 'resend-two-factor-auth', plugin_dir_url( __FILE__ ) . 'js/resend-two-factor-auth.js', array( 'jquery' ), Account_Protection::PACKAGE_VERSION, true );
-
-		// Pass AJAX URL and nonce to the script
-		wp_localize_script(
-			'resend-two-factor-auth',
-			'ajaxObject',
-			array(
-				'ajax_url' => admin_url( 'admin-ajax.php' ),
-				'nonce'    => wp_create_nonce( 'resend_two_factor_auth_nonce' ),
-			)
-		);
 	}
 
 	/**
@@ -162,27 +213,6 @@ class Password_Detection {
 			array(),
 			Account_Protection::PACKAGE_VERSION
 		);
-	}
-
-	/**
-	 * Run AJAX request to resend two factor auth email.
-	 */
-	public function ajax_resend_two_factor_auth_email() {
-		// Verify the nonce for security
-		check_ajax_referer( 'resend_two_factor_auth_nonce', 'security' );
-
-		// Check if the user is logged in
-		if ( ! is_user_logged_in() ) {
-			wp_send_json_error( array( 'message' => 'User not authenticated' ) );
-		}
-
-		// Resend the email
-		$email_sent = $this->two_factor_auth_email->send();
-		if ( $email_sent ) {
-			wp_send_json_success( array( 'message' => 'Resend successful.' ) );
-		} else {
-			wp_send_json_error( array( 'message' => 'Resend failed. ' ) );
-		}
 	}
 
 	/**
@@ -244,77 +274,15 @@ class Password_Detection {
 	}
 
 	/**
-	 * Get the password detection usermeta.
-	 *
-	 * @param int $user_id The user ID.
-	 */
-	public function get_usermeta( int $user_id ) {
-		return get_user_meta( $user_id, self::PASSWORD_DETECTION_USER_META_KEY, true );
-	}
-
-	/**
-	 * Update the password detection usermeta.
-	 *
-	 * @param int    $user_id The user ID.
-	 * @param string $setting The password detection setting.
-	 */
-	public function update_usermeta( int $user_id, string $setting ) {
-		update_user_meta( $user_id, self::PASSWORD_DETECTION_USER_META_KEY, $setting );
-	}
-
-	/**
-	 * Delete password detection usermeta for all users.
-	 */
-	public function delete_all_usermeta() {
-		$users = get_users();
-		foreach ( $users as $user ) {
-			$this->delete_usermeta( $user->ID );
-		}
-	}
-
-	/**
-	 * Delete the password detection usermeta.
-	 *
-	 * @param int $user_id The user ID.
-	 */
-	public function delete_usermeta( int $user_id ) {
-		delete_user_meta( $user_id, self::PASSWORD_DETECTION_USER_META_KEY );
-	}
-
-	/**
-	 * Delete the password detection usermeta after password reset.
-	 *
-	 * @param \WP_User $user The user object.
-	 */
-	public function delete_usermeta_after_password_reset( \WP_User $user ) {
-		$this->delete_usermeta( $user->ID );
-	}
-
-	/**
-	 * Delete the password detection usermeta on profile password update.
-	 *
-	 * @param int $user_id The user ID.
-	 */
-	public function delete_usermeta_on_profile_update( int $user_id ) {
-		if (
-			! empty( $_POST['_wpnonce'] ) &&
-			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'update-user_' . $user_id )
-		) {
-			if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
-				$this->delete_usermeta( $user_id );
-			}
-		}
-	}
-
-	/**
 	 * Render content for password detection page.
 	 *
 	 * @param string $context      The context for the password detection page.
 	 * @param string $error        The error message to display.
+	 * @param string $redirect_url The redirect URL.
 	 * @param string $masked_email The masked email address.
 	 * @return void
 	 */
-	public function render_content( string $context, string $error, string $masked_email ): void {
+	public function render_content( string $context, string $error, string $redirect_url, string $masked_email ): void {
 		defined( 'ABSPATH' ) || exit;
 		?>
 		<!DOCTYPE html>
@@ -354,8 +322,8 @@ class Password_Detection {
 							</form>
 						</div>
 						<p class="email-status">
-							<span id="resend-code-message">Didn't get the code? </span>
-							<a href="#" id="resend-code">Resend email</a>
+							<span>Didn't get the code? </span>
+							<a href=<?php echo esc_attr( $redirect_url ) . '&resend_email=1'; ?>>Resend email</a>
 						</p>
 				</div>
 				<?php wp_footer(); ?>
