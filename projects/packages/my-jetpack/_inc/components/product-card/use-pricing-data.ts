@@ -138,11 +138,11 @@ const usePricingData = ( slug: string ) => {
 	const { wpcomProductSlug, wpcomFreeProductSlug, ...data } = parsePricingData(
 		detail.pricingForUi
 	);
-	const { install: installPlugin, isPending: isInstalling } = useInstallPlugins( [ slug ] );
+	const { install: installPlugin, isPending: isInstalling } = useInstallPlugins( slug );
 
 	const { isUserConnected } = useMyJetpackConnection();
 	const { myJetpackUrl, siteSuffix } = getMyJetpackWindowInitialState();
-	const { activate, isPending: isActivating } = useActivatePlugins( [ slug ] );
+	const { activate, isPending: isActivating } = useActivatePlugins( slug );
 	const { run: runCheckout } = useProductCheckoutWorkflow( {
 		from: 'my-jetpack',
 		productSlug: wpcomProductSlug,

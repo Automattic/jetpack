@@ -71,11 +71,20 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 
 	const pluginsList = useMemo( () => {
 		if ( needs_installed && needs_activated_only ) {
-			return [ ...needs_installed, ...needs_activated_only ].map( getPluginInfo );
+			const slugs = new Set();
+			return [ ...needs_installed, ...needs_activated_only ]
+				.map( getPluginInfo )
+				.filter( ( { pluginSlug } ) => ! slugs.has( pluginSlug ) && slugs.add( pluginSlug ) ); // filters out duplicates
 		} else if ( needs_installed ) {
-			return needs_installed.map( getPluginInfo );
+			const slugs = new Set();
+			return needs_installed
+				.map( getPluginInfo )
+				.filter( ( { pluginSlug } ) => ! slugs.has( pluginSlug ) && slugs.add( pluginSlug ) );
 		}
-		return needs_activated_only?.map( getPluginInfo );
+		const slugs = new Set();
+		return needs_activated_only
+			?.map( getPluginInfo )
+			.filter( ( { pluginSlug } ) => ! slugs.has( pluginSlug ) && slugs.add( pluginSlug ) );
 	}, [ getPluginInfo, needs_activated_only, needs_installed ] );
 
 	const actionNoun = useMemo( () => {

@@ -33,7 +33,9 @@ const refetchProducts = async (
 	} );
 };
 
-const useProducts = ( productIds: string[] ) => {
+const useProducts = ( productSlugs: string | string[] ) => {
+	const productIds = Array.isArray( productSlugs ) ? productSlugs : [ productSlugs ];
+
 	const allProducts = useAllProducts();
 	const products = productIds?.map( productId => allProducts?.[ productId ] );
 	const { refetch, isLoading } = useFetchProducts( productIds );

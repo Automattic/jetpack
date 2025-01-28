@@ -4,7 +4,9 @@ import { REST_API_SITE_PRODUCTS_ENDPOINT, QUERY_INSTALL_PRODUCT_KEY } from '../c
 import useSimpleMutation from '../use-simple-mutation';
 import useProducts from './use-products';
 
-const useInstallPlugins = ( productIds: string[] ) => {
+const useInstallPlugins = ( productSlugs: string | string[] ) => {
+	const productIds = Array.isArray( productSlugs ) ? productSlugs : [ productSlugs ];
+
 	const { products, refetch } = useProducts( productIds );
 	const { createSuccessNotice } = useGlobalNotices();
 
@@ -31,7 +33,7 @@ const useInstallPlugins = ( productIds: string[] ) => {
 		errorMessage: sprintf(
 			// translators: %s is the Jetpack product name or comma seperated list of multiple Jetpack product names.
 			__( 'There was a problem installing and activating %s.', 'jetpack-my-jetpack' ),
-			products?.map( product => product.name ).join( ', ' )
+			products?.map( product => product?.name ).join( ', ' )
 		),
 	} );
 

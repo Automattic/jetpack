@@ -78,7 +78,7 @@ export default function ProductInterstitial( {
 } ) {
 	const { detail } = useProduct( slug );
 	const { detail: bundleDetail } = useProduct( bundle );
-	const { activate, isPending: isActivating, isSuccess } = useActivatePlugins( [ slug ] );
+	const { activate, isPending: isActivating, isSuccess } = useActivatePlugins( slug );
 
 	// Get the post activation URL for the product.
 	let redirectUri = detail?.postActivationUrl || null;

@@ -32,7 +32,9 @@ const getIsPluginAlreadyActive = ( detail: ProductCamelCase ) => {
 	return isPluginActive;
 };
 
-const useActivatePlugins = ( productIds: string[] ) => {
+const useActivatePlugins = ( productSlugs: string | string[] ) => {
+	const productIds = Array.isArray( productSlugs ) ? productSlugs : [ productSlugs ];
+
 	const { products, refetch } = useProducts( productIds );
 	const { recordEvent } = useAnalytics();
 	const { createSuccessNotice } = useGlobalNotices();
@@ -76,7 +78,7 @@ const useActivatePlugins = ( productIds: string[] ) => {
 		errorMessage: sprintf(
 			// translators: %s is the Jetpack product name or comma seperated list of multiple Jetpack product names.
 			__( 'There was a problem activating %s.', 'jetpack-my-jetpack' ),
-			products?.map( product => product.name ).join( ', ' )
+			products?.map( product => product?.name ).join( ', ' )
 		),
 	} );
 

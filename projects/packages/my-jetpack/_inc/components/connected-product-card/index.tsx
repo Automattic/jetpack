@@ -54,10 +54,8 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 	const { isRegistered, isUserConnected } = useMyJetpackConnection();
 	const { recordEvent } = useAnalytics();
 
-	const { install: installStandalonePlugin, isPending: isInstalling } = useInstallPlugins( [
-		slug,
-	] );
-	const { activate, isPending: isActivating } = useActivatePlugins( [ slug ] );
+	const { install: installStandalonePlugin, isPending: isInstalling } = useInstallPlugins( slug );
+	const { activate, isPending: isActivating } = useActivatePlugins( slug );
 	const { detail, refetch, isLoading: isProductDataLoading } = useProduct( slug );
 	const {
 		name,
