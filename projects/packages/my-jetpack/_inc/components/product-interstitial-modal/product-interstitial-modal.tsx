@@ -81,7 +81,7 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 							fluid={ false }
 						>
 							{
-								// left column - always takes 33% of the width or the full with for small breakpoint
+								// left column - always takes 33% of the width or the full width for small breakpoint
 							 }
 							<Col sm={ 4 } md={ 8 } lg={ 4 } className={ styles.primary }>
 								<div className={ styles[ 'primary-content' ] }>

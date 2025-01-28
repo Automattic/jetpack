@@ -32,7 +32,8 @@ const DefaultArgs = {
 	triggerButton: 'Open Modal',
 	buttonContent: 'Upgrade now',
 	secondaryColumn: <img src={ boostImage } alt="Boost" />,
-	buttonExternalLink: 'https://jetpack.com',
+	secondaryButtonHref: 'https://jetpack.com',
+	secondaryButtonExternalLink: true,
 };
 
 const Template = args => (
