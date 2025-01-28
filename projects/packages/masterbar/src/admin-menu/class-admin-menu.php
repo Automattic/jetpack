@@ -22,6 +22,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Create the desired menu output.
 	 */
 	public function reregister_menu_items() {
+
 		// Remove separators.
 		remove_menu_page( 'separator1' );
 		$this->add_stats_menu();
@@ -295,9 +296,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			$default_customize_background_slug_2 => add_query_arg( array( 'autofocus' => array( 'section' => 'colors_manager_tool' ) ), $customize_url ),
 		);
 
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'themes.php' ) ) {
-			$submenus_to_update['themes.php'] = 'https://wordpress.com/themes/' . $this->domain;
-		}
+		l( 'Themes remap removed' );
 
 		$this->update_submenus( 'themes.php', $submenus_to_update );
 
@@ -499,15 +498,15 @@ class Admin_Menu extends Base_Admin_Menu {
 					<div class="upsell_banner">
 						<div class="banner__info">
 							<div class="banner__title">
-								<?php echo wp_kses( $nudge['content'], array() ); ?>
+							<?php echo wp_kses( $nudge['content'], array() ); ?>
 							</div>
 						</div>
 						<div class="banner__action">
 							<button type="button" class="button">
-								<?php echo wp_kses( $nudge['cta'], array() ); ?>
+							<?php echo wp_kses( $nudge['cta'], array() ); ?>
 							</button>
 						</div>
-						<?php if ( $nudge['dismissible'] ) : ?>
+					<?php if ( $nudge['dismissible'] ) : ?>
 							<svg xmlns="http://www.w3.org/2000/svg" data-feature_class="<?php echo esc_attr( $nudge['feature_class'] ); ?>" data-feature_id="<?php echo esc_attr( $nudge['id'] ); ?>" viewBox="0 0 24 24" class="gridicon gridicons-cross dismissible-card__close-icon" height="24" width="24"><g><path d="M18.36 19.78L12 13.41l-6.36 6.37-1.42-1.42L10.59 12 4.22 5.64l1.42-1.42L12 10.59l6.36-6.36 1.41 1.41L13.41 12l6.36 6.36z"></path></g></svg>
 						<?php endif; ?>
 					</div>
