@@ -39,6 +39,7 @@ export class Writing extends React.Component {
 		this.state = {
 			customContentTypeIsActive: customContentTypeStatusInitialState,
 			customContentTypeIsOverridden: customContentTypeOverrideStatusInitialState,
+			customContentKeywords: [],
 		};
 
 		// Call async initialization directly
@@ -49,10 +50,19 @@ export class Writing extends React.Component {
 		this.props
 			.getActiveFeatureDetails()
 			.then( response => {
-				if ( response && response.active !== undefined ) {
+				if ( response && response[ 'custom-content-types' ].active !== undefined ) {
 					this.setState( {
-						customContentTypeIsActive: response.active,
-						customContentTypeIsOverridden: response.over_ride,
+						customContentTypeIsActive: response[ 'custom-content-types' ].active,
+						customContentTypeIsOverridden: response[ 'custom-content-types' ].over_ride,
+						customContentKeywords: [
+							...response[ 'custom-content-types' ].additional_search_queries
+								.split( ',' )
+								.map( keyword => keyword.trim().toLowerCase() ),
+							...response[ 'custom-content-types' ].description
+								.toLowerCase()
+								.split( ' ' )
+								.map( word => word.trim() ),
+						],
 					} );
 				} else {
 					this.setState( { customContentTypeIsActive: false } );
@@ -89,17 +99,20 @@ export class Writing extends React.Component {
 			'latex',
 			'markdown',
 			'shortcodes',
-			'custom-content-types',
 			'post-by-email',
 			'infinite-scroll',
 			'widgets',
 			'widget-visibility',
 			'blocks',
 		].some( this.props.isModuleFound );
-
-		if ( ! found ) {
+		if ( ! found && ! this.state.customContentTypeIsActive ) {
 			return null;
 		}
+
+		const shouldRenderCustomContent =
+			( this.state.customContentTypeIsActive && this.props.searchTerm === '' ) ||
+			( this.state.customContentTypeIsActive &&
+				this.state.customContentKeywords.includes( this.props.searchTerm?.toLowerCase() ) );
 
 		const showComposing = this.props.userCanManageModules || this.props.userCanEditPosts,
 			showPostByEmail =
@@ -122,8 +135,7 @@ export class Writing extends React.Component {
 				{ showComposing && (
 					<Composing { ...commonProps } userCanManageModules={ this.props.userCanManageModules } />
 				) }
-				{ ( this.props.isModuleFound( 'custom-content-types' ) ||
-					this.props.customContentTypeIsActive ) && <CustomContentTypes { ...commonProps } /> }
+				{ shouldRenderCustomContent && <CustomContentTypes { ...commonProps } /> }
 				<ThemeEnhancements { ...commonProps } />
 				<Widgets { ...commonProps } />
 				{ this.props.isModuleFound( 'post-by-email' ) && showPostByEmail && (

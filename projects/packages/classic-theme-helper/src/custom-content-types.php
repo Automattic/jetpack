@@ -81,10 +81,18 @@ if ( ! function_exists( 'register_rest_route_custom_content_types' ) ) {
 				'callback'            => function () {
 					$active = true;
 					$over_ride = false;
+					$name = 'Custom Content Types';
+					$description = 'Display different types of content on your site with custom content types.';
+					$additional_search_queries = 'cpt, custom post types, portfolio, portfolios, testimonial, testimonials';
 					return rest_ensure_response(
 						array(
-							'active'    => $active,
-							'over_ride' => $over_ride,
+							'custom-content-types' => array(
+								'active'      => $active,
+								'over_ride'   => $over_ride,
+								'name'        => $name,
+								'description' => $description,
+								'additional_search_queries' => $additional_search_queries,
+							),
 						)
 					);
 				},

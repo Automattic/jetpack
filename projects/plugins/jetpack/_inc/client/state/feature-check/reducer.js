@@ -13,8 +13,10 @@ export const items = ( state = { fetchingCustomContentTypeStatus: false }, actio
 		case CUSTOM_FEATURE_ACTIVE_FETCH_SUCCESS:
 			return {
 				...state,
-				fetchingCustomContentTypeStatus: false,
-				featureData: action.feature_data,
+				featureData: {
+					...state.featureCheck,
+					...action.feature_data,
+				},
 			};
 		case CUSTOM_FEATURE_ACTIVE_FETCH_FAIL:
 			return { ...state, fetchingCustomContentTypeStatus: false, error: action.error };
