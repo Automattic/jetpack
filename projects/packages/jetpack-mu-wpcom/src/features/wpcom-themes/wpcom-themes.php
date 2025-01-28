@@ -94,6 +94,14 @@ add_action( 'load-theme-install.php', 'wpcom_auto_open_upload_theme' );
  * Renders a theme install page.
  */
 function render_theme_install() {
+	wp_enqueue_script(
+		'wpcom-theme-install',
+		plugin_dir_url( __FILE__ ) . '/js/wpcom-theme-install.js',
+		array(),
+		filemtime( __DIR__ . '/js/wpcom-theme-install.js' ),
+		true
+	);
+
 	require_once __DIR__ . '/theme-install.php';
 }
 
@@ -111,3 +119,16 @@ function wpcom_add_theme_install_menu() {
 	);
 }
 add_action( 'admin_menu', 'wpcom_add_theme_install_menu' );
+
+
+function wpcom_themes_enqueue_theme_install_script() {
+}
+
+add_action(
+	'load-wpcom-install-theme.php',
+	function () {
+		die('greenz');
+		add_action( 'admin_enqueue_scripts', 'wpcom_themes_enqueue_theme_install_script' );
+
+	}
+);
