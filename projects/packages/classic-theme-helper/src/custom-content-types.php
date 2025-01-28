@@ -13,6 +13,7 @@
  * @package automattic/jetpack-classic-theme-helper
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Host;
 
@@ -34,11 +35,13 @@ if ( ! function_exists( 'jetpack_load_custom_post_types' ) ) {
 	add_action( 'jetpack_activate_module_custom-content-types', array( '\Automattic\Jetpack\Classic_Theme_Helper\Jetpack_Testimonial', 'activation_post_type_support' ) );
 
 	add_action( 'init', array( '\Automattic\Jetpack\Classic_Theme_Helper\Nova_Restaurant', 'init' ) );
+
+	$site_id = Connection_Manager::get_site_id();
+	if ( is_wp_error( $site_id ) ) {
+		return;
+	}
 	add_action( 'rest_api_init', 'register_rest_route_custom_content_types' );
 
-	if ( ! defined( 'JETPACK_MODULE_CUSTOM_CONTENT_TYPES' ) ) {
-		define( 'JETPACK_MODULE_CUSTOM_CONTENT_TYPES', true );
-	}
 }
 
 if ( ! function_exists( 'jetpack_custom_post_types_loaded' ) ) {
@@ -77,7 +80,7 @@ if ( ! function_exists( 'register_rest_route_custom_content_types' ) ) {
 			'jetpack/v4',
 			'/feature/custom-content-types',
 			array(
-				'methods'             => 'GET',
+				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => function () {
 					$active = true;
 					$over_ride = false;
@@ -100,20 +103,6 @@ if ( ! function_exists( 'register_rest_route_custom_content_types' ) ) {
 			)
 		);
 	}
-}
-
-if ( ! function_exists( 'add_custom_content_types_to_array' ) ) {
-	/**
-	 * Adds Custom Content Types to the list of available/active modules
-	 *
-	 * @todo this function should be removed once the module file is removed from the Jetpack plugin. It primarily exists to ensure tests don't break while the module header file exists.
-	 * @param array $modules Array with modules slugs.
-	 * @return array
-	 */
-	function add_custom_content_types_to_array( $modules ) {
-		return array_merge( array( 'custom-content-types' ), $modules );
-	}
-	add_action( 'jetpack_modules_loaded', 'jetpack_custom_post_types_loaded' );
 }
 
 if ( ! function_exists( 'jetpack_cpt_settings_api_init' ) ) {
