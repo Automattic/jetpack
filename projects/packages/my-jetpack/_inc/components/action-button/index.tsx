@@ -109,45 +109,30 @@ const ActionButton: FC< ActionButtonProps > = ( {
 		tracksIdentifier,
 	] );
 
-	/**
-	 * Calls when the "Learn more" button is clicked
-	 */
 	const learnMoreHandler = useCallback( () => {
 		recordEvent( `jetpack_myjetpack_${ tracksIdentifier }_learnmore_click`, {
 			product: slug,
 		} );
 	}, [ slug, recordEvent, tracksIdentifier ] );
 
-	/**
-	 * Calls the passed function onFixConnection after firing Tracks event
-	 */
 	const fixUserConnectionHandler = useCallback( () => {
 		recordEvent( `jetpack_myjetpack_${ tracksIdentifier }_fixconnection_click`, {
 			product: slug,
 		} );
 	}, [ slug, recordEvent, tracksIdentifier ] );
 
-	/**
-	 * Calls the passed function onAdd after firing Tracks event
-	 */
 	const addHandler = useCallback( () => {
 		recordEvent( `jetpack_myjetpack_${ tracksIdentifier }_add_click`, {
 			product: slug,
 		} );
 	}, [ slug, recordEvent, tracksIdentifier ] );
 
-	/**
-	 * Calls the passed function onManage after firing Tracks event
-	 */
 	const manageHandler = useCallback( () => {
 		recordEvent( `jetpack_myjetpack_${ tracksIdentifier }_manage_click`, {
 			product: slug,
 		} );
 	}, [ slug, recordEvent, tracksIdentifier ] );
 
-	/**
-	 * Use a Tracks event to count a standalone plugin install request
-	 */
 	const installStandaloneHandler = useCallback( () => {
 		recordEvent( `jetpack_myjetpack_${ tracksIdentifier }_install_standalone_plugin_click`, {
 			product: slug,
