@@ -1,6 +1,7 @@
 import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { getProductCheckoutUrl } from '@automattic/jetpack-components';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { useConnection, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { useDispatch, select as syncSelect } from '@wordpress/data';
 import { useEffect, useState } from 'react';
@@ -11,7 +12,7 @@ const {
 	apiRoot,
 	apiNonce,
 	siteSuffix: defaultSiteSuffix,
-} = window?.JP_CONNECTION_INITIAL_STATE ? window.JP_CONNECTION_INITIAL_STATE : {};
+} = window?.JP_CONNECTION_INITIAL_STATE || getScriptData()?.connection || {};
 
 /**
  * Custom hook that performs the needed steps
@@ -27,7 +28,7 @@ const {
  * @param {Function} props.isWpcom                        - Whether it's WPCOM site.
  * @return {Function} - The useEffect hook.
  */
-export default function useProductCheckoutWorkflow( {
+export default function useProductCheckoutWorkflow({
 	productSlug,
 	redirectUri,
 	siteSuffix = defaultSiteSuffix,
@@ -35,23 +36,23 @@ export default function useProductCheckoutWorkflow( {
 	siteProductAvailabilityHandler = null,
 	from,
 	isWpcom = false,
-} = {} ) {
-	const [ hasCheckoutStarted, setCheckoutStarted ] = useState( false );
-	const { registerSite } = useDispatch( CONNECTION_STORE_ID );
+} = {}) {
+	const [hasCheckoutStarted, setCheckoutStarted] = useState(false);
+	const { registerSite } = useDispatch(CONNECTION_STORE_ID);
 
-	const { isUserConnected, isRegistered, handleConnectUser } = useConnection( {
+	const { isUserConnected, isRegistered, handleConnectUser } = useConnection({
 		redirectUri,
 		from,
-	} );
+	});
 
 	const initializeAnalytics = () => {
-		const tracksUser = syncSelect( STORE_ID ).getWpcomUser();
-		const blogId = syncSelect( STORE_ID ).getBlogId();
+		const tracksUser = syncSelect(STORE_ID).getWpcomUser();
+		const blogId = syncSelect(STORE_ID).getBlogId();
 
-		if ( tracksUser ) {
-			analytics.initialize( tracksUser.ID, tracksUser.login, {
+		if (tracksUser) {
+			analytics.initialize(tracksUser.ID, tracksUser.login, {
 				blog_id: blogId,
-			} );
+			});
 		}
 	};
 
@@ -66,12 +67,12 @@ export default function useProductCheckoutWorkflow( {
 	const handleAfterRegistration = () => {
 		return Promise.resolve(
 			siteProductAvailabilityHandler && siteProductAvailabilityHandler()
-		).then( siteHasWpcomProduct => {
-			if ( siteHasWpcomProduct ) {
+		).then(siteHasWpcomProduct => {
+			if (siteHasWpcomProduct) {
 				return handleConnectUser();
 			}
 			window.location.href = checkoutProductUrl;
-		} );
+		});
 	};
 
 	/**
@@ -82,25 +83,25 @@ export default function useProductCheckoutWorkflow( {
 	 */
 	const run = event => {
 		event && event.preventDefault();
-		setCheckoutStarted( true );
+		setCheckoutStarted(true);
 		initializeAnalytics();
-		analytics.tracks.recordEvent( productSlug + '_purchase_button_click', {
+		analytics.tracks.recordEvent(productSlug + '_purchase_button_click', {
 			isWpcom: isWpcom,
-			current_version: syncSelect( STORE_ID ).getVersion(),
-		} );
+			current_version: syncSelect(STORE_ID).getVersion(),
+		});
 
-		if ( isRegistered || isWpcom ) {
+		if (isRegistered || isWpcom) {
 			return handleAfterRegistration();
 		}
 
-		registerSite( { registrationNonce, redirectUri } ).then( handleAfterRegistration );
+		registerSite({ registrationNonce, redirectUri }).then(handleAfterRegistration);
 	};
 
 	// Initialize/Setup the REST API.
-	useEffect( () => {
-		restApi.setApiRoot( apiRoot );
-		restApi.setApiNonce( apiNonce );
-	}, [] );
+	useEffect(() => {
+		restApi.setApiRoot(apiRoot);
+		restApi.setApiNonce(apiNonce);
+	}, []);
 
 	return {
 		run,
