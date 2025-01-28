@@ -119,7 +119,7 @@ const BarChart: FC< BarChartProps > = ( {
 
 	return (
 		<div
-			className={ clsx( styles[ 'bar-chart' ], className ) }
+			className={ clsx( 'bar-chart', styles[ 'bar-chart' ], className ) }
 			data-testid="bar-chart"
 			role="img"
 			aria-label="bar chart"
