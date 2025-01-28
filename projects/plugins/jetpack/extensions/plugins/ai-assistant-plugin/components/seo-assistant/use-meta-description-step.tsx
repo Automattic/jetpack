@@ -71,11 +71,27 @@ export const useMetaDescriptionStep = (): Step => {
 				removeLastMessage();
 			}
 			setMetaDescriptionOptions( newMetaDescriptions );
+			const editedFirstMessage = fromSkip
+				? createInterpolateElement(
+						__(
+							"Skipped!<br />Now, let's optimize your meta description.<br />Here's a new suggestion:",
+							'jetpack'
+						),
+						{ br: <br /> }
+				  )
+				: createInterpolateElement(
+						__(
+							"Now, let's optimize your meta description.<br />Here's a new suggestion:",
+							'jetpack'
+						),
+						{ br: <br /> }
+				  );
+			editLastMessage( editedFirstMessage );
 			newMetaDescriptions.forEach( meta =>
 				addMessage( { ...meta, type: 'option', isUser: true } )
 			);
 		},
-		[ metaDescriptionOptions, addMessage, removeLastMessage, setMessages ]
+		[ metaDescriptionOptions, addMessage, removeLastMessage, setMessages, editLastMessage ]
 	);
 
 	const handleMetaDescriptionRegenerate = useCallback( async () => {
