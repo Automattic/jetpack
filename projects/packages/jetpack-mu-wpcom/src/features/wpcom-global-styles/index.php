@@ -809,7 +809,7 @@ function wpcom_site_has_global_styles_in_personal_plan( $blog_id = 0 ) {
 
 	// Placeholder experiment key, we need to update this to the new experiment key once it's created.
 	$experiment_assignment              = \ExPlat\assign_given_user( 'calypso_plans_global_styles_personal_20240127', $owner );
-	$has_global_styles_in_personal_plan = $experiment_assignment !== null;
+	$has_global_styles_in_personal_plan = null !== $experiment_assignment;
 	// Cache the experiment assignment to prevent duplicate DB queries in the frontend.
 	wp_cache_set( $cache_key, $has_global_styles_in_personal_plan, 'a8c_experiments', MONTH_IN_SECONDS );
 	return $has_global_styles_in_personal_plan;
