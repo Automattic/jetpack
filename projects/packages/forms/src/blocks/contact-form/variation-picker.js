@@ -2,8 +2,9 @@ import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import {
 	__experimentalBlockVariationPicker as BlockVariationPicker, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalBlockPatternSetup as BlockPatternSetup, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	store as blockEditorStore,
 } from '@wordpress/block-editor';
-import { createBlock } from '@wordpress/blocks';
+import { createBlock, store as blocksStore } from '@wordpress/blocks';
 import { Button, Modal } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
@@ -25,11 +26,10 @@ const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
 
 export default function VariationPicker( { blockName, setAttributes, clientId, classNames } ) {
 	const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
-	const { replaceInnerBlocks, selectBlock } = useDispatch( 'core/block-editor' );
+	const { replaceInnerBlocks, selectBlock } = useDispatch( blockEditorStore );
 	const { blockType, defaultVariation, variations } = useSelect(
 		select => {
-			const { getBlockType, getBlockVariations, getDefaultBlockVariation } =
-				select( 'core/blocks' );
+			const { getBlockType, getBlockVariations, getDefaultBlockVariation } = select( blocksStore );
 
 			return {
 				blockType: getBlockType( blockName ),

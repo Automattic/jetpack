@@ -9,6 +9,7 @@ import {
 	URLInput,
 	useBlockProps,
 	useInnerBlocksProps,
+	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import {
 	PanelBody,
@@ -18,7 +19,9 @@ import {
 	Notice,
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
+import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -76,9 +79,9 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	const instanceId = useInstanceId( JetpackContactFormEdit );
 	const { canUserInstallPlugins, hasInnerBlocks, postAuthorEmail } = useSelect(
 		select => {
-			const { getBlocks } = select( 'core/block-editor' );
-			const { getEditedPostAttribute } = select( 'core/editor' );
-			const { getUser, canUser } = select( 'core' );
+			const { getBlocks } = select( blockEditorStore );
+			const { getEditedPostAttribute } = select( editorStore );
+			const { getUser, canUser } = select( coreStore );
 			const innerBlocks = getBlocks( clientId );
 
 			const authorId = getEditedPostAttribute( 'author' );
