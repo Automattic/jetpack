@@ -89,3 +89,27 @@ function wpcom_auto_open_upload_theme() {
 	}
 }
 add_action( 'load-theme-install.php', 'wpcom_auto_open_upload_theme' );
+
+/**
+ * Renders a theme install page.
+ */
+function render_theme_install() {
+	?>
+	theme install page goes here.
+	<?php
+}
+
+/**
+ * Adds a "Add New Theme" menu item to the "Appearance" menu.
+ */
+function wpcom_add_theme_install_menu() {
+	add_submenu_page(
+		'themes.php',
+		__( 'Add New Theme', 'jetpack-mu-wpcom' ),
+		__( 'Add New Theme', 'jetpack-mu-wpcom' ),
+		'manage_options', // Roughly means "is a site admin"
+		'wpcom-install-theme',
+		'render_theme_install'
+	);
+}
+add_action( 'admin_menu', 'wpcom_add_theme_install_menu' );
