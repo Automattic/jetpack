@@ -112,6 +112,7 @@ if ( ! function_exists( 'add_custom_content_types_to_array' ) ) {
 	function add_custom_content_types_to_array( $modules ) {
 		return array_merge( array( 'custom-content-types' ), $modules );
 	}
+	add_action( 'jetpack_modules_loaded', 'jetpack_custom_post_types_loaded' );
 }
 
 if ( ! function_exists( 'jetpack_cpt_settings_api_init' ) ) {
