@@ -28,9 +28,9 @@ const BarChart: FC< BarChartProps > = props => {
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< BarChartTooltipData >();
 
-	const handleMouseLeave = useCallback( () => {
+	const handleMouseLeave = () => {
 		hideTooltip();
-	}, [ hideTooltip ] );
+	};
 
 	const handleMouseMove = useCallback(
 		(
