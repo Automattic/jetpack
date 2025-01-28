@@ -138,7 +138,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	} else if ( ! hasInnerBlocks ) {
 		elt = (
 			<VariationPicker
-				blockType={ name }
+				blockName={ name }
 				setAttributes={ setAttributes }
 				clientId={ clientId }
 				classNames={ formClassnames }

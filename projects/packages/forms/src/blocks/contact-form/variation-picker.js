@@ -11,7 +11,6 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filter, get, map } from 'lodash';
 import './util/form-styles.js';
-import { name } from './index';
 
 const RESPONSES_PATH = `${ get( getJetpackData(), 'adminUrl', false ) }edit.php?post_type=feedback`;
 const CUSTOMIZING_FORMS_URL = 'https://jetpack.com/support/jetpack-blocks/contact-form/';
@@ -24,18 +23,22 @@ const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
 	return blocks;
 };
 
-export default function VariationPicker( { setAttributes, clientId, classNames } ) {
+export default function VariationPicker( { blockName, setAttributes, clientId, classNames } ) {
 	const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
 	const { replaceInnerBlocks, selectBlock } = useDispatch( 'core/block-editor' );
-	const { blockType, defaultVariation, variations } = useSelect( select => {
-		const { getBlockType, getBlockVariations, getDefaultBlockVariation } = select( 'core/blocks' );
+	const { blockType, defaultVariation, variations } = useSelect(
+		select => {
+			const { getBlockType, getBlockVariations, getDefaultBlockVariation } =
+				select( 'core/blocks' );
 
-		return {
-			blockType: getBlockType( name ),
-			defaultVariation: getDefaultBlockVariation( name, 'block' ),
-			variations: getBlockVariations( name, 'block' ),
-		};
-	}, [] );
+			return {
+				blockType: getBlockType( blockName ),
+				defaultVariation: getDefaultBlockVariation( blockName, 'block' ),
+				variations: getBlockVariations( blockName, 'block' ),
+			};
+		},
+		[ blockName ]
+	);
 
 	useEffect( () => {
 		if (
