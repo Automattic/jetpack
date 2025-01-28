@@ -326,17 +326,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.3-a.3 - 2025-01-20
+### 14.3-a.5 - 2025-01-27
 #### Enhancements
-- Forms: Allow HTML block within forms.
-- Show Infinite Scroll options in Simple Classic.
+- Forms: Add Checkbox and Consent field enter action to create a new block.
 
 #### Bug fixes
-- Fix: Newsletter toggle in editor sidebar has a visually broken active state.
-- Forms: Fix dropdown icon style.
-- Photon: Fix double encoding image urls.
-- Sharing: Fix the location of the sharing dialog so it is not always the first sharing element on the page.
-- Social: Fix wordpress.com login error when connecting Social accounts.
+- Forms: Make the icons show up as expected in the style editor.
+- Sitemaps: Ensure a valid news sitemap is present even if no posts are eligible.
+- Social: Fix profile links for LinkedIn connections.
+- Social: Fix Publicize error in the editor due to malformed connections data.
+- VideoPress: Fix issue with VideoPress block with zero height and width.
 
 --------
 

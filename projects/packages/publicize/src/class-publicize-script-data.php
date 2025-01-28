@@ -124,6 +124,7 @@ class Publicize_Script_Data {
 			'shares_data'          => array(),
 			'urls'                 => array(),
 			'settings'             => self::get_social_settings(),
+			'plugin_info'          => self::get_plugin_info(),
 		);
 
 		if ( ! Utils::is_publicize_active() ) {
@@ -165,6 +166,37 @@ class Publicize_Script_Data {
 	}
 
 	/**
+	 * Get the plugin info.
+	 *
+	 * @return array
+	 */
+	public static function get_plugin_info() {
+
+		$social_version  = null;
+		$jetpack_version = null;
+
+		if ( defined( 'JETPACK_SOCIAL_PLUGIN_ROOT_FILE' ) ) {
+
+			$plugin_data = get_plugin_data( (string) constant( 'JETPACK_SOCIAL_PLUGIN_ROOT_FILE' ), false, false );
+
+			$social_version = $plugin_data['Version'];
+		}
+
+		if ( defined( 'JETPACK__VERSION' ) ) {
+			$jetpack_version = constant( 'JETPACK__VERSION' );
+		}
+
+		return array(
+			'social'  => array(
+				'version' => $social_version,
+			),
+			'jetpack' => array(
+				'version' => $jetpack_version,
+			),
+		);
+	}
+
+	/**
 	 * Get the social store initial state.
 	 *
 	 * @return array
@@ -180,9 +212,11 @@ class Publicize_Script_Data {
 			$share_status[ $post->ID ] = self::publicize()->get_post_share_status( $post->ID );
 		}
 
+		$should_have_connections = self::has_feature_flag( 'connections-management' ) || self::has_feature_flag( 'editor-preview' );
+
 		return array(
 			'connectionData' => array(
-				'connections' => self::has_feature_flag( 'connections-management' ) ? Connections::get_all_for_user() : array(),
+				'connections' => $should_have_connections ? Connections::get_all_for_user() : array(),
 			),
 			'shareStatus'    => $share_status,
 		);

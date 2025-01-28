@@ -97,7 +97,7 @@ const LineChart: FC< LineChartProps > = ( {
 	width,
 	height,
 	className,
-	margin = {},
+	margin,
 	withTooltips = true,
 	showLegend = false,
 	legendOrientation = 'horizontal',
@@ -110,14 +110,24 @@ const LineChart: FC< LineChartProps > = ( {
 		const seriesColors =
 			data?.map( series => series.options?.stroke ?? '' ).filter( Boolean ) ?? [];
 		return buildChartTheme( {
-			backgroundColor: providerTheme.backgroundColor,
+			...providerTheme,
 			colors: [ ...seriesColors, ...providerTheme.colors ],
-			gridStyles: providerTheme.gridStyles,
-			tickLength: providerTheme?.tickLength || 0,
-			gridColor: providerTheme?.gridColor || '',
-			gridColorDark: providerTheme?.gridColorDark || '',
 		} );
 	}, [ providerTheme, data ] );
+
+	margin = useMemo( () => {
+		// Auto-margin unless specified to make room for axis labels.
+		// Default margin is for bottom and left axis labels.
+		let defaultMargin = { top: 0, right: 0, bottom: 40, left: 40 };
+		if ( options.axis?.y?.orientation === 'right' ) {
+			defaultMargin = { ...defaultMargin, right: 40, left: 0 };
+		}
+		if ( options.axis?.x?.orientation === 'top' ) {
+			defaultMargin = { ...defaultMargin, top: 40, bottom: 0 };
+		}
+		// Merge default margin with user-specified margin.
+		return { ...defaultMargin, ...margin };
+	}, [ margin, options ] );
 
 	const error = validateData( data );
 	if ( error ) {
@@ -147,7 +157,7 @@ const LineChart: FC< LineChartProps > = ( {
 				theme={ theme }
 				width={ width }
 				height={ height }
-				margin={ { top: 20, right: 20, bottom: 40, left: 40, ...margin } }
+				margin={ margin }
 				xScale={ { type: 'time', ...options?.xScale } }
 				yScale={ { type: 'linear', nice: true, zero: false, ...options?.yScale } }
 			>

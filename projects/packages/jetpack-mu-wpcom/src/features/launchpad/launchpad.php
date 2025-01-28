@@ -112,7 +112,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'start_building_your_audience',
 				'customize_welcome_message',
 				'first_post_published',
-				'preview_site',
+				'site_launched',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),

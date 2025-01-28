@@ -109,6 +109,7 @@ FixedDimensions.parameters = {
 export const GridientFilled: StoryObj< typeof LineChart > = Template.bind( {} );
 GridientFilled.args = {
 	...Default.args,
+	margin: undefined,
 	data: webTrafficData,
 	withGradientFill: true,
 	options: {
