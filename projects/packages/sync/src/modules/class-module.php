@@ -682,4 +682,62 @@ abstract class Module {
 	public function get_where_sql( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return '1=1';
 	}
+
+	/**
+	 * Filters objects and metadata based on maximum size constraints.
+	 * It always allows the first object with its metadata, even if they exceed the limit.
+	 *
+	 * @access protected
+	 *
+	 * @param string $type The type of objects to filter (e.g., 'post' or 'comment').
+	 * @param array  $objects The array of objects to filter (e.g., posts or comments).
+	 * @param array  $metadata The array of metadata to filter.
+	 * @param int    $max_object_size Maximum size for individual objects.
+	 * @param int    $max_total_size Maximum combined size for objects and metadata.
+	 * @return array An array containing the filtered object IDs, filtered objects, and filtered metadata.
+	 */
+	protected function filter_objects_and_metadata_by_size( $type, $objects, $metadata, $max_object_size, $max_total_size ) {
+		$filtered_objects    = array();
+		$filtered_metadata   = array();
+		$filtered_object_ids = array();
+		$current_size        = 0;
+
+		foreach ( $objects as $object ) {
+			$object_size      = strlen( maybe_serialize( $object ) );
+			$current_metadata = array();
+			$metadata_size    = 0;
+
+			foreach ( $metadata as $key => $metadata_item ) {
+				if ( (int) $metadata_item->{$type . '_id'} === $object->{$this->id_field()} ) {
+					$metadata_item_size = strlen( maybe_serialize( $metadata_item->meta_value ) );
+					if ( $metadata_item_size >= $max_object_size ) {
+						$metadata_item->meta_value = ''; // Trim metadata if too large.
+					}
+					$current_metadata[] = $metadata_item;
+					$metadata_size     += $metadata_item_size >= $max_object_size ? 0 : $metadata_item_size;
+
+					if ( ! empty( $filtered_object_ids ) && ( $current_size + $object_size + $metadata_size ) > $max_total_size ) {
+						break 2; // Exit both loops.
+					}
+					unset( $metadata[ $key ] );
+				}
+			}
+
+			// Always allow the first object with metadata.
+			if ( empty( $filtered_object_ids ) || ( $current_size + $object_size + $metadata_size ) <= $max_total_size ) {
+				$filtered_object_ids[] = strval( $object->{$this->id_field()} );
+				$filtered_objects[]    = $object;
+				$filtered_metadata     = array_merge( $filtered_metadata, $current_metadata );
+				$current_size         += $object_size + $metadata_size;
+			} else {
+				break;
+			}
+		}
+
+		return array(
+			$filtered_object_ids,
+			$filtered_objects,
+			$filtered_metadata,
+		);
+	}
 }
