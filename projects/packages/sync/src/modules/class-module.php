@@ -708,7 +708,7 @@ abstract class Module {
 			$metadata_size    = 0;
 
 			foreach ( $metadata as $key => $metadata_item ) {
-				if ( (int) $metadata_item->{$type . '_id'} === $object->{$this->id_field()} ) {
+				if ( (int) $metadata_item->{$type . '_id'} === (int) $object->{$this->id_field()} ) {
 					$metadata_item_size = strlen( maybe_serialize( $metadata_item->meta_value ) );
 					if ( $metadata_item_size >= $max_meta_size ) {
 						$metadata_item->meta_value = ''; // Trim metadata if too large.
