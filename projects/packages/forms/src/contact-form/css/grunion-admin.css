@@ -30,6 +30,10 @@
 	margin-right: 8px;
 }
 
+.post-type-feedback .actions {
+	display: inline-flex;
+}
+
 .column-feedback_response .feedback_response__item {
 	display: grid;
 	grid-template-columns: 35% 1fr;
