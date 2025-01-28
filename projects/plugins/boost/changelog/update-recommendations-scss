@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Refactor styles by moving them from global to modules
+
+
