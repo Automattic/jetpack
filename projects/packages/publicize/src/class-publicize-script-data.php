@@ -162,10 +162,6 @@ class Publicize_Script_Data {
 		return array(
 			'socialImageGenerator' => $settings->get_image_generator_settings(),
 			'utmSettings'          => $settings->get_utm_settings(),
-			// TODO remove this and use the settings via publicize package.
-			'socialPlugin'         => array(
-				'social_notes_config' => array(),
-			),
 		);
 	}
 
