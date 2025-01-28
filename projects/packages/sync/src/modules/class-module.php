@@ -692,11 +692,11 @@ abstract class Module {
 	 * @param string $type The type of objects to filter (e.g., 'post' or 'comment').
 	 * @param array  $objects The array of objects to filter (e.g., posts or comments).
 	 * @param array  $metadata The array of metadata to filter.
-	 * @param int    $max_object_size Maximum size for individual objects.
+	 * @param int    $max_meta_size Maximum size for individual objects.
 	 * @param int    $max_total_size Maximum combined size for objects and metadata.
 	 * @return array An array containing the filtered object IDs, filtered objects, and filtered metadata.
 	 */
-	protected function filter_objects_and_metadata_by_size( $type, $objects, $metadata, $max_object_size, $max_total_size ) {
+	public function filter_objects_and_metadata_by_size( $type, $objects, $metadata, $max_meta_size, $max_total_size ) {
 		$filtered_objects    = array();
 		$filtered_metadata   = array();
 		$filtered_object_ids = array();
@@ -710,11 +710,11 @@ abstract class Module {
 			foreach ( $metadata as $key => $metadata_item ) {
 				if ( (int) $metadata_item->{$type . '_id'} === $object->{$this->id_field()} ) {
 					$metadata_item_size = strlen( maybe_serialize( $metadata_item->meta_value ) );
-					if ( $metadata_item_size >= $max_object_size ) {
+					if ( $metadata_item_size >= $max_meta_size ) {
 						$metadata_item->meta_value = ''; // Trim metadata if too large.
 					}
 					$current_metadata[] = $metadata_item;
-					$metadata_size     += $metadata_item_size >= $max_object_size ? 0 : $metadata_item_size;
+					$metadata_size     += $metadata_item_size >= $max_meta_size ? 0 : $metadata_item_size;
 
 					if ( ! empty( $filtered_object_ids ) && ( $current_size + $object_size + $metadata_size ) > $max_total_size ) {
 						break 2; // Exit both loops.
