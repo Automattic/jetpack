@@ -2,22 +2,24 @@ import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useState } from '@wordpress/element';
+import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 import { SeoPlaceholder } from '../../../../plugins/seo/components/placeholder';
 import './style.scss';
 import bigSkyIcon from './big-sky-icon.svg';
 import SeoAssistantWizard from './seo-assistant-wizard';
-import type { SeoAssistantProps } from './types';
 
 const debug = debugFactory( 'jetpack-ai:seo-assistant' );
 
-export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) {
+export default function SeoAssistant( { disabled } ) {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const postIsEmpty = useSelect( select => select( editorStore ).isEditedPostEmpty(), [] );
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'seo-tools' );
+
+	const handleOpen = useCallback( () => setIsOpen( true ), [] );
+	const handleClose = useCallback( () => setIsOpen( false ), [] );
 
 	debug( 'rendering seo-assistant entry point' );
 	return (
@@ -25,14 +27,13 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 			<p>{ __( 'Improve post engagement.', 'jetpack' ) }</p>
 			{ ( isModuleActive || isLoadingModules ) && (
 				<Button
-					onClick={ () => setIsOpen( true ) }
+					onClick={ handleOpen }
 					variant="secondary"
 					disabled={ isLoadingModules || isOpen || postIsEmpty || disabled }
-					isBusy={ isLoadingModules || isOpen }
 				>
 					<img src={ bigSkyIcon } alt={ __( 'SEO Assistant icon', 'jetpack' ) } />
 					&nbsp;
-					{ __( 'SEO Assistant', 'jetpack' ) }
+					{ __( 'Optimize with AI', 'jetpack' ) }
 				</Button>
 			) }
 			{ ! isModuleActive && ! isLoadingModules && (
@@ -42,7 +43,7 @@ export default function SeoAssistant( { disabled, onStep }: SeoAssistantProps ) 
 					changeStatus={ changeStatus }
 				/>
 			) }
-			<SeoAssistantWizard isOpen={ isOpen } onStep={ onStep } close={ () => setIsOpen( false ) } />
+			{ isOpen && <SeoAssistantWizard close={ handleClose } /> }
 		</div>
 	);
 }

@@ -168,6 +168,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'isLaunchTask'          => true,
 			'is_complete_callback'  => 'wpcom_launchpad_is_site_launched',
+			'is_disabled_callback'  => 'wpcom_launchpad_is_site_launched_disabled',
 			'add_listener_callback' => 'wpcom_launchpad_add_site_launch_listener',
 		),
 		'verify_email'                    => array(
@@ -178,15 +179,6 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_disabled_callback' => 'wpcom_launchpad_is_email_verified',
 			'get_calypso_path'     => function () {
 				return '/me/account';
-			},
-		),
-		'preview_site'                    => array(
-			'get_title'            => function () {
-				return __( 'Preview your site', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/view/' . $data['site_slug_encoded'];
 			},
 		),
 
@@ -276,7 +268,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/subscribers/' . $data['site_slug_encoded'];
+				return '/subscribers/' . $data['site_slug_encoded'] . '#building-your-audience-task';
 			},
 		),
 
@@ -504,7 +496,7 @@ function wpcom_launchpad_get_task_definitions() {
 				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
 					return admin_url( 'admin.php?page=jetpack#/newsletter' );
 				}
-				return '/settings/newsletter/' . $data['site_slug_encoded'];
+				return '/settings/newsletter/' . $data['site_slug_encoded'] . '#messages';
 			},
 		),
 		'enable_subscribers_modal'        => array(
@@ -906,6 +898,15 @@ function wpcom_launchpad_is_site_launched( $task, $is_complete ) {
 	} else {
 		return false;
 	}
+}
+
+/**
+ * Disabled when the site is already launched.
+ *
+ * @return boolean
+ */
+function wpcom_launchpad_is_site_launched_disabled() {
+	return 'launched' === get_option( 'launch-status' );
 }
 
 /**

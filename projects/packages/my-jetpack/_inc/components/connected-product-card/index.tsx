@@ -8,8 +8,8 @@ import { useCallback, useEffect } from 'react';
  * Internal dependencies
  */
 import { MyJetpackRoutes, PRODUCT_STATUSES } from '../../constants';
-import useActivate from '../../data/products/use-activate';
-import useInstallStandalonePlugin from '../../data/products/use-install-standalone-plugin';
+import useActivatePlugins from '../../data/products/use-activate-plugins';
+import useInstallPlugins from '../../data/products/use-install-plugins';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -54,9 +54,8 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 	const { isRegistered, isUserConnected } = useMyJetpackConnection();
 	const { recordEvent } = useAnalytics();
 
-	const { install: installStandalonePlugin, isPending: isInstalling } =
-		useInstallStandalonePlugin( slug );
-	const { activate, isPending: isActivating } = useActivate( slug );
+	const { install: installStandalonePlugin, isPending: isInstalling } = useInstallPlugins( slug );
+	const { activate, isPending: isActivating } = useActivatePlugins( slug );
 	const { detail, refetch, isLoading: isProductDataLoading } = useProduct( slug );
 	const {
 		name,
