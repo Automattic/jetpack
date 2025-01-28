@@ -176,8 +176,8 @@ class Publicize_Script_Data {
 	 */
 	public static function get_plugin_info() {
 
-		$social_version  = '0.0.0';
-		$jetpack_version = '0.0.0';
+		$social_version  = null;
+		$jetpack_version = null;
 
 		if ( defined( 'JETPACK_SOCIAL_PLUGIN_ROOT_FILE' ) ) {
 
