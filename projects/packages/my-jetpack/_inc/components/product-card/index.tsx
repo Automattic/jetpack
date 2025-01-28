@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
@@ -77,6 +77,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 		[ styles[ 'has-warning' ] ]: isWarning,
 	} );
 
+	const [ isActionLoading, setIsActionLoading ] = useState( false );
 	const { recordEvent } = useAnalytics();
 	const { siteIsRegistering } = useMyJetpackConnection();
 	const { connectSite } = useConnectSite( {
@@ -85,7 +86,8 @@ const ProductCard: FC< ProductCardProps > = props => {
 			properties: {},
 		},
 	} );
-	const isLoading = siteIsRegistering && status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR;
+	const isLoading =
+		isActionLoading || ( siteIsRegistering && status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR );
 
 	const manageHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_manage_click', {
@@ -152,6 +154,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 							additionalActions={ additionalActions }
 							primaryActionOverride={ primaryActionOverride }
 							fixSiteConnectionHandler={ fixSiteConnectionHandler }
+							setIsActionLoading={ setIsActionLoading }
 							tracksIdentifier="product_card"
 						/>
 						{ secondaryAction && ! secondaryAction?.positionFirst && (

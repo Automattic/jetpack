@@ -4,8 +4,8 @@ import { Icon, chevronDown, external, check } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
 import { PRODUCT_STATUSES, MyJetpackRoutes } from '../../constants';
-import useActivate from '../../data/products/use-activate';
-import useInstallStandalonePlugin from '../../data/products/use-install-standalone-plugin';
+import useActivatePlugins from '../../data/products/use-activate-plugins';
+import useInstallPlugins from '../../data/products/use-install-plugins';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
@@ -15,13 +15,14 @@ import useOutsideAlerter from '../../hooks/use-outside-alerter';
 import styles from './style.module.scss';
 import type { SecondaryButtonProps } from './secondary-button';
 import type { AdditionalAction } from './types';
-import type { FC, ComponentProps, MouseEvent } from 'react';
+import type { FC, ComponentProps, MouseEvent, SetStateAction } from 'react';
 
 type ActionButtonProps = {
 	slug: JetpackModule;
 	additionalActions?: AdditionalAction[];
 	primaryActionOverride?: Record< string, AdditionalAction >;
 	fixSiteConnectionHandler?: ( { e }: { e: MouseEvent< HTMLButtonElement > } ) => void;
+	setIsActionLoading?: ( value: SetStateAction< boolean > ) => void;
 	className?: string;
 	tracksIdentifier?: `${ string }_${ string }`;
 };
@@ -31,6 +32,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	additionalActions,
 	primaryActionOverride,
 	fixSiteConnectionHandler,
+	setIsActionLoading,
 	className,
 	tracksIdentifier,
 } ) => {
@@ -56,9 +58,10 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	const chevronRef = useRef( null );
 	const { recordEvent } = useAnalytics();
 	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.ConnectionSkipPricing );
-	const { activate, isPending: isActivating } = useActivate( slug );
-	const { install: installStandalonePlugin, isPending: isInstalling } =
-		useInstallStandalonePlugin( slug );
+	const { activate, isPending: isActivating } = useActivatePlugins( [ slug ] );
+	const { install: installStandalonePlugin, isPending: isInstalling } = useInstallPlugins( [
+		slug,
+	] );
 
 	const isBusy =
 		isActivating ||
@@ -358,6 +361,12 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	useEffect( () => {
 		setCurrentAction( allActions[ 0 ] );
 	}, [ allActions ] );
+
+	useEffect( () => {
+		if ( setIsActionLoading ) {
+			setIsActionLoading( isBusy );
+		}
+	}, [ isBusy, setIsActionLoading ] );
 
 	// Close the dropdown when clicking outside of it.
 	useOutsideAlerter( dropdownRef, e => {
