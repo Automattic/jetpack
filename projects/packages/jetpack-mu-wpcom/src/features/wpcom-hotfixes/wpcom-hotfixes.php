@@ -74,8 +74,8 @@ function wpcom_fix_performance_issue_block_editor_v19_9_v20_0_v20_1( $scripts ) 
 	$handle       = 'wp-block-editor';
 	$asset_file   = substr( $path, 0, - ( strlen( '.js' ) ) ) . '.asset.php';
 	$asset        = file_exists( $asset_file ) ? require $asset_file : null;
-	$dependencies = isset( $asset['dependencies'] ) ? $asset['dependencies'] : array();
-	$version      = isset( $asset['version'] ) ? $asset['version'] : GUTENBERG_VERSION;
+	$dependencies = $asset['dependencies'] ?? array();
+	$version      = $asset['version'] ?? GUTENBERG_VERSION;
 	gutenberg_override_script(
 		$scripts,
 		$handle,
