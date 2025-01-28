@@ -12,10 +12,20 @@ export default {
 
 const DefaultArgs = {
 	title: 'Jetpack Boost',
-	description: 'Boost your site with Jetpack Boost',
+	description: 'Automatically regenerate critical CSS and hunt down image issues with ease.',
 	children: (
 		<>
-			<ProductInterstitialFeatureList features={ [ 'Feature 1', 'Feature 2', 'Feature 3' ] } />
+			<ProductInterstitialFeatureList
+				features={ [
+					'Automated critical CSS',
+					'Image size analyzer',
+					'Performance history',
+					'Image quality control',
+					'Concatenate JS and CSS',
+					'Image CDN',
+					'Image guide',
+				] }
+			/>
 			<ProductPrice
 				currency="USD"
 				price={ 24.92 }
@@ -30,10 +40,10 @@ const DefaultArgs = {
 		</>
 	),
 	triggerButton: 'Open Modal',
-	buttonContent: 'Upgrade now',
+	buttonLabel: 'Upgrade now',
 	secondaryColumn: <img src={ boostImage } alt="Boost" />,
 	secondaryButtonHref: 'https://jetpack.com',
-	secondaryButtonExternalLink: true,
+	secondaryButtonHasExternalLink: true,
 };
 
 const Template = args => (
