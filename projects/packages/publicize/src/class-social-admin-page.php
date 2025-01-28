@@ -53,30 +53,25 @@ class Social_Admin_Page {
 	 */
 	public function remove_old_social_menu_item() {
 
-		if ( defined( 'JETPACK_SOCIAL_PLUGIN_ROOT_FILE' ) ) {
+		$social_version = Publicize_Script_Data::get_plugin_info()['social']['version'];
 
-			$plugin_data = get_plugin_data( (string) constant( 'JETPACK_SOCIAL_PLUGIN_ROOT_FILE' ), false, false );
-
-			$plugin_version = $plugin_data['Version'];
-
-			// If it's the old social version, remove the submenu page.
-			// TODO Update the version and operator before next Social release.
-			if ( version_compare( $plugin_version, '6.1.0', '<' ) ) {
-				/**
-				 * `add_submenu_page` allows multiple submenus with the same slug,
-				 * but `remove_submenu_page` only removes the first one it finds with the given slug.
-				 *
-				 * We add the menu using `admin_menu` hook unlike the old Social plugin,
-				 * which used the `init` hook, which runs before `admin_menu`.
-				 * So, the old Social plugin's menu is before the new one in $submenu global.
-				 *
-				 * So, `remove_submenu_page` should remove the menu added by the old Social plugin.
-				 *
-				 * @see https://developer.wordpress.org/reference/functions/add_submenu_page
-				 * @see https://developer.wordpress.org/reference/functions/remove_submenu_page
-				 */
-				remove_submenu_page( 'jetpack', 'jetpack-social' );
-			}
+		// If it's the old social version, remove the submenu page.
+		// TODO Update the version and operator before next Social release.
+		if ( $social_version && version_compare( $social_version, '6.1.0', '<' ) ) {
+			/**
+			 * `add_submenu_page` allows multiple submenus with the same slug,
+			 * but `remove_submenu_page` only removes the first one it finds with the given slug.
+			 *
+			 * We add the menu using `admin_menu` hook unlike the old Social plugin,
+			 * which used the `init` hook, which runs before `admin_menu`.
+			 * So, the old Social plugin's menu is before the new one in $submenu global.
+			 *
+			 * So, `remove_submenu_page` should remove the menu added by the old Social plugin.
+			 *
+			 * @see https://developer.wordpress.org/reference/functions/add_submenu_page
+			 * @see https://developer.wordpress.org/reference/functions/remove_submenu_page
+			 */
+			remove_submenu_page( 'jetpack', 'jetpack-social' );
 		}
 	}
 
