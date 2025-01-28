@@ -14,6 +14,7 @@ const defaultTheme: ChartTheme = {
 	tickLength: 4,
 	gridColor: '',
 	gridColorDark: '',
+	xTickLineStyles: { stroke: 'black' },
 };
 
 /**
@@ -30,6 +31,7 @@ const jetpackTheme: ChartTheme = {
 	tickLength: 4,
 	gridColor: '',
 	gridColorDark: '',
+	xTickLineStyles: { stroke: 'black' },
 };
 
 /**
@@ -46,6 +48,7 @@ const wooTheme: ChartTheme = {
 	tickLength: 4,
 	gridColor: '',
 	gridColorDark: '',
+	xTickLineStyles: { stroke: 'black' },
 };
 
 export { defaultTheme, jetpackTheme, wooTheme };

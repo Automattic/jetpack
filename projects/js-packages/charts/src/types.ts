@@ -1,5 +1,6 @@
 import { Orientation } from '@visx/axis';
 import { ScaleType } from '@visx/scale';
+import { LineStyles } from '@visx/xychart';
 import type { CSSProperties } from 'react';
 
 type ValueOf< T > = T[ keyof T ];
@@ -70,6 +71,7 @@ export type ChartTheme = {
 	gridColor: string;
 	/** Color of the grid lines in dark mode */
 	gridColorDark: string;
+	xTickLineStyles?: LineStyles;
 };
 
 declare type AxisOptions = {
