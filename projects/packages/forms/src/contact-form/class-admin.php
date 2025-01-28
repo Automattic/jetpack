@@ -1315,7 +1315,7 @@ class Admin {
 
 		$button_parameters = array(
 			/* translators: The placeholder is for showing how much of the process has completed, as a percent. e.g., "Emptying Spam (40%)" */
-			'progress_label' => __( 'Emptying Spam (%1$s%)', 'jetpack-forms' ),
+			'progress_label' => __( 'Emptying Spam (%1$s%%)', 'jetpack-forms' ),
 			'success_url'    => $success_url,
 			'failure_url'    => $failure_url,
 			'spam_count'     => $spam_count,
