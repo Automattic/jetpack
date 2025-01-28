@@ -3,9 +3,8 @@ import CloseButton from '$features/ui/close-button/close-button';
 import styles from './pop-out.module.scss';
 import { __ } from '@wordpress/i18n';
 import { ReactNode, useState, useEffect } from 'react';
-import { Button } from '@wordpress/components';
+import { Button, getRedirectUrl } from '@automattic/jetpack-components';
 import { useDismissibleAlertState } from '$features/performance-history/lib/hooks';
-import { getRedirectUrl } from '@automattic/jetpack-components';
 import { recordBoostEvent } from '$lib/utils/analytics';
 
 type Props = {

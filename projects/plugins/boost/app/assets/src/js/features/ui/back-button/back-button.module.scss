@@ -1,0 +1,21 @@
+@import '$css/main/variables.scss';
+
+.back-button {
+	text-decoration: none !important;
+	color: $gray_90;
+	line-height: 24px;
+	
+	span {
+		font-size: 14pt;
+		font-weight: 400;
+		margin-bottom: 8px;
+		padding:6px 12px !important;
+		display: inline-flex;
+		align-items: center;
+
+		svg {
+			margin: 4px 20px 2px 0;
+			height: 1.5rem;
+		}
+	}
+}
