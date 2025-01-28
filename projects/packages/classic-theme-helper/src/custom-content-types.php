@@ -106,6 +106,7 @@ if ( ! function_exists( 'add_custom_content_types_to_array' ) ) {
 	/**
 	 * Adds Custom Content Types to the list of available/active modules
 	 *
+	 * @todo this function should be removed once the module file is removed from the Jetpack plugin. It primarily exists to ensure tests don't break while the module header file exists.
 	 * @param array $modules Array with modules slugs.
 	 * @return array
 	 */
