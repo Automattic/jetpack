@@ -143,18 +143,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		return blocks;
 	};
 
-	const setVariation = variation => {
-		if ( variation.attributes ) {
-			setAttributes( variation.attributes );
-		}
-
-		if ( variation.innerBlocks ) {
-			replaceInnerBlocks( clientId, createBlocksFromInnerBlocksTemplate( variation.innerBlocks ) );
-		}
-
-		selectBlock( clientId );
-	};
-
 	useEffect( () => {
 		if (
 			! hasInnerBlocks &&
@@ -192,7 +180,18 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 					) }
 					variations={ filter( variations, v => ! v.hiddenFromPicker ) }
 					onSelect={ ( nextVariation = defaultVariation ) => {
-						setVariation( nextVariation );
+						if ( nextVariation.attributes ) {
+							setAttributes( nextVariation.attributes );
+						}
+
+						if ( nextVariation.innerBlocks ) {
+							replaceInnerBlocks(
+								clientId,
+								createBlocksFromInnerBlocksTemplate( nextVariation.innerBlocks )
+							);
+						}
+
+						selectBlock( clientId );
 					} }
 				/>
 				<div className="form-placeholder__footer">
