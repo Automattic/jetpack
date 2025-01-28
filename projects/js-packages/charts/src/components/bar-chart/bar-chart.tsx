@@ -23,7 +23,17 @@ type BarChartTooltipData = {
 
 interface BarChartProps extends BaseChartProps< SeriesData[] > {}
 
-const BarChart: FC< BarChartProps > = props => {
+const BarChart: FC< BarChartProps > = ( {
+	data,
+	margin = { top: 20, right: 20, bottom: 40, left: 40 },
+	withTooltips = false,
+	showLegend = false,
+	legendOrientation = 'horizontal',
+	className,
+	gridVisibility = 'x',
+	width,
+	height = 400,
+} ) => {
 	const theme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< BarChartTooltipData >();
@@ -50,18 +60,6 @@ const BarChart: FC< BarChartProps > = props => {
 		},
 		[ showTooltip ]
 	);
-
-	const {
-		data,
-		margin = { top: 20, right: 20, bottom: 40, left: 40 },
-		withTooltips = false,
-		showLegend = false,
-		legendOrientation = 'horizontal',
-		className,
-		gridVisibility = 'x',
-		width,
-		height = 400,
-	} = props;
 
 	// Check for empty data
 	if ( ! data?.length ) {
