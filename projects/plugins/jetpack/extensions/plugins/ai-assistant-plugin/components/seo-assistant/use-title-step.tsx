@@ -3,29 +3,38 @@ import { useCallback, useState, createInterpolateElement } from '@wordpress/elem
 import { __ } from '@wordpress/i18n';
 import TypingMessage from './typing-message';
 import { useMessages } from './wizard-messages';
-import type { Step, Option } from './types';
+import type { Step, OptionMessage } from './types';
 
 export const useTitleStep = (): Step => {
-	const [ selectedTitle, setSelectedTitle ] = useState< string >();
-	const [ titleOptions, setTitleOptions ] = useState< Option[] >( [] );
+	const [ selectedTitle, setSelectedTitle ] = useState< string >( '' );
+	const [ titleOptions, setTitleOptions ] = useState< OptionMessage[] >( [] );
 	const { editPost } = useDispatch( 'core/editor' );
-	const { messages, setMessages, addMessage, removeLastMessage, editLastMessage } = useMessages();
+	const {
+		messages,
+		setMessages,
+		addMessage,
+		removeLastMessage,
+		editLastMessage,
+		setSelectedMessage,
+	} = useMessages();
 	const [ completed, setCompleted ] = useState( false );
-	const [ prevStepValue, setPrevStepValue ] = useState( '' );
+	const [ prevStepValue, setPrevStepValue ] = useState();
 
-	const handleTitleSelect = useCallback( ( option: Option ) => {
-		setSelectedTitle( option.content );
-		setTitleOptions( prev =>
-			prev.map( opt => ( {
-				...opt,
-				selected: opt.id === option.id,
-			} ) )
-		);
-	}, [] );
+	const handleTitleSelect = useCallback(
+		( option: OptionMessage ) => {
+			setSelectedTitle( option.content as string );
+			setSelectedMessage( option );
+		},
+		[ setSelectedMessage ]
+	);
 
 	const handleTitleGenerate = useCallback(
 		async ( { fromSkip, stepValue: keywords } ) => {
 			const prevStepHasChanged = keywords !== prevStepValue;
+			if ( ! prevStepHasChanged ) {
+				return;
+			}
+			setPrevStepValue( keywords );
 			const initialMessage = fromSkip
 				? {
 						content: createInterpolateElement(
@@ -39,13 +48,9 @@ export const useTitleStep = (): Step => {
 						showIcon: true,
 				  };
 			setMessages( [ initialMessage ] );
-			if ( prevStepHasChanged ) {
-				setTitleOptions( [] );
-			}
-			let newTitles;
+			let newTitles = [ ...titleOptions ];
 			// we only generate if options are empty
-			if ( titleOptions.length === 0 || prevStepHasChanged ) {
-				setPrevStepValue( keywords );
+			if ( newTitles.length === 0 || prevStepHasChanged ) {
 				addMessage( { content: <TypingMessage /> } );
 				newTitles = await new Promise( resolve =>
 					setTimeout(
@@ -97,14 +102,19 @@ export const useTitleStep = (): Step => {
 				);
 			}
 			editLastMessage( editedMessage );
-			setTitleOptions( newTitles || titleOptions );
+			if ( newTitles.length ) {
+				// this sets the title options for internal state
+				setTitleOptions( newTitles );
+				// this addes title options as message-buttons
+				newTitles.forEach( title => addMessage( { ...title, type: 'option', isUser: true } ) );
+			}
 		},
 		[ titleOptions, addMessage, removeLastMessage, setMessages, prevStepValue, editLastMessage ]
 	);
 
 	const handleTitleRegenerate = useCallback( async () => {
 		addMessage( { content: <TypingMessage /> } );
-		const newTitles = await new Promise< Array< Option > >( resolve =>
+		const newTitles = await new Promise< Array< OptionMessage > >( resolve =>
 			setTimeout(
 				() =>
 					resolve( [
@@ -123,6 +133,7 @@ export const useTitleStep = (): Step => {
 		);
 		removeLastMessage();
 		setTitleOptions( [ ...titleOptions, ...newTitles ] );
+		newTitles.forEach( title => addMessage( { ...title, type: 'option', isUser: true } ) );
 	}, [ addMessage, removeLastMessage, titleOptions ] );
 
 	const handleTitleSubmit = useCallback( async () => {

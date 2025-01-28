@@ -8,7 +8,7 @@ import { useMetaDescriptionStep } from './use-meta-description-step';
 import { useTitleStep } from './use-title-step';
 import { OptionsInput, TextInput, CompletionInput } from './wizard-input';
 import WizardStep from './wizard-step';
-import type { Step, Option, OnStartFunction } from './types';
+import type { Step, OptionMessage, OnStartFunction } from './types';
 
 const debug = debugFactory( 'jetpack-seo:assistant-wizard' );
 
@@ -39,8 +39,8 @@ export default function AssistantWizard( { close, tasks } ) {
 
 	const handleNext = useCallback(
 		( options: Parameters< OnStartFunction >[ 0 ] ) => {
-			debug( steps[ currentStep ].value );
-			debug( steps[ currentStep + 1 ].value );
+			debug( 'step value', steps[ currentStep ].value );
+			debug( 'next step value', steps[ currentStep + 1 ].value );
 			if ( currentStep + 1 < steps.length ) {
 				debug( 'moving to ' + ( currentStep + 1 ) );
 				setCurrentStep( currentStep + 1 );
@@ -69,7 +69,7 @@ export default function AssistantWizard( { close, tasks } ) {
 	);
 
 	const handleSelect = useCallback(
-		( stepNumber: number, option: Option ) => {
+		( stepNumber: number, option: OptionMessage ) => {
 			if ( stepNumber !== currentStep ) {
 				jumpToStep( stepNumber );
 			}
@@ -100,9 +100,10 @@ export default function AssistantWizard( { close, tasks } ) {
 		await currentStepData?.onSkip?.();
 		handleNext( {
 			fromSkip: true,
-			stepValue: steps[ currentStep ].value,
+			// if skip is NOT meant to reset, pass stepValue as steps[ currentStep ].value
+			stepValue: '',
 		} );
-	}, [ currentStep, currentStepData, handleNext, steps ] );
+	}, [ currentStepData, handleNext ] );
 
 	// Reset states and close the wizard
 	const handleDone = () => {
@@ -136,7 +137,6 @@ export default function AssistantWizard( { close, tasks } ) {
 						key={ step.id }
 						messages={ step.messages }
 						visible={ currentStep >= index }
-						options={ step.options || [] }
 						onSelect={ option => handleSelect( index, option ) }
 					/>
 				) ) }
