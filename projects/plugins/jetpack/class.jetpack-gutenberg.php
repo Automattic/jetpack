@@ -1424,6 +1424,10 @@ if ( ( new Host() )->is_woa_site() ) {
  * @param WP_Scripts $scripts WP_Scripts instance.
  */
 function jetpack_fix_performance_issue_block_editor_v19_9_v20_0_v20_1( $scripts ) {
+	if ( ! Jetpack_Gutenberg::should_load() ) {
+		return;
+	}
+
 	if ( defined( 'GUTENBERG_DEVELOPMENT_MODE' ) && GUTENBERG_DEVELOPMENT_MODE ) {
 		return;
 	}
