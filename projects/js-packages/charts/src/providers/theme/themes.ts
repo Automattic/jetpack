@@ -8,10 +8,10 @@ const defaultTheme: ChartTheme = {
 	labelBackgroundColor: '#FFFFFF', // label background color
 	colors: [ '#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F' ],
 	gridStyles: {
-		stroke: '#787C82',
+		stroke: '#DCDCDE',
 		strokeWidth: 1,
 	},
-	tickLength: 0,
+	tickLength: 4,
 	gridColor: '',
 	gridColorDark: '',
 };
@@ -24,10 +24,10 @@ const jetpackTheme: ChartTheme = {
 	labelBackgroundColor: '#FFFFFF', // label background color
 	colors: [ '#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F' ],
 	gridStyles: {
-		stroke: '#787C82',
+		stroke: '#DCDCDE',
 		strokeWidth: 1,
 	},
-	tickLength: 0,
+	tickLength: 4,
 	gridColor: '',
 	gridColorDark: '',
 };
@@ -43,7 +43,7 @@ const wooTheme: ChartTheme = {
 		stroke: '#787C82',
 		strokeWidth: 1,
 	},
-	tickLength: 0,
+	tickLength: 4,
 	gridColor: '',
 	gridColorDark: '',
 };

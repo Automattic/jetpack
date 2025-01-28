@@ -116,6 +116,10 @@ const LineChart: FC< LineChartProps > = ( {
 			tickLength: providerTheme?.tickLength || 0,
 			gridColor: providerTheme?.gridColor || '',
 			gridColorDark: providerTheme?.gridColorDark || '',
+			xAxisLineStyles: {
+				stroke: providerTheme?.gridStyles?.stroke,
+				strokeWidth: providerTheme?.gridStyles?.strokeWidth,
+			},
 		} );
 	}, [ providerTheme, data ] );
 
@@ -170,6 +174,7 @@ const LineChart: FC< LineChartProps > = ( {
 					orientation="bottom"
 					numTicks={ 5 }
 					tickFormat={ formatDateTick }
+					tickStroke={ theme.gridColor }
 					{ ...options?.axis?.x }
 				/>
 				<AnimatedAxis orientation="left" numTicks={ 4 } { ...options?.axis?.y } />
