@@ -4,7 +4,12 @@ import {
 	isSimpleSite,
 	useModuleStatus,
 } from '@automattic/jetpack-shared-extension-utils';
-import { InnerBlocks, InspectorControls, URLInput, useBlockProps } from '@wordpress/block-editor';
+import {
+	InspectorControls,
+	URLInput,
+	useBlockProps,
+	useInnerBlocksProps,
+} from '@wordpress/block-editor';
 import {
 	PanelBody,
 	SelectControl,
@@ -55,7 +60,6 @@ const ALLOWED_BLOCKS = [
 	'core/subhead',
 	'core/video',
 ];
-
 const PRIORITIZED_INSERTER_BLOCKS = [ ...map( validFields, block => `jetpack/${ block.name }` ) ];
 
 function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, className } ) {
@@ -96,10 +100,21 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	const wrapperRef = useRef();
 	const innerRef = useRef();
 	const blockProps = useBlockProps( { ref: wrapperRef } );
+	const formClassnames = clsx( className, 'jetpack-contact-form' );
+	const innerBlocksProps = useInnerBlocksProps(
+		{
+			ref: innerRef,
+			className: formClassnames,
+			style: window.jetpackForms.generateStyleVariables( innerRef.current ),
+		},
+		{
+			allowedBlocks: ALLOWED_BLOCKS,
+			prioritizedInserterBlocks: PRIORITIZED_INSERTER_BLOCKS,
+			templateInsertUpdatesSelection: false,
+		}
+	);
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'contact-form' );
-
-	const formClassnames = clsx( className, 'jetpack-contact-form' );
 
 	const isSalesForceExtensionEnabled =
 		!! window?.Jetpack_Editor_Initial_State?.available_blocks[
@@ -130,7 +145,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			/>
 		);
 	} else {
-		const style = window.jetpackForms.generateStyleVariables( innerRef.current );
 		elt = (
 			<>
 				<InspectorControls>
@@ -232,14 +246,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						</>
 					) }
 				</InspectorControls>
-
-				<div className={ formClassnames } style={ style } ref={ innerRef }>
-					<InnerBlocks
-						allowedBlocks={ ALLOWED_BLOCKS }
-						prioritizedInserterBlocks={ PRIORITIZED_INSERTER_BLOCKS }
-						templateInsertUpdatesSelection={ false }
-					/>
-				</div>
+				<div { ...innerBlocksProps } />
 			</>
 		);
 	}
