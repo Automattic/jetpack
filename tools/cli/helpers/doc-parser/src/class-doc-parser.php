@@ -7,6 +7,11 @@
 
 namespace Automattic\Jetpack;
 
+use PhpParser\Node;
+use PhpParser\Node\Expr\FuncCall;
+use PhpParser\NodeFinder;
+use PhpParser\ParserFactory;
+use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
 use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTextNode;
 use PHPStan\PhpDocParser\Lexer\Lexer;
 use PHPStan\PhpDocParser\Parser\ConstExprParser;
@@ -38,6 +43,13 @@ class Doc_Parser {
 	public $pdparser;
 
 	/**
+	 * The PHP parser object to be used for parsing code.
+	 *
+	 * @var \PhpParser\ParserAbstract
+	 */
+	public $parser;
+
+	/**
 	 * Constructor for the Doc_Parser class.
 	 */
 	public function __construct() {
@@ -46,6 +58,7 @@ class Doc_Parser {
 		$constExprParser = new ConstExprParser( $config );
 		$typeParser      = new TypeParser( $config, $constExprParser );
 		$this->pdparser  = new PhpDocParser( $config, $typeParser, $constExprParser );
+		$this->parser    = ( new ParserFactory() )->createForHostVersion();
 	}
 
 	/**
@@ -94,7 +107,6 @@ class Doc_Parser {
 	 * @return string
 	 */
 	protected function get_phpdoc_data( $path, $format = 'json' ) {
-		printf( 'Extracting PHPDoc from %1$s.' . PHP_EOL, $path );
 
 		// Find the files to get the PHPDoc data from. $path can either be a folder or an absolute ref to a file.
 		if ( is_file( $path ) ) {
@@ -102,14 +114,7 @@ class Doc_Parser {
 			$path  = dirname( $path );
 
 		} else {
-			ob_start();
-			$files = \WP_Parser\get_wp_files( $path );
-			$error = ob_get_clean();
-
-			if ( $error ) {
-				printf( 'Problem with %1$s: %2$s' . PHP_EOL, $path, $error );
-				exit( 1 );
-			}
+			$files = $this->get_wp_files( $path );
 		}
 
 		// Maybe we should automatically import definitions from .gitignore.
@@ -138,14 +143,33 @@ class Doc_Parser {
 			}
 		);
 
+		$nodeFinder = new NodeFinder();
+
 		// Extract PHPDoc.
 		$blocks = array();
 
 		foreach ( $files as $file ) {
-			$file_blocks = array();
+			printf( 'Extracting PHPDoc from %1$s.' . PHP_EOL, $file );
 
-			$ast = \ast\parse_file( $file, 110 );
-			$this->get_filter_calls( $ast, $file_blocks );
+			$stmts = $this->parser->parse( file_get_contents( $file ) );
+			if ( empty( $stmts ) ) {
+				continue;
+			}
+
+			// Find all calls to apply_filters or do_action.
+			$hookCalls = $nodeFinder->find(
+				$stmts,
+				function ( Node $node ) {
+
+					if ( ! $node instanceof FuncCall ) {
+						return false;
+					}
+
+					return $node->name->name === 'apply_filters';
+				}
+			);
+
+			$file_blocks = $this->get_filter_calls( $hookCalls );
 
 			$splfile = new \SplFileObject( $file );
 			foreach ( $file_blocks as &$block ) {
@@ -237,271 +261,67 @@ class Doc_Parser {
 	}
 
 	/**
-	 * Returns a "flattened" string representation of an AST node.
+	 * Returns a list of PHP files in a folder, recursing into subfolders. Heavily inspired by
+	 * the WordPress PHPDoc parser.
 	 *
-	 * @param \ast\Node $node the node to be flattened.
-	 * @return string a string representation of the node.
+	 * @see https://github.com/WordPress/phpdoc-parser/blob/7fc2227d2d4fb73f9f0b6e233413f3f9f9840e80/lib/runner.php#L17
+	 *
+	 * @param string $directory the folder to look in.
+	 *
+	 * @return array an array of filenames.
+	 * @throws \Exception $e If unable to traverse the filesystem.
 	 */
-	public function flatten_ast_node( $node ): string {
-		if ( $node instanceof \ast\Node ) {
-			$node_kind = \ast\get_kind_name( $node->kind );
+	public function get_wp_files( $directory ) {
+		$iterableFiles = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( $directory )
+		);
+		$files         = array();
 
-			$result = '';
+		try {
+			foreach ( $iterableFiles as $file ) {
+				if ( 'php' !== $file->getExtension() ) {
+					continue;
+				}
 
-			switch ( $node_kind ) {
-				case 'AST_ARRAY':
-					$result .= 'array( ';
-					$first   = true;
-					foreach ( $node->children as $item ) {
-						if ( $first ) {
-							$first = false;
-						} else {
-							$result .= ', ';
-						}
-						$result .= $this->flatten_ast_node( $item );
-					}
-					$result .= ' )';
-					break;
-				case 'AST_VAR':
-					$children = $node->children;
-					'@phan-var array<string, string> $children';
-
-					$result .= ' $' . $children['name'];
-					break;
-				case 'AST_CALL':
-					$children = $node->children;
-					'@phan-var array<string, \ast\Node> $children';
-
-					$expression_children = $children['expr']->children;
-					'@phan-var array<string, string> $expression_children';
-
-					$result .= $expression_children['name'] . '(';
-					$first   = true;
-
-					foreach ( $children['args']->children as $argument ) {
-						if ( $first ) {
-							$first = false;
-						} else {
-							$result .= ', ';
-						}
-						$result .= $this->flatten_ast_node( $argument );
-					}
-					$result .= ')';
-
-					break;
-				case 'AST_STATIC_CALL':
-					$children = $node->children;
-					'@phan-var array<string, \ast\Node> $children';
-
-					$expression_children = $children['class']->children;
-					'@phan-var array<string, string> $expression_children';
-
-					$result .= $expression_children['name'] . '::' . $children['method'] . '(';
-					$first   = true;
-
-					foreach ( $children['args']->children as $argument ) {
-						if ( $first ) {
-							$first = false;
-						} else {
-							$result .= ', ';
-						}
-						$result .= $this->flatten_ast_node( $argument );
-					}
-					$result .= ')';
-
-					break;
-				case 'AST_PROP':
-					$children = $node->children;
-					'@phan-var array<string, \ast\Node> $children';
-
-					$child_kind = \ast\get_kind_name( $children['expr']->kind );
-
-					// This is incorrect, needs to be changed to an inverse if.
-					if ( 'AST_PROP' === $child_kind ) {
-						$result .= $this->flatten_ast_node( $children['expr'] ) . '->' . $children['prop'];
-					} else {
-						$expression_children = $children['expr']->children;
-						'@phan-var array<string, string> $expression_children';
-
-						$result .= $expression_children['name'] . '->' . $children['prop'];
-					}
-					break;
-
-				case 'AST_BINARY_OP':
-					$flags = $this->format_flags( $node->kind, $node->flags );
-					if ( false !== strpos( 'BINARY_CONCAT', $flags ) ) {
-						$result .=
-							$this->flatten_ast_node( $node->children['left'] )
-							. '.'
-							. $this->flatten_ast_node( $node->children['right'] );
-						break;
-					}
-					// Break intentionally omitted.
-				default:
-					foreach ( $node->children as $i => $child ) {
-						if ( $i === 'docComment' ) {
-							continue;
-						}
-						$result .= $this->flatten_ast_node( $child );
-					}
+				$files[] = $file->getPathname();
 			}
-
-			return $result;
-		} elseif ( $node === null ) {
-			return ' null ';
-
-		} elseif ( is_string( $node ) && 'null' === $node ) {
-			return ' null ';
-		} elseif ( is_string( $node ) && 'true' === $node ) {
-			return ' true ';
-		} elseif ( is_string( $node ) && 'false' === $node ) {
-			return ' false ';
-		} elseif ( is_string( $node ) ) {
-			return '\'' . $node . '\'';
-		} else {
-			return (string) $node;
+		} catch ( \UnexpectedValueException $exc ) {
+			throw new \Exception( sprintf( 'Directory [%s] contained a directory we can not recurse into', $directory ) );
 		}
+
+		return $files;
 	}
 
 	/**
 	 * Returns an array of docblock annotations for apply_filter function calls, with keys being names of filters
 	 * used.
 	 *
-	 * @param mixed $tree Abstract syntax tree, or nodes of it.
-	 * @param array $blocks An array to gather code blocks into.
-	 * @return void
+	 * @param array $nodes  Parser node objects for hook calls.
+	 * @return array docblock annotations.
 	 */
-	public function get_filter_calls( $tree, &$blocks ) {
-		if ( $tree instanceof \ast\Node ) {
-			$result = \ast\get_kind_name( $tree->kind );
+	public function get_filter_calls( $nodes ): array {
 
-			if ( 'AST_CALL' === $result ) {
-				$children = $tree->children;
-				'@phan-var array<string, \ast\Node> $children';
+		$blocks        = array();
+		$prettyPrinter = new PrettyPrinter();
 
-				$expression_children = $children['expr']->children;
-				'@phan-var array<string, string> $expression_children';
+		foreach ( $nodes as $node ) {
 
-				$name = $expression_children['name'];
+			$arguments = $node->getArgs();
+			$hook_name = array_shift( $arguments );
 
-				if ( 'apply_filters' === $name ) {
+			$new_block = array(
+				'type'     => 'filter',
+				'line'     => $node->getLine(),
+				'end_line' => $node->getEndLine() > 0 ? $node->getEndLine() : $node->getLine(),
+				'name'     => trim( $prettyPrinter->prettyPrint( array( $hook_name ) ), '\'' ),
+			);
 
-					$arguments = $children['args']->children;
-					'@phan-var array<int, \ast\Node|string> $arguments';
-
-					$argument = array_shift( $arguments );
-
-					if ( $argument instanceof \ast\Node ) {
-						$argument = $this->flatten_ast_node( $argument );
-					}
-					$new_block = array(
-						'type'     => 'filter',
-						'line'     => $tree->lineno,
-						'end_line' => $tree->endLineno ?? $tree->lineno,
-						'name'     => $argument,
-					);
-
-					$new_block['arguments'] = array();
-					foreach ( $arguments as $argument ) {
-						if ( $argument instanceof \ast\Node ) {
-							$argument = $this->flatten_ast_node( $argument );
-						}
-						array_push( $new_block['arguments'], $argument );
-					}
-
-					$blocks[] = $new_block;
-				}
-
-				if ( 'do_action' === $name ) {
-					$arguments = $children['args']->children;
-					'@phan-var array<int, \ast\Node|string> $arguments';
-
-					$argument = array_shift( $arguments );
-
-					$new_block = array(
-						'type'     => 'action',
-						'line'     => $tree->lineno,
-						'end_line' => $tree->endLineno ?? $tree->lineno,
-						'name'     => $argument,
-					);
-
-					$blocks[] = $new_block;
-				}
+			foreach ( $arguments as $argument ) {
+				$new_block['arguments'][] = $prettyPrinter->prettyPrint( array( $argument ) );
 			}
-
-			foreach ( $tree->children as $child ) {
-				$this->get_filter_calls( $child, $blocks );
-			}
-		}
-	}
-
-	/**
-	 * Utility for getting AST flag info.
-	 *
-	 * @see https://github.com/nikic/php-ast/blob/master/util.php
-	 * @return array AST flags.
-	 * */
-	protected function get_flag_info(): array {
-		static $info;
-		if ( $info !== null ) {
-			return $info;
+			$blocks[] = $new_block;
 		}
 
-		foreach ( \ast\get_metadata() as $data ) {
-			if ( empty( $data->flags ) ) {
-				continue;
-			}
-
-			$flagMap = array();
-			foreach ( $data->flags as $fullName ) {
-				$shortName                        = substr( $fullName, strrpos( $fullName, '\\' ) + 1 );
-				$flagMap[ constant( $fullName ) ] = $shortName;
-			}
-
-			$info[ (int) $data->flagsCombinable ][ $data->kind ] = $flagMap;
-		}
-
-		return $info;
-	}
-
-	/**
-	 * Utility for getting combinable flag factor.
-	 *
-	 * @see https://github.com/nikic/php-ast/blob/master/util.php
-	 *
-	 * @param int $kind the flag identifier.
-	 * @return boolean if flag is combinable.
-	 */
-	protected function is_combinable_flag( int $kind ): bool {
-		return isset( $this->get_flag_info()[1][ $kind ] );
-	}
-
-	/**
-	 * Utility to return formatted flag strings.
-	 *
-	 * @param int $kind  the flag identifier.
-	 * @param int $flags the flags for which to get the string.
-	 * @return string formatted flags value.
-	 */
-	protected function format_flags( int $kind, int $flags ): string {
-		list( $exclusive, $combinable ) = $this->get_flag_info();
-		if ( isset( $exclusive[ $kind ] ) ) {
-			$flagInfo = $exclusive[ $kind ];
-			if ( isset( $flagInfo[ $flags ] ) ) {
-				return $flagInfo[ $flags ];
-			}
-		} elseif ( isset( $combinable[ $kind ] ) ) {
-			$flagInfo = $combinable[ $kind ];
-			$names    = array();
-			foreach ( $flagInfo as $flag => $name ) {
-				if ( $flags & $flag ) {
-					$names[] = $name;
-				}
-			}
-			if ( ! empty( $names ) ) {
-				return implode( ' | ', $names );
-			}
-		}
-		return (string) $flags;
+		return $blocks;
 	}
 }
