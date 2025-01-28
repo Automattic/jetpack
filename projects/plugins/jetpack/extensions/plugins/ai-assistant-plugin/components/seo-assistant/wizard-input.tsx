@@ -1,51 +1,55 @@
-import { Button, TextControl, Icon } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { Button, TextControl, Icon, KeyboardShortcuts } from '@wordpress/components';
+import { forwardRef } from '@wordpress/element';
 import { arrowRight } from '@wordpress/icons';
 
-export default function WizardInput( { currentStepData, handleSubmit, handleDone } ) {
-	const selectedOption =
-		currentStepData.type === 'options' ? currentStepData.options.find( opt => opt.selected ) : null;
+export const OptionsInput = ( {
+	disabled,
+	handleRetry,
+	retryCtaLabel,
+	handleSubmit,
+	submitCtaLabel,
+} ) => {
 	return (
-		<div className="seo-assistant-wizard__input-container">
-			{ currentStepData.type === 'input' && (
-				<div className="seo-assistant-wizard__input">
-					<TextControl
-						value={ currentStepData.value }
-						onChange={ currentStepData.setValue }
-						placeholder={ currentStepData.placeholder }
-					/>
-					<Button
-						variant="primary"
-						className="seo-assistant-wizard__submit"
-						onClick={ handleSubmit }
-						size="small"
-						disabled={ ! currentStepData.value }
-					>
-						↑
-					</Button>
-				</div>
-			) }
+		<div className="assistant-wizard__actions">
+			<Button variant="secondary" onClick={ handleRetry }>
+				{ retryCtaLabel }
+			</Button>
 
-			{ currentStepData.type === 'options' && (
-				<div className="seo-assistant-wizard__actions">
-					<Button variant="secondary" onClick={ currentStepData.onRetry }>
-						{ currentStepData.onRetryCtaLabel }
-					</Button>
+			<Button variant="primary" onClick={ handleSubmit } disabled={ disabled }>
+				{ submitCtaLabel }&nbsp;
+				<Icon icon={ arrowRight } size={ 24 } />
+			</Button>
+		</div>
+	);
+};
 
-					<Button variant="primary" onClick={ handleSubmit } disabled={ ! selectedOption }>
-						{ currentStepData.submitCtaLabel }&nbsp;
-						<Icon icon={ arrowRight } size={ 24 } />
-					</Button>
-				</div>
-			) }
-
-			{ currentStepData.type === 'completion' && (
-				<div className="seo-assistant-wizard__completion">
-					<Button variant="primary" className="seo-assistant-wizard__done" onClick={ handleDone }>
-						{ __( 'Done', 'jetpack' ) }
-					</Button>
-				</div>
-			) }
+function UnforwardedKeywordsInput( { placeholder, value, setValue, handleSubmit }, ref ) {
+	return (
+		<div ref={ ref } className="assistant-wizard__input">
+			<KeyboardShortcuts shortcuts={ { enter: handleSubmit } }>
+				<TextControl value={ value } onChange={ setValue } placeholder={ placeholder } />
+			</KeyboardShortcuts>
+			<Button
+				variant="primary"
+				className="assistant-wizard__submit"
+				onClick={ handleSubmit }
+				size="small"
+				disabled={ ! value }
+			>
+				↑
+			</Button>
 		</div>
 	);
 }
+
+export const TextInput = forwardRef( UnforwardedKeywordsInput );
+
+export const CompletionInput = ( { submitCtaLabel, handleSubmit } ) => {
+	return (
+		<div className="assistant-wizard__completion">
+			<Button variant="primary" className="assistant-wizard__done" onClick={ handleSubmit }>
+				{ submitCtaLabel }
+			</Button>
+		</div>
+	);
+};

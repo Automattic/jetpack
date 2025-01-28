@@ -10,6 +10,16 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 use Automattic\Jetpack\Plans;
 
 /**
+ * Checks if Global Styles on personal are available on the current site either by A/B test assign or feature flag.
+ *
+ * @return bool Whether Global Styles are available.
+ */
+function is_global_styles_on_personal_plan() {
+	return wpcom_site_has_global_styles_in_personal_plan()
+		|| ( class_exists( 'WPCOM_Feature_Flags' ) && WPCOM_Feature_Flags::is_enabled( WPCOM_Feature_Flags::GLOBAL_STYLES_ON_PERSONAL_PLAN ) );
+}
+
+/**
  * Checks if Global Styles should be limited on the given site.
  *
  * @param  int $blog_id Blog ID.
@@ -178,7 +188,7 @@ function wpcom_global_styles_enqueue_block_editor_assets() {
 	// @TODO Remove this once the global styles are available for all users on the Personal Plan.
 	$upgrade_url = "$calypso_domain/plans/$site_slug?plan=value_bundle&feature=style-customization";
 	$plan_name   = Plans::get_plan( 'value_bundle' )->product_name_short;
-	if ( class_exists( 'WPCOM_Feature_Flags' ) && WPCOM_Feature_Flags::is_enabled( WPCOM_Feature_Flags::GLOBAL_STYLES_ON_PERSONAL_PLAN ) ) {
+	if ( is_global_styles_on_personal_plan() ) {
 		$plan_name   = Plans::get_plan( 'personal-bundle' )->product_name_short;
 		$upgrade_url = "$calypso_domain/plans/$site_slug?plan=personal-bundle&feature=style-customization";
 	}
@@ -508,7 +518,7 @@ function wpcom_display_global_styles_launch_bar() {
 	// @TODO Remove this once the global styles are available for all users on the Personal Plan.
 	$gs_upgrade_plan = WPCOM_VALUE_BUNDLE;
 	$upgrade_url     = "https://wordpress.com/plans/$site_slug?plan=value_bundle&feature=style-customization";
-	if ( class_exists( 'WPCOM_Feature_Flags' ) && WPCOM_Feature_Flags::is_enabled( WPCOM_Feature_Flags::GLOBAL_STYLES_ON_PERSONAL_PLAN ) ) {
+	if ( is_global_styles_on_personal_plan() ) {
 		$gs_upgrade_plan = WPCOM_PERSONAL_BUNDLE;
 		$upgrade_url     = "https://wordpress.com/plans/$site_slug?plan=personal-bundle&feature=style-customization";
 	}
@@ -724,7 +734,7 @@ function wpcom_site_has_global_styles_feature( $blog_id = 0 ) {
 	}
 
 	// If the GLOBAL_STYLES_ON_PERSONAL_PLAN feature is enabled, we need to check if the site has a Personal plan and add the sticker.
-	if ( class_exists( 'WPCOM_Feature_Flags' ) && WPCOM_Feature_Flags::is_enabled( 'GLOBAL_STYLES_ON_PERSONAL_PLAN' ) ) {
+	if ( is_global_styles_on_personal_plan() ) {
 		if ( wpcom_site_has_personal_plan( $blog_id ) ) {
 			$note = 'Automated sticker. See paYJgx-5w2-p2';
 			$user = 'a8c'; // A non-empty string avoids storing the current user as author of the sticker change.
@@ -759,4 +769,48 @@ function wpcom_global_styles_is_previewing_premium_theme_without_premium_plan( $
 	$has_premium_plan_or_higher = wpcom_site_has_feature( WPCOM_Features::GLOBAL_STYLES, $blog_id );
 
 	return ! $has_premium_plan_or_higher;
+}
+
+/**
+ * Checks whether the site has access to Global Styles with a Personal plan as part of an A/B test.
+ *
+ * @param  int $blog_id Blog ID.
+ * @return bool Whether the site has access to Global Styles with a Personal plan.
+ */
+function wpcom_site_has_global_styles_in_personal_plan( $blog_id = 0 ) {
+	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+		return false;
+	}
+
+	if ( ! function_exists( '\ExPlat\assign_given_user' ) ) {
+		return false;
+	}
+
+	if ( ! $blog_id ) {
+		$blog_id = get_current_blog_id();
+	}
+
+	$cache_key                          = "global-styles-on-personal-feb-2025-$blog_id";
+	$found_in_cache                     = false;
+	$has_global_styles_in_personal_plan = wp_cache_get( $cache_key, 'a8c_experiments', false, $found_in_cache );
+	if ( $found_in_cache ) {
+		return $has_global_styles_in_personal_plan;
+	}
+
+	$owner_id = wpcom_get_blog_owner( $blog_id );
+	if ( ! $owner_id ) {
+		return false;
+	}
+
+	$owner = get_userdata( $owner_id );
+	if ( ! $owner ) {
+		return false;
+	}
+
+	// Placeholder experiment key, we need to update this to the new experiment key once it's created.
+	$experiment_assignment              = \ExPlat\assign_given_user( 'calypso_plans_global_styles_personal_20240127', $owner );
+	$has_global_styles_in_personal_plan = 'treatment' === $experiment_assignment;
+	// Cache the experiment assignment to prevent duplicate DB queries in the frontend.
+	wp_cache_set( $cache_key, $has_global_styles_in_personal_plan, 'a8c_experiments', MONTH_IN_SECONDS );
+	return $has_global_styles_in_personal_plan;
 }
