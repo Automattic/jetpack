@@ -87,7 +87,7 @@ class Social_Admin_Page {
 
 		// If Social plugin is active.
 		if ( defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) ) {
-			Admin_Menu::add_menu(
+			$page_suffix = Admin_Menu::add_menu(
 				__( 'Jetpack Social', 'jetpack-publicize-pkg' ),
 				_x( 'Social', 'The Jetpack Social product name, without the Jetpack prefix', 'jetpack-publicize-pkg' ),
 				'manage_options',
@@ -96,11 +96,19 @@ class Social_Admin_Page {
 				4
 			);
 
-			/**
-			 * Use priority 20 to ensure that we can dequeue the old Social assets.
-			 */
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ), 20 );
+			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+
 		}
+	}
+
+	/**
+	 * Initialize the admin resources.
+	 */
+	public function admin_init() {
+		/**
+		 * Use priority 20 to ensure that we can dequeue the old Social assets.
+		 */
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ), 20 );
 	}
 
 	/**
@@ -116,10 +124,6 @@ class Social_Admin_Page {
 	 * Enqueue admin scripts and styles.
 	 */
 	public function enqueue_admin_scripts() {
-		$screen = get_current_screen();
-		if ( empty( $screen ) || 'jetpack_page_jetpack-social' !== $screen->base ) {
-			return;
-		}
 
 		// Dequeue the old Social assets.
 		wp_dequeue_script( 'jetpack-social' );
