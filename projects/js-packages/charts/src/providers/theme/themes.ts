@@ -15,6 +15,7 @@ const defaultTheme: ChartTheme = {
 	gridColor: '',
 	gridColorDark: '',
 	xTickLineStyles: { stroke: 'black' },
+	xAxisLineStyles: { stroke: '#DCDCDE', strokeWidth: 1 },
 };
 
 /**
@@ -32,6 +33,7 @@ const jetpackTheme: ChartTheme = {
 	gridColor: '',
 	gridColorDark: '',
 	xTickLineStyles: { stroke: 'black' },
+	xAxisLineStyles: { stroke: '#DCDCDE', strokeWidth: 1 },
 };
 
 /**
@@ -49,6 +51,7 @@ const wooTheme: ChartTheme = {
 	gridColor: '',
 	gridColorDark: '',
 	xTickLineStyles: { stroke: 'black' },
+	xAxisLineStyles: { stroke: '#DCDCDE', strokeWidth: 1 },
 };
 
 export { defaultTheme, jetpackTheme, wooTheme };

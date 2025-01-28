@@ -110,17 +110,8 @@ const LineChart: FC< LineChartProps > = ( {
 		const seriesColors =
 			data?.map( series => series.options?.stroke ?? '' ).filter( Boolean ) ?? [];
 		return buildChartTheme( {
-			backgroundColor: providerTheme.backgroundColor,
+			...providerTheme,
 			colors: [ ...seriesColors, ...providerTheme.colors ],
-			gridStyles: providerTheme.gridStyles,
-			tickLength: providerTheme?.tickLength || 0,
-			gridColor: providerTheme?.gridColor || '',
-			gridColorDark: providerTheme?.gridColorDark || '',
-			xTickLineStyles: providerTheme?.xTickLineStyles,
-			xAxisLineStyles: {
-				stroke: providerTheme?.gridStyles?.stroke,
-				strokeWidth: providerTheme?.gridStyles?.strokeWidth,
-			},
 		} );
 	}, [ providerTheme, data ] );
 

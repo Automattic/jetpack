@@ -71,7 +71,10 @@ export type ChartTheme = {
 	gridColor: string;
 	/** Color of the grid lines in dark mode */
 	gridColorDark: string;
+	/** Styles for x-axis tick lines */
 	xTickLineStyles?: LineStyles;
+	/** Styles for x-axis line */
+	xAxisLineStyles?: LineStyles;
 };
 
 declare type AxisOptions = {
