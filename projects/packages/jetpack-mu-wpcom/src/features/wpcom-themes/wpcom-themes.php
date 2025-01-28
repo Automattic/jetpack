@@ -94,9 +94,7 @@ add_action( 'load-theme-install.php', 'wpcom_auto_open_upload_theme' );
  * Renders a theme install page.
  */
 function render_theme_install() {
-	?>
-	theme install page goes here.
-	<?php
+	require_once __DIR__ . '/theme-install.php';
 }
 
 /**
