@@ -32,6 +32,44 @@ class Password_Detection {
 	}
 
 	/**
+	 * Check if the password is safe after login.
+	 *
+	 * @param \WP_User|\WP_Error $user The user or error object.
+	 * @param string             $password The password.
+	 * @return \WP_User|\WP_Error The user object.
+	 */
+	public function login_form_password_detection( $user, string $password ) {
+		if ( is_wp_error( $user ) || ! $this->user_requires_protection( $user, $password ) ) {
+			return $user;
+		}
+
+		if ( ! ( new Password_Validation() )->validate_password( $password ) ) {
+			$sent_transient_key = 'two_factor_auth_email_sent_' . $user->ID;
+			$email_sent_flag    = get_transient( $sent_transient_key );
+
+			if ( ! $email_sent_flag ) {
+				$email_sent = $this->two_factor_auth_email->send( $user->ID, $user->user_email );
+				if ( $email_sent ) {
+					// Set transient to mark the email as sent
+					set_transient( $sent_transient_key, true, 10 * MINUTE_IN_SECONDS );
+				}
+			}
+
+			// TODO: Ensure we are clearing all transients after use, consider various cases
+			$token = wp_generate_password( 32, false, false );
+			set_transient( "password_detection_$token", $user->ID, 10 * MINUTE_IN_SECONDS );
+
+			return new WP_Error(
+				'password_detection_validation_error',
+				'Password detection validation error',
+				array( 'token' => $token )
+			);
+		}
+
+		return $user;
+	}
+
+	/**
 	 * Handle password detection login failure.
 	 *
 	 * @param string   $username The username.
@@ -47,54 +85,6 @@ class Password_Detection {
 			wp_safe_redirect( home_url( '/wp-login.php?action=password-detection&token=' . $token ) );
 			exit;
 		}
-	}
-
-	/**
-	 * Check if the password is safe after login.
-	 *
-	 * @param \WP_User|\WP_Error $user The user or error object.
-	 * @param string             $password The password.
-	 * @return \WP_User|\WP_Error The user object.
-	 */
-	public function login_form_password_detection( $user, string $password ) {
-		// Check if the user is already a WP_Error object
-		if ( is_wp_error( $user ) ) {
-			return $user;
-		}
-
-		// Check if the user has the required role or capabilities, Author role or higher
-		if ( ! user_can( $user, 'publish_posts' ) && ! user_can( $user, 'edit_published_posts' ) ) {
-			return $user;
-		}
-
-		// Ensure the password is correct for this user
-		if ( wp_check_password( $password, $user->user_pass, $user->ID ) ) {
-			// TODO: Only run validation only if we haven't already checked?
-			if ( ! $this->validate_password( $password ) ) {
-				// Use a transient to track email sent status
-				$sent_transient_key = 'two_factor_auth_email_sent_' . $user->ID;
-				$email_sent_flag    = get_transient( $sent_transient_key );
-
-				// Send verification code email
-				if ( ! $email_sent_flag ) {
-					$email_sent = $this->two_factor_auth_email->send( $user->ID, $user->user_email );
-					if ( $email_sent ) {
-						// Set transient to mark the email as sent
-						set_transient( $sent_transient_key, true, 10 * MINUTE_IN_SECONDS );
-					}
-				}
-
-				// Generate a unique token and store user details in a transient
-				// TODO: Ensure we are clearing all transients after use
-				$token = wp_generate_password( 32, false, false );
-				set_transient( "password_detection_$token", $user->ID, 10 * MINUTE_IN_SECONDS );
-
-				// Return error to redirect to the password detection page
-				return new \WP_Error( 'password_detection_validation_error', 'Password detection validation error', array( 'token' => $token ) );
-			}
-		}
-
-		return $user;
 	}
 
 	/**
@@ -168,18 +158,17 @@ class Password_Detection {
 		// Handle verify form submission
 		if ( isset( $_POST['verify'] ) ) {
 
-			// Verify nonce
 			if ( isset( $_POST['_wpnonce_verify'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce_verify'] ) ), 'verify_action' ) ) {
-				// If the auth code is correct, log the user in and clear transient
 				$auth_code  = get_transient( "password_detection_auth_code_$user_id" );
 				$user_input = isset( $_POST['user_input'] ) ? sanitize_text_field( wp_unslash( $_POST['user_input'] ) ) : null;
 
+				// If the auth code is correct
 				if ( $auth_code && $user_input && $auth_code === $user_input ) {
 					// Clear the transients
 					delete_transient( "password_detection_$token" );
 					delete_transient( "password_detection_auth_code_$user_id" );
-					delete_transient( $resent_transient_key );
 					delete_transient( "two_factor_auth_email_sent_$user_id" );
+					delete_transient( $resent_transient_key );
 
 					// Log the user in
 					wp_set_auth_cookie( $user_id, true );
@@ -197,8 +186,20 @@ class Password_Detection {
 			}
 		}
 
-		$this->render_content( $context, $error, $redirect_url, $this->two_factor_auth_email->mask_email_address( $current_user->user_email ) );
+		$this->render_content( $context, $error, $redirect_url, $this->mask_email_address( $current_user->user_email ) );
 		exit;
+	}
+
+	/**
+	 * Check if the user requires password protection.
+	 *
+	 * @param \WP_User $user     The user object.
+	 * @param string   $password The password.
+	 * @return bool
+	 */
+	private function user_requires_protection( $user, $password ) {
+		// TODO: Only run validation if we haven't already checked?
+		return ( user_can( $user, 'publish_posts' ) || user_can( $user, 'edit_published_posts' ) ) && wp_check_password( $password, $user->user_pass, $user->ID );
 	}
 
 	/**
@@ -213,20 +214,6 @@ class Password_Detection {
 			array(),
 			Account_Protection::PACKAGE_VERSION
 		);
-	}
-
-	/**
-	 * Password validation.
-	 *
-	 * @param string $password The password to validate.
-	 * @return bool True if the password is valid, false otherwise.
-	 */
-	public function validate_password( string $password ): bool {
-		// TODO: Uncomment out once endpoint is live
-		// Check compromised and common passwords
-		// $weak_password = self::check_weak_passwords( $password );
-
-		return $password ? false : true;
 	}
 
 	/**
@@ -271,6 +258,27 @@ class Password_Detection {
 		}
 
 		return false;
+	}
+
+		/**
+		 * Mask an email address like d*****@g*****.com.
+		 *
+		 * @param string $email The email address to mask.
+		 * @return string The masked email address.
+		 */
+	public function mask_email_address( string $email ): string {
+		$parts  = explode( '@', $email );
+		$name   = $parts[0];
+		$domain = $parts[1];
+
+		// Mask the name part (first letter + asterisks)
+		$masked_name = substr( $name, 0, 1 ) . str_repeat( '*', strlen( $name ) - 1 );
+
+		// Mask the domain part (first letter + asterisks + domain extension)
+		$domain_parts  = explode( '.', $domain );
+		$masked_domain = substr( $domain_parts[0], 0, 1 ) . str_repeat( '*', strlen( $domain_parts[0] ) - 1 ) . '.' . $domain_parts[1];
+
+		return $masked_name . '@' . $masked_domain;
 	}
 
 	/**

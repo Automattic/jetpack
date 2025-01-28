@@ -11,28 +11,6 @@ namespace Automattic\Jetpack\Account_Protection;
  * Class Password_Reset_Email
  */
 class Two_Factor_Auth_Email {
-
-	/**
-	 * Mask an email address like d*****@g*****.com.
-	 *
-	 * @param string $email The email address to mask.
-	 * @return string The masked email address.
-	 */
-	public function mask_email_address( string $email ): string {
-		$parts  = explode( '@', $email );
-		$name   = $parts[0];
-		$domain = $parts[1];
-
-		// Mask the name part (first letter + asterisks)
-		$masked_name = substr( $name, 0, 1 ) . str_repeat( '*', strlen( $name ) - 1 );
-
-		// Mask the domain part (first letter + asterisks + domain extension)
-		$domain_parts  = explode( '.', $domain );
-		$masked_domain = substr( $domain_parts[0], 0, 1 ) . str_repeat( '*', strlen( $domain_parts[0] ) - 1 ) . '.' . $domain_parts[1];
-
-		return $masked_name . '@' . $masked_domain;
-	}
-
 	/**
 	 * Send two factor auth email.
 	 *
@@ -42,7 +20,7 @@ class Two_Factor_Auth_Email {
 	 */
 	public function send( $user_id, $email ): bool {
 		// Generate an auth code and store in a transient
-		// TODO: Ensure we are clearing all transients after use
+		// TODO: Ensure we are clearing all relevant transients if we are setting this up new
 		$auth_code = wp_rand( 100000, 999999 );
 		set_transient( "password_detection_auth_code_$user_id", $auth_code, 10 * MINUTE_IN_SECONDS );
 
