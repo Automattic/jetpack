@@ -262,7 +262,7 @@ class Jetpack_Gutenberg {
 	 */
 	public static function get_preset( $preset ) {
 		return json_decode(
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			file_get_contents( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $preset . '.json' )
 		);
 	}
@@ -880,13 +880,13 @@ class Jetpack_Gutenberg {
 		}
 
 		/**
-		 * Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
-		 *
-		 * @since 6.9.0
-		 * @deprecated 11.8.0 Use jetpack_blocks_variation filter instead.
-		 *
-		 * @param boolean
-		 */
+		* Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
+		*
+		* @since 6.9.0
+		* @deprecated 11.8.0 Use jetpack_blocks_variation filter instead.
+		*
+		* @param boolean
+		*/
 		$is_beta = apply_filters_deprecated(
 			'jetpack_load_beta_blocks',
 			array( false ),
@@ -910,13 +910,13 @@ class Jetpack_Gutenberg {
 		}
 
 		/**
-		 * Alternative to `JETPACK_EXPERIMENTAL_BLOCKS`, set to `true` to load Experimental Blocks.
-		 *
-		 * @since 6.9.0
-		 * @deprecated 11.8.0 Use jetpack_blocks_variation filter instead.
-		 *
-		 * @param boolean
-		 */
+		* Alternative to `JETPACK_EXPERIMENTAL_BLOCKS`, set to `true` to load Experimental Blocks.
+		*
+		* @since 6.9.0
+		* @deprecated 11.8.0 Use jetpack_blocks_variation filter instead.
+		*
+		* @param boolean
+		*/
 		$is_experimental = apply_filters_deprecated(
 			'jetpack_load_experimental_blocks',
 			array( false ),
@@ -962,8 +962,8 @@ class Jetpack_Gutenberg {
 	 */
 	public static function get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation ) {
 		$preset_extensions = isset( $preset_extensions_manifest->{ $blocks_variation } )
-			? (array) $preset_extensions_manifest->{ $blocks_variation }
-			: array();
+				? (array) $preset_extensions_manifest->{ $blocks_variation }
+				: array();
 
 		/*
 		 * Experimental and Beta blocks need the production blocks as well.
@@ -1396,7 +1396,7 @@ class Jetpack_Gutenberg {
 
 if ( ( new Host() )->is_woa_site() ) {
 	/**
-	 * Enable upgrade nudge for Atomic sites.
+	* Enable upgrade nudge for Atomic sites.
 	 * This feature is false as default,
 	 * so let's enable it through this filter.
 	 *
