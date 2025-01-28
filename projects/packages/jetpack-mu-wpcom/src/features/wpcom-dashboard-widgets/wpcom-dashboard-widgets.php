@@ -24,7 +24,14 @@ function load_wpcom_dashboard_widgets() {
 		),
 	);
 
-	if ( get_option( 'launch-status', 'launched' ) !== 'launched' ) {
+	$launchpad_context = 'customer-home';
+	$checklist_slug    = get_option( 'site_intent' );
+
+	if (
+		get_option( 'launch-status', 'launched' ) !== 'launched' &&
+		! empty( wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug, $launchpad_context ) ) &&
+		! wpcom_launchpad_is_task_list_dismissed( $checklist_slug )
+	) {
 		$wpcom_dashboard_widgets[] = array(
 			'id'       => 'wpcom_launchpad_widget',
 			'name'     => __( 'Site Setup', 'jetpack-mu-wpcom' ),
