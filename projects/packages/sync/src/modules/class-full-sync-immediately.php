@@ -120,7 +120,7 @@ class Full_Sync_Immediately extends Module {
 		 * @since 1.6.3
 		 * @since-jetpack 4.2.0
 		 * @since-jetpack 7.3.0 Added $range arg.
-		 * @since $$next-version$$ Added $context arg.
+		 * @since 4.4.0 Added $context arg.
 		 */
 		do_action( 'jetpack_full_sync_start', $full_sync_config, $range );
 		$this->send_action( 'jetpack_full_sync_start', array( $full_sync_config, $range, $context ) );

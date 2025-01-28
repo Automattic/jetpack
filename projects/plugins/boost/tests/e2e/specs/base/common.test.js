@@ -1,8 +1,8 @@
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites.js';
-import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
-import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.js';
-import { DashboardPage, PluginsPage, Sidebar } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
-import playwrightConfig from 'jetpack-e2e-commons/playwright.config.mjs';
+import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/prerequisites.js';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { execWpCommand } from '_jetpack-e2e-commons/helpers/utils-helper.js';
+import { DashboardPage, PluginsPage, Sidebar } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
+import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { JetpackBoostPage } from '../../lib/pages/index.js';
 

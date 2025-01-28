@@ -33,7 +33,7 @@ use Automattic\Jetpack\Backup\V0005\Jetpack_Backup as My_Jetpack_Backup;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 // Constant definitions.
@@ -164,7 +164,7 @@ function jetpack_backup_plugin_activation( $plugin ) {
 		( new \Automattic\Jetpack\Paths() )->is_current_request_activating_plugin_from_plugins_screen( JETPACK_BACKUP_PLUGIN_ROOT_FILE_RELATIVE_PATH )
 	) {
 		wp_safe_redirect( esc_url( admin_url( 'admin.php?page=jetpack-backup' ) ) );
-		exit;
+		exit( 0 );
 	}
 }
 

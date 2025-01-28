@@ -9,13 +9,7 @@
  * Date: 01/11/16
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 /* ======================================================
@@ -47,7 +41,7 @@ function zeroBSCRM_forms_templateRedirect() {
 
 		// require template
 		require_once( ZEROBSCRM_PATH . 'public/forms/form-'.$potentialForm.'.php' ); 
-		exit();
+		exit( 0 );
 
 	}
 

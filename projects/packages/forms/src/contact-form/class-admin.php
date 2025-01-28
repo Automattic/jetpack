@@ -439,7 +439,7 @@ class Admin {
 		if ( current_user_can( 'edit_posts' ) ) {
 			Form_View::display();
 		}
-		exit;
+		exit( 0 );
 	}
 
 	/**
@@ -549,7 +549,7 @@ class Admin {
 
 		if ( empty( $_REQUEST['post'] ) ) {
 			wp_safe_redirect( wp_get_referer() );
-			exit;
+			exit( 0 );
 		}
 
 		$post_ids = array_map( 'intval', $_REQUEST['post'] );
@@ -583,7 +583,7 @@ class Admin {
 
 		$redirect_url = add_query_arg( 'message', 'marked-spam', wp_get_referer() );
 		wp_safe_redirect( $redirect_url );
-		exit;
+		exit( 0 );
 	}
 
 	/**
@@ -1255,7 +1255,7 @@ class Admin {
 		}
 
 		echo $status_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we're building the html to echo.
-		exit;
+		exit( 0 );
 	}
 
 	/**

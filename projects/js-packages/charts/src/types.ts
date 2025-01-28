@@ -1,4 +1,6 @@
 import { Orientation } from '@visx/axis';
+import { ScaleType } from '@visx/scale';
+import { LineStyles } from '@visx/xychart';
 import type { CSSProperties } from 'react';
 
 type ValueOf< T > = T[ keyof T ];
@@ -12,8 +14,8 @@ export type DataPoint = {
 
 export type DataPointDate = {
 	date: Date;
+	value: number | null;
 	label?: string;
-	value: number;
 };
 
 export type SeriesData = {
@@ -69,6 +71,10 @@ export type ChartTheme = {
 	gridColor: string;
 	/** Color of the grid lines in dark mode */
 	gridColorDark: string;
+	/** Styles for x-axis tick lines */
+	xTickLineStyles?: LineStyles;
+	/** Styles for x-axis line */
+	xAxisLineStyles?: LineStyles;
 };
 
 declare type AxisOptions = {
@@ -130,6 +136,8 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 * More options for the chart.
 	 */
 	options?: {
+		yScale?: { type?: ScaleType; zero?: boolean };
+		xScale?: { type?: ScaleType };
 		axis?: {
 			x?: AxisOptions;
 			y?: AxisOptions;

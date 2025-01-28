@@ -5,9 +5,10 @@
  * @package wpcomsh
  */
 
-$_tests_dir = getenv( 'WP_TESTS_DIR' );
-$_core_dir  = getenv( 'WP_CORE_DIR' );
-$wp_branch  = getenv( 'WP_BRANCH' );
+$_tests_dir      = getenv( 'WP_TESTS_DIR' );
+$_core_dir       = getenv( 'WP_CORE_DIR' );
+$_wp_content_dir = getenv( 'WP_CONTENT_DIR' ) ?: $_core_dir; // phpcs:ignore Universal.Operators
+$wp_branch       = getenv( 'WP_BRANCH' );
 
 if ( ! $_tests_dir ) {
 	if ( $wp_branch ) {
@@ -26,7 +27,7 @@ if ( ! $_core_dir ) {
 }
 
 define( 'IS_ATOMIC', true );
-define( 'WPMU_PLUGIN_DIR', "{$_core_dir}wp-content/mu-plugins" );
+define( 'WPMU_PLUGIN_DIR', "{$_wp_content_dir}/mu-plugins" );
 
 if ( ! file_exists( $_tests_dir . '/includes/functions.php' ) ) {
 	echo "Could not find $_tests_dir/includes/functions.php, have you run bin/install-wp-tests.sh ?" . PHP_EOL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -46,6 +47,7 @@ require_once $_tests_dir . '/includes/functions.php';
  * Manually load the plugin being tested.
  */
 function _manually_load_plugin() {
+
 	if ( file_exists( WPMU_PLUGIN_DIR . '/wpcomsh-loader.php' ) ) {
 		return;
 	}

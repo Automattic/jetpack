@@ -1,4 +1,4 @@
-.seo-assistant-wizard {
+.assistant-wizard {
 	position: fixed;
 	bottom: 32px;
 	left: 50%;
@@ -11,6 +11,10 @@
 	z-index: 1000;
 	display: flex;
 	flex-direction: column;
+	// countering the Jetpack sidebar ai-feature styles:
+	button {
+		width: unset;
+	}
 
 	&__header {
 		flex: 0 0 auto;
@@ -54,7 +58,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
-		padding: 16px 24px;
+		padding: 8px 24px;
 		overflow-y: auto;
 		scroll-behavior: smooth;
 		align-items: flex-start;
@@ -69,9 +73,9 @@
 		line-height: 1.5;
 		display: flex;
 		align-items: center;
-		min-width: 48px;
+		min-width: 80%;
 
-		.seo-assistant-wizard__message-icon {
+		.assistant-wizard__message-icon {
 			flex-shrink: 0;
 			align-self: center;
 			flex-basis: 26px;
@@ -81,7 +85,7 @@
 			}
 		}
 
-		.seo-assistant-wizard__message-text {
+		.assistant-wizard__message-text {
 			padding: 4px 12px;
 			// flex: 1 0 200px;
 		}
@@ -90,8 +94,9 @@
 			background: #f3f4f6;
 			align-self: flex-end;
 			max-width: 85%;
+			min-width: 15%;
 			
-			.seo-assistant-wizard__message-icon {
+			.assistant-wizard__message-icon {
 				display: none;
 			}
 		}
@@ -103,6 +108,7 @@
 		background: white;
 		border-radius: 0 0 16px 16px;
 		border-top: 1px solid var( --jp-gray-5, #e5e7eb );
+		flex-basis: 77px; // seems better than min-height
 	}
 
 	&__input {
@@ -113,15 +119,24 @@
 		align-items: center;
 		padding-right: 6px;
 		height: 44px;
+		animation: assistantInputAppear 0.3s ease-out;
 
 		&:focus-within {
 			outline-width: 2px;
 			outline-color: var( --wp-components-color-accent, var( --wp-admin-theme-color, #007cba ) );
 		}
 
+
+		// keyboardshortcuts component wraps the base control with a div
+		// This is a quick fix to mimic the rule below (components-base-control)
+		& > div:first-child {
+			flex-grow: 1;
+		}
+
 		.components-base-control {
 			flex-grow: 1;
 		}
+
 		.components-text-control__input,
 		.components-text-control__input:focus {
 			padding: 8px;
@@ -176,6 +191,7 @@
 		justify-content: flex-end;
 		align-items: center;
 		gap: 16px;
+		animation: assistantInputAppear 0.3s ease-out;
 
 		.components-button {
 			border-radius: 20px;
@@ -200,6 +216,14 @@
 	to {
 		opacity: 1;
 		transform: translateY(0);
+	}
+}
+@keyframes assistantInputAppear {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
 	}
 }
 

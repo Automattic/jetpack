@@ -1,9 +1,23 @@
 .jetpack-ai-sidebar__feature-section {
 	margin-bottom: 2em;
+	display: block;
 
 	p, p > * {
 		text-wrap: pretty;
 	}
+
+	button {
+		width: 100%;
+		justify-content: center;
+	}
+}
+
+.jetpack-ai-sidebar__external-link {
+	min-height: unset;
+}
+
+.jetpack-ai-assistant__help-text {
+	color: #757575;
 }
 
 .jetpack-ai-feedback__label {
@@ -14,11 +28,24 @@
 	}
 }
 
+.jetpack-ai-sidebar__warning-content {
+	padding-bottom: 12px;
+}
+
 .jetpack-ai__feedback-button {
 	.icon {
 		width: 20px;
 		height: 20px;
 		color: var( --studio-gray-20 );
 		margin-left: 4px;
+	}
+}
+
+.jetpack-ai__write-brief-card {
+	width: 100%;
+	margin-bottom: 12px;
+
+	p {
+		margin: 0;
 	}
 }

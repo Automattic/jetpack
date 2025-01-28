@@ -154,18 +154,7 @@ class Colors_Manager_Common {
 			return;
 		}
 
-		if ( self::is_gutenberg() ) {
-			// This will load the annotations.
-			self::has_annotations();
-
-			// CSS only to be printed if colors are set, on the editor.
-			if ( self::theme_has_set_colors() ) {
-				self::override_themecolors();
-
-				// NOTE: Using `get_called_class()` here is crucial for the Gutenberg styles to be processed.
-				add_filter( 'block_editor_settings_all', array( get_called_class(), 'add_block_editor_css' ), 10, 2 );
-			}
-		} else {
+		if ( ! self::is_gutenberg() ) {
 			// Classic Background stats
 			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_classic_stats' ) );
 			// always load ajax actions
@@ -616,7 +605,7 @@ class Colors_Manager_Common {
 
 		header( 'Content-Type: text/javascript' );
 		echo wp_json_encode( $response );
-		die;
+		die( 0 );
 	}
 
 	/**
@@ -628,7 +617,7 @@ class Colors_Manager_Common {
 		$response = self::get_generated_palette( $_REQUEST );  // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this is a GET request that doesn't change anything.
 		header( 'Content-Type: text/javascript' );
 		echo wp_json_encode( $response );
-		die;
+		die( 0 );
 	}
 
 	/**
@@ -643,7 +632,7 @@ class Colors_Manager_Common {
 
 		header( 'Content-Type: text/javascript' );
 		echo wp_json_encode( $response );
-		die;
+		die( 0 );
 	}
 
 	/**
@@ -658,7 +647,7 @@ class Colors_Manager_Common {
 
 		header( 'Content-Type: text/javascript' );
 		echo wp_json_encode( $response );
-		die;
+		die( 0 );
 	}
 
 	/**
@@ -1480,31 +1469,6 @@ class Colors_Manager_Common {
 			wp_strip_all_tags( $css ), // phpcs:ignore -- CSS can't be properly escaped with esc_html
 			"\n"
 		);
-	}
-
-	/**
-	 * Adds block editor CSS to the block editor settings.
-	 *
-	 * @param array $editor_settings Block editor settings.
-	 */
-	public static function add_block_editor_css( $editor_settings ) {
-		if ( ! self::should_enable_colors() ) {
-			return $editor_settings;
-		}
-
-		$css = self::get_theme_css();
-
-		if ( ! is_array( $editor_settings['styles'] ) ) {
-			$editor_settings['styles'] = array();
-		}
-
-		$editor_settings['styles'] [] = array(
-			'css'            => $css,
-			'__unstableType' => 'theme',
-			'isGlobalStyles' => false,
-		);
-
-		return $editor_settings;
 	}
 
 	/**

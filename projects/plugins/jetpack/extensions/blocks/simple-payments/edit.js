@@ -466,6 +466,7 @@ export const SimplePaymentsEdit = ( {
 					<div className="simple-payments__price-container">
 						<SelectControl
 							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize
 							className="simple-payments__field simple-payments__field-currency"
 							label={ __( 'Currency', 'jetpack' ) }
 							onChange={ handleCurrencyChange }

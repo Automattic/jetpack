@@ -1,0 +1,144 @@
+name: WPCloud Unit Testing for WPCOMSH
+
+on:
+  pull_request:
+  push:
+    branches: ['trunk', '*/branch-*']
+concurrency:
+  group: wpcloud-wpcomsh
+  cancel-in-progress: false
+  # Concurrency is set up to make sure we can only run one WPCloud testing job at the same time.
+
+jobs:
+  build:
+    name: Install the Monorepo and build wpcomsh
+    runs-on: ubuntu-latest
+    outputs:
+      wpcomsh: ${{ steps.changed.outputs.wpcomsh }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # For pull requests, list-changed-projects.sh needs the merge base.
+      # But it doesn't have to be checked out.
+      - name: Deepen to merge base
+        if: github.event_name == 'pull_request'
+        uses: ./.github/actions/deepen-to-merge-base
+        with:
+          checkout: false
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+      - name: Monorepo install
+        run: |
+          echo "::group::Pnpm"
+          pnpm install
+          echo "::endgroup::"
+      - name: Detect if wpcomsh has changed
+        id: changed
+        run: |
+          CHANGED="$(EXTRA=test .github/files/list-changed-projects.sh)"
+
+          WPCOMSH_CHANGED="$(jq --argjson changed "$CHANGED" -n '$changed | has( "plugins/wpcomsh" ) ')"
+          echo "wpcomsh=${WPCOMSH_CHANGED}" >> "$GITHUB_OUTPUT"
+      - name: Build wpcomsh
+        if: steps.changed.outputs.wpcomsh == 'true'
+        run: |
+          find . -path ./.github -prune -o -type f -print | sort > /tmp/before.txt
+          echo "::group::Installing and building wpcomsh"
+          pnpm jetpack build -v --deps plugins/wpcomsh
+          echo "::endgroup::"
+
+          # We only want to save the files that were actually created or changed.
+          # But we can't just list them for actions/cache/save, "Argument list too long".
+          # So instead we delete all the unchanged files so we can tell actions/cache/save
+          # to save everything that's left.
+          git -c core.quotepath=off diff --name-only | sort > /tmp/changed.txt
+          if [[ -s /tmp/changed.txt ]]; then
+            grep -F -x -v -f /tmp/changed.txt /tmp/before.txt > /tmp/remove.txt
+          else
+            cp /tmp/before.txt /tmp/remove.txt
+          fi
+          xargs -d '\n' rm < /tmp/remove.txt
+          find . -type d -empty -delete
+
+      - name: Save wpcomsh build cache
+        if: steps.changed.outputs.wpcomsh == 'true'
+        id: wpcomsh-build-cache-save
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            .
+            !./.github/
+          key: ${{ github.sha }}
+  deploy:
+    name: Run PHPUnit on the WPCloud test site
+    runs-on: ubuntu-latest
+    needs: build
+    if: needs.build.outputs.wpcomsh == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore wpcomsh build cache
+        id: wpcomsh-build-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            .
+            !./.github/
+          key: ${{ github.sha }}
+          fail-on-cache-miss: true
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+
+      - name: Install monorepo
+        run: |
+          pnpm install
+
+      - name: Configure Github to be able to SSH to the Atomic site
+        run: |
+          echo "::group::Intializing"
+
+          mkdir -vp ~/.ssh/
+          chmod -v 700 ~/.ssh
+
+          touch ~/.ssh/id_site
+          touch ~/.ssh/known_hosts
+          touch ~/.ssh/config
+          chmod 600 ~/.ssh/id_site
+          chmod 600 ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/config
+          echo "$SSH_KEY" > ~/.ssh/id_site
+          echo "wrote ~/.ssh/id_site"
+          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          echo "wrote ~/.ssh/known_hosts"
+          echo "Host jpwpcomsh" > ~/.ssh/config
+          echo "  Hostname sftp.wp.com" >> ~/.ssh/config
+          echo "  User wpcom-jetpackisbestpack-default-237778992" >> ~/.ssh/config
+          echo "  IdentityFile ~/.ssh/id_site" >> ~/.ssh/config
+          echo "  IdentitiesOnly yes" >> ~/.ssh/config
+
+          echo "::endgroup::"
+
+          echo "::group::Transferring wpcomsh to the testing server"
+          ssh jpwpcomsh "wp dereferenced freshen > /dev/null 2>&1"
+          ssh jpwpcomsh "rm -rf /tmp/old-* > /dev/null 2>&1"
+          pnpm jetpack rsync wpcomsh jpwpcomsh:~/htdocs/wp-content/mu-plugins
+          scp -r projects/plugins/wpcomsh/bin jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh
+          scp -r projects/plugins/wpcomsh/tests jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh/
+          scp projects/plugins/wpcomsh/phpunit.xml.dist jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh/
+
+          echo "::engroup::"
+
+          echo "::group::execution"
+          ssh jpwpcomsh "~/htdocs/github-action-handler.sh" || CODE=$?
+          echo "::endgroup::"
+
+          echo "::group::teardown"
+          rm -rvf ~/.ssh/
+          echo "::endgroup::"
+          echo "Exiting with exit code $CODE"
+          exit $CODE
+        env:
+          SSH_KEY: ${{ secrets.UPDATEJETPACKSTAGING_SSH_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.UPDATEJETPACKSTAGING_SSH_KNOWN_HOSTS }}

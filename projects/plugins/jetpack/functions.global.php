@@ -17,7 +17,7 @@ use Automattic\Jetpack\Sync\Functions;
 
 // Disable direct access.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 require_once __DIR__ . '/functions.is-mobile.php';
