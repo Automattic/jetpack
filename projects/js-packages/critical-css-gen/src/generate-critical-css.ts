@@ -226,6 +226,6 @@ export async function generateCriticalCSS( {
 
 		return [ css, warnings ];
 	} finally {
-		browserInterface.cleanup();
+		await browserInterface.cleanup();
 	}
 }
