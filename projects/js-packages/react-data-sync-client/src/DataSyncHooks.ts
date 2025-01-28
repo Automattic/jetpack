@@ -34,7 +34,7 @@ export function DataSyncProvider( props: { children: React.ReactNode } ) {
 		QueryClientProvider,
 		{ client: queryClient },
 		props.children,
-		React.createElement( ReactQueryDevtools, { initialIsOpen: true } )
+		React.createElement( ReactQueryDevtools )
 	);
 }
 /**
