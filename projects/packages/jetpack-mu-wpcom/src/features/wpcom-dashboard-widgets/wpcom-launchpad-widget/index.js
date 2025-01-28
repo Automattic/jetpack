@@ -43,7 +43,7 @@ export default ( { siteDomain, siteIntent, sitePlan, siteUrl, hasCustomDomain } 
 				<Launchpad
 					siteSlug={ siteDomain }
 					checklistSlug={ siteIntent }
-					launchpadContext="dashboard-widget"
+					launchpadContext="customer-home"
 					onSiteLaunched={ () => {
 						setCelebrateLaunchModalIsOpen( true );
 						document.getElementById( 'wpcom_launchpad_widget' ).remove();
