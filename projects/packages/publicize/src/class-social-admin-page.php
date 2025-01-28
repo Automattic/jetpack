@@ -80,12 +80,6 @@ class Social_Admin_Page {
 	 */
 	public function add_menu() {
 
-		// TODO Remove this check once we are ready to always have the menu/page.
-		if ( ! defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) ) {
-			// For now, the menu/page is added only if the Social plugin is active.
-			return;
-		}
-
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Jetpack Social', 'jetpack-publicize-pkg' ),
 			_x( 'Social', 'The Jetpack Social product name, without the Jetpack prefix', 'jetpack-publicize-pkg' ),
