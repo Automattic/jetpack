@@ -29,6 +29,8 @@ const L10N = {
 	submittingForm: __( 'Submitting form', 'jetpack-forms' ),
 	/* translators: generic error message */
 	genericError: __( 'Please correct this field', 'jetpack-forms' ),
+	/* translators: error message shown when no field has been filled out */
+	atLeastOneField: __( 'Please fill out at least one field.', 'jetpack-forms' ),
 	errorCount: d =>
 		/* translators: message displayed when errors need to be fixed. %d is the number of errors. */
 		_n( 'You need to fix %d error.', 'You need to fix %d errors.', d, 'jetpack-forms' ),
@@ -75,14 +77,23 @@ const initForm = form => {
 
 		clearForm( form, inputListenerMap, opts );
 
-		if ( isFormValid( form ) ) {
-			inputListenerMap = {};
+		const validationResult = isFormValid( form );
 
-			form.removeEventListener( 'submit', onSubmit );
-			submitForm( form );
-		} else {
-			inputListenerMap = invalidateForm( form, opts );
+		if ( ! validationResult.isValid ) {
+			if ( validationResult.errorType === 'emptyForm' ) {
+				setFormError( form, [], {
+					disableLiveRegion: true,
+					message: L10N.atLeastOneField,
+				} );
+			} else {
+				inputListenerMap = invalidateForm( form, opts );
+			}
+			return;
 		}
+
+		inputListenerMap = {};
+		form.removeEventListener( 'submit', onSubmit );
+		submitForm( form );
 	};
 
 	form.addEventListener( 'submit', onSubmit );
@@ -95,35 +106,39 @@ const initForm = form => {
 /**
  * Check if a form has valid entries.
  * @param {HTMLFormElement} form FormElement
- * @returns {boolean}
+ * @returns {object} Validation result with status and error type
  */
 const isFormValid = form => {
-	let isValid = form.checkValidity();
+	const fields = getFormFields( form );
+	const hasOnlySimpleFields =
+		fields.singleChoice.length === 0 && fields.multipleChoice.length === 0;
 
-	if ( ! isValid ) {
-		return false;
+	if ( ! form.checkValidity() ) {
+		return { isValid: false, errorType: 'invalid' };
 	}
 
 	// Handle the Multiple Choice fields separately since checkboxes can't have a required attribute
-	// in that case.
-	const multipleChoiceFields = getMultipleChoiceFields( form );
-
-	for ( const field of multipleChoiceFields ) {
+	for ( const field of fields.multipleChoice ) {
 		if ( isMultipleChoiceFieldRequired( field ) && ! isMultipleChoiceFieldValid( field ) ) {
-			return false;
+			return { isValid: false, errorType: 'invalid' };
 		}
 	}
 
 	// Handle Date Picker fields
-	const datePickerFields = getDatePickerFields( form );
-
-	for ( const field of datePickerFields ) {
-		if ( ! isDateFieldValid( field ) ) {
-			return false;
+	for ( const field of fields.simple ) {
+		if ( isDatePickerField( field ) && ! isDateFieldValid( field ) ) {
+			return { isValid: false, errorType: 'invalid' };
 		}
 	}
 
-	return isValid;
+	if ( hasOnlySimpleFields ) {
+		const hasContent = fields.simple.some( field => field.value.trim().length > 0 );
+		if ( ! hasContent ) {
+			return { isValid: false, errorType: 'emptyForm' };
+		}
+	}
+
+	return { isValid: true };
 };
 
 /**
@@ -291,24 +306,6 @@ const getFormSubmitBtn = form => {
 	return (
 		form.querySelector( '[type="submit"]' ) || form.querySelector( 'button:not([type="reset"])' )
 	);
-};
-
-/**
- * Return the Multiple Choice fields of a form.
- * @param {HTMLFormElement} form Form element
- * @returns {HTMLFieldSetElement[]} Fieldset elements
- */
-const getMultipleChoiceFields = form => {
-	return Array.from( form.querySelectorAll( '.grunion-checkbox-multiple-options' ) );
-};
-
-/**
- * Return the Date Picker fields of a form.
- * @param {HTMLFormElement} form Form element
- * @returns {HTMLInputElement[]} Input elements
- */
-const getDatePickerFields = form => {
-	return Array.from( form.querySelectorAll( 'input.jp-contact-form-date' ) );
 };
 
 /**
@@ -903,7 +900,7 @@ const setFormError = ( form, invalidFields, opts = {} ) => {
 		}
 	}
 
-	const { disableLiveRegion } = opts;
+	const { disableLiveRegion, message } = opts;
 
 	if ( disableLiveRegion ) {
 		error.removeAttribute( 'aria-live' );
@@ -914,7 +911,7 @@ const setFormError = ( form, invalidFields, opts = {} ) => {
 	}
 
 	const count = invalidFields.length;
-	const errors = [ L10N.invalidForm ];
+	const errors = [ message || L10N.invalidForm ];
 
 	if ( count > 0 ) {
 		errors.push( L10N.errorCount( count ).replace( '%d', count ) );
