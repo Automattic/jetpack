@@ -26,6 +26,9 @@
 		padding-left: 8px !important;
 	}
 }
+#export-modal-opener {
+	margin-right: 8px;
+}
 
 .column-feedback_response .feedback_response__item {
 	display: grid;
