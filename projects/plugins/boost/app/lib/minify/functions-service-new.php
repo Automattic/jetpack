@@ -75,9 +75,9 @@ function jetpack_boost_404_tester() {
 	wp_remote_get( home_url( '/wp-content/boost-cache/static/testing_404' ) );
 	if ( file_exists( Config::get_static_cache_dir_path() . '/404' ) ) {
 		wp_delete_file( Config::get_static_cache_dir_path() . '/404' );
-		update_option( 'jetpack_boost_static_minification', 1 );
+		update_site_option( 'jetpack_boost_static_minification', 1 );
 	} else {
-		update_option( 'jetpack_boost_static_minification', 0 );
+		update_site_option( 'jetpack_boost_static_minification', 0 );
 	}
 }
 add_action( 'jetpack_boost_404_tester_cron', 'jetpack_boost_404_tester' );
@@ -90,8 +90,8 @@ add_action( 'jetpack_boost_404_tester_cron', 'jetpack_boost_404_tester' );
  * Only run this in wp-admin to avoid excessive updates to the option.
  */
 function jetpack_boost_404_setup() {
-	if ( is_admin() && get_option( 'jetpack_boost_static_minification', 'na' ) === 'na' ) {
-		update_option( 'jetpack_boost_static_minification', 0 ); // Add a default value if not set to avoid an extra SQL query.
+	if ( is_admin() && get_site_option( 'jetpack_boost_static_minification', 'na' ) === 'na' ) {
+		update_site_option( 'jetpack_boost_static_minification', 0 ); // Add a default value if not set to avoid an extra SQL query.
 		wp_schedule_single_event( time() + 3, 'jetpack_boost_404_tester_cron' );
 	}
 }
