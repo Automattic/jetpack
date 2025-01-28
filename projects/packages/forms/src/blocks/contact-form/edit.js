@@ -13,7 +13,7 @@ import {
 	__experimentalBlockVariationPicker as BlockVariationPicker, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalBlockPatternSetup as BlockPatternSetup, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
-import { createBlock, registerBlockVariation } from '@wordpress/blocks';
+import { createBlock } from '@wordpress/blocks';
 import {
 	Button,
 	Modal,
@@ -38,7 +38,6 @@ import JetpackEmailConnectionSettings from './components/jetpack-email-connectio
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
 import SalesforceLeadFormSettings from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
-import defaultVariations from './variations';
 import './util/form-styles.js';
 
 const validFields = filter( childBlocks, ( { settings } ) => {
@@ -112,8 +111,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			return {
 				blockType: getBlockType && getBlockType( name ),
 				canUserInstallPlugins: canUser( 'create', 'plugins' ),
-				defaultVariation: getDefaultBlockVariation && getDefaultBlockVariation( name, 'block' ),
-				variations: getBlockVariations && getBlockVariations( name, 'block' ),
+				defaultVariation: getDefaultBlockVariation( name, 'block' ),
+				variations: getBlockVariations( name, 'block' ),
 				hasInnerBlocks: innerBlocks.length > 0,
 				postAuthorEmail: authorEmail,
 			};
@@ -128,7 +127,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		useModuleStatus( 'contact-form' );
 
 	const formClassnames = clsx( className, 'jetpack-contact-form', {
-		'is-placeholder': ! hasInnerBlocks && registerBlockVariation,
+		'is-placeholder': ! hasInnerBlocks,
 	} );
 
 	const isSalesForceExtensionEnabled =
@@ -157,16 +156,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	};
 
 	useEffect( () => {
-		// Populate default variation on older versions of WP or GB that don't support variations.
-		if ( ! hasInnerBlocks && ! registerBlockVariation ) {
-			setVariation( defaultVariations[ 0 ] );
-		}
-	} );
-
-	useEffect( () => {
 		if (
 			! hasInnerBlocks &&
-			registerBlockVariation &&
 			! isPatternsModalOpen &&
 			window.location.search.indexOf( 'showJetpackFormsPatterns' ) !== -1
 		) {
@@ -189,7 +180,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				/>
 			);
 		}
-	} else if ( ! hasInnerBlocks && registerBlockVariation ) {
+	} else if ( ! hasInnerBlocks ) {
 		elt = (
 			<div className={ formClassnames }>
 				<BlockVariationPicker
