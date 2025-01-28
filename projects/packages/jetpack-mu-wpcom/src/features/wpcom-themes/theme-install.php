@@ -6,20 +6,33 @@
  * @subpackage Administration
  */
 
+// required for shielding the function definitions in this file
+// from the ones already defined in themes.php
+namespace WPCOM\Theme_Showcase;
+
+// required for access to global from inside the namespace
+global $submenu;
+
+// required to define the name of this page for the load-themes.php action
+global $plugin_page;
+$plugin_page = 'theme-install.php';
+
 /** WordPress Administration Bootstrap */
-require_once __DIR__ . '/admin.php';
+// different from original because the file is not in wp-admin
+require_once ABSPATH . "wp-admin/admin.php";
+
 require ABSPATH . 'wp-admin/includes/theme-install.php';
 
 $tab = ! empty( $_REQUEST['tab'] ) ? sanitize_text_field( $_REQUEST['tab'] ) : '';
 
-if ( ! current_user_can( 'install_themes' ) ) {
-	wp_die( __( 'Sorry, you are not allowed to install themes on this site.' ) );
-}
+// if ( ! current_user_can( 'install_themes' ) ) {
+// 	wp_die( __( 'Sorry, you are not allowed to install themes on this site.' ) );
+// }
 
-if ( is_multisite() && ! is_network_admin() ) {
-	wp_redirect( network_admin_url( 'theme-install.php' ) );
-	exit;
-}
+// if ( is_multisite() && ! is_network_admin() ) {
+// 	wp_redirect( network_admin_url( 'theme-install.php' ) );
+// 	exit;
+// }
 
 // Used in the HTML title tag.
 $title       = __( 'Add Themes' );
@@ -49,8 +62,8 @@ wp_localize_script(
 		'themes'          => false,
 		'settings'        => array(
 			'isInstall'  => true,
-			'canInstall' => current_user_can( 'install_themes' ),
-			'installURI' => current_user_can( 'install_themes' ) ? self_admin_url( 'theme-install.php' ) : null,
+			'canInstall' => true, //current_user_can( 'install_themes' ),
+			'installURI' => '#', //current_user_can( 'install_themes' ) ? self_admin_url( 'theme-install.php' ) : null,
 			'adminUrl'   => parse_url( self_admin_url(), PHP_URL_PATH ),
 		),
 		'l10n'            => array(
