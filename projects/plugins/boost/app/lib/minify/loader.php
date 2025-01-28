@@ -18,7 +18,7 @@ add_action(
 
 		// Get the path for the current request.
 		$request_uri = remove_query_arg( 'JB_NONEXISTENTQUERY_ARG' );
-		if ( stripos( $request_uri, '/wp-content/boost-cache/static/' ) === false ) {
+		if ( ! str_contains( strtolower( $request_uri ), '/wp-content/boost-cache/static/' ) ) {
 			return;
 		}
 

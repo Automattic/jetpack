@@ -48,7 +48,7 @@ function jetpack_boost_handle_minify_request( $request_uri ) {
  * Using a crafted request, we can check if is_404() is working in wp-content/
  */
 function jetpack_boost_check_404_handler( $request_uri ) {
-	if ( strpos( $request_uri, 'wp-content/boost-cache/static/testing_404' ) === false ) {
+	if ( ! str_contains( strtolower( $request_uri ), 'wp-content/boost-cache/static/testing_404' ) ) {
 		return;
 	}
 
