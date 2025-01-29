@@ -30,7 +30,7 @@ export default () => {
 		<>
 			<div className="wpcom-daily-writing-prompt--prompt">
 				<p>{ prompt.text }</p>
-				<p className="wpcom-daily-writing-prompt--previous-next">
+				<div className="wpcom-daily-writing-prompt--previous-next">
 					<button
 						className="button button-link"
 						onClick={ () => setIndex( index - 1 ) }
@@ -46,7 +46,7 @@ export default () => {
 					>
 						{ __( 'Next →', 'jetpack-mu-wpcom' ) }
 					</button>
-				</p>
+				</div>
 			</div>
 			<div className="wpcom-daily-writing-prompt--action-row">
 				<a className="button" href={ `post-new.php?answer_prompt=${ prompt.id }` }>
