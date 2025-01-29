@@ -38,10 +38,6 @@ const BarChart: FC< BarChartProps > = ( {
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< BarChartTooltipData >();
 
-	const handleMouseLeave = () => {
-		hideTooltip();
-	};
-
 	const handleMouseMove = useCallback(
 		(
 			event: MouseEvent< SVGRectElement >,
@@ -154,7 +150,7 @@ const BarChart: FC< BarChartProps > = ( {
 										height={ yMax - ( yScale( d.value ) ?? 0 ) }
 										fill={ theme.colors[ seriesIndex % theme.colors.length ] }
 										onMouseMove={ withTooltips ? handleBarMouseMove : undefined }
-										onMouseLeave={ withTooltips ? handleMouseLeave : undefined }
+										onMouseLeave={ withTooltips ? hideTooltip : undefined }
 									/>
 								);
 							} ) }
