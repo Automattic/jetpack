@@ -1,4 +1,4 @@
-import { isPrivateSite, isComingSoon } from '@automattic/jetpack-shared-extension-utils';
+import { isComingSoon } from '@automattic/jetpack-shared-extension-utils';
 import { Animate } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -261,9 +261,9 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 
 	if ( ! isSendEmailEnabled() ) {
 		text = __( 'Not sent via email.', 'jetpack' );
-	} else if ( isPrivateSite() || isComingSoon() ) {
+	} else if ( isComingSoon() ) {
 		text = __(
-			'Your site is private or in coming soon mode. Emails are sent when your site is public.',
+			'Your site is in Coming Soon mode. Emails are sent only when your site is public.',
 			'jetpack'
 		);
 	} else if ( newsletterCategoriesEnabled && newsletterCategories.length > 0 && ! isPaidPost ) {
