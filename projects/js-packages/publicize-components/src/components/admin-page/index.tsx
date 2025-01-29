@@ -42,9 +42,9 @@ export const SocialAdminPage = () => {
 		};
 	}, [] );
 
-	const pluginVersion = getSocialScriptData().plugin_info.social.version;
+	const socialPluginVersion = getSocialScriptData().plugin_info.social.version;
 
-	const moduleName = `Jetpack Social ${ pluginVersion }`;
+	const moduleName = `Jetpack Social ${ socialPluginVersion }`;
 
 	if ( showConnectionCard ) {
 		return (
@@ -77,7 +77,12 @@ export const SocialAdminPage = () => {
 					<AdminSection>
 						<SocialModuleToggle />
 						{ isModuleEnabled && <UtmToggle /> }
-						{ isModuleEnabled && <SocialNotesToggle disabled={ isUpdatingJetpackSettings } /> }
+						{
+							// Only show the Social Notes toggle if Social plugin is active
+							socialPluginVersion && isModuleEnabled && (
+								<SocialNotesToggle disabled={ isUpdatingJetpackSettings } />
+							)
+						}
 						{ isModuleEnabled && siteHasFeature( features.IMAGE_GENERATOR ) && (
 							<SocialImageGeneratorToggle disabled={ isUpdatingJetpackSettings } />
 						) }

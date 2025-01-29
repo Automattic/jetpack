@@ -43,7 +43,7 @@ export type SocialSettings = {
 	showPricingPage: boolean;
 };
 
-export type PluginInfo = Record< 'social' | 'jetpack', { version: string } >;
+export type PluginInfo = Record< 'social' | 'jetpack', { version: string | null } >;
 
 export interface SocialScriptData {
 	api_paths: ApiPaths;
