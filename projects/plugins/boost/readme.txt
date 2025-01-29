@@ -43,9 +43,9 @@ Currently, the plugin has 6 performance modules available:
 
 2. *Page Cache* speeds up your site by saving pages as static files. These files are quickly served to visitors, reducing load times and enhancing user experience.
 
-3. *Defer Non-Essential Javascript* moves some tasks to after the page loads, so that important visual information can be seen sooner and your website loads quicker.
+3. *Defer Non-Essential JavaScript* moves some tasks to after the page loads, so that important visual information can be seen sooner and your website loads quicker.
 
-   Read more about deferring javascript at [web.dev](https://jetpack.com/redirect/?source=jetpack-boost-defer-js)
+   Read more about deferring JavaScript at [web.dev](https://jetpack.com/redirect/?source=jetpack-boost-defer-js)
 
 4. *Image Guide* is a must-have feature for anyone who wants to optimize the images on their website. With this guide, you can ensure that the images on your site are the right size and dimensions, which is critical for improving user experience, page speed, and site ranking. Following the tips and best practices outlined in the guide, you can reduce image file sizes and speed up your site. Check out our [support page](https://jetpack.com/support/jetpack-boost/image-performance-guide/) to learn more about this feature and how it can help you achieve a faster and smoother website experience for your users.
 

@@ -7,19 +7,13 @@ export default function WizardStep( {
 	messages,
 	visible,
 	loading = false,
-	options = [],
 	onSelect,
 } ) {
 	const stepRef = useRef( null );
 	const classes = clsx( 'assistant-wizard-step', className );
 	return (
 		<div ref={ stepRef } className={ classes } style={ { display: visible ? 'block' : 'none' } }>
-			<WizardMessages
-				messages={ messages }
-				loading={ loading }
-				options={ options }
-				onSelect={ onSelect }
-			/>
+			<WizardMessages messages={ messages } loading={ loading } onSelect={ onSelect } />
 		</div>
 	);
 }

@@ -1,7 +1,7 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { SocialAdminPage } from '@automattic/jetpack-publicize-components';
 import * as WPElement from '@wordpress/element';
 import React from 'react';
+import { SocialAdminPage } from './index';
 
 /**
  * Initial render function.

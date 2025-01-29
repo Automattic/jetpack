@@ -5,6 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=7.2",
+		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-config": "@dev",

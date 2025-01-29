@@ -250,12 +250,21 @@ class Settings {
 	}
 
 	/**
+	 * Check if the pricing page should be displayed.
+	 *
+	 * @return bool
+	 */
+	public static function should_show_pricing_page() {
+		return (bool) get_option( self::JETPACK_SOCIAL_SHOW_PRICING_PAGE, true );
+	}
+
+	/**
 	 * Get if the social notes feature is enabled.
 	 *
 	 * @return bool
 	 */
 	public function is_social_notes_enabled() {
-		return get_option( self::JETPACK_SOCIAL_NOTE_CPT_ENABLED, false );
+		return (bool) get_option( self::JETPACK_SOCIAL_NOTE_CPT_ENABLED, false );
 	}
 
 	/**
