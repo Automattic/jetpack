@@ -20,18 +20,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class ZeroBSCRM {
 
 	/**
-	 * ZeroBSCRM version.
-	 *
-	 * @var string
-	 */
-	public $version = '6.5.1';
-
-	/**
-	 * ZeroBSCRM version.
+	 * Jetpack CRM version.
 	 *
 	 * @var string
 	 */
 	const VERSION = '6.5.1';
+
+	/**
+	 * Jetpack CRM version (used in various extensions as of January 2025).
+	 *
+	 * @deprecated
+	 * @var string
+	 */
+	public $version = '';
 
 	/**
 	 * WordPress version tested with.
@@ -552,6 +553,8 @@ final class ZeroBSCRM {
 	 * Jetpack CRM Constructor.
 	 */
 	public function __construct() {
+		// Define old property for backward compatibility.
+		$this->version = $this::VERSION;
 
 		// Simple global definitions without loading any core files...
 		// required for verify_minimum_requirements()
