@@ -18,17 +18,15 @@ class Email_Service {
 	/**
 	 * Send auth email.
 	 *
-	 * @param WP_User $user The user.
-	 * @param string  $auth_code The authentication code.
+	 * @param \WP_User $user The user.
+	 * @param string   $auth_code The authentication code.
 	 * @return bool True if the email was sent successfully, false otherwise.
 	 */
 	public function send_auth_email( $user, $auth_code ): bool {
 		$wp_send = $this->wp_send_auth_email( $user, $auth_code );
 
 		if ( ! $wp_send ) {
-			$api_send = $this->api_send_auth_email( $user, $auth_code );
-
-			return $api_send;
+			return $this->api_send_auth_email( $user, $auth_code );
 		}
 
 		return true;
@@ -37,13 +35,13 @@ class Email_Service {
 	/**
 	 * Send the email using wp_mail().
 	 *
-	 * @param WP_User $user The user.
-	 * @param string  $auth_code The authentication code.
+	 * @param \WP_User $user The user.
+	 * @param string   $auth_code The authentication code.
 	 * @return bool True if the email was sent successfully, false otherwise.
 	 */
 	private function wp_send_auth_email( $user, $auth_code ) {
 		$blog_name = esc_html( get_bloginfo( 'name' ) );
-		$user_url  = ! empty( $user->user_url ) ? esc_url( $user->user_url ) : esc_url( home_url() );
+		$blog_url  = esc_url( get_bloginfo( 'url' ) );
 
 		$subject = esc_html__( 'Verify your identity at Jetpack', 'jetpack-account-protection' );
 		$message = sprintf(
@@ -58,10 +56,10 @@ class Email_Service {
 				'jetpack-account-protection'
 			),
 			esc_html( $user->user_login ),
-			$user_url,
+			$blog_url,
 			$blog_name,
 			esc_html( $auth_code ),
-			$user_url,
+			$blog_url,
 			$blog_name
 		);
 
@@ -73,8 +71,8 @@ class Email_Service {
 	/**
 	 * Send the email using the API.
 	 *
-	 * @param WP_User $user The user.
-	 * @param string  $auth_code The authentication code.
+	 * @param \WP_User $user The user.
+	 * @param string   $auth_code The authentication code.
 	 * @return bool True if the email was sent successfully, false otherwise.
 	 */
 	private function api_send_auth_email( $user, $auth_code ) {
