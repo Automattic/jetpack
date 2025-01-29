@@ -44,9 +44,9 @@ class Main {
 			self::$instance = new Main();
 			self::$instance->load_modules();
 			// TODO Commenting below since we still load them from theme-tools module
-			add_action( 'init', array( __CLASS__, 'jetpack_load_theme_tools' ), 30 );
+			// add_action( 'init', array( __CLASS__, 'jetpack_load_theme_tools' ), 30 );
 			// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-			// add_action( 'after_setup_theme', array( __CLASS__, 'jetpack_load_theme_compat' ), -1 );
+			add_action( 'after_setup_theme', array( __CLASS__, 'jetpack_load_theme_compat' ), -1 ); // for now
 		}
 
 		return self::$instance;
@@ -98,10 +98,12 @@ class Main {
 		$compat_files = apply_filters(
 			'jetpack_theme_compat_files',
 			array(
-				'twentyfourteen' => __DIR__ . '/compat/twentyfourteen.php',
-				'twentyfifteen'  => __DIR__ . '/compat/twentyfifteen.php',
-				'twentysixteen'  => __DIR__ . '/compat/twentysixteen.php',
-				'twentynineteen' => __DIR__ . '/compat/twentynineteen.php',
+				'twentyfourteen'  => __DIR__ . '/compat/twentyfourteen.php',
+				'twentyfifteen'   => __DIR__ . '/compat/twentyfifteen.php',
+				'twentysixteen'   => __DIR__ . '/compat/twentysixteen.php',
+				'twentynineteen'  => __DIR__ . '/compat/twentynineteen.php',
+				'twentytwenty'    => __DIR__ . '/compat/twentytwenty.php',
+				'twentytwentyone' => __DIR__ . '/compat/twentytwentyone.php',
 			)
 		);
 
