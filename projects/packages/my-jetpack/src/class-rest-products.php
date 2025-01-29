@@ -233,26 +233,6 @@ class REST_Products {
 
 		return true;
 	}
-	/**
-	 * Check Products argument.
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @param  mixed $value - Value of the 'product' argument.
-	 * @return true|WP_Error   True if the value is valid, WP_Error otherwise.
-	 */
-	public static function check_products_argument( $value ) {
-		if ( ! is_array( $value ) ) {
-			return new WP_Error(
-				'rest_invalid_param',
-				esc_html__( 'The product argument must be an array.', 'jetpack-my-jetpack' ),
-				array( 'status' => 400 )
-			);
-		}
-
-		return true;
-	}
 
 	/**
 	 * Site products endpoint.
@@ -357,39 +337,6 @@ class REST_Products {
 			if ( is_wp_error( $deactivate_product_result ) ) {
 				$deactivate_product_result->add_data( array( 'status' => 400 ) );
 				return $deactivate_product_result;
-			}
-		}
-
-		return rest_ensure_response( Products::get_products( $products_array ), 200 );
-	}
-
-	/**
-	 * Callback for installing (and activating) multiple product plugins.
-	 *
-	 * @param \WP_REST_Request $request The request object.
-	 * @return \WP_REST_Response
-	 */
-	public static function install_plugins( $request ) {
-		$products_array = $request->get_param( 'products' );
-
-		foreach ( $products_array as $product_slug ) {
-			$product = Products::get_product( $product_slug );
-			if ( ! isset( $product['class'] ) ) {
-				return new \WP_Error(
-					'product_class_handler_not_found',
-					sprintf(
-						/* translators: %s is the product_slug */
-						__( 'The product slug %s does not have an associated class handler.', 'jetpack-my-jetpack' ),
-						$product_slug
-					),
-					array( 'status' => 501 )
-				);
-			}
-
-			$install_product_result = call_user_func( array( $product['class'], 'install_and_activate_standalone' ) );
-			if ( is_wp_error( $install_product_result ) ) {
-				$install_product_result->add_data( array( 'status' => 400 ) );
-				return $install_product_result;
 			}
 		}
 
