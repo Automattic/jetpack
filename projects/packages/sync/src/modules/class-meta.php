@@ -84,7 +84,9 @@ class Meta extends Module {
 			}
 		}
 
-		$conditionals[] = $where_sql;
+		if ( ! empty( $where_sql ) ) {
+			$conditionals[] = $where_sql;
+		}
 
 		$meta_objects = array();
 
