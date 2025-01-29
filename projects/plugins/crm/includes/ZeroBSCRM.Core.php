@@ -553,7 +553,7 @@ final class ZeroBSCRM {
 	 * Jetpack CRM Constructor.
 	 */
 	public function __construct() {
-		// Define old property for backward compatibility.
+		// @phan-suppress-next-line PhanDeprecatedProperty - Define old property for backward compatibility.
 		$this->version = $this::VERSION;
 
 		// Simple global definitions without loading any core files...
