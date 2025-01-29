@@ -20,24 +20,31 @@ class WPCOM_Admin_Bar extends \WP_Admin_Bar {
 		/**
 		 * Site menu
 		 */
-		'wp-admin/'                            => 'https://wordpress.com/home/%home_url%',
-		'wp-admin/plugins.php'                 => 'https://wordpress.com/plugins/%home_url%',
-		'wp-admin/themes.php'                  => 'https://wordpress.com/themes/%home_url%',
+		'wp-admin/'              => 'https://wordpress.com/home/%home_url%',
+		'wp-admin/plugins.php'   => 'https://wordpress.com/plugins/%home_url%',
+		'wp-admin/themes.php'    => 'https://wordpress.com/themes/%home_url%',
 
 		/**
 		 * +New menu
 		 */
-		'wp-admin/post-new.php'                => '/wp-admin/post-new.php?post_type=post&calypsoify=1',
-		'wp-admin/media-new.php'               => 'https://wordpress.com/media/%home_url%',
-		'wp-admin/post-new.php?post_type=page' => 'https://wordpress.com/page/%home_url%',
-		'wp-admin/user-new.php'                => 'https://wordpress.com/people/new/%home_url%',
-
-		/**
-		 * Jetpack
-		 */
-		'wp-admin/post-new.php?post_type=jetpack-testimonial' => 'https://wordpress.com/types/jetpack-testimonial/%home_url%',
-		'wp-admin/post-new.php?post_type=jetpack-portfolio' => 'https://wordpress.com/types/jetpack-portfolio/%home_url%',
+		'wp-admin/post-new.php'  => '/wp-admin/post-new.php?post_type=post&calypsoify=1',
+		'wp-admin/media-new.php' => 'https://wordpress.com/media/%home_url%',
+		'wp-admin/user-new.php'  => 'https://wordpress.com/people/new/%home_url%',
 	);
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		if ( ! wpcom_is_duplicate_views_experiment_enabled() ) {
+			$this->map_wp_admin_url_to_calypso_url['wp-admin/post-new.php?post_type=page'] = 'https://wordpress.com/page/%home_url%';
+			/**
+			 * Jetpack
+			 */
+			$this->map_wp_admin_url_to_calypso_url['wp-admin/post-new.php?post_type=jetpack-testimonial'] = 'https://wordpress.com/types/jetpack-testimonial/%home_url%';
+			$this->map_wp_admin_url_to_calypso_url['wp-admin/post-new.php?post_type=jetpack-portfolio']   = 'https://wordpress.com/types/jetpack-portfolio/%home_url%';
+		}
+	}
 
 	/**
 	 * Adds a node to the menu.
