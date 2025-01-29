@@ -6,6 +6,12 @@
 	max-width: 100%;
 	width: fit-content;
 	margin: 0;
+
+	&.is-style-outline > .wp-block-button__link {
+		background-color: transparent;
+		border: solid 1px currentColor;
+		color: currentColor;
+	}
 }
 
 // Support align feature for older themes
