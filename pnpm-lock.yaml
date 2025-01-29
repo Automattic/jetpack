@@ -2817,6 +2817,22 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.94.0)
 
+  projects/packages/post-list:
+    dependencies:
+      '@wordpress/i18n':
+        specifier: 5.16.0
+        version: 5.16.0
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
+      webpack:
+        specifier: 5.94.0
+        version: 5.94.0(webpack-cli@6.0.1)
+      webpack-cli:
+        specifier: 6.0.1
+        version: 6.0.1(webpack@5.94.0)
+
   projects/packages/protect-models: {}
 
   projects/packages/protect-status: {}
