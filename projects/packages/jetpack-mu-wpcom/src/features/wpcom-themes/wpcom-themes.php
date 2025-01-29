@@ -119,7 +119,7 @@ function wpcom_themes_enqueue_theme_install_script() {
 	wp_enqueue_script(
 		'wpcom-theme-install',
 		plugin_dir_url( __FILE__ ) . '/js/wpcom-theme-install.js',
-		array(),
+		array( 'theme' ),
 		filemtime( __DIR__ . '/js/wpcom-theme-install.js' ),
 		true
 	);
