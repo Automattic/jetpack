@@ -22,10 +22,6 @@ const AccountProtectionComponent = class extends Component {
 					disableInOfflineMode
 					disableInSiteConnectionMode
 					module={ this.props.getModule( 'account-protection' ) }
-					support={ {
-						text: this.props.getModule( 'account-protection' ).description,
-						link: '#', // TODO: Update this redirect URL
-					} }
 				>
 					<ModuleToggle
 						slug="account-protection"
@@ -37,7 +33,7 @@ const AccountProtectionComponent = class extends Component {
 					>
 						<span className="jp-form-toggle-explanation">
 							{ __(
-								'Protect your site with enhanced password detection and profile management security.',
+								'Enabling this setting enhances account security by detecting compromised passwords and enforcing additional verification when needed.',
 								'jetpack'
 							) }
 						</span>
