@@ -50,7 +50,11 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 	} else if ( productTerm === 'year' ) {
 		priceDescription = __( '/month, paid yearly', 'jetpack-my-jetpack' );
 	} else {
-		priceDescription = __( '/month', 'jetpack-my-jetpack' );
+		priceDescription = __(
+			'/month',
+			'jetpack-my-jetpack',
+			/* dummy arg to avoid bad minification */ 0
+		);
 	}
 
 	const productPrice = introductoryOffer?.reason ? price : discountPrice;
