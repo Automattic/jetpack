@@ -28,27 +28,30 @@ export default () => {
 
 	return (
 		<>
-			<p>{ prompt.text }</p>
-			<div className="wpcom-daily-writing-prompt--action-row">
-				<div className="wpcom-daily-writing-prompt--previous-next">
-					<a className="button" href={ `post-new.php?answer_prompt=${ prompt.id }` }>
-						{ __( 'Post Answer', 'jetpack-mu-wpcom' ) }
-					</a>
+			<div className="wpcom-daily-writing-prompt--prompt">
+				<p>{ prompt.text }</p>
+				<p className="wpcom-daily-writing-prompt--previous-next">
 					<button
-						className="button"
+						className="button button-link"
 						onClick={ () => setIndex( index - 1 ) }
 						disabled={ index === 0 }
 					>
-						‹
+						{ __( '← Previous', 'jetpack-mu-wpcom' ) }
 					</button>
+					{ ' ' }
 					<button
-						className="button"
+						className="button button-link"
 						onClick={ () => setIndex( index + 1 ) }
 						disabled={ index === prompts.length - 1 }
 					>
-						›
+						{ __( 'Next →', 'jetpack-mu-wpcom' ) }
 					</button>
-				</div>
+				</p>
+			</div>
+			<div className="wpcom-daily-writing-prompt--action-row">
+				<a className="button" href={ `post-new.php?answer_prompt=${ prompt.id }` }>
+					{ __( 'Post Answer', 'jetpack-mu-wpcom' ) }
+				</a>
 				{ prompt.answered_users_sample.length > 0 && (
 					<div className="wpcom-daily-writing-prompt--answered-users">
 						{ prompt.answered_users_count > 0 && (

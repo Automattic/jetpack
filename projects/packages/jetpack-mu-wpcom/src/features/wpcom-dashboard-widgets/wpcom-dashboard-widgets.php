@@ -51,7 +51,7 @@ function load_wpcom_dashboard_widgets() {
 			$wpcom_dashboard_widget['id'],
 			$wpcom_dashboard_widget['name'],
 			'render_wpcom_dashboard_widget',
-			function () {},
+			null,
 			array(
 				'id'   => $wpcom_dashboard_widget['id'],
 				'name' => $wpcom_dashboard_widget['name'],
