@@ -52,6 +52,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public $block_styles = '';
 
 	/**
+	 * Classes to be applied to the field
+	 *
+	 * @var string
+	 */
+	public $field_classes = '';
+
+	/**
 	 * Styles to be applied to the field
 	 *
 	 * @var string
@@ -64,6 +71,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @var string
 	 */
 	public $option_styles = '';
+
+	/**
+	 * Classes to be applied to the field
+	 *
+	 * @var string
+	 */
+	public $label_classes = '';
 
 	/**
 	 * Styles to be applied to the field
@@ -113,6 +127,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'labelcolor'             => null,
 				'labelfontsize'          => null,
 				'fieldfontsize'          => null,
+				'labelclasses'           => null,
+				'labelstyles'            => null,
+				'inputclasses'           => null,
+				'inputstyles'            => null,
 			),
 			$attributes,
 			'contact-field'
@@ -290,33 +308,84 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field_width         = $this->get_attribute( 'width' );
 		$class               = 'date' === $field_type ? 'jp-contact-form-date' : $this->get_attribute( 'class' );
 
-		if ( is_numeric( $this->get_attribute( 'borderradius' ) ) ) {
-			$this->block_styles .= '--jetpack--contact-form--border-radius: ' . esc_attr( $this->get_attribute( 'borderradius' ) ) . 'px;';
-			$this->field_styles .= 'border-radius: ' . (int) $this->get_attribute( 'borderradius' ) . 'px;';
+		$label_classes = $this->get_attribute( 'labelclasses' );
+		$label_styles  = $this->get_attribute( 'labelstyles' );
+		$input_classes = $this->get_attribute( 'inputclasses' );
+		$input_styles  = $this->get_attribute( 'inputstyles' );
+
+		$has_block_support_styles = ! empty( $label_classes ) || ! empty( $label_styles ) || ! empty( $input_classes ) || ! empty( $input_styles );
+
+		if ( $has_block_support_styles ) {
+			// Do any of the block support classes need to be applied at the field wrapper level? Do we need to make the classes etc filterable as per the field classes?
+
+			// Classes.
+			if ( ! empty( $label_classes ) ) {
+				$this->label_classes .= esc_attr( $label_classes );
+			}
+			if ( ! empty( $input_classes ) ) {
+				$class .= esc_attr( $input_classes );
+			}
+
+			// Styles.
+			if ( ! empty( $label_styles ) ) {
+				$this->label_styles .= esc_attr( $label_styles );
+			}
+			if ( ! empty( $input_styles ) ) {
+				$this->field_styles .= esc_attr( $input_styles );
+			}
+		} else {
+			if ( is_numeric( $this->get_attribute( 'borderradius' ) ) ) {
+				$this->block_styles .= '--jetpack--contact-form--border-radius: ' . esc_attr( $this->get_attribute( 'borderradius' ) ) . 'px;';
+				$this->field_styles .= 'border-radius: ' . (int) $this->get_attribute( 'borderradius' ) . 'px;';
+			}
+
+			if ( is_numeric( $this->get_attribute( 'borderwidth' ) ) ) {
+				$this->block_styles .= '--jetpack--contact-form--border-size: ' . esc_attr( $this->get_attribute( 'borderwidth' ) ) . 'px;';
+				$this->field_styles .= 'border-width: ' . (int) $this->get_attribute( 'borderwidth' ) . 'px;';
+			}
+
+			if ( is_numeric( $this->get_attribute( 'lineheight' ) ) ) {
+				$this->block_styles  .= '--jetpack--contact-form--line-height: ' . esc_attr( $this->get_attribute( 'lineheight' ) ) . ';';
+				$this->field_styles  .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
+				$this->option_styles .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
+			}
+
+			if ( ! empty( $this->get_attribute( 'bordercolor' ) ) ) {
+				$this->block_styles .= '--jetpack--contact-form--border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
+				$this->field_styles .= 'border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
+			}
+
+			if ( ! empty( $this->get_attribute( 'inputcolor' ) ) ) {
+				$this->block_styles  .= '--jetpack--contact-form--text-color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
+				$this->block_styles  .= '--jetpack--contact-form--button-outline--text-color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
+				$this->field_styles  .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
+				$this->option_styles .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
+			}
+
+			if ( ! empty( $this->get_attribute( 'fieldbackgroundcolor' ) ) ) {
+				$this->block_styles .= '--jetpack--contact-form--input-background: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
+				$this->field_styles .= 'background-color: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
+			}
+
+			if ( ! empty( $this->get_attribute( 'fieldfontsize' ) ) ) {
+				$this->block_styles  .= '--jetpack--contact-form--font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
+				$this->field_styles  .= 'font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
+				$this->option_styles .= 'font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
+			}
+
+			if ( ! empty( $this->get_attribute( 'labelcolor' ) ) ) {
+				$this->label_styles .= 'color: ' . esc_attr( $this->get_attribute( 'labelcolor' ) ) . ';';
+			}
+
+			if ( ! empty( $this->get_attribute( 'labelfontsize' ) ) ) {
+				$this->label_styles .= 'font-size: ' . esc_attr( $this->get_attribute( 'labelfontsize' ) ) . ';';
+			}
+
+			if ( is_numeric( $this->get_attribute( 'labellineheight' ) ) ) {
+				$this->label_styles .= 'line-height: ' . (int) $this->get_attribute( 'labellineheight' ) . ';';
+			}
 		}
-		if ( is_numeric( $this->get_attribute( 'borderwidth' ) ) ) {
-			$this->block_styles .= '--jetpack--contact-form--border-size: ' . esc_attr( $this->get_attribute( 'borderwidth' ) ) . 'px;';
-			$this->field_styles .= 'border-width: ' . (int) $this->get_attribute( 'borderwidth' ) . 'px;';
-		}
-		if ( is_numeric( $this->get_attribute( 'lineheight' ) ) ) {
-			$this->block_styles  .= '--jetpack--contact-form--line-height: ' . esc_attr( $this->get_attribute( 'lineheight' ) ) . ';';
-			$this->field_styles  .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
-			$this->option_styles .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
-		}
-		if ( ! empty( $this->get_attribute( 'bordercolor' ) ) ) {
-			$this->block_styles .= '--jetpack--contact-form--border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
-			$this->field_styles .= 'border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
-		}
-		if ( ! empty( $this->get_attribute( 'inputcolor' ) ) ) {
-			$this->block_styles  .= '--jetpack--contact-form--text-color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
-			$this->block_styles  .= '--jetpack--contact-form--button-outline--text-color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
-			$this->field_styles  .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
-			$this->option_styles .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
-		}
-		if ( ! empty( $this->get_attribute( 'fieldbackgroundcolor' ) ) ) {
-			$this->block_styles .= '--jetpack--contact-form--input-background: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
-			$this->field_styles .= 'background-color: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
-		}
+
 		if ( ! empty( $this->get_attribute( 'buttonbackgroundcolor' ) ) ) {
 			$this->block_styles .= '--jetpack--contact-form--button-outline--background-color: ' . esc_attr( $this->get_attribute( 'buttonbackgroundcolor' ) ) . ';';
 		}
@@ -326,21 +395,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		if ( is_numeric( $this->get_attribute( 'buttonborderwidth' ) ) ) {
 			$this->block_styles .= '--jetpack--contact-form--button-outline--border-size: ' . esc_attr( $this->get_attribute( 'buttonborderwidth' ) ) . 'px;';
 
-		}
-		if ( ! empty( $this->get_attribute( 'fieldfontsize' ) ) ) {
-			$this->block_styles  .= '--jetpack--contact-form--font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
-			$this->field_styles  .= 'font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
-			$this->option_styles .= 'font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
-		}
-
-		if ( ! empty( $this->get_attribute( 'labelcolor' ) ) ) {
-			$this->label_styles .= 'color: ' . esc_attr( $this->get_attribute( 'labelcolor' ) ) . ';';
-		}
-		if ( ! empty( $this->get_attribute( 'labelfontsize' ) ) ) {
-			$this->label_styles .= 'font-size: ' . esc_attr( $this->get_attribute( 'labelfontsize' ) ) . ';';
-		}
-		if ( is_numeric( $this->get_attribute( 'labellineheight' ) ) ) {
-			$this->label_styles .= 'line-height: ' . (int) $this->get_attribute( 'labellineheight' ) . ';';
 		}
 
 		if ( ! empty( $field_width ) && ! $this->has_inset_label() ) {
@@ -461,6 +515,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$extra_attrs['style'] = $this->label_styles;
 		}
 
+		$type_class           = $type ? ' ' . $type : '';
+		$extra_attrs['class'] = "grunion-field-label{$type_class}" . ( $this->is_error() ? ' form-error' : '' );
+
+		if ( ! empty( $this->label_classes ) ) {
+			$extra_attrs['class'] .= ' ' . $this->label_classes;
+		}
+
 		$extra_attrs_string = '';
 		if ( is_array( $extra_attrs ) && ! empty( $extra_attrs ) ) {
 			foreach ( $extra_attrs as $attr => $val ) {
@@ -468,10 +529,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 		}
 
-		$type_class = $type ? ' ' . $type : '';
 		return "<label
-				for='" . esc_attr( $id ) . "'
-				class='grunion-field-label{$type_class}" . ( $this->is_error() ? ' form-error' : '' ) . "'"
+				for='" . esc_attr( $id ) . "'"
 				. $extra_attrs_string
 				. '>'
 				. wp_kses_post( $label )
@@ -502,6 +561,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$extra_attrs_string .= sprintf( '%s="%s" ', esc_attr( $attr ), esc_attr( $val ) );
 			}
 		}
+
+		// TODO: Work out whether the Label block can be used for legends, whether this can share the label_classes and label_styles data etc.
 
 		$type_class = $type ? ' ' . $type : '';
 		return "<legend

@@ -79,12 +79,54 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/field-input',
 			array(
+				'supports'        => array(
+					'__experimentalBorder' => array(
+						'color'  => true,
+						'radius' => true,
+						'style'  => true,
+						'width'  => true,
+					),
+					'color'                => array(
+						'text'       => true,
+						'background' => true,
+						'gradient'   => true,
+					),
+					'typography'           => array(
+						'fontSize'                      => true,
+						'lineHeight'                    => true,
+						'__experimentalFontFamily'      => true,
+						'__experimentalFontWeight'      => true,
+						'__experimentalFontStyle'       => true,
+						'__experimentalTextTransform'   => true,
+						'__experimentalTextDecoration'  => true,
+						'__experimentalLetterSpacing'   => true,
+						'__experimentalDefaultControls' => true,
+					),
+				),
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_input' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-label',
 			array(
+				'supports'        => array(
+					'color'      => array(
+						'text'       => true,
+						'background' => true,
+						'gradient'   => false,
+					),
+					'typography' => array(
+						'fontSize'                      => true,
+						'lineHeight'                    => true,
+						'__experimentalFontFamily'      => true,
+						'__experimentalFontWeight'      => true,
+						'__experimentalFontStyle'       => true,
+						'__experimentalTextTransform'   => true,
+						'__experimentalTextDecoration'  => true,
+						'__experimentalLetterSpacing'   => true,
+						'__experimentalDefaultControls' => true,
+					),
+				),
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_label' ),
 			)
 		);
