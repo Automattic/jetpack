@@ -2,7 +2,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { createRegistrySelector } from '@wordpress/data';
 import { getSocialScriptData } from '../../utils';
 import { SIG_SETTINGS_KEY } from '../constants';
-import { SocialImageGeneratorConfig, SocialSettingsFields } from '../types';
+import { SocialSettingsFields } from '../types';
 
 /**
  * Returns the Social Image Generator settings for the current site.
@@ -14,4 +14,4 @@ export const getSocialImageGeneratorConfig = createRegistrySelector( select => (
 
 	// If the settings are not available in the store yet, use the default settings.
 	return settings?.[ SIG_SETTINGS_KEY ] ?? getSocialScriptData().settings.socialImageGenerator;
-} ) as ( state: object ) => SocialImageGeneratorConfig;
+} );
