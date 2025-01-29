@@ -41,10 +41,17 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
         jq \
         "php${PHP_VERSION}" \
         "php${PHP_VERSION}-ast" \
+        "php${PHP_VERSION}-bcmath" \
         "php${PHP_VERSION}-cli" \
         "php${PHP_VERSION}-curl" \
         "php${PHP_VERSION}-dom" \
+        "php${PHP_VERSION}-gd" \
+        "php${PHP_VERSION}-igbinary" \
+        "php${PHP_VERSION}-imagick" \
+        "php${PHP_VERSION}-intl" \
         "php${PHP_VERSION}-mbstring" \
+        "php${PHP_VERSION}-mysqli" \
+        "php${PHP_VERSION}-pcov" \
         "php${PHP_VERSION}-xml" \
         "php${PHP_VERSION}-zip" \
         rsync \
