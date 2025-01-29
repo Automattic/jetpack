@@ -5,8 +5,13 @@ import { hasSocialPaidFeatures } from '../../../utils';
 import Logo from './logo';
 import styles from './styles.module.scss';
 
+/**
+ * @type {Array<import('@automattic/jetpack-script-data').AdminSiteData['host']>}
+ */
+const HIDE_LICENSE_UI_FOR = [ 'woa', 'wpcom' ];
+
 const AdminPageHeader = () => {
-	const activateLicenseUrl = getMyJetpackUrl( '#/add-license' );
+	const showLicenceUi = ! HIDE_LICENSE_UI_FOR.includes( getScriptData().site.host );
 
 	return (
 		<div className={ styles.header }>
@@ -14,7 +19,7 @@ const AdminPageHeader = () => {
 				<Logo />
 			</span>
 
-			{ ! hasSocialPaidFeatures() && getScriptData().site.host !== 'woa' && (
+			{ ! hasSocialPaidFeatures() && showLicenceUi && (
 				<p>
 					{ createInterpolateElement(
 						__(
@@ -22,7 +27,7 @@ const AdminPageHeader = () => {
 							'jetpack-publicize-components'
 						),
 						{
-							a: <a href={ activateLicenseUrl } />,
+							a: <a href={ getMyJetpackUrl( '#/add-license' ) } />,
 						}
 					) }
 				</p>
