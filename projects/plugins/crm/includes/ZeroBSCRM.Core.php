@@ -27,6 +27,13 @@ final class ZeroBSCRM {
 	public $version = '6.5.1';
 
 	/**
+	 * ZeroBSCRM version.
+	 *
+	 * @var string
+	 */
+	const VERSION = '6.5.1';
+
+	/**
 	 * WordPress version tested with.
 	 *
 	 * @var string
