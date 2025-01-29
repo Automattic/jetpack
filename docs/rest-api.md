@@ -463,17 +463,17 @@ This has primarily been introduced to distinguish between former modules moved t
 
 #### GET wp-json/jetpack/v4/feature/:feature-slug
 
-Get a single feature status and over-ride property by its slug.
+Get a single feature status, over-ride property, description and search queries by its slug.
 
 **Example response** for `/feature/custom-content-types`
 
 ```json
 {
-	"custom-content-types": {
-    	"active": true,
-    	"over_ride": false,
-		 "description": "Display different types of content on your site with custom content types.",
-		 "additional_search_queries": "cpt, custom post types, portfolio, portfolios, testimonial, testimonials",
+    "custom-content-types": {
+        "active": true,
+        "over_ride": false,
+        "description": "Display different types of content on your site with custom content types.",
+        "additional_search_queries": "cpt, custom post types, portfolio, portfolios, testimonial, testimonials",
 	}
 }
 ```
