@@ -1,1 +1,34 @@
-console.log('wpcom-theme-install.js');
+( function ( $ ) {
+	var themes = wp.themes;
+
+	/**
+	 * Customize backbone router for theme subpage URL.
+	 */
+	themes.InstallerRouter = Backbone.Router.extend( {
+		routes: {
+			'themes.php?page=wpcom-install-theme&theme=:slug': 'preview',
+			'themes.php?page=wpcom-install-theme&browse=:sort': 'sort',
+			'themes.php?page=wpcom-install-theme&search=:query': 'search',
+			'themes.php?page=wpcom-install-theme': 'sort',
+		},
+
+		baseUrl: function ( url ) {
+			return 'themes.php?page=wpcom-install-theme' + url;
+		},
+
+		themePath: '&theme=',
+		browsePath: '&browse=',
+		searchPath: '&search=',
+
+		search: function ( query ) {
+			$( '.wp-filter-search' ).val( query.replace( /\+/g, ' ' ) );
+		},
+
+		navigate: function ( url, state ) {
+			var router = this;
+			if ( Backbone.history._hasPushState ) {
+				Backbone.Router.prototype.navigate.call( router, url, state );
+			}
+		},
+	} );
+} )( jQuery );
