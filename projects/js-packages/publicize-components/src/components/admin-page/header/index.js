@@ -7,7 +7,7 @@ import {
 	getUserLocale,
 } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
-import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { getAdminUrl, getScriptData } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, postList } from '@wordpress/icons';
@@ -25,6 +25,7 @@ const Header = () => {
 			isModuleEnabled: select( socialStore ).getSocialPluginSettings().publicize_active,
 		};
 	} );
+	const is_wpcom = getScriptData().site.host === 'wpcom';
 
 	const { urls, feature_flags } = getSocialScriptData();
 
@@ -76,22 +77,24 @@ const Header = () => {
 						</Button>
 					</div>
 				</Col>
-				<Col sm={ 4 } md={ 4 } lg={ { start: 7, end: 12 } }>
-					<StatCards
-						stats={ [
-							{
-								icon: <SocialIcon />,
-								label: __( 'Total shares past 30 days', 'jetpack-publicize-components' ),
-								value: formatter.format( getTotalSharesCount() ),
-							},
-							{
-								icon: <Icon icon={ postList } />,
-								label: __( 'Posted this month', 'jetpack-publicize-components' ),
-								value: formatter.format( getSharedPostsCount() ),
-							},
-						] }
-					/>
-				</Col>
+				{ ! is_wpcom ? (
+					<Col sm={ 4 } md={ 4 } lg={ { start: 7, end: 12 } }>
+						<StatCards
+							stats={ [
+								{
+									icon: <SocialIcon />,
+									label: __( 'Total shares past 30 days', 'jetpack-publicize-components' ),
+									value: formatter.format( getTotalSharesCount() ),
+								},
+								{
+									icon: <Icon icon={ postList } />,
+									label: __( 'Posted this month', 'jetpack-publicize-components' ),
+									value: formatter.format( getSharedPostsCount() ),
+								},
+							] }
+						/>
+					</Col>
+				) : null }
 			</Container>
 		</>
 	);
