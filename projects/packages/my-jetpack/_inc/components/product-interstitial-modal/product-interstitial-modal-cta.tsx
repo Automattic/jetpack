@@ -1,0 +1,87 @@
+import { Button } from '@automattic/jetpack-components';
+import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import { __ } from '@wordpress/i18n';
+import React, { useCallback, type FC } from 'react';
+import styles from 'styles.module.scss';
+import useProduct from '../../data/products/use-product';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
+
+interface ProductInterstitialModalCtaProps {
+	slug: string;
+}
+
+// Component to handle the CTA for the product upgrades
+const ProductInterstitialModalCta: FC< ProductInterstitialModalCtaProps > = ( { slug } ) => {
+	const quantity = null;
+
+	const {
+		siteSuffix = '',
+		adminUrl = '',
+		myJetpackCheckoutUri = '',
+	} = getMyJetpackWindowInitialState();
+
+	const { detail } = useProduct( slug );
+
+	const { pricingForUi, postCheckoutUrl } = detail;
+
+	const { wpcomProductSlug } = pricingForUi;
+
+	// Redirect to the referrer URL when the `redirect_to_referrer` query param is present.
+	const referrerURL = useRedirectToReferrer();
+
+	/*
+	 * Function to handle the redirect URL selection.
+	 * - postCheckoutUrl is the URL provided by the product API and is the preferred URL
+	 * - referrerURL is the referrer URL, in case the redirect_to_referrer flag was provided
+	 * - myJetpackCheckoutUri is the default URL
+	 */
+	const getCheckoutRedirectUrl = useCallback( () => {
+		if ( postCheckoutUrl ) {
+			return postCheckoutUrl;
+		}
+
+		if ( referrerURL ) {
+			return referrerURL;
+		}
+
+		return myJetpackCheckoutUri;
+	}, [ postCheckoutUrl, referrerURL, myJetpackCheckoutUri ] );
+
+	const checkoutRedirectUrl = getCheckoutRedirectUrl();
+
+	const { run: mainCheckoutRedirect, hasCheckoutStarted: hasMainCheckoutStarted } =
+		useProductCheckoutWorkflow( {
+			productSlug: wpcomProductSlug,
+			redirectUrl: checkoutRedirectUrl,
+			siteSuffix,
+			adminUrl,
+			connectAfterCheckout: true,
+			from: 'my-jetpack',
+			quantity,
+			useBlogIdSuffix: true,
+		} );
+
+	// const clickHandler = useCallback( () => {
+	// 	// trackButtonClick( { cta_text: ctaLabel } );
+	// 	onClick?.( mainCheckoutRedirect, detail );
+	// }, [ onClick, trackButtonClick, mainCheckoutRedirect, detail, ctaLabel ] );
+
+	// const trialClickHandler = useCallback( () => {
+	// 	trackButtonClick( { custom_slug: wpcomFreeProductSlug, cta_text: 'Start for free' } );
+	// 	onClick?.( trialCheckoutRedirect, detail );
+	// }, [ onClick, trackButtonClick, trialCheckoutRedirect, wpcomFreeProductSlug, detail ] );
+
+	return (
+		<Button
+			variant="primary"
+			className={ styles[ 'action-button' ] }
+			isLoading={ hasMainCheckoutStarted }
+			onClick={ mainCheckoutRedirect }
+		>
+			{ __( 'Upgrade', 'jetpack-my-jetpack' ) }
+		</Button>
+	);
+};
+
+export default ProductInterstitialModalCta;

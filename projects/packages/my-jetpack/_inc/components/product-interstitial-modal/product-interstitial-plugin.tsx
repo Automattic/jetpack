@@ -3,7 +3,11 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { type FC } from 'react';
 import useProduct from '../../data/products/use-product';
-import ProductInterstitialModal, { ProductInterstitialFeatureList } from './';
+import {
+	ProductInterstitialModal,
+	ProductInterstitialFeatureList,
+	ProductInterstitialModalCta,
+} from './';
 
 interface ProductInterstitialPluginProps {
 	/**
@@ -97,6 +101,7 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 			title={ title }
 			description={ longDescription }
 			priceComponent={ priceComponent }
+			modalMainButton={ <ProductInterstitialModalCta slug={ slug } /> }
 			{ ...props }
 		>
 			<>

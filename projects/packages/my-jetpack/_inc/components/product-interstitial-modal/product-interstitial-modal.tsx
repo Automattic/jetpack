@@ -3,9 +3,10 @@ import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useState, type FC } from 'react';
+import React from 'react';
 import styles from './style.module.scss';
 
-interface ProductInterstitialModalProps {
+interface BaseProductInterstitialModalProps {
 	/**
 	 * Title of the modal
 	 */
@@ -47,21 +48,9 @@ interface ProductInterstitialModalProps {
 	 */
 	onClick?: () => void;
 	/**
-	 * Href of the CTA button in the modal
-	 */
-	buttonHref?: string;
-	/**
 	 * Is CTA button disabled
 	 */
 	isButtonDisabled?: boolean;
-	/**
-	 * Show an external link icon for the CTA button
-	 */
-	buttonHasExternalLink?: boolean;
-	/**
-	 * Label of the CTA button
-	 */
-	buttonLabel?: string;
 	/**
 	 * Show an external link icon for the secondary button
 	 */
@@ -76,6 +65,46 @@ interface ProductInterstitialModalProps {
 	priceComponent?: React.ReactNode;
 }
 
+type WithMainCTAButton = BaseProductInterstitialModalProps & {
+	/**
+	 * Main button of the modal
+	 */
+	modalMainButton: React.ReactNode;
+	/**
+	 * Href of the CTA button in the modal
+	 */
+	buttonHref?: never;
+	/**
+	 * Label of the CTA button
+	 */
+	buttonLabel?: never;
+	/**
+	 * Show an external link icon for the CTA button
+	 */
+	buttonHasExternalLink?: never;
+};
+
+type WithMainCTAButtonHref = BaseProductInterstitialModalProps & {
+	/**
+	 * Main button of the modal
+	 */
+	modalMainButton?: never;
+	/**
+	 * Href of the CTA button in the modal
+	 */
+	buttonHref?: string;
+	/**
+	 * Label of the CTA button
+	 */
+	buttonLabel?: string;
+	/**
+	 * Show an external link icon for the CTA button
+	 */
+	buttonHasExternalLink?: boolean;
+};
+
+type ProductInterstitialModalProps = WithMainCTAButton | WithMainCTAButtonHref;
+
 const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 	const {
 		title,
@@ -86,6 +115,7 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 		onOpen,
 		onClose,
 		onClick,
+		modalMainButton,
 		isButtonDisabled,
 		buttonHasExternalLink = false,
 		buttonHref,
@@ -149,16 +179,18 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 									) }
 								</div>
 								<div className={ styles[ 'primary-footer' ] }>
-									<Button
-										variant="primary"
-										className={ styles[ 'action-button' ] }
-										disabled={ isButtonDisabled }
-										onClick={ onClick }
-										isExternalLink={ buttonHasExternalLink }
-										href={ buttonHref }
-									>
-										{ buttonLabel }
-									</Button>
+									{ modalMainButton ?? (
+										<Button
+											variant="primary"
+											className={ styles[ 'action-button' ] }
+											disabled={ isButtonDisabled }
+											onClick={ onClick }
+											isExternalLink={ buttonHasExternalLink }
+											href={ buttonHref }
+										>
+											{ buttonLabel }
+										</Button>
+									) }
 									<Button
 										variant="link"
 										isExternalLink={ secondaryButtonHasExternalLink }

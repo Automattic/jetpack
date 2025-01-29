@@ -180,6 +180,16 @@ export default function () {
 		navigateToPricingTable();
 	}, [ recordEvent, allTimeRequests, currentTier, navigateToPricingTable ] );
 
+	const upgradeClickHandlerModal = useCallback( () => {
+		// record event for opening a modal
+		recordEvent( 'jetpack_ai_upgrade_button', {
+			placement: 'product-page',
+			context: 'my-jetpack',
+			current_tier_slug: currentTier?.slug || '',
+			requests_count: allTimeRequests,
+		} );
+	}, [ recordEvent, allTimeRequests, currentTier ] );
+
 	const onNoticeClose = useCallback( () => setShowNotice( false ), [] );
 
 	useEffect( () => {
@@ -232,11 +242,12 @@ export default function () {
 								<>
 									<ProductInterstitialPlugin
 										slug="jetpack-ai"
-										// onClick={ upgradeClickHandler } // from interst.
+										onOpen={ upgradeClickHandlerModal }
+										// onClick={ upgradeClickHandlerModal } // from interst.
 										triggerButton={ __( 'Get more requests', 'jetpack-my-jetpack' ) }
-										buttonContent={ __( 'Upgrade', 'jetpack-my-jetpack' ) }
+										buttonLabel={ __( 'Upgrade', 'jetpack-my-jetpack' ) }
 										secondaryColumn={ <img src={ jetpackAiImage } alt="Jetpack AI" /> }
-										buttonExternalLink="https://jetpack.com/ai/"
+										secondaryButtonHref="https://jetpack.com/ai/"
 									/>
 								</>
 							) }
