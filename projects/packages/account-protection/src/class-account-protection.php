@@ -13,8 +13,8 @@ use Automattic\Jetpack\Modules;
  * Class Account_Protection
  */
 class Account_Protection {
-	public const PACKAGE_VERSION                = '0.1.0-alpha';
-	public const ACCOUNT_PROTECTION_MODULE_NAME = 'account-protection';
+	const PACKAGE_VERSION                = '0.1.0-alpha';
+	const ACCOUNT_PROTECTION_MODULE_NAME = 'account-protection';
 
 	/**
 	 * Modules instance.
