@@ -1,7 +1,7 @@
 import { Button } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback, type FC } from 'react';
+import { useCallback, type FC } from 'react';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
