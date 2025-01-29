@@ -26,7 +26,7 @@ class Validation_Service {
 
 		$is_connected = ( new Connection_Manager() )->is_connected();
 		if ( ! $is_connected ) {
-			return new \WP_Error( 'site_not_connected' );
+			return false;
 		}
 
 		$hashed_password = sha1( $password );
@@ -44,7 +44,6 @@ class Validation_Service {
 
 		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response['body'] ) ) {
 			return false;
-			// TODO: Return false or log error?
 		}
 
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );

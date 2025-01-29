@@ -87,9 +87,9 @@ class Password_Detection {
 	/**
 	 * Render password detection page.
 	 *
-	 * @return void
+	 * @return never
 	 */
-	public function render_page(): void {
+	public function render_page() {
 		if ( is_user_logged_in() ) {
 			wp_safe_redirect( admin_url() );
 			exit;
@@ -103,7 +103,7 @@ class Password_Detection {
 
 		$user_id = $transient_data['user_id'] ?? null;
 		$user    = $user_id ? get_user_by( 'ID', $user_id ) : null;
-		if ( ! $user ) {
+		if ( ! $user instanceof \WP_User ) {
 			$this->redirect_to_login();
 		}
 
@@ -143,7 +143,12 @@ class Password_Detection {
 			}
 		}
 
-		$this->render_content( $user, $token );
+		if ( $user instanceof \WP_User ) {
+			$this->render_content( $user, $token );
+		} else {
+			$this->redirect_to_login();
+		}
+
 		exit;
 	}
 
@@ -265,9 +270,9 @@ class Password_Detection {
 	/**
 	 * Redirect to the login page.
 	 *
-	 * @return void
+	 * @return never
 	 */
-	private function redirect_to_login(): void {
+	private function redirect_to_login() {
 		wp_safe_redirect( wp_login_url() );
 		exit;
 	}
