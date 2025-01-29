@@ -155,11 +155,8 @@ class Modules_Setup implements Has_Setup {
 			( new Regenerate() )->start();
 		}
 
-		if (
-			( $module_slug === Minify_CSS::get_slug() || $module_slug === Minify_JS::get_slug() ) &&
-			$is_activated
-		) {
-			jetpack_boost_404_tester();
+		if ( $module_slug === Minify_CSS::get_slug() || $module_slug === Minify_JS::get_slug() ) {
+			jetpack_boost_static_minify_setup( $is_activated, $module_slug );
 		}
 	}
 }
