@@ -21,13 +21,9 @@ export const useKeywordsStep = (): InputStep => {
 		] );
 	}, [ setMessages ] );
 
-	const handleSkip = useCallback( () => {
-		addMessage( { content: __( 'Skipped!', 'jetpack' ) } );
-	}, [ addMessage ] );
-
 	const handleKeywordsSubmit = useCallback( async () => {
 		if ( ! keywords.trim() ) {
-			return handleSkip();
+			return '';
 		}
 		addMessage( { content: keywords, isUser: true } );
 		addMessage( { content: <TypingMessage /> } );
@@ -37,6 +33,10 @@ export const useKeywordsStep = (): InputStep => {
 				const commaSeparatedKeywords = keywords
 					.split( ',' )
 					.map( k => k.trim() )
+					// remove empty entries
+					.filter( v => v )
+					// remove duped entries, inefficient but we don't expect a lot of entries here
+					.filter( ( v, i, arr ) => arr.indexOf( v ) === i )
 					.reduce( ( acc, curr, i, arr ) => {
 						if ( arr.length === 1 ) {
 							return curr;
@@ -60,7 +60,8 @@ export const useKeywordsStep = (): InputStep => {
 		);
 		addMessage( { content: message } );
 		setCompleted( true );
-	}, [ addMessage, keywords, handleSkip, removeLastMessage ] );
+		return keywords;
+	}, [ addMessage, keywords, removeLastMessage ] );
 
 	return {
 		id: 'keywords',
@@ -70,7 +71,6 @@ export const useKeywordsStep = (): InputStep => {
 		type: 'input',
 		placeholder: __( 'Photography, plants', 'jetpack' ),
 		onSubmit: handleKeywordsSubmit,
-		onSkip: handleSkip,
 		completed,
 		setCompleted,
 		value: keywords,

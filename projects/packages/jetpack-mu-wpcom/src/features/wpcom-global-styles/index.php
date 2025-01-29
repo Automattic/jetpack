@@ -200,7 +200,6 @@ function wpcom_global_styles_enqueue_block_editor_assets() {
 			'upgradeUrl'                 => $upgrade_url,
 			'wpcomBlogId'                => wpcom_global_styles_get_wpcom_current_blog_id(),
 			'planName'                   => $plan_name,
-			'modalImage'                 => plugins_url( 'image.svg', __FILE__ ),
 			'learnMoreAboutStylesUrl'    => $learn_more_about_styles_support_url,
 			'learnMoreAboutStylesPostId' => $learn_more_about_styles_post_id,
 		)
@@ -790,7 +789,7 @@ function wpcom_site_has_global_styles_in_personal_plan( $blog_id = 0 ) {
 		$blog_id = get_current_blog_id();
 	}
 
-	$cache_key                          = "global-styles-on-personal-feb-2025-$blog_id";
+	$cache_key                          = "global-styles-on-personal-02-2025-$blog_id";
 	$found_in_cache                     = false;
 	$has_global_styles_in_personal_plan = wp_cache_get( $cache_key, 'a8c_experiments', false, $found_in_cache );
 	if ( $found_in_cache ) {
@@ -807,9 +806,8 @@ function wpcom_site_has_global_styles_in_personal_plan( $blog_id = 0 ) {
 		return false;
 	}
 
-	// Placeholder experiment key, we need to update this to the new experiment key once it's created.
 	$experiment_assignment              = \ExPlat\assign_given_user( 'calypso_plans_global_styles_personal_20240127', $owner );
-	$has_global_styles_in_personal_plan = 'treatment' === $experiment_assignment;
+	$has_global_styles_in_personal_plan = null !== $experiment_assignment;
 	// Cache the experiment assignment to prevent duplicate DB queries in the frontend.
 	wp_cache_set( $cache_key, $has_global_styles_in_personal_plan, 'a8c_experiments', MONTH_IN_SECONDS );
 	return $has_global_styles_in_personal_plan;

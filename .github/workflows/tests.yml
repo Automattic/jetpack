@@ -57,6 +57,7 @@ jobs:
     # Note matrix-job outputs are kind of weird. Last-to-run job that sets a non-empty value wins.
     outputs:
       did-coverage: ${{ ( steps.run-tests.conclusion != 'cancelled' && steps.process-coverage.conclusion == 'success' && steps.upload-artifacts.conclusion == 'success' ) && 'true' || '' }}
+      coverage-status: ${{ matrix.script == 'test-coverage' && steps.run-tests.conclusion || '' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -117,22 +118,14 @@ jobs:
           echo "::group::Composer"
           composer install --working-dir=tools/php-test-env
 
-          # Add WorDBless for image-cdn package tests since concurrency can nuke uploads that are in use.
-          if [[ "$TEST_SCRIPT" =~ ^test-(php|coverage)$ ]] && jq -e '.name == "automattic/jetpack-image-cdn"' projects/packages/image-cdn/composer.json >/dev/null; then
-            echo "Adding WordBless for image-cdn tests"
-            composer require --working-dir=projects/packages/image-cdn automattic/wordbless:^0.4.2 --dev
-          fi
-
-          # Add WorDBles for publicize package tests since concurrency can nuke uploads that are in use.
-          if [[ "$TEST_SCRIPT" =~ ^test-(php|coverage)$ ]] && jq -e '.name == "automattic/jetpack-publicize"' projects/packages/publicize/composer.json >/dev/null; then
-            echo "Adding WorDBless for publicize tests"
-            composer require --working-dir=projects/packages/publicize automattic/wordbless:^0.4.2 --dev
-          fi
-
-          # Add WorDBles for videopress package tests since concurrency can nuke uploads that are in use.
-          if [[ "$TEST_SCRIPT" =~ ^test-(php|coverage)$ ]] && jq -e '.name == "automattic/jetpack-videopress"' projects/packages/videopress/composer.json >/dev/null; then
-            echo "Adding WorDBless for videopress tests"
-            composer require --working-dir=projects/packages/videopress automattic/wordbless:^0.4.2 --dev
+          # Add WorDBless for various package tests that use uploads since concurrency can nuke uploads that are in use.
+          # @todo Update WorDBless to be able to use a customized upload dir, do that, and remove this.
+          if [[ "$TEST_SCRIPT" =~ ^test-(php|coverage)$ ]]; then
+            VER=$( jq -r '.require["automattic/wordbless"]' tools/php-test-env/composer.json )
+            for pkg in packages/image-cdn packages/publicize packages/videopress; do
+              echo "Adding WordBless for $pkg tests"
+              composer require --working-dir="projects/$pkg" "automattic/wordbless:$VER" --dev --no-update
+            done
           fi
 
           if [[ ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) && ( "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ) ]]; then
@@ -329,6 +322,9 @@ jobs:
         env:
           PR_ID: ${{ github.event_name != 'pull_request' && 'trunk' || github.event.pull_request.number }}
           SECRET: ${{ secrets.CODECOV_SECRET }}
+          STATUS: ${{ needs.run-tests.outputs.coverage-status }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
         run: .github/files/coverage-munger/upload-coverage.sh
 
   storybook-test:

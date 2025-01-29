@@ -8,7 +8,7 @@ import { useMetaDescriptionStep } from './use-meta-description-step';
 import { useTitleStep } from './use-title-step';
 import { OptionsInput, TextInput, CompletionInput } from './wizard-input';
 import WizardStep from './wizard-step';
-import type { Step, Option } from './types';
+import type { Step, OptionMessage, OnStartFunction } from './types';
 
 const debug = debugFactory( 'jetpack-seo:assistant-wizard' );
 
@@ -37,20 +37,25 @@ export default function AssistantWizard( { close, tasks } ) {
 		[ tasks, keywordsStepData, titleStepData, metaStepData ]
 	);
 
-	const handleNext = useCallback( () => {
-		if ( currentStep + 1 < steps.length ) {
-			debug( 'moving to ' + ( currentStep + 1 ) );
-			setCurrentStep( currentStep + 1 );
-			setCurrentStepData( steps[ currentStep + 1 ] );
-			steps[ currentStep + 1 ].onStart?.();
-		}
-	}, [ currentStep, steps ] );
+	const handleNext = useCallback(
+		( options: Parameters< OnStartFunction >[ 0 ] ) => {
+			debug( 'step value', steps[ currentStep ].value );
+			debug( 'next step value', steps[ currentStep + 1 ].value );
+			if ( currentStep + 1 < steps.length ) {
+				debug( 'moving to ' + ( currentStep + 1 ) );
+				setCurrentStep( currentStep + 1 );
+				setCurrentStepData( steps[ currentStep + 1 ] );
+				steps[ currentStep + 1 ].onStart?.( options );
+			}
+		},
+		[ currentStep, steps ]
+	);
 
 	const handleStepSubmit = useCallback( async () => {
-		await steps[ currentStep ]?.onSubmit?.();
+		const stepValue = await steps[ currentStep ]?.onSubmit?.();
 		debug( 'step submitted, moving next' );
 		// always give half a second before moving forward
-		setTimeout( handleNext, 500 );
+		setTimeout( () => handleNext( { fromSkip: ! stepValue.trim(), stepValue } ), 500 );
 	}, [ currentStep, handleNext, steps ] );
 
 	const jumpToStep = useCallback(
@@ -64,7 +69,7 @@ export default function AssistantWizard( { close, tasks } ) {
 	);
 
 	const handleSelect = useCallback(
-		( stepNumber: number, option: Option ) => {
+		( stepNumber: number, option: OptionMessage ) => {
 			if ( stepNumber !== currentStep ) {
 				jumpToStep( stepNumber );
 			}
@@ -91,10 +96,14 @@ export default function AssistantWizard( { close, tasks } ) {
 		}
 	};
 
-	const handleSkip = async () => {
+	const handleSkip = useCallback( async () => {
 		await currentStepData?.onSkip?.();
-		handleNext();
-	};
+		handleNext( {
+			fromSkip: true,
+			// if skip is NOT meant to reset, pass stepValue as steps[ currentStep ].value
+			stepValue: '',
+		} );
+	}, [ currentStepData, handleNext ] );
 
 	// Reset states and close the wizard
 	const handleDone = () => {
@@ -128,7 +137,6 @@ export default function AssistantWizard( { close, tasks } ) {
 						key={ step.id }
 						messages={ step.messages }
 						visible={ currentStep >= index }
-						options={ step.options || [] }
 						onSelect={ option => handleSelect( index, option ) }
 					/>
 				) ) }

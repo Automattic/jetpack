@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Updated My Jetpack my-jetpack-v1/site/products route to pass a "?products" query param.

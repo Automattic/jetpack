@@ -9,14 +9,12 @@ import { SocialPluginSettings } from '../types';
 export const getSocialPluginSettings = createRegistrySelector( select => () => {
 	const data = select( coreStore ).getEntityRecord( 'jetpack/v4', 'social/settings', undefined );
 
-	return data ?? getSocialScriptData().settings.socialPlugin;
+	return data ?? { publicize_active: getSocialScriptData().is_publicize_enabled };
 } ) as ( state: object ) => SocialPluginSettings;
 
 /**
  * Returns whether the Social plugin settings are being saved
- *
- * @type {() => boolean} Whether the Social plugin settings are being saved
  */
 export const isSavingSocialPluginSettings = createRegistrySelector( select => () => {
 	return select( coreStore ).isSavingEntityRecord( 'jetpack/v4', 'social/settings', undefined );
-} ) as () => boolean;
+} );

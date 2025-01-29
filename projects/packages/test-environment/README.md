@@ -1,18 +1,24 @@
 # test-environment
 
-Shared WordPress test environment for Jetpack monorepo projects
+Shared WordPress test environment for Jetpack monorepo projects.
 
-## How to install test-environment
+This package is not intended for use outside of the Jetpack monorepo.
 
-### Installation From Git Repo
+Many projects within the monorepo use WordPress for unit testing, previously all depending directly on WordBless for a database-free WordPress environment.
 
-## Contribute
+This led to many, many full installs of WordPress existing in the monorepo on local machines and CI servers, which used a lot of space and caused IDEs to suffer trying to parse dozens of WordPress installs.
 
-## Get Help
+This package provides a shared init script for WorDBless that can be used without separate installs of WordPress. It depends on `composer install` running from the monorepo root, which triggers `composer install` for `tools/php-test-env` which installs WorDBless.
 
-## Using this package in your WordPress plugin
+Then, this package can be used to initalize the WordPress test environment in the current package.
 
-If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.
+## How to use test-environment
+
+1. `"automattic/jetpack-test-environment":"@dev"` in the project's `composer.json`.
+2. In the php test's boostrap.php, include `\Automattic\Jetpack\Test_Environment::init();` after the autoloader.
+3. Write unit tests assuming the WordPress test environment is already initialized.
+
+You can see examples of this in `projects/plugins/social/tests/php/bootstrap.php` and associated test files.
 
 ## Security
 

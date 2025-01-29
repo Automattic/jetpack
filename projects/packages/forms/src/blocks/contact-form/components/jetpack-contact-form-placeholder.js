@@ -9,7 +9,7 @@ export const ContactFormPlaceholder = ( { changeStatus, isLoading, isModuleActiv
 
 	return (
 		<Placeholder
-			icon={ settings.icon }
+			icon={ settings.icon.src }
 			instructions={ __(
 				'You’ll need to activate the Contact Form feature to use this block.',
 				'jetpack-forms'

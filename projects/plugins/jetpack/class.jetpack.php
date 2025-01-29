@@ -258,7 +258,6 @@ class Jetpack {
 	 *
 	 * - All in One SEO Pack, All in one SEO Pack Pro
 	 * - WordPress SEO by Yoast, WordPress SEO Premium by Yoast
-	 * - SEOPress, SEOPress Pro
 	 *
 	 * Plugin authors: If you'd like to prevent Jetpack's Open Graph tag generation in your plugin, you can do so via this filter:
 	 * add_filter( 'jetpack_enable_open_graph', '__return_false' );
@@ -303,6 +302,8 @@ class Jetpack {
 		'wp-facebook-like-send-open-graph-meta/wp-facebook-like-send-open-graph-meta.php', // WP Facebook Like Send & Open Graph Meta.
 		'wp-facebook-open-graph-protocol/wp-facebook-ogp.php',   // WP Facebook Open Graph protocol.
 		'wp-ogp/wp-ogp.php',                                     // WP-OGP.
+		'wp-seopress/seopress.php',                              // SEOPress.
+		'wp-seopress-pro/seopress-pro.php',                      // SEOPress Pro.
 		'zoltonorg-social-plugin/zosp.php',                      // Zolton.org Social Plugin.
 		'wp-fb-share-like-button/wp_fb_share-like_widget.php',   // WP Facebook Like Button.
 		'open-graph-metabox/open-graph-metabox.php',              // Open Graph Metabox.
