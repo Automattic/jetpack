@@ -109,8 +109,12 @@ class Password_Detection {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 
 		// Handle resend email request
-		if ( isset( $_GET['resend_email'] ) && $_GET['resend_email'] === '1' ) {
-			$email_resent = $this->email_service->resend_auth_email( $current_user, $transient_data, $token );
+		if ( isset( $_GET['resend_email'] ) && $_GET['resend_email'] === '1'
+		&& isset( $_GET['_wpnonce'] )
+		&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'resend_email_nonce' )
+		) {
+
+				$email_resent = $this->email_service->resend_auth_email( $current_user, $transient_data, $token );
 			if ( ! $email_resent ) {
 				$message = __( 'Failed to resend authentication email. Please try again.', 'jetpack-account-protection' );
 
@@ -121,8 +125,11 @@ class Password_Detection {
 				$this->set_transient_error( $current_user->ID, $message );
 			}
 
-			wp_safe_redirect( $this->get_redirect_url( $token ) );
-			exit;
+				wp_safe_redirect( $this->get_redirect_url( $token ) );
+				exit;
+		} else {
+			$this->set_transient_error( $current_user->ID, __( 'Resend nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
+
 		}
 
 		// Handle verify form submission
@@ -132,7 +139,7 @@ class Password_Detection {
 
 				$this->handle_auth_form_submission( $current_user, $token, $transient_data['auth_code'] ?? null, $user_input );
 			} else {
-				$this->set_transient_error( $current_user->ID, __( 'Nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
+				$this->set_transient_error( $current_user->ID, __( 'Verify nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
 			}
 		}
 
@@ -197,7 +204,9 @@ class Password_Detection {
 						</div>
 						<p class="email-status">
 							<span><?php esc_html_e( 'Didn\'t get the code?', 'jetpack-account-protection' ); ?> </span>
-							<a href="<?php echo esc_url( $redirect_url . '&resend_email=1' ); ?>"><?php esc_html_e( 'Resend email', 'jetpack-account-protection' ); ?></a>
+							<a href="<?php echo esc_url( $redirect_url . '&resend_email=1&_wpnonce=' . wp_create_nonce( 'resend_email_nonce' ) ); ?>">
+								<?php esc_html_e( 'Resend email', 'jetpack-account-protection' ); ?>
+							</a>
 						</p>
 						<?php if ( $error_message ) : ?>
 							<p class="error-message"><?php echo esc_html( $error_message ); ?></p>
