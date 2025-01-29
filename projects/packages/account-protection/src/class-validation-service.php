@@ -37,7 +37,7 @@ class Validation_Service {
 		array_unshift( $recent_passwords, $hashed_password );
 		$recent_passwords = array_slice( $recent_passwords, 0, 5 );
 
-		update_user_meta( $user_id, 'recent_passwords', $recent_passwords );
+		update_user_meta( $user_id, 'jetpack_acccount_protection_recent_passwords', $recent_passwords );
 	}
 
 	/**
@@ -203,7 +203,7 @@ class Validation_Service {
 	 * @return bool True if the password was recently used, false otherwise.
 	 */
 	private function is_recent_password( string $password, int $user_id ): bool {
-		$recent_passwords = get_user_meta( $user_id, 'recent_passwords', true );
+		$recent_passwords = get_user_meta( $user_id, 'jetpack_acccount_protection_recent_passwords', true );
 
 		if ( empty( $recent_passwords ) || ! is_array( $recent_passwords ) ) {
 			return false;
