@@ -30,7 +30,7 @@ class Test_Module extends BaseTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		$this->module_instance = $this->getMockBuilder( 'Automattic\Jetpack\Sync\Modules\Module' )
-			->setMethods( array( 'id_field', 'name' ) )
+			->onlyMethods( array( 'id_field', 'name' ) )
 			->getMock();
 		$this->module_instance->method( 'id_field' )->willReturn( 'ID' );
 		$this->module_instance->method( 'name' )->willReturn( 'module' );
