@@ -5,6 +5,8 @@
  * @package automattic/jetpack-mu-plugins
  */
 
+use Automattic\Jetpack\Connection\Client;
+
 /**
  * Load all wpcom dashboard widgets.
  */
@@ -13,7 +15,30 @@ function load_wpcom_dashboard_widgets() {
 		return;
 	}
 
-	enqueue_wpcom_dashboard_widgets();
+	$layout_response = Client::wpcom_json_api_request_as_blog(
+		'/sites/' . get_current_blog_id() . '/home/layout',
+		'v2',
+		array(),
+		null,
+		'wpcom'
+	);
+
+	$tasks = null;
+
+	if ( ! is_wp_error( $layout_response ) ) {
+		$layout = json_decode( $layout_response['body'], true );
+		if ( isset( $layout['secondary'] ) && is_array( $layout['secondary'] ) ) {
+			// If there's an array within the secondary section, it's the task
+			// list.
+			foreach ( $layout['secondary'] as $item ) {
+				if ( is_array( $item ) ) {
+					$tasks = $item;
+				}
+			}
+		}
+	}
+
+	enqueue_wpcom_dashboard_widgets( array( 'tasks' => $tasks ) );
 
 	$wpcom_dashboard_widgets = array(
 		array(
@@ -46,6 +71,15 @@ function load_wpcom_dashboard_widgets() {
 		);
 	}
 
+	if ( ! empty( $tasks ) ) {
+		$wpcom_dashboard_widgets[] = array(
+			'id'       => 'wpcom_general_tasks_widget',
+			'name'     => __( 'Suggestions', 'jetpack-mu-wpcom' ),
+			'context'  => 'normal',
+			'priority' => 'high',
+		);
+	}
+
 	foreach ( $wpcom_dashboard_widgets as $wpcom_dashboard_widget ) {
 		wp_add_dashboard_widget(
 			$wpcom_dashboard_widget['id'],
@@ -65,8 +99,10 @@ add_action( 'wp_dashboard_setup', 'load_wpcom_dashboard_widgets' );
 
 /**
  * Enqueue the assets of the wpcom dashboard widgets.
+ *
+ * @param array $args Settings to pass.
  */
-function enqueue_wpcom_dashboard_widgets() {
+function enqueue_wpcom_dashboard_widgets( $args = array() ) {
 	$handle = jetpack_mu_wpcom_enqueue_assets( 'wpcom-dashboard-widgets', array( 'js', 'css' ) );
 
 	$bundles      = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) );
@@ -82,6 +118,15 @@ function enqueue_wpcom_dashboard_widgets() {
 			'siteIntent'      => get_option( 'site_intent' ),
 			'sitePlan'        => $current_plan,
 			'hasCustomDomain' => wpcom_site_has_feature( 'custom-domain' ),
+			'siteId'          => get_current_blog_id(),
+			'tasks'           => $args['tasks'],
+			'siteSuggestions' => Client::wpcom_json_api_request_as_blog(
+				'/sites/' . get_current_blog_id() . '/home/layout',
+				'v2',
+				array(),
+				null,
+				'wpcom'
+			),
 		)
 	);
 
