@@ -121,7 +121,13 @@ class Password_Detection {
 
 		// Handle verify form submission
 		if ( isset( $_POST['verify'] ) ) {
-			$this->handle_auth_form_submission( $current_user, $token, $transient_data['auth_code'] ?? null );
+			if ( ! empty( $_POST['_wpnonce_verify'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce_verify'] ) ), 'verify_action' ) ) {
+				$user_input = isset( $_POST['user_input'] ) ? sanitize_text_field( wp_unslash( $_POST['user_input'] ) ) : null;
+
+				$this->handle_auth_form_submission( $current_user, $token, $transient_data['auth_code'] ?? null, $user_input );
+			} else {
+				// TODO: Add error handling -> 'nonce_verification_error', 'Nonce verification failed.'
+			}
 		}
 
 		$this->render_content( $this->get_redirect_url( $token ), $this->email_service->mask_email_address( $current_user->user_email ) );
@@ -247,14 +253,9 @@ class Password_Detection {
 	 * @param \WP_User $current_user The current user.
 	 * @param string   $token        The token.
 	 * @param string   $auth_code    The expected auth code.
+	 * @param string   $user_input   The user input.
 	 */
-	private function handle_auth_form_submission( $current_user, $token, $auth_code ) {
-		if ( ! isset( $_POST['_wpnonce_verify'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce_verify'] ) ), 'verify_action' ) ) {
-			// TODO: Add error handling -> 'nonce_verification_error', 'Nonce verification failed.'
-		}
-
-		$user_input = isset( $_POST['user_input'] ) ? sanitize_text_field( wp_unslash( $_POST['user_input'] ) ) : null;
-
+	private function handle_auth_form_submission( $current_user, $token, $auth_code, $user_input ) {
 		if ( $auth_code && $auth_code === $user_input ) {
 			delete_transient( Config::TRANSIENT_PREFIX . "_{$token}" );
 			// TODO: Ensure all transient are removed on module and/or plugin deactivation
