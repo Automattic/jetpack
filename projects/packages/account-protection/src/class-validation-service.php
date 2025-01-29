@@ -43,7 +43,7 @@ class Validation_Service {
 
 		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response['body'] ) ) {
 			return false;
-			// TODO: Return or log error?
+			// TODO: Return false or log error?
 		}
 
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );

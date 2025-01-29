@@ -49,7 +49,7 @@ class Password_Detection {
 		}
 
 		if ( $this->validation_service->check_weak_passwords( $password ) ) {
-			// TODO: Every time the user logs in we generate a new token based transient. This is not ideal.
+			// TODO: Every time the user logs in we generate a new token based transient. This might not be ideal.
 			$transient = $this->generate_and_store_transient_data( $user->ID );
 
 			$email_sent = $this->email_service->send_auth_email( $user, $transient['auth_code'] );
@@ -198,7 +198,6 @@ class Password_Detection {
 	 * @return bool
 	 */
 	private function user_requires_protection( $user, $password ) {
-		// TODO: Only run validation if we haven't already checked?
 		return ( user_can( $user, 'publish_posts' ) || user_can( $user, 'edit_published_posts' ) ) && wp_check_password( $password, $user->user_pass, $user->ID );
 	}
 
@@ -257,11 +256,11 @@ class Password_Detection {
 	 */
 	private function handle_auth_form_submission( $current_user, $token, $auth_code, $user_input ) {
 		if ( $auth_code && $auth_code === $user_input ) {
+			// TODO: Ensure all transient are also removed on module and/or plugin deactivation
 			delete_transient( Config::TRANSIENT_PREFIX . "_{$token}" );
-			// TODO: Ensure all transient are removed on module and/or plugin deactivation
 			wp_set_auth_cookie( $current_user->ID, true );
-			wp_safe_redirect( admin_url() );
 			// TODO: Notify user to update their password/redirect to password update page
+			wp_safe_redirect( admin_url() );
 			exit;
 		} else {
 			// TODO: Add error handling -> 'auth_code_verification_error', 'Authentication code verification failed.'
