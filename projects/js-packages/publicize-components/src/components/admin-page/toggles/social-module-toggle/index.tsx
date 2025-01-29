@@ -29,8 +29,8 @@ const SocialModuleToggle: React.FC = () => {
 		};
 	}, [] );
 
-	const blogID = getScriptData().site.wpcom.blog_id;
-	const siteSuffix = getScriptData().site.suffix;
+	const { wpcom, host, suffix: siteSuffix } = getScriptData().site;
+	const is_wpcom = host === 'wpcom';
 
 	const { urls, feature_flags } = getSocialScriptData();
 
@@ -97,13 +97,13 @@ const SocialModuleToggle: React.FC = () => {
 					{ __( 'Learn more', 'jetpack-publicize-components' ) }
 				</ExternalLink>
 			</Text>
-			{ ! hasSocialPaidFeatures() ? (
+			{ ! is_wpcom && ! hasSocialPaidFeatures() ? (
 				<ContextualUpgradeTrigger
 					className={ clsx( styles.cut, { [ styles.small ]: isSmall } ) }
 					description={ __( 'Unlock advanced sharing options', 'jetpack-publicize-components' ) }
 					cta={ __( 'Power up Jetpack Social', 'jetpack-publicize-components' ) }
 					href={ getRedirectUrl( 'jetpack-social-admin-page-upsell', {
-						site: `${ blogID ?? siteSuffix }`,
+						site: `${ wpcom.blog_id ?? siteSuffix }`,
 						query: 'redirect_to=admin.php?page=jetpack-social',
 					} ) }
 					tooltipText={ __(
