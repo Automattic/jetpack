@@ -37,6 +37,7 @@ export function DataSyncProvider( props: { children: React.ReactNode } ) {
 		React.createElement( ReactQueryDevtools )
 	);
 }
+
 /**
  * React Query configuration type for DataSync.
  */
