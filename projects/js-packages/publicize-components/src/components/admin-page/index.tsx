@@ -62,7 +62,7 @@ export const SocialAdminPage = () => {
 	}
 
 	return (
-		<AdminPage moduleName={ moduleName } header={ <AdminPageHeader /> }>
+		<AdminPage moduleName={ moduleName } header={ <AdminPageHeader /> } showFooter={ ! is_wpcom }>
 			<GlobalNotices />
 			{ ( ! is_wpcom && ! hasSocialPaidFeatures() && showPricingPage ) ||
 			forceDisplayPricingPage ? (
