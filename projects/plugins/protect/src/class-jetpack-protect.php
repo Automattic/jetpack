@@ -214,7 +214,6 @@ class Jetpack_Protect {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$refresh_status_from_wpcom = isset( $_GET['checkPlan'] );
 		$status                    = Status::get_status( $refresh_status_from_wpcom );
-		$account_protection        = new Account_Protection();
 
 		$initial_state = array(
 			'apiRoot'            => esc_url_raw( rest_url() ),
@@ -233,10 +232,7 @@ class Jetpack_Protect {
 			'jetpackScan'        => My_Jetpack_Products::get_product( 'scan' ),
 			'hasPlan'            => Plan::has_required_plan(),
 			'onboardingProgress' => Onboarding::get_current_user_progress(),
-			'accountProtection'  => array(
-				'isEnabled' => $account_protection->is_enabled(),
-				'settings'  => $account_protection->get_settings(),
-			),
+			'accountProtection'  => ( new Account_Protection() )->is_enabled(),
 			'waf'                => array(
 				'wafSupported'        => Waf_Runner::is_supported_environment(),
 				'currentIp'           => IP_Utils::get_ip(),
