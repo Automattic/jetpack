@@ -51,21 +51,6 @@ class REST_Products {
 
 		register_rest_route(
 			'my-jetpack/v1',
-			'site/products/activate',
-			array(
-				array(
-					'methods'             => \WP_REST_Server::EDITABLE,
-					'callback'            => __CLASS__ . '::activate_products',
-					'permission_callback' => __CLASS__ . '::edit_permissions_callback',
-					'args'                => array(
-						'products' => $products_arg,
-					),
-				),
-			)
-		);
-
-		register_rest_route(
-			'my-jetpack/v1',
 			'site/products/install',
 			array(
 				array(
