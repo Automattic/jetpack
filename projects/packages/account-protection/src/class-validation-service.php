@@ -59,14 +59,15 @@ class Validation_Service {
 			$errors[] = __( 'Between 6 and 150 characters', 'jetpack-account-protection' );
 		}
 
-		if ( $this->check_weak_passwords( $password ) ) {
+		$weak_password_status = $this->check_weak_passwords( $password );
+
+		if ( ! $weak_password_status['common'] ) {
 			$errors[] = __( 'Not a common password.', 'jetpack-account-protection' );
 		}
 
-		// TODO: Modify the method to return common or compromised.
-		// if ( $this->check_weak_passwords( $password ) ) {
-		// $errors[] = __( 'Not a leaked password.', 'jetpack-account-protection' );
-		// }
+		if ( ! $weak_password_status['compromised'] ) {
+			$errors[] = __( 'Not a leaked password.', 'jetpack-account-protection' );
+		}
 
 		if ( $this->matches_user_data( $password, $user_id ) ) {
 			$errors[] = __( 'Doesn\'t match user data', 'jetpack-account-protection' );
@@ -140,18 +141,25 @@ class Validation_Service {
 	}
 
 	/**
-	 * Check if the password is in the list of compromised/common passwords.
+	 * Check if the password is in the list of compromised or common passwords.
 	 *
 	 * @param string $password The password to check.
 	 *
-	 * @return bool True if the password is in the list of compromised/common passwords, false otherwise.
+	 * @return array An associative array with:
+	 *               - 'compromised' => true if the password is found in a known data breach, false otherwise.
+	 *               - 'common' => true if the password is commonly used, false otherwise.
+	 *               - 'error' => true if an issue occurred while checking the password, false otherwise.
 	 */
-	public function check_weak_passwords( string $password ): bool {
+	public function check_weak_passwords( string $password ): array {
 		$api_url = '/jetpack-protect-weak-password';
 
 		$is_connected = ( new Connection_Manager() )->is_connected();
 		if ( ! $is_connected ) {
-			return new \WP_Error( 'site_not_connected' );
+			return array(
+				'error'       => true,
+				'compromised' => false,
+				'common'      => false,
+			);
 		}
 
 		$hashed_password = sha1( $password );
@@ -168,22 +176,22 @@ class Validation_Service {
 		$response_code = wp_remote_retrieve_response_code( $response );
 
 		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response['body'] ) ) {
-			return false;
-			// TODO: Return false or log error?
+			return array(
+				'error'       => true,
+				'compromised' => false,
+				'common'      => false,
+			);
 		}
 
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		$password_suffix = substr( $hashed_password, 5 );
-		if ( in_array( $password_suffix, $body['compromised'] ?? array(), true ) ) {
-			return true;
-		}
 
-		if ( in_array( $password_suffix, $body['common'] ?? array(), true ) ) {
-			return true;
-		}
-
-		return false;
+		return array(
+			'error'       => false,
+			'compromised' => in_array( $password_suffix, $body['compromised'] ?? array(), true ),
+			'common'      => in_array( $password_suffix, $body['common'] ?? array(), true ),
+		);
 	}
 
 	/**
