@@ -41,6 +41,7 @@ class Password_Detection {
 	 *
 	 * @param \WP_User|\WP_Error $user The user or error object.
 	 * @param string             $password The password.
+	 *
 	 * @return \WP_User|\WP_Error The user object.
 	 */
 	public function login_form_password_detection( $user, string $password ) {
@@ -72,9 +73,10 @@ class Password_Detection {
 	 *
 	 * @param string    $username The username.
 	 * @param \WP_Error $error The error object.
-	 * @return never
+	 *
+	 * @return void
 	 */
-	public function handle_password_detection_validation_error( $username, $error ) {
+	public function handle_password_detection_validation_error( string $username, \WP_Error $error ): void {
 		if ( isset( $error->errors['password_detection_validation_error'] ) ) {
 			$token = $error->get_error_data()['token'];
 			wp_safe_redirect( $this->get_redirect_url( $token ) );
@@ -85,9 +87,9 @@ class Password_Detection {
 	/**
 	 * Render password detection page.
 	 *
-	 * @return never
+	 * @return void
 	 */
-	public function render_page() {
+	public function render_page(): void {
 		if ( is_user_logged_in() ) {
 			wp_safe_redirect( admin_url() );
 			exit;
@@ -99,10 +101,9 @@ class Password_Detection {
 			$this->redirect_to_login();
 		}
 
-		$user_id      = $transient_data['user_id'] ?? null;
-		$current_user = $user_id ? get_user_by( 'ID', $user_id ) : null;
-
-		if ( ! $current_user ) {
+		$user_id = $transient_data['user_id'] ?? null;
+		$user    = $user_id ? get_user_by( 'ID', $user_id ) : null;
+		if ( ! $user ) {
 			$this->redirect_to_login();
 		}
 
@@ -113,7 +114,7 @@ class Password_Detection {
 			if ( isset( $_GET['_wpnonce'] )
 			&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'resend_email_nonce' )
 			) {
-					$email_resent = $this->email_service->resend_auth_email( $current_user, $transient_data, $token );
+				$email_resent = $this->email_service->resend_auth_email( $user, $transient_data, $token );
 				if ( ! $email_resent ) {
 					$message = __( 'Failed to resend authentication email. Please try again.', 'jetpack-account-protection' );
 
@@ -121,14 +122,13 @@ class Password_Detection {
 						$message = __( 'Resend limit exceeded. Please try again later.', 'jetpack-account-protection' );
 					}
 
-					$this->set_transient_error( $current_user->ID, $message );
+					$this->set_transient_error( $user->ID, $message );
 				}
 
-					wp_safe_redirect( $this->get_redirect_url( $token ) );
-					exit;
+				wp_safe_redirect( $this->get_redirect_url( $token ) );
+				exit;
 			} else {
-				$this->set_transient_error( $current_user->ID, __( 'Resend nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
-
+				$this->set_transient_error( $user->ID, __( 'Resend nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
 			}
 		}
 
@@ -137,26 +137,26 @@ class Password_Detection {
 			if ( ! empty( $_POST['_wpnonce_verify'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce_verify'] ) ), 'verify_action' ) ) {
 				$user_input = isset( $_POST['user_input'] ) ? sanitize_text_field( wp_unslash( $_POST['user_input'] ) ) : null;
 
-				$this->handle_auth_form_submission( $current_user, $token, $transient_data['auth_code'] ?? null, $user_input );
+				$this->handle_auth_form_submission( $user, $token, $transient_data['auth_code'] ?? null, $user_input );
 			} else {
-				$this->set_transient_error( $current_user->ID, __( 'Verify nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
+				$this->set_transient_error( $user->ID, __( 'Verify nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
 			}
 		}
 
-		$this->render_content( $current_user->ID, $this->get_redirect_url( $token ), $this->email_service->mask_email_address( $current_user->user_email ) );
+		$this->render_content( $user, $token );
 		exit;
 	}
 
 	/**
 	 * Render content for password detection page.
 	 *
-	 * @param int    $user_id The user ID.
-	 * @param string $redirect_url The redirect URL.
-	 * @param string $masked_email The masked email address.
+	 * @param \WP_User $user The user.
+	 * @param string   $token The token.
+	 *
 	 * @return void
 	 */
-	public function render_content( $user_id, string $redirect_url, string $masked_email ): void {
-		$transient_key = Config::TRANSIENT_PREFIX . "_error_{$user_id}";
+	public function render_content( \WP_User $user, string $token ): void {
+		$transient_key = Config::TRANSIENT_PREFIX . "_error_{$user->ID}";
 		$error_message = get_transient( $transient_key );
 		delete_transient( $transient_key );
 
@@ -167,20 +167,20 @@ class Password_Detection {
 			<head>
 				<meta charset="UTF-8">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				<title><?php echo esc_html__( 'Jetpack - Secure Your Account', 'jetpack-account-protection' ); ?></title>
+				<title><?php esc_html_e( 'Jetpack - Secure Your Account', 'jetpack-account-protection' ); ?></title>
 				<?php wp_head(); ?>
 			</head>
 			<body class="password-detection-wrapper">
 				<div class="password-detection">
 					<?php require plugin_dir_path( __FILE__ ) . '/assets/jetpack-logo.svg'; ?>
-					<p class="password-detection-title"><?php echo esc_html__( 'Verify your identity', 'jetpack-account-protection' ); ?></p>
-						<p><?php echo esc_html__( 'We\'ve noticed that your current password may have been compromised in a public leak. To keep your account safe, we\'ve added an extra layer of security.', 'jetpack-account-protection' ); ?></p>
+					<p class="password-detection-title"><?php esc_html_e( 'Verify your identity', 'jetpack-account-protection' ); ?></p>
+						<p><?php esc_html_e( 'We\'ve noticed that your current password may have been compromised in a public leak. To keep your account safe, we\'ve added an extra layer of security.', 'jetpack-account-protection' ); ?></p>
 						<p>
 							<?php
 								printf(
 									/* translators: %s: Masked email address */
 									esc_html__( 'We\'ve sent a code to %s. Please check your inbox and enter the code below to verify it\'s really you.', 'jetpack-account-protection' ),
-									esc_html( $masked_email )
+									esc_html( $this->email_service->mask_email_address( $user->user_email ) )
 								);
 							?>
 						</p>
@@ -204,7 +204,7 @@ class Password_Detection {
 						</div>
 						<p class="email-status">
 							<span><?php esc_html_e( 'Didn\'t get the code?', 'jetpack-account-protection' ); ?> </span>
-							<a href="<?php echo esc_url( $redirect_url . '&resend_email=1&_wpnonce=' . wp_create_nonce( 'resend_email_nonce' ) ); ?>">
+							<a href="<?php echo esc_url( $this->get_redirect_url( $token ) . '&resend_email=1&_wpnonce=' . wp_create_nonce( 'resend_email_nonce' ) ); ?>">
 								<?php esc_html_e( 'Resend email', 'jetpack-account-protection' ); ?>
 							</a>
 						</p>
@@ -223,9 +223,10 @@ class Password_Detection {
 	 *
 	 * @param \WP_User $user     The user object.
 	 * @param string   $password The password.
+	 *
 	 * @return bool
 	 */
-	private function user_requires_protection( $user, $password ) {
+	private function user_requires_protection( \WP_User $user, string $password ): bool {
 		if ( ! user_can( $user, 'publish_posts' ) && ! user_can( $user, 'edit_published_posts' ) ) {
 			return false;
 		}
@@ -237,9 +238,10 @@ class Password_Detection {
 	 * Generate and store a consolidated transient for the user.
 	 *
 	 * @param int $user_id The user ID.
-	 * @return string The generated token.
+	 *
+	 * @return array An array of the generated token and auth code.
 	 */
-	private function generate_and_store_transient_data( $user_id ) {
+	private function generate_and_store_transient_data( int $user_id ): array {
 		$token     = wp_generate_password( 32, false, false );
 		$auth_code = $this->email_service->generate_auth_code();
 
@@ -262,8 +264,10 @@ class Password_Detection {
 
 	/**
 	 * Redirect to the login page.
+	 *
+	 * @return void
 	 */
-	private function redirect_to_login() {
+	private function redirect_to_login(): void {
 		wp_safe_redirect( wp_login_url() );
 		exit;
 	}
@@ -272,30 +276,33 @@ class Password_Detection {
 	 * Get redirect URL.
 	 *
 	 * @param string $token The token.
+	 *
 	 * @return string The redirect URL.
 	 */
-	private function get_redirect_url( $token ) {
+	private function get_redirect_url( string $token ): string {
 		return home_url( '/wp-login.php?action=password-detection&token=' . $token );
 	}
 
 	/**
 	 * Handle auth form submission.
 	 *
-	 * @param \WP_User $current_user The current user.
+	 * @param \WP_User $user The current user.
 	 * @param string   $token        The token.
 	 * @param string   $auth_code    The expected auth code.
 	 * @param string   $user_input   The user input.
+	 *
+	 * @return void
 	 */
-	private function handle_auth_form_submission( $current_user, $token, $auth_code, $user_input ) {
+	private function handle_auth_form_submission( \WP_User $user, string $token, string $auth_code, string $user_input ): void {
 		if ( $auth_code && $auth_code === $user_input ) {
 			// TODO: Ensure all transient are also removed on module and/or plugin deactivation
 			delete_transient( Config::TRANSIENT_PREFIX . "_{$token}" );
-			wp_set_auth_cookie( $current_user->ID, true );
+			wp_set_auth_cookie( $user->ID, true );
 			// TODO: Notify user to update their password/redirect to password update page
 			wp_safe_redirect( admin_url() );
 			exit;
 		} else {
-			$this->set_transient_error( $current_user->ID, __( 'Authentication code verification failed. Please try again.', 'jetpack-account-protection' ) );
+			$this->set_transient_error( $user->ID, __( 'Authentication code verification failed. Please try again.', 'jetpack-account-protection' ) );
 		}
 	}
 
@@ -305,26 +312,11 @@ class Password_Detection {
 	 * @param int    $user_id    The user ID.
 	 * @param string $message    The error message.
 	 * @param int    $expiration The expiration time in seconds.
+	 *
+	 * @return void
 	 */
 	private function set_transient_error( int $user_id, string $message, int $expiration = 60 ): void {
 		set_transient( Config::TRANSIENT_PREFIX . "_error_{$user_id}", esc_html( $message ), $expiration );
-	}
-
-	/**
-	 * Mask an email address like d*****@g*****.com.
-	 *
-	 * @param string $email The email address to mask.
-	 * @return string The masked email address.
-	 */
-	public function mask_email_address( string $email ): string {
-		$parts         = explode( '@', $email );
-		$name          = $parts[0];
-		$domain        = $parts[1];
-		$masked_name   = substr( $name, 0, 1 ) . str_repeat( '*', strlen( $name ) - 1 );
-		$domain_parts  = explode( '.', $domain );
-		$masked_domain = substr( $domain_parts[0], 0, 1 ) . str_repeat( '*', strlen( $domain_parts[0] ) - 1 ) . '.' . $domain_parts[1];
-
-		return $masked_name . '@' . $masked_domain;
 	}
 
 	/**

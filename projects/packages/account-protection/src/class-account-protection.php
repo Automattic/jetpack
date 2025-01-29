@@ -43,6 +43,8 @@ class Account_Protection {
 
 	/**
 	 * Initializes the configurations needed for the account protection module.
+	 *
+	 * @return void
 	 */
 	public function init(): void {
 		$this->register_hooks();
@@ -54,6 +56,8 @@ class Account_Protection {
 
 	/**
 	 * Register hooks for module activation and environment validation.
+	 *
+	 * @return void
 	 */
 	private function register_hooks(): void {
 		// Account protection activation/deactivation hooks
@@ -67,6 +71,8 @@ class Account_Protection {
 
 	/**
 	 * Register hooks for runtime operations.
+	 *
+	 * @return void
 	 */
 	private function register_runtime_hooks(): void {
 		// Validate password after successful login
@@ -81,6 +87,8 @@ class Account_Protection {
 
 	/**
 	 * Activate the account protection on module activation.
+	 *
+	 * @return void
 	 */
 	public function on_account_protection_activation(): void {
 		// Activation logic can be added here
@@ -88,6 +96,8 @@ class Account_Protection {
 
 	/**
 	 * Deactivate the account protection on module deactivation.
+	 *
+	 * @return void
 	 */
 	public function on_account_protection_deactivation(): void {
 		// Deactivation logic can be added here
@@ -98,7 +108,7 @@ class Account_Protection {
 	 *
 	 * @return bool
 	 */
-	public function is_enabled() {
+	public function is_enabled(): bool {
 		return $this->modules->is_active( self::ACCOUNT_PROTECTION_MODULE_NAME );
 	}
 
@@ -107,7 +117,7 @@ class Account_Protection {
 	 *
 	 * @return bool
 	 */
-	public function enable() {
+	public function enable(): bool {
 		// Return true if already enabled.
 		if ( $this->is_enabled() ) {
 			return true;

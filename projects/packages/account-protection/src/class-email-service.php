@@ -20,9 +20,10 @@ class Email_Service {
 	 *
 	 * @param \WP_User $user The user.
 	 * @param string   $auth_code The authentication code.
+	 *
 	 * @return bool True if the email was sent successfully, false otherwise.
 	 */
-	public function send_auth_email( $user, $auth_code ): bool {
+	public function send_auth_email( \WP_User $user, string $auth_code ): bool {
 		$wp_send = $this->wp_send_auth_email( $user, $auth_code );
 
 		if ( ! $wp_send ) {
@@ -37,9 +38,10 @@ class Email_Service {
 	 *
 	 * @param \WP_User $user The user.
 	 * @param string   $auth_code The authentication code.
+	 *
 	 * @return bool True if the email was sent successfully, false otherwise.
 	 */
-	private function wp_send_auth_email( $user, $auth_code ) {
+	private function wp_send_auth_email( \WP_User $user, string $auth_code ): bool {
 		$blog_name = esc_html( get_bloginfo( 'name' ) );
 		$blog_url  = esc_url( get_bloginfo( 'url' ) );
 
@@ -73,9 +75,10 @@ class Email_Service {
 	 *
 	 * @param \WP_User $user The user.
 	 * @param string   $auth_code The authentication code.
+	 *
 	 * @return bool True if the email was sent successfully, false otherwise.
 	 */
-	private function api_send_auth_email( $user, $auth_code ) {
+	private function api_send_auth_email( \WP_User $user, string $auth_code ): bool {
 		$blog_id      = Jetpack_Options::get_option( 'id' );
 		$is_connected = ( new Connection_Manager() )->is_connected();
 
@@ -111,12 +114,13 @@ class Email_Service {
 	/**
 	 * Resend email attempts.
 	 *
-	 * @param WP_User $user The user.
-	 * @param array   $transient_data The transient data.
-	 * @param string  $token The token.
+	 * @param \WP_User $user The user.
+	 * @param array    $transient_data The transient data.
+	 * @param string   $token The token.
+	 *
 	 * @return bool True if the email was resent successfully, false otherwise.
 	 */
-	public function resend_auth_email( $user, $transient_data, $token ): bool {
+	public function resend_auth_email( \WP_User $user, array $transient_data, string $token ): bool {
 		if ( $transient_data['resend_attempts'] >= Config::MAX_RESEND_ATTEMPTS ) {
 			return false;
 		}
@@ -150,6 +154,7 @@ class Email_Service {
 	 * Mask an email address like d*****@g*****.com.
 	 *
 	 * @param string $email The email address to mask.
+	 *
 	 * @return string The masked email address.
 	 */
 	public function mask_email_address( string $email ): string {
