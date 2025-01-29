@@ -109,26 +109,27 @@ class Password_Detection {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 
 		// Handle resend email request
-		if ( isset( $_GET['resend_email'] ) && $_GET['resend_email'] === '1'
-		&& isset( $_GET['_wpnonce'] )
-		&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'resend_email_nonce' )
-		) {
-				$email_resent = $this->email_service->resend_auth_email( $current_user, $transient_data, $token );
-			if ( ! $email_resent ) {
-				$message = __( 'Failed to resend authentication email. Please try again.', 'jetpack-account-protection' );
+		if ( isset( $_GET['resend_email'] ) && $_GET['resend_email'] === '1' ) {
+			if ( isset( $_GET['_wpnonce'] )
+			&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'resend_email_nonce' )
+			) {
+					$email_resent = $this->email_service->resend_auth_email( $current_user, $transient_data, $token );
+				if ( ! $email_resent ) {
+					$message = __( 'Failed to resend authentication email. Please try again.', 'jetpack-account-protection' );
 
-				if ( $transient_data['resend_attempts'] >= Config::MAX_RESEND_ATTEMPTS ) {
-					$message = __( 'Resend limit exceeded. Please try again later.', 'jetpack-account-protection' );
+					if ( $transient_data['resend_attempts'] >= Config::MAX_RESEND_ATTEMPTS ) {
+						$message = __( 'Resend limit exceeded. Please try again later.', 'jetpack-account-protection' );
+					}
+
+					$this->set_transient_error( $current_user->ID, $message );
 				}
 
-				$this->set_transient_error( $current_user->ID, $message );
+					wp_safe_redirect( $this->get_redirect_url( $token ) );
+					exit;
+			} else {
+				$this->set_transient_error( $current_user->ID, __( 'Resend nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
+
 			}
-
-				wp_safe_redirect( $this->get_redirect_url( $token ) );
-				exit;
-		} else {
-			$this->set_transient_error( $current_user->ID, __( 'Resend nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
-
 		}
 
 		// Handle verify form submission
