@@ -433,6 +433,7 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 
 	$is_proxy_atomic    = defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST;
 	$is_support_session = WPCOMSH_Support_Session_Detect::is_probably_support_session();
+	$admin_menu_is_a11n = isset( $_GET['admin_menu_is_a11n'] ) && function_exists( 'wpcomsh_is_admin_menu_api_request' ) && wpcomsh_is_admin_menu_api_request();
 
 	/**
 	 * This handles two contexts: Calypso and WP-Admin.
@@ -440,7 +441,8 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 	 * Calypso: WPCOM admin-menu API endpoint mapper sends a "admin_menu_is_a11n" param for a12s. If the param exists, then we'll switch to treatment.
 	 * WP-Admin: We check if the user is proxied and if it's not in a support session.
 	 */
-	if ( isset( $_GET['admin_menu_is_a11n'] ) || ( $is_proxy_atomic && ! $is_support_session ) ) {
+
+	if ( $admin_menu_is_a11n || ( $is_proxy_atomic && ! $is_support_session ) ) {
 		update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, 'treatment', true );
 		$is_enabled = true;
 
