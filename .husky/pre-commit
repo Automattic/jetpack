@@ -1,1 +1,6 @@
+#!/bin/sh
+if [ -f ~/.nvm/nvm.sh ]; then
+  . ~/.nvm/nvm.sh
+  nvm use
+fi
 node tools/js-tools/git-hooks/pre-commit-hook.mjs
