@@ -12,6 +12,8 @@ import {
 	postComments,
 	tag,
 	verse,
+	settings,
+	page,
 } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
 
@@ -143,6 +145,57 @@ const Notice = () => {
 						'jetpack-mu-wpcom'
 				  )
 				: descriptionFallback,
+		},
+		'options-general.php': {
+			icon: settings,
+			title: hasTranslation( 'The General Settings view just got better' )
+				? __( 'The General Settings view just got better', 'jetpack-mu-wpcom' )
+				: titleFallback,
+			description: hasTranslation(
+				"We've adopted WordPress' main General Settings view to bring improvements to you and millions of WordPress users worldwide."
+			)
+				? __(
+						"We've adopted WordPress' main General Settings view to bring improvements to you and millions of WordPress users worldwide.",
+						'jetpack-mu-wpcom'
+				  )
+				: descriptionFallback,
+		},
+		'options-writing.php': {
+			icon: verse,
+			title: hasTranslation( 'The Writing Settings view just got better' )
+				? __( 'The Writing Settings view just got better', 'jetpack-mu-wpcom' )
+				: titleFallback,
+			description: hasTranslation(
+				"We've adopted WordPress' main Writing Settings view to bring improvements to you and millions of WordPress users worldwide."
+			)
+				? __(
+						"We've adopted WordPress' main Writing Settings view to bring improvements to you and millions of WordPress users worldwide.",
+						'jetpack-mu-wpcom'
+				  )
+				: descriptionFallback,
+		},
+		'options-reading.php': {
+			icon: page,
+			title: hasTranslation( 'The Reading Settings view just got better' )
+				? __( 'The Reading Settings view just got better', 'jetpack-mu-wpcom' )
+				: titleFallback,
+			description: hasTranslation(
+				"We've adopted WordPress' main Reading Settings view to bring improvements to you and millions of WordPress users worldwide."
+			)
+				? __(
+						"We've adopted WordPress' main Reading Settings view to bring improvements to you and millions of WordPress users worldwide.",
+						'jetpack-mu-wpcom'
+				  )
+				: descriptionFallback,
+		},
+		'options-discussion.php': {
+			icon: postComments,
+			title: hasTranslation( 'The Discussion Settings view just got better' )
+				? __( 'The Discussion Settings view just got better', 'jetpack-mu-wpcom' )
+				: titleFallback,
+			description: hasTranslation(
+				"We've adopted WordPress' main Discussion Settings view to bring improvements to you and millions of WordPress users worldwide."
+			),
 		},
 	};
 
