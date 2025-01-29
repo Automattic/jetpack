@@ -64,7 +64,7 @@ class Meta extends Module {
 		$current_query_length = 0;
 
 		foreach ( $object_key_pairs as $object_id => $keys ) {
-			$keys_placeholders = implode( ',', array_fill( 0, is_countable( $keys ) ? count( $keys ) : 0, '%s' ) );
+			$keys_placeholders = implode( ',', array_fill( 0, count( $keys ), '%s' ) );
 			$where_condition   = trim(
 				$wpdb->prepare(
 					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
