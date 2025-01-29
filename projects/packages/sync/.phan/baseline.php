@@ -66,7 +66,7 @@ return [
         'src/modules/class-full-sync-immediately.php' => ['PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchReturn'],
         'src/modules/class-full-sync.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanTypeComparisonFromArray'],
         'src/modules/class-import.php' => ['PhanTypeMismatchArgumentInternal'],
-        'src/modules/class-meta.php' => ['PhanParamSignatureMismatch', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentProbablyReal'],
+        'src/modules/class-meta.php' => ['PhanParamSignatureMismatch', 'PhanTypeArraySuspicious'],
         'src/modules/class-module.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
         'src/modules/class-network-options.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchReturnProbablyReal'],
         'src/modules/class-options.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchReturnProbablyReal'],
