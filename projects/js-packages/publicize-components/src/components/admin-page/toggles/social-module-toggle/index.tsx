@@ -79,6 +79,7 @@ const SocialModuleToggle: React.FC = () => {
 
 	return (
 		<ToggleSection
+			hideToggle={ is_wpcom }
 			title={ __(
 				'Automatically share your posts to social networks',
 				'jetpack-publicize-components'
