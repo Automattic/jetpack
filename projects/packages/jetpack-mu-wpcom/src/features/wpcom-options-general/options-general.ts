@@ -74,7 +74,9 @@ function _wpcomBuildDomainSettingsLinks( fragment: DocumentFragment ) {
 	// Either WordPress Address (URL) or Site Address (URL), whichever comes last.
 	const previousSibling =
 		( fragment.getElementById( 'home' ) as HTMLInputElement ) ||
-		( fragment.getElementById( 'siteurl' ) as HTMLInputElement );
+		( fragment.getElementById( 'siteurl' ) as HTMLInputElement ) ||
+		document.querySelector( 'home' ) ||
+		document.querySelector( 'siteurl' );
 	if ( ! previousSibling ) {
 		return;
 	}
