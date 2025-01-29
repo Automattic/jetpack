@@ -1,5 +1,9 @@
 import { useConnection } from '@automattic/jetpack-connection';
-import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import {
+	isSimpleSite,
+	isPrivateSite,
+	isComingSoon,
+} from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelBody, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useSelect } from '@wordpress/data';
 import { PluginSidebar } from '@wordpress/edit-post';
@@ -51,9 +55,18 @@ const NewsletterMenu = ( { openPreviewModal } ) => {
 						{ ! shouldPromptForConnection ? (
 							<>
 								<p>
-									{ __(
-										'Ensure your email looks perfect. Use the buttons below to view a preview or send a test email.',
-										'jetpack'
+									{ isPrivateSite() || isComingSoon() ? (
+										<>
+											{ __(
+												'Your site is private or in coming soon mode. Emails will only be sent when your site is public.',
+												'jetpack'
+											) }
+										</>
+									) : (
+										__(
+											'Ensure your email looks perfect. Use the buttons below to view a preview or send a test email.',
+											'jetpack'
+										)
 									) }
 								</p>
 								<HStack wrap={ true }>
