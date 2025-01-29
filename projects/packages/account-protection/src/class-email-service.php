@@ -125,13 +125,14 @@ class Email_Service {
 
 		$auth_code                   = $this->generate_auth_code();
 		$transient_data['auth_code'] = $auth_code;
-		++$transient_data['resend_attempts'];
 
-		if ( ! set_transient( Config::TRANSIENT_PREFIX . "_{$token}", $transient_data, Config::EMAIL_SENT_EXPIRATION ) ) {
+		if ( ! $this->send_auth_email( $user, $auth_code ) ) {
 			return false;
 		}
 
-		if ( ! $this->send_auth_email( $user, $auth_code ) ) {
+		++$transient_data['resend_attempts'];
+
+		if ( ! set_transient( Config::TRANSIENT_PREFIX . "_{$token}", $transient_data, Config::EMAIL_SENT_EXPIRATION ) ) {
 			return false;
 		}
 

@@ -54,7 +54,7 @@ class Password_Detection {
 
 			$email_sent = $this->email_service->send_auth_email( $user, $transient['auth_code'] );
 			if ( ! $email_sent ) {
-				// TODO: Add error handling -> 'email_send_error', 'Failed to send the authentication email.';
+				set_transient( "password_detection_error_{$user->ID}", esc_html__( 'Failed to send authentication email. Please try again.', 'jetpack-account-protection' ), 60 );
 			}
 
 			return new \WP_Error(
@@ -112,7 +112,11 @@ class Password_Detection {
 		if ( isset( $_GET['resend_email'] ) && $_GET['resend_email'] === '1' ) {
 			$email_resent = $this->email_service->resend_auth_email( $current_user, $transient_data, $token );
 			if ( ! $email_resent ) {
-				// TODO: Add error handling -> 'email_resend_error', 'Failed to resend the authentication email or reached the maximum number of attempts.'
+				if ( $transient_data['resend_attempts'] >= Config::MAX_RESEND_ATTEMPTS ) {
+					set_transient( "password_detection_error_{$current_user->ID}", esc_html__( 'Resend limit exceeded. Please try again later.', 'jetpack-account-protection' ), 60 );
+				} else {
+					set_transient( "password_detection_error_{$current_user->ID}", esc_html__( 'Failed to resend authentication email. Please try again.', 'jetpack-account-protection' ), 60 );
+				}
 			}
 
 			wp_safe_redirect( $this->get_redirect_url( $token ) );
@@ -126,22 +130,27 @@ class Password_Detection {
 
 				$this->handle_auth_form_submission( $current_user, $token, $transient_data['auth_code'] ?? null, $user_input );
 			} else {
-				// TODO: Add error handling -> 'nonce_verification_error', 'Nonce verification failed.'
+				set_transient( "password_detection_error_{$current_user->ID}", esc_html__( 'Nonce verification failed. Please try again.', 'jetpack-account-protection' ), 60 );
 			}
 		}
 
-		$this->render_content( $this->get_redirect_url( $token ), $this->email_service->mask_email_address( $current_user->user_email ) );
+		$this->render_content( $current_user->ID, $this->get_redirect_url( $token ), $this->email_service->mask_email_address( $current_user->user_email ) );
 		exit;
 	}
 
 	/**
 	 * Render content for password detection page.
 	 *
+	 * @param int    $user_id The user ID.
 	 * @param string $redirect_url The redirect URL.
 	 * @param string $masked_email The masked email address.
 	 * @return void
 	 */
-	public function render_content( string $redirect_url, string $masked_email ): void {
+	public function render_content( $user_id, string $redirect_url, string $masked_email ): void {
+		$transient_key = "password_detection_error_{$user_id}";
+		$error_message = get_transient( $transient_key );
+		delete_transient( $transient_key );
+
 		defined( 'ABSPATH' ) || exit;
 		?>
 		<!DOCTYPE html>
@@ -169,12 +178,17 @@ class Password_Detection {
 						<div class="actions">
 							<form method="post">
 								<?php wp_nonce_field( 'verify_action', '_wpnonce_verify' ); ?>
-								<input 
-									type="number"
-									name="user_input"
-									class="action-input"
-									placeholder="<?php esc_attr_e( 'Enter verification code', 'jetpack-account-protection' ); ?>"
-									required
+								<input
+									type="text" 
+									name="user_input" 
+									class="action-input" 
+									placeholder="<?php esc_attr_e( 'Enter verification code', 'jetpack-account-protection' ); ?>" 
+									required 
+									pattern="\d{6}" 
+									minlength="6" 
+									maxlength="6" 
+									inputmode="numeric" 
+									oninput="this.value = this.value.replace(/\D/g, '');"
 								/>
 								<button class="action action-verify" type="submit" name="verify"><?php esc_html_e( 'Verify', 'jetpack-account-protection' ); ?></button>
 							</form>
@@ -183,6 +197,9 @@ class Password_Detection {
 							<span><?php esc_html_e( 'Didn\'t get the code?', 'jetpack-account-protection' ); ?> </span>
 							<a href="<?php echo esc_url( $redirect_url . '&resend_email=1' ); ?>"><?php esc_html_e( 'Resend email', 'jetpack-account-protection' ); ?></a>
 						</p>
+						<?php if ( $error_message ) : ?>
+							<p class="error-message"><?php echo esc_html( $error_message ); ?></p>
+						<?php endif; ?>
 				</div>
 				<?php wp_footer(); ?>
 			</body>
@@ -214,12 +231,13 @@ class Password_Detection {
 		$data = array(
 			'user_id'         => $user_id,
 			'auth_code'       => $auth_code,
-			'resend_attempts' => 0,
+			'resend_attempts' => 1,
 		);
 
 		$transient_set = set_transient( Config::TRANSIENT_PREFIX . "_{$token}", $data, Config::EMAIL_SENT_EXPIRATION );
 		if ( ! $transient_set ) {
-			// TODO: Add error handling -> 'transient_set_error', 'Failed to set transient data.'
+			set_transient( "password_detection_error_{$user_id}", esc_html__( 'Failed to set transient data. Please try again.', 'jetpack-account-protection' ), 60 );
+
 		}
 
 		return array(
@@ -263,7 +281,7 @@ class Password_Detection {
 			wp_safe_redirect( admin_url() );
 			exit;
 		} else {
-			// TODO: Add error handling -> 'auth_code_verification_error', 'Authentication code verification failed.'
+			set_transient( "password_detection_error_{$current_user->ID}", esc_html__( 'Authentication code verification failed. Please try again.', 'jetpack-account-protection' ), 60 );
 		}
 	}
 
