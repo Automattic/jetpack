@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fixed a performance issue on AT that was reproducing only for a12s.
-
-

@@ -25,8 +25,8 @@ describe( 'load the app', () => {
 	test( 'container renders', () => {
 		let storeSelect;
 		renderHook( () => useSelect( select => ( storeSelect = select( SOCIAL_STORE_ID ) ) ) );
-		jest.spyOn( storeSelect, 'getSocialPluginSettings' ).mockReset().mockReturnValue( {
-			show_pricing_page: true,
+		jest.spyOn( storeSelect, 'getSocialSettings' ).mockReset().mockReturnValue( {
+			showPricingPage: true,
 		} );
 		render( <SocialAdminPage /> );
 		expect( screen.getByText( `Jetpack Social ${ version }` ) ).toBeInTheDocument();

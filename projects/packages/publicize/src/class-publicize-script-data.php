@@ -162,6 +162,11 @@ class Publicize_Script_Data {
 		return array(
 			'socialImageGenerator' => $settings->get_image_generator_settings(),
 			'utmSettings'          => $settings->get_utm_settings(),
+			'socialNotes'          => array(
+				'enabled' => $settings->is_social_notes_enabled(),
+				'config'  => $settings->get_social_notes_config(),
+			),
+			'showPricingPage'      => $settings->should_show_pricing_page(),
 		);
 	}
 
@@ -272,7 +277,7 @@ class Publicize_Script_Data {
 	 * @return ?array
 	 */
 	public static function get_shares_data() {
-		return self::publicize()->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
+		return self::publicize()->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ) ?? array();
 	}
 
 	/**

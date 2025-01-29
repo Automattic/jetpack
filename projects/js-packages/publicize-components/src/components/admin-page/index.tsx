@@ -37,7 +37,7 @@ export const SocialAdminPage = () => {
 
 		return {
 			isModuleEnabled: settings.publicize_active,
-			showPricingPage: store.shouldShowPricingPage(),
+			showPricingPage: store.getSocialSettings().showPricingPage,
 			isUpdatingJetpackSettings: store.isSavingSocialPluginSettings(),
 		};
 	}, [] );

@@ -4,11 +4,6 @@ import { PostShareStatus, SocialStoreState } from '../types';
 
 /**
  * Get the post share status.
- *
- * @param {SocialStoreState} state  - State object.
- * @param {number}           postId - The post ID.
- *
- * @return {PostShareStatus} - The post share status.
  */
 export const getPostShareStatus = createRegistrySelector(
 	select =>
@@ -18,7 +13,7 @@ export const getPostShareStatus = createRegistrySelector(
 
 			return state.shareStatus?.[ id ] ?? { shares: [] };
 		}
-) as ( state: SocialStoreState, postId?: number ) => PostShareStatus;
+);
 
 /**
  * Whether the share status modal is open.

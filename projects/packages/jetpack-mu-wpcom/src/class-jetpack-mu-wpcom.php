@@ -475,9 +475,7 @@ class Jetpack_Mu_Wpcom {
 	 * Load Odyssey Stats in Simple sites.
 	 */
 	public static function load_wpcom_simple_odyssey_stats() {
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' || ( function_exists( 'wpcom_is_duplicate_views_experiment_enabled' ) && wpcom_is_duplicate_views_experiment_enabled() ) ) {
-			require_once __DIR__ . '/features/wpcom-simple-odyssey-stats/wpcom-simple-odyssey-stats.php';
-		}
+		require_once __DIR__ . '/features/wpcom-simple-odyssey-stats/wpcom-simple-odyssey-stats.php';
 	}
 
 	/**
