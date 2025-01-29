@@ -14,8 +14,7 @@ export const isSocialNotesEnabled = createRegistrySelector( select => () => {
 	} );
 	// If the settings are not available in the store yet, use the default settings.
 	return (
-		settings?.[ SOCIAL_NOTES_ENABLED_KEY ] ??
-		getSocialScriptData().settings?.socialPlugin?.social_notes_enabled
+		settings?.[ SOCIAL_NOTES_ENABLED_KEY ] ?? getSocialScriptData().settings?.socialNotes?.enabled
 	);
 } );
 
@@ -31,7 +30,6 @@ export const getSocialNotesConfig = createRegistrySelector( select => () => {
 
 	// If the settings are not available in the store yet, use the default settings.
 	return (
-		settings?.[ SOCIAL_NOTES_CONFIG_KEY ] ??
-		getSocialScriptData().settings?.socialPlugin?.social_notes_config
+		settings?.[ SOCIAL_NOTES_CONFIG_KEY ] ?? getSocialScriptData().settings?.socialNotes?.config
 	);
 } );
