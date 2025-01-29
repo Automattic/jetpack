@@ -618,7 +618,7 @@ function wpcom_launchpad_get_task_definitions() {
 				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
 					return admin_url( 'themes.php' );
 				}
-				return '/themes/' . $data['site_slug_encoded'];
+				return '/themes/' . $data['site_slug_encoded'] . '#theme-selected';
 			},
 		),
 		'install_custom_plugin'           => array(
@@ -630,7 +630,7 @@ function wpcom_launchpad_get_task_definitions() {
 				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
 					return admin_url( 'plugins.php' );
 				}
-				return '/plugins/' . $data['site_slug_encoded'];
+				return '/plugins/' . $data['site_slug_encoded'] . '#install-plugin';
 			},
 		),
 		'setup_ssh'                       => array(
@@ -648,7 +648,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/site-monitoring/' . $data['site_slug_encoded'];
+				return '/site-monitoring/' . $data['site_slug_encoded'] . '#site-monitoring';
 			},
 		),
 		'import_subscribers'              => array(
