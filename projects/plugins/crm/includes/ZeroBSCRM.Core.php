@@ -1336,9 +1336,6 @@ final class ZeroBSCRM {
 		// } Put Plugin update message (notifications into the transient /wp-admin/plugins.php) page.. that way the nag message is not needed at the top of pages (and will always show, not need to be dismissed)
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.PluginUpdates.php';
 
-		// v3.0 update coming, warning
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.PluginUpdates.ImminentRelease.php';
-
 		// } FROM PLUGIN HUNT THEME - LOT OF USEFUL CODE IN HERE.
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.NotifyMe.php';
 

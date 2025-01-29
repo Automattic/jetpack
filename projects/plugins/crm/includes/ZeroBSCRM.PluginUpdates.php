@@ -1077,8 +1077,7 @@ function zeroBSCRM_localDblCheck(){
 
 
 	// checks if a plugin has an update.
-	// adapted from https://wordpress.stackexchange.com/questions/228468/plugin-update-warning 
-	// ... for pre-checking new ver releases (e.g. <3.0 to 3.0) to enable pre-warning as in ZeroBSCRM.PluginUpdates.ImminentRelease.php
+	// adapted from https://wordpress.stackexchange.com/questions/228468/plugin-update-warning
 	// name = Jetpack CRM
 	// textdom = zero-bs-crm (in lieu of slug)
 	function zeroBSCRM_updates_pluginHasUpdate($name='',$textDomain=''){
