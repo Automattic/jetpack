@@ -687,7 +687,7 @@ abstract class Module {
 	 * Filters objects and metadata based on maximum size constraints.
 	 * It always allows the first object with its metadata, even if they exceed the limit.
 	 *
-	 * @access protected
+	 * @access public
 	 *
 	 * @param string $type The type of objects to filter (e.g., 'post' or 'comment').
 	 * @param array  $objects The array of objects to filter (e.g., posts or comments).
