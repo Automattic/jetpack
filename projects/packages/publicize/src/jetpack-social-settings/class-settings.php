@@ -153,7 +153,9 @@ class Settings {
 			self::OPTION_PREFIX . self::UTM_SETTINGS,
 			array(
 				'type'         => 'boolean',
-				'default'      => false,
+				'default'      => array(
+					'enabled' => false,
+				),
 				'show_in_rest' => array(
 					'schema' => array(
 						'type'       => 'object',
