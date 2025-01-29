@@ -264,7 +264,7 @@ class Settings {
 	 * @return bool
 	 */
 	public function is_social_notes_enabled() {
-		return get_option( self::JETPACK_SOCIAL_NOTE_CPT_ENABLED, false );
+		return (bool) get_option( self::JETPACK_SOCIAL_NOTE_CPT_ENABLED, false );
 	}
 
 	/**
