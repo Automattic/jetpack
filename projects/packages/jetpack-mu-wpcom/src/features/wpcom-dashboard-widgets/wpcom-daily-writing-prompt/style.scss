@@ -1,0 +1,23 @@
+.wpcom-daily-writing-prompt--action-row {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	gap: 10px;
+
+	img {
+		vertical-align: middle;
+		border-radius: 100%;
+		border: 2px solid #fff;
+		margin-left: -10px;
+	}
+
+	img:first-child {
+		margin-left: 0;
+	}
+
+	.wpcom-daily-writing-prompt--previous-next {
+		display: flex;
+		flex-direction: row;
+		gap: 5px;
+	}
+}
