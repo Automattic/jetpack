@@ -143,12 +143,7 @@ class Password_Detection {
 			}
 		}
 
-		if ( $user instanceof \WP_User ) {
-			$this->render_content( $user, $token );
-		} else {
-			$this->redirect_to_login();
-		}
-
+		$this->render_content( $user, $token );
 		exit;
 	}
 
