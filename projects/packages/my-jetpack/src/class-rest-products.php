@@ -49,17 +49,6 @@ class REST_Products {
 			'validate_callback' => __CLASS__ . '::check_products_argument',
 		);
 
-		$products_arg = array(
-			'description'       => __( 'Array of Product slugs', 'jetpack-my-jetpack' ),
-			'type'              => 'array',
-			'items'             => array(
-				'enum' => Products::get_products_slugs(),
-				'type' => 'string',
-			),
-			'required'          => true,
-			'validate_callback' => __CLASS__ . '::check_products_argument',
-		);
-
 		register_rest_route(
 			'my-jetpack/v1',
 			'site/products/install',
