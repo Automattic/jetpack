@@ -474,7 +474,7 @@ Get a single feature status, over-ride property, description and search queries 
         "over_ride": false,
         "description": "Display different types of content on your site with custom content types.",
         "additional_search_queries": "cpt, custom post types, portfolio, portfolios, testimonial, testimonials",
-	}
+    }
 }
 ```
 
