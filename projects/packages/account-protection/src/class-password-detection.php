@@ -312,7 +312,7 @@ class Password_Detection {
 			'password-detection-styles',
 			plugin_dir_url( __FILE__ ) . 'css/password-detection.css',
 			array(),
-			Config::PACKAGE_VERSION
+			Account_Protection::PACKAGE_VERSION
 		);
 	}
 }

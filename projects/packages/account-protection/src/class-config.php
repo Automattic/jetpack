@@ -11,9 +11,7 @@ namespace Automattic\Jetpack\Account_Protection;
  * Class Config
  */
 class Config {
-	public const PACKAGE_VERSION                = '0.1.0-alpha';
-	public const ACCOUNT_PROTECTION_MODULE_NAME = 'account-protection';
-	public const TRANSIENT_PREFIX               = 'password_detection';
-	public const EMAIL_SENT_EXPIRATION          = 600; // 10 minutes
-	public const MAX_RESEND_ATTEMPTS            = 3;
+	public const TRANSIENT_PREFIX      = 'password_detection';
+	public const EMAIL_SENT_EXPIRATION = 600; // 10 minutes
+	public const MAX_RESEND_ATTEMPTS   = 3;
 }

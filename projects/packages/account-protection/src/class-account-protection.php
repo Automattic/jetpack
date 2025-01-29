@@ -13,6 +13,9 @@ use Automattic\Jetpack\Modules;
  * Class Account_Protection
  */
 class Account_Protection {
+	public const PACKAGE_VERSION                = '0.1.0-alpha';
+	public const ACCOUNT_PROTECTION_MODULE_NAME = 'account-protection';
+
 	/**
 	 * Modules instance.
 	 *
@@ -54,8 +57,8 @@ class Account_Protection {
 	 */
 	private function register_hooks(): void {
 		// Account protection activation/deactivation hooks
-		add_action( 'jetpack_activate_module_' . Config::ACCOUNT_PROTECTION_MODULE_NAME, array( $this, 'on_account_protection_activation' ) );
-		add_action( 'jetpack_deactivate_module_' . Config::ACCOUNT_PROTECTION_MODULE_NAME, array( $this, 'on_account_protection_deactivation' ) );
+		add_action( 'jetpack_activate_module_' . self::ACCOUNT_PROTECTION_MODULE_NAME, array( $this, 'on_account_protection_activation' ) );
+		add_action( 'jetpack_deactivate_module_' . self::ACCOUNT_PROTECTION_MODULE_NAME, array( $this, 'on_account_protection_deactivation' ) );
 
 		// Do not run in unsupported environments
 		add_action( 'jetpack_get_available_modules', array( $this, 'remove_module_on_unsupported_environments' ) );
@@ -96,7 +99,7 @@ class Account_Protection {
 	 * @return bool
 	 */
 	public function is_enabled() {
-		return $this->modules->is_active( Config::ACCOUNT_PROTECTION_MODULE_NAME );
+		return $this->modules->is_active( self::ACCOUNT_PROTECTION_MODULE_NAME );
 	}
 
 	/**
@@ -109,7 +112,7 @@ class Account_Protection {
 		if ( $this->is_enabled() ) {
 			return true;
 		}
-		return $this->modules->activate( Config::ACCOUNT_PROTECTION_MODULE_NAME, false, false );
+		return $this->modules->activate( self::ACCOUNT_PROTECTION_MODULE_NAME, false, false );
 	}
 
 	/**
@@ -122,7 +125,7 @@ class Account_Protection {
 		if ( ! $this->is_enabled() ) {
 			return true;
 		}
-		return $this->modules->deactivate( Config::ACCOUNT_PROTECTION_MODULE_NAME );
+		return $this->modules->deactivate( self::ACCOUNT_PROTECTION_MODULE_NAME );
 	}
 
 	/**
@@ -149,7 +152,7 @@ class Account_Protection {
 	public function remove_module_on_unsupported_environments( array $modules ): array {
 		if ( ! $this->is_supported_environment() ) {
 			// Account protection should never be available on unsupported platforms.
-			unset( $modules[ Config::ACCOUNT_PROTECTION_MODULE_NAME ] );
+			unset( $modules[ self::ACCOUNT_PROTECTION_MODULE_NAME ] );
 		}
 
 		return $modules;
@@ -168,7 +171,7 @@ class Account_Protection {
 			$modules = array_filter(
 				$modules,
 				function ( $module ) {
-					return $module !== Config::ACCOUNT_PROTECTION_MODULE_NAME;
+					return $module !== self::ACCOUNT_PROTECTION_MODULE_NAME;
 				}
 			);
 
