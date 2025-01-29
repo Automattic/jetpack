@@ -75,8 +75,8 @@ function _wpcomBuildDomainSettingsLinks( fragment: DocumentFragment ) {
 	const previousSibling =
 		( fragment.getElementById( 'home' ) as HTMLInputElement ) ||
 		( fragment.getElementById( 'siteurl' ) as HTMLInputElement ) ||
-		document.querySelector( 'home' ) ||
-		document.querySelector( 'siteurl' );
+		document.getElementById( 'home' ) ||
+		document.getElementById( 'siteurl' );
 	if ( ! previousSibling ) {
 		return;
 	}
