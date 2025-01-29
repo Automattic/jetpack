@@ -5,7 +5,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon, info, check, lockOutline } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useState, useCallback, useMemo } from 'react';
-import { useAllProducts } from '../../data/products/use-product';
+import { useAllProducts } from '../../data/products/use-all-products';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useAnalytics from '../../hooks/use-analytics';

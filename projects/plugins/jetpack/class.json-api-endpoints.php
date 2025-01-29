@@ -6,7 +6,9 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 require_once __DIR__ . '/json-api-config.php';
 require_once __DIR__ . '/sal/class.json-api-links.php';
@@ -771,6 +773,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 					'is_super_admin' => '(bool)',
 					'roles'          => '(array:string)',
 					'ip_address'     => '(string|false)',
+					'wpcom_id'       => '(int|null)',
+					'wpcom_login'    => '(string|null)',
 				);
 				$return[ $key ] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
 				break;
@@ -1519,6 +1523,24 @@ abstract class WPCOM_JSON_API_Endpoint {
 		if ( $site_id > -1 ) {
 			$author['site_ID']      = (int) $site_id;
 			$author['site_visible'] = $site_visible;
+		}
+
+		// Only include WordPress.com user data when author_wpcom_data is enabled.
+		$args = $this->query_args();
+
+		if ( ! empty( $id ) && ! empty( $args['author_wpcom_data'] ) ) {
+			if ( ( new Host() )->is_wpcom_simple() ) {
+				$user                  = get_user_by( 'id', $id );
+				$author['wpcom_id']    = isset( $user->ID ) ? (int) $user->ID : null;
+				$author['wpcom_login'] = $user->user_login ?? '';
+			} else {
+				// If this is a Jetpack site, use the connection manager to get the user data.
+				$wpcom_user_data = ( new Manager() )->get_connected_user_data( $id );
+				if ( $wpcom_user_data && isset( $wpcom_user_data['ID'] ) ) {
+					$author['wpcom_id']    = (int) $wpcom_user_data['ID'];
+					$author['wpcom_login'] = $wpcom_user_data['login'] ?? '';
+				}
+			}
 		}
 
 		return (object) $author;

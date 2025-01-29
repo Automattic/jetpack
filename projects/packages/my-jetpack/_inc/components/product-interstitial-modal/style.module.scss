@@ -1,30 +1,56 @@
+$interstitial-modal-padding: 40px;
+
 .component-product-interstitial-modal {
+	// Not all variables are available everywhere.
+	--font-headline-medium: 48px;
+	--font-headline-small: 36px;
+	--font-title-medium: 24px;
+	--font-body: 16px;
+	--font-body-small: 14px;
+	--font-body-extra-small: 14px;
+	--spacing-base: 8px;
+
 	:global(.components-modal__header) + div {
 		height: 100%;
 	}
+
+	:global(.components-modal__content) {
+		padding: $interstitial-modal-padding;
+		margin-top: 0;
+	}
+
+	:global(.components-modal__header) {
+		height: $interstitial-modal-padding;
+		padding: 8px 8px 0;
+	}
+
+	.wrapper {
+		height: 100%;
+		padding: 0;
+	}
 }
 
-
-.wrapper {
-	height: 100%;
-}
 
 .primary {
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
+	gap: 1rem;
 }
 
 .primary-content {
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
+	gap: 1rem;
+	flex: 1;
 }
 
 .primary-footer {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
+	padding-bottom: 8px;
 }
 
 .secondary {
@@ -49,4 +75,24 @@
 .additional {
 	display: flex;
 	flex-direction: column;
+}
+
+.features {
+	margin: 0;
+	padding: 0;
+	flex-grow: 1;
+	margin-bottom: calc( var( --spacing-base ) * 2 );
+
+	li {
+		list-style: none;
+		display: flex;
+		align-items: flex-start;
+		margin-bottom: var( --spacing-base );
+	}
+
+	svg {
+		fill: var( --jp-green-primary);
+		margin-right: var( --spacing-base );
+		flex-shrink: 0;
+	}
 }

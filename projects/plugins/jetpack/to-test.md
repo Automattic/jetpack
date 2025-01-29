@@ -14,6 +14,39 @@ You can see a [full list of changes in this release here](https://github.com/Aut
 
 ## General testing
 
-Once ready for testing, you'll find instructions here.
+### Ensure Tiled Gallery images can be reordered and removed
+
+1. Install and activate the Gutenberg plugin (v19.9+).
+2. Add a Tiled Gallery block to a post or page, and add multiple images.
+3. Try rearranging and deleting individual images within the Tiled Gallery block.
+
+PR: https://github.com/Automattic/jetpack/pull/40779
+
+### Allow HTML block within forms
+
+1. Add a Form block to a page.
+2. Add an HTML block inside the Form block.
+3. Verify that the editor and frontend both function as expected.
+
+PR: https://github.com/Automattic/jetpack/pull/41040
+
+### Add a new default block when pressing enter on Form fields
+
+1. Add a Form block to a page.
+2. Add one or all of the following fields:
+    * Text
+    * Name
+    * Email
+    * URL
+    * Telephone
+    * Date
+    * Single Checkbox
+    * Consent
+3. While a field block listed above is selected, press Enter.
+4. Verify a new default block is created.
+
+PRs:
+* https://github.com/Automattic/jetpack/pull/41177
+* https://github.com/Automattic/jetpack/pull/41297
 
 **Thank you for all your help!**

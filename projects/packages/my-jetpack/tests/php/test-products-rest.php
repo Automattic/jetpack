@@ -167,20 +167,30 @@ class Test_Products_Rest extends TestCase {
 	public function test_get_product() {
 		$product = Products::get_product( 'boost' );
 
-		$request = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/products/boost' );
+		$request = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/products' );
+		$request->set_query_params(
+			array(
+				'products' => 'boost',
+			)
+		);
 
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertEquals( $product, $data );
+		$this->assertEquals( $product, $data['boost'] );
 	}
 
 	/**
 	 * Test GET invalid product
 	 */
 	public function test_get_invalid_product() {
-		$request = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/products/invalid' );
+		$request = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/products' );
+		$request->set_query_params(
+			array(
+				'products' => 'invalid',
+			)
+		);
 
 		$response = $this->server->dispatch( $request );
 
@@ -194,14 +204,19 @@ class Test_Products_Rest extends TestCase {
 
 		$this->assertFalse( is_plugin_active( $this->boost_mock_filename ) );
 
+		$body = array(
+			'products' => array( 'boost' ),
+		);
 		// Activate.
-		$request = new WP_REST_Request( 'POST', '/my-jetpack/v1/site/products/boost' );
+		$request = new WP_REST_Request( 'POST', '/my-jetpack/v1/site/products/activate' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( $body ) );
 
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertEquals( 'can_upgrade', $data['status'] );
+		$this->assertEquals( 'can_upgrade', $data['boost']['status'] );
 		$this->assertTrue( is_plugin_active( $this->boost_mock_filename ) );
 	}
 
@@ -213,14 +228,19 @@ class Test_Products_Rest extends TestCase {
 		activate_plugin( $this->boost_mock_filename );
 		$this->assertTrue( is_plugin_active( $this->boost_mock_filename ) );
 
+		$body = array(
+			'products' => array( 'boost' ),
+		);
 		// Deactivate.
-		$request = new WP_REST_Request( 'DELETE', '/my-jetpack/v1/site/products/boost' );
+		$request = new WP_REST_Request( 'DELETE', '/my-jetpack/v1/site/products/deactivate' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( $body ) );
 
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertEquals( 'needs_activation', $data['status'] );
+		$this->assertEquals( 'needs_activation', $data['boost']['status'] );
 		$this->assertFalse( is_plugin_active( $this->boost_mock_filename ) );
 	}
 
@@ -233,8 +253,13 @@ class Test_Products_Rest extends TestCase {
 
 		$this->assertFalse( is_plugin_active( $this->boost_mock_filename ) );
 
+		$body = array(
+			'products' => array( 'boost' ),
+		);
 		// Activate.
-		$request = new WP_REST_Request( 'POST', '/my-jetpack/v1/site/products/boost' );
+		$request = new WP_REST_Request( 'POST', '/my-jetpack/v1/site/products/activate' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( $body ) );
 
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();

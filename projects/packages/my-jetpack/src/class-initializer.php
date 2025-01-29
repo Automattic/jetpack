@@ -822,6 +822,38 @@ class Initializer {
 	}
 
 	/**
+	 * Gets the plugins that need installed or activated for each paid plan.
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plans_plugins_requirements() {
+		$plugin_requirements = array();
+		foreach ( Products::get_products_classes() as $slug => $product_class ) {
+			// Skip these- we don't show them in My Jetpack.
+			if ( in_array( $slug, Products::get_not_shown_products(), true ) ) {
+				continue;
+			}
+			if ( ! $product_class::has_paid_plan_for_product() ) {
+				continue;
+			}
+			$purchase = $product_class::get_paid_plan_purchase_for_product();
+			if ( ! $purchase ) {
+				continue;
+			}
+			// Check if required plugin needs installed or activated.
+			if ( ! $product_class::is_plugin_installed() ) {
+				// Plugin needs installed (and activated)
+				$plugin_requirements[ $purchase->product_slug ]['needs_installed'][] = $product_class::$slug;
+			} elseif ( ! $product_class::is_plugin_active() ) {
+				// Plugin is installed, but not activated.
+				$plugin_requirements[ $purchase->product_slug ]['needs_activated_only'][] = $product_class::$slug;
+			}
+		}
+
+		return $plugin_requirements;
+	}
+
+	/**
 	 * Conditionally append the red bubble notification to the "Jetpack" menu item if there are alerts to show
 	 *
 	 * @return void
@@ -958,7 +990,8 @@ class Initializer {
 				self::alert_if_missing_connection( $red_bubble_slugs ),
 				self::alert_if_last_backup_failed( $red_bubble_slugs ),
 				self::alert_if_paid_plan_expiring( $red_bubble_slugs ),
-				self::alert_if_protect_has_threats( $red_bubble_slugs )
+				self::alert_if_protect_has_threats( $red_bubble_slugs ),
+				self::alert_if_paid_plan_requires_plugin_install_or_activation( $red_bubble_slugs )
 			);
 		}
 	}
@@ -1012,22 +1045,12 @@ class Initializer {
 		if ( ! $connection->is_connected() ) {
 			return $red_bubble_slugs;
 		}
-		$product_classes    = Products::get_products_classes();
-		$not_shown_products = array(
-			'scan',
-			'extras',
-			'ai',
-			'newsletter',
-			'site-accelerator',
-			'related-posts',
-		);
+		$product_classes = Products::get_products_classes();
 
 		$products_included_in_expiring_plan = array();
 		foreach ( $product_classes as $key => $product ) {
 			// Skip these- we don't show them in My Jetpack.
-			// ('ai' is a duplicate class of 'jetpack-ai', and therefore not needed).
-			// See `get_product_classes() in projects/packages/my-jetpack/src/class-products.php for more info.
-			if ( in_array( $key, $not_shown_products, true ) ) {
+			if ( in_array( $key, Products::get_not_shown_products(), true ) ) {
 				continue;
 			}
 
@@ -1073,9 +1096,18 @@ class Initializer {
 	 * @return array
 	 */
 	public static function alert_if_last_backup_failed( array $red_bubble_slugs ) {
-		// Make sure we're dealing with the Backup product only
-		if ( ! Products\Backup::has_paid_plan_for_product() ) {
+		// Make sure there's a Backup paid plan
+		if ( ! Products\Backup::is_plugin_active() || ! Products\Backup::has_paid_plan_for_product() ) {
 			return $red_bubble_slugs;
+		}
+		// Make sure the plan isn't just recently purchased in last 30min.
+		// Give some time to queue & run the first backup.
+		$purchase = Products\Backup::get_paid_plan_purchase_for_product();
+		if ( $purchase ) {
+			$thirty_minutes_after_plan_purchase = strtotime( $purchase->subscribed_date . ' +30 minutes' );
+			if ( strtotime( 'now' ) < $thirty_minutes_after_plan_purchase ) {
+				return $red_bubble_slugs;
+			}
 		}
 
 		$backup_failed_status = Products\Backup::does_module_need_attention();
@@ -1101,6 +1133,31 @@ class Initializer {
 		$protect_threats_status = Products\Protect::does_module_need_attention();
 		if ( $protect_threats_status ) {
 			$red_bubble_slugs['protect_has_threats'] = $protect_threats_status;
+		}
+
+		return $red_bubble_slugs;
+	}
+	/**
+	 * Add an alert slug if a site's paid plan requires a plugin install and/or activation.
+	 *
+	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
+	 * @return array
+	 */
+	public static function alert_if_paid_plan_requires_plugin_install_or_activation( array $red_bubble_slugs ) {
+		$connection = new Connection_Manager();
+		// Don't trigger red bubble (and show notice) when the site is not connected or if the
+		// user doesn't have plugin installation/activation permissions.
+		if ( ! $connection->is_connected() || ! current_user_can( 'activate_plugins' ) ) {
+			return $red_bubble_slugs;
+		}
+
+		$plugins_needing_installed_activated = self::get_paid_plans_plugins_requirements();
+		if ( empty( $plugins_needing_installed_activated ) ) {
+			return $red_bubble_slugs;
+		}
+
+		foreach ( $plugins_needing_installed_activated as $plan_slug => $plugins_requirements ) {
+			$red_bubble_slugs[ "$plan_slug--plugins_needing_installed_activated" ] = $plugins_requirements;
 		}
 
 		return $red_bubble_slugs;

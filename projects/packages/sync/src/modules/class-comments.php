@@ -552,6 +552,7 @@ class Comments extends Module {
 	public function get_next_chunk( $config, $status, $chunk_size ) {
 
 		$comment_ids = parent::get_next_chunk( $config, $status, $chunk_size );
+		// If no comment IDs were fetched, return an empty array.
 		if ( empty( $comment_ids ) ) {
 			return array();
 		}
@@ -562,8 +563,13 @@ class Comments extends Module {
 				'order'       => 'DESC',
 			)
 		);
+		// If no comments were fetched, make sure to return the expected structure so that status is updated correctly.
 		if ( empty( $comments ) ) {
-			return array();
+			return array(
+				'object_ids' => $comment_ids,
+				'objects'    => array(),
+				'meta'       => array(),
+			);
 		}
 		// Get the comment IDs from the comments that were fetched.
 		$fetched_comment_ids = wp_list_pluck( $comments, 'comment_ID' );
