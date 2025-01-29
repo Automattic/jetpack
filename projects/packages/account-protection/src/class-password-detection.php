@@ -113,7 +113,6 @@ class Password_Detection {
 		&& isset( $_GET['_wpnonce'] )
 		&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'resend_email_nonce' )
 		) {
-
 				$email_resent = $this->email_service->resend_auth_email( $current_user, $transient_data, $token );
 			if ( ! $email_resent ) {
 				$message = __( 'Failed to resend authentication email. Please try again.', 'jetpack-account-protection' );
