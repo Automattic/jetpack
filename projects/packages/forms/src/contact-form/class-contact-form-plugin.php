@@ -699,8 +699,16 @@ class Contact_Form_Plugin {
 
 			// Process the content to populate Contact_Form::$last
 			if ( $post ) {
+				if ( str_contains( $post->post_content, '<!--nextpage-->' ) ) {
+					$postdata = generate_postdata( $post );
+					$page     = isset( $_POST['page'] ) ? sanitize_text_field( wp_unslash( $_POST['page'] ) ) : null; // phpcs:Ignore WordPress.Security.NonceVerification.Missing
+					$paged    = isset( $page ) ? $page : 1;
+					$content  = $postdata['pages'][ $paged - 1 ];
+				} else {
+					$content = $post->post_content;
+				}
 				/** This filter is already documented in core. wp-includes/post-template.php */
-				apply_filters( 'the_content', $post->post_content );
+				apply_filters( 'the_content', $content );
 			}
 		}
 
