@@ -30,6 +30,44 @@ class Contact_Form_Block {
 				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
 			)
 		);
+
+		add_filter( 'render_block_data', array( __CLASS__, 'find_nested_html_block' ), 10, 3 );
+		add_filter( 'render_block_core/html', array( __CLASS__, 'render_wrapped_html_block' ), 10, 2 );
+	}
+
+	/**
+	 *  Find nested html block that reside in the contact form block.
+	 *  We are using this to wrap the html block with div if it is nested inside contact form block. So that the elements render as expected.
+	 *
+	 *  @param array  $parsed_block - the parsed block.
+	 *  @param array  $source_block - the source block.
+	 *  @param object $parent_block - the parent WP_Block.
+	 *
+	 *  @return array
+	 */
+	public static function find_nested_html_block( $parsed_block, $source_block, $parent_block ) {
+		if ( $parsed_block['blockName'] === 'core/html' && isset( $parent_block->parsed_block ) && $parent_block->parsed_block['blockName'] === 'jetpack/contact-form' ) {
+			$parsed_block['hasJPFormParent'] = true;
+		}
+		return $parsed_block;
+	}
+
+	/**
+	 * Render wrapped html block that is inside the form block with a wrapped div so that the elements render as expected.
+	 * The extra div is needed because the form block has a `flex: 0 0 100%;` applied to all the children of the form block.
+	 * This cases all the elementes inside the block to render in a single line and make it not possible to add have inline elements.
+	 *
+	 * @param string $content - the content of the block.
+	 * @param array  $parsed_block - the parsed block.
+	 *
+	 * @return string
+	 */
+	public static function render_wrapped_html_block( $content, $parsed_block ) {
+		if ( ! empty( $parsed_block['hasJPFormParent'] ) ) {
+			return '<div>' . $content . '</div>';
+		}
+
+		return $content;
 	}
 
 	/**

@@ -1,6 +1,7 @@
 import { type FixersStatus, type ScanStatus, type WafStatus } from '@automattic/jetpack-scan';
 import apiFetch from '@wordpress/api-fetch';
 import camelize from 'camelize';
+import type { ProductData } from './types/products';
 
 const API = {
 	getWaf: (): Promise< WafStatus > =>
@@ -108,10 +109,12 @@ const API = {
 		} ),
 
 	getProductData: () =>
-		apiFetch( {
-			path: '/my-jetpack/v1/site/products/scan',
-			method: 'GET',
-		} ).then( camelize ),
+		(
+			apiFetch( {
+				path: '/my-jetpack/v1/site/products?products=scan',
+				method: 'GET',
+			} ) as Promise< { [ key: string ]: ProductData } >
+		 ).then( products => camelize( products?.scan ) ),
 };
 
 export default API;

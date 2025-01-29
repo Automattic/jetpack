@@ -3,8 +3,8 @@
 	bottom: 32px;
 	left: 50%;
 	transform: translateX(-50%);
-	width: 384px;
-	height: 434px;
+	width: 440px;
+	max-height: 434px;
 	background: white;
 	border-radius: 24px;
 	outline: 0.5px solid var( --jp-gray-5 );
@@ -67,7 +67,6 @@
 
 	&__message {
 		border-radius: 16px;
-		white-space: pre-line;
 		animation: messageAppear 0.3s ease-out;
 		font-size: 13px;
 		line-height: 1.5;
@@ -77,8 +76,9 @@
 
 		.assistant-wizard__message-icon {
 			flex-shrink: 0;
-			align-self: center;
+			align-self: baseline;
 			flex-basis: 26px;
+			line-height: 2;
 
 			img {
 				vertical-align: middle;
@@ -86,7 +86,7 @@
 		}
 
 		.assistant-wizard__message-text {
-			padding: 4px 12px;
+			padding: 0px 12px;
 			// flex: 1 0 200px;
 		}
 
