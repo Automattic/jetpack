@@ -1,4 +1,4 @@
-import { Button, ProductPrice } from '@automattic/jetpack-components';
+import { Button, ProductPrice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { type FC } from 'react';
@@ -79,7 +79,7 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 					{
 						link: (
 							<Button
-								href="https://jetpack.com/redirect/?source=ai-assistant-fair-usage-policy"
+								href={ getRedirectUrl( 'ai-assistant-fair-usage-policy' ) }
 								variant="link"
 								weight="regular"
 								size="small"

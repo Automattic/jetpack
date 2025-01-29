@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 6.1.0 - 2025-01-27
+### Changed
+- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
+- License: Social admin page header hides license link on WoA sites. [#41076]
+- Moved the Social admin page to the publicize-components package [#41181]
+- Refactored Social Note settings to use core [#41153]
+- Updated package dependencies. [#41099]
+
+### Fixed
+- Fixed profile links for LinkedIn connections [#40873]
+- Fixed wordpress.com log in error when connecting Social accounts [#41149]
+- Fix publicize error in the editor due to malformed connections data [#40679]
+
 ## 6.0.0 - 2025-01-14
 ### Added
 - Add Bluesky to social feature copy. [#40487]

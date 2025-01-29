@@ -5,6 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=7.2",
+		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-config": "@dev",
@@ -72,7 +73,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.57.x-dev"
+			"dev-trunk": "0.58.x-dev"
 		}
 	},
 	"config": {

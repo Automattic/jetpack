@@ -63,7 +63,7 @@ class Jetpack_Geo_Location {
 	public function wordpress_init() {
 		// Only render location label after post content, if the theme claims to support "geo-location".
 		if ( current_theme_supports( 'jetpack-geo-location' ) ) {
-			_deprecated_class( 'Jetpack_Geo_Location', '$$next-version$$', '' );
+			_deprecated_class( 'Jetpack_Geo_Location', '14.3', '' );
 		}
 	}
 }

@@ -6,22 +6,73 @@ import { useCallback, useState, type FC } from 'react';
 import styles from './style.module.scss';
 
 interface ProductInterstitialModalProps {
+	/**
+	 * Title of the modal
+	 */
 	title: string;
+	/**
+	 * Description of the modal
+	 */
 	description?: string;
+	/**
+	 * Trigger button of the modal
+	 */
 	triggerButton?: React.ReactNode;
+	/**
+	 * Class name of the modal
+	 */
 	className?: string;
+	/**
+	 * Children of the modal, placed in the left column between the description and the price component
+	 */
 	children?: React.ReactNode;
+	/**
+	 * Secondary column of the modal, placed in the right column or the middle column (if hasAdditionalColumn is true)
+	 */
 	secondaryColumn?: React.ReactNode;
+	/**
+	 * Show additional column in the modal switching to three columns layout (additional column is always on the right)
+	 */
 	additionalColumn?: React.ReactNode;
+	/**
+	 * On open callback of the modal
+	 */
 	onOpen?: () => void;
+	/**
+	 * On close callback of the modal
+	 */
 	onClose?: () => void;
+	/**
+	 * On click callback of the modal
+	 */
 	onClick?: () => void;
-	secondaryButtonExternalLink?: boolean;
-	secondaryButtonHref?: string;
-	buttonDisabled?: boolean;
-	buttonExternalLink?: boolean;
+	/**
+	 * Href of the CTA button in the modal
+	 */
 	buttonHref?: string;
-	buttonContent?: string;
+	/**
+	 * Is CTA button disabled
+	 */
+	isButtonDisabled?: boolean;
+	/**
+	 * Show an external link icon for the CTA button
+	 */
+	buttonHasExternalLink?: boolean;
+	/**
+	 * Label of the CTA button
+	 */
+	buttonLabel?: string;
+	/**
+	 * Show an external link icon for the secondary button
+	 */
+	secondaryButtonHasExternalLink?: boolean;
+	/**
+	 * Href of the secondary button
+	 */
+	secondaryButtonHref?: string;
+	/**
+	 * Price component of the modal
+	 */
 	priceComponent?: React.ReactNode;
 }
 
@@ -35,11 +86,11 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 		onOpen,
 		onClose,
 		onClick,
-		buttonDisabled,
-		buttonExternalLink = false,
+		isButtonDisabled,
+		buttonHasExternalLink = false,
 		buttonHref,
-		buttonContent,
-		secondaryButtonExternalLink = true,
+		buttonLabel,
+		secondaryButtonHasExternalLink = true,
 		secondaryButtonHref,
 		secondaryColumn,
 		additionalColumn = false,
@@ -63,9 +114,6 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 	return (
 		<>
 			<ThemeProvider>
-				{
-					// TODO: use any component as a trigger
-				 }
 				<Button variant="secondary" onClick={ openModal }>
 					{ triggerButton }
 				</Button>
@@ -81,7 +129,7 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 							fluid={ false }
 						>
 							{
-								// left column - always takes 33% of the width or the full with for small breakpoint
+								// left column - always takes 33% of the width or the full width for small breakpoint
 							 }
 							<Col sm={ 4 } md={ 8 } lg={ 4 } className={ styles.primary }>
 								<div className={ styles[ 'primary-content' ] }>
@@ -104,16 +152,16 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 									<Button
 										variant="primary"
 										className={ styles[ 'action-button' ] }
-										disabled={ buttonDisabled }
+										disabled={ isButtonDisabled }
 										onClick={ onClick }
-										isExternalLink={ buttonExternalLink }
+										isExternalLink={ buttonHasExternalLink }
 										href={ buttonHref }
 									>
-										{ buttonContent }
+										{ buttonLabel }
 									</Button>
 									<Button
 										variant="link"
-										isExternalLink={ secondaryButtonExternalLink }
+										isExternalLink={ secondaryButtonHasExternalLink }
 										href={ secondaryButtonHref }
 									>
 										{ __( 'Learn more', 'jetpack-my-jetpack' ) }

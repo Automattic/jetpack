@@ -1,3 +1,5 @@
+$interstitial-modal-padding: 40px;
+
 .component-product-interstitial-modal {
 	// Not all variables are available everywhere.
 	--font-headline-medium: 48px;
@@ -11,12 +13,23 @@
 	:global(.components-modal__header) + div {
 		height: 100%;
 	}
+
+	:global(.components-modal__content) {
+		padding: $interstitial-modal-padding;
+		margin-top: 0;
+	}
+
+	:global(.components-modal__header) {
+		height: $interstitial-modal-padding;
+		padding: 8px 8px 0;
+	}
+
+	.wrapper {
+		height: 100%;
+		padding: 0;
+	}
 }
 
-
-.wrapper {
-	height: 100%;
-}
 
 .primary {
 	display: flex;
@@ -37,6 +50,7 @@
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
+	padding-bottom: 8px;
 }
 
 .secondary {
