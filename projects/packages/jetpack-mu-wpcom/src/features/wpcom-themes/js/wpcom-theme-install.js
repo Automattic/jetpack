@@ -13,7 +13,7 @@
 		},
 
 		baseUrl: function ( url ) {
-			return 'themes.php?page=wpcom-install-theme' + url;
+			return 'themes.php?page=wpcom-install-theme&' + url.replace( '?', '' );
 		},
 
 		themePath: '&theme=',
