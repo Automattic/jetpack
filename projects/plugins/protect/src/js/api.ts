@@ -2,11 +2,10 @@ import { type FixersStatus, type ScanStatus } from '@automattic/jetpack-scan';
 import apiFetch from '@wordpress/api-fetch';
 import camelize from 'camelize';
 import type { ProductData } from './types/products';
-import { AccountProtectionStatus } from './types/account-protection';
 import { WafStatus } from './types/waf';
 
 const API = {
-	getAccountProtection: (): Promise< AccountProtectionStatus > =>
+	getAccountProtection: () =>
 		apiFetch( {
 			path: 'jetpack-protect/v1/account-protection',
 			method: 'GET',
@@ -17,13 +16,6 @@ const API = {
 			method: 'POST',
 			path: 'jetpack-protect/v1/toggle-account-protection',
 		} ),
-
-	updateAccountProtection: data =>
-		apiFetch( {
-			method: 'POST',
-			path: 'jetpack/v4/account-protection',
-			data,
-		} ).then( camelize ),
 
 	getWaf: (): Promise< WafStatus > =>
 		apiFetch( {

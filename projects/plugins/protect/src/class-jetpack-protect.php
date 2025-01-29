@@ -215,8 +215,7 @@ class Jetpack_Protect {
 		// Always fetch the latest plan status from WPCOM.
 		$has_plan = Plan::has_required_plan( true );
 
-		$status             = Status::get_status();
-		$account_protection = new Account_Protection();
+		$status = Status::get_status();
 
 		$initial_state = array(
 			'apiRoot'            => esc_url_raw( rest_url() ),
@@ -235,10 +234,7 @@ class Jetpack_Protect {
 			'jetpackScan'        => My_Jetpack_Products::get_product( 'scan' ),
 			'hasPlan'            => $has_plan,
 			'onboardingProgress' => Onboarding::get_current_user_progress(),
-			'accountProtection'  => array(
-				'isEnabled' => $account_protection->is_enabled(),
-				'settings'  => $account_protection->get_settings(),
-			),
+			'accountProtection'  => ( new Account_Protection() )->is_enabled(),
 			'waf'                => array(
 				'wafSupported'        => Waf_Runner::is_supported_environment(),
 				'currentIp'           => IP_Utils::get_ip(),

@@ -2335,14 +2335,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_posint',
 				'jp_group'          => 'settings',
 			),
-			// Account Protection.
-			'jetpack_account_protection_strict_mode'    => array(
-				'description'       => esc_html__( 'Strict mode - Require strong passwords.', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'account-protection',
-			),
 			// WAF.
 			'jetpack_waf_automatic_rules'               => array(
 				'description'       => esc_html__( 'Enable automatic rules - Protect your site against untrusted traffic sources with automatic security rules.', 'jetpack' ),

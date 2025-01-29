@@ -15,7 +15,6 @@ use Automattic\Jetpack\Modules;
 class Account_Protection {
 	const PACKAGE_VERSION                = '0.1.0-alpha';
 	const ACCOUNT_PROTECTION_MODULE_NAME = 'account-protection';
-	const STRICT_MODE_OPTION_NAME        = 'jetpack_account_protection_strict_mode';
 
 	/**
 	 * Modules instance.
@@ -64,9 +63,6 @@ class Account_Protection {
 		// Do not run in unsupported environments
 		add_action( 'jetpack_get_available_modules', array( $this, 'remove_module_on_unsupported_environments' ) );
 		add_action( 'jetpack_get_available_standalone_modules', array( $this, 'remove_standalone_module_on_unsupported_environments' ) );
-
-		// Register REST routes
-		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 	}
 
 	/**
@@ -188,18 +184,5 @@ class Account_Protection {
 		}
 
 		return $modules;
-	}
-
-	/**
-	 * Get the account protection settings.
-	 *
-	 * @return array
-	 */
-	public function get_settings(): array {
-		$settings = array(
-			self::STRICT_MODE_OPTION_NAME => get_option( self::STRICT_MODE_OPTION_NAME, false ),
-		);
-
-		return $settings;
 	}
 }
