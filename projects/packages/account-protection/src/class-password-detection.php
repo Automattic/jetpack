@@ -111,7 +111,6 @@ class Password_Detection {
 		// Handle resend email request
 		if ( isset( $_GET['resend_email'] ) && $_GET['resend_email'] === '1' ) {
 			$email_resent = $this->email_service->resend_auth_email( $current_user, $transient_data, $token );
-
 			if ( ! $email_resent ) {
 				// TODO: Add error handling -> 'email_resend_error', 'Failed to resend the authentication email or reached the maximum number of attempts.'
 			}
@@ -144,15 +143,23 @@ class Password_Detection {
 			<head>
 				<meta charset="UTF-8">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				<title><?php echo esc_html( 'Jetpack - Secure Your Account' ); ?></title>
+				<title><?php echo esc_html__( 'Jetpack - Secure Your Account', 'jetpack-account-protection' ); ?></title>
 				<?php wp_head(); ?>
 			</head>
 			<body class="password-detection-wrapper">
 				<div class="password-detection">
 					<?php require plugin_dir_path( __FILE__ ) . '/assets/jetpack-logo.svg'; ?>
-					<p class="password-detection-title"><?php echo esc_html( 'Verify your identity' ); ?></p>
-						<p>We've noticed that your current password may have been compromised in a public leak. To keep your account safe, we've added an extra layer of security.</p>
-						<p>We've sent a code to <?php echo esc_html( $masked_email ); ?>. Please check your inbox and enter the code below to verify it's really you.</p>
+					<p class="password-detection-title"><?php echo esc_html__( 'Verify your identity', 'jetpack-account-protection' ); ?></p>
+						<p><?php echo esc_html__( 'We\'ve noticed that your current password may have been compromised in a public leak. To keep your account safe, we\'ve added an extra layer of security.', 'jetpack-account-protection' ); ?></p>
+						<p>
+							<?php
+								printf(
+									/* translators: %s: Masked email address */
+									esc_html__( 'We\'ve sent a code to %s. Please check your inbox and enter the code below to verify it\'s really you.', 'jetpack-account-protection' ),
+									esc_html( $masked_email )
+								);
+							?>
+						</p>
 						<div class="actions">
 							<form method="post">
 								<?php wp_nonce_field( 'verify_action', '_wpnonce_verify' ); ?>
@@ -160,15 +167,15 @@ class Password_Detection {
 									type="number"
 									name="user_input"
 									class="action-input"
-									placeholder="Enter verification code"
+									placeholder="<?php esc_attr_e( 'Enter verification code', 'jetpack-account-protection' ); ?>"
 									required
 								/>
-								<button class="action action-verify" type="submit" name="verify">Verify</button>
+								<button class="action action-verify" type="submit" name="verify"><?php esc_html_e( 'Verify', 'jetpack-account-protection' ); ?></button>
 							</form>
 						</div>
 						<p class="email-status">
-							<span>Didn't get the code? </span>
-							<a href=<?php echo esc_attr( $redirect_url ) . '&resend_email=1'; ?>>Resend email</a>
+							<span><?php esc_html_e( 'Didn\'t get the code?', 'jetpack-account-protection' ); ?> </span>
+							<a href="<?php echo esc_url( $redirect_url . '&resend_email=1' ); ?>"><?php esc_html_e( 'Resend email', 'jetpack-account-protection' ); ?></a>
 						</p>
 				</div>
 				<?php wp_footer(); ?>
@@ -206,7 +213,6 @@ class Password_Detection {
 		);
 
 		$transient_set = set_transient( Config::TRANSIENT_PREFIX . "_{$token}", $data, Config::EMAIL_SENT_EXPIRATION );
-
 		if ( ! $transient_set ) {
 			// TODO: Add error handling -> 'transient_set_error', 'Failed to set transient data.'
 		}

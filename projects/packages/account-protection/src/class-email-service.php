@@ -45,16 +45,18 @@ class Email_Service {
 		$blog_name = esc_html( get_bloginfo( 'name' ) );
 		$user_url  = ! empty( $user->user_url ) ? esc_url( $user->user_url ) : esc_url( home_url() );
 
-		$subject = 'Verify your identity at Jetpack';
+		$subject = esc_html__( 'Verify your identity at Jetpack', 'jetpack-account-protection' );
 		$message = sprintf(
-			'
-			<p>Hi %s,</p>
-			<p>Your current password for <a href="%s">%s</a> was found in a public leak, which means your account might be at risk.</p>
-			<p>To help protect your account, please enter this code at the login prompt:</p>
-			<p><strong>%s</strong></p>
-			<p>If you didn\'t just log into %s, please do so now and change your password.</p>
-			<p>Stay secure,<br>Jetpack</p>
-			',
+			/* translators: 1: User login, 2: User URL, 3: Blog name, 4: Authentication code, 5: User URL, 6: Blog name */
+			__(
+				'<p>Hi %1$s,</p>
+                <p>Your current password for <a href="%2$s">%3$s</a> was found in a public leak, which means your account might be at risk.</p>
+                <p>To help protect your account, please enter this code at the login prompt:</p>
+                <p><strong>%4$s</strong></p>
+                <p>If you didn\'t just log into %5$s, please do so now and change your password.</p>
+                <p>Stay secure,<br>Jetpack</p>',
+				'jetpack-account-protection'
+			),
 			esc_html( $user->user_login ),
 			$user_url,
 			$blog_name,
