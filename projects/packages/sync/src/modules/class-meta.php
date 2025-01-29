@@ -38,6 +38,8 @@ class Meta extends Module {
 	 * @return array
 	 */
 	public function get_objects_by_id( $object_type, $config ) {
+		global $wpdb;
+
 		$table = _get_meta_table( $object_type );
 
 		if ( ! $table ) {
@@ -48,13 +50,64 @@ class Meta extends Module {
 			return array();
 		}
 
-		$meta_objects = array();
+		$object_id_column = $object_type . '_id';
+		$object_key_pairs = array();
+
 		foreach ( $config as $item ) {
-			$meta = null;
 			if ( isset( $item['id'] ) && isset( $item['meta_key'] ) ) {
-				$meta = $this->get_object_by_id( $object_type, (int) $item['id'], (string) $item['meta_key'] );
+				$object_key_pairs[ (int) $item['id'] ][] = (string) $item['meta_key'];
 			}
-			$meta_objects[ $item['id'] . '-' . $item['meta_key'] ] = $meta;
+		}
+
+		$conditionals         = array();
+		$where_sql            = '';
+		$current_query_length = 0;
+
+		foreach ( $object_key_pairs as $object_id => $keys ) {
+			$keys_placeholders = implode( ',', array_fill( 0, is_countable( $keys ) ? count( $keys ) : 0, '%s' ) );
+			$where_condition   = trim(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"( `$object_id_column` = %d AND meta_key IN ( $keys_placeholders ) )",
+					array_merge( array( $object_id ), $keys )
+				)
+			);
+
+			$where_sql = empty( $where_sql ) ? $where_condition : $where_sql . ' OR ' . $where_condition;
+
+			$current_query_length += strlen( $where_sql );
+
+			if ( $current_query_length > self::MAX_DB_QUERY_LENGTH ) {
+				$conditionals[]       = $where_sql;
+				$where_sql            = '';
+				$current_query_length = 0;
+			}
+		}
+
+		$conditionals[] = $where_sql;
+
+		$meta_objects = array();
+
+		foreach ( $conditionals as $where ) {
+			$meta = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.DirectQuery
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT * FROM {$table} WHERE {$where}",
+				ARRAY_A
+			);
+
+			if ( ! is_wp_error( $meta ) && ! empty( $meta ) ) {
+				foreach ( $meta as $meta_entry ) {
+					$object_id = $meta_entry[ $object_id_column ];
+					$meta_key  = $meta_entry['meta_key'];
+					$key       = $object_id . '-' . $meta_key;
+
+					if ( ! isset( $meta_objects[ $key ] ) ) {
+						$meta_objects[ $key ] = array();
+					}
+
+					$meta_objects[ $key ][] = $this->get_prepared_meta_object( $object_type, $meta_entry );
+				}
+			}
 		}
 
 		return $meta_objects;
@@ -94,19 +147,33 @@ class Meta extends Module {
 
 		if ( ! is_wp_error( $meta ) && ! empty( $meta ) ) {
 			foreach ( $meta as $meta_entry ) {
-				if ( 'post' === $object_type && strlen( $meta_entry['meta_value'] ) >= Posts::MAX_POST_META_LENGTH ) {
-					$meta_entry['meta_value'] = '';
-				}
-				$meta_objects[] = array(
-					'meta_type'  => $object_type,
-					'meta_id'    => $meta_entry['meta_id'],
-					'meta_key'   => $meta_key,
-					'meta_value' => $meta_entry['meta_value'],
-					'object_id'  => $meta_entry[ $object_id_column ],
-				);
+				$meta_objects[] = $this->get_prepared_meta_object( $object_type, $meta_entry );
 			}
 		}
 
 		return $meta_objects;
+	}
+
+	/**
+	 * Accepts a DB meta entry and returns it in a standard format.
+	 *
+	 * @param  string $object_type The meta object type, eg 'post', 'user' etc.
+	 * @param  array  $meta_entry  A meta array.
+	 * @return array
+	 */
+	private function get_prepared_meta_object( $object_type, $meta_entry ) {
+		$object_id_column = $object_type . '_id';
+
+		if ( 'post' === $object_type && strlen( $meta_entry['meta_value'] ) >= Posts::MAX_POST_META_LENGTH ) {
+			$meta_entry['meta_value'] = '';
+		}
+
+		return array(
+			'meta_type'  => $object_type,
+			'meta_id'    => $meta_entry['meta_id'],
+			'meta_key'   => $meta_entry['meta_key'],
+			'meta_value' => $meta_entry['meta_value'],
+			'object_id'  => $meta_entry[ $object_id_column ],
+		);
 	}
 }

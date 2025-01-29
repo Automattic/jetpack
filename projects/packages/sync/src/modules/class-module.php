@@ -30,6 +30,15 @@ abstract class Module {
 	const ARRAY_CHUNK_SIZE = 10;
 
 	/**
+	 * Max query length for DB queries.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const MAX_DB_QUERY_LENGTH = 15 * 1024;
+
+	/**
 	 * Sync module name.
 	 *
 	 * @access public
