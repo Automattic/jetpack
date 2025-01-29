@@ -7,7 +7,7 @@ import {
 	GlobalNotices,
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { siteHasFeature } from '@automattic/jetpack-script-data';
+import { getScriptData, siteHasFeature } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
@@ -25,8 +25,11 @@ import SocialNotesToggle from './toggles/social-notes-toggle';
 import UtmToggle from './toggles/utm-toggle';
 
 export const SocialAdminPage = () => {
+	const is_wpcom = getScriptData().site.host === 'wpcom';
+
 	const { isUserConnected, isRegistered } = useConnection();
-	const showConnectionCard = ! isRegistered || ! isUserConnected;
+	const showConnectionCard = ! is_wpcom && ( ! isRegistered || ! isUserConnected );
+
 	const [ forceDisplayPricingPage, setForceDisplayPricingPage ] = useState( false );
 
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
@@ -61,7 +64,8 @@ export const SocialAdminPage = () => {
 	return (
 		<AdminPage moduleName={ moduleName } header={ <AdminPageHeader /> }>
 			<GlobalNotices />
-			{ ( ! hasSocialPaidFeatures() && showPricingPage ) || forceDisplayPricingPage ? (
+			{ ( ! is_wpcom && ! hasSocialPaidFeatures() && showPricingPage ) ||
+			forceDisplayPricingPage ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col>
