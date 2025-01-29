@@ -17,8 +17,8 @@ export const isSavingSiteSettings = createRegistrySelector( select => () => {
 export const getSocialSettings = createRegistrySelector( select => () => {
 	const data = select( coreStore ).getEntityRecord< SocialSettingsFields >( 'root', 'site' );
 
-	// If we don't have the data yet, return the default settings
-	// from the initial state.
+	// If we don't have the data yet,
+	// return the default settings from the initial state.
 	if ( ! data ) {
 		return getSocialScriptData().settings;
 	}
