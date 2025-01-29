@@ -54,11 +54,11 @@ const SettingsPage = () => {
 				<Text mb={ 2 } className={ styles[ 'toggle-section__description' ] }>
 					{ createInterpolateElement(
 						__(
-							'Protect your site with enhanced password detection and profile management security.',
+							'Enabling this setting enhances account security by detecting compromised passwords and enforcing additional verification when needed. <linl>Learn more</link> about how this protects your site.',
 							'jetpack-protect'
 						),
 						{
-							link: <a href={ '#' } />, // TODO: Update this redirect URL
+							link: <a href={ '#' } />, // TODO: Update this redirect URL once document exists
 						}
 					) }
 				</Text>
@@ -71,7 +71,7 @@ const SettingsPage = () => {
 								'jetpack-protect'
 							),
 							{
-								link: <a href={ '#' } />, // TODO: Update this redirect URL
+								link: <a href={ '#' } />, // TODO: Update this redirect URL once document exists
 							}
 						) }
 					</Text>
