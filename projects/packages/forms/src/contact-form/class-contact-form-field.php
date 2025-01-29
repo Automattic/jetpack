@@ -1000,7 +1000,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_field( $type, $id, $label, $value, $class, $placeholder, $required, $required_field_text ) {
-		if ( ! $this->is_valid_field( $type ) ) {
+		if ( ! $this->is_field_renderable( $type ) ) {
 			return null;
 		}
 
@@ -1156,7 +1156,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 *
 	 * @return bool
 	 */
-	public function is_valid_field( $type ) {
+	public function is_field_renderable( $type ) {
 		// Check for valid radio field.
 		if ( $type === 'radio' ) {
 			$options           = (array) $this->get_attribute( 'options' );
@@ -1166,9 +1166,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					return $option !== '';
 				}
 			);
-			if ( count( $non_empty_options ) === 0 ) {
-				return false;
-			}
+			return count( $non_empty_options ) > 0;
 		}
 
 		return true;
