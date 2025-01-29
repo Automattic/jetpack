@@ -52,14 +52,9 @@ const SettingsPage = () => {
 					{ __( 'Account protection', 'jetpack-protect' ) }
 				</Text>
 				<Text mb={ 2 } className={ styles[ 'toggle-section__description' ] }>
-					{ createInterpolateElement(
-						__(
-							'Enabling this setting enhances account security by detecting compromised passwords and enforcing additional verification when needed. <link>Learn more</link> about how this protects your site.',
-							'jetpack-protect'
-						),
-						{
-							link: <a href={ '#' } />, // TODO: Update this redirect URL once document exists
-						}
+					{ __(
+						'Enabling this setting enhances account security by detecting compromised passwords and enforcing additional verification when needed.',
+						'jetpack-protect'
 					) }
 				</Text>
 				{ ! accountProtectionIsEnabled && (
