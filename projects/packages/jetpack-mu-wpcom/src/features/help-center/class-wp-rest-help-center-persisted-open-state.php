@@ -63,7 +63,7 @@ class WP_REST_Help_Center_Persisted_Open_State extends \WP_REST_Controller {
 
 		$response = json_decode( wp_remote_retrieve_body( $body ) );
 
-		$is_open = isset( $response->help_center_open ) && $response->help_center_open;
+		$is_open = $response->help_center_open ?? false;
 
 		$projected_response = array(
 			'help_center_open' => (bool) $is_open,
@@ -101,7 +101,7 @@ class WP_REST_Help_Center_Persisted_Open_State extends \WP_REST_Controller {
 
 		$response = json_decode( wp_remote_retrieve_body( $body ) );
 
-		$is_open = isset( $response->calypso_preferences ) && isset( $response->calypso_preferences->help_center_open ) && $response->help_center_open;
+		$is_open = $response->calypso_preferences->help_center_open ?? false;
 
 		$projected_response = array(
 			'calypso_preferences' => array(
