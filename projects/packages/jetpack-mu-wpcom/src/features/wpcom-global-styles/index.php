@@ -781,14 +781,7 @@ function wpcom_site_has_global_styles_in_personal_plan( $blog_id = 0 ) {
 		return false;
 	}
 
-	if ( ! function_exists( '\ExPlat\assign_given_user' ) || ! function_exists( '\WPCOM\Experiments\Internal\get_cached_experiment_by_name' ) ) {
-		return false;
-	}
-
-	// If the experiment is not running and the request isn't proxied, we can return early.
-	$exp     = \WPCOM\Experiments\Internal\get_cached_experiment_by_name( 'calypso_plans_global_styles_personal_20240127' );
-	$proxied = function_exists( 'wpcom_is_proxied_request' ) ? wpcom_is_proxied_request() : false;
-	if ( $exp->status !== 'running' && ! $proxied ) {
+	if ( ! function_exists( '\ExPlat\assign_given_user' ) ) {
 		return false;
 	}
 
