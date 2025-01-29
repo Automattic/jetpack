@@ -42,7 +42,8 @@ class Validation_Service {
 		$response_code = wp_remote_retrieve_response_code( $response );
 
 		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response['body'] ) ) {
-			return new \WP_Error( 'failed_fetching_weak_passwords', 'Failed to fetch weak passwords from the server', array( 'status' => $response_code ) );
+			return false;
+			// TODO: Return or log error?
 		}
 
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );

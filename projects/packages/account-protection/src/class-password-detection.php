@@ -48,13 +48,13 @@ class Password_Detection {
 			return $user;
 		}
 
-		if ( ! $this->validation_service->check_weak_passwords( $password ) ) {
+		if ( $this->validation_service->check_weak_passwords( $password ) ) {
 			// TODO: Every time the user logs in we generate a new token based transient. This is not ideal.
 			$transient = $this->generate_and_store_transient_data( $user->ID );
 
 			$email_sent = $this->email_service->send_auth_email( $user, $transient['auth_code'] );
 			if ( ! $email_sent ) {
-				// $this->add_error( 'email_send_error', 'Failed to send the authentication email.' );
+				// TODO: Add error handling -> 'email_send_error', 'Failed to send the authentication email.';
 			}
 
 			return new \WP_Error(
@@ -113,7 +113,7 @@ class Password_Detection {
 			$email_resent = $this->email_service->resend_auth_email( $current_user, $transient_data, $token );
 
 			if ( ! $email_resent ) {
-				// $this->add_error( 'email_resend_error', 'Failed to resend the authentication email.' );
+				// TODO: Add error handling -> 'email_resend_error', 'Failed to resend the authentication email or reached the maximum number of attempts.'
 			}
 
 			wp_safe_redirect( $this->get_redirect_url( $token ) );
@@ -208,7 +208,7 @@ class Password_Detection {
 		$transient_set = set_transient( Config::TRANSIENT_PREFIX . "_{$token}", $data, Config::EMAIL_SENT_EXPIRATION );
 
 		if ( ! $transient_set ) {
-			// $this->add_error( 'transient_set_error', 'Failed to set transient data.' );
+			// TODO: Add error handling -> 'transient_set_error', 'Failed to set transient data.'
 		}
 
 		return array(
@@ -244,7 +244,7 @@ class Password_Detection {
 	 */
 	private function handle_auth_form_submission( $current_user, $token, $auth_code ) {
 		if ( ! isset( $_POST['_wpnonce_verify'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce_verify'] ) ), 'verify_action' ) ) {
-			// $this->add_error( 'nonce_verification_error', 'Nonce verification failed.' );
+			// TODO: Add error handling -> 'nonce_verification_error', 'Nonce verification failed.'
 		}
 
 		$user_input = isset( $_POST['user_input'] ) ? sanitize_text_field( wp_unslash( $_POST['user_input'] ) ) : null;
@@ -257,7 +257,7 @@ class Password_Detection {
 			// TODO: Notify user to update their password/redirect to password update page
 			exit;
 		} else {
-			// $this->add_error( 'auth_code_verification_error', 'Authentication code verification failed.' );
+			// TODO: Add error handling -> 'auth_code_verification_error', 'Authentication code verification failed.'
 		}
 	}
 
