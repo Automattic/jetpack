@@ -23,7 +23,8 @@
         width: 100%;
     }
 
-    &__description {
+    &__description,
+    &__info {
         a {
             color: inherit;
     
@@ -34,17 +35,9 @@
     }
 
     &__info {
-        a {
-            color: inherit;
-    
-            &:hover {
-                color: var( --jp-black );
-            }
-        }
-
         svg {
             fill: var( --jp-gray-70 );
-            margin-bottom: calc( -1 * var( --spacing-base ) * 3/4 ); // -6px
+            margin-bottom: calc( -0.75 * var( --spacing-base ) ); // -6px
             margin-right: calc( var( --spacing-base ) / 4 ); // 2px
         }
     }
