@@ -71,8 +71,18 @@ class Config {
 		$cache_dir = static::get_cache_dir_path();
 		$use_cache = ! empty( $cache_dir );
 
+		if ( ! $use_cache ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log(
+					__( 'Disabling page-optimize cache. Cache directory not defined.', 'jetpack-boost' )
+				);
+			}
+			return false;
+		}
+
 		// Ensure the cache directory exists.
-		if ( $use_cache && ! static::ensure_dir_exists( $cache_dir ) ) {
+		if ( ! static::ensure_dir_exists( $cache_dir ) ) {
 			$use_cache = false;
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -87,7 +97,7 @@ class Config {
 		}
 
 		// Ensure the cache directory is writable.
-		if ( $use_cache && ! static::ensure_dir_is_writable( $cache_dir ) ) {
+		if ( ! static::ensure_dir_is_writable( $cache_dir ) ) {
 			$use_cache = false;
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
