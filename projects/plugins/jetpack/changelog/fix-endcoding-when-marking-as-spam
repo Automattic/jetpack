@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: keep content as is when going from spam to publish and from publish to spam feedback.

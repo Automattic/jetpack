@@ -10,6 +10,7 @@ import {
 	ZendeskChat,
 	useBreakpointMatch,
 	ActionButton,
+	GlobalNotices,
 } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -165,6 +166,7 @@ export default function MyJetpackScreen() {
 			<hr className={ styles.separator } />
 
 			<IDCModal />
+			<GlobalNotices />
 			{ ! isNewUser && (
 				<Container horizontalSpacing={ 0 }>
 					<Col>

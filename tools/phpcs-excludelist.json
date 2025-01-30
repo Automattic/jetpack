@@ -7,7 +7,6 @@
 	"projects/packages/sync/src/class-replicastore.php",
 	"projects/packages/sync/src/modules/class-full-sync-immediately.php",
 	"projects/packages/sync/src/modules/class-full-sync.php",
-	"projects/packages/sync/src/modules/class-meta.php",
 	"projects/packages/sync/src/modules/class-module.php",
 	"projects/packages/sync/src/modules/class-posts.php",
 	"projects/packages/sync/src/modules/class-term-relationships.php",

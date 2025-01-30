@@ -47,12 +47,15 @@ module.exports = [
 				'./src/features/wpcom-documentation-links/wpcom-documentation-links.ts',
 			'wpcom-external-media-import-page':
 				'./src/features/wpcom-media/wpcom-external-media-import.js',
+			'wpcom-options-general': [
+				'./src/features/wpcom-options-general/options-general.js',
+				'./src/features/wpcom-options-general/options-general.scss',
+			],
 			'wpcom-plugins-banner': './src/features/wpcom-plugins/js/banner.js',
 			'wpcom-plugins-banner-style': './src/features/wpcom-plugins/css/banner.css',
 			'wpcom-profile-settings-link-to-wpcom':
 				'./src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.ts',
 			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
-			'wpcom-siteurl': './src/features/wpcom-siteurl/siteurl.js',
 			'starter-page-templates': './src/features/starter-page-templates/index.tsx',
 			'removed-calypso-screen-notice':
 				'./src/features/wpcom-admin-interface/removed-calypso-screen-notice.tsx',

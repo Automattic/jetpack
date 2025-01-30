@@ -436,10 +436,13 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			11
 		);
 
-		// Page Optimize is active by default on all Atomic sites and registers a Settings > Performance submenu which
-		// would conflict with our own Settings > Performance that links to Calypso, so we hide it it since the Calypso
-		// performance settings already have a link to Page Optimize settings page.
-		$this->hide_submenu_page( 'options-general.php', 'page-optimize' );
+		// The calypso based Performance screen is no longer linked from wp-admin and no longer conflicts with the Page Optimize "Performance"submenu item.
+		if ( function_exists( 'wpcom_is_duplicate_views_experiment_enabled' ) && ! wpcom_is_duplicate_views_experiment_enabled() ) {
+			// Page Optimize is active by default on all Atomic sites and registers a Settings > Performance submenu which
+			// would conflict with our own Settings > Performance that links to Calypso, so we hide it it since the Calypso
+			// performance settings already have a link to Page Optimize settings page.
+			$this->hide_submenu_page( 'options-general.php', 'page-optimize' );
+		}
 
 		// Hide Settings > Performance when the interface is set to wp-admin.
 		// This is due to these settings are mostly also available in Jetpack > Settings, in the Performance tab.

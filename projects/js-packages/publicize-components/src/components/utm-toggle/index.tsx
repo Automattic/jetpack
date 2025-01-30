@@ -25,7 +25,7 @@ type ToggleProps = {
 const UtmToggle: React.FC< ToggleProps > = ( { toggleClass, children } ) => {
 	const { isEnabled, isUpdating } = useSelect( select => {
 		return {
-			isEnabled: select( socialStore ).getUtmSettings().enabled,
+			isEnabled: select( socialStore ).getSocialSettings().utmSettings.enabled,
 			isUpdating: select( socialStore ).isSavingSiteSettings(),
 		};
 	}, [] );

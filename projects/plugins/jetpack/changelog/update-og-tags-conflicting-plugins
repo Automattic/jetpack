@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Open Graph Meta Tags: do not display Jetpack's tags when the SEOPress plugin is active.

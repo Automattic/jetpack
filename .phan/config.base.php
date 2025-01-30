@@ -75,6 +75,9 @@ function make_phan_config( $dir, $options = array() ) {
 			case 'full-site-editing':
 				$stubs[] = "$root/.phan/stubs/full-site-editing-stubs.php";
 				break;
+			case 'gutenberg':
+				$stubs[] = "$root/.phan/stubs/gutenberg-stubs.php";
+				break;
 			case 'photon-opencv':
 				$stubs[] = "$root/.phan/stubs/photon-opencv-stubs.php";
 				break;

@@ -1,6 +1,5 @@
 {
-	"name": "jetpack-boost",
-	"version": "3.7.0",
+	"private": true,
 	"description": "Boost your WordPress site's performance, from the creators of Jetpack",
 	"directories": {
 		"test": "tests"
@@ -53,7 +52,7 @@
 		"tslib": "2.5.0",
 		"typescript": "5.0.4",
 		"webpack": "5.94.0",
-		"webpack-cli": "4.9.1"
+		"webpack-cli": "6.0.1"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
@@ -73,7 +72,6 @@
 		"test-e2e:stop": "pnpm --prefix tests/e2e run tunnel:down && pnpm --prefix tests/e2e run env:down",
 		"test-e2e:decrypt-config": "pnpm --prefix tests/e2e run config:decrypt"
 	},
-	"private": true,
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Automattic/jetpack",

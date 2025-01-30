@@ -1,12 +1,9 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
 import React, { useMemo } from 'react';
-import { CONNECTION_SERVICE_THREADS } from '../../social-store';
-import { getSupportedAdditionalConnections } from '../../utils';
 import BlueskyPreview from './bluesky';
 import FacebookPreview from './facebook';
 import GoogleSearch from './google-search';
-import { Instagram } from './instagram';
 import { LinkedIn } from './linkedin';
 import MastodonPreview from './mastodon';
 import { Nextdoor } from './nextdoor';
@@ -20,9 +17,6 @@ import Twitter from './twitter';
  * @return {Array<{title: string, icon: React.Component, name: string, preview: React.Component}>} The list of available services.
  */
 export function useAvailableSerivces() {
-	const additionalConnections = getSupportedAdditionalConnections();
-	const isThreadsSupported = additionalConnections.includes( CONNECTION_SERVICE_THREADS );
-
 	return useMemo(
 		() =>
 			[
@@ -45,23 +39,15 @@ export function useAvailableSerivces() {
 					preview: FacebookPreview,
 				},
 				{
-					title: __( 'Instagram', 'jetpack-publicize-components' ),
-					icon: props => <SocialServiceIcon serviceName="instagram" { ...props } />,
-					name: 'instagram',
-					preview: Instagram,
+					title: _x(
+						'Threads',
+						'The name of the social media network - threads.net',
+						'jetpack-publicize-components'
+					),
+					icon: props => <SocialServiceIcon serviceName="threads" { ...props } />,
+					name: 'threads',
+					preview: Threads,
 				},
-				isThreadsSupported
-					? {
-							title: _x(
-								'Threads',
-								'The name of the social media network - threads.net',
-								'jetpack-publicize-components'
-							),
-							icon: props => <SocialServiceIcon serviceName="threads" { ...props } />,
-							name: 'threads',
-							preview: Threads,
-					  }
-					: null,
 				{
 					title: __( 'LinkedIn', 'jetpack-publicize-components' ),
 					icon: props => <SocialServiceIcon serviceName="linkedin" { ...props } />,
@@ -93,6 +79,6 @@ export function useAvailableSerivces() {
 					preview: BlueskyPreview,
 				},
 			].filter( Boolean ),
-		[ isThreadsSupported ]
+		[]
 	);
 }
