@@ -46,11 +46,16 @@ $interstitial-modal-padding: 40px;
 	flex: 1;
 }
 
+.price-container {
+	:global(.product-price_container) {
+		align-items: center;
+	}
+}
+
 .primary-footer {
 	display: flex;
 	flex-direction: row;
-	justify-content: space-between;
-	padding-bottom: 8px;
+	gap: 8px 24px;
 }
 
 .secondary {
@@ -69,6 +74,21 @@ $interstitial-modal-padding: 40px;
 		display: flex;
 		align-items: center;
 		overflow: hidden;
+	}
+}
+
+.modal-with-video {
+	position: relative;
+	width: 100%;
+	padding-top: 56.25%; /* 16:9 Aspect Ratio (height / width = 0.5625) */
+
+	iframe {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		border: none;
 	}
 }
 

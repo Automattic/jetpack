@@ -1,8 +1,9 @@
 import { Button, ProductPrice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { type FC } from 'react';
+import { useCallback, type FC } from 'react';
 import useProduct from '../../data/products/use-product';
+import useAnalytics from '../../hooks/use-analytics';
 import {
 	ProductInterstitialModal,
 	ProductInterstitialFeatureList,
@@ -14,7 +15,18 @@ interface ProductInterstitialPluginProps {
 	 * Child elements to be rendered within the placement
 	 */
 	children?: React.ReactNode;
+	/**
+	 * Product slug
+	 */
 	slug: string;
+	/**
+	 * Callback function to be called when the modal is opened
+	 */
+	onOpen?: () => void;
+	/**
+	 * Callback function to be called when the modal is closed
+	 */
+	onClose?: () => void;
 }
 
 /**
@@ -26,8 +38,11 @@ interface ProductInterstitialPluginProps {
 const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 	slug,
 	children,
+	onOpen,
+	onClose,
 	...props
 } ) => {
+	const { recordEvent } = useAnalytics();
 	const { detail } = useProduct( slug );
 
 	const { title, longDescription, features, pricingForUi } = detail;
@@ -74,6 +89,24 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 		/>
 	);
 
+	const handleOpen = useCallback( () => {
+		recordEvent( 'jetpack_modal_interstitial_open', {
+			placement: 'product-page',
+			context: 'my-jetpack',
+			product_slug: slug,
+		} );
+		onOpen?.();
+	}, [ recordEvent, slug, onOpen ] );
+
+	const handleClose = useCallback( () => {
+		recordEvent( 'jetpack_modal_interstitial_close', {
+			placement: 'product-page',
+			context: 'my-jetpack',
+			product_slug: slug,
+		} );
+		onClose?.();
+	}, [ recordEvent, slug, onClose ] );
+
 	let additionalContent = null;
 
 	if ( slug === 'jetpack-ai' ) {
@@ -106,6 +139,8 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 			description={ longDescription }
 			priceComponent={ priceComponent }
 			modalMainButton={ <ProductInterstitialModalCta slug={ slug } /> }
+			onOpen={ handleOpen }
+			onClose={ handleClose }
 			{ ...props }
 		>
 			<>

@@ -62,16 +62,6 @@ const ProductInterstitialModalCta: FC< ProductInterstitialModalCtaProps > = ( { 
 			useBlogIdSuffix: true,
 		} );
 
-	// const clickHandler = useCallback( () => {
-	// 	// trackButtonClick( { cta_text: ctaLabel } );
-	// 	onClick?.( mainCheckoutRedirect, detail );
-	// }, [ onClick, trackButtonClick, mainCheckoutRedirect, detail, ctaLabel ] );
-
-	// const trialClickHandler = useCallback( () => {
-	// 	trackButtonClick( { custom_slug: wpcomFreeProductSlug, cta_text: 'Start for free' } );
-	// 	onClick?.( trialCheckoutRedirect, detail );
-	// }, [ onClick, trackButtonClick, trialCheckoutRedirect, wpcomFreeProductSlug, detail ] );
-
 	return (
 		<Button
 			variant="primary"

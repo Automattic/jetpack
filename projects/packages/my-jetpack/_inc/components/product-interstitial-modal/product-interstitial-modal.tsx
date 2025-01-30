@@ -20,6 +20,10 @@ interface BaseProductInterstitialModalProps {
 	 */
 	triggerButton?: React.ReactNode;
 	/**
+	 * Variant of the trigger button
+	 */
+	triggerButtonVariant?: 'primary' | 'secondary';
+	/**
 	 * Class name of the modal
 	 */
 	className?: string;
@@ -31,6 +35,10 @@ interface BaseProductInterstitialModalProps {
 	 * Secondary column of the modal, placed in the right column or the middle column (if hasAdditionalColumn is true)
 	 */
 	secondaryColumn?: React.ReactNode;
+	/**
+	 * Apply aspect ratio class when showing video in the secondary column
+	 */
+	isWithVideo?: boolean;
 	/**
 	 * Show additional column in the modal switching to three columns layout (additional column is always on the right)
 	 */
@@ -112,6 +120,7 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 		className,
 		children,
 		triggerButton,
+		triggerButtonVariant = 'primary',
 		onOpen,
 		onClose,
 		onClick,
@@ -123,6 +132,7 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 		secondaryButtonHasExternalLink = true,
 		secondaryButtonHref,
 		secondaryColumn,
+		isWithVideo = true,
 		additionalColumn = false,
 		priceComponent,
 	} = props;
@@ -144,7 +154,7 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 	return (
 		<>
 			<ThemeProvider>
-				<Button variant="secondary" onClick={ openModal }>
+				<Button variant={ triggerButtonVariant } onClick={ openModal }>
 					{ triggerButton }
 				</Button>
 				{ isOpen && (
@@ -210,7 +220,9 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 								sm={ 4 }
 								md={ additionalColumn ? 4 : 5 }
 								lg={ additionalColumn ? 4 : 8 }
-								className={ styles.secondary }
+								className={ clsx( styles.secondary, {
+									[ styles[ 'modal-with-video' ] ]: isWithVideo,
+								} ) }
 							>
 								{ secondaryColumn }
 							</Col>
