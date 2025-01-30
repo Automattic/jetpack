@@ -80,7 +80,7 @@ export const SocialAdminPage = () => {
 					</AdminSectionHero>
 					<AdminSection>
 						<SocialModuleToggle />
-						{ isModuleEnabled && ! is_wpcom && <UtmToggle /> }
+						{ isModuleEnabled && <UtmToggle /> }
 						{
 							// Only show the Social Notes toggle if Social plugin is active
 							socialPluginVersion && isModuleEnabled && (
