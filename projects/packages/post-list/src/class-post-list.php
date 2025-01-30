@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Post_List;
 
+use Automattic\Jetpack\Assets;
 use WP_Post;
 use WP_Screen;
 
@@ -91,12 +92,15 @@ class Post_List {
 				'rtl',
 				plugin_dir_url( __DIR__ ) . './src/rtl.css'
 			);
-			wp_enqueue_script(
+			Assets::register_script(
 				'jetpack_posts_list',
-				plugin_dir_url( __DIR__ ) . './build/index.js',
-				array(),
-				self::PACKAGE_VERSION,
-				true
+				'../build/index.js',
+				__FILE__,
+				array(
+					'in_footer'  => true,
+					'enqueue'    => true,
+					'textdomain' => 'jetpack-post-list',
+				)
 			);
 		}
 	}
