@@ -35,8 +35,8 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 		const store = select( socialStore );
 
 		return {
-			isEnabled: store.isSocialNotesEnabled(),
-			notesConfig: store.getSocialNotesConfig(),
+			isEnabled: store.getSocialSettings().socialNotes.enabled,
+			notesConfig: store.getSocialSettings().socialNotes.config,
 			isUpdating: store.isSavingSiteSettings(),
 		};
 	}, [] );

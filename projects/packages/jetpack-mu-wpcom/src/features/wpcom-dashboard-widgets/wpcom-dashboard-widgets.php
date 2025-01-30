@@ -24,6 +24,22 @@ function load_wpcom_dashboard_widgets() {
 		),
 	);
 
+	$launchpad_context = 'customer-home';
+	$checklist_slug    = get_option( 'site_intent' );
+
+	if (
+		get_option( 'launch-status', 'launched' ) !== 'launched' &&
+		! empty( wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug, $launchpad_context ) ) &&
+		! wpcom_launchpad_is_task_list_dismissed( $checklist_slug )
+	) {
+		$wpcom_dashboard_widgets[] = array(
+			'id'       => 'wpcom_launchpad_widget',
+			'name'     => __( 'Site Setup', 'jetpack-mu-wpcom' ),
+			'context'  => 'normal',
+			'priority' => 'high',
+		);
+	}
+
 	foreach ( $wpcom_dashboard_widgets as $wpcom_dashboard_widget ) {
 		wp_add_dashboard_widget(
 			$wpcom_dashboard_widget['id'],
@@ -47,18 +63,25 @@ add_action( 'wp_dashboard_setup', 'load_wpcom_dashboard_widgets' );
 function enqueue_wpcom_dashboard_widgets() {
 	$handle = jetpack_mu_wpcom_enqueue_assets( 'wpcom-dashboard-widgets', array( 'js', 'css' ) );
 
+	require_once WP_CONTENT_DIR . '/admin-plugins/wpcom-billing.php';
+	$current_plan = WPCOM_Store_API::get_current_plan( get_current_blog_id() );
+
 	$data = wp_json_encode(
 		array(
-			'siteName'     => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
-			'siteUrl'      => home_url(),
-			'siteIconUrl'  => get_site_icon_url( 38 ),
-			'isBlockTheme' => wp_is_block_theme(),
+			'siteName'        => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
+			'siteUrl'         => home_url(),
+			'siteIconUrl'     => get_site_icon_url( 38 ),
+			'isBlockTheme'    => wp_is_block_theme(),
+			'siteDomain'      => wp_parse_url( home_url(), PHP_URL_HOST ),
+			'siteIntent'      => get_option( 'site_intent' ),
+			'sitePlan'        => $current_plan,
+			'hasCustomDomain' => wpcom_site_has_feature( 'custom-domain' ),
 		)
 	);
 
 	wp_add_inline_script(
 		$handle,
-		"var JETPACK_MU_WPCOM_DASHBOARD_WIDGETS = $data;",
+		"var JETPACK_MU_WPCOM_DASHBOARD_WIDGETS = $data;var configData = {};",
 		'before'
 	);
 }
