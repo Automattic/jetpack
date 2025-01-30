@@ -5166,11 +5166,11 @@ packages:
   '@automattic/babel-plugin-preserve-i18n@1.0.0':
     resolution: {integrity: sha512-dRmLP0Ytf2oDNbUbO8MXLKYnPZfqhtFQ8v1hgDo2Fde1Y0bUz2Ll1UmUOHdyZudnrN/8Zt95cG/fIOJ0dxHi8Q==}
 
-  '@automattic/calypso-analytics@1.1.3':
-    resolution: {integrity: sha512-7DiQZLC2wzs5GW4PDXnSngYFNkMC8aB8FXgD5Xqgzo9cQmqo7Ka4sKITsp7b8yBHXrpEtMwCK265UAEQs8wSMg==}
-
   '@automattic/babel-plugin-replace-textdomain@1.0.42':
     resolution: {integrity: sha512-LAaahL8khr8BbGft004hum+5lLQ2MiAB1AdfZEiVZkMtiFTJeuCQnzWqHSJ3cSXFUfQVCO5PH0uODU9fWprnhw==}
+
+  '@automattic/calypso-analytics@1.1.3':
+    resolution: {integrity: sha512-7DiQZLC2wzs5GW4PDXnSngYFNkMC8aB8FXgD5Xqgzo9cQmqo7Ka4sKITsp7b8yBHXrpEtMwCK265UAEQs8wSMg==}
 
   '@automattic/calypso-color-schemes@3.1.3':
     resolution: {integrity: sha512-nzs36yfxUOcsD3HvB72IHgdUfIzTRnT7QmF78CBXEREawTEs0uDyELdx/rAOtW/PauxRYRGQ4zeK5c67FWqLxw==}
@@ -15317,6 +15317,12 @@ snapshots:
 
   '@automattic/babel-plugin-preserve-i18n@1.0.0': {}
 
+  '@automattic/babel-plugin-replace-textdomain@1.0.42':
+    dependencies:
+      debug: 4.4.0
+    transitivePeerDependencies:
+      - supports-color
+
   '@automattic/calypso-analytics@1.1.3':
     dependencies:
       '@automattic/load-script': 1.0.0
@@ -15325,9 +15331,6 @@ snapshots:
       hash.js: 1.1.7
       tslib: 2.5.0
       uuid: 9.0.1
-  '@automattic/babel-plugin-replace-textdomain@1.0.42':
-    dependencies:
-      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
