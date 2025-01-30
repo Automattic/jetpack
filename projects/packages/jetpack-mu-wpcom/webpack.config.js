@@ -47,19 +47,18 @@ module.exports = [
 				'./src/features/wpcom-documentation-links/wpcom-documentation-links.ts',
 			'wpcom-external-media-import-page':
 				'./src/features/wpcom-media/wpcom-external-media-import.js',
+			'wpcom-options-general': [
+				'./src/features/wpcom-options-general/options-general.js',
+				'./src/features/wpcom-options-general/options-general.scss',
+			],
 			'wpcom-plugins-banner': './src/features/wpcom-plugins/js/banner.js',
 			'wpcom-plugins-banner-style': './src/features/wpcom-plugins/css/banner.css',
 			'wpcom-profile-settings-link-to-wpcom':
 				'./src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.ts',
 			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
-			'wpcom-siteurl': './src/features/wpcom-siteurl/siteurl.js',
 			'starter-page-templates': './src/features/starter-page-templates/index.tsx',
 			'removed-calypso-screen-notice':
 				'./src/features/wpcom-admin-interface/removed-calypso-screen-notice.tsx',
-			'wpcom-fiverr': [
-				'./src/features/wpcom-fiverr/wpcom-fiverr.ts',
-				'./src/features/wpcom-fiverr/wpcom-fiverr.scss',
-			],
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
@@ -78,6 +77,10 @@ module.exports = [
 				'@automattic/calypso-config': '@automattic/calypso-config/src/client.js',
 				/** Replace the classnames used by @automattic/newspack-blocks with clsx because we changed to use clsx */
 				classnames: findPackage( 'clsx' ),
+			},
+			fallback: {
+				...jetpackWebpackConfig.resolve.fallback,
+				events: require.resolve( 'events/' ),
 			},
 		},
 		node: false,
@@ -99,9 +102,9 @@ module.exports = [
 					exclude: /node_modules\//,
 				} ),
 
-				// Transpile @automattic/jetpack-* in node_modules too.
+				// Transpile @automattic/* in node_modules too.
 				jetpackWebpackConfig.TranspileRule( {
-					includeNodeModules: [ '@automattic/jetpack-' ],
+					includeNodeModules: [ '@automattic/' ],
 				} ),
 
 				// Handle CSS.
