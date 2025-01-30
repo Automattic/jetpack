@@ -43,6 +43,8 @@ class Account_Protection {
 
 	/**
 	 * Initializes the configurations needed for the account protection module.
+	 *
+	 * @return void
 	 */
 	public function init(): void {
 		$this->register_hooks();
@@ -54,6 +56,8 @@ class Account_Protection {
 
 	/**
 	 * Register hooks for module activation and environment validation.
+	 *
+	 * @return void
 	 */
 	private function register_hooks(): void {
 		// Account protection activation/deactivation hooks
@@ -67,24 +71,24 @@ class Account_Protection {
 
 	/**
 	 * Register hooks for runtime operations.
+	 *
+	 * @return void
 	 */
 	private function register_runtime_hooks(): void {
 		// Validate password after successful login
 		add_action( 'wp_authenticate_user', array( $this->password_detection, 'login_form_password_detection' ), 10, 2 );
 
+		// Handle password detection login failure
+		add_action( 'wp_login_failed', array( $this->password_detection, 'handle_password_detection_validation_error' ), 10, 2 );
+
 		// Add password detection flow
 		add_action( 'login_form_password-detection', array( $this->password_detection, 'render_page' ), 10, 2 );
-
-		// Remove password detection usermeta after password reset and on profile password update
-		add_action( 'after_password_reset', array( $this->password_detection, 'delete_usermeta_after_password_reset' ), 10, 2 );
-		add_action( 'profile_update', array( $this->password_detection, 'delete_usermeta_on_profile_update' ), 10, 2 );
-
-		// Register AJAX resend password reset email action
-		add_action( 'wp_ajax_resend_password_reset', array( $this->password_detection, 'ajax_resend_password_reset_email' ) );
 	}
 
 	/**
 	 * Activate the account protection on module activation.
+	 *
+	 * @return void
 	 */
 	public function on_account_protection_activation(): void {
 		// Activation logic can be added here
@@ -92,11 +96,11 @@ class Account_Protection {
 
 	/**
 	 * Deactivate the account protection on module deactivation.
+	 *
+	 * @return void
 	 */
 	public function on_account_protection_deactivation(): void {
-		// Remove password detection user meta on deactivation
-		// TODO: Run on Jetpack and Protect deactivation
-		$this->password_detection->delete_all_usermeta();
+		// Deactivation logic can be added here
 	}
 
 	/**
@@ -104,7 +108,7 @@ class Account_Protection {
 	 *
 	 * @return bool
 	 */
-	public function is_enabled() {
+	public function is_enabled(): bool {
 		return $this->modules->is_active( self::ACCOUNT_PROTECTION_MODULE_NAME );
 	}
 
@@ -113,7 +117,7 @@ class Account_Protection {
 	 *
 	 * @return bool
 	 */
-	public function enable() {
+	public function enable(): bool {
 		// Return true if already enabled.
 		if ( $this->is_enabled() ) {
 			return true;
