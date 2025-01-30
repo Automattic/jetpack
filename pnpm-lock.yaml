@@ -2258,6 +2258,9 @@ importers:
       '@wordpress/data':
         specifier: 10.16.0
         version: 10.16.0(react@18.3.1)
+      '@wordpress/dom-ready':
+        specifier: 4.17.0
+        version: 4.17.0
       '@wordpress/element':
         specifier: 6.16.0
         version: 6.16.0
@@ -8328,6 +8331,10 @@ packages:
 
   '@wordpress/dom-ready@4.16.0':
     resolution: {integrity: sha512-rlp7gZRRPsob8z+//tS8bHHRTlkRiOfbKA1SJmyfakU/p4fcEXskLfdq/0wGPZtoHnia6kLKUyFMWhIBe8SuYQ==}
+    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+
+  '@wordpress/dom-ready@4.17.0':
+    resolution: {integrity: sha512-u/ocyrPV4MJIKxM1OJg+Q6yOBD0pIYi1jcXE1HVYnc/9Mte0IFlfovYRJj6oGUc7u4dM6AVE2BUCQMJgmG406Q==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@wordpress/dom@3.58.0':
@@ -19240,7 +19247,7 @@ snapshots:
   '@wordpress/a11y@4.16.0':
     dependencies:
       '@babel/runtime': 7.25.7
-      '@wordpress/dom-ready': 4.16.0
+      '@wordpress/dom-ready': 4.17.0
       '@wordpress/i18n': 5.16.0
 
   '@wordpress/annotations@3.16.0(react@18.3.1)':
@@ -20451,6 +20458,10 @@ snapshots:
       '@babel/runtime': 7.25.7
 
   '@wordpress/dom-ready@4.16.0':
+    dependencies:
+      '@babel/runtime': 7.25.7
+
+  '@wordpress/dom-ready@4.17.0':
     dependencies:
       '@babel/runtime': 7.25.7
 

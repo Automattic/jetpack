@@ -1,6 +1,12 @@
+import domReady from '@wordpress/dom-ready';
 import Datepicker from 'vanillajs-datepicker/Datepicker';
 
 import 'vanillajs-datepicker/css/datepicker.css';
 
-const elem = document.querySelector( 'input.jp-contact-form-date' );
-new Datepicker( elem );
+domReady( () => {
+	const collection = document.getElementsByClassName( 'jp-contact-form-date' );
+	for ( let i = 0; i < collection.length; i++ ) {
+		const dateFormat = collection[ i ].getAttribute( 'data-format' );
+		new Datepicker( collection[ i ], { format: dateFormat } );
+	}
+} );

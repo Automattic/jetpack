@@ -847,21 +847,24 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'mm/dd/yy' => array(
 				/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 12/31/2023). */
 				'label' => __( 'MM/DD/YYYY', 'jetpack-forms' ),
+				'js'    => 'mm/dd/yyyy',
 			),
 			'dd/mm/yy' => array(
 				/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 31/12/2023). */
 				'label' => __( 'DD/MM/YYYY', 'jetpack-forms' ),
+				'js'    => 'dd/mm/yyyy',
 			),
 			'yy-mm-dd' => array(
 				/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 2023-12-31). */
 				'label' => __( 'YYYY-MM-DD', 'jetpack-forms' ),
+				'js'    => 'yyyy-mm-dd',
 			),
 		);
 
 		$date_format = $this->get_attribute( 'dateformat' );
 		$date_format = isset( $date_format ) && ! empty( $date_format ) ? $date_format : 'yy-mm-dd';
 		$label       = isset( $formats[ $date_format ] ) ? $label . ' (' . $formats[ $date_format ]['label'] . ')' : $label;
-		$extra_attrs = array( 'data-format' => $date_format );
+		$extra_attrs = array( 'data-format' => $formats[ $date_format ]['js'] );
 
 		$field  = $this->render_label( 'date', $id, $label, $required, $required_field_text );
 		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required, $extra_attrs );
@@ -886,8 +889,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'version'      => \JETPACK__VERSION,
 			)
 		);
-		// Using Core's built-in datepicker localization routine
-		wp_localize_jquery_ui_datepicker();
+
 		return $field;
 	}
 
