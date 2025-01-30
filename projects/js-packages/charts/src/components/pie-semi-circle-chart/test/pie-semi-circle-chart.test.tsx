@@ -143,4 +143,42 @@ describe( 'PieSemiCircleChart', () => {
 		expect( svg ).toHaveAttribute( 'height', ( size / 2 ).toString() );
 		expect( svg ).toHaveAttribute( 'viewBox', `0 0 ${ size } ${ size / 2 }` );
 	} );
+
+	describe( 'Data Validation', () => {
+		test( 'handles empty data array', () => {
+			renderPieChart( { data: [] } );
+			expect( screen.getByText( 'No data available' ) ).toBeInTheDocument();
+		} );
+
+		test( 'handles zero total percentage', () => {
+			renderPieChart( {
+				data: [
+					{ label: 'A', value: 0, percentage: 0 },
+					{ label: 'B', value: 0, percentage: 0 },
+				],
+			} );
+			expect(
+				screen.getByText( 'Invalid percentage total: Must be greater than 0' )
+			).toBeInTheDocument();
+		} );
+
+		test( 'handles single data point', () => {
+			renderPieChart( {
+				data: [ { label: 'Single', value: 100, percentage: 50 } ],
+			} );
+			expect( screen.getByTestId( 'pie-segment' ) ).toBeInTheDocument();
+		} );
+
+		test( 'handles negative values', () => {
+			renderPieChart( {
+				data: [
+					{ label: 'A', value: -30, percentage: -30 },
+					{ label: 'B', value: 130, percentage: 130 },
+				],
+			} );
+			expect(
+				screen.getByText( 'Invalid data: Negative values are not allowed' )
+			).toBeInTheDocument();
+		} );
+	} );
 } );
