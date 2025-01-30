@@ -931,8 +931,9 @@ const setFormError = ( form, invalidFields, opts = {} ) => {
  */
 const updateFormErrorMessage = form => {
 	clearFormError( form );
+	const validationResult = isFormValid( form );
 
-	if ( ! isFormValid( form ) ) {
+	if ( ! validationResult.isValid ) {
 		// Prevent screen readers from announcing the error message on each update.
 		setFormError( form, getInvalidFields( form ), { disableLiveRegion: true } );
 	}
