@@ -2000,7 +2000,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/post-list",
-				"reference": "f5f91acacd48fd2ed2d080fa7f94b1051e17376f"
+				"reference": "ac564239b69dc4fddeeebc05ba9e62bd029cdabc"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -2043,6 +2043,12 @@
 				],
 				"test-php": [
 					"@composer phpunit"
+				],
+				"build-production": [
+					"pnpm run build-production"
+				],
+				"build-development": [
+					"pnpm run build"
 				]
 			},
 			"license": [
