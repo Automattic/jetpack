@@ -137,14 +137,13 @@ export type SocialNotesConfig = {
 	link_format: 'full_url' | 'shortlink' | 'permashortcitation';
 };
 
+export type SocialNotesSettings = {
+	enabled: boolean;
+	config: SocialNotesConfig;
+};
+
 export type SocialPluginSettings = {
 	publicize_active: boolean;
-	show_pricing_page: boolean;
-	social_notes_enabled: boolean;
-	social_notes_config: {
-		append_link: boolean;
-		link_format: 'full_url' | 'shortlink' | 'permashortcitation';
-	};
 };
 
 export type SocialSettingsFields = {

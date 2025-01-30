@@ -1116,14 +1116,23 @@ class Admin {
 		$post_type_object = get_post_type_object( $post->post_type );
 		$akismet_values   = get_post_meta( $post_id, '_feedback_akismet_values', true );
 		if ( $_POST['make_it'] === 'spam' ) {
-			$post->post_status = 'spam';
-			$status            = wp_insert_post( $post );
+
+			$status = wp_update_post(
+				array(
+					'ID'          => $post_id,
+					'post_status' => 'spam',
+				)
+			);
 
 			/** This action is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 			do_action( 'contact_form_akismet', 'spam', $akismet_values );
 		} elseif ( $_POST['make_it'] === 'ham' ) {
-			$post->post_status = 'publish';
-			$status            = wp_insert_post( $post );
+			$status = wp_update_post(
+				array(
+					'ID'          => $post_id,
+					'post_status' => 'publish',
+				)
+			);
 
 			/** This action is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 			do_action( 'contact_form_akismet', 'ham', $akismet_values );
