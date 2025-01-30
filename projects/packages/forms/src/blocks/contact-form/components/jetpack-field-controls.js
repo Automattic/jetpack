@@ -37,6 +37,7 @@ const JetpackFieldControls = ( {
 	const formStyle = useFormStyle( clientId );
 	const blockStyle = getBlockStyle( blockClassNames );
 	const isChoicesBlock = [ 'radio', 'checkbox' ].includes( type );
+	const isTextField = [ 'text', 'email', 'url', 'tel' ].includes( type );
 
 	const setNumberAttribute =
 		( key, parse = parseInt ) =>
@@ -171,97 +172,100 @@ const JetpackFieldControls = ( {
 				<PanelBody title={ __( 'Field Settings', 'jetpack-forms' ) }>
 					<>{ fieldSettings }</>
 				</PanelBody>
-				<PanelColorSettings
-					title={ __( 'Color', 'jetpack-forms' ) }
-					initialOpen={ false }
-					colorSettings={ colorSettings }
-				/>
-				<PanelBody title={ stylesPanelTitle } initialOpen={ false }>
-					<BaseControl>
-						<FontSizePicker
-							withReset={ true }
-							size="__unstable-large"
-							__nextHasNoMarginBottom
-							onChange={ fieldFontSize => setAttributes( { fieldFontSize } ) }
-							value={ attributes.fieldFontSize }
+				{ ! isTextField && (
+					<>
+						<PanelColorSettings
+							title={ __( 'Color', 'jetpack-forms' ) }
+							initialOpen={ false }
+							colorSettings={ colorSettings }
 						/>
-					</BaseControl>
-					<BaseControl>
-						<LineHeightControl
-							__nextHasNoMarginBottom={ true }
-							__unstableInputWidth="100%"
-							value={ attributes.lineHeight }
-							onChange={ setNumberAttribute( 'lineHeight', parseFloat ) }
-							size="__unstable-large"
-						/>
-					</BaseControl>
-					{ ( isChoicesBlock || blockStyle === 'button' ) && (
-						<>
-							<RangeControl
-								label={ __( 'Button Border Width', 'jetpack-forms' ) }
-								value={ attributes.buttonBorderWidth }
-								initialPosition={ 1 }
-								onChange={ setNumberAttribute( 'buttonBorderWidth' ) }
-								min={ 0 }
-								max={ 100 }
-								__nextHasNoMarginBottom={ true }
-							/>
-							<RangeControl
-								label={ __( 'Button Border Radius', 'jetpack-forms' ) }
-								value={ attributes.buttonBorderRadius }
-								initialPosition={ 0 }
-								onChange={ setNumberAttribute( 'buttonBorderRadius' ) }
-								min={ 0 }
-								max={ 100 }
-								__nextHasNoMarginBottom={ true }
-							/>
-						</>
-					) }
-					{ ( ! isChoicesBlock || formStyle === FORM_STYLE.OUTLINED ) && (
-						<>
-							<RangeControl
-								label={ __( 'Border Width', 'jetpack-forms' ) }
-								value={ attributes.borderWidth }
-								initialPosition={ 1 }
-								onChange={ setNumberAttribute( 'borderWidth' ) }
-								min={ 0 }
-								max={ 100 }
-								__nextHasNoMarginBottom={ true }
-							/>
-							<RangeControl
-								label={ __( 'Border Radius', 'jetpack-forms' ) }
-								value={ attributes.borderRadius }
-								initialPosition={ 0 }
-								onChange={ setNumberAttribute( 'borderRadius' ) }
-								min={ 0 }
-								max={ 100 }
-								__nextHasNoMarginBottom={ true }
-							/>
-						</>
-					) }
-				</PanelBody>
-				<PanelBody title={ __( 'Label Styles', 'jetpack-forms' ) } initialOpen={ false }>
-					<BaseControl>
-						<FontSizePicker
-							withReset={ true }
-							size="__unstable-large"
-							__nextHasNoMarginBottom
-							onChange={ labelFontSize => setAttributes( { labelFontSize } ) }
-							value={ attributes.labelFontSize }
-						/>
-					</BaseControl>
-					<BaseControl>
-						<LineHeightControl
-							__unstableInputWidth="100%"
-							__nextHasNoMarginBottom={ true }
-							value={ attributes.labelLineHeight }
-							onChange={ setNumberAttribute( 'labelLineHeight', parseFloat ) }
-							size="__unstable-large"
-						/>
-					</BaseControl>
-				</PanelBody>
+						<PanelBody title={ stylesPanelTitle } initialOpen={ false }>
+							<BaseControl>
+								<FontSizePicker
+									withReset={ true }
+									size="__unstable-large"
+									__nextHasNoMarginBottom
+									onChange={ fieldFontSize => setAttributes( { fieldFontSize } ) }
+									value={ attributes.fieldFontSize }
+								/>
+							</BaseControl>
+							<BaseControl>
+								<LineHeightControl
+									__nextHasNoMarginBottom={ true }
+									__unstableInputWidth="100%"
+									value={ attributes.lineHeight }
+									onChange={ setNumberAttribute( 'lineHeight', parseFloat ) }
+									size="__unstable-large"
+								/>
+							</BaseControl>
+							{ ( isChoicesBlock || blockStyle === 'button' ) && (
+								<>
+									<RangeControl
+										label={ __( 'Button Border Width', 'jetpack-forms' ) }
+										value={ attributes.buttonBorderWidth }
+										initialPosition={ 1 }
+										onChange={ setNumberAttribute( 'buttonBorderWidth' ) }
+										min={ 0 }
+										max={ 100 }
+										__nextHasNoMarginBottom={ true }
+									/>
+									<RangeControl
+										label={ __( 'Button Border Radius', 'jetpack-forms' ) }
+										value={ attributes.buttonBorderRadius }
+										initialPosition={ 0 }
+										onChange={ setNumberAttribute( 'buttonBorderRadius' ) }
+										min={ 0 }
+										max={ 100 }
+										__nextHasNoMarginBottom={ true }
+									/>
+								</>
+							) }
+							{ ( ! isChoicesBlock || formStyle === FORM_STYLE.OUTLINED ) && (
+								<>
+									<RangeControl
+										label={ __( 'Border Width', 'jetpack-forms' ) }
+										value={ attributes.borderWidth }
+										initialPosition={ 1 }
+										onChange={ setNumberAttribute( 'borderWidth' ) }
+										min={ 0 }
+										max={ 100 }
+										__nextHasNoMarginBottom={ true }
+									/>
+									<RangeControl
+										label={ __( 'Border Radius', 'jetpack-forms' ) }
+										value={ attributes.borderRadius }
+										initialPosition={ 0 }
+										onChange={ setNumberAttribute( 'borderRadius' ) }
+										min={ 0 }
+										max={ 100 }
+										__nextHasNoMarginBottom={ true }
+									/>
+								</>
+							) }
+						</PanelBody>
+						<PanelBody title={ __( 'Label Styles', 'jetpack-forms' ) } initialOpen={ false }>
+							<BaseControl>
+								<FontSizePicker
+									withReset={ true }
+									size="__unstable-large"
+									__nextHasNoMarginBottom
+									onChange={ labelFontSize => setAttributes( { labelFontSize } ) }
+									value={ attributes.labelFontSize }
+								/>
+							</BaseControl>
+							<BaseControl>
+								<LineHeightControl
+									__unstableInputWidth="100%"
+									__nextHasNoMarginBottom={ true }
+									value={ attributes.labelLineHeight }
+									onChange={ setNumberAttribute( 'labelLineHeight', parseFloat ) }
+									size="__unstable-large"
+								/>
+							</BaseControl>
+						</PanelBody>
+					</>
+				) }
 			</InspectorControls>
-
 			<InspectorAdvancedControls>
 				<TextControl
 					label={ __( 'Name/ID', 'jetpack-forms' ) }

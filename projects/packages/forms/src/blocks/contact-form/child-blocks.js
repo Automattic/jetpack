@@ -14,7 +14,6 @@ import JetpackFieldMultipleChoiceItem from './components/jetpack-field-multiple-
 import JetpackFieldSingleChoice from './components/jetpack-field-single-choice';
 import JetpackFieldSingleChoiceItem from './components/jetpack-field-single-choice/item';
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
-import JetpackFieldV2 from './components/jetpack-field-v2';
 import JetpackFieldInput from './components/jetpack-input';
 import JetpackFieldLabel from './components/jetpack-label';
 import { getIconColor } from './util/block-icons';
@@ -239,6 +238,9 @@ const FieldDefaults = {
 	},
 	save: () => null,
 	example: {},
+	providesContext: {
+		'jetpack/field-required': 'required',
+	},
 };
 
 const multiFieldV1 = fieldType => ( {
@@ -266,27 +268,6 @@ const multiFieldV1 = fieldType => ( {
 	save: () => null,
 } );
 
-const editFieldV2 = () => props => {
-	useFormWrapper( props );
-
-	return (
-		<JetpackFieldV2
-			clientId={ props.clientId }
-			type={ props.attributes.type ?? 'text' }
-			label={ getFieldLabel( props.attributes, props.name ) }
-			required={ props.attributes.required }
-			requiredText={ props.attributes.requiredText }
-			setAttributes={ props.setAttributes }
-			isSelected={ props.isSelected }
-			defaultValue={ props.attributes.defaultValue }
-			placeholder={ props.attributes.placeholder }
-			id={ props.attributes.id }
-			width={ props.attributes.width }
-			attributes={ props.attributes }
-			insertBlocksAfter={ props.insertBlocksAfter }
-		/>
-	);
-};
 const editField = type => props => {
 	useFormWrapper( props );
 
@@ -380,110 +361,6 @@ export const childBlocks = [
 	JetpackFieldLabel,
 	JetpackFieldInput,
 	{
-		name: 'field-text-v2',
-		settings: {
-			...FieldDefaults,
-			title: __( 'Text Input Field V2', 'jetpack-forms' ),
-			description: __( 'Collect short text responses from site visitors.', 'jetpack-forms' ),
-			icon: renderMaterialIcon(
-				<Path
-					fill={ getIconColor() }
-					d="M12 7H4V8.5H12V7ZM19.75 17.25V10.75H4.25V17.25H19.75ZM5.75 15.75V12.25H18.25V15.75H5.75Z"
-				/>
-			),
-			edit: editFieldV2(),
-			save() {
-				return <InnerBlocks.Content />;
-			},
-			attributes: {
-				...FieldDefaults.attributes,
-				type: {
-					type: 'string',
-					default: 'text',
-				},
-				label: {
-					type: 'string',
-					default: 'Text',
-				},
-			},
-			providesContext: {
-				'jetpack/field-required': 'required',
-			},
-			variations: [
-				{
-					name: 'field-name-v2',
-					title: __( 'Name Field v2', 'jetpack-forms' ),
-					description: __( 'Collect the site visitor’s name.', 'jetpack-forms' ),
-					icon: renderMaterialIcon(
-						<Path
-							fill={ getIconColor() }
-							d="M8.25 11.5C9.63071 11.5 10.75 10.3807 10.75 9C10.75 7.61929 9.63071 6.5 8.25 6.5C6.86929 6.5 5.75 7.61929 5.75 9C5.75 10.3807 6.86929 11.5 8.25 11.5ZM8.25 10C8.80228 10 9.25 9.55228 9.25 9C9.25 8.44772 8.80228 8 8.25 8C7.69772 8 7.25 8.44772 7.25 9C7.25 9.55228 7.69772 10 8.25 10ZM13 15.5V17.5H11.5V15.5C11.5 14.8096 10.9404 14.25 10.25 14.25H6.25C5.55964 14.25 5 14.8096 5 15.5V17.5H3.5V15.5C3.5 13.9812 4.73122 12.75 6.25 12.75H10.25C11.7688 12.75 13 13.9812 13 15.5ZM20.5 11H14.5V9.5H20.5V11ZM20.5 14.5H14.5V13H20.5V14.5Z"
-						/>
-					),
-					attributes: { label: 'Name v2', metadata: { name: 'Name Input Field' } },
-				},
-				{
-					name: 'field-email-v2',
-					title: __( 'Email Field v2', 'jetpack-forms' ),
-					keywords: [ __( 'e-mail', 'jetpack-forms' ), __( 'mail', 'jetpack-forms' ), 'email' ],
-					description: __( 'Collect email addresses from your visitors.', 'jetpack-forms' ),
-					icon: (
-						<Icon
-							icon={ envelope }
-							style={ {
-								fill: getIconColor(),
-							} }
-						/>
-					),
-					attributes: { label: 'Email v2', type: 'email', metadata: { name: 'Email Input Field' } },
-				},
-				{
-					name: 'field-url-v2',
-					title: __( 'Website Field v2', 'jetpack-forms' ),
-					keywords: [
-						__( 'url', 'jetpack-forms' ),
-						__( 'internet page', 'jetpack-forms' ),
-						__( 'link', 'jetpack-forms' ),
-						__( 'website', 'jetpack-forms' ),
-					],
-					description: __( 'Collect a website address from your site visitors.', 'jetpack-forms' ),
-					icon: (
-						<Icon
-							icon={ globe }
-							style={ {
-								fill: getIconColor(),
-							} }
-						/>
-					),
-					attributes: {
-						label: __( 'Website', 'jetpack-forms' ),
-						type: 'url',
-						metadata: { name: 'Website Input Field' },
-					},
-				},
-				{
-					name: 'field-telephone-v2',
-					title: __( 'Phone Number Field v2', 'jetpack-forms' ),
-					keywords: [
-						__( 'Phone', 'jetpack-forms' ),
-						__( 'Cellular phone', 'jetpack-forms' ),
-						__( 'Mobile', 'jetpack-forms' ),
-					],
-					description: __( 'Collect phone numbers from site visitors.', 'jetpack-forms' ),
-					icon: (
-						<Icon
-							icon={ mobile }
-							style={ {
-								fill: getIconColor(),
-							} }
-						/>
-					),
-					attributes: { label: 'Phone', type: 'tel', metadata: { name: 'Phone Input Field' } },
-				},
-			],
-		},
-	},
-	{
 		name: 'field-text',
 		settings: {
 			...FieldDefaults,
@@ -496,6 +373,9 @@ export const childBlocks = [
 				),
 			},
 			edit: editField( 'text' ),
+			save() {
+				return <InnerBlocks.Content />;
+			},
 			attributes: {
 				...FieldDefaults.attributes,
 				label: {
@@ -519,6 +399,9 @@ export const childBlocks = [
 				),
 			},
 			edit: editField( 'text' ),
+			save() {
+				return <InnerBlocks.Content />;
+			},
 			attributes: {
 				...FieldDefaults.attributes,
 				label: {
@@ -541,6 +424,9 @@ export const childBlocks = [
 				src: <Icon icon={ envelope } />,
 			},
 			edit: editField( 'email' ),
+			save() {
+				return <InnerBlocks.Content />;
+			},
 			attributes: {
 				...FieldDefaults.attributes,
 				label: {
@@ -568,6 +454,9 @@ export const childBlocks = [
 				src: <Icon icon={ globe } />,
 			},
 			edit: editField( 'url' ),
+			save() {
+				return <InnerBlocks.Content />;
+			},
 			attributes: {
 				...FieldDefaults.attributes,
 				label: {
@@ -628,6 +517,9 @@ export const childBlocks = [
 				src: <Icon icon={ mobile } />,
 			},
 			edit: editField( 'tel' ),
+			save() {
+				return <InnerBlocks.Content />;
+			},
 			attributes: {
 				...FieldDefaults.attributes,
 				label: {

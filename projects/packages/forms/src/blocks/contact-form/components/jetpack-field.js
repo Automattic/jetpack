@@ -1,6 +1,7 @@
-import { useBlockProps } from '@wordpress/block-editor';
+import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { createBlock, getDefaultBlockName } from '@wordpress/blocks';
 import { createHigherOrderComponent, compose } from '@wordpress/compose';
+import { useCallback, useMemo } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import clsx from 'clsx';
 import { isEmpty } from 'lodash';
@@ -10,17 +11,20 @@ import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
+const ALLOWED_BLOCKS = [ 'jetpack/field-label', 'jetpack/field-input' ];
+
 const JetpackField = props => {
 	const {
 		attributes,
 		clientId,
 		id,
 		isSelected,
+		label,
+		placeholder,
 		required,
 		requiredText,
-		label,
 		setAttributes,
-		placeholder,
+		type,
 		width,
 		insertBlocksAfter,
 	} = props;
@@ -35,32 +39,61 @@ const JetpackField = props => {
 		style: blockStyle,
 	} );
 
+	const template = useMemo( () => {
+		return [
+			[ 'jetpack/field-label', { label, required, defaultLabel: label, requiredText } ],
+			[ 'jetpack/field-input' ],
+		];
+	}, [ label, required, requiredText ] );
+
+	const innerBlocksProps = useInnerBlocksProps( blockProps, {
+		allowedBlocks: ALLOWED_BLOCKS,
+		template,
+		templateLock: 'all',
+	} );
+
+	const onChange = useCallback(
+		event => {
+			setAttributes( { placeholder: event.target.value } );
+		},
+		[ setAttributes ]
+	);
+
+	const onKeyDown = useCallback(
+		event => {
+			if ( event.defaultPrevented || event.key !== 'Enter' ) {
+				return;
+			}
+			insertBlocksAfter( createBlock( getDefaultBlockName() ) );
+		},
+		[ insertBlocksAfter ]
+	);
+
+	const isTextField = [ 'text', 'email', 'url', 'tel' ].includes( type );
+
 	return (
 		<>
-			<div { ...blockProps }>
-				<JetpackFieldLabel
-					attributes={ attributes }
-					label={ label }
-					required={ required }
-					requiredText={ requiredText }
-					setAttributes={ setAttributes }
-					style={ formStyle }
-				/>
-				<input
-					className="jetpack-field__input"
-					onChange={ e => setAttributes( { placeholder: e.target.value } ) }
-					style={ fieldStyle }
-					type="text"
-					value={ placeholder }
-					onKeyDown={ event => {
-						if ( event.defaultPrevented || event.key !== 'Enter' ) {
-							return;
-						}
-						insertBlocksAfter( createBlock( getDefaultBlockName() ) );
-					} }
-				/>
-			</div>
-
+			{ isTextField && <div { ...innerBlocksProps } /> }
+			{ ! isTextField && (
+				<div { ...blockProps }>
+					<JetpackFieldLabel
+						attributes={ attributes }
+						label={ label }
+						required={ required }
+						requiredText={ requiredText }
+						setAttributes={ setAttributes }
+						style={ formStyle }
+					/>
+					<input
+						className="jetpack-field__input"
+						onChange={ onChange }
+						style={ fieldStyle }
+						type="text"
+						value={ placeholder }
+						onKeyDown={ onKeyDown }
+					/>
+				</div>
+			) }
 			<JetpackFieldControls
 				id={ id }
 				required={ required }
