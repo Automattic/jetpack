@@ -176,7 +176,6 @@ class Test_Products_Rest extends TestCase {
 
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
-		print_r( $data );
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertEquals( $product, $data['boost'] );
