@@ -8,28 +8,28 @@ ARG PNPM_VERSION
 
 ENV LANG=en_US.UTF-8 \
     LC_ALL=en_US.UTF-8 \
-    JETPACK_MONOREPO_ENV=1
+    JETPACK_MONOREPO_ENV=1 \
+    DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /app
 
-# Install basic packages and PHP
+# Combine all repository setup, package installation, and cleanup into one layer
 RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
-    export DEBIAN_FRONTEND=noninteractive \
-    && apt-get update \
-    && apt-get install -y curl gpg language-pack-en-base ca-certificates \
-    # Install software-properties-common without recommended packages to avoid Python issues
-    && apt-get install -y --no-install-recommends software-properties-common \
+    # Setup repositories and keys
+    apt-get update && apt-get install -y curl gpg language-pack-en-base ca-certificates \
+        --no-install-recommends software-properties-common \
     && add-apt-repository ppa:ondrej/php \
     && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
     # Add Docker's official GPG key
     && install -m 0755 -d /etc/apt/keyrings \
     && curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc \
     && chmod a+r /etc/apt/keyrings/docker.asc \
-    # Add Docker repository
-    && echo \
-      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-      $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-      tee /etc/apt/sources.list.d/docker.list > /dev/null \
+    # Add repositories
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+       $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
+    && N=${NODE_VERSION%%.*} \
+    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$N.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
+    # Install all packages
     && apt-get update \
     && apt-get --purge install -y \
         git \
@@ -54,31 +54,29 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
         "php${PHP_VERSION}-pcov" \
         "php${PHP_VERSION}-xml" \
         "php${PHP_VERSION}-zip" \
-        "imagemagick" \
-        "libssl-dev" \
-        "libwebp-dev" \
-        "libavif-dev" \
-        "rsync" \
+        imagemagick \
+        libssl-dev \
+        libwebp-dev \
+        libavif-dev \
+        rsync \
+        locales \
+        "nodejs$(apt-cache show nodejs | sed -n "/^Version: ${NODE_VERSION}-/ { s/^Version: /=/p; q }" )" \
+    # Cleanup
     && apt-get remove --purge -y python3-apt \
     && apt-get remove --purge --auto-remove -y gpg software-properties-common \
-    && find /var/ -name '*-old' -delete && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
+    && find /var/ -name '*-old' -delete \
+    && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
 
 # Install Composer
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
     && php composer-setup.php --install-dir=/usr/local/bin --filename=composer --version=$COMPOSER_VERSION \
     && php -r "unlink('composer-setup.php');"
 
-# Install Node.js
-RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
-    export DEBIAN_FRONTEND=noninteractive \
-    && N=${NODE_VERSION%%.*} \
-    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$N.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
-    && apt-get -q update \
-    && VER="$(apt-cache show nodejs | sed -n "/^Version: ${NODE_VERSION}-/ { s/^Version: /=/p; q }" )" \
-    && apt-get install -y nodejs$VER \
-    && find /var/ -name '*-old' -delete && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
+# Install PNPM and setup directories
+ENV PNPM_HOME=/usr/local/pnpm \
+    PATH="${PNPM_HOME}:${PATH}" \
+    npm_config_update_notifier=false
 
-# Install pnpm
 RUN npm install --global pnpm@$PNPM_VERSION \
     && SHELL=/bin/bash pnpm setup
 
@@ -88,19 +86,13 @@ WORKDIR /workspace
 COPY bin/monorepo-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/monorepo-entrypoint.sh
 
-# Set up locale properly
-RUN apt-get update && apt-get install -y locales \
-    && locale-gen en_US.UTF-8 \
+# Set up locale
+RUN locale-gen en_US.UTF-8 \
     && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
-    && find /var/ -name '*-old' -delete && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
-
-ENV LANG=en_US.UTF-8
-ENV LC_ALL=en_US.UTF-8
+    && find /var/ -name '*-old' -delete \
+    && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
 
 # Set up PNPM global directory
-ENV PNPM_HOME=/usr/local/pnpm
-ENV PATH="${PNPM_HOME}:${PATH}"
-
 RUN mkdir -p "$PNPM_HOME" \
     && chmod 777 "$PNPM_HOME"
 
