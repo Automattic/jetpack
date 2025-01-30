@@ -59,7 +59,7 @@ class Meta extends Module {
 			}
 		}
 
-		$conditionals         = array();
+		$meta_objects         = array();
 		$where_sql            = '';
 		$current_query_length = 0;
 
@@ -78,38 +78,14 @@ class Meta extends Module {
 			$current_query_length += strlen( $where_sql );
 
 			if ( $current_query_length > self::MAX_DB_QUERY_LENGTH ) {
-				$conditionals[]       = $where_sql;
+				$meta_objects         = $this->fetch_prepared_meta_from_db( $object_type, $where_sql, $meta_objects );
 				$where_sql            = '';
 				$current_query_length = 0;
 			}
 		}
 
 		if ( ! empty( $where_sql ) ) {
-			$conditionals[] = $where_sql;
-		}
-
-		$meta_objects = array();
-
-		foreach ( $conditionals as $where ) {
-			$meta = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.DirectQuery
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT * FROM {$table} WHERE {$where}",
-				ARRAY_A
-			);
-
-			if ( ! is_wp_error( $meta ) && ! empty( $meta ) ) {
-				foreach ( $meta as $meta_entry ) {
-					$object_id = $meta_entry[ $object_id_column ];
-					$meta_key  = $meta_entry['meta_key'];
-					$key       = $object_id . '-' . $meta_key;
-
-					if ( ! isset( $meta_objects[ $key ] ) ) {
-						$meta_objects[ $key ] = array();
-					}
-
-					$meta_objects[ $key ][] = $this->get_prepared_meta_object( $object_type, $meta_entry );
-				}
-			}
+			$meta_objects = $this->fetch_prepared_meta_from_db( $object_type, $where_sql, $meta_objects );
 		}
 
 		return $meta_objects;
@@ -131,25 +107,60 @@ class Meta extends Module {
 			return null;
 		}
 
-		$table            = _get_meta_table( $object_type );
+		$table = _get_meta_table( $object_type );
+
+		if ( ! $table ) {
+			return null;
+		}
+
 		$object_id_column = $object_type . '_id';
 
 		// Sanitize so that the array only has integer values.
-		$meta = $wpdb->get_results(
-			$wpdb->prepare(
+		$where_condition = $wpdb->prepare(
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT * FROM {$table} WHERE {$object_id_column} = %d AND meta_key = %s",
-				$id,
-				$meta_key
-			),
+			"{$object_id_column} = %d AND meta_key = %s",
+			$id,
+			$meta_key
+		);
+
+		$meta_objects = $this->fetch_prepared_meta_from_db( $object_type, $where_condition );
+
+		$key = $id . '-' . $meta_key;
+
+		return $meta_objects[ $key ] ?? null;
+	}
+
+	/**
+	 * Fetch meta from DB and return them in a standard format.
+	 *
+	 * @param  string $object_type   The meta object type, eg 'post', 'user' etc.
+	 * @param  string $where         Prepared SQL 'where' statement.
+	 * @param  array  $meta_objects  An existing array of meta to populate. Defaults to an empty array.
+	 * @return array
+	 */
+	private function fetch_prepared_meta_from_db( $object_type, $where, $meta_objects = array() ) {
+		global $wpdb;
+
+		$table            = _get_meta_table( $object_type );
+		$object_id_column = $object_type . '_id';
+
+		$meta = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.DirectQuery
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			"SELECT * FROM {$table} WHERE {$where}",
 			ARRAY_A
 		);
 
-		$meta_objects = null;
-
 		if ( ! is_wp_error( $meta ) && ! empty( $meta ) ) {
 			foreach ( $meta as $meta_entry ) {
-				$meta_objects[] = $this->get_prepared_meta_object( $object_type, $meta_entry );
+				$object_id = $meta_entry[ $object_id_column ];
+				$meta_key  = $meta_entry['meta_key'];
+				$key       = $object_id . '-' . $meta_key;
+
+				if ( ! isset( $meta_objects[ $key ] ) ) {
+					$meta_objects[ $key ] = array();
+				}
+
+				$meta_objects[ $key ][] = $this->get_prepared_meta_object( $object_type, $meta_entry );
 			}
 		}
 

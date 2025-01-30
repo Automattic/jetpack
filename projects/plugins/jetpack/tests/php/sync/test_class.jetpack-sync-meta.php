@@ -300,6 +300,42 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
+	 * Verify that get_object_by_id will return null for non existing meta.
+	 */
+	public function test_get_object_by_id_will_return_null_for_non_existing_meta() {
+		$module = Modules::get_module( 'meta' );
+		$this->assertNull( $module->get_object_by_id( 'post', $this->post_id, 'does_not_exist' ) );
+	}
+
+	/**
+	 * Test get_object_by_id with multiple meta for the same object_id and key.
+	 */
+	public function test_get_object_by_id_multiple_meta_same_object_id_and_key() {
+		$meta_id = add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'bar' );
+		$module  = Modules::get_module( 'meta' );
+
+		$metas    = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
+		$expected = array(
+			array(
+				'meta_type'  => 'post',
+				'meta_id'    => (string) $this->meta_id,
+				'meta_key'   => $this->whitelisted_post_meta,
+				'meta_value' => 'foo',
+				'object_id'  => (string) $this->post_id,
+			),
+			array(
+				'meta_type'  => 'post',
+				'meta_id'    => (string) $meta_id,
+				'meta_key'   => $this->whitelisted_post_meta,
+				'meta_value' => 'bar',
+				'object_id'  => (string) $this->post_id,
+			),
+		);
+
+		$this->assertSame( $expected, $metas );
+	}
+
+	/**
 	 * Verify that meta_values above size limit are truncated in get_object_by_id
 	 */
 	public function test_get_object_by_id_size_limit_exceeded() {
