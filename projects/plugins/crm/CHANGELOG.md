@@ -3640,6 +3640,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [6.1.0]: https://github.com/Automattic/jetpack-crm/compare/6.0.0...6.1.0
 [6.0.0]: https://github.com/Automattic/jetpack-crm/compare/5.8.0...6.0.0
 [5.8.0]: https://github.com/Automattic/jetpack-crm/compare/5.7.0...5.8.0
-[5.7.0]: https://github.com/Automattic/jetpack-crm/compare/v5.6.0...v5.7.0
-[5.6.0]: https://github.com/Automattic/jetpack-crm/compare/v5.5.4-a.1...v5.6.0
-[5.5.4-a.1]: https://github.com/Automattic/jetpack-crm/compare/v5.5.3...v5.5.4-a.1
+[5.7.0]: https://github.com/Automattic/jetpack-crm/compare/5.6.0...5.7.0
