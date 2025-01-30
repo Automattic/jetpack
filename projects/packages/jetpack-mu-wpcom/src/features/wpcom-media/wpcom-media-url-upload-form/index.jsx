@@ -42,17 +42,23 @@ const WpcomMediaUrlUploadForm = ( { ajaxUrl, action, nonce, isSiteEditor } ) => 
 		if ( success ) {
 			window.wp.media.model.Attachment.get( data.attachment_id ).fetch( {
 				success: function ( attachment ) {
+					const addAttachment = attachmentToAdd => {
+						( window.wp.media.frame.controller || window.wp.media.frame ).content
+							.get()
+							.collection.add( attachmentToAdd );
+					};
+
 					if ( isSiteEditor ) {
 						const mediaLibraryTab = window.wp.media.frame.state( 'library' );
 						mediaLibraryTab.trigger( 'open' );
 
-						window.wp.media.frame.controller.browserView.collection.add( attachment );
+						addAttachment( attachment );
 
 						const selection = mediaLibraryTab.get( 'selection' );
 						selection.reset();
 						selection.add( [ attachment ] );
 					} else {
-						window.wp.media.frame.controller.browserView.collection.add( attachment );
+						addAttachment( attachment );
 					}
 
 					setIsUploading( false );
