@@ -319,7 +319,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Onboarding: Usage tracking changed from opt-out to opt-in in the onboarding wizard [#29999]
 - WooSync: Tag existing contacts with new orders [#30107]
 
-## [5.6.0] - 2023-03-23
+## 5.6.0 - 2023-03-23
 ### Changed
 - Contacts: Change customer references to contact in all but Woo and commerce contexts [#29267]
 - Compatibility: Indicate full compatibility with the latest version of WordPress, 6.2 [#29341]
