@@ -220,5 +220,5 @@ function zbsJS_welcomeWizard_update_deets() {
 }
 
 if ( typeof module !== 'undefined' ) {
-	module.exports = { zbsOptions, zbs_biz_select, zbs_crm_name_change, zbs_crm_js_updatePage2 };
+	module.exports = { zbs_biz_select, zbs_crm_name_change, zbs_crm_js_updatePage2 };
 }
