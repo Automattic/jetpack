@@ -34,9 +34,9 @@ class Config {
 
 	public static function can_use_static_cache() {
 		$cache_dir = static::get_static_cache_dir_path();
-		$use_cache = ! empty( $cache_dir );
+		$use_cache = true;
 
-		if ( $use_cache && ! static::ensure_dir_exists( $cache_dir ) ) {
+		if ( ! static::ensure_dir_exists( $cache_dir ) ) {
 			$use_cache = false;
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -50,7 +50,7 @@ class Config {
 			}
 		}
 
-		if ( $use_cache && ! static::ensure_dir_is_writable( $cache_dir ) ) {
+		if ( ! static::ensure_dir_is_writable( $cache_dir ) ) {
 			$use_cache = false;
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
