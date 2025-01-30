@@ -51,7 +51,7 @@ function load_wpcom_dashboard_widgets() {
 			$wpcom_dashboard_widget['id'],
 			$wpcom_dashboard_widget['name'],
 			'render_wpcom_dashboard_widget',
-			null,
+			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. See https://core.trac.wordpress.org/ticket/52539.
 			array(
 				'id'   => $wpcom_dashboard_widget['id'],
 				'name' => $wpcom_dashboard_widget['name'],
