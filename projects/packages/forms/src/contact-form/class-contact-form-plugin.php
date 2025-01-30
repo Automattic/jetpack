@@ -703,7 +703,7 @@ class Contact_Form_Plugin {
 					$postdata = generate_postdata( $post );
 					$page     = isset( $_POST['page'] ) ? absint( wp_unslash( $_POST['page'] ) ) : null; // phpcs:Ignore WordPress.Security.NonceVerification.Missing
 					$paged    = isset( $page ) ? $page : 1;
-					$content  = $postdata['pages'][ $paged - 1 ];
+					$content  = isset( $postdata['pages'][ $paged - 1 ] ) ? $postdata['pages'][ $paged - 1 ] : $post->post_content;
 				} else {
 					$content = $post->post_content;
 				}
