@@ -297,6 +297,7 @@ class Initializer {
 					'dismissed'  => \Jetpack_Options::get_option( 'dismissed_recommendations', false ),
 				),
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
+				'canUserViewStats'       => current_user_can( 'manage_options' ) || current_user_can( 'view_stats' ),
 				'isUserFromKnownHost'    => self::is_user_from_known_host(),
 				'isCommercial'           => self::is_commercial_site(),
 				'sandboxedDomain'        => $sandboxed_domain,

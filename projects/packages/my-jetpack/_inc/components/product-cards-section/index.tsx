@@ -109,6 +109,8 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 		data: { ownedProducts, unownedProducts },
 	} = useProductsByOwnership();
 
+	const { canUserViewStats } = getMyJetpackWindowInitialState();
+
 	const unownedSectionTitle = useMemo( () => {
 		return ownedProducts.length > 0
 			? __( 'Discover more', 'jetpack-my-jetpack' )
@@ -117,6 +119,10 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 
 	const filterProducts = ( products: JetpackModule[] ) => {
 		const productsWithNoCard = [ 'scan', 'security', 'growth', 'extras', 'complete' ];
+		// If the user cannot view stats, filter out the stats card
+		if ( ! canUserViewStats ) {
+			productsWithNoCard.push( 'stats' );
+		}
 		return products.filter( product => {
 			if ( productsWithNoCard.includes( product ) ) {
 				return false;
