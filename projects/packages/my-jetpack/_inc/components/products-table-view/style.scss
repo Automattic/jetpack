@@ -52,12 +52,8 @@ div.dataviews-view-list {
             justify-content: space-between;
         }
 
+        &:not(.is-selected).is-hovered,
         &:not(.is-selected):hover {
-            .dataviews-view-list__fields {
-                color: #757575;
-            }
-        }
-        &:not(.is-selected).is-hovered {
             background-color: transparent;
 
             .dataviews-view-list__fields {
