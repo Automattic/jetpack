@@ -46,6 +46,31 @@ interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] 
 
 type ArcData = PieArcDatum< DataPointPercentage >;
 
+/**
+ * Validates the semi-circle pie chart data
+ * @param data - The data to validate
+ * @return Object containing validation result and error message
+ */
+const validateData = ( data: DataPointPercentage[] ) => {
+	if ( ! data.length ) {
+		return { isValid: false, message: 'No data available' };
+	}
+
+	// Check for negative values
+	const hasNegativeValues = data.some( item => item.percentage < 0 || item.value < 0 );
+	if ( hasNegativeValues ) {
+		return { isValid: false, message: 'Invalid data: Negative values are not allowed' };
+	}
+
+	// Validate total percentage is greater than 0
+	const totalPercentage = data.reduce( ( sum, item ) => sum + item.percentage, 0 );
+	if ( totalPercentage <= 0 ) {
+		return { isValid: false, message: 'Invalid percentage total: Must be greater than 0' };
+	}
+
+	return { isValid: true, message: '' };
+};
+
 const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	data,
 	size = 400,
@@ -61,6 +86,46 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	const providerTheme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentage >();
+
+	const handleMouseMove = useCallback(
+		( event: React.MouseEvent, arc: ArcData ) => {
+			const coords = localPoint( event );
+			if ( ! coords ) return;
+
+			showTooltip( {
+				tooltipData: arc.data,
+				tooltipLeft: coords.x,
+				tooltipTop: coords.y - 10,
+			} );
+		},
+		[ showTooltip ]
+	);
+
+	const handleMouseLeave = useCallback( () => {
+		hideTooltip();
+	}, [ hideTooltip ] );
+
+	const handleArcMouseMove = useCallback(
+		( arc: ArcData ) => ( event: React.MouseEvent ) => {
+			handleMouseMove( event, arc );
+		},
+		[ handleMouseMove ]
+	);
+
+	// Add validation check
+	const { isValid, message } = validateData( data );
+
+	if ( ! isValid ) {
+		return (
+			<div className={ styles[ 'pie-semi-circle-chart' ] }>
+				<svg width={ size } height={ size / 2 } data-testid="pie-chart-svg">
+					<text x="50%" y="50%" textAnchor="middle" className={ styles.error }>
+						{ message }
+					</text>
+				</svg>
+			</div>
+		);
+	}
 
 	const width = size;
 	const height = size / 2;
@@ -88,31 +153,6 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 		fill: ( d: DataPointPercentage & { index: number } ) =>
 			d.color || providerTheme.colors[ d.index % providerTheme.colors.length ],
 	};
-
-	const handleMouseMove = useCallback(
-		( event: React.MouseEvent, arc: ArcData ) => {
-			const coords = localPoint( event );
-			if ( ! coords ) return;
-
-			showTooltip( {
-				tooltipData: arc.data,
-				tooltipLeft: coords.x,
-				tooltipTop: coords.y - 10,
-			} );
-		},
-		[ showTooltip ]
-	);
-
-	const handleMouseLeave = useCallback( () => {
-		hideTooltip();
-	}, [ hideTooltip ] );
-
-	const handleArcMouseMove = useCallback(
-		( arc: ArcData ) => ( event: React.MouseEvent ) => {
-			handleMouseMove( event, arc );
-		},
-		[ handleMouseMove ]
-	);
 
 	// Create legend items
 	const legendItems = data.map( ( item, index ) => ( {
