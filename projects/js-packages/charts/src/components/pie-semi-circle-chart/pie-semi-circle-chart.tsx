@@ -37,13 +37,18 @@ interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] 
 	 * true for clockwise, false for counter-clockwise
 	 */
 	clockwise?: boolean;
+
+	/**
+	 * Size of the chart in pixels
+	 */
+	size?: number;
 }
 
 type ArcData = PieArcDatum< DataPointPercentage >;
 
 const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	data,
-	width,
+	size = 400,
 	label,
 	note,
 	className,
@@ -57,8 +62,8 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentage >();
 
-	const centerX = width / 2;
-	const height = width / 2;
+	const width = size;
+	const height = size / 2;
 	const radius = width / 2;
 	const pad = 0.03;
 	const innerRadius = radius * ( 1 - thickness + pad );
@@ -119,10 +124,16 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	return (
 		<div
 			className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
+			data-testid="pie-chart-container"
 		>
-			<svg viewBox={ `0 0 ${ width } ${ height }` } width={ width } height={ height }>
+			<svg
+				viewBox={ `0 0 ${ width } ${ height }` }
+				width={ width }
+				height={ height }
+				data-testid="pie-chart-svg"
+			>
 				{ /* Main chart group that contains both the pie and text elements */ }
-				<Group top={ centerX } left={ centerX }>
+				<Group top={ radius } left={ radius }>
 					{ /* Pie chart */ }
 					<Pie< DataPointPercentage & { index: number } >
 						data={ dataWithIndex }
@@ -142,7 +153,11 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 									onMouseMove={ handleArcMouseMove( arc ) }
 									onMouseLeave={ handleMouseLeave }
 								>
-									<path d={ pie.path( arc ) || '' } fill={ accessors.fill( arc.data ) } />
+									<path
+										d={ pie.path( arc ) || '' }
+										fill={ accessors.fill( arc.data ) }
+										data-testid="pie-segment"
+									/>
 								</g>
 							) );
 						} }
