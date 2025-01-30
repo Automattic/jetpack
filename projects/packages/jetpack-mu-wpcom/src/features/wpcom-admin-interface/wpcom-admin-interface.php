@@ -106,7 +106,7 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 			 */
 			function ( $location ) {
 				$updated_settings_page = add_query_arg( 'settings-updated', 'true', wp_get_referer() );
-				if ( $location === $updated_settings_page ) {
+				if ( $location === $updated_settings_page && ! wpcom_is_duplicate_views_experiment_enabled() ) {
 					return 'https://wordpress.com/settings/general/' . wpcom_get_site_slug();
 				} else {
 					return $location;
