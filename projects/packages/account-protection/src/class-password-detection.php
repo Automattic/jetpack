@@ -49,7 +49,7 @@ class Password_Detection {
 			return $user;
 		}
 
-		if ( $this->validation_service->check_weak_passwords( $password ) ) {
+		if ( $this->validation_service->is_weak_password( $password ) ) {
 			// TODO: Every time the user logs in we generate a new token based transient. This might not be ideal.
 			$transient = $this->generate_and_store_transient_data( $user->ID );
 

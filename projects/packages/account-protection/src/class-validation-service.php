@@ -21,7 +21,7 @@ class Validation_Service {
 	 *
 	 * @return bool True if the password is in the list of compromised/common passwords, false otherwise.
 	 */
-	public function check_weak_passwords( string $password ): bool {
+	public function is_weak_password( string $password ): bool {
 		$api_url = '/jetpack-protect-weak-password';
 
 		$is_connected = ( new Connection_Manager() )->is_connected();
