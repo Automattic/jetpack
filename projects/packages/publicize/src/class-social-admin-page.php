@@ -47,9 +47,7 @@ class Social_Admin_Page {
 	 */
 	public function add_menu() {
 
-		// TODO Remove this check once we are ready to always have the menu/page.
-		if ( ! defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) ) {
-			// For now, the menu/page is added only if the Social plugin is active.
+		if ( ! Publicize_Script_Data::has_feature_flag( 'admin-page' ) ) {
 			return;
 		}
 

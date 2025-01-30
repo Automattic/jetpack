@@ -59,6 +59,7 @@ module.exports = [
 			'starter-page-templates': './src/features/starter-page-templates/index.tsx',
 			'removed-calypso-screen-notice':
 				'./src/features/wpcom-admin-interface/removed-calypso-screen-notice.tsx',
+			'adminbar-launch-button': './src/features/launch-button/index.js',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
@@ -77,10 +78,6 @@ module.exports = [
 				'@automattic/calypso-config': '@automattic/calypso-config/src/client.js',
 				/** Replace the classnames used by @automattic/newspack-blocks with clsx because we changed to use clsx */
 				classnames: findPackage( 'clsx' ),
-			},
-			fallback: {
-				...jetpackWebpackConfig.resolve.fallback,
-				events: require.resolve( 'events/' ),
 			},
 		},
 		node: false,
@@ -102,9 +99,9 @@ module.exports = [
 					exclude: /node_modules\//,
 				} ),
 
-				// Transpile @automattic/* in node_modules too.
+				// Transpile @automattic/jetpack-* in node_modules too.
 				jetpackWebpackConfig.TranspileRule( {
-					includeNodeModules: [ '@automattic/' ],
+					includeNodeModules: [ '@automattic/jetpack-' ],
 				} ),
 
 				// Handle CSS.

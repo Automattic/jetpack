@@ -875,11 +875,29 @@ class Posts extends Module {
 			return array();
 		}
 
-		$posts          = $this->expand_posts( $post_ids );
-		$posts_metadata = $this->get_metadata( $post_ids, 'post', Settings::get_setting( 'post_meta_whitelist' ) );
+		$posts = $this->expand_posts( $post_ids );
 
-		// Filter posts and metadata based on maximum size constraints.
-		list( $filtered_post_ids, $filtered_posts, $filtered_posts_metadata ) = $this->filter_posts_and_metadata_max_size( $posts, $posts_metadata );
+		// If no posts were fetched, make sure to return the expected structure so that status is updated correctly.
+		if ( empty( $posts ) ) {
+			return array(
+				'object_ids' => $post_ids,
+				'objects'    => array(),
+				'meta'       => array(),
+			);
+		}
+		// Get the post IDs from the posts that were fetched.
+		$fetched_post_ids = wp_list_pluck( $posts, 'ID' );
+		$metadata         = $this->get_metadata( $fetched_post_ids, 'post', Settings::get_setting( 'post_meta_whitelist' ) );
+
+		// Filter the posts and metadata based on the maximum size constraints.
+		list( $filtered_post_ids, $filtered_posts, $filtered_posts_metadata ) = $this->filter_objects_and_metadata_by_size(
+			'post',
+			$posts,
+			$metadata,
+			self::MAX_POST_META_LENGTH,
+			self::MAX_SIZE_FULL_SYNC
+		);
+
 		return array(
 			'object_ids' => $filtered_post_ids,
 			'objects'    => $filtered_posts,
@@ -899,57 +917,6 @@ class Posts extends Module {
 		$posts = array_map( array( $this, 'filter_post_content_and_add_links' ), $posts );
 		$posts = array_values( $posts ); // Reindex in case posts were deleted.
 		return $posts;
-	}
-
-	/**
-	 * Filters posts and metadata based on maximum size constraints.
-	 * It always allows the first post with its metadata even if they exceed the limit, otherwise they will never be synced.
-	 *
-	 * @access public
-	 *
-	 * @param array $posts The array of posts to filter.
-	 * @param array $metadata The array of metadata to filter.
-	 * @return array An array containing the filtered post IDs, filtered posts, and filtered metadata.
-	 */
-	public function filter_posts_and_metadata_max_size( $posts, $metadata ) {
-		$filtered_posts    = array();
-		$filtered_metadata = array();
-		$filtered_post_ids = array();
-		$current_size      = 0;
-		foreach ( $posts as $post ) {
-			$post_content_size = isset( $post->post_content ) ? strlen( $post->post_content ) : 0;
-			$current_metadata  = array();
-			$metadata_size     = 0;
-			foreach ( $metadata as $key => $metadata_item ) {
-				if ( (int) $metadata_item->post_id === $post->ID ) {
-					// Trimming metadata if it exceeds limit. Similar to trim_post_meta.
-					$metadata_item_size = strlen( maybe_serialize( $metadata_item->meta_value ) );
-					if ( $metadata_item_size >= self::MAX_POST_META_LENGTH ) {
-						$metadata_item->meta_value = '';
-					}
-					$current_metadata[] = $metadata_item;
-					$metadata_size     += $metadata_item_size >= self::MAX_POST_META_LENGTH ? 0 : $metadata_item_size;
-					if ( ! empty( $filtered_post_ids ) && ( $current_size + $post_content_size + $metadata_size ) > ( self::MAX_SIZE_FULL_SYNC ) ) {
-						break 2; // Break both foreach loops.
-					}
-					unset( $metadata[ $key ] );
-				}
-			}
-			// Always allow the first post with its metadata.
-			if ( empty( $filtered_post_ids ) || ( $current_size + $post_content_size + $metadata_size ) <= ( self::MAX_SIZE_FULL_SYNC ) ) {
-				$filtered_post_ids[] = strval( $post->ID );
-				$filtered_posts[]    = $post;
-				$filtered_metadata   = array_merge( $filtered_metadata, $current_metadata );
-				$current_size       += $post_content_size + $metadata_size;
-			} else {
-				break;
-			}
-		}
-		return array(
-			$filtered_post_ids,
-			$filtered_posts,
-			$filtered_metadata,
-		);
 	}
 
 	/**
