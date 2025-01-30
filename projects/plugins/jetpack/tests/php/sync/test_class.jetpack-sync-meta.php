@@ -398,7 +398,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that meta_values above size limit are truncated in get_objects_by_id.
 	 */
 	public function test_get_objects_by_id_size_limit_exceeded() {
-		$meta_test_value = str_repeat( 'X', Posts::MAX_POST_META_LENGTH );
+		$meta_test_value = str_repeat( 'X', Posts::MAX_META_LENGTH );
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, $meta_test_value );
 
 		$module = Modules::get_module( 'meta' );
