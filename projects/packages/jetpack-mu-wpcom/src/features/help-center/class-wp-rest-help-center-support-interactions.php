@@ -168,11 +168,19 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 	 * @param \WP_REST_Request $request    The request sent to the API.
 	 */
 	public function create_support_interaction( \WP_REST_Request $request ) {
-		$data = array(
-			'event_external_id' => $request['event_external_id'],
-			'event_source'      => $request['event_source'],
-			'event_metadata'    => $request['event_metadata'],
-		);
+		$data = array();
+
+		if ( isset( $request['event_external_id'] ) ) {
+			$data['event_external_id'] = $request['event_external_id'];
+		}
+
+		if ( isset( $request['event_source'] ) ) {
+			$data['event_source'] = $request['event_source'];
+		}
+
+		if ( isset( $request['event_metadata'] ) ) {
+			$data['event_metadata'] = $request['event_metadata'];
+		}
 
 		$body = Client::wpcom_json_api_request_as_user(
 			'/support-interactions',
@@ -200,11 +208,19 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 	public function create_support_interaction_event( \WP_REST_Request $request ) {
 		$support_interaction_id = isset( $request['support_interaction_id'] ) ? (int) $request['support_interaction_id'] : null;
 
-		$data = array(
-			'event_external_id' => $request['event_external_id'],
-			'event_source'      => $request['event_source'],
-			'event_metadata'    => $request['event_metadata'],
-		);
+		$data = array();
+
+		if ( isset( $request['event_external_id'] ) ) {
+			$data['event_external_id'] = $request['event_external_id'];
+		}
+
+		if ( isset( $request['event_source'] ) ) {
+			$data['event_source'] = $request['event_source'];
+		}
+
+		if ( isset( $request['event_metadata'] ) ) {
+			$data['event_metadata'] = $request['event_metadata'];
+		}
 
 		$body = Client::wpcom_json_api_request_as_user(
 			"/support-interactions/$support_interaction_id/events",
