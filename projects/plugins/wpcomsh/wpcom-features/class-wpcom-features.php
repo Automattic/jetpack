@@ -416,6 +416,7 @@ class WPCOM_Features {
 	public const SFTP                              = 'sftp';
 	public const SIMPLE_PAYMENTS                   = 'simple-payments';
 	public const SITE_PREVIEW_LINKS                = 'site-preview-links';
+	public const SOCIAL_ADMIN_PAGE                 = 'social-admin-page';
 	public const SOCIAL_IMAGE_GENERATOR            = 'social-image-generator';
 	public const SOCIAL_PREVIEWS                   = 'social-previews';
 	public const SOCIAL_SHARES_1000                = 'social-shares-1000';
