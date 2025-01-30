@@ -104,8 +104,8 @@ class Test_Post_List extends BaseTestCase {
 		$this->assertTrue( has_action( 'manage_posts_custom_column' ) );
 		$this->assertTrue( has_filter( 'manage_pages_columns' ) );
 		$this->assertTrue( has_action( 'manage_pages_custom_column' ) );
-		$this->assertFalse( has_action( 'post_row_actions' ) );
-		$this->assertFalse( has_action( 'page_row_actions' ) );
+		$this->assertFalse( has_action( 'post_row_actions', 'add_share_action' ) );
+		$this->assertFalse( has_action( 'page_row_actions', 'add_share_action' ) );
 	}
 
 	/**
@@ -197,8 +197,8 @@ class Test_Post_List extends BaseTestCase {
 		$this->assertTrue( has_action( 'manage_posts_custom_column' ) );
 		$this->assertTrue( has_filter( 'manage_pages_columns' ) );
 		$this->assertTrue( has_action( 'manage_pages_custom_column' ) );
-		$this->assertFalse( has_action( 'post_row_actions' ) );
-		$this->assertFalse( has_action( 'page_row_actions' ) );
+		$this->assertFalse( has_action( 'post_row_actions', 'add_share_action' ) );
+		$this->assertFalse( has_action( 'page_row_actions', 'add_share_action' ) );
 	}
 
 	/**
