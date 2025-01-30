@@ -195,7 +195,12 @@ const Notice = () => {
 				: titleFallback,
 			description: hasTranslation(
 				"We've adopted WordPress' main Discussion Settings view to bring improvements to you and millions of WordPress users worldwide."
-			),
+			)
+				? __(
+						"We've adopted WordPress' main Discussion Settings view to bring improvements to you and millions of WordPress users worldwide.",
+						'jetpack-mu-wpcom'
+				  )
+				: descriptionFallback,
 		},
 	};
 
