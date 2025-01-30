@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Update the date picker to be more accessible and not reply on jquery datepicker

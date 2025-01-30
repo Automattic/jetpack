@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: Update datepicker to remove the dependency on jquery
