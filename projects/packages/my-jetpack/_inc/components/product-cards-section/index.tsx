@@ -127,8 +127,7 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 	};
 
 	const filteredOwnedProducts = filterProducts( ownedProducts );
-	//const filteredUnownedProducts = filterProducts( unownedProducts );
-	const testUnownedProducts = filterProducts( [ ...unownedProducts, ...ownedProducts ] );
+	const filteredUnownedProducts = filterProducts( unownedProducts );
 
 	return (
 		<>
@@ -146,13 +145,13 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 				</AdminSectionHero>
 			) }
 
-			{ testUnownedProducts.length > 0 && (
+			{ filteredUnownedProducts.length > 0 && (
 				<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
 					<Col>
 						<Col sm={ 4 } md={ 8 } lg={ 12 } className={ styles.cardListTitle }>
 							<Text variant="headline-small">{ unownedSectionTitle }</Text>
 						</Col>
-						<ProductsTableView products={ testUnownedProducts } />
+						<ProductsTableView products={ filteredUnownedProducts } />
 					</Col>
 				</Container>
 			) }
