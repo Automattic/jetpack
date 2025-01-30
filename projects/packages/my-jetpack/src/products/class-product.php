@@ -435,7 +435,7 @@ abstract class Product {
 	public static function has_paid_plan_for_product() {
 		// First check site features (if there's a feature that identifies the paid plan)
 		if ( static::$feature_identifying_paid_plan ) {
-			if ( static::does_site_have_feature( static::$feature_identifying_paid_plan ) ) {
+			if ( Wpcom_Products::current_plan_supports( static::$feature_identifying_paid_plan ) ) {
 				return true;
 			}
 		}

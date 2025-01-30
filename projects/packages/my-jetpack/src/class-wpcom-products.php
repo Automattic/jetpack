@@ -351,6 +351,24 @@ class Wpcom_Products {
 	}
 
 	/**
+	 * Check to see if the site supports a feature (using Current_Plan class)
+	 * This will check the features provided by the site plans and products (including free ones)
+	 *
+	 * @param string $feature - the feature to check for.
+	 * @return bool
+	 */
+	public static function current_plan_supports( $feature ) {
+		static $has_refreshed = null;
+
+		if ( $has_refreshed !== null ) {
+			return Current_Plan::supports( $feature );
+		}
+
+		$has_refreshed = true;
+		return Current_Plan::supports( $feature, true );
+	}
+
+	/**
 	 * Gets the site's currently active "plan" (bundle).
 	 *
 	 * @return array
