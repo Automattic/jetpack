@@ -79,6 +79,12 @@ describe( 'Contact Form', () => {
 				<input id="name" name="name" required />
 				<button type="submit">Submit</button>
 			` );
+			// Mock offsetParent for all elements
+			Object.defineProperty( HTMLElement.prototype, 'offsetParent', {
+				get() {
+					return {};
+				}, // Return a truthy value
+			} );
 			fireDomReadyEvent();
 		} );
 
