@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 /**
  * Adds a "launch site" button to the admin bar.
@@ -68,6 +69,7 @@ function wpcom_enqueue_launch_button_styles() {
 		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/adminbar-launch-button/adminbar-launch-button.js' ),
 		true
 	);
+	Common\wpcom_enqueue_tracking_scripts( 'adminbar-launch-button' );
 }
 
 add_action( 'admin_bar_menu', 'wpcom_add_launch_button_to_admin_bar', 500 );
