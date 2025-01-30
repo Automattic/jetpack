@@ -701,7 +701,7 @@ class Contact_Form_Plugin {
 			if ( $post ) {
 				if ( str_contains( $post->post_content, '<!--nextpage-->' ) ) {
 					$postdata = generate_postdata( $post );
-					$page     = isset( $_POST['page'] ) ? sanitize_text_field( wp_unslash( $_POST['page'] ) ) : null; // phpcs:Ignore WordPress.Security.NonceVerification.Missing
+					$page     = isset( $_POST['page'] ) ? absint( wp_unslash( $_POST['page'] ) ) : null; // phpcs:Ignore WordPress.Security.NonceVerification.Missing
 					$paged    = isset( $page ) ? $page : 1;
 					$content  = $postdata['pages'][ $paged - 1 ];
 				} else {

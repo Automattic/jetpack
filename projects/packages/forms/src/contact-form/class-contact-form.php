@@ -1660,7 +1660,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	public static function get_permalink( $post_id ) {
 		$url  = get_permalink( $post_id );
-		$page = isset( $_POST['page'] ) ? sanitize_text_field( wp_unslash( $_POST['page'] ) ) : null; // phpcs:Ignore WordPress.Security.NonceVerification.Missing
+		$page = isset( $_POST['page'] ) ? absint( wp_unslash( $_POST['page'] ) ) : null; // phpcs:Ignore WordPress.Security.NonceVerification.Missing
 		if ( $page ) {
 			return add_query_arg( 'page', $page, $url );
 		}
