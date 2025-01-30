@@ -145,7 +145,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	 */
 	public function init_before_send() {
 		// Full sync.
-		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_woocommerce_hpos_orders', array( $this, 'expand_order_objects' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_woocommerce_hpos_orders', array( $this, 'build_full_sync_action_object' ) );
 	}
 
 	/**
@@ -229,10 +229,10 @@ class WooCommerce_HPOS_Orders extends Module {
 	 *
 	 * @return array
 	 */
-	public function expand_order_objects( $args ) {
-		list( $order_ids, $previous_end ) = $args;
+	public function build_full_sync_action_object( $args ) {
+		list( $filtered_orders, $previous_end ) = $args;
 		return array(
-			'orders'       => $this->get_objects_by_id( 'order', $order_ids ),
+			'orders'       => $filtered_orders['objects'],
 			'previous_end' => $previous_end,
 		);
 	}
@@ -502,5 +502,48 @@ class WooCommerce_HPOS_Orders extends Module {
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Query is prepared.
 		$where_sql = $wpdb->prepare( "type IN ( $order_type_placeholder )", $order_types );
 		return "{$parent_where} AND {$where_sql}";
+	}
+
+	/**
+	 * Given the Module Configuration and Status return the next chunk of items to send.
+	 * This function also expands the posts and metadata and filters them based on the maximum size constraints.
+	 *
+	 * @param array $config This module Full Sync configuration.
+	 * @param array $status This module Full Sync status.
+	 * @param int   $chunk_size Chunk size.
+	 *
+	 * @return array
+	 */
+	public function get_next_chunk( $config, $status, $chunk_size ) {
+
+		$order_ids = parent::get_next_chunk( $config, $status, $chunk_size );
+
+		if ( empty( $order_ids ) ) {
+			return array();
+		}
+
+		$orders = $this->get_objects_by_id( 'order', $order_ids );
+
+		// If no orders were fetched, make sure to return the expected structure so that status is updated correctly.
+		if ( empty( $orders ) ) {
+			return array(
+				'object_ids' => $order_ids,
+				'objects'    => array(),
+			);
+		}
+
+		// Filter the orders based on the maximum size constraints. We don't need to filter metadata here since we don't sync it for hpos.
+		list( $filtered_order_ids, $filtered_orders, ) = $this->filter_objects_and_metadata_by_size(
+			'order',
+			$orders,
+			array(),
+			0,
+			self::MAX_SIZE_FULL_SYNC
+		);
+
+		return array(
+			'object_ids' => $filtered_order_ids,
+			'objects'    => $filtered_orders,
+		);
 	}
 }

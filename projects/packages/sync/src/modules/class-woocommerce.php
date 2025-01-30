@@ -221,7 +221,7 @@ class WooCommerce extends Module {
 	 */
 	public function init_before_send() {
 		// Full sync.
-		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_woocommerce_order_items', array( $this, 'expand_order_item_ids' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_woocommerce_order_items', array( $this, 'build_full_sync_action_object' ) );
 	}
 
 	/**
@@ -255,34 +255,6 @@ class WooCommerce extends Module {
 		if ( $order_item_ids ) {
 			do_action( 'woocommerce_remove_order_item_ids', $order_item_ids );
 		}
-	}
-
-	/**
-	 * Expand order item IDs to order items and their meta.
-	 *
-	 * @access public
-	 *
-	 * @todo Refactor table name to use a $wpdb->prepare placeholder.
-	 *
-	 * @param array $args The hook arguments.
-	 * @return array $args Expanded order items with meta.
-	 */
-	public function expand_order_item_ids( $args ) {
-		$order_item_ids = $args[0];
-
-		global $wpdb;
-
-		$order_item_ids_sql = implode( ', ', array_map( 'intval', $order_item_ids ) );
-
-		$order_items = $wpdb->get_results(
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			"SELECT * FROM $this->order_item_table_name WHERE order_item_id IN ( $order_item_ids_sql )"
-		);
-
-		return array(
-			$order_items,
-			$this->get_metadata( $order_item_ids, 'order_item', static::$order_item_meta_whitelist ),
-		);
 	}
 
 	/**
@@ -671,5 +643,71 @@ class WooCommerce extends Module {
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		return $wpdb->get_results( $wpdb->prepare( $query, $ids ), ARRAY_A );
+	}
+
+	/**
+	 * Retrieves multiple orders data by their ID.
+	 *
+	 * @access public
+	 *
+	 * @param array $args List of order IDs.
+	 *
+	 * @return array
+	 */
+	public function build_full_sync_action_object( $args ) {
+		list( $filtered_orders, $previous_end ) = $args;
+		return array(
+			'orders'       => $filtered_orders['objects'],
+			'order_meta'   => $filtered_orders['meta'],
+			'previous_end' => $previous_end,
+		);
+	}
+
+	/**
+	 * Given the Module Configuration and Status return the next chunk of items to send.
+	 * This function also expands the posts and metadata and filters them based on the maximum size constraints.
+	 *
+	 * @param array $config This module Full Sync configuration.
+	 * @param array $status This module Full Sync status.
+	 * @param int   $chunk_size Chunk size.
+	 *
+	 * @return array
+	 */
+	public function get_next_chunk( $config, $status, $chunk_size ) {
+
+		$order_ids = parent::get_next_chunk( $config, $status, $chunk_size );
+
+		if ( empty( $order_ids ) ) {
+			return array();
+		}
+
+		$orders = $this->get_objects_by_id( 'order_item', $order_ids );
+
+		// If no orders were fetched, make sure to return the expected structure so that status is updated correctly.
+		if ( empty( $orders ) ) {
+			return array(
+				'object_ids' => $order_ids,
+				'objects'    => array(),
+			);
+		}
+
+		// Get the order IDs from the orders that were fetched.
+		$fetched_orders_ids = wp_list_pluck( $orders, 'order_item_id' );
+		$metadata           = $this->get_metadata( $fetched_orders_ids, 'order_item', static::$order_item_meta_whitelist );
+
+		// Filter the orders and metadata based on the maximum size constraints.
+		list( $filtered_order_ids, $filtered_orders, $filtered_orders_metadata ) = $this->filter_objects_and_metadata_by_size(
+			'order_item',
+			$orders,
+			$metadata,
+			self::MAX_META_LENGTH,
+			self::MAX_SIZE_FULL_SYNC
+		);
+
+		return array(
+			'object_ids' => $filtered_order_ids,
+			'objects'    => $filtered_orders,
+			'meta'       => $filtered_orders_metadata,
+		);
 	}
 }
