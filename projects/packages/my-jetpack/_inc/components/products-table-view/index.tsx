@@ -3,7 +3,6 @@ import { __ } from '@wordpress/i18n';
 import { useMemo, useCallback, useState } from 'react';
 import useProduct from '../../data/products/use-product';
 import ActionButton from '../action-button';
-import CategoryFilterControl from './category-filter-control';
 import {
 	PRODUCT_TABLE_TITLE,
 	PRODUCT_TABLE_DESCRIPTION,
@@ -181,7 +180,6 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 			onChangeView={ onChangeView }
 			defaultLayouts={ defaultLayouts }
 			isItemClickable={ isItemClickable }
-			header={ <CategoryFilterControl data={ data } view={ view } onChangeView={ onChangeView } /> }
 		/>
 	);
 };
