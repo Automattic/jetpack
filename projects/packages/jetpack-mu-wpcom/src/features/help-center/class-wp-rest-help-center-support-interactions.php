@@ -39,6 +39,7 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 						'enum'     => array(
 							'open',
 							'resolved',
+							'closed',
 						),
 					),
 					'page'     => array(
