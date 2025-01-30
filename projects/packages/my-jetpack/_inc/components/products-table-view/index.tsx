@@ -1,7 +1,7 @@
 import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
-import { useMemo, useCallback, useState } from 'react';
-import useProduct from '../../data/products/use-product';
+import { useCallback, useState } from 'react';
+import { useAllProducts } from '../../data/products/use-all-products';
 import ActionButton from '../action-button';
 import {
 	PRODUCT_TABLE_TITLE,
@@ -39,10 +39,11 @@ const PRODUCT_ICONS = {
 	social: SocialIcon,
 };
 
-const compileData: ( products: JetpackModule[] ) => ProductData[] = products => {
+const useCompileData: ( products: JetpackModule[] ) => ProductData[] = products => {
+	const allProductData = useAllProducts();
 	const data = products.map( product => {
-		const productData = useProduct( product );
-		const { description, name, status, slug, category } = productData.detail;
+		const productData = allProductData[ product ];
+		const { description, name, status, slug, category } = productData;
 		return {
 			product: {
 				description,
@@ -125,19 +126,22 @@ const getFields = () => {
 };
 
 const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
-	const baseView: ViewList = useMemo( () => {
-		return {
-			sort: {
-				field: PRODUCT_TABLE_TITLE,
-				direction: 'asc' as SortDirection,
-			},
-			type: 'list',
-			filters: [],
-			page: 1,
-			perPage: 10,
-			selection: [],
-		};
+	const getItemId = useCallback( ( item: ProductData ) => item.product.slug, [] );
+	const onChangeView = useCallback( ( newView: View ) => {
+		setView( newView );
 	}, [] );
+	const isItemClickable = useCallback( () => false, [] );
+
+	const baseView: ViewList = {
+		sort: {
+			field: PRODUCT_TABLE_TITLE,
+			direction: 'asc' as SortDirection,
+		},
+		type: 'list',
+		filters: [],
+		page: 1,
+		perPage: 10,
+	};
 
 	const defaultLayouts: SupportedLayouts = {
 		list: {
@@ -154,20 +158,10 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 		...defaultLayouts.list,
 	} );
 
-	const data = compileData( products );
+	const data = useCompileData( products );
 	const fields = getFields();
 
-	const { data: processedData, paginationInfo } = useMemo( () => {
-		return filterSortAndPaginate( data, view, fields );
-	}, [ data, fields, view ] );
-
-	const getItemId = useCallback( ( item: ProductData ) => item.product.slug, [] );
-
-	const onChangeView = useCallback( ( newView: View ) => {
-		setView( newView );
-	}, [] );
-
-	const isItemClickable = useCallback( () => false, [] );
+	const { data: processedData, paginationInfo } = filterSortAndPaginate( data, view, fields );
 
 	return (
 		<DataViews
