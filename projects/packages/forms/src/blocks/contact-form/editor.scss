@@ -577,14 +577,6 @@
 	}
 }
 
-// Overrides to make the preview look good
-.block-editor-inserter__preview {
-	.jetpack-contact-form {
-		padding: 16px;
-		margin: 0;
-	}
-}
-
 // Make sure form settings dropdown looks good on older Gutenberg versions
 .jetpack-contact-form__popover .components-popover__content {
 	min-width: 260px;
