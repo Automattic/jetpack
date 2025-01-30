@@ -246,7 +246,7 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 	 * @param \WP_REST_Request $request    The request sent to the API.
 	 */
 	public function update_support_interaction_status( \WP_REST_Request $request ) {
-		$support_interaction_id = isset( $request['support_interaction_id'] ) ? (int) $request['support_interaction_id'] : null;
+		$support_interaction_id = isset( $request['support_interaction_id'] ) ? $request['support_interaction_id'] : null;
 
 		$status = $request['status'];
 
