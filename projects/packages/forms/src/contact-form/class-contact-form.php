@@ -436,7 +436,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$r .= "\t\t<input type='hidden' name='action' value='grunion-contact-form' />\n";
 			$r .= "\t\t<input type='hidden' name='contact-form-hash' value='" . esc_attr( $form->hash ) . "' />\n";
 
-			if ( $page ) {
+			if ( $page && $page > 1 ) {
 				$r .= "\t\t<input type='hidden' name='page' value='$page' />\n";
 			}
 
@@ -1332,6 +1332,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'entry_permalink' => esc_url( self::get_permalink( get_the_ID() ) ),
 			'feedback_id'     => $feedback_id,
 		);
+
+		if ( isset( $_POST['page'] ) ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing
+			$entry_values['entry_page'] = absint( wp_unslash( $_POST['page'] ) ); // phpcs:Ignore WordPress.Security.NonceVerification.Missing
+		}
 
 		$all_values = array_merge( $all_values, $entry_values );
 
