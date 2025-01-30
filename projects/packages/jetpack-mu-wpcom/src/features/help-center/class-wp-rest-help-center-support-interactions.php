@@ -27,7 +27,7 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 	public function register_rest_route() {
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base,
+			$this->rest_base,
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_support_interactions' ),
@@ -60,7 +60,7 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base . '/(?P<support_interaction_id>[a-zA-Z0-9-]+)',
+			$this->rest_base . '/(?P<support_interaction_id>[a-zA-Z0-9-]+)',
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_support_interactions' ),
@@ -70,7 +70,7 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base,
+			$this->rest_base,
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'create_support_interaction' ),
@@ -94,7 +94,7 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base . '/(?P<support_interaction_id>[a-zA-Z0-9-]+)/events',
+			$this->rest_base . '/(?P<support_interaction_id>[a-zA-Z0-9-]+)/events',
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'create_support_interaction_event' ),
@@ -118,7 +118,7 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base . '/(?P<support_interaction_id>[a-zA-Z0-9-]+)/status',
+			$this->rest_base . '/(?P<support_interaction_id>[a-zA-Z0-9-]+)/status',
 			array(
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'update_support_interaction_status' ),
