@@ -29,8 +29,9 @@ function jetpack_blocks_activate_module() {
 	delete_option( 'jetpack_blocks_disabled' ); // The function will check and return early if not present.
 }
 
-Jetpack_Gutenberg::load_independent_blocks();
 Jetpack_Gutenberg::load_block_editor_extensions();
+Jetpack_Gutenberg::load_independent_blocks();
+Jetpack_Gutenberg::register_block_metadata_collection();
 
 /**
  * We've switched from enqueue_block_editor_assets to enqueue_block_assets in WP-Admin because the assets with the former are loaded on the main site-editor.php.
@@ -43,4 +44,3 @@ if ( is_admin() ) {
 	add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
 }
 add_filter( 'render_block', array( 'Jetpack_Gutenberg', 'display_deprecated_block_message' ), 10, 2 );
-add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'register_block_metadata_collection' ) );
