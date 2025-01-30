@@ -22,6 +22,12 @@ module.exports = [
 		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 		module: {
 			strictExportPresence: true,
+			rules: [
+				// Transpile JavaScript
+				jetpackWebpackConfig.TranspileRule( {
+					exclude: /node_modules\//,
+				} ),
+			],
 		},
 	},
 ];
