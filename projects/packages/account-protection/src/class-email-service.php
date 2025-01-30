@@ -16,61 +16,6 @@ use Jetpack_Options;
  */
 class Email_Service {
 	/**
-	 * Send auth email.
-	 *
-	 * @param \WP_User $user The user.
-	 * @param string   $auth_code The authentication code.
-	 *
-	 * @return bool True if the email was sent successfully, false otherwise.
-	 */
-	public function send_auth_email( \WP_User $user, string $auth_code ): bool {
-		$wp_send = $this->wp_send_auth_email( $user, $auth_code );
-
-		if ( ! $wp_send ) {
-			return $this->api_send_auth_email( $user, $auth_code );
-		}
-
-		return true;
-	}
-
-	/**
-	 * Send the email using wp_mail().
-	 *
-	 * @param \WP_User $user The user.
-	 * @param string   $auth_code The authentication code.
-	 *
-	 * @return bool True if the email was sent successfully, false otherwise.
-	 */
-	private function wp_send_auth_email( \WP_User $user, string $auth_code ): bool {
-		$blog_name = esc_html( get_bloginfo( 'name' ) );
-		$blog_url  = esc_url( get_bloginfo( 'url' ) );
-
-		$subject = esc_html__( 'Verify your identity at Jetpack', 'jetpack-account-protection' );
-		$message = sprintf(
-			/* translators: 1: User login, 2: User URL, 3: Blog name, 4: Authentication code, 5: User URL, 6: Blog name */
-			__(
-				'<p>Hi %1$s,</p>
-                <p>Your current password for <a href="%2$s">%3$s</a> was found in a public leak, which means your account might be at risk.</p>
-                <p>To help protect your account, please enter this code at the login prompt:</p>
-                <p><strong>%4$s</strong></p>
-                <p>If you didn\'t just log into %5$s, please do so now and change your password.</p>
-                <p>Stay secure,<br>Jetpack</p>',
-				'jetpack-account-protection'
-			),
-			esc_html( $user->user_login ),
-			$blog_url,
-			$blog_name,
-			esc_html( $auth_code ),
-			$blog_url,
-			$blog_name
-		);
-
-		$headers = array( 'Content-Type: text/html; charset=UTF-8' );
-
-		return wp_mail( $user->user_email, $subject, $message, $headers );
-	}
-
-	/**
 	 * Send the email using the API.
 	 *
 	 * @param \WP_User $user The user.
@@ -78,7 +23,7 @@ class Email_Service {
 	 *
 	 * @return bool True if the email was sent successfully, false otherwise.
 	 */
-	private function api_send_auth_email( \WP_User $user, string $auth_code ): bool {
+	public function api_send_auth_email( \WP_User $user, string $auth_code ): bool {
 		$blog_id      = Jetpack_Options::get_option( 'id' );
 		$is_connected = ( new Connection_Manager() )->is_connected();
 
@@ -108,7 +53,8 @@ class Email_Service {
 		}
 
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
-		return $body['success'] ?? false;
+
+		return $body['email_sent'] ?? false;
 	}
 
 	/**
@@ -128,7 +74,7 @@ class Email_Service {
 		$auth_code                   = $this->generate_auth_code();
 		$transient_data['auth_code'] = $auth_code;
 
-		if ( ! $this->send_auth_email( $user, $auth_code ) ) {
+		if ( ! $this->api_send_auth_email( $user, $auth_code ) ) {
 			return false;
 		}
 

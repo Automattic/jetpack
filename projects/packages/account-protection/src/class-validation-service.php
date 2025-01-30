@@ -79,13 +79,7 @@ class Validation_Service {
 			$errors[] = __( 'Between 6 and 150 characters', 'jetpack-account-protection' );
 		}
 
-		$weak_password_status = $this->check_weak_passwords( $password );
-
-		if ( ! $weak_password_status['common'] ) {
-			$errors[] = __( 'Not a common password.', 'jetpack-account-protection' );
-		}
-
-		if ( ! $weak_password_status['compromised'] ) {
+		if ( $this->is_weak_password( $password ) ) {
 			$errors[] = __( 'Not a leaked password.', 'jetpack-account-protection' );
 		}
 
@@ -161,25 +155,18 @@ class Validation_Service {
 	}
 
 	/**
-	 * Check if the password is in the list of compromised or common passwords.
+	 * Check if the password is in the list of compromised/common passwords.
 	 *
 	 * @param string $password The password to check.
 	 *
-	 * @return array An associative array with:
-	 *               - 'compromised' => true if the password is found in a known data breach, false otherwise.
-	 *               - 'common' => true if the password is commonly used, false otherwise.
-	 *               - 'error' => true if an issue occurred while checking the password, false otherwise.
+	 * @return bool True if the password is in the list of compromised/common passwords, false otherwise.
 	 */
-	public function check_weak_passwords( string $password ): array {
+	public function is_weak_password( string $password ): bool {
 		$api_url = '/jetpack-protect-weak-password';
 
 		$is_connected = ( new Connection_Manager() )->is_connected();
 		if ( ! $is_connected ) {
-			return array(
-				'error'       => true,
-				'compromised' => false,
-				'common'      => false,
-			);
+			return false;
 		}
 
 		$hashed_password = sha1( $password );
@@ -196,22 +183,19 @@ class Validation_Service {
 		$response_code = wp_remote_retrieve_response_code( $response );
 
 		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response['body'] ) ) {
-			return array(
-				'error'       => true,
-				'compromised' => false,
-				'common'      => false,
-			);
+			return false;
 		}
 
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		$password_suffix = substr( $hashed_password, 5 );
-
-		return array(
-			'error'       => false,
-			'compromised' => in_array( $password_suffix, $body['compromised'] ?? array(), true ),
-			'common'      => in_array( $password_suffix, $body['common'] ?? array(), true ),
-		);
+		if ( in_array( $password_suffix, $body['compromised'] ?? array(), true ) ) {
+			return true;
+		}
+		if ( in_array( $password_suffix, $body['common'] ?? array(), true ) ) {
+			return true;
+		}
+		return false;
 	}
 
 	/**

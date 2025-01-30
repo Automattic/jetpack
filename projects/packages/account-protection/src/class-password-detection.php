@@ -49,12 +49,11 @@ class Password_Detection {
 			return $user;
 		}
 
-		$weak_password_status = $this->validation_service->check_weak_passwords( $password );
-		if ( $weak_password_status['compromised'] || $weak_password_status['common'] ) {
+		if ( $this->validation_service->is_weak_password( $password ) ) {
 			// TODO: Every time the user logs in we generate a new token based transient. This might not be ideal.
 			$transient = $this->generate_and_store_transient_data( $user->ID );
 
-			$email_sent = $this->email_service->send_auth_email( $user, $transient['auth_code'] );
+			$email_sent = $this->email_service->api_send_auth_email( $user, $transient['auth_code'] );
 			if ( ! $email_sent ) {
 				$this->set_transient_error( $user->ID, __( 'Failed to send authentication email. Please try again.', 'jetpack-account-protection' ) );
 			}
@@ -249,7 +248,7 @@ class Password_Detection {
 		$data = array(
 			'user_id'         => $user_id,
 			'auth_code'       => $auth_code,
-			'resend_attempts' => 1,
+			'resend_attempts' => 0,
 		);
 
 		$transient_set = set_transient( Config::TRANSIENT_PREFIX . "_{$token}", $data, Config::EMAIL_SENT_EXPIRATION );
