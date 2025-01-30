@@ -40,39 +40,6 @@ class Social_Admin_Page {
 	 */
 	private function __construct() {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
-
-		/**
-		 * Admin_Menu::add_menu uses 1000, so we use 2000
-		 * to ensure we remove the old Social menu item after it has been added.
-		 */
-		add_action( 'admin_menu', array( $this, 'remove_old_social_menu_item' ), 2000 );
-	}
-
-	/**
-	 * Remove the page added by old versions of Social.
-	 */
-	public function remove_old_social_menu_item() {
-
-		$social_version = Publicize_Script_Data::get_plugin_info()['social']['version'];
-
-		// If it's the old social version, remove the submenu page.
-		// TODO Update the version and operator before next Social release.
-		if ( $social_version && version_compare( $social_version, '6.1.0', '<' ) ) {
-			/**
-			 * `add_submenu_page` allows multiple submenus with the same slug,
-			 * but `remove_submenu_page` only removes the first one it finds with the given slug.
-			 *
-			 * We add the menu using `admin_menu` hook unlike the old Social plugin,
-			 * which used the `init` hook, which runs before `admin_menu`.
-			 * So, the old Social plugin's menu is before the new one in $submenu global.
-			 *
-			 * So, `remove_submenu_page` should remove the menu added by the old Social plugin.
-			 *
-			 * @see https://developer.wordpress.org/reference/functions/add_submenu_page
-			 * @see https://developer.wordpress.org/reference/functions/remove_submenu_page
-			 */
-			remove_submenu_page( 'jetpack', 'jetpack-social' );
-		}
 	}
 
 	/**
@@ -85,6 +52,9 @@ class Social_Admin_Page {
 			// For now, the menu/page is added only if the Social plugin is active.
 			return;
 		}
+
+		// Remove the old Social menu item, if it exists.
+		Admin_Menu::remove_menu( 'jetpack-social' );
 
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Jetpack Social', 'jetpack-publicize-pkg' ),

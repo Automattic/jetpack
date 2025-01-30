@@ -39,6 +39,7 @@ class Test_Pre_Connection_JITM extends TestCase {
 		Functions\when( 'wp_get_environment_type' )->justReturn( '' );
 		Functions\when( 'get_option' )->justReturn( '' );
 		Functions\when( '__' )->returnArg();
+		Functions\when( 'wp_timezone' )->justReturn( new \DateTimeZone( 'UTC' ) );
 
 		$this->test_jitms = array(
 			array(
