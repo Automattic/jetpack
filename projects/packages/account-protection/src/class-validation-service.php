@@ -14,30 +14,50 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
  * Class Validation_Service
  */
 class Validation_Service {
-	/**
-	 * Save the new password to the user's recent passwords list.
-	 *
-	 * @param int    $user_id  The user ID.
-	 * @param string $password The password to store.
-	 */
-	public function save_recent_password( int $user_id, string $password ) {
-		// TODO: Use a timestamp for last used password and remove old ones - beyond 1 year?
-		$recent_passwords = get_user_meta( $user_id, 'jetpack_acccount_protection_recent_passwords', true );
-
-		if ( ! is_array( $recent_passwords ) ) {
-			$recent_passwords = array();
-		}
-
-		$hashed_password = wp_hash_password( $password );
-		if ( in_array( $hashed_password, $recent_passwords, true ) ) {
+	public function validate_profile_update( $errors, $update, $user ) {
+		if ( ! $this->verify_password_update_nonce( 'update-user_' . $user->ID ) ) {
+			$errors->add( 'nonce_error', __( 'Nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
 			return;
 		}
 
-		// Add the new hashed password and keep only the last 5
-		array_unshift( $recent_passwords, $hashed_password );
-		$recent_passwords = array_slice( $recent_passwords, 0, 5 );
+		if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
+			// $password = sanitize_text_field($_POST['pass1']);
 
-		update_user_meta( $user_id, 'jetpack_acccount_protection_recent_passwords', $recent_passwords );
+			$errors->add( 'password_error', __( 'Your new password does not meet the required criteria.', 'jetpack-account-protection' ) );
+		}
+
+		// TODO: Check current password, run validation, update list
+		error_log( 'validate_profile_update' );
+
+		return $errors;
+	}
+
+	public function validation_user_register( $errors, $sanitized_user_login, $user_email ) {
+		if ( ! $this->verify_password_update_nonce( 'user-registration' ) ) {
+			$errors->add( 'nonce_error', __( 'Nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
+			return $errors;
+		}
+
+		// TODO: Check current password, run validation, update list
+		error_log( 'validation_user_register' );
+	}
+
+	public function validate_after_password_reset( $errors, $user ) {
+		if ( ! $this->verify_password_update_nonce( 'resetpassword_' . $user->ID ) ) {
+			$errors->add( 'nonce_error', __( 'Nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
+			return $errors;
+		}
+
+		// TODO: Check current password, run validation, update list
+		error_log( 'validate_after_password_reset' );
+	}
+
+	private function verify_password_update_nonce( $key ) {
+		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], $key ) ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -216,5 +236,30 @@ class Validation_Service {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Save the new password to the user's recent passwords list.
+	 *
+	 * @param int    $user_id  The user ID.
+	 * @param string $password The password to store.
+	 */
+	public function save_recent_password( int $user_id, string $password ) {
+		$recent_passwords = get_user_meta( $user_id, 'jetpack_acccount_protection_recent_passwords', true );
+
+		if ( ! is_array( $recent_passwords ) ) {
+			$recent_passwords = array();
+		}
+
+		$hashed_password = wp_hash_password( $password );
+		if ( in_array( $hashed_password, $recent_passwords, true ) ) {
+			return;
+		}
+
+		// Add the new hashed password and keep only the last 10
+		array_unshift( $recent_passwords, $hashed_password );
+		$recent_passwords = array_slice( $recent_passwords, 0, 10 );
+
+		update_user_meta( $user_id, 'jetpack_acccount_protection_recent_passwords', $recent_passwords );
 	}
 }

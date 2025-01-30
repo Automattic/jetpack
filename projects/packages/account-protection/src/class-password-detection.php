@@ -49,9 +49,6 @@ class Password_Detection {
 			return $user;
 		}
 
-		// TODO: Do we want to do this for every user, every time?
-		$this->validation_service->save_recent_password( $user->ID, $password );
-
 		$weak_password_status = $this->validation_service->check_weak_passwords( $password );
 		if ( $weak_password_status['compromised'] || $weak_password_status['common'] ) {
 			// TODO: Every time the user logs in we generate a new token based transient. This might not be ideal.

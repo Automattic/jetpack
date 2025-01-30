@@ -31,14 +31,23 @@ class Account_Protection {
 	private $password_detection;
 
 	/**
+	 * Validation service instance
+	 *
+	 * @var Validation_Service
+	 */
+	private $validation_service;
+
+	/**
 	 * Account_Protection constructor.
 	 *
 	 * @param ?Modules            $modules            Modules instance.
 	 * @param ?Password_Detection $password_detection Password detection instance.
+	 * @param ?Validation_Service $validation_service Validation service instance.
 	 */
-	public function __construct( ?Modules $modules = null, ?Password_Detection $password_detection = null ) {
+	public function __construct( ?Modules $modules = null, ?Password_Detection $password_detection = null, ?Validation_Service $validation_service = null ) {
 		$this->modules            = $modules ?? new Modules();
 		$this->password_detection = $password_detection ?? new Password_Detection();
+		$this->validation_service = $validation_service ?? new Validation_Service();
 	}
 
 	/**
@@ -83,6 +92,16 @@ class Account_Protection {
 
 		// Add password detection flow
 		add_action( 'login_form_password-detection', array( $this->password_detection, 'render_page' ), 10, 2 );
+
+		// Add password validation
+		add_action( 'registration_errors', array( $this->validation_service, 'validate_user_register' ), 10, 2 );
+		add_action( 'user_profile_update_errors', array( $this->validation_service, 'validate_profile_update' ), 10, 2 );
+		add_action( 'validate_password_reset', array( $this->validation_service, 'validate_after_password_reset' ), 10, 2 );
+
+		// Update recent passwords list
+		// user_register
+		// profile_update
+		// after_password_reset
 	}
 
 	/**
