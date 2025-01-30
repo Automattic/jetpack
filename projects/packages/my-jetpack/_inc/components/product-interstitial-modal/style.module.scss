@@ -9,19 +9,21 @@ $interstitial-modal-padding: 40px;
 	--font-body-small: 14px;
 	--font-body-extra-small: 14px;
 	--spacing-base: 8px;
+	max-height: calc(100% - 24px); // overwrite the default max modal height
 
 	:global(.components-modal__header) + div {
 		height: 100%;
 	}
 
 	:global(.components-modal__content) {
-		padding: $interstitial-modal-padding;
-		margin-top: 0;
+		margin: $interstitial-modal-padding;
+		padding: 0;
 	}
 
 	:global(.components-modal__header) {
 		height: $interstitial-modal-padding;
 		padding: 8px 8px 0;
+		border-bottom: 0;
 	}
 
 	.wrapper {
