@@ -2778,6 +2778,9 @@ importers:
 
   projects/packages/my-jetpack:
     dependencies:
+      '@automattic/babel-plugin-replace-textdomain':
+        specifier: 1.0.42
+        version: 1.0.42
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
@@ -5317,6 +5320,9 @@ packages:
 
   '@automattic/calypso-analytics@1.1.3':
     resolution: {integrity: sha512-7DiQZLC2wzs5GW4PDXnSngYFNkMC8aB8FXgD5Xqgzo9cQmqo7Ka4sKITsp7b8yBHXrpEtMwCK265UAEQs8wSMg==}
+
+  '@automattic/babel-plugin-replace-textdomain@1.0.42':
+    resolution: {integrity: sha512-LAaahL8khr8BbGft004hum+5lLQ2MiAB1AdfZEiVZkMtiFTJeuCQnzWqHSJ3cSXFUfQVCO5PH0uODU9fWprnhw==}
 
   '@automattic/calypso-color-schemes@3.1.3':
     resolution: {integrity: sha512-nzs36yfxUOcsD3HvB72IHgdUfIzTRnT7QmF78CBXEREawTEs0uDyELdx/rAOtW/PauxRYRGQ4zeK5c67FWqLxw==}
@@ -15464,6 +15470,9 @@ snapshots:
       hash.js: 1.1.7
       tslib: 2.5.0
       uuid: 9.0.1
+  '@automattic/babel-plugin-replace-textdomain@1.0.42':
+    dependencies:
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
