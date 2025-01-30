@@ -63,8 +63,8 @@ add_action( 'wp_dashboard_setup', 'load_wpcom_dashboard_widgets' );
 function enqueue_wpcom_dashboard_widgets() {
 	$handle = jetpack_mu_wpcom_enqueue_assets( 'wpcom-dashboard-widgets', array( 'js', 'css' ) );
 
-	require_once WP_CONTENT_DIR . '/admin-plugins/wpcom-billing.php';
-	$current_plan = WPCOM_Store_API::get_current_plan( get_current_blog_id() );
+	$bundles      = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) );
+	$current_plan = array_pop( $bundles );
 
 	$data = wp_json_encode(
 		array(

@@ -22,21 +22,21 @@ import './celebrate-launch-modal.scss';
  */
 export default function CelebrateLaunchModal( {
 	onRequestClose,
-	sitePlan = {},
+	sitePlan,
 	siteDomain: siteSlug,
 	siteUrl,
 	hasCustomDomain,
 } ) {
 	const translate = useTranslate();
-	const isPaidPlan = ! sitePlan.is_free;
-	const isBilledMonthly = sitePlan.product_slug?.includes( 'monthly' );
+	const isPaidPlan = !! sitePlan;
+	const isBilledMonthly = sitePlan?.product_slug?.includes( 'monthly' );
 	const [ clipboardCopied, setClipboardCopied ] = useState( false );
 
 	useEffect( () => {
 		wpcomTrackEvent( `calypso_launchpad_celebration_modal_view`, {
-			product_slug: sitePlan.product_slug,
+			product_slug: sitePlan?.product_slug,
 		} );
-	}, [ sitePlan.product_slug ] );
+	}, [ sitePlan?.product_slug ] );
 
 	/**
 	 * Render the upsell content.
@@ -92,7 +92,7 @@ export default function CelebrateLaunchModal( {
 					href={ buttonHref }
 					onClick={ () =>
 						wpcomTrackEvent( `calypso_launchpad_celebration_modal_upsell_clicked`, {
-							product_slug: sitePlan.product_slug,
+							product_slug: sitePlan?.product_slug,
 						} )
 					}
 				>
