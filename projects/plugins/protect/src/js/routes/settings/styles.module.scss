@@ -33,19 +33,17 @@
         }
     }
 
-    &__warning {
-        color: var( --jp-red-50 );
-
+    &__info {
         a {
-            color: var( --jp-red-50 );
-
+            color: inherit;
+    
             &:hover {
-                color: var( --jp-red-70 )
+                color: var( --jp-black );
             }
         }
 
         svg {
-            fill: var( --jp-red-50 );
+            fill: var( --jp-gray-70 );
             margin-bottom: calc( -1 * var( --spacing-base ) * 3/4 ); // -6px
             margin-right: calc( var( --spacing-base ) / 4 ); // 2px
         }

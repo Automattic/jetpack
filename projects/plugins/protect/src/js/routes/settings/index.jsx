@@ -7,7 +7,7 @@ import {
 } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, warning } from '@wordpress/icons';
+import { Icon, info } from '@wordpress/icons';
 import React, { useCallback } from 'react';
 import AdminPage from '../../components/admin-page';
 import useAccountProtectionQuery from '../../data/account-protection/use-account-protection-query';
@@ -52,14 +52,25 @@ const SettingsPage = () => {
 					{ __( 'Account protection', 'jetpack-protect' ) }
 				</Text>
 				<Text mb={ 2 } className={ styles[ 'toggle-section__description' ] }>
+					{ createInterpolateElement(
+						__(
+							'Enabling this setting enhances account security by detecting compromised passwords and enforcing additional verification when needed. Learn more about <link>how this protects your site</link>.',
+							'jetpack-protect'
+						),
+						{
+							link: <a href={ '#' } />, // TODO: Update this redirect URL once document exists
+						}
+					) }
+				</Text>
+				<Text mb={ 2 }>
 					{ __(
-						'Enabling this setting enhances account security by detecting compromised passwords and enforcing additional verification when needed.',
+						'Protect your site with advanced password detection and profile management protection.',
 						'jetpack-protect'
 					) }
 				</Text>
 				{ ! accountProtectionIsEnabled && (
-					<Text className={ styles[ 'toggle-section__warning' ] }>
-						<Icon icon={ warning } />
+					<Text className={ styles[ 'toggle-section__info' ] }>
+						<Icon icon={ info } />
 						{ createInterpolateElement(
 							__(
 								'Jetpack recommends activating this setting. Please be <link>mindful of the risks.</link>',
