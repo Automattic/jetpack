@@ -27,7 +27,9 @@ function wpcomsh_wpcom_admin_interface_settings_field() {
  * Display the wpcom_admin_interface setting on the General settings page.
  */
 function wpcom_admin_interface_display() {
+	remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
 	$value = get_option( 'wpcom_admin_interface' );
+	add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
 
 	echo '<tr valign="top"><th scope="row"><label for="wpcom_admin_interface">' . esc_html__( 'Admin Interface Style', 'jetpack-mu-wpcom' ) . '</label></th><td>';
 	echo '<fieldset>';
