@@ -59,6 +59,7 @@ module.exports = [
 			'starter-page-templates': './src/features/starter-page-templates/index.tsx',
 			'removed-calypso-screen-notice':
 				'./src/features/wpcom-admin-interface/removed-calypso-screen-notice.tsx',
+			'adminbar-launch-button': './src/features/launch-button/index.js',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
