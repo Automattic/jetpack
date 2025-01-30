@@ -1,12 +1,11 @@
 <?php
-
-use Automattic\Jetpack\Jetpack_Mu_Wpcom;
-
 /**
  * Adds a "launch site" button to the admin bar.
  *
  * @package automattic/jetpack-mu-wpcom
  */
+
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 /**
  * Adds a "launch site" button to the admin bar.
