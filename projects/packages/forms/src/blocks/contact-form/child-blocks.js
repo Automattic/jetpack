@@ -16,6 +16,7 @@ import JetpackFieldSingleChoiceItem from './components/jetpack-field-single-choi
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
 import JetpackFieldInput from './components/jetpack-input';
 import JetpackFieldLabel from './components/jetpack-label';
+import { INNER_BLOCKS_DEPRECATION } from './field-deprecated';
 import { getIconColor } from './util/block-icons';
 import { useFormWrapper } from './util/form';
 import getFieldLabel from './util/get-field-label';
@@ -384,6 +385,15 @@ export const childBlocks = [
 					role: 'content',
 				},
 			},
+			deprecated: [
+				{
+					...INNER_BLOCKS_DEPRECATION,
+					attributes: {
+						...INNER_BLOCKS_DEPRECATION.attributes,
+						label: { type: 'string', default: 'Text' },
+					},
+				},
+			],
 		},
 	},
 	{
@@ -410,6 +420,15 @@ export const childBlocks = [
 					role: 'content',
 				},
 			},
+			deprecated: [
+				{
+					...INNER_BLOCKS_DEPRECATION,
+					attributes: {
+						...INNER_BLOCKS_DEPRECATION.attributes,
+						label: { type: 'string', default: 'Name' },
+					},
+				},
+			],
 		},
 	},
 	{
@@ -435,6 +454,15 @@ export const childBlocks = [
 					role: 'content',
 				},
 			},
+			deprecated: [
+				{
+					...INNER_BLOCKS_DEPRECATION,
+					attributes: {
+						...INNER_BLOCKS_DEPRECATION.attributes,
+						label: { type: 'string', default: 'Email' },
+					},
+				},
+			],
 		},
 	},
 	{
@@ -465,6 +493,15 @@ export const childBlocks = [
 					role: 'content',
 				},
 			},
+			deprecated: [
+				{
+					...INNER_BLOCKS_DEPRECATION,
+					attributes: {
+						...INNER_BLOCKS_DEPRECATION.attributes,
+						label: { type: 'string', default: __( 'Website', 'jetpack-forms' ) },
+					},
+				},
+			],
 		},
 	},
 	{
@@ -528,6 +565,15 @@ export const childBlocks = [
 					role: 'content',
 				},
 			},
+			deprecated: [
+				{
+					...INNER_BLOCKS_DEPRECATION,
+					attributes: {
+						...INNER_BLOCKS_DEPRECATION.attributes,
+						label: { type: 'string', default: 'Phone' },
+					},
+				},
+			],
 		},
 	},
 	{

@@ -52,9 +52,6 @@ const settings = {
 			type: 'string',
 			default: '',
 		},
-		parentClientId: {
-			type: 'string',
-		},
 		required: {
 			type: 'boolean',
 			default: false,

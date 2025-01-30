@@ -1,5 +1,5 @@
 import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
-import { createBlock, getDefaultBlockName } from '@wordpress/blocks';
+import { createBlock, getDefaultBlockName, getBlockType } from '@wordpress/blocks';
 import { createHigherOrderComponent, compose } from '@wordpress/compose';
 import { useCallback, useMemo } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
@@ -39,12 +39,14 @@ const JetpackField = props => {
 		style: blockStyle,
 	} );
 
+	const labelBlockType = getBlockType( 'jetpack/field-label' );
+	const defaultLabel = labelBlockType.attributes.label.default;
 	const template = useMemo( () => {
 		return [
-			[ 'jetpack/field-label', { label, required, defaultLabel: label, requiredText } ],
+			[ 'jetpack/field-label', { label, required, defaultLabel, requiredText } ],
 			[ 'jetpack/field-input' ],
 		];
-	}, [ label, required, requiredText ] );
+	}, [ label, defaultLabel, required, requiredText ] );
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		allowedBlocks: ALLOWED_BLOCKS,
