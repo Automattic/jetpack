@@ -6,7 +6,7 @@ import { JETPACK_MODULES_STORE_ID } from '../../modules-state';
  * Manage a Jetpack module's status (get and set).
  *
  * @param {string} name - The module's name.
- * @return {boolean} Whether the module is active.
+ * @return {object} Module status/control object.
  */
 const useModuleStatus = name => {
 	const { isModuleActive, isChangingStatus, isLoadingModules } = useSelect(

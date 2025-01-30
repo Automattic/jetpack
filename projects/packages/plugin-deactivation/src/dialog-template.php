@@ -8,7 +8,7 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
+	exit( 0 ); // Exit if accessed directly
 }
 ?>
 <main class="jp-plugin-deactivation__dialog__content">

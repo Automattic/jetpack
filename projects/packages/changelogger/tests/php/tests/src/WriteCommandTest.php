@@ -111,7 +111,7 @@ class WriteCommandTest extends CommandTestCase {
 	/**
 	 * Data provider for testExecute.
 	 */
-	public function provideExecute() {
+	public static function provideExecute() {
 		$date = gmdate( 'Y-m-d' );
 
 		return array(

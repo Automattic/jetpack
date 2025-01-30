@@ -1,14 +1,14 @@
 import { Status, getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _n, _x } from '@wordpress/i18n';
+import { get } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import analytics from 'lib/analytics';
-import { get } from 'lodash';
-import PropTypes from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
 import {
 	getVaultPressScanThreatCount,
 	getVaultPressData,

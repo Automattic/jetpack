@@ -1,11 +1,11 @@
 import restApi from '@automattic/jetpack-api';
 import { Spinner } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
+import { useState, useCallback } from 'react';
+import { connect } from 'react-redux';
 import Card from 'components/card';
 import JetpackBanner from 'components/jetpack-banner';
 import analytics from 'lib/analytics';
-import { useState, useCallback } from 'react';
-import { connect } from 'react-redux';
 import {
 	fetchPluginsData as dispatchFetchPluginsData,
 	isPluginActive,

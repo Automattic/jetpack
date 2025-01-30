@@ -444,7 +444,7 @@ class Modules {
 					if ( $deactivated ) {
 						$state->state( 'deactivated_plugins', implode( ',', $deactivated ) );
 						wp_safe_redirect( add_query_arg( 'jetpack_restate', 1 ) );
-						exit;
+						exit( 0 );
 					}
 				}
 			}
@@ -485,7 +485,7 @@ class Modules {
 			wp_safe_redirect( ( new Paths() )->admin_url( 'page=jetpack' ) );
 		}
 		if ( $exit ) {
-			exit;
+			exit( 0 );
 		}
 		return true;
 	}

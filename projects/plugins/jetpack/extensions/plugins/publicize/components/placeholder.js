@@ -1,16 +1,16 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getJetpackAdminPageUrl } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody, Button, ExternalLink } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
-export const PublicizePlaceholder = ( { changeStatus, isLoading, isModuleActive } ) => {
+export const PublicizePlaceholder = () => {
 	const { tracks } = useAnalytics();
 	const [ isOpened, setIsOpened ] = useState( false );
 
 	const enablePublicizeModule = () => {
 		tracks.recordEvent( 'jetpack_editor_publicize_enable' );
-		return changeStatus( true );
 	};
 
 	// Track when the placeholder is viewed.
@@ -38,22 +38,15 @@ export const PublicizePlaceholder = ( { changeStatus, isLoading, isModuleActive 
 				) }
 			</p>
 			<Button
-				disabled={ isModuleActive || isLoading }
-				isBusy={ isLoading }
 				onClick={ enablePublicizeModule }
-				variant="secondary"
+				variant="link"
+				href={ getJetpackAdminPageUrl( '#/settings?term=publicize' ) }
 			>
-				{ isLoading
-					? __( 'Activating Jetpack Social', 'jetpack' )
-					: __(
-							'Activate Jetpack Social',
-							'jetpack',
-							/* dummy arg to avoid bad minification */ 0
-					  ) }
+				{ __( 'Activate Jetpack Social', 'jetpack' ) }
 			</Button>
 			<div className="components-placeholder__learn-more">
 				<ExternalLink href={ getRedirectUrl( 'jetpack-support-publicize' ) }>
-					{ __( 'Learn more about Jetpack Social.', 'jetpack' ) }
+					{ __( 'Learn more', 'jetpack' ) }
 				</ExternalLink>
 			</div>
 		</PanelBody>

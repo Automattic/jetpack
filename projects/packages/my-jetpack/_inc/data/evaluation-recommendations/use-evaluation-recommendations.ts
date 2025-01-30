@@ -41,7 +41,7 @@ const useEvaluationRecommendations = () => {
 		// in zero(0) unownedRecommendedModules.
 		const ownedProducts = (
 			process?.env?.NODE_ENV === 'development'
-				? [ 'anti-spam', 'extras', 'stats', 'jetpack-ai' ]
+				? [ 'anti-spam', 'extras', 'jetpack-ai' ]
 				: getMyJetpackWindowInitialState( 'lifecycleStats' )?.ownedProducts || []
 		) as JetpackModule[];
 		// We filter out owned modules, and return the top recommendations

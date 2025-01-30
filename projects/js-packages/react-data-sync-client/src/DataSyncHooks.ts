@@ -8,8 +8,8 @@ import {
 	useMutation,
 	QueryClientProvider,
 } from '@tanstack/react-query';
-import React from 'react';
-import { useRef, useEffect } from 'react';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import React, { useRef, useEffect } from 'react';
 import { z } from 'zod';
 import { DataSync } from './DataSync';
 import { DataSyncError } from './DataSyncError';
@@ -30,10 +30,12 @@ export function invalidateQuery( key: string ) {
  * @see https://tanstack.com/query/v5/docs/react/reference/QueryClientProvider
  */
 export function DataSyncProvider( props: { children: React.ReactNode } ) {
-	return QueryClientProvider( {
-		client: queryClient,
-		...props,
-	} );
+	return React.createElement(
+		QueryClientProvider,
+		{ client: queryClient },
+		props.children,
+		React.createElement( ReactQueryDevtools )
+	);
 }
 
 /**
@@ -118,7 +120,7 @@ export function useDataSync<
 		initialData: () => {
 			try {
 				return datasync.getInitialValue();
-			} catch ( e ) {
+			} catch {
 				return undefined;
 			}
 		},
@@ -313,7 +315,7 @@ export function useDataSyncAction<
 					queryClient.setQueryData( queryKey, data );
 				}
 				return data;
-			} catch ( e ) {
+			} catch {
 				return queryClient.getQueryData( queryKey );
 			}
 		},

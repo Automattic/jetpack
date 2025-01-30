@@ -32,11 +32,11 @@ class PublicizeConnection extends Component {
 				<p>
 					{ __(
 						'Your LinkedIn connection needs to be reauthenticated to continue working – head to Sharing to take care of it.',
-						'jetpack'
+						'jetpack-publicize-components'
 					) }
 				</p>
 				<ExternalLink href={ `https://wordpress.com/marketing/connections/${ getSiteFragment() }` }>
-					{ __( 'Go to Sharing settings', 'jetpack' ) }
+					{ __( 'Go to Sharing settings', 'jetpack-publicize-components' ) }
 				</ExternalLink>
 			</Notice>
 		);
@@ -62,7 +62,7 @@ class PublicizeConnection extends Component {
 	}
 
 	isDisabled() {
-		return this.props.disabled || this.connectionIsFailing() || this.connectionNeedsReauth();
+		return this.props.disabled || this.connectionIsFailing();
 	}
 
 	render() {

@@ -19,6 +19,7 @@ type CoreEditorPlaceholder = {
 
 /**
  * Show the first post publish modal
+ * @return {JSX.Element | null} The modal component or null.
  */
 const FirstPostPublishedModalInner: React.FC = () => {
 	const { link } = useSelect(

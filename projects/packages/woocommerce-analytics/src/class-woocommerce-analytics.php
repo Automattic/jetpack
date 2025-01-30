@@ -9,7 +9,6 @@
 namespace Automattic;
 
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
-use Automattic\Woocommerce_Analytics\Checkout_Flow;
 use Automattic\Woocommerce_Analytics\My_Account;
 use Automattic\Woocommerce_Analytics\Universal;
 
@@ -20,7 +19,7 @@ class Woocommerce_Analytics {
 	/**
 	 * Package version.
 	 */
-	const PACKAGE_VERSION = '0.2.0';
+	const PACKAGE_VERSION = '0.4.1';
 
 	/**
 	 * Initializer.
@@ -39,14 +38,9 @@ class Woocommerce_Analytics {
 		// loading s.js.
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_tracking_script' ) );
 
+		// Initialize general store tracking actions.
 		add_action( 'init', array( new Universal(), 'init_hooks' ) );
 		add_action( 'init', array( new My_Account(), 'init_hooks' ) );
-		if (
-			class_exists( '\Automattic\WooCommerce\Blocks\Package' )
-			&& version_compare( \Automattic\WooCommerce\Blocks\Package::get_version(), '11.6.2', '>=' )
-		) {
-			add_action( 'init', array( new Checkout_Flow(), 'init_hooks' ) );
-		}
 
 		/**
 		 * Fires after the WooCommerce Analytics package is initialized
@@ -83,7 +77,7 @@ class Woocommerce_Analytics {
 		}
 
 		// Tracking only Site pages.
-		if ( is_admin() ) {
+		if ( is_admin() || wp_doing_ajax() || is_login() ) {
 			return false;
 		}
 

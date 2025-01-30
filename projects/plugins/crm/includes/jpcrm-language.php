@@ -5,13 +5,7 @@
  * V4.0.7
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 	// gets 'Contact' (legacy/deprecated)
    	// Unless this is used in any extensions this can be removed.
@@ -54,8 +48,7 @@
 		    if ($organisationType == 'org') $s = __('Organisations',"zero-bs-crm");
 			if ($organisationType == 'domain') $s = __('Domains',"zero-bs-crm");
 
-		}
-
-	    return $s;
-
 	}
+
+	return $s;
+}

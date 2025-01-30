@@ -9,14 +9,14 @@ import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
+import PropTypes from 'prop-types';
+import { useCallback, useEffect, useState } from 'react';
+import { connect } from 'react-redux';
 import InfoPopover from 'components/info-popover';
 import PluginInstallSection from 'components/plugin-install-section';
 import SectionHeader from 'components/section-header';
 import analytics from 'lib/analytics';
 import { FEATURE_JETPACK_BOOST, getJetpackProductUpsellByFeature } from 'lib/plans/constants';
-import PropTypes from 'prop-types';
-import { useCallback, useEffect, useState } from 'react';
-import { connect } from 'react-redux';
 import { getSiteConnectionStatus } from 'state/connection';
 import {
 	getApiRootUrl,
@@ -176,7 +176,7 @@ const DashBoost = ( {
 						'jetpack'
 					),
 					bottom: __(
-						'Jetpack Boost enhance your site’s performance like top websites, no developer needed.',
+						'Jetpack Boost enhances your site’s performance like top websites, no developer needed.',
 						'jetpack'
 					),
 				};
@@ -201,11 +201,17 @@ const DashBoost = ( {
 
 		return createInterpolateElement(
 			__(
-				'<a>Re-generate your Critical CSS after you make changes on your site</a><Info/>',
+				'<a><u>Regenerate your Critical CSS</u> after making changes to your site</a><Info/>',
 				'jetpack'
 			),
 			{
-				a: <a href={ siteAdminUrl + BOOST_PLUGIN_DASH } />,
+				a: (
+					<a
+						href={ siteAdminUrl + BOOST_PLUGIN_DASH }
+						className="dash-boost-critical-css-info__text"
+					/>
+				),
+				u: <u />,
 				Info: <CriticalCssInfoPopover />,
 			}
 		);
@@ -517,7 +523,7 @@ const CriticalCssInfoPopover = () => {
 				screenReaderText={ __( 'Learn more about how critical CSS works', 'jetpack' ) }
 			>
 				<h3 className="boost-critical-css-info__title">
-					{ __( 'Regenerate Critical CSS', 'jetpack' ) }
+					{ __( 'Get automated Critical CSS', 'jetpack' ) }
 				</h3>
 				<p>
 					{ createInterpolateElement(

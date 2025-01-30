@@ -601,18 +601,6 @@ function zeroBSCRM_calendar_admin_styles(){
 
 }
 
-// Styles + Scripts for Beta Feedback sys
-function zeroBSCRM_betaFeedback_styles(){
-
-	global $zbs;
-	// styles in global css
-
-	// js here
-	wp_register_script('zerobscrmjs-bfeedback' , ZEROBSCRM_URL .'/js/ZeroBSCRM.admin.betafeedback'.wp_scripts_get_suffix().'.js', array('jquery'), $zbs->version );
-	wp_enqueue_script( 'zerobscrmjs-bfeedback');
-
-}
-
 function zeroBSCRM_dequeueJSModal(){
 
 	wp_dequeue_style('zerobsjsmodal');

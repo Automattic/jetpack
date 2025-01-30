@@ -1,10 +1,10 @@
 === WP Super Cache ===
 Contributors: donncha, automattic, adnan007, dilirity, mikemayhem3030, pyronaur, thingalon
 Tags: performance, caching, wp-cache, wp-super-cache, cache
-Requires at least: 6.6
+Requires at least: 6.2
 Requires PHP: 7.2
-Tested up to: 6.7
-Stable tag: 1.12.3
+Tested up to: 6.7.1
+Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -268,12 +268,25 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
-### 1.12.4 - 2024-07-17
+### 2.0.0 - 2025-01-10
+#### Added
+- Enable test coverage.
+
+#### Changed
+- General: Indicate compatibility with the upcoming version of WordPress - 6.7.
+- Updated package dependencies.
+
 #### Removed
-- General: update WordPress version requirements to WordPress 6.5.
+- Cleaned up legacy code.
+- General: Update minimum PHP version to 7.2.
+- General: Update minimum WordPress version to 6.6.
 
 #### Fixed
-- Fixed problem with is_utf8_charset missing in WP 6.6
+- Caching: make sure there is cache content to serve, even if the cache file was found
+- Ensure homepage cache gets flushed when a post is unpublished.
+- Lossless image optimization for images (should improve performance with no visible changes).
+- Move trailing space out of i18n message.
+- Fix apache_request_headers fallback so it works when that command is disabled.
 
 --------
 

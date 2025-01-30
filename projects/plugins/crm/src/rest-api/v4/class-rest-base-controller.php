@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\CRM\REST_API\V4;
 use WP_REST_Controller;
 use WP_REST_Request;
 
-defined( 'ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || exit( 0 );
 
 /**
  * Abstract base controller class.

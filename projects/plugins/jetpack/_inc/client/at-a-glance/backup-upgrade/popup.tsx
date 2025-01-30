@@ -1,7 +1,7 @@
-import { imagePath } from 'constants/urls';
 import { __, sprintf } from '@wordpress/i18n';
-import Button from 'components/button';
 import React from 'react';
+import Button from 'components/button';
+import { imagePath } from 'constants/urls';
 import { PopupProps } from './types';
 /**
  * The popup is a simple React component that displays a popup with a title, a lock icon, and a message

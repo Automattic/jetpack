@@ -1,9 +1,5 @@
 import { Notice } from '@wordpress/components';
 import useFairUsageNoticeMessage from '../hooks/use-fair-usage-notice-message.js';
-/**
- * Types
- */
-import type { ReactElement } from 'react';
 
 type FairUsageNoticeProps = {
 	variant?: 'error' | 'muted';
@@ -13,7 +9,7 @@ type FairUsageNoticeProps = {
  * The fair usage notice component.
  * @param {FairUsageNoticeProps}         props         - Fair usage notice component props.
  * @param {FairUsageNoticeProps.variant} props.variant - The variant of the notice to render.
- * @return {ReactElement} the Notice component with the fair usage message.
+ * @return the Notice component with the fair usage message.
  */
 export const FairUsageNotice = ( { variant = 'error' }: FairUsageNoticeProps ) => {
 	const useFairUsageNoticeMessageElement = useFairUsageNoticeMessage();

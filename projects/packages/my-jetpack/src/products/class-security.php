@@ -36,7 +36,7 @@ class Security extends Module_Product {
 	 * @return string
 	 */
 	public static function get_name() {
-		return 'Security';
+		return 'Security Bundle';
 	}
 
 	/**
@@ -159,6 +159,22 @@ class Security extends Module_Product {
 	 */
 	public static function is_active() {
 		return static::is_jetpack_plugin_active() && static::has_required_plan();
+	}
+
+	/**
+	 * Get the product-slugs of the paid plans for this product.
+	 * (Do not include bundle plans, unless it's a bundle plan itself).
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_security_t1_yearly',
+			'jetpack_security_t1_monthly',
+			'jetpack_security_t1_bi_yearly',
+			'jetpack_security_t2_yearly',
+			'jetpack_security_t2_monthly',
+		);
 	}
 
 	/**

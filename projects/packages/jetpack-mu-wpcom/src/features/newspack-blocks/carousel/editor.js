@@ -6,7 +6,8 @@ import { settings } from '../synced-newspack-blocks/blocks/carousel';
 /**
  * Set the name of the block transformation
  *
- * @param name - The name of the block
+ * @param {string} name - The name of the block
+ * @return {string} The potentially-transformed block name
  */
 function setBlockTransformationName( name ) {
 	return name !== 'newspack-blocks/carousel' ? name : CAROUSEL_BLOCK_NAME;

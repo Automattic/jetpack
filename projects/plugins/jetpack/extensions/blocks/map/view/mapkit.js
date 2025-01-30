@@ -10,7 +10,7 @@ class MapkitBlock {
 	constructor( root ) {
 		this.root = root;
 		this.blog_id = this.root.getAttribute( 'data-blog-id' );
-		this.center = JSON.parse( this.root.getAttribute( 'data-map-center' || '{}' ) );
+		this.center = JSON.parse( this.root.getAttribute( 'data-map-center' ) || '{}' );
 		this.points = JSON.parse( this.root.getAttribute( 'data-points' ) || '[]' );
 		this.color = this.root.getAttribute( 'data-marker-color' ) || 'red';
 		this.zoom = parseFloat( this.root.getAttribute( 'data-zoom' ) ) || 10;

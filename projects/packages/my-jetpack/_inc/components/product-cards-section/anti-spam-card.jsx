@@ -7,7 +7,7 @@ const AntiSpamCard = props => {
 };
 
 AntiSpamCard.propTypes = {
-	admin: PropTypes.bool.isRequired,
+	admin: PropTypes.bool,
 };
 
 export default AntiSpamCard;

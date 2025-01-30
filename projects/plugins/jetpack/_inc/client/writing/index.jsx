@@ -1,8 +1,8 @@
 import { __ } from '@wordpress/i18n';
-import Card from 'components/card';
-import QuerySite from 'components/data/query-site';
 import React from 'react';
 import { connect } from 'react-redux';
+import Card from 'components/card';
+import QuerySite from 'components/data/query-site';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,

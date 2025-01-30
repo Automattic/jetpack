@@ -15,14 +15,14 @@
 	}
 
 	.components-notice__content {
-		margin-top: 0px;
+		margin-top: 0;
 	}
 
 	&__notice {
 		&.components-notice {
-			margin: 0px;
-			padding: 0px;
-			margin-top: 0px;
+			margin: 0;
+			padding: 0;
+			margin-top: 0;
 
 			&.is-info {
 				border-inline-start-color: #fff;
@@ -53,8 +53,11 @@
 	.components-panel__body-toggle svg {
 		margin: 0 0 0 0.5em;
 	}
+}
 
-	p {
-		margin-top: 0px;
+// Dedicated Newsletter sidebar
+.jetpack-newsletter-settings-sidebar {
+	.jetpack-subscribe-email-document-setting {
+		margin-bottom: 1em;
 	}
 }

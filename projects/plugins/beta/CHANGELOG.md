@@ -1,5 +1,16 @@
 # Changelog
 
+## 4.1.1 - 2024-12-04
+### Changed
+- Admin menu: change order of Jetpack sub-menu items [#39095]
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#38228] [#38822] [#39288] [#39653] [#40116]
+- Use site url in email subject if the site title exists and is equale to "Site Title" [#38908]
+
+### Fixed
+- Fix an undefined variable reference. [#38247]
+- Lossless image optimization of images in projects/plugins [subdirectories from a* through social] [#38573]
+
 ## 4.1.0 - 2024-07-02
 ### Added
 - Hook into red bubble notification when bad installation is detected [#36449]

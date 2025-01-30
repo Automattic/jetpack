@@ -17,8 +17,9 @@ function load_wpcom_dashboard_widgets() {
 
 	$wpcom_dashboard_widgets = array(
 		array(
-			'id'       => 'wpcom_site_management_widget',
-			'name'     => __( 'Site Management Panel', 'jetpack-mu-wpcom' ),
+			'id'       => 'wpcom_site_preview_widget',
+			'name'     => __( 'Site', 'jetpack-mu-wpcom' ),
+			'context'  => 'side',
 			'priority' => 'high',
 		),
 	);
@@ -33,7 +34,7 @@ function load_wpcom_dashboard_widgets() {
 				'id'   => $wpcom_dashboard_widget['id'],
 				'name' => $wpcom_dashboard_widget['name'],
 			),
-			'normal',
+			$wpcom_dashboard_widget['context'],
 			$wpcom_dashboard_widget['priority']
 		);
 	}
@@ -48,9 +49,10 @@ function enqueue_wpcom_dashboard_widgets() {
 
 	$data = wp_json_encode(
 		array(
-			'siteName'    => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
-			'siteDomain'  => wp_parse_url( home_url(), PHP_URL_HOST ),
-			'siteIconUrl' => get_site_icon_url( 38 ),
+			'siteName'     => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
+			'siteUrl'      => home_url(),
+			'siteIconUrl'  => get_site_icon_url( 38 ),
+			'isBlockTheme' => wp_is_block_theme(),
 		)
 	);
 
@@ -80,7 +82,7 @@ function render_wpcom_dashboard_widget( $post, $callback_args ) {
 	);
 
 	?>
-	<div style="min-height: 200px;">
+	<div>
 		<div class="hide-if-js">
 			<?php echo esc_html( $warning ); ?>
 		</div>

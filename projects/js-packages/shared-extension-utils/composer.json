@@ -5,7 +5,6 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"scripts": {
@@ -31,6 +30,7 @@
 		"autotagger": true,
 		"npmjs-autopublish": true,
 		"mirror-repo": "Automattic/jetpack-shared-extension-utils",
+		"textdomain": "jetpack-shared-extension-utils",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-shared-extension-utils/compare/${old}...${new}"
 		}

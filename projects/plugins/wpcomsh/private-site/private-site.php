@@ -65,7 +65,7 @@ function admin_init() {
 	 */
 	if ( ( is_jetpack_connected() || site_is_private() ) && should_update_privacy_selector() ) {
 		// Prevent wp-admin from touching blog_public option.
-		add_action( 'whitelist_options', '\Private_Site\remove_privacy_option_from_whitelist' );
+		add_filter( 'allowed_options', '\Private_Site\remove_privacy_option_from_whitelist' );
 	}
 
 	if ( should_override_editor_with_classic_editor() ) {
@@ -91,13 +91,6 @@ function init() {
 
 	// Update `wpcom_coming_soon` cached value when it's updated on WP.com.
 	add_filter( 'rest_api_update_site_settings', '\Private_Site\cache_option_on_update_site_settings', 10, 2 );
-
-	// Logged-in blog users for an 'unlaunched' or 'coming soon' site see a banner.
-	// Only load the logged in private and public coming soon modes.
-	if ( site_is_private() || site_is_public_coming_soon() ) {
-		require __DIR__ . '/logged-in-banner.php';
-		add_action( 'wp_body_open', '\Private_Site\show_logged_in_banner', -1000 );
-	}
 
 	if ( ! site_is_private() ) {
 		return;
@@ -431,7 +424,7 @@ function send_access_denied_error_response() {
 	}
 
 	require access_denied_template_path();
-	exit;
+	exit( 0 );
 }
 
 /**
@@ -440,7 +433,7 @@ function send_access_denied_error_response() {
 function parse_request() {
 	if ( maybe_print_robots_txt() ) {
 		// If robots.txt was requested, go ahead & serve our hard-coded version & bail
-		exit;
+		exit( 0 );
 	}
 
 	if ( should_prevent_site_access() ) {
@@ -636,7 +629,7 @@ function remove_mask_site_name_filter() {
 function preprocess_comment( $comment ) {
 	if ( should_prevent_site_access() ) {
 		require access_denied_template_path();
-		exit;
+		exit( 0 );
 	}
 	return $comment;
 }
@@ -718,7 +711,7 @@ function access_denied_template_path() {
 }
 
 /**
- * Hooked into filter: `whitelist_options`.
+ * Hooked into filter: `allowed_options`.
  *
  * Prevents WordPress from saving blog_public option when site options are saved.
  *
@@ -776,7 +769,7 @@ function hide_opml() {
 	</head>
 </opml>
 		<?php
-		exit;
+		exit( 0 );
 	}
 }
 

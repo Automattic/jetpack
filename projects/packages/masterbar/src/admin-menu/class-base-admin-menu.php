@@ -602,7 +602,12 @@ abstract class Base_Admin_Menu {
 	 * @param string $view Preferred view.
 	 */
 	public function set_preferred_view( $screen, $view ) {
-		$preferred_views            = $this->get_preferred_views();
+		remove_filter( 'get_user_option_jetpack_admin_menu_preferred_views', 'wpcom_admin_get_user_option_jetpack' );
+		$preferred_views = $this->get_preferred_views();
+		if ( function_exists( 'wpcom_admin_get_user_option_jetpack' ) ) {
+			add_filter( 'get_user_option_jetpack_admin_menu_preferred_views', 'wpcom_admin_get_user_option_jetpack' );
+		}
+
 		$screen                     = str_replace( '?post_type=post', '', $screen );
 		$preferred_views[ $screen ] = $view;
 		update_user_option( get_current_user_id(), 'jetpack_admin_menu_preferred_views', $preferred_views );
@@ -707,13 +712,13 @@ abstract class Base_Admin_Menu {
 			if ( isset( $menu_mappings[ $current_screen ] ) ) {
 				// Using `wp_redirect` intentionally because we're redirecting to Calypso.
 				wp_redirect( $menu_mappings[ $current_screen ] . $this->domain ); // phpcs:ignore WordPress.Security.SafeRedirect
-				exit;
+				exit( 0 );
 			}
 		} elseif ( self::CLASSIC_VIEW === $preferred_view ) {
 			// Removes the `preferred-view` param from the URL to avoid issues with
 			// screens that don't expect this param to be present in the URL.
 			wp_safe_redirect( remove_query_arg( 'preferred-view' ) );
-			exit;
+			exit( 0 );
 		}
 		// phpcs:enable WordPress.Security.NonceVerification
 	}

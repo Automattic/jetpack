@@ -17,6 +17,7 @@ export default function ButtonBorderPanel( { borderRadius = '', setAttributes } 
 		<PanelBody title={ __( 'Border Settings', 'jetpack' ) }>
 			<RangeControl
 				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize
 				allowReset
 				initialPosition={ INITIAL_BORDER_RADIUS_POSITION }
 				label={ __( 'Border radius', 'jetpack' ) }

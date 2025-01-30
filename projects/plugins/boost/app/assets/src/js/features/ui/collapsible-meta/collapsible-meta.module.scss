@@ -1,0 +1,30 @@
+@use '$css/main/variables.scss' as *;
+
+.collapsible-meta {
+	.header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 10px;
+		@media screen and ( max-width: 530px ) {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+	}
+
+	.edit-button {
+		font-size: 14px;
+	}
+
+	.actions {
+		svg {
+			fill: var(--jetpack-green-40);
+		}
+	}
+
+	.summary {
+		color: var(--gray-50);
+		font-size: 14px;
+		line-height: 22px;
+	}
+}

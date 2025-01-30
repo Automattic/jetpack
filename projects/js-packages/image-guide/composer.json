@@ -5,13 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev"
-	},
-	"autoload": {
-		"classmap": [
-			"src/"
-		]
 	},
 	"scripts": {
 		"build-development": [
@@ -45,6 +39,7 @@
 	"extra": {
 		"npmjs-autopublish": true,
 		"mirror-repo": "Automattic/jetpack-image-guide",
+		"textdomain": "jetpack-image-guide",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-image-guide/compare/v${old}...v${new}"
 		},

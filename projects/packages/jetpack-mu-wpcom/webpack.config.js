@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const pkgDir = require( 'pkg-dir' );
@@ -17,6 +16,7 @@ module.exports = [
 				'./src/features/custom-css/custom-css/js/core-customizer-css-preview.js',
 			'customizer-control': './src/features/custom-css/custom-css/css/customizer-control.css',
 			'error-reporting': './src/features/error-reporting/index.js',
+			'holiday-snow': './src/features/holiday-snow/holiday-snow.scss',
 			'jetpack-global-styles': './src/features/jetpack-global-styles/index.js',
 			'jetpack-global-styles-customizer-fonts':
 				'./src/features/jetpack-global-styles/customizer-fonts/index.js',
@@ -45,12 +45,21 @@ module.exports = [
 				'./src/features/wpcom-global-styles/wpcom-global-styles-view.js',
 			'wpcom-documentation-links':
 				'./src/features/wpcom-documentation-links/wpcom-documentation-links.ts',
+			'wpcom-external-media-import-page':
+				'./src/features/wpcom-media/wpcom-external-media-import.js',
+			'wpcom-options-general': [
+				'./src/features/wpcom-options-general/options-general.js',
+				'./src/features/wpcom-options-general/options-general.scss',
+			],
 			'wpcom-plugins-banner': './src/features/wpcom-plugins/js/banner.js',
 			'wpcom-plugins-banner-style': './src/features/wpcom-plugins/css/banner.css',
 			'wpcom-profile-settings-link-to-wpcom':
 				'./src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.ts',
 			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
 			'starter-page-templates': './src/features/starter-page-templates/index.tsx',
+			'removed-calypso-screen-notice':
+				'./src/features/wpcom-admin-interface/removed-calypso-screen-notice.tsx',
+			'adminbar-launch-button': './src/features/launch-button/index.js',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
@@ -126,6 +135,7 @@ module.exports = [
  * Note this is not the same as looking for `__dirname+'/node_modules/'+pkgName`, as the package may be in a parent
  * `node_modules`
  * @param {string} pkgName - Name of the package to search for.
+ * @return {string} - The absolute path of the package.
  */
 function findPackage( pkgName ) {
 	const fullPath = require.resolve( pkgName );

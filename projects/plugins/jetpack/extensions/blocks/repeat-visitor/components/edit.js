@@ -90,6 +90,7 @@ export const RepeatVisitorEdit = ( { isSelected, attributes, setAttributes } ) =
 			>
 				<TextControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					className="wp-block-jetpack-repeat-visitor-threshold"
 					defaultValue={ threshold }
 					help={ isThresholdValid ? '' : __( 'Please enter a valid number.', 'jetpack' ) }

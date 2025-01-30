@@ -11,12 +11,11 @@ require( '@testing-library/jest-dom' );
 //
 // Note `console.debug` and `console.trace` are not mocked, and so may be used for debugging.
 require( '@wordpress/jest-console' );
+
 // Work around https://github.com/WordPress/gutenberg/issues/48042
 beforeEach( () => {
 	for ( const func of [ 'log', 'info', 'warn', 'error' ] ) {
-		// eslint-disable-next-line no-console
 		if ( console[ func ]?.mockReturnValue ) {
-			// eslint-disable-next-line no-console
 			console[ func ].mockReturnValue();
 		}
 	}

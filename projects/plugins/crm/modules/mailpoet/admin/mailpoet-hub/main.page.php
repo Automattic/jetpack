@@ -8,7 +8,7 @@
  */
 
 // block direct access
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
  * Page: MailPoet Sync Hub
@@ -30,7 +30,7 @@ function jpcrm_mailpoet_render_hub_page() {
 		$html .= '<p><a href="' . jpcrm_esc_link( $zbs->modules->mailpoet->slugs['hub'] . '&definitely_restart_sync=1' ) . '" class="ui button teal">' . __( 'Yes, do a full resync', 'zero-bs-crm' ) . '</a>&nbsp;&nbsp;<a href="' . jpcrm_esc_link( $zbs->modules->mailpoet->slugs['hub'] ) . '" class="ui button red">' . __( 'No, cancel and go back to hub', 'zero-bs-crm' ) . '</a></p>';
 
 		echo zeroBSCRM_UI2_messageHTML( 'warning', __( 'Want to restart your sync?', 'zero-bs-crm' ), $html, 'info' );
-		exit();
+		exit( 0 );
 
 	}
 
@@ -51,7 +51,7 @@ function jpcrm_mailpoet_render_hub_page() {
 		
 		// render debug mode sync page
 		jpcrm_mailpoet_render_hub_page_debug_mode();
-		exit();
+		exit( 0 );
 
 	}
 
@@ -275,5 +275,4 @@ function jpcrm_mailpoet_render_hub_page_debug_mode(){
 		</div>
 		<p style="text-align: center;margin-top:2em"><a href="<?php echo jpcrm_esc_link( $zbs->modules->mailpoet->slugs['hub'] ) ?>" class="ui button green"><?php esc_html_e( 'Go back to MailPoet Sync Hub', 'zero-bs-crm' ); ?></a>
 	</div><?php
-
 }

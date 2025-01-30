@@ -83,17 +83,17 @@ export default function TitleOptimization( {
 	const SEOModalTitle = __( 'Improve title for SEO', 'jetpack' );
 	const modalTitle = isKeywordsFeatureAvailable ? SEOModalTitle : currentModalTitle;
 
-	const currentSidebarDescription = __( 'Use AI to optimize key details of your post.', 'jetpack' );
+	const currentSidebarDescription = __( 'Based on your post content.', 'jetpack' );
 	const SEOSidebarDescription = __(
-		'AI suggested titles based on your content and keywords for better SEO results.',
+		'Based on your post content and SEO best practices.',
 		'jetpack'
 	);
 	const sidebarDescription = isKeywordsFeatureAvailable
 		? SEOSidebarDescription
 		: currentSidebarDescription;
 
-	const currentSidebarButtonLabel = __( 'Improve title', 'jetpack' );
-	const SEOSidebarButtonLabel = __( 'Improve title for SEO', 'jetpack' );
+	const currentSidebarButtonLabel = __( 'Generate title options', 'jetpack' );
+	const SEOSidebarButtonLabel = __( 'Generate title options', 'jetpack' );
 	const sidebarButtonLabel = isKeywordsFeatureAvailable
 		? SEOSidebarButtonLabel
 		: currentSidebarButtonLabel;
@@ -124,7 +124,7 @@ export default function TitleOptimization( {
 				const parsedContent = JSON.parse( content );
 				setOptions( parsedContent );
 				setSelected( parsedContent?.[ 0 ]?.title );
-			} catch ( e ) {
+			} catch {
 				const jsonError: TitleOptimizationJSONError = {
 					code: ERROR_JSON_PARSE,
 					message: genericErrorMessage,
@@ -204,7 +204,7 @@ export default function TitleOptimization( {
 
 			try {
 				autosave( event );
-			} catch ( e ) {
+			} catch {
 				// Do nothing since the user can save manually
 			}
 		},
@@ -228,12 +228,13 @@ export default function TitleOptimization( {
 
 	return (
 		<div>
-			<p>{ sidebarDescription }</p>
+			<p className="jetpack-ai-assistant__help-text">{ sidebarDescription }</p>
 			<Button
 				isBusy={ busy }
 				disabled={ ! postContent || disabled }
 				onClick={ handleTitleOptimization }
 				variant="secondary"
+				__next40pxDefaultSize
 			>
 				{ sidebarButtonLabel }
 			</Button>

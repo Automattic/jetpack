@@ -48,12 +48,12 @@ const RedeemPartnerCouponPreConnection = props => {
 				from={ 'jetpack-partner-coupon' }
 				title={ sprintf(
 					/* translators: %s: Jetpack partner name. */
-					__( 'Welcome to Jetpack %s traveler!', 'jetpack' ),
+					__( 'Welcome to Jetpack %s traveler!', 'jetpack-partner-coupon' ),
 					partnerCoupon.partner.name
 				) }
 				buttonLabel={ sprintf(
 					/* translators: %s: Name of a Jetpack product. */
-					__( 'Set up & redeem %s', 'jetpack' ),
+					__( 'Set up & redeem %s', 'jetpack-partner-coupon' ),
 					partnerCoupon.product.title
 				) }
 				redirectUri={ `admin.php?page=jetpack&partnerCoupon=${ partnerCoupon.coupon_code }` }
@@ -62,7 +62,10 @@ const RedeemPartnerCouponPreConnection = props => {
 				<p>
 					{ sprintf(
 						/* translators: %s: Name of a Jetpack product. */
-						__( 'Redeem your coupon and get started with %s for free the first year!', 'jetpack' ),
+						__(
+							'Redeem your coupon and get started with %s for free the first year!',
+							'jetpack-partner-coupon'
+						),
 						partnerCoupon.product.title
 					) }
 				</p>
@@ -75,7 +78,7 @@ const RedeemPartnerCouponPreConnection = props => {
 					<ActionButton
 						label={ sprintf(
 							/* translators: %s: Name of a Jetpack product. */
-							__( 'Redeem %s', 'jetpack' ),
+							__( 'Redeem %s', 'jetpack-partner-coupon' ),
 							partnerCoupon.product.title
 						) }
 						onClick={ onClick }

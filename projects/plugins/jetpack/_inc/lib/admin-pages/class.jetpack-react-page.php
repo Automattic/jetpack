@@ -55,7 +55,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			if ( strpos( $page, 'jetpack/' ) === 0 ) {
 				$section = substr( $page, 8 );
 				wp_safe_redirect( admin_url( 'admin.php?page=jetpack#/' . $section ) );
-				exit;
+				exit( 0 );
 			}
 			return; // No need to handle the fallback redirection if we are not on the Jetpack page.
 		}
@@ -267,7 +267,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		$target = sanitize_text_field( wp_unslash( $_GET['jp-react-redirect'] ) );
 		if ( isset( $allowed_paths[ $target ] ) ) {
 			wp_safe_redirect( $allowed_paths[ $target ] );
-			exit;
+			exit( 0 );
 		}
 	}
 

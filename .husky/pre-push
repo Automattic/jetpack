@@ -1,6 +1,3 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
 if test -c /dev/tty && sh -c ': < /dev/tty' >/dev/null 2>/dev/null; then
 	exec < /dev/tty
 fi

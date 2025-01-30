@@ -84,7 +84,7 @@ class SquashCommandTest extends CommandTestCase {
 	/**
 	 * Data provider for testExecute.
 	 */
-	public function provideExecute() {
+	public static function provideExecute() {
 		return array(
 			'Normal run'                                  => array(
 				array(),

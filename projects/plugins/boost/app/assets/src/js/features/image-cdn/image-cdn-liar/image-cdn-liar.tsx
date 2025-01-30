@@ -6,6 +6,7 @@ import styles from './image-cdn-liar.module.scss';
 import ModuleSubsection from '$features/ui/module-subsection/module-subsection';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import Pill from '$features/ui/pill/pill';
+import { useMutationNotice } from '$features/ui/mutation-notice/mutation-notice';
 
 type ImageCdnLiarProps = {
 	isPremium: boolean;
@@ -21,6 +22,12 @@ export default function ImageCdnLiar( { isPremium }: ImageCdnLiarProps ) {
 		'image_cdn_liar',
 		z.boolean().catch( false )
 	);
+
+	const enabledMessage = __( 'Auto-resize enabled.', 'jetpack-boost' );
+	const disabledMessage = __( 'Auto-resize disabled.', 'jetpack-boost' );
+	useMutationNotice( 'image-cdn-liar', setImageCdnLiar, {
+		successMessage: imageCdnLiar.data ? enabledMessage : disabledMessage,
+	} );
 
 	const handleToggle = ( value: boolean ) => {
 		setImageCdnLiar.mutate( value );

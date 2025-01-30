@@ -11,13 +11,12 @@ import { getProvidersWithErrors } from '../lib/critical-css-errors';
 import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import { Button } from '@automattic/jetpack-components';
 import styles from './status.module.scss';
+import { recordBoostEvent } from '$lib/utils/analytics';
 
 type StatusTypes = {
 	cssState: CriticalCssState;
 	isCloud?: boolean;
 	showFatalError: boolean;
-	hasRetried: boolean;
-	retry: () => void;
 	highlightRegenerateButton?: boolean;
 	extraText?: string; // Optionally, provide a sentence to use after the main message to provide more context.
 	overrideText?: string; // Optionally, provide a custom message to display instead of the default.
@@ -27,8 +26,6 @@ const Status: React.FC< StatusTypes > = ( {
 	cssState,
 	isCloud = false,
 	showFatalError,
-	hasRetried,
-	retry,
 	highlightRegenerateButton = false,
 	extraText,
 	overrideText,
@@ -38,14 +35,21 @@ const Status: React.FC< StatusTypes > = ( {
 		cssState.providers.filter( provider => provider.status === 'success' ).length || 0;
 	const providersWithErrors = getProvidersWithErrors( cssState );
 
+	const handleClickRegenerate = () => {
+		recordBoostEvent( 'critical_css_regenerate_clicked', {} );
+		regenerateAction.mutate();
+	};
+
+	const handleAdvancedClick = () => {
+		recordBoostEvent( 'critical_css_advanced_link_clicked', {} );
+	};
+
 	// If there has been a fatal error, show it.
 	if ( showFatalError ) {
 		return (
 			<ShowStopperError
 				supportLink={ ( isCloud && 'https://jetpack.com/contact-support/' ) || undefined }
 				cssState={ cssState }
-				retry={ retry }
-				showRetry={ ! hasRetried }
 			/>
 		);
 	}
@@ -91,7 +95,7 @@ const Status: React.FC< StatusTypes > = ( {
 									providersWithErrors.length
 								),
 								{
-									advanced: <Link to="/critical-css-advanced" />,
+									advanced: <Link to="/critical-css-advanced" onClick={ handleAdvancedClick } />,
 								}
 							) }
 						</>
@@ -104,7 +108,7 @@ const Status: React.FC< StatusTypes > = ( {
 				variant={ highlightRegenerateButton ? 'primary' : 'link' }
 				size="small"
 				weight="regular"
-				onClick={ () => regenerateAction.mutate() }
+				onClick={ handleClickRegenerate }
 				icon={ highlightRegenerateButton ? undefined : <RefreshIcon /> }
 				disabled={ cssState.status === 'pending' }
 			>

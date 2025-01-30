@@ -11,13 +11,7 @@
  */
 
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /* ================================================================================================================
  *
@@ -534,7 +528,7 @@ function zeroBSCRM_notifyme_get_notifications_ajax(){
         $res['count'] = count($res['notifications']);
       }
       echo json_encode($res,true);
-      die();
+	die( 0 );
 }
 
 

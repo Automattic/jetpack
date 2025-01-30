@@ -17,7 +17,8 @@ use Automattic\Jetpack\Assets;
 class Odyssey_Assets {
 	// This is a fixed list @see https://github.com/Automattic/wp-calypso/pull/71442/
 	const JS_DEPENDENCIES = array( 'lodash', 'react', 'react-dom', 'wp-api-fetch', 'wp-components', 'wp-compose', 'wp-element', 'wp-html-entities', 'wp-i18n', 'wp-is-shallow-equal', 'wp-polyfill', 'wp-primitives', 'wp-url', 'wp-warning', 'moment' );
-	const ODYSSEY_CDN_URL = 'https://widgets.wp.com/odyssey-stats/%s/%s?minify=false';
+	// Sometimes custom scripts would strip the `ver` query params, so we need to make sure it doesn't by adding a custom version param `osv` here.
+	const ODYSSEY_CDN_URL = 'https://widgets.wp.com/odyssey-stats/%s/%s?minify=false&osv=%s';
 
 	/**
 	 * We bump the asset version when the Jetpack back end is not compatible anymore.
@@ -53,14 +54,25 @@ class Odyssey_Assets {
 			Assets::enqueue_script( $asset_handle );
 		} else {
 			// In production, we load the assets from our CDN.
-			wp_register_script( $asset_handle, sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, "{$asset_name}.js" ), self::JS_DEPENDENCIES, $this->get_cdn_asset_cache_buster(), true );
+			wp_register_script(
+				$asset_handle,
+				sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, "{$asset_name}.js", $this->get_cdn_asset_cache_buster() ),
+				self::JS_DEPENDENCIES,
+				$this->get_cdn_asset_cache_buster(),
+				true
+			);
 			wp_enqueue_script( $asset_handle );
 
 			// Enqueue CSS if needed.
 			if ( $options['enqueue_css'] ) {
 				$css_url    = $asset_name . ( is_rtl() ? '.rtl' : '' ) . '.css';
 				$css_handle = $asset_handle . '-style';
-				wp_register_style( $css_handle, sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, $css_url ), array(), $this->get_cdn_asset_cache_buster() );
+				wp_register_style(
+					$css_handle,
+					sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, $css_url, $this->get_cdn_asset_cache_buster() ),
+					array(),
+					$this->get_cdn_asset_cache_buster()
+				);
 				wp_enqueue_style( $css_handle );
 			}
 		}
@@ -97,7 +109,7 @@ class Odyssey_Assets {
 		}
 
 		// If no cached cache buster, we fetch it from CDN and set to transient.
-		$response = wp_remote_get( sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, 'build_meta.json?t=' . $now_in_ms ), array( 'timeout' => 5 ) );
+		$response = wp_remote_get( sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, 'build_meta.json', $now_in_ms ), array( 'timeout' => 5 ) );
 
 		if ( is_wp_error( $response ) ) {
 			// fallback to current timestamp.

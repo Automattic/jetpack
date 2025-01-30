@@ -18,14 +18,12 @@ describe( 'BoostScrollBar', () => {
 	it( 'renders the boost scroll bar when active is true', () => {
 		const { container } = render( <BoostScoreBar { ...defaultProps } /> );
 
-		// eslint-disable-next-line testing-library/no-node-access
 		expect( container.firstChild ).toHaveAttribute( 'class', 'jb-score-bar jb-score-bar--desktop' );
 	} );
 
 	it( 'does not render the boost scroll bar when active is false', () => {
 		const { container } = render( <BoostScoreBar { ...defaultProps } active={ false } /> );
 
-		// eslint-disable-next-line testing-library/no-node-access
 		expect( container ).toBeEmptyDOMElement();
 	} );
 

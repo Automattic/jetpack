@@ -36,7 +36,7 @@ class Growth extends Module_Product {
 	 * @return string
 	 */
 	public static function get_name() {
-		return 'Growth';
+		return 'Growth Bundle';
 	}
 
 	/**
@@ -74,7 +74,7 @@ class Growth extends Module_Product {
 	public static function get_features() {
 		return array(
 			_x( 'Jetpack Social', 'Growth Product Feature', 'jetpack-my-jetpack' ),
-			_x( 'Jetpack Stats (up to 100K site views)', 'Growth Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Jetpack Stats (10K site views, upgradeable)', 'Growth Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'Unlimited subscriber imports', 'Growth Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'Earn more from your content', 'Growth Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'Accept payments with PayPal', 'Growth Product Feature', 'jetpack-my-jetpack' ),
@@ -178,6 +178,20 @@ class Growth extends Module_Product {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Get the product-slugs of the paid plans for this product.
+	 * (Do not include bundle plans, unless it's a bundle plan itself).
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_growth_yearly',
+			'jetpack_growth_monthly',
+			'jetpack_growth_bi_yearly',
+		);
 	}
 
 	/**

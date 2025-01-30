@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.0] - 2024-12-04
+### Added
+- Board Triage: automatically add the issue type to our project board when a Type label can be found in the issue. [#40110]
+- Issue triage: allow querying OpenAI to get a list of labels that could potentially be added to an issue, based off the issue body, when the issue is opened. [#39152]
+- Issue triage: post a comment when an issue lacks labels. [#40367]
+- Labeling: automatically label changes to Social Previews made in the js package. [#40278]
+- PR checks: add new check to ensure that PRs include a [Type] label. [#40428]
+
+### Changed
+- AI Labeling: allow plugin-specific feature labels as well. [#40425]
+- AI Labeling: clean up issue contents before we send them to OpenAI for analysis. [#40269]
+- AI Labeling: do not attempt to add feature labels to an issue where they were already provided [#40279]
+- AI Labeling: update conditions when labeling is triggered. [#40106]
+- Board triage: add automated triage for Photon. [#40409]
+- Board triage: add automatic triage to Fediverse project board. [#40430]
+- Board Triage: remove updateBoard task. It will now be part of the existing triageIssues task. [#39973]
+- Check description task: Update timing for Jetpack, wpcomsh, and mu-wpcom-plugin releases. [#39321]
+- Issue escalation: allow escalating the issue to multiple teams. [#39973]
+- Labeling: automatically label changes to the External Media extension. [#40408]
+- Labels: automatically label all changes to the Publicize feature. [#40313]
+- Prompt for labels: update conditions to include "[<plugin> Feature]" labels. [#40396]
+- Prompt for labels: update wording. [#40394]
+- Slack messaging: when a Slack message cannot be sent to a specific channel, send a message to warn about the issue. [#40369]
+- Triage to Project boards: automatically triage Autoloader-related issues to the Garage board. [#39958]
+- Triage to Project boards: automatically triage Site Migrations and Theme-related issues. [#39959]
+
+### Removed
+- WordPress.com Commit Reminder: remove this task as it is no longer used in the Jetpack monorepo. [#40277]
+
+### Fixed
+- Auto-labeling: do not add a "Docs" label when a changelog.md file is modified on the root of the repo. [#40160]
+- Board triage: do not attempt to modify board columns when the issue is not on a board. [#40274]
+
 ## [5.1.0] - 2024-08-29
 ### Added
 - Auto-labeling: label changes to the WooCommerce Analytics package. [#36281]
@@ -239,6 +272,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
+[6.0.0]: https://github.com/Automattic/action-repo-gardening/compare/v5.1.0...v6.0.0
 [5.1.0]: https://github.com/Automattic/action-repo-gardening/compare/v5.0.0...v5.1.0
 [5.0.0]: https://github.com/Automattic/action-repo-gardening/compare/v4.0.0...v5.0.0
 [4.0.0]: https://github.com/Automattic/action-repo-gardening/compare/v3.1.1...v4.0.0

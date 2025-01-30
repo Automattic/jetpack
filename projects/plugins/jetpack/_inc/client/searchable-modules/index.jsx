@@ -1,12 +1,12 @@
 import { __ } from '@wordpress/i18n';
+import { includes, forEach } from 'lodash';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Banner from 'components/banner';
 import ConnectUserBar from 'components/connect-user-bar';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { includes, forEach } from 'lodash';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,

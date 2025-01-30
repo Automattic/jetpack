@@ -69,6 +69,11 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 							return array_map( 'absint', $param );
 						},
 					),
+					'async'               => array(
+						'description' => __( 'Whether to share the post asynchronously.', 'jetpack' ),
+						'type'        => 'boolean',
+						'default'     => false,
+					),
 				),
 			),
 			// override = true because this API route was commandeered from the file

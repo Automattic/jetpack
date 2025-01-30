@@ -48,45 +48,45 @@ class Gridicon extends Component< GridiconProps > {
 			default:
 				return '';
 			case 'gridicons-audio':
-				return __( 'Has audio.', 'jetpack' );
+				return __( 'Has audio.', 'jetpack-components' );
 			case 'gridicons-arrow-left':
-				return __( 'Arrow left', 'jetpack' );
+				return __( 'Arrow left', 'jetpack-components' );
 			case 'gridicons-arrow-right':
-				return __( 'Arrow right', 'jetpack' );
+				return __( 'Arrow right', 'jetpack-components' );
 			case 'gridicons-calendar':
-				return __( 'Is an event.', 'jetpack' );
+				return __( 'Is an event.', 'jetpack-components' );
 			case 'gridicons-cart':
-				return __( 'Is a product.', 'jetpack' );
+				return __( 'Is a product.', 'jetpack-components' );
 			case 'chevron-down':
-				return __( 'Show filters', 'jetpack' );
+				return __( 'Show filters', 'jetpack-components' );
 			case 'gridicons-comment':
-				return __( 'Matching comment.', 'jetpack' );
+				return __( 'Matching comment.', 'jetpack-components' );
 			case 'gridicons-cross':
-				return __( 'Close.', 'jetpack' );
+				return __( 'Close.', 'jetpack-components' );
 			case 'gridicons-filter':
-				return __( 'Toggle search filters.', 'jetpack' );
+				return __( 'Toggle search filters.', 'jetpack-components' );
 			case 'gridicons-folder':
-				return __( 'Category', 'jetpack' );
+				return __( 'Category', 'jetpack-components' );
 			case 'gridicons-help-outline':
-				return __( 'Help', 'jetpack' );
+				return __( 'Help', 'jetpack-components' );
 			case 'gridicons-info':
 			case 'gridicons-info-outline':
-				return __( 'Information.', 'jetpack' );
+				return __( 'Information.', 'jetpack-components' );
 			case 'gridicons-image-multiple':
-				return __( 'Has multiple images.', 'jetpack' );
+				return __( 'Has multiple images.', 'jetpack-components' );
 			case 'gridicons-image':
-				return __( 'Has an image.', 'jetpack' );
+				return __( 'Has an image.', 'jetpack-components' );
 			case 'gridicons-page':
-				return __( 'Page', 'jetpack' );
+				return __( 'Page', 'jetpack-components' );
 			case 'gridicons-post':
-				return __( 'Post', 'jetpack' );
+				return __( 'Post', 'jetpack-components' );
 			case 'gridicons-jetpack-search':
 			case 'gridicons-search':
-				return __( 'Magnifying Glass', 'jetpack' );
+				return __( 'Magnifying Glass', 'jetpack-components' );
 			case 'gridicons-tag':
-				return __( 'Tag', 'jetpack' );
+				return __( 'Tag', 'jetpack-components' );
 			case 'gridicons-video':
-				return __( 'Has a video.', 'jetpack' );
+				return __( 'Has a video.', 'jetpack-components' );
 		}
 	}
 

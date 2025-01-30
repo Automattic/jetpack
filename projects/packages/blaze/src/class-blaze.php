@@ -45,6 +45,12 @@ class Blaze {
 	public static function init() {
 		// On the edit screen, add a row action to promote the post.
 		add_action( 'load-edit.php', array( __CLASS__, 'add_post_links_actions' ) );
+		// After the quick-edit screen is processed, ensure the blaze row action is still present
+		if ( 'edit.php' === $GLOBALS['pagenow'] ||
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is not needed here, we're not saving anything.
+			( 'admin-ajax.php' === $GLOBALS['pagenow'] && ! empty( $_POST['post_view'] ) && 'list' === $_POST['post_view'] && ! empty( $_POST['action'] ) && 'inline-save' === $_POST['action'] ) ) {
+			self::add_post_links_actions();
+		}
 		// In the post editor, add a post-publish panel to allow promoting the post.
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 		// Add a Blaze Menu.

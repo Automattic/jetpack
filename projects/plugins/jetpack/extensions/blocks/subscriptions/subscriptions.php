@@ -43,9 +43,16 @@ function register_block() {
 		return;
 	}
 
-	require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
-	if ( \Jetpack_Memberships::should_enable_monetize_blocks_in_editor() ) {
+	/**
+	 * Do not proceed if the newsletter feature (Subscriptions module) is not enabled
+	 */
+	if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
+		return;
+	}
 
+	require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
+
+	if ( \Jetpack_Memberships::should_enable_monetize_blocks_in_editor() ) {
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array(
@@ -59,22 +66,6 @@ function register_block() {
 				),
 			)
 		);
-	}
-
-	/*
-	 * If the Subscriptions module is not active,
-	 * do not make any further changes on the site.
-	 */
-	if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
-		return;
-	}
-
-	/**
-	 * Do not proceed if the newsletter feature is not enabled
-	 * or if the 'Jetpack_Memberships' class does not exists.
-	 */
-	if ( ! class_exists( '\Jetpack_Memberships' ) ) {
-		return;
 	}
 
 	register_post_meta(
@@ -492,8 +483,8 @@ function get_element_styles_from_attributes( $attributes ) {
 
 		// Account for custom margins on inline forms.
 		$submit_button_styles .= true === get_attribute( $attributes, 'buttonOnNewLine' )
-			? sprintf( 'width: calc(100%% - %dpx);', get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE ) )
-			: 'width: 100%;';
+			? 'width: 100%;'
+			: sprintf( 'width: calc(100%% - %dpx);', get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE ) );
 	}
 
 	$font_size = get_attribute( $attributes, 'customFontSize', DEFAULT_FONTSIZE_VALUE );

@@ -242,7 +242,7 @@
 				pageWrapper = document.getElementById( this.footer.wrap );
 				width = pageWrapper.getBoundingClientRect();
 				width = width.width;
-			} catch ( err ) {
+			} catch {
 				width = 0;
 			}
 
@@ -508,12 +508,10 @@
 					} else {
 						self.trigger( this.body, 'infinite-scroll-posts-end' );
 					}
+				} else if ( self.click_handle ) {
+					self.element.appendChild( self.handle );
 				} else {
-					if ( self.click_handle ) {
-						self.element.appendChild( self.handle );
-					} else {
-						self.trigger( this.body, 'infinite-scroll-posts-more' );
-					}
+					self.trigger( this.body, 'infinite-scroll-posts-more' );
 				}
 			} else if ( response.lastbatch ) {
 				self.disabled = true;
@@ -647,7 +645,7 @@
 	/**
 	 * Get element measurements relative to the viewport.
 	 *
-	 * @returns {object}
+	 * @return {object}
 	 */
 	Scroller.prototype.measure = function ( element, expandClasses ) {
 		expandClasses = expandClasses || [];
@@ -750,6 +748,7 @@
 			maxFactor = 0;
 
 		// xor - check if the state has changed
+		// eslint-disable-next-line no-bitwise
 		if ( previousFullScrenState ^ currentFullScreenState ) {
 			// If we just switched to/from fullscreen,
 			// don't do the div clearing/caching or the
@@ -851,7 +850,7 @@
 				cancelable: true,
 				detail: opts.data || null,
 			} );
-		} catch ( err ) {
+		} catch {
 			e = document.createEvent( 'CustomEvent' );
 			e.initCustomEvent( eventName, true, true, opts.data || null );
 		}
@@ -862,13 +861,12 @@
 	 * Ready, set, go!
 	 */
 	var jetpackInfinityModule = function () {
-		var bodyClasses = infiniteScroll.settings.body_class.split( ' ' );
-
 		// Check for our variables
 		if ( 'object' !== typeof infiniteScroll ) {
 			return;
 		}
 
+		var bodyClasses = infiniteScroll.settings.body_class.split( ' ' );
 		bodyClasses.forEach( function ( className ) {
 			if ( className ) {
 				document.body.classList.add( className );

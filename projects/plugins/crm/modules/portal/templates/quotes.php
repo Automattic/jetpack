@@ -8,10 +8,9 @@
  * @package 	Templates/Portal/Quotes
  * @see			https://jetpackcrm.com/kb/
  * @version     3.0
- * 
  */
 
-if ( ! defined( 'ABSPATH' ) ) exit; 
+defined( 'ABSPATH' ) || exit( 0 );
 
 global $zbs;
 $portal = $zbs->modules->portal;
@@ -26,7 +25,7 @@ if ( $ZBSuseQuotes < 0 ) {
 	status_header( 404 );
 	nocache_headers();
 	include get_query_template( '404' );
-	die();
+	die( 0 );
 }
 
 add_action( 'wp_enqueue_scripts', array( $portal, 'portal_enqueue_scripts_and_styles' ) );

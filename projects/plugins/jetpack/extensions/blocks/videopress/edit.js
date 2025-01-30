@@ -229,7 +229,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				} else {
 					this.fallbackToCore();
 				}
-			} catch ( e ) {
+			} catch {
 				this.setState( { isFetchingMedia: false } );
 				this.fallbackToCore();
 			}

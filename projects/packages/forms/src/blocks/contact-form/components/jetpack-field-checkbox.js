@@ -25,6 +25,7 @@ function JetpackFieldCheckbox( props ) {
 		width,
 		defaultValue,
 		attributes,
+		insertBlocksAfter,
 	} = props;
 
 	const { blockStyle } = useJetpackFieldStyles( attributes );
@@ -56,6 +57,7 @@ function JetpackFieldCheckbox( props ) {
 					label={ label }
 					setAttributes={ setAttributes }
 					attributes={ attributes }
+					insertBlocksAfter={ insertBlocksAfter }
 				/>
 				<InspectorControls>
 					<PanelBody title={ __( 'Checkbox Settings', 'jetpack-forms' ) }>
@@ -74,7 +76,6 @@ function JetpackFieldCheckbox( props ) {
 					<PanelBody title={ __( 'Field Settings', 'jetpack-forms' ) }>
 						<ToggleControl
 							label={ __( 'Field is required', 'jetpack-forms' ) }
-							className="jetpack-field-label__required"
 							checked={ required }
 							onChange={ value => setAttributes( { required: value } ) }
 							help={ __( 'You can edit the "required" label in the editor', 'jetpack-forms' ) }

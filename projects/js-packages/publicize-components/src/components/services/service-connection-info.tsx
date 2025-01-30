@@ -1,5 +1,7 @@
 import { IconTooltip, Text } from '@automattic/jetpack-components';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
 import { ConnectionName } from '../connection-management/connection-name';
 import { ConnectionStatus } from '../connection-management/connection-status';
@@ -19,6 +21,11 @@ export const ServiceConnectionInfo = ( {
 	service,
 	isAdmin,
 }: ServiceConnectionInfoProps ) => {
+	const canManageConnection = useSelect(
+		select => select( socialStore ).canUserManageConnection( connection ),
+		[ connection ]
+	);
+
 	return (
 		<div className={ styles[ 'service-connection' ] }>
 			<div>
@@ -40,7 +47,7 @@ export const ServiceConnectionInfo = ( {
 					 * if the user can disconnect the connection.
 					 * Otherwise, non-admin authors will see only the status without any further context.
 					 */
-					if ( conn.status === 'broken' && conn.can_disconnect ) {
+					if ( conn.status === 'broken' && canManageConnection ) {
 						return <ConnectionStatus connection={ conn } service={ service } />;
 					}
 
@@ -52,7 +59,7 @@ export const ServiceConnectionInfo = ( {
 								<IconTooltip placement="top" inline={ false } shift>
 									{ __(
 										'If enabled, the connection will be available to all administrators, editors, and authors.',
-										'jetpack'
+										'jetpack-publicize-components'
 									) }
 								</IconTooltip>
 							</div>
@@ -63,10 +70,13 @@ export const ServiceConnectionInfo = ( {
 					 * Now if the user is not an admin, we tell them that the connection
 					 * was added by an admin and show the connection status if it's broken.
 					 */
-					return ! conn.can_disconnect ? (
+					return ! canManageConnection ? (
 						<>
 							<Text className={ styles.description }>
-								{ __( 'This connection is added by a site administrator.', 'jetpack' ) }
+								{ __(
+									'This connection is added by a site administrator.',
+									'jetpack-publicize-components'
+								) }
 							</Text>
 							{ conn.status === 'broken' ? (
 								<ConnectionStatus connection={ conn } service={ service } />

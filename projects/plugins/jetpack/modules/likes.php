@@ -448,6 +448,9 @@ class Jetpack_Likes {
 
 		$title = esc_html__( 'Like or Reblog', 'jetpack' );
 
+		/** This filter is documented in modules/likes/jetpack-likes-master-iframe.php */
+		$src = apply_filters( 'jetpack_likes_iframe_src', $src );
+
 		$html  = "<div class='sharedaddy sd-block sd-like jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded' id='$wrapper' data-src='$src' data-name='$name' data-title='$title'>";
 		$html .= $headline;
 		$html .= "<div class='likes-widget-placeholder post-likes-widget-placeholder' style='height: 55px;'><span class='button'><span>" . esc_html__( 'Like', 'jetpack' ) . '</span></span> <span class="loading">' . esc_html__( 'Loading...', 'jetpack' ) . '</span></div>';

@@ -11,19 +11,16 @@ import getCriticalCssErrorSetInterpolateVars from '$lib/utils/get-critical-css-e
 import formatErrorSetUrls from '$lib/utils/format-error-set-urls';
 import actionLinkInterpolateVar from '$lib/utils/action-link-interpolate-var';
 import { recordBoostEvent } from '$lib/utils/analytics';
+import { useRetryRegenerate } from '../lib/use-retry-regenerate';
 
 type ShowStopperErrorTypes = {
 	supportLink?: string;
 	cssState: CriticalCssState;
-	retry: () => void;
-	showRetry?: boolean;
 };
 
 const ShowStopperError: React.FC< ShowStopperErrorTypes > = ( {
 	supportLink = 'https://wordpress.org/support/plugin/jetpack-boost/',
 	cssState,
-	retry,
-	showRetry,
 } ) => {
 	const primaryErrorSet = getPrimaryErrorSet( cssState );
 	const showLearnSection = primaryErrorSet && cssState.status === 'generated';
@@ -55,12 +52,7 @@ const ShowStopperError: React.FC< ShowStopperErrorTypes > = ( {
 						</FoldingElement>
 					</>
 				) : (
-					<OtherErrors
-						cssState={ cssState }
-						retry={ retry }
-						showRetry={ showRetry }
-						supportLink={ supportLink }
-					/>
+					<OtherErrors cssState={ cssState } supportLink={ supportLink } />
 				) }
 			</Notice>
 		</>
@@ -76,7 +68,15 @@ const Description = ( { errorSet }: { errorSet: ErrorSet } ) => {
 				b: <b />,
 			} ) }{ ' ' }
 			{ displayUrls.map( ( { href, label }, index ) => (
-				<a href={ href } target="_blank" rel="noreferrer" key={ index }>
+				<a
+					onClick={ () => {
+						recordBoostEvent( 'critical_css_error_link_clicked', {} );
+					} }
+					href={ href }
+					target="_blank"
+					rel="noreferrer"
+					key={ index }
+				>
 					{ label }
 				</a>
 			) ) }
@@ -128,7 +128,9 @@ const DocumentationSection = ( {
 	);
 };
 
-const OtherErrors = ( { cssState, retry, showRetry, supportLink }: ShowStopperErrorTypes ) => {
+const OtherErrors = ( { cssState, supportLink }: ShowStopperErrorTypes ) => {
+	const [ hasRetried, retry ] = useRetryRegenerate();
+
 	const firstTimeError = __(
 		'An unexpected error has occurred. As this error may be temporary, please try and refresh the Critical CSS.',
 		'jetpack-boost'
@@ -176,7 +178,7 @@ const OtherErrors = ( { cssState, retry, showRetry, supportLink }: ShowStopperEr
 				</>
 			) : (
 				<>
-					<p>{ showRetry ? firstTimeError : secondTimeError }</p>
+					<p>{ ! hasRetried ? firstTimeError : secondTimeError }</p>
 					<p>
 						{ sprintf(
 							/* translators: %s: error message */
@@ -184,7 +186,7 @@ const OtherErrors = ( { cssState, retry, showRetry, supportLink }: ShowStopperEr
 							cssState.status_error
 						) }
 					</p>
-					{ showRetry ? (
+					{ ! hasRetried ? (
 						<button
 							className="secondary"
 							onClick={ () => {
@@ -203,6 +205,9 @@ const OtherErrors = ( { cssState, retry, showRetry, supportLink }: ShowStopperEr
 							href={ supportLink }
 							target="_blank"
 							rel="noreferrer"
+							onClick={ () => {
+								recordBoostEvent( 'critical_css_contact_support', {} );
+							} }
 						>
 							{ __( 'Contact Support', 'jetpack-boost' ) }
 						</a>

@@ -52,8 +52,20 @@ class Request {
 		return $this->request_uri;
 	}
 
+	/**
+	 * Returns the parameters for the current request.
+	 *
+	 * @return array The parameters for the current request, made up of cookies and get parameters.
+	 */
 	public function get_parameters() {
-		return $this->request_parameters;
+		/**
+		 * Filters the parameters for the current request to identify the cache key.
+		 *
+		 * @since 3.8.0
+		 *
+		 * @param array $parameters The parameters for the current request, made up of cookies and get parameters.
+		 */
+		return apply_filters( 'jetpack_boost_cache_parameters', $this->request_parameters );
 	}
 
 	/**
@@ -84,7 +96,8 @@ class Request {
 		}
 
 		// Check if the query parameters `jb-disable-modules` or `jb-generate-critical-css` exist.
-		$query_params = isset( $this->request_parameters['get'] ) ? $this->request_parameters['get'] : array();
+		$request_parameters = $this->get_parameters();
+		$query_params       = isset( $request_parameters['get'] ) ? $request_parameters['get'] : array();
 		if ( isset( $query_params ) &&
 			( isset( $query_params['jb-disable-modules'] ) || isset( $query_params['jb-generate-critical-css'] ) )
 		) {
@@ -95,6 +108,8 @@ class Request {
 
 		/**
 		 * Filters the bypass patterns for the page cache.
+		 * If you need to sanitize them, do it before passing them to this filter,
+		 * as there's no sanitization done after this filter.
 		 *
 		 * @since 3.2.0
 		 *
@@ -104,7 +119,7 @@ class Request {
 
 		$bypass_patterns[] = 'wp-.*\.php';
 		foreach ( $bypass_patterns as $expr ) {
-			if ( ! empty( $expr ) && preg_match( "~$expr~", $request_uri ) ) {
+			if ( ! empty( $expr ) && preg_match( "~^$expr/?$~", $request_uri ) ) {
 				return true;
 			}
 		}
