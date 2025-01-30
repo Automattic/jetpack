@@ -80,9 +80,7 @@ class Social_Admin_Page {
 	 */
 	public function add_menu() {
 
-		$show_admin_page = class_exists( \Jetpack_Social::class ) || Publicize_Script_Data::has_feature_flag( 'admin-page' );
-
-		if ( ! $show_admin_page ) {
+		if ( ! Publicize_Script_Data::has_feature_flag( 'admin-page' ) ) {
 			return;
 		}
 
