@@ -91,6 +91,15 @@
 		}
 	}
 
+	.block-editor-block-list__layout.wp-block-jetpack-field-option-radio,
+	.block-editor-block-list__layout.wp-block-jetpack-field-option-checkbox  {
+		gap: 0;
+
+		> .wp-block {
+			flex: initial;
+		}
+	}
+
 	.block-list-appender {
 		flex: 0 0 100%;
 	}
