@@ -1157,8 +1157,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return bool
 	 */
 	public function is_field_renderable( $type ) {
-		// Check for valid radio field.
-		if ( $type === 'radio' ) {
+		// Check that radio, select, and multiple choice
+		// fields have at leaast one valid option.
+		if ( $type === 'radio' || $type === 'checkbox-multiple' || $type === 'select' ) {
 			$options           = (array) $this->get_attribute( 'options' );
 			$non_empty_options = array_filter(
 				$options,
