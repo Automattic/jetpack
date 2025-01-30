@@ -23,6 +23,7 @@
 		"test-coverage": "pnpm run test --coverage"
 	},
 	"dependencies": {
+		"@automattic/babel-plugin-replace-textdomain": "1.0.42",
 		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
