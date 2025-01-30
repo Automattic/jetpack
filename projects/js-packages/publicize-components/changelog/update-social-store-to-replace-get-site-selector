@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Replace getSite selector with getEntityRecord to avoid redundant API calls
