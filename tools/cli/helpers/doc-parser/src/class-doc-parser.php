@@ -50,6 +50,13 @@ class Doc_Parser {
 	public $parser;
 
 	/**
+	 * The PrettyPrinter object.
+	 *
+	 * @var PrettyPrinter
+	 */
+	public $printer;
+
+	/**
 	 * Constructor for the Doc_Parser class.
 	 */
 	public function __construct() {
@@ -59,6 +66,7 @@ class Doc_Parser {
 		$typeParser      = new TypeParser( $config, $constExprParser );
 		$this->pdparser  = new PhpDocParser( $config, $typeParser, $constExprParser );
 		$this->parser    = ( new ParserFactory() )->createForHostVersion();
+		$this->printer   = new PrettyPrinter();
 	}
 
 	/**
@@ -80,7 +88,10 @@ class Doc_Parser {
 			echo PHP_EOL;
 
 			// Get data from the PHPDoc
-			$json[] = $this->get_phpdoc_data( $directory, 'raw' );
+			$json = array(
+				...$json,
+				...$this->get_phpdoc_data( $directory, 'raw' ),
+			);
 		}
 
 		$output = json_encode( $json );
@@ -198,6 +209,11 @@ class Doc_Parser {
 				}
 				$docblock = implode( '', $docblock );
 
+				$block['doc']                     = array();
+				$block['doc']['description']      = '';
+				$block['doc']['long_description'] = '';
+				$block['doc']['tags']             = array();
+
 				try {
 					$tokens     = new TokenIterator( $this->lexer->tokenize( $docblock ) );
 					$phpDocNode = $this->pdparser->parse( $tokens );
@@ -207,23 +223,31 @@ class Doc_Parser {
 
 				$paramTags = $phpDocNode->getParamTagValues();
 
-				$block['doc']                = array();
-				$block['doc']['description'] = '';
 				foreach ( $phpDocNode->children as $entry ) {
 					if ( ! $entry instanceof PhpDocTextNode ) {
 						continue;
 					}
 
-					$block['doc']['description'] .= $entry->text;
+					if ( ! empty( $entry->text ) ) {
+						$block['doc']['description'] .=
+							'<p>'
+							. str_replace( array( "\r\n", "\n", "\r" ), '</p><p>', $entry->text )
+							. '</p>';
+					}
 				}
 
 				$parameters = array();
 				foreach ( $paramTags as $paramTag ) {
-					$parameters[] = (string) $paramTag . PHP_EOL;
-				}
+					$block['doc']['tags'][] = array(
+						'name'     => 'param',
+						'content'  => $paramTag->description,
+						'types'    => array(
+							(string) $paramTag->type,
+						),
+						'variable' => $paramTag->parameterName,
+					);
 
-				if ( ! empty( $parameters ) ) {
-					$block['doc']['description'] .= "\n\n" . implode( "\n", $parameters );
+					$parameters[] = (string) $paramTag . PHP_EOL;
 				}
 
 				foreach (
@@ -240,16 +264,26 @@ class Doc_Parser {
 					$sinceTags = $phpDocNode->getTagsByName( $tagType );
 					foreach ( $sinceTags as $sinceTag ) {
 						$block['doc']['tags'][] = array(
-							'name'  => substr( $tagType, 1 ),
-							'value' => (string) $sinceTag->value,
+							'name'    => substr( $tagType, 1 ),
+							'content' => (string) $sinceTag->value,
 						);
 					}
 				}
 			}
 
+			$filepath = ltrim( substr( $file, strlen( $path ) ), DIRECTORY_SEPARATOR );
 			$blocks[] = array(
-				'file'  => $file,
-				'hooks' => $file_blocks,
+				'path'    => $filepath,
+				'root'    => $path,
+				'classes' => array(
+					array(
+						'methods' => array(
+							array(
+								'hooks' => $file_blocks,
+							),
+						),
+					),
+				),
 			);
 		}
 
@@ -301,8 +335,7 @@ class Doc_Parser {
 	 */
 	public function get_filter_calls( $nodes ): array {
 
-		$blocks        = array();
-		$prettyPrinter = new PrettyPrinter();
+		$blocks = array();
 
 		foreach ( $nodes as $node ) {
 
@@ -313,15 +346,61 @@ class Doc_Parser {
 				'type'     => 'filter',
 				'line'     => $node->getLine(),
 				'end_line' => $node->getEndLine() > 0 ? $node->getEndLine() : $node->getLine(),
-				'name'     => trim( $prettyPrinter->prettyPrint( array( $hook_name ) ), '\'' ),
+				'name'     => $this->pretty_print_hook_name( $hook_name ),
 			);
 
 			foreach ( $arguments as $argument ) {
-				$new_block['arguments'][] = $prettyPrinter->prettyPrint( array( $argument ) );
+				$new_block['arguments'][] = $this->printer->prettyPrint( array( $argument ) );
 			}
 			$blocks[] = $new_block;
 		}
 
 		return $blocks;
+	}
+
+	/**
+	 * Pretty prints the name for the hook, taking an argument object as input.
+	 *
+	 * @param Node\Arg $argument the first argument to the apply_filter or do_action call.
+	 * @return String pretty printed argument name.
+	 * @throws Exception On an unexpected argument component.
+	 */
+	public function pretty_print_hook_name( Node\Arg $argument ): string {
+
+		if (
+			$argument->value instanceof Node\Scalar\String_
+				|| $argument->value instanceof Node\Expr\ConstFetch
+		) {
+			return trim( $this->printer->prettyPrint( array( $argument ) ), '\'' );
+
+		} elseif ( $argument->value instanceof Node\Scalar\InterpolatedString ) {
+			$result = '';
+			foreach ( $argument->value->parts as $part ) {
+				if ( $part instanceof Node\InterpolatedStringPart ) {
+					$result .= $part->value;
+				} elseif ( $part instanceof Node\Expr ) {
+					$result .= '{' . $this->printer->prettyPrint( array( $part ) ) . '}';
+				} else {
+					throw new Exception( 'Unexpected interpolated string component of type ' . get_class( $part ) );
+				}
+			}
+			return $result;
+
+		} elseif ( $argument->value instanceof Node\Expr\BinaryOp\Concat ) {
+			$result = '';
+			foreach ( array( 'left', 'right' ) as $property ) {
+				$part = $argument->value->{$property};
+				if ( $part instanceof Node\Scalar\String_ ) {
+					$result .= $part->value;
+				} elseif ( $part instanceof Node\Expr ) {
+					$result .= '{' . $this->printer->prettyPrint( array( $part ) ) . '}';
+				} else {
+					throw new Exception( 'Unexpected concatenated string component of type ' . get_class( $part ) );
+				}
+			}
+			return $result;
+		}
+
+		throw new Exception( 'Unexpected function call argument of type ' . get_class( $argument->value ) );
 	}
 }
