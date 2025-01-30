@@ -177,8 +177,8 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 			'2',
 			array(
 				'method' => 'POST',
-				'body'   => $data,
-			)
+			),
+			$data
 		);
 
 		if ( is_wp_error( $body ) ) {
@@ -209,8 +209,8 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 			'2',
 			array(
 				'method' => 'POST',
-				'body'   => $data,
-			)
+			),
+			$data
 		);
 
 		if ( is_wp_error( $body ) ) {
@@ -237,8 +237,8 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 			'2',
 			array(
 				'method' => 'PUT',
-				'body'   => array( 'status' => $status ),
-			)
+			),
+			array( 'status' => $status )
 		);
 
 		if ( is_wp_error( $body ) ) {
