@@ -176,7 +176,8 @@ class Doc_Parser {
 						return false;
 					}
 
-					return $node->name->name === 'apply_filters';
+					return $node->name->name === 'apply_filters'
+						|| $node->name->name === 'do_action';
 				}
 			);
 
@@ -343,7 +344,7 @@ class Doc_Parser {
 			$hook_name = array_shift( $arguments );
 
 			$new_block = array(
-				'type'     => 'filter',
+				'type'     => $node->name->name === 'apply_filters' ? 'filter' : 'action',
 				'line'     => $node->getLine(),
 				'end_line' => $node->getEndLine() > 0 ? $node->getEndLine() : $node->getLine(),
 				'name'     => $this->pretty_print_hook_name( $hook_name ),
