@@ -343,7 +343,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, $meta_test_value );
 
 		$module = Modules::get_module( 'meta' );
-		// @phan-suppress-next-line PhanParamTooMany -- Phan looks at the Module abstract class instead of the Meta class that extends it.
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Meta $module';
 		$metas = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
 		$this->assertSame( '', $metas[0]['meta_value'] );
 	}
@@ -356,7 +356,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, $meta_test_value );
 
 		$module = Modules::get_module( 'meta' );
-		// @phan-suppress-next-line PhanParamTooMany -- Phan looks at the Module abstract class instead of the Meta class that extends it.
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Meta $module';
 		$metas = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
 		$this->assertEquals( $meta_test_value, $metas[0]['meta_value'] );
 	}
