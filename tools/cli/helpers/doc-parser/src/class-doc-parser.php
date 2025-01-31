@@ -115,7 +115,7 @@ class Doc_Parser {
 	 *
 	 * @param string $path Directory to scan for PHPDoc.
 	 * @param string $format Optional. What format the data is returned in: [json*|array].
-	 * @return string
+	 * @return string|array
 	 */
 	protected function get_phpdoc_data( $path, $format = 'json' ) {
 
@@ -362,46 +362,55 @@ class Doc_Parser {
 	/**
 	 * Pretty prints the name for the hook, taking an argument object as input.
 	 *
+	 * @suppress PhanRedundantConditionInLoop nikic/php-parser has type definitions that Phan gets confused in.
+	 *
 	 * @param Node\Arg $argument the first argument to the apply_filter or do_action call.
 	 * @return String pretty printed argument name.
-	 * @throws Exception On an unexpected argument component.
+	 * @throws \Exception On an unexpected argument component.
 	 */
 	public function pretty_print_hook_name( Node\Arg $argument ): string {
 
+		$value = $argument->value;
+		'@phan-var Node\Scalar\InterpolatedString $value';
+
 		if (
-			$argument->value instanceof Node\Scalar\String_
-				|| $argument->value instanceof Node\Expr\ConstFetch
+			$value instanceof Node\Scalar\String_
+				|| $value instanceof Node\Expr\ConstFetch
 		) {
 			return trim( $this->printer->prettyPrint( array( $argument ) ), '\'' );
 
-		} elseif ( $argument->value instanceof Node\Scalar\InterpolatedString ) {
+		} elseif ( $value instanceof Node\Scalar\InterpolatedString ) {
 			$result = '';
-			foreach ( $argument->value->parts as $part ) {
+
+			$parts = $value->parts;
+			'@phan-var array<string,Node\InterpolatedStringPart> $parts';
+
+			foreach ( $parts as $part ) {
 				if ( $part instanceof Node\InterpolatedStringPart ) {
 					$result .= $part->value;
 				} elseif ( $part instanceof Node\Expr ) {
 					$result .= '{' . $this->printer->prettyPrint( array( $part ) ) . '}';
 				} else {
-					throw new Exception( 'Unexpected interpolated string component of type ' . get_class( $part ) );
+					throw new \Exception( 'Unexpected interpolated string component of type ' . get_class( $part ) );
 				}
 			}
 			return $result;
 
-		} elseif ( $argument->value instanceof Node\Expr\BinaryOp\Concat ) {
+		} elseif ( $value instanceof Node\Expr\BinaryOp\Concat ) {
 			$result = '';
 			foreach ( array( 'left', 'right' ) as $property ) {
-				$part = $argument->value->{$property};
+				$part = $value->{$property};
 				if ( $part instanceof Node\Scalar\String_ ) {
 					$result .= $part->value;
 				} elseif ( $part instanceof Node\Expr ) {
 					$result .= '{' . $this->printer->prettyPrint( array( $part ) ) . '}';
 				} else {
-					throw new Exception( 'Unexpected concatenated string component of type ' . get_class( $part ) );
+					throw new \Exception( 'Unexpected concatenated string component of type ' . get_class( $part ) );
 				}
 			}
 			return $result;
 		}
 
-		throw new Exception( 'Unexpected function call argument of type ' . get_class( $argument->value ) );
+		throw new \Exception( 'Unexpected function call argument of type ' . get_class( $value ) );
 	}
 }
