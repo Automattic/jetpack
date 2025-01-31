@@ -5,7 +5,7 @@ import styles from './style.module.scss';
 type BadgeProps = {
 	children?: React.ReactNode;
 	className?: string;
-	variant?: 'info' | 'success' | 'warning' | 'danger';
+	variant?: 'success' | 'warning' | 'danger';
 	[ key: string ]: unknown;
 };
 
