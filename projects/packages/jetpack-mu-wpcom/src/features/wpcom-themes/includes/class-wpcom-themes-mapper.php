@@ -40,12 +40,17 @@ class WPCom_Themes_Mapper {
 	 * @return stdClass WPOrg theme object.
 	 */
 	public function map_wpcom_to_wporg( stdClass $wpcom_theme ): stdClass {
-		$wp_theme      = wp_get_theme( $wpcom_theme->id );
+		$slug = $wpcom_theme->stylesheet;
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			$slug = $wpcom_theme->id;
+		}
+
+		$wp_theme      = wp_get_theme( $slug );
 		$current_theme = wp_get_theme();
 
 		$theme                 = new stdClass();
 		$theme->name           = $wpcom_theme->name;
-		$theme->slug           = $wpcom_theme->id;
+		$theme->slug           = $slug;
 		$theme->preview_url    = $wpcom_theme->demo_uri . '?demo=true&iframe=true&theme_preview=true';
 		$theme->author         = array( 'display_name' => $wpcom_theme->author );
 		$theme->screenshot_url = $wpcom_theme->screenshot;
@@ -64,7 +69,7 @@ class WPCom_Themes_Mapper {
 		$theme->rating               = 0;
 		$theme->requires             = '5.8';
 		$theme->requires_php         = '7.4';
-		$theme->active               = $wpcom_theme->id === $current_theme->get_stylesheet();
+		$theme->active               = $slug === $current_theme->get_stylesheet();
 		$theme->installed            = $wp_theme->exists();
 		$theme->block_theme          = $wpcom_theme->block_theme;
 		$theme->version              = $wpcom_theme->version;
