@@ -50,4 +50,27 @@ describe( 'BaseLegend', () => {
 		);
 		expect( screen.getByRole( 'list' ) ).toHaveClass( 'custom-legend' );
 	} );
+
+	test( 'renders with correct orientation styles', () => {
+		const { rerender } = render( <BaseLegend items={ defaultItems } orientation="horizontal" /> );
+		expect( screen.getByTestId( 'legend-horizontal' ) ).toBeInTheDocument();
+
+		rerender( <BaseLegend items={ defaultItems } orientation="vertical" /> );
+		expect( screen.getByTestId( 'legend-vertical' ) ).toBeInTheDocument();
+	} );
+
+	test( 'renders legend items with correct spacing', () => {
+		render( <BaseLegend items={ defaultItems } orientation="horizontal" /> );
+		const items = screen.getAllByTestId( 'legend-item' );
+		expect( items ).toHaveLength( 2 );
+	} );
+
+	test( 'handles items with long labels', () => {
+		const itemsWithLongLabels = [
+			{ label: 'Very Long Label That Should Still Display', value: '50%', color: '#ff0000' },
+			{ label: 'Another Long Label for Testing', value: '30%', color: '#00ff00' },
+		];
+		render( <BaseLegend items={ itemsWithLongLabels } orientation="horizontal" /> );
+		expect( screen.getByText( 'Very Long Label That Should Still Display' ) ).toBeInTheDocument();
+	} );
 } );

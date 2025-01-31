@@ -32,6 +32,7 @@ export const BaseLegend: FC< LegendProps > = ( {
 		<div
 			className={ clsx( styles.legend, styles[ `legend--${ orientation }` ], className ) }
 			role="list"
+			data-testid={ `legend-${ orientation }` }
 		>
 			<LegendOrdinal
 				scale={ legendScale }
@@ -44,7 +45,12 @@ export const BaseLegend: FC< LegendProps > = ( {
 				{ labels => (
 					<div className={ styles[ `legend--${ orientation }` ] }>
 						{ labels.map( label => (
-							<div key={ label.text } className={ styles[ 'legend-item' ] }>
+							<div
+								key={ label.text }
+								className={ styles[ 'legend-item' ] }
+								role="listitem"
+								data-testid="legend-item"
+							>
 								<svg width={ 16 } height={ 16 } role="img">
 									<rect
 										width={ 16 }
