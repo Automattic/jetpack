@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\Packages\Async_Option;
 
+use Automattic\Jetpack\Packages\Async_Option\Storage\Storage;
 use Automattic\Jetpack\Packages\Async_Option\Storage\WP_Option;
 
 /**
@@ -21,11 +22,11 @@ abstract class Async_Option_Template {
 	private $errors = array();
 
 	/**
-	 * Setup storage mechanism that subscribes to `WP_Option` contract
+	 * Setup storage mechanism that subscribes to `Storage` contract
 	 *
 	 * @param $storage_namespace string
 	 *
-	 * @return WP_Option
+	 * @return Storage
 	 */
 	public function setup_storage( $storage_namespace ) {
 		return new WP_Option( $storage_namespace );
