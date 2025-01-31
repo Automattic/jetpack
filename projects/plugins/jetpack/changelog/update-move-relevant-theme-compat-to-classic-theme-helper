@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Thee compat: Wrapping relevant functions in a function_exists check, as functionality is duplicated in the Classic Theme Helper package
