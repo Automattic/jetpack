@@ -1,4 +1,4 @@
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, useInnerBlocksProps } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { Path, Icon } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
@@ -375,7 +375,8 @@ export const childBlocks = [
 			},
 			edit: editField( 'text' ),
 			save() {
-				return <InnerBlocks.Content />;
+				const innerBlocksProps = useInnerBlocksProps.save();
+				return <div { ...innerBlocksProps } />;
 			},
 			attributes: {
 				...FieldDefaults.attributes,
@@ -410,7 +411,8 @@ export const childBlocks = [
 			},
 			edit: editField( 'text' ),
 			save() {
-				return <InnerBlocks.Content />;
+				const innerBlocksProps = useInnerBlocksProps.save();
+				return <div { ...innerBlocksProps } />;
 			},
 			attributes: {
 				...FieldDefaults.attributes,
@@ -444,7 +446,8 @@ export const childBlocks = [
 			},
 			edit: editField( 'email' ),
 			save() {
-				return <InnerBlocks.Content />;
+				const innerBlocksProps = useInnerBlocksProps.save();
+				return <div { ...innerBlocksProps } />;
 			},
 			attributes: {
 				...FieldDefaults.attributes,
@@ -483,7 +486,8 @@ export const childBlocks = [
 			},
 			edit: editField( 'url' ),
 			save() {
-				return <InnerBlocks.Content />;
+				const innerBlocksProps = useInnerBlocksProps.save();
+				return <div { ...innerBlocksProps } />;
 			},
 			attributes: {
 				...FieldDefaults.attributes,
@@ -555,7 +559,8 @@ export const childBlocks = [
 			},
 			edit: editField( 'tel' ),
 			save() {
-				return <InnerBlocks.Content />;
+				const innerBlocksProps = useInnerBlocksProps.save();
+				return <div { ...innerBlocksProps } />;
 			},
 			attributes: {
 				...FieldDefaults.attributes,
