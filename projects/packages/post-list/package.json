@@ -17,8 +17,8 @@
 		"build-js": "webpack",
 		"build-production": "pnpm run clean && pnpm run build-production-js && pnpm run validate",
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
-		"clean": "rm -rf dist",
-		"validate": "pnpm exec validate-es dist/"
+		"clean": "rm -rf build",
+		"validate": "pnpm exec validate-es build/"
 	},
 	"dependencies": {
 		"@wordpress/i18n": "5.16.0"
