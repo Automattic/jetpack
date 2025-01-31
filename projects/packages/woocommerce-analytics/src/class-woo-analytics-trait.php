@@ -321,11 +321,12 @@ trait Woo_Analytics_Trait {
 	 * @param string  $event_name The name of the event to record.
 	 * @param array   $properties Optional array of (key => value) event properties.
 	 * @param integer $product_id The id of the product relating to the event.
+	 * @param boolean $clickhouse Send event to clickhouse.
 	 *
 	 * @return string|void
 	 */
-	public function record_event( $event_name, $properties = array(), $product_id = null ) {
-		$js = $this->process_event_properties( $event_name, $properties, $product_id );
+	public function record_event( $event_name, $properties = array(), $product_id = null, $clickhouse = true ) {
+		$js = $this->process_event_properties( $event_name, $properties, $product_id, $clickhouse );
 		wc_enqueue_js( "_wca.push({$js});" );
 	}
 
@@ -379,10 +380,11 @@ trait Woo_Analytics_Trait {
 	 * @param string  $event_name The name of the event to record.
 	 * @param array   $properties Optional array of (key => value) event properties.
 	 * @param integer $product_id Optional id of the product relating to the event.
+	 * @param boolean $clickhouse Send event to clickhouse.
 	 *
 	 * @return string|void
 	 */
-	public function process_event_properties( $event_name, $properties = array(), $product_id = null ) {
+	public function process_event_properties( $event_name, $properties = array(), $product_id = null, $clickhouse = true ) {
 
 		// Only set product details if we have a product id.
 		if ( $product_id ) {
@@ -411,6 +413,10 @@ trait Woo_Analytics_Trait {
 		);
 
 		$js = "{'_en': '" . esc_js( $event_name ) . "'";
+
+        if ( $clickhouse ) {
+            $js .= ", '_ch':'1'";
+        }
 
 		if ( isset( $product_details ) ) {
 				$all_props = array_merge( $all_props, $product_details );

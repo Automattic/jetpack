@@ -65,11 +65,11 @@ class My_Account {
 				if ( isset( $core_endpoints['view-order'] ) && $core_endpoints['view-order'] === $key && is_numeric( $value ) ) {
 					$initiator = get_query_var( '_wca_initiator' );
 					if ( 'number' === $initiator ) {
-						$this->record_event( 'woocommerceanalytics_my_account_order_number_click' );
+						$this->record_event( 'woocommerceanalytics_my_account_order_number_click', [], null, false );
 						continue;
 					}
 					if ( 'action' === $initiator ) {
-						$this->record_event( 'woocommerceanalytics_my_account_order_action_click', array( 'action' => 'view' ) );
+						$this->record_event( 'woocommerceanalytics_my_account_order_action_click', array( 'action' => 'view' ),null, false );
 						continue;
 					}
 				}
@@ -81,12 +81,12 @@ class My_Account {
 						continue;
 					}
 
-					$this->record_event( 'woocommerceanalytics_my_account_address_click', array( 'address' => $value ) );
+					$this->record_event( 'woocommerceanalytics_my_account_address_click', array( 'address' => $value ), null, false );
 					continue;
 				}
 
 				if ( isset( $core_endpoints['add-payment-method'] ) && $core_endpoints['add-payment-method'] === $key ) {
-					$this->record_event( 'woocommerceanalytics_my_account_payment_add' );
+					$this->record_event( 'woocommerceanalytics_my_account_payment_add', [], null, false );
 					continue;
 				}
 
@@ -121,7 +121,7 @@ class My_Account {
 					$key = array_search( $key, $core_endpoints, true );
 				}
 
-				$this->record_event( 'woocommerceanalytics_my_account_page_view', array( 'tab' => $key ) );
+				$this->record_event( 'woocommerceanalytics_my_account_page_view', array( 'tab' => $key ), null, false );
 			}
 		}
 	}
@@ -178,7 +178,7 @@ class My_Account {
 	 */
 	public function track_order_pay_event() {
 		if ( isset( $_GET['_wca_initiator'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Recommended
-			$this->record_event( 'woocommerceanalytics_my_account_order_action_click', array( 'action' => 'pay' ) );
+			$this->record_event( 'woocommerceanalytics_my_account_order_action_click', array( 'action' => 'pay' ), null, false );
 		}
 	}
 
@@ -289,7 +289,8 @@ class My_Account {
 			foreach ( $events as $event ) {
 				$this->record_event(
 					$event['event_name'],
-					$event['event_props']
+					$event['event_props'],
+                    null, false
 				);
 			}
 
