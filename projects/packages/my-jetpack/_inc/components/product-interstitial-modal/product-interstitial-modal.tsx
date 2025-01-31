@@ -161,11 +161,12 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 					<Modal
 						onRequestClose={ closeModal }
 						className={ clsx( styles[ 'component-product-interstitial-modal' ], className ) }
+						overlayClassName={ styles[ 'component-product-interstitial-modal__overlay' ] }
 					>
 						<Container
 							className={ styles.wrapper }
 							horizontalSpacing={ 0 }
-							horizontalGap={ 1 }
+							horizontalGap={ 2 }
 							fluid={ false }
 						>
 							{
@@ -218,7 +219,7 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 							 }
 							<Col
 								sm={ 4 }
-								md={ additionalColumn ? 4 : 5 }
+								md={ additionalColumn ? 4 : 8 }
 								lg={ additionalColumn ? 4 : 8 }
 								className={ clsx( styles.secondary, {
 									[ styles[ 'modal-with-video' ] ]: isWithVideo,
