@@ -17,7 +17,7 @@ export default function SeoAssistantWizard( { close }: { close?: () => void } ) 
 					title: __( 'Optimise for SEO', 'jetpack' ),
 					label: 'welcome',
 					type: 'welcome',
-					autoAdvance: 1,
+					autoAdvance: 1500,
 					messages: [
 						{
 							content: createInterpolateElement(
@@ -37,42 +37,6 @@ export default function SeoAssistantWizard( { close }: { close?: () => void } ) 
 							),
 							showIcon: false,
 							id: '2',
-						},
-					],
-				},
-				{
-					id: 'completion',
-					title: __( 'Your post is SEO-ready', 'jetpack' ),
-					label: 'completion',
-					type: 'completion',
-					submitCtaLabel: __( 'Done!', 'jetpack' ),
-					onSubmit: () => close(),
-					messages: [
-						{
-							content: __( "Here's your updated checklist:", 'jetpack' ),
-							showIcon: true,
-							id: '1',
-						},
-						{
-							content: 'some summary here!',
-							showIcon: false,
-							id: '2',
-						},
-						{
-							content: createInterpolateElement(
-								__(
-									'SEO optimization complete! 🎉<br/>Your blog post is now search-engine friendly.',
-									'jetpack'
-								),
-								{ br: <br /> }
-							),
-							showIcon: true,
-							id: '3',
-						},
-						{
-							content: __( 'Happy blogging! 😊', 'jetpack' ),
-							showIcon: false,
-							id: '4',
 						},
 					],
 				},

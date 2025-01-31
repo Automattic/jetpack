@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from '@wordpress/el
 import { __ } from '@wordpress/i18n';
 import { next, closeSmall, chevronLeft } from '@wordpress/icons';
 import debugFactory from 'debug';
+import { useCompletionStep } from './use-completion-step';
 import { useKeywordsStep } from './use-keywords-step';
 import { useMetaDescriptionStep } from './use-meta-description-step';
 import { useTitleStep } from './use-title-step';
@@ -30,11 +31,11 @@ export default function AssistantWizard( { close, tasks } ) {
 	const keywordsStepData = useKeywordsStep();
 	const titleStepData = useTitleStep();
 	const metaStepData = useMetaDescriptionStep();
-
+	const completionStepData = useCompletionStep();
 	// Memoize steps array to prevent unnecessary recreations
 	const steps = useMemo(
-		() => [ tasks[ 0 ], keywordsStepData, titleStepData, metaStepData, tasks[ 1 ] ],
-		[ tasks, keywordsStepData, titleStepData, metaStepData ]
+		() => [ tasks[ 0 ], keywordsStepData, titleStepData, metaStepData, completionStepData ],
+		[ tasks, keywordsStepData, titleStepData, metaStepData, completionStepData ]
 	);
 
 	const handleNext = useCallback(
@@ -51,18 +52,29 @@ export default function AssistantWizard( { close, tasks } ) {
 		[ currentStep, steps ]
 	);
 
+	// Reset states and close the wizard
+	const handleDone = useCallback( () => {
+		close();
+		setCurrentStep( 0 );
+		setCurrentStepData( steps[ 0 ] );
+	}, [ close, steps ] );
+
 	const handleStepSubmit = useCallback( async () => {
 		const stepValue = await steps[ currentStep ]?.onSubmit?.();
 		debug( 'step submitted, moving next' );
-		// always give half a second before moving forward
-		setTimeout( () => handleNext( { fromSkip: ! stepValue.trim(), stepValue } ), 500 );
-	}, [ currentStep, handleNext, steps ] );
+		if ( steps[ currentStep ].type === 'completion' ) {
+			handleDone();
+		} else {
+			// always give half a second before moving forward
+			setTimeout( () => handleNext( { fromSkip: ! stepValue.trim(), stepValue } ), 500 );
+		}
+	}, [ currentStep, handleNext, steps, handleDone ] );
 
 	const jumpToStep = useCallback(
-		stepNumber => {
+		( stepNumber: number ) => {
 			if ( stepNumber < steps.length - 1 ) {
 				setCurrentStep( stepNumber );
-				setCurrentStepData( stepNumber );
+				setCurrentStepData( steps[ stepNumber ] );
 			}
 		},
 		[ steps ]
@@ -86,7 +98,7 @@ export default function AssistantWizard( { close, tasks } ) {
 				setTimeout( handleNext, steps[ 0 ].autoAdvance );
 			}
 		}
-	}, [ currentStep, steps, handleNext ] );
+	}, [ currentStep, handleNext, steps ] );
 
 	const handleBack = () => {
 		if ( currentStep > 1 ) {
@@ -104,13 +116,6 @@ export default function AssistantWizard( { close, tasks } ) {
 			stepValue: '',
 		} );
 	}, [ currentStepData, handleNext ] );
-
-	// Reset states and close the wizard
-	const handleDone = () => {
-		close();
-		setCurrentStep( 0 );
-		setCurrentStepData( steps[ 0 ] );
-	};
 
 	return (
 		<div className="assistant-wizard">
@@ -131,7 +136,7 @@ export default function AssistantWizard( { close, tasks } ) {
 				</div>
 			</div>
 
-			<div className="assistant-wizard__content" style={ { overflow: 'auto' } }>
+			<div className="assistant-wizard__content">
 				{ steps.map( ( step, index ) => (
 					<WizardStep
 						key={ step.id }
@@ -144,7 +149,7 @@ export default function AssistantWizard( { close, tasks } ) {
 			</div>
 
 			<div className="assistant-wizard__input-container">
-				{ currentStep === 1 && (
+				{ currentStep === 1 && steps[ currentStep ].type === 'input' && (
 					<TextInput
 						ref={ keywordsInputRef }
 						placeholder={ steps[ currentStep ].placeholder }
@@ -153,7 +158,7 @@ export default function AssistantWizard( { close, tasks } ) {
 						handleSubmit={ handleStepSubmit }
 					/>
 				) }
-				{ currentStep === 2 && (
+				{ currentStep === 2 && steps[ currentStep ].type === 'options' && (
 					<OptionsInput
 						disabled={ ! steps[ currentStep ].value }
 						submitCtaLabel={ steps[ currentStep ].submitCtaLabel }
@@ -162,7 +167,7 @@ export default function AssistantWizard( { close, tasks } ) {
 						handleSubmit={ handleStepSubmit }
 					/>
 				) }
-				{ currentStep === 3 && (
+				{ currentStep === 3 && steps[ currentStep ].type === 'options' && (
 					<OptionsInput
 						disabled={ ! steps[ currentStep ].value }
 						submitCtaLabel={ steps[ currentStep ].submitCtaLabel }
