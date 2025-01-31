@@ -15,7 +15,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
  */
 class Validation_Service {
 	/**
-	 * Validate password against all security conditions.
+	 * Return all validation errors.
 	 *
 	 * @param \WP_User|\stdClass $user The user object or a copy.
 	 * @param string             $password The password to check.
@@ -49,7 +49,7 @@ class Validation_Service {
 	}
 
 	/**
-	 * Validate password against first security conditions.
+	 * Return first validation error.
 	 *
 	 * @param \WP_User|\stdClass $user The user object or a copy.
 	 * @param string             $password The password to check.
