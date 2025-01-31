@@ -362,24 +362,23 @@ class Doc_Parser {
 	/**
 	 * Pretty prints the name for the hook, taking an argument object as input.
 	 *
-	 * @suppress PhanRedundantConditionInLoop nikic/php-parser has type definitions that Phan gets confused in.
-	 *
 	 * @param Node\Arg $argument the first argument to the apply_filter or do_action call.
 	 * @return String pretty printed argument name.
 	 * @throws \Exception On an unexpected argument component.
 	 */
 	public function pretty_print_hook_name( Node\Arg $argument ): string {
 
-		$value = $argument->value;
-		'@phan-var Node\Scalar\InterpolatedString $value';
-
 		if (
-			$value instanceof Node\Scalar\String_
-				|| $value instanceof Node\Expr\ConstFetch
+			$argument->value instanceof Node\Scalar\String_
+				|| $argument->value instanceof Node\Expr\ConstFetch
 		) {
 			return trim( $this->printer->prettyPrint( array( $argument ) ), '\'' );
 
-		} elseif ( $value instanceof Node\Scalar\InterpolatedString ) {
+		} elseif ( $argument->value instanceof Node\Scalar\InterpolatedString ) {
+
+			$value = $argument->value;
+			'@phan-var Node\Scalar\InterpolatedString $value';
+
 			$result = '';
 
 			$parts = $value->parts;
@@ -396,7 +395,11 @@ class Doc_Parser {
 			}
 			return $result;
 
-		} elseif ( $value instanceof Node\Expr\BinaryOp\Concat ) {
+		} elseif ( $argument->value instanceof Node\Expr\BinaryOp\Concat ) {
+
+			$value = $argument->value;
+			'@phan-var Node\Expr\BinaryOp\Concat $value';
+
 			$result = '';
 			foreach ( array( 'left', 'right' ) as $property ) {
 				$part = $value->{$property};
@@ -411,6 +414,6 @@ class Doc_Parser {
 			return $result;
 		}
 
-		throw new \Exception( 'Unexpected function call argument of type ' . get_class( $value ) );
+		throw new \Exception( 'Unexpected function call argument of type ' . get_class( $argument->value ) );
 	}
 }
