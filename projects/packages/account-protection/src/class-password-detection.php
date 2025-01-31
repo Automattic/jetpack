@@ -117,12 +117,11 @@ class Password_Detection {
 
 	/**
 	 * Render password detection page.
-	 *
-	 * @return never
 	 */
 	public function render_page() {
 		if ( is_user_logged_in() ) {
 			$this->redirect_and_exit( admin_url() );
+			// @phan-suppress-next-line PhanPluginUnreachableCode This would fall through in unit tests otherwise.
 			return;
 		}
 
@@ -130,6 +129,7 @@ class Password_Detection {
 		$transient_data = get_transient( Config::TRANSIENT_PREFIX . "_{$token}" );
 		if ( ! $transient_data ) {
 			$this->redirect_to_login();
+			// @phan-suppress-next-line PhanPluginUnreachableCode This would fall through in unit tests otherwise.
 			return;
 		}
 
@@ -137,6 +137,7 @@ class Password_Detection {
 		$user    = $user_id ? $this->load_user( (int) $user_id ) : null;
 		if ( ! $user instanceof \WP_User ) {
 			$this->redirect_to_login();
+			// @phan-suppress-next-line PhanPluginUnreachableCode This would fall through in unit tests otherwise.
 			return;
 		}
 
@@ -159,6 +160,7 @@ class Password_Detection {
 				}
 
 				$this->redirect_and_exit( $this->get_redirect_url( $token ) );
+				// @phan-suppress-next-line PhanPluginUnreachableCode This would fall through in unit tests otherwise.
 				return;
 			} else {
 				$this->set_transient_error( $user->ID, __( 'Resend nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
