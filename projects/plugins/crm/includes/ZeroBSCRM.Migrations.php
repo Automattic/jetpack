@@ -9,13 +9,7 @@
  * Date: 30/08/16
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /* ======================================================
 	MIGRATION FUNCS
@@ -165,7 +159,7 @@ function zeroBSCRM_migrations_run( $settingsArr = false, $run_at = 'init' ){
 
 						// stop running migrations, reload the page
 						header("Refresh:0");
-						exit();
+						exit( 0 );
 
 					} else {
 

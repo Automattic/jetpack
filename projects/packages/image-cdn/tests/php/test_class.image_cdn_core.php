@@ -297,7 +297,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
-	 * @since  $$next-version$$
+	 * @since  0.7.3
 	 * @group  jetpack_photon_filter_url_encoding
 	 */
 	public function test_photon_url_filter_encoded_url_should_not_be_encoded_again() {

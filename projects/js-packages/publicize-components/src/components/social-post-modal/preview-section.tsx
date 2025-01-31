@@ -33,7 +33,7 @@ export function PreviewSection() {
 					// to avoid errors for old connections like Twitter
 					.filter( ( { service_name } ) => getService( service_name ) )
 					.map( connection => {
-						const title = connection.display_name || connection.external_display;
+						const title = connection.display_name;
 						const name = `${ connection.service_name }-${ connection.connection_id }`;
 						const icon = (
 							<ConnectionIcon

@@ -63,6 +63,7 @@ export function PanelControls( {
 			<PanelBody title={ __( 'Effects', 'jetpack' ) }>
 				<SelectControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					label={ __( 'Transition', 'jetpack' ) }
 					value={ effect }
 					onChange={ value => {
@@ -75,6 +76,7 @@ export function PanelControls( {
 				<PanelBody title={ __( 'Image Settings', 'jetpack' ) }>
 					<SelectControl
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize
 						label={ __( 'Size', 'jetpack' ) }
 						value={ sizeSlug }
 						options={ imageSizeOptions }

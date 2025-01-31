@@ -27,7 +27,7 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 	public function register_rest_route() {
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base,
+			$this->rest_base,
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_support_interactions' ),
@@ -39,6 +39,7 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 						'enum'     => array(
 							'open',
 							'resolved',
+							'closed',
 						),
 					),
 					'page'     => array(
@@ -60,7 +61,7 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base . '/(?P<support_interaction_id>[a-zA-Z0-9-]+)',
+			$this->rest_base . '/(?P<support_interaction_id>[a-zA-Z0-9-]+)',
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_support_interactions' ),
@@ -70,7 +71,7 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base,
+			$this->rest_base,
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'create_support_interaction' ),
@@ -94,7 +95,7 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base . '/(?P<support_interaction_id>[a-zA-Z0-9-]+)/events',
+			$this->rest_base . '/(?P<support_interaction_id>[a-zA-Z0-9-]+)/events',
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'create_support_interaction_event' ),
@@ -118,7 +119,7 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base . '/(?P<support_interaction_id>[a-zA-Z0-9-]+)/status',
+			$this->rest_base . '/(?P<support_interaction_id>[a-zA-Z0-9-]+)/status',
 			array(
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'update_support_interaction_status' ),
@@ -130,6 +131,7 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 						'enum'     => array(
 							'open',
 							'resolved',
+							'closed',
 						),
 					),
 				),
@@ -166,19 +168,27 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 	 * @param \WP_REST_Request $request    The request sent to the API.
 	 */
 	public function create_support_interaction( \WP_REST_Request $request ) {
-		$data = array(
-			'event_external_id' => $request['event_external_id'],
-			'event_source'      => $request['event_source'],
-			'event_metadata'    => $request['event_metadata'],
-		);
+		$data = array();
+
+		if ( isset( $request['event_external_id'] ) ) {
+			$data['event_external_id'] = $request['event_external_id'];
+		}
+
+		if ( isset( $request['event_source'] ) ) {
+			$data['event_source'] = $request['event_source'];
+		}
+
+		if ( isset( $request['event_metadata'] ) ) {
+			$data['event_metadata'] = $request['event_metadata'];
+		}
 
 		$body = Client::wpcom_json_api_request_as_user(
 			'/support-interactions',
 			'2',
 			array(
 				'method' => 'POST',
-				'body'   => $data,
-			)
+			),
+			$data
 		);
 
 		if ( is_wp_error( $body ) ) {
@@ -196,21 +206,29 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 	 * @param \WP_REST_Request $request    The request sent to the API.
 	 */
 	public function create_support_interaction_event( \WP_REST_Request $request ) {
-		$support_interaction_id = isset( $request['support_interaction_id'] ) ? (int) $request['support_interaction_id'] : null;
+		$support_interaction_id = $request['support_interaction_id'];
 
-		$data = array(
-			'event_external_id' => $request['event_external_id'],
-			'event_source'      => $request['event_source'],
-			'event_metadata'    => $request['event_metadata'],
-		);
+		$data = array();
+
+		if ( isset( $request['event_external_id'] ) ) {
+			$data['event_external_id'] = $request['event_external_id'];
+		}
+
+		if ( isset( $request['event_source'] ) ) {
+			$data['event_source'] = $request['event_source'];
+		}
+
+		if ( isset( $request['event_metadata'] ) ) {
+			$data['event_metadata'] = $request['event_metadata'];
+		}
 
 		$body = Client::wpcom_json_api_request_as_user(
 			"/support-interactions/$support_interaction_id/events",
 			'2',
 			array(
 				'method' => 'POST',
-				'body'   => $data,
-			)
+			),
+			$data
 		);
 
 		if ( is_wp_error( $body ) ) {
@@ -228,7 +246,7 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 	 * @param \WP_REST_Request $request    The request sent to the API.
 	 */
 	public function update_support_interaction_status( \WP_REST_Request $request ) {
-		$support_interaction_id = isset( $request['support_interaction_id'] ) ? (int) $request['support_interaction_id'] : null;
+		$support_interaction_id = $request['support_interaction_id'];
 
 		$status = $request['status'];
 
@@ -237,8 +255,8 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 			'2',
 			array(
 				'method' => 'PUT',
-				'body'   => array( 'status' => $status ),
-			)
+			),
+			array( 'status' => $status )
 		);
 
 		if ( is_wp_error( $body ) ) {

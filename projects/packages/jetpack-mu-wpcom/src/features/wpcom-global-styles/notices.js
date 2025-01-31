@@ -1,5 +1,6 @@
 /* global wpcomGlobalStyles */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import { ExternalLink, Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import {
@@ -238,19 +239,31 @@ function GlobalStylesEditNotice() {
 		upgradePlan,
 	] );
 
+	const isDistractionFree = useSelect(
+		select => select( blockEditorStore ).getSettings().isDistractionFree,
+		[]
+	);
+
 	useEffect( () => {
 		if ( ! isSiteEditor && ! isPostEditor ) {
 			return;
 		}
 
-		if ( globalStylesInUse ) {
+		if ( globalStylesInUse && ! isDistractionFree ) {
 			showNotice();
 		} else {
 			removeNotice( NOTICE_ID );
 		}
 
 		return () => removeNotice( NOTICE_ID );
-	}, [ globalStylesInUse, isSiteEditor, isPostEditor, removeNotice, showNotice ] );
+	}, [
+		globalStylesInUse,
+		isDistractionFree,
+		isSiteEditor,
+		isPostEditor,
+		removeNotice,
+		showNotice,
+	] );
 
 	return null;
 }

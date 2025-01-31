@@ -83,7 +83,10 @@ jQuery( function ( $ ) {
 
 		// Update the label on the "Empty Spam" button to use the active "Emptying Spam" language.
 		$( '.jetpack-empty-spam' ).text(
-			$( '.jetpack-empty-spam' ).data( 'progress-label' ).replace( '%1$s', '0' )
+			$( '.jetpack-empty-spam' )
+				.data( 'progress-label' )
+				.replace( '%1$s', '0' )
+				.replace( '%%', '%' ) // Convert escaped %% into a single %
 		);
 
 		initial_spam_count = parseInt( $( this ).data( 'spam-feedbacks-count' ), 10 );
@@ -106,7 +109,10 @@ jQuery( function ( $ ) {
 
 		// Update the progress counter on the "Check for Spam" button.
 		empty_spam_buttons.text(
-			empty_spam_buttons.data( 'progress-label' ).replace( '%1$s', percentage_complete )
+			empty_spam_buttons
+				.data( 'progress-label' )
+				.replace( '%1$s', percentage_complete )
+				.replace( '%%', '%' ) // Convert escaped %% into a single %
 		);
 
 		$.post( ajaxurl, {
@@ -186,6 +192,11 @@ jQuery( function ( $ ) {
 			if ( $( e.target ).parent().hasClass( 'untrash' ) ) {
 				e.preventDefault();
 				updateStatus( postId, 'publish', '#59C859' );
+			}
+
+			if ( $( e.target ).parent().hasClass( 'delete' ) ) {
+				e.preventDefault();
+				updateStatus( postId, 'delete', '#FF7979' );
 			}
 		} );
 	} );

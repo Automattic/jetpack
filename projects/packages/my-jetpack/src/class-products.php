@@ -177,16 +177,57 @@ class Products {
 	}
 
 	/**
+	 * List of product slugs that are displayed on the main My Jetpack page
+	 *
+	 * @var array
+	 */
+	public static $shown_products = array(
+		'anti-spam',
+		'backup',
+		'boost',
+		'crm',
+		'jetpack-ai',
+		'search',
+		'social',
+		'protect',
+		'videopress',
+		'stats',
+	);
+
+	/**
+	 * Gets the list of product slugs that are Not displayed on the main My Jetpack page
+	 *
+	 * @return array
+	 */
+	public static function get_not_shown_products() {
+		return array_diff( array_keys( static::get_products_classes() ), self::$shown_products );
+	}
+
+	/**
 	 * Product data
 	 *
+	 * @param array $product_slugs (optional) An array of specified product slugs.
 	 * @return array Jetpack products on the site and their availability.
 	 */
-	public static function get_products() {
-		$products = array();
-		foreach ( self::get_products_classes() as $class ) {
-			$product_slug              = $class::$slug;
-			$products[ $product_slug ] = $class::get_info();
+	public static function get_products( $product_slugs = array() ) {
+		$all_classes = self::get_products_classes();
+		$products    = array();
+		// If an array of $product_slugs are passed, return only the products specified in $product_slugs array
+		if ( $product_slugs ) {
+			foreach ( $product_slugs as $product_slug ) {
+				if ( isset( $all_classes[ $product_slug ] ) ) {
+					$class                     = $all_classes[ $product_slug ];
+					$products[ $product_slug ] = $class::get_info();
+				}
+			}
+
+			return $products;
 		}
+		// Otherwise return All products.
+		foreach ( $all_classes as $slug => $class ) {
+			$products[ $slug ] = $class::get_info();
+		}
+
 		return $products;
 	}
 

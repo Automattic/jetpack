@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use Admin_Menu::remove_menu to handle old Social menu item

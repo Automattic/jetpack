@@ -21,8 +21,6 @@ use Jetpack_Options;
  */
 class Publicize_Script_Data {
 
-	const SERVICES_TRANSIENT = 'jetpack_social_services_list';
-
 	/**
 	 * Get the publicize instance - properly typed
 	 *
@@ -75,7 +73,30 @@ class Publicize_Script_Data {
 			$data['site']['host'] = ( new Host() )->get_known_host_guess();
 		}
 
+		self::set_wpcom_user_data( $data['user']['current_user'] );
+
 		return $data;
+	}
+
+	/**
+	 * Set wpcom user data.
+	 *
+	 * @param array $user_data The user data.
+	 */
+	private static function set_wpcom_user_data( &$user_data ) {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			$wpcom_user_data = array(
+				'ID'    => get_current_user_id(),
+				'login' => wp_get_current_user()->user_login,
+			);
+		} else {
+			$wpcom_user_data = ( new Manager() )->get_connected_user_data();
+		}
+
+		$user_data['wpcom'] = array_merge(
+			$user_data['wpcom'] ?? array(),
+			$wpcom_user_data ? $wpcom_user_data : array()
+		);
 	}
 
 	/**
@@ -103,6 +124,7 @@ class Publicize_Script_Data {
 			'shares_data'          => array(),
 			'urls'                 => array(),
 			'settings'             => self::get_social_settings(),
+			'plugin_info'          => self::get_plugin_info(),
 		);
 
 		if ( ! Utils::is_publicize_active() ) {
@@ -140,6 +162,42 @@ class Publicize_Script_Data {
 		return array(
 			'socialImageGenerator' => $settings->get_image_generator_settings(),
 			'utmSettings'          => $settings->get_utm_settings(),
+			'socialNotes'          => array(
+				'enabled' => $settings->is_social_notes_enabled(),
+				'config'  => $settings->get_social_notes_config(),
+			),
+			'showPricingPage'      => $settings->should_show_pricing_page(),
+		);
+	}
+
+	/**
+	 * Get the plugin info.
+	 *
+	 * @return array
+	 */
+	public static function get_plugin_info() {
+
+		$social_version  = null;
+		$jetpack_version = null;
+
+		if ( defined( 'JETPACK_SOCIAL_PLUGIN_ROOT_FILE' ) ) {
+
+			$plugin_data = get_plugin_data( (string) constant( 'JETPACK_SOCIAL_PLUGIN_ROOT_FILE' ), false, false );
+
+			$social_version = $plugin_data['Version'];
+		}
+
+		if ( defined( 'JETPACK__VERSION' ) ) {
+			$jetpack_version = constant( 'JETPACK__VERSION' );
+		}
+
+		return array(
+			'social'  => array(
+				'version' => $social_version,
+			),
+			'jetpack' => array(
+				'version' => $jetpack_version,
+			),
 		);
 	}
 
@@ -150,21 +208,20 @@ class Publicize_Script_Data {
 	 */
 	public static function get_store_initial_state() {
 
-		$is_wpcom = ( new Host() )->is_wpcom_platform();
-
 		$post = get_post();
 
 		$share_status = array();
 
 		// get_post_share_status is not available on WPCOM yet.
-		if ( Utils::should_block_editor_have_social() && $post && ! $is_wpcom ) {
+		if ( Utils::should_block_editor_have_social() && $post && self::has_feature_flag( 'share-status' ) ) {
 			$share_status[ $post->ID ] = self::publicize()->get_post_share_status( $post->ID );
 		}
 
+		$should_have_connections = self::has_feature_flag( 'connections-management' ) || self::has_feature_flag( 'editor-preview' );
+
 		return array(
 			'connectionData' => array(
-				// We do not have this method on WPCOM Publicize class yet.
-				'connections' => ! $is_wpcom ? self::publicize()->get_all_connections_for_user() : array(),
+				'connections' => $should_have_connections ? Connections::get_all_for_user() : array(),
 			),
 			'shareStatus'    => $share_status,
 		);
@@ -220,7 +277,7 @@ class Publicize_Script_Data {
 	 * @return ?array
 	 */
 	public static function get_shares_data() {
-		return self::publicize()->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
+		return self::publicize()->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ) ?? array();
 	}
 
 	/**
@@ -229,7 +286,13 @@ class Publicize_Script_Data {
 	 * @return array List of external services and their settings.
 	 */
 	public static function get_supported_services() {
-		return Publicize_Services::get_all();
+		/**
+		 * Disable caching for now to avoid nonce errors
+		 * for secondary users trying to connect an account
+		 *
+		 * @link https://github.com/Automattic/jetpack/pull/41149
+		 */
+		return Publicize_Services::get_all( true /* Ignore cache */ );
 	}
 
 	/**
@@ -241,17 +304,24 @@ class Publicize_Script_Data {
 
 		$is_wpcom = ( new Host() )->is_wpcom_platform();
 
+		$commom_paths = array(
+			'refreshConnections' => '/wpcom/v2/publicize/connections?test_connections=1',
+		);
+
+		$specific_paths = array();
+
 		if ( $is_wpcom ) {
-			return array(
-				'refreshConnections' => '/wpcom/v2/publicize/connection-test-results',
-				'resharePost'        => '/wpcom/v2/posts/{postId}/publicize',
+
+			$specific_paths = array(
+				'resharePost' => '/wpcom/v2/posts/{postId}/publicize',
+			);
+		} else {
+			$specific_paths = array(
+				'resharePost' => '/jetpack/v4/publicize/{postId}',
 			);
 		}
 
-		return array(
-			'refreshConnections' => '/jetpack/v4/publicize/connections?test_connections=1',
-			'resharePost'        => '/jetpack/v4/publicize/{postId}',
-		);
+		return array_merge( $commom_paths, $specific_paths );
 	}
 
 	/**

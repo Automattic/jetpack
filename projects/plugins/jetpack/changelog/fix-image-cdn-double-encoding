@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Photon: Fix double encoding image urls.

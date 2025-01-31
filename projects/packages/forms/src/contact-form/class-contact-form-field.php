@@ -280,7 +280,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render() {
-		global $current_user, $user_identity;
 
 		$field_id            = $this->get_attribute( 'id' );
 		$field_type          = $this->maybe_override_type();
@@ -359,46 +358,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 */
 		$field_class = apply_filters( 'jetpack_contact_form_input_class', $class );
 
-		if ( isset( $_POST[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
-			if ( is_array( $_POST[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
-				$this->value = array_map( 'sanitize_textarea_field', wp_unslash( $_POST[ $field_id ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
-			} else {
-				$this->value = sanitize_textarea_field( wp_unslash( $_POST[ $field_id ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
-			}
-		} elseif ( isset( $_GET[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
-			$this->value = sanitize_textarea_field( wp_unslash( $_GET[ $field_id ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
-		} elseif (
-			is_user_logged_in() &&
-			( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ||
-			/**
-			 * Allow third-party tools to prefill the contact form with the user's details when they're logged in.
-			 *
-			 * @module contact-form
-			 *
-			 * @since 3.2.0
-			 *
-			 * @param bool false Should the Contact Form be prefilled with your details when you're logged in. Default to false.
-			 */
-			true === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
-			)
-		) {
-			// Special defaults for logged-in users
-			switch ( $field_type ) {
-				case 'email':
-					$this->value = $current_user->data->user_email;
-					break;
-				case 'name':
-					$this->value = $user_identity;
-					break;
-				case 'url':
-					$this->value = $current_user->data->user_url;
-					break;
-				default:
-					$this->value = $this->get_attribute( 'default' );
-			}
-		} else {
-			$this->value = $this->get_attribute( 'default' );
-		}
+		$this->value = $this->get_computed_field_value( $field_type, $field_id );
 
 		$field_value = Contact_Form_Plugin::strip_tags( $this->value );
 		$field_label = Contact_Form_Plugin::strip_tags( $field_label );
@@ -417,6 +377,65 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 * @param int|null $id Post ID.
 		 */
 		return apply_filters( 'grunion_contact_form_field_html', $rendered_field, $field_label, ( in_the_loop() ? get_the_ID() : null ) );
+	}
+	/**
+	 * Returns the computed field value for a field. It uses the POST, GET, Logged in data.
+	 *
+	 * @module contact-form
+	 *
+	 * @param string $field_type The field type.
+	 * @param string $field_id The field id.
+	 *
+	 * @return string
+	 */
+	public function get_computed_field_value( $field_type, $field_id ) {
+		global $current_user, $user_identity;
+		// Use the POST Field if it is available.
+		if ( isset( $_POST[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+			if ( is_array( $_POST[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+				return array_map( 'sanitize_textarea_field', wp_unslash( $_POST[ $field_id ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+			}
+
+			return sanitize_textarea_field( wp_unslash( $_POST[ $field_id ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+		}
+
+		// Use the GET Field if it is available.
+		if ( isset( $_GET[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
+			if ( is_array( $_GET[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
+				return array_map( 'sanitize_textarea_field', wp_unslash( $_GET[ $field_id ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
+			}
+
+			return sanitize_textarea_field( wp_unslash( $_GET[ $field_id ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
+		}
+
+		if ( ! is_user_logged_in() ) {
+			return $this->get_attribute( 'default' );
+		}
+
+		/**
+		 * Allow third-party tools to prefill the contact form with the user's details when they're logged in.
+		 *
+		 * @module contact-form
+		 *
+		* @since 3.2.0
+		*
+		* @param bool false Should the Contact Form be prefilled with your details when you're logged in. Default to false.
+		*/
+		$filter_value = apply_filters( 'jetpack_auto_fill_logged_in_user', false );
+		if ( ( ! current_user_can( 'manage_options' ) && ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) || $filter_value ) {
+			switch ( $field_type ) {
+				case 'email':
+					return $current_user->data->user_email;
+
+				case 'name':
+					return ! empty( $user_identity ) ? $user_identity : $current_user->data->display_name;
+
+				case 'url':
+					return $current_user->data->user_url;
+			}
+		}
+
+		return $this->get_attribute( 'default' );
 	}
 
 	/**
@@ -455,7 +474,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				class='grunion-field-label{$type_class}" . ( $this->is_error() ? ' form-error' : '' ) . "'"
 				. $extra_attrs_string
 				. '>'
-				. esc_html( $label )
+				. wp_kses_post( $label )
 				. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' )
 				. "</label>\n";
 	}
@@ -693,7 +712,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field  = "<div class='contact-form__checkbox-wrap'>";
 		$field .= "<input id='" . esc_attr( $id ) . "' type='checkbox' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . checked( (bool) $value, true, false ) . ' ' . ( $required ? "required aria-required='true'" : '' ) . "/> \n";
 		$field .= "<label for='" . esc_attr( $id ) . "' class='grunion-field-label checkbox" . ( $this->is_error() ? ' form-error' : '' ) . "' style='" . $this->label_styles . "'>";
-		$field .= esc_html( $label ) . ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' );
+		$field .= wp_kses_post( $label ) . ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' );
 		$field .= "</label>\n";
 		$field .= "<div class='clear-form'></div>\n";
 		$field .= '</div>';
@@ -717,7 +736,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		} else {
 			$field .= "\t\t<input type='checkbox' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . "/> \n";
 		}
-		$field .= "\t\t" . esc_html( $consent_message );
+		$field .= "\t\t" . wp_kses_post( $consent_message );
 		$field .= "</label>\n";
 		$field .= "<div class='clear-form'></div>\n";
 		return $field;
@@ -981,6 +1000,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_field( $type, $id, $label, $value, $class, $placeholder, $required, $required_field_text ) {
+		if ( ! $this->is_field_renderable( $type ) ) {
+			return null;
+		}
+
 		$class .= ' grunion-field';
 
 		$form_style = $this->get_form_style();
@@ -1012,7 +1035,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 *
 		 * @param string $var Required field text. Default is "(required)".
 		 */
-		$required_field_text = esc_html( apply_filters( 'jetpack_required_field_text', $required_field_text ) );
+		$required_field_text = wp_kses_post( apply_filters( 'jetpack_required_field_text', $required_field_text ) );
 
 		$block_style = 'style="' . $this->block_styles . '"';
 
@@ -1031,11 +1054,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 
 		$field .= "\n<div {$block_style} {$shell_field_class} >\n"; // new in Jetpack 6.8.0
-
-		// If they are logged in, and this is their site, don't pre-populate fields
-		if ( current_user_can( 'manage_options' ) ) {
-			$value = '';
-		}
 
 		switch ( $type ) {
 			case 'email':
@@ -1125,6 +1143,33 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 
 		return $type;
+	}
+
+	/**
+	 * Determines if a form field is valid.
+	 *
+	 * Add checks here to confirm if any given form field
+	 * is configured correctly and thus should be rendered
+	 * on the frontend.
+	 *
+	 * @param string $type - the field type.
+	 *
+	 * @return bool
+	 */
+	public function is_field_renderable( $type ) {
+		// Check for valid radio field.
+		if ( $type === 'radio' ) {
+			$options           = (array) $this->get_attribute( 'options' );
+			$non_empty_options = array_filter(
+				$options,
+				function ( $option ) {
+					return $option !== '';
+				}
+			);
+			return count( $non_empty_options ) > 0;
+		}
+
+		return true;
 	}
 
 	/**

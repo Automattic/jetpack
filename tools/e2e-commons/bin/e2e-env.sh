@@ -62,6 +62,7 @@ configure_wp_env() {
 	$BASE_CMD wp plugin activate e2e-waf-data-interceptor
 	$BASE_CMD wp plugin activate e2e-search-test-helper
 	$BASE_CMD wp plugin activate e2e-wpcom-request-interceptor
+	$BASE_CMD wp plugin activate e2e-social-config
 	if [ "${1}" == "--activate-plugins" ]; then
 		shift
 		for var in "$@"; do

@@ -28,6 +28,7 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 	sandboxedDomain = '',
 	apiRoot = '',
 	apiNonce = '',
+	optionalMenuItems,
 	header,
 } ) => {
 	useEffect( () => {
@@ -85,7 +86,11 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 			{ showFooter && (
 				<Container horizontalSpacing={ 5 }>
 					<Col>
-						<JetpackFooter moduleName={ moduleName } moduleNameHref={ moduleNameHref } />
+						<JetpackFooter
+							moduleName={ moduleName }
+							moduleNameHref={ moduleNameHref }
+							menu={ optionalMenuItems }
+						/>
 					</Col>
 				</Container>
 			) }
