@@ -1,6 +1,12 @@
 .wp-block[data-type='jetpack/button'] {
 	display: inline-block;
 	margin: 0 auto;
+
+	&.is-style-outline > .wp-block-button__link {
+		background-color: transparent;
+		border: solid 1px currentColor;
+		color: currentColor;
+	}
 }
 
 .wp-block[data-align="center"] {

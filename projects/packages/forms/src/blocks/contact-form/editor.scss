@@ -41,7 +41,7 @@
 		}
 	}
 
-	.block-editor-inner-blocks > .block-editor-block-list__layout {
+	.block-editor-block-list__layout {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: flex-start;
@@ -88,6 +88,16 @@
 			&[data-type='jetpack/field-consent'] {
 				align-self: center;
 			}
+		}
+	}
+
+	.block-editor-block-list__layout.wp-block-jetpack-field-option-radio,
+	.block-editor-block-list__layout.wp-block-jetpack-field-option-checkbox  {
+		gap: 0;
+		align-items: center;
+
+		> .wp-block {
+			flex: initial;
 		}
 	}
 
@@ -267,16 +277,6 @@
 	.components-base-control {
 		margin-top: -1px;
 		margin-bottom: -3px;
-
-		&.jetpack-field-label__required {
-			.components-form-toggle {
-				margin: 2px 8px 0 16px;
-			}
-
-			.components-toggle-control__label {
-				word-break: normal;
-			}
-		}
 	}
 
 	.rich-text.jetpack-field-label__input {
@@ -328,10 +328,10 @@
 	}
 
 	.jetpack-field__textarea {
-		border: var(--jetpack--contact-form--border);
-		border-color: var(--jetpack--contact-form--border-color);
-		border-style: var(--jetpack--contact-form--border-style);
-		border-width: var(--jetpack--contact-form--border-size);
+		border: var(--jetpack--contact-form--border, 1px solid #8c8f94);
+		border-color: var(--jetpack--contact-form--border-color, #8c8f94);
+		border-style: var(--jetpack--contact-form--border-style, solid );
+		border-width: var(--jetpack--contact-form--border-size, 1px );
 	}
 
 	.components-base-control__field {
@@ -478,7 +478,7 @@
 	.jetpack-field-option.field-option-radio,
 	.wp-block-jetpack-field-option-radio {
 		.jetpack-option__type {
-			transform: translateY(15%); /* Small offset to compensate the slightly odd perceived alignment that's due to the circular shape */
+			transform: translateY(5%); /* Small offset to compensate the slightly odd perceived alignment that's due to the circular shape */
 		}
 	}
 }
@@ -487,16 +487,6 @@
 	.jetpack-field__input, .jetpack-field__textarea {
 		padding-left: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 		padding-right: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
-	}
-}
-
-.jetpack-field-label__width {
-	.components-button-group {
-		display: block;
-	}
-
-	.components-base-control__field {
-		margin-bottom: 12px;
 	}
 }
 
@@ -593,17 +583,6 @@
 		.jetpack-field-label__input {
 			font-size: 13px;
 			text-transform: uppercase;
-		}
-	}
-}
-
-// Overrides to make the preview look good
-.block-editor-inserter__preview {
-	.jetpack-contact-form {
-		padding: 16px;
-
-		.block-editor-inner-blocks .block-editor-block-list__layout {
-			margin: 0;
 		}
 	}
 }

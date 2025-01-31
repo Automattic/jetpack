@@ -3,9 +3,15 @@
 ## Environment used by this script:
 #
 # Required:
+# - API_TOKEN_GITHUB: GitHub API token.
+# - GITHUB_API_URL: GitHub API URL.
+# - GITHUB_TOKEN: GitHub API token.
+# - GITHUB_REPOSITORY: GitHub repo.
 # - GITHUB_SHA: Commit SHA.
+# - PR_HEAD: SHA for the PR head commit (versus GITHUB_SHA which is a merge commit)
 # - PR_ID: PR number or "trunk".
 # - SECRET: Shared secret.
+# - STATUS: Status of the coverage run.
 
 set -eo pipefail
 
@@ -95,3 +101,82 @@ done
 do_req "op=finish&token=$TOKEN"
 TOKEN=
 echo '::endgroup::'
+
+if [[ "$PR_ID" != "trunk" ]]; then
+	echo "::group::Setting GitHub status"
+	if jq -e '.covinfo' <<<"$JSON" &>/dev/null; then
+		JSON=$( jq '.covinfo' <<<"$JSON" )
+		if [[ "$STATUS" != 'success' ]]; then
+			JSON=$( jq '.state |= "pending" | .description |= "Waiting for tests to pass" | .msg |= "Cannot generate coverage summary while tests are failing. :zipper_mouth_face:\n\nPlease fix the tests, or re-run the Code coverage job if it was something being flaky."' <<<"$JSON" )
+		fi
+	else
+		JSON='{"state":"error","description":"No covinfo received from server","msg":"","footer":""}'
+	fi
+	jq . <<<"$JSON"
+	curl -v -L --fail \
+		--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/$( jq --arg V "$PR_HEAD" -nr '$V | @uri' )" \
+		--header "authorization: Bearer $API_TOKEN_GITHUB" \
+		--header 'content-type: application/json' \
+		--data "$( jq -c --arg PR "$PR_ID" '{
+			context: "Code coverage requirement",
+			state: .state,
+			target_url: "https://jetpackcodecoverage.atomicsites.blog/prs/\( $PR | @uri )/",
+			description: .description,
+		}' <<<"$JSON" )"
+	echo "::endgroup::"
+
+	# Find the last comment starting with "### Code Coverage Summary"
+	echo "::group::Looking for existing comment"
+	PAGE=1
+	while true; do
+		J=$( curl -v -L fail \
+			--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${ID}/comments?per_page=100&page=$PAGE" \
+			--header "authorization: Bearer $API_TOKEN_GITHUB"
+		)
+		CID=$( jq -r --arg CID "$CID" '[ { id: $CID }, ( .[] | select( .user.login == "github-actions[bot]" ) | select( .body | test( "^### Code Coverage Summary" ) ) ) ] | last | .id' <<<"$J" )
+		if jq -e 'length < 100' <<<"$J" &>/dev/null; then
+			break
+		fi
+		PAGE=$(( PAGE + 1 ))
+	done
+	echo "::endgroup::"
+	if [[ -n "$CID" ]]; then
+		echo "Existing comment ID=$CID"
+	else
+		echo "No existing comment found"
+	fi
+
+	if jq -e '.msg != ""' <<<"$JSON" &>/dev/null; then
+		if [[ -n "$CID" ]]; then
+			echo "::group::Updating comment"
+			curl -v -L --fail \
+				-X PATCH \
+				--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/comments/${CID}" \
+				--header "authorization: Bearer $API_TOKEN_GITHUB" \
+				--header 'content-type: application/json' \
+				--data "$( jq -c '{
+					body: "### Code Coverage Summary\n\n\( .msg )\n\n\( .footer )",
+				}' <<<"$JSON" )"
+			echo "::endgroup::"
+		else
+			echo "::group::Creating comment"
+			curl -v -L --fail \
+				-X POST \
+				--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${ID}/comments" \
+				--header "authorization: Bearer $API_TOKEN_GITHUB" \
+				--header 'content-type: application/json' \
+				--data "$( jq -c '{
+					body: "### Code Coverage Summary\n\n\( .msg )\n\n\( .footer )",
+				}' <<<"$JSON" )"
+			echo "::endgroup::"
+		fi
+	elif [[ -n "$CID" ]]; then
+		# No message, delete existing comment.
+		echo "::group::Deleting comment"
+		curl -v -L --fail \
+			-X DELETE \
+			--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/comments/${CID}" \
+			--header "authorization: Bearer $API_TOKEN_GITHUB"
+		echo "::endgroup::"
+	fi
+fi

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Remove duplicate views: add possibility to override and reset the experiment variation

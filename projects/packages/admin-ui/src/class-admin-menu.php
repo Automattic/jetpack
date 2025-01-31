@@ -174,6 +174,26 @@ class Admin_Menu {
 	}
 
 	/**
+	 * Removes an already added submenu
+	 *
+	 * @param string $menu_slug   The slug of the submenu to remove.
+	 *
+	 * @return array|false The removed submenu on success, false if not found.
+	 */
+	public static function remove_menu( $menu_slug ) {
+
+		foreach ( self::$menu_items as $index => $menu_item ) {
+			if ( $menu_item['menu_slug'] === $menu_slug ) {
+				unset( self::$menu_items[ $index ] );
+
+				return $menu_item;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Gets the slug for the first item under the Jetpack top level menu
 	 *
 	 * @return string|null

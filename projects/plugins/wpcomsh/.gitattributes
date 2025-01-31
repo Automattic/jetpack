@@ -13,6 +13,7 @@ package.json      export-ignore
 /vendor/scssphp/scssphp/**                    production-include
 /vendor/tubalmartin/**                        production-include
 /vendor/wordpress/classic-editor-plugin/**    production-include
+/jetpack_vendor/**                            production-include
 
 # Files to exclude from the mirror repo, but included in the monorepo.
 # Remember to end all directories with `/**` to properly tag every file.

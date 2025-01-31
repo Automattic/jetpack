@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.58.0] - 2025-01-27
+### Changed
+- Refactored Social Note settings to use core [#41153]
+- Social | Unify connections management API schema [#40679]
+- Social | Use feature flag for share status data [#41218]
+
+### Fixed
+- Social: Fix profile links for LinkedIn connections [#40873]
+- Social | Fix editor invalid parameters error for old Jetpack versions. [#41199]
+- Social | Fix feature check for social connections list initial state [#40679]
+
+## [0.57.4] - 2025-01-20
+### Changed
+- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
+- License: Social admin page header hides license link on WoA sites. [#41076]
+- Updated package dependencies. [#41099]
+
+### Fixed
+- Social Disable caching for publicize services list to avoid stale nonces [#41149]
+- Social | Fixed the status field for connections to allow null [#41114]
+
 ## [0.57.3] - 2025-01-14
 ### Fixed
 - Social: Fix failure on post save with LinkedIn connection enabled. [#41000]
@@ -807,6 +828,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.58.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.4...v0.58.0
+[0.57.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.3...v0.57.4
 [0.57.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.2...v0.57.3
 [0.57.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.1...v0.57.2
 [0.57.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.0...v0.57.1

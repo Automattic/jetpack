@@ -30,6 +30,15 @@ abstract class Module {
 	const ARRAY_CHUNK_SIZE = 10;
 
 	/**
+	 * Max query length for DB queries.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const MAX_DB_QUERY_LENGTH = 15 * 1024;
+
+	/**
 	 * Sync module name.
 	 *
 	 * @access public
@@ -405,20 +414,24 @@ abstract class Module {
 				$status['finished'] = true;
 				return $status;
 			}
-			$key = $this->full_sync_action_name() . '_' . crc32( wp_json_encode( $status['last_sent'] ) );
-
-			$result = $this->send_action( $this->full_sync_action_name(), array( $objects, $status['last_sent'] ), $key );
-			if ( is_wp_error( $result ) || $wpdb->last_error ) {
-				$status['error'] = true;
-				return $status;
+			// If we have objects as a key it means get_next_chunk is being overridden, we need to check for it being an empty array.
+			// In case it is an empty array, we should not send the action or increase the chunks_sent, we just need to update the status.
+			if ( ! isset( $objects['objects'] ) || array() !== $objects['objects'] ) {
+				$key    = $this->full_sync_action_name() . '_' . crc32( wp_json_encode( $status['last_sent'] ) );
+				$result = $this->send_action( $this->full_sync_action_name(), array( $objects, $status['last_sent'] ), $key );
+				if ( is_wp_error( $result ) || $wpdb->last_error ) {
+					$status['error'] = true;
+					return $status;
+				}
+				++$chunks_sent;
 			}
+
 			// Updated the sent and last_sent status.
 			$status = $this->set_send_full_sync_actions_status( $status, $objects );
 			if ( $last_item === $status['last_sent'] ) {
 				$status['finished'] = true;
 				return $status;
 			}
-			++$chunks_sent;
 		}
 
 		return $status;
@@ -677,5 +690,63 @@ abstract class Module {
 	 */
 	public function get_where_sql( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return '1=1';
+	}
+
+	/**
+	 * Filters objects and metadata based on maximum size constraints.
+	 * It always allows the first object with its metadata, even if they exceed the limit.
+	 *
+	 * @access public
+	 *
+	 * @param string $type The type of objects to filter (e.g., 'post' or 'comment').
+	 * @param array  $objects The array of objects to filter (e.g., posts or comments).
+	 * @param array  $metadata The array of metadata to filter.
+	 * @param int    $max_meta_size Maximum size for individual objects.
+	 * @param int    $max_total_size Maximum combined size for objects and metadata.
+	 * @return array An array containing the filtered object IDs, filtered objects, and filtered metadata.
+	 */
+	public function filter_objects_and_metadata_by_size( $type, $objects, $metadata, $max_meta_size, $max_total_size ) {
+		$filtered_objects    = array();
+		$filtered_metadata   = array();
+		$filtered_object_ids = array();
+		$current_size        = 0;
+
+		foreach ( $objects as $object ) {
+			$object_size      = strlen( maybe_serialize( $object ) );
+			$current_metadata = array();
+			$metadata_size    = 0;
+
+			foreach ( $metadata as $key => $metadata_item ) {
+				if ( (int) $metadata_item->{$type . '_id'} === (int) $object->{$this->id_field()} ) {
+					$metadata_item_size = strlen( maybe_serialize( $metadata_item->meta_value ) );
+					if ( $metadata_item_size >= $max_meta_size ) {
+						$metadata_item->meta_value = ''; // Trim metadata if too large.
+					}
+					$current_metadata[] = $metadata_item;
+					$metadata_size     += $metadata_item_size >= $max_meta_size ? 0 : $metadata_item_size;
+
+					if ( ! empty( $filtered_object_ids ) && ( $current_size + $object_size + $metadata_size ) > $max_total_size ) {
+						break 2; // Exit both loops.
+					}
+					unset( $metadata[ $key ] );
+				}
+			}
+
+			// Always allow the first object with metadata.
+			if ( empty( $filtered_object_ids ) || ( $current_size + $object_size + $metadata_size ) <= $max_total_size ) {
+				$filtered_object_ids[] = strval( $object->{$this->id_field()} );
+				$filtered_objects[]    = $object;
+				$filtered_metadata     = array_merge( $filtered_metadata, $current_metadata );
+				$current_size         += $object_size + $metadata_size;
+			} else {
+				break;
+			}
+		}
+
+		return array(
+			$filtered_object_ids,
+			$filtered_objects,
+			$filtered_metadata,
+		);
 	}
 }

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Issue Triage: do not send Slack notifications for closed issues
+
+

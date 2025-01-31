@@ -1,5 +1,6 @@
 import LineChart from '../line-chart';
 import sampleData from './sample-data';
+import webTrafficData from './site-traffic-sample';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof LineChart > = {
@@ -10,7 +11,17 @@ const meta: Meta< typeof LineChart > = {
 	},
 	decorators: [
 		Story => (
-			<div style={ { padding: '2rem' } }>
+			<div
+				style={ {
+					resize: 'both',
+					overflow: 'auto',
+					padding: '2rem',
+					width: '800px',
+					maxWidth: '1200px',
+					border: '1px dashed #ccc',
+					display: 'inline-block',
+				} }
+			>
 				<Story />
 			</div>
 		),
@@ -27,13 +38,23 @@ Default.args = {
 	data: sampleData,
 	showLegend: false,
 	legendOrientation: 'horizontal',
+	withGradientFill: false,
+	margin: { top: 20, right: 40, bottom: 40, left: 20 },
+	options: {
+		axis: {
+			x: {
+				orientation: 'bottom',
+			},
+			y: {
+				orientation: 'left',
+			},
+		},
+	},
 };
 
 // Story with single data series
 export const SingleSeries: StoryObj< typeof LineChart > = Template.bind( {} );
 SingleSeries.args = {
-	width: 500,
-	height: 300,
 	data: [ sampleData[ 0 ] ], // Only London temperature data
 };
 
@@ -65,4 +86,99 @@ WithVerticalLegend.args = {
 	...Default.args,
 	showLegend: true,
 	legendOrientation: 'vertical',
+};
+
+// Add after existing stories
+export const FixedDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
+FixedDimensions.args = {
+	width: 800,
+	height: 400,
+	data: sampleData,
+	withTooltips: true,
+};
+
+FixedDimensions.parameters = {
+	docs: {
+		description: {
+			story: 'Line chart with fixed dimensions that override the responsive behavior.',
+		},
+	},
+};
+
+// Story with gradient filled line chart
+export const GridientFilled: StoryObj< typeof LineChart > = Template.bind( {} );
+GridientFilled.args = {
+	...Default.args,
+	margin: undefined,
+	data: webTrafficData,
+	withGradientFill: true,
+	options: {
+		axis: { x: { numTicks: 10 }, y: { orientation: 'right' } },
+	},
+};
+
+export const ErrorStates: StoryObj< typeof LineChart > = {
+	render: () => (
+		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
+			<div>
+				<h3>Empty Data</h3>
+				<LineChart width={ 300 } height={ 200 } data={ [] } />
+			</div>
+			<div>
+				<h3>Invalid Date Values</h3>
+				<LineChart
+					width={ 300 }
+					height={ 200 }
+					data={ [
+						{
+							label: 'Invalid Dates',
+							data: [
+								{ date: new Date( 'invalid' ), value: 10 },
+								{ date: new Date( '2024-01-02' ), value: 20 },
+							],
+							options: {},
+						},
+					] }
+				/>
+			</div>
+			<div>
+				<h3>Invalid Values</h3>
+				<LineChart
+					width={ 300 }
+					height={ 200 }
+					data={ [
+						{
+							label: 'Invalid Values',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: NaN },
+								{ date: new Date( '2024-01-02' ), value: null as number | null },
+							],
+							options: {},
+						},
+					] }
+				/>
+			</div>
+			<div>
+				<h3>Single Data Point</h3>
+				<LineChart
+					width={ 300 }
+					height={ 200 }
+					data={ [
+						{
+							label: 'Single Point',
+							data: [ { date: new Date( '2024-01-01' ), value: 100 } ],
+							options: {},
+						},
+					] }
+				/>
+			</div>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story: 'Examples of how the line chart handles various error states and edge cases.',
+			},
+		},
+	},
 };

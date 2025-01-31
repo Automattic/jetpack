@@ -133,11 +133,7 @@ const connectionData = ( state: ConnectionData = { connections: [] }, action ) =
 			return {
 				...state,
 				connections: state.connections.map( connection => {
-					// If the connection has a connection_id, then give it priority.
-					// Otherwise, use the id.
-					const isTargetConnection = connection.connection_id
-						? connection.connection_id === action.connectionId
-						: connection.id === action.connectionId;
+					const isTargetConnection = connection.connection_id === action.connectionId;
 
 					if ( isTargetConnection ) {
 						return {
