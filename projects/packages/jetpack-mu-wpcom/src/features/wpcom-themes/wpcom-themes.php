@@ -194,6 +194,9 @@ function wpcom_themes_ajax_query_themes() {
 		$theme->preview_url    = set_url_scheme( $theme->preview_url );
 		$theme->compatible_wp  = is_wp_version_compatible( $theme->requires );
 		$theme->compatible_php = is_php_version_compatible( $theme->requires_php );
+
+		// @patched Add filter to update theme object.
+		apply_filters( 'wpcom_themes_api_theme_object', $theme );
 	}
 
 	wp_send_json_success( $api );
@@ -223,3 +226,22 @@ function wpcom_themes_ajax_save_wporg_username() {
 	wp_send_json_success( update_user_meta( get_current_user_id(), 'wporg_favorites', $username ) );
 }
 add_action( 'wp_ajax_save-wporg-username', 'wpcom_themes_ajax_save_wporg_username', 1 );
+
+/**
+ * Filter the theme object to fix the activation URL.
+ *
+ * @param object $theme The theme object.
+ * @return object The theme object.
+ */
+function wpcom_themes_api_theme_object( $theme ) {
+	$theme->activate_url = add_query_arg(
+		array(
+			'action'     => 'activate',
+			'_wpnonce'   => wp_create_nonce( 'switch-theme_' . $theme->slug ),
+			'stylesheet' => $theme->slug,
+		),
+		admin_url( 'themes.php' )
+	);
+	return $theme;
+}
+add_filter( 'wpcom_themes_api_theme_object', 'wpcom_themes_api_theme_object' );
