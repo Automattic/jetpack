@@ -362,6 +362,8 @@ class Doc_Parser {
 	/**
 	 * Pretty prints the name for the hook, taking an argument object as input.
 	 *
+	 * @suppress PhanRedundantConditionInLoop Phan is having trouble getting some of nikic/php-parser type definitions.
+	 *
 	 * @param Node\Arg $argument the first argument to the apply_filter or do_action call.
 	 * @return String pretty printed argument name.
 	 * @throws \Exception On an unexpected argument component.
