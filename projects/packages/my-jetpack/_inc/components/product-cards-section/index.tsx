@@ -124,10 +124,7 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 			productsWithNoCard.push( 'stats' );
 		}
 		return products.filter( product => {
-			if ( productsWithNoCard.includes( product ) ) {
-				return false;
-			}
-			return true;
+			return ! productsWithNoCard.includes( product );
 		} );
 	};
 
