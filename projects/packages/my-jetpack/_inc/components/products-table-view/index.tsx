@@ -22,7 +22,14 @@ import StatsIcon from './icons/stats';
 import VideopressIcon from './icons/videopress';
 import type { ProductsTableViewProps, ProductData } from './types';
 import type { ProductCamelCase } from '../../data/types';
-import type { ViewList, SupportedLayouts, SortDirection, View } from '@wordpress/dataviews';
+import type {
+	ViewList,
+	SupportedLayouts,
+	SortDirection,
+	View,
+	Operator,
+	Option,
+} from '@wordpress/dataviews';
 import type { FC } from 'react';
 
 import './style.scss';
@@ -63,6 +70,29 @@ const compileData: (
 	return data;
 };
 
+const getCategories: (
+	products: JetpackModule[],
+	allProductData: {
+		[ key: string ]: ProductCamelCase;
+	}
+) => Option[] = ( products, allProductData ) => {
+	const categories = [
+		...new Set(
+			products.map( product => {
+				const productData = allProductData[ product ];
+				return productData.category;
+			} )
+		),
+	];
+
+	const categoryOptions = categories.map( category => ( {
+		value: category,
+		label: category.charAt( 0 ).toUpperCase() + category.slice( 1 ),
+	} ) );
+
+	return categoryOptions;
+};
+
 const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 	const getItemId = useCallback( ( item: ProductData ) => item.product.slug, [] );
 	const onChangeView = useCallback( ( newView: View ) => {
@@ -91,6 +121,11 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 			showMedia: true,
 		},
 	};
+
+	const categories = useMemo(
+		() => getCategories( products, allProductData ),
+		[ products, allProductData ]
+	);
 
 	const fields = useMemo( () => {
 		return [
@@ -125,6 +160,11 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 				label: __( 'Category', 'jetpack-my-jetpack' ),
 				enableGlobalSearch: true,
 				enableHiding: true,
+				filterBy: {
+					isPrimary: true,
+					operators: [ 'is' ] as Operator[],
+				},
+				elements: categories.length > 1 ? categories : [],
 				isVisible: () => false,
 				getValue( { item }: { item: ProductData } ) {
 					return item.product.category;
@@ -157,6 +197,10 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 				},
 			},
 		];
+		// Having this re-calculate on every change of "categories" was causing unnecessary re-renders
+		// and a 'jumping' of the CTA buttons. Having categories as a dependency here is unnecessary
+		// and leaving it out doesn't cause the values to be incorrect.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
 	const [ view, setView ] = useState< View >( {

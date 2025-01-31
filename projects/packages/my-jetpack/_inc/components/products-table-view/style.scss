@@ -15,7 +15,7 @@ svg.table-view-icon {
     height: 52px;
 }
 
-div.components-dropdown {
+button[aria-controls="dataviews-view-config-dropdown-0"] {
     display: none;
 }
 
@@ -24,6 +24,10 @@ div.dataviews__view-actions {
     padding-right: 24px;
     justify-content: flex-start;
     align-items: center;
+}
+
+div.dataviews-filters__container {
+    padding-left: 24px;
 }
 
 button.components-button.is-secondary {
