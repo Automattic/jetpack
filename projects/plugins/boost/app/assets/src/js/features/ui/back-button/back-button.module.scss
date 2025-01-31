@@ -4,12 +4,15 @@
 	text-decoration: none !important;
 	color: $gray_90;
 	line-height: 24px;
+
+	// Specify the global class for specificity so that it overrides the default styles.
+	&:global(.components-button) {
+		margin-bottom: 8px;
+	}
 	
 	span {
 		font-size: 14pt;
 		font-weight: 400;
-		margin-bottom: 8px;
-		padding:6px 12px !important;
 		display: inline-flex;
 		align-items: center;
 
