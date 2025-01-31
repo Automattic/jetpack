@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Changed the experiment cache key so that users get assigned once the experiment starts.

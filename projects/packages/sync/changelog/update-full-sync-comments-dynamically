@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Sync: Full Sync comments now send dynamic chunks if chunk size default is too big

@@ -390,7 +390,7 @@ add_action( 'admin_notices', 'wpcom_show_admin_interface_notice' );
 /**
  * Option to force and cache the Remove duplicate Views experiment assigned variation.
  */
-const RDV_EXPERIMENT_FORCE_ASSIGN_OPTION = 'remove_duplicate_views_experiment_assignment';
+const RDV_EXPERIMENT_FORCE_ASSIGN_OPTION = 'remove_duplicate_views_experiment_assignment_160125';
 
 /**
  * Check if the duplicate views experiment is enabled.
@@ -409,6 +409,11 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 
 	$variation = get_user_option( RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, get_current_user_id() );
 
+	/**
+	 * We cache it for both AT and Simple because we want to give a12s to be able to switch between variations for their accounts - this can be useful during support.
+	 *
+	 * If we don't cache it, the is_automattician conditions will force treatment every time.
+	 */
 	if ( false !== $variation ) {
 		$is_enabled = 'treatment' === $variation;
 		return $is_enabled;
@@ -417,7 +422,31 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 	if ( ( new Host() )->is_wpcom_simple() ) {
 		\ExPlat\assign_current_user( $aa_test_name );
 		$is_enabled = 'treatment' === \ExPlat\assign_current_user( $experiment_name );
+
+		if ( is_automattician() ) {
+			$is_enabled = true;
+			update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, 'treatment', true );
+		}
+
 		return $is_enabled;
+	}
+
+	$is_proxy_atomic    = defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST;
+	$is_support_session = WPCOMSH_Support_Session_Detect::is_probably_support_session();
+	$admin_menu_is_a11n = isset( $_GET['admin_menu_is_a11n'] ) && function_exists( 'wpcomsh_is_admin_menu_api_request' ) && wpcomsh_is_admin_menu_api_request();
+
+	/**
+	 * This handles two contexts: Calypso and WP-Admin.
+	 *
+	 * Calypso: WPCOM admin-menu API endpoint mapper sends a "admin_menu_is_a11n" param for a12s. If the param exists, then we'll switch to treatment.
+	 * WP-Admin: We check if the user is proxied and if it's not in a support session.
+	 */
+
+	if ( $admin_menu_is_a11n || ( $is_proxy_atomic && ! $is_support_session ) ) {
+		update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, 'treatment', true );
+		$is_enabled = true;
+
+		return true;
 	}
 
 	if ( ! ( new Jetpack_Connection() )->is_user_connected() ) {
@@ -451,7 +480,7 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 
 	$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
-	if ( isset( $data['variations'] ) && isset( $data['variations'][ $experiment_name ] ) ) {
+	if ( isset( $data['variations'] ) && array_key_exists( $experiment_name, $data['variations'] ) ) {
 		$variation = $data['variations'][ $experiment_name ];
 		update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, $variation, true );
 
