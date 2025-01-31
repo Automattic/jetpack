@@ -6,7 +6,7 @@ use Jetpack_Options;
 use WorDBless\BaseTestCase;
 
 /**
- * Tests for the Validation_Service class.
+ * Tests for the Account_Protection class.
  */
 class Email_Service_Test extends BaseTestCase {
 
