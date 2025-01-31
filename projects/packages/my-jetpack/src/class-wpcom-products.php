@@ -34,8 +34,7 @@ class Wpcom_Products {
 
 	const CACHE_CHECK_HASH_NAME = 'my-jetpack-wpcom-product-check-hash';
 
-	const MY_JETPACK_PURCHASES_TRANSIENT_KEY    = 'my-jetpack-purchases';
-	const MY_JETPACK_CURRENT_PLAN_TRANSIENT_KEY = 'my-jetpack-current-plan';
+	const MY_JETPACK_PURCHASES_TRANSIENT_KEY = 'my-jetpack-purchases';
 
 	/**
 	 * Store the data on failed WPCOM requests.
@@ -354,25 +353,18 @@ class Wpcom_Products {
 	/**
 	 * Gets the site's currently active "plan" (bundle).
 	 *
+	 * @param bool $reload  Whether to refresh data from wpcom or not.
 	 * @return array
 	 */
-	public static function get_site_current_plan() {
-		static $current_plan = null;
+	public static function get_site_current_plan( $reload = false ) {
+		static $reloaded_already = false;
 
-		if ( $current_plan !== null ) {
-			return $current_plan;
+		if ( $reload && ! $reloaded_already ) {
+			Current_Plan::refresh_from_wpcom();
+			$reloaded_already = true;
 		}
 
-		$stored_plan = get_transient( self::MY_JETPACK_CURRENT_PLAN_TRANSIENT_KEY );
-		if ( $stored_plan !== false ) {
-			return $stored_plan;
-		}
-
-		Current_Plan::refresh_from_wpcom();
-		$current_plan = Current_Plan::get();
-		set_transient( self::MY_JETPACK_CURRENT_PLAN_TRANSIENT_KEY, $current_plan, 360 );
-
-		return $current_plan;
+		return Current_Plan::get();
 	}
 
 	/**
