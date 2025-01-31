@@ -1,16 +1,32 @@
 import { Button, ProductPrice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { type FC } from 'react';
+import { useCallback, type FC } from 'react';
 import useProduct from '../../data/products/use-product';
-import ProductInterstitialModal, { ProductInterstitialFeatureList } from './';
+import useAnalytics from '../../hooks/use-analytics';
+import {
+	ProductInterstitialModal,
+	ProductInterstitialFeatureList,
+	ProductInterstitialModalCta,
+} from './';
 
 interface ProductInterstitialPluginProps {
 	/**
 	 * Child elements to be rendered within the placement
 	 */
 	children?: React.ReactNode;
+	/**
+	 * Product slug
+	 */
 	slug: string;
+	/**
+	 * Callback function to be called when the modal is opened
+	 */
+	onOpen?: () => void;
+	/**
+	 * Callback function to be called when the modal is closed
+	 */
+	onClose?: () => void;
 }
 
 /**
@@ -22,8 +38,11 @@ interface ProductInterstitialPluginProps {
 const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 	slug,
 	children,
+	onOpen,
+	onClose,
 	...props
 } ) => {
+	const { recordEvent } = useAnalytics();
 	const { detail } = useProduct( slug );
 
 	const { title, longDescription, features, pricingForUi } = detail;
@@ -46,7 +65,11 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 	} else if ( productTerm === 'year' ) {
 		priceDescription = __( '/month, paid yearly', 'jetpack-my-jetpack' );
 	} else {
-		priceDescription = __( '/month', 'jetpack-my-jetpack' );
+		priceDescription = __(
+			'/month',
+			'jetpack-my-jetpack',
+			/* dummy arg to avoid bad minification */ 0
+		);
 	}
 
 	const productPrice = introductoryOffer?.reason ? price : discountPrice;
@@ -65,6 +88,24 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 			legend={ priceDescription }
 		/>
 	);
+
+	const handleOpen = useCallback( () => {
+		recordEvent( 'jetpack_modal_interstitial_open', {
+			placement: 'product-page',
+			context: 'my-jetpack',
+			product_slug: slug,
+		} );
+		onOpen?.();
+	}, [ recordEvent, slug, onOpen ] );
+
+	const handleClose = useCallback( () => {
+		recordEvent( 'jetpack_modal_interstitial_close', {
+			placement: 'product-page',
+			context: 'my-jetpack',
+			product_slug: slug,
+		} );
+		onClose?.();
+	}, [ recordEvent, slug, onClose ] );
 
 	let additionalContent = null;
 
@@ -97,6 +138,9 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 			title={ title }
 			description={ longDescription }
 			priceComponent={ priceComponent }
+			modalMainButton={ <ProductInterstitialModalCta slug={ slug } /> }
+			onOpen={ handleOpen }
+			onClose={ handleClose }
 			{ ...props }
 		>
 			<>
