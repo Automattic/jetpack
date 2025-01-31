@@ -50,7 +50,7 @@
 		display: flex;
 		flex-direction: column;
 		height: 100%;
-		overflow: hidden;
+		overflow: auto;
 	}
 
 	&__messages {
@@ -87,7 +87,6 @@
 
 		.assistant-wizard__message-text {
 			padding: 0px 12px;
-			// flex: 1 0 200px;
 		}
 
 		&.is-user {
@@ -108,7 +107,7 @@
 		background: white;
 		border-radius: 0 0 16px 16px;
 		border-top: 1px solid var( --jp-gray-5, #e5e7eb );
-		flex-basis: 77px; // seems better than min-height
+		flex-basis: 60px; // seems better than min-height
 	}
 
 	&__input {
