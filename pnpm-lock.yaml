@@ -2489,9 +2489,6 @@ importers:
       events:
         specifier: ^3.3.0
         version: 3.3.0
-      i18n-calypso:
-        specifier: 7.0.0
-        version: 7.0.0(@types/react@18.3.18)(react@18.3.1)
       preact:
         specifier: ^10.13.1
         version: 10.22.1
