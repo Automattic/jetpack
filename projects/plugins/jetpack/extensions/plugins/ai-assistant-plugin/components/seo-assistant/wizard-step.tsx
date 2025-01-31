@@ -6,8 +6,10 @@ export default function WizardStep( { className = '', messages, visible, onSelec
 	const stepRef = useRef( null );
 	const classes = clsx( 'assistant-wizard-step', className );
 	return (
-		<div ref={ stepRef } className={ classes } style={ { display: visible ? 'block' : 'none' } }>
-			<WizardMessages messages={ messages } onSelect={ onSelect } />
-		</div>
+		visible && (
+			<div ref={ stepRef } className={ classes }>
+				<WizardMessages messages={ messages } onSelect={ onSelect } />
+			</div>
+		)
 	);
 }
