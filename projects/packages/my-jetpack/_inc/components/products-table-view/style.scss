@@ -66,3 +66,20 @@ div.dataviews-view-list {
         }
     }
 }
+
+div.dataviews-filters__search-widget-listitem:hover,
+div.dataviews-filters__search-widget-listitem[data-active-item] {
+    background-color: var(--tag-color);
+    color: var(--jp-gray-70);
+}
+
+div.dataviews-filters__search-widget-listitem:hover {
+    span.dataviews-filters__search-widget-listitem-check {
+        fill: var(--jp-gray-70);
+    }
+}
+div.dataviews-filters__summary-chip-container div.dataviews-filters__summary-chip.has-values[aria-expanded=true],
+div.dataviews-filters__summary-chip-container div.dataviews-filters__summary-chip.has-values:hover,
+div.dataviews-filters__summary-chip-container button.dataviews-filters__summary-chip-remove.has-values:hover {
+    background-color: var(--tag-color);
+}
