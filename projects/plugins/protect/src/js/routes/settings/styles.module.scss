@@ -23,7 +23,8 @@
         width: 100%;
     }
 
-    &__description {
+    &__description,
+    &__info {
         a {
             color: inherit;
     
@@ -33,20 +34,10 @@
         }
     }
 
-    &__warning {
-        color: var( --jp-red-50 );
-
-        a {
-            color: var( --jp-red-50 );
-
-            &:hover {
-                color: var( --jp-red-70 )
-            }
-        }
-
+    &__info {
         svg {
-            fill: var( --jp-red-50 );
-            margin-bottom: calc( -1 * var( --spacing-base ) * 3/4 ); // -6px
+            fill: var( --jp-gray-70 );
+            margin-bottom: calc( -0.75 * var( --spacing-base ) ); // -6px
             margin-right: calc( var( --spacing-base ) / 4 ); // 2px
         }
     }
