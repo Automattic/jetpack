@@ -1,22 +1,17 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import {
-	getJetpackData,
 	isAtomicSite,
 	isSimpleSite,
 	useModuleStatus,
 } from '@automattic/jetpack-shared-extension-utils';
 import {
-	InnerBlocks,
 	InspectorControls,
 	URLInput,
 	useBlockProps,
-	__experimentalBlockVariationPicker as BlockVariationPicker, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalBlockPatternSetup as BlockPatternSetup, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	useInnerBlocksProps,
+	store as blockEditorStore,
 } from '@wordpress/block-editor';
-import { createBlock, registerBlockVariation } from '@wordpress/blocks';
 import {
-	Button,
-	Modal,
 	PanelBody,
 	SelectControl,
 	TextareaControl,
@@ -24,11 +19,13 @@ import {
 	Notice,
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
-import { useDispatch, useSelect } from '@wordpress/data';
-import { useEffect, useRef, useState } from '@wordpress/element';
+import { store as coreStore } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
+import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { filter, get, isArray, map } from 'lodash';
+import { filter, isArray, map } from 'lodash';
 import { childBlocks } from './child-blocks';
 import InspectorHint from './components/inspector-hint';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
@@ -38,7 +35,7 @@ import JetpackEmailConnectionSettings from './components/jetpack-email-connectio
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
 import SalesforceLeadFormSettings from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
-import defaultVariations from './variations';
+import VariationPicker from './variation-picker';
 import './util/form-styles.js';
 
 const validFields = filter( childBlocks, ( { settings } ) => {
@@ -66,11 +63,7 @@ const ALLOWED_BLOCKS = [
 	'core/subhead',
 	'core/video',
 ];
-
 const PRIORITIZED_INSERTER_BLOCKS = [ ...map( validFields, block => `jetpack/${ block.name }` ) ];
-
-const RESPONSES_PATH = `${ get( getJetpackData(), 'adminUrl', false ) }edit.php?post_type=feedback`;
-const CUSTOMIZING_FORMS_URL = 'https://jetpack.com/support/jetpack-blocks/contact-form/';
 
 function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, className } ) {
 	const {
@@ -84,25 +77,15 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		salesforceData,
 	} = attributes;
 	const instanceId = useInstanceId( JetpackContactFormEdit );
-	const { replaceInnerBlocks, selectBlock } = useDispatch( 'core/block-editor' );
-	const {
-		blockType,
-		canUserInstallPlugins,
-		defaultVariation,
-		variations,
-		hasInnerBlocks,
-		postAuthorEmail,
-	} = useSelect(
+	const { canUserInstallPlugins, hasInnerBlocks, postAuthorEmail } = useSelect(
 		select => {
-			const { getBlockType, getBlockVariations, getDefaultBlockVariation } =
-				select( 'core/blocks' );
-			const { getBlocks } = select( 'core/block-editor' );
-			const { getEditedPostAttribute } = select( 'core/editor' );
-			const { getUser, canUser } = select( 'core' );
+			const { getBlocks } = select( blockEditorStore );
+			const { getEditedPostAttribute } = select( editorStore );
+			const { getUser, canUser } = select( coreStore );
 			const innerBlocks = getBlocks( clientId );
 
 			const authorId = getEditedPostAttribute( 'author' );
-			const authorEmail = authorId && getUser( authorId ) && getUser( authorId ).email;
+			const authorEmail = authorId && getUser( authorId )?.email;
 			const submitButton = innerBlocks.find( block => block.name === 'jetpack/button' );
 			if ( submitButton && ! submitButton.attributes.lock ) {
 				const lock = { move: false, remove: true };
@@ -110,70 +93,36 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			}
 
 			return {
-				blockType: getBlockType && getBlockType( name ),
 				canUserInstallPlugins: canUser( 'create', 'plugins' ),
-				defaultVariation: getDefaultBlockVariation && getDefaultBlockVariation( name, 'block' ),
-				variations: getBlockVariations && getBlockVariations( name, 'block' ),
 				hasInnerBlocks: innerBlocks.length > 0,
 				postAuthorEmail: authorEmail,
 			};
 		},
-		[ clientId, name ]
+		[ clientId ]
 	);
-	const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
 	const wrapperRef = useRef();
 	const innerRef = useRef();
 	const blockProps = useBlockProps( { ref: wrapperRef } );
+	const formClassnames = clsx( className, 'jetpack-contact-form' );
+	const innerBlocksProps = useInnerBlocksProps(
+		{
+			ref: innerRef,
+			className: formClassnames,
+			style: window.jetpackForms.generateStyleVariables( innerRef.current ),
+		},
+		{
+			allowedBlocks: ALLOWED_BLOCKS,
+			prioritizedInserterBlocks: PRIORITIZED_INSERTER_BLOCKS,
+			templateInsertUpdatesSelection: false,
+		}
+	);
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'contact-form' );
-
-	const formClassnames = clsx( className, 'jetpack-contact-form', {
-		'is-placeholder': ! hasInnerBlocks && registerBlockVariation,
-	} );
 
 	const isSalesForceExtensionEnabled =
 		!! window?.Jetpack_Editor_Initial_State?.available_blocks[
 			'contact-form/salesforce-lead-form'
 		];
-
-	const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
-		const blocks = map( innerBlocksTemplate, ( [ blockName, attr, innerBlocks = [] ] ) =>
-			createBlock( blockName, attr, createBlocksFromInnerBlocksTemplate( innerBlocks ) )
-		);
-
-		return blocks;
-	};
-
-	const setVariation = variation => {
-		if ( variation.attributes ) {
-			setAttributes( variation.attributes );
-		}
-
-		if ( variation.innerBlocks ) {
-			replaceInnerBlocks( clientId, createBlocksFromInnerBlocksTemplate( variation.innerBlocks ) );
-		}
-
-		selectBlock( clientId );
-	};
-
-	useEffect( () => {
-		// Populate default variation on older versions of WP or GB that don't support variations.
-		if ( ! hasInnerBlocks && ! registerBlockVariation ) {
-			setVariation( defaultVariations[ 0 ] );
-		}
-	} );
-
-	useEffect( () => {
-		if (
-			! hasInnerBlocks &&
-			registerBlockVariation &&
-			! isPatternsModalOpen &&
-			window.location.search.indexOf( 'showJetpackFormsPatterns' ) !== -1
-		) {
-			setIsPatternsModalOpen( true );
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
 
 	let elt;
 
@@ -189,64 +138,16 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				/>
 			);
 		}
-	} else if ( ! hasInnerBlocks && registerBlockVariation ) {
+	} else if ( ! hasInnerBlocks ) {
 		elt = (
-			<div className={ formClassnames }>
-				<BlockVariationPicker
-					icon={ get( blockType, [ 'icon', 'src' ] ) }
-					label={ get( blockType, [ 'title' ] ) }
-					instructions={ __(
-						'Start building a form by selecting one of these form templates, or search in the patterns library for more forms:',
-						'jetpack-forms'
-					) }
-					variations={ filter( variations, v => ! v.hiddenFromPicker ) }
-					onSelect={ ( nextVariation = defaultVariation ) => {
-						setVariation( nextVariation );
-					} }
-				/>
-				<div className="form-placeholder__footer">
-					<Button variant="secondary" onClick={ () => setIsPatternsModalOpen( true ) }>
-						{ __( 'Explore Form Patterns', 'jetpack-forms' ) }
-					</Button>
-					<div className="form-placeholder__footer-links">
-						<Button
-							variant="link"
-							className="form-placeholder__external-link"
-							href={ CUSTOMIZING_FORMS_URL }
-							target="_blank"
-						>
-							{ __( 'Learn more about customizing forms', 'jetpack-forms' ) }
-						</Button>
-						<Button
-							variant="link"
-							className="form-placeholder__external-link"
-							href={ RESPONSES_PATH }
-							target="_blank"
-						>
-							{ __( 'View and export your form responses here', 'jetpack-forms' ) }
-						</Button>
-					</div>
-				</div>
-				{ isPatternsModalOpen && (
-					<Modal
-						className="form-placeholder__patterns-modal"
-						title={ __( 'Choose a pattern', 'jetpack-forms' ) }
-						closeLabel={ __( 'Cancel', 'jetpack-forms' ) }
-						onRequestClose={ () => setIsPatternsModalOpen( false ) }
-					>
-						<BlockPatternSetup
-							initialViewMode="grid"
-							filterPatternsFn={ pattern => {
-								return pattern.content.indexOf( 'jetpack/contact-form' ) !== -1;
-							} }
-							clientId={ clientId }
-						/>
-					</Modal>
-				) }
-			</div>
+			<VariationPicker
+				blockName={ name }
+				setAttributes={ setAttributes }
+				clientId={ clientId }
+				classNames={ formClassnames }
+			/>
 		);
 	} else {
-		const style = window.jetpackForms.generateStyleVariables( innerRef.current );
 		elt = (
 			<>
 				<InspectorControls>
@@ -348,14 +249,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						</>
 					) }
 				</InspectorControls>
-
-				<div className={ formClassnames } style={ style } ref={ innerRef }>
-					<InnerBlocks
-						allowedBlocks={ ALLOWED_BLOCKS }
-						prioritizedInserterBlocks={ PRIORITIZED_INSERTER_BLOCKS }
-						templateInsertUpdatesSelection={ false }
-					/>
-				</div>
+				<div { ...innerBlocksProps } />
 			</>
 		);
 	}

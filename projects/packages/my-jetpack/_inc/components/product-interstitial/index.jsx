@@ -18,7 +18,7 @@ import React, { useCallback, useEffect } from 'react';
  */
 import { useParams } from 'react-router-dom';
 import { MyJetpackRoutes } from '../../constants';
-import useActivate from '../../data/products/use-activate';
+import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
@@ -78,7 +78,7 @@ export default function ProductInterstitial( {
 } ) {
 	const { detail } = useProduct( slug );
 	const { detail: bundleDetail } = useProduct( bundle );
-	const { activate, isPending: isActivating, isSuccess } = useActivate( slug );
+	const { activate, isPending: isActivating, isSuccess } = useActivatePlugins( slug );
 
 	// Get the post activation URL for the product.
 	let redirectUri = detail?.postActivationUrl || null;

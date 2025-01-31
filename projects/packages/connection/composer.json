@@ -14,7 +14,7 @@
 		"automattic/jetpack-redirect": "@dev"
 	},
 	"require-dev": {
-		"automattic/wordbless": "^0.4.2",
+		"automattic/jetpack-test-environment": "@dev",
 		"yoast/phpunit-polyfills": "^1.1.1",
 		"brain/monkey": "^2.6.2",
 		"automattic/jetpack-changelogger": "@dev",
@@ -45,8 +45,6 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
-		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"test-coverage": [
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
