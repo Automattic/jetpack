@@ -1405,10 +1405,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 			if ( 0 < $id ) {
 				$user = get_user_by( 'id', $id );
 				if ( $user instanceof WP_User ) {
-					$login      = $user->user_login;
-					$first_name = $user->first_name;
-					$last_name  = $user->last_name;
-					$nice       = $user->user_nicename;
+					$login      = $user->user_login ?? '';
+					$first_name = $user->first_name ?? '';
+					$last_name  = $user->last_name ?? '';
+					$nice       = $user->user_nicename ?? '';
 				} else {
 					trigger_error( 'Unknown user', E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 				}
