@@ -409,7 +409,6 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function get_external_services_connect_urls() {
 		$connect_urls = array();
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 		// phpcs:disable
 		foreach ( Keyring_Helper::SERVICES as $service_name => $service_info ) {
 			// phpcs:enable
