@@ -351,29 +351,19 @@ class Wpcom_Products {
 	}
 
 	/**
-	 * Check to see if the site supports a feature (using Current_Plan class)
-	 * This will check the features provided by the site plans and products (including free ones)
-	 *
-	 * @param string $feature - the feature to check for.
-	 * @return bool
-	 */
-	public static function current_plan_supports( $feature ) {
-		static $has_refreshed = null;
-
-		if ( $has_refreshed !== null ) {
-			return Current_Plan::supports( $feature );
-		}
-
-		$has_refreshed = true;
-		return Current_Plan::supports( $feature, true );
-	}
-
-	/**
 	 * Gets the site's currently active "plan" (bundle).
 	 *
+	 * @param bool $reload  Whether to refresh data from wpcom or not.
 	 * @return array
 	 */
-	public static function get_site_current_plan() {
+	public static function get_site_current_plan( $reload = false ) {
+		static $reloaded_already = false;
+
+		if ( $reload && ! $reloaded_already ) {
+			Current_Plan::refresh_from_wpcom();
+			$reloaded_already = true;
+		}
+
 		return Current_Plan::get();
 	}
 

@@ -435,7 +435,7 @@ abstract class Product {
 	public static function has_paid_plan_for_product() {
 		// First check site features (if there's a feature that identifies the paid plan)
 		if ( static::$feature_identifying_paid_plan ) {
-			if ( Wpcom_Products::current_plan_supports( static::$feature_identifying_paid_plan ) ) {
+			if ( static::does_site_have_feature( static::$feature_identifying_paid_plan ) ) {
 				return true;
 			}
 		}
@@ -514,7 +514,7 @@ abstract class Product {
 			return array();
 		}
 		$paid_bundles   = $features['available']->$idendifying_feature ?? array();
-		$current_bundle = Wpcom_Products::get_site_current_plan();
+		$current_bundle = Wpcom_Products::get_site_current_plan( true );
 
 		if ( in_array( static::$feature_identifying_paid_plan, $current_bundle['features']['active'], true ) ) {
 			$paid_bundles[] = $current_bundle['product_slug'];
