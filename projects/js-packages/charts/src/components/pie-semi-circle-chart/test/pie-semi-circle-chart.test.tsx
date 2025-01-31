@@ -135,13 +135,14 @@ describe( 'PieSemiCircleChart', () => {
 	} );
 
 	it( 'renders with correct dimensions', () => {
-		const size = 400;
-		renderPieChart( { data: mockData, size } );
+		const width = 400;
+		render( <PieSemiCircleChart data={ mockData } width={ width } /> );
+
 		const svg = screen.getByTestId( 'pie-chart-svg' );
 
-		expect( svg ).toHaveAttribute( 'width', size.toString() );
-		expect( svg ).toHaveAttribute( 'height', ( size / 2 ).toString() );
-		expect( svg ).toHaveAttribute( 'viewBox', `0 0 ${ size } ${ size / 2 }` );
+		expect( svg ).toHaveAttribute( 'width', width.toString() );
+		expect( svg ).toHaveAttribute( 'height', ( width / 2 ).toString() );
+		expect( svg ).toHaveAttribute( 'viewBox', `0 0 ${ width } ${ width / 2 }` );
 	} );
 
 	describe( 'Data Validation', () => {

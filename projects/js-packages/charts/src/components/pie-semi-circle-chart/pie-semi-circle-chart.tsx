@@ -44,6 +44,11 @@ interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] 
 	 * Note text to display below the label
 	 */
 	note?: string;
+
+	/**
+	 * Additional class name for the chart container
+	 */
+	className?: string;
 }
 
 type ArcData = PieArcDatum< DataPointPercentage >;
@@ -84,6 +89,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	legendOrientation = 'horizontal',
 	label,
 	note,
+	className,
 } ) => {
 	const providerTheme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
@@ -169,7 +175,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 
 	return (
 		<div
-			className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ] ) }
+			className={ clsx( styles[ 'pie-semi-circle-chart' ], className ) }
 			data-testid="pie-chart-container"
 		>
 			<svg
