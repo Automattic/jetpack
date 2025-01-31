@@ -97,25 +97,10 @@ class WPCom_Themes_Service {
 	protected function map_and_filter_wpcom_themes( array $wpcom_themes ): array {
 		$themes = array();
 		foreach ( $wpcom_themes as $theme ) {
-			if ( $this->has_valid_theme_tier( $theme ) ) {
 				$themes[] = $this->mapper->map_wpcom_to_wporg( $theme );
 			}
-		}
 
 		return $themes;
-	}
-
-	/**
-	 * Checks if a WPCom theme has a valid tier from Atomic sites.
-	 *
-	 * @param stdClass $theme The theme to check.
-	 *
-	 * @return bool True if the theme has a valid tier, false otherwise.
-	 */
-	protected function has_valid_theme_tier( stdClass $theme ): bool {
-		$tier = $theme->theme_tier->slug ?? false;
-
-		return in_array( $tier, self::VALID_THEME_TIERS, true );
 	}
 
 	/**
