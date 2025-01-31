@@ -64,7 +64,7 @@ class WP_Test_Jetpack_Base_Json_Api_Endpoints extends WP_UnitTestCase {
 				'first_name'    => 'John',
 				'last_name'     => 'Doe',
 				'description'   => 'This is a dummy user for testing.',
-				'role'          => 'subscriber',
+				'role'          => 'contributor',
 			)
 		);
 	}
