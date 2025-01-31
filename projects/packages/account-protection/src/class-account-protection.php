@@ -120,6 +120,61 @@ class Account_Protection {
 		// Update recent passwords list
 		add_action( 'profile_update', array( $this->password_manager, 'on_profile_update' ), 10, 3 );
 		add_action( 'after_password_reset', array( $this->password_manager, 'on_password_reset' ), 10, 2 );
+
+		// TESTING
+		add_filter(
+			'retrieve_password_message',
+			function ( $message, $key, $user_login, $user_data ) {
+
+				$reset_link = network_site_url( 'wp-login.php?login=' . rawurlencode( $user_login ) . "&key=$key&action=rp", 'login' );
+
+				// Log or store the reset link for debugging
+				error_log( 'Generated Reset Link: ' . $reset_link );
+
+				return $message; // Keep the original email message intact
+			},
+			10,
+			4
+		);
+
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_jetpack_password_strength_meter_profile_script' ) );
+		add_action( 'login_enqueue_scripts', array( $this, 'enqueue_jetpack_password_strength_meter_reset_script') );
+	}
+
+	public function enqueue_jetpack_password_strength_meter_profile_script() {
+		if ( ! wp_script_is('jetpack-password-strength-meter', 'enqueued') ) {
+			wp_enqueue_script(
+				'jetpack-password-strength-meter',
+				plugin_dir_url( __FILE__ ) . 'js/jetpack-password-strength-meter.js',
+				array('jquery'),
+				null,
+				true
+			);
+		}
+
+		$this->localize_jetpack_branding_data();
+	}
+
+	public function enqueue_jetpack_password_strength_meter_reset_script() {
+		if ( isset( $_GET['action'] ) && ( $_GET['action'] === 'rp' || $_GET['action'] === 'resetpass' ) ) {
+			if ( ! wp_script_is('jetpack-password-strength-meter', 'enqueued') ) {
+				wp_enqueue_script(
+					'jetpack-password-strength-meter',
+					plugin_dir_url( __FILE__ ) . 'js/jetpack-password-strength-meter.js',
+					array('jquery'),
+					null,
+					true
+				);
+			}
+		}
+
+		$this->localize_jetpack_branding_data();
+	}
+
+	public function localize_jetpack_branding_data() {
+		wp_localize_script( 'jetpack-password-strength-meter', 'jetpackBrandingData', array(
+			'logo' => plugin_dir_url(__FILE__) . 'assets/jetpack-logo.svg'
+		) );
 	}
 
 	/**

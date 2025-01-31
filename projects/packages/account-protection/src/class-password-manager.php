@@ -155,6 +155,7 @@ class Password_Manager {
 	 * @return void
 	 */
 	public function on_profile_update( int $user_id, \WP_User $old_user_data, array $userdata ): void {
+		// TODO: Need to verify this is working... seems to happen on reset link send!
 		if ( ! $this->verify_profile_update_nonce( $user_id ) ) {
 			error_log( "Nonce verification failed for profile update: User ID {$user_id}" );
 			return;
@@ -178,6 +179,7 @@ class Password_Manager {
 		// return;
 		// }
 
+		// TODO: Need to verify this is working...
 		error_log( 'on_password_reset' );
 
 		$this->save_recent_password( $user->ID, $user->user_pass );
