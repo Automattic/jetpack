@@ -99,13 +99,13 @@ export function useDataSync<
 	const abortController = useRef< AbortController | null >( null );
 	const datasync = new DataSync( namespace, key, schema );
 	const queryKey = buildQueryKey( key, params );
-	const mutations = useMutationState( {
+	const abortControllers = useMutationState( {
 		filters: {
 			mutationKey: queryKey,
 			status: 'pending',
 			predicate: mutation => Boolean( mutation?.meta?.abortController ),
 		},
-		select: mutation => mutation.meta as { abortController: AbortController },
+		select: mutation => mutation?.meta?.abortController as AbortController,
 	} );
 
 	/**
@@ -157,10 +157,8 @@ export function useDataSync<
 		// Mutation actions that occur before the mutationFn is called
 		onMutate: async data => {
 			// If there's any existing mutations in progress with the same key, cancel them.
-			if ( mutations.length > 0 ) {
-				mutations.forEach( mutation => {
-					mutation?.abortController?.abort();
-				} );
+			if ( abortControllers.length > 0 ) {
+				abortControllers.forEach( ab => ab?.abort() );
 			}
 			// Create a new AbortController for the upcoming request
 			abortController.current = new AbortController();
