@@ -13,7 +13,6 @@
  * @package automattic/jetpack-classic-theme-helper
  */
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Host;
 
@@ -36,10 +35,6 @@ if ( ! function_exists( 'jetpack_load_custom_post_types' ) ) {
 
 	add_action( 'init', array( '\Automattic\Jetpack\Classic_Theme_Helper\Nova_Restaurant', 'init' ) );
 
-	$site_id = Connection_Manager::get_site_id();
-	if ( is_wp_error( $site_id ) ) {
-		return;
-	}
 	add_action( 'rest_api_init', 'register_rest_route_custom_content_types' );
 
 }
@@ -81,28 +76,54 @@ if ( ! function_exists( 'register_rest_route_custom_content_types' ) ) {
 			'/feature/custom-content-types',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => function () {
-					$active = true;
-					$over_ride = false;
-					$name = 'Custom Content Types';
-					$description = 'Display different types of content on your site with custom content types.';
-					$additional_search_queries = 'cpt, custom post types, portfolio, portfolios, testimonial, testimonials';
-					return rest_ensure_response(
-						array(
-							'custom-content-types' => array(
-								'active'      => $active,
-								'over_ride'   => $over_ride,
-								'name'        => $name,
-								'description' => $description,
-								'additional_search_queries' => $additional_search_queries,
-							),
-						)
-					);
-				},
-				'permission_callback' => '__return_true',
+				'callback'            => 'get_custom_content_type_details',
+				'permission_callback' => 'custom_content_require_admin_privilege_callback',
 			)
 		);
 	}
+}
+
+/**
+ * Get the custom content type details.
+ *
+ * @return WP_REST_Response
+ */
+function get_custom_content_type_details() {
+
+	$active                    = true;
+	$over_ride                 = false;
+	$name                      = 'Custom Content Types';
+	$description               = 'Display different types of content on your site with custom content types.';
+	$additional_search_queries = 'cpt, custom post types, portfolio, portfolios, testimonial, testimonials';
+
+	return rest_ensure_response(
+		array(
+			'custom-content-types' => array(
+				'active'                    => $active,
+				'over_ride'                 => $over_ride,
+				'name'                      => $name,
+				'description'               => $description,
+				'additional_search_queries' => $additional_search_queries,
+			),
+		)
+	);
+}
+
+/**
+ * Check if the current user has the required capability.
+ *
+ * @return bool
+ */
+function custom_content_require_admin_privilege_callback() {
+	if ( current_user_can( 'manage_options' ) ) {
+		return true;
+	}
+
+	return new WP_Error(
+		'rest_forbidden',
+		esc_html__( 'You are not allowed to perform this action.', 'jetpack-classic-theme-helper' ),
+		array( 'status' => rest_authorization_required_code() )
+	);
 }
 
 if ( ! function_exists( 'jetpack_cpt_settings_api_init' ) ) {
@@ -140,23 +161,21 @@ if ( ! function_exists( 'jetpack_cpt_section_callback' ) ) {
 	}
 }
 
-if ( ! function_exists( 'remove_custom_content_types_module_list' ) ) {
-	/**
-	 * Remove Custom Content Types from the old Module list.
-	 * Available at wp-admin/admin.php?page=jetpack_modules
-	 *
-	 * @param array $items Array of Jetpack modules.
-	 * @todo Remove this function once the module file is removed from the Jetpack plugin.
-	 * @return array
-	 */
-	function remove_custom_content_types_module_list( $items ) {
-		if ( isset( $items['custom-content-types'] ) ) {
-			unset( $items['custom-content-types'] );
-		}
-		return $items;
+/**
+ * Remove Custom Content Types from the old Module list.
+ * Available at wp-admin/admin.php?page=jetpack_modules
+ *
+ * @param array $items Array of Jetpack modules.
+ * @todo Remove this function once the module file is removed from the Jetpack plugin.
+ * @return array
+ */
+function remove_custom_content_types_module_list( $items ) {
+	if ( isset( $items['custom-content-types'] ) ) {
+		unset( $items['custom-content-types'] );
 	}
-	add_filter( 'jetpack_modules_list_table_items', 'remove_custom_content_types_module_list' );
+	return $items;
 }
+add_filter( 'jetpack_modules_list_table_items', 'remove_custom_content_types_module_list' );
 
 if ( function_exists( 'jetpack_load_custom_post_types' ) ) {
 
