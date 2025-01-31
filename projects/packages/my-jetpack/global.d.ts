@@ -120,6 +120,7 @@ interface Window {
 		blogID: string;
 		fileSystemWriteAccess: 'yes' | 'no';
 		isStatsModuleActive: string;
+		canUserViewStats: boolean;
 		isUserFromKnownHost: string;
 		jetpackManage: {
 			isAgencyAccount: boolean;
