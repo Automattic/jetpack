@@ -112,7 +112,7 @@ function get_custom_content_type_details() {
 /**
  * Check if the current user has the required capability.
  *
- * @return bool
+ * @return bool|WP_Error True if the request is made by ad administrator, WP_Error otherwise.
  */
 function custom_content_require_admin_privilege_callback() {
 	if ( current_user_can( 'manage_options' ) ) {
