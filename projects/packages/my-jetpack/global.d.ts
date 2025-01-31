@@ -456,7 +456,7 @@ interface Window {
 		isAtomic: boolean;
 		sandboxedDomain: string;
 		isDevVersion: boolean;
-		userIsAdmin: string;
+		userIsAdmin: boolean;
 		userIsNewToJetpack: string;
 	};
 	JP_CONNECTION_INITIAL_STATE: {

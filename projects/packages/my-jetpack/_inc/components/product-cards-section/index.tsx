@@ -109,8 +109,7 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 		data: { ownedProducts, unownedProducts },
 	} = useProductsByOwnership();
 
-	const { canUserViewStats } = getMyJetpackWindowInitialState();
-
+	const { canUserViewStats, userIsAdmin } = getMyJetpackWindowInitialState();
 	const unownedSectionTitle = useMemo( () => {
 		return ownedProducts.length > 0
 			? __( 'Discover more', 'jetpack-my-jetpack' )
@@ -147,7 +146,7 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 				</AdminSectionHero>
 			) }
 
-			{ filteredUnownedProducts.length > 0 && (
+			{ userIsAdmin && filteredUnownedProducts.length > 0 && (
 				<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
 					<Col>
 						<Col sm={ 4 } md={ 8 } lg={ 12 } className={ styles.cardListTitle }>
