@@ -142,45 +142,37 @@ export const ErrorStates: Story = {
 		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
 			<div>
 				<h3>Empty Data</h3>
-				<div style={ { width: '300px', height: '150px' } }>
-					<PieSemiCircleChart data={ [] } width={ 300 } />
-				</div>
+				<PieSemiCircleChart width={ 300 } data={ [] } />
 			</div>
 
 			<div>
 				<h3>Zero Total Percentage</h3>
-				<div style={ { width: '300px', height: '150px' } }>
-					<PieSemiCircleChart
-						width={ 300 }
-						data={ [
-							{ label: 'A', value: 0, percentage: 0 },
-							{ label: 'B', value: 0, percentage: 0 },
-						] }
-					/>
-				</div>
+				<PieSemiCircleChart
+					width={ 300 }
+					data={ [
+						{ label: 'A', value: 0, percentage: 0 },
+						{ label: 'B', value: 0, percentage: 0 },
+					] }
+				/>
 			</div>
 
 			<div>
 				<h3>Negative Values</h3>
-				<div style={ { width: '300px', height: '150px' } }>
-					<PieSemiCircleChart
-						width={ 300 }
-						data={ [
-							{ label: 'A', value: -30, percentage: -30 },
-							{ label: 'B', value: 130, percentage: 130 },
-						] }
-					/>
-				</div>
+				<PieSemiCircleChart
+					width={ 300 }
+					data={ [
+						{ label: 'A', value: -30, percentage: -30 },
+						{ label: 'B', value: 130, percentage: 130 },
+					] }
+				/>
 			</div>
 
 			<div>
 				<h3>Single Data Point</h3>
-				<div style={ { width: '300px', height: '150px' } }>
-					<PieSemiCircleChart
-						width={ 300 }
-						data={ [ { label: 'Single Point', value: 100, percentage: 100 } ] }
-					/>
-				</div>
+				<PieSemiCircleChart
+					width={ 300 }
+					data={ [ { label: 'Single Point', value: 100, percentage: 100 } ] }
+				/>
 			</div>
 		</div>
 	),

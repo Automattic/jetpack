@@ -25,13 +25,10 @@ interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] 
 	thickness?: number;
 
 	/**
-	 * Label text to display above the chart
+	 * Padding around the chart
 	 */
-	label?: string;
-	/**
-	 * Note text to display below the label
-	 */
-	note?: string;
+	padding?: number;
+
 	/**
 	 * Direction of chart rendering
 	 * true for clockwise, false for counter-clockwise
@@ -39,9 +36,14 @@ interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] 
 	clockwise?: boolean;
 
 	/**
-	 * Size of the chart in pixels
+	 * Label text to display above the chart
 	 */
-	size?: number;
+	label?: string;
+
+	/**
+	 * Note text to display below the label
+	 */
+	note?: string;
 }
 
 type ArcData = PieArcDatum< DataPointPercentage >;
@@ -73,15 +75,15 @@ const validateData = ( data: DataPointPercentage[] ) => {
 
 const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	data,
-	size = 400,
+	width = 400,
+	thickness = 0.4,
+	padding = 20,
+	clockwise = true,
+	withTooltips = false,
+	showLegend = false,
+	legendOrientation = 'horizontal',
 	label,
 	note,
-	className,
-	withTooltips = false,
-	clockwise = true,
-	thickness = 0.4,
-	showLegend,
-	legendOrientation,
 } ) => {
 	const providerTheme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
@@ -118,7 +120,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	if ( ! isValid ) {
 		return (
 			<div className={ styles[ 'pie-semi-circle-chart' ] }>
-				<svg width={ size } height={ size / 2 } data-testid="pie-chart-svg">
+				<svg width={ width } height={ width / 2 } data-testid="pie-chart-svg">
 					<text x="50%" y="50%" textAnchor="middle" className={ styles.error }>
 						{ message }
 					</text>
@@ -127,10 +129,14 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 		);
 	}
 
-	const width = size;
-	const height = size / 2;
-	const radius = width / 2;
+	const height = width / 2;
 	const pad = 0.03;
+
+	// Use padding for the overall chart dimensions
+	const chartWidth = width - padding * 2;
+	const chartHeight = height - padding;
+	const radius = Math.min( chartWidth, chartHeight * 2 ) / 2;
+
 	const innerRadius = radius * ( 1 - thickness + pad );
 
 	// Map the data to include index for color assignment
@@ -163,13 +169,14 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 
 	return (
 		<div
-			className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
+			className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ] ) }
 			data-testid="pie-chart-container"
 		>
 			<svg
-				viewBox={ `0 0 ${ width } ${ height }` }
 				width={ width }
 				height={ height }
+				viewBox={ `0 0 ${ width } ${ height }` }
+				style={ { padding: padding } }
 				data-testid="pie-chart-svg"
 			>
 				{ /* Main chart group that contains both the pie and text elements */ }
