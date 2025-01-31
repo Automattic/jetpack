@@ -318,10 +318,10 @@ trait Woo_Analytics_Trait {
 	/**
 	 * Record an event with optional product and custom properties.
 	 *
-	 * @param string  $event_name The name of the event to record.
-	 * @param array   $properties Optional array of (key => value) event properties.
-	 * @param integer $product_id The id of the product relating to the event.
-	 * @param boolean $clickhouse Send event to clickhouse.
+	 * @param string       $event_name The name of the event to record.
+	 * @param array        $properties Optional array of (key => value) event properties.
+	 * @param integer|null $product_id The id of the product relating to the event.
+	 * @param boolean      $clickhouse Send event to clickhouse.
 	 *
 	 * @return string|void
 	 */
@@ -377,10 +377,10 @@ trait Woo_Analytics_Trait {
 	/**
 	 * Compose event properties.
 	 *
-	 * @param string  $event_name The name of the event to record.
-	 * @param array   $properties Optional array of (key => value) event properties.
-	 * @param integer $product_id Optional id of the product relating to the event.
-	 * @param boolean $clickhouse Send event to clickhouse.
+	 * @param string       $event_name The name of the event to record.
+	 * @param array        $properties Optional array of (key => value) event properties.
+	 * @param integer|null $product_id Optional id of the product relating to the event.
+	 * @param boolean      $clickhouse Send event to clickhouse.
 	 *
 	 * @return string|void
 	 */
