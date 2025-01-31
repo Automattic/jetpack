@@ -14,6 +14,41 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
  * Class Validation_Service
  */
 class Validation_Service {
+
+	/**
+	 * Connection manager dependency.
+	 *
+	 * @var Connection_Manager
+	 */
+	private $connection_manager;
+
+	/**
+	 * Constructor for dependency injection.
+	 *
+	 * @param Connection_Manager|null $connection_manager Connection manager dependency.
+	 */
+	public function __construct(
+		?Connection_Manager $connection_manager = null
+	) {
+		$this->connection_manager = $connection_manager ?? new Connection_Manager();
+	}
+
+	/**
+	 * Dependency decoupling so we can test this class.
+	 *
+	 * @param string $password_prefix The password prefix to be checked.
+	 * @return array|\WP_Error
+	 */
+	protected function request_suffixes( string $password_prefix ) {
+		return Client::wpcom_json_api_request_as_blog(
+			'/jetpack-protect-weak-password/' . $password_prefix,
+			'2',
+			array( 'method' => 'GET' ),
+			null,
+			'wpcom'
+		);
+	}
+
 	/**
 	 * Check if the password is in the list of compromised/common passwords.
 	 *
@@ -22,23 +57,14 @@ class Validation_Service {
 	 * @return bool True if the password is in the list of compromised/common passwords, false otherwise.
 	 */
 	public function is_weak_password( string $password ): bool {
-		$api_url = '/jetpack-protect-weak-password';
-
-		$is_connected = ( new Connection_Manager() )->is_connected();
-		if ( ! $is_connected ) {
+		if ( ! $this->connection_manager->is_connected() ) {
 			return false;
 		}
 
 		$hashed_password = sha1( $password );
 		$password_prefix = substr( $hashed_password, 0, 5 );
 
-		$response = Client::wpcom_json_api_request_as_blog(
-			$api_url . '/' . $password_prefix,
-			'2',
-			array( 'method' => 'GET' ),
-			null,
-			'wpcom'
-		);
+		$response = $this->request_suffixes( $password_prefix );
 
 		$response_code = wp_remote_retrieve_response_code( $response );
 
