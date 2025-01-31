@@ -297,19 +297,19 @@ class Doc_Parser {
 		$tags = $phpdocnode->getParamTagValues();
 
 		// Looking for invalid param tags.
-		foreach ( $phpdocnode->getTags() as &$tag ) {
-			if (
-				$tag->name !== '@param'
-					|| ! $tag->value instanceof InvalidTagValueNode
-			) {
-				continue;
-			}
+		foreach ( $phpdocnode->getTags() as $tag ) {
+			'@phan-var \PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode $tag';
 
-			$pieces      = explode( ' ', $tag->value->value );
-			$type        = new IdentifierTypeNode( $pieces[0] );
-			$name        = $pieces[1] ?? 'argument';
-			$description = implode( ' ', array_slice( $pieces, 2 ) );
-			$tags[]      = new ParamTagValueNode( $type, true, $name, $description, false );
+			if ( $tag->name === '@param' && $tag->value instanceof InvalidTagValueNode ) {
+				$tag_value = $tag->value;
+				'@phan-var InvalidTagvalueNode $tag_value';
+
+				$pieces      = explode( ' ', $tag_value->value );
+				$type        = new IdentifierTypeNode( $pieces[0] );
+				$name        = $pieces[1] ?? 'argument';
+				$description = implode( ' ', array_slice( $pieces, 2 ) );
+				$tags[]      = new ParamTagValueNode( $type, true, $name, $description, false );
+			}
 		}
 
 		return $tags;
