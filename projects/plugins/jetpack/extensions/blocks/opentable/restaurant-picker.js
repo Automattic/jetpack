@@ -12,7 +12,7 @@ export default function RestaurantPicker( props ) {
 	const idRegex = /^(\d+)$|\(#(\d+)\)$/;
 
 	const onChange = selected => {
-		// we try to parse the restaurand id
+		// we try to parse the restaurant id
 		const selectedIds = selected.map( restaurant => {
 			const parsed = idRegex.exec( restaurant );
 			if ( parsed ) {
@@ -39,7 +39,7 @@ export default function RestaurantPicker( props ) {
 			value={ selectedRestaurants }
 			saveTransform={ token => ( possibleEmbed.test( token ) ? '' : token.trim() ) }
 			onInputChange={ setInput }
-			label={ _n( 'Restaurant', 'Restaurants', selectedRestaurants.length, 'jetpack' ) }
+			label={ _n( 'Restaurant ID', 'Restaurant IDs', selectedRestaurants.length, 'jetpack' ) }
 			{ ...props }
 			onChange={ onChange }
 			__nextHasNoMarginBottom={ true }

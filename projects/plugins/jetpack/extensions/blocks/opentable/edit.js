@@ -235,7 +235,7 @@ function OpenTableEdit( {
 			label={ __( 'OpenTable Reservation', 'jetpack' ) }
 			icon={ icon }
 			instructions={ __(
-				'Enter your restaurants ids, separated by comma, or paste an OpenTable Reservation Widget embed code.',
+				'Enter your restaurants IDs, separated by comma, or paste an OpenTable Reservation Widget embed code.',
 				'jetpack'
 			) }
 			notices={ noticeUI }
