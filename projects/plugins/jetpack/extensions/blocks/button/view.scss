@@ -5,19 +5,17 @@
 }
 
 .wp-block-jetpack-button {
-<<<<<<< HEAD
-	&.is-style-outline > .wp-block-button__link {
-		background-color: transparent;
-		border: solid 1px currentColor;
-		color: currentColor;
-	}
-=======
 	@include align-block;
 	max-width: 100%;
 	width: fit-content;
 	margin: 0;
 
->>>>>>> 27b3cb7cc9 (Move align styles in mixin)
+	&.is-style-outline > .wp-block-button__link {
+		background-color: transparent;
+		border: solid 1px currentColor;
+		color: currentColor;
+	}
+
 	&:not(.is-style-outline) button {
 		border: none;
 	}
