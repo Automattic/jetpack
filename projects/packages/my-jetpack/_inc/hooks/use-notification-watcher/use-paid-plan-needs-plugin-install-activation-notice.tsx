@@ -57,14 +57,13 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 	} = getMyJetpackWindowInitialState();
 
 	const getPluginInfo = useCallback(
-		( productSlug, action ) => ( {
+		productSlug => ( {
 			productSlug: productSlug,
 			pluginSlug: products[ productSlug ].plugin_slug,
 			pluginName:
 				products[ productSlug ].plugin_slug === 'jetpack'
 					? 'Jetpack'
 					: products[ productSlug ].title,
-			action,
 			pluginUri: `https://wordpress.org/plugins/${ products[ productSlug ].plugin_slug }/`,
 		} ),
 		[ products ]
@@ -73,25 +72,18 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 	const pluginsList = useMemo( () => {
 		if ( needs_installed && needs_activated_only ) {
 			const slugs = new Set();
-			const needsInstalled = [ ...needs_installed ].map( productSlug =>
-				getPluginInfo( productSlug, 'install' )
-			);
-			const needsActivated = [ ...needs_activated_only ].map( productSlug =>
-				getPluginInfo( productSlug, 'activate' )
-			);
-			return [ ...needsInstalled, ...needsActivated ].filter(
-				// filters out duplicates
-				( { pluginSlug } ) => ! slugs.has( pluginSlug ) && slugs.add( pluginSlug )
-			);
+			return [ ...needs_installed, ...needs_activated_only ]
+				.map( getPluginInfo )
+				.filter( ( { pluginSlug } ) => ! slugs.has( pluginSlug ) && slugs.add( pluginSlug ) ); // filters out duplicates
 		} else if ( needs_installed ) {
 			const slugs = new Set();
 			return needs_installed
-				.map( productSlug => getPluginInfo( productSlug, 'install' ) )
+				.map( getPluginInfo )
 				.filter( ( { pluginSlug } ) => ! slugs.has( pluginSlug ) && slugs.add( pluginSlug ) );
 		}
 		const slugs = new Set();
 		return needs_activated_only
-			?.map( productSlug => getPluginInfo( productSlug, 'activate' ) )
+			?.map( getPluginInfo )
 			.filter( ( { pluginSlug } ) => ! slugs.has( pluginSlug ) && slugs.add( pluginSlug ) );
 	}, [ getPluginInfo, needs_activated_only, needs_installed ] );
 
@@ -192,30 +184,18 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 						) }
 					</Text>
 					<ul className="plugins-list">
-						{ pluginsList.map( ( pluginInfo, index ) => {
-							const pluginActionNoun =
-								pluginInfo.action === 'activate' ? 'activated' : 'installed and activated';
-							return (
-								<li key={ index } className="plugin-item">
-									{ pluginInfo.action === 'activate' ? (
-										<a href="/wp-admin/plugins.php">{ pluginInfo.pluginName }</a>
-									) : (
-										<ExternalLink href={ pluginInfo.pluginUri }>
-											{ pluginInfo.pluginName }
-										</ExternalLink>
-									) }
-									<span>
-										(
-										{ sprintf(
-											/* translators: %s is the word "activated" or words "installed and activated". */
-											__( 'Needs %s', 'jetpack-my-jetpack' ),
-											pluginActionNoun
-										) }
-										)
-									</span>
-								</li>
-							);
-						} ) }
+						{ pluginsList.map( ( pluginInfo, index ) => (
+							<li key={ index } className="plugin-item">
+								{ actionVerb === 'activate' ? (
+									<a href="/wp-admin/plugins.php">{ pluginInfo.pluginName }</a>
+								) : (
+									<ExternalLink href={ pluginInfo.pluginUri }>
+										{ pluginInfo.pluginName }
+									</ExternalLink>
+								) }
+								<span>(Needs { actionNoun })</span>
+							</li>
+						) ) }
 					</ul>
 				</Col>
 			</>
