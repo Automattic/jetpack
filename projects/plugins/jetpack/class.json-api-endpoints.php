@@ -1391,7 +1391,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$site_id    = -1;
 
 		if ( isset( $author->comment_author_email ) ) {
-			$id         = ( isset( $author->user_id ) && $author->user_id ) ? $author->user_id : 0;
+			$id         = empty( $author->user_id ) ? 0 : (int) $author->user_id;
 			$login      = '';
 			$email      = $author->comment_author_email;
 			$name       = $author->comment_author;
