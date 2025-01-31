@@ -1,6 +1,13 @@
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect, useRef } from '@wordpress/element';
 
+const collectAttributesToSync = ( block, attributes ) => {
+	return attributes.reduce( ( acc, attr ) => {
+		acc[ attr ] = block.attributes[ attr ];
+		return acc;
+	}, {} );
+};
+
 /**
  * Hook to sync specified block attributes to others of the same block type
  * within a specified ancestor block.
@@ -13,64 +20,94 @@ import { useEffect, useRef } from '@wordpress/element';
 export default function ( clientId, name, parentName, sharedAttributes ) {
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
 	const lastSyncedAttributesRef = useRef( null );
+	const wasSyncEnabledRef = useRef( false );
 
-	const syncAttributes = useSelect(
-		select => {
-			const block = select( 'core/block-editor' ).getBlock( clientId );
-			if ( ! block ) {
-				return null;
-			}
-
-			return sharedAttributes.reduce( ( acc, attr ) => {
-				acc[ attr ] = block.attributes[ attr ];
-				return acc;
-			}, {} );
-		},
-		[ clientId, sharedAttributes ]
-	);
-
-	const syncedBlockIds = useSelect(
+	const { syncAttributes, isSyncEnabled, existingSyncedBlock, syncedBlockIds } = useSelect(
 		select => {
 			const blockEditor = select( 'core/block-editor' );
+			const currentBlock = blockEditor.getBlock( clientId );
+			if ( ! currentBlock ) {
+				return {
+					syncAttributes: null,
+					isSyncEnabled: false,
+					existingSyncedBlock: null,
+					syncedBlockIds: [],
+				};
+			}
 
-			// Skip syncing any blocks if the immediate parent doesn't opt into shared attributes.
+			// Get parent's shareFieldAttributes status
 			const parentClientIds = blockEditor.getBlockParents( clientId );
 			const parentId = parentClientIds?.[ parentClientIds.length - 1 ];
 			const parentBlock = blockEditor.getBlock( parentId );
-			if ( ! parentBlock || ! parentBlock.attributes.shareFieldAttributes ) {
-				return [];
+			const isSharingEnabled = parentBlock?.attributes.shareFieldAttributes || false;
+
+			// Only collect attributes if sharing is enabled for this block's parent
+			const attributesToSync = isSharingEnabled
+				? collectAttributesToSync( currentBlock, sharedAttributes )
+				: null;
+
+			// Find existing synced blocks
+			const parentFormId = blockEditor.getBlockParentsByBlockName( clientId, parentName )?.[ 0 ];
+			const ids = [];
+
+			let blockWithSyncedAttributes = null;
+
+			if ( parentFormId ) {
+				const fields = blockEditor
+					.getBlocks( parentFormId )
+					.filter(
+						block =>
+							block.name.indexOf( 'jetpack/field' ) > -1 && block.attributes.shareFieldAttributes
+					);
+
+				// Look for the first synced block that isn't this one
+				for ( const field of fields ) {
+					const blocks = blockEditor
+						.getBlocks( field.clientId )
+						.filter( block => block.name === name && block.clientId !== clientId );
+
+					if ( blocks.length > 0 ) {
+						blockWithSyncedAttributes = blockWithSyncedAttributes || blocks[ 0 ];
+						ids.push( blocks[ 0 ].clientId );
+					}
+				}
 			}
 
-			// Find other blocks that have opted into sharing attributes and collect them.
-			const parentFormId = blockEditor.getBlockParentsByBlockName( clientId, parentName )?.[ 0 ];
-			const fields = blockEditor
-				.getBlocks( parentFormId )
-				.filter(
-					block =>
-						block.name.indexOf( 'jetpack/field' ) > -1 && block.attributes.shareFieldAttributes
-				);
-			const ids = [];
-			fields.forEach( field => {
-				const id = blockEditor
-					.getBlocks( field.clientId )
-					.filter( block => block.name === name && block.clientId !== clientId )?.[ 0 ]?.clientId;
-				if ( id ) {
-					ids.push( id );
-				}
-			} );
-			return ids;
+			return {
+				syncAttributes: attributesToSync,
+				isSyncEnabled: isSharingEnabled,
+				existingSyncedBlock: blockWithSyncedAttributes,
+				syncedBlockIds: ids,
+			};
 		},
-		[ clientId, name, parentName ]
+		[ clientId, name, parentName, sharedAttributes ]
 	);
 
 	useEffect( () => {
-		if (
+		const sharingJustEnabled = isSyncEnabled && ! wasSyncEnabledRef.current;
+		wasSyncEnabledRef.current = isSyncEnabled;
+
+		if ( sharingJustEnabled && existingSyncedBlock ) {
+			// When sharing is first enabled, adopt styles from existing synced block
+			const syncedAttributes = collectAttributesToSync( existingSyncedBlock, sharedAttributes );
+			updateBlockAttributes( clientId, syncedAttributes );
+			lastSyncedAttributesRef.current = syncedAttributes;
+		} else if (
 			syncAttributes &&
 			syncedBlockIds.length &&
 			JSON.stringify( syncAttributes ) !== JSON.stringify( lastSyncedAttributesRef.current )
 		) {
+			// Sync new style changes to other synced blocks.
 			updateBlockAttributes( syncedBlockIds, syncAttributes );
 			lastSyncedAttributesRef.current = syncAttributes;
 		}
-	}, [ syncAttributes, syncedBlockIds, updateBlockAttributes ] );
+	}, [
+		syncAttributes,
+		isSyncEnabled,
+		existingSyncedBlock,
+		syncedBlockIds,
+		updateBlockAttributes,
+		clientId,
+		sharedAttributes,
+	] );
 }
