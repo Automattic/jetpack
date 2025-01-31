@@ -367,7 +367,10 @@ class Password_Detection_Test extends BaseTestCase {
 		$sut->expects( $this->once() )
 			->method( 'exit' );
 
-		$sentence = htmlentities( 'We\'ve noticed that your current password may have been compromised in a public leak. To keep your account safe, we\'ve added an extra layer of security.' );
+		$sentence = htmlentities(
+			'We\'ve noticed that your current password may have been compromised in a public leak. To keep your account safe, we\'ve added an extra layer of security.',
+			ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401
+		);
 
 		$this->expectOutputRegex( '@' . $sentence . '@' );
 		$sut->render_content( $user, 'my_cool_token' );
