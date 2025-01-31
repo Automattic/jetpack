@@ -7,6 +7,7 @@ import {
 	useQuery,
 	useMutation,
 	QueryClientProvider,
+	useMutationState,
 } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import React, { useRef, useEffect } from 'react';
@@ -98,6 +99,14 @@ export function useDataSync<
 	const abortController = useRef< AbortController | null >( null );
 	const datasync = new DataSync( namespace, key, schema );
 	const queryKey = buildQueryKey( key, params );
+	const mutations = useMutationState( {
+		filters: {
+			mutationKey: queryKey,
+			status: 'pending',
+			predicate: mutation => Boolean( mutation?.meta?.abortController ),
+		},
+		select: mutation => mutation.meta as { abortController: AbortController },
+	} );
 
 	/**
 	 * Defaults for `useQuery`:
@@ -139,14 +148,19 @@ export function useDataSync<
 	const mutationConfigDefaults = {
 		mutationKey: queryKey,
 
+		meta: {
+			abortController: abortController.current,
+		},
 		// Mutation function that's called when the mutation is triggered
 		mutationFn: value => datasync.SET( value, params, abortController.current.signal ),
 
 		// Mutation actions that occur before the mutationFn is called
 		onMutate: async data => {
-			// If there's an existing mutation in progress, cancel it
-			if ( abortController.current ) {
-				abortController.current.abort();
+			// If there's any existing mutations in progress with the same key, cancel them.
+			if ( mutations.length > 0 ) {
+				mutations.forEach( mutation => {
+					mutation?.abortController?.abort();
+				} );
 			}
 			// Create a new AbortController for the upcoming request
 			abortController.current = new AbortController();
