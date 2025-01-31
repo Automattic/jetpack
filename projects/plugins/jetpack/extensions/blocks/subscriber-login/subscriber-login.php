@@ -128,7 +128,7 @@ function render_block( $attributes ) {
 	$show_manage_link           = ! empty( $attributes['showManageSubscriptionsLink'] );
 	$manage_subscriptions_label = ! empty( $attributes['manageSubscriptionsLabel'] ) ? sanitize_text_field( $attributes['manageSubscriptionsLabel'] ) : esc_html__( 'Manage subscription', 'jetpack' );
 
-	if ( false ) {
+	if ( ! is_subscriber_logged_in() ) {
 		return sprintf(
 			$block_template,
 			get_block_wrapper_attributes(),
@@ -137,7 +137,7 @@ function render_block( $attributes ) {
 		);
 	}
 
-	if ( true ) {
+	if ( $show_manage_link && Jetpack_Memberships::is_current_user_subscribed() ) {
 		return sprintf(
 			$block_template,
 			get_block_wrapper_attributes(),
