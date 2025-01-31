@@ -384,7 +384,7 @@ function wpcom_classic_tour_enqueue_scripts() {
 	);
 
 	wp_add_inline_script(
-		'wpcom-site-menu',
+		'wpcom-classic-tour',
 		'window.wpcomClassicTour = ' . wp_json_encode( $data ) . ';'
 	);
 }
