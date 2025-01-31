@@ -25,11 +25,6 @@ interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] 
 	thickness?: number;
 
 	/**
-	 * Padding around the chart
-	 */
-	padding?: number;
-
-	/**
 	 * Direction of chart rendering
 	 * true for clockwise, false for counter-clockwise
 	 */
@@ -82,7 +77,6 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	data,
 	width = 400,
 	thickness = 0.4,
-	padding = 20,
 	clockwise = true,
 	withTooltips = false,
 	showLegend = false,
@@ -139,8 +133,8 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	const pad = 0.03;
 
 	// Use padding for the overall chart dimensions
-	const chartWidth = width - padding * 2;
-	const chartHeight = height - padding;
+	const chartWidth = width - pad * 2;
+	const chartHeight = height - pad;
 	const radius = Math.min( chartWidth, chartHeight * 2 ) / 2;
 
 	const innerRadius = radius * ( 1 - thickness + pad );
@@ -175,14 +169,13 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 
 	return (
 		<div
-			className={ clsx( styles[ 'pie-semi-circle-chart' ], className ) }
+			className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
 			data-testid="pie-chart-container"
 		>
 			<svg
 				width={ width }
 				height={ height }
 				viewBox={ `0 0 ${ width } ${ height }` }
-				style={ { padding: padding } }
 				data-testid="pie-chart-svg"
 			>
 				{ /* Main chart group that contains both the pie and text elements */ }
