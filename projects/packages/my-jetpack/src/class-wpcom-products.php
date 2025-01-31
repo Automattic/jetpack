@@ -346,7 +346,7 @@ class Wpcom_Products {
 		$body      = wp_remote_retrieve_body( $response );
 		$purchases = json_decode( $body );
 		// Set short transient to help with repeated lookups on the same page load
-		set_transient( self::MY_JETPACK_PURCHASES_TRANSIENT_KEY, $purchases, 360 );
+		set_transient( self::MY_JETPACK_PURCHASES_TRANSIENT_KEY, $purchases, 5 );
 
 		return $purchases;
 	}
@@ -370,7 +370,7 @@ class Wpcom_Products {
 
 		Current_Plan::refresh_from_wpcom();
 		$current_plan = Current_Plan::get();
-		set_transient( self::MY_JETPACK_CURRENT_PLAN_TRANSIENT_KEY, $current_plan, 5 );
+		set_transient( self::MY_JETPACK_CURRENT_PLAN_TRANSIENT_KEY, $current_plan, 360 );
 
 		return $current_plan;
 	}
