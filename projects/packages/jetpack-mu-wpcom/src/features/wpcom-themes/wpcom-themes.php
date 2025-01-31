@@ -78,8 +78,10 @@ function wpcom_themes_ajax_query_themes() {
 	// Remove the core function
 	remove_action( 'wp_ajax_query-themes', 'wp_ajax_query_themes' );
 
-	// Copy over the function content, minus the capability check.
+	// Copy over `wp_ajax_query_themes` function.
 	global $themes_allowedtags, $theme_field_defaults;
+
+	// @patched Remove the capability check.
 
 	$args = wp_parse_args(
 		wp_unslash( $_REQUEST['request'] ),
