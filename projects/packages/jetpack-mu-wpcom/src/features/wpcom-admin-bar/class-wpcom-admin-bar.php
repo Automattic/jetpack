@@ -36,13 +36,19 @@ class WPCOM_Admin_Bar extends \WP_Admin_Bar {
 	 * Constructor.
 	 */
 	public function __construct() {
-		if ( ! wpcom_is_duplicate_views_experiment_enabled() ) {
+		if ( ! wpcom_should_disable_calypso_links( 'edit.php?post_type=page' ) ) {
 			$this->map_wp_admin_url_to_calypso_url['wp-admin/post-new.php?post_type=page'] = 'https://wordpress.com/page/%home_url%';
-			/**
-			 * Jetpack
-			 */
+		}
+
+		/**
+		 * Jetpack
+		 */
+		if ( ! wpcom_should_disable_calypso_links( 'edit.php?post_type=jetpack-testimonial' ) ) {
 			$this->map_wp_admin_url_to_calypso_url['wp-admin/post-new.php?post_type=jetpack-testimonial'] = 'https://wordpress.com/types/jetpack-testimonial/%home_url%';
-			$this->map_wp_admin_url_to_calypso_url['wp-admin/post-new.php?post_type=jetpack-portfolio']   = 'https://wordpress.com/types/jetpack-portfolio/%home_url%';
+		}
+
+		if ( ! wpcom_should_disable_calypso_links( 'edit.php?post_type=jetpack-portfolio' ) ) {
+			$this->map_wp_admin_url_to_calypso_url['wp-admin/post-new.php?post_type=jetpack-portfolio'] = 'https://wordpress.com/types/jetpack-portfolio/%home_url%';
 		}
 	}
 
