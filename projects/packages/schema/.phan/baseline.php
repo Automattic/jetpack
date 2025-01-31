@@ -13,13 +13,11 @@ return [
     // PhanParamTooFew : 5 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
     // PhanImpossibleTypeComparison : 1 occurrence
-    // PhanParamTooMany : 1 occurrence
     // PhanTypeMismatchArgumentNullable : 1 occurrence
     // PhanTypeMismatchReturn : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-schema.php' => ['PhanParamTooMany'],
         'src/types/class-type-assoc-array.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturn'],
         'src/types/class-type-string.php' => ['PhanImpossibleTypeComparison'],
         'tests/php/integration/test-integration-fallback-values.php' => ['PhanNonClassMethodCall'],
