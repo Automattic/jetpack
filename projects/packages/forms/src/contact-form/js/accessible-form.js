@@ -29,6 +29,8 @@ const L10N = {
 	submittingForm: __( 'Submitting form', 'jetpack-forms' ),
 	/* translators: generic error message */
 	genericError: __( 'Please correct this field', 'jetpack-forms' ),
+	/* translators: error message shown when no field has been filled out */
+	emptyForm: __( 'The form you are trying to submit is emtpy.', 'jetpack-forms' ),
 	errorCount: d =>
 		/* translators: message displayed when errors need to be fixed. %d is the number of errors. */
 		_n( 'You need to fix %d error.', 'You need to fix %d errors.', d, 'jetpack-forms' ),
@@ -46,6 +48,20 @@ const initAllForms = () => {
 		.querySelectorAll( '.wp-block-jetpack-contact-form-container form.contact-form' )
 		.forEach( initForm );
 };
+
+const IgnoredFieldsForEmptyForm = [
+	'_wpnonce',
+	'_wp_http_referer',
+	'contact-form-id',
+	'action',
+	'contact-form-hash',
+];
+function isFormEmpty( form ) {
+	const formData = new FormData( form );
+	return ! Array.from( formData.entries() ).some(
+		( [ key, value ] ) => ! IgnoredFieldsForEmptyForm.includes( key ) && !! value?.trim()
+	);
+}
 
 /**
  * Implement a form custom validation.
@@ -75,7 +91,15 @@ const initForm = form => {
 
 		clearForm( form, inputListenerMap, opts );
 
-		if ( isFormValid( form ) ) {
+		const isValid = isFormValid( form );
+		// If a form is invalid proceed with the usual validation process, even if it's empty.
+		// This indicates that some fields are required.
+		if ( isFormEmpty( form ) && isValid ) {
+			setFormError( form, [], { disableLiveRegion: true, type: 'emptyForm' } );
+			return;
+		}
+
+		if ( isValid ) {
 			inputListenerMap = {};
 
 			form.removeEventListener( 'submit', onSubmit );
@@ -914,6 +938,10 @@ const setFormError = ( form, invalidFields, opts = {} ) => {
 	}
 
 	const count = invalidFields.length;
+	if ( ! count && !! L10N[ opts.type ] ) {
+		error.appendChild( createError( L10N[ opts.type ] ) );
+		return;
+	}
 	const errors = [ L10N.invalidForm ];
 
 	if ( count > 0 ) {
