@@ -2,7 +2,6 @@ import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import moment from 'moment';
 
 import './style.scss';
 
@@ -10,10 +9,13 @@ export default () => {
 	const [ prompts, setPrompts ] = useState( [] );
 	const [ index, setIndex ] = useState( 0 );
 	useEffect( () => {
+		const now = new Date();
+		const mm = String( now.getMonth() + 1 ).padStart( 2, '0' );
+		const dd = String( now.getDate() ).padStart( 2, '0' );
 		// See projects/packages/jetpack-mu-wpcom/src/features/wpcom-block-editor-nux/src/blogging-prompts-modal/index.js
 		const path = addQueryArgs( `/wpcom/v3/blogging-prompts`, {
 			per_page: 10,
-			after: moment().format( '--MM-DD' ),
+			after: `--${ mm }-${ dd }`,
 			order: 'desc',
 			force_year: new Date().getFullYear(),
 		} );
