@@ -197,3 +197,27 @@ function wpcom_themes_ajax_query_themes() {
 	wp_send_json_success( $api );
 }
 add_action( 'wp_ajax_query-themes', 'wpcom_themes_ajax_query_themes', 1 );
+
+/**
+ * Remove the core themes save-wporg-username ajax action and replace it with our own,
+ * which does not check `current_user_can( 'install_themes' )`.
+ */
+function wpcom_themes_ajax_save_wporg_username() {
+	// Remove the core function
+	remove_action( 'wp_ajax_query-themes', 'wp_ajax_save_wporg_username' );
+
+	// Copy over the `wp_ajax_save_wporg_username` function.
+
+	// @patched Remove the capability check.
+
+	check_ajax_referer( 'save_wporg_username_' . get_current_user_id() );
+
+	$username = isset( $_REQUEST['username'] ) ? wp_unslash( $_REQUEST['username'] ) : false;
+
+	if ( ! $username ) {
+		wp_send_json_error();
+	}
+
+	wp_send_json_success( update_user_meta( get_current_user_id(), 'wporg_favorites', $username ) );
+}
+add_action( 'wp_ajax_save-wporg-username', 'wpcom_themes_ajax_save_wporg_username', 1 );
