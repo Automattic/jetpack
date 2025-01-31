@@ -39,11 +39,6 @@ interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] 
 	 * Note text to display below the label
 	 */
 	note?: string;
-
-	/**
-	 * Additional class name for the chart container
-	 */
-	className?: string;
 }
 
 type ArcData = PieArcDatum< DataPointPercentage >;
