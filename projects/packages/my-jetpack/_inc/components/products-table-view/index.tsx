@@ -1,6 +1,6 @@
 import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useMemo } from 'react';
 import { useAllProducts } from '../../data/products/use-all-products';
 import ActionButton from '../action-button';
 import {
@@ -21,6 +21,7 @@ import SocialIcon from './icons/social';
 import StatsIcon from './icons/stats';
 import VideopressIcon from './icons/videopress';
 import type { ProductsTableViewProps, ProductData } from './types';
+import type { ProductCamelCase } from '../../data/types';
 import type { ViewList, SupportedLayouts, SortDirection, View } from '@wordpress/dataviews';
 import type { FC } from 'react';
 
@@ -39,8 +40,12 @@ const PRODUCT_ICONS = {
 	social: SocialIcon,
 };
 
-const useCompileData: ( products: JetpackModule[] ) => ProductData[] = products => {
-	const allProductData = useAllProducts();
+const compileData: (
+	products: JetpackModule[],
+	allProductData: {
+		[ key: string ]: ProductCamelCase;
+	}
+) => ProductData[] = ( products, allProductData ) => {
 	const data = products.map( product => {
 		const productData = allProductData[ product ];
 		const { description, name, status, slug, category } = productData;
@@ -58,79 +63,13 @@ const useCompileData: ( products: JetpackModule[] ) => ProductData[] = products 
 	return data;
 };
 
-const getFields = () => {
-	return [
-		{
-			id: PRODUCT_TABLE_TITLE,
-			label: __( 'Title', 'jetpack-my-jetpack' ),
-			enableGlobalSearch: true,
-			enableHiding: false,
-			getValue( { item }: { item: ProductData } ) {
-				return item.product.name;
-			},
-			render: ( { item }: { item: ProductData } ) => {
-				const { product } = item;
-				return <div>{ product.name }</div>;
-			},
-		},
-		{
-			id: PRODUCT_TABLE_DESCRIPTION,
-			label: __( 'Description', 'jetpack-my-jetpack' ),
-			enableGlobalSearch: true,
-			enableHiding: false,
-			getValue( { item }: { item: ProductData } ) {
-				return item.product.description;
-			},
-			render: ( { item }: { item: ProductData } ) => {
-				const { product } = item;
-				return <div>{ product.description }</div>;
-			},
-		},
-		{
-			id: PRODUCT_TABLE_CATEGORY,
-			label: __( 'Category', 'jetpack-my-jetpack' ),
-			enableGlobalSearch: true,
-			enableHiding: true,
-			isVisible: () => false,
-			getValue( { item }: { item: ProductData } ) {
-				return item.product.category;
-			},
-		},
-		{
-			id: PRODUCT_TABLE_ICON,
-			label: __( 'Icon', 'jetpack-my-jetpack' ),
-			enableGlobalSearch: false,
-			enableHiding: false,
-			render( { item }: { item: ProductData } ) {
-				const { product } = item;
-				const Icon = PRODUCT_ICONS[ product.slug ];
-				return <Icon />;
-			},
-		},
-		{
-			id: PRODUCT_TABLE_STATUS,
-			label: 'Status',
-			enableGlobalSearch: false,
-			enableHiding: false,
-			getValue( { item }: { item: ProductData } ) {
-				return item.status;
-			},
-			render: ( { item }: { item: ProductData } ) => {
-				const { product } = item;
-				const { slug } = product;
-
-				return <ActionButton slug={ slug } tracksIdentifier="product_list_item" />;
-			},
-		},
-	];
-};
-
 const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 	const getItemId = useCallback( ( item: ProductData ) => item.product.slug, [] );
 	const onChangeView = useCallback( ( newView: View ) => {
 		setView( newView );
 	}, [] );
 	const isItemClickable = useCallback( () => false, [] );
+	const allProductData = useAllProducts();
 
 	const baseView: ViewList = {
 		sort: {
@@ -153,15 +92,87 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 		},
 	};
 
+	const fields = useMemo( () => {
+		return [
+			{
+				id: PRODUCT_TABLE_TITLE,
+				label: __( 'Title', 'jetpack-my-jetpack' ),
+				enableGlobalSearch: true,
+				enableHiding: false,
+				getValue( { item }: { item: ProductData } ) {
+					return item.product.name;
+				},
+				render: ( { item }: { item: ProductData } ) => {
+					const { product } = item;
+					return <div>{ product.name }</div>;
+				},
+			},
+			{
+				id: PRODUCT_TABLE_DESCRIPTION,
+				label: __( 'Description', 'jetpack-my-jetpack' ),
+				enableGlobalSearch: true,
+				enableHiding: false,
+				getValue( { item }: { item: ProductData } ) {
+					return item.product.description;
+				},
+				render: ( { item }: { item: ProductData } ) => {
+					const { product } = item;
+					return <div>{ product.description }</div>;
+				},
+			},
+			{
+				id: PRODUCT_TABLE_CATEGORY,
+				label: __( 'Category', 'jetpack-my-jetpack' ),
+				enableGlobalSearch: true,
+				enableHiding: true,
+				isVisible: () => false,
+				getValue( { item }: { item: ProductData } ) {
+					return item.product.category;
+				},
+			},
+			{
+				id: PRODUCT_TABLE_ICON,
+				label: __( 'Icon', 'jetpack-my-jetpack' ),
+				enableGlobalSearch: false,
+				enableHiding: false,
+				render( { item }: { item: ProductData } ) {
+					const { product } = item;
+					const Icon = PRODUCT_ICONS[ product.slug ];
+					return <Icon />;
+				},
+			},
+			{
+				id: PRODUCT_TABLE_STATUS,
+				label: 'Status',
+				enableGlobalSearch: false,
+				enableHiding: false,
+				getValue( { item }: { item: ProductData } ) {
+					return item.status;
+				},
+				render: ( { item }: { item: ProductData } ) => {
+					const { product } = item;
+					const { slug } = product;
+
+					return <ActionButton slug={ slug } tracksIdentifier="product_list_item" />;
+				},
+			},
+		];
+	}, [] );
+
 	const [ view, setView ] = useState< View >( {
 		type: 'list',
 		...defaultLayouts.list,
 	} );
 
-	const data = useCompileData( products );
-	const fields = getFields();
+	const data = useMemo(
+		() => compileData( products, allProductData ),
+		[ allProductData, products ]
+	);
 
-	const { data: processedData, paginationInfo } = filterSortAndPaginate( data, view, fields );
+	const { data: processedData, paginationInfo } = useMemo(
+		() => filterSortAndPaginate( data, view, fields ),
+		[ data, fields, view ]
+	);
 
 	return (
 		<DataViews
