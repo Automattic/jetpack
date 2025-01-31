@@ -12,7 +12,11 @@ use PhpParser\Node\Expr\FuncCall;
 use PhpParser\NodeFinder;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
+use PHPStan\PhpDocParser\Ast\PhpDoc\InvalidTagValueNode;
+use PHPStan\PhpDocParser\Ast\PhpDoc\ParamTagValueNode;
+use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTextNode;
+use PHPStan\PhpDocParser\Ast\Type\IdentifierTypeNode;
 use PHPStan\PhpDocParser\Lexer\Lexer;
 use PHPStan\PhpDocParser\Parser\ConstExprParser;
 use PHPStan\PhpDocParser\Parser\ParserException;
@@ -210,8 +214,6 @@ class Doc_Parser {
 					continue;
 				}
 
-				$paramTags = $phpDocNode->getParamTagValues();
-
 				foreach ( $phpDocNode->children as $entry ) {
 					if ( ! $entry instanceof PhpDocTextNode ) {
 						continue;
@@ -225,7 +227,9 @@ class Doc_Parser {
 					}
 				}
 
+				$paramTags  = $this->get_param_tag_nodes( $phpDocNode );
 				$parameters = array();
+
 				foreach ( $paramTags as $paramTag ) {
 					$block['doc']['tags'][] = array(
 						'name'     => 'param',
@@ -281,6 +285,34 @@ class Doc_Parser {
 		}
 
 		return $blocks;
+	}
+
+	/**
+	 * Returns all param tag nodes. Tries to recover any parsing errors because of invalid markup.
+	 *
+	 * @param PhpDocNode $phpdocnode the parsed PHPDoc node.
+	 * @return array an array of PhpDocTagNode objects.
+	 */
+	public function get_param_tag_nodes( PhpDocNode $phpdocnode ): array {
+		$tags = $phpdocnode->getParamTagValues();
+
+		// Looking for invalid param tags.
+		foreach ( $phpdocnode->getTags() as &$tag ) {
+			if (
+				$tag->name !== '@param'
+					|| ! $tag->value instanceof InvalidTagValueNode
+			) {
+				continue;
+			}
+
+			$pieces      = explode( ' ', $tag->value->value );
+			$type        = new IdentifierTypeNode( $pieces[0] );
+			$name        = $pieces[1] ?? 'argument';
+			$description = implode( ' ', array_slice( $pieces, 2 ) );
+			$tags[]      = new ParamTagValueNode( $type, true, $name, $description, false );
+		}
+
+		return $tags;
 	}
 
 	/**
