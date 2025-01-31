@@ -63,6 +63,9 @@ const settings = {
 	},
 	edit,
 	save,
+	selectors: {
+		color: '.wp-block-jetpack-field-input, .wp-block-jetpack-field-input::placeholder',
+	},
 };
 
 export default {
