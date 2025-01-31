@@ -327,6 +327,7 @@ if ( $tab ) {
 </div>
 
 <script id="tmpl-theme" type="text/template">
+	<?php ob_start(); ?>
 	<# if ( data.screenshot_url ) { #>
 		<div class="theme-screenshot">
 			<img src="{{ data.screenshot_url }}?ver={{ data.version }}" alt="" />
@@ -471,9 +472,16 @@ if ( $tab ) {
 			<# } #>
 		</div>
 	</div>
+	<?php
+		// @patched Add filter for theme card view template.
+		$content = ob_get_clean();
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo apply_filters( 'wpcom_themes_tmpl_theme', $content );
+	?>
 </script>
 
 <script id="tmpl-theme-preview" type="text/template">
+	<?php ob_start(); ?>
 	<div class="wp-full-overlay-sidebar">
 		<div class="wp-full-overlay-header">
 			<button class="close-full-overlay"><span class="screen-reader-text">
@@ -621,6 +629,12 @@ if ( $tab ) {
 		<div class="wp-full-overlay-main">
 		<iframe src="{{ data.preview_url }}" title="<?php esc_attr_e( 'Preview' ); ?>"></iframe>
 	</div>
+	<?php
+		// @patched Add filter for single theme view template.
+		$content = ob_get_clean();
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo apply_filters( 'wpcom_themes_tmpl_theme_preview', $content );
+	?>
 </script>
 
 <?php
