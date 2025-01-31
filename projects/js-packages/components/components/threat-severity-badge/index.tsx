@@ -1,25 +1,40 @@
-import { _x } from '@wordpress/i18n';
+import {
+	getSeverityLabel,
+	getSeverityLevel,
+	SEVERITY_LEVEL_CRITICAL,
+	SEVERITY_LEVEL_HIGH,
+	SEVERITY_LEVEL_LOW,
+} from '@automattic/jetpack-scan';
+import { __, sprintf } from '@wordpress/i18n';
 import Badge from '../badge';
 
-const ThreatSeverityBadge = ( { severity } ) => {
-	if ( severity >= 5 ) {
-		return (
-			<Badge variant="danger">
-				{ _x( 'Critical', 'Severity label for issues rated 5 or higher.', 'jetpack-components' ) }
-			</Badge>
-		);
-	}
+const ThreatSeverityBadge = ( { severity, showLabel = false } ) => {
+	const title = getSeverityLabel( severity );
 
-	if ( severity >= 3 && severity < 5 ) {
-		return (
-			<Badge variant="warning">
-				{ _x( 'High', 'Severity label for issues rated between 3 and 5.', 'jetpack-components' ) }
-			</Badge>
-		);
+	let variant: 'danger' | 'warning';
+	switch ( getSeverityLevel( severity ) ) {
+		case SEVERITY_LEVEL_CRITICAL:
+			variant = 'danger';
+			break;
+		case SEVERITY_LEVEL_HIGH:
+			variant = 'warning';
+			break;
+		case SEVERITY_LEVEL_LOW:
+		default:
+			// Default variant.
+			break;
 	}
 
 	return (
-		<Badge>{ _x( 'Low', 'Severity label for issues rated below 3.', 'jetpack-components' ) }</Badge>
+		<Badge variant={ variant }>
+			{ showLabel
+				? sprintf(
+						// translators: placeholder is the severity title, i.e. "Critical Severity".
+						__( '%s Severity', 'jetpack-components' ),
+						title
+				  )
+				: title }
+		</Badge>
 	);
 };
 

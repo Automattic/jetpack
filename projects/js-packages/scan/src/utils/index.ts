@@ -3,6 +3,8 @@ import { FIXER_IS_STALE_THRESHOLD } from '../constants/index.js';
 import { type ThreatFixStatus } from '../types/fixers.js';
 import { type Threat } from '../types/threats.js';
 
+export * from './severity.js';
+
 export const getThreatType = ( threat: Threat ) => {
 	if ( threat.signature === 'Vulnerable.WP.Core' ) {
 		return 'core';
