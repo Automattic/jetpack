@@ -59,8 +59,8 @@ class Password_Detection {
 			}
 
 			return new \WP_Error(
-				Config::ERROR_CODE,
-				Config::ERROR_MESSAGE,
+				Config::PASSWORD_DETECTION_ERROR_CODE,
+				Config::PASSWORD_DETECTION_ERROR_MESSAGE,
 				array( 'token' => $transient['token'] )
 			);
 		}
@@ -96,7 +96,7 @@ class Password_Detection {
 		}
 
 		$token          = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( $_GET['token'] ) ) : null;
-		$transient_data = get_transient( Config::TRANSIENT_PREFIX . "_{$token}" );
+		$transient_data = get_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$token}" );
 		if ( ! $transient_data ) {
 			$this->redirect_to_login();
 		}
@@ -107,8 +107,6 @@ class Password_Detection {
 			$this->redirect_to_login();
 		}
 
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
-
 		// Handle resend email request
 		if ( isset( $_GET['resend_email'] ) && $_GET['resend_email'] === '1' ) {
 			if ( isset( $_GET['_wpnonce'] )
@@ -118,7 +116,7 @@ class Password_Detection {
 				if ( ! $email_resent ) {
 					$message = __( 'Failed to resend authentication email. Please try again.', 'jetpack-account-protection' );
 
-					if ( $transient_data['resend_attempts'] >= Config::MAX_RESEND_ATTEMPTS ) {
+					if ( $transient_data['resend_attempts'] >= Config::PASSWORD_DETECTION_MAX_RESEND_ATTEMPTS ) {
 						$message = __( 'Resend limit exceeded. Please try again later.', 'jetpack-account-protection' );
 					}
 
@@ -156,7 +154,7 @@ class Password_Detection {
 	 * @return void
 	 */
 	public function render_content( \WP_User $user, string $token ): void {
-		$transient_key = Config::TRANSIENT_PREFIX . "_error_{$user->ID}";
+		$transient_key = Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_error_{$user->ID}";
 		$error_message = get_transient( $transient_key );
 		delete_transient( $transient_key );
 
@@ -251,7 +249,7 @@ class Password_Detection {
 			'resend_attempts' => 0,
 		);
 
-		$transient_set = set_transient( Config::TRANSIENT_PREFIX . "_{$token}", $data, Config::EMAIL_SENT_EXPIRATION );
+		$transient_set = set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$token}", $data, Config::PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION );
 		if ( ! $transient_set ) {
 			$this->set_transient_error( $user_id, __( 'Failed to set transient data. Please try again.', 'jetpack-account-protection' ) );
 		}
@@ -296,7 +294,7 @@ class Password_Detection {
 	private function handle_auth_form_submission( \WP_User $user, string $token, string $auth_code, string $user_input ): void {
 		if ( $auth_code && $auth_code === $user_input ) {
 			// TODO: Ensure all transient are also removed on module and/or plugin deactivation
-			delete_transient( Config::TRANSIENT_PREFIX . "_{$token}" );
+			delete_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$token}" );
 			wp_set_auth_cookie( $user->ID, true );
 			// TODO: Notify user to update their password/redirect to password update page
 			wp_safe_redirect( admin_url() );
@@ -316,7 +314,7 @@ class Password_Detection {
 	 * @return void
 	 */
 	private function set_transient_error( int $user_id, string $message, int $expiration = 60 ): void {
-		set_transient( Config::TRANSIENT_PREFIX . "_error_{$user_id}", esc_html( $message ), $expiration );
+		set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_error_{$user_id}", esc_html( $message ), $expiration );
 	}
 
 	/**

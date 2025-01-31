@@ -17,6 +17,13 @@ class Account_Protection {
 	const ACCOUNT_PROTECTION_MODULE_NAME = 'account-protection';
 
 	/**
+	 * Flag to track if hooks have been registered.
+	 *
+	 * @var bool
+	 */
+	private static $hooks_registered = false;
+
+	/**
 	 * Modules instance.
 	 *
 	 * @var Modules
@@ -31,23 +38,23 @@ class Account_Protection {
 	private $password_detection;
 
 	/**
-	 * Validation service instance
+	 * Password manager instance
 	 *
-	 * @var Validation_Service
+	 * @var Password_Manager
 	 */
-	private $validation_service;
+	private $password_manager;
 
 	/**
 	 * Account_Protection constructor.
 	 *
 	 * @param ?Modules            $modules            Modules instance.
 	 * @param ?Password_Detection $password_detection Password detection instance.
-	 * @param ?Validation_Service $validation_service Validation service instance.
+	 * @param ?Password_Manager   $password_manager Validation service instance.
 	 */
-	public function __construct( ?Modules $modules = null, ?Password_Detection $password_detection = null, ?Validation_Service $validation_service = null ) {
+	public function __construct( ?Modules $modules = null, ?Password_Detection $password_detection = null, ?Password_Manager $password_manager = null ) {
 		$this->modules            = $modules ?? new Modules();
 		$this->password_detection = $password_detection ?? new Password_Detection();
-		$this->validation_service = $validation_service ?? new Validation_Service();
+		$this->password_manager   = $password_manager ?? new Password_Manager();
 	}
 
 	/**
@@ -56,11 +63,17 @@ class Account_Protection {
 	 * @return void
 	 */
 	public function init(): void {
+		if ( self::$hooks_registered ) {
+			return;
+		}
+
 		$this->register_hooks();
 
 		if ( $this->is_enabled() ) {
 			$this->register_runtime_hooks();
 		}
+
+		self::$hooks_registered = true;
 	}
 
 	/**
@@ -92,16 +105,37 @@ class Account_Protection {
 
 		// Add password detection flow
 		add_action( 'login_form_password-detection', array( $this->password_detection, 'render_page' ), 10, 2 );
+		add_action( 'wp_enqueue_scripts', array( $this->password_detection, 'enqueue_styles' ) );
 
 		// Add password validation
-		add_action( 'registration_errors', array( $this->validation_service, 'validate_user_register' ), 10, 2 );
-		add_action( 'user_profile_update_errors', array( $this->validation_service, 'validate_profile_update' ), 10, 2 );
-		add_action( 'validate_password_reset', array( $this->validation_service, 'validate_after_password_reset' ), 10, 2 );
+		add_action(
+			'user_new_form',
+			function () {
+				wp_nonce_field( 'add-new-user', '_new_user_nonce' );
+			}
+		);
+		add_action( 'user_profile_update_errors', array( $this->password_manager, 'validate_profile_update' ), 10, 3 );
+		add_action( 'validate_password_reset', array( $this->password_manager, 'validate_password_reset' ), 10, 2 );
 
 		// Update recent passwords list
-		// user_register
-		// profile_update
-		// after_password_reset
+		add_action( 'profile_update', array( $this->password_manager, 'on_profile_update' ), 10, 3 );
+		add_action( 'after_password_reset', array( $this->password_manager, 'on_password_reset' ), 10, 2 );
+
+		// TESTING
+		add_filter(
+			'retrieve_password_message',
+			function ( $message, $key, $user_login, $user_data ) {
+
+				$reset_link = network_site_url( 'wp-login.php?login=' . rawurlencode( $user_login ) . "&key=$key&action=rp", 'login' );
+
+				// Log or store the reset link for debugging
+				error_log( 'Generated Reset Link: ' . $reset_link );
+
+				return $message; // Keep the original email message intact
+			},
+			10,
+			4
+		);
 	}
 
 	/**

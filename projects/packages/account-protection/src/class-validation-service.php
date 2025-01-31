@@ -14,61 +14,15 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
  * Class Validation_Service
  */
 class Validation_Service {
-	public function validate_profile_update( $errors, $update, $user ) {
-		if ( ! $this->verify_password_update_nonce( 'update-user_' . $user->ID ) ) {
-			$errors->add( 'nonce_error', __( 'Nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
-			return;
-		}
-
-		if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
-			// $password = sanitize_text_field($_POST['pass1']);
-
-			$errors->add( 'password_error', __( 'Your new password does not meet the required criteria.', 'jetpack-account-protection' ) );
-		}
-
-		// TODO: Check current password, run validation, update list
-		error_log( 'validate_profile_update' );
-
-		return $errors;
-	}
-
-	public function validation_user_register( $errors, $sanitized_user_login, $user_email ) {
-		if ( ! $this->verify_password_update_nonce( 'user-registration' ) ) {
-			$errors->add( 'nonce_error', __( 'Nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
-			return $errors;
-		}
-
-		// TODO: Check current password, run validation, update list
-		error_log( 'validation_user_register' );
-	}
-
-	public function validate_after_password_reset( $errors, $user ) {
-		if ( ! $this->verify_password_update_nonce( 'resetpassword_' . $user->ID ) ) {
-			$errors->add( 'nonce_error', __( 'Nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
-			return $errors;
-		}
-
-		// TODO: Check current password, run validation, update list
-		error_log( 'validate_after_password_reset' );
-	}
-
-	private function verify_password_update_nonce( $key ) {
-		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], $key ) ) {
-			return false;
-		}
-
-		return true;
-	}
-
 	/**
-	 * Validate password against security conditions.
+	 * Validate password against all security conditions.
 	 *
-	 * @param string $password The password to check.
-	 * @param int    $user_id  The user ID.
+	 * @param \WP_User|\stdClass $user The user object or a copy.
+	 * @param string             $password The password to check.
 	 *
 	 * @return array An array of validation errors (if any).
 	 */
-	public function validate_password( string $password, int $user_id ): array {
+	public function return_all_validation_errors( $user, string $password ): array {
 		$errors = array();
 
 		if ( $this->contains_backslash( $password ) ) {
@@ -79,19 +33,60 @@ class Validation_Service {
 			$errors[] = __( 'Between 6 and 150 characters', 'jetpack-account-protection' );
 		}
 
+		if ( $this->matches_user_data( $user, $password ) ) {
+			$errors[] = __( 'Doesn\'t match user data', 'jetpack-account-protection' );
+		}
+
+		if ( $this->is_recent_password( $user->ID, $password ) ) {
+			$errors[] = __( 'Not used recently', 'jetpack-account-protection' );
+		}
+
 		if ( $this->is_weak_password( $password ) ) {
 			$errors[] = __( 'Not a leaked password.', 'jetpack-account-protection' );
 		}
 
-		if ( $this->matches_user_data( $password, $user_id ) ) {
-			$errors[] = __( 'Doesn\'t match user data', 'jetpack-account-protection' );
-		}
-
-		if ( $this->is_recent_password( $password, $user_id ) ) {
-			$errors[] = __( 'Not used recently', 'jetpack-account-protection' );
-		}
-
 		return $errors;
+	}
+
+	/**
+	 * Validate password against first security conditions.
+	 *
+	 * @param \WP_User|\stdClass $user The user object or a copy.
+	 * @param string             $password The password to check.
+	 * @param 'profile'|'reset'  $context The context the validation is run in.
+	 *
+	 * @return string The first validation errors (if any).
+	 */
+	public function return_first_validation_error( $user, string $password, $context ): string {
+		if ( 'profile' === $context ) {
+			if ( empty( $password ) ) {
+				return __( '<strong>Error:</strong> The password cannot be a space or all spaces.', 'jetpack-account-protection' );
+			}
+		}
+
+		if ( 'reset' === $context ) {
+			if ( $this->contains_backslash( $password ) ) {
+				return __( '<strong>Error:</strong> The password cannot contain a backslash (\\) character.', 'jetpack-account-protection' );
+			}
+		}
+
+		if ( ! $this->check_length( $password ) ) {
+			return __( '<strong>Error:</strong> The password must be between 6 and 150 characters.', 'jetpack-account-protection' );
+		}
+
+		if ( $this->matches_user_data( $user, $password ) ) {
+			return __( '<strong>Error:</strong> The password matches user data.', 'jetpack-account-protection' );
+		}
+
+		if ( $this->is_recent_password( $user->ID, $password ) ) {
+			return __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' );
+		}
+
+		if ( $this->is_weak_password( $password ) ) {
+			return __( '<strong>Error:</strong> The password was found in a public leak.', 'jetpack-account-protection' );
+		}
+
+		return '';
 	}
 
 	/**
@@ -120,14 +115,12 @@ class Validation_Service {
 	/**
 	 * Check if the password matches any user data.
 	 *
-	 * @param string $password The password to check.
-	 * @param int    $user_id  The user ID.
+	 * @param \WP_User|\stdClass $user The user.
+	 * @param string             $password The password to check.
 	 *
 	 * @return bool True if the password matches any user data, false otherwise.
 	 */
-	private function matches_user_data( string $password, int $user_id ): bool {
-		$user = get_userdata( $user_id );
-
+	private function matches_user_data( $user, string $password ): bool {
 		if ( ! $user ) {
 			return false;
 		}
@@ -140,6 +133,7 @@ class Validation_Service {
 			$user->last_name,
 			$user->user_email,
 			explode( '@', $user->user_email )[0], // Email username
+			explode( '@', $user->user_email )[1], // Email domain
 			$user->nickname,
 		);
 
@@ -199,15 +193,27 @@ class Validation_Service {
 	}
 
 	/**
+	 * Check if the password is the current password for the user.
+	 *
+	 * @param \WP_User $user The user.
+	 * @param string   $password The password to check.
+	 *
+	 * @return bool True if the password is the current password, false otherwise.
+	 */
+	public function is_current_password( \WP_User $user, string $password ): bool {
+		return wp_check_password( $password, $user->user_pass, $user->ID );
+	}
+
+	/**
 	 * Check if the password has been used recently by the user.
 	 *
+	 * @param int    $user_id The user ID.
 	 * @param string $password The password to check.
-	 * @param int    $user_id  The user ID.
 	 *
-	 * @return bool True if the password was recently used, false otherwise.
+	 * @return bool True if the password hash was recently used, false otherwise.
 	 */
-	private function is_recent_password( string $password, int $user_id ): bool {
-		$recent_passwords = get_user_meta( $user_id, 'jetpack_acccount_protection_recent_passwords', true );
+	public function is_recent_password( int $user_id, string $password ): bool {
+		$recent_passwords = get_user_meta( $user_id, Config::VALIDATION_SERVICE_USER_META_KEY, true );
 
 		if ( empty( $recent_passwords ) || ! is_array( $recent_passwords ) ) {
 			return false;
@@ -220,30 +226,5 @@ class Validation_Service {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Save the new password to the user's recent passwords list.
-	 *
-	 * @param int    $user_id  The user ID.
-	 * @param string $password The password to store.
-	 */
-	public function save_recent_password( int $user_id, string $password ) {
-		$recent_passwords = get_user_meta( $user_id, 'jetpack_acccount_protection_recent_passwords', true );
-
-		if ( ! is_array( $recent_passwords ) ) {
-			$recent_passwords = array();
-		}
-
-		$hashed_password = wp_hash_password( $password );
-		if ( in_array( $hashed_password, $recent_passwords, true ) ) {
-			return;
-		}
-
-		// Add the new hashed password and keep only the last 10
-		array_unshift( $recent_passwords, $hashed_password );
-		$recent_passwords = array_slice( $recent_passwords, 0, 10 );
-
-		update_user_meta( $user_id, 'jetpack_acccount_protection_recent_passwords', $recent_passwords );
 	}
 }
