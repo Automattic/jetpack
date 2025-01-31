@@ -18,13 +18,14 @@ global $plugin_page;
 $plugin_page = 'theme-install.php';
 
 /** WordPress Administration Bootstrap */
-// different from original because the file is not in wp-admin
-require_once ABSPATH . "wp-admin/admin.php";
+// @patched Use the abspath since this file is not in wp-admin folder.
+require_once ABSPATH . 'wp-admin/admin.php';
 
 require ABSPATH . 'wp-admin/includes/theme-install.php';
 
 $tab = ! empty( $_REQUEST['tab'] ) ? sanitize_text_field( $_REQUEST['tab'] ) : '';
 
+// @patched Remove capbility check & multisite check.
 // if ( ! current_user_can( 'install_themes' ) ) {
 // 	wp_die( __( 'Sorry, you are not allowed to install themes on this site.' ) );
 // }
@@ -62,8 +63,8 @@ wp_localize_script(
 		'themes'          => false,
 		'settings'        => array(
 			'isInstall'  => true,
-			'canInstall' => true, //current_user_can( 'install_themes' ),
-			'installURI' => '#', //current_user_can( 'install_themes' ) ? self_admin_url( 'theme-install.php' ) : null,
+			'canInstall' => current_user_can( 'install_themes' ),
+			'installURI' => current_user_can( 'install_themes' ) ? self_admin_url( 'theme-install.php' ) : null,
 			'adminUrl'   => parse_url( self_admin_url(), PHP_URL_PATH ),
 		),
 		'l10n'            => array(

@@ -61,6 +61,14 @@ function wpcom_themes_enqueue_theme_install_script() {
 		filemtime( __DIR__ . '/js/wpcom-theme-install.js' ),
 		true
 	);
+
+	// Update the theme settings to fake that the user can install themes,
+	// so that the theme code renders.
+	wp_add_inline_script(
+		'theme',
+		'_wpThemeSettings.settings.canInstall = true;',
+		'before'
+	);
 }
 
 add_action(
