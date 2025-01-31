@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f92f3406e4ccd1aca7120aa9b8181360",
+    "content-hash": "182be278f4f5223de96d18f1e219b35f",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -65,7 +65,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "addc5bfbcc23f704c0a426fb480c1f402131e952"
+                "reference": "5dcb65f740d88a7e41ad08bb5a3a855103a2ef46"
             },
             "require": {
                 "php": ">=7.2"
@@ -73,7 +73,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-logo": "@dev",
-                "automattic/wordbless": "^0.4.2",
+                "automattic/jetpack-test-environment": "@dev",
                 "yoast/phpunit-polyfills": "^1.1.1"
             },
             "suggest": {
@@ -108,12 +108,6 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
-                ],
-                "post-install-cmd": [
-                    "WorDBless\\Composer\\InstallDropin::copy"
-                ],
-                "post-update-cmd": [
-                    "WorDBless\\Composer\\InstallDropin::copy"
                 ]
             },
             "license": [
@@ -399,7 +393,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "3397d8e80c45a088744f7e912f0fc32a4b6bb372"
+                "reference": "2095f92a85f5a400e82af6aca9be107793733833"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -415,7 +409,7 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-licensing": "@dev",
                 "automattic/jetpack-sync": "@dev",
-                "automattic/wordbless": "^0.4.2",
+                "automattic/jetpack-test-environment": "@dev",
                 "brain/monkey": "^2.6.2",
                 "yoast/phpunit-polyfills": "^1.1.1"
             },
@@ -463,12 +457,6 @@
                 ],
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "post-install-cmd": [
-                    "WorDBless\\Composer\\InstallDropin::copy"
-                ],
-                "post-update-cmd": [
-                    "WorDBless\\Composer\\InstallDropin::copy"
                 ],
                 "test-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
@@ -603,14 +591,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/password-checker",
-                "reference": "7ba6a723317eeb42a1ff22a8dbd95587bab0f5a8"
+                "reference": "5651c6a1b24587aea568b936cbd5c7cc794ae00c"
             },
             "require": {
                 "php": ">=7.2"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "automattic/wordbless": "^0.4.2",
+                "automattic/jetpack-test-environment": "@dev",
                 "yoast/phpunit-polyfills": "^1.1.1"
             },
             "suggest": {
@@ -642,12 +630,6 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
-                ],
-                "post-install-cmd": [
-                    "WorDBless\\Composer\\InstallDropin::copy"
-                ],
-                "post-update-cmd": [
-                    "WorDBless\\Composer\\InstallDropin::copy"
                 ]
             },
             "license": [
@@ -905,7 +887,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "7763c437ec99943f6d26130e6dcd1c9395aaba3a"
+                "reference": "a70bbb708b593062cf5e3c2f241360ffccfae42b"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -919,8 +901,8 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-search": "@dev",
+                "automattic/jetpack-test-environment": "@dev",
                 "automattic/jetpack-waf": "@dev",
-                "automattic/wordbless": "^0.4.2",
                 "yoast/phpunit-polyfills": "^1.1.1"
             },
             "suggest": {
@@ -961,12 +943,6 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
-                ],
-                "post-install-cmd": [
-                    "WorDBless\\Composer\\InstallDropin::copy"
-                ],
-                "post-update-cmd": [
-                    "WorDBless\\Composer\\InstallDropin::copy"
                 ]
             },
             "license": [
@@ -979,54 +955,6 @@
         }
     ],
     "packages-dev": [
-        {
-            "name": "antecedent/patchwork",
-            "version": "2.2.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/antecedent/patchwork.git",
-                "reference": "1bf183a3e1bd094f231a2128b9ecc5363c269245"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/antecedent/patchwork/zipball/1bf183a3e1bd094f231a2128b9ecc5363c269245",
-                "reference": "1bf183a3e1bd094f231a2128b9ecc5363c269245",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.1.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": ">=4"
-            },
-            "type": "library",
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Ignas Rudaitis",
-                    "email": "ignas.rudaitis@gmail.com"
-                }
-            ],
-            "description": "Method redefinition (monkey-patching) functionality for PHP.",
-            "homepage": "https://antecedent.github.io/patchwork/",
-            "keywords": [
-                "aop",
-                "aspect",
-                "interception",
-                "monkeypatching",
-                "redefinition",
-                "runkit",
-                "testing"
-            ],
-            "support": {
-                "issues": "https://github.com/antecedent/patchwork/issues",
-                "source": "https://github.com/antecedent/patchwork/tree/2.2.1"
-            },
-            "time": "2024-12-11T10:19:54+00:00"
-        },
         {
             "name": "automattic/jetpack-changelogger",
             "version": "dev-trunk",
@@ -1105,119 +1033,56 @@
             }
         },
         {
-            "name": "automattic/wordbless",
-            "version": "0.4.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/wordbless.git",
-                "reference": "a1fe6376b81e6d037190aa1a5dc684d51eb674cd"
-            },
+            "name": "automattic/jetpack-test-environment",
+            "version": "dev-trunk",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wordbless/zipball/a1fe6376b81e6d037190aa1a5dc684d51eb674cd",
-                "reference": "a1fe6376b81e6d037190aa1a5dc684d51eb674cd",
-                "shasum": ""
+                "type": "path",
+                "url": "../../packages/test-environment",
+                "reference": "05f832286f4f7742265da50e1919af2cc2a7c067"
             },
             "require": {
-                "php": ">=5.6.20",
-                "roots/wordpress": "^6.0.2",
-                "yoast/phpunit-polyfills": "^1.0"
+                "php": ">=7.2"
             },
             "require-dev": {
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5 || ^9.5"
+                "automattic/jetpack-changelogger": "@dev",
+                "yoast/phpunit-polyfills": "^1.1.1"
             },
-            "type": "wordpress-dropin",
-            "autoload": {
-                "psr-4": {
-                    "WorDBless\\": "src/",
-                    "WorDBless\\Composer\\": "src/Composer/"
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-test-environment",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-test-environment.php"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "authors": [
-                {
-                    "name": "Automattic Inc."
-                }
-            ],
-            "description": "WorDBless allows you to use WordPress core functions in your PHPUnit tests without having to set up a database and the whole WordPress environment",
-            "support": {
-                "issues": "https://github.com/Automattic/wordbless/issues",
-                "source": "https://github.com/Automattic/wordbless/tree/0.4.2"
-            },
-            "time": "2023-03-15T12:16:20+00:00"
-        },
-        {
-            "name": "brain/monkey",
-            "version": "2.6.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Brain-WP/BrainMonkey.git",
-                "reference": "d95a9d895352c30f47604ad1b825ab8fa9d1a373"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Brain-WP/BrainMonkey/zipball/d95a9d895352c30f47604ad1b825ab8fa9d1a373",
-                "reference": "d95a9d895352c30f47604ad1b825ab8fa9d1a373",
-                "shasum": ""
-            },
-            "require": {
-                "antecedent/patchwork": "^2.1.17",
-                "mockery/mockery": "^1.3.5 || ^1.4.4",
-                "php": ">=5.6.0"
-            },
-            "require-dev": {
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.7.1",
-                "phpcompatibility/php-compatibility": "^9.3.0",
-                "phpunit/phpunit": "^5.7.26 || ^6.0 || ^7.0 || >=8.0 <8.5.12 || ^8.5.14 || ^9.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.x-dev",
-                    "dev-version/1": "1.x-dev"
-                }
-            },
-            "autoload": {
-                "files": [
-                    "inc/api.php"
-                ],
-                "psr-4": {
-                    "Brain\\Monkey\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Giuseppe Mazzapica",
-                    "email": "giuseppe.mazzapica@gmail.com",
-                    "homepage": "https://gmazzap.me",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Mocking utility for PHP functions and WordPress plugin API",
-            "keywords": [
-                "Monkey Patching",
-                "interception",
-                "mock",
-                "mock functions",
-                "mockery",
-                "patchwork",
-                "redefinition",
-                "runkit",
-                "test",
-                "testing"
-            ],
-            "support": {
-                "issues": "https://github.com/Brain-WP/BrainMonkey/issues",
-                "source": "https://github.com/Brain-WP/BrainMonkey"
-            },
-            "time": "2024-08-29T20:15:04+00:00"
+            "description": "Shared WordPress test environment for Jetpack monorepo projects",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "doctrine/instantiator",
@@ -1288,140 +1153,6 @@
                 }
             ],
             "time": "2022-12-30T00:23:10+00:00"
-        },
-        {
-            "name": "hamcrest/hamcrest-php",
-            "version": "v2.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/hamcrest/hamcrest-php.git",
-                "reference": "8c3d0a3f6af734494ad8f6fbbee0ba92422859f3"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/hamcrest/hamcrest-php/zipball/8c3d0a3f6af734494ad8f6fbbee0ba92422859f3",
-                "reference": "8c3d0a3f6af734494ad8f6fbbee0ba92422859f3",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^5.3|^7.0|^8.0"
-            },
-            "replace": {
-                "cordoval/hamcrest-php": "*",
-                "davedevelopment/hamcrest-php": "*",
-                "kodova/hamcrest-php": "*"
-            },
-            "require-dev": {
-                "phpunit/php-file-iterator": "^1.4 || ^2.0",
-                "phpunit/phpunit": "^4.8.36 || ^5.7 || ^6.5 || ^7.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.1-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "hamcrest"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "description": "This is the PHP port of Hamcrest Matchers",
-            "keywords": [
-                "test"
-            ],
-            "support": {
-                "issues": "https://github.com/hamcrest/hamcrest-php/issues",
-                "source": "https://github.com/hamcrest/hamcrest-php/tree/v2.0.1"
-            },
-            "time": "2020-07-09T08:09:16+00:00"
-        },
-        {
-            "name": "mockery/mockery",
-            "version": "1.6.12",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/mockery/mockery.git",
-                "reference": "1f4efdd7d3beafe9807b08156dfcb176d18f1699"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/mockery/mockery/zipball/1f4efdd7d3beafe9807b08156dfcb176d18f1699",
-                "reference": "1f4efdd7d3beafe9807b08156dfcb176d18f1699",
-                "shasum": ""
-            },
-            "require": {
-                "hamcrest/hamcrest-php": "^2.0.1",
-                "lib-pcre": ">=7.0",
-                "php": ">=7.3"
-            },
-            "conflict": {
-                "phpunit/phpunit": "<8.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^8.5 || ^9.6.17",
-                "symplify/easy-coding-standard": "^12.1.14"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "library/helpers.php",
-                    "library/Mockery.php"
-                ],
-                "psr-4": {
-                    "Mockery\\": "library/Mockery"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Pádraic Brady",
-                    "email": "padraic.brady@gmail.com",
-                    "homepage": "https://github.com/padraic",
-                    "role": "Author"
-                },
-                {
-                    "name": "Dave Marshall",
-                    "email": "dave.marshall@atstsolutions.co.uk",
-                    "homepage": "https://davedevelopment.co.uk",
-                    "role": "Developer"
-                },
-                {
-                    "name": "Nathanael Esayeas",
-                    "email": "nathanael.esayeas@protonmail.com",
-                    "homepage": "https://github.com/ghostwriter",
-                    "role": "Lead Developer"
-                }
-            ],
-            "description": "Mockery is a simple yet flexible PHP mock object framework",
-            "homepage": "https://github.com/mockery/mockery",
-            "keywords": [
-                "BDD",
-                "TDD",
-                "library",
-                "mock",
-                "mock objects",
-                "mockery",
-                "stub",
-                "test",
-                "test double",
-                "testing"
-            ],
-            "support": {
-                "docs": "https://docs.mockery.io/",
-                "issues": "https://github.com/mockery/mockery/issues",
-                "rss": "https://github.com/mockery/mockery/releases.atom",
-                "security": "https://github.com/mockery/mockery/security/advisories",
-                "source": "https://github.com/mockery/mockery"
-            },
-            "time": "2024-05-16T03:13:13+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -2133,190 +1864,6 @@
                 "source": "https://github.com/php-fig/container/tree/2.0.2"
             },
             "time": "2021-11-05T16:47:00+00:00"
-        },
-        {
-            "name": "roots/wordpress",
-            "version": "6.7.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/roots/wordpress.git",
-                "reference": "9451af491af7124c12186398c56ab87a6e145123"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/roots/wordpress/zipball/9451af491af7124c12186398c56ab87a6e145123",
-                "reference": "9451af491af7124c12186398c56ab87a6e145123",
-                "shasum": ""
-            },
-            "require": {
-                "roots/wordpress-core-installer": "^1.0.0",
-                "roots/wordpress-no-content": "self.version"
-            },
-            "type": "metapackage",
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT",
-                "GPL-2.0-or-later"
-            ],
-            "description": "WordPress is open source software you can use to create a beautiful website, blog, or app.",
-            "homepage": "https://wordpress.org/",
-            "keywords": [
-                "blog",
-                "cms",
-                "wordpress"
-            ],
-            "support": {
-                "issues": "https://github.com/roots/wordpress/issues",
-                "source": "https://github.com/roots/wordpress/tree/6.7.1"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/roots",
-                    "type": "github"
-                }
-            ],
-            "time": "2024-11-13T09:56:09+00:00"
-        },
-        {
-            "name": "roots/wordpress-core-installer",
-            "version": "1.100.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/roots/wordpress-core-installer.git",
-                "reference": "73f8488e5178c5d54234b919f823a9095e2b1847"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/roots/wordpress-core-installer/zipball/73f8488e5178c5d54234b919f823a9095e2b1847",
-                "reference": "73f8488e5178c5d54234b919f823a9095e2b1847",
-                "shasum": ""
-            },
-            "require": {
-                "composer-plugin-api": "^1.0 || ^2.0",
-                "php": ">=5.6.0"
-            },
-            "conflict": {
-                "composer/installers": "<1.0.6"
-            },
-            "replace": {
-                "johnpbloch/wordpress-core-installer": "*"
-            },
-            "require-dev": {
-                "composer/composer": "^1.0 || ^2.0",
-                "phpunit/phpunit": ">=5.7.27"
-            },
-            "type": "composer-plugin",
-            "extra": {
-                "class": "Roots\\Composer\\WordPressCorePlugin"
-            },
-            "autoload": {
-                "psr-4": {
-                    "Roots\\Composer\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "John P. Bloch",
-                    "email": "me@johnpbloch.com"
-                },
-                {
-                    "name": "Roots",
-                    "email": "team@roots.io"
-                }
-            ],
-            "description": "A custom installer to handle deploying WordPress with composer",
-            "keywords": [
-                "wordpress"
-            ],
-            "support": {
-                "issues": "https://github.com/roots/wordpress-core-installer/issues",
-                "source": "https://github.com/roots/wordpress-core-installer/tree/master"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/roots",
-                    "type": "github"
-                },
-                {
-                    "url": "https://www.patreon.com/rootsdev",
-                    "type": "patreon"
-                }
-            ],
-            "time": "2020-08-20T00:27:30+00:00"
-        },
-        {
-            "name": "roots/wordpress-no-content",
-            "version": "6.7.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/WordPress/WordPress.git",
-                "reference": "6.7.1"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://downloads.wordpress.org/release/wordpress-6.7.1-no-content.zip",
-                "shasum": "321a5b819369e772ce606fbc12b1e264fb73da5b"
-            },
-            "require": {
-                "php": ">= 7.2.24"
-            },
-            "provide": {
-                "wordpress/core-implementation": "6.7.1"
-            },
-            "suggest": {
-                "ext-curl": "Performs remote request operations.",
-                "ext-dom": "Used to validate Text Widget content and to automatically configuring IIS7+.",
-                "ext-exif": "Works with metadata stored in images.",
-                "ext-fileinfo": "Used to detect mimetype of file uploads.",
-                "ext-hash": "Used for hashing, including passwords and update packages.",
-                "ext-imagick": "Provides better image quality for media uploads.",
-                "ext-json": "Used for communications with other servers.",
-                "ext-libsodium": "Validates Signatures and provides securely random bytes.",
-                "ext-mbstring": "Used to properly handle UTF8 text.",
-                "ext-mysqli": "Connects to MySQL for database interactions.",
-                "ext-openssl": "Permits SSL-based connections to other hosts.",
-                "ext-pcre": "Increases performance of pattern matching in code searches.",
-                "ext-xml": "Used for XML parsing, such as from a third-party site.",
-                "ext-zip": "Used for decompressing Plugins, Themes, and WordPress update packages."
-            },
-            "type": "wordpress-core",
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "WordPress Community",
-                    "homepage": "https://wordpress.org/about/"
-                }
-            ],
-            "description": "WordPress is open source software you can use to create a beautiful website, blog, or app.",
-            "homepage": "https://wordpress.org/",
-            "keywords": [
-                "blog",
-                "cms",
-                "wordpress"
-            ],
-            "support": {
-                "docs": "https://developer.wordpress.org/",
-                "forum": "https://wordpress.org/support/",
-                "irc": "irc://irc.freenode.net/wordpress",
-                "issues": "https://core.trac.wordpress.org/",
-                "rss": "https://wordpress.org/news/feed/",
-                "source": "https://core.trac.wordpress.org/browser",
-                "wiki": "https://codex.wordpress.org/"
-            },
-            "funding": [
-                {
-                    "url": "https://wordpressfoundation.org/donate/",
-                    "type": "other"
-                }
-            ],
-            "time": "2024-11-21T14:15:19+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -4115,7 +3662,8 @@
         "automattic/jetpack-connection": 20,
         "automattic/jetpack-plugin-deactivation": 20,
         "automattic/jetpack-status": 20,
-        "automattic/jetpack-sync": 20
+        "automattic/jetpack-sync": 20,
+        "automattic/jetpack-test-environment": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

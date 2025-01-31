@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "96f69334f5451aa4050c091e89f48c26",
+	"content-hash": "242739f35a4b4310ccc9002ae64af4ab",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -65,7 +65,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/admin-ui",
-				"reference": "addc5bfbcc23f704c0a426fb480c1f402131e952"
+				"reference": "5dcb65f740d88a7e41ad08bb5a3a855103a2ef46"
 			},
 			"require": {
 				"php": ">=7.2"
@@ -73,7 +73,7 @@
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
 				"automattic/jetpack-logo": "@dev",
-				"automattic/wordbless": "^0.4.2",
+				"automattic/jetpack-test-environment": "@dev",
 				"yoast/phpunit-polyfills": "^1.1.1"
 			},
 			"suggest": {
@@ -108,12 +108,6 @@
 				],
 				"test-php": [
 					"@composer phpunit"
-				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
 				]
 			},
 			"license": [
@@ -518,7 +512,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/connection",
-				"reference": "3397d8e80c45a088744f7e912f0fc32a4b6bb372"
+				"reference": "2095f92a85f5a400e82af6aca9be107793733833"
 			},
 			"require": {
 				"automattic/jetpack-a8c-mc-stats": "@dev",
@@ -534,7 +528,7 @@
 				"automattic/jetpack-changelogger": "@dev",
 				"automattic/jetpack-licensing": "@dev",
 				"automattic/jetpack-sync": "@dev",
-				"automattic/wordbless": "^0.4.2",
+				"automattic/jetpack-test-environment": "@dev",
 				"brain/monkey": "^2.6.2",
 				"yoast/phpunit-polyfills": "^1.1.1"
 			},
@@ -582,12 +576,6 @@
 				],
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
-				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
 				],
 				"test-coverage": [
 					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
@@ -925,7 +913,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/licensing",
-				"reference": "bd5441656166329a7c482fead6b006c74a20bd50"
+				"reference": "6a29d2658a205d7da8c61b322838c82d40c869e9"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -933,7 +921,7 @@
 			},
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
-				"automattic/wordbless": "^0.4.2",
+				"automattic/jetpack-test-environment": "@dev",
 				"yoast/phpunit-polyfills": "^1.1.1"
 			},
 			"suggest": {
@@ -959,12 +947,6 @@
 			"scripts": {
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
-				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
 				],
 				"test-coverage": [
 					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
@@ -1040,7 +1022,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "c36b7100bc310510d61a0915652b857a90604058"
+				"reference": "4b4e5ceb013035959a61529b44c6392e6194e6e6"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1062,8 +1044,8 @@
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
 				"automattic/jetpack-search": "@dev",
+				"automattic/jetpack-test-environment": "@dev",
 				"automattic/jetpack-videopress": "@dev",
-				"automattic/wordbless": "^0.4.2",
 				"yoast/phpunit-polyfills": "^1.1.1"
 			},
 			"suggest": {
@@ -1122,12 +1104,6 @@
 				"watch": [
 					"Composer\\Config::disableProcessTimeout",
 					"pnpm run watch"
-				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
 				]
 			},
 			"license": [
@@ -1144,14 +1120,14 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/password-checker",
-				"reference": "7ba6a723317eeb42a1ff22a8dbd95587bab0f5a8"
+				"reference": "5651c6a1b24587aea568b936cbd5c7cc794ae00c"
 			},
 			"require": {
 				"php": ">=7.2"
 			},
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
-				"automattic/wordbless": "^0.4.2",
+				"automattic/jetpack-test-environment": "@dev",
 				"yoast/phpunit-polyfills": "^1.1.1"
 			},
 			"suggest": {
@@ -1183,12 +1159,6 @@
 				],
 				"test-php": [
 					"@composer phpunit"
-				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
 				]
 			},
 			"license": [
@@ -1205,7 +1175,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/plans",
-				"reference": "a9a751ff40e8d75b6b598a9916737de2faef1792"
+				"reference": "663a13258cf8724ac7f7836ab44c7d1f1759802e"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -1214,7 +1184,7 @@
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
 				"automattic/jetpack-status": "@dev",
-				"automattic/wordbless": "^0.4.2",
+				"automattic/jetpack-test-environment": "@dev",
 				"yoast/phpunit-polyfills": "^1.1.1"
 			},
 			"suggest": {
@@ -1245,12 +1215,6 @@
 				],
 				"test-php": [
 					"@composer phpunit"
-				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
 				],
 				"build-production": [
 					"echo 'Add your build step to composer.json, please!'"
@@ -1329,7 +1293,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/post-list",
-				"reference": "b81597583148862524bfa0cc33ff7c82f046c870"
+				"reference": "f5f91acacd48fd2ed2d080fa7f94b1051e17376f"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1337,7 +1301,7 @@
 			},
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
-				"automattic/wordbless": "^0.4.2",
+				"automattic/jetpack-test-environment": "@dev",
 				"yoast/phpunit-polyfills": "^1.1.1"
 			},
 			"suggest": {
@@ -1372,12 +1336,6 @@
 				],
 				"test-php": [
 					"@composer phpunit"
-				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
 				]
 			},
 			"license": [
@@ -1394,14 +1352,14 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/protect-models",
-				"reference": "458fbc6b08d3eab1ea9c3a4096d9b2e7d883cdae"
+				"reference": "6b8a84b23ab688f32c77c37bf835ef2b9d3ef6b1"
 			},
 			"require": {
 				"php": ">=7.2"
 			},
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
-				"automattic/wordbless": "^0.4.2",
+				"automattic/jetpack-test-environment": "@dev",
 				"yoast/phpunit-polyfills": "^1.1.1"
 			},
 			"suggest": {
@@ -1442,12 +1400,6 @@
 				],
 				"test-php": [
 					"@composer phpunit"
-				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
 				]
 			},
 			"license": [
@@ -1464,7 +1416,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/protect-status",
-				"reference": "6e5d6458cd65d2d40d110295b5957a1b86b29938"
+				"reference": "a44ea0f3df3aba3bc7524f8a3159b06f3a43e942"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -1476,7 +1428,7 @@
 			},
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
-				"automattic/wordbless": "^0.4.2",
+				"automattic/jetpack-test-environment": "@dev",
 				"yoast/phpunit-polyfills": "^1.1.1"
 			},
 			"suggest": {
@@ -1512,12 +1464,6 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
 				"test-coverage": [
 					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
 				],
@@ -1539,7 +1485,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "65042f11130f6641281e873ad49d6ce66033a7b0"
+				"reference": "eaf51dafed2d5ddc4df91b29410a96c7b8bd12ef"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1554,7 +1500,7 @@
 			},
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
-				"automattic/wordbless": "^0.4.2",
+				"automattic/jetpack-test-environment": "@dev",
 				"yoast/phpunit-polyfills": "^1.1.1"
 			},
 			"suggest": {
@@ -1590,12 +1536,6 @@
 				],
 				"test-php": [
 					"@composer phpunit"
-				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
 				],
 				"build-development": [
 					"pnpm run build"
@@ -1795,7 +1735,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/sync",
-				"reference": "7763c437ec99943f6d26130e6dcd1c9395aaba3a"
+				"reference": "a70bbb708b593062cf5e3c2f241360ffccfae42b"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -1809,8 +1749,8 @@
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
 				"automattic/jetpack-search": "@dev",
+				"automattic/jetpack-test-environment": "@dev",
 				"automattic/jetpack-waf": "@dev",
-				"automattic/wordbless": "^0.4.2",
 				"yoast/phpunit-polyfills": "^1.1.1"
 			},
 			"suggest": {
@@ -1851,12 +1791,6 @@
 				],
 				"test-php": [
 					"@composer phpunit"
-				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
 				]
 			},
 			"license": [
@@ -1995,49 +1929,56 @@
 			}
 		},
 		{
-			"name": "automattic/wordbless",
-			"version": "0.4.2",
-			"source": {
-				"type": "git",
-				"url": "https://github.com/Automattic/wordbless.git",
-				"reference": "a1fe6376b81e6d037190aa1a5dc684d51eb674cd"
-			},
+			"name": "automattic/jetpack-test-environment",
+			"version": "dev-trunk",
 			"dist": {
-				"type": "zip",
-				"url": "https://api.github.com/repos/Automattic/wordbless/zipball/a1fe6376b81e6d037190aa1a5dc684d51eb674cd",
-				"reference": "a1fe6376b81e6d037190aa1a5dc684d51eb674cd",
-				"shasum": ""
+				"type": "path",
+				"url": "../../packages/test-environment",
+				"reference": "05f832286f4f7742265da50e1919af2cc2a7c067"
 			},
 			"require": {
-				"php": ">=5.6.20",
-				"roots/wordpress": "^6.0.2",
-				"yoast/phpunit-polyfills": "^1.0"
+				"php": ">=7.2"
 			},
 			"require-dev": {
-				"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5 || ^9.5"
+				"automattic/jetpack-changelogger": "@dev",
+				"yoast/phpunit-polyfills": "^1.1.1"
 			},
-			"type": "wordpress-dropin",
-			"autoload": {
-				"psr-4": {
-					"WorDBless\\": "src/",
-					"WorDBless\\Composer\\": "src/Composer/"
+			"suggest": {
+				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+			},
+			"type": "jetpack-library",
+			"extra": {
+				"branch-alias": {
+					"dev-trunk": "0.1.x-dev"
+				},
+				"textdomain": "jetpack-test-environment",
+				"version-constants": {
+					"::PACKAGE_VERSION": "src/class-test-environment.php"
 				}
 			},
-			"notification-url": "https://packagist.org/downloads/",
+			"autoload": {
+				"classmap": [
+					"src/"
+				]
+			},
+			"scripts": {
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
+			},
 			"license": [
 				"GPL-2.0-or-later"
 			],
-			"authors": [
-				{
-					"name": "Automattic Inc."
-				}
-			],
-			"description": "WorDBless allows you to use WordPress core functions in your PHPUnit tests without having to set up a database and the whole WordPress environment",
-			"support": {
-				"issues": "https://github.com/Automattic/wordbless/issues",
-				"source": "https://github.com/Automattic/wordbless/tree/0.4.2"
-			},
-			"time": "2023-03-15T12:16:20+00:00"
+			"description": "Shared WordPress test environment for Jetpack monorepo projects",
+			"transport-options": {
+				"relative": true
+			}
 		},
 		{
 			"name": "brain/monkey",
@@ -3023,190 +2964,6 @@
 				"source": "https://github.com/php-fig/container/tree/2.0.2"
 			},
 			"time": "2021-11-05T16:47:00+00:00"
-		},
-		{
-			"name": "roots/wordpress",
-			"version": "6.7.1",
-			"source": {
-				"type": "git",
-				"url": "https://github.com/roots/wordpress.git",
-				"reference": "9451af491af7124c12186398c56ab87a6e145123"
-			},
-			"dist": {
-				"type": "zip",
-				"url": "https://api.github.com/repos/roots/wordpress/zipball/9451af491af7124c12186398c56ab87a6e145123",
-				"reference": "9451af491af7124c12186398c56ab87a6e145123",
-				"shasum": ""
-			},
-			"require": {
-				"roots/wordpress-core-installer": "^1.0.0",
-				"roots/wordpress-no-content": "self.version"
-			},
-			"type": "metapackage",
-			"notification-url": "https://packagist.org/downloads/",
-			"license": [
-				"MIT",
-				"GPL-2.0-or-later"
-			],
-			"description": "WordPress is open source software you can use to create a beautiful website, blog, or app.",
-			"homepage": "https://wordpress.org/",
-			"keywords": [
-				"blog",
-				"cms",
-				"wordpress"
-			],
-			"support": {
-				"issues": "https://github.com/roots/wordpress/issues",
-				"source": "https://github.com/roots/wordpress/tree/6.7.1"
-			},
-			"funding": [
-				{
-					"url": "https://github.com/roots",
-					"type": "github"
-				}
-			],
-			"time": "2024-11-13T09:56:09+00:00"
-		},
-		{
-			"name": "roots/wordpress-core-installer",
-			"version": "1.100.0",
-			"source": {
-				"type": "git",
-				"url": "https://github.com/roots/wordpress-core-installer.git",
-				"reference": "73f8488e5178c5d54234b919f823a9095e2b1847"
-			},
-			"dist": {
-				"type": "zip",
-				"url": "https://api.github.com/repos/roots/wordpress-core-installer/zipball/73f8488e5178c5d54234b919f823a9095e2b1847",
-				"reference": "73f8488e5178c5d54234b919f823a9095e2b1847",
-				"shasum": ""
-			},
-			"require": {
-				"composer-plugin-api": "^1.0 || ^2.0",
-				"php": ">=5.6.0"
-			},
-			"conflict": {
-				"composer/installers": "<1.0.6"
-			},
-			"replace": {
-				"johnpbloch/wordpress-core-installer": "*"
-			},
-			"require-dev": {
-				"composer/composer": "^1.0 || ^2.0",
-				"phpunit/phpunit": ">=5.7.27"
-			},
-			"type": "composer-plugin",
-			"extra": {
-				"class": "Roots\\Composer\\WordPressCorePlugin"
-			},
-			"autoload": {
-				"psr-4": {
-					"Roots\\Composer\\": "src/"
-				}
-			},
-			"notification-url": "https://packagist.org/downloads/",
-			"license": [
-				"GPL-2.0-or-later"
-			],
-			"authors": [
-				{
-					"name": "John P. Bloch",
-					"email": "me@johnpbloch.com"
-				},
-				{
-					"name": "Roots",
-					"email": "team@roots.io"
-				}
-			],
-			"description": "A custom installer to handle deploying WordPress with composer",
-			"keywords": [
-				"wordpress"
-			],
-			"support": {
-				"issues": "https://github.com/roots/wordpress-core-installer/issues",
-				"source": "https://github.com/roots/wordpress-core-installer/tree/master"
-			},
-			"funding": [
-				{
-					"url": "https://github.com/roots",
-					"type": "github"
-				},
-				{
-					"url": "https://www.patreon.com/rootsdev",
-					"type": "patreon"
-				}
-			],
-			"time": "2020-08-20T00:27:30+00:00"
-		},
-		{
-			"name": "roots/wordpress-no-content",
-			"version": "6.7.1",
-			"source": {
-				"type": "git",
-				"url": "https://github.com/WordPress/WordPress.git",
-				"reference": "6.7.1"
-			},
-			"dist": {
-				"type": "zip",
-				"url": "https://downloads.wordpress.org/release/wordpress-6.7.1-no-content.zip",
-				"shasum": "321a5b819369e772ce606fbc12b1e264fb73da5b"
-			},
-			"require": {
-				"php": ">= 7.2.24"
-			},
-			"provide": {
-				"wordpress/core-implementation": "6.7.1"
-			},
-			"suggest": {
-				"ext-curl": "Performs remote request operations.",
-				"ext-dom": "Used to validate Text Widget content and to automatically configuring IIS7+.",
-				"ext-exif": "Works with metadata stored in images.",
-				"ext-fileinfo": "Used to detect mimetype of file uploads.",
-				"ext-hash": "Used for hashing, including passwords and update packages.",
-				"ext-imagick": "Provides better image quality for media uploads.",
-				"ext-json": "Used for communications with other servers.",
-				"ext-libsodium": "Validates Signatures and provides securely random bytes.",
-				"ext-mbstring": "Used to properly handle UTF8 text.",
-				"ext-mysqli": "Connects to MySQL for database interactions.",
-				"ext-openssl": "Permits SSL-based connections to other hosts.",
-				"ext-pcre": "Increases performance of pattern matching in code searches.",
-				"ext-xml": "Used for XML parsing, such as from a third-party site.",
-				"ext-zip": "Used for decompressing Plugins, Themes, and WordPress update packages."
-			},
-			"type": "wordpress-core",
-			"notification-url": "https://packagist.org/downloads/",
-			"license": [
-				"GPL-2.0-or-later"
-			],
-			"authors": [
-				{
-					"name": "WordPress Community",
-					"homepage": "https://wordpress.org/about/"
-				}
-			],
-			"description": "WordPress is open source software you can use to create a beautiful website, blog, or app.",
-			"homepage": "https://wordpress.org/",
-			"keywords": [
-				"blog",
-				"cms",
-				"wordpress"
-			],
-			"support": {
-				"docs": "https://developer.wordpress.org/",
-				"forum": "https://wordpress.org/support/",
-				"irc": "irc://irc.freenode.net/wordpress",
-				"issues": "https://core.trac.wordpress.org/",
-				"rss": "https://wordpress.org/news/feed/",
-				"source": "https://core.trac.wordpress.org/browser",
-				"wiki": "https://codex.wordpress.org/"
-			},
-			"funding": [
-				{
-					"url": "https://wordpressfoundation.org/donate/",
-					"type": "other"
-				}
-			],
-			"time": "2024-11-21T14:15:19+00:00"
 		},
 		{
 			"name": "sebastian/cli-parser",
@@ -5009,7 +4766,8 @@
 		"automattic/jetpack-post-list": 20,
 		"automattic/jetpack-publicize": 20,
 		"automattic/jetpack-status": 20,
-		"automattic/jetpack-sync": 20
+		"automattic/jetpack-sync": 20,
+		"automattic/jetpack-test-environment": 20
 	},
 	"prefer-stable": true,
 	"prefer-lowest": false,

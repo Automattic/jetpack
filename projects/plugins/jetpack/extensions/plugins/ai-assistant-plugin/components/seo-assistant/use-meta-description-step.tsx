@@ -65,7 +65,7 @@ export const useMetaDescriptionStep = (): Step => {
 										'Explore breathtaking flower and plant photography in our Flora Guide, featuring tips and inspiration for gardening and plant enthusiasts to enhance their outdoor spaces.',
 								},
 							] ),
-						2000
+						3000
 					)
 				);
 				removeLastMessage();
@@ -74,16 +74,13 @@ export const useMetaDescriptionStep = (): Step => {
 			const editedFirstMessage = fromSkip
 				? createInterpolateElement(
 						__(
-							"Skipped!<br />Now, let's optimize your meta description.<br />Here's a new suggestion:",
+							"Skipped!<br />Now, let's optimize your meta description.<br />Here's a suggestion:",
 							'jetpack'
 						),
 						{ br: <br /> }
 				  )
 				: createInterpolateElement(
-						__(
-							"Now, let's optimize your meta description.<br />Here's a new suggestion:",
-							'jetpack'
-						),
+						__( "Now, let's optimize your meta description.<br />Here's a suggestion:", 'jetpack' ),
 						{ br: <br /> }
 				  );
 			editLastMessage( editedFirstMessage );
@@ -110,12 +107,12 @@ export const useMetaDescriptionStep = (): Step => {
 								'Explore breathtaking flower and plant photography in our Flora Guide, featuring tips and inspiration for gardening and plant enthusiasts to enhance their outdoor spaces.',
 						},
 					] ),
-				2000
+				3000
 			)
 		);
 		removeLastMessage();
 		const editedFirstMessage = createInterpolateElement(
-			__( "Now, let's optimize your meta description.<br />Here's a new suggestion:", 'jetpack' ),
+			__( "Now, let's optimize your meta description.<br />Here's a suggestion:", 'jetpack' ),
 			{ br: <br /> }
 		);
 		editLastMessage( editedFirstMessage );

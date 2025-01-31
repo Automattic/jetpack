@@ -19,7 +19,7 @@ return [
     // PhanRedundantCondition : 70+ occurrences
     // PhanDeprecatedFunction : 65+ occurrences
     // PhanPossiblyUndeclaredVariable : 60+ occurrences
-    // PhanRedefineFunction : 55+ occurrences
+    // PhanRedefineFunction : 50+ occurrences
     // PhanTypeArraySuspiciousNullable : 50+ occurrences
     // PhanTypeMismatchArgumentNullable : 50+ occurrences
     // PhanParamTooMany : 40+ occurrences
@@ -399,10 +399,9 @@ return [
         'modules/subscriptions.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeSuspiciousNonTraversableForeach'],
         'modules/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php' => ['PhanTypeMismatchReturnNullable'],
         'modules/subscriptions/views.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMissingReturn', 'PhanTypePossiblyInvalidDimOffset'],
-        'modules/theme-tools/compat/twentyfifteen.php' => ['PhanRedefineFunction'],
         'modules/theme-tools/compat/twentyfourteen.php' => ['PhanRedefineFunction'],
         'modules/theme-tools/compat/twentynineteen.php' => ['PhanRedefineFunction'],
-        'modules/theme-tools/compat/twentysixteen.php' => ['PhanParamTooMany', 'PhanRedefineFunction'],
+        'modules/theme-tools/compat/twentysixteen.php' => ['PhanParamTooMany'],
         'modules/theme-tools/compat/twentytwenty.php' => ['PhanParamTooMany'],
         'modules/theme-tools/content-options.php' => ['PhanRedefineFunction'],
         'modules/theme-tools/content-options/author-bio.php' => ['PhanRedefineFunction', 'PhanTypeMismatchArgument'],

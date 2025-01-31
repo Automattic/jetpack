@@ -21,7 +21,7 @@
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-mu-wpcom": "@dev",
 		"automattic/patchwork-redefine-exit": "@dev",
-		"automattic/wordbless": "^0.4.2"
+		"automattic/jetpack-test-environment": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -38,8 +38,6 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
-		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"test-coverage": [
 			"pnpm run build-production",
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
