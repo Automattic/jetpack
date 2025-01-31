@@ -211,7 +211,7 @@ class WP_Test_Post_By_Email_API extends WP_Test_Jetpack_REST_Testcase {
 		if ( $user_id ) {
 			wp_set_current_user( $user_id );
 		}
-		$auth = $server->check_authentication( null );
+		$auth = $server->check_authentication();
 		if ( true === $auth ) {
 			return $result;
 		}

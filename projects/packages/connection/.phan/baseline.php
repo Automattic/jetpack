@@ -9,13 +9,12 @@
  */
 return [
     // # Issue statistics:
-    // PhanParamTooMany : 40+ occurrences
     // PhanTypeMismatchArgument : 40+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 15+ occurrences
     // PhanTypeMismatchReturn : 15+ occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 9 occurrences
     // PhanTypeMismatchPropertyProbablyReal : 9 occurrences
     // PhanNoopNew : 8 occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 8 occurrences
     // PhanTypeMismatchReturnProbablyReal : 8 occurrences
     // PhanRedundantCondition : 6 occurrences
     // PhanTypeArraySuspiciousNullable : 5 occurrences
@@ -42,7 +41,7 @@ return [
     'file_suppressions' => [
         'legacy/class-jetpack-options.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal'],
         'legacy/class-jetpack-signature.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentInternal'],
-        'legacy/class-jetpack-tracks-client.php' => ['PhanNonClassMethodCall', 'PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchPropertyProbablyReal'],
+        'legacy/class-jetpack-tracks-client.php' => ['PhanNonClassMethodCall', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchPropertyProbablyReal'],
         'legacy/class-jetpack-xmlrpc-server.php' => ['PhanAccessMethodInternal', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn'],
         'src/class-error-handler.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-heartbeat.php' => ['PhanTypeMismatchPropertyDefault'],
@@ -51,7 +50,7 @@ return [
         'src/class-partner-coupon.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-partner.php' => ['PhanTypeMismatchPropertyProbablyReal'],
         'src/class-rest-authentication.php' => ['PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal'],
-        'src/class-rest-connector.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/class-rest-connector.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-secrets.php' => ['PhanNonClassMethodCall', 'PhanTypeMismatchArgument'],
         'src/class-server-sandbox.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
         'src/class-tokens.php' => ['PhanImpossibleTypeComparison', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
@@ -61,9 +60,8 @@ return [
         'src/webhooks/class-authorize-redirect.php' => ['PhanUndeclaredClassMethod'],
         'tests/php/test-class-nonce-handler.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanTypeMismatchArgument'],
         'tests/php/test-rest-endpoints.php' => ['PhanNoopNew', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'tests/php/test_Error_Handler.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument'],
-        'tests/php/test_Manager_integration.php' => ['PhanParamTooMany'],
-        'tests/php/test_Manager_unit.php' => ['PhanDeprecatedFunction', 'PhanParamTooMany', 'PhanTypeArraySuspiciousNullable', 'PhanTypeObjectUnsetDeclaredProperty'],
+        'tests/php/test_Error_Handler.php' => ['PhanTypeMismatchArgument'],
+        'tests/php/test_Manager_unit.php' => ['PhanDeprecatedFunction', 'PhanTypeArraySuspiciousNullable', 'PhanTypeObjectUnsetDeclaredProperty'],
         'tests/php/test_Rest_Authentication.php' => ['PhanTypeMismatchArgument'],
         'tests/php/test_Server_Sandbox.php' => ['PhanTypeArraySuspiciousNullable'],
         'tests/php/test_Signature.php' => ['PhanTypeMismatchArgumentProbablyReal'],

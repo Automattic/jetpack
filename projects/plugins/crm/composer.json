@@ -86,6 +86,9 @@
 			"link-template": "https://github.com/Automattic/jetpack-crm/compare/${old}...${new}"
 		},
 		"release-branch-prefix": "crm",
+		"version-constants": {
+			"::VERSION": "includes/ZeroBSCRM.Core.php"
+		},
 		"wp-plugin-slug": "zero-bs-crm",
 		"wp-svn-autopublish": true
 	}

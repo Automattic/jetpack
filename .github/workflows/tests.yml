@@ -86,14 +86,6 @@ jobs:
           pnpm install
           echo "::endgroup::"
 
-          # If we're going to be making WorDBless use WP "nightlies", remove the relevant package from Composer's cache to get the latest version.
-          if [[ "$WP_BRANCH" == 'trunk' && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) ]]; then
-            echo "::group::Clear composer cache for roots/wordpress"
-            DIR=$(composer config cache-files-dir)
-            rm -rf "$DIR/roots/wordpress" "$DIR/roots/wordpress-no-content"
-            echo "::endgroup::"
-          fi
-
       - name: Detect changed projects
         id: changed
         run: |
@@ -110,8 +102,44 @@ jobs:
           echo "any-plugins=${ANY_PLUGINS}" >> "$GITHUB_OUTPUT"
 
       - name: Select WordPress version
-        if: steps.changed.outputs.any-plugins != 'true' && matrix.wp != 'none'
+        if: matrix.wp != 'none'
         run: .github/files/select-wordpress-tag.sh
+
+      - name: Composer Install
+        run: |
+          # If we're going to be making WorDBless use WP "nightlies", remove the relevant package from Composer's cache to get the latest version.
+          if [[ "$WP_BRANCH" == 'trunk' && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) ]]; then
+            echo "::group::Clear composer cache for roots/wordpress"
+            DIR=$(composer config cache-files-dir)
+            rm -rf "$DIR/roots/wordpress" "$DIR/roots/wordpress-no-content"
+            echo "::endgroup::"
+          fi
+
+          echo "::group::Composer"
+          composer install --working-dir=tools/php-test-env
+
+          # Add WorDBless for various package tests that use uploads since concurrency can nuke uploads that are in use.
+          # @todo Update WorDBless to be able to use a customized upload dir, do that, and remove this.
+          if [[ "$TEST_SCRIPT" =~ ^test-(php|coverage)$ ]]; then
+            VER=$( jq -r '.require["automattic/wordbless"]' tools/php-test-env/composer.json )
+            for pkg in packages/image-cdn packages/publicize packages/videopress; do
+              echo "Adding WordBless for $pkg tests"
+              composer require --working-dir="projects/$pkg" "automattic/wordbless:$VER" --dev --no-update
+            done
+          fi
+
+          if [[ ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) && ( "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ) ]]; then
+            VER=$(composer --format=json --working-dir="tools/php-test-env" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
+            if [[ -n "$VER" ]]; then
+              INSVER=$WORDPRESS_TAG
+              [[ "$WORDPRESS_TAG" == 'trunk' ]] && INSVER="dev-main as $VER"
+              echo "Supposed to run tests against WordPress $WORDPRESS_TAG, so setting roots/wordpress and roots/wordpress-no-content to \"$INSVER\""
+              # Composer seems to sometimes have issues with deleting the wordpress dir on its own, so do it manually first.
+              rm -rf "tools/php-test-env/wordpress"
+              composer --working-dir="tools/php-test-env" require --dev "roots/wordpress:$INSVER" "roots/wordpress-no-content:$INSVER"
+            fi
+          fi
+          echo "::endgroup::"
 
       - name: Setup WordPress environment for plugin tests
         env:
@@ -195,18 +223,6 @@ jobs:
                     else
                       echo 'Platform reqs failed, running `composer update`'
                       composer --working-dir="$DIR" update
-                    fi
-
-                    if [[ "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ]]; then
-                      VER=$(composer --format=json --working-dir="$DIR" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
-                      if [[ -n "$VER" ]]; then
-                        INSVER=$WORDPRESS_TAG
-                        [[ "$WORDPRESS_TAG" == 'trunk' ]] && INSVER="dev-main as $VER"
-                        echo "Supposed to run tests against WordPress $WORDPRESS_TAG, so setting roots/wordpress and roots/wordpress-no-content to \"$INSVER\""
-                        # Composer seems to sometimes have issues with deleting the wordpress dir on its own, so do it manually first.
-                        rm -rf "$DIR/wordpress"
-                        composer --working-dir="$DIR" require --dev roots/wordpress="$INSVER" roots/wordpress-no-content="$INSVER"
-                      fi
                     fi
                   fi
                 fi

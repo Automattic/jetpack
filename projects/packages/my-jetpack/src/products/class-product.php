@@ -514,7 +514,7 @@ abstract class Product {
 			return array();
 		}
 		$paid_bundles   = $features['available']->$idendifying_feature ?? array();
-		$current_bundle = Wpcom_Products::get_site_current_plan();
+		$current_bundle = Wpcom_Products::get_site_current_plan( true );
 
 		if ( in_array( static::$feature_identifying_paid_plan, $current_bundle['features']['active'], true ) ) {
 			$paid_bundles[] = $current_bundle['product_slug'];

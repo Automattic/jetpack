@@ -1,5 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import clsx from 'clsx';
+import styles from './table-row.module.scss';
+import rowStyles from '../../row.module.scss';
+
 interface TableRowProps {
 	children: React.ReactNode;
 	expandedContent?: React.ReactNode;
@@ -26,15 +29,27 @@ const TableRow: React.FC< TableRowProps > = ( { children, expandedContent } ) =>
 	);
 
 	return (
-		<div className={ clsx( 'jb-table-row-container', { expanded } ) }>
+		<div
+			className={ clsx( styles[ 'table-row-container' ], {
+				[ styles.expanded ]: expanded,
+				[ rowStyles.expanded ]: expanded,
+			} ) }
+		>
 			{ /* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */ }
-			<div className="jb-table-row jb-recommendation-page-grid" onClick={ toggleExpand }>
+			<div
+				className={ clsx( rowStyles[ 'table-row' ], rowStyles[ 'row-grid' ] ) }
+				onClick={ toggleExpand }
+			>
 				{ children }
 
-				{ canExpand && <div className="jb-table-row__expand">{ expanded ? '↑' : '↓' }</div> }
+				{ canExpand && (
+					<div className={ styles[ 'expand-indicator' ] }>{ expanded ? '↑' : '↓' }</div>
+				) }
 			</div>
 
-			{ expanded && canExpand && <div className="jb-table-row__expanded">{ expandedContent }</div> }
+			{ expanded && canExpand && (
+				<div className={ styles[ 'expanded-content-row' ] }>{ expandedContent }</div>
+			) }
 		</div>
 	);
 };

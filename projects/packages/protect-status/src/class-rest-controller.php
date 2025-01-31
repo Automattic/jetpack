@@ -80,7 +80,7 @@ class REST_Controller {
 	public static function api_check_plan() {
 		$has_required_plan = Plan::has_required_plan();
 
-		return rest_ensure_response( $has_required_plan, 200 );
+		return rest_ensure_response( $has_required_plan );
 	}
 
 	/**
@@ -92,7 +92,7 @@ class REST_Controller {
 	 */
 	public static function api_get_status( $request ) {
 		$status = Status::get_status( $request['hard_refresh'] );
-		return rest_ensure_response( $status, 200 );
+		return rest_ensure_response( $status );
 	}
 
 	/**
