@@ -5,6 +5,7 @@ import {
 	SelectControl,
 	ToolbarGroup,
 	ToolbarItem,
+	TextControl,
 } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -17,6 +18,7 @@ const linkOptions = [
 	{ value: 'attachment', label: __( 'Attachment Page', 'jetpack' ) },
 	{ value: 'media', label: __( 'Media File', 'jetpack' ) },
 	{ value: 'none', label: __( 'None', 'jetpack' ) },
+	{ value: 'custom', label: __( 'Custom', 'jetpack' ) },
 ];
 
 export const TiledGalleryBlockControls = ( {
@@ -59,6 +61,8 @@ export const TiledGalleryInspectorControls = ( {
 	onRoundedCornersChange,
 	linkTo,
 	onLinkToChange,
+	selectedImage,
+	setImageAttributes,
 } ) => {
 	return (
 		<InspectorControls>
@@ -91,6 +95,22 @@ export const TiledGalleryInspectorControls = ( {
 					__nextHasNoMarginBottom={ true }
 				/>
 			</PanelBody>
+			{ selectedImage !== null && linkTo === 'custom' && (
+				<PanelBody title={ __( 'Image Link Settings', 'jetpack' ) }>
+					<TextControl
+						label={ __( 'Link URL', 'jetpack' ) }
+						value={ images[ selectedImage ]?.customLink || '' }
+						onChange={ value => {
+							if ( linkTo === 'custom' ) {
+								setImageAttributes( selectedImage )( {
+									customLink: value,
+								} );
+							}
+						} }
+						placeholder={ __( 'Enter URL', 'jetpack' ) }
+					/>
+				</PanelBody>
+			) }
 		</InspectorControls>
 	);
 };
