@@ -13,7 +13,7 @@ export const MAXIMUM_MESSAGE_LENGTH = 280 - ATTACHMENT_MESSAGE_PADDING - 1;
  * @return {number} The maximum length of a share message.
  */
 export function useShareMessageMaxLength() {
-	const enabledConnections = useSocialMediaConnections();
+	const { enabledConnections } = useSocialMediaConnections();
 
 	// Get the char limits for enabled connections
 	const charLimits = enabledConnections
