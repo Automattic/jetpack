@@ -190,7 +190,7 @@ class Post_List {
 	 * @return array The modified post actions array.
 	 */
 	public function add_copy_link_action( $post_actions, $post ) {
-		if ( ! is_post_publicly_viewable( $post ) ) {
+		if ( $post->post_status === 'trash' ) {
 			return $post_actions;
 		}
 
