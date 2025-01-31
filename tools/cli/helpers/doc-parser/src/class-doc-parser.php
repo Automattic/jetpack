@@ -72,7 +72,7 @@ class Doc_Parser {
 	/**
 	 * Generate a JSON file containing the PHPDoc markup, and save to filesystem.
 	 *
-	 * @param Array  $path a path to look for files in.
+	 * @param String $path a path to look for files in.
 	 * @param String $output_file the name to use for the output file, optional.
 	 */
 	public function generate( $path, $output_file = 'phpdoc.json' ) {
