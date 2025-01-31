@@ -1000,6 +1000,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_field( $type, $id, $label, $value, $class, $placeholder, $required, $required_field_text ) {
+		if ( ! $this->is_field_renderable( $type ) ) {
+			return null;
+		}
+
 		$class .= ' grunion-field';
 
 		$form_style = $this->get_form_style();
@@ -1139,6 +1143,33 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 
 		return $type;
+	}
+
+	/**
+	 * Determines if a form field is valid.
+	 *
+	 * Add checks here to confirm if any given form field
+	 * is configured correctly and thus should be rendered
+	 * on the frontend.
+	 *
+	 * @param string $type - the field type.
+	 *
+	 * @return bool
+	 */
+	public function is_field_renderable( $type ) {
+		// Check for valid radio field.
+		if ( $type === 'radio' ) {
+			$options           = (array) $this->get_attribute( 'options' );
+			$non_empty_options = array_filter(
+				$options,
+				function ( $option ) {
+					return $option !== '';
+				}
+			);
+			return count( $non_empty_options ) > 0;
+		}
+
+		return true;
 	}
 
 	/**

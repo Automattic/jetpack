@@ -91,6 +91,16 @@
 		}
 	}
 
+	.block-editor-block-list__layout.wp-block-jetpack-field-option-radio,
+	.block-editor-block-list__layout.wp-block-jetpack-field-option-checkbox  {
+		gap: 0;
+		align-items: center;
+
+		> .wp-block {
+			flex: initial;
+		}
+	}
+
 	.block-list-appender {
 		flex: 0 0 100%;
 	}
@@ -468,7 +478,7 @@
 	.jetpack-field-option.field-option-radio,
 	.wp-block-jetpack-field-option-radio {
 		.jetpack-option__type {
-			transform: translateY(15%); /* Small offset to compensate the slightly odd perceived alignment that's due to the circular shape */
+			transform: translateY(5%); /* Small offset to compensate the slightly odd perceived alignment that's due to the circular shape */
 		}
 	}
 }
