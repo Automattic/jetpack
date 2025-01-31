@@ -10,32 +10,32 @@ describe( 'useShareMessageMaxLength', () => {
 	} );
 
 	it( 'returns default max length when no connections are enabled', () => {
-		useSocialMediaConnections.mockReturnValue( [] );
+		useSocialMediaConnections.mockReturnValue( { enabledConnections: [] } );
 		const { result } = renderHook( useShareMessageMaxLength );
 		expect( result.current ).toBe( MAXIMUM_MESSAGE_LENGTH );
 	} );
 
 	it( 'returns character limit of a single enabled connection', () => {
-		useSocialMediaConnections.mockReturnValue( [ { service_name: 'bluesky' } ] );
+		useSocialMediaConnections.mockReturnValue( {
+			enabledConnections: [ { service_name: 'bluesky' } ],
+		} );
 		const { result } = renderHook( useShareMessageMaxLength );
 		expect( result.current ).toBe( 300 );
 	} );
 
 	it( 'returns the minimum character limit among multiple connections', () => {
-		useSocialMediaConnections.mockReturnValue( [
-			{ service_name: 'twitter' },
-			{ service_name: 'facebook' },
-		] );
+		useSocialMediaConnections.mockReturnValue( {
+			enabledConnections: [ { service_name: 'twitter' }, { service_name: 'facebook' } ],
+		} );
 
 		const { result } = renderHook( useShareMessageMaxLength );
 		expect( result.current ).toBe( 10000 );
 	} );
 
 	it( 'ignores undefined character limits', () => {
-		useSocialMediaConnections.mockReturnValue( [
-			{ service_name: 'twitter' },
-			{ service_name: 'linkedin' },
-		] );
+		useSocialMediaConnections.mockReturnValue( {
+			enabledConnections: [ { service_name: 'twitter' }, { service_name: 'linkedin' } ],
+		} );
 
 		const { result } = renderHook( useShareMessageMaxLength );
 		expect( result.current ).toBe( 3000 );
