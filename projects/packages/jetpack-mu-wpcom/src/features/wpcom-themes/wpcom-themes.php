@@ -252,7 +252,9 @@ function wpcom_themes_api_theme_object( $theme ) {
 		admin_url( 'themes.php' )
 	);
 	// If there is no set tier, this is a community theme.
-	$theme->tier = $theme->tier ?? 'community';
+	$theme->tier                           = $theme->tier ?? 'community';
+	$theme->can_activate_with_current_plan = \A8C\Lib\Themes\Theme_Tiers::is_theme_allowed_on_site( $theme->slug );
+
 	return $theme;
 }
 add_filter( 'wpcom_themes_api_theme_object', 'wpcom_themes_api_theme_object' );
@@ -271,3 +273,18 @@ function wpcom_themes_tmpl_theme( $tmpl ) {
 	);
 }
 add_filter( 'wpcom_themes_tmpl_theme', 'wpcom_themes_tmpl_theme' );
+
+/**
+ * Filter the theme template to set the activate button text conditional on the theme and site tier.
+ *
+ * @param string $tmpl The mustache template for theme cards.
+ * @return string Updated template.
+ */
+function wpcom_themes_tmpl_theme_activate_button( $tmpl ) {
+	return str_replace(
+		__( 'Activate', 'jetpack-mu-wpcom' ),
+		'{{{ data.can_activate_with_current_plan ? "' . __( 'Activate', 'jetpack-mu-wpcom' ) . '" : "' . __( 'Upgrade to activate', 'jetpack-mu-wpcom' ) . '" }}}',
+		$tmpl
+	);
+}
+add_filter( 'wpcom_themes_tmpl_theme', 'wpcom_themes_tmpl_theme_activate_button' );
