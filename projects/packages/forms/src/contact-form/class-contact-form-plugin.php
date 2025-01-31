@@ -375,7 +375,7 @@ class Contact_Form_Plugin {
 				if ( 'jetpack/field-label' === $block_name ) {
 					$atts['label']         = $inner_block['attrs']['label'] ?? $inner_block['attrs']['defaultLabel'] ?? '';
 					$label_attrs           = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
-					$atts['labelclasses']  = 'wp-block-jetpack-form-label';
+					$atts['labelclasses']  = 'wp-block-jetpack-field-label';
 					$atts['labelclasses'] .= $label_attrs['class'] ?? '';
 					$atts['labelstyles']   = $label_attrs['style'] ?? null;
 				}
@@ -383,7 +383,7 @@ class Contact_Form_Plugin {
 				if ( 'jetpack/field-input' === $block_name ) {
 					$atts['placeholder']   = $inner_block['attrs']['placeholder'] ?? '';
 					$input_attrs           = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
-					$atts['inputclasses']  = 'wp-block-jetpack-form-input';
+					$atts['inputclasses']  = 'wp-block-jetpack-field-input';
 					$atts['inputclasses'] .= $input_attrs['class'] ?? '';
 					$atts['inputstyles']   = $input_attrs['style'] ?? null;
 				}
