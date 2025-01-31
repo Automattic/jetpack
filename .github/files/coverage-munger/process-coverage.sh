@@ -36,14 +36,14 @@ fi
 TMP=$( find "$PWD/coverage" -name '*.json' )
 if [[ -n "$TMP" ]]; then
 	echo "::group::Combining JS coverage"
-	pnpm --filter=jetpack-gh-config-munger exec istanbul-merge --out "$PWD"/artifacts/js-combined.json $TMP
+	pnpm --filter=./.github/files/coverage-munger/ exec istanbul-merge --out "$PWD"/artifacts/js-combined.json $TMP
 	perl -i -pwe 'BEGIN { $prefix = shift; $prefix=~s!/*$!/!; $re = qr/\Q$prefix\E/; } s!"$re!"!g' "$GITHUB_WORKSPACE" artifacts/js-combined.json
 	echo '::endgroup::'
 
 	echo "::group::Creating JS coverage summary"
 	mkdir "$TMP_DIR/js"
 	cp artifacts/js-combined.json "$TMP_DIR/js"
-	pnpm --filter=jetpack-gh-config-munger exec nyc report --no-exclude-after-remap --report-dir="$TMP_DIR" --temp-dir="$TMP_DIR/js" --reporter=json-summary
+	pnpm --filter=./.github/files/coverage-munger/ exec nyc report --no-exclude-after-remap --report-dir="$TMP_DIR" --temp-dir="$TMP_DIR/js" --reporter=json-summary
 	jq -r 'to_entries[] | select( .key != "total" ) | [ .key, .value.lines.total, .value.lines.covered ] | @tsv' "$TMP_DIR/coverage-summary.json" > "$TMP_DIR/js-summary.tsv"
 	echo '::endgroup::'
 else

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Move initial state from Social plugin to publicize package

@@ -69,6 +69,27 @@ class Password_Detection {
 	}
 
 	/**
+	 * Redirect and exit.
+	 *
+	 * @param string $redirect_location The redirect location.
+	 *
+	 * @return never
+	 */
+	protected function redirect_and_exit( string $redirect_location ) {
+		wp_safe_redirect( $redirect_location );
+		$this->exit();
+	}
+
+	/**
+	 * Exit decoupling.
+	 *
+	 * @return never
+	 */
+	protected function exit() {
+		exit;
+	}
+
+	/**
 	 * Handle password detection validation error.
 	 *
 	 * @param string    $username The username.
@@ -79,32 +100,45 @@ class Password_Detection {
 	public function handle_password_detection_validation_error( string $username, \WP_Error $error ): void {
 		if ( isset( $error->errors['password_detection_validation_error'] ) ) {
 			$token = $error->get_error_data()['token'];
-			wp_safe_redirect( $this->get_redirect_url( $token ) );
-			exit;
+			$this->redirect_and_exit( $this->get_redirect_url( $token ) );
 		}
 	}
 
 	/**
-	 * Render password detection page.
+	 * Load user by ID. Dependency decoupling.
 	 *
-	 * @return never
+	 * @param int $user_id The user ID.
+	 *
+	 * @return \WP_User|null The user object.
+	 */
+	protected function load_user( int $user_id ) {
+		return get_user_by( 'ID', $user_id );
+	}
+
+	/**
+	 * Render password detection page.
 	 */
 	public function render_page() {
 		if ( is_user_logged_in() ) {
-			wp_safe_redirect( admin_url() );
-			exit;
+			$this->redirect_and_exit( admin_url() );
+			// @phan-suppress-next-line PhanPluginUnreachableCode This would fall through in unit tests otherwise.
+			return;
 		}
 
 		$token          = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( $_GET['token'] ) ) : null;
 		$transient_data = get_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$token}" );
 		if ( ! $transient_data ) {
 			$this->redirect_to_login();
+			// @phan-suppress-next-line PhanPluginUnreachableCode This would fall through in unit tests otherwise.
+			return;
 		}
 
 		$user_id = $transient_data['user_id'] ?? null;
-		$user    = $user_id ? get_user_by( 'ID', $user_id ) : null;
+		$user    = $user_id ? $this->load_user( (int) $user_id ) : null;
 		if ( ! $user instanceof \WP_User ) {
 			$this->redirect_to_login();
+			// @phan-suppress-next-line PhanPluginUnreachableCode This would fall through in unit tests otherwise.
+			return;
 		}
 
 		// Handle resend email request
@@ -123,8 +157,9 @@ class Password_Detection {
 					$this->set_transient_error( $user->ID, $message );
 				}
 
-				wp_safe_redirect( $this->get_redirect_url( $token ) );
-				exit;
+				$this->redirect_and_exit( $this->get_redirect_url( $token ) );
+				// @phan-suppress-next-line PhanPluginUnreachableCode This would fall through in unit tests otherwise.
+				return;
 			} else {
 				$this->set_transient_error( $user->ID, __( 'Resend nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
 			}
@@ -136,13 +171,13 @@ class Password_Detection {
 				$user_input = isset( $_POST['user_input'] ) ? sanitize_text_field( wp_unslash( $_POST['user_input'] ) ) : null;
 
 				$this->handle_auth_form_submission( $user, $token, $transient_data['auth_code'] ?? null, $user_input );
+				return;
 			} else {
 				$this->set_transient_error( $user->ID, __( 'Verify nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
 			}
 		}
 
 		$this->render_content( $user, $token );
-		exit;
 	}
 
 	/**
@@ -186,15 +221,15 @@ class Password_Detection {
 							<form method="post">
 								<?php wp_nonce_field( 'verify_action', '_wpnonce_verify' ); ?>
 								<input
-									type="text" 
-									name="user_input" 
-									class="action-input" 
-									placeholder="<?php esc_attr_e( 'Enter verification code', 'jetpack-account-protection' ); ?>" 
-									required 
-									pattern="\d{6}" 
-									minlength="6" 
-									maxlength="6" 
-									inputmode="numeric" 
+									type="text"
+									name="user_input"
+									class="action-input"
+									placeholder="<?php esc_attr_e( 'Enter verification code', 'jetpack-account-protection' ); ?>"
+									required
+									pattern="\d{6}"
+									minlength="6"
+									maxlength="6"
+									inputmode="numeric"
 									oninput="this.value = this.value.replace(/\D/g, '');"
 								/>
 								<button class="action action-verify" type="submit" name="verify"><?php esc_html_e( 'Verify', 'jetpack-account-protection' ); ?></button>
@@ -214,6 +249,7 @@ class Password_Detection {
 			</body>
 		</html>
 		<?php
+		$this->exit();
 	}
 
 	/**
@@ -266,8 +302,7 @@ class Password_Detection {
 	 * @return never
 	 */
 	private function redirect_to_login() {
-		wp_safe_redirect( wp_login_url() );
-		exit;
+		$this->redirect_and_exit( wp_login_url() );
 	}
 
 	/**
@@ -297,8 +332,7 @@ class Password_Detection {
 			delete_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$token}" );
 			wp_set_auth_cookie( $user->ID, true );
 			// TODO: Notify user to update their password/redirect to password update page
-			wp_safe_redirect( admin_url() );
-			exit;
+			$this->redirect_and_exit( admin_url() );
 		} else {
 			$this->set_transient_error( $user->ID, __( 'Authentication code verification failed. Please try again.', 'jetpack-account-protection' ) );
 		}
@@ -314,7 +348,7 @@ class Password_Detection {
 	 * @return void
 	 */
 	private function set_transient_error( int $user_id, string $message, int $expiration = 60 ): void {
-		set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_error_{$user_id}", esc_html( $message ), $expiration );
+		set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_error_{$user_id}", $message, $expiration );
 	}
 
 	/**

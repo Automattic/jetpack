@@ -2,6 +2,27 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.3-a.5 - 2025-01-27
+### Enhancements
+- Forms: Add Checkbox and Consent field enter action to create a new block. [#41297]
+
+### Bug fixes
+- Forms: Make the icons show up as expected in the style editor. [#41314]
+- Sitemaps: Ensure a valid news sitemap is present even if no posts are eligible. [#40893]
+- Social: Fix profile links for LinkedIn connections. [#40873]
+- Social: Fix Publicize error in the editor due to malformed connections data. [#40679]
+- VideoPress: Fix issue with VideoPress block with zero height and width. [#41319]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Comments API: Add wpcom_id and wpcom_login fields to comment author responses when requested via author_wpcom_data parameter. [#41254]
+- Forms: Fix default editor stying for textarea. [#41229]
+- Forms: Remove wrapping <div> element from form block. [#41274]
+- General: Fix the rendering of Jetpack Google Fonts font faces for classic themes. [#41190]
+- General: Deprecate Jetpack geo location module. [#41193]
+- Jetpack AI: Use the PluginDocumentSettingPanel slotfill for compatibility with site and post editor in the Excerpt panel. [#41251]
+- Jetpack button: Implement outline style. [#41194]
+- Related Posts: Revert "Hide settings in block themes." [#41203]
+
 ## 14.3-a.3 - 2025-01-20
 ### Enhancements
 - Forms: Allow HTML block within forms. [#41040]

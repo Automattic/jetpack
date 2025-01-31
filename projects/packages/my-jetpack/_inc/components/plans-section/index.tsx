@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { useCallback } from 'react';
 import { MyJetpackRoutes, PRODUCT_STATUSES } from '../../constants';
 import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
-import { useAllProducts } from '../../data/products/use-product';
+import { useAllProducts } from '../../data/products/use-all-products';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
