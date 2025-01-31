@@ -28,7 +28,7 @@ class Validation_Service {
 	 * @param Connection_Manager|null $connection_manager Connection manager dependency.
 	 */
 	public function __construct(
-		?Connection_Manager $connection_manager,
+		?Connection_Manager $connection_manager = null
 	) {
 		$this->connection_manager = $connection_manager ?? new Connection_Manager();
 	}

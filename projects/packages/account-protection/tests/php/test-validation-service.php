@@ -1,8 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-namespace Automattic\Jetpack\AccountProtection;
+namespace Automattic\Jetpack\Account_Protection;
 
-use Automattic\Jetpack\Account_Protection\Validation_Service;
 use WorDBless\BaseTestCase;
 
 /**
