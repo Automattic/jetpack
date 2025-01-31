@@ -25,7 +25,8 @@ export const getSocialSettings = createRegistrySelector( select => () => {
 		return settings;
 	}
 
-	// Add safe fallbacks for WPCOM sites
+	// Add safe fallbacks for cases when the REST API doesn't return the expected data.
+	// For example when publicize module is disabled, the API doesn't return the settings.
 	return {
 		showPricingPage: data[ 'jetpack-social_show_pricing_page' ] ?? settings.showPricingPage,
 		socialImageGenerator: {

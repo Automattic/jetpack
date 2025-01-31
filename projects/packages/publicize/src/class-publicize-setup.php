@@ -51,6 +51,9 @@ class Publicize_Setup {
 			}
 		}
 
+		// This doesn't need to be active on WPCOM.
+		new REST_API\Settings_Controller();
+
 		Social_Admin_Page::init();
 	}
 
