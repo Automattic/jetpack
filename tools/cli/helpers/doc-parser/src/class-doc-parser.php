@@ -363,6 +363,12 @@ class Doc_Parser {
 			$arguments = $node->getArgs();
 			$hook_name = array_shift( $arguments );
 
+			// Purging any comments that could have been attributed to this argument.
+			$comments = $hook_name->getComments();
+			if ( ! empty( $comments ) ) {
+				$hook_name->setAttribute( 'comments', null );
+			}
+
 			$new_block = array(
 				'type'      => $node->name->name === 'apply_filters' ? 'filter' : 'action',
 				'line'      => $node->getLine(),
