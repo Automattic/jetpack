@@ -18,7 +18,14 @@ import type React from 'react';
  * @param {StatCardProps} props - Component props.
  * @return {React.ReactNode} - StatCard react component.
  */
-const StatCard = ( { className, icon, label, value, variant = 'square' }: StatCardProps ) => {
+const StatCard = ( {
+	className,
+	hideValue,
+	icon,
+	label,
+	value,
+	variant = 'square',
+}: StatCardProps ) => {
 	const formattedValue = numberFormat( value );
 	const compactValue = numberFormat( value, {
 		notation: 'compact',
@@ -33,12 +40,12 @@ const StatCard = ( { className, icon, label, value, variant = 'square' }: StatCa
 				{ variant === 'square' ? (
 					<Tooltip text={ formattedValue } placement="top">
 						<Text variant="headline-small" className={ clsx( styles.value ) }>
-							{ compactValue }
+							{ hideValue ? '-' : compactValue }
 						</Text>
 					</Tooltip>
 				) : (
 					<Text variant="title-medium-semi-bold" className={ clsx( styles.value ) }>
-						{ formattedValue }
+						{ hideValue ? '-' : formattedValue }
 					</Text>
 				) }
 			</div>

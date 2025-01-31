@@ -5,6 +5,11 @@ export type StatCardProps = {
 	className?: string;
 
 	/**
+	 * Whether to hide the value.
+	 */
+	hideValue?: boolean;
+
+	/**
 	 * The stat card icon.
 	 */
 	icon: React.JSX.Element;
