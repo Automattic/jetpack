@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Comments API: Add wpcom_id and wpcom_login fields to comment author responses when requested via author_wpcom_data parameter.

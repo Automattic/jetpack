@@ -50,6 +50,8 @@ class Publicize_Setup {
 				new $controller();
 			}
 		}
+
+		Social_Admin_Page::init();
 	}
 
 	/**

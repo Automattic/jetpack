@@ -1,3 +1,4 @@
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import React, { Component } from 'react';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -23,10 +24,24 @@ const AccountProtectionComponent = class extends Component {
 					disableInSiteConnectionMode
 					module={ this.props.getModule( 'account-protection' ) }
 					support={ {
-						text: this.props.getModule( 'account-protection' ).description,
-						link: '#', // TODO: Update this redirect URL
+						text: __(
+							'Jetpack recommends enabling this feature. Please be mindful of the risks',
+							'jetpack'
+						),
+						link: '#', // TODO: Update link once doc is avaiable
 					} }
 				>
+					<p>
+						{ createInterpolateElement(
+							__(
+								'Enabling this setting enhances account security by detecting compromised passwords and enforcing additional verification when needed. Learn more about <link>how this protects your site</link>.',
+								'jetpack'
+							),
+							{
+								link: <a href="#"></a>, // TODO: Update link once doc is avaiable
+							}
+						) }
+					</p>
 					<ModuleToggle
 						slug="account-protection"
 						compact
@@ -37,7 +52,7 @@ const AccountProtectionComponent = class extends Component {
 					>
 						<span className="jp-form-toggle-explanation">
 							{ __(
-								'Protect your site with enhanced password detection and profile management security.',
+								'Protect your site with advanced password detection and profile management protection.',
 								'jetpack'
 							) }
 						</span>
