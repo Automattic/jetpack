@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Moved Social admin page code and assets logic to publicize package

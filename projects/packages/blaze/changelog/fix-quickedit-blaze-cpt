@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Blaze: Ensure Blaze still available after quick edit in post list
