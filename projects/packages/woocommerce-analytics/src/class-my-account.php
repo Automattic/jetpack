@@ -65,11 +65,11 @@ class My_Account {
 				if ( isset( $core_endpoints['view-order'] ) && $core_endpoints['view-order'] === $key && is_numeric( $value ) ) {
 					$initiator = get_query_var( '_wca_initiator' );
 					if ( 'number' === $initiator ) {
-						$this->record_event( 'woocommerceanalytics_my_account_order_number_click', [], null, false );
+						$this->record_event( 'woocommerceanalytics_my_account_order_number_click', array(), null, false );
 						continue;
 					}
 					if ( 'action' === $initiator ) {
-						$this->record_event( 'woocommerceanalytics_my_account_order_action_click', array( 'action' => 'view' ),null, false );
+						$this->record_event( 'woocommerceanalytics_my_account_order_action_click', array( 'action' => 'view' ), null, false );
 						continue;
 					}
 				}
@@ -86,7 +86,7 @@ class My_Account {
 				}
 
 				if ( isset( $core_endpoints['add-payment-method'] ) && $core_endpoints['add-payment-method'] === $key ) {
-					$this->record_event( 'woocommerceanalytics_my_account_payment_add', [], null, false );
+					$this->record_event( 'woocommerceanalytics_my_account_payment_add', array(), null, false );
 					continue;
 				}
 
@@ -290,7 +290,8 @@ class My_Account {
 				$this->record_event(
 					$event['event_name'],
 					$event['event_props'],
-                    null, false
+					null,
+					false
 				);
 			}
 

@@ -414,9 +414,9 @@ trait Woo_Analytics_Trait {
 
 		$js = "{'_en': '" . esc_js( $event_name ) . "'";
 
-        if ( $clickhouse ) {
-            $js .= ", '_ch':'1'";
-        }
+		if ( $clickhouse ) {
+			$js .= ", '_ch':'1'";
+		}
 
 		if ( isset( $product_details ) ) {
 				$all_props = array_merge( $all_props, $product_details );
