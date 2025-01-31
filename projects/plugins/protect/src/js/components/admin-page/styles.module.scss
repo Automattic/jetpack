@@ -8,6 +8,7 @@
     flex-direction: column;
     gap: calc( var( --spacing-base ) * 3 ); // 24px
     align-items: center;
+    width: 100%;
 
     @media ( min-width: 600px ) {
         flex-direction: row;

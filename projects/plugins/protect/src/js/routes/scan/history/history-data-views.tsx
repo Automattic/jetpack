@@ -1,15 +1,19 @@
-import { HISTORIC_TABLE_FIELDS } from '@automattic/jetpack-components';
+import {
+	HISTORIC_TABLE_FIELDS,
+	THREAT_FIELD_AUTO_FIX,
+	ThreatsDataViews,
+} from '@automattic/jetpack-components';
 import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import useHistoryQuery from '../../../data/scan/use-history-query';
-import ScanDataViews from '../scan-data-views';
+import ScanToggleGroupControl from '../scan-toggle-group-control';
 
 /**
- * Scan History Data Viewd
+ * Scan History Data Views
  *
  * @return {JSX.Element} HistoryDataViews component.
  */
-export default function HistoryDataViews() {
+export default function HistoryDataViews(): JSX.Element {
 	const { filter } = useParams();
 	const { data: history } = useHistoryQuery();
 
@@ -19,7 +23,7 @@ export default function HistoryDataViews() {
 				{
 					field: 'status',
 					value: filter,
-					operator: 'isAny',
+					operator: 'isAny' as const,
 				},
 			];
 		}
@@ -28,11 +32,12 @@ export default function HistoryDataViews() {
 	}, [ filter ] );
 
 	return (
-		<ScanDataViews
-			status="historic"
+		<ThreatsDataViews
 			data={ history ? history.threats : [] }
 			initialFilters={ filters }
 			initialFields={ HISTORIC_TABLE_FIELDS }
+			disableFields={ [ THREAT_FIELD_AUTO_FIX ] }
+			header={ <ScanToggleGroupControl /> }
 		/>
 	);
 }

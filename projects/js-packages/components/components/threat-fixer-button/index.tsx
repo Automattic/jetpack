@@ -3,9 +3,10 @@ import {
 	getFixerState,
 	getFixerAction,
 	getFixerDescription,
+	ThreatsContext,
 } from '@automattic/jetpack-scan';
 import { Tooltip } from '@wordpress/components';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useContext, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@automattic/jetpack-components';
 import styles from './styles.module.scss';
@@ -13,10 +14,11 @@ import styles from './styles.module.scss';
 /**
  * Threat Fixer Button component.
  *
- * @param {object}   props           - Component props.
- * @param {object}   props.threat    - The threat.
- * @param {Function} props.onClick   - The onClick function.
- * @param {string}   props.className - The className.
+ * @param {object}   props             - Component props.
+ * @param {object}   props.threat      - The threat.
+ * @param {Function} props.onClick     - The onClick function.
+ * @param {boolean}  props.showToolTip - Whether to show a tooltip on button hover.
+ * @param {string}   props.className   - The className.
  *
  * @return {JSX.Element} The component.
  */
@@ -24,14 +26,18 @@ export default function ThreatFixerButton( {
 	threat,
 	className,
 	onClick,
+	showToolTip = true,
+	...buttonProps
 }: {
 	threat: Threat;
 	onClick: ( items: Threat[] ) => void;
 	className?: string;
-} ): JSX.Element {
-	const fixerState = useMemo( () => {
-		return getFixerState( threat.fixer );
-	}, [ threat.fixer ] );
+	showToolTip?: boolean;
+} & React.ComponentProps< typeof Button > ): JSX.Element {
+	const { fixersStatus } = useContext( ThreatsContext );
+
+	const fixer = fixersStatus.ok && fixersStatus.threats?.[ threat.id ];
+	const fixerState = getFixerState( fixer );
 
 	const tooltipText = useMemo( () => {
 		if ( ! threat.fixable ) {
@@ -79,7 +85,7 @@ export default function ThreatFixerButton( {
 
 	return (
 		<div>
-			<Tooltip className={ styles.tooltip } text={ tooltipText }>
+			<Tooltip className={ styles.tooltip } text={ showToolTip ? tooltipText : undefined }>
 				<Button
 					size="small"
 					weight="regular"
@@ -94,6 +100,7 @@ export default function ThreatFixerButton( {
 						fixerState.stale
 					}
 					style={ { minWidth: '72px' } }
+					{ ...buttonProps }
 				/>
 			</Tooltip>
 		</div>

@@ -49,7 +49,7 @@ function render() {
 
 	const component = (
 		<QueryClientProvider client={ queryClient }>
-			<ThemeProvider>
+			<ThemeProvider targetDom={ document.body }>
 				<NoticeProvider>
 					<ModalProvider>
 						<CheckoutProvider>

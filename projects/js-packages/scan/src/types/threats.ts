@@ -21,6 +21,15 @@ export type Extension = {
 	type: 'plugins' | 'themes' | 'core';
 };
 
+export type Vulnerability = {
+	id: string;
+	title: string;
+	description: string;
+	introducedIn: string;
+	fixedIn: string;
+	source: string;
+};
+
 export type Threat = {
 	/** The threat's unique ID. */
 	id: string | number;
@@ -75,4 +84,6 @@ export type Threat = {
 
 	/** The affected extension. */
 	extension?: Extension;
+
+	vulnerabilities?: Vulnerability[];
 };
