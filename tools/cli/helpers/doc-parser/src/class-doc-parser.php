@@ -72,29 +72,18 @@ class Doc_Parser {
 	/**
 	 * Generate a JSON file containing the PHPDoc markup, and save to filesystem.
 	 *
-	 * @param Array $args this function takes a path as its argument,
-	 * as well as optionally an output file name.
+	 * @param Array  $path a path to look for files in.
+	 * @param String $output_file the name to use for the output file, optional.
 	 */
-	public function generate( $args ) {
-		list( $directories, $output_file ) = $args;
+	public function generate( $path, $output_file = 'phpdoc.json' ) {
 
-		if ( empty( $output_file ) ) {
-			$output_file = 'phpdoc.json';
-		}
+		$directory = realpath( $path );
 
-		$json = array();
-		foreach ( $directories as $directory ) {
-			$directory = realpath( $directory );
-			echo PHP_EOL;
-
-			// Get data from the PHPDoc
-			$json = array(
-				...$json,
-				...$this->get_phpdoc_data( $directory, 'raw' ),
-			);
-		}
+		// Get data from the PHPDoc
+		$json = $this->get_phpdoc_data( $directory, 'raw' );
 
 		$output = json_encode( $json );
+
 		// Write to $output_file
 		$error = ! file_put_contents( $output_file, $output );
 
@@ -132,8 +121,7 @@ class Doc_Parser {
 		$ignore = array(
 			'/.sass-cache/',
 			'/node_modules',
-			'vendor/',
-			'jetpack_vendor/',
+			'/vendor/',
 			'/.nova/',
 			'/.vscode/',
 			'/logs',
@@ -344,10 +332,11 @@ class Doc_Parser {
 			$hook_name = array_shift( $arguments );
 
 			$new_block = array(
-				'type'     => $node->name->name === 'apply_filters' ? 'filter' : 'action',
-				'line'     => $node->getLine(),
-				'end_line' => $node->getEndLine() > 0 ? $node->getEndLine() : $node->getLine(),
-				'name'     => $this->pretty_print_hook_name( $hook_name ),
+				'type'      => $node->name->name === 'apply_filters' ? 'filter' : 'action',
+				'line'      => $node->getLine(),
+				'end_line'  => $node->getEndLine() > 0 ? $node->getEndLine() : $node->getLine(),
+				'name'      => $this->pretty_print_hook_name( $hook_name ),
+				'arguments' => array(),
 			);
 
 			foreach ( $arguments as $argument ) {
@@ -373,6 +362,7 @@ class Doc_Parser {
 		if (
 			$argument->value instanceof Node\Scalar\String_
 				|| $argument->value instanceof Node\Expr\ConstFetch
+				|| $argument->value instanceof Node\Expr\ClassConstFetch
 		) {
 			return trim( $this->printer->prettyPrint( array( $argument ) ), '\'' );
 
