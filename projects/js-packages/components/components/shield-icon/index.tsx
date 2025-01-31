@@ -35,9 +35,9 @@ export default function ShieldIcon( {
 	contrast?: string;
 	fill?: 'default' | 'info' | 'success' | 'warning' | 'error' | string;
 	height?: number;
-	icon?: 'success' | 'error';
+	icon?: 'success' | 'error' | 'warning';
 	outline?: boolean;
-	variant: 'default' | 'info' | 'success' | 'warning' | 'error';
+	variant?: 'default' | 'info' | 'success' | 'warning' | 'error';
 } ): JSX.Element {
 	const shieldFill = COLORS[ fill ] || fill || COLORS[ variant ];
 	const iconFill = outline ? shieldFill : contrast;

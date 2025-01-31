@@ -2,6 +2,7 @@ import { AdminSection, Container, Col } from '@automattic/jetpack-components';
 import AdminPage from '../../../components/admin-page';
 import useHistoryQuery from '../../../data/scan/use-history-query';
 import useScanStatusQuery from '../../../data/scan/use-scan-status-query';
+import ScanContextProvider from '../context-provider';
 import HistoryAdminSectionHero from './history-admin-section-hero';
 import HistoryDataViews from './history-data-views';
 import styles from './styles.module.scss';
@@ -22,22 +23,24 @@ const HistoryPage = () => {
 	const showResults = hasActiveThreats || hasHistory;
 
 	return (
-		<AdminPage>
-			<HistoryAdminSectionHero size={ showResults ? 'normal' : 'large' } />
-			{ showResults && (
-				<AdminSection>
-					<Container
-						className={ styles[ 'history-container' ] }
-						horizontalSpacing={ 5 }
-						horizontalGap={ 4 }
-					>
-						<Col>
-							<HistoryDataViews />
-						</Col>
-					</Container>
-				</AdminSection>
-			) }
-		</AdminPage>
+		<ScanContextProvider>
+			<AdminPage>
+				<HistoryAdminSectionHero size={ showResults ? 'normal' : 'large' } />
+				{ showResults && (
+					<AdminSection>
+						<Container
+							className={ styles[ 'history-container' ] }
+							horizontalSpacing={ 5 }
+							horizontalGap={ 4 }
+						>
+							<Col>
+								<HistoryDataViews />
+							</Col>
+						</Container>
+					</AdminSection>
+				) }
+			</AdminPage>
+		</ScanContextProvider>
 	);
 };
 

@@ -31,7 +31,7 @@ export default function ScanToggleGroupControl(): JSX.Element {
 		[ navigate ]
 	);
 
-	if ( ! ( numHistoricThreats + numActiveThreats ) ) {
+	if ( ! numHistoricThreats ) {
 		return null;
 	}
 
