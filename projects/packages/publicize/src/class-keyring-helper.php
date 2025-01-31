@@ -19,7 +19,7 @@ class Keyring_Helper {
 	/**
 	 * Class instance
 	 *
-	 * @var \Automattic\Jetpack\Publicize\Keyring_Helper
+	 * @var Keyring_Helper
 	 */
 	private static $instance = null;
 
@@ -34,7 +34,7 @@ class Keyring_Helper {
 	 * Initialize instance.
 	 */
 	public static function init() {
-		if ( self::$instance === null ) {
+		if ( null === self::$instance ) {
 			self::$instance = new Keyring_Helper();
 		}
 
