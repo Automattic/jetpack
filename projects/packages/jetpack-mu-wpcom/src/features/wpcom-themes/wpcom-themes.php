@@ -236,12 +236,13 @@ function wpcom_themes_ajax_save_wporg_username() {
 add_action( 'wp_ajax_save-wporg-username', 'wpcom_themes_ajax_save_wporg_username', 1 );
 
 /**
- * Filter the theme object to fix the activation URL.
+ * Filter the theme object.
  *
  * @param object $theme The theme object.
  * @return object The theme object.
  */
 function wpcom_themes_api_theme_object( $theme ) {
+	// Fix activation URL.
 	$theme->activate_url = add_query_arg(
 		array(
 			'action'     => 'activate',
@@ -250,6 +251,23 @@ function wpcom_themes_api_theme_object( $theme ) {
 		),
 		admin_url( 'themes.php' )
 	);
+	// If there is no set tier, this is a community theme.
+	$theme->tier = $theme->tier ?? 'community';
 	return $theme;
 }
 add_filter( 'wpcom_themes_api_theme_object', 'wpcom_themes_api_theme_object' );
+
+/**
+ * Filter the theme template to add the theme tier.
+ *
+ * @param string $tmpl The mustache template for theme cards.
+ * @return string Updated template.
+ */
+function wpcom_themes_tmpl_theme( $tmpl ) {
+	return str_replace(
+		'<h3 class="theme-name">{{ data.name }}</h3>',
+		'<h3 class="theme-name">{{ data.name }}</h3> <span>{{ data.tier }}</span>',
+		$tmpl
+	);
+}
+add_filter( 'wpcom_themes_tmpl_theme', 'wpcom_themes_tmpl_theme' );
