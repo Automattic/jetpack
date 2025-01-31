@@ -179,7 +179,7 @@ export default function AssistantWizard( { close, tasks } ) {
 				{ currentStep === steps.length - 1 && (
 					<CompletionInput
 						submitCtaLabel={ steps[ currentStep ].submitCtaLabel }
-						handleSubmit={ steps[ currentStep ].onSubmit }
+						handleSubmit={ handleStepSubmit }
 					/>
 				) }
 			</div>
