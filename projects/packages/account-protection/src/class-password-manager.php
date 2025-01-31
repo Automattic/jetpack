@@ -92,7 +92,7 @@ class Password_Manager {
 			if ( $update ) {
 				$old_user_data = get_userdata( $user->ID );
 				if ( $this->validation_service->is_current_password( $old_user_data, $password ) ) {
-					$errors->add( 'password_error', __( '<strong>Error:</strong> Password was used recently.', 'jetpack-account-protection' ) );
+					$errors->add( 'password_error', __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' ) );
 					return;
 				}
 			}
