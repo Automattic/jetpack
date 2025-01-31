@@ -16,6 +16,24 @@ use Jetpack_Options;
  */
 class Email_Service {
 	/**
+	 * Connection manager dependency.
+	 *
+	 * @var Connection_Manager
+	 */
+	private $connection_manager;
+
+	/**
+	 * Constructor for dependency injection.
+	 *
+	 * @param Connection_Manager|null $connection_manager Connection manager dependency.
+	 */
+	public function __construct(
+		?Connection_Manager $connection_manager = null
+	) {
+		$this->connection_manager = $connection_manager ?? new Connection_Manager();
+	}
+
+	/**
 	 * Send the email using the API.
 	 *
 	 * @param \WP_User $user The user.
@@ -24,10 +42,9 @@ class Email_Service {
 	 * @return bool True if the email was sent successfully, false otherwise.
 	 */
 	public function api_send_auth_email( \WP_User $user, string $auth_code ): bool {
-		$blog_id      = Jetpack_Options::get_option( 'id' );
-		$is_connected = ( new Connection_Manager() )->is_connected();
+		$blog_id = Jetpack_Options::get_option( 'id' );
 
-		if ( ! $blog_id || ! $is_connected ) {
+		if ( ! $blog_id || ! $this->connection_manager->is_connected() ) {
 			return false;
 		}
 
@@ -37,15 +54,7 @@ class Email_Service {
 			'code'       => $auth_code,
 		);
 
-		$response = Client::wpcom_json_api_request_as_blog(
-			sprintf( '/sites/%d/jetpack-protect-send-verification-code', $blog_id ),
-			'2',
-			array(
-				'method' => 'POST',
-			),
-			$body,
-			'wpcom'
-		);
+		$response = $this->send_email_request( (int) $blog_id, $body );
 
 		$response_code = wp_remote_retrieve_response_code( $response );
 		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response['body'] ) ) {
@@ -55,6 +64,25 @@ class Email_Service {
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		return $body['email_sent'] ?? false;
+	}
+
+	/**
+	 * Dependency decoupling for the static call to the client.
+	 *
+	 * @param int   $blog_id Blog ID.
+	 * @param array $body The request body.
+	 * @return array|\WP_Error Response data or error.
+	 */
+	protected function send_email_request( int $blog_id, array $body ) {
+		return Client::wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/jetpack-protect-send-verification-code', $blog_id ),
+			'2',
+			array(
+				'method' => 'POST',
+			),
+			$body,
+			'wpcom'
+		);
 	}
 
 	/**
@@ -109,6 +137,9 @@ class Email_Service {
 		$domain_parts = explode( '.', $parts[1] );
 		$domain       = substr( $domain_parts[0], 0, 1 ) . str_repeat( '*', strlen( $domain_parts[0] ) - 1 );
 
-		return "{$name}@{$domain}.{$domain_parts[1]}";
+		// Join all domain parts except the first one with dots
+		$tld = implode( '.', array_slice( $domain_parts, 1 ) );
+
+		return "{$name}@{$domain}.{$tld}";
 	}
 }

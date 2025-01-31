@@ -59,7 +59,7 @@ class Account_Protection {
 	 *
 	 * @return void
 	 */
-	private function register_hooks(): void {
+	protected function register_hooks(): void {
 		// Account protection activation/deactivation hooks
 		add_action( 'jetpack_activate_module_' . self::ACCOUNT_PROTECTION_MODULE_NAME, array( $this, 'on_account_protection_activation' ) );
 		add_action( 'jetpack_deactivate_module_' . self::ACCOUNT_PROTECTION_MODULE_NAME, array( $this, 'on_account_protection_deactivation' ) );
@@ -74,7 +74,7 @@ class Account_Protection {
 	 *
 	 * @return void
 	 */
-	private function register_runtime_hooks(): void {
+	protected function register_runtime_hooks(): void {
 		// Validate password after successful login
 		add_action( 'wp_authenticate_user', array( $this->password_detection, 'login_form_password_detection' ), 10, 2 );
 
