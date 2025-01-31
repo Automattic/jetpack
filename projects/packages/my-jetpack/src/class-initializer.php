@@ -860,6 +860,13 @@ class Initializer {
 	 */
 	public static function maybe_show_red_bubble() {
 		global $menu;
+
+		// Don't show red bubble alerts for non-admin users
+		// These alerts are generally only actionable for admins
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 		// filters for the items in this file
 		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( __CLASS__, 'add_red_bubble_alerts' ) );
 		$red_bubble_alerts = array_filter(
