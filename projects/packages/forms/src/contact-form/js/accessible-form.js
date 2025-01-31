@@ -49,18 +49,13 @@ const initAllForms = () => {
 		.forEach( initForm );
 };
 
-const IgnoredFieldsForEmptyForm = [
-	'_wpnonce',
-	'_wp_http_referer',
-	'contact-form-id',
-	'action',
-	'contact-form-hash',
-];
 function isFormEmpty( form ) {
-	const formData = new FormData( form );
-	return ! Array.from( formData.entries() ).some(
-		( [ key, value ] ) => ! IgnoredFieldsForEmptyForm.includes( key ) && !! value?.trim()
+	const clonedForm = form.cloneNode( true );
+	Array.from( clonedForm.querySelectorAll( 'input[type="hidden"]' ) ).forEach( input =>
+		input.remove()
 	);
+	const formData = new FormData( clonedForm );
+	return ! Array.from( formData.values() ).some( value => !! value?.trim() );
 }
 
 /**
