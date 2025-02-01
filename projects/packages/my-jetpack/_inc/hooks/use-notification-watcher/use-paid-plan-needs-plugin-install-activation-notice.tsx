@@ -57,13 +57,14 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 	} = getMyJetpackWindowInitialState();
 
 	const getPluginInfo = useCallback(
-		productSlug => ( {
+		( productSlug, action ) => ( {
 			productSlug: productSlug,
 			pluginSlug: products[ productSlug ].plugin_slug,
 			pluginName:
 				products[ productSlug ].plugin_slug === 'jetpack'
 					? 'Jetpack'
 					: products[ productSlug ].title,
+			action,
 			pluginUri: `https://wordpress.org/plugins/${ products[ productSlug ].plugin_slug }/`,
 		} ),
 		[ products ]
@@ -72,37 +73,50 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 	const pluginsList = useMemo( () => {
 		if ( needs_installed && needs_activated_only ) {
 			const slugs = new Set();
-			return [ ...needs_installed, ...needs_activated_only ]
-				.map( getPluginInfo )
-				.filter( ( { pluginSlug } ) => ! slugs.has( pluginSlug ) && slugs.add( pluginSlug ) ); // filters out duplicates
+			const needsInstalled = [ ...needs_installed ].map( productSlug =>
+				getPluginInfo( productSlug, 'install' )
+			);
+			const needsActivated = [ ...needs_activated_only ].map( productSlug =>
+				getPluginInfo( productSlug, 'activate' )
+			);
+			return [ ...needsInstalled, ...needsActivated ].filter(
+				/* filters out duplicates */
+				( { pluginSlug } ) => ! slugs.has( pluginSlug ) && slugs.add( pluginSlug )
+			);
 		} else if ( needs_installed ) {
 			const slugs = new Set();
-			return needs_installed
-				.map( getPluginInfo )
-				.filter( ( { pluginSlug } ) => ! slugs.has( pluginSlug ) && slugs.add( pluginSlug ) );
+			return (
+				needs_installed
+					.map( productSlug => getPluginInfo( productSlug, 'install' ) )
+					/* filters out duplicates */
+					.filter( ( { pluginSlug } ) => ! slugs.has( pluginSlug ) && slugs.add( pluginSlug ) )
+			);
 		}
 		const slugs = new Set();
-		return needs_activated_only
-			?.map( getPluginInfo )
-			.filter( ( { pluginSlug } ) => ! slugs.has( pluginSlug ) && slugs.add( pluginSlug ) );
+		return (
+			needs_activated_only
+				?.map( productSlug => getPluginInfo( productSlug, 'activate' ) )
+				/* filters out duplicates */
+				.filter( ( { pluginSlug } ) => ! slugs.has( pluginSlug ) && slugs.add( pluginSlug ) )
+		);
 	}, [ getPluginInfo, needs_activated_only, needs_installed ] );
 
 	const actionNoun = useMemo( () => {
 		if ( needs_installed && needs_activated_only ) {
-			return 'installation and/or activation';
+			return __( 'installation and/or activation', 'jetpack-my-jetpack' );
 		} else if ( needs_installed ) {
-			return 'installation';
+			return __( 'installation', 'jetpack-my-jetpack' );
 		}
-		return 'activation';
+		return __( 'activation', 'jetpack-my-jetpack' );
 	}, [ needs_activated_only, needs_installed ] );
 
 	const actionVerb = useMemo( () => {
 		if ( needs_installed && needs_activated_only ) {
-			return 'install and/or activate';
+			return __( 'install and/or activate', 'jetpack-my-jetpack' );
 		} else if ( needs_installed ) {
-			return 'install and activate';
+			return __( 'install and activate', 'jetpack-my-jetpack' );
 		}
-		return 'activate';
+		return __( 'activate', 'jetpack-my-jetpack' );
 	}, [ needs_activated_only, needs_installed ] );
 
 	const { install: installAndActivatePlugins, isPending: isInstalling } =
@@ -156,6 +170,11 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 			actionNoun
 		);
 
+		const actionNounMap = {
+			install: __( 'Needs installation and activation', 'jetpack-my-jetpack' ),
+			activate: __( 'Needs activation', 'jetpack-my-jetpack' ),
+		};
+
 		const noticeMessage = (
 			<>
 				<Col>
@@ -184,18 +203,20 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 						) }
 					</Text>
 					<ul className="plugins-list">
-						{ pluginsList.map( ( pluginInfo, index ) => (
-							<li key={ index } className="plugin-item">
-								{ actionVerb === 'activate' ? (
-									<a href="/wp-admin/plugins.php">{ pluginInfo.pluginName }</a>
-								) : (
-									<ExternalLink href={ pluginInfo.pluginUri }>
-										{ pluginInfo.pluginName }
-									</ExternalLink>
-								) }
-								<span>(Needs { actionNoun })</span>
-							</li>
-						) ) }
+						{ pluginsList.map( ( pluginInfo, index ) => {
+							return (
+								<li key={ index } className="plugin-item">
+									{ pluginInfo.action === 'activate' ? (
+										<a href="/wp-admin/plugins.php">{ pluginInfo.pluginName }</a>
+									) : (
+										<ExternalLink href={ pluginInfo.pluginUri }>
+											{ pluginInfo.pluginName }
+										</ExternalLink>
+									) }
+									<span>({ actionNounMap[ pluginInfo.action ] })</span>
+								</li>
+							);
+						} ) }
 					</ul>
 				</Col>
 			</>
