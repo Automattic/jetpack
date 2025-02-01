@@ -1,4 +1,4 @@
-/* global jQuery, jetpackBrandingData */
+/* global jQuery, jetpackData */
 
 jQuery( document ).ready( function ( $ ) {
 	const passwordInput = $( '#pass1' );
@@ -8,6 +8,7 @@ jQuery( document ).ready( function ( $ ) {
 	// TODO: Enforce password confirmation on custom validation
 	// const weakPasswordConfirmation = $( '.pw-weak' );
 	// const submitButton = $( '#submit' );
+	const passwordValidationStatus = $( '<div id="password-validation-status"></div>' );
 
 	passwordInput.css( { border: '1px solid #8c8f94', 'border-radius': '4px 4px 0px 0px' } );
 	passwordStrengthResult.hide();
@@ -46,8 +47,8 @@ jQuery( document ).ready( function ( $ ) {
 			'justify-content': 'space-between',
 			'align-items': 'center',
 			padding: '8px 16px',
-			'margin-left': '1px',
-			'margin-right': '1px',
+			'margin-left': '1px', // TODO: Certain styling should only apply to profile or reset UIs - profile only
+			'margin-right': '1px', // TODO: Certain styling should only apply to profile or reset UIs - profile only
 			'margin-bottom': '16px',
 			'background-color': '#9dd977',
 			'border-radius': '0px 0px 4px 4px',
@@ -82,7 +83,7 @@ jQuery( document ).ready( function ( $ ) {
 	} );
 
 	const jetpackLogo = $( '<img>', {
-		src: jetpackBrandingData.logo,
+		src: jetpackData.logo,
 		alt: 'Jetpack Logo',
 		css: {
 			height: '18px',
@@ -95,15 +96,18 @@ jQuery( document ).ready( function ( $ ) {
 	strengthMeter.append( strength );
 	strengthMeter.append( jetpackBranding );
 
+	passwordInput.after( passwordValidationStatus );
 	passwordInput.after( strengthMeter );
 
 	// Run validation on real-time input updates
 	passwordInput.on( 'input', () => validatePassword( 'input update' ) );
 
-	// Run validation if input has a initial value
-	if ( passwordInput.val().length > 0 ) {
-		validatePassword( 'immediate with initial value' );
-	}
+	// Run validation if input has a initial value - reset form
+	setTimeout( () => {
+		if ( passwordInput.val().length > 0 ) {
+			validatePassword( 'immediate with initial value' );
+		}
+	}, 1000 );
 
 	// Run validation on password generation
 	generatePasswordButton.on( 'click', () => validatePassword( 'on password generation' ) );
@@ -112,11 +116,39 @@ jQuery( document ).ready( function ( $ ) {
 	 *
 	 * Validate the current password input
 	 *
-	 * @param text - The password to validate
 	 */
 	function validatePassword() {
 		const currentPasswordInput = passwordInput.val();
 		// Password validation logic here
 		console.log( 'Validating password...', currentPasswordInput );
+
+		$.ajax( {
+			url: jetpackData.ajaxurl, // WordPress AJAX handler
+			type: 'POST',
+			data: {
+				action: 'validate_password_ajax',
+				password: currentPasswordInput, // ✅ Pass the password for validation
+			},
+			beforeSend: function () {
+				passwordValidationStatus.html( '<p>Validating...</p>' );
+			},
+			success: function ( response ) {
+				if ( response.success ) {
+					passwordValidationStatus.html(
+						`<p style="color: green;">${ response.data.message }</p>`
+					);
+				} else {
+					let errorHtml = '<ul style="color: red;">';
+					response.data.errors.forEach( error => {
+						errorHtml += `<li>${ error }</li>`;
+					} );
+					errorHtml += '</ul>';
+					passwordValidationStatus.html( errorHtml );
+				}
+			},
+			error: function () {
+				passwordValidationStatus.html( '<p style="color: red;">Error connecting to server.</p>' );
+			},
+		} );
 	}
 } );

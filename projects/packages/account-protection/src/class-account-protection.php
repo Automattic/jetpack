@@ -137,8 +137,34 @@ class Account_Protection {
 			4
 		);
 
+		// Eneuque password strength meter scripts
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_jetpack_password_strength_meter_profile_script' ) );
 		add_action( 'login_enqueue_scripts', array( $this, 'enqueue_jetpack_password_strength_meter_reset_script') );
+
+		add_action('wp_ajax_validate_password_ajax', array( $this, 'validate_password_ajax' ) );
+		add_action('wp_ajax_nopriv_validate_password_ajax', array( $this, 'validate_password_ajax' ) );
+
+	}
+
+	public function validate_password_ajax() {
+		// Verify password is set in request
+		if ( ! isset( $_POST['password'] ) ) {
+			wp_send_json_error( [ 'message' => 'No password provided.' ] );
+		}
+	
+		$password = sanitize_text_field( $_POST[ 'password' ] ); // ✅ Sanitize input
+	
+		error_log( 'Password: ' . $password );
+		// Simulating a validation process (replace with actual validation logic)
+		$errors = [];
+		$errors[] = __( 'Between 6 and 150 characters', 'jetpack-account-protection' );
+		$errors[] = __( 'Doesn\'t contain a backslash (\\) character', 'jetpack-account-protection' );
+
+		if ( empty( $errors ) ) {
+			wp_send_json_success( [ 'message' => 'Password is strong!' ] );
+		} else {
+			wp_send_json_error( [ 'errors' => $errors ] );
+		}
 	}
 
 	public function enqueue_jetpack_password_strength_meter_profile_script() {
@@ -152,7 +178,7 @@ class Account_Protection {
 			);
 		}
 
-		$this->localize_jetpack_branding_data();
+		$this->localize_jetpack_data();
 	}
 
 	public function enqueue_jetpack_password_strength_meter_reset_script() {
@@ -168,11 +194,12 @@ class Account_Protection {
 			}
 		}
 
-		$this->localize_jetpack_branding_data();
+		$this->localize_jetpack_data();
 	}
 
-	public function localize_jetpack_branding_data() {
-		wp_localize_script( 'jetpack-password-strength-meter', 'jetpackBrandingData', array(
+	public function localize_jetpack_data() {
+		wp_localize_script( 'jetpack-password-strength-meter', 'jetpackData', array(
+			'ajaxurl' => admin_url( 'admin-ajax.php' ),
 			'logo' => plugin_dir_url(__FILE__) . 'assets/jetpack-logo.svg'
 		) );
 	}

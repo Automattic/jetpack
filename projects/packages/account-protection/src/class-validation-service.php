@@ -68,17 +68,17 @@ class Validation_Service {
 			$errors[] = __( 'Between 6 and 150 characters', 'jetpack-account-protection' );
 		}
 
-		if ( $this->matches_user_data( $user, $password ) ) {
-			$errors[] = __( 'Doesn\'t match user data', 'jetpack-account-protection' );
-		}
+		// if ( $this->matches_user_data( $user, $password ) ) {
+		// 	$errors[] = __( 'Doesn\'t match user data', 'jetpack-account-protection' );
+		// }
 
-		if ( $this->is_recent_password( $user->ID, $password ) ) {
-			$errors[] = __( 'Not used recently', 'jetpack-account-protection' );
-		}
+		// if ( $this->is_recent_password( $user->ID, $password ) ) {
+		// 	$errors[] = __( 'Not used recently', 'jetpack-account-protection' );
+		// }
 
-		if ( $this->is_weak_password( $password ) ) {
-			$errors[] = __( 'Not a leaked password.', 'jetpack-account-protection' );
-		}
+		// if ( $this->is_weak_password( $password ) ) {
+		// 	$errors[] = __( 'Not a leaked password.', 'jetpack-account-protection' );
+		// }
 
 		return $errors;
 	}
