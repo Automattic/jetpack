@@ -101,15 +101,6 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 		);
 	}, [ getPluginInfo, needs_activated_only, needs_installed ] );
 
-	const actionNoun = useMemo( () => {
-		if ( needs_installed && needs_activated_only ) {
-			return __( 'installation and/or activation', 'jetpack-my-jetpack' );
-		} else if ( needs_installed ) {
-			return __( 'installation', 'jetpack-my-jetpack' );
-		}
-		return __( 'activation', 'jetpack-my-jetpack' );
-	}, [ needs_activated_only, needs_installed ] );
-
 	const actionVerb = useMemo( () => {
 		if ( needs_installed && needs_activated_only ) {
 			return __( 'install and/or activate', 'jetpack-my-jetpack' );
@@ -118,6 +109,35 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 		}
 		return __( 'activate', 'jetpack-my-jetpack' );
 	}, [ needs_activated_only, needs_installed ] );
+
+	const actionType = useMemo( () => {
+		if ( needs_installed && needs_activated_only ) {
+			return 'install_activate';
+		} else if ( needs_installed ) {
+			return 'install';
+		}
+		return 'activate';
+	}, [ needs_activated_only, needs_installed ] );
+
+	const noticeTitleSingular = {
+		install_activate: __( 'Plugin installation and activation needed', 'jetpack-my-jetpack' ),
+		install: __( 'Plugin installation needed', 'jetpack-my-jetpack' ),
+		activate: __( 'Plugin activation needed', 'jetpack-my-jetpack' ),
+	};
+
+	const noticeTitlePlural = {
+		install_activate: __(
+			'Some plugins need to be installed and/or activated',
+			'jetpack-my-jetpack'
+		),
+		install: __( 'Some plugins need to be installed', 'jetpack-my-jetpack' ),
+		activate: __( 'Some plugins need to be activated', 'jetpack-my-jetpack' ),
+	};
+
+	const noticeTitle =
+		numPluginsNeedingAction === 1
+			? noticeTitleSingular[ actionType ]
+			: noticeTitlePlural[ actionType ];
 
 	const { install: installAndActivatePlugins, isPending: isInstalling } =
 		useInstallPlugins( needs_installed );
@@ -158,17 +178,6 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 		if ( pluginsNeedingActionAlerts.length === 0 || ! isPurchasesDataLoaded ) {
 			return;
 		}
-
-		const noticeTitle = sprintf(
-			/* translators: %s is the word(s), "installation", or "activation", or "installation and/or activation". */
-			_n(
-				'Plugin %s needed',
-				'Some plugins need %s',
-				numPluginsNeedingAction,
-				'jetpack-my-jetpack'
-			),
-			actionNoun
-		);
 
 		const actionNounMap = {
 			install: __( 'Needs installation and activation', 'jetpack-my-jetpack' ),
@@ -263,8 +272,9 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 			options: noticeOptions,
 		} );
 	}, [
-		actionNoun,
+		actionType,
 		actionVerb,
+		noticeTitle,
 		isPurchasesDataLoaded,
 		numPluginsNeedingAction,
 		handleInstallActivateInOneClick,
