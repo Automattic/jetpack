@@ -1,6 +1,5 @@
-import { Col, Text, getRedirectUrl } from '@automattic/jetpack-components';
+import { Col, Text } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect, useMemo, useCallback } from 'react';
 import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
@@ -12,6 +11,7 @@ import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useAnalytics from '../use-analytics';
+import { useGetPaidPlanNeedsPluginsContent } from './get-paid-plan-needs-plugins-content';
 import type { NoticeOptions } from '../../context/notices/types';
 import type { MyJetpackInitialState } from '../../data/types';
 
@@ -52,9 +52,17 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 		( needs_installed?.length ?? 0 ) + ( needs_activated_only?.length ?? 0 );
 
 	const {
-		siteSuffix,
 		products: { items: products },
 	} = getMyJetpackWindowInitialState();
+
+	const actionType = useMemo( () => {
+		if ( needs_installed && needs_activated_only ) {
+			return 'install_activate';
+		} else if ( needs_installed ) {
+			return 'install';
+		}
+		return 'activate';
+	}, [ needs_activated_only, needs_installed ] );
 
 	const getPluginInfo = useCallback(
 		( productSlug, action ) => ( {
@@ -101,43 +109,11 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 		);
 	}, [ getPluginInfo, needs_activated_only, needs_installed ] );
 
-	const actionVerb = useMemo( () => {
-		if ( needs_installed && needs_activated_only ) {
-			return __( 'install and/or activate', 'jetpack-my-jetpack' );
-		} else if ( needs_installed ) {
-			return __( 'install and activate', 'jetpack-my-jetpack' );
-		}
-		return __( 'activate', 'jetpack-my-jetpack' );
-	}, [ needs_activated_only, needs_installed ] );
-
-	const actionType = useMemo( () => {
-		if ( needs_installed && needs_activated_only ) {
-			return 'install_activate';
-		} else if ( needs_installed ) {
-			return 'install';
-		}
-		return 'activate';
-	}, [ needs_activated_only, needs_installed ] );
-
-	const noticeTitleSingular = {
-		install_activate: __( 'Plugin installation and activation needed', 'jetpack-my-jetpack' ),
-		install: __( 'Plugin installation needed', 'jetpack-my-jetpack' ),
-		activate: __( 'Plugin activation needed', 'jetpack-my-jetpack' ),
-	};
-
-	const noticeTitlePlural = {
-		install_activate: __(
-			'Some plugins need to be installed and/or activated',
-			'jetpack-my-jetpack'
-		),
-		install: __( 'Some plugins need to be installed', 'jetpack-my-jetpack' ),
-		activate: __( 'Some plugins need to be activated', 'jetpack-my-jetpack' ),
-	};
-
-	const noticeTitle =
-		numPluginsNeedingAction === 1
-			? noticeTitleSingular[ actionType ]
-			: noticeTitlePlural[ actionType ];
+	const { noticeTitle, noticeMessage, buttonLabel } = useGetPaidPlanNeedsPluginsContent( {
+		alert,
+		planName,
+		planPurchaseId: planPurchase?.ID,
+	} );
 
 	const { install: installAndActivatePlugins, isPending: isInstalling } =
 		useInstallPlugins( needs_installed );
@@ -184,32 +160,11 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 			activate: __( 'Needs activation', 'jetpack-my-jetpack' ),
 		};
 
-		const noticeMessage = (
+		const noticeContent = (
 			<>
 				<Col>
 					<Text mt={ 2 } mb={ 2 }>
-						{ createInterpolateElement(
-							sprintf(
-								// translators: %1$s is the name of the Jetpack paid plan, i.e.- "Jetpack Security", %2$s is either "the [plugin name] plugin" or "the following plugins", and %3$s is a verb being either "installed", or "activated", or "installed and/or activated".
-								__(
-									'To get the most out of your <link>%1$s paid subscription</link> and have access to all it’s features, we recommend you %2$s the following %3$s:',
-									'jetpack-my-jetpack'
-								),
-								planName,
-								actionVerb,
-								_n( 'plugin', 'plugins', numPluginsNeedingAction, 'jetpack-my-jetpack' )
-							),
-							{
-								link: (
-									<ExternalLink
-										href={ getRedirectUrl( 'jetpack-subscription-renew', {
-											site: siteSuffix,
-											path: planPurchase.ID,
-										} ) }
-									/>
-								),
-							}
-						) }
+						{ noticeMessage }
 					</Text>
 					<ul className="plugins-list">
 						{ pluginsList.map( ( pluginInfo, index ) => {
@@ -231,14 +186,7 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 			</>
 		);
 
-		const buttonLabel = sprintf(
-			/* translators: %1$s is either "Install and activate", or "Install and/or activate", or "Activate"; And %2$s is "plugin" or "plugins" (singular/plural). */
-			__( '%1$s %2$s in one click', 'jetpack-my-jetpack' ),
-			actionVerb.charAt( 0 ).toUpperCase() + actionVerb.slice( 1 ),
-			_n( 'plugin', 'plugins', numPluginsNeedingAction, 'jetpack-my-jetpack' )
-		);
-
-		const isinstallingOrActivating = isActivating || isInstalling;
+		const isInstallingOrActivating = isActivating || isInstalling;
 
 		const noticeOptions: NoticeOptions = {
 			id: 'plugin_needs_installed_activated',
@@ -247,9 +195,9 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 				{
 					label: buttonLabel,
 					onClick: handleInstallActivateInOneClick,
-					isLoading: isinstallingOrActivating,
+					isLoading: isInstallingOrActivating,
 					loadingText:
-						actionVerb === 'activate'
+						actionType === 'activate'
 							? sprintf(
 									/* translators: %s is the singular or plural "plugin" or "plugins". */
 									__( 'Activating %s…', 'jetpack-my-jetpack' ),
@@ -263,18 +211,19 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 					noDefaultClasses: true,
 				},
 			],
-			priority: NOTICE_PRIORITY_MEDIUM + ( isinstallingOrActivating ? 1 : 0 ),
+			priority: NOTICE_PRIORITY_MEDIUM + ( isInstallingOrActivating ? 1 : 0 ),
 		};
 
 		setNotice( {
 			title: noticeTitle,
-			message: noticeMessage,
+			message: noticeContent,
 			options: noticeOptions,
 		} );
 	}, [
 		actionType,
-		actionVerb,
 		noticeTitle,
+		noticeMessage,
+		buttonLabel,
 		isPurchasesDataLoaded,
 		numPluginsNeedingAction,
 		handleInstallActivateInOneClick,
@@ -283,7 +232,6 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 		pluginsList,
 		pluginsNeedingActionAlerts.length,
 		setNotice,
-		siteSuffix,
 		isInstalling,
 		isActivating,
 	] );
