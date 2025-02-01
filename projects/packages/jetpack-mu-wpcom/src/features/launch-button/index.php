@@ -20,6 +20,10 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 		return false;
 	}
 
+	if ( ! is_user_member_of_blog( get_current_user_id(), $current_blog_id ) ) {
+		return;
+	}
+
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}

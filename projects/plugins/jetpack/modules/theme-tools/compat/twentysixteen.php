@@ -57,7 +57,7 @@ function twentysixteen_remove_share() {
 	if ( is_single() || is_archive() || is_home() ) {
 		remove_filter( 'the_excerpt', 'sharing_display', 19 );
 		if ( class_exists( 'Jetpack_Likes' ) ) {
-			remove_filter( 'the_excerpt', array( Jetpack_Likes::init(), 'post_likes' ), 30, 1 );
+			remove_filter( 'the_excerpt', array( Jetpack_Likes::init(), 'post_likes' ), 30 );
 		}
 	}
 }

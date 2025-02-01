@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AI: avoid using relative URLs in admin URLs, to support sites where WordPress is installed in a subdirectory.

@@ -438,7 +438,7 @@ class REST_Controller {
 	 */
 	public static function api_get_onboarding_progress() {
 		$progress = Onboarding::get_current_user_progress();
-		return rest_ensure_response( $progress, 200 );
+		return rest_ensure_response( $progress );
 	}
 
 	/**
@@ -469,6 +469,6 @@ class REST_Controller {
 	 */
 	public static function api_get_scan_history() {
 		$scan_history = Scan_History::get_scan_history( false );
-		return rest_ensure_response( $scan_history, 200 );
+		return rest_ensure_response( $scan_history );
 	}
 }

@@ -690,7 +690,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
 
-		$this->assertFalse( $this->server_replica_storage->get_the_terms( $post_id, 'post_tag', 'Not empty' ) );
+		$this->assertFalse( $this->server_replica_storage->get_the_terms( $post_id, 'post_tag' ), 'Not empty' );
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
 
