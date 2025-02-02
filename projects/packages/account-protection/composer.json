@@ -58,5 +58,10 @@
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
+		}
 	}
 }
