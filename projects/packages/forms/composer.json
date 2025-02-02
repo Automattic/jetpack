@@ -16,7 +16,7 @@
 		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-connection": "@dev",
-		"automattic/wordbless": "^0.4.2"
+		"automattic/jetpack-test-environment": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -43,8 +43,6 @@
 		"build-development": [
 			"pnpm run build"
 		],
-		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"

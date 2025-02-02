@@ -16,6 +16,7 @@ describe( 'load the app', () => {
 				host: 'unknown',
 			},
 			social: {
+				api_paths: {},
 				plugin_info: {
 					social: {
 						version,

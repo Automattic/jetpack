@@ -1069,7 +1069,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$field .= $this->render_textarea_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
 				break;
 			case 'radio':
-				$field .= $this->render_radio_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				$field .= $this->render_radio_field( $id, $label, $value, $field_class, $required, $required_field_text );
 				break;
 			case 'checkbox':
 				$field .= $this->render_checkbox_field( $id, $label, $value, $field_class, $required, $required_field_text );

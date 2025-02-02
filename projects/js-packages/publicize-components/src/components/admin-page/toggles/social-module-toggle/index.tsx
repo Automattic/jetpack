@@ -21,11 +21,11 @@ const SocialModuleToggle: React.FC = () => {
 	const { isModuleEnabled, isUpdating } = useSelect( select => {
 		const store = select( socialStore );
 
-		const settings = store.getSocialPluginSettings();
+		const settings = store.getSocialModuleSettings();
 
 		return {
-			isModuleEnabled: settings.publicize_active,
-			isUpdating: store.isSavingSocialPluginSettings(),
+			isModuleEnabled: settings.publicize,
+			isUpdating: store.isSavingSocialModuleSettings(),
 		};
 	}, [] );
 
@@ -36,19 +36,19 @@ const SocialModuleToggle: React.FC = () => {
 
 	const useAdminUiV1 = feature_flags.useAdminUiV1;
 
-	const { updateSocialPluginSettings } = useDispatch( socialStore );
+	const { updateSocialModuleSettings } = useDispatch( socialStore );
 
 	const toggleModule = useCallback( async () => {
 		const newOption = {
-			publicize_active: ! isModuleEnabled,
+			publicize: ! isModuleEnabled,
 		};
-		await updateSocialPluginSettings( newOption );
+		await updateSocialModuleSettings( newOption );
 
 		// If the module was enabled, we need to refresh the connection list
-		if ( newOption.publicize_active && ! getSocialScriptData().is_publicize_enabled ) {
+		if ( newOption.publicize && ! getSocialScriptData().is_publicize_enabled ) {
 			window.location.reload();
 		}
-	}, [ isModuleEnabled, updateSocialPluginSettings ] );
+	}, [ isModuleEnabled, updateSocialModuleSettings ] );
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 

@@ -256,7 +256,7 @@ class Verbum_Comments {
 					'allowedBlocks'                      => \Verbum_Block_Utils::get_allowed_blocks(),
 					'embedNonce'                         => wp_create_nonce( 'embed_nonce' ),
 					'verbumBundleUrl'                    => plugins_url( 'dist/index.js', __FILE__ ),
-					'isRTL'                              => is_rtl( $locale ),
+					'isRTL'                              => is_rtl(),
 					'vbeCacheBuster'                     => $vbe_cache_buster,
 					'iframeUniqueId'                     => $iframe_unique_id,
 				)
@@ -461,12 +461,12 @@ HTML;
 		// Check for Highlander Nonce.
 		if (
 			isset( $_POST['highlander_comment_nonce'] ) &&
-			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['highlander_comment_nonce'] ), 'highlander_comment' ) )
+			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['highlander_comment_nonce'] ) ), 'highlander_comment' )
 		) {
 			return;
 		}
 
-		return new WP_Error( 'verbum', __( 'Error: please try commenting again.', 'jetpack-mu-wpcom' ) );
+		wp_die( esc_html__( 'Sorry, this comment could not be posted.', 'jetpack-mu-wpcom' ) );
 	}
 
 	/**

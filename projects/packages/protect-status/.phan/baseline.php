@@ -11,7 +11,6 @@ return [
     // # Issue statistics:
     // PhanPluginDuplicateConditionalNullCoalescing : 25+ occurrences
     // PhanTypeMismatchArgument : 3 occurrences
-    // PhanParamTooMany : 2 occurrences
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanRedundantCondition : 1 occurrence
     // PhanTypeMismatchReturnProbablyReal : 1 occurrence
@@ -20,7 +19,6 @@ return [
     'file_suppressions' => [
         'src/class-plan.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-protect-status.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
-        'src/class-rest-controller.php' => ['PhanParamTooMany'],
         'src/class-scan-status.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition'],
         'src/class-status.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchArgument'],
         'tests/php/test-scan-status.php' => ['PhanTypeMismatchArgument'],

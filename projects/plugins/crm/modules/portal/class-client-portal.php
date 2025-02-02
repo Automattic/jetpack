@@ -117,8 +117,8 @@ class Client_Portal {
 	function portal_enqueue_scripts_and_styles() {
 		global $zbs;
 
-		wp_enqueue_style( 'zbs-portal', plugins_url( '/css/jpcrm-public-portal' . wp_scripts_get_suffix() . '.css', __FILE__ ), array(), $zbs->version );
-		wp_enqueue_style('zbs-fa', ZEROBSCRM_URL . 'css/font-awesome.min.css', array(), $zbs->version );
+		wp_enqueue_style( 'zbs-portal', plugins_url( '/css/jpcrm-public-portal' . wp_scripts_get_suffix() . '.css', __FILE__ ), array(), $zbs::VERSION );
+		wp_enqueue_style( 'zbs-fa', ZEROBSCRM_URL . 'css/font-awesome.min.css', array(), $zbs::VERSION );
 
 		// This do_action call was left here for compatibility purposes (legacy).
 		do_action('zbs_enqueue_portal', 'zeroBS_portal_enqueue_stuff');
