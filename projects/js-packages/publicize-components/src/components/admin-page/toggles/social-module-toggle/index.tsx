@@ -89,10 +89,15 @@ const SocialModuleToggle: React.FC = () => {
 			onChange={ toggleModule }
 		>
 			<Text className={ styles.text }>
-				{ __(
-					'When enabled, you’ll be able to connect your social media accounts and send a post’s featured image and content to the selected channels with a single click when the post is published.',
-					'jetpack-publicize-components'
-				) }
+				{ ! is_wpcom
+					? __(
+							'When enabled, you’ll be able to connect your social media accounts and send a post’s featured image and content to the selected channels with a single click when the post is published.',
+							'jetpack-publicize-components'
+					  )
+					: __(
+							'Connect your social media accounts and send a post’s featured image and content to the selected channels with a single click when the post is published.',
+							'jetpack-publicize-components'
+					  ) }
 				&nbsp;
 				<ExternalLink href="https://jetpack.com/redirect/?source=social-plugin-publicize-support-admin-page">
 					{ __( 'Learn more', 'jetpack-publicize-components' ) }

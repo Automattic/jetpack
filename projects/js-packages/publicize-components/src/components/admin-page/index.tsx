@@ -26,6 +26,7 @@ import UtmToggle from './toggles/utm-toggle';
 
 export const SocialAdminPage = () => {
 	const is_wpcom = getScriptData().site.host === 'wpcom';
+	const is_woa = getScriptData().site.host === 'woa';
 
 	const { isUserConnected, isRegistered } = useConnection();
 	const showConnectionCard = ! is_wpcom && ( ! isRegistered || ! isUserConnected );
@@ -64,7 +65,7 @@ export const SocialAdminPage = () => {
 	return (
 		<AdminPage moduleName={ moduleName } header={ <AdminPageHeader /> } showFooter={ ! is_wpcom }>
 			<GlobalNotices />
-			{ ( ! is_wpcom && ! hasSocialPaidFeatures() && showPricingPage ) ||
+			{ ( ! is_wpcom && ! is_woa && ! hasSocialPaidFeatures() && showPricingPage ) ||
 			forceDisplayPricingPage ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>

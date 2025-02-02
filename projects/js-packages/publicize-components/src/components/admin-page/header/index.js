@@ -7,13 +7,17 @@ import {
 	getUserLocale,
 } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
-import { getAdminUrl, getScriptData } from '@automattic/jetpack-script-data';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, postList } from '@wordpress/icons';
 import { store as socialStore } from '../../../social-store';
 import { getSocialScriptData } from '../../../utils';
-import { getSharedPostsCount, getTotalSharesCount } from '../../../utils/shares-data';
+import {
+	getSharedPostsCount,
+	getTotalSharesCount,
+	isShareLimitEnabled,
+} from '../../../utils/shares-data';
 import StatCards from './stat-cards';
 import styles from './styles.module.scss';
 
@@ -22,10 +26,9 @@ const Header = () => {
 		const store = select( socialStore );
 		return {
 			hasConnections: store.getConnections().length > 0,
-			isModuleEnabled: select( socialStore ).getSocialPluginSettings().publicize_active,
+			isModuleEnabled: store.getSocialPluginSettings().publicize_active,
 		};
 	} );
-	const is_wpcom = getScriptData().site.host === 'wpcom';
 
 	const { urls, feature_flags } = getSocialScriptData();
 
@@ -77,7 +80,7 @@ const Header = () => {
 						</Button>
 					</div>
 				</Col>
-				{ ! is_wpcom ? (
+				{ isShareLimitEnabled() ? (
 					<Col sm={ 4 } md={ 4 } lg={ { start: 7, end: 12 } }>
 						<StatCards
 							stats={ [

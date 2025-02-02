@@ -59,7 +59,7 @@ const ToggleSection: React.FC< ToggleSectionProps > = ( {
 	hideToggle,
 } ) => (
 	<Container horizontalSpacing={ 7 } horizontalGap={ 3 }>
-		<div className={ styles.column }>
+		<div className={ `${ styles.column } ${ hideToggle ? styles.notoggle : '' }` }>
 			{ ! hideToggle && (
 				<ToggleControl
 					label={ '' }
