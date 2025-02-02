@@ -27,7 +27,10 @@
 }
 
 .column.notoggle {
-	display:block;
+	grid-template-columns: 1fr 0;
+	> * {
+		grid-column: span 2;
+	}
 }
 
 .title {

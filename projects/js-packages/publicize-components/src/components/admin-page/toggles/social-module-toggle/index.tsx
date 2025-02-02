@@ -99,7 +99,10 @@ const SocialModuleToggle: React.FC = () => {
 							'jetpack-publicize-components'
 					  ) }
 				&nbsp;
-				<ExternalLink href="https://jetpack.com/redirect/?source=social-plugin-publicize-support-admin-page">
+				<ExternalLink
+					href="https://jetpack.com/redirect/?source=social-plugin-publicize-support-admin-page"
+					className={ styles.learn }
+				>
 					{ __( 'Learn more', 'jetpack-publicize-components' ) }
 				</ExternalLink>
 			</Text>
