@@ -115,23 +115,79 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 		planPurchaseId: planPurchase?.ID,
 	} );
 
+	const prepareProductsArray = useCallback(
+		productsArray => {
+			if ( ! productsArray ) {
+				return [];
+			}
+			const prepared = [ ...productsArray ]
+				.map( productSlug => ( { productSlug, pluginSlug: products[ productSlug ].plugin_slug } ) )
+				.sort( ( a, b ) => {
+					if ( a.pluginSlug === 'jetpack' ) {
+						return 1; // Move `jetpack` to the end
+					} else if ( b.pluginSlug === 'jetpack' ) {
+						return -1; // Keep others before `jetpack`
+					}
+					return a.productSlug - b.productSlug; // Otherwise sort ascending
+				} )
+				.map( ( { productSlug } ) => productSlug );
+			return prepared;
+		},
+		[ products ]
+	);
+
+	const needsInstalled = prepareProductsArray( needs_installed );
+	const needsActivated = prepareProductsArray( needs_activated_only );
+
+	const needsInstalledContainsJetpack = needsInstalled.find(
+		productSlug => products[ productSlug ].plugin_slug === 'jetpack'
+	);
+
 	const { install: installAndActivatePlugins, isPending: isInstalling } =
-		useInstallPlugins( needs_installed );
+		useInstallPlugins( needsInstalled );
 	const { activate: activatePlugins, isPending: isActivating } =
-		useActivatePlugins( needs_activated_only );
+		useActivatePlugins( needsActivated );
 
 	const handleInstallActivateInOneClick = useCallback( () => {
 		recordEvent( 'jetpack_my_jetpack_plugin_needs_installed_notice_cta_click' );
 
-		if ( needs_installed ) {
+		if ( needsInstalled.length && needsActivated.length ) {
+			if ( needsInstalledContainsJetpack ) {
+				activatePlugins( null, {
+					onSuccess: () => {
+						installAndActivatePlugins( null, {
+							onSuccess: () => {
+								delete redBubbleAlerts[ pluginsNeedingActionAlerts[ 0 ] ];
+								resetNotice();
+							},
+						} );
+					},
+				} );
+				return;
+			}
+			installAndActivatePlugins( null, {
+				onSuccess: () => {
+					activatePlugins( null, {
+						onSuccess: () => {
+							delete redBubbleAlerts[ pluginsNeedingActionAlerts[ 0 ] ];
+							resetNotice();
+						},
+					} );
+				},
+			} );
+			return;
+		}
+
+		if ( needsInstalled.length ) {
 			installAndActivatePlugins( null, {
 				onSuccess: () => {
 					delete redBubbleAlerts[ pluginsNeedingActionAlerts[ 0 ] ];
 					resetNotice();
 				},
 			} );
+			return;
 		}
-		if ( needs_activated_only ) {
+		if ( needsActivated.length ) {
 			activatePlugins( null, {
 				onSuccess: () => {
 					delete redBubbleAlerts[ pluginsNeedingActionAlerts[ 0 ] ];
@@ -141,13 +197,14 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 		}
 	}, [
 		recordEvent,
-		needs_installed,
-		needs_activated_only,
+		needsInstalled,
+		needsActivated,
+		needsInstalledContainsJetpack,
 		installAndActivatePlugins,
+		activatePlugins,
 		redBubbleAlerts,
 		pluginsNeedingActionAlerts,
 		resetNotice,
-		activatePlugins,
 	] );
 
 	useEffect( () => {
