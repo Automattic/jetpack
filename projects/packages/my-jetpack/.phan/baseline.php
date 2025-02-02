@@ -11,7 +11,6 @@ return [
     // # Issue statistics:
     // PhanTypeMismatchArgumentNullable : 60+ occurrences
     // PhanTypeMismatchPropertyDefault : 15+ occurrences
-    // PhanParamTooMany : 9 occurrences
     // PhanAbstractStaticMethodCallInStatic : 8 occurrences
     // PhanTypeMismatchReturnProbablyReal : 8 occurrences
     // PhanNoopNew : 7 occurrences
@@ -33,9 +32,8 @@ return [
         'src/class-initializer.php' => ['PhanImpossibleCondition', 'PhanNoopNew', 'PhanRedundantCondition', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanUndeclaredClassMethod'],
         'src/class-jetpack-manage.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/class-products.php' => ['PhanNonClassMethodCall'],
-        'src/class-rest-products.php' => ['PhanParamTooMany', 'PhanPluginMixedKeyNoKey', 'PhanTypeMismatchReturn'],
-        'src/class-rest-purchases.php' => ['PhanParamTooMany', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/class-rest-zendesk-chat.php' => ['PhanParamTooMany'],
+        'src/class-rest-products.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchReturn'],
+        'src/class-rest-purchases.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-wpcom-products.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/products/class-anti-spam.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
         'src/products/class-backup.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault', 'PhanTypeSuspiciousNonTraversableForeach'],

@@ -38,13 +38,13 @@ export const useTitleStep = (): Step => {
 			const initialMessage = fromSkip
 				? {
 						content: createInterpolateElement(
-							__( "Skipped!<br />Let's optimise your title.", 'jetpack' ),
+							__( "Skipped!<br />Let's optimise your title first.", 'jetpack' ),
 							{ br: <br /> }
 						),
 						showIcon: true,
 				  }
 				: {
-						content: __( "Let's optimise your title.", 'jetpack' ),
+						content: __( "Let's optimise your title first.", 'jetpack' ),
 						showIcon: true,
 				  };
 			setMessages( [ initialMessage ] );
@@ -66,41 +66,31 @@ export const useTitleStep = (): Step => {
 										'Flora Guide: Beautiful Photos of Flowers and Plants for Gardening Enthusiasts',
 								},
 							] ),
-						2000
+						3000
 					)
 				);
 				removeLastMessage();
 			}
 			let editedMessage;
-			if ( keywords ) {
-				if ( fromSkip ) {
-					editedMessage = createInterpolateElement(
-						__(
-							'Skipped!<br />Here are some suggestions for a better title based on your keywords:',
-							'jetpack'
-						),
-						{ br: <br /> }
-					);
-				} else {
-					editedMessage = __(
-						'Here are some suggestions for a better title based on your keywords:',
-						'jetpack'
-					);
-				}
-			} else if ( fromSkip ) {
+
+			if ( fromSkip ) {
 				editedMessage = createInterpolateElement(
 					__(
-						'Skipped!<br />Here are some suggestions for a better title based on your post:',
+						"Skipped!<br />Let's optimise your title first.<br />Here are two suggestions based on your keywords:",
 						'jetpack'
 					),
 					{ br: <br /> }
 				);
 			} else {
-				editedMessage = __(
-					'Here are some suggestions for a better title based on your post:',
-					'jetpack'
+				editedMessage = createInterpolateElement(
+					__(
+						"Let's optimise your title first.<br />Here are two suggestions based on your keywords:",
+						'jetpack'
+					),
+					{ br: <br /> }
 				);
 			}
+
 			editLastMessage( editedMessage );
 			if ( newTitles.length ) {
 				// this sets the title options for internal state

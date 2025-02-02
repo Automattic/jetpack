@@ -166,7 +166,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 	}
 
 	public function test_checkout_enforced_across_multiple_instances() {
-		$other_queue = new Queue( $this->queue->id, 2 );
+		$other_queue = new Queue( $this->queue->id );
 
 		$this->queue->add_all( array( 1, 2, 3, 4, 5 ) );
 

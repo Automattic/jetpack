@@ -9,7 +9,7 @@
 		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
-		"automattic/wordbless": "^0.4.2",
+		"automattic/jetpack-test-environment": "@dev",
 		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev"
 	},
@@ -30,9 +30,7 @@
 		],
 		"test-php": [
 			"@composer phpunit"
-		],
-		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+		]
 	},
 	"repositories": [
 		{

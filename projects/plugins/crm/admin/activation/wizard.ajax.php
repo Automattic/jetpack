@@ -60,7 +60,7 @@ function zbs_wizard_fin() {
 			'ef'    => $crm_enable_forms,
 			'ew'    => $crm_enable_woo_module,
 			'ems'   => $crm_menu_style,
-			'v'     => $zbs->version,
+			'v'     => $zbs::VERSION,
 			'cu'    => $crm_curr,
 		);
 		update_option( 'zbs_initopts_' . time(), $init_options, false );
