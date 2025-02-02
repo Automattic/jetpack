@@ -119,7 +119,7 @@ export const useGetPaidPlanNeedsPluginsContent = ( {
 			__( 'Install and/or activate %1$s in one click', 'jetpack-my-jetpack' ),
 			_n( 'plugin', 'plugins', numPluginsNeedingAction, 'jetpack-my-jetpack' )
 		),
-		inatall: sprintf(
+		install: sprintf(
 			/* translators: %1$s is "plugin" or "plugins" (singular/plural) */
 			__( 'Install and activate %1$s in one click', 'jetpack-my-jetpack' ),
 			_n( 'plugin', 'plugins', numPluginsNeedingAction, 'jetpack-my-jetpack' )
