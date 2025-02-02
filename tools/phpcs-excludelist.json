@@ -156,7 +156,6 @@
 	"projects/plugins/crm/includes/ZeroBSCRM.OnboardMe.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.PerformanceTesting.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.Permissions.php",
-	"projects/plugins/crm/includes/ZeroBSCRM.PluginUpdates.ImminentRelease.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.PluginUpdates.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.REST.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.ScreenOptions.php",

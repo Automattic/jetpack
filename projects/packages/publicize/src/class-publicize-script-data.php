@@ -117,7 +117,7 @@ class Publicize_Script_Data {
 		}
 
 		$basic_data = array(
-			'api_paths'            => array(),
+			'api_paths'            => self::get_api_paths(),
 			'is_publicize_enabled' => Utils::is_publicize_active(),
 			'feature_flags'        => self::get_feature_flags(),
 			'supported_services'   => array(),
@@ -141,7 +141,6 @@ class Publicize_Script_Data {
 		return array_merge(
 			$basic_data,
 			array(
-				'api_paths'           => self::get_api_paths(),
 				'supported_services'  => self::get_supported_services(),
 				'shares_data'         => self::get_shares_data(),
 				'urls'                => self::get_urls(),
@@ -306,6 +305,8 @@ class Publicize_Script_Data {
 
 		$commom_paths = array(
 			'refreshConnections' => '/wpcom/v2/publicize/connections?test_connections=1',
+			// The complete path will be like `/jetpack/v4/social/settings`.
+			'socialToggleBase'   => class_exists( 'Jetpack' ) ? 'settings' : 'social/settings',
 		);
 
 		$specific_paths = array();

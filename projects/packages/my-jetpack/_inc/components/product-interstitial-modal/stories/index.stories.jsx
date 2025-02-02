@@ -1,4 +1,5 @@
 import { ProductPrice } from '@automattic/jetpack-components';
+import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import ProductInterstitialFeatureList from '../product-interstifial-feature-list';
@@ -26,18 +27,20 @@ const DefaultArgs = {
 					'Image guide',
 				] }
 			/>
-			<ProductPrice
-				currency="USD"
-				price={ 24.92 }
-				offPrice={ 12.42 }
-				showNotOffPrice={ true }
-				isNotConvenientPrice={ false }
-				hidePriceFraction={ false }
-				hideDiscountLabel={ false }
-				promoLabel="NEW"
-				legend="/month, paid yearly"
-			/>
 		</>
+	),
+	priceComponent: (
+		<ProductPrice
+			currency="USD"
+			price={ 24.92 }
+			offPrice={ 12.42 }
+			showNotOffPrice={ true }
+			isNotConvenientPrice={ false }
+			hidePriceFraction={ false }
+			hideDiscountLabel={ false }
+			promoLabel="NEW"
+			legend="/month, paid yearly"
+		/>
 	),
 	triggerButton: 'Open Modal',
 	buttonLabel: 'Upgrade now',
@@ -61,6 +64,25 @@ WithAdditionalColumn.args = {
 	...DefaultArgs,
 	secondaryColumn: <div>CTA Content</div>,
 	additionalColumn: <div>Additional Column</div>,
+};
+
+export const WithVideo = Template.bind( {} );
+WithVideo.args = {
+	...DefaultArgs,
+	isWithVideo: true,
+	secondaryColumn: (
+		<>
+			<iframe
+				width="621"
+				height="447"
+				src="https://video.wordpress.com/embed/whyeZF1t?cover=1&autoPlay=0&controls=0&loop=1&muted=0&persistVolume=1&playsinline=0&preloadContent=metadata&useAverageColor=1&posterUrl=https%3A%2F%2Fjetpack.com%2Fwp-content%2Fuploads%2F2024%2F09%2Fthumbnail-1.png&hd=1"
+				allowFullScreen
+				allow="clipboard-write"
+				title={ __( 'Discover Jetpack AI', 'jetpack-my-jetpack' ) }
+			></iframe>
+			<script src="https://videopress.com/videopress-iframe.js"></script>
+		</>
+	),
 };
 
 Default.parameters = {};

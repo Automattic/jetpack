@@ -98,8 +98,8 @@ class WP_Test_Jetpack_Sync_Module_Stats extends WP_Test_Jetpack_Sync_Base {
 
 		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_heartbeat_stats' );
 
-		\Jetpack_Options::delete_option( 'blog_token', 'asdasd.123123' );
-		\Jetpack_Options::delete_option( 'id', 1234 );
+		\Jetpack_Options::delete_option( 'blog_token' );
+		\Jetpack_Options::delete_option( 'id' );
 		restore_current_blog();
 
 		$this->assertEquals( self::TEST_STAT_VALUE, $action->args[0][ self::TEST_STAT_NAME ] );

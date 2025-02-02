@@ -13,8 +13,12 @@ const GridControl: React.FC< GridProps > = ( {
 } ) => {
 	return (
 		<g transform={ `translate(0, ${ top })` } className={ styles[ 'grid-control' ] }>
-			{ gridVisibility.includes( 'x' ) && <GridRows scale={ xScale } width={ width } /> }
-			{ gridVisibility.includes( 'y' ) && <GridColumns scale={ yScale } height={ height } /> }
+			{ gridVisibility.includes( 'x' ) && (
+				<GridRows scale={ xScale } width={ width } data-testid="x-grid" />
+			) }
+			{ gridVisibility.includes( 'y' ) && (
+				<GridColumns scale={ yScale } height={ height } data-testid="y-grid" />
+			) }
 		</g>
 	);
 };

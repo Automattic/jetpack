@@ -215,7 +215,7 @@ function jpcrm_footer_credit_version( $content ) {
 	global $zbs;
 	$showpoweredby_admin = $zbs->settings->get( 'showpoweredby_admin' ) === 1 ? true : false;
 	if ( $showpoweredby_admin ) {
-		return sprintf( 'Jetpack CRM v%s', $zbs->version );
+		return sprintf( 'Jetpack CRM v%s', $zbs::VERSION );
 	}
 	##/WLREMOVE
 
