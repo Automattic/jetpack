@@ -65,7 +65,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/account-protection",
-				"reference": "badc1036552f26a900a69608df22284e603981ed"
+				"reference": "6268e14d1032bf8de48544964fa3224a17f7f129"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -74,7 +74,7 @@
 			},
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
-				"automattic/wordbless": "dev-master",
+				"automattic/wordbless": "^0.4.2",
 				"yoast/phpunit-polyfills": "^1.1.1"
 			},
 			"suggest": {
@@ -109,12 +109,6 @@
 				],
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
-				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
 				],
 				"test-coverage": [
 					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
