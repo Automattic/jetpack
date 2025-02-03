@@ -29,6 +29,8 @@ const L10N = {
 	submittingForm: __( 'Submitting form', 'jetpack-forms' ),
 	/* translators: generic error message */
 	genericError: __( 'Please correct this field', 'jetpack-forms' ),
+	/* translators: error message shown when no field has been filled out */
+	emptyForm: __( 'The form you are trying to submit is emtpy.', 'jetpack-forms' ),
 	errorCount: d =>
 		/* translators: message displayed when errors need to be fixed. %d is the number of errors. */
 		_n( 'You need to fix %d error.', 'You need to fix %d errors.', d, 'jetpack-forms' ),
@@ -46,6 +48,17 @@ const initAllForms = () => {
 		.querySelectorAll( '.wp-block-jetpack-contact-form-container form.contact-form' )
 		.forEach( initForm );
 };
+
+function isFormEmpty( form ) {
+	const clonedForm = form.cloneNode( true );
+	Array.from( clonedForm.querySelectorAll( 'input[type="hidden"]' ) ).forEach( input =>
+		input.remove()
+	);
+	const formData = new FormData( clonedForm );
+	return ! Array.from( formData.values() ).some( value =>
+		value instanceof File ? !! value.size : !! value?.trim?.()
+	);
+}
 
 /**
  * Implement a form custom validation.
@@ -75,7 +88,15 @@ const initForm = form => {
 
 		clearForm( form, inputListenerMap, opts );
 
-		if ( isFormValid( form ) ) {
+		const isValid = isFormValid( form );
+		// If a form is invalid proceed with the usual validation process, even if it's empty.
+		// This indicates that some fields are required.
+		if ( isFormEmpty( form ) && isValid ) {
+			setFormError( form, [], { disableLiveRegion: true, type: 'emptyForm' } );
+			return;
+		}
+
+		if ( isValid ) {
 			inputListenerMap = {};
 
 			form.removeEventListener( 'submit', onSubmit );
@@ -248,6 +269,7 @@ const isDateFieldValid = input => {
 	if ( value && format && typeof $ !== 'undefined' ) {
 		try {
 			$.datepicker.parseDate( format, value );
+			input.setCustomValidity( '' );
 		} catch {
 			input.setCustomValidity( L10N.invalidDate );
 
@@ -914,6 +936,14 @@ const setFormError = ( form, invalidFields, opts = {} ) => {
 	}
 
 	const count = invalidFields.length;
+	// This is essentially a way to add a single error styled message when we
+	// have no field validation errors. We have to pass no invalid fields and
+	// `opts.type` to match a translatable message. We should extract it when
+	// we refactor the error handling.
+	if ( ! count && !! L10N[ opts.type ] ) {
+		error.appendChild( createError( L10N[ opts.type ] ) );
+		return;
+	}
 	const errors = [ L10N.invalidForm ];
 
 	if ( count > 0 ) {
