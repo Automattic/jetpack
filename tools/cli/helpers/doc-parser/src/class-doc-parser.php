@@ -77,11 +77,25 @@ class Doc_Parser {
 	 * Generate a JSON file containing the PHPDoc markup, and save to filesystem.
 	 *
 	 * @param String $path a path to look for files in.
+	 * @param String $dest a path to place the result in.
 	 * @param String $output_file the name to use for the output file, optional.
 	 */
-	public function generate( $path, $output_file = 'phpdoc.json' ) {
+	public function generate( $path, $dest, $output_file = 'phpdoc.json' ) {
 
-		$directory = realpath( $path );
+		$directory   = realpath( $path );
+		$destination = realpath( $dest );
+
+		if ( false === $directory ) {
+			echo "Can't find source directory at: " . $path . PHP_EOL;
+			exit( 1 );
+		}
+
+		if ( false === $destination ) {
+			echo "Can't find destination directory at: " . $dest . PHP_EOL;
+			exit( 1 );
+		}
+
+		$destination_path = $destination . DIRECTORY_SEPARATOR . $output_file;
 
 		// Get data from the PHPDoc
 		$json = $this->get_phpdoc_data( $directory, 'raw' );
@@ -89,7 +103,7 @@ class Doc_Parser {
 		$output = json_encode( $json );
 
 		// Write to $output_file
-		$error = ! file_put_contents( $output_file, $output );
+		$error = ! file_put_contents( $destination_path, $output );
 
 		if ( $error ) {
 			printf(
@@ -100,7 +114,7 @@ class Doc_Parser {
 			exit( 1 );
 		}
 
-		printf( 'Data exported to %1$s' . PHP_EOL, $output_file );
+		printf( 'Data exported to %1$s' . PHP_EOL, $destination_path );
 	}
 
 	/**

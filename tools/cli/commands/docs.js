@@ -9,13 +9,20 @@ import path from 'path';
  */
 export function docsDefine( yargs ) {
 	yargs.command(
-		'docs [path]',
+		'docs [path] [dest]',
 		'Parses PHPDoc documentation from a project and outputs it into a JSON file.',
 		yarg => {
-			yarg.positional( 'path', {
-				describe: 'Path to a jetpack-production checkout folder',
-				type: 'string',
-			} );
+			yarg
+				.positional( 'path', {
+					describe: 'Path to a jetpack-production checkout folder',
+					type: 'string',
+					default: '.',
+				} )
+				.positional( 'dest', {
+					describe: 'Path to where the generated file should be saved',
+					type: 'string',
+					default: '.',
+				} );
 		},
 		async argv => {
 			await docsCli( argv );
@@ -34,7 +41,11 @@ export function docsDefine( yargs ) {
  * @param {argv} argv - the arguments passed.
  */
 export async function docsCli( argv ) {
-	const parser_options = [ path.resolve( './tools/cli/helpers/doc-parser/runner.php' ), argv.path ];
+	const parser_options = [
+		path.resolve( './tools/cli/helpers/doc-parser/runner.php' ),
+		argv.path,
+		argv.dest,
+	];
 
 	let data = child_process.spawnSync( 'php', parser_options, {
 		cwd: path.resolve( './' ),

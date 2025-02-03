@@ -10,4 +10,4 @@
  */
 require __DIR__ . '/vendor/autoload.php';
 
-( new \Automattic\Jetpack\Doc_Parser() )->generate( $argv[1], 'phpdoc.json' );
+( new \Automattic\Jetpack\Doc_Parser() )->generate( $argv[1], $argv[2], 'phpdoc.json' );
