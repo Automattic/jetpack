@@ -171,7 +171,6 @@ function jetpack_boost_build_minify_output( $request_uri ) {
 	$file_paths = jetpack_boost_page_optimize_get_file_paths( $file_parts['file_name'] );
 
 	// file_paths contain something like array( '/foo/bar.css', '/foo1/bar/baz.css' )
-	// @todo - what do we do if we're over the maximum number of files? Maybe we just don't concatenate?
 	if ( count( $file_paths ) > $concat_max_files ) {
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
