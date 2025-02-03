@@ -129,7 +129,7 @@ function jetpack_boost_static_minify_setup( $activated, $module_slug ) {
  * It removes files that are stale and no longer needed.
  * A file is considered stale if it's older than the files it depends on.
  */
-function jetpack_boost_cache_maintenance() {
+function jetpack_boost_minify_remove_stale_static_files() {
 	$files = glob( Config::get_static_cache_dir_path() . '/*.min.*' );
 	foreach ( $files as $file ) {
 		if ( ! file_exists( $file ) ) {

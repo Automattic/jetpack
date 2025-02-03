@@ -24,7 +24,7 @@ function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file
 	if ( $cache_folder !== Config::get_static_cache_dir_path() ) {
 		if ( $file_age !== 0 ) {
 			// Cleanup obsolete files in static cache folder
-			jetpack_boost_cache_maintenance();
+			jetpack_boost_minify_remove_stale_static_files();
 		}
 		jetpack_boost_page_optimize_cache_cleanup( Config::get_static_cache_dir_path(), $file_age !== 0 ? WEEK_IN_SECONDS : 0 );
 	}
