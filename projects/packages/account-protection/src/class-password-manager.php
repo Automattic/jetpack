@@ -53,17 +53,6 @@ class Password_Manager {
 		return $this->verify_password_update_nonce( 'update-user_' . $user_id );
 	}
 
-	// /**
-	// * Verify the nonce for password reset.
-	// *
-	// * @param int $user_id The user ID.
-	// *
-	// * @return bool True if the nonce is valid, false otherwise.
-	// */
-	// private function verify_password_reset_nonce( $user_id ) {
-	// return $this->verify_password_update_nonce( 'resetpassword_' . $user_id );
-	// }
-
 	/**
 	 * Validate the profile update.
 	 *
@@ -116,18 +105,12 @@ class Password_Manager {
 	 * @return void
 	 */
 	public function validate_password_reset( \WP_Error $errors, $user ): void {
-		// TODO: Does not appear possible to verify the nonce or reset key here, unclear how to approach this safely
-		// Maybe its fine because we are only handling existing data that has already been screened and erroring or allowing a pass?
-		// If necessary, we could use the same logic to verify as wp-login.php case 'resetpass'/case 'rp'
-		// if ( ! $this->verify_password_reset_nonce( $user->ID ) ) {
-		// $errors->add( 'nonce_error', __( 'Nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
-		// return;
-		// }
-
 		if ( is_wp_error( $user ) ) {
 			return;
 		}
 
+		// No nonce verification necessary as the actions hook in after a robust verification process
+		// phpcs:disable WordPress.Security.NonceVerification
 		if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
 			$password = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );
 			if ( $this->validation_service->is_current_password( $user, $password ) ) {
@@ -155,6 +138,7 @@ class Password_Manager {
 	 * @return void
 	 */
 	public function on_profile_update( int $user_id, \WP_User $old_user_data, array $userdata ): void {
+		// TODO: Need to verify this is working... seems to happen on reset link send!
 		if ( ! $this->verify_profile_update_nonce( $user_id ) ) {
 			error_log( "Nonce verification failed for profile update: User ID {$user_id}" );
 			return;
@@ -172,12 +156,7 @@ class Password_Manager {
 	 * @param string   $new_password The new password.
 	 */
 	public function on_password_reset( $user, $new_password ) {
-		// TODO: Does not appear possible to verify the nonce or reset key here, unclear how to approach this safely
-		// if ( ! $this->verify_password_reset_nonce( $user->ID ) ) {
-		// error_log( "Nonce verification failed for password reset: User ID {$user->ID}" );
-		// return;
-		// }
-
+		// TODO: Need to verify this is working...
 		error_log( 'on_password_reset' );
 
 		$this->save_recent_password( $user->ID, $user->user_pass );
