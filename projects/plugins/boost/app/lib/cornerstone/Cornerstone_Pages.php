@@ -1,10 +1,11 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Lib;
+namespace Automattic\Jetpack_Boost\Lib\Cornerstone;
 
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
 use Automattic\Jetpack_Boost\Data_Sync\Cornerstone_Pages_Entry;
+use Automattic\Jetpack_Boost\Lib\Premium_Features;
 
 class Cornerstone_Pages implements Has_Setup {
 
@@ -113,19 +114,6 @@ class Cornerstone_Pages implements Has_Setup {
 		return $url;
 	}
 
-	public function get_pages() {
-		$pages = jetpack_boost_ds_get( 'cornerstone_pages_list' );
-
-		$permalink_structure = get_option( 'permalink_structure' );
-
-		// If permalink structure ends with slash, add trailing slashes
-		if ( $permalink_structure && substr( $permalink_structure, -1 ) === '/' ) {
-			$pages = array_map( 'trailingslashit', $pages );
-		}
-
-		return $pages;
-	}
-
 	public function get_properties() {
 		return array(
 			'max_pages'         => $this->get_max_pages(),
@@ -135,14 +123,8 @@ class Cornerstone_Pages implements Has_Setup {
 	}
 
 	public function add_display_post_states( $post_states, $post ) {
-		$cornerstone_pages = $this->get_pages();
-		if ( ! empty( $cornerstone_pages ) ) {
-			$post_url          = untrailingslashit( get_permalink( $post ) );
-			$cornerstone_pages = array_map( 'untrailingslashit', $cornerstone_pages );
-
-			if ( in_array( $post_url, $cornerstone_pages, true ) ) {
-				$post_states[] = __( 'Cornerstone Page', 'jetpack-boost' );
-			}
+		if ( Cornerstone_Utils::is_cornerstone_page( $post->ID ) ) {
+			$post_states[] = __( 'Cornerstone Page', 'jetpack-boost' );
 		}
 
 		return $post_states;
