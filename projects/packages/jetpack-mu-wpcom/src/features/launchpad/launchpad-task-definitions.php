@@ -663,10 +663,12 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 		),
 		'add_first_subscribers'           => array(
+			// Note, we do not want this mapped to the 'subscribers_added' task. This is intended as
+			// a nudge and is marked complete after the user visits the subscribers interfaces,
+			// regardless of whether or not they actually added subscribers.
 			'get_title'            => function () {
 				return __( 'Add your first subscribers', 'jetpack-mu-wpcom' );
 			},
-			'id_map'               => 'subscribers_added',
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
