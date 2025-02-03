@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Protect Status: Fixed a bug where it can happen that the core version data is not interpreted correctly from the report data response.

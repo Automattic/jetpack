@@ -326,16 +326,24 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.3-a.5 - 2025-01-27
+### 14.3-beta - 2025-02-03
 #### Enhancements
-- Forms: Add Checkbox and Consent field enter action to create a new block.
+- Blocks: Improve performance.
+- Social: Post character limits are now dynamic based on selected connections.
+- Social: Enable Social post UI for WordPress.com sites.
+
+#### Improved compatibility
+- Open Graph Meta Tags: Do not display Jetpack's tags when the SEOPress plugin is active.
+- Social: Remove "Your post" section from previews in favor of newer Social Post UI.
 
 #### Bug fixes
-- Forms: Make the icons show up as expected in the style editor.
-- Sitemaps: Ensure a valid news sitemap is present even if no posts are eligible.
-- Social: Fix profile links for LinkedIn connections.
-- Social: Fix Publicize error in the editor due to malformed connections data.
-- VideoPress: Fix issue with VideoPress block with zero height and width.
+- Copy Post: Ensure Copy option is still available on all CPTs after quick edit in post list.
+- Forms: Fix datepicker appearance on dark themes.
+- Forms: Fix field spacing and widths.
+- Forms: Fix permanent deletion of form reponses via quicklinks.
+- Forms: Hide empty radio fields.
+- Forms: Keep content as-is when switching Feedback status between spam and publish.
+- Forms: Prevent error in block placeholder when the Forms module is disabled.
 
 --------
 
