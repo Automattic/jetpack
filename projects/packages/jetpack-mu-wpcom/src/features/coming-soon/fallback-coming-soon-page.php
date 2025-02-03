@@ -117,6 +117,8 @@ nocache_headers();
 				grid-column-start: 1;
 				-ms-grid-column-span: 1;
 				grid-column-end: span 1;
+				padding-right: 24px;
+				padding-left: 24px;
 			}
 			.wpcom-coming-soon-description {
 				color: #fff;
