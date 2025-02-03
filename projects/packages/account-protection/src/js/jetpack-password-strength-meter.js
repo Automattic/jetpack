@@ -9,6 +9,39 @@ jQuery( document ).ready( function ( $ ) {
 	// const weakPasswordConfirmation = $( '.pw-weak' );
 	// const submitButton = $( '#submit' );
 	const passwordValidationStatus = $( '<div id="password-validation-status"></div>' );
+	const validationCheckList = $( '<ul></ul>' );
+	const validationCheckListItem = $( '<li></li>', {
+		css: {
+			display: 'flex',
+			'align-items': 'center',
+			gap: '4px',
+		},
+	} );
+	const jetpackCheck = $( '<img>', {
+		src: jetpackData.check,
+		alt: 'Jetpack Check',
+		css: {
+			height: '24px',
+		},
+	} );
+	const jetpackCross = $( '<img>', {
+		src: jetpackData.cross,
+		alt: 'Jetpack Cross',
+		css: {
+			height: '24px',
+		},
+	} );
+	const validationCheckListItemText = $( '<p>Between 6 and 150 characters</p>', {
+		css: {
+			margin: '0',
+		},
+	} );
+	validationCheckListItem.append( jetpackCross );
+	validationCheckListItem.append( validationCheckListItemText );
+
+	validationCheckList.append( validationCheckListItem );
+
+	passwordValidationStatus.append( validationCheckList );
 
 	passwordInput.css( { border: '1px solid #8c8f94', 'border-radius': '4px 4px 0px 0px' } );
 	passwordStrengthResult.hide();
@@ -100,17 +133,17 @@ jQuery( document ).ready( function ( $ ) {
 	passwordInput.after( strengthMeter );
 
 	// Run validation on real-time input updates
-	passwordInput.on( 'input', () => validatePassword( 'input update' ) );
+	// passwordInput.on( 'input', () => validatePassword( 'input update' ) );
 
-	// Run validation if input has a initial value - reset form
-	setTimeout( () => {
-		if ( passwordInput.val().length > 0 ) {
-			validatePassword( 'immediate with initial value' );
-		}
-	}, 1000 );
+	// // Run validation if input has a initial value - reset form
+	// setTimeout( () => {
+	// 	if ( passwordInput.val().length > 0 ) {
+	// 		validatePassword( 'immediate with initial value' );
+	// 	}
+	// }, 1000 );
 
-	// Run validation on password generation
-	generatePasswordButton.on( 'click', () => validatePassword( 'on password generation' ) );
+	// // Run validation on password generation
+	// generatePasswordButton.on( 'click', () => validatePassword( 'on password generation' ) );
 
 	/**
 	 *
@@ -119,7 +152,6 @@ jQuery( document ).ready( function ( $ ) {
 	 */
 	function validatePassword() {
 		const currentPasswordInput = passwordInput.val();
-		// Password validation logic here
 		console.log( 'Validating password...', currentPasswordInput );
 
 		$.ajax( {
@@ -127,7 +159,7 @@ jQuery( document ).ready( function ( $ ) {
 			type: 'POST',
 			data: {
 				action: 'validate_password_ajax',
-				password: currentPasswordInput, // ✅ Pass the password for validation
+				password: currentPasswordInput,
 			},
 			beforeSend: function () {
 				passwordValidationStatus.html( '<p>Validating...</p>' );

@@ -200,7 +200,9 @@ class Account_Protection {
 	public function localize_jetpack_data() {
 		wp_localize_script( 'jetpack-password-strength-meter', 'jetpackData', array(
 			'ajaxurl' => admin_url( 'admin-ajax.php' ),
-			'logo' => plugin_dir_url(__FILE__) . 'assets/jetpack-logo.svg'
+			'logo' => plugin_dir_url(__FILE__) . 'assets/jetpack-logo.svg',
+			'check' => plugin_dir_url(__FILE__) . 'assets/check.svg',
+			'cross' => plugin_dir_url(__FILE__) . 'assets/cross.svg',
 		) );
 	}
 

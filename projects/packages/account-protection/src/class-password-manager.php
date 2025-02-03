@@ -53,17 +53,6 @@ class Password_Manager {
 		return $this->verify_password_update_nonce( 'update-user_' . $user_id );
 	}
 
-	// /**
-	// * Verify the nonce for password reset.
-	// *
-	// * @param int $user_id The user ID.
-	// *
-	// * @return bool True if the nonce is valid, false otherwise.
-	// */
-	// private function verify_password_reset_nonce( $user_id ) {
-	// return $this->verify_password_update_nonce( 'resetpassword_' . $user_id );
-	// }
-
 	/**
 	 * Validate the profile update.
 	 *
@@ -116,14 +105,7 @@ class Password_Manager {
 	 * @return void
 	 */
 	public function validate_password_reset( \WP_Error $errors, $user ): void {
-		// TODO: Does not appear possible to verify the nonce or reset key here, unclear how to approach this safely
-		// Maybe its fine because we are only handling existing data that has already been screened and erroring or allowing a pass?
-		// If necessary, we could use the same logic to verify as wp-login.php case 'resetpass'/case 'rp'
-		// if ( ! $this->verify_password_reset_nonce( $user->ID ) ) {
-		// $errors->add( 'nonce_error', __( 'Nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
-		// return;
-		// }
-
+		// No nonce verification necessary as the actions hook in after a robust verification process
 		if ( is_wp_error( $user ) ) {
 			return;
 		}
@@ -173,11 +155,7 @@ class Password_Manager {
 	 * @param string   $new_password The new password.
 	 */
 	public function on_password_reset( $user, $new_password ) {
-		// TODO: Does not appear possible to verify the nonce or reset key here, unclear how to approach this safely
-		// if ( ! $this->verify_password_reset_nonce( $user->ID ) ) {
-		// error_log( "Nonce verification failed for password reset: User ID {$user->ID}" );
-		// return;
-		// }
+		// No nonce verification necessary as the actions hook in after a robust verification process
 
 		// TODO: Need to verify this is working...
 		error_log( 'on_password_reset' );
