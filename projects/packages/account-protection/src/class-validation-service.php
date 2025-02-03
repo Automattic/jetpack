@@ -160,6 +160,11 @@ class Validation_Service {
 			return false;
 		}
 
+		$email_parts    = explode( '@', $user->user_email ); // test@example.com
+		$email_username = $email_parts[0]; // 'test'
+		$email_domain   = $email_parts[1]; // 'example.com'
+		$email_provider = explode( '.', $email_domain )[0]; // 'example'
+
 		$user_data = array(
 			$user->user_login,
 			$user->user_nicename,
@@ -167,14 +172,19 @@ class Validation_Service {
 			$user->first_name,
 			$user->last_name,
 			$user->user_email,
-			explode( '@', $user->user_email )[0], // Email username
-			explode( '@', $user->user_email )[1], // Email domain
+			$email_username,
+			$email_provider,
 			$user->nickname,
 		);
 
 		$password_lower = strtolower( $password );
 
 		foreach ( $user_data as $data ) {
+			// Skip if $data is 3 characters or less.
+			if ( strlen( $data ) <= 3 ) {
+				continue;
+			}
+
 			if ( ! empty( $data ) && strpos( $password_lower, strtolower( $data ) ) !== false ) {
 				return true;
 			}
