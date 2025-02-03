@@ -7,11 +7,17 @@ import {
 	GlobalNotices,
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { getScriptData, siteHasFeature } from '@automattic/jetpack-script-data';
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
-import { features, getSocialScriptData, hasSocialPaidFeatures } from '../../utils';
+import {
+	features,
+	getSocialScriptData,
+	hasSocialPaidFeatures,
+	isAtomicSite,
+	isWpcomSite,
+} from '../../utils';
 import ConnectionScreen from './connection-screen';
 import Header from './header';
 import InfoSection from './info-section';
@@ -25,8 +31,8 @@ import SocialNotesToggle from './toggles/social-notes-toggle';
 import UtmToggle from './toggles/utm-toggle';
 
 export const SocialAdminPage = () => {
-	const is_wpcom = getScriptData().site.host === 'wpcom';
-	const is_woa = getScriptData().site.host === 'woa';
+	const is_wpcom = isWpcomSite();
+	const is_woa = isAtomicSite();
 
 	const { isUserConnected, isRegistered } = useConnection();
 	const showConnectionCard = ! is_wpcom && ( ! isRegistered || ! isUserConnected );

@@ -1,19 +1,15 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import {
-	getSiteFragment,
-	isAtomicSite,
-	isSimpleSite,
-} from '@automattic/jetpack-shared-extension-utils';
+import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelRow } from '@wordpress/components';
 import { _x } from '@wordpress/i18n';
-import { hasSocialPaidFeatures } from '../../utils';
+import { hasSocialPaidFeatures, isWpcomSite } from '../../utils';
 import styles from './styles.module.scss';
 import { useAutoSaveAndRedirect } from './use-auto-save-and-redirect';
 
 export const EnhancedFeaturesNudge: React.FC = () => {
 	const autosaveAndRedirect = useAutoSaveAndRedirect();
 
-	const isWpcom = isSimpleSite() || isAtomicSite();
+	const isWpcom = isWpcomSite();
 
 	if ( isWpcom || hasSocialPaidFeatures() ) {
 		return null;
