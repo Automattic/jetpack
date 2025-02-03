@@ -73,6 +73,6 @@ function wpcom_handle_media_url_upload() {
 }
 
 if ( current_user_can( 'upload_files' ) ) {
-	add_action( 'post-plupload-upload-ui', 'wpcom_media_url_upload', 20 );
+	add_action( 'pre-upload-ui', 'wpcom_media_url_upload', 9 );
 	add_action( 'wp_ajax_wpcom_media_url_upload', 'wpcom_handle_media_url_upload' );
 }

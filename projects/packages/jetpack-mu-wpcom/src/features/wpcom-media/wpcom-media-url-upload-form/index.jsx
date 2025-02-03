@@ -75,9 +75,12 @@ const WpcomMediaUrlUploadForm = ( { ajaxUrl, action, nonce, isSiteEditor } ) => 
 
 	const renderLink = () => {
 		return (
-			<a href="#" onClick={ () => setShow( true ) } className="woy">
+			<button
+				className="button wpcom-media-url-upload-form__pre-upload-button"
+				onClick={ () => setShow( true ) }
+			>
 				{ __( 'Upload from URL', 'jetpack-mu-wpcom' ) }
-			</a>
+			</button>
 		);
 	};
 

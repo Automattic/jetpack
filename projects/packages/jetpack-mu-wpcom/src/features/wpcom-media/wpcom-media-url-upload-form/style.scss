@@ -1,12 +1,19 @@
 .wpcom-media-url-upload-form {
+	button#{&}__pre-upload-button {
+		padding: 0 21px;
+		margin-top: -15px;
+		margin-bottom: 20px;
+	}
+
 	input {
 		width: 100%;
 		max-width: 600px;
 		margin-right: 6px;
 		margin-bottom: 5px;
 	}
-}
 
-.media-frame a.woy {
-	color: unset;
+	form {
+		margin-top: -15px;
+	    margin-bottom: 21.5px;
+	}
 }
