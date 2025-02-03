@@ -101,7 +101,11 @@ const SocialModuleToggle: React.FC = () => {
 					  ) }
 				&nbsp;
 				<ExternalLink
-					href="https://jetpack.com/redirect/?source=social-plugin-publicize-support-admin-page"
+					href={
+						is_wpcom
+							? getRedirectUrl( 'wpcom-social-plugin-publicize-support-admin-page' )
+							: getRedirectUrl( 'social-plugin-publicize-support-admin-page' )
+					}
 					className={ styles.learn }
 				>
 					{ __( 'Learn more', 'jetpack-publicize-components' ) }
