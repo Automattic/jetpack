@@ -26,7 +26,7 @@ const Header = () => {
 		const store = select( socialStore );
 		return {
 			hasConnections: store.getConnections().length > 0,
-			isModuleEnabled: store.getSocialModuleSettings().publicize_active,
+			isModuleEnabled: store.getSocialModuleSettings().publicize,
 		};
 	} );
 
