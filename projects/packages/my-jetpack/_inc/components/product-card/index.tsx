@@ -79,7 +79,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 
 	const [ isActionLoading, setIsActionLoading ] = useState( false );
 	const { recordEvent } = useAnalytics();
-	const { siteIsRegistering } = useMyJetpackConnection();
+	const { siteIsRegistering, isUserConnected } = useMyJetpackConnection();
 	const { connectSite } = useConnectSite( {
 		tracksInfo: {
 			event: `jetpack_myjetpack_product_card_fix_site_connection`,
@@ -95,7 +95,11 @@ const ProductCard: FC< ProductCardProps > = props => {
 		} );
 	}, [ slug, recordEvent ] );
 
-	if ( ! secondaryAction && status === PRODUCT_STATUSES.CAN_UPGRADE ) {
+	if (
+		! secondaryAction &&
+		status === PRODUCT_STATUSES.CAN_UPGRADE &&
+		! ( slug === 'protect' && ! isUserConnected )
+	) {
 		secondaryAction = {
 			href: manageUrl,
 			label: __( 'View', 'jetpack-my-jetpack' ),

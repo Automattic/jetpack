@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Forms: Prevent empty form submission client side

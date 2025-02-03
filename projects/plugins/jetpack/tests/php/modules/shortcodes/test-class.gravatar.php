@@ -83,7 +83,7 @@ class WP_Test_Jetpack_Shortcodes_Gravatar extends WP_UnitTestCase {
 		$this->assertStringContainsString( '<div class="grofile vcard" id="grofile-embed-0">', $shortcode_content );
 		$this->assertStringContainsString( "<img src=\"$avatar_url\" width=\"96\" height=\"96\" class=\"no-grav gravatar photo\"", $shortcode_content );
 
-		remove_filter( 'pre_http_request', $http_request_filter, 10, 1 );
+		remove_filter( 'pre_http_request', $http_request_filter, 10 );
 	}
 
 	/**
@@ -114,7 +114,7 @@ class WP_Test_Jetpack_Shortcodes_Gravatar extends WP_UnitTestCase {
 		$avatar_url        = wptexturize( get_avatar_url( $email, array( 'size' => 96 ) ) );
 		$this->assertStringContainsString( "<img src=\"$avatar_url\" width=\"96\" height=\"96\" class=\"no-grav gravatar photo\"", $shortcode_content );
 
-		remove_filter( 'pre_http_request', $http_request_filter, 10, 1 );
+		remove_filter( 'pre_http_request', $http_request_filter, 10 );
 	}
 
 	/**
@@ -138,6 +138,6 @@ class WP_Test_Jetpack_Shortcodes_Gravatar extends WP_UnitTestCase {
 		$shortcode_content = do_shortcode( $content );
 		$this->assertSame( '', $shortcode_content );
 
-		remove_filter( 'pre_http_request', $http_request_filter, 10, 1 );
+		remove_filter( 'pre_http_request', $http_request_filter, 10 );
 	}
 }

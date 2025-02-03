@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix submission if date field had errored

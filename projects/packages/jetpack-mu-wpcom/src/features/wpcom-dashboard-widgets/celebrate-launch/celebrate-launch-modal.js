@@ -1,9 +1,9 @@
 import { Gridicon, ConfettiAnimation } from '@automattic/components';
 import { Button, Modal, Tooltip } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { Icon, copy } from '@wordpress/icons';
-import { useTranslate } from 'i18n-calypso';
 import { wpcomTrackEvent } from '../../../common/tracks';
 
 import './celebrate-launch-modal.scss';
@@ -27,7 +27,6 @@ export default function CelebrateLaunchModal( {
 	siteUrl,
 	hasCustomDomain,
 } ) {
-	const translate = useTranslate();
 	const isPaidPlan = !! sitePlan;
 	const isBilledMonthly = sitePlan?.product_slug?.includes( 'monthly' );
 	const [ clipboardCopied, setClipboardCopied ] = useState( false );
@@ -51,34 +50,45 @@ export default function CelebrateLaunchModal( {
 		if ( ! isPaidPlan && ! hasCustomDomain ) {
 			contentElement = (
 				<p>
-					{ translate(
-						'Supercharge your website with a {{strong}}custom address{{/strong}} that matches your blog, brand, or business.',
-						{ components: { strong: <strong /> } }
+					{ createInterpolateElement(
+						__(
+							'Supercharge your website with a <strong>custom address</strong> that matches your blog, brand, or business.',
+							'jetpack-mu-wpcom'
+						),
+						{
+							strong: <strong />,
+						}
 					) }
 				</p>
 			);
-			buttonText = translate( 'Claim your domain' );
+			buttonText = __( 'Claim your domain', 'jetpack-mu-wpcom' );
 			buttonHref = `https://wordpress.com/domains/add/${ siteSlug }`;
 		} else if ( isPaidPlan && isBilledMonthly && ! hasCustomDomain ) {
 			contentElement = (
 				<p>
-					{ translate(
-						'Interested in a custom domain? It’s free for the first year when you switch to annual billing.'
+					{ __(
+						'Interested in a custom domain? It’s free for the first year when you switch to annual billing.',
+						'jetpack-mu-wpcom'
 					) }
 				</p>
 			);
-			buttonText = translate( 'Claim your domain' );
+			buttonText = __( 'Claim your domain', 'jetpack-mu-wpcom' );
 			buttonHref = `https://wordpress.com/domains/add/${ siteSlug }`;
 		} else if ( isPaidPlan && ! hasCustomDomain ) {
 			contentElement = (
 				<p>
-					{ translate(
-						'Your paid plan includes a domain name {{strong}}free for one year{{/strong}}. Choose one that’s easy to remember and even easier to share.',
-						{ components: { strong: <strong /> } }
+					{ createInterpolateElement(
+						__(
+							'Your paid plan includes a domain name <strong>free for one year</strong>. Choose one that’s easy to remember and even easier to share.',
+							'jetpack-mu-wpcom'
+						),
+						{
+							strong: <strong />,
+						}
 					) }
 				</p>
 			);
-			buttonText = translate( 'Claim your free domain' );
+			buttonText = __( 'Claim your free domain', 'jetpack-mu-wpcom' );
 			buttonHref = `https://wordpress.com/domains/add/${ siteSlug }`;
 		} else if ( hasCustomDomain ) {
 			return null;
@@ -110,10 +120,13 @@ export default function CelebrateLaunchModal( {
 			<div className="launched__modal-content">
 				<div className="launched__modal-text">
 					<h1 className="launched__modal-heading">
-						{ translate( 'Congrats, your site is live!' ) }
+						{ __( 'Congrats, your site is live!', 'jetpack-mu-wpcom' ) }
 					</h1>
 					<p className="launched__modal-body">
-						{ translate( 'Now you can head over to your site and share it with the world.' ) }
+						{ __(
+							'Now you can head over to your site and share it with the world.',
+							'jetpack-mu-wpcom'
+						) }
 					</p>
 				</div>
 				<div className="launched__modal-actions">
@@ -121,12 +134,12 @@ export default function CelebrateLaunchModal( {
 						<div className="launched__modal-domain">
 							<p className="launched__modal-domain-text">{ siteSlug }</p>
 							<Tooltip
-								text={ clipboardCopied ? translate( 'Copied to clipboard!' ) : '' }
+								text={ clipboardCopied ? __( 'Copied to clipboard!', 'jetpack-mu-wpcom' ) : '' }
 								delay={ 0 }
 								hideOnClick={ false }
 							>
 								<Button
-									label={ translate( 'Copy URL' ) }
+									label={ __( 'Copy URL', 'jetpack-mu-wpcom' ) }
 									className="launchpad__clipboard-button"
 									borderless
 									size="compact"
@@ -140,7 +153,9 @@ export default function CelebrateLaunchModal( {
 
 						<Button href={ siteUrl } target="_blank" className="launched__modal-view-site">
 							<Gridicon icon="domains" size={ 18 } />
-							<span className="launched__modal-view-site-text">{ translate( 'View site' ) }</span>
+							<span className="launched__modal-view-site-text">
+								{ __( 'View site', 'jetpack-mu-wpcom' ) }
+							</span>
 						</Button>
 					</div>
 				</div>

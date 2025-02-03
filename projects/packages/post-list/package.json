@@ -1,0 +1,31 @@
+{
+	"private": true,
+	"description": "Enhance the classic view of the Admin section of your WordPress site",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/post-list/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Post List"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/post-list"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "pnpm run clean && pnpm run build-js",
+		"build-js": "webpack",
+		"build-production": "pnpm run clean && pnpm run build-production-js && pnpm run validate",
+		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
+		"clean": "rm -rf build",
+		"validate": "pnpm exec validate-es build/"
+	},
+	"dependencies": {
+		"@wordpress/i18n": "5.16.0"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"webpack": "5.94.0",
+		"webpack-cli": "6.0.1"
+	}
+}

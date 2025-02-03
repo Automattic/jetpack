@@ -269,7 +269,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 
 		// unhook publicize, it's hooked again later -- without this, skipping services is impossible.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			remove_action( 'save_post', array( $GLOBALS['publicize_ui']->publicize, 'async_publicize_post' ), 100, 2 );
+			remove_action( 'save_post', array( $GLOBALS['publicize_ui']->publicize, 'async_publicize_post' ), 100 );
 			add_action( 'rest_api_inserted_post', array( $GLOBALS['publicize_ui']->publicize, 'async_publicize_post' ) );
 
 			if ( $this->should_load_theme_functions( $post_id ) ) {
