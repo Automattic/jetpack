@@ -22,10 +22,16 @@ class Validation_Service_Test extends BaseTestCase {
 		$this->assertFalse( $validation_service->is_weak_password( 'somepassword' ) );
 	}
 
-	private function get_connected_connection_manager() {
+	private function get_connection_manager() {
 		$connection = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
 			->disableOriginalConstructor()
 			->getMock();
+
+		return $connection;
+	}
+
+	private function get_connected_connection_manager() {
+		$connection = $this->get_connection_manager();
 
 		$connection->expects( $this->once() )
 			->method( 'is_connected' )
@@ -159,5 +165,66 @@ class Validation_Service_Test extends BaseTestCase {
 			);
 
 		$this->assertFalse( $validation_service->is_weak_password( 'somepassword' ) );
+	}
+
+	public function test_returns_true_if_password_is_current_password() {
+		$user            = new \WP_User();
+		$user->user_pass = wp_hash_password( 'somepassword' );
+		$user->ID        = 1;
+
+		$validation_service = new Validation_Service( $this->get_connection_manager() );
+		$this->assertTrue( $validation_service->is_current_password( $user, 'somepassword' ) );
+	}
+
+	public function test_returns_false_if_password_is_not_current_password() {
+		$user            = new \WP_User();
+		$user->user_pass = wp_hash_password( 'somepassword' );
+		$user->ID        = 1;
+
+		$validation_service = new Validation_Service( $this->get_connection_manager() );
+		$this->assertFalse( $validation_service->is_current_password( $user, 'anotherpassword' ) );
+	}
+
+	public function test_returns_true_if_password_was_recently_used() {
+		$user_id       = 1;
+		$password_hash = wp_hash_password( 'somepassword' );
+
+		update_user_meta( $user_id, Config::VALIDATION_SERVICE_USER_META_KEY, array( $password_hash ) );
+
+		$validation_service = new Validation_Service( $this->get_connection_manager() );
+		$this->assertTrue( $validation_service->is_recent_password( $user_id, 'somepassword' ) );
+	}
+
+	public function test_returns_false_if_password_was_not_recently_used() {
+		$user_id       = 1;
+		$password_hash = wp_hash_password( 'somepassword' );
+
+		update_user_meta( $user_id, Config::VALIDATION_SERVICE_USER_META_KEY, array( $password_hash ) );
+
+		$validation_service = new Validation_Service( $this->get_connection_manager() );
+		$this->assertFalse( $validation_service->is_recent_password( $user_id, 'anotherpassword' ) );
+	}
+
+	public function test_returns_true_if_password_matches_user_data() {
+		$user             = new \WP_User();
+		$user->user_email = 'example@wordpress.com';
+
+		$validation_service = new Validation_Service( $this->get_connection_manager() );
+		$this->assertTrue( $validation_service->matches_user_data( $user, 'wordpress' ) );
+	}
+
+	public function test_returns_false_if_password_is_too_short() {
+		$validation_service = new Validation_Service( $this->get_connection_manager() );
+		$this->assertTrue( $validation_service->is_invalid_length( 'short' ) );
+	}
+
+	public function test_returns_false_if_password_is_too_long() {
+		$validation_service = new Validation_Service( $this->get_connection_manager() );
+		$this->assertTrue( $validation_service->is_invalid_length( $string = str_repeat( 'a', 151 ) ) );
+	}
+
+	public function test_returns_true_if_password_contains_backslash() {
+		$validation_service = new Validation_Service( $this->get_connection_manager() );
+		$this->assertTrue( $validation_service->contains_backslash( 'password\\' ) );
 	}
 }
