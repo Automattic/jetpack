@@ -13,7 +13,7 @@ export function docsDefine( yargs ) {
 		'Parses PHPDoc documentation from a project and outputs it into a JSON file.',
 		yarg => {
 			yarg.positional( 'path', {
-				describe: 'Path to a jetpack-production checkout folder',
+				describe: 'e.g. path to a jetpack-production folder',
 				type: 'string',
 			} );
 		},
