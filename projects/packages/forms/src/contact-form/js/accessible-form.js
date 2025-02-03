@@ -935,6 +935,10 @@ const setFormError = ( form, invalidFields, opts = {} ) => {
 	}
 
 	const count = invalidFields.length;
+	// This is essentially a way to add a single error styled message when we
+	// have no field validation errors. We have to pass no invalid fields and
+	// `opts.type` to match a translatable message. We should extract it when
+	// we refactor the error handling.
 	if ( ! count && !! L10N[ opts.type ] ) {
 		error.appendChild( createError( L10N[ opts.type ] ) );
 		return;
