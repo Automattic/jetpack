@@ -7,17 +7,11 @@ import {
 	GlobalNotices,
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { siteHasFeature } from '@automattic/jetpack-script-data';
+import { isAtomicSite, isWpcomSite, siteHasFeature } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
-import {
-	features,
-	getSocialScriptData,
-	hasSocialPaidFeatures,
-	isAtomicSite,
-	isWpcomSite,
-} from '../../utils';
+import { features, getSocialScriptData, hasSocialPaidFeatures } from '../../utils';
 import ConnectionScreen from './connection-screen';
 import Header from './header';
 import InfoSection from './info-section';

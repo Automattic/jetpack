@@ -1,8 +1,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { isWpcomSite } from '@automattic/jetpack-script-data';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelRow } from '@wordpress/components';
 import { _x } from '@wordpress/i18n';
-import { hasSocialPaidFeatures, isWpcomSite } from '../../utils';
+import { hasSocialPaidFeatures } from '../../utils';
 import styles from './styles.module.scss';
 import { useAutoSaveAndRedirect } from './use-auto-save-and-redirect';
 
