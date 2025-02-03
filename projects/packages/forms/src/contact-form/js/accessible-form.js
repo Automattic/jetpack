@@ -269,6 +269,7 @@ const isDateFieldValid = input => {
 	if ( value && format && typeof $ !== 'undefined' ) {
 		try {
 			$.datepicker.parseDate( format, value );
+			input.setCustomValidity( '' );
 		} catch {
 			input.setCustomValidity( L10N.invalidDate );
 
