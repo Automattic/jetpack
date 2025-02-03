@@ -197,17 +197,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		// Disconnect/unlink user from WordPress.com servers.
-		register_rest_route(
-			'jetpack/v4',
-			'/connection/user',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::unlink_user',
-				'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
-			)
-		);
-
 		// Get current site data.
 		register_rest_route(
 			'jetpack/v4',
@@ -1350,27 +1339,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Verify that a user can use the /connection/user endpoint. Has to be a registered user and be currently linked.
-	 *
-	 * @since 4.3.0
-	 *
-	 * @uses Automattic\Jetpack\Connection\Manager::is_user_connected();)
-	 *
-	 * @return bool|WP_Error True if user is able to unlink.
-	 */
-	public static function unlink_user_permission_callback() {
-		if ( current_user_can( 'jetpack_connect_user' ) && ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() ) ) {
-			return true;
-		}
-
-		return new WP_Error(
-			'invalid_user_permission_unlink_user',
-			REST_Connector::get_user_permissions_error_msg(),
-			array( 'status' => rest_authorization_required_code() )
-		);
-	}
-
-	/**
 	 * Verify that user can manage Jetpack modules.
 	 *
 	 * @since 4.3.0
@@ -1854,33 +1822,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'connectionOwner' => $owner_display_name,
 		);
 		return rest_ensure_response( $response );
-	}
-
-	/**
-	 * Unlinks current user from the WordPress.com Servers.
-	 *
-	 * @since 4.3.0
-	 * @uses  Automattic\Jetpack\Connection\Manager->disconnect_user
-	 *
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 *
-	 * @return bool|WP_Error True if user successfully unlinked.
-	 */
-	public static function unlink_user( $request ) {
-
-		if ( ! isset( $request['linked'] ) || false !== $request['linked'] ) {
-			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack' ), array( 'status' => 404 ) );
-		}
-
-		if ( ( new Connection_Manager( 'jetpack' ) )->disconnect_user() ) {
-			return rest_ensure_response(
-				array(
-					'code' => 'success',
-				)
-			);
-		}
-
-		return new WP_Error( 'unlink_user_failed', esc_html__( 'Was not able to unlink the user. Please try again.', 'jetpack' ), array( 'status' => 400 ) );
 	}
 
 	/**

@@ -70,6 +70,7 @@
 		margin: var( --spacing-base ) auto;
 		text-align: left;
 		border: none;
+		position: relative;
 
 		&__card-headline {
 			font-size: var( --font-body );
@@ -82,7 +83,20 @@
 			float:right;
 		}
 
-		.transfer {
+		&.disabled:before {
+			content: '';
+			display: block;
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			opacity: 25%;
+			border-radius: 3px;
+			background: var( --jp-black );
+		}
+
+		.transfer, .unlink {
 			color:var( --jp-black );
 			fill: var( --jp-black );
 		}
@@ -91,6 +105,7 @@
 			color: var( --jp-red );
 			fill: var( --jp-red );
 		}
+
 	}
 
 	.components-modal {
