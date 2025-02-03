@@ -103,9 +103,6 @@ class Contact_Form_Block {
 						'__experimentalDefaultControls' => true,
 					),
 				),
-				'selectors'       => array(
-					'color' => '.wp-block-jetpack-field-input, .wp-block-jetpack-field-input::placeholder',
-				),
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_input' ),
 			)
 		);

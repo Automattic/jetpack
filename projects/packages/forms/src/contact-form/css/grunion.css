@@ -16,6 +16,7 @@
 
 .contact-form input::placeholder {
 	transition: opacity 0.3s ease-out;
+	color: inherit;
 }
 .contact-form input:hover::placeholder {
 	opacity: 0.5;
