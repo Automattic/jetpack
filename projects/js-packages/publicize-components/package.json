@@ -34,7 +34,7 @@
 		"@wordpress/compose": "7.17.0",
 		"@wordpress/core-data": "7.17.0",
 		"@wordpress/data": "10.17.0",
-		"@wordpress/dataviews": "4.12.0",
+		"@wordpress/dataviews": "4.13.0",
 		"@wordpress/date": "5.17.0",
 		"@wordpress/edit-post": "8.17.0",
 		"@wordpress/editor": "14.17.0",
