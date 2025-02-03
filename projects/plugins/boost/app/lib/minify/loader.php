@@ -5,8 +5,8 @@ require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/Utils.php';
 require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/Config.php';
 require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/Dependency_Path_Mapping.php';
 require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-helpers.php';
+require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-service-fallback.php';
 require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-service.php';
-require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-service-new.php';
 
 add_action(
 	'template_redirect',
