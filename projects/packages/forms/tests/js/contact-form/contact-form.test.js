@@ -76,9 +76,15 @@ describe( 'Contact Form', () => {
 		beforeEach( () => {
 			setFormContent( `
 				<label for="name">Name</label>
-				<input id="name" name="name" required />
+				<input id="name" name="name">
 				<button type="submit">Submit</button>
 			` );
+			// Mock offsetParent for all elements
+			Object.defineProperty( HTMLElement.prototype, 'offsetParent', {
+				get() {
+					return {};
+				}, // Return a truthy value
+			} );
 			fireDomReadyEvent();
 		} );
 
@@ -101,6 +107,17 @@ describe( 'Contact Form', () => {
 		} );
 
 		it( "shouldn't submit an invalid form", () => {
+			const form = screen.getByRole( 'form' );
+			const input = screen.getByLabelText( 'Name' );
+			input.setAttribute( 'required', '' );
+			const spy = jest.spyOn( form, 'submit' ).mockImplementation( () => {} );
+
+			fireEvent.submit( form );
+
+			expect( spy ).not.toHaveBeenCalled();
+		} );
+
+		it( "shouldn't submit when all fields are empty", () => {
 			const form = screen.getByRole( 'form' );
 			const spy = jest.spyOn( form, 'submit' ).mockImplementation( () => {} );
 
