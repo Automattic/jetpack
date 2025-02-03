@@ -53,6 +53,7 @@
 		height: 100%;
 		overflow: auto;
 		mask-image: linear-gradient( 180deg, transparent, white 24px );
+		justify-content: flex-end;
 	}
 
 	&__messages {
