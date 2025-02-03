@@ -88,7 +88,6 @@ const variations = compact( [
 				{
 					label: __( 'Attending?', 'jetpack-forms' ),
 					required: true,
-					options: [ __( 'Yes', 'jetpack-forms' ), __( 'No', 'jetpack-forms' ) ],
 					innerBlocks: [
 						[ 'jetpack/field-option-radio', { label: __( 'Yes', 'jetpack-forms' ) } ],
 						[ 'jetpack/field-option-radio', { label: __( 'No', 'jetpack-forms' ) } ],
@@ -140,13 +139,6 @@ const variations = compact( [
 				'jetpack/field-select',
 				{
 					label: __( 'How did you hear about us?', 'jetpack-forms' ),
-					options: [
-						__( 'Search Engine', 'jetpack-forms' ),
-						__( 'Social Media', 'jetpack-forms' ),
-						__( 'TV', 'jetpack-forms' ),
-						__( 'Radio', 'jetpack-forms' ),
-						__( 'Friend or Family', 'jetpack-forms' ),
-					],
 				},
 			],
 			[ 'jetpack/field-textarea', { label: __( 'Other Details', 'jetpack-forms' ) } ],
@@ -198,7 +190,6 @@ const variations = compact( [
 				{
 					label: __( 'Time', 'jetpack-forms' ),
 					required: true,
-					options: [ __( 'Morning', 'jetpack-forms' ), __( 'Afternoon', 'jetpack-forms' ) ],
 					innerBlocks: [
 						[ 'jetpack/field-option-radio', { label: __( 'Morning', 'jetpack-forms' ) } ],
 						[ 'jetpack/field-option-radio', { label: __( 'Afternoon', 'jetpack-forms' ) } ],

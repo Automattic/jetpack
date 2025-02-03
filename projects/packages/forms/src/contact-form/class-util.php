@@ -80,7 +80,7 @@ class Util {
 					<div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
 						<!-- wp:jetpack/field-name {"required":true} /-->
 						<!-- wp:jetpack/field-email {"required":true} /-->
-						<!-- wp:jetpack/field-radio {"label":"Attending?","required":true,"options":["Yes","No"]} /-->
+						<!-- wp:jetpack/field-radio {"label":"Attending?","required":true} /-->
 						<div class="wp-block-jetpack-field-radio"><!-- wp:jetpack/field-option-radio {"label":"Yes"} /-->
 						<!-- wp:jetpack/field-option-radio {"label":"No"} /--></div>
 						<!-- /wp:jetpack/field-radio -->
@@ -114,7 +114,7 @@ class Util {
 						<!-- wp:jetpack/field-email {"required":true} /-->
 						<!-- wp:jetpack/field-telephone {"required":true} /-->
 						<!-- wp:jetpack/field-date {"label":"Date","required":true} /-->
-						<!-- wp:jetpack/field-radio {"label":"Time","required":true,"options":["Morning","Afternoon"]} /-->
+						<!-- wp:jetpack/field-radio {"label":"Time","required":true} /-->
 						<div class="wp-block-jetpack-field-radio"><!-- wp:jetpack/field-option-radio {"label":"Morning"} /-->
 						<!-- wp:jetpack/field-option-radio {"label":"Afternoon"} /--></div>
 						<!-- /wp:jetpack/field-radio -->
@@ -131,7 +131,7 @@ class Util {
 					<div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
 						<!-- wp:jetpack/field-name {"required":true} /-->
 						<!-- wp:jetpack/field-email {"required":true} /-->
-						<!-- wp:jetpack/field-radio {"label":"Please rate our website","required":true,"options":["1 - Very bad","2 - Poor","3 - Average","4 - Good","5 - Excellent"]} -->
+						<!-- wp:jetpack/field-radio {"label":"Please rate our website","required":true} -->
 						<div class="wp-block-jetpack-field-radio"><!-- wp:jetpack/field-option-radio {"label":"1 - Very bad"} /-->
 						<!-- wp:jetpack/field-option-radio {"label":"2 - Poor"} /-->
 						<!-- wp:jetpack/field-option-radio {"label":"3 - Average"} /-->
