@@ -1,60 +1,16 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 $grid-size: 8px;
- 
-@keyframes jetpack-external-media-loading-fade {
-	0% {
-		opacity: 0.5;
-	}
-	50% {
-		opacity: 1;
-	}
-	100% {
-		opacity: 0.5;
-	}
-}
-
-.jetpack-external-media-browser--visually-hidden {
-	position: absolute !important;
-	height: 1px;
-	width: 1px;
-	overflow: hidden;
-	clip: rect( 1px, 1px, 1px, 1px );
-	white-space: nowrap; /* added line */
-}
-
-/**
-* Media item container
-*/
-.jetpack-external-media-browser {
-	.is-error {
-		margin-bottom: 1em;
-		margin-left: 0;
-		margin-right: 0;
-	}
-
-	.components-placeholder {
-		background-color: transparent;
-	}
-
-	.components-modal__content {
-		overflow: auto;
-		padding-bottom: 0;
-		width: 100%;
-	}
-}
-
-.jetpack-external-media-browser--is-copying {
-	pointer-events: none;
-}
 
 .jetpack-external-media-browser {
 	background: white;
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
+	flex: 1;
 
 	.jetpack-external-media-browser__media {
+		flex: 1;
 		width: 100%;
 	}
 
@@ -174,33 +130,39 @@ $grid-size: 8px;
 		margin-bottom: auto;
 	}
 
-	// Transient placeholder when media are loading.
-	.jetpack-external-media-browser__media__placeholder {
-		width: 100px;
-		height: 100px;
-		margin: $grid-size * 2;
-		animation: jetpack-external-media-loading-fade 1.6s ease-in-out infinite;
-		background-color: $gray-400;
-		border: 0;
-	}
-
 	// Toolbar for "insert" and pagination button.
 	.jetpack-external-media-browser__media__toolbar {
 		position: fixed;
-		position: sticky;
 		bottom: 0;
 		left: 0;
+		right: 0;
 		width: 100%;
 		background: white;
-		padding: 20px 0;
+		padding: 20px 32px;
 		display: flex;
 		justify-content: flex-end;
+	}
+
+	.jetpack-external-media-browser__loading {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin-top: 24px;
+
+		&:first-child {
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			margin-top: 0px;
+		}
 	}
 
 	.jetpack-external-media-browser__loadmore {
 		clear: both;
 		display: block;
-		margin: 24px auto 48px auto;
+		margin: 24px auto;
 	}
 }
 

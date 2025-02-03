@@ -167,3 +167,14 @@ $grid-size: 8px;
 		 margin: 0 0 2em 0;
 	}
 }
+
+.jetpack-external-media__google-photos-loading {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}

@@ -1,4 +1,4 @@
-import { Button } from '@wordpress/components';
+import { Button, Spinner } from '@wordpress/components';
 import { memo, useCallback, useState, useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { UP, DOWN, LEFT, RIGHT, SPACE, ENTER } from '@wordpress/keycodes';
@@ -6,7 +6,6 @@ import clsx from 'clsx';
 import { debounce } from 'lodash';
 import React from 'react';
 import MediaItem from './media-item';
-import MediaPlaceholder from './placeholder';
 import './style.scss';
 
 const MAX_SELECTED = 10;
@@ -214,7 +213,11 @@ function MediaBrowser( props ) {
 				) ) }
 
 				{ media.length === 0 && ! isLoading && <EmptyResults /> }
-				{ isLoading && <MediaPlaceholder /> }
+				{ isLoading && (
+					<div className="jetpack-external-media-browser__loading">
+						<Spinner />
+					</div>
+				) }
 
 				{ pageHandle && ! isLoading && (
 					<Button

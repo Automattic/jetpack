@@ -1,6 +1,7 @@
 import { TextControl, Button } from '@wordpress/components';
 import { useRef, useCallback, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { sample } from 'lodash';
 import React from 'react';
 import { SOURCE_PEXELS, PEXELS_EXAMPLE_QUERIES } from '../../constants';
@@ -18,6 +19,7 @@ import './style.scss';
  */
 function PexelsMedia( props ) {
 	const {
+		className,
 		media,
 		isCopying,
 		isLoading,
@@ -88,7 +90,7 @@ function PexelsMedia( props ) {
 	useEffect( focusSearchInput, [] );
 
 	return (
-		<div className="jetpack-external-media-wrapper__pexels">
+		<div className={ clsx( className, 'jetpack-external-media-wrapper__pexels' ) }>
 			<form
 				ref={ searchFormEl }
 				className="jetpack-external-media-header__pexels"

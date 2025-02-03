@@ -4,6 +4,7 @@ import { JetpackAppIcon } from '@automattic/jetpack-shared-extension-utils/icons
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
+import clsx from 'clsx';
 import React from 'react';
 import MediaBrowser from '../media-browser';
 import { MediaSource } from '../media-service/types';
@@ -31,7 +32,7 @@ const getImagePath = () => {
  * @return {React.ReactElement} The `JetpackAppMedia` component.
  */
 function JetpackAppMedia( props ) {
-	const { media, insertMedia, isCopying, multiple, getMedia } = props;
+	const { className, media, insertMedia, isCopying, multiple, getMedia } = props;
 
 	const wpcomBlogId = getWpcomBlogId();
 	const imagePath = getImagePath();
@@ -94,7 +95,7 @@ function JetpackAppMedia( props ) {
 			: __( 'Add images', 'jetpack-external-media' );
 	};
 	return (
-		<div className={ wrapperClassname }>
+		<div className={ clsx( className, wrapperClassname ) }>
 			<JetpackAppIcon />
 			<h2 className="jetpack-external-media-wrapper__jetpack_app_media-title">
 				{ hasImageUploaded && __( 'Select images to be added', 'jetpack-external-media' ) }

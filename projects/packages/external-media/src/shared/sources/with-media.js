@@ -14,6 +14,7 @@ import {
 	setGooglePhotosPickerSession,
 } from '../media-service';
 import { MediaSource } from '../media-service/types';
+import './with-media.scss';
 
 /**
  * withMedia
@@ -403,8 +404,8 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 
 				const describedby = 'jetpack-external-media-browser__description';
 				const classes = clsx( {
-					'jetpack-external-media-browser': true,
-					'jetpack-external-media-browser--is-copying': isCopying,
+					'jetpack-external-media-browser__modal': true,
+					'jetpack-external-media-browser__modal--is-copying': isCopying,
 					'is-jetpack-app-media': mediaSource === 'jetpack_app_media',
 				} );
 
@@ -419,11 +420,15 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 						<div ref={ this.contentRef }>
 							{ noticeUI }
 
-							<p id={ describedby } className="jetpack-external-media-browser--visually-hidden">
+							<p
+								id={ describedby }
+								className="jetpack-external-media-browser__modal--visually-hidden"
+							>
 								{ description }
 							</p>
 
 							<OriginalComponent
+								className="jetpack-external-media-browser__modal-content"
 								account={ account }
 								getMedia={ this.getMedia }
 								copyMedia={ this.copyMedia }
