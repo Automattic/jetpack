@@ -92,7 +92,8 @@ const SocialModuleToggle: React.FC = () => {
 				{ ! is_wpcom
 					? __(
 							'When enabled, you’ll be able to connect your social media accounts and send a post’s featured image and content to the selected channels with a single click when the post is published.',
-							'jetpack-publicize-components'
+							'jetpack-publicize-components',
+							/* dummy arg to avoid bad minification */ 0
 					  )
 					: __(
 							'Connect your social media accounts and send a post’s featured image and content to the selected channels with a single click when the post is published.',
