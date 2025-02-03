@@ -54,9 +54,13 @@ if ( ! function_exists( 'jetpack_blog_display_custom_excerpt' ) ) {
 			remove_filter( 'the_content', 'jetpack_the_content_to_the_excerpt' );
 			$had_filter = true;
 		}
-		$result = apply_filters( 'the_excerpt', get_the_excerpt() );
-		if ( $had_filter ) {
-			add_filter( 'the_content', 'jetpack_the_content_to_the_excerpt' );
+		$result = '';
+		try {
+			$result = apply_filters( 'the_excerpt', get_the_excerpt() );
+		} finally {
+			if ( $had_filter ) {
+				add_filter( 'the_content', 'jetpack_the_content_to_the_excerpt' );
+			}
 		}
 		return $result;
 	}
