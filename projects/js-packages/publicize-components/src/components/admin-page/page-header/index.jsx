@@ -1,17 +1,12 @@
-import { getMyJetpackUrl, getScriptData } from '@automattic/jetpack-script-data';
+import { getMyJetpackUrl, isJetpackSelfHostedSite } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { hasSocialPaidFeatures } from '../../../utils';
 import Logo from './logo';
 import styles from './styles.module.scss';
 
-/**
- * @type {Array<import('@automattic/jetpack-script-data').AdminSiteData['host']>}
- */
-const HIDE_LICENSE_UI_FOR = [ 'woa', 'atomic', 'newspack', 'vip', 'wpcom' ];
-
 const AdminPageHeader = () => {
-	const showLicenceUi = ! HIDE_LICENSE_UI_FOR.includes( getScriptData().site.host );
+	const isJetpackSite = isJetpackSelfHostedSite();
 
 	return (
 		<div className={ styles.header }>
@@ -19,7 +14,7 @@ const AdminPageHeader = () => {
 				<Logo />
 			</span>
 
-			{ ! hasSocialPaidFeatures() && showLicenceUi && (
+			{ ! hasSocialPaidFeatures() && isJetpackSite && (
 				<p>
 					{ createInterpolateElement(
 						__(
