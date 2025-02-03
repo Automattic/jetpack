@@ -103,6 +103,7 @@ const LineChart: FC< LineChartProps > = ( {
 	showLegend = false,
 	legendOrientation = 'horizontal',
 	withGradientFill = false,
+	smoothing = true,
 	options = {},
 } ) => {
 	const providerTheme = useChartTheme();
@@ -192,7 +193,7 @@ const LineChart: FC< LineChartProps > = ( {
 								{ ...accessors }
 								fill={ withGradientFill ? `url(#area-gradient-${ index + 1 })` : undefined }
 								renderLine={ true }
-								curve={ curveNatural }
+								curve={ smoothing ? curveNatural : undefined }
 							/>
 						</g>
 					);
