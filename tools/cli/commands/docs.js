@@ -14,12 +14,12 @@ export function docsDefine( yargs ) {
 		yarg => {
 			yarg
 				.positional( 'path', {
-					describe: 'Path to a jetpack-production checkout folder',
+					describe: 'e.g. path to a jetpack-production folder',
 					type: 'string',
 					default: '.',
 				} )
 				.positional( 'dest', {
-					describe: 'Path to where the generated file should be saved',
+					describe: 'path to where the generated file should be saved',
 					type: 'string',
 					default: '.',
 				} );
