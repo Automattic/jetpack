@@ -156,7 +156,7 @@ const LineChart: FC< LineChartProps > = ( {
 				theme={ theme }
 				width={ width }
 				height={ height }
-				margin={ { top: 0, right: 0, bottom: 40, left: 0, ...margin } }
+				margin={ { top: 0, right: 0, bottom: 0, left: 0, ...margin } }
 				xScale={ { type: 'time', ...options?.xScale } }
 				yScale={ { type: 'linear', nice: true, zero: false, ...options?.yScale } }
 			>
