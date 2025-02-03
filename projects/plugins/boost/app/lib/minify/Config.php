@@ -52,7 +52,7 @@ class Config {
 			return false;
 		}
 
-		if ( ! static::ensure_dir_is_writable( $cache_dir ) ) {
+		if ( ! static::is_dir_writable( $cache_dir ) ) {
 			static::log_error(
 				sprintf(
 				/* translators: a filesystem path to a directory */
@@ -88,7 +88,7 @@ class Config {
 			return false;
 		}
 
-		if ( ! static::ensure_dir_is_writable( $cache_dir ) ) {
+		if ( ! static::is_dir_writable( $cache_dir ) ) {
 			static::log_error(
 				sprintf(
 				/* translators: a filesystem path to a directory */
@@ -117,7 +117,7 @@ class Config {
 	/**
 	 * Ensure a directory is writable.
 	 */
-	private static function ensure_dir_is_writable( string $dir ): bool {
+	private static function is_dir_writable( string $dir ): bool {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
 		if ( ! is_dir( $dir ) || ! is_writable( $dir ) || ! is_executable( $dir ) ) {
 			return false;
