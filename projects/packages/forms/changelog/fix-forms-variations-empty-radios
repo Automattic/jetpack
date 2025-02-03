@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: fix empty radio fields in form variations
