@@ -17,7 +17,6 @@ import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 
 interface LineChartProps extends BaseChartProps< SeriesData[] > {
-	margin?: { top: number; right: number; bottom: number; left: number };
 	withGradientFill: boolean;
 }
 
@@ -118,7 +117,7 @@ const LineChart: FC< LineChartProps > = ( {
 	margin = useMemo( () => {
 		// Auto-margin unless specified to make room for axis labels.
 		// Default margin is for bottom and left axis labels.
-		let defaultMargin = { top: 0, right: 0, bottom: 40, left: 40 };
+		let defaultMargin = {};
 		if ( options.axis?.y?.orientation === 'right' ) {
 			defaultMargin = { ...defaultMargin, right: 40, left: 0 };
 		}
@@ -157,7 +156,7 @@ const LineChart: FC< LineChartProps > = ( {
 				theme={ theme }
 				width={ width }
 				height={ height }
-				margin={ margin }
+				margin={ { top: 0, right: 0, bottom: 40, left: 0, ...margin } }
 				xScale={ { type: 'time', ...options?.xScale } }
 				yScale={ { type: 'linear', nice: true, zero: false, ...options?.yScale } }
 			>

@@ -1,6 +1,6 @@
 import { useParentSize } from '@visx/responsive';
 import { ComponentType } from 'react';
-import type { BaseChartProps } from '../../types';
+import type { BaseChartProps, Optional } from '../../types';
 
 type ResponsiveConfig = {
 	maxWidth?: number;
@@ -23,7 +23,7 @@ export function withResponsive< T extends BaseChartProps< unknown > >(
 ) {
 	const { maxWidth = 1200, aspectRatio = 0.5, debounceTime = 50 } = config || {};
 
-	return function ResponsiveChart( props: Omit< T, 'width' | 'height' | 'size' > ) {
+	return function ResponsiveChart( props: Optional< T, 'width' | 'height' | 'size' > ) {
 		const { parentRef, width: parentWidth } = useParentSize( {
 			debounceTime,
 			enableDebounceLeadingCall: true,
@@ -32,14 +32,13 @@ export function withResponsive< T extends BaseChartProps< unknown > >(
 
 		// Calculate dimensions
 		const containerWidth = parentWidth ? Math.min( parentWidth, maxWidth ) : 600;
-		const containerHeight = containerWidth * aspectRatio;
+		const containerHeight = props.height ?? containerWidth * aspectRatio;
 
 		return (
 			<div
 				ref={ parentRef }
 				style={ {
 					width: '100%',
-					minHeight: `${ containerHeight }px`,
 				} }
 			>
 				<WrappedComponent
