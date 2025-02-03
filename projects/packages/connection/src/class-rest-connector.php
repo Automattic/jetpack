@@ -994,7 +994,7 @@ class REST_Connector {
 
 		// Allow admins to force a disconnect by passing the "force" parameter
 		// This allows an admin to disconnect themselves
-		if ( isset( $request['force'] ) && false !== $request['force'] && current_user_can( 'manage_options' ) & ( new Manager( 'jetpack' ) )->disconnect_user_force( get_current_user_id() ) ) {
+		if ( isset( $request['force'] ) && false !== $request['force'] && current_user_can( 'manage_options' ) && ( new Manager( 'jetpack' ) )->disconnect_user_force( get_current_user_id() ) ) {
 			return rest_ensure_response(
 				array(
 					'code' => 'success',
