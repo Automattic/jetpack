@@ -38,24 +38,32 @@ $with_quotes = -1;
 if ( isset( $company_params['quotes'] ) ) {
 	$with_quotes = sanitize_text_field( $company_params['quotes'] );
 }
-$search_phrase = '';
-if ( isset( $company_params['search'] ) ) {
-	$search_phrase = sanitize_text_field( $company_params['search'] );
-}
 $with_transactions = -1;
 if ( isset( $company_params['transactions'] ) ) {
 	$with_transactions = sanitize_text_field( $company_params['transactions'] );
 }
+$search_phrase = '';
+if ( isset( $company_params['search'] ) ) {
+	$search_phrase = sanitize_text_field( $company_params['search'] );
+}
 
-// #FORMIKENOTES -
-// These should be Bools - see https://stackoverflow.com/questions/7336861/how-to-convert-string-to-boolean-php
 // ... this forces them from string of "true" or "false" into a bool
 $with_invoices     = $with_invoices === 'true' ? true : false;
 $with_quotes       = $with_quotes === 'true' ? true : false;
 $with_transactions = $with_transactions === 'true' ? true : false;
-$is_assigned       = false; // ??
 
-// needs moving to the $args version
-$companies = zeroBS_getCompanies( true, $items_per_page, $page_num, $with_invoices, $with_quotes, $search_phrase, $with_transactions, false, false, '', '', false, false, false, 'ID', 'DESC', false, $is_assigned );
+$args = array(
+	'perPage'          => $items_per_page,
+	'page'             => $page_num,
+	'searchPhrase'     => $search_phrase,
+	'withQuotes'       => $with_quotes,
+	'withInvoices'     => $with_invoices,
+	'withTransactions' => $with_transactions,
+	'sortByField'      => 'ID',
+	'sortOrder'        => 'DESC',
+);
+
+global $zbs;
+$companies = $zbs->DAL->companies->getCompanies( $args ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 wp_send_json( $companies );
