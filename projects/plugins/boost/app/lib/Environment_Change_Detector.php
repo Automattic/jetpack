@@ -66,7 +66,7 @@ class Environment_Change_Detector {
 	/**
 	 * Fire the environment change action.
 	 *
-	 * @param bool   $is_major_change Whether the change is major.
+	 * @param bool   $is_major_change Whether the change is such that we should stop serving existing critical CSS immediately unless refreshed.
 	 * @param string $change_type The change type.
 	 */
 	public function do_action( $is_major_change, $change_type ) {
