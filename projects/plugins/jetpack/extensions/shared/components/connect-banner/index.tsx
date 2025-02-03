@@ -2,11 +2,8 @@
  * External dependencies
  */
 import { useConnection } from '@automattic/jetpack-connection';
-import {
-	useAnalytics,
-	useAutosaveAndRedirect,
-	Nudge,
-} from '@automattic/jetpack-shared-extension-utils';
+import { useAnalytics, useAutosaveAndRedirect } from '@automattic/jetpack-shared-extension-utils';
+import { Nudge } from '@automattic/jetpack-shared-extension-utils/components';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect } from 'react';
 /*

@@ -1,7 +1,7 @@
 import {
 	ControlBackFiveIcon,
 	ControlForwardFiveIcon,
-} from '@automattic/jetpack-shared-extension-utils';
+} from '@automattic/jetpack-shared-extension-utils/icons';
 import { ToolbarGroup, ToolbarButton, ToolbarItem } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';

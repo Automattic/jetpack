@@ -8,12 +8,12 @@ import {
 	FeaturedImage,
 } from '@automattic/jetpack-ai-client';
 import {
-	JetpackEditorPanelLogo,
 	useAnalytics,
 	PLAN_TYPE_FREE,
 	PLAN_TYPE_UNLIMITED,
 	usePlanType,
 } from '@automattic/jetpack-shared-extension-utils';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { PanelBody, PanelRow, BaseControl, ExternalLink, Notice } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';

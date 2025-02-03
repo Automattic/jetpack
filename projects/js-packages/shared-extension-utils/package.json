@@ -55,6 +55,8 @@
 	},
 	"exports": {
 		".": "./index.js",
+		"./components": "./src/components/index.js",
+		"./icons": "./src/icons.js",
 		"./store/wordpress-com": "./src/store/wordpress-com/index.ts",
 		"./store/wordpress-com/types": "./src/store/wordpress-com/types.ts"
 	}

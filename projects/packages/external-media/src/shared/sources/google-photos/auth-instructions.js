@@ -1,4 +1,4 @@
-import { GooglePhotosLogo } from '@automattic/jetpack-shared-extension-utils';
+import { GooglePhotosLogo } from '@automattic/jetpack-shared-extension-utils/icons';
 import { Fragment, memo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';

@@ -1,4 +1,4 @@
-import { LoomIcon } from '@automattic/jetpack-shared-extension-utils';
+import { LoomIcon } from '@automattic/jetpack-shared-extension-utils/icons';
 import { registerBlockVariation } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 

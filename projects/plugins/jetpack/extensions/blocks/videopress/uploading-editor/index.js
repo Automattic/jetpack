@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { PlayIcon } from '@automattic/jetpack-shared-extension-utils';
+import { PlayIcon } from '@automattic/jetpack-shared-extension-utils/icons';
 /**
  * WordPress dependencies
  */

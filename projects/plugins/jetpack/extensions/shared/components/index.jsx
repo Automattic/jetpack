@@ -1,4 +1,4 @@
-import { Nudge } from '@automattic/jetpack-shared-extension-utils';
+import { Nudge } from '@automattic/jetpack-shared-extension-utils/components';
 import { renderToStaticMarkup } from 'react-dom/server';
 import {
 	UPGRADE_NUDGE_BUTTON_TEXT,

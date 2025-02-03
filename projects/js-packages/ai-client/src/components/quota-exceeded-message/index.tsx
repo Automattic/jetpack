@@ -2,11 +2,8 @@
  * External dependencies
  */
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
-import {
-	useAnalytics,
-	Nudge as StandardNudge,
-	canUserPurchasePlan,
-} from '@automattic/jetpack-shared-extension-utils';
+import { useAnalytics, canUserPurchasePlan } from '@automattic/jetpack-shared-extension-utils';
+import { Nudge as StandardNudge } from '@automattic/jetpack-shared-extension-utils/components';
 import { Notice } from '@wordpress/components';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';

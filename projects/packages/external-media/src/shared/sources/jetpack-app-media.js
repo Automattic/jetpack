@@ -1,5 +1,6 @@
 import { QRCode } from '@automattic/jetpack-components';
-import { useRefInterval, JetpackAppIcon } from '@automattic/jetpack-shared-extension-utils';
+import { useRefInterval } from '@automattic/jetpack-shared-extension-utils';
+import { JetpackAppIcon } from '@automattic/jetpack-shared-extension-utils/icons';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';

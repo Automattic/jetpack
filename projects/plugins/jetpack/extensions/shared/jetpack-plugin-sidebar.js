@@ -1,4 +1,4 @@
-import { JetpackLogo } from '@automattic/jetpack-shared-extension-utils';
+import { JetpackLogo } from '@automattic/jetpack-shared-extension-utils/icons';
 import { createSlotFill } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
 import domReady from '@wordpress/dom-ready';

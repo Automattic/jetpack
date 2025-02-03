@@ -1,7 +1,8 @@
 /*
  * External dependencies
  */
-import { useAutosaveAndRedirect, Nudge } from '@automattic/jetpack-shared-extension-utils';
+import { useAutosaveAndRedirect } from '@automattic/jetpack-shared-extension-utils';
+import { Nudge } from '@automattic/jetpack-shared-extension-utils/components';
 import { __ } from '@wordpress/i18n';
 
 const EnableJetpackSearchPrompt = () => {

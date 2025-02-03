@@ -1,4 +1,4 @@
-import { VideoPressIcon } from '@automattic/jetpack-shared-extension-utils';
+import { VideoPressIcon } from '@automattic/jetpack-shared-extension-utils/icons';
 import apiFetch from '@wordpress/api-fetch';
 import { isBlobURL } from '@wordpress/blob';
 import {

@@ -1,4 +1,5 @@
-import { getIconColor, InstagramIcon } from '@automattic/jetpack-shared-extension-utils';
+import { getIconColor } from '@automattic/jetpack-shared-extension-utils';
+import { InstagramIcon } from '@automattic/jetpack-shared-extension-utils/icons';
 import { addFilter } from '@wordpress/hooks';
 import { __, _x } from '@wordpress/i18n';
 import isActive from '../../shared/is-active';

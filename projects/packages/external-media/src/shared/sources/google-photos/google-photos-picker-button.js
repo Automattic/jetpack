@@ -1,4 +1,4 @@
-import { GooglePhotosMediaIcon } from '@automattic/jetpack-shared-extension-utils';
+import { GooglePhotosMediaIcon } from '@automattic/jetpack-shared-extension-utils/icons';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';

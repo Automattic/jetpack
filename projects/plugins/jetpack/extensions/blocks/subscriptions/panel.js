@@ -3,9 +3,9 @@ import {
 	getSiteFragment,
 	isComingSoon,
 	isPrivateSite,
-	JetpackEditorPanelLogo,
 	useAnalytics,
 } from '@automattic/jetpack-shared-extension-utils';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { Button, Notice, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import {
