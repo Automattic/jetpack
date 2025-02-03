@@ -56,7 +56,7 @@ function isFormEmpty( form ) {
 	);
 	const formData = new FormData( clonedForm );
 	return ! Array.from( formData.values() ).some( value =>
-		value instanceof File ? !! value.size : !! value.trim?.()
+		value instanceof File ? !! value.size : !! value?.trim?.()
 	);
 }
 
