@@ -130,7 +130,7 @@ const getUserConnectionLineData: getUserConnectionLineDataType = ( {
 	handleConnectUser,
 } ) => {
 	if (
-		! userConnectionData.currentUser?.permission?.manage_options &&
+		! userConnectionData.currentUser?.permissions?.manage_options &&
 		! isUserConnected &&
 		! hasConnectedOwner
 	) {
