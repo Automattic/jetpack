@@ -7,7 +7,7 @@ const ThreatSeverityBadge = ( { severity, showLabel = false } ) => {
 	const variant = getSeverityVariant( severity );
 
 	return (
-		<Badge variant={ variant }>
+		<Badge variant={ variant !== 'info' ? variant : undefined }>
 			{ showLabel
 				? sprintf(
 						// translators: placeholder is the severity title, i.e. "Critical Severity".
