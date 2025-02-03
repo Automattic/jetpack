@@ -109,7 +109,7 @@ class Password_Manager {
 			return;
 		}
 
-		// No nonce verification necessary as the actions hook in after a robust verification process
+		// No nonce verification necessary as the action hooks in after a robust verification process
 		// phpcs:disable WordPress.Security.NonceVerification
 		if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
 			$password = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );
@@ -138,15 +138,13 @@ class Password_Manager {
 	 * @return void
 	 */
 	public function on_profile_update( int $user_id, \WP_User $old_user_data, array $userdata ): void {
-		// TODO: Need to verify this is working... seems to happen on reset link send!
-		if ( ! $this->verify_profile_update_nonce( $user_id ) ) {
-			error_log( "Nonce verification failed for profile update: User ID {$user_id}" );
-			return;
+		if ( isset( $_POST['action'] ) && $_POST['action'] === 'update' ) {
+			if ( $this->verify_profile_update_nonce( $user_id ) ) {
+				if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
+					$this->save_recent_password( $user_id, $old_user_data->user_pass );
+				}
+			}
 		}
-
-		$this->save_recent_password( $user_id, $old_user_data->user_pass );
-
-		// TODO: Do something if save fails?
 	}
 
 	/**
@@ -156,11 +154,7 @@ class Password_Manager {
 	 * @param string   $new_password The new password.
 	 */
 	public function on_password_reset( $user, $new_password ) {
-		// TODO: Need to verify this is working...
-		error_log( 'on_password_reset' );
-
 		$this->save_recent_password( $user->ID, $user->user_pass );
-		// TODO: Do something if save fails?
 	}
 
 	/**

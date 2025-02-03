@@ -167,7 +167,6 @@ class Validation_Service {
 
 		$user_data = array(
 			$user->user_login,
-			$user->user_nicename,
 			$user->display_name,
 			$user->first_name,
 			$user->last_name,
