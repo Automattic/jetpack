@@ -39,6 +39,12 @@ button.components-button.is-secondary {
     }
 }
 
+div.dataviews-filters__search-widget-listitem {
+    span {
+        text-transform: capitalize;
+    }
+}
+
 div.components-base-control__field {
     margin-bottom: 0;
 }

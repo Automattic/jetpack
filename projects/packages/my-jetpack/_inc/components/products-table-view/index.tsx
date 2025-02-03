@@ -87,7 +87,7 @@ const getCategories: (
 
 	const categoryOptions = categories.map( category => ( {
 		value: category,
-		label: category.charAt( 0 ).toUpperCase() + category.slice( 1 ),
+		label: category,
 	} ) );
 
 	return categoryOptions;
