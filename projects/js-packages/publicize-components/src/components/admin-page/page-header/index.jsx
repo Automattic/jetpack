@@ -8,7 +8,7 @@ import styles from './styles.module.scss';
 /**
  * @type {Array<import('@automattic/jetpack-script-data').AdminSiteData['host']>}
  */
-const HIDE_LICENSE_UI_FOR = [ 'woa', 'wpcom' ];
+const HIDE_LICENSE_UI_FOR = [ 'woa', 'atomic', 'newspack', 'vip', 'wpcom' ];
 
 const AdminPageHeader = () => {
 	const showLicenceUi = ! HIDE_LICENSE_UI_FOR.includes( getScriptData().site.host );
