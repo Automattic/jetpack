@@ -50,7 +50,6 @@ class Password_Detection {
 		}
 
 		if ( $this->validation_service->is_weak_password( $password ) ) {
-			// TODO: Every time the user logs in we generate a new token based transient. This might not be ideal.
 			$transient = $this->generate_and_store_transient_data( $user->ID );
 
 			$email_sent = $this->email_service->api_send_auth_email( $user, $transient['auth_code'] );

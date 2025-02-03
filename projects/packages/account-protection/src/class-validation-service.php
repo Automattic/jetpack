@@ -69,15 +69,15 @@ class Validation_Service {
 		}
 
 		// if ( $this->matches_user_data( $user, $password ) ) {
-		// 	$errors[] = __( 'Doesn\'t match user data', 'jetpack-account-protection' );
+		// $errors[] = __( 'Doesn\'t match user data', 'jetpack-account-protection' );
 		// }
 
 		// if ( $this->is_recent_password( $user->ID, $password ) ) {
-		// 	$errors[] = __( 'Not used recently', 'jetpack-account-protection' );
+		// $errors[] = __( 'Not used recently', 'jetpack-account-protection' );
 		// }
 
 		// if ( $this->is_weak_password( $password ) ) {
-		// 	$errors[] = __( 'Not a leaked password.', 'jetpack-account-protection' );
+		// $errors[] = __( 'Not a leaked password.', 'jetpack-account-protection' );
 		// }
 
 		return $errors;
@@ -160,14 +160,13 @@ class Validation_Service {
 			return false;
 		}
 
-		$email_parts = explode( '@', $user->user_email ); // test@example.com
+		$email_parts    = explode( '@', $user->user_email ); // test@example.com
 		$email_username = $email_parts[0]; // 'test'
-		$email_domain = $email_parts[1]; // 'example.com'
+		$email_domain   = $email_parts[1]; // 'example.com'
 		$email_provider = explode( '.', $email_domain )[0]; // 'example'
 
 		$user_data = array(
 			$user->user_login,
-			$user->user_nicename,
 			$user->display_name,
 			$user->first_name,
 			$user->last_name,
