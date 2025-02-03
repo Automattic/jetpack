@@ -81,10 +81,8 @@ class Util {
 						<!-- wp:jetpack/field-name {"required":true} /-->
 						<!-- wp:jetpack/field-email {"required":true} /-->
 						<!-- wp:jetpack/field-radio {"label":"Attending?","required":true,"options":["Yes","No"]} /-->
-						<div class="wp-block-jetpack-field-radio">
-						<!-- wp:jetpack/field-option-radio {"label":"Yes"} /-->
-						<!-- wp:jetpack/field-option-radio {"label":"No"} /-->
-						</div>
+						<div class="wp-block-jetpack-field-radio"><!-- wp:jetpack/field-option-radio {"label":"Yes"} /-->
+						<!-- wp:jetpack/field-option-radio {"label":"No"} /--></div>
 						<!-- /wp:jetpack/field-radio -->
 						<!-- wp:jetpack/field-textarea {"label":"Other Details"} /-->
 						<!-- wp:jetpack/button {"element":"button","text":"Send RSVP","lock":{"remove":true}} /-->
@@ -117,10 +115,8 @@ class Util {
 						<!-- wp:jetpack/field-telephone {"required":true} /-->
 						<!-- wp:jetpack/field-date {"label":"Date","required":true} /-->
 						<!-- wp:jetpack/field-radio {"label":"Time","required":true,"options":["Morning","Afternoon"]} /-->
-						<div class="wp-block-jetpack-field-radio">
-						<!-- wp:jetpack/field-option-radio {"label":"Morning"} /-->
-						<!-- wp:jetpack/field-option-radio {"label":"Afternoon"} /-->
-						</div>
+						<div class="wp-block-jetpack-field-radio"><!-- wp:jetpack/field-option-radio {"label":"Morning"} /-->
+						<!-- wp:jetpack/field-option-radio {"label":"Afternoon"} /--></div>
 						<!-- /wp:jetpack/field-radio -->
 						<!-- wp:jetpack/field-textarea {"label":"Notes"} /-->
 						<!-- wp:jetpack/button {"element":"button","text":"Book Appointment","lock":{"remove":true}} /-->
@@ -136,13 +132,11 @@ class Util {
 						<!-- wp:jetpack/field-name {"required":true} /-->
 						<!-- wp:jetpack/field-email {"required":true} /-->
 						<!-- wp:jetpack/field-radio {"label":"Please rate our website","required":true,"options":["1 - Very bad","2 - Poor","3 - Average","4 - Good","5 - Excellent"]} -->
-						<div class="wp-block-jetpack-field-radio">
-						<!-- wp:jetpack/field-option-radio {"label":"1 - Very bad"} /-->
+						<div class="wp-block-jetpack-field-radio"><!-- wp:jetpack/field-option-radio {"label":"1 - Very bad"} /-->
 						<!-- wp:jetpack/field-option-radio {"label":"2 - Poor"} /-->
 						<!-- wp:jetpack/field-option-radio {"label":"3 - Average"} /-->
 						<!-- wp:jetpack/field-option-radio {"label":"4 - Good"} /-->
-						<!-- wp:jetpack/field-option-radio {"label":"5 - Excellent"} /-->
-						</div>
+						<!-- wp:jetpack/field-option-radio {"label":"5 - Excellent"} /--></div>
 						<!-- /wp:jetpack/field-radio -->
 						<!-- wp:jetpack/field-textarea {"label":"How could we improve?"} /-->
 						<!-- wp:jetpack/button {"element":"button","text":"Send Feedback","lock":{"remove":true}} /-->
