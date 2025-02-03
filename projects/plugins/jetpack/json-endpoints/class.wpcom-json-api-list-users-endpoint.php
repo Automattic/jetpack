@@ -190,7 +190,7 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$wp_viewer = new WP_User( $viewer->ID );
 					// remove special database search characters from search term
 					$search_term = str_replace( '*', '', $args['search'] );
-					return ( strpos( $wp_viewer->user_login, $search_term ) !== false || strpos( $wp_viewer->user_email, $search_term ) !== false );
+					return ( strpos( $wp_viewer->user_login, $search_term ) !== false || strpos( $wp_viewer->user_email, $search_term ) !== false || strpos( $wp_viewer->display_name, $search_term ) !== false );
 				}
 			);
 		}
