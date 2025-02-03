@@ -51,85 +51,103 @@ class Util {
 				'blockTypes' => array( 'jetpack/contact-form' ),
 				'categories' => array( $category_slug ),
 				'content'    => '<!-- wp:jetpack/contact-form {"style":{"spacing":{"padding":{"top":"16px","right":"16px","bottom":"16px","left":"16px"}}}} -->
-                    <div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
-                        <!-- wp:jetpack/field-name {"required":true} /-->
-                        <!-- wp:jetpack/field-email {"required":true} /-->
-                        <!-- wp:jetpack/field-textarea /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Contact Us","lock":{"remove":true}} /-->
-                    </div>
-                    <!-- /wp:jetpack/contact-form -->',
+					<div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
+						<!-- wp:jetpack/field-name {"required":true} /-->
+						<!-- wp:jetpack/field-email {"required":true} /-->
+						<!-- wp:jetpack/field-textarea /-->
+						<!-- wp:jetpack/button {"element":"button","text":"Contact Us","lock":{"remove":true}} /-->
+					</div>
+					<!-- /wp:jetpack/contact-form -->',
 			),
 			'newsletter-form'   => array(
 				'title'      => __( 'Lead Capture Form', 'jetpack-forms' ),
 				'blockTypes' => array( 'jetpack/contact-form' ),
 				'categories' => array( $category_slug ),
 				'content'    => '<!-- wp:jetpack/contact-form {"style":{"spacing":{"padding":{"top":"16px","right":"16px","bottom":"16px","left":"16px"}}}} -->
-                    <div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
-                        <!-- wp:jetpack/field-name {"required":true} /-->
-                        <!-- wp:jetpack/field-email {"required":true} /-->
-                        <!-- wp:jetpack/field-consent /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Subscribe","lock":{"remove":true}} /-->
-                    </div>
-                    <!-- /wp:jetpack/contact-form -->',
+					<div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
+						<!-- wp:jetpack/field-name {"required":true} /-->
+						<!-- wp:jetpack/field-email {"required":true} /-->
+						<!-- wp:jetpack/field-consent /-->
+						<!-- wp:jetpack/button {"element":"button","text":"Subscribe","lock":{"remove":true}} /-->
+					</div>
+					<!-- /wp:jetpack/contact-form -->',
 			),
 			'rsvp-form'         => array(
 				'title'      => __( 'RSVP Form', 'jetpack-forms' ),
 				'blockTypes' => array( 'jetpack/contact-form' ),
 				'categories' => array( $category_slug ),
 				'content'    => '<!-- wp:jetpack/contact-form {"subject":"A new RSVP from your website","style":{"spacing":{"padding":{"top":"16px","right":"16px","bottom":"16px","left":"16px"}}}} -->
-                    <div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
-                        <!-- wp:jetpack/field-name {"required":true} /-->
-                        <!-- wp:jetpack/field-email {"required":true} /-->
-                        <!-- wp:jetpack/field-radio {"label":"Attending?","required":true,"options":["Yes","No"]} /-->
-                        <!-- wp:jetpack/field-textarea {"label":"Other Details"} /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Send RSVP","lock":{"remove":true}} /-->
-                    </div>
-                    <!-- /wp:jetpack/contact-form -->',
+					<div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
+						<!-- wp:jetpack/field-name {"required":true} /-->
+						<!-- wp:jetpack/field-email {"required":true} /-->
+						<!-- wp:jetpack/field-radio {"label":"Attending?","required":true,"options":["Yes","No"]} /-->
+						<div class="wp-block-jetpack-field-radio">
+						<!-- wp:jetpack/field-option-radio {"label":"Yes"} /-->
+						<!-- wp:jetpack/field-option-radio {"label":"No"} /-->
+						</div>
+						<!-- /wp:jetpack/field-radio -->
+						<!-- wp:jetpack/field-textarea {"label":"Other Details"} /-->
+						<!-- wp:jetpack/button {"element":"button","text":"Send RSVP","lock":{"remove":true}} /-->
+					</div>
+					<!-- /wp:jetpack/contact-form -->',
 			),
 			'registration-form' => array(
 				'title'      => __( 'Registration Form', 'jetpack-forms' ),
 				'blockTypes' => array( 'jetpack/contact-form' ),
 				'categories' => array( $category_slug ),
 				'content'    => '<!-- wp:jetpack/contact-form {"subject":"A new registration from your website","style":{"spacing":{"padding":{"top":"16px","right":"16px","bottom":"16px","left":"16px"}}}} -->
-                    <div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
-                        <!-- wp:jetpack/field-name {"required":true} /-->
-                        <!-- wp:jetpack/field-email {"required":true} /-->
-                        <!-- wp:jetpack/field-telephone {"label":"Phone Number"} /-->
-                        <!-- wp:jetpack/field-select {"label":"How did you hear about us?","options":["Search Engine","Social Media","TV","Radio","Friend or Family"]} /-->
-                        <!-- wp:jetpack/field-textarea {"label":"Other Details"} /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Send","lock":{"remove":true}} /-->
-                    </div>
-                    <!-- /wp:jetpack/contact-form -->',
+					<div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
+						<!-- wp:jetpack/field-name {"required":true} /-->
+						<!-- wp:jetpack/field-email {"required":true} /-->
+						<!-- wp:jetpack/field-telephone {"label":"Phone Number"} /-->
+						<!-- wp:jetpack/field-select {"label":"How did you hear about us?","options":["Search Engine","Social Media","TV","Radio","Friend or Family"]} /-->
+						<!-- wp:jetpack/field-textarea {"label":"Other Details"} /-->
+						<!-- wp:jetpack/button {"element":"button","text":"Send","lock":{"remove":true}} /-->
+					</div>
+					<!-- /wp:jetpack/contact-form -->',
 			),
 			'appointment-form'  => array(
 				'title'      => __( 'Appointment Form', 'jetpack-forms' ),
 				'blockTypes' => array( 'jetpack/contact-form' ),
 				'categories' => array( $category_slug ),
 				'content'    => '<!-- wp:jetpack/contact-form {"subject":"A new appointment booked from your website","style":{"spacing":{"padding":{"top":"16px","right":"16px","bottom":"16px","left":"16px"}}}} -->
-                    <div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
-                        <!-- wp:jetpack/field-name {"required":true} /-->
-                        <!-- wp:jetpack/field-email {"required":true} /-->
-                        <!-- wp:jetpack/field-telephone {"required":true} /-->
-                        <!-- wp:jetpack/field-date {"label":"Date","required":true} /-->
-                        <!-- wp:jetpack/field-radio {"label":"Time","required":true,"options":["Morning","Afternoon"]} /-->
-                        <!-- wp:jetpack/field-textarea {"label":"Notes"} /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Book Appointment","lock":{"remove":true}} /-->
-                    </div>
-                    <!-- /wp:jetpack/contact-form -->',
+					<div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
+						<!-- wp:jetpack/field-name {"required":true} /-->
+						<!-- wp:jetpack/field-email {"required":true} /-->
+						<!-- wp:jetpack/field-telephone {"required":true} /-->
+						<!-- wp:jetpack/field-date {"label":"Date","required":true} /-->
+						<!-- wp:jetpack/field-radio {"label":"Time","required":true,"options":["Morning","Afternoon"]} /-->
+						<div class="wp-block-jetpack-field-radio">
+						<!-- wp:jetpack/field-option-radio {"label":"Morning"} /-->
+						<!-- wp:jetpack/field-option-radio {"label":"Afternoon"} /-->
+						</div>
+						<!-- /wp:jetpack/field-radio -->
+						<!-- wp:jetpack/field-textarea {"label":"Notes"} /-->
+						<!-- wp:jetpack/button {"element":"button","text":"Book Appointment","lock":{"remove":true}} /-->
+					</div>
+					<!-- /wp:jetpack/contact-form -->',
 			),
 			'feedback-form'     => array(
 				'title'      => __( 'Feedback Form', 'jetpack-forms' ),
 				'blockTypes' => array( 'jetpack/contact-form' ),
 				'categories' => array( $category_slug ),
 				'content'    => '<!-- wp:jetpack/contact-form {"subject":"New feedback received from your website","style":{"spacing":{"padding":{"top":"16px","right":"16px","bottom":"16px","left":"16px"}}}} -->
-                    <div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
-                        <!-- wp:jetpack/field-name {"required":true} /-->
-                        <!-- wp:jetpack/field-email {"required":true} /-->
-                        <!-- wp:jetpack/field-radio {"label":"Please rate our website","required":true,"options":["1 - Very Bad","2 - Poor","3 - Average","4 - Good","5 - Excellent"]} /-->
-                        <!-- wp:jetpack/field-textarea {"label":"How could we improve?"} /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Send Feedback","lock":{"remove":true}} /-->
-                    </div>
-                    <!-- /wp:jetpack/contact-form -->',
+					<div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
+						<!-- wp:jetpack/field-name {"required":true} /-->
+						<!-- wp:jetpack/field-email {"required":true} /-->
+						<!-- wp:jetpack/field-radio {"label":"Please rate our website","required":true,"options":["1 - Very bad","2 - Poor","3 - Average","4 - Good","5 - Excellent"]} -->
+						<div class="wp-block-jetpack-field-radio">
+						<!-- wp:jetpack/field-option-radio {"label":"1 - Very bad"} /-->
+						<!-- wp:jetpack/field-option-radio {"label":"2 - Poor"} /-->
+						<!-- wp:jetpack/field-option-radio {"label":"3 - Average"} /-->
+						<!-- wp:jetpack/field-option-radio {"label":"4 - Good"} /-->
+						<!-- wp:jetpack/field-option-radio {"label":"5 - Excellent"} /-->
+						</div>
+						<!-- /wp:jetpack/field-radio -->
+						<!-- wp:jetpack/field-textarea {"label":"How could we improve?"} /-->
+						<!-- wp:jetpack/button {"element":"button","text":"Send Feedback","lock":{"remove":true}} /-->
+					</div>
+					<!-- /wp:jetpack/contact-form -->',
 			),
 		);
 
