@@ -86,7 +86,7 @@ declare type AxisOptions = {
 	axisLineClassName?: string;
 	labelClassName?: string;
 	tickClassName?: string;
-	tickFormat?: ( value: Date | number ) => string;
+	tickFormat?: ( value: number ) => string;
 };
 
 /**
