@@ -210,17 +210,21 @@ class Validation_Service_Test extends BaseTestCase {
 		$user->user_email = 'example@wordpress.com';
 
 		$validation_service = new Validation_Service( $this->get_connection_manager() );
-		$this->assertTrue( $validation_service->matches_user_data( $user, 'wordpress' ) );
+		$this->assertTrue( $validation_service->matches_user_data( $user, 'WordPress' ) );
 	}
 
 	public function test_returns_false_if_password_is_too_short() {
+		$short_password = 'short';
+
 		$validation_service = new Validation_Service( $this->get_connection_manager() );
-		$this->assertTrue( $validation_service->is_invalid_length( 'short' ) );
+		$this->assertTrue( $validation_service->is_invalid_length( $short_password ) );
 	}
 
 	public function test_returns_false_if_password_is_too_long() {
+		$long_password = str_repeat( 'a', 151 );
+
 		$validation_service = new Validation_Service( $this->get_connection_manager() );
-		$this->assertTrue( $validation_service->is_invalid_length( $string = str_repeat( 'a', 151 ) ) );
+		$this->assertTrue( $validation_service->is_invalid_length( $long_password ) );
 	}
 
 	public function test_returns_true_if_password_contains_backslash() {
