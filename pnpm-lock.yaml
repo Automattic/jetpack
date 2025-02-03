@@ -2817,8 +2817,8 @@ importers:
   projects/packages/post-list:
     dependencies:
       '@wordpress/i18n':
-        specifier: 5.16.0
-        version: 5.16.0
+        specifier: 5.17.0
+        version: 5.17.0
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
