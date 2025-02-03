@@ -18,7 +18,7 @@ use Automattic\Jetpack\Status\Host;
  * The setting is displayed only if the has the wp-admin interface selected.
  */
 function wpcomsh_wpcom_admin_interface_settings_field() {
-	add_settings_field( 'wpcom_admin_interface', '', 'wpcom_admin_interface_display', 'general', 'default' );
+	add_settings_field( 'wpcom_admin_interface', __( 'Admin Interface Style', 'jetpack-mu-wpcom' ), 'wpcom_admin_interface_display', 'general', 'default' );
 
 	register_setting( 'general', 'wpcom_admin_interface', array( 'sanitize_callback' => 'esc_attr' ) );
 }
@@ -29,7 +29,6 @@ function wpcomsh_wpcom_admin_interface_settings_field() {
 function wpcom_admin_interface_display() {
 	$value = get_option( 'wpcom_admin_interface' );
 
-	echo '<tr valign="top"><th scope="row"><label for="wpcom_admin_interface">' . esc_html__( 'Admin Interface Style', 'jetpack-mu-wpcom' ) . '</label></th><td>';
 	echo '<fieldset>';
 	echo '<label><input type="radio" name="wpcom_admin_interface" value="wp-admin" ' . checked( 'wp-admin', $value, false ) . '/> <span>' . esc_html__( 'Classic style', 'jetpack-mu-wpcom' ) . '</span></label><p>' . esc_html__( 'Use WP-Admin to manage your site.', 'jetpack-mu-wpcom' ) . '</p><br>';
 	echo '<label><input type="radio" name="wpcom_admin_interface" value="calypso" ' . checked( 'calypso', $value, false ) . '/> <span>' . esc_html__( 'Default style', 'jetpack-mu-wpcom' ) . '</span></label><p>' . esc_html__( 'Use WordPress.com’s native dashboard to manage your site.', 'jetpack-mu-wpcom' ) . '</p><br>';
