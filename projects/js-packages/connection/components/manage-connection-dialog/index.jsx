@@ -108,6 +108,9 @@ const ManageConnectionDialog = props => {
 		return isDisconnectingUser;
 	}, [ isDisconnectingUser ] );
 
+	// This is silly, but it's an optimizer workaround
+	const disconnectingText = __( 'Disconnecting…', 'jetpack-connection-js' );
+
 	return (
 		<>
 			{ isOpen && (
@@ -146,7 +149,7 @@ const ManageConnectionDialog = props => {
 								<ManageConnectionActionCard
 									title={
 										isDisconnectingUser
-											? __( 'Disconnecting…', 'jetpack-connection-js' )
+											? disconnectingText
 											: __( 'Disconnect my user account', 'jetpack-connection-js' )
 									}
 									onClick={ handleDisconnectUser }
