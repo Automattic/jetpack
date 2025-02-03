@@ -49,7 +49,10 @@ function wpcom_site_management_panel_link() {
  * Add the link to the Site Management Panel on WordPress.com to the general settings page.
  */
 function wpcom_site_management_panel() {
-	add_settings_field( 'wpcom_site_management_panel_link', '', 'wpcom_site_management_panel_link', 'general', 'default' );
+	$current_screen = wpcom_admin_get_current_screen();
+	if ( in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) && wpcom_is_duplicate_views_experiment_enabled() ) {
+		add_settings_field( 'wpcom_site_management_panel_link', __( 'WordPress.com Site Settings', 'jetpack-mu-wpcom' ), 'wpcom_site_management_panel_link', 'general', 'default' );
+	}
 }
 add_action( 'load-options-general.php', 'wpcom_site_management_panel' );
 
