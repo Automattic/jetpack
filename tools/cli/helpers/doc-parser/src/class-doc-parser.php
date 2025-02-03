@@ -409,7 +409,7 @@ class Doc_Parser {
 			$result = '';
 
 			$parts = $value->parts;
-			'@phan-var array<string,Node\InterpolatedStringPart> $parts';
+			'@phan-var (Expr|Node\InterpolatedStringPart)[] $parts';
 
 			foreach ( $parts as $part ) {
 				if ( $part instanceof Node\InterpolatedStringPart ) {
