@@ -685,6 +685,8 @@ class Test_REST_Endpoints extends TestCase {
 		$this->assertSame( 'success', $response_data['code'] );
 	}
 
+	// TODO: Add tests for user unlinking
+
 	/**
 	 * Test data for test_get_user_connection_data_route_is_registered_with_jp_version
 	 *
