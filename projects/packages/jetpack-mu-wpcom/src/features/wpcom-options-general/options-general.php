@@ -40,6 +40,32 @@ function wpcom_fiverr() {
 add_action( 'load-options-general.php', 'wpcom_fiverr' );
 
 /**
+ * DOM for the link to the Site Management Panel on WordPress.com.
+ */
+function wpcom_site_management_panel_link() {
+	?>
+	<tr class="wpcom-site-management-panel-link">
+		<th>
+			<?php esc_html_e( 'Site Management Panel', 'jetpack-mu-wpcom' ); ?>
+		</th>
+		<td>
+			<a href="https://wordpress.com/sites/<?php echo esc_attr( wpcom_get_site_slug() ); ?>">
+				<?php esc_html_e( 'Manage your WordPress.com site settings, including site visibility, and more.', 'jetpack-mu-wpcom' ); ?>
+			</a>
+		</td>
+	</tr>
+	<?php
+}
+
+/**
+ * Add the link to the Site Management Panel on WordPress.com to the general settings page.
+ */
+function wpcom_site_management_panel() {
+	add_settings_field( 'wpcom_site_management_panel_link', '', 'wpcom_site_management_panel_link', 'general', 'default' );
+}
+add_action( 'load-options-general.php', 'wpcom_site_management_panel' );
+
+/**
  * Display the site URL in General Settings on Simple Classic sites.
  */
 function wpcom_enqueue_options_general_assets() {
