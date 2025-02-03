@@ -6,6 +6,7 @@ use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
+use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
@@ -24,6 +25,9 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 
 	/** A post was updated/created. */
 	const REGENERATE_REASON_SAVE_POST = 'save_post';
+
+	/** A cornerstone page or the list of cornerstone pages was updated. */
+	const REGENERATE_REASON_CORNERSTONE_UPDATE = 'cornerstone_update';
 
 	/** Existing critical CSS invalidated because of a significant change, e.g. Theme changed. */
 	const REGENERATE_REASON_INVALIDATED = 'invalidated';
@@ -161,6 +165,11 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 	 */
 	public function handle_save_post( $post_id, $post ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( ! $post || ! isset( $post->post_type ) || ! is_post_publicly_viewable( $post ) ) {
+			return;
+		}
+
+		if ( Cornerstone_Utils::is_cornerstone_page( $post_id ) ) {
+			$this->regenerate_cloud_css( self::REGENERATE_REASON_CORNERSTONE_UPDATE, $this->get_all_providers() );
 			return;
 		}
 
