@@ -1,4 +1,4 @@
-import IndeterminateProgressBar from '..';
+import IndeterminateProgressBar from '../index.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
 export default {

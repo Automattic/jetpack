@@ -1,6 +1,6 @@
 import React from 'react';
-import Dialog from '..';
 import ProductOffer from '../../product-offer';
+import Dialog from '../index.js';
 import BoostImage from './boost.png';
 
 export default {

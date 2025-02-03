@@ -10,7 +10,7 @@ import React, { forwardRef } from 'react';
  * Internal dependencies
  */
 import styles from './style.module.scss';
-import type { ButtonProps } from './types';
+import type { ButtonProps } from './types.js';
 
 /**
  * Button component
@@ -88,6 +88,6 @@ const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
 		</WPButton>
 	);
 } );
-Button.displayName = 'Button';
+Button.displayName = 'button';
 
 export default Button;

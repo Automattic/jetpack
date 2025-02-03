@@ -75,6 +75,7 @@
 		".": "./index.ts",
 		"./tools/jp-redirect": "./tools/jp-redirect/index.ts"
 	},
+	"main": "./build/index.js",
 	"sideEffects": [
 		"*.css",
 		"*.scss"

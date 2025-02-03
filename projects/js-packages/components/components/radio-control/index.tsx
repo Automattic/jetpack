@@ -2,7 +2,7 @@ import { RadioControl as WPRadioControl } from '@wordpress/components';
 import clsx from 'clsx';
 import styles from './styles.module.scss';
 
-interface RadioControlProps {
+export interface RadioControlProps {
 	/** The current value. */
 	selected: string;
 
