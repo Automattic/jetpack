@@ -16,7 +16,7 @@ class Config {
 	/**
 	 * Get the directory path for storing cache files.
 	 */
-	public static function get_cache_dir_path(): string {
+	public static function get_cache_dir_path(): string|false {
 		if ( defined( 'PAGE_OPTIMIZE_CACHE_DIR' ) ) {
 			if ( empty( \PAGE_OPTIMIZE_CACHE_DIR ) ) {
 				return false;
