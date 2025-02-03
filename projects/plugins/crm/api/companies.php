@@ -46,6 +46,10 @@ $search_phrase = '';
 if ( isset( $company_params['search'] ) ) {
 	$search_phrase = sanitize_text_field( $company_params['search'] );
 }
+$owned_by = -1;
+if ( isset( $company_params['owned'] ) ) {
+	$owned_by = (int) $company_params['owned'];
+}
 
 // ... this forces them from string of "true" or "false" into a bool
 $with_invoices     = $with_invoices === 'true' ? true : false;
@@ -56,6 +60,7 @@ $args = array(
 	'perPage'          => $items_per_page,
 	'page'             => $page_num,
 	'searchPhrase'     => $search_phrase,
+	'ownedBy'          => $owned_by,
 	'withQuotes'       => $with_quotes,
 	'withInvoices'     => $with_invoices,
 	'withTransactions' => $with_transactions,
