@@ -19,6 +19,7 @@ import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	margin?: { top: number; right: number; bottom: number; left: number };
 	withGradientFill: boolean;
+	smoothing?: boolean;
 }
 
 type TooltipData = {
