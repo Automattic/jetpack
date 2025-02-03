@@ -2000,7 +2000,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/post-list",
-				"reference": "ac564239b69dc4fddeeebc05ba9e62bd029cdabc"
+				"reference": "767b62df31802e14760b2ff5351dd28412e87fd4"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
