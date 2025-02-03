@@ -7,7 +7,11 @@ import {
 	GlobalNotices,
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { isAtomicSite, isSimpleSite, siteHasFeature } from '@automattic/jetpack-script-data';
+import {
+	isJetpackSelfHostedSite,
+	isSimpleSite,
+	siteHasFeature,
+} from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
@@ -26,7 +30,8 @@ import UtmToggle from './toggles/utm-toggle';
 
 export const SocialAdminPage = () => {
 	const isSimple = isSimpleSite();
-	const isAtomic = isAtomicSite();
+
+	const isJetpackSite = isJetpackSelfHostedSite();
 
 	const { isUserConnected, isRegistered } = useConnection();
 	const showConnectionCard = ! isSimple && ( ! isRegistered || ! isUserConnected );
@@ -63,9 +68,13 @@ export const SocialAdminPage = () => {
 	}
 
 	return (
-		<AdminPage moduleName={ moduleName } header={ <AdminPageHeader /> } showFooter={ ! is_wpcom }>
+		<AdminPage
+			moduleName={ moduleName }
+			header={ <AdminPageHeader /> }
+			showFooter={ isJetpackSite }
+		>
 			<GlobalNotices />
-			{ ( ! isSimple && ! isAtomic && ! hasSocialPaidFeatures() && showPricingPage ) ||
+			{ ( isJetpackSite && ! hasSocialPaidFeatures() && showPricingPage ) ||
 			forceDisplayPricingPage ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
