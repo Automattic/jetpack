@@ -662,6 +662,17 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
 			},
 		),
+		'add_first_subscribers'           => array(
+			'get_title'            => function () {
+				return __( 'Add your first subscribers', 'jetpack-mu-wpcom' );
+			},
+			'id_map'               => 'subscribers_added',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
+			},
+		),
 		'add_subscribe_block'             => array(
 			'get_title'            => function () {
 				return __( 'Add the Subscribe Block to your site', 'jetpack-mu-wpcom' );

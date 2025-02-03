@@ -136,7 +136,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'setup_write',
 				'design_completed',
 				'plan_selected',
-				'enable_subscribers_modal',
+				'add_first_subscribers',
 				'first_post_published',
 				'site_launched',
 			),
