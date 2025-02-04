@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { Button, getRedirectUrl, Text } from '@automattic/jetpack-components';
 import { ExternalLink, Modal } from '@wordpress/components';
@@ -99,9 +100,13 @@ const ManageConnectionDialog = props => {
 	const handleDisconnectUser = useCallback(
 		e => {
 			e && e.preventDefault();
+			jetpackAnalytics.tracks.recordEvent(
+				'jetpack_manage_connection_dialog_disconnect_user_click',
+				{ context: context }
+			);
 			_disconnectUser();
 		},
-		[ _disconnectUser ]
+		[ _disconnectUser, context ]
 	);
 
 	const isControlsDisabled = useMemo( () => {
