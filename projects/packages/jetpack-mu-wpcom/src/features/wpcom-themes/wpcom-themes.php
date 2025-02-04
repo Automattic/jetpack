@@ -242,17 +242,14 @@ add_action( 'wp_ajax_save-wporg-username', 'wpcom_themes_ajax_save_wporg_usernam
  * @return object The theme object.
  */
 function wpcom_themes_api_theme_object( $theme ) {
-	// Fix activation URL.
-	$theme->activate_url = add_query_arg(
-		array(
-			'action'     => 'activate',
-			'_wpnonce'   => wp_create_nonce( 'switch-theme_' . $theme->slug ),
-			'stylesheet' => $theme->slug,
-		),
-		admin_url( 'themes.php' )
-	);
 	// If there is no set tier, this is a community theme.
 	$theme->tier                           = $theme->tier ?? 'community';
+
+	// Use the same "activate" logic for both install and activate URLs.
+	$theme->activate_url = wpcom_themes_get_activation_url( $theme );
+	$theme->install_url  = wpcom_themes_get_activation_url( $theme );
+
+	// Check if the theme can be activated with the current plan.
 	$theme->can_activate_with_current_plan = \A8C\Lib\Themes\Theme_Tiers::is_theme_allowed_on_site( $theme->slug );
 
 	return $theme;
@@ -288,3 +285,67 @@ function wpcom_themes_tmpl_theme_activate_button( $tmpl ) {
 	);
 }
 add_filter( 'wpcom_themes_tmpl_theme', 'wpcom_themes_tmpl_theme_activate_button' );
+
+/**
+ * Get the theme activation URL, which may include a checkout step first.
+ *
+ * @param object $theme The theme object.
+ * @return string The activation URL.
+ */
+function wpcom_themes_get_activation_url( $theme ) {
+	$blog_id = get_current_blog_id();
+
+	$activate_url = add_query_arg(
+		array(
+			'action'     => 'activate',
+			'_wpnonce'   => wp_create_nonce( 'switch-theme_' . $theme->slug ),
+			'stylesheet' => $theme->slug,
+		),
+		admin_url( 'themes.php' )
+	);
+
+	if ( 'hosted-internal' === $theme->theme_type ) {
+		if ( \A8C\Lib\Themes\Theme_Tiers::is_theme_allowed_on_site( $theme->slug ) ) {
+			return $activate_url;
+		} else {
+			return add_query_arg(
+				array( 'redirect_to' => urlencode( $activate_url ) ),
+				get_tiered_theme_plans_page( $theme->slug, $blog_id )
+			);
+		}
+	}
+
+	// Non `hosted-internal` are community or partner, both need Atomic first.
+	// By default, bring the user back to calypso to handle atomic conversion.
+	// @todo Update this flow to avoid the theme showcase page, or add redirect after activation.
+	$activate_url = 'https://wordpress.com/theme/' . $theme->slug . '/' . $blog_id . '?activating=true';
+
+	if ( 'community' === $theme->tier ) {
+		if ( ! wpcom_site_has_feature( WPCOM_Features::INSTALL_THEMES, $blog_id ) ) {
+			$activate_url = add_query_arg(
+				array( 'redirect_to' => urlencode( $activate_url ) ),
+				'https://wordpress.com/checkout/' . $blog_id . '/business'
+			);
+		}
+	} else if ( 'managed-external' === $theme->theme_type ) {
+		if ( ! empty( $theme->product_details ) ) {
+			$theme_product_slug = $theme->product_details[0]->product_slug;
+
+			// Check first if we need to add the business plan in addition to the theme subscription.
+			if ( ! wpcom_site_has_feature( WPCOM_Features::INSTALL_THEMES, $blog_id ) ) {
+				$activate_url = add_query_arg(
+					array( 'redirect_to' => urlencode( $activate_url ) ),
+					'https://wordpress.com/checkout/' . $blog_id . '/business,' . $theme_product_slug
+				);
+			} else {
+				$activate_url = add_query_arg(
+					array( 'redirect_to' => urlencode( $activate_url ) ),
+					'https://wordpress.com/checkout/' . $blog_id . '/' . $theme_product_slug
+				);
+			}
+		}
+		// @todo In testing, Drinkify has no product details, so it's not purchasable - why? is this common?
+	}
+
+	return $activate_url;
+}
