@@ -125,8 +125,13 @@ export function useDataSync<
 	// AbortController is used to track rapid value mutations
 	// and will cancel in-flight requests and prevent
 	// the optimistic value from being reverted.
-	const getAbortController = () =>
-		queryClient.getMutationDefaults( queryKey )?.meta?.abortController as AbortController;
+	const getAbortController = () => {
+		const defaults = queryClient.getMutationDefaults( queryKey );
+		return defaults?.meta?.abortController instanceof AbortController
+			? defaults.meta.abortController
+			: undefined;
+	};
+
 	const setAbortController = ( abortController: AbortController ) => {
 		queryClient.setMutationDefaults( queryKey, {
 			meta: {
@@ -146,7 +151,7 @@ export function useDataSync<
 	 */
 	const mutationConfigDefaults = {
 		meta: {
-			abortController: null as AbortController | null,
+			abortController: null,
 		},
 		// Mutation function that's called when the mutation is triggered
 		mutationFn: value => datasync.SET( value, params, getAbortController()?.signal ),
