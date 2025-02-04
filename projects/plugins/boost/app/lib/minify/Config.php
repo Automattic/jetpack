@@ -9,14 +9,14 @@ class Config {
 	/**
 	 * Get the directory path for storing static cache files.
 	 */
-	public static function get_static_cache_dir_path(): string {
+	public static function get_static_cache_dir_path() {
 		return WP_CONTENT_DIR . '/boost-cache/static';
 	}
 
 	/**
 	 * Get the directory path for storing cache files.
 	 */
-	public static function get_cache_dir_path(): string|false {
+	public static function get_cache_dir_path() {
 		if ( defined( 'PAGE_OPTIMIZE_CACHE_DIR' ) ) {
 			if ( empty( \PAGE_OPTIMIZE_CACHE_DIR ) ) {
 				return false;
@@ -31,14 +31,14 @@ class Config {
 	/**
 	 * Get WordPress ABSPATH, with support for custom configuration.
 	 */
-	public static function get_abspath(): string {
+	public static function get_abspath() {
 		return defined( 'PAGE_OPTIMIZE_ABSPATH' ) ? \PAGE_OPTIMIZE_ABSPATH : \ABSPATH;
 	}
 
 	/**
 	 * Check if static cache can be used.
 	 */
-	public static function can_use_static_cache(): bool {
+	public static function can_use_static_cache() {
 		$cache_dir = static::get_static_cache_dir_path();
 
 		if ( ! static::ensure_dir_exists( $cache_dir ) ) {
@@ -69,7 +69,7 @@ class Config {
 	/**
 	 * Check if cache can be used.
 	 */
-	public static function can_use_cache(): bool {
+	public static function can_use_cache() {
 		$cache_dir = static::get_cache_dir_path();
 
 		if ( empty( $cache_dir ) ) {
@@ -105,7 +105,7 @@ class Config {
 	/**
 	 * Ensure a directory exists.
 	 */
-	private static function ensure_dir_exists( string $dir ): bool {
+	private static function ensure_dir_exists( $dir ) {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
 		if ( ! is_dir( $dir ) && ! mkdir( $dir, 0775, true ) ) {
 			return false;
@@ -117,7 +117,7 @@ class Config {
 	/**
 	 * Ensure a directory is writable.
 	 */
-	private static function is_dir_writable( string $dir ): bool {
+	private static function is_dir_writable( $dir ) {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
 		if ( ! is_dir( $dir ) || ! is_writable( $dir ) || ! is_executable( $dir ) ) {
 			return false;
@@ -129,7 +129,7 @@ class Config {
 	/**
 	 * Log an error message if WP_DEBUG is enabled.
 	 */
-	private static function log_error( string $message ): void {
+	private static function log_error( $message ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( $message );
