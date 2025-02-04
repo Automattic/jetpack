@@ -34,7 +34,7 @@ function jetpack_boost_handle_minify_request( $request_uri ) {
 	$use_cache = Config::can_use_static_cache();
 	if ( $use_cache ) {
 		$file_parts = jetpack_boost_minify_get_file_parts( $request_uri );
-		if ( $file_parts ) {
+		if ( is_array( $file_parts ) && isset( $file_parts['file_name'] ) && isset( $file_parts['file_extension'] ) ) {
 			$cache_dir       = Config::get_static_cache_dir_path();
 			$cache_file_path = $cache_dir . '/' . $file_parts['file_name'] . '.min.' . $file_parts['file_extension'];
 
