@@ -28,7 +28,7 @@ const JetpackExternalMediaImport = () => {
 		if ( isCopying ) {
 			return sprintf(
 				/* translators: %1$d is the number of media that were selected. */
-				__( 'Importing… %1$d media', 'jetpack-external-media' ),
+				__( 'Importing %1$d media…', 'jetpack-external-media' ),
 				selectedImages
 			);
 		}
