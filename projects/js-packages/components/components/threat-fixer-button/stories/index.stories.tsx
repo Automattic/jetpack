@@ -1,14 +1,25 @@
+import { THREAT_ACTION_FIX, ThreatsContextProvider } from '@automattic/jetpack-scan';
 import ThreatFixerButton from '../index.js';
 
 export default {
 	title: 'JS Packages/Components/Threat Fixer Button',
 	component: ThreatFixerButton,
 	decorators: [
-		Story => (
-			<div style={ { height: '175px' } }>
-				<Story />
-			</div>
-		),
+		( Story, context ) => {
+			const { threat } = context.args;
+			return (
+				<div style={ { height: '175px' } }>
+					<ThreatsContextProvider
+						initialSelectedThreat={ threat }
+						actionCallbacks={ {
+							[ THREAT_ACTION_FIX ]: () => {},
+						} }
+					>
+						<Story />
+					</ThreatsContextProvider>
+				</div>
+			);
+		},
 	],
 	parameters: {
 		layout: 'centered',

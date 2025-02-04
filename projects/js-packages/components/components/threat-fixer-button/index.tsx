@@ -36,7 +36,7 @@ export default function ThreatFixerButton( {
 } & React.ComponentProps< typeof Button > ): JSX.Element {
 	const { fixersStatus } = useContext( ThreatsContext );
 
-	const fixer = fixersStatus.ok && fixersStatus.threats?.[ threat.id ];
+	const fixer = fixersStatus && fixersStatus.ok && fixersStatus.threats?.[ threat.id ];
 	const fixerState = getFixerState( fixer );
 
 	const tooltipText = useMemo( () => {
