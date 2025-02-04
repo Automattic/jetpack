@@ -279,22 +279,31 @@ class Util {
 		/** This action is documented in jetpack/modules/widgets/social-media-icons.php */
 		do_action( 'jetpack_bump_stats_extras', 'jetpack_forms_message_sent', $extra );
 
-		$form_type = 'post';
-		if ( isset( $extra_values['widget'] ) ) {
-			$form_type = 'widget';
-		} elseif ( isset( $extra_values['block_template'] ) ) {
-			$form_type = 'block_template';
+		$form_type = isset( $extra_values['widget'] ) ? 'widget' : 'block';
+
+		$context = '';
+		if ( isset( $extra_values['block_template'] ) ) {
+			$context = 'template';
 		} elseif ( isset( $extra_values['block_template_part'] ) ) {
-			$form_type = 'block_template_part';
+			$context = 'template_part';
+		}
+
+		$site_type = 'unknown';
+		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) ) {
+			$host      = new \Automattic\Jetpack\Status\Host();
+			$site_type = $host->get_known_host_guess();
 		}
 
 		$plugin = Contact_Form_Plugin::init();
+
 		$plugin->record_tracks_event(
 			'jetpack_forms_message_sent',
 			array(
 				'post_id'     => $post_id,
 				'form_type'   => $form_type,
+				'context'     => $context,
 				'has_consent' => empty( $all_values['email_marketing_consent'] ) ? 0 : 1,
+				'site_type'   => $site_type,
 			)
 		);
 	}
