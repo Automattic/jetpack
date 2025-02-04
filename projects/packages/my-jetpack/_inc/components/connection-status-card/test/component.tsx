@@ -62,6 +62,10 @@ const setConnectionStore = ( {
 			permissions: {
 				manage_options: true,
 			},
+			wpcomUser: {
+				display_name: 'test',
+				email: 'email@example.com',
+			},
 		},
 	},
 } = {} ) => {

@@ -76,7 +76,7 @@ const ManageConnectionDialog = props => {
 
 	const _disconnectUser = useCallback( () => {
 		// Not connected to WPCOM? bail.
-		if ( ! connectedUser.currentUser.isConnected ) {
+		if ( ! connectedUser.currentUser?.isConnected ) {
 			return;
 		}
 
@@ -145,7 +145,7 @@ const ManageConnectionDialog = props => {
 									disabled={ isControlsDisabled }
 								/>
 							) }
-							{ connectedUser.currentUser.isConnected && (
+							{ connectedUser.currentUser?.isConnected && (
 								<ManageConnectionActionCard
 									title={
 										isDisconnectingUser

@@ -63,7 +63,7 @@ const ConnectionListItem: ConnectionListItemType = ( {
 		<div className={ styles[ 'list-item' ] }>
 			<Text className={ clsx( styles[ 'list-item-text' ], statusStyles ) }>
 				{ icon && <Icon icon={ icon } /> }
-				{ text }
+				<span>{ text }</span>
 			</Text>
 			{ actionText && status !== 'success' && (
 				<ConnectionItemButton actionText={ actionText } onClick={ onClick } />
