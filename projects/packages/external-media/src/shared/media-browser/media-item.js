@@ -1,5 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
+import { CheckboxControl } from '@wordpress/components';
 import { useRef, useEffect, useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React from 'react';
 
@@ -10,26 +12,62 @@ import React from 'react';
  * @return {React.ReactElement} - JSX element
  */
 function MediaItem( props ) {
-	const onClick = event => {
-		const { item, index, imageOnly } = props;
+	const {
+		item,
+		index,
+		imageOnly,
+		focus,
+		isSelected,
+		isCopying = false,
+		shouldProxyImg,
+		onClick,
+		onKeyDown,
+	} = props;
+	const { thumbnails, caption, name, title, type, children = 0 } = item;
+	const { medium = null, fmt_hd = null, thumbnail = null } = thumbnails;
+	const alt = title || caption || name || '';
+	const [ imageUrl, setImageUrl ] = useState( null );
+	const classes = clsx( {
+		'jetpack-external-media-browser__media__item': true,
+		'jetpack-external-media-browser__media__item__selected': isSelected,
+		'jetpack-external-media-browser__media__folder': type === 'folder',
+		'is-transient': isCopying,
+	} );
+
+	const itemEl = useRef( null );
+
+	const selectionLabel = isSelected
+		? sprintf(
+				/* translators: %s: item title. */
+				__( 'Deselect item: %s', 'jetpack-external-media' ),
+				alt
+		  )
+		: sprintf(
+				/* translators: %s: item title. */
+				__( 'Select item: %s', 'jetpack-external-media' ),
+				alt
+		  );
+
+	const handleClick = event => {
+		if ( isCopying ) {
+			return;
+		}
 
 		// Skip non-image items if imageOnly flag is set.
 		if ( item.type !== 'image' && imageOnly ) {
 			return;
 		}
 
-		if ( props.onClick ) {
-			props.onClick( event, { item, index } );
-		}
+		onClick?.( event, { item, index } );
 	};
 
 	// Catch space and enter key presses.
-	const onKeyDown = event => {
-		const { item, index } = props;
-
-		if ( props.onKeyDown ) {
-			props.onKeyDown( event, { item, index } );
+	const handleKeydown = event => {
+		if ( isCopying ) {
+			return;
 		}
+
+		onKeyDown?.( event, { item, index } );
 	};
 
 	const getProxyImageUrl = async url => {
@@ -58,13 +96,6 @@ function MediaItem( props ) {
 		}
 	};
 
-	const { item, focus, isSelected, isCopying = false, shouldProxyImg } = props;
-	const { thumbnails, caption, name, title, type, children = 0 } = item;
-	const { medium = null, fmt_hd = null, thumbnail = null } = thumbnails;
-	const alt = title || caption || name;
-
-	const [ imageUrl, setImageUrl ] = useState( null );
-
 	useEffect( () => {
 		const _imageUrl = medium || fmt_hd || thumbnail;
 
@@ -74,15 +105,6 @@ function MediaItem( props ) {
 			setImageUrl( _imageUrl );
 		}
 	}, [ shouldProxyImg, imageUrl, medium, fmt_hd, thumbnail ] );
-
-	const classes = clsx( {
-		'jetpack-external-media-browser__media__item': true,
-		'jetpack-external-media-browser__media__item__selected': isSelected,
-		'jetpack-external-media-browser__media__folder': type === 'folder',
-		'is-transient': isCopying,
-	} );
-
-	const itemEl = useRef( null );
 
 	useEffect( () => {
 		if ( focus ) {
@@ -95,8 +117,8 @@ function MediaItem( props ) {
 		<li
 			ref={ itemEl }
 			className={ classes }
-			onClick={ isCopying ? undefined : onClick }
-			onKeyDown={ isCopying ? undefined : onKeyDown }
+			onClick={ isCopying ? undefined : handleClick }
+			onKeyDown={ isCopying ? undefined : handleKeydown }
 			role="checkbox"
 			tabIndex="0"
 			aria-checked={ !! isSelected }
@@ -109,6 +131,14 @@ function MediaItem( props ) {
 					<div className="jetpack-external-media-browser__media__count">{ children }</div>
 				</div>
 			) }
+			<CheckboxControl
+				className="jetpack-external-media-browser__media__checkbox"
+				__nextHasNoMarginBottom
+				aria-label={ selectionLabel }
+				aria-disabled={ !! isCopying }
+				checked={ isSelected }
+				onChange={ () => handleClick() }
+			/>
 		</li>
 	);
 }
