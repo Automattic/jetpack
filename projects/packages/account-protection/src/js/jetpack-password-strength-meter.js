@@ -1,16 +1,13 @@
 /* global jQuery, jetpackData */
 
 jQuery( document ).ready( function ( $ ) {
-	// TODO: Enforce password confirmation on custom validation
 	const generatePasswordButton = $( '.wp-generate-pw' );
 	const weakPasswordConfirmation = $( '.pw-weak' );
 	const submitButton = $( '#submit' );
 
-	// Get the password input field, reset styling
 	const passwordInput = $( '#pass1' );
-	passwordInput.css( { 'border-color': '#8c8f94' } );
+	passwordInput.css( { 'border-color': '#8C8F94' } );
 
-	// Hide core password strength meter
 	const corePasswordStrengthMeter = $( '#pass-strength-result' );
 	corePasswordStrengthMeter.hide();
 
@@ -63,7 +60,6 @@ jQuery( document ).ready( function ( $ ) {
 		listItem.append( validationCheckListItemText );
 		validationCheckList.append( listItem );
 
-		// Store references to update later
 		validationItems[ key ] = {
 			icon: validationIcon,
 			text: validationCheckListItemText,
@@ -85,17 +81,18 @@ jQuery( document ).ready( function ( $ ) {
 			'margin-right': '1px', // TODO: Certain styling should only apply to profile or reset UIs - profile only
 			'margin-bottom': '16px',
 			'border-radius': '0px 0px 4px 4px',
+			'background-color': '#8C8F94',
 		},
 	} );
 
 	const strength = $( '<p>', {
-		text: '',
+		text: 'Validating...',
 		css: {
 			display: 'flex',
 			'align-items': 'center',
 			'font-size': '12px',
 			'font-weight': 'bold',
-			color: '#1d2327',
+			color: '#1D2327',
 			margin: '0',
 		},
 	} );
@@ -112,7 +109,7 @@ jQuery( document ).ready( function ( $ ) {
 		text: 'Powered by ',
 		css: {
 			'font-size': '12px',
-			color: '#1d2327',
+			color: '#1D2327',
 			margin: '0',
 		},
 	} );
@@ -127,18 +124,18 @@ jQuery( document ).ready( function ( $ ) {
 
 	jetpackBranding.append( brandingMessage );
 	jetpackBranding.append( jetpackLogo );
+	strengthMeter.append( strength );
+	strengthMeter.append( jetpackBranding );
+	passwordInput.after( strengthMeter );
 
-	// Run validation on real-time input updates
 	passwordInput.on( 'input', () => validatePassword() );
 
-	// Run validation if input has a initial value - reset form
 	setTimeout( () => {
 		if ( passwordInput.val().length > 0 ) {
 			validatePassword();
 		}
 	}, 1500 );
 
-	// Run validation on password generation
 	generatePasswordButton.on( 'click', () => validatePassword( 'on password generation' ) );
 
 	/**
@@ -150,34 +147,40 @@ jQuery( document ).ready( function ( $ ) {
 		const currentPasswordInput = passwordInput.val();
 		const failedValidationConditions = {};
 
-		if ( ! currentPasswordInput || 0 === currentPasswordInput.length ) {
+		if ( ! currentPasswordInput || currentPasswordInput.length === 0 ) {
 			applyStyling( failedValidationConditions, true );
 			return;
 		}
 
-		Object.values( validationItems ).forEach( ( { icon } ) => {
-			icon.attr( 'src', jetpackData.loading );
+		// strengthMeter loading state
+		strength.text( 'Validating...' );
+		strengthMeter.css( 'background-color', '#8C8F94' );
+		passwordInput.css( { 'border-color': '#8C8F94' } );
+
+		// passwordValidationStatus loading state
+		Object.values( validationItems ).forEach( ( { icon, text } ) => {
+			icon.attr( 'src', jetpackData.loadingIcon );
 			icon.attr( 'alt', 'Validating...' );
+			text.css( { color: '#3C434A', transition: 'color 0.2s ease-in-out' } );
 		} );
 
 		const corePasswordStrengthMeterClass = corePasswordStrengthMeter.attr( 'class' ) || '';
-
 		const coreValidationFailed =
 			corePasswordStrengthMeterClass !== 'strong' && corePasswordStrengthMeterClass !== 'good';
-		const coreItem = validationCheckList.find( `li[data-key="core"]` );
-		const coreValidationIcon = coreItem.find( 'img' );
-		const coreValidationText = coreItem.find( 'p' );
 
-		coreValidationIcon.attr(
-			'src',
-			coreValidationFailed ? jetpackData.crossIcon : jetpackData.checkIcon
-		);
-		coreValidationIcon.attr( 'alt', coreValidationFailed ? 'Jetpack Cross' : 'Jetpack Check' );
-		coreValidationText.css( 'color', coreValidationFailed ? '#E65054' : '#008710' );
+		const uiUpdates = [];
 
-		if ( coreValidationFailed ) {
-			failedValidationConditions.core = coreValidationFailed;
-		}
+		uiUpdates.push( () => {
+			const { icon, text } = validationItems.core;
+
+			icon.attr( 'src', coreValidationFailed ? jetpackData.crossIcon : jetpackData.checkIcon );
+			icon.attr( 'alt', coreValidationFailed ? 'Jetpack Cross' : 'Jetpack Check' );
+			text.css( 'color', coreValidationFailed ? '#E65054' : '#008710' );
+
+			if ( coreValidationFailed ) {
+				failedValidationConditions.core = true;
+			}
+		} );
 
 		$.ajax( {
 			url: jetpackData.ajaxurl,
@@ -198,16 +201,28 @@ jQuery( document ).ready( function ( $ ) {
 							listItem.css( 'display', isInvalid ? 'flex' : 'none' );
 						}
 
-						icon.attr( 'src', isInvalid ? jetpackData.crossIcon : jetpackData.checkIcon );
-						icon.attr( 'alt', isInvalid ? 'Jetpack Cross' : 'Jetpack Check' );
-						text.css( 'color', isInvalid ? '#E65054' : '#008710' );
+						uiUpdates.push( () => {
+							icon.attr( 'src', isInvalid ? jetpackData.crossIcon : jetpackData.checkIcon );
+							icon.attr( 'alt', isInvalid ? 'Jetpack Cross' : 'Jetpack Check' );
+							text.css( {
+								color: isInvalid ? '#E65054' : '#008710',
+								transition: 'color 0.2s ease-in-out',
+							} );
+						} );
 
 						if ( isInvalid ) {
 							failedValidationConditions[ key ] = isInvalid;
 						}
 					} );
 
-					applyStyling( failedValidationConditions );
+					requestAnimationFrame( () => {
+						uiUpdates.forEach( update => update() );
+
+						validationCheckList.css( 'opacity', 0.99 );
+						setTimeout( () => validationCheckList.css( 'opacity', 1 ), 1 );
+
+						applyStyling( failedValidationConditions );
+					} );
 				} else {
 					passwordValidationStatus.html(
 						'<p style="color: #E65054">Error: Unable to validate password.</p>'
@@ -226,8 +241,8 @@ jQuery( document ).ready( function ( $ ) {
 	 *
 	 * Apply styling based on validation results
 	 *
-	 * @param {object}  failedValidationConditions
-	 * @param {boolean} passwordIsEmpty
+	 * @param {object}  failedValidationConditions - Object containing failed validation conditions
+	 * @param {boolean} passwordIsEmpty            - Whether the password input is empty
 	 */
 	function applyStyling( failedValidationConditions, passwordIsEmpty = false ) {
 		let finalColor = '#8c8f94';
@@ -245,22 +260,22 @@ jQuery( document ).ready( function ( $ ) {
 			finalStrengthText = 'Strong';
 
 			if ( submitButton.prop( 'disabled' ) ) {
-				submitButton.prop( 'disabled', false ); // Enable only if currently disabled
+				submitButton.prop( 'disabled', false );
 			}
 
 			if ( weakPasswordConfirmation.is( ':visible' ) ) {
-				weakPasswordConfirmation.css( 'display', 'none' ); // Hide only if visible
+				weakPasswordConfirmation.css( 'display', 'none' );
 			}
 		} else {
 			finalColor = '#E65054';
 			finalStrengthText = 'Weak';
 
 			if ( ! submitButton.prop( 'disabled' ) ) {
-				submitButton.prop( 'disabled', true ); // Disable only if currently enabled
+				submitButton.prop( 'disabled', true );
 			}
 
 			if ( weakPasswordConfirmation.css( 'display' ) !== 'table-row' ) {
-				weakPasswordConfirmation.css( 'display', 'table-row' ); // Show as table row only if hidden
+				weakPasswordConfirmation.css( 'display', 'table-row' );
 			}
 		}
 
