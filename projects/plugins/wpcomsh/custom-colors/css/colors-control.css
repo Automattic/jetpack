@@ -315,61 +315,6 @@ a.revert {
 }
 
 
-/* =Color Palettes
------------------------------------------------ */
-.colour-lovers {
-	border-radius: 4px;
-	float: left;
-	margin: 0 18px 18px 0;
-	height: 50px;
-	width: 72px;
-	position: relative;
-}
-
-.colour-lovers li {
-	width: 20%;
-	height: 100%;
-}
-
-/* Displays theme color palettes of < five colors */
-.colour-lovers.items-1 li {
-	width: 100%;
-}
-
-.colour-lovers.items-2 li {
-	width: 50%;
-}
-
-.colour-lovers.items-3 li {
-	width: 33.3333%;
-}
-
-.colour-lovers.items-4 li {
-	width: 25%;
-}
-
-.colour-lovers:hover {
-	cursor: pointer;
-}
-
-.colour-lovers li:hover {
-	opacity: 1;
-}
-
-.colour-lovers:active {
-	opacity: 0.5;
-}
-
-#colourlovers-palettes-container {
-	clear: both;
-	padding: 20px 0 20px;
-	margin-right: -30px;
-}
-
-#colourlovers-palettes-container h3 {
-	font-size: 14px;
-}
-
 .color-picker .button:hover {
 	cursor: pointer;
 }
@@ -382,28 +327,6 @@ a.revert {
 .color-picker #colourlovers-palettes-container .next {
 	margin-top: 10px;
 }
-
-/*.color-picker .previous {
-	margin-left: 10px;
-}*/
-
-/* Theme featured palettes */
-.colour-lovers.featured::before {
-	content: "Featured";
-	background: #000;
-	color: #fff;
-	display: block;
-	font-size: 10px;
-	opacity: 0.7;
-	position: absolute;
-	bottom: 5px;
-	right: 0;
-	left: 0;
-	text-indent: 5px;
-	line-height: 1.5;
-	padding-bottom: 1px;
-}
-
 /* Generate from header image */
 #generate-palette {
 	display: block;
@@ -411,48 +334,13 @@ a.revert {
 	margin-top: 15px;
 	text-align: center;
 }
-
-
 /* =Color Patterns
 ----------------------------------------------- */
 #the-pattern-picker {
 	margin: 0 -20px;
 	padding: 0 20px 10px;
 }
-
-#colourlovers-patterns {
-	border-bottom: none;
-	margin: 0 -18px 10px;
-	min-height: 50px;
-}
-
-#colourlovers-patterns li {
-	float: left;
-	border-radius: 2px;
-	height: 50px;
-	margin-bottom: 10px;
-	margin-left: 18px;
-	overflow: hidden;
-	padding: 0;
-	width: 72px;
-}
-
-#colourlovers-patterns img {
-	cursor: pointer;
-	width: 72px;
-}
-
-#colourlovers-patterns::after {
-	content: ".";
-	display: block;
-	height: 0;
-	clear: both;
-	visibility: hidden;
-	zoom: 1;
-}
-
-#more-patterns,
-#less-patterns {
+#more-patterns, #less-patterns {
 	margin-bottom: 10px;
 }
 
@@ -758,12 +646,6 @@ input#iris {
 }
 
 /* Restored CSS from wp.com theme customizer updates */
-
-/* stylelint-disable no-duplicate-selectors -- Preserving sectioning. */
-.colour-lovers {
-	border-radius: 2px;
-	overflow: hidden;
-}
 
 .color-grid li {
 	border-width: 1px;
