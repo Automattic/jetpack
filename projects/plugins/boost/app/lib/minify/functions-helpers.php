@@ -295,8 +295,8 @@ function jetpack_boost_get_static_prefix() {
 	return trailingslashit( $prefix );
 }
 
-function jetpack_boost_get_minify_url( $file_name, $siteurl ) {
-	return $siteurl . '/wp-content/boost-cache/static/' . $file_name;
+function jetpack_boost_get_minify_url( $file_name, $site_url ) {
+	return $site_url . '/wp-content/boost-cache/static/' . $file_name;
 }
 
 /**
