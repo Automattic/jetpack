@@ -288,6 +288,7 @@ interface Window {
 				jetpack_waf_share_debug_data: boolean;
 				standalone_mode: boolean;
 				waf_supported: boolean;
+				waf_enabled: boolean;
 			};
 		};
 		videopress: {

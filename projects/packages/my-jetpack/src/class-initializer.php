@@ -248,8 +248,9 @@ class Initializer {
 		}
 
 		if ( class_exists( 'Automattic\Jetpack\Waf\Waf_Runner' ) ) {
-			$waf_config    = Waf_Runner::get_config();
-			$waf_supported = Waf_Runner::is_supported_environment();
+			$waf_config     = Waf_Runner::get_config();
+			$is_waf_enabled = Waf_Runner::is_enabled();
+			$waf_supported  = Waf_Runner::is_supported_environment();
 		}
 
 		wp_localize_script(
@@ -313,6 +314,7 @@ class Initializer {
 						$waf_config,
 						array(
 							'waf_supported' => $waf_supported,
+							'waf_enabled'   => $is_waf_enabled,
 						),
 						array( 'blocked_logins' => (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) )
 					),
