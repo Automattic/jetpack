@@ -80,10 +80,6 @@ export const useMetaDescriptionStep = (): Step => {
 	);
 
 	const handleMetaDescriptionRegenerate = useCallback( async () => {
-		setMetaDescriptionOptions( [] );
-		setMessages( [
-			{ content: __( "Now, let's optimize your meta description.", 'jetpack' ), showIcon: true },
-		] );
 		const newMetaDescription = await new Promise< Array< OptionMessage > >( resolve =>
 			setTimeout(
 				() =>
@@ -97,14 +93,10 @@ export const useMetaDescriptionStep = (): Step => {
 				3000
 			)
 		);
-		const editedFirstMessage = createInterpolateElement(
-			__( "Now, let's optimize your meta description.<br />Here's a suggestion:", 'jetpack' ),
-			{ br: <br /> }
-		);
-		editLastMessage( editedFirstMessage );
-		setMetaDescriptionOptions( newMetaDescription );
+
+		setMetaDescriptionOptions( prev => [ ...prev, ...newMetaDescription ] );
 		newMetaDescription.forEach( meta => addMessage( { ...meta, type: 'option', isUser: true } ) );
-	}, [ addMessage, editLastMessage, setMessages ] );
+	}, [ addMessage ] );
 
 	return {
 		id: 'meta',
