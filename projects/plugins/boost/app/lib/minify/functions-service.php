@@ -311,7 +311,12 @@ function jetpack_boost_minify_get_file_parts( $request_uri ) {
 	}
 
 	$file_info = pathinfo( $file_path );
-	if ( stripos( $file_info['dirname'], '/wp-content/boost-cache/static' ) === false ) {
+	$real_path = realpath( $file_info['dirname'] );
+	$cache_dir = realpath( WP_CONTENT_DIR . '/boost-cache/static' );
+
+	// Security check: Ensure requested file is strictly within the designated cache directory
+	// by comparing the resolved absolute paths.
+	if ( $real_path === false || $cache_dir === false || stripos( $real_path, $cache_dir ) !== 0 ) {
 		return false;
 	}
 
