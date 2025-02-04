@@ -277,7 +277,7 @@ describe( 'ConnectionStatusCard', () => {
 
 		it( 'renders the owner name', () => {
 			setup();
-			expect( screen.getByText( /\(Owner\)/ ) ).toBeInTheDocument();
+			expect( screen.getByText( /[A-Za-z -]+\(Owner\)/ ) ).toBeInTheDocument();
 		} );
 
 		it( 'renders prompt for this user to connect', () => {
