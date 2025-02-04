@@ -529,6 +529,10 @@ export const childBlocks = [
 				),
 			},
 			edit: JetpackDatePicker,
+			save() {
+				const innerBlocksProps = useInnerBlocksProps.save();
+				return <div { ...innerBlocksProps } />;
+			},
 			attributes: {
 				...FieldDefaults.attributes,
 				label: {
@@ -541,6 +545,20 @@ export const childBlocks = [
 					default: 'yy-mm-dd',
 				},
 			},
+			providesContext: {
+				...FieldDefaults.providesContext,
+				'jetpack/field-dateFormat': 'dateFormat',
+			},
+			deprecated: [
+				{
+					...INNER_BLOCKS_DEPRECATION,
+					attributes: {
+						...INNER_BLOCKS_DEPRECATION.attributes,
+						label: { type: 'string', default: 'Date' },
+						dateFormat: { type: 'string', default: 'yy-mm-dd' },
+					},
+				},
+			],
 		},
 	},
 	{

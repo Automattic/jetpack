@@ -323,7 +323,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$this->label_classes .= esc_attr( $label_classes );
 			}
 			if ( ! empty( $input_classes ) ) {
-				$class .= esc_attr( $input_classes );
+				$class .= $class ? ' ' . esc_attr( $input_classes ) : esc_attr( $input_classes );
 			}
 
 			// Styles.

@@ -61,7 +61,7 @@ const settings = {
 			default: '',
 		},
 	},
-	usesContext: [ 'jetpack/field-required' ],
+	usesContext: [ 'jetpack/field-required', 'jetpack/field-dateFormat' ],
 	edit,
 	save,
 };

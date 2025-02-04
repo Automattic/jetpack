@@ -1,47 +1,25 @@
-import { useBlockProps } from '@wordpress/block-editor';
-import { createBlock, getDefaultBlockName } from '@wordpress/blocks';
+import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
+import { getBlockType } from '@wordpress/blocks';
 import { SelectControl } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useFormStyle, useFormWrapper } from '../util/form';
+import { DATE_FORMAT_OPTIONS } from '../util/constants';
+import { useFormWrapper } from '../util/form';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
 import JetpackFieldControls from './jetpack-field-controls';
-import JetpackFieldLabel from './jetpack-field-label';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
-const currentYear = new Date().getFullYear();
-
-// WARNING: sync data with Contact_Form_Field::render_date_field in class-contact-form-field.php
-const DATE_FORMATS = [
-	{
-		value: 'mm/dd/yy',
-		/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 12/31/2023). */
-		label: __( 'MM/DD/YYYY', 'jetpack-forms' ),
-		example: `12/31/${ currentYear }`,
-	},
-	{
-		value: 'dd/mm/yy',
-		/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 31/12/2023). */
-		label: __( 'DD/MM/YYYY', 'jetpack-forms' ),
-		example: `21/12/${ currentYear }`,
-	},
-	{
-		value: 'yy-mm-dd',
-		/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 2023-12-31). */
-		label: __( 'YYYY-MM-DD', 'jetpack-forms' ),
-		example: `${ currentYear }-12-31`,
-	},
-];
+const ALLOWED_BLOCKS = [ 'jetpack/field-label', 'jetpack/field-input' ];
 
 const JetpackDatePicker = props => {
-	const { attributes, clientId, isSelected, name, setAttributes, insertBlocksAfter } = props;
+	const { attributes, clientId, isSelected, name, setAttributes } = props;
 	const { id, label, required, requiredText, width, placeholder, dateFormat } = attributes;
 
 	useFormWrapper( { attributes, clientId, name } );
 
-	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
-	const formStyle = useFormStyle( clientId );
+	const { blockStyle } = useJetpackFieldStyles( attributes );
 	const blockProps = useBlockProps( {
 		className: clsx( 'jetpack-field', {
 			'is-selected': isSelected,
@@ -50,33 +28,33 @@ const JetpackDatePicker = props => {
 		style: blockStyle,
 	} );
 
+	const labelBlockType = getBlockType( 'jetpack/field-label' );
+	const defaultLabel = labelBlockType.attributes.label.default;
+	const template = useMemo( () => {
+		return [
+			[ 'jetpack/field-label', { label, required, defaultLabel, requiredText } ],
+			[ 'jetpack/field-input' ],
+		];
+	}, [ label, defaultLabel, required, requiredText ] );
+
+	const innerBlocksProps = useInnerBlocksProps( blockProps, {
+		allowedBlocks: ALLOWED_BLOCKS,
+		template,
+		templateLock: 'all',
+	} );
+
+	const onChange = useCallback(
+		value => {
+			setAttributes( { dateFormat: value } );
+		},
+		[ setAttributes ]
+	);
+
 	return (
 		<>
 			<div { ...blockProps }>
-				<JetpackFieldLabel
-					attributes={ attributes }
-					label={ label }
-					suffix={ `(${ DATE_FORMATS.find( f => f.value === dateFormat )?.label })` }
-					required={ required }
-					requiredText={ requiredText }
-					setAttributes={ setAttributes }
-					style={ formStyle }
-				/>
-				<input
-					className="jetpack-field__input"
-					onChange={ e => setAttributes( { placeholder: e.target.value } ) }
-					style={ fieldStyle }
-					type="text"
-					value={ placeholder }
-					onKeyDown={ event => {
-						if ( event.defaultPrevented || event.key !== 'Enter' ) {
-							return;
-						}
-						insertBlocksAfter( createBlock( getDefaultBlockName() ) );
-					} }
-				/>
+				<div { ...innerBlocksProps } />
 			</div>
-
 			<JetpackFieldControls
 				id={ id }
 				required={ required }
@@ -84,6 +62,7 @@ const JetpackDatePicker = props => {
 				setAttributes={ setAttributes }
 				placeholder={ placeholder }
 				attributes={ attributes }
+				type="date"
 				extraFieldSettings={ [
 					{
 						index: 1,
@@ -91,16 +70,9 @@ const JetpackDatePicker = props => {
 							<SelectControl
 								key="date-format"
 								label={ __( 'Date Format', 'jetpack-forms' ) }
-								options={ DATE_FORMATS.map( ( { value, label: optionLabel, example } ) => ( {
-									value,
-									label: `${ optionLabel } (${ example })`,
-								} ) ) }
-								onChange={ value =>
-									setAttributes( {
-										dateFormat: value,
-									} )
-								}
-								value={ attributes.dateFormat }
+								options={ DATE_FORMAT_OPTIONS }
+								onChange={ onChange }
+								value={ dateFormat }
 								help={ __(
 									'Select the format in which the date will be displayed.',
 									'jetpack-forms'

@@ -37,7 +37,7 @@ const JetpackFieldControls = ( {
 	const formStyle = useFormStyle( clientId );
 	const blockStyle = getBlockStyle( blockClassNames );
 	const isChoicesBlock = [ 'radio', 'checkbox' ].includes( type );
-	const isTextField = [ 'text', 'textarea', 'email', 'url', 'tel' ].includes( type );
+	const isTextField = [ 'text', 'textarea', 'email', 'url', 'tel', 'date' ].includes( type );
 
 	const setNumberAttribute =
 		( key, parse = parseInt ) =>
