@@ -31,7 +31,7 @@ function wpcom_colourlovers_deprecate_warning() {
 	// Enqueue a JavaScript file that displays the warning message.
 	wp_enqueue_script(
 		'colourlovers-deprecate-warning', // A unique handle for the script.
-		plugins_url( '/js/colourlover-deprecated-message.js', __FILE__ ), // URL of the script.
+		plugins_url( '/js/colourlovers-deprecated-message.js', __FILE__ ), // URL of the script.
 		array( 'customize-controls' ), // This script depends on the Customizer controls.
 		'1.0.0', // Version of the script for cache-busting.
 		true // Load the script in the footer of the page.
