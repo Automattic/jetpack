@@ -30,11 +30,12 @@ class Cornerstone_Utils {
 	 */
 	public static function is_cornerstone_page( $post_id ) {
 		$cornerstone_pages = self::get_list();
-
-		if ( ! empty( $cornerstone_pages ) ) {
-			$post_url          = untrailingslashit( get_permalink( $post_id ) );
-			$cornerstone_pages = array_map( 'untrailingslashit', $cornerstone_pages );
+		if ( empty( $cornerstone_pages ) ) {
+			return false;
 		}
+
+		$post_url          = untrailingslashit( get_permalink( $post_id ) );
+		$cornerstone_pages = array_map( 'untrailingslashit', $cornerstone_pages );
 
 		return in_array( $post_url, $cornerstone_pages, true );
 	}
