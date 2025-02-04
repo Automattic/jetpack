@@ -17,7 +17,7 @@ const HomePage = () => {
 
 	const data = useMemo(
 		() => [
-			...( Object.keys( status.core ).length ? [ status.core ] : [] ),
+			...( Object.keys( status.core || {} ).length ? [ status.core ] : [] ),
 			...status.plugins,
 			...status.themes,
 			...( status.dataSource === 'scan_api'
