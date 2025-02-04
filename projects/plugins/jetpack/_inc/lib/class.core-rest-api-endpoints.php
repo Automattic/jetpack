@@ -3398,14 +3398,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error
 	 */
 	public static function validate_stats_roles( $value, $request, $param ) {
-		if ( ! empty( $value ) && ! array_intersect( self::$stats_roles, $value ) ) {
+		$editable_roles = array_keys( get_editable_roles() );
+		if ( ! empty( $value ) && ! array_intersect( $editable_roles, $value ) ) {
 			return new WP_Error(
 				'invalid_param',
 				sprintf(
 					/* Translators: first variable is the name of a parameter passed to endpoint holding the role that will be checked, the second is a list of roles allowed to see stats. The parameter is checked against this list. */
 					esc_html__( '%1$s must be %2$s.', 'jetpack' ),
 					$param,
-					implode( ', ', self::$stats_roles )
+					implode( ', ', $editable_roles )
 				)
 			);
 		}
