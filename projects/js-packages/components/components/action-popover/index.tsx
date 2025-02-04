@@ -10,7 +10,7 @@ import Text from '../text/index.js';
 /**
  * Internal dependencies
  */
-import ThemeProvider from '../theme-provider';
+import ThemeProvider from '../theme-provider/index.js';
 import styles from './styles.module.scss';
 /**
  * Types

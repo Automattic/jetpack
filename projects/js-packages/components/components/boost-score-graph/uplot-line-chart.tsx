@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import React, { useMemo, useRef, useCallback } from 'react';
 import uPlot from 'uplot';
-import UplotReact from 'uplot-react';
+import UplotReact from 'uplot-react/index.js';
 import { getUserLocale } from '../../lib/locale/index.js';
 import numberFormat from '../number-format/index.js';
 import { annotationsPlugin } from './annotations-plugin.js';

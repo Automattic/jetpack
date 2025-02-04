@@ -1,5 +1,5 @@
 import { useState, useCallback } from '@wordpress/element';
-import Gridicon from '../gridicon';
+import Gridicon from '../gridicon/index.js';
 import { Testimonial } from './testimonial.js';
 import { TestimonialsType } from './types.js';
 

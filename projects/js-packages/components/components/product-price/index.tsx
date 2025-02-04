@@ -7,7 +7,7 @@ import clsx from 'clsx';
  * Internal dependencies
  */
 import Text from '../text/index.js';
-import { Price } from './price';
+import { Price } from './price.js';
 import styles from './style.module.scss';
 import type { ProductPriceProps } from './types.js';
 import type React from 'react';
