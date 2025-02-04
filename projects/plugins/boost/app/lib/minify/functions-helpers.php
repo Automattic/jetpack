@@ -312,7 +312,7 @@ function jetpack_boost_minify_serve_concatenated() {
 		$request_path = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) )[0];
 		$prefix       = jetpack_boost_get_static_prefix();
 		if ( $prefix === substr( $request_path, -strlen( $prefix ), strlen( $prefix ) ) ) {
-			require_once __DIR__ . '/functions-service.php';
+			require_once __DIR__ . '/functions-service-fallback.php';
 			jetpack_boost_page_optimize_service_request();
 			exit( 0 ); // @phan-suppress-current-line PhanPluginUnreachableCode -- Safer to include it even though jetpack_boost_page_optimize_service_request() itself never returns.
 		}
