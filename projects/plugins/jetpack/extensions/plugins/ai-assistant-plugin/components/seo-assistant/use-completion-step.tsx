@@ -2,9 +2,9 @@ import { createInterpolateElement, useCallback, useState } from '@wordpress/elem
 import { __ } from '@wordpress/i18n';
 import TypingMessage from './typing-message';
 import { useMessages } from './wizard-messages';
-import type { CompletionStep } from './types';
+import type { Step } from './types';
 
-export const useCompletionStep = (): CompletionStep => {
+export const useCompletionStep = (): Step => {
 	const [ keywords, setKeywords ] = useState( '' );
 	const [ completed, setCompleted ] = useState( false );
 	const { messages, setMessages, addMessage, removeLastMessage } = useMessages();
