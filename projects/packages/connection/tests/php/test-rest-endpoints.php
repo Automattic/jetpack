@@ -787,6 +787,7 @@ class Test_REST_Endpoints extends TestCase {
 				'permissions' => array(
 					'connect'      => true,
 					'connect_user' => true,
+					'unlink_user'  => true,
 					'disconnect'   => true,
 				),
 			),
@@ -830,6 +831,7 @@ class Test_REST_Endpoints extends TestCase {
 				'permissions' => array(
 					'connect'      => true,
 					'connect_user' => true,
+					'unlink_user'  => true,
 					'disconnect'   => true,
 				),
 			),
@@ -879,6 +881,7 @@ class Test_REST_Endpoints extends TestCase {
 				'permissions' => array(
 					'connect'      => true,
 					'connect_user' => true,
+					'unlink_user'  => true,
 					'disconnect'   => true,
 				),
 			),
