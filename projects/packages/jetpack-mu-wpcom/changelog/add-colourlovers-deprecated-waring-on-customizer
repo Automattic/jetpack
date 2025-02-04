@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+We now show a waring on the customizer for WPCom if the user is using a colourlovers background image.
