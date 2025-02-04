@@ -33,8 +33,8 @@ const JetpackExternalMediaImport = () => {
 			sprintf(
 				/* translators: %d is the number of the media file */
 				_n(
-					'%d media file imported successfully',
-					'%d media files imported successfully',
+					'%d media file imported successfully.',
+					'%d media files imported successfully.',
 					media.length,
 					'jetpack-external-media'
 				),

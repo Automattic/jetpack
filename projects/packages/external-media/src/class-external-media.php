@@ -26,7 +26,7 @@ class External_Media {
 		// Load external media import page on WordPress.com sites first.
 		// We will continue to enable the feature on all sites.
 		$host = new Host();
-		if ( $host->is_wpcom_simple() || $host->is_woa_site() ) {
+		if ( $host->is_wpcom_platform() ) {
 			require_once __DIR__ . '/features/admin/external-media-import.php';
 		}
 
@@ -73,7 +73,7 @@ class External_Media {
 		}
 
 		$jetpack_ai_enabled = false;
-		if ( $host->is_wpcom_simple() || $host->is_woa_site() ) {
+		if ( $host->is_wpcom_platform() ) {
 			$jetpack_ai_enabled = true;
 		}
 
