@@ -5,6 +5,7 @@ import { Icon, chevronRight } from '@wordpress/icons';
 import { useCallback, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAllProducts } from '../../data/products/use-all-products';
+import useAnalytics from '../../hooks/use-analytics';
 import ActionButton from '../action-button';
 import {
 	PRODUCT_TABLE_TITLE,
@@ -105,6 +106,7 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 	const allProductData = useAllProducts();
 	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
 	const navigate = useNavigate();
+	const { recordEvent } = useAnalytics();
 
 	const baseView: ViewList = {
 		sort: {
