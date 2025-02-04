@@ -110,21 +110,6 @@ function jetpack_boost_page_optimize_cleanup_cache( $file_extension ) {
 }
 
 /**
- * This function is used to setup the 404 tester and cleanup the cache.
- *
- * @param bool   $activated Whether the module is activated.
- * @param string $module_slug The module slug.
- */
-function jetpack_boost_static_minify_setup( $activated, $module_slug ) {
-	if ( $activated ) {
-		jetpack_boost_404_tester();
-	} else {
-		$file_extension = substr( $module_slug, 1 + strpos( $module_slug, '_' ) );
-		jetpack_boost_page_optimize_cleanup_cache( $file_extension );
-	}
-}
-
-/**
  * This function is used to clean up the static cache folder.
  * It removes files that are stale and no longer needed.
  * A file is considered stale if it's older than the files it depends on.
