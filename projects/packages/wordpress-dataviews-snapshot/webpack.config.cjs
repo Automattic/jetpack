@@ -9,13 +9,20 @@ const dependencyData = {
 
 class WriteHandlePlugin {
 	apply( compiler ) {
-		compiler.hooks.emit.tapAsync( 'WriteHandlePlugin', ( compilation, callback ) => {
-			const content = JSON.stringify( dependencyData );
-			compilation.assets[ 'dependency-data.json' ] = {
-				source: () => content,
-				size: () => content.length,
-			};
-			callback();
+		compiler.hooks.thisCompilation.tap( 'WriteHandlePlugin', compilation => {
+			compilation.hooks.processAssets.tap(
+				{
+					name: 'WriteHandlePlugin',
+					stage: compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL,
+				},
+				assets => {
+					const content = JSON.stringify( dependencyData );
+					assets[ 'dependency-data.json' ] = {
+						source: () => content,
+						size: () => content.length,
+					};
+				}
+			);
 		} );
 	}
 }
