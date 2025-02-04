@@ -60,6 +60,13 @@ class Test_REST_Endpoints extends TestCase {
 	private static $secondary_user_id;
 
 	/**
+	 * ID of a non-admin user
+	 *
+	 * @var int
+	 */
+	private static $non_admin_user_id;
+
+	/**
 	 * Setting up the test.
 	 *
 	 * @before
@@ -105,6 +112,18 @@ class Test_REST_Endpoints extends TestCase {
 			)
 		);
 
+		self::$non_admin_user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_non_admin_user',
+				'user_pass'  => '123',
+				'role'       => 'editor',
+			)
+		);
+		// mapped cap assignment is not set up in the tests
+		// this cap needs to be assigned manually
+		$non_admin_user = get_user_by( 'id', self::$non_admin_user_id );
+		$non_admin_user->add_cap( 'jetpack_unlink_user' );
+
 		$this->api_host_original                                  = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
 		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
 
@@ -128,6 +147,9 @@ class Test_REST_Endpoints extends TestCase {
 		$user->remove_cap( 'jetpack_disconnect' );
 		$user->remove_cap( 'jetpack_connect_user' );
 		$user->remove_cap( 'jetpack_unlink_user' );
+
+		$non_admin_user = get_user_by( 'id', self::$non_admin_user_id );
+		$non_admin_user->remove_cap( 'jetpack_unlink_user' );
 
 		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = $this->api_host_original;
 
@@ -687,7 +709,62 @@ class Test_REST_Endpoints extends TestCase {
 		$this->assertSame( 'success', $response_data['code'] );
 	}
 
-	// TODO: Add tests for user unlinking
+	/**
+	 * Testing POST /jetpack/v4/connection/user, which is used to unlink a user
+	 * Tests that the endpoint succeeds for a connected admin disconnecting themselves
+	 */
+	public function test_unlink_user_success() {
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/user' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'linked' => false,
+					'force'  => true,
+				)
+			)
+		);
+
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+		// Mock user successfully disconnected on WPCOM.
+		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
+
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10 );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10 );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'success', $response_data['code'] );
+	}
+
+	/**
+	 * Testing POST /jetpack/v4/connection/user, which is used to unlink a user
+	 * Tests that the endpoint succeeds for a non-admin even a connection owner is absent
+	 */
+	public function test_unlink_user_success_when_non_admin_and_no_connection_owner() {
+		wp_set_current_user( self::$non_admin_user_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/user' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'linked' => false ) ) );
+
+		// Mock non-admin user connected with no connection owner.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options_no_connection_owner' ), 10, 2 );
+		// Mock user successfully disconnected on WPCOM.
+		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
+
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10 );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options_no_connection_owner' ), 10 );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'success', $response_data['code'] );
+	}
 
 	/**
 	 * Test data for test_get_user_connection_data_route_is_registered_with_jp_version
@@ -1556,6 +1633,31 @@ class Test_REST_Endpoints extends TestCase {
 				return array(
 					self::$user_id           => 'new.usertoken.' . self::$user_id,
 					self::$secondary_user_id => 'new2.secondarytoken.' . self::$secondary_user_id,
+					self::$non_admin_user_id => 'new3.nonadmintoken.' . self::$non_admin_user_id,
+				);
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Intercept the `Jetpack_Options` call and mock the values.
+	 * Full connection set-up, but with no connection owner.
+	 *
+	 * @param mixed  $value The current option value.
+	 * @param string $name Option name.
+	 *
+	 * @return mixed
+	 */
+	public function mock_jetpack_options_no_connection_owner( $value, $name ) {
+		switch ( $name ) {
+			case 'blog_token':
+				return self::BLOG_TOKEN;
+			case 'id':
+				return self::BLOG_ID;
+			case 'user_tokens':
+				return array(
+					self::$non_admin_user_id => 'new3.nonadmintoken.' . self::$non_admin_user_id,
 				);
 		}
 
