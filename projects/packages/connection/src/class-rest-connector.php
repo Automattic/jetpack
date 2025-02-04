@@ -594,7 +594,7 @@ class REST_Connector {
 	 * @return bool|WP_Error True if user is able to unlink.
 	 */
 	public static function unlink_user_permission_callback() {
-		if ( current_user_can( 'jetpack_connect_user' ) && ( new Manager() )->is_user_connected( get_current_user_id() ) ) {
+		if ( current_user_can( 'jetpack_unlink_user' ) && ( new Manager() )->is_user_connected( get_current_user_id() ) ) {
 			return true;
 		}
 
@@ -657,6 +657,7 @@ class REST_Connector {
 			'permissions' => array(
 				'connect'      => current_user_can( 'jetpack_connect' ),
 				'connect_user' => current_user_can( 'jetpack_connect_user' ),
+				'unlink_user'  => current_user_can( 'jetpack_unlink_user' ),
 				'disconnect'   => current_user_can( 'jetpack_disconnect' ),
 			),
 		);

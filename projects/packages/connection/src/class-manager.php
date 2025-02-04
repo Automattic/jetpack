@@ -1566,6 +1566,16 @@ class Manager {
 				// With site connections in mind, non-admin users can connect their account only if a connection owner exists.
 				$caps = $this->has_connected_owner() ? array( 'read' ) : array( 'manage_options' );
 				break;
+			case 'jetpack_unlink_user':
+				$is_offline_mode = ( new Status() )->is_offline_mode();
+				if ( $is_offline_mode ) {
+					$caps = array( 'do_not_allow' );
+					break;
+				}
+
+				// Non-admins can always disconnect
+				$caps = array( 'read' );
+				break;
 		}
 		return $caps;
 	}

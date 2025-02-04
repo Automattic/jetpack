@@ -129,6 +129,7 @@ const getUserConnectionLineData: getUserConnectionLineDataType = ( {
 	openManageUserConnectionDialog,
 	handleConnectUser,
 } ) => {
+	// If the user is not an admin and there is no connection owner present
 	if (
 		! userConnectionData.currentUser?.permissions?.manage_options &&
 		! isUserConnected &&
@@ -161,14 +162,23 @@ const getUserConnectionLineData: getUserConnectionLineDataType = ( {
 		! isUserConnected &&
 		! hasUserConnectionBrokenModules
 	) {
+		let authText = __( 'Some features require authentication.', 'jetpack-my-jetpack' );
+		// If a non-admin is not connected while an admin is already connected,
+		// features needing a user connection are working for other users, but some features (like SSO or Shares) need each user to connect
+		// So we show the "unlock" language here since this user can do more with a user connection
+		if ( ! userConnectionData.currentUser?.permissions?.manage_options ) {
+			authText = __( 'Unlock more of Jetpack', 'jetpack-my-jetpack' );
+		}
+
 		return {
 			onClick: handleConnectUser,
-			text: __( 'Some features require authentication.', 'jetpack-my-jetpack' ),
+			text: authText,
 			actionText: __( 'Sign in', 'jetpack-my-jetpack' ),
 			status: 'warning',
 		};
 	}
 
+	// This condition should only occur when no admin users are connected
 	if ( hasUserConnectionBrokenModules ) {
 		return {
 			onClick: handleConnectUser,
@@ -182,17 +192,19 @@ const getUserConnectionLineData: getUserConnectionLineDataType = ( {
 	if ( userConnectionData.currentUser?.isMaster ) {
 		userConnectionText = userConnectionData.currentUser?.wpcomUser?.display_name
 			? sprintf(
-					/* translators: placeholder is user name */
-					__( 'Connected as %1$s (Owner).', 'jetpack-my-jetpack' ),
-					userConnectionData.currentUser?.wpcomUser?.display_name
+					/* translators: %1$s is user name, %2$s is the user email */
+					__( 'Connected as %1$s (Owner) ( %2$s ).', 'jetpack-my-jetpack' ),
+					userConnectionData.currentUser?.wpcomUser?.display_name,
+					userConnectionData.currentUser?.wpcomUser?.email
 			  )
 			: __( 'User connected (Owner).', 'jetpack-my-jetpack' );
 	} else {
 		userConnectionText = userConnectionData.currentUser?.wpcomUser?.display_name
 			? sprintf(
-					/* translators: placeholder is user name */
-					__( 'Connected as %1$s.', 'jetpack-my-jetpack' ),
-					userConnectionData.currentUser?.wpcomUser?.display_name
+					/* translators: %1$s is user name, %2$s is the user email */
+					__( 'Connected as %1$s ( %2$s ).', 'jetpack-my-jetpack' ),
+					userConnectionData.currentUser?.wpcomUser?.display_name,
+					userConnectionData.currentUser?.wpcomUser?.email
 			  )
 			: __( 'User connected.', 'jetpack-my-jetpack' );
 	}
@@ -234,7 +246,7 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	const { setConnectionStatus, setUserIsConnecting } = useDispatch( CONNECTION_STORE_ID );
 	const connectUserFn = onConnectUser || setUserIsConnecting;
 	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
-	const isCurrentUserAdmin = userConnectionData.currentUser?.permission?.manage_options;
+	const isCurrentUserAdmin = userConnectionData.currentUser?.permissions?.manage_options;
 	const { brokenModules } = lifecycleStats || {};
 	const products = useAllProducts();
 	const hasProductsThatRequireUserConnection =
@@ -378,8 +390,7 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 						/>
 					) }
 				</div>
-				{ ( ( isRegistered && isCurrentUserAdmin ) ||
-					( ! isCurrentUserAdmin && hasConnectedOwner && isUserConnected ) ) && (
+				{ ( ( isRegistered && isCurrentUserAdmin ) || isUserConnected ) && (
 					<div className={ styles[ 'connect-action' ] }>
 						<ConnectionItemButton
 							onClick={ openManageSiteConnectionDialog }
@@ -391,18 +402,16 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 
 			<div>
 				{ <ConnectionListItem { ...siteConnectionLineData } /> }
+				{ userConnectionData?.connectionOwner && ! userConnectionData.currentUser?.isMaster && (
+					<ConnectionListItem
+						text={ sprintf(
+							/* translators: placeholder is the username of the Jetpack connection owner */
+							__( 'Also connected: %s (Owner).', 'jetpack-my-jetpack' ),
+							userConnectionData.connectionOwner
+						) }
+					/>
+				) }
 				{ isRegistered && <ConnectionListItem { ...userConnectionLineData } /> }
-				{ isUserConnected &&
-					userConnectionData?.connectionOwner &&
-					! userConnectionData.currentUser?.isMaster && (
-						<ConnectionListItem
-							text={ sprintf(
-								/* translators: placeholder is the username of the Jetpack connection owner */
-								__( 'Also connected: %s (Owner).', 'jetpack-my-jetpack' ),
-								userConnectionData.connectionOwner
-							) }
-						/>
-					) }
 			</div>
 
 			<ManageConnectionDialog

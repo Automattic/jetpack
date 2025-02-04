@@ -95,6 +95,7 @@ class Test_REST_Endpoints extends TestCase {
 		$user->add_cap( 'jetpack_connect' );
 		$user->add_cap( 'jetpack_disconnect' );
 		$user->add_cap( 'jetpack_connect_user' );
+		$user->add_cap( 'jetpack_unlink_user' );
 
 		self::$secondary_user_id = wp_insert_user(
 			array(
@@ -126,6 +127,7 @@ class Test_REST_Endpoints extends TestCase {
 		$user->remove_cap( 'jetpack_connect' );
 		$user->remove_cap( 'jetpack_disconnect' );
 		$user->remove_cap( 'jetpack_connect_user' );
+		$user->remove_cap( 'jetpack_unlink_user' );
 
 		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = $this->api_host_original;
 
