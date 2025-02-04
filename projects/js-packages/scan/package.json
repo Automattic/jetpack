@@ -48,16 +48,16 @@
 	"dependencies": {
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
-		"@wordpress/api-fetch": "7.16.0",
-		"@wordpress/element": "6.16.0",
-		"@wordpress/i18n": "5.16.0",
-		"@wordpress/url": "4.16.0",
+		"@wordpress/api-fetch": "7.17.0",
+		"@wordpress/element": "6.17.0",
+		"@wordpress/i18n": "5.17.0",
+		"@wordpress/url": "4.17.0",
 		"debug": "4.4.0",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0"
 	},
 	"peerDependencies": {
-		"@wordpress/i18n": "5.16.0",
+		"@wordpress/i18n": "5.17.0",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0"
 	}

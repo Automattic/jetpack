@@ -42,10 +42,11 @@ interface OptionsStep extends BaseStep {
 	retryCtaLabel?: string;
 }
 
-interface CompletionStep extends BaseStep {
+export interface CompletionStep extends BaseStep {
 	type: 'completion';
+	submitCtaLabel?: string;
 }
 
-export type Step = InputStep | OptionsStep | CompletionStep;
+export type Step = BaseStep | InputStep | OptionsStep | CompletionStep;
 
 export type OnStartFunction = ( options?: { fromSkip: boolean; stepValue: string } ) => void;
