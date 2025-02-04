@@ -87,4 +87,4 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 };
 
 export default ProductPrice;
-export * from './price';
+export * from './price.js';
