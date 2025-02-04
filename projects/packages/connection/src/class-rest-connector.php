@@ -168,15 +168,18 @@ class REST_Connector {
 		);
 
 		// Disconnect/unlink user from WordPress.com servers.
-		register_rest_route(
-			'jetpack/v4',
-			'/connection/user',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::unlink_user',
-				'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
-			)
-		);
+		// Avoid conflict with older versions of Jetpack by conditionally registering this endpoint
+		if ( empty( $jp_version ) || version_compare( $jp_version, '14.4-alpha', '>=' ) ) {
+			register_rest_route(
+				'jetpack/v4',
+				'/connection/user',
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::unlink_user',
+					'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
+				)
+			);
+		}
 
 		// We are only registering this route if Jetpack-the-plugin is not active or it's version is ge 10.0-alpha.
 		// The reason for doing so is to avoid conflicts between the Connection package and
@@ -589,7 +592,7 @@ class REST_Connector {
 	/**
 	 * Verify that a user can use the /connection/user endpoint. Has to be a registered user and be currently linked.
 	 *
-	 * @since x.x.x
+	 * @since 6.3.3
 	 *
 	 * @return bool|WP_Error True if user is able to unlink.
 	 */
@@ -985,7 +988,7 @@ class REST_Connector {
 	/**
 	 * Unlinks current user from the WordPress.com Servers.
 	 *
-	 * @since x.x.x
+	 * @since 6.3.3
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *

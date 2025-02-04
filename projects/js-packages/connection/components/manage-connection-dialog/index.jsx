@@ -134,17 +134,19 @@ const ManageConnectionDialog = props => {
 									'jetpack-connection-js'
 								) }
 							</Text>
-							{ isCurrentUserAdmin && (
-								<ManageConnectionActionCard
-									title={ __( 'Transfer ownership to another admin', 'jetpack-connection-js' ) }
-									link={ getRedirectUrl( 'calypso-settings-manage-connection', {
-										site: window?.myJetpackInitialState?.siteSuffix,
-									} ) }
-									key="transfer"
-									action="transfer"
-									disabled={ isControlsDisabled }
-								/>
-							) }
+							{ isCurrentUserAdmin &&
+								connectedUser.currentUser?.isConnected &&
+								connectedUser.currentUser?.isMaster && (
+									<ManageConnectionActionCard
+										title={ __( 'Transfer ownership to another admin', 'jetpack-connection-js' ) }
+										link={ getRedirectUrl( 'calypso-settings-manage-connection', {
+											site: window?.myJetpackInitialState?.siteSuffix,
+										} ) }
+										key="transfer"
+										action="transfer"
+										disabled={ isControlsDisabled }
+									/>
+								) }
 							{ connectedUser.currentUser?.isConnected && (
 								<ManageConnectionActionCard
 									title={
