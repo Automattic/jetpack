@@ -11,8 +11,8 @@ jQuery( document ).ready( function ( $ ) {
 	passwordInput.css( { 'border-color': '#8c8f94' } );
 
 	// Hide core password strength meter
-	const passwordStrengthResult = $( '#pass-strength-result' );
-	passwordStrengthResult.hide();
+	const corePasswordStrengthMeter = $( '#pass-strength-result' );
+	corePasswordStrengthMeter.hide();
 
 	const passwordValidationStatus = $( '<div id="password-validation-status"></div>' );
 
@@ -160,10 +160,10 @@ jQuery( document ).ready( function ( $ ) {
 			icon.attr( 'alt', 'Validating...' );
 		} );
 
-		const passwordStrengthResultClass = passwordStrengthResult.attr( 'class' ) || '';
+		const corePasswordStrengthMeterClass = corePasswordStrengthMeter.attr( 'class' ) || '';
 
 		const coreValidationFailed =
-			passwordStrengthResultClass !== 'strong' && passwordStrengthResultClass !== 'good';
+			corePasswordStrengthMeterClass !== 'strong' && corePasswordStrengthMeterClass !== 'good';
 		const coreItem = validationCheckList.find( `li[data-key="core"]` );
 		const coreValidationIcon = coreItem.find( 'img' );
 		const coreValidationText = coreItem.find( 'p' );
