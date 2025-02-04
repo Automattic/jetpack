@@ -1,24 +1,21 @@
-import { createInterpolateElement, useCallback, useState, useEffect } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMessages } from './wizard-messages';
-import type { InputStep } from './types';
+import type { Step } from './types';
 
-export const useKeywordsStep = (): InputStep => {
+export const useKeywordsStep = (): Step => {
 	const [ keywords, setKeywords ] = useState( '' );
-	const [ completed, setCompleted ] = useState( false );
-	const { messages, setMessages, addMessage, removeLastMessage } = useMessages();
+	const { messages, addMessage } = useMessages();
 
-	useEffect( () => {
-		setMessages( [
-			{
-				content: __(
-					'To start, please enter 1–3 focus keywords that describe your blog post.',
-					'jetpack'
-				),
-				showIcon: true,
-			},
-		] );
-	}, [ setMessages ] );
+	const onStart = useCallback( async () => {
+		addMessage( {
+			content: __(
+				'To start, please enter 1–3 focus keywords that describe your blog post.',
+				'jetpack'
+			),
+			showIcon: true,
+		} );
+	}, [ addMessage ] );
 
 	const handleKeywordsSubmit = useCallback( async () => {
 		if ( ! keywords.trim() ) {
@@ -67,9 +64,8 @@ export const useKeywordsStep = (): InputStep => {
 		type: 'input',
 		placeholder: __( 'Photography, plants', 'jetpack' ),
 		onSubmit: handleKeywordsSubmit,
-		completed,
-		setCompleted,
 		value: keywords,
 		setValue: setKeywords,
+		onStart,
 	};
 };
