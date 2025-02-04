@@ -3398,6 +3398,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error
 	 */
 	public static function validate_stats_roles( $value, $request, $param ) {
+		if ( ! function_exists( 'get_editable_roles' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/user.php';
+		}
 		$editable_roles = array_keys( get_editable_roles() );
 		if ( ! empty( $value ) && ! array_intersect( $editable_roles, $value ) ) {
 			return new WP_Error(
