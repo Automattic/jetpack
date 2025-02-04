@@ -1927,11 +1927,7 @@ abstract class Publicize_Base {
 	 */
 	public function publicize_connections_url( $source = 'calypso-marketing-connections' ) {
 		if ( $this->use_admin_ui_v1() && current_user_can( 'manage_options' ) ) {
-			$is_social_active = defined( 'JETPACK_SOCIAL_PLUGIN_DIR' );
-
-			$page = $is_social_active ? 'jetpack-social' : 'jetpack#/sharing';
-
-			return ( new Paths() )->admin_url( array( 'page' => $page ) );
+			return ( new Paths() )->admin_url( array( 'page' => 'jetpack-social' ) );
 		}
 
 		$allowed_sources = array( 'jetpack-social-connections-admin-page', 'jetpack-social-connections-classic-editor', 'calypso-marketing-connections' );
