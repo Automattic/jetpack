@@ -31,6 +31,7 @@ const FieldDefaults = {
 		label: {
 			type: 'string',
 			default: null,
+			role: 'content',
 		},
 		required: {
 			type: 'boolean',
@@ -38,18 +39,22 @@ const FieldDefaults = {
 		},
 		requiredText: {
 			type: 'string',
+			role: 'content',
 		},
 		options: {
 			type: 'array',
 			default: [],
+			role: 'content',
 		},
 		defaultValue: {
 			type: 'string',
 			default: '',
+			role: 'content',
 		},
 		placeholder: {
 			type: 'string',
 			default: '',
+			role: 'content',
 		},
 		id: {
 			type: 'string',
@@ -366,6 +371,7 @@ export const childBlocks = [
 				label: {
 					type: 'string',
 					default: 'Text',
+					role: 'content',
 				},
 			},
 		},
@@ -388,6 +394,7 @@ export const childBlocks = [
 				label: {
 					type: 'string',
 					default: 'Name',
+					role: 'content',
 				},
 			},
 		},
@@ -409,6 +416,7 @@ export const childBlocks = [
 				label: {
 					type: 'string',
 					default: 'Email',
+					role: 'content',
 				},
 			},
 		},
@@ -435,6 +443,7 @@ export const childBlocks = [
 				label: {
 					type: 'string',
 					default: __( 'Website', 'jetpack-forms' ),
+					role: 'content',
 				},
 			},
 		},
@@ -464,6 +473,7 @@ export const childBlocks = [
 				label: {
 					type: 'string',
 					default: 'Date',
+					role: 'content',
 				},
 				dateFormat: {
 					type: 'string',
@@ -493,6 +503,7 @@ export const childBlocks = [
 				label: {
 					type: 'string',
 					default: 'Phone',
+					role: 'content',
 				},
 			},
 		},
@@ -542,6 +553,7 @@ export const childBlocks = [
 				label: {
 					type: 'string',
 					default: '',
+					role: 'content',
 				},
 			},
 		},
@@ -649,10 +661,12 @@ export const childBlocks = [
 				toggleLabel: {
 					type: 'string',
 					default: null,
+					role: 'content',
 				},
 				options: {
 					type: 'array',
 					default: [ '' ],
+					role: 'content',
 				},
 			},
 		},

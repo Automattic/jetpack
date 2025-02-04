@@ -185,7 +185,7 @@ export default function FeaturedImage( {
 		const response = await handleGenerate( { userPrompt: '', style: guessedStyle } );
 		if ( response ) {
 			debug( 'handleFirstGenerate', response.revisedPrompt );
-			setPrompt( response.revisedPrompt );
+			setPrompt( response.revisedPrompt || '' );
 		}
 	}, [ currentPointer, handleGenerate, handleGuessStyle ] );
 

@@ -1,26 +1,18 @@
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import TypingMessage from './typing-message';
 import { useMessages } from './wizard-messages';
-import type { CompletionStep } from './types';
+import type { Step } from './types';
 
-export const useCompletionStep = (): CompletionStep => {
+export const useCompletionStep = (): Step => {
 	const [ keywords, setKeywords ] = useState( '' );
 	const [ completed, setCompleted ] = useState( false );
-	const { messages, setMessages, addMessage, removeLastMessage } = useMessages();
+	const { messages, setMessages, addMessage } = useMessages();
 
 	const startHandler = useCallback(
 		async ( { fromSkip } ) => {
-			const firstMessages = [
-				{
-					content: <TypingMessage />,
-					showIcon: true,
-					id: '2',
-				},
-			];
+			const firstMessages = [];
 			if ( fromSkip ) {
-				firstMessages.unshift( {
-					// @ts-expect-error - type is properly defined, unsure why it's erroring
+				firstMessages.push( {
 					content: __( 'Skipped!', 'jetpack' ),
 					showIcon: true,
 					id: 'a',
@@ -28,8 +20,6 @@ export const useCompletionStep = (): CompletionStep => {
 			}
 			setMessages( firstMessages );
 			await new Promise( resolve => setTimeout( resolve, 2000 ) );
-			removeLastMessage();
-			// await new Promise( resolve => setTimeout( resolve, 1000 ) );
 			addMessage( {
 				content: createInterpolateElement(
 					"Here's your updated checklist:<br />✅ Title<br />✅ Meta description<br /><br />",
@@ -57,7 +47,7 @@ export const useCompletionStep = (): CompletionStep => {
 			} );
 			return 'completion';
 		},
-		[ setMessages, addMessage, removeLastMessage ]
+		[ setMessages, addMessage ]
 	);
 
 	return {

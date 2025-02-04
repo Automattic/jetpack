@@ -1203,7 +1203,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "9e1f5e24e8a9d3095984b08c3114562e82580bc2"
+				"reference": "1c137adb16f95a67f6671afbe6a8343bd50385e3"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1231,7 +1231,7 @@
 					"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.35.x-dev"
+					"dev-trunk": "0.36.x-dev"
 				},
 				"textdomain": "jetpack-forms",
 				"version-constants": {
@@ -2000,7 +2000,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/post-list",
-				"reference": "767b62df31802e14760b2ff5351dd28412e87fd4"
+				"reference": "1b8f3f65ef18811d07b00e4282ca1d40bfd18852"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -2026,7 +2026,7 @@
 					"link-template": "https://github.com/automattic/jetpack-post-list/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.7.x-dev"
+					"dev-trunk": "0.8.x-dev"
 				}
 			},
 			"autoload": {
@@ -2198,7 +2198,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "eaf51dafed2d5ddc4df91b29410a96c7b8bd12ef"
+				"reference": "f6e2b695508876c65d357871dcd3924f41632d71"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -2228,7 +2228,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.58.x-dev"
+					"dev-trunk": "0.59.x-dev"
 				}
 			},
 			"autoload": {
@@ -2658,7 +2658,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/sync",
-				"reference": "a70bbb708b593062cf5e3c2f241360ffccfae42b"
+				"reference": "3497edb9f8e5341772150fdd9a9b698f1ec551a2"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2691,7 +2691,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "4.5.x-dev"
+					"dev-trunk": "4.6.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
