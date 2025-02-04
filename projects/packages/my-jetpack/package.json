@@ -15,7 +15,8 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "pnpm run clean && pnpm run build-client",
+		"build": "pnpm run build:rollup",
+		"build:webpack": "pnpm run clean && pnpm run build-client",
 		"build-client": "pnpm webpack --config webpack.config.js",
 		"clean": "rm -rf build/",
 		"watch": "pnpm run build && pnpm webpack watch",
