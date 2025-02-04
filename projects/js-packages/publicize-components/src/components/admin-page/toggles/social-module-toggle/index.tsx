@@ -8,7 +8,7 @@ import {
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React, { useCallback } from 'react';
 import { store as socialStore } from '../../../../social-store';
@@ -90,10 +90,10 @@ const SocialModuleToggle: React.FC = () => {
 		>
 			<Text className={ styles.text }>
 				{ ! is_wpcom
-					? __(
+					? _x(
 							'When enabled, you’ll be able to connect your social media accounts and send a post’s featured image and content to the selected channels with a single click when the post is published.',
-							'jetpack-publicize-components',
-							/* dummy arg to avoid bad minification */ 0
+							'Description of the feature that the toggle enables',
+							'jetpack-publicize-components'
 					  )
 					: __(
 							'Connect your social media accounts and send a post’s featured image and content to the selected channels with a single click when the post is published.',
