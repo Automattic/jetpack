@@ -111,7 +111,7 @@ function jetpack_boost_strip_parent_path( $parent_path, $path ) {
 	$trimmed_parent = ltrim( $parent_path, '/' );
 	$trimmed_path   = ltrim( $path, '/' );
 
-	if ( substr( $trimmed_path, 0, strlen( $trimmed_parent ) === $trimmed_parent ) ) {
+	if ( substr( $trimmed_path, 0, strlen( $trimmed_parent ) ) === $trimmed_parent ) {
 		$trimmed_path = substr( $trimmed_path, strlen( $trimmed_parent ) );
 	}
 
