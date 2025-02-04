@@ -1,6 +1,5 @@
 import { createInterpolateElement, useCallback, useState, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import TypingMessage from './typing-message';
 import { useMessages } from './wizard-messages';
 import type { InputStep } from './types';
 
@@ -26,7 +25,6 @@ export const useKeywordsStep = (): InputStep => {
 			return '';
 		}
 		addMessage( { content: keywords, isUser: true } );
-		addMessage( { content: <TypingMessage /> } );
 
 		const keywordlist = await new Promise( resolve =>
 			setTimeout( () => {
@@ -49,7 +47,6 @@ export const useKeywordsStep = (): InputStep => {
 				resolve( commaSeparatedKeywords );
 			}, 500 )
 		);
-		removeLastMessage();
 
 		const message = createInterpolateElement(
 			/* Translators: wrapped string is list of keywords user has entered */
@@ -59,9 +56,8 @@ export const useKeywordsStep = (): InputStep => {
 			}
 		);
 		addMessage( { content: message } );
-		setCompleted( true );
 		return keywords;
-	}, [ addMessage, keywords, removeLastMessage ] );
+	}, [ addMessage, keywords ] );
 
 	return {
 		id: 'keywords',
