@@ -2,32 +2,20 @@ import { __ } from '@wordpress/i18n';
 import React from 'react';
 import './style.scss';
 
-const WpcomSiteManagementWidget = ( { siteName, siteDomain, siteIconUrl } ) => {
-	const devToolItems = [
-		{
-			name: __( 'Deployments', 'jetpack-mu-wpcom' ),
-			href: `/github-deployments/${ siteDomain }`,
-		},
-		{
-			name: __( 'Monitoring', 'jetpack-mu-wpcom' ),
-			href: `/site-monitoring/${ siteDomain }`,
-		},
-		{
-			name: __( 'Logs', 'jetpack-mu-wpcom' ),
-			href: `/site-logs/${ siteDomain }/php`,
-		},
-		{
-			name: __( 'Staging Site', 'jetpack-mu-wpcom' ),
-			href: `/staging-site/${ siteDomain }`,
-		},
-		{
-			name: __( 'Server Settings', 'jetpack-mu-wpcom' ),
-			href: `/hosting-config/${ siteDomain }`,
-		},
-	];
-
+const WpcomSiteManagementWidget = ( { siteName, siteUrl, siteIconUrl, isBlockTheme } ) => {
+	const siteDomain = new URL( siteUrl ).hostname;
 	return (
 		<>
+			<div className="wpcom_site_preview_wrapper">
+				<div className="wpcom_site_preview">
+					<iframe
+						loading="lazy"
+						title="Site Preview"
+						src={ `${ siteUrl }/?hide_banners=true&preview_overlay=true&preview=true` }
+						inert="true"
+					></iframe>
+				</div>
+			</div>
 			<div className="wpcom_site_management_widget__header">
 				<div className="wpcom_site_management_widget__site-favicon">
 					{
@@ -41,34 +29,19 @@ const WpcomSiteManagementWidget = ( { siteName, siteDomain, siteIconUrl } ) => {
 				</div>
 				<div className="wpcom_site_management_widget__site-info">
 					<div className="wpcom_site_management_widget__site-name">{ siteName }</div>
-					<div className="wpcom_site_management_widget__site-url">{ siteDomain }</div>
+					<div className="wpcom_site_management_widget__site-url">
+						<a href={ siteUrl }>{ siteDomain }</a>
+					</div>
 				</div>
 				<div className="wpcom_site_management_widget__site-actions">
-					<a className="button-primary" href={ `https://wordpress.com/overview/${ siteDomain }` }>
-						{ __( 'Overview', 'jetpack-mu-wpcom' ) }
+					<a className="button-secondary" href={ `https://wordpress.com/overview/${ siteDomain }` }>
+						{ __( 'Hosting Overview', 'jetpack-mu-wpcom' ) }
 					</a>
-				</div>
-			</div>
-			<div className="wpcom_site_management_widget__content">
-				<p>
-					{ __(
-						'Get a quick overview of your plans, storage, and domains, or easily access your development tools using the links provided below:',
-						'jetpack-mu-wpcom'
-					) }
-				</p>
-				<div className="wpcom_site_management_widget__dev-tools">
-					<div className="wpcom_site_management_widget__dev-tools-title">
-						{ __( 'DEV TOOLS:', 'jetpack-mu-wpcom' ) }
-					</div>
-					<div className="wpcom_site_management_widget__dev-tools-content">
-						<ul>
-							{ devToolItems.map( item => (
-								<li key={ item.name }>
-									<a href={ `https://wordpress.com${ item.href }` }>{ item.name }</a>
-								</li>
-							) ) }
-						</ul>
-					</div>
+					{ isBlockTheme ? (
+						<a className="button-secondary" href={ `site-editor.php` }>
+							{ __( 'Edit Site', 'jetpack-mu-wpcom' ) }
+						</a>
+					) : null }
 				</div>
 			</div>
 		</>

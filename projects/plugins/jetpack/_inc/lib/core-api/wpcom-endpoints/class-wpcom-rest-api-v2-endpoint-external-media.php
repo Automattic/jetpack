@@ -715,7 +715,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		header( 'Expires: 0' );
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Media binary data
 		echo $body;
-		exit;
+		exit( 0 );
 	}
 
 	/**

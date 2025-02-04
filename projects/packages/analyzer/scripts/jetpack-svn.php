@@ -30,7 +30,7 @@ $to_version         = isset( $argv[3] ) ? $argv[3] : 'trunk';
 
 if ( ! file_exists( $external_repo_path ) ) {
 	echo "Need a path of another codebase to compare Jetpack changes against.\n";
-	exit;
+	exit( 0 );
 }
 
 // tmp paths.

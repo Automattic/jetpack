@@ -7,7 +7,8 @@
 
 namespace Automattic\Jetpack\Publicize\REST_API;
 
-use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Publicize\Connections;
+use Automattic\Jetpack\Publicize\Publicize_Utils;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Request;
@@ -33,21 +34,12 @@ abstract class Base_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Check if we are on WPCOM.
-	 *
-	 * @return bool
-	 */
-	public static function is_wpcom() {
-		return ( new Host() )->is_wpcom_simple();
-	}
-
-	/**
 	 * Check if the request is authorized for the blog.
 	 *
 	 * @return bool
 	 */
 	protected static function is_authorized_blog_request() {
-		if ( self::is_wpcom() && is_jetpack_site( get_current_blog_id() ) ) {
+		if ( Publicize_Utils::is_wpcom() && is_jetpack_site( get_current_blog_id() ) ) {
 
 			$jp_auth_endpoint = new \WPCOM_REST_API_V2_Endpoint_Jetpack_Auth();
 
@@ -82,10 +74,9 @@ abstract class Base_Controller extends WP_REST_Controller {
 	/**
 	 * Verify that user can access Publicize data
 	 *
-	 * @param WP_REST_Request $request Full details about the request.
 	 * @return true|WP_Error
 	 */
-	public function get_items_permissions_check( $request ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	protected function publicize_permissions_check() {
 
 		global $publicize;
 
@@ -110,5 +101,24 @@ abstract class Base_Controller extends WP_REST_Controller {
 			__( 'Sorry, you are not allowed to access Jetpack Social data on this site.', 'jetpack-publicize-pkg' ),
 			array( 'status' => rest_authorization_required_code() )
 		);
+	}
+
+	/**
+	 * Check whether the request is allowed to manage (update/delete) a connection.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return bool True if the request can manage connection, false otherwise.
+	 */
+	protected function manage_connection_permission_check( $request ) {
+		// Editors and above can manage any connection.
+		if ( current_user_can( 'edit_others_posts' ) ) {
+			return true;
+		}
+
+		$connection_id = $request->get_param( 'connection_id' );
+
+		$connection = Connections::get_by_id( $connection_id );
+
+		return Connections::user_owns_connection( $connection );
 	}
 }

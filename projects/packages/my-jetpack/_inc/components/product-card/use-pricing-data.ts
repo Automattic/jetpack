@@ -2,8 +2,8 @@ import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
-import useActivate from '../../data/products/use-activate';
-import useInstallStandalonePlugin from '../../data/products/use-install-standalone-plugin';
+import useActivatePlugins from '../../data/products/use-activate-plugins';
+import useInstallPlugins from '../../data/products/use-install-plugins';
 import useProduct from '../../data/products/use-product';
 import { ProductCamelCase } from '../../data/types';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
@@ -138,11 +138,11 @@ const usePricingData = ( slug: string ) => {
 	const { wpcomProductSlug, wpcomFreeProductSlug, ...data } = parsePricingData(
 		detail.pricingForUi
 	);
-	const { install: installPlugin, isPending: isInstalling } = useInstallStandalonePlugin( slug );
+	const { install: installPlugin, isPending: isInstalling } = useInstallPlugins( slug );
 
 	const { isUserConnected } = useMyJetpackConnection();
 	const { myJetpackUrl, siteSuffix } = getMyJetpackWindowInitialState();
-	const { activate, isPending: isActivating } = useActivate( slug );
+	const { activate, isPending: isActivating } = useActivatePlugins( slug );
 	const { run: runCheckout } = useProductCheckoutWorkflow( {
 		from: 'my-jetpack',
 		productSlug: wpcomProductSlug,

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.2] - 2025-02-03
+### Added
+- Add `remove_menu` method to `Admin_Menu` class. [#41422]
+
 ## [0.5.1] - 2024-11-25
 ### Changed
 - Updated dependencies. [#40286]
@@ -172,6 +176,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing menu visibility issues.
 
+[0.5.2]: https://github.com/Automattic/jetpack-admin-ui/compare/0.5.1...0.5.2
 [0.5.1]: https://github.com/Automattic/jetpack-admin-ui/compare/0.5.0...0.5.1
 [0.5.0]: https://github.com/Automattic/jetpack-admin-ui/compare/0.4.6...0.5.0
 [0.4.6]: https://github.com/Automattic/jetpack-admin-ui/compare/0.4.5...0.4.6

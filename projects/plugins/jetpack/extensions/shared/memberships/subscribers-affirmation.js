@@ -1,3 +1,4 @@
+import { isComingSoon } from '@automattic/jetpack-shared-extension-utils';
 import { Animate } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -260,6 +261,11 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 
 	if ( ! isSendEmailEnabled() ) {
 		text = __( 'Not sent via email.', 'jetpack' );
+	} else if ( isComingSoon() ) {
+		text = __(
+			'Your site is in Coming Soon mode. Emails are sent only when your site is public.',
+			'jetpack'
+		);
 	} else if ( newsletterCategoriesEnabled && newsletterCategories.length > 0 && ! isPaidPost ) {
 		// Get newsletter category copy & count separately, unless post is paid
 		text = getCopyForCategorySubscribers( {

@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.59.0] - 2025-02-03
+### Added
+- Enable Social Post UI for WordPress.com. [#41219]
+
+### Changed
+- Move Social admin page code and assets logic to publicize package. [#41239]
+- Move initial state from Social plugin to publicize package. [#41381]
+- Phan: Update baselines. [#41263]
+- Move Social settings endpoint to publicize package. [#41456]
+- Use feature flag for Social admin page. [#41413]
+- Updated package dependencies. [#41286]
+- Update the settings endpoint to use existing endpoints. [#41461]
+- Use Admin_Menu::remove_menu to handle old Social menu item. [#41422]
+
+### Fixed
+- Fix the default value for UTM settings schema. [#41386]
+- Fix connections cache when WordPress.com API call fails. [#41392]
+- Fix the API calls on WordPress.com for options. [#41420]
+
+## [0.58.0] - 2025-01-27
+### Changed
+- Refactored Social Note settings to use core. [#41153]
+- Unify connections management API schema. [#40679]
+- Use feature flag for share status data. [#41218]
+
+### Fixed
+- Fix profile links for LinkedIn connections. [#40873]
+- Fix editor invalid parameters error for old Jetpack versions. [#41199]
+- Fix feature check for social connections list initial state. [#40679]
+
+## [0.57.4] - 2025-01-20
+### Changed
+- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
+- License: Social admin page header hides license link on WoA sites. [#41076]
+- Updated package dependencies. [#41099]
+
+### Fixed
+- Social Disable caching for publicize services list to avoid stale nonces [#41149]
+- Social | Fixed the status field for connections to allow null [#41114]
+
+## [0.57.3] - 2025-01-14
+### Fixed
+- Social: Fix failure on post save with LinkedIn connection enabled. [#41000]
+
 ## [0.57.2] - 2025-01-13
 ### Added
 - Publicize: Allow filtering of connections in publicize rest endpoint. [#40914]
@@ -803,6 +847,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.59.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.58.0...v0.59.0
+[0.58.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.4...v0.58.0
+[0.57.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.3...v0.57.4
+[0.57.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.2...v0.57.3
 [0.57.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.1...v0.57.2
 [0.57.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.0...v0.57.1
 [0.57.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.56.5...v0.57.0

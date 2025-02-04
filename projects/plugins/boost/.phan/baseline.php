@@ -13,7 +13,6 @@ return [
     // PhanPluginDuplicateConditionalNullCoalescing : 10+ occurrences
     // PhanTypeArraySuspicious : 9 occurrences
     // PhanTypeMismatchArgument : 8 occurrences
-    // PhanParamTooMany : 6 occurrences
     // PhanPossiblyUndeclaredVariable : 5 occurrences
     // PhanTypeMismatchReturnProbablyReal : 5 occurrences
     // PhanUndeclaredConstant : 5 occurrences
@@ -30,6 +29,7 @@ return [
     // PhanTypeMismatchReturnNullable : 2 occurrences
     // PhanCoalescingNeverNull : 1 occurrence
     // PhanImpossibleTypeComparisonInGlobalScope : 1 occurrence
+    // PhanParamTooMany : 1 occurrence
     // PhanRedefineFunction : 1 occurrence
     // PhanRedundantCondition : 1 occurrence
     // PhanTypeInvalidUnaryOperandIncOrDec : 1 occurrence
@@ -65,9 +65,7 @@ return [
         'app/modules/optimizations/page-cache/pre-wordpress/Request.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchPropertyDefault'],
         'app/modules/optimizations/page-cache/pre-wordpress/storage/File_Storage.php' => ['PhanTypeMismatchArgument'],
         'app/modules/optimizations/render-blocking-js/class-render-blocking-js.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault'],
-        'app/rest-api/permissions/Nonce.php' => ['PhanParamTooMany'],
         'compatibility/elementor.php' => ['PhanUndeclaredClassConstant'],
-        'compatibility/lib/class-sync-jetpack-module-status.php' => ['PhanParamTooMany'],
         'compatibility/page-optimize.php' => ['PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable'],
         'compatibility/score-prompt.php' => ['PhanImpossibleTypeComparisonInGlobalScope', 'PhanTypeComparisonToArray'],
         'compatibility/web-stories.php' => ['PhanUndeclaredClassConstant'],

@@ -8,7 +8,7 @@
 */
 namespace Automattic\JetpackCRM;
 
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 require_once plugin_dir_path( __FILE__ ) . 'class-client-portal-endpoint.php';
 
@@ -117,8 +117,8 @@ class Client_Portal {
 	function portal_enqueue_scripts_and_styles() {
 		global $zbs;
 
-		wp_enqueue_style( 'zbs-portal', plugins_url( '/css/jpcrm-public-portal' . wp_scripts_get_suffix() . '.css', __FILE__ ), array(), $zbs->version );
-		wp_enqueue_style('zbs-fa', ZEROBSCRM_URL . 'css/font-awesome.min.css', array(), $zbs->version );
+		wp_enqueue_style( 'zbs-portal', plugins_url( '/css/jpcrm-public-portal' . wp_scripts_get_suffix() . '.css', __FILE__ ), array(), $zbs::VERSION );
+		wp_enqueue_style( 'zbs-fa', ZEROBSCRM_URL . 'css/font-awesome.min.css', array(), $zbs::VERSION );
 
 		// This do_action call was left here for compatibility purposes (legacy).
 		do_action('zbs_enqueue_portal', 'zeroBS_portal_enqueue_stuff');
@@ -530,7 +530,7 @@ class Client_Portal {
 		// if there's a valid referrer, and it's not the default log-in screen + it's got our post
 		if ( !empty($referrer) && !strstr($referrer,'wp-login') && !strstr($referrer,'wp-admin') && isset($_POST['fromzbslogin'])) {
 				wp_redirect(zeroBS_portal_link('dash') . '?login=failed' );  // let's append some information (login=failed) to the URL for the theme to use
-				exit;
+				exit( 0 );
 		}
 	}
 

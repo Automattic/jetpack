@@ -10,7 +10,7 @@ use Automattic\JetpackBeta\Admin;
 
 // Check that the file is not accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 ?>

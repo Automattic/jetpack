@@ -9,7 +9,7 @@ namespace VideoPressUploader;
 
 // Avoid direct calls to this file.
 if ( ! defined( 'ABSPATH' ) ) {
-	die();
+	die( 0 );
 }
 
 /**
@@ -25,7 +25,7 @@ class Transient_Store extends Tus_Abstract_Cache {
 	 * @return mixed|null
 	 */
 	public function cache_get( $key ) {
-		$contents = get_transient( $key, '' );
+		$contents = get_transient( $key );
 		return empty( $contents ) ? null : $contents;
 	}
 

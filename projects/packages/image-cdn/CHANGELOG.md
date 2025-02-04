@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.4] - 2025-02-03
+### Fixed
+- Code: Remove extra params on function calls. [#41263]
+
+## [0.7.3] - 2025-01-20
+### Fixed
+- General: Ensure that double encoding doesn't happen. [#40886]
+
 ## [0.7.2] - 2024-12-16
 ### Changed
 - Internal updates.
@@ -162,6 +170,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add image CDN package. [#29561]
 
+[0.7.4]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.3...v0.7.4
+[0.7.3]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.6.0...v0.7.0

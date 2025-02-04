@@ -168,7 +168,7 @@ final class WafCompatibilityIntegrationTest extends WorDBless\BaseTestCase {
 				Waf_Compatibility::migrate_brute_force_protection_ip_allow_list();
 
 				// Clean up.
-				remove_filter( 'wordbless_wpdb_query_results', $filter, 10, 2 );
+				remove_filter( 'wordbless_wpdb_query_results', $filter, 10 );
 			}
 		}
 
@@ -235,7 +235,7 @@ final class WafCompatibilityIntegrationTest extends WorDBless\BaseTestCase {
 		$this->assertFalse( get_option( Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME ) );
 
 		// Set the old generic option to true.
-		remove_filter( 'wordbless_wpdb_query_results', $filter_ip_list_option_false, 10, 2 );
+		remove_filter( 'wordbless_wpdb_query_results', $filter_ip_list_option_false, 10 );
 		add_filter( 'wordbless_wpdb_query_results', $filter_ip_list_option_true, 10, 2 );
 
 		// Options default to true when the old generic option is set to true.

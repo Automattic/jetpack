@@ -374,12 +374,15 @@ export default function FeaturedImage( {
 			{ ( placement === PLACEMENT_JETPACK_SIDEBAR ||
 				placement === PLACEMENT_DOCUMENT_SETTINGS ) && (
 				<>
-					<p>{ __( 'Create and use an AI generated featured image for your post.', 'jetpack' ) }</p>
+					<p className="jetpack-ai-assistant__help-text">
+						{ __( 'Based on your post content.', 'jetpack' ) }
+					</p>
 					<Button
 						onClick={ handleModalOpen }
 						isBusy={ busy }
 						disabled={ disabled || notEnoughRequests }
 						variant="secondary"
+						__next40pxDefaultSize
 					>
 						{ __( 'Generate image', 'jetpack' ) }
 					</Button>

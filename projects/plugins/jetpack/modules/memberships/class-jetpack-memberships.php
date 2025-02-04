@@ -234,6 +234,7 @@ class Jetpack_Memberships {
 	private function register_init_hook() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
 		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_gutenberg_block' ) );
+		// phpcs:ignore WPCUT.SwitchBlog.SwitchBlog -- wpcom flags **every** use of switch_blog, apparently expecting valid instances to ignore or suppress the sniff.
 		add_action( 'switch_blog', array( $this, 'clear_post_access_level_cache' ) );
 	}
 
@@ -972,7 +973,7 @@ class Jetpack_Memberships {
 			);
 		} else {
 			Jetpack_Gutenberg::set_extension_unavailable(
-				'jetpack/recurring-payments',
+				'recurring-payments',
 				'missing_plan',
 				array(
 					'required_feature' => 'memberships',

@@ -10,7 +10,7 @@
  */
 
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 /**
@@ -1083,7 +1083,7 @@ function jpcrm_perms_error() {
 		'disabled warning sign',
 		'bad_perms'
 	);
-	die();
+	die( 0 );
 }
 
 /**

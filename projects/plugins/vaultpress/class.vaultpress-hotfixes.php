@@ -1,6 +1,6 @@
 <?php
 // don't call the file directly
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die( 0 );
 
 class VaultPress_Hotfixes {
 	function __construct() {
@@ -30,7 +30,7 @@ class VaultPress_Hotfixes {
 		}
 
 		wp_embed_unregister_handler( 'youtube_embed_url' );
-		wp_embed_register_handler( 'youtube_embed_url', '#https?://(www.)?youtube\.com/(?:v|embed)/([^/]+)#i', array( $this, 'safe_embed_handler_youtube' ), 9, 4 );
+		wp_embed_register_handler( 'youtube_embed_url', '#https?://(www.)?youtube\.com/(?:v|embed)/([^/]+)#i', array( $this, 'safe_embed_handler_youtube' ), 9 );
 	}
 
 	function safe_embed_handler_youtube( $matches, $attr, $url, $rawattr ) {
@@ -116,15 +116,15 @@ class VaultPress_Hotfixes {
 			return;
 
 		if ( ! isset( $_POST['post_id'] ) || ! isset( $_POST['target_meta'] ) )
-			die();
+			die( 0 );
 
 		// Ensure the current user has permission to write to the post.
 		if ( ! current_user_can( 'edit_post', intval( $_POST['post_id'] ) ) )
-			die();
+			die( 0 );
 
 		// Limit the fields that can be written to
 		if ( ! in_array( $_POST['target_meta'], array( 'title', 'description', 'keywords' ) ) )
-			die();
+			die( 0 );
 
 		// Strip tags from the metadata value.
 		$_POST['new_meta'] = strip_tags( $_POST['new_meta'] );
@@ -144,7 +144,7 @@ class VaultPress_Hotfixes {
 			$check_fields = array( 'custom', 'cm' );
 			foreach ( $check_fields as $field ) {
 				if ( isset( $_REQUEST[ $field ] ) && preg_match( '/[CO]:\+?[0-9]+:/', $_REQUEST[ $field ] ) ) {
-					die();
+					die( 0 );
 				}
 			}
 		}
