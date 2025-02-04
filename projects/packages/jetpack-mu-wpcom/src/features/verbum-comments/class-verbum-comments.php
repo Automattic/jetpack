@@ -187,6 +187,7 @@ class Verbum_Comments {
 		$css_mtime        = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/block-editor.css' );
 		$js_mtime         = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/block-editor.min.js' );
 		$vbe_cache_buster = max( $js_mtime, $css_mtime );
+		$color_scheme     = get_blog_option( $this->blog_id, 'jetpack_comment_form_color_scheme' );
 
 		wp_add_inline_script(
 			'verbum-settings',
@@ -256,9 +257,10 @@ class Verbum_Comments {
 					'allowedBlocks'                      => \Verbum_Block_Utils::get_allowed_blocks(),
 					'embedNonce'                         => wp_create_nonce( 'embed_nonce' ),
 					'verbumBundleUrl'                    => plugins_url( 'dist/index.js', __FILE__ ),
-					'isRTL'                              => is_rtl( $locale ),
+					'isRTL'                              => is_rtl(),
 					'vbeCacheBuster'                     => $vbe_cache_buster,
 					'iframeUniqueId'                     => $iframe_unique_id,
+					'colorScheme'                        => $color_scheme,
 				)
 			),
 			'before'

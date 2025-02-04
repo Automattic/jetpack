@@ -635,6 +635,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$not_updated[ $option ] = $error;
 				}
 
+				if ( $updated ) {
+					// Return the module state.
+					$response[ $option ] = $value;
+				}
+
 				// Remove module from list so we don't go through it again.
 				unset( $params[ $option ] );
 			}

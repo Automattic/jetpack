@@ -207,7 +207,7 @@ export const automatticAssignments = {
 	VideoPress: {
 		team: 'Nexus',
 		labels: [ '[Package] VideoPress', '[Feature] VideoPress', '[Plugin] VideoPress' ],
-		slack_id: 'C02TQF5VAJD',
+		slack_id: 'C02LT75D3',
 		board_id: 'https://github.com/orgs/Automattic/projects/460',
 	},
 	// Let this be the last item. It will act as a catch-all for any issues that haven't been matched until now.

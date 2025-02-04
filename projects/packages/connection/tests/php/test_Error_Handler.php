@@ -72,20 +72,20 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$this->assertCount( 1, $stored_errors );
 
-		$this->arrayHasKey( 'invalid_token', $stored_errors );
+		$this->assertArrayHasKey( 'invalid_token', $stored_errors );
 
 		$this->assertCount( 1, $stored_errors['invalid_token'] );
 
-		$this->arrayHasKey( '1', $stored_errors['invalid_token'] );
+		$this->assertArrayHasKey( '1', $stored_errors['invalid_token'] );
 
-		$this->arrayHasKey( 'nonce', $stored_errors['invalid_token']['1'] );
-		$this->arrayHasKey( 'error_code', $stored_errors['invalid_token']['1'] );
-		$this->arrayHasKey( 'user_id', $stored_errors['invalid_token']['1'] );
-		$this->arrayHasKey( 'error_message', $stored_errors['invalid_token']['1'] );
-		$this->arrayHasKey( 'error_data', $stored_errors['invalid_token']['1'] );
-		$this->arrayHasKey( 'timestamp', $stored_errors['invalid_token']['1'] );
-		$this->arrayHasKey( 'nonce', $stored_errors['invalid_token']['1'] );
-		$this->arrayHasKey( 'error_type', $stored_errors['invalid_token']['1'] );
+		$this->assertArrayHasKey( 'nonce', $stored_errors['invalid_token']['1'] );
+		$this->assertArrayHasKey( 'error_code', $stored_errors['invalid_token']['1'] );
+		$this->assertArrayHasKey( 'user_id', $stored_errors['invalid_token']['1'] );
+		$this->assertArrayHasKey( 'error_message', $stored_errors['invalid_token']['1'] );
+		$this->assertArrayHasKey( 'error_data', $stored_errors['invalid_token']['1'] );
+		$this->assertArrayHasKey( 'timestamp', $stored_errors['invalid_token']['1'] );
+		$this->assertArrayHasKey( 'nonce', $stored_errors['invalid_token']['1'] );
+		$this->assertArrayHasKey( 'error_type', $stored_errors['invalid_token']['1'] );
 		$this->assertEquals( 'xmlrpc', $stored_errors['invalid_token']['1']['error_type'] );
 	}
 
@@ -108,29 +108,29 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$this->assertCount( 3, $stored_errors );
 
-		$this->arrayHasKey( 'invalid_token', $stored_errors );
+		$this->assertArrayHasKey( 'invalid_token', $stored_errors );
 
 		$this->assertCount( 1, $stored_errors['invalid_token'] );
 		$this->assertCount( 1, $stored_errors['unknown_user'] );
 		$this->assertCount( 1, $stored_errors['invalid_connection_owner'] );
 
-		$this->arrayHasKey( '1', $stored_errors['unknown_user'] );
+		$this->assertArrayHasKey( '1', $stored_errors['unknown_user'] );
 
-		$this->arrayHasKey( 'error_type', $stored_errors['invalid_token']['1'] );
+		$this->assertArrayHasKey( 'error_type', $stored_errors['invalid_token']['1'] );
 		$this->assertEquals( 'xmlrpc', $stored_errors['invalid_token']['1']['error_type'] );
 
-		$this->arrayHasKey( 'nonce', $stored_errors['unknown_user']['1'] );
-		$this->arrayHasKey( 'error_code', $stored_errors['unknown_user']['1'] );
-		$this->arrayHasKey( 'user_id', $stored_errors['unknown_user']['1'] );
-		$this->arrayHasKey( 'error_message', $stored_errors['unknown_user']['1'] );
-		$this->arrayHasKey( 'error_data', $stored_errors['unknown_user']['1'] );
-		$this->arrayHasKey( 'timestamp', $stored_errors['unknown_user']['1'] );
-		$this->arrayHasKey( 'nonce', $stored_errors['unknown_user']['1'] );
-		$this->arrayHasKey( 'error_type', $stored_errors['unknown_user']['1'] );
+		$this->assertArrayHasKey( 'nonce', $stored_errors['unknown_user']['1'] );
+		$this->assertArrayHasKey( 'error_code', $stored_errors['unknown_user']['1'] );
+		$this->assertArrayHasKey( 'user_id', $stored_errors['unknown_user']['1'] );
+		$this->assertArrayHasKey( 'error_message', $stored_errors['unknown_user']['1'] );
+		$this->assertArrayHasKey( 'error_data', $stored_errors['unknown_user']['1'] );
+		$this->assertArrayHasKey( 'timestamp', $stored_errors['unknown_user']['1'] );
+		$this->assertArrayHasKey( 'nonce', $stored_errors['unknown_user']['1'] );
+		$this->assertArrayHasKey( 'error_type', $stored_errors['unknown_user']['1'] );
 		$this->assertEquals( 'rest', $stored_errors['unknown_user']['1']['error_type'] );
 
-		$this->arrayHasKey( 'invalid', $stored_errors['invalid_connection_owner'] );
-		$this->arrayHasKey( 'error_type', $stored_errors['invalid_connection_owner']['invalid'] );
+		$this->assertArrayHasKey( 'invalid', $stored_errors['invalid_connection_owner'] );
+		$this->assertArrayHasKey( 'error_type', $stored_errors['invalid_connection_owner']['invalid'] );
 		$this->assertEquals( 'connection', $stored_errors['invalid_connection_owner']['invalid']['error_type'] );
 	}
 
@@ -153,21 +153,21 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$this->assertCount( 2, $stored_errors );
 
-		$this->arrayHasKey( 'invalid_token', $stored_errors );
+		$this->assertArrayHasKey( 'invalid_token', $stored_errors );
 
 		$this->assertCount( 1, $stored_errors['invalid_token'] );
 		$this->assertCount( 2, $stored_errors['unknown_user'] );
 
-		$this->arrayHasKey( '2', $stored_errors['unknown_user'] );
+		$this->assertArrayHasKey( '2', $stored_errors['unknown_user'] );
 
-		$this->arrayHasKey( 'nonce', $stored_errors['unknown_user']['2'] );
-		$this->arrayHasKey( 'error_code', $stored_errors['unknown_user']['2'] );
-		$this->arrayHasKey( 'user_id', $stored_errors['unknown_user']['2'] );
-		$this->arrayHasKey( 'error_message', $stored_errors['unknown_user']['2'] );
-		$this->arrayHasKey( 'error_data', $stored_errors['unknown_user']['2'] );
-		$this->arrayHasKey( 'timestamp', $stored_errors['unknown_user']['2'] );
-		$this->arrayHasKey( 'nonce', $stored_errors['unknown_user']['2'] );
-		$this->arrayHasKey( 'error_type', $stored_errors['unknown_user']['2'] );
+		$this->assertArrayHasKey( 'nonce', $stored_errors['unknown_user']['2'] );
+		$this->assertArrayHasKey( 'error_code', $stored_errors['unknown_user']['2'] );
+		$this->assertArrayHasKey( 'user_id', $stored_errors['unknown_user']['2'] );
+		$this->assertArrayHasKey( 'error_message', $stored_errors['unknown_user']['2'] );
+		$this->assertArrayHasKey( 'error_data', $stored_errors['unknown_user']['2'] );
+		$this->assertArrayHasKey( 'timestamp', $stored_errors['unknown_user']['2'] );
+		$this->assertArrayHasKey( 'nonce', $stored_errors['unknown_user']['2'] );
+		$this->assertArrayHasKey( 'error_type', $stored_errors['unknown_user']['2'] );
 	}
 
 	/**
@@ -363,18 +363,18 @@ class Error_Handler_Test extends BaseTestCase {
 		$verified_errors = $this->error_handler->get_verified_errors();
 
 		$this->assertCount( 1, $stored_errors );
-		$this->arrayHasKey( 'unknown_token', $stored_errors );
+		$this->assertArrayHasKey( 'unknown_token', $stored_errors );
 		$this->assertCount( 1, $stored_errors['unknown_token'] );
-		$this->arrayHasKey( '1', $stored_errors['unknown_token'] );
-		$this->arrayHasKey( 'error_code', $stored_errors['unknown_token']['0'] );
-		$this->arrayHasKey( 'error_type', $stored_errors['unknown_token']['0'] );
+		$this->assertArrayHasKey( 0, $stored_errors['unknown_token'] );
+		$this->assertArrayHasKey( 'error_code', $stored_errors['unknown_token']['0'] );
+		$this->assertArrayHasKey( 'error_type', $stored_errors['unknown_token']['0'] );
 		$this->assertEquals( 'rest', $stored_errors['unknown_token']['0']['error_type'] );
 
 		$this->assertCount( 1, $verified_errors );
-		$this->arrayHasKey( 'unknown_token', $verified_errors );
+		$this->assertArrayHasKey( 'unknown_token', $verified_errors );
 		$this->assertCount( 1, $verified_errors['unknown_token'] );
-		$this->arrayHasKey( '1', $verified_errors['unknown_token'] );
-		$this->arrayHasKey( 'error_code', $verified_errors['unknown_token']['0'] );
+		$this->assertArrayHasKey( 0, $verified_errors['unknown_token'] );
+		$this->assertArrayHasKey( 'error_code', $verified_errors['unknown_token']['0'] );
 		$this->assertEquals( 'rest', $verified_errors['unknown_token']['0']['error_type'] );
 	}
 

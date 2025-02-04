@@ -4,13 +4,14 @@
 	left: 50%;
 	transform: translateX(-50%);
 	width: 440px;
-	max-height: 434px;
+	height: 434px;
 	background: white;
 	border-radius: 24px;
 	outline: 0.5px solid var( --jp-gray-5 );
 	z-index: 1000;
 	display: flex;
 	flex-direction: column;
+	padding: 24px;
 	// countering the Jetpack sidebar ai-feature styles:
 	button {
 		width: unset;
@@ -21,15 +22,15 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		padding: 16px;
-		// border-bottom: 1px solid #e5e7eb;
+		padding-bottom: 24px;
 		background: white;
-		border-radius: 16px 16px 0 0;
+		border-radius: 24px 24px 0 0;
 
 		h2 {
 			margin: 0;
-			font-size: 16px;
-			font-weight: 600;
+			font-size: 20px;
+			font-weight: 500;
+			color: #1e1e1e;
 		}
 
 		button {
@@ -37,7 +38,7 @@
 			border: none;
 			cursor: pointer;
 			padding: 8px;
-			color: #6b7280;
+			color: #1e1e1e;
 
 			&:hover {
 				color: #374151;
@@ -51,18 +52,22 @@
 		flex-direction: column;
 		height: 100%;
 		overflow: auto;
+		mask-image: linear-gradient( 180deg, transparent, white 24px );
+
+		& > :first-child {
+			margin-top: auto;
+		}
 	}
 
 	&__messages {
 		flex: 1 1 auto;
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
-		padding: 8px 24px;
+		gap: 16px;
+		padding: 8px 8px 8px 0;
 		overflow-y: auto;
 		scroll-behavior: smooth;
 		align-items: flex-start;
-		mask-image: linear-gradient( 180deg, transparent, white 24px );
 	}
 
 	&__message {
@@ -72,7 +77,7 @@
 		line-height: 1.5;
 		display: flex;
 		align-items: center;
-		min-width: 80%;
+		max-width: 255px;
 
 		.assistant-wizard__message-icon {
 			flex-shrink: 0;
@@ -92,9 +97,12 @@
 		&.is-user {
 			background: #f3f4f6;
 			align-self: flex-end;
-			max-width: 85%;
 			min-width: 15%;
 			
+			.assistant-wizard__message-text {
+				padding: 16px 20px;
+			}
+	
 			.assistant-wizard__message-icon {
 				display: none;
 			}
@@ -103,11 +111,9 @@
 
 	&__input-container {
 		flex: 0 0 auto;
-		padding: 16px;
+		padding-top: 16px;
 		background: white;
-		border-radius: 0 0 16px 16px;
-		border-top: 1px solid var( --jp-gray-5, #e5e7eb );
-		flex-basis: 60px; // seems better than min-height
+		border-radius: 0 0 24px 24px;
 	}
 
 	&__input {
@@ -146,8 +152,9 @@
 		}
 	}
 
+	// submit and retry buttons
 	&__submit {
-		border-radius: 20px;
+		border-radius: 24px;
 		max-height: 34px;
 	}
 
@@ -159,10 +166,10 @@
 
 	&__option {
 		width: 100%;
-		padding: 12px;
+		padding: 16px 20px;
 		background: #f3f4f6;
 		border: 2px solid transparent;
-		border-radius: 12px;
+		border-radius: 16px;
 		text-align: left;
 		font-size: 14px;
 		line-height: 1.4;
@@ -191,19 +198,11 @@
 		align-items: center;
 		gap: 16px;
 		animation: assistantInputAppear 0.3s ease-out;
-
-		.components-button {
-			border-radius: 20px;
-		}
 	}
 
 	&__completion {
 		display: flex;
 		justify-content: flex-end;
-
-		.components-button {
-			border-radius: 20px;
-		}
 	}
 }
 

@@ -1,0 +1,20 @@
+---
+description: How changelog entries must be structured for each change
+globs: 
+---
+Every change in the `/projects` directory will need to add a specially-formatted file to the project's specified `changelog` directory.
+
+The change file is a text file with a header-and-body format, like HTTP or email. A change file might look like this:
+
+```
+Significance: patch
+Type: compat
+
+Block Editor: update all blocks to be fully compatible with WordPress 5.7.
+```
+
+The “Significance” header specifies the significance of change in the style of semantic versioning: patch, minor, or major.
+
+The “Type” header categorizes the change in the changelog. In Jetpack, for example, our changelog divides changes into “Major Enhancements”, “Enhancements”, “Improved compatibility”, and “Bugfixes”.
+
+The body is separated from the headers by a blank line, and is the text that actually goes into the changelog. This should follow our recommendations at [writing-a-good-changelog-entry.md](mdc:jetpack/jetpack/jetpack/docs/writing-a-good-changelog-entry.md).

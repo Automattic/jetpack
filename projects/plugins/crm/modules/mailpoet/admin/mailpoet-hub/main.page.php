@@ -239,8 +239,8 @@ function jpcrm_mailpoet_output_language_labels( $additional_labels = array() ){
 function jpcrm_mailpoet_hub_page_styles_scripts(){
 
 	global $zbs;	
-	wp_enqueue_script( 'jpcrm-mailpoet', plugins_url( '/js/jpcrm-mailpoet-hub-page'.wp_scripts_get_suffix().'.js', JPCRM_MAILPOET_ROOT_FILE ), array( 'jquery' ), $zbs->version );
-	wp_enqueue_style( 'jpcrm-mailpoet-hub-page', plugins_url( '/css/jpcrm-mailpoet-hub-page'.wp_scripts_get_suffix().'.css', JPCRM_MAILPOET_ROOT_FILE ) );
+	wp_enqueue_script( 'jpcrm-mailpoet', plugins_url( '/js/jpcrm-mailpoet-hub-page' . wp_scripts_get_suffix() . '.js', JPCRM_MAILPOET_ROOT_FILE ), array( 'jquery' ), $zbs::VERSION ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
+	wp_enqueue_style( 'jpcrm-mailpoet-hub-page', plugins_url( '/css/jpcrm-mailpoet-hub-page' . wp_scripts_get_suffix() . '.css', JPCRM_MAILPOET_ROOT_FILE ), array(), $zbs::VERSION );
 	zeroBSCRM_global_admin_styles();
 
 }

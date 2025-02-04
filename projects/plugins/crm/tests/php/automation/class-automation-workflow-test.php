@@ -184,7 +184,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 		$automation->init_workflows();
 
 		// Fake event data
-		$contact = $this->automation_faker->contact( false );
+		$contact = $this->automation_faker->contact();
 
 		// We expect the workflow to be executed on contact_created event with the contact data
 		$workflow->expects( $this->once() )

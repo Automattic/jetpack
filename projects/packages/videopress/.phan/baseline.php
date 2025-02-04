@@ -21,7 +21,6 @@ return [
     // PhanTypeArraySuspiciousNullable : 4 occurrences
     // PhanTypeMismatchArgument : 4 occurrences
     // PhanNoopNew : 3 occurrences
-    // PhanParamTooMany : 3 occurrences
     // PhanPossiblyUndeclaredVariable : 2 occurrences
     // PhanTypeInvalidDimOffset : 2 occurrences
     // PhanUndeclaredExtendedClass : 2 occurrences
@@ -48,14 +47,12 @@ return [
         'src/class-jwt-token-bridge.php' => ['PhanTypeMismatchReturn'],
         'src/class-plan.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-stats.php' => ['PhanTypeArraySuspiciousNullable'],
-        'src/class-uploader-rest-endpoints.php' => ['PhanParamTooMany'],
         'src/class-uploader.php' => ['PhanTypeMismatchArgument'],
         'src/class-utils.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-videopresstoken.php' => ['PhanTypeMismatchReturn'],
         'src/class-wpcom-rest-api-v2-attachment-field-videopress.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-wpcom-rest-api-v2-endpoint-videopress.php' => ['PhanAccessMethodInternal', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'src/class-xmlrpc.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
-        'src/tus/class-transient-store.php' => ['PhanParamTooMany'],
         'src/tus/class-tus-abstract-cache.php' => ['PhanTypeMismatchArgumentInternal'],
         'src/tus/class-tus-client.php' => ['PhanNonClassMethodCall', 'PhanTypeMismatchArgument'],
         'src/tus/class-tus-file.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspiciousNullable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeThrowsType'],
