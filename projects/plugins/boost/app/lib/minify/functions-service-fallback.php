@@ -317,7 +317,7 @@ function jetpack_boost_page_optimize_get_file_paths( $args ) {
 		$args = explode( ',', $args );
 	}
 
-	if ( ! is_array( $args ) || false === $args ) {
+	if ( ! is_array( $args ) ) {
 		// Invalid data, abort!
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
