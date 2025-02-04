@@ -655,7 +655,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the radio field.
 	 *
-	 * @param string $id - the ID (always starts with 'g').
+	 * @param string $id - the ID (starts with 'g' - see constructor).
 	 * @param string $label - the label.
 	 * @param string $value - the value of the field.
 	 * @param string $class - the field class.
@@ -745,7 +745,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the multiple checkbox field.
 	 *
-	 * @param string $id - the ID (always starts with 'g').
+	 * @param string $id - the ID (starts with 'g' - see constructor).
 	 * @param string $label - the label.
 	 * @param string $value - the value of the field.
 	 * @param string $class - the field class.
