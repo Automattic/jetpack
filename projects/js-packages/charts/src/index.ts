@@ -14,3 +14,7 @@ export { defaultTheme, jetpackTheme, wooTheme } from './providers/theme/themes';
 
 // Hooks
 export { default as useChartMouseHandler } from './hooks/use-chart-mouse-handler';
+
+// Types
+export type * from './types';
+export type { BaseTooltipProps } from './components/tooltip';
