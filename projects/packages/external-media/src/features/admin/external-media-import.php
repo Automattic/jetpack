@@ -77,6 +77,7 @@ function render_jetpack_external_media_import_page() {
 	?>
 	<div id="jetpack-external-media-import" class="wrap">
 		<h1><?php echo esc_html( $title ); ?></h1>
+		<div id="jetpack-external-media-import-notice"></div>
 		<p><?php echo esc_html( $description ); ?></p>
 		<table class="widefat importers striped">
 			<?php
