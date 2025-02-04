@@ -741,9 +741,11 @@ abstract class Module {
 			$object_size      = strlen( maybe_serialize( $object ) );
 			$current_metadata = array();
 			$metadata_size    = 0;
+			$id_field         = $this->id_field();
+			$object_id        = (int) ( is_object( $object ) ? $object->{$id_field} : $object[ $id_field ] );
 
 			foreach ( $metadata as $key => $metadata_item ) {
-				if ( (int) $metadata_item->{$type . '_id'} === (int) $object->{$this->id_field()} ) {
+				if ( (int) $metadata_item->{$type . '_id'} === $object_id ) {
 					$metadata_item_size = strlen( maybe_serialize( $metadata_item->meta_value ) );
 					if ( $metadata_item_size >= $max_meta_size ) {
 						$metadata_item->meta_value = ''; // Trim metadata if too large.
@@ -760,7 +762,6 @@ abstract class Module {
 
 			// Always allow the first object with metadata.
 			if ( empty( $filtered_object_ids ) || ( $current_size + $object_size + $metadata_size ) <= $max_total_size ) {
-				$id_field              = $this->id_field();
 				$filtered_object_ids[] = strval( is_object( $object ) ? $object->{$id_field} : $object[ $id_field ] );
 				$filtered_objects[]    = $object;
 				$filtered_metadata     = array_merge( $filtered_metadata, $current_metadata );
