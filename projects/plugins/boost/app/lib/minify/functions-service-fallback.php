@@ -27,7 +27,9 @@ function jetpack_boost_page_optimize_service_request() {
 		define( 'DONOTCACHEPAGE', true );
 	}
 
-	$use_cache = Config::can_use_cache();
+	$use_cache       = Config::can_use_cache();
+	$cache_file      = '';
+	$cache_file_meta = '';
 
 	if ( $use_cache ) {
 		$cache_dir = Config::get_cache_dir_path();
