@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Custom Content Types: Ensure feature works on Jetpack settings page without using module functionality.

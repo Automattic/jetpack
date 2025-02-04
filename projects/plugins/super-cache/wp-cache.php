@@ -3,7 +3,7 @@
  * Plugin Name: WP Super Cache
  * Plugin URI: https://wordpress.org/plugins/wp-super-cache/
  * Description: Very fast caching plugin for WordPress.
- * Version: 1.12.4
+ * Version: 2.0.0
  * Author: Automattic
  * Author URI: https://automattic.com/
  * License: GPL2+
@@ -1676,8 +1676,6 @@ function wp_cache_sanitize_value($text, & $array) {
 function wp_cache_update_rejected_ua() {
 	global $cache_rejected_user_agent, $wp_cache_config_file, $valid_nonce;
 
-	if ( !function_exists( 'apache_request_headers' ) ) return;
-
 	if ( isset( $_POST[ 'wp_rejected_user_agent' ] ) && $valid_nonce ) {
 		$_POST[ 'wp_rejected_user_agent' ] = str_replace( ' ', '___', $_POST[ 'wp_rejected_user_agent' ] );
 		$text = str_replace( '___', ' ', wp_cache_sanitize_value( $_POST[ 'wp_rejected_user_agent' ], $cache_rejected_user_agent ) );
@@ -1691,10 +1689,6 @@ function wp_cache_update_rejected_ua() {
 
 function wpsc_edit_rejected_ua() {
 	global $cache_rejected_user_agent;
-
-	if ( ! function_exists( 'apache_request_headers' ) ) {
-		return;
-	}
 
 	$admin_url = admin_url( 'options-general.php?page=wpsupercache' );
 	wp_cache_update_rejected_ua();
@@ -2085,7 +2079,7 @@ add_action( 'admin_notices', 'wpsc_config_file_notices' );
 function wpsc_dismiss_indexhtml_warning() {
 		check_ajax_referer( "wpsc-index-dismiss" );
 		update_site_option( 'wp_super_cache_index_detected', 3 );
-		die();
+		die( 0 );
 }
 add_action( 'wp_ajax_wpsc-index-dismiss', 'wpsc_dismiss_indexhtml_warning' );
 

@@ -84,6 +84,7 @@ class Complete extends Module_Product {
 			'AI Assistant',
 			_x( 'Stats (100K site views, upgradeable)', 'Complete Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'CRM Entrepreneur', 'Complete Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Newsletter and monetization tools', 'Complete Product Feature', 'jetpack-my-jetpack' ),
 		);
 	}
 

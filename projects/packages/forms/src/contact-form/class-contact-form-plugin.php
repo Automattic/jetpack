@@ -117,13 +117,13 @@ class Contact_Form_Plugin {
 		if ( is_array( $data_with_tags ) ) {
 			foreach ( $data_with_tags as $index => $value ) {
 				$index = sanitize_text_field( (string) $index );
-				$value = wp_kses( (string) $value, array() );
+				$value = wp_kses_post( (string) $value );
 				$value = str_replace( '&amp;', '&', $value ); // undo damage done by wp_kses_normalize_entities()
 
 				$data_without_tags[ $index ] = $value;
 			}
 		} else {
-			$data_without_tags = wp_kses( (string) $data_with_tags, array() );
+			$data_without_tags = wp_kses_post( (string) $data_with_tags );
 			$data_without_tags = str_replace( '&amp;', '&', $data_without_tags ); // undo damage done by wp_kses_normalize_entities()
 		}
 
@@ -776,7 +776,7 @@ class Contact_Form_Plugin {
 			);
 		}
 
-		die;
+		die( 0 );
 	}
 
 	/**
@@ -1828,7 +1828,7 @@ class Contact_Form_Plugin {
 		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 
 		$this->record_tracks_event( 'forms_export_responses', array( 'format' => 'csv' ) );
-		exit();
+		exit( 0 );
 	}
 
 	/**
@@ -2046,10 +2046,7 @@ class Contact_Form_Plugin {
 			if ( str_contains( $content, 'JSON_DATA' ) ) {
 				$chunks     = explode( "\nJSON_DATA", $content );
 				$all_values = json_decode( $chunks[1], true );
-				if ( is_array( $all_values ) ) {
-					$fields_array = array_keys( $all_values );
-				}
-				$lines = array_filter( explode( "\n", $chunks[0] ) );
+				$lines      = array_filter( explode( "\n", $chunks[0] ) );
 			} else {
 				$fields_array = preg_replace( '/.*Array\s\( (.*)\)/msx', '$1', $content );
 

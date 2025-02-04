@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use `Automattic/jetpack-composer-plugin` so jetpack-library packages will be installed in a place where `wp i18n` will see them.

@@ -25,7 +25,12 @@ const Meta = () => {
 	const [ clearedCacheMessage, runClearPageCacheAction ] = useClearPageCacheAction();
 
 	const clearPageCache = () => {
+		recordBoostEvent( 'page_cache_clear_clicked', {} );
 		runClearPageCacheAction.mutate();
+	};
+
+	const handleSeeLogsClick = () => {
+		recordBoostEvent( 'page_cache_see_logs_clicked', {} );
 	};
 
 	const totalBypassPatterns = bypassPatterns?.length || 0;
@@ -121,7 +126,11 @@ const Meta = () => {
 					{ __( 'Activate logging to track all your cache events.', 'jetpack-boost' ) }
 				</label>
 				{ logging && (
-					<Link className={ styles[ 'see-logs-link' ] } to="/cache-debug-log">
+					<Link
+						onClick={ handleSeeLogsClick }
+						className={ styles[ 'see-logs-link' ] }
+						to="/cache-debug-log"
+					>
 						{ __( 'See Logs', 'jetpack-boost' ) }
 					</Link>
 				) }
@@ -193,6 +202,7 @@ const BypassPatterns = ( {
 	}, [ showErrorNotice ] );
 
 	function save() {
+		recordBoostEvent( 'page_cache_exceptions_save_clicked', {} );
 		setPatterns( inputValue );
 	}
 
@@ -264,6 +274,7 @@ const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
 				href="#"
 				className={ styles[ 'example-button' ] }
 				onClick={ e => {
+					recordBoostEvent( 'page_cache_see_example_clicked', {} );
 					e.preventDefault();
 					setShow( ! show );
 				} }

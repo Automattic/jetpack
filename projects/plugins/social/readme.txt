@@ -104,10 +104,18 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 5.5.1 - 2024-10-29
+### 6.1.0 - 2025-01-27
 #### Changed
-- Components: Add __nextHasNoMarginBottom to BaseControl-based components, preventing deprecation notices.
+- Code: Use function-style exit() and die() with a default status code of 0.
+- License: Social admin page header hides license link on WoA sites.
+- Moved the Social admin page to the publicize-components package
+- Refactored Social Note settings to use core
 - Updated package dependencies.
+
+#### Fixed
+- Fixed profile links for LinkedIn connections
+- Fixed wordpress.com log in error when connecting Social accounts
+- Fix publicize error in the editor due to malformed connections data
 
 == Upgrade Notice ==
 

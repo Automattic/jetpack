@@ -64,7 +64,7 @@ function wpcomsh_custom_css_customizer_redirect() {
 	);
 
 	wp_safe_redirect( $redirect_to );
-	exit;
+	exit( 0 );
 }
 
 /**

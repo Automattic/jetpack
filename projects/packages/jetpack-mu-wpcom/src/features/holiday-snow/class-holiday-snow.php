@@ -3,7 +3,7 @@
  * Holiday Snow
  * Adds falling snow to a blog starting December 1 and ending January 3.
  *
- * @since $$next-version$$
+ * @since 6.1.0
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -40,7 +40,7 @@ class Holiday_Snow {
 		 * It allows to change the start and end dates of the season,
 		 * for regions where the holiday season may be different.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.1.0
 		 *
 		 * @param bool $is_holiday_snow_season Is it the  snow season?
 		 */
@@ -51,6 +51,8 @@ class Holiday_Snow {
 	 * Check if the site uses p2.
 	 * p2 is currently not compatible with Holiday Snow.
 	 * This covers both P2 and P2020 themes.
+	 *
+	 * @deprecated 6.1.0
 	 *
 	 * @return bool
 	 */
@@ -74,7 +76,7 @@ class Holiday_Snow {
 	 * @return void
 	 */
 	public static function init() {
-		if ( ! self::is_snow_season() || self::is_p2() ) {
+		if ( ! self::is_snow_season() ) {
 			return;
 		}
 
@@ -84,12 +86,23 @@ class Holiday_Snow {
 		add_action( 'update_option_' . self::HOLIDAY_SNOW_OPTION_NAME, array( __CLASS__, 'holiday_snow_option_updated' ) );
 
 		if ( self::is_snow_enabled() ) {
+			add_action( 'wp_footer', array( __CLASS__, 'holiday_snow_markup' ) );
 			add_action( 'wp_enqueue_scripts', array( __CLASS__, 'holiday_snow_script' ) );
 		}
 	}
 
 	/**
-	 * Enqueue the snowstorm script on the frontend.
+	 * Add the snowstorm markup to the footer.
+	 *
+	 * @return void
+	 * @since 6.1.0
+	 */
+	public static function holiday_snow_markup() {
+		echo '<div id="jetpack-holiday-snow"></div>';
+	}
+
+	/**
+	 * Enqueue the snowstorm CSS on the frontend.
 	 *
 	 * @return void
 	 */
@@ -98,7 +111,7 @@ class Holiday_Snow {
 			/**
 			 * Allow short-circuiting the snow, even when enabled on the site in settings.
 			 *
-			 * @since $$next-version$$
+			 * @since 6.1.0
 			 *
 			 * @param bool true Whether to show the snow.
 			 */
@@ -110,28 +123,31 @@ class Holiday_Snow {
 		/**
 		 * Fires when the snow is falling.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.1.0
 		 */
 		do_action( 'jetpack_stats_extra', 'holiday_snow', 'snowing' );
 
 		/**
 		 * Filter the URL of the snowstorm script.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.1.0
+		 * @deprecated 6.1.0 We've switched to a CSS-only snow effect.
 		 *
 		 * @param string $snowstorm_url URL of the snowstorm script.
 		 */
-		$snowstorm_url = apply_filters(
+		$snowstorm_url = apply_filters_deprecated( // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			'jetpack_holiday_snow_js_url',
-			plugins_url( 'snowstorm.js', __FILE__ )
+			array( plugins_url( 'snowstorm.js', __FILE__ ) ),
+			'6.1.1',
+			'',
+			'This filter is no longer useful. We use a CSS-only snow effect instead.'
 		);
 
-		wp_enqueue_script(
-			'snowstorm',
-			$snowstorm_url,
+		wp_enqueue_style(
+			'holiday-snow',
+			plugins_url( 'build/holiday-snow/holiday-snow.css', \Automattic\Jetpack\Jetpack_Mu_Wpcom::BASE_FILE ),
 			array(),
-			\Automattic\Jetpack\Jetpack_Mu_Wpcom::PACKAGE_VERSION,
-			true
+			\Automattic\Jetpack\Jetpack_Mu_Wpcom::PACKAGE_VERSION
 		);
 	}
 

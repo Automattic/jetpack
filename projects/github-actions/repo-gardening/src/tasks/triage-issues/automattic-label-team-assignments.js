@@ -138,10 +138,15 @@ export const automatticAssignments = {
 		board_id: 'https://github.com/orgs/Automattic/projects/724',
 	},
 	Newsletter: {
-		team: 'Zap',
-		labels: [ '[Block] Subscriptions', '[Block] Paywall' ],
-		slack_id: 'C02NQ4HMJKV',
-		board_id: 'https://github.com/orgs/Automattic/projects/657',
+		team: 'Loop',
+		labels: [
+			'[Block] Subscriptions',
+			'[Block] Paywall',
+			'[Block] Subscriber Login',
+			'[Feature] Subscriptions',
+		],
+		slack_id: 'C083ZPVVDTK',
+		board_id: 'https://github.com/orgs/Automattic/projects/443/views/13',
 	},
 	Photon: {
 		team: 'Heart of Gold',
@@ -205,9 +210,9 @@ export const automatticAssignments = {
 		board_id: 'https://github.com/orgs/Automattic/projects/908/views/1',
 	},
 	VideoPress: {
-		team: 'Agora',
+		team: 'Nexus',
 		labels: [ '[Package] VideoPress', '[Feature] VideoPress', '[Plugin] VideoPress' ],
-		slack_id: 'C02TQF5VAJD',
+		slack_id: 'C02LT75D3',
 		board_id: 'https://github.com/orgs/Automattic/projects/460',
 	},
 	// Let this be the last item. It will act as a catch-all for any issues that haven't been matched until now.

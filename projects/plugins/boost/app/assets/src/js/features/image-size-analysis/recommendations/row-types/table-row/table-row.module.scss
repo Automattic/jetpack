@@ -1,0 +1,92 @@
+@mixin bottom-border-radius {
+	border-bottom-right-radius: var(--border-radius);
+	border-bottom-left-radius: var(--border-radius);
+	border-bottom: var(--border);
+}
+
+@mixin top-border-radius {
+	border-top-right-radius: var(--border-radius);
+	border-top-left-radius: var(--border-radius);
+	border-top: var(--border);
+}
+
+.table-row-container {
+	background-color: #fff;
+	border-top: var(--border);
+	border-left: var(--border);
+	border-right: var(--border);
+	margin: 0;
+	transition: margin 100ms ease;
+
+	// This is a workaround for box shadows.
+	// If the shadow was applied to the row directly
+	// it would cast a shadow on other rows
+	// This puts the shadow on a pseudo element
+	// and moves it behind the row
+	// The downside of this approach is that I can't use
+	// overflow: hidden to clip border radius here.
+	position: relative;
+
+	&:before {
+		content: '';
+		position: absolute;
+		box-shadow: 0px 4px 24px 0px hsla(0, 0%, 0%, 0.08);
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		z-index: -1;
+	}
+
+	&:last-child {
+		@include bottom-border-radius;
+	}
+}
+
+// Expanded view, but not the one at the very top.
+.table-row-container + .table-row-container.expanded {
+	margin-top: var(--expanded-gap);
+	@include top-border-radius;
+}
+
+// The row after the expanded view.
+.expanded + .table-row-container {
+	@include top-border-radius;
+}
+
+// The row before the expanded view.
+.table-row-container:has(+ .expanded) {
+	@include bottom-border-radius;
+}
+
+.table-row-container.expanded {
+	margin-bottom: var(--expanded-gap);
+	@include bottom-border-radius;
+}
+
+.expand-indicator {
+	cursor: pointer;
+	text-align: center;
+	grid-column: expand;
+	.expanded & {
+		svg {
+			transform: rotate(180deg);
+		}
+	}
+}
+
+.expanded-content-row {
+	display: flex;
+	justify-content: space-between;
+	padding: var(--gap);
+	padding-left: calc(var(--thumbnail-size) + var(--gap) * 2);
+
+	.expanded & {
+		@include bottom-border-radius;
+	}
+
+	@media (max-width: 782px) {
+		flex-direction: column;
+		padding-left: var(--gap);
+	}
+}

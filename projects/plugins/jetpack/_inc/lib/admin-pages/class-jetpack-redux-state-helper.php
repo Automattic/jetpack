@@ -314,7 +314,7 @@ class Jetpack_Redux_State_Helper {
 		// This allows us to embed videopress videos into the release post.
 		add_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10, 2 );
 		$content = wp_kses_post( $post['content'] );
-		remove_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10, 2 );
+		remove_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10 );
 
 		$post_title = isset( $post['title'] ) ? $post['title'] : null;
 		$title      = wp_kses( $post_title, array() );
@@ -491,7 +491,7 @@ function jetpack_current_user_data() {
 		'email'       => $current_user->user_email,
 		'id'          => $current_user->ID,
 		'wpcomUser'   => $dotcom_data,
-		'gravatar'    => get_avatar_url( $current_user->ID, 64, 'mm', '', array( 'force_display' => true ) ),
+		'gravatar'    => get_avatar_url( $current_user->ID ),
 		'permissions' => array(
 			'admin_page'         => current_user_can( 'jetpack_admin_page' ),
 			'connect'            => current_user_can( 'jetpack_connect' ),

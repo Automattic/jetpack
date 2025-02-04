@@ -6,6 +6,15 @@ type ScriptLoader = {
 
 declare global {
 	const VerbumComments: VerbumCommentsType;
+	const verbumBlockEditor: {
+		attachGutenberg: (
+			textarea: HTMLTextAreaElement,
+			content: ( embedUrl: string ) => void,
+			isRtl: boolean,
+			onEmbedContent: ( embedUrl: string ) => void,
+			isDarkMode: boolean
+		) => void;
+	};
 	const vbeCacheBuster: string;
 	const WP_Enqueue_Dynamic_Script: ScriptLoader;
 	const wp: Record< string, unknown >;

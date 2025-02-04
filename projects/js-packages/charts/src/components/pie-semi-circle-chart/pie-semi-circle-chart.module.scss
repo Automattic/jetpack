@@ -2,6 +2,10 @@
 	position: relative;
 	text-align: center;
 
+	&-legend {
+		margin-top: 1rem;
+	}
+
 	.label {
 		margin-bottom: 0px;  // Add space between label and pie chart
 		font-weight: 600;    // Make label more prominent than note

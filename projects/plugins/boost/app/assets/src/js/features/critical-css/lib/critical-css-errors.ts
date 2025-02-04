@@ -34,6 +34,11 @@ export function isFatalError( cssState: CriticalCssState ): boolean {
 		return false;
 	}
 
+	// If there are no providers, the state is being re-initialized. So dismiss any show-stopper errors.
+	if ( cssState.providers.length === 0 ) {
+		return false;
+	}
+
 	const hasActiveProvider = cssState.providers.some(
 		provider => provider.status === 'success' || provider.status === 'pending'
 	);

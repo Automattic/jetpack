@@ -13,7 +13,7 @@ use Automattic\JetpackBeta\Utils;
 
 // Check that the file is not accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 $plugins = Plugin::get_all_plugins( true );

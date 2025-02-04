@@ -9,8 +9,8 @@
  */
 return [
     // # Issue statistics:
+    // PhanTypeMismatchArgumentProbablyReal : 8 occurrences
     // PhanTypeMismatchReturn : 8 occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 7 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
     // PhanTypeMismatchReturnNullable : 1 occurrence

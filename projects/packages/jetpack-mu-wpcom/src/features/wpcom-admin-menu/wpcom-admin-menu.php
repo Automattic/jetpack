@@ -34,23 +34,10 @@ function current_user_has_wpcom_account() {
 }
 
 /**
- * Check if the user has the default (Calypso) Admin menu.
- *
- * @return bool
- */
-function wpcom_is_using_default_admin_menu() {
-	remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
-	$option = get_option( 'wpcom_admin_interface' ) !== 'wp-admin';
-	add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
-
-	return $option;
-}
-
-/**
  * Adds a Hosting menu.
  */
 function wpcom_add_hosting_menu() {
-	if ( wpcom_is_using_default_admin_menu() ) {
+	if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 		return;
 	}
 
@@ -162,7 +149,7 @@ add_action( 'admin_menu', 'wpcom_add_hosting_menu' );
 function wpcom_add_jetpack_submenu() {
 	$is_simple_site          = defined( 'IS_WPCOM' ) && IS_WPCOM;
 	$is_atomic_site          = ! $is_simple_site;
-	$uses_wp_admin_interface = ! wpcom_is_using_default_admin_menu();
+	$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
 
 	if ( ! $uses_wp_admin_interface ) {
 		return;
@@ -392,7 +379,7 @@ function wpcom_add_plugins_menu() {
 	global $menu;
 	$is_simple_site          = defined( 'IS_WPCOM' ) && IS_WPCOM;
 	$is_atomic_site          = ! $is_simple_site;
-	$uses_wp_admin_interface = ! wpcom_is_using_default_admin_menu();
+	$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
 
 	if ( $is_simple_site ) {
 		$has_plugins_menu = false;

@@ -751,3 +751,10 @@ a.jp-dash-item__manage-in-wpcom,
 		display: block;
 	}
 }
+
+// We only underline part of the link to Critical CSS info.
+.dops-banner__title {
+	a.dash-boost-critical-css-info__text {
+		text-decoration: none;
+	}
+}

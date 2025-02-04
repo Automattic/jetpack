@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Explicitly declare a return type for a custom React hook. Should be no functional change.
-
-

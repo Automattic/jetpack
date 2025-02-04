@@ -9,13 +9,7 @@
  * Date: 09/01/2017
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 	#1 - Client Portal Welcome Email
 	#2 - Quote Accepted Email
@@ -78,7 +72,7 @@ function zeroBSCRM_mailTracking_track(){
 			header( 'Content-Transfer-Encoding: binary' );			
 			readfile( $localBlankGif );
 
-			exit;
+			exit( 0 );
 		}
 	
 	}

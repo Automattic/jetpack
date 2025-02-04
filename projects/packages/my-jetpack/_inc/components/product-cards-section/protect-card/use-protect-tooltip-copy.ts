@@ -27,8 +27,12 @@ export type TooltipContent = {
 export function useProtectTooltipCopy(): TooltipContent {
 	const slug = PRODUCT_SLUGS.PROTECT;
 	const { detail } = useProduct( slug );
-	const { isPluginActive: isProtectPluginActive, hasPaidPlanForProduct: hasProtectPaidPlan } =
-		detail || {};
+	const {
+		standalonePluginInfo,
+		hasPaidPlanForProduct: hasProtectPaidPlan,
+		manageUrl: protectDashboardUrl,
+	} = detail || {};
+	const { isStandaloneActive } = standalonePluginInfo || {};
 	const { recordEvent } = useAnalytics();
 	const {
 		plugins,
@@ -39,22 +43,30 @@ export function useProtectTooltipCopy(): TooltipContent {
 		plugins: fromScanPlugins,
 		themes: fromScanThemes,
 		num_threats: numThreats = 0,
+		threats = [],
 	} = scanData || {};
 	const {
 		jetpack_waf_automatic_rules: isAutoFirewallEnabled,
 		blocked_logins: blockedLoginsCount,
 		brute_force_protection: hasBruteForceProtection,
+		waf_supported: wafSupported,
 	} = wafData || {};
 
 	const pluginsCount = fromScanPlugins.length || Object.keys( plugins ).length;
 	const themesCount = fromScanThemes.length || Object.keys( themes ).length;
 
+	const criticalThreatCount: number = useMemo( () => {
+		return threats.length
+			? threats.reduce( ( accum, threat ) => ( threat.severity >= 5 ? ( accum += 1 ) : accum ), 0 )
+			: 0;
+	}, [ threats ] );
+
 	const settingsLink = useMemo( () => {
-		if ( isProtectPluginActive ) {
+		if ( isStandaloneActive ) {
 			return 'admin.php?page=jetpack-protect#/firewall';
 		}
 		return isJetpackPluginActive() ? 'admin.php?page=jetpack#/settings' : null;
-	}, [ isProtectPluginActive ] );
+	}, [ isStandaloneActive ] );
 
 	const trackFirewallSettingsLinkClick = useCallback( () => {
 		recordEvent( 'jetpack_protect_card_tooltip_content_link_click', {
@@ -65,7 +77,16 @@ export function useProtectTooltipCopy(): TooltipContent {
 		} );
 	}, [ recordEvent, settingsLink ] );
 
-	const isBruteForcePluginsActive = isProtectPluginActive || isJetpackPluginActive();
+	const trackProtectDashboardLinkClick = useCallback( () => {
+		recordEvent( 'jetpack_protect_card_tooltip_content_link_click', {
+			page: 'my-jetpack',
+			feature: 'jetpack-protect',
+			location: 'scan-threats-tooltip',
+			path: protectDashboardUrl,
+		} );
+	}, [ recordEvent, protectDashboardUrl ] );
+
+	const isBruteForcePluginsActive = isStandaloneActive || isJetpackPluginActive();
 
 	const blockedLoginsTooltip = useMemo( () => {
 		if ( blockedLoginsCount === 0 ) {
@@ -88,7 +109,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 									'Brute Force Protection is disabled and not actively blocking malicious login attempts. Go to <a>%s</a> to activate it.',
 									'jetpack-my-jetpack'
 								),
-								isProtectPluginActive ? 'firewall settings' : 'Jetpack settings'
+								isStandaloneActive ? 'firewall settings' : 'Jetpack settings'
 							),
 							{
 								a: createElement( 'a', {
@@ -124,7 +145,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 									'Brute Force Protection is disabled and not actively blocking malicious login attempts. Go to <a>%s</a> to activate it.',
 									'jetpack-my-jetpack'
 								),
-								isProtectPluginActive ? 'firewall settings' : 'Jetpack settings'
+								isStandaloneActive ? 'firewall settings' : 'Jetpack settings'
 							),
 							{
 								a: createElement( 'a', {
@@ -143,7 +164,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 		blockedLoginsCount,
 		hasBruteForceProtection,
 		isBruteForcePluginsActive,
-		isProtectPluginActive,
+		isStandaloneActive,
 		settingsLink,
 		trackFirewallSettingsLinkClick,
 	] );
@@ -173,23 +194,50 @@ export function useProtectTooltipCopy(): TooltipContent {
 			hasProtectPaidPlan && numThreats
 				? {
 						title: __( 'Auto-fix threats', 'jetpack-my-jetpack' ),
-						text: sprintf(
-							/* translators: %s is the singular or plural of number of detected critical threats on the site. */
-							__(
-								'The last scan identified %s. But don’t worry, use the “Auto-fix” button in the product to automatically fix most threats.',
-								'jetpack-my-jetpack'
-							),
-							sprintf(
-								/* translators: %d is the number of detected scan threats on the site. */
-								_n(
-									'%d critical threat.',
-									'%d critical threats.',
-									numThreats,
-									'jetpack-my-jetpack'
-								),
-								numThreats
-							)
-						),
+						text: criticalThreatCount
+							? createInterpolateElement(
+									sprintf(
+										/* translators: %1$s is the number of threats, %2$s is the numner of critical threats on the site, and %3$s is either "Scan" or "Protect" (the type of dashboard). */
+										__(
+											'The last scan identified %1$s (%2$d\u00A0critical). But don’t worry, Protect is usually able to “Auto-fix” threats, in most cases. Visit the <a>%3$s dashboard</a> to view more details.',
+											'jetpack-my-jetpack'
+										),
+										sprintf(
+											/* translators: %d is the number of detected scan threats on the site. */
+											_n( '%d threat', '%d threats', numThreats, 'jetpack-my-jetpack' ),
+											numThreats
+										),
+										criticalThreatCount,
+										isStandaloneActive ? 'Protect' : 'Scan'
+									),
+									{
+										a: createElement( 'a', {
+											href: protectDashboardUrl,
+											onClick: trackProtectDashboardLinkClick,
+										} ),
+									}
+							  )
+							: createInterpolateElement(
+									sprintf(
+										/* translators: %1$s is the singular or plural of number of detected threats on the site, and %2$s is either "Scan" or "Protect" (the type of dashboard). */
+										__(
+											'The last scan identified %1$s. But don’t worry, Protect is usually able to “Auto-fix” threats, in most cases. Visit the <a>%2$s dashboard</a> to view more details.',
+											'jetpack-my-jetpack'
+										),
+										sprintf(
+											/* translators: %d is the number of detected scan threats on the site. */
+											_n( '%d threat', '%d threats', numThreats, 'jetpack-my-jetpack' ),
+											numThreats
+										),
+										isStandaloneActive ? 'Protect' : 'Scan'
+									),
+									{
+										a: createElement( 'a', {
+											href: protectDashboardUrl,
+											onClick: trackProtectDashboardLinkClick,
+										} ),
+									}
+							  ),
 				  }
 				: {
 						title: __( 'Elevate your malware protection', 'jetpack-my-jetpack' ),
@@ -199,21 +247,26 @@ export function useProtectTooltipCopy(): TooltipContent {
 						),
 				  },
 		autoFirewallTooltip:
-			hasProtectPaidPlan && ! isAutoFirewallEnabled
+			( hasProtectPaidPlan && ! isAutoFirewallEnabled ) || ! wafSupported
 				? {
 						title: __( 'Auto-Firewall: Inactive', 'jetpack-my-jetpack' ),
-						text: createInterpolateElement(
-							__(
-								'You have Auto-Firewall disabled, visit your Protect <a>firewall settings</a> to activate.',
-								'jetpack-my-jetpack'
-							),
-							{
-								a: createElement( 'a', {
-									href: settingsLink,
-									onClick: trackFirewallSettingsLinkClick,
-								} ),
-							}
-						),
+						text: wafSupported
+							? createInterpolateElement(
+									__(
+										'You have Auto-Firewall disabled, visit your Protect <a>firewall settings</a> to activate.',
+										'jetpack-my-jetpack'
+									),
+									{
+										a: createElement( 'a', {
+											href: settingsLink,
+											onClick: trackFirewallSettingsLinkClick,
+										} ),
+									}
+							  )
+							: __(
+									'Auto-Firewall is disabled as your hosting provider already includes a built-in firewall with similar rules for your site.',
+									'jetpack-my-jetpack'
+							  ),
 				  }
 				: {
 						title: __( 'Auto-Firewall: Inactive', 'jetpack-my-jetpack' ),

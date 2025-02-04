@@ -4,6 +4,7 @@ export default {
 	attributes: {
 		label: {
 			type: 'string',
+			role: 'content',
 		},
 		fieldType: {
 			enum: [ 'checkbox', 'radio' ],

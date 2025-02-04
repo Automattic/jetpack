@@ -6,10 +6,9 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
-use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
@@ -18,6 +17,7 @@ use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Dismissed_Notices;
+use Automattic\Jetpack\Publicize\Social_Admin_Page;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
@@ -82,6 +82,8 @@ class Jetpack_Social {
 			1
 		);
 
+		Social_Admin_Page::init();
+
 		add_action( 'init', array( $this, 'do_init' ) );
 
 		// Activate the module as the plugin is activated
@@ -116,8 +118,6 @@ class Jetpack_Social {
 		add_filter( 'plugin_action_links_' . JETPACK_SOCIAL_PLUGIN_FOLDER . '/jetpack-social.php', array( $this, 'add_settings_link' ) );
 
 		add_shortcode( 'jp_shares_shortcode', array( $this, 'add_shares_shortcode' ) );
-
-		add_filter( 'jetpack_social_admin_script_data', array( $this, 'set_social_admin_script_data' ) );
 	}
 
 	/**
@@ -125,25 +125,7 @@ class Jetpack_Social {
 	 * plugins_loaded is firing. This includes translated strings.
 	 */
 	public function do_init() {
-		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack Social', 'jetpack-social' ),
-			_x( 'Social', 'The Jetpack Social product name, without the Jetpack prefix', 'jetpack-social' ),
-			'manage_options',
-			'jetpack-social',
-			array( $this, 'plugin_settings_page' ),
-			4
-		);
-
-		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
-
 		( new Automattic\Jetpack\Social\Note() )->init();
-	}
-
-	/**
-	 * Initialize the admin resources.
-	 */
-	public function admin_init() {
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 	}
 
 	/**
@@ -171,40 +153,6 @@ class Jetpack_Social {
 	}
 
 	/**
-	 * Enqueue plugin admin scripts and styles.
-	 */
-	public function enqueue_admin_scripts() {
-		$screen = get_current_screen();
-		if ( ! empty( $screen ) && 'jetpack_page_jetpack-social' !== $screen->base ) {
-			return;
-		}
-
-		Assets::register_script(
-			'jetpack-social',
-			'build/index.js',
-			JETPACK_SOCIAL_PLUGIN_ROOT_FILE,
-			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-social',
-			)
-		);
-
-		Assets::enqueue_script( 'jetpack-social' );
-		// Initial JS state including JP Connection data.
-		Connection_Initial_State::render_script( 'jetpack-social' );
-		wp_add_inline_script( 'jetpack-social', $this->render_initial_state(), 'before' );
-	}
-
-	/**
-	 * Render the initial state into a JavaScript variable.
-	 *
-	 * @return string
-	 */
-	public function render_initial_state() {
-		return 'var jetpackSocialInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->initial_state() ) ) . '"));';
-	}
-
-	/**
 	 * Refresh plan data.
 	 */
 	public function refresh_plan_data() {
@@ -224,88 +172,6 @@ class Jetpack_Social {
 			$shares_info = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
 		}
 		return ! is_wp_error( $shares_info ) ? $shares_info : null;
-	}
-
-	/**
-	 * Set the social admin script data.
-	 *
-	 * @param array $data The initial state data.
-	 * @return array
-	 */
-	public function set_social_admin_script_data( $data ) {
-
-		$data['plugin_info']['social'] = array(
-			'version' => $this->get_plugin_version(),
-		);
-
-		$data['settings']['socialPlugin'] = array(
-			'publicize_active' => self::is_publicize_active(),
-
-		);
-
-		if ( $this->is_connected() ) {
-
-			$note = new Automattic\Jetpack\Social\Note();
-
-			$data['settings']['socialPlugin'] = array_merge(
-				$data['settings']['socialPlugin'],
-				array(
-					'show_pricing_page'    => self::should_show_pricing_page(),
-					'social_notes_enabled' => $note->enabled(),
-					'social_notes_config'  => $note->get_config(),
-				)
-			);
-		}
-
-		return $data;
-	}
-
-	/**
-	 * Get the initial state data for hydrating the React UI.
-	 *
-	 * @return array
-	 */
-	public function initial_state() {
-		global $publicize;
-
-		$state = array(
-			'siteData' => array(
-				'adminUrl'          => esc_url( admin_url() ),
-				'apiRoot'           => esc_url_raw( rest_url() ),
-				'apiNonce'          => wp_create_nonce( 'wp_rest' ),
-				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
-				'siteSuffix'        => ( new Status() )->get_site_suffix(),
-				'blogID'            => Connection_Manager::get_site_id( true ),
-				'pluginVersion'     => $this->get_plugin_version(),
-			),
-		);
-
-		if ( $this->is_connected() ) {
-			$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
-			$initial_state           = $jetpack_social_settings->get_initial_state();
-
-			$note = new Automattic\Jetpack\Social\Note();
-
-			$state = array_merge(
-				$state,
-				array(
-					'jetpackSettings' => array(
-						'publicize_active'               => self::is_publicize_active(),
-						'show_pricing_page'              => self::should_show_pricing_page(),
-						'showNudge'                      => ! $publicize->has_paid_plan( true ),
-						'isEnhancedPublishingEnabled'    => $publicize->has_enhanced_publishing_feature(),
-						'dismissedNotices'               => Dismissed_Notices::get_dismissed_notices(),
-						'supportedAdditionalConnections' => $publicize->get_supported_additional_connections(),
-						'social_notes_enabled'           => $note->enabled(),
-						'social_notes_config'            => $note->get_config(),
-					),
-					'sharesData'      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
-				),
-				$initial_state
-			);
-		}
-
-		return $state;
 	}
 
 	/**
@@ -489,7 +355,7 @@ class Jetpack_Social {
 			( new \Automattic\Jetpack\Paths() )->is_current_request_activating_plugin_from_plugins_screen( JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH )
 		) {
 			wp_safe_redirect( esc_url( admin_url( 'admin.php?page=' . JETPACK_SOCIAL_PLUGIN_SLUG ) ) );
-			exit;
+			exit( 0 );
 		}
 	}
 

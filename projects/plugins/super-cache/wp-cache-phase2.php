@@ -310,7 +310,7 @@ function wp_cache_serve_cache_file() {
 			// don't try to match modified dates if using dynamic code.
 			if ( $wp_cache_mfunc_enabled == 0 && $wp_supercache_304 ) {
 				wp_cache_debug( 'wp_cache_serve_cache_file: checking age of cached vs served files.' );
-				$headers         = apache_request_headers();
+				$headers         = wpsc_apache_request_headers();
 				$remote_mod_time = isset( $headers['If-Modified-Since'] ) ? $headers['If-Modified-Since'] : null;
 
 				if ( $remote_mod_time === null && isset( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) {
@@ -321,7 +321,7 @@ function wp_cache_serve_cache_file() {
 				if ( $remote_mod_time !== null && $remote_mod_time == $local_mod_time ) {
 					wp_cache_debug( 'wp_cache_serve_cache_file: Send 304 Not Modified header.' );
 					header( $_SERVER['SERVER_PROTOCOL'] . ' 304 Not Modified' );
-					exit();
+					exit( 0 );
 				} else {
 					wp_cache_debug( 'wp_cache_serve_cache_file: 304 browser caching not possible as timestamps differ.' );
 				}
@@ -329,7 +329,7 @@ function wp_cache_serve_cache_file() {
 			}
 
 			echo $cachefiledata;
-			exit();
+			exit( 0 );
 		} else {
 			wp_cache_debug( 'No wp-cache file exists. Must generate a new one.' );
 			return false;
@@ -404,7 +404,7 @@ function wp_cache_serve_cache_file() {
 	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- this is the cached version of the current page. It will have been escaped already.
 	echo $cache;
 	wp_cache_debug( 'exit request', 5 );
-	die();
+	die( 0 );
 }
 
 function wp_cache_get_legacy_cache( $cache_file ) {
@@ -1259,7 +1259,7 @@ if ( !isset( $_SERVER[ "PHP_AUTH_USER" ] ) || ( $_SERVER[ "PHP_AUTH_USER" ] != "
 	header( "WWW-Authenticate: Basic realm=\"WP-Super-Cache Debug Log\"" );
 	header( $_SERVER[ "SERVER_PROTOCOL" ] . " 401 Unauthorized" );
 	echo "You must login to view the debug log";
-	exit;
+	exit( 0 );
 }' . PHP_EOL;
 
 	$fp = fopen( $cache_path . 'view_' . $wp_cache_debug_log, 'w' );
@@ -1751,7 +1751,7 @@ function wp_cache_user_agent_is_rejected() {
 		return false;
 	}
 
-	$headers = apache_request_headers();
+	$headers = wpsc_apache_request_headers();
 	if ( empty( $headers['User-Agent'] ) ) {
 		return false;
 	}
@@ -3192,6 +3192,7 @@ function wpsc_post_transition( $new_status, $old_status, $post ) {
 		}
 		list( $permalink, $post_name ) = get_sample_permalink( $post );
 		$post_url                      = str_replace( array( '%postname%', '%pagename%' ), $post->post_name, $permalink );
+		wp_cache_post_edit( $post->ID );
 	} elseif ( $old_status !== 'publish' && $new_status === 'publish' ) { // post published
 		wp_cache_post_edit( $post->ID );
 		return;
@@ -3582,23 +3583,25 @@ function wpsc_is_get_query() {
 	return $is_get_query;
 }
 
-if ( ! function_exists( 'apache_request_headers' ) ) {
-	/**
-	 * A fallback for get request headers.
-	 * Based on comments from http://php.net/manual/en/function.apache-request-headers.php
-	 *
-	 * @return array List of request headers
-	 */
-	function apache_request_headers() {
-		$headers = array();
+/**
+ * A fallback for get request headers.
+ * Based on comments from http://php.net/manual/en/function.apache-request-headers.php
+ *
+ * @return array List of request headers
+ */
+function wpsc_apache_request_headers() {
 
+	if ( ! function_exists( 'apache_request_headers' ) || ! is_callable( 'apache_request_headers' ) ) {
+		$headers = array();
 		foreach ( array_keys( $_SERVER ) as $skey ) {
 			if ( str_starts_with( $skey, 'HTTP_' ) ) {
 				$header             = implode( '-', array_map( 'ucfirst', array_slice( explode( '_', strtolower( $skey ) ), 1 ) ) );
 				$headers[ $header ] = $_SERVER[ $skey ];
 			}
 		}
-
-		return $headers;
+	} else {
+		$headers = apache_request_headers();
 	}
+
+	return $headers;
 }

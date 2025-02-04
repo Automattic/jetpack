@@ -30,12 +30,7 @@ import {
 	ACTION_SET_IS_LOADING_HISTORY,
 } from './constants.js';
 import INITIAL_STATE from './initial-state.js';
-import type {
-	AiFeatureStateProps,
-	LogoGeneratorStateProp,
-	RequestError,
-	TierLimitProp,
-} from './types.js';
+import type { AiFeatureStateProps, RequestError, TierLimitProp } from './types.js';
 import type { SiteDetails } from '../types.js';
 
 /**

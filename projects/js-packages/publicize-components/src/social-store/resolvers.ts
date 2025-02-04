@@ -22,6 +22,25 @@ export function getConnections() {
 		// Get the initial connections from the post meta
 		const connections = editor.getEditedPostAttribute( 'jetpack_publicize_connections' );
 
+		/**
+		 * If by any chance the REST meta validation fails,
+		 * the value can be in the following format:
+		 *
+		 * {
+		 * "errors": { "rest_invalid_type": [] },
+		 * "error_data": { "rest_invalid_type": { "param": "" } }
+		 * }
+		 *
+		 * It's because of https://github.com/Automattic/jetpack/blob/42a62f9821d4d5c89866e09813eafaad7648d243/projects/packages/publicize/src/class-connections-post-field.php#L224-L228
+		 *
+		 * So, we need to check if the value is actually an array or not.
+		 */
+		if ( ! Array.isArray( connections ) ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Invalid connections data received from the post meta.', connections );
+			return;
+		}
+
 		dispatch( setConnections( connections || [] ) );
 	};
 }
@@ -59,20 +78,22 @@ export function getPostShareStatus( _postId ) {
 }
 
 /**
- * Resolves the social plugin settings to ensure the core-data entities are registered.
+ * Resolves the social module settings to ensure the core-data entities are registered.
  *
  * @return {Function} Resolver
  */
-export function getSocialPluginSettings() {
+export function getSocialModuleSettings() {
 	return async ( { registry } ) => {
+		const { socialToggleBase } = getSocialScriptData().api_paths;
+
 		const jetpackEntities = registry.select( coreStore ).getEntitiesConfig( 'jetpack/v4' );
 
-		if ( ! jetpackEntities.some( ( { name } ) => name === 'social/settings' ) ) {
+		if ( ! jetpackEntities.some( ( { name } ) => name === socialToggleBase ) ) {
 			await registry.dispatch( coreStore ).addEntities( [
 				{
 					kind: 'jetpack/v4',
-					name: 'social/settings',
-					baseURL: '/jetpack/v4/social/settings',
+					name: socialToggleBase,
+					baseURL: `/jetpack/v4/${ socialToggleBase }`,
 					label: __( 'Social Settings', 'jetpack-publicize-components' ),
 				},
 			] );
@@ -83,5 +104,5 @@ export function getSocialPluginSettings() {
 export default {
 	getConnections,
 	getPostShareStatus,
-	getSocialPluginSettings,
+	getSocialModuleSettings,
 };

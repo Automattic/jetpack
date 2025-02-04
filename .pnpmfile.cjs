@@ -22,12 +22,23 @@ function fixDeps( pkg ) {
 
 	// Missing dep or peer dep on react.
 	// https://github.com/WordPress/gutenberg/issues/55171
+	// https://github.com/WordPress/gutenberg/issues/68694
 	if (
-		pkg.name === '@wordpress/icons' &&
+		( pkg.name === '@wordpress/icons' || pkg.name === '@wordpress/upload-media' ) &&
 		! pkg.dependencies?.react &&
 		! pkg.peerDependencies?.react
 	) {
 		pkg.peerDependencies.react = '^18';
+	}
+
+	// Missing dep or peer dep on @babel/runtime and react
+	// https://github.com/WordPress/gutenberg/issues/68694
+	if (
+		pkg.name === '@wordpress/upload-media' &&
+		! pkg.dependencies?.[ '@babel/runtime' ] &&
+		! pkg.peerDependencies?.[ '@babel/runtime' ]
+	) {
+		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
 	}
 
 	// Missing dep or peer dep.
@@ -42,7 +53,7 @@ function fixDeps( pkg ) {
 
 	// Missing deps.
 	// https://github.com/WordPress/gutenberg/issues/67864
-	if ( pkg.name === '@wordpress/dataviews' && pkg.version === '4.10.0' ) {
+	if ( pkg.name === '@wordpress/dataviews' ) {
 		for ( const dep of [
 			'change-case',
 			'colord',
@@ -249,6 +260,16 @@ function afterAllResolved( lockfile ) {
 	// If there's only one "importer", it's probably pnpx rather than the monorepo. Don't interfere.
 	if ( Object.keys( lockfile.importers ).length === 1 ) {
 		return lockfile;
+	}
+
+	for ( const [ k, v ] of Object.entries( lockfile.packages ) ) {
+		// Forbid installing webpack without webpack-cli. It results in lots of spurious lockfile changes.
+		// https://github.com/pnpm/pnpm/issues/3935
+		if ( k.startsWith( 'webpack@' ) && ! v.optionalDependencies?.[ 'webpack-cli' ] ) {
+			throw new Error(
+				"Something you've done is trying to add a dependency on webpack without webpack-cli.\nThis is not allowed, as it tends to result in pnpm lockfile flip-flopping.\nSee https://github.com/pnpm/pnpm/issues/3935 for the upstream bug report.\n"
+			);
+		}
 	}
 
 	return lockfile;

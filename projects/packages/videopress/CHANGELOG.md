@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.9] - 2025-02-03
+### Changed
+- Updated package dependencies. [#41286]
+
+### Fixed
+- Code: Remove extra params on function calls. [#41263]
+
+## [0.25.8] - 2025-01-27
+### Fixed
+- VideoPress: Fix issue with VideoPress block with 0 height and width. [#41319]
+
+## [0.25.7] - 2025-01-20
+### Changed
+- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
+- Updated package dependencies. [#41099]
+
+### Fixed
+- Fix VideoPress block line-height. [#41102]
+
+## [0.25.6] - 2025-01-06
+### Changed
+- Updated dependencies. [#40709]
+- Updated package dependencies. [#40705] [#40784] [#40797] [#40798] [#40810] [#40830] [#40841] [#40844]
+
+## [0.25.5] - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564]
+
+### Fixed
+- Fixed lints following ESLint rule changes for TS [#40584]
+
 ## [0.25.4] - 2024-12-09
 ### Changed
 - Updated package dependencies. [#40363]
@@ -1497,6 +1528,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.25.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.25.8...v0.25.9
+[0.25.8]: https://github.com/Automattic/jetpack-videopress/compare/v0.25.7...v0.25.8
+[0.25.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.25.6...v0.25.7
+[0.25.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.25.5...v0.25.6
+[0.25.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.25.4...v0.25.5
 [0.25.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.25.3...v0.25.4
 [0.25.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.25.2...v0.25.3
 [0.25.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.25.1...v0.25.2

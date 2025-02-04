@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Form Block: fixed validation of URL input types to allow query strings.

@@ -7,7 +7,7 @@ import { Command } from 'commander';
 import * as ESLintPkg from 'eslint';
 import parseDiff from 'parse-diff';
 
-const APP_VERSION = '2.0.9';
+const APP_VERSION = '2.1.0';
 
 const { ESLint } = ESLintPkg;
 const loadESLint = ESLintPkg.loadESLint ?? ( () => ESLint );
@@ -71,8 +71,13 @@ export function createProgram( process = global.process ) {
 			'Only include messages on lines changed in the diff. This may miss things like deleting a `var` that leads to a new `no-undef` elsewhere.'
 		)
 		.option( '--format <name>', 'ESLint format to use for output.', 'stylish' )
+		// If we uncomment this line, `program` becomes a simple object when passed to main() rather than a `Command` object.
+		// .argument( '[filenames...]', 'Specified filenames to check.' )
 		.version( APP_VERSION )
 		.action( main.bind( program, process ) );
+
+	// We should document the optional extra args with `program.argument()` but this doesn't seem to work (see above).
+	program.allowExcessArguments();
 
 	return program;
 }

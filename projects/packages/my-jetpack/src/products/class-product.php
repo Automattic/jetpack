@@ -73,6 +73,20 @@ abstract class Product {
 	const EXPIRATION_CUTOFF_TIME = '+2 months';
 
 	/**
+	 * Transient key for storing site features
+	 *
+	 * @var string;
+	 */
+	const MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY = 'my-jetpack-site-features';
+
+	/**
+	 * Whether this module is a Jetpack feature
+	 *
+	 * @var boolean
+	 */
+	public static $is_feature = false;
+
+	/**
 	 * Whether this product requires a site connection
 	 *
 	 * @var string
@@ -166,7 +180,7 @@ abstract class Product {
 		}
 		return array(
 			'slug'                            => static::$slug,
-			'plugin_slug'                     => static::$plugin_slug,
+			'plugin_slug'                     => static::get_plugin_slug(),
 			'name'                            => static::get_name(),
 			'title'                           => static::get_title(),
 			'description'                     => static::get_description(),
@@ -181,6 +195,7 @@ abstract class Product {
 			'is_plugin_active'                => static::is_plugin_active(),
 			'is_upgradable'                   => static::is_upgradable(),
 			'is_upgradable_by_bundle'         => static::is_upgradable_by_bundle(),
+			'is_feature'                      => static::$is_feature,
 			'supported_products'              => static::get_supported_products(),
 			'wpcom_product_slug'              => static::get_wpcom_product_slug(),
 			'requires_user_connection'        => static::$requires_user_connection,
@@ -213,6 +228,12 @@ abstract class Product {
 			return $features;
 		}
 
+		// Check for a cached value before doing lookup
+		$stored_features = get_transient( self::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY );
+		if ( $stored_features !== false ) {
+			return $stored_features;
+		}
+
 		$site_id  = Jetpack_Options::get_option( 'id' );
 		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/features', $site_id ), '1.1' );
 
@@ -228,6 +249,8 @@ abstract class Product {
 			'active'    => $feature_return->active,
 			'available' => $feature_return->available,
 		);
+		// set a short transient to help with multiple lookups on the same page load.
+		set_transient( self::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, $features, 15 );
 
 		return $features;
 	}
@@ -491,7 +514,7 @@ abstract class Product {
 			return array();
 		}
 		$paid_bundles   = $features['available']->$idendifying_feature ?? array();
-		$current_bundle = Wpcom_Products::get_site_current_plan();
+		$current_bundle = Wpcom_Products::get_site_current_plan( true );
 
 		if ( in_array( static::$feature_identifying_paid_plan, $current_bundle['features']['active'], true ) ) {
 			$paid_bundles[] = $current_bundle['product_slug'];
@@ -635,7 +658,7 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_upgradable() {
-		return false;
+		return ! static::has_paid_plan_for_product() && ! static::is_bundle_product();
 	}
 
 	/**
@@ -716,6 +739,13 @@ abstract class Product {
 			} elseif ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
 				$status = Products::STATUS_USER_CONNECTION_ERROR;
 			} elseif ( static::has_paid_plan_for_product() ) {
+				$needs_attention = static::does_module_need_attention();
+				if ( ! empty( $needs_attention ) && is_array( $needs_attention ) ) {
+					$status = Products::STATUS_NEEDS_ATTENTION__WARNING;
+					if ( isset( $needs_attention['type'] ) && 'error' === $needs_attention['type'] ) {
+						$status = Products::STATUS_NEEDS_ATTENTION__ERROR;
+					}
+				}
 				if ( static::is_paid_plan_expired() ) {
 					$status = Products::STATUS_EXPIRED;
 				} elseif ( static::is_paid_plan_expiring() ) {
@@ -986,5 +1016,15 @@ abstract class Product {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Determines whether the module/plugin/product needs the users attention.
+	 * Typically due to some sort of error where user troubleshooting is needed.
+	 *
+	 * @return boolean
+	 */
+	public static function does_module_need_attention() {
+		return false;
 	}
 }

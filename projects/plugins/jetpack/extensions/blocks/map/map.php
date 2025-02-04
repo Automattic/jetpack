@@ -189,7 +189,7 @@ function render_single_block_page() {
 		preg_replace( '/(?<=<div\s)/', 'data-api-key="' . esc_attr( $access_token['key'] ) . '" ', $block_markup, 1 )
 	);
 	echo $page_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	exit;
+	exit( 0 );
 }
 add_action( 'wp', __NAMESPACE__ . '\render_single_block_page' );
 

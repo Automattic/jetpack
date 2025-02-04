@@ -38,7 +38,6 @@ describe( 'Disconnecting a connection', () => {
 					service_name: 'facebook',
 					connection_id: '2',
 					display_name: 'Facebook',
-					can_disconnect: true,
 				} }
 			/>
 		);

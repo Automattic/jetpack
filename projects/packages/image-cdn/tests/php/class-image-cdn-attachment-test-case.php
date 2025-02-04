@@ -14,6 +14,20 @@ class Image_CDN_Attachment_Test_Case extends BaseTestCase {
 			define( 'DIR_TESTDATA', __DIR__ . '/sample-content' );
 		}
 
+		// Ensure upload directory exists with proper permissions
+		$upload_dir = wp_upload_dir();
+		wp_mkdir_p( $upload_dir['basedir'] );
+		wp_mkdir_p( $upload_dir['path'] );
+
+		// Ensure test data directory exists
+		if ( ! file_exists( DIR_TESTDATA ) ) {
+			wp_mkdir_p( DIR_TESTDATA );
+		}
+
+		// Set permissions recursively
+		$this->recursive_chmod( $upload_dir['basedir'] );
+		$this->recursive_chmod( DIR_TESTDATA );
+
 		// Force an absolute URL for attachment URLs during testing
 		add_filter(
 			'wp_get_attachment_url',
@@ -48,6 +62,18 @@ class Image_CDN_Attachment_Test_Case extends BaseTestCase {
 				return $upload_dir;
 			}
 		);
+	}
+
+	private function recursive_chmod( $path ) {
+		chmod( $path, 0777 );
+		if ( is_dir( $path ) ) {
+			$objects = scandir( $path );
+			foreach ( $objects as $object ) {
+				if ( $object !== '.' && $object !== '..' ) {
+					$this->recursive_chmod( $path . '/' . $object );
+				}
+			}
+		}
 	}
 
 	/**

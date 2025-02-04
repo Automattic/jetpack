@@ -29,6 +29,7 @@
 			font-size: 16px;
 			font-weight: 600;
 			padding: var(--spacing-base) calc(var(--spacing-base)* 3) !important;
+			white-space: nowrap;
 		}
 
 		// X close button
@@ -92,6 +93,14 @@
 	flex-grow: 1;
 	display: flex;
 
+	a {
+		color: var( --jp-black );
+		&:hover, &:focus {
+			text-decoration: underline;
+			text-decoration-thickness: 2px;
+		}
+	}
+
 	& :global(.terms-of-service) {
 		font-size: var(--font-body-small);
 		color: var( --jp-gray-70 );
@@ -117,6 +126,15 @@
 			margin: 4px 8px 4px 0;
 			border-radius: 6px;
 			background-color: #f1f1f1
+		}
+	}
+
+	& :global(.plugins-list) {
+		& :global(.plugin-item) {
+			> span {
+				font-size: calc( var( --font-body-extra-small ) + 1px );
+				margin-inline-start: 5px;
+			}
 		}
 	}
 }

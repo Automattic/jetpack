@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Caching: make sure there is cache content to serve, even if the cache file was found

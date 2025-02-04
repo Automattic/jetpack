@@ -632,4 +632,155 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$untrash_post_comments_event = $this->server_event_storage->get_most_recent_event( 'untrash_post_comments' );
 		$this->assertFalse( $untrash_post_comments_event );
 	}
+
+	/**
+	 * Verify metadata meta_value is limited based on MAX_COMMENT_META_LENGTH.
+	 */
+	public function test_metadata_limit() {
+
+		$metadata = array(
+			(object) array(
+				'comment_id' => $this->comment->comment_ID,
+				'meta_key'   => 'test_key',
+				'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Comments::MAX_COMMENT_META_LENGTH - 1 ),
+				'meta_id'    => 1,
+			),
+			(object) array(
+				'comment_id' => $this->comment->comment_ID,
+				'meta_key'   => 'test_key',
+				'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Comments::MAX_COMMENT_META_LENGTH ),
+				'meta_id'    => 2,
+			),
+
+		);
+
+		$comments_sync_module = Modules::get_module( 'comments' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Comments $comments_sync_module';
+		list( ,, $filtered_metadata ) = $comments_sync_module->filter_objects_and_metadata_by_size(
+			'comment',
+			array( $this->comment ),
+			$metadata,
+			Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_META_LENGTH,
+			Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC
+		);
+
+		$this->assertNotEmpty( $filtered_metadata[0]->meta_value, 'Filtered metadata meta_value is not empty for strings of allowed length.' );
+		$this->assertEmpty( $filtered_metadata[1]->meta_value, 'Filtered metadata meta_value is trimmed for strings larger than allowed length.' );
+	}
+
+	/**
+	 * Verify test_filter_objects_and_metadata_by_size returns all comments and metadata when the total size is less than MAX_SIZE_FULL_SYNC.
+	 */
+	public function test_filter_objects_and_metadata_by_size_returns_all_comments_and_metadata() {
+
+		$comment_ids  = self::factory()->comment->create_many( 3, array( 'comment_post_ID' => $this->post_id ) );
+		$comment_id_1 = $comment_ids[0];
+		$comment_id_2 = $comment_ids[1];
+		$comment_id_3 = $comment_ids[2];
+
+		$comment_1 = get_comment( $comment_id_1 );
+		$comment_2 = get_comment( $comment_id_2 );
+		$comment_3 = get_comment( $comment_id_3 );
+
+		$comments = array( $comment_1, $comment_2, $comment_3 );
+
+		$metadata = array(
+			(object) array(
+				'comment_id' => $comment_id_1,
+				'meta_key'   => 'test_key',
+				'meta_value' => 'test_value',
+				'meta_id'    => 1,
+			),
+			(object) array(
+				'comment_id' => $comment_id_1,
+				'meta_key'   => 'test_key',
+				'meta_value' => 'test_value',
+				'meta_id'    => 2,
+			),
+			(object) array(
+				'comment_id' => $comment_id_2,
+				'meta_key'   => 'test_key',
+				'meta_value' => 'test_value',
+				'meta_id'    => 3,
+			),
+			(object) array(
+				'comment_id' => $comment_id_2,
+				'meta_key'   => 'test_key',
+				'meta_value' => 'test_value',
+				'meta_id'    => 4,
+			),
+			(object) array(
+				'comment_id' => $comment_id_3,
+				'meta_key'   => 'test_key',
+				'meta_value' => 'test_value',
+				'meta_id'    => 5,
+			),
+		);
+
+		$comments_sync_module = Modules::get_module( 'comments' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Comments $comments_sync_module';
+		list( $filtered_comment_ids, $filtered_comments, $filtered_metadata ) = $comments_sync_module->filter_objects_and_metadata_by_size(
+			'comment',
+			$comments,
+			$metadata,
+			Automattic\Jetpack\Sync\Modules\Comments::MAX_COMMENT_META_LENGTH,
+			Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC
+		);
+
+		$this->assertEquals( $filtered_comment_ids, $comment_ids );
+		$this->assertEquals( $filtered_comments, $comments );
+		$this->assertEquals( $filtered_metadata, $metadata );
+	}
+
+	/**
+	 * Verify test_filter_objects_and_metadata_by_size returns only one comment when the first comment and its meta is bigger than MAX_SIZE_FULL_SYNC.
+	 */
+	public function test_filter_objects_and_metadata_by_size_returns_only_one_comment() {
+
+		$comment_id_1 = self::factory()->comment->create( array( 'comment_post_ID' => $this->post_id ) );
+		$comment_id_2 = self::factory()->comment->create( array( 'comment_post_ID' => $this->post_id ) );
+
+		$comment_1 = get_comment( $comment_id_1 );
+		$comment_2 = get_comment( $comment_id_2 );
+
+		$comments = array( $comment_1, $comment_2 );
+
+		$metadata_items_number = Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC / Automattic\Jetpack\Sync\Modules\Comments::MAX_COMMENT_META_LENGTH;
+		$comment_metadata_1    = array_map(
+			function ( $x ) use ( $comment_id_1 ) {
+				return (object) array(
+					'comment_id' => $comment_id_1,
+					'meta_key'   => 'test_key',
+					'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Comments::MAX_COMMENT_META_LENGTH - 1 ),
+					'meta_id'    => $x,
+				);
+			},
+			range( 0, $metadata_items_number )
+		);
+
+		$comment_metadata_2 = array(
+			(object) array(
+				'comment_id' => $comment_id_2,
+				'meta_key'   => 'test_key',
+				'meta_value' => 'test_value',
+				'meta_id'    => 3,
+			),
+		);
+
+		$metadata = array_merge( $comment_metadata_1, $comment_metadata_2 );
+
+		$comments_sync_module = Modules::get_module( 'comments' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Comments $comments_sync_module';
+		list( $filtered_comment_ids, $filtered_comments, $filtered_metadata ) = $comments_sync_module->filter_objects_and_metadata_by_size(
+			'comment',
+			$comments,
+			$metadata,
+			Automattic\Jetpack\Sync\Modules\Comments::MAX_COMMENT_META_LENGTH,
+			Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC
+		);
+
+		$this->assertEquals( $filtered_comment_ids, array( $comment_id_1 ) );
+		$this->assertEquals( $filtered_comments, array( $comment_1 ) );
+		$this->assertEquals( $filtered_metadata, $comment_metadata_1 );
+	}
 }

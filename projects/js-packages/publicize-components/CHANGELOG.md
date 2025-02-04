@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.77.0] - 2025-02-03
+### Added
+- Social Connections: Handle LinkedIn connections requiring reauthentication. [#41494]
+- Social: Enable Social Post UI for WordPress.com. [#41219]
+
+### Changed
+- Moved Social admin page code and assets logic to publicize package [#41239]
+- Move initial state from Social plugin to publicize package [#41381]
+- Replace getSite selector with getEntityRecord to avoid redundant API calls [#41386]
+- Social post character limits are now dynamic based on selected connections [#41429]
+- Social: Move settings endpoint to publicize package [#41456]
+- Update the settings endppoint to use existing endpoints [#41461]
+
+### Removed
+- Social Previews: Remove "Your post" section in favour of Social Post UI [#41329]
+
+## [0.76.0] - 2025-01-27
+### Changed
+- Moved the Social admin page to the publicize-components package [#41181]
+- Refactored Social Note settings to use core [#41153]
+- Social: Unify connections management API schema [#40679]
+
+## [0.75.4] - 2025-01-20
+### Changed
+- Updated package dependencies. [#41099]
+
+## [0.75.3] - 2025-01-13
+### Fixed
+- Social: Handle publicize connections meta error gracefully. [#40916]
+
+## [0.75.2] - 2025-01-06
+### Changed
+- Updated package dependencies. [#40792] [#40797] [#40798]
+
+## [0.75.1] - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564] [#40598]
+
 ## [0.75.0] - 2024-12-09
 ### Changed
 - Changed text domain from 'jetpack' to 'jetpack-publicize-components'. [#40368]
@@ -1038,6 +1076,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.77.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.76.0...v0.77.0
+[0.76.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.75.4...v0.76.0
+[0.75.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.75.3...v0.75.4
+[0.75.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.75.2...v0.75.3
+[0.75.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.75.1...v0.75.2
+[0.75.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.75.0...v0.75.1
 [0.75.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.74.2...v0.75.0
 [0.74.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.74.1...v0.74.2
 [0.74.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.74.0...v0.74.1
