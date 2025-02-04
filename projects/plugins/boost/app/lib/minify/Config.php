@@ -104,6 +104,9 @@ class Config {
 
 	/**
 	 * Ensure a directory exists.
+	 *
+	 * @param string $dir The directory to check.
+	 * @return bool True if the directory exists, false otherwise.
 	 */
 	private static function ensure_dir_exists( $dir ) {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
@@ -116,6 +119,9 @@ class Config {
 
 	/**
 	 * Ensure a directory is writable.
+	 *
+	 * @param string $dir The directory to check.
+	 * @return bool True if the directory is writable, false otherwise.
 	 */
 	private static function is_dir_writable( $dir ) {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
@@ -128,6 +134,8 @@ class Config {
 
 	/**
 	 * Log an error message if WP_DEBUG is enabled.
+	 *
+	 * @param string $message The error message to log.
 	 */
 	private static function log_error( $message ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
