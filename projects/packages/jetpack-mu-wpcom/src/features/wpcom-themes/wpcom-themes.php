@@ -243,7 +243,7 @@ add_action( 'wp_ajax_save-wporg-username', 'wpcom_themes_ajax_save_wporg_usernam
  */
 function wpcom_themes_api_theme_object( $theme ) {
 	// If there is no set tier, this is a community theme.
-	$theme->tier                           = $theme->tier ?? 'community';
+	$theme->tier = $theme->tier ?? 'community';
 
 	// Use the same "activate" logic for both install and activate URLs.
 	$theme->activate_url = wpcom_themes_get_activation_url( $theme );
@@ -262,27 +262,34 @@ add_filter( 'wpcom_themes_api_theme_object', 'wpcom_themes_api_theme_object' );
  * @param string $tmpl The mustache template for theme cards.
  * @return string Updated template.
  */
-function wpcom_themes_tmpl_theme( $tmpl ) {
+function wpcom_themes_tmpl_theme_plan_tag( $tmpl ) {
 	return str_replace(
 		'<h3 class="theme-name">{{ data.name }}</h3>',
 		'<h3 class="theme-name">{{ data.name }}</h3> <span>{{ data.tier }}</span>',
 		$tmpl
 	);
 }
-add_filter( 'wpcom_themes_tmpl_theme', 'wpcom_themes_tmpl_theme' );
+add_filter( 'wpcom_themes_tmpl_theme', 'wpcom_themes_tmpl_theme_plan_tag' );
 
 /**
- * Filter the theme template to set the activate button text conditional on the theme and site tier.
+ * Filter the theme template to set the activate & install button text based on the user's plan.
  *
  * @param string $tmpl The mustache template for theme cards.
  * @return string Updated template.
  */
 function wpcom_themes_tmpl_theme_activate_button( $tmpl ) {
-	return str_replace(
-		__( 'Activate', 'jetpack-mu-wpcom' ),
-		'{{{ data.can_activate_with_current_plan ? "' . __( 'Activate', 'jetpack-mu-wpcom' ) . '" : "' . __( 'Upgrade to activate', 'jetpack-mu-wpcom' ) . '" }}}',
-		$tmpl
+	$button_labels = array(
+		__( 'Activate', 'jetpack-mu-wpcom' ) => '{{{ data.can_activate_with_current_plan ? "' . __( 'Activate', 'jetpack-mu-wpcom' ) . '" : "' . __( 'Upgrade to activate', 'jetpack-mu-wpcom' ) . '" }}}',
+		// No need to check permissions here, this screen is only on Simple sites.
+		__( 'Install', 'jetpack-mu-wpcom' ) => __( 'Upgrade to install', 'jetpack-mu-wpcom' ),
 	);
+
+	foreach ( $button_labels as $search => $replace ) {
+		// Ensure the text is only replaced when in a button (link).
+		$tmpl = str_replace( '>' . $search . '</a>', '>' . $replace . '</a>', $tmpl );
+	}
+
+	return $tmpl;
 }
 add_filter( 'wpcom_themes_tmpl_theme', 'wpcom_themes_tmpl_theme_activate_button' );
 
