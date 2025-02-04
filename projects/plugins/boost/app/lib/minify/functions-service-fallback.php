@@ -346,8 +346,11 @@ function jetpack_boost_page_optimize_get_mime_type( $file ) {
 	}
 
 	$ext = substr( $file, $lastdot_pos + 1 );
+	if ( ! isset( $jetpack_boost_page_optimize_types[ $ext ] ) ) {
+		return false;
+	}
 
-	return isset( $jetpack_boost_page_optimize_types[ $ext ] ) ? $jetpack_boost_page_optimize_types[ $ext ] : false;
+	return $jetpack_boost_page_optimize_types[ $ext ];
 }
 
 function jetpack_boost_page_optimize_relative_path_replace( $buf, $dirpath ) {
