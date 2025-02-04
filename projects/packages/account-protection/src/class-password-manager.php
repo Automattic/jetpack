@@ -49,7 +49,7 @@ class Password_Manager {
 	 *
 	 * @return bool True if the nonce is valid, false otherwise.
 	 */
-	private function verify_profile_update_nonce( $user_id ) {
+	public function verify_profile_update_nonce( $user_id ) {
 		return $this->verify_password_update_nonce( 'update-user_' . $user_id );
 	}
 
@@ -79,7 +79,7 @@ class Password_Manager {
 			$password = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );
 
 			if ( $update ) {
-				$old_user_data = get_userdata( $user->ID );
+				$old_user_data = $this->get_old_user_data( $user->ID );
 				if ( $this->validation_service->is_current_password( $old_user_data, $password ) ) {
 					$errors->add( 'password_error', __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' ) );
 					return;
@@ -94,6 +94,17 @@ class Password_Manager {
 		}
 
 		// TODO: Run this even if JS validation passes?
+	}
+
+	/**
+	 * Get the old user data.
+	 *
+	 * @param int $user_id The user ID.
+	 *
+	 * @return \WP_User|false The old user data, or false if the user does not exist.
+	 */
+	public function get_old_user_data( $user_id ) {
+		return get_userdata( $user_id );
 	}
 
 	/**
@@ -137,7 +148,7 @@ class Password_Manager {
 	 *
 	 * @return void
 	 */
-	public function on_profile_update( int $user_id, \WP_User $old_user_data, array $userdata ): void {
+	public function on_profile_update( int $user_id, \WP_User $old_user_data, array $userdata ): void { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( isset( $_POST['action'] ) && $_POST['action'] === 'update' ) {
 			if ( $this->verify_profile_update_nonce( $user_id ) ) {
 				if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
@@ -152,8 +163,10 @@ class Password_Manager {
 	 *
 	 * @param \WP_User $user The user.
 	 * @param string   $new_password The new password.
+	 *
+	 * @return void
 	 */
-	public function on_password_reset( $user, $new_password ) {
+	public function on_password_reset( $user, $new_password ): void { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->save_recent_password( $user->ID, $user->user_pass );
 	}
 
@@ -162,8 +175,10 @@ class Password_Manager {
 	 *
 	 * @param int    $user_id  The user ID.
 	 * @param string $password_hash The password hash to store.
+	 *
+	 * @return void
 	 */
-	public function save_recent_password( int $user_id, string $password_hash ) {
+	public function save_recent_password( int $user_id, string $password_hash ): void {
 		$recent_passwords = get_user_meta( $user_id, Config::VALIDATION_SERVICE_USER_META_KEY, true );
 
 		if ( ! is_array( $recent_passwords ) ) {

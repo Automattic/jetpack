@@ -64,7 +64,7 @@ class Validation_Service {
 			$errors[] = __( 'Doesn\'t contain a backslash (\\) character', 'jetpack-account-protection' );
 		}
 
-		if ( ! $this->check_length( $password ) ) {
+		if ( $this->is_invalid_length( $password ) ) {
 			$errors[] = __( 'Between 6 and 150 characters', 'jetpack-account-protection' );
 		}
 
@@ -105,7 +105,7 @@ class Validation_Service {
 			}
 		}
 
-		if ( ! $this->check_length( $password ) ) {
+		if ( $this->is_invalid_length( $password ) ) {
 			return __( '<strong>Error:</strong> The password must be between 6 and 150 characters.', 'jetpack-account-protection' );
 		}
 
@@ -131,7 +131,7 @@ class Validation_Service {
 	 *
 	 * @return bool True if the password contains a backslash, false otherwise.
 	 */
-	private function contains_backslash( string $password ): bool {
+	public function contains_backslash( string $password ): bool {
 		return strpos( $password, '\\' ) !== false;
 	}
 
@@ -142,9 +142,9 @@ class Validation_Service {
 	 *
 	 * @return bool True if the password is between 6 and 150 characters, false otherwise.
 	 */
-	private function check_length( string $password ): bool {
+	public function is_invalid_length( string $password ): bool {
 		$length = strlen( $password );
-		return $length >= 6 && $length <= 150;
+		return $length < 6 || $length > 150;
 	}
 
 	/**
@@ -155,7 +155,7 @@ class Validation_Service {
 	 *
 	 * @return bool True if the password matches any user data, false otherwise.
 	 */
-	private function matches_user_data( $user, string $password ): bool {
+	public function matches_user_data( $user, string $password ): bool {
 		if ( ! $user ) {
 			return false;
 		}
@@ -221,9 +221,11 @@ class Validation_Service {
 		if ( in_array( $password_suffix, $body['compromised'] ?? array(), true ) ) {
 			return true;
 		}
+
 		if ( in_array( $password_suffix, $body['common'] ?? array(), true ) ) {
 			return true;
 		}
+
 		return false;
 	}
 
