@@ -144,10 +144,13 @@ TO_RELEASE=()
 TMP="$(pnpm jetpack dependencies build-order --add-dependencies --pretty "$REL_SLUG")"
 mapfile -t TO_RELEASE <<<"$TMP"
 
-# If it's being released as a dependency (and is not a js-package), pre-check that it has a mirror repo set up.
+# If it's being released as a non-dev dependency (and is not a js-package), pre-check that it has a mirror repo set up.
 # Can't do the release without one.
+NEEDS_MIRROR_REPO=()
+TMP="$(pnpm jetpack dependencies build-order --no-dev --add-dependencies --pretty "$REL_SLUG")"
+mapfile -t NEEDS_MIRROR_REPO <<<"$TMP"
 ANY=false
-for SLUG in "${TO_RELEASE[@]}"; do
+for SLUG in "${NEEDS_MIRROR_REPO[@]}"; do
 	if [[ "$SLUG" != "$REL_SLUG" && "$SLUG" != js-packages/* ]] &&
 		! jq -e '.extra["mirror-repo"] // null' "$BASE/projects/$SLUG/composer.json" > /dev/null
 	then

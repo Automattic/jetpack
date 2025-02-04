@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "0.3.0",
+	"version": "0.7.1",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -14,14 +14,16 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"clean": "rm -rf node_modules",
+		"clean": "rm -rf dist",
 		"test": "jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",
 		"storybook": "cd ../storybook && pnpm run storybook:dev",
 		"compile-ts": "tsc --pretty",
 		"clean-build": "rm -rf dist/",
 		"build": "pnpm run build:prod",
-		"build:prod": "pnpm run clean-build && webpack --config webpack.config.cjs --mode production && bash ./tools/fixup.sh && pnpm run build:types",
+		"build:prod": "pnpm run clean && rollup -c --environment NODE_ENV:production",
+		"build:dev": "rollup -c --environment NODE_ENV:development",
+		"build:webpack": "pnpm run clean-build && webpack --config webpack.config.cjs --mode production && pnpm run build:types",
 		"build:types": "tsc --emitDeclarationOnly --declaration --declarationDir dist/types"
 	},
 	"main": "./dist/cjs/index.js",
@@ -35,19 +37,19 @@
 		".": {
 			"import": "./dist/mjs/index.js",
 			"require": "./dist/cjs/index.js",
-			"types": "./dist/types/*.d.ts"
+			"types": "./dist/index.d.ts"
 		},
 		"./components/*": {
 			"import": "./dist/mjs/components/*/index.js",
-			"require": "./dist/cjs/components/*/index.js",
-			"types": "./dist/types/*.d.ts"
+			"require": "./dist/cjs/components/*/index.js"
 		},
-		"./style.css": "./dist/cjs/style.css"
+		"./style.css": "./dist/mjs/style.css"
 	},
 	"dependencies": {
 		"@babel/runtime": "7.26.0",
 		"@react-spring/web": "9.7.3",
 		"@visx/axis": "^3.12.0",
+		"@visx/curve": "3.12.0",
 		"@visx/event": "^3.8.0",
 		"@visx/gradient": "3.12.0",
 		"@visx/grid": "^3.12.0",
@@ -63,15 +65,32 @@
 		"tslib": "2.5.0"
 	},
 	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.26.0",
+		"@babel/plugin-transform-react-jsx": "7.25.9",
 		"@babel/plugin-transform-runtime": "7.25.9",
 		"@babel/preset-env": "7.26.0",
 		"@babel/preset-react": "7.26.3",
 		"@babel/preset-typescript": "7.26.0",
+		"@jest/globals": "^29.0.0",
+		"@rollup/plugin-commonjs": "26.0.1",
+		"@rollup/plugin-json": "6.1.0",
+		"@rollup/plugin-node-resolve": "15.3.0",
+		"@rollup/plugin-terser": "0.4.3",
+		"@rollup/plugin-typescript": "12.1.0",
 		"@storybook/blocks": "8.4.7",
 		"@storybook/react": "8.4.7",
+		"@testing-library/dom": "^8.20.1",
+		"@testing-library/jest-dom": "^6.0.0",
+		"@testing-library/react": "^14.0.0",
+		"@testing-library/user-event": "^14.4.3",
+		"@types/jest": "^29.0.0",
 		"@types/react": "18.3.18",
 		"@types/react-dom": "18.3.5",
+		"@types/testing-library__jest-dom": "^5.14.9",
+		"@wordpress/babel-plugin-import-jsx-pragma": "5.17.0",
+		"@wordpress/element": "6.17.0",
+		"babel-jest": "^29.7.0",
 		"babel-loader": "9.1.2",
 		"clean-webpack-plugin": "^4.0.0",
 		"css-loader": "^6.7.0",
@@ -85,6 +104,10 @@
 		"postcss-modules": "6.0.1",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
+		"rollup": "3.29.5",
+		"rollup-plugin-dts": "6.1.1",
+		"rollup-plugin-peer-deps-external": "2.2.4",
+		"rollup-plugin-postcss": "4.0.2",
 		"sass": "1.64.1",
 		"sass-embedded": "1.83.0",
 		"sass-loader": "^13.0.0",
@@ -92,17 +115,7 @@
 		"tsconfig-paths-webpack-plugin": "4.2.0",
 		"typescript": "5.7.2",
 		"webpack": "^5.88.0",
-		"webpack-cli": "^5.1.0",
-		"@testing-library/react": "^14.0.0",
-		"@testing-library/jest-dom": "^6.0.0",
-		"@types/jest": "^29.0.0",
-		"@types/testing-library__jest-dom": "^5.14.9",
-		"@jest/globals": "^29.0.0",
-		"babel-jest": "^29.7.0",
-		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@wordpress/babel-plugin-import-jsx-pragma": "5.14.0",
-		"@wordpress/element": "6.14.0",
-		"@babel/plugin-transform-react-jsx": "7.25.9"
+		"webpack-cli": "^6.0.0"
 	},
 	"peerDependencies": {
 		"react": "^17.0.0 || ^18.0.0",

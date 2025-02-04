@@ -124,6 +124,8 @@ class Verbum_Comments {
 
 		if ( strpos( $primary_redirect, '.wordpress.com' ) === false ) {
 			$connect_url = add_query_arg( 'domain', $primary_redirect, $connect_url );
+		} else {
+			$connect_url = add_query_arg( 'from_comments', 'yes', $connect_url );
 		}
 
 		// Enqueue styles and scripts
@@ -185,6 +187,7 @@ class Verbum_Comments {
 		$css_mtime        = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/block-editor.css' );
 		$js_mtime         = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/block-editor.min.js' );
 		$vbe_cache_buster = max( $js_mtime, $css_mtime );
+		$color_scheme     = get_blog_option( $this->blog_id, 'jetpack_comment_form_color_scheme' );
 
 		wp_add_inline_script(
 			'verbum-settings',
@@ -254,9 +257,10 @@ class Verbum_Comments {
 					'allowedBlocks'                      => \Verbum_Block_Utils::get_allowed_blocks(),
 					'embedNonce'                         => wp_create_nonce( 'embed_nonce' ),
 					'verbumBundleUrl'                    => plugins_url( 'dist/index.js', __FILE__ ),
-					'isRTL'                              => is_rtl( $locale ),
+					'isRTL'                              => is_rtl(),
 					'vbeCacheBuster'                     => $vbe_cache_buster,
 					'iframeUniqueId'                     => $iframe_unique_id,
+					'colorScheme'                        => $color_scheme,
 				)
 			),
 			'before'
@@ -459,12 +463,12 @@ HTML;
 		// Check for Highlander Nonce.
 		if (
 			isset( $_POST['highlander_comment_nonce'] ) &&
-			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['highlander_comment_nonce'] ), 'highlander_comment' ) )
+			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['highlander_comment_nonce'] ) ), 'highlander_comment' )
 		) {
 			return;
 		}
 
-		return new WP_Error( 'verbum', __( 'Error: please try commenting again.', 'jetpack-mu-wpcom' ) );
+		wp_die( esc_html__( 'Sorry, this comment could not be posted.', 'jetpack-mu-wpcom' ) );
 	}
 
 	/**

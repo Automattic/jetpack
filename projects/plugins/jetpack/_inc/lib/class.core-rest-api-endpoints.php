@@ -2335,28 +2335,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'custom-content-types',
+				'jp_group'          => 'settings',
 			),
 			'jetpack_portfolio_posts_per_page'          => array(
 				'description'       => esc_html__( 'Number of entries to show at most in Portfolio pages.', 'jetpack' ),
 				'type'              => 'integer',
 				'default'           => 10,
 				'validate_callback' => __CLASS__ . '::validate_posint',
-				'jp_group'          => 'custom-content-types',
+				'jp_group'          => 'settings',
 			),
 			'jetpack_testimonial'                       => array(
 				'description'       => esc_html__( 'Enable or disable Jetpack testimonial post type.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'custom-content-types',
+				'jp_group'          => 'settings',
 			),
 			'jetpack_testimonial_posts_per_page'        => array(
 				'description'       => esc_html__( 'Number of entries to show at most in Testimonial pages.', 'jetpack' ),
 				'type'              => 'integer',
 				'default'           => 10,
 				'validate_callback' => __CLASS__ . '::validate_posint',
-				'jp_group'          => 'custom-content-types',
+				'jp_group'          => 'settings',
 			),
 
 			// WAF.

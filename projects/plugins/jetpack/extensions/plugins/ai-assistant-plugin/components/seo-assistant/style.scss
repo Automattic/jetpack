@@ -1,9 +1,9 @@
-.seo-assistant-wizard {
+.assistant-wizard {
 	position: fixed;
 	bottom: 32px;
 	left: 50%;
 	transform: translateX(-50%);
-	width: 384px;
+	width: 440px;
 	height: 434px;
 	background: white;
 	border-radius: 24px;
@@ -11,21 +11,26 @@
 	z-index: 1000;
 	display: flex;
 	flex-direction: column;
+	padding: 24px;
+	// countering the Jetpack sidebar ai-feature styles:
+	button {
+		width: unset;
+	}
 
 	&__header {
 		flex: 0 0 auto;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		padding: 16px;
-		// border-bottom: 1px solid #e5e7eb;
+		padding-bottom: 24px;
 		background: white;
-		border-radius: 16px 16px 0 0;
+		border-radius: 24px 24px 0 0;
 
 		h2 {
 			margin: 0;
-			font-size: 16px;
-			font-weight: 600;
+			font-size: 20px;
+			font-weight: 500;
+			color: #1e1e1e;
 		}
 
 		button {
@@ -33,7 +38,7 @@
 			border: none;
 			cursor: pointer;
 			padding: 8px;
-			color: #6b7280;
+			color: #1e1e1e;
 
 			&:hover {
 				color: #374151;
@@ -46,52 +51,59 @@
 		display: flex;
 		flex-direction: column;
 		height: 100%;
-		overflow: hidden;
+		overflow: auto;
+		mask-image: linear-gradient( 180deg, transparent, white 24px );
+
+		& > :first-child {
+			margin-top: auto;
+		}
 	}
 
 	&__messages {
 		flex: 1 1 auto;
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
-		padding: 16px 24px;
+		gap: 16px;
+		padding: 8px 8px 8px 0;
 		overflow-y: auto;
 		scroll-behavior: smooth;
 		align-items: flex-start;
-		mask-image: linear-gradient( 180deg, transparent, white 24px );
 	}
 
 	&__message {
 		border-radius: 16px;
-		white-space: pre-line;
 		animation: messageAppear 0.3s ease-out;
 		font-size: 13px;
 		line-height: 1.5;
 		display: flex;
 		align-items: center;
-		min-width: 48px;
+		max-width: 255px;
 
-		.seo-assistant-wizard__message-icon {
+		.assistant-wizard__message-icon {
 			flex-shrink: 0;
-			align-self: center;
+			align-self: baseline;
 			flex-basis: 26px;
+			line-height: 2;
 
 			img {
 				vertical-align: middle;
 			}
 		}
 
-		.seo-assistant-wizard__message-text {
-			padding: 4px 12px;
-			// flex: 1 0 200px;
+		.assistant-wizard__message-text {
+			padding: 0px 12px;
 		}
 
 		&.is-user {
 			background: #f3f4f6;
 			align-self: flex-end;
-			max-width: 85%;
+			min-width: 15%;
 			
-			.seo-assistant-wizard__message-icon {
+			.assistant-wizard__message-text {
+				padding: 16px 20px;
+			}
+	
+			.assistant-wizard__message-icon {
 				display: none;
 			}
 		}
@@ -99,10 +111,9 @@
 
 	&__input-container {
 		flex: 0 0 auto;
-		padding: 16px;
+		padding-top: 16px;
 		background: white;
-		border-radius: 0 0 16px 16px;
-		border-top: 1px solid var( --jp-gray-5, #e5e7eb );
+		border-radius: 0 0 24px 24px;
 	}
 
 	&__input {
@@ -113,15 +124,24 @@
 		align-items: center;
 		padding-right: 6px;
 		height: 44px;
+		animation: assistantInputAppear 0.3s ease-out;
 
 		&:focus-within {
 			outline-width: 2px;
 			outline-color: var( --wp-components-color-accent, var( --wp-admin-theme-color, #007cba ) );
 		}
 
+
+		// keyboardshortcuts component wraps the base control with a div
+		// This is a quick fix to mimic the rule below (components-base-control)
+		& > div:first-child {
+			flex-grow: 1;
+		}
+
 		.components-base-control {
 			flex-grow: 1;
 		}
+
 		.components-text-control__input,
 		.components-text-control__input:focus {
 			padding: 8px;
@@ -132,8 +152,9 @@
 		}
 	}
 
+	// submit and retry buttons
 	&__submit {
-		border-radius: 20px;
+		border-radius: 24px;
 		max-height: 34px;
 	}
 
@@ -145,10 +166,10 @@
 
 	&__option {
 		width: 100%;
-		padding: 12px;
+		padding: 16px 20px;
 		background: #f3f4f6;
 		border: 2px solid transparent;
-		border-radius: 12px;
+		border-radius: 16px;
 		text-align: left;
 		font-size: 14px;
 		line-height: 1.4;
@@ -176,19 +197,12 @@
 		justify-content: flex-end;
 		align-items: center;
 		gap: 16px;
-
-		.components-button {
-			border-radius: 20px;
-		}
+		animation: assistantInputAppear 0.3s ease-out;
 	}
 
 	&__completion {
 		display: flex;
 		justify-content: flex-end;
-
-		.components-button {
-			border-radius: 20px;
-		}
 	}
 }
 
@@ -200,6 +214,14 @@
 	to {
 		opacity: 1;
 		transform: translateY(0);
+	}
+}
+@keyframes assistantInputAppear {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
 	}
 }
 

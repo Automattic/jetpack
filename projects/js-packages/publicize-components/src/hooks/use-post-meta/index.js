@@ -1,7 +1,7 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useMemo } from '@wordpress/element';
-import { getShareMessageMaxLength } from '../../utils';
+import { useShareMessageMaxLength } from '../../utils';
 
 /**
  * Returns the post meta values.
@@ -10,32 +10,36 @@ import { getShareMessageMaxLength } from '../../utils';
  */
 export function usePostMeta() {
 	const { editPost } = useDispatch( editorStore );
+	const maxCharacterLength = useShareMessageMaxLength();
 
-	const metaValues = useSelect( select => {
-		const meta = select( editorStore ).getEditedPostAttribute( 'meta' ) || {};
+	const metaValues = useSelect(
+		select => {
+			const meta = select( editorStore ).getEditedPostAttribute( 'meta' ) || {};
 
-		const isPublicizeEnabled = meta.jetpack_publicize_feature_enabled ?? true;
-		const jetpackSocialOptions = meta.jetpack_social_options || {};
-		const attachedMedia = jetpackSocialOptions.attached_media || [];
-		const imageGeneratorSettings = jetpackSocialOptions.image_generator_settings ?? {
-			enabled: false,
-		};
-		const isPostAlreadyShared = meta.jetpack_social_post_already_shared ?? false;
+			const isPublicizeEnabled = meta.jetpack_publicize_feature_enabled ?? true;
+			const jetpackSocialOptions = meta.jetpack_social_options || {};
+			const attachedMedia = jetpackSocialOptions.attached_media || [];
+			const imageGeneratorSettings = jetpackSocialOptions.image_generator_settings ?? {
+				enabled: false,
+			};
+			const isPostAlreadyShared = meta.jetpack_social_post_already_shared ?? false;
 
-		const shareMessage = `${ meta.jetpack_publicize_message || '' }`.substring(
-			0,
-			getShareMessageMaxLength()
-		);
+			const shareMessage = `${ meta.jetpack_publicize_message || '' }`.substring(
+				0,
+				maxCharacterLength
+			);
 
-		return {
-			isPublicizeEnabled,
-			jetpackSocialOptions,
-			attachedMedia,
-			imageGeneratorSettings,
-			isPostAlreadyShared,
-			shareMessage,
-		};
-	}, [] );
+			return {
+				isPublicizeEnabled,
+				jetpackSocialOptions,
+				attachedMedia,
+				imageGeneratorSettings,
+				isPostAlreadyShared,
+				shareMessage,
+			};
+		},
+		[ maxCharacterLength ]
+	);
 
 	const updateMeta = useCallback(
 		( metaKey, metaValue ) => {

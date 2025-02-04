@@ -66,6 +66,15 @@ class Jetpack_Gutenberg {
 	);
 
 	/**
+	 * Storing the contents of the preset file.
+	 *
+	 * Already been json_decode.
+	 *
+	 * @var null|object JSON decoded object after first usage.
+	 */
+	private static $preset_cache = null;
+
+	/**
 	 * Check to see if a minimum version of Gutenberg is available. Because a Gutenberg version is not available in
 	 * php if the Gutenberg plugin is not installed, if we know which minimum WP release has the required version we can
 	 * optionally fall back to that.
@@ -101,6 +110,7 @@ class Jetpack_Gutenberg {
 		}
 
 		if ( ! $version_available ) {
+			$slug = self::remove_extension_prefix( $slug );
 			self::set_extension_unavailable(
 				$slug,
 				'incorrect_gutenberg_version',
@@ -161,7 +171,8 @@ class Jetpack_Gutenberg {
 	 * @param string $slug Slug of the extension.
 	 */
 	public static function set_extension_available( $slug ) {
-		self::$availability[ self::remove_extension_prefix( $slug ) ] = true;
+		$slug                        = self::remove_extension_prefix( $slug );
+		self::$availability[ $slug ] = true;
 	}
 
 	/**
@@ -196,8 +207,8 @@ class Jetpack_Gutenberg {
 			// Add a descriptive suffix to disable behavior but provide informative reason.
 			$reason .= '__nudge_disabled';
 		}
-
-		self::$availability[ self::remove_extension_prefix( $slug ) ] = array(
+		$slug                        = self::remove_extension_prefix( $slug );
+		self::$availability[ $slug ] = array(
 			'reason'  => $reason,
 			'details' => $details,
 		);
@@ -245,26 +256,40 @@ class Jetpack_Gutenberg {
 	/**
 	 * Checks for a given .json file in the blocks folder.
 	 *
+	 * @deprecated 14.3
+	 *
 	 * @param string $preset The name of the .json file to look for.
 	 *
 	 * @return bool True if the file is found.
 	 */
 	public static function preset_exists( $preset ) {
+		_deprecated_function( __METHOD__, '14.3' );
 		return file_exists( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $preset . '.json' );
 	}
 
 	/**
-	 * Decodes JSON loaded from a preset file in the blocks folder
+	 * Decodes JSON loaded from the preset file in the blocks folder
 	 *
-	 * @param string $preset The name of the .json file to load.
+	 * @since 14.3 Deprecated argument. Only one value is ever used.
+	 *
+	 * @param null $deprecated No longer used.
 	 *
 	 * @return mixed Returns an object if the file is present, or false if a valid .json file is not present.
 	 */
-	public static function get_preset( $preset ) {
-		return json_decode(
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			file_get_contents( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $preset . '.json' )
+	public static function get_preset( $deprecated = null ) {
+		if ( $deprecated ) {
+			_deprecated_argument( __METHOD__, '$$next-version', 'The $preset argument is no longer needed or used.' );
+		}
+
+		if ( self::$preset_cache ) {
+			return self::$preset_cache;
+		}
+
+		self::$preset_cache = json_decode(
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			file_get_contents( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . 'index.json' )
 		);
+		return self::$preset_cache;
 	}
 
 	/**
@@ -273,9 +298,7 @@ class Jetpack_Gutenberg {
 	 * @return array A list of blocks: eg [ 'publicize', 'markdown' ]
 	 */
 	public static function get_jetpack_gutenberg_extensions_allowed_list() {
-		$preset_extensions_manifest = self::preset_exists( 'index' )
-			? self::get_preset( 'index' )
-			: (object) array();
+		$preset_extensions_manifest = ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) ? array() : self::get_preset();
 		$blocks_variation           = self::blocks_variation();
 
 		return self::get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation );
@@ -812,7 +835,7 @@ class Jetpack_Gutenberg {
 			 * Look for files that match our list of available Jetpack Gutenberg extensions (blocks and plugins).
 			 * If available, load them.
 			 */
-			$directories = array( 'blocks', 'plugins', 'extended-blocks', 'shared', 'store' );
+			$directories = array( 'blocks', 'plugins', 'extended-blocks' );
 
 			foreach ( static::get_extensions() as $extension ) {
 				foreach ( $directories as $dirname ) {

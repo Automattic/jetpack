@@ -79,7 +79,7 @@ function twentytwenty_no_sharing_on_excerpts() {
 
 		// Remove Likes.
 		if ( class_exists( 'Jetpack_Likes' ) ) {
-			remove_filter( 'the_excerpt', array( Jetpack_Likes::init(), 'post_likes' ), 30, 1 );
+			remove_filter( 'the_excerpt', array( Jetpack_Likes::init(), 'post_likes' ), 30 );
 		}
 	}
 }
@@ -113,8 +113,8 @@ add_filter( 'wordads_excerpt_disable', '__return_true' );
  */
 function twentytwenty_enqueue_jetpack_style() {
 	$version = Jetpack::is_development_version()
-		? filemtime( JETPACK__PLUGIN_DIR . 'modules/theme-tools/compat/twentytwenty.css' )
-		: JETPACK__VERSION;
+	? filemtime( JETPACK__PLUGIN_DIR . 'modules/theme-tools/compat/twentytwenty.css' )
+	: JETPACK__VERSION;
 
 	wp_enqueue_style( 'twentytwenty-jetpack', plugins_url( 'twentytwenty.css', __FILE__ ), array(), $version );
 	wp_style_add_data( 'twentytwenty-jetpack', 'rtl', 'replace' );
@@ -127,8 +127,8 @@ add_action( 'wp_enqueue_scripts', 'twentytwenty_enqueue_jetpack_style' );
 function twentytwenty_infinity_accent_color_css() {
 	// Bail early if no custom color was set.
 	if (
-		'custom' !== get_theme_mod( 'accent_hue_active' )
-		|| empty( get_theme_mod( 'accent_accessible_colors' ) )
+	'custom' !== get_theme_mod( 'accent_hue_active' )
+	|| empty( get_theme_mod( 'accent_accessible_colors' ) )
 	) {
 		return;
 	}
@@ -136,18 +136,18 @@ function twentytwenty_infinity_accent_color_css() {
 	$color_info = get_theme_mod( 'accent_accessible_colors' );
 	$custom_css = sprintf(
 		'
-		.infinite-scroll #site-content #infinite-handle span button,
-		.infinite-scroll #site-content #infinite-handle span button:hover,
-		.infinite-scroll #site-content #infinite-handle span button:focus {
-			background: %1$s;
-			color: %2$s;
-		}
-		#site-content .entry-content div.sharedaddy h3.sd-title,
-		#site-content .entry-content h3.sd-title,
-		#site-content .entry-content #jp-relatedposts h3.jp-relatedposts-headline {
-			color: %3$s;
-		}
-		',
+	.infinite-scroll #site-content #infinite-handle span button,
+	.infinite-scroll #site-content #infinite-handle span button:hover,
+	.infinite-scroll #site-content #infinite-handle span button:focus {
+		background: %1$s;
+		color: %2$s;
+	}
+	#site-content .entry-content div.sharedaddy h3.sd-title,
+	#site-content .entry-content h3.sd-title,
+	#site-content .entry-content #jp-relatedposts h3.jp-relatedposts-headline {
+		color: %3$s;
+	}
+	',
 		$color_info['content']['accent'],
 		$color_info['content']['background'],
 		$color_info['content']['secondary']
@@ -259,14 +259,15 @@ function twentytwenty_amp_infinite_older_posts() {
 	ob_start();
 	?>
 <div id="infinite-handle" class="read-more-button-wrap">
-	<span>
-		<a href="{{url}}" class="more-link" rel="amphtml">
-			<span class="faux-button">
-				<?php esc_html_e( 'Older posts', 'jetpack' ); ?>
-			</span>
-		</a>
-	</span>
+<span>
+	<a href="{{url}}" class="more-link" rel="amphtml">
+		<span class="faux-button">
+			<?php esc_html_e( 'Older posts', 'jetpack' ); ?>
+		</span>
+	</a>
+</span>
 </div>
 	<?php
 	return ob_get_clean();
 }
+

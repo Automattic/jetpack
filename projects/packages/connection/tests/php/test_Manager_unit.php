@@ -171,7 +171,7 @@ class ManagerTest extends TestCase {
 			$this->manager->api_url( 'another_thing/' )
 		);
 
-		remove_filter( 'jetpack_constant_default_value', array( $this, 'filter_api_constant' ), 10, 2 );
+		remove_filter( 'jetpack_constant_default_value', array( $this, 'filter_api_constant' ), 10 );
 	}
 
 	/**

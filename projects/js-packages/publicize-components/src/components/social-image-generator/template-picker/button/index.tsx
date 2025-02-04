@@ -11,7 +11,7 @@ const TemplatePickerButton: React.FC = () => {
 	const { isEnabled, isUpdating, defaultTemplate } = useSelect( select => {
 		const store = select( socialStore );
 
-		const config = store.getSocialImageGeneratorConfig();
+		const config = store.getSocialSettings().socialImageGenerator;
 		return {
 			isEnabled: config.enabled,
 			defaultTemplate: config.template,

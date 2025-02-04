@@ -1,7 +1,11 @@
 import { Orientation } from '@visx/axis';
+import { ScaleType } from '@visx/scale';
+import { LineStyles } from '@visx/xychart';
 import type { CSSProperties } from 'react';
 
 type ValueOf< T > = T[ keyof T ];
+
+export type Optional< T, K extends keyof T > = Pick< Partial< T >, K > & Omit< T, K >;
 
 declare type OrientationType = ValueOf< typeof Orientation >;
 
@@ -12,8 +16,8 @@ export type DataPoint = {
 
 export type DataPointDate = {
 	date: Date;
+	value: number | null;
 	label?: string;
-	value: number;
 };
 
 export type SeriesData = {
@@ -69,6 +73,10 @@ export type ChartTheme = {
 	gridColor: string;
 	/** Color of the grid lines in dark mode */
 	gridColorDark: string;
+	/** Styles for x-axis tick lines */
+	xTickLineStyles?: LineStyles;
+	/** Styles for x-axis line */
+	xAxisLineStyles?: LineStyles;
 };
 
 declare type AxisOptions = {
@@ -78,6 +86,7 @@ declare type AxisOptions = {
 	axisLineClassName?: string;
 	labelClassName?: string;
 	tickClassName?: string;
+	tickFormat?: ( value: number ) => string;
 };
 
 /**
@@ -101,13 +110,17 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 */
 	height?: number;
 	/**
+	 * Size of the chart in pixels for pie and donut charts
+	 */
+	size?: number;
+	/**
 	 * Chart margins
 	 */
 	margin?: {
-		top: number;
-		right: number;
-		bottom: number;
-		left: number;
+		top?: number;
+		right?: number;
+		bottom?: number;
+		left?: number;
 	};
 	/**
 	 * Whether to show tooltips on hover. False by default.
@@ -130,6 +143,8 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 * More options for the chart.
 	 */
 	options?: {
+		yScale?: { type?: ScaleType; zero?: boolean };
+		xScale?: { type?: ScaleType };
 		axis?: {
 			x?: AxisOptions;
 			y?: AxisOptions;

@@ -117,13 +117,14 @@ class Publicize_Script_Data {
 		}
 
 		$basic_data = array(
-			'api_paths'            => array(),
+			'api_paths'            => self::get_api_paths(),
 			'is_publicize_enabled' => Utils::is_publicize_active(),
 			'feature_flags'        => self::get_feature_flags(),
 			'supported_services'   => array(),
 			'shares_data'          => array(),
 			'urls'                 => array(),
 			'settings'             => self::get_social_settings(),
+			'plugin_info'          => self::get_plugin_info(),
 		);
 
 		if ( ! Utils::is_publicize_active() ) {
@@ -140,7 +141,6 @@ class Publicize_Script_Data {
 		return array_merge(
 			$basic_data,
 			array(
-				'api_paths'           => self::get_api_paths(),
 				'supported_services'  => self::get_supported_services(),
 				'shares_data'         => self::get_shares_data(),
 				'urls'                => self::get_urls(),
@@ -161,6 +161,42 @@ class Publicize_Script_Data {
 		return array(
 			'socialImageGenerator' => $settings->get_image_generator_settings(),
 			'utmSettings'          => $settings->get_utm_settings(),
+			'socialNotes'          => array(
+				'enabled' => $settings->is_social_notes_enabled(),
+				'config'  => $settings->get_social_notes_config(),
+			),
+			'showPricingPage'      => $settings->should_show_pricing_page(),
+		);
+	}
+
+	/**
+	 * Get the plugin info.
+	 *
+	 * @return array
+	 */
+	public static function get_plugin_info() {
+
+		$social_version  = null;
+		$jetpack_version = null;
+
+		if ( defined( 'JETPACK_SOCIAL_PLUGIN_ROOT_FILE' ) ) {
+
+			$plugin_data = get_plugin_data( (string) constant( 'JETPACK_SOCIAL_PLUGIN_ROOT_FILE' ), false, false );
+
+			$social_version = $plugin_data['Version'];
+		}
+
+		if ( defined( 'JETPACK__VERSION' ) ) {
+			$jetpack_version = constant( 'JETPACK__VERSION' );
+		}
+
+		return array(
+			'social'  => array(
+				'version' => $social_version,
+			),
+			'jetpack' => array(
+				'version' => $jetpack_version,
+			),
 		);
 	}
 
@@ -171,20 +207,20 @@ class Publicize_Script_Data {
 	 */
 	public static function get_store_initial_state() {
 
-		$is_wpcom = ( new Host() )->is_wpcom_platform();
-
 		$post = get_post();
 
 		$share_status = array();
 
 		// get_post_share_status is not available on WPCOM yet.
-		if ( Utils::should_block_editor_have_social() && $post && ! $is_wpcom ) {
+		if ( Utils::should_block_editor_have_social() && $post && self::has_feature_flag( 'share-status' ) ) {
 			$share_status[ $post->ID ] = self::publicize()->get_post_share_status( $post->ID );
 		}
 
+		$should_have_connections = self::has_feature_flag( 'connections-management' ) || self::has_feature_flag( 'editor-preview' );
+
 		return array(
 			'connectionData' => array(
-				'connections' => self::has_feature_flag( 'connections-management' ) ? Connections::get_all_for_user() : array(),
+				'connections' => $should_have_connections ? Connections::get_all_for_user() : array(),
 			),
 			'shareStatus'    => $share_status,
 		);
@@ -240,7 +276,7 @@ class Publicize_Script_Data {
 	 * @return ?array
 	 */
 	public static function get_shares_data() {
-		return self::publicize()->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
+		return self::publicize()->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ) ?? array();
 	}
 
 	/**
@@ -269,6 +305,8 @@ class Publicize_Script_Data {
 
 		$commom_paths = array(
 			'refreshConnections' => '/wpcom/v2/publicize/connections?test_connections=1',
+			// The complete path will be like `/jetpack/v4/social/settings`.
+			'socialToggleBase'   => class_exists( 'Jetpack' ) ? 'settings' : 'social/settings',
 		);
 
 		$specific_paths = array();

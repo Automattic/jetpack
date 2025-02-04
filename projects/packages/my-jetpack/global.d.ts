@@ -426,6 +426,10 @@ interface Window {
 					fixable_threat_ids: number[];
 				};
 			};
+			[ key: `${ string }--plugins_needing_installed_activated` ]: {
+				needs_installed?: string[];
+				needs_activated_only?: string[];
+			};
 		};
 		recommendedModules: {
 			modules: JetpackModule[] | null;

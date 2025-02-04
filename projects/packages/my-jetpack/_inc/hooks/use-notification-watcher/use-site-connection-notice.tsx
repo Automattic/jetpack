@@ -4,7 +4,7 @@ import { useContext, useEffect } from 'react';
 import { MyJetpackRoutes } from '../../constants';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
-import { useAllProducts } from '../../data/products/use-product';
+import { useAllProducts } from '../../data/products/use-all-products';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useAnalytics from '../use-analytics';

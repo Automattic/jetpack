@@ -1,7 +1,7 @@
+import { curveCatmullRom, curveLinear } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
 import {
 	XYChart,
-	AnimatedLineSeries,
 	AnimatedAreaSeries,
 	AnimatedAxis,
 	AnimatedGrid,
@@ -9,7 +9,7 @@ import {
 	buildChartTheme,
 } from '@visx/xychart';
 import clsx from 'clsx';
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { withResponsive } from '../shared/with-responsive';
@@ -17,8 +17,8 @@ import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 
 interface LineChartProps extends BaseChartProps< SeriesData[] > {
-	margin?: { top: number; right: number; bottom: number; left: number };
 	withGradientFill: boolean;
+	smoothing?: boolean;
 }
 
 type TooltipData = {
@@ -75,24 +75,64 @@ const formatDateTick = ( value: number ) => {
 	} );
 };
 
+const validateData = ( data: SeriesData[] ) => {
+	if ( ! data?.length ) return 'No data available';
+
+	const hasInvalidData = data.some( series =>
+		series.data.some(
+			point =>
+				isNaN( point.value as number ) ||
+				point.value === null ||
+				point.value === undefined ||
+				isNaN( point.date.getTime() )
+		)
+	);
+
+	if ( hasInvalidData ) return 'Invalid data';
+	return null;
+};
+
 const LineChart: FC< LineChartProps > = ( {
 	data,
 	width,
 	height,
-	margin = { top: 20, right: 20, bottom: 40, left: 40 },
 	className,
+	margin,
 	withTooltips = true,
 	showLegend = false,
 	legendOrientation = 'horizontal',
 	withGradientFill = false,
+	smoothing = true,
 	options = {},
 } ) => {
 	const providerTheme = useChartTheme();
 
-	if ( ! data?.length ) {
-		return (
-			<div className={ clsx( 'line-chart-empty', styles[ 'line-chart-empty' ] ) }>Empty...</div>
-		);
+	const theme = useMemo( () => {
+		const seriesColors =
+			data?.map( series => series.options?.stroke ?? '' ).filter( Boolean ) ?? [];
+		return buildChartTheme( {
+			...providerTheme,
+			colors: [ ...seriesColors, ...providerTheme.colors ],
+		} );
+	}, [ providerTheme, data ] );
+
+	margin = useMemo( () => {
+		// Auto-margin unless specified to make room for axis labels.
+		// Default margin is for bottom and left axis labels.
+		let defaultMargin = {};
+		if ( options.axis?.y?.orientation === 'right' ) {
+			defaultMargin = { ...defaultMargin, right: 40, left: 0 };
+		}
+		if ( options.axis?.x?.orientation === 'top' ) {
+			defaultMargin = { ...defaultMargin, top: 40, bottom: 0 };
+		}
+		// Merge default margin with user-specified margin.
+		return { ...defaultMargin, ...margin };
+	}, [ margin, options ] );
+
+	const error = validateData( data );
+	if ( error ) {
+		return <div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>{ error }</div>;
 	}
 
 	// Create legend items from group labels, this iterates over groups rather than data points
@@ -107,24 +147,20 @@ const LineChart: FC< LineChartProps > = ( {
 		yAccessor: ( d: DataPointDate ) => d.value,
 	};
 
-	const theme = buildChartTheme( {
-		backgroundColor: providerTheme.backgroundColor,
-		colors: providerTheme.colors,
-		gridStyles: providerTheme.gridStyles,
-		tickLength: providerTheme?.tickLength || 0,
-		gridColor: providerTheme?.gridColor || '',
-		gridColorDark: providerTheme?.gridColorDark || '',
-	} );
-
 	return (
-		<div className={ clsx( 'line-chart', styles[ 'line-chart' ], className ) }>
+		<div
+			className={ clsx( 'line-chart', styles[ 'line-chart' ], className ) }
+			data-testid="line-chart"
+			role="img"
+			aria-label="line chart"
+		>
 			<XYChart
 				theme={ theme }
 				width={ width }
 				height={ height }
-				margin={ margin }
-				xScale={ { type: 'time' } }
-				yScale={ { type: 'linear', nice: true } }
+				margin={ { top: 0, right: 0, bottom: 0, left: 0, ...margin } }
+				xScale={ { type: 'time', ...options?.xScale } }
+				yScale={ { type: 'linear', nice: true, zero: false, ...options?.yScale } }
 			>
 				<AnimatedGrid columns={ false } numTicks={ 4 } />
 				<AnimatedAxis
@@ -137,39 +173,28 @@ const LineChart: FC< LineChartProps > = ( {
 
 				{ data.map( ( seriesData, index ) => {
 					const stroke = seriesData.options?.stroke ?? theme.colors[ index % theme.colors.length ];
-
 					return (
-						<>
-							<LinearGradient
-								id={ `area-gradient-${ index + 1 }` }
-								from={ stroke }
-								to="white"
-								toOpacity={ 0.1 }
-								{ ...seriesData.options?.gradient }
-							/>
-							<AnimatedLineSeries
-								key={ seriesData?.label }
-								dataKey={ seriesData?.label }
-								data={ seriesData.data as DataPointDate[] } // TODO: this needs fixing or a more specific type for each chart
-								{ ...accessors }
-								stroke={ stroke }
-								strokeWidth={ 2 }
-							/>
-							{ /** Theoretically the area series should work without the line series; however it outlines the area with borders, which isn't ideal. */ }
-							{ /** TODO: Investigate whehter we could leverage area series alone. */ }
+						<g key={ seriesData?.label || index }>
 							{ withGradientFill && (
-								<AnimatedAreaSeries
-									key={ seriesData?.label }
-									dataKey={ seriesData?.label }
-									data={ seriesData.data as DataPointDate[] } // TODO: this needs fixing or a more specific type for each chart
-									{ ...accessors }
-									stroke={ stroke }
-									strokeWidth={ 0 }
-									fill={ `url(#area-gradient-${ index + 1 })` }
-									renderLine={ false }
+								<LinearGradient
+									id={ `area-gradient-${ index + 1 }` }
+									from={ stroke }
+									to="white"
+									toOpacity={ 0.1 }
+									{ ...seriesData.options?.gradient }
+									data-testid="line-gradient"
 								/>
 							) }
-						</>
+							<AnimatedAreaSeries
+								key={ seriesData?.label }
+								dataKey={ seriesData?.label }
+								data={ seriesData.data as DataPointDate[] }
+								{ ...accessors }
+								fill={ withGradientFill ? `url(#area-gradient-${ index + 1 })` : undefined }
+								renderLine={ true }
+								curve={ smoothing ? curveCatmullRom : curveLinear }
+							/>
+						</g>
 					);
 				} ) }
 

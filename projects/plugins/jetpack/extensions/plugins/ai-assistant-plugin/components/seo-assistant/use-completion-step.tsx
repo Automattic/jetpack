@@ -1,49 +1,76 @@
-import { createInterpolateElement, useCallback } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import type { Step, CompletionStepHookProps } from './types';
+import TypingMessage from './typing-message';
+import { useMessages } from './wizard-messages';
+import type { CompletionStep } from './types';
 
-export const useCompletionStep = ( { steps }: CompletionStepHookProps ): Step => {
-	const getSummaryCheck = useCallback( () => {
-		const summaryString = steps
-			.map( step => {
-				const stepLabel = step.label || step.title;
-				return step.completed ? `✅ ${ stepLabel }` : `❌ ${ stepLabel }`;
-			} )
-			.join( '<br />' );
-		return createInterpolateElement( summaryString, { br: <br /> } );
-	}, [ steps ] );
+export const useCompletionStep = (): CompletionStep => {
+	const [ keywords, setKeywords ] = useState( '' );
+	const [ completed, setCompleted ] = useState( false );
+	const { messages, setMessages, addMessage, removeLastMessage } = useMessages();
+
+	const startHandler = useCallback(
+		async ( { fromSkip } ) => {
+			const firstMessages = [
+				{
+					content: <TypingMessage />,
+					showIcon: true,
+					id: '2',
+				},
+			];
+			if ( fromSkip ) {
+				firstMessages.unshift( {
+					// @ts-expect-error - type is properly defined, unsure why it's erroring
+					content: __( 'Skipped!', 'jetpack' ),
+					showIcon: true,
+					id: 'a',
+				} );
+			}
+			setMessages( firstMessages );
+			await new Promise( resolve => setTimeout( resolve, 2000 ) );
+			removeLastMessage();
+			// await new Promise( resolve => setTimeout( resolve, 1000 ) );
+			addMessage( {
+				content: createInterpolateElement(
+					"Here's your updated checklist:<br />✅ Title<br />✅ Meta description<br /><br />",
+					{
+						br: <br />,
+					}
+				),
+				id: '1',
+			} );
+			addMessage( {
+				content: createInterpolateElement(
+					__(
+						'<strong>SEO optimization complete! 🎉</strong><br/>Your blog post is now search-engine friendly.',
+						'jetpack'
+					),
+					{ br: <br />, strong: <strong /> }
+				),
+				showIcon: false,
+				id: '3',
+			} );
+			addMessage( {
+				content: __( 'Happy blogging! 😊', 'jetpack' ),
+				showIcon: false,
+				id: '4',
+			} );
+			return 'completion';
+		},
+		[ setMessages, addMessage, removeLastMessage ]
+	);
 
 	return {
 		id: 'completion',
 		title: __( 'Your post is SEO-ready', 'jetpack' ),
-		// onStart: handleSummaryChecks,
-		messages: [
-			{
-				content: __( "Here's your updated checklist:", 'jetpack' ),
-				showIcon: true,
-			},
-			{
-				content: getSummaryCheck(),
-				showIcon: false,
-			},
-			{
-				content: createInterpolateElement(
-					__(
-						'SEO optimization complete! 🎉<br/>Your blog post is now search-engine friendly.',
-						'jetpack'
-					),
-					{ br: <br /> }
-				),
-				showIcon: true,
-			},
-			{
-				content: __( 'Happy blogging! 😊', 'jetpack' ),
-				showIcon: false,
-			},
-		],
+		label: 'completion',
+		messages,
 		type: 'completion',
-		// onStart: handleStart,
-		value: null,
-		setValue: () => null,
+		onStart: startHandler,
+		submitCtaLabel: __( 'Done!', 'jetpack' ),
+		completed,
+		setCompleted,
+		value: keywords,
+		setValue: setKeywords,
 	};
 };

@@ -24,7 +24,7 @@ import SocialModuleToggle from './toggles/social-module-toggle';
 import SocialNotesToggle from './toggles/social-notes-toggle';
 import UtmToggle from './toggles/utm-toggle';
 
-const SocialAdminPage = () => {
+export const SocialAdminPage = () => {
 	const { isUserConnected, isRegistered } = useConnection();
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	const [ forceDisplayPricingPage, setForceDisplayPricingPage ] = useState( false );
@@ -33,12 +33,12 @@ const SocialAdminPage = () => {
 
 	const { isModuleEnabled, showPricingPage, isUpdatingJetpackSettings } = useSelect( select => {
 		const store = select( socialStore );
-		const settings = store.getSocialPluginSettings();
+		const settings = store.getSocialModuleSettings();
 
 		return {
-			isModuleEnabled: settings.publicize_active,
-			showPricingPage: store.shouldShowPricingPage(),
-			isUpdatingJetpackSettings: store.isSavingSocialPluginSettings(),
+			isModuleEnabled: settings.publicize,
+			showPricingPage: store.getSocialSettings().showPricingPage,
+			isUpdatingJetpackSettings: store.isSavingSocialModuleSettings(),
 		};
 	}, [] );
 
@@ -93,5 +93,3 @@ const SocialAdminPage = () => {
 		</AdminPage>
 	);
 };
-
-export default SocialAdminPage;

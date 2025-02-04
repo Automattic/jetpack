@@ -257,7 +257,7 @@ class Publicize extends Publicize_Base {
 									'service_name'   => $service_name,
 									'connection_id'  => $connection['connection_data']['id'],
 									'can_disconnect' => self::can_manage_connection( $connection['connection_data'] ),
-									'profile_link'   => $this->get_profile_link( $service_name, $connection ),
+									'profile_link'   => (string) $this->get_profile_link( $service_name, $connection ),
 									'shared'         => '0' === $connection['connection_data']['user_id'],
 									'status'         => 'ok',
 								)

@@ -2,6 +2,62 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.3-beta - 2025-02-03
+### Enhancements
+- Blocks: Improve performance. [#39734]
+- Social: Post character limits are now dynamic based on selected connections. [#41429]
+- Social: Enable Social post UI for WordPress.com sites. [#41219]
+
+### Improved compatibility
+- Open Graph Meta Tags: Do not display Jetpack's tags when the SEOPress plugin is active. [#41331]
+- Social: Remove "Your post" section from previews in favor of newer Social Post UI. [#41329]
+
+### Bug fixes
+- Copy Post: Ensure Copy option is still available on all CPTs after quick edit in post list. [#41339]
+- Forms: Fix datepicker appearance on dark themes. [#41342]
+- Forms: Fix field spacing and widths. [#41415]
+- Forms: Fix permanent deletion of form reponses via quicklinks. [#41321]
+- Forms: Hide empty radio fields. [#41379]
+- Forms: Keep content as-is when switching Feedback status between spam and publish. [#41359]
+- Forms: Prevent error in block placeholder when the Forms module is disabled. [#41382]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Code: Remove extra params on function calls. [#41263]
+- Forms: Rename contact form module to "Forms". [#41384]
+- Post List: Add a Copy Link Quick Action. [#41305]
+- SEO Assistant: Adjust step flow in wizard. [#41268]
+- SEO Assistant: Implement completion step and review copy edits. [#41469]
+- SEO Assistant: Improve assistant flow by letting steps depend on previous steps. [#41341]
+- SEO Assistant: Tweak design CSS. [#41506] [#41473]
+- Subscriptions block: Fix button width when not on a new line. [#41156]
+- Sync: Full Sync comments now send dynamic chunks if chunk size default is too big. [#41350]
+- Testing: Add manual testing instructions. [#41364]
+- Theme compat: Wrap relevant functions in a `function_exists` check to prevent collisions with Classic Theme Helper package. [#41394]
+- Updated package dependencies. [#41286]
+- Update text copies based on whether the site is public. [#41387]
+- Update settings endpoint to return the updated toggle state in the success response. [#41461]
+
+## 14.3-a.5 - 2025-01-27
+### Enhancements
+- Forms: Add Checkbox and Consent field enter action to create a new block. [#41297]
+
+### Bug fixes
+- Forms: Make the icons show up as expected in the style editor. [#41314]
+- Sitemaps: Ensure a valid news sitemap is present even if no posts are eligible. [#40893]
+- Social: Fix profile links for LinkedIn connections. [#40873]
+- Social: Fix Publicize error in the editor due to malformed connections data. [#40679]
+- VideoPress: Fix issue with VideoPress block with zero height and width. [#41319]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Comments API: Add wpcom_id and wpcom_login fields to comment author responses when requested via author_wpcom_data parameter. [#41254]
+- Forms: Fix default editor stying for textarea. [#41229]
+- Forms: Remove wrapping <div> element from form block. [#41274]
+- General: Fix the rendering of Jetpack Google Fonts font faces for classic themes. [#41190]
+- General: Deprecate Jetpack geo location module. [#41193]
+- Jetpack AI: Use the PluginDocumentSettingPanel slotfill for compatibility with site and post editor in the Excerpt panel. [#41251]
+- Jetpack button: Implement outline style. [#41194]
+- Related Posts: Revert "Hide settings in block themes." [#41203]
+
 ## 14.3-a.3 - 2025-01-20
 ### Enhancements
 - Forms: Allow HTML block within forms. [#41040]

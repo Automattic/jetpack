@@ -258,8 +258,10 @@ class Protect_Status extends Status {
 		global $wp_version;
 
 		// Ensure the report data has the core property.
-		if ( ! $report_data->core || ! $report_data->core->version ) {
-			$report_data->core = new \stdClass();
+		if ( ! isset( $report_data->core ) || ! $report_data->core
+			|| ! isset( $report_data->core->version ) || ! $report_data->core->version ) {
+			$report_data->core          = new \stdClass();
+			$report_data->core->version = new \stdClass();
 		}
 
 		$core = new Extension_Model(
