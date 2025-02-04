@@ -169,7 +169,7 @@ class REST_Connector {
 
 		// Disconnect/unlink user from WordPress.com servers.
 		// Avoid conflict with older versions of Jetpack by conditionally registering this endpoint
-		if ( empty( $jp_version ) || version_compare( $jp_version, '14.4-alpha', '>=' ) ) {
+		if ( empty( $jp_version ) || version_compare( $jp_version, '14.3-beta', '>=' ) ) {
 			register_rest_route(
 				'jetpack/v4',
 				'/connection/user',
