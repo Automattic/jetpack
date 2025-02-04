@@ -50,37 +50,38 @@ class Validation_Service {
 	}
 
 	/**
-	 * Return all validation errors.
+	 * Return validation initial state.
+	 *
+	 * @return array An array of all validation statuses and messages.
+	 */
+	public function get_validation_initial_state(): array {
+		return [
+			'contains_backslash' => [ 'status' => null, 'message' => __( "Doesn't contain a backslash (\\) character", 'jetpack-account-protection' ) ],
+			'invalid_length' => [ 'status' => null, 'message' => __( 'Between 6 and 150 characters', 'jetpack-account-protection' ) ],
+			'matches_user_data' => [ 'status' => null, 'message' => __( "Doesn't match user data", 'jetpack-account-protection' ) ],
+			// 'recent' => [ 'status' => null, 'message' => __( 'Not used recently', 'jetpack-account-protection' ) ],
+			// 'weak' => [ 'status' => null, 'message' => __( 'Not a leaked password', 'jetpack-account-protection' ) ],
+		];
+	}
+
+	/**
+	 * Return validation state.
 	 *
 	 * @param \WP_User|\stdClass $user The user object or a copy.
 	 * @param string             $password The password to check.
 	 *
-	 * @return array An array of validation errors (if any).
+	 * @return array An array of the status of each check.
 	 */
-	public function return_all_validation_errors( $user, string $password ): array {
-		$errors = array();
+	public function get_validation_state( $user, string $password ): array {
+		$validation_state = $this->get_validation_initial_state();
 
-		if ( $this->contains_backslash( $password ) ) {
-			$errors[] = __( 'Doesn\'t contain a backslash (\\) character', 'jetpack-account-protection' );
-		}
-
-		if ( $this->is_invalid_length( $password ) ) {
-			$errors[] = __( 'Between 6 and 150 characters', 'jetpack-account-protection' );
-		}
-
-		// if ( $this->matches_user_data( $user, $password ) ) {
-		// $errors[] = __( 'Doesn\'t match user data', 'jetpack-account-protection' );
-		// }
-
-		// if ( $this->is_recent_password( $user->ID, $password ) ) {
-		// $errors[] = __( 'Not used recently', 'jetpack-account-protection' );
-		// }
-
-		// if ( $this->is_weak_password( $password ) ) {
-		// $errors[] = __( 'Not a leaked password.', 'jetpack-account-protection' );
-		// }
-
-		return $errors;
+		$validation_state['contains_backslash']['status']  = $this->contains_backslash( $password );
+		$validation_state['invalid_length']['status']     = $this->is_invalid_length( $password );
+		$validation_state['matches_user_data']['status'] = $this->matches_user_data( $user, $password );
+		// $validation_state['recent']['recent']     = $this->is_recent_password( $user->ID, $password );
+		// $validation_state['weak']['status']     = $this->is_weak_password( $password );
+	
+		return $validation_state;
 	}
 
 	/**
@@ -92,7 +93,7 @@ class Validation_Service {
 	 *
 	 * @return string The first validation errors (if any).
 	 */
-	public function return_first_validation_error( $user, string $password, $context ): string {
+	public function get_first_validation_error( $user, string $password, $context ): string {
 		if ( 'profile' === $context ) {
 			if ( empty( $password ) ) {
 				return __( '<strong>Error:</strong> The password cannot be a space or all spaces.', 'jetpack-account-protection' );
@@ -144,7 +145,7 @@ class Validation_Service {
 	 */
 	public function is_invalid_length( string $password ): bool {
 		$length = strlen( $password );
-		return $length < 6 || $length > 150;
+		return $length < Config::VALIDATION_SERVICE_MIN_LENGTH || $length > Config::VALIDATION_SERVICE_MAX_LENGTH;
 	}
 
 	/**
@@ -250,7 +251,7 @@ class Validation_Service {
 	 * @return bool True if the password hash was recently used, false otherwise.
 	 */
 	public function is_recent_password( int $user_id, string $password ): bool {
-		$recent_passwords = get_user_meta( $user_id, Config::VALIDATION_SERVICE_USER_META_KEY, true );
+		$recent_passwords = get_user_meta( $user_id, Config::PASSWORD_MANAGER_USER_META_KEY, true );
 
 		if ( empty( $recent_passwords ) || ! is_array( $recent_passwords ) ) {
 			return false;

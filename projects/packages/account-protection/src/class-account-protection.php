@@ -152,19 +152,10 @@ class Account_Protection {
 			wp_send_json_error( [ 'message' => 'No password provided.' ] );
 		}
 	
-		$password = sanitize_text_field( $_POST[ 'password' ] ); // ✅ Sanitize input
-	
-		error_log( 'Password: ' . $password );
-		// Simulating a validation process (replace with actual validation logic)
-		$errors = [];
-		$errors[] = __( 'Between 6 and 150 characters', 'jetpack-account-protection' );
-		$errors[] = __( 'Doesn\'t contain a backslash (\\) character', 'jetpack-account-protection' );
+		$password = sanitize_text_field( $_POST[ 'password' ] );
+		$state = ( new Validation_Service() )->get_validation_state( wp_get_current_user(), $password );
 
-		if ( empty( $errors ) ) {
-			wp_send_json_success( [ 'message' => 'Password is strong!' ] );
-		} else {
-			wp_send_json_error( [ 'errors' => $errors ] );
-		}
+		wp_send_json_success( [ 'status' => $state ] );
 	}
 
 	public function enqueue_jetpack_password_strength_meter_profile_script() {
@@ -201,8 +192,10 @@ class Account_Protection {
 		wp_localize_script( 'jetpack-password-strength-meter', 'jetpackData', array(
 			'ajaxurl' => admin_url( 'admin-ajax.php' ),
 			'logo' => plugin_dir_url(__FILE__) . 'assets/jetpack-logo.svg',
-			'check' => plugin_dir_url(__FILE__) . 'assets/check.svg',
-			'cross' => plugin_dir_url(__FILE__) . 'assets/cross.svg',
+			'checkIcon' => plugin_dir_url(__FILE__) . 'assets/check.svg',
+			'crossIcon' => plugin_dir_url(__FILE__) . 'assets/cross.svg',
+			'loadingIcon' => plugin_dir_url(__FILE__) . 'assets/loading.svg',
+			'validationInitialState' => ( new Validation_Service() )->get_validation_initial_state(),
 		) );
 	}
 
