@@ -250,6 +250,11 @@ class Tracking {
 
 		$properties['user_lang'] = $user->get( 'WPLANG' );
 
+		if ( ! isset( $properties['site_type'] ) && class_exists( '\Automattic\Jetpack\Status\Host' ) ) {
+			$host                    = new \Automattic\Jetpack\Status\Host();
+			$properties['site_type'] = $host->get_known_host_guess();
+		}
+
 		$blog_details = array(
 			'blog_lang' => isset( $properties['blog_lang'] ) ? $properties['blog_lang'] : get_bloginfo( 'language' ),
 			'blog_id'   => \Jetpack_Options::get_option( 'id' ),
