@@ -701,7 +701,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$field  = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text );
 		$field .= "<textarea
-		                style='" . $this->field_styles . "'
+		                style='" . esc_attr( $this->field_styles ) . "'
 		                name='" . esc_attr( $id ) . "'
 		                id='contact-form-comment-" . esc_attr( $id ) . "'
 		                rows='20' "

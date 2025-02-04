@@ -16,13 +16,17 @@
 
 .contact-form input::placeholder {
 	transition: opacity 0.3s ease-out;
-	color: inherit;
 }
 .contact-form input:hover::placeholder {
 	opacity: 0.5;
 }
 .contact-form input:focus::placeholder {
 	opacity: 0.3;
+}
+
+.contact-form input::placeholder,
+.contact-form textarea::placeholder{
+	color: inherit;
 }
 
 /*

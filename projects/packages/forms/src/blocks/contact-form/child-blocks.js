@@ -16,7 +16,7 @@ import JetpackFieldSingleChoiceItem from './components/jetpack-field-single-choi
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
 import JetpackFieldInput from './components/jetpack-input';
 import JetpackFieldLabel from './components/jetpack-label';
-import { INNER_BLOCKS_DEPRECATION } from './field-deprecated';
+import { INNER_BLOCKS_DEPRECATION, TEXTAREA_INNER_BLOCKS_DEPRECATION } from './field-deprecated';
 import { getIconColor } from './util/block-icons';
 import { useFormWrapper } from './util/form';
 import getFieldLabel from './util/get-field-label';
@@ -274,19 +274,19 @@ const editField = type => props => {
 
 	return (
 		<JetpackField
+			attributes={ props.attributes }
 			clientId={ props.clientId }
-			type={ type }
+			defaultValue={ props.attributes.defaultValue }
+			id={ props.attributes.id }
+			insertBlocksAfter={ props.insertBlocksAfter }
+			isSelected={ props.isSelected }
 			label={ getFieldLabel( props.attributes, props.name ) }
+			placeholder={ props.attributes.placeholder }
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }
 			setAttributes={ props.setAttributes }
-			isSelected={ props.isSelected }
-			defaultValue={ props.attributes.defaultValue }
-			placeholder={ props.attributes.placeholder }
-			id={ props.attributes.id }
+			type={ type }
 			width={ props.attributes.width }
-			attributes={ props.attributes }
-			insertBlocksAfter={ props.insertBlocksAfter }
 		/>
 	);
 };
@@ -296,16 +296,17 @@ const EditTextarea = props => {
 
 	return (
 		<JetpackFieldTextarea
+			attributes={ props.attributes }
 			clientId={ props.clientId }
+			defaultValue={ props.attributes.defaultValue }
+			id={ props.attributes.id }
+			isSelected={ props.isSelected }
 			label={ props.attributes.label }
+			placeholder={ props.attributes.placeholder }
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }
-			attributes={ props.attributes }
 			setAttributes={ props.setAttributes }
-			isSelected={ props.isSelected }
-			defaultValue={ props.attributes.defaultValue }
-			placeholder={ props.attributes.placeholder }
-			id={ props.attributes.id }
+			type={ 'textarea' }
 			width={ props.attributes.width }
 		/>
 	);
@@ -599,9 +600,14 @@ export const childBlocks = [
 				),
 			},
 			edit: EditTextarea,
+			save() {
+				const innerBlocksProps = useInnerBlocksProps.save();
+				return <div { ...innerBlocksProps } />;
+			},
 			attributes: {
 				...FieldDefaults.attributes,
 			},
+			deprecated: [ TEXTAREA_INNER_BLOCKS_DEPRECATION ],
 		},
 	},
 	{

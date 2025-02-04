@@ -1,36 +1,51 @@
-import { useBlockProps } from '@wordpress/block-editor';
+import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
+import { getBlockType } from '@wordpress/blocks';
 import { compose } from '@wordpress/compose';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useMemo } from '@wordpress/element';
 import clsx from 'clsx';
 import { isEmpty, isNil } from 'lodash';
-import { useFormStyle } from '../util/form';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
 import JetpackFieldControls from './jetpack-field-controls';
-import JetpackFieldLabel from './jetpack-field-label';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
+
+const ALLOWED_BLOCKS = [ 'jetpack/field-label', 'jetpack/field-input' ];
 
 const JetpackFieldTextarea = props => {
 	const {
 		attributes,
-		clientId,
 		id,
 		isSelected,
+		label,
+		placeholder,
 		required,
 		requiredText,
-		label,
 		setAttributes,
-		placeholder,
 		width,
 	} = props;
 
-	const formStyle = useFormStyle( clientId );
-	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
+	const { blockStyle } = useJetpackFieldStyles( attributes );
 	const blockProps = useBlockProps( {
 		className: clsx( 'jetpack-field jetpack-field-textarea', {
 			'is-selected': isSelected,
 			'has-placeholder': ! isEmpty( placeholder ),
 		} ),
 		style: blockStyle,
+	} );
+
+	const labelBlockType = getBlockType( 'jetpack/field-label' );
+	const defaultLabel = labelBlockType.attributes.label.default;
+	const template = useMemo( () => {
+		return [
+			[ 'jetpack/field-label', { label, required, defaultLabel, requiredText } ],
+			[ 'jetpack/field-input' ],
+		];
+	}, [ label, defaultLabel, required, requiredText ] );
+
+	const innerBlocksProps = useInnerBlocksProps( blockProps, {
+		allowedBlocks: ALLOWED_BLOCKS,
+		template,
+		templateLock: 'all',
+		type: 'textarea',
 	} );
 
 	useEffect( () => {
@@ -43,23 +58,8 @@ const JetpackFieldTextarea = props => {
 	return (
 		<>
 			<div { ...blockProps }>
-				<JetpackFieldLabel
-					clientId={ clientId }
-					required={ required }
-					requiredText={ requiredText }
-					label={ label }
-					setAttributes={ setAttributes }
-					attributes={ attributes }
-					style={ formStyle }
-				/>
-				<textarea
-					className="jetpack-field__textarea"
-					value={ placeholder }
-					onChange={ e => setAttributes( { placeholder: e.target.value } ) }
-					style={ fieldStyle }
-				/>
+				<div { ...innerBlocksProps } />
 			</div>
-
 			<JetpackFieldControls
 				id={ id }
 				required={ required }
@@ -67,6 +67,7 @@ const JetpackFieldTextarea = props => {
 				width={ width }
 				placeholder={ placeholder }
 				attributes={ attributes }
+				type="textarea"
 			/>
 		</>
 	);

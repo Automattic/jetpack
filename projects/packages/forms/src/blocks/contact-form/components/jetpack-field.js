@@ -18,6 +18,7 @@ const JetpackField = props => {
 		attributes,
 		clientId,
 		id,
+		insertBlocksAfter,
 		isSelected,
 		label,
 		placeholder,
@@ -26,7 +27,6 @@ const JetpackField = props => {
 		setAttributes,
 		type,
 		width,
-		insertBlocksAfter,
 	} = props;
 
 	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
@@ -103,6 +103,7 @@ const JetpackField = props => {
 				setAttributes={ setAttributes }
 				placeholder={ placeholder }
 				attributes={ attributes }
+				type={ type }
 			/>
 		</>
 	);

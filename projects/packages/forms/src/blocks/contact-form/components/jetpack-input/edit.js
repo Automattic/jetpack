@@ -15,7 +15,9 @@ const SYNCED_ATTRIBUTES = [
 
 const JetpackInputEdit = ( { attributes, clientId, name, setAttributes } ) => {
 	useSyncStyleAttributes( clientId, name, 'jetpack/contact-form', SYNCED_ATTRIBUTES );
-	const blockProps = useBlockProps( { className: 'jetpack-field__input' } );
+	const className =
+		attributes.type === 'textarea' ? 'jetpack-field__textarea' : 'jetpack-field__input';
+	const blockProps = useBlockProps( { className } );
 
 	// TODO: If field blocks can be nested within other blocks within a form,
 	// the logic here will need improving so that the new block is inserted correctly.
@@ -61,14 +63,25 @@ const JetpackInputEdit = ( { attributes, clientId, name, setAttributes } ) => {
 		[ setAttributes ]
 	);
 
+	if ( attributes.type === 'textarea' ) {
+		return (
+			<textarea
+				{ ...blockProps }
+				onChange={ onChange }
+				style={ blockProps.style }
+				value={ attributes.placeholder }
+			/>
+		);
+	}
+
 	return (
 		<input
 			{ ...blockProps }
-			style={ blockProps.style }
 			onChange={ onChange }
+			onKeyDown={ onKeyDown }
+			style={ blockProps.style }
 			type="text"
 			value={ attributes.placeholder }
-			onKeyDown={ onKeyDown }
 		/>
 	);
 };

@@ -384,7 +384,7 @@ class Contact_Form_Plugin {
 					$atts['placeholder']   = $inner_block['attrs']['placeholder'] ?? '';
 					$input_attrs           = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
 					$atts['inputclasses']  = 'wp-block-jetpack-field-input';
-					$atts['inputclasses'] .= $input_attrs['class'] ?? '';
+					$atts['inputclasses'] .= isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
 					$atts['inputstyles']   = $input_attrs['style'] ?? null;
 				}
 			}
@@ -479,14 +479,15 @@ class Contact_Form_Plugin {
 	/**
 	 * Render the text area field.
 	 *
-	 * @param array  $atts - the block attributes.
-	 * @param string $content - html content.
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
 	 *
 	 * @return string HTML for the contact form field.
 	 */
-	public static function gutenblock_render_field_textarea( $atts, $content ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'textarea' );
-		return Contact_Form::parse_contact_field( $atts, $content );
+	public static function gutenblock_render_field_textarea( $atts, $content, $block ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'textarea', $block );
+		return Contact_Form::parse_contact_field( $atts, $content, $block );
 	}
 
 	/**

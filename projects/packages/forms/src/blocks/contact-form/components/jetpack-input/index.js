@@ -60,6 +60,10 @@ const settings = {
 			type: 'string',
 			default: '',
 		},
+		type: {
+			type: 'string',
+			default: '',
+		},
 	},
 	edit,
 	save,
