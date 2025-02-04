@@ -148,7 +148,7 @@ $grid-size: 8px;
 
 	// Toolbar for "insert" and pagination button.
 	.jetpack-external-media-browser__media__toolbar {
-		position: fixed;
+		position: sticky;
 		bottom: 0;
 		left: 0;
 		right: 0;

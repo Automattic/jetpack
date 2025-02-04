@@ -34,11 +34,13 @@
 
 .jetpack-external-media-browser__modal-content {
 	position: absolute;
-	left: 32px;
-	right: 32px;
+	left: 0;
+	right: 0;
 	top: 76px;
 	bottom: 0;
 	display: flex;
 	flex-direction: column;
+	padding: 4px 32px 0;
 	gap: 4px;
+	overflow: auto;
 }

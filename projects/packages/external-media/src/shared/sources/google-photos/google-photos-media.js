@@ -75,7 +75,7 @@ function GooglePhotosMedia( props ) {
 	const listUrl = getExternalMediaApiUrl( 'list', SOURCE_GOOGLE_PHOTOS, params );
 
 	const getNextPage = useCallback(
-		( event, reset = false ) => {
+		( query, reset = false ) => {
 			getMedia( listUrl, reset );
 		},
 		[ getMedia, listUrl ]
@@ -115,7 +115,7 @@ function GooglePhotosMedia( props ) {
 	useEffect( () => {
 		if ( lastQuery !== listUrl ) {
 			lastQuery.current = listUrl;
-			getNextPage( {}, path !== lastPath.current );
+			getNextPage( '', path !== lastPath.current );
 		}
 	}, [ lastQuery, listUrl, getNextPage, path ] );
 

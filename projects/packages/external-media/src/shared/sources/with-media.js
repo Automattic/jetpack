@@ -107,8 +107,8 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 			}
 
 			getMedia = ( url, resetMedia = false, isLoading = true ) => {
-				if ( this.state.isLoading ) {
-					return;
+				if ( this.abortController ) {
+					this.abortController.abort();
 				}
 
 				if ( resetMedia ) {
@@ -127,6 +127,11 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 			};
 
 			handleApiError = error => {
+				if ( error.name === 'AbortError' ) {
+					// We don't want to log aborted requests.
+					return;
+				}
+
 				if ( error.code === 'authorization_required' ) {
 					this.setAuthenticated( false );
 					this.setState( { isLoading: false, isCopying: false } );
@@ -170,10 +175,14 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 				const path = this.getRequestUrl( url );
 				const method = 'GET';
 
+				this.abortController =
+					typeof window.AbortController === 'undefined' ? undefined : new window.AbortController();
+
 				apiFetch( {
 					path,
 					method,
 					parse: window.wpcomFetch === undefined,
+					signal: this.abortController?.signal,
 				} )
 					.then( result => {
 						// If we don't have media available, we should show an error instead of crashing the editor.
@@ -187,6 +196,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 							isLoading: false,
 						} );
 						this.setAuthenticated( true );
+						this.abortController = null;
 					} )
 					.catch( this.handleApiError );
 			};
