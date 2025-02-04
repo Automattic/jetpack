@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2025-02-04
+### Added
+- Charts: add additional testing for library [#41449]
+- Charts: add line smoothing toggle on line chart [#41495]
+- Charts: adds donut pie chart story [#41496]
+- Charts: adds tests for mouse-handler hook, responsive HOC, and grid control [#41455]
+- Charts: adds tests for semi circle chart [#41416]
+
+### Changed
+- Small type and style fixes [#41523]
+- Updated package dependencies. [#41491]
+
 ## [0.7.1] - 2025-02-04
 ### Changed
 - Internal updates.
@@ -93,6 +105,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.8.0]: https://github.com/Automattic/charts/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/Automattic/charts/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/Automattic/charts/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/Automattic/charts/compare/v0.5.0...v0.6.0
