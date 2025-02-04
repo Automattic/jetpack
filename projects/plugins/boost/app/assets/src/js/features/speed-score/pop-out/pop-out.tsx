@@ -28,7 +28,7 @@ const fasterMessage: ScoreChangeMessage = {
 	title: __( 'Your site got faster', 'jetpack-boost' ),
 	body: <p>{ __( `That's great! If you’re happy, why not rate Boost?`, 'jetpack-boost' ) }</p>,
 	cta: __( 'Rate the Plugin', 'jetpack-boost' ),
-	ctaLink: 'https://wordpress.org/support/plugin/jetpack-boost/reviews/#new-post',
+	ctaLink: getRedirectUrl( 'boost-rate-plugin' ),
 };
 
 const slowerMessage: ScoreChangeMessage = {
