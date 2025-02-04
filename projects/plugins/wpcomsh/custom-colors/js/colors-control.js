@@ -547,7 +547,6 @@
 						$( this ).hasClass( 'bg-change-disable' ) === false
 					) {
 						ct.backgroundChangeView.open();
-						$( '#colourlovers-palettes-container' ).hide();
 					}
 				}
 			} );
@@ -1004,7 +1003,6 @@
 			this.controller.reference.show();
 			this.controller.picker.hide();
 			this.controller.color.removeClass( 'selected' );
-			$( '#colourlovers-palettes-container' ).show();
 			this.showPickerBorder();
 		},
 		toggleOptions: function () {
