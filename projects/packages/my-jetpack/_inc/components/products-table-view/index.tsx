@@ -1,6 +1,9 @@
+import { useViewportMatch } from '@wordpress/compose';
 import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
+import { Icon, chevronRight } from '@wordpress/icons';
 import { useCallback, useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAllProducts } from '../../data/products/use-all-products';
 import ActionButton from '../action-button';
 import {
@@ -100,6 +103,8 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 	}, [] );
 	const isItemClickable = useCallback( () => false, [] );
 	const allProductData = useAllProducts();
+	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
+	const navigate = useNavigate();
 
 	const baseView: ViewList = {
 		sort: {
@@ -177,8 +182,8 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 				enableHiding: false,
 				render( { item }: { item: ProductData } ) {
 					const { product } = item;
-					const Icon = PRODUCT_ICONS[ product.slug ];
-					return <Icon />;
+					const ProductIcon = PRODUCT_ICONS[ product.slug ];
+					return <ProductIcon />;
 				},
 			},
 			{
@@ -193,7 +198,24 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 					const { product } = item;
 					const { slug } = product;
 
-					return <ActionButton slug={ slug } tracksIdentifier="product_list_item" />;
+					if ( isMobileViewport ) {
+						return (
+							<button
+								onClick={ navigateToInterstitial( slug ) }
+								className="product-list-item-chevron"
+							>
+								<Icon icon={ chevronRight } size={ 24 } />
+							</button>
+						);
+					}
+
+					return (
+						<ActionButton
+							className="product-list-item-cta"
+							slug={ slug }
+							tracksIdentifier="product_list_item"
+						/>
+					);
 				},
 			},
 		];

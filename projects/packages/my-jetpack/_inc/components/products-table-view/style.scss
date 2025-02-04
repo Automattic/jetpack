@@ -98,3 +98,14 @@ div.dataviews-filters__summary-chip-container div.dataviews-filters__summary-chi
 div.dataviews-filters__summary-chip-container button.dataviews-filters__summary-chip-remove.has-values:hover {
     background-color: var(--tag-color);
 }
+
+button.product-list-item-chevron {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    outline-color: var(--jp-green-40);
+}
