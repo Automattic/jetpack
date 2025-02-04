@@ -2,11 +2,11 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 14.3-beta - 2025-02-03
+## 14.3 - 2025-02-04
 ### Enhancements
 - Blocks: Improve performance. [#39734]
-- Social: Post character limits are now dynamic based on selected connections. [#41429]
 - Social: Enable Social post UI for WordPress.com sites. [#41219]
+- Social: Post character limits are now dynamic based on selected connections. [#41429]
 
 ### Improved compatibility
 - Open Graph Meta Tags: Do not display Jetpack's tags when the SEOPress plugin is active. [#41331]
@@ -24,6 +24,7 @@
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Code: Remove extra params on function calls. [#41263]
 - Forms: Rename contact form module to "Forms". [#41384]
+- Jetpack AI: Prevent error when generating a featured image while quota is exceeded. [#41551]
 - Post List: Add a Copy Link Quick Action. [#41305]
 - SEO Assistant: Adjust step flow in wizard. [#41268]
 - SEO Assistant: Implement completion step and review copy edits. [#41469]
@@ -34,8 +35,8 @@
 - Testing: Add manual testing instructions. [#41364]
 - Theme compat: Wrap relevant functions in a `function_exists` check to prevent collisions with Classic Theme Helper package. [#41394]
 - Updated package dependencies. [#41286]
-- Update text copies based on whether the site is public. [#41387]
 - Update settings endpoint to return the updated toggle state in the success response. [#41461]
+- Update text copies based on whether the site is public. [#41387]
 
 ## 14.3-a.5 - 2025-01-27
 ### Enhancements

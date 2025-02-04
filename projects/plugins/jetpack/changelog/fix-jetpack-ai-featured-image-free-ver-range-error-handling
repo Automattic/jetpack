@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Jetpack AI: featured image will try to set a null prompt when quota is exceeded. This patch sets a default value (empty string) on those cases
