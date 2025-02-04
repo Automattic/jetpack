@@ -237,8 +237,9 @@ class Initializer {
 		$scan_data                      = Products\Protect::get_protect_data();
 		self::update_historically_active_jetpack_modules();
 
-		$waf_config    = array();
-		$waf_supported = false;
+		$waf_config     = array();
+		$waf_supported  = false;
+		$is_waf_enabled = false;
 
 		$sandboxed_domain = '';
 		$is_dev_version   = false;
