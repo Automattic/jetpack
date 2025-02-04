@@ -74,7 +74,9 @@ const nonAdminUserConnectionData = {
 			display_name: 'test',
 			email: 'email@example.com',
 		},
+		isMaster: false,
 	},
+	connectionOwner: 'adminuser',
 };
 
 const setConnectionStore = ( {
@@ -277,7 +279,7 @@ describe( 'ConnectionStatusCard', () => {
 
 		it( 'renders the owner name', () => {
 			setup();
-			expect( screen.getByText( /[A-Za-z -]+\(Owner\)/ ) ).toBeInTheDocument();
+			expect( screen.getByText( /Also connected: [A-Za-z ]+ \(Owner\)/ ) ).toBeInTheDocument();
 		} );
 
 		it( 'renders prompt for this user to connect', () => {
