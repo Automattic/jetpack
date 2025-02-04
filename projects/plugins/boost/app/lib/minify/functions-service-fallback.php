@@ -49,7 +49,7 @@ function jetpack_boost_page_optimize_service_request() {
 
 			if ( file_exists( $cache_file_meta ) ) {
 				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-				$meta = json_decode( file_get_contents( $cache_file_meta ), ARRAY_A );
+				$meta = json_decode( file_get_contents( $cache_file_meta ), true );
 				if ( ! empty( $meta ) && ! empty( $meta['headers'] ) ) {
 					foreach ( $meta['headers'] as $header ) {
 						header( $header );
