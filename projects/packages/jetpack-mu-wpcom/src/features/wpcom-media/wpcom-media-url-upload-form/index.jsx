@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import './style.scss';
 
-const WpcomMediaUrlUploadForm = ( { ajaxUrl, action, nonce, isSiteEditor } ) => {
+const WpcomMediaUrlUploadForm = ( { ajaxUrl, action, nonce, isEditor } ) => {
 	const [ url, setUrl ] = useState( '' );
 
 	const [ show, setShow ] = useState( false );
@@ -48,7 +48,7 @@ const WpcomMediaUrlUploadForm = ( { ajaxUrl, action, nonce, isSiteEditor } ) => 
 							.collection.add( attachmentToAdd );
 					};
 
-					if ( isSiteEditor ) {
+					if ( isEditor ) {
 						const mediaLibraryTab = window.wp.media.frame.state( 'library' );
 						mediaLibraryTab.trigger( 'open' );
 

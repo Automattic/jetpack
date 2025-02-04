@@ -19,10 +19,10 @@ function wpcom_media_url_upload() {
 
 	$data = wp_json_encode(
 		array(
-			'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
-			'action'       => 'wpcom_media_url_upload',
-			'nonce'        => wp_create_nonce( 'wpcom_media_url_upload' ),
-			'isSiteEditor' => $pagenow === 'site-editor.php',
+			'ajaxUrl'  => admin_url( 'admin-ajax.php' ),
+			'action'   => 'wpcom_media_url_upload',
+			'nonce'    => wp_create_nonce( 'wpcom_media_url_upload' ),
+			'isEditor' => $pagenow !== 'upload.php',
 		)
 	);
 
