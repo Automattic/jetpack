@@ -77,8 +77,8 @@ jQuery( document ).ready( function ( $ ) {
 			'align-items': 'center',
 			height: '30px',
 			padding: '0px 16px',
-			'margin-left': '1px', // TODO: Certain styling should only apply to profile or reset UIs - profile only
-			'margin-right': '1px', // TODO: Certain styling should only apply to profile or reset UIs - profile only
+			'margin-left': '1px',
+			'margin-right': '1px',
 			'margin-bottom': '16px',
 			'border-radius': '0px 0px 4px 4px',
 			'background-color': '#8C8F94',
@@ -283,7 +283,6 @@ jQuery( document ).ready( function ( $ ) {
 		strengthMeter.css( 'background-color', finalColor );
 		passwordInput.css( { 'border-color': finalColor, 'border-radius': '4px 4px 0px 0px' } );
 
-		// TODO: Smoother transition?
 		if ( ! strengthMeter.find( strength ).length ) {
 			strengthMeter.append( strength );
 		}
