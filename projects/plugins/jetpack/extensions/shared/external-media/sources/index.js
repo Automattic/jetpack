@@ -61,7 +61,7 @@ export const externalMediaSources = [
 	},
 	{
 		id: SOURCE_PEXELS,
-		label: __( 'Pexels Free Photos', 'jetpack' ),
+		label: __( 'Pexels free photos', 'jetpack' ),
 		icon: <PexelsIcon className="components-menu-items__item-icon" />,
 		keyword: 'pexels',
 	},

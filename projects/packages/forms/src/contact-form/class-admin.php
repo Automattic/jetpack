@@ -439,7 +439,7 @@ class Admin {
 		if ( current_user_can( 'edit_posts' ) ) {
 			Form_View::display();
 		}
-		exit;
+		exit( 0 );
 	}
 
 	/**
@@ -549,7 +549,7 @@ class Admin {
 
 		if ( empty( $_REQUEST['post'] ) ) {
 			wp_safe_redirect( wp_get_referer() );
-			exit;
+			exit( 0 );
 		}
 
 		$post_ids = array_map( 'intval', $_REQUEST['post'] );
@@ -583,7 +583,7 @@ class Admin {
 
 		$redirect_url = add_query_arg( 'message', 'marked-spam', wp_get_referer() );
 		wp_safe_redirect( $redirect_url );
-		exit;
+		exit( 0 );
 	}
 
 	/**
@@ -1116,14 +1116,23 @@ class Admin {
 		$post_type_object = get_post_type_object( $post->post_type );
 		$akismet_values   = get_post_meta( $post_id, '_feedback_akismet_values', true );
 		if ( $_POST['make_it'] === 'spam' ) {
-			$post->post_status = 'spam';
-			$status            = wp_insert_post( $post );
+
+			$status = wp_update_post(
+				array(
+					'ID'          => $post_id,
+					'post_status' => 'spam',
+				)
+			);
 
 			/** This action is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 			do_action( 'contact_form_akismet', 'spam', $akismet_values );
 		} elseif ( $_POST['make_it'] === 'ham' ) {
-			$post->post_status = 'publish';
-			$status            = wp_insert_post( $post );
+			$status = wp_update_post(
+				array(
+					'ID'          => $post_id,
+					'post_status' => 'publish',
+				)
+			);
 
 			/** This action is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 			do_action( 'contact_form_akismet', 'ham', $akismet_values );
@@ -1200,6 +1209,14 @@ class Admin {
 			if ( ! wp_trash_post( $post_id ) ) {
 				wp_die( esc_html__( 'Error in moving to Trash.', 'jetpack-forms' ) );
 			}
+		} elseif ( $_POST['make_it'] === 'delete' ) {
+			if ( ! current_user_can( $post_type_object->cap->delete_post, $post_id ) ) {
+				wp_die( esc_html__( 'You are not allowed to move this item to the Trash.', 'jetpack-forms' ) );
+			}
+
+			if ( ! wp_delete_post( $post_id, true ) ) {
+				wp_die( esc_html__( 'Error in deleting post.', 'jetpack-forms' ) );
+			}
 		}
 
 		$sql          = "
@@ -1255,7 +1272,7 @@ class Admin {
 		}
 
 		echo $status_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we're building the html to echo.
-		exit;
+		exit( 0 );
 	}
 
 	/**
@@ -1315,7 +1332,7 @@ class Admin {
 
 		$button_parameters = array(
 			/* translators: The placeholder is for showing how much of the process has completed, as a percent. e.g., "Emptying Spam (40%)" */
-			'progress_label' => __( 'Emptying Spam (%1$s%)', 'jetpack-forms' ),
+			'progress_label' => __( 'Emptying Spam (%1$s%%)', 'jetpack-forms' ),
 			'success_url'    => $success_url,
 			'failure_url'    => $failure_url,
 			'spam_count'     => $spam_count,

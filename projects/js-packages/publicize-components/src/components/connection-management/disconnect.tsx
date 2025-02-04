@@ -30,15 +30,16 @@ export function Disconnect( {
 
 	const { deleteConnectionById } = useDispatch( socialStore );
 
-	const { isDisconnecting } = useSelect(
+	const { isDisconnecting, canManageConnection } = useSelect(
 		select => {
-			const { getDeletingConnections } = select( socialStore );
+			const { getDeletingConnections, canUserManageConnection } = select( socialStore );
 
 			return {
 				isDisconnecting: getDeletingConnections().includes( connection.connection_id ),
+				canManageConnection: canUserManageConnection( connection ),
 			};
 		},
-		[ connection.connection_id ]
+		[ connection ]
 	);
 
 	const onClickDisconnect = useCallback( async () => {
@@ -49,7 +50,7 @@ export function Disconnect( {
 		} );
 	}, [ connection.connection_id, deleteConnectionById ] );
 
-	if ( ! connection.can_disconnect ) {
+	if ( ! canManageConnection ) {
 		return null;
 	}
 

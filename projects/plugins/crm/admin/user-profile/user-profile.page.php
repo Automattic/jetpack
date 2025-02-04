@@ -3,7 +3,7 @@
 !
  * User Profile page (admin.php?page=your-crm-profile)
  */
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 global $zbs;
 

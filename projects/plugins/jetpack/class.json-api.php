@@ -573,7 +573,7 @@ class WPCOM_JSON_API {
 					}
 				}
 			}
-			exit;
+			exit( 0 );
 		}
 
 		if ( $endpoint->in_testing && ! WPCOM_JSON_API__DEBUG ) {
@@ -654,7 +654,7 @@ class WPCOM_JSON_API {
 		// In case output() was called before the callback returned.
 		if ( $this->did_output ) {
 			if ( $this->exit ) {
-				exit;
+				exit( 0 );
 			}
 			return $content_type;
 		}
@@ -684,7 +684,7 @@ class WPCOM_JSON_API {
 			}
 			echo $response; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			if ( $this->exit ) {
-				exit;
+				exit( 0 );
 			}
 
 			return $content_type;
@@ -737,7 +737,7 @@ class WPCOM_JSON_API {
 		}
 
 		if ( $this->exit ) {
-			exit;
+			exit( 0 );
 		}
 
 		return $content_type;
@@ -1246,7 +1246,7 @@ class WPCOM_JSON_API {
 		// We still want to exit so that code execution stops where it should.
 		// Attach the JSON output to the WordPress shutdown handler.
 		add_action( 'shutdown', array( $this, 'output_trapped_error' ), 0 );
-		exit;
+		exit( 0 );
 	}
 
 	/**

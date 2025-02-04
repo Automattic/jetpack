@@ -69,7 +69,6 @@ jQuery( function () {
 		if ( isValid ) {
 			nextStepWizard.prop( 'disabled', false ).trigger( 'click' );
 		}
-		//console.log(window.zbsOptions);
 	} );
 	jQuery( 'div.setup-panel div a.btn-primary' ).trigger( 'click' );
 	jQuery( '.zbs-gogogo' )
@@ -83,7 +82,7 @@ jQuery( function () {
 			}
 			jQuery( this ).addClass( 'disabled' );
 
-			const t = window.zbsOptions;
+			const t = zbsOptions;
 			t.action = 'zbs_wizard_fin';
 			t.security = jQuery( '#zbswf-ajax-nonce' ).val();
 			/*
@@ -201,27 +200,25 @@ function zbs_crm_js_updatePage2() {
 	}
 }
 function zbsJS_welcomeWizard_update_deets() {
-	window.zbsOptions.zbs_crm_name = jQuery( '#zbs_crm_name' ).val();
-	window.zbsOptions.zbs_crm_other = jQuery( '#zbs_other_details' ).val();
-	window.zbsOptions.zbs_crm_curr = jQuery( '#zbs_crm_curr' ).val();
-	window.zbsOptions.zbs_crm_menu_style = jQuery(
-		'input[name="zbs-menu-opt-choice"]:checked'
-	).val();
-	window.zbsOptions.zbs_b2b = jQuery( '#zbs_b2b' ).is( ':checked' ) ? 1 : 0;
-	window.zbsOptions.zbs_crm_share_essentials = jQuery( '#zbs_ess' ).is( ':checked' ) ? 1 : 0;
+	zbsOptions.zbs_crm_name = jQuery( '#zbs_crm_name' ).val();
+	zbsOptions.zbs_crm_other = jQuery( '#zbs_other_details' ).val();
+	zbsOptions.zbs_crm_curr = jQuery( '#zbs_crm_curr' ).val();
+	zbsOptions.zbs_crm_menu_style = jQuery( 'input[name="zbs-menu-opt-choice"]:checked' ).val();
+	zbsOptions.zbs_b2b = jQuery( '#zbs_b2b' ).is( ':checked' ) ? 1 : 0;
+	zbsOptions.zbs_crm_share_essentials = jQuery( '#zbs_ess' ).is( ':checked' ) ? 1 : 0;
 
-	window.zbsOptions.zbs_quotes = jQuery( '#zbs_quotes' ).is( ':checked' ) ? 1 : 0;
-	window.zbsOptions.zbs_invoicing = jQuery( '#zbs_invoicing' ).is( ':checked' ) ? 1 : 0;
-	window.zbsOptions.jpcrm_woo_module = jQuery( '#jpcrm_woo_module' ).is( ':checked' ) ? 1 : 0;
-	window.zbsOptions.zbs_forms = 1;
+	zbsOptions.zbs_quotes = jQuery( '#zbs_quotes' ).is( ':checked' ) ? 1 : 0;
+	zbsOptions.zbs_invoicing = jQuery( '#zbs_invoicing' ).is( ':checked' ) ? 1 : 0;
+	zbsOptions.jpcrm_woo_module = jQuery( '#jpcrm_woo_module' ).is( ':checked' ) ? 1 : 0;
+	zbsOptions.zbs_forms = 1;
 
-	window.zbsOptions.zbs_crm_subblogname = jQuery( '#zbs_crm_subblogname' ).val();
-	window.zbsOptions.zbs_crm_first_name = jQuery( '#zbs_crm_first_name' ).val();
-	window.zbsOptions.zbs_crm_last_name = jQuery( '#zbs_crm_last_name' ).val();
-	window.zbsOptions.zbs_crm_email = jQuery( '#zbs_crm_email' ).val();
-	window.zbsOptions.zbs_crm_subscribed = jQuery( '#zbs_sub' ).is( ':checked' ) ? 1 : 0;
+	zbsOptions.zbs_crm_subblogname = jQuery( '#zbs_crm_subblogname' ).val();
+	zbsOptions.zbs_crm_first_name = jQuery( '#zbs_crm_first_name' ).val();
+	zbsOptions.zbs_crm_last_name = jQuery( '#zbs_crm_last_name' ).val();
+	zbsOptions.zbs_crm_email = jQuery( '#zbs_crm_email' ).val();
+	zbsOptions.zbs_crm_subscribed = jQuery( '#zbs_sub' ).is( ':checked' ) ? 1 : 0;
 }
 
 if ( typeof module !== 'undefined' ) {
-	module.exports = { zbsOptions, zbs_biz_select, zbs_crm_name_change, zbs_crm_js_updatePage2 };
+	module.exports = { zbs_biz_select, zbs_crm_name_change, zbs_crm_js_updatePage2 };
 }

@@ -157,7 +157,7 @@ class Test_Host extends TestCase {
 	 */
 	public function test_get_source_query( $source, $expected ) {
 		$_GET['source'] = $source;
-		$this->assertEquals( $expected, $this->host_obj->get_source_query( $source ) );
+		$this->assertEquals( $expected, $this->host_obj->get_source_query() );
 		unset( $_GET['source'] );
 	}
 

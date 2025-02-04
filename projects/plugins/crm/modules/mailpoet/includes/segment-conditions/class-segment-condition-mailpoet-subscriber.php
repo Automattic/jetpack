@@ -8,7 +8,7 @@
  */
 
 // block direct access
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
  * MailPoet Sync: Segment Condition: Is MailPoet Subscriber class

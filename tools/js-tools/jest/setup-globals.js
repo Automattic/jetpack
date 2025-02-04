@@ -12,3 +12,12 @@ if ( ! window.matchMedia ) {
 		dispatchEvent: jest.fn(),
 	} );
 }
+
+// Needed by various Gutenberg packages
+if ( ! global.ResizeObserver ) {
+	global.ResizeObserver = class ResizeObserver {
+		observe() {}
+		unobserve() {}
+		disconnect() {}
+	};
+}

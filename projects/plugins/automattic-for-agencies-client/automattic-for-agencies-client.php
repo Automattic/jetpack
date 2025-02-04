@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 define( 'AUTOMATTIC_FOR_AGENCIES_CLIENT_DIR', plugin_dir_path( __FILE__ ) );
@@ -110,7 +110,7 @@ function jetpack_starter_plugin_activation( $plugin ) {
 		( new \Automattic\Jetpack\Paths() )->is_current_request_activating_plugin_from_plugins_screen( AUTOMATTIC_FOR_AGENCIES_CLIENT_ROOT_FILE_RELATIVE_PATH )
 	) {
 		wp_safe_redirect( esc_url( admin_url( 'options-general.php?page=' . AUTOMATTIC_FOR_AGENCIES_CLIENT_SLUG ) ) );
-		exit;
+		exit( 0 );
 	}
 }
 

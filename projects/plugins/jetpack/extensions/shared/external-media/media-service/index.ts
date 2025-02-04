@@ -11,8 +11,8 @@ import { MediaSource } from './types';
 
 // Pexels constants
 const PEXELS_ID = 'pexels';
-const PEXELS_NAME = __( 'Pexels Free Photos', 'jetpack' );
-const PEXELS_SEARCH_PLACEHOLDER = __( 'Search Pexels Free Photos', 'jetpack' );
+const PEXELS_NAME = __( 'Pexels free photos', 'jetpack' );
+const PEXELS_SEARCH_PLACEHOLDER = __( 'Search Pexels free photos', 'jetpack' );
 const DEFAULT_PEXELS_SEARCH: MediaSearch = {
 	per_page: 10,
 	search: 'mountain',
@@ -210,16 +210,10 @@ const isMediaSourceConnected = async ( source: MediaSource ) =>
  * @return {boolean} True if the inserter is opened false otherwise.
  */
 const isInserterOpened = (): boolean => {
-	/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-	const selectIsInserterOpened = ( select( 'core/editor' ) as any )?.isInserterOpened;
+	const editorIsInserterOpened = select( 'core/editor' ).isInserterOpened?.();
 
-	const editorIsInserterOpened = selectIsInserterOpened?.();
-
-	return (
-		editorIsInserterOpened ||
-		select( 'core/edit-site' )?.isInserterOpened() ||
-		select( 'core/edit-widgets' )?.isInserterOpened()
-	);
+	// The widgets editor doesn't use the `core/editor` store, so check is separately.
+	return editorIsInserterOpened || select( 'core/edit-widgets' )?.isInserterOpened();
 };
 
 const registerInInserter = ( mediaCategoryProvider: () => object ) =>

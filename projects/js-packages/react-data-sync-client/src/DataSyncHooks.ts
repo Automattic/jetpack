@@ -8,6 +8,7 @@ import {
 	useMutation,
 	QueryClientProvider,
 } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import React, { useRef, useEffect } from 'react';
 import { z } from 'zod';
 import { DataSync } from './DataSync';
@@ -29,10 +30,12 @@ export function invalidateQuery( key: string ) {
  * @see https://tanstack.com/query/v5/docs/react/reference/QueryClientProvider
  */
 export function DataSyncProvider( props: { children: React.ReactNode } ) {
-	return QueryClientProvider( {
-		client: queryClient,
-		...props,
-	} );
+	return React.createElement(
+		QueryClientProvider,
+		{ client: queryClient },
+		props.children,
+		React.createElement( ReactQueryDevtools )
+	);
 }
 
 /**

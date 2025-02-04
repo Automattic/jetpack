@@ -7,8 +7,6 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Regenerate;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
@@ -153,10 +151,6 @@ class Modules_Setup implements Has_Setup {
 
 		if ( $module_slug === Cloud_CSS::get_slug() && $is_activated ) {
 			( new Regenerate() )->start();
-		}
-
-		if ( $module_slug === Minify_CSS::get_slug() || $module_slug === Minify_JS::get_slug() ) {
-			jetpack_boost_static_minify_setup( $is_activated, $module_slug );
 		}
 	}
 }

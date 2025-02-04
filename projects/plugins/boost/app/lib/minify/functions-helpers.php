@@ -24,7 +24,7 @@ function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file
 	if ( $cache_folder !== Config::get_static_cache_dir_path() ) {
 		if ( $file_age !== 0 ) {
 			// Cleanup obsolete files in static cache folder
-			jetpack_boost_cache_maintenance();
+			jetpack_boost_minify_remove_stale_static_files();
 		}
 		jetpack_boost_page_optimize_cache_cleanup( Config::get_static_cache_dir_path(), $file_age !== 0 ? WEEK_IN_SECONDS : 0 );
 	}
@@ -295,8 +295,8 @@ function jetpack_boost_get_static_prefix() {
 	return trailingslashit( $prefix );
 }
 
-function jetpack_boost_get_minify_url( $file_name, $siteurl ) {
-	return $siteurl . '/wp-content/boost-cache/static/' . $file_name;
+function jetpack_boost_get_minify_url( $file_name, $site_url ) {
+	return $site_url . '/wp-content/boost-cache/static/' . $file_name;
 }
 
 /**
@@ -312,9 +312,9 @@ function jetpack_boost_minify_serve_concatenated() {
 		$request_path = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) )[0];
 		$prefix       = jetpack_boost_get_static_prefix();
 		if ( $prefix === substr( $request_path, -strlen( $prefix ), strlen( $prefix ) ) ) {
-			require_once __DIR__ . '/functions-service.php';
+			require_once __DIR__ . '/functions-service-fallback.php';
 			jetpack_boost_page_optimize_service_request();
-			exit; // @phan-suppress-current-line PhanPluginUnreachableCode -- Safer to include it even though jetpack_boost_page_optimize_service_request() itself never returns.
+			exit( 0 ); // @phan-suppress-current-line PhanPluginUnreachableCode -- Safer to include it even though jetpack_boost_page_optimize_service_request() itself never returns.
 		}
 	}
 }

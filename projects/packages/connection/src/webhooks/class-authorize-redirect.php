@@ -63,7 +63,7 @@ class Authorize_Redirect {
 
 		if ( ! $dest_url || ( 0 === stripos( $dest_url, 'https://jetpack.com/' ) && 0 === stripos( $dest_url, 'https://wordpress.com/' ) ) ) {
 			// The destination URL is missing or invalid, nothing to do here.
-			exit;
+			exit( 0 );
 		}
 
 		// The user is either already connected, or finished the connection process.
@@ -73,12 +73,12 @@ class Authorize_Redirect {
 			}
 
 			wp_safe_redirect( $dest_url );
-			exit;
+			exit( 0 );
 		} elseif ( ! empty( $_GET['done'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			// The user decided not to proceed with setting up the connection.
 
 			wp_safe_redirect( Admin_Menu::get_top_level_menu_item_url() );
-			exit;
+			exit( 0 );
 		}
 
 		$redirect_args = array(
@@ -94,7 +94,7 @@ class Authorize_Redirect {
 		}
 
 		wp_safe_redirect( $this->build_authorize_url( add_query_arg( $redirect_args, admin_url( 'admin.php' ) ) ) );
-		exit;
+		exit( 0 );
 	}
 
 	/**

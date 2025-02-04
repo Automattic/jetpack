@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 define( 'JETPACK_VIDEOPRESS_DIR', plugin_dir_path( __FILE__ ) );
@@ -117,7 +117,7 @@ function jetpack_videopress_activation( $plugin ) {
 		( new \Automattic\Jetpack\Paths() )->is_current_request_activating_plugin_from_plugins_screen( JETPACK_VIDEOPRESS_ROOT_FILE_RELATIVE_PATH )
 	) {
 		wp_safe_redirect( esc_url( admin_url( 'admin.php?page=jetpack-videopress' ) ) );
-		exit;
+		exit( 0 );
 	}
 }
 

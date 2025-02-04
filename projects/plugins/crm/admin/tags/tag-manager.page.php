@@ -4,7 +4,7 @@
 // Split from ZeroBSCRM.AdminPages.php; at some point this should be merged into ZeroBSCRM.TagManager.php
 
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 function zeroBSCRM_pages_admin_tags() {

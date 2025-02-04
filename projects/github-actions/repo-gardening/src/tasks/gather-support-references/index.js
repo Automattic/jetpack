@@ -154,10 +154,6 @@ function formatSlackMessage( payload, channel, message ) {
 		case 'Automattic/jetpack':
 			dris = '@jetpack-da';
 			break;
-		case 'Automattic/zero-bs-crm':
-		case 'Automattic/sensei':
-			dris = '@heysatellite';
-			break;
 		case 'Automattic/WP-Job-Manager':
 		case 'Automattic/Crowdsignal':
 			dris = '@meteorite-team';
@@ -418,7 +414,7 @@ async function createOrUpdateComment( payload, octokit, issueReferences, issueCo
  */
 async function addHappinessLabel( payload, octokit ) {
 	const {
-		issue: { number },
+		issue: { number, state },
 		repository: {
 			name: repo,
 			owner: { login: ownerLogin },
@@ -445,9 +441,10 @@ async function addHappinessLabel( payload, octokit ) {
 
 	// Send Slack notification, if we have the necessary tokens.
 	// No Slack tokens, we won't be able to escalate. Bail.
+	// If the issue is already closed, do not send any Slack reminder.
 	const slackToken = getInput( 'slack_token' );
 	const channel = getInput( 'slack_quality_channel' );
-	if ( ! slackToken || ! channel ) {
+	if ( ! slackToken || ! channel || state === 'closed' ) {
 		return false;
 	}
 

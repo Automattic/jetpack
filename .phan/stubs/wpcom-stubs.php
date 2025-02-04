@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit b97a8d79ff4f32395c77389fb22c900517a9d1a1.
+ * Stubs automatically generated from WordPress.com commit 58daa278d1c6807cf18400dee1d9f45815e24fae.
  */
 
 namespace {
@@ -251,6 +251,23 @@ namespace {
     }
     function global_css()
     {
+    }
+    class WPCOM_External_Connections
+    {
+        /**
+         * @return WPCOM_External_Connections
+         */
+        static function init()
+        {
+        }
+        /**
+         * @param string $type
+         * @param int|false $blog_id
+         * @return array
+         */
+        public function get_external_services_list($type = \false, $blog_id = \false)
+        {
+        }
     }
     class WPCOM_Google_Sheets_Helper
     {
@@ -1273,6 +1290,12 @@ namespace {
         }
     }
     /**
+     * @phan-return mixed
+     */
+    function is_graylisted($_blog_id = \NULL)
+    {
+    }
+    /**
      * @param string $new_path
      * @param string $path
      * @return string
@@ -1451,6 +1474,14 @@ namespace ExPlat {
     function assign_current_user(string $experiment_name): ?string
     {
     }
+    /**
+     * @param string $experiment_name
+     * @param \WP_User $user
+     * @return string|null
+     */
+    function assign_given_user(string $experiment_name, \WP_User $user): ?string
+    {
+    }
 }
 namespace JITM {
     class Engine
@@ -1490,6 +1521,16 @@ namespace Newsletter_Categories {
      * @return int
      */
     function get_blog_subscriptions_aggregate_count(int $blog_id = null, $post_term_ids = []): int
+    {
+    }
+}
+namespace WPCOM\Experiments\Internal {
+    /**
+     * @param string $name
+     * @return \WPCOM\Experiments\Models\Experiment|null
+     * @throws File_Cache_Failure
+     */
+    function get_cached_experiment_by_name(string $name): ?\WPCOM\Experiments\Models\Experiment
     {
     }
 }
