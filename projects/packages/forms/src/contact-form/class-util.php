@@ -288,12 +288,6 @@ class Util {
 			$context = 'template_part';
 		}
 
-		$site_type = 'unknown';
-		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) ) {
-			$host      = new \Automattic\Jetpack\Status\Host();
-			$site_type = $host->get_known_host_guess();
-		}
-
 		$plugin = Contact_Form_Plugin::init();
 
 		$plugin->record_tracks_event(
@@ -303,7 +297,6 @@ class Util {
 				'form_type'   => $form_type,
 				'context'     => $context,
 				'has_consent' => empty( $all_values['email_marketing_consent'] ) ? 0 : 1,
-				'site_type'   => $site_type,
 			)
 		);
 	}
