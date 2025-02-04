@@ -1,7 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import { Spinner } from '@wordpress/components';
 import { useRef, useEffect, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React from 'react';
 
@@ -104,14 +102,6 @@ function MediaItem( props ) {
 			aria-checked={ !! isSelected }
 			aria-disabled={ !! isCopying }
 		>
-			{ isSelected && isCopying && (
-				<div className="jetpack-external-media-browser__media__copying_indicator">
-					<Spinner />
-					<div className="jetpack-external-media-browser__media__copying_indicator__label">
-						{ __( 'Inserting Image…', 'jetpack-external-media' ) }
-					</div>
-				</div>
-			) }
 			{ imageUrl && <img src={ imageUrl } alt={ alt } /> }
 			{ type === 'folder' && (
 				<div className="jetpack-external-media-browser__media__info">
