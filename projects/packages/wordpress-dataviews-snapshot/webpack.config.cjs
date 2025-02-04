@@ -27,6 +27,35 @@ class WriteHandlePlugin {
 	}
 }
 
+/**
+ * Indicate whether a package should be force-bundled, overriding dependency-extraction-webpack-plugin.
+ *
+ * This generally matches the logic in node_modules/@wordpress/dataviews/build.js,
+ * except we don't "force" local paths to be bundled (they will be anyway).
+ *
+ * @param {string} request - Item being imported.
+ * @return {boolean} Whether to force it to be bundled.
+ */
+function forceBundle( request ) {
+	// Don't bundle WordPress signleton packages.
+	if ( request.match( /^@wordpress\/(data|hooks|i18n|date)(\/|$)/ ) ) {
+		return false;
+	}
+
+	// Don't bundle this either.
+	if ( request === '@wordpress/jp-i18n-loader' ) {
+		return false;
+	}
+
+	// Bundle WordPress packages.
+	if ( request.match( /^@wordpress\// ) ) {
+		return true;
+	}
+
+	// Let dependency-extraction-webpack-plugin do its default thing for everything else.
+	return false;
+}
+
 module.exports = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
@@ -46,6 +75,18 @@ module.exports = {
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
+		minimizer: [
+			// Disable the optimization that turns `cond ? __( "foo", "domain" ) : __( "bar", "domain" )` into `__( cond ? "foo" : "bar", "domain" )`.
+			// It breaks the i18n and we can't fix the upstream code to avoid it in the normal ways.
+			jetpackWebpackConfig.TerserPlugin( {
+				terserOptions: {
+					compress: {
+						conditionals: false,
+					},
+				},
+			} ),
+			jetpackWebpackConfig.CssMinimizerPlugin(),
+		],
 	},
 	resolve: {
 		...jetpackWebpackConfig.resolve,
@@ -56,29 +97,17 @@ module.exports = {
 		rules: [
 			// Transpile JavaScript, including node_modules.
 			jetpackWebpackConfig.TranspileRule(),
-
-			// Add textdomains (but no other optimizations) for @wordpress/dataviews.
-			jetpackWebpackConfig.TranspileRule( {
-				includeNodeModules: [ '@wordpress/dataviews/' ],
-				babelOpts: {
-					configFile: false,
-					plugins: [
-						[
-							require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
-							{ textdomain: 'jetpack-wordpress-dataviews-snapshot' },
-						],
-					],
-				},
-			} ),
 		],
 	},
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
 			MiniCssExtractPlugin: { filename: '[name].css' },
 			DependencyExtractionPlugin: {
-				requestMap: {
-					// We don't want to externalize this package, we rather want to bundle it.
-					'@wordpress/dataviews/wp': {},
+				requestToExternal: request => {
+					return forceBundle( request ) ? null : undefined;
+				},
+				requestToHandle: request => {
+					return forceBundle( request ) ? null : undefined;
 				},
 			},
 		} ),

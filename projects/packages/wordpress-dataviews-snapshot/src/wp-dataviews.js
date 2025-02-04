@@ -1,1 +1,1 @@
-export * from '@wordpress/dataviews/wp';
+export * from '@wordpress/dataviews';
