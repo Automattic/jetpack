@@ -2,6 +2,7 @@ import { GooglePhotosMediaIcon } from '@automattic/jetpack-shared-extension-util
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
+import clsx from 'clsx';
 import React, { useEffect } from 'react';
 import GooglePhotosAccount from './google-photos-account';
 
@@ -12,7 +13,7 @@ import GooglePhotosAccount from './google-photos-account';
  * @return {React.ReactElement} - JSX Element
  */
 export default function GooglePhotosPickerButton( props ) {
-	const { pickerSession, fetchPickerSession, setAuthenticated, account } = props;
+	const { className, pickerSession, fetchPickerSession, setAuthenticated, account } = props;
 	const isButtonBusy = ! pickerSession;
 
 	const openPicker = () => {
@@ -27,7 +28,7 @@ export default function GooglePhotosPickerButton( props ) {
 	}, [ fetchPickerSession, pickerSession?.id ] );
 
 	return (
-		<div className="jetpack-external-media__google-photos-picker">
+		<div className={ clsx( className, 'jetpack-external-media__google-photos-picker' ) }>
 			<GooglePhotosMediaIcon width="150" />
 			<h1>{ __( 'Google Photos', 'jetpack-external-media' ) }</h1>
 			<p>
