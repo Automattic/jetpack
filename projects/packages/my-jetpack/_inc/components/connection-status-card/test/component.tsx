@@ -57,6 +57,13 @@ const setConnectionStore = ( {
 	isRegistered = false,
 	isUserConnected = false,
 	hasConnectedOwner = false,
+	userConnectionData = {
+		currentUser: {
+			permissions: {
+				manage_options: true,
+			},
+		},
+	},
 } = {} ) => {
 	let storeSelect;
 	renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ), [] ), {
@@ -65,7 +72,7 @@ const setConnectionStore = ( {
 	jest
 		.spyOn( storeSelect, 'getConnectionStatus' )
 		.mockReset()
-		.mockReturnValue( { isRegistered, isUserConnected, hasConnectedOwner } );
+		.mockReturnValue( { isRegistered, isUserConnected, hasConnectedOwner, userConnectionData } );
 };
 
 beforeEach( () => {
@@ -79,14 +86,6 @@ describe( 'ConnectionStatusCard', () => {
 		apiNonce: 'test',
 		apiRoot: 'https://example.org/wp-json/',
 		redirectUri: 'https://example.org',
-		// Sets up the tests as an admin user
-		userConnectionData: {
-			currentUser: {
-				permissions: {
-					manage_options: 'manage_options',
-				},
-			},
-		},
 	};
 
 	describe( 'When the site is not registered and has no broken modules', () => {
