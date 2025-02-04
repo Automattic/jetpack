@@ -14,7 +14,6 @@ return [
     // PhanPluginDuplicateConditionalNullCoalescing : 2 occurrences
     // PhanPluginSimplifyExpressionBool : 2 occurrences
     // PhanRedefineFunction : 2 occurrences
-    // PhanParamTooMany : 1 occurrence
     // PhanPluginRedundantAssignment : 1 occurrence
     // PhanRedundantCondition : 1 occurrence
     // PhanTypeArraySuspicious : 1 occurrence
@@ -32,7 +31,6 @@ return [
         'src/class-modules.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'src/class-status.php' => ['PhanRedundantCondition', 'PhanUndeclaredFunction'],
         'tests/php/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],
-        'tests/php/test-host.php' => ['PhanParamTooMany'],
         'tests/php/test-status.php' => ['PhanTypeMismatchArgumentInternal'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

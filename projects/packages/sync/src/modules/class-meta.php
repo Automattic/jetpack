@@ -94,9 +94,9 @@ class Meta extends Module {
 	/**
 	 * Get a single Meta Result.
 	 *
-	 * @param string $object_type  post, comment, term, user.
-	 * @param null   $id           Object ID.
-	 * @param null   $meta_key     Meta Key.
+	 * @param string      $object_type  post, comment, term, user.
+	 * @param int|null    $id           Object ID.
+	 * @param string|null $meta_key     Meta Key.
 	 *
 	 * @return mixed|null
 	 */

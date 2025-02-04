@@ -213,7 +213,7 @@ class REST_Products {
 		$product_slugs = ! empty( $slugs ) ? array_map( 'trim', explode( ',', $slugs ) ) : array();
 
 		$response = Products::get_products( $product_slugs );
-		return rest_ensure_response( $response, 200 );
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -226,7 +226,7 @@ class REST_Products {
 			'unownedProducts' => Products::get_products_by_ownership( 'unowned' ),
 			'ownedProducts'   => Products::get_products_by_ownership( 'owned' ),
 		);
-		return rest_ensure_response( $response, 200 );
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -275,7 +275,7 @@ class REST_Products {
 		}
 		set_transient( 'my_jetpack_product_activated', implode( ',', $products_array ), 10 );
 
-		return rest_ensure_response( Products::get_products( $products_array ), 200 );
+		return rest_ensure_response( Products::get_products( $products_array ) );
 	}
 
 	/**
@@ -308,7 +308,7 @@ class REST_Products {
 			}
 		}
 
-		return rest_ensure_response( Products::get_products( $products_array ), 200 );
+		return rest_ensure_response( Products::get_products( $products_array ) );
 	}
 
 	/**
@@ -341,6 +341,6 @@ class REST_Products {
 			}
 		}
 
-		return rest_ensure_response( Products::get_products( $products_array ), 200 );
+		return rest_ensure_response( Products::get_products( $products_array ) );
 	}
 }

@@ -110,7 +110,7 @@ class Single_Quote_Endpoint extends Client_Portal_Endpoint {
 			};
 		</script>
 		<?php
-		wp_enqueue_script('jpcrm_public_proposal_js', plugins_url('/js/ZeroBSCRM.public.proposals'.wp_scripts_get_suffix().'.js',ZBS_ROOTFILE), array( 'jquery' ), $zbs->version);
+		wp_enqueue_script( 'jpcrm_public_proposal_js', plugins_url( '/js/ZeroBSCRM.public.proposals' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
 
 	}
 }

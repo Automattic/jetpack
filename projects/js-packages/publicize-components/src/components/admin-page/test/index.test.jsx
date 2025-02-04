@@ -13,6 +13,7 @@ describe( 'load the app', () => {
 	beforeEach( () => {
 		window.JetpackScriptData = {
 			social: {
+				api_paths: {},
 				plugin_info: {
 					social: {
 						version,

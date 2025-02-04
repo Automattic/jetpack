@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: Fix the block placeholder throwing an error when the Forms module is disabled.

@@ -110,6 +110,7 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 	} = useProductsByOwnership();
 
 	const { canUserViewStats, userIsAdmin } = getMyJetpackWindowInitialState();
+  
 	const unownedSectionTitle = useMemo( () => {
 		return ownedProducts.length > 0
 			? __( 'Discover more', 'jetpack-my-jetpack' )
