@@ -734,7 +734,7 @@ class Test_REST_Endpoints extends TestCase {
 		$response_data = $response->get_data();
 
 		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10 );
-		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10 );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
 
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( 'success', $response_data['code'] );
