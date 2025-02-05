@@ -16,5 +16,6 @@ Block Editor: update all blocks to be fully compatible with WordPress 5.7.
 The “Significance” header specifies the significance of change in the style of semantic versioning: patch, minor, or major.
 
 The “Type” header categorizes the change in the changelog. In Jetpack, for example, our changelog divides changes into “Major Enhancements”, “Enhancements”, “Improved compatibility”, and “Bugfixes”.
+Type must be "security", "added", "changed", "deprecated", "removed", or "fixed"
 
 The body is separated from the headers by a blank line, and is the text that actually goes into the changelog. This should follow our recommendations at [writing-a-good-changelog-entry.md](mdc:jetpack/jetpack/jetpack/docs/writing-a-good-changelog-entry.md).
