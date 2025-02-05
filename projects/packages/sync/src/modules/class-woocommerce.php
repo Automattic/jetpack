@@ -630,7 +630,7 @@ class WooCommerce extends Module {
 	 * @param string $object_type Object type.
 	 * @param array  $ids IDs of objects to return.
 	 *
-	 * @access publicbuild_full_sync_action_array
+	 * @access public
 	 *
 	 * @return array|object|WP_Error|null
 	 */
