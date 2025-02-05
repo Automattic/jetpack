@@ -19,6 +19,7 @@ import { getActiveStyleName } from '../../shared/block-styles';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import GetAddPaidPlanButton, { paidPlanButtonText } from '../../shared/memberships/utils';
 import './view.scss';
+import './editor.scss';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import metadata from './block.json';
 import {
@@ -53,9 +54,6 @@ const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
 			textColorValue || ! node ? undefined : buttonNode && getComputedStyle( buttonNode ).color,
 	};
 } );
-
-// TODO: Tidy up naming and markup
-// TODO: Test in different envs
 
 export function SubscriptionEdit( props ) {
 	const {
