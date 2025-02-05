@@ -326,7 +326,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.3-beta - 2025-02-03
+### 14.3 - 2025-02-04
 #### Enhancements
 - Blocks: Improve performance.
 - Forms: Add Checkbox and Consent field enter action to create a new block.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix count roles not able to be updated

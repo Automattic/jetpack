@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { useAiSuggestions } from '@automattic/jetpack-ai-client';
+import {
+	useAiSuggestions,
+	useAiFeature,
+	QuotaExceededMessage,
+} from '@automattic/jetpack-ai-client';
 import {
 	isAtomicSite,
 	isSimpleSite,
@@ -20,8 +24,6 @@ import { count } from '@wordpress/wordcount';
 /**
  * Internal dependencies
  */
-import QuotaExceededMessage from '../../../../blocks/ai-assistant/components/quota-exceeded-message';
-import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import { isBetaExtension } from '../../../../editor';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
 /**

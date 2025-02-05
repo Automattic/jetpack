@@ -50,7 +50,12 @@
 
 		.wp-block {
 			flex: 0 0 100%;
-			margin: 0;
+			margin-top: 0;
+			margin-bottom: 0;
+
+			&.wp-block-jetpack-button {
+				flex-basis: auto;
+			}
 
 			&.jetpack-field__width-25,
 			&.jetpack-field__width-50,

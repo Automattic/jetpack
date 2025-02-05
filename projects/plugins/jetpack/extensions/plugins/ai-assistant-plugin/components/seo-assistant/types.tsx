@@ -11,13 +11,13 @@ export interface Message {
 
 export type OptionMessage = Pick< Message, 'id' | 'content' >;
 
-interface BaseStep {
+export interface Step {
 	id: string;
 	title: string;
 	label?: string;
 	messages: Message[];
 	type: StepType;
-	onStart?: OnStartFunction;
+	onStart?: ( options?: { fromSkip: boolean; stepValue: string } ) => void;
 	onSubmit?: () => Promise< string >;
 	onSkip?: () => void;
 	value?: string;
@@ -26,27 +26,15 @@ interface BaseStep {
 		| React.Dispatch< React.SetStateAction< Array< string > > >;
 	setCompleted?: React.Dispatch< React.SetStateAction< boolean > >;
 	completed?: boolean;
-}
+	autoAdvance?: number;
 
-export interface InputStep extends BaseStep {
-	type: 'input';
-	placeholder: string;
-}
+	// Input step properties
+	placeholder?: string;
 
-interface OptionsStep extends BaseStep {
-	type: 'options';
-	options: OptionMessage[];
-	onSelect: ( option: OptionMessage ) => void;
+	// Options step properties
+	options?: OptionMessage[];
+	onSelect?: ( option: OptionMessage ) => void;
 	submitCtaLabel?: string;
 	onRetry?: () => void;
 	retryCtaLabel?: string;
 }
-
-export interface CompletionStep extends BaseStep {
-	type: 'completion';
-	submitCtaLabel?: string;
-}
-
-export type Step = BaseStep | InputStep | OptionsStep | CompletionStep;
-
-export type OnStartFunction = ( options?: { fromSkip: boolean; stepValue: string } ) => void;
