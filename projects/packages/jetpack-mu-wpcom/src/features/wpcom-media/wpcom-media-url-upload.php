@@ -11,6 +11,10 @@
 function wpcom_media_url_upload() {
 	global $pagenow;
 
+	if ( empty( $_GET['untangling-media'] ) ) { // phpcs:disable WordPress.Security.NonceVerification.Recommended
+		return;
+	}
+
 	?>
 	<div id="wpcom-media-url-upload"></div>
 	<?php
@@ -72,7 +76,7 @@ function wpcom_handle_media_url_upload() {
 	}
 }
 
-if ( current_user_can( 'upload_files' ) && ! empty( $_GET['untangling-media'] ) ) { // phpcs:disable WordPress.Security.NonceVerification.Recommended
+if ( current_user_can( 'upload_files' ) ) {
 	add_action( 'pre-upload-ui', 'wpcom_media_url_upload', 9 );
 	add_action( 'wp_ajax_wpcom_media_url_upload', 'wpcom_handle_media_url_upload' );
 }
