@@ -1,45 +1,46 @@
-import { Button, Spinner } from '@wordpress/components';
-import { memo, useCallback, useState, useRef, useEffect } from '@wordpress/element';
+import { Button, Spinner, Composite } from '@wordpress/components';
+import { useCallback, useState, useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { UP, DOWN, LEFT, RIGHT, SPACE, ENTER } from '@wordpress/keycodes';
 import clsx from 'clsx';
-import { debounce } from 'lodash';
 import React from 'react';
 import MediaItem from './media-item';
 import './style.scss';
 
 const MAX_SELECTED = 10;
 
-const EmptyResults = memo( () => (
-	<div className="jetpack-external-media-browser__empty">
-		<p>{ __( 'Sorry, but nothing matched your search criteria.', 'jetpack-external-media' ) }</p>
-	</div>
-) );
-
 /**
  * MediaBrowser component
  *
- * @param {object} props - The component props
+ * @param {object}   props                  - The component props
+ * @param {object[]} props.media            - The list of media
+ * @param {boolean}  props.isCopying        - Whether the media browser is copying the media
+ * @param {boolean}  props.isLoading        - Whether the media browser is loading
+ * @param {boolean}  props.imageOnly        - Whether to skip non-media items
+ * @param {number}   props.pageHandle       - The current page
+ * @param {string}   props.className        - The class name
+ * @param {boolean}  props.multiple         - Whether to allow multiple selection
+ * @param {Function} props.setPath          - To set the path for the folder item
+ * @param {Function} props.nextPage         - To get the next path
+ * @param {Function} props.onCopy           - To handle the copy
+ * @param {string}   props.selectButtonText - The text of the selection button
+ * @param {boolean}  props.shouldProxyImg   - Whether to use the proxy for the media URL
  * @return {React.ReactElement} - JSX element
  */
-function MediaBrowser( props ) {
-	const {
-		media,
-		isCopying,
-		isLoading,
-		imageOnly,
-		pageHandle,
-		className,
-		multiple,
-		setPath,
-		nextPage,
-		onCopy,
-		selectButtonText,
-		shouldProxyImg,
-	} = props;
+function MediaBrowser( {
+	media,
+	isCopying,
+	isLoading,
+	imageOnly,
+	pageHandle,
+	className,
+	multiple,
+	setPath,
+	nextPage,
+	onCopy,
+	selectButtonText,
+	shouldProxyImg,
+} ) {
 	const [ selected, setSelected ] = useState( [] );
-	const [ focused, setFocused ] = useState( -1 );
-	const columns = useRef( -1 );
 	const gridEl = useRef( null );
 
 	const select = useCallback(
@@ -77,90 +78,9 @@ function MediaBrowser( props ) {
 		[ className ]: true,
 	} );
 
-	const navigate = ( keyCode, index ) => {
-		switch ( keyCode ) {
-			case LEFT:
-				if ( index >= 1 ) {
-					setFocused( index - 1 );
-				}
-				break;
-			case RIGHT:
-				if ( index < media.length ) {
-					setFocused( index + 1 );
-				}
-				break;
-			case UP:
-				if ( index >= columns.current ) {
-					setFocused( index - columns.current );
-				}
-				break;
-			case DOWN:
-				if ( index < media.length - columns.current ) {
-					setFocused( index + columns.current );
-				}
-				break;
-		}
-	};
-
-	/**
-	 * Counts how many items are in a row by checking how many of the grid's child
-	 * items have a matching offsetTop.
-	 */
-	const checkColumns = () => {
-		let perRow = 1;
-
-		const items = gridEl.current.children;
-
-		if ( items.length > 0 ) {
-			const firstOffset = items[ 0 ].offsetTop;
-
-			/**
-			 * Check how many items have a matching offsetTop. This will give us the
-			 * total number of items in a row.
-			 */
-			while ( perRow < items.length && items[ perRow ].offsetTop === firstOffset ) {
-				++perRow;
-			}
-		}
-
-		columns.current = perRow;
-	};
-
-	const checkColumnsDebounced = debounce( checkColumns, 400 );
-
-	useEffect( () => {
-		// Re-set columns on window resize:
-		window.addEventListener( 'resize', checkColumnsDebounced );
-		return () => {
-			window.removeEventListener( 'resize', checkColumnsDebounced );
-		};
-	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
-
-	useEffect( () => {
-		// Set columns value once when media are loaded.
-		if ( media.length && columns.current === -1 ) {
-			checkColumns();
-		}
-	}, [ media ] );
-
 	// Using _event to avoid eslint errors. Can change to event if it's in use again.
 	const handleMediaItemClick = ( _event, { item } ) => {
 		select( item );
-	};
-
-	const handleMediaItemKeyDown = ( event, { item, index } ) => {
-		if ( [ LEFT, RIGHT, UP, DOWN ].includes( event.keyCode ) ) {
-			navigate( event.keyCode, index );
-		} else if ( SPACE === event.keyCode ) {
-			select( item );
-			event.preventDefault(); // Prevent space from scrolling the page down.
-		} else if ( ENTER === event.keyCode ) {
-			select( item );
-		}
-
-		if ( [ LEFT, RIGHT, UP, DOWN, SPACE, ENTER ].includes( event.keyCode ) ) {
-			event.stopPropagation();
-		}
 	};
 
 	const SelectButton = selectProps => {
@@ -207,24 +127,33 @@ function MediaBrowser( props ) {
 
 	return (
 		<div className={ wrapper }>
-			<ul ref={ gridEl } className={ classes }>
-				{ media.map( ( item, index ) => (
+			<Composite
+				role="listbox"
+				ref={ gridEl }
+				className={ classes }
+				aria-label={ __( 'Media list', 'jetpack-external-media' ) }
+				render={ <ul /> }
+			>
+				{ media.map( item => (
 					<MediaItem
 						item={ item }
 						imageOnly={ imageOnly }
-						index={ index }
 						key={ item.ID }
 						onClick={ handleMediaItemClick }
-						onKeyDown={ handleMediaItemKeyDown }
-						focus={ index === focused }
 						isSelected={ selected.find( toFind => toFind.ID === item.ID ) }
 						isCopying={ isCopying }
 						shouldProxyImg={ shouldProxyImg }
 					/>
 				) ) }
-			</ul>
+			</Composite>
 
-			{ media.length === 0 && ! isLoading && <EmptyResults /> }
+			{ media.length === 0 && ! isLoading && (
+				<div className="jetpack-external-media-browser__empty">
+					<p>
+						{ __( 'Sorry, but nothing matched your search criteria.', 'jetpack-external-media' ) }
+					</p>
+				</div>
+			) }
 
 			{ isLoading && (
 				<div className="jetpack-external-media-browser__loading">

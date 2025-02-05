@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
-import { CheckboxControl } from '@wordpress/components';
-import { useRef, useEffect, useState } from '@wordpress/element';
+import { CheckboxControl, Composite } from '@wordpress/components';
+import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React from 'react';
@@ -8,21 +8,16 @@ import React from 'react';
 /**
  * MediaItem component
  *
- * @param {object} props - The component props
+ * @param {object}   props                - The component props
+ * @param {object}   props.item           - The media item
+ * @param {boolean}  props.imageOnly      - Whether to skip non-media items
+ * @param {boolean}  props.isSelected     - Whether the media item is selected
+ * @param {boolean}  props.isCopying      - Whether the media browser is copying the media
+ * @param {boolean}  props.shouldProxyImg - Whether to use the proxy for the media URL
+ * @param {Function} props.onClick        - To handle the selection
  * @return {React.ReactElement} - JSX element
  */
-function MediaItem( props ) {
-	const {
-		item,
-		index,
-		imageOnly,
-		focus,
-		isSelected,
-		isCopying = false,
-		shouldProxyImg,
-		onClick,
-		onKeyDown,
-	} = props;
+function MediaItem( { item, imageOnly, isSelected, isCopying = false, shouldProxyImg, onClick } ) {
 	const { thumbnails, caption, name, title, type, children = 0 } = item;
 	const { medium = null, fmt_hd = null, thumbnail = null } = thumbnails;
 	const alt = title || caption || name || '';
@@ -33,8 +28,6 @@ function MediaItem( props ) {
 		'jetpack-external-media-browser__media__folder': type === 'folder',
 		'is-transient': isCopying,
 	} );
-
-	const itemEl = useRef( null );
 
 	const selectionLabel = isSelected
 		? sprintf(
@@ -58,16 +51,7 @@ function MediaItem( props ) {
 			return;
 		}
 
-		onClick?.( event, { item, index } );
-	};
-
-	// Catch space and enter key presses.
-	const handleKeydown = event => {
-		if ( isCopying ) {
-			return;
-		}
-
-		onKeyDown?.( event, { item, index } );
+		onClick?.( event, { item } );
 	};
 
 	const getProxyImageUrl = async url => {
@@ -106,23 +90,14 @@ function MediaItem( props ) {
 		}
 	}, [ shouldProxyImg, imageUrl, medium, fmt_hd, thumbnail ] );
 
-	useEffect( () => {
-		if ( focus ) {
-			itemEl.current.focus();
-		}
-	}, [ focus ] );
-
-	/* eslint-disable jsx-a11y/no-noninteractive-element-to-interactive-role */
 	return (
-		<li
-			ref={ itemEl }
+		<Composite.Item
 			className={ classes }
 			onClick={ isCopying ? undefined : handleClick }
-			onKeyDown={ isCopying ? undefined : handleKeydown }
-			role="checkbox"
-			tabIndex="0"
 			aria-checked={ !! isSelected }
 			aria-disabled={ !! isCopying }
+			aria-label={ selectionLabel }
+			render={ <li role="option" /> }
 		>
 			{ imageUrl && <img src={ imageUrl } alt={ alt } /> }
 			{ type === 'folder' && (
@@ -139,7 +114,7 @@ function MediaItem( props ) {
 				checked={ isSelected }
 				onChange={ () => handleClick() }
 			/>
-		</li>
+		</Composite.Item>
 	);
 }
 
