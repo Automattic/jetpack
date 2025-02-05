@@ -58,15 +58,22 @@ AdminSectionHero.Aside = ( {
 AdminSectionHero.Heading = ( {
 	children,
 	icon,
+	iconOutline,
 	...props
 }: React.ComponentProps< typeof H3 > & {
 	icon?: 'default' | 'success' | 'error';
+	iconOutline?: boolean;
 } ) => {
 	return (
-		<H3 mb={ 1 } { ...props }>
+		<H3 mb={ 1 } { ...props } className={ styles.heading }>
 			{ children }
 			{ !! icon && (
-				<ShieldIcon height={ 38 } variant={ icon } className={ styles[ 'heading-icon' ] } />
+				<ShieldIcon
+					height={ 36 }
+					variant={ icon }
+					outline={ iconOutline }
+					className={ styles[ 'heading-icon' ] }
+				/>
 			) }
 		</H3>
 	);

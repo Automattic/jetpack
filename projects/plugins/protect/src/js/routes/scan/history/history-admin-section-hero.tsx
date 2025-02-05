@@ -45,12 +45,12 @@ const HistoryAdminSectionHero: React.FC = ( {
 					[ styles[ 'hero-main--large' ] ]: size === 'large',
 				} ) }
 			>
-				<Text mb={ 2 }>
+				<Text mb={ 3 }>
 					{ oldestFirstDetected ? (
 						<span className={ styles[ 'subheading-content' ] }>
 							{ sprintf(
 								/* translators: %s: Oldest first detected date */
-								__( '%s - Today', 'jetpack-protect' ),
+								__( '%s – Today', 'jetpack-protect' ),
 								dateI18n( 'F jS g:i A', oldestFirstDetected, false )
 							) }
 						</span>
@@ -58,7 +58,11 @@ const HistoryAdminSectionHero: React.FC = ( {
 						__( 'Most recent results', 'jetpack-protect' )
 					) }
 				</Text>
-				<AdminSectionHero.Heading icon={ numThreats > 0 ? 'error' : 'success' }>
+				<AdminSectionHero.Heading
+					icon={ numThreats > 0 ? 'default' : 'success' }
+					iconOutline={ numThreats > 0 }
+					mb={ 2 }
+				>
 					{ numThreats > 0
 						? sprintf(
 								/* translators: %s: Total number of threats  */

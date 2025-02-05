@@ -11,7 +11,6 @@ import OnboardingPopover from '../../components/onboarding-popover';
 import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useFixers from '../../hooks/use-fixers';
-// import useModal from '../../hooks/use-modal';
 import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
 import ScanningAdminSectionHero from './scanning-admin-section-hero';
@@ -20,7 +19,6 @@ import styles from './styles.module.scss';
 const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' | 'large' } ) => {
 	const { recordEvent } = useAnalyticsTracks();
 	const { hasPlan, upgradePlan } = usePlan();
-	// const { setModal } = useModal();
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const { data: status } = useScanStatusQuery();
 	const { isThreatFixInProgress, isThreatFixStale } = useFixers();
@@ -84,14 +82,10 @@ const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' 
 		}
 	}
 
-	// const [ showFixersModal, setShowFixersModal ] = useState( false );
-	// const [ selectedThreats, setSelectedThreats ] = useState();
-
 	const handleShowAutoFixersClick = threatList => {
 		return event => {
 			event.preventDefault();
-			// setShowFixersModal( true );
-			setActionToConfirm( { id: 'fix', items: threatList } ); // to do
+			setActionToConfirm( { id: 'fix', items: threatList } );
 		};
 	};
 
@@ -117,7 +111,7 @@ const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' 
 						[ styles[ 'hero-main--large' ] ]: size === 'large',
 					} ) }
 				>
-					<Text className={ styles[ 'last-checked' ] } mb={ 2 } ref={ setDailyScansPopoverAnchor }>
+					<Text className={ styles[ 'last-checked' ] } mb={ 3 } ref={ setDailyScansPopoverAnchor }>
 						{ lastCheckedLocalTimestamp
 							? sprintf(
 									// translators: %s: date and time of the last scan
@@ -131,7 +125,7 @@ const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' 
 						position={ isSm ? 'bottom right' : 'middle right' }
 						anchor={ dailyScansPopoverAnchor }
 					/>
-					<AdminSectionHero.Heading icon={ numThreats > 0 ? 'error' : 'success' }>
+					<AdminSectionHero.Heading icon={ numThreats > 0 ? 'error' : 'success' } mb={ 2 }>
 						{ heading }
 					</AdminSectionHero.Heading>
 					{ hasPlan ? (
