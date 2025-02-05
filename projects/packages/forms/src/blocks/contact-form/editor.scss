@@ -728,7 +728,7 @@
 		.jetpack-field {
 			--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 			margin-top: 8px;
-			display: flex;
+			box-sizing: border-box;
 
 			.notched-label {
 				position: absolute;
