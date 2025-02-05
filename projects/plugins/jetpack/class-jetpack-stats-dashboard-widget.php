@@ -53,7 +53,8 @@ class Jetpack_Stats_Dashboard_Widget {
 		 */
 		// Temporarily show the widget to administrators for Simple sites as the view_stats capability is not available.
 		// TODO: Grant the view_stats capability to corresponding users for Simple sites.
-		if ( ! current_user_can( 'manage_options' ) && ! current_user_can( 'view_stats' ) ) {
+		$can_user_view_stats = current_user_can( 'manage_options' ) || current_user_can( 'view_stats' );
+		if ( ! apply_filters( 'jetpack_stats_dashboard_widget_show_to_user', $can_user_view_stats ) ) {
 			return;
 		}
 
