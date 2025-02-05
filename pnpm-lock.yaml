@@ -653,10 +653,10 @@ importers:
         version: 5.0.4
       webpack:
         specifier: 5.94.0
-        version: 5.94.0(webpack-cli@4.9.1)
+        version: 5.94.0(webpack-cli@6.0.1)
       webpack-cli:
-        specifier: 4.9.1
-        version: 4.9.1(webpack@5.94.0)
+        specifier: 6.0.1
+        version: 6.0.1(webpack@5.94.0)
 
   projects/js-packages/config:
     devDependencies:
@@ -4621,10 +4621,10 @@ importers:
         version: 5.0.4
       webpack:
         specifier: 5.94.0
-        version: 5.94.0(webpack-cli@4.9.1)
+        version: 5.94.0(webpack-cli@6.0.1)
       webpack-cli:
-        specifier: 4.9.1
-        version: 4.9.1(webpack@5.94.0)
+        specifier: 6.0.1
+        version: 6.0.1(webpack@5.94.0)
 
   projects/plugins/search: {}
 
