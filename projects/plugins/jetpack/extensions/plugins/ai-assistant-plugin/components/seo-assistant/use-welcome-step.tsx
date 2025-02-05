@@ -26,6 +26,6 @@ export const useWelcomeStep = (): Step => {
 				id: '2',
 			},
 		],
-		autoAdvance: 2000,
+		autoAdvance: 1500,
 	};
 };

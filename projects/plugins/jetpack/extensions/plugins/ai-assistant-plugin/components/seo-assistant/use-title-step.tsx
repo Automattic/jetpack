@@ -57,7 +57,7 @@ export const useTitleStep = (): Step => {
 										'Flora Guide: Beautiful Photos of Flowers and Plants for Gardening Enthusiasts',
 								},
 							] ),
-						3000
+						1500
 					)
 				);
 			}
@@ -107,7 +107,7 @@ export const useTitleStep = (): Step => {
 								'Flora Guide: Beautiful Photos of Flowers and Plants for Gardening Enthusiasts',
 						},
 					] ),
-				2000
+				1500
 			)
 		);
 		setTitleOptions( [ ...titleOptions, ...newTitles ] );

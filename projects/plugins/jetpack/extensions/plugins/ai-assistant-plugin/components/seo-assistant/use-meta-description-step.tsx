@@ -54,7 +54,7 @@ export const useMetaDescriptionStep = (): Step => {
 										'Explore breathtaking flower and plant photography in our Flora Guide, featuring tips and inspiration for gardening and plant enthusiasts to enhance their outdoor spaces.',
 								},
 							] ),
-						3000
+						1500
 					)
 				);
 			}
@@ -90,7 +90,7 @@ export const useMetaDescriptionStep = (): Step => {
 								'Explore breathtaking flower and plant photography in our Flora Guide, featuring tips and inspiration for gardening and plant enthusiasts to enhance their outdoor spaces.',
 						},
 					] ),
-				3000
+				1500
 			)
 		);
 
