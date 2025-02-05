@@ -171,16 +171,12 @@ class Contact_Form_Block {
 	 * Register beta blocks
 	 */
 	private static function register_beta_blocks() {
-		$blocks_variation = apply_filters( 'jetpack_blocks_variation', \Automattic\Jetpack\Constants::get_constant( 'JETPACK_BLOCKS_VARIATION' ) );
-
-		if ( 'beta' === $blocks_variation ) {
-			Blocks::jetpack_register_block(
-				'jetpack/field-file',
-				array(
-					'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_file' ),
-				)
-			);
-		}
+		Blocks::jetpack_register_block(
+			'jetpack/field-file',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_file' ),
+			)
+		);
 	}
 
 	/**
