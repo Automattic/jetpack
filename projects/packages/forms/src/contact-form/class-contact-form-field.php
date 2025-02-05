@@ -670,11 +670,20 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$field_style = 'style="' . $this->option_styles . '"';
 
+		$used_html_ids = array();
+
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
 			$option = Contact_Form_Plugin::strip_tags( $option );
 			if ( is_string( $option ) && $option !== '' ) {
 				$radio_value = $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option );
-				$radio_id    = sanitize_html_class( $id ) . '-' . sanitize_html_class( $radio_value );
+				$radio_id    = $id . '-' . sanitize_html_class( $radio_value );
+
+				// If exact id was already used in this radio group, append option index.
+				// Multiple 'blue' options would give id-blue, id-blue-1, id-blue-2, etc.
+				if ( isset( $used_html_ids[ $radio_id ] ) ) {
+					$radio_id .= '-' . $option_index;
+				}
+				$used_html_ids[ $radio_id ] = true;
 
 				$field .= "<p class='contact-form-field'>";
 				$field .= "<input
@@ -764,11 +773,20 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$field_style = 'style="' . $this->option_styles . '"';
 
+		$used_html_ids = array();
+
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
 			$option = Contact_Form_Plugin::strip_tags( $option );
 			if ( is_string( $option ) && $option !== '' ) {
 				$checkbox_value = $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option );
 				$checkbox_id    = sanitize_html_class( $id ) . '-' . sanitize_html_class( $checkbox_value );
+
+				// If exact id was already used in this checkbox group, append option index.
+				// Multiple 'blue' options would give id-blue, id-blue-1, id-blue-2, etc.
+				if ( isset( $used_html_ids[ $checkbox_id ] ) ) {
+					$checkbox_id .= '-' . $option_index;
+				}
+				$used_html_ids[ $checkbox_id ] = true;
 
 				$field .= "<p class='contact-form-field'>";
 				$field .= "<input
