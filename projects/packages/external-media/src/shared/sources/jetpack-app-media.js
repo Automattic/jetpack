@@ -77,8 +77,8 @@ function JetpackAppMedia( props ) {
 			return sprintf(
 				/* translators: %1$d is the number of images that were selected. */
 				_n(
-					'Inserting… %1$d image',
-					'Inserting… %1$d images',
+					'Inserting %1$d image…',
+					'Inserting %1$d images…',
 					selectedImages,
 					'jetpack-external-media'
 				),
