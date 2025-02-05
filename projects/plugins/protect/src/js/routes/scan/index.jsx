@@ -58,7 +58,7 @@ const ScanPage = () => {
 						<AdminSection>
 							<Container
 								className={ styles[ 'scan-results-container' ] }
-								horizontalSpacing={ 5 }
+								horizontalSpacing={ 3 }
 								horizontalGap={ 4 }
 							>
 								<Col>

@@ -9,7 +9,11 @@ import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
 import styles from './styles.module.scss';
 
-const ScanningAdminSectionHero = ( { size = 'normal' }: { size?: 'normal' | 'large' } ) => {
+const ScanningAdminSectionHero = ( {
+	size = 'normal',
+}: {
+	size?: 'normal' | 'large' | 'wide';
+} ) => {
 	const { hasPlan } = usePlan();
 	const { globalStats } = useWafData();
 	const { data: status } = useScanStatusQuery( { usePolling: true } );
@@ -23,6 +27,7 @@ const ScanningAdminSectionHero = ( { size = 'normal' }: { size?: 'normal' | 'lar
 			<AdminSectionHero.Main
 				className={ clsx( styles[ 'hero-main' ], {
 					[ styles[ 'hero-main--large' ] ]: size === 'large',
+					[ styles[ 'hero-main--wide' ] ]: size === 'wide',
 				} ) }
 			>
 				<AdminSectionHero.Heading>

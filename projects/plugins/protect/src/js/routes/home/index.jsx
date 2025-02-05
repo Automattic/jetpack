@@ -42,7 +42,7 @@ const HomePage = () => {
 				<AdminSection>
 					<Container
 						className={ styles[ 'scan-report-container' ] }
-						horizontalSpacing={ 5 }
+						horizontalSpacing={ 3 }
 						horizontalGap={ 4 }
 					>
 						<Col>
