@@ -1,3 +1,4 @@
+import { VideoPressIcon } from '@automattic/jetpack-shared-extension-utils/icons';
 import apiFetch from '@wordpress/api-fetch';
 import { isBlobURL } from '@wordpress/blob';
 import {
@@ -40,7 +41,6 @@ import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import clsx from 'clsx';
 import { get, indexOf } from 'lodash';
-import { VideoPressIcon } from '../../shared/icons';
 import { VideoPressBlockProvider } from './components';
 import { VIDEO_PRIVACY } from './constants';
 import Loading from './loading';

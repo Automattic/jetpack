@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Charts: adds tests for mouse-handler hook, responsive HOC, and grid control

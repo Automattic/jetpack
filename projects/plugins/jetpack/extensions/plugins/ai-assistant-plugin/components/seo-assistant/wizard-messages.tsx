@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import bigSkyIcon from './big-sky-icon.svg';
+import TypingMessage from './typing-message';
 import type { Message } from './types';
 
 const randomId = () => Math.random().toString( 32 ).substring( 2, 8 );
@@ -63,7 +64,7 @@ export const useMessages = () => {
 	};
 };
 
-export const MessageBubble = ( { message, onSelect } ) => {
+export const MessageBubble = ( { message, onSelect = ( m: Message ) => m } ) => {
 	return (
 		<div
 			className={ clsx( 'assistant-wizard__message', {
@@ -94,24 +95,15 @@ export const MessageBubble = ( { message, onSelect } ) => {
 	);
 };
 
-export default function Messages( { onSelect, messages } ) {
-	const messagesEndRef = useRef< HTMLDivElement >( null );
-	const scrollToBottom = () => {
-		messagesEndRef.current?.scrollIntoView( { behavior: 'smooth' } );
-	};
-
-	useEffect( () => {
-		scrollToBottom();
-	}, [ messages ] );
-
+export default function Messages( { onSelect, messages, isBusy } ) {
 	return (
 		<>
 			<div className="assistant-wizard__messages">
 				{ messages.map( message => (
 					<MessageBubble key={ message.id } onSelect={ onSelect } message={ message } />
 				) ) }
+				{ isBusy && <MessageBubble message={ { content: <TypingMessage />, showIcon: true } } /> }
 			</div>
-			<div ref={ messagesEndRef } />
 		</>
 	);
 }

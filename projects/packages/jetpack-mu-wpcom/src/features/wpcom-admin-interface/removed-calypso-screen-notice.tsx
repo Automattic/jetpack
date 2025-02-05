@@ -12,6 +12,8 @@ import {
 	postComments,
 	tag,
 	verse,
+	settings,
+	page,
 } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
 
@@ -48,8 +50,8 @@ const Notice = () => {
 	const config = {
 		'edit.php': {
 			icon: verse,
-			title: hasTranslation( 'The Posts view just got better' )
-				? __( 'The Posts view just got better', 'jetpack-mu-wpcom' )
+			title: hasTranslation( 'The Posts view just got an update' )
+				? __( 'The Posts view just got an update', 'jetpack-mu-wpcom' )
 				: titleFallback,
 			description: hasTranslation(
 				"We've adopted WordPress' main Posts view to bring improvements to you and millions of WordPress users worldwide."
@@ -62,8 +64,8 @@ const Notice = () => {
 		},
 		'edit.php?post_type=page': {
 			icon: pages,
-			title: hasTranslation( 'The Pages view just got better' )
-				? __( 'The Pages view just got better', 'jetpack-mu-wpcom' )
+			title: hasTranslation( 'The Pages view just got an update' )
+				? __( 'The Pages view just got an update', 'jetpack-mu-wpcom' )
 				: titleFallback,
 			description: hasTranslation(
 				"We've adopted WordPress' main Pages view to bring improvements to you and millions of WordPress users worldwide."
@@ -76,8 +78,8 @@ const Notice = () => {
 		},
 		'edit.php?post_type=jetpack-portfolio': {
 			icon: archive,
-			title: hasTranslation( 'The Portfolio Projects view just got better' )
-				? __( 'The Portfolio Projects view just got better', 'jetpack-mu-wpcom' )
+			title: hasTranslation( 'The Portfolio Projects view just got an update' )
+				? __( 'The Portfolio Projects view just got an update', 'jetpack-mu-wpcom' )
 				: titleFallback,
 			description: hasTranslation(
 				"We've adopted WordPress' main Portfolio Projects view to bring improvements to you and millions of WordPress users worldwide."
@@ -90,8 +92,8 @@ const Notice = () => {
 		},
 		'edit.php?post_type=jetpack-testimonial': {
 			icon: commentContent,
-			title: hasTranslation( 'The Testimonials view just got better' )
-				? __( 'The Testimonials view just got better', 'jetpack-mu-wpcom' )
+			title: hasTranslation( 'The Testimonials view just got an update' )
+				? __( 'The Testimonials view just got an update', 'jetpack-mu-wpcom' )
 				: titleFallback,
 			description: hasTranslation(
 				"We've adopted WordPress' main Testimonials view to bring improvements to you and millions of WordPress users worldwide."
@@ -104,8 +106,8 @@ const Notice = () => {
 		},
 		'edit-comments.php': {
 			icon: postComments,
-			title: hasTranslation( 'The Comments view just got better' )
-				? __( 'The Comments view just got better', 'jetpack-mu-wpcom' )
+			title: hasTranslation( 'The Comments view just got an update' )
+				? __( 'The Comments view just got an update', 'jetpack-mu-wpcom' )
 				: titleFallback,
 			description: hasTranslation(
 				"We've adopted WordPress' main Comments view to bring improvements to you and millions of WordPress users worldwide."
@@ -118,8 +120,8 @@ const Notice = () => {
 		},
 		'edit-tags.php?taxonomy=category': {
 			icon: category,
-			title: hasTranslation( 'The Categories view just got better' )
-				? __( 'The Categories view just got better', 'jetpack-mu-wpcom' )
+			title: hasTranslation( 'The Categories view just got an update' )
+				? __( 'The Categories view just got an update', 'jetpack-mu-wpcom' )
 				: titleFallback,
 			description: hasTranslation(
 				"We've adopted WordPress' main Categories view to bring improvements to you and millions of WordPress users worldwide."
@@ -132,14 +134,70 @@ const Notice = () => {
 		},
 		'edit-tags.php?taxonomy=post_tag': {
 			icon: tag,
-			title: hasTranslation( 'The Tags view just got better' )
-				? __( 'The Tags view just got better', 'jetpack-mu-wpcom' )
+			title: hasTranslation( 'The Tags view just got an update' )
+				? __( 'The Tags view just got an update', 'jetpack-mu-wpcom' )
 				: titleFallback,
 			description: hasTranslation(
 				"We've adopted WordPress' main Tags view to bring improvements to you and millions of WordPress users worldwide."
 			)
 				? __(
 						"We've adopted WordPress' main Tags view to bring improvements to you and millions of WordPress users worldwide.",
+						'jetpack-mu-wpcom'
+				  )
+				: descriptionFallback,
+		},
+		'options-general.php': {
+			icon: settings,
+			title: hasTranslation( 'The General Settings view just got an update' )
+				? __( 'The General Settings view just got an update', 'jetpack-mu-wpcom' )
+				: titleFallback,
+			description: hasTranslation(
+				"We've adopted WordPress' main General Settings view to bring improvements to you and millions of WordPress users worldwide."
+			)
+				? __(
+						"We've adopted WordPress' main General Settings view to bring improvements to you and millions of WordPress users worldwide.",
+						'jetpack-mu-wpcom'
+				  )
+				: descriptionFallback,
+		},
+		'options-writing.php': {
+			icon: verse,
+			title: hasTranslation( 'The Writing Settings view just got an update' )
+				? __( 'The Writing Settings view just got an update', 'jetpack-mu-wpcom' )
+				: titleFallback,
+			description: hasTranslation(
+				"We've adopted WordPress' main Writing Settings view to bring improvements to you and millions of WordPress users worldwide."
+			)
+				? __(
+						"We've adopted WordPress' main Writing Settings view to bring improvements to you and millions of WordPress users worldwide.",
+						'jetpack-mu-wpcom'
+				  )
+				: descriptionFallback,
+		},
+		'options-reading.php': {
+			icon: page,
+			title: hasTranslation( 'The Reading Settings view just got an update' )
+				? __( 'The Reading Settings view just got an update', 'jetpack-mu-wpcom' )
+				: titleFallback,
+			description: hasTranslation(
+				"We've adopted WordPress' main Reading Settings view to bring improvements to you and millions of WordPress users worldwide."
+			)
+				? __(
+						"We've adopted WordPress' main Reading Settings view to bring improvements to you and millions of WordPress users worldwide.",
+						'jetpack-mu-wpcom'
+				  )
+				: descriptionFallback,
+		},
+		'options-discussion.php': {
+			icon: postComments,
+			title: hasTranslation( 'The Discussion Settings view just got an update' )
+				? __( 'The Discussion Settings view just got an update', 'jetpack-mu-wpcom' )
+				: titleFallback,
+			description: hasTranslation(
+				"We've adopted WordPress' main Discussion Settings view to bring improvements to you and millions of WordPress users worldwide."
+			)
+				? __(
+						"We've adopted WordPress' main Discussion Settings view to bring improvements to you and millions of WordPress users worldwide.",
 						'jetpack-mu-wpcom'
 				  )
 				: descriptionFallback,
@@ -165,11 +223,19 @@ const Notice = () => {
 		);
 	};
 
-	const title = sprintf(
+	let title = sprintf(
 		// translators: %s: page name
 		__( 'The %s view just got better', 'jetpack-mu-wpcom' ),
 		removedCalypsoScreenNoticeConfig.title
 	);
+
+	if ( hasTranslation( 'The %s view just got an update' ) ) {
+		title = sprintf(
+			// translators: %s: page name
+			__( 'The %s view just got an update', 'jetpack-mu-wpcom' ),
+			removedCalypsoScreenNoticeConfig.title
+		);
+	}
 
 	return (
 		<Guide

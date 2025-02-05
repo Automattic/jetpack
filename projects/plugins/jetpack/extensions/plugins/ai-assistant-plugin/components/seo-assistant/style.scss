@@ -41,7 +41,7 @@
 			color: #1e1e1e;
 
 			&:hover {
-				color: #374151;
+				color:#3858E9;
 			}
 		}
 	}
@@ -127,8 +127,7 @@
 		animation: assistantInputAppear 0.3s ease-out;
 
 		&:focus-within {
-			outline-width: 2px;
-			outline-color: var( --wp-components-color-accent, var( --wp-admin-theme-color, #007cba ) );
+			outline-color: #3858E9;
 		}
 
 
@@ -144,11 +143,14 @@
 
 		.components-text-control__input,
 		.components-text-control__input:focus {
-			padding: 8px;
 			border: 0;
 			border-radius: 12px;
 			box-shadow: none;
 			outline: 0;
+		}
+
+		.components-button.is-primary {
+			background-color: #3858E9;
 		}
 	}
 
@@ -179,7 +181,7 @@
 
 		&.is-selected {
 			background: #fff;
-			border-color: var( --wp-components-color-accent, var( --wp-admin-theme-color, #007cba ) );
+			border-color: #3858E9;
 		}
 
 		// target buttons only
@@ -198,6 +200,15 @@
 		align-items: center;
 		gap: 16px;
 		animation: assistantInputAppear 0.3s ease-out;
+
+		.components-button.is-primary {
+			background-color: #3858E9;
+		}
+
+		.components-button.is-secondary {
+			box-shadow: inset 0 0 0 1px #3858e9, 0 0 0 currentColor;
+			color: #3858e9;
+		}
 	}
 
 	&__completion {
