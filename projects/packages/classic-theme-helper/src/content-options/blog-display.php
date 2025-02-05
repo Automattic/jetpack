@@ -48,14 +48,14 @@ if ( ! function_exists( 'jetpack_blog_display_custom_excerpt' ) ) {
 			);
 		}
 		$had_content_to_the_excerpt_filter = false;
-		$had_content_customizer_filter = false;
+		$had_content_customizer_filter     = false;
 		// Avoid infinite loop where the content depends on the excerpt and
 		// the excerpt depends on the content.
 		if ( has_filter( 'the_content', 'jetpack_the_content_to_the_excerpt' ) ) {
 			remove_filter( 'the_content', 'jetpack_the_content_to_the_excerpt' );
 			$had_content_to_the_excerpt_filter = true;
 		}
-		if( has_filter( 'the_content', 'jetpack_the_content_customizer' ) ) {
+		if ( has_filter( 'the_content', 'jetpack_the_content_customizer' ) ) {
 			remove_filter( 'the_content', 'jetpack_the_content_customizer' );
 			$had_content_customizer_filter = true;
 		}
@@ -66,7 +66,7 @@ if ( ! function_exists( 'jetpack_blog_display_custom_excerpt' ) ) {
 			if ( $had_content_to_the_excerpt_filter ) {
 				add_filter( 'the_content', 'jetpack_the_content_to_the_excerpt' );
 			}
-			if( $had_content_customizer_filter ) {
+			if ( $had_content_customizer_filter ) {
 				add_filter( 'the_content', 'jetpack_the_content_customizer' );
 			}
 		}
