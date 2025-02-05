@@ -19,10 +19,11 @@ import './with-media.scss';
 /**
  * withMedia
  *
- * @param {MediaSource} mediaSource - External media sources.
+ * @param {MediaSource} mediaSource  - External media sources.
+ * @param {object}      mediaOptions - The options of the media.
  * @return {Function} - The function to create higher order component.
  */
-export default function withMedia( mediaSource = MediaSource.Unknown ) {
+export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptions = {} ) {
 	return createHigherOrderComponent( OriginalComponent => {
 		// Legacy class as it was ported from an older codebase.
 		class WithMediaComponent extends Component {
@@ -425,7 +426,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 						title={ title }
 						aria={ { describedby } }
 						className={ classes }
-						size="fill"
+						size={ mediaOptions.size }
 					>
 						<div ref={ this.contentRef }>
 							{ noticeUI }
