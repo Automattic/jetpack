@@ -95,7 +95,7 @@
 			}
 
 			&:where( .wp-block-jetpack-contact-form .wp-block-separator ){
-				max-width: var(--wp-preset--spacing--80, 150px);
+				max-width: var( --wp--preset--spacing--80, 100px );
 				margin-left: auto;
 				margin-right: auto;
 			}
