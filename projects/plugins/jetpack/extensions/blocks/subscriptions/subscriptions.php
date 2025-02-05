@@ -691,6 +691,7 @@ function render_block( $attributes ) {
 		'source'                        => 'subscribe-block',
 		'app_source'                    => get_attribute( $attributes, 'appSource', null ),
 		'class_name'                    => get_attribute( $attributes, 'className' ),
+		'category_ids'                  => get_attribute( $attributes, 'categoryIds', array() ),
 	);
 
 	if ( ! jetpack_is_frontend() ) {
@@ -849,6 +850,10 @@ function render_for_website( $data, $classes, $styles ) {
 
 							if ( ! empty( $tier_id ) ) {
 								echo '<input type="hidden" name="tier_id" value="' . esc_attr( $tier_id ) . '"/>';
+							}
+
+							if ( ! empty( $data['category_ids'] ) ) {
+								echo '<input type="hidden" name="categories" value="' . esc_attr( implode( ',', $data['category_ids'] ) ) . '"/>';
 							}
 							?>
 							<button type="submit"

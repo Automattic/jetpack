@@ -54,7 +54,6 @@ const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
 	};
 } );
 
-// TODO: Determine how to use selected categories on the front end
 // TODO: Tidy up naming and markup
 // TODO: Test in different envs
 
