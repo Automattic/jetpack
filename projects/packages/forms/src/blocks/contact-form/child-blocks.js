@@ -509,6 +509,39 @@ export const childBlocks = [
 		},
 	},
 	{
+		name: 'field-file',
+		settings: {
+			...FieldDefaults,
+			title: __( 'File Upload Field', 'jetpack-forms' ),
+			keywords: [
+				__( 'File', 'jetpack-forms' ),
+				__( 'Upload', 'jetpack-forms' ),
+				__( 'Attachment', 'jetpack-forms' ),
+			],
+			description: __( 'Allow visitors to upload files through your form.', 'jetpack-forms' ),
+			icon: {
+				foreground: getIconColor(),
+				src: renderMaterialIcon(
+					<Path d="M11 14.5V6.33L8.5 8.83L7.67 8L12 3.67L16.33 8L15.5 8.83L13 6.33V14.5H11ZM12 20.33L7.67 16L8.5 15.17L11 17.67V15.5H13V17.67L15.5 15.17L16.33 16L12 20.33Z" />
+				),
+			},
+			edit: editField( 'file' ),
+			attributes: {
+				...FieldDefaults.attributes,
+				label: {
+					type: 'string',
+					default: __( 'Upload a file', 'jetpack-forms' ),
+					role: 'content',
+				},
+				filetype: {
+					type: 'string',
+					default: '',
+				},
+			},
+			isExperimental: true,
+		},
+	},
+	{
 		name: 'field-textarea',
 		settings: {
 			...FieldDefaults,
@@ -553,34 +586,6 @@ export const childBlocks = [
 				label: {
 					type: 'string',
 					default: '',
-					role: 'content',
-				},
-			},
-		},
-	},
-	{
-		name: 'field-upload',
-		settings: {
-			...FieldDefaults,
-			title: __( 'File Upload Field', 'jetpack-forms' ),
-			keywords: [
-				__( 'File', 'jetpack-forms' ),
-				__( 'Upload', 'jetpack-forms' ),
-				__( 'Attachment', 'jetpack-forms' ),
-			],
-			description: __( 'Allow visitors to upload files through your form.', 'jetpack-forms' ),
-			icon: {
-				foreground: getIconColor(),
-				src: renderMaterialIcon(
-					<Path d="M11 14.5V6.33L8.5 8.83L7.67 8L12 3.67L16.33 8L15.5 8.83L13 6.33V14.5H11ZM12 20.33L7.67 16L8.5 15.17L11 17.67V15.5H13V17.67L15.5 15.17L16.33 16L12 20.33Z" />
-				),
-			},
-			edit: editField( 'file' ),
-			attributes: {
-				...FieldDefaults.attributes,
-				label: {
-					type: 'string',
-					default: __( 'Upload a file', 'jetpack-forms' ),
 					role: 'content',
 				},
 			},

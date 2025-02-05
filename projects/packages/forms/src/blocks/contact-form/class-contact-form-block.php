@@ -160,6 +160,23 @@ class Contact_Form_Block {
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_consent' ),
 			)
 		);
+
+		$blocks_variation = apply_filters( 'jetpack_blocks_variation', \Automattic\Jetpack\Constants::get_constant( 'JETPACK_BLOCKS_VARIATION' ) );
+		if ( 'experimental' === $blocks_variation ) {
+			self::register_experimental_blocks();
+		}
+	}
+
+	/**
+	 * Register experimental blocks
+	 */
+	private static function register_experimental_blocks() {
+		Blocks::jetpack_register_block(
+			'jetpack/field-file',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_file' ),
+			)
+		);
 	}
 
 	/**

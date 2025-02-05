@@ -23,6 +23,7 @@ const JetpackField = props => {
 		placeholder,
 		width,
 		insertBlocksAfter,
+		type,
 	} = props;
 
 	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
@@ -46,19 +47,23 @@ const JetpackField = props => {
 					setAttributes={ setAttributes }
 					style={ formStyle }
 				/>
-				<input
-					className="jetpack-field__input"
-					onChange={ e => setAttributes( { placeholder: e.target.value } ) }
-					style={ fieldStyle }
-					type="text"
-					value={ placeholder }
-					onKeyDown={ event => {
-						if ( event.defaultPrevented || event.key !== 'Enter' ) {
-							return;
-						}
-						insertBlocksAfter( createBlock( getDefaultBlockName() ) );
-					} }
-				/>
+				{ type === 'file' ? (
+					<input type="file" className="jetpack-field__input" />
+				) : (
+					<input
+						className="jetpack-field__input"
+						onChange={ e => setAttributes( { placeholder: e.target.value } ) }
+						style={ fieldStyle }
+						type="text"
+						value={ placeholder }
+						onKeyDown={ event => {
+							if ( event.defaultPrevented || event.key !== 'Enter' ) {
+								return;
+							}
+							insertBlocksAfter( createBlock( getDefaultBlockName() ) );
+						} }
+					/>
+				) }
 			</div>
 
 			<JetpackFieldControls
