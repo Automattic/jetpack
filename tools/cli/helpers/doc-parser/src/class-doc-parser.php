@@ -187,7 +187,7 @@ class Doc_Parser {
 				}
 			);
 
-			$file_blocks = $this->get_filter_calls( $hookCalls );
+			$file_blocks = $this->get_hook_calls( $hookCalls );
 
 			$splfile = new \SplFileObject( $file );
 			foreach ( $file_blocks as &$block ) {
@@ -368,7 +368,7 @@ class Doc_Parser {
 	 * @param array $nodes  Parser node objects for hook calls.
 	 * @return array docblock annotations.
 	 */
-	public function get_filter_calls( $nodes ): array {
+	public function get_hook_calls( $nodes ): array {
 
 		$blocks = array();
 
