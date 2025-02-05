@@ -116,11 +116,11 @@
 		"className": {
 			"type": "string"
 		},
-		"preSelectCategories": {
+		"preselectNewsletterCategories": {
 			"type": "boolean",
 			"default": false
 		},
-		"categoryIds": {
+		"selectedNewsletterCategoryIds": {
 			"type": "array",
 			"default": []
 		}

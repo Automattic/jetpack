@@ -84,11 +84,11 @@ export function SubscriptionEdit( props ) {
 		borderRadius,
 		borderWeight,
 		buttonWidth,
-		categoryIds,
 		className,
 		includeSocialFollowers,
 		padding,
-		preSelectCategories,
+		preselectNewsletterCategories,
+		selectedNewsletterCategoryIds,
 		spacing,
 		submitButtonText = DEFAULT_SUBMIT_BUTTON_LABEL,
 		subscribePlaceholder = DEFAULT_SUBSCRIBE_PLACEHOLDER,
@@ -117,12 +117,12 @@ export function SubscriptionEdit( props ) {
 		};
 	} );
 
-	const { newsletterCategories, newsletterCategoriesEnabled } = useSelect( select => {
+	const { availableNewsletterCategories, areNewsletterCategoriesEnabled } = useSelect( select => {
 		const store = select( membershipProductsStore );
 
 		return {
-			newsletterCategories: store.getNewsletterCategories(),
-			newsletterCategoriesEnabled: store.getNewsletterCategoriesEnabled(),
+			availableNewsletterCategories: store.getNewsletterCategories(),
+			areNewsletterCategoriesEnabled: store.getNewsletterCategoriesEnabled(),
 		};
 	} );
 
@@ -239,6 +239,8 @@ export function SubscriptionEdit( props ) {
 		>
 			<InspectorControls>
 				<SubscriptionControls
+					areNewsletterCategoriesEnabled={ areNewsletterCategoriesEnabled }
+					availableNewsletterCategories={ availableNewsletterCategories }
 					buttonBackgroundColor={ buttonBackgroundColor }
 					borderColor={ borderColor }
 					buttonGradient={ buttonGradient }
@@ -251,10 +253,8 @@ export function SubscriptionEdit( props ) {
 					fontSize={ fontSize }
 					includeSocialFollowers={ includeSocialFollowers }
 					isGradientAvailable={ isGradientAvailable }
-					newsletterCategories={ newsletterCategories }
-					newsletterCategoriesEnabled={ newsletterCategoriesEnabled }
 					padding={ padding }
-					preSelectCategories={ preSelectCategories }
+					preselectNewsletterCategories={ preselectNewsletterCategories }
 					setAttributes={ setAttributes }
 					setBorderColor={ setBorderColor }
 					setButtonBackgroundColor={ setButtonBackgroundColor }
@@ -264,7 +264,7 @@ export function SubscriptionEdit( props ) {
 					subscriberCount={ subscriberCount }
 					textColor={ textColor }
 					buttonWidth={ buttonWidth }
-					categoryIds={ categoryIds }
+					selectedNewsletterCategoryIds={ selectedNewsletterCategoryIds }
 					subscribePlaceholder={ subscribePlaceholder }
 					submitButtonText={ submitButtonText }
 					successMessage={ successMessage }
