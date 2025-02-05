@@ -2,7 +2,7 @@ import { InnerBlocks } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { Path, Icon } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
-import { globe, envelope, mobile } from '@wordpress/icons';
+import { globe, envelope, mobile, upload } from '@wordpress/icons';
 import { filter, isEmpty, map, startsWith, trim } from 'lodash';
 import JetpackField from './components/jetpack-field';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
@@ -521,9 +521,7 @@ export const childBlocks = [
 			description: __( 'Allow visitors to upload files through your form.', 'jetpack-forms' ),
 			icon: {
 				foreground: getIconColor(),
-				src: renderMaterialIcon(
-					<Path d="M11 14.5V6.33L8.5 8.83L7.67 8L12 3.67L16.33 8L15.5 8.83L13 6.33V14.5H11ZM12 20.33L7.67 16L8.5 15.17L11 17.67V15.5H13V17.67L15.5 15.17L16.33 16L12 20.33Z" />
-				),
+				src: <Icon icon={ upload } />,
 			},
 			edit: editField( 'file' ),
 			attributes: {
