@@ -99,8 +99,8 @@
 				margin-left: auto;
 				margin-right: auto;
 			}
-			:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-wide ),
-			:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-dots ) {
+			&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-wide ),
+			&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-dots ) {
 				max-width: inherit;
 			}
 
