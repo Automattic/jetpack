@@ -182,7 +182,11 @@ class Doc_Parser {
 					}
 
 					return $node->name->name === 'apply_filters'
-						|| $node->name->name === 'do_action';
+						|| $node->name->name === 'do_action'
+						|| $node->name->name === 'apply_filters_ref_array'
+						|| $node->name->name === 'do_action_ref_array'
+						|| $node->name->name === 'apply_filters_deprecated'
+						|| $node->name->name === 'do_action_deprecated';
 				}
 			);
 
@@ -370,8 +374,13 @@ class Doc_Parser {
 
 		foreach ( $nodes as $node ) {
 
-			$arguments = $node->getArgs();
-			$hook_name = array_shift( $arguments );
+			$arguments   = $node->getArgs();
+			$hook_name   = array_shift( $arguments );
+			$name_string = $this->pretty_print_hook_name( $hook_name );
+
+			if ( false === $name_string ) {
+				continue;
+			}
 
 			// Purging any comments that could have been attributed to this argument.
 			$hook_name->setAttribute( 'comments', null );
@@ -406,10 +415,10 @@ class Doc_Parser {
 	 * Pretty prints the name for the hook, taking an argument object as input.
 	 *
 	 * @param Node\Arg $argument the first argument to the apply_filter or do_action call.
-	 * @return String pretty printed argument name.
+	 * @return false|String pretty printed argument name, or false in case this call has to be skipped.
 	 * @throws \UnexpectedValueException On an unexpected argument component.
 	 */
-	public function pretty_print_hook_name( Node\Arg $argument ): string {
+	public function pretty_print_hook_name( Node\Arg $argument ): false|string {
 
 		if (
 			$argument->value instanceof Node\Scalar\String_
@@ -456,6 +465,10 @@ class Doc_Parser {
 				}
 			}
 			return $result;
+		} elseif ( $argument->value instanceof Node\Expr\Variable ) {
+
+			// We don't care about variable names, we can't really document them.
+			return false;
 		}
 
 		throw new \UnexpectedValueException( 'Unexpected function call argument of type ' . get_class( $argument->value ) );
