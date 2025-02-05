@@ -11,7 +11,7 @@ export const ContactFormPlaceholder = ( { changeStatus, isLoading, isModuleActiv
 		<Placeholder
 			icon={ settings.icon.src }
 			instructions={ __(
-				'You’ll need to activate the Contact Form feature to use this block.',
+				'You’ll need to activate the Forms feature to use this block.',
 				'jetpack-forms'
 			) }
 			label={ settings.title }
@@ -23,8 +23,8 @@ export const ContactFormPlaceholder = ( { changeStatus, isLoading, isModuleActiv
 				variant="secondary"
 			>
 				{ isLoading
-					? __( 'Activating Contact Form', 'jetpack-forms' )
-					: __( 'Activate Contact Form', 'jetpack-forms', 0 ) }
+					? __( 'Activating Forms', 'jetpack-forms' )
+					: __( 'Activate Forms', 'jetpack-forms', 0 ) }
 			</Button>
 		</Placeholder>
 	);

@@ -22,7 +22,7 @@ const Header = () => {
 		const store = select( socialStore );
 		return {
 			hasConnections: store.getConnections().length > 0,
-			isModuleEnabled: select( socialStore ).getSocialPluginSettings().publicize_active,
+			isModuleEnabled: select( socialStore ).getSocialModuleSettings().publicize,
 		};
 	} );
 

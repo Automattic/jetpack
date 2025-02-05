@@ -136,3 +136,52 @@ export const Responsiveness: Story = {
 		},
 	},
 };
+
+export const ErrorStates: Story = {
+	render: () => (
+		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
+			<div>
+				<h3>Empty Data</h3>
+				<PieSemiCircleChart width={ 300 } data={ [] } />
+			</div>
+
+			<div>
+				<h3>Zero Total Percentage</h3>
+				<PieSemiCircleChart
+					width={ 300 }
+					data={ [
+						{ label: 'A', value: 0, percentage: 0 },
+						{ label: 'B', value: 0, percentage: 0 },
+					] }
+				/>
+			</div>
+
+			<div>
+				<h3>Negative Values</h3>
+				<PieSemiCircleChart
+					width={ 300 }
+					data={ [
+						{ label: 'A', value: -30, percentage: -30 },
+						{ label: 'B', value: 130, percentage: 130 },
+					] }
+				/>
+			</div>
+
+			<div>
+				<h3>Single Data Point</h3>
+				<PieSemiCircleChart
+					width={ 300 }
+					data={ [ { label: 'Single Point', value: 100, percentage: 100 } ] }
+				/>
+			</div>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Examples of how the semi-circle pie chart handles various error states and edge cases.',
+			},
+		},
+	},
+};

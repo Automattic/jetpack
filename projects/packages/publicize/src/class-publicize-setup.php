@@ -74,6 +74,14 @@ class Publicize_Setup {
 		add_action( 'rest_api_init', array( static::class, 'register_core_options' ) );
 		add_action( 'admin_init', array( static::class, 'register_core_options' ) );
 
+		if ( ( new Host() )->is_wpcom_simple() ) {
+
+			wpcom_rest_api_v2_load_plugin( Jetpack_Social_Settings\Settings::class );
+		} else {
+			// Load the settings page.
+			new Jetpack_Social_Settings\Settings();
+		}
+
 		( new Social_Image_Generator\Setup() )->init();
 	}
 
@@ -81,7 +89,6 @@ class Publicize_Setup {
 	 * Registers the core options for the Publicize package.
 	 */
 	public static function register_core_options() {
-		( new Jetpack_Social_Settings\Settings() )->register_settings();
 		( new Jetpack_Social_Settings\Dismissed_Notices() )->register();
 	}
 

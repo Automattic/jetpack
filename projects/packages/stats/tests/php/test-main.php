@@ -131,7 +131,7 @@ class Test_Main extends StatsBaseTestCase {
 		$_SERVER['HTTP_DNT'] = true;
 		add_filter( 'jetpack_honor_dnt_header_for_stats', array( __CLASS__, 'filter_jetpack_honor_dnt_header_for_stats' ), 10, 2 );
 		$this->assertTrue( Stats::jetpack_is_dnt_enabled() );
-		remove_filter( 'jetpack_honor_dnt_header_for_stats', array( __CLASS__, 'filter_jetpack_honor_dnt_header_for_stats' ), 10, 2 );
+		remove_filter( 'jetpack_honor_dnt_header_for_stats', array( __CLASS__, 'filter_jetpack_honor_dnt_header_for_stats' ), 10 );
 	}
 
 	/**
@@ -149,7 +149,7 @@ class Test_Main extends StatsBaseTestCase {
 	public function test_jetpack_is_dnt_enabled_with_filter_without_header() {
 		add_filter( 'jetpack_honor_dnt_header_for_stats', array( __CLASS__, 'filter_jetpack_honor_dnt_header_for_stats' ), 10, 2 );
 		$this->assertFalse( Stats::jetpack_is_dnt_enabled() );
-		remove_filter( 'jetpack_honor_dnt_header_for_stats', array( __CLASS__, 'filter_jetpack_honor_dnt_header_for_stats' ), 10, 2 );
+		remove_filter( 'jetpack_honor_dnt_header_for_stats', array( __CLASS__, 'filter_jetpack_honor_dnt_header_for_stats' ), 10 );
 	}
 
 	/**
@@ -189,7 +189,7 @@ class Test_Main extends StatsBaseTestCase {
 	public function test_should_track_will_return_true_with_active_stats_module() {
 		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
 		$should_track = Stats::should_track();
-		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
+		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10 );
 		$this->assertTrue( $should_track );
 	}
 
@@ -200,7 +200,7 @@ class Test_Main extends StatsBaseTestCase {
 		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
 		Stats::template_redirect();
 		$has_action = has_action( 'wp_footer', array( Tracking_Pixel::class, 'add_amp_pixel' ) );
-		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
+		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10 );
 		$this->assertSame( 101, $has_action );
 	}
 
@@ -211,7 +211,7 @@ class Test_Main extends StatsBaseTestCase {
 		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
 		Stats::template_redirect();
 		$has_action = has_action( 'web_stories_print_analytics', array( Tracking_Pixel::class, 'add_amp_pixel' ) );
-		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
+		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10 );
 		$this->assertSame( 101, $has_action );
 	}
 
@@ -222,7 +222,7 @@ class Test_Main extends StatsBaseTestCase {
 		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
 		Stats::template_redirect();
 		$has_action = has_action( 'wp_enqueue_scripts', array( Tracking_Pixel::class, 'enqueue_stats_script' ) );
-		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
+		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10 );
 		$this->assertSame( 101, $has_action );
 	}
 

@@ -9,19 +9,21 @@ $interstitial-modal-padding: 40px;
 	--font-body-small: 14px;
 	--font-body-extra-small: 14px;
 	--spacing-base: 8px;
+	max-height: calc(100% - 24px); // overwrite the default max modal height
 
 	:global(.components-modal__header) + div {
 		height: 100%;
 	}
 
 	:global(.components-modal__content) {
-		padding: $interstitial-modal-padding;
-		margin-top: 0;
+		margin: $interstitial-modal-padding;
+		padding: 0;
 	}
 
 	:global(.components-modal__header) {
 		height: $interstitial-modal-padding;
 		padding: 8px 8px 0;
+		border-bottom: 0;
 	}
 
 	.wrapper {
@@ -30,6 +32,17 @@ $interstitial-modal-padding: 40px;
 	}
 }
 
+.component-product-interstitial-modal__overlay {
+	@media ( max-height: 768px ) {
+		overflow: scroll;
+		padding-top: 24px;
+		padding-bottom: 24px;
+
+		.component-product-interstitial-modal {
+			max-height: unset;
+		}
+	}
+}
 
 .primary {
 	display: flex;
@@ -46,11 +59,16 @@ $interstitial-modal-padding: 40px;
 	flex: 1;
 }
 
+.price-container {
+	:global(.product-price_container) {
+		align-items: center;
+	}
+}
+
 .primary-footer {
 	display: flex;
 	flex-direction: row;
-	justify-content: space-between;
-	padding-bottom: 8px;
+	gap: 8px 24px;
 }
 
 .secondary {
@@ -69,6 +87,21 @@ $interstitial-modal-padding: 40px;
 		display: flex;
 		align-items: center;
 		overflow: hidden;
+	}
+}
+
+.modal-with-video {
+	position: relative;
+	width: 100%;
+	padding-top: 56.25%; /* 16:9 Aspect Ratio (height / width = 0.5625) */
+
+	iframe {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		border: none;
 	}
 }
 

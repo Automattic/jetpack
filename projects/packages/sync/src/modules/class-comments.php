@@ -14,6 +14,25 @@ use Automattic\Jetpack\Sync\Settings;
  * Class to handle sync for comments.
  */
 class Comments extends Module {
+
+	/**
+	 * Max bytes allowed for full sync upload.
+	 * Current Setting : 7MB.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const MAX_SIZE_FULL_SYNC = 7000000;
+	/**
+	 * Max bytes allowed for post meta_value => length.
+	 * Current Setting : 2MB.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const MAX_COMMENT_META_LENGTH = 2000000;
 	/**
 	 * Sync module name.
 	 *
@@ -573,10 +592,21 @@ class Comments extends Module {
 		}
 		// Get the comment IDs from the comments that were fetched.
 		$fetched_comment_ids = wp_list_pluck( $comments, 'comment_ID' );
+		$metadata            = $this->get_metadata( $fetched_comment_ids, 'comment', Settings::get_setting( 'comment_meta_whitelist' ) );
+
+		// Filter the comments and metadata based on the maximum size constraints.
+		list( $filtered_comment_ids, $filtered_comments, $filtered_comments_metadata ) = $this->filter_objects_and_metadata_by_size(
+			'comment',
+			$comments,
+			$metadata,
+			self::MAX_COMMENT_META_LENGTH, // Replace with appropriate comment meta length constant.
+			self::MAX_SIZE_FULL_SYNC
+		);
+
 		return array(
-			'object_ids' => $comment_ids, // Still send the original comment IDs since we need them to update the status.
-			'objects'    => $comments,
-			'meta'       => $this->get_metadata( $fetched_comment_ids, 'comment', Settings::get_setting( 'comment_meta_whitelist' ) ),
+			'object_ids' => $filtered_comment_ids,
+			'objects'    => $filtered_comments,
+			'meta'       => $filtered_comments_metadata,
 		);
 	}
 

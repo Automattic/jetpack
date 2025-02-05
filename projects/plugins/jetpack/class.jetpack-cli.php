@@ -1874,7 +1874,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 							WP_CLI::success( __( 'All Jetpack Social connections were successfully disconnected.', 'jetpack' ) );
 						} else {
 							/* translators: %s is a lowercase string for a social network. */
-							WP_CLI::success( __( 'All Jetpack Social connections to %s were successfully disconnected.', 'jetpack' ), $service );
+							WP_CLI::success( sprintf( __( 'All Jetpack Social connections to %s were successfully disconnected.', 'jetpack' ), $service ) );
 						}
 					}
 				} elseif ( false !== $publicize->disconnect( false, $identifier ) ) {
