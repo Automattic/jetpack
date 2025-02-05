@@ -19,7 +19,18 @@
 			"padding": true,
 			"margin": true
 		},
-		"align": [ "wide", "full" ]
+		"align": [ "wide", "full" ],
+		"layout": {
+			"allowSwitching": false,
+			"allowJustification": true,
+			"allowVerticalAlignment": false,
+			"allowOrientation": false,
+			"allowSizingOnChildren": false,
+			"allowEditing": true,
+			"default": {
+				"type": "flex"
+			}
+		}
 	},
 	"attributes": {},
 	"editorScript": "file:./editor.js"

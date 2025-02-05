@@ -42,20 +42,11 @@
 	}
 
 	.block-editor-block-list__layout {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: flex-start;
-		flex-direction: row;
-		gap: var(--wp--style--block-gap, 1.5rem);
-
 		.wp-block {
-			flex: 0 0 100%;
-			margin-top: 0;
-			margin-bottom: 0;
-
 			&.wp-block-jetpack-button {
 				flex-basis: auto;
 			}
+			flex-basis: 100%;
 
 			&.jetpack-field__width-25,
 			&.jetpack-field__width-50,

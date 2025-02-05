@@ -58,6 +58,17 @@ export const settings = {
 			margin: true,
 		},
 		align: [ 'wide', 'full' ],
+		layout: {
+			allowSwitching: false,
+			allowJustification: true,
+			allowVerticalAlignment: false,
+			allowOrientation: false,
+			allowSizingOnChildren: false,
+			allowEditing: true,
+			default: {
+				type: 'flex',
+			},
+		},
 	},
 	attributes: defaultAttributes,
 	edit,
