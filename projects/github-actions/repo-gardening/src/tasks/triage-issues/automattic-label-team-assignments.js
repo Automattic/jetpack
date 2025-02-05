@@ -138,10 +138,15 @@ export const automatticAssignments = {
 		board_id: 'https://github.com/orgs/Automattic/projects/724',
 	},
 	Newsletter: {
-		team: 'Zap',
-		labels: [ '[Block] Subscriptions', '[Block] Paywall' ],
-		slack_id: 'C02NQ4HMJKV',
-		board_id: 'https://github.com/orgs/Automattic/projects/657',
+		team: 'Loop',
+		labels: [
+			'[Block] Subscriptions',
+			'[Block] Paywall',
+			'[Block] Subscriber Login',
+			'[Feature] Subscriptions',
+		],
+		slack_id: 'C083ZPVVDTK',
+		board_id: 'https://github.com/orgs/Automattic/projects/443/views/13',
 	},
 	Photon: {
 		team: 'Heart of Gold',

@@ -33,6 +33,7 @@ $tools = array(
 
 // Some features are only available when connected to WordPress.com.
 $connected_tools = array(
+	'external-media/external-media.php',
 	'plugin-search.php',
 	'scan/scan.php', // Shows Jetpack Scan alerts in the admin bar if threats found.
 	'simple-payments/simple-payments.php',

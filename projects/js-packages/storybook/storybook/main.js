@@ -54,7 +54,7 @@ const sbconfig = {
 		// Use esbuild to minify.
 		config.optimization.minimizer = [
 			new EsbuildPlugin( {
-				target: 'es2018',
+				target: 'esnext',
 			} ),
 		];
 

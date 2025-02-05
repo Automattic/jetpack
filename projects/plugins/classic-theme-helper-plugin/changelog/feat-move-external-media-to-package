@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+jetpack-components: Export the getRedirectUrl function with subpath
