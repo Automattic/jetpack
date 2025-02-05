@@ -72,7 +72,7 @@ function wpcom_handle_media_url_upload() {
 	}
 }
 
-if ( current_user_can( 'upload_files' ) ) {
+if ( current_user_can( 'upload_files' ) && ! empty( $_GET['untangling-media'] ) ) { // phpcs:disable WordPress.Security.NonceVerification.Recommended
 	add_action( 'pre-upload-ui', 'wpcom_media_url_upload', 9 );
 	add_action( 'wp_ajax_wpcom_media_url_upload', 'wpcom_handle_media_url_upload' );
 }
