@@ -54,6 +54,12 @@ const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
 	};
 } );
 
+// TODO: Look into cross origin object .toJSON() error in FF
+// TODO: Look into Group block validation error
+// TODO: Determine how to use selected categories on the front end
+// TODO: Tidy up naming and markup
+// TODO: Test in different envs
+
 export function SubscriptionEdit( props ) {
 	const {
 		attributes,
