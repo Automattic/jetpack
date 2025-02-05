@@ -10,6 +10,8 @@ namespace Automattic\Jetpack;
 use PhpParser\Node;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\NodeFinder;
+use PhpParser\NodeTraverser;
+use PhpParser\NodeVisitor\ParentConnectingVisitor;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
 use PHPStan\PhpDocParser\Ast\PhpDoc\InvalidTagValueNode;
@@ -167,6 +169,10 @@ class Doc_Parser {
 				continue;
 			}
 
+			// Attaching parent node references to each node.
+			$traverser = new NodeTraverser( new ParentConnectingVisitor() );
+			$stmts     = $traverser->traverse( $stmts );
+
 			// Find all calls to apply_filters or do_action.
 			$hookCalls = $nodeFinder->find(
 				$stmts,
@@ -186,29 +192,34 @@ class Doc_Parser {
 			$splfile = new \SplFileObject( $file );
 			foreach ( $file_blocks as &$block ) {
 
-				$docblock = array();
+				if ( null === $block['doc'] ) {
+					$docblock = array();
 
-				// Lines are zero indexed.
-				$start = $block['line'] - 2;
+					// Lines are zero indexed.
+					$start = $block['line'] - 2;
 
-				$first = true;
-				while ( ! $splfile->eof() && $start >= 0 ) {
-					$splfile->seek( $start-- );
-					$line = $splfile->current();
+					$first = true;
+					while ( ! $splfile->eof() && $start >= 0 ) {
+						$splfile->seek( $start-- );
+						$line = $splfile->current();
 
-					if ( $first && false === strpos( $line, '*/' ) ) {
+						if ( $first && false === strpos( $line, '*/' ) ) {
 
-						break;
-					} else {
-						$first = false;
+							break;
+						} else {
+							$first = false;
+						}
+
+						array_unshift( $docblock, $line );
+						if ( false !== strpos( $line, '/*' ) ) {
+							break;
+						}
 					}
 
-					array_unshift( $docblock, $line );
-					if ( false !== strpos( $line, '/**' ) ) {
-						break;
-					}
+					$docblock = implode( '', $docblock );
+				} else {
+					$docblock = $block['doc']->getText();
 				}
-				$docblock = implode( '', $docblock );
 
 				$block['doc']                     = array();
 				$block['doc']['description']      = '';
@@ -370,12 +381,21 @@ class Doc_Parser {
 			// Purging any comments that could have been attributed to this argument.
 			$hook_name->setAttribute( 'comments', null );
 
+			// Traversing up the parent tree to get a comment block related to this call.
+			$n          = $node;
+			$docComment = $n->getDocComment();
+			while ( ! $docComment && $n && ! $n instanceof \PhpParser\Node\Stmt ) {
+				$n          = $n->getAttribute( 'parent' );
+				$docComment = $n->getDocComment();
+			}
+
 			$new_block = array(
 				'type'      => $node->name->name === 'apply_filters' ? 'filter' : 'action',
 				'line'      => $node->getLine(),
 				'end_line'  => $node->getEndLine() > 0 ? $node->getEndLine() : $node->getLine(),
 				'name'      => $this->pretty_print_hook_name( $hook_name ),
 				'arguments' => array(),
+				'doc'       => $docComment,
 			);
 
 			foreach ( $arguments as $argument ) {
