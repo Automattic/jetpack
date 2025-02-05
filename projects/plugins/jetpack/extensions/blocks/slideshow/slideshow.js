@@ -120,7 +120,17 @@ class Slideshow extends Component {
 			return null;
 		}
 
-		const { autoplay, className, delay, effect, images } = this.props;
+		const {
+			autoplay,
+			className,
+			delay,
+			effect,
+			images,
+			onSelectImage,
+			selectedImageIndex,
+			isSelected,
+			isSave,
+		} = this.props;
 		// Note: React omits the data attribute if the value is null, but NOT if it is false.
 		// This is the reason for the unusual logic related to autoplay below.
 		return (
@@ -135,24 +145,41 @@ class Slideshow extends Component {
 					ref={ this.slideshowRef }
 				>
 					<ul className="wp-block-jetpack-slideshow_swiper-wrapper swiper-wrapper">
-						{ images.map( ( { alt, caption, id, url }, index ) => (
+						{ images.map( ( { alt, caption, id, url, link, hasCustomLink }, index ) => (
+							/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */
 							<li
 								className={ clsx(
 									'wp-block-jetpack-slideshow_slide',
 									'swiper-slide',
-									isBlobURL( url ) && 'is-transient'
+									isBlobURL( url ) && 'is-transient',
+									selectedImageIndex === ( this.swiperInstance?.realIndex || index ) &&
+										'is-selected'
 								) }
 								key={ id ? `${ id }-${ index }` : `${ url }-${ index }` }
+								onClick={ () =>
+									isSelected && onSelectImage( this.swiperInstance?.realIndex || index )
+								}
+								data-custom-link={ hasCustomLink ? link : undefined }
+								data-has-custom-link={ hasCustomLink || undefined }
 							>
 								<figure>
-									<img
-										alt={ alt }
-										className={
-											`wp-block-jetpack-slideshow_image wp-image-${ id }` /* wp-image-${ id } makes WordPress add a srcset */
-										}
-										data-id={ id }
-										src={ url }
-									/>
+									{ hasCustomLink && ! isSave ? (
+										<a href={ link } data-is-custom-link="true">
+											<img
+												alt={ alt }
+												className={ `wp-block-jetpack-slideshow_image wp-image-${ id }` }
+												data-id={ id }
+												src={ url }
+											/>
+										</a>
+									) : (
+										<img
+											alt={ alt }
+											className={ `wp-block-jetpack-slideshow_image wp-image-${ id }` }
+											data-id={ id }
+											src={ url }
+										/>
+									) }
 									{ isBlobURL( url ) && <Spinner /> }
 									{ caption && (
 										<RichText.Content
@@ -222,6 +249,16 @@ class Slideshow extends Component {
 					el: this.paginationRef.current,
 					type: 'custom',
 					renderCustom: paginationCustomRender,
+				},
+				followFinger: false, // Disable follow finger
+				on: {
+					slideChange: swiper => {
+						if ( this.props.isSelected ) {
+							// Force a reselection with the new index to refresh the inspector
+							const realIndex = swiper.realIndex;
+							this.props.onSelectImage( realIndex );
+						}
+					},
 				},
 			},
 			{

@@ -11,7 +11,7 @@ import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
 import domReady from '@wordpress/dom-ready';
 import { mediaUpload } from '@wordpress/editor';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { get, map, pick } from 'lodash';
 import metadata from './block.json';
@@ -45,6 +45,22 @@ export const SlideshowEdit = ( {
 	resizedImages,
 } ) => {
 	const { align, autoplay, delay, effect, images, sizeSlug, ids } = attributes;
+	const [ selectedImageIndex, setSelectedImageIndex ] = useState( null );
+
+	const setImageAttributes = ( index, attrs ) => {
+		if ( index === null || ! images[ index ] ) return;
+
+		const newImages = [ ...images ];
+		newImages[ index ] = {
+			...newImages[ index ],
+			...attrs,
+		};
+		setAttributes( { images: newImages } );
+	};
+
+	const handleSelectImage = index => {
+		setSelectedImageIndex( index );
+	};
 
 	const blockProps = useBlockProps( {
 		className: className,
@@ -64,8 +80,26 @@ export const SlideshowEdit = ( {
 		}
 	}, [] );
 
-	const onSelectImages = imgs =>
-		setImages( imgs.map( image => pickRelevantMediaFiles( image, sizeSlug ) ) );
+	const onSelectImages = files => {
+		// Preserve existing links when setting new images
+		const newImages = files.map( file => {
+			const existingImage = images.find( img => Number( img.id ) === Number( file.id ) );
+
+			if ( existingImage && existingImage.hasCustomLink ) {
+				return {
+					...pickRelevantMediaFiles( file ),
+					link: existingImage.link,
+					hasCustomLink: true,
+				};
+			}
+			return pickRelevantMediaFiles( file );
+		} );
+
+		setAttributes( {
+			images: newImages,
+			ids: newImages.map( ( { id } ) => parseInt( id, 10 ) ),
+		} );
+	};
 
 	const addFiles = files => {
 		const lockName = 'slideshowBlockLock';
@@ -151,6 +185,10 @@ export const SlideshowEdit = ( {
 					effect={ effect }
 					images={ images }
 					onError={ noticeOperations.createErrorNotice }
+					onSelectImage={ handleSelectImage }
+					selectedImageIndex={ selectedImageIndex }
+					isSelected={ isSelected }
+					isSave
 				/>
 				<DropZone onFilesDrop={ addFiles } />
 				{ isSelected && (
@@ -178,6 +216,9 @@ export const SlideshowEdit = ( {
 					imageSizeOptions={ getImageSizeOptions() }
 					onChangeImageSize={ updateImagesSize }
 					setAttributes={ setAttributes }
+					selectedImageIndex={ selectedImageIndex }
+					images={ images }
+					setImageAttributes={ setImageAttributes }
 				/>
 			</InspectorControls>
 			<BlockControls>

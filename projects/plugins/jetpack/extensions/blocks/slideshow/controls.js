@@ -7,9 +7,12 @@ import {
 	ToggleControl,
 	ToolbarGroup,
 	ToolbarItem,
+	TextControl,
 } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
+import { useDispatch } from '@wordpress/data';
+import { Fragment, useState, useEffect } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { isURL } from '@wordpress/url';
 import { isEmpty } from 'lodash';
 
 export function PanelControls( {
@@ -17,6 +20,8 @@ export function PanelControls( {
 	imageSizeOptions,
 	onChangeImageSize,
 	setAttributes,
+	selectedImageIndex,
+	setImageAttributes,
 } ) {
 	const prefersReducedMotion =
 		typeof window !== 'undefined' &&
@@ -26,6 +31,39 @@ export function PanelControls( {
 		{ label: _x( 'Slide', 'Slideshow transition effect', 'jetpack' ), value: 'slide' },
 		{ label: _x( 'Fade', 'Slideshow transition effect', 'jetpack' ), value: 'fade' },
 	];
+
+	const [ linkValue, setLinkValue ] = useState( '' );
+	const [ linkError, setLinkError ] = useState( '' );
+	const { savePost } = useDispatch( 'core/editor' );
+
+	useEffect( () => {
+		setLinkError( '' );
+		if ( selectedImageIndex !== null && images[ selectedImageIndex ] ) {
+			const currentImage = images[ selectedImageIndex ];
+
+			// Only show link if it's a custom one
+			setLinkValue( currentImage.hasCustomLink ? currentImage.link || '' : '' );
+		} else {
+			setLinkValue( '' );
+		}
+	}, [ selectedImageIndex, images ] );
+
+	const handleSaveLink = () => {
+		if ( selectedImageIndex !== null ) {
+			if ( linkValue && ! isURL( linkValue ) ) {
+				setLinkError( __( 'Please enter a valid URL', 'jetpack' ) );
+				return;
+			}
+
+			setLinkError( '' );
+
+			setImageAttributes( selectedImageIndex, {
+				link: linkValue,
+				hasCustomLink: linkValue ? true : false, // Add this flag
+			} );
+			savePost();
+		}
+	};
 
 	return (
 		<Fragment>
@@ -84,6 +122,20 @@ export function PanelControls( {
 					/>
 				</PanelBody>
 			) }
+			{
+				<PanelBody title={ __( 'Link Settings', 'jetpack' ) }>
+					<TextControl
+						label={ __( 'Image Link URL', 'jetpack' ) }
+						value={ linkValue }
+						onChange={ setLinkValue }
+						placeholder={ __( 'Enter URL', 'jetpack' ) }
+					/>
+					{ linkError && <div className="jetpack-slideshow-url-notice">{ linkError }</div> }
+					<Button variant="secondary" onClick={ handleSaveLink }>
+						{ __( 'Save Link', 'jetpack' ) }
+					</Button>
+				</PanelBody>
+			}
 		</Fragment>
 	);
 }

@@ -49,6 +49,37 @@ if ( typeof window !== 'undefined' ) {
 						type: 'custom',
 						renderCustom: paginationCustomRender,
 					},
+					on: {
+						touchStart: function ( swiper ) {
+							swiper.allowClick = true;
+							const links = swiper.el.querySelectorAll( 'a[data-is-custom-link="true"]' );
+							links.forEach( link => {
+								link.style.pointerEvents = 'auto';
+							} );
+						},
+						touchMove: function ( swiper, event ) {
+							swiper.allowClick = false;
+
+							const linkElement = event.target.closest( 'a[data-is-custom-link="true"]' );
+							if ( linkElement ) {
+								linkElement.style.pointerEvents = 'none';
+							}
+						},
+						touchEnd: function ( swiper ) {
+							// Reset pointer-events on all links
+							const links = swiper.el.querySelectorAll( 'a[data-is-custom-link="true"]' );
+							links.forEach( link => {
+								link.style.pointerEvents = 'auto';
+							} );
+						},
+						slideChangeTransitionEnd: function ( swiper ) {
+							// Additional reset on slide change
+							const links = swiper.el.querySelectorAll( 'a[data-is-custom-link="true"]' );
+							links.forEach( link => {
+								link.style.pointerEvents = 'auto';
+							} );
+						},
+					},
 				},
 				{
 					init: swiperInit,

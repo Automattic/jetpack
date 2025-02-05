@@ -56,6 +56,17 @@
 					"source": "attribute",
 					"selector": "img",
 					"attribute": "src"
+				},
+				"link": {
+					"source": "attribute",
+					"selector": "a",
+					"attribute": "href"
+				},
+				"hasCustomLink": {
+					"type": "boolean",
+					"source": "attribute",
+					"selector": "a",
+					"attribute": "data-is-custom-link"
 				}
 			}
 		},
