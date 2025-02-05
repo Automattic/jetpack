@@ -229,10 +229,6 @@
 	flex-grow: 1;
 	gap: var(--wp--style--block-gap, 1.5rem);
 }
-:where( .wp-block-jetpack-contact-form .wp-block-separator ) {
-	margin-top: 0;
-	margin-bottom: 0;
-}
 
 .wp-block-jetpack-contact-form > *:not(.wp-block-jetpack-button) {
 	flex: 0 0 100%;
@@ -241,6 +237,8 @@
 
 :where( .wp-block-jetpack-contact-form .wp-block-separator ) {
 	max-width: var(--wp-preset--spacing--80, 150px );
+	margin-top: 0;
+	margin-bottom: 0;
 }
 :where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-wide ),
 :where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-dots ) {
