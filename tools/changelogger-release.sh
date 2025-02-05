@@ -236,6 +236,21 @@ for SLUG in "${TO_RELEASE[@]}"; do
 		cd "$BASE/projects/$SLUG"
 	fi
 
+	# Our js-packages are usually bundled in packages and plugins. Flag to force updates of any dependents.
+	if [[ "$SLUG" == js-packages/* ]]; then
+		debug "  It's a js-package, adding a change entry to dependents without one because they're usually bundled"
+		for S in $( jq -r --arg slug "$SLUG" '.[$slug] // empty | .[]' <<<"$DEPTS" ); do
+			[[ "$S" == monorepo ]] && continue
+			cd "$BASE/projects/$S"
+			CHANGES_DIR=$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)
+			if [[ ! -d "$CHANGES_DIR" || -z "$(ls -- "$CHANGES_DIR")" ]]; then
+				debug "    $S"
+				changelogger_add 'Update dependencies.' '' --filename=force-a-release
+			fi
+		done
+		cd "$BASE/projects/$SLUG"
+	fi
+
 	# Replace $$next-version$$
 	"$BASE"/tools/replace-next-version-tag.sh "$SLUG" "$(sed -E -e 's/-(beta|a\.[0-9]+)$//' <<<"$VER")"
 
