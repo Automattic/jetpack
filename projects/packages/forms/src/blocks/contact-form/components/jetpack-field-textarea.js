@@ -4,11 +4,10 @@ import { compose } from '@wordpress/compose';
 import { useEffect, useMemo } from '@wordpress/element';
 import clsx from 'clsx';
 import { isEmpty, isNil } from 'lodash';
+import { ALLOWED_INNER_BLOCKS } from '../util/constants';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
 import JetpackFieldControls from './jetpack-field-controls';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
-
-const ALLOWED_BLOCKS = [ 'jetpack/field-label', 'jetpack/field-input' ];
 
 const JetpackFieldTextarea = props => {
 	const {
@@ -42,7 +41,7 @@ const JetpackFieldTextarea = props => {
 	}, [ label, defaultLabel, required, requiredText ] );
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		allowedBlocks: ALLOWED_BLOCKS,
+		allowedBlocks: ALLOWED_INNER_BLOCKS,
 		template,
 		templateLock: 'all',
 		type: 'textarea',

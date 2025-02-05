@@ -1,5 +1,7 @@
 import { __ } from '@wordpress/i18n';
 
+export const ALLOWED_INNER_BLOCKS = [ 'jetpack/field-label', 'jetpack/field-input' ];
+
 const currentYear = new Date().getFullYear();
 
 // WARNING: sync data with Contact_Form_Field::render_date_field in class-contact-form-field.php

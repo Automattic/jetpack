@@ -52,6 +52,10 @@ const settings = {
 			type: 'string',
 			default: '',
 		},
+		inline: {
+			type: 'boolean',
+			default: false,
+		},
 		required: {
 			type: 'boolean',
 			default: false,

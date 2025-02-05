@@ -16,7 +16,11 @@ import JetpackFieldSingleChoiceItem from './components/jetpack-field-single-choi
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
 import JetpackFieldInput from './components/jetpack-input';
 import JetpackFieldLabel from './components/jetpack-label';
-import { INNER_BLOCKS_DEPRECATION, TEXTAREA_INNER_BLOCKS_DEPRECATION } from './field-deprecated';
+import {
+	CHECKBOX_INNER_BLOCKS_DEPRECATION,
+	INNER_BLOCKS_DEPRECATION,
+	TEXTAREA_INNER_BLOCKS_DEPRECATION,
+} from './field-deprecated';
 import { getIconColor } from './util/block-icons';
 import { useFormWrapper } from './util/form';
 import getFieldLabel from './util/get-field-label';
@@ -645,6 +649,10 @@ export const childBlocks = [
 				),
 			},
 			edit: EditCheckbox,
+			save() {
+				const innerBlocksProps = useInnerBlocksProps.save();
+				return <div { ...innerBlocksProps } />;
+			},
 			attributes: {
 				...FieldDefaults.attributes,
 				label: {
@@ -653,6 +661,11 @@ export const childBlocks = [
 					role: 'content',
 				},
 			},
+			providesContext: {
+				'jetpack/field-required': 'required',
+				'jetpack/field-defaultValue': 'defaultValue',
+			},
+			deprecated: [ CHECKBOX_INNER_BLOCKS_DEPRECATION ],
 		},
 	},
 	{

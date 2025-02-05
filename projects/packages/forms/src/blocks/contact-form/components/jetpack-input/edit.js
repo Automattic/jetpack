@@ -13,11 +13,26 @@ const SYNCED_ATTRIBUTES = [
 	'textColor',
 ];
 
-const JetpackInputEdit = ( { attributes, clientId, name, setAttributes } ) => {
+const getInputClass = type => {
+	if ( type ) {
+		return `jetpack-field__${ type }`;
+	}
+	return 'jetpack-field__input';
+};
+
+const JetpackInputEdit = ( { attributes, clientId, context, name, setAttributes } ) => {
 	useSyncStyleAttributes( clientId, name, 'jetpack/contact-form', SYNCED_ATTRIBUTES );
-	const className =
-		attributes.type === 'textarea' ? 'jetpack-field__textarea' : 'jetpack-field__input';
-	const blockProps = useBlockProps( { className } );
+	// TODO: Do we really need an inline attribtue or can we just infer that via `type`?
+	const { inline, placeholder, type } = attributes;
+	const { 'jetpack/field-defaultValue': defaultValue } = context;
+	const className = getInputClass( type );
+	// TODO: Avoid inline style for flex-basis: auto.
+	const blockProps = useBlockProps( {
+		className,
+		style: {
+			flexBasis: inline ? 'auto' : undefined,
+		},
+	} );
 
 	// TODO: If field blocks can be nested within other blocks within a form,
 	// the logic here will need improving so that the new block is inserted correctly.
@@ -63,13 +78,25 @@ const JetpackInputEdit = ( { attributes, clientId, name, setAttributes } ) => {
 		[ setAttributes ]
 	);
 
-	if ( attributes.type === 'textarea' ) {
+	if ( type === 'checkbox' ) {
+		return (
+			<input
+				{ ...blockProps }
+				checked={ !! defaultValue }
+				disabled
+				style={ blockProps.style }
+				type={ type }
+			/>
+		);
+	}
+
+	if ( type === 'textarea' ) {
 		return (
 			<textarea
 				{ ...blockProps }
 				onChange={ onChange }
 				style={ blockProps.style }
-				value={ attributes.placeholder }
+				value={ placeholder }
 			/>
 		);
 	}
@@ -81,7 +108,7 @@ const JetpackInputEdit = ( { attributes, clientId, name, setAttributes } ) => {
 			onKeyDown={ onKeyDown }
 			style={ blockProps.style }
 			type="text"
-			value={ attributes.placeholder }
+			value={ placeholder }
 		/>
 	);
 };

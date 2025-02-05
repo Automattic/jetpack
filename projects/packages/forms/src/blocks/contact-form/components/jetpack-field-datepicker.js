@@ -5,13 +5,11 @@ import { compose } from '@wordpress/compose';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { DATE_FORMAT_OPTIONS } from '../util/constants';
+import { DATE_FORMAT_OPTIONS, ALLOWED_INNER_BLOCKS } from '../util/constants';
 import { useFormWrapper } from '../util/form';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
 import JetpackFieldControls from './jetpack-field-controls';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
-
-const ALLOWED_BLOCKS = [ 'jetpack/field-label', 'jetpack/field-input' ];
 
 const JetpackDatePicker = props => {
 	const { attributes, clientId, isSelected, name, setAttributes } = props;
@@ -38,7 +36,7 @@ const JetpackDatePicker = props => {
 	}, [ label, defaultLabel, required, requiredText ] );
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		allowedBlocks: ALLOWED_BLOCKS,
+		allowedBlocks: ALLOWED_INNER_BLOCKS,
 		template,
 		templateLock: 'all',
 	} );

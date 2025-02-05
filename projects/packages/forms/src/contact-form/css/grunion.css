@@ -81,10 +81,12 @@
 }
 
 .contact-form label {
-	margin-bottom: 0.25em;
 	float: none;
-	font-weight: bold;
 	display: block;
+}
+.contact-form :where(label) {
+	margin-bottom: 0.25em;
+	font-weight: bold;
 }
 
 .contact-form label.consent {
@@ -99,7 +101,7 @@
 	display: none;
 }
 
-.contact-form label.checkbox {
+.contact-form :where(label.checkbox) {
 	font-weight: normal;
 }
 

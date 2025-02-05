@@ -5,13 +5,12 @@ import { useCallback, useMemo } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import clsx from 'clsx';
 import { isEmpty } from 'lodash';
+import { ALLOWED_INNER_BLOCKS } from '../util/constants';
 import { useFormStyle } from '../util/form';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
-
-const ALLOWED_BLOCKS = [ 'jetpack/field-label', 'jetpack/field-input' ];
 
 const JetpackField = props => {
 	const {
@@ -49,7 +48,7 @@ const JetpackField = props => {
 	}, [ label, defaultLabel, required, requiredText ] );
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		allowedBlocks: ALLOWED_BLOCKS,
+		allowedBlocks: ALLOWED_INNER_BLOCKS,
 		template,
 		templateLock: 'all',
 	} );

@@ -1,6 +1,50 @@
 import { createBlock } from '@wordpress/blocks';
 import { cleanEmptyObject } from './util/clean-empty-object';
 
+const deprecateLabelAndInputStyles = attributes => {
+	const {
+		borderColor,
+		borderRadius,
+		borderWidth,
+		fieldBackgroundColor,
+		fieldFontSize,
+		inputColor,
+		labelColor,
+		labelFontSize,
+		labelLineHeight,
+		lineHeight,
+		placeholder,
+		...restAttributes
+	} = attributes;
+
+	const labelStyles = cleanEmptyObject( {
+		color: { text: labelColor },
+		typography: {
+			fontSize: labelFontSize,
+			lineHeight: labelLineHeight,
+		},
+	} );
+
+	const inputStyles = cleanEmptyObject( {
+		border: {
+			color: borderColor,
+			radius: borderRadius,
+			style: 'solid',
+			width: borderWidth,
+		},
+		color: {
+			text: inputColor,
+			background: fieldBackgroundColor,
+		},
+		typography: {
+			fontSize: fieldFontSize,
+			lineHeight: lineHeight,
+		},
+	} );
+
+	return { restAttributes, labelStyles, inputStyles };
+};
+
 export const INNER_BLOCKS_DEPRECATION = {
 	attributes: {
 		label: {
@@ -83,55 +127,15 @@ export const INNER_BLOCKS_DEPRECATION = {
 		},
 	},
 	migrate: attributes => {
-		const {
-			borderColor,
-			borderRadius,
-			borderWidth,
-			fieldBackgroundColor,
-			fieldFontSize,
-			inputColor,
-			labelColor,
-			labelFontSize,
-			labelLineHeight,
-			lineHeight,
-			placeholder,
-			...restAttributes
-		} = attributes;
-
-		const labelStyles = cleanEmptyObject( {
-			color: { text: labelColor },
-			typography: {
-				fontSize: labelFontSize,
-				lineHeight: labelLineHeight,
-			},
-		} );
-
-		const inputStyles = cleanEmptyObject( {
-			border: {
-				color: borderColor,
-				radius: borderRadius,
-				style: 'solid',
-				width: borderWidth,
-			},
-			color: {
-				text: inputColor,
-				background: fieldBackgroundColor,
-			},
-			typography: {
-				fontSize: fieldFontSize,
-				lineHeight: lineHeight,
-			},
-		} );
-
+		const { restAttributes, labelStyles, inputStyles } = deprecateLabelAndInputStyles( attributes );
 		const newInnerBlocks = [
 			createBlock( 'jetpack/field-label', {
 				label: attributes.label,
-				required: attributes.required,
 				requiredText: attributes.requiredText,
 				style: labelStyles,
 			} ),
 			createBlock( 'jetpack/field-input', {
-				placeholder,
+				placeholder: attributes.placeholder,
 				style: inputStyles,
 			} ),
 		];
@@ -145,57 +149,47 @@ export const INNER_BLOCKS_DEPRECATION = {
 export const TEXTAREA_INNER_BLOCKS_DEPRECATION = {
 	...INNER_BLOCKS_DEPRECATION,
 	migrate( attributes ) {
-		const {
-			borderColor,
-			borderRadius,
-			borderWidth,
-			fieldBackgroundColor,
-			fieldFontSize,
-			inputColor,
-			labelColor,
-			labelFontSize,
-			labelLineHeight,
-			lineHeight,
-			placeholder,
-			...restAttributes
-		} = attributes;
-
-		const labelStyles = cleanEmptyObject( {
-			color: { text: labelColor },
-			typography: {
-				fontSize: labelFontSize,
-				lineHeight: labelLineHeight,
-			},
-		} );
-
-		const inputStyles = cleanEmptyObject( {
-			border: {
-				color: borderColor,
-				radius: borderRadius,
-				style: 'solid',
-				width: borderWidth,
-			},
-			color: {
-				text: inputColor,
-				background: fieldBackgroundColor,
-			},
-			typography: {
-				fontSize: fieldFontSize,
-				lineHeight: lineHeight,
-			},
-		} );
-
+		const { restAttributes, labelStyles, inputStyles } = deprecateLabelAndInputStyles( attributes );
 		const newInnerBlocks = [
 			createBlock( 'jetpack/field-label', {
 				label: attributes.label,
-				required: attributes.required,
 				requiredText: attributes.requiredText,
 				style: labelStyles,
 			} ),
 			createBlock( 'jetpack/field-input', {
-				placeholder,
+				placeholder: attributes.placeholder,
 				style: inputStyles,
 				type: 'textarea',
+			} ),
+		];
+
+		return [ restAttributes, newInnerBlocks ];
+	},
+};
+
+export const CHECKBOX_INNER_BLOCKS_DEPRECATION = {
+	...INNER_BLOCKS_DEPRECATION,
+	attributes: {
+		...INNER_BLOCKS_DEPRECATION.attributes,
+		label: {
+			type: 'string',
+			default: '',
+			role: 'content',
+		},
+	},
+	migrate( attributes ) {
+		const { restAttributes, labelStyles, inputStyles } = deprecateLabelAndInputStyles( attributes );
+		const newInnerBlocks = [
+			createBlock( 'jetpack/field-input', {
+				style: inputStyles,
+				type: 'checkbox',
+				inline: true,
+			} ),
+			createBlock( 'jetpack/field-label', {
+				label: attributes.label,
+				requiredText: attributes.requiredText,
+				style: labelStyles,
+				inline: true,
 			} ),
 		];
 

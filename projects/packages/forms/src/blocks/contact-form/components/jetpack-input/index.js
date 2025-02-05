@@ -56,6 +56,10 @@ const settings = {
 		// More to come...
 	},
 	attributes: {
+		inline: {
+			type: 'boolean',
+			default: false,
+		},
 		placeholder: {
 			type: 'string',
 			default: '',
@@ -65,6 +69,7 @@ const settings = {
 			default: '',
 		},
 	},
+	usesContext: [ 'jetpack/field-defaultValue' ],
 	edit,
 	save,
 };
