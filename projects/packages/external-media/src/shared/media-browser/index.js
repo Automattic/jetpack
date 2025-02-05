@@ -39,7 +39,6 @@ function MediaBrowser( props ) {
 	} = props;
 	const [ selected, setSelected ] = useState( [] );
 	const [ focused, setFocused ] = useState( -1 );
-
 	const columns = useRef( -1 );
 	const gridEl = useRef( null );
 
@@ -77,13 +76,6 @@ function MediaBrowser( props ) {
 		'jetpack-external-media-browser': true,
 		[ className ]: true,
 	} );
-
-	const onLoadMoreClick = () => {
-		if ( media.length ) {
-			setFocused( media.length );
-		}
-		nextPage();
-	};
 
 	const navigate = ( keyCode, index ) => {
 		switch ( keyCode ) {
@@ -194,6 +186,25 @@ function MediaBrowser( props ) {
 		);
 	};
 
+	// Infinite scroll
+	useEffect( () => {
+		const target = gridEl.current?.lastElementChild;
+		let observer;
+		if ( pageHandle && ! isLoading && target ) {
+			observer = new window.IntersectionObserver( entries => {
+				if ( entries[ 0 ].isIntersecting ) {
+					nextPage();
+				}
+			} );
+
+			observer.observe( target );
+		}
+
+		return () => {
+			observer?.unobserve( target );
+		};
+	}, [ pageHandle, isLoading, gridEl ] ); // eslint-disable-line react-hooks/exhaustive-deps
+
 	return (
 		<div className={ wrapper }>
 			<ul ref={ gridEl } className={ classes }>
@@ -211,25 +222,15 @@ function MediaBrowser( props ) {
 						shouldProxyImg={ shouldProxyImg }
 					/>
 				) ) }
-
-				{ media.length === 0 && ! isLoading && <EmptyResults /> }
-				{ isLoading && (
-					<div className="jetpack-external-media-browser__loading">
-						<Spinner />
-					</div>
-				) }
-
-				{ pageHandle && ! isLoading && (
-					<Button
-						variant="secondary"
-						className="jetpack-external-media-browser__loadmore"
-						disabled={ isLoading || isCopying }
-						onClick={ onLoadMoreClick }
-					>
-						{ __( 'Load More', 'jetpack-external-media' ) }
-					</Button>
-				) }
 			</ul>
+
+			{ media.length === 0 && ! isLoading && <EmptyResults /> }
+
+			{ isLoading && (
+				<div className="jetpack-external-media-browser__loading">
+					<Spinner />
+				</div>
+			) }
 
 			{ hasMediaItems && <SelectButton labelText={ selectButtonText } /> }
 		</div>
