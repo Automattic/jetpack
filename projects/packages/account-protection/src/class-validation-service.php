@@ -93,12 +93,14 @@ class Validation_Service {
 	 * @return string The first validation errors (if any).
 	 */
 	public function return_first_validation_error( $user, string $password, $context ): string {
+		// Reset form includes this validation in core
 		if ( 'reset' !== $context ) {
 			if ( empty( $password ) ) {
 				return __( '<strong>Error:</strong> The password cannot be a space or all spaces.', 'jetpack-account-protection' );
 			}
 		}
 
+		// Update and create-user forms include this validation in core
 		if ( 'reset' === $context ) {
 			if ( $this->contains_backslash( $password ) ) {
 				return __( '<strong>Error:</strong> The password cannot contain a backslash (\\) character.', 'jetpack-account-protection' );
@@ -109,11 +111,15 @@ class Validation_Service {
 			return __( '<strong>Error:</strong> The password must be between 6 and 150 characters.', 'jetpack-account-protection' );
 		}
 
-		if ( $this->matches_user_data( $user, $password ) ) {
-			return __( '<strong>Error:</strong> The password matches user data.', 'jetpack-account-protection' );
+		// Unable to retrieve user data during reset form validation
+		if ( 'reset' !== $context ) {
+			if ( $this->matches_user_data( $user, $password ) ) {
+				return __( '<strong>Error:</strong> The password matches user data.', 'jetpack-account-protection' );
+			}
 		}
 
-		if ( 'create-user' !== $context ) {
+		// Unable to retrieve user data during reset form validation, not relevant to create-user form
+		if ( 'update' === $context ) {
 			if ( $this->is_recent_password( $user->ID, $password ) ) {
 				return __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' );
 			}
