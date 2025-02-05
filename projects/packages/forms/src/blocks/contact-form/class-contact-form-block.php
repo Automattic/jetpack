@@ -25,7 +25,7 @@ class Contact_Form_Block {
 	 */
 	public static function register_block() {
 		Blocks::jetpack_register_block(
-			'jetpack/contact-form',
+			__DIR__,
 			array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
 			)

@@ -21,6 +21,46 @@
 		},
 		"align": [ "wide", "full" ]
 	},
-	"attributes": {},
+	"attributes": {
+		"subject": {
+			"type": "string",
+			"default": ""
+		},
+		"to": {
+			"type": "string",
+			"default": ""
+		},
+		"customThankyou": {
+			"type": "string",
+			"default": ""
+		},
+		"customThankyouHeading": {
+			"type": "string",
+			"default": "Your message has been sent"
+		},
+		"customThankyouMessage": {
+			"type": "string",
+			"default": ""
+		},
+		"customThankyouRedirect": {
+			"type": "string",
+			"default": ""
+		},
+		"jetpackCRM": {
+			"type": "boolean",
+			"default": true
+		},
+		"formTitle": {
+			"type": "string",
+			"default": ""
+		},
+		"salesforceData": {
+			"type": "object",
+			"default": {
+				"organizationId": "",
+				"sendToSalesforce": false
+			}
+		}
+	},
 	"editorScript": "file:./editor.js"
 }
