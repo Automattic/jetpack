@@ -94,7 +94,7 @@
 				align-self: center;
 			}
 
-			&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-default ){
+			&:where( .wp-block-jetpack-contact-form .wp-block-separator ){
 				max-width: var(--wp-preset--spacing--80, 150px);
 				margin-left: auto;
 				margin-right: auto;
