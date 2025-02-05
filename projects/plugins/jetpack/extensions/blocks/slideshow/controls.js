@@ -9,7 +9,6 @@ import {
 	ToolbarItem,
 	TextControl,
 } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
 import { Fragment, useState, useEffect } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { isURL } from '@wordpress/url';
@@ -34,7 +33,6 @@ export function PanelControls( {
 
 	const [ linkValue, setLinkValue ] = useState( '' );
 	const [ linkError, setLinkError ] = useState( '' );
-	const { savePost } = useDispatch( 'core/editor' );
 
 	useEffect( () => {
 		setLinkError( '' );
@@ -61,7 +59,6 @@ export function PanelControls( {
 				link: linkValue,
 				hasCustomLink: linkValue ? true : false, // Add this flag
 			} );
-			savePost();
 		}
 	};
 
@@ -129,6 +126,8 @@ export function PanelControls( {
 						value={ linkValue }
 						onChange={ setLinkValue }
 						placeholder={ __( 'Enter URL', 'jetpack' ) }
+						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 					{ linkError && <div className="jetpack-slideshow-url-notice">{ linkError }</div> }
 					<Button variant="secondary" onClick={ handleSaveLink }>

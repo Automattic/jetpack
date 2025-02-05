@@ -8,23 +8,29 @@ const images = [
 		caption: '',
 		id: '1',
 		url: 'http://localhost:4759/wp-content/uploads/2021/03/tree1.jpeg',
+		link: '',
+		hasCustomLink: false,
 	},
 	{
 		alt: 'Tree 2',
 		caption: '',
 		id: '2',
 		url: 'http://localhost:4759/wp-content/uploads/2021/03/tree2.jpeg',
+		link: 'https://test.com',
+		hasCustomLink: true,
 	},
 ];
 
 const setAttributes = jest.fn();
 const onChangeImageSize = jest.fn();
+const setImageAttributes = jest.fn();
 
 const panelProps = {
 	attributes: { autoplay: false, delay: 1, effect: 'slide', images, sizeSlug: 'large' },
 	imageSizeOptions: [ { label: 'Thumbnail', value: 'thumbnail' } ],
 	onChangeImageSize,
 	setAttributes,
+	setImageAttributes,
 };
 
 beforeEach( () => {
@@ -38,6 +44,7 @@ describe( 'Panel controls', () => {
 		expect( screen.getByLabelText( 'Autoplay' ) ).toBeInTheDocument();
 		expect( screen.getByLabelText( 'Transition' ) ).toBeInTheDocument();
 		expect( screen.getByLabelText( 'Size' ) ).toBeInTheDocument();
+		expect( screen.getByLabelText( 'Image Link URL' ) ).toBeInTheDocument();
 	} );
 
 	test( 'toggles autoplay attribute', async () => {
@@ -62,6 +69,23 @@ describe( 'Panel controls', () => {
 		await user.selectOptions( screen.getByLabelText( 'Size' ), [ 'thumbnail' ] );
 
 		expect( onChangeImageSize ).toHaveBeenCalledWith( 'thumbnail' );
+	} );
+	test( 'calls handleSaveLink and setImageAttributes when Save Link button is clicked with a URL', async () => {
+		const user = userEvent.setup();
+		const linkValue = 'https://example.com';
+
+		render( <PanelControls { ...panelProps } /> );
+
+		await user.type( screen.getByLabelText( /image link url/i ), linkValue );
+		await user.click( screen.getByRole( 'button', { name: /save link/i } ) );
+
+		expect( setImageAttributes ).toHaveBeenCalledWith(
+			undefined, // this would be selectedImageIndex, but we're in the context of the inspector in this test, and focussing on the attributes.
+			{
+				link: linkValue,
+				hasCustomLink: true,
+			}
+		);
 	} );
 } );
 

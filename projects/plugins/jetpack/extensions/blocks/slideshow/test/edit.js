@@ -12,12 +12,16 @@ const images = [
 		caption: '',
 		id: '1',
 		url: 'http://localhost:4759/wp-content/uploads/2021/03/tree1.jpeg',
+		link: '',
+		hasCustomLink: false,
 	},
 	{
 		alt: 'Tree 2',
 		caption: '',
 		id: '2',
 		url: 'http://localhost:4759/wp-content/uploads/2021/03/tree2.jpeg',
+		link: 'https://test.com',
+		hasCustomLink: true,
 	},
 ];
 const defaultProps = {
