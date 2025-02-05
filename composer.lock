@@ -1995,23 +1995,23 @@
         },
         {
             "name": "sirbrillig/phpcs-changed",
-            "version": "v2.11.6",
+            "version": "v2.11.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-changed.git",
-                "reference": "284c394d7c5fd292a8876be6edb18781c28d612a"
+                "reference": "71ac60966beb5969f346f4a5defeb2ba025c712e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/284c394d7c5fd292a8876be6edb18781c28d612a",
-                "reference": "284c394d7c5fd292a8876be6edb18781c28d612a",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/71ac60966beb5969f346f4a5defeb2ba025c712e",
+                "reference": "71ac60966beb5969f346f4a5defeb2ba025c712e",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.1 || ^8.0"
             },
             "require-dev": {
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.7.1",
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.7.1 || ^1.0.0",
                 "phpunit/phpunit": "^6.4 || ^9.5",
                 "sirbrillig/phpcs-variable-analysis": "^2.1.3",
                 "squizlabs/php_codesniffer": "^3.2.1",
@@ -2043,9 +2043,9 @@
             "description": "Run phpcs on files, but only report warnings/errors from lines which were changed.",
             "support": {
                 "issues": "https://github.com/sirbrillig/phpcs-changed/issues",
-                "source": "https://github.com/sirbrillig/phpcs-changed/tree/v2.11.6"
+                "source": "https://github.com/sirbrillig/phpcs-changed/tree/v2.11.7"
             },
-            "time": "2024-12-15T17:22:37+00:00"
+            "time": "2025-01-14T18:34:53+00:00"
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",

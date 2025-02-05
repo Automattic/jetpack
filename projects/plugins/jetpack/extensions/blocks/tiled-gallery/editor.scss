@@ -138,7 +138,7 @@
 	.tiled-gallery__item__inline-menu {
 		margin: $grid-unit-10;
 		display: inline-flex;
-		z-index: z-index(".block-library-gallery-item__inline-menu");
+		z-index: 20;
 
 		.components-button {
 			color: transparent;

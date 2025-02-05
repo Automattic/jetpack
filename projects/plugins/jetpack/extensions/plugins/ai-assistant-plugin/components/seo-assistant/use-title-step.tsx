@@ -1,7 +1,6 @@
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useState, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import TypingMessage from './typing-message';
 import { useMessages } from './wizard-messages';
 import type { Step, OptionMessage } from './types';
 
@@ -9,14 +8,7 @@ export const useTitleStep = (): Step => {
 	const [ selectedTitle, setSelectedTitle ] = useState< string >( '' );
 	const [ titleOptions, setTitleOptions ] = useState< OptionMessage[] >( [] );
 	const { editPost } = useDispatch( 'core/editor' );
-	const {
-		messages,
-		setMessages,
-		addMessage,
-		removeLastMessage,
-		editLastMessage,
-		setSelectedMessage,
-	} = useMessages();
+	const { messages, setMessages, addMessage, editLastMessage, setSelectedMessage } = useMessages();
 	const [ completed, setCompleted ] = useState( false );
 	const [ prevStepValue, setPrevStepValue ] = useState();
 
@@ -38,20 +30,19 @@ export const useTitleStep = (): Step => {
 			const initialMessage = fromSkip
 				? {
 						content: createInterpolateElement(
-							__( "Skipped!<br />Let's optimise your title.", 'jetpack' ),
+							__( "Skipped!<br />Let's optimise your title first.", 'jetpack' ),
 							{ br: <br /> }
 						),
 						showIcon: true,
 				  }
 				: {
-						content: __( "Let's optimise your title.", 'jetpack' ),
+						content: __( "Let's optimise your title first.", 'jetpack' ),
 						showIcon: true,
 				  };
 			setMessages( [ initialMessage ] );
 			let newTitles = [ ...titleOptions ];
 			// we only generate if options are empty
 			if ( newTitles.length === 0 || prevStepHasChanged ) {
-				addMessage( { content: <TypingMessage /> } );
 				newTitles = await new Promise( resolve =>
 					setTimeout(
 						() =>
@@ -66,41 +57,30 @@ export const useTitleStep = (): Step => {
 										'Flora Guide: Beautiful Photos of Flowers and Plants for Gardening Enthusiasts',
 								},
 							] ),
-						2000
+						3000
 					)
 				);
-				removeLastMessage();
 			}
 			let editedMessage;
-			if ( keywords ) {
-				if ( fromSkip ) {
-					editedMessage = createInterpolateElement(
-						__(
-							'Skipped!<br />Here are some suggestions for a better title based on your keywords:',
-							'jetpack'
-						),
-						{ br: <br /> }
-					);
-				} else {
-					editedMessage = __(
-						'Here are some suggestions for a better title based on your keywords:',
-						'jetpack'
-					);
-				}
-			} else if ( fromSkip ) {
+
+			if ( fromSkip ) {
 				editedMessage = createInterpolateElement(
 					__(
-						'Skipped!<br />Here are some suggestions for a better title based on your post:',
+						"Skipped!<br />Let's optimise your title first.<br />Here are two suggestions based on your keywords:",
 						'jetpack'
 					),
 					{ br: <br /> }
 				);
 			} else {
-				editedMessage = __(
-					'Here are some suggestions for a better title based on your post:',
-					'jetpack'
+				editedMessage = createInterpolateElement(
+					__(
+						"Let's optimise your title first.<br />Here are two suggestions based on your keywords:",
+						'jetpack'
+					),
+					{ br: <br /> }
 				);
 			}
+
 			editLastMessage( editedMessage );
 			if ( newTitles.length ) {
 				// this sets the title options for internal state
@@ -109,11 +89,10 @@ export const useTitleStep = (): Step => {
 				newTitles.forEach( title => addMessage( { ...title, type: 'option', isUser: true } ) );
 			}
 		},
-		[ titleOptions, addMessage, removeLastMessage, setMessages, prevStepValue, editLastMessage ]
+		[ titleOptions, addMessage, setMessages, prevStepValue, editLastMessage ]
 	);
 
 	const handleTitleRegenerate = useCallback( async () => {
-		addMessage( { content: <TypingMessage /> } );
 		const newTitles = await new Promise< Array< OptionMessage > >( resolve =>
 			setTimeout(
 				() =>
@@ -131,19 +110,16 @@ export const useTitleStep = (): Step => {
 				2000
 			)
 		);
-		removeLastMessage();
 		setTitleOptions( [ ...titleOptions, ...newTitles ] );
 		newTitles.forEach( title => addMessage( { ...title, type: 'option', isUser: true } ) );
-	}, [ addMessage, removeLastMessage, titleOptions ] );
+	}, [ addMessage, titleOptions ] );
 
 	const handleTitleSubmit = useCallback( async () => {
-		addMessage( { content: <TypingMessage /> } );
 		await editPost( { title: selectedTitle, meta: { jetpack_seo_html_title: selectedTitle } } );
-		removeLastMessage();
 		addMessage( { content: __( 'Title updated! ✅', 'jetpack' ) } );
 		setCompleted( true );
 		return selectedTitle;
-	}, [ selectedTitle, addMessage, editPost, removeLastMessage ] );
+	}, [ selectedTitle, addMessage, editPost ] );
 
 	return {
 		id: 'title',

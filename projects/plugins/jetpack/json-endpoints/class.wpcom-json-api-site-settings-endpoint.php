@@ -689,6 +689,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( $value ) {
 						Jetpack::activate_module( $blog_id, 'search' );
 					} else {
+						// @phan-suppress-next-line PhanParamTooMany -- Phan doesn't know about the WP.com variant of the Jetpack class.
 						Jetpack::deactivate_module( $blog_id, 'search' );
 					}
 					$updated[ $key ] = (bool) $value;
@@ -705,6 +706,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						if ( $value ) {
 							Jetpack::activate_module( $blog_id, 'related-posts' );
 						} else {
+							// @phan-suppress-next-line PhanParamTooMany -- Phan doesn't know about the WP.com variant of the Jetpack class.
 							Jetpack::deactivate_module( $blog_id, 'related-posts' );
 						}
 					}

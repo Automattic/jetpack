@@ -623,7 +623,7 @@ class REST_Connector {
 			'id'          => $current_user->ID,
 			'blogId'      => $blog_id,
 			'wpcomUser'   => $wpcom_user_data,
-			'gravatar'    => get_avatar_url( $current_user->ID, 64, 'mm', '', array( 'force_display' => true ) ),
+			'gravatar'    => get_avatar_url( $current_user->ID ),
 			'permissions' => array(
 				'connect'      => current_user_can( 'jetpack_connect' ),
 				'connect_user' => current_user_can( 'jetpack_connect_user' ),

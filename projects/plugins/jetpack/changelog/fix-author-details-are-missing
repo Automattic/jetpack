@@ -1,0 +1,3 @@
+Significance: patch
+Type: enhancement
+Comment: REST API: Enhance author details by including additional data when either user_id or site_id are available.
