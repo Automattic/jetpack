@@ -1927,7 +1927,15 @@ abstract class Publicize_Base {
 	 */
 	public function publicize_connections_url( $source = 'calypso-marketing-connections' ) {
 		if ( $this->use_admin_ui_v1() && current_user_can( 'manage_options' ) ) {
-			return ( new Paths() )->admin_url( array( 'page' => 'jetpack-social' ) );
+			if ( Publicize_Script_Data::has_feature_flag( 'admin-page' ) ) {
+				return ( new Paths() )->admin_url( array( 'page' => 'jetpack-social' ) );
+			}
+
+			$is_social_active = defined( 'JETPACK_SOCIAL_PLUGIN_DIR' );
+
+			$page = $is_social_active ? 'jetpack-social' : 'jetpack#/sharing';
+
+			return ( new Paths() )->admin_url( array( 'page' => $page ) );
 		}
 
 		$allowed_sources = array( 'jetpack-social-connections-admin-page', 'jetpack-social-connections-classic-editor', 'calypso-marketing-connections' );
