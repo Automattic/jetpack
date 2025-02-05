@@ -2668,7 +2668,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
-			'wpcom_newsletter_categories_modal_hidden'       => array(
+			'wpcom_newsletter_categories_modal_hidden'  => array(
 				'description'       => esc_html__( 'Whether the newsletter categories modal is hidden or not', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
