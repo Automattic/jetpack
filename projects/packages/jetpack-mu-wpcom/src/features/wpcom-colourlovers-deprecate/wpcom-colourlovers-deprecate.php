@@ -20,7 +20,7 @@ function wpcom_colourlovers_deprecate_warning() {
 
 	// Check if the background image URL contains a deprecated ColourLovers URL.
 	// If it doesn’t, we don’t need to show any warning.
-	if ( ! str_contains( $theme_mods['background_image'], 'colourlovers-static-replica.s3.amazonaws.com' ) ||
+	if ( ! str_contains( $theme_mods['background_image'], 'colourlovers-static-replica.s3.amazonaws.com' ) &&
 		! str_contains( $theme_mods['background_image'], 'colourlovers.com.s3.amazonaws.com' ) ) {
 		return;
 	}
