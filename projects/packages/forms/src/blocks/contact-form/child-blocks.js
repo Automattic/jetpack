@@ -18,6 +18,7 @@ import JetpackFieldInput from './components/jetpack-input';
 import JetpackFieldLabel from './components/jetpack-label';
 import {
 	CHECKBOX_INNER_BLOCKS_DEPRECATION,
+	CONSENT_INNER_BLOCKS_DEPRECATION,
 	INNER_BLOCKS_DEPRECATION,
 	TEXTAREA_INNER_BLOCKS_DEPRECATION,
 } from './field-deprecated';
@@ -710,6 +711,11 @@ export const childBlocks = [
 				},
 			},
 			edit: EditConsent,
+			save() {
+				const innerBlocksProps = useInnerBlocksProps.save();
+				return <div { ...innerBlocksProps } />;
+			},
+			deprecated: [ CONSENT_INNER_BLOCKS_DEPRECATION ],
 		},
 	},
 	{

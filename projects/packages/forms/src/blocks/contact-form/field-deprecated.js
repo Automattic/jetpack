@@ -1,4 +1,5 @@
 import { createBlock } from '@wordpress/blocks';
+import { __ } from '@wordpress/i18n';
 import { cleanEmptyObject } from './util/clean-empty-object';
 
 const deprecateLabelAndInputStyles = attributes => {
@@ -179,6 +180,7 @@ export const CHECKBOX_INNER_BLOCKS_DEPRECATION = {
 	},
 	migrate( attributes ) {
 		const { restAttributes, labelStyles, inputStyles } = deprecateLabelAndInputStyles( attributes );
+		// TODO: We also have "option styles" that will need migrating. This might change based on whether we add a new Option block.
 		const newInnerBlocks = [
 			createBlock( 'jetpack/field-input', {
 				style: inputStyles,
@@ -194,5 +196,55 @@ export const CHECKBOX_INNER_BLOCKS_DEPRECATION = {
 		];
 
 		return [ restAttributes, newInnerBlocks ];
+	},
+};
+
+export const CONSENT_INNER_BLOCKS_DEPRECATION = {
+	...INNER_BLOCKS_DEPRECATION,
+	attributes: {
+		...INNER_BLOCKS_DEPRECATION.attributes,
+		label: {
+			type: 'string',
+			default: __( 'Consent', 'jetpack-forms' ),
+		},
+		consentType: {
+			type: 'string',
+			default: 'implicit',
+		},
+		implicitConsentMessage: {
+			type: 'string',
+			default: __(
+				"By submitting your information, you're giving us permission to email you. You may unsubscribe at any time.",
+				'jetpack-forms'
+			),
+		},
+		explicitConsentMessage: {
+			type: 'string',
+			default: __( 'Can we send you an email from time to time?', 'jetpack-forms' ),
+		},
+	},
+	migrate( attributes ) {
+		const { restAttributes, labelStyles, inputStyles } = deprecateLabelAndInputStyles( attributes );
+		// TODO: Similar to the checkbox field. We might need to migrate option styles.
+
+		const labelBlock = createBlock( 'jetpack/field-label', {
+			label: attributes.label,
+			requiredText: attributes.requiredText,
+			style: labelStyles,
+			inline: true,
+		} );
+
+		if ( attributes.consentType === 'implicit' ) {
+			return [ restAttributes, [ labelBlock ] ];
+		}
+
+		const inputBlock = createBlock( 'jetpack/field-input', {
+			className: 'jetpack-field-consent__checkbox',
+			inline: true,
+			style: inputStyles,
+			type: 'checkbox',
+		} );
+
+		return [ restAttributes, [ inputBlock, labelBlock ] ];
 	},
 };

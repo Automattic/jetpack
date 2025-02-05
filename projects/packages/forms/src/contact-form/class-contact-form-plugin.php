@@ -376,7 +376,7 @@ class Contact_Form_Plugin {
 					$atts['label']         = $inner_block['attrs']['label'] ?? $inner_block['attrs']['defaultLabel'] ?? '';
 					$label_attrs           = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
 					$atts['labelclasses']  = 'wp-block-jetpack-field-label';
-					$atts['labelclasses'] .= $label_attrs['class'] ?? '';
+					$atts['labelclasses'] .= isset( $label_attrs['class'] ) ? ' ' . $label_attrs['class'] : '';
 					$atts['labelstyles']   = $label_attrs['style'] ?? null;
 				}
 
@@ -560,11 +560,22 @@ class Contact_Form_Plugin {
 	/**
 	 * Render the consent field.
 	 *
-	 * @param string $atts consent attributes.
-	 * @param string $content html content.
+	 * @param string   $atts consent attributes.
+	 * @param string   $content html content.
+	 * @param WP_Block $block - the block instance object.
 	 */
-	public static function gutenblock_render_field_consent( $atts, $content ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'consent' );
+	public static function gutenblock_render_field_consent( $atts, $content, $block ) {
+		$atts         = self::block_attributes_to_shortcode_attributes( $atts, 'consent', $block );
+		$consent_type = $atts['consentType'] ?? 'implicit';
+
+		if ( $block && ! empty( $block->parsed_block['innerBlocks'] ) ) {
+			foreach ( $block->parsed_block['innerBlocks'] as $inner_block ) {
+				if ( 'jetpack/field-label' === $inner_block['blockName'] && isset( $inner_block['attrs']['label'] ) ) {
+					$key          = "{$consent_type}ConsentMessage";
+					$atts[ $key ] = $inner_block['attrs']['label'];
+				}
+			}
+		}
 
 		if ( ! isset( $atts['implicitConsentMessage'] ) ) {
 			$atts['implicitConsentMessage'] = __( "By submitting your information, you're giving us permission to email you. You may unsubscribe at any time.", 'jetpack-forms' );
@@ -574,7 +585,7 @@ class Contact_Form_Plugin {
 			$atts['explicitConsentMessage'] = __( 'Can we send you an email from time to time?', 'jetpack-forms' );
 		}
 
-		return Contact_Form::parse_contact_field( $atts, $content );
+		return Contact_Form::parse_contact_field( $atts, $content, $block );
 	}
 
 	/**

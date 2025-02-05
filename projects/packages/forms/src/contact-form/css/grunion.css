@@ -90,11 +90,14 @@
 }
 
 .contact-form label.consent {
+	display: flex;
+	align-items: center;
+}
+
+:where(.contact-form label.consent) {
 	font-size: 13px;
 	font-weight: normal;
 	text-transform: uppercase;
-	display: flex;
-	align-items: center;
 }
 
 .contact-form label.consent-implicit input {
