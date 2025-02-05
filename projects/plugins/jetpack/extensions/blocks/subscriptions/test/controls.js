@@ -75,6 +75,13 @@ const defaultProps = {
 	spacing: 0,
 	subscriberCount: 100,
 	textColor: '#000000',
+	areNewsletterCategoriesEnabled: true,
+	availableNewsletterCategories: [
+		{ id: 1, name: 'Category 1' },
+		{ id: 2, name: 'Category 2' },
+	],
+	preselectNewsletterCategories: false,
+	selectedNewsletterCategoryIds: [],
 };
 
 beforeEach( () => {
@@ -255,6 +262,95 @@ describe( 'Inspector controls', () => {
 
 			expect( setAttributes ).toHaveBeenCalledWith( {
 				buttonOnNewLine: true,
+			} );
+		} );
+
+		describe( 'Newsletter categories', () => {
+			test( 'displays newsletter category controls when enabled', async () => {
+				const user = userEvent.setup();
+				render( <SubscriptionsInspectorControls { ...defaultProps } /> );
+
+				await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
+
+				expect( screen.getByText( 'Pre-select categories' ) ).toBeInTheDocument();
+				expect( screen.getByText( 'Categories' ) ).toBeInTheDocument();
+			} );
+
+			test( 'hides newsletter category controls when disabled', async () => {
+				const user = userEvent.setup();
+				render(
+					<SubscriptionsInspectorControls
+						{ ...defaultProps }
+						areNewsletterCategoriesEnabled={ false }
+					/>
+				);
+
+				await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
+
+				expect( screen.queryByText( 'Pre-select categories' ) ).not.toBeInTheDocument();
+				expect( screen.queryByText( 'Categories' ) ).not.toBeInTheDocument();
+			} );
+
+			test( 'hides newsletter category controls when there are no categories', async () => {
+				const user = userEvent.setup();
+				render(
+					<SubscriptionsInspectorControls
+						{ ...defaultProps }
+						availableNewsletterCategories={ [] }
+					/>
+				);
+
+				await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
+
+				expect( screen.queryByText( 'Pre-select categories' ) ).not.toBeInTheDocument();
+				expect( screen.queryByText( 'Categories' ) ).not.toBeInTheDocument();
+			} );
+
+			test( 'toggles pre-select categories and clears selection when disabled', async () => {
+				const user = userEvent.setup();
+				render(
+					<SubscriptionsInspectorControls
+						{ ...defaultProps }
+						preselectNewsletterCategories={ true }
+						selectedNewsletterCategoryIds={ [ defaultProps.availableNewsletterCategories[ 0 ].id ] }
+					/>
+				);
+
+				await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
+				await user.click( screen.getByLabelText( 'Pre-select categories' ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith( {
+					preselectNewsletterCategories: false,
+					selectedNewsletterCategoryIds: [],
+				} );
+			} );
+
+			test( 'toggles category selection when pre-select is enabled', async () => {
+				const user = userEvent.setup();
+				render(
+					<SubscriptionsInspectorControls
+						{ ...defaultProps }
+						preselectNewsletterCategories={ true }
+						selectedNewsletterCategoryIds={ [ defaultProps.availableNewsletterCategories[ 0 ].id ] }
+					/>
+				);
+
+				await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
+				await user.click( screen.getByLabelText( 'Category 1' ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith( {
+					selectedNewsletterCategoryIds: [],
+				} );
+			} );
+
+			test( 'category checkboxes are disabled when pre-select is disabled', async () => {
+				const user = userEvent.setup();
+				render( <SubscriptionsInspectorControls { ...defaultProps } /> );
+
+				await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
+
+				const checkbox = screen.getByLabelText( 'Category 1' );
+				expect( checkbox ).toBeDisabled();
 			} );
 		} );
 	} );
