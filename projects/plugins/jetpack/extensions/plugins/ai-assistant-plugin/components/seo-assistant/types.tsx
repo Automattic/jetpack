@@ -32,8 +32,6 @@ export interface Step {
 	setValue?:
 		| React.Dispatch< React.SetStateAction< string > >
 		| React.Dispatch< React.SetStateAction< Array< string > > >;
-	setCompleted?: React.Dispatch< React.SetStateAction< boolean > >;
-	completed?: boolean;
 	autoAdvance?: number;
 	includeInResults?: boolean;
 
