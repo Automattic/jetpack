@@ -63,6 +63,8 @@ function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file
 			continue;
 		}
 
+		// Delete files that haven't been accessed in $file_age seconds,
+		// or files that are older than 2 * $file_age regardless of access time
 		if ( ( time() - $file_age ) > fileatime( $cache_file ) ) {
 			wp_delete_file( $cache_file );
 		} elseif ( ( time() - ( 2 * $file_age ) ) > filemtime( $cache_file ) ) {
