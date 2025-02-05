@@ -671,7 +671,7 @@ class WooCommerce extends Module {
 		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
 
 		$query = "SELECT * FROM {$this->order_item_table_name} WHERE order_item_id IN ( $placeholders )";
-		if ( ! empty( $order ) ) {
+		if ( ! empty( $order ) && in_array( $order, array( 'ASC', 'DESC' ), true ) ) {
 			$query .= " ORDER BY order_item_id $order";
 		}
 
