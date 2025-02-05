@@ -228,6 +228,25 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @param array $args List of order IDs.
 	 *
 	 * @return array
+	 * @deprecated since $$next-version$$
+	 */
+	public function expand_order_objects( $args ) {
+		_deprecated_function( __METHOD__, 'next-version' );
+		list( $order_ids, $previous_end ) = $args;
+		return array(
+			'orders'       => $this->get_objects_by_id( 'order', $order_ids ),
+			'previous_end' => $previous_end,
+		);
+	}
+
+	/**
+	 * Build the full sync action object.
+	 *
+	 * @access public
+	 *
+	 * @param array $args An array with filtered objects and previous end.
+	 *
+	 * @return array
 	 */
 	public function build_full_sync_action_object( $args ) {
 		list( $filtered_orders, $previous_end ) = $args;

@@ -258,6 +258,36 @@ class WooCommerce extends Module {
 	}
 
 	/**
+	 * Expand order item IDs to order items and their meta.
+	 *
+	 * @access public
+	 *
+	 * @todo Refactor table name to use a $wpdb->prepare placeholder.
+	 *
+	 * @param array $args The hook arguments.
+	 * @return array $args Expanded order items with meta.
+	 * @deprecated since $$next-version$$
+	 */
+	public function expand_order_item_ids( $args ) {
+		_deprecated_function( __METHOD__, '$$next-version$$' );
+		$order_item_ids = $args[0];
+
+		global $wpdb;
+
+		$order_item_ids_sql = implode( ', ', array_map( 'intval', $order_item_ids ) );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$order_items = $wpdb->get_results(
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			"SELECT * FROM $this->order_item_table_name WHERE order_item_id IN ( $order_item_ids_sql )"
+		);
+
+		return array(
+			$order_items,
+			$this->get_metadata( $order_item_ids, 'order_item', static::$order_item_meta_whitelist ),
+		);
+	}
+	/**
 	 * Extract the full order item from the database by its ID.
 	 *
 	 * @access public
@@ -650,11 +680,11 @@ class WooCommerce extends Module {
 	}
 
 	/**
-	 * Retrieves multiple orders data by their ID.
+	 * Build the full sync action object for WooCommerce order items.
 	 *
 	 * @access public
 	 *
-	 * @param array $args List of order IDs.
+	 * @param array $args An array with the order items and the previous end.
 	 *
 	 * @return array
 	 */
