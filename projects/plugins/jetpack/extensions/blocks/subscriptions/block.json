@@ -115,6 +115,14 @@
 		},
 		"className": {
 			"type": "string"
+		},
+		"preSelectCategories": {
+			"type": "boolean",
+			"default": false
+		},
+		"categoryIds": {
+			"type": "array",
+			"default": []
 		}
 	},
 	"example": {}

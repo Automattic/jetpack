@@ -6,7 +6,13 @@ import {
 	FontSizePicker,
 	__experimentalPanelColorGradientSettings as PanelColorGradientSettings, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
-import { ToggleControl, PanelBody, RangeControl, TextareaControl } from '@wordpress/components';
+import {
+	ToggleControl,
+	PanelBody,
+	RangeControl,
+	TextareaControl,
+	CheckboxControl,
+} from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import InspectorNotice from '../../shared/components/inspector-notice';
@@ -36,12 +42,15 @@ export default function SubscriptionControls( {
 	borderRadius,
 	borderWeight,
 	buttonOnNewLine,
+	categoryIds,
 	emailFieldBackgroundColor,
 	fallbackButtonBackgroundColor,
 	fallbackTextColor,
 	fontSize,
 	includeSocialFollowers,
 	isGradientAvailable,
+	newsletterCategoriesEnabled,
+	newsletterCategories,
 	padding,
 	setAttributes,
 	setBorderColor,
@@ -54,6 +63,7 @@ export default function SubscriptionControls( {
 	buttonWidth,
 	subscribePlaceholder = DEFAULT_SUBSCRIBE_PLACEHOLDER,
 	successMessage = DEFAULT_SUCCESS_MESSAGE,
+	preSelectCategories,
 } ) {
 	const { isModuleActive: isPublicizeEnabled } = useModuleStatus( 'publicize' );
 
@@ -301,6 +311,35 @@ export default function SubscriptionControls( {
 						help={ __( 'Edit the message displayed when a user subscribes.', 'jetpack' ) }
 						onChange={ newSuccessMessage => setAttributes( { successMessage: newSuccessMessage } ) }
 					/>
+				) }
+				{ newsletterCategoriesEnabled && (
+					<>
+						<ToggleControl
+							label={ __( 'Pre-select categories', 'jetpack' ) }
+							checked={ preSelectCategories }
+							onChange={ value => {
+								const updates = { preSelectCategories: value };
+								if ( ! value ) {
+									updates.categoryIds = [];
+								}
+								setAttributes( updates );
+							} }
+						/>
+						{ newsletterCategories.map( category => (
+							<CheckboxControl
+								key={ category.id }
+								disabled={ ! preSelectCategories }
+								label={ category.name }
+								checked={ categoryIds.includes( category.id ) }
+								onChange={ () => {
+									const selectedCategoryIds = categoryIds.includes( category.id )
+										? categoryIds.filter( id => id !== category.id )
+										: [ ...categoryIds, category.id ];
+									setAttributes( { categoryIds: selectedCategoryIds } );
+								} }
+							/>
+						) ) }
+					</>
 				) }
 			</PanelBody>
 		</>

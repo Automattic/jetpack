@@ -81,9 +81,11 @@ export function SubscriptionEdit( props ) {
 		borderRadius,
 		borderWeight,
 		buttonWidth,
+		categoryIds,
 		className,
 		includeSocialFollowers,
 		padding,
+		preSelectCategories,
 		spacing,
 		submitButtonText = DEFAULT_SUBMIT_BUTTON_LABEL,
 		subscribePlaceholder = DEFAULT_SUBSCRIBE_PLACEHOLDER,
@@ -109,6 +111,15 @@ export function SubscriptionEdit( props ) {
 				_n( 'Join %s other subscriber', 'Join %s other subscribers', count, 'jetpack' ),
 				numberFormat( count, { notation: 'compact', maximumFractionDigits: 1 } )
 			),
+		};
+	} );
+
+	const { newsletterCategories, newsletterCategoriesEnabled } = useSelect( select => {
+		const store = select( membershipProductsStore );
+
+		return {
+			newsletterCategories: store.getNewsletterCategories(),
+			newsletterCategoriesEnabled: store.getNewsletterCategoriesEnabled(),
 		};
 	} );
 
@@ -237,7 +248,10 @@ export function SubscriptionEdit( props ) {
 					fontSize={ fontSize }
 					includeSocialFollowers={ includeSocialFollowers }
 					isGradientAvailable={ isGradientAvailable }
+					newsletterCategories={ newsletterCategories }
+					newsletterCategoriesEnabled={ newsletterCategoriesEnabled }
 					padding={ padding }
+					preSelectCategories={ preSelectCategories }
 					setAttributes={ setAttributes }
 					setBorderColor={ setBorderColor }
 					setButtonBackgroundColor={ setButtonBackgroundColor }
@@ -247,6 +261,7 @@ export function SubscriptionEdit( props ) {
 					subscriberCount={ subscriberCount }
 					textColor={ textColor }
 					buttonWidth={ buttonWidth }
+					categoryIds={ categoryIds }
 					subscribePlaceholder={ subscribePlaceholder }
 					submitButtonText={ submitButtonText }
 					successMessage={ successMessage }
