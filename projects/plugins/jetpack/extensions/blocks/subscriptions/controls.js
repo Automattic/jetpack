@@ -315,6 +315,7 @@ export default function SubscriptionControls( {
 				{ areNewsletterCategoriesEnabled && availableNewsletterCategories.length > 0 && (
 					<>
 						<ToggleControl
+							__nextHasNoMarginBottom={ true }
 							label={ __( 'Pre-select categories', 'jetpack' ) }
 							checked={ preselectNewsletterCategories }
 							onChange={ value => {
