@@ -647,7 +647,7 @@ class WooCommerce extends Module {
 	 * Returns a list of order_item objects by their IDs.
 	 *
 	 * @param array  $ids List of order_item IDs to fetch.
-	 * @param string $order Order of the results.
+	 * @param string $order Either 'ASC' or 'DESC'.
 	 *
 	 * @access public
 	 *
