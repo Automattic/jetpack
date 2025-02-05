@@ -53,6 +53,7 @@ const JetpackField = props => {
 					style={ fieldStyle }
 					type={ type }
 					value={ placeholder }
+					onClick={ event => type === 'file' && event.preventDefault() }
 					onKeyDown={ event => {
 						if ( event.defaultPrevented || event.key !== 'Enter' ) {
 							return;
