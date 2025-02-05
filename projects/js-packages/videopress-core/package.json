@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-videopress-core",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "VideoPress Core Functionality",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/videopress-core/#readme",
 	"bugs": {
