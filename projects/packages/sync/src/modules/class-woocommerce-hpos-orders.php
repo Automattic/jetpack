@@ -145,7 +145,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	 */
 	public function init_before_send() {
 		// Full sync.
-		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_woocommerce_hpos_orders', array( $this, 'build_full_sync_action_object' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_woocommerce_hpos_orders', array( $this, 'build_full_sync_action_array' ) );
 	}
 
 	/**
@@ -246,9 +246,9 @@ class WooCommerce_HPOS_Orders extends Module {
 	 *
 	 * @param array $args An array with filtered objects and previous end.
 	 *
-	 * @return array
+	 * @return array An array with orders and previous end.
 	 */
-	public function build_full_sync_action_object( $args ) {
+	public function build_full_sync_action_array( $args ) {
 		list( $filtered_orders, $previous_end ) = $args;
 		return array(
 			'orders'       => $filtered_orders['objects'],

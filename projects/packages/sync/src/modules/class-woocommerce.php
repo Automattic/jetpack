@@ -221,7 +221,7 @@ class WooCommerce extends Module {
 	 */
 	public function init_before_send() {
 		// Full sync.
-		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_woocommerce_order_items', array( $this, 'build_full_sync_action_object' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_woocommerce_order_items', array( $this, 'build_full_sync_action_array' ) );
 	}
 
 	/**
@@ -630,7 +630,7 @@ class WooCommerce extends Module {
 	 * @param string $object_type Object type.
 	 * @param array  $ids IDs of objects to return.
 	 *
-	 * @access public
+	 * @access publicbuild_full_sync_action_array
 	 *
 	 * @return array|object|WP_Error|null
 	 */
@@ -686,9 +686,9 @@ class WooCommerce extends Module {
 	 *
 	 * @param array $args An array with the order items and the previous end.
 	 *
-	 * @return array
+	 * @return array An array with the order items, order item meta and the previous end.
 	 */
-	public function build_full_sync_action_object( $args ) {
+	public function build_full_sync_action_array( $args ) {
 		list( $filtered_order_items, $previous_end ) = $args;
 		return array(
 			'order_items'     => $filtered_order_items['objects'],
