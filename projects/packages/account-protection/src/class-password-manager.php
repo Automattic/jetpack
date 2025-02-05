@@ -63,34 +63,32 @@ class Password_Manager {
 	 * @return void
 	 */
 	public function validate_profile_update( \WP_Error $errors, bool $update, \stdClass $user ): void {
-		if ( ! $update ) {
-			// This is a new user (wp-admin/user-new.php)
-			if ( ! isset( $_POST['_wpnonce_create-user'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce_create-user'] ) ), 'create-user' ) ) {
-				$errors->add( 'nonce_error', __( '<strong>Error:</strong> Nonce verification failed for new user creation.', 'jetpack-account-protection' ) );
-				return;
-			}
-			// This is an existing user update (wp-admin/profile.php or user-edit.php)
-		} elseif ( ! $this->verify_profile_update_nonce( $user->ID ) ) {
-			$errors->add( 'nonce_error', __( '<strong>Error:</strong> Nonce verification failed for profile update.', 'jetpack-account-protection' ) );
+		if ( ( ! $update && ( ! isset( $_POST['_wpnonce_create-user'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce_create-user'] ) ), 'create-user' ) ) )
+			|| ( $update && ! $this->verify_profile_update_nonce( $user->ID ) ) ) {
+			$errors->add( 'nonce_error', __( '<strong>Error:</strong> Nonce verification failed.', 'jetpack-account-protection' ) );
 			return;
 		}
 
-		if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
-			$password = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );
+		if ( empty( $_POST['pass1'] ) ) {
+			return;
+		}
 
-			if ( $update ) {
-				$old_user_data = $this->get_old_user_data( $user->ID );
-				if ( $this->validation_service->is_current_password( $old_user_data, $password ) ) {
-					$errors->add( 'password_error', __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' ) );
-					return;
-				}
-			}
+		$password = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );
 
-			$error = $this->validation_service->return_first_validation_error( $user, $password, 'profile' );
-			if ( ! empty( $error ) ) {
-				$errors->add( 'password_error', $error );
+		if ( $update ) {
+			$old_user_data = $this->get_old_user_data( $user->ID );
+			if ( $this->validation_service->is_current_password( $old_user_data, $password ) ) {
+				$errors->add( 'password_error', __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' ) );
 				return;
 			}
+		}
+
+		$context = $update ? 'update' : 'create-user';
+		$error   = $this->validation_service->return_first_validation_error( $user, $password, $context );
+
+		if ( ! empty( $error ) ) {
+			$errors->add( 'password_error', $error );
+			return;
 		}
 	}
 

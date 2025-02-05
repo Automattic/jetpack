@@ -86,14 +86,14 @@ class Validation_Service {
 	/**
 	 * Return first validation error.
 	 *
-	 * @param \WP_User|\stdClass $user The user object or a copy.
-	 * @param string             $password The password to check.
-	 * @param 'profile'|'reset'  $context The context the validation is run in.
+	 * @param \WP_User|\stdClass             $user The user object or a copy.
+	 * @param string                         $password The password to check.
+	 * @param 'create-user'|'update'|'reset' $context The context the validation is run in.
 	 *
 	 * @return string The first validation errors (if any).
 	 */
 	public function return_first_validation_error( $user, string $password, $context ): string {
-		if ( 'profile' === $context ) {
+		if ( 'reset' !== $context ) {
 			if ( empty( $password ) ) {
 				return __( '<strong>Error:</strong> The password cannot be a space or all spaces.', 'jetpack-account-protection' );
 			}
@@ -113,8 +113,10 @@ class Validation_Service {
 			return __( '<strong>Error:</strong> The password matches user data.', 'jetpack-account-protection' );
 		}
 
-		if ( $this->is_recent_password( $user->ID, $password ) ) {
-			return __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' );
+		if ( 'create-user' !== $context ) {
+			if ( $this->is_recent_password( $user->ID, $password ) ) {
+				return __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' );
+			}
 		}
 
 		if ( $this->is_weak_password( $password ) ) {
