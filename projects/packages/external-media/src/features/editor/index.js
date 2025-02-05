@@ -1,4 +1,4 @@
-import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-utils';
+import { isUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockEditContext } from '@wordpress/block-editor';
 import { addFilter } from '@wordpress/hooks';
 import {
@@ -26,7 +26,7 @@ function insertExternalMediaBlocks( settings, name ) {
 	};
 }
 
-if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
+if ( isUserConnected() && 'function' === typeof useBlockEditContext ) {
 	addPexelsToMediaInserter();
 	addGooglePhotosToMediaInserter();
 
