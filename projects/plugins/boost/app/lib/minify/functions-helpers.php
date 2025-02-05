@@ -65,9 +65,7 @@ function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file
 
 		if ( ( time() - $file_age ) > fileatime( $cache_file ) ) {
 			wp_delete_file( $cache_file );
-		}
-
-		if ( ( time() - ( 2 * $file_age ) ) > filemtime( $cache_file ) ) {
+		} elseif ( ( time() - ( 2 * $file_age ) ) > filemtime( $cache_file ) ) {
 			wp_delete_file( $cache_file );
 		}
 	}
