@@ -111,15 +111,11 @@ class Validation_Service {
 			return __( '<strong>Error:</strong> The password must be between 6 and 150 characters.', 'jetpack-account-protection' );
 		}
 
-		// Unable to retrieve user data during reset form validation
-		if ( 'reset' !== $context ) {
-			if ( $this->matches_user_data( $user, $password ) ) {
-				return __( '<strong>Error:</strong> The password matches user data.', 'jetpack-account-protection' );
-			}
+		if ( $this->matches_user_data( $user, $password ) ) {
+			return __( '<strong>Error:</strong> The password matches user data.', 'jetpack-account-protection' );
 		}
 
-		// Unable to retrieve user data during reset form validation, not relevant to create-user form
-		if ( 'update' === $context ) {
+		if ( 'create-user' !== $context ) {
 			if ( $this->is_recent_password( $user->ID, $password ) ) {
 				return __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' );
 			}
