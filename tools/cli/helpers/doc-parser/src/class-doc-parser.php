@@ -137,13 +137,7 @@ class Doc_Parser {
 
 		// Maybe we should automatically import definitions from .gitignore.
 		$ignore = array(
-			'/.sass-cache/',
-			'/node_modules',
 			'/vendor/',
-			'/.nova/',
-			'/.vscode/',
-			'/logs',
-			'/allure-results/',
 			'tests/',
 			'wordpress/',
 		);
