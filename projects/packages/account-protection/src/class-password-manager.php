@@ -118,7 +118,7 @@ class Password_Manager {
 			return;
 		}
 
-		// No nonce verification necessary as the action hooks in after a robust verification process
+		// No nonce verification necessary - action hooks in after a robust verification process
 		// phpcs:disable WordPress.Security.NonceVerification
 		if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
 			$password = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );

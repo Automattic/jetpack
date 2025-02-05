@@ -356,11 +356,17 @@ class Password_Detection {
 	 * @return void
 	 */
 	public function enqueue_styles(): void {
-		wp_enqueue_style(
-			'password-detection-styles',
-			plugin_dir_url( __FILE__ ) . 'css/password-detection.css',
-			array(),
-			Account_Protection::PACKAGE_VERSION
-		);
+		// No nonce verification necessary - reading only
+		// phpcs:disable WordPress.Security.NonceVerification
+		if ( isset( $_GET['action'] ) && $_GET['action'] === 'password-detection' ) {
+			if ( ! wp_style_is( 'password-detection-styles', 'enqueued' ) ) {
+				wp_enqueue_style(
+					'password-detection-styles',
+					plugin_dir_url( __FILE__ ) . 'css/password-detection.css',
+					array(),
+					Account_Protection::PACKAGE_VERSION
+				);
+			}
+		}
 	}
 }
