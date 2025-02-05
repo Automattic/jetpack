@@ -536,7 +536,7 @@ export const childBlocks = [
 					default: '',
 				},
 			},
-			isExperimental: true,
+			isBeta: true,
 		},
 	},
 	{
