@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  * Register the Jetpack external media page to Media > Import.
  */
 function add_jetpack_external_media_import_page() {
-	if ( empty( $_GET['jetpack_external_media_import_page'] ) ) { // phpcs:disable WordPress.Security.NonceVerification.Recommended
+	if ( empty( $_GET['jetpack_external_media_import_page'] ) && empty( $_GET['untangling-media'] ) ) { // phpcs:disable WordPress.Security.NonceVerification.Recommended
 		return;
 	}
 
