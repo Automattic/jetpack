@@ -312,7 +312,7 @@ export default function SubscriptionControls( {
 						onChange={ newSuccessMessage => setAttributes( { successMessage: newSuccessMessage } ) }
 					/>
 				) }
-				{ areNewsletterCategoriesEnabled && (
+				{ areNewsletterCategoriesEnabled && availableNewsletterCategories.length > 0 && (
 					<>
 						<ToggleControl
 							label={ __( 'Pre-select categories', 'jetpack' ) }
@@ -325,21 +325,31 @@ export default function SubscriptionControls( {
 								}
 								setAttributes( updates );
 							} }
+							help={ __(
+								'When enabled, the user will be automatically subscribed to the selected categories below when they submit the form.',
+								'jetpack'
+							) }
 						/>
-						{ availableNewsletterCategories.map( category => (
-							<CheckboxControl
-								key={ category.id }
-								disabled={ ! preselectNewsletterCategories }
-								label={ category.name }
-								checked={ selectedNewsletterCategoryIds.includes( category.id ) }
-								onChange={ () => {
-									const selectedIds = selectedNewsletterCategoryIds.includes( category.id )
-										? selectedNewsletterCategoryIds.filter( id => id !== category.id )
-										: [ ...selectedNewsletterCategoryIds, category.id ];
-									setAttributes( { selectedNewsletterCategoryIds: selectedIds } );
-								} }
-							/>
-						) ) }
+						<fieldset>
+							<legend className="wp-block-jetpack-subscriptions__legend">
+								{ __( 'Categories', 'jetpack' ) }
+							</legend>
+							{ availableNewsletterCategories.map( category => (
+								<CheckboxControl
+									key={ category.id }
+									__nextHasNoMarginBottom={ true }
+									disabled={ ! preselectNewsletterCategories }
+									label={ category.name }
+									checked={ selectedNewsletterCategoryIds.includes( category.id ) }
+									onChange={ () => {
+										const selectedIds = selectedNewsletterCategoryIds.includes( category.id )
+											? selectedNewsletterCategoryIds.filter( id => id !== category.id )
+											: [ ...selectedNewsletterCategoryIds, category.id ];
+										setAttributes( { selectedNewsletterCategoryIds: selectedIds } );
+									} }
+								/>
+							) ) }
+						</fieldset>
 					</>
 				) }
 			</PanelBody>
