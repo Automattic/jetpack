@@ -687,7 +687,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 				$field .= "<p class='contact-form-field'>";
 				$field .= "<input
-									id='" . $radio_id . "'
+									id='" . esc_attr( $radio_id ) . "'
 									type='radio'
 									name='" . esc_attr( $id ) . "'
 									value='" . esc_attr( $radio_value ) . "' "
@@ -790,7 +790,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 				$field .= "<p class='contact-form-field'>";
 				$field .= "<input
-									id='" . $checkbox_id . "'
+									id='" . esc_attr( $checkbox_id ) . "'
 									type='checkbox'
 									name='" . esc_attr( $id ) . "[]'
 									value='" . esc_attr( $checkbox_value ) . "' "
