@@ -17,5 +17,5 @@ class Config {
 	public const PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION = 600; // 10 minutes
 	public const PASSWORD_DETECTION_MAX_RESEND_ATTEMPTS   = 3;
 
-	public const VALIDATION_SERVICE_USER_META_KEY = 'jetpack_account_protection_recent_password_hashes';
+	public const VALIDATION_SERVICE_RECENT_PASSWORD_HASHES_USER_META_KEY = 'jetpack_account_protection_recent_password_hashes';
 }

@@ -250,7 +250,7 @@ class Validation_Service {
 	 * @return bool True if the password hash was recently used, false otherwise.
 	 */
 	public function is_recent_password( int $user_id, string $password ): bool {
-		$recent_passwords = get_user_meta( $user_id, Config::VALIDATION_SERVICE_USER_META_KEY, true );
+		$recent_passwords = get_user_meta( $user_id, Config::VALIDATION_SERVICE_RECENT_PASSWORD_HASHES_USER_META_KEY, true );
 
 		if ( empty( $recent_passwords ) || ! is_array( $recent_passwords ) ) {
 			return false;
