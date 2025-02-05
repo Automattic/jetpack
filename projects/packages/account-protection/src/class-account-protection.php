@@ -45,16 +45,25 @@ class Account_Protection {
 	private $password_manager;
 
 	/**
+	 * Password_Strength_Meter instance
+	 *
+	 * @var Password_Strength_Meter
+	 */
+	private $password_strength_meter;
+
+	/**
 	 * Account_Protection constructor.
 	 *
-	 * @param ?Modules            $modules            Modules instance.
-	 * @param ?Password_Detection $password_detection Password detection instance.
-	 * @param ?Password_Manager   $password_manager Validation service instance.
+	 * @param ?Modules                 $modules            Modules instance.
+	 * @param ?Password_Detection      $password_detection Password detection instance.
+	 * @param ?Password_Manager        $password_manager Password manager instance.
+	 * @param ?Password_Strength_Meter $password_strength_meter Password strength meter instance.
 	 */
-	public function __construct( ?Modules $modules = null, ?Password_Detection $password_detection = null, ?Password_Manager $password_manager = null ) {
-		$this->modules            = $modules ?? new Modules();
-		$this->password_detection = $password_detection ?? new Password_Detection();
-		$this->password_manager   = $password_manager ?? new Password_Manager();
+	public function __construct( ?Modules $modules = null, ?Password_Detection $password_detection = null, ?Password_Manager $password_manager = null, ?Password_Strength_Meter $password_strength_meter = null ) {
+		$this->modules                 = $modules ?? new Modules();
+		$this->password_detection      = $password_detection ?? new Password_Detection();
+		$this->password_manager        = $password_manager ?? new Password_Manager();
+		$this->password_strength_meter = $password_strength_meter ?? new Password_Strength_Meter();
 	}
 
 	/**
@@ -121,82 +130,13 @@ class Account_Protection {
 		add_action( 'profile_update', array( $this->password_manager, 'on_profile_update' ), 10, 3 );
 		add_action( 'after_password_reset', array( $this->password_manager, 'on_password_reset' ), 10, 2 );
 
-		// TESTING
-		add_filter(
-			'retrieve_password_message',
-			function ( $message, $key, $user_login, $user_data ) {
-
-				$reset_link = network_site_url( 'wp-login.php?login=' . rawurlencode( $user_login ) . "&key=$key&action=rp", 'login' );
-
-				// Log or store the reset link for debugging
-				error_log( 'Generated Reset Link: ' . $reset_link );
-
-				return $message; // Keep the original email message intact
-			},
-			10,
-			4
-		);
-
 		// Eneuque password strength meter scripts
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_jetpack_password_strength_meter_profile_script' ) );
-		add_action( 'login_enqueue_scripts', array( $this, 'enqueue_jetpack_password_strength_meter_reset_script') );
+		add_action( 'admin_enqueue_scripts', array( $this->password_strength_meter, 'enqueue_jetpack_password_strength_meter_profile_script' ) );
+		add_action( 'login_enqueue_scripts', array( $this->password_strength_meter, 'enqueue_jetpack_password_strength_meter_reset_script' ) );
 
-		add_action('wp_ajax_validate_password_ajax', array( $this, 'validate_password_ajax' ) );
-		add_action('wp_ajax_nopriv_validate_password_ajax', array( $this, 'validate_password_ajax' ) );
-
-	}
-
-	public function validate_password_ajax() {
-		// Verify password is set in request
-		if ( ! isset( $_POST['password'] ) ) {
-			wp_send_json_error( [ 'message' => 'No password provided.' ] );
-		}
-	
-		$password = sanitize_text_field( $_POST[ 'password' ] );
-		$state = ( new Validation_Service() )->get_validation_state( wp_get_current_user(), $password );
-
-		wp_send_json_success( [ 'status' => $state ] );
-	}
-
-	public function enqueue_jetpack_password_strength_meter_profile_script() {
-		if ( ! wp_script_is('jetpack-password-strength-meter', 'enqueued') ) {
-			wp_enqueue_script(
-				'jetpack-password-strength-meter',
-				plugin_dir_url( __FILE__ ) . 'js/jetpack-password-strength-meter.js',
-				array('jquery'),
-				null,
-				true
-			);
-		}
-
-		$this->localize_jetpack_data();
-	}
-
-	public function enqueue_jetpack_password_strength_meter_reset_script() {
-		if ( isset( $_GET['action'] ) && ( $_GET['action'] === 'rp' || $_GET['action'] === 'resetpass' ) ) {
-			if ( ! wp_script_is('jetpack-password-strength-meter', 'enqueued') ) {
-				wp_enqueue_script(
-					'jetpack-password-strength-meter',
-					plugin_dir_url( __FILE__ ) . 'js/jetpack-password-strength-meter.js',
-					array('jquery'),
-					null,
-					true
-				);
-			}
-		}
-
-		$this->localize_jetpack_data();
-	}
-
-	public function localize_jetpack_data() {
-		wp_localize_script( 'jetpack-password-strength-meter', 'jetpackData', array(
-			'ajaxurl' => admin_url( 'admin-ajax.php' ),
-			'logo' => plugin_dir_url(__FILE__) . 'assets/jetpack-logo.svg',
-			'checkIcon' => plugin_dir_url(__FILE__) . 'assets/check.svg',
-			'crossIcon' => plugin_dir_url(__FILE__) . 'assets/cross.svg',
-			'loadingIcon' => plugin_dir_url(__FILE__) . 'assets/loading.svg',
-			'validationInitialState' => ( new Validation_Service() )->get_validation_initial_state(),
-		) );
+		// AJAX endpoint for password validation
+		add_action( 'wp_ajax_validate_password_ajax', array( $this->password_strength_meter, 'validate_password_ajax' ) );
+		add_action( 'wp_ajax_nopriv_validate_password_ajax', array( $this->password_strength_meter, 'validate_password_ajax' ) );
 	}
 
 	/**

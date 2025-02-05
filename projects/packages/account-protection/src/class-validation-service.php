@@ -55,13 +55,28 @@ class Validation_Service {
 	 * @return array An array of all validation statuses and messages.
 	 */
 	public function get_validation_initial_state(): array {
-		return [
-			'contains_backslash' => [ 'status' => null, 'message' => __( "Doesn't contain a backslash (\\) character", 'jetpack-account-protection' ) ],
-			'invalid_length' => [ 'status' => null, 'message' => __( 'Between 6 and 150 characters', 'jetpack-account-protection' ) ],
-			'matches_user_data' => [ 'status' => null, 'message' => __( "Doesn't match user data", 'jetpack-account-protection' ) ],
-			// 'recent' => [ 'status' => null, 'message' => __( 'Not used recently', 'jetpack-account-protection' ) ],
-			// 'weak' => [ 'status' => null, 'message' => __( 'Not a leaked password', 'jetpack-account-protection' ) ],
-		];
+		return array(
+			'contains_backslash' => array(
+				'status'  => null,
+				'message' => __( "Doesn't contain a backslash (\\) character", 'jetpack-account-protection' ),
+			),
+			'invalid_length'     => array(
+				'status'  => null,
+				'message' => __( 'Between 6 and 150 characters', 'jetpack-account-protection' ),
+			),
+			'matches_user_data'  => array(
+				'status'  => null,
+				'message' => __( "Doesn't match user data", 'jetpack-account-protection' ),
+			),
+			'recent'             => array(
+				'status'  => null,
+				'message' => __( 'Not used recently', 'jetpack-account-protection' ),
+			),
+			'weak'               => array(
+				'status'  => null,
+				'message' => __( 'Not a leaked password', 'jetpack-account-protection' ),
+			),
+		);
 	}
 
 	/**
@@ -74,13 +89,14 @@ class Validation_Service {
 	 */
 	public function get_validation_state( $user, string $password ): array {
 		$validation_state = $this->get_validation_initial_state();
+		// TODO: We maybe need skip certain user specific checks on reset, unless we can confidently retrieve the user object.
 
-		$validation_state['contains_backslash']['status']  = $this->contains_backslash( $password );
+		$validation_state['contains_backslash']['status'] = $this->contains_backslash( $password );
 		$validation_state['invalid_length']['status']     = $this->is_invalid_length( $password );
-		$validation_state['matches_user_data']['status'] = $this->matches_user_data( $user, $password );
-		// $validation_state['recent']['recent']     = $this->is_recent_password( $user->ID, $password );
-		// $validation_state['weak']['status']     = $this->is_weak_password( $password );
-	
+		$validation_state['matches_user_data']['status']  = $this->matches_user_data( $user, $password );
+		$validation_state['recent']['status']             = $this->is_recent_password( $user->ID, $password );
+		$validation_state['weak']['status']               = $this->is_weak_password( $password );
+
 		return $validation_state;
 	}
 

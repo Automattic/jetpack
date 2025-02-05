@@ -187,6 +187,7 @@ jQuery( document ).ready( function ( $ ) {
 			type: 'POST',
 			data: {
 				action: 'validate_password_ajax',
+				nonce: jetpackData.nonce,
 				password: currentPasswordInput,
 			},
 			success: function ( response ) {
@@ -224,12 +225,14 @@ jQuery( document ).ready( function ( $ ) {
 						applyStyling( failedValidationConditions );
 					} );
 				} else {
+					// TODO: Test this
 					passwordValidationStatus.html(
 						'<p style="color: #E65054">Error: Unable to validate password.</p>'
 					);
 				}
 			},
 			error: function () {
+				// TODO: Test this
 				passwordValidationStatus.html(
 					'<p style="color: #E65054">Error connecting to server.</p>'
 				);
