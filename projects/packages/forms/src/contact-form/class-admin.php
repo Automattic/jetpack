@@ -702,13 +702,6 @@ class Admin {
 	 * @return void
 	 */
 	public function grunion_manage_post_column_response( $post ) {
-		$non_printable_keys = array(
-			'email_marketing_consent',
-			'entry_title',
-			'entry_permalink',
-			'entry_page',
-			'feedback_id',
-		);
 
 		$post_content = get_post_field( 'post_content', $post->ID );
 		$content      = explode( '<!--more-->', $post_content );
@@ -756,7 +749,7 @@ class Admin {
 			$url = add_query_arg( 'page', $response_fields['entry_page'], $url );
 		}
 
-		$response_fields = array_diff_key( $response_fields, array_flip( $non_printable_keys ) );
+		$response_fields = array_diff_key( $response_fields, array_flip( array_keys( Contact_Form_Plugin::NON_PRINTABLE_FIELDS ) ) );
 
 		echo '<hr class="feedback_response__mobile-separator" />';
 		echo '<div class="feedback_response__item">';
