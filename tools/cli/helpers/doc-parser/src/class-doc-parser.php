@@ -99,12 +99,12 @@ class Doc_Parser {
 
 		$destination_path = $destination . DIRECTORY_SEPARATOR . $output_file;
 
-		// Get data from the PHPDoc
-		$json = $this->get_phpdoc_data( $directory, 'raw' );
+		// Get data from the PHPDoc.
+		$json = $this->get_phpdoc_data( $directory );
 
 		$output = json_encode( $json );
 
-		// Write to $output_file
+		// Write to $output_file.
 		$error = ! file_put_contents( $destination_path, $output );
 
 		if ( $error ) {
@@ -123,10 +123,9 @@ class Doc_Parser {
 	 * Generate the data from the PHPDoc markup.
 	 *
 	 * @param string $path Directory to scan for PHPDoc.
-	 * @param string $format Optional. What format the data is returned in: [json*|array].
 	 * @return string|array
 	 */
-	protected function get_phpdoc_data( $path, $format = 'json' ) {
+	protected function get_phpdoc_data( $path ) {
 
 		// Find the files to get the PHPDoc data from. $path can either be a folder or an absolute ref to a file.
 		if ( is_file( $path ) ) {
@@ -297,10 +296,6 @@ class Doc_Parser {
 					),
 				),
 			);
-		}
-
-		if ( 'json' === $format ) {
-			$blocks = json_encode( $blocks, JSON_PRETTY_PRINT );
 		}
 
 		return $blocks;
