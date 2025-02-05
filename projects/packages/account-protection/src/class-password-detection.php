@@ -59,7 +59,7 @@ class Password_Detection {
 
 			return new \WP_Error(
 				Config::PASSWORD_DETECTION_ERROR_CODE,
-				Config::PASSWORD_DETECTION_ERROR_MESSAGE,
+				__( 'Password validation failed.', 'jetpack-account-protection' ),
 				array( 'token' => $transient['token'] )
 			);
 		}
