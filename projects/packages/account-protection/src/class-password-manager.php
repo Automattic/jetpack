@@ -65,7 +65,7 @@ class Password_Manager {
 	public function validate_profile_update( \WP_Error $errors, bool $update, \stdClass $user ): void {
 		if ( ! $update ) {
 			// This is a new user (wp-admin/user-new.php)
-			if ( ! isset( $_POST['_new_user_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_new_user_nonce'] ) ), 'add-new-user' ) ) {
+			if ( ! isset( $_POST['_wpnonce_create-user'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce_create-user'] ) ), 'create-user' ) ) {
 				$errors->add( 'nonce_error', __( '<strong>Error:</strong> Nonce verification failed for new user creation.', 'jetpack-account-protection' ) );
 				return;
 			}

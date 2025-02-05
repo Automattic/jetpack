@@ -108,12 +108,7 @@ class Account_Protection {
 		add_action( 'wp_enqueue_scripts', array( $this->password_detection, 'enqueue_styles' ) );
 
 		// Add password validation
-		add_action(
-			'user_new_form',
-			function () {
-				wp_nonce_field( 'add-new-user', '_new_user_nonce' );
-			}
-		);
+
 		add_action( 'user_profile_update_errors', array( $this->password_manager, 'validate_profile_update' ), 10, 3 );
 		add_action( 'validate_password_reset', array( $this->password_manager, 'validate_password_reset' ), 10, 2 );
 
