@@ -92,8 +92,6 @@ class Password_Manager {
 				return;
 			}
 		}
-
-		// TODO: Run this even if JS validation passes?
 	}
 
 	/**
@@ -135,8 +133,6 @@ class Password_Manager {
 				return;
 			}
 		}
-
-		// TODO: Run this even if JS validation passes?
 	}
 
 	/**
