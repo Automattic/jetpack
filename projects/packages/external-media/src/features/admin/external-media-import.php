@@ -7,13 +7,34 @@
  * @package automattic/jetpack-external-media
  */
 
-namespace Automattic\Jetpack;
+namespace Automattic\Jetpack\External_Media;
+
+use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+
+/**
+ * Whether the current user is connected to WordPress.com.
+ */
+function is_current_user_connected() {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		return true;
+	}
+
+	return ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
+}
 
 /**
  * Register the Jetpack external media page to Media > Import.
  */
 function add_jetpack_external_media_import_page() {
 	if ( empty( $_GET['jetpack_external_media_import_page'] ) && empty( $_GET['untangling-media'] ) ) { // phpcs:disable WordPress.Security.NonceVerification.Recommended
+		return;
+	}
+
+	/**
+	 * The feature is enabled only when the current user is connected to WordPress.com.
+	 */
+	if ( ! is_current_user_connected() ) {
 		return;
 	}
 

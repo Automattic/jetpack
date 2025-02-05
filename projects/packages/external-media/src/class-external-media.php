@@ -5,9 +5,11 @@
  * @package automattic/jetpack-external-media
  */
 
-namespace Automattic\Jetpack;
+namespace Automattic\Jetpack\External_Media;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
