@@ -655,11 +655,11 @@ class WooCommerce extends Module {
 	 * @return array
 	 */
 	public function build_full_sync_action_object( $args ) {
-		list( $filtered_orders, $previous_end ) = $args;
+		list( $filtered_order_items, $previous_end ) = $args;
 		return array(
-			'orders'       => $filtered_orders['objects'],
-			'order_meta'   => $filtered_orders['meta'],
-			'previous_end' => $previous_end,
+			'order_items'     => $filtered_order_items['objects'],
+			'order_item_meta' => $filtered_order_items['meta'],
+			'previous_end'    => $previous_end,
 		);
 	}
 
@@ -675,39 +675,39 @@ class WooCommerce extends Module {
 	 */
 	public function get_next_chunk( $config, $status, $chunk_size ) {
 
-		$order_ids = parent::get_next_chunk( $config, $status, $chunk_size );
+		$order_item_ids = parent::get_next_chunk( $config, $status, $chunk_size );
 
-		if ( empty( $order_ids ) ) {
+		if ( empty( $order_item_ids ) ) {
 			return array();
 		}
 
-		$orders = $this->get_objects_by_id( 'order_item', $order_ids );
+		$order_items = $this->get_objects_by_id( 'order_item', $order_item_ids );
 
 		// If no orders were fetched, make sure to return the expected structure so that status is updated correctly.
-		if ( empty( $orders ) ) {
+		if ( empty( $order_items ) ) {
 			return array(
-				'object_ids' => $order_ids,
+				'object_ids' => $order_item_ids,
 				'objects'    => array(),
 			);
 		}
 
 		// Get the order IDs from the orders that were fetched.
-		$fetched_orders_ids = wp_list_pluck( $orders, 'order_item_id' );
-		$metadata           = $this->get_metadata( $fetched_orders_ids, 'order_item', static::$order_item_meta_whitelist );
+		$fetched_order_item_ids = wp_list_pluck( $order_items, 'order_item_id' );
+		$metadata               = $this->get_metadata( $fetched_order_item_ids, 'order_item', static::$order_item_meta_whitelist );
 
 		// Filter the orders and metadata based on the maximum size constraints.
-		list( $filtered_order_ids, $filtered_orders, $filtered_orders_metadata ) = $this->filter_objects_and_metadata_by_size(
+		list( $filtered_order_item_ids, $filtered_order_items, $filtered_order_items_metadata ) = $this->filter_objects_and_metadata_by_size(
 			'order_item',
-			$orders,
+			$order_items,
 			$metadata,
 			self::MAX_META_LENGTH,
 			self::MAX_SIZE_FULL_SYNC
 		);
 
 		return array(
-			'object_ids' => $filtered_order_ids,
-			'objects'    => $filtered_orders,
-			'meta'       => $filtered_orders_metadata,
+			'object_ids' => $filtered_order_item_ids,
+			'objects'    => $filtered_order_items,
+			'meta'       => $filtered_order_items_metadata,
 		);
 	}
 }
