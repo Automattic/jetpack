@@ -52,9 +52,7 @@ const JetpackDatePicker = props => {
 
 	return (
 		<>
-			<div { ...blockProps }>
-				<div { ...innerBlocksProps } />
-			</div>
+			<div { ...innerBlocksProps } />
 			<JetpackFieldControls
 				id={ id }
 				required={ required }
