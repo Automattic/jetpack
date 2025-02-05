@@ -133,8 +133,8 @@ importers:
         specifier: 2.0.1
         version: 2.0.1
       '@types/jest':
-        specifier: 29.5.12
-        version: 29.5.12
+        specifier: 29.5.14
+        version: 29.5.14
       '@types/react':
         specifier: 18.3.18
         version: 18.3.18
@@ -415,16 +415,16 @@ importers:
         version: 8.20.1
       '@testing-library/jest-dom':
         specifier: ^6.0.0
-        version: 6.5.0
+        version: 6.6.3
       '@testing-library/react':
         specifier: ^14.0.0
         version: 14.3.1(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@testing-library/user-event':
         specifier: ^14.4.3
-        version: 14.5.2(@testing-library/dom@8.20.1)
+        version: 14.6.1(@testing-library/dom@8.20.1)
       '@types/jest':
         specifier: ^29.0.0
-        version: 29.5.12
+        version: 29.5.14
       '@types/react':
         specifier: 18.3.18
         version: 18.3.18
@@ -613,14 +613,14 @@ importers:
         specifier: 10.4.0
         version: 10.4.0
       '@testing-library/react':
-        specifier: 16.0.1
-        version: 16.0.1(@testing-library/dom@10.4.0)(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 16.2.0
+        version: 16.2.0(@testing-library/dom@10.4.0)(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@testing-library/user-event':
-        specifier: 14.5.2
-        version: 14.5.2(@testing-library/dom@10.4.0)
+        specifier: 14.6.1
+        version: 14.6.1(@testing-library/dom@10.4.0)
       '@types/jest':
-        specifier: 29.5.12
-        version: 29.5.12
+        specifier: 29.5.14
+        version: 29.5.14
       '@types/react':
         specifier: 18.3.18
         version: 18.3.18
@@ -734,11 +734,11 @@ importers:
         specifier: 10.4.0
         version: 10.4.0
       '@testing-library/react':
-        specifier: 16.0.1
-        version: 16.0.1(@testing-library/dom@10.4.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 16.2.0
+        version: 16.2.0(@testing-library/dom@10.4.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@testing-library/user-event':
-        specifier: 14.5.2
-        version: 14.5.2(@testing-library/dom@10.4.0)
+        specifier: 14.6.1
+        version: 14.6.1(@testing-library/dom@10.4.0)
       '@types/react':
         specifier: 18.3.18
         version: 18.3.18
@@ -1098,11 +1098,11 @@ importers:
         specifier: 10.4.0
         version: 10.4.0
       '@testing-library/react':
-        specifier: 16.0.1
-        version: 16.0.1(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 16.2.0
+        version: 16.2.0(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@testing-library/user-event':
-        specifier: 14.5.2
-        version: 14.5.2(@testing-library/dom@10.4.0)
+        specifier: 14.6.1
+        version: 14.6.1(@testing-library/dom@10.4.0)
       '@wordpress/babel-plugin-import-jsx-pragma':
         specifier: 5.17.0
         version: 5.17.0(@babel/core@7.26.0)
@@ -1156,11 +1156,11 @@ importers:
         specifier: 10.4.0
         version: 10.4.0
       '@testing-library/react':
-        specifier: 16.0.1
-        version: 16.0.1(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 16.2.0
+        version: 16.2.0(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@testing-library/user-event':
-        specifier: 14.5.2
-        version: 14.5.2(@testing-library/dom@10.4.0)
+        specifier: 14.6.1
+        version: 14.6.1(@testing-library/dom@10.4.0)
       '@wordpress/base-styles':
         specifier: 5.17.0
         version: 5.17.0
@@ -1301,14 +1301,14 @@ importers:
         specifier: 10.4.0
         version: 10.4.0
       '@testing-library/react':
-        specifier: 16.0.1
-        version: 16.0.1(@testing-library/dom@10.4.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 16.2.0
+        version: 16.2.0(@testing-library/dom@10.4.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@testing-library/user-event':
-        specifier: 14.5.2
-        version: 14.5.2(@testing-library/dom@10.4.0)
+        specifier: 14.6.1
+        version: 14.6.1(@testing-library/dom@10.4.0)
       '@types/jest':
-        specifier: 29.5.12
-        version: 29.5.12
+        specifier: 29.5.14
+        version: 29.5.14
       '@types/react':
         specifier: 18.3.18
         version: 18.3.18
@@ -1429,11 +1429,11 @@ importers:
         specifier: 10.4.0
         version: 10.4.0
       '@testing-library/react':
-        specifier: 16.0.1
-        version: 16.0.1(@testing-library/dom@10.4.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 16.2.0
+        version: 16.2.0(@testing-library/dom@10.4.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/jest':
-        specifier: 29.5.12
-        version: 29.5.12
+        specifier: 29.5.14
+        version: 29.5.14
       '@types/react':
         specifier: 18.3.18
         version: 18.3.18
@@ -1525,11 +1525,11 @@ importers:
         specifier: 10.4.0
         version: 10.4.0
       '@testing-library/react':
-        specifier: 16.0.1
-        version: 16.0.1(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 16.2.0
+        version: 16.2.0(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@testing-library/user-event':
-        specifier: 14.5.2
-        version: 14.5.2(@testing-library/dom@10.4.0)
+        specifier: 14.6.1
+        version: 14.6.1(@testing-library/dom@10.4.0)
       '@wordpress/babel-plugin-import-jsx-pragma':
         specifier: 5.17.0
         version: 5.17.0(@babel/core@7.26.0)
@@ -1791,8 +1791,8 @@ importers:
         specifier: 7.26.3
         version: 7.26.3(@babel/core@7.26.0)
       '@types/jest':
-        specifier: 29.5.12
-        version: 29.5.12
+        specifier: 29.5.14
+        version: 29.5.14
       jest:
         specifier: '*'
         version: 29.7.0
@@ -2005,11 +2005,11 @@ importers:
         specifier: 10.4.0
         version: 10.4.0
       '@testing-library/react':
-        specifier: 16.0.1
-        version: 16.0.1(@testing-library/dom@10.4.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 16.2.0
+        version: 16.2.0(@testing-library/dom@10.4.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@testing-library/user-event':
-        specifier: 14.5.2
-        version: 14.5.2(@testing-library/dom@10.4.0)
+        specifier: 14.6.1
+        version: 14.6.1(@testing-library/dom@10.4.0)
       '@types/react':
         specifier: 18.3.18
         version: 18.3.18
@@ -2873,17 +2873,17 @@ importers:
         specifier: 10.4.0
         version: 10.4.0
       '@testing-library/jest-dom':
-        specifier: 6.5.0
-        version: 6.5.0
+        specifier: 6.6.3
+        version: 6.6.3
       '@testing-library/react':
-        specifier: 16.0.1
-        version: 16.0.1(@testing-library/dom@10.4.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 16.2.0
+        version: 16.2.0(@testing-library/dom@10.4.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@testing-library/user-event':
-        specifier: 14.5.2
-        version: 14.5.2(@testing-library/dom@10.4.0)
+        specifier: 14.6.1
+        version: 14.6.1(@testing-library/dom@10.4.0)
       '@types/jest':
-        specifier: 29.5.12
-        version: 29.5.12
+        specifier: 29.5.14
+        version: 29.5.14
       '@types/react':
         specifier: 18.3.18
         version: 18.3.18
@@ -3158,8 +3158,8 @@ importers:
         specifier: 3.2.4
         version: 3.2.4(preact@10.22.1)
       '@testing-library/react':
-        specifier: 16.0.1
-        version: 16.0.1(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 16.2.0
+        version: 16.2.0(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/babel-plugin-import-jsx-pragma':
         specifier: 5.17.0
         version: 5.17.0(@babel/core@7.26.0)
@@ -3340,11 +3340,11 @@ importers:
         specifier: 10.4.0
         version: 10.4.0
       '@testing-library/react':
-        specifier: 16.0.1
-        version: 16.0.1(@testing-library/dom@10.4.0)(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 16.2.0
+        version: 16.2.0(@testing-library/dom@10.4.0)(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/jest':
-        specifier: 29.5.12
-        version: 29.5.12
+        specifier: 29.5.14
+        version: 29.5.14
       '@types/react':
         specifier: 18.3.18
         version: 18.3.18
@@ -3512,8 +3512,8 @@ importers:
         specifier: 3.2.4
         version: 3.2.4(preact@10.22.1)
       '@testing-library/react':
-        specifier: 16.0.1
-        version: 16.0.1(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 16.2.0
+        version: 16.2.0(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/babel-plugin-import-jsx-pragma':
         specifier: 5.17.0
         version: 5.17.0(@babel/core@7.26.0)
@@ -3669,8 +3669,8 @@ importers:
         specifier: 10.4.0
         version: 10.4.0
       '@testing-library/react':
-        specifier: 16.0.1
-        version: 16.0.1(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 16.2.0
+        version: 16.2.0(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/browserslist-config':
         specifier: 6.17.0
         version: 6.17.0
@@ -3799,8 +3799,8 @@ importers:
         specifier: 8.4.7
         version: 8.4.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.4.7)(typescript@5.0.4)
       '@types/jest':
-        specifier: 29.5.12
-        version: 29.5.12
+        specifier: 29.5.14
+        version: 29.5.14
       '@types/jquery':
         specifier: 3.5.32
         version: 3.5.32
@@ -3920,8 +3920,8 @@ importers:
         specifier: 10.4.0
         version: 10.4.0
       '@testing-library/react':
-        specifier: 16.0.1
-        version: 16.0.1(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 16.2.0
+        version: 16.2.0(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/browserslist-config':
         specifier: 6.17.0
         version: 6.17.0
@@ -4035,11 +4035,11 @@ importers:
         specifier: 10.4.0
         version: 10.4.0
       '@testing-library/react':
-        specifier: 16.0.1
-        version: 16.0.1(@testing-library/dom@10.4.0)(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 16.2.0
+        version: 16.2.0(@testing-library/dom@10.4.0)(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/jest':
-        specifier: 29.5.12
-        version: 29.5.12
+        specifier: 29.5.14
+        version: 29.5.14
       '@types/react':
         specifier: 18.3.18
         version: 18.3.18
@@ -4401,14 +4401,14 @@ importers:
         specifier: 10.4.0
         version: 10.4.0
       '@testing-library/react':
-        specifier: 16.0.1
-        version: 16.0.1(@testing-library/dom@10.4.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 16.2.0
+        version: 16.2.0(@testing-library/dom@10.4.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@testing-library/user-event':
-        specifier: 14.5.2
-        version: 14.5.2(@testing-library/dom@10.4.0)
+        specifier: 14.6.1
+        version: 14.6.1(@testing-library/dom@10.4.0)
       '@types/jest':
-        specifier: 29.5.12
-        version: 29.5.12
+        specifier: 29.5.14
+        version: 29.5.14
       '@types/react':
         specifier: 18.3.18
         version: 18.3.18
@@ -4710,8 +4710,8 @@ importers:
         specifier: 10.4.0
         version: 10.4.0
       '@testing-library/react':
-        specifier: 16.0.1
-        version: 16.0.1(@testing-library/dom@10.4.0)(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 16.2.0
+        version: 16.2.0(@testing-library/dom@10.4.0)(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/react':
         specifier: 18.3.18
         version: 18.3.18
@@ -4819,8 +4819,8 @@ importers:
         specifier: 10.4.0
         version: 10.4.0
       '@testing-library/react':
-        specifier: 16.0.1
-        version: 16.0.1(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 16.2.0
+        version: 16.2.0(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/browserslist-config':
         specifier: 6.17.0
         version: 6.17.0
@@ -5153,8 +5153,8 @@ importers:
         specifier: 20.1.1
         version: 20.1.1
       '@testing-library/jest-dom':
-        specifier: 6.5.0
-        version: 6.5.0
+        specifier: 6.6.3
+        version: 6.6.3
       '@wordpress/eslint-plugin':
         specifier: 22.3.0
         version: 22.3.0(@babel/core@7.26.0)(eslint-config-prettier@9.1.0(eslint@9.16.0))(eslint-plugin-import@2.31.0)(eslint-plugin-jest@28.9.0(eslint@9.16.0)(jest@29.7.0)(typescript@5.0.4))(eslint-plugin-jsdoc@50.6.0(eslint@9.16.0))(eslint-plugin-jsx-a11y@6.10.2(eslint@9.16.0))(eslint-plugin-playwright@2.1.0(eslint@9.16.0))(eslint-plugin-prettier@5.2.1(eslint-config-prettier@9.1.0(eslint@9.16.0))(eslint@9.16.0)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@5.1.0(eslint@9.16.0))(eslint-plugin-react@7.37.2(eslint@9.16.0))(eslint@9.16.0)(typescript@5.0.4)(wp-prettier@3.0.3)
@@ -7767,8 +7767,8 @@ packages:
     resolution: {integrity: sha512-FlS4ZWlp97iiNWig0Muq8p+3rVDjRiYE+YKGbAqXOu9nwJFFOdL00kFpz42M+4huzYi86vAK1sOOfyOG45muIQ==}
     engines: {node: '>=14'}
 
-  '@testing-library/jest-dom@6.5.0':
-    resolution: {integrity: sha512-xGGHpBXYSHUUr6XsKBfs85TWlYKpTc37cSBBVrXcib2MkHLboWlkClhWF37JKlDb9KEq3dHs+f2xR7XJEWGBxA==}
+  '@testing-library/jest-dom@6.6.3':
+    resolution: {integrity: sha512-IteBhl4XqYNkM54f4ejhLRJiZNqcSCoXUOG2CPK7qbD322KjQozM4kHQOfkG2oln9b9HTYqs+Sae8vBATubxxA==}
     engines: {node: '>=14', npm: '>=6', yarn: '>=1'}
 
   '@testing-library/preact@3.2.4':
@@ -7784,23 +7784,23 @@ packages:
       react: ^18.0.0
       react-dom: ^18.0.0
 
-  '@testing-library/react@16.0.1':
-    resolution: {integrity: sha512-dSmwJVtJXmku+iocRhWOUFbrERC76TX2Mnf0ATODz8brzAZrMBbzLwQixlBSanZxR6LddK3eiwpSFZgDET1URg==}
+  '@testing-library/react@16.2.0':
+    resolution: {integrity: sha512-2cSskAvA1QNtKc8Y9VJQRv0tm3hLVgxRGDB+KYhIaPQJ1I+RHbhIXcM+zClKXzMes/wshsMVzf4B9vS4IZpqDQ==}
     engines: {node: '>=18'}
     peerDependencies:
       '@testing-library/dom': ^10.0.0
-      '@types/react': ^18.0.0
-      '@types/react-dom': ^18.0.0
-      react: ^18.0.0
-      react-dom: ^18.0.0
+      '@types/react': ^18.0.0 || ^19.0.0
+      '@types/react-dom': ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
     peerDependenciesMeta:
       '@types/react':
         optional: true
       '@types/react-dom':
         optional: true
 
-  '@testing-library/user-event@14.5.2':
-    resolution: {integrity: sha512-YAh82Wh4TIrxYLmfGcixwD18oIjyC1pFQC2Y01F2lzV2HTMiYrI0nze0FD0ocB//CKS/7jIUgae+adPqxK5yCQ==}
+  '@testing-library/user-event@14.6.1':
+    resolution: {integrity: sha512-vq7fv0rnt+QTXgPxr5Hjc210p6YKq2kmdziLgnsZGgLJ9e6VAShx1pACLuRjd/AS/sr7phAR58OIIpf0LlmQNw==}
     engines: {node: '>=12', npm: '>=6'}
     peerDependencies:
       '@testing-library/dom': '>=7.21.4'
@@ -7915,8 +7915,8 @@ packages:
   '@types/istanbul-reports@3.0.4':
     resolution: {integrity: sha512-pk2B1NWalF9toCRu6gjBzR69syFjP4Od8WRAX+0mmf9lAjCRicLOWc+ZrxZHx/0XRjotgkF9t6iaMJ+aXcOdZQ==}
 
-  '@types/jest@29.5.12':
-    resolution: {integrity: sha512-eDC8bTvT/QhYdxJAulQikueigY5AsdBRH2yDKW3yveW7svY3+DzN84/2NUgkw10RTiJbWqZrTtoGVdYlvFJdLw==}
+  '@types/jest@29.5.14':
+    resolution: {integrity: sha512-ZN+4sdnLUbo8EVvVc2ao0GFW6oVrQRPn4K2lglySj7APvSrgzxHiNNK99us4WDMi57xxA2yggblIAMNhXOotLQ==}
 
   '@types/jquery@3.5.32':
     resolution: {integrity: sha512-b9Xbf4CkMqS02YH8zACqN1xzdxc3cO735Qe5AbSUFmyOiaWAbcpqh9Wna+Uk0vgACvoQHpWDg2rGdHkYPLmCiQ==}
@@ -18642,7 +18642,7 @@ snapshots:
       lz-string: 1.5.0
       pretty-format: 27.5.1
 
-  '@testing-library/jest-dom@6.5.0':
+  '@testing-library/jest-dom@6.6.3':
     dependencies:
       '@adobe/css-tools': 4.4.1
       aria-query: 5.3.2
@@ -18667,7 +18667,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  '@testing-library/react@16.0.1(@testing-library/dom@10.4.0)(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@testing-library/react@16.2.0(@testing-library/dom@10.4.0)(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.26.0
       '@testing-library/dom': 10.4.0
@@ -18677,7 +18677,7 @@ snapshots:
       '@types/react': 18.3.18
       '@types/react-dom': 18.3.5(@types/react@18.3.18)
 
-  '@testing-library/react@16.0.1(@testing-library/dom@10.4.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@testing-library/react@16.2.0(@testing-library/dom@10.4.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.26.0
       '@testing-library/dom': 10.4.0
@@ -18686,18 +18686,18 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.3.18
 
-  '@testing-library/react@16.0.1(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@testing-library/react@16.2.0(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.26.0
       '@testing-library/dom': 10.4.0
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@testing-library/user-event@14.5.2(@testing-library/dom@10.4.0)':
+  '@testing-library/user-event@14.6.1(@testing-library/dom@10.4.0)':
     dependencies:
       '@testing-library/dom': 10.4.0
 
-  '@testing-library/user-event@14.5.2(@testing-library/dom@8.20.1)':
+  '@testing-library/user-event@14.6.1(@testing-library/dom@8.20.1)':
     dependencies:
       '@testing-library/dom': 8.20.1
 
@@ -18811,7 +18811,7 @@ snapshots:
     dependencies:
       '@types/istanbul-lib-report': 3.0.3
 
-  '@types/jest@29.5.12':
+  '@types/jest@29.5.14':
     dependencies:
       expect: 29.7.0
       pretty-format: 29.7.0
@@ -18935,7 +18935,7 @@ snapshots:
 
   '@types/testing-library__jest-dom@5.14.9':
     dependencies:
-      '@types/jest': 29.5.12
+      '@types/jest': 29.5.14
 
   '@types/tough-cookie@4.0.5': {}
 
