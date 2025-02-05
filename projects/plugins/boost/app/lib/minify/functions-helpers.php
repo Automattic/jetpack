@@ -245,7 +245,7 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 
 	$url = $siteurl . $path;
 
-	if ( strpos( $url, '?m=' ) ) {
+	if ( str_contains( $url, '?m=' ) ) {
 		return $url;
 	}
 
