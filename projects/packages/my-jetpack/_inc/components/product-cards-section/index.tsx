@@ -1,6 +1,6 @@
 import { Container, Col, Text, AdminSectionHero } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { PRODUCT_SLUGS } from '../../data/constants';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
@@ -104,7 +104,7 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 			: __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' );
 	}, [ ownedProducts.length ] );
 
-	const filterProducts = ( products: JetpackModule[] ) => {
+	const filterProducts = useCallback( ( products: JetpackModule[] ) => {
 		const productsWithNoCard = [
 			'extras',
 			'scan',
@@ -124,7 +124,7 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 			}
 			return true;
 		} );
-	};
+	}, [] );
 
 	const filteredOwnedProducts = filterProducts( ownedProducts );
 	const filteredUnownedProducts = filterProducts( unownedProducts );
