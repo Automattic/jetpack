@@ -779,7 +779,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$option = Contact_Form_Plugin::strip_tags( $option );
 			if ( is_string( $option ) && $option !== '' ) {
 				$checkbox_value = $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option );
-				$checkbox_id    = sanitize_html_class( $id ) . '-' . sanitize_html_class( $checkbox_value );
+				$checkbox_id    = $id . '-' . sanitize_html_class( $checkbox_value );
 
 				// If exact id was already used in this checkbox group, append option index.
 				// Multiple 'blue' options would give id-blue, id-blue-1, id-blue-2, etc.
