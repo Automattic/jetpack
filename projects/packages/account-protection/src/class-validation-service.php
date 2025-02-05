@@ -166,14 +166,14 @@ class Validation_Service {
 		$email_provider = explode( '.', $email_domain )[0]; // 'example'
 
 		$user_data = array(
-			$user->user_login,
-			$user->display_name,
-			$user->first_name,
-			$user->last_name,
-			$user->user_email,
-			$email_username,
-			$email_provider,
-			$user->nickname,
+			$user->user_login ?? '',
+			$user->display_name ?? '',
+			$user->first_name ?? '',
+			$user->last_name ?? '',
+			$user->user_email ?? '',
+			$email_username ?? '',
+			$email_provider ?? '',
+			$user->nickname ?? '',
 		);
 
 		$password_lower = strtolower( $password );
