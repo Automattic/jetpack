@@ -168,18 +168,18 @@ class REST_Connector {
 		);
 
 		// Disconnect/unlink user from WordPress.com servers.
-		// Avoid conflict with older versions of Jetpack by conditionally registering this endpoint
-		if ( empty( $jp_version ) || version_compare( $jp_version, '14.3-beta', '>=' ) ) {
-			register_rest_route(
-				'jetpack/v4',
-				'/connection/user',
-				array(
-					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => __CLASS__ . '::unlink_user',
-					'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
-				)
-			);
-		}
+		// this endpoint is set to override the older endpoint that was previously in the Jetpack plugin
+		// Override is here in case an older version of the Jetpack plugin is installed alongside an updated standalone
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/user',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::unlink_user',
+				'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
+			),
+			true // override other implementations
+		);
 
 		// We are only registering this route if Jetpack-the-plugin is not active or it's version is ge 10.0-alpha.
 		// The reason for doing so is to avoid conflicts between the Connection package and
@@ -660,12 +660,13 @@ class REST_Connector {
 			'wpcomUser'   => $wpcom_user_data,
 			'gravatar'    => get_avatar_url( $current_user->ID ),
 			'permissions' => array(
-				'connect'      => current_user_can( 'jetpack_connect' ),
-				'connect_user' => current_user_can( 'jetpack_connect_user' ),
+				'connect'        => current_user_can( 'jetpack_connect' ),
+				'connect_user'   => current_user_can( 'jetpack_connect_user' ),
 				// This is a mapped capability
 				// phpcs:ignore WordPress.WP.Capabilities.Unknown
-				'unlink_user'  => current_user_can( 'jetpack_unlink_user' ),
-				'disconnect'   => current_user_can( 'jetpack_disconnect' ),
+				'unlink_user'    => current_user_can( 'jetpack_unlink_user' ),
+				'disconnect'     => current_user_can( 'jetpack_disconnect' ),
+				'manage_options' => current_user_can( 'manage_options' ),
 			),
 		);
 
