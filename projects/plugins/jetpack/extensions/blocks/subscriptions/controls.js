@@ -36,22 +36,23 @@ import {
 } from './constants';
 
 export default function SubscriptionControls( {
+	availableNewsletterCategories,
+	areNewsletterCategoriesEnabled,
 	buttonBackgroundColor,
 	borderColor,
 	buttonGradient,
 	borderRadius,
 	borderWeight,
 	buttonOnNewLine,
-	categoryIds,
 	emailFieldBackgroundColor,
 	fallbackButtonBackgroundColor,
 	fallbackTextColor,
 	fontSize,
 	includeSocialFollowers,
 	isGradientAvailable,
-	newsletterCategoriesEnabled,
-	newsletterCategories,
 	padding,
+	preselectNewsletterCategories,
+	selectedNewsletterCategoryIds,
 	setAttributes,
 	setBorderColor,
 	setButtonBackgroundColor,
@@ -63,7 +64,6 @@ export default function SubscriptionControls( {
 	buttonWidth,
 	subscribePlaceholder = DEFAULT_SUBSCRIBE_PLACEHOLDER,
 	successMessage = DEFAULT_SUCCESS_MESSAGE,
-	preSelectCategories,
 } ) {
 	const { isModuleActive: isPublicizeEnabled } = useModuleStatus( 'publicize' );
 
@@ -312,30 +312,31 @@ export default function SubscriptionControls( {
 						onChange={ newSuccessMessage => setAttributes( { successMessage: newSuccessMessage } ) }
 					/>
 				) }
-				{ newsletterCategoriesEnabled && (
+				{ areNewsletterCategoriesEnabled && (
 					<>
 						<ToggleControl
 							label={ __( 'Pre-select categories', 'jetpack' ) }
-							checked={ preSelectCategories }
+							checked={ preselectNewsletterCategories }
 							onChange={ value => {
-								const updates = { preSelectCategories: value };
+								const updates = { preselectNewsletterCategories: value };
+								// Clear selected categories if pre-select is disabled
 								if ( ! value ) {
-									updates.categoryIds = [];
+									updates.selectedNewsletterCategoryIds = [];
 								}
 								setAttributes( updates );
 							} }
 						/>
-						{ newsletterCategories.map( category => (
+						{ availableNewsletterCategories.map( category => (
 							<CheckboxControl
 								key={ category.id }
-								disabled={ ! preSelectCategories }
+								disabled={ ! preselectNewsletterCategories }
 								label={ category.name }
-								checked={ categoryIds.includes( category.id ) }
+								checked={ selectedNewsletterCategoryIds.includes( category.id ) }
 								onChange={ () => {
-									const selectedCategoryIds = categoryIds.includes( category.id )
-										? categoryIds.filter( id => id !== category.id )
-										: [ ...categoryIds, category.id ];
-									setAttributes( { categoryIds: selectedCategoryIds } );
+									const selectedIds = selectedNewsletterCategoryIds.includes( category.id )
+										? selectedNewsletterCategoryIds.filter( id => id !== category.id )
+										: [ ...selectedNewsletterCategoryIds, category.id ];
+									setAttributes( { selectedNewsletterCategoryIds: selectedIds } );
 								} }
 							/>
 						) ) }
