@@ -346,16 +346,12 @@ class Doc_Parser {
 		);
 		$files         = array();
 
-		try {
-			foreach ( $iterableFiles as $file ) {
-				if ( 'php' !== $file->getExtension() ) {
-					continue;
-				}
-
-				$files[] = $file->getPathname();
+		foreach ( $iterableFiles as $file ) {
+			if ( 'php' !== $file->getExtension() ) {
+				continue;
 			}
-		} catch ( \UnexpectedValueException $exc ) {
-			throw new \Exception( sprintf( 'Directory [%s] contained a directory we can not recurse into', $directory ) );
+
+			$files[] = $file->getPathname();
 		}
 
 		return $files;
@@ -404,7 +400,7 @@ class Doc_Parser {
 	 *
 	 * @param Node\Arg $argument the first argument to the apply_filter or do_action call.
 	 * @return String pretty printed argument name.
-	 * @throws \Exception On an unexpected argument component.
+	 * @throws \UnexpectedValueException On an unexpected argument component.
 	 */
 	public function pretty_print_hook_name( Node\Arg $argument ): string {
 
@@ -431,7 +427,7 @@ class Doc_Parser {
 				} elseif ( $part instanceof Node\Expr ) {
 					$result .= '{' . $this->printer->prettyPrint( array( $part ) ) . '}';
 				} else {
-					throw new \Exception( 'Unexpected interpolated string component of type ' . get_class( $part ) );
+					throw new \UnexpectedValueException( 'Unexpected interpolated string component of type ' . get_class( $part ) );
 				}
 			}
 			return $result;
@@ -449,12 +445,12 @@ class Doc_Parser {
 				} elseif ( $part instanceof Node\Expr ) {
 					$result .= '{' . $this->printer->prettyPrint( array( $part ) ) . '}';
 				} else {
-					throw new \Exception( 'Unexpected concatenated string component of type ' . get_class( $part ) );
+					throw new \UnexpectedValueException( 'Unexpected concatenated string component of type ' . get_class( $part ) );
 				}
 			}
 			return $result;
 		}
 
-		throw new \Exception( 'Unexpected function call argument of type ' . get_class( $argument->value ) );
+		throw new \UnexpectedValueException( 'Unexpected function call argument of type ' . get_class( $argument->value ) );
 	}
 }
