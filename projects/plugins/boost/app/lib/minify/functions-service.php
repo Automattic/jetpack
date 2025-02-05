@@ -92,8 +92,8 @@ add_action( 'jetpack_boost_404_tester_cron', 'jetpack_boost_404_tester' );
 function jetpack_boost_404_setup() {
 	if ( is_admin() && get_site_option( 'jetpack_boost_static_minification', 'na' ) === 'na' ) {
 		update_site_option( 'jetpack_boost_static_minification', 0 ); // Add a default value if not set to avoid an extra SQL query.
-		wp_schedule_single_event( time() + 3, 'jetpack_boost_404_tester_cron' );
 	}
+	jetpack_boost_page_optimize_schedule_404_tester();
 }
 
 /**
