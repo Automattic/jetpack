@@ -426,7 +426,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 						title={ title }
 						aria={ { describedby } }
 						className={ classes }
-						size={ mediaOptions.size }
+						size={ mediaOptions.modalSize }
 					>
 						<div ref={ this.contentRef }>
 							{ noticeUI }

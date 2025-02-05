@@ -79,4 +79,4 @@ function OpenverseMedia( props ) {
 	);
 }
 
-export default withMedia( MediaSource.Openverse )( OpenverseMedia, { size: 'fill' } );
+export default withMedia( MediaSource.Openverse, { modalSize: 'fill' } )( OpenverseMedia );

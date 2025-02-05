@@ -80,4 +80,4 @@ function PexelsMedia( props ) {
 	);
 }
 
-export default withMedia( MediaSource.Pexels )( PexelsMedia, { size: 'fill' } );
+export default withMedia( MediaSource.Pexels, { modalSize: 'fill' } )( PexelsMedia );

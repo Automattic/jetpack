@@ -117,4 +117,4 @@ function GooglePhotos( props ) {
 	return <GooglePhotosMedia pickerFeatureEnabled={ pickerFeatureEnabled } { ...props } />;
 }
 
-export default withMedia( MediaSource.GooglePhotos )( GooglePhotos, { size: 'fill' } );
+export default withMedia( MediaSource.GooglePhotos, { modalSize: 'fill' } )( GooglePhotos );

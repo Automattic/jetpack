@@ -6,9 +6,10 @@ import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React from 'react';
-import MediaBrowser from '../media-browser';
-import { MediaSource } from '../media-service/types';
-import withMedia from './with-media';
+import MediaBrowser from '../../media-browser';
+import { MediaSource } from '../../media-service/types';
+import withMedia from '../with-media';
+import './style.scss';
 
 const getWpcomBlogId = () =>
 	window?.Jetpack_Editor_Initial_State?.wpcomBlogId ||
@@ -148,4 +149,4 @@ function JetpackAppMedia( props ) {
 	);
 }
 
-export default withMedia( MediaSource.JetpackAppMedia )( JetpackAppMedia );
+export default withMedia( MediaSource.JetpackAppMedia, { modalSize: 'large' } )( JetpackAppMedia );
