@@ -17,6 +17,15 @@
 		width: unset;
 	}
 
+	.components-button.is-primary {
+		background-color: #3858E9;
+	}
+
+	.components-button.is-secondary {
+		box-shadow: inset 0 0 0 1px #3858e9, 0 0 0 currentColor;
+		color: #3858e9;
+	}
+
 	&__header {
 		flex: 0 0 auto;
 		display: flex;
@@ -154,10 +163,6 @@
 			box-shadow: none;
 			outline: 0;
 		}
-
-		.components-button.is-primary {
-			background-color: #3858E9;
-		}
 	}
 
 	// submit and retry buttons
@@ -204,15 +209,6 @@
 		align-items: center;
 		gap: 16px;
 		animation: assistantInputAppear 0.3s ease-out;
-
-		.components-button.is-primary {
-			background-color: #3858E9;
-		}
-
-		.components-button.is-secondary {
-			box-shadow: inset 0 0 0 1px #3858e9, 0 0 0 currentColor;
-			color: #3858e9;
-		}
 	}
 
 	&__completion {
