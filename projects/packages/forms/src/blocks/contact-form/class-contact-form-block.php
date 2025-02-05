@@ -28,6 +28,13 @@ class Contact_Form_Block {
 			'jetpack/contact-form',
 			array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
+				'supports'        => array(
+					'layout' => array(
+						'default' => array(
+							'type' => 'flex',
+						),
+					),
+				),
 			)
 		);
 
