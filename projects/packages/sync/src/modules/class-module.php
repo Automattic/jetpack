@@ -472,8 +472,7 @@ abstract class Module {
 	 */
 	protected function set_send_full_sync_actions_status( $status, $objects ) {
 
-		$object_ids = $objects['object_ids'] ?? $objects;
-		rsort( $object_ids );
+		$object_ids          = $objects['object_ids'] ?? $objects;
 		$status['last_sent'] = end( $object_ids );
 		$status['sent']     += count( $object_ids );
 		return $status;

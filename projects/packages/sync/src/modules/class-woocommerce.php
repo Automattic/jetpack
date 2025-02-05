@@ -616,13 +616,14 @@ class WooCommerce extends Module {
 	/**
 	 * Returns a list of order_item objects by their IDs.
 	 *
-	 * @param array $ids List of order_item IDs to fetch.
+	 * @param array  $ids List of order_item IDs to fetch.
+	 * @param string $order Order of the results.
 	 *
 	 * @access public
 	 *
 	 * @return array|object|null
 	 */
-	public function get_order_item_by_ids( $ids ) {
+	public function get_order_item_by_ids( $ids, $order = '' ) {
 		global $wpdb;
 
 		if ( ! is_array( $ids ) ) {
@@ -640,6 +641,9 @@ class WooCommerce extends Module {
 		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
 
 		$query = "SELECT * FROM {$this->order_item_table_name} WHERE order_item_id IN ( $placeholders )";
+		if ( ! empty( $order ) ) {
+			$query .= " ORDER BY order_item_id $order";
+		}
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		return $wpdb->get_results( $wpdb->prepare( $query, $ids ), ARRAY_A );
@@ -680,8 +684,8 @@ class WooCommerce extends Module {
 		if ( empty( $order_item_ids ) ) {
 			return array();
 		}
-
-		$order_items = $this->get_objects_by_id( 'order_item', $order_item_ids );
+		// Fetch the order items in DESC order for the next chunk logic to work.
+		$order_items = $this->get_order_item_by_ids( $order_item_ids, 'DESC' );
 
 		// If no orders were fetched, make sure to return the expected structure so that status is updated correctly.
 		if ( empty( $order_items ) ) {
