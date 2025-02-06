@@ -856,6 +856,8 @@ class Jetpack_Gutenberg {
 	 *
 	 * @since 8.1.0
 	 *
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Blocks::get_variation instead. Requires the blocks pacakge.
+	 *
 	 * @return string $block_varation production|beta|experimental
 	 */
 	public static function blocks_variation() {
