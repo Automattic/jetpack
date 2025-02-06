@@ -481,8 +481,8 @@ class Blocks {
 		/**
 		* Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
 		*
-		* @since 6.9.0
-		* @deprecated 11.8.0 Use jetpack_blocks_variation filter instead.
+		* @since jetpack-6.9.0
+		* @deprecated jetpack-11.8.0 Use jetpack_blocks_variation filter instead.
 		*
 		* @param boolean
 		*/
