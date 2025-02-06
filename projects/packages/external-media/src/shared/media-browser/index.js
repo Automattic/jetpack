@@ -1,9 +1,12 @@
-import { Button, Spinner, Composite } from '@wordpress/components';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { Spinner, Composite } from '@wordpress/components';
 import { useCallback, useState, useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React from 'react';
+import MediaBrowserSelectButton from './media-browser-select-button';
 import MediaItem from './media-item';
+import usePageSource from './use-page-source';
 import './style.scss';
 
 const MAX_SELECTED = 10;
@@ -13,6 +16,7 @@ const MAX_SELECTED = 10;
  *
  * @param {object}   props                  - The component props
  * @param {object[]} props.media            - The list of media
+ * @param {string}   props.mediaSource      - The source of media
  * @param {boolean}  props.isCopying        - Whether the media browser is copying the media
  * @param {boolean}  props.isLoading        - Whether the media browser is loading
  * @param {boolean}  props.imageOnly        - Whether to skip non-media items
@@ -22,12 +26,13 @@ const MAX_SELECTED = 10;
  * @param {Function} props.setPath          - To set the path for the folder item
  * @param {Function} props.nextPage         - To get the next path
  * @param {Function} props.onCopy           - To handle the copy
- * @param {string}   props.selectButtonText - The text of the selection button
+ * @param {Function} props.selectButtonText - To get the select button text
  * @param {boolean}  props.shouldProxyImg   - Whether to use the proxy for the media URL
  * @return {React.ReactElement} - JSX element
  */
 function MediaBrowser( {
 	media,
+	mediaSource,
 	isCopying,
 	isLoading,
 	imageOnly,
@@ -42,6 +47,8 @@ function MediaBrowser( {
 } ) {
 	const [ selected, setSelected ] = useState( [] );
 	const gridEl = useRef( null );
+	const { tracks } = useAnalytics();
+	const pageSource = usePageSource();
 
 	const select = useCallback(
 		newlySelected => {
@@ -65,45 +72,29 @@ function MediaBrowser( {
 	);
 
 	const onCopyAndInsert = useCallback( () => {
+		tracks.recordEvent( 'jetpack_external_media_modal_cta_click', {
+			page_source: pageSource,
+			media_source: mediaSource,
+			media_count: selected.length,
+			multiple: !! multiple,
+		} );
+
 		onCopy( selected );
-	}, [ selected, onCopy ] );
+	}, [ tracks, pageSource, mediaSource, selected, multiple, onCopy ] );
 
 	const hasMediaItems = media.filter( item => item.type !== 'folder' ).length > 0;
-	const classes = clsx( {
-		'jetpack-external-media-browser__media': true,
-		'jetpack-external-media-browser__media__loading': isLoading,
-	} );
-	const wrapper = clsx( {
-		'jetpack-external-media-browser': true,
-		[ className ]: true,
-	} );
+
+	const getSelectButtonLabel = () => {
+		const defaultLabel = isCopying
+			? __( 'Inserting…', 'jetpack-external-media' )
+			: __( 'Select', 'jetpack-external-media', /* dummy arg to avoid bad minification */ 0 );
+
+		return selectButtonText ? selectButtonText( selected.length, isCopying ) : defaultLabel;
+	};
 
 	// Using _event to avoid eslint errors. Can change to event if it's in use again.
 	const handleMediaItemClick = ( _event, { item } ) => {
 		select( item );
-	};
-
-	const SelectButton = selectProps => {
-		const disabled = selected.length === 0 || isCopying;
-		const defaultLabel = isCopying
-			? __( 'Inserting…', 'jetpack-external-media' )
-			: __( 'Select', 'jetpack-external-media', /* dummy arg to avoid bad minification */ 0 );
-		const label = selectProps?.labelText
-			? selectProps?.labelText( selected.length, isCopying )
-			: defaultLabel;
-
-		return (
-			<div className="jetpack-external-media-browser__media__toolbar">
-				<Button
-					variant="primary"
-					isBusy={ isCopying }
-					disabled={ disabled }
-					onClick={ onCopyAndInsert }
-				>
-					{ label }
-				</Button>
-			</div>
-		);
 	};
 
 	// Infinite scroll
@@ -126,11 +117,19 @@ function MediaBrowser( {
 	}, [ pageHandle, isLoading, gridEl ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
-		<div className={ wrapper }>
+		<div
+			className={ clsx( {
+				'jetpack-external-media-browser': true,
+				[ className ]: true,
+			} ) }
+		>
 			<Composite
 				role="listbox"
 				ref={ gridEl }
-				className={ classes }
+				className={ clsx( {
+					'jetpack-external-media-browser__media': true,
+					'jetpack-external-media-browser__media__loading': isLoading,
+				} ) }
 				aria-label={ __( 'Media list', 'jetpack-external-media' ) }
 				render={ <ul /> }
 			>
@@ -161,7 +160,14 @@ function MediaBrowser( {
 				</div>
 			) }
 
-			{ hasMediaItems && <SelectButton labelText={ selectButtonText } /> }
+			{ hasMediaItems && (
+				<MediaBrowserSelectButton
+					label={ getSelectButtonLabel() }
+					isLoading={ isCopying }
+					disabled={ selected.length === 0 || isCopying }
+					onClick={ onCopyAndInsert }
+				/>
+			) }
 		</div>
 	);
 }
