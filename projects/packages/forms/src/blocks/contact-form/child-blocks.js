@@ -512,7 +512,7 @@ export const childBlocks = [
 		name: 'field-file',
 		settings: {
 			...FieldDefaults,
-			title: __( 'File Upload Field', 'jetpack-forms' ),
+			title: `${ __( 'File upload field', 'jetpack-forms' ) } (a8c only)`,
 			keywords: [
 				__( 'File', 'jetpack-forms' ),
 				__( 'Upload', 'jetpack-forms' ),
