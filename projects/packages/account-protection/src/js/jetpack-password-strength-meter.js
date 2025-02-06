@@ -16,15 +16,6 @@ jQuery( document ).ready( function ( $ ) {
 
 	const passwordValidationStatus = $( '<div id="password-validation-status"></div>' );
 
-	const validationItemData = {
-		core: {
-			status: null,
-			message: 'Passes core validation',
-			info: null,
-		},
-		...jetpackData.validationInitialState,
-	}; // TODO: Add info icon popovers
-
 	const validationCheckList = $( '<ul></ul>', {
 		css: {
 			display: 'flex',
@@ -36,7 +27,7 @@ jQuery( document ).ready( function ( $ ) {
 
 	const validationItems = {};
 
-	Object.entries( validationItemData ).forEach( ( [ key, value ] ) => {
+	Object.entries( jetpackData.validationInitialState ).forEach( ( [ key, value ] ) => {
 		const listItem = $( '<li></li>', {
 			css: {
 				display: 'contains_backslash' === key ? 'none' : 'flex',
@@ -83,7 +74,7 @@ jQuery( document ).ready( function ( $ ) {
 				css: {
 					display: 'none',
 					position: 'absolute',
-					bottom: '30px', // Position it directly above the icon
+					bottom: '30px',
 					left: '50%',
 					transform: 'translateX(-50%)',
 					background: '#333',

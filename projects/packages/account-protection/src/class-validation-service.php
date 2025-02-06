@@ -58,6 +58,11 @@ class Validation_Service {
 	 */
 	public function get_validation_initial_state( $user_specific ): array {
 		$base_conditions = array(
+			'core'               => array(
+				'status'  => null,
+				'message' => __( 'Passes core validation', 'jetpack-account-protection' ),
+				'info'    => __( 'This password meets the minimum WordPress core requirements.', 'jetpack-account-protection' ),
+			),
 			'contains_backslash' => array(
 				'status'  => null,
 				'message' => __( "Doesn't contain a backslash (\\) character", 'jetpack-account-protection' ),
