@@ -90,6 +90,7 @@ export const DEFAULT_RESTRICTIONS = {
 			max: GLOBAL_MAX_SIZE,
 		},
 	},
+	charLimit: 255,
 };
 
 export const RESTRICTIONS = {
@@ -112,6 +113,7 @@ export const RESTRICTIONS = {
 			maxSize: 10000,
 			maxLength: 14400,
 		},
+		charLimit: 10000,
 	},
 	tumblr: {
 		allowedMediaTypes: allowedImageTypes.concat( [ MP4, MOV, VIDEOPRESS ] ),
@@ -122,6 +124,7 @@ export const RESTRICTIONS = {
 			maxSize: 500,
 			maxLength: 600,
 		},
+		charLimit: 4096,
 	},
 	linkedin: {
 		allowedMediaTypes: allowedImageTypes.concat( [ MP4, VIDEOPRESS ] ),
@@ -134,6 +137,7 @@ export const RESTRICTIONS = {
 			maxLength: 600,
 			minLength: 3,
 		},
+		charLimit: 3000,
 	},
 	'instagram-business': {
 		requiresMedia: true,
@@ -157,6 +161,7 @@ export const RESTRICTIONS = {
 				max: 10,
 			},
 		},
+		charLimit: 2200,
 	},
 	mastodon: {
 		allowedMediaTypes: mastodonImageTypes.concat( [ ...mastodonVideoTypes, MP4, VIDEOPRESS ] ),
@@ -166,6 +171,7 @@ export const RESTRICTIONS = {
 		video: {
 			maxSize: 40,
 		},
+		charLimit: 500,
 	},
 	nextdoor: {
 		allowedMediaTypes: nextdoorImageTypes.concat( [ ...nextdoorVideoTypes, MP4, VIDEOPRESS ] ),
@@ -175,6 +181,14 @@ export const RESTRICTIONS = {
 		video: {
 			maxSize: 500,
 		},
+		charLimit: 10000,
+	},
+	bluesky: {
+		allowedMediaTypes: allowedImageTypes,
+		image: {
+			maxSize: 1,
+		},
+		charLimit: 300,
 	},
 };
 

@@ -45,8 +45,7 @@ module.exports = [
 				'./src/features/wpcom-global-styles/wpcom-global-styles-view.js',
 			'wpcom-documentation-links':
 				'./src/features/wpcom-documentation-links/wpcom-documentation-links.ts',
-			'wpcom-external-media-import-page':
-				'./src/features/wpcom-media/wpcom-external-media-import.js',
+			'wpcom-media-url-upload': './src/features/wpcom-media/wpcom-media-url-upload.js',
 			'wpcom-options-general': [
 				'./src/features/wpcom-options-general/options-general.js',
 				'./src/features/wpcom-options-general/options-general.scss',
@@ -59,6 +58,7 @@ module.exports = [
 			'starter-page-templates': './src/features/starter-page-templates/index.tsx',
 			'removed-calypso-screen-notice':
 				'./src/features/wpcom-admin-interface/removed-calypso-screen-notice.tsx',
+			'adminbar-launch-button': './src/features/launch-button/index.js',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,

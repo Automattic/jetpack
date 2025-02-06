@@ -34,6 +34,7 @@ export type ConnectionService = {
 export interface ApiPaths {
 	refreshConnections: string;
 	resharePost: string;
+	socialToggleBase: 'settings' | 'social/settings';
 }
 
 export type SocialSettings = {

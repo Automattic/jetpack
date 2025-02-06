@@ -41,7 +41,7 @@ There are normally two reasons why you would choose integration over unit tests:
 Normally, integration tests for packages rely on various mocking solutions available:
 
 - [brain/monkey](https://packagist.org/packages/brain/monkey) - For mocking and stubbing WordPress functions and classes.
-- [automattic/wordbless](https://packagist.org/packages/automattic/wordbless) is used to pull in WordPress for testing. As name implies, it's a lightweight version of WordPress, without database and other limitations.
+- [automattic/jetpack-test-environment](../projects/packages/test-environment/README.md) is used to pull in WordPress for testing. It calls in a lightweight version of WordPress (via the [WorDBless](https://packagist.org/packages/automattic/wordbless) package) and provides a way to run tests in a WordPress environment. We use the jetpack-test-environment package within the monorepo to only need one install of WordPress for the entire monorepo.
 
 There are a lot of examples on how to use these tools in the `/projects/packages` folder, such as [here](/projects/packages/connection/tests/php/test_Manager_integration.php).
 

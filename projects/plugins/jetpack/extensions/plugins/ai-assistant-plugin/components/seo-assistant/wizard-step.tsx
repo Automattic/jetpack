@@ -6,14 +6,19 @@ export default function WizardStep( {
 	className = '',
 	messages,
 	visible,
-	loading = false,
 	onSelect,
+	isBusy,
+	current,
 } ) {
 	const stepRef = useRef( null );
 	const classes = clsx( 'assistant-wizard-step', className );
+	const stepIsBusy = isBusy && current;
+
 	return (
-		<div ref={ stepRef } className={ classes } style={ { display: visible ? 'block' : 'none' } }>
-			<WizardMessages messages={ messages } loading={ loading } onSelect={ onSelect } />
-		</div>
+		visible && (
+			<div ref={ stepRef } className={ classes }>
+				<WizardMessages messages={ messages } onSelect={ onSelect } isBusy={ stepIsBusy } />
+			</div>
+		)
 	);
 }

@@ -584,7 +584,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
                 $zbsfs = 'simple'; if (is_array($form) && isset($form['style'])) $zbsfs = $form['style'];
              
                 // get js url
-                $formjs = ZEROBSCRM_URL . 'js/ZeroBSCRM.leadform.js?ver='.$zbs->version;
+			$formjs = ZEROBSCRM_URL . 'js/ZeroBSCRM.leadform.js?ver=' . $zbs::VERSION;
 
             ?><div id="form-embed">
                 <h1 class="welcomeh1"><?php esc_html_e('Embed Code',"zero-bs-crm");?></h1>

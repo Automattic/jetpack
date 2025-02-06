@@ -68,7 +68,7 @@ class Mailpoet_Export_Segment_To_MailPoet {
 		add_action( 'jpcrm_enqueue_styles_listview', function() {
 			
 			global $zbs;
-			wp_enqueue_script( 'jpcrm-mailpoet-listview', plugins_url( '/js/jpcrm-mailpoet-listview-additions' . wp_scripts_get_suffix() . '.js', JPCRM_MAILPOET_ROOT_FILE ), array( 'jquery' ), $zbs->version );
+			wp_enqueue_script( 'jpcrm-mailpoet-listview', plugins_url( '/js/jpcrm-mailpoet-listview-additions' . wp_scripts_get_suffix() . '.js', JPCRM_MAILPOET_ROOT_FILE ), array( 'jquery' ), $zbs::VERSION ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
 
 		} );
 

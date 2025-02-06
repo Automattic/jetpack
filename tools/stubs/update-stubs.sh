@@ -135,3 +135,12 @@ php "$BASE/tools/stubs/munge-phpunit-stubs.php" "$BASE/.phan/stubs/phpunit-stubs
 for f in "$WORK_DIR"/phpunit/vendor/{phpunit,sebastian}/*; do
 	echo "${f#$WORK_DIR/phpunit/}"
 done > "$BASE/.phan/stubs/phpunit-dirs.txt"
+
+echo
+info 'Downloading Gutenberg'
+fetch_plugin gutenberg
+
+echo
+info 'Extracting Gutenberg stubs'
+"$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/gutenberg-stubs.php" "$BASE/tools/stubs/gutenberg-stub-defs.php"
+

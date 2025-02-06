@@ -855,7 +855,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
 
-		$this->assertFalse( $this->server_replica_storage->get_the_terms( $post_id, 'post_tag', 'Not empty' ) );
+		$this->assertFalse( $this->server_replica_storage->get_the_terms( $post_id, 'post_tag' ), 'Not empty' );
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
 
@@ -1603,7 +1603,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 		$this->assertEquals( 3, $this->server_replica_storage->user_count() );
 		// finally, let's make sure that the initial sync method actually invokes our initial sync user config
-		Actions::do_initial_sync( '4.2', '4.1' );
+		Actions::do_initial_sync();
 		$current_user = wp_get_current_user();
 
 		$expected_sync_config = array(

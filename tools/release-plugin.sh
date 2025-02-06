@@ -264,7 +264,7 @@ function do_packagist_check {
 	for PKGDIR in $(git -c core.quotepath=off diff --name-only "$GITBASE..HEAD" projects/packages/ | sed 's!^\(projects/packages/[^/]*\)/.*!\1!' | sort -u); do
 		cd "$BASE/$PKGDIR"
 		CHANGES_DIR=$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)
-		if [[ ! -d "$CHANGES_DIR" || -z "$(ls -- "$CHANGES_DIR")" ]]; then
+		if [[ ! -d "$CHANGES_DIR" || -z "$(ls -- "$CHANGES_DIR")" ]] && jq -e '.extra["mirror-repo"] // null' composer.json &>/dev/null; then
 			POLL_ARGS+=( "$( jq -r .name composer.json )=$( changelogger version current )" )
 		fi
 	done

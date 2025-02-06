@@ -33,7 +33,7 @@ function wpcomsh_storage_notices() {
 	}
 
 	// Show the info notice only on the media library page.
-	if ( $notice_class === 'info' && $pagenow !== 'upload.php' ) {
+	if ( $notice_class === 'info' && ( $pagenow !== 'upload.php' || isset( $_GET['page'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		return;
 	}
 

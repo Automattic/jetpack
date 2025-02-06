@@ -13,12 +13,22 @@ function jetpack_boost_minify_cache_buster() {
 }
 
 /**
- * Cleanup the given cache folder, removing all files older than $file_age seconds.
+ * Cleanup the given cache folder, removing all files that haven't been accessed in $file_age seconds.
+ * If a file is older than 2 * $file_age, it will be removed regardless of its access time.
  *
  * @param string $cache_folder The path to the cache folder to cleanup.
  * @param int    $file_age The age of files to purge, in seconds.
  */
 function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file_age = DAY_IN_SECONDS ) {
+
+	if ( $cache_folder !== Config::get_static_cache_dir_path() ) {
+		if ( $file_age !== 0 ) {
+			// Cleanup obsolete files in static cache folder
+			jetpack_boost_minify_remove_stale_static_files();
+		}
+		jetpack_boost_page_optimize_cache_cleanup( Config::get_static_cache_dir_path(), $file_age !== 0 ? WEEK_IN_SECONDS : 0 );
+	}
+
 	if ( ! is_dir( $cache_folder ) ) {
 		return;
 	}
@@ -31,13 +41,16 @@ function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file
 		$file_age = 0;
 	}
 
-	// If the cache folder changed since queueing, purge it
-	if ( $using_cache && $cache_folder !== $defined_cache_dir ) {
-		$file_age = 0;
-	}
-
 	// Grab all files in the cache directory
-	$cache_files = glob( $cache_folder . '/page-optimize-cache-*' );
+	if ( $cache_folder === Config::get_static_cache_dir_path() ) {
+		$cache_files = glob( $cache_folder . '/*.min.*' );
+	} else {
+		// If the cache folder changed since queueing, purge it
+		if ( $using_cache && $cache_folder !== $defined_cache_dir ) {
+			$file_age = 0;
+		}
+		$cache_files = glob( $cache_folder . '/page-optimize-cache-*' );
+	}
 
 	// Cleanup all files older than $file_age
 	foreach ( $cache_files as $cache_file ) {
@@ -45,7 +58,16 @@ function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file
 			continue;
 		}
 
-		if ( ( time() - $file_age ) > filemtime( $cache_file ) ) {
+		if ( $file_age === 0 ) {
+			wp_delete_file( $cache_file );
+			continue;
+		}
+
+		// Delete files that haven't been accessed in $file_age seconds,
+		// or files that are older than 2 * $file_age regardless of access time
+		if ( ( time() - $file_age ) > fileatime( $cache_file ) ) {
+			wp_delete_file( $cache_file );
+		} elseif ( ( time() - ( 2 * $file_age ) ) > filemtime( $cache_file ) ) {
 			wp_delete_file( $cache_file );
 		}
 	}
@@ -146,6 +168,15 @@ function jetpack_boost_page_optimize_remove_concat_base_prefix( $original_fs_pat
 }
 
 /**
+ * Schedule a cronjob for the 404 tester, if one isn't already scheduled.
+ */
+function jetpack_boost_page_optimize_schedule_404_tester() {
+	if ( false === wp_next_scheduled( 'jetpack_boost_404_tester_cron' ) ) {
+		wp_schedule_event( time(), 'daily', 'jetpack_boost_404_tester_cron' );
+	}
+}
+
+/**
  * Schedule a cronjob for cache cleanup, if one isn't already scheduled.
  */
 function jetpack_boost_page_optimize_schedule_cache_cleanup() {
@@ -223,7 +254,7 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 
 	$url = $siteurl . $path;
 
-	if ( strpos( $url, '?m=' ) ) {
+	if ( str_contains( $url, '?m=' ) ) {
 		return $url;
 	}
 
@@ -260,7 +291,7 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 }
 
 /**
- * Get the URL prefix for static minify/concat resources. Defaults to /jb_static/, but can be
+ * Get the URL prefix for static minify/concat resources. Defaults to /_jb_static/, but can be
  * overridden by defining JETPACK_BOOST_STATIC_PREFIX.
  */
 function jetpack_boost_get_static_prefix() {
@@ -271,6 +302,10 @@ function jetpack_boost_get_static_prefix() {
 	}
 
 	return trailingslashit( $prefix );
+}
+
+function jetpack_boost_get_minify_url( $file_name, $site_url ) {
+	return $site_url . '/wp-content/boost-cache/static/' . $file_name;
 }
 
 /**
@@ -286,7 +321,7 @@ function jetpack_boost_minify_serve_concatenated() {
 		$request_path = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) )[0];
 		$prefix       = jetpack_boost_get_static_prefix();
 		if ( $prefix === substr( $request_path, -strlen( $prefix ), strlen( $prefix ) ) ) {
-			require_once __DIR__ . '/functions-service.php';
+			require_once __DIR__ . '/functions-service-fallback.php';
 			jetpack_boost_page_optimize_service_request();
 			exit( 0 ); // @phan-suppress-current-line PhanPluginUnreachableCode -- Safer to include it even though jetpack_boost_page_optimize_service_request() itself never returns.
 		}
@@ -315,6 +350,8 @@ function jetpack_boost_minify_setup() {
 		// Disable Jetpack Site Accelerator CDN for static JS/CSS, if we're minifying this page.
 		add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
 	}
+
+	jetpack_boost_404_setup();
 }
 
 function jetpack_boost_page_optimize_generate_concat_path( $url_paths, $dependency_path_mapping ) {

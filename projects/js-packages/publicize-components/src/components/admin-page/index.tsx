@@ -33,12 +33,12 @@ export const SocialAdminPage = () => {
 
 	const { isModuleEnabled, showPricingPage, isUpdatingJetpackSettings } = useSelect( select => {
 		const store = select( socialStore );
-		const settings = store.getSocialPluginSettings();
+		const settings = store.getSocialModuleSettings();
 
 		return {
-			isModuleEnabled: settings.publicize_active,
+			isModuleEnabled: settings.publicize,
 			showPricingPage: store.getSocialSettings().showPricingPage,
-			isUpdatingJetpackSettings: store.isSavingSocialPluginSettings(),
+			isUpdatingJetpackSettings: store.isSavingSocialModuleSettings(),
 		};
 	}, [] );
 

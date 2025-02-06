@@ -27,4 +27,5 @@ function dbless_default_options() {
 	return array();
 }
 
-\WorDBless\Load::load();
+// Initialize WordPress test environment
+\Automattic\Jetpack\Test_Environment::init();
