@@ -254,9 +254,13 @@ class Concatenate_JS extends WP_Scripts {
 				array_map( array( $this, 'print_extra_script' ), $js_array['handles'] );
 
 				if ( isset( $js_array['paths'] ) && count( $js_array['paths'] ) > 1 ) {
-					$path_str = jetpack_boost_page_optimize_generate_concat_path( $js_array['paths'], $this->dependency_path_mapping );
+					$file_name = jetpack_boost_page_optimize_generate_concat_path( $js_array['paths'], $this->dependency_path_mapping );
 
-					$href = $siteurl . jetpack_boost_get_static_prefix() . '??' . $path_str;
+					if ( get_site_option( 'jetpack_boost_static_minification' ) ) {
+						$href = jetpack_boost_get_minify_url( $file_name . '.min.js', $siteurl );
+					} else {
+						$href = $siteurl . jetpack_boost_get_static_prefix() . '??' . $file_name;
+					}
 				} elseif ( isset( $js_array['paths'] ) && is_array( $js_array['paths'] ) ) {
 					$href = jetpack_boost_page_optimize_cache_bust_mtime( $js_array['paths'][0], $siteurl );
 				}

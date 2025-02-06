@@ -765,7 +765,7 @@ function render_for_website( $data, $classes, $styles ) {
 					<?php endif; ?>
 				>
 						<a
-							href="<?php echo esc_url( 'https://wordpress.com/read/site/subscription/' . $blog_id ); ?>"
+							href="<?php echo esc_url( 'https://wordpress.com/reader/site/subscription/' . $blog_id ); ?>"
 							<?php if ( ! empty( $classes['submit_button'] ) ) : ?>
 								class="<?php echo esc_attr( $classes['submit_button'] ); ?>"
 							<?php endif; ?>

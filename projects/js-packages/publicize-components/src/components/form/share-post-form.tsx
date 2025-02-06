@@ -3,6 +3,7 @@ import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { features } from '../../utils/constants';
 import MediaSection from '../media-section';
 import MessageBoxControl from '../message-box-control';
+import styles from './styles.module.scss';
 
 type SharePostFormProps = {
 	analyticsData?: object;
@@ -26,7 +27,9 @@ export const SharePostForm: React.FC< SharePostFormProps > = ( { analyticsData =
 				analyticsData={ analyticsData }
 			/>
 			{ siteHasFeature( features.ENHANCED_PUBLISHING ) && (
-				<MediaSection analyticsData={ analyticsData } />
+				<div className={ styles[ 'share-post-form__media-section' ] }>
+					<MediaSection analyticsData={ analyticsData } />
+				</div>
 			) }
 		</>
 	);
