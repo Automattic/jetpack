@@ -16,24 +16,6 @@ use Automattic\Jetpack\Sync\Settings;
 class Comments extends Module {
 
 	/**
-	 * Max bytes allowed for full sync upload.
-	 * Current Setting : 7MB.
-	 *
-	 * @access public
-	 *
-	 * @var int
-	 */
-	const MAX_SIZE_FULL_SYNC = 7000000;
-	/**
-	 * Max bytes allowed for post meta_value => length.
-	 * Current Setting : 2MB.
-	 *
-	 * @access public
-	 *
-	 * @var int
-	 */
-	const MAX_COMMENT_META_LENGTH = 2000000;
-	/**
 	 * Sync module name.
 	 *
 	 * @access public
@@ -599,7 +581,7 @@ class Comments extends Module {
 			'comment',
 			$comments,
 			$metadata,
-			self::MAX_COMMENT_META_LENGTH, // Replace with appropriate comment meta length constant.
+			self::MAX_META_LENGTH, // Replace with appropriate comment meta length constant.
 			self::MAX_SIZE_FULL_SYNC
 		);
 
@@ -608,23 +590,5 @@ class Comments extends Module {
 			'objects'    => $filtered_comments,
 			'meta'       => $filtered_comments_metadata,
 		);
-	}
-
-	/**
-	 * Set the status of the full sync action based on the objects that were sent.
-	 *
-	 * @access public
-	 *
-	 * @param array $status This module Full Sync status.
-	 * @param array $objects This module Full Sync objects.
-	 *
-	 * @return array The updated status.
-	 */
-	public function set_send_full_sync_actions_status( $status, $objects ) {
-
-		$object_ids          = $objects['object_ids'];
-		$status['last_sent'] = end( $object_ids );
-		$status['sent']     += count( $object_ids );
-		return $status;
 	}
 }

@@ -65,26 +65,6 @@ class Posts extends Module {
 	const MAX_POST_CONTENT_LENGTH = 5000000;
 
 	/**
-	 * Max bytes allowed for post meta_value => length.
-	 * Current Setting : 2MB.
-	 *
-	 * @access public
-	 *
-	 * @var int
-	 */
-	const MAX_POST_META_LENGTH = 2000000;
-
-	/**
-	 * Max bytes allowed for full sync upload.
-	 * Current Setting : 7MB.
-	 *
-	 * @access public
-	 *
-	 * @var int
-	 */
-	const MAX_SIZE_FULL_SYNC = 7000000;
-
-	/**
 	 * Default previous post state.
 	 * Used for default previous post status.
 	 *
@@ -321,7 +301,7 @@ class Posts extends Module {
 	}
 
 	/**
-	 * Filter meta arguments so that we don't sync meta_values over MAX_POST_META_LENGTH.
+	 * Filter meta arguments so that we don't sync meta_values over MAX_META_LENGTH.
 	 *
 	 * @param array $args action arguments.
 	 *
@@ -332,7 +312,7 @@ class Posts extends Module {
 		// Explicitly truncate meta_value when it exceeds limit.
 		// Large content will cause OOM issues and break Sync.
 		$serialized_value = maybe_serialize( $meta_value );
-		if ( strlen( $serialized_value ) >= self::MAX_POST_META_LENGTH ) {
+		if ( strlen( $serialized_value ) >= self::MAX_META_LENGTH ) {
 			$meta_value = '';
 		}
 		return array( $meta_id, $object_id, $meta_key, $meta_value );
@@ -894,7 +874,7 @@ class Posts extends Module {
 			'post',
 			$posts,
 			$metadata,
-			self::MAX_POST_META_LENGTH,
+			self::MAX_META_LENGTH,
 			self::MAX_SIZE_FULL_SYNC
 		);
 
@@ -917,23 +897,5 @@ class Posts extends Module {
 		$posts = array_map( array( $this, 'filter_post_content_and_add_links' ), $posts );
 		$posts = array_values( $posts ); // Reindex in case posts were deleted.
 		return $posts;
-	}
-
-	/**
-	 * Set the status of the full sync action based on the objects that were sent.
-	 *
-	 * @access public
-	 *
-	 * @param array $status This module Full Sync status.
-	 * @param array $objects This module Full Sync objects.
-	 *
-	 * @return array The updated status.
-	 */
-	public function set_send_full_sync_actions_status( $status, $objects ) {
-
-		$object_ids          = $objects['object_ids'];
-		$status['last_sent'] = end( $object_ids );
-		$status['sent']     += count( $object_ids );
-		return $status;
 	}
 }

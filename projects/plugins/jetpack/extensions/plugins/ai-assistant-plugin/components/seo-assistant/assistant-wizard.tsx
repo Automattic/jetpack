@@ -161,11 +161,13 @@ export default function AssistantWizard( { close } ) {
 	return (
 		<div className="assistant-wizard">
 			<div className="assistant-wizard__header">
-				<Button variant="link" disabled={ isBusy } onClick={ handleBack }>
-					<Icon icon={ chevronLeft } size={ 32 } />
-				</Button>
+				<div className="assistant-wizard__header-actions">
+					<Button variant="link" disabled={ isBusy } onClick={ handleBack }>
+						<Icon icon={ chevronLeft } size={ 32 } />
+					</Button>
+				</div>
 				<h2>{ currentStepData?.title }</h2>
-				<div>
+				<div className="assistant-wizard__header-actions">
 					<Tooltip text={ __( 'Skip', 'jetpack' ) }>
 						<Button variant="link" disabled={ isBusy } onClick={ handleSkip }>
 							<Icon icon={ next } size={ 32 } />

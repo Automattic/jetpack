@@ -31,9 +31,10 @@
 			font-size: 20px;
 			font-weight: 500;
 			color: #1e1e1e;
+			text-align: center;
 		}
 
-		button {
+		.components-button.is-link {
 			background: none;
 			border: none;
 			cursor: pointer;
@@ -43,6 +44,11 @@
 			&:hover {
 				color:#3858E9;
 			}
+		}
+
+		.assistant-wizard__header-actions {
+			width: 98px;
+			flex-shrink: 0;
 		}
 	}
 
@@ -170,18 +176,16 @@
 		width: 100%;
 		padding: 16px 20px;
 		background: #f3f4f6;
-		border: 2px solid transparent;
+		border: 2px solid white;
 		border-radius: 16px;
 		text-align: left;
 		font-size: 14px;
 		line-height: 1.4;
-		transition: all 0.2s ease;
 		animation: messageAppear 0.3s ease-out;
 		color: inherit;
 
 		&.is-selected {
-			background: #fff;
-			border-color: #3858E9;
+			outline: 2px solid #1e1e1e;
 		}
 
 		// target buttons only

@@ -711,13 +711,13 @@
 		}
 	}
 
-	&.is-style-outlined, &.is-style-animated {
+	.is-style-outlined &, .is-style-animated & {
 		.jetpack-field {
 			position: relative;
 		}
 	}
 
-	&.is-style-outlined {
+	.is-style-outlined & {
 		.block-editor-block-list__block:not([contenteditable]):focus:after {
 			top: -10px;
 			left: -10px;
@@ -728,7 +728,7 @@
 		.jetpack-field {
 			--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 			margin-top: 8px;
-			display: flex;
+			box-sizing: border-box;
 
 			.notched-label {
 				position: absolute;
@@ -869,7 +869,7 @@
 		}
 	}
 
-	&.is-style-animated {
+	.is-style-animated & {
 		.jetpack-field {
 			--left-offset: calc(var(--jetpack--contact-form--input-padding-left, 16px) + var(--jetpack--contact-form--border-size));
 			--label-left: max(var(--left-offset), var(--jetpack--contact-form--border-radius));

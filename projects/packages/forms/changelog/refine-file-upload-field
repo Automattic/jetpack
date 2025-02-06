@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: Refine file upload field block to use WordPress upload icon and follow consistent field patterns. Make the block available in beta. 
