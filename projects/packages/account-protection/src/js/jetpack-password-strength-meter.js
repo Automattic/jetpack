@@ -16,6 +16,8 @@ jQuery( document ).ready( function ( $ ) {
 
 	const passwordValidationStatus = $( '<div id="password-validation-status"></div>' );
 
+	const userSpecific = Boolean( jetpackData.userSpecific );
+
 	const validationCheckList = $( '<ul></ul>', {
 		css: {
 			display: 'flex',
@@ -53,7 +55,7 @@ jQuery( document ).ready( function ( $ ) {
 		} );
 
 		let infoIconPopover = null;
-		if ( value.info ) {
+		if ( userSpecific && value.info ) {
 			infoIconPopover = $( '<div></div>', {
 				css: {
 					position: 'relative',
@@ -147,7 +149,7 @@ jQuery( document ).ready( function ( $ ) {
 		},
 	} );
 
-	if ( '1' === jetpackData.userSpecific ) {
+	if ( userSpecific ) {
 		strengthMeter.css( { 'margin-left': '1px', 'margin-right': '1px' } );
 	}
 
@@ -252,25 +254,7 @@ jQuery( document ).ready( function ( $ ) {
 			resetPasswordFormSaveButton.prop( 'disabled', true );
 		}
 
-		const coreStrengthMeterClass = coreStrengthMeter.attr( 'class' ) || '';
-
-		const coreValidationFailed = ! (
-			coreStrengthMeterClass.includes( 'strong' ) || coreStrengthMeterClass.includes( 'good' )
-		);
-
 		const uiUpdates = [];
-
-		uiUpdates.push( () => {
-			const { icon, text } = validationItems.core;
-
-			icon.attr( 'src', coreValidationFailed ? jetpackData.crossIcon : jetpackData.checkIcon );
-			icon.attr( 'alt', coreValidationFailed ? 'Jetpack Cross' : 'Jetpack Check' );
-			text.css( 'color', coreValidationFailed ? '#E65054' : '#008710' );
-		} );
-
-		if ( coreValidationFailed ) {
-			failedValidationConditions.core = true;
-		}
 
 		currentAjaxRequest = $.ajax( {
 			url: jetpackData.ajaxurl,
@@ -285,6 +269,12 @@ jQuery( document ).ready( function ( $ ) {
 				currentAjaxRequest = null;
 
 				if ( response.success ) {
+					// Manually update core strength meter status
+					const coreStrengthMeterClass = coreStrengthMeter.attr( 'class' ) || '';
+					response.data.state.core.status = ! (
+						coreStrengthMeterClass.includes( 'strong' ) || coreStrengthMeterClass.includes( 'good' )
+					);
+
 					Object.entries( response.data.state ).forEach( ( [ key, item ] ) => {
 						const isInvalid = item.status;
 						const { icon, text, item: listItem } = validationItems[ key ] || {};
@@ -349,7 +339,6 @@ jQuery( document ).ready( function ( $ ) {
 		let finalStrengthText = '';
 
 		if ( passwordIsEmpty ) {
-			// strengthMeter.hide();
 			strength.text( '' );
 			jetpackBranding.hide();
 			strengthMeter.css( 'background-color', 'transparent' );
@@ -387,10 +376,7 @@ jQuery( document ).ready( function ( $ ) {
 			}
 
 			if ( weakPasswordConfirmation.css( 'display' ) === 'none' ) {
-				weakPasswordConfirmation.css(
-					'display',
-					'' === jetpackData.userSpecific ? 'block' : 'table-row'
-				);
+				weakPasswordConfirmation.css( 'display', userSpecific ? 'table-row' : 'block' );
 			}
 		}
 
