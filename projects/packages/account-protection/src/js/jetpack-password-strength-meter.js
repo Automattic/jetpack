@@ -3,6 +3,8 @@
 jQuery( document ).ready( function ( $ ) {
 	const generatePasswordButton = $( '.wp-generate-pw' );
 	const weakPasswordConfirmation = $( '.pw-weak' );
+	const weakPasswordConfirmationCheckbox =
+		weakPasswordConfirmation.find( 'input[type="checkbox"]' );
 	const updateProfileFormSubmitButton = $( '#submit' );
 	const resetPasswordFormSaveButton = $( '#wp-submit' );
 
@@ -246,6 +248,7 @@ jQuery( document ).ready( function ( $ ) {
 		strengthMeter.show();
 		passwordValidationStatus.show();
 
+		// Disable submit buttons while validating
 		if ( ! updateProfileFormSubmitButton.prop( 'disabled' ) ) {
 			updateProfileFormSubmitButton.prop( 'disabled', true );
 		}
@@ -352,6 +355,10 @@ jQuery( document ).ready( function ( $ ) {
 			finalColor = '#64CA43';
 			finalStrengthText = 'Strong';
 
+			if ( weakPasswordConfirmation.is( ':visible' ) ) {
+				weakPasswordConfirmation.css( 'display', 'none' );
+			}
+
 			if ( updateProfileFormSubmitButton.prop( 'disabled' ) ) {
 				updateProfileFormSubmitButton.prop( 'disabled', false );
 			}
@@ -359,24 +366,30 @@ jQuery( document ).ready( function ( $ ) {
 			if ( resetPasswordFormSaveButton.prop( 'disabled' ) ) {
 				resetPasswordFormSaveButton.prop( 'disabled', false );
 			}
-
-			if ( weakPasswordConfirmation.is( ':visible' ) ) {
-				weakPasswordConfirmation.css( 'display', 'none' );
-			}
 		} else {
 			finalColor = '#E65054';
 			finalStrengthText = 'Weak';
 
-			if ( ! updateProfileFormSubmitButton.prop( 'disabled' ) ) {
-				updateProfileFormSubmitButton.prop( 'disabled', true );
-			}
-
-			if ( ! resetPasswordFormSaveButton.prop( 'disabled' ) ) {
-				resetPasswordFormSaveButton.prop( 'disabled', true );
-			}
-
 			if ( weakPasswordConfirmation.css( 'display' ) === 'none' ) {
 				weakPasswordConfirmation.css( 'display', userSpecific ? 'table-row' : 'block' );
+			}
+
+			if ( weakPasswordConfirmationCheckbox.prop( 'checked' ) ) {
+				if ( updateProfileFormSubmitButton.prop( 'disabled' ) ) {
+					updateProfileFormSubmitButton.prop( 'disabled', false );
+				}
+
+				if ( resetPasswordFormSaveButton.prop( 'disabled' ) ) {
+					resetPasswordFormSaveButton.prop( 'disabled', false );
+				}
+			} else {
+				if ( ! updateProfileFormSubmitButton.prop( 'disabled' ) ) {
+					updateProfileFormSubmitButton.prop( 'disabled', true );
+				}
+
+				if ( ! resetPasswordFormSaveButton.prop( 'disabled' ) ) {
+					resetPasswordFormSaveButton.prop( 'disabled', true );
+				}
 			}
 		}
 
