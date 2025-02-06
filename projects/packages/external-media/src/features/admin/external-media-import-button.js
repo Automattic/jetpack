@@ -3,6 +3,9 @@ import { __ } from '@wordpress/i18n';
 document.addEventListener( 'DOMContentLoaded', function () {
 	const addNewButton = document.querySelector( 'a.page-title-action' );
 	if ( addNewButton ) {
+		const buttonContainer = document.createElement( 'div' );
+		buttonContainer.className = 'wpcom-media-library-action-buttons';
+
 		const importButton = document.createElement( 'a' );
 		importButton.className = 'page-title-action';
 		importButton.role = 'button';
@@ -10,6 +13,12 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		importButton.href = window.JETPACK_EXTERNAL_MEDIA_IMPORT_BUTTON?.href;
 		importButton.onclick = event => event.stopImmediatePropagation();
 
-		addNewButton.parentNode.insertBefore( importButton, addNewButton.nextSibling );
+		const parentNode = addNewButton.parentNode;
+		const nextSibling = addNewButton.nextSibling;
+
+		buttonContainer.appendChild( addNewButton );
+		buttonContainer.appendChild( importButton );
+
+		parentNode.insertBefore( buttonContainer, nextSibling );
 	}
 } );

@@ -1,0 +1,9 @@
+.wpcom-media-library-action-buttons {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: 4px;
+
+	.wrap & .page-title-action {
+		margin-left: 0;
+	}
+}

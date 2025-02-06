@@ -66,6 +66,7 @@ function enqueue_jetpack_external_media_import_button() {
 		array(
 			'in_footer'  => true,
 			'textdomain' => 'jetpack-external-media',
+			'css_path'   => $assets_base_path . "$asset_name/$asset_name.css",
 		)
 	);
 
