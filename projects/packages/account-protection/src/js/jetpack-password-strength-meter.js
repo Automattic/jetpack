@@ -16,13 +16,14 @@ jQuery( document ).ready( function ( $ ) {
 
 	const passwordValidationStatus = $( '<div id="password-validation-status"></div>' );
 
-	const validationMessages = {
+	const validationItemData = {
 		core: {
 			status: null,
 			message: 'Passes core validation',
+			info: null,
 		},
 		...jetpackData.validationInitialState,
-	};
+	}; // TODO: Add info icon popovers
 
 	const validationCheckList = $( '<ul></ul>', {
 		css: {
@@ -35,7 +36,7 @@ jQuery( document ).ready( function ( $ ) {
 
 	const validationItems = {};
 
-	Object.entries( validationMessages ).forEach( ( [ key, value ] ) => {
+	Object.entries( validationItemData ).forEach( ( [ key, value ] ) => {
 		const listItem = $( '<li></li>', {
 			css: {
 				display: 'contains_backslash' === key ? 'none' : 'flex',
@@ -60,8 +61,76 @@ jQuery( document ).ready( function ( $ ) {
 			},
 		} );
 
+		let infoIconPopover = null;
+		if ( value.info ) {
+			infoIconPopover = $( '<div></div>', {
+				css: {
+					position: 'relative',
+					display: 'inline-block',
+				},
+			} );
+			const infoIcon = $( '<img>', {
+				src: jetpackData.infoIcon,
+				alt: 'Info',
+				css: {
+					height: '20px',
+					cursor: 'pointer',
+				},
+			} );
+
+			const popover = $( '<div></div>', {
+				text: value.info,
+				css: {
+					display: 'none',
+					position: 'absolute',
+					bottom: '30px', // Position it directly above the icon
+					left: '50%',
+					transform: 'translateX(-50%)',
+					background: '#333',
+					color: '#fff',
+					padding: '6px 10px',
+					'border-radius': '4px',
+					'white-space': 'normal',
+					width: '200px',
+					'font-size': '12px',
+					'box-shadow': '0px 4px 6px rgba(0, 0, 0, 0.1)',
+					'z-index': 10,
+					'text-align': 'center',
+				},
+			} );
+
+			const popoverArrow = $( '<div></div>', {
+				css: {
+					position: 'absolute',
+					bottom: '-6px',
+					left: '50%',
+					transform: 'translateX(-50%)',
+					'border-left': '6px solid transparent',
+					'border-right': '6px solid transparent',
+					'border-top': '6px solid #333',
+				},
+			} );
+
+			popover.append( popoverArrow );
+
+			infoIcon.hover(
+				function () {
+					popover.fadeIn( 200 );
+				},
+				function () {
+					popover.fadeOut( 200 );
+				}
+			);
+
+			infoIconPopover.append( infoIcon );
+			infoIconPopover.append( popover );
+		}
+
 		listItem.append( validationIcon );
 		listItem.append( validationCheckListItemText );
+		if ( infoIconPopover ) {
+			listItem.append( infoIconPopover );
+		}
 		validationCheckList.append( listItem );
 
 		validationItems[ key ] = {

@@ -110,6 +110,7 @@ class Password_Strength_Meter {
 				'nonce'                  => wp_create_nonce( 'validate_password_nonce' ),
 				'userSpecific'           => $user_specific,
 				'logo'                   => plugin_dir_url( __FILE__ ) . 'assets/jetpack-logo.svg',
+				'infoIcon'               => plugin_dir_url( __FILE__ ) . 'assets/info.svg',
 				'checkIcon'              => plugin_dir_url( __FILE__ ) . 'assets/check.svg',
 				'crossIcon'              => plugin_dir_url( __FILE__ ) . 'assets/cross.svg',
 				'loadingIcon'            => plugin_dir_url( __FILE__ ) . 'assets/loading.svg',

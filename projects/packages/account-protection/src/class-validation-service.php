@@ -61,14 +61,17 @@ class Validation_Service {
 			'contains_backslash' => array(
 				'status'  => null,
 				'message' => __( "Doesn't contain a backslash (\\) character", 'jetpack-account-protection' ),
+				'info'    => null,
 			),
 			'invalid_length'     => array(
 				'status'  => null,
 				'message' => __( 'Between 6 and 150 characters', 'jetpack-account-protection' ),
+				'info'    => null,
 			),
 			'weak'               => array(
 				'status'  => null,
 				'message' => __( 'Not a leaked password', 'jetpack-account-protection' ),
+				'info'    => __( 'If found in a public breach, this password may already be known to attackers. Using a unique password improves security.', 'jetpack-account-protection' ),
 			),
 		);
 
@@ -80,10 +83,12 @@ class Validation_Service {
 			'matches_user_data' => array(
 				'status'  => null,
 				'message' => __( "Doesn't match existing user data", 'jetpack-account-protection' ),
+				'info'    => __( 'Using a password similar to your username or email makes it easier to guess. A unique password is more secure.', 'jetpack-account-protection' ),
 			),
 			'recent'            => array(
 				'status'  => null,
 				'message' => __( 'Not used recently', 'jetpack-account-protection' ),
+				'info'    => __( 'Reusing old passwords may increase security risks. A fresh password improves protection.', 'jetpack-account-protection' ),
 			),
 		);
 
