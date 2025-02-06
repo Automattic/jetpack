@@ -3,8 +3,10 @@
 	flex-wrap: wrap;
 	gap: 4px;
 
-	.wrap & .page-title-action,
-	.wrap & .page-title-action:active {
+	> a {
+		position: relative;
+		top: -3px;
 		margin-left: 0;
+		vertical-align: baseline;
 	}
 }
