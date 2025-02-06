@@ -31,69 +31,79 @@ export const Tooltip: FunctionComponent = ( { period }: { period: Period } ) => 
 		<div className="jb-score-tooltip">
 			<div className="jb-score-tooltip__date">{ date }</div>
 			<div className="jb-score-tooltip__row">
-				<div className="jb-score-tooltip__column">{ __( 'Overall score', 'jetpack' ) }</div>
+				<div className="jb-score-tooltip__column">
+					{ __( 'Overall score', 'jetpack-components' ) }
+				</div>
 				<div className="jb-score-tooltip__column">{ scoreLetter }</div>
 			</div>
 			<hr />
 			<div className="jb-score-tooltip__row">
-				<div className="jb-score-tooltip__column">{ __( 'Desktop score', 'jetpack' ) }</div>
+				<div className="jb-score-tooltip__column">
+					{ __( 'Desktop score', 'jetpack-components' ) }
+				</div>
 				<div className="jb-score-tooltip__column">
 					{
 						/* translators: %d is the score */
-						sprintf( __( '%d / 100', 'jetpack' ), desktop_overall_score )
+						sprintf( __( '%d / 100', 'jetpack-components' ), desktop_overall_score )
 					}
 				</div>
 			</div>
 			{ typeof desktop_lcp === 'number' && (
 				<div className="jb-score-tooltip__row jb-score-tooltip__row--secondary">
 					<div className="jb-score-tooltip__column">
-						{ __( 'Largest Contentful Paint', 'jetpack' ) }
+						{ __( 'Largest Contentful Paint', 'jetpack-components' ) }
 					</div>
 					<div className="jb-score-tooltip__column">{ sprintf( '%0.2fs', desktop_lcp ) }</div>
 				</div>
 			) }
 			{ typeof desktop_tbt === 'number' && (
 				<div className="jb-score-tooltip__row jb-score-tooltip__row--secondary">
-					<div className="jb-score-tooltip__column">{ __( 'Total Blocking Time', 'jetpack' ) }</div>
+					<div className="jb-score-tooltip__column">
+						{ __( 'Total Blocking Time', 'jetpack-components' ) }
+					</div>
 					<div className="jb-score-tooltip__column">{ sprintf( '%0.2fs', desktop_tbt ) }</div>
 				</div>
 			) }
 			{ typeof desktop_cls === 'number' && (
 				<div className="jb-score-tooltip__row jb-score-tooltip__row--secondary">
 					<div className="jb-score-tooltip__column">
-						{ __( 'Cumulative Layout Shift', 'jetpack' ) }
+						{ __( 'Cumulative Layout Shift', 'jetpack-components' ) }
 					</div>
 					<div className="jb-score-tooltip__column">{ sprintf( '%0.2f', desktop_cls ) }</div>
 				</div>
 			) }
 			<hr />
 			<div className="jb-score-tooltip__row">
-				<div className="jb-score-tooltip__column">{ __( 'Mobile score', 'jetpack' ) }</div>
+				<div className="jb-score-tooltip__column">
+					{ __( 'Mobile score', 'jetpack-components' ) }
+				</div>
 				<div className="jb-score-tooltip__column">
 					{
 						/* translators: %d is the score */
-						sprintf( __( '%d / 100', 'jetpack' ), mobile_overall_score )
+						sprintf( __( '%d / 100', 'jetpack-components' ), mobile_overall_score )
 					}
 				</div>
 			</div>
 			{ typeof mobile_lcp === 'number' && (
 				<div className="jb-score-tooltip__row jb-score-tooltip__row--secondary">
 					<div className="jb-score-tooltip__column">
-						{ __( 'Largest Contentful Paint', 'jetpack' ) }
+						{ __( 'Largest Contentful Paint', 'jetpack-components' ) }
 					</div>
 					<div className="jb-score-tooltip__column">{ sprintf( '%0.2fs', mobile_lcp ) }</div>
 				</div>
 			) }
 			{ typeof mobile_tbt === 'number' && (
 				<div className="jb-score-tooltip__row jb-score-tooltip__row--secondary">
-					<div className="jb-score-tooltip__column">{ __( 'Total Blocking Time', 'jetpack' ) }</div>
+					<div className="jb-score-tooltip__column">
+						{ __( 'Total Blocking Time', 'jetpack-components' ) }
+					</div>
 					<div className="jb-score-tooltip__column">{ sprintf( '%0.2fs', mobile_tbt ) }</div>
 				</div>
 			) }
 			{ typeof mobile_cls === 'number' && (
 				<div className="jb-score-tooltip__row jb-score-tooltip__row--secondary">
 					<div className="jb-score-tooltip__column">
-						{ __( 'Cumulative Layout Shift', 'jetpack' ) }
+						{ __( 'Cumulative Layout Shift', 'jetpack-components' ) }
 					</div>
 					<div className="jb-score-tooltip__column">{ sprintf( '%0.2f', mobile_cls ) }</div>
 				</div>

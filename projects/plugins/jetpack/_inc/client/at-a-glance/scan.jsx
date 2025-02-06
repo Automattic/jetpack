@@ -2,6 +2,10 @@ import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x } from '@wordpress/i18n';
+import { get, isArray, noop } from 'lodash';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
@@ -13,11 +17,7 @@ import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_SECURITY_SCANNING_JETPACK,
 } from 'lib/plans/constants';
-import { get, isArray, noop } from 'lodash';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import {
 	isFetchingVaultPressData,
 	getVaultPressScanThreatCount,
@@ -307,8 +307,10 @@ class DashScan extends Component {
 		return (
 			<>
 				{ renderActiveCard( [
-					<h2 className="jp-dash-item__count is-alert">{ numberFormat( numberOfThreats ) }</h2>,
-					<p className="jp-dash-item__description">
+					<h2 key="header" className="jp-dash-item__count is-alert">
+						{ numberFormat( numberOfThreats ) }
+					</h2>,
+					<p key="description" className="jp-dash-item__description">
 						{ createInterpolateElement(
 							_n(
 								'Security threat found. <a>Click here</a> to fix them immediately.',

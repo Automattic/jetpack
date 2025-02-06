@@ -4,7 +4,7 @@ import { URL_REGEX } from './constants';
 /**
  * Determines the Pinterest embed type from the URL.
  *
- * @param {string} url The URL to check.
+ * @param {string} url - The URL to check.
  * @return {string} The pin type. Empty string if it isn't a valid Pinterest URL.
  */
 export function pinType( url ) {

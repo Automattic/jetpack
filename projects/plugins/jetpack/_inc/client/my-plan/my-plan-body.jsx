@@ -1,16 +1,16 @@
-import { imagePath } from 'constants/urls';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import Button from 'components/button';
-import QuerySitePlugins from 'components/data/query-site-plugins';
-import analytics from 'lib/analytics';
-import { getPlanClass } from 'lib/plans/constants';
 import { get, includes } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import { showBackups } from 'state/initial-state';
+import Button from 'components/button';
+import QuerySitePlugins from 'components/data/query-site-plugins';
+import { imagePath } from 'constants/urls';
+import analytics from 'lib/analytics';
+import { getPlanClass } from 'lib/plans/constants';
+import { showBackups, isWoASite } from 'state/initial-state';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
@@ -310,6 +310,7 @@ class MyPlanBody extends React.Component {
 			case 'is-personal-plan':
 			case 'is-premium-plan':
 			case 'is-jetpack-starter-plan':
+			case 'is-jetpack-growth-plan':
 			case 'is-security-t1-plan':
 			case 'is-security-t2-plan':
 			case 'is-business-plan':
@@ -522,56 +523,44 @@ class MyPlanBody extends React.Component {
 							</div>
 						) }
 
-						{ isPlanPremiumOrBetter &&
-							'inactive' !== this.props.getModuleOverride( 'google-analytics' ) && (
-								<div className="jp-landing__plan-features-card">
-									<div className="jp-landing__plan-features-img">
-										<img
-											src={ imagePath + 'plans/jetpack.svg' }
-											className="jp-landing__plan-features-icon"
-											alt={ __(
-												'Charts depicting an evolution in traffic and engagement',
-												'jetpack'
-											) }
-										/>
-									</div>
-									<div className="jp-landing__plan-features-text">
-										<h3 className="jp-landing__plan-features-title">
-											{ __( 'Google Analytics', 'jetpack' ) }
-										</h3>
-										<p>
-											{ __(
-												'Complement WordPress.com’s stats with Google’s in-depth look at your visitors and traffic patterns.',
-												'jetpack'
-											) }
-										</p>
-										{ this.props.isModuleActivated( 'google-analytics' ) ? (
-											<Button
-												onClick={ this.handleButtonClickForTracking( 'configure_ga' ) }
-												compact
-												rna
-											>
-												<ExternalLink
-													href={ getRedirectUrl( 'calypso-marketing-traffic', {
-														site: this.props.blogID ?? this.props.siteRawUrl,
-													} ) }
-												>
-													{ __( 'Configure Google Analytics', 'jetpack' ) }
-												</ExternalLink>
-											</Button>
-										) : (
-											<Button
-												onClick={ this.activateGoogleAnalytics }
-												disabled={ this.props.isActivatingModule( 'google-analytics' ) }
-												compact
-												rna
-											>
-												{ __( 'Activate Google Analytics', 'jetpack' ) }
-											</Button>
+						{ isPlanPremiumOrBetter && this.props.isWoASite && (
+							<div className="jp-landing__plan-features-card">
+								<div className="jp-landing__plan-features-img">
+									<img
+										src={ imagePath + 'plans/jetpack.svg' }
+										className="jp-landing__plan-features-icon"
+										alt={ __(
+											'Charts depicting an evolution in traffic and engagement',
+											'jetpack'
 										) }
-									</div>
+									/>
 								</div>
-							) }
+								<div className="jp-landing__plan-features-text">
+									<h3 className="jp-landing__plan-features-title">
+										{ __( 'Google Analytics', 'jetpack' ) }
+									</h3>
+									<p>
+										{ __(
+											'Complement WordPress.com’s stats with Google’s in-depth look at your visitors and traffic patterns.',
+											'jetpack'
+										) }
+									</p>
+									<Button
+										onClick={ this.handleButtonClickForTracking( 'configure_ga' ) }
+										compact
+										rna
+									>
+										<ExternalLink
+											href={ getRedirectUrl( 'calypso-marketing-traffic', {
+												site: this.props.blogID ?? this.props.siteRawUrl,
+											} ) }
+										>
+											{ __( 'Configure Google Analytics', 'jetpack' ) }
+										</ExternalLink>
+									</Button>
+								</div>
+							</div>
+						) }
 
 						{ isPlanPremiumOrBetter &&
 							'inactive' !== this.props.getModuleOverride( 'publicize' ) && (
@@ -897,6 +886,7 @@ export default connect(
 			showBackups: showBackups( state ),
 			getFeatureState: feature => getSetting( state, feature ),
 			isActivatingFeature: feature => isUpdatingSetting( state, feature ),
+			isWoASite: isWoASite( state ),
 		};
 	},
 	dispatch => {

@@ -3,29 +3,30 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import { SOCIAL_STORE_ID } from '../../../../social-store';
-import { SocialStoreSelectors } from '../../../../types/types';
+import { store as socialStore } from '../../../../social-store';
 import TemplatePickerModal from '../modal';
 
 const TemplatePickerButton: React.FC = () => {
 	const [ currentTemplate, setCurrentTemplate ] = useState( null );
 	const { isEnabled, isUpdating, defaultTemplate } = useSelect( select => {
-		const store = select( SOCIAL_STORE_ID ) as SocialStoreSelectors;
+		const store = select( socialStore );
+
+		const config = store.getSocialSettings().socialImageGenerator;
 		return {
-			isEnabled: store.isSocialImageGeneratorEnabled(),
-			isUpdating: store.isUpdatingSocialImageGeneratorSettings(),
-			defaultTemplate: store.getSocialImageGeneratorDefaultTemplate(),
+			isEnabled: config.enabled,
+			defaultTemplate: config.template,
+			isUpdating: store.isSavingSiteSettings(),
 		};
 	}, [] );
 
-	const updateOptions = useDispatch( SOCIAL_STORE_ID ).updateSocialImageGeneratorSettings;
+	const { updateSocialImageGeneratorConfig } = useDispatch( socialStore );
 
 	useEffect( () => {
 		if ( currentTemplate ) {
 			const newOption = { template: currentTemplate };
-			updateOptions( newOption );
+			updateSocialImageGeneratorConfig( newOption );
 		}
-	}, [ currentTemplate, updateOptions ] );
+	}, [ currentTemplate, updateSocialImageGeneratorConfig ] );
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
@@ -38,7 +39,7 @@ const TemplatePickerButton: React.FC = () => {
 				disabled={ isUpdating || ! isEnabled }
 				onClick={ open }
 			>
-				{ __( 'Change default template', 'jetpack' ) }
+				{ __( 'Change default template', 'jetpack-publicize-components' ) }
 			</Button>
 		),
 		[ isEnabled, isSmall, isUpdating ]

@@ -45,9 +45,6 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 			'to-read'           => _x( 'To Read', 'my list of books to read', 'jetpack' ),
 		);
 
-		if ( is_active_widget( '', '', 'wpcom-goodreads' ) || is_customize_preview() ) {
-			add_action( 'wp_print_styles', array( $this, 'enqueue_style' ) );
-		}
 		add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
 	}
 
@@ -113,6 +110,9 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		if ( ! array_key_exists( $instance['shelf'], $this->shelves ) ) {
 			return;
 		}
+
+		// Enqueue front end assets.
+		$this->enqueue_style();
 
 		$instance['user_id'] = absint( $instance['user_id'] );
 

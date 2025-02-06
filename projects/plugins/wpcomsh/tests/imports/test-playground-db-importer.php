@@ -18,7 +18,7 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 	 *
 	 * @var string
 	 */
-	private $tmp_db_path;
+	private $tmp_db_path = '';
 
 	/**
 	 * Playground DB Importer instance.

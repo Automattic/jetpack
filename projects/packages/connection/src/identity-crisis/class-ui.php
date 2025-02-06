@@ -168,6 +168,10 @@ class UI {
 				continue;
 			}
 
+			if ( isset( $consumer['customContent'] ) && is_callable( $consumer['customContent'] ) ) {
+				$consumer['customContent'] = call_user_func( $consumer['customContent'] );
+			}
+
 			if ( isset( $_SERVER['REQUEST_URI'] ) && str_starts_with( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ), $consumer['admin_page'] ) && strlen( $consumer['admin_page'] ) > $consumer_url_length ) {
 				$consumer_chosen     = $consumer;
 				$consumer_url_length = strlen( $consumer['admin_page'] );

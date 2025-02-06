@@ -7,6 +7,10 @@
  *
  * Date: 26/02/2019
  */
+/* eslint-disable jsdoc/require-param-type */
+/* eslint-disable jsdoc/require-param-description */
+/* eslint-disable jsdoc/require-description */
+/* global jpcrm, zbscrm_js_uiSpinnerBlocker, zbscrm_js_getCustInvs */
 
 // v3.0 Transactions JS (as base currently)
 
@@ -17,7 +21,7 @@ jQuery( function () {
 	// on init, if customer has been selected, prefil inv list
 	if ( jQuery( '#customer' ).val() ) {
 		// any inv selected?
-		var existingInvID = false;
+		let existingInvID = false;
 		if ( jQuery( '#invoice_id' ).val() ) {
 			existingInvID = jQuery( '#invoice_id' ).val();
 		}
@@ -37,7 +41,7 @@ jQuery( function () {
  * @param o
  */
 function zbscrmjs_transaction_unsetCustomer( o ) {
-	if ( typeof o === 'undefined' || o == '' ) {
+	if ( typeof o === 'undefined' || ! o ) {
 		jQuery( '#customer' ).val( '' );
 		jQuery( '#customer_name' ).val( '' );
 
@@ -55,7 +59,7 @@ function zbscrmjs_transaction_unsetCustomer( o ) {
  * @param o
  */
 function zbscrmjs_transaction_unsetCompany( o ) {
-	if ( typeof o === 'undefined' || o == '' ) {
+	if ( typeof o === 'undefined' || ! o ) {
 		jQuery( '#zbsct_company' ).val( '' );
 
 		setTimeout( function () {
@@ -70,7 +74,6 @@ function zbscrmjs_transaction_unsetCompany( o ) {
  * @param obj
  */
 function zbscrmjs_transaction_setCustomer( obj ) {
-
 	if ( typeof obj.id !== 'undefined' ) {
 		// set vals
 		jQuery( '#customer' ).val( obj.id );
@@ -84,7 +87,7 @@ function zbscrmjs_transaction_setCustomer( obj ) {
 	}
 
 	setTimeout( function () {
-		var lID = obj.id;
+		const lID = obj.id;
 
 		// when inv select drop down changed, show/hide quick nav
 		zeroBSCRMJS_showContactLinkIf( lID );
@@ -107,7 +110,7 @@ function zbscrmjs_transaction_setCompany( obj ) {
 	}
 
 	setTimeout( function () {
-		var lID = obj.id;
+		const lID = obj.id;
 
 		// when inv select drop down changed, show/hide quick nav
 		zeroBSCRMJS_showCompanyLinkIf( lID );
@@ -120,10 +123,10 @@ function zbscrmjs_transaction_setCompany( obj ) {
  * @param preSelectedInvID
  */
 function zbscrmjs_build_custInv_dropdown( custID, preSelectedInvID ) {
-	var previousInvVal = jQuery( '#invoice_id' ).val();
+	let previousInvVal = jQuery( '#invoice_id' ).val();
 
 	// if cust id, retrieve inv list from ajax/cache
-	if ( custID != '' ) {
+	if ( custID ) {
 		// show loading
 		jQuery( '#invoiceFieldWrap' ).append( zbscrm_js_uiSpinnerBlocker() );
 
@@ -134,7 +137,7 @@ function zbscrmjs_build_custInv_dropdown( custID, preSelectedInvID ) {
 				// console.log("got list",[r,r.length]);
 
 				// wrap
-				var retHTML = '<select id="invoice_id" name="invoice_id" class="form-control">'; //form-control
+				let retHTML = '<select id="invoice_id" name="invoice_id" class="form-control">'; //form-control
 
 				// if has invoices:
 				if ( r.length > 0 ) {
@@ -153,7 +156,7 @@ function zbscrmjs_build_custInv_dropdown( custID, preSelectedInvID ) {
 					// cycle through + create
 					jQuery.each( r, function ( ind, ele ) {
 						// build a user-friendly str
-						var invStr = '',
+						let invStr = '',
 							invID = -1;
 
 						// translated from admin.view php
@@ -181,11 +184,12 @@ function zbscrmjs_build_custInv_dropdown( custID, preSelectedInvID ) {
 						retHTML += '<option value="' + invID + '"';
 
 						// if prefilled... select
+						// eslint-disable-next-line eqeqeq
 						if ( typeof preSelectedInvID !== 'undefined' && invID == preSelectedInvID ) {
 							retHTML += ' selected="selected"';
 						}
 
-						retHTML += '>' + jpcrm.esc_html(invStr) + '</option>';
+						retHTML += '>' + jpcrm.esc_html( invStr ) + '</option>';
 					} );
 				} else {
 					// no invs
@@ -209,16 +213,16 @@ function zbscrmjs_build_custInv_dropdown( custID, preSelectedInvID ) {
 					zeroBSCRMJS_bindInvSelect();
 				}, 0 );
 			},
-			function ( r ) {
+			function () {
 				// wh addition 20/7/18 - hide until useful
 				jQuery( '.assignInvToCust' ).hide();
 
 				// failed to get... leave as manual
 
 				// localise
-				var previousInvValL = previousInvVal;
-				if ( previousInvValL == 0 ) {
-					var previousInvValL = '';
+				let previousInvValL = previousInvVal;
+				if ( ! previousInvValL ) {
+					previousInvValL = '';
 				}
 
 				// NOTE THIS IS DUPE BELOW... REFACTOR
@@ -234,8 +238,8 @@ function zbscrmjs_build_custInv_dropdown( custID, preSelectedInvID ) {
 		jQuery( '.assignInvToCust' ).show();
 
 		// leave as manual entry (but maybe later do not allow?)
-		if ( previousInvVal == 0 ) {
-			var previousInvVal = '';
+		if ( ! previousInvVal ) {
+			previousInvVal = '';
 		}
 		// NOTE THIS IS DUPE ABOVE... REFACTOR
 		jQuery( '#invoiceFieldWrap' ).html(
@@ -273,14 +277,14 @@ function zeroBSCRMJS_showInvLinkIf() {
 	jQuery( '#invoiceSelectionTitle .zbs-view-invoice' ).remove();
 
 	// see if selected
-	var inv = jQuery( '#invoiceFieldWrap select' ).val();
+	let inv = jQuery( '#invoiceFieldWrap select' ).val();
 
 	if ( typeof inv !== 'undefined' && inv !== null && inv !== '' ) {
 		inv = parseInt( inv );
 		if ( inv > 0 ) {
 			// seems like a legit inv, add
 
-			var html =
+			let html =
 				'<div class="ui right floated mini animated button zbs-view-invoice" style="margin-left:0.5em">';
 			html +=
 				'<div class="visible content">' + zeroBSCRMJS_transEditLang( 'view', 'View' ) + '</div>';
@@ -305,9 +309,9 @@ function zeroBSCRMJS_bindInvLinkIf() {
 	jQuery( '#invoiceSelectionTitle .zbs-view-invoice' )
 		.off( 'click' )
 		.on( 'click', function () {
-			var invID = parseInt( jQuery( '#invoiceFieldWrap select' ).val() ); //jQuery(this).attr('data-invid');
+			const invID = parseInt( jQuery( '#invoiceFieldWrap select' ).val() ); //jQuery(this).attr('data-invid');
 
-			var url = window.zeroBSCRMJS_transactionedit_links.editinvprefix + invID;
+			const url = window.zeroBSCRMJS_transactionedit_links.editinvprefix + invID;
 
 			// bla bla https://stackoverflow.com/questions/1574008/how-to-simulate-target-blank-in-javascript
 			window.open( url, '_parent' );
@@ -326,9 +330,9 @@ function zeroBSCRMJS_showContactLinkIf( contactID ) {
 	if ( typeof contactID !== 'undefined' && contactID !== null && contactID !== '' ) {
 		contactID = parseInt( contactID );
 		if ( contactID > 0 ) {
-			var url = window.zbsObjectViewLinkPrefixCustomer + contactID;
+			const url = window.zbsObjectViewLinkPrefixCustomer + contactID;
 
-			var html = '<div class="ui right floated mini animated button zbs-view-contact">';
+			let html = '<div class="ui right floated mini animated button zbs-view-contact">';
 			html +=
 				'<div class="visible content">' + zeroBSCRMJS_transEditLang( 'view', 'View' ) + '</div>';
 			html += '<div class="hidden content">';
@@ -339,7 +343,7 @@ function zeroBSCRMJS_showContactLinkIf( contactID ) {
 			jQuery( '#zbs-customer-title' ).prepend( html );
 
 			// ALSO show in header bar, if so
-			var navButton =
+			const navButton =
 				'<a target="_blank" style="margin-left:6px;" class="zbs-trans-quicknav-contact ui icon button black mini labeled" href="' +
 				url +
 				'"><i class="user icon"></i> ' +
@@ -362,12 +366,12 @@ function zeroBSCRMJS_bindContactLinkIf() {
 		.off( 'click' )
 		.on( 'click', function () {
 			// get from hidden input
-			var contactID = parseInt( jQuery( '#customer' ).val() ); //jQuery(this).attr('data-invid');
+			let contactID = parseInt( jQuery( '#customer' ).val() ); //jQuery(this).attr('data-invid');
 
 			if ( typeof contactID !== 'undefined' && contactID !== null && contactID !== '' ) {
 				contactID = parseInt( contactID );
 				if ( contactID > 0 ) {
-					var url = window.zbsObjectViewLinkPrefixCustomer + contactID;
+					const url = window.zbsObjectViewLinkPrefixCustomer + contactID;
 					window.open( url, '_parent' );
 				}
 			}
@@ -388,7 +392,7 @@ function zeroBSCRMJS_showCompanyLinkIf( companyID ) {
 		if ( companyID > 0 ) {
 			// seems like a legit inv, add
 
-			var html = '<div class="ui right floated mini animated button zbs-view-company">';
+			let html = '<div class="ui right floated mini animated button zbs-view-company">';
 			html +=
 				'<div class="visible content">' + zeroBSCRMJS_transEditLang( 'view', 'View' ) + '</div>';
 			html += '<div class="hidden content">';
@@ -399,7 +403,7 @@ function zeroBSCRMJS_showCompanyLinkIf( companyID ) {
 			jQuery( '#zbs-company-title' ).prepend( html );
 
 			// ALSO show in header bar, if so
-			var navButton =
+			const navButton =
 				'<a target="_blank" style="margin-left:6px;" class="zbs-trans-quicknav-company ui icon button black mini labeled" href="' +
 				window.zeroBSCRMJS_transactionedit_links.editcompanyprefix +
 				companyID +
@@ -423,12 +427,12 @@ function zeroBSCRMJS_bindCompanyLinkIf() {
 		.off( 'click' )
 		.on( 'click', function () {
 			// get from hidden input
-			var companyID = parseInt( jQuery( '#zbsct_company' ).val() ); //jQuery(this).attr('data-invid');
+			let companyID = parseInt( jQuery( '#zbsct_company' ).val() ); //jQuery(this).attr('data-invid');
 
 			if ( typeof companyID !== 'undefined' && companyID !== null && companyID !== '' ) {
 				companyID = parseInt( companyID );
 				if ( companyID > 0 ) {
-					var url = window.zeroBSCRMJS_transactionedit_links.editcompanyprefix + companyID;
+					const url = window.zeroBSCRMJS_transactionedit_links.editcompanyprefix + companyID;
 
 					// bla bla https://stackoverflow.com/questions/1574008/how-to-simulate-target-blank-in-javascript
 					window.open( url, '_parent' );
@@ -437,16 +441,13 @@ function zeroBSCRMJS_bindCompanyLinkIf() {
 		} );
 }
 
-// passes language from window.zeroBSCRMJS_transactionedit_lang (js set in trans edit php)
 /**
- * @param key
- * @param fallback
+ * Passes language from window.zeroBSCRMJS_transactionedit_lang (js set in trans edit php).
+ * @param {string} key      - Key to look up language string.
+ * @param {string} fallback - Fallback string.
+ * @return {string}         - Language-aware string.
  */
-function zeroBSCRMJS_transEditLang( key, fallback ) {
-	if ( typeof fallback === 'undefined' ) {
-		var fallback = '';
-	}
-
+function zeroBSCRMJS_transEditLang( key, fallback = '' ) {
 	if ( typeof window.zeroBSCRMJS_transactionedit_lang[ key ] !== 'undefined' ) {
 		return window.zeroBSCRMJS_transactionedit_lang[ key ];
 	}
@@ -455,11 +456,19 @@ function zeroBSCRMJS_transEditLang( key, fallback ) {
 }
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { zbscrmjs_transaction_unsetCustomer, zbscrmjs_transaction_unsetCompany,
-		zbscrmjs_transaction_setCustomer, zbscrmjs_transaction_setCompany,
-		zbscrmjs_build_custInv_dropdown, zeroBSCRMJS_bindInvSelect,
-		zeroBSCRMJS_showInvLinkIf, zeroBSCRMJS_bindInvLinkIf,
-		zeroBSCRMJS_showContactLinkIf, zeroBSCRMJS_bindContactLinkIf,
-		zeroBSCRMJS_showCompanyLinkIf, zeroBSCRMJS_bindCompanyLinkIf,
-		zeroBSCRMJS_transEditLang };
+	module.exports = {
+		zbscrmjs_transaction_unsetCustomer,
+		zbscrmjs_transaction_unsetCompany,
+		zbscrmjs_transaction_setCustomer,
+		zbscrmjs_transaction_setCompany,
+		zbscrmjs_build_custInv_dropdown,
+		zeroBSCRMJS_bindInvSelect,
+		zeroBSCRMJS_showInvLinkIf,
+		zeroBSCRMJS_bindInvLinkIf,
+		zeroBSCRMJS_showContactLinkIf,
+		zeroBSCRMJS_bindContactLinkIf,
+		zeroBSCRMJS_showCompanyLinkIf,
+		zeroBSCRMJS_bindCompanyLinkIf,
+		zeroBSCRMJS_transEditLang,
+	};
 }

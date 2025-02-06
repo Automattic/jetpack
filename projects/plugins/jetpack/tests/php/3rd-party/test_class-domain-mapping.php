@@ -53,7 +53,7 @@ class WP_Test_Domain_Mapping extends \WP_UnitTestCase {
 	 */
 	public function test_domain_mapping_should_not_try_to_hook_when_sunrise_disable() {
 		$stub = $this->getMockBuilder( MockDomainMapping::class )
-			->setMethods( array( 'hook_wordpress_mu_domain_mapping', 'hook_wpmu_dev_domain_mapping' ) )
+			->onlyMethods( array( 'hook_wordpress_mu_domain_mapping', 'hook_wpmu_dev_domain_mapping' ) )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -78,7 +78,7 @@ class WP_Test_Domain_Mapping extends \WP_UnitTestCase {
 		Constants::set_constant( 'SUNRISE', true );
 
 		$stub = $this->getMockBuilder( MockDomainMapping::class )
-			->setMethods( array( 'hook_wordpress_mu_domain_mapping', 'hook_wpmu_dev_domain_mapping' ) )
+			->onlyMethods( array( 'hook_wordpress_mu_domain_mapping', 'hook_wpmu_dev_domain_mapping' ) )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -103,7 +103,7 @@ class WP_Test_Domain_Mapping extends \WP_UnitTestCase {
 		Constants::set_constant( 'SUNRISE_LOADED', true );
 
 		$stub = $this->getMockBuilder( MockDomainMapping::class )
-			->setMethods( array( 'function_exists' ) )
+			->onlyMethods( array( 'function_exists' ) )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -127,7 +127,7 @@ class WP_Test_Domain_Mapping extends \WP_UnitTestCase {
 		Constants::set_constant( 'SUNRISE_LOADED', true );
 
 		$stub = $this->getMockBuilder( MockDomainMapping::class )
-			->setMethods( array( 'function_exists' ) )
+			->onlyMethods( array( 'function_exists' ) )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -149,7 +149,7 @@ class WP_Test_Domain_Mapping extends \WP_UnitTestCase {
 	 */
 	public function test_domain_mapping_wpmu_dev_domain_mapping_not_hooked_when_functions_not_exist() {
 		$stub = $this->getMockBuilder( MockDomainMapping::class )
-			->setMethods( array( 'class_exists', 'method_exists' ) )
+			->onlyMethods( array( 'class_exists', 'method_exists' ) )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -175,7 +175,7 @@ class WP_Test_Domain_Mapping extends \WP_UnitTestCase {
 	 */
 	public function test_domain_mapping_wpmu_dev_domain_mapping_hooked_when_functions_exist() {
 		$stub = $this->getMockBuilder( MockDomainMapping::class )
-			->setMethods( array( 'class_exists', 'method_exists', 'get_domain_mapping_utils_instance' ) )
+			->onlyMethods( array( 'class_exists', 'method_exists', 'get_domain_mapping_utils_instance' ) )
 			->disableOriginalConstructor()
 			->getMock();
 

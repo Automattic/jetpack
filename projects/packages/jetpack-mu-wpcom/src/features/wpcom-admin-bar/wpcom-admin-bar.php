@@ -220,11 +220,11 @@ function wpcom_add_reader_menu( $wp_admin_bar ) {
 	$wp_admin_bar->add_menu(
 		array(
 			'id'     => 'reader',
-			'title'  => '<span class="ab-icon" aria-hidden="true"></span><span class="screen-reader-text">' .
+			'title'  => '<span class="ab-icon" title="' . __( 'Read the blogs and topics you follow', 'jetpack-mu-wpcom' ) . '" aria-hidden="true"></span><span class="screen-reader-text">' .
 						/* translators: Hidden accessibility text. */
 						__( 'Reader', 'jetpack-mu-wpcom' ) .
 						'</span>',
-			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/read' ),
+			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/reader' ),
 			'meta'   => array(
 				'class' => 'wp-admin-bar-reader',
 			),
@@ -263,7 +263,11 @@ add_action( 'admin_bar_menu', 'wpcom_replace_edit_profile_menu_to_me', 9999 );
  * @return string Name of the admin bar class.
  */
 function wpcom_custom_wpcom_admin_bar_class( $wp_admin_bar_class ) {
-	if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+	remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
+	$is_wp_admin = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+	add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
+
+	if ( $is_wp_admin ) {
 		return $wp_admin_bar_class;
 	}
 
@@ -271,3 +275,20 @@ function wpcom_custom_wpcom_admin_bar_class( $wp_admin_bar_class ) {
 	return '\Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Admin_Bar';
 }
 add_filter( 'wp_admin_bar_class', 'wpcom_custom_wpcom_admin_bar_class' );
+
+/**
+ * Changes the edit site menu to point to the top-level site editor.
+ *
+ * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
+ */
+function wpcom_edit_site_menu_override( $wp_admin_bar ) {
+	if ( $wp_admin_bar->get_node( 'site-editor' ) ) {
+		$args = array(
+			'id'   => 'site-editor',
+			'href' => admin_url( 'site-editor.php' ),
+		);
+
+		$wp_admin_bar->add_node( $args );
+	}
+}
+add_action( 'admin_bar_menu', 'wpcom_edit_site_menu_override', 41 );

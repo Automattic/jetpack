@@ -8,7 +8,7 @@ import useAttachedMedia from '../../hooks/use-attached-media';
 import useMediaDetails from '../../hooks/use-media-details';
 import MediaPicker from '../media-picker';
 import styles from './styles.module.scss';
-const ADD_MEDIA_LABEL = __( 'Choose Media', 'jetpack' );
+const ADD_MEDIA_LABEL = __( 'Choose Media', 'jetpack-publicize-components' );
 
 /**
  * Wrapper that handles media-related functionality.
@@ -61,23 +61,22 @@ export default function MediaSection( {
 			</Notice>
 		) : (
 			<p className={ styles.subtitle }>
-				{ __( 'Choose a visual to accompany your post.', 'jetpack' ) }
+				{ __( 'Choose a visual to accompany your post.', 'jetpack-publicize-components' ) }
 			</p>
 		);
 	};
 
 	return (
 		<ThemeProvider>
-			<BaseControl
-				__nextHasNoMarginBottom={ true }
-				label={ __( 'Attached Media', 'jetpack' ) }
-				className={ styles.wrapper }
-			>
+			<BaseControl __nextHasNoMarginBottom={ true } className={ styles.wrapper }>
+				<BaseControl.VisualLabel>
+					{ __( 'Attached Media', 'jetpack-publicize-components' ) }
+				</BaseControl.VisualLabel>
 				{ renderHeaderSection() }
 				<MediaWrapper { ...mediaWrapperProps }>
 					<MediaPicker
 						buttonLabel={ ADD_MEDIA_LABEL }
-						subTitle={ __( 'Add an image or video', 'jetpack' ) }
+						subTitle={ __( 'Add an image or video', 'jetpack-publicize-components' ) }
 						mediaId={ attachedMedia[ 0 ]?.id }
 						mediaDetails={ mediaDetails }
 						onChange={ onChange }
@@ -86,7 +85,7 @@ export default function MediaSection( {
 						href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }
 						className={ styles[ 'learn-more' ] }
 					>
-						{ __( 'Learn photo and video best practices', 'jetpack' ) }
+						{ __( 'Learn photo and video best practices', 'jetpack-publicize-components' ) }
 					</ExternalLink>
 				</MediaWrapper>
 			</BaseControl>

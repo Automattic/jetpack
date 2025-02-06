@@ -10,13 +10,16 @@ import {
 	ZendeskChat,
 	useBreakpointMatch,
 	ActionButton,
+	GlobalNotices,
 } from '@automattic/jetpack-components';
+import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useState } from 'react';
 /*
  * Internal dependencies
  */
 import { NoticeContext } from '../../context/notices/noticeContext';
+import { NOTICE_SITE_CONNECTION_ERROR } from '../../context/notices/noticeTemplates';
 import {
 	REST_API_CHAT_AUTHENTICATION_ENDPOINT,
 	REST_API_CHAT_AVAILABILITY_ENDPOINT,
@@ -26,6 +29,8 @@ import {
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import onKeyDownCallback from '../../data/utils/onKeyDownCallback';
+import resetJetpackOptions from '../../data/utils/reset-jetpack-options';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -41,7 +46,6 @@ import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, title, options } ) => {
 	const { recordEvent } = useAnalytics();
-
 	useEffect( () => {
 		const tracksArgs = options?.tracksArgs || {};
 
@@ -54,7 +58,9 @@ const GlobalNotice = ( { message, title, options } ) => {
 	const [ isBiggerThanMedium ] = useBreakpointMatch( [ 'md' ], [ '>' ] );
 
 	const actionButtons = options.actions?.map( action => {
-		return <ActionButton customClass={ styles.cta } { ...action } />;
+		return (
+			<ActionButton key={ action.key || action.label } customClass={ styles.cta } { ...action } />
+		);
 	} );
 
 	return (
@@ -81,12 +87,17 @@ export default function MyJetpackScreen() {
 		variation: 'control',
 	} );
 	useNotificationWatcher();
-	const { redBubbleAlerts } = getMyJetpackWindowInitialState();
-	const { jetpackManage = {}, adminUrl } = getMyJetpackWindowInitialState();
+	const {
+		isAtomic = false,
+		jetpackManage = {},
+		adminUrl,
+		sandboxedDomain,
+	} = getMyJetpackWindowInitialState();
+	const { redBubbleAlerts, isDevVersion, userIsAdmin } = getMyJetpackWindowInitialState();
 
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
 	const { isSectionVisible } = useEvaluationRecommendations();
-	const { siteIsRegistered } = useMyJetpackConnection();
+	const { siteIsRegistered, apiRoot, apiNonce } = useMyJetpackConnection();
 	const { currentNotice } = useContext( NoticeContext );
 	const {
 		message: noticeMessage,
@@ -132,11 +143,30 @@ export default function MyJetpackScreen() {
 		return null;
 	}
 
+	const resetOptionsMenuItem = {
+		label: _x(
+			'Reset Options (dev only)',
+			'Button for option to reset Jetpack Options',
+			'jetpack-my-jetpack'
+		),
+		title: __( 'Reset Options', 'jetpack-my-jetpack' ),
+		role: 'button',
+		onClick: () => resetJetpackOptions(),
+		onKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
+	};
+
 	return (
-		<AdminPage siteAdminUrl={ adminUrl }>
+		<AdminPage
+			siteAdminUrl={ adminUrl }
+			sandboxedDomain={ sandboxedDomain }
+			apiRoot={ apiRoot }
+			apiNonce={ apiNonce }
+			optionalMenuItems={ isDevVersion && userIsAdmin ? [ resetOptionsMenuItem ] : [] }
+		>
 			<hr className={ styles.separator } />
 
 			<IDCModal />
+			<GlobalNotices />
 			{ ! isNewUser && (
 				<Container horizontalSpacing={ 0 }>
 					<Col>
@@ -149,13 +179,15 @@ export default function MyJetpackScreen() {
 					welcomeFlowExperiment={ welcomeFlowExperiment }
 					setWelcomeFlowExperiment={ setWelcomeFlowExperiment }
 				>
-					{ noticeMessage && siteIsRegistered && (
-						<GlobalNotice
-							message={ noticeMessage }
-							title={ noticeTitle }
-							options={ noticeOptions }
-						/>
-					) }
+					{ noticeMessage &&
+						( siteIsRegistered ||
+							noticeOptions?.id === NOTICE_SITE_CONNECTION_ERROR.options.id ) && (
+							<GlobalNotice
+								message={ noticeMessage }
+								title={ noticeTitle }
+								options={ noticeOptions }
+							/>
+						) }
 				</WelcomeFlow>
 			) : (
 				noticeMessage && (
@@ -170,11 +202,7 @@ export default function MyJetpackScreen() {
 					</Container>
 				)
 			) }
-			{ ! isWelcomeBannerVisible && isSectionVisible && (
-				<EvaluationRecommendations
-					welcomeFlowExperimentVariation={ welcomeFlowExperiment.variation }
-				/>
-			) }
+			{ ! isWelcomeBannerVisible && isSectionVisible && <EvaluationRecommendations /> }
 
 			<ProductCardsSection />
 
@@ -192,7 +220,7 @@ export default function MyJetpackScreen() {
 						<PlansSection />
 					</Col>
 					<Col sm={ 4 } md={ 4 } lg={ 6 }>
-						<ConnectionsSection />
+						{ ! isAtomic && <ConnectionsSection /> }
 					</Col>
 				</Container>
 			</AdminSection>

@@ -1,12 +1,12 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf, _x } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import ConnectButton from 'components/connect-button';
 import DashItem from 'components/dash-item';
 import QueryUserConnectionData from 'components/data/query-user-connection';
 import Gridicon from 'components/gridicon';
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import {
 	getSiteConnectionStatus,
 	isConnectionOwner,

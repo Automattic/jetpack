@@ -2,11 +2,11 @@ import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { z } from 'zod';
-import indexStyles from '../../../pages/index/index.module.scss';
 import styles from './image-cdn-liar.module.scss';
-import clsx from 'clsx';
 import ModuleSubsection from '$features/ui/module-subsection/module-subsection';
 import { recordBoostEvent } from '$lib/utils/analytics';
+import Pill from '$features/ui/pill/pill';
+import { useMutationNotice } from '$features/ui/mutation-notice/mutation-notice';
 
 type ImageCdnLiarProps = {
 	isPremium: boolean;
@@ -23,6 +23,12 @@ export default function ImageCdnLiar( { isPremium }: ImageCdnLiarProps ) {
 		z.boolean().catch( false )
 	);
 
+	const enabledMessage = __( 'Auto-resize enabled.', 'jetpack-boost' );
+	const disabledMessage = __( 'Auto-resize disabled.', 'jetpack-boost' );
+	useMutationNotice( 'image-cdn-liar', setImageCdnLiar, {
+		successMessage: imageCdnLiar.data ? enabledMessage : disabledMessage,
+	} );
+
 	const handleToggle = ( value: boolean ) => {
 		setImageCdnLiar.mutate( value );
 
@@ -35,12 +41,13 @@ export default function ImageCdnLiar( { isPremium }: ImageCdnLiarProps ) {
 				<div className={ styles.title }>
 					<h4>
 						{ __( 'Auto-Resize Lazy Images', 'jetpack-boost' ) }
-						<span className={ clsx( indexStyles.beta, styles.beta ) }>Beta</span>
+						<Pill text="Beta" />
 					</h4>
 					<ToggleControl
 						className={ styles[ 'toggle-control' ] }
 						checked={ imageCdnLiar.data }
 						onChange={ handleToggle }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</div>
 			</div>

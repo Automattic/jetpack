@@ -54,7 +54,6 @@ function Tab( { enableSidebar, identifier, label, isActive } ) {
 		: label;
 	return (
 		<Button
-			// eslint-disable-next-line react/jsx-no-bind
 			onClick={ () => enableSidebar( identifier ) }
 			className={ clsx( 'jp-search-configure-sidebar__panel-tab', {
 				'is-active': isActive,

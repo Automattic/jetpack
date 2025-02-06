@@ -51,6 +51,7 @@ export const MailChimpBlockControls = ( {
 			<PanelBody title={ __( 'Text Elements', 'jetpack' ) }>
 				<TextControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					label={ __( 'Email Placeholder', 'jetpack' ) }
 					value={ emailPlaceholder }
 					onChange={ updateEmailPlaceholder }
@@ -59,18 +60,21 @@ export const MailChimpBlockControls = ( {
 			<PanelBody title={ __( 'Notifications', 'jetpack' ) }>
 				<TextControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					label={ __( 'Processing text', 'jetpack' ) }
 					value={ processingLabel }
 					onChange={ updateProcessingText }
 				/>
 				<TextControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					label={ __( 'Success text', 'jetpack' ) }
 					value={ successLabel }
 					onChange={ updateSuccessText }
 				/>
 				<TextControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					label={ __( 'Error text', 'jetpack' ) }
 					value={ errorLabel }
 					onChange={ updateErrorText }
@@ -98,6 +102,7 @@ export const MailChimpBlockControls = ( {
 			<PanelBody title={ __( 'Signup Location Tracking', 'jetpack' ) }>
 				<TextControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					label={ __( 'Signup Field Tag', 'jetpack' ) }
 					placeholder={ __( 'SIGNUP', 'jetpack' ) }
 					value={ signupFieldTag }
@@ -105,6 +110,7 @@ export const MailChimpBlockControls = ( {
 				/>
 				<TextControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					label={ __( 'Signup Field Value', 'jetpack' ) }
 					placeholder={ __( 'website', 'jetpack' ) }
 					value={ signupFieldValue }

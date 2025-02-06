@@ -8,7 +8,7 @@
  */
 
 call_user_func(
-	function ( $data ) {
+	function( $data ) {
 		echo Newspack_Blocks::template_inc( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			__DIR__ . '/articles-loop.php',
 			array(

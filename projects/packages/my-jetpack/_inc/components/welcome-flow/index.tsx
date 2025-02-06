@@ -10,8 +10,8 @@ import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { CardWrapper } from '../card';
 import ConnectionStep from './ConnectionStep';
-import EvaluationProcessingStep from './EvaluationProcessingStep';
 import EvaluationStep, { EvaluationAreas } from './EvaluationStep';
+import LoadingStep from './LoadingStep';
 import styles from './style.module.scss';
 import type { FC, PropsWithChildren } from 'react';
 
@@ -32,22 +32,41 @@ const WelcomeFlow: FC< Props > = ( {
 } ) => {
 	const { recordEvent } = useAnalytics();
 	const { dismissWelcomeBanner } = useWelcomeBanner();
-	const { recommendedModules, isFirstRun, submitEvaluation, saveEvaluationResult } =
+	const { recommendedModules, submitEvaluation, saveEvaluationResult } =
 		useEvaluationRecommendations();
-	const {
-		siteIsRegistered,
-		siteIsRegistering,
-		isUserConnected,
-		isSiteConnected,
-		handleRegisterSite,
-	} = useMyJetpackConnection( {
-		skipUserConnection: true,
-	} );
+	const { siteIsRegistered, siteIsRegistering, isUserConnected, isSiteConnected } =
+		useMyJetpackConnection( {
+			skipUserConnection: true,
+		} );
 	const [ isProcessingEvaluation, setIsProcessingEvaluation ] = useState( false );
 	const [ prevStep, setPrevStep ] = useState( '' );
 
+	const [ isConnectionReady, setIsConnectionReady ] = useState( null );
+
+	useEffect( () => {
+		if ( prevStep === 'site-connecting' && ! siteIsRegistering && siteIsRegistered ) {
+			setIsConnectionReady( true );
+
+			const timer = setTimeout( () => setIsConnectionReady( false ), 3000 );
+
+			return () => clearTimeout( timer );
+		}
+	}, [
+		isProcessingEvaluation,
+		prevStep,
+		recommendedModules,
+		siteIsRegistered,
+		siteIsRegistering,
+	] );
+
 	const currentStep = useMemo( () => {
-		if ( ! siteIsRegistered || welcomeFlowExperiment.isLoading ) {
+		if (
+			siteIsRegistering ||
+			isConnectionReady ||
+			( siteIsRegistered && prevStep === 'site-connecting' && isConnectionReady === null )
+		) {
+			return 'site-connecting';
+		} else if ( ! siteIsRegistered || welcomeFlowExperiment.isLoading ) {
 			return 'connection';
 		} else if ( ! isProcessingEvaluation ) {
 			if ( ! recommendedModules && ! isJetpackUserNew() ) {
@@ -55,26 +74,20 @@ const WelcomeFlow: FC< Props > = ( {
 				// If user has recommendations, it means they redo the evaluation
 				return null;
 			}
-			// For the "treatment" experiment we immediately jump to the 'evaluation-processing' step if
-			// there are no `recommendedModules` loaded yet.
-			if (
-				'treatment' === welcomeFlowExperiment.variation &&
-				! recommendedModules &&
-				isJetpackUserNew()
-			) {
-				return 'evaluation-processing';
-			}
+
 			// Otherwise, it means user is either new or just repeats the recommendation
 			return 'evaluation';
 		}
 
 		return 'evaluation-processing';
 	}, [
+		siteIsRegistered,
+		isConnectionReady,
+		siteIsRegistering,
+		prevStep,
+		welcomeFlowExperiment.isLoading,
 		isProcessingEvaluation,
 		recommendedModules,
-		siteIsRegistered,
-		welcomeFlowExperiment.isLoading,
-		welcomeFlowExperiment.variation,
 	] );
 
 	useEffect( () => {
@@ -110,40 +123,12 @@ const WelcomeFlow: FC< Props > = ( {
 				await saveEvaluationResult( recommendations );
 
 				dismissWelcomeBanner();
-			} catch ( error ) {
+			} catch {
 				setIsProcessingEvaluation( false );
 			}
 		},
 		[ dismissWelcomeBanner, recordEvent, saveEvaluationResult, submitEvaluation ]
 	);
-
-	useEffect( () => {
-		// For the "treatment" experiment, when there are no `recommendedModules` loaded yet,
-		// we immediately submit some default evaluation data (when we change from connection
-		// step to evaluation-processing step).
-		if (
-			'treatment' === welcomeFlowExperiment.variation &&
-			! recommendedModules &&
-			isFirstRun &&
-			prevStep === 'connection' &&
-			currentStep === 'evaluation-processing'
-		) {
-			handleEvaluation( {
-				protect: true,
-				performance: true,
-				audience: true,
-				content: true,
-				unsure: false,
-			} );
-		}
-	}, [
-		currentStep,
-		prevStep,
-		recommendedModules,
-		welcomeFlowExperiment.variation,
-		handleEvaluation,
-		isFirstRun,
-	] );
 
 	useEffect( () => {
 		if ( ! currentStep ) {
@@ -172,7 +157,6 @@ const WelcomeFlow: FC< Props > = ( {
 					>
 						{ 'connection' === currentStep && (
 							<ConnectionStep
-								onActivateSite={ handleRegisterSite }
 								onUpdateWelcomeFlowExperiment={ setWelcomeFlowExperiment }
 								isActivating={ siteIsRegistering || welcomeFlowExperiment.isLoading }
 							/>
@@ -183,7 +167,10 @@ const WelcomeFlow: FC< Props > = ( {
 								onSubmitEvaluation={ handleEvaluation }
 							/>
 						) }
-						{ 'evaluation-processing' === currentStep && <EvaluationProcessingStep /> }
+						{ 'evaluation-processing' === currentStep && <LoadingStep type="recommendations" /> }
+						{ 'site-connecting' === currentStep && (
+							<LoadingStep type={ 'connecting' } isReady={ isSiteConnected } />
+						) }
 					</Container>
 				</CardWrapper>
 				<Button

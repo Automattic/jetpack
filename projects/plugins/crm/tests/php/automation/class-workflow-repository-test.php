@@ -11,7 +11,7 @@ require_once __DIR__ . '/tools/class-automation-faker.php';
 /**
  * Test Automation Engine
  *
- * @covers Automattic\Jetpack\CRM\Automation
+ * @covers Automattic\Jetpack\CRM\Automation\Workflow\Workflow_Repository
  */
 class Workflow_Repository_Test extends JPCRM_Base_Integration_Test_Case {
 

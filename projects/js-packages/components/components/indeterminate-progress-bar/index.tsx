@@ -20,7 +20,7 @@ const IndeterminateProgressBar: React.FC< IndeterminateProgressBarProps > = ( { 
 	return (
 		<div
 			className={ clsx( className, styles[ 'indeterminate-progress-bar' ] ) }
-			aria-label={ __( 'Indeterminate Progress Bar', 'jetpack' ) }
+			aria-label={ __( 'Indeterminate Progress Bar', 'jetpack-components' ) }
 		/>
 	);
 };

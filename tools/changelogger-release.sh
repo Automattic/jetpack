@@ -144,10 +144,13 @@ TO_RELEASE=()
 TMP="$(pnpm jetpack dependencies build-order --add-dependencies --pretty "$REL_SLUG")"
 mapfile -t TO_RELEASE <<<"$TMP"
 
-# If it's being released as a dependency (and is not a js-package), pre-check that it has a mirror repo set up.
+# If it's being released as a non-dev dependency (and is not a js-package), pre-check that it has a mirror repo set up.
 # Can't do the release without one.
+NEEDS_MIRROR_REPO=()
+TMP="$(pnpm jetpack dependencies build-order --no-dev --add-dependencies --pretty "$REL_SLUG")"
+mapfile -t NEEDS_MIRROR_REPO <<<"$TMP"
 ANY=false
-for SLUG in "${TO_RELEASE[@]}"; do
+for SLUG in "${NEEDS_MIRROR_REPO[@]}"; do
 	if [[ "$SLUG" != "$REL_SLUG" && "$SLUG" != js-packages/* ]] &&
 		! jq -e '.extra["mirror-repo"] // null' "$BASE/projects/$SLUG/composer.json" > /dev/null
 	then
@@ -221,6 +224,21 @@ for SLUG in "${TO_RELEASE[@]}"; do
 	# If this looks like a major release, flag to force updates of any dependents.
 	if [[ -z "$OLDVER" ]] || is_major_bump "$OLDVER" "$VER"; then
 		debug "  Version bump ${OLDVER:-none} -> $VER looks like a major bump, adding a change entry to dependents without one"
+		for S in $( jq -r --arg slug "$SLUG" '.[$slug] // empty | .[]' <<<"$DEPTS" ); do
+			[[ "$S" == monorepo ]] && continue
+			cd "$BASE/projects/$S"
+			CHANGES_DIR=$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)
+			if [[ ! -d "$CHANGES_DIR" || -z "$(ls -- "$CHANGES_DIR")" ]]; then
+				debug "    $S"
+				changelogger_add 'Update dependencies.' '' --filename=force-a-release
+			fi
+		done
+		cd "$BASE/projects/$SLUG"
+	fi
+
+	# Our js-packages are usually bundled in packages and plugins. Flag to force updates of any dependents.
+	if [[ "$SLUG" == js-packages/* ]]; then
+		debug "  It's a js-package, adding a change entry to dependents without one because they're usually bundled"
 		for S in $( jq -r --arg slug "$SLUG" '.[$slug] // empty | .[]' <<<"$DEPTS" ); do
 			[[ "$S" == monorepo ]] && continue
 			cd "$BASE/projects/$S"

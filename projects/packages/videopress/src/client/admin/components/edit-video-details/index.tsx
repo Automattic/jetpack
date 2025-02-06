@@ -22,8 +22,7 @@ import {
 } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useEffect } from 'react';
-import { useHistory, Prompt } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 /**
  * Internal dependencies
  */
@@ -70,11 +69,11 @@ const Header = ( {
 	videoId: string | number;
 } ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const history = useHistory();
+	const navigate = useNavigate();
 
 	return (
 		<div className={ clsx( styles[ 'header-wrapper' ], { [ styles.small ]: isSm } ) }>
-			<button onClick={ () => history.push( '/' ) } className={ styles[ 'logo-button' ] }>
+			<button onClick={ () => navigate( '/' ) } className={ styles[ 'logo-button' ] }>
 				<JetpackVideoPressLogo />
 			</button>
 			<div className={ styles[ 'header-content' ] }>
@@ -238,18 +237,18 @@ const EditVideoDetails = () => {
 		message: unsavedChangesMessage,
 	} );
 
-	const history = useHistory();
+	const navigate = useNavigate();
 	const { page } = useVideosQuery();
 
 	useEffect( () => {
 		if ( deleted === true ) {
 			const to = page > 1 ? `/?page=${ page }` : '/';
-			history.push( to );
+			navigate( to );
 		}
 	}, [ deleted ] );
 
 	if ( ! canPerformAction ) {
-		history.push( '/' );
+		navigate( '/' );
 	}
 
 	let thumbnail: string | React.JSX.Element = posterImage;
@@ -269,7 +268,9 @@ const EditVideoDetails = () => {
 
 	return (
 		<>
-			<Prompt when={ hasChanges && ! updated && ! deleted } message={ unsavedChangesMessage } />
+			{ /* This is no longer supported as of react-router-dom v6: https://github.com/remix-run/react-router/issues/8139
+				<Prompt when={ hasChanges && ! updated && ! deleted } message={ unsavedChangesMessage } />
+			*/ }
 
 			{ frameSelectorIsOpen && (
 				<VideoThumbnailSelectorModal
@@ -371,6 +372,7 @@ const EditVideoDetails = () => {
 												value: VIDEO_PRIVACY_LEVEL_PRIVATE,
 											},
 										] }
+										__nextHasNoMarginBottom={ true }
 									/>
 								) }
 								{ isFetchingData ? (
@@ -388,6 +390,7 @@ const EditVideoDetails = () => {
 												'jetpack-videopress-pkg'
 											) }
 											onChange={ value => setDisplayEmbed( value ? 1 : 0 ) }
+											__nextHasNoMarginBottom={ true }
 										/>
 									</>
 								) }
@@ -406,6 +409,7 @@ const EditVideoDetails = () => {
 												'jetpack-videopress-pkg'
 											) }
 											onChange={ value => setAllowDownload( value ? 1 : 0 ) }
+											__nextHasNoMarginBottom={ true }
 										/>
 									</>
 								) }

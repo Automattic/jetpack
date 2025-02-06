@@ -106,6 +106,7 @@ function Edit( { clientId, isSelected, attributes, setAttributes } ) {
 		return (
 			<div { ...blockProps }>
 				<ConnectBanner
+					block="Paid Content"
 					explanation={ __(
 						'Connect your WordPress.com account to enable paid content.',
 						'jetpack'

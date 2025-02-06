@@ -24,7 +24,7 @@ type ConnectFormProps = {
  *
  * @param {ConnectFormProps} props - Component props
  *
- * @return {import('react').ReactNode} Connect form component
+ * @return Connect form component
  */
 export function ConnectForm( {
 	service,
@@ -94,8 +94,8 @@ export function ConnectForm( {
 							}
 
 							return hasConnections
-								? _x( 'Connect more', '', 'jetpack' )
-								: __( 'Connect', 'jetpack' );
+								? _x( 'Connect more', '', 'jetpack-publicize-components' )
+								: __( 'Connect', 'jetpack-publicize-components' );
 						} )( buttonLabel ) }
 					</Button>
 				</div>

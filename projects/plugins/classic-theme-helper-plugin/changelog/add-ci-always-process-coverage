@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Always run JS coverage, even if PHP coverage fails.
+
+

@@ -1,0 +1,131 @@
+$interstitial-modal-padding: 40px;
+
+.component-product-interstitial-modal {
+	// Not all variables are available everywhere.
+	--font-headline-medium: 48px;
+	--font-headline-small: 36px;
+	--font-title-medium: 24px;
+	--font-body: 16px;
+	--font-body-small: 14px;
+	--font-body-extra-small: 14px;
+	--spacing-base: 8px;
+	max-height: calc(100% - 24px); // overwrite the default max modal height
+
+	:global(.components-modal__header) + div {
+		height: 100%;
+	}
+
+	:global(.components-modal__content) {
+		margin: $interstitial-modal-padding;
+		padding: 0;
+	}
+
+	:global(.components-modal__header) {
+		height: $interstitial-modal-padding;
+		padding: 8px 8px 0;
+		border-bottom: 0;
+	}
+
+	.wrapper {
+		height: 100%;
+		padding: 0;
+	}
+}
+
+.component-product-interstitial-modal__overlay {
+	@media ( max-height: 768px ) {
+		overflow: scroll;
+		padding-top: 24px;
+		padding-bottom: 24px;
+
+		.component-product-interstitial-modal {
+			max-height: unset;
+		}
+	}
+}
+
+.primary {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	gap: 1rem;
+}
+
+.primary-content {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	gap: 1rem;
+	flex: 1;
+}
+
+.price-container {
+	:global(.product-price_container) {
+		align-items: center;
+	}
+}
+
+.primary-footer {
+	display: flex;
+	flex-direction: row;
+	gap: 8px 24px;
+}
+
+.secondary {
+	max-width: 100%;
+	height: auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+
+	img {
+		max-width: 100%;
+		height: auto;
+		max-height: 100%;
+		object-fit: contain;
+		display: flex;
+		align-items: center;
+		overflow: hidden;
+	}
+}
+
+.modal-with-video {
+	position: relative;
+	width: 100%;
+	padding-top: 56.25%; /* 16:9 Aspect Ratio (height / width = 0.5625) */
+
+	iframe {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		border: none;
+	}
+}
+
+.additional {
+	display: flex;
+	flex-direction: column;
+}
+
+.features {
+	margin: 0;
+	padding: 0;
+	flex-grow: 1;
+	margin-bottom: calc( var( --spacing-base ) * 2 );
+
+	li {
+		list-style: none;
+		display: flex;
+		align-items: flex-start;
+		margin-bottom: var( --spacing-base );
+	}
+
+	svg {
+		fill: var( --jp-green-primary);
+		margin-right: var( --spacing-base );
+		flex-shrink: 0;
+	}
+}

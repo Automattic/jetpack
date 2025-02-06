@@ -40,7 +40,7 @@ async function collateCssFiles(
 					try {
 						const absolute = new URL( relative, url ).toString();
 						set[ absolute ] = cssIncludes[ relative ];
-					} catch ( err ) {
+					} catch {
 						// Ignore invalid URLs.
 						// eslint-disable-next-line no-console
 						console.log( `Could not absolutify URL: ${ relative }` );

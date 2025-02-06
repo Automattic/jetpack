@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Move `load_muplugin_textdomain` call to `after_setup_theme` hook.

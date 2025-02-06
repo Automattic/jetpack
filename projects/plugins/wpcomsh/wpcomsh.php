@@ -2,14 +2,14 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 5.10.0
+ * Version: 6.0.0
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
  * @package wpcomsh
  */
 
-define( 'WPCOMSH_VERSION', '5.10.0' );
+define( 'WPCOMSH_VERSION', '6.0.0' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -387,7 +387,7 @@ function wpcomsh_make_content_clickable( $content ) {
 	// don't look in <a></a>, <pre></pre>, <script></script> and <style></style>
 	// use <div class="skip-make-clickable"> in support docs where linkifying
 	// breaks shortcodes, etc.
-	$_split  = preg_split( '/(<[^<>]+>)/i', $content, -1, PREG_SPLIT_DELIM_CAPTURE );
+	$_split  = preg_split( '/(<[^>]+>)/i', $content, -1, PREG_SPLIT_DELIM_CAPTURE );
 	$end     = '';
 	$out     = '';
 	$combine = '';

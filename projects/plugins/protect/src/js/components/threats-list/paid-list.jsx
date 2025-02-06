@@ -1,11 +1,15 @@
-import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
+import {
+	Text,
+	Button,
+	DiffViewer,
+	MarkedLines,
+	useBreakpointMatch,
+} from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useFixers from '../../hooks/use-fixers';
 import useModal from '../../hooks/use-modal';
-import DiffViewer from '../diff-viewer';
-import MarkedLines from '../marked-lines';
 import PaidAccordion, { PaidAccordionItem } from '../paid-accordion';
 import Pagination from './pagination';
 import styles from './styles.module.scss';

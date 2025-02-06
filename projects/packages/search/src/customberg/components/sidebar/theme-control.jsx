@@ -3,8 +3,6 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import ThemeIcon from './theme-icon';
 
-/* eslint-disable react/jsx-no-bind */
-
 /**
  * Theme control for use in SidebarOptions tab.
  *

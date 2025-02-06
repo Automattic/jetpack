@@ -5,6 +5,57 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.5] - 2025-02-05
+### Changed
+- Updated package dependencies. [#41491]
+
+## [4.0.4] - 2025-02-03
+### Changed
+- Updated package dependencies. [#41286]
+
+## [4.0.3] - 2025-01-20
+### Changed
+- Updated package dependencies. [#41099]
+
+## [4.0.2] - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564]
+
+## [4.0.1] - 2024-12-04
+### Changed
+- Updated package dependencies. [#40363]
+
+## [4.0.0] - 2024-11-25
+### Changed
+- Updated package dependencies. [#40258] [#40288]
+
+### Removed
+- Remove JSX runtime polyfill, now that we've dropped support for WordPress < 6.6. [#40200]
+
+## [3.0.0] - 2024-11-14
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## [2.3.14] - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999]
+
+## [2.3.13] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+## [2.3.12] - 2024-10-29
+### Changed
+- Internal updates.
+
+## [2.3.11] - 2024-10-29
+### Fixed
+- Fixed the outdated JS build for script-data [#39937]
+
+## [2.3.10] - 2024-10-10
+### Changed
+- Updated package dependencies.
+
 ## [2.3.9] - 2024-10-07
 ### Changed
 - Updated package dependencies. [#39594]
@@ -505,6 +556,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Statically access asset tools
 
+[4.0.5]: https://github.com/Automattic/jetpack-assets/compare/v4.0.4...v4.0.5
+[4.0.4]: https://github.com/Automattic/jetpack-assets/compare/v4.0.3...v4.0.4
+[4.0.3]: https://github.com/Automattic/jetpack-assets/compare/v4.0.2...v4.0.3
+[4.0.2]: https://github.com/Automattic/jetpack-assets/compare/v4.0.1...v4.0.2
+[4.0.1]: https://github.com/Automattic/jetpack-assets/compare/v4.0.0...v4.0.1
+[4.0.0]: https://github.com/Automattic/jetpack-assets/compare/v3.0.0...v4.0.0
+[3.0.0]: https://github.com/Automattic/jetpack-assets/compare/v2.3.14...v3.0.0
+[2.3.14]: https://github.com/Automattic/jetpack-assets/compare/v2.3.13...v2.3.14
+[2.3.13]: https://github.com/Automattic/jetpack-assets/compare/v2.3.12...v2.3.13
+[2.3.12]: https://github.com/Automattic/jetpack-assets/compare/v2.3.11...v2.3.12
+[2.3.11]: https://github.com/Automattic/jetpack-assets/compare/v2.3.10...v2.3.11
+[2.3.10]: https://github.com/Automattic/jetpack-assets/compare/v2.3.9...v2.3.10
 [2.3.9]: https://github.com/Automattic/jetpack-assets/compare/v2.3.8...v2.3.9
 [2.3.8]: https://github.com/Automattic/jetpack-assets/compare/v2.3.7...v2.3.8
 [2.3.7]: https://github.com/Automattic/jetpack-assets/compare/v2.3.6...v2.3.7

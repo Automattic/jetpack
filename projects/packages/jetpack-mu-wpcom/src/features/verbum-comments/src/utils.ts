@@ -1,6 +1,6 @@
 import { translate } from './i18n';
 import { Facebook, Mail, WordPress } from './images';
-import type { UserInfo, VerbumComments } from './types';
+import type { UserInfo } from './types';
 
 export const serviceData = {
 	wordpress: {
@@ -41,8 +41,10 @@ export const canWeAccessCookies = () => {
 
 /**
  * Uses the current bundle's size and the time it took to download and execute to estimate connection speed.
+ *
+ * @return {boolean} - True if the connection is fast, false otherwise.
  */
-export function isFastConnection() {
+export function isFastConnection(): boolean {
 	// Hardcoding the size of the bundle.
 	const bytes = 30000;
 	const bytesPerMs = bytes / VerbumComments.fullyLoadedTime;

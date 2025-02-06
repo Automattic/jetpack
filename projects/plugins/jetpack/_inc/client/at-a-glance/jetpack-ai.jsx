@@ -8,11 +8,11 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
 import { getJetpackProductUpsellByFeature, FEATURE_JETPACK_AI } from 'lib/plans/constants';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
-import { connect } from 'react-redux';
 import {
 	connectUser,
 	hasConnectedOwner as hasConnectedOwnerSelector,

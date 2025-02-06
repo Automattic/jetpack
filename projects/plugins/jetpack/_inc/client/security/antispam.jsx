@@ -1,5 +1,8 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { assign, debounce, isEmpty, trim } from 'lodash';
+import { Component } from 'react';
+import { connect } from 'react-redux';
 import FoldableCard from 'components/foldable-card';
 import FormInputValidation from 'components/form-input-validation';
 import { FormFieldset, FormLabel } from 'components/forms';
@@ -10,9 +13,6 @@ import SettingsGroup from 'components/settings-group';
 import TextInput from 'components/text-input';
 import analytics from 'lib/analytics';
 import { FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
-import { assign, debounce, isEmpty, trim } from 'lodash';
-import { Component } from 'react';
-import { connect } from 'react-redux';
 import { isAkismetKeyValid, checkAkismetKey, isCheckingAkismetKey } from 'state/at-a-glance';
 
 export const Antispam = withModuleSettingsFormHelpers(

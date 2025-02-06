@@ -1,4 +1,3 @@
-/* eslint-disable react/react-in-jsx-scope */
 import { action } from '@storybook/addon-actions';
 import React from 'react';
 import ConnectScreenVisual from '../visual';

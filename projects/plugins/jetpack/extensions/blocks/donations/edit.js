@@ -140,6 +140,7 @@ const Edit = props => {
 	if ( ! isUserConnected ) {
 		content = (
 			<ConnectBanner
+				block="Donations Form"
 				explanation={ __( 'Connect your WordPress.com account to enable donations.', 'jetpack' ) }
 			/>
 		);

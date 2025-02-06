@@ -316,6 +316,7 @@ const ProductDetailTable = ( {
 			}
 			actions={ [
 				<Button
+					key="get"
 					variant="secondary"
 					href={ `https://wordpress.org/plugins/${ pluginSlug }` }
 					isExternalLink

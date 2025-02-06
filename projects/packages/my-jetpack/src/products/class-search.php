@@ -81,6 +81,13 @@ class Search extends Hybrid_Product {
 	public static $requires_user_connection = true;
 
 	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'search';
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string
@@ -312,26 +319,16 @@ class Search extends Hybrid_Product {
 	}
 
 	/**
-	 * Checks if the site purchases contain a paid search plan
+	 * Get the product-slugs of the paid plans for this product (not including bundles)
 	 *
-	 * @return bool
+	 * @return array
 	 */
-	public static function has_paid_plan_for_product() {
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
-		}
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				// Search is available as standalone product and as part of the Complete plan.
-				if (
-					( str_contains( $purchase->product_slug, 'jetpack_search' ) && ! str_contains( $purchase->product_slug, 'jetpack_search_free' ) ) ||
-					str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
-					return true;
-				}
-			}
-		}
-		return false;
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_search',
+			'jetpack_search_monthly',
+			'jetpack_search_bi_yearly',
+		);
 	}
 
 	/**
@@ -390,5 +387,15 @@ class Search extends Hybrid_Product {
 	 */
 	public static function get_manage_url() {
 		return admin_url( 'admin.php?page=jetpack-search' );
+	}
+
+	/**
+	 * Return product bundles list
+	 * that supports the product.
+	 *
+	 * @return boolean|array Products bundle list.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return array( 'complete' );
 	}
 }

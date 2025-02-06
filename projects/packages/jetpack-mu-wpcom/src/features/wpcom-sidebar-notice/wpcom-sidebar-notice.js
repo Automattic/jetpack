@@ -1,62 +1,29 @@
-/* global wp, wpcomSidebarNotice */
+/* global wp, wpcomSidebarNoticeData */
 import { wpcomTrackEvent } from '../../common/tracks';
 
 import './wpcom-sidebar-notice.scss';
 
-const wpcomSidebarNoticeRecordEvent = event => {
+const wpcomSidebarNoticeRecordEvent = ( event, wpcomSidebarNoticeData ) => {
 	if ( ! event ) {
 		return;
 	}
 	wpcomTrackEvent(
 		event.name,
 		event.props,
-		wpcomSidebarNotice.user.ID,
-		wpcomSidebarNotice.user.username
+		wpcomSidebarNoticeData.user.ID,
+		wpcomSidebarNoticeData.user.username
 	);
 };
 
 const wpcomShowSidebarNotice = () => {
-	const adminMenu = document.querySelector( '#adminmenu' );
-	if ( ! adminMenu || typeof wpcomSidebarNotice === 'undefined' ) {
+	const sidebarNotice = document.querySelector( '#toplevel_page_site-notices' );
+	if ( ! sidebarNotice || ! wpcomSidebarNoticeData ) {
 		return;
 	}
 
-	// Render notice.
-	adminMenu.insertAdjacentHTML(
-		'afterbegin',
-		`
-			<li
-				id="toplevel_page_site-notices"
-				class="wp-not-current-submenu menu-top menu-icon-generic toplevel_page_site-notices"
-				data-id="${ wpcomSidebarNotice.id }"
-				data-feature-class="${ wpcomSidebarNotice.featureClass }"
-			>
-				<a href="${
-					wpcomSidebarNotice.url
-				}" class="wp-not-current-submenu menu-top menu-icon-generic toplevel_page_site-notices">
-					<div class="wp-menu-name">
-						<div class="upsell_banner">
-							<div class="upsell_banner__icon dashicons" aria-hidden="true"></div>
-							<div class="upsell_banner__text">${ wpcomSidebarNotice.text }</div>
-							<button type="button" class="upsell_banner__action button">${ wpcomSidebarNotice.action }</button>
-							${
-								wpcomSidebarNotice.dismissible
-									? '<button type="button" class="upsell_banner__dismiss button button-link">' +
-									  wpcomSidebarNotice.dismissLabel +
-									  '</button>'
-									: ''
-							}
-						</div>
-					</div>
-				</a>
-			</li>
-		`
-	);
-
 	// Record impression event in Tracks.
-	wpcomSidebarNoticeRecordEvent( wpcomSidebarNotice.tracks?.display );
+	wpcomSidebarNoticeRecordEvent( wpcomSidebarNoticeData.tracks?.display, wpcomSidebarNoticeData );
 
-	const sidebarNotice = adminMenu.firstElementChild;
 	sidebarNotice.addEventListener( 'click', event => {
 		if (
 			event.target.classList.contains( 'upsell_banner__dismiss' ) ||
@@ -67,15 +34,18 @@ const wpcomShowSidebarNotice = () => {
 			wp.ajax.post( 'wpcom_dismiss_sidebar_notice', {
 				id: sidebarNotice.dataset.id,
 				feature_class: sidebarNotice.dataset.featureClass,
-				_ajax_nonce: wpcomSidebarNotice.dismissNonce,
+				_ajax_nonce: wpcomSidebarNoticeData.dismissNonce,
 			} );
 			sidebarNotice.remove();
 
 			// Record dismiss event in Tracks.
-			wpcomSidebarNoticeRecordEvent( wpcomSidebarNotice.tracks?.dismiss );
+			wpcomSidebarNoticeRecordEvent(
+				wpcomSidebarNoticeData.tracks?.dismiss,
+				wpcomSidebarNoticeData
+			);
 		} else {
 			// Record click event in Tracks.
-			wpcomSidebarNoticeRecordEvent( wpcomSidebarNotice.tracks?.click );
+			wpcomSidebarNoticeRecordEvent( wpcomSidebarNoticeData.tracks?.click, wpcomSidebarNoticeData );
 		}
 	} );
 };

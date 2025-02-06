@@ -1,12 +1,12 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
 import analytics from 'lib/analytics';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import {
 	isFetchingSitePurchases as getIsFetchingSitePurchases,
 	hasActiveSecurityPurchase as getHasActiveSecurityPurchase,

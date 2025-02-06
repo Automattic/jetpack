@@ -33,7 +33,7 @@ export function* updateJetpackSettings( settings ) {
 		const updatedSettings = yield fetchWordAdsSettings();
 		yield setJetpackSettings( updatedSettings );
 		return successNotice( __( 'Updated settings.', 'jetpack-wordads' ) );
-	} catch ( e ) {
+	} catch {
 		const oldSettings = pick( select( STORE_ID ).getWordAdsModuleStatus(), [ 'module_active' ] );
 		yield setJetpackSettings( oldSettings );
 		return errorNotice( __( 'Error Update settings…', 'jetpack-wordads' ) );

@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { createElement, useMemo } from 'react';
+import { createElement, forwardRef, useMemo } from 'react';
 import { ContainerProps } from '../types';
 import styles from './style.module.scss';
 import type React from 'react';
@@ -7,17 +7,21 @@ import type React from 'react';
 /**
  * JP Container
  *
- * @param {ContainerProps} props - Component properties.
+ * @param {ContainerProps}         props - Component properties.
+ * @param {React.MutableRefObject} ref   - Ref to the component
  * @return {React.ReactElement}   Container component.
  */
-const Container: React.FC< ContainerProps > = ( {
-	children,
-	fluid = false,
-	tagName = 'div',
-	className,
-	horizontalGap = 1,
-	horizontalSpacing = 1,
-} ) => {
+const Container = (
+	{
+		children,
+		fluid = false,
+		tagName = 'div',
+		className,
+		horizontalGap = 1,
+		horizontalSpacing = 1,
+	}: ContainerProps,
+	ref: React.MutableRefObject< HTMLElement | null >
+): React.ReactElement => {
 	const containerStyle = useMemo( () => {
 		const padding = `calc( var(--horizontal-spacing) * ${ horizontalSpacing } )`;
 		const rowGap = `calc( var(--horizontal-spacing) * ${ horizontalGap } )`;
@@ -38,9 +42,10 @@ const Container: React.FC< ContainerProps > = ( {
 		{
 			className: containerClassName,
 			style: containerStyle,
+			ref,
 		},
 		children
 	);
 };
 
-export default Container;
+export default forwardRef< HTMLElement, ContainerProps >( Container );

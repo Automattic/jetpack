@@ -1,8 +1,7 @@
-import { Text } from '@automattic/jetpack-components';
+import { Text, ThreatSeverityBadge } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import React, { useState, useCallback } from 'react';
-import ThreatSeverityBadge from '../severity';
 import styles from './styles.module.scss';
 
 //TODO: Move this to WPCom like we did the other messages?

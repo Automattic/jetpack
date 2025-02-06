@@ -114,11 +114,6 @@ function wpcom_launchpad_get_task_definitions() {
 					? admin_url( 'post-new.php' )
 					: '/post/' . $data['site_slug_encoded'];
 
-				// Add a new_prompt query param for Write sites.
-				if ( 'write' === get_option( 'site_intent' ) ) {
-					return add_query_arg( 'new_prompt', 'true', $base_path );
-				}
-
 				return $base_path;
 			},
 		),
@@ -173,6 +168,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'isLaunchTask'          => true,
 			'is_complete_callback'  => 'wpcom_launchpad_is_site_launched',
+			'is_disabled_callback'  => 'wpcom_launchpad_is_site_launched_disabled',
 			'add_listener_callback' => 'wpcom_launchpad_add_site_launch_listener',
 		),
 		'verify_email'                    => array(
@@ -262,6 +258,17 @@ function wpcom_launchpad_get_task_definitions() {
 					return admin_url( 'import.php' );
 				}
 				return '/import/' . $data['site_slug_encoded'];
+			},
+		),
+
+		// intent-newsletter-goal tasks
+		'start_building_your_audience'    => array(
+			'get_title'            => function () {
+				return __( 'Start building your audience', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/subscribers/' . $data['site_slug_encoded'] . '#building-your-audience-task';
 			},
 		),
 
@@ -482,14 +489,14 @@ function wpcom_launchpad_get_task_definitions() {
 
 		'customize_welcome_message'       => array(
 			'get_title'            => function () {
-				return __( 'Customize welcome message', 'jetpack-mu-wpcom' );
+				return __( 'Write a welcome message', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
 					return admin_url( 'admin.php?page=jetpack#/newsletter' );
 				}
-				return '/settings/newsletter/' . $data['site_slug_encoded'];
+				return '/settings/newsletter/' . $data['site_slug_encoded'] . '#messages';
 			},
 		),
 		'enable_subscribers_modal'        => array(
@@ -806,15 +813,62 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Migrating the site', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_complete_callback' => '__return_true',
 			'is_visible_callback'  => '__return_true',
 		),
+		// Post-migration tasks.
 		'review_site'                     => array(
 			'get_title'            => function () {
 				return __( "Review the site's content", 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => '__return_true',
+		),
+		'review_plugins'                  => array(
+			'get_title'             => function () {
+				return __( 'Review the migrated plugins', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback'  => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'   => '__return_true',
+			'add_listener_callback' => function () {
+				add_action( 'pre_current_active_plugins', 'wpcom_launchpad_mark_review_plugins_complete' );
+			},
+			'get_calypso_path'      => function () {
+				return admin_url( 'plugins.php' );
+			},
+		),
+		'connect_migration_domain'        => array(
+			'get_title'            => function () {
+				return __( 'Connect your domain', 'jetpack-mu-wpcom' );
+			},
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$site_id = get_current_blog_id();
+				// Attempt to get the domain from the pre-transfer site option if the function exists, otherwise check the current site option.
+				// @phan-suppress-next-line PhanUndeclaredFunction -- Being checked before being called.
+				$domain = function_exists( 'wpcom_get_migration_source_site_domain' ) ? wpcom_get_migration_source_site_domain( $site_id ) : get_option( 'migration_source_site_domain', null );
+				$path   = $domain ? '/domains/add/use-my-domain/' . $data['site_slug_encoded'] . '/?initialQuery=' . $domain : '/domains/add/use-my-domain/' . $data['site_slug_encoded'];
+				return $path;
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_domain_customize_completed',
+			'is_visible_callback'  => '__return_true',
+		),
+		'domain_dns_mapped'               => array(
+			'get_title'            => function () {
+				return __( "Update your domain's DNS", 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => '__return_true',
+		),
+		'check_ssl_status'                => array(
+			'get_title'            => function () {
+				return __( 'Provision SSL certificate', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_ssl_task_visible',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$domain = $data['site_slug_encoded'];
+				return '/domains/manage/' . $domain . '/edit/' . $domain;
+			},
 		),
 	);
 
@@ -844,6 +898,15 @@ function wpcom_launchpad_is_site_launched( $task, $is_complete ) {
 	} else {
 		return false;
 	}
+}
+
+/**
+ * Disabled when the site is already launched.
+ *
+ * @return boolean
+ */
+function wpcom_launchpad_is_site_launched_disabled() {
+	return 'launched' === get_option( 'launch-status' );
 }
 
 /**
@@ -1775,6 +1838,14 @@ function wpcom_track_site_launch_task() {
 }
 
 /**
+ * Mark the plugins reviewed task as complete.
+ *
+ * @return void
+ */
+function wpcom_launchpad_mark_review_plugins_complete() {
+	wpcom_mark_launchpad_task_complete( 'review_plugins' );
+}
+/**
  * Callback that conditionally adds the site launch listener based on platform.
  *
  * @return void
@@ -2448,7 +2519,7 @@ function wpcom_launchpad_is_edit_page_task_visible() {
 
 /**
  * Mark the customize_welcome_message task complete
- * if the subscription_options['invitation'] value
+ * if the subscription_options['welcome'] value
  * for the welcome message has changed on option update.
  *
  * @param mixed $old_value The old value of the welcome message.
@@ -2457,9 +2528,9 @@ function wpcom_launchpad_is_edit_page_task_visible() {
  * @return void
  */
 function wpcom_launchpad_mark_customize_welcome_message_complete_on_update( $old_value, $value ) {
-	$new_invitation = is_array( $value ) && isset( $value['invitation'] ) ? $value['invitation'] : '';
-	$old_invitation = is_array( $old_value ) && isset( $old_value['invitation'] ) ? $old_value['invitation'] : '';
-	if ( $new_invitation !== $old_invitation ) {
+	$new_welcome = is_array( $value ) && isset( $value['welcome'] ) ? $value['welcome'] : '';
+	$old_welcome = is_array( $old_value ) && isset( $old_value['welcome'] ) ? $old_value['welcome'] : '';
+	if ( $new_welcome !== $old_welcome ) {
 		wpcom_mark_launchpad_task_complete( 'customize_welcome_message' );
 	}
 }
@@ -2467,7 +2538,7 @@ add_action( 'update_option_subscription_options', 'wpcom_launchpad_mark_customiz
 
 /**
  * Mark the customize_welcome_message task complete
- * if the subscription_options['invitation'] value
+ * if the subscription_options['welcome'] value
  * for the welcome message has been added.
  *
  * @param mixed $value The value of the welcome message.
@@ -2475,7 +2546,7 @@ add_action( 'update_option_subscription_options', 'wpcom_launchpad_mark_customiz
  * @return void
  */
 function wpcom_launchpad_mark_customize_welcome_message_complete_on_add( $value ) {
-	if ( is_array( $value ) && $value['invitation'] ) {
+	if ( is_array( $value ) && $value['welcome'] ) {
 		wpcom_mark_launchpad_task_complete( 'customize_welcome_message' );
 	}
 }
@@ -2758,4 +2829,30 @@ function wpcom_launchpad_get_latest_draft_id() {
 	$cached_draft_id = reset( $latest_draft_id );
 
 	return $cached_draft_id;
+}
+
+/**
+ * Will return true if the primary domain is not a WPCOM domain.
+ *
+ * @return bool
+ */
+function wpcom_launchpad_is_ssl_task_visible() {
+	return ! wpcom_launchpad_is_primary_domain_wpcom();
+}
+
+/**
+ * Checks if the current site primary domain is a WPCOM domain.
+ *
+ * @return bool Will return true if the primary domain is a WPCOM domain.
+ */
+function wpcom_launchpad_is_primary_domain_wpcom() {
+	if ( ! ( new Automattic\Jetpack\Status\Host() )->is_wpcom_platform() ) {
+		return false;
+	}
+
+	$url  = home_url();
+	$host = wp_parse_url( $url, PHP_URL_HOST );
+
+	// If site_slug ends with .wpcomstaging.com return true
+	return str_ends_with( $host, '.wpcomstaging.com' );
 }

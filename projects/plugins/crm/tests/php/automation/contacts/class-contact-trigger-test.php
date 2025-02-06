@@ -18,7 +18,12 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
 /**
  * Test Automation Workflow functionalities
  *
- * @covers Automattic\Jetpack\CRM\Automation
+ * @covers Automattic\Jetpack\CRM\Automation\Triggers\Contact_Before_Deleted
+ * @covers Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created
+ * @covers Automattic\Jetpack\CRM\Automation\Triggers\Contact_Deleted
+ * @covers Automattic\Jetpack\CRM\Automation\Triggers\Contact_Email_Updated
+ * @covers Automattic\Jetpack\CRM\Automation\Triggers\Contact_Status_Updated
+ * @covers Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated
  */
 class Contact_Trigger_Test extends JPCRM_Base_Test_Case {
 

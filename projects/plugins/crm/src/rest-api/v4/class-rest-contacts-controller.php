@@ -14,7 +14,7 @@ use WP_REST_Response;
 use WP_REST_Server;
 use zbsDAL_contacts;
 
-defined( 'ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || exit( 0 );
 
 /**
  * REST contacts controller.

@@ -70,10 +70,9 @@ class PHPAutoloaderTest extends TestCase {
 	 * Tests that class files are loaded correctly.
 	 */
 	public function test_load_class() {
-		// @phan-suppress-next-line PhanDeprecatedFunction -- Keep using setMethods until we drop PHP 7.0 support.
 		$loader = $this->getMockBuilder( Version_Loader::class )
 			->disableOriginalConstructor()
-			->setMethods( array( 'find_class_file' ) )
+			->onlyMethods( array( 'find_class_file' ) )
 			->getMock();
 
 		global $jetpack_autoloader_loader;
@@ -91,10 +90,9 @@ class PHPAutoloaderTest extends TestCase {
 	 * Tests that nothing happens when a class file isn't found.
 	 */
 	public function test_load_class_does_nothing_without_class() {
-		// @phan-suppress-next-line PhanDeprecatedFunction -- Keep using setMethods until we drop PHP 7.0 support.
 		$loader = $this->getMockBuilder( Version_Loader::class )
 			->disableOriginalConstructor()
-			->setMethods( array( 'find_class_file' ) )
+			->onlyMethods( array( 'find_class_file' ) )
 			->getMock();
 
 		global $jetpack_autoloader_loader;

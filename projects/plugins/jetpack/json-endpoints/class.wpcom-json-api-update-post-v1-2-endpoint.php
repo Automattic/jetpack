@@ -196,7 +196,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 
 		// unhook publicize, it's hooked again later -- without this, skipping services is impossible.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			remove_action( 'save_post', array( $GLOBALS['publicize_ui']->publicize, 'async_publicize_post' ), 100, 2 );
+			remove_action( 'save_post', array( $GLOBALS['publicize_ui']->publicize, 'async_publicize_post' ), 100 );
 
 			if ( $this->should_load_theme_functions( $post_id ) ) {
 				$this->load_theme_functions();
@@ -322,9 +322,14 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 
 		// If date is set, $this->input will set date_gmt, date still needs to be adjusted.
 		if ( isset( $input['date_gmt'] ) ) {
-			$gmt_offset       = get_option( 'gmt_offset' );
-			$time_with_offset = strtotime( $input['date_gmt'] ) + $gmt_offset * HOUR_IN_SECONDS;
-			$input['date']    = gmdate( 'Y-m-d H:i:s', $time_with_offset );
+			$date_gmt_timestamp = strtotime( $input['date_gmt'] );
+			if ( $date_gmt_timestamp ) {
+				$gmt_offset       = (int) get_option( 'gmt_offset' );
+				$time_with_offset = $date_gmt_timestamp + $gmt_offset * HOUR_IN_SECONDS;
+				$input['date']    = gmdate( 'Y-m-d H:i:s', $time_with_offset );
+			} else { // Invalid input.
+				unset( $input['date_gmt'] );
+			}
 		}
 
 		if ( ! empty( $author_id ) && get_current_user_id() !== $author_id ) {

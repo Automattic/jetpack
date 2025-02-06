@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Extensions\Story;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Connection\Connection_Assets;
 use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_PostImages;
@@ -441,6 +442,11 @@ function render_pagination( $settings ) {
 function render_block( $attributes ) {
 	// Let's use a counter to have a different id for each story rendered in the same context.
 	static $story_block_counter = 0;
+
+	if ( 0 === $story_block_counter ) {
+		// @todo Fix the webpack tree shaking so the block's view.js no longer depends on jetpack-connection, then remove this.
+		Connection_Assets::register_assets();
+	}
 
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 

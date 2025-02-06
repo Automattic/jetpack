@@ -1,9 +1,9 @@
 === Jetpack VaultPress Backup ===
 Contributors: automattic, bjorsch, fgiannar, initsogar, jeherve, jwebbdev, kraftbj, macbre, pypt, samiff, sermitr, williamvianas
 Tags: jetpack, backup, restore
-Requires at least: 6.5
-Requires PHP: 7.0
-Tested up to: 6.6
+Requires at least: 6.6
+Requires PHP: 7.2
+Tested up to: 6.7
 Stable tag: 2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -175,9 +175,13 @@ No, Jetpack VaultPress Backup does not currently support split site or split hom
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 2.9 - 2024-09-06
+### 3.1 - 2025-01-10
 #### Changed
-- Internal updates.
+- Resolve an issue where revoked licenses were incorrectly treated as unattached. This caused users to be redirected to the license activation page after site connection, even when unattached licenses were not valid for activation.
+- Social: Change My Jetpack CTA for Social from "Learn more" to "Activate".
+- Update backup plugin screenshots
+- Updated dependencies.
+- Updated package dependencies.
 
 --------
 

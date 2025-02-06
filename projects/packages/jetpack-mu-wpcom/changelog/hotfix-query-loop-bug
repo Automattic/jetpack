@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Hotfix for a {Gutenberg 20.0.0, WP 6.7.x} bug causing the Content block to output truncated HTML.

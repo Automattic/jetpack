@@ -55,145 +55,68 @@ function load_assets( $attr, $content ) {
 }
 
 /**
- * Register the `ai-assistant-support` extension.
+ * Register extensions.
  */
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
 		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
-			\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-support' );
+			Jetpack_Gutenberg::set_extension_available( 'ai-assistant-support' );
+			Jetpack_Gutenberg::set_extension_available( 'ai-assistant-form-support' );
+			Jetpack_Gutenberg::set_extension_available( 'ai-content-lens' );
+			Jetpack_Gutenberg::set_extension_available( 'ai-assistant-backend-prompts' );
+			Jetpack_Gutenberg::set_extension_available( 'ai-assistant-usage-panel' );
+			Jetpack_Gutenberg::set_extension_available( 'ai-featured-image-generator' );
+			Jetpack_Gutenberg::set_extension_available( 'ai-title-optimization' );
+			Jetpack_Gutenberg::set_extension_available( 'ai-assistant-experimental-image-generation-support' );
+			Jetpack_Gutenberg::set_extension_available( 'ai-general-purpose-image-generator' );
+			Jetpack_Gutenberg::set_extension_available( 'ai-assistant-site-logo-support' );
+			Jetpack_Gutenberg::set_extension_available( 'ai-title-optimization-keywords-support' );
+			if ( apply_filters( 'breve_enabled', true ) ) {
+				Jetpack_Gutenberg::set_extension_available( 'ai-proofread-breve' );
+			}
 		}
 	}
 );
 
 /**
- * Register the `ai-assistant-form-support` extension.
+ * Register the `ai-list-to-table-transform` extension.
  */
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
-			\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-form-support' );
+		if ( apply_filters( 'jetpack_ai_enabled', true ) &&
+			apply_filters( 'list_to_table_transform_enabled', false )
+		) {
+			\Jetpack_Gutenberg::set_extension_available( 'ai-list-to-table-transform' );
 		}
 	}
 );
 
 /**
- * Register the `ai-content-lens` extension.
+ * Register the `ai-response-feedback` extension.
  */
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
-			\Jetpack_Gutenberg::set_extension_available( 'ai-content-lens' );
+		if ( apply_filters( 'jetpack_ai_enabled', true ) &&
+			apply_filters( 'ai_response_feedback_enabled', true )
+		) {
+			\Jetpack_Gutenberg::set_extension_available( 'ai-response-feedback' );
 		}
 	}
 );
 
 /**
- * Register the `ai-assistant-backend-prompts` extension.
+ * Register the `ai-seo-assistant` extension.
  */
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
-			\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-backend-prompts' );
-		}
-	}
-);
-
-/**
- * Register the `ai-assistant-usage-panel` extension.
- */
-add_action(
-	'jetpack_register_gutenberg_extensions',
-	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
-			\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-usage-panel' );
-		}
-	}
-);
-
-/**
- * Register the `ai-featured-image-generator` extension.
- */
-add_action(
-	'jetpack_register_gutenberg_extensions',
-	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
-			\Jetpack_Gutenberg::set_extension_available( 'ai-featured-image-generator' );
-		}
-	}
-);
-
-/**
- * Register the `ai-title-optimization` extension.
- */
-add_action(
-	'jetpack_register_gutenberg_extensions',
-	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
-			\Jetpack_Gutenberg::set_extension_available( 'ai-title-optimization' );
-		}
-	}
-);
-
-/**
- * Register the `ai-assistant-experimental-image-generation-support` extension.
- */
-add_action(
-	'jetpack_register_gutenberg_extensions',
-	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
-			\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-experimental-image-generation-support' );
-		}
-	}
-);
-
-/**
- * Register the `ai-general-purpose-image-generator` extension.
- */
-add_action(
-	'jetpack_register_gutenberg_extensions',
-	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
-			\Jetpack_Gutenberg::set_extension_available( 'ai-general-purpose-image-generator' );
-		}
-	}
-);
-
-/**
- * Register the `ai-proofread-breve` extension.
- */
-add_action(
-	'jetpack_register_gutenberg_extensions',
-	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) && apply_filters( 'breve_enabled', true ) ) {
-			\Jetpack_Gutenberg::set_extension_available( 'ai-proofread-breve' );
-		}
-	}
-);
-
-/**
- * Register the `ai-assistant-site-logo-support` extension.
- */
-add_action(
-	'jetpack_register_gutenberg_extensions',
-	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
-			\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-site-logo-support' );
-		}
-	}
-);
-
-/**
- * Register the `ai-title-optimization-keywords-support` extension.
- */
-add_action(
-	'jetpack_register_gutenberg_extensions',
-	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
-			\Jetpack_Gutenberg::set_extension_available( 'ai-title-optimization-keywords-support' );
+		if ( apply_filters( 'jetpack_ai_enabled', true ) &&
+			apply_filters( 'ai_seo_assistant_enabled', false )
+		) {
+			\Jetpack_Gutenberg::set_extension_available( 'ai-seo-assistant' );
 		}
 	}
 );

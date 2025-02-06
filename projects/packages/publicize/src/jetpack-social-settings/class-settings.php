@@ -16,6 +16,8 @@ use Automattic\Jetpack\Publicize\Social_Image_Generator\Templates;
  * This class is used to get and update Jetpack_Social_Settings.
  * Currently supported features:
  *      - Social Image Generator
+ *      - UTM Settings
+ *      - Social Notes
  */
 class Settings {
 	/**
@@ -30,6 +32,23 @@ class Settings {
 		'enabled'  => false,
 		'template' => Templates::DEFAULT_TEMPLATE,
 	);
+
+	const UTM_SETTINGS = 'utm_settings';
+
+	const DEFAULT_UTM_SETTINGS = array(
+		'enabled' => false,
+	);
+
+	const NOTES_CONFIG = 'notes_config';
+
+	const DEFAULT_NOTES_CONFIG = array(
+		'append_link' => true,
+	);
+
+	// Legacy named options.
+	const JETPACK_SOCIAL_NOTE_CPT_ENABLED   = 'jetpack-social-note';
+	const JETPACK_SOCIAL_SHOW_PRICING_PAGE  = 'jetpack-social_show_pricing_page';
+	const NOTES_FLUSH_REWRITE_RULES_FLUSHED = 'jetpack_social_rewrite_rules_flushed';
 
 	/**
 	 * Feature flags. Each item has 3 keys because of the naming conventions:
@@ -51,6 +70,26 @@ class Settings {
 			'variable_name' => 'useShareStatus',
 		),
 	);
+
+	/**
+	 * Whether the actions have been hooked into.
+	 *
+	 * @var bool
+	 */
+	protected static $actions_hooked_in = false;
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+
+		if ( ! self::$actions_hooked_in ) {
+			add_action( 'rest_api_init', array( $this, 'register_settings' ) );
+			add_action( 'admin_init', array( $this, 'register_settings' ) );
+
+			self::$actions_hooked_in = true;
+		}
+	}
 
 	/**
 	 * Migrate old options to the new settings. Previously SIG settings were stored in the
@@ -129,7 +168,125 @@ class Settings {
 			)
 		);
 
+		register_setting(
+			'jetpack_social',
+			self::OPTION_PREFIX . self::UTM_SETTINGS,
+			array(
+				'type'         => 'boolean',
+				'default'      => array(
+					'enabled' => false,
+				),
+				'show_in_rest' => array(
+					'schema' => array(
+						'type'       => 'object',
+						'properties' => array(
+							'enabled' => array(
+								'type' => 'boolean',
+							),
+						),
+					),
+				),
+			)
+		);
+
+		register_setting(
+			'jetpack_social',
+			self::JETPACK_SOCIAL_SHOW_PRICING_PAGE,
+			array(
+				'type'         => 'boolean',
+				'default'      => true,
+				'show_in_rest' => array(
+					'schema' => array(
+						'type' => 'boolean',
+					),
+				),
+			)
+		);
+
+		register_setting(
+			'jetpack_social',
+			self::JETPACK_SOCIAL_NOTE_CPT_ENABLED,
+			array(
+				'type'         => 'boolean',
+				'default'      => false,
+				'show_in_rest' => array(
+					'schema' => array(
+						'type' => 'boolean',
+					),
+				),
+			)
+		);
+
+		register_setting(
+			'jetpack_social',
+			self::OPTION_PREFIX . self::NOTES_CONFIG,
+			array(
+				'type'         => 'object',
+				'default'      => self::DEFAULT_NOTES_CONFIG,
+				'show_in_rest' => array(
+					'schema' => array(
+						'type'       => 'object',
+						'context'    => array( 'view', 'edit' ),
+						'properties' => array(
+							'append_link' => array(
+								'type' => 'boolean',
+							),
+							'link_format' => array(
+								'type' => 'string',
+								'enum' => array( 'full_url', 'shortlink', 'permashortcitation' ),
+							),
+						),
+					),
+				),
+			)
+		);
+
 		add_filter( 'rest_pre_update_setting', array( $this, 'update_settings' ), 10, 3 );
+	}
+
+	/**
+	 * Get the image generator settings.
+	 *
+	 * @return array
+	 */
+	public function get_image_generator_settings() {
+		return get_option( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS, self::DEFAULT_IMAGE_GENERATOR_SETTINGS );
+	}
+
+	/**
+	 * Get if the UTM params is enabled.
+	 *
+	 * @return array
+	 */
+	public function get_utm_settings() {
+		return get_option( self::OPTION_PREFIX . self::UTM_SETTINGS, self::DEFAULT_UTM_SETTINGS );
+	}
+
+	/**
+	 * Get the social notes config.
+	 *
+	 * @return array The social notes config.
+	 */
+	public function get_social_notes_config() {
+		return get_option( self::OPTION_PREFIX . self::NOTES_CONFIG, self::DEFAULT_NOTES_CONFIG );
+	}
+
+	/**
+	 * Check if the pricing page should be displayed.
+	 *
+	 * @return bool
+	 */
+	public static function should_show_pricing_page() {
+		return (bool) get_option( self::JETPACK_SOCIAL_SHOW_PRICING_PAGE, true );
+	}
+
+	/**
+	 * Get if the social notes feature is enabled.
+	 *
+	 * @return bool
+	 */
+	public function is_social_notes_enabled() {
+		return (bool) get_option( self::JETPACK_SOCIAL_NOTE_CPT_ENABLED, false );
 	}
 
 	/**
@@ -143,7 +300,7 @@ class Settings {
 		$this->migrate_old_option();
 
 		$settings = array(
-			'socialImageGeneratorSettings' => get_option( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS, self::DEFAULT_IMAGE_GENERATOR_SETTINGS ),
+			'socialImageGeneratorSettings' => $this->get_image_generator_settings(),
 		);
 
 		// The feature cannot be enabled without Publicize.
@@ -210,9 +367,38 @@ class Settings {
 	 */
 	public function update_settings( $updated, $name, $value ) {
 
+		// Social Image Generator.
 		if ( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS === $name ) {
 			return $this->update_social_image_generator_settings( $value );
 		}
+
+		// UTM Settings.
+		if ( self::OPTION_PREFIX . self::UTM_SETTINGS === $name ) {
+			$current_utm_settings = $this->get_utm_settings();
+
+			if ( empty( $current_utm_settings ) || ! is_array( $current_utm_settings ) ) {
+				$current_utm_settings = self::DEFAULT_UTM_SETTINGS;
+			}
+
+			return update_option( self::OPTION_PREFIX . self::UTM_SETTINGS, array_replace_recursive( $current_utm_settings, $value ) );
+		}
+
+		// Social Notes.
+		if ( self::JETPACK_SOCIAL_NOTE_CPT_ENABLED === $name ) {
+			// Delete this option, so the rules get flushed in maybe_flush_rewrite_rules when the CPT is registered.
+			delete_option( self::NOTES_FLUSH_REWRITE_RULES_FLUSHED );
+			return update_option( self::JETPACK_SOCIAL_NOTE_CPT_ENABLED, (bool) $value );
+		}
+		if ( self::OPTION_PREFIX . self::NOTES_CONFIG === $name ) {
+			$old_config = $this->get_social_notes_config();
+			$new_config = array_merge( $old_config, $value );
+			return update_option( self::OPTION_PREFIX . self::NOTES_CONFIG, $new_config );
+		}
+
+		if ( self::JETPACK_SOCIAL_SHOW_PRICING_PAGE === $name ) {
+			return update_option( self::JETPACK_SOCIAL_SHOW_PRICING_PAGE, (int) $value );
+		}
+
 		return $updated;
 	}
 

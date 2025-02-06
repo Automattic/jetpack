@@ -15,7 +15,7 @@
 	Breaking Checks ( stops direct access )
 	====================================================== */
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 /*
 ======================================================
@@ -320,6 +320,11 @@ function jpcrm_export_process_file_export() {
 							$objRow = array();
 						foreach ( $fields as $fK ) {
 
+							// Checking and fixing name clashes between custom fields and linked objects
+							// (e.g. custom field with slug `company` and the company linked object)
+							// See: https://github.com/Automattic/zero-bs-crm/issues/3477
+							$objDALLayer->fix_name_clash_if_needed( $fK ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 							$v = ''; // default (means always right col count)
 							if ( isset( $obj[ $fK ] ) ) {
 								$v = zeroBSCRM_textExpose( $obj[ $fK ] );
@@ -434,7 +439,7 @@ function jpcrm_export_process_file_export() {
 
 					// send end
 					fclose( $output );
-					exit();
+					exit( 0 );
 
 					// == / file fini ==================================================
 

@@ -91,7 +91,7 @@ class Uploader_Rest_Endpoints {
 		try {
 			$uploader = new Uploader( $attachment_id );
 			$status   = $uploader->check_status();
-			return rest_ensure_response( $status, 200 );
+			return rest_ensure_response( $status );
 		} catch ( Upload_Exception $e ) {
 			return new WP_Error(
 				'rest_invalid_param',
@@ -112,7 +112,7 @@ class Uploader_Rest_Endpoints {
 		try {
 			$uploader = new Uploader( $attachment_id );
 			$status   = $uploader->upload();
-			return rest_ensure_response( $status, 200 );
+			return rest_ensure_response( $status );
 		} catch ( Upload_Exception $e ) {
 			return new WP_Error(
 				'rest_invalid_param',

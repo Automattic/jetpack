@@ -695,7 +695,7 @@ class Jetpack_Subscriptions {
 		do_action( 'jetpack_subscriptions_form_submission', $result );
 
 		wp_safe_redirect( "$redirect#$redirect_fragment" );
-		exit;
+		exit( 0 );
 	}
 
 	/**
@@ -1047,3 +1047,4 @@ Jetpack_Subscriptions::init();
 require __DIR__ . '/subscriptions/views.php';
 require __DIR__ . '/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php';
 require __DIR__ . '/subscriptions/subscribe-overlay/class-jetpack-subscribe-overlay.php';
+require __DIR__ . '/subscriptions/subscribe-floating-button/class-jetpack-subscribe-floating-button.php';

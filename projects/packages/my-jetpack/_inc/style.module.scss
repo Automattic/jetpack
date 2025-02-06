@@ -8,6 +8,18 @@
 		.jp-dashboard-footer__jetpack-symbol {
 			height: 16px;
 		}
+
+		&:has(.my-jetpack-deprecate-notice-title) {
+			& .jetpack-deprecation-notice-link {
+				color: inherit;
+				font-weight: 600;
+				padding-right: 5px;
+			}
+		}
+	
+		.my-jetpack-deprecate-notice-title {
+			font-weight: 600;
+		}
 	}
 
 	#wpbody-content {

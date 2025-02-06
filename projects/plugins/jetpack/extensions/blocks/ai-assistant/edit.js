@@ -5,8 +5,20 @@ import {
 	BlockAIControl,
 	UpgradeMessage,
 	renderHTMLFromMarkdown,
+	PROMPT_TYPE_GENERATE_TITLE,
+	mapActionToHumanText,
+	QuotaExceededMessage,
+	FairUsageNotice,
+	useAICheckout,
+	useAiFeature,
 } from '@automattic/jetpack-ai-client';
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import {
+	useAnalytics,
+	PLAN_TYPE_FREE,
+	PLAN_TYPE_UNLIMITED,
+	usePlanType,
+	isUserConnected,
+} from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { rawHandler } from '@wordpress/blocks';
 import {
@@ -27,16 +39,11 @@ import clsx from 'clsx';
 import UsagePanel from '../../plugins/ai-assistant-plugin/components/usage-panel';
 import { USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } from '../../plugins/ai-assistant-plugin/components/usage-panel/types';
 import ConnectBanner from '../../shared/components/connect-banner';
-import { PLAN_TYPE_FREE, PLAN_TYPE_UNLIMITED, usePlanType } from '../../shared/use-plan-type';
 import FeedbackControl from './components/feedback-control';
-import QuotaExceededMessage, { FairUsageNotice } from './components/quota-exceeded-message';
 import ToolbarControls from './components/toolbar-controls';
 import useAIAssistant from './hooks/use-ai-assistant';
-import useAICheckout from './hooks/use-ai-checkout';
-import useAiFeature from './hooks/use-ai-feature';
 import useAiProductPage from './hooks/use-ai-product-page';
 import { getStoreBlockId } from './hooks/use-transform-to-assistant';
-import { isUserConnected } from './lib/connection';
 import './editor.scss';
 
 const isInBlockEditor = window?.Jetpack_Editor_Initial_State?.screenBase === 'post';
@@ -52,6 +59,10 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const { replaceBlocks, removeBlock } = useDispatch( 'core/block-editor' );
 	const { editPost } = useDispatch( 'core/editor' );
+
+	const [ lastAction, setLastAction ] = useState(
+		mapActionToHumanText( attributes.preTransformAction )
+	);
 
 	const {
 		isOverLimit,
@@ -192,7 +203,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		return lastEditableElement;
 	};
 
-	const isGeneratingTitle = attributes.promptType === 'generateTitle';
+	const isGeneratingTitle = attributes.promptType === PROMPT_TYPE_GENERATE_TITLE;
 
 	const acceptContentLabel = __( 'Accept', 'jetpack' );
 	const acceptTitleLabel = __( 'Accept title', 'jetpack' );
@@ -216,6 +227,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	};
 
 	const handleSend = () => {
+		setLastAction( attributes.userPrompt );
 		handleGetSuggestion( 'userPrompt' );
 		tracks.recordEvent( 'jetpack_ai_assistant_block_generate', { feature: 'ai-assistant' } );
 	};
@@ -294,6 +306,12 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		tracks.recordEvent( 'jetpack_ai_assistant_block_stop', { feature: 'ai-assistant' } );
 	};
 
+	const handleGetSuggestionFromToolbar = ( type, options ) => {
+		const humanText = mapActionToHumanText( type, options );
+		setLastAction( humanText );
+		getSuggestionFromOpenAI( type, options );
+	};
+
 	const blockProps = useBlockProps( {
 		ref: blockRef,
 		className: clsx( { 'is-waiting-response': isWaitingResponse } ),
@@ -305,7 +323,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const banner = (
 		<>
 			{ isOverLimit && isSelected && <QuotaExceededMessage placement="ai-assistant-block" /> }
-			{ ! connected && <ConnectBanner /> }
+			{ ! connected && <ConnectBanner block="AI Assistant" /> }
 		</>
 	);
 
@@ -389,7 +407,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					<ToolbarControls
 						isWaitingState={ isLoadingCompletion }
 						contentIsLoaded={ contentIsLoaded }
-						getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
+						getSuggestionFromOpenAI={ handleGetSuggestionFromToolbar }
 						retryRequest={ retryRequest }
 						handleAcceptContent={ handleAcceptContent }
 						handleAcceptTitle={ handleAcceptTitle }
@@ -445,6 +463,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 							/>
 						) : null
 					}
+					lastAction={ lastAction }
 				/>
 			</div>
 		</KeyboardShortcuts>

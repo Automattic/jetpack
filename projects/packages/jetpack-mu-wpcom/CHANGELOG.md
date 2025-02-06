@@ -5,6 +5,122 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.1.0] - 2025-01-10
+### Added
+- Add watch command for this package in composer.json file. [#40927]
+- Add comments page to the list of untangled pages under the experiment. [#40649]
+- CSS Tidy: Add css rule mask to allowlist. [#40655]
+- Pages: Add quick actions to change the homepage and the posts page. [#40699]
+- Post categories: Add quick action to change default category. [#40667]
+- Remove duplicate views: Show notices. [#40609]
+- WordPress.com Features: Add Holiday Snow functionality. [#40478]
+
+### Changed
+- Admin menu: Hide dashboard switcher when WP Admin view is enforced. [#40595]
+- Holiday Snow: Switch to a CSS-only implementation. [#40629]
+- Newspack Blocks: Update to version 4.5.2. [#40636]
+- Remove the option to close upsell notification for custom styles. [#40520]
+- Remove duplicate views: Enforce WP Admin for Pages. [#40706]
+- Remove duplicate views: Redesign notices. [#40901]
+- Use WP Admin for some sections while keeping some untangling changes. [#40479]
+- Updated package dependencies. [#40564] [#40693] [#40792] [#40797] [#40798] [#40810]
+- Use wp_add_inline_script. [#40465]
+
+### Fixed
+- Add a function_exists guard for `wpcom_is_duplicate_views_experiment_enabled` function. [#40708]
+- Code: Clean up JSDoc comments. [#40578]
+- Comments: Add cookie consent input and fix console error. [#40494]
+- Exclude wpcom_admin_interface from the admin_menu action. [#40669]
+- Fix lints following ESLint rule changes for TypeScript. [#40584]
+- Fix several regressions for Stats, Blaze and notices for RDV experiment. [#40690]
+- Fix migration key fetch failing when DIY migration page is reloaded. [#40270]
+- Global Styles: Stop showing the limited global styles notice in distraction-free mode. [#40907]
+- Gutenberg 19.8.0 hotfix: Don't show the template-locked rendering mode for pages. [#40664]
+- Holiday Snow: Do not display on p2s. [#40519]
+- Holiday snow: Replace SCSS `random()` with pregenerated arrays of random numbers to make builds reproducable. [#40666]
+- i18n: Update the .mo and .po translation files. [#40362]
+- Load WPCOM sidebar notice async. [#40422]
+- Restore visited button color in themes.php to Core's default. [#40517]
+- Starter page templates: Insert the pattern to the Content block correctly when rendering mode is template-locked. [#40583]
+- Support adding a comment form inside a query loop. [#40933]
+- wpcom-block-editor-nux: Avoid using useLocation which now throws exception outside Site Editor in Gutenberg 19.9.0. [#40656]
+
+## [6.0.0] - 2024-12-04
+### Changed
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#40288] [#40363]
+
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+### Fixed
+- Add missing ids in Verbum EmailForm. [#40199]
+- Block Support Links: Removed support links for the group block and varients, to avoid an issue with the group placeholder displaying the block descriptions incorrectly. [#40275]
+- Coming Soon: update color of the banner to WordPress blue [#39966]
+- Explicitly set `htmlFor` in recommended tags modal FormLabel. [#40199]
+- Subscribe modal: fix an edge case reported by a user, where the site title shows character codes. [#40130]
+
+## [5.66.0] - 2024-11-11
+### Added
+- Added a feature check to the Marketing Bar that updates the text and upgrade link for Global Styles [#40068]
+- Enable test coverage. [#39961]
+- Help Center: add new rest route for support interactions [#39978]
+- Help Center: extend support interaction API [#40112]
+- The notice and modal shown on the editor now displays the plan name and upgrade URL based on the GS gated plan type' [#40095]
+
+### Changed
+- Added feature check for the Global Styles on Personal plan changes. [#39986]
+- Updated package dependencies. [#39999] [#40000] [#40060]
+
+### Fixed
+- Fix PHPUnit coverage warnings. [#39989]
+- Help Center: fixed api typo [#39996]
+- We now check if JP_CONNECTION_INITIAL_STATE is defined before accessing it when using Global Styles' [#39980]
+- wpcom-block-editor: Support getting the canvas mode from the query string after GB 19.6 [#40045]
+
+## [5.65.0] - 2024-10-29
+### Added
+- adding a WPCOM task [#39776]
+- Add new task for domain connection to post-migration checklist. [#39680]
+- Add new task for domain mapping in migration Launchpad [#39764]
+- Adds JSON translation files [#39519]
+- Adds the placeholder task list for the Migration flow [#39593]
+- Add the Plugin Review task for the Post-migration launchpad experience [#39711]
+- Add the Review site task [#39641]
+- Admin bar: Add help icon tooltip [#39845]
+- Admin bar: Add reader icon tooltip [#39803]
+- Global Styles: add a Help Link to premium styles limitation message [#39226]
+
+### Changed
+- Admin bar: replace 'Edit Profile' and 'My Account' with 'My Profile' [#39600]
+- Blog Privacy: Do not add custom rules to wpcom's robots.txt if blog_public=0 [#39468]
+- Help Center: use Zendesk staging when proxied [#39566]
+- jetpack-mu-wpcom: remove unneeded filter [#39552]
+- Launchpad: Added isset to avoid Warnings when finding about page id [#39529]
+- Make the Migrating the site task complete by default [#39769]
+- Only include `wp-polyfill` as a script dependency when needed. [#39629]
+- Sharing modal: Repurposed to only display recommended tags. [#39499]
+- Site Management Panel: fix site name encoding display [#39756]
+- Site Management Panel: Migrate to react [#39742]
+- Updated copies used in the plugins banner for wpcom sites plugin-install.php page. [#39725]
+- Updated package dependencies. [#39594] [#39640] [#39707]
+- Update Jetpack Scan link [#39619]
+- Update Verbum Comments resize logic [#39791]
+- wpcom_add_shopping_cart: Use Store_Shopping_Cart::is_cart_empty() when deciding to render icon for incrased performance [#39563]
+
+### Deprecated
+- Site Management Widget: Clean up unused files [#39743]
+
+### Removed
+- Removed import of the class-wp-rest-wpcom-block-editor-sharing-modal-controller.php controller [#39488]
+
+### Fixed
+- Admin bar: ensure the Atomic debug bar is the leftmost menu [#39493]
+- Prevent welcome tour keyboard navigation from hijacking left right keys on the editor [#39683]
+- profile.php: Make wpcom links more concise [#39636]
+- Superadmin bar: always point to wp-admin even on Default admin interface style [#39501]
+- Verbum Comments: fix gravatar width in nested comments [#39757]
+
 ## [5.64.0] - 2024-09-23
 ### Deprecated
 - Removed launchpad-save-modal. [#39429]
@@ -36,8 +152,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Admin bar: update 'My Account' link to /me [#39290]
 - Enable Users -> Profile (profile.php) on all sites [#39181]
 - Launchpad: Require a design is selected before marking the step as complete in both the Write and Free flows [#39189]
-- Updated package dependencies. [#39176]
-- Updated package dependencies. [#39302]
+- Updated package dependencies. [#39176] [#39302]
 
 ### Fixed
 - Use the correct endpoint route for adding suggested tags on new posts. [#39175]
@@ -298,8 +413,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - As we've launched untangling & nav redesign, the wpcom_is_nav_redesign_enabled() function name is not relevant anymore and can be confusing for future developers, so we replace it with the equivalent get_option call. [#38197]
 - Classic Theme Helper - initialize Featured Content from the mu-wpcom package [#37969]
 - Load ETK features with a higher priority to avoid the ETK plugin taking precedence. [#38230]
-- Updated package dependencies. [#38132]
-- Updated package dependencies. [#38235]
+- Updated package dependencies. [#38132] [#38235]
 - Update Verbum Comments accessibility. [#38116]
 
 ### Removed
@@ -1242,6 +1356,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[6.1.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.0.0...v6.1.0
+[6.0.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.66.0...v6.0.0
+[5.66.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.65.0...v5.66.0
+[5.65.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.64.0...v5.65.0
 [5.64.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.63.0...v5.64.0
 [5.63.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.62.0...v5.63.0
 [5.62.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.61.0...v5.62.0

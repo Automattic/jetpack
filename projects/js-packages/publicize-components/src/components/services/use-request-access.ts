@@ -11,10 +11,10 @@ const isValidMastodonUsername = ( username: string ) =>
 
 /**
  * Example valid handles:
+ * - domain.tld
  * - username.bsky.social
  * - user-name.bsky.social
- * - my_domain.com.bsky.social
- * - my-domain.com.my-own-server.com
+ * - my-domain.com
  *
  * @param {string} handle - Handle to validate
  *
@@ -23,8 +23,8 @@ const isValidMastodonUsername = ( username: string ) =>
 function isValidBlueskyHandle( handle: string ) {
 	const parts = handle.split( '.' ).filter( Boolean );
 
-	// A valid handle should have at least 3 parts - username, domain, and tld
-	if ( parts.length < 3 ) {
+	// A valid handle should have at least 2 parts - domain, and tld
+	if ( parts.length < 2 ) {
 		return false;
 	}
 
@@ -64,13 +64,15 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 					const instance = formData.get( 'instance' ).toString().trim();
 
 					if ( ! isValidMastodonUsername( instance ) ) {
-						createErrorNotice( __( 'Invalid Mastodon username', 'jetpack' ) );
+						createErrorNotice( __( 'Invalid Mastodon username', 'jetpack-publicize-components' ) );
 
 						return;
 					}
 
 					if ( isMastodonAlreadyConnected?.( instance ) ) {
-						createErrorNotice( __( 'This Mastodon account is already connected', 'jetpack' ) );
+						createErrorNotice(
+							__( 'This Mastodon account is already connected', 'jetpack-publicize-components' )
+						);
 
 						return;
 					}
@@ -84,19 +86,24 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 					const handle = ( formData.get( 'handle' )?.toString() || '' ).trim().replace( /^@/, '' );
 
 					if ( ! isValidBlueskyHandle( handle ) ) {
-						createErrorNotice( __( 'Invalid Bluesky handle', 'jetpack' ) );
+						createErrorNotice( __( 'Invalid Bluesky handle', 'jetpack-publicize-components' ) );
 
 						return;
 					}
 
 					if ( isBlueskyAccountAlreadyConnected?.( handle ) ) {
-						createErrorNotice( __( 'This Bluesky account is already connected', 'jetpack' ) );
+						createErrorNotice(
+							__( 'This Bluesky account is already connected', 'jetpack-publicize-components' )
+						);
 
 						return;
 					}
 
 					url.searchParams.set( 'handle', handle );
-					url.searchParams.set( 'app_password', formData.get( 'app_password' ).toString().trim() );
+					url.searchParams.set(
+						'app_password',
+						( formData.get( 'app_password' )?.toString() || '' ).trim()
+					);
 					break;
 				}
 

@@ -9,8 +9,6 @@ export default function Edit() {
 	return (
 		<Context.Consumer>
 			{ ( { selectedTab } ) => (
-				/** @see https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/no-static-element-interactions.md#case-the-event-handler-is-only-being-used-to-capture-bubbled-events */
-				// eslint-disable-next-line
 				<div hidden={ selectedTab.id === 'premium' } className={ selectedTab.className }>
 					<InnerBlocks
 						allowedBlocks={ allowedInnerBlocks }

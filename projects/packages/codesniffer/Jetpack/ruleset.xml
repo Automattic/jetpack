@@ -25,9 +25,6 @@
 	<rule ref="MediaWiki.WhiteSpace.EmptyLinesBetweenUse" />
 	<rule ref="MediaWiki.WhiteSpace.MultipleEmptyLines" />
 	<rule ref="MediaWiki.Usage.IsNull" />
-	<!-- Maybe in the future
-	<rule ref="MediaWiki.Usage.NullableType" /> // syntax it enforces requires PHP 7.1+
-	-->
 
 	<!-- We use this in preference to Generic.PHP.ForbiddenFunctions as this will autofix. -->
 	<rule ref="MediaWiki.Usage.ForbiddenFunctions">

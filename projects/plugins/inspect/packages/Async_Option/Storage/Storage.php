@@ -4,7 +4,7 @@ namespace Automattic\Jetpack\Packages\Async_Option\Storage;
 
 interface Storage {
 
-	public function get( $key );
+	public function get( $key, $default );
 
 	public function set( $key, $value );
 

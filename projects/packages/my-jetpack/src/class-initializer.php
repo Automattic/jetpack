@@ -21,7 +21,6 @@ use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
-use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
@@ -42,7 +41,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.35.11';
+	const PACKAGE_VERSION = '5.4.1';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -65,6 +64,7 @@ class Initializer {
 	const MISSING_CONNECTION_NOTIFICATION_KEY            = 'missing-connection';
 	const VIDEOPRESS_STATS_KEY                           = 'my-jetpack-videopress-stats';
 	const VIDEOPRESS_PERIOD_KEY                          = 'my-jetpack-videopress-period';
+	const MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY            = 'my-jetpack-red-bubble-transient';
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
@@ -201,6 +201,7 @@ class Initializer {
 
 		return $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
 	}
+
 	/**
 	 * Enqueue admin page assets.
 	 *
@@ -233,12 +234,22 @@ class Initializer {
 			$previous_score = $speed_score_history->latest( 1 );
 		}
 		$latest_score['previousScores'] = $previous_score['scores'] ?? array();
-		$scan_data                      = Protect_Status::get_status();
+		$scan_data                      = Products\Protect::get_protect_data();
 		self::update_historically_active_jetpack_modules();
 
-		$waf_config = array();
+		$waf_config    = array();
+		$waf_supported = false;
+
+		$sandboxed_domain = '';
+		$is_dev_version   = false;
+		if ( class_exists( 'Jetpack' ) ) {
+			$is_dev_version   = Jetpack::is_development_version();
+			$sandboxed_domain = defined( 'JETPACK__SANDBOX_DOMAIN' ) ? JETPACK__SANDBOX_DOMAIN : '';
+		}
+
 		if ( class_exists( 'Automattic\Jetpack\Waf\Waf_Runner' ) ) {
-			$waf_config = Waf_Runner::get_config();
+			$waf_config    = Waf_Runner::get_config();
+			$waf_supported = Waf_Runner::is_supported_environment();
 		}
 
 		wp_localize_script(
@@ -278,7 +289,8 @@ class Initializer {
 					'purchases'                 => self::get_purchases(),
 					'modules'                   => self::get_active_modules(),
 				),
-				'redBubbleAlerts'        => self::get_red_bubble_alerts(),
+				// Only in the My Jetpack context, we get the alerts without the cache to make sure we have the most up-to-date info
+				'redBubbleAlerts'        => self::get_red_bubble_alerts( true ),
 				'recommendedModules'     => array(
 					'modules'    => self::get_recommended_modules(),
 					'isFirstRun' => \Jetpack_Options::get_option( 'recommendations_first_run', true ),
@@ -287,6 +299,8 @@ class Initializer {
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
 				'isUserFromKnownHost'    => self::is_user_from_known_host(),
 				'isCommercial'           => self::is_commercial_site(),
+				'sandboxedDomain'        => $sandboxed_domain,
+				'isDevVersion'           => $is_dev_version,
 				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
 				'jetpackManage'          => array(
 					'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
@@ -297,6 +311,9 @@ class Initializer {
 					'scanData'  => $scan_data,
 					'wafConfig' => array_merge(
 						$waf_config,
+						array(
+							'waf_supported' => $waf_supported,
+						),
 						array( 'blocked_logins' => (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) )
 					),
 				),
@@ -805,6 +822,38 @@ class Initializer {
 	}
 
 	/**
+	 * Gets the plugins that need installed or activated for each paid plan.
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plans_plugins_requirements() {
+		$plugin_requirements = array();
+		foreach ( Products::get_products_classes() as $slug => $product_class ) {
+			// Skip these- we don't show them in My Jetpack.
+			if ( in_array( $slug, Products::get_not_shown_products(), true ) ) {
+				continue;
+			}
+			if ( ! $product_class::has_paid_plan_for_product() ) {
+				continue;
+			}
+			$purchase = $product_class::get_paid_plan_purchase_for_product();
+			if ( ! $purchase ) {
+				continue;
+			}
+			// Check if required plugin needs installed or activated.
+			if ( ! $product_class::is_plugin_installed() ) {
+				// Plugin needs installed (and activated)
+				$plugin_requirements[ $purchase->product_slug ]['needs_installed'][] = $product_class::$slug;
+			} elseif ( ! $product_class::is_plugin_active() ) {
+				// Plugin is installed, but not activated.
+				$plugin_requirements[ $purchase->product_slug ]['needs_activated_only'][] = $product_class::$slug;
+			}
+		}
+
+		return $plugin_requirements;
+	}
+
+	/**
 	 * Conditionally append the red bubble notification to the "Jetpack" menu item if there are alerts to show
 	 *
 	 * @return void
@@ -836,17 +885,28 @@ class Initializer {
 	/**
 	 * Collect all possible alerts that we might use a red bubble notification for
 	 *
+	 * @param bool $bypass_cache - whether to bypass the red bubble cache.
 	 * @return array
 	 */
-	public static function get_red_bubble_alerts() {
+	public static function get_red_bubble_alerts( bool $bypass_cache = false ) {
 		static $red_bubble_alerts = array();
 
 		// using a static cache since we call this function more than once in the class
 		if ( ! empty( $red_bubble_alerts ) ) {
 			return $red_bubble_alerts;
 		}
+
+		// check for stored alerts
+		$stored_alerts = get_transient( self::MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY );
+		// Cache bypass for red bubbles should only happen on the My Jetpack page
+		if ( $stored_alerts !== false && ! ( $bypass_cache ) ) {
+			return $stored_alerts;
+		}
+
 		// go find the alerts
 		$red_bubble_alerts = apply_filters( 'my_jetpack_red_bubble_notification_slugs', $red_bubble_alerts );
+		// cache the alerts for one hour
+		set_transient( self::MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY, $red_bubble_alerts, 3600 );
 
 		return $red_bubble_alerts;
 	}
@@ -926,7 +986,13 @@ class Initializer {
 			);
 			return $red_bubble_slugs;
 		} else {
-			return self::alert_if_missing_connection( $red_bubble_slugs );
+			return array_merge(
+				self::alert_if_missing_connection( $red_bubble_slugs ),
+				self::alert_if_last_backup_failed( $red_bubble_slugs ),
+				self::alert_if_paid_plan_expiring( $red_bubble_slugs ),
+				self::alert_if_protect_has_threats( $red_bubble_slugs ),
+				self::alert_if_paid_plan_requires_plugin_install_or_activation( $red_bubble_slugs )
+			);
 		}
 	}
 
@@ -940,17 +1006,18 @@ class Initializer {
 		$broken_modules = self::check_for_broken_modules();
 		$connection     = new Connection_Manager();
 
-		if ( ! empty( $broken_modules['needs_user_connection'] ) ) {
+		// Checking for site connection issues first.
+		if ( ! empty( $broken_modules['needs_site_connection'] ) ) {
 			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
-				'type'     => 'user',
+				'type'     => 'site',
 				'is_error' => true,
 			);
 			return $red_bubble_slugs;
 		}
 
-		if ( ! empty( $broken_modules['needs_site_connection'] ) ) {
+		if ( ! empty( $broken_modules['needs_user_connection'] ) ) {
 			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
-				'type'     => 'site',
+				'type'     => 'user',
 				'is_error' => true,
 			);
 			return $red_bubble_slugs;
@@ -962,6 +1029,135 @@ class Initializer {
 				'is_error' => false,
 			);
 			return $red_bubble_slugs;
+		}
+
+		return $red_bubble_slugs;
+	}
+
+	/**
+	 * Add an alert slug if any paid plan/products are expiring or expired.
+	 *
+	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
+	 * @return array
+	 */
+	public static function alert_if_paid_plan_expiring( array $red_bubble_slugs ) {
+		$connection = new Connection_Manager();
+		if ( ! $connection->is_connected() ) {
+			return $red_bubble_slugs;
+		}
+		$product_classes = Products::get_products_classes();
+
+		$products_included_in_expiring_plan = array();
+		foreach ( $product_classes as $key => $product ) {
+			// Skip these- we don't show them in My Jetpack.
+			if ( in_array( $key, Products::get_not_shown_products(), true ) ) {
+				continue;
+			}
+
+			if ( $product::has_paid_plan_for_product() ) {
+				$purchase = $product::get_paid_plan_purchase_for_product();
+				if ( $purchase ) {
+					$redbubble_notice_data = array(
+						'product_slug'   => $purchase->product_slug,
+						'product_name'   => $purchase->product_name,
+						'expiry_date'    => $purchase->expiry_date,
+						'expiry_message' => $purchase->expiry_message,
+						'manage_url'     => $product::get_manage_paid_plan_purchase_url(),
+					);
+
+					if ( $product::is_paid_plan_expired() ) {
+						$red_bubble_slugs[ "$purchase->product_slug--plan_expired" ] = $redbubble_notice_data;
+						if ( ! $product::is_bundle_product() ) {
+							$products_included_in_expiring_plan[ "$purchase->product_slug--plan_expired" ][] = $product::get_name();
+						}
+					}
+					if ( $product::is_paid_plan_expiring() ) {
+						$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ]               = $redbubble_notice_data;
+						$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ]['manage_url'] = $product::get_renew_paid_plan_purchase_url();
+						if ( ! $product::is_bundle_product() ) {
+							$products_included_in_expiring_plan[ "$purchase->product_slug--plan_expiring_soon" ][] = $product::get_name();
+						}
+					}
+				}
+			}
+		}
+
+		foreach ( $products_included_in_expiring_plan as $expiring_plan => $products ) {
+			$red_bubble_slugs[ $expiring_plan ]['products_effected'] = $products;
+		}
+
+		return $red_bubble_slugs;
+	}
+
+	/**
+	 * Add an alert slug if Backups are failing or having an issue.
+	 *
+	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
+	 * @return array
+	 */
+	public static function alert_if_last_backup_failed( array $red_bubble_slugs ) {
+		// Make sure there's a Backup paid plan
+		if ( ! Products\Backup::is_plugin_active() || ! Products\Backup::has_paid_plan_for_product() ) {
+			return $red_bubble_slugs;
+		}
+		// Make sure the plan isn't just recently purchased in last 30min.
+		// Give some time to queue & run the first backup.
+		$purchase = Products\Backup::get_paid_plan_purchase_for_product();
+		if ( $purchase ) {
+			$thirty_minutes_after_plan_purchase = strtotime( $purchase->subscribed_date . ' +30 minutes' );
+			if ( strtotime( 'now' ) < $thirty_minutes_after_plan_purchase ) {
+				return $red_bubble_slugs;
+			}
+		}
+
+		$backup_failed_status = Products\Backup::does_module_need_attention();
+		if ( $backup_failed_status ) {
+			$red_bubble_slugs['backup_failure'] = $backup_failed_status;
+		}
+
+		return $red_bubble_slugs;
+	}
+
+	/**
+	 * Add an alert slug if Protect has scan threats/vulnerabilities.
+	 *
+	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
+	 * @return array
+	 */
+	public static function alert_if_protect_has_threats( array $red_bubble_slugs ) {
+		// Make sure we're dealing with the Protect product only
+		if ( ! Products\Protect::has_paid_plan_for_product() ) {
+			return $red_bubble_slugs;
+		}
+
+		$protect_threats_status = Products\Protect::does_module_need_attention();
+		if ( $protect_threats_status ) {
+			$red_bubble_slugs['protect_has_threats'] = $protect_threats_status;
+		}
+
+		return $red_bubble_slugs;
+	}
+	/**
+	 * Add an alert slug if a site's paid plan requires a plugin install and/or activation.
+	 *
+	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
+	 * @return array
+	 */
+	public static function alert_if_paid_plan_requires_plugin_install_or_activation( array $red_bubble_slugs ) {
+		$connection = new Connection_Manager();
+		// Don't trigger red bubble (and show notice) when the site is not connected or if the
+		// user doesn't have plugin installation/activation permissions.
+		if ( ! $connection->is_connected() || ! current_user_can( 'activate_plugins' ) ) {
+			return $red_bubble_slugs;
+		}
+
+		$plugins_needing_installed_activated = self::get_paid_plans_plugins_requirements();
+		if ( empty( $plugins_needing_installed_activated ) ) {
+			return $red_bubble_slugs;
+		}
+
+		foreach ( $plugins_needing_installed_activated as $plan_slug => $plugins_requirements ) {
+			$red_bubble_slugs[ "$plan_slug--plugins_needing_installed_activated" ] = $plugins_requirements;
 		}
 
 		return $red_bubble_slugs;

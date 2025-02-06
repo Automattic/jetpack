@@ -1,9 +1,9 @@
 import { ProgressBar } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import Button from 'components/button';
-import analytics from 'lib/analytics';
 import { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
+import Button from 'components/button';
+import analytics from 'lib/analytics';
 import { getSiteTitle } from 'state/initial-state';
 import {
 	getDataByKey,

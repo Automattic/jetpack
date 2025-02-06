@@ -77,7 +77,7 @@ if ( typeof window !== 'undefined' ) {
 			try {
 				// try to cast numbers and booleans first
 				settings[ settingName ] = JSON.parse( searchParam[ 1 ] );
-			} catch ( err ) {
+			} catch {
 				// assume valid string
 				settings[ settingName ] = JSON.parse( `"${ searchParam[ 1 ] }"` );
 			}
@@ -107,7 +107,7 @@ if ( typeof window !== 'undefined' ) {
 						...settings,
 						...JSON.parse( settingsFromTemplate ),
 					};
-				} catch ( e ) {
+				} catch {
 					// ignore parsing errors
 				}
 			}

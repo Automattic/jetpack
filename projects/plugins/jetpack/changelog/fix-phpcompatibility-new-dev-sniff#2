@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Replace broken `str_getcsv( $csv, "\n" )` with equally-broken `explode( "\n", $csv )` that at least doesn't pretend like it's not broken. Add a comment noting this too.
-
-

@@ -145,6 +145,10 @@ class Publicize extends Publicize_Base {
 	 * @return true
 	 */
 	public function receive_updated_publicize_connections( $publicize_connections ) {
+
+		// Populate the cache with the new data.
+		Connections::get_all( array( 'ignore_cache' => true ) );
+
 		$expiry = 3600 * 4;
 		if ( ! set_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT, $publicize_connections, $expiry ) ) {
 			// If the transient has beeen set in another request, the call to set_transient can fail. If so,
@@ -253,7 +257,7 @@ class Publicize extends Publicize_Base {
 									'service_name'   => $service_name,
 									'connection_id'  => $connection['connection_data']['id'],
 									'can_disconnect' => self::can_manage_connection( $connection['connection_data'] ),
-									'profile_link'   => $this->get_profile_link( $service_name, $connection ),
+									'profile_link'   => (string) $this->get_profile_link( $service_name, $connection ),
 									'shared'         => '0' === $connection['connection_data']['user_id'],
 									'status'         => 'ok',
 								)
@@ -750,5 +754,49 @@ class Publicize extends Publicize_Base {
 		$flags['publicize_post'] = true;
 
 		return $flags;
+	}
+
+	/**
+	 * Gets the share status for a post.
+	 *
+	 * @param int $post_id The post ID.
+	 */
+	public function get_post_share_status( $post_id ) {
+		$shares = get_post_meta( $post_id, REST_Controller::SOCIAL_SHARES_POST_META_KEY, true );
+
+		// If the data is not an array, it means that sharing is not done yet.
+		$done = is_array( $shares );
+
+		if ( $done ) {
+			// The site could have multiple admins, editors and authors connected. Load shares information that only the current user has access to.
+			$connection_ids = array_map(
+				function ( $connection ) {
+					if ( isset( $connection['connection_id'] ) ) {
+						return (int) $connection['connection_id'];
+					}
+					return 0;
+				},
+				$this->get_all_connections_for_user()
+			);
+
+			$shares = array_filter(
+				$shares,
+				function ( $share ) use ( $connection_ids ) {
+					return in_array( (int) $share['connection_id'], $connection_ids, true );
+				}
+			);
+
+			usort(
+				$shares,
+				function ( $a, $b ) {
+					return $b['timestamp'] - $a['timestamp'];
+				}
+			);
+		}
+
+		return array(
+			'shares' => $done ? $shares : array(),
+			'done'   => $done,
+		);
 	}
 }

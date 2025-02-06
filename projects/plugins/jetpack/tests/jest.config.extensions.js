@@ -12,4 +12,9 @@ module.exports = {
 		...baseConfig.moduleNameMapper,
 		'\\.(css|less|sass|scss)$': '<rootDir>/tests/styles-mock.js',
 	},
+	coverageDirectory: baseConfig.coverageDirectory + '/extensions',
+	collectCoverageFrom: [
+		'<rootDir>/extensions/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
+		...baseConfig.collectCoverageFrom.slice( 3 ),
+	],
 };

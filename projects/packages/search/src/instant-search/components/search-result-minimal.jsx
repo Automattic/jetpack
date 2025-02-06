@@ -55,7 +55,7 @@ class SearchResultMinimal extends Component {
 					{ tags.length !== 0 && (
 						<ul className="jetpack-instant-search__search-result-minimal-tags">
 							{ tags.map( tag => (
-								<li className="jetpack-instant-search__search-result-minimal-tag">
+								<li key={ tag } className="jetpack-instant-search__search-result-minimal-tag">
 									<Gridicon icon="tag" size={ this.getIconSize() } />
 									<span className="jetpack-instant-search__search-result-minimal-tag-text">
 										{ tag }
@@ -67,7 +67,7 @@ class SearchResultMinimal extends Component {
 					{ cats.length !== 0 && (
 						<ul className="jetpack-instant-search__search-result-minimal-cats">
 							{ cats.map( cat => (
-								<li className="jetpack-instant-search__search-result-minimal-cat">
+								<li key={ cat } className="jetpack-instant-search__search-result-minimal-cat">
 									<Gridicon icon="folder" size={ this.getIconSize() } />
 									<span className="jetpack-instant-search__search-result-minimal-cat-text">
 										{ cat }

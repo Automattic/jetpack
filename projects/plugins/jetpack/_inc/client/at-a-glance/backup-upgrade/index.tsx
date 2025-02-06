@@ -1,6 +1,6 @@
-import analytics from 'lib/analytics';
 import React, { useState, useCallback } from 'react';
 import { connect } from 'react-redux';
+import analytics from 'lib/analytics';
 import {
 	getStatsData,
 	getPluginItems,

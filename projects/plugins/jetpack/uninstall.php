@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Backup\V0004\Helper_Script_Manager;
+use Automattic\Jetpack\Backup\V0005\Helper_Script_Manager;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Sync\Sender;
 
@@ -19,7 +19,7 @@ function jetpack_uninstall() {
 		dirname( WP_UNINSTALL_PLUGIN ) !== dirname( plugin_basename( __FILE__ ) )
 	) {
 		status_header( 404 );
-		exit;
+		exit( 0 );
 	}
 
 	if ( ! defined( 'JETPACK__PLUGIN_DIR' ) ) {

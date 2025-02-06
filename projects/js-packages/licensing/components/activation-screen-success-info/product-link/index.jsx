@@ -12,23 +12,23 @@ const ProductLink = props => {
 
 	const productLinkMap = {
 		jetpack_backup: {
-			text: __( 'View latest backup', 'jetpack' ),
+			text: __( 'View latest backup', 'jetpack-licensing' ),
 			redirectSource: 'jetpack-license-activation-success-backup',
 		},
 		jetpack_complete: {
-			text: __( 'View latest backup', 'jetpack' ),
+			text: __( 'View latest backup', 'jetpack-licensing' ),
 			redirectSource: 'jetpack-license-activation-success-backup',
 		},
 		jetpack_scan: {
-			text: __( 'View my plans', 'jetpack' ),
+			text: __( 'View my plans', 'jetpack-licensing' ),
 			redirectSource: 'license-activation-view-my-plans',
 		},
 		jetpack_search: {
-			text: __( 'Configure search', 'jetpack' ),
+			text: __( 'Configure search', 'jetpack-licensing' ),
 			redirectSource: 'jetpack-license-activation-success-search',
 		},
 		jetpack_security: {
-			text: __( 'View latest backup', 'jetpack' ),
+			text: __( 'View latest backup', 'jetpack-licensing' ),
 			redirectSource: 'jetpack-license-activation-success-backup',
 		},
 		default: null,

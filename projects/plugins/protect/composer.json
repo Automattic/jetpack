@@ -21,8 +21,7 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^1.1.1",
-		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "0.4.2"
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -32,6 +31,9 @@
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -45,9 +47,7 @@
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
-		],
-		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+		]
 	},
 	"repositories": [
 		{
@@ -79,6 +79,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_protectⓥ3_0_2"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_protectⓥ3_1_1"
 	}
 }

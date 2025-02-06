@@ -24,15 +24,16 @@ export function Reconnect( { connection, service, variant = 'link' }: ReconnectP
 	const { deleteConnectionById, setKeyringResult, openConnectionsModal, setReconnectingAccount } =
 		useDispatch( socialStore );
 
-	const { isDisconnecting } = useSelect(
+	const { isDisconnecting, canManageConnection } = useSelect(
 		select => {
-			const { getDeletingConnections } = select( socialStore );
+			const { getDeletingConnections, canUserManageConnection } = select( socialStore );
 
 			return {
 				isDisconnecting: getDeletingConnections().includes( connection.connection_id ),
+				canManageConnection: canUserManageConnection( connection ),
 			};
 		},
-		[ connection.connection_id ]
+		[ connection ]
 	);
 
 	const onConfirm = useCallback(
@@ -58,22 +59,29 @@ export function Reconnect( { connection, service, variant = 'link' }: ReconnectP
 			return;
 		}
 
-		await setReconnectingAccount(
-			// Join service name and external ID
-			// just in case the external ID alone is not unique.
-			`${ connection.service_name }:${ connection.external_id }`
-		);
+		await setReconnectingAccount( connection );
 
 		const formData = new FormData();
 
 		if ( service.ID === 'mastodon' ) {
-			formData.set( 'instance', connection.external_display );
+			formData.set( 'instance', connection.external_handle );
 		}
 
-		requestAccess( formData );
-	}, [ connection, deleteConnectionById, requestAccess, service.ID, setReconnectingAccount ] );
+		if ( service.ID === 'bluesky' ) {
+			openConnectionsModal();
+		} else {
+			requestAccess( formData );
+		}
+	}, [
+		connection,
+		deleteConnectionById,
+		openConnectionsModal,
+		requestAccess,
+		service.ID,
+		setReconnectingAccount,
+	] );
 
-	if ( ! connection.can_disconnect ) {
+	if ( ! canManageConnection ) {
 		return null;
 	}
 
@@ -85,8 +93,8 @@ export function Reconnect( { connection, service, variant = 'link' }: ReconnectP
 			variant={ variant }
 		>
 			{ isDisconnecting
-				? __( 'Disconnecting…', 'jetpack' )
-				: _x( 'Reconnect', 'Reconnect a social media account', 'jetpack' ) }
+				? __( 'Disconnecting…', 'jetpack-publicize-components' )
+				: _x( 'Reconnect', 'Reconnect a social media account', 'jetpack-publicize-components' ) }
 		</Button>
 	);
 }

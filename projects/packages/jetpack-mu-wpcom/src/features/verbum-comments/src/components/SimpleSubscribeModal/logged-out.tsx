@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'preact/hooks';
+import { useContext, useEffect, useState } from 'preact/hooks';
 import { translate } from '../../i18n';
-import { commentUrl } from '../../state';
+import { VerbumSignals } from '../../state';
 import { SimpleSubscribeModalProps } from '../../types';
 import SubscriptionModal from './subscription-modal';
 import type { ChangeEvent } from 'preact/compat';
@@ -16,6 +16,7 @@ export const SimpleSubscribeModalLoggedOut = ( {
 	const [ userEmail, setUserEmail ] = useState( '' );
 	const [ iframeUrl, setIframeUrl ] = useState( '' );
 	const [ subscribeDisabled, setSubscribeDisabled ] = useState( false );
+	const { commentUrl } = useContext( VerbumSignals );
 
 	// Only want this to run once, when email is set for the first time
 	useEffect( () => {

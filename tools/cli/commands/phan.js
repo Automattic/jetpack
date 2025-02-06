@@ -66,7 +66,7 @@ export async function builder( yargs ) {
 		} )
 		.option( 'concurrency', {
 			type: 'number',
-			description: 'Maximum number of phan tasks to run at once. Ignored with `--verbose`.',
+			description: 'Maximum number of phan tasks to run at once.',
 			default: os.cpus().length,
 			coerce: coerceConcurrency,
 		} )
@@ -457,7 +457,7 @@ export async function handler( argv ) {
 									}
 									throw new Error( 'Output is JSON but not an array' );
 								}
-							} catch ( e2 ) {
+							} catch {
 								if ( argv.v ) {
 									sstdout.write( stdout );
 								}
@@ -568,6 +568,7 @@ export async function handler( argv ) {
 						'%0A%0ASuggestion: ' +
 						issue.suggestion.replace( /[%\r\n]/g, m => encodeURIComponent( m[ 0 ] ) );
 				}
+				msg += '%0A%0AFAQ on Phan issues: pdWQjU-Jb-p2';
 				await writeln( msg );
 			}
 			break;
@@ -661,6 +662,9 @@ export async function handler( argv ) {
 				await writeln(
 					issues.length === 1 ? 'FOUND 1 ISSUE TOTAL' : `FOUND ${ issues.length } ISSUES TOTAL`
 				);
+				if ( issues.length > 0 ) {
+					await writeln( chalk.green( 'FAQ on Phan issues: https://wp.me/pdWQjU-Jb' ) );
+				}
 			}
 			break;
 	}

@@ -52,13 +52,18 @@ class Help_Center {
 	/**
 	 * Creates instance.
 	 *
-	 * @return \A8C\FSE\Help_Center
+	 * @return void
 	 */
 	public static function init() {
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+
+		if ( str_contains( $request_uri, 'wp-content/plugins/gutenberg-core' ) || str_contains( $request_uri, 'preview=true' ) ) {
+			return;
+		}
+
 		if ( self::$instance === null ) {
 			self::$instance = new self();
 		}
-		return self::$instance;
 	}
 
 	/**
@@ -90,7 +95,7 @@ class Help_Center {
 					$wp_admin_bar->add_menu(
 						array(
 							'id'     => 'help-center',
-							'title'  => self::download_asset( 'widgets.wp.com/help-center/help-icon.svg', false ),
+							'title'  => '<span title="' . __( 'Help', 'jetpack-mu-wpcom' ) . '">' . self::download_asset( 'widgets.wp.com/help-center/help-icon.svg', false ) . '</span>',
 							'parent' => 'top-secondary',
 							'href'   => $this->get_help_center_url(),
 							'meta'   => array(
@@ -280,12 +285,20 @@ class Help_Center {
 		$controller = new WP_REST_Help_Center_Support_Activity();
 		$controller->register_rest_route();
 
+		require_once __DIR__ . '/class-wp-rest-help-center-support-interactions.php';
+		$controller = new WP_REST_Help_Center_Support_Interactions();
+		$controller->register_rest_route();
+
 		require_once __DIR__ . '/class-wp-rest-help-center-user-fields.php';
 		$controller = new WP_REST_Help_Center_User_Fields();
 		$controller->register_rest_route();
 
 		require_once __DIR__ . '/class-wp-rest-help-center-odie.php';
 		$controller = new WP_REST_Help_Center_Odie();
+		$controller->register_rest_route();
+
+		require_once __DIR__ . '/class-wp-rest-help-center-persisted-open-state.php';
+		$controller = new WP_REST_Help_Center_Persisted_Open_State();
 		$controller->register_rest_route();
 
 		require_once __DIR__ . '/class-wp-rest-help-center-email-support-enabled.php';

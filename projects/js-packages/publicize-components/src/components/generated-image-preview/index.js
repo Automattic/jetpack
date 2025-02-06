@@ -113,17 +113,21 @@ export default function GeneratedImagePreview( {
 
 	return (
 		<ThemeProvider>
-			<BaseControl
-				__nextHasNoMarginBottom={ true }
-				label={ _x( 'Preview', 'Heading for the generated preview image', 'jetpack' ) }
-			>
+			<BaseControl __nextHasNoMarginBottom={ true }>
+				<BaseControl.VisualLabel>
+					{ _x(
+						'Preview',
+						'Heading for the generated preview image',
+						'jetpack-publicize-components'
+					) }
+				</BaseControl.VisualLabel>
 				<div className={ styles.container }>
 					<img
 						className={ clsx( {
 							[ styles.hidden ]: isLoading,
 						} ) }
 						src={ generatedImageUrl }
-						alt={ __( 'Generated preview', 'jetpack' ) }
+						alt={ __( 'Generated preview', 'jetpack-publicize-components' ) }
 						onLoad={ onImageLoad }
 					/>
 					{ isLoading && <Spinner data-testid="spinner" /> }

@@ -164,7 +164,6 @@ const setMappings = ( argv, config ) => {
 	}
 
 	const mappingsCompose = {
-		version: '3.3',
 		services: {
 			wordpress: {
 				volumes: volumesMapping,
@@ -189,9 +188,7 @@ const setMappings = ( argv, config ) => {
  * @param {object} config - Configuration object
  */
 const setExtrasConfig = ( argv, config ) => {
-	let extrasCompose = {
-		version: '3.3',
-	};
+	let extrasCompose = {};
 
 	if ( config.default && config.default.extras ) {
 		extrasCompose = mergeJson( extrasCompose, config.default.extras );

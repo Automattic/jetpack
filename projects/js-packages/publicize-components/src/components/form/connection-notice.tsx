@@ -1,3 +1,4 @@
+import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { PanelRow } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
@@ -7,7 +8,7 @@ import styles from './styles.module.scss';
 
 export const ConnectionNotice: React.FC = () => {
 	const { hasConnections } = useSocialMediaConnections();
-	const { needsUserConnection, userConnectionUrl } = usePublicizeConfig();
+	const { needsUserConnection } = usePublicizeConfig();
 
 	if ( needsUserConnection ) {
 		return (
@@ -15,10 +16,12 @@ export const ConnectionNotice: React.FC = () => {
 				<p>
 					{ __(
 						'You must connect your WordPress.com account to be able to add social media connections.',
-						'jetpack'
+						'jetpack-publicize-components'
 					) }
 					&nbsp;
-					<a href={ userConnectionUrl }>{ __( 'Connect now', 'jetpack' ) }</a>
+					<a href={ getMyJetpackUrl( '#/connection' ) }>
+						{ __( 'Connect now', 'jetpack-publicize-components' ) }
+					</a>
 				</p>
 			</PanelRow>
 		);
@@ -31,10 +34,10 @@ export const ConnectionNotice: React.FC = () => {
 					<span className={ styles[ 'no-connections-text' ] }>
 						{ __(
 							'Sharing is disabled because there are no social media accounts connected.',
-							'jetpack'
+							'jetpack-publicize-components'
 						) }
 					</span>
-					<SettingsButton label={ __( 'Connect an account', 'jetpack' ) } />
+					<SettingsButton label={ __( 'Connect an account', 'jetpack-publicize-components' ) } />
 				</p>
 			</PanelRow>
 		);

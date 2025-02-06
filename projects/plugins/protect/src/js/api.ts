@@ -1,8 +1,7 @@
+import { type FixersStatus, type ScanStatus, type WafStatus } from '@automattic/jetpack-scan';
 import apiFetch from '@wordpress/api-fetch';
 import camelize from 'camelize';
-import { FixersStatus } from './types/fixers';
-import { ScanStatus } from './types/scans';
-import { WafStatus } from './types/waf';
+import type { ProductData } from './types/products';
 
 const API = {
 	getWaf: (): Promise< WafStatus > =>
@@ -49,11 +48,11 @@ const API = {
 			data: { step_ids: stepIds },
 		} ),
 
-	getScanHistory: (): Promise< ScanStatus > =>
+	getScanHistory: (): Promise< ScanStatus | false > =>
 		apiFetch( {
 			path: 'jetpack-protect/v1/scan-history',
 			method: 'GET',
-		} ).then( camelize ) as Promise< ScanStatus >,
+		} ).then( camelize ),
 
 	scan: () =>
 		apiFetch( {
@@ -72,7 +71,7 @@ const API = {
 			path: `jetpack-protect/v1/fix-threats`,
 			method: 'POST',
 			data: { threat_ids: threatIds },
-		} ),
+		} ).then( camelize ),
 
 	getFixersStatus: ( threatIds: number[] ): Promise< FixersStatus > => {
 		const path = threatIds.reduce( ( carryPath, threatId ) => {
@@ -82,7 +81,7 @@ const API = {
 		return apiFetch( {
 			path,
 			method: 'GET',
-		} );
+		} ).then( camelize );
 	},
 
 	ignoreThreat: ( threatId: number ) =>
@@ -110,10 +109,12 @@ const API = {
 		} ),
 
 	getProductData: () =>
-		apiFetch( {
-			path: '/my-jetpack/v1/site/products/scan',
-			method: 'GET',
-		} ).then( camelize ),
+		(
+			apiFetch( {
+				path: '/my-jetpack/v1/site/products?products=scan',
+				method: 'GET',
+			} ) as Promise< { [ key: string ]: ProductData } >
+		 ).then( products => camelize( products?.scan ) ),
 };
 
 export default API;

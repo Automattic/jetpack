@@ -64,14 +64,12 @@ function renderButton( props ) {
 
 describe( 'ButtonEdit', () => {
 	test( 'loads and displays button with buttonText attribute assigned to button', () => {
-		// eslint-disable-next-line testing-library/render-result-naming-convention -- False postive.
 		renderButton( defaultProps );
 
 		expect( screen.getByText( 'Contact Us' ) ).toBeInTheDocument();
 	} );
 
 	test( 'displays button as multiline textbox for updating the buttonText attribute', () => {
-		// eslint-disable-next-line testing-library/render-result-naming-convention -- False postive.
 		renderButton( defaultProps );
 
 		expect( screen.getByRole( 'textbox' ) ).toHaveAttribute( 'aria-multiline' );

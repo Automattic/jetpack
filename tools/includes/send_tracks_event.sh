@@ -1,11 +1,21 @@
 #!/bin/bash
 
+# Generate UUID
+function get_uuid {
+	if command -v uuidgen &>/dev/null; then
+		uuidgen
+	else
+		# Fallback
+		cat /proc/sys/kernel/random/uuid
+	fi
+}
+
 # Sends a tracks event.
 # - 1: Event name
 # - 2: An optional JSON-formatted payload of extra tracks params, e.g. `{"a":1, "b":2}`
 function send_tracks_event {
-	# Bail if no event name is provided.
-	if [[ -z "$1" ]]; then
+	# Bail if no event name is provided or JP_DISABLE_TRACKS is set.
+	if [[ -z "$1" || $JP_DISABLE_TRACKS == 1 ]]; then
 		return
 	fi
 
@@ -18,7 +28,7 @@ function send_tracks_event {
 	)
 
 	# Add event name to payload.
-	PAYLOAD=$(jq -r --arg eventName "$1" '.events = [{_en: $eventName}]' <<< "$PAYLOAD")
+	PAYLOAD=$(jq -r --arg eventName "$1" --arg RUN_ID "$JP_SEND_TRACKS_RUN_ID" '.events = [{_en: $eventName, run_id: $RUN_ID}]' <<< "$PAYLOAD")
 
 	# Add extra params to payload if provided.
 	if [[ -n "$2" ]]; then
@@ -42,3 +52,7 @@ function send_tracks_event {
 		echo "Failed Tracks call: $TRACKS_RESPONSE"
 	fi
 }
+
+
+[[ -z "$JP_SEND_TRACKS_RUN_ID" ]] && JP_SEND_TRACKS_RUN_ID=$(get_uuid)
+export JP_SEND_TRACKS_RUN_ID

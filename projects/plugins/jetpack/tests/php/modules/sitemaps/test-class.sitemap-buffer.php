@@ -117,7 +117,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_add_item_below_byte_capacity() {
-		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 1, 48, '(', ')', '1970-01-01 00:00:00' );
+		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 1, 48, '1970-01-01 00:00:00' );
 		$buffer->append( 'foobarbazquux' );
 		$buffer->append( 'crunchly' );
 		$this->assertEquals(

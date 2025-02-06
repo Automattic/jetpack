@@ -1,4 +1,4 @@
-## Jetpack 14.0
+## Jetpack 14.4
 
 ### Before you start:
 
@@ -10,12 +10,10 @@
   - Or add the following to something like a code snippet plugin: `add_filter( 'jetpack_blocks_variation', function () { return 'beta'; } );`
 	- To test Breve further in the document please enable the feature with the following snippet: `add_filter( 'breve_enabled', '__return_true' );`
 
-### Your Feature
-
-Add testing instructions below.
-
-### And More!
-
 You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
+
+## General testing
+
+Once ready for testing, you'll find instructions here.
 
 **Thank you for all your help!**

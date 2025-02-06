@@ -1,6 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require( 'path' );
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const jetpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const webpack = require( 'webpack' );
 
@@ -42,7 +40,6 @@ module.exports = [
 		node: false,
 		plugins: [
 			...jetpackConfig.StandardPlugins( {
-				DependencyExtractionPlugin: { injectPolyfill: false },
 				MiniCssExtractPlugin: { filename: '[name]/[name].css' },
 			} ),
 			new webpack.ProvidePlugin( {
@@ -103,11 +100,7 @@ module.exports = [
 			...jetpackConfig.resolve,
 		},
 		node: false,
-		plugins: [
-			...jetpackConfig.StandardPlugins( {
-				DependencyExtractionPlugin: { injectPolyfill: false },
-			} ),
-		],
+		plugins: [ ...jetpackConfig.StandardPlugins() ],
 		module: {
 			strictExportPresence: true,
 			rules: [

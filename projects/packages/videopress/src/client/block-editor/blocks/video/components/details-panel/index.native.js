@@ -34,6 +34,7 @@ export default function DetailsPanel( { attributes, setAttributes, videoBelongTo
 				placeholder={ titlePlaceholder }
 				label={ __( 'Title', 'jetpack-videopress-pkg' ) }
 				disabled={ ! videoBelongToSite }
+				__nextHasNoMarginBottom={ true }
 			/>
 			<BottomSheetTextControl
 				initialValue={ description }

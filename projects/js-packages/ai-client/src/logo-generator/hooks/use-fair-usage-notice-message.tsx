@@ -1,7 +1,7 @@
+import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { useSelect } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, type Element } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import getRedirectUrl from '../../../../components/tools/jp-redirect/index.js';
 /**
  * Internal dependencies
  */
@@ -11,7 +11,7 @@ import { STORE_NAME } from '../store/index.js';
  */
 import type { Selectors } from '../store/types.js';
 
-const useFairUsageNoticeMessage = () => {
+const useFairUsageNoticeMessage = (): Element => {
 	const { usagePeriod } = useSelect( select => {
 		const selectors: Selectors = select( STORE_NAME );
 		return {

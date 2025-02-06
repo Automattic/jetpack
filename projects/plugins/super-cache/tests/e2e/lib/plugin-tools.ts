@@ -58,7 +58,7 @@ export async function getAuthCookie(): Promise< string > {
  * @param {string} authCookie - Authentication cookie to use for the request.
  * @param {Method} method     - HTTP method to use. e.g.: 'GET'.
  * @param {string} url        - URL to request.
- * @param {Object} data       - Key / value pairs (strings) to submit as post data.
+ * @param {object} data       - Key / value pairs (strings) to submit as post data.
  */
 export async function authenticatedRequest(
 	authCookie: string,
@@ -84,7 +84,7 @@ export async function authenticatedRequest(
  * Returns a URL within the plugin site.
  *
  * @param {string} path  - The path relative to the site URL.
- * @param {Object} query - Query parameters to add to the URL.
+ * @param {object} query - Query parameters to add to the URL.
  * @return {string} The site URL.
  */
 export function getSiteUrl( path = '/', query: Record< string, string > = {} ): string {

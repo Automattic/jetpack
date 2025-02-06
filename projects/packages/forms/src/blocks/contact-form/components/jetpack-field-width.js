@@ -1,30 +1,40 @@
-import { BaseControl, Button, ButtonGroup } from '@wordpress/components';
+import {
+	BaseControl,
+	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+
+const PERCENTAGE_WIDTHS = [ 25, 50, 75, 100 ];
 
 export default function JetpackFieldWidth( { setAttributes, width } ) {
 	return (
 		<BaseControl
-			label={ __( 'Field Width', 'jetpack-forms' ) }
 			help={ __(
 				'Adjust the width of the field to include multiple fields on a single line.',
 				'jetpack-forms'
 			) }
-			className="jetpack-field-label__width"
+			__nextHasNoMarginBottom={ true }
 		>
-			<ButtonGroup aria-label={ __( 'Field Width', 'jetpack-forms' ) }>
-				{ [ 25, 50, 75, 100 ].map( widthValue => {
+			<ToggleGroupControl
+				__next40pxDefaultSize
+				__nextHasNoMarginBottom
+				aria-label={ __( 'Width', 'jetpack-forms' ) }
+				isBlock
+				label={ __( 'Width', 'jetpack-forms' ) }
+				onChange={ value => setAttributes( { width: value } ) }
+				value={ width }
+			>
+				{ PERCENTAGE_WIDTHS.map( widthValue => {
 					return (
-						<Button
+						<ToggleGroupControlOption
 							key={ widthValue }
-							isSmall
-							variant={ widthValue === width ? 'primary' : undefined }
-							onClick={ () => setAttributes( { width: widthValue } ) }
-						>
-							{ widthValue }%
-						</Button>
+							label={ `${ widthValue }%` }
+							value={ widthValue }
+						/>
 					);
 				} ) }
-			</ButtonGroup>
+			</ToggleGroupControl>
 		</BaseControl>
 	);
 }

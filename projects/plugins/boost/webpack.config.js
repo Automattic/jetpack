@@ -1,8 +1,6 @@
 const webpack = require( 'webpack' );
 const path = require( 'path' );
-// eslint-disable-next-line import/no-extraneous-dependencies
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-// eslint-disable-next-line import/no-extraneous-dependencies
 const CopyPlugin = require( 'copy-webpack-plugin' );
 
 const imageGuideCopyPatterns = [
@@ -67,7 +65,6 @@ module.exports = [
 				MiniCssExtractPlugin: {
 					filename: 'jetpack-boost.css',
 				},
-				DependencyExtractionPlugin: { injectPolyfill: true },
 			} ),
 			new webpack.ProvidePlugin( {
 				process: require.resolve( 'process/browser' ),
@@ -129,9 +126,7 @@ module.exports = [
 		},
 		node: false,
 		plugins: [
-			...jetpackWebpackConfig.StandardPlugins( {
-				DependencyExtractionPlugin: { injectPolyfill: true },
-			} ),
+			...jetpackWebpackConfig.StandardPlugins(),
 			new CopyPlugin( { patterns: imageGuideCopyPatterns } ),
 		],
 		module: {
