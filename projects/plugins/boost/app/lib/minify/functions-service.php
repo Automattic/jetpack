@@ -72,6 +72,10 @@ function jetpack_boost_check_404_handler( $request_uri ) {
  * This function is called when the Minify_CSS or Minify_JS module is activated.
  */
 function jetpack_boost_404_tester() {
+	if ( defined( 'JETPACK_BOOST_DISABLE_404_TESTER' ) && JETPACK_BOOST_DISABLE_404_TESTER ) {
+		return;
+	}
+
 	wp_remote_get( home_url( '/wp-content/boost-cache/static/testing_404' ) );
 	if ( file_exists( Config::get_static_cache_dir_path() . '/404' ) ) {
 		wp_delete_file( Config::get_static_cache_dir_path() . '/404' );
