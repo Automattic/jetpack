@@ -14,7 +14,7 @@
 	"require": {
 		"php": ">=7.4",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-		"mediawiki/mediawiki-codesniffer": "^42.0",
+		"mediawiki/mediawiki-codesniffer": "^45.0",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"sirbrillig/phpcs-variable-analysis": "^2.10",
 		"wp-coding-standards/wpcs": "^3.0",
@@ -22,7 +22,7 @@
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
-		"yoast/phpunit-polyfills": "1.1.0"
+		"yoast/phpunit-polyfills": "^1.1.1"
 	},
 	"autoload": {
 		"classmap": [
@@ -35,6 +35,9 @@
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -58,7 +61,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "3.0.x-dev"
+			"dev-trunk": "5.0.x-dev"
 		}
 	},
 	"config": {

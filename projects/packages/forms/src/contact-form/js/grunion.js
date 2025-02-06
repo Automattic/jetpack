@@ -82,7 +82,7 @@ FB.ContactForm = ( function () {
 	};
 	const debug = false; // will print errors to log if true
 	let grunionNewCount = 0; // increment for new fields
-	const maxNewFields = GrunionFB_i18n.maxNewFields; // See filter in ../grunion-form-view.php
+	const maxNewFields = GrunionFB_i18n.maxNewFields; // See filter in class-form-view.php
 	let optionsCache = {};
 	let optionsCount = 0; // increment for options
 	let shortcode; //eslint-disable-line no-unused-vars
@@ -283,8 +283,8 @@ FB.ContactForm = ( function () {
 					'select' === value.type ||
 					'checkbox-multiple' === value.type
 				) {
-					jQuery.each( value.options, function ( i, value ) {
-						optionsCache[ index ].options[ i ] = value;
+					jQuery.each( value.options, function ( i, v ) {
+						optionsCache[ index ].options[ i ] = v;
 					} );
 				}
 				updateType( value.type, value.label, value.required );
@@ -683,7 +683,7 @@ FB.ContactForm = ( function () {
 				} else {
 					try {
 						win.send_to_editor( response );
-					} catch ( e ) {
+					} catch {
 						if ( isVisual ) {
 							win.tinyMCE.activeEditor.execCommand( 'mceInsertContent', false, response );
 						} else {
@@ -781,7 +781,8 @@ FB.ContactForm = ( function () {
 	 * @param email
 	 */
 	function validateEmail( email ) {
-		const re = /^(?=[a-z0-9@.!#$%&'*+/=?^_`{|}~-]{6,254}$)(?=[a-z0-9.!#$%&'*+/=?^_`{|}~-]{1,64}@)[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:(?=[a-z0-9-]{1,63}\.)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?=[a-z0-9-]{1,63}$)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
+		const re =
+			/^(?=[a-z0-9@.!#$%&'*+/=?^_`{|}~-]{6,254}$)(?=[a-z0-9.!#$%&'*+/=?^_`{|}~-]{1,64}@)[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:(?=[a-z0-9-]{1,63}\.)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?=[a-z0-9-]{1,63}$)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
 		return re.test( email );
 	}
 	/**

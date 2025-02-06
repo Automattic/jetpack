@@ -5,9 +5,8 @@
  * @package automattic/jetpack
  */
 
+require_once __DIR__ . '/mocks/simplepie.php';
 require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-helper.php';
-require_once __DIR__ . '/mocks/class-simplepie.php';
-require_once __DIR__ . '/mocks/class-simplepie-item.php';
 
 /**
  * Class for testing the Jetpack_Podcast_Helper class.
@@ -23,7 +22,7 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 	public function test_get_track_data_feed_error() {
 		$podcast_helper = $this->getMockBuilder( 'Jetpack_Podcast_Helper' )
 			->disableOriginalConstructor()
-			->setMethods( array( 'load_feed', 'setup_tracks_callback' ) )
+			->onlyMethods( array( 'load_feed', 'setup_tracks_callback' ) )
 			->getMock();
 
 		$podcast_helper->expects( $this->once() )
@@ -44,21 +43,21 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 	public function test_get_track_data_find_episode() {
 		$podcast_helper = $this->getMockBuilder( 'Jetpack_Podcast_Helper' )
 			->disableOriginalConstructor()
-			->setMethods( array( 'load_feed', 'setup_tracks_callback' ) )
+			->onlyMethods( array( 'load_feed', 'setup_tracks_callback' ) )
 			->getMock();
 
-		$track = $this->getMockBuilder( 'SimplePie_Item' )
+		$track = $this->getMockBuilder( Jetpack\SimplePie\Item::class )
 			->disableOriginalConstructor()
-			->setMethods( array( 'get_id' ) )
+			->onlyMethods( array( 'get_id' ) )
 			->getMock();
 
 		$track->expects( $this->exactly( 2 ) )
 			->method( 'get_id' )
-			->willReturn( 1 );
+			->willReturn( '1' );
 
-		$rss = $this->getMockBuilder( 'SimplePie' )
+		$rss = $this->getMockBuilder( Jetpack\SimplePie\SimplePie::class )
 			->disableOriginalConstructor()
-			->setMethods( array( 'get_items' ) )
+			->onlyMethods( array( 'get_items' ) )
 			->getMock();
 
 		$rss->expects( $this->exactly( 2 ) )
@@ -92,7 +91,7 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 		$this->assertSame( 'The track was not found.', $error->get_error_message() );
 
 		// Success.
-		$episode = $podcast_helper->get_track_data( 1 );
+		$episode = $podcast_helper->get_track_data( '1' );
 		$this->assertSame(
 			$episode,
 			array(

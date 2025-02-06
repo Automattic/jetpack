@@ -1,8 +1,7 @@
-import './types.ts';
 /**
  * Returns the site admin URL.
  *
- * @returns {?string} The site admin URL or null if not available.
+ * @return {?string} The site admin URL or null if not available.
  */
 export default function getSiteAdminUrl() {
 	return (

@@ -1,4 +1,4 @@
-/* eslint-disable react/react-in-jsx-scope,jsdoc/no-undefined-types */
+/* eslint-disable jsdoc/no-undefined-types */
 import {
 	BlockEditorKeyboardShortcuts,
 	BlockEditorProvider,
@@ -18,7 +18,7 @@ import './style.scss';
 /**
  * Render our playground component
  *
- * @returns {React.Component} - The App
+ * @return {React.Component} - The App
  */
 function App() {
 	const [ blocks, updateBlocks ] = useState( [] );

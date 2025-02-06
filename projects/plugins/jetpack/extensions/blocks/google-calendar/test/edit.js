@@ -37,7 +37,6 @@ describe( 'GoogleCalendarEdit', () => {
 		setAttributes,
 		clientId: 1,
 		isMobile: false,
-		className: 'custom-calendar-class',
 		isSelected: true,
 		name: 'jetpack/google-calendar',
 		noticeOperations: {
@@ -56,9 +55,6 @@ describe( 'GoogleCalendarEdit', () => {
 		const emptyProps = { ...defaultProps, attributes: emptyAttributes };
 		const { container } = render( <GoogleCalendarEdit { ...emptyProps } /> );
 
-		// Check block specific CSS classes are applied.
-		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-		expect( container.firstChild ).toHaveClass( defaultProps.className );
 		expect(
 			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 			container.querySelector( `.${ defaultClassName }-placeholder-instructions` )
@@ -85,7 +81,7 @@ describe( 'GoogleCalendarEdit', () => {
 			screen.getByText( 'Paste the embed code you copied from your Google Calendar below' )
 		).toBeInTheDocument();
 
-		const supportLink = screen.getByText( 'Learn more' );
+		const supportLink = screen.getByRole( 'link', { name: 'Learn more (opens in a new tab)' } );
 
 		expect( supportLink ).toBeInTheDocument();
 		expect( supportLink ).toHaveAttribute(
@@ -109,7 +105,9 @@ describe( 'GoogleCalendarEdit', () => {
 		render( <GoogleCalendarEdit { ...emptyProps } /> );
 
 		const url = 'https://en.support.wordpress.com/wordpress-editor/blocks/google-calendar/';
-		expect( screen.getByText( 'Learn more' ) ).toHaveAttribute( 'href', url );
+		const supportLink = screen.getByRole( 'link', { name: 'Learn more (opens in a new tab)' } );
+		expect( supportLink ).toBeInTheDocument();
+		expect( supportLink ).toHaveAttribute( 'href', url );
 	} );
 
 	test( 'handles submitted embed codes', async () => {

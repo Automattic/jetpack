@@ -1,7 +1,7 @@
-import classNames from 'classnames';
-import Toggle from 'components/form/form-toggle';
+import clsx from 'clsx';
 import { omit } from 'lodash';
 import React from 'react';
+import Toggle from 'components/form/form-toggle';
 
 export default class CompactFormToggle extends React.Component {
 	static displayName = 'CompactFormToggle';
@@ -10,7 +10,7 @@ export default class CompactFormToggle extends React.Component {
 		return (
 			<Toggle
 				{ ...omit( this.props, 'className' ) }
-				className={ classNames( this.props.className, 'is-compact' ) }
+				className={ clsx( this.props.className, 'is-compact' ) }
 			>
 				{ this.props.children }
 			</Toggle>

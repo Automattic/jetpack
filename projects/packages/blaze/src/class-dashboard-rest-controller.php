@@ -11,12 +11,15 @@ namespace Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Sync\Health;
+use WC_Product;
 use WP_Error;
+use WP_REST_Request;
 use WP_REST_Server;
 
 /**
  * Registers the REST routes for Blaze Dashboard.
- * It bascially forwards the requests to the WordPress.com REST API.
+ * It basically forwards the requests to the WordPress.com REST API.
  */
 class Dashboard_REST_Controller {
 	/**
@@ -96,6 +99,17 @@ class Dashboard_REST_Controller {
 			)
 		);
 
+		// WordAds DSP API upload to WP Media Library routes
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%1$d/wordads/dsp/api/v1/wpcom/sites/%1$d/media', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'upload_image_to_current_website' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
+
 		// WordAds DSP API media openverse query routes
 		register_rest_route(
 			static::$namespace,
@@ -121,7 +135,7 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Campaigns routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/v1/campaigns(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
+			sprintf( '/sites/%d/wordads/dsp/api/(?P<api_version>v[0-9]+\.?[0-9]*)/campaigns(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_campaigns' ),
@@ -130,7 +144,7 @@ class Dashboard_REST_Controller {
 		);
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/v1/campaigns(?P<sub_path>[a-zA-Z0-9-_\/]*)', $site_id ),
+			sprintf( '/sites/%d/wordads/dsp/api/(?P<api_version>v[0-9]+\.?[0-9]*)/campaigns(?P<sub_path>[a-zA-Z0-9-_\/]*)', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'edit_dsp_campaigns' ),
@@ -145,6 +159,27 @@ class Dashboard_REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_site_campaigns' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
+
+		// WordAds DSP API Site Stats routes
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/wordads/dsp/api/(?P<api_version>v[0-9]+\.?[0-9]*)/stats(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_dsp_stats' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
+
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/wordads/dsp/api/(?P<api_version>v[0-9]+\.?[0-9]*)/stats(?P<sub_path>[a-zA-Z0-9-_\/]*)', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'edit_dsp_stats' ),
 				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
@@ -320,11 +355,40 @@ class Dashboard_REST_Controller {
 			unset( $req['sub_path'] );
 		}
 
-		return $this->request_as_user(
+		$response = $this->request_as_user(
 			sprintf( '/sites/%d/blaze/posts%s', $site_id, $this->build_subpath_with_query_strings( $req->get_params() ) ),
 			'v2',
 			array( 'method' => 'GET' )
 		);
+
+		// Bail if we get an error (WP_ERROR or an already formatted WP_REST_Response error).
+		if ( is_wp_error( $response ) || $response instanceof \WP_REST_Response ) {
+			return $response;
+		}
+
+		if ( isset( $response['posts'] ) && count( $response['posts'] ) > 0 ) {
+			$response['posts'] = $this->add_prices_in_posts( $response['posts'] );
+		}
+
+		$response = $this->add_warnings_to_posts_response( $response );
+
+		return $response;
+	}
+
+	/**
+	 * Adds warning flags to the posts response.
+	 *
+	 * @param array $response The response object.
+	 * @return array
+	 */
+	private function add_warnings_to_posts_response( $response ) {
+		if ( ! $this->are_posts_ready() && is_array( $response ) ) {
+			$response['warnings'] = array_merge(
+				array( 'sync_in_progress' ),
+				$response['warnings'] ?? array()
+			);
+		}
+		return $response;
 	}
 
 	/**
@@ -368,7 +432,20 @@ class Dashboard_REST_Controller {
 			unset( $req['sub_path'] );
 		}
 
-		return $this->get_dsp_generic( sprintf( 'v1/wpcom/sites/%d/blaze/posts', $site_id ), $req );
+		$response = $this->get_dsp_generic( sprintf( 'v1/wpcom/sites/%d/blaze/posts', $site_id ), $req );
+
+		// Bail if we get an error (WP_ERROR or an already formatted WP_REST_Response error).
+		if ( is_wp_error( $response ) || $response instanceof \WP_REST_Response ) {
+			return $response;
+		}
+
+		if ( isset( $response['results'] ) && count( $response['results'] ) > 0 ) {
+			$response['results'] = $this->add_prices_in_posts( $response['results'] );
+		}
+
+		$response = $this->add_warnings_to_posts_response( $response );
+
+		return $response;
 	}
 
 	/**
@@ -383,6 +460,65 @@ class Dashboard_REST_Controller {
 			return array();
 		}
 		return $this->get_dsp_generic( sprintf( 'v1/wpcom/sites/%d/media', $site_id ), $req );
+	}
+
+	/**
+	 * Redirect POST requests to WordAds DSP Blaze media endpoint for the site.
+	 *
+	 * @return array|WP_Error
+	 */
+	public function upload_image_to_current_website() {
+		$site_id = $this->get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return array( 'error' => $site_id->get_error_message() );
+		}
+
+		if ( empty( $_FILES['image'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			return array( 'error' => 'File is missed' );
+		}
+		$file      = $_FILES['image']; // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$temp_name = $file['tmp_name'] ?? ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		if ( ! $temp_name || ! is_uploaded_file( $temp_name ) ) {
+			return array( 'error' => 'Specified file was not uploaded' );
+		}
+
+		// Getting the original file name.
+		$filename = sanitize_file_name( basename( $file['name'] ) );
+		// Upload contents to the Upload folder locally.
+		$upload = wp_upload_bits(
+			$filename,
+			null,
+			file_get_contents( $temp_name ) // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		);
+
+		if ( ! empty( $upload['error'] ) ) {
+			return array( 'error' => $upload['error'] );
+		}
+
+		// Check the type of file. We'll use this as the 'post_mime_type'.
+		$filetype = wp_check_filetype( $filename, null );
+
+		// Prepare an array of post data for the attachment.
+		$attachment = array(
+			'guid'           => wp_upload_dir()['url'] . '/' . $filename,
+			'post_mime_type' => $filetype['type'],
+			'post_title'     => preg_replace( '/\.[^.]+$/', '', $filename ),
+			'post_content'   => '',
+			'post_status'    => 'inherit',
+		);
+
+		// Insert the attachment.
+		$attach_id = wp_insert_attachment( $attachment, $upload['file'] );
+
+		// Make sure wp_generate_attachment_metadata() has all requirement dependencies.
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		// Generate the metadata for the attachment, and update the database record.
+		$attach_data = wp_generate_attachment_metadata( $attach_id, $upload['file'] );
+		// Store metadata in the local DB.
+		wp_update_attachment_metadata( $attach_id, $attach_data );
+
+		return array( 'url' => $upload['url'] );
 	}
 
 	/**
@@ -422,7 +558,8 @@ class Dashboard_REST_Controller {
 	 * @return array|WP_Error
 	 */
 	public function get_dsp_campaigns( $req ) {
-		return $this->get_dsp_generic( 'v1/campaigns', $req );
+		$version = $req->get_param( 'api_version' ) ?? 'v1';
+		return $this->get_dsp_generic( "{$version}/campaigns", $req );
 	}
 
 	/**
@@ -438,6 +575,30 @@ class Dashboard_REST_Controller {
 		}
 
 		return $this->get_dsp_generic( sprintf( 'v1/sites/%d/campaigns', $site_id ), $req );
+	}
+
+	/**
+	 * Redirect GET requests to WordAds DSP Stats endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 *
+	 * @return array|WP_Error
+	 */
+	public function get_dsp_stats( $req ) {
+		$version = $req->get_param( 'api_version' ) ?? 'v1';
+		return $this->get_dsp_generic( "{$version}/stats", $req );
+	}
+
+	/**
+	 * Redirect POST requests to WordAds DSP Stats endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 *
+	 * @return array|WP_Error
+	 */
+	public function edit_dsp_stats( $req ) {
+		$version = $req->get_param( 'api_version' ) ?? 'v1';
+		return $this->get_dsp_generic( "{$version}/stats", $req );
 	}
 
 	/**
@@ -561,7 +722,7 @@ class Dashboard_REST_Controller {
 	 * @return array|WP_Error
 	 */
 	public function edit_wpcom_checkout( $req ) {
-		return $this->edit_dsp_generic( 'v1/wpcom/checkout', $req, array( 'timeout' => 20 ) );
+		return $this->edit_dsp_generic( 'v1/wpcom/checkout', $req, array( 'timeout' => 60 ) );
 	}
 
 	/**
@@ -571,7 +732,8 @@ class Dashboard_REST_Controller {
 	 * @return array|WP_Error
 	 */
 	public function edit_dsp_campaigns( $req ) {
-		return $this->edit_dsp_generic( 'v1/campaigns', $req, array( 'timeout' => 20 ) );
+		$version = $req->get_param( 'api_version' ) ?? 'v1';
+		return $this->edit_dsp_generic( "{$version}/campaigns", $req, array( 'timeout' => 60 ) );
 	}
 
 	/**
@@ -640,6 +802,53 @@ class Dashboard_REST_Controller {
 	}
 
 	/**
+	 * Will check the posts for prices and add them to the posts array
+	 *
+	 * @param array $posts The posts object.
+	 * @return array The list posts with the price on them (if they are woo products).
+	 */
+	protected function add_prices_in_posts( $posts ) {
+
+		if ( ! function_exists( 'wc_get_product' ) ||
+			! function_exists( 'wc_get_price_decimal_separator' ) ||
+			! function_exists( 'wc_get_price_thousand_separator' ) ||
+			! function_exists( 'wc_get_price_decimals' ) ||
+			! function_exists( 'get_woocommerce_price_format' ) ||
+			! function_exists( 'get_woocommerce_currency_symbol' )
+		) {
+			return $posts;
+		}
+
+		foreach ( $posts as $key => $item ) {
+			if ( ! isset( $item['ID'] ) ) {
+				$posts[ $key ]['price'] = '';
+				continue;
+			}
+			$product = wc_get_product( $item['ID'] );
+			if ( ! $product || ! $product instanceof WC_Product ) {
+				$posts[ $key ]['price'] = '';
+			} else {
+				$price              = $product->get_price();
+				$decimal_separator  = wc_get_price_decimal_separator();
+				$thousand_separator = wc_get_price_thousand_separator();
+				$decimals           = wc_get_price_decimals();
+				$price_format       = get_woocommerce_price_format();
+				$currency_symbol    = get_woocommerce_currency_symbol();
+
+				// Convert to float to avoid issues on PHP 8.
+				$price           = (float) $price;
+				$negative        = $price < 0;
+				$price           = $negative ? $price * -1 : $price;
+				$price           = number_format( $price, $decimals, $decimal_separator, $thousand_separator );
+				$formatted_price = sprintf( $price_format, $currency_symbol, $price );
+
+				$posts[ $key ]['price'] = html_entity_decode( $formatted_price, ENT_COMPAT );
+			}
+		}
+		return $posts;
+	}
+
+	/**
 	 * Queries the WordPress.com REST API with a user token.
 	 *
 	 * @param String $path The API endpoint relative path.
@@ -648,7 +857,7 @@ class Dashboard_REST_Controller {
 	 * @param String $body Request body.
 	 * @param String $base_api_path (optional) the API base path override, defaults to 'rest'.
 	 * @param bool   $use_cache (optional) default to true.
-	 * @return array|WP_Error $response Data.
+	 * @return array|WP_Error|\WP_REST_Response $response Data.
 	 */
 	protected function request_as_user( $path, $version = '2', $args = array(), $body = null, $base_api_path = 'wpcom', $use_cache = false ) {
 		// Arrays are serialized without considering the order of objects, but it's okay atm.
@@ -678,7 +887,7 @@ class Dashboard_REST_Controller {
 		$response_body         = json_decode( $response_body_content, true );
 
 		if ( 200 !== $response_code ) {
-			return $this->get_wp_error( $response_body, $response_code );
+			return $this->get_blaze_error( $response_body, $response_code );
 		}
 
 		// Cache the successful JSON response for 5 minutes.
@@ -703,9 +912,15 @@ class Dashboard_REST_Controller {
 	 *
 	 * @param array $response_body Remote response body.
 	 * @param int   $response_code Http response code.
-	 * @return WP_Error
+	 * @return \WP_REST_Response
 	 */
-	protected function get_wp_error( $response_body, $response_code = 500 ) {
+	protected function get_blaze_error( $response_body, $response_code = 500 ) {
+		if ( ! is_array( $response_body ) ) {
+			$response_body = array(
+				'errorMessage' => $response_body,
+			);
+		}
+
 		$error_code = 'remote-error';
 		foreach ( array( 'code', 'error' ) as $error_code_key ) {
 			if ( isset( $response_body[ $error_code_key ] ) ) {
@@ -714,13 +929,11 @@ class Dashboard_REST_Controller {
 			}
 		}
 
-		$error_message = isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error';
+		$response_body['code']         = $error_code;
+		$response_body['status']       = $response_code;
+		$response_body['errorMessage'] = $response_body['errorMessage'] ?? 'Unknown remote error';
 
-		return new WP_Error(
-			$error_code,
-			$error_message,
-			array( 'status' => $response_code )
-		);
+		return new \WP_REST_Response( $response_body, $response_code );
 	}
 
 	/**
@@ -745,5 +958,19 @@ class Dashboard_REST_Controller {
 	 */
 	private function get_site_id() {
 		return Connection_Manager::get_site_id();
+	}
+
+	/**
+	 * Check if the Health status code is sync.
+	 *
+	 * @return bool True if is sync, false otherwise.
+	 */
+	private function are_posts_ready(): bool {
+		// On WordPress.com Simple, Sync is not present, so we consider always ready.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return true;
+		}
+
+		return Health::STATUS_IN_SYNC === Health::get_status();
 	}
 }

@@ -19,21 +19,21 @@ class Broken_Product extends Module_Product {
 	public static $slug = 'broken';
 
 	/**
-	 * Get the internationalized product name
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'CRM', 'jetpack-my-jetpack' );
+		return 'CRM';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack CRM', 'jetpack-my-jetpack' );
+		return 'Jetpack CRM';
 	}
 
 	/**

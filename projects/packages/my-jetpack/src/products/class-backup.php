@@ -1,6 +1,6 @@
 <?php
 /**
- * Boost product
+ * Backup product
  *
  * @package my-jetpack
  */
@@ -11,7 +11,6 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Redirect;
-use Jetpack_Options;
 use WP_Error;
 
 /**
@@ -52,21 +51,42 @@ class Backup extends Hybrid_Product {
 	public static $has_standalone_plugin = true;
 
 	/**
-	 * Get the internationalized product name
+	 * Whether this product has a free offering
+	 *
+	 * @var bool
+	 */
+	public static $has_free_offering = false;
+
+	/**
+	 * Whether this product requires a plan to work at all
+	 *
+	 * @var bool
+	 */
+	public static $requires_plan = true;
+
+	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'backups';
+
+	/**
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'VaultPress Backup', 'jetpack-my-jetpack' );
+		return 'VaultPress Backup';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack VaultPress Backup', 'jetpack-my-jetpack' );
+		return 'Jetpack VaultPress Backup';
 	}
 
 	/**
@@ -79,7 +99,7 @@ class Backup extends Hybrid_Product {
 			return __( 'Save every change', 'jetpack-my-jetpack' );
 		}
 
-		return __( 'Your site is not backed up', 'jetpack-my-jetpack' );
+		return __( 'Secure your site with automatic backups and one-click restores', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -130,6 +150,13 @@ class Backup extends Hybrid_Product {
 	}
 
 	/**
+	 * Get the URL where the user should be redirected after checkout
+	 */
+	public static function get_post_checkout_url() {
+		return self::get_manage_url();
+	}
+
+	/**
 	 * Get the product princing details
 	 *
 	 * @return array Pricing details
@@ -158,12 +185,19 @@ class Backup extends Hybrid_Product {
 			return $status;
 		}
 
-		$site_id = Jetpack_Options::get_option( 'id' );
+		$site_id = \Jetpack_Options::get_option( 'id' );
 
-		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom', '2', array( 'timeout' => 2 ), null, 'wpcom' );
+		$response = Client::wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom',
+			'2',
+			array( 'timeout' => 2 ),
+			null,
+			'wpcom'
+		);
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return new WP_Error( 'rewind_state_fetch_failed' );
+			$status = new WP_Error( 'rewind_state_fetch_failed' );
+			return $status;
 		}
 
 		$body   = wp_remote_retrieve_body( $response );
@@ -172,16 +206,85 @@ class Backup extends Hybrid_Product {
 	}
 
 	/**
-	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 * Hits the wpcom api to retrieve the last 10 backup records.
 	 *
-	 * @return boolean
+	 * @return Object|WP_Error
 	 */
-	public static function has_required_plan() {
-		$rewind_data = static::get_state_from_wpcom();
-		if ( is_wp_error( $rewind_data ) ) {
-			return false;
+	public static function get_latest_backups() {
+		static $backups = null;
+
+		if ( $backups !== null ) {
+			return $backups;
 		}
-		return is_object( $rewind_data ) && isset( $rewind_data->state ) && 'unavailable' !== $rewind_data->state;
+
+		$site_id  = \Jetpack_Options::get_option( 'id' );
+		$response = Client::wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/rewind/backups', $site_id ) . '?force=wpcom',
+			'2',
+			array( 'timeout' => 2 ),
+			null,
+			'wpcom'
+		);
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			$backups = new WP_Error( 'rewind_backups_fetch_failed' );
+			return $backups;
+		}
+
+		$body    = wp_remote_retrieve_body( $response );
+		$backups = json_decode( $body );
+		return $backups;
+	}
+
+	/**
+	 * Determines whether the module/plugin/product needs the users attention.
+	 * Typically due to some sort of error where user troubleshooting is needed.
+	 *
+	 * @return boolean|array
+	 */
+	public static function does_module_need_attention() {
+		$backup_failed_status = false;
+		// First check the status of Rewind for failure.
+		$rewind_state = self::get_state_from_wpcom();
+		if ( ! is_wp_error( $rewind_state ) ) {
+			if ( $rewind_state->state !== 'active' && $rewind_state->state !== 'provisioning' && $rewind_state->state !== 'awaiting_credentials' ) {
+				$backup_failed_status = array(
+					'type' => 'error',
+					'data' => array(
+						'source'       => 'rewind',
+						'status'       => isset( $rewind_state->reason ) && ! empty( $rewind_state->reason ) ? $rewind_state->reason : $rewind_state->state,
+						'last_updated' => $rewind_state->last_updated,
+					),
+				);
+			}
+		}
+		// Next check for a failed last backup.
+		$latest_backups = self::get_latest_backups();
+		if ( ! is_wp_error( $latest_backups ) ) {
+			// Get the last/latest backup record.
+			$last_backup = null;
+			foreach ( $latest_backups as $backup ) {
+				if ( $backup->is_backup ) {
+					$last_backup = $backup;
+					break;
+				}
+			}
+
+			if ( $last_backup && isset( $last_backup->status ) ) {
+				if ( $last_backup->status !== 'started' && ! preg_match( '/-will-retry$/', $last_backup->status ) && $last_backup->status !== 'finished' ) {
+					$backup_failed_status = array(
+						'type' => 'error',
+						'data' => array(
+							'source'       => 'last_backup',
+							'status'       => $last_backup->status,
+							'last_updated' => $last_backup->last_updated,
+						),
+					);
+				}
+			}
+		}
+
+		return $backup_failed_status;
 	}
 
 	/**
@@ -191,7 +294,7 @@ class Backup extends Hybrid_Product {
 	 * @return boolean|array Products bundle list.
 	 */
 	public static function is_upgradable_by_bundle() {
-		return array( 'security' );
+		return array( 'security', 'complete' );
 	}
 
 	/**
@@ -209,30 +312,34 @@ class Backup extends Hybrid_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		if ( static::is_jetpack_plugin_active() ) {
+		// check standalone first
+		if ( static::is_standalone_plugin_active() ) {
+			return admin_url( 'admin.php?page=jetpack-backup' );
+			// otherwise, check for the main Jetpack plugin
+		} elseif ( static::is_jetpack_plugin_active() ) {
 			return Redirect::get_url( 'my-jetpack-manage-backup' );
-		} elseif ( static::is_plugin_active() ) {
-			return admin_url( 'admin.php?page=jetpack-backup' );
 		}
 	}
 
 	/**
-	 * Checks whether the Product is active
+	 * Get the product-slugs of the paid plans for this product.
+	 * (Do not include bundle plans, unless it's a bundle plan itself).
 	 *
-	 * @return boolean
+	 * @return array
 	 */
-	public static function is_active() {
-		return parent::is_active() && static::has_required_plan();
-	}
-
-	/**
-	 * Get the URL where the user should be redirected after checkout
-	 */
-	public static function get_post_checkout_url() {
-		if ( static::is_jetpack_plugin_active() ) {
-			return admin_url( 'admin.php?page=jetpack#/recommendations' );
-		} elseif ( static::is_plugin_active() ) {
-			return admin_url( 'admin.php?page=jetpack-backup' );
-		}
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_backup_daily',
+			'jetpack_backup_daily_monthly',
+			'jetpack_backup_realtime',
+			'jetpack_backup_realtime_monthly',
+			'jetpack_backup_t1_yearly',
+			'jetpack_backup_t1_monthly',
+			'jetpack_backup_t1_bi_yearly',
+			'jetpack_backup_t2_yearly',
+			'jetpack_backup_t2_monthly',
+			'jetpack_backup_t0_yearly',
+			'jetpack_backup_t0_monthly',
+		);
 	}
 }

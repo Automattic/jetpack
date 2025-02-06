@@ -1,3 +1,5 @@
+import { useBlockProps } from '@wordpress/block-editor';
+import clsx from 'clsx';
 import { formatPrice } from './utils';
 
 export default function Save( { attributes } ) {
@@ -12,12 +14,21 @@ export default function Save( { attributes } ) {
 		productId,
 		title,
 	} = attributes;
+
 	if ( ! productId ) {
 		return null;
 	}
 
+	const blockProps = useBlockProps.save();
+
 	return (
-		<div className={ `jetpack-simple-payments-wrapper jetpack-simple-payments-${ productId }` }>
+		<div
+			{ ...blockProps }
+			className={ clsx(
+				blockProps.className,
+				`jetpack-simple-payments-wrapper jetpack-simple-payments-${ productId }`
+			) }
+		>
 			<div className="jetpack-simple-payments-product">
 				{ featuredMediaUrl && (
 					<div className="jetpack-simple-payments-product-image">

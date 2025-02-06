@@ -5,9 +5,9 @@ import { Button, Text, useBreakpointMatch } from '@automattic/jetpack-components
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 /**
  * Internal dependencies
  */
@@ -92,7 +92,7 @@ const VideoLibraryWrapper = ( {
 				{ hideFilter ? null : (
 					<div className={ styles[ 'filter-wrapper' ] }>
 						<SearchInput
-							className={ classnames( styles[ 'search-input' ], { [ styles.small ]: ! isLg } ) }
+							className={ clsx( styles[ 'search-input' ], { [ styles.small ]: ! isLg } ) }
 							onSearch={ onSearchHandler }
 							value={ searchQuery }
 							loading={ isFetching }
@@ -122,13 +122,15 @@ const VideoLibraryWrapper = ( {
 };
 
 export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
-	const history = useHistory();
+	const navigate = useNavigate();
 	const { search } = useVideos();
 	const videosToDisplay = [
-		// First comes the videos that are uploading
+		// First comes video upload errors
+		...videos.filter( video => video.error ),
+		// Then comes the videos that are uploading
 		...videos.filter( video => video.uploading ),
 		// Then the videos that are not uploading, at most 6
-		...videos.filter( video => ! video.uploading ).slice( 0, 6 ),
+		...videos.filter( video => ! video.uploading && ! video.error ).slice( 0, 6 ),
 	];
 
 	const libraryTypeFromLocalStorage = localStorage.getItem(
@@ -150,7 +152,7 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 	};
 
 	const handleClickEditDetails = video => {
-		history.push( `/video/${ video?.id }/edit` );
+		navigate( `/video/${ video?.id }/edit` );
 	};
 
 	const library =

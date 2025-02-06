@@ -1,6 +1,6 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useLayoutEffect, useEffect, useState, useRef } from '@wordpress/element';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { Media, CalypsoSpinner } from './components';
 import waitMediaReady from './lib/wait-media-ready';
 
@@ -18,7 +18,7 @@ export const Slide = ( {
 			currentSlideIndex: select( 'jetpack/story/player' ).getCurrentSlideIndex( playerId ),
 			buffering: select( 'jetpack/story/player' ).isBuffering( playerId ),
 		} ),
-		[]
+		[ playerId ]
 	);
 
 	const { slideReady } = useDispatch( 'jetpack/story/player' );
@@ -55,12 +55,11 @@ export const Slide = ( {
 		} );
 	}, [ preload, uploading ] );
 
-	/* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 	return (
 		<>
 			{ visible && ( loading || uploading || buffering ) && (
 				<div
-					className={ classNames( 'wp-story-slide', 'is-loading', {
+					className={ clsx( 'wp-story-slide', 'is-loading', {
 						transparent: playing && buffering,
 						'semi-transparent': uploading || ( ! playing && buffering ),
 					} ) }
@@ -86,7 +85,6 @@ export const Slide = ( {
 			</div>
 		</>
 	);
-	/* eslint-enable jsx-a11y/no-noninteractive-tabindex */
 };
 
 export default Slide;

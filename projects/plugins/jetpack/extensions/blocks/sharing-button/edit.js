@@ -1,17 +1,18 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { Button } from '@wordpress/components';
-import classNames from 'classnames';
-import SocialIcon from 'social-logos';
+import clsx from 'clsx';
+import { SocialLogo } from 'social-logos';
 import { getNameBySite } from './utils';
 import './style.scss';
+
 const SharingButtonEdit = ( { attributes, context } ) => {
 	const { service, label } = attributes;
-	const { styleType } = context;
+	const { styleType, iconColorValue, iconBackgroundColorValue } = context;
 
 	const socialLinkName = getNameBySite( service );
 	const socialLinkLabel = label ?? socialLinkName;
 
-	const sharingButtonClass = classNames(
+	const sharingButtonClass = clsx(
 		'jetpack-sharing-button__button',
 		'style-' + styleType,
 		'share-' + service
@@ -21,11 +22,16 @@ const SharingButtonEdit = ( { attributes, context } ) => {
 		className: 'jetpack-sharing-button__list-item',
 	} );
 
+	const buttonStyle = {
+		color: iconColorValue,
+		backgroundColor: iconBackgroundColorValue,
+	};
+
 	return (
 		<>
 			<li { ...blockProps }>
-				<Button className={ sharingButtonClass }>
-					<SocialIcon icon={ service } size={ 24 } />
+				<Button className={ sharingButtonClass } style={ buttonStyle }>
+					<SocialLogo icon={ service } size={ 24 } />
 					<span className={ 'jetpack-sharing-button__service-label' }>{ socialLinkLabel }</span>
 				</Button>
 			</li>

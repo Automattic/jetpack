@@ -1,0 +1,176 @@
+{
+	"translation-revision-date": "2024-07-05 12:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": {
+				"domain": "messages",
+				"plural-forms": "nplurals=1; plural=0;",
+				"lang": "zh_TW"
+			},
+			"Post Answer": [ "\u5f35\u8cbc\u7b54\u6848" ],
+			"Show next prompt": [ "\u986f\u793a\u4e0b\u4e00\u500b\u63d0\u793a" ],
+			"Show previous prompt": [ "\u986f\u793a\u4e0a\u4e00\u500b\u63d0\u793a" ],
+			"Some ideas for writing topics": [ "\u5beb\u4f5c\u4e3b\u984c\u7684\u4e00\u4e9b\u5efa\u8b70" ],
+			"Add these tags": [ "\u65b0\u589e\u5efa\u8b70\u6a19\u7c64" ],
+			"Adding tags can help drive more traffic to your post.": [
+				"\u53ea\u8981\u65b0\u589e\u6a19\u7c64\uff0c\u5c31\u80fd\u5e6b\u52a9\u4f60\u523a\u6fc0\u6587\u7ae0\u6d41\u91cf\u3002"
+			],
+			"Based on the topics and themes in your post, here are some suggested tags to consider:": [
+				"\u6839\u64da\u6587\u7ae0\u4e3b\u984c\u8207\u4f7f\u7528\u7684\u4f48\u666f\u4e3b\u984c\uff0c\u6211\u5011\u5efa\u8b70\u4f7f\u7528\u4e0b\u5217\u6a19\u7c64\uff1a"
+			],
+			"Recommended tags:": [ "\u63a8\u85a6\u6a19\u7c64\uff1a" ],
+			"No Tags Added.": [ "\u672a\u65b0\u589e\u6a19\u7c64\u3002" ],
+			"Tag Added.": [ "\u5df2\u65b0\u589e\u6a19\u7c64\u3002" ],
+			"Share Post": [ "\u5206\u4eab\u6587\u7ae0" ],
+			"Don't show again": [ "\u4e0d\u8981\u518d\u986f\u793a" ],
+			"Get more traffic to your post by sharing:": [
+				"\u900f\u904e\u5206\u4eab\u8b93\u4f60\u7684\u6587\u7ae0\u7372\u5f97\u66f4\u591a\u6d41\u91cf\uff1a"
+			],
+			"Post published!": [ "\u6587\u7ae0\u5df2\u767c\u8868\uff01" ],
+			"Link copied to clipboard.": [
+				"\u9023\u7d50\u5df2\u8907\u88fd\u5230\u526a\u8cbc\u7c3f\u3002"
+			],
+			"Next Steps": [ "\u5f8c\u7e8c\u6b65\u9a5f" ],
+			"Take the tour": [ "\u958b\u59cb\u5c0e\u89bd" ],
+			"This is the Site Editor, where you can change everything about your site, including adding content to your homepage. <link_to_site_editor_course>Watch these short videos</link_to_site_editor_course> and take this tour to get started.": [
+				"\u9019\u662f\u7db2\u7ad9\u7de8\u8f2f\u5668\uff0c\u4f60\u53ef\u4ee5\u5728\u6b64\u5c0d\u7db2\u7ad9\u9032\u884c\u6240\u6709\u8b8a\u66f4\uff0c\u5305\u62ec\u5728\u9996\u9801\u65b0\u589e\u5167\u5bb9\u3002<link_to_site_editor_course>\u89c0\u770b\u9019\u4e9b\u77ed\u7247</link_to_site_editor_course>\u4e26\u958b\u59cb\u5165\u9580\u5c0e\u89bd\u3002"
+			],
+			"Nice job! Your new page is set up.": [
+				"\u505a\u5f97\u597d\uff01 \u4f60\u5df2\u8a2d\u5b9a\u597d\u65b0\u9801\u9762\u4e86\u3002"
+			],
+			"Feel free to keep editing your homepage, or continue and launch your site.": [
+				"\u6b61\u8fce\u7e7c\u7e8c\u7de8\u8f2f\u9996\u9801\uff0c\u6216\u7e7c\u7e8c\u4e0b\u4e00\u6b65\u4e26\u555f\u52d5\u7db2\u7ad9\u3002"
+			],
+			"Continue and launch": [ "\u7e7c\u7e8c\u4e26\u555f\u52d5" ],
+			"Keep editing": [ "\u7e7c\u7e8c\u7de8\u8f2f" ],
+			"Design everything on your site - from the header right down to the footer - in the Site Editor. <link_to_fse_docs>Learn more</link_to_fse_docs>": [
+				"\u5728\u7db2\u7ad9\u7de8\u8f2f\u5668\u4e2d\uff0c\u8a2d\u8a08\u7db2\u7ad9\u7684\u9801\u9996\u9801\u5c3e\u7b49\u6240\u6709\u74b0\u7bc0\u3002<link_to_fse_docs>\u6df1\u5165\u77ad\u89e3</link_to_fse_docs>"
+			],
+			"Take this short, interactive tour to learn the fundamentals of the WordPress Site Editor.": [
+				"\u958b\u59cb\u9019\u500b\u7c21\u77ed\u7684\u4e92\u52d5\u5f0f\u5c0e\u89bd\uff0c\u77ad\u89e3 WordPress \u7db2\u7ad9\u7de8\u8f2f\u5668\u7684\u57fa\u672c\u6982\u5ff5\u3002"
+			],
+			"You\u2019ve added your first video!": [
+				"\u4f60\u65b0\u589e\u4e86\u7b2c\u4e00\u500b\u5f71\u7247\uff01"
+			],
+			"Use the toolbar to change the appearance of a selected block. Try replacing a video!": [
+				"\u4f7f\u7528\u5de5\u5177\u5217\u8b8a\u66f4\u6240\u9078\u5340\u584a\u7684\u5916\u89c0\u3002 \u5617\u8a66\u66ff\u63db\u4e00\u90e8\u5f71\u7247\uff01"
+			],
+			"Congrats! Premium blocks are now available to use.": [
+				"\u606d\u559c\uff01 \u9032\u968e\u7248\u5340\u584a\u5df2\u53ef\u4f7f\u7528\u3002"
+			],
+			"The Payments block": [ "\u4ed8\u6b3e\u5340\u584a" ],
+			"Learn more": [ "\u77ad\u89e3\u66f4\u591a" ],
+			"Design everything on your site - from the header right down to the footer - in the Site Editor.": [
+				"\u5728\u7db2\u7ad9\u7de8\u8f2f\u5668\u4e2d\uff0c\u8a2d\u8a08\u7db2\u7ad9\u7684\u9801\u9996\u9801\u5c3e\u7b49\u6240\u6709\u74b0\u7bc0\u3002"
+			],
+			"Edit your site": [ "\u7de8\u8f2f\u7db2\u7ad9" ],
+			"The Payments block allows you to accept payments for one-time, monthly recurring, or annual payments on your website": [
+				"\u4ed8\u6b3e\u5340\u584a\u53ef\u8b93\u4f60\u5728\u7db2\u7ad9\u4e0a\u63a5\u53d7\u4e00\u6b21\u6027\u4ed8\u6b3e\u3001\u6bcf\u6708\u5b9a\u671f\u4ed8\u6b3e\u6216\u5e74\u7e73\u6b3e\u9805"
+			],
+			"Tour Media": [ "\u5c0e\u89bd\u5a92\u9ad4" ],
+			"Resume tour <span>(%1$d/%2$d)</span>": [
+				"\u7e7c\u7e8c\u5c0e\u89bd <span>(%1$d/%2$d)</span>"
+			],
+			"View your product": [ "\u6aa2\u8996\u5546\u54c1" ],
+			"Preview your product on your site before launching and sharing with others.": [
+				"\u5148\u5728\u7db2\u7ad9\u9810\u89bd\u5546\u54c1\uff0c\u518d\u63a8\u51fa\u4e26\u8207\u4ed6\u4eba\u5206\u4eab\u3002"
+			],
+			"You've added your first product!": [
+				"\u4f60\u65b0\u589e\u4e86\u7b2c\u4e00\u500b\u5546\u54c1\uff01"
+			],
+			"Pagination control": [ "\u5206\u9801\u63a7\u5236" ],
+			"Use List View to see all the blocks you've added. Click and drag any block to move it around.": [
+				"\u4f7f\u7528\u300c\u6e05\u55ae\u6aa2\u8996\u300d\u5373\u53ef\u67e5\u770b\u5df2\u65b0\u589e\u7684\u6240\u6709\u5340\u584a\u3002 \u82e5\u8981\u79fb\u52d5\u4efb\u4f55\u5340\u584a\uff0c\u53ea\u8981\u6309\u4e00\u4e0b\u4e26\u62d6\u66f3\u5373\u53ef\u3002"
+			],
+			"Find your way": [ "\u77ad\u89e3\u5982\u4f55\u4f7f\u7528" ],
+			"To move blocks around, tap the up and down arrows.": [
+				"\u82e5\u8981\u79fb\u52d5\u5340\u584a\uff0c\u8acb\u9ede\u9078\u5411\u4e0a\u53ca\u5411\u4e0b\u7bad\u982d\u3002"
+			],
+			"Tap the settings icon to see even more options.": [
+				"\u9ede\u9078\u8a2d\u5b9a\u5716\u793a\u4ee5\u67e5\u770b\u66f4\u591a\u9078\u9805\u3002"
+			],
+			"Tap + to open the inserter. Then tap the block you want to add.": [
+				"\u9ede\u9078\u300c+\u300d\u958b\u555f\u63d2\u5165\u5de5\u5177\u3002 \u7136\u5f8c\u9ede\u9078\u60f3\u8981\u65b0\u589e\u7684\u5340\u584a\u3002"
+			],
+			"View Post": [ "\u67e5\u770b\u6587\u7ae0" ],
+			"Congratulations! You did it. View your post to see how it will look on your site.": [
+				"\u606d\u559c\uff01 \u4f60\u6210\u529f\u4e86\u3002 \u67e5\u770b\u6587\u7ae0\u5728\u7db2\u7ad9\u4e0a\u5982\u4f55\u5448\u73fe\u3002"
+			],
+			"Your first post is published!": [ "\u4f60\u5df2\u767c\u8868\u9996\u7bc7\u6587\u7ae0\uff01" ],
+			"Resume Tour": [ "\u7e7c\u7e8c\u5c0e\u89bd" ],
+			"I'm not ready": [ "\u6211\u9084\u6c92\u6e96\u5099\u597d" ],
+			"Start writing": [ "\u958b\u59cb\u64b0\u5beb\u5167\u5bb9" ],
+			"It\u2019s time to flex those writing muscles and start drafting your first post!": [
+				"\u662f\u6642\u5019\u5c55\u73fe\u5beb\u4f5c\u5be6\u529b\u4e86\uff0c\u958b\u59cb\u70ba\u7b2c\u4e00\u7bc7\u6587\u7ae0\u64ec\u8349\u7a3f\u5427\uff01"
+			],
+			"Write your first post": [ "\u64b0\u5beb\u7b2c\u4e00\u7bc7\u6587\u7ae0" ],
+			"workaround\u0004Take this short, interactive tour to learn the fundamentals of the WordPress editor.": [
+				"\u53c3\u8207\u6b64\u4e92\u52d5\u5c0e\u89bd\u6559\u5b78\uff0c\u4ee5\u77ad\u89e3 WordPress \u7de8\u8f2f\u5668\u7684\u57fa\u672c\u77e5\u8b58\u3002"
+			],
+			"You've learned the basics. Remember, your site is private until you <link_to_launch_site_docs>decide to launch</link_to_launch_site_docs>. View the <link_to_editor_docs>block editing docs</link_to_editor_docs> to learn more.": [
+				"\u4f60\u73fe\u5728\u5df2\u5b78\u6703\u57fa\u672c\u77e5\u8b58\u3002 \u63d0\u9192\u4f60\uff0c\u5728\u4f60<link_to_launch_site_docs>\u6c7a\u5b9a\u63a8\u51fa\u7db2\u7ad9</link_to_launch_site_docs>\u4e4b\u524d\uff0c\u7db2\u7ad9\u4e0d\u6703\u516c\u958b\u3002 \u8acb\u67e5\u770b<link_to_editor_docs>\u5340\u584a\u7de8\u8f2f\u6587\u4ef6</link_to_editor_docs>\u77ad\u89e3\u8a73\u60c5\u3002"
+			],
+			"Restart tour": [ "\u91cd\u65b0\u958b\u59cb\u5c0e\u89bd" ],
+			"Did you find this guide helpful?": [
+				"\u89ba\u5f97\u9019\u4efd\u6307\u5357\u6709\u5e6b\u52a9\u55ce\uff1f"
+			],
+			"Rate thumbs down": [ "\u6309\u4e0d\u8b9a" ],
+			"Rate thumbs up": [ "\u6309\u8b9a" ],
+			"Close Tour": [ "\u7d50\u675f\u5c0e\u89bd" ],
+			"Minimize Tour": [ "\u5c07\u5c0e\u89bd\u7e2e\u5230\u6700\u5c0f" ],
+			"Next": [ "\u4e0b\u4e00\u500b" ],
+			"Skip": [ "\u7565\u904e" ],
+			"To move blocks around, click and drag the handle.": [
+				"\u6309\u4f4f\u79fb\u52d5\u5340\u57df\u4e0d\u653e\u4e26\u4e14\u62d6\u66f3\uff0c\u5373\u53ef\u642c\u79fb\u5340\u584a\u3002"
+			],
+			"Congratulations!": [ "\u606d\u559c\uff01" ],
+			"Drag & drop": [ "\u62d6\u66f3\uff0c\u7136\u5f8c\u653e\u958b" ],
+			"Undo any mistake": [ "\u5fa9\u539f\u4efb\u4f55\u932f\u8aa4" ],
+			"Click the settings icon to see even more options.": [
+				"\u6309\u4e00\u4e0b\u8a2d\u5b9a\u5716\u793a\u4ee5\u67e5\u770b\u66f4\u591a\u9078\u9805\u3002"
+			],
+			"More Options": [ "\u66f4\u591a\u9078\u9805" ],
+			"Use the toolbar to change the appearance of a selected block. Try making it bold.": [
+				"\u4f7f\u7528\u5de5\u5177\u5217\u8b8a\u66f4\u6240\u9078\u5340\u584a\u7684\u5916\u89c0\u3002 \u52a0\u7c97\u3002"
+			],
+			"Click a block to change it": [ "\u6309\u4e00\u4e0b\u5340\u584a\u9032\u884c\u8b8a\u66f4" ],
+			"Click + to open the inserter. Then click the block you want to add.": [
+				"\u6309\u4e00\u4e0b\u300c+\u300d\u958b\u555f\u63d2\u5165\u5de5\u5177\u3002 \u7136\u5f8c\u6309\u4e00\u4e0b\u4f60\u60f3\u8981\u65b0\u589e\u7684\u5340\u584a\u3002"
+			],
+			"Adding a new block": [ "\u65b0\u589e\u5340\u584a" ],
+			"In the WordPress Editor, paragraphs, images, and videos are all blocks.": [
+				"\u5728 WordPress \u7de8\u8f2f\u5668\u4e2d\uff0c\u6bb5\u843d\u3001\u5716\u7247\u548c\u5f71\u7247\u90fd\u662f\u5340\u584a\u3002"
+			],
+			"Everything is a block": [ "\u6240\u6709\u5143\u7d20\u90fd\u662f\u5340\u584a" ],
+			"workaround\u0004Welcome to WordPress!": [ "\u6b61\u8fce\u4f86\u5230 WordPress\uff01" ],
+			"Page %1$d of %2$d": [ "\u7b2c %1$d \u9801\uff0c\u5171 %2$d \u9801" ],
+			"Copy Link": [ "\u8907\u88fd\u9023\u7d50" ],
+			"Your site will remain hidden until launched. Click \u201cLaunch\u201d in the toolbar to share it with the world.": [
+				"\u4f60\u7684\u7db2\u7ad9\u6703\u5728\u63a8\u51fa\u524d\u4fdd\u6301\u96b1\u85cf\u3002 \u5728\u5de5\u5177\u5217\u6309\u4e00\u4e0b\u300c\u63a8\u51fa\u300d\u5373\u53ef\u8207\u5168\u4e16\u754c\u5206\u4eab\u7db2\u7ad9\u3002"
+			],
+			"Hidden until you\u2019re ready": [
+				"\u5728\u4f60\u6e96\u5099\u597d\u524d\u4fdd\u6301\u96b1\u85cf"
+			],
+			"As you edit your site content, click \u201cPreview\u201d to see your site the way your visitors will.": [
+				"\u7de8\u8f2f\u7db2\u7ad9\u5167\u5bb9\u6642\uff0c\u6309\u4e00\u4e0b\u300c\u9810\u89bd\u300d\u5373\u53ef\u4ee5\u8a2a\u5ba2\u7684\u89d2\u5ea6\u67e5\u770b\u81ea\u5df1\u7684\u7db2\u7ad9\u3002"
+			],
+			"Preview your site as you go": [ "\u96a8\u6642\u9810\u89bd\u7db2\u7ad9" ],
+			"Edit the placeholder content we\u2019ve started you off with, or click the plus sign to add more content.": [
+				"\u7de8\u8f2f\u6211\u5011\u8d77\u5148\u70ba\u4f60\u63d0\u4f9b\u7684\u9810\u7559\u4f4d\u7f6e\u5167\u5bb9\uff0c\u6216\u6309\u4e00\u4e0b\u52a0\u865f\u4ee5\u65b0\u589e\u66f4\u591a\u5167\u5bb9\u3002"
+			],
+			"Add or edit your content": [ "\u65b0\u589e\u6216\u7de8\u8f2f\u5167\u5bb9" ],
+			"Edit your homepage, add the pages you need, and change your site\u2019s look and feel.": [
+				"\u7de8\u8f2f\u4f60\u7684\u9996\u9801\uff0c\u65b0\u589e\u9700\u8981\u7684\u9801\u9762\u4e26\u8b8a\u66f4\u7db2\u7ad9\u7684\u5916\u89c0\u548c\u98a8\u683c\u3002"
+			],
+			"Welcome to your website": [ "\u6b61\u8fce\u4f86\u5230\u4f60\u7684\u7db2\u7ad9" ],
+			"Get started": [ "\u958b\u59cb\u4f7f\u7528" ],
+			"Tags": [ "\u6a19\u7c64" ],
+			"Back": [ "\u8fd4\u56de" ]
+		}
+	},
+	"comment": {
+		"reference": "wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js"
+	}
+}

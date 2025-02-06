@@ -5,7 +5,9 @@ import { useSelect } from '@wordpress/data';
 import { useEffect, useRef } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import clsx from 'clsx';
 import './editor.scss';
+import { languageToLocale } from '../../shared/locale';
 import { usePromptTags } from './use-prompt-tags';
 
 function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttributes } ) {
@@ -23,6 +25,7 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 		showLabel,
 		showResponses,
 		tagsAdded,
+		isBloganuary,
 	} = attributes;
 	const blockProps = useBlockProps( { className: 'jetpack-blogging-prompt' } );
 
@@ -91,21 +94,25 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 			path += `?after=--${ month }-${ day }&order=desc`;
 		}
 
-		path = addQueryArgs( path, { _locale: siteLanguage } );
-
+		path = addQueryArgs( path, {
+			_locale: siteLanguage,
+			force_year: new Date()?.getFullYear(),
+		} );
 		fetchingPromptRef.current = true;
 		apiFetch( { path } )
 			.then( prompts => {
 				const promptData = promptId ? prompts : prompts[ 0 ];
+				const locale = languageToLocale( siteLanguage );
 
 				setAttributes( {
-					answersLink: promptData.answered_link,
+					answersLink: promptData.answered_link + `?locale=${ locale }`,
 					answersLinkText: promptData.answered_link_text,
 					gravatars: promptData.answered_users_sample.map( ( { avatar } ) => ( { url: avatar } ) ),
 					promptFetched: true,
 					promptLabel: promptData.label,
 					promptText: promptData.text,
 					promptId: promptData.id,
+					isBloganuary: !! promptData.bloganuary_id,
 				} );
 			} )
 			.catch( error => {
@@ -139,23 +146,28 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 			<InspectorControls>
 				<PanelBody title={ _x( 'Settings', 'title of block settings sidebar section', 'jetpack' ) }>
 					<ToggleControl
-						label={ __( 'Show daily prompt label', 'jetpack' ) }
+						label={ __( 'Show prompt label', 'jetpack' ) }
 						checked={ showLabel }
 						onChange={ onShowLabelChange }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<ToggleControl
 						label={ __( 'Show other responses', 'jetpack' ) }
 						checked={ showResponses }
 						onChange={ onShowResponsesChange }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</PanelBody>
 			</InspectorControls>
 		</>
 	);
+	const labelClassnames = clsx( [ 'jetpack-blogging-prompt__label' ], {
+		'is-bloganuary-icon': isBloganuary,
+	} );
 
 	const renderPrompt = () => (
 		<>
-			{ showLabel && <div className="jetpack-blogging-prompt__label">{ promptLabel }</div> }
+			{ showLabel && <div className={ labelClassnames }>{ promptLabel }</div> }
 
 			<div className="jetpack-blogging-prompt__text">{ promptText }</div>
 

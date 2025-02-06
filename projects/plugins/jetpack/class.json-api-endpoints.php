@@ -6,7 +6,9 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 require_once __DIR__ . '/json-api-config.php';
 require_once __DIR__ . '/sal/class.json-api-links.php';
@@ -77,6 +79,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * Maximum version of the api for which to serve this endpoint
 	 *
 	 * @var string
+	 * @phan-suppress PhanUndeclaredConstant -- https://github.com/phan/phan/issues/4855
 	 */
 	public $max_version = WPCOM_JSON_API__CURRENT_VERSION;
 
@@ -98,6 +101,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * Version of the endpoint this endpoint is deprecated in favor of.
 	 *
 	 * @var string
+	 * @phan-suppress PhanUndeclaredConstant -- https://github.com/phan/phan/issues/4855
 	 */
 	protected $new_version = WPCOM_JSON_API__CURRENT_VERSION;
 
@@ -608,6 +612,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 						$next_type = array_shift( $types );
 						return $this->cast_and_filter_item( $return, $next_type, $key, $value, $types, $for_output );
 					}
+					if ( is_array( $value ) ) {
+						// Give up rather than setting the value to the string 'Array'.
+						break;
+					}
 				}
 				$return[ $key ] = (string) $value;
 				break;
@@ -765,6 +773,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 					'is_super_admin' => '(bool)',
 					'roles'          => '(array:string)',
 					'ip_address'     => '(string|false)',
+					'wpcom_id'       => '(int|null)',
+					'wpcom_login'    => '(string|null)',
 				);
 				$return[ $key ] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
 				break;
@@ -1080,7 +1090,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			<?php
 			$requires_auth = $wpdb->get_row( $wpdb->prepare( 'SELECT requires_authentication FROM rest_api_documentation WHERE `version` = %s AND `path` = %s AND `method` = %s LIMIT 1', $version, untrailingslashit( $doc['path_labeled'] ), $doc['method'] ) );
 			?>
-			<td class="type api-index-item-title"><?php echo ( true === (bool) $requires_auth->requires_authentication ? 'Yes' : 'No' ); ?></td>
+			<td class="type api-index-item-title"><?php echo ( ! empty( $requires_auth->requires_authentication ) ? 'Yes' : 'No' ); ?></td>
 		</tr>
 
 	</tbody>
@@ -1293,18 +1303,18 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		if ( 'inherit' === $post->post_status ) {
 			$parent_post     = get_post( $post->post_parent );
-			$post_status_obj = get_post_status_object( $parent_post->post_status );
+			$post_status_obj = get_post_status_object( $parent_post->post_status ?? $post->post_status );
 		} else {
 			$post_status_obj = get_post_status_object( $post->post_status );
 		}
 
-		if ( ! $post_status_obj->public ) {
+		if ( empty( $post_status_obj->public ) ) {
 			if ( is_user_logged_in() ) {
-				if ( $post_status_obj->protected ) {
+				if ( ! empty( $post_status_obj->protected ) ) {
 					if ( ! current_user_can( 'edit_post', $post->ID ) ) {
 						return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
 					}
-				} elseif ( $post_status_obj->private ) {
+				} elseif ( ! empty( $post_status_obj->private ) ) {
 					if ( ! current_user_can( 'read_post', $post->ID ) ) {
 						return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
 					}
@@ -1382,109 +1392,118 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$nice       = null;
 		$url        = null;
 		$ip_address = isset( $author->comment_author_IP ) ? $author->comment_author_IP : '';
+		$site_id    = -1;
 
 		if ( isset( $author->comment_author_email ) ) {
-			$id          = ( isset( $author->user_id ) && $author->user_id ) ? $author->user_id : 0;
-			$login       = '';
-			$email       = $author->comment_author_email;
-			$name        = $author->comment_author;
-			$first_name  = '';
-			$last_name   = '';
-			$url         = $author->comment_author_url;
-			$avatar_url  = $this->api->get_avatar_url( $author );
-			$profile_url = 'https://gravatar.com/' . md5( strtolower( trim( $email ) ) );
-			$nice        = '';
-			$site_id     = -1;
+			$id         = empty( $author->user_id ) ? 0 : (int) $author->user_id;
+			$login      = '';
+			$email      = $author->comment_author_email;
+			$name       = $author->comment_author;
+			$first_name = '';
+			$last_name  = '';
+			$url        = $author->comment_author_url;
+			$avatar_url = $this->api->get_avatar_url( $author );
+			$nice       = '';
+
+			// Add additional user data to the response if a valid user ID is available.
+			if ( 0 < $id ) {
+				$user = get_user_by( 'id', $id );
+				if ( $user instanceof WP_User ) {
+					$login      = $user->user_login ?? '';
+					$first_name = $user->first_name ?? '';
+					$last_name  = $user->last_name ?? '';
+					$nice       = $user->user_nicename ?? '';
+				} else {
+					trigger_error( 'Unknown user', E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+				}
+			}
 
 			// Comment author URLs and Emails are sent through wp_kses() on save, which replaces "&" with "&amp;"
 			// "&" is the only email/URL character altered by wp_kses().
 			foreach ( array( 'email', 'url' ) as $field ) {
 				$$field = str_replace( '&amp;', '&', $$field );
 			}
-		} else {
-			if ( $author instanceof WP_User || isset( $author->user_email ) ) {
-				$author = $author->ID;
-			} elseif ( isset( $author->user_id ) && $author->user_id ) {
-				$author = $author->user_id;
-			} elseif ( isset( $author->post_author ) ) {
-				// then $author is a Post Object.
-				if ( ! $author->post_author ) {
-					return null;
-				}
-				/**
-				 * Filter whether the current site is a Jetpack site.
-				 *
-				 * @module json-api
-				 *
-				 * @since 3.3.0
-				 *
-				 * @param bool false Is the current site a Jetpack site. Default to false.
-				 * @param int get_current_blog_id() Blog ID.
-				 */
-				$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
-				$post_id    = $author->ID;
-				if ( $is_jetpack && ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
-					$id         = get_post_meta( $post_id, '_jetpack_post_author_external_id', true );
-					$email      = get_post_meta( $post_id, '_jetpack_author_email', true );
-					$login      = '';
-					$name       = get_post_meta( $post_id, '_jetpack_author', true );
-					$first_name = '';
-					$last_name  = '';
-					$url        = '';
-					$nice       = '';
-				} else {
-					$author = $author->post_author;
-				}
+		} elseif ( $author instanceof WP_User || isset( $author->user_email ) ) {
+			$author = $author->ID;
+		} elseif ( isset( $author->user_id ) && $author->user_id ) {
+			$author = $author->user_id;
+		} elseif ( isset( $author->post_author ) ) {
+			// then $author is a Post Object.
+			if ( ! $author->post_author ) {
+				return null;
 			}
-
-			if ( ! isset( $id ) ) {
-				$user = get_user_by( 'id', $author );
-				if ( ! $user || is_wp_error( $user ) ) {
-					trigger_error( 'Unknown user', E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-
-					return null;
-				}
-				$id         = $user->ID;
-				$email      = $user->user_email;
-				$login      = $user->user_login;
-				$name       = $user->display_name;
-				$first_name = $user->first_name;
-				$last_name  = $user->last_name;
-				$url        = $user->user_url;
-				$nice       = $user->user_nicename;
-			}
-			if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack ) {
-				$site_id = -1;
-
-				/**
-				 * Allow customizing the blog ID returned with the author in WordPress.com REST API queries.
-				 *
-				 * @since 12.9
-				 *
-				 * @module json-api
-				 *
-				 * @param bool|int $active_blog  Blog ID, or false by default.
-				 * @param int      $id           User ID.
-				 */
-				$active_blog = apply_filters( 'wpcom_api_pre_get_active_blog_author', false, $id );
-				if ( false === $active_blog ) {
-					$active_blog = get_active_blog_for_user( $id );
-				}
-				if ( ! empty( $active_blog ) ) {
-					$site_id = $active_blog->blog_id;
-				}
-				if ( $site_id > -1 ) {
-					$site_visible = (
-						-1 !== (int) $active_blog->public ||
-						is_private_blog_user( $site_id, get_current_user_id() )
-					);
-				}
-				$profile_url = "https://gravatar.com/{$login}";
+			/**
+			 * Filter whether the current site is a Jetpack site.
+			 *
+			 * @module json-api
+			 *
+			 * @since 3.3.0
+			 *
+			 * @param bool false Is the current site a Jetpack site. Default to false.
+			 * @param int get_current_blog_id() Blog ID.
+			 */
+			$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
+			$post_id    = $author->ID;
+			if ( $is_jetpack && ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+				$id         = get_post_meta( $post_id, '_jetpack_post_author_external_id', true );
+				$email      = get_post_meta( $post_id, '_jetpack_author_email', true );
+				$login      = '';
+				$name       = get_post_meta( $post_id, '_jetpack_author', true );
+				$first_name = '';
+				$last_name  = '';
+				$url        = '';
+				$nice       = '';
 			} else {
-				$profile_url = 'https://gravatar.com/' . md5( strtolower( trim( $email ) ) );
-				$site_id     = -1;
+				$author = $author->post_author;
 			}
+		}
 
+		if ( ! isset( $id ) ) {
+			$user = get_user_by( 'id', $author );
+			if ( ! $user || is_wp_error( $user ) ) {
+				trigger_error( 'Unknown user', E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+
+				return null;
+			}
+			$id         = $user->ID;
+			$email      = $user->user_email;
+			$login      = $user->user_login;
+			$name       = $user->display_name;
+			$first_name = $user->first_name;
+			$last_name  = $user->last_name;
+			$url        = $user->user_url;
+			$nice       = $user->user_nicename;
+		}
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack ) {
+			/**
+			 * Allow customizing the blog ID returned with the author in WordPress.com REST API queries.
+			 *
+			 * @since 12.9
+			 *
+			 * @module json-api
+			 *
+			 * @param bool|int $active_blog  Blog ID, or false by default.
+			 * @param int      $id           User ID.
+			 */
+			$active_blog = apply_filters( 'wpcom_api_pre_get_active_blog_author', false, $id );
+			if ( false === $active_blog ) {
+				$active_blog = get_active_blog_for_user( $id );
+			}
+			if ( ! empty( $active_blog ) ) {
+				$site_id = $active_blog->blog_id;
+			}
+			if ( $site_id > - 1 ) {
+				$site_visible = (
+					- 1 !== (int) $active_blog->public ||
+					is_private_blog_user( $site_id, get_current_user_id() )
+				);
+			}
+			$profile_url = "https://gravatar.com/{$login}";
+		} else {
+			$profile_url = 'https://gravatar.com/' . md5( strtolower( trim( $email ) ) );
+		}
+
+		if ( ! isset( $avatar_url ) ) {
 			$avatar_url = $this->api->get_avatar_url( $email );
 		}
 
@@ -1513,6 +1532,24 @@ abstract class WPCOM_JSON_API_Endpoint {
 		if ( $site_id > -1 ) {
 			$author['site_ID']      = (int) $site_id;
 			$author['site_visible'] = $site_visible;
+		}
+
+		// Only include WordPress.com user data when author_wpcom_data is enabled.
+		$args = $this->query_args();
+
+		if ( ! empty( $id ) && ! empty( $args['author_wpcom_data'] ) ) {
+			if ( ( new Host() )->is_wpcom_simple() ) {
+				$user                  = get_user_by( 'id', $id );
+				$author['wpcom_id']    = isset( $user->ID ) ? (int) $user->ID : null;
+				$author['wpcom_login'] = $user->user_login ?? '';
+			} else {
+				// If this is a Jetpack site, use the connection manager to get the user data.
+				$wpcom_user_data = ( new Manager() )->get_connected_user_data( $id );
+				if ( $wpcom_user_data && isset( $wpcom_user_data['ID'] ) ) {
+					$author['wpcom_id']    = (int) $wpcom_user_data['ID'];
+					$author['wpcom_login'] = $wpcom_user_data['login'] ?? '';
+				}
+			}
 		}
 
 		return (object) $author;
@@ -1733,7 +1770,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				}
 
 				$thumbnail_query_data = array();
-				if ( function_exists( 'video_is_private' ) && video_is_private( $info ) ) {
+				if ( ! empty( $info ) && function_exists( 'video_is_private' ) && video_is_private( $info ) ) {
 					$thumbnail_query_data['metadata_token'] = video_generate_auth_token( $info );
 				}
 
@@ -1880,9 +1917,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * relative to now and will convert it to local time using either the
 	 * timezone set in the options table for the blog or the GMT offset.
 	 *
-	 * @param datetime string $date_string Date to parse.
+	 * @param string $date_string Date to parse.
 	 *
-	 * @return array( $local_time_string, $gmt_time_string )
+	 * @return array{string,string} ( $local_time_string, $gmt_time_string )
 	 */
 	public function parse_date( $date_string ) {
 		$date_string_info = date_parse( $date_string );
@@ -2248,6 +2285,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 				if ( ! $user_can_upload_files ) {
 					$media_id = new WP_Error( 'unauthorized', 'User cannot upload media.', 403 );
+				} elseif ( ! is_array( $media_item ) ) {
+					$media_id   = new WP_Error( 'invalid_input', 'Unable to process request.', 400 );
+					$media_item = array(
+						'name' => 'invalid_file',
+					);
 				} elseif ( $this->media_item_is_free_video_mobile_upload_and_too_long( $media_item ) ) {
 					$media_id = new WP_Error( 'upload_video_length', 'Video uploads longer than 5 minutes require a paid plan.', 400 );
 				} else {
@@ -2592,8 +2634,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 		 */
 		if ( function_exists( 'idn_to_utf8' ) ) {
 			// The third parameter is set explicitly to prevent issues with newer PHP versions compiled with an old ICU version.
-			// phpcs:ignore PHPCompatibility.Constants.RemovedConstants.intl_idna_variant_2003Deprecated, PHPCompatibility.Constants.RemovedConstants.intl_idna_variant_2003DeprecatedRemoved
-			$host = idn_to_utf8( $host, IDNA_DEFAULT, defined( 'INTL_IDNA_VARIANT_UTS46' ) ? INTL_IDNA_VARIANT_UTS46 : INTL_IDNA_VARIANT_2003 );
+			$variant = defined( 'INTL_IDNA_VARIANT_UTS46' )
+				? INTL_IDNA_VARIANT_UTS46
+				// phpcs:ignore PHPCompatibility.Constants.RemovedConstants.intl_idna_variant_2003Deprecated, PHPCompatibility.Constants.RemovedConstants.intl_idna_variant_2003DeprecatedRemoved
+				: INTL_IDNA_VARIANT_2003; // @phan-suppress-current-line PhanUndeclaredConstant
+			$host = idn_to_utf8( $host, IDNA_DEFAULT, $variant );
 		}
 		$subdomain = str_replace( array( '-', '.' ), array( '--', '-' ), $host );
 		return array(

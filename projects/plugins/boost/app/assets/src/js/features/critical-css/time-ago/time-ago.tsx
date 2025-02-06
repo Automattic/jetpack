@@ -1,9 +1,11 @@
-// This Component shows a span with the given time (Date) as a relative time in
-// the past. Mouseover to show the exact time.
 import describeTimeAgo from '$lib/utils/describe-time-ago';
 import { useEffect, useState } from 'react';
 
-const TimeAgo = ( { time } ) => {
+type Props = {
+	time: Date;
+};
+
+const TimeAgo = ( { time }: Props ) => {
 	const [ label, setLabel ] = useState( describeTimeAgo( time ) );
 
 	useEffect( () => {

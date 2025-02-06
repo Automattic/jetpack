@@ -2,6 +2,7 @@
 namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Stats_Admin\Test_Case as Stats_Test_Case;
+use ReflectionProperty;
 
 /**
  * Unit tests for the Dashbaord class.
@@ -14,11 +15,10 @@ class Test_Dashboard extends Stats_Test_Case {
 	 */
 	public function test_init_sets_initialized() {
 		Dashboard::init();
-		$get_initialized           = function () {
-			return static::$initialized;
-		};
-		$get_dashboard_initialized = $get_initialized->bindTo( null, Dashboard::class );
-		$this->assertTrue( $get_dashboard_initialized() );
+
+		$rp = new ReflectionProperty( Dashboard::class, 'initialized' );
+		$rp->setAccessible( true );
+		$this->assertTrue( $rp->getValue() );
 	}
 
 	/**

@@ -9,29 +9,33 @@
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-config": "@dev",
-		"automattic/jetpack-identity-crisis": "@dev",
 		"automattic/jetpack-publicize": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-my-jetpack": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-status": "@dev",
-		"automattic/jetpack-plans": "@dev"
+		"automattic/jetpack-plans": "@dev",
+		"automattic/jetpack-post-list": "@dev"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "0.4.2",
-		"yoast/phpunit-polyfills": "1.1.0",
-		"brain/monkey": "2.6.1"
+		"automattic/jetpack-test-environment": "@dev",
+		"yoast/phpunit-polyfills": "^1.1.1",
+		"brain/monkey": "^2.6.2"
 	},
 	"autoload": {
 		"classmap": [
 			"src/"
+		],
+		"files": [
+			"src/utils.php"
 		]
 	},
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
+		"test-coverage": "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'",
 		"test-php": [
 			"@composer phpunit"
 		],
@@ -47,9 +51,7 @@
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
-		],
-		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+		]
 	},
 	"repositories": [
 		{
@@ -81,6 +83,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_socialⓥ4_0_0_alpha"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_socialⓥ6_1_0"
 	}
 }

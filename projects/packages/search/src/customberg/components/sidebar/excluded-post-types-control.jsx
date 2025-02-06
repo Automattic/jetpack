@@ -4,19 +4,17 @@ import { __ } from '@wordpress/i18n';
 
 import './excluded-post-types-control.scss';
 
-/* eslint-disable react/jsx-no-bind */
-
-const VALID_POST_TYPES = global.JetpackInstantSearchOptions.postTypes;
+const VALID_POST_TYPES = window.JetpackInstantSearchOptions.postTypes;
 
 /**
  * Control for modifying excluded post types.
  *
- * @param {object} props - component properties.
- * @param {boolean} props.disabled - disables the control.
- * @param {Function} props.onChange - invoked with new array of excluded post types when the selection has been updated.
- * @param {object} props.validPostTypes - { [ postTypeId ]: { name: string, singular_name: string } }.
- * @param {string} props.value - excluded post types as a CSV.
- * @returns {Element} component instance
+ * @param {object}   props                - component properties.
+ * @param {boolean}  props.disabled       - disables the control.
+ * @param {Function} props.onChange       - invoked with new array of excluded post types when the selection has been updated.
+ * @param {object}   props.validPostTypes - { [ postTypeId ]: { name: string, singular_name: string } }.
+ * @param {string}   props.value          - excluded post types as a CSV.
+ * @return {Element} component instance
  */
 export default function ExcludedPostTypesControl( {
 	disabled,
@@ -58,6 +56,7 @@ export default function ExcludedPostTypesControl( {
 					label={ VALID_POST_TYPES[ type ].name }
 					onChange={ changeHandler( type ) }
 					value={ type }
+					__nextHasNoMarginBottom={ true }
 				/>
 			) ) }
 		</div>

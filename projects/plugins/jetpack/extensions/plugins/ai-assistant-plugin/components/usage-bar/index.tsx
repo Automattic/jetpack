@@ -1,15 +1,21 @@
 /**
  * External dependencies
  */
+import { LoadingPlaceholder } from '@automattic/jetpack-components';
+import {
+	PLAN_TYPE_FREE,
+	PLAN_TYPE_TIERED,
+	PLAN_TYPE_UNLIMITED,
+} from '@automattic/jetpack-shared-extension-utils';
 import { BaseControl } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 /**
  * Internal dependencies
  */
 import './style.scss';
-import { PLAN_TYPE_FREE, PLAN_TYPE_TIERED, PLAN_TYPE_UNLIMITED } from './types';
 /**
  * Types
  */
@@ -19,29 +25,27 @@ import type { UsageBarProps, UsageControlProps } from './types';
  * UsageBar component
  *
  * @param {UsageBarProps} props - Component props.
- * @returns {React.ReactNode}     UsageBar react component.
+ * @return {React.ReactNode}     UsageBar react component.
  */
-export const UsageBar: React.FC< UsageBarProps > = ( {
-	usage,
-	limitReached,
-	requireUpgrade = false,
-}: UsageBarProps ): React.ReactNode => {
+export const UsageBar = ( { usage }: UsageBarProps ): React.JSX.Element => {
 	if ( usage == null ) {
 		return null;
 	}
 
 	const normalizedUsage = Math.max( Math.min( usage, 1 ), 0 );
+	const used = normalizedUsage * 100;
+	const missing = 100 - used;
 
 	const style = {
-		width: `${ normalizedUsage * 100 }%`,
+		width: `${ missing }%`,
 	};
 
 	return (
 		<div className="ai-assistant-usage-bar-wrapper">
 			<div
-				className={ classNames( 'ai-assistant-usage-bar-usage', {
-					'is-limit-reached': limitReached,
-					'require-upgrade': requireUpgrade,
+				className={ clsx( 'ai-assistant-usage-bar-usage', {
+					warning: missing < 60 && missing > 20,
+					danger: missing <= 20,
 				} ) }
 				style={ style }
 			></div>
@@ -54,14 +58,20 @@ function UsageControl( {
 	planType,
 	requestsCount,
 	requestsLimit,
-	daysUntilReset = null,
-	requireUpgrade = false,
+	nextResetDate = null,
+	loading = false,
 }: UsageControlProps ) {
 	// Trust on the isOverLimit flag, but also do a local check
 	const limitReached = isOverLimit || requestsCount >= requestsLimit;
 
+	// Days until the next reset message
+	let daysUntilResetMessage = null;
+
 	// The message we may want to show.
 	const helpMessages = Array< string >();
+
+	// Available requests (avoid negative values)
+	const availableRequests = Math.max( 0, requestsLimit - requestsCount );
 
 	if ( limitReached && planType === PLAN_TYPE_FREE ) {
 		helpMessages.push( __( "You've reached your free requests limit.", 'jetpack' ) );
@@ -71,46 +81,50 @@ function UsageControl( {
 		helpMessages.push( __( "You've reached your plan requests limit.", 'jetpack' ) );
 	}
 
-	if ( daysUntilReset && planType === PLAN_TYPE_TIERED ) {
-		const daysUntilResetMessage = sprintf(
-			// translators: %1$d: number of days until the next usage count reset
-			__( 'Requests will reset in %1$d days.', 'jetpack' ),
-			daysUntilReset
+	if ( nextResetDate && planType === PLAN_TYPE_TIERED ) {
+		daysUntilResetMessage = createInterpolateElement(
+			sprintf(
+				// translators: %1$d: number of days until the next usage count reset
+				__( 'Requests will reset to <strong>%1$d</strong> on %2$s.', 'jetpack' ),
+				requestsLimit,
+				nextResetDate
+			),
+			{
+				strong: <strong />,
+			}
 		);
-		helpMessages.push( daysUntilResetMessage );
 	}
 
 	const usage = requestsCount / requestsLimit;
 
-	return (
-		<BaseControl
-			help={ helpMessages.length ? helpMessages.join( ' ' ) : null }
-			label={ __( 'Usage', 'jetpack' ) }
-		>
-			{ planType === PLAN_TYPE_FREE && (
-				<p>
-					{ sprintf(
-						// translators: %1$d: current request counter; %2$d: request allowance;
-						__( '%1$d / %2$d free requests.', 'jetpack' ),
-						requestsCount,
-						requestsLimit
-					) }
-				</p>
-			) }
-			{ planType === PLAN_TYPE_TIERED && (
-				<p>
-					{ sprintf(
-						// translators: %1$d: current request counter; %2$d: request allowance;
-						__( '%1$d / %2$d requests.', 'jetpack' ),
-						requestsCount,
-						requestsLimit
-					) }
-				</p>
-			) }
+	const usageDisplay = (
+		<>
 			{ planType === PLAN_TYPE_UNLIMITED && <p>{ __( 'Unlimited requests.', 'jetpack' ) }</p> }
 			{ ( planType === PLAN_TYPE_FREE || planType === PLAN_TYPE_TIERED ) && (
-				<UsageBar usage={ usage } limitReached={ limitReached } requireUpgrade={ requireUpgrade } />
+				<>
+					<p className="jetpack-ai-usage-panel__available-requests">{ availableRequests }</p>
+					<UsageBar usage={ usage } />
+				</>
 			) }
+		</>
+	);
+
+	const loadingPlaceholder = (
+		<LoadingPlaceholder height={ 100 } className="jetpack-ai-usage-panel__loading-placeholder" />
+	);
+
+	const help = (
+		<>
+			{ ! loading && helpMessages.length ? helpMessages.join( ' ' ).concat( ' ' ) : null }
+			{ ! loading && daysUntilResetMessage }
+		</>
+	);
+
+	return (
+		<BaseControl __nextHasNoMarginBottom={ true } help={ help }>
+			<BaseControl.VisualLabel>{ __( 'Available Requests', 'jetpack' ) }</BaseControl.VisualLabel>
+			{ ! loading && usageDisplay }
+			{ loading && loadingPlaceholder }
 		</BaseControl>
 	);
 }

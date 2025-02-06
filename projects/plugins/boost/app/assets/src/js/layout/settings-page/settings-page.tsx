@@ -1,56 +1,48 @@
 import SpeedScore from '$features/speed-score/speed-score';
 import Footer from '$layout/footer/footer';
 import Header from '$layout/header/header';
-import { criticalCssStateCreated, isGenerating } from '$features/critical-css';
 import Support from './support/support';
 import Tips from './tips/tips';
-import { useEffect, useState } from 'react';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import styles from './settings-page.module.scss';
-import { usePremiumFeatures } from '../../pages/index/lib/hooks';
+import { usePremiumFeatures } from '$lib/stores/premium-features';
+import CriticalCssProvider from '$features/critical-css/critical-css-context/critical-css-context-provider';
+import NoticeManager from '$features/notice/manager';
+import { NoticeProvider } from '$features/notice/context';
 
 type SettingsPageProps = {
 	children: React.ReactNode;
 };
 
 const SettingsPage = ( { children }: SettingsPageProps ) => {
-	const [ isGeneratingValue, setIsGeneratingValue ] = useState( false );
 	const premiumFeatures = usePremiumFeatures();
-	const hasPrioritySupport = premiumFeatures?.includes( 'support' );
-
-	useEffect( () => {
-		const unsubscribe = isGenerating.subscribe( value => {
-			setIsGeneratingValue( value );
-		} );
-
-		return () => {
-			unsubscribe();
-		};
-	}, [] );
+	const hasPrioritySupport = premiumFeatures && premiumFeatures.includes( 'support' );
 
 	return (
-		<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
-			<Header />
+		<NoticeProvider>
+			<CriticalCssProvider>
+				<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
+					<Header />
 
-			<div className="jb-section jb-section--alt jb-section--scores">
-				<SpeedScore
-					criticalCssCreated={ criticalCssStateCreated }
-					criticalCssIsGenerating={ isGeneratingValue }
-				/>
-			</div>
+					<div className="jb-section jb-section--alt jb-section--scores">
+						<SpeedScore />
+					</div>
 
-			{ children && (
-				<div className={ classNames( 'jb-section jb-section--main', styles.section ) }>
-					{ children }
+					{ children && (
+						<div className={ clsx( 'jb-section jb-section--main', styles.section ) }>
+							{ children }
+						</div>
+					) }
+
+					<Tips />
+
+					{ hasPrioritySupport && <Support /> }
+
+					<Footer />
+					<NoticeManager />
 				</div>
-			) }
-
-			<Tips />
-
-			{ hasPrioritySupport && <Support /> }
-
-			<Footer />
-		</div>
+			</CriticalCssProvider>
+		</NoticeProvider>
 	);
 };
 

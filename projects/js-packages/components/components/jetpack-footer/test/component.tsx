@@ -89,9 +89,10 @@ describe( 'JetpackFooter', () => {
 
 		it( 'should render the links', () => {
 			render( <JetpackFooter menu={ menu } /> );
+			const externalLinkLabel = menu[ 1 ].label + ' (opens in a new tab)';
 
 			const link = screen.getByRole( 'link', { name: menu[ 0 ].label } );
-			const externalLink = screen.getByRole( 'link', { name: menu[ 1 ].label } );
+			const externalLink = screen.getByRole( 'link', { name: externalLinkLabel } );
 			const button = screen.getByRole( 'button', { name: menu[ 2 ].label } );
 
 			expect( link ).toBeInTheDocument();

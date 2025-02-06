@@ -9,9 +9,9 @@ if ( ! function_exists( 'jetpack_site_icon_url' ) ) :
 	/**
 	 * Returns the Jetpack Site Icon URL.
 	 *
-	 * @param null|int $blog_id Blog ID.
-	 * @param string   $size Site icon size in pixels.
-	 * @param bool     $default If value from `SITE_ICON_DEFAULT_URL` should be used if no site icon is provided.
+	 * @param null|int     $blog_id Blog ID.
+	 * @param string       $size Site icon size in pixels.
+	 * @param string|false $default Default to use. If false and `SITE_ICON_DEFAULT_URL` is defined, that will be used.
 	 *
 	 * @return false|string URL of site icon, or false if none.
 	 */
@@ -27,6 +27,7 @@ if ( ! function_exists( 'jetpack_site_icon_url' ) ) :
 		}
 		if ( ! $site_icon_id ) {
 			if ( false === $default && defined( 'SITE_ICON_DEFAULT_URL' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredConstant -- Checked above. See also https://github.com/phan/phan/issues/1204.
 				$url = SITE_ICON_DEFAULT_URL;
 			} else {
 				$url = $default;

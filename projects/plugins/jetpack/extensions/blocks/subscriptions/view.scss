@@ -1,9 +1,6 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
-
 @function x($var-name, $fallback) {
 	@return unquote("var(#{$var-name}, #{$fallback})");
 }
-
 
 .is-style-compact {
 	.is-not-subscriber {
@@ -32,8 +29,7 @@
 		flex-direction: column;
 	}
 
-	&:not(.wp-block-jetpack-subscriptions__use-newline) 
-	{
+	&:not(.wp-block-jetpack-subscriptions__use-newline) {
 		.is-not-subscriber {
 			.wp-block-jetpack-subscriptions__form-elements {
 				display: flex;
@@ -47,7 +43,7 @@
 	}
 
 	.wp-block-jetpack-subscriptions__form,
-	form  {
+	form {
 		.wp-block-jetpack-subscriptions__textfield .components-text-control__input,
 		.wp-block-jetpack-subscriptions__button,
 		input[type="email"],
@@ -64,7 +60,13 @@
 			cursor: pointer;
 		}
 
-		input[type="email"]::placeholder {
+		// Prevent white-space issues on Firefox
+		.wp-block-jetpack-subscriptions__button[contenteditable="true"] {
+			white-space: pre-wrap !important;
+		}
+
+		input[type="email"]::placeholder,
+		input[type="email"]:disabled {
 			color: currentColor;
 			opacity: .5;
 		}
@@ -91,6 +93,8 @@
 		p#subscribe-submit,
 		p#subscribe-email {
 			margin: 0;
+			padding: 0;
+			line-height: 0;
 		}
 	}
 
@@ -116,5 +120,16 @@
 		.wp-block-jetpack-subscriptions__subscount {
 			text-align: start;
 		}
+	}
+}
+
+#subscribe-submit.is-link {
+	text-align: center;
+	width: auto !important;
+
+	a {
+		width: auto !important;
+		margin-left: 0 !important;
+		margin-top: 0 !important;
 	}
 }

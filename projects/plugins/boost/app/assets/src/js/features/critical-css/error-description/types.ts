@@ -1,4 +1,4 @@
-import { type ErrorSet } from '../lib/stores/critical-css-state-errors';
+import { type ErrorSet } from '../lib/critical-css-errors';
 
 export type CriticalCssErrorDescriptionTypes = {
 	errorSet: ErrorSet;

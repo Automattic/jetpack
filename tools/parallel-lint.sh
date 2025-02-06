@@ -44,13 +44,6 @@ if $ALL; then
 		fi
 	done < <( jq -r '.require.php // "" | capture( "^(?<op>>=)(?<ver>[0-9][0-9.]*)$" ) | [ input_filename, .op, .ver ] | @tsv' ./projects/*/*/composer.json )
 
-	# Plugins requirng PHP 7.4 or later.
-	# @todo Add `.require.php` in their composer.json and remove this.
-	if php -r 'exit( PHP_VERSION_ID < 70400 ? 0 : 1 );'; then
-		SKIPS+=( -o -path ./projects/plugins/inspect )
-		SKIPS+=( -o -path ./projects/plugins/crm )
-	fi
-
 	find . \( \
 		-name .git \
 		-o -name vendor \
@@ -59,6 +52,7 @@ if $ALL; then
 		-o -name wordpress-develop \
 		-o -name node_modules \
 		-o -path ./tools/docker/data \
+		-o -path '*/.phan/stubs' \
 		"${SKIPS[@]}" \
 	\) -prune -o -name '*.php' -print | vendor/bin/parallel-lint --stdin "${ARGS[@]}"
 else

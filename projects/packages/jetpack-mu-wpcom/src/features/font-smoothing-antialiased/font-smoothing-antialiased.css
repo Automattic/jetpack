@@ -1,0 +1,10 @@
+@media (-webkit-min-device-pixel-ratio: 1.25), (min-resolution: 120dpi) {
+	body.font-smoothing-antialiased,
+	/** Overriding an existing core WP rule so the ID selector is necessary */
+	body.font-smoothing-antialiased #wpwrap,
+	body.font-smoothing-antialiased #wpadminbar * {
+		text-rendering: optimizeLegibility;
+		-moz-osx-font-smoothing: grayscale;
+		-webkit-font-smoothing: antialiased;
+	}
+}

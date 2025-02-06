@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
+import { __ } from '@wordpress/i18n';
 
 function RecipeEdit( { className } ) {
 	const RECIPE_TEMPLATE = [
@@ -10,7 +11,7 @@ function RecipeEdit( { className } ) {
 			'core/heading',
 			{
 				level: 2,
-				placeholder: 'Recipe Title',
+				placeholder: __( 'Recipe Title', 'jetpack' ),
 				className: 'wp-block-jetpack-recipe-title',
 			},
 		],
@@ -25,7 +26,7 @@ function RecipeEdit( { className } ) {
 		[
 			'core/paragraph',
 			{
-				placeholder: 'Recipe Description',
+				placeholder: __( 'Recipe Description', 'jetpack' ),
 				className: 'wp-block-jetpack-recipe-description',
 			},
 		],
@@ -44,7 +45,8 @@ function RecipeEdit( { className } ) {
 							'core/heading',
 							{
 								level: 3,
-								content: 'Ingredients',
+								// translators: Ingredients heading for a recipe block.
+								content: __( 'Ingredients', 'jetpack' ),
 							},
 						],
 						[ 'jetpack/recipe-ingredients-list' ],
@@ -60,7 +62,8 @@ function RecipeEdit( { className } ) {
 							'core/heading',
 							{
 								level: 3,
-								content: 'Instructions',
+								// translators: Instructions heading for a recipe block.
+								content: __( 'Instructions', 'jetpack' ),
 							},
 						],
 						[ 'jetpack/recipe-steps' ],

@@ -1,8 +1,8 @@
-import classnames from 'classnames';
-import Gridicon from 'components/gridicon';
+import clsx from 'clsx';
 import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
+import Gridicon from 'components/gridicon';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 
 import './style.scss';
@@ -93,7 +93,7 @@ export default class SimpleNotice extends React.Component {
 			dismissText,
 			display,
 		} = this.props;
-		const classes = classnames( 'dops-notice', status, className, {
+		const classes = clsx( 'dops-notice', status, className, {
 			'is-compact': isCompact,
 			'is-dismissable': showDismiss,
 			'is-hidden': ! display,

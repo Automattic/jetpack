@@ -1,0 +1,25 @@
+.badge {
+	display: inline-block;
+	border-radius: 4px;
+	background-color: var(--jp-gray-0);
+	color: var(--jp-gray-80);
+	padding: 4px 8px;
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 16px;
+
+	&.is-success {
+		background-color: var(--jp-green-5);
+		color: var(--jp-green-50);
+	}
+
+    &.is-warning {
+		background-color: var(--jp-yellow-5);
+		color: var(--jp-yellow-60);
+	}
+
+    &.is-danger {
+		background-color: var(--jp-red-5);
+		color: var(--jp-red-70);
+	}
+}

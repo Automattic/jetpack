@@ -8,7 +8,7 @@ import { usePostStartedPublishing } from '../../hooks/use-saving-post';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import ReviewPrompt from '../review-prompt';
 
-const PostPublishReviewPropmpt = () => {
+const PostPublishReviewPrompt = () => {
 	const [ isReviewRequestDismissed, setIsReviewRequestDismissed ] = useState(
 		getJetpackData()?.social?.reviewRequestDismissed ?? true
 	);
@@ -54,4 +54,4 @@ const PostPublishReviewPropmpt = () => {
 	);
 };
 
-export default PostPublishReviewPropmpt;
+export default PostPublishReviewPrompt;

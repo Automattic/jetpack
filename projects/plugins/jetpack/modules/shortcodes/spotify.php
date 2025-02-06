@@ -23,6 +23,9 @@ if ( ! shortcode_exists( 'spotify' ) ) {
  * @return string
  */
 function jetpack_spotify_shortcode( $atts = array(), $content = '' ) {
+	if ( ! is_array( $atts ) ) {
+		$atts = array();
+	}
 
 	if ( ! empty( $content ) ) {
 		$id = $content;

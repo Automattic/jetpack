@@ -1,15 +1,15 @@
 import { Button, Text } from '@automattic/jetpack-components';
-import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { STORE_ID } from '../../state/store';
+import useFixers from '../../hooks/use-fixers';
+import useModal from '../../hooks/use-modal';
 import CredentialsGate from '../credentials-gate';
 import ThreatFixHeader from '../threat-fix-header';
 import UserConnectionGate from '../user-connection-gate';
 import styles from './styles.module.scss';
 
 const FixThreatModal = ( { id, fixable, label, icon, severity } ) => {
-	const { setModal, fixThreats } = useDispatch( STORE_ID );
-	const threatsUpdating = useSelect( select => select( STORE_ID ).getThreatsUpdating() );
+	const { setModal } = useModal();
+	const { fixThreats, isLoading: isFixersLoading } = useFixers();
 
 	const handleCancelClick = () => {
 		return event => {
@@ -21,9 +21,8 @@ const FixThreatModal = ( { id, fixable, label, icon, severity } ) => {
 	const handleFixClick = () => {
 		return async event => {
 			event.preventDefault();
-			fixThreats( [ id ], () => {
-				setModal( { type: null } );
-			} );
+			await fixThreats( [ id ] );
+			setModal( { type: null } );
 		};
 	};
 
@@ -48,10 +47,7 @@ const FixThreatModal = ( { id, fixable, label, icon, severity } ) => {
 					<Button variant="secondary" onClick={ handleCancelClick() }>
 						{ __( 'Cancel', 'jetpack-protect' ) }
 					</Button>
-					<Button
-						isLoading={ Boolean( threatsUpdating && threatsUpdating[ id ] ) }
-						onClick={ handleFixClick() }
-					>
+					<Button isLoading={ isFixersLoading } onClick={ handleFixClick() }>
 						{ __( 'Fix threat', 'jetpack-protect' ) }
 					</Button>
 				</div>

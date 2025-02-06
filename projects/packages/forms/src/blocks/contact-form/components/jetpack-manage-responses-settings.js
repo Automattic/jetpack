@@ -2,7 +2,6 @@ import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { get } from 'lodash';
-import React from 'react';
 import InspectorHint from '../components/inspector-hint';
 
 const RESPONSES_PATH = `${ get( getJetpackData(), 'adminUrl', false ) }edit.php?post_type=feedback`;

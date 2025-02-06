@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Import\Endpoints;
 
+use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
+
 require_once ABSPATH . 'wp-includes/class-wp-theme-json-resolver.php';
 require_once ABSPATH . 'wp-includes/theme.php';
 
@@ -67,6 +71,9 @@ class Global_Style extends \WP_REST_Posts_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
+		// Set the WP_IMPORTING constant to prevent sync notifications
+		$this->set_importing();
+
 		if ( ! class_exists( 'WP_Theme_JSON_Resolver' ) ) {
 			require_once ABSPATH . 'wp-includes/class-wp-theme-json-resolver.php';
 		}
@@ -75,7 +82,7 @@ class Global_Style extends \WP_REST_Posts_Controller {
 
 		// Check if the theme exists.
 		if ( ! $theme->exists() ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'theme_not_found',
 				__( 'Theme not found.', 'jetpack-import' ),
 				array(

@@ -1,0 +1,29 @@
+{
+	"translation-revision-date": "2024-07-03 16:54:08+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "tr" },
+			"Remove premium styles": [ "Premium stilleri kald\u0131r" ],
+			"Change all of your site's fonts, colors and more. Available on the %s plan.": [
+				"Sitenizin t\u00fcm yaz\u0131 tiplerini, renklerini ve di\u011fer \u00f6zelliklerini de\u011fi\u015ftirin. %s paketinde mevcuttur."
+			],
+			"Your site includes premium styles that are only visible to visitors after upgrading to the %s plan or higher.": [
+				"Siteniz, yaln\u0131zca %s veya daha y\u00fcksek bir pakete y\u00fckselttikten sonra ziyaret\u00e7iler taraf\u0131ndan g\u00f6r\u00fclebilen premium stiller i\u00e7eriyor."
+			],
+			"Your site includes premium styles that are only visible to visitors after <a>upgrading to the %s plan or higher</a>.": [
+				"Siteniz, yaln\u0131zca <a>%s veya daha y\u00fcksek bir pakete y\u00fckselttikten</a> sonra ziyaret\u00e7iler taraf\u0131ndan g\u00f6r\u00fclebilen premium stiller i\u00e7eriyor."
+			],
+			"Generating preview\u2026": [ "\u00d6nizleme olu\u015fturuluyor..." ],
+			"Preview without premium styles": [ "Premium stiller olmadan \u00f6nizle" ],
+			"Upgrade now": [ "Hemen y\u00fckseltin" ],
+			"Upgrade plan": [ "Paketi y\u00fckselt" ],
+			"Try it out": [ "Hemen deneyin" ],
+			"A powerful new way to style your site": [
+				"Sitenize stil kazand\u0131rman\u0131n g\u00fc\u00e7l\u00fc ve yeni bir yolu"
+			]
+		}
+	},
+	"comment": { "reference": "wpcom-global-styles/dist/wpcom-global-styles.js" }
+}

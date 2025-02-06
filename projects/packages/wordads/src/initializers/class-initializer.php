@@ -88,6 +88,7 @@ class Initializer {
 	 */
 	protected static function init_cli() {
 		if ( defined( 'WP_CLI' ) && \WP_CLI ) {
+			// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 			\WP_CLI::add_command( 'wordads', __NAMESPACE__ . '\CLI' );
 		}
 	}

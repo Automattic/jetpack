@@ -1,16 +1,16 @@
-import config from 'config';
 import path from 'path';
+import * as url from 'url';
+import config from 'config';
 import shellescape from 'shell-escape';
 import logger from '../logger.js';
 import { execSyncShellCommand, execWpCommand, resolveSiteUrl } from './utils-helper.js';
-import * as url from 'url';
 
 /**
  * Provisions Jetpack plan and connects the site through Jetpack Start flow
  *
- * @param {number} userId WPCOM user ID
- * @param {string} plan   One of free, personal, premium, or professional.
- * @param {string} user   Local user name, id, or e-mail
+ * @param {number} userId - WPCOM user ID
+ * @param {string} plan   - One of free, personal, premium, or professional.
+ * @param {string} user   - Local user name, id, or e-mail
  * @return {string} authentication URL
  */
 export async function provisionJetpackStartConnection( userId, plan = 'free', user = 'wordpress' ) {
@@ -26,7 +26,7 @@ export async function provisionJetpackStartConnection( userId, plan = 'free', us
 	// catch a command failed error so that secrets are not logged
 	try {
 		response = execSyncShellCommand( cmd );
-	} catch ( error ) {
+	} catch {
 		throw new Error( `Jetpack Start provisioning command failed.` );
 	}
 

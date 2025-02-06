@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 1,
+	"apiVersion": 3,
 	"name": "jetpack/mailchimp",
 	"title": "Mailchimp",
 	"description": "Allow readers to join a Mailchimp audience.",
@@ -21,20 +21,17 @@
 	},
 	"attributes": {
 		"emailPlaceholder": {
-			"type": "string",
-			"default": "Enter your email"
+			"type": "string"
 		},
 		"consentText": {
-			"type": "string",
-			"default": "By clicking submit, you agree to share your email address with the site owner and Mailchimp to receive marketing, updates, and other emails from the site owner. Use the unsubscribe link in those emails to opt out at any time."
+			"type": "string"
 		},
 		"interests": {
 			"type": "array",
 			"default": []
 		},
 		"processingLabel": {
-			"type": "string",
-			"default": "Processing…"
+			"type": "string"
 		},
 		"signupFieldTag": {
 			"type": "string"
@@ -43,12 +40,10 @@
 			"type": "string"
 		},
 		"successLabel": {
-			"type": "string",
-			"default": "Success! You're on the list."
+			"type": "string"
 		},
 		"errorLabel": {
-			"type": "string",
-			"default": "Whoops! There was an error and we couldn't process your subscription. Please reload the page and try again."
+			"type": "string"
 		},
 		"preview": {
 			"type": "boolean",

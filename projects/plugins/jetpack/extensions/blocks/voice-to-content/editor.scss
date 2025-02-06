@@ -1,0 +1,126 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.jetpack-ai-voice-to-content__modal {
+	.components-modal__header {
+		border-bottom: 1px solid var( --studio-gray-5, #dcdcde );
+		padding: 20px 24px;
+	}
+
+	.components-modal__content {
+		padding: 24px 32px;
+	}
+
+	@media (min-width: 700px) {
+		width: 700px;
+	}
+}
+
+.jetpack-ai-voice-to-content__wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 28px;
+}
+
+.jetpack-ai-voice-to-content__body {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.jetpack-ai-voice-to-content__action-buttons {
+	display: flex;
+	gap: 8px;
+
+	.jetpack-ai-voice-to-content__button {
+		&.is-primary {
+			background-color: var( --jp-green-50 );
+			color: var( --jp-white );
+	
+			&:not(:disabled) {
+				&:hover {
+					background-color: var( --jp-green-60 );
+				}
+		
+				&:active {
+					background-color: var( --jp-green-70 );
+				}
+		
+				&:focus {
+					box-shadow: inset 0 0 0 1px var( --jp-white ),0 0 0 var( --wp-admin-border-width-focus, 2px ) var( --jp-green-50 );
+				}
+			}
+		}
+
+		&.is-secondary {
+			box-shadow: inset 0 0 0 1px var( --jp-green-50 );
+  		color: var( --jp-green-50 );
+
+			&:not(:disabled) {
+				&:focus {
+					box-shadow: 0 0 0 var( --wp-admin-border-width-focus, 2px ) var( --jp-green-50 );
+				}
+
+				&:hover {
+					box-shadow: inset 0 0 0 1px var( --jp-green-60 );
+				}
+
+				&:active {
+					box-shadow: none;
+				}
+			}
+		}
+	}
+}
+
+.jetpack-ai-voice-to-content__description {
+	font-size: var( --font-body-small );
+}
+
+.jetpack-ai-voice-to-content__contextual-row {
+	height: 38px;
+	display: flex;
+	align-items: center;
+}
+
+.jetpack-ai-voice-to-content__information {
+	color: var( --jp-gray-40 );
+}
+
+.jetpack-ai-voice-to-content__audio {
+	display: flex;
+	gap: 4px;
+	align-items: center;
+}
+
+.jetpack-ai-voice-to-content__audio--duration {
+	font-weight: 700;
+}
+
+.jetpack-ai-voice-to-content__footer {
+	display: flex;
+
+	.jetpack-ai-voice-to-content__feedback-button {
+		display: flex;
+		gap: 4px;
+		align-items: center;
+		color: var( --jp-green-50 );
+		font-size: var( --font-body-extra-small );
+	
+		&:focus:not(:disabled) {
+			box-shadow: 0 0 0 var( --wp-admin-border-width-focus ) var( --jp-green-50 );
+		}
+	
+		.icon {
+			color: var( --studio-gray-20 );
+		}
+	}
+}
+
+.jetpack-ai-voice-to-content__information--error {
+	color: var( --jp-red-40 );
+}
+
+.jetpack-ai-voice-to-content__oscilloscope {
+	width: 70px;
+	height: 38px;
+}

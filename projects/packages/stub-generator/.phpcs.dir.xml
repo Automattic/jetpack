@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<ruleset>
+	<rule ref="Jetpack-NoWP" />
+
+	<!-- Ideally we'd just configure PHPCompatibility with the right PHP version, but it uses <config> rather than <properties>. Sigh. -->
+	<!-- So instead we have to manually disable certain sniffs. -->
+	<rule ref="./.phpcs.dir.phpcompatibility.xml" />
+</ruleset>

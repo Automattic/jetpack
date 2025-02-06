@@ -14,7 +14,7 @@ class Site_Urls {
 			)
 		);
 
-		return array_slice(
+		$urls = array_slice(
 			array_merge(
 				$core_urls,
 				$post_urls
@@ -22,6 +22,16 @@ class Site_Urls {
 			0,
 			$limit
 		);
+
+		/**
+		 * Filters the list of site URLs used by the Image Size Analysis.
+		 *
+		 * @since 3.7.0
+		 *
+		 * @param array $urls An array of URLs.
+		 * @param int   $limit The maximum number of URLs that should be returned.
+		 */
+		return apply_filters( 'jetpack_boost_site_urls', $urls, $limit );
 	}
 
 	private static function get_wp_core_urls() {
@@ -34,6 +44,12 @@ class Site_Urls {
 				'modified' => get_post_modified_time( 'Y-m-d H:i:s', false, $front_page ),
 				'group'    => 'core_front_page',
 			);
+		} else {
+			$urls['core_front_page'] = array(
+				'url'      => home_url( '/' ),
+				'modified' => current_time( 'Y-m-d H:i:s' ),
+				'group'    => 'core_front_page',
+			);
 		}
 
 		$posts_page = get_option( 'page_for_posts' );
@@ -42,14 +58,6 @@ class Site_Urls {
 				'url'      => get_permalink( $posts_page ),
 				'modified' => get_post_modified_time( 'Y-m-d H:i:s', false, $posts_page ),
 				'group'    => 'other',
-			);
-		}
-
-		if ( empty( $front_page ) && empty( $posts_page ) ) {
-			$urls['core_posts_page'] = array(
-				'url'      => home_url( '/' ),
-				'modified' => current_time( 'Y-m-d H:i:s' ),
-				'group'    => 'core_front_page',
 			);
 		}
 
@@ -97,8 +105,8 @@ class Site_Urls {
 	 * Removes duplicate URLs from the $post_urls list
 	 * based on the additional URLs.
 	 *
-	 * @param  $post_urls       List of URLs to cleanup.
-	 * @param  $additional_urls List of URLs to lookup while cleaning.
+	 * @param  array $post_urls       List of URLs to cleanup.
+	 * @param  array $additional_urls List of URLs to lookup while cleaning.
 	 *
 	 * @return array
 	 */
@@ -135,7 +143,7 @@ class Site_Urls {
 	/**
 	 * Returns the group for the post.
 	 *
-	 * @param $p Post object.
+	 * @param \WP_Post $p Post object.
 	 *
 	 * @return string
 	 */

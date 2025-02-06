@@ -23,7 +23,7 @@ describe( 'projectHelpers', () => {
 	} );
 	test( 'dirs should output number of subfolders for the given path', () => {
 		// The repo-root projects dir.
-		expect( dirs( 'projects' ) ).toHaveLength( 5 );
+		expect( dirs( 'projects' ) ).toHaveLength( 4 );
 	} );
 	test( 'dirs should output a subfolder of given path', () => {
 		expect( dirs( 'projects/plugins' ) ).toContain( 'jetpack' );
@@ -56,7 +56,7 @@ describe( 'projectHelpers', () => {
 	} );
 	test( 'allProjects should contain prefixed packages', () => {
 		// Confirms the type/project style.
-		expect( allProjects() ).toContain( 'packages/abtest' );
+		expect( allProjects() ).toContain( 'packages/changelogger' );
 	} );
 	test( 'allProjects should contain prefixed github-actions', () => {
 		// Confirms the type/project style.
@@ -74,7 +74,7 @@ describe( 'projectHelpers', () => {
 		expect( allProjectsByType( 'plugins' ) ).toContain( 'plugins/jetpack' );
 	} );
 	test( 'allProjectsByType should include a known package', () => {
-		expect( allProjectsByType( 'packages' ) ).toContain( 'packages/abtest' );
+		expect( allProjectsByType( 'packages' ) ).toContain( 'packages/changelogger' );
 	} );
 	test( 'allProjectsByType should include a known GitHub action', () => {
 		expect( allProjectsByType( 'github-actions' ) ).toContain( 'github-actions/push-to-mirrors' );

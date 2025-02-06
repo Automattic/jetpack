@@ -1,13 +1,13 @@
 import JetpackVaultPressBackupLogo from '../index';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'JS Packages/Components/Jetpack VaultPress Backup Logo',
 	component: JetpackVaultPressBackupLogo,
 	argTypes: {},
-} as ComponentMeta< typeof JetpackVaultPressBackupLogo >;
+} as Meta< typeof JetpackVaultPressBackupLogo >;
 
-const Template: ComponentStory< typeof JetpackVaultPressBackupLogo > = args => (
+const Template: StoryFn< typeof JetpackVaultPressBackupLogo > = args => (
 	<JetpackVaultPressBackupLogo { ...args } />
 );
 

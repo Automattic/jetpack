@@ -7,46 +7,60 @@
  * It also hooks into our dedicated Jetpack plugin sidebar and
  * displays the Publicize UI there.
  */
+import {
+	PublicizePanel,
+	SocialImageGeneratorPanel,
+	usePostCanUseSig,
+	PostPublishPanels,
+	GlobalModals,
+} from '@automattic/jetpack-publicize-components';
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { PostTypeSupportCheck } from '@wordpress/editor';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import { PublicizePlaceholder } from './components/placeholder';
 import PublicizeSkeletonLoader from './components/skeleton-loader';
-import { Settings } from './settings';
+import UpsellNotice from './components/upsell';
+import PrePublishPanels from './pre-publish';
 
 import './editor.scss';
 
 export const name = 'publicize';
 
 const PublicizeSettings = () => {
-	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
-		useModuleStatus( name );
+	const { isLoadingModules, isModuleActive } = useModuleStatus( name );
+	const postCanUseSig = usePostCanUseSig();
+
+	let children = null;
+	let panels = null;
 
 	if ( isLoadingModules ) {
-		return (
-			<PostTypeSupportCheck supportKeys="publicize">
-				<JetpackPluginSidebar>
-					<PublicizeSkeletonLoader />
-				</JetpackPluginSidebar>
-			</PostTypeSupportCheck>
+		children = <PublicizeSkeletonLoader />;
+	} else if ( ! isModuleActive ) {
+		children = <PublicizePlaceholder />;
+	} else {
+		children = (
+			<>
+				<PublicizePanel>
+					<UpsellNotice />
+				</PublicizePanel>
+				{ postCanUseSig && <SocialImageGeneratorPanel /> }
+			</>
+		);
+		panels = (
+			<>
+				<PrePublishPanels />
+				<PostPublishPanels />
+				<GlobalModals />
+			</>
 		);
 	}
 
-	if ( ! isModuleActive ) {
-		return (
-			<PostTypeSupportCheck supportKeys="publicize">
-				<JetpackPluginSidebar>
-					<PublicizePlaceholder
-						changeStatus={ changeStatus }
-						isModuleActive={ isModuleActive }
-						isLoading={ isChangingStatus }
-					/>
-				</JetpackPluginSidebar>
-			</PostTypeSupportCheck>
-		);
-	}
-
-	return <Settings />;
+	return (
+		<PostTypeSupportCheck supportKeys="publicize">
+			<JetpackPluginSidebar>{ children }</JetpackPluginSidebar>
+			{ panels }
+		</PostTypeSupportCheck>
+	);
 };
 
 export const settings = {

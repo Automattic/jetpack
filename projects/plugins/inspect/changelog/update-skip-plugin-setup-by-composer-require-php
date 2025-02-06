@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove obsolete `skip-test-php` composer script. No change to the plugin itself.

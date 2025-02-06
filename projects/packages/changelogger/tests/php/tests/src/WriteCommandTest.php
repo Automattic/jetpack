@@ -62,8 +62,8 @@ class WriteCommandTest extends CommandTestCase {
 			file_put_contents( 'composer.json', json_encode( array( 'extra' => array( 'changelogger' => $options['composer.json'] ) ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 			unset( $options['composer.json'] );
 		}
-		$changelog = isset( $options['changelog'] ) ? $options['changelog'] : null;
-		$changes   = isset( $options['changes'] ) ? $options['changes'] : array();
+		$changelog = $options['changelog'] ?? null;
+		$changes   = $options['changes'] ?? array();
 		unset( $options['changelog'], $options['changes'] );
 		if ( null !== $changelog ) {
 			file_put_contents( 'CHANGELOG.md', $changelog );
@@ -111,7 +111,7 @@ class WriteCommandTest extends CommandTestCase {
 	/**
 	 * Data provider for testExecute.
 	 */
-	public function provideExecute() {
+	public static function provideExecute() {
 		$date = gmdate( 'Y-m-d' );
 
 		return array(
@@ -132,7 +132,7 @@ class WriteCommandTest extends CommandTestCase {
 				array(
 					'{^Reading changelog from /.*/CHANGELOG.md\\.\\.\\.$}m',
 					'{^Reading changes from /.*/changelog\\.\\.\\.$}m',
-					'{^Deduplicating changes from the last 1 version\\(s\\)\\.\\.\\.$}m',
+					'{^Deduplicating changes in the current version\\.\\.\\.$}m',
 					'{^Checking if any changes have content\\.\\.\\.$}m',
 					'{^Yes, a-change has content\\.$}m',
 					'{^Latest version from changelog is 1\\.0\\.1\\.$}m',
@@ -455,8 +455,8 @@ class WriteCommandTest extends CommandTestCase {
 				"# Changelog\n\n## 1.0.2 - $date\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
 			),
 
-			'Deduplication'                                => array(
-				array(),
+			'Deduplication, --deduplicate=1'               => array(
+				array( '--deduplicate' => '1' ),
 				array(
 					'changes' => array(
 						'initial-release' => "Significance: patch\nType: added\n\nInitial release.\n",
@@ -471,8 +471,8 @@ class WriteCommandTest extends CommandTestCase {
 				true,
 				"# Changelog\n\n## 1.0.2 - $date\n### Added\n- Initial release.\n- Stuff. And more stuff.\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
 			),
-			'Deduplication, --dedupliacte=0'               => array(
-				array( '--deduplicate' => '0' ),
+			'Deduplication, --deduplicate default 0'       => array(
+				array(),
 				array(
 					'changes' => array(
 						'initial-release' => "Significance: patch\nType: added\n\nInitial release.\n",
@@ -520,7 +520,7 @@ class WriteCommandTest extends CommandTestCase {
 			),
 
 			'Deduplication removes all changes'            => array(
-				array(),
+				array( '--deduplicate' => '1' ),
 				array(
 					'changes' => array(
 						'added-stuff' => "Significance: patch\nType: added\n\nStuff.\n",
@@ -531,7 +531,7 @@ class WriteCommandTest extends CommandTestCase {
 				array( '{^All changes were duplicates\. Proceed\? \[y/N\]}m' ),
 			),
 			'Deduplication removes all changes (2)'        => array(
-				array(),
+				array( '--deduplicate' => '1' ),
 				array(
 					'changes' => array(
 						'added-stuff' => "Significance: patch\nType: added\n\nStuff.\n",
@@ -544,7 +544,7 @@ class WriteCommandTest extends CommandTestCase {
 				"# Changelog\n\n## 1.0.2 - $date\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
 			),
 			'Deduplication removes all changes, non-interactive' => array(
-				array(),
+				array( '--deduplicate' => '1' ),
 				array(
 					'interactive' => false,
 					'changes'     => array(
@@ -556,7 +556,10 @@ class WriteCommandTest extends CommandTestCase {
 				array( '{^All changes were duplicates\.$}m' ),
 			),
 			'Deduplication removes all changes, non-interactive, --yes' => array(
-				array( '--yes' => true ),
+				array(
+					'--deduplicate' => '1',
+					'--yes'         => true,
+				),
 				array(
 					'interactive' => false,
 					'changes'     => array(
@@ -571,7 +574,7 @@ class WriteCommandTest extends CommandTestCase {
 			),
 
 			'All changes are empty'                        => array(
-				array(),
+				array( '--deduplicate' => '1' ),
 				array(
 					'changes' => array(
 						'duplicate' => "Significance: patch\nType: added\n\nStuff.\n",
@@ -584,7 +587,7 @@ class WriteCommandTest extends CommandTestCase {
 				array( '{There are no changes with content for this write\. Proceed\? \[y/N\]}m' ),
 			),
 			'All changes are empty (2)'                    => array(
-				array(),
+				array( '--deduplicate' => '1' ),
 				array(
 					'changes' => array(
 						'duplicate' => "Significance: patch\nType: added\n\nStuff.\n",
@@ -599,7 +602,7 @@ class WriteCommandTest extends CommandTestCase {
 				"# Changelog\n\n## 1.0.2 - $date\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
 			),
 			'All changes are empty, non-interactive'       => array(
-				array(),
+				array( '--deduplicate' => '1' ),
 				array(
 					'interactive' => false,
 					'changes'     => array(
@@ -612,7 +615,10 @@ class WriteCommandTest extends CommandTestCase {
 				array( '{^There are no changes with content for this write\.$}m' ),
 			),
 			'All changes are empty, non-interactive, --yes' => array(
-				array( '--yes' => true ),
+				array(
+					'--deduplicate' => '1',
+					'--yes'         => true,
+				),
 				array(
 					'interactive' => false,
 					'changes'     => array(
@@ -742,6 +748,54 @@ class WriteCommandTest extends CommandTestCase {
 				array( '{^$}' ),
 				true,
 				"# Changelog\n\n## 1.0.1 - $date\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n- ZZZ.\n\n### Removed\n- Other stuff.\n- Broken stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
+			),
+			'Amend, beta to release'                       => array(
+				array( '--amend' => true ),
+				array(
+					'composer.json' => array( 'link-template' => 'https://example.org/diff/${old}..${new}' ),
+					'changes'       => array(),
+					'changelog'     => "# Changelog\n\n## [1.0.1-beta] - $date\n\nPrologue for v1.0.1\n\n### Added\n- New stuff.\n- Stuff.\n- ZZZ.\n\n### Removed\n- Other stuff.\n\n### Fixed\n- Broken stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n\n[1.0.1-beta]: https://example.org/new-link\n",
+				),
+				array( 'Y' ),
+				0,
+				array(
+					'{^No changes were found! Proceed\? \[y/N\] $}m',
+				),
+				true,
+				"# Changelog\n\n## [1.0.1] - $date\n\nPrologue for v1.0.1\n\n### Added\n- New stuff.\n- Stuff.\n- ZZZ.\n\n### Removed\n- Other stuff.\n\n### Fixed\n- Broken stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n\n[1.0.1]: https://example.org/new-link\n",
+			),
+			'Amend, ignore default link'                   => array(
+				array( '--amend' => true ),
+				array(
+					'composer.json' => array( 'link-template' => 'https://example.org/diff/${old}..${new}' ),
+					'changes'       => array(),
+					'changelog'     => "# Changelog\n\n## [1.0.1-beta] - $date\n\nPrologue for v1.0.1\n\n### Added\n- New stuff.\n- Stuff.\n- ZZZ.\n\n### Removed\n- Other stuff.\n\n### Fixed\n- Broken stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n\n[1.0.1-beta]: https://example.org/diff/1.0.0..1.0.1-beta\n",
+				),
+				array( 'Y' ),
+				0,
+				array(
+					'{^No changes were found! Proceed\? \[y/N\] $}m',
+				),
+				true,
+				"# Changelog\n\n## [1.0.1] - $date\n\nPrologue for v1.0.1\n\n### Added\n- New stuff.\n- Stuff.\n- ZZZ.\n\n### Removed\n- Other stuff.\n\n### Fixed\n- Broken stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n\n[1.0.1]: https://example.org/diff/1.0.0..1.0.1\n",
+			),
+			'Amend, manually override default link'        => array(
+				array(
+					'--amend' => true,
+					'--link'  => 'https://example.org/new-link',
+				),
+				array(
+					'composer.json' => array( 'link-template' => 'https://example.org/diff/${old}..${new}' ),
+					'changes'       => array(),
+					'changelog'     => "# Changelog\n\n## [1.0.1-beta] - $date\n\nPrologue for v1.0.1\n\n### Added\n- New stuff.\n- Stuff.\n- ZZZ.\n\n### Removed\n- Other stuff.\n\n### Fixed\n- Broken stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n\n[1.0.1-beta]: https://example.org/diff/1.0.0..1.0.1-beta\n",
+				),
+				array( 'Y' ),
+				0,
+				array(
+					'{^No changes were found! Proceed\? \[y/N\] $}m',
+				),
+				true,
+				"# Changelog\n\n## [1.0.1] - $date\n\nPrologue for v1.0.1\n\n### Added\n- New stuff.\n- Stuff.\n- ZZZ.\n\n### Removed\n- Other stuff.\n\n### Fixed\n- Broken stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n\n[1.0.1]: https://example.org/new-link\n",
 			),
 
 			'--use-version invalid'                        => array(
@@ -1028,7 +1082,7 @@ class WriteCommandTest extends CommandTestCase {
 				0,
 				array( '{^$}' ),
 				true,
-				'changelog' => "# Changelog\n\n## 1.0.1 - $date\n### Fixed\n- Fixed a thing.\n\n## 1.0 - 2021-02-24\n\n- Initial release\n",
+				"# Changelog\n\n## 1.0.1 - $date\n### Fixed\n- Fixed a thing.\n\n## 1.0 - 2021-02-24\n\n- Initial release\n",
 			),
 
 			'Writing a new prerelease based on an old one' => array(
@@ -1040,7 +1094,7 @@ class WriteCommandTest extends CommandTestCase {
 				0,
 				array( '{^$}' ),
 				true,
-				'changelog' => "# Changelog\n\n## 1.0.1-beta.2 - $date\n### Fixed\n- Fixed a thing.\n\n## 1.0.1-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
+				"# Changelog\n\n## 1.0.1-beta.2 - $date\n### Fixed\n- Fixed a thing.\n\n## 1.0.1-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
 			),
 			'Writing a new prerelease based on an old one (2)' => array(
 				array( '--prerelease' => 'beta.2' ),
@@ -1051,7 +1105,7 @@ class WriteCommandTest extends CommandTestCase {
 				0,
 				array( '{^$}' ),
 				true,
-				'changelog' => "# Changelog\n\n## 2.0.0-beta.2 - $date\n### Fixed\n- Fixed a thing.\n\n## 2.0.0-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
+				"# Changelog\n\n## 2.0.0-beta.2 - $date\n### Fixed\n- Fixed a thing.\n\n## 2.0.0-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
 			),
 			'Writing a new prerelease based on an old one (3)' => array(
 				array( '--prerelease' => 'alpha' ),
@@ -1062,7 +1116,7 @@ class WriteCommandTest extends CommandTestCase {
 				0,
 				array( '{^$}' ),
 				true,
-				'changelog' => "# Changelog\n\n## 1.0.2-alpha - $date\n### Fixed\n- Fixed a thing.\n\n## 1.0.1-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
+				"# Changelog\n\n## 1.0.2-alpha - $date\n### Fixed\n- Fixed a thing.\n\n## 1.0.1-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
 			),
 		);
 	}
@@ -1071,9 +1125,7 @@ class WriteCommandTest extends CommandTestCase {
 	 * Test failure to format changelog.
 	 */
 	public function testWriteChangelog_formatError() {
-		$formatter = $this->getMockBuilder( FormatterPlugin::class )
-			->setMethodsExcept( array() )
-			->getMock();
+		$formatter = $this->getMockBuilder( FormatterPlugin::class )->getMock();
 		$formatter->expects( $this->never() )->method( $this->logicalNot( $this->matches( 'format' ) ) );
 		$formatter->method( 'format' )->willThrowException( new InvalidArgumentException( 'Exception for test.' ) );
 
@@ -1093,9 +1145,7 @@ class WriteCommandTest extends CommandTestCase {
 	public function testWriteChangelog_writeError() {
 		mkdir( 'CHANGELOG.md' );
 
-		$formatter = $this->getMockBuilder( FormatterPlugin::class )
-			->setMethodsExcept( array() )
-			->getMock();
+		$formatter = $this->getMockBuilder( FormatterPlugin::class )->getMock();
 		$formatter->expects( $this->never() )->method( $this->logicalNot( $this->matches( 'format' ) ) );
 		$formatter->method( 'format' )->willReturn( "Changelog!\n" );
 
@@ -1137,7 +1187,7 @@ class WriteCommandTest extends CommandTestCase {
 	 */
 	public function testExecute_writeChangelog_fail() {
 		$command = $this->getMockBuilder( WriteCommand::class )
-			->setMethods( array( 'writeChangelog', 'deleteChanges' ) )
+			->onlyMethods( array( 'writeChangelog', 'deleteChanges' ) )
 			->getMock();
 		$command->setApplication( $this->getCommand( 'write' )->getApplication() );
 		$command->method( 'writeChangelog' )->willReturn( WriteCommand::FATAL_EXIT );

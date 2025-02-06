@@ -2,7 +2,7 @@ import { action } from '@storybook/addon-actions';
 import { Icon, mapMarker } from '@wordpress/icons';
 import { useState } from 'react';
 import { Input, SearchInput } from '..';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'Packages/VideoPress/Input',
@@ -18,7 +18,7 @@ export default {
 			control: { type: 'select' },
 		},
 	},
-} as ComponentMeta< typeof Input >;
+} as Meta< typeof Input >;
 
 const onEnter = value => {
 	action( 'onEnter' )( value );
@@ -33,7 +33,7 @@ const defaultArgs = {
 	label: '',
 };
 
-const Template: ComponentStory< typeof Input > = args => {
+const Template: StoryFn< typeof Input > = args => {
 	const [ value, setValue ] = useState( '' );
 	const onChange = inputValue => {
 		setValue( inputValue );
@@ -63,7 +63,7 @@ TextArea.args = {
 	type: 'textarea',
 };
 
-const SearchInputTemplate: ComponentStory< typeof SearchInput > = args => {
+const SearchInputTemplate: StoryFn< typeof SearchInput > = args => {
 	const [ value, setValue ] = useState( '' );
 	const onChange = inputValue => {
 		setValue( inputValue );

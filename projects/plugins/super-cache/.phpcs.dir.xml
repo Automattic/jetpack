@@ -21,27 +21,26 @@
 		</properties>
 	</rule>
 
-	<rule ref="WordPress.Files.FileName.InvalidClassFileName">
-		<severity>0</severity>
+	<rule ref="WordPress.Files.FileName">
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
 	</rule>
 
-	<rule ref="Squiz.Commenting.FileComment.Missing">
-		<severity>0</severity>
+	<rule ref="Squiz.Commenting.FileComment">
+		<exclude name="Squiz.Commenting.FileComment.Missing"/>
 	</rule>
-	<rule ref="Squiz.Commenting.ClassComment.Missing">
-		<severity>0</severity>
+	<rule ref="Squiz.Commenting.ClassComment">
+		<exclude name="Squiz.Commenting.ClassComment.Missing"/>
 	</rule>
-	<rule ref="Squiz.Commenting.FunctionComment.Missing">
-		<severity>0</severity>
+	<rule ref="Squiz.Commenting.FunctionComment">
+		<exclude name="Squiz.Commenting.FunctionComment.Missing"/>
+		<exclude name="Squiz.Commenting.FunctionComment.MissingParamComment"/>
 	</rule>
-	<rule ref="Squiz.Commenting.FunctionComment.MissingParamComment">
-		<severity>0</severity>
+	<rule ref="Generic.Commenting.DocComment">
+		<exclude name="Generic.Commenting.DocComment.MissingShort"/>
 	</rule>
-	<rule ref="Generic.Commenting.DocComment.MissingShort">
-		<severity>0</severity>
-	</rule>
-	<rule ref="Squiz.Commenting.VariableComment.Missing">
-		<severity>0</severity>
+	<rule ref="Squiz.Commenting.VariableComment">
+		<exclude name="Squiz.Commenting.VariableComment.Missing"/>
 	</rule>
 
 	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis">

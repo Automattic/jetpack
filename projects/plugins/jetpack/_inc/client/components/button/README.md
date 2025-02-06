@@ -10,7 +10,7 @@ var Button = require( 'components/button' );
 
 render: function() {
 	return (
-		<Button compact primary disabled={ this.props.disabled } >You rock</Button>
+		<Button compact primary disabled={ this.props.disabled }>You rock</Button>
 	);
 }
 ```

@@ -9,17 +9,17 @@ import customContentShape from '../../tools/custom-content-shape';
  * Retrieve the main screen body.
  *
  * @param {object} props - The properties.
- * @returns {React.Component} The ScreenMain component.
+ * @return {React.Component} The ScreenMain component.
  */
 const ScreenNonAdmin = props => {
-	const { customContent } = props;
+	const { customContent = {} } = props;
 
 	return (
 		<React.Fragment>
 			<h2>
 				{ customContent.nonAdminTitle
 					? createInterpolateElement( customContent.nonAdminTitle, { em: <em /> } )
-					: __( 'Safe Mode has been activated', 'jetpack' ) }
+					: __( 'Safe Mode has been activated', 'jetpack-idc' ) }
 			</h2>
 
 			<p>
@@ -28,7 +28,7 @@ const ScreenNonAdmin = props => {
 						__(
 							'This site is in Safe Mode because there are 2 Jetpack-powered sites that appear to be duplicates. ' +
 								'2 sites that are telling Jetpack they’re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>',
-							'jetpack'
+							'jetpack-idc'
 						),
 					{
 						safeModeLink: (
@@ -48,7 +48,10 @@ const ScreenNonAdmin = props => {
 				''
 			) : (
 				<p>
-					{ __( 'An administrator of this site can take Jetpack out of Safe Mode.', 'jetpack' ) }
+					{ __(
+						'An administrator of this site can take Jetpack out of Safe Mode.',
+						'jetpack-idc'
+					) }
 				</p>
 			) }
 		</React.Fragment>
@@ -58,10 +61,6 @@ const ScreenNonAdmin = props => {
 ScreenNonAdmin.propTypes = {
 	/** Custom text content. */
 	customContent: PropTypes.shape( customContentShape ),
-};
-
-ScreenNonAdmin.defaultProps = {
-	customContent: {},
 };
 
 export default ScreenNonAdmin;

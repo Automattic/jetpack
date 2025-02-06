@@ -15,7 +15,7 @@
 	Breaking Checks ( stops direct access )
 	====================================================== */
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 /*
 ======================================================
@@ -1694,55 +1694,48 @@ function zeroBSCRM_html_datatools() {
 			
 		<div id="zero-bs-tools" class="ui segment" style="margin-right:20px;">
 			<h2 class="sbhomep"><?php esc_html_e( 'Welcome to Jetpack CRM Tools', 'zero-bs-crm' ); ?></h2>
-			<p class="sbhomep"><?php esc_html_e( 'This is the home for all of the different admin tools for Jetpack CRM which import data, excluding the Sync Extensions.', 'zero-bs-crm' ); ?></p>
-			<p class="sbhomep">
-			<strong><?php esc_html_e( 'Free Data Tools', 'zero-bs-crm' ); ?>:</strong><br />
-			<?php if ( ! zeroBSCRM_isExtensionInstalled( 'csvpro' ) ) { ?>
-			<a class="ui button black primary" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['csvlite'] ) ); ?>"><?php esc_html_e( 'Import from CSV', 'zero-bs-crm' ); ?></a>
-		<?php } ?>
-		</p>
-			<p class="sbhomep">
-			<strong><?php esc_html_e( 'Data Tool Extensions Installed', 'zero-bs-crm' ); ?>:</strong><br /><br />
+			<div class="sbhomep"><?php esc_html_e( 'This is the home for all of the different admin tools for Jetpack CRM which import and export data, excluding sync extensions.', 'zero-bs-crm' ); ?></div>
+			<br><br>
+			<div class="sbhomep">
+				<strong><?php esc_html_e( 'Import Tools', 'zero-bs-crm' ); ?>:</strong><br>
 				<?php
 
-				// } MVP
-				$zbsDataToolsInstalled = 0;
+				$has_pro_data_tools = false;
 				global $zeroBSCRM_CSVImporterslugs;
 				if ( zeroBSCRM_isExtensionInstalled( 'csvpro' ) && isset( $zeroBSCRM_CSVImporterslugs ) ) {
-
+					// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					?>
-					<button type="button" class="ui button primary" onclick="javascript:window.location='?page=<?php echo esc_attr( $zeroBSCRM_CSVImporterslugs['app'] ); ?>';" class="ui button primary" style="padding: 7px 16px;font-size: 16px;height: 46px;margin-bottom:8px;"><?php esc_html_e( 'CSV Importer', 'zero-bs-crm' ); ?></button><br />
+					<p><a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zeroBSCRM_CSVImporterslugs['app'] ) ); ?>" class="ui button black primary"><?php echo esc_html( 'CSV Importer Pro' ); ?></a></p>
+					<p><a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zeroBSCRM_CSVImporterslugs['tagger'] ) ); ?>" class="ui button black primary"><?php echo esc_html( 'CSV Tagger' ); ?></a></p>
 					<?php
-					// tagger post v1.1
-					if ( isset( $zeroBSCRM_CSVImporterslugs['tagger'] ) ) {
+					// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					$has_pro_data_tools = true;
+				}
+
+				if ( ! $has_pro_data_tools ) {
+					?>
+					<p><?php esc_html_e( 'You do not have any pro data tool extensions installed.', 'zero-bs-crm' ); ?></p>
+					<?php
+					if ( ! zeroBSCRM_isExtensionInstalled( 'csvpro' ) ) {
 						?>
-					<button type="button" class="ui button primary" onclick="javascript:window.location='?page=<?php echo esc_attr( $zeroBSCRM_CSVImporterslugs['tagger'] ); ?>';" class="ui button primary" style="padding: 7px 16px;font-size: 16px;height: 46px;margin-bottom:8px;"><?php esc_html_e( 'CSV Tagger', 'zero-bs-crm' ); ?></button><br />
+						<p><a class="ui button black primary" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['csvlite'] ) ); ?>"><?php esc_html_e( 'CSV Importer Lite', 'zero-bs-crm' ); ?></a></p>
 						<?php
 					}
-					++$zbsDataToolsInstalled;
-
 				}
-
-				if ( $zbsDataToolsInstalled == 0 ) {
-					##WLREMOVE
-					?>
-					<?php esc_html_e( 'You do not have any Pro Data Tools installed as of yet', 'zero-bs-crm' ); ?>! <a href="<?php echo esc_url( $zbs->urls['productsdatatools'] ); ?>" target="_blank"><?php esc_html_e( 'Get some now', 'zero-bs-crm' ); ?></a>
-					<?php
-					##/WLREMOVE
-				}
-
+				##WLREMOVE
 				?>
-							
-			</p><p class="sbhomep">
-				<!-- #datatoolsales -->
-			<strong><?php esc_html_e( 'Import Tools', 'zero-bs-crm' ); ?>:</strong><br /><br />
-				<a href="<?php echo esc_url( $zbs->urls['productsdatatools'] ); ?>" target="_blank" class="ui button black primary"><?php esc_html_e( 'View Available Import Tools', 'zero-bs-crm' ); ?></a>              
-			</p>
+				<p><a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['extensions'] ) ); ?>" class="ui button black primary"><?php esc_html_e( 'View all extensions', 'zero-bs-crm' ); ?></a></p>
+				<?php
+				##/WLREMOVE
+				?>
+				<br>
+			</div>
 			<div class="sbhomep">
 				<strong><?php esc_html_e( 'Export Tools', 'zero-bs-crm' ); ?>:</strong><br/>
-				<p><?php esc_html_e( 'Want to use the refined object exporter? ', 'zero-bs-crm' ); ?></p>
-				<p><a class="ui black button" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['export-tools'] ) ); ?>">Export Tools</a></p>
+				<p><?php esc_html_e( 'Use the button below to go to the object exporter.', 'zero-bs-crm' ); ?></p>
+				<p><a class="ui black button" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['export-tools'] ) ); ?>"><?php esc_html_e( 'Export objects', 'zero-bs-crm' ); ?></a></p>
 			</div>
+			<br>
 	</div>
 	<div class="ui grid">
 	<div class="eight wide column">
@@ -2447,85 +2440,39 @@ function jpcrm_html_modules() {
 // } post-deletion page
 function zeroBSCRM_html_norights() {
 
-	global $wpdb, $zbs;  // } Req
+	global $zbs;
 
-	// } Discern type of norights:
-	$noaccessType = '?'; // Customer
-	$noaccessstr  = '?'; // Mary Jones ID 123
-	$noaccessID   = -1;
-	$isRestore    = false;
-	$backToPage   = 'edit.php?post_type=zerobs_customer&page=manage-customers';
+	$back_to_page = 'edit.php?post_type=zerobs_customer&page=manage-customers';
 
-	// } Discern type + set back to page
-	$noAccessType = '';
+	$obj_type_str = $zbs->zbsvar( 'zbstype' ); // -1 or 'contact'
 
-	// DAL3 switch
-	if ( $zbs->isDAL3() ) {
-
-		// DAL 3
-		$objID      = $zbs->zbsvar( 'zbsid' ); // -1 or 123 ID
-		$objTypeStr = $zbs->zbsvar( 'zbstype' ); // -1 or 'contact'
-
-		// if objtypestr is -1, assume contact (default)
-		if ( $objTypeStr == -1 ) {
-			$objType = ZBS_TYPE_CONTACT;
-		} else {
-			$objType = $zbs->DAL->objTypeID( $objTypeStr );
-		}
-
-		// if got type, link to list view
-		// else give dash link
-		$slugToSend      = '';
-		$noAccessTypeStr = '';
-
-		// back to page
-		if ( $objType > 0 ) {
-			$slugToSend = $zbs->DAL->listViewSlugFromObjID( $objType );
-		}
-		if ( empty( $slugToSend ) ) {
-			$slugToSend = $zbs->slugs['dash'];
-		}
-		$backToPage = 'admin.php?page=' . $slugToSend;
-
-		// obj type str
-		if ( $objType > 0 ) {
-			$noAccessTypeStr = $zbs->DAL->typeStr( $objType );
-		}
-		if ( empty( $noAccessTypeStr ) ) {
-			$noAccessTypeStr = __( 'Object', 'zero-bs-crm' );
-		}
+	// if objtypestr is -1, assume contact (default)
+	if ( $obj_type_str === -1 ) {
+		$obj_type_id = ZBS_TYPE_CONTACT;
 	} else {
+		$obj_type_id = $zbs->DAL->objTypeID( $obj_type_str ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	}
 
-		// PRE DAL3:
+	// if got type, link to list view
+	// else give dash link
+	$slug_to_send       = '';
+	$no_access_type_str = '';
 
-		if ( isset( $_GET['post_type'] ) && ! empty( $_GET['post_type'] ) ) {
-			$noAccessType = $_GET['post_type'];
-		} elseif ( isset( $_GET['id'] ) ) {
-			$noAccessType = get_post_type( $_GET['id'] );
-		}
+	// back to page
+	if ( $obj_type_id > 0 ) {
+		$slug_to_send = $zbs->DAL->listViewSlugFromObjID( $obj_type_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	}
+	if ( empty( $slug_to_send ) ) {
+		$slug_to_send = $zbs->slugs['dash'];
+	}
+	$back_to_page = 'admin.php?page=' . $slug_to_send;
 
-		switch ( $noAccessType ) {
-
-			case 'zerobs_customer':
-				$backToPage      = 'edit.php?post_type=zerobs_customer&page=manage-customers';
-				$noAccessTypeStr = __( 'Contact', 'zero-bs-crm' );
-
-				break;
-
-			case 'zerobs_company':
-				$backToPage      = 'edit.php?post_type=zerobs_company&page=manage-companies';
-				$noAccessTypeStr = __( jpcrm_label_company(), 'zero-bs-crm' );
-
-				break;
-
-			default:
-				// Dash
-				$backToPage      = 'admin.php?page=' . $zbs->slugs['dash'];
-				$noAccessTypeStr = __( 'Resource', 'zero-bs-crm' );
-
-				break;
-
-		}
+	// obj type str
+	if ( $obj_type_id > 0 ) {
+		$no_access_type_str = $zbs->DAL->typeStr( $obj_type_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	}
+	if ( empty( $no_access_type_str ) ) {
+		$no_access_type_str = __( 'Object', 'zero-bs-crm' );
 	}
 
 	?>
@@ -2534,14 +2481,19 @@ function zeroBSCRM_html_norights() {
 		<div id="zbsNoAccessIco"><i class="fa fa-archive" aria-hidden="true"></i></div>
 		<div class="zbsNoAccessMsg">
 			<h2><?php esc_html_e( 'Access Restricted', 'zero-bs-crm' ); ?></h2>
-			<p><?php esc_html_e( 'You do not have access to this ' . $noAccessTypeStr . '.', 'zero-bs-crm' ); ?></p>
+			<p>
+				<?php
+				// translators: Object type (e.g. contact, company)
+				echo esc_html( sprintf( __( 'You do not have access to this %s.', 'zero-bs-crm' ), $no_access_type_str ) );
+				?>
+			</p>
 		</div>
 		<div class="zbsNoAccessAction">
-			<button type="button" class="ui button primary" onclick="javascript:window.location='<?php echo esc_url( $backToPage ); ?>'"><?php esc_html_e( 'Back', 'zero-bs-crm' ); ?></button>
+			<button type="button" class="ui button primary" onclick="javascript:window.location='<?php echo esc_url( $back_to_page ); ?>'"><?php esc_html_e( 'Back', 'zero-bs-crm' ); ?></button>
 
 		</div>
 		</div>
-	</div>        
+	</div>
 	<?php
 }
 

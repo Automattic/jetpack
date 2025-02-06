@@ -1,6 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import Alert from '../alert';
 import Button from '../button/index';
 import { CheckmarkIcon } from '../icons/index';
@@ -16,7 +16,7 @@ import type React from 'react';
  * Product Detail component.
  *
  * @param {ProductOfferProps} props - Component props.
- * @returns {React.ReactNode} - ProductOffer react component.
+ * @return {React.ReactNode} - ProductOffer react component.
  */
 const ProductOffer: React.FC< ProductOfferProps > = ( {
 	addProductUrl,
@@ -43,13 +43,13 @@ const ProductOffer: React.FC< ProductOfferProps > = ( {
 
 	const defautlButtonText = sprintf(
 		/* translators: placeholder is product name. */
-		__( 'Add %s', 'jetpack' ),
+		__( 'Add %s', 'jetpack-components' ),
 		title
 	);
 
 	return (
 		<div
-			className={ classnames( styles.wrapper, className, {
+			className={ clsx( styles.wrapper, className, {
 				[ styles[ 'is-bundle-card' ] ]: isBundle,
 				[ styles[ 'is-card' ] ]: isCard || isBundle, // is card when is bundle.
 			} ) }
@@ -79,7 +79,7 @@ const ProductOffer: React.FC< ProductOfferProps > = ( {
 					<ProductPrice price={ price } offPrice={ offPrice } currency={ currency } />
 				) }
 
-				{ isFree && <H3>{ __( 'Free', 'jetpack' ) }</H3> }
+				{ isFree && <H3>{ __( 'Free', 'jetpack-components' ) }</H3> }
 
 				<Alert level="error" showIcon={ !! error }>
 					{ error }
@@ -103,7 +103,7 @@ const ProductOffer: React.FC< ProductOfferProps > = ( {
 				{ isBundle && hasRequiredPlan && (
 					<div className={ styles[ 'product-has-required-plan' ] }>
 						<CheckmarkIcon size={ 36 } />
-						<Text>{ __( 'Active on your site', 'jetpack' ) }</Text>
+						<Text>{ __( 'Active on your site', 'jetpack-components' ) }</Text>
 					</div>
 				) }
 			</div>

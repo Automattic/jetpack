@@ -1,23 +1,23 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import Card from 'components/card';
-import ConnectUserBar from 'components/connect-user-bar';
+import { Component } from 'react';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
-import React, { Component } from 'react';
+import { FEATURE_DOWNTIME_MONITORING_JETPACK } from '../lib/plans/constants';
 
 export const Monitor = withModuleSettingsFormHelpers(
 	class extends Component {
 		trackConfigureClick = () => {
-			analytics.tracks.recordJetpackClick( 'configure-monitor' );
+			analytics.tracks.recordJetpackClick( 'configure-monitor-email' );
 		};
 
 		render() {
 			const hasConnectedOwner = this.props.hasConnectedOwner,
-				isOfflineMode = this.props.isOfflineMode,
 				isMonitorActive = this.props.getOptionValue( 'monitor' ),
 				unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'monitor' );
 			return (
@@ -26,6 +26,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 					hideButton
 					module="monitor"
 					header={ _x( 'Downtime monitoring', 'Settings header', 'jetpack' ) }
+					feature={ FEATURE_DOWNTIME_MONITORING_JETPACK }
 				>
 					<SettingsGroup
 						hasChild
@@ -48,34 +49,23 @@ export const Monitor = withModuleSettingsFormHelpers(
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">
-								{ __(
-									'Get alerts if your site goes offline. We’ll let you know when it’s back up, too.',
-									'jetpack'
+								{ createInterpolateElement(
+									__(
+										'Get alerts if your site goes offline. Alerts are sent to your <a>WordPress.com account</a> email address.',
+										'jetpack'
+									),
+									{
+										a: (
+											<ExternalLink
+												href="https://wordpress.com/me/account"
+												onClick={ this.trackConfigureClick }
+											/>
+										),
+									}
 								) }
 							</span>
 						</ModuleToggle>
 					</SettingsGroup>
-					{ hasConnectedOwner && (
-						<Card
-							compact
-							className="jp-settings-card__configure-link"
-							onClick={ this.trackConfigureClick }
-							href={ getRedirectUrl( 'calypso-settings-security', {
-								site: this.props.siteRawUrl,
-							} ) }
-							target="_blank"
-						>
-							{ __( 'Configure your notification settings', 'jetpack' ) }
-						</Card>
-					) }
-
-					{ ! hasConnectedOwner && ! isOfflineMode && (
-						<ConnectUserBar
-							feature="monitor"
-							featureLabel={ __( 'Downtime Monitoring', 'jetpack' ) }
-							text={ __( 'Connect to set up your status alerts.', 'jetpack' ) }
-						/>
-					) }
 				</SettingsCard>
 			);
 		}

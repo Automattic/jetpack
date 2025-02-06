@@ -6,7 +6,7 @@
 
 // stop direct access
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 global $wpdb, $zbs;  // } Req
@@ -14,7 +14,7 @@ global $wpdb, $zbs;  // } Req
 $confirmAct = false;
 
 // } Retrieve all settings
-$settings = $zbs->settings->getAll();
+$settings = $zbs->settings->getAll( true );
 
 // } #WH OR - need these lists?
 // } Autologgers:
@@ -188,6 +188,15 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 			$updatedSettings[ $autoLog['fieldname'] ] = 1;
 		}
 	}
+
+	$total_value_fields = isset( $settings['jpcrm_total_value_fields'] ) ? $settings['jpcrm_total_value_fields'] : array();
+	foreach ( $zbs->acceptable_total_value_fields as $field_name => $field_label ) {
+		$total_value_fields[ $field_name ] = 0;
+		if ( isset( $_POST[ 'wpzbscrm_total_value_field_' . $field_name ] ) && ! empty( $_POST[ 'wpzbscrm_total_value_field_' . $field_name ] ) ) {
+			$total_value_fields[ $field_name ] = 1;
+		}
+	}
+	$updatedSettings['jpcrm_total_value_fields'] = $total_value_fields; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	// } Brutal update
 	foreach ( $updatedSettings as $k => $v ) {
@@ -476,6 +485,25 @@ if ( ! $confirmAct ) {
 				</tr>
 
 				<tr>
+					<td class="wfieldname"><label for="wpzbscrm_useaka"><?php esc_html_e( 'Total Value Field', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Include these values in the Total Value field for contacts and companies.', 'zero-bs-crm' ); ?></td>
+					<td style="width:540px">
+						<?php
+						foreach ( $zbs->acceptable_total_value_fields as $field_name => $field_label ) {
+							?>
+							<input type="checkbox" class="winput form-control" name="<?php echo esc_attr( 'wpzbscrm_total_value_field_' . $field_name ); ?>" id="<?php echo esc_attr( 'wpzbscrm_total_value_field_' . $field_name ); ?>" value="1"
+																								<?php
+																								// For compatibility with previous versions we consider the field selected (checked) if the setting is inexistent.
+																								if ( ! isset( $settings['jpcrm_total_value_fields'] ) || ( isset( $settings['jpcrm_total_value_fields'][ $field_name ] ) && $settings['jpcrm_total_value_fields'][ $field_name ] === 1 ) ) {
+																									echo ' checked="checked"';
+																								}
+																								?>
+							/> <?php echo esc_html_e( $field_label, 'zero-bs-crm' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText ?><br />
+						<?php } ?>
+					</td>
+
+				</tr>
+
+				<tr>
 					<td class="wfieldname"><label for="wpzbscrm_avatarmode"><?php esc_html_e( 'Contact Image Mode', 'zero-bs-crm' ); ?>:</label></td>
 					<td style="width:540px">
 						<select class="winput form-control" name="wpzbscrm_avatarmode" id="wpzbscrm_avatarmode">
@@ -573,9 +601,7 @@ if ( ! $confirmAct ) {
 			<?php ##WLREMOVE ?>
 			<tr>
 				<td class="wfieldname">
-					<?php ##WLREMOVE ?>
 					<div class="ui teal label right floated"><i class="circle info icon link"></i>  <a href="<?php echo esc_url( $zbs->urls['usageinfo'] ); ?>" target="_blank"><?php esc_html_e( 'Read more', 'zero-bs-crm' ); ?></a></div>
-					<?php ##/WLREMOVE ?>
 					<label for="wpzbscrm_shareessentials"><?php esc_html_e( 'Usage Tracking', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Share CRM usage with us. No contact or sensitive CRM data is shared.', 'zero-bs-crm' ); ?>
 				</td>
 				<td style="width:540px"><input type="checkbox" class="winput form-control" name="wpzbscrm_shareessentials" id="wpzbscrm_shareessentials" value="1"

@@ -17,6 +17,7 @@
 		"google-calendar",
 		"image-compare",
 		"instagram-gallery",
+		"like",
 		"likes",
 		"mailchimp",
 		"map",
@@ -40,6 +41,7 @@
 		"slideshow",
 		"social-previews",
 		"story",
+		"subscriber-login",
 		"subscriptions",
 		"tiled-gallery",
 		"tock",
@@ -48,7 +50,6 @@
 		"payments-intro",
 		"post-publish-qr-post-panel",
 		"payment-buttons",
-		"site-editor-snackbars",
 		"videopress/video",
 		"ai-assistant-support",
 		"ai-assistant-form-support",
@@ -57,23 +58,32 @@
 		"blogroll-item",
 		"nextdoor",
 		"ai-assistant-usage-panel",
-		"ai-content-lens"
+		"sharing-button",
+		"sharing-buttons",
+		"ai-content-lens",
+		"blog-stats",
+		"top-posts",
+		"goodreads",
+		"voice-to-content",
+		"ai-featured-image-generator",
+		"ai-title-optimization",
+		"ai-assistant-experimental-image-generation-support",
+		"ai-general-purpose-image-generator",
+		"ai-proofread-breve",
+		"ai-assistant-site-logo-support",
+		"ai-title-optimization-keywords-support",
+		"ai-response-feedback"
 	],
 	"beta": [
 		"google-docs-embed",
-		"launchpad-save-modal",
-		"like",
 		"recipe",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
-		"create-with-voice",
-		"top-posts",
 		"ai-assistant-backend-prompts",
-		"sharing-button",
-		"sharing-buttons",
-		"ai-logo-generator"
+		"ai-list-to-table-transform",
+		"ai-seo-assistant"
 	],
-	"experimental": [ "ai-image", "ai-paragraph" ],
+	"experimental": [],
 	"no-post-editor": [
 		"ai-assistant",
 		"business-hours",
@@ -99,6 +109,7 @@
 		"tiled-gallery",
 		"tock",
 		"videopress",
+		"voice-to-content",
 		"wordads"
 	]
 }

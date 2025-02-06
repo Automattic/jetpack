@@ -6,7 +6,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import * as allIcons from '../index';
+import * as allIcons from '../index.js';
 import styles from './style.module.scss';
 /**
  * Types
@@ -27,7 +27,7 @@ const meta: AIControlStoryMeta = {
 /**
  * Icons story components.
  *
- * @returns {object} - story component
+ * @return {object} - story component
  */
 function IconsStory() {
 	return (

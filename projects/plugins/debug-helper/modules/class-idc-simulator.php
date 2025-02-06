@@ -57,6 +57,7 @@ class IDC_Simulator {
 		add_action( 'admin_post_store_current_options', array( $this, 'admin_post_store_current_options' ) );
 
 		add_action( 'admin_post_idc_send_remote_request', array( $this, 'admin_post_idc_send_remote_request' ) );
+		add_action( 'admin_post_idc_clear_options', array( $this, 'admin_post_idc_clear_options' ) );
 
 		if ( isset( $_GET['idc_notice'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			add_action( 'admin_notices', array( $this, 'display_notice' ) );
@@ -75,7 +76,7 @@ class IDC_Simulator {
 	 * @param string $url the siteurl value.
 	 */
 	public static function spoof_url( $url ) {
-		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
+		if ( ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 			return $url;
 		}
 
@@ -230,6 +231,11 @@ class IDC_Simulator {
 		<h4>jetpack_safe_mode_confirmed</h4>
 		<pre><?php var_dump( get_option( 'jetpack_safe_mode_confirmed' ) ); //phpcs:ignore ?></pre>
 
+		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
+			<input type="hidden" name="action" value="idc_clear_options">
+			<?php wp_nonce_field( 'idc-clear-options' ); ?>
+			<input type="submit" value="Clear IDC Status" class="button button-primary">
+		</form>
 		<?php
 	}
 
@@ -396,36 +402,55 @@ class IDC_Simulator {
 	}
 
 	/**
+	 * Clear the stored IDC options.
+	 */
+	public function admin_post_idc_clear_options() {
+		check_admin_referer( 'idc-clear-options' );
+
+		delete_option( 'jetpack_sync_error_idc' );
+		delete_option( 'jetpack_migrate_for_idc' );
+		delete_option( 'jetpack_safe_mode_confirmed' );
+
+		$this->admin_post_redirect_referrer();
+	}
+
+	/**
 	 * Shows a simple success notice.
 	 */
 	public function admin_notice__stored_success() {
-		?>
-		<div class="notice notice-success is-dismissible">
-			<p>IDC simulation settings have been saved!</p>
-		</div>
-		<?php
+		wp_admin_notice(
+			'IDC simulation settings have been saved!',
+			array(
+				'type'        => 'success',
+				'dismissible' => true,
+			)
+		);
 	}
 
 	/**
 	 * Shows a simple success notice.
 	 */
 	public function admin_notice__request_success() {
-		?>
-		<div class="notice notice-success is-dismissible">
-			<p>The remote request was successfully sent!</p>
-		</div>
-		<?php
+		wp_admin_notice(
+			'The remote request was successfully sent!',
+			array(
+				'type'        => 'success',
+				'dismissible' => true,
+			)
+		);
 	}
 
 	/**
 	 * Shows a simple error notice.
 	 */
 	public function admin_notice__unknown_error() {
-		?>
-		<div class="notice notice-error is-dismissible">
-			<p>Something went wrong.</p>
-		</div>
-		<?php
+		wp_admin_notice(
+			'Something went wrong.',
+			array(
+				'type'        => 'error',
+				'dismissible' => true,
+			)
+		);
 	}
 
 	/**
@@ -451,7 +476,12 @@ class IDC_Simulator {
 	 * Display a notice when Sync is disabled by this module.
 	 */
 	public function display_sync_disabled_notice() {
-		echo '<div class="notice notice-warning"><p>Sync has been disabled by the Jetpack Debug Helper plugin\'s IDC Simulator module.</p></div>';
+		wp_admin_notice(
+			'Sync has been disabled by the Jetpack Debug Helper plugin\'s IDC Simulator module.',
+			array(
+				'type' => 'warning',
+			)
+		);
 	}
 
 	/**
@@ -533,7 +563,12 @@ function register_idc_simulator() {
  * Notice for if Jetpack is not active.
  */
 function idc_simulator_jetpack_not_active() {
-	echo '<div class="notice info"><p>Jetpack Debug tools: Jetpack_Options package must be present for the IDC Simulator to work.</p></div>';
+	wp_admin_notice(
+		'Jetpack Debug tools: Jetpack_Options package must be present for the IDC Simulator to work.',
+		array(
+			'type' => 'info',
+		)
+	);
 }
 
 IDC_Simulator::early_init();

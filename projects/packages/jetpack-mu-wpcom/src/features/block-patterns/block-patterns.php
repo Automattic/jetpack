@@ -6,19 +6,24 @@
  */
 
 /**
- * Re-register some core patterns to push them down in the inserter list.
- * The reason is that Dotcom curate the pattern list based on their look.
+ * Hide Jetpack form patterns.
+ * The reason is to show only the Dotcom pattern library.
  */
-function wpcom_reorder_curated_core_patterns() {
-	$pattern_names = array( 'core/social-links-shared-background-color' );
+function wpcom_unregister_jetpack_patterns() {
+	// @TODO: It would be better to add 'source: jetpack' when registering them in https://github.com/Automattic/jetpack/blob/3c4c16b8e9b34c8b6e798839ddf029a5c9a59e77/projects/plugins/jetpack/modules/contact-form.php#L152
+	// and then here just filter them by source rather than by name.
+	$pattern_names = array(
+		'contact-form',
+		'newsletter-form',
+		'rsvp-form',
+		'registration-form',
+		'appointment-form',
+		'feedback-form',
+	);
 	foreach ( $pattern_names as $pattern_name ) {
 		$pattern = \WP_Block_Patterns_Registry::get_instance()->get_registered( $pattern_name );
 		if ( $pattern ) {
 			unregister_block_pattern( $pattern_name );
-			register_block_pattern(
-				$pattern_name,
-				$pattern
-			);
 		}
 	}
 }
@@ -27,7 +32,7 @@ function wpcom_reorder_curated_core_patterns() {
  * Return a function that loads and register block patterns from the API. This
  * function can be registered to the `rest_dispatch_request` filter.
  *
- * @param Function $register_patterns_func A function that when called will
+ * @param callable $register_patterns_func A function that when called will
  * register the relevant block patterns in the registry.
  */
 function register_patterns_on_api_request( $register_patterns_func ) {
@@ -59,7 +64,7 @@ function register_patterns_on_api_request( $register_patterns_func ) {
 
 		$register_patterns_func();
 
-		wpcom_reorder_curated_core_patterns();
+		wpcom_unregister_jetpack_patterns();
 
 		return $response;
 	};
@@ -75,3 +80,13 @@ add_filter(
 	11,
 	2
 );
+
+/**
+ * Hide patterns bundled in core and from the Dotorg pattern directory.
+ * The reason is to show only the Dotcom pattern library.
+ */
+function wpcom_unregister_core_block_patterns() {
+	remove_theme_support( 'core-block-patterns' );
+}
+
+add_action( 'after_setup_theme', 'wpcom_unregister_core_block_patterns' );

@@ -9,13 +9,7 @@
  * Date: 14/01/19
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 use Automattic\Jetpack\CRM\Event_Manager\Events_Manager;
 
@@ -77,7 +71,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 					'input_type'            => 'select',
 					'label'                 => __( 'Status', 'zero-bs-crm' ),
 					'placeholder'           => '',
-					'options'               => array( 'Lead', 'Customer', 'Refused', 'Blacklisted' ),
+					'options'               => array( 'Lead', 'Customer', 'Refused' ),
 					'essential'             => true,
 					'max_len'               => 100,
 					'do_not_show_on_portal' => true,
@@ -167,7 +161,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 					'placeholder' => 'e.g. New York',
 					'area'        => 'Main Address',
 					'migrate'     => 'addresses',
-					'max_len'     => 100,
+					'max_len'     => 200,
 				),
 				'county'        => array(
 					// db model:
@@ -244,7 +238,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 					'area'        => 'Second Address',
 					'migrate'     => 'addresses',
 					'opt'         => 'secondaddress',
-					'max_len'     => 100,
+					'max_len'     => 200,
 					'dal1key'     => 'secaddr_city', // previous field name
 				),
 				'seccounty'     => array(
@@ -392,8 +386,61 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
         #} =========== / LOAD ARGS =============
 
 			$this->events_manager = new Events_Manager();
-
+			add_filter( 'jpcrm_listview_filters', array( $this, 'add_listview_filters' ) );
     }
+
+		/**
+		 * Adds items to listview filter using `jpcrm_listview_filters` hook.
+		 *
+		 * @param array $listview_filters Listview filters.
+		 */
+		public function add_listview_filters( $listview_filters ) {
+			global $zbs;
+
+			// Add "assigned"/"not assigned" filters.
+			$listview_filters[ ZBS_TYPE_CONTACT ]['general']['assigned_to_me'] = __( 'Assigned to me', 'zero-bs-crm' );
+			$listview_filters[ ZBS_TYPE_CONTACT ]['general']['not_assigned']   = __( 'Not assigned', 'zero-bs-crm' );
+
+			$quick_filter_settings = $zbs->settings->get( 'quickfiltersettings' );
+
+			// Add 'not-contacted-in-x-days'.
+			if ( ! empty( $quick_filter_settings['notcontactedinx'] ) && $quick_filter_settings['notcontactedinx'] > 0 ) {
+				$days = (int) $quick_filter_settings['notcontactedinx'];
+				$listview_filters[ ZBS_TYPE_CONTACT ]['general'][ 'notcontactedin' . $days ] = sprintf(
+					// translators: %s is the number of days
+					__( 'Not Contacted in %s days', 'zero-bs-crm' ),
+					$days
+				);
+			}
+
+			// Add 'olderthan-x-days'.
+			if ( ! empty( $quick_filter_settings['olderthanx'] ) && $quick_filter_settings['olderthanx'] > 0 ) {
+				$days = (int) $quick_filter_settings['olderthanx'];
+				$listview_filters[ ZBS_TYPE_CONTACT ]['general'][ 'olderthan' . $days ] = sprintf(
+					// translators: %s is the number of days
+					__( 'Older than %s days', 'zero-bs-crm' ),
+					$days
+				);
+			}
+
+			// Add statuses if enabled.
+			if ( $zbs->settings->get( 'filtersfromstatus' ) === 1 ) {
+				$statuses = zeroBSCRM_getCustomerStatuses( true );
+				foreach ( $statuses as $status ) {
+					$listview_filters[ ZBS_TYPE_CONTACT ]['status'][ 'status_' . $status ] = $status;
+				}
+			}
+
+			// Add segments if enabled.
+			if ( $zbs->settings->get( 'filtersfromsegments' ) === 1 ) {
+				$segments = $zbs->DAL->segments->getSegments( -1, 100, 0, false, '', '', 'zbsseg_name', 'ASC' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				foreach ( $segments as $segment ) {
+					$listview_filters[ ZBS_TYPE_CONTACT ]['segment'][ 'segment_' . $segment['slug'] ] = $segment['name'];
+				}
+			}
+
+			return $listview_filters;
+		}
 
     // generic get Company (by ID)
     // Super simplistic wrapper used by edit page etc. (generically called via dal->contacts->getSingle etc.)
@@ -603,11 +650,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
                 // Calculate total vals etc. with SQL 
                 if ($withValues && !$onlyID){
-
-                    // arguably, if getting $withInvoices etc. may be more performant to calc this in php in AFTER loop, 
-                    // ... for now as a fair guess, this'll be most performant:
-                    // ... we calc total by adding invs + trans below :)
-
                     // only include transactions with statuses which should be included in total value:
 					$transStatusQueryAdd = $this->DAL()->transactions->getTransactionStatusesToIncludeQuery(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					// include invoices without deleted status in the total value for invoices_total_inc_deleted:
@@ -1054,7 +1096,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             // NOTE: this is ONLY for use where a sql query is 1 time use, otherwise add as argument
             // ... for later use, (above)
             // PLEASE do not use the or switch without discussing case with WH
-            'additionalWhereArr' => false, 
+			'additionalWhereArr'         => false,
+			'additional_joins'           => false,
             'whereCase'          => 'AND' // DEFAULT = AND
 
 
@@ -1064,6 +1107,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
         global $ZBSCRM_t,$wpdb,$zbs;  
         $wheres = array('direct'=>array()); $whereStr = ''; $additionalWhere = ''; $params = array(); $res = array(); $joinQ = ''; $extraSelect = '';
+
+				$join_sql = '';
 
         #} ============= PRE-QUERY ============
 
@@ -1312,6 +1357,10 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
         #} ============ / PRE-QUERY ===========
 
+			if ( ! empty( $additional_joins ) ) {
+				list( $join_sql, $join_params ) = $this->DAL()->build_joins( $additional_joins, $whereCase === 'AND' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			}
+
         #} Build query
         $query = "SELECT contact.*".$extraSelect." FROM ".$ZBSCRM_t['contacts'].' as contact'.$joinQ;
 
@@ -1541,11 +1590,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                         // USE hasStatus above now...
 					if ( str_starts_with( $qFilter, 'status_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-                            $qFilterStatus = substr($qFilter,7);
-                            $qFilterStatus = str_replace('_',' ',$qFilterStatus);
-
-                            // check status
-                            $wheres['quickfilterstatus'] = array('zbsc_status','LIKE','%s',ucwords($qFilterStatus));
+						$quick_filter_status         = substr( $qFilter, 7 ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						$wheres['quickfilterstatus'] = array( 'zbsc_status', '=', 'convert(%s using utf8mb4) collate utf8mb4_bin', $quick_filter_status );
 
 					} elseif ( $qFilter === 'assigned_to_me' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                             $wheres['assigned_to_me'] = array( 'zbs_owner', '=', zeroBSCRM_user() );
@@ -1612,9 +1658,10 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                                         //$wheres = array_merge_recursive($wheres,$contactGetArgs['additionalWhereArr']);
                                         // -----------------------
 
-                                    }
+						} elseif ( ! empty( $contactGetArgs['additional_joins'] ) && is_array( $contactGetArgs['additional_joins'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,
 
-
+							list( $join_sql, $join_params ) = $this->DAL()->build_joins( $contactGetArgs['additional_joins'], $matchType === 'all' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						}
 					} else {
 
                                 // normal/hardtyped
@@ -1806,6 +1853,12 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
         $ownQ = $this->ownershipSQL($ignoreowner,'contact'); if (!empty($ownQ)) $additionalWhere = $this->spaceAnd($additionalWhere).$ownQ; // adds str to query
         #} / Ownership
 
+				$query .= $join_sql;
+
+				if ( ! empty( $join_sql ) ) {
+					$params = array_merge( $params, $join_params );
+				}
+
         #} Append to sql (this also automatically deals with sortby and paging)
         $query .= $this->buildWhereStr($whereStr,$additionalWhere) . $this->buildSort($sortByField,$sortOrder) . $this->buildPaging($page,$perPage);    
 
@@ -1819,9 +1872,10 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             if ( $count ) return $wpdb->get_var( $queryObj );
 
             // Totals override
-            if ( $onlyObjTotals ){
+						// This is non-performant, and shouldn't run when we've got extra joins (e.g. from segments).
+					if ( $onlyObjTotals && empty( $join_sql ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
-                $contact_query = "SELECT contact.ID FROM " . $ZBSCRM_t['contacts'] . " AS contact" . $this->buildWhereStr( $whereStr, $additionalWhere );
+						$contact_query = 'SELECT contact.ID FROM ' . $ZBSCRM_t['contacts'] . ' AS contact' . $joinQ . $this->buildWhereStr( $whereStr, $additionalWhere ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                 $contact_query = $this->prepare($contact_query,$params);
 
                 $query = "SELECT ";
@@ -2012,6 +2066,25 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
                     }
 
+								// Checking and fixing name clashes between custom fields and linked objects
+								// (e.g. custom field with slug `company` and the company linked object)
+								// See: https://github.com/Automattic/zero-bs-crm/issues/3477
+								$this->add_name_clash_suffix_if_needed(
+									$resArr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+									array(
+										'tags',
+										'dnd',
+										'company',
+										'lastlog',
+										'owner',
+										'invoices',
+										'quotes',
+										'transactions',
+										'tasks',
+										'external_sources',
+									)
+								);
+
                     if ($withTags){
 
                         // add all tags lines
@@ -2054,25 +2127,25 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
                         if (is_array($potentialLogs) && count($potentialLogs) > 0) $resArr['lastlog'] = $potentialLogs[0];
 
-								// CONTACT logs specifically
-								// doesn't return singular, for now using arr
-								$potentialLogs = $this->DAL()->logs->getLogsForObj( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-									array(
+												// CONTACT logs specifically
+												// doesn't return singular, for now using arr
+												$potentialLogs = $this->DAL()->logs->getLogsForObj( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+													array(
 
-										'objtype'     => ZBS_TYPE_CONTACT,
-										'objid'       => $resDataLine->ID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+														'objtype'     => ZBS_TYPE_CONTACT,
+														'objid'       => $resDataLine->ID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-										'notetypes'   => $zbs->DAL->logs->contact_log_types, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+														'notetypes'   => $zbs->DAL->logs->contact_log_types, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-										'incMeta'     => true,
+														'incMeta'     => true,
 
-										'sortByField' => 'zbsl_created',
-										'sortOrder'   => 'DESC',
-										'page'        => 0,
-										'perPage'     => 1,
+														'sortByField' => 'zbsl_created',
+														'sortOrder'   => 'DESC',
+														'page'        => 0,
+														'perPage'     => 1,
 
-									)
-								);
+													)
+												);
 
                         if (is_array($potentialLogs) && count($potentialLogs) > 0) $resArr['lastcontactlog'] = $potentialLogs[0];
 
@@ -2229,7 +2302,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
      *
      * @return int line ID
      */
-     // Previously DAL->addUpdateContact
     public function addUpdateContact($args=array()){
 
         global $ZBSCRM_t,$wpdb,$zbs;
@@ -3461,12 +3533,13 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                 $qs = zeroBS_getQuotesForCustomer($id,false,1000000,0,false,false);
                 foreach ($qs as $q){
 
-                    // delete post
-                    if ($zbs->isDAL3()){
-                        $res = $zbs->DAL->quotes->deleteQuote(array('id'=>$q['id'],'saveOrphans'=>false));
-                    } else 
-                        // DAL2 < - not forced?
-                        $res = wp_delete_post($q['id'],false);
+									// delete post
+									$zbs->DAL->quotes->deleteQuote( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+										array(
+											'id'          => $q['id'],
+											'saveOrphans' => false,
+										)
+									);
 
                 } unset($qs);
 
@@ -3475,12 +3548,13 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                 $is = zeroBS_getInvoicesForCustomer($id,false,1000000,0,false);
                 foreach ($is as $i){
 
-                    // delete post
-                    if ($zbs->isDAL3()){
-                        $res = $zbs->DAL->invoices->deleteInvoice(array('id'=>$i['id'],'saveOrphans'=>false));
-                    } else 
-                        // DAL2 <  not forced?
-                        $res = wp_delete_post($i['id'],false);
+									// delete post
+									$zbs->DAL->invoices->deleteInvoice( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+										array(
+											'id'          => $i['id'],
+											'saveOrphans' => false,
+										)
+									);
 
                 } unset($qs);
 
@@ -3489,26 +3563,27 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                 $trans = zeroBS_getTransactionsForCustomer($id,false,1000000,0,false);
                 foreach ($trans as $tran){
 
-                    // delete post
-                    if ($zbs->isDAL3()){
-                        $res = $zbs->DAL->transactions->deleteTransaction(array('id'=>$tran['id'],'saveOrphans'=>false));
-                    } else 
-                        // DAL2 <  - not forced?
-                        $res = wp_delete_post($tran['id'],false);
+									// delete post
+									$zbs->DAL->transactions->deleteTransaction( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+										array(
+											'id'          => $tran['id'],
+											'saveOrphans' => false,
+										)
+									);
 
-                } unset($trans);
+					} unset( $trans );
 
-                // delete events
-                $events = zeroBS_getEventsByCustomerID($id,false,1000000,0,false);
-                foreach ($events as $event){
+					// delete events
+					$events = zeroBS_getEventsByCustomerID( $id, false, 1000000, 0 );
+					foreach ( $events as $event ) {
 
-                    // delete post
-                    if ($zbs->isDAL3()){
-                        $res = $zbs->DAL->events->deleteEvent(array('id'=>$event['id'],'saveOrphans'=>false));
-                    } else {
-                        // DAL2 <  - not forced?
-                        // this wasn't ever written.
-                    }
+									// delete post
+									$zbs->DAL->events->deleteEvent( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+										array(
+											'id'          => $event['id'],
+											'saveOrphans' => false,
+										)
+									);
 
                 } unset($events);
 
@@ -3657,12 +3732,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                 // and if have invs + trans totals, add to make total val
                 // This now accounts for "part payments" where trans are part/whole payments against invs
                 if (isset($res['invoices_total']) || isset($res['transactions_total'])){
-                    
-                    $invTotal = 0.0; if (isset($res['invoices_total'])) $invTotal = $res['invoices_total'];
-                    $transTotal = 0.0; if (isset($res['transactions_total'])) $transTotal = $res['transactions_total'];
-
-                    $res['total_value'] = $invTotal + $transTotal;
-                    if (isset($res['transactions_paid_total']) && $res['transactions_paid_total'] > 0) $res['total_value'] -= $res['transactions_paid_total'];
+							$res['total_value'] = jpcrm_get_total_value_from_contact_or_company( $res );
                 }
                 
             // custom fields - tidy any that are present:
@@ -4743,13 +4813,14 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
 
 
-    /**
-     * Returns a count of contacts (owned)
-     * Replaces zeroBS_customerCount AND zeroBS_getCustomerCount AND zeroBS_customerCountByStatus
-     *
-     *
-     * @return int count
-     */
+		/**
+		 * Returns a count of contacts (owned)
+		 * Replaces zeroBS_customerCount
+		 *
+		 * @param object $args - DAL args.
+		 *
+		 * @return int count
+		 */
     public function getContactCount($args=array()){
 
         #} ============ LOAD ARGS =============
@@ -4769,7 +4840,11 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
         if ($inCompany) $whereArr['incompany'] = array('ID','IN','(SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_CONTACT." AND zbsol_objtype_to = ".ZBS_TYPE_COMPANY." AND zbsol_objid_to = %d)",$inCompany);
 
-        if ($withStatus !== false && !empty($withStatus)) $whereArr['status'] = array('zbsc_status','=','%s',$withStatus);
+			// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			if ( $withStatus !== false && ! empty( $withStatus ) ) {
+				$whereArr['status'] = array( 'zbsc_status', '=', 'convert(%s using utf8mb4) collate utf8mb4_bin', $withStatus );
+			}
+			// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
         return $this->DAL()->getFieldByWHERE(array(
             'objtype' => ZBS_TYPE_CONTACT,
@@ -4970,7 +5045,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
             $resArr = $contact;
 
-            $resArr['avatar'] = zeroBS_customerAvatar($resArr['id']);
+				$resArr['avatar'] = $zbs->DAL->contacts->getContactAvatar( $resArr['id'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
             
             // use created original $resArr['created'] = zeroBSCRM_date_i18n(-1, $resArr['createduts']);
 

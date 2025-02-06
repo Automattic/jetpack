@@ -14,13 +14,13 @@ import ErrorMessage from '../error-message';
  * Render the error message.
  *
  * @param {string} supportURL - The support page URL.
- * @returns {React.Component} The error message.
+ * @return {React.Component} The error message.
  */
 const renderError = supportURL => {
 	return (
 		<ErrorMessage>
 			{ createInterpolateElement(
-				__( 'Could not create the connection. Retry or find out more <a>here</a>.', 'jetpack' ),
+				__( 'Could not create the connection. Retry or find out more <a>here</a>.', 'jetpack-idc' ),
 				{
 					a: (
 						<a
@@ -35,14 +35,30 @@ const renderError = supportURL => {
 	);
 };
 
+const renderComparisonUrls = ( wpcomHostName, currentHostName ) => {
+	return (
+		<div>
+			<div className="jp-idc__idc-screen__card-action-sitename">{ wpcomHostName }</div>
+			<Dashicon icon="minus" className="jp-idc__idc-screen__card-action-separator" />
+			<div className="jp-idc__idc-screen__card-action-sitename">{ currentHostName }</div>
+		</div>
+	);
+};
+
 /**
  * The "start fresh" card.
  *
  * @param {object} props - The properties.
- * @returns {React.Component} The `ConnectScreen` component.
+ * @return {React.Component} The `ConnectScreen` component.
  */
 const CardFresh = props => {
-	const { isStartingFresh, startFreshCallback, customContent, hasError } = props;
+	const {
+		isStartingFresh = false,
+		startFreshCallback = () => {},
+		customContent = {},
+		hasError = false,
+		isDevelopmentSite,
+	} = props;
 
 	const wpcomHostName = extractHostname( props.wpcomHomeUrl );
 	const currentHostName = extractHostname( props.currentUrl );
@@ -50,7 +66,7 @@ const CardFresh = props => {
 	const isActionInProgress = useSelect( select => select( STORE_ID ).getIsActionInProgress(), [] );
 
 	const buttonLabel =
-		customContent.startFreshButtonLabel || __( 'Create a fresh connection', 'jetpack' );
+		customContent.startFreshButtonLabel || __( 'Create a fresh connection', 'jetpack-idc' );
 
 	return (
 		<div
@@ -63,35 +79,67 @@ const CardFresh = props => {
 				<h4>
 					{ customContent.startFreshCardTitle
 						? createInterpolateElement( customContent.startFreshCardTitle, { em: <em /> } )
-						: __( 'Treat each site as independent sites', 'jetpack' ) }
+						: __( 'Treat each site as independent sites', 'jetpack-idc' ) }
 				</h4>
 
 				<p>
-					{ createInterpolateElement(
-						customContent.startFreshCardBodyText ||
-							sprintf(
-								/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
-								__(
-									'<hostname>%1$s</hostname> settings, stats, and subscribers will start fresh. <hostname>%2$s</hostname> will keep its data as is.',
-									'jetpack'
-								),
-								currentHostName,
-								wpcomHostName
-							),
-						{
-							hostname: <strong />,
-							em: <em />,
-							strong: <strong />,
-						}
-					) }
+					{ ! isDevelopmentSite
+						? createInterpolateElement(
+								customContent.startFreshCardBodyText ||
+									sprintf(
+										/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
+										__(
+											'<hostname>%1$s</hostname> settings, stats, and subscribers will start fresh. <hostname>%2$s</hostname> will keep its data as is.',
+											'jetpack-idc'
+										),
+										currentHostName,
+										wpcomHostName
+									),
+								{
+									hostname: <strong />,
+									em: <em />,
+									strong: <strong />,
+								}
+						  )
+						: createInterpolateElement(
+								customContent.startFreshCardBodyText ||
+									sprintf(
+										/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
+										__(
+											'<p><strong>Recommended for</strong></p>' +
+												'<list><item>development sites</item><item>sites that need access to all Jetpack features</item></list>' +
+												'<p><strong>Please note</strong> that creating a fresh connection for <hostname>%1$s</hostname> would require restoring the connection on <hostname>%2$s</hostname> if that site is cloned back to production. ' +
+												'<safeModeLink>Learn more</safeModeLink>.</p>',
+											'jetpack-idc'
+										),
+										currentHostName,
+										wpcomHostName
+									),
+								{
+									p: <p />,
+									hostname: <strong />,
+									em: <em />,
+									strong: <strong />,
+									list: <ul />,
+									item: <li />,
+									safeModeLink: (
+										<a
+											href={
+												customContent.supportURL || getRedirectUrl( 'jetpack-support-safe-mode' )
+											}
+											rel="noopener noreferrer"
+											target="_blank"
+										/>
+									),
+								}
+						  ) }
 				</p>
 			</div>
 
 			<div className="jp-idc__idc-screen__card-action-bottom">
-				<div className="jp-idc__idc-screen__card-action-sitename">{ wpcomHostName }</div>
-				<Dashicon icon="minus" className="jp-idc__idc-screen__card-action-separator" />
-				<div className="jp-idc__idc-screen__card-action-sitename">{ currentHostName }</div>
-
+				<div>
+					{ ! isDevelopmentSite ? renderComparisonUrls( wpcomHostName, currentHostName ) : null }
+				</div>
 				<Button
 					className="jp-idc__idc-screen__card-action-button"
 					label={ buttonLabel }
@@ -113,20 +161,15 @@ CardFresh.propTypes = {
 	/** The current site URL. */
 	currentUrl: PropTypes.string.isRequired,
 	/** Whether starting fresh is in progress. */
-	isStartingFresh: PropTypes.bool.isRequired,
+	isStartingFresh: PropTypes.bool,
 	/** "Start Fresh" callback. */
-	startFreshCallback: PropTypes.func.isRequired,
+	startFreshCallback: PropTypes.func,
 	/** Custom text content. */
 	customContent: PropTypes.shape( customContentShape ),
 	/** Whether the component has an error. */
-	hasError: PropTypes.bool.isRequired,
-};
-
-CardFresh.defaultProps = {
-	isStartingFresh: false,
-	startFreshCallback: () => {},
-	customContent: {},
-	hasError: false,
+	hasError: PropTypes.bool,
+	/** Whether the site is in development mode. */
+	isDevelopmentSite: PropTypes.bool,
 };
 
 export default CardFresh;

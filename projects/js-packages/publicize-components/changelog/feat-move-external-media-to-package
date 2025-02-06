@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+External Media: Move the external-media to the new @automattic/jetpack-external-media package

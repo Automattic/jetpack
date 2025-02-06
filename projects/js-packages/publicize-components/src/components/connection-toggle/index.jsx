@@ -1,4 +1,4 @@
-import classnames from 'classnames';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import ConnectionIcon from '../connection-icon';
 
@@ -6,7 +6,7 @@ import './style.scss';
 
 const ConnectionToggle = props => {
 	const { checked, disabled, onChange, serviceName, label, profilePicture } = props;
-	const wrapperClasses = classnames( 'components-connection-toggle', {
+	const wrapperClasses = clsx( 'components-connection-toggle', {
 		'is-not-checked': ! checked,
 		'is-disabled': disabled,
 	} );

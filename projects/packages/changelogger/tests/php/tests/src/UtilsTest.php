@@ -28,7 +28,6 @@ class UtilsTest extends TestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertObjectProperty;
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
-	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
 
 	/**
 	 * Test runCommand.
@@ -45,7 +44,7 @@ class UtilsTest extends TestCase {
 	public function testRunCommand( $cmd, $options, $expectExitCode, $expectStdout, $expectStderr, $expectOutput, $verbosity = BufferedOutput::VERBOSITY_DEBUG ) {
 		$sh = ( new ExecutableFinder() )->find( 'sh' );
 		if ( ! $sh ) {
-			$this->markTestSkipped( 'This test requires a Posix shell' );
+			$this->markTestSkipped( 'This test requires a POSIX shell' );
 		}
 
 		$expectOutput = strtr( $expectOutput, array( '{SHELL}' => $sh ) );
@@ -64,8 +63,8 @@ class UtilsTest extends TestCase {
 	/**
 	 * Data provider for testRunCommand.
 	 */
-	public function provideRunCommand() {
-		$tmp = sys_get_temp_dir();
+	public static function provideRunCommand() {
+		$tmp = realpath( sys_get_temp_dir() );
 
 		return array(
 			'true'                      => array(
@@ -147,9 +146,9 @@ class UtilsTest extends TestCase {
 	 * Test loadChangeFile.
 	 *
 	 * @dataProvider provideLoadChangeFile
-	 * @param string                  $contents File contents.
-	 * @param array|\RuntimeException $expect Expected output.
-	 * @param array                   $expectDiagnostics Expected diagnostics.
+	 * @param string                        $contents File contents.
+	 * @param array|LoadChangeFileException $expect Expected output.
+	 * @param array                         $expectDiagnostics Expected diagnostics.
 	 */
 	public function testLoadChangeFile( $contents, $expect, $expectDiagnostics = array() ) {
 		$temp = tempnam( sys_get_temp_dir(), 'phpunit-testLoadChangeFile-' );
@@ -178,7 +177,7 @@ class UtilsTest extends TestCase {
 	/**
 	 * Data provider for testLoadChangeFile.
 	 */
-	public function provideLoadChangeFile() {
+	public static function provideLoadChangeFile() {
 		$ex = function ( $msg, $line ) {
 			$ret           = new LoadChangeFileException( $msg );
 			$ret->fileLine = $line;
@@ -305,14 +304,14 @@ class UtilsTest extends TestCase {
 		try {
 			Utils::loadChangeFile( 'doesnotexist/reallydoesnotexist.txt' );
 			$this->fail( 'Expected exception not thrown' );
-		} catch ( \RuntimeException $ex ) {
+		} catch ( LoadChangeFileException $ex ) {
 			$this->assertSame( 'File does not exist.', $ex->getMessage() );
 			$this->assertNull( $ex->fileLine );
 		}
 		try {
 			Utils::loadChangeFile( '.' );
 			$this->fail( 'Expected exception not thrown' );
-		} catch ( \RuntimeException $ex ) {
+		} catch ( LoadChangeFileException $ex ) {
 			$this->assertSame( 'Expected a file, got dir.', $ex->getMessage() );
 			$this->assertNull( $ex->fileLine );
 		}
@@ -325,7 +324,7 @@ class UtilsTest extends TestCase {
 				try {
 					Utils::loadChangeFile( $temp );
 					$this->fail( 'Expected exception not thrown' );
-				} catch ( \RuntimeException $ex ) {
+				} catch ( LoadChangeFileException $ex ) {
 					$this->assertSame( 'File is not readable.', $ex->getMessage() );
 					$this->assertNull( $ex->fileLine );
 				}
@@ -367,6 +366,7 @@ class UtilsTest extends TestCase {
 			array(
 				'mustRun' => true,
 				'env'     => array(
+					'GIT_CONFIG_GLOBAL'   => '/dev/null',
 					'GIT_AUTHOR_NAME'     => 'Dummy',
 					'GIT_AUTHOR_EMAIL'    => 'dummy@example.com',
 					'GIT_AUTHOR_DATE'     => '2021-01-01T11:11:11Z',
@@ -390,7 +390,7 @@ class UtilsTest extends TestCase {
 
 		$this->assertSame(
 			array(
-				'timestamp' => '2021-02-02T22:22:22+00:00',
+				'timestamp' => '2021-02-02T22:22:22Z',
 				'pr-num'    => '123',
 			),
 			Utils::getRepoData( 'in-git.txt', $output, $helper )
@@ -399,7 +399,7 @@ class UtilsTest extends TestCase {
 		// Test the second commit.
 		$this->assertSame(
 			array(
-				'timestamp' => '2021-02-02T22:22:22+00:00',
+				'timestamp' => '2021-02-02T22:22:22Z',
 				'pr-num'    => '124',
 			),
 			Utils::getRepoData( 'in-git2.txt', $output, $helper )
@@ -428,9 +428,7 @@ class UtilsTest extends TestCase {
 	 * Test loadAllChanges.
 	 */
 	public function testLoadAllChanges() {
-		$formatter = $this->getMockBuilder( FormatterPlugin::class )
-			->setMethodsExcept( array() )
-			->getMock();
+		$formatter = $this->getMockBuilder( FormatterPlugin::class )->getMock();
 		$formatter->expects( $this->never() )->method( $this->logicalNot( $this->matches( 'newChangeEntry' ) ) );
 		$formatter->method( 'newChangeEntry' )->willReturnCallback(
 			function ( $data ) {

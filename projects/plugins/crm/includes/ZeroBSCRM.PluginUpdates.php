@@ -2,20 +2,9 @@
 /*!
  * Jetpack CRM
  * https://jetpackcrm.com
- * V2.14+
- *
- * Copyright 2017+ ZeroBSCRM.com
- *
- * Date: 26/09/2017
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 
@@ -721,14 +710,14 @@ class zeroBSCRM_Plugin_Updater {
 
 		// build request data package
 		$api_params = array(
-			'zbs-action' 	=> $action,
-			'license'    	=> $this->get_license_key(),
-			'url'        	=> home_url(),
-			'method'	 	=> 'POST',
-			'is_multi_site'	=> $multisite,
-			'is_wl'			=> $wl,
-			'country'		=> '',
-			'core_ver'		=> $zbs->version
+			'zbs-action'    => $action,
+			'license'       => $this->get_license_key(),
+			'url'           => home_url(),
+			'method'        => 'POST',
+			'is_multi_site' => $multisite,
+			'is_wl'         => $wl,
+			'country'       => '',
+			'core_ver'      => $zbs::VERSION,
 		);
 
 		// sites
@@ -737,35 +726,6 @@ class zeroBSCRM_Plugin_Updater {
 		// combine sites list, our package, and any passed $data
 		$api_params = array_merge($api_params, $sites);
 		$api_params = array_merge($api_params, $data);
-
-		/* Ultimately that'll make this remote post:
-
-		1 big array:
-
-				$api_params = array(
-					'zbs-action' 	=> $action,
-					'license'    	=> $this->get_license_key(),
-					'url'        	=> home_url(),
-					'method'	 	=> 'POST',
-					'is_multi_site'	=> $multisite,
-					'is_wl'			=> $wl,
-					'country'		=> $country,
-					'core_ver'		=> $zbs->version
-
-				 ++ 
-					'slug'=> 'all', 
-					'zbs-extensions'=> $zbs_extensions_on_site, 
-					'active-extensions' => $active_plugins, 
-					'telemetry-active' => $zbs_active_plugins, 
-					'telemetry-all' => $zbs_all_plugins_and_ver
-
-				++ 
-					'sites' => array()
-			 
-				);
-
-		*/
-
 
 		// got cache? (we don't cache ext_info)
 		global $zbsExtUpdateCache;
@@ -947,9 +907,6 @@ class zeroBSCRM_Plugin_Updater {
 			// if checks out...
 			if ( ! empty( $to_path ) && $to_path !== $from_path ) {
 
-				//echo 'from:'.$from_path.'<br>to:'.$to_path;
-				//exit();
-
 				if ( true === $wp_filesystem->move( $from_path, $to_path ) ) {
 					return trailingslashit( $to_path );
 				} else {
@@ -1120,8 +1077,7 @@ function zeroBSCRM_localDblCheck(){
 
 
 	// checks if a plugin has an update.
-	// adapted from https://wordpress.stackexchange.com/questions/228468/plugin-update-warning 
-	// ... for pre-checking new ver releases (e.g. <3.0 to 3.0) to enable pre-warning as in ZeroBSCRM.PluginUpdates.ImminentRelease.php
+	// adapted from https://wordpress.stackexchange.com/questions/228468/plugin-update-warning
 	// name = Jetpack CRM
 	// textdom = zero-bs-crm (in lieu of slug)
 	function zeroBSCRM_updates_pluginHasUpdate($name='',$textDomain=''){

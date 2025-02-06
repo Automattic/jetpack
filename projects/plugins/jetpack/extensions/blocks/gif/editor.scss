@@ -3,6 +3,17 @@
 .wp-block-jetpack-gif {
 	figure {
 		transition: padding-top 125ms ease-in-out;
+
+		.wp-block-jetpack-gif_input-container {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			margin-bottom: 10px;
+		}
+
+		.wp-block-jetpack-gif_input {
+			max-width: 400px;
+		}
 	}
 	.components-base-control__field {
 		text-align: center;
@@ -25,15 +36,9 @@
 			outline: none;
 		}
 	}
-	.wp-block-jetpack-gif_input-container {
-		display: flex;
-		flex-direction: row;
-		flex-wrap: wrap;
-		justify-content: center;
-		margin-bottom: 10px;
-		max-width: 400px;
-		width: 100%;
-		z-index: 1;
+	.wp-block-jetpack-gif_input {
+		flex: 1;
+		margin-right: 6px;
 	}
 	.wp-block-jetpack-gif_thumbnails-container {
 		display: flex;

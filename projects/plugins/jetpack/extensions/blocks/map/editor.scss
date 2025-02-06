@@ -5,6 +5,14 @@
 	}
 }
 .wp-block[data-type='jetpack/map'] {
+	.wp-block-group-is-layout-flex:not(.is-vertical) > & {
+		flex-basis: 100%;
+	}
+
+	.wp-block-group-is-layout-flex.is-vertical > & {
+		width: 100%;
+	}
+
 	.components-placeholder__label {
 		svg {
 			fill: currentColor;
@@ -34,10 +42,20 @@
 		// This matches the color that MapBox uses as a placeholder before map tiles have loaded.
 		background-color: #e4e2de;
 	}
-}
 
-.wp-block-jetpack-map__height_input {
-	display: block;
+	 .wp-block-jetpack-map__gm-container {
+	 	inset: 0;
+	 	z-index: 0;
+	 }
+
+	/* Overlay for block selection */
+	.wp-block-jetpack-map__select-overlay {
+		position: absolute;
+		inset: 0;
+		z-index: 2;
+		background-color: transparent;
+		pointer-events: auto;
+	}
 }
 
 .component__add-point__popover {

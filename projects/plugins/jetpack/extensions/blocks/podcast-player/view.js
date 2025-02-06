@@ -1,4 +1,4 @@
-import { render, createElement, unmountComponentAtNode } from '@wordpress/element';
+import { createElement, createRoot } from '@wordpress/element';
 import debugFactory from 'debug';
 import '../../store/media-source';
 import PodcastPlayer from './components/podcast-player';
@@ -57,7 +57,7 @@ const initializeBlock = function ( id ) {
 	const fallbackHTML = block.innerHTML;
 
 	// Abort if not tracks found.
-	if ( ! data || ! data.tracks.length ) {
+	if ( ! data?.tracks?.length ) {
 		debug( 'no tracks found' );
 		downgradeBlockToStatic( block );
 		return;
@@ -65,18 +65,22 @@ const initializeBlock = function ( id ) {
 
 	try {
 		// Prepare component.
+		const root = createRoot( block );
 		const component = createElement( PodcastPlayer, {
 			...data,
 			onError: function () {
 				// Unmount React version and bring back the static HTML.
-				unmountComponentAtNode( block );
-				block.innerHTML = fallbackHTML;
-				downgradeBlockToStatic( block );
+				requestAnimationFrame( () => {
+					root.unmount();
+					block.innerHTML = fallbackHTML;
+					downgradeBlockToStatic( block );
+				} );
 			},
 		} );
 
 		// Render and save instance to the list of active ones.
-		playerInstances[ id ] = render( component, block );
+		root.render( component );
+		playerInstances[ id ] = root;
 	} catch ( err ) {
 		debug( 'unable to render', err );
 		downgradeBlockToStatic( block );

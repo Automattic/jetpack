@@ -124,7 +124,7 @@ function load_assets( $attr, $content ) {
 
 	$map_provider = get_map_provider( $content );
 	if ( $map_provider === 'mapkit' ) {
-		return preg_replace( '/<div /', '<div data-map-provider="mapkit" data-blog-id="' . \Jetpack_Options::get_option( 'id' ) . '" ', $content, 1 );
+		return preg_replace( '/<div /', '<div data-map-provider="mapkit" data-api-key="' . esc_attr( $access_token['key'] ) . '"  data-blog-id="' . \Jetpack_Options::get_option( 'id' ) . '" ', $content, 1 );
 	}
 
 	return preg_replace( '/<div /', '<div data-map-provider="mapbox" data-api-key="' . esc_attr( $access_token['key'] ) . '" ', $content, 1 );
@@ -153,6 +153,11 @@ function render_single_block_page() {
 	$post_html = new \DOMDocument();
 	/** This filter is already documented in core/wp-includes/post-template.php */
 	$content = apply_filters( 'the_content', $post->post_content );
+
+	// Return early if empty to prevent DOMDocument::loadHTML fatal.
+	if ( empty( $content ) ) {
+		return;
+	}
 
 	/* Suppress warnings */
 	libxml_use_internal_errors( true );
@@ -189,7 +194,7 @@ function render_single_block_page() {
 		preg_replace( '/(?<=<div\s)/', 'data-api-key="' . esc_attr( $access_token['key'] ) . '" ', $block_markup, 1 )
 	);
 	echo $page_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	exit;
+	exit( 0 );
 }
 add_action( 'wp', __NAMESPACE__ . '\render_single_block_page' );
 

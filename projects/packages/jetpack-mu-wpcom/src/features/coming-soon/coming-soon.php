@@ -131,13 +131,11 @@ function render_fallback_coming_soon_page() {
 	remove_action( 'wp_print_styles', 'print_emoji_styles' );
 	remove_action( 'wp_head', 'header_js', 5 );
 	remove_action( 'wp_head', 'global_css', 5 );
-	remove_action( 'wp_footer', 'wpcom_subs_js' );
 	remove_action( 'wp_footer', 'stats_footer', 101 );
 	add_filter( 'infinite_scroll_archive_supported', '__return_false', 99 ); // Disable infinite scroll feature.
 	add_filter( 'jetpack_disable_eu_cookie_law_widget', '__return_true', 1 );
 	add_filter( 'wpcom_disable_logged_out_follow', '__return_true', 10, 1 ); // Disable follow actionbar.
 	add_filter( 'wpl_is_enabled_sitewide', '__return_false', 10, 1 ); // Disable likes.
-	add_filter( 'jetpack_implode_frontend_css', '__return_false', 99 ); // Jetpack "implodes" all registered CSS files into one file.
 	add_filter( 'woocommerce_demo_store', '__return_false' ); // Prevent the the wocommerce demo store notice from displaying.
 	add_filter( 'jetpack_open_graph_image_default', __NAMESPACE__ . '\coming_soon_share_image' ); // Set the default OG image.
 	add_filter( 'jetpack_twitter_cards_image_default', __NAMESPACE__ . '\coming_soon_share_image' ); // Set the default Twitter Card image.
@@ -172,6 +170,9 @@ add_filter( 'site_settings_endpoint_get', __NAMESPACE__ . '\add_public_coming_so
 function add_public_coming_soon_to_settings_endpoint_post( $input, $unfiltered_input ) {
 	if ( is_array( $unfiltered_input ) && array_key_exists( 'wpcom_public_coming_soon', $unfiltered_input ) ) {
 		$input['wpcom_public_coming_soon'] = (int) $unfiltered_input['wpcom_public_coming_soon'];
+
+		// Avoid updating the value of the `wpcom_public_coming_soon` if the request wants to change the option.
+		remove_action( 'update_option_blog_public', __NAMESPACE__ . '\disable_coming_soon_on_privacy_change', 10 );
 	}
 	return $input;
 }
@@ -235,6 +236,6 @@ function coming_soon_page( $template ) {
 	}
 
 	render_fallback_coming_soon_page();
-	die();
+	die( 0 );
 }
 add_filter( 'template_include', __NAMESPACE__ . '\coming_soon_page' );

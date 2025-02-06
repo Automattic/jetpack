@@ -10,13 +10,14 @@ class MapkitBlock {
 	constructor( root ) {
 		this.root = root;
 		this.blog_id = this.root.getAttribute( 'data-blog-id' );
-		this.center = JSON.parse( this.root.getAttribute( 'data-map-center' || '{}' ) );
+		this.center = JSON.parse( this.root.getAttribute( 'data-map-center' ) || '{}' );
 		this.points = JSON.parse( this.root.getAttribute( 'data-points' ) || '[]' );
 		this.color = this.root.getAttribute( 'data-marker-color' ) || 'red';
 		this.zoom = parseFloat( this.root.getAttribute( 'data-zoom' ) ) || 10;
 		this.scrollToZoom = this.root.getAttribute( 'data-scroll-to-zoom' ) === 'true';
 		this.mapStyle = this.root.getAttribute( 'data-map-style' ) || 'default';
 		this.mapHeight = this.root.getAttribute( 'data-map-height' ) || null;
+		this.onError = () => {};
 	}
 
 	async init() {
@@ -51,6 +52,10 @@ class MapkitBlock {
 		return new Promise( resolve => {
 			loadMapkitLibrary( document, window ).then( mapkit => {
 				this.mapkit = mapkit;
+				this.mapkit.addEventListener( 'error', event => {
+					// because Apple uses an event listener for errors, we can't just throw here
+					this.onError( event );
+				} );
 				resolve();
 			} );
 		} );

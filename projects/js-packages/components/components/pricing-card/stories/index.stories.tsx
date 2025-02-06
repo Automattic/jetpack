@@ -1,18 +1,17 @@
 import { action } from '@storybook/addon-actions';
 import PricingCard from '../index';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'JS Packages/Components/Pricing Card',
 	component: PricingCard,
-	// TODO: Storybook Actions are not working. See https://github.com/storybookjs/storybook/issues/7215
 	argTypes: {
 		onCtaClick: { action: 'clicked' },
 	},
-} as ComponentMeta< typeof PricingCard >;
+} as Meta< typeof PricingCard >;
 
 // Export additional stories using pre-defined values
-const Template: ComponentStory< typeof PricingCard > = args => <PricingCard { ...args } />;
+const Template: StoryFn< typeof PricingCard > = args => <PricingCard { ...args } />;
 
 const DefaultArgs = {
 	title: 'Jetpack Backup',

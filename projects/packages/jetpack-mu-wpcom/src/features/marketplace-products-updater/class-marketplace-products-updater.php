@@ -75,7 +75,7 @@ class Marketplace_Products_Updater {
 	 *
 	 * @param object $transient The update_themes transient object.
 	 *
-	 * @return object.
+	 * @return object Updated transient object.
 	 */
 	public static function transient_update_themes( $transient ) {
 		$updates = self::fetch_updates( 'themes' );

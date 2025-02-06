@@ -7,7 +7,7 @@ source tools/includes/chalk-lite.sh
 source tools/includes/check-osx-bash-version.sh
 
 # Email addresses of people who often author maintenance PRs.
-# Note the renovate bot is handled separately.
+# Note Matticbot is handled separately.
 AUTHORS=(
 	anomiex@users.noreply.github.com
 	jeremy@jeremy.hu
@@ -15,9 +15,11 @@ AUTHORS=(
 
 # Paths outside of projects/ to ignore.
 PATHS=(
+	':!.phan/stubs/*'
 	:!pnpm-lock.yaml
 	:!tools/phpcs-excludelist.json
 	:!tools/eslint-excludelist.json
+	':!tools/stubs/*-defs.php'
 	':!*/composer.lock'
 	':!*/changelog/*'
 	':!*/CHANGELOG.md'
@@ -91,23 +93,37 @@ function seen {
 }
 
 # Figure out which dates to check.
-read -r DS DE < <(php -r '
-	$t = new DateTimeImmutable( "00:00:00 UTC" );
-	$d = $t->format( "N" ) - 1;
-	printf(
-		"%s %s\n",
-		$t->modify( - ( $d + 7 ) . " days" )->format( "Y-m-d" ),
-		$t->modify( -$d . " days" )->format( "Y-m-d" )
-	);
-')
+if [[ $1 =~ ^[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]$ ]]; then
+	DS=$1
+	if [[ $2 =~ ^[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]$ ]]; then
+		DE=$2
+	else
+		DE=$(date +%F)
+	fi
+else
+	read -r DS DE < <(php -r '
+		$t = new DateTimeImmutable( "00:00:00 UTC" );
+		$d = $t->format( "N" ) - 1;
+		printf(
+			"%s %s\n",
+			$t->modify( - ( $d + 7 ) . " days" )->format( "Y-m-d" ),
+			$t->modify( -$d . " days" )->format( "Y-m-d" )
+		);
+	')
+fi
 echo ''
 info "Listing commits from $DS to <$DE"
 
-# Collect renovate entries for special reporting, and record the lines that would otherwise be printed as "seen" so they don't get printed in other sections.
+# Collect stubs and renovate entries for special reporting, and record the lines that would otherwise be printed as "seen" so they don't get printed in other sections.
+STUBS=()
 RENOVATE=()
 while IFS= read -r LINE; do
 	SEEN["$(fmt <<<"$LINE")"]=1
-	RENOVATE+=( "$(sed -E -e 's/^Update (dependency )?//' -e 's/ to .* (\(#[0-9]+\))$/ \1/' <<<"$LINE" | fmt | sed -e 's!^\* !!')" )
+	if [[ "$LINE" == 'phan: Update '*' stubs'* ]]; then
+		STUBS+=( "$(sed -E -e 's/^phan: Update (.*) stubs/\1/' <<<"$LINE" | fmt | sed -e 's!^\* !!')" )
+	else
+		RENOVATE+=( "$(sed -E -e 's/^Update (dependency )?//' -e 's/ to .* (\(#[0-9]+\))$/ \1/' <<<"$LINE" | fmt | sed -e 's!^\* !!')" )
+	fi
 done < <( git log --format='%s' --since "$DS 00:00:00 UTC" --until "$DE 00:00:00 UTC" --author='sysops+ghmatticbot@automattic.com' )
 
 echo ""
@@ -125,10 +141,20 @@ for AUTHOR in "${AUTHORS[@]}"; do
 	seen < <( git log --format='%s' --since "$DS 00:00:00 UTC" --until "$DE 00:00:00 UTC" --author="$AUTHOR" | fmt )
 done
 
-# Print the renovate line at the end, if applicable.
-if [[ ${#RENOVATE} -gt 0 ]]; then
+# Print the stubs and renovate lines at the end, if applicable.
+if [[ ${#STUBS} -gt 0 || ${#RENOVATE} -gt 0 ]]; then
 	echo ""
-	info "Renovate:"
+	info "Automated:"
+fi
+if [[ ${#STUBS} -gt 0 ]]; then
+	P='* Stubs: '
+	for R in "${STUBS[@]}"; do
+		printf '%s' "$P$R"
+		P=', '
+	done
+	echo ""
+fi
+if [[ ${#RENOVATE} -gt 0 ]]; then
 	P='* Renovate: '
 	for R in "${RENOVATE[@]}"; do
 		printf '%s' "$P$R"

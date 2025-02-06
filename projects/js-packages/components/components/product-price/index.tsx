@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 /*
  * Internal dependencies
  */
@@ -16,7 +16,7 @@ import type React from 'react';
  * React component to render the price.
  *
  * @param {ProductPriceProps} props - Component props.
- * @returns {React.ReactNode} Price react component.
+ * @return {React.ReactNode} Price react component.
  */
 const ProductPrice: React.FC< ProductPriceProps > = ( {
 	price,
@@ -25,7 +25,7 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 	showNotOffPrice = true,
 	hideDiscountLabel = true,
 	promoLabel = '',
-	legend = __( '/month, paid yearly', 'jetpack' ),
+	legend = __( '/month, paid yearly', 'jetpack-components' ),
 	isNotConvenientPrice = false,
 	hidePriceFraction = false,
 	children,
@@ -43,12 +43,12 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 
 	const showDiscountLabel = ! hideDiscountLabel && discount && discount > 0;
 
-	const discountElt = showDiscountLabel ? discount + __( '% off', 'jetpack' ) : null;
+	const discountElt = showDiscountLabel ? discount + __( '% off', 'jetpack-components' ) : null;
 
 	return (
 		<>
 			<div className={ styles.container }>
-				<div className={ classnames( styles[ 'price-container' ], 'product-price_container' ) }>
+				<div className={ clsx( styles[ 'price-container' ], 'product-price_container' ) }>
 					<Price
 						value={ offPrice ?? price }
 						currency={ currency }
@@ -64,7 +64,7 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 						/>
 					) }
 					{ discountElt && (
-						<Text className={ classnames( styles[ 'promo-label' ], 'product-price_promo_label' ) }>
+						<Text className={ clsx( styles[ 'promo-label' ], 'product-price_promo_label' ) }>
 							{ discountElt }
 						</Text>
 					) }
@@ -74,10 +74,10 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 				{ children ? (
 					children
 				) : (
-					<Text className={ classnames( styles.legend, 'product-price_legend' ) }>{ legend }</Text>
+					<Text className={ clsx( styles.legend, 'product-price_legend' ) }>{ legend }</Text>
 				) }
 				{ promoLabel && (
-					<Text className={ classnames( styles[ 'promo-label' ], 'product-price_promo_label' ) }>
+					<Text className={ clsx( styles[ 'promo-label' ], 'product-price_promo_label' ) }>
 						{ promoLabel }
 					</Text>
 				) }

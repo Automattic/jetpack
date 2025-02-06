@@ -1,15 +1,15 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, closeSmall } from '@wordpress/icons';
-import classnames from 'classnames';
-import {
+import clsx from 'clsx';
+import React, {
 	createContext,
 	useContext,
 	Children,
 	cloneElement,
 	PropsWithChildren,
 	ReactElement,
+	CSSProperties,
 } from 'react';
-import React, { CSSProperties } from 'react';
 import IconTooltip from '../icon-tooltip';
 import useBreakpointMatch from '../layout/use-breakpoint-match';
 import TermsOfService from '../terms-of-service';
@@ -22,9 +22,9 @@ import {
 	PricingTableItemProps,
 } from './types';
 
-const INCLUDED_TEXT = __( 'Included', 'jetpack' );
-const NOT_INCLUDED_TEXT = __( 'Not included', 'jetpack' );
-const COMING_SOON_TEXT = __( 'Coming soon', 'jetpack' );
+const INCLUDED_TEXT = __( 'Included', 'jetpack-components' );
+const NOT_INCLUDED_TEXT = __( 'Not included', 'jetpack-components' );
+const COMING_SOON_TEXT = __( 'Coming soon', 'jetpack-components' );
 
 const PricingTableContext = createContext( undefined );
 
@@ -33,7 +33,7 @@ const getItemLabels = ( isComingSoon, isIncluded, featureNameLabel ) => {
 		return {
 			lg: COMING_SOON_TEXT,
 			// translators: Name of the current feature
-			default: sprintf( __( '%s coming soon', 'jetpack' ), featureNameLabel ),
+			default: sprintf( __( '%s coming soon', 'jetpack-components' ), featureNameLabel ),
 		};
 	}
 
@@ -43,7 +43,7 @@ const getItemLabels = ( isComingSoon, isIncluded, featureNameLabel ) => {
 			? featureNameLabel
 			: sprintf(
 					/* translators: Name of the current feature */
-					__( '%s not included', 'jetpack' ),
+					__( '%s not included', 'jetpack-components' ),
 					featureNameLabel
 			  ),
 	};
@@ -73,9 +73,9 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	const defaultLabel = isLg ? labels.lg : labels.default;
 
 	return (
-		<div className={ classnames( styles.item, styles.value ) }>
+		<div className={ clsx( styles.item, styles.value ) }>
 			<Icon
-				className={ classnames(
+				className={ clsx(
 					styles.icon,
 					showTick ? styles[ 'icon-check' ] : styles[ 'icon-cross' ]
 				) }
@@ -87,7 +87,7 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 				<IconTooltip
 					title={ tooltipTitle ? tooltipTitle : defaultTooltipTitle }
 					iconClassName={ styles[ 'popover-icon' ] }
-					className={ classnames( styles.popover, tooltipClassName ) }
+					className={ clsx( styles.popover, tooltipClassName ) }
 					placement={ 'bottom-end' }
 					iconSize={ 14 }
 					offset={ 4 }
@@ -113,7 +113,7 @@ export const PricingTableColumn: React.FC< PricingTableColumnProps > = ( {
 	let index = 0;
 
 	return (
-		<div className={ classnames( styles.card, { [ styles[ 'is-primary' ] ]: primary } ) }>
+		<div className={ clsx( styles.card, { [ styles[ 'is-primary' ] ]: primary } ) }>
 			{ Children.map( children, child => {
 				const item = child as ReactElement<
 					PropsWithChildren< PricingTableHeaderProps | PricingTableItemProps >
@@ -141,7 +141,7 @@ const PricingTable: React.FC< PricingTableProps > = ( {
 	return (
 		<PricingTableContext.Provider value={ items }>
 			<div
-				className={ classnames( styles.container, { [ styles[ 'is-viewport-large' ] ]: isLg } ) }
+				className={ clsx( styles.container, { [ styles[ 'is-viewport-large' ] ]: isLg } ) }
 				style={
 					{
 						'--rows': items.length + 1,
@@ -154,7 +154,7 @@ const PricingTable: React.FC< PricingTableProps > = ( {
 					{ isLg &&
 						items.map( ( item, i ) => (
 							<div
-								className={ classnames( styles.item, {
+								className={ clsx( styles.item, {
 									[ styles[ 'last-feature' ] ]: i === items.length - 1,
 								} ) }
 								key={ i }
@@ -186,7 +186,7 @@ const PricingTable: React.FC< PricingTableProps > = ( {
 						<Text variant="body-small">
 							{ __(
 								'Reduced pricing is a limited offer for the first year and renews at regular price.',
-								'jetpack'
+								'jetpack-components'
 							) }
 						</Text>
 					) }

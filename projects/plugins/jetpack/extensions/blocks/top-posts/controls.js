@@ -1,10 +1,12 @@
 import {
+	Notice,
 	PanelBody,
 	RangeControl,
 	SelectControl,
 	ToggleControl,
 	ToolbarGroup,
 } from '@wordpress/components';
+import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
 export function TopPostsInspectorControls( {
@@ -17,17 +19,26 @@ export function TopPostsInspectorControls( {
 	const { displayAuthor, displayContext, displayDate, displayThumbnail, period, postsToShow } =
 		attributes;
 
+	const [ showErrorMessage, setShowErrorMessage ] = useState( false );
+
 	if ( ! postTypesData ) {
 		return;
 	}
 
 	const handleToggleChange = toggleId => isChecked => {
-		setToggleAttributes( prevAttributes => ( {
-			...prevAttributes,
+		const updatedAttributes = {
+			...toggleAttributes,
 			[ toggleId ]: isChecked,
-		} ) );
+		};
 
-		setAttributes( { postTypes: { ...toggleAttributes, [ toggleId ]: isChecked } } );
+		// Require at least one type to be selected.
+		if ( Object.values( updatedAttributes ).every( value => value === false ) ) {
+			return setShowErrorMessage( true );
+		}
+
+		setToggleAttributes( updatedAttributes );
+		setAttributes( { postTypes: updatedAttributes } );
+		setShowErrorMessage( false );
 	};
 
 	const periodOptions = [
@@ -44,6 +55,8 @@ export function TopPostsInspectorControls( {
 		<>
 			<PanelBody title={ __( 'Block settings', 'jetpack' ) }>
 				<RangeControl
+					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					label={ __( 'Number of items', 'jetpack' ) }
 					value={ postsToShow }
 					onChange={ value => setAttributes( { postsToShow: Math.min( value, 10 ) } ) }
@@ -51,6 +64,8 @@ export function TopPostsInspectorControls( {
 					max={ 10 }
 				/>
 				<SelectControl
+					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					label={ __( 'Stats period', 'jetpack' ) }
 					value={ period }
 					onChange={ value => setAttributes( { period: value } ) }
@@ -60,6 +75,7 @@ export function TopPostsInspectorControls( {
 			<PanelBody title={ __( 'Items to display', 'jetpack' ) }>
 				{ postTypesData.map( toggle => (
 					<ToggleControl
+						__nextHasNoMarginBottom={ true }
 						key={ toggle.id }
 						label={ sprintf(
 							/* translators: %s: Content type (eg. post/page). */
@@ -70,24 +86,33 @@ export function TopPostsInspectorControls( {
 						onChange={ handleToggleChange( toggle.id ) }
 					/>
 				) ) }
+				{ showErrorMessage && (
+					<Notice className="jetpack-top-posts__error" status="error" isDismissible={ false }>
+						{ __( 'At least one item must be selected.', 'jetpack' ) }
+					</Notice>
+				) }
 			</PanelBody>
 			<PanelBody title={ __( 'Metadata settings', 'jetpack' ) }>
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Display date', 'jetpack' ) }
 					checked={ displayDate }
 					onChange={ value => setAttributes( { displayDate: value } ) }
 				/>
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Display author', 'jetpack' ) }
 					checked={ displayAuthor }
 					onChange={ value => setAttributes( { displayAuthor: value } ) }
 				/>
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Display context', 'jetpack' ) }
 					checked={ displayContext }
 					onChange={ value => setAttributes( { displayContext: value } ) }
 				/>
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Display thumbnail', 'jetpack' ) }
 					checked={ displayThumbnail }
 					onChange={ value => setAttributes( { displayThumbnail: value } ) }

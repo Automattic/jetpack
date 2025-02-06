@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Rename intra-monorepo `jetpack-e2e-commons` dep to `_jetpack-e2e-commons`, which cannot be published to npmjs.com.
+
+

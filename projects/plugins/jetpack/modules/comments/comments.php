@@ -132,6 +132,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		remove_all_actions( 'comment_form_before' );
 
 		// Selfishly add only our actions back to the comment form.
+		add_action( 'comment_form_before', array( $this, 'manage_post_cookie' ) );
 		add_action( 'comment_form_before', array( $this, 'comment_form_before' ) );
 		add_action( 'comment_form_after', array( $this, 'comment_form_after' ), 1 ); // Set very early since we remove everything outputed before our action.
 
@@ -151,9 +152,51 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		parent::setup_filters();
 
 		add_filter( 'comment_post_redirect', array( $this, 'capture_comment_post_redirect_to_reload_parent_frame' ), 100 );
+		add_filter( 'comment_duplicate_trigger', array( $this, 'capture_comment_duplicate_trigger' ), 100 );
 		add_filter( 'get_avatar', array( $this, 'get_avatar' ), 10, 4 );
 		// Fix comment reply link when `comment_registration` is required.
 		add_filter( 'comment_reply_link', array( $this, 'comment_reply_link' ), 10, 4 );
+	}
+
+	/**
+	 * In order for comments to work properly for password-protected posts we need to set `wp-postpass` cookie to SameSite none.
+	 */
+	public function manage_post_cookie() {
+		$postpass_cookie_key = 'wp-postpass_' . COOKIEHASH;
+
+		if ( empty( $_COOKIE[ $postpass_cookie_key ] ) ) {
+			return;
+		}
+
+		$postpass_cookie_value = sanitize_text_field( wp_unslash( $_COOKIE[ $postpass_cookie_key ] ) );
+
+		if ( empty( $_COOKIE['verbum-wp-postpass'] ) || ( $_COOKIE['verbum-wp-postpass'] !== $postpass_cookie_value ) ) {
+			$expire = apply_filters( 'post_password_expires', time() + 10 * DAY_IN_SECONDS );
+
+			jetpack_shim_setcookie(
+				$postpass_cookie_key,
+				$postpass_cookie_value,
+				array(
+					'expires'  => $expire,
+					'samesite' => 'None',
+					'path'     => '/',
+					'domain'   => COOKIE_DOMAIN,
+					'secure'   => is_ssl(),
+				)
+			);
+
+			jetpack_shim_setcookie(
+				'verbum-wp-postpass',
+				$postpass_cookie_value,
+				array(
+					'expires'  => $expire,
+					'samesite' => 'None',
+					'path'     => '/',
+					'domain'   => COOKIE_DOMAIN,
+					'secure'   => is_ssl(),
+				)
+			);
+		}
 	}
 
 	/**
@@ -351,6 +394,7 @@ HTML;
 			'color_scheme'           => get_option( 'jetpack_comment_form_color_scheme', $this->default_color_scheme ),
 			'lang'                   => get_locale(),
 			'jetpack_version'        => JETPACK__VERSION,
+			'iframe_unique_id'       => wp_unique_id(),
 		);
 
 		// Extra parameters for logged in user.
@@ -368,7 +412,7 @@ HTML;
 			$commenter                     = wp_get_current_commenter();
 			$params['show_cookie_consent'] = (int) has_action( 'set_comment_cookies', 'wp_set_comment_cookies' );
 			$params['has_cookie_consent']  = (int) ! empty( $commenter['comment_author_email'] );
-			// Jetpack_Memberships for logged out users only checks for the jp-premium-content-session cookie
+			// Jetpack_Memberships for logged out users only checks for the wp-jp-premium-content-session cookie
 			$params['is_current_user_subscribed'] = class_exists( '\Jetpack_Memberships' ) ? (int) Jetpack_Memberships::is_current_user_subscribed() : 0;
 		}
 
@@ -513,50 +557,70 @@ HTML;
 		}
 		?>
 		<script type="text/javascript">
-			const iframe = document.getElementById( 'jetpack_remote_comment' );
-			<?php if ( get_option( 'thread_comments' ) && get_option( 'thread_comments_depth' ) ) : ?>
-			const watchReply = function() {
-				// Check addComment._Jetpack_moveForm to make sure we don't monkey-patch twice.
-				if ( 'undefined' !== typeof addComment && ! addComment._Jetpack_moveForm ) {
-					// Cache the Core function.
-					addComment._Jetpack_moveForm = addComment.moveForm;
-					const commentParent = document.getElementById( 'comment_parent' );
-					const cancel = document.getElementById( 'cancel-comment-reply-link' );
+			(function () {
+				const iframe = document.getElementById( 'jetpack_remote_comment' );
+				<?php if ( get_option( 'thread_comments' ) && get_option( 'thread_comments_depth' ) ) : ?>
+				const watchReply = function() {
+					// Check addComment._Jetpack_moveForm to make sure we don't monkey-patch twice.
+					if ( 'undefined' !== typeof addComment && ! addComment._Jetpack_moveForm ) {
+						// Cache the Core function.
+						addComment._Jetpack_moveForm = addComment.moveForm;
+						const commentParent = document.getElementById( 'comment_parent' );
+						const cancel = document.getElementById( 'cancel-comment-reply-link' );
 
-					function tellFrameNewParent ( commentParentValue ) {
-						const url = new URL( iframe.src );
-						if ( commentParentValue ) {
-							url.searchParams.set( 'replytocom', commentParentValue )
-						} else {
-							url.searchParams.delete( 'replytocom' );
-						}
-						if( iframe.src !== url.href ) {
-							iframe.src = url.href;
-						}
-					};
+						function tellFrameNewParent ( commentParentValue ) {
+							const url = new URL( iframe.src );
+							if ( commentParentValue ) {
+								url.searchParams.set( 'replytocom', commentParentValue )
+							} else {
+								url.searchParams.delete( 'replytocom' );
+							}
+							if( iframe.src !== url.href ) {
+								iframe.src = url.href;
+							}
+						};
 
-					cancel.addEventListener( 'click', function () {
-						tellFrameNewParent( false );
-					} );
+						cancel.addEventListener( 'click', function () {
+							tellFrameNewParent( false );
+						} );
 
-					addComment.moveForm = function ( _, parentId ) {
-						tellFrameNewParent( parentId );
-						return addComment._Jetpack_moveForm.apply( null, arguments );
-					};
+						addComment.moveForm = function ( _, parentId ) {
+							tellFrameNewParent( parentId );
+							return addComment._Jetpack_moveForm.apply( null, arguments );
+						};
+					}
 				}
-			}
-			document.addEventListener( 'DOMContentLoaded', watchReply );
-			// In WP 6.4+, the script is loaded asynchronously, so we need to wait for it to load before we monkey-patch the functions it introduces.
-			document.querySelector('#comment-reply-js')?.addEventListener( 'load', watchReply );
+				document.addEventListener( 'DOMContentLoaded', watchReply );
+				// In WP 6.4+, the script is loaded asynchronously, so we need to wait for it to load before we monkey-patch the functions it introduces.
+				document.querySelector('#comment-reply-js')?.addEventListener( 'load', watchReply );
 
-			<?php endif; ?>
+				<?php endif; ?>
+				
+				const commentIframes = document.getElementsByClassName('jetpack_remote_comment');
 
-			window.addEventListener( 'message', function ( event ) {
-				if ( event.origin !== 'https://jetpack.wordpress.com' ) {
-					return;
-				}
-				iframe.style.height = event.data + 'px';
-			});
+				window.addEventListener('message', function(event) {
+					if (event.origin !== 'https://jetpack.wordpress.com') {
+						return;
+					}
+
+					if (!event?.data?.iframeUniqueId && !event?.data?.height) {
+						return;
+					}
+
+					const eventDataUniqueId = event.data.iframeUniqueId;
+
+					// Change height for the matching comment iframe
+					for (let i = 0; i < commentIframes.length; i++) {
+						const iframe = commentIframes[i];
+						const url = new URL(iframe.src);
+						const iframeUniqueIdParam = url.searchParams.get('iframe_unique_id');
+						if (iframeUniqueIdParam == event.data.iframeUniqueId) {
+							iframe.style.height = event.data.height + 'px';
+							return;
+						}
+					}
+				});
+			})();
 		</script>
 		<?php
 	}
@@ -575,12 +639,14 @@ HTML;
 		// Bail if missing the Jetpack token.
 		if ( ! isset( $post_array['sig'] ) || ! isset( $post_array['token_key'] ) ) {
 			unset( $_POST['hc_post_as'] );
-
 			return;
 		}
 
 		if ( empty( $post_array['jetpack_comments_nonce'] ) || ! wp_verify_nonce( $post_array['jetpack_comments_nonce'], "jetpack_comments_nonce-{$post_array['comment_post_ID']}" ) ) {
-				wp_die( esc_html__( 'Nonce verification failed.', 'jetpack' ), 400 );
+			if ( ! isset( $_GET['only_once'] ) ) {
+				self::retry_submit_comment_form_locally();
+			}
+			wp_die( esc_html__( 'Nonce verification failed.', 'jetpack' ), 400 );
 		}
 
 		if ( str_contains( $post_array['hc_avatar'], '.gravatar.com' ) ) {
@@ -608,6 +674,56 @@ HTML;
 
 			wp_die( esc_html__( 'Comments are not allowed.', 'jetpack' ), 403 );
 		}
+	}
+
+	/**
+	 * Handle Jetpack Comments POST requests: process the comment form, then client-side POST the results to the self-hosted blog
+	 *
+	 * This function exists because when we submit the form via the jetpack.wordpress.com iframe
+	 * in Chrome the request comes in to Jetpack but for some reason the request doesn't have access to cookies yet.
+	 * By submitting the form again locally with the same data the process works as expected.
+	 *
+	 * @return never
+	 */
+	public function retry_submit_comment_form_locally() {
+		// We are not doing any validation here since all the validation will be done again by pre_comment_on_post().
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$comment_data = stripslashes_deep( $_POST );
+		?>
+		<!DOCTYPE html>
+		<html>
+		<head>
+		<link rel="preload" as="image" href="https://jetpack.wordpress.com/wp-admin/images/spinner.gif"> <!-- Preload the spinner image -->
+		<meta charset="utf-8">
+		<title><?php echo esc_html__( 'Submitting Comment', 'jetpack' ); ?></title>
+		<style type="text/css">
+			body {
+				display: table;
+				width: 100%;
+				height: 60%;
+				position: absolute;
+				top: 0;
+				left: 0;
+				overflow: hidden;
+				color: #333;
+			}
+		</style>
+		</head>
+		<body>
+		<img src="https://jetpack.wordpress.com/wp-admin/images/spinner.gif" >
+		<form id="jetpack-remote-comment-post-form" action="<?php echo esc_url( get_site_url() ); ?>/wp-comments-post.php?for=jetpack&only_once=true" method="POST">
+			<?php foreach ( $comment_data as $key => $val ) : ?>
+				<input type="hidden" name="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $val ); ?>" />
+			<?php endforeach; ?>
+		</form>
+
+		<script type="text/javascript">
+			document.getElementById("jetpack-remote-comment-post-form").submit();
+		</script>
+		</body>
+		</html>
+		<?php
+		exit( 0 );
 	}
 
 	/** Capabilities **********************************************************/
@@ -727,6 +843,95 @@ HTML;
 	}
 
 	/**
+	 * Catch the duplicated comment error and show a custom error page
+	 *
+	 * @return never
+	 */
+	public function capture_comment_duplicate_trigger() {
+		if ( ! isset( $_GET['for'] ) || 'jetpack' !== $_GET['for'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			exit( 0 );
+		}
+
+		?>
+		<!DOCTYPE html>
+		<html <?php language_attributes(); ?>>
+		<!--<![endif]-->
+		<head>
+			<meta charset="<?php bloginfo( 'charset' ); ?>" />
+			<title>
+				<?php
+					wp_kses_post(
+						printf(
+							/* translators: %s is replaced by an ellipsis */
+							__( 'Submitting Comment%s', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							'&hellip;'
+						)
+					);
+				?>
+				</title>
+			<style type="text/css">
+				body {
+					display: table;
+					width: 100%;
+					height: 60%;
+					position: absolute;
+					top: 0;
+					left: 0;
+					overflow: hidden;
+					color: #333;
+					padding-top: 3%;
+				}
+				div {
+					text-align: left;
+					margin: 0;
+					padding: 0;
+					display: table-cell;
+					vertical-align: top;
+					font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", sans-serif;
+					font-weight: normal;
+				}
+
+				h3 {
+					margin: 0;
+					padding-bottom: 3%;
+					font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", sans-serif;
+					font-weight: normal;
+				}
+				a {
+					text-decoration: underline;
+					color: #333 !important;
+				}
+			</style>
+		</head>
+		<body>
+		<div>
+			<h3>
+				<?php
+					esc_html_e( 'Duplicate comment detected; it looks as though you’ve already said that!', 'jetpack' );
+				?>
+			</h3>
+			<a href="javascript:backToComments()"><?php esc_html_e( '&laquo; Back', 'jetpack' ); ?></a>
+		</div>
+		<script type="text/javascript">
+			function backToComments() {
+				const test = regexp => {
+						return regexp.test(navigator.userAgent);
+				};
+				if (test(/chrome|chromium|crios|safari|edg/i)) {
+						history.go(-2);
+						return;
+				}
+				history.back();
+			}
+		</script>
+
+		</body>
+		</html>
+		<?php
+		exit( 0 );
+	}
+
+	/**
 	 * POST the submitted comment to the iframe
 	 *
 	 * @param string $url The comment URL origin.
@@ -769,14 +974,15 @@ HTML;
 					left: 0;
 					overflow: hidden;
 					color: #333;
+					padding-top: 3%;
 				}
 
-				h1 {
+				h3 {
 					text-align: center;
 					margin: 0;
 					padding: 0;
 					display: table-cell;
-					vertical-align: middle;
+					vertical-align: top;
 					font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", sans-serif;
 					font-weight: normal;
 				}
@@ -785,7 +991,7 @@ HTML;
 					opacity: 0;
 				}
 
-				h1 span {
+				h3 span {
 					-moz-transition-property: opacity;
 					-moz-transition-duration: 1s;
 					-moz-transition-timing-function: ease-in-out;
@@ -810,7 +1016,7 @@ HTML;
 		</head>
 		<body>
 		<?php if ( ! $should_show_subscription_modal ) { ?>
-		<h1>
+		<h3>
 			<?php
 				wp_kses_post(
 					printf(
@@ -820,14 +1026,14 @@ HTML;
 					)
 				);
 			?>
-		</h1>
+		</h3>
 		<script type="text/javascript">
 			try {
-				window.parent.location = <?php echo wp_json_encode( $url ); ?>;
-				window.parent.location.reload(true);
+				window.parent.location.href = <?php echo wp_json_encode( $url ); ?>;
+				window.parent.location.reload( true );
 			} catch (e) {
-				window.location = <?php echo wp_json_encode( $url ); ?>;
-				window.location.reload(true);
+				window.location.href = <?php echo wp_json_encode( $url ); ?>;
+				window.location.reload( true );
 			}
 			ellipsis = document.getElementById('ellipsis');
 
@@ -838,13 +1044,13 @@ HTML;
 			setInterval(toggleEllipsis, 1200);
 		</script>
 		<?php } else { ?>
-		<h1>
+		<h3>
 			<?php
 				wp_kses_post(
 					print __( 'Comment sent', 'jetpack' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				);
 			?>
-		</h1>
+		</h3>
 		<script type="text/javascript">
 			if ( window.parent && window.parent !== window ) {
 
@@ -861,7 +1067,7 @@ HTML;
 		</body>
 		</html>
 		<?php
-		exit;
+		exit( 0 );
 	}
 }
 

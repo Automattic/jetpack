@@ -1,17 +1,9 @@
-@import '../../../css/main/variables';
-@import '../../../css/main/mixins';
+@import '$css/main/variables';
+@import '$css/main/mixins';
 
 .speed-scores {
 	p {
 		margin: 1em 0;
-	}
-
-	h2 {
-		font-weight: 700;
-
-		@include breakpoint(xs) {
-			font-size: 27px;
-		}
 	}
 
 	.offline, .top {
@@ -34,11 +26,42 @@
 	.action-button {
 		color: $gray_90;
 		margin-left: auto;
+		min-width: auto;
 
 		svg {
 			fill: $jetpack-green;
 		}
 	}
+
+	:global(.jb-score-bar__no_boost_score_tooltip) {
+		top: -68px;
+		font-size: 16px;
+	}
+
+	:global(.jb-score-bar__no_boost_score_tooltip::after) {
+		font-size: 0.7em;
+		left: 50%;
+	}
 }
 
+:global(.jb-dashboard) .speed-scores h2 {
+	font-weight: 700;
 
+	@include breakpoint(xs) {
+		font-size: 27px;
+	}
+}
+
+@include breakpoint(xs) {
+	.speed-scores :global(.icon-tooltip-helper.is-wide .components-popover) {
+		left: -60px !important;
+	}
+
+	.speed-scores :global(.icon-tooltip-helper.is-wide .components-popover__content) {
+		width: 304px;
+	}
+
+	.speed-scores :global(.icon-tooltip-helper.is-wide .components-popover__arrow) {
+		left: 215px !important;
+	}
+}

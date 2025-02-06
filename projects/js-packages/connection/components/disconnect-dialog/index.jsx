@@ -15,7 +15,7 @@ import StepThankYou from './steps/step-thank-you';
  * The RNA Disconnect Dialog component.
  *
  * @param {object} props -- The properties.
- * @returns {React.Component} The `DisconnectDialog` component.
+ * @return {React.Component} The `DisconnectDialog` component.
  */
 const DisconnectDialog = props => {
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
@@ -29,13 +29,13 @@ const DisconnectDialog = props => {
 		apiRoot,
 		apiNonce,
 		connectedPlugins,
-		title,
+		title = __( 'Are you sure you want to disconnect?', 'jetpack-connection-js' ),
 		pluginScreenDisconnectCallback,
 		onDisconnected,
 		onError,
 		disconnectStepComponent,
-		context,
-		connectedUser,
+		context = 'jetpack-dashboard',
+		connectedUser = {}, // Pass empty object to avoid undefined errors.
 		connectedSiteId,
 		isOpen,
 		onClose,
@@ -302,7 +302,7 @@ const DisconnectDialog = props => {
 	/**
 	 * Determine what step to show based on the current state
 	 *
-	 * @returns { React.Component|undefined } - component for current step
+	 * @return { React.Component|undefined } - component for current step
 	 */
 	const getCurrentStep = () => {
 		if ( ! isDisconnected ) {
@@ -398,12 +398,6 @@ DisconnectDialog.propTypes = {
 	isOpen: PropTypes.bool,
 	/** Callback function for when the modal closes. */
 	onClose: PropTypes.func,
-};
-
-DisconnectDialog.defaultProps = {
-	title: __( 'Are you sure you want to disconnect?', 'jetpack' ),
-	context: 'jetpack-dashboard',
-	connectedUser: {}, // Pass empty object to avoid undefined errors.
 };
 
 export default DisconnectDialog;

@@ -1,13 +1,15 @@
-import { imagePath } from 'constants/urls';
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { ActivationScreen } from '@automattic/jetpack-licensing';
+import ConnectScreenBody from '@automattic/jetpack-my-jetpack/components/connection-screen/body';
 import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
-import { Dashicon } from '@wordpress/components';
 import { withDispatch } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import jQuery from 'jquery';
+import React from 'react';
+import { connect } from 'react-redux';
+import { useLocation, useNavigate } from 'react-router-dom';
 import AtAGlance from 'at-a-glance/index.jsx';
 import AdminNotices from 'components/admin-notices';
 import AppsCard from 'components/apps-card';
@@ -22,14 +24,11 @@ import NonAdminView from 'components/non-admin-view';
 import ReconnectModal from 'components/reconnect-modal';
 import SupportCard from 'components/support-card';
 import Tracker from 'components/tracker';
-import jQuery from 'jquery';
+import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 import MyPlan from 'my-plan/index.jsx';
 import ProductDescriptions from 'product-descriptions';
 import { productDescriptionRoutes } from 'product-descriptions/constants';
-import React from 'react';
-import { connect } from 'react-redux';
-import { withRouter, Prompt } from 'react-router-dom';
 import { Recommendations } from 'recommendations';
 import SearchableSettings from 'settings/index.jsx';
 import {
@@ -53,6 +52,7 @@ import {
 import {
 	setInitialState,
 	getSiteRawUrl,
+	getSiteId,
 	getSiteAdminUrl,
 	getApiNonce,
 	getApiRootUrl,
@@ -71,6 +71,7 @@ import {
 	showMyJetpack,
 	isWooCommerceActive,
 	userIsSubscriber,
+	getJetpackManageInfo,
 } from 'state/initial-state';
 import {
 	updateLicensingActivationNoticeDismiss as updateLicensingActivationNoticeDismissAction,
@@ -88,7 +89,7 @@ import {
 	fetchSiteData as fetchSiteDataAction,
 	fetchSitePurchases as fetchSitePurchasesAction,
 } from 'state/site';
-import AgenciesCard from './components/agencies-card';
+import JetpackManageBanner from './components/jetpack-manage-banner';
 
 const recommendationsRoutes = [
 	'/recommendations',
@@ -119,9 +120,14 @@ const recommendationsRoutes = [
 	'/recommendations/welcome-videopress',
 	'/recommendations/welcome-search',
 	'/recommendations/welcome-scan',
+	'/recommendations/welcome-social-basic',
+	'/recommendations/welcome-social-v1',
+	'/recommendations/welcome-social-image-generator',
 	'/recommendations/welcome-golden-token',
 	'/recommendations/backup-activated',
 	'/recommendations/scan-activated',
+	'/recommendations/unlimited-sharing-activated',
+	'/recommendations/social-v1-activated',
 	'/recommendations/antispam-activated',
 	'/recommendations/videopress-activated',
 	'/recommendations/search-activated',
@@ -187,10 +193,13 @@ class Main extends React.Component {
 			! this.props.hasSeenWCConnectionModal &&
 			this.props.userCanManageModules
 		) {
-			this.props.history.replace( {
-				pathname: '/woo-setup',
-				state: { previousPath: this.props.location.pathname },
-			} );
+			this.props.navigate(
+				{
+					pathname: '/woo-setup',
+					state: { previousPath: this.props.location.pathname },
+				},
+				{ replace: true }
+			);
 		}
 	}
 
@@ -205,6 +214,7 @@ class Main extends React.Component {
 			'jetpack'
 		);
 
+		// eslint-disable-next-line no-alert -- Needs a blocking dialog.
 		if ( confirm( question ) ) {
 			window.setTimeout( this.props.clearUnsavedSettingsFlag, 10 );
 			return true;
@@ -268,7 +278,7 @@ class Main extends React.Component {
 	 * Render the main navigation bar.
 	 *
 	 * @param {string} route - The current page route.
-	 * @returns {React.ReactElement|null} - The navigation component or `null` if not available.
+	 * @return {React.ReactElement|null} - The navigation component or `null` if not available.
 	 */
 	renderMainNav = route => {
 		if ( this.shouldShowWooConnectionScreen() ) {
@@ -336,7 +346,7 @@ class Main extends React.Component {
 				}
 		}
 
-		return <Navigation routeName={ this.props.routeName } />;
+		return <Navigation routeName={ this.props.routeName } blogID={ this.props.blogID } />;
 	};
 
 	renderMainContent = route => {
@@ -423,56 +433,22 @@ class Main extends React.Component {
 			const searchParams = new URLSearchParams( location.search.split( '?' )[ 1 ] );
 
 			return (
-				<ConnectScreen
+				<ConnectScreenBody
+					title={
+						this.props.connectingUserFeatureLabel &&
+						sprintf(
+							/* translators: placeholder is a feature label (e.g. SEO, Notifications) */
+							__( 'Unlock %s and more amazing features', 'jetpack' ),
+							this.props.connectingUserFeatureLabel
+						)
+					}
+					from={ ( searchParams && searchParams.get( 'from' ) ) || this.props.connectingUserFrom }
+					redirectUri="admin.php?page=jetpack"
+					apiRoot={ this.props.apiRoot }
 					apiNonce={ this.props.apiNonce }
 					registrationNonce={ this.props.registrationNonce }
-					apiRoot={ this.props.apiRoot }
-					images={ [ '/images/connect-right-secondary.png' ] }
-					assetBaseUrl={ this.props.pluginBaseUrl }
 					autoTrigger={ this.shouldAutoTriggerConnection() }
-					title={
-						this.props.connectingUserFeatureLabel
-							? sprintf(
-									/* translators: placeholder is a feature label (e.g. SEO, Notifications) */
-									__( 'Unlock %s and more amazing features', 'jetpack' ),
-									this.props.connectingUserFeatureLabel
-							  )
-							: __( 'Unlock all the amazing features of Jetpack by connecting now', 'jetpack' )
-					}
-					buttonLabel={ __( 'Connect your user account', 'jetpack' ) }
-					redirectUri="admin.php?page=jetpack"
-					from={ ( searchParams && searchParams.get( 'from' ) ) || this.props.connectingUserFrom }
-				>
-					<ul>
-						<li>{ __( 'Receive instant downtime alerts', 'jetpack' ) }</li>
-						<li>{ __( 'Automatically share your content on social media', 'jetpack' ) }</li>
-						<li>{ __( 'Let your subscribers know when you post', 'jetpack' ) }</li>
-						<li>{ __( 'Receive notifications about new likes and comments', 'jetpack' ) }</li>
-						<li>{ __( 'Let visitors share your content on social media', 'jetpack' ) }</li>
-						<li>
-							{ createInterpolateElement(
-								__( 'And more! <a>See all Jetpack features</a>', 'jetpack' ),
-								{
-									a: (
-										<a
-											href={ getRedirectUrl( 'jetpack-features' ) }
-											target="_blank"
-											rel="noreferrer"
-										/>
-									),
-								}
-							) }
-							<a
-								className="jp-connection-screen-icon"
-								href={ getRedirectUrl( 'jetpack-features' ) }
-								target="_blank"
-								rel="noreferrer"
-							>
-								<Dashicon icon="external" />
-							</a>
-						</li>
-					</ul>
-				</ConnectScreen>
+				/>
 			);
 		}
 
@@ -508,8 +484,11 @@ class Main extends React.Component {
 						) }
 					</p>
 
-					<ul>
-						<li>{ __( 'Measure your impact with Jetpack Stats', 'jetpack' ) }</li>
+					{ /*
+					Since the list style type is set to none, `role=list` is required for VoiceOver (on Safari) to announce the list.
+					See: https://www.scottohara.me/blog/2019/01/12/lists-and-safari.html
+					*/ }
+					<ul role="list">
 						<li>{ __( 'Speed up your site with optimized images', 'jetpack' ) }</li>
 						<li>{ __( 'Protect your site against bot attacks', 'jetpack' ) }</li>
 						<li>{ __( 'Get notifications if your site goes offline', 'jetpack' ) }</li>
@@ -538,7 +517,7 @@ class Main extends React.Component {
 				break;
 			case '/setup':
 				if ( this.props.isSiteConnected ) {
-					this.props.history.replace( '/dashboard' );
+					this.props.navigate( '/dashboard', { replace: true } );
 					pageComponent = this.getAtAGlance();
 				}
 				break;
@@ -546,6 +525,7 @@ class Main extends React.Component {
 				pageComponent = (
 					<MyPlan
 						siteRawUrl={ this.props.siteRawUrl }
+						blogID={ this.props.blogID }
 						siteAdminUrl={ this.props.siteAdminUrl }
 						rewindStatus={ this.props.rewindStatus }
 					/>
@@ -571,6 +551,7 @@ class Main extends React.Component {
 					<SearchableSettings
 						siteAdminUrl={ this.props.siteAdminUrl }
 						siteRawUrl={ this.props.siteRawUrl }
+						blogID={ this.props.blogID }
 						searchTerm={ this.props.searchTerm }
 						rewindStatus={ this.props.rewindStatus }
 						userCanManageModules={ this.props.userCanManageModules }
@@ -588,7 +569,7 @@ class Main extends React.Component {
 						/>
 					);
 				} else {
-					this.props.history.replace( '/dashboard' );
+					this.props.navigate( '/dashboard', { replace: true } );
 					pageComponent = this.getAtAGlance();
 				}
 				break;
@@ -620,9 +601,14 @@ class Main extends React.Component {
 			case '/recommendations/welcome-videopress':
 			case '/recommendations/welcome-search':
 			case '/recommendations/welcome-scan':
+			case '/recommendations/welcome-social-basic':
+			case '/recommendations/welcome-social-v1':
 			case '/recommendations/welcome-golden-token':
 			case '/recommendations/backup-activated':
 			case '/recommendations/scan-activated':
+			case '/recommendations/unlimited-sharing-activated':
+			case '/recommendations/social-v1-activated':
+			case '/recommendations/welcome-social-image-generator':
 			case '/recommendations/antispam-activated':
 			case '/recommendations/videopress-activated':
 			case '/recommendations/search-activated':
@@ -630,7 +616,7 @@ class Main extends React.Component {
 				if ( this.props.showRecommendations ) {
 					pageComponent = <Recommendations />;
 				} else {
-					this.props.history.replace( '/dashboard' );
+					this.props.navigate( '/dashboard', { replace: true } );
 					pageComponent = this.getAtAGlance();
 				}
 				break;
@@ -640,12 +626,12 @@ class Main extends React.Component {
 					break;
 				}
 
-				this.props.history.replace( '/dashboard' );
+				this.props.navigate( '/dashboard', { replace: true } );
 				pageComponent = this.getAtAGlance();
 				break;
 		}
 
-		if ( this.props.isWoaSite ) {
+		if ( this.props.isWoaSite && ! this.props.showMyJetpack ) {
 			window.wpNavMenuClassChange( { dashboard: 1, settings: 1 } );
 		} else if ( ! this.props.isLinked && ! this.props.showMyJetpack ) {
 			window.wpNavMenuClassChange( { dashboard: 1, settings: 2 } );
@@ -684,7 +670,7 @@ class Main extends React.Component {
 		);
 	}
 
-	shouldShowAgenciesCard() {
+	shouldShowJetpackManageBanner() {
 		const { site_count } = this.props.connectedWpComUser;
 
 		// Only show on dashboard when users are managing 2 or more sites
@@ -743,13 +729,13 @@ class Main extends React.Component {
 	}
 
 	closeReconnectModal() {
-		this.props.history.replace( '/dashboard' );
+		this.props.navigate( '/dashboard', { replace: true } );
 	}
 
 	/**
 	 * Checks if this is the main connection screen page.
 	 *
-	 * @returns {boolean} Whether this is the main connection screen page.
+	 * @return {boolean} Whether this is the main connection screen page.
 	 */
 	isMainConnectScreen() {
 		return false === this.props.siteConnectionStatus && this.props.userCanConnectSite;
@@ -758,7 +744,7 @@ class Main extends React.Component {
 	/**
 	 * Checks if this is the user connection screen page.
 	 *
-	 * @returns {boolean} Whether this is the user connection screen page.
+	 * @return {boolean} Whether this is the user connection screen page.
 	 */
 	isUserConnectScreen() {
 		return (
@@ -770,7 +756,7 @@ class Main extends React.Component {
 	/**
 	 * Checks whether we should show the Woo Connection screen page.
 	 *
-	 * @returns {boolean} Whether we should show the Woo connection screen page.
+	 * @return {boolean} Whether we should show the Woo connection screen page.
 	 */
 	shouldShowWooConnectionScreen() {
 		return '/woo-setup' === this.props.location.pathname;
@@ -779,7 +765,7 @@ class Main extends React.Component {
 	/**
 	 * Check if the user connection has been triggered.
 	 *
-	 * @returns {boolean} Whether the user connection has been triggered.
+	 * @return {boolean} Whether the user connection has been triggered.
 	 */
 	shouldConnectUser() {
 		return this.props.isConnectingUser;
@@ -790,13 +776,13 @@ class Main extends React.Component {
 	 */
 	connectUser() {
 		this.props.resetConnectUser();
-		this.props.history.replace( '/connect-user' );
+		this.props.navigate( '/connect-user', { replace: true } );
 	}
 
 	/**
 	 * Checks if this is a licensing screen page.
 	 *
-	 * @returns {boolean} Whether this is a licensing screen page.
+	 * @return {boolean} Whether this is a licensing screen page.
 	 */
 	isLicensingScreen() {
 		return this.props.location.pathname.startsWith( '/license' );
@@ -805,7 +791,7 @@ class Main extends React.Component {
 	/**
 	 * Check if the connection flow should get triggered automatically.
 	 *
-	 * @returns {boolean} Whether to trigger the connection flow automatically.
+	 * @return {boolean} Whether to trigger the connection flow automatically.
 	 */
 	shouldAutoTriggerConnection() {
 		return (
@@ -871,14 +857,22 @@ class Main extends React.Component {
 					<AdminNotices />
 					<JetpackNotices />
 					{ this.shouldConnectUser() && this.connectUser() }
+					{ /*
+					This component was removed as of react-router-dom v6: https://github.com/remix-run/react-router/issues/8139
+					It could probably be brought back with `unstable_usePrompt`, but that is broken with the hash router and normal links,
+					and is already not reliable cross-browser anyway.
 					<Prompt
 						when={ this.props.areThereUnsavedSettings }
 						message={ this.handleRouterWillLeave }
 					/>
+					*/ }
 
 					{ this.renderMainContent( this.props.location.pathname ) }
-					{ this.shouldShowAgenciesCard() && (
-						<AgenciesCard path={ this.props.location.pathname } discountPercentage={ 60 } />
+					{ this.shouldShowJetpackManageBanner() && (
+						<JetpackManageBanner
+							path={ this.props.location.pathname }
+							isAgencyAccount={ this.props.jetpackManage.isAgencyAccount }
+						/>
 					) }
 					{ this.shouldShowSupportCard() && <SupportCard path={ this.props.location.pathname } /> }
 					{ this.shouldShowAppsCard() && <AppsCard /> }
@@ -902,6 +896,7 @@ export default connect(
 			hasConnectedOwner: hasConnectedOwner( state ),
 			isConnectionOwner: isConnectionOwner( state ),
 			siteRawUrl: getSiteRawUrl( state ),
+			blogID: getSiteId( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			searchTerm: getSearchTerm( state ),
 			apiRoot: getApiRootUrl( state ),
@@ -929,6 +924,7 @@ export default connect(
 			partnerCoupon: getPartnerCoupon( state ),
 			currentRecommendationsStep: getInitialRecommendationsStep( state ),
 			isSubscriber: userIsSubscriber( state ),
+			jetpackManage: getJetpackManageInfo( state ),
 		};
 	},
 	dispatch => ( {
@@ -970,17 +966,72 @@ export default connect(
 				dispatch( CONNECTION_STORE_ID ).setConnectionStatus( connectionStatus );
 			},
 		};
-	} )( withRouter( Main ) )
+	} )( props => <Main { ...props } location={ useLocation() } navigate={ useNavigate() } /> )
 );
+
+// eslint-disable-next-line jsdoc/require-returns-check
+/**
+ * Determines the page order of My Jetpack, Activity Log, Dashboard, and Settings in the left sidebar.
+ * @return {object} Object with keys for each page and values for the order of the page in the sidebar.
+ */
+function jetpackPageOrder() {
+	const jetpackParentMenu = document.querySelector( '#toplevel_page_jetpack' );
+	const pageOrder = {};
+
+	if ( jetpackParentMenu ) {
+		const jetpackSubMenu = jetpackParentMenu.querySelector( '.wp-submenu' );
+
+		if ( jetpackSubMenu ) {
+			const subMenuItems = jetpackSubMenu.querySelectorAll( 'li:not(.wp-submenu-head) a' );
+
+			const urlPatterns = [
+				{
+					key: 'dashboard',
+					pattern: '/wp-admin/admin.php?page=jetpack#/dashboard',
+					matchType: 'end',
+				},
+				{
+					key: 'activityLog',
+					pattern: 'https://jetpack.com/redirect/?source=cloud-activity-log-wp-menu',
+					matchType: 'start',
+				},
+				{
+					key: 'settings',
+					pattern: '/wp-admin/admin.php?page=jetpack#/settings',
+					matchType: 'end',
+				},
+			];
+
+			const findIndex = ( urlPattern, matchType ) => {
+				let foundIndex = -1;
+				subMenuItems.forEach( ( item, index ) => {
+					const href = item.href;
+					if (
+						( matchType === 'end' && href.endsWith( urlPattern ) ) ||
+						( matchType === 'start' && href.startsWith( urlPattern ) )
+					) {
+						foundIndex = index + 1;
+					}
+				} );
+				return foundIndex;
+			};
+
+			urlPatterns.forEach( ( { key, pattern, matchType } ) => {
+				const index = findIndex( pattern, matchType );
+				pageOrder[ key ] = index;
+			} );
+			return pageOrder;
+		}
+	}
+}
 
 /**
  * Manages changing the visuals of the sub-nav items on the left sidebar when the React app changes routes
  *
- * @param pageOrder
  */
-window.wpNavMenuClassChange = function (
-	pageOrder = { myJetpack: 1, activityLog: 2, dashboard: 3, settings: 4 }
-) {
+window.wpNavMenuClassChange = function () {
+	const pageOrder = jetpackPageOrder();
+
 	let hash = window.location.hash;
 	let page = new URLSearchParams( window.location.search );
 

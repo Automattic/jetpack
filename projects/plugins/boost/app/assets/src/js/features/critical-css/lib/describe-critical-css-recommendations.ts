@@ -1,7 +1,7 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { CriticalCssErrorDetails } from './stores/critical-css-state-types';
 import { castToNumber } from '$lib/utils/cast-to-number';
-import type { ErrorSet } from './stores/critical-css-state-errors';
+import type { ErrorSet } from './critical-css-errors';
 import type { ComponentType } from 'react';
 import UrlComponentsExample from '$features/critical-css/url-components-example/url-components-example';
 
@@ -129,6 +129,10 @@ function httpErrorSuggestion( code: number, count: number ): Suggestion {
 					),
 					__(
 						'If you see an error only when not logged into your WordPress site (i.e.: in "Incognito Mode"), then check for plugins which might be enforcing access permissions on your pages. For example, a plugin which only allows authenticated users to view specific areas of your site.',
+						'jetpack-boost'
+					),
+					__(
+						'Once you have resolved the error, please <retry>try again</retry>.',
 						'jetpack-boost'
 					),
 				],

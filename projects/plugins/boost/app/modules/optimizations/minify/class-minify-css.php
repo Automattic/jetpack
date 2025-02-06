@@ -2,10 +2,13 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Minify;
 
+use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
+use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
+use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Minify\Concatenate_CSS;
 
-class Minify_CSS implements Pluggable {
+class Minify_CSS implements Pluggable, Changes_Page_Output, Optimization, Has_Deactivate {
 
 	public static $default_excludes = array( 'admin-bar', 'dashicons', 'elementor-app' );
 
@@ -25,6 +28,15 @@ class Minify_CSS implements Pluggable {
 		return 'minify_css';
 	}
 
+	/**
+	 * The module starts serving as soon as it's enabled.
+	 *
+	 * @return bool
+	 */
+	public function is_ready() {
+		return true;
+	}
+
 	public static function is_available() {
 		return true;
 	}
@@ -35,5 +47,9 @@ class Minify_CSS implements Pluggable {
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wp_styles                         = new Concatenate_CSS( $wp_styles );
 		$wp_styles->allow_gzip_compression = true; // @todo - used constant ALLOW_GZIP_COMPRESSION = true if not defined.
+	}
+
+	public static function deactivate() {
+		jetpack_boost_page_optimize_cleanup_cache( 'css' );
 	}
 }

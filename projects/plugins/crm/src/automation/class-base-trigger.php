@@ -75,7 +75,6 @@ abstract class Base_Trigger implements Trigger {
 	 * @param int    $priority      The priority of the action.
 	 * @param int    $accepted_args The number of arguments the action accepts.
 	 * @since 6.2.0
-	 *
 	 */
 	protected function listen_to_wp_action( string $hook_name, int $priority = 10, int $accepted_args = 1 ): void {
 		add_action( $hook_name, array( $this, 'execute_workflow' ), $priority, $accepted_args );

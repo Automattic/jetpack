@@ -196,7 +196,7 @@ abstract class Entity_Factory {
 	/**
 	 * Return the associative fields map.
 	 *
-	 * tags, files, etc.
+	 * Tags, files, etc.
 	 *
 	 * @since 6.2.0
 	 *

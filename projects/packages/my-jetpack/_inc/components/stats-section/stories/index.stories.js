@@ -1,9 +1,6 @@
 import React from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
-import { initStore } from '../../../state/store';
 import StatsCards from '../cards.jsx';
-
-initStore();
 
 export default {
 	title: 'Packages/My Jetpack/Stats Cards',

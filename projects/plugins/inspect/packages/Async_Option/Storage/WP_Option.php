@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\Packages\Async_Option\Storage;
 
 class WP_Option implements Storage {
+	private $namespace;
 
 	public function __construct( $namepsace ) {
 		$this->namespace = $namepsace;

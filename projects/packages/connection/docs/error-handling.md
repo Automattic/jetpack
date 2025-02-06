@@ -60,13 +60,21 @@ function my_function( $errors ) {
 	// do stuff with the errors array
 
 	// echo the error notice
-	?>
-	<div class="notice notice-error is-dismissible jetpack-message jp-connect" style="display:block !important;">
-		<p><?php _e( 'my message', 'my_plugin' ); ?></p>
-		<a href="#" class="my-cta"><?php _e( 'Fix it!', 'my_plugin' ); ?></a>
-	</div>
-	<?php
-
+	$message = sprintf(
+		'<p>%s</p><a href="#" class="my-cta">%s</a>',
+		esc_html__( 'my message', 'my_plugin' ),
+		esc_html__( 'Fix it!', 'my_plugin' )
+	);
+	wp_admin_notice(
+		$message,
+		array(
+			'type'               => 'error',
+			'dismissible'        => true,
+			'additional_classes' => array( 'jetpack-message', 'jp-connect' ),
+			'paragraph_wrap'     => false,
+			'attributes'         => array( 'style' => 'display:block !important;' ),
+		)
+	);
 }
 
 ```

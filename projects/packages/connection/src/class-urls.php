@@ -82,8 +82,8 @@ class Urls {
 	/**
 	 * Return URL with a normalized protocol.
 	 *
-	 * @param callable $callable Function to retrieve URL option.
-	 * @param string   $new_value URL Protocol to set URLs to.
+	 * @param string $callable Function name that was used to retrieve URL option.
+	 * @param string $new_value URL Protocol to set URLs to.
 	 * @return string Normalized URL.
 	 */
 	public static function get_protocol_normalized_url( $callable, $new_value ) {

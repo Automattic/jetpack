@@ -9,18 +9,18 @@ export type ManualSharingInfoProps = React.ComponentPropsWithoutRef< typeof Text
  *
  * @param {ManualSharingInfoProps} props - Component props.
  *
- * @returns {import('react').ReactNode} Manual sharing information component.
+ * @return {import('react').ReactNode} Manual sharing information component.
  */
 export function ManualSharingInfo( { ...textProps }: ManualSharingInfoProps ) {
 	return (
 		<Text { ...textProps }>
 			{ __(
 				`Just tap the social network or "Copy to Clipboard" icon, and we'll format your content for sharing.`,
-				'jetpack'
+				'jetpack-publicize-components'
 			) }
 			&nbsp;
 			<ExternalLink href={ getRedirectUrl( 'jetpack-social-manual-sharing-help' ) }>
-				{ __( 'Learn more', 'jetpack' ) }
+				{ __( 'Learn more', 'jetpack-publicize-components' ) }
 			</ExternalLink>
 		</Text>
 	);

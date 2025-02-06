@@ -2,10 +2,12 @@
 /**
  * Jetpack_Gallery_Widget backend settings form output.
  *
+ * @html-template Jetpack_Gallery_Widget::form
  * @package automattic/jetpack
  */
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
+
 ?>
 <p>
 	<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?>
@@ -40,7 +42,7 @@
 			?>
 
 			<img src="<?php echo esc_url( $url ); ?>" title="<?php echo esc_attr( $attachment->post_title ); ?>" alt="<?php echo esc_attr( $attachment->post_title ); ?>"
-				width="<?php echo esc_attr( self::THUMB_SIZE ); ?>" height="<?php echo esc_attr( self::THUMB_SIZE ); ?>" class="thumb" />
+				width="<?php echo (int) self::THUMB_SIZE; // @phan-suppress-current-line PhanRedundantCondition -- phpcs wants an explicit cast, phan complains it's redundant. 🤷 ?>" height="<?php echo (int) self::THUMB_SIZE; ?>" class="thumb" />
 		<?php } ?>
 	</div>
 

@@ -1,9 +1,10 @@
 /**
  * WordPress dependencies
  */
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL, getBlobByURL } from '@wordpress/blob';
-import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
+	store as blockEditorStore,
 	BlockIcon,
 	useBlockProps,
 	InspectorControls,
@@ -16,13 +17,14 @@ import { useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { caption as captionIcon } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
 import {
 	isStandaloneActive,
+	isUserConnected,
 	isVideoPressActive,
 	isVideoPressModuleActive,
 } from '../../../lib/connection';
@@ -71,6 +73,7 @@ export const PlaceholderWrapper = withNotices( function ( {
 	noticeOperations,
 	instructions = description,
 	disableInstructions,
+	className,
 } ) {
 	useEffect( () => {
 		if ( ! errorMessage ) {
@@ -87,6 +90,7 @@ export const PlaceholderWrapper = withNotices( function ( {
 			label={ title }
 			instructions={ disableInstructions ? null : instructions }
 			notices={ noticeUI }
+			className={ className }
 		>
 			{ children }
 		</Placeholder>
@@ -96,12 +100,12 @@ export const PlaceholderWrapper = withNotices( function ( {
 /**
  * VideoPress block Edit react components
  *
- * @param {object} props                 - Component props.
- * @param {object} props.attributes      - Block attributes.
+ * @param {object}   props               - Component props.
+ * @param {object}   props.attributes    - Block attributes.
  * @param {Function} props.setAttributes - Function to set block attributes.
- * @param {boolean} props.isSelected     - Whether the block is selected.
- * @param {string} props.clientId        - Block client ID.
- * @returns {React.ReactNode}            - React component.
+ * @param {boolean}  props.isSelected    - Whether the block is selected.
+ * @param {string}   props.clientId      - Block client ID.
+ * @return {React.ReactNode}            - React component.
  */
 export default function VideoPressEdit( {
 	attributes,
@@ -148,6 +152,8 @@ export default function VideoPressEdit( {
 
 	// Get the redirect URI for the connection flow.
 	const [ isRedirectingToMyJetpack, setIsRedirectingToMyJetpack ] = useState( false );
+	const hasUserConnection = isUserConnected();
+	const { tracks: analyticsTracks } = useAnalytics();
 
 	// Detect if the chapter file is auto-generated.
 	const chapter = tracks?.filter( track => track.kind === 'chapters' )?.[ 0 ];
@@ -395,15 +401,21 @@ export default function VideoPressEdit( {
 			<div { ...blockProps } className={ blockMainClassName }>
 				<>
 					<ConnectBanner
-						isConnected={ isActive }
-						isModuleActive={ isModuleActive }
+						isConnected={ hasUserConnection }
+						isModuleActive={ isModuleActive || isStandalonePluginActive }
 						isConnecting={ isRedirectingToMyJetpack }
 						onConnect={ () => {
 							setIsRedirectingToMyJetpack( true );
-							if ( ! isStandalonePluginActive ) {
-								return ( window.location.href = jetpackVideoPressSettingUrl );
+							if ( ! hasUserConnection ) {
+								analyticsTracks.recordEvent( 'jetpack_editor_connect_banner_click', {
+									block: 'VideoPress',
+								} );
+								return ( window.location.href = myJetpackConnectUrl );
 							}
-							window.location.href = myJetpackConnectUrl;
+							analyticsTracks.recordEvent( 'jetpack_editor_activate_banner_click', {
+								block: 'VideoPress',
+							} );
+							window.location.href = jetpackVideoPressSettingUrl;
 						} }
 					/>
 
@@ -414,6 +426,7 @@ export default function VideoPressEdit( {
 						fileToUpload={ fileToUpload }
 						isReplacing={ isReplacingFile?.isReplacing }
 						onReplaceCancel={ cancelReplacingVideoFile }
+						isActive={ isActive }
 					/>
 				</>
 			</div>
@@ -475,7 +488,7 @@ export default function VideoPressEdit( {
 	return (
 		<div
 			{ ...blockProps }
-			className={ classNames( blockMainClassName, {
+			className={ clsx( blockMainClassName, {
 				[ `align${ align }` ]: align,
 				'is-updating-preview': ! previewHtml,
 			} ) }
@@ -489,7 +502,7 @@ export default function VideoPressEdit( {
 						}
 					} }
 					icon={ captionIcon }
-					isPressed={ showCaption }
+					aria-pressed={ showCaption }
 					label={ showCaption ? removeCaptionLabel : addCaptionLabel }
 				/>
 
@@ -591,16 +604,21 @@ export default function VideoPressEdit( {
 			</InspectorControls>
 
 			<ConnectBanner
-				isModuleActive={ isModuleActive }
-				isConnected={ isActive }
+				isModuleActive={ isModuleActive || isStandalonePluginActive }
+				isConnected={ hasUserConnection }
 				isConnecting={ isRedirectingToMyJetpack }
 				onConnect={ () => {
 					setIsRedirectingToMyJetpack( true );
-					if ( ! isStandalonePluginActive ) {
-						return ( window.location.href = jetpackVideoPressSettingUrl );
+					if ( ! hasUserConnection ) {
+						analyticsTracks.recordEvent( 'jetpack_editor_connect_banner_click', {
+							block: 'VideoPress',
+						} );
+						return ( window.location.href = myJetpackConnectUrl );
 					}
-
-					window.location.href = myJetpackConnectUrl;
+					analyticsTracks.recordEvent( 'jetpack_editor_activate_banner_click', {
+						block: 'VideoPress',
+					} );
+					window.location.href = jetpackVideoPressSettingUrl;
 				} }
 			/>
 

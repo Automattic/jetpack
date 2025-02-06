@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
 	createHashRouter,
 	redirect,
@@ -12,58 +11,55 @@ import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-adva
 import GettingStarted from './pages/getting-started/getting-started';
 import PurchaseSuccess from './pages/purchase-success/purchase-success';
 import SettingsPage from '$layout/settings-page/settings-page';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useGettingStarted } from '$lib/stores/getting-started';
 import { useSingleModuleState } from '$features/module/lib/stores';
+import ImageSizeAnalysis from './pages/image-size-analysis/image-size-analysis';
+import { isaGroupKeys } from '$features/image-size-analysis/lib/isa-groups';
+import '../css/admin-style.scss';
+import CacheDebugLog from './pages/cache-debug-log/cache-debug-log';
 
-/*
- * For the time being, we will pass the props from a svelte file.
- * Ones the stores are converted to react, we wont need to do this.
- */
-type MainProps = {
-	criticalCss: any;
-};
-
-const useBoostRouter = ( { criticalCss }: MainProps ) => {
+const useBoostRouter = () => {
 	const { shouldGetStarted } = useGettingStarted();
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
+
+	const checkForGettingStarted = () => {
+		if ( shouldGetStarted ) {
+			return redirect( '/getting-started' );
+		}
+		return null;
+	};
 
 	return createHashRouter( [
 		{
 			path: '*',
-			loader: () => {
-				if ( shouldGetStarted ) {
-					return redirect( '/getting-started' );
-				}
-				return null;
-			},
+			loader: checkForGettingStarted,
 			element: (
 				<SettingsPage>
 					<Tracks>
-						<Index criticalCss={ criticalCss } />
+						<Index />
 					</Tracks>
 				</SettingsPage>
 			),
 		},
 		{
+			path: '/cache-debug-log',
+			loader: checkForGettingStarted,
+			element: (
+				<Tracks>
+					<CacheDebugLog />
+				</Tracks>
+			),
+		},
+		{
 			path: '/critical-css-advanced',
-			loader: () => {
-				if ( shouldGetStarted ) {
-					return redirect( '/getting-started' );
-				}
-
-				if ( criticalCss?.issues?.length === 0 ) {
-					return redirect( '/' );
-				}
-
-				return null;
-			},
+			loader: checkForGettingStarted,
 			element: (
 				<SettingsPage>
 					<Tracks>
-						<AdvancedCriticalCss issues={ criticalCss.issues } />
+						<AdvancedCriticalCss />
 					</Tracks>
 				</SettingsPage>
 			),
@@ -109,8 +105,8 @@ const useBoostRouter = ( { criticalCss }: MainProps ) => {
 	] );
 };
 
-function Main( props: MainProps ) {
-	const router = useBoostRouter( { ...props } );
+function Main() {
+	const router = useBoostRouter();
 	return <RouterProvider router={ router } />;
 }
 
@@ -120,7 +116,7 @@ function Main( props: MainProps ) {
  * @param props
  * @param props.children - The actual page to render
  */
-const Tracks = ( { children }: { children: JSX.Element } ) => {
+const Tracks = ( { children }: { children: React.JSX.Element } ) => {
 	const location = useLocation();
 
 	useEffect( () => {
@@ -139,17 +135,22 @@ const Tracks = ( { children }: { children: JSX.Element } ) => {
 
 const ISAPage = () => {
 	const { group, page } = useParams< { group: string; page: string } >();
+	const [ imageCdnState ] = useSingleModuleState( 'image_cdn' );
 	return (
-		<h1>
-			ISA Page for group: { group }, page: { page }
-		</h1>
+		<ImageSizeAnalysis
+			isImageCdnModuleActive={ !! imageCdnState?.active }
+			group={ group as isaGroupKeys }
+			page={ parseInt( page || '1', 10 ) }
+		/>
 	);
 };
 
-export default ( props: MainProps ) => {
+export default () => {
 	return (
-		<DataSyncProvider>
-			<Main { ...props } />
-		</DataSyncProvider>
+		<React.StrictMode>
+			<DataSyncProvider>
+				<Main />
+			</DataSyncProvider>
+		</React.StrictMode>
 	);
 };

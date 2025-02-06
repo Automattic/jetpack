@@ -68,4 +68,24 @@ class ParsedownExt extends Parsedown {
 			),
 		);
 	}
+
+	/**
+	 * Remove HTML comments.
+	 *
+	 * Parsedown disables its code that does this in safe mode. Restore it here.
+	 *
+	 * @param array $excerpt Excerpt.
+	 * @return array|null
+	 */
+	protected function inlineMarkup( $excerpt ) {
+		// Code adapted from vendor/erusev/parsedown/Parsedown.php
+		if ( $excerpt['text'][1] === '!' && preg_match( '/^<!---?[^>-](?:-?[^-])*-->/s', $excerpt['text'], $m ) ) {
+			return array(
+				'markup' => '', // Just strip it, don't preserve it like Parsedown non-safe-mode does.
+				'extent' => strlen( $m[0] ),
+			);
+		}
+
+		return null;
+	}
 }

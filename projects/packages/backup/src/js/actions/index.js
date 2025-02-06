@@ -8,6 +8,9 @@ import {
 	SITE_BACKUP_POLICIES_GET_SUCCESS,
 	SITE_BACKUP_STORAGE_SET,
 	SITE_BACKUP_STORAGE_ADDON_OFFER_SET,
+	SITE_BACKUPS_GET,
+	SITE_BACKUPS_GET_FAILED,
+	SITE_BACKUPS_GET_SUCCESS,
 } from './types';
 
 const getSiteSize =
@@ -29,6 +32,7 @@ const getSiteSize =
 					daysOfBackupsAllowed: res.days_of_backups_allowed,
 					daysOfBackupsSaved: res.days_of_backups_saved,
 					retentionDays: res.retention_days,
+					backupsStopped: res.backups_stopped,
 				};
 
 				dispatch( { type: SITE_BACKUP_SIZE_GET_SUCCESS, payload } );
@@ -77,7 +81,23 @@ const setAddonStorageOfferSlug =
 		} );
 	};
 
+const getBackups =
+	() =>
+	( { dispatch } ) => {
+		dispatch( { type: SITE_BACKUPS_GET } );
+
+		apiFetch( { path: '/jetpack/v4/backups' } ).then(
+			res => {
+				dispatch( { type: SITE_BACKUPS_GET_SUCCESS, payload: res } );
+			},
+			() => {
+				dispatch( { type: SITE_BACKUPS_GET_FAILED } );
+			}
+		);
+	};
+
 const actions = {
+	getBackups,
 	getSiteSize,
 	getSitePolicies,
 	setStorageUsageLevel,

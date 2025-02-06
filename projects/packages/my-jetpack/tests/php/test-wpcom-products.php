@@ -108,8 +108,9 @@ class Test_Wpcom_Products extends TestCase {
 				'currency_code'          => 'BRL',
 				'product_term'           => 'month',
 				'sale_coupon'            => (object) array(
-					'start_date' => gmdate( 'Y' ) . '-01-01',
-					'expires'    => gmdate( 'Y' ) . '-12-31',
+					// Random dates (or are they?) so we always get the sale price.
+					'start_date' => '2003-05-27',
+					'expires'    => '2063-04-05',
 					'discount'   => 50,
 				),
 			),
@@ -128,6 +129,8 @@ class Test_Wpcom_Products extends TestCase {
 
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$_GET = array();
+
+		Wpcom_Products::reset_request_failures();
 	}
 
 	/**
@@ -189,6 +192,26 @@ class Test_Wpcom_Products extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'mock_error_response' ) );
 
 		$this->assertEquals( $this->get_mock_products_data(), $products );
+	}
+
+	/**
+	 * Test that we get data from cache if a request fails.
+	 * Second request succeeds, but we'll never know because we don't retry it.
+	 */
+	public function test_get_products_error_norepeat() {
+		$this->create_user_and_login();
+
+		add_filter( 'pre_http_request', array( $this, 'mock_error_response' ) );
+		$products = Wpcom_Products::get_products();
+		remove_filter( 'pre_http_request', array( $this, 'mock_error_response' ) );
+
+		$this->assertTrue( is_wp_error( $products ) );
+
+		add_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+		$products = Wpcom_Products::get_products();
+		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+
+		$this->assertTrue( is_wp_error( $products ) );
 	}
 
 	/**

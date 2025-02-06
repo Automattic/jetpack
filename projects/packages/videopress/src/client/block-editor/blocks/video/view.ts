@@ -6,12 +6,12 @@ import domReady from '@wordpress/dom-ready';
 /**
  * Internal dependencies
  */
-import './style.scss';
+import './view.scss';
 
 /**
  * Preview on Hover effect for VideoPress videos.
  *
- * @returns {void}
+ * @return {void}
  */
 function previewOnHoverEffect(): void {
 	/*

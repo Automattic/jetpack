@@ -15,7 +15,7 @@
 	Breaking Checks ( stops direct access )
 	====================================================== */
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 /*
 ======================================================
@@ -50,14 +50,19 @@ function zeroBSCRM_CustomerTypeList( $jsCallbackFuncStr = '', $inputDefaultValue
 		global $haszbscrmBHURLCustomersOut;
 	if ( ! isset( $haszbscrmBHURLCustomersOut ) ) {
 
-		// cachebusting for now... (ESP needed when migrating from DAL1 -> DAL2)
+		$nonce         = wp_create_nonce( 'wp_rest' );
+		$rest_base_url = get_rest_url();
 
-		$cacheBusterStr = '&time=' . time();
+		// handle bare permalink structure
+		if ( empty( get_option( 'permalink_structure' ) ) ) {
+			$param_separator = '&';
+		} else {
+			$param_separator = '?';
+		}
+		$rest_url = $rest_base_url . 'zbscrm/v1/contacts' . $param_separator . '_wpnonce=' . $nonce;
 
-		// change to proper WP REST (not cached) and wont be impacted by setup connection issues. Is also the "proper" way to do it
-		$nonce                      = wp_create_nonce( 'wp_rest' );
-		$rest_url                   = esc_url( get_rest_url() . 'zbscrm/v1/contacts?_wpnonce=' . $nonce );
-		$ret                       .= '<script type="text/javascript">var zbscrmBHURLCustomers = "' . $rest_url . '";</script>';
+		$ret .= '<script type="text/javascript">var zbscrmBHURLCustomers = "' . $rest_url . '";</script>';
+
 		$haszbscrmBHURLCustomersOut = true;
 	}
 
@@ -125,9 +130,19 @@ function zeroBSCRM_CompanyTypeList( $jsCallbackFuncStr = '', $inputDefaultValue 
 		global $haszbscrmBHURLCompaniesOut;
 		if ( ! isset( $haszbscrmBHURLCompaniesOut ) ) {
 
-			$nonce                      = wp_create_nonce( 'wp_rest' );
-			$rest_url                   = esc_url( get_rest_url() . 'zbscrm/v1/companies?_wpnonce=' . $nonce );
-			$ret                       .= '<script type="text/javascript">var zbscrmBHURLCompanies = "' . $rest_url . '";</script>';
+			$nonce         = wp_create_nonce( 'wp_rest' );
+			$rest_base_url = get_rest_url();
+
+			// handle bare permalink structure
+			if ( empty( get_option( 'permalink_structure' ) ) ) {
+				$param_separator = '&';
+			} else {
+				$param_separator = '?';
+			}
+			$rest_url = $rest_base_url . 'zbscrm/v1/companies' . $param_separator . '_wpnonce=' . $nonce;
+
+			$ret .= '<script type="text/javascript">var zbscrmBHURLCompanies = "' . $rest_url . '";</script>';
+
 			$haszbscrmBHURLCompaniesOut = true;
 		}
 
@@ -148,28 +163,12 @@ function zeroBSCRM_cjson() {
 	$ret = array();
 
 	if ( is_user_logged_in() && zeroBSCRM_permsCustomers() ) {
-
 		$ret = zeroBS_getCustomers( true, 10000, 0, false, false, '', false, false, false );
-
-		// quickfix (not req DAL2)
-		global $zbs;
-		if ( ! $zbs->isDAL2() ) {
-
-			$retA = array();
-			foreach ( $ret as $r ) {
-				if ( isset( $r['name'] ) && $r['name'] !== 'Auto Draft' ) {
-					$retA[] = $r;
-				}
-			}
-
-			$ret = $retA;
-			unset( $retA );
-		}
 	}
 
 	echo json_encode( $ret );
 
-	exit();
+	exit( 0 );
 }
 
 	// WH NOTE: WHY is this getting ALL of them and not s? param
@@ -184,25 +183,21 @@ function zeroBSCRM_cojson() {
 		// $ret = zeroBS_getCustomers(false,10000,0,false,false,'',false,false,false);
 		$ret = zeroBS_getCompanies( true, 10000, 0 );
 
-		// quickfix required until we move co to dal2
-		// if (!$zbs->isDAL2()){
-
-			$retA = array();
+		$retA = array(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		foreach ( $ret as $r ) {
 			if ( isset( $r['name'] ) && $r['name'] !== 'Auto Draft' ) {
 				$retA[] = $r;
 			}
 		}
 
-			$ret = $retA;
+		$ret = $retA; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		unset( $retA );
-			// }
 
 	}
 
 	echo json_encode( $ret );
 
-	exit();
+	exit( 0 );
 }
 
 /*
@@ -218,8 +213,6 @@ function zeroBSCRM_cojson() {
 function zbs_customerFiltersGetApplied( $srcArr = 'usepost', $requireEmail = false ) {
 
 	$fieldPrefix = '';
-
-	global $zbs;
 
 	// } Can't use post as a default, so...
 	if ( is_string( $srcArr ) && $srcArr == 'usepost' ) {
@@ -394,20 +387,7 @@ function zbs_customerFiltersGetApplied( $srcArr = 'usepost', $requireEmail = fal
 					if ( count( $tagGroup ) > 0 ) {
 						foreach ( $tagGroup as $tag ) {
 
-							// DAL support
-							$tagID   = -1;
-							$tagName = '';
-							if ( $zbs->isDAL2() ) {
-
-								$tagID   = $tag['id'];
-								$tagName = $tag['name'];
-
-							} else {
-
-								$tagID   = $tag->term_id;
-								$tagName = $tag->name;
-
-							}
+							$tagID = $tag['id']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 							// } set?
 							if ( isset( $_POST[ 'zbs-crm-customerfilter-tag-' . $tagGroupKey . '-' . $tagID ] ) ) {
@@ -690,16 +670,9 @@ function zbs_customerFiltersRetrieveCustomers( $perPage = 10, $page = 1, $forceP
 
 					// } Run query
 					// $potentialCustomerList = get_posts( $args );
-					if ( $zbs->isDAL2() ) {
 
-						$potentialCustomerList = $zbs->DAL->contacts->getContacts( $dal2Args );
+					$potentialCustomerList = $zbs->DAL->contacts->getContacts( $dal2Args ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-					} else {
-
-						// DAL1
-						$potentialCustomerList = zeroBS_getCustomers( true, 10, 0, true, true, '', true, $args );
-
-					}
 					// $endingCustomerList = zeroBS_getCustomers(true,10,0,true,true,'',true,$args);
 					$endingCustomerList = array();
 

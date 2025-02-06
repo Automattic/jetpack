@@ -5,11 +5,71 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.16] - 2025-01-23
+### Changed
+- Internal updates.
+
+## [0.5.15] - 2025-01-06
+### Changed
+- Updated package dependencies. [#40797]
+
+## [0.5.14] - 2024-11-28
+### Changed
+- Updated package dependencies. [#40060]
+
+## [0.5.13] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Changed
+- Updated package dependencies. [#39898] [#39910]
+
+## [0.5.12] - 2024-09-25
+### Security
+- Security: Fix XSS vulnerability. [#39507]
+
+### Changed
+- Updated package dependencies. [#39170]
+
+## [0.5.11] - 2024-08-29
+### Changed
+- Updated package dependencies. [#38287]
+
+### Fixed
+- Fix: Handle uncaught exception for images with empty or no src attributes. [#39024]
+- Fixed a bug where image guide would show up for svg images. [#38329]
+
+## [0.5.10] - 2024-07-10
+### Changed
+- Updated package dependencies. [#38092]
+
+## [0.5.9] - 2024-06-21
+### Changed
+- Updated package dependencies. [#37796] [#37830]
+
+## [0.5.8] - 2024-03-29
+### Changed
+- Updated package dependencies. [#30684]
+
+## [0.5.7] - 2024-03-15
+### Changed
+- Updated package dependencies. [#36142]
+
+## [0.5.6] - 2024-02-22
+### Changed
+- Make build usable in projects using tsc with `moduleResolution` set to 'nodenext'. [#35453]
+- Updated targets in build configuration to better match supported browsers. [#35764]
+
+### Fixed
+- Fix image name causing image to go outside details panel. [#35309]
+
+## [0.5.5] - 2024-01-22
+### Changed
+- Updated package dependencies. [#34427]
+
 ## [0.5.4] - 2023-10-26
 ### Changed
-- Updated package dependencies. [#32957]
-- Updated package dependencies. [#33567]
-- Updated package dependencies. [#33569]
+- Updated package dependencies. [#32957] [#33567] [#33569]
 
 ## [0.5.3] - 2023-09-13
 ### Changed
@@ -84,6 +144,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Minor package.json change - removing private entry.
 
+[0.5.16]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.15...v0.5.16
+[0.5.15]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.14...v0.5.15
+[0.5.14]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.13...v0.5.14
+[0.5.13]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.12...v0.5.13
+[0.5.12]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.11...v0.5.12
+[0.5.11]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.10...v0.5.11
+[0.5.10]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.9...v0.5.10
+[0.5.9]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.8...v0.5.9
+[0.5.8]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.7...v0.5.8
+[0.5.7]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.6...v0.5.7
+[0.5.6]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.5...v0.5.6
+[0.5.5]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.4...v0.5.5
 [0.5.4]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.1...v0.5.2

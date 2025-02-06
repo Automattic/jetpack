@@ -3,15 +3,15 @@
  * Testing CRUD on Meta
  */
 
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Posts;
 use Automattic\Jetpack\Sync\Settings;
 
-require_once JETPACK__PLUGIN_DIR . 'modules/contact-form/grunion-contact-form.php';
-
 class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	protected $post_id;
+	protected $meta_id;
 	protected $meta_module;
 
 	protected $whitelisted_post_meta = 'foobar';
@@ -26,7 +26,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->meta_module = Modules::get_module( 'meta' );
 		Settings::update_settings( array( 'post_meta_whitelist' => array( 'foobar' ) ) );
 		$this->post_id = self::factory()->post->create();
-		add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'foo' );
+		$this->meta_id = add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'foo' );
 		$this->sender->do_sync();
 	}
 
@@ -34,7 +34,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that meta_values below size limit are not tuncated.
 	 */
 	public function test_meta_adheres_size_limit_max() {
-		$meta_test_value = str_repeat( 'X', Posts::MAX_POST_META_LENGTH - 1 );
+		$meta_test_value = str_repeat( 'X', Posts::MAX_META_LENGTH - 1 );
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, $meta_test_value );
 
 		$this->sender->do_sync();
@@ -47,7 +47,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that meta_values above size limit are truncated.
 	 */
 	public function test_meta_adheres_size_limit_exceeded() {
-		$meta_test_value = str_repeat( 'X', Posts::MAX_POST_META_LENGTH );
+		$meta_test_value = str_repeat( 'X', Posts::MAX_META_LENGTH );
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, $meta_test_value );
 
 		$this->sender->do_sync();
@@ -201,12 +201,23 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 
 		// update all the options.
 		foreach ( $white_listed_post_meta as $meta_key ) {
+			if ( $meta_key === 'footnotes' ) {
+				// WordPress would filter non-array into an empty string, and fail the test
+				// See sanitize_post_meta_footnotes filter
+				add_post_meta( $this->post_id, $meta_key, wp_json_encode( array() ) );
+				continue;
+			}
 			add_post_meta( $this->post_id, $meta_key, 'foo' );
 		}
 
 		$this->sender->do_sync();
 
 		foreach ( $white_listed_post_meta as $meta_key ) {
+			if ( $meta_key === 'footnotes' ) {
+				$this->assertOptionIsSynced( $meta_key, '[]', 'post', $this->post_id );
+				continue;
+			}
+
 			$this->assertOptionIsSynced( $meta_key, 'foo', 'post', $this->post_id );
 		}
 		$whitelist = Settings::get_setting( 'post_meta_whitelist' );
@@ -267,7 +278,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		// This event can trigger a deletion of many _feedbacakismet_values terms.
 		add_post_meta( $post_id, '_feedback_akismet_values', '1' );
 
-		$grunion = Grunion_Contact_Form_Plugin::init();
+		$grunion = Contact_Form_Plugin::init();
 		$grunion->daily_akismet_meta_cleanup();
 
 		$this->sender->do_sync();
@@ -289,14 +300,51 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
+	 * Verify that get_object_by_id will return null for non existing meta.
+	 */
+	public function test_get_object_by_id_will_return_null_for_non_existing_meta() {
+		$module = Modules::get_module( 'meta' );
+		$this->assertNull( $module->get_object_by_id( 'post', $this->post_id, 'does_not_exist' ) );
+	}
+
+	/**
+	 * Test get_object_by_id with multiple meta for the same object_id and key.
+	 */
+	public function test_get_object_by_id_multiple_meta_same_object_id_and_key() {
+		$meta_id = add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'bar' );
+		$module  = Modules::get_module( 'meta' );
+
+		$metas    = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
+		$expected = array(
+			array(
+				'meta_type'  => 'post',
+				'meta_id'    => (string) $this->meta_id,
+				'meta_key'   => $this->whitelisted_post_meta,
+				'meta_value' => 'foo',
+				'object_id'  => (string) $this->post_id,
+			),
+			array(
+				'meta_type'  => 'post',
+				'meta_id'    => (string) $meta_id,
+				'meta_key'   => $this->whitelisted_post_meta,
+				'meta_value' => 'bar',
+				'object_id'  => (string) $this->post_id,
+			),
+		);
+
+		$this->assertSame( $expected, $metas );
+	}
+
+	/**
 	 * Verify that meta_values above size limit are truncated in get_object_by_id
 	 */
 	public function test_get_object_by_id_size_limit_exceeded() {
-		$meta_test_value = str_repeat( 'X', Posts::MAX_POST_META_LENGTH );
+		$meta_test_value = str_repeat( 'X', Posts::MAX_META_LENGTH );
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, $meta_test_value );
 
 		$module = Modules::get_module( 'meta' );
-		$metas  = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Meta $module';
+		$metas = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
 		$this->assertSame( '', $metas[0]['meta_value'] );
 	}
 
@@ -304,11 +352,112 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that meta_values below size limit are not truncated in get_object_by_id
 	 */
 	public function test_get_object_by_id_size_limit_max() {
-		$meta_test_value = str_repeat( 'X', Posts::MAX_POST_META_LENGTH - 1 );
+		$meta_test_value = str_repeat( 'X', Posts::MAX_META_LENGTH - 1 );
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, $meta_test_value );
 
 		$module = Modules::get_module( 'meta' );
-		$metas  = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Meta $module';
+		$metas = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
 		$this->assertEquals( $meta_test_value, $metas[0]['meta_value'] );
+	}
+
+	/**
+	 * Tests get_objects_by_id
+	 */
+	public function test_get_objects_by_id() {
+		$module  = Modules::get_module( 'meta' );
+		$meta_id = add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'bar' );
+		$config  = array(
+			array(
+				'id'       => $this->post_id,
+				'meta_key' => $this->whitelisted_post_meta,
+			),
+		);
+		$metas   = $module->get_objects_by_id( 'post', $config );
+
+		$expected = array(
+			$this->post_id . '-' . $this->whitelisted_post_meta => array(
+				array(
+					'meta_type'  => 'post',
+					'meta_id'    => (string) $this->meta_id,
+					'meta_key'   => $this->whitelisted_post_meta,
+					'meta_value' => 'foo',
+					'object_id'  => (string) $this->post_id,
+				),
+				array(
+					'meta_type'  => 'post',
+					'meta_id'    => (string) $meta_id,
+					'meta_key'   => $this->whitelisted_post_meta,
+					'meta_value' => 'bar',
+					'object_id'  => (string) $this->post_id,
+				),
+			),
+		);
+		$this->assertSame( $expected, $metas );
+	}
+
+	/**
+	 * Verify that meta_values above size limit are truncated in get_objects_by_id.
+	 */
+	public function test_get_objects_by_id_size_limit_exceeded() {
+		$meta_test_value = str_repeat( 'X', Posts::MAX_META_LENGTH );
+		update_post_meta( $this->post_id, $this->whitelisted_post_meta, $meta_test_value );
+
+		$module = Modules::get_module( 'meta' );
+		$config = array(
+			array(
+				'id'       => $this->post_id,
+				'meta_key' => $this->whitelisted_post_meta,
+			),
+		);
+		$metas  = $module->get_objects_by_id( 'post', $config );
+
+		$expected = array(
+			$this->post_id . '-' . $this->whitelisted_post_meta => array(
+				array(
+					'meta_type'  => 'post',
+					'meta_id'    => (string) $this->meta_id,
+					'meta_key'   => $this->whitelisted_post_meta,
+					'meta_value' => '',
+					'object_id'  => (string) $this->post_id,
+				),
+			),
+		);
+		$this->assertSame( $expected, $metas );
+	}
+
+	/**
+	 * Tests get_objects_by_id when the max DB query length is exceeded.
+	 */
+	public function test_get_objects_by_id_max_query_length_exceeded() {
+		$module        = Modules::get_module( 'meta' );
+		$long_meta_key = str_repeat( 'X', $module::MAX_DB_QUERY_LENGTH );
+		// We are not actually adding the meta, only in $config so that it produces a long DB query.
+		$config = array(
+			array(
+				'id'       => 9999,
+				'meta_key' => $long_meta_key,
+			),
+			array(
+				'id'       => $this->post_id,
+				'meta_key' => $this->whitelisted_post_meta,
+			),
+		);
+
+		$metas = $module->get_objects_by_id( 'post', $config );
+
+		$expected = array(
+			$this->post_id . '-' . $this->whitelisted_post_meta => array(
+				array(
+					'meta_type'  => 'post',
+					'meta_id'    => (string) $this->meta_id,
+					'meta_key'   => $this->whitelisted_post_meta,
+					'meta_value' => 'foo',
+					'object_id'  => (string) $this->post_id,
+				),
+			),
+		);
+
+		$this->assertSame( $expected, $metas );
 	}
 }

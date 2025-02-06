@@ -1,18 +1,18 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
+import React from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import ClipboardButtonInput from 'components/clipboard-button-input';
-import ConnectUserBar from 'components/connect-user-bar';
 import { FormFieldset, FormLegend, FormLabel } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
-import React from 'react';
-import { connect } from 'react-redux';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
+import { FEATURE_POST_BY_EMAIL } from '../lib/plans/constants';
 
 class PostByEmail extends React.Component {
 	regeneratePostByEmailAddress = event => {
@@ -44,7 +44,12 @@ class PostByEmail extends React.Component {
 			emailAddress = this.address();
 
 		return (
-			<SettingsCard { ...this.props } module="post-by-email" hideButton>
+			<SettingsCard
+				{ ...this.props }
+				module="post-by-email"
+				hideButton
+				feature={ FEATURE_POST_BY_EMAIL }
+			>
 				<SettingsGroup
 					hasChild
 					disableInOfflineMode
@@ -111,14 +116,6 @@ class PostByEmail extends React.Component {
 						</Button>
 					</FormFieldset>
 				</SettingsGroup>
-
-				{ ! this.props.isUnavailableInOfflineMode( 'post-by-email' ) && ! this.props.isLinked && (
-					<ConnectUserBar
-						feature="post-by-email"
-						featureLabel={ __( 'Post by Email', 'jetpack' ) }
-						text={ __( 'Connect to enable publishing via email.', 'jetpack' ) }
-					/>
-				) }
 			</SettingsCard>
 		);
 	}

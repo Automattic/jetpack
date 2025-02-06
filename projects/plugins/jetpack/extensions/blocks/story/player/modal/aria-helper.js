@@ -15,7 +15,7 @@ let hiddenElements = [],
  * we should consider removing these helper functions in favor of
  * `aria-modal="true"`.
  *
- * @param {Element} unhiddenElement  - The element that should not be hidden.
+ * @param {Element} unhiddenElement - The element that should not be hidden.
  */
 export function hideApp( unhiddenElement ) {
 	if ( isHidden ) {
@@ -37,8 +37,8 @@ export function hideApp( unhiddenElement ) {
 /**
  * Determines if the passed element should not be hidden from screen readers.
  *
- * @param {HTMLElement} element  - The element that should be checked.
- * @returns {boolean} Whether the element should not be hidden from screen-readers.
+ * @param {HTMLElement} element - The element that should be checked.
+ * @return {boolean} Whether the element should not be hidden from screen-readers.
  */
 export function elementShouldBeHidden( element ) {
 	const role = element.getAttribute( 'role' );

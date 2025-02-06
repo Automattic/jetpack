@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name: Create a repository dispatch
-        uses: peter-evans/repository-dispatch@v2
+        uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.REPO_DISPATCH_TOKEN }}
           repository: automattic/jetpack

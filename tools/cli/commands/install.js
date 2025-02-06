@@ -16,7 +16,7 @@ export const describe = 'Installs a monorepo project';
  * Options definition for the install subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the install commands defined.
+ * @return {object} Yargs with the install commands defined.
  */
 export function builder( yargs ) {
 	return yargs
@@ -37,6 +37,10 @@ export function builder( yargs ) {
 		.option( 'no-pnpm-install', {
 			type: 'boolean',
 			description: 'Skip execution of `pnpm install`.',
+		} )
+		.option( 'use-uncommitted-composer-lock', {
+			type: 'boolean',
+			description: 'Use uncommitted composer.lock files.',
 		} )
 		.option( 'concurrency', {
 			type: 'number',
@@ -115,6 +119,11 @@ export async function handler( argv ) {
 	} );
 	await listr.run().catch( err => {
 		console.error( err );
+		if ( ! argv.v ) {
+			console.error(
+				chalk.yellow( 'You might try running with `-v` to get more information on the failure' )
+			);
+		}
 		process.exit( err.exitCode || 1 );
 	} );
 }

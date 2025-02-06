@@ -329,10 +329,16 @@ class VideoPress_Player {
 		wp_enqueue_script( 'videopress' );
 		$thumbnail = esc_url( $this->video->poster_frame_uri );
 		$html      = "<video id=\"{$this->video_id}\" width=\"{$this->video->calculated_width}\" height=\"{$this->video->calculated_height}\" poster=\"$thumbnail\" controls=\"true\"";
+
+		$preload = 'metadata';
+		if ( isset( $this->options['preloadContent'] ) && videopress_is_valid_preload( $this->options['preloadContent'] ) ) {
+			$preload = $this->options['preloadContent'];
+		}
+
 		if ( isset( $this->options['autoplay'] ) && $this->options['autoplay'] === true ) {
 			$html .= ' autoplay="true"';
 		} else {
-			$html .= ' preload="' . $this->options['preloadContent'] . '"';
+			$html .= ' preload="' . esc_attr( $preload ) . '"';
 		}
 		if ( isset( $this->video->text_direction ) ) {
 			$html .= ' dir="' . esc_attr( $this->video->text_direction ) . '"';
@@ -869,7 +875,7 @@ class VideoPress_Player {
 	 * Double-baked Flash object markup for Internet Explorer and more standards-friendly consuming agents.
 	 *
 	 * @since 1.1
-	 * @return HTML markup. Object and children.
+	 * @return string HTML markup. Object and children.
 	 */
 	private function flash_object() {
 		wp_enqueue_script( 'videopress' );

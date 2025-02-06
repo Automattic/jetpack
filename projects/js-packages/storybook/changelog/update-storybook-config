@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Boost: Updated storybook configuration to allow scss imports in boost stories.

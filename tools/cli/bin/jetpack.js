@@ -2,12 +2,13 @@
 
 import process from 'process';
 import { fileURLToPath } from 'url';
+import { checkAnalyticsEnabled } from '../helpers/analytics.js';
 
 /**
  * Async import with better error handling.
  *
  * @param {string} path - Path to import from.
- * @returns {*} - Return from `import()`.
+ * @return {*} - Return from `import()`.
  */
 async function guardedImport( path ) {
 	try {
@@ -26,6 +27,18 @@ async function guardedImport( path ) {
 			console.error(
 				bold(
 					'*** Something is missing from your install. Please run `pnpm install` and try again. ***'
+				)
+			);
+		} else if (
+			error.name === 'SyntaxError' &&
+			( error.stack.match(
+				/Named export '.+?' not found. The requested module '.+?' is a CommonJS module/
+			) ||
+				error.stack.match( /The requested module '.+?' does not provide an export named '.+?'/ ) )
+		) {
+			console.error(
+				bold(
+					'*** Perhaps you have outdated dependencies. Please run `pnpm install` and try again. ***'
 				)
 			);
 		} else {
@@ -70,6 +83,11 @@ try {
 	console.error( 'Something unexpected happened. See error above.' );
 	process.exit( 1 );
 }
+
+/**
+ * Check if the user has been asked to enable analytics tracking.
+ */
+await checkAnalyticsEnabled();
 
 const cliRouter = await guardedImport( '../cliRouter.js' );
 cliRouter.cli();

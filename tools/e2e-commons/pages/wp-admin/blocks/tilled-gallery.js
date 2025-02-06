@@ -53,10 +53,10 @@ export default class TiledGallery extends EditorCanvas {
 	/**
 	 * Checks whether block is rendered on frontend
 	 *
-	 * @param {page} page Playwright page instance
+	 * @param {page} page - Playwright page instance
 	 */
 	static async isRendered( page ) {
-		await page.waitForSelector( '.tiled-gallery__gallery' );
+		await page.locator( '.tiled-gallery__gallery' ).waitFor();
 	}
 
 	#getSelector( selector ) {

@@ -9,13 +9,7 @@
  * Date: 01/11/16
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 
@@ -64,13 +58,6 @@ function zeroBSCRM_checkSystemFeat( $key = '', $with_info = false ) {
 		'fontinstalled',
 		'encryptionmethod',
 	);
-
-	// only show these for legacy users using DAL<3
-	// #backward-compatibility
-	global $zbs;
-	if ( ! $zbs->isDAL3() ) {
-		$feat_list[] = 'autodraftgarbagecollect';
-	}
 
 	if ( in_array( $key, $feat_list, true ) ) {
 		if ( function_exists( 'zeroBSCRM_checkSystemFeat_' . $key ) ) {
@@ -126,13 +113,12 @@ function zeroBSCRM_checkSystemFeat( $key = '', $with_info = false ) {
 		global $zbs;
 
 		if (!$withInfo)
-			return $zbs->version;
+			return $zbs::VERSION;
 		else {
+			$enabled     = true;
+			$enabled_str = 'Version ' . $zbs::VERSION;
 
-			$enabled = true;
-			$enabledStr = 'Version ' . $zbs->version;
-
-			return array($enabled, $enabledStr);
+			return array( $enabled, $enabled_str );
 		}
 	}
 
@@ -494,43 +480,6 @@ function zeroBSCRM_checkPrettyPermalinks(){
   / Generic System Check Wrapper/Helper funcs
    ====================================================== */
 
-
-
-
-/* ======================================================
-  Jetpack CRM Check Wrapper/Helper funcs
-   ====================================================== */
-	
-
-	// only used with DAL<3
-	// #backward-compatibility
-	function zeroBSCRM_checkSystemFeat_autodraftgarbagecollect($withInfo=false){
-
-		#} just returns the date last cleared
-		$lastCleared = get_option('zbscptautodraftclear','');
-
-		if (!$withInfo){
-
-			$enabledStr = 'Not yet cleared'; if (!empty($lastCleared)) $enabledStr = 'Cleared '.date(zeroBSCRM_getTimeFormat().' '.zeroBSCRM_getDateFormat(),$lastCleared); 
-			return $enabledStr;
-
-		} else {
-
-			$enabled = false; $enabledStr = 'Not yet cleared'; 
-			if (!empty($lastCleared)){
-				$enabledStr = 'Cleared '.date(zeroBSCRM_getTimeFormat().' '.zeroBSCRM_getDateFormat(),$lastCleared); 
-				$enabled = true;
-			}
-			return array($enabled,$enabledStr);
-
-		}
-
-	}
-
-
-/* ======================================================
-   / ZBS  Check Wrapper/Helper funcs
-   ====================================================== */
 
 /* ======================================================
   Specific System Check Wrapper/Helper funcs

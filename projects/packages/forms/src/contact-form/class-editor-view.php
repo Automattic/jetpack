@@ -19,7 +19,7 @@ class Editor_View {
 	/**
 	 * Add hooks according to screen.
 	 *
-	 * @param WP_Screen $screen Data about current screen.
+	 * @param \WP_Screen $screen Data about current screen.
 	 */
 	public static function add_hooks( $screen ) {
 		if ( isset( $screen->base ) && 'post' === $screen->base ) {
@@ -59,10 +59,7 @@ class Editor_View {
 	 * @return array
 	 */
 	public static function mce_external_plugins( $plugin_array ) {
-		$plugin_array['grunion_form'] = Assets::get_file_url_for_environment(
-			'_inc/build/contact-form/js/tinymce-plugin-form-button.min.js',
-			'modules/contact-form/js/tinymce-plugin-form-button.js'
-		);
+		$plugin_array['grunion_form'] = plugins_url( '../../dist/contact-form/js/tinymce-plugin-form-button.js', __FILE__ );
 		return $plugin_array;
 	}
 
@@ -120,7 +117,7 @@ class Editor_View {
 									'[contact-field label="' . __( 'Message', 'jetpack-forms' ) . '" type="textarea" /]',
 				'labels'                   => array(
 					'submit_button_text'  => __( 'Submit', 'jetpack-forms' ),
-					/** This filter is documented in modules/contact-form/grunion-contact-form.php */
+					/** This filter is documented in \Automattic\Jetpack\Forms\ContactForm\Contact_Form */
 					'required_field_text' => apply_filters( 'jetpack_required_field_text', __( '(required)', 'jetpack-forms' ) ),
 					'edit_close_ays'      => __( 'Are you sure you\'d like to stop editing this form without saving your changes?', 'jetpack-forms' ),
 					'quicktags_label'     => __( 'contact form', 'jetpack-forms' ),

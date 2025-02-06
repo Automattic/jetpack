@@ -4,12 +4,12 @@
  * Plugin URI: https://jetpack.com
  * Description: Security, performance, and marketing tools made by WordPress experts. Jetpack keeps your site protected so you can focus on more important things.
  * Author: Automattic
- * Version: 13.1-a.0
+ * Version: 14.3
  * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
- * Requires at least: 6.3
- * Requires PHP: 7.0
+ * Requires at least: 6.6
+ * Requires PHP: 7.2
  *
  * @package automattic/jetpack
  */
@@ -32,9 +32,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-define( 'JETPACK__MINIMUM_WP_VERSION', '6.3' );
-define( 'JETPACK__MINIMUM_PHP_VERSION', '7.0' );
-define( 'JETPACK__VERSION', '13.1-a.0' );
+define( 'JETPACK__MINIMUM_WP_VERSION', '6.6' );
+define( 'JETPACK__MINIMUM_PHP_VERSION', '7.2' );
+define( 'JETPACK__VERSION', '14.3' );
 
 /**
  * Constant used to fetch the connection owner token
@@ -156,35 +156,51 @@ if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings
 		);
 	}
 
+	// Add a red bubble notification to My Jetpack if the installation is bad.
+	add_filter(
+		'my_jetpack_red_bubble_notification_slugs',
+		function ( $slugs ) {
+			$slugs['jetpack-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'Jetpack',
+				),
+			);
+
+			return $slugs;
+		}
+	);
+
 	/**
 	 * Outputs an admin notice for folks running Jetpack without having run composer install.
 	 *
 	 * @since 7.4.0
 	 */
 	function jetpack_admin_missing_files() {
-		?>
-		<div class="notice notice-error is-dismissible">
-			<p>
-				<?php
-				printf(
-					wp_kses(
-						/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack is incomplete. If you installed Jetpack from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack must have Composer dependencies installed and built via the build command: <code>jetpack build plugins/jetpack --with-deps</code>', 'jetpack' ),
-						array(
-							'a'    => array(
-								'href'   => array(),
-								'rel'    => array(),
-								'target' => array(),
-							),
-							'code' => array(),
-						)
+		if ( get_current_screen()->id !== 'plugins' ) {
+			return;
+		}
+		$message = sprintf(
+			wp_kses(
+				/* translators: Placeholder is a link to a support document. */
+				__( 'Your installation of Jetpack is incomplete. If you installed Jetpack from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack must have Composer dependencies installed and built via the build command: <code>jetpack build plugins/jetpack --deps</code>', 'jetpack' ),
+				array(
+					'a'    => array(
+						'href'   => array(),
+						'rel'    => array(),
+						'target' => array(),
 					),
-					'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
-				);
-				?>
-			</p>
-		</div>
-		<?php
+					'code' => array(),
+				)
+			),
+			'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
+		);
+		wp_admin_notice(
+			$message,
+			array(
+				'type'        => 'error',
+				'dismissible' => true,
+			)
+		);
 	}
 
 	add_action( 'admin_notices', 'jetpack_admin_missing_files' );

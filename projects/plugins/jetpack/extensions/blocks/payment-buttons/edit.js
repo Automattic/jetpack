@@ -2,9 +2,12 @@ import { BlockControls, useBlockProps, useInnerBlocksProps } from '@wordpress/bl
 import { useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
-import classNames from 'classnames';
+import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
+import ConnectBanner from '../../shared/components/connect-banner';
 import StripeConnectToolbarButton from '../../shared/components/stripe-connect-toolbar-button';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
+import useIsUserConnected from '../../shared/use-is-user-connected';
 import { store as membershipProductsStore } from '../../store/membership-products';
 
 const ALLOWED_BLOCKS = [ 'jetpack/recurring-payments' ];
@@ -18,6 +21,7 @@ function PaymentButtonsEdit( { clientId, attributes } ) {
 			isApiConnected: isApiStateConnected(),
 		};
 	} );
+	const isUserConnected = useIsUserConnected();
 
 	const paymentButtonBlocks = useSelect(
 		select =>
@@ -55,7 +59,7 @@ function PaymentButtonsEdit( { clientId, attributes } ) {
 	const showStripeConnectAction = ! isApiConnected && !! connectUrl;
 
 	const blockProps = useBlockProps( {
-		className: classNames( {
+		className: clsx( {
 			'has-custom-font-size': !! fontSize || attributes?.style?.typography?.fontSize,
 		} ),
 	} );
@@ -71,6 +75,21 @@ function PaymentButtonsEdit( { clientId, attributes } ) {
 	// will then be positioned in relation to this.
 	delete innerBlocksProps.id;
 	delete innerBlocksProps[ 'data-block' ];
+
+	if ( ! isUserConnected ) {
+		return (
+			<div { ...blockProps }>
+				<ConnectBanner
+					block="Payment Buttons"
+					explanation={ __(
+						'Connect your WordPress.com account to enable payment buttons on your site.',
+						'jetpack'
+					) }
+				/>
+			</div>
+		);
+	}
+
 	return (
 		<div { ...blockProps }>
 			{ showStripeConnectAction && (

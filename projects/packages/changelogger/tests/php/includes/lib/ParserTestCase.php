@@ -31,7 +31,7 @@ class ParserTestCase extends TestCase {
 	 *
 	 * @var string
 	 */
-	protected $fixtures;
+	protected static $fixtures;
 
 	/**
 	 * Set to update fixture files after running tests.
@@ -225,7 +225,7 @@ class ParserTestCase extends TestCase {
 						$this->assertStringContainsString( $data['parse-exception']->getMessage(), $ex->getMessage(), 'Expected exception from parse()' );
 					}
 				} else {
-					$expect = isset( $data['parse-output'] ) ? $data['parse-output'] : $data['object'];
+					$expect = $data['parse-output'] ?? $data['object'] ?? null;
 					$this->assertEquals( $expect, $parser->parse( $data['changelog'] ), 'Output from parse()' );
 				}
 			}
@@ -239,7 +239,7 @@ class ParserTestCase extends TestCase {
 						$this->assertStringContainsString( $data['format-exception']->getMessage(), $ex->getMessage(), 'Expected exception from format()' );
 					}
 				} else {
-					$expect = isset( $data['format-output'] ) ? $data['format-output'] : $data['changelog'];
+					$expect = $data['format-output'] ?? $data['changelog'] ?? null;
 					$this->assertEquals( $expect, $parser->format( $data['object'] ), 'Output from format()' );
 				}
 			}
@@ -275,9 +275,9 @@ class ParserTestCase extends TestCase {
 	/**
 	 * Data provider for testFixture.
 	 */
-	public function provideFixture() {
+	public static function provideFixture() {
 		$ret = array();
-		foreach ( glob( $this->fixtures ) as $filename ) {
+		foreach ( glob( static::$fixtures ) as $filename ) {
 			$ret[ basename( $filename ) ] = array( $filename );
 		}
 		return $ret;

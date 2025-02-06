@@ -6,11 +6,12 @@ import {
 	usePublicizeConfig,
 	useSocialMediaConnections,
 	PublicizePanel,
-	PostPublishReviewPrompt,
-	PostPublishManualSharing,
 	useSyncPostDataToStore,
+	PostPublishPanels,
+	GlobalModals,
+	usePostCanUseSig,
 } from '@automattic/jetpack-publicize-components';
-import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { PanelBody } from '@wordpress/components';
 import { dispatch, useSelect } from '@wordpress/data';
 import domReady from '@wordpress/dom-ready';
@@ -35,7 +36,7 @@ domReady( () => {
 	if ( getQueryArg( window.location.search, 'jetpackSidebarIsOpen' ) === 'true' ) {
 		dispatch( 'core/interface' ).enableComplementaryArea(
 			'core/edit-post',
-			'jetpack-social-sidebar/jetpack-social'
+			'jetpack-social/jetpack-social'
 		);
 	}
 } );
@@ -51,8 +52,9 @@ const JetpackSocialSidebar = () => {
 	const closeModal = useCallback( () => setIsModalOpened( false ), [] );
 
 	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
-	const { isPublicizeEnabled, hidePublicizeFeature, isSocialImageGeneratorAvailable } =
-		usePublicizeConfig();
+	const { isPublicizeEnabled, hidePublicizeFeature } = usePublicizeConfig();
+	const postCanUseSig = usePostCanUseSig();
+
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	const PanelDescription = () => (
 		<Description
@@ -79,7 +81,7 @@ const JetpackSocialSidebar = () => {
 				<PublicizePanel>
 					<PanelDescription />
 				</PublicizePanel>
-				{ isSocialImageGeneratorAvailable && <SocialImageGeneratorPanel /> }
+				{ postCanUseSig && <SocialImageGeneratorPanel /> }
 				<PanelBody title={ __( 'Social Previews', 'jetpack-social' ) }>
 					<SocialPreviewsPanel openModal={ openModal } />
 				</PanelBody>
@@ -95,7 +97,7 @@ const JetpackSocialSidebar = () => {
 				</PublicizePanel>
 			</PluginPrePublishPanel>
 
-			{ isSocialImageGeneratorAvailable && (
+			{ postCanUseSig && (
 				<PluginPrePublishPanel
 					initialOpen
 					title={ __( 'Social Image Generator', 'jetpack-social' ) }
@@ -113,8 +115,8 @@ const JetpackSocialSidebar = () => {
 				<SocialPreviewsPanel openModal={ openModal } />
 			</PluginPrePublishPanel>
 
-			<PostPublishManualSharing />
-			<PostPublishReviewPrompt />
+			<PostPublishPanels />
+			<GlobalModals />
 		</PostTypeSupportCheck>
 	);
 };

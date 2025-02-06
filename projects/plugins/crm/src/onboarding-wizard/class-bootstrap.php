@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack_CRM\Onboarding_Wizard;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 use Automattic\Jetpack\Assets;

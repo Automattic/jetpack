@@ -12,7 +12,7 @@
 		/**
 		 * Utility get related posts JSON endpoint from URLs
 		 *
-		 * @param  {string} URL (optional)
+		 * @param {string} URL (optional)
 		 * @return {string} Endpoint URL
 		 */
 		getEndpointURL: function ( URL ) {
@@ -59,9 +59,8 @@
 
 			if ( '' === locationObject.search ) {
 				return pathname + '?' + args;
-			} else {
-				return pathname + locationObject.search + '&' + args;
 			}
+			return pathname + locationObject.search + '&' + args;
 		},
 
 		getAnchor: function ( post, classNames ) {
@@ -255,9 +254,8 @@
 
 			if ( '' === anchor.search ) {
 				return pathname + '?' + args;
-			} else {
-				return pathname + anchor.search + '&' + args;
 			}
+			return pathname + anchor.search + '&' + args;
 		},
 
 		cleanupTrackedUrl: function () {
@@ -296,7 +294,6 @@
 		jprp.cleanupTrackedUrl();
 
 		var endpointURL = jprp.getEndpointURL();
-		var relatedPosts = document.querySelector( '#jp-relatedposts' );
 
 		if ( ! endpointURL ) {
 			return;
@@ -307,6 +304,7 @@
 			return;
 		}
 
+		var relatedPosts = document.querySelector( '#jp-relatedposts' );
 		var request = new XMLHttpRequest();
 		request.open( 'GET', endpointURL, true );
 		request.setRequestHeader( 'x-requested-with', 'XMLHttpRequest' );
@@ -358,7 +356,7 @@
 
 					relatedPosts.style.display = 'block';
 					afterPostsHaveLoaded();
-				} catch ( error ) {
+				} catch {
 					// Do nothing
 				}
 			}

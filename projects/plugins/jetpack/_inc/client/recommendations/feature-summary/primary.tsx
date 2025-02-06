@@ -1,8 +1,8 @@
-import classNames from 'classnames';
-import Button from 'components/button';
-import analytics from 'lib/analytics';
+import clsx from 'clsx';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
+import Button from 'components/button';
+import analytics from 'lib/analytics';
 import { stepToRoute } from 'state/recommendations';
 import { getSummaryPrimaryProps } from '../feature-utils';
 import type { MouseEventHandler } from 'react';
@@ -21,7 +21,7 @@ const SummaryTextLink = ( { href, label, isHidden, onClick }: SummaryTextLinkPro
 			target="_blank"
 			href={ href }
 			onClick={ onClick }
-			className={ classNames( 'jp-summary-text-link', { [ 'is-hidden' ]: isHidden } ) }
+			className={ clsx( 'jp-summary-text-link', { 'is-hidden': isHidden } ) }
 		>
 			{ label }
 			<span className="jp-summary-text-link__icon dashicons dashicons-arrow-right-alt2"></span>

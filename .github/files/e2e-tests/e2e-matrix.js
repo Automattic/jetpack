@@ -5,7 +5,7 @@ const projects = [
 	{
 		project: 'Jetpack connection',
 		path: 'projects/plugins/jetpack/tests/e2e',
-		testArgs: [ 'specs/connection', '--retries=1' ],
+		testArgs: [ 'specs/connection' ],
 		targets: [ 'plugins/jetpack' ],
 		suite: '',
 		buildGroup: 'jetpack-core',
@@ -13,7 +13,7 @@ const projects = [
 	{
 		project: 'Jetpack pre-connection',
 		path: 'projects/plugins/jetpack/tests/e2e',
-		testArgs: [ 'specs/pre-connection', '--retries=1' ],
+		testArgs: [ 'specs/pre-connection' ],
 		targets: [ 'plugins/jetpack', 'monorepo' ],
 		suite: '',
 		buildGroup: 'jetpack-core',
@@ -21,15 +21,23 @@ const projects = [
 	{
 		project: 'Jetpack post-connection',
 		path: 'projects/plugins/jetpack/tests/e2e',
-		testArgs: [ 'specs/post-connection', '--retries=1' ],
+		testArgs: [ 'specs/post-connection' ],
 		targets: [ 'plugins/jetpack' ],
+		suite: '',
+		buildGroup: 'jetpack-core',
+	},
+	{
+		project: 'Jetpack post editor',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testArgs: [ 'specs/editor' ],
+		targets: [ 'plugins/jetpack', 'packages/publicize' ],
 		suite: '',
 		buildGroup: 'jetpack-core',
 	},
 	{
 		project: 'Jetpack sync',
 		path: 'projects/plugins/jetpack/tests/e2e',
-		testArgs: [ 'specs/sync', '--retries=1' ],
+		testArgs: [ 'specs/sync' ],
 		targets: [ 'packages/sync' ],
 		suite: '',
 		buildGroup: 'jetpack-sync',
@@ -37,7 +45,7 @@ const projects = [
 	{
 		project: 'Jetpack Boost - Base',
 		path: 'projects/plugins/boost/tests/e2e',
-		testArgs: [ 'specs/base', '--retries=1' ],
+		testArgs: [ 'specs/base' ],
 		targets: [ 'plugins/boost' ],
 		suite: '',
 		buildGroup: 'jetpack-boost',
@@ -45,7 +53,7 @@ const projects = [
 	{
 		project: 'Jetpack Boost - Modules',
 		path: 'projects/plugins/boost/tests/e2e',
-		testArgs: [ 'specs/modules', '--retries=1' ],
+		testArgs: [ 'specs/modules' ],
 		targets: [ 'plugins/boost' ],
 		suite: '',
 		buildGroup: 'jetpack-boost',
@@ -53,7 +61,39 @@ const projects = [
 	{
 		project: 'Jetpack Boost - Critical CSS',
 		path: 'projects/plugins/boost/tests/e2e',
-		testArgs: [ 'specs/critical-css', '--retries=1' ],
+		testArgs: [ 'specs/critical-css' ],
+		targets: [ 'plugins/boost' ],
+		suite: '',
+		buildGroup: 'jetpack-boost',
+	},
+	{
+		project: 'Jetpack Boost - Page Cache',
+		path: 'projects/plugins/boost/tests/e2e',
+		testArgs: [ 'specs/page-cache' ],
+		targets: [ 'plugins/boost' ],
+		suite: '',
+		buildGroup: 'jetpack-boost',
+	},
+	{
+		project: 'Jetpack Boost - Concatenate JS and CSS',
+		path: 'projects/plugins/boost/tests/e2e',
+		testArgs: [ 'specs/concatenate' ],
+		targets: [ 'plugins/boost' ],
+		suite: '',
+		buildGroup: 'jetpack-boost',
+	},
+	{
+		project: 'Jetpack Boost - Image CDN',
+		path: 'projects/plugins/boost/tests/e2e',
+		testArgs: [ 'specs/image-cdn' ],
+		targets: [ 'plugins/boost' ],
+		suite: '',
+		buildGroup: 'jetpack-boost',
+	},
+	{
+		project: 'Jetpack Boost - Image Guide',
+		path: 'projects/plugins/boost/tests/e2e',
+		testArgs: [ 'specs/image-guide' ],
 		targets: [ 'plugins/boost' ],
 		suite: '',
 		buildGroup: 'jetpack-boost',
@@ -138,14 +178,11 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 				}
 			}
 		} else {
-			// eslint-disable-next-line no-console
 			console.error( 'Undefined DISPATCH_REPO!' );
 		}
 		break;
 	default:
-		// eslint-disable-next-line no-console
 		console.error( `Unsupported GITHUB_EVENT_NAME ${ process.env.GITHUB_EVENT_NAME }.` );
 }
 
-// eslint-disable-next-line no-console
 console.log( JSON.stringify( matrix ) );

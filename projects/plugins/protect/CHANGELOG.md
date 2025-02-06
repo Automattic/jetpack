@@ -5,6 +5,103 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.1.1 - 2024-10-17
+### Changed
+- Firewall: Fix backwards compatibility for sites running standalone mode with outdated packages autoloaded.
+
+## 3.1.0 - 2024-10-15
+### Added
+- Firewall: Adds stat cards showing recent block counts [#35739]
+- Auto-Fixers: Adds handling for long-running fixers [#39301]
+
+### Changed
+- Firewall: added help text for IP list formatting rules [#39448]
+- Updated package dependencies. [#39707]
+
+### Removed
+- Security Scanning: disabled database threat category [#39467]
+
+### Fixed
+- Minor fixes and improvements.
+
+## 3.0.2 - 2024-09-06
+### Changed
+- Internal updates.
+
+## 3.0.1 - 2024-09-06
+### Added
+- Threats List: Add pagination. [#39058]
+
+### Changed
+- Admin menu: change order of Jetpack sub-menu items. [#39095]
+- Updated package dependencies. [#39176]
+
+### Fixed
+- Security Scanning: Adds a background to the scan progress bar. [#38847]
+- General: Delete relevant Protect options on deactivation. [#38815]
+- Auto Fixers: Disable the unignore threats button when a fixer is in progress. [#38898]
+- Security Scanning: Fix the threat fixed on date in the history view. [#39164]
+- General: Improves the manual scan link button loading state. [#38897]
+
+## 3.0.0-beta - 2024-08-09
+### Added
+- Firewall: add dedicated WAF allow and block list toggles [#38265]
+- General: add "contact support" links [#38416]
+- Security Scanning: add threats history view [#38117]
+
+### Changed
+- General: indicate compatibility with the upcoming version of WordPress - 6.6. [#37962]
+
+### Removed
+- General: update WordPress version requirements to WordPress 6.5. [#38382]
+
+### Fixed
+- Fix an issue where the connection error hook was always resetting the notice [#38120]
+- Fix image optimization [#38573]
+- Fix in-progress threat fixer loading indicator [#38051]
+- Fix threat fix modal title [#38312]
+
+## 2.2.0 - 2024-05-24
+### Added
+- Add data to WAF logs and a toggle for users to opt-in to share more data with us if needed. [#36377]
+- Trigger a red bubble notification when a bad install is detected. [#36449]
+
+### Changed
+- Update WordPress minimum version requirement to WordPress 6.4. [#37047]
+- Only show installation errors on the plugins page. [#36390]
+
+### Fixed
+- Jetpack Protect Footer: ensure that "Go to cloud" links are not shown when on a platform with no firewall support. [#36794]
+
+## 2.1.0 - 2024-03-14
+### Added
+- Added onboarding flows. [#34649]
+- Added firewall standalone mode indicator. [#34840]
+
+### Changed
+- General: indicate compatibility with the upcoming version of WordPress, 6.5. [#35820]
+- Use blog ID instead of site slug in checkout links. [#35004]
+- Updated package dependencies. [#36325]
+- Updated package lockfile. [#35672]
+
+### Fixed
+- Prevent text orphans in the site scanning header. [#35935]
+
+## 2.0.0 - 2024-01-18
+### Changed
+- Firewall: use datetime versioning for rules file updates. [#34698]
+- General: unify display of notifications across Scan and Firewall screens [#34702]
+- General: indicate full compatibility with the latest version of WordPress, 6.4. [#33776]
+- General: update PHP requirement to PHP 7.0+ [#34126]
+- General: update WordPress version requirements to WordPress 6.3. [#34127]
+- General: update package dependencies. [#34882]
+- General: update lockfile. [#33607]
+
+### Fixed
+- Fix Modal component overflow scrolling. [#34475]
+- Fix Popover component styling. [#34424]
+- Improved helper script installer logging. [#34297]
+
 ## 1.4.2 - 2023-10-19
 ### Changed
 - General: update WordPress version requirements to WordPress 6.2. [#32762] [#32772]

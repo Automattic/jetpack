@@ -1,10 +1,10 @@
 === WP Super Cache ===
 Contributors: donncha, automattic, adnan007, dilirity, mikemayhem3030, pyronaur, thingalon
 Tags: performance, caching, wp-cache, wp-super-cache, cache
-Requires at least: 6.3
-Requires PHP: 7.0
-Tested up to: 6.4
-Stable tag: 1.10.0
+Requires at least: 6.6
+Requires PHP: 7.2
+Tested up to: 6.7.1
+Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -268,23 +268,25 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
-### 1.11.0 - 2023-11-08
+### 2.0.0 - 2025-01-10
 #### Added
-- Super Cache: fix "accept header" check, and add new "wpsc_accept_headers" filter on accept header list
+- Enable test coverage.
 
 #### Changed
-- General: indicate full compatibility with the latest version of WordPress, 6.4.
-- General: update WordPress version requirements to WordPress 6.2.
-- Overhauled visual styling to match Jetpack branding
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
+- General: Indicate compatibility with the upcoming version of WordPress - 6.7.
 - Updated package dependencies.
 
+#### Removed
+- Cleaned up legacy code.
+- General: Update minimum PHP version to 7.2.
+- General: Update minimum WordPress version to 6.6.
+
 #### Fixed
-- Caching: make sure $wp_cache_request_uri is defined to avoid warnings about "NULL" parameters.
-- super-cache: fixed null parameter warning when using $supercachedir
-- Super Cache: cancel the full preload job correctly.
+- Caching: make sure there is cache content to serve, even if the cache file was found
+- Ensure homepage cache gets flushed when a post is unpublished.
+- Lossless image optimization for images (should improve performance with no visible changes).
+- Move trailing space out of i18n message.
+- Fix apache_request_headers fallback so it works when that command is disabled.
 
 --------
 

@@ -160,7 +160,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	/**
 	 * Data provider for test_prepare_menu_item.
 	 *
-	 * @return \string[][][]
+	 * @return string[][][]
 	 */
 	public function menu_item_data() {
 		return array(
@@ -233,7 +233,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	/**
 	 * Data provider for test_prepare_submenu_item.
 	 *
-	 * @return \string[][][]
+	 * @return string[][][]
 	 */
 	public function submenu_item_data() {
 		$plugin_slug = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'akismet/akismet.png' : 'jetpack/jetpack.php';
@@ -368,7 +368,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	/**
 	 * Data provider for test_prepare_submenu_item.
 	 *
-	 * @return \string[][]
+	 * @return string[][]
 	 */
 	public function menu_item_icon_data() {
 		return array(
@@ -448,7 +448,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	/**
 	 * Data provider for test_prepare_menu_item_url.
 	 *
-	 * @return \string[][]
+	 * @return string[][]
 	 */
 	public function menu_item_url_data() {
 		$plugin_slug = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'akismet/akismet.png' : 'jetpack/jetpack.php';
@@ -576,7 +576,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	/**
 	 * Data provider for test_prepare_menu_item_url.
 	 *
-	 * @return \string[][]
+	 * @return string[][]
 	 */
 	public function menu_item_update_data() {
 		return array(

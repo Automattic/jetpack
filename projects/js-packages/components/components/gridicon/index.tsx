@@ -6,7 +6,7 @@ It has been modified to work with Preact, and only includes the icons that we ne
 !!! */
 
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { Component } from 'react';
 import './style.scss';
 import { GridiconProps } from './types';
@@ -24,6 +24,7 @@ class Gridicon extends Component< GridiconProps > {
 			'gridicons-calendar',
 			'gridicons-cart',
 			'gridicons-folder',
+			'gridicons-help-outline',
 			'gridicons-info',
 			'gridicons-info-outline',
 			'gridicons-posts',
@@ -47,43 +48,45 @@ class Gridicon extends Component< GridiconProps > {
 			default:
 				return '';
 			case 'gridicons-audio':
-				return __( 'Has audio.', 'jetpack' );
+				return __( 'Has audio.', 'jetpack-components' );
 			case 'gridicons-arrow-left':
-				return __( 'Arrow left', 'jetpack' );
+				return __( 'Arrow left', 'jetpack-components' );
 			case 'gridicons-arrow-right':
-				return __( 'Arrow right', 'jetpack' );
+				return __( 'Arrow right', 'jetpack-components' );
 			case 'gridicons-calendar':
-				return __( 'Is an event.', 'jetpack' );
+				return __( 'Is an event.', 'jetpack-components' );
 			case 'gridicons-cart':
-				return __( 'Is a product.', 'jetpack' );
+				return __( 'Is a product.', 'jetpack-components' );
 			case 'chevron-down':
-				return __( 'Show filters', 'jetpack' );
+				return __( 'Show filters', 'jetpack-components' );
 			case 'gridicons-comment':
-				return __( 'Matching comment.', 'jetpack' );
+				return __( 'Matching comment.', 'jetpack-components' );
 			case 'gridicons-cross':
-				return __( 'Close.', 'jetpack' );
+				return __( 'Close.', 'jetpack-components' );
 			case 'gridicons-filter':
-				return __( 'Toggle search filters.', 'jetpack' );
+				return __( 'Toggle search filters.', 'jetpack-components' );
 			case 'gridicons-folder':
-				return __( 'Category', 'jetpack' );
+				return __( 'Category', 'jetpack-components' );
+			case 'gridicons-help-outline':
+				return __( 'Help', 'jetpack-components' );
 			case 'gridicons-info':
 			case 'gridicons-info-outline':
-				return __( 'Information.', 'jetpack' );
+				return __( 'Information.', 'jetpack-components' );
 			case 'gridicons-image-multiple':
-				return __( 'Has multiple images.', 'jetpack' );
+				return __( 'Has multiple images.', 'jetpack-components' );
 			case 'gridicons-image':
-				return __( 'Has an image.', 'jetpack' );
+				return __( 'Has an image.', 'jetpack-components' );
 			case 'gridicons-page':
-				return __( 'Page', 'jetpack' );
+				return __( 'Page', 'jetpack-components' );
 			case 'gridicons-post':
-				return __( 'Post', 'jetpack' );
+				return __( 'Post', 'jetpack-components' );
 			case 'gridicons-jetpack-search':
 			case 'gridicons-search':
-				return __( 'Magnifying Glass', 'jetpack' );
+				return __( 'Magnifying Glass', 'jetpack-components' );
 			case 'gridicons-tag':
-				return __( 'Tag', 'jetpack' );
+				return __( 'Tag', 'jetpack-components' );
 			case 'gridicons-video':
-				return __( 'Has a video.', 'jetpack' );
+				return __( 'Has a video.', 'jetpack-components' );
 		}
 	}
 
@@ -181,6 +184,12 @@ class Gridicon extends Component< GridiconProps > {
 						<path d="M18 19H6c-1.1 0-2-.9-2-2V7c0-1.1.9-2 2-2h3c1.1 0 2 .9 2 2h7c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2z" />
 					</g>
 				);
+			case 'gridicons-help-outline':
+				return (
+					<g>
+						<path d="M12 4c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8 3.59-8 8-8m0-2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 13h-2v2h2v-2zm-1.962-2v-.528c0-.4.082-.74.246-1.017.163-.276.454-.546.87-.808.333-.21.572-.397.717-.565.146-.168.22-.36.22-.577 0-.172-.078-.308-.234-.41-.156-.1-.358-.15-.608-.15-.62 0-1.34.22-2.168.658l-.854-1.67c1.02-.58 2.084-.872 3.194-.872.913 0 1.63.202 2.15.603.52.4.78.948.78 1.64 0 .495-.116.924-.347 1.287-.23.362-.6.705-1.11 1.03-.43.278-.7.48-.807.61-.108.13-.163.282-.163.458V13h-1.885z" />
+					</g>
+				);
 			case 'gridicons-image':
 				return (
 					<g>
@@ -272,6 +281,12 @@ class Gridicon extends Component< GridiconProps > {
 						<g id="Layer_1"></g>
 					</>
 				);
+			case 'gridicons-external':
+				return (
+					<g>
+						<path d="M19 13v6c0 1.105-.895 2-2 2H5c-1.105 0-2-.895-2-2V7c0-1.105.895-2 2-2h6v2H5v12h12v-6h2zM13 3v2h4.586l-7.793 7.793 1.414 1.414L19 6.414V11h2V3h-8z" />
+					</g>
+				);
 		}
 	}
 
@@ -284,7 +299,7 @@ class Gridicon extends Component< GridiconProps > {
 
 		const icon = 'gridicons-' + this.props.icon;
 
-		const iconClass = classNames( 'gridicon', icon, className, {
+		const iconClass = clsx( 'gridicon', icon, className, {
 			'needs-offset': this.needsOffset( icon, size ),
 		} );
 		const description = this.getSVGDescription( icon );

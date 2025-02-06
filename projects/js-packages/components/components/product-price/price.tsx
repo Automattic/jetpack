@@ -1,5 +1,5 @@
 import { getCurrencyObject } from '@automattic/format-currency';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import Text from '../text';
 import styles from './style.module.scss';
 import type { PriceProps } from './types';
@@ -8,11 +8,11 @@ import type React from 'react';
 /**
  * React component to render a Price composition.
  *
- * @param {PriceProps} props  - Component props.
- * @returns {React.ReactNode} -Price react component.
+ * @param {PriceProps} props - Component props.
+ * @return {React.ReactNode} -Price react component.
  */
 export const Price: React.FC< PriceProps > = ( { value, currency, isOff, hidePriceFraction } ) => {
-	const classNames = classnames( styles.price, 'product-price_price', {
+	const classNames = clsx( styles.price, 'product-price_price', {
 		[ styles[ 'is-not-off-price' ] ]: ! isOff,
 	} );
 

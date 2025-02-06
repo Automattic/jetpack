@@ -93,6 +93,9 @@ This is an object suited for spreading some default values into Webpack's `outpu
 
 - `filename`: `[name].js`.
 - `chunkFilename`: `[name].js?minify=false&ver=[contenthash]`. The content hash serves as a cache buster, while `minify=false` avoids a broken minifier in the WordPress.com environment.
+- `uniqueName`: If `package.json` has a name, that. Otherwise if `composer.json` has a name, that.
+
+Note if you're setting `output.library.name`, you may want to also set `output.uniqueName` to the same string to match Webpack's default behavior.
 
 #### `optimization`
 
@@ -140,12 +143,14 @@ This provides all of the plugins listed below. The `options` object can be used 
 plugins: {
 	...StandardPlugins( {
 		DuplicatePackageCheckerPlugin: false,
-		DependencyExtractionPlugin: { injectPolyfill: true },
+		DependencyExtractionPlugin: { requestMap: { foo: {} },
 	} ),
 }
 ```
 
 Note that I18nCheckPlugin, PnpmDeterministicModuleIdsPlugin, and I18nSafeMangleExportsPlugin are only included by default in production mode. They can be turned on in development mode by passing an options object.
+
+Note that ForkTSCheckerPlugin must be explicitly enabled by passing an options object.
 
 ##### `DefinePlugin( defines )`
 
@@ -156,9 +161,49 @@ This provides an instance of Webpack's `DefinePlugin`, configured by default wit
 
 You can pass any additional defines as the `defines` parameter. Note it is not necessary or desirable to define `process.env.NODE_ENV`, as Webpack will do that for you based on `mode`.
 
-##### `MomentLocaleIgnorePlugin()`
+##### `DependencyExtractionPlugin( options )`
 
-This provides an instance of Webpack's `IgnorePlugin` configured to ignore moment.js locale modules.
+This provides an instance of [@wordpress/dependency-extraction-webpack-plugin](https://www.npmjs.com/package/@wordpress/dependency-extraction-webpack-plugin). The `options` are passed to the plugin.
+
+By default, the following additional dependencies are extracted:
+- `@automattic/jetpack-script-data`: Handle `jetpack-script-data` provided by PHP package [automattic/jetpack-assets](https://packagist.org/packages/automattic/jetpack-assets).
+- `@automattic/jetpack-connection`: Handle `jetpack-connection` provided by PHP package [automattic/jetpack-connection](https://packagist.org/packages/automattic/jetpack-connection).
+
+One additional option is recognized:
+
+- `requestMap`: An easier way to specify additional dependencies to extract, rather than redefining `requestToHandle` and `requestToExternal`. Key is the dependency, value is an object with `handle` and `external` keys corresponding to the return values of `requestToHandle` and `requestToExternal`.
+
+##### `DuplicatePackageCheckerPlugin( options )`
+
+This provides an instance of [@cerner/duplicate-package-checker-webpack-plugin](https://www.npmjs.com/package/@cerner/duplicate-package-checker-webpack-plugin). The `options` are passed to the plugin.
+
+##### `ForkTSCheckerPlugin( options )`
+
+This provides an instance of [fork-ts-checker-webpack-plugin](https://www.npmjs.com/package/fork-ts-checker-webpack-plugin) configured for use alongside `@babel/preset-typescript`. The `options` are passed to the plugin.
+
+The default configuration sets the following:
+
+- `typescript.mode` to "write-dts".
+- `typescript.diagnosticOptions.semantic` to true.
+- `typescript.diagnosticOptions.syntactic` to true.
+
+Note that the optional peer dependency on `typescript` must be satisfied for this plugin to work.
+
+##### `I18nCheckPlugin( options )`
+
+This provides an instance of [@wordpress/i18n-check-webpack-plugin](https://www.npmjs.com/package/@wordpress/i18n-check-webpack-plugin). The `options` are passed to the plugin.
+
+The default configuration sets a filter that excludes `node_modules` other than `@automattic/*`. This may be accessed as `I18nCheckPlugin.defaultFilter`.
+
+The default configuration also sets `extractorOptions.babelOptions`: If `path.resolve( 'babel.config.js' )` exists, `configFile` will default to that. Otherwise, `presets` will default to set some appropriate defaults (which will require the peer dependencies on [@babel/core](https://www.npmjs.com/package/@babel/core) and [@babel/runtime](https://www.npmjs.com/package/@babel/runtime)).
+
+##### `I18nLoaderPlugin( options )`
+
+This provides an instance of [@automattic/i18n-loader-webpack-plugin](https://www.npmjs.com/package/@automattic/i18n-loader-webpack-plugin). The `options` are passed to the plugin.
+
+##### `I18nSafeMangleExportsPlugin( options )`
+
+This provides an instance of [@wordpress/i18n-check-webpack-plugin](https://www.npmjs.com/package/@wordpress/i18n-check-webpack-plugin)'s I18nSafeMangleExportsPlugin. The `options` are passed to the plugin.
 
 ##### `MiniCssExtractPlugin( options )`
 
@@ -171,37 +216,17 @@ This is a plugin that adjusts `MiniCssExtractPlugin`'s asset loading to conditio
 Options are:
 - `isRtlExpr`: String holding an expression that evaluates to a boolean, true if RTL CSS should be used. Default is `"document.dir === 'rtl'"`.
 
-##### `WebpackRtlPlugin( options )`
+##### `MomentLocaleIgnorePlugin()`
 
-This provides an instance of [@automattic/webpack-rtl-plugin](https://www.npmjs.com/package/@automattic/webpack-rtl-plugin). The `options` are passed to the plugin.
-
-##### `DuplicatePackageCheckerPlugin( options )`
-
-This provides an instance of [@cerner/duplicate-package-checker-webpack-plugin](https://www.npmjs.com/package/@cerner/duplicate-package-checker-webpack-plugin). The `options` are passed to the plugin.
-
-##### `DependencyExtractionPlugin( options )`
-
-This provides an instance of [@wordpress/dependency-extraction-webpack-plugin](https://www.npmjs.com/package/@wordpress/dependency-extraction-webpack-plugin). The `options` are passed to the plugin.
-
-##### `I18nLoaderPlugin( options )`
-
-This provides an instance of [@automattic/i18n-loader-webpack-plugin](https://www.npmjs.com/package/@automattic/i18n-loader-webpack-plugin). The `options` are passed to the plugin.
-
-Note that if the plugin actually does anything in your build, you'll need to specify at least the `domain` option for it.
-
-##### `I18nCheckPlugin( options )`
-
-This provides an instance of [@wordpress/i18n-check-webpack-plugin](https://www.npmjs.com/package/@wordpress/i18n-check-webpack-plugin). The `options` are passed to the plugin.
-
-The default configuration sets a filter that excludes `node_modules` other than `@automattic/*`. This may be accessed as `I18nCheckPlugin.defaultFilter`.
-
-##### `I18nSafeMangleExportsPlugin( options )`
-
-This provides an instance of [@wordpress/i18n-check-webpack-plugin](https://www.npmjs.com/package/@wordpress/i18n-check-webpack-plugin)'s I18nSafeMangleExportsPlugin. The `options` are passed to the plugin.
+This provides an instance of Webpack's `IgnorePlugin` configured to ignore moment.js locale modules.
 
 ##### `PnpmDeterministicModuleIdsPlugin( options )`
 
 This provides an slightly modified instance of Webpack's built-in DeterministicModuleIdsPlugin that does a better job of handling the paths produced by pnpm. The `options` are passed to the plugin.
+
+##### `WebpackRtlPlugin( options )`
+
+This provides an instance of [@automattic/webpack-rtl-plugin](https://www.npmjs.com/package/@automattic/webpack-rtl-plugin). The `options` are passed to the plugin.
 
 #### Module rules and loaders
 
@@ -270,11 +295,17 @@ The options passed to the preset allow you to exclude (by passing false) or amen
 
 The options and corresponding components are:
 
+- `targets`: Set targets for various plugins. Default is your browserslist config if available, otherwise [@wordpress/browserslist-config](https://www.npmjs.com/package/@wordpress/browserslist-config).
+- `autoWpPolyfill`: Set false to disable use of [babel-plugin-polyfill-corejs3](https://www.npmjs.com/package/babel-plugin-polyfill-corejs3) to produce magic `/* wp:polyfill */` comments that [@wordpress/dependency-extraction-webpack-plugin](https://www.npmjs.com/package/@wordpress/dependency-extraction-webpack-plugin) will use to add a dep on `wp-polyfill`.
+
+  Options include:
+  - `exclude`: Core-js polyfills to ignore. Defaults to exclude 'es.array.push' and 'web.immediate'.
+  - `targets`: Override top-level `targets`.
 - `presetEnv`: Corresponds to [@babel/preset-env](https://www.npmjs.com/package/@babel/preset-env).
 
   Note the following options that are different from `@babel/preset-env`'s defaults:
   - `exclude`: Set to `[ 'transform-typeof-symbol' ]`, as that [apparently makes all code slower](https://github.com/facebook/create-react-app/pull/5278).
-  - `targets`: Set to your browserslist config if available, otherwise set to [@wordpress/browserslist-config](https://www.npmjs.com/package/@wordpress/browserslist-config).
+  - `targets`: Set based on top-level `targets`.
 - `presetReact`: Corresponds to [@babel/preset-react](https://www.npmjs.com/package/@babel/preset-react).
 - `presetTypescript`: Corresponds to [@babel/preset-typescript](https://www.npmjs.com/package/@babel/preset-typescript).
 - `pluginReplaceTextdomain`: Corresponds to [@automattic/babel-plugin-replace-textdomain](https://www.npmjs.com/package/@automattic/babel-plugin-replace-textdomain).

@@ -1,8 +1,7 @@
 import restApi from '@automattic/jetpack-api';
 import { __, sprintf } from '@wordpress/i18n';
+import { some } from 'lodash';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
-import jQuery from 'jquery';
-import { forEach, some } from 'lodash';
 import {
 	JETPACK_MODULES_LIST_FETCH,
 	JETPACK_MODULES_LIST_FETCH_FAIL,
@@ -230,7 +229,6 @@ export const updateModuleOptions = ( module, newOptionValues ) => {
 					newOptionValues,
 					success: success,
 				} );
-				maybeHideNavMenuItem( slug, newOptionValues );
 				dispatch( removeNotice( `module-setting-${ slug }` ) );
 				dispatch(
 					createNotice(
@@ -343,31 +341,12 @@ export const regeneratePostByEmailAddress = () => {
 	};
 };
 
-export function maybeHideNavMenuItem( module, values ) {
-	switch ( module ) {
-		case 'custom-content-types':
-			if ( ! values ) {
-				// Means the module was deactivated
-				jQuery( '#menu-posts-jetpack-portfolio, #menu-posts-jetpack-testimonial' ).toggle();
-			}
-
-			forEach( values, function ( v, key ) {
-				if ( 'jetpack_portfolio' === key ) {
-					jQuery( '#menu-posts-jetpack-portfolio, .jp-toggle-portfolio' ).toggle();
-				}
-
-				if ( 'jetpack_testimonial' === key ) {
-					jQuery( '#menu-posts-jetpack-testimonial, .jp-toggle-testimonial' ).toggle();
-				}
-			} );
-			break;
-		default:
-			return false;
-	}
-}
-
+/**
+ * Reload the page if the option values are jetpack_testimonial or jetpack_portfolio.
+ * @param { object } newOptionValue - The new option value.
+ */
 export function maybeReloadAfterAction( newOptionValue ) {
-	const reloadForOptionValues = [ 'masterbar', 'jetpack_testimonial', 'jetpack_portfolio' ];
+	const reloadForOptionValues = [ 'jetpack_testimonial', 'jetpack_portfolio' ];
 
 	if ( some( reloadForOptionValues, optionValue => optionValue in newOptionValue ) ) {
 		window.location.reload();

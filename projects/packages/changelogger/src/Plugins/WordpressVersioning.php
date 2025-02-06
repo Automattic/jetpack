@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Changelogger\Plugins;
 
+use Automattic\Jetpack\Changelog\ChangeEntry;
 use Automattic\Jetpack\Changelogger\PluginTrait;
 use Automattic\Jetpack\Changelogger\VersioningPlugin;
 use InvalidArgumentException;
@@ -46,6 +47,7 @@ class WordpressVersioning implements VersioningPlugin {
 	 *  - prerelease: (string|null) Pre-release string.
 	 *  - buildinfo: (string|null) Build metadata string.
 	 * @throws InvalidArgumentException If the version number is not in a recognized format.
+	 * @phan-return array{major:float,point:int,version:string,prerelease:?string,buildinfo:?string}
 	 */
 	public function parseVersion( $version ) {
 		if ( ! preg_match( '/^(?P<major>\d+\.\d)(?:\.(?P<point>\d+))?(?:-(?P<prerelease>dev|(?:alpha|beta|rc)\d*|a\.\d+))?(?:\+(?P<buildinfo>[0-9a-zA-Z.-]+))?$/', $version, $m ) ) {
@@ -53,7 +55,7 @@ class WordpressVersioning implements VersioningPlugin {
 		}
 		$ret            = array(
 			'major'      => (float) $m['major'],
-			'point'      => (int) ( isset( $m['point'] ) ? $m['point'] : null ),
+			'point'      => (int) ( $m['point'] ?? null ),
 			'prerelease' => isset( $m['prerelease'] ) && '' !== $m['prerelease'] ? $m['prerelease'] : null,
 			'buildinfo'  => isset( $m['buildinfo'] ) && '' !== $m['buildinfo'] ? $m['buildinfo'] : null,
 		);
@@ -73,21 +75,24 @@ class WordpressVersioning implements VersioningPlugin {
 	 * @throws InvalidArgumentException If the version number is not in a recognized format or extra is invalid.
 	 */
 	public function normalizeVersion( $version, $extra = array() ) {
-		// The ability to pass an array is an internal-only feature.
-		if ( is_array( $version ) ) {
-			$info = $version + array(
-				'prerelease' => null,
-				'buildinfo'  => null,
-			);
-			$test = $this->parseVersion( '0.0' );
-			unset( $test['version'] );
-			if ( array_intersect_key( $test, $info ) !== $test ) {
-				throw new InvalidArgumentException( 'Version array is not in a recognized format.' );
-			}
-		} else {
-			$info = $this->parseVersion( $version );
-		}
+		return $this->normalizeVersionInternal( $this->parseVersion( $version ), $extra );
+	}
+
+	/**
+	 * Check and normalize a version number.
+	 *
+	 * @param array{major:float,point:int,prerelease?:?string,buildinfo?:?string} $version Version info.
+	 * @param array                                                               $extra Extra components for the version, replacing any in `$version`.
+	 * @return string Normalized version.
+	 * @throws InvalidArgumentException If the version number is not in a recognized format or extra is invalid.
+	 */
+	private function normalizeVersionInternal( $version, $extra = array() ) {
+		$info = $version + array(
+			'prerelease' => null,
+			'buildinfo'  => null,
+		);
 		$info = array_merge( $info, $this->validateExtra( $extra, false ) );
+		'@phan-var array{major:float,point:int,prerelease:?string,buildinfo:?string} $info'; // The array_merge confuses Phan.
 
 		$ret = sprintf( '%.1f', $info['major'] );
 		if ( 0 !== $info['point'] ) {
@@ -107,7 +112,7 @@ class WordpressVersioning implements VersioningPlugin {
 	 *
 	 * @param array $extra Extra components for the version. See `nextVersion()`.
 	 * @param bool  $nulls Return nulls for unset fields.
-	 * @return array
+	 * @return array{prerelease?:?string,buildinfo?:?string}
 	 * @throws InvalidArgumentException If the `$extra` data is invalid.
 	 */
 	private function validateExtra( array $extra, $nulls = true ) {
@@ -149,6 +154,7 @@ class WordpressVersioning implements VersioningPlugin {
 			$this->parseVersion( $version ),
 			$this->validateExtra( $extra )
 		);
+		'@phan-var array{major:float,point:int,prerelease:?string,buildinfo:?string} $info'; // The array_merge confuses Phan.
 
 		if ( $this->input->getOption( 'point-release' ) ) {
 			++$info['point'];
@@ -157,7 +163,7 @@ class WordpressVersioning implements VersioningPlugin {
 			$info['major'] += 0.1;
 		}
 
-		return $this->normalizeVersion( $info );
+		return $this->normalizeVersionInternal( $info );
 	}
 
 	/**
@@ -222,7 +228,7 @@ class WordpressVersioning implements VersioningPlugin {
 	 * @return string
 	 */
 	public function firstVersion( array $extra = array() ) {
-		return $this->normalizeVersion(
+		return $this->normalizeVersionInternal(
 			array(
 				'major' => 0.0,
 				'point' => 0,

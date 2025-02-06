@@ -33,7 +33,7 @@ class Admin_Menu_Test extends TestCase {
 			add_menu_page(
 				'Jetpack',
 				'Jetpack',
-				'read',
+				'edit_posts',
 				'jetpack',
 				'__return_null',
 				'div',
@@ -53,8 +53,8 @@ class Admin_Menu_Test extends TestCase {
 
 		}
 
-		$our_suffix = Admin_Menu::add_menu( 'Test', 'Test', 'read', $menu_slug, '__return_null' );
-		$wp_suffix  = add_submenu_page( 'jetpack', 'Test', 'Test', 'read', $menu_slug, '__return_null' );
+		$our_suffix = Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', $menu_slug, '__return_null' );
+		$wp_suffix  = add_submenu_page( 'jetpack', 'Test', 'Test', 'edit_posts', $menu_slug, '__return_null' );
 
 		$this->assertSame( $our_suffix, $wp_suffix );
 	}
@@ -81,11 +81,11 @@ class Admin_Menu_Test extends TestCase {
 	 */
 	public function test_first_menu() {
 		Admin_Menu::init();
-		Admin_Menu::add_menu( 'Test', 'Test', 'read', 'menu_1', '__return_null', 3 );
-		Admin_Menu::add_menu( 'Test', 'Test', 'read', 'menu_2', '__return_null', 1 );
-		Admin_Menu::add_menu( 'Test', 'Test', 'read', 'menu_3', '__return_null', 4 );
-		Admin_Menu::add_menu( 'Test', 'Test', 'read', 'menu_4', '__return_null', 5 );
-		Admin_Menu::add_menu( 'Test', 'Test', 'read', 'menu_5', '__return_null', 6 );
+		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_1', '__return_null', 3 );
+		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_2', '__return_null', 1 );
+		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_3', '__return_null', 4 );
+		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_4', '__return_null', 5 );
+		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_5', '__return_null', 6 );
 
 		do_action( 'admin_menu' );
 

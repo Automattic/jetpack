@@ -7,7 +7,7 @@ DO NOT EDIT THAT FILE! EDIT index-header.jsx and index-footer.jsx instead
 OR if you're looking to change now SVGs get output, you'll need to edit strings in the Gruntfile :)
 !!! */
 
-import classNames from 'classnames';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React from 'react';
 import './style.scss';
@@ -137,7 +137,7 @@ class Gridicon extends React.PureComponent {
 			needsOffset = this.needsOffset( icon, this.props.size ),
 			needsOffsetX = this.needsOffsetX( icon, this.props.size ),
 			needsOffsetY = this.needsOffsetY( icon, this.props.size );
-		const iconClass = classNames( 'gridicon', icon, this.props.className, {
+		const iconClass = clsx( 'gridicon', icon, this.props.className, {
 			'needs-offset': needsOffset,
 			'needs-offset-x': needsOffsetX,
 			'needs-offset-y': needsOffsetY,

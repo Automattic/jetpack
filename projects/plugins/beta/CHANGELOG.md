@@ -1,5 +1,35 @@
 # Changelog
 
+## 4.1.1 - 2024-12-04
+### Changed
+- Admin menu: change order of Jetpack sub-menu items [#39095]
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#38228] [#38822] [#39288] [#39653] [#40116]
+- Use site url in email subject if the site title exists and is equale to "Site Title" [#38908]
+
+### Fixed
+- Fix an undefined variable reference. [#38247]
+- Lossless image optimization of images in projects/plugins [subdirectories from a* through social] [#38573]
+
+## 4.1.0 - 2024-07-02
+### Added
+- Hook into red bubble notification when bad installation is detected [#36449]
+- Support testing mu-plugins (i.e. wpcomsh). [#37955]
+
+### Changed
+- General: use wp_admin_notice function introduced in WP 6.4 to display notices. [#37051]
+- Only show installation errors on plugins page [#36390]
+- Updated package dependencies. [#35591] [#36309] [#36775] [#37348] [#37767]
+
+### Fixed
+- Strip comments in markdown. [#38140]
+
+## 4.0.0 - 2024-02-07
+### Changed
+- Code Modernization: Replace usage of substr() with str_starts_with() and str_ends_with(). [#34207]
+- General: updated PHP requirement to PHP 7.0+ [#34126]
+- Updated package dependencies.
+
 ## 3.1.6 - 2023-10-02
 ### Changed
 - General: remove backwards-compatibility function checks now that the package supports WP 6.2. [#32772]

@@ -15,10 +15,17 @@ use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
  * Trait to cache HTTP requests for unit tests.
  *
  * The trait can be used in two ways. By default, it reads the cache file.
- * If you create a static property `$update_cache` set to true, it will instead
+ * If you set the static property `$update_cache` to true, it will instead
  * write to the cache file.
  */
 trait HttpRequestCacheTrait {
+
+	/**
+	 * Whether to update the cache instead of reading it.
+	 *
+	 * @var bool
+	 */
+	protected static $update_cache = false;
 
 	/**
 	 * Cache array.
@@ -33,6 +40,16 @@ trait HttpRequestCacheTrait {
 	 * @var array
 	 */
 	protected static $request_args = array( 'method', 'body' );
+
+	/**
+	 * From WP_UnitTestCase_Base.
+	 *
+	 * @var array
+	 */
+	protected static $hooks_saved = array();
+
+	/** From WP_UnitTestCase_Base. */
+	abstract protected function _backup_hooks(); // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 
 	/**
 	 * Determine the cache filename.
@@ -54,7 +71,7 @@ trait HttpRequestCacheTrait {
 	 * @beforeClass
 	 */
 	public static function setup_http_request_cache_before_class() {
-		if ( empty( static::$update_cache ) ) {
+		if ( ! static::$update_cache ) {
 			$filename = self::get_http_request_cache_filename();
 			if ( file_exists( $filename ) ) {
 				static::$request_cache = (array) json_decode( file_get_contents( $filename ), true );
@@ -68,7 +85,7 @@ trait HttpRequestCacheTrait {
 	 * @afterClass
 	 */
 	public static function teardown_http_request_cache_after_class() {
-		if ( ! empty( static::$update_cache ) ) {
+		if ( static::$update_cache ) {
 			$filename = self::get_http_request_cache_filename();
 			if ( array() !== static::$request_cache ) {
 				file_put_contents(
@@ -94,7 +111,7 @@ trait HttpRequestCacheTrait {
 		}
 
 		$request_args = array_flip( static::$request_args );
-		if ( empty( static::$update_cache ) ) {
+		if ( ! static::$update_cache ) {
 			add_filter(
 				'pre_http_request',
 				function ( $preempt, $parsed_args, $url ) use ( $request_args ) {
@@ -122,7 +139,7 @@ trait HttpRequestCacheTrait {
 							return $ret;
 						}
 					}
-					throw new UnexpectedValueException( "No cache for $url with the specified arguments\n" . var_export( $args, 1 ) );
+					throw new UnexpectedValueException( "No cache for $url with the specified arguments\n" . var_export( $args, true ) );
 				},
 				90,
 				3
@@ -170,6 +187,6 @@ trait HttpRequestCacheTrait {
 	 * Fail tests if `$update_cache` is set.
 	 */
 	public function test_update_cache_setting() {
-		$this->assertTrue( empty( static::$update_cache ), __CLASS__ . '::$update_cache cannot be set for tests to pass' );
+		\PHPUnit\Framework\Assert::assertFalse( static::$update_cache, __CLASS__ . '::$update_cache cannot be set for tests to pass' );
 	}
 }

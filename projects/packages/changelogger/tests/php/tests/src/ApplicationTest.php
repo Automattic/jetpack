@@ -45,7 +45,7 @@ class ApplicationTest extends TestCase {
 
 		$app->setAutoExit( false );
 		$tester = new ApplicationTester( $app );
-		$tester->run( array( 'command' => 'list' ) );
+		$tester->run( array( 'command' => 'list' ), array( 'decorated' => false ) );
 		$output = $tester->getDisplay();
 		$this->assertMatchesRegularExpression( '/Available commands:/', $output );
 		$this->assertMatchesRegularExpression( '/add\s*Adds a change file/', $output );
@@ -56,11 +56,11 @@ class ApplicationTest extends TestCase {
 	 *
 	 * @param callable $callback Command callback.
 	 * @param array    $options Options:
-	 *     - catch-exceptions: (bool) Whether the application should catch exceptions. Default false.
-	 *     - inputs: (array) Value to pass to $tester->setInputs().
+	 *   - catch-exceptions: (bool) Whether the application should catch exceptions. Default false.
+	 *   - inputs: (array) Value to pass to $tester->setInputs().
 	 * @return ApplicationTester
 	 */
-	private function runApplication( $callback, array $options = array( 'interactive' => false ) ) {
+	private function runApplication( $callback, array $options = array() ) {
 		$app = new Application();
 		$app->setAutoExit( false );
 		$app->setCatchExceptions( false );
@@ -85,7 +85,7 @@ class ApplicationTest extends TestCase {
 			unset( $options['inputs'] );
 		}
 
-		$options[] = 'decorated';
+		$options['decorated'] = false;
 		$tester->run( array( 'command' => 'testDoRun' ), $options );
 		return $tester;
 	}
@@ -113,6 +113,9 @@ class ApplicationTest extends TestCase {
 	 */
 	public function testDoRun_ConfigException() {
 		$tester = $this->runApplication(
+			/** Test.
+			 *
+			 * @return never */
 			function () {
 				throw new ConfigException( 'Test config exception' );
 			}
@@ -126,6 +129,9 @@ class ApplicationTest extends TestCase {
 	 */
 	public function testDoRun_RuntimeException() {
 		$tester = $this->runApplication(
+			/** Test.
+			 *
+			 * @return never */
 			function () {
 				throw new RuntimeException( 'Test runtime exception' );
 			},

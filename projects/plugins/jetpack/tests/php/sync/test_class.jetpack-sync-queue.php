@@ -58,7 +58,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		 * @var $queue Automattic\Jetpack\Sync\Queue|\PHPUnit\Framework\MockObject\MockObject
 		 */
 		$queue = $this->getMockBuilder( 'Automattic\\Jetpack\\Sync\\Queue' )
-			->setMethods( array( 'generate_option_name_timestamp' ) )
+			->onlyMethods( array( 'generate_option_name_timestamp' ) )
 			->setConstructorArgs( array( 'my_queue' ) )
 			->getMock();
 
@@ -166,7 +166,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 	}
 
 	public function test_checkout_enforced_across_multiple_instances() {
-		$other_queue = new Queue( $this->queue->id, 2 );
+		$other_queue = new Queue( $this->queue->id );
 
 		$this->queue->add_all( array( 1, 2, 3, 4, 5 ) );
 
@@ -316,6 +316,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 	public function test_benchmark() {
 		$this->markTestIncomplete( "We don't want to run this every time" );
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$iterations  = 100;
 		$buffer_size = 10;
 

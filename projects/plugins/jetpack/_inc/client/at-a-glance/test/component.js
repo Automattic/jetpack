@@ -75,7 +75,7 @@ describe( 'Connections', () => {
 
 		it( 'displays the site icon if it exists', () => {
 			render( <DashConnections { ...testProps } />, { initialState: buildInitialState() } );
-			expect( withinCard( 'Site connection' ).getByRole( 'img' ) ).toHaveAttribute(
+			expect( withinCard( 'Site connection' ).getByRole( 'presentation' ) ).toHaveAttribute(
 				'src',
 				'https://example.org/site-icon.png'
 			);
@@ -84,7 +84,7 @@ describe( 'Connections', () => {
 		it( 'shows a disconnection link', () => {
 			render( <DashConnections { ...testProps } />, { initialState: buildInitialState() } );
 			expect(
-				withinCard( 'Site connection' ).getByRole( 'button', { name: 'Manage site connection' } )
+				withinCard( 'Site connection' ).getByRole( 'button', { name: 'Manage' } )
 			).toBeInTheDocument();
 		} );
 
@@ -128,8 +128,8 @@ describe( 'Connections', () => {
 				initialState: buildInitialState( { userIsLinked: false } ),
 			} );
 			expect(
-				withinCard( 'Account connection' ).getByRole( 'link', {
-					name: 'Connect your WordPress.com account',
+				withinCard( 'Account connection' ).getByRole( 'button', {
+					name: 'Connect',
 				} )
 			).toBeInTheDocument();
 		} );

@@ -1,6 +1,9 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 import { __ } from '@wordpress/i18n';
+import { chunk, get } from 'lodash';
+import { Component } from 'react';
+import { connect } from 'react-redux';
 import DashSectionHeader from 'components/dash-section-header';
 import QueryRecommendationsData from 'components/data/query-recommendations-data';
 import QueryScanStatus from 'components/data/query-scan-status';
@@ -8,9 +11,6 @@ import QuerySite from 'components/data/query-site';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import analytics from 'lib/analytics';
-import { chunk, get } from 'lodash';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { isOfflineMode, hasConnectedOwner, getConnectionStatus } from 'state/connection';
 import {
 	isAtomicSite,
@@ -26,7 +26,7 @@ import {
 	userCanViewStats,
 	userIsSubscriber,
 } from 'state/initial-state';
-import { getModuleOverride } from 'state/modules';
+import { getModuleOverride, isModuleAvailable } from 'state/modules';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 import DashActivity from './activity';
 import DashAkismet from './akismet';
@@ -34,6 +34,7 @@ import DashBackups from './backups';
 import DashBoost from './boost';
 import DashConnections from './connections';
 import DashCRM from './crm';
+import DashJetpackAi from './jetpack-ai';
 import DashMonitor from './monitor';
 import DashPhoton from './photon';
 import DashProtect from './protect';
@@ -48,6 +49,19 @@ class AtAGlance extends Component {
 
 	trackUpgradeButtonView = ( feature = '' ) => {
 		return () => analytics.tracks.recordEvent( `jetpack_wpa_aag_upgrade_button_view`, { feature } );
+	};
+
+	/**
+	 * Determines whether a card should be added based on the feature and module availability.
+	 *
+	 * @param {string}  feature                         - The feature to check.
+	 * @param {boolean} [checkModuleAvailability=false] - Whether to check module availability.
+	 * @return {boolean} - Whether the card should be added.
+	 */
+	shouldAddCard = ( feature, checkModuleAvailability = false ) => {
+		const isActive = 'inactive' !== this.props.getModuleOverride( feature );
+		const isAvailable = ! checkModuleAvailability || this.props.isModuleAvailable( feature );
+		return isActive && isAvailable;
 	};
 
 	render() {
@@ -108,10 +122,10 @@ class AtAGlance extends Component {
 			/>
 		);
 
-		if ( 'inactive' !== this.props.getModuleOverride( 'protect' ) ) {
+		if ( this.shouldAddCard( 'protect', true ) ) {
 			securityCards.push( <DashProtect { ...settingsProps } /> );
 		}
-		if ( 'inactive' !== this.props.getModuleOverride( 'monitor' ) ) {
+		if ( this.shouldAddCard( 'monitor', true ) ) {
 			securityCards.push( <DashMonitor { ...settingsProps } /> );
 		}
 
@@ -127,10 +141,10 @@ class AtAGlance extends Component {
 				! this.props.multisite && ! this.props.isOfflineMode && this.props.hasConnectedOwner;
 			const performanceCards = [];
 
-			if ( 'inactive' !== this.props.getModuleOverride( 'photon' ) ) {
+			if ( this.shouldAddCard( 'photon', true ) ) {
 				performanceCards.push( <DashPhoton { ...settingsProps } /> );
 			}
-			if ( 'inactive' !== this.props.getModuleOverride( 'search' ) ) {
+			if ( this.shouldAddCard( 'search' ) ) {
 				performanceCards.push(
 					<DashSearch
 						{ ...settingsProps }
@@ -138,7 +152,7 @@ class AtAGlance extends Component {
 					/>
 				);
 			}
-			if ( 'inactive' !== this.props.getModuleOverride( 'videopress' ) ) {
+			if ( this.shouldAddCard( 'videopress', true ) ) {
 				performanceCards.push(
 					<DashVideoPress
 						{ ...settingsProps }
@@ -149,6 +163,10 @@ class AtAGlance extends Component {
 
 			if ( this.props.userCanManagePlugins ) {
 				performanceCards.push( <DashCRM siteAdminUrl={ this.props.siteAdminUrl } /> );
+			}
+
+			if ( this.shouldAddCard( 'jetpack-ai' ) ) {
+				performanceCards.push( <DashJetpackAi /> );
 			}
 
 			const redeemPartnerCoupon = ! this.props.isOfflineMode && this.props.partnerCoupon && (
@@ -248,6 +266,7 @@ export default connect( state => {
 		isAtomicSite: isAtomicSite( state ),
 		isOfflineMode: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		isModuleAvailable: module_name => isModuleAvailable( state, module_name ),
 		multisite: isMultisite( state ),
 		scanStatus: getScanStatus( state ),
 		fetchingScanStatus: isFetchingScanStatus( state ),

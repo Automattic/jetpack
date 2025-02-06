@@ -30,3 +30,7 @@ rm -f index.html
 mkdir -p wp-content/mu-plugins
 cp "$GITHUB_WORKSPACE/trunk/.github/files/test-plugin-update/mu-plugin.php" wp-content/mu-plugins/hack.php
 echo "::endgroup::"
+
+echo "::group::Backing up database"
+wp --allow-root db export "$GITHUB_WORKSPACE/db.sql"
+echo "::endgroup::"

@@ -5,6 +5,10 @@
  * @package Jetpack
  */
 
+if ( class_exists( 'WPCOM_Features' ) ) {
+	return;
+}
+
 /**
  * Class WPCOM_Features.
  */

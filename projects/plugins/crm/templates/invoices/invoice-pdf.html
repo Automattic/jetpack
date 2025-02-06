@@ -36,9 +36,6 @@
         table.striped {
             border-bottom: 1px solid #e1def3;
         }
-        table.striped th {
-            text-align: center;
-        }
         table.striped tbody tr:nth-child(odd) {
             background: #f6f5fb;
         }
@@ -184,6 +181,32 @@
         }
 
 
+.jpcrm-invoice-lineitem-description {
+  text-align: left;
+}
+
+.jpcrm-invoice-lineitem-quantity,
+.jpcrm-invoice-lineitem-price,
+.jpcrm-invoice-lineitem-amount {
+  text-align: right;
+}
+
+#jpcrm-invoice-lineitems .jpcrm-invoice-lineitem-description {
+  width: 50%;
+}
+#jpcrm-invoice-lineitems .jpcrm-invoice-lineitem-description .title {
+  font-weight: bold;
+}
+#jpcrm-invoice-lineitems .jpcrm-invoice-lineitem-description .subtitle {
+  font-size: 13px;
+  font-style: italic;
+}
+#jpcrm-invoice-lineitems .jpcrm-invoice-lineitem-quantity,
+#jpcrm-invoice-lineitems .jpcrm-invoice-lineitem-price,
+#jpcrm-invoice-lineitems .jpcrm-invoice-lineitem-amount {
+  width: 15%;
+}
+
         /* viewport-size specific - catchalls */
         @media screen and (min-width: 1280px) {
             body {
@@ -196,9 +219,6 @@
                 padding: 20px;
                 position: relative;
             }
-        }
-
-        #crm-invoice-partials table {
         }
 
     </style>
@@ -298,17 +318,12 @@
         <!-- =============/Invoice Infos============= -->
 
         <!-- =============Invoice Description============= -->
-        <table style='width:100%; margin-top: 30px;' class='striped'>
-            <thead style='font-weight:900;padding:10px;margin-top:50px'>
-                <tr>
-                    ##INVOICE-TABLE-HEADERS##
-                </tr>
-            </thead>
-            <tbody class='zbs-div-block'>
-
-                ##INVOICE-LINE-ITEMS##
+        <table style='width:100%; margin-top: 30px; font-size: 13px;' class='striped'>
+					<thead id="jpcrm-invoice-lineitems-header" style='font-weight:900;padding:10px;margin-top:50px'>
+						##INVOICE-TABLE-HEADERS##
+					</thead>
+					<tbody id="jpcrm-invoice-lineitems">##INVOICE-LINE-ITEMS##</tbody>
     
-            </tbody>
         </table>
         <!-- =============/Invoice Description============= -->
 

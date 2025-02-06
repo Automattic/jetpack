@@ -1,12 +1,7 @@
 <?php 
 /*!
  * Jetpack CRM
- * http://zerobscrm.com
- * V2.2+
- *
- * Copyright 2020 Automattic
- *
- * Date: 14/09/2017
+ * https://jetpackcrm.com
  */
 
 use Google\Client;
@@ -534,10 +529,6 @@ function zeroBSCRM_mailDelivery_sendViaSMTP($smtpHost='',$smtpPort='',$smtpUser=
 	global $retDebugStr;
 
 	if ($debugMail) $retDebugStr = '<h2>Debugging SMTP</h2>';
-
-	# NO BLACKLIST SENDS!
-	# global $blacklistCache;
-	# if (in_array($toEmail,$blacklistCache)) return false;
 
 	#} was going to fallback to default "sendFrom", but these should not be fired without! - for now use brand name :)
 	if (empty($sendFromName)) $sendFromName = 'Jetpack CRM';
@@ -1353,15 +1344,11 @@ function jpcrm_mail_delivery_send_via_gmail_oauth( $args ){
         ); foreach ($default_args as $argK => $argV){ $$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$$argK = $newData;} else { $$argK = $args[$argK]; } } }
         // ============ / LOAD ARGS =============
 
-    // declare debug string (to return if $return_debug)
+		// declare debug string (to return if $return_debug)
 		$debug_string = '';
 
-		// Let's make sure we've loaded the Google API library:
-    // https://developers.google.com/gmail/api/quickstart/php
-		$zbs->autoload_libraries();
-
-    // Load OAuth
-    $zbs->load_oauth_handler();           
+		// Load OAuth
+		$zbs->load_oauth_handler();
 
     // got a usable connection profile?
 		if ( $zbs->oauth->connection_status( 'google_mail' ) ){

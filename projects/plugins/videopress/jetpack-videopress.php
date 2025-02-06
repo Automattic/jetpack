@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack VideoPress
  * Plugin URI: https://wordpress.org/plugins/jetpack-videopress
  * Description: High quality, ad-free video.
- * Version: 1.8-alpha
+ * Version: 2.2
  * Author: Automattic - Jetpack Video team
  * Author URI: https://jetpack.com/videopress/
  * License: GPLv2 or later
@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 define( 'JETPACK_VIDEOPRESS_DIR', plugin_dir_path( __FILE__ ) );
@@ -55,31 +55,48 @@ if ( is_readable( $jetpack_autoloader ) ) {
 		);
 	}
 
+	// Add a red bubble notification to My Jetpack if the installation is bad.
+	add_filter(
+		'my_jetpack_red_bubble_notification_slugs',
+		function ( $slugs ) {
+			$slugs['jetpack-videopress-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'Jetpack VideoPress',
+				),
+			);
+
+			return $slugs;
+		}
+	);
+
 	add_action(
 		'admin_notices',
 		function () {
-			?>
-		<div class="notice notice-error is-dismissible">
-			<p>
-				<?php
-				printf(
-					wp_kses(
-						/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack VideoPress is incomplete. If you installed Jetpack VideoPress from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack VideoPress must have Composer dependencies installed and built via the build command.', 'jetpack-videopress' ),
-						array(
-							'a' => array(
-								'href'   => array(),
-								'target' => array(),
-								'rel'    => array(),
-							),
-						)
-					),
-					'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
-				);
-				?>
-			</p>
-		</div>
-			<?php
+			if ( get_current_screen()->id !== 'plugins' ) {
+				return;
+			}
+
+			$message = sprintf(
+				wp_kses(
+					/* translators: Placeholder is a link to a support document. */
+					__( 'Your installation of Jetpack VideoPress is incomplete. If you installed Jetpack VideoPress from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack VideoPress must have Composer dependencies installed and built via the build command.', 'jetpack-videopress' ),
+					array(
+						'a' => array(
+							'href'   => array(),
+							'target' => array(),
+							'rel'    => array(),
+						),
+					)
+				),
+				'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
+			);
+			wp_admin_notice(
+				$message,
+				array(
+					'type'        => 'error',
+					'dismissible' => true,
+				)
+			);
 		}
 	);
 
@@ -97,10 +114,10 @@ add_action( 'activated_plugin', 'jetpack_videopress_activation' );
 function jetpack_videopress_activation( $plugin ) {
 	if (
 		JETPACK_VIDEOPRESS_ROOT_FILE_RELATIVE_PATH === $plugin &&
-		\Automattic\Jetpack\Plugins_Installer::is_current_request_activating_plugin_from_plugins_screen( JETPACK_VIDEOPRESS_ROOT_FILE_RELATIVE_PATH )
+		( new \Automattic\Jetpack\Paths() )->is_current_request_activating_plugin_from_plugins_screen( JETPACK_VIDEOPRESS_ROOT_FILE_RELATIVE_PATH )
 	) {
 		wp_safe_redirect( esc_url( admin_url( 'admin.php?page=jetpack-videopress' ) ) );
-		exit;
+		exit( 0 );
 	}
 }
 

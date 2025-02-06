@@ -1,0 +1,29 @@
+{
+	"translation-revision-date": "2024-07-02 21:54:08+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "pt_BR" },
+			"Remove premium styles": [ "Remover estilos premium" ],
+			"Change all of your site's fonts, colors and more. Available on the %s plan.": [
+				"Mude todas as fontes do site, cores e muito mais. Dispon\u00edvel no plano %s."
+			],
+			"Your site includes premium styles that are only visible to visitors after upgrading to the %s plan or higher.": [
+				"Seu site inclui estilos premium, que s\u00f3 s\u00e3o vis\u00edveis aos visitantes ap\u00f3s o upgrade para o plano %s ou superior."
+			],
+			"Your site includes premium styles that are only visible to visitors after <a>upgrading to the %s plan or higher</a>.": [
+				"Seu site inclui estilos premium, que s\u00f3 s\u00e3o vis\u00edveis aos visitantes ap\u00f3s o <a>upgrade para o plano %s ou superior</a>."
+			],
+			"Generating preview\u2026": [ "Gerando visualiza\u00e7\u00e3o\u2026" ],
+			"Preview without premium styles": [ "Visualizar sem estilos premium" ],
+			"Upgrade now": [ "Fa\u00e7a upgrade agora mesmo" ],
+			"Upgrade plan": [ "Fazer upgrade de plano" ],
+			"Try it out": [ "Experimente" ],
+			"A powerful new way to style your site": [
+				"Uma forma nova e avan\u00e7ada de estilizar seu site"
+			]
+		}
+	},
+	"comment": { "reference": "wpcom-global-styles/dist/wpcom-global-styles.js" }
+}

@@ -9,13 +9,7 @@
  * Date: 20/02/2019
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 /* ======================================================
@@ -330,11 +324,25 @@
 
                 // owner - saved here now, rather than ownership box, to allow for pre-hook update. (as tags)
                 $owner = -1;
-                if ( isset( $_POST['zerobscrm-owner'] ) ){
-                    // should this have perms check to see if user can actually assign to? or should that be DAL?
-                    $potential_owner = (int)sanitize_text_field( $_POST['zerobscrm-owner'] );
-                    if ($potential_owner > 0) $owner = $potential_owner;
-                }
+			// Only allow an existing contact to change owners if they have permission to do so.
+			if ( $contact_id > -1 ) {
+
+				$can_edit_all_contacts = current_user_can( 'admin_zerobs_customers' ) && $zbs->settings->get( 'perusercustomers' ) == 0; // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,WordPress.WP.Capabilities.Unknown  -- capability was defined in ZeroBSCRM.Permissions.php
+				$can_give_ownership    = $zbs->settings->get( 'usercangiveownership' ) == 1; // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- also above, there is the chance the numbers could be strings here, as expected elsewhere in the plugin.
+				$can_change_owner      = ( $can_give_ownership || current_user_can( 'manage_options' ) || $can_edit_all_contacts );
+				if ( $can_change_owner ) {
+
+					if ( isset( $_POST['zerobscrm-owner'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- todo - noted in zero-bs-crm 2457.
+
+						$potential_owner = (int) sanitize_text_field( wp_unslash( $_POST['zerobscrm-owner'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- todo - noted in zero-bs-crm 2457.
+						if ( $potential_owner > 0 ) {
+							$owner = $potential_owner;
+						}
+					}
+				} else {
+					$owner = (int) $zbs->DAL->contacts->getContactOwner( $contact_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				}
+			}
 
                 // now we check whether a user with this email already exists (separate to this contact id), so we can warn them
                 // ... that it wont have changed the email
@@ -1757,8 +1765,10 @@ class zeroBS__Metabox_ContactSocial extends zeroBS__Metabox{
         // declare + load existing
         global $zbsSocialAccountTypes;
         $zbsSocials = false;
-        if (isset($contact['id'])) $zbsSocials = zeroBS_getCustomerSocialAccounts($contact['id']);
-		
+		if ( isset( $contact['id'] ) ) {
+			$zbsSocials = $zbs->DAL->contacts->getContactSocials( $contact['id'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		}
+
         if (count($zbsSocialAccountTypes) > 0) foreach ($zbsSocialAccountTypes as $socialKey => $socialAccType){
 
             ?><div class="zbs-social-acc <?php echo esc_attr( $socialAccType['slug'] ); ?>" title="<?php echo esc_attr( $socialAccType['name'] ); ?>">

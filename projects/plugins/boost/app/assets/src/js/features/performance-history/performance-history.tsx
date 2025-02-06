@@ -1,5 +1,5 @@
 import {
-	usePerformanceHistoryFreshStartState,
+	useDismissibleAlertState,
 	usePerformanceHistoryPanelQuery,
 	usePerformanceHistoryQuery,
 } from './lib/hooks';
@@ -12,14 +12,25 @@ import { Button } from '@automattic/jetpack-components';
 import { useNavigate } from 'react-router-dom';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import styles from './performance-history.module.scss';
+import { useEffect } from 'react';
+import { recordBoostEvent } from '$lib/utils/analytics';
 
 const PerformanceHistoryBody = () => {
 	const [ performanceHistoryState ] = useSingleModuleState( 'performance_history' );
 	const needsUpgrade = ! performanceHistoryState?.available;
 
 	const { data, isFetching, isError, error, refetch } = usePerformanceHistoryQuery();
-	const [ isFreshStart, dismissFreshStart ] = usePerformanceHistoryFreshStartState();
+	const [ freshStartCompleted, dismissFreshStart ] = useDismissibleAlertState(
+		'performance_history_fresh_start'
+	);
 	const navigate = useNavigate();
+
+	/*
+	 * Fetch new data on initial page-load. This is a lazy data-sync and initially empty.
+	 */
+	useEffect( () => {
+		refetch();
+	}, [ refetch ] );
 
 	if ( isError && ! isFetching ) {
 		return (
@@ -35,14 +46,19 @@ const PerformanceHistoryBody = () => {
 		);
 	}
 
+	const handleUpgrade = () => {
+		recordBoostEvent( 'performance_history_upgrade_cta_click', {} );
+		navigate( '/upgrade' );
+	};
+
 	return (
 		<GraphComponent
 			{ ...( data as PerformanceHistoryData ) }
-			isFreshStart={ isFreshStart }
+			isFreshStart={ ! freshStartCompleted }
 			needsUpgrade={ needsUpgrade }
-			handleUpgrade={ () => navigate( '/upgrade' ) }
+			handleUpgrade={ handleUpgrade }
 			handleDismissFreshStart={ dismissFreshStart }
-			isLoading={ isFetching }
+			isLoading={ isFetching && ( ! data || data.periods.length === 0 ) }
 		/>
 	);
 };
@@ -57,6 +73,9 @@ const PerformanceHistory = () => {
 					title={ __( 'Historical Performance', 'jetpack-boost' ) }
 					initialOpen={ isPanelOpen }
 					onToggle={ ( value: boolean ) => {
+						recordBoostEvent( 'performance_history_panel_toggle', {
+							status: value ? 'open' : 'close',
+						} );
 						setPanelOpen( value );
 					} }
 					className={ styles[ 'performance-history-body' ] }

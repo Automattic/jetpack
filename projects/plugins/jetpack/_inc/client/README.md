@@ -83,6 +83,7 @@ Action types dispatched during the UI lifecycle are listed in `state/action-type
 
 * **getActiveStatsTab( state )**
 * **getAdminEmailAddress( state )**
+* **getCurrenUserEmailAddress( state )**
 * **getAkismetData( state )**
 * **getApiNonce( state )**
 * **getApiRootUrl( state )**
@@ -116,7 +117,9 @@ Action types dispatched during the UI lifecycle are listed in `state/action-type
 * **getUserWpComEmail( state )**
 * **getUserWpComLogin( state )**
 * **getUsername( state )**
+* **getDisplayName( state )**
 * **isGutenbergAvailable( state )**
+* **getNewsetterDateExample( state )**
 
 ### Available action creators (thunks)
 

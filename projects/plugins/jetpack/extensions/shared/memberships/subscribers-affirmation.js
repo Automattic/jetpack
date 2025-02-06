@@ -1,3 +1,4 @@
+import { isComingSoon } from '@automattic/jetpack-shared-extension-utils';
 import { Animate } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -13,9 +14,9 @@ import { store as membershipProductsStore } from '../../store/membership-product
 
 /**
  * Get the formatted list of categories for a post.
- * @param {Array} postCategories - list of category IDs for the post
+ * @param {Array} postCategories       - list of category IDs for the post
  * @param {Array} newsletterCategories - list of the site's newsletter categories
- * @returns {string} - formatted list of categories
+ * @return {string} - formatted list of categories
  */
 const getFormattedCategories = ( postCategories, newsletterCategories ) => {
 	// If the post has no categories, then it's going to have the 'Uncategorized' category
@@ -260,6 +261,11 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 
 	if ( ! isSendEmailEnabled() ) {
 		text = __( 'Not sent via email.', 'jetpack' );
+	} else if ( isComingSoon() ) {
+		text = __(
+			'Your site is in Coming Soon mode. Emails are sent only when your site is public.',
+			'jetpack'
+		);
 	} else if ( newsletterCategoriesEnabled && newsletterCategories.length > 0 && ! isPaidPost ) {
 		// Get newsletter category copy & count separately, unless post is paid
 		text = getCopyForCategorySubscribers( {

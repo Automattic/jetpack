@@ -1,6 +1,14 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .wp-block-jetpack-map {
+	.wp-block-group-is-layout-flex:not(.is-vertical) > & {
+		flex-basis: 100%;
+	}
+
+	.wp-block-group-is-layout-flex.is-vertical > & {
+		width: 100%;
+	}
+	
 	.wp-block-jetpack-map__gm-container {
 		width: 100%;
 		overflow: hidden;

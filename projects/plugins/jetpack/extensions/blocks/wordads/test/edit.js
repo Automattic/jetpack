@@ -30,8 +30,8 @@ describe( 'WordAdsEdit', () => {
 	const renderWordAdsEdit = props => {
 		const { container } = render( <WordAdsEdit { ...props } /> );
 
-		// eslint-disable-next-line testing-library/no-node-access
-		return container.firstChild.firstChild;
+		// eslint-disable-next-line testing-library/no-node-access,testing-library/no-container
+		return container.querySelector( '.jetpack-wordads__ad' );
 	};
 
 	// Renders the component, extracting the inner placeholder element and finding
@@ -47,13 +47,10 @@ describe( 'WordAdsEdit', () => {
 		return { placeholder, selectedFormat };
 	};
 
-	test( 'renders wrapper with correct css class', () => {
+	test( 'matches snapshot', () => {
 		const { container } = render( <WordAdsEdit { ...defaultProps } /> );
 
-		// eslint-disable-next-line testing-library/no-node-access
-		expect( container.firstChild ).toHaveClass( 'wp-block-jetpack-wordads' );
-		// eslint-disable-next-line testing-library/no-node-access
-		expect( container.firstChild ).toHaveClass( `jetpack-wordads-${ defaultAttributes.format }` );
+		expect( container ).toMatchSnapshot( 'WordAdsEdit' );
 	} );
 
 	test( 'renders ad placeholder with correct css class and styles', () => {
@@ -61,7 +58,6 @@ describe( 'WordAdsEdit', () => {
 		const placeholder = renderWordAdsEdit( defaultProps );
 		const selectedFormat = getFormat( defaultAttributes.format );
 
-		expect( placeholder ).toHaveClass( 'jetpack-wordads__ad' );
 		expect( placeholder ).toHaveStyle( `width: ${ selectedFormat.width }px` );
 		expect( placeholder ).toHaveStyle( `height: ${ selectedFormat.height }px` );
 		expect( placeholder ).toHaveStyle( `backgroundImage: url( ${ rectangleExample } )` );

@@ -1,8 +1,8 @@
 import { _x } from '@wordpress/i18n';
-import { hasTouch } from 'lib/touch-detect';
 import { noop, throttle } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { hasTouch } from 'lib/touch-detect';
 import BarContainer from './bar-container';
 import './style.scss';
 
@@ -22,6 +22,8 @@ export default class ModuleChart extends React.Component {
 		minBarWidth: 15,
 		barClick: noop,
 	};
+
+	chartRef = React.createRef();
 
 	state = {
 		maxBars: 100, // arbitrarily high number. This will be calculated by resize method
@@ -47,7 +49,7 @@ export default class ModuleChart extends React.Component {
 	}
 
 	resize = () => {
-		const node = this.refs.chart;
+		const node = this.chartRef.current;
 		let width = node.clientWidth - 82,
 			maxBars;
 
@@ -121,7 +123,7 @@ export default class ModuleChart extends React.Component {
 		}
 
 		return (
-			<div ref="chart" className="dops-chart">
+			<div ref={ this.chartRef } className="dops-chart">
 				<div className="dops-chart__y-axis-markers">
 					<div className="dops-chart__y-axis-marker is-hundred" />
 					<div className="dops-chart__y-axis-marker is-fifty" />

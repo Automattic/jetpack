@@ -54,40 +54,35 @@ class Assets {
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
 			self::$instance = new Assets();
-			self::$instance->init_hooks();
 		}
 
 		return self::$instance;
 	}
 
 	/**
-	 * Initalize the hooks as needed.
-	 */
-	private function init_hooks() {
-		/*
-		 * Load some scripts asynchronously.
-		 */
-		add_filter( 'script_loader_tag', array( $this, 'script_add_async' ), 10, 2 );
-	}
-
-	/**
 	 * A public method for adding the async script.
+	 *
+	 * @deprecated Since 2.1.0, the `strategy` feature should be used instead, with the "defer" setting.
 	 *
 	 * @param string $script_handle Script handle.
 	 */
 	public static function add_async_script( $script_handle ) {
-		$assets_instance                         = self::instance();
-		$assets_instance->defer_script_handles[] = $script_handle;
+		_deprecated_function( __METHOD__, '2.1.0' );
+
+		wp_script_add_data( $script_handle, 'strategy', 'defer' );
 	}
 
 	/**
 	 * Add an async attribute to scripts that can be loaded deferred.
 	 * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script
 	 *
+	 * @deprecated Since 2.1.0, the `strategy` feature should be used instead.
+	 *
 	 * @param string $tag    The <script> tag for the enqueued script.
 	 * @param string $handle The script's registered handle.
 	 */
 	public function script_add_async( $tag, $handle ) {
+		_deprecated_function( __METHOD__, '2.1.0' );
 		if ( empty( $this->defer_script_handles ) ) {
 			return $tag;
 		}
@@ -103,6 +98,8 @@ class Assets {
 	/**
 	 * A helper function that lets you enqueue scripts in an async fashion.
 	 *
+	 * @deprecated Since 2.1.0 - use the strategy feature instead.
+	 *
 	 * @param string $handle        Name of the script. Should be unique.
 	 * @param string $min_path      Minimized script path.
 	 * @param string $non_min_path  Full Script path.
@@ -111,9 +108,9 @@ class Assets {
 	 * @param bool   $in_footer       Should the script be included in the footer.
 	 */
 	public static function enqueue_async_script( $handle, $min_path, $non_min_path, $deps = array(), $ver = false, $in_footer = true ) {
-		$assets_instance = self::instance();
-		$assets_instance->add_async_script( $handle );
+		_deprecated_function( __METHOD__, '2.1.0' );
 		wp_enqueue_script( $handle, self::get_file_url_for_environment( $min_path, $non_min_path ), $deps, $ver, $in_footer );
+		wp_script_add_data( $handle, 'strategy', 'defer' );
 	}
 
 	// endregion .
@@ -260,11 +257,11 @@ class Assets {
 		$ret  = '';
 		$ret .= isset( $parts['scheme'] ) ? $parts['scheme'] . '://' : '';
 		if ( isset( $parts['user'] ) || isset( $parts['pass'] ) ) {
-			$ret .= isset( $parts['user'] ) ? $parts['user'] : '';
+			$ret .= $parts['user'] ?? '';
 			$ret .= isset( $parts['pass'] ) ? ':' . $parts['pass'] : '';
 			$ret .= '@';
 		}
-		$ret .= isset( $parts['host'] ) ? $parts['host'] : '';
+		$ret .= $parts['host'] ?? '';
 		$ret .= isset( $parts['port'] ) ? ':' . $parts['port'] : '';
 
 		$pp = explode( '/', $parts['path'] );
@@ -307,12 +304,13 @@ class Assets {
 	 * This wrapper handles all of that.
 	 *
 	 * @since 1.12.0
+	 * @since 2.1.0 Add a new `strategy` option to leverage WP >= 6.3 script strategy feature. The `async` option is deprecated.
 	 * @param string $handle      Name of the script. Should be unique across both scripts and styles.
 	 * @param string $path        Minimized script path.
 	 * @param string $relative_to File that `$path` is relative to. Pass `__FILE__`.
 	 * @param array  $options     Additional options:
 	 *  - `asset_path`:       (string|null) `.asset.php` to load. Default is to base it on `$path`.
-	 *  - `async`:            (bool) Set true to register the script as async, like `Assets::enqueue_async_script()`
+	 *  - `async`:            (bool) Set true to register the script as deferred, like `Assets::enqueue_async_script()`. Deprecated in favor of `strategy`.
 	 *  - `css_dependencies`: (string[]) Additional style dependencies to queue.
 	 *  - `css_path`:         (string|null) `.css` to load. Default is to base it on `$path`.
 	 *  - `dependencies`:     (string[]) Additional script dependencies to queue.
@@ -321,13 +319,19 @@ class Assets {
 	 *  - `media`:            (string) Media for the css file. Default 'all'.
 	 *  - `minify`:           (bool|null) Set true to pass `minify=true` in the query string, or `null` to suppress the normal `minify=false`.
 	 *  - `nonmin_path`:      (string) Non-minified script path.
+	 *  - `strategy`:         (string) Specify a script strategy to use, eg. `defer` or `async`. Default is `""`.
 	 *  - `textdomain`:       (string) Text domain for the script. Required if the script depends on wp-i18n.
 	 *  - `version`:          (string) Override the version from the `asset_path` file.
+	 * @phan-param array{asset_path?:?string,async?:bool,css_dependencies?:string[],css_path?:?string,dependencies?:string[],enqueue?:bool,in_footer?:bool,media?:string,minify?:?bool,nonmin_path?:string,strategy?:string,textdomain?:string,version?:string} $options
 	 * @throws \InvalidArgumentException If arguments are invalid.
 	 */
 	public static function register_script( $handle, $path, $relative_to, array $options = array() ) {
 		if ( substr( $path, -3 ) !== '.js' ) {
 			throw new \InvalidArgumentException( '$path must end in ".js"' );
+		}
+
+		if ( isset( $options['async'] ) ) {
+			_deprecated_argument( __METHOD__, '2.1.0', 'The `async` option is deprecated in favor of `strategy`' );
 		}
 
 		$dir      = dirname( $relative_to );
@@ -342,10 +346,12 @@ class Assets {
 			'in_footer'        => false,
 			'media'            => 'all',
 			'minify'           => false,
+			'strategy'         => '',
 			'textdomain'       => null,
 		);
+		'@phan-var array{asset_path:?string,async:bool,css_dependencies:string[],css_path:?string,dependencies:string[],enqueue:bool,in_footer:bool,media:string,minify:?bool,nonmin_path?:string,strategy:string,textdomain:string,version?:string} $options'; // Phan gets confused by the array addition.
 
-		if ( $options['css_path'] && substr( $options['css_path'], -4 ) !== '.css' ) {
+		if ( is_string( $options['css_path'] ) && $options['css_path'] !== '' && substr( $options['css_path'], -4 ) !== '.css' ) {
 			throw new \InvalidArgumentException( '$options[\'css_path\'] must end in ".css"' );
 		}
 
@@ -371,15 +377,26 @@ class Assets {
 				),
 				$options['css_dependencies']
 			);
-			$ver                         = isset( $options['version'] ) ? $options['version'] : $asset['version'];
+			$ver                         = $options['version'] ?? $asset['version'];
 		} else {
-			$ver = isset( $options['version'] ) ? $options['version'] : filemtime( "$dir/$path" );
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$ver = $options['version'] ?? @filemtime( "$dir/$path" );
 		}
 
-		wp_register_script( $handle, $url, $options['dependencies'], $ver, $options['in_footer'] );
-		if ( $options['async'] ) {
-			self::instance()->add_async_script( $handle );
+		if ( $options['async'] && '' === $options['strategy'] ) { // Handle the deprecated `async` option
+			$options['strategy'] = 'defer';
 		}
+		wp_register_script(
+			$handle,
+			$url,
+			$options['dependencies'],
+			$ver,
+			array(
+				'in_footer' => $options['in_footer'],
+				'strategy'  => $options['strategy'],
+			)
+		);
+
 		if ( $options['textdomain'] ) {
 			// phpcs:ignore Jetpack.Functions.I18n.DomainNotLiteral
 			wp_set_script_translations( $handle, $options['textdomain'] );
@@ -392,7 +409,7 @@ class Assets {
 			);
 		}
 
-		if ( $options['css_path'] && file_exists( "$dir/{$options['css_path']}" ) ) {
+		if ( is_string( $options['css_path'] ) && $options['css_path'] !== '' && file_exists( "$dir/{$options['css_path']}" ) ) {
 			$csspath = $options['css_path'];
 			if ( is_rtl() ) {
 				$rtlcsspath = substr( $csspath, 0, -4 ) . '.rtl.css';
@@ -493,24 +510,31 @@ class Assets {
 		}
 		$url = self::normalize_path( plugins_url( $path, __FILE__ ) );
 		$url = add_query_arg( 'minify', 'true', $url );
-		$wp_scripts->add( 'wp-jp-i18n-loader', $url, $asset['dependencies'], $asset['version'] );
+
+		$handle = 'wp-jp-i18n-loader';
+
+		$wp_scripts->add( $handle, $url, $asset['dependencies'], $asset['version'] );
+
+		// Ensure the script is loaded in the footer and deferred.
+		$wp_scripts->add_data( $handle, 'group', 1 );
+
 		if ( ! is_array( $data ) ||
 			! isset( $data['baseUrl'] ) || ! ( is_string( $data['baseUrl'] ) || false === $data['baseUrl'] ) ||
 			! isset( $data['locale'] ) || ! is_string( $data['locale'] ) ||
 			! isset( $data['domainMap'] ) || ! is_array( $data['domainMap'] ) ||
 			! isset( $data['domainPaths'] ) || ! is_array( $data['domainPaths'] )
 		) {
-			$wp_scripts->add_inline_script( 'wp-jp-i18n-loader', 'console.warn( "I18n state deleted by jetpack_i18n_state hook" );' );
+			$wp_scripts->add_inline_script( $handle, 'console.warn( "I18n state deleted by jetpack_i18n_state hook" );' );
 		} elseif ( ! $data['baseUrl'] ) {
-			$wp_scripts->add_inline_script( 'wp-jp-i18n-loader', 'console.warn( "Failed to determine languages base URL. Is WP_LANG_DIR in the WordPress root?" );' );
+			$wp_scripts->add_inline_script( $handle, 'console.warn( "Failed to determine languages base URL. Is WP_LANG_DIR in the WordPress root?" );' );
 		} else {
 			$data['domainMap']   = (object) $data['domainMap']; // Ensure it becomes a json object.
 			$data['domainPaths'] = (object) $data['domainPaths']; // Ensure it becomes a json object.
-			$wp_scripts->add_inline_script( 'wp-jp-i18n-loader', 'wp.jpI18nLoader.state = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) . ';' );
+			$wp_scripts->add_inline_script( $handle, 'wp.jpI18nLoader.state = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) . ';' );
 		}
 
 		// Deprecated state module: Depend on wp-i18n to ensure global `wp` exists and because anything needing this will need that too.
-		$wp_scripts->add( 'wp-jp-i18n-state', false, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) );
+		$wp_scripts->add( 'wp-jp-i18n-state', false, array( 'wp-deprecated', $handle ) );
 		$wp_scripts->add_inline_script( 'wp-jp-i18n-state', 'wp.deprecated( "wp-jp-i18n-state", { alternative: "wp-jp-i18n-loader" } );' );
 		$wp_scripts->add_inline_script( 'wp-jp-i18n-state', 'wp.jpI18nState = wp.jpI18nLoader.state;' );
 	}
@@ -636,7 +660,7 @@ class Assets {
 	 */
 	public static function filter_gettext( $translation, $text, $domain ) {
 		if ( $translation === $text ) {
-			// phpcs:ignore WordPress.WP.I18n
+			// phpcs:ignore WordPress.WP.I18n -- This is a filter hook to map the text domains from our Composer packages to the domain for a containing plugin. See https://wp.me/p2gHKz-oRh#problem-6-text-domains-in-composer-packages
 			$newtext = __( $text, self::$domain_map[ $domain ][0] );
 			if ( $newtext !== $text ) {
 				return $newtext;
@@ -652,13 +676,13 @@ class Assets {
 	 * @param string $translation Translated text.
 	 * @param string $single The text to be used if the number is singular.
 	 * @param string $plural The text to be used if the number is plural.
-	 * @param string $number The number to compare against to use either the singular or plural form.
+	 * @param int    $number The number to compare against to use either the singular or plural form.
 	 * @param string $domain Text domain.
 	 * @return string Translated text.
 	 */
 	public static function filter_ngettext( $translation, $single, $plural, $number, $domain ) {
 		if ( $translation === $single || $translation === $plural ) {
-			// phpcs:ignore WordPress.WP.I18n
+			// phpcs:ignore WordPress.WP.I18n -- This is a filter hook to map the text domains from our Composer packages to the domain for a containing plugin. See https://wp.me/p2gHKz-oRh#problem-6-text-domains-in-composer-packages
 			$translation = _n( $single, $plural, $number, self::$domain_map[ $domain ][0] );
 		}
 		return $translation;
@@ -676,7 +700,7 @@ class Assets {
 	 */
 	public static function filter_gettext_with_context( $translation, $text, $context, $domain ) {
 		if ( $translation === $text ) {
-			// phpcs:ignore WordPress.WP.I18n
+			// phpcs:ignore WordPress.WP.I18n -- This is a filter hook to map the text domains from our Composer packages to the domain for a containing plugin. See https://wp.me/p2gHKz-oRh#problem-6-text-domains-in-composer-packages
 			$translation = _x( $text, $context, self::$domain_map[ $domain ][0] );
 		}
 		return $translation;
@@ -689,14 +713,14 @@ class Assets {
 	 * @param string $translation Translated text.
 	 * @param string $single The text to be used if the number is singular.
 	 * @param string $plural The text to be used if the number is plural.
-	 * @param string $number The number to compare against to use either the singular or plural form.
+	 * @param int    $number The number to compare against to use either the singular or plural form.
 	 * @param string $context Context information for the translators.
 	 * @param string $domain Text domain.
 	 * @return string Translated text.
 	 */
 	public static function filter_ngettext_with_context( $translation, $single, $plural, $number, $context, $domain ) {
 		if ( $translation === $single || $translation === $plural ) {
-			// phpcs:ignore WordPress.WP.I18n
+			// phpcs:ignore WordPress.WP.I18n -- This is a filter hook to map the text domains from our Composer packages to the domain for a containing plugin. See https://wp.me/p2gHKz-oRh#problem-6-text-domains-in-composer-packages
 			$translation = _nx( $single, $plural, $number, $context, self::$domain_map[ $domain ][0] );
 		}
 		return $translation;

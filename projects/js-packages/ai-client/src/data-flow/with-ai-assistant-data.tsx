@@ -7,15 +7,15 @@ import React from 'react';
 /**
  * Internal Dependencies
  */
-import useAiSuggestions from '../hooks/use-ai-suggestions';
-import { AiDataContextProvider } from '.';
+import useAiSuggestions from '../hooks/use-ai-suggestions/index.js';
+import { AiDataContextProvider } from './index.js';
 
 /**
  * High Order Component that provides the
  * AI Assistant Data context to the wrapped component.
  *
  * @param {React.ReactElement} WrappedComponent - component to wrap.
- * @returns {React.ReactElement}          		  Wrapped component, with the AI Assistant Data context.
+ * @return {React.ReactElement} Wrapped component, with the AI Assistant Data context.
  */
 const withAiDataProvider = createHigherOrderComponent(
 	( WrappedComponent: React.ComponentType ) => {

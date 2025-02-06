@@ -18,16 +18,17 @@ exports[`JetpackFooter Render the component should match the snapshot: all props
             aria-labelledby="jetpack-logo-title"
             class="jetpack-logo"
             height="16"
+            role="img"
             viewBox="0 0 32 32"
             x="0px"
             xmlns="http://www.w3.org/2000/svg"
             y="0px"
           >
-            <desc
+            <title
               id="jetpack-logo-title"
             >
               Jetpack Logo
-            </desc>
+            </title>
             <path
               d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z"
               fill="#000"
@@ -57,6 +58,11 @@ exports[`JetpackFooter Render the component should match the snapshot: all props
               d="M19.5 4.5h-7V6h4.44l-5.97 5.97 1.06 1.06L18 7.06v4.44h1.5v-7Zm-13 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3H17v3a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h3V5.5h-3Z"
             />
           </svg>
+          <span
+            class="jp-dashboard-footer__accessible-external-link"
+          >
+            (opens in a new tab)
+          </span>
         </a>
       </li>
       <li>
@@ -80,6 +86,11 @@ exports[`JetpackFooter Render the component should match the snapshot: all props
               d="M19.5 4.5h-7V6h4.44l-5.97 5.97 1.06 1.06L18 7.06v4.44h1.5v-7Zm-13 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3H17v3a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h3V5.5h-3Z"
             />
           </svg>
+          <span
+            class="jp-dashboard-footer__accessible-external-link"
+          >
+            (opens in a new tab)
+          </span>
         </a>
       </li>
       <li>
@@ -103,6 +114,11 @@ exports[`JetpackFooter Render the component should match the snapshot: all props
               d="M19.5 4.5h-7V6h4.44l-5.97 5.97 1.06 1.06L18 7.06v4.44h1.5v-7Zm-13 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3H17v3a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h3V5.5h-3Z"
             />
           </svg>
+          <span
+            class="jp-dashboard-footer__accessible-external-link"
+          >
+            (opens in a new tab)
+          </span>
         </a>
       </li>
       <li>
@@ -133,6 +149,11 @@ exports[`JetpackFooter Render the component should match the snapshot: all props
               d="M19.5 4.5h-7V6h4.44l-5.97 5.97 1.06 1.06L18 7.06v4.44h1.5v-7Zm-13 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3H17v3a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h3V5.5h-3Z"
             />
           </svg>
+          <span
+            class="jp-dashboard-footer__accessible-external-link"
+          >
+            (opens in a new tab)
+          </span>
         </a>
       </li>
       <li>

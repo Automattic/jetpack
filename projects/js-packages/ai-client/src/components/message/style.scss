@@ -1,0 +1,83 @@
+@import '@automattic/jetpack-base-styles/root-variables';
+
+.jetpack-ai-assistant__message {
+	display: flex;
+	line-height: 28px;
+	font-size: 12px;
+	align-self: center;
+	align-items: center;
+	padding: 0 12px;
+	border-radius: 4px;
+	min-height: 28px;
+
+	> svg {
+		fill: var( --jp-gray-40 );
+		flex-shrink: 0;
+	}
+
+	.jetpack-ai-assistant__message-content {
+		flex-grow: 2;
+		margin: 0 8px;
+		line-height: 1.4em;
+		display: flex;
+		gap: 4px;
+		align-items: center;
+
+		span {
+			padding: 5px 0;
+		}
+
+		.components-external-link {
+			color: var( --jp-gray-50 );
+		}
+
+		// Force padding 0 in link buttons, since default Gutenberg version in WordPress doesn't use iframe and
+		// Buttons receive styles from edit-post-visual-editor.
+		.components-button.is-link {
+			padding: 0;
+		}
+
+		.components-button.is-link,
+		.components-external-link {
+			flex-shrink: 0;
+		}
+	}
+}
+
+.jetpack-ai-assistant__message-severity-info {
+	background-color: var( --jp-gray-0 );
+	color: var( --jp-gray-50 );
+}
+
+.jetpack-ai-assistant__message-severity-warning {
+	background-color: #FEF8EE;
+	color: var( --jp-gray-100 );
+}
+
+.jetpack-ai-assistant__message-severity-error {
+	background-color: var( --jp-red-0 );
+	color: var( --jp-gray-100 );
+
+	> svg {
+		fill: var( --jp-red-40, #E65054 );
+	}
+}
+
+.jetpack-ai-assistant__message-severity-success {
+	background-color: var( --jp-green-5 );
+	color: var( --jp-gray-100 );
+
+	> svg {
+		fill: var( --jp-green-30 );
+	}
+}
+
+.jetpack-ai-assistant__message-sidebar {
+	display: flex;
+	padding: 0;
+	height: unset;
+
+	> svg {
+		fill: var( --jp-gray-50 );
+	}
+}

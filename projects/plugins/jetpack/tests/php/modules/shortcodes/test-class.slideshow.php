@@ -164,7 +164,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	public function test_shortcodes_slideshow_amp( $shortcode, $expected ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::markTestSkipped( 'WordPress.com is in the process of removing AMP plugin.' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		add_filter( 'jetpack_is_amp_request', '__return_true' );

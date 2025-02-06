@@ -68,7 +68,7 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 		if ( empty( $modules ) ) {
 			$modules = null;
 		}
-		return array( 'scheduled' => Actions::do_full_sync( $modules ) );
+		return array( 'scheduled' => Actions::do_full_sync( $modules, 'jetpack_json_api_sync_endpoint' ) );
 	}
 
 	/**
@@ -511,6 +511,7 @@ class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 		// Update Full Sync Status if queue is "full_sync".
 		if ( 'full_sync' === $queue_name ) {
 			$full_sync_module = Modules::get_module( 'full-sync' );
+			'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $full_sync_module';
 
 			$full_sync_module->update_sent_progress_action( $items );
 		}

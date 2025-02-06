@@ -1,0 +1,78 @@
+@import "$css/main/variables";
+@import "$css/main/mixins";
+
+.wrapper {
+	font-size: 14px;
+	line-height: 22px;
+
+	:global(button ~ button) {
+		margin-left: 20px !important;
+	}
+
+	.summary {
+		flex-grow: 1;
+	}
+
+	.minify-meta {
+		align-items: flex-start;
+		display: flex;
+		flex-direction: row;
+		font-size: 14px;
+		line-height: 22px;
+
+		@include breakpoint(xs) {
+			display: block;
+		}
+	}
+
+	.section {
+		margin-top: 16px;
+		padding: 16px;
+		border-radius: 4px;
+		background-color: var(--gray-0);
+
+		.title {
+			margin-bottom: 16px;
+			font-size: 16px;
+			line-height: 1;
+			font-weight: 600;
+		}
+	}
+
+	.description {
+		margin-top: 8px;
+		font-size: 14px;
+		line-height: 1.5;
+		color: var( --gray-60 );
+		font-weight: 400;
+	}
+
+	.button {
+		margin-top: 16px;
+	}
+
+	.manage-excludes label {
+		display: block;
+		margin-bottom: 16px;
+		line-height: 1.5;
+	}
+
+	.manage-excludes input[type="text"] {
+		width: 100%;
+		padding: 10px;
+		border-radius: 4px;
+		border: 1px solid $gray_10;
+	}
+
+	.edit-button svg {
+		fill: $jetpack-green;
+	}
+
+	.sub-header {
+		font-size: 16px;
+		line-height: 1;
+		color: var( --gray-60 );
+		font-weight: 400;
+		padding-bottom: 2px;
+	}
+}

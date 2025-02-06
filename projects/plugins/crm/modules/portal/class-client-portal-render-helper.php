@@ -8,7 +8,7 @@
 */
 namespace Automattic\JetpackCRM;
 
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
  * 
@@ -31,7 +31,7 @@ class Client_Portal_Render_Helper {
 		$err .= __('Either this object does not exist or you do not have permission to view it.', 'zero-bs-crm');
 		$err .= '</center>';
 		echo $err;
-		die();
+		die( 0 );
 	}
 
 	#} MS - can you make this work with templates, couldn't so dumped (dumbly) here for now:
@@ -57,26 +57,28 @@ class Client_Portal_Render_Helper {
 
 		global $zbs;
 
-		?><div class='wrapper' style="padding-left:20px;padding-right:20px;padding-bottom:20px;">
-			
-			<div class='alert alert-info'>
-				<?php esc_html_e('You are viewing the Client Portal as an admin','zero-bs-crm'); ?>
-				<br />
-				[<?php esc_html_e('This message is only shown to admins','zero-bs-crm'); ?>]
+		?>
+		<div class="jpcrm-client-portal-admin-banner">
+
+			<div class="alert alert-info">
+				<strong><?php esc_html_e( 'You are viewing the Client Portal as an admin.', 'zero-bs-crm' ); ?></strong>
+
+				<?php if ( ! empty( $admin_message ) ) { ?>
+					<p class="admin-message"><?php echo esc_html( $admin_message ); ?></p>
+				<?php } ?>
 				<?php ##WLREMOVE ?>
-				<br /><a style="color:orange;font-size:18px;" href="<?php echo esc_url( $zbs->urls['kbclientportal'] ); ?>" target="_blank"><?php esc_html_e('Learn more about the client portal','zero-bs-crm'); ?></a>
+				<p>
+					<a href="<?php echo esc_url( $zbs->urls['kbclientportal'] ); ?>" target="_blank"><?php esc_html_e( 'Learn more about the Client Portal', 'zero-bs-crm' ); ?></a>
+				</p>
 				<?php ##/WLREMOVE ?>
+
 			</div>
 
 			<?php $this->admin_message(); ?>
 
-			<?php if ( !empty( $admin_message ) ) { ?>
-			<div style="margin:20px;padding:10px;background:red;color:white;text-align:center;">
-				<?php echo $admin_message; ?>
-			</div>
-			<?php } ?>
 
-		</div><?php 
+		</div>
+		<?php
 
 	}
 

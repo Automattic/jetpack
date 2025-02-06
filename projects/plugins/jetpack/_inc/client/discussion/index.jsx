@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
-import QuerySite from 'components/data/query-site';
 import React from 'react';
 import { connect } from 'react-redux';
+import QuerySite from 'components/data/query-site';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,
@@ -28,14 +28,14 @@ export class Discussion extends React.Component {
 			siteAdminUrl: this.props.siteAdminUrl,
 		};
 
+		if ( ! this.props.searchTerm && ! this.props.active ) {
+			return null;
+		}
+
 		const foundComments = this.props.isModuleFound( 'comments' ),
 			foundMarkdown = this.props.isModuleFound( 'markdown' ),
 			foundGravatar = this.props.isModuleFound( 'gravatar-hovercards' ),
 			foundCommentLikes = this.props.isModuleFound( 'comment-likes' );
-
-		if ( ! this.props.searchTerm && ! this.props.active ) {
-			return null;
-		}
 
 		if ( ! foundComments && ! foundMarkdown && ! foundGravatar && ! foundCommentLikes ) {
 			return null;

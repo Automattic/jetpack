@@ -1,0 +1,1599 @@
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2025-01-10 17:58:46+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: GlotPress/2.4.0-alpha\n"
+"Language: tr\n"
+"Project-Id-Version: WordPress.com - jetpack-mu-wpcom\n"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:286
+msgid "Got it!"
+msgstr "Anladım!"
+
+#: src/features/post-categories/quick-actions.php:78
+msgid "Default category changed successfully."
+msgstr "Varsayılan kategori başarıyla değiştirildi."
+
+#: src/features/post-categories/quick-actions.php:36
+msgid "Set as default"
+msgstr "Varsayılan olarak ayarla"
+
+#. translators: category name
+#: src/features/post-categories/quick-actions.php:35
+msgid "Set &#8220;%s&#8221; as the default category"
+msgstr "\"%s\" kategorisini varsayılan kategori olarak ayarlayın"
+
+#: src/features/pages/quick-actions.php:169
+msgid "Posts page changed successfully."
+msgstr ""
+
+#: src/features/pages/quick-actions.php:143
+msgid "Homepage changed successfully."
+msgstr ""
+
+#: src/features/pages/quick-actions.php:57
+msgid "Set as posts page"
+msgstr ""
+
+#: src/features/pages/quick-actions.php:57
+msgid "Unset as posts page"
+msgstr ""
+
+#. translators: page title
+#: src/features/pages/quick-actions.php:56
+msgid "Set &#8220;%s&#8221; as the page that displays your latest posts"
+msgstr ""
+
+#. translators: page title
+#: src/features/pages/quick-actions.php:56
+msgid "Unset &#8220;%s&#8221; as the page that displays your latest posts"
+msgstr ""
+
+#: src/features/pages/quick-actions.php:48
+msgid "Set as homepage"
+msgstr ""
+
+#. translators: page title
+#: src/features/pages/quick-actions.php:47
+msgid "Set &#8220;%s&#8221; as your site's homepage"
+msgstr ""
+
+#: src/features/holiday-snow/class-holiday-snow.php:226
+msgid "Show falling snow on my site until January 4<sup>th</sup>."
+msgstr "4 Ocak'a kadar kar yağışını blogumda göster.<sup></sup>"
+
+#: src/features/holiday-snow/class-holiday-snow.php:205
+msgid "Snow"
+msgstr "Kar"
+
+#: src/features/holiday-snow/class-holiday-snow.php:194
+msgid "Show falling snow on my site"
+msgstr "Sitemde yağan kar göster"
+
+#: src/features/wpcom-blocks/timeline/block.json
+msgctxt "block keyword"
+msgid "timeline"
+msgstr "zaman çizelgesi"
+
+#: src/features/wpcom-blocks/timeline/block.json
+msgctxt "block keyword"
+msgid "event"
+msgstr "etkinlik"
+
+#: src/features/wpcom-blocks/timeline/block.json
+msgctxt "block description"
+msgid "Create a timeline of events."
+msgstr "Etkinliklerin bir zaman çizelgesini oluşturun."
+
+#: src/features/wpcom-blocks/timeline/block.json
+msgctxt "block title"
+msgid "Timeline"
+msgstr "Zaman Çizelgesi"
+
+#: src/features/wpcom-blocks/event-countdown/block.json
+msgctxt "block keyword"
+msgid "countdown"
+msgstr "geri sayım"
+
+#: src/features/wpcom-blocks/event-countdown/block.json
+msgctxt "block keyword"
+msgid "events"
+msgstr "etkinlikler"
+
+#: src/features/wpcom-blocks/event-countdown/block.json
+msgctxt "block description"
+msgid "Count down to your favorite next thing, and celebrate with fireworks when the time is right!"
+msgstr "Bir sonraki harika olay için geri sayım yapın ve zamanı geldiğinde bunu havai fişeklerle kutlayın!"
+
+#: src/features/wpcom-blocks/event-countdown/block.json
+msgctxt "block title"
+msgid "Event Countdown"
+msgstr "Olay Geri Sayımı"
+
+#: src/features/wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:96
+msgid "Continue and launch"
+msgstr "Devam edin ve başlatın"
+
+#: src/features/wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:89
+msgid "Keep editing"
+msgstr "Düzenlemeye devam et"
+
+#: src/features/wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:82
+msgid "Feel free to keep editing your homepage, or continue and launch your site."
+msgstr "Ana sayfanızı düzenlemeye devam etmekten çekinmeyin veya devam edin ve web sitenizi başlatın."
+
+#: src/features/wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:81
+msgid "You’ve added your first video!"
+msgstr "İlk videonuzu eklediniz!"
+
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:122
+msgid "View your product"
+msgstr "Ürününüzü görüntüleyin"
+
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:120
+msgid "Continue editing"
+msgstr "Düzenlemeye devam et"
+
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:113
+msgid "Preview your product on your site before launching and sharing with others."
+msgstr "Lansmandan ve başkalarıyla paylaşmadan önce ürününüzü sitenizde önizleyin."
+
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:112
+msgid "You've added your first product!"
+msgstr "İlk ürününüzü eklediniz!"
+
+#: src/features/wpcom-block-editor-nux/src/purchase-notice/index.jsx:23
+msgid "Congrats! Premium blocks are now available to use."
+msgstr "Tebrikler! Premium bloklar artık kullanılabilir."
+
+#: src/features/block-theme-previews/modal.jsx:59
+msgid "Start customizing"
+msgstr "Özelleştirmeye başlayın"
+
+#: src/features/block-theme-previews/modal.jsx:51
+msgid "Try customizing your theme styles to get your site looking just right."
+msgstr "Sitenizin tam istediğiniz gibi görünmesi için tema stillerinizi özelleştirmeyi deneyin."
+
+#: src/features/block-theme-previews/modal.jsx:45
+msgid "Changes you make in the editor won’t be applied to your site until you activate the theme."
+msgstr "Düzenleyicide yaptığınız değişiklikler, temayı etkinleştirene kadar sitenizde uygulanmaz."
+
+#: src/features/block-theme-previews/modal.jsx:39
+msgid "You’re previewing %s"
+msgstr "%s temasında önizleme yapmaktasınız"
+
+#: src/features/wpcom-themes/wpcom-themes.php:66
+#: src/features/wpcom-themes/wpcom-themes.php:67
+msgid "Theme Showcase"
+msgstr "Tema Vitrini"
+
+#: src/features/wpcom-themes/wpcom-themes.php:42
+msgid "Explore themes"
+msgstr "Temaları keşfedin"
+
+#: src/features/wpcom-themes/wpcom-themes.php:40
+msgid "Dive deep into the world of WordPress.com themes. Discover the responsive and stunning designs waiting to bring your site to life."
+msgstr "WordPress.com temalarının dünyasına girin. Sitenize hayat vermeye hazır hızlı ve güzel tasarımları keşfedin."
+
+#: src/features/wpcom-themes/wpcom-themes.php:39
+msgid "Find the perfect theme for your site"
+msgstr "Siteniz için mükemmel temayı bulun"
+
+#: src/features/wpcom-profile-settings/profile-settings-notices.php:28
+msgid "The Toolbar is always visible on Atomic sites while connected to the Automattic proxy."
+msgstr "Automattic ara sunucusuna bağlıyken Araç Çubuğu her zaman Atomic sitelerinde görünür."
+
+#: src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:64
+msgid "Manage your WordPress.com password ↗"
+msgstr "WordPress.com şifrenizi yönetin ↗"
+
+#: src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:60
+msgid "Manage your WordPress.com account email ↗"
+msgstr "WordPress.com hesabı e-postanızı yönetin ↗"
+
+#: src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:56
+msgid "Manage your WordPress.com profile bio ↗"
+msgstr "WordPress.com profili biyografinizi yönetin ↗"
+
+#: src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:52
+msgid "Manage your WordPress.com profile website ↗"
+msgstr "WordPress.com profili web sitenizi yönetin ↗"
+
+#: src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:48
+msgid "Manage your WordPress.com profile ↗"
+msgstr "WordPress.com profilinizi yönetin ↗"
+
+#: src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:44
+msgid "Manage your WordPress.com account language ↗"
+msgstr "WordPress.com hesabı dilinizi yönetin ↗"
+
+#: src/features/wpcom-plugins/wpcom-plugins.php:53
+msgid "Explore plugins"
+msgstr "Eklentileri keşfedin"
+
+#: src/features/wpcom-plugins/wpcom-plugins.php:52
+msgid "Explore marketplace plugins"
+msgstr "Pazar yeri eklentilerini keşfedin"
+
+#: src/features/wpcom-plugins/wpcom-plugins.php:49
+msgid "Access a variety of free and paid plugins that can enhance your site's functionality and features."
+msgstr "Sitenizin işlevselliğini ve özelliklerini iyileştirebilecek çeşitli ücretsiz ve ücretli eklentiye erişin."
+
+#: src/features/wpcom-plugins/wpcom-plugins.php:48
+msgid "Discover a curated selection of free and premium plugins designed to enhance your site's functionality and features."
+msgstr "Sitenizin işlevselliğini ve özelliklerini geliştirmek için tasarlanmış, derlenmiş ücretsiz ve premium eklenti seçimini keşfedin."
+
+#: src/features/wpcom-plugins/wpcom-plugins.php:45
+msgid "Flex your site's features with plugins"
+msgstr "Sitenizi eklentilerle esnetin"
+
+#: src/features/wpcom-plugins/wpcom-plugins.php:44
+msgid "Unlock more with premium and free plugins"
+msgstr "Premium ve ücretsiz eklentilerle daha fazlasının kilidini açın"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template.php:149
+msgid "Footer"
+msgstr "Alt Bilgi"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template.php:147
+msgid "Header"
+msgstr "Üst Bilgi"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:552
+msgid "Back to template part types"
+msgstr "Şablon bölümü türlerine dön"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:551
+msgid "No template part types found."
+msgstr "Şablon bölümü türü bulunamadı."
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:550
+msgid "Search Template Part Types"
+msgstr "Şablon Bölümü Türü Ara"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:549
+msgid "Parent Template Part Type:"
+msgstr "Üst Şablon Bölümü Türü:"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:548
+msgid "Parent Template Part Type"
+msgstr "Üst Şablon Bölümü Türü"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:547
+msgid "New Template Part Type"
+msgstr "Yeni Şablon Bölümü Türü"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:546
+msgid "Add New Template Part Type"
+msgstr "Yeni Şablon Bölümü Türü Ekle"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:545
+msgid "Update Template Part Type"
+msgstr "Şablon Bölümü Türünü Güncelle"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:544
+msgid "View Template Part Type"
+msgstr "Şablon Bölümü Türünü Görüntüle"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:543
+msgid "Edit Template Part Type"
+msgstr "Şablon Bölümü Türünü Düzenle"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:542
+msgid "All Template Part Types"
+msgstr "Tüm Şablon Bölümü Türleri"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:541
+msgctxt "admin menu"
+msgid "Template Part Types"
+msgstr "Şablon Bölümü Türleri"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:540
+msgctxt "taxonomy singular name"
+msgid "Template Part Type"
+msgstr "Şablon Bölümü Türü"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:539
+msgctxt "taxonomy general name"
+msgid "Template Part Types"
+msgstr "Şablon Bölümü Türleri"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:504
+msgid "Template part updated."
+msgstr "Şablon bölümü güncellendi."
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:503
+msgid "Template part scheduled."
+msgstr "Şablon bölümü zamanlandı."
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:502
+msgid "Template part reverted to draft."
+msgstr "Şablon bölümü taslak durumuna geri çevrildi."
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:501
+msgid "Template part published privately."
+msgstr "Şablon bölümü özel olarak yayımlandı."
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:500
+msgid "Template part published."
+msgstr "Şablon bölümü yayımlandı."
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:499
+msgid "Template parts list"
+msgstr "Şablon bölümleri listesi"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:498
+msgid "Template parts list navigation"
+msgstr "Şablon bölümleri listesinde gezinme"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:497
+msgid "Filter template parts list"
+msgstr "Şablon bölümleri listesini filtrele"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:496
+msgid "No template parts found in Trash."
+msgstr "Çöpte şablon bölümü bulunamadı."
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:495
+msgid "No template parts found."
+msgstr "Şablon bölümü bulunamadı."
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:494
+msgid "Search Template Parts"
+msgstr "Şablon Bölümleri Ara"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:493
+msgid "All Template Parts"
+msgstr "Tüm Şablon Bölümleri"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:492
+msgid "View Template Part"
+msgstr "Şablon Bölümünü Görüntüle"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:491
+msgid "Edit Template Part"
+msgstr "Şablon Bölümünü Düzenle"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:490
+msgid "New Template Part"
+msgstr "Yeni Şablon Bölümü"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:489
+msgid "Add New Template Part"
+msgstr "Yeni Şablon Bölümü Ekle"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:488
+msgctxt "Template"
+msgid "Add New"
+msgstr "Yeni Ekle"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:487
+msgctxt "add new on admin bar"
+msgid "Template Part"
+msgstr "Şablon Bölümü"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:486
+msgctxt "admin menu"
+msgid "Template Parts"
+msgstr "Şablon Bölümleri"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:485
+msgctxt "post type singular name"
+msgid "Template Part"
+msgstr "Şablon Bölümü"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:484
+msgctxt "post type general name"
+msgid "Template Parts"
+msgstr "Şablon Bölümleri"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:447
+msgctxt "Default page title"
+msgid "Contact"
+msgstr "İletişim"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:435
+msgctxt "Default page title"
+msgid "About"
+msgstr "Hakkında"
+
+#: src/features/wpcom-legacy-fse/blocks/navigation-menu/index.php:90
+msgid "collapsed"
+msgstr "daraltılmış"
+
+#: src/features/wpcom-legacy-fse/blocks/navigation-menu/index.php:89
+msgid "expanded"
+msgstr "genişletilmiş"
+
+#: src/features/wpcom-legacy-fse/blocks/navigation-menu/index.php:86
+msgid "Menu"
+msgstr "Menü"
+
+#: src/features/wpcom-global-styles/index.php:563
+msgid "Upgrade required"
+msgstr "Yükseltme gerekiyor"
+
+#: src/features/wpcom-global-styles/index.php:560
+msgid "Upgrade"
+msgstr "Yükselt"
+
+#: src/features/wpcom-global-styles/index.php:552
+msgid "Preview premium styles"
+msgstr "Premium stilleri önizle"
+
+#: src/features/wpcom-global-styles/index.php:547
+msgid "Remove premium styles"
+msgstr "Premium stilleri kaldır"
+
+#: src/features/wpcom-global-styles/index.php:537
+msgid "Upgrade now"
+msgstr "Hemen yükseltin"
+
+#. translators: %1$s - documentation URL, %2$s - the name of the required plan
+#: src/features/wpcom-global-styles/index.php:513
+msgid "Your site includes <a href=\"%1$s\" target=\"_blank\">premium styles</a> that are only visible to visitors after upgrading to the %2$s plan or higher."
+msgstr "Siteniz, yalnızca %2$s veya daha yüksek bir pakete yükselttikten sonra ziyaretçiler tarafından görülebilen <a href=\"%1$s\" target=\"_blank\">premium stiller</a> içeriyor."
+
+#: src/features/wpcom-global-styles/api/class-global-styles-status-rest-api.php:53
+msgid "Your user is not permitted to access this resource."
+msgstr "Kullanıcınızın bu kaynağa erişim izni yok."
+
+#. translators: The name of the widget.
+#: src/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php:78
+msgid "Your %s widget requires JavaScript to function properly."
+msgstr "%s bileşeninizin düzgün çalışması için JavaScript gerekir."
+
+#: src/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php:21
+msgid "Site Management Panel"
+msgstr "Site Yönetimi Paneli"
+
+#: src/features/wpcom-blocks/a8c-posts-list/templates/posts-list.php:30
+msgid "View all posts"
+msgstr "Tüm gönderileri görüntüle"
+
+#: src/features/wpcom-blocks/a8c-posts-list/templates/post-item.php:36
+msgid "Edit"
+msgstr "Düzenle"
+
+#: src/features/wpcom-blocks/a8c-posts-list/templates/post-item.php:31
+msgctxt "designating the post author (eg: by John Doe"
+msgid "by"
+msgstr "yazan:"
+
+#: src/features/wpcom-blocks/a8c-posts-list/templates/post-item.php:23
+msgid "Featured"
+msgstr "Öne çıkan"
+
+#. translators: 1: link to WP admin new post page.
+#: src/features/wpcom-blocks/a8c-posts-list/templates/no-posts.php:17
+msgid "Ready to publish your first post? <a href=\"%1$s\">Get started here</a>."
+msgstr "İlk gönderinizi yayımlamaya hazır mısınız? <a href=\"%1$s\">Buradan başlayın</a>."
+
+#: src/features/wpcom-blocks/a8c-posts-list/templates/no-posts.php:11
+msgid "There are currently no posts to display."
+msgstr "Şu anda görüntülenecek gönderi bulunamadı."
+
+#: src/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php:28
+msgid "Read more"
+msgstr "Devamını oku"
+
+#. translators: %s: Name of current post
+#: src/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php:25
+msgid "Continue reading %s"
+msgstr "%s gönderisini okumaya devam edin"
+
+#: src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:357
+msgid "Underline"
+msgstr "Altını çiz"
+
+#: src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:356
+msgid "Justify"
+msgstr "İki yana hizala"
+
+#: src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:200
+msgid "Logging In..."
+msgstr "Oturum Açılıyor..."
+
+#: src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:185
+msgid "Before we continue, please log in to your Jetpack site."
+msgstr "Devam etmeden önce lütfen Jetpack sitenizde oturum açın."
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:444
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:445
+msgid "Scheduled Updates"
+msgstr "Planlanmış Güncellemeler"
+
+#. translators: Name of the Plugins submenu that links to the Plugins
+#. Marketplace
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:427
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:429
+msgid "Marketplace"
+msgstr "Pazaryeri"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:409
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:410
+msgid "Add New Plugin"
+msgstr "Yeni Eklenti Ekle"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:396
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:397
+msgid "Plugins"
+msgstr "Eklentiler"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:232
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:233
+msgid "Newsletter"
+msgstr "Haber Bülteni"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:222
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:223
+msgid "Subscribers"
+msgstr "Aboneler"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:212
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:213
+msgid "Scan"
+msgstr "Tarama"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:202
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:203
+msgid "Monetize"
+msgstr "Paraya çevirme"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:193
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:194
+msgid "VaultPress"
+msgstr "VaultPress"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:184
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:185
+msgid "Activity Log"
+msgstr "Etkinlik Günlüğü"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:131
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:132
+msgid "Site Settings"
+msgstr "Site Ayarları"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:122
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:123
+msgid "Marketing"
+msgstr "Pazarlama"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:113
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:114
+msgid "Purchases"
+msgstr "Satın almalar"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:104
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:105
+msgid "Emails"
+msgstr "E-postalar"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:95
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:96
+msgid "Domains"
+msgstr "Alan adları"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:86
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:87
+msgid "Add-ons"
+msgstr "Eklentiler"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:77
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:78
+msgid "Plans"
+msgstr "Paketler"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:68
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:69
+msgid "Overview"
+msgstr "Genel görünüm"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:59
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:60
+msgid "My Home"
+msgstr "Ana Sayfam"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:48
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:49
+msgid "Hosting"
+msgstr "Depolama"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:380
+msgid "Admin interface style changed."
+msgstr "Yönetici arayüzü stili değişti."
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:343
+msgid "Click here to access your sites, domains, Reader, account settings, and more."
+msgstr "Sitelerinize, alan adlarınıza, Okuyucuya, hesap ayarlarınıza ve daha fazlasına erişmek için buraya tıklayın."
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:342
+msgid "All your sites"
+msgstr "Tüm siteleriniz"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:336
+msgid "Access the new site management panel and all developer tools such as hosting configuration, GitHub deployments, metrics, PHP logs, and server logs."
+msgstr "Yeni site yönetimi paneline ve depolama yapılandırması, GitHub dağıtımları, analizler, PHP günlükleri ve sunucu günlükleri gibi tüm geliştirici araçlarına erişin."
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:335
+msgid "Hosting overview"
+msgstr "Depolama genel bakışı"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:329
+msgid "The Hosting menu contains the My Home page and all items from the Upgrades menu, including Plans, Domains, Emails, Purchases, and more."
+msgstr "Depolama menüsü; Ana Sayfam sayfası ve Paketler, Alan Adları, E-postalar, Satın Almalar ve daha fazlası dahil Yükseltmeler menüsündeki tüm öğeleri içerir."
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:328
+msgid "Upgrades is now Hosting"
+msgstr "Yükseltmeler yeni hali artık Depolama"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:285
+msgid "Next"
+msgstr "Sonraki"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:284
+msgid "Previous"
+msgstr "Önceki"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:283
+msgid "Step {{currentStep}} of {{totalSteps}}"
+msgstr "Adım {{currentStep}}/{{totalSteps}}"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:279
+#: src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php:133
+msgid "Dismiss"
+msgstr "Kapat"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:35
+msgid "Use WordPress.com’s native dashboard to manage your site."
+msgstr "Sitenizi WordPress.com'un yerel panosuyla yönetin."
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:35
+msgid "Default style"
+msgstr "Varsayılan stil"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:34
+msgid "Use WP-Admin to manage your site."
+msgstr "Sitenizi yönetmek için WP-Admin'i kullanın."
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:34
+msgid "Classic style"
+msgstr "Klasik stil"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:32
+msgid "Admin Interface Style"
+msgstr "Yönetici Arayüzü Stili"
+
+#: src/features/wpcom-admin-bar/wpcom-admin-bar.php:247
+msgid "My Profile"
+msgstr "Profilim"
+
+#. translators: Hidden accessibility text.
+#: src/features/wpcom-admin-bar/wpcom-admin-bar.php:225
+msgid "Reader"
+msgstr "Okuyucu"
+
+#: src/features/wpcom-admin-bar/wpcom-admin-bar.php:223
+msgid "Read the blogs and topics you follow"
+msgstr "Takip ettiğiniz blogları ve konuları okuyun"
+
+#. translators: Hidden accessibility text.
+#: src/features/wpcom-admin-bar/wpcom-admin-bar.php:200
+msgid "Cart"
+msgstr "Sepet"
+
+#. translators: Hidden accessibility text.
+#: src/features/wpcom-admin-bar/wpcom-admin-bar.php:144
+#: src/features/wpcom-admin-bar/wpcom-admin-bar.php:148
+msgid "All Sites"
+msgstr "Tüm Siteler"
+
+#: src/features/verbum-comments/class-verbum-comments.php:467
+msgid "Error: please try commenting again."
+msgstr "Hata: Lütfen tekrar yorun yapmayı deneyin."
+
+#: src/features/verbum-comments/class-verbum-comments.php:392
+#: src/features/verbum-comments/class-verbum-comments.php:398
+#: src/features/verbum-comments/class-verbum-comments.php:405
+msgid "Error: your Facebook login has expired."
+msgstr "Hata: Facebook girişinizin süresi doldu."
+
+#: src/features/verbum-comments/class-verbum-comments.php:303
+msgid "Cancel reply"
+msgstr "Cevabı iptal et"
+
+#. translators: % is the original posters name
+#: src/features/verbum-comments/class-verbum-comments.php:302
+msgid "Leave a reply to %s"
+msgstr "%s için bir cevap yazın"
+
+#: src/features/verbum-comments/class-verbum-comments.php:285
+msgid "Leave a comment"
+msgstr "Yorum bırakın"
+
+#: src/features/verbum-comments/class-verbum-comments.php:234
+msgid "Save my name, email, and website in this browser for the next time I comment."
+msgstr "Bir dahaki sefere yorum yaptığımda kullanılmak üzere adımı, e-posta adresimi ve web site adresimi bu tarayıcıya kaydet."
+
+#: src/features/verbum-comments/class-verbum-comments.php:233
+msgid "Comment sent successfully"
+msgstr "Yorum başarıyla gönderildi"
+
+#: src/features/verbum-comments/class-verbum-comments.php:232
+msgid "Subscribe"
+msgstr "Abone ol"
+
+#: src/features/verbum-comments/class-verbum-comments.php:231
+msgid "Enter your email address"
+msgstr "E-posta adresinizi girin"
+
+#: src/features/verbum-comments/class-verbum-comments.php:230
+msgid "Interested in getting blog post updates? Simply click the button below to stay in the loop!"
+msgstr "Blok gönderileriyle ilgili güncellemeler almak mı istiyorsunuz? Gelişmelerden haberdar olmak için aşağıdaki düğmeye tıklayın!"
+
+#: src/features/verbum-comments/class-verbum-comments.php:229
+msgid "Never miss a beat!"
+msgstr "Hiçbir şeyi kaçırmayın!"
+
+#: src/features/verbum-comments/class-verbum-comments.php:228
+msgid "Continue reading"
+msgstr "Okumaya devam et"
+
+#: src/features/verbum-comments/class-verbum-comments.php:227
+msgid "Subscribe now to keep reading and get access to the full archive."
+msgstr "Okumaya devam etmek ve tüm arşive erişim kazanmak için hemen abone olun."
+
+#. translators: %s is the name of the site
+#: src/features/verbum-comments/class-verbum-comments.php:226
+msgid "Discover more from %s"
+msgstr "%s sitesinden daha fazla şey keşfedin"
+
+#: src/features/verbum-comments/class-verbum-comments.php:224
+msgid "Loading your comment..."
+msgstr "Yorumunuz yükleniyor..."
+
+#. translators: Success message of a modal when user subscribes
+#: src/features/verbum-comments/class-verbum-comments.php:223
+msgid "We'll keep you in the loop!"
+msgstr "Sizi gelişmelerden haberdar edeceğiz!"
+
+#: src/features/verbum-comments/class-verbum-comments.php:221
+msgid "Optional"
+msgstr "İsteğe bağlı"
+
+#: src/features/verbum-comments/class-verbum-comments.php:220
+msgid "Website"
+msgstr "Web sitesi"
+
+#: src/features/verbum-comments/class-verbum-comments.php:219
+msgid "Write a reply..."
+msgstr "Cevap yazın…"
+
+#: src/features/verbum-comments/class-verbum-comments.php:217
+msgid "Cancel"
+msgstr "İptal Et"
+
+#: src/features/verbum-comments/class-verbum-comments.php:216
+msgid "Email me new comments"
+msgstr "Yeni yorumları bana e-postayla gönder"
+
+#: src/features/verbum-comments/class-verbum-comments.php:215
+msgid "Email me new posts"
+msgstr "Yeni yazıları bana e-postayla gönder"
+
+#: src/features/verbum-comments/class-verbum-comments.php:214
+msgid "Notify me of new posts"
+msgstr "Beni yeni yazılardan haberdar et"
+
+#: src/features/verbum-comments/class-verbum-comments.php:213
+msgid "Weekly"
+msgstr "Haftalık"
+
+#: src/features/verbum-comments/class-verbum-comments.php:212
+msgid "WordPress"
+msgstr "WordPress"
+
+#: src/features/verbum-comments/class-verbum-comments.php:211
+msgid "Comment"
+msgstr "Yorum Ekle"
+
+#: src/features/verbum-comments/class-verbum-comments.php:210
+msgid "Reply"
+msgstr "Cevapla"
+
+#: src/features/verbum-comments/class-verbum-comments.php:209
+msgid "Daily"
+msgstr "Günlük"
+
+#: src/features/verbum-comments/class-verbum-comments.php:208
+msgid "Instantly"
+msgstr "Anında"
+
+#: src/features/verbum-comments/class-verbum-comments.php:207
+msgid "(Address never made public)"
+msgstr "(Adres hiçbir zaman paylaşılmaz)"
+
+#: src/features/verbum-comments/class-verbum-comments.php:206
+msgid "Email"
+msgstr "E-posta"
+
+#: src/features/verbum-comments/class-verbum-comments.php:205
+msgid "Log out"
+msgstr "Oturumu kapat"
+
+#. translators: %s is the name of the provider (WordPress, Facebook, Twitter)
+#: src/features/verbum-comments/class-verbum-comments.php:204
+msgid "Logged in via %s"
+msgstr "%s üzerinden oturum açıldı"
+
+#: src/features/verbum-comments/class-verbum-comments.php:202
+msgid "Log in to leave a comment."
+msgstr "Yorum yapmak için oturum açın."
+
+#: src/features/verbum-comments/class-verbum-comments.php:201
+msgid "Log in to leave a reply."
+msgstr "Cevap yazmak için oturum açın."
+
+#: src/features/verbum-comments/class-verbum-comments.php:200
+msgid "Leave a comment. (log in optional)"
+msgstr "Bir yorum ekleyin. (oturum açma isteğe bağlı)"
+
+#: src/features/verbum-comments/class-verbum-comments.php:199
+msgid "Leave a reply. (log in optional)"
+msgstr "Bir yanıt bırakın. (oturum açma isteğe bağlı)"
+
+#: src/features/verbum-comments/class-verbum-comments.php:198
+msgid "Website (optional)"
+msgstr "Web Sitesi (isteğe bağlı)"
+
+#: src/features/verbum-comments/class-verbum-comments.php:197
+msgid "Email (address never made public)"
+msgstr "E-posta (adres hiçbir zaman paylaşılmaz)"
+
+#: src/features/verbum-comments/class-verbum-comments.php:196
+msgid "Name"
+msgstr "Ad"
+
+#: src/features/verbum-comments/class-verbum-comments.php:195
+msgid "Receive web and mobile notifications for posts on this site."
+msgstr "Bu sitedeki blog gönderileri için web bildirimleri ve mobil bildirimler alın."
+
+#: src/features/verbum-comments/class-verbum-comments.php:194
+msgid "Log in or provide your name and email to leave a comment."
+msgstr "Bir yorum eklemek için oturum açın veya adınız ve e-postanızı girin."
+
+#: src/features/verbum-comments/class-verbum-comments.php:193
+msgid "Log in or provide your name and email to leave a reply."
+msgstr "Bir yanıt bırakmak için oturum açın veya adınız ve e-postanızı girin."
+
+#: src/features/verbum-comments/assets/class-verbum-gutenberg-editor.php:30
+#: src/features/verbum-comments/class-verbum-comments.php:218
+msgid "Write a comment..."
+msgstr "Yorum yapın..."
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:230
+msgid "A few catchy words to motivate your readers to comment"
+msgstr "Akılda kalıcı birkaç sözcükle okurlarınızı yorum yapmaya teşvik edin"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:192
+msgid "Enable blocks in comments"
+msgstr "Yorumlarda blokları etkinleştir"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:181
+msgid "Let visitors use a WordPress.com or Facebook account to comment"
+msgstr "Ziyaretçilerin yorum yapmak için WordPress.com veya Facebook hesaplarını kullanmalarına izin verin"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:170
+msgid "Adjust your Comments form with a clever greeting and color-scheme."
+msgstr "Yorumlar formunuz için şık bir karşılama ve renk düzeni ayarlayın."
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:149
+#: src/features/verbum-comments/assets/class-verbum-admin.php:262
+msgid "Color Scheme"
+msgstr "Renk Şeması"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:132
+msgid "Greeting Text"
+msgstr "Karşılama Metni"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:116
+msgid "Allow Blocks"
+msgstr "Bloklara İzin Ver"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:103
+msgid "Verbum"
+msgstr "Verbum"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:96
+msgid "Comments"
+msgstr "Yorumlar"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:82
+msgid "Transparent"
+msgstr "Şeffaf"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:81
+msgid "Dark"
+msgstr "Koyu Renk"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:80
+msgid "Light"
+msgstr "Açık Renk"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:73
+msgid "Leave a Reply"
+msgstr "Bir Cevap Yazın"
+
+#: src/features/tags-education/tags-education.php:28
+msgid "Build your audience with tags"
+msgstr "Etiketlerle hedef kitlenizi oluşturun"
+
+#: src/features/starter-page-templates/class-wp-rest-sideload-image-controller.php:77
+msgid "Invalid parent type."
+msgstr "Geçersiz üst tür."
+
+#: src/features/starter-page-templates/class-starter-page-templates.php:243
+msgid "Current"
+msgstr "Geçerli"
+
+#: src/features/starter-page-templates/class-starter-page-templates.php:238
+msgid "Blank"
+msgstr "Boş"
+
+#: src/features/starter-page-templates/class-starter-page-templates.php:228
+msgid "No templates available. Skipped showing modal window with template selection."
+msgstr "Şablon yok. Şablon seçimiyle kalıcı pencere gösterimi atlandı."
+
+#: src/features/replace-site-visibility/replace-site-visibility.php:37
+msgid "Manage your privacy settings"
+msgstr "Gizlilik ayarlarınızı yönetin"
+
+#: src/features/replace-site-visibility/replace-site-visibility.php:32
+msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
+msgstr "Jetpack bağlantısı kesildi ve site özel. Site görünürlük ayarlarını yönetmek için Jetpack'i yeniden bağlayın."
+
+#: src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:57
+msgid "Add a post title"
+msgstr "Bir yazı başlığı ekle"
+
+#: src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:35
+#: src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:72
+msgid "Start writing or type '/' to insert a block"
+msgstr "Bir blok eklemek için yazmaya başlayın ya da '/' yazın."
+
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1459
+msgid " per "
+msgstr " / "
+
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1456
+msgid " once"
+msgstr " bir kez"
+
+#. Translators: %s is the %s is the frequency.
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1430
+msgid "per %s"
+msgstr "%s başına"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1290
+msgid "Scheduled"
+msgstr "Zamanlandı"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1289
+msgid "Draft"
+msgstr "Taslak"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1256
+msgid "Jetpack donations is disabled in favour of Newspack donations."
+msgstr "Jetpack bağışları, Newspack bağışları için devre dışı bırakıldı."
+
+#. translators: separates all but the last two sponsor names; needs a space at
+#. the end.
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:955
+msgid ", "
+msgstr ", "
+
+#. translators: separates last two sponsor names; needs a space on either side.
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:952
+msgid " and "
+msgstr " ve "
+
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:851
+msgid "Common"
+msgstr "Genel"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:495
+msgctxt "post author"
+msgid " and "
+msgstr " ve "
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:478
+msgctxt "post author"
+msgid "by"
+msgstr "yazan:"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:404
+msgid "Something went wrong. Please refresh the page and/or try again."
+msgstr "Bir yanlışlık oldu. Lütfen sayfayı yenileyin ve/veya tekrar deneyin."
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:397
+msgid "Load more posts"
+msgstr "Daha fazla gönderi yükle"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:288
+msgid "Play Slideshow"
+msgstr "Slayt Gösterisini Oynat"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:287
+msgid "Pause Slideshow"
+msgstr "Slayt Gösterisini Duraklat"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:243
+msgid "Next Slide"
+msgstr "Sonraki Slayt"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:242
+msgid "Previous Slide"
+msgstr "Önceki Slayt"
+
+#. translators: %d: Slide number.
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:221
+msgid "Go to slide %d"
+msgstr "%d numaralı slayta git"
+
+#: src/features/mailerlite/subscriber-popup.php:120
+msgid "UUID:"
+msgstr "UUID:"
+
+#: src/features/mailerlite/subscriber-popup.php:117
+msgid "Account ID <a href=\"%s\" target=\"_blank\">(instructions)</a>:"
+msgstr "Hesap kimliği <a href=\"%s\" target=\"_blank\">(talimatlar)</a>:"
+
+#. translators: %1$s - URL to manage the widget, %2$s - documentation URL.
+#: src/features/mailerlite/subscriber-popup.php:48
+msgid "You need to enter your numeric account ID and UUID for the <a href=\"%1$s\">Mailerlite Widget</a> to work correctly. <a href=\"%2$s\" target=\"_blank\">Full instructions</a>."
+msgstr "<a href=\"%1$s\">Mailerlite Pencere Öğesi</a>’nin doğru çalışması için sayısal hesap kimliğinizi ve UUID’nizi girmeniz gerekiyor. <a href=\"%2$s\" target=\"_blank\">Yönergelerin tümü</a>."
+
+#: src/features/mailerlite/subscriber-popup.php:26
+msgid "Display Mailerlite subscriber popup"
+msgstr "Mailerlite abone açılır penceresini göster"
+
+#: src/features/mailerlite/subscriber-popup.php:23
+msgid "Mailerlite subscriber popup"
+msgstr "Mailerlite abone açılır penceresi"
+
+#: src/features/launchpad/launchpad.php:320
+msgid "Site migration"
+msgstr "Site taşıma"
+
+#: src/features/launchpad/launchpad.php:292
+msgid "Site setup"
+msgstr "Site kurulumu"
+
+#: src/features/launchpad/launchpad.php:36
+#: src/features/launchpad/launchpad.php:50
+#: src/features/launchpad/launchpad.php:65
+#: src/features/launchpad/launchpad.php:78
+#: src/features/launchpad/launchpad.php:91
+#: src/features/launchpad/launchpad.php:107
+#: src/features/launchpad/launchpad.php:119
+#: src/features/launchpad/launchpad.php:132
+#: src/features/launchpad/launchpad.php:145
+#: src/features/launchpad/launchpad.php:159
+#: src/features/launchpad/launchpad.php:176
+#: src/features/launchpad/launchpad.php:190
+#: src/features/launchpad/launchpad.php:204
+#: src/features/launchpad/launchpad.php:245
+#: src/features/launchpad/launchpad.php:261
+#: src/features/launchpad/launchpad.php:277
+msgid "Next steps for your site"
+msgstr "Siteniz için sıradaki adımlar"
+
+#: src/features/launchpad/launchpad-task-definitions.php:1772
+msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
+msgstr "Siteniz premium stiller içeriyor. Bunları yayımlamak ve bir sürü başka özelliğin kilidini açmak için şimdi yükseltin."
+
+#: src/features/launchpad/launchpad-task-definitions.php:1438
+#: src/features/launchpad/launchpad-task-definitions.php:1449
+#: src/features/launchpad/launchpad-task-definitions.php:1503
+#: src/features/launchpad/launchpad-task-definitions.php:1514
+#: src/features/launchpad/launchpad-task-definitions.php:1522
+msgid "Unable to fetch the requested data."
+msgstr "İstenen veriler alınamıyor."
+
+#: src/features/launchpad/launchpad-task-definitions.php:1217
+#: src/features/launchpad/launchpad-task-definitions.php:1788
+msgid "Upgrade plan"
+msgstr "Paketi yükselt"
+
+#: src/features/launchpad/launchpad-task-definitions.php:857
+msgid "Provision SSL certificate"
+msgstr "SSL sertifikasını sağlayın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:850
+msgid "Update your domain's DNS"
+msgstr "Alan adınızın DNS'ini güncelleyin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:835
+msgid "Connect your domain"
+msgstr "Alan adınızı bağlayın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:822
+msgid "Review the migrated plugins"
+msgstr "Taşınan eklentileri inceleyin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:815
+msgid "Review the site's content"
+msgstr "Sitenin içeriğini inceleyin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:807
+msgid "Migrating the site"
+msgstr "Siteyi taşıma"
+
+#: src/features/launchpad/launchpad-task-definitions.php:797
+msgid "Launch your store"
+msgstr "Mağazanızı yayınlayın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:787
+msgid "Add a domain"
+msgstr "Alan adı ekleyin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:777
+msgid "Grow your business"
+msgstr "İşletmenizi büyütün"
+
+#: src/features/launchpad/launchpad-task-definitions.php:767
+msgid "Collect sales tax"
+msgstr "Satış vergisi alın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:757
+msgid "Get paid with WooPayments"
+msgstr "WooPayments ile ödeme alın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:747
+msgid "Add your products"
+msgstr "Ürünlerinizi ekleyin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:737
+msgid "Customize your store"
+msgstr "Mağazanızı özelleştirin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:725
+msgid "Verify the email address for your domains"
+msgstr "Alan adlarınızın e-posta adresini doğrulayın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:715
+msgid "Finish Sensei setup"
+msgstr "Sensei kurulumunu tamamlayın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:705
+msgid "Finish store setup"
+msgstr "Mağaza kurulumunu tamamlayın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:688
+msgid "Update your site's design"
+msgstr "Sitenizin tasarımını güncelleyin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:679
+msgid "Enable post sharing"
+msgstr "Gönderi paylaşımını etkinleştirin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:670
+msgid "Install the mobile app"
+msgstr "Mobil uygulamayı yükleyin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:660
+msgid "Add the Subscribe Block to your site"
+msgstr "Sitenize Abonelik Bloku ekleyin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:649
+msgid "Import existing subscribers"
+msgstr "Mevcut abonelerinizi içeri aktarın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:640
+msgid "View site metrics"
+msgstr "Site ölçümlerini görüntüleyin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:631
+msgid "Set up ssh"
+msgstr "SSH ayarlayın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:619
+msgid "Install a custom plugin"
+msgstr "Özel bir eklenti yükleyin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:607
+msgid "Choose a theme"
+msgstr "Bir tema seçin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:595
+msgid "Set up an offer for your supporters"
+msgstr "Destekleyicileriniz için bir teklif oluşturun"
+
+#: src/features/launchpad/launchpad-task-definitions.php:578
+msgid "Connect a Stripe account to collect payments"
+msgstr "Ödeme almak için bir Stripe hesabı bağlayın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:563
+msgid "Add your About page"
+msgstr "Hakkında sayfanızı ekleyin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:553
+msgid "Manage your paid Newsletter plan"
+msgstr "Ücretli Haber Bülteni paketinizi yönetin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:545
+msgid "Connect your social media accounts"
+msgstr "Sosyal medya hesaplarınızı bağlayın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:534
+msgid "Manage your subscribers"
+msgstr "Abonelerinizi yönetme"
+
+#: src/features/launchpad/launchpad-task-definitions.php:521
+msgid "Write 3 posts"
+msgstr "3 blog gönderisi yazın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:509
+msgid "Get your first 10 subscribers"
+msgstr "İlk 10 abonenizi elde edin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:497
+msgid "Enable subscribers modal"
+msgstr "Aboneler kipini etkinleştirin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:485
+msgid "Customize welcome message"
+msgstr "Karşılama mesajını özelleştirin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:475
+msgid "Earn money with your newsletter"
+msgstr "Haber bülteninizle para kazanın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:467
+msgid "Share your site"
+msgstr "Sitenizi paylaşın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:452
+msgid "Customize your domain"
+msgstr "Alan adınızı özelleştirin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:437
+msgid "Edit a page"
+msgstr "Sayfa düzenleyin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:418
+msgid "Update your About page"
+msgstr "Hakkında sayfanızı güncelleyin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:405
+msgid "Add a new page"
+msgstr "Yeni sayfa ekleyin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:395
+msgid "Drive traffic to your site"
+msgstr "Sitenize daha fazla ziyaretçi yönlendirin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:372
+msgid "Set up your site"
+msgstr "Sitenizi kurun"
+
+#: src/features/launchpad/launchpad-task-definitions.php:358
+msgid "Personalize your site"
+msgstr "Sitenizi kişiselleştirin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:346
+msgid "Name your blog"
+msgstr "Blogunuzu adlandırın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:338
+msgid "Launch your blog"
+msgstr "Blogunuzu açın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:317
+msgid "Upload your first video"
+msgstr "İlk videonuzu yükleyin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:310
+msgid "Set up your video site"
+msgstr "Video sitenizi kurun"
+
+#: src/features/launchpad/launchpad-task-definitions.php:303
+msgid "Launch site"
+msgstr "Siteyi başlatın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:291
+msgid "Personalize Link in Bio"
+msgstr "Bağlantı Profilini kişiselleştirin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:279
+msgid "Add links"
+msgstr "Bağlantı ekleyin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:256
+msgid "Migrate content"
+msgstr "İçerik taşıyın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:246
+msgid "Add subscribers"
+msgstr "Abone ekleyin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:229
+msgid "Set up payment method"
+msgstr "Ödeme yöntemini ayarlayın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:217
+msgid "Personalize newsletter"
+msgstr "Haber bültenini kişiselleştirin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:207
+msgid "Create paid Newsletter"
+msgstr "Ücretli Haber Bülteni oluşturun"
+
+#: src/features/launchpad/launchpad-task-definitions.php:193
+msgid "Start writing"
+msgstr "Yazmaya başlayın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:180
+msgid "Verify email address"
+msgstr "E-posta adresinizi doğrulayın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:172
+#: src/features/launchpad/launchpad-task-definitions.php:271
+msgid "Launch your site"
+msgstr "Sitenizi yayınlayın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:159
+#: src/features/launchpad/launchpad-task-definitions.php:381
+msgid "Give your site a name"
+msgstr "Sitenize bir isim verin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:136
+#: src/features/launchpad/launchpad-task-definitions.php:148
+msgid "Choose a plan"
+msgstr "Bir paket seçin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:127
+msgid "Customize content with AI"
+msgstr "Yapay zeka ile içerikleri özelleştirin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:95
+msgid "Continue to write your first post"
+msgstr "İlk gönderinizi yazmaya devam edin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:94
+msgid "Write your first post"
+msgstr "İlk yazınızı yazın"
+
+#: src/features/launchpad/launchpad-task-definitions.php:77
+msgid "Choose a domain"
+msgstr "Bir alan adı seçin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:66
+msgid "Claim your free one-year domain"
+msgstr "Ücretsiz bir yıllık alan adınızı talep edin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:46
+#: src/features/launchpad/launchpad-task-definitions.php:56
+msgid "Select a design"
+msgstr "Bir tasarım seçin"
+
+#: src/features/launchpad/launchpad-task-definitions.php:33
+msgid "Edit site design"
+msgstr "Site tasarımını düzenleyin"
+
+#: src/features/jetpack-global-styles/class-global-styles.php:274
+msgid "Fonts"
+msgstr "Yazı Tipleri"
+
+#. Translators: This is a link which opens the block editor, and then opens the
+#. global styles sidebar.
+#: src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:63
+msgid "Click here to open the Block Editor and change your fonts."
+msgstr "Blok Düzenleyiciyi açmak ve yazı tiplerinizi değiştirmek için buraya tıklayın."
+
+#. Translators: This is a link which opens:
+#. https://wordpress.com/support/custom-fonts/#changing-fonts-with-global-styles.
+#: src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:40
+msgid "Learn more about changing fonts using Global Styles."
+msgstr "Genel Stiller'i kullanarak yazı tiplerini değiştirme ile ilgili daha fazla bilgi edinin."
+
+#: src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:27
+msgid "You can change your fonts using Global Styles, which can be found in the Block Editor."
+msgstr "Blok Düzenleyici'de bulunan Genel Stiller'i kullanarak yazı tiplerinizi değiştirebilirsiniz."
+
+#: src/features/import-customizations/import-customizations.php:39
+msgid "Get started"
+msgstr "Başla"
+
+#: src/features/import-customizations/import-customizations.php:37
+msgid "Use WordPress.com’s guided importer to import posts and comments from Medium, Substack, Squarespace, Wix, and more."
+msgstr "Medium, Substack, Squarespace, Wix ve daha fazlasından gönderileri ve yorumları içe aktarmak için WordPress.com'un kılavuzlu içe aktarıcısını kullanın."
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:178
+msgid "Whether to mark this as a test chat (a11n-only)."
+msgstr "Bunun test sohbet olarak işaretlenip işaretlenmeyeceği (yalnızca a11n)."
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:144
+msgid "The feedback rating value."
+msgstr "Geri bildirim derecelendirme değeri."
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:139
+msgid "The message id for the existing message."
+msgstr "Mevcut mesajın mesaj kimliği."
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:91
+#: src/features/help-center/class-wp-rest-help-center-odie.php:168
+msgid "The context to continue the chat with."
+msgstr "Sohbete devam ederken kullanılacak bağlam."
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:85
+#: src/features/help-center/class-wp-rest-help-center-odie.php:173
+msgid "The message to add to the chat"
+msgstr "Sohbete eklenecek mesaj"
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:80
+#: src/features/help-center/class-wp-rest-help-center-odie.php:134
+msgid "The chat id for the existing chat."
+msgstr "Mevcut sohbetin sohbet kimliği."
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:75
+#: src/features/help-center/class-wp-rest-help-center-odie.php:129
+#: src/features/help-center/class-wp-rest-help-center-odie.php:163
+msgid "The bot id to chat with."
+msgstr "Sohbet edilecek robotun kimliği."
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:64
+msgid "If true, include the feedback rating value for each message in the response."
+msgstr "Doğruysa yanıttaki her mesaj için geri bildirim derecelendirme değerini ekleyin."
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:56
+msgid "The number of items per page."
+msgstr "Sayfa başına öğe sayısı."
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:50
+msgid "The number of the page to retrieve, limited to 100"
+msgstr "Alınacak sayfa sayısı, 100 ile sınırlıdır"
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:45
+msgid "The chat id to get the chat for."
+msgstr "Sohbet için alınacak sohbet kimliği."
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:40
+msgid "The bot id to get the chat for."
+msgstr "Sohbet için alınacak robot kimliği."
+
+#: src/features/help-center/class-help-center.php:98
+msgid "Help"
+msgstr "Yardım"
+
+#: src/features/custom-css/custom-css.php:1203
+msgid "Switch"
+msgstr "Değiştir"
+
+#. translators: how long ago the stylesheet was modified.
+#: src/features/custom-css/custom-css.php:1184
+#: src/features/custom-css/custom-css.php:1196
+msgid "(modified %s ago)"
+msgstr "(%s önce değiştirildi)"
+
+#: src/features/custom-css/custom-css.php:1174
+msgid "Select a theme&hellip;"
+msgstr "Bir tema seçin…"
+
+#: src/features/custom-css/custom-css.php:1172
+msgid "Select another theme to view its custom CSS."
+msgstr "Özel CSS düzenlemesini görüntülemek için başka bir tema seçin."
+
+#: src/features/custom-css/custom-css.php:792
+msgid "None"
+msgstr "Hiçbiri"
+
+#: src/features/custom-css/custom-css.php:771
+msgid "Don't use the theme's original CSS."
+msgstr "Temanın orijinal CSS'sini kullanmayın."
+
+#: src/features/custom-css/custom-css.php:761
+msgid "Media Width"
+msgstr "Ortam Genişliği"
+
+#: src/features/custom-css/custom-css.php:358
+msgctxt "Toolbar button to get help with custom CSS"
+msgid "Help"
+msgstr "Yardım"
+
+#: src/features/custom-css/custom-css.php:357
+msgctxt "Toolbar button to see full CSS revision history"
+msgid "See full history"
+msgstr "Tüm geçmişi görün"
+
+#: src/features/custom-css/custom-css.php:355
+msgid "On Mobile"
+msgstr "Mobilde"
+
+#: src/features/custom-css/custom-css.php:354
+msgid "Start Fresh"
+msgstr "Baştan Başlayın"
+
+#. translators: the theme name and then the default width.
+#: src/features/custom-css/custom-css.php:337
+msgid " The default media width for the <strong>%1$s</strong> theme is %2$d pixel."
+msgid_plural " The default media width for the <strong>%1$s</strong> theme is %2$d pixels."
+msgstr[0] " <strong>%1$s</strong> teması için varsayılan ortam genişliği %2$d pikseldir."
+msgstr[1] " <strong>%1$s</strong> teması için varsayılan ortam genişliği %2$d pikseldir."
+
+#: src/features/custom-css/custom-css.php:333
+msgid "Set a different media width for full size images."
+msgstr "Tam boyutlu görüntüler için farklı bir ortam genişliği ayarlayın."
+
+#: src/features/custom-css/custom-css.php:240
+msgid "Custom CSS is now managed in the Customizer."
+msgstr "Özel CSS şimdi Özelleştiricide yönetiliyor."
+
+#: src/features/custom-css/custom-css.php:235
+msgid "Manage with Live Preview"
+msgstr "Canlı Önizleme ile Yönetin"
+
+#: src/features/custom-css/custom-css.php:229
+msgid "Custom CSS"
+msgstr "Özel CSS"
+
+#: src/features/custom-css/custom-css.php:130
+#: src/features/custom-css/custom-css.php:246
+#: src/features/custom-css/custom-css.php:804
+msgid "Preprocessor"
+msgstr "Ön işlemci"
+
+#: src/features/custom-css/custom-css.php:129
+#: src/features/custom-css/custom-css.php:243
+msgid "CSS"
+msgstr "CSS"
+
+#: src/features/coming-soon/fallback-coming-soon-page.php:294
+msgid "Start your website"
+msgstr "Sitenizi kurmaya başlayın"
+
+#: src/features/coming-soon/fallback-coming-soon-page.php:293
+msgid "Log in"
+msgstr "Oturum aç"
+
+#: src/features/coming-soon/fallback-coming-soon-page.php:290
+msgid "Build a website. Sell your stuff. Write a blog. And so much more."
+msgstr "Bir web sitesi oluşturun. Ürünlerinizi satın. Blog yazın. Daha bir çok şey yapın."
+
+#: src/features/coming-soon/fallback-coming-soon-page.php:273
+msgid "Coming Soon"
+msgstr "Çok Yakında"
+
+#: src/features/100-year-plan/locked-mode.php:120
+msgid "Prevents new post and page from being created as well as existing posts and pages from being edited, and closes comments site wide."
+msgstr "Yeni gönderi ve sayfanın oluşturulmasını ve mevcut gönderiler ile sayfaların düzenlenmesini önleyip yorumları site çapında kapatır."
+
+#: src/features/100-year-plan/locked-mode.php:119
+msgid "Enable Locked Mode"
+msgstr "Kilitli Modu Etkinleştir"
+
+#: src/features/100-year-plan/locked-mode.php:102
+msgid "Locked Mode"
+msgstr "Kilitli Mod"
+
+#. translators: link to the help page: https://wordpress.com/help
+#: src/features/100-year-plan/enhanced-ownership.php:102
+msgid "To take ownership of the site, we ask that the person you designate contacts us at %s with a copy of the death certificate."
+msgstr "Siteyi sahiplenmek için belirlediğiniz kişinin ölüm belgesinin bir kopyasıyla şuradan bizimle iletişime geçmesi gerekir: %s."
+
+#: src/features/100-year-plan/enhanced-ownership.php:97
+msgid "Choose someone to look after your site when you pass away."
+msgstr "Sizden sonra sitenizle ilgilenecek kişiyi belirleyin."
+
+#: src/features/100-year-plan/enhanced-ownership.php:80
+msgid "Legacy Contact"
+msgstr "Eski İletişim Kişisi"
+
+#: src/features/100-year-plan/enhanced-ownership.php:73
+#: src/features/100-year-plan/locked-mode.php:95
+msgid "Enhanced Ownership"
+msgstr "Gelişmiş Sahiplik"

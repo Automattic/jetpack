@@ -10,6 +10,9 @@
 	"scripts": {
 		"test-js": [
 			"pnpm run test"
+		],
+		"test-coverage": [
+			"pnpm run test-coverage"
 		]
 	},
 	"repositories": [
@@ -31,7 +34,7 @@
 			"link-template": "https://github.com/Automattic/i18n-check-webpack-plugin/compare/v${old}...v${new}"
 		},
 		"dependencies": {
-			"test": [
+			"test-only": [
 				"js-packages/webpack-config"
 			]
 		}

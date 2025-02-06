@@ -2,9 +2,9 @@
 Contributors: automattic, annezazu, apokalyptik, bjorsch, briancolinger, dsmart, georgestephanis, initsogar, jeherve, josephscott, miguelxavierpenha, rachelsquirrel, rdcoll, sdixon194, shaunandrews, thingalon, viper007bond, williamvianas, xknown
 Tags: security, malware, virus, archive, back up, back ups, backup, backups, scanning, restore, wordpress backup, site backup, website backup
 Requires at least: 5.2
-Tested up to: 6.4
-Stable tag: 2.2.4
-Requires PHP: 5.6
+Tested up to: 6.7
+Stable tag: 3.0.0
+Requires PHP: 7.2
 License: GPLv2
 
 (DEPRECATED: Please install "Jetpack VaultPress Backup" instead) Jetpack VaultPress offers real-time backups, one-click restores, and premium support from WordPress experts.
@@ -32,10 +32,24 @@ View our full list of FAQs at [http://help.vaultpress.com/faq/](http://help.vaul
 A Jetpack VaultPress subscription is for a single WordPress site.
 
 == Changelog ==
-### 2.2.4 - 2023-07-06
+### 4.0.0 - 2025-01-10
+#### Added
+- Enable test coverage.
+- Hook into red bubble notification when bad installation is detected.
+
 #### Changed
-- General: indicate full compatibility with the latest version of WordPress, 6.2.
+- General: Indicate compatibility with the upcoming version of WordPress - 6.6.
+- General: Indicate compatibility with the upcoming version of WordPress - 6.7.
+- General: Use wp_admin_notice function introduced in WP 6.4 to display notices.
+- Only show installation errors on plugins page.
 - Updated package dependencies.
+
+#### Removed
+- Cleaned up legacy code.
+- General: Update minimum PHP version to 7.2.
+
+#### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes).
 
 --------
 

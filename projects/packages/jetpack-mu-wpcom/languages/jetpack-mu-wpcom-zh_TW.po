@@ -1,0 +1,1598 @@
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2025-01-11 02:03:17+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: GlotPress/2.4.0-alpha\n"
+"Language: zh_TW\n"
+"Project-Id-Version: WordPress.com - jetpack-mu-wpcom\n"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:286
+msgid "Got it!"
+msgstr "知道了！"
+
+#: src/features/post-categories/quick-actions.php:78
+msgid "Default category changed successfully."
+msgstr "已成功變更預設分類。"
+
+#: src/features/post-categories/quick-actions.php:36
+msgid "Set as default"
+msgstr "設為預設"
+
+#. translators: category name
+#: src/features/post-categories/quick-actions.php:35
+msgid "Set &#8220;%s&#8221; as the default category"
+msgstr "將「%s」設為預設分類"
+
+#: src/features/pages/quick-actions.php:169
+msgid "Posts page changed successfully."
+msgstr ""
+
+#: src/features/pages/quick-actions.php:143
+msgid "Homepage changed successfully."
+msgstr ""
+
+#: src/features/pages/quick-actions.php:57
+msgid "Set as posts page"
+msgstr ""
+
+#: src/features/pages/quick-actions.php:57
+msgid "Unset as posts page"
+msgstr ""
+
+#. translators: page title
+#: src/features/pages/quick-actions.php:56
+msgid "Set &#8220;%s&#8221; as the page that displays your latest posts"
+msgstr ""
+
+#. translators: page title
+#: src/features/pages/quick-actions.php:56
+msgid "Unset &#8220;%s&#8221; as the page that displays your latest posts"
+msgstr ""
+
+#: src/features/pages/quick-actions.php:48
+msgid "Set as homepage"
+msgstr ""
+
+#. translators: page title
+#: src/features/pages/quick-actions.php:47
+msgid "Set &#8220;%s&#8221; as your site's homepage"
+msgstr ""
+
+#: src/features/holiday-snow/class-holiday-snow.php:226
+msgid "Show falling snow on my site until January 4<sup>th</sup>."
+msgstr "在我的網誌顯示下雪效果，直到 1 月 4 日為止。<sup></sup>"
+
+#: src/features/holiday-snow/class-holiday-snow.php:205
+msgid "Snow"
+msgstr "雪"
+
+#: src/features/holiday-snow/class-holiday-snow.php:194
+msgid "Show falling snow on my site"
+msgstr "在我的網站顯示下雪效果"
+
+#: src/features/wpcom-blocks/timeline/block.json
+msgctxt "block keyword"
+msgid "timeline"
+msgstr "時間表"
+
+#: src/features/wpcom-blocks/timeline/block.json
+msgctxt "block keyword"
+msgid "event"
+msgstr "活動"
+
+#: src/features/wpcom-blocks/timeline/block.json
+msgctxt "block description"
+msgid "Create a timeline of events."
+msgstr "建立活動的時間表。"
+
+#: src/features/wpcom-blocks/timeline/block.json
+msgctxt "block title"
+msgid "Timeline"
+msgstr "時間表"
+
+#: src/features/wpcom-blocks/event-countdown/block.json
+msgctxt "block keyword"
+msgid "countdown"
+msgstr "倒數計時"
+
+#: src/features/wpcom-blocks/event-countdown/block.json
+msgctxt "block keyword"
+msgid "events"
+msgstr "活動"
+
+#: src/features/wpcom-blocks/event-countdown/block.json
+msgctxt "block description"
+msgid "Count down to your favorite next thing, and celebrate with fireworks when the time is right!"
+msgstr "倒數迎接你喜愛的下一個活動，抓準時機大肆慶祝！"
+
+#: src/features/wpcom-blocks/event-countdown/block.json
+msgctxt "block title"
+msgid "Event Countdown"
+msgstr "活動倒數計時"
+
+#: src/features/wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:96
+msgid "Continue and launch"
+msgstr "繼續並啟動"
+
+#: src/features/wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:89
+msgid "Keep editing"
+msgstr "繼續編輯"
+
+#: src/features/wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:82
+msgid "Feel free to keep editing your homepage, or continue and launch your site."
+msgstr "歡迎繼續編輯首頁，或繼續下一步並啟動網站。"
+
+#: src/features/wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:81
+msgid "You’ve added your first video!"
+msgstr "你新增了第一個影片！"
+
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:122
+msgid "View your product"
+msgstr "檢視商品"
+
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:120
+msgid "Continue editing"
+msgstr "繼續編輯"
+
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:113
+msgid "Preview your product on your site before launching and sharing with others."
+msgstr "先在網站預覽商品，再推出並與他人分享。"
+
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:112
+msgid "You've added your first product!"
+msgstr "你新增了第一個商品！"
+
+#: src/features/wpcom-block-editor-nux/src/purchase-notice/index.jsx:23
+msgid "Congrats! Premium blocks are now available to use."
+msgstr "恭喜！ 進階版區塊已可使用。"
+
+#: src/features/block-theme-previews/modal.jsx:59
+msgid "Start customizing"
+msgstr "開始自訂"
+
+#: src/features/block-theme-previews/modal.jsx:51
+msgid "Try customizing your theme styles to get your site looking just right."
+msgstr "嘗試自訂佈景主題樣式，讓網站看起來更對味。"
+
+#: src/features/block-theme-previews/modal.jsx:45
+msgid "Changes you make in the editor won’t be applied to your site until you activate the theme."
+msgstr "在你啟用佈景主題後，網站才會套用你在編輯器所做的變更。"
+
+#: src/features/block-theme-previews/modal.jsx:39
+msgid "You’re previewing %s"
+msgstr "你正在預覽「%s」"
+
+#: src/features/wpcom-themes/wpcom-themes.php:66
+#: src/features/wpcom-themes/wpcom-themes.php:67
+msgid "Theme Showcase"
+msgstr "佈景主題展示"
+
+#: src/features/wpcom-themes/wpcom-themes.php:42
+msgid "Explore themes"
+msgstr "探索佈景主題"
+
+#: src/features/wpcom-themes/wpcom-themes.php:40
+msgid "Dive deep into the world of WordPress.com themes. Discover the responsive and stunning designs waiting to bring your site to life."
+msgstr "深入了解 WordPress.com 佈景主題。 探索可自動調整版面的精美設計，讓網站更加活靈活現。"
+
+#: src/features/wpcom-themes/wpcom-themes.php:39
+msgid "Find the perfect theme for your site"
+msgstr "為你的網站找出最適合的佈景主題"
+
+#: src/features/wpcom-profile-settings/profile-settings-notices.php:28
+msgid "The Toolbar is always visible on Atomic sites while connected to the Automattic proxy."
+msgstr "工具列連結至 Automattic Proxy 時，就會在 Atomic 網站隨時可見。"
+
+#: src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:64
+msgid "Manage your WordPress.com password ↗"
+msgstr "管理你的 WordPress.com 密碼 ↗"
+
+#: src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:60
+msgid "Manage your WordPress.com account email ↗"
+msgstr "管理你的 WordPress.com 帳號電子郵件地址 ↗"
+
+#: src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:56
+msgid "Manage your WordPress.com profile bio ↗"
+msgstr "管理你的 WordPress.com 個人檔案簡介 ↗"
+
+#: src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:52
+msgid "Manage your WordPress.com profile website ↗"
+msgstr "管理你的 WordPress.com 個人檔案網站 ↗"
+
+#: src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:48
+msgid "Manage your WordPress.com profile ↗"
+msgstr "管理你的 WordPress.com 個人檔案 ↗"
+
+#: src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:44
+msgid "Manage your WordPress.com account language ↗"
+msgstr "管理你的 WordPress.com 帳號語言 ↗"
+
+#: src/features/wpcom-plugins/wpcom-plugins.php:53
+msgid "Explore plugins"
+msgstr "探索外掛程式"
+
+#: src/features/wpcom-plugins/wpcom-plugins.php:52
+msgid "Explore marketplace plugins"
+msgstr "探索市集外掛程式"
+
+#: src/features/wpcom-plugins/wpcom-plugins.php:49
+msgid "Access a variety of free and paid plugins that can enhance your site's functionality and features."
+msgstr "存取各式各樣的免費與付費外掛程式，強化網站的功能與特色。"
+
+#: src/features/wpcom-plugins/wpcom-plugins.php:48
+msgid "Discover a curated selection of free and premium plugins designed to enhance your site's functionality and features."
+msgstr "發掘並運用一系列精選的免費優質外掛程式，強化網站功能。"
+
+#: src/features/wpcom-plugins/wpcom-plugins.php:45
+msgid "Flex your site's features with plugins"
+msgstr "運用外掛程式展示你的網站功能"
+
+#: src/features/wpcom-plugins/wpcom-plugins.php:44
+msgid "Unlock more with premium and free plugins"
+msgstr "安裝免費的優質外掛程式，解鎖更多功能"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template.php:149
+msgid "Footer"
+msgstr "頁尾"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template.php:147
+msgid "Header"
+msgstr "頁首"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:552
+msgid "Back to template part types"
+msgstr "返回 [範本組件類型]"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:551
+msgid "No template part types found."
+msgstr "找不到符合條件的範本組件類型。"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:550
+msgid "Search Template Part Types"
+msgstr "搜尋範本組件類型"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:549
+msgid "Parent Template Part Type:"
+msgstr "上層範本組件類型:"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:548
+msgid "Parent Template Part Type"
+msgstr "上層範本組件類型"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:547
+msgid "New Template Part Type"
+msgstr "新增範本組件類型"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:546
+msgid "Add New Template Part Type"
+msgstr "新增範本組件類型"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:545
+msgid "Update Template Part Type"
+msgstr "更新範本組件類型"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:544
+msgid "View Template Part Type"
+msgstr "檢視範本組件類型"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:543
+msgid "Edit Template Part Type"
+msgstr "編輯範本組件類型"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:542
+msgid "All Template Part Types"
+msgstr "全部範本組件類型"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:541
+msgctxt "admin menu"
+msgid "Template Part Types"
+msgstr "範本組件類型"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:540
+msgctxt "taxonomy singular name"
+msgid "Template Part Type"
+msgstr "範本組件類型"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:539
+msgctxt "taxonomy general name"
+msgid "Template Part Types"
+msgstr "範本組件類型"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:504
+msgid "Template part updated."
+msgstr "範本組件已更新。"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:503
+msgid "Template part scheduled."
+msgstr "範本組件已排程。"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:502
+msgid "Template part reverted to draft."
+msgstr "範本組件已還原為草稿。"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:501
+msgid "Template part published privately."
+msgstr "範本組件已私密發佈。"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:500
+msgid "Template part published."
+msgstr "範本組件已發佈。"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:499
+msgid "Template parts list"
+msgstr "範本組件清單"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:498
+msgid "Template parts list navigation"
+msgstr "範本組件清單檢視"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:497
+msgid "Filter template parts list"
+msgstr "篩選範本組件清單"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:496
+msgid "No template parts found in Trash."
+msgstr "在回收桶中找不到符合條件的範本組件。"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:495
+msgid "No template parts found."
+msgstr "找不到符合條件的範本組件。"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:494
+msgid "Search Template Parts"
+msgstr "搜尋範本組件"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:493
+msgid "All Template Parts"
+msgstr "全部範本組件"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:492
+msgid "View Template Part"
+msgstr "檢視範本組件"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:491
+msgid "Edit Template Part"
+msgstr "編輯範本組件"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:490
+msgid "New Template Part"
+msgstr "新增範本組件"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:489
+msgid "Add New Template Part"
+msgstr "新增範本組件"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:488
+msgctxt "Template"
+msgid "Add New"
+msgstr "新增範本"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:487
+msgctxt "add new on admin bar"
+msgid "Template Part"
+msgstr "範本組件"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:486
+msgctxt "admin menu"
+msgid "Template Parts"
+msgstr "範本組件"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:485
+msgctxt "post type singular name"
+msgid "Template Part"
+msgstr "範本組件"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:484
+msgctxt "post type general name"
+msgid "Template Parts"
+msgstr "範本組件"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:447
+msgctxt "Default page title"
+msgid "Contact"
+msgstr "聯絡方式"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:435
+msgctxt "Default page title"
+msgid "About"
+msgstr "關於"
+
+#: src/features/wpcom-legacy-fse/blocks/navigation-menu/index.php:90
+msgid "collapsed"
+msgstr "已收合"
+
+#: src/features/wpcom-legacy-fse/blocks/navigation-menu/index.php:89
+msgid "expanded"
+msgstr "已展開"
+
+#: src/features/wpcom-legacy-fse/blocks/navigation-menu/index.php:86
+msgid "Menu"
+msgstr "選單"
+
+#: src/features/wpcom-global-styles/index.php:563
+msgid "Upgrade required"
+msgstr "需要升級"
+
+#: src/features/wpcom-global-styles/index.php:560
+msgid "Upgrade"
+msgstr "升級"
+
+#: src/features/wpcom-global-styles/index.php:552
+msgid "Preview premium styles"
+msgstr "預覽進階版樣式"
+
+#: src/features/wpcom-global-styles/index.php:547
+msgid "Remove premium styles"
+msgstr "移除進階版樣式"
+
+#: src/features/wpcom-global-styles/index.php:537
+msgid "Upgrade now"
+msgstr "立即升級"
+
+#. translators: %1$s - documentation URL, %2$s - the name of the required plan
+#: src/features/wpcom-global-styles/index.php:513
+msgid "Your site includes <a href=\"%1$s\" target=\"_blank\">premium styles</a> that are only visible to visitors after upgrading to the %2$s plan or higher."
+msgstr "你的網站包含<a href=\"%1$s\" target=\"_blank\">進階版樣式</a>，必須升級為 %2$s 方案或更高級的方案，才會向訪客顯示這些樣式。"
+
+#: src/features/wpcom-global-styles/api/class-global-styles-status-rest-api.php:53
+msgid "Your user is not permitted to access this resource."
+msgstr "你的使用者無法存取此資源。"
+
+#. translators: The name of the widget.
+#: src/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php:78
+msgid "Your %s widget requires JavaScript to function properly."
+msgstr "%s 小工具需要 JavaScript 才能正常運作。"
+
+#: src/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php:21
+msgid "Site Management Panel"
+msgstr "網站管理面板"
+
+#: src/features/wpcom-blocks/a8c-posts-list/templates/posts-list.php:30
+msgid "View all posts"
+msgstr "檢視全部文章"
+
+#: src/features/wpcom-blocks/a8c-posts-list/templates/post-item.php:36
+msgid "Edit"
+msgstr "編輯"
+
+#: src/features/wpcom-blocks/a8c-posts-list/templates/post-item.php:31
+msgctxt "designating the post author (eg: by John Doe"
+msgid "by"
+msgstr "作者:"
+
+#: src/features/wpcom-blocks/a8c-posts-list/templates/post-item.php:23
+msgid "Featured"
+msgstr "精選內容"
+
+#. translators: 1: link to WP admin new post page.
+#: src/features/wpcom-blocks/a8c-posts-list/templates/no-posts.php:17
+msgid "Ready to publish your first post? <a href=\"%1$s\">Get started here</a>."
+msgstr "準備發佈第一篇文章了嗎？請從<a href=\"%1$s\">這裡</a>開始。"
+
+#: src/features/wpcom-blocks/a8c-posts-list/templates/no-posts.php:11
+msgid "There are currently no posts to display."
+msgstr "目前沒有文章可供顯示。"
+
+#: src/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php:28
+msgid "Read more"
+msgstr "閱讀全文"
+
+#. translators: %s: Name of current post
+#: src/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php:25
+msgid "Continue reading %s"
+msgstr "閱讀全文 %s"
+
+#: src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:357
+msgid "Underline"
+msgstr "底線"
+
+#: src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:356
+msgid "Justify"
+msgstr "分散對齊"
+
+#: src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:200
+msgid "Logging In..."
+msgstr "正在登入…"
+
+#: src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:185
+msgid "Before we continue, please log in to your Jetpack site."
+msgstr "繼續操作前，請先登入你的 Jetpack 網站。"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:444
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:445
+msgid "Scheduled Updates"
+msgstr "已排程的更新"
+
+#. translators: Name of the Plugins submenu that links to the Plugins
+#. Marketplace
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:427
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:429
+msgid "Marketplace"
+msgstr "市集"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:409
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:410
+msgid "Add New Plugin"
+msgstr "新增新的外掛程式"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:396
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:397
+msgid "Plugins"
+msgstr "外掛程式"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:232
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:233
+msgid "Newsletter"
+msgstr "電子報"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:222
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:223
+msgid "Subscribers"
+msgstr "訂閱者"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:212
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:213
+msgid "Scan"
+msgstr "掃瞄"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:202
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:203
+msgid "Monetize"
+msgstr "獲取收益"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:193
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:194
+msgid "VaultPress"
+msgstr "VaultPress"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:184
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:185
+msgid "Activity Log"
+msgstr "活動記錄"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:131
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:132
+msgid "Site Settings"
+msgstr "網站設定"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:122
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:123
+msgid "Marketing"
+msgstr "行銷"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:113
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:114
+msgid "Purchases"
+msgstr "購買項目"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:104
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:105
+msgid "Emails"
+msgstr "電子郵件"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:95
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:96
+msgid "Domains"
+msgstr "網域"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:86
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:87
+msgid "Add-ons"
+msgstr "附加元件"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:77
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:78
+msgid "Plans"
+msgstr "方案"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:68
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:69
+msgid "Overview"
+msgstr "總覽"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:59
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:60
+msgid "My Home"
+msgstr "我的首頁"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:48
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:49
+msgid "Hosting"
+msgstr "主機服務"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:380
+msgid "Admin interface style changed."
+msgstr "管理介面樣式已變更。"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:343
+msgid "Click here to access your sites, domains, Reader, account settings, and more."
+msgstr "按一下此處，即可存取你的網站、網域、閱讀器、帳號設定等更多功能。"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:342
+msgid "All your sites"
+msgstr "你所有的網站"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:336
+msgid "Access the new site management panel and all developer tools such as hosting configuration, GitHub deployments, metrics, PHP logs, and server logs."
+msgstr "存取全新網站管理面板與所有開發人員工具，如主機服務設定、GitHub 部署、指標、PHP 記錄與伺服器記錄。"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:335
+msgid "Hosting overview"
+msgstr "主機服務總覽"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:329
+msgid "The Hosting menu contains the My Home page and all items from the Upgrades menu, including Plans, Domains, Emails, Purchases, and more."
+msgstr "此主機服務選單包含「我的首頁」頁面以及「升級」選單中的所有項目，包含方案、網域、電子郵件地址、購買項目與更多內容。"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:328
+msgid "Upgrades is now Hosting"
+msgstr "「升級」現已更名為「主機服務」"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:285
+msgid "Next"
+msgstr "下一個"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:284
+msgid "Previous"
+msgstr "上一頁"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:283
+msgid "Step {{currentStep}} of {{totalSteps}}"
+msgstr "步驟 {{currentStep}}，共 {{totalSteps}} 步"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:279
+#: src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php:133
+msgid "Dismiss"
+msgstr "關閉"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:35
+msgid "Use WordPress.com’s native dashboard to manage your site."
+msgstr "利用 WordPress.com 原生儀表板來管理你的網站。"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:35
+msgid "Default style"
+msgstr "預設樣式"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:34
+msgid "Use WP-Admin to manage your site."
+msgstr "使用 WP-管理員管理網站。"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:34
+msgid "Classic style"
+msgstr "經典樣式"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:32
+msgid "Admin Interface Style"
+msgstr "管理員介面樣式"
+
+#: src/features/wpcom-admin-bar/wpcom-admin-bar.php:247
+msgid "My Profile"
+msgstr "我的個人檔案"
+
+#. translators: Hidden accessibility text.
+#: src/features/wpcom-admin-bar/wpcom-admin-bar.php:225
+msgid "Reader"
+msgstr "閱讀器"
+
+#: src/features/wpcom-admin-bar/wpcom-admin-bar.php:223
+msgid "Read the blogs and topics you follow"
+msgstr "閱讀你追蹤的網誌和主題"
+
+#. translators: Hidden accessibility text.
+#: src/features/wpcom-admin-bar/wpcom-admin-bar.php:200
+msgid "Cart"
+msgstr "購物車"
+
+#. translators: Hidden accessibility text.
+#: src/features/wpcom-admin-bar/wpcom-admin-bar.php:144
+#: src/features/wpcom-admin-bar/wpcom-admin-bar.php:148
+msgid "All Sites"
+msgstr "所有網站"
+
+#: src/features/verbum-comments/class-verbum-comments.php:467
+msgid "Error: please try commenting again."
+msgstr "錯誤：請嘗試重新留言。"
+
+#: src/features/verbum-comments/class-verbum-comments.php:392
+#: src/features/verbum-comments/class-verbum-comments.php:398
+#: src/features/verbum-comments/class-verbum-comments.php:405
+msgid "Error: your Facebook login has expired."
+msgstr "錯誤：你的 Facebook 登入已過期。"
+
+#: src/features/verbum-comments/class-verbum-comments.php:303
+msgid "Cancel reply"
+msgstr "取消回覆"
+
+#. translators: % is the original posters name
+#: src/features/verbum-comments/class-verbum-comments.php:302
+msgid "Leave a reply to %s"
+msgstr "留言回覆：%s"
+
+#: src/features/verbum-comments/class-verbum-comments.php:285
+msgid "Leave a comment"
+msgstr "發表留言"
+
+#: src/features/verbum-comments/class-verbum-comments.php:234
+msgid "Save my name, email, and website in this browser for the next time I comment."
+msgstr "請在此瀏覽器中保存我的姓名、電子郵件地址和網站，便於我下次發表迴響。"
+
+#: src/features/verbum-comments/class-verbum-comments.php:233
+msgid "Comment sent successfully"
+msgstr "已成功傳送留言"
+
+#: src/features/verbum-comments/class-verbum-comments.php:232
+msgid "Subscribe"
+msgstr "訂閱"
+
+#: src/features/verbum-comments/class-verbum-comments.php:231
+msgid "Enter your email address"
+msgstr "輸入你的電子郵件地址"
+
+#: src/features/verbum-comments/class-verbum-comments.php:230
+msgid "Interested in getting blog post updates? Simply click the button below to stay in the loop!"
+msgstr "是否有興趣接收網誌文章更新通知？ 只要點選下方按鈕即可掌握最新動態！"
+
+#: src/features/verbum-comments/class-verbum-comments.php:229
+msgid "Never miss a beat!"
+msgstr "絕不錯過任何內容！"
+
+#: src/features/verbum-comments/class-verbum-comments.php:228
+msgid "Continue reading"
+msgstr "繼續閱讀"
+
+#: src/features/verbum-comments/class-verbum-comments.php:227
+msgid "Subscribe now to keep reading and get access to the full archive."
+msgstr "立即訂閱即可持續閱讀，還能取得所有封存文章。"
+
+#. translators: %s is the name of the site
+#: src/features/verbum-comments/class-verbum-comments.php:226
+msgid "Discover more from %s"
+msgstr "探索更多來自 %s 的內容"
+
+#: src/features/verbum-comments/class-verbum-comments.php:224
+msgid "Loading your comment..."
+msgstr "正在載入你的留言…"
+
+#. translators: Success message of a modal when user subscribes
+#: src/features/verbum-comments/class-verbum-comments.php:223
+msgid "We'll keep you in the loop!"
+msgstr "我們會持續發送最新動態！"
+
+#: src/features/verbum-comments/class-verbum-comments.php:221
+msgid "Optional"
+msgstr "選用設定"
+
+#: src/features/verbum-comments/class-verbum-comments.php:220
+msgid "Website"
+msgstr "網站"
+
+#: src/features/verbum-comments/class-verbum-comments.php:219
+msgid "Write a reply..."
+msgstr "撰寫回應…"
+
+#: src/features/verbum-comments/class-verbum-comments.php:217
+msgid "Cancel"
+msgstr "取消"
+
+#: src/features/verbum-comments/class-verbum-comments.php:216
+msgid "Email me new comments"
+msgstr "有新留言時，透過電子郵件通知我"
+
+#: src/features/verbum-comments/class-verbum-comments.php:215
+msgid "Email me new posts"
+msgstr "有新文章時，透過電子郵件通知我"
+
+#: src/features/verbum-comments/class-verbum-comments.php:214
+msgid "Notify me of new posts"
+msgstr "有新文章時通知我"
+
+#: src/features/verbum-comments/class-verbum-comments.php:213
+msgid "Weekly"
+msgstr "每週"
+
+#: src/features/verbum-comments/class-verbum-comments.php:212
+msgid "WordPress"
+msgstr "WordPress"
+
+#: src/features/verbum-comments/class-verbum-comments.php:211
+msgid "Comment"
+msgstr "留言"
+
+#: src/features/verbum-comments/class-verbum-comments.php:210
+msgid "Reply"
+msgstr "回覆"
+
+#: src/features/verbum-comments/class-verbum-comments.php:209
+msgid "Daily"
+msgstr "每日"
+
+#: src/features/verbum-comments/class-verbum-comments.php:208
+msgid "Instantly"
+msgstr "即時"
+
+#: src/features/verbum-comments/class-verbum-comments.php:207
+msgid "(Address never made public)"
+msgstr "電子郵件地址不會公開)"
+
+#: src/features/verbum-comments/class-verbum-comments.php:206
+msgid "Email"
+msgstr "電子郵件地址"
+
+#: src/features/verbum-comments/class-verbum-comments.php:205
+msgid "Log out"
+msgstr "登出"
+
+#. translators: %s is the name of the provider (WordPress, Facebook, Twitter)
+#: src/features/verbum-comments/class-verbum-comments.php:204
+msgid "Logged in via %s"
+msgstr "已透過 %s 登入"
+
+#: src/features/verbum-comments/class-verbum-comments.php:202
+msgid "Log in to leave a comment."
+msgstr "如要留言，請先登入。"
+
+#: src/features/verbum-comments/class-verbum-comments.php:201
+msgid "Log in to leave a reply."
+msgstr "登入並留言回覆。"
+
+#: src/features/verbum-comments/class-verbum-comments.php:200
+msgid "Leave a comment. (log in optional)"
+msgstr "留言。(可選擇是否登入)"
+
+#: src/features/verbum-comments/class-verbum-comments.php:199
+msgid "Leave a reply. (log in optional)"
+msgstr "留言回覆。(可選擇是否登入)"
+
+#: src/features/verbum-comments/class-verbum-comments.php:198
+msgid "Website (optional)"
+msgstr "網站 (非必要)"
+
+#: src/features/verbum-comments/class-verbum-comments.php:197
+msgid "Email (address never made public)"
+msgstr "電子郵件地址 (絕不會公開)"
+
+#: src/features/verbum-comments/class-verbum-comments.php:196
+msgid "Name"
+msgstr "名稱"
+
+#: src/features/verbum-comments/class-verbum-comments.php:195
+msgid "Receive web and mobile notifications for posts on this site."
+msgstr "接收這個網站的網頁版和行動版文章通知。"
+
+#: src/features/verbum-comments/class-verbum-comments.php:194
+msgid "Log in or provide your name and email to leave a comment."
+msgstr "若要留言，請登入或提供你的名稱與電子郵件地址。"
+
+#: src/features/verbum-comments/class-verbum-comments.php:193
+msgid "Log in or provide your name and email to leave a reply."
+msgstr "若要留言回覆，請登入或提供你的名稱與電子郵件地址。"
+
+#: src/features/verbum-comments/assets/class-verbum-gutenberg-editor.php:30
+#: src/features/verbum-comments/class-verbum-comments.php:218
+msgid "Write a comment..."
+msgstr "撰寫留言…"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:230
+msgid "A few catchy words to motivate your readers to comment"
+msgstr "使用一些吸引人的字詞，鼓勵讀者留言"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:192
+msgid "Enable blocks in comments"
+msgstr "在留言中啟用區塊"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:181
+msgid "Let visitors use a WordPress.com or Facebook account to comment"
+msgstr "讓訪客使用 WordPress.com 或 Facebook 帳號留言"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:170
+msgid "Adjust your Comments form with a clever greeting and color-scheme."
+msgstr "你可使用活潑的問候語和顏色配置來調整你的文章留言表單。"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:149
+#: src/features/verbum-comments/assets/class-verbum-admin.php:262
+msgid "Color Scheme"
+msgstr "顏色配置"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:132
+msgid "Greeting Text"
+msgstr "問候語"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:116
+msgid "Allow Blocks"
+msgstr "允許區塊"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:103
+msgid "Verbum"
+msgstr "Verbum"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:96
+msgid "Comments"
+msgstr "留言"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:82
+msgid "Transparent"
+msgstr "透明"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:81
+msgid "Dark"
+msgstr "深色"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:80
+msgid "Light"
+msgstr "淺色"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:73
+msgid "Leave a Reply"
+msgstr "留言回覆"
+
+#: src/features/tags-education/tags-education.php:28
+msgid "Build your audience with tags"
+msgstr "使用標籤培養你的讀者群"
+
+#: src/features/starter-page-templates/class-wp-rest-sideload-image-controller.php:77
+msgid "Invalid parent type."
+msgstr "錯誤的上層類型。"
+
+#: src/features/starter-page-templates/class-starter-page-templates.php:243
+msgid "Current"
+msgstr "最新"
+
+#: src/features/starter-page-templates/class-starter-page-templates.php:238
+msgid "Blank"
+msgstr "空白頁面"
+
+#: src/features/starter-page-templates/class-starter-page-templates.php:228
+msgid "No templates available. Skipped showing modal window with template selection."
+msgstr "沒有可用的範本。略過範本選取強制回應視窗。"
+
+#: src/features/replace-site-visibility/replace-site-visibility.php:37
+msgid "Manage your privacy settings"
+msgstr "管理你的隱私設定"
+
+#: src/features/replace-site-visibility/replace-site-visibility.php:32
+msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
+msgstr "Jetpack 已中斷連線，且網站為私人網站。 重新連線 Jetpack 以管理網站的能見度設定。"
+
+#: src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:57
+msgid "Add a post title"
+msgstr "新增文章標題"
+
+#: src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:35
+#: src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:72
+msgid "Start writing or type '/' to insert a block"
+msgstr "開始撰寫內容或輸入斜線 (/) 以插入區塊"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1459
+msgid " per "
+msgstr " 每 "
+
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1456
+msgid " once"
+msgstr " 單次"
+
+#. Translators: %s is the %s is the frequency.
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1430
+msgid "per %s"
+msgstr "每 %s"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1290
+msgid "Scheduled"
+msgstr "已排程"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1289
+msgid "Draft"
+msgstr "草稿"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1256
+msgid "Jetpack donations is disabled in favour of Newspack donations."
+msgstr "為使用 Newspack 捐款而停用 Jetpack 捐款。"
+
+#. translators: separates all but the last two sponsor names; needs a space at
+#. the end.
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:955
+msgid ", "
+msgstr ","
+
+#. translators: separates last two sponsor names; needs a space on either side.
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:952
+msgid " and "
+msgstr " 及 "
+
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:851
+msgid "Common"
+msgstr "一般"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:495
+msgctxt "post author"
+msgid " and "
+msgstr " 及 "
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:478
+msgctxt "post author"
+msgid "by"
+msgstr "作者:"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:404
+msgid "Something went wrong. Please refresh the page and/or try again."
+msgstr "執行時發生錯誤。請重新整理頁面後再試一次。"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:397
+msgid "Load more posts"
+msgstr "載入更多文章"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:288
+msgid "Play Slideshow"
+msgstr "播放投影片"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:287
+msgid "Pause Slideshow"
+msgstr "暫停播放投影片"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:243
+msgid "Next Slide"
+msgstr "下一張"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:242
+msgid "Previous Slide"
+msgstr "前一張"
+
+#. translators: %d: Slide number.
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:221
+msgid "Go to slide %d"
+msgstr "前往第 %d 張投影片"
+
+#: src/features/mailerlite/subscriber-popup.php:120
+msgid "UUID:"
+msgstr "UUID："
+
+#: src/features/mailerlite/subscriber-popup.php:117
+msgid "Account ID <a href=\"%s\" target=\"_blank\">(instructions)</a>:"
+msgstr "帳號 ID <a href=\"%s\" target=\"_blank\">(說明)</a>:"
+
+#. translators: %1$s - URL to manage the widget, %2$s - documentation URL.
+#: src/features/mailerlite/subscriber-popup.php:48
+msgid "You need to enter your numeric account ID and UUID for the <a href=\"%1$s\">Mailerlite Widget</a> to work correctly. <a href=\"%2$s\" target=\"_blank\">Full instructions</a>."
+msgstr "你需要輸入數字帳號 ID 和 UUID，才能讓 <a href=\"%1$s\">Mailerlite Widget</a> 正常運作。<a href=\"%2$s\" target=\"_blank\">完整說明</a>。"
+
+#: src/features/mailerlite/subscriber-popup.php:26
+msgid "Display Mailerlite subscriber popup"
+msgstr "顯示 Mailerlite 訂戶快顯視窗"
+
+#: src/features/mailerlite/subscriber-popup.php:23
+msgid "Mailerlite subscriber popup"
+msgstr "Mailerlite 訂戶快顯視窗"
+
+#: src/features/launchpad/launchpad.php:320
+msgid "Site migration"
+msgstr "網站遷移"
+
+#: src/features/launchpad/launchpad.php:292
+msgid "Site setup"
+msgstr "網站設定"
+
+#: src/features/launchpad/launchpad.php:36
+#: src/features/launchpad/launchpad.php:50
+#: src/features/launchpad/launchpad.php:65
+#: src/features/launchpad/launchpad.php:78
+#: src/features/launchpad/launchpad.php:91
+#: src/features/launchpad/launchpad.php:107
+#: src/features/launchpad/launchpad.php:119
+#: src/features/launchpad/launchpad.php:132
+#: src/features/launchpad/launchpad.php:145
+#: src/features/launchpad/launchpad.php:159
+#: src/features/launchpad/launchpad.php:176
+#: src/features/launchpad/launchpad.php:190
+#: src/features/launchpad/launchpad.php:204
+#: src/features/launchpad/launchpad.php:245
+#: src/features/launchpad/launchpad.php:261
+#: src/features/launchpad/launchpad.php:277
+msgid "Next steps for your site"
+msgstr "網站的下一個步驟"
+
+#: src/features/launchpad/launchpad-task-definitions.php:1772
+msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
+msgstr "你的網站包含進階版樣式。 立即升級，即可發佈這些樣式，並解鎖多種其他功能。"
+
+#: src/features/launchpad/launchpad-task-definitions.php:1438
+#: src/features/launchpad/launchpad-task-definitions.php:1449
+#: src/features/launchpad/launchpad-task-definitions.php:1503
+#: src/features/launchpad/launchpad-task-definitions.php:1514
+#: src/features/launchpad/launchpad-task-definitions.php:1522
+msgid "Unable to fetch the requested data."
+msgstr "無法擷取要求的資料。"
+
+#: src/features/launchpad/launchpad-task-definitions.php:1217
+#: src/features/launchpad/launchpad-task-definitions.php:1788
+msgid "Upgrade plan"
+msgstr "升級方案"
+
+#: src/features/launchpad/launchpad-task-definitions.php:857
+msgid "Provision SSL certificate"
+msgstr "佈建 SSL 憑證"
+
+#: src/features/launchpad/launchpad-task-definitions.php:850
+msgid "Update your domain's DNS"
+msgstr "更新網域的 DNS"
+
+#: src/features/launchpad/launchpad-task-definitions.php:835
+msgid "Connect your domain"
+msgstr "連結你的網域"
+
+#: src/features/launchpad/launchpad-task-definitions.php:822
+msgid "Review the migrated plugins"
+msgstr "檢閱已遷移的外掛程式"
+
+#: src/features/launchpad/launchpad-task-definitions.php:815
+msgid "Review the site's content"
+msgstr "檢閱網站的內容"
+
+#: src/features/launchpad/launchpad-task-definitions.php:807
+msgid "Migrating the site"
+msgstr "正在遷移網站"
+
+#: src/features/launchpad/launchpad-task-definitions.php:797
+msgid "Launch your store"
+msgstr "推出你的商店"
+
+#: src/features/launchpad/launchpad-task-definitions.php:787
+msgid "Add a domain"
+msgstr "新增網域"
+
+#: src/features/launchpad/launchpad-task-definitions.php:777
+msgid "Grow your business"
+msgstr "拓展業務"
+
+#: src/features/launchpad/launchpad-task-definitions.php:767
+msgid "Collect sales tax"
+msgstr "收取銷售稅"
+
+#: src/features/launchpad/launchpad-task-definitions.php:757
+msgid "Get paid with WooPayments"
+msgstr "透過 WooPayments 收取款項"
+
+#: src/features/launchpad/launchpad-task-definitions.php:747
+msgid "Add your products"
+msgstr "新增商品"
+
+#: src/features/launchpad/launchpad-task-definitions.php:737
+msgid "Customize your store"
+msgstr "自訂商店"
+
+#: src/features/launchpad/launchpad-task-definitions.php:725
+msgid "Verify the email address for your domains"
+msgstr "驗證網域的電子郵件地址"
+
+#: src/features/launchpad/launchpad-task-definitions.php:715
+msgid "Finish Sensei setup"
+msgstr "完成 Sensei 設定"
+
+#: src/features/launchpad/launchpad-task-definitions.php:705
+msgid "Finish store setup"
+msgstr "完成商店設定"
+
+#: src/features/launchpad/launchpad-task-definitions.php:688
+msgid "Update your site's design"
+msgstr "更新網站的設計"
+
+#: src/features/launchpad/launchpad-task-definitions.php:679
+msgid "Enable post sharing"
+msgstr "啟用文章分享功能"
+
+#: src/features/launchpad/launchpad-task-definitions.php:670
+msgid "Install the mobile app"
+msgstr "安裝行動應用程式"
+
+#: src/features/launchpad/launchpad-task-definitions.php:660
+msgid "Add the Subscribe Block to your site"
+msgstr "新增訂閱區塊至網站"
+
+#: src/features/launchpad/launchpad-task-definitions.php:649
+msgid "Import existing subscribers"
+msgstr "匯入現有的訂閱者"
+
+#: src/features/launchpad/launchpad-task-definitions.php:640
+msgid "View site metrics"
+msgstr "檢視網站指標"
+
+#: src/features/launchpad/launchpad-task-definitions.php:631
+msgid "Set up ssh"
+msgstr "設定 SSH"
+
+#: src/features/launchpad/launchpad-task-definitions.php:619
+msgid "Install a custom plugin"
+msgstr "安裝自訂外掛程式"
+
+#: src/features/launchpad/launchpad-task-definitions.php:607
+msgid "Choose a theme"
+msgstr "選擇佈景主題"
+
+#: src/features/launchpad/launchpad-task-definitions.php:595
+msgid "Set up an offer for your supporters"
+msgstr "設定支持者專屬折扣"
+
+#: src/features/launchpad/launchpad-task-definitions.php:578
+msgid "Connect a Stripe account to collect payments"
+msgstr "連結 Stripe 帳號以便收取款項"
+
+#: src/features/launchpad/launchpad-task-definitions.php:563
+msgid "Add your About page"
+msgstr "新增「關於」頁面"
+
+#: src/features/launchpad/launchpad-task-definitions.php:553
+msgid "Manage your paid Newsletter plan"
+msgstr "管理付費電子報方案"
+
+#: src/features/launchpad/launchpad-task-definitions.php:545
+msgid "Connect your social media accounts"
+msgstr "連結你的社群媒體帳號"
+
+#: src/features/launchpad/launchpad-task-definitions.php:534
+msgid "Manage your subscribers"
+msgstr "管理訂閱者"
+
+#: src/features/launchpad/launchpad-task-definitions.php:521
+msgid "Write 3 posts"
+msgstr "撰寫 3 篇文章"
+
+#: src/features/launchpad/launchpad-task-definitions.php:509
+msgid "Get your first 10 subscribers"
+msgstr "獲得前 10 位訂閱者"
+
+#: src/features/launchpad/launchpad-task-definitions.php:497
+msgid "Enable subscribers modal"
+msgstr "啟用訂閱者強制回應視窗"
+
+#: src/features/launchpad/launchpad-task-definitions.php:485
+msgid "Customize welcome message"
+msgstr "自訂歡迎訊息"
+
+#: src/features/launchpad/launchpad-task-definitions.php:475
+msgid "Earn money with your newsletter"
+msgstr "用電子報賺取收益"
+
+#: src/features/launchpad/launchpad-task-definitions.php:467
+msgid "Share your site"
+msgstr "分享你的網站"
+
+#: src/features/launchpad/launchpad-task-definitions.php:452
+msgid "Customize your domain"
+msgstr "自訂網域"
+
+#: src/features/launchpad/launchpad-task-definitions.php:437
+msgid "Edit a page"
+msgstr "編輯頁面"
+
+#: src/features/launchpad/launchpad-task-definitions.php:418
+msgid "Update your About page"
+msgstr "更新「關於」頁面"
+
+#: src/features/launchpad/launchpad-task-definitions.php:405
+msgid "Add a new page"
+msgstr "新增新的頁面"
+
+#: src/features/launchpad/launchpad-task-definitions.php:395
+msgid "Drive traffic to your site"
+msgstr "刺激網站流量"
+
+#: src/features/launchpad/launchpad-task-definitions.php:372
+msgid "Set up your site"
+msgstr "設定網站"
+
+#: src/features/launchpad/launchpad-task-definitions.php:358
+msgid "Personalize your site"
+msgstr "打造個人化網站"
+
+#: src/features/launchpad/launchpad-task-definitions.php:346
+msgid "Name your blog"
+msgstr "為你的網誌命名"
+
+#: src/features/launchpad/launchpad-task-definitions.php:338
+msgid "Launch your blog"
+msgstr "推出你的網誌"
+
+#: src/features/launchpad/launchpad-task-definitions.php:317
+msgid "Upload your first video"
+msgstr "上傳第一支影片"
+
+#: src/features/launchpad/launchpad-task-definitions.php:310
+msgid "Set up your video site"
+msgstr "設定影片網站"
+
+#: src/features/launchpad/launchpad-task-definitions.php:303
+msgid "Launch site"
+msgstr "推出網站"
+
+#: src/features/launchpad/launchpad-task-definitions.php:291
+msgid "Personalize Link in Bio"
+msgstr "打造個人化的個人主頁連結"
+
+#: src/features/launchpad/launchpad-task-definitions.php:279
+msgid "Add links"
+msgstr "新增連結"
+
+#: src/features/launchpad/launchpad-task-definitions.php:256
+msgid "Migrate content"
+msgstr "遷移內容"
+
+#: src/features/launchpad/launchpad-task-definitions.php:246
+msgid "Add subscribers"
+msgstr "新增訂閱者"
+
+#: src/features/launchpad/launchpad-task-definitions.php:229
+msgid "Set up payment method"
+msgstr "設定付款方式"
+
+#: src/features/launchpad/launchpad-task-definitions.php:217
+msgid "Personalize newsletter"
+msgstr "打造個人化電子報"
+
+#: src/features/launchpad/launchpad-task-definitions.php:207
+msgid "Create paid Newsletter"
+msgstr "建立付費電子報"
+
+#: src/features/launchpad/launchpad-task-definitions.php:193
+msgid "Start writing"
+msgstr "開始撰寫內容"
+
+#: src/features/launchpad/launchpad-task-definitions.php:180
+msgid "Verify email address"
+msgstr "驗證電子郵件地址"
+
+#: src/features/launchpad/launchpad-task-definitions.php:172
+#: src/features/launchpad/launchpad-task-definitions.php:271
+msgid "Launch your site"
+msgstr "推出你的網站"
+
+#: src/features/launchpad/launchpad-task-definitions.php:159
+#: src/features/launchpad/launchpad-task-definitions.php:381
+msgid "Give your site a name"
+msgstr "為你的網站取個名字"
+
+#: src/features/launchpad/launchpad-task-definitions.php:136
+#: src/features/launchpad/launchpad-task-definitions.php:148
+msgid "Choose a plan"
+msgstr "選擇方案"
+
+#: src/features/launchpad/launchpad-task-definitions.php:127
+msgid "Customize content with AI"
+msgstr "運用 AI 自訂內容"
+
+#: src/features/launchpad/launchpad-task-definitions.php:95
+msgid "Continue to write your first post"
+msgstr "繼續撰寫第一篇文章"
+
+#: src/features/launchpad/launchpad-task-definitions.php:94
+msgid "Write your first post"
+msgstr "撰寫第一篇文章"
+
+#: src/features/launchpad/launchpad-task-definitions.php:77
+msgid "Choose a domain"
+msgstr "選擇網域"
+
+#: src/features/launchpad/launchpad-task-definitions.php:66
+msgid "Claim your free one-year domain"
+msgstr "索取一年免費網域"
+
+#: src/features/launchpad/launchpad-task-definitions.php:46
+#: src/features/launchpad/launchpad-task-definitions.php:56
+msgid "Select a design"
+msgstr "選取設計"
+
+#: src/features/launchpad/launchpad-task-definitions.php:33
+msgid "Edit site design"
+msgstr "編輯網站設計"
+
+#: src/features/jetpack-global-styles/class-global-styles.php:274
+msgid "Fonts"
+msgstr "字型"
+
+#. Translators: This is a link which opens the block editor, and then opens the
+#. global styles sidebar.
+#: src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:63
+msgid "Click here to open the Block Editor and change your fonts."
+msgstr "按此處可開啟區塊編輯器並變更字型。"
+
+#. Translators: This is a link which opens:
+#. https://wordpress.com/support/custom-fonts/#changing-fonts-with-global-styles.
+#: src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:40
+msgid "Learn more about changing fonts using Global Styles."
+msgstr "深入瞭解如何使用「全域樣式」變更字型。"
+
+#: src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:27
+msgid "You can change your fonts using Global Styles, which can be found in the Block Editor."
+msgstr "你可以使用區塊編輯器中的「全域樣式」變更字型。"
+
+#: src/features/import-customizations/import-customizations.php:39
+msgid "Get started"
+msgstr "開始使用"
+
+#: src/features/import-customizations/import-customizations.php:37
+msgid "Use WordPress.com’s guided importer to import posts and comments from Medium, Substack, Squarespace, Wix, and more."
+msgstr "運用 WordPress.com 的引導式匯入工具，從 Medium、Substack、Squarespace、Wix 等網站匯入文章和留言。"
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:178
+msgid "Whether to mark this as a test chat (a11n-only)."
+msgstr "是否要將此聊天標記為測試聊天 (僅限 Automattic 員工使用)。"
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:144
+msgid "The feedback rating value."
+msgstr "意見評分值。"
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:139
+msgid "The message id for the existing message."
+msgstr "現有訊息的訊息 ID。"
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:91
+#: src/features/help-center/class-wp-rest-help-center-odie.php:168
+msgid "The context to continue the chat with."
+msgstr "繼續文字對談的背景資訊。"
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:85
+#: src/features/help-center/class-wp-rest-help-center-odie.php:173
+msgid "The message to add to the chat"
+msgstr "要新增至文字對談的訊息"
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:80
+#: src/features/help-center/class-wp-rest-help-center-odie.php:134
+msgid "The chat id for the existing chat."
+msgstr "現有文字對談的文字對談 ID"
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:75
+#: src/features/help-center/class-wp-rest-help-center-odie.php:129
+#: src/features/help-center/class-wp-rest-help-center-odie.php:163
+msgid "The bot id to chat with."
+msgstr "要進行文字對談的機器人 ID。"
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:64
+msgid "If true, include the feedback rating value for each message in the response."
+msgstr "如果為 true，就在回應中納入每則訊息的意見回饋評分值。"
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:56
+msgid "The number of items per page."
+msgstr "每頁的項目數量。"
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:50
+msgid "The number of the page to retrieve, limited to 100"
+msgstr "要擷取的頁面數量，上限為 100 頁"
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:45
+msgid "The chat id to get the chat for."
+msgstr "存取文字對談所需的文字對談 ID。"
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:40
+msgid "The bot id to get the chat for."
+msgstr "存取文字對談所需的機器人 ID。"
+
+#: src/features/help-center/class-help-center.php:98
+msgid "Help"
+msgstr "說明"
+
+#: src/features/custom-css/custom-css.php:1203
+msgid "Switch"
+msgstr "切換"
+
+#. translators: how long ago the stylesheet was modified.
+#: src/features/custom-css/custom-css.php:1184
+#: src/features/custom-css/custom-css.php:1196
+msgid "(modified %s ago)"
+msgstr "(%s前修改過)"
+
+#: src/features/custom-css/custom-css.php:1174
+msgid "Select a theme&hellip;"
+msgstr "選取佈景主題…"
+
+#: src/features/custom-css/custom-css.php:1172
+msgid "Select another theme to view its custom CSS."
+msgstr "選取其他佈景主題以檢視其自訂 CSS。"
+
+#: src/features/custom-css/custom-css.php:792
+msgid "None"
+msgstr "無"
+
+#: src/features/custom-css/custom-css.php:771
+msgid "Don't use the theme's original CSS."
+msgstr "不使用佈景主題原本的 CSS。"
+
+#: src/features/custom-css/custom-css.php:761
+msgid "Media Width"
+msgstr "媒體寬度"
+
+#: src/features/custom-css/custom-css.php:358
+msgctxt "Toolbar button to get help with custom CSS"
+msgid "Help"
+msgstr "說明"
+
+#: src/features/custom-css/custom-css.php:357
+msgctxt "Toolbar button to see full CSS revision history"
+msgid "See full history"
+msgstr "查看完整記錄"
+
+#: src/features/custom-css/custom-css.php:355
+msgid "On Mobile"
+msgstr "在行動版"
+
+#: src/features/custom-css/custom-css.php:354
+msgid "Start Fresh"
+msgstr "從頭來過"
+
+#. translators: the theme name and then the default width.
+#: src/features/custom-css/custom-css.php:337
+msgid " The default media width for the <strong>%1$s</strong> theme is %2$d pixel."
+msgid_plural " The default media width for the <strong>%1$s</strong> theme is %2$d pixels."
+msgstr[0] " 「<strong>%1$s</strong>」佈景主題的預設媒體寬度是 %2$d 像素。"
+
+#: src/features/custom-css/custom-css.php:333
+msgid "Set a different media width for full size images."
+msgstr "為原始尺寸圖片設定不同的媒體寬度。"
+
+#: src/features/custom-css/custom-css.php:240
+msgid "Custom CSS is now managed in the Customizer."
+msgstr "自訂 CSS 目前由自訂工具管理。"
+
+#: src/features/custom-css/custom-css.php:235
+msgid "Manage with Live Preview"
+msgstr "透過即時預覽管理"
+
+#: src/features/custom-css/custom-css.php:229
+msgid "Custom CSS"
+msgstr "自訂 CSS"
+
+#: src/features/custom-css/custom-css.php:130
+#: src/features/custom-css/custom-css.php:246
+#: src/features/custom-css/custom-css.php:804
+msgid "Preprocessor"
+msgstr "前置處理器"
+
+#: src/features/custom-css/custom-css.php:129
+#: src/features/custom-css/custom-css.php:243
+msgid "CSS"
+msgstr "CSS"
+
+#: src/features/coming-soon/fallback-coming-soon-page.php:294
+msgid "Start your website"
+msgstr "著手建置網站"
+
+#: src/features/coming-soon/fallback-coming-soon-page.php:293
+msgid "Log in"
+msgstr "登入"
+
+#: src/features/coming-soon/fallback-coming-soon-page.php:290
+msgid "Build a website. Sell your stuff. Write a blog. And so much more."
+msgstr "建置網站、 銷售商品、 撰寫網誌， 還有許多其他功能等你發掘。"
+
+#: src/features/coming-soon/fallback-coming-soon-page.php:273
+msgid "Coming Soon"
+msgstr "即將推出"
+
+#: src/features/100-year-plan/locked-mode.php:120
+msgid "Prevents new post and page from being created as well as existing posts and pages from being edited, and closes comments site wide."
+msgstr "防止建立新文章或頁面以及編輯現有文章或頁面，並且關閉整個網站的留言功能。"
+
+#: src/features/100-year-plan/locked-mode.php:119
+msgid "Enable Locked Mode"
+msgstr "啟用鎖定模式"
+
+#: src/features/100-year-plan/locked-mode.php:102
+msgid "Locked Mode"
+msgstr "鎖定模式"
+
+#. translators: link to the help page: https://wordpress.com/help
+#: src/features/100-year-plan/enhanced-ownership.php:102
+msgid "To take ownership of the site, we ask that the person you designate contacts us at %s with a copy of the death certificate."
+msgstr "若要接管網站所有權，我們會要求你指定的對象於 %s 與我們聯絡，並攜帶一份死亡證明書。"
+
+#: src/features/100-year-plan/enhanced-ownership.php:97
+msgid "Choose someone to look after your site when you pass away."
+msgstr "選擇一位使用者，在你身故後代為管理網站。"
+
+#: src/features/100-year-plan/enhanced-ownership.php:80
+msgid "Legacy Contact"
+msgstr "遺澤聯絡人"
+
+#: src/features/100-year-plan/enhanced-ownership.php:73
+#: src/features/100-year-plan/locked-mode.php:95
+msgid "Enhanced Ownership"
+msgstr "強化版擁有權"

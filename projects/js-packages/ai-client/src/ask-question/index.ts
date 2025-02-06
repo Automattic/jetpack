@@ -2,11 +2,11 @@
  * External dependencies
  */
 import debugFactory from 'debug';
-import SuggestionsEventSource from '../suggestions-event-source';
+import SuggestionsEventSource from '../suggestions-event-source/index.js';
 /*
  * Types & constants
  */
-import type { AiModelTypeProp, PromptProp } from '../types';
+import type { AiModelTypeProp, PromptProp } from '../types.js';
 
 export type AskQuestionOptionsArgProps = {
 	/*
@@ -35,7 +35,7 @@ export type AskQuestionOptionsArgProps = {
 	functions?: Array< {
 		name?: string;
 		arguments?: string;
-		// eslint-disable-next-line @typescript-eslint/ban-types
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 		implementation?: Function;
 	} >;
 };
@@ -46,9 +46,9 @@ const debug = debugFactory( 'jetpack-ai-client:ask-question' );
  * An asynchronous function that asks a question
  * and returns an event source with suggestions.
  *
- * @param {PromptProp} question - The question to ask. It can be a simple string or an array of PromptMessageItemProps objects.
- * @param {AskQuestionOptionsArgProps} options - An optional object for additional configuration:
- * @returns {Promise<SuggestionsEventSource>}    A promise that resolves to an instance of the SuggestionsEventSource
+ * @param {PromptProp}                 question - The question to ask. It can be a simple string or an array of PromptMessageItemProps objects.
+ * @param {AskQuestionOptionsArgProps} options  - An optional object for additional configuration:
+ * @return {Promise<SuggestionsEventSource>}    A promise that resolves to an instance of the SuggestionsEventSource
  * @example
  *  const question = "What is the meaning of life?";
  *  const options = {

@@ -10,6 +10,11 @@
 		color: var( --primary-black );
 		margin-top: 8px;
 		margin-bottom: 24px;
+
+		&.no-spacing {
+			margin-top: 0;
+			margin-bottom: 0;
+		}
 	}
 
 	pre {

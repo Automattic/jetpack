@@ -1,11 +1,6 @@
 /*!
  * Jetpack CRM
- * http://zerobscrm.com
- * V2.2
- *
- * Copyright 2020 Automattic
- *
- * Date: 29/07/2017
+ * https://jetpackcrm.com
  */
 
 #zbs-list-col-editor {
@@ -152,4 +147,8 @@
 .jpcrm-listview-table-container .jpcrm-pagination-container {
 	text-align: right;
 	margin-bottom: 10px;
+}
+
+.jpcrm-listview-table-container .jpcrm-listview-table a.name{
+	font-weight: 700;
 }

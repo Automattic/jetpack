@@ -13,10 +13,17 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Woocommerce_Analytics;
+
 /**
- * Load module functionality.
+ * Load module functionality from the package only if
+ * WC_ANALYTICS constant is not defined by WooCommerce
+ *
+ * When WC_ANALYTICS constant is defined it means WooCommerce_Analytics package is being
+ * loaded by WooCommerce core instead of Jetpack.
+ *
+ * We maintain for now the initialization here for compatibility reasons.
  */
-function jetpack_load_woocommerce_analytics() {
-	require_once __DIR__ . '/woocommerce-analytics/class-jetpack-woocommerce-analytics.php';
+if ( ! defined( 'WC_ANALYTICS' ) ) {
+	Woocommerce_Analytics::init();
 }
-jetpack_load_woocommerce_analytics();

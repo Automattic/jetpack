@@ -25,11 +25,7 @@ if ( ! class_exists( 'Jetpack_Top_Posts_Helper' ) ) {
  * registration if we need to.
  */
 function register_block() {
-	if (
-		! defined( 'IS_WPCOM' )
-		&& ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
-		&& ! ( new Status() )->is_offline_mode() )
-	) {
+	if ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() ) {
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
@@ -46,6 +42,11 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attributes ) {
+	// Do not render in contexts outside the front-end (eg. emails, API).
+	if ( ! jetpack_is_frontend() ) {
+		return;
+	}
+
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	/*

@@ -1,4 +1,4 @@
-import { InspectorControls, RichText } from '@wordpress/block-editor';
+import { InspectorControls, RichText, useBlockProps } from '@wordpress/block-editor';
 import { Placeholder } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { useLayoutEffect, useRef } from '@wordpress/element';
@@ -12,34 +12,32 @@ import './view.js';
 
 /* global juxtapose */
 
-const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) => {
+const Edit = ( { attributes, clientId, isSelected, setAttributes } ) => {
 	const { align, imageBefore, imageAfter, caption, orientation } = attributes;
-	// Check for useResizeObserver, not available in older Gutenberg.
-	let resizeListener = null;
-	let sizes = null;
-	const juxtaposeRef = useRef();
-	if ( useResizeObserver ) {
-		// Let's look for resize so we can trigger the thing.
-		[ resizeListener, sizes ] = useResizeObserver();
 
-		useDebounce(
-			sz => {
-				if ( sz > 0 ) {
-					if ( typeof juxtapose !== 'undefined' && juxtapose.sliders ) {
-						// only update for *this* slide
-						juxtapose.sliders.forEach( elem => {
-							const parentElem = elem.wrapper.parentElement;
-							if ( parentElem.id === clientId ) {
-								elem.optimizeWrapper( sz );
-							}
-						} );
-					}
+	const blockProps = useBlockProps();
+	const juxtaposeRef = useRef( undefined );
+
+	// Let's look for resize so we can trigger the thing.
+	const [ resizeListener, sizes ] = useResizeObserver();
+
+	useDebounce(
+		sz => {
+			if ( sz > 0 ) {
+				if ( typeof juxtapose !== 'undefined' && juxtapose.sliders ) {
+					// only update for *this* slide
+					juxtapose.sliders.forEach( elem => {
+						const parentElem = elem.wrapper.parentElement;
+						if ( parentElem.id === clientId ) {
+							elem.optimizeWrapper( sz );
+						}
+					} );
 				}
-			},
-			200,
-			sizes.width
-		);
-	}
+			}
+		},
+		200,
+		sizes.width
+	);
 
 	// Initial state if attributes already set or not.
 	// If both images are set, add juxtapose class, which is picked up by the library.
@@ -54,7 +52,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 	}, [ align, imageBefore, imageAfter, orientation ] );
 
 	return (
-		<figure className={ className } id={ clientId }>
+		<figure { ...blockProps } id={ clientId }>
 			{ resizeListener }
 			<InspectorControls key="controls">
 				<ImageCompareControls { ...{ attributes, setAttributes } } />

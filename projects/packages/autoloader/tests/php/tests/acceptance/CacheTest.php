@@ -82,6 +82,7 @@ class CacheTest extends Acceptance_Test_Case {
 		$this->assertAutoloaderProvidesClass( \Automattic\Jetpack\AutoloaderTesting\SharedTestClass::class );
 
 		$this->markTestIncomplete( 'The autoloader does not currently support PSR-4 loading from multiple directories.' );
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$this->assertAutoloaderProvidesClass( \Automattic\Jetpack\AutoloaderTesting\Current\UniqueTestClass::class );
 		$this->assertAutoloaderProvidesClass( \Automattic\Jetpack\AutoloaderTesting\Currentmu\UniqueTestClass::class );
 	}
@@ -110,6 +111,7 @@ class CacheTest extends Acceptance_Test_Case {
 		$this->assertAutoloaderProvidesClass( \Automattic\Jetpack\AutoloaderTesting\SharedTestClass::class );
 
 		$this->markTestIncomplete( 'The autoloader does not currently support PSR-4 loading from multiple directories.' );
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$this->assertAutoloaderProvidesClass( \Automattic\Jetpack\AutoloaderTesting\Current\UniqueTestClass::class );
 		$this->assertAutoloaderProvidesClass( \Automattic\Jetpack\AutoloaderTesting\Currentmu\UniqueTestClass::class );
 	}

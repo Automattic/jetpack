@@ -1,20 +1,24 @@
 import './editor.scss';
-import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
-import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
+import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { MenuGroup, MenuItem, PanelBody, ToolbarDropdownMenu } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { arrowDown, Icon, people, check } from '@wordpress/icons';
+import ConnectBanner from '../../shared/components/connect-banner';
 import PlansSetupDialog from '../../shared/components/plans-setup-dialog';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { NewsletterAccessRadioButtons, useSetAccess } from '../../shared/memberships/settings';
+import useIsUserConnected from '../../shared/use-is-user-connected';
 
-function PaywallEdit( { className } ) {
+function PaywallEdit() {
+	const blockProps = useBlockProps();
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
+	const isUserConnected = useIsUserConnected();
 
 	const { stripeConnectUrl, hasTierPlans } = useSelect( select => {
 		const { getNewsletterTierProducts, getConnectUrl } = select( 'jetpack/membership-products' );
@@ -42,6 +46,20 @@ function PaywallEdit( { className } ) {
 		setAccess( value );
 	}
 
+	if ( ! isUserConnected ) {
+		return (
+			<div { ...blockProps }>
+				<ConnectBanner
+					block="Paywall"
+					explanation={ __(
+						'Connect your WordPress.com account to enable a paywall for your site.',
+						'jetpack'
+					) }
+				/>
+			</div>
+		);
+	}
+
 	const getText = key => {
 		switch ( key ) {
 			case accessOptions.subscribers.key:
@@ -64,20 +82,15 @@ function PaywallEdit( { className } ) {
 
 	const text = getText( accessLevel );
 
-	const style = {
-		width: `${ text.length + 1.2 }em`,
-		userSelect: 'none',
-	};
-
 	let _accessLevel = accessLevel ?? accessOptions.subscribers.key;
 	if ( _accessLevel === accessOptions.everybody.key ) {
 		_accessLevel = accessOptions.subscribers.key;
 	}
 
 	return (
-		<>
-			<div className={ className }>
-				<span style={ style }>
+		<div { ...blockProps }>
+			<div className="wp-block-jetpack-paywall-block">
+				<span>
 					{ text }
 					<Icon icon={ arrowDown } size={ 16 } />
 				</span>
@@ -135,7 +148,7 @@ function PaywallEdit( { className } ) {
 					/>
 				</PanelBody>
 			</InspectorControls>
-		</>
+		</div>
 	);
 }
 

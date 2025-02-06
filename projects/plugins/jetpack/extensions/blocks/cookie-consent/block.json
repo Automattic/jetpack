@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 1,
+	"apiVersion": 3,
 	"name": "jetpack/cookie-consent",
 	"title": "Cookie Consent",
 	"description": "Display a customizable cookie consent banner. To display this block on all pages of your site, please add it inside a Template Part that is present on all your templates, like a Header or a Footer.",
@@ -15,7 +15,8 @@
 		"anchor": false,
 		"color": {
 			"gradients": true,
-			"link": true
+			"link": true,
+			"background": true
 		},
 		"spacing": {
 			"padding": true
@@ -31,8 +32,7 @@
 		"text": {
 			"type": "string",
 			"source": "html",
-			"selector": "p",
-			"default": "Privacy &amp; Cookies: This site uses cookies. By continuing to use this website, you agree to their use. To find out more, including how to control cookies, see here: <a href=\"https://automattic.com/cookies/\">Cookie Policy</a>."
+			"selector": "p"
 		},
 		"style": {
 			"type": "object",
@@ -64,5 +64,6 @@
 			"type": "boolean",
 			"default": false
 		}
-	}
+	},
+	"viewScript": "file:./view.js"
 }

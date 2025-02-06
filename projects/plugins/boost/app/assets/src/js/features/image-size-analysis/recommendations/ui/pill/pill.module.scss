@@ -1,0 +1,13 @@
+.pill {
+	padding: 0.25rem 0.5rem;
+	border-radius: 1rem;
+	background-color: var(--jb-pill-color);
+	font-size: 0.8em;
+}
+
+.text {
+	color: var(--jb-pill-color);
+	filter: brightness(0.3) saturate(10);
+	font-weight: 500;
+	white-space: nowrap;
+}

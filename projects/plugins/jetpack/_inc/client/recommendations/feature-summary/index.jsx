@@ -1,12 +1,12 @@
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
+import React, { useCallback, useMemo } from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import InstallButton from 'components/install-button';
 import analytics from 'lib/analytics';
-import React, { useCallback, useMemo } from 'react';
-import { connect } from 'react-redux';
 import {
 	startFeatureInstall as startFeatureInstallAction,
 	endFeatureInstall as endFeatureInstallAction,
@@ -87,7 +87,7 @@ const FeatureSummaryComponent = props => {
 
 	return (
 		<div
-			className={ classNames( 'jp-recommendations-feature-summary', {
+			className={ clsx( 'jp-recommendations-feature-summary', {
 				'is-feature-enabled': props.isFeatureActive,
 			} ) }
 		>

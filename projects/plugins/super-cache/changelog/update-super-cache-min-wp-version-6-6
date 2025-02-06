@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: WP compatibility: bump min WP version to 6.6 again because of polyfills.
+
+

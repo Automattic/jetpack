@@ -7,10 +7,8 @@
 			"postLayout": "list",
 			"displayDate": false,
 			"displayAuthor": false,
-			"displayHeadline": false,
 			"displayThumbnails": true,
 			"displayContext": true,
-			"headline": "",
 			"postsToShow": 4
 		},
 		"innerBlocks": [],

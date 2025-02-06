@@ -3,15 +3,15 @@ import Col from '../../layout/col';
 import Container from '../../layout/container';
 import AdminSection from '../basic';
 import AdminSectionHero from '../hero';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'JS Packages/Components/Admin Sections',
-} as ComponentMeta< typeof AdminSection >;
+} as Meta< typeof AdminSection >;
 
 // Export additional stories using pre-defined values
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const Template: ComponentStory< typeof AdminSection > = args => (
+const Template: StoryFn< typeof AdminSection > = args => (
 	<AdminPage>
 		<AdminSectionHero>
 			<Container>

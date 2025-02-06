@@ -2,17 +2,20 @@
 /**
  * Template used to display arguments used to build the carousel modal.
  *
+ * @html-template Jetpack_Tiled_Gallery_Layout::partial
  * @package automattic/jetpack
  */
 
-$item             = $context['item']; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
+
+$item             = $context['item'];
 $fuzzy_image_meta = $item->fuzzy_image_meta(); // See https://github.com/Automattic/jetpack/issues/2765 .
 if ( isset( $fuzzy_image_meta['keywords'] ) ) {
 	unset( $fuzzy_image_meta['keywords'] );
 }
 
 // Using JSON_HEX_AMP avoids breakage due to `esc_attr()` refusing to double-encode.
-$fuzzy_image_meta = wp_json_encode( array_map( 'strval', $fuzzy_image_meta ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
+$fuzzy_image_meta = wp_json_encode( map_deep( $fuzzy_image_meta, 'strval' ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
 
 ?>
 data-attachment-id="<?php echo esc_attr( $item->image->ID ); ?>"

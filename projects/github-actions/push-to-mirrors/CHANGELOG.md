@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.1] - 2025-01-09
+### Changed
+- Update dependencies. [#40194]
+
+## [2.2.0] - 2024-08-29
+### Added
+- Add footers like `Upstream-Ref: owner/repo@sha` to mirrored commits, to make it easy to find the source of any particular mirrored commit. New workflow parameter `no-upstream-refs` may be set to disable this. [#36850]
+- Use the `Upstream-Ref` footers to find better base commits for newly-mirrored branches. Add workflow parameters `upstream-ref-count` and `upstream-ref-since` to control how many commits are searched. [#36850]
+
+### Changed
+- Disable git automatic garbage collection. No point to it as the local repos will be immediately discarded. [#36902]
+
+## [2.1.0] - 2024-02-07
+### Added
+- Added support for GitHub Enterprise by replacing github.com with a dynamic variable [#32974]
+
+### Changed
+- Update example in readme to use `actions/checkout@v4`. [#35262]
+
 ## [2.0.0] - 2022-11-23
 ### Changed
 - It is now considered an error if the mirror repo does not exist. [#27523]
@@ -51,6 +70,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
+[2.2.1]: https://github.com/Automattic/action-push-to-mirrors/compare/v2.2.0...v2.2.1
+[2.2.0]: https://github.com/Automattic/action-push-to-mirrors/compare/v2.1.0...v2.2.0
+[2.1.0]: https://github.com/Automattic/action-push-to-mirrors/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/Automattic/action-push-to-mirrors/compare/v1.0.5...v2.0.0
 [1.0.5]: https://github.com/Automattic/action-push-to-mirrors/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/Automattic/action-push-to-mirrors/compare/v1.0.3...v1.0.4

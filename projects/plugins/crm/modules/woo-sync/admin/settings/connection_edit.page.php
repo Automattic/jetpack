@@ -9,7 +9,7 @@
 namespace Automattic\JetpackCRM;
 
 // block direct access
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
  * Page: Connection edit page
@@ -213,5 +213,4 @@ function jpcrm_settings_page_html_woosync_connection_edit() {
 		<?php
 
 	} // / normal page load
-
 }

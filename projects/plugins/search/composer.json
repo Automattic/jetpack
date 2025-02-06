@@ -8,17 +8,15 @@
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-identity-crisis": "@dev",
 		"automattic/jetpack-my-jetpack": "@dev",
 		"automattic/jetpack-search": "@dev",
 		"automattic/jetpack-stats": "@dev",
 		"automattic/jetpack-status": "@dev",
-		"automattic/jetpack-sync": "@dev",
-		"automattic/jetpack-plugins-installer": "@dev"
+		"automattic/jetpack-sync": "@dev"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
-		"yoast/phpunit-polyfills": "1.1.0"
+		"yoast/phpunit-polyfills": "^1.1.1"
 	},
 	"autoload": {
 		"classmap": [
@@ -28,6 +26,9 @@
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -64,7 +65,7 @@
 	},
 	"config": {
 		"sort-packages": true,
-		"autoloader-suffix": "b462338fb66be23595d68a93345c9e3d_jetpack_searchⓥ2_0_0_alpha",
+		"autoloader-suffix": "b462338fb66be23595d68a93345c9e3d_jetpack_searchⓥ4_0_0",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true,

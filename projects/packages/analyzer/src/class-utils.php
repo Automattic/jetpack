@@ -43,7 +43,7 @@ class Utils {
 			|| $node instanceof Node\Stmt\Class_ ) {
 			$class_name = $node->name;
 		} elseif ( $node instanceof Node\Name ) {
-			$class_name = '\\' . implode( '\\', $node->parts );
+			$class_name = '\\' . implode( '\\', $node->getParts() );
 		} elseif ( $node instanceof Node\Expr\PropertyFetch ) {
 			$class_name =
 				'$'
@@ -123,7 +123,7 @@ class Utils {
 	/**
 	 * Check if a node has a docblock containing a specific comment string.
 	 *
-	 * @param PhpParser/Node $node    Current node we are parsing.
+	 * @param Node $node    Current node we are parsing.
 	 * @param string         $comment Comment to match.
 	 * @return boolean
 	 */
@@ -139,7 +139,7 @@ class Utils {
 	 * Check if a node contains a call to a function name.
 	 * Any part of the function name will be matched.
 	 *
-	 * @param PhpParser/Node $node Current node we are parsing.
+	 * @param Node $node Current node we are parsing.
 	 * @param string         $name Function name to match.
 	 * @return boolean
 	 */
@@ -152,6 +152,11 @@ class Utils {
 			if ( ! $stmt instanceof Node\Stmt\Expression || ! $stmt->expr instanceof Node\Expr\FuncCall ) {
 				continue;
 			}
+
+			if ( $stmt->expr->name instanceof Node\Expr\Variable ) {
+				continue;
+			}
+
 			if ( false !== strpos( $stmt->expr->name->toCodeString(), $name ) ) {
 				return true;
 			}

@@ -13,12 +13,40 @@ jest.setTimeout( 5000 );
 describe( 'bin/eslint-changed.js', () => {
 	let tmpdir = null;
 
+	expect.extend( {
+		toBeValidJSON( received ) {
+			const options = {
+				isNot: this.isNot,
+				promise: this.promise,
+			};
+
+			try {
+				JSON.parse( received );
+			} catch ( e ) {
+				return {
+					message: () =>
+						this.utils.matcherHint( 'toBeValidJSON', undefined, '', options ) +
+						// prettier-ignore
+						`\n\nJSON parse failed: ${ e.message }\nReceived: ${ this.utils.printReceived( received ) }`,
+					pass: false,
+				};
+			}
+
+			return {
+				message: () =>
+					this.utils.matcherHint( 'toBeValidJSON', undefined, '', options ) +
+					`\n\nReceived: ${ this.utils.printReceived( received ) }`,
+				pass: true,
+			};
+		},
+	} );
+
 	/**
 	 * Run eslint-changed.
 	 *
-	 * @param {string[]} args - Arguments to pass.
-	 * @param {object} [options] - Process options.
-	 * @returns {object} data - Process data.
+	 * @param {string[]} args      - Arguments to pass.
+	 * @param {object}   [options] - Process options.
+	 * @return {object} data - Process data.
 	 */
 	async function runEslintChanged( args, options = {} ) {
 		const proc = {
@@ -70,7 +98,8 @@ describe( 'bin/eslint-changed.js', () => {
 			await fs.rm( tmpdir, { force: true, recursive: true } );
 			tmpdir = null;
 		}
-		tmpdir = await fs.mkdtemp( path.join( os.tmpdir(), 'eslint-changed-test-' ) );
+		const parentTmpdir = await fs.realpath( os.tmpdir() );
+		tmpdir = await fs.mkdtemp( path.join( parentTmpdir, 'eslint-changed-test-' ) );
 	}
 
 	// Clean up after each test.
@@ -113,6 +142,7 @@ describe( 'bin/eslint-changed.js', () => {
 			] );
 			expect( data.exitCode ).toBe( 1 );
 
+			expect( data.stdout ).toBeValidJSON();
 			const output = JSON.parse( data.stdout );
 			expect( output ).toBeInstanceOf( Array );
 			const expectOutput = JSON.parse(
@@ -135,6 +165,7 @@ describe( 'bin/eslint-changed.js', () => {
 			] );
 			expect( data.exitCode ).toBe( 0 );
 
+			expect( data.stdout ).toBeValidJSON();
 			const output = JSON.parse( data.stdout );
 			expect( output ).toBeInstanceOf( Array );
 			const expectOutput = JSON.parse(
@@ -159,6 +190,7 @@ describe( 'bin/eslint-changed.js', () => {
 			] );
 			expect( data.exitCode ).toBe( 1 );
 
+			expect( data.stdout ).toBeValidJSON();
 			const output = JSON.parse( data.stdout );
 			expect( output ).toBeInstanceOf( Array );
 			const expectOutput = JSON.parse(
@@ -184,6 +216,7 @@ describe( 'bin/eslint-changed.js', () => {
 			] );
 			expect( data.exitCode ).toBe( 1 );
 
+			expect( data.stdout ).toBeValidJSON();
 			const output = JSON.parse( data.stdout );
 			expect( output ).toBeInstanceOf( Array );
 			const expectOutput = JSON.parse(
@@ -206,6 +239,7 @@ describe( 'bin/eslint-changed.js', () => {
 			] );
 			expect( data.exitCode ).toBe( 1 );
 
+			expect( data.stdout ).toBeValidJSON();
 			const output = JSON.parse( data.stdout );
 			expect( output ).toBeInstanceOf( Array );
 			const expectOutput = JSON.parse(
@@ -229,6 +263,7 @@ describe( 'bin/eslint-changed.js', () => {
 			] );
 			expect( data.exitCode ).toBe( 0 );
 
+			expect( data.stdout ).toBeValidJSON();
 			const output = JSON.parse( data.stdout );
 			expect( output ).toBeInstanceOf( Array );
 			const expectOutput = JSON.parse(
@@ -265,6 +300,7 @@ describe( 'bin/eslint-changed.js', () => {
 			);
 			expect( data.exitCode ).toBe( 1 );
 
+			expect( data.stdout ).toBeValidJSON();
 			const output = JSON.parse( data.stdout );
 			expect( output ).toBeInstanceOf( Array );
 			const expectOutput = JSON.parse(
@@ -278,10 +314,12 @@ describe( 'bin/eslint-changed.js', () => {
 			[ '--eslint-orig', path.join( dirname, 'fixtures/no-new-errors.orig.json' ) ],
 			[ '--eslint-new', path.join( dirname, 'fixtures/no-new-errors.new.json' ) ],
 		];
+		// eslint-disable-next-line no-bitwise
 		for ( let i = ( 1 << argsets.length ) - 2; i > 0; i-- ) {
 			const args = [];
 			const missing = [];
 			for ( let j = 0; j < argsets.length; j++ ) {
+				// eslint-disable-next-line no-bitwise
 				if ( i & ( 1 << j ) ) {
 					args.push( ...argsets[ j ] );
 				} else {
@@ -297,17 +335,29 @@ describe( 'bin/eslint-changed.js', () => {
 	} );
 
 	describe( 'Git mode', function () {
+		// Apparently eslint deprecated a bunch of rules still in eslint:recommended.
+		const usedDeprecatedRules = [
+			{
+				replacedBy: [],
+				ruleId: 'quotes',
+			},
+			{
+				replacedBy: [],
+				ruleId: 'semi',
+			},
+		];
+
 		/**
 		 * Set up a temporary directory with a git repo.
 		 *
 		 * The path is stored in `tmpdir`.
 		 *
-		 * @param {object[]} branches - An array of branches to create.
-		 * @param {string} [branches.name] - Name of the branch.
-		 * @param {string} [branches.parent] - Name of the parent branch. If omitted, the parent is the previous entry in the array. Must be omitted in the first entry.
-		 * @param {Object<string, string | null>} branches.files - Files to modify, and their contents (or null to delete the file).
-		 * @param {Object<string, string | null>} [staged] - Files to modify and stage.
-		 * @param {Object<string, string | null>} [unstaged] - Files to modify and leave unstaged.
+		 * @param {object[]}                      branches          - An array of branches to create.
+		 * @param {string}                        [branches.name]   - Name of the branch.
+		 * @param {string}                        [branches.parent] - Name of the parent branch. If omitted, the parent is the previous entry in the array. Must be omitted in the first entry.
+		 * @param {Object<string, string | null>} branches.files    - Files to modify, and their contents (or null to delete the file).
+		 * @param {Object<string, string | null>} [staged]          - Files to modify and stage.
+		 * @param {Object<string, string | null>} [unstaged]        - Files to modify and leave unstaged.
 		 */
 		async function mktmpdirgit( branches, staged, unstaged ) {
 			await mktmpdir();
@@ -315,6 +365,7 @@ describe( 'bin/eslint-changed.js', () => {
 			const opts = {
 				cwd: tmpdir,
 				env: {
+					GIT_CONFIG_GLOBAL: '/dev/null',
 					GIT_AUTHOR_NAME: 'Testing',
 					GIT_AUTHOR_EMAIL: 'nobody@example.com',
 					GIT_COMMITTER_NAME: 'Testing',
@@ -327,7 +378,7 @@ describe( 'bin/eslint-changed.js', () => {
 			 * Modify files.
 			 *
 			 * @param {Object<string, string | null>} files - Files to modify, and their contents (or null to delete the file).
-			 * @param {boolean} git - Whether to do git manipulations.
+			 * @param {boolean}                       git   - Whether to do git manipulations.
 			 */
 			async function doFiles( files, git ) {
 				const modified = [];
@@ -375,29 +426,31 @@ describe( 'bin/eslint-changed.js', () => {
 			}
 		}
 
-		const eslintrc = JSON.stringify(
-			{
-				extends: 'eslint:recommended',
-				env: {
-					node: true,
+		const eslintconfig =
+			'export default ' +
+			JSON.stringify( [
+				{
+					languageOptions: {
+						globals: {
+							console: 'readonly',
+						},
+					},
+					rules: {
+						'no-unused-vars': 'error',
+						'no-undef': 'error',
+						quotes: [ 'error', 'single' ],
+						semi: [ 'error', 'always' ],
+					},
 				},
-				rules: {
-					indent: [ 2, 'tab' ],
-					quotes: [ 2, 'single' ],
-					'linebreak-style': [ 2, 'unix' ],
-					semi: [ 2, 'always' ],
-				},
-			},
-			null,
-			4
-		);
+			] ) +
+			';';
 
 		const standardRepo = [
 			[
 				{
 					name: 'base',
 					files: {
-						'.eslintrc': eslintrc,
+						'eslint.config.mjs': eslintconfig,
 						'1.js': "console.log( 'Hello, world!' );\n",
 						'2.js': "console.log( 'Hello, world!' );\n",
 						'3.js': "console.log( 'Hello, world!' );\n",
@@ -435,6 +488,7 @@ describe( 'bin/eslint-changed.js', () => {
 			const data = await runEslintChanged( [ '--format=json', '--git' ], { cwd: tmpdir } );
 			expect( data.exitCode ).toBe( 1 );
 
+			expect( data.stdout ).toBeValidJSON();
 			const output = JSON.parse( data.stdout );
 			expect( output ).toBeInstanceOf( Array );
 			const expectOutput = [
@@ -464,7 +518,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: 'console.log( "Hello, world?" );\n',
 					suppressedMessages: [],
-					usedDeprecatedRules: [],
+					usedDeprecatedRules,
 				},
 			];
 			expect( output ).toEqual( expectOutput );
@@ -478,6 +532,7 @@ describe( 'bin/eslint-changed.js', () => {
 			} );
 			expect( data.exitCode ).toBe( 1 );
 
+			expect( data.stdout ).toBeValidJSON();
 			const output = JSON.parse( data.stdout );
 			expect( output ).toBeInstanceOf( Array );
 			const expectOutput = [
@@ -507,7 +562,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: 'console.log( "Hello, world?" );\n',
 					suppressedMessages: [],
-					usedDeprecatedRules: [],
+					usedDeprecatedRules,
 				},
 			];
 			expect( output ).toEqual( expectOutput );
@@ -521,6 +576,7 @@ describe( 'bin/eslint-changed.js', () => {
 			} );
 			expect( data.exitCode ).toBe( 1 );
 
+			expect( data.stdout ).toBeValidJSON();
 			const output = JSON.parse( data.stdout );
 			expect( output ).toBeInstanceOf( Array );
 			const expectOutput = [
@@ -550,7 +606,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: "console.log( '¡Hola, mundo!' )\n",
 					suppressedMessages: [],
-					usedDeprecatedRules: [],
+					usedDeprecatedRules,
 				},
 			];
 			expect( output ).toEqual( expectOutput );
@@ -564,6 +620,7 @@ describe( 'bin/eslint-changed.js', () => {
 			} );
 			expect( data.exitCode ).toBe( 1 );
 
+			expect( data.stdout ).toBeValidJSON();
 			const output = JSON.parse( data.stdout );
 			expect( output ).toBeInstanceOf( Array );
 			const expectOutput = [
@@ -589,7 +646,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: "var x;\nconsole.log( 'Hello, world!' );\n",
 					suppressedMessages: [],
-					usedDeprecatedRules: [],
+					usedDeprecatedRules,
 				},
 			];
 			expect( output ).toEqual( expectOutput );
@@ -600,7 +657,7 @@ describe( 'bin/eslint-changed.js', () => {
 				[
 					{
 						files: {
-							'.eslintrc': eslintrc,
+							'eslint.config.mjs': eslintconfig,
 							'unchanged.js': "console.log( 'Hello, world!' )\n",
 							'modified.js': "var x = 'Hello';\nx += ', world!';\nconsole.log( x );\n",
 							'deleted.js': "console.log( 'Hello, world!' )\n",
@@ -617,6 +674,7 @@ describe( 'bin/eslint-changed.js', () => {
 			const data = await runEslintChanged( [ '--format=json', '--git' ], { cwd: tmpdir } );
 			expect( data.exitCode ).toBe( 1 );
 
+			expect( data.stdout ).toBeValidJSON();
 			const output = JSON.parse( data.stdout );
 			expect( output ).toBeInstanceOf( Array );
 			const expectOutput = [
@@ -642,7 +700,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: 'var x = 1;\n',
 					suppressedMessages: [],
-					usedDeprecatedRules: [],
+					usedDeprecatedRules,
 				},
 				{
 					filePath: path.join( tmpdir, 'modified.js' ),
@@ -670,7 +728,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: 'var x = \'Hello\';\nx += ", world!";\nconsole.log( x );\n',
 					suppressedMessages: [],
-					usedDeprecatedRules: [],
+					usedDeprecatedRules,
 				},
 			];
 			expect( output ).toEqual( expectOutput );
@@ -681,7 +739,7 @@ describe( 'bin/eslint-changed.js', () => {
 				[
 					{
 						files: {
-							'.eslintrc': eslintrc,
+							'eslint.config.mjs': eslintconfig,
 							'1.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
 							'2.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
 							'3.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
@@ -699,6 +757,7 @@ describe( 'bin/eslint-changed.js', () => {
 			} );
 			expect( data.exitCode ).toBe( 1 );
 
+			expect( data.stdout ).toBeValidJSON();
 			const output = JSON.parse( data.stdout );
 			expect( output ).toBeInstanceOf( Array );
 			const expectOutput = [
@@ -712,7 +771,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
 					suppressedMessages: [],
-					usedDeprecatedRules: [],
+					usedDeprecatedRules,
 				},
 				{
 					filePath: path.join( tmpdir, '2.js' ),
@@ -747,7 +806,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
 					suppressedMessages: [],
-					usedDeprecatedRules: [],
+					usedDeprecatedRules,
 				},
 			];
 			expect( output ).toEqual( expectOutput );
@@ -758,7 +817,7 @@ describe( 'bin/eslint-changed.js', () => {
 				[
 					{
 						files: {
-							'.eslintrc': eslintrc,
+							'eslint.config.mjs': eslintconfig,
 							'1.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
 							'2.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
 							'3.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
@@ -776,6 +835,7 @@ describe( 'bin/eslint-changed.js', () => {
 			} );
 			expect( data.exitCode ).toBe( 1 );
 
+			expect( data.stdout ).toBeValidJSON();
 			const output = JSON.parse( data.stdout );
 			expect( output ).toBeInstanceOf( Array );
 			const expectOutput = [
@@ -801,7 +861,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
 					suppressedMessages: [],
-					usedDeprecatedRules: [],
+					usedDeprecatedRules,
 				},
 				{
 					filePath: path.join( tmpdir, '3.js' ),
@@ -825,7 +885,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
 					suppressedMessages: [],
-					usedDeprecatedRules: [],
+					usedDeprecatedRules,
 				},
 			];
 			expect( output ).toEqual( expectOutput );
@@ -836,7 +896,7 @@ describe( 'bin/eslint-changed.js', () => {
 				[
 					{
 						files: {
-							'.eslintrc': eslintrc,
+							'eslint.config.mjs': eslintconfig,
 							'1.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
 							'2.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
 							'3.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
@@ -857,6 +917,7 @@ describe( 'bin/eslint-changed.js', () => {
 			);
 			expect( data.exitCode ).toBe( 1 );
 
+			expect( data.stdout ).toBeValidJSON();
 			const output = JSON.parse( data.stdout );
 			expect( output ).toBeInstanceOf( Array );
 			const expectOutput = [
@@ -882,7 +943,186 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
 					suppressedMessages: [],
-					usedDeprecatedRules: [],
+					usedDeprecatedRules,
+				},
+			];
+			expect( output ).toEqual( expectOutput );
+		} );
+
+		describe( '--eslint-options works', () => {
+			const eslintOptionsRepo = [
+				[
+					{
+						files: {
+							'eslint.config.mjs': 'throw new Error( "bogus" );',
+							'real-config.mjs': eslintconfig,
+							'2.js': "var x = 'Hello, world!';",
+						},
+					},
+				],
+				{
+					'2.js': "var y = 'Hello, world!';",
+				},
+			];
+			const expectOutput = [
+				{
+					filePath: null,
+					messages: [
+						{
+							ruleId: 'no-unused-vars',
+							severity: 2,
+							message: "'y' is assigned a value but never used.",
+							line: 1,
+							column: 5,
+							nodeType: 'Identifier',
+							messageId: 'unusedVar',
+							endLine: 1,
+							endColumn: 6,
+						},
+					],
+					errorCount: 1,
+					fatalErrorCount: 0,
+					warningCount: 0,
+					fixableErrorCount: 0,
+					fixableWarningCount: 0,
+					source: "var y = 'Hello, world!';",
+					suppressedMessages: [],
+					usedDeprecatedRules,
+				},
+			];
+
+			test( 'name=value', async () => {
+				await mktmpdirgit( ...eslintOptionsRepo );
+
+				const data = await runEslintChanged(
+					[ '--format=json', '--git', '--eslint-options', 'overrideConfigFile=real-config.mjs' ],
+					{ cwd: tmpdir }
+				);
+				expect( data.exitCode ).toBe( 1 );
+
+				expect( data.stdout ).toBeValidJSON();
+				const output = JSON.parse( data.stdout );
+				expect( output ).toBeInstanceOf( Array );
+
+				expectOutput[ 0 ].filePath = path.join( tmpdir, '2.js' );
+				expect( output ).toEqual( expectOutput );
+			} );
+
+			test( 'name value', async () => {
+				await mktmpdirgit( ...eslintOptionsRepo );
+
+				const data = await runEslintChanged(
+					[ '--format=json', '--git', '--eslint-options', 'overrideConfigFile', 'real-config.mjs' ],
+					{ cwd: tmpdir }
+				);
+				expect( data.exitCode ).toBe( 1 );
+
+				expect( data.stdout ).toBeValidJSON();
+				const output = JSON.parse( data.stdout );
+				expect( output ).toBeInstanceOf( Array );
+
+				expectOutput[ 0 ].filePath = path.join( tmpdir, '2.js' );
+				expect( output ).toEqual( expectOutput );
+			} );
+
+			test( 'name="value"', async () => {
+				await mktmpdirgit( ...eslintOptionsRepo );
+
+				const data = await runEslintChanged(
+					[ '--format=json', '--git', '--eslint-options', 'overrideConfigFile="real-config.mjs"' ],
+					{ cwd: tmpdir }
+				);
+				expect( data.exitCode ).toBe( 1 );
+
+				expect( data.stdout ).toBeValidJSON();
+				const output = JSON.parse( data.stdout );
+				expect( output ).toBeInstanceOf( Array );
+
+				expectOutput[ 0 ].filePath = path.join( tmpdir, '2.js' );
+				expect( output ).toEqual( expectOutput );
+			} );
+		} );
+
+		// If this starts failing in eslint 10+, delete or skip it.
+		test( 'Works with .eslintrc', async () => {
+			await mktmpdirgit(
+				[
+					{
+						name: 'base',
+						files: {
+							'.eslintrc': JSON.stringify( {
+								env: { node: true },
+								rules: {
+									'no-unused-vars': 'error',
+									'no-undef': 'error',
+									quotes: [ 'error', 'single' ],
+									semi: [ 'error', 'always' ],
+								},
+							} ),
+							'1.js': "console.log( 'Hello, world!' );\n",
+							'2.js': "console.log( 'Hello, world!' );\n",
+							'3.js': "console.log( 'Hello, world!' );\n",
+						},
+					},
+					{
+						name: 'trunk',
+						files: {
+							'1.js': "var x;\nconsole.log( 'Hello, world!' );\n",
+						},
+					},
+				],
+				{
+					'2.js': 'console.log( "Hello, world?" );\n',
+				},
+				{
+					'3.js': "console.log( '¡Hola, mundo!' )\n",
+				}
+			);
+
+			const oldEnv = process.env.ESLINT_USE_FLAT_CONFIG;
+			let data;
+			try {
+				process.env.ESLINT_USE_FLAT_CONFIG = 'false';
+				data = await runEslintChanged( [ '--format=json', '--git' ], {
+					cwd: tmpdir,
+					env: { ESLINT_USE_FLAT_CONFIG: 'false' },
+				} );
+			} finally {
+				process.env.ESLINT_USE_FLAT_CONFIG = oldEnv;
+			}
+			expect( data.exitCode ).toBe( 1 );
+
+			expect( data.stdout ).toBeValidJSON();
+			const output = JSON.parse( data.stdout );
+			expect( output ).toBeInstanceOf( Array );
+			const expectOutput = [
+				{
+					filePath: path.join( tmpdir, '2.js' ),
+					messages: [
+						{
+							ruleId: 'quotes',
+							severity: 2,
+							message: 'Strings must use singlequote.',
+							line: 1,
+							column: 14,
+							nodeType: 'Literal',
+							messageId: 'wrongQuotes',
+							endLine: 1,
+							endColumn: 29,
+							fix: {
+								range: [ 13, 28 ],
+								text: "'Hello, world?'",
+							},
+						},
+					],
+					errorCount: 1,
+					fatalErrorCount: 0,
+					warningCount: 0,
+					fixableErrorCount: 1,
+					fixableWarningCount: 0,
+					source: 'console.log( "Hello, world?" );\n',
+					suppressedMessages: [],
+					usedDeprecatedRules,
 				},
 			];
 			expect( output ).toEqual( expectOutput );

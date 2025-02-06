@@ -19,7 +19,9 @@ require_once __DIR__ . '/../automation/tools/class-automation-faker.php';
 /**
  * Test Event Manager system.
  *
- * @covers Automattic\Jetpack\CRM\Event_Manager
+ * @covers Automattic\Jetpack\CRM\Event_Manager\Contact_Event
+ * @covers Automattic\Jetpack\CRM\Event_Manager\Invoice_Event
+ * @covers Automattic\Jetpack\CRM\Event_Manager\Transaction_Event
  */
 class Event_Manager_Test extends JPCRM_Base_Test_Case {
 
@@ -256,11 +258,9 @@ class Event_Manager_Test extends JPCRM_Base_Test_Case {
 	 */
 	public function test_notify_on_transaction_updated() {
 		/** @var Transaction $transaction */
-		$transaction          = Automation_Faker::instance()->transaction();
-		$previous_transaction = clone $transaction;
+		$transaction = Automation_Faker::instance()->transaction();
 
-		$transaction_data          = Transaction_Factory::tidy_data( $transaction );
-		$previous_transaction_data = Transaction_Factory::tidy_data( $previous_transaction );
+		$transaction_data = Transaction_Factory::tidy_data( $transaction );
 
 		add_action(
 			'jpcrm_transaction_updated',
@@ -274,7 +274,7 @@ class Event_Manager_Test extends JPCRM_Base_Test_Case {
 		);
 
 		$transaction_event = new Transaction_Event();
-		$transaction_event->updated( $transaction_data, $previous_transaction_data );
+		$transaction_event->updated( $transaction_data );
 	}
 
 	/**

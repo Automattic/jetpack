@@ -3,7 +3,7 @@ import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { Component } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import AudioPlayer from '../../../shared/components/audio-player';
 import { STATE_ERROR, STATE_PAUSED, STORE_ID } from '../../../store/media-source/constants';
 import { getColorsObject } from '../utils';
@@ -58,7 +58,7 @@ export class PodcastPlayer extends Component {
 	 *
 	 * @private
 	 * @param {number} track - The track number
-	 * @returns {boolean} Whether loading of the track was successful
+	 * @return {boolean} Whether loading of the track was successful
 	 */
 	loadTrack = track => {
 		const trackData = this.getTrack( track );
@@ -111,7 +111,7 @@ export class PodcastPlayer extends Component {
 	 *
 	 * @private
 	 * @param {number} track - The track number
-	 * @returns {object} Track object.
+	 * @return {object} Track object.
 	 */
 	getTrack = track => {
 		return this.props.tracks[ track ];
@@ -287,7 +287,7 @@ export class PodcastPlayer extends Component {
 			'--jetpack-podcast-player-background': hexBackgroundColor,
 		};
 
-		const cssClassesName = classnames(
+		const cssClassesName = clsx(
 			'jetpack-podcast-player',
 			playerState,
 			colors.secondary.classes,

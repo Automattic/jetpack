@@ -26,6 +26,31 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	 */
 	public function set_up() {
 		$this->manager = new Manager();
+		Constants::set_constant( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
+		$this->reset_connection_status();
+	}
+
+	/**
+	 * Clean up the testing environment.
+	 *
+	 * @after
+	 */
+	public function tear_down() {
+		Constants::clear_constants();
+		$this->reset_connection_status();
+	}
+
+	/**
+	 * Reset the connection status.
+	 * Needed because the connection status is memoized and not reset between tests.
+	 * WorDBless does not fire the options update hooks that would reset the connection status.
+	 */
+	public function reset_connection_status() {
+		static $manager = null;
+		if ( ! $manager ) {
+			$manager = new \Automattic\Jetpack\Connection\Manager();
+		}
+		$manager->reset_connection_status();
 	}
 
 	/**
@@ -539,7 +564,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	public function test_try_registration() {
 		add_filter( 'pre_http_request', array( Test_REST_Endpoints::class, 'intercept_register_request' ), 10, 3 );
 		set_transient( 'jetpack_assumed_site_creation_date', '2021-01-01 01:01:01' );
-		Constants::$set_constants['JETPACK__API_BASE'] = 'https://jetpack.wordpress.com/jetpack.';
+		Constants::set_constant( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
 
 		$result = $this->manager->try_registration();
 
@@ -608,8 +633,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 				$this,
 				$callback,
 			),
-			10,
-			3
+			10
 		);
 
 		$this->assertCount( $expected_user_token_count, $this->manager->get_connected_users() );

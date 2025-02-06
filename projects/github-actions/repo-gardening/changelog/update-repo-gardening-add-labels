@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Repo Gardening Action: Add add_labels input to addLabels task for setting custom path: label matching directly in the workflow.

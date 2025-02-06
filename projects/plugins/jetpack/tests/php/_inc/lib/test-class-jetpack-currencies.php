@@ -53,7 +53,15 @@ class WP_Test_Jetpack_Currencies extends WP_UnitTestCase {
 	 * Test that the unspecified currency symbol is displayed when the currency is not found.
 	 */
 	public function test_format_price_unspecified_currency_symbol() {
-		$formatted_price = Jetpack_Currencies::format_price( '12345.67890', 'TEST', false );
+		$formatted_price = Jetpack_Currencies::format_price( '12345.67890', 'TEST' );
 		$this->assertEquals( '¤12,345.68', $formatted_price );
+	}
+
+	/**
+	 * Test that the unspecified currency symbol is not displayed when the currency is not found but `$symbol` is false.
+	 */
+	public function test_format_price_unspecified_currency_symbol_no_symbol() {
+		$formatted_price = Jetpack_Currencies::format_price( '12345.67890', 'TEST', false );
+		$this->assertEquals( '12,345.68', $formatted_price );
 	}
 }

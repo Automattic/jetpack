@@ -9,7 +9,7 @@ class WP_Test_Jetpack_Core_Api_Xmlrpc_Consumer_Endpoint extends WP_UnitTestCase 
 	 */
 	public function test_Jetpack_Core_API_XMLRPC_Consumer_Endpoint_privacy_check( $query_success, $result ) {
 		$xmlrpc_mock = $this->getMockBuilder( 'Jetpack_IXR_Client' )
-					->setMethods( array( 'query', 'getResponse' ) )
+					->onlyMethods( array( 'query', 'getResponse' ) )
 					->getMock();
 
 		$endpoint = new WP_Test_Dummy_Xmlrpc_Consumer_Endpoint( $xmlrpc_mock );

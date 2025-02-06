@@ -1,3 +1,4 @@
+/* global subscriptionData */
 document.addEventListener( 'DOMContentLoaded', function () {
 	const modal = document.getElementsByClassName( 'jetpack-subscription-modal' )[ 0 ];
 
@@ -6,10 +7,8 @@ document.addEventListener( 'DOMContentLoaded', function () {
 	}
 
 	const close = document.getElementsByClassName( 'jetpack-subscription-modal__close' )[ 0 ];
-	const subscribeForms = document.querySelectorAll( '.jetpack-subscription-modal__form' );
 
 	let redirectUrl = '';
-	let subscriptionData = '';
 	let hasLoaded = false;
 
 	function reloadOnCloseSubscriptionModal( customUrl ) {
@@ -20,46 +19,18 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			return;
 		}
 
-		localStorage.setItem( 'jetpack-subscription-modal-on-comment-scroll-to', destinationUrl.hash );
-
-		// For avoiding Firefox reload, we need to force reload bypassing the cache.
-		window.location.reload( true );
-	}
-
-	function handleSubscriptionModalIframeResult( eventFromIframe ) {
-		if ( eventFromIframe.origin === 'https://subscribe.wordpress.com' && eventFromIframe.data ) {
-			const data = JSON.parse( eventFromIframe.data );
-			const iframeElement = document.querySelector( '.jetpack-subscription-modal__iframe' );
-			if ( data && data.action === 'close' ) {
-				window.removeEventListener( 'message', handleSubscriptionModalIframeResult );
-				iframeElement.src = 'about:blank';
-				reloadOnCloseSubscriptionModal( subscriptionData.url );
-			}
+		try {
+			localStorage.setItem(
+				'jetpack-subscription-modal-on-comment-scroll-to',
+				destinationUrl.hash
+			);
+		} catch {
+			// Ok if we can't set it.
 		}
-	}
 
-	function showSubscriptionIframe( subscriptionData ) {
-		const modalContainer = document.querySelector( '.jetpack-subscription-modal' );
-		const iframeElement = document.querySelector( '.jetpack-subscription-modal__iframe' );
-		const subscribeData = {
-			email: document.querySelector( '.jetpack-subscription-modal__form-email' ).value,
-			post_id: subscriptionData.post_id,
-			plan: 'newsletter',
-			blog: subscriptionData.blog_id,
-			source: 'jetpack_subscribe',
-			display: 'alternate',
-			app_source: subscriptionData.is_logged_in
-				? 'atomic-subscription-modal-li'
-				: 'atomic-subscription-modal-lo',
-			locale: subscriptionData.lang,
-		};
-		const params = new URLSearchParams( subscribeData );
-
-		iframeElement.src = 'https://subscribe.wordpress.com/memberships/?' + params.toString();
-
-		modalContainer.classList.add( 'has-iframe' );
-
-		window.addEventListener( 'message', handleSubscriptionModalIframeResult, false );
+		// Add cache-busting parameter
+		destinationUrl.searchParams.set( '_ctn', Date.now() );
+		window.location.href = destinationUrl.toString();
 	}
 
 	function JetpackSubscriptionModalOnCommentMessageListener( event ) {
@@ -67,7 +38,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		if ( typeof message === 'string' ) {
 			try {
 				message = JSON.parse( message );
-			} catch ( err ) {
+			} catch {
 				return;
 			}
 		}
@@ -79,33 +50,53 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			return;
 		}
 
-		if ( ! event.origin.includes( window.location.host ) ) {
+		if ( subscriptionData.homeUrl !== event.origin ) {
 			return;
 		}
 
 		if ( data.email ) {
-			const emailInput = document.querySelector( '.jetpack-subscription-modal__form-email' );
+			const emailInput = document.querySelector(
+				'.jetpack-subscription-modal__modal-content input[type=email]'
+			);
+			if ( ! emailInput ) {
+				reloadOnCloseSubscriptionModal( data.url );
+				return;
+			}
+
+			const appSource = document.querySelector(
+				'.jetpack-subscription-modal__modal-content input[name=app_source]'
+			);
+			if ( ! appSource ) {
+				reloadOnCloseSubscriptionModal( data.url );
+				return;
+			}
+
 			emailInput.value = data.email;
 			if ( data.is_logged_in ) {
 				emailInput.setAttribute( 'readonly', 'readonly' );
+				appSource.value = 'atomic-subscription-modal-li';
 			}
 		}
 
 		if ( ! hasLoaded ) {
-			const storedCount = parseInt(
-				sessionStorage.getItem( 'jetpack-subscription-modal-shown-count' )
-			);
-			const showCount = ( isNaN( storedCount ) ? 0 : storedCount ) + 1;
-			sessionStorage.setItem( 'jetpack-subscription-modal-shown-count', showCount );
+			try {
+				const storedCount = parseInt(
+					sessionStorage.getItem( 'jetpack-subscription-modal-shown-count' )
+				);
+				const showCount = ( isNaN( storedCount ) ? 0 : storedCount ) + 1;
+				sessionStorage.setItem( 'jetpack-subscription-modal-shown-count', showCount );
 
-			if ( showCount > 5 ) {
-				new Image().src =
-					document.location.protocol +
-					'//pixel.wp.com/g.gif?v=wpcom-no-pv&x_jetpack-subscribe-modal-comm=hidden_views_limit&r=' +
-					Math.random();
+				if ( showCount > 5 ) {
+					new Image().src =
+						document.location.protocol +
+						'//pixel.wp.com/g.gif?v=wpcom-no-pv&x_jetpack-subscribe-modal-comm=hidden_views_limit&r=' +
+						Math.random();
 
-				reloadOnCloseSubscriptionModal( data.url );
-				return;
+					reloadOnCloseSubscriptionModal( data.url );
+					return;
+				}
+			} catch {
+				// Ignore any errors.
 			}
 
 			new Image().src =
@@ -116,8 +107,6 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			modal.classList.toggle( 'open' );
 			hasLoaded = true;
 			redirectUrl = data.url;
-			subscriptionData = data;
-			return;
 		}
 	}
 
@@ -130,24 +119,6 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			reloadOnCloseSubscriptionModal();
 		};
 	}
-
-	subscribeForms.forEach( form => {
-		form.addEventListener( 'submit', function ( event ) {
-			if ( form.resubmitted ) {
-				return;
-			}
-
-			const emailInput = form.querySelector( 'input[type=email]' );
-			const email = emailInput ? emailInput.value : form.dataset.subscriber_email;
-
-			if ( ! email ) {
-				return;
-			}
-			event.preventDefault();
-			showSubscriptionIframe( subscriptionData );
-			return;
-		} );
-	} );
 
 	window.onclick = function ( event ) {
 		if ( event.target === modal ) {

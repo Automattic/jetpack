@@ -2,7 +2,6 @@ import { PanelColorSettings } from '@wordpress/block-editor';
 import { Button, PanelBody, ToggleControl } from '@wordpress/components';
 import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 
 class SeekbarColorSettings extends Component {
 	constructor() {
@@ -46,6 +45,7 @@ class SeekbarColorSettings extends Component {
 					help={ __( 'Colors adapt to the video as it plays', 'jetpack' ) }
 					onChange={ toggleAttribute( 'useAverageColor' ) }
 					checked={ useAverageColor }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<PanelColorSettings
 					opened={ ! useAverageColor }

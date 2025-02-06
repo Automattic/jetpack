@@ -4,7 +4,7 @@ import React from 'react';
 /**
  * BackupPromotion component definition.
  *
- * @returns {React.Component} BackupPromotion component.
+ * @return {React.Component} BackupPromotion component.
  */
 export default function BackupPromotion() {
 	return (

@@ -18,7 +18,7 @@ import GoogleDriveExport from './google-drive';
 import './style.scss';
 
 const ExportModal = ( { isVisible, onClose } ) => {
-	const backdrop = useRef();
+	const backdrop = useRef( undefined );
 
 	const selected = useSelect( select => select( STORE_NAME ).getSelectedResponseIds(), [] );
 	const { query } = useFeedbackQuery();

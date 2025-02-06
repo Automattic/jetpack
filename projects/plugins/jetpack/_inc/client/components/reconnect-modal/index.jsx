@@ -1,13 +1,13 @@
 import { useRestoreConnection } from '@automattic/jetpack-connection';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import React, { useCallback } from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import Modal from 'components/modal';
 import analytics from 'lib/analytics';
-import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
-import { connect } from 'react-redux';
 import {
 	CONNECT_URL_FETCH_SUCCESS,
 	SITE_RECONNECT,
@@ -22,11 +22,11 @@ import './style.scss';
  * The "Reconnect" modal component.
  *
  * @param {object} props - The properties.
- * @returns {React.ReactElement} The modal.
+ * @return {React.ReactElement} The modal.
  */
 export function ReconnectModal( props ) {
 	const {
-		show,
+		show = false,
 		onHide,
 		isSiteConnected: isSiteConnectedProp,
 		isReconnectingSite: isReconnectingSiteProp,
@@ -117,10 +117,6 @@ ReconnectModal.propTypes = {
 	show: PropTypes.bool,
 	onHide: PropTypes.func,
 	clickReconnectSite: PropTypes.func,
-};
-
-ReconnectModal.defaultProps = {
-	show: false,
 };
 
 export default connect(

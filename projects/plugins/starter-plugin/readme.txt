@@ -1,9 +1,9 @@
 === Jetpack Starter Plugin ===
 Contributors: automattic,
 Tags: jetpack, stuff
-Requires at least: 6.3
-Requires PHP: 7.0
-Tested up to: 6.4
+Requires at least: 6.6
+Requires PHP: 7.2
+Tested up to: 6.7
 Stable tag: 0.1.0-alpha
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -33,8 +33,43 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 2. This is the second screen shot
 
 == Changelog ==
+### 0.5.0 - 2024-12-04
+#### Added
+- Add Woocommerce event remove_order_items to Jetpack Sync
+- Enable test coverage.
+- Explicitly add the Connection package as dependency
+- My Jetpack: update the recommendations section in My Jetpack to include a slider interaction for the cards.
+- New setting in /sties/$site/settings that is not relevant to this plugin.
+- Packages: add version tracking for identity-crisis package.
+- Trigger red bubble notification when bad install is detected
 
-<!-- When you do a release, use the monorepo script tools/plugin-changelog-to-readme.sh to copy from CHANGELOG.md to here. -->
+#### Changed
+- General: indicate compatibility with the upcoming version of WordPress, 6.5.
+- General: indicate compatibility with the upcoming version of WordPress - 6.6.
+- General: indicate compatibility with the upcoming version of WordPress - 6.7.
+- General: update WordPress version requirements to WordPress 6.4.
+- General: use wp_admin_notice function introduced in WP 6.4 to display notices.
+- Only include `wp-polyfill` as a script dependency when needed.
+- Only show installation errors on plugins page
+- Remove explicit Plugin Install package dependency.
+- Remove the 'jetpack-identity-crisis' dependency.
+- Resolved an issue where revoked licenses were incorrectly treated as unattached. This caused users to be redirected to the license activation page after site connection, even when unattached licenses were not valid for activation.
+- Social | Changed My Jetpack CTA for Social from "Learn more" to "Activate"
+- Update composer lock file
+- Updated dependencies.
+- Updated package dependencies.
+- Update package lock
+
+#### Removed
+- Connection: Removed deprecated method features_available
+- Connection: Removed features_enabled deprecated method
+- General: Update minimum PHP version to 7.2.
+- General: Update minimum WordPress version to 6.6.
+- General: update WordPress version requirements to WordPress 6.5.
+
+#### Fixed
+- My Jetpack: visual update to the GlobalNotice component look better on mobile.
+- Updated package dependencies.
 
 == Arbitrary section ==
 

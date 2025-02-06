@@ -36,7 +36,7 @@ class Dummy_Test extends TestCase {
 		$this->assertSame( $u->var, 1 );
 
 		// MediaWiki.PHPUnit.MockBoilerplate
-		$mock = $this->getMockBuilder( Foo::class )->setMethods( array( 'foobar' ) )->getMock();
+		$mock = $this->getMockBuilder( Foo::class )->onlyMethods( array( 'foobar' ) )->getMock();
 		$mock->expects( $this->exactly( 1 ) )
 			->method( 'foobar' )
 			->will( $this->returnValue( 42 ) );

@@ -17,12 +17,13 @@ const showError = () => {
 	//for each embed block select the iframe within
 	embeds.forEach( embed => {
 		const embedIframe = embed.querySelector( 'iframe' );
-		const loader = embed.querySelector( '.loader' );
 
 		//if there isn't an iframe inside then bail
 		if ( ! embedIframe ) {
 			return;
 		}
+
+		const loader = embed.querySelector( '.loader' );
 
 		// Check if it's presentation block.
 		const embedUrlComponents = embedIframe
@@ -77,7 +78,6 @@ const showError = () => {
 				embedIframe.setAttribute( 'src', actualEmbedUrl );
 			}
 		} );
-		return;
 	} );
 };
 

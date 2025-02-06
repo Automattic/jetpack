@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Current_Plan;
+use WP_Error;
+use WP_Post;
 
 /**
  * VideoPress Attachment_Handler class.

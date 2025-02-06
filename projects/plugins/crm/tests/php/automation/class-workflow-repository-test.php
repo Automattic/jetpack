@@ -11,7 +11,7 @@ require_once __DIR__ . '/tools/class-automation-faker.php';
 /**
  * Test Automation Engine
  *
- * @covers Automattic\Jetpack\CRM\Automation
+ * @covers Automattic\Jetpack\CRM\Automation\Workflow\Workflow_Repository
  */
 class Workflow_Repository_Test extends JPCRM_Base_Integration_Test_Case {
 
@@ -237,7 +237,7 @@ class Workflow_Repository_Test extends JPCRM_Base_Integration_Test_Case {
 	 * @since 6.2.0
 	 *
 	 * @param array $args Dynamic criteria for pagination.
-	 * @param int $expected_count The expected number of returned workflows.
+	 * @param int   $expected_count The expected number of returned workflows.
 	 */
 	public function test_find_by_pagination( array $args, int $expected_count ) {
 		$workflow_data = Automation_Faker::instance()->workflow_with_condition_action();

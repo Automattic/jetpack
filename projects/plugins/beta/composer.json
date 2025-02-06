@@ -10,7 +10,7 @@
 	"require": {
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
-		"composer/semver": "3.3.2",
+		"composer/semver": "3.4.3",
 		"erusev/parsedown": "1.7.4"
 	},
 	"require-dev": {
@@ -35,7 +35,7 @@
 	"prefer-stable": true,
 	"config": {
 		"sort-packages": true,
-		"autoloader-suffix": "567fa3f555de8fd218dfdc1688bb97b5_betaⓥ4_0_0_alpha",
+		"autoloader-suffix": "567fa3f555de8fd218dfdc1688bb97b5_betaⓥ4_1_1",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true
 		}

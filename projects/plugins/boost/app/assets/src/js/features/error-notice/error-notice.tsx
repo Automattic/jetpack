@@ -2,7 +2,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { standardizeError } from '$lib/utils/standardize-error';
 import NoticeOutline from '$svg/notice-outline';
 import styles from './error-notice.module.scss';
-import classNames from 'classnames';
+import clsx from 'clsx';
 
 type ErrorNoticeProps = {
 	title: string;
@@ -10,7 +10,6 @@ type ErrorNoticeProps = {
 	variant?: 'normal' | 'module';
 	data?: string;
 	suggestion?: string;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	vars?: Record< string, React.ReactElement >;
 	children?: React.ReactNode;
 	actionButton?: React.ReactNode;
@@ -30,7 +29,7 @@ const ErrorNotice = ( {
 
 	return (
 		<div
-			className={ classNames( styles[ 'error-notice' ], {
+			className={ clsx( styles[ 'error-notice' ], {
 				[ styles[ 'variant-module' ] ]: variant === 'module',
 			} ) }
 		>

@@ -1,4 +1,4 @@
-import { BaseControl, TextControl } from '@wordpress/components';
+import { TextControl } from '@wordpress/components';
 import { Component, createRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import Lookup from '../lookup';
@@ -74,10 +74,11 @@ export class MapboxLocationSearch extends Component {
 		const { label } = this.props;
 		return (
 			<div ref={ this.containerRef }>
-				<BaseControl label={ label } className="components-location-search">
+				<div className="components-location-search">
 					<Lookup completer={ this.autocompleter } onReset={ this.onReset }>
 						{ ( { isExpanded, listBoxId, activeId, onChange, onKeyDown } ) => (
 							<TextControl
+								label={ label }
 								placeholder={ placeholderText }
 								ref={ this.textRef }
 								onChange={ onChange }
@@ -85,10 +86,11 @@ export class MapboxLocationSearch extends Component {
 								aria-owns={ listBoxId }
 								aria-activedescendant={ activeId }
 								onKeyDown={ onKeyDown }
+								__nextHasNoMarginBottom={ true }
 							/>
 						) }
 					</Lookup>
-				</BaseControl>
+				</div>
 			</div>
 		);
 	}

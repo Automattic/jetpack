@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
-import { StripeNudge } from '../../shared/components/stripe-nudge';
+import clsx from 'clsx';
 import Controls from './controls';
 import Tab from './tab';
 
 const Tabs = props => {
-	const { attributes, className, products, setAttributes } = props;
+	const { attributes, products, setAttributes } = props;
 	const { oneTimeDonation, monthlyDonation, annualDonation } = attributes;
 	const [ activeTab, setActiveTab ] = useState( 'one-time' );
 
@@ -53,8 +52,7 @@ const Tabs = props => {
 	}, [ monthlyDonation, annualDonation, setActiveTab, isTabActive ] );
 
 	return (
-		<div className={ className }>
-			<StripeNudge blockName="donations" />
+		<>
 			<div className="donations__container">
 				{ Object.keys( tabs ).length > 1 && (
 					<div className="donations__nav">
@@ -62,7 +60,7 @@ const Tabs = props => {
 							<div
 								role="button"
 								tabIndex={ 0 }
-								className={ classNames( 'donations__nav-item', {
+								className={ clsx( 'donations__nav-item', {
 									'is-active': isTabActive( interval ),
 								} ) }
 								onClick={ () => setActiveTab( interval ) }
@@ -79,7 +77,7 @@ const Tabs = props => {
 				</div>
 			</div>
 			<Controls { ...props } />
-		</div>
+		</>
 	);
 };
 

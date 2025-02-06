@@ -4,67 +4,51 @@ namespace Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Data_Sync;
 
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
-use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Image_Size_Analysis_Fixer;
 
-require_once dirname( __DIR__ ) . '/jetpack-boost-mock-api.php';
+class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get {
 
-class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_Set {
-
-	private $page         = 1;
-	private $group        = 'all';
-	private $search_query = '';
-
-	public function get() {
+	public function get( $page = 1, $group = 'all' ) {
 		$report_id = defined( 'JETPACK_BOOST_FORCE_REPORT_ID' ) ? JETPACK_BOOST_FORCE_REPORT_ID : 'latest';
 		$data      = Boost_API::get(
 			'image-guide/reports/' . $report_id . '/issues',
 			array(
-				'page'     => $this->page,
-				'group'    => $this->group,
+				'page'     => $page,
+				'group'    => sanitize_title( wp_unslash( $group ) ),
 				'per_page' => 20,
 			)
 		);
 
 		$issues = array();
-		foreach ( $data->issues as $issue ) {
-			$page  = $this->get_page( $issue );
-			$image = $this->get_image_info( $issue );
-			if ( empty( $page['edit_url'] ) ) { // archive or front page
+		foreach ( $data['issues'] as $issue ) {
+			$page_provider = $this->get_page( $issue );
+			$image         = $this->get_image_info( $issue );
+			if ( empty( $page_provider['edit_url'] ) ) { // archive or front page
 				$image['fixed'] = false;
 			} else {
-				$post_id        = Image_Size_Analysis_Fixer::get_post_id( $page['edit_url'] );
+				$post_id        = Image_Size_Analysis_Fixer::get_post_id( $page_provider['edit_url'] );
 				$image['fixed'] = Image_Size_Analysis_Fixer::is_fixed( $post_id, $image['url'] );
 			}
 
 			$issues[] = array(
-				'id'           => $issue->id,
-				'thumbnail'    => $issue->url,
-				'device_type'  => $issue->device,
-				'type'         => $issue->type,
-				'status'       => $issue->status,
+				'id'           => $issue['id'],
+				'thumbnail'    => $issue['url'],
+				'device_type'  => $issue['device'],
+				'type'         => $issue['type'],
+				'status'       => $issue['status'],
 				'instructions' => $this->get_instructions( $issue ),
-				'page'         => $page,
+				'page'         => $page_provider,
 				'image'        => $image,
 			);
 		}
 
-		$results = array(
-			'query' => array(
-				'page'   => $this->page,
-				'group'  => $this->group,
-				'search' => $this->search_query,
-			),
-			'data'  => array(
-				'last_updated' => strtotime( $data->last_updated ) * 1000,
-				'total_pages'  => $data->pagination->total_pages,
-				'images'       => $issues,
-			),
+		return array(
+			'last_updated' => strtotime( $data['last_updated'] ) * 1000,
+			'total_pages'  => $data['pagination']['total_pages'],
+			'images'       => $issues,
 		);
-
-		return $results;
 	}
 
 	/**
@@ -73,19 +57,19 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 	 * @todo: Implement
 	 */
 	private function get_page( $issue ) {
-		$key      = $issue->page_provider;
+		$key      = $issue['page_provider'];
 		$provider = $this->get_provider( $key );
 		$title    = empty( $provider ) ? $key : $provider::describe_key( $key );
 		$edit_url = empty( $provider ) ? null : $provider::get_edit_url( $key );
 
 		if ( empty( $title ) ) {
-			$title = $issue->page_provider;
+			$title = $issue['page_provider'];
 		}
 
 		return array(
-			'id'       => $issue->page_id,
-			'url'      => $issue->page_url,
-			'edit_url' => $edit_url,
+			'id'       => $issue['page_id'],
+			'url'      => $issue['page_url'],
+			'edit_url' => $edit_url ? $edit_url : null,
 			'title'    => $title,
 		);
 	}
@@ -104,32 +88,26 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 	 */
 	private function get_image_info( $issue ) {
 		return array(
-			'url'        => $issue->url,
+			'url'        => $issue['url'],
 			'dimensions' => array(
 				'file'           => array(
-					'width'  => $issue->meta->fileSize_width,
-					'height' => $issue->meta->fileSize_height,
+					'width'  => $issue['meta']['fileSize_width'],
+					'height' => $issue['meta']['fileSize_height'],
 				),
 				'expected'       => array(
-					'width'  => $issue->meta->expectedSize_width,
-					'height' => $issue->meta->expectedSize_height,
+					'width'  => $issue['meta']['expectedSize_width'],
+					'height' => $issue['meta']['expectedSize_height'],
 				),
 				'size_on_screen' => array(
-					'width'  => $issue->meta->sizeOnPage_width,
-					'height' => $issue->meta->sizeOnPage_height,
+					'width'  => $issue['meta']['sizeOnPage_width'],
+					'height' => $issue['meta']['sizeOnPage_height'],
 				),
 			),
 			'weight'     => array(
-				'current'   => $issue->meta->fileSize_weight,
-				'potential' => (int) $issue->meta->potentialSavings,
+				'current'   => $issue['meta']['fileSize_weight'],
+				'potential' => (int) $issue['meta']['potentialSavings'],
 			),
 		);
-	}
-
-	public function set( $value ) {
-		$this->page         = $value['query']['page'];
-		$this->group        = $value['query']['group'];
-		$this->search_query = $value['query']['search'];
 	}
 
 	/**

@@ -1,11 +1,11 @@
-import WpPage from 'jetpack-e2e-commons/pages/wp-page.js';
-import logger from 'jetpack-e2e-commons/logger.js';
-import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
+import { resolveSiteUrl } from '_jetpack-e2e-commons/helpers/utils-helper.js';
+import logger from '_jetpack-e2e-commons/logger.js';
+import WpPage from '_jetpack-e2e-commons/pages/wp-page.js';
 
 export default class JetpackSocialPage extends WpPage {
 	constructor( page ) {
 		const url = resolveSiteUrl() + '/wp-admin/admin.php?page=jetpack-social';
-		super( page, { expectedSelectors: [ '#jetpack-social-root' ], url } );
+		super( page, { expectedSelectors: [], url } );
 	}
 
 	async getStarted() {
@@ -26,11 +26,12 @@ export default class JetpackSocialPage extends WpPage {
 
 	/**
 	 * Checks it connection to WordPress.com is made
+	 * @return {boolean} If connected.
 	 */
 	async isConnected() {
 		logger.step( 'Check if Jetpack Social is connected' );
 		return (
-			( await this.isElementVisible( 'text=Manage social media connections' ) ) &&
+			( await this.isElementVisible( 'text=Connect accounts' ) ) &&
 			( await this.isElementVisible( 'text=Write a post' ) )
 		);
 	}

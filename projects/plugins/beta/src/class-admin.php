@@ -41,7 +41,8 @@ class Admin {
 			'Beta Tester',
 			'update_plugins',
 			'jetpack-beta',
-			array( self::class, 'render' )
+			array( self::class, 'render' ),
+			16
 		);
 
 		if ( false !== self::$hookname ) {
@@ -77,7 +78,7 @@ class Admin {
 		if ( is_network_admin() && ! is_plugin_active_for_network( JPBETA__PLUGIN_FOLDER . '/jetpack-beta.php' ) ) {
 			$exception = new \RuntimeException( __( 'Jetpack Beta Tester must be activated for the network to be used from Network Admin.', 'jetpack-beta' ) );
 			require_once __DIR__ . '/admin/exception.template.php';
-			exit;
+			exit( 0 );
 		}
 
 		ob_start();
@@ -128,7 +129,7 @@ class Admin {
 			) {
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				wp_safe_redirect( Utils::admin_url( $_GET ) );
-				exit();
+				exit( 0 );
 			}
 		}
 
@@ -167,7 +168,7 @@ class Admin {
 		}
 
 		wp_safe_redirect( Utils::admin_url( $plugin ? array( 'plugin' => $plugin_name ) : array() ) );
-		exit();
+		exit( 0 );
 	}
 
 	/**
@@ -237,13 +238,13 @@ class Admin {
 	 * @return (string|null)[] HTML and diff summary.
 	 */
 	public static function to_test_content( Plugin $plugin ) {
-		if ( is_plugin_active( $plugin->plugin_file() ) ) {
-			$path = WP_PLUGIN_DIR . '/' . $plugin->plugin_slug();
+		if ( $plugin->is_active( 'stable' ) ) {
+			$path = dirname( $plugin->plugin_path() );
 			$info = (object) array(
 				'source' => 'stable',
 			);
-		} elseif ( is_plugin_active( $plugin->dev_plugin_file() ) ) {
-			$path = WP_PLUGIN_DIR . '/' . $plugin->dev_plugin_slug();
+		} elseif ( $plugin->is_active( 'dev' ) ) {
+			$path = dirname( $plugin->dev_plugin_path() );
 			$info = $plugin->dev_info();
 			if ( ! $info ) {
 				return array(

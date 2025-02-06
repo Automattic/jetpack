@@ -21,7 +21,7 @@ import {
 import { FormFileUpload } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { useEffect, useRef, useState } from 'react';
 /**
  * Internal dependencies
@@ -45,8 +45,17 @@ import styles from './styles.module.scss';
 
 const useDashboardVideos = () => {
 	const { uploadVideo, uploadVideoFromLibrary, setVideosQuery } = useDispatch( STORE_ID );
-	const { items, uploading, uploadedVideoCount, isFetching, search, page, itemsPerPage, total } =
-		useVideos();
+	const {
+		items,
+		uploadErrors,
+		uploading,
+		uploadedVideoCount,
+		isFetching,
+		search,
+		page,
+		itemsPerPage,
+		total,
+	} = useVideos();
 	const { items: localVideos, uploadedLocalVideoCount } = useLocalVideos();
 	const { hasVideoPressPurchase } = usePlan();
 
@@ -99,15 +108,14 @@ const useDashboardVideos = () => {
 			setVideosQuery( {
 				search: searchFromSearchParam,
 			} );
-
-			return;
 		}
 	}, [ totalOfPages, page, pageFromSearchParam, search, searchFromSearchParam, tempPage.current ] );
 
 	// Do not show uploading videos if not in the first page or searching
-	let videos = page > 1 || Boolean( search ) ? items : [ ...uploading, ...items ];
+	let videos = page > 1 || Boolean( search ) ? items : [ ...uploadErrors, ...uploading, ...items ];
 
-	const hasVideos = uploadedVideoCount > 0 || isFetching || uploading?.length > 0;
+	const hasVideos =
+		uploadedVideoCount > 0 || isFetching || uploading?.length > 0 || uploadErrors?.length > 0;
 	const hasLocalVideos = uploadedLocalVideoCount > 0;
 
 	const handleFilesUpload = ( files: File[] ) => {
@@ -144,7 +152,7 @@ const useDashboardVideos = () => {
 		handleFilesUpload,
 		handleLocalVideoUpload,
 		loading: isFetching,
-		uploading: uploading?.length > 0,
+		uploading: uploading?.length > 0 || uploadErrors?.length > 0,
 		hasVideoPressPurchase,
 	};
 };
@@ -188,7 +196,7 @@ const Admin = () => {
 			header={ <JetpackVideoPressLogo /> }
 		>
 			<div
-				className={ classnames( styles[ 'files-overlay' ], {
+				className={ clsx( styles[ 'files-overlay' ], {
 					[ styles.hover ]: isDraggingOver && canUpload && ! loading,
 				} ) }
 			>
@@ -318,17 +326,25 @@ const Admin = () => {
 export default Admin;
 
 const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) => {
-	const { adminUrl, siteSuffix } = window.jetpackVideoPressInitialState;
+	const { adminUri, siteSuffix } = window.jetpackVideoPressInitialState;
 
 	const { product, hasVideoPressPurchase, isFetchingPurchases } = usePlan();
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const { run } = useProductCheckoutWorkflow( {
 		siteSuffix,
 		productSlug: product.productSlug,
-		redirectUrl: adminUrl,
+		redirectUrl: adminUri,
 		isFetchingPurchases,
+		useBlogIdSuffix: true,
 	} );
 
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const { recordEventHandler } = useAnalyticsTracks( {} );
+
+	if ( hasVideoPressPurchase || isFetchingPurchases ) {
+		return null;
+	}
+
 	const onButtonClickHandler = recordEventHandler(
 		'jetpack_videopress_upgrade_trigger_link_click',
 		run
@@ -342,10 +358,6 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 		'Upgrade now to unlock unlimited videos, 1TB of storage, and more!',
 		'jetpack-videopress-pkg'
 	);
-
-	if ( hasVideoPressPurchase || isFetchingPurchases ) {
-		return null;
-	}
 
 	return (
 		<ContextualUpgradeTrigger

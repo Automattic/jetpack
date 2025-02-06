@@ -9,13 +9,15 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS;
 
+use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
+use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Output_Filter;
 
 /**
  * Class Render_Blocking_JS
  */
-class Render_Blocking_JS implements Pluggable {
+class Render_Blocking_JS implements Pluggable, Changes_Page_Output, Optimization {
 	/**
 	 * Holds the script tags removed from the output buffer.
 	 *
@@ -56,10 +58,30 @@ class Render_Blocking_JS implements Pluggable {
 	public function setup() {
 		$this->output_filter = new Output_Filter();
 
-		// Set up the ignore attribute value.
+		/**
+		 * Filters the ignore attribute
+		 *
+		 * @param $string $ignore_attribute The string used to ignore elements of the page.
+		 *
+		 * @since   1.0.0
+		 */
 		$this->ignore_attribute = apply_filters( 'jetpack_boost_render_blocking_js_ignore_attribute', 'data-jetpack-boost' );
 
 		add_action( 'template_redirect', array( $this, 'start_output_filtering' ), -999999 );
+
+		/**
+		 * Shortcodes can sometimes output script to embed widget. It's safer to ignore them.
+		 */
+		add_filter( 'do_shortcode_tag', array( $this, 'add_ignore_attribute' ) );
+	}
+
+	/**
+	 * The module starts serving as soon as it's enabled.
+	 *
+	 * @return bool
+	 */
+	public function is_ready() {
+		return true;
 	}
 
 	public static function is_available() {
@@ -79,7 +101,13 @@ class Render_Blocking_JS implements Pluggable {
 		 * Here are a few scenarios when we shouldn't do it:
 		 */
 
-		// Give a chance to disable defer blocking js.
+		/**
+		 * Filter to disable defer blocking JS
+		 *
+		 * @param bool $defer return false to disable defer blocking
+		 *
+		 * @since   1.0.0
+		 */
 		if ( false === apply_filters( 'jetpack_boost_should_defer_js', '__return_true' ) ) {
 			return;
 		}
@@ -203,6 +231,13 @@ class Render_Blocking_JS implements Pluggable {
 			return array();
 		}
 
+		/**
+		 * Filter to remove any scripts that should not be moved to the end of the document.
+		 *
+		 * @param array $script_tags array of script tags. Remove any scripts that should not be moved to the end of the documents.
+		 *
+		 * @since   1.0.0
+		 */
 		return apply_filters( 'jetpack_boost_render_blocking_js_exclude_scripts', $script_tags[0] );
 	}
 
@@ -219,14 +254,14 @@ class Render_Blocking_JS implements Pluggable {
 			'~<!--.*?-->~si',
 
 			// Scripts with types that do not execute complex code. Moving them down can be dangerous
-			// and does not benefit performance. Includes types: application/json and importmap.
-			'~<script\s+[^\>]*type=(?<q>["\']*)(application/json|importmap)\k<q>.*?>.*?</script>~si',
+			// and does not benefit performance. Includes types: application/json, application/ld+json and importmap.
+			'~<script\s+[^\>]*type=(?<q>["\']*)(application\/(ld\+)?json|importmap)\k<q>.*?>.*?<\/script>~si',
 		);
 
 		return preg_replace_callback(
 			$exclusions,
 			function ( $script_match ) {
-				return str_replace( '<script', sprintf( '<script %s="%s"', esc_html( $this->ignore_attribute ), esc_attr( $this->ignore_value ) ), $script_match[0] );
+				return $this->add_ignore_attribute( $script_match[0] );
 			},
 			$buffer
 		);
@@ -281,13 +316,31 @@ class Render_Blocking_JS implements Pluggable {
 	 * @return string
 	 */
 	public function handle_exclusions( $tag, $handle ) {
+		/**
+		 * Filter to provide an array of registered script handles that should not be moved to the end of the document.
+		 *
+		 * @param array $script_handles array of script handles. Remove any scripts that should not be moved to the end of the documents.
+		 *
+		 * @since   1.0.0
+		 */
 		$exclude_handles = apply_filters( 'jetpack_boost_render_blocking_js_exclude_handles', array() );
 
 		if ( ! in_array( $handle, $exclude_handles, true ) ) {
 			return $tag;
 		}
 
-		return str_replace( '<script', sprintf( '<script %s="%s"', esc_html( $this->ignore_attribute ), esc_attr( $this->ignore_value ) ), $tag );
+		return $this->add_ignore_attribute( $tag );
+	}
+
+	/**
+	 * Add the ignore attribute to the script tags
+	 *
+	 * @param string $html HTML code possibly containing a <script> opening tag.
+	 *
+	 * @return string
+	 */
+	public function add_ignore_attribute( $html ) {
+		return str_replace( '<script', sprintf( '<script %s="%s"', esc_html( $this->ignore_attribute ), esc_attr( $this->ignore_value ) ), $html );
 	}
 
 	/**

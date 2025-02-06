@@ -65,7 +65,7 @@ class Partner_Test extends TestCase {
 	 * @param string $code_type Partner code type.
 	 * @param string $option_name Option and filter name.
 	 *
-	 * @throws Monkey\Expectation\Exception\ExpectationArgsRequired Function requires args.
+	 * @throws \Brain\Monkey\Expectation\Exception\ExpectationArgsRequired Function requires args.
 	 */
 	public function test_partner_code_is_empty_by_default( $code_type, $option_name ) {
 		$call_counter  = 0;
@@ -92,7 +92,7 @@ class Partner_Test extends TestCase {
 	 * @param string $code_type Partner code type.
 	 * @param string $option_name Option and filter name.
 	 *
-	 * @throws Monkey\Expectation\Exception\ExpectationArgsRequired Function requires args.
+	 * @throws \Brain\Monkey\Expectation\Exception\ExpectationArgsRequired Function requires args.
 	 */
 	public function test_partner_code_is_set_via_option( $code_type, $option_name ) {
 		$call_counter  = 0;
@@ -119,7 +119,7 @@ class Partner_Test extends TestCase {
 	 * @param string $code_type Partner code type.
 	 * @param string $option_name Option and filter name.
 	 *
-	 * @throws Monkey\Expectation\Exception\ExpectationArgsRequired Function requires args.
+	 * @throws \Brain\Monkey\Expectation\Exception\ExpectationArgsRequired Function requires args.
 	 */
 	public function test_partner_code_is_set_via_filter( $code_type, $option_name ) {
 		$call_counter  = 0;

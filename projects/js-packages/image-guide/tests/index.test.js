@@ -1,4 +1,4 @@
-import MeasurableImage from '../src/index';
+import MeasurableImage from '../src/MeasurableImage';
 
 describe( 'MeasurableImage', () => {
 	it( 'returns an object', () => {

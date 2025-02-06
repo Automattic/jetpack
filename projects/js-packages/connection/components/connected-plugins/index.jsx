@@ -7,7 +7,7 @@ import DisconnectCard from '../disconnect-card';
  * Render a list of connected plugins.
  *
  * @param {object} props - The properties
- * @returns {React.Component} - The ConnectedPlugins React component
+ * @return {React.Component} - The ConnectedPlugins React component
  */
 
 const ConnectedPlugins = props => {
@@ -40,7 +40,7 @@ const ConnectedPlugins = props => {
 					<p className="jp-connection__disconnect-dialog__large-text">
 						{ __(
 							'Jetpack is powering other plugins on your site. If you disconnect, these plugins will no longer work.',
-							'jetpack'
+							'jetpack-connection-js'
 						) }
 					</p>
 				</div>

@@ -1,6 +1,6 @@
 import { Path, SVG, G, Polygon } from '@wordpress/components';
-import classNames from 'classnames';
-import SocialLogo from 'social-logos';
+import clsx from 'clsx';
+import { SocialLogo } from 'social-logos';
 import styles from './style.module.scss';
 import { BaseIconProps } from './types';
 import type React from 'react';
@@ -9,7 +9,7 @@ import type React from 'react';
  * Icon Wrapper component.
  *
  * @param {BaseIconProps} props - Component props.
- * @returns {React.ReactNode} Icon Wrapper component.
+ * @return {React.ReactNode} Icon Wrapper component.
  */
 const IconWrapper: React.FC< BaseIconProps > = ( {
 	className,
@@ -20,7 +20,7 @@ const IconWrapper: React.FC< BaseIconProps > = ( {
 	children,
 } ) => {
 	const iconProps = {
-		className: classNames( styles.iconWrapper, className ),
+		className: clsx( styles.iconWrapper, className ),
 		width: size,
 		height: size,
 		viewBox,
@@ -212,6 +212,40 @@ export const ShareIcon: React.FC< BaseIconProps > = ( { size = 16, className, co
 	);
 };
 
+export const AiIcon: React.FC< BaseIconProps > = ( {
+	size = 24,
+	color = '#069e08', // JP green
+} ) => {
+	return (
+		<IconWrapper color={ color } size={ size } viewBox={ '0 0 32 32' }>
+			<Path
+				className="spark-first"
+				d="M9.33301 5.33325L10.4644 8.20188L13.333 9.33325L10.4644 10.4646L9.33301 13.3333L8.20164 10.4646L5.33301 9.33325L8.20164 8.20188L9.33301 5.33325Z"
+			/>
+			<Path
+				className="spark-second"
+				d="M21.3333 5.33333L22.8418 9.15817L26.6667 10.6667L22.8418 12.1752L21.3333 16L19.8248 12.1752L16 10.6667L19.8248 9.15817L21.3333 5.33333Z"
+			/>
+			<Path
+				className="spark-third"
+				d="M14.6667 13.3333L16.5523 18.1144L21.3333 20L16.5523 21.8856L14.6667 26.6667L12.781 21.8856L8 20L12.781 18.1144L14.6667 13.3333Z"
+			/>
+		</IconWrapper>
+	);
+};
+
+export const StatsIcon: React.FC< BaseIconProps > = ( { opacity = 1, size, color } ) => {
+	return (
+		<IconWrapper size={ size } opacity={ opacity } color={ color }>
+			<Path
+				fillRule="evenodd"
+				clipRule="evenodd"
+				d="M11.25 5H12.75V20H11.25V5ZM6 10H7.5V20H6V10ZM18 14H16.5V20H18V14Z"
+			/>
+		</IconWrapper>
+	);
+};
+
 const jetpackIcons = {
 	'anti-spam': AntiSpamIcon,
 	backup: BackupIcon,
@@ -226,6 +260,8 @@ const jetpackIcons = {
 	videopress: VideopressIcon,
 	jetpack: JetpackIcon,
 	share: ShareIcon,
+	ai: AiIcon,
+	stats: StatsIcon,
 };
 
 const iconsMap = {
@@ -241,8 +277,8 @@ export type IconSlug = keyof IconsMap;
 /**
  * Return icon component by slug.
  *
- * @param {string} slug       - Icon slug.
- * @returns {React.ComponentType<BaseIconProps>}   Icon component.
+ * @param {string} slug - Icon slug.
+ * @return {React.ComponentType<BaseIconProps>}   Icon component.
  */
 export function getIconBySlug< Slug extends IconSlug >( slug: Slug ): IconsMap[ Slug ] {
 	if ( ! iconsMap[ slug ] ) {
@@ -255,11 +291,13 @@ export function getIconBySlug< Slug extends IconSlug >( slug: Slug ): IconsMap[ 
 export const SocialServiceIcon: React.FC< {
 	serviceName: React.ComponentProps< typeof SocialLogo >[ 'icon' ];
 	className?: string;
-} > = ( { serviceName, className } ) => {
+	iconSize?: number;
+} > = ( { serviceName, className, iconSize } ) => {
 	return (
 		<SocialLogo
-			className={ classNames( styles.socialIcon, styles[ serviceName ], className ) }
+			className={ clsx( styles.socialIcon, styles[ serviceName ], className ) }
 			icon={ serviceName }
+			size={ iconSize || 24 }
 		/>
 	);
 };

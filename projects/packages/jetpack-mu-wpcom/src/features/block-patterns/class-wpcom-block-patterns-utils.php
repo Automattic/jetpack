@@ -5,7 +5,6 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 /**
@@ -59,22 +58,12 @@ class Wpcom_Block_Patterns_Utils {
 	}
 
 	/**
-	 * Returns the sha1 hash of a concatenated string to use as a cache key.
+	 * Returns a cache key per locale.
 	 *
-	 * @param string $patterns_slug A slug for a patterns source site, e.g., `block_patterns`.
 	 * @return string locale slug
 	 */
-	public function get_patterns_cache_key( $patterns_slug ) {
-		return sha1(
-			implode(
-				'_',
-				array(
-					$patterns_slug,
-					Jetpack_Mu_Wpcom::PACKAGE_VERSION,
-					$this->get_block_patterns_locale(),
-				)
-			)
-		);
+	public function get_patterns_cache_key() {
+		return 'wpcom_block_patterns_' . $this->get_block_patterns_locale();
 	}
 
 	/**
@@ -111,6 +100,38 @@ class Wpcom_Block_Patterns_Utils {
 
 			if ( isset( $split_slug[1] ) ) {
 				$block_types[] = $split_slug[1];
+			}
+		}
+
+		return $block_types;
+	}
+
+	/**
+	 * Using the pattern categories, generate the `blockTypes` property for
+	 * registering the pattern via `register_block_pattern`.
+	 *
+	 * @param array $pattern A pattern with categories.
+	 *
+	 * @return array         An array of block types.
+	 */
+	public function get_block_types_from_categories( $pattern ) {
+		$block_types = array();
+
+		if ( ! isset( $pattern['categories'] ) || empty( $pattern['categories'] ) ) {
+			return $block_types;
+		}
+
+		foreach ( $pattern['categories'] as $key => $value ) {
+			switch ( $key ) {
+				case 'header':
+					$block_types[] = 'core/template-part/header';
+					break;
+				case 'footer':
+					$block_types[] = 'core/template-part/footer';
+					break;
+				case 'posts':
+					$block_types[] = 'core/query';
+					break;
 			}
 		}
 

@@ -48,10 +48,10 @@ button.jb-link {
 	}
 
 	&--fixed {
-		max-width: 1080px;
+		max-width: 1176px;
 		width: auto;
-		padding-left: $spacing-unit * 2;
-		padding-right: $spacing-unit * 2;
+		padding-left: 24px;
+		padding-right: 24px;
 	}
 }
 
@@ -67,12 +67,6 @@ button.jb-link {
 		flex-direction: column;
 		justify-content: flex-start;
 	}
-}
-
-.jb-footer-note {
-	text-align: center;
-	margin-top: $halfling;
-	color: $gray_70;
 }
 
 .jb-warning-modal {

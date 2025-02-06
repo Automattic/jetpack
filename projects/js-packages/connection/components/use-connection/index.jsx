@@ -1,9 +1,10 @@
 import restApi from '@automattic/jetpack-api';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect } from 'react';
 import { STORE_ID } from '../../state/store';
 
-const initialState = window?.JP_CONNECTION_INITIAL_STATE ? window.JP_CONNECTION_INITIAL_STATE : {};
+const initialState = window?.JP_CONNECTION_INITIAL_STATE || getScriptData()?.connection || {};
 
 export default ( {
 	registrationNonce = initialState.registrationNonce,
@@ -13,6 +14,7 @@ export default ( {
 	autoTrigger,
 	from,
 	skipUserConnection,
+	skipPricingPage,
 } = {} ) => {
 	const { registerSite, connectUser, refreshConnectedPlugins } = useDispatch( STORE_ID );
 
@@ -40,11 +42,11 @@ export default ( {
 	/**
 	 * User register process handler.
 	 *
-	 * @returns {Promise} - Promise which resolves when the product status is activated.
+	 * @return {Promise} - Promise which resolves when the product status is activated.
 	 */
 	const handleConnectUser = () => {
 		if ( ! skipUserConnection ) {
-			return connectUser( { from, redirectUri } );
+			return connectUser( { from, redirectUri, skipPricingPage } );
 		} else if ( redirectUri ) {
 			window.location = redirectUri;
 			return Promise.resolve( redirectUri );
@@ -63,7 +65,7 @@ export default ( {
 	 * the site was successfully registered.
 	 *
 	 * @param {Event} [e] - Event that dispatched handleRegisterSite
-	 * @returns {Promise}   Promise when running the registration process. Otherwise, nothing.
+	 * @return {Promise}   Promise when running the registration process. Otherwise, nothing.
 	 */
 	const handleRegisterSite = e => {
 		e && e.preventDefault();
@@ -72,7 +74,7 @@ export default ( {
 			return handleConnectUser();
 		}
 
-		return registerSite( { registrationNonce, redirectUri } ).then( () => {
+		return registerSite( { registrationNonce, redirectUri, from } ).then( () => {
 			return handleConnectUser();
 		} );
 	};

@@ -1,11 +1,11 @@
-import { imagePath } from 'constants/urls';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { imagePath } from 'constants/urls';
 
 import './style.scss';
 
-const JetpackLoadingIcon = ( { altText } ) => {
+const JetpackLoadingIcon = ( { altText = __( 'Loading…', 'jetpack' ) } ) => {
 	return (
 		<div className="jp-loading-icon">
 			<img src={ imagePath + '/jetpack-logomark-blue.svg' } alt={ altText } />
@@ -15,10 +15,6 @@ const JetpackLoadingIcon = ( { altText } ) => {
 
 JetpackLoadingIcon.propTypes = {
 	altText: PropTypes.string,
-};
-
-JetpackLoadingIcon.defaultProps = {
-	altText: __( 'Loading…', 'jetpack' ),
 };
 
 export { JetpackLoadingIcon };

@@ -2,28 +2,34 @@ import { getCurrencyObject } from '@automattic/format-currency';
 import { __, sprintf } from '@wordpress/i18n';
 import RightArrow from '$svg/right-arrow';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { useEffect } from 'react';
 import styles from './upgrade-cta.module.scss';
-import { useConfig } from '$lib/stores/config-ds';
+import { usePricing } from '$lib/stores/pricing';
 import { useNavigate } from 'react-router-dom';
 
 type UpgradeCTAProps = {
 	description: string;
+	identifier: string;
+	eventName?: string;
 };
 
-const UpgradeCTA = ( { description }: UpgradeCTAProps ) => {
+const UpgradeCTA = ( {
+	description,
+	identifier,
+	eventName = 'upsell_cta_from_settings_page_in_plugin',
+}: UpgradeCTAProps ) => {
+	// No need to show the upgrade CTA if the site is unreachable.
+	if ( ! Jetpack_Boost.site.online ) {
+		return null;
+	}
+
 	const navigate = useNavigate();
 
 	const showBenefits = () => {
-		recordBoostEvent( 'upsell_cta_from_settings_page_in_plugin', {} );
+		recordBoostEvent( eventName, { identifier } );
 		navigate( '/upgrade' );
 	};
 
-	useEffect( () => {
-		recordBoostEvent( 'view_upsell_cta_in_settings_page_in_plugin', {} );
-	}, [] );
-
-	const { pricing } = useConfig();
+	const pricing = usePricing();
 	const currencyObjectAfter = ! pricing
 		? null
 		: getCurrencyObject( pricing.priceAfter / 12, pricing.currencyCode );
@@ -38,7 +44,7 @@ const UpgradeCTA = ( { description }: UpgradeCTAProps ) => {
 				<p className={ styles[ 'action-line' ] }>
 					{ sprintf(
 						/* translators: %s is the price including the currency symbol in front. */
-						__( `Upgrade now only %s`, 'jetpack-boost' ),
+						__( `Upgrade now only %s per month`, 'jetpack-boost' ),
 						priceString
 					) }
 				</p>

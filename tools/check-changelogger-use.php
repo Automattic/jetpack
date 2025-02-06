@@ -6,12 +6,12 @@
  * @package automattic/jetpack
  */
 
-// phpcs:disable WordPress.WP.GlobalVariablesOverride
-
 chdir( __DIR__ . '/../' );
 
 /**
  * Display usage information and exit.
+ *
+ * @return never
  */
 function usage() {
 	global $argv;
@@ -43,7 +43,7 @@ EOH;
 
 $exit        = 0;
 $idx         = 0;
-$verbose     = false;
+$verbose     = false; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- false positive
 $list        = false;
 $maybe_merge = false;
 $base        = null;
@@ -52,7 +52,7 @@ for ( $i = 1; $i < $argc; $i++ ) {
 	switch ( $argv[ $i ] ) {
 		case '-v':
 		case '--debug':
-			$verbose = true;
+			$verbose = true; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- still a false positive
 			break;
 		case '--list':
 			$list = true;
@@ -63,7 +63,7 @@ for ( $i = 1; $i < $argc; $i++ ) {
 		case '-h':
 		case '--help':
 			usage();
-			break;
+			break; // @phan-suppress-current-line PhanPluginUnreachableCode -- Safer to include it even though usage() never returns.
 		default:
 			if ( ! str_starts_with( $argv[ $i ], '-' ) ) {
 				switch ( $idx++ ) {
@@ -85,31 +85,36 @@ for ( $i = 1; $i < $argc; $i++ ) {
 	}
 }
 
-if ( null === $head ) {
+if ( $base === null || $head === null ) {
 	fprintf( STDERR, "\e[1;31mBase and head refs are required.\e[0m\n" );
 	usage();
 }
 
-if ( $verbose ) {
-	/**
-	 * Output debug info.
-	 *
-	 * @param array ...$args Arguments to printf. A newline is automatically appended.
-	 */
-	function debug( ...$args ) {
-		if ( getenv( 'CI' ) ) {
-			$args[0] = "\e[34m{$args[0]}\e[0m\n";
+/**
+ * Output debug info.
+ *
+ * @param string $fmt Printf format string. A newline is automatically appended.
+ * @param mixed  ...$args Arguments to printf.
+ */
+function debug( $fmt, ...$args ) {
+	global $verbose;
+
+	if ( ! $verbose ) {
+		return;
+	}
+
+	static $color;
+	if ( $color === null ) {
+		$dim = shell_exec( 'tput dim 2>/dev/null' );
+		if ( is_string( $dim ) && substr( $dim, 0, 2 ) === "\e[" && substr( $dim, -1 ) === 'm' ) {
+			$color = substr( $dim, 2, -1 );
 		} else {
-			$args[0] = "\e[1;30m{$args[0]}\e[0m\n";
+			$color = '90';
 		}
-		fprintf( STDERR, ...$args );
 	}
-} else {
-	/**
-	 * Do not output debug info.
-	 */
-	function debug() {
-	}
+
+	$args[0] = "\e[{$color}m{$args[0]}\e[0m\n";
+	fprintf( STDERR, ...$args );
 }
 
 if ( $maybe_merge && $list ) {
@@ -146,7 +151,7 @@ foreach ( glob( 'projects/*/*/composer.json' ) as $file ) {
 	) {
 		continue;
 	}
-	$data  = isset( $data['extra']['changelogger'] ) ? $data['extra']['changelogger'] : array();
+	$data  = $data['extra']['changelogger'] ?? array();
 	$data += array(
 		'changelog'   => 'CHANGELOG.md',
 		'changes-dir' => 'changelog',

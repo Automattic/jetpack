@@ -12,9 +12,9 @@ import {
  * Determines if a video is private taking into account the video
  * privacy setting and the site default privacy setting.
  *
- * @param {PrivacySettingProp} privacySetting - The privacy setting for the video
- * @param {boolean} privateEnabledForSite - The site default privacy setting, if it's private or not
- * @returns {boolean} - true if the video is private, false otherwise
+ * @param {PrivacySettingProp} privacySetting        - The privacy setting for the video
+ * @param {boolean}            privateEnabledForSite - The site default privacy setting, if it's private or not
+ * @return {boolean} - true if the video is private, false otherwise
  */
 export const videoIsPrivate = (
 	privacySetting: PrivacySettingProp,

@@ -1,3 +1,5 @@
+import { __ } from '@wordpress/i18n';
+
 export default {
 	prepTime: {
 		type: 'string',
@@ -9,7 +11,8 @@ export default {
 	},
 	prepTimeLabel: {
 		type: 'string',
-		default: 'Prep Time',
+		// translators: Prep Time label for a recipe block.
+		default: __( 'Prep Time', 'jetpack' ),
 	},
 	cookTime: {
 		type: 'string',
@@ -21,7 +24,8 @@ export default {
 	},
 	cookTimeLabel: {
 		type: 'string',
-		default: 'Cook Time',
+		// translators: Cook Time label for a recipe block.
+		default: __( 'Cook Time', 'jetpack' ),
 	},
 	servings: {
 		type: 'number',
@@ -29,6 +33,7 @@ export default {
 	},
 	servingsLabel: {
 		type: 'string',
-		default: 'Servings',
+		// translators: Servings label for a recipe block.
+		default: __( 'Servings', 'jetpack' ),
 	},
 };

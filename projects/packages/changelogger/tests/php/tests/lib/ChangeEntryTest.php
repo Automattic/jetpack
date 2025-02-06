@@ -18,7 +18,6 @@ use PHPUnit\Framework\TestCase;
  * @covers \Automattic\Jetpack\Changelog\ChangeEntry
  */
 class ChangeEntryTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
 
 	/**
 	 * Test general getters.
@@ -40,6 +39,7 @@ class ChangeEntryTest extends TestCase {
 		$this->assertSame( 'me!', $change->getAuthor() );
 		$this->assertSame( 'Bar', $change->getContent() );
 
+		// @phan-suppress-next-line PhanTypeMismatchArgument -- This is testing the type casting.
 		$this->assertSame( $change, $change->setSignificance( null )->setAuthor( 111 )->setSubheading( 222 )->setContent( 333 ) );
 		$this->assertSame( null, $change->getSignificance() );
 		$this->assertSame( '111', $change->getAuthor() );
@@ -68,6 +68,7 @@ class ChangeEntryTest extends TestCase {
 	public function testConstructor_error() {
 		$this->expectException( InvalidArgumentException::class );
 		$this->expectExceptionMessage( 'Automattic\\Jetpack\\Changelog\\ChangeEntry::__construct: Unrecognized data item "foo"' );
+		// @phan-suppress-next-line PhanNoopNew -- Expecting it to throw.
 		new ChangeEntry( array( 'foo' => 'bar' ) );
 	}
 
@@ -113,7 +114,7 @@ class ChangeEntryTest extends TestCase {
 	/**
 	 * Data provider for testCompare.
 	 */
-	public function provideCompare() {
+	public static function provideCompare() {
 		return array(
 			'Default config, equal'                        => array(
 				new ChangeEntry(
@@ -412,7 +413,7 @@ class ChangeEntryTest extends TestCase {
 	/**
 	 * Data provider for testJson.
 	 */
-	public function provideJson() {
+	public static function provideJson() {
 		return array(
 			'Basic serialization'              => array(
 				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":null,"timestamp":"2021-02-18T00:00:00+0000","subheading":"","author":"","content":""}',

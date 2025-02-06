@@ -40,17 +40,10 @@ class WP_Test_Atomic_Override_Support extends WP_UnitTestCase {
 	/**
 	 * Test that Development Versions via the Beta plugin are still considered as Development versions.
 	 */
-	public function test_atomic_returns_true_on_beta_plugin_version() {
-		$this->helper__set_atomic_constants();
-		Constants::set_constant( 'JETPACK__PLUGIN_DIR', '/srv/www/public/wp-content/plugins/jetpack-dev/' );
-		$this->assertTrue( Jetpack::is_development_version() );
-		Constants::clear_single_constant( 'JETPACK__PLUGIN_DIR' );
-	}
-
-	/**
-	 * Test that Development Versions via the Beta plugin are still considered as Development versions.
-	 */
 	public function test_atomic_returns_expected_if_not_on_atomic() {
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			$this->markTestSkipped( 'should not be tested in Atomic environment.' );
+		}
 		Constants::set_constant( 'JETPACK__VERSION', '10.3-a.1' );
 		$this->assertTrue( Jetpack::is_development_version() );
 

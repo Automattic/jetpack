@@ -1,18 +1,19 @@
-import { store as blockEditorStore } from '@wordpress/block-editor';
+import { store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
 import { Disabled, Placeholder, Spinner } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { select, useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import ConnectBanner from '../../shared/components/connect-banner';
 import ProductManagementControls from '../../shared/components/product-management-controls';
 import { PRODUCT_TYPE_SUBSCRIPTION } from '../../shared/components/product-management-controls/constants';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
+import useIsUserConnected from '../../shared/use-is-user-connected';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import Blocks from './_inc/blocks';
 import Context from './_inc/context';
 import './editor.scss';
 import ViewSelector from './_inc/view-selector';
-
 /**
  * Tab definitions
  *
@@ -47,19 +48,21 @@ const BLOCK_NAME = 'premium-content';
  *
  * @typedef { import('./').Attributes } Attributes
  * @typedef {object} OwnProps
- * @property { boolean } isSelected
- * @property { string } className
- * @property { string } clientId
- * @property { Attributes } attributes
+ * @property { boolean }                                isSelected
+ * @property { string }                                 className
+ * @property { string }                                 clientId
+ * @property { Attributes }                             attributes
  * @property {(attributes: Object<Attributes>) => void} setAttributes
  * @typedef { OwnProps } Props
- * @param { Props } props
+ * @param    { Props }                                  props
  */
 
-function Edit( props ) {
+function Edit( { clientId, isSelected, attributes, setAttributes } ) {
+	const { isPreview, selectedPlanIds } = attributes;
+
 	const [ selectedTab, selectTab ] = useState( tabs[ WALL_TAB ] );
-	const { isPreview, selectedPlanIds } = props.attributes;
-	const { clientId, isSelected, className, setAttributes } = props;
+	const blockProps = useBlockProps();
+	const isUserConnected = useIsUserConnected();
 
 	const setSelectedProductIds = productIds => setAttributes( { selectedPlanIds: productIds } );
 
@@ -99,8 +102,22 @@ function Edit( props ) {
 
 	const isSmallViewport = useViewportMatch( 'medium', '<' );
 
+	if ( ! isUserConnected ) {
+		return (
+			<div { ...blockProps }>
+				<ConnectBanner
+					block="Paid Content"
+					explanation={ __(
+						'Connect your WordPress.com account to enable paid content.',
+						'jetpack'
+					) }
+				/>
+			</div>
+		);
+	}
+
 	return (
-		<div className={ className }>
+		<div { ...blockProps }>
 			{ ! isPreview && (
 				<>
 					{ isApiLoading && (

@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Text from '../text';
 import styles from './style.module.scss';
 
@@ -9,19 +9,19 @@ interface StatusProps {
 	className?: string;
 }
 
-const Status = ( { className, label, status = 'inactive' }: StatusProps ): JSX.Element => {
+const Status = ( { className, label, status = 'inactive' }: StatusProps ): React.JSX.Element => {
 	const defaultLabels: Record< string, string > = {
-		active: __( 'Active', 'jetpack' ),
-		error: __( 'Error', 'jetpack' ),
-		action: __( 'Action needed', 'jetpack' ),
-		inactive: __( 'Inactive', 'jetpack' ),
-		initializing: __( 'Setting up', 'jetpack' ),
+		active: __( 'Active', 'jetpack-components' ),
+		error: __( 'Error', 'jetpack-components' ),
+		action: __( 'Action needed', 'jetpack-components' ),
+		inactive: __( 'Inactive', 'jetpack-components' ),
+		initializing: __( 'Setting up', 'jetpack-components' ),
 	};
 
 	return (
 		<Text
 			variant="body-extra-small"
-			className={ classNames(
+			className={ clsx(
 				styles.status,
 				{
 					[ styles[ `is-${ status }` ] ]: status,

@@ -8,6 +8,7 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
@@ -28,7 +29,11 @@ class Sharing_Admin {
 	public function __construct() {
 		require_once WP_SHARING_PLUGIN_DIR . 'sharing-service.php';
 
-		add_action( 'admin_init', array( $this, 'admin_init' ) );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonces are handled in process_requests.
+		if ( isset( $_GET['page'] ) && ( $_GET['page'] === 'sharing.php' || $_GET['page'] === 'sharing' ) ) {
+			add_action( 'admin_init', array( $this, 'admin_init' ) );
+		}
+
 		add_action( 'admin_menu', array( $this, 'subscription_menu' ) );
 
 		// Insert our CSS and JS
@@ -90,9 +95,7 @@ class Sharing_Admin {
 	 * @return void
 	 */
 	public function admin_init() {
-		if ( isset( $_GET['page'] ) && ( $_GET['page'] === 'sharing.php' || $_GET['page'] === 'sharing' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonces are handled in process_requests.
-			$this->process_requests();
-		}
+		$this->process_requests();
 	}
 
 	/**
@@ -117,32 +120,31 @@ class Sharing_Admin {
 			do_action( 'sharing_admin_update' );
 
 			wp_safe_redirect( admin_url( 'options-general.php?page=sharing&update=saved' ) );
-			die();
+			die( 0 );
 		}
 	}
 
 	/**
-	 * Register Sharing settings menu page.
+	 * Register Sharing settings menu page in offline mode or when wp-admin interface is enabled.
 	 */
 	public function subscription_menu() {
-		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
-			$active = Jetpack::get_active_modules();
-			if (
-				! in_array( 'publicize', $active, true )
-				&& ! current_user_can( 'manage_options' )
-			) {
-				return;
-			}
-		}
+		$wpcom_is_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+		$is_user_connected           = ( new Connection_Manager() )->is_user_connected();
 
-		add_submenu_page(
-			'options-general.php',
-			__( 'Sharing Settings', 'jetpack' ),
-			__( 'Sharing', 'jetpack' ),
-			'publish_posts',
-			'sharing',
-			array( $this, 'wrapper_admin_page' )
-		);
+		if (
+			( new Status() )->is_offline_mode()
+			|| $wpcom_is_wp_admin_interface
+			|| ! $is_user_connected
+		) {
+			add_submenu_page(
+				'options-general.php',
+				__( 'Sharing Settings', 'jetpack' ),
+				__( 'Sharing', 'jetpack' ),
+				'manage_options',
+				'sharing',
+				array( $this, 'wrapper_admin_page' )
+			);
+		}
 	}
 
 	/**
@@ -163,14 +165,14 @@ class Sharing_Admin {
 				explode( ',', sanitize_text_field( wp_unslash( $_POST['visible'] ) ) ),
 				explode( ',', sanitize_text_field( wp_unslash( $_POST['hidden'] ) ) )
 			);
-			die();
+			die( 0 );
 		}
 	}
 
 	/**
 	 * Create a new custom sharing service via AJAX.
 	 *
-	 * @return void
+	 * @return never
 	 */
 	public function ajax_new_service() {
 		if (
@@ -193,7 +195,7 @@ class Sharing_Admin {
 				$service->button_style = 'icon-text';
 				$this->output_preview( $service );
 
-				die();
+				die( 0 );
 			}
 		}
 
@@ -247,7 +249,7 @@ class Sharing_Admin {
 			echo '<!--->';
 			$service->button_style = 'icon-text';
 			$this->output_preview( $service );
-			die();
+			die( 0 );
 		}
 	}
 
@@ -729,8 +731,18 @@ class Sharing_Admin {
 			new Share_Email( 'email', array() ),
 			new Share_Reddit( 'reddit', array() ),
 		);
+
+		global $submenu;
+		// Hide the link to Jetpack Sharing settings if no Jetpack Settings found in submenu list
+		$show_jetpack_admin_settings_link = array_reduce(
+			$submenu['jetpack'],
+			function ( $carry, $item ) {
+				return $carry || ( isset( $item[2] ) && $item[2] === 'jetpack#/settings' );
+			},
+			false
+		);
 		?>
-		
+
 		<div class="share_manage_options">
 			<br class="clearing" />
 			<h2><?php esc_html_e( 'Sharing Buttons', 'jetpack' ); ?></h2>
@@ -758,6 +770,7 @@ class Sharing_Admin {
 						</div>
 					</div>
 				</div>
+				<?php if ( $show_jetpack_admin_settings_link ) : ?>
 				<p class="settings-sharing__block-theme-description">
 					<?php
 					printf(
@@ -772,6 +785,7 @@ class Sharing_Admin {
 					);
 					?>
 				</p>
+				<?php endif; ?>
 			</div>
 			<br class="clearing" />
 		</div>
@@ -791,6 +805,10 @@ class Sharing_Admin {
  * @return bool
  */
 function jetpack_post_sharing_get_value( array $post ) {
+	if ( ! isset( $post['id'] ) ) {
+		return false;
+	}
+
 	// if sharing IS disabled on this post, enabled=false, so negate the meta
 	return (bool) ! get_post_meta( $post['id'], 'sharing_disabled', true );
 }

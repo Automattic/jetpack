@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
-import { Button as WPButton, Spinner } from '@wordpress/components';
+import { Button as WPButton, Spinner, VisuallyHidden } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React, { forwardRef } from 'react';
 /**
  * Internal dependencies
@@ -15,7 +16,7 @@ import type { ButtonProps } from './types';
  * Button component
  *
  * @param {ButtonProps} props - Component Props
- * @returns {React.ReactNode} Rendered button
+ * @return {React.ReactNode} Rendered button
  */
 const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
 	const {
@@ -35,7 +36,7 @@ const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
 		...componentProps
 	} = props;
 
-	const className = classNames( styles.button, propsClassName, {
+	const className = clsx( styles.button, propsClassName, {
 		[ styles.normal ]: size === 'normal',
 		[ styles.small ]: size === 'small',
 		[ styles.icon ]: Boolean( icon ),
@@ -49,7 +50,15 @@ const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
 
 	const externalIconSize = size === 'normal' ? 20 : 16;
 	const externalIcon = isExternalLink && (
-		<Icon size={ externalIconSize } icon={ external } className={ styles[ 'external-icon' ] } />
+		<>
+			<Icon size={ externalIconSize } icon={ external } className={ styles[ 'external-icon' ] } />
+			<VisuallyHidden as="span">
+				{
+					/* translators: accessibility text */
+					__( '(opens in a new tab)', 'jetpack-components' )
+				}
+			</VisuallyHidden>
+		</>
 	);
 	const externalTarget = isExternalLink ? '_blank' : undefined;
 
@@ -64,7 +73,7 @@ const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
 		<WPButton
 			target={ externalTarget }
 			variant={ variant }
-			className={ classNames( className, { 'has-text': !! icon && hasChildren } ) }
+			className={ clsx( className, { 'has-text': !! icon && hasChildren } ) }
 			icon={ ! isExternalLink ? icon : undefined }
 			iconSize={ iconSize }
 			disabled={ disabled }

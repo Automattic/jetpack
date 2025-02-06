@@ -6,7 +6,7 @@ use Automattic\Jetpack\Tracking;
 
 // Disable direct access/execution to/of the widget code.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
@@ -86,10 +86,6 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				add_action( 'wp_ajax_customize-jetpack-simple-payments-buttons-get', array( $this, 'ajax_get_payment_buttons' ) );
 				add_action( 'wp_ajax_customize-jetpack-simple-payments-button-save', array( $this, 'ajax_save_payment_button' ) );
 				add_action( 'wp_ajax_customize-jetpack-simple-payments-button-delete', array( $this, 'ajax_delete_payment_button' ) );
-			}
-
-			if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
-				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 			}
 
 			add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_simple_payment_widget' ) );
@@ -344,7 +340,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * Returns the number of decimal places on string representing a price.
 		 *
 		 * @param string $number Price to check.
-		 * @return number number of decimal places.
+		 * @return int|null number of decimal places.
 		 */
 		private function get_decimal_places( $number ) {
 			$parts = explode( '.', $number );
@@ -411,11 +407,16 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 *
 		 * @see WP_Widget::widget()
 		 *
+		 * @html-template-var array $instance
+		 *
 		 * @param array $args     Widget arguments.
 		 * @param array $instance Saved values from database.
 		 */
 		public function widget( $args, $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
+
+			// Enqueue front end assets.
+			$this->enqueue_style();
 
 			echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
@@ -577,6 +578,9 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * Back-end widget form.
 		 *
 		 * @see WP_Widget::form()
+		 *
+		 * @html-template-var array $instance
+		 * @html-template-var WP_Post[] $product_posts
 		 *
 		 * @param array $instance Previously saved values from database.
 		 */

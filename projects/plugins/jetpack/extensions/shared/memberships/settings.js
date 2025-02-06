@@ -1,19 +1,17 @@
+import { numberFormat } from '@automattic/jetpack-components';
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import {
 	Button,
 	Flex,
 	FlexBlock,
-	PanelRow,
 	RadioControl,
 	Spinner,
 	VisuallyHidden,
-	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-	__experimentalToggleGroupControl as ToggleGroupControl,
-	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
+	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
-import { useEntityProp } from '@wordpress/core-data';
+import { useEntityId, useEntityProp, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { useState } from '@wordpress/element';
@@ -142,10 +140,20 @@ export function NewsletterAccessRadioButtons( {
 	const closeDialog = () => setShowDialog( false );
 
 	const setAccess = useSetAccess();
+	const subscribersReach = getReachForAccessLevelKey( {
+		accessLevel: accessOptions.subscribers.key,
+		emailSubscribers,
+		paidSubscribers,
+	} );
+	const paidSubscribersReach = getReachForAccessLevelKey( {
+		accessLevel: accessOptions.paid_subscribers.key,
+		emailSubscribers,
+		paidSubscribers,
+	} );
 
 	return (
-		<fieldset className="editor-post-visibility__fieldset">
-			<VisuallyHidden as="legend">{ __( 'Audience', 'jetpack' ) } </VisuallyHidden>
+		<fieldset className="jetpack-newsletter-access-radio-buttons">
+			<VisuallyHidden as="legend">{ __( 'Access', 'jetpack' ) } </VisuallyHidden>
 			<RadioControl
 				onChange={ value => {
 					if (
@@ -167,19 +175,20 @@ export function NewsletterAccessRadioButtons( {
 						  ]
 						: [] ),
 					{
-						label: `${ accessOptions.subscribers.label } (${ getReachForAccessLevelKey( {
-							accessLevel: accessOptions.subscribers.key,
-							emailSubscribers,
-							paidSubscribers,
-						} ).toLocaleString() })`,
+						label: `${ accessOptions.subscribers.label } (${ numberFormat( subscribersReach, {
+							notation: 'compact',
+							maximumFractionDigits: 1,
+						} ) })`,
 						value: accessOptions.subscribers.key,
 					},
 					{
-						label: `${ accessOptions.paid_subscribers.label } (${ getReachForAccessLevelKey( {
-							accessLevel: accessOptions.paid_subscribers.key,
-							emailSubscribers,
-							paidSubscribers,
-						} ).toLocaleString() })`,
+						label: `${ accessOptions.paid_subscribers.label } (${ numberFormat(
+							paidSubscribersReach,
+							{
+								notation: 'compact',
+								maximumFractionDigits: 1,
+							}
+						) })`,
 						value: accessOptions.paid_subscribers.key,
 					},
 				] }
@@ -264,27 +273,23 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 							</div>
 						</>
 					) }
-					<PanelRow className="edit-post-post-visibility">
-						<Flex direction="column">
-							{ showMisconfigurationWarning && <MisconfigurationWarning /> }
-							<FlexBlock direction="row" justify="flex-start">
-								{ canEdit && (
-									<div className="editor-post-visibility">
-										<NewsletterAccessRadioButtons
-											isEditorPanel={ true }
-											accessLevel={ _accessLevel }
-											stripeConnectUrl={ stripeConnectUrl }
-											hasTierPlans={ hasTierPlans }
-											postHasPaywallBlock={ foundPaywallBlock }
-										/>
-									</div>
-								) }
+					<Flex direction="column">
+						{ showMisconfigurationWarning && <MisconfigurationWarning /> }
+						<FlexBlock direction="row" justify="flex-start">
+							{ canEdit && (
+								<NewsletterAccessRadioButtons
+									isEditorPanel={ true }
+									accessLevel={ _accessLevel }
+									stripeConnectUrl={ stripeConnectUrl }
+									hasTierPlans={ hasTierPlans }
+									postHasPaywallBlock={ foundPaywallBlock }
+								/>
+							) }
 
-								{ /* Display the uneditable access level when the user doesn't have edit privileges*/ }
-								{ ! canEdit && <span>{ accessLabel }</span> }
-							</FlexBlock>
-						</Flex>
-					</PanelRow>
+							{ /* Display the uneditable access level when the user doesn't have edit privileges*/ }
+							{ ! canEdit && <span>{ accessLabel }</span> }
+						</FlexBlock>
+					</Flex>
 				</>
 			) }
 		/>
@@ -294,21 +299,23 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 export function NewsletterEmailDocumentSettings() {
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	const { saveEditedEntityRecord } = useDispatch( coreDataStore );
 	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
-
+	const postId = useEntityId( 'postType', postType );
 	const toggleSendEmail = value => {
 		const postMetaUpdate = {
 			...postMeta,
 			// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
-			[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: ! value,
+			[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: value === 'post-only',
 		};
 		setPostMeta( postMetaUpdate );
+		saveEditedEntityRecord( 'postType', postType, postId );
 	};
 
 	const isSendEmailEnabled = useSelect( select => {
 		const meta = select( editorStore ).getEditedPostAttribute( 'meta' );
 		// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
-		return ! meta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ];
+		return meta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ] ? 'post-only' : 'post-and-email';
 	} );
 
 	return (
@@ -320,9 +327,17 @@ export function NewsletterEmailDocumentSettings() {
 						disabled={ isPostPublished || ! canEdit }
 						onChange={ toggleSendEmail }
 						isBlock
+						label={ __( 'Send as email to subscribers?', 'jetpack' ) }
+						hideLabelFromVision={ true }
+						className="jetpack-subscribe-email-document-setting"
+						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					>
-						<ToggleGroupControlOption label={ __( 'Post & email', 'jetpack' ) } value={ true } />
-						<ToggleGroupControlOption label={ __( 'Post only', 'jetpack' ) } value={ false } />
+						<ToggleGroupControlOption
+							label={ __( 'Post & email', 'jetpack' ) }
+							value="post-and-email"
+						/>
+						<ToggleGroupControlOption label={ __( 'Post only', 'jetpack' ) } value="post-only" />
 					</ToggleGroupControl>
 				);
 			} }

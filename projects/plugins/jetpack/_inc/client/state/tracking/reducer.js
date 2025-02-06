@@ -64,8 +64,8 @@ export const reducer = combineReducers( {
 /**
  * Returns tracking settings.
  *
- * @param  {Object} state Global state tree.
- * @return {Object}       Settings keyed by name.
+ * @param {object} state - Global state tree.
+ * @return {object}       Settings keyed by name.
  */
 export function getTrackingSettings( state ) {
 	return state.jetpack.trackingSettings.items;
@@ -74,8 +74,8 @@ export function getTrackingSettings( state ) {
 /**
  * Returns true if currently requesting settings.
  *
- * @param  {Object}  state Global state tree.
- * @return {Boolean}       Whether settings are being fetched.
+ * @param {object} state - Global state tree.
+ * @return {boolean}       Whether settings are being fetched.
  */
 export function isFetchingTrackingSettingsList( state ) {
 	return state.jetpack.trackingSettings.requests.fetchingTrackingSettings;
@@ -84,8 +84,8 @@ export function isFetchingTrackingSettingsList( state ) {
 /**
  * Returns true if currently updating settings.
  *
- * @param  {Object}  state Global state tree.
- * @return {Boolean}       Whether settings are being updated.
+ * @param {object} state - Global state tree.
+ * @return {boolean}       Whether settings are being updated.
  */
 export function isUpdatingTrackingSettings( state ) {
 	return state.jetpack.trackingSettings.requests.updatingTrackingSettings;

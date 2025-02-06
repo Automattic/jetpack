@@ -1,0 +1,85 @@
+body.jetpack-subscribe-overlay-open {
+	overflow: hidden;
+}
+
+.jetpack-subscribe-overlay {
+	--jetpack-subscribe-overlay--background-color: var(--wp--preset--color--background, var(--wp--preset--color--base, var(--wp--preset--color--contrast, #F9F9F9)));
+
+	visibility: hidden;
+	position: fixed;
+	z-index: 50001; /* WP.com Action bar and floating subscribe button are 5000 */
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	background-color: transparent;
+	transition: background-color 0.4s, visibility 0.4s;
+}
+
+.jetpack-subscribe-overlay__content {
+	position: relative;
+	visibility: hidden;
+	overflow: hidden;
+	top: 100%;
+	margin: 15% auto;
+	width: 100%;
+	max-width: 400px;
+	transition: top 0.4s, visibility 0.4s;
+	text-wrap: pretty;
+}
+
+.jetpack-subscribe-overlay__close {
+	display: none;
+	cursor: pointer;
+	position: absolute;
+	top: 32px;
+	right: 32px;
+	width: 24px;
+	height: 24px;
+}
+
+body.admin-bar .jetpack-subscribe-overlay__close {
+	top: 64px;
+}
+
+body.has-marketing-bar .jetpack-subscribe-overlay__close {
+	top: 81px;
+}
+
+body.admin-bar.has-marketing-bar .jetpack-subscribe-overlay__close {
+	top: 114px;
+}
+
+.jetpack-subscribe-overlay__to-content {
+	display: none;
+	position: fixed;
+	bottom: 64px;
+	left: 0;
+	right: 0;
+	margin: 0 auto;
+}
+
+.jetpack-subscribe-overlay.open {
+	background-color: var(--jetpack-subscribe-overlay--background-color);
+	visibility: visible;
+
+	.jetpack-subscribe-overlay__content {
+		top: 0;
+		visibility: visible;
+	}
+
+	.jetpack-subscribe-overlay__close {
+		display: block;
+	}
+
+	.jetpack-subscribe-overlay__to-content {
+		display: block;
+	}
+}
+
+@media screen and (max-width: 640px) {
+	.jetpack-subscribe-overlay__content {
+		width: 94%;
+	}
+}

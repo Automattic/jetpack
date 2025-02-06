@@ -1,6 +1,6 @@
 /* global jetpack_redirects */
 
-import { GetRedirectUrlArgs, QueryVars } from './types';
+import { GetRedirectUrlArgs, QueryVars } from './types.js';
 
 /**
  * Builds an URL using the jetpack.com/redirect/ service
@@ -12,13 +12,13 @@ import { GetRedirectUrlArgs, QueryVars } from './types';
  * Note: if using full URL, query parameters and anchor must be passed in args. Any querystring of url fragment in the URL will be discarded.
  *
  * @since 0.2.0
- * @param {string} source - The URL handler registered in the server or the full destination URL (starting with https://).
- * @param {GetRedirectUrlArgs} args - Additional arguments to build the url.
- * This is not a complete list as any argument passed here
- * will be sent to as a query parameter to the Redirect server.
- * These parameters will not necessarily be passed over to the final destination URL.
- * If you want to add a parameter to the final destination URL, use the `query` argument.
- * @returns {string} The redirect URL
+ * @param {string}             source - The URL handler registered in the server or the full destination URL (starting with https://).
+ * @param {GetRedirectUrlArgs} args   - Additional arguments to build the url.
+ *                                    This is not a complete list as any argument passed here
+ *                                    will be sent to as a query parameter to the Redirect server.
+ *                                    These parameters will not necessarily be passed over to the final destination URL.
+ *                                    If you want to add a parameter to the final destination URL, use the `query` argument.
+ * @return {string} The redirect URL
  */
 export default function getRedirectUrl( source: string, args: GetRedirectUrlArgs = {} ) {
 	const queryVars: QueryVars = {};
@@ -45,9 +45,9 @@ export default function getRedirectUrl( source: string, args: GetRedirectUrlArgs
 	if (
 		! Object.keys( queryVars ).includes( 'site' ) &&
 		typeof jetpack_redirects !== 'undefined' &&
-		jetpack_redirects.hasOwnProperty( 'currentSiteRawUrl' )
+		Object.hasOwn( jetpack_redirects, 'currentSiteRawUrl' )
 	) {
-		queryVars.site = jetpack_redirects.currentSiteRawUrl;
+		queryVars.site = jetpack_redirects.currentBlogID ?? jetpack_redirects.currentSiteRawUrl;
 	}
 
 	if ( calypsoEnv ) {

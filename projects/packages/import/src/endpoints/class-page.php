@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Import\Endpoints;
 
+use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
+
 /**
  * Class Page
  */
@@ -26,6 +30,9 @@ class Page extends Post {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
+		// Set the WP_IMPORTING constant to prevent sync notifications
+		$this->set_importing();
+
 		if ( ! empty( $request['parent'] ) ) {
 			$pages = \get_pages( $this->get_import_db_query( $request['parent'] ) );
 

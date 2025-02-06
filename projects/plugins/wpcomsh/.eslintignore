@@ -1,0 +1,5 @@
+# Our standard eslint config reads .gitignore and .eslintignore to determine what to ignore.
+
+/tests/e2e
+/custom-colors/js/jquery.spin.js
+/custom-colors/js/spin.js

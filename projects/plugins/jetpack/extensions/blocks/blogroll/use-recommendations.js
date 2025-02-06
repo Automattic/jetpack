@@ -6,7 +6,7 @@ export default function useRecommendations( enabled = false ) {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( null );
 	const [ recommendations, setRecommendations ] = useState( [] );
-	const abortControllerRef = useRef();
+	const abortControllerRef = useRef( undefined );
 
 	useEffect( () => {
 		if ( ! enabled ) {

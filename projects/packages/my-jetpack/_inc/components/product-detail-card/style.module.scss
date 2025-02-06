@@ -117,18 +117,15 @@
 	display: flex;
 	flex-wrap: wrap;
 	align-items: flex-end;
-	color: var( --jp-text-color);
+	gap: calc( var( --spacing-base ) * 2 );
+	color: var( --jp-black );
 }
 
 .price {
 	position: relative;
 
-	&:first-child {
-		margin-right: calc( var( --spacing-base ) * 2 );
-	}
-
 	&.is-old {
-		color: var( --jp-gray-20);
+		color: var( --jp-gray-20 );
 
 		&:after {
 			content: " ";

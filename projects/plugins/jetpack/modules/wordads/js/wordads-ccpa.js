@@ -14,7 +14,7 @@
 						document.cookie.replace(
 							new RegExp(
 								'(?:(?:^|.*;)\\s*' +
-									encodeURIComponent( e ).replace( /[\-\.\+\*]/g, '\\$&' ) +
+									encodeURIComponent( e ).replace( /[-.+*]/g, '\\$&' ) +
 									'\\s*\\=\\s*([^;]*).*$)|^.*$'
 							),
 							'$1'
@@ -24,7 +24,7 @@
 			);
 		},
 		setItem: function ( e, o, n, t, r, i ) {
-			if ( ! e || /^(?:expires|max\-age|path|domain|secure)$/i.test( e ) ) {
+			if ( ! e || /^(?:expires|max-age|path|domain|secure)$/i.test( e ) ) {
 				return ! 1;
 			}
 			var c = '';
@@ -314,8 +314,21 @@
 						var data = JSON.parse( this.response );
 						var region = data.region ? data.region.toLowerCase() : '';
 						var ccpaApplies =
-							[ 'california', 'colorado', 'connecticut', 'utah', 'virginia' ].indexOf( region ) >
-							-1;
+							[
+								'california',
+								'colorado',
+								'connecticut',
+								'delaware',
+								'indiana',
+								'iowa',
+								'montana',
+								'new jersey',
+								'oregon',
+								'tennessee',
+								'texas',
+								'utah',
+								'virginia',
+							].indexOf( region ) > -1;
 
 						// Set CCPA applies cookie. This keeps us from having to make a geo request too frequently.
 						setCcpaAppliesCookie( ccpaApplies );

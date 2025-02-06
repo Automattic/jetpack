@@ -1,17 +1,17 @@
 /**
  * External dependencies
  */
-import { useCallback, useContext, useEffect } from '@wordpress/element';
+import { useCallback, useContext, useEffect } from 'react';
 /**
  * Internal dependencies
  */
-import { ERROR_RESPONSE, RequestingErrorProps } from '../types';
-import { AiDataContext } from '.';
+import { ERROR_RESPONSE, RequestingErrorProps } from '../types.js';
+import { AiDataContext } from './index.js';
 /**
  * Types & constants
  */
-import type { AiDataContextProps } from './context';
-import type { AskQuestionOptionsArgProps } from '../ask-question';
+import type { AiDataContextProps } from './context.js';
+import type { AskQuestionOptionsArgProps } from '../ask-question/index.js';
 
 export type UseAiContextOptions = {
 	/*
@@ -41,14 +41,14 @@ export type UseAiContextOptions = {
  * and to subscribe to the request events (onDone, onSuggestion).
  *
  * @param {UseAiContextOptions} options - the hook options.
- * @returns {AiDataContextProps}          the AI Assistant data context.
+ * @return {AiDataContextProps}          the AI Assistant data context.
  */
 export default function useAiContext( {
 	onDone,
 	onSuggestion,
 	onError,
 }: UseAiContextOptions = {} ): AiDataContextProps {
-	const context = useContext( AiDataContext );
+	const context = useContext( AiDataContext ) as AiDataContextProps;
 	const { eventSource } = context;
 
 	const done = useCallback( ( event: CustomEvent ) => onDone?.( event?.detail ), [ onDone ] );

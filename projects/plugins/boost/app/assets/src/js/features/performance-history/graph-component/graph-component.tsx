@@ -29,6 +29,7 @@ type GraphComponentProps = PerformanceHistoryData & {
 
 const GraphComponent = ( {
 	periods = [],
+	annotations = [],
 	startDate = 0,
 	endDate = 0,
 	needsUpgrade,
@@ -86,7 +87,14 @@ const GraphComponent = ( {
 		);
 	}
 
-	return <BoostScoreGraph periods={ periods } startDate={ startDate } endDate={ endDate } />;
+	return (
+		<BoostScoreGraph
+			periods={ periods }
+			annotations={ annotations }
+			startDate={ startDate }
+			endDate={ endDate }
+		/>
+	);
 };
 
 export default GraphComponent;

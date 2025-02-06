@@ -1,6 +1,6 @@
 import { Button, Placeholder } from '@wordpress/components';
 import { _x } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 const EmbedPlaceHolder = ( {
 	className,
@@ -14,7 +14,7 @@ const EmbedPlaceHolder = ( {
 	updateUrl,
 } ) => {
 	return (
-		<div className={ classnames( 'wp-block-jetpack-google-docs-embed-editmode', className ) }>
+		<div className={ clsx( 'wp-block-jetpack-google-docs-embed-editmode', className ) }>
 			<Placeholder icon={ icon } label={ label } instructions={ instructions } notices={ notices }>
 				<form onSubmit={ onSubmit }>
 					<input

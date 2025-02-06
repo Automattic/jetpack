@@ -17,17 +17,18 @@ import './style.scss';
 /**
  * Render the "Stay safe" button.
  *
- * @param {Function} callback - Button click callback.
- * @param {boolean} isDisabled - Whether the button should be disabled.
- * @returns {React.Component} - The rendered output.
+ * @param {Function} callback   - Button click callback.
+ * @param {boolean}  isDisabled - Whether the button should be disabled.
+ * @return {React.Component} - The rendered output.
  */
+
 const renderStaySafeButton = ( callback, isDisabled ) => {
 	return createInterpolateElement(
-		__( 'Or decide later and stay in <button>Safe mode</button>', 'jetpack' ),
+		__( 'Or decide later and stay in <button>Safe mode</button>', 'jetpack-idc' ),
 		{
 			button: (
 				<Button
-					label={ __( 'Safe mode', 'jetpack' ) }
+					label={ __( 'Safe mode', 'jetpack-idc' ) }
 					variant="link"
 					onClick={ callback }
 					disabled={ isDisabled }
@@ -40,13 +41,13 @@ const renderStaySafeButton = ( callback, isDisabled ) => {
 /**
  * Render the "staying safe" line.
  *
- * @returns {React.Component} - The rendered output.
+ * @return {React.Component} - The rendered output.
  */
 const renderStayingSafe = () => {
 	return (
 		<div className="jp-idc__safe-mode__staying-safe">
 			<Spinner color="black" />
-			<span>{ __( 'Finishing setting up Safe mode…', 'jetpack' ) }</span>
+			<span>{ __( 'Finishing setting up Safe mode…', 'jetpack-idc' ) }</span>
 		</div>
 	);
 };
@@ -55,13 +56,13 @@ const renderStayingSafe = () => {
  * Render the error message.
  *
  * @param {string} supportURL - The support page URL.
- * @returns {React.Component} The error message.
+ * @return {React.Component} The error message.
  */
 const renderError = supportURL => {
 	return (
 		<ErrorMessage>
 			{ createInterpolateElement(
-				__( 'Could not stay in safe mode. Retry or find out more <a>here</a>.', 'jetpack' ),
+				__( 'Could not stay in safe mode. Retry or find out more <a>here</a>.', 'jetpack-idc' ),
 				{
 					a: (
 						<a
@@ -82,10 +83,14 @@ const SafeMode = props => {
 		setIsActionInProgress,
 		setErrorType,
 		clearErrorType,
-		hasError,
+		hasError = false,
 		customContent,
+		isDevelopmentSite,
 	} = props;
 	const [ isStayingSafe, setIsStayingSafe ] = useState( false );
+
+	const buttonLabel =
+		customContent.stayInSafeModeButtonLabel || __( 'Stay in Safe mode', 'jetpack-idc' );
 
 	const staySafeCallback = useCallback( () => {
 		if ( ! isActionInProgress ) {
@@ -114,13 +119,76 @@ const SafeMode = props => {
 	}, [ isActionInProgress, setIsActionInProgress, setErrorType, clearErrorType ] );
 
 	return (
-		<div className="jp-idc__safe-mode">
-			{ isStayingSafe
-				? renderStayingSafe()
-				: renderStaySafeButton( staySafeCallback, isActionInProgress ) }
+		<React.Fragment>
+			{ ! isDevelopmentSite ? (
+				<div className="jp-idc__safe-mode">
+					{ isStayingSafe
+						? renderStayingSafe()
+						: renderStaySafeButton( staySafeCallback, isActionInProgress ) }
 
-			{ hasError && renderError( customContent.supportURL ) }
-		</div>
+					{ hasError && renderError( customContent.supportURL ) }
+				</div>
+			) : (
+				<div
+					className={
+						'jp-idc__idc-screen__card-action-base' +
+						( hasError ? ' jp-idc__idc-screen__card-action-error' : '' )
+					}
+				>
+					<div className="jp-idc__idc-screen__card-action-top">
+						<h4>
+							{ customContent.safeModeTitle
+								? createInterpolateElement( customContent.safeModeTitle, { em: <em /> } )
+								: __( 'Stay in Safe Mode', 'jetpack-idc' ) }
+						</h4>
+
+						<div>
+							{ createInterpolateElement(
+								customContent.startFreshCardBodyText ||
+									/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
+									__(
+										'<p><strong>Recommended for</strong></p>' +
+											'<list><item>short-lived test sites</item><item>sites that will be cloned back to production after testing</item></list>' +
+											'<p><strong>Please note</strong> that staying in Safe mode will disable some Jetpack features, including security features such as SSO, firewall, and site monitor. ' +
+											'<safeModeLink>Learn more</safeModeLink>.</p>',
+										'jetpack-idc'
+									),
+								{
+									p: <p />,
+									hostname: <strong />,
+									em: <em />,
+									strong: <strong />,
+									list: <ul />,
+									item: <li />,
+									safeModeLink: (
+										<a
+											href={
+												customContent.supportURL || getRedirectUrl( 'jetpack-support-safe-mode' )
+											}
+											rel="noopener noreferrer"
+											target="_blank"
+										/>
+									),
+								}
+							) }
+						</div>
+					</div>
+
+					<div className="jp-idc__idc-screen__card-action-bottom">
+						<Button
+							className="jp-idc__idc-screen__card-action-button-secondary"
+							label={ buttonLabel }
+							onClick={ staySafeCallback }
+							disabled={ isActionInProgress }
+						>
+							{ isStayingSafe ? <Spinner color="black" /> : buttonLabel }
+						</Button>
+
+						{ hasError && renderError( customContent.supportURL ) }
+					</div>
+				</div>
+			) }
+		</React.Fragment>
 	);
 };
 
@@ -134,13 +202,10 @@ SafeMode.propTypes = {
 	/** Function to clear the error. */
 	clearErrorType: PropTypes.func.isRequired,
 	/** Whether the component has an error. */
-	hasError: PropTypes.bool.isRequired,
+	hasError: PropTypes.bool,
 	/** Custom text content. */
 	customContent: PropTypes.shape( customContentShape ),
-};
-
-SafeMode.defaultProps = {
-	hasError: false,
+	isDevelopmentSite: PropTypes.bool,
 };
 
 export default compose( [

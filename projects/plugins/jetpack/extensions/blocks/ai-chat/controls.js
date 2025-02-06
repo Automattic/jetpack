@@ -1,13 +1,8 @@
 import { InspectorAdvancedControls, InspectorControls } from '@wordpress/block-editor';
-import {
-	BaseControl,
-	PanelBody,
-	TextControl,
-	TextareaControl,
-	ToggleControl,
-} from '@wordpress/components';
+import { PanelBody, TextControl, TextareaControl, ToggleControl } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { __ } from '@wordpress/i18n';
+import { DEFAULT_PLACEHOLDER } from './constants';
 
 export function AiChatControls( {
 	setAttributes,
@@ -25,45 +20,47 @@ export function AiChatControls( {
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack' ) } initialOpen={ false }>
-					<BaseControl
+					<TextControl
 						label={ __( 'Placeholder Text', 'jetpack' ) }
 						className="jetpack-ai-chat__ask-button-text"
-					>
-						<TextControl
-							placeholder={ __( 'Ask a question about this site.', 'jetpack' ) }
-							onChange={ newPlaceholder => setAttributes( { placeholder: newPlaceholder } ) }
-							value={ placeholder }
-						/>
-					</BaseControl>
+						placeholder={ DEFAULT_PLACEHOLDER }
+						onChange={ newPlaceholder => setAttributes( { placeholder: newPlaceholder } ) }
+						value={ placeholder }
+						__nextHasNoMarginBottom={ true }
+					/>
 				</PanelBody>
 			</InspectorControls>
 			<InspectorAdvancedControls>
-				<BaseControl
+				<TextareaControl
 					label={ __( 'Additional instructions', 'jetpack' ) }
 					help={ __(
 						'Give Jetpack AI additional instructions for answer length, format, and tone.',
 						'jetpack'
 					) }
-				>
-					<TextareaControl value={ promptOverride } onChange={ setPromptOverride } />
-				</BaseControl>
+					value={ promptOverride }
+					onChange={ setPromptOverride }
+					__nextHasNoMarginBottom={ true }
+				/>
 				<ToggleControl
 					label={ __( 'Show copy answer button.', 'jetpack' ) }
 					help={ __( 'Allow users to easily copy the answer.', 'jetpack' ) }
 					checked={ showCopy }
 					onChange={ newCopy => setAttributes( { showCopy: newCopy } ) }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<ToggleControl
 					label={ __( 'Show rating button.', 'jetpack' ) }
 					help={ __( 'Allow users to rate the answer and give feedback.', 'jetpack' ) }
 					checked={ showFeedback }
 					onChange={ newFeedback => setAttributes( { showFeedback: newFeedback } ) }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<ToggleControl
 					label={ __( 'Show list of sources.', 'jetpack' ) }
 					help={ __( 'Show used sources at the bottom of the answer.', 'jetpack' ) }
 					checked={ showSources }
 					onChange={ newSources => setAttributes( { showSources: newSources } ) }
+					__nextHasNoMarginBottom={ true }
 				/>
 			</InspectorAdvancedControls>
 		</>

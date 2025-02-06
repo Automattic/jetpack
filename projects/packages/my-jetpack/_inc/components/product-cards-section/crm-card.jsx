@@ -1,13 +1,13 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import { PRODUCT_SLUGS } from '../../data/constants';
 import ProductCard from '../connected-product-card';
 
-const CrmCard = ( { admin } ) => {
-	return <ProductCard admin={ admin } slug="crm" />;
+const CrmCard = props => {
+	return <ProductCard slug={ PRODUCT_SLUGS.CRM } { ...props } />;
 };
 
 CrmCard.propTypes = {
-	admin: PropTypes.bool.isRequired,
+	admin: PropTypes.bool,
 };
 
 export default CrmCard;

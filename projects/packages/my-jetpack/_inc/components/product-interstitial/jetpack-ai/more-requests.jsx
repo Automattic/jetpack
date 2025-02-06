@@ -11,12 +11,13 @@ import {
 	getRedirectUrl,
 } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
-import React from 'react';
+import clsx from 'clsx';
+import React, { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 /**
  * Internal dependencies
  */
+import useAnalytics from '../../../hooks/use-analytics';
 import GoBackLink from '../../go-back-link';
 import jetpackAiImage from '../jetpack-ai.png';
 import styles from './style.module.scss';
@@ -24,9 +25,9 @@ import styles from './style.module.scss';
 /**
  * JetpackAIInterstitialMoreRequests component
  *
- * @param {object} props                 - Component props.
+ * @param {object}   props               - Component props.
  * @param {Function} props.onClickGoBack - onClick handler for the "Back" button.
- * @returns {object}                       JetpackAIInterstitialMoreRequests react component.
+ * @return {object}                       JetpackAIInterstitialMoreRequests react component.
  */
 export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } ) {
 	const title = __( 'Do you need more requests for Jetpack AI Assistant?', 'jetpack-my-jetpack' );
@@ -35,6 +36,10 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 		'jetpack-my-jetpack'
 	);
 	const contactHref = getRedirectUrl( 'jetpack-ai-tiers-more-requests-contact' );
+	const { recordEvent } = useAnalytics();
+	const trackClickHandler = useCallback( () => {
+		recordEvent( 'jetpack_ai_upgrade_contact_us', { placement: 'insterstitial' } );
+	}, [ recordEvent ] );
 
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>
@@ -50,12 +55,12 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 						fluid
 					>
 						<Col sm={ 4 } md={ 4 } lg={ 7 }>
-							<div className={ classNames( styles.card ) }>
+							<div className={ clsx( styles.card ) }>
 								<div>
 									<H3>{ title }</H3>
 									<Text mb={ 3 }>{ longDescription }</Text>
 									<div className={ styles[ 'buttons-row' ] }>
-										<Button href={ contactHref }>
+										<Button href={ contactHref } onClick={ trackClickHandler }>
 											{ __( 'Contact Us', 'jetpack-my-jetpack' ) }
 										</Button>
 										<Link to={ '/' } onClick={ onClickGoBack }>
@@ -69,7 +74,7 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 							sm={ 4 }
 							md={ 4 }
 							lg={ 5 }
-							className={ classNames( styles.imageContainer, styles.aiImageContainer ) }
+							className={ clsx( styles.imageContainer, styles.aiImageContainer ) }
 						>
 							<img src={ jetpackAiImage } alt="Jetpack AI" />
 						</Col>

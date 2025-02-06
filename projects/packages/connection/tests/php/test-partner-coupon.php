@@ -268,7 +268,7 @@ class Partner_Coupon_Test extends TestCase {
 		}
 
 		$mock_client = $this->getMockBuilder( \stdClass::class )
-							->setMethods( array( 'wpcom_json_api_request_as_blog' ) )
+							->addMethods( array( 'wpcom_json_api_request_as_blog' ) )
 							->getMock();
 
 		$mock_client
@@ -276,6 +276,7 @@ class Partner_Coupon_Test extends TestCase {
 			->method( 'wpcom_json_api_request_as_blog' )
 			->willReturn( $mock_response );
 
+		// @phan-suppress-next-line PhanEmptyFQSENInClasslike -- https://github.com/phan/phan/issues/4851
 		$instance = new Partner_Coupon( array( $mock_client, 'wpcom_json_api_request_as_blog' ) );
 		$class    = new \ReflectionClass( $instance );
 		$method   = $class->getMethod( 'maybe_purge_coupon_by_availability_check' );

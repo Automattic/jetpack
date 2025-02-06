@@ -1,16 +1,18 @@
 import { __ } from '@wordpress/i18n';
-import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
-import QuerySite from 'components/data/query-site';
 import { get } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
+import QuerySite from 'components/data/query-site';
 import { getVaultPressData } from 'state/at-a-glance';
 import { isOfflineMode, isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
+import { getSiteId } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
 import { siteHasFeature } from 'state/site';
 import { isPluginActive, isPluginInstalled } from 'state/site/plugins';
+import AllowList from './allowList';
 import Antispam from './antispam';
 import BackupsScan from './backups-scan';
 import { JetpackBackup } from './jetpack-backup';
@@ -25,7 +27,7 @@ export class Security extends Component {
 	/**
 	 * Check if Akismet plugin is being searched and matched.
 	 *
-	 * @returns {boolean} False if the plugin is inactive or if the search doesn't match it. True otherwise.
+	 * @return {boolean} False if the plugin is inactive or if the search doesn't match it. True otherwise.
 	 */
 	isAkismetFound = () => {
 		if ( ! this.props.isPluginActive( 'akismet/akismet.php' ) ) {
@@ -60,25 +62,28 @@ export class Security extends Component {
 			isUnavailableInOfflineMode: this.props.isUnavailableInOfflineMode,
 			rewindStatus: this.props.rewindStatus,
 			siteRawUrl: this.props.siteRawUrl,
+			blogID: this.props.blogID,
 			hasConnectedOwner: this.props.hasConnectedOwner,
 		};
 
-		const foundWaf = this.props.isModuleFound( 'waf' ),
-			foundProtect = this.props.isModuleFound( 'protect' ),
-			foundSso = this.props.isModuleFound( 'sso' ),
-			foundAkismet = this.isAkismetFound(),
-			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
-			foundBackups = this.props.isModuleFound( 'vaultpress' ) || rewindActive,
-			foundMonitor = this.props.isModuleFound( 'monitor' ),
-			isSearchTerm = this.props.searchTerm;
+		const isSearchTerm = this.props.searchTerm;
 
 		if ( ! isSearchTerm && ! this.props.active ) {
 			return null;
 		}
 
+		const foundProtect = this.props.isModuleFound( 'protect' ),
+			foundSso = this.props.isModuleFound( 'sso' ),
+			foundAkismet = this.isAkismetFound(),
+			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
+			foundBackups = this.props.isModuleFound( 'vaultpress' ) || rewindActive,
+			foundMonitor = this.props.isModuleFound( 'monitor' );
+
 		if ( ! foundSso && ! foundProtect && ! foundAkismet && ! foundBackups && ! foundMonitor ) {
 			return null;
 		}
+
+		const foundWaf = this.props.isModuleFound( 'waf' );
 
 		const backupsContent = this.props.backupsOnly ? (
 			<JetpackBackup { ...commonProps } vaultPressData={ this.props.vaultPressData } />
@@ -109,6 +114,7 @@ export class Security extends Component {
 				) }
 				{ foundWaf && <Waf { ...commonProps } /> }
 				{ foundProtect && <Protect { ...commonProps } /> }
+				{ ( foundWaf || foundProtect ) && <AllowList { ...commonProps } /> }
 				{ foundSso && <SSO { ...commonProps } /> }
 			</div>
 		);
@@ -127,5 +133,6 @@ export default connect( state => {
 		isPluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
 		vaultPressData: getVaultPressData( state ),
 		hasConnectedOwner: hasConnectedOwner( state ),
+		blogID: getSiteId( state ),
 	};
 } )( Security );

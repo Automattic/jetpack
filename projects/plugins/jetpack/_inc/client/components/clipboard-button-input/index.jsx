@@ -1,9 +1,9 @@
-import classnames from 'classnames';
-import ClipboardButton from 'components/form/clipboard-button';
-import TextInput from 'components/text-input';
+import clsx from 'clsx';
 import { omit } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
+import ClipboardButton from 'components/form/clipboard-button';
+import TextInput from 'components/text-input';
 
 import './style.scss';
 
@@ -61,7 +61,7 @@ export default class ClipboardButtonInput extends React.Component {
 		);
 
 		return (
-			<span className={ classnames( 'dops-clipboard-button-input', this.props.className ) }>
+			<span className={ clsx( 'dops-clipboard-button-input', this.props.className ) }>
 				<TextInput { ...forwardedProps } type="text" selectOnFocus readOnly />
 				<ClipboardButton
 					text={ this.props.value }

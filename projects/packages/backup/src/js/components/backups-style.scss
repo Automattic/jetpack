@@ -25,6 +25,37 @@
 	font-weight: 600;
 }
 
+@media screen and (max-width: 959px) {
+	.backup__card {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		padding: 16px;
+	}
+
+	.backup__card img {
+		margin-right: 16px;
+	}
+
+	.backup__card-details {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		width: 100%;
+	}
+
+	.backup__card-details-items {
+		margin: 0;
+		flex-grow: 1;
+	}
+
+	.backup__card-details-amount {
+		margin: 0;
+		font-size: 24px;
+		line-height: 32px;
+	}
+}
+
 .backup__progress {
 	margin-right: 64px;
 	margin-bottom: 48px;
@@ -89,6 +120,21 @@
 		font-weight: 700;
 		margin-bottom: 24px;
 	}
+}
+
+.backup__latest-time {
+	color: #1d2327;
+	font-size: var(--font-title-large);
+	font-weight: 700;
+	line-height: 40px;
+	margin-bottom: 4px;
+	margin-top: 0;
+	white-space: nowrap;
+}
+
+.backup__next-scheduled-time {
+	font-size: 13px;
+	margin-bottom: 24px;
 }
 
 .backup__restore-point-link {
@@ -211,11 +257,19 @@
 	padding-top: 8px;
 	padding-bottom: 24px;
 
+	.jp-row {
+		grid-gap: 16px;
+	}
+
 	a.button {
 		height: auto;
 		line-height: 24px;
 		width: auto;
 		text-align: center;
+
+		span {
+			text-decoration: none;
+		}
 
 		@include for-tablet-down {
 			width: 100%;

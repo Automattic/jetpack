@@ -1,9 +1,9 @@
 === Jetpack Search ===
 Contributors: automattic, annamcphee, bluefuton, kangzj, jsnmoon, robfelty, gibrown, trakos, dognose24, a8ck3n
 Tags: search, filter, woocommerce search, ajax search, product search, free cloud-based search
-Requires at least: 6.3
-Requires PHP: 7.0
-Tested up to: 6.4
+Requires at least: 6.6
+Requires PHP: 7.2
+Tested up to: 6.7
 Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -122,11 +122,30 @@ If you are using the Jetpack Search free option, and you have more than 5000 rec
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 1.4.1 - 2023-03-08
+### 4.0.0 - 2025-01-10
+#### Added
+- Enable test coverage.
+- My Jetpack: Update recommendations section in My Jetpack to include a slider interaction for the cards.
+- Search: Added ability to customize results.
+
 #### Changed
-- Remove `ci.targets` from package.json. Better scoping of e2e tests.
-- Update playwright dependency.
+- Classic Widget: Update asset enqueuing strategy to ensure compatibility with the Elementor plugin.
+- General: Indicate compatibility with the upcoming version of WordPress - 6.7.
+- Include `wp-polyfill` as a script dependency only when needed.
+- Resolve an issue where revoked licenses were incorrectly treated as unattached. This caused users to be redirected to the license activation page after site connection, even when unattached licenses were not valid for activation.
+- Social: Changed My Jetpack CTA for Social from "Learn more" to "Activate"
+- Updated dependencies.
 - Updated package dependencies.
+
+#### Removed
+- Connection: Removed deprecated `features_available` method.
+- Connection: Removed deprecated `features_enabled` method.
+- General: Update minimum PHP version to 7.2.
+- General: Update minimum WordPress version to 6.6.
+
+#### Fixed
+- E2E Tests: Only install single browser used by Playwright.
+- My Jetpack: Update GlobalNotice component to look better on mobile.
 
 == Testimonials ==
 

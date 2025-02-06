@@ -5,10 +5,15 @@ import * as envfile from 'envfile';
 import { dockerFolder, setConfig } from '../helpers/docker-config.js';
 
 /**
+ * How to run Docker compose.
+ */
+let dockerComposeCmd = null;
+
+/**
  * Sets default options that are common for most of the commands
  *
  * @param {object} yargs - Yargs
- * @returns {object} Modified Yargs object
+ * @return {object} Modified Yargs object
  */
 const defaultOpts = yargs =>
 	yargs
@@ -34,7 +39,7 @@ const defaultOpts = yargs =>
  * Gets a project name from the passed arguments. Defaults to 'dev' if not specified.
  *
  * @param {object} argv - Yargs
- * @returns {string} Project name
+ * @return {string} Project name
  */
 const getProjectName = argv => {
 	let project = 'dev';
@@ -49,7 +54,7 @@ const getProjectName = argv => {
  * Builds a map of ENV variables for specified configuration
  *
  * @param {object} argv - Yargs
- * @returns {object} key-value pairs of ENV variables
+ * @return {object} key-value pairs of ENV variables
  */
 const buildEnv = argv => {
 	const envOpts = {};
@@ -58,6 +63,13 @@ const buildEnv = argv => {
 	}
 
 	envOpts.COMPOSE_PROJECT_NAME = getProjectName( argv );
+
+	// Add versions from versions.sh
+	const versions = envfile.parse(
+		fs.readFileSync( `${ dockerFolder }/../../.github/versions.sh`, 'utf8' )
+	);
+	Object.assign( envOpts, versions );
+
 	return envOpts;
 };
 
@@ -72,7 +84,7 @@ const setEnv = () => {
  * Checks whether the command should run in foreground
  *
  * @param {object} argv - argv
- * @returns {boolean} whether command is running in foreground
+ * @return {boolean} whether command is running in foreground
  */
 const isInForeground = argv => ! argv.detached || argv.ngrok;
 
@@ -103,13 +115,12 @@ const printPostCmdMsg = argv => {
 	}
 };
 
-// eslint-disable-next-line jsdoc/require-returns-check -- false positive
 /**
  * Default executor with error handler
  *
- * @param {object} argv - Yargs
- * @param {Function} fnc - Function to execute
- * @returns {any} resulting value from fnc
+ * @param {object}   argv - Yargs
+ * @param {Function} fnc  - Function to execute
+ * @return {any} resulting value from fnc
  */
 const executor = ( argv, fnc ) => {
 	try {
@@ -154,23 +165,35 @@ const checkProcessResult = res => {
 };
 
 /**
- * Executor for `docker-compose` commands
+ * Executor for `docker compose` commands
  *
- * @param {object} argv - Yargs
- * @param {Array} opts - Array of arguments
+ * @param {object} argv    - Yargs
+ * @param {Array}  opts    - Array of arguments
  * @param {object} envOpts - key-value pairs of the ENV variables to set
  */
 const composeExecutor = ( argv, opts, envOpts ) => {
-	const res = executor( argv, () =>
-		shellExecutor( argv, 'docker-compose', opts, { env: envOpts } )
-	);
+	if ( dockerComposeCmd === null ) {
+		if ( argv.v ) {
+			console.log( chalk.green( 'Checking how to run Docker compose' ) );
+		}
+		if ( spawnSync( 'docker', [ 'compose', 'version' ], { stdio: 'ignore' } ).status === 0 ) {
+			dockerComposeCmd = [ 'docker', 'compose' ];
+		} else if ( spawnSync( 'docker-compose', [ '--version' ], { stdio: 'ignore' } ).status === 0 ) {
+			dockerComposeCmd = [ 'docker-compose' ];
+		} else {
+			console.error( chalk.red( `Neither 'docker compose' nor 'docker-compose' is available.` ) );
+			process.exit( 1 );
+		}
+	}
+	const [ cmd, ...args ] = dockerComposeCmd.concat( opts );
+	const res = executor( argv, () => shellExecutor( argv, cmd, args, { env: envOpts } ) );
 	checkProcessResult( res );
 };
 
 /**
  * Builds an array of compose files matching configuration options.
  *
- * @returns {Array} Array of shell arguments
+ * @return {Array} Array of shell arguments
  */
 const buildComposeFiles = () => {
 	const defaultCompose = [ `-f${ dockerFolder }/docker-compose.yml` ];
@@ -185,7 +208,7 @@ const buildComposeFiles = () => {
  * Builds an array of opts that are required to run arbitrary compose command.
  *
  * @param {object} argv - Yargs
- * @returns {Array} Array of options required for specified command
+ * @return {Array} Array of options required for specified command
  */
 const buildDefaultCmd = argv => {
 	const opts = buildComposeFiles();
@@ -235,11 +258,11 @@ const launchNgrok = argv => {
 /**
  * Performs the given action again and again until it does not throw an error.
  *
- * @param {Function} action - The action to perform.
- * @param {object} options - options object
- * @param {number} options.times - How many times to try before giving up.
- * @param {number} [options.delay=5000] - How long, in milliseconds, to wait between each try.
- * @returns {any} return value of action function
+ * @param {Function} action               - The action to perform.
+ * @param {object}   options              - options object
+ * @param {number}   options.times        - How many times to try before giving up.
+ * @param {number}   [options.delay=5000] - How long, in milliseconds, to wait between each try.
+ * @return {any} return value of action function
  */
 async function retry( action, { times, delay = 5000 } ) {
 	const sleep = ms => new Promise( resolve => setTimeout( resolve, ms ) );
@@ -309,7 +332,7 @@ const defaultDockerCmdHandler = async argv => {
  * Builds an array of opts that are required to execute specified command in wordpress container
  *
  * @param {object} argv - Yargs
- * @returns {Array} Array of options required for specified command
+ * @return {Array} Array of options required for specified command
  */
 const buildExecCmd = argv => {
 	const opts = [ 'exec', 'wordpress' ];
@@ -501,7 +524,7 @@ const execJtCmdHandler = argv => {
 		const dockerPs = spawnSync(
 			'docker',
 			[
-				"ps --filter 'name=jetpack_dev_wordpress' --filter 'status=running' --format='{{.ID}} {{.Names}}'",
+				"ps --filter 'name=jetpack_dev[_-]wordpress' --filter 'status=running' --format='{{.ID}} {{.Names}}'",
 			],
 			{
 				encoding: 'utf8',
@@ -532,13 +555,22 @@ const execJtCmdHandler = argv => {
 };
 
 /**
+ * Generate Docker configuration files.
+ *
+ * @param {object} argv - The command line arguments
+ */
+async function generateConfig( argv ) {
+	await setConfig( argv );
+}
+
+/**
  * Definition for the Docker commands.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the Docker commands defined.
+ * @return {object} Yargs with the Docker commands defined.
  */
 export function dockerDefine( yargs ) {
-	yargs.command( {
+	return yargs.command( {
 		command: 'docker <cmd>',
 		description: 'Docker stuff',
 		builder: yarg => {
@@ -785,9 +817,15 @@ export function dockerDefine( yargs ) {
 					command: 'jt-config',
 					description: 'Set jurassic tube config',
 					handler: argv => execJtCmdHandler( argv ),
+				} )
+				.command( {
+					command: 'config',
+					description: 'Generate Docker configuration files',
+					builder: yargCmd => defaultOpts( yargCmd ),
+					handler: async argv => {
+						await generateConfig( argv );
+					},
 				} );
 		},
 	} );
-
-	return yargs;
 }

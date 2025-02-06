@@ -1,6 +1,6 @@
-import WpPage from '../wp-page.js';
 import { resolveSiteUrl } from '../../helpers/utils-helper.js';
 import PageActions from '../page-actions.js';
+import WpPage from '../wp-page.js';
 
 export default class DashboardPage extends WpPage {
 	constructor( page ) {

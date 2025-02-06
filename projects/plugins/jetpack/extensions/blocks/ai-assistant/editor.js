@@ -6,11 +6,9 @@ import transforms from './transforms';
 import './editor.scss';
 
 /**
- * Supports and extensions
+ * Extensions
  */
-import './supports';
-import './extensions/ai-assistant';
-import './extensions/jetpack-contact-form';
+import './extensions/with-ai-extension';
 
 registerJetpackBlockFromMetadata( metadata, {
 	edit,

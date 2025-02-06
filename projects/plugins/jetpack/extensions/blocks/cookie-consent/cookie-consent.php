@@ -47,9 +47,9 @@ function register_block() {
 
 	Blocks::jetpack_register_block(
 		__DIR__,
-		array( 'render_callback' => __NAMESPACE__ . '\load_assets' ),
 		array(
-			'attributes' => array(
+			'render_callback' => __NAMESPACE__ . '\load_assets',
+			'attributes'      => array(
 				'render_from_template' => array(
 					'default' => false,
 					'type'    => 'boolean',
@@ -73,6 +73,19 @@ function load_assets( $attr, $content ) {
 	// This is needed for when the cookie expires,
 	// and we should send fresh HTML with the cookie block in it.
 	notify_batcache_that_content_changed();
+
+	if (
+		/**
+		 * Filters the display of the Cookie-consent Block e.g by GDPR CMP banner on WordAds sites.
+		 *
+		 * @since 13.2
+		 *
+		 * @param bool $disable_cookie_consent_block Whether to disable the Cookie-consent Block.
+		 */
+		apply_filters( 'jetpack_disable_cookie_consent_block', false )
+	) {
+		return '';
+	}
 
 	// If the user has already accepted the cookie consent, don't show the block.
 	if ( isset( $_COOKIE[ COOKIE_NAME ] ) ) {

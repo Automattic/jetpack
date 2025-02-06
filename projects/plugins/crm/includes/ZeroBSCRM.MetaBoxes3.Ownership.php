@@ -13,7 +13,7 @@
   Breaking Checks ( stops direct access )
 ====================================================== */
 
-if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /* ======================================================
   / Breaking Checks
@@ -92,7 +92,7 @@ class zeroBS__Metabox_Ownership extends zeroBS__Metabox {
 				// simple unchangable
 				?>
 				<div style="text-align:center">
-					<?php echo esc_html( $zbsThisOwner['OBJ']->display_name ); ?>
+					<?php echo esc_html( $zbsThisOwner['OBJ']->display_name ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>
 				</div>
 				<?php
 

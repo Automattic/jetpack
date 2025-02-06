@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-noninteractive-tabindex */
-
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -10,16 +8,16 @@ import DisconnectSurvey from '../../disconnect-survey';
  * Show the survey step and allow the user to select a response.
  *
  * @param {object} props - The properties.
- * @returns {React.Component} The StepSurvey Component
+ * @return {React.Component} The StepSurvey Component
  */
 const StepSurvey = props => {
 	const { onExit, onFeedBackProvided, isSubmittingFeedback } = props;
 
 	return (
 		<div className="jp-connection__disconnect-dialog__content">
-			<h1>{ __( 'Before you go, help us improve Jetpack', 'jetpack' ) }</h1>
+			<h1>{ __( 'Before you go, help us improve Jetpack', 'jetpack-connection-js' ) }</h1>
 			<p className="jp-connection__disconnect-dialog__large-text">
-				{ __( 'Let us know what didn‘t work for you', 'jetpack' ) }
+				{ __( 'Let us know what didn‘t work for you', 'jetpack-connection-js' ) }
 			</p>
 			<DisconnectSurvey
 				onSubmit={ onFeedBackProvided }
@@ -30,7 +28,7 @@ const StepSurvey = props => {
 				href="#"
 				onClick={ onExit }
 			>
-				{ __( 'Skip for now', 'jetpack' ) }
+				{ __( 'Skip for now', 'jetpack-connection-js' ) }
 			</a>
 		</div>
 	);

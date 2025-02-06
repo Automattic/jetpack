@@ -21,7 +21,7 @@ beforeAll( () => {
 		'blockEditor.useSetting.before',
 		'extensions/blocks/button/test/controls',
 		( value, path ) => {
-			if ( overrideSettings.hasOwnProperty( path ) ) {
+			if ( Object.hasOwn( overrideSettings, path ) ) {
 				return overrideSettings[ path ];
 			}
 			return value;
@@ -92,7 +92,7 @@ describe( 'Inspector settings', () => {
 			// eslint-disable-next-line testing-library/no-node-access
 			const popoverContainer = document.querySelector( '.components-popover__fallback-container' );
 			expect(
-				within( popoverContainer ).queryByRole( 'tab', { name: 'Solid' } )
+				within( popoverContainer ).queryByRole( 'tab', { name: 'Color' } )
 			).not.toBeInTheDocument();
 			expect(
 				within( popoverContainer ).queryByRole( 'tab', { name: 'Gradient' } )
@@ -108,7 +108,7 @@ describe( 'Inspector settings', () => {
 			// eslint-disable-next-line testing-library/no-node-access
 			const popoverContainer = document.querySelector( '.components-popover__fallback-container' );
 			await user.click(
-				within( popoverContainer ).getAllByRole( 'option', { name: /^Color: / } )[ 0 ]
+				within( popoverContainer ).getAllByRole( 'option', { name: /Black/ } )[ 0 ]
 			);
 
 			expect( setTextColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
@@ -123,7 +123,7 @@ describe( 'Inspector settings', () => {
 			// eslint-disable-next-line testing-library/no-node-access
 			const popoverContainer = document.querySelector( '.components-popover__fallback-container' );
 			await user.click(
-				within( popoverContainer ).getAllByRole( 'option', { name: /^Color: / } )[ 0 ]
+				within( popoverContainer ).getAllByRole( 'option', { name: /Black/ } )[ 0 ]
 			);
 
 			expect( setBackgroundColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
@@ -150,7 +150,7 @@ describe( 'Inspector settings', () => {
 			// eslint-disable-next-line testing-library/no-node-access
 			const popoverContainer = document.querySelector( '.components-popover__fallback-container' );
 			expect(
-				within( popoverContainer ).getByRole( 'tab', { name: 'Solid' } )
+				within( popoverContainer ).getByRole( 'tab', { name: 'Color' } )
 			).toBeInTheDocument();
 			expect(
 				within( popoverContainer ).getByRole( 'tab', { name: 'Gradient' } )
@@ -166,7 +166,7 @@ describe( 'Inspector settings', () => {
 			// eslint-disable-next-line testing-library/no-node-access
 			const popoverContainer = document.querySelector( '.components-popover__fallback-container' );
 			await user.click(
-				within( popoverContainer ).getAllByRole( 'option', { name: /^Color: / } )[ 0 ]
+				within( popoverContainer ).getAllByRole( 'option', { name: /Black/ } )[ 0 ]
 			);
 
 			expect( setTextColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
@@ -180,9 +180,9 @@ describe( 'Inspector settings', () => {
 			await user.click( backgroundButton );
 			// eslint-disable-next-line testing-library/no-node-access
 			const popoverContainer = document.querySelector( '.components-popover__fallback-container' );
-			await user.click( within( popoverContainer ).getByRole( 'tab', { name: 'Solid' } ) );
+			await user.click( within( popoverContainer ).getByRole( 'tab', { name: 'Color' } ) );
 			await user.click(
-				within( popoverContainer ).getAllByRole( 'option', { name: /^Color: / } )[ 0 ]
+				within( popoverContainer ).getAllByRole( 'option', { name: /Black/ } )[ 0 ]
 			);
 
 			expect( setBackgroundColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );

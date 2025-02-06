@@ -23,9 +23,9 @@ import './dashboard-page.scss';
 /**
  * SearchDashboard component definition.
  *
- * @param {object} props - Component properties.
+ * @param {object} props           - Component properties.
  * @param {string} props.isLoading - should page show Loading spinner.
- * @returns {React.Component} Search dashboard component.
+ * @return {React.Component} Search dashboard component.
  */
 export default function DashboardPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
@@ -33,14 +33,15 @@ export default function DashboardPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
+	const blogID = useSelect( select => select( STORE_ID ).getBlogId() );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const sendPaidPlanToCart = () => {
 		const checkoutProductUrl = getProductCheckoutUrl(
 			'jetpack_search',
-			domain,
-			`${ siteAdminUrl }admin.php?page=jetpack-search&just_upgraded=1`,
+			blogID || domain,
+			`admin.php?page=jetpack-search&just_upgraded=1`,
 			true
 		);
 

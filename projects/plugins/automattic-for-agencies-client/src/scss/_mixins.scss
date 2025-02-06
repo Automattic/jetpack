@@ -1,0 +1,23 @@
+@mixin for-phone-up {
+	@media ( min-width: 600px ) {
+		@content;
+	}
+}
+
+@mixin for-tablet-up {
+	@media ( min-width: 960px ) {
+		@content;
+	}
+}
+
+@mixin for-phone-down {
+	@media ( max-width: 600px ) {
+		@content;
+	}
+}
+
+@mixin for-tablet-down {
+	@media ( max-width: 960px ) {
+		@content;
+	}
+}

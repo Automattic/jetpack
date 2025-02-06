@@ -17,9 +17,6 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\load_3rd_party_compat_filters', 
  * This is a refactor of load_3rd_party() to load the individual compat files only when needed instead of universally.
  */
 function load_3rd_party_compat_filters() {
-	// SalesForce
-	// @todo This one probably makes more sense to move to the Forms package (and the module until it is fully deprecated).
-	require_once JETPACK__PLUGIN_DIR . '/3rd-party/class-salesforce-lead-form.php'; // not a module but the handler for Salesforce forms
 
 	// bbPress
 	if ( function_exists( 'bbpress' ) ) {
@@ -62,9 +59,6 @@ function load_3rd_party_compat_filters() {
 	require_once JETPACK__PLUGIN_DIR . '/3rd-party/jetpack-boost.php';
 	require_once JETPACK__PLUGIN_DIR . '/3rd-party/woocommerce-services.php';
 
-	// Crowdsignal. @todo Review the usage of modern Jetpack with outdated Crowdsignal.
-	require_once JETPACK__PLUGIN_DIR . '/3rd-party/crowdsignal.php';
-
 	// qTranslate. Plugin closed in 2021, but leaving support for now to allow sites to drop it.
 	if ( Constants::is_defined( 'QTX_VERSION' ) ) {
 		require_once JETPACK__PLUGIN_DIR . '/3rd-party/qtranslate-x.php';
@@ -89,6 +83,9 @@ function load_3rd_party_compat_filters() {
 	if ( ( new Host() )->is_atomic_platform() ) {
 		require_once JETPACK__PLUGIN_DIR . '/3rd-party/atomic.php';
 	}
+
+	// WordPress.com Reader
+	require_once JETPACK__PLUGIN_DIR . '/3rd-party/wpcom-reader.php';
 
 	// WPML
 	if ( defined( 'ICL_SITEPRESS_VERSION' ) ) {

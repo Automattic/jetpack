@@ -9,13 +9,7 @@
  * Date: 09/01/2017
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 
@@ -69,11 +63,8 @@ function zeroBSCRM_mailTemplate_emailPreview($templateID=-1){
 			$replacements['email'] = 'your.user@email.com';
 			$replacements['login-url'] = site_url('clients/login');
 
-
-			//echo 'rep:<pre>'.print_r($replacements,1).'</pre>'; exit();
-	        // replace vars
-	        $html = $placeholder_templating->replace_placeholders( array( 'global', 'contact' ), $html, $replacements );
-
+			// replace vars
+			$html = $placeholder_templating->replace_placeholders( array( 'global', 'contact' ), $html, $replacements );
 
 		}
 
@@ -96,66 +87,55 @@ function zeroBSCRM_mailTemplate_emailPreview($templateID=-1){
 
 			$i=0;
 
-			$logoURL = '';
+			$logo_url = '';
 			##WLREMOVE
-			$logoURL = $zbs->urls['crm-logo'];
+			$logo_url = $zbs->urls['crm-logo'];
 			##/WLREMOVE
 
 
-			$tableHeaders = '';
+			$lineitems = array(
+				array(
+					'title'    => __( 'Your Invoice Item', 'zero-bs-crm' ),
+					'desc'     => __( 'Your invoice item description goes here', 'zero-bs-crm' ),
+					'quantity' => 5,
+					'price'    => 20,
+					'net'      => 100,
+				),
+				array(
+					'title'    => __( 'Another Item', 'zero-bs-crm' ),
+					'desc'     => __( 'Some other description', 'zero-bs-crm' ),
+					'quantity' => 3,
+					'price'    => 17,
+					'net'      => 51,
+				),
+			);
 
-				$zbsInvoiceHorQ = 'quantity';
+			$lineitems_header_html = zeroBSCRM_invoicing_generateInvPart_tableHeaders( 1 );
+			$lineitem_html         = zeroBSCRM_invoicing_generateInvPart_lineitems( $lineitems );
 
-				if($zbsInvoiceHorQ == 'quantity'){ 
-				
-					$tableHeaders = '<th class="left">'.__("Description",'zero-bs-crm').'</th><th>'.__("Quantity",'zero-bs-crm').'</th><th>'.__("Price",'zero-bs-crm').'</th><th>'.__("Total",'zero-bs-crm').'</th>';
+			$replacements['title']         = __( 'Invoice Template', 'zero-bs-crm' );
+			$replacements['invoice-title'] = __( 'Invoice', 'zero-bs-crm' );
+			$replacements['logo-url']      = esc_url( $logo_url );
 
-				}else{ 
+			$inv_number   = '2468';
+			$inv_date_str = jpcrm_uts_to_date_str( 1931212800, false, true );
+			$ref          = '920592qz-42';
 
-					$tableHeaders = '<th class="left">'.__("Description",'zero-bs-crm').'</th><th>'.__("Hours",'zero-bs-crm').'</th><th>'.__("Rate",'zero-bs-crm').'</th><th>'.__("Total",'zero-bs-crm').'</th>';
+			$totals_table = '';
 
-				}
-
-			$lineItems = "";
-			$lineItems .= 
-			'<tbody class="zbs-item-block" data-tableid="'.$i.'" id="tblock'.$i.'">
-					<tr class="top-row">
-						<td style="width:70%">'.__('Your Invoice Item','zero-bs-crm').'</td>
-						<td style="width:7.5%;text-align:center;" rowspan="3" class="cen">10</td>
-						<td style="width:7.5%;text-align:center;" rowspan="3"class="cen">$20</td>
-						<td style="width:7.5%;text-align:right;" rowspan="3" class="row-amount">$200</td>
-					</tr>
-					<tr class="bottom-row">
-						<td colspan="4" class="tapad">'.__('Your invoice item description goes here','zero-bs-crm').'</td>     
-					</tr>
-					<tr class="add-row"></tr>
-			</tbody>';  
-
-
-			$replacements['title'] = __('Invoice Template','zero-bs-crm');
-			$replacements['invoice-title'] = __('Invoice','zero-bs-crm');
-			$replacements['logo-url'] = esc_url( $logoURL );
-
-			$invNoStr = "101";
-			$invDateStr = "01/01/3001";
-			$ref = "ABC";
-			$dueDateStr = "01/01/3001";
-
-			$totalsTable = "";
-
-			$bizInfoTable = "";
+			$biz_info_table = '';
 			##WLREMOVE
-			$bizInfoTable = '<div style="text-align:right"><b>John Doe</b><br/>' . __( 'This is replaced<br>with the contacts details<br>from their profile.', 'zero-bs-crm' ) . '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase	
+			$biz_info_table = '<div style="text-align:right"><b>John Doe</b><br/>' . __( 'This is replaced<br>with the contacts details<br>from their profile.', 'zero-bs-crm' ) . '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase	
 			##/WLREMOVE
 
-			$replacements['invoice-number'] = $invNoStr;
-			$replacements['invoice-date'] = $invDateStr;
-			$replacements['invoice-ref'] = $ref;
-			$replacements['invoice-due-date'] = $dueDateStr;
-			$replacements['invoice-table-headers'] = $tableHeaders;
-			$replacements['invoice-line-items'] = $lineItems;
-			$replacements['invoice-totals-table'] = $totalsTable;
-			$replacements['biz-info'] = $bizInfoTable;
+			$replacements['invoice-number']        = $inv_number;
+			$replacements['invoice-date']          = $inv_date_str;
+			$replacements['invoice-ref']           = $ref;
+			$replacements['invoice-due-date']      = $inv_date_str;
+			$replacements['invoice-table-headers'] = $lineitems_header_html;
+			$replacements['invoice-line-items']    = $lineitem_html;
+			$replacements['invoice-totals-table']  = $totals_table;
+			$replacements['biz-info']              = $biz_info_table;
 
 			$viewInPortal = '';
 			$invoiceID = '';
@@ -302,7 +282,7 @@ function zeroBSCRM_preview_email_template(){
 
 	    	}
 
-			die();
+			die( 0 );
 
 		}
 	}
@@ -350,18 +330,6 @@ function zeroBSCRM_mail_retrieveDefaultBodyTemplate($template='maintemplate'){
 
 	return $templatedHTML;
 }
-
-// v2.98.6 - change default from /html/notifications/email-default/ to /html/templates/_responsivewrap.html
-// v4.5.0 - deprecated in favour of core variant
-function zeroBSCRM_mail_retrieveWrapTemplate( $template = 'default' ) {
-
-	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_mail_retrieveWrapTemplate was deprecated in v4.5.0, please use the core function retrieve_template' );
-
-	return '';
-
-}
-
-
 
 /* ======================================================
 	/ ZBS Templating - Load Initial HTML
@@ -476,7 +444,7 @@ function zeroBSCRM_quote_generateNotificationHTML( $quoteID = -1, $return = true
 			if ( !$return ) {
 
 				echo $html;
-				exit();
+				exit( 0 );
 
 			}
 
@@ -580,7 +548,7 @@ function zeroBSCRM_quote_generateAcceptNotifHTML( $quoteID = -1, $quoteSignedBy 
 			if ( !$return ) {
 
 				echo $html;
-				exit();
+				exit( 0 );
 
 			}
 
@@ -639,7 +607,7 @@ function zeroBSCRM_invoice_generateNotificationHTML( $invoiceID = -1, $return = 
 			if ( !$return ) {
 
 				echo $html;
-				exit();
+				exit( 0 );
 
 			}
 
@@ -709,7 +677,7 @@ function zeroBSCRM_statement_generateNotificationHTML( $contact_id = -1, $return
 			if ( !$return ) {
 
 				echo $html;
-				exit();
+				exit( 0 );
 
 			}
 
@@ -772,7 +740,7 @@ function zeroBSCRM_Portal_generateNotificationHTML( $pwd = -1, $return = true, $
 			if ( !$return ) {
 
 				echo $html;
-				exit();
+				exit( 0 );
 
 			}
 
@@ -824,7 +792,7 @@ function zeroBSCRM_Portal_generatePWresetNotificationHTML( $pwd, $return, $conta
 			if ( !$return ) {
 
 				echo $html;
-				exit();
+				exit( 0 );
 
 			}
 
@@ -911,7 +879,7 @@ function jpcrm_task_generate_notification_html( $return = true, $email = false, 
 		if ( !$return ) {
 
 			echo $html;
-			exit();
+			exit( 0 );
 
 		}
 	}
@@ -930,17 +898,6 @@ function jpcrm_task_generate_notification_html( $return = true, $email = false, 
 /* ======================================================
 	ZBS Single Send Emails - Generate HTML
    ====================================================== */
-
-/*
-* Deprecated, included to avoid Error 500's in outdated extensions
-*/
-function zeroBSCRM_mailTemplates_directMsg( $return = true, $content = '', $title = '' ) {
-
-	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_mailTemplates_directMsg was deprecated in 4.4.0, Please use jpcrm_mailTemplates_single_send_templated()' );
-
-	return jpcrm_mailTemplates_single_send_templated( $return, $content, $title );
-
-}
 
 /**
  * Creates the html of a single send email based on passed details
@@ -972,21 +929,15 @@ function jpcrm_mailTemplates_single_send_templated( $return=true, $content='', $
 
         // enact replacements
         $html = $placeholder_templating->replace_placeholders( array(  'global', 'contact', 'company' ), $html, $replacements, array( ZBS_TYPE_CONTACT => $contact_object ) );
-						
-        // return
-        if ( !$return ) {
-        
-        	echo $html;
-        	exit();
 
-        }
-
-    }  
-
-    return $html;
-
-
-} 
+		// return
+		if ( ! $return ) {
+			echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			exit( 0 );
+		}
+	}
+	return $html;
+}
 /* ======================================================
 	/ ZBS Single Send Emails - Generate HTML
    ====================================================== */
@@ -1019,20 +970,15 @@ function jpcrm_mailTemplates_generic_msg($return=true, $content='', $title = '')
 
         // replacements
         $html = $placeholder_templating->replace_placeholders( array(  'global', 'contact', 'company' ), $html, $replacements );
-						
-        // return
-        if ( !$return ) {
-        
-        	echo $html;
-        	exit();
 
-        }
-
-    }  
-    return $html;
-
-
-} 
+		// return
+		if ( ! $return ) {
+			echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			exit( 0 );
+		}
+	}
+	return $html;
+}
 /* ======================================================
 	/ ZBS Generic Emails - Generate HTML
    ====================================================== */
@@ -1084,20 +1030,14 @@ function jpcrm_mailTemplates_generic_msg($return=true, $content='', $title = '')
 		        // replacements
 		        $html = $placeholder_templating->replace_placeholders( array(  'global', 'contact', 'company' ), $html, $replacements );	     
 
-            // return
-            if ( !$return ) {
-            
-            	echo $html;
-            	exit();
-
-            }
-
-        }  
-
-        return $html;
-
-
-	} 
+		// return
+		if ( ! $return ) {
+			echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			exit( 0 );
+		}
+	}
+	return $html;
+}
 
 
 /* ======================================================

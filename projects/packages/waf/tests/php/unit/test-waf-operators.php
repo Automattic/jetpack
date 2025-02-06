@@ -524,6 +524,9 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 			'ghij',
 			'abcdefghi',
 			false,
+			'ABC',
+			'abcdefghi',
+			false,
 		);
 	}
 }

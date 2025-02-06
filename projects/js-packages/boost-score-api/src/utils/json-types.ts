@@ -1,4 +1,3 @@
-/* eslint-disable no-use-before-define */
 /**
  * Generic type for handling JSON-like objects.
  *
@@ -14,7 +13,7 @@ export type JSONValue = string | number | boolean | JSONObject | JSONArray | nul
  * Returns true if the given JSONValue is a JSONObject.
  *
  * @param {JSONValue} value - Value to check.
- * @returns {boolean} True if the given value is a JSONObject.
+ * @return {boolean} True if the given value is a JSONObject.
  */
 export function isJsonObject( value: JSONValue ): value is JSONObject {
 	return !! value && value instanceof Object && ! ( value instanceof Array );
@@ -25,7 +24,7 @@ export function isJsonObject( value: JSONValue ): value is JSONObject {
  * Sure, you could use x instanceof Array but this is shorter and more consistent.
  *
  * @param {JSONValue} value - Value to check.
- * @returns {boolean} True if the given value is a JSONArray.
+ * @return {boolean} True if the given value is a JSONArray.
  */
 export function isJsonArray( value: JSONValue ): value is JSONArray {
 	return value instanceof Array;

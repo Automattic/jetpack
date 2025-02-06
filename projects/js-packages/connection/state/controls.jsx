@@ -2,12 +2,12 @@ import restApi from '@automattic/jetpack-api';
 import { createRegistryControl } from '@wordpress/data';
 import STORE_ID from './store-id';
 
-const REGISTER_SITE = ( { registrationNonce, redirectUri } ) =>
-	restApi.registerSite( registrationNonce, redirectUri );
+const REGISTER_SITE = ( { registrationNonce, redirectUri, from } ) =>
+	restApi.registerSite( registrationNonce, redirectUri, from );
 
 const CONNECT_USER = createRegistryControl(
 	( { resolveSelect } ) =>
-		( { from, redirectFunc, redirectUri } = {} ) => {
+		( { from, redirectFunc, redirectUri, skipPricingPage } = {} ) => {
 			return new Promise( ( resolve, reject ) => {
 				resolveSelect( STORE_ID )
 					.getAuthorizationUrl( redirectUri )
@@ -15,6 +15,10 @@ const CONNECT_USER = createRegistryControl(
 						const redirect = redirectFunc || ( url => window.location.assign( url ) );
 
 						const url = new URL( authorizationUrl );
+
+						if ( skipPricingPage ) {
+							url.searchParams.set( 'skip_pricing', 'true' );
+						}
 
 						if ( from ) {
 							url.searchParams.set( 'from', encodeURIComponent( from ) );

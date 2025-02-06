@@ -1,0 +1,1599 @@
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2025-01-12 11:50:13+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/2.4.0-alpha\n"
+"Language: it\n"
+"Project-Id-Version: WordPress.com - jetpack-mu-wpcom\n"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:286
+msgid "Got it!"
+msgstr "Ottimo!"
+
+#: src/features/post-categories/quick-actions.php:78
+msgid "Default category changed successfully."
+msgstr "Categoria predefinita modificata correttamente."
+
+#: src/features/post-categories/quick-actions.php:36
+msgid "Set as default"
+msgstr "Imposta come predefinito"
+
+#. translators: category name
+#: src/features/post-categories/quick-actions.php:35
+msgid "Set &#8220;%s&#8221; as the default category"
+msgstr "Imposta \"%s\" come predefinito: configura la categoria come predefinita"
+
+#: src/features/pages/quick-actions.php:169
+msgid "Posts page changed successfully."
+msgstr ""
+
+#: src/features/pages/quick-actions.php:143
+msgid "Homepage changed successfully."
+msgstr ""
+
+#: src/features/pages/quick-actions.php:57
+msgid "Set as posts page"
+msgstr "Imposta come pagina degli articoli"
+
+#: src/features/pages/quick-actions.php:57
+msgid "Unset as posts page"
+msgstr ""
+
+#. translators: page title
+#: src/features/pages/quick-actions.php:56
+msgid "Set &#8220;%s&#8221; as the page that displays your latest posts"
+msgstr ""
+
+#. translators: page title
+#: src/features/pages/quick-actions.php:56
+msgid "Unset &#8220;%s&#8221; as the page that displays your latest posts"
+msgstr ""
+
+#: src/features/pages/quick-actions.php:48
+msgid "Set as homepage"
+msgstr "Imposta come homepage"
+
+#. translators: page title
+#: src/features/pages/quick-actions.php:47
+msgid "Set &#8220;%s&#8221; as your site's homepage"
+msgstr ""
+
+#: src/features/holiday-snow/class-holiday-snow.php:226
+msgid "Show falling snow on my site until January 4<sup>th</sup>."
+msgstr "Mostra la neve sul mio sito fino al 4 gennaio.<sup></sup>"
+
+#: src/features/holiday-snow/class-holiday-snow.php:205
+msgid "Snow"
+msgstr "Neve"
+
+#: src/features/holiday-snow/class-holiday-snow.php:194
+msgid "Show falling snow on my site"
+msgstr "Mostra la neve che cade sul mio sito web"
+
+#: src/features/wpcom-blocks/timeline/block.json
+msgctxt "block keyword"
+msgid "timeline"
+msgstr "timeline"
+
+#: src/features/wpcom-blocks/timeline/block.json
+msgctxt "block keyword"
+msgid "event"
+msgstr "evento"
+
+#: src/features/wpcom-blocks/timeline/block.json
+msgctxt "block description"
+msgid "Create a timeline of events."
+msgstr "Crea una timeline di eventi."
+
+#: src/features/wpcom-blocks/timeline/block.json
+msgctxt "block title"
+msgid "Timeline"
+msgstr "Timeline"
+
+#: src/features/wpcom-blocks/event-countdown/block.json
+msgctxt "block keyword"
+msgid "countdown"
+msgstr "conto alla rovescia"
+
+#: src/features/wpcom-blocks/event-countdown/block.json
+msgctxt "block keyword"
+msgid "events"
+msgstr "eventi"
+
+#: src/features/wpcom-blocks/event-countdown/block.json
+msgctxt "block description"
+msgid "Count down to your favorite next thing, and celebrate with fireworks when the time is right!"
+msgstr "Fai il conto alla rovescia per il tuo prossimo evento preferito e festeggia con i fuochi d'artificio quando arriva il momento."
+
+#: src/features/wpcom-blocks/event-countdown/block.json
+msgctxt "block title"
+msgid "Event Countdown"
+msgstr "Conto alla rovescia dell'evento"
+
+#: src/features/wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:96
+msgid "Continue and launch"
+msgstr "Continua e lancia"
+
+#: src/features/wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:89
+msgid "Keep editing"
+msgstr "Continua a modificare"
+
+#: src/features/wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:82
+msgid "Feel free to keep editing your homepage, or continue and launch your site."
+msgstr "Sentiti libero di continuare a modificare la tua homepage o continuare e lanciare il tuo sito."
+
+#: src/features/wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:81
+msgid "You’ve added your first video!"
+msgstr "Hai aggiunto il tuo primo video!"
+
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:122
+msgid "View your product"
+msgstr "Visualizza il tuo prodotto"
+
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:120
+msgid "Continue editing"
+msgstr "Continua a modificare"
+
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:113
+msgid "Preview your product on your site before launching and sharing with others."
+msgstr "Visualizza in anteprima il tuo prodotto sul sito prima di lanciarlo e condividerlo con altri."
+
+#: src/features/wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:112
+msgid "You've added your first product!"
+msgstr "Hai aggiunto il tuo primo prodotto."
+
+#: src/features/wpcom-block-editor-nux/src/purchase-notice/index.jsx:23
+msgid "Congrats! Premium blocks are now available to use."
+msgstr "Congratulazioni! I blocchi Premium sono ora disponibili all'uso."
+
+#: src/features/block-theme-previews/modal.jsx:59
+msgid "Start customizing"
+msgstr "Inizia la personalizzazione"
+
+#: src/features/block-theme-previews/modal.jsx:51
+msgid "Try customizing your theme styles to get your site looking just right."
+msgstr "Cerca di personalizzare gli stili del tema per dare al tuo sito l'aspetto giusto."
+
+#: src/features/block-theme-previews/modal.jsx:45
+msgid "Changes you make in the editor won’t be applied to your site until you activate the theme."
+msgstr "Le modifiche che apporti nell'editor non saranno applicate al tuo sito finché non attivi il tema."
+
+#: src/features/block-theme-previews/modal.jsx:39
+msgid "You’re previewing %s"
+msgstr "Stai visualizzando l'anteprima di %s"
+
+#: src/features/wpcom-themes/wpcom-themes.php:66
+#: src/features/wpcom-themes/wpcom-themes.php:67
+msgid "Theme Showcase"
+msgstr "Vetrina dei temi"
+
+#: src/features/wpcom-themes/wpcom-themes.php:42
+msgid "Explore themes"
+msgstr "Esplora i temi"
+
+#: src/features/wpcom-themes/wpcom-themes.php:40
+msgid "Dive deep into the world of WordPress.com themes. Discover the responsive and stunning designs waiting to bring your site to life."
+msgstr "Immergiti nel mondo dei temi di WordPress.com. Scopri i design responsivi e mozzafiato per migliorare il tuo sito."
+
+#: src/features/wpcom-themes/wpcom-themes.php:39
+msgid "Find the perfect theme for your site"
+msgstr "Trova il tema perfetto per il tuo sito"
+
+#: src/features/wpcom-profile-settings/profile-settings-notices.php:28
+msgid "The Toolbar is always visible on Atomic sites while connected to the Automattic proxy."
+msgstr "La barra degli strumenti è sempre visibile su siti Atomic mentre si è connessi al proxy Automattic."
+
+#: src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:64
+msgid "Manage your WordPress.com password ↗"
+msgstr "Gestisci la tua password WordPress.com ↗"
+
+#: src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:60
+msgid "Manage your WordPress.com account email ↗"
+msgstr "Gestisci la tua e-mail dell'account WordPress.com ↗"
+
+#: src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:56
+msgid "Manage your WordPress.com profile bio ↗"
+msgstr "Gestisci la bio del tuo profilo WordPress.com ↗"
+
+#: src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:52
+msgid "Manage your WordPress.com profile website ↗"
+msgstr "Gestisci il profilo del tuo sito web WordPress.com ↗"
+
+#: src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:48
+msgid "Manage your WordPress.com profile ↗"
+msgstr "Gestisci il tuo profilo WordPress.com ↗"
+
+#: src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:44
+msgid "Manage your WordPress.com account language ↗"
+msgstr "Gestisci la lingua dell'account WordPress.com ↗"
+
+#: src/features/wpcom-plugins/wpcom-plugins.php:53
+msgid "Explore plugins"
+msgstr "Esplora i plugin"
+
+#: src/features/wpcom-plugins/wpcom-plugins.php:52
+msgid "Explore marketplace plugins"
+msgstr "Esplora i plugin del marketplace"
+
+#: src/features/wpcom-plugins/wpcom-plugins.php:49
+msgid "Access a variety of free and paid plugins that can enhance your site's functionality and features."
+msgstr "Accedi a una varietà di plugin gratuiti e a pagamento che possono migliorare le funzionalità e le caratteristiche del tuo sito."
+
+#: src/features/wpcom-plugins/wpcom-plugins.php:48
+msgid "Discover a curated selection of free and premium plugins designed to enhance your site's functionality and features."
+msgstr "Scopri una selezione curata di plugin gratuiti e premium progettati per migliorare le funzionalità e le caratteristiche del tuo sito."
+
+#: src/features/wpcom-plugins/wpcom-plugins.php:45
+msgid "Flex your site's features with plugins"
+msgstr "Migliora le funzionalità del tuo sito con i plugin"
+
+#: src/features/wpcom-plugins/wpcom-plugins.php:44
+msgid "Unlock more with premium and free plugins"
+msgstr "Sblocca il potenziale con i plugin premium e gratuiti"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template.php:149
+msgid "Footer"
+msgstr "Footer"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template.php:147
+msgid "Header"
+msgstr "Header"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:552
+msgid "Back to template part types"
+msgstr "Torna ai tipi di parte del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:551
+msgid "No template part types found."
+msgstr "Nessun tipo di parte del modello trovato."
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:550
+msgid "Search Template Part Types"
+msgstr "Cerca tipi di parte del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:549
+msgid "Parent Template Part Type:"
+msgstr "Tipo di parte del modello principale:"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:548
+msgid "Parent Template Part Type"
+msgstr "Tipo di parte del modello principale"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:547
+msgid "New Template Part Type"
+msgstr "Nuovo tipo di parte del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:546
+msgid "Add New Template Part Type"
+msgstr "Aggiungi nuovo tipo di parte del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:545
+msgid "Update Template Part Type"
+msgstr "Aggiorna tipo di parte del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:544
+msgid "View Template Part Type"
+msgstr "Visualizza tipo di parte del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:543
+msgid "Edit Template Part Type"
+msgstr "Modifica tipo di parte del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:542
+msgid "All Template Part Types"
+msgstr "Tutti i tipi di parte del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:541
+msgctxt "admin menu"
+msgid "Template Part Types"
+msgstr "Tipi di parte del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:540
+msgctxt "taxonomy singular name"
+msgid "Template Part Type"
+msgstr "Tipo di parte del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:539
+msgctxt "taxonomy general name"
+msgid "Template Part Types"
+msgstr "Tipi di parte del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:504
+msgid "Template part updated."
+msgstr "Parte del modello aggiornata."
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:503
+msgid "Template part scheduled."
+msgstr "Parte del modello programmata."
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:502
+msgid "Template part reverted to draft."
+msgstr "Parte del modello riconvertita in bozza."
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:501
+msgid "Template part published privately."
+msgstr "Parte del modello pubblicata privatamente."
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:500
+msgid "Template part published."
+msgstr "Parte del modello pubblicata."
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:499
+msgid "Template parts list"
+msgstr "Elenco delle parti del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:498
+msgid "Template parts list navigation"
+msgstr "Navigazione elenco delle parti del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:497
+msgid "Filter template parts list"
+msgstr "Filtra elenco delle parti del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:496
+msgid "No template parts found in Trash."
+msgstr "Nessuna parte del modello trovata nel cestino."
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:495
+msgid "No template parts found."
+msgstr "Nessuna parte del modello trovata."
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:494
+msgid "Search Template Parts"
+msgstr "Cerca parti del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:493
+msgid "All Template Parts"
+msgstr "Tutte le parti del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:492
+msgid "View Template Part"
+msgstr "Visualizza parte del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:491
+msgid "Edit Template Part"
+msgstr "Modifica parte del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:490
+msgid "New Template Part"
+msgstr "Nuova parte del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:489
+msgid "Add New Template Part"
+msgstr "Aggiungi nuova parte del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:488
+msgctxt "Template"
+msgid "Add New"
+msgstr "Aggiungi nuovo"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:487
+msgctxt "add new on admin bar"
+msgid "Template Part"
+msgstr "Parte del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:486
+msgctxt "admin menu"
+msgid "Template Parts"
+msgstr "Parti del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:485
+msgctxt "post type singular name"
+msgid "Template Part"
+msgstr "Parte del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:484
+msgctxt "post type general name"
+msgid "Template Parts"
+msgstr "Parti del modello"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:447
+msgctxt "Default page title"
+msgid "Contact"
+msgstr "Contatti"
+
+#: src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:435
+msgctxt "Default page title"
+msgid "About"
+msgstr "Informazioni"
+
+#: src/features/wpcom-legacy-fse/blocks/navigation-menu/index.php:90
+msgid "collapsed"
+msgstr "compresso"
+
+#: src/features/wpcom-legacy-fse/blocks/navigation-menu/index.php:89
+msgid "expanded"
+msgstr "espanso"
+
+#: src/features/wpcom-legacy-fse/blocks/navigation-menu/index.php:86
+msgid "Menu"
+msgstr "Menu"
+
+#: src/features/wpcom-global-styles/index.php:563
+msgid "Upgrade required"
+msgstr "Aggiornamento richiesto"
+
+#: src/features/wpcom-global-styles/index.php:560
+msgid "Upgrade"
+msgstr "Aggiorna"
+
+#: src/features/wpcom-global-styles/index.php:552
+msgid "Preview premium styles"
+msgstr "Anteprima stili premium"
+
+#: src/features/wpcom-global-styles/index.php:547
+msgid "Remove premium styles"
+msgstr "Rimuovi stili premium"
+
+#: src/features/wpcom-global-styles/index.php:537
+msgid "Upgrade now"
+msgstr "Aggiorna ora"
+
+#. translators: %1$s - documentation URL, %2$s - the name of the required plan
+#: src/features/wpcom-global-styles/index.php:513
+msgid "Your site includes <a href=\"%1$s\" target=\"_blank\">premium styles</a> that are only visible to visitors after upgrading to the %2$s plan or higher."
+msgstr "Il tuo sito include <a href=\"%1$s\" target=\"_blank\">stili premium</a> che sono visibili ai visitatori solo dopo l'aggiornamento al piano %2$s o superiore."
+
+#: src/features/wpcom-global-styles/api/class-global-styles-status-rest-api.php:53
+msgid "Your user is not permitted to access this resource."
+msgstr "L'utente non è autorizzato ad accedere a questa risorsa."
+
+#. translators: The name of the widget.
+#: src/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php:78
+msgid "Your %s widget requires JavaScript to function properly."
+msgstr "Il widget di %s richiede JavaScript per funzionare correttamente."
+
+#: src/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php:21
+msgid "Site Management Panel"
+msgstr "Pannello di gestione del sito"
+
+#: src/features/wpcom-blocks/a8c-posts-list/templates/posts-list.php:30
+msgid "View all posts"
+msgstr "Visualizza tutti gli articoli"
+
+#: src/features/wpcom-blocks/a8c-posts-list/templates/post-item.php:36
+msgid "Edit"
+msgstr "Modifica"
+
+#: src/features/wpcom-blocks/a8c-posts-list/templates/post-item.php:31
+msgctxt "designating the post author (eg: by John Doe"
+msgid "by"
+msgstr "di"
+
+#: src/features/wpcom-blocks/a8c-posts-list/templates/post-item.php:23
+msgid "Featured"
+msgstr "In evidenza"
+
+#. translators: 1: link to WP admin new post page.
+#: src/features/wpcom-blocks/a8c-posts-list/templates/no-posts.php:17
+msgid "Ready to publish your first post? <a href=\"%1$s\">Get started here</a>."
+msgstr "Vuoi pubblicare il tuo primo articolo? <a href=\"%1$s\">Inizia da qui</a>."
+
+#: src/features/wpcom-blocks/a8c-posts-list/templates/no-posts.php:11
+msgid "There are currently no posts to display."
+msgstr "Nessun articolo da visualizzare al momento."
+
+#: src/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php:28
+msgid "Read more"
+msgstr "Leggi altro"
+
+#. translators: %s: Name of current post
+#: src/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php:25
+msgid "Continue reading %s"
+msgstr "Continua a leggere %s"
+
+#: src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:357
+msgid "Underline"
+msgstr "Sottolineato"
+
+#: src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:356
+msgid "Justify"
+msgstr "Giustificato"
+
+#: src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:200
+msgid "Logging In..."
+msgstr "Accesso in corso..."
+
+#: src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:185
+msgid "Before we continue, please log in to your Jetpack site."
+msgstr "Prima di continuare, accedi al tuo sito Jetpack."
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:444
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:445
+msgid "Scheduled Updates"
+msgstr "Aggiornamenti programmati"
+
+#. translators: Name of the Plugins submenu that links to the Plugins
+#. Marketplace
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:427
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:429
+msgid "Marketplace"
+msgstr "Marketplace"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:409
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:410
+msgid "Add New Plugin"
+msgstr "Aggiungi il nuovo plugin"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:396
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:397
+msgid "Plugins"
+msgstr "Plugin"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:232
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:233
+msgid "Newsletter"
+msgstr "Newsletter"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:222
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:223
+msgid "Subscribers"
+msgstr "Abbonati"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:212
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:213
+msgid "Scan"
+msgstr "Scansiona"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:202
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:203
+msgid "Monetize"
+msgstr "Monetizza"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:193
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:194
+msgid "VaultPress"
+msgstr "VaultPress"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:184
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:185
+msgid "Activity Log"
+msgstr "Log attività"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:131
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:132
+msgid "Site Settings"
+msgstr "Impostazioni del sito"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:122
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:123
+msgid "Marketing"
+msgstr "Marketing"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:113
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:114
+msgid "Purchases"
+msgstr "Acquisti"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:104
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:105
+msgid "Emails"
+msgstr "E-mail"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:95
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:96
+msgid "Domains"
+msgstr "Domini"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:86
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:87
+msgid "Add-ons"
+msgstr "Prodotti correlati"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:77
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:78
+msgid "Plans"
+msgstr "Piani"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:68
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:69
+msgid "Overview"
+msgstr "Panoramica"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:59
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:60
+msgid "My Home"
+msgstr "La mia home"
+
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:48
+#: src/features/wpcom-admin-menu/wpcom-admin-menu.php:49
+msgid "Hosting"
+msgstr "Hosting"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:380
+msgid "Admin interface style changed."
+msgstr "Lo stile dell'interfaccia di amministrazione è modificato."
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:343
+msgid "Click here to access your sites, domains, Reader, account settings, and more."
+msgstr "Fai clic qui per accedere ai tuoi siti, domini, Reader, impostazioni account e altro ancora."
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:342
+msgid "All your sites"
+msgstr "Tutti i tuoi siti"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:336
+msgid "Access the new site management panel and all developer tools such as hosting configuration, GitHub deployments, metrics, PHP logs, and server logs."
+msgstr "Accedi al nuovo pannello di gestione del sito e a tutti gli strumenti per sviluppatori come configurazione di hosting, distribuzioni GitHub, metriche, log PHP e log del server."
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:335
+msgid "Hosting overview"
+msgstr "Panoramica Hosting"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:329
+msgid "The Hosting menu contains the My Home page and all items from the Upgrades menu, including Plans, Domains, Emails, Purchases, and more."
+msgstr "Il menu Hosting contiene la pagina La mia home e tutte le voci del menu Aggiornamenti, inclusi Piani, Domini, E-mail, Acquisti e altro ancora."
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:328
+msgid "Upgrades is now Hosting"
+msgstr "Aggiornamenti è ora Hosting"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:285
+msgid "Next"
+msgstr "Successivo"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:284
+msgid "Previous"
+msgstr "Precedente"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:283
+msgid "Step {{currentStep}} of {{totalSteps}}"
+msgstr "Passaggio {{currentStep}} di {{totalSteps}}"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:279
+#: src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php:133
+msgid "Dismiss"
+msgstr "Ignora"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:35
+msgid "Use WordPress.com’s native dashboard to manage your site."
+msgstr "Usa la bacheca nativa di WordPress.com per gestire il tuo sito."
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:35
+msgid "Default style"
+msgstr "Stile predefinito"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:34
+msgid "Use WP-Admin to manage your site."
+msgstr "Usa WP-Admin per gestire il tuo sito."
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:34
+msgid "Classic style"
+msgstr "Stile classico"
+
+#: src/features/wpcom-admin-interface/wpcom-admin-interface.php:32
+msgid "Admin Interface Style"
+msgstr "Stile dell'interfaccia admin"
+
+#: src/features/wpcom-admin-bar/wpcom-admin-bar.php:247
+msgid "My Profile"
+msgstr "Il mio profilo"
+
+#. translators: Hidden accessibility text.
+#: src/features/wpcom-admin-bar/wpcom-admin-bar.php:225
+msgid "Reader"
+msgstr "Reader"
+
+#: src/features/wpcom-admin-bar/wpcom-admin-bar.php:223
+msgid "Read the blogs and topics you follow"
+msgstr "Leggi i blog e gli argomenti che segui"
+
+#. translators: Hidden accessibility text.
+#: src/features/wpcom-admin-bar/wpcom-admin-bar.php:200
+msgid "Cart"
+msgstr "Carrello"
+
+#. translators: Hidden accessibility text.
+#: src/features/wpcom-admin-bar/wpcom-admin-bar.php:144
+#: src/features/wpcom-admin-bar/wpcom-admin-bar.php:148
+msgid "All Sites"
+msgstr "Tutti i siti"
+
+#: src/features/verbum-comments/class-verbum-comments.php:467
+msgid "Error: please try commenting again."
+msgstr "Errore: prova a commentare di nuovo."
+
+#: src/features/verbum-comments/class-verbum-comments.php:392
+#: src/features/verbum-comments/class-verbum-comments.php:398
+#: src/features/verbum-comments/class-verbum-comments.php:405
+msgid "Error: your Facebook login has expired."
+msgstr "Errore: il tuo accesso a Facebook è scaduto."
+
+#: src/features/verbum-comments/class-verbum-comments.php:303
+msgid "Cancel reply"
+msgstr "Cancella risposta"
+
+#. translators: % is the original posters name
+#: src/features/verbum-comments/class-verbum-comments.php:302
+msgid "Leave a reply to %s"
+msgstr "Scrivi una risposta a %s"
+
+#: src/features/verbum-comments/class-verbum-comments.php:285
+msgid "Leave a comment"
+msgstr "Lascia un commento"
+
+#: src/features/verbum-comments/class-verbum-comments.php:234
+msgid "Save my name, email, and website in this browser for the next time I comment."
+msgstr "Salva il mio nome, l'email e il sito web in questo browser per il prossimo commento."
+
+#: src/features/verbum-comments/class-verbum-comments.php:233
+msgid "Comment sent successfully"
+msgstr "Commento inviato correttamente"
+
+#: src/features/verbum-comments/class-verbum-comments.php:232
+msgid "Subscribe"
+msgstr "Abbonati"
+
+#: src/features/verbum-comments/class-verbum-comments.php:231
+msgid "Enter your email address"
+msgstr "Inserisci il tuo indirizzo e-mail"
+
+#: src/features/verbum-comments/class-verbum-comments.php:230
+msgid "Interested in getting blog post updates? Simply click the button below to stay in the loop!"
+msgstr "Ti interessa ricevere aggiornamenti sugli articoli del blog? Basta fare clic sul pulsante di seguito per essere sempre al corrente delle novità."
+
+#: src/features/verbum-comments/class-verbum-comments.php:229
+msgid "Never miss a beat!"
+msgstr "Non perdere di vista nulla."
+
+#: src/features/verbum-comments/class-verbum-comments.php:228
+msgid "Continue reading"
+msgstr "Continua a leggere"
+
+#: src/features/verbum-comments/class-verbum-comments.php:227
+msgid "Subscribe now to keep reading and get access to the full archive."
+msgstr "Abbonati ora per continuare a leggere e avere accesso all'archivio completo."
+
+#. translators: %s is the name of the site
+#: src/features/verbum-comments/class-verbum-comments.php:226
+msgid "Discover more from %s"
+msgstr "Scopri di più da %s"
+
+#: src/features/verbum-comments/class-verbum-comments.php:224
+msgid "Loading your comment..."
+msgstr "Caricamento del commento in corso..."
+
+#. translators: Success message of a modal when user subscribes
+#: src/features/verbum-comments/class-verbum-comments.php:223
+msgid "We'll keep you in the loop!"
+msgstr "Ti terremo al corrente delle novità."
+
+#: src/features/verbum-comments/class-verbum-comments.php:221
+msgid "Optional"
+msgstr "Opzionale"
+
+#: src/features/verbum-comments/class-verbum-comments.php:220
+msgid "Website"
+msgstr "Sito web"
+
+#: src/features/verbum-comments/class-verbum-comments.php:219
+msgid "Write a reply..."
+msgstr "Scrivi una risposta..."
+
+#: src/features/verbum-comments/class-verbum-comments.php:217
+msgid "Cancel"
+msgstr "Annulla"
+
+#: src/features/verbum-comments/class-verbum-comments.php:216
+msgid "Email me new comments"
+msgstr "Inviami un'e-mail per i nuovi commenti"
+
+#: src/features/verbum-comments/class-verbum-comments.php:215
+msgid "Email me new posts"
+msgstr "Inviami un'e-mail per i nuovi articoli"
+
+#: src/features/verbum-comments/class-verbum-comments.php:214
+msgid "Notify me of new posts"
+msgstr "Mandami una notifica per nuovi articoli"
+
+#: src/features/verbum-comments/class-verbum-comments.php:213
+msgid "Weekly"
+msgstr "Settimanalmente"
+
+#: src/features/verbum-comments/class-verbum-comments.php:212
+msgid "WordPress"
+msgstr "WordPress"
+
+#: src/features/verbum-comments/class-verbum-comments.php:211
+msgid "Comment"
+msgstr "Commenta"
+
+#: src/features/verbum-comments/class-verbum-comments.php:210
+msgid "Reply"
+msgstr "Rispondi"
+
+#: src/features/verbum-comments/class-verbum-comments.php:209
+msgid "Daily"
+msgstr "Giornalmente"
+
+#: src/features/verbum-comments/class-verbum-comments.php:208
+msgid "Instantly"
+msgstr "Immediatamente"
+
+#: src/features/verbum-comments/class-verbum-comments.php:207
+msgid "(Address never made public)"
+msgstr "(L'indirizzo non verrà pubblicato)"
+
+#: src/features/verbum-comments/class-verbum-comments.php:206
+msgid "Email"
+msgstr "E-mail"
+
+#: src/features/verbum-comments/class-verbum-comments.php:205
+msgid "Log out"
+msgstr "Disconnetti"
+
+#. translators: %s is the name of the provider (WordPress, Facebook, Twitter)
+#: src/features/verbum-comments/class-verbum-comments.php:204
+msgid "Logged in via %s"
+msgstr "Accesso effettuato tramite %s"
+
+#: src/features/verbum-comments/class-verbum-comments.php:202
+msgid "Log in to leave a comment."
+msgstr "Accedi per lasciare un commento."
+
+#: src/features/verbum-comments/class-verbum-comments.php:201
+msgid "Log in to leave a reply."
+msgstr "Accedi per lasciare una risposta."
+
+#: src/features/verbum-comments/class-verbum-comments.php:200
+msgid "Leave a comment. (log in optional)"
+msgstr "Commenta (accesso opzionale)."
+
+#: src/features/verbum-comments/class-verbum-comments.php:199
+msgid "Leave a reply. (log in optional)"
+msgstr "Rispondi (accesso opzionale)."
+
+#: src/features/verbum-comments/class-verbum-comments.php:198
+msgid "Website (optional)"
+msgstr "Sito web (opzionale)"
+
+#: src/features/verbum-comments/class-verbum-comments.php:197
+msgid "Email (address never made public)"
+msgstr "E-mail (l'indirizzo non verrà pubblicato)"
+
+#: src/features/verbum-comments/class-verbum-comments.php:196
+msgid "Name"
+msgstr "Nome"
+
+#: src/features/verbum-comments/class-verbum-comments.php:195
+msgid "Receive web and mobile notifications for posts on this site."
+msgstr "Ricevi notifiche tramite web e dispositivi mobili quando vengono pubblicati articoli su questo sito."
+
+#: src/features/verbum-comments/class-verbum-comments.php:194
+msgid "Log in or provide your name and email to leave a comment."
+msgstr "Accedi o fornisci il tuo nome e indirizzo e-mail per commentare."
+
+#: src/features/verbum-comments/class-verbum-comments.php:193
+msgid "Log in or provide your name and email to leave a reply."
+msgstr "Accedi o fornisci il tuo nome e indirizzo e-mail per rispondere."
+
+#: src/features/verbum-comments/assets/class-verbum-gutenberg-editor.php:30
+#: src/features/verbum-comments/class-verbum-comments.php:218
+msgid "Write a comment..."
+msgstr "Scrivi un commento..."
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:230
+msgid "A few catchy words to motivate your readers to comment"
+msgstr "Alcune parole per fare presa sui tuoi lettori e incoraggiarli a lasciare un commento"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:192
+msgid "Enable blocks in comments"
+msgstr "Attiva i blocchi nei commenti"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:181
+msgid "Let visitors use a WordPress.com or Facebook account to comment"
+msgstr "Consenti ai visitatori di utilizzare un account WordPress.com o Facebook per commentare"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:170
+msgid "Adjust your Comments form with a clever greeting and color-scheme."
+msgstr "Imposta il modulo dei Commenti con un saluto e uno schema dai colori accattivanti."
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:149
+#: src/features/verbum-comments/assets/class-verbum-admin.php:262
+msgid "Color Scheme"
+msgstr "Schema dei colori"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:132
+msgid "Greeting Text"
+msgstr "Testo Saluto"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:116
+msgid "Allow Blocks"
+msgstr "Consenti i blocchi"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:103
+msgid "Verbum"
+msgstr "Verbum"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:96
+msgid "Comments"
+msgstr "Commenti"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:82
+msgid "Transparent"
+msgstr "Trasparente"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:81
+msgid "Dark"
+msgstr "Scuro"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:80
+msgid "Light"
+msgstr "Chiaro"
+
+#: src/features/verbum-comments/assets/class-verbum-admin.php:73
+msgid "Leave a Reply"
+msgstr "Rispondi"
+
+#: src/features/tags-education/tags-education.php:28
+msgid "Build your audience with tags"
+msgstr "Crea il pubblico con i tag"
+
+#: src/features/starter-page-templates/class-wp-rest-sideload-image-controller.php:77
+msgid "Invalid parent type."
+msgstr "Tipo di genitore non valido."
+
+#: src/features/starter-page-templates/class-starter-page-templates.php:243
+msgid "Current"
+msgstr "Attuale"
+
+#: src/features/starter-page-templates/class-starter-page-templates.php:238
+msgid "Blank"
+msgstr "Vuoto"
+
+#: src/features/starter-page-templates/class-starter-page-templates.php:228
+msgid "No templates available. Skipped showing modal window with template selection."
+msgstr "Nessun modello disponibile. Visualizzazione della finestra in primo piano con selezione del modello saltata."
+
+#: src/features/replace-site-visibility/replace-site-visibility.php:37
+msgid "Manage your privacy settings"
+msgstr "Gestisci le tue impostazioni privacy"
+
+#: src/features/replace-site-visibility/replace-site-visibility.php:32
+msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
+msgstr "Jetpack è disconnesso e il sito è privato. Riconnetti Jetpack per gestire le impostazioni della visibilità del sito."
+
+#: src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:57
+msgid "Add a post title"
+msgstr "Aggiungi un titolo dell'articolo"
+
+#: src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:35
+#: src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:72
+msgid "Start writing or type '/' to insert a block"
+msgstr "Inizia a scrivere o digita \"/\" per inserire un blocco"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1459
+msgid " per "
+msgstr " a "
+
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1456
+msgid " once"
+msgstr " una volta"
+
+#. Translators: %s is the %s is the frequency.
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1430
+msgid "per %s"
+msgstr "a %s"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1290
+msgid "Scheduled"
+msgstr "Programmato"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1289
+msgid "Draft"
+msgstr "Bozza"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1256
+msgid "Jetpack donations is disabled in favour of Newspack donations."
+msgstr "Le donazioni di Jetpack sono disabilitate a favore delle donazioni di Newspack."
+
+#. translators: separates all but the last two sponsor names; needs a space at
+#. the end.
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:955
+msgid ", "
+msgstr ","
+
+#. translators: separates last two sponsor names; needs a space on either side.
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:952
+msgid " and "
+msgstr " e "
+
+#: src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:851
+msgid "Common"
+msgstr "Comune"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:495
+msgctxt "post author"
+msgid " and "
+msgstr " e "
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:478
+msgctxt "post author"
+msgid "by"
+msgstr "di"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:404
+msgid "Something went wrong. Please refresh the page and/or try again."
+msgstr "Si è verificato un problema. Aggiorna la pagina e/o riprova in seguito."
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:397
+msgid "Load more posts"
+msgstr "Carica altri articoli"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:288
+msgid "Play Slideshow"
+msgstr "Riproduci la presentazione"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:287
+msgid "Pause Slideshow"
+msgstr "Metti in pausa la presentazione"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:243
+msgid "Next Slide"
+msgstr "Diapositiva successiva"
+
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:242
+msgid "Previous Slide"
+msgstr "Diapositiva precedente"
+
+#. translators: %d: Slide number.
+#: src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:221
+msgid "Go to slide %d"
+msgstr "Vai alla diapositiva %d"
+
+#: src/features/mailerlite/subscriber-popup.php:120
+msgid "UUID:"
+msgstr "UUID:"
+
+#: src/features/mailerlite/subscriber-popup.php:117
+msgid "Account ID <a href=\"%s\" target=\"_blank\">(instructions)</a>:"
+msgstr "ID account <a href=\"%s\" target=\"_blank\">(istruzioni)</a>:"
+
+#. translators: %1$s - URL to manage the widget, %2$s - documentation URL.
+#: src/features/mailerlite/subscriber-popup.php:48
+msgid "You need to enter your numeric account ID and UUID for the <a href=\"%1$s\">Mailerlite Widget</a> to work correctly. <a href=\"%2$s\" target=\"_blank\">Full instructions</a>."
+msgstr "Per un corretto funzionamento del <a href=\"%1$s\">widget Mailerlite</a> devi inserire un ID account numerico e un UUID. <a href=\"%2$s\" target=\"_blank\">Istruzioni complete</a>."
+
+#: src/features/mailerlite/subscriber-popup.php:26
+msgid "Display Mailerlite subscriber popup"
+msgstr "Visualizza il popup per abbonati Mailerlite"
+
+#: src/features/mailerlite/subscriber-popup.php:23
+msgid "Mailerlite subscriber popup"
+msgstr "Popup per abbonati Mailerlite"
+
+#: src/features/launchpad/launchpad.php:320
+msgid "Site migration"
+msgstr "Migrazione del sito"
+
+#: src/features/launchpad/launchpad.php:292
+msgid "Site setup"
+msgstr "Configurazione del sito"
+
+#: src/features/launchpad/launchpad.php:36
+#: src/features/launchpad/launchpad.php:50
+#: src/features/launchpad/launchpad.php:65
+#: src/features/launchpad/launchpad.php:78
+#: src/features/launchpad/launchpad.php:91
+#: src/features/launchpad/launchpad.php:107
+#: src/features/launchpad/launchpad.php:119
+#: src/features/launchpad/launchpad.php:132
+#: src/features/launchpad/launchpad.php:145
+#: src/features/launchpad/launchpad.php:159
+#: src/features/launchpad/launchpad.php:176
+#: src/features/launchpad/launchpad.php:190
+#: src/features/launchpad/launchpad.php:204
+#: src/features/launchpad/launchpad.php:245
+#: src/features/launchpad/launchpad.php:261
+#: src/features/launchpad/launchpad.php:277
+msgid "Next steps for your site"
+msgstr "Prossimi passaggi per il tuo sito"
+
+#: src/features/launchpad/launchpad-task-definitions.php:1772
+msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
+msgstr "Il tuo sito contiene stili premium. Aggiorna ora per pubblicarli e sbloccare tantissime funzionalità."
+
+#: src/features/launchpad/launchpad-task-definitions.php:1438
+#: src/features/launchpad/launchpad-task-definitions.php:1449
+#: src/features/launchpad/launchpad-task-definitions.php:1503
+#: src/features/launchpad/launchpad-task-definitions.php:1514
+#: src/features/launchpad/launchpad-task-definitions.php:1522
+msgid "Unable to fetch the requested data."
+msgstr "Impossibile recuperare i dati richiesti."
+
+#: src/features/launchpad/launchpad-task-definitions.php:1217
+#: src/features/launchpad/launchpad-task-definitions.php:1788
+msgid "Upgrade plan"
+msgstr "Aggiorna il piano"
+
+#: src/features/launchpad/launchpad-task-definitions.php:857
+msgid "Provision SSL certificate"
+msgstr "Fornisci un certificato SSL"
+
+#: src/features/launchpad/launchpad-task-definitions.php:850
+msgid "Update your domain's DNS"
+msgstr "Aggiorna il DNS del tuo dominio"
+
+#: src/features/launchpad/launchpad-task-definitions.php:835
+msgid "Connect your domain"
+msgstr "Connetti il tuo dominio"
+
+#: src/features/launchpad/launchpad-task-definitions.php:822
+msgid "Review the migrated plugins"
+msgstr "Revisiona i plugin migrati"
+
+#: src/features/launchpad/launchpad-task-definitions.php:815
+msgid "Review the site's content"
+msgstr "Revisiona i contenuti del sito"
+
+#: src/features/launchpad/launchpad-task-definitions.php:807
+msgid "Migrating the site"
+msgstr "Migrazione del sito in corso"
+
+#: src/features/launchpad/launchpad-task-definitions.php:797
+msgid "Launch your store"
+msgstr "Lancia il tuo negozio"
+
+#: src/features/launchpad/launchpad-task-definitions.php:787
+msgid "Add a domain"
+msgstr "Aggiungi un dominio"
+
+#: src/features/launchpad/launchpad-task-definitions.php:777
+msgid "Grow your business"
+msgstr "Fai crescere la tua attività"
+
+#: src/features/launchpad/launchpad-task-definitions.php:767
+msgid "Collect sales tax"
+msgstr "Raccogli imposta sulle vendite"
+
+#: src/features/launchpad/launchpad-task-definitions.php:757
+msgid "Get paid with WooPayments"
+msgstr "Ottieni pagamenti con WooPayments"
+
+#: src/features/launchpad/launchpad-task-definitions.php:747
+msgid "Add your products"
+msgstr "Aggiungi i tuoi prodotti"
+
+#: src/features/launchpad/launchpad-task-definitions.php:737
+msgid "Customize your store"
+msgstr "Personalizza il tuo negozio"
+
+#: src/features/launchpad/launchpad-task-definitions.php:725
+msgid "Verify the email address for your domains"
+msgstr "Verifica l'indirizzo e-mail per i tuoi domini"
+
+#: src/features/launchpad/launchpad-task-definitions.php:715
+msgid "Finish Sensei setup"
+msgstr "Completa la configurazione di Sensei"
+
+#: src/features/launchpad/launchpad-task-definitions.php:705
+msgid "Finish store setup"
+msgstr "Completa la configurazione del negozio"
+
+#: src/features/launchpad/launchpad-task-definitions.php:688
+msgid "Update your site's design"
+msgstr "Aggiorna il design del tuo sito"
+
+#: src/features/launchpad/launchpad-task-definitions.php:679
+msgid "Enable post sharing"
+msgstr "Abilita la condivisione dell'articolo"
+
+#: src/features/launchpad/launchpad-task-definitions.php:670
+msgid "Install the mobile app"
+msgstr "Installa l'app per dispositivi mobili"
+
+#: src/features/launchpad/launchpad-task-definitions.php:660
+msgid "Add the Subscribe Block to your site"
+msgstr "Aggiungi il blocco Abbonati al tuo sito"
+
+#: src/features/launchpad/launchpad-task-definitions.php:649
+msgid "Import existing subscribers"
+msgstr "Importa abbonati esistenti"
+
+#: src/features/launchpad/launchpad-task-definitions.php:640
+msgid "View site metrics"
+msgstr "Visualizza le metriche del sito"
+
+#: src/features/launchpad/launchpad-task-definitions.php:631
+msgid "Set up ssh"
+msgstr "Configura SSH"
+
+#: src/features/launchpad/launchpad-task-definitions.php:619
+msgid "Install a custom plugin"
+msgstr "Installa un plugin personalizzato"
+
+#: src/features/launchpad/launchpad-task-definitions.php:607
+msgid "Choose a theme"
+msgstr "Scegli un tema"
+
+#: src/features/launchpad/launchpad-task-definitions.php:595
+msgid "Set up an offer for your supporters"
+msgstr "Imposta un'offerta per i tuoi sostenitori"
+
+#: src/features/launchpad/launchpad-task-definitions.php:578
+msgid "Connect a Stripe account to collect payments"
+msgstr "Collega un account Stripe per ricevere i pagamenti"
+
+#: src/features/launchpad/launchpad-task-definitions.php:563
+msgid "Add your About page"
+msgstr "Aggiungi la tua pagina Informazioni"
+
+#: src/features/launchpad/launchpad-task-definitions.php:553
+msgid "Manage your paid Newsletter plan"
+msgstr "Gestisci il piano Newsletter a pagamento"
+
+#: src/features/launchpad/launchpad-task-definitions.php:545
+msgid "Connect your social media accounts"
+msgstr "Collega i tuoi account di social media"
+
+#: src/features/launchpad/launchpad-task-definitions.php:534
+msgid "Manage your subscribers"
+msgstr "Gestisci gli abbonati"
+
+#: src/features/launchpad/launchpad-task-definitions.php:521
+msgid "Write 3 posts"
+msgstr "Scrivi 3 articoli"
+
+#: src/features/launchpad/launchpad-task-definitions.php:509
+msgid "Get your first 10 subscribers"
+msgstr "Ottieni i primi 10 abbonati"
+
+#: src/features/launchpad/launchpad-task-definitions.php:497
+msgid "Enable subscribers modal"
+msgstr "Attiva la finestra modale per gli abbonati"
+
+#: src/features/launchpad/launchpad-task-definitions.php:485
+msgid "Customize welcome message"
+msgstr "Personalizza il messaggio di benvenuto"
+
+#: src/features/launchpad/launchpad-task-definitions.php:475
+msgid "Earn money with your newsletter"
+msgstr "Guadagna grazie alla newsletter"
+
+#: src/features/launchpad/launchpad-task-definitions.php:467
+msgid "Share your site"
+msgstr "Condividi il tuo sito"
+
+#: src/features/launchpad/launchpad-task-definitions.php:452
+msgid "Customize your domain"
+msgstr "Personalizza il tuo dominio"
+
+#: src/features/launchpad/launchpad-task-definitions.php:437
+msgid "Edit a page"
+msgstr "Modifica una pagina"
+
+#: src/features/launchpad/launchpad-task-definitions.php:418
+msgid "Update your About page"
+msgstr "Aggiorna la tua pagina Informazioni"
+
+#: src/features/launchpad/launchpad-task-definitions.php:405
+msgid "Add a new page"
+msgstr "Aggiungi una nuova pagina"
+
+#: src/features/launchpad/launchpad-task-definitions.php:395
+msgid "Drive traffic to your site"
+msgstr "Genera traffico sul tuo sito"
+
+#: src/features/launchpad/launchpad-task-definitions.php:372
+msgid "Set up your site"
+msgstr "Configura il tuo sito"
+
+#: src/features/launchpad/launchpad-task-definitions.php:358
+msgid "Personalize your site"
+msgstr "Personalizza il tuo sito"
+
+#: src/features/launchpad/launchpad-task-definitions.php:346
+msgid "Name your blog"
+msgstr "Dai un nome al tuo blog"
+
+#: src/features/launchpad/launchpad-task-definitions.php:338
+msgid "Launch your blog"
+msgstr "Lancia il tuo blog"
+
+#: src/features/launchpad/launchpad-task-definitions.php:317
+msgid "Upload your first video"
+msgstr "Carica il tuo primo video"
+
+#: src/features/launchpad/launchpad-task-definitions.php:310
+msgid "Set up your video site"
+msgstr "Configura il tuo sito di video"
+
+#: src/features/launchpad/launchpad-task-definitions.php:303
+msgid "Launch site"
+msgstr "Lancia il sito"
+
+#: src/features/launchpad/launchpad-task-definitions.php:291
+msgid "Personalize Link in Bio"
+msgstr "Personalizza Link in Bio"
+
+#: src/features/launchpad/launchpad-task-definitions.php:279
+msgid "Add links"
+msgstr "Aggiungi link"
+
+#: src/features/launchpad/launchpad-task-definitions.php:256
+msgid "Migrate content"
+msgstr "Migra contenuti"
+
+#: src/features/launchpad/launchpad-task-definitions.php:246
+msgid "Add subscribers"
+msgstr "Aggiungi abbonati"
+
+#: src/features/launchpad/launchpad-task-definitions.php:229
+msgid "Set up payment method"
+msgstr "Imposta il metodo di pagamento"
+
+#: src/features/launchpad/launchpad-task-definitions.php:217
+msgid "Personalize newsletter"
+msgstr "Personalizza la newsletter"
+
+#: src/features/launchpad/launchpad-task-definitions.php:207
+msgid "Create paid Newsletter"
+msgstr "Crea la newsletter a pagamento"
+
+#: src/features/launchpad/launchpad-task-definitions.php:193
+msgid "Start writing"
+msgstr "Inizia a scrivere"
+
+#: src/features/launchpad/launchpad-task-definitions.php:180
+msgid "Verify email address"
+msgstr "Verifica l'indirizzo e-mail"
+
+#: src/features/launchpad/launchpad-task-definitions.php:172
+#: src/features/launchpad/launchpad-task-definitions.php:271
+msgid "Launch your site"
+msgstr "Lancia il tuo sito"
+
+#: src/features/launchpad/launchpad-task-definitions.php:159
+#: src/features/launchpad/launchpad-task-definitions.php:381
+msgid "Give your site a name"
+msgstr "Dai un nome al tuo sito"
+
+#: src/features/launchpad/launchpad-task-definitions.php:136
+#: src/features/launchpad/launchpad-task-definitions.php:148
+msgid "Choose a plan"
+msgstr "Scegli un piano"
+
+#: src/features/launchpad/launchpad-task-definitions.php:127
+msgid "Customize content with AI"
+msgstr "Personalizza contenuti con l'IA"
+
+#: src/features/launchpad/launchpad-task-definitions.php:95
+msgid "Continue to write your first post"
+msgstr "Continua a scrivere il tuo primo articolo"
+
+#: src/features/launchpad/launchpad-task-definitions.php:94
+msgid "Write your first post"
+msgstr "Scrivi il tuo primo articolo"
+
+#: src/features/launchpad/launchpad-task-definitions.php:77
+msgid "Choose a domain"
+msgstr "Scegli un dominio"
+
+#: src/features/launchpad/launchpad-task-definitions.php:66
+msgid "Claim your free one-year domain"
+msgstr "Scegli il tuo dominio gratuito di un anno"
+
+#: src/features/launchpad/launchpad-task-definitions.php:46
+#: src/features/launchpad/launchpad-task-definitions.php:56
+msgid "Select a design"
+msgstr "Seleziona un design"
+
+#: src/features/launchpad/launchpad-task-definitions.php:33
+msgid "Edit site design"
+msgstr "Modifica il design del sito"
+
+#: src/features/jetpack-global-styles/class-global-styles.php:274
+msgid "Fonts"
+msgstr "Font"
+
+#. Translators: This is a link which opens the block editor, and then opens the
+#. global styles sidebar.
+#: src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:63
+msgid "Click here to open the Block Editor and change your fonts."
+msgstr "Fai clic qui per aprire l'Editor a blocchi e cambiare i font."
+
+#. Translators: This is a link which opens:
+#. https://wordpress.com/support/custom-fonts/#changing-fonts-with-global-styles.
+#: src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:40
+msgid "Learn more about changing fonts using Global Styles."
+msgstr "Scopri di più sulla modifica dei tipi di font utilizzando Stili globali."
+
+#: src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:27
+msgid "You can change your fonts using Global Styles, which can be found in the Block Editor."
+msgstr "Puoi cambiare i font usando Stili globali, disponibile nell'Editor a blocchi."
+
+#: src/features/import-customizations/import-customizations.php:39
+msgid "Get started"
+msgstr "Inizia ora"
+
+#: src/features/import-customizations/import-customizations.php:37
+msgid "Use WordPress.com’s guided importer to import posts and comments from Medium, Substack, Squarespace, Wix, and more."
+msgstr "Usa il programma di importazione guidata di WordPress.com per importare articoli e commenti da Medium, Substack, Squarespace, Wix e altre piattaforme."
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:178
+msgid "Whether to mark this as a test chat (a11n-only)."
+msgstr "Se contrassegnarla come chat di prova (solo a11n)."
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:144
+msgid "The feedback rating value."
+msgstr "Il valore del feedback."
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:139
+msgid "The message id for the existing message."
+msgstr "L'id del messaggio esistente."
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:91
+#: src/features/help-center/class-wp-rest-help-center-odie.php:168
+msgid "The context to continue the chat with."
+msgstr "Il contesto con cui continuare la chat."
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:85
+#: src/features/help-center/class-wp-rest-help-center-odie.php:173
+msgid "The message to add to the chat"
+msgstr "Il messaggio da aggiungere alla chat"
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:80
+#: src/features/help-center/class-wp-rest-help-center-odie.php:134
+msgid "The chat id for the existing chat."
+msgstr "L'id della chat esistente."
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:75
+#: src/features/help-center/class-wp-rest-help-center-odie.php:129
+#: src/features/help-center/class-wp-rest-help-center-odie.php:163
+msgid "The bot id to chat with."
+msgstr "L'id del bot con cui chattare."
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:64
+msgid "If true, include the feedback rating value for each message in the response."
+msgstr "Se vero, includi nella risposta il valore del feedback per ciascun messaggio."
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:56
+msgid "The number of items per page."
+msgstr "Il numero di elementi per pagina."
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:50
+msgid "The number of the page to retrieve, limited to 100"
+msgstr "Il numero della pagina da recuperare, limitato a 100"
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:45
+msgid "The chat id to get the chat for."
+msgstr "L'id della chat per raggiungere la chat."
+
+#: src/features/help-center/class-wp-rest-help-center-odie.php:40
+msgid "The bot id to get the chat for."
+msgstr "L'id del bot per raggiungere la chat."
+
+#: src/features/help-center/class-help-center.php:98
+msgid "Help"
+msgstr "Aiuto"
+
+#: src/features/custom-css/custom-css.php:1203
+msgid "Switch"
+msgstr "Scambia"
+
+#. translators: how long ago the stylesheet was modified.
+#: src/features/custom-css/custom-css.php:1184
+#: src/features/custom-css/custom-css.php:1196
+msgid "(modified %s ago)"
+msgstr "(modificato %s fa)"
+
+#: src/features/custom-css/custom-css.php:1174
+msgid "Select a theme&hellip;"
+msgstr "Seleziona un tema…"
+
+#: src/features/custom-css/custom-css.php:1172
+msgid "Select another theme to view its custom CSS."
+msgstr "Seleziona un altro tema per visualizzare il suo CSS personalizzato."
+
+#: src/features/custom-css/custom-css.php:792
+msgid "None"
+msgstr "Nessuno"
+
+#: src/features/custom-css/custom-css.php:771
+msgid "Don't use the theme's original CSS."
+msgstr "Non usare il CSS originale del tema."
+
+#: src/features/custom-css/custom-css.php:761
+msgid "Media Width"
+msgstr "Larghezza dell'elemento multimediale"
+
+#: src/features/custom-css/custom-css.php:358
+msgctxt "Toolbar button to get help with custom CSS"
+msgid "Help"
+msgstr "Aiuto"
+
+#: src/features/custom-css/custom-css.php:357
+msgctxt "Toolbar button to see full CSS revision history"
+msgid "See full history"
+msgstr "Vedi tutta la cronologia"
+
+#: src/features/custom-css/custom-css.php:355
+msgid "On Mobile"
+msgstr "Su dispositivo mobile"
+
+#: src/features/custom-css/custom-css.php:354
+msgid "Start Fresh"
+msgstr "Ricomincia da capo"
+
+#. translators: the theme name and then the default width.
+#: src/features/custom-css/custom-css.php:337
+msgid " The default media width for the <strong>%1$s</strong> theme is %2$d pixel."
+msgid_plural " The default media width for the <strong>%1$s</strong> theme is %2$d pixels."
+msgstr[0] " La larghezza predefinita del contenuto multimediale per il tema <strong>%1$s</strong> è di %2$d pixel."
+msgstr[1] " La larghezza predefinita del contenuto multimediale per il tema <strong>%1$s</strong> è di %2$d pixel."
+
+#: src/features/custom-css/custom-css.php:333
+msgid "Set a different media width for full size images."
+msgstr "Imposta una larghezza del contenuto multimediale diversa per le immagini a dimensione intera."
+
+#: src/features/custom-css/custom-css.php:240
+msgid "Custom CSS is now managed in the Customizer."
+msgstr "Il CSS personalizzato ora è gestito in Personalizza."
+
+#: src/features/custom-css/custom-css.php:235
+msgid "Manage with Live Preview"
+msgstr "Gestisci con l'anteprima in tempo reale"
+
+#: src/features/custom-css/custom-css.php:229
+msgid "Custom CSS"
+msgstr "CSS personalizzato"
+
+#: src/features/custom-css/custom-css.php:130
+#: src/features/custom-css/custom-css.php:246
+#: src/features/custom-css/custom-css.php:804
+msgid "Preprocessor"
+msgstr "Preprocessore"
+
+#: src/features/custom-css/custom-css.php:129
+#: src/features/custom-css/custom-css.php:243
+msgid "CSS"
+msgstr "CSS"
+
+#: src/features/coming-soon/fallback-coming-soon-page.php:294
+msgid "Start your website"
+msgstr "Crea il tuo sito web"
+
+#: src/features/coming-soon/fallback-coming-soon-page.php:293
+msgid "Log in"
+msgstr "Accedi"
+
+#: src/features/coming-soon/fallback-coming-soon-page.php:290
+msgid "Build a website. Sell your stuff. Write a blog. And so much more."
+msgstr "Realizza un sito web. Vendi i tuoi articoli. Scrivi un blog. E molto altro."
+
+#: src/features/coming-soon/fallback-coming-soon-page.php:273
+msgid "Coming Soon"
+msgstr "Presto disponibile"
+
+#: src/features/100-year-plan/locked-mode.php:120
+msgid "Prevents new post and page from being created as well as existing posts and pages from being edited, and closes comments site wide."
+msgstr "Impedisce la creazione di nuovi articoli e pagine nonché la modifica di articoli e pagine esistenti e chiude i commenti in tutto il sito."
+
+#: src/features/100-year-plan/locked-mode.php:119
+msgid "Enable Locked Mode"
+msgstr "Abilita la modalità bloccata"
+
+#: src/features/100-year-plan/locked-mode.php:102
+msgid "Locked Mode"
+msgstr "Modalità bloccata"
+
+#. translators: link to the help page: https://wordpress.com/help
+#: src/features/100-year-plan/enhanced-ownership.php:102
+msgid "To take ownership of the site, we ask that the person you designate contacts us at %s with a copy of the death certificate."
+msgstr "Per assumere la proprietà del sito, chiediamo che la persona da te designata ci contatti all'indirizzo %s con una copia del certificato di morte."
+
+#: src/features/100-year-plan/enhanced-ownership.php:97
+msgid "Choose someone to look after your site when you pass away."
+msgstr "Scegli qualcuno che si occupi del tuo sito quando verrai a mancare."
+
+#: src/features/100-year-plan/enhanced-ownership.php:80
+msgid "Legacy Contact"
+msgstr "Contatto legacy"
+
+#: src/features/100-year-plan/enhanced-ownership.php:73
+#: src/features/100-year-plan/locked-mode.php:95
+msgid "Enhanced Ownership"
+msgstr "Proprietà migliorata"

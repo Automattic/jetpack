@@ -403,8 +403,6 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	/**
 	 * Defaults to false instead of returning the current site plan.
 	 *
-	 * @see /modules/masterbar/admin-menu/class-dashboard-switcher-tracking.php.
-	 *
 	 * @return bool
 	 */
 	public function get_plan() {
@@ -425,6 +423,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	/**
 	 * Defaults to false - this is filled on the WordPress.com side in multiple locations.
 	 *
+	 * @see WPCOM_JSON_API_GET_Site_Endpoint::decorate_jetpack_response.
 	 * @return bool
 	 */
 	public function get_capabilities() {
@@ -565,6 +564,10 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		if ( ! Jetpack::is_plugin_active( 'full-site-editing/full-site-editing-plugin.php' ) ) {
 			return false;
 		}
+		if ( function_exists( '\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Legacy_FSE\is_full_site_editing_active' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction
+			return \Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Legacy_FSE\is_full_site_editing_active();
+		}
 		return function_exists( '\A8C\FSE\is_full_site_editing_active' ) && \A8C\FSE\is_full_site_editing_active();
 	}
 
@@ -581,6 +584,10 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	public function is_fse_eligible() {
 		if ( ! Jetpack::is_plugin_active( 'full-site-editing/full-site-editing-plugin.php' ) ) {
 			return false;
+		}
+		if ( function_exists( '\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Legacy_FSE\is_site_eligible_for_full_site_editing' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction
+			return \Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Legacy_FSE\is_site_eligible_for_full_site_editing();
 		}
 		return function_exists( '\A8C\FSE\is_site_eligible_for_full_site_editing' ) && \A8C\FSE\is_site_eligible_for_full_site_editing();
 	}
@@ -644,6 +651,28 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	/**
+	 * Get site deleted status. Not used in Jetpack.
+	 *
+	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.
+	 *
+	 * @return bool
+	 */
+	public function is_deleted() {
+		return false;
+	}
+
+	/**
+	 * Indicates that a site is an A4A client. Not used in Jetpack.
+	 *
+	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.
+	 *
+	 * @return bool
+	 */
+	public function is_a4a_client() {
+		return false;
+	}
+
+	/**
 	 * Detect whether a site is WordPress.com Staging Site. Not used in Jetpack.
 	 *
 	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.
@@ -683,5 +712,23 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 */
 	public function get_wpcom_admin_interface() {
 		return null;
+	}
+
+	/**
+	 * Get Zendesk site meta. Not used in Jetpack.
+	 *
+	 * @return null
+	 */
+	public function get_zendesk_site_meta() {
+		return null;
+	}
+
+	/**
+	 * Detect whether there's a pending plan for this site. Not used in Jetpack.
+	 *
+	 * @return false
+	 */
+	public function is_pending_plan() {
+		return false;
 	}
 }

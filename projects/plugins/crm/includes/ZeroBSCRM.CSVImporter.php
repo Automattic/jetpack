@@ -15,7 +15,7 @@
 	Breaking Checks ( stops direct access )
 	====================================================== */
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 /*
 ======================================================
@@ -79,7 +79,7 @@ function zeroBSCRM_CSVImporterLiteadmin_menu() {
 
 	global $zbs,$zeroBSCRM_CSVImporterLiteslugs; // req
 
-	wp_register_style( 'zerobscrm-csvimporter-admcss', ZEROBSCRM_URL . 'css/ZeroBSCRM.admin.csvimporter' . wp_scripts_get_suffix() . '.css', array(), $zbs->version );
+	wp_register_style( 'zerobscrm-csvimporter-admcss', ZEROBSCRM_URL . 'css/ZeroBSCRM.admin.csvimporter' . wp_scripts_get_suffix() . '.css', array(), $zbs::VERSION );
 	$csv_admin_page = add_submenu_page( 'jpcrm-hidden', 'CSV Importer', 'CSV Importer', 'admin_zerobs_customers', $zbs->slugs['csvlite'], 'zeroBSCRM_CSVImporterLitepages_app', 1 ); // phpcs:ignore WordPress.WP.Capabilities.Unknown
 	add_action( "admin_print_styles-{$csv_admin_page}", 'zeroBSCRM_CSVImporter_lite_admin_styles' );
 	add_action( "admin_print_styles-{$csv_admin_page}", 'zeroBSCRM_global_admin_styles' ); // } and this.
@@ -146,7 +146,7 @@ function jpcrm_csvimporter_lite_preflight_checks( $stage ) {
 	if ( ! isset( $_POST['zbscrmcsvimportnonce'] ) || ! wp_verify_nonce( $_POST['zbscrmcsvimportnonce'], 'zbscrm_csv_import' ) ) {
 		// hard no
 		zeroBSCRM_html_msg( -1, __( 'There was an error processing your CSV file. Please try again.', 'zero-bs-crm' ) );
-		exit();
+		exit( 0 );
 	}
 
 	// eventually update this to use the zbscrm-store/_wip replacement
@@ -253,7 +253,8 @@ function jpcrm_csvimporter_lite_preflight_checks( $stage ) {
 
 	$file = fopen( $file_path, 'r' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
 	while ( ! feof( $file ) ) {
-		$csv_data[] = fgetcsv( $file );
+		// @todo Consider passing empty-string for `$escape` for better spec compatibility.
+		$csv_data[] = fgetcsv( $file, 0, ',', '"', '\\' );
 	}
 
 	fclose( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose

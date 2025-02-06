@@ -50,21 +50,28 @@ class Creator extends Product {
 	public static $requires_user_connection = false;
 
 	/**
-	 * Get the internationalized product name
+	 * Whether this product has a free offering
+	 *
+	 * @var bool
+	 */
+	public static $has_free_offering = true;
+
+	/**
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'Creator', 'jetpack-my-jetpack' );
+		return 'Creator';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack Creator', 'jetpack-my-jetpack' );
+		return 'Jetpack Creator';
 	}
 
 	/**
@@ -73,7 +80,7 @@ class Creator extends Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Create, grow, and monetize your audience', 'jetpack-my-jetpack' );
+		return __( 'Get more subscribers and keep them engaged with our creator tools', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -82,7 +89,7 @@ class Creator extends Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'Create, grow, and monetize your audience with powerful tools for creators.', 'jetpack-my-jetpack' );
+		return __( 'Craft stunning content, boost your subscriber base, and monetize your audience with subscriptions.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -154,20 +161,6 @@ class Creator extends Product {
 						'included'    => true,
 						'description' => __( '2%', 'jetpack-my-jetpack' ),
 					),
-				),
-			),
-			array(
-				'name'  => __( 'Creator network', 'jetpack-my-jetpack' ),
-				'info'  => array(
-					'content' => __(
-						'<p>The creator network is the network of websites either hosted with WordPress.com or self-hosted and connected with Jetpack.</p>
-                        <p>Sites that are part of the creator network can gain exposure to new readers. Sites on the Creator plan have enhanced distribution to more areas of the Reader.</p>',
-						'jetpack-my-jetpack'
-					),
-				),
-				'tiers' => array(
-					self::FREE_TIER_SLUG     => array( 'included' => true ),
-					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
 				),
 			),
 			array(
@@ -326,24 +319,30 @@ class Creator extends Product {
 	}
 
 	/**
-	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 * Get the product-slugs of the paid bundles/plans that this product/module is included in
 	 *
-	 * @return boolean
+	 * @return array
 	 */
-	public static function has_required_plan() {
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
-		}
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				// Creator is available as standalone bundle and as part of the Complete plan.
-				if ( strpos( $purchase->product_slug, 'jetpack_creator' ) !== false || str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
-					return true;
-				}
-			}
-		}
-		return false;
+	public static function get_paid_bundles_that_include_product() {
+		return array(
+			'jetpack_complete',
+			'jetpack_complete_monthly',
+			'jetpack_complete_bi-yearly',
+		);
+	}
+
+	/**
+	 * Get the product-slugs of the paid plans for this product.
+	 * (Do not include bundle plans, unless it's a bundle plan itself).
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_creator_yearly',
+			'jetpack_creator_monthly',
+			'jetpack_creator_bi_yearly',
+		);
 	}
 
 	/**
@@ -352,7 +351,6 @@ class Creator extends Product {
 	 * @return boolean
 	 */
 	public static function is_upgradable() {
-		$has_required_plan = self::has_required_plan();
-		return ! $has_required_plan;
+		return ! self::has_paid_plan_for_product();
 	}
 }

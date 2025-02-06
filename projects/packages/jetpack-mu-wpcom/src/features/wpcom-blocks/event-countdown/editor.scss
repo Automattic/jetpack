@@ -1,0 +1,24 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+/* Editor styles */
+.wp-block-jetpack-event-countdown .components-placeholder__fieldset {
+	flex-direction: column;
+
+	p {
+		margin: 0 0 1em;
+	}
+
+	label {
+		display: block;
+		margin-bottom: 4px;
+	}
+
+	.components-placeholder__input[type="text"] {
+		@include input-control;
+	}
+
+	.event-countdown__event-title {
+		min-width: 240px;
+		width: 100%;
+	}
+}

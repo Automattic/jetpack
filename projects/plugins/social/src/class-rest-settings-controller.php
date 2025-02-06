@@ -102,12 +102,8 @@ class REST_Settings_Controller extends WP_REST_Controller {
 		$fields = $this->get_fields_for_response( $request );
 		$data   = array();
 
-		if ( rest_is_field_included( 'publicize_active', $fields ) ) {
-			$data['publicize_active'] = Jetpack_Social::is_publicize_active();
-		}
-
-		if ( rest_is_field_included( 'show_pricing_page', $fields ) ) {
-			$data['show_pricing_page'] = Jetpack_Social::should_show_pricing_page();
+		if ( rest_is_field_included( 'publicize', $fields ) ) {
+			$data['publicize'] = Jetpack_Social::is_publicize_active();
 		}
 
 		return $this->prepare_item_for_response( $data, $request );
@@ -128,14 +124,11 @@ class REST_Settings_Controller extends WP_REST_Controller {
 			}
 
 			switch ( $name ) {
-				case 'publicize_active':
+				case 'publicize':
 					$updated = ( new Modules() )->update_status( \Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG, (bool) $params[ $name ], false, false );
 					if ( is_wp_error( $updated ) ) {
 						return $updated;
 					}
-					break;
-				case 'show_pricing_page':
-					update_option( Jetpack_Social::JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION, (int) $params[ $name ] );
 					break;
 			}
 		}
@@ -204,13 +197,8 @@ class REST_Settings_Controller extends WP_REST_Controller {
 			'title'      => 'system_status',
 			'type'       => 'object',
 			'properties' => array(
-				'publicize_active'  => array(
+				'publicize' => array(
 					'description' => __( 'Is the publicize module enabled?', 'jetpack-social' ),
-					'type'        => 'boolean',
-					'context'     => array( 'view', 'edit' ),
-				),
-				'show_pricing_page' => array(
-					'description' => __( 'Should we show the pricing page?', 'jetpack-social' ),
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
 				),

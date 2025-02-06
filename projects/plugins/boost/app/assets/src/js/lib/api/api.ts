@@ -1,11 +1,11 @@
-/* global Jetpack_Boost */
 /**
  * Utility class for accessing the API
  */
 
 import { __, sprintf } from '@wordpress/i18n';
-import { JSONObject } from '../stores/data-sync-client';
 import { ApiError } from './api-error';
+import { JSONObject } from '$lib/utils/json-types';
+import { standardizeError } from '$lib/utils/standardize-error';
 
 function getEndpointUrl( path: string ): string {
 	return wpApiSettings.root + Jetpack_Boost.api.namespace + Jetpack_Boost.api.prefix + path;
@@ -16,7 +16,7 @@ async function sendRequest(
 	path: string,
 	body: null | JSONObject = null
 ): Promise< Response > {
-	const args: JSONObject = {
+	const args: RequestInit & { headers: JSONObject } = {
 		method,
 		mode: 'cors',
 		headers: {
@@ -42,7 +42,7 @@ async function sendRequest(
 			requestInitiator: window.location.href,
 			requestUrl: endpointFullUrl,
 			requestArgs: cleanupArgs,
-			originalErrorMessage: error.toString(),
+			originalErrorMessage: standardizeError( error ).toString(),
 		};
 
 		// Throwing again an error so it can be caught higher up and displayed in the UI.

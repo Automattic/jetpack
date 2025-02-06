@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 // eslint-disable-next-line lodash/import-scope
 import uniqueId from 'lodash/uniqueId';
 import React, { createRef, Component } from 'react';
@@ -10,7 +10,7 @@ import { getCheckedInputNames } from '../lib/dom';
  * Get date options given an interval.
  *
  * @param {string} interval - Duration interval.
- * @returns {object} - Object containing date options.
+ * @return {object} - Object containing date options.
  */
 function getDateOptions( interval ) {
 	switch ( interval ) {
@@ -254,7 +254,7 @@ class SearchFilter extends Component {
 
 				<div ref={ this.filtersList }>
 					<div
-						className={ classNames(
+						className={ clsx(
 							'jetpack-instant-search__search-filter-list',
 							'jetpack-instant-search__search-static-filter-list',
 							`jetpack-instant-search__search-static-filter-variation-${ this.props.configuration.variation }`

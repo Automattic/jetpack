@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Storybook: remove Jetpack plugin from deps to fix builds in trunk

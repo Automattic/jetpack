@@ -1,11 +1,14 @@
+import { useConnection } from '@automattic/jetpack-connection';
 import {
-	getJetpackExtensionAvailability,
-	isUpgradable,
 	getJetpackData,
-	getSiteFragment,
+	getJetpackExtensionAvailability,
+	isAtomicSite,
+	isSimpleSite,
+	isUpgradable,
 } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
+import { getSocialScriptData } from '../../utils';
 import { usePostMeta } from '../use-post-meta';
 
 const republicizeFeatureName = 'republicize';
@@ -14,19 +17,16 @@ const republicizeFeatureName = 'republicize';
  * Hook that provides various elements of Publicize configuration,
  * whether it's enabled, and whether resharing is available.
  *
- * @returns { object } The various flags and togglePublicizeFeature,
+ * @return { object } The various flags and togglePublicizeFeature,
  * for toggling support for the current post.
  */
 export default function usePublicizeConfig() {
-	const sharesData = getJetpackData()?.social?.sharesData ?? {};
-	const isShareLimitEnabled = sharesData.is_share_limit_enabled;
+	const isJetpackSite = ! isAtomicSite() && ! isSimpleSite();
 	const isRePublicizeFeatureAvailable =
-		getJetpackExtensionAvailability( republicizeFeatureName )?.available || isShareLimitEnabled;
+		isJetpackSite || getJetpackExtensionAvailability( republicizeFeatureName )?.available;
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
-
-	const connectionsRootUrl =
-		getJetpackData()?.social?.publicizeConnectionsUrl ??
-		'https://wordpress.com/marketing/connections/';
+	const { isUserConnected } = useConnection();
+	const { urls } = getSocialScriptData();
 
 	/*
 	 * isPublicizeEnabledMeta:
@@ -79,24 +79,7 @@ export default function usePublicizeConfig() {
 	 */
 	const hidePublicizeFeature = isPostPublished && ! isRePublicizeFeatureAvailable;
 
-	/**
-	 * hasPaidPlan:
-	 * Whether the site has a paid plan. This could be either the Basic or the Advanced plan.
-	 */
-	const hasPaidPlan = !! getJetpackData()?.social?.hasPaidPlan;
-
-	/**
-	 * isEnhancedPublishingEnabled:
-	 * Whether the site has the enhanced publishing feature enabled. If true, it means that
-	 * the site has the Advanced plan.
-	 */
-	const isEnhancedPublishingEnabled = !! getJetpackData()?.social?.isEnhancedPublishingEnabled;
-
-	/**
-	 * isAutoConversionEnabled:
-	 * Whether the site has the auto conversion feature enabled.
-	 */
-	const isAutoConversionEnabled = !! getJetpackData()?.social?.isAutoConversionEnabled;
+	const needsUserConnection = ! isUserConnected && ! isSimpleSite();
 
 	return {
 		isPublicizeEnabledMeta,
@@ -106,17 +89,9 @@ export default function usePublicizeConfig() {
 		isRePublicizeFeatureAvailable,
 		isRePublicizeUpgradableViaUpsell,
 		hidePublicizeFeature,
-		isShareLimitEnabled,
 		isPostAlreadyShared,
-		numberOfSharesRemaining: sharesData.shares_remaining,
-		shouldShowAdvancedPlanNudge: sharesData.show_advanced_plan_upgrade_nudge,
-		hasPaidPlan,
-		isEnhancedPublishingEnabled,
-		isSocialImageGeneratorAvailable: !! getJetpackData()?.social?.isSocialImageGeneratorAvailable,
 		isSocialImageGeneratorEnabled: !! getJetpackData()?.social?.isSocialImageGeneratorEnabled,
-		connectionsAdminUrl: connectionsRootUrl + getSiteFragment(),
-		adminUrl: getJetpackData()?.social?.adminUrl,
-		isAutoConversionEnabled,
-		jetpackSharingSettingsUrl: getJetpackData()?.social?.jetpackSharingSettingsUrl,
+		connectionsPageUrl: urls.connectionsManagementPage,
+		needsUserConnection,
 	};
 }

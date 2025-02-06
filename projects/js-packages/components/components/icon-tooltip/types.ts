@@ -70,6 +70,11 @@ export type IconTooltipProps = {
 	forceShow?: boolean;
 
 	/**
+	 * Enables the Popover to show on hover.
+	 */
+	hoverShow?: boolean;
+
+	/**
 	 * Uses a wider content area when enabled.
 	 */
 	wide?: boolean;

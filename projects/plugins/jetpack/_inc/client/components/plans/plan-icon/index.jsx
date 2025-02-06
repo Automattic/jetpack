@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { imagePath } from 'constants/urls';
 import {
 	PLAN_FREE,
@@ -85,6 +87,9 @@ import {
 	PLAN_JETPACK_SOCIAL_ADVANCED_BI_YEARLY,
 	PLAN_JETPACK_SOCIAL_ADVANCED,
 	PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY,
+	PLAN_JETPACK_SOCIAL_V1_BI_YEARLY,
+	PLAN_JETPACK_SOCIAL_V1,
+	PLAN_JETPACK_SOCIAL_V1_MONTHLY,
 	PLAN_JETPACK_BOOST_BI_YEARLY,
 	PLAN_JETPACK_BOOST,
 	PLAN_JETPACK_BOOST_MONTHLY,
@@ -94,14 +99,17 @@ import {
 	PLAN_JETPACK_STATS_BI_YEARLY,
 	PLAN_JETPACK_STATS,
 	PLAN_JETPACK_STATS_MONTHLY,
+	PLAN_JETPACK_STATS_YEARLY,
 	PLAN_JETPACK_STATS_PWYW_YEARLY,
 	PLAN_JETPACK_STATS_FREE,
 	PLAN_JETPACK_CREATOR_BI_YEARLY,
 	PLAN_JETPACK_CREATOR_YEARLY,
 	PLAN_JETPACK_CREATOR_MONTHLY,
+	PLAN_JETPACK_GROWTH_BI_YEARLY,
+	PLAN_JETPACK_GROWTH_YEARLY,
+	PLAN_JETPACK_GROWTH_MONTHLY,
+	FEATURE_JETPACK_CRM,
 } from 'lib/plans/constants';
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
 
 import './style.scss';
 
@@ -179,10 +187,16 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_JETPACK_SOCIAL_ADVANCED_BI_YEARLY ]: 'products/product-jetpack-social.svg',
 	[ PLAN_JETPACK_SOCIAL_ADVANCED ]: 'products/product-jetpack-social.svg',
 	[ PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY ]: 'products/product-jetpack-social.svg',
+	[ PLAN_JETPACK_SOCIAL_V1_BI_YEARLY ]: 'products/product-jetpack-social.svg',
+	[ PLAN_JETPACK_SOCIAL_V1 ]: 'products/product-jetpack-social.svg',
+	[ PLAN_JETPACK_SOCIAL_V1_MONTHLY ]: 'products/product-jetpack-social.svg',
 	[ PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME ]: 'plans/jetpack-golden-token.svg',
 	[ PLAN_JETPACK_CREATOR_BI_YEARLY ]: 'plans/jetpack.svg',
 	[ PLAN_JETPACK_CREATOR_YEARLY ]: 'plans/jetpack.svg',
 	[ PLAN_JETPACK_CREATOR_MONTHLY ]: 'plans/jetpack.svg',
+	[ PLAN_JETPACK_GROWTH_BI_YEARLY ]: 'plans/jetpack.svg',
+	[ PLAN_JETPACK_GROWTH_YEARLY ]: 'plans/jetpack.svg',
+	[ PLAN_JETPACK_GROWTH_MONTHLY ]: 'plans/jetpack.svg',
 
 	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
@@ -203,19 +217,24 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_JETPACK_STATS_BI_YEARLY ]: 'products/product-jetpack-stats.svg',
 	[ PLAN_JETPACK_STATS ]: 'products/product-jetpack-stats.svg',
 	[ PLAN_JETPACK_STATS_MONTHLY ]: 'products/product-jetpack-stats.svg',
+	[ PLAN_JETPACK_STATS_YEARLY ]: 'products/product-jetpack-stats.svg',
 	[ PLAN_JETPACK_STATS_PWYW_YEARLY ]: 'products/product-jetpack-stats.svg',
 	[ PLAN_JETPACK_STATS_FREE ]: 'products/product-jetpack-stats.svg',
+	// CRM plans do not exist on WPCOM so this is a hacky way of assigning an icon anyway
+	[ FEATURE_JETPACK_CRM ]: 'products/product-jetpack-crm.svg',
 };
 const DEFAULT_SIZE = 32;
 
 export default class PlanIcon extends Component {
 	render() {
 		const { className, alt, plan } = this.props;
+		const fallback = imagePath + 'plans/jetpack.svg';
+		const imageSrc = PRODUCT_ICON_MAP[ plan ] ? imagePath + PRODUCT_ICON_MAP[ plan ] : fallback;
 
 		return (
 			<img
 				className={ className }
-				src={ imagePath + PRODUCT_ICON_MAP[ plan ] }
+				src={ imageSrc }
 				width={ DEFAULT_SIZE }
 				height={ DEFAULT_SIZE }
 				alt={ alt || '' }
@@ -292,10 +311,16 @@ PlanIcon.propTypes = {
 		PLAN_JETPACK_SOCIAL_ADVANCED_BI_YEARLY,
 		PLAN_JETPACK_SOCIAL_ADVANCED,
 		PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY,
+		PLAN_JETPACK_SOCIAL_V1_BI_YEARLY,
+		PLAN_JETPACK_SOCIAL_V1,
+		PLAN_JETPACK_SOCIAL_V1_MONTHLY,
 		PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME,
 		PLAN_JETPACK_CREATOR_BI_YEARLY,
 		PLAN_JETPACK_CREATOR_YEARLY,
 		PLAN_JETPACK_CREATOR_MONTHLY,
+		PLAN_JETPACK_GROWTH_BI_YEARLY,
+		PLAN_JETPACK_GROWTH_YEARLY,
+		PLAN_JETPACK_GROWTH_MONTHLY,
 
 		// DEPRECATED: Daily and Real-time variations will soon be retired.
 		// Remove after all customers are migrated to new products.
@@ -313,7 +338,11 @@ PlanIcon.propTypes = {
 		PLAN_JETPACK_STATS_BI_YEARLY,
 		PLAN_JETPACK_STATS,
 		PLAN_JETPACK_STATS_MONTHLY,
+		PLAN_JETPACK_STATS_YEARLY,
 		PLAN_JETPACK_STATS_PWYW_YEARLY,
 		PLAN_JETPACK_STATS_FREE,
+		PLAN_JETPACK_AI_YEARLY,
+		PLAN_JETPACK_BOOST,
+		FEATURE_JETPACK_CRM,
 	] ).isRequired,
 };

@@ -5,6 +5,98 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.1] - 2025-02-03
+### Fixed
+- Code: Remove extra params on function calls. [#41263]
+
+## [0.15.0] - 2025-01-06
+### Added
+- Stats: Add API support for location stats. [#40852]
+
+## [0.14.1] - 2024-11-25
+### Changed
+- Updated dependencies. [#40286]
+
+## [0.14.0] - 2024-11-18
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## [0.13.5] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+## [0.13.4] - 2024-10-29
+### Changed
+- Internal updates. [#39260]
+
+## [0.13.3] - 2024-09-23
+### Changed
+- Internal updates.
+
+## [0.13.2] - 2024-09-05
+### Changed
+- Update dependencies. [#39253]
+
+## [0.13.1] - 2024-08-23
+### Changed
+- Updated package dependencies. [#39004]
+
+## [0.13.0] - 2024-06-10
+### Added
+- Staging: deprecating staging mode and separating the logic into is_development_site and in_safe_mode [#37023]
+
+## [0.12.5] - 2024-05-06
+### Changed
+- Internal updates.
+
+## [0.12.4] - 2024-04-26
+### Changed
+- Internal updates.
+
+## [0.12.3] - 2024-04-25
+### Changed
+- Update dependencies.
+
+## [0.12.2] - 2024-04-22
+### Changed
+- Internal updates.
+
+## [0.12.1] - 2024-04-08
+### Changed
+- Internal updates.
+
+## [0.12.0] - 2024-04-01
+### Added
+- Add the 'stats/blog' REST endpoint. [#36571]
+- Composer: added version constant for ststs package. [#36657]
+
+## [0.11.2] - 2024-03-25
+### Changed
+- Internal updates.
+
+## [0.11.1] - 2024-03-18
+### Changed
+- Internal updates.
+
+## [0.11.0] - 2024-02-26
+### Added
+- Add new method to convert stats data for external consumption. [#35865]
+
+## [0.10.1] - 2024-02-19
+### Fixed
+- Avoid Fatal errors when saved stats data is a WP_Error object [#35746]
+
+## [0.10.0] - 2024-02-05
+### Added
+- Stats fetching mechanism: add filter allowing one to customize how long we cache results. [#35421]
+
+### Changed
+- Permit overriding cache when retrieving post views. [#34557]
+- Remove pre-6.3 asset enqueuing method, and relying on WordPress Core method instead. [#34072]
+
+### Removed
+- Stop requiring the Jetpack Assets Composer package. [#34072]
+
 ## [0.9.0] - 2023-12-25
 ### Added
 - Stats: added passing select UTM parameters to Tracking Pixel requests. [#34431]
@@ -118,6 +210,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing static method which was called without self reference. [#26640]
 
+[0.15.1]: https://github.com/Automattic/jetpack-stats/compare/v0.15.0...v0.15.1
+[0.15.0]: https://github.com/Automattic/jetpack-stats/compare/v0.14.1...v0.15.0
+[0.14.1]: https://github.com/Automattic/jetpack-stats/compare/v0.14.0...v0.14.1
+[0.14.0]: https://github.com/Automattic/jetpack-stats/compare/v0.13.5...v0.14.0
+[0.13.5]: https://github.com/Automattic/jetpack-stats/compare/v0.13.4...v0.13.5
+[0.13.4]: https://github.com/Automattic/jetpack-stats/compare/v0.13.3...v0.13.4
+[0.13.3]: https://github.com/Automattic/jetpack-stats/compare/v0.13.2...v0.13.3
+[0.13.2]: https://github.com/Automattic/jetpack-stats/compare/v0.13.1...v0.13.2
+[0.13.1]: https://github.com/Automattic/jetpack-stats/compare/v0.13.0...v0.13.1
+[0.13.0]: https://github.com/Automattic/jetpack-stats/compare/v0.12.5...v0.13.0
+[0.12.5]: https://github.com/Automattic/jetpack-stats/compare/v0.12.4...v0.12.5
+[0.12.4]: https://github.com/Automattic/jetpack-stats/compare/v0.12.3...v0.12.4
+[0.12.3]: https://github.com/Automattic/jetpack-stats/compare/v0.12.2...v0.12.3
+[0.12.2]: https://github.com/Automattic/jetpack-stats/compare/v0.12.1...v0.12.2
+[0.12.1]: https://github.com/Automattic/jetpack-stats/compare/v0.12.0...v0.12.1
+[0.12.0]: https://github.com/Automattic/jetpack-stats/compare/v0.11.2...v0.12.0
+[0.11.2]: https://github.com/Automattic/jetpack-stats/compare/v0.11.1...v0.11.2
+[0.11.1]: https://github.com/Automattic/jetpack-stats/compare/v0.11.0...v0.11.1
+[0.11.0]: https://github.com/Automattic/jetpack-stats/compare/v0.10.1...v0.11.0
+[0.10.1]: https://github.com/Automattic/jetpack-stats/compare/v0.10.0...v0.10.1
+[0.10.0]: https://github.com/Automattic/jetpack-stats/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/Automattic/jetpack-stats/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/Automattic/jetpack-stats/compare/v0.7.2...v0.8.0
 [0.7.2]: https://github.com/Automattic/jetpack-stats/compare/v0.7.1...v0.7.2

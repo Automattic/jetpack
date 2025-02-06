@@ -51,6 +51,25 @@ class WPCOM_REST_API_V2_Endpoint_Related_Posts extends WP_REST_Controller {
 				},
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/(?P<id>[\d]+)',
+			array(
+				'args' => array(
+					'id' => array(
+						'description' => __( 'Unique identifier for the post.', 'jetpack' ),
+						'type'        => 'integer',
+					),
+				),
+				array(
+					'show_in_index'       => true,
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_related_posts' ),
+					'permission_callback' => array( $this, 'get_related_posts_permissions_check' ),
+				),
+			)
+		);
 	}
 
 	/**
@@ -92,6 +111,75 @@ class WPCOM_REST_API_V2_Endpoint_Related_Posts extends WP_REST_Controller {
 				'enabled' => (bool) $enable,
 			)
 		);
+	}
+
+	/**
+	 * Checks if a given request has access to get the related posts.
+	 *
+	 * @since 4.7.0
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return bool|WP_Error True if the request has read access for the related posts, WP_Error object or false otherwise.
+	 */
+	public function get_related_posts_permissions_check( $request ) {
+		$post = $this->get_post( $request['id'] );
+		if ( is_wp_error( $post ) ) {
+			return $post;
+		}
+
+		if ( ! current_user_can( 'edit_post', $post->ID ) ) {
+			return new WP_Error(
+				'rest_forbidden_context',
+				__( 'Sorry, you are not allowed to get the related post.', 'jetpack' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Get the related posts
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 * @return WP_REST_Response Array The related posts
+	 */
+	public function get_related_posts( $request ) {
+		$post = $this->get_post( $request['id'] );
+		if ( is_wp_error( $post ) ) {
+			return $post;
+		}
+
+		if ( ! class_exists( 'Jetpack_RelatedPosts' ) ) {
+			require_once JETPACK__PLUGIN_DIR . 'modules/related-posts/jetpack-related-posts.php';
+		}
+		$related_posts = \Jetpack_RelatedPosts::init()->get_for_post_id( $post->ID, array( 'size' => 6 ) );
+		return rest_ensure_response( $related_posts );
+	}
+
+	/**
+	 * Gets the post, if the ID is valid.
+	 *
+	 * @param int $id Supplied ID.
+	 * @return WP_Post|WP_Error Post object if ID is valid, WP_Error otherwise.
+	 */
+	public function get_post( $id ) {
+		$error = new WP_Error(
+			'rest_post_invalid_id',
+			__( 'Invalid post ID.', 'jetpack' ),
+			array( 'status' => 404 )
+		);
+
+		if ( (int) $id <= 0 ) {
+			return $error;
+		}
+
+		$post = get_post( (int) $id );
+		if ( empty( $post ) || empty( $post->ID ) ) {
+			return $error;
+		}
+
+		return $post;
 	}
 }
 

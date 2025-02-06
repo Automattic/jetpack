@@ -16,6 +16,7 @@ use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Status as Jetpack_Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
+use WP_Post;
 
 /**
  * Class for promoting posts.
@@ -44,6 +45,12 @@ class Blaze {
 	public static function init() {
 		// On the edit screen, add a row action to promote the post.
 		add_action( 'load-edit.php', array( __CLASS__, 'add_post_links_actions' ) );
+		// After the quick-edit screen is processed, ensure the blaze row action is still present
+		if ( 'edit.php' === $GLOBALS['pagenow'] ||
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is not needed here, we're not saving anything.
+			( 'admin-ajax.php' === $GLOBALS['pagenow'] && ! empty( $_POST['post_view'] ) && 'list' === $_POST['post_view'] && ! empty( $_POST['action'] ) && 'inline-save' === $_POST['action'] ) ) {
+			self::add_post_links_actions();
+		}
 		// In the post editor, add a post-publish panel to allow promoting the post.
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 		// Add a Blaze Menu.
@@ -60,7 +67,7 @@ class Blaze {
 	 * @return void
 	 */
 	public static function add_post_links_actions() {
-		if ( self::should_initialize() ) {
+		if ( self::should_initialize()['can_init'] ) {
 			add_filter( 'post_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
 			add_filter( 'page_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
 		}
@@ -68,15 +75,15 @@ class Blaze {
 
 	/**
 	 * Is the wp-admin Dashboard enabled?
-	 * That dashboard is not available or necessary on WordPress.com sites.
+	 * That dashboard is not available or necessary on WordPress.com sites when the nav redesign is disabled.
 	 *
 	 * @return bool
 	 */
 	public static function is_dashboard_enabled() {
 		$is_dashboard_enabled = true;
 
-		// On WordPress.com sites, the dashboard is not needed.
-		if ( ( new Host() )->is_wpcom_platform() ) {
+		// On WordPress.com sites, the dashboard is not needed if the nav redesign is not enabled.
+		if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' && ( new Host() )->is_wpcom_platform() ) {
 			$is_dashboard_enabled = false;
 		}
 
@@ -96,7 +103,7 @@ class Blaze {
 	 * @return void
 	 */
 	public static function enable_blaze_menu() {
-		if ( ! self::should_initialize() ) {
+		if ( ! self::should_initialize()['can_init'] ) {
 			return;
 		}
 
@@ -121,7 +128,7 @@ class Blaze {
 				__( 'Advertising', 'jetpack-blaze' ),
 				'manage_options',
 				'https://wordpress.com/advertising/' . $domain,
-				null,
+				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539
 				1
 			);
 			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
@@ -131,13 +138,18 @@ class Blaze {
 	/**
 	 * Check the WordPress.com REST API
 	 * to ensure that the site supports the Blaze feature.
-	 * Results are cached for a day.
+	 *
+	 * - If the site is on WordPress.com Simple, we do not query the API.
+	 * - Results are cached for a day after getting response from API.
+	 * - If the API returns an error, we cache the result for an hour.
 	 *
 	 * @param int $blog_id The blog ID to check.
 	 *
 	 * @return bool
 	 */
 	public static function site_supports_blaze( $blog_id ) {
+		$transient_name = 'jetpack_blaze_site_supports_blaze_' . $blog_id;
+
 		/*
 		 * On WordPress.com, we don't need to make an API request,
 		 * we can query directly.
@@ -146,9 +158,13 @@ class Blaze {
 			return blaze_is_site_eligible( $blog_id );
 		}
 
-		$cached_result = get_transient( 'jetpack_blaze_site_supports_blaze_' . $blog_id );
+		$cached_result = get_transient( $transient_name );
 		if ( false !== $cached_result ) {
-			return $cached_result;
+			if ( is_array( $cached_result ) ) {
+				return $cached_result['approved'];
+			}
+
+			return (bool) $cached_result;
 		}
 
 		// Make the API request.
@@ -161,8 +177,9 @@ class Blaze {
 			'wpcom'
 		);
 
-		// Bail if there was an error or malformed response.
+		// If there was an error or malformed response, bail and save response for an hour.
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			set_transient( $transient_name, array( 'approved' => false ), HOUR_IN_SECONDS );
 			return false;
 		}
 
@@ -170,12 +187,12 @@ class Blaze {
 		$result = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		// Bail if there were no results returned.
-		if ( ! is_array( $result ) || empty( $result['approved'] ) ) {
+		if ( ! is_array( $result ) || ! isset( $result['approved'] ) ) {
 			return false;
 		}
 
 		// Cache the result for 24 hours.
-		set_transient( 'jetpack_blaze_site_supports_blaze_' . $blog_id, (bool) $result['approved'], DAY_IN_SECONDS );
+		set_transient( $transient_name, array( 'approved' => (bool) $result['approved'] ), DAY_IN_SECONDS );
 
 		return (bool) $result['approved'];
 	}
@@ -184,17 +201,36 @@ class Blaze {
 	 * Determines if criteria is met to enable Blaze features.
 	 * Keep in mind that this makes remote requests, so we want to avoid calling it when unnecessary, like in the frontend.
 	 *
-	 * @return bool
+	 * @return array
 	 */
 	public static function should_initialize() {
-		$should_initialize = true;
-		$is_wpcom          = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$connection        = new Jetpack_Connection();
-		$site_id           = Jetpack_Connection::get_site_id();
+		$is_wpcom   = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$connection = new Jetpack_Connection();
+		$site_id    = Jetpack_Connection::get_site_id();
 
 		// Only admins should be able to Blaze posts on a site.
 		if ( ! current_user_can( 'manage_options' ) ) {
-			return false;
+			return array(
+				'can_init' => false,
+				'reason'   => 'user_not_admin',
+			);
+		}
+
+		// Allow short-circuiting the Blaze initialization via a filter.
+		if ( has_filter( 'jetpack_blaze_enabled' ) ) {
+			/**
+			 * Filter to disable all Blaze functionality.
+			 *
+			 * @since 0.3.0
+			 *
+			 * @param bool $should_initialize Whether Blaze should be enabled. Default to true.
+			 */
+			$should_init = apply_filters( 'jetpack_blaze_enabled', true );
+
+			return array(
+				'can_init' => $should_init,
+				'reason'   => $should_init ? null : 'initialization_disabled',
+			);
 		}
 
 		// On self-hosted sites, we must do some additional checks.
@@ -205,31 +241,49 @@ class Blaze {
 			*/
 			if (
 				is_wp_error( $site_id )
-				|| ! $connection->is_connected()
-				|| ! $connection->is_user_connected()
 			) {
-				$should_initialize = false;
+				return array(
+					'can_init' => false,
+					'reason'   => 'wp_error',
+				);
+			}
+
+			if ( ! $connection->is_connected() ) {
+				return array(
+					'can_init' => false,
+					'reason'   => 'site_not_connected',
+				);
+			}
+
+			if ( ! $connection->is_user_connected() ) {
+				return array(
+					'can_init' => false,
+					'reason'   => 'user_not_connected',
+				);
 			}
 
 			// The whole thing is powered by Sync!
 			if ( ! Sync_Settings::is_sync_enabled() ) {
-				$should_initialize = false;
+				return array(
+					'can_init' => false,
+					'reason'   => 'sync_disabled',
+				);
 			}
 		}
 
 		// Check if the site supports Blaze.
 		if ( is_numeric( $site_id ) && ! self::site_supports_blaze( $site_id ) ) {
-			$should_initialize = false;
+			return array(
+				'can_init' => false,
+				'reason'   => 'site_not_eligible',
+			);
 		}
 
-		/**
-		 * Filter to disable all Blaze functionality.
-		 *
-		 * @since 0.3.0
-		 *
-		 * @param bool $should_initialize Whether Blaze should be enabled. Default to true.
-		 */
-		return apply_filters( 'jetpack_blaze_enabled', $should_initialize );
+		// Final fallback.
+		return array(
+			'can_init' => true,
+			'reason'   => null,
+		);
 	}
 
 	/**
@@ -239,7 +293,7 @@ class Blaze {
 	 * - Calypso Links
 	 * - wp-admin Links if access to the wp-admin Blaze Dashboard is enabled.
 	 *
-	 * @param int $post_id Post ID.
+	 * @param int|string $post_id Post ID.
 	 *
 	 * @return array An array with the link, and whether this is a Calypso or a wp-admin link.
 	 */
@@ -248,10 +302,10 @@ class Blaze {
 			$admin_url = admin_url( 'tools.php?page=advertising' );
 			$hostname  = wp_parse_url( get_site_url(), PHP_URL_HOST );
 			$blaze_url = sprintf(
-				'%1$s#!/advertising/%2$s/posts/promote/post-%3$s',
+				'%1$s#!/advertising/posts/promote/post-%2$s/%3$s',
 				$admin_url,
-				$hostname,
-				esc_attr( $post_id )
+				esc_attr( $post_id ),
+				$hostname
 			);
 
 			return array(
@@ -282,10 +336,21 @@ class Blaze {
 	 * @return array
 	 */
 	public static function jetpack_blaze_row_action( $post_actions, $post ) {
-		$post_id = $post->ID;
+		/**
+		 * Allow third-party plugins to disable Blaze row actions.
+		 *
+		 * @since 0.16.0
+		 *
+		 * @param bool    $are_quick_links_enabled Should Blaze row actions be enabled.
+		 * @param WP_Post $post                    The current post in the post list table.
+		 */
+		$are_quick_links_enabled = apply_filters( 'jetpack_blaze_post_row_actions_enable', true, $post );
 
 		// Bail if we are not looking at one of the supported post types (post, page, or product).
-		if ( ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true ) ) {
+		if (
+			! $are_quick_links_enabled
+			|| ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true )
+		) {
 			return $post_actions;
 		}
 
@@ -299,7 +364,7 @@ class Blaze {
 			return $post_actions;
 		}
 
-		$blaze_url = self::get_campaign_management_url( $post_id );
+		$blaze_url = self::get_campaign_management_url( $post->ID );
 		$text      = __( 'Promote with Blaze', 'jetpack-blaze' );
 		$title     = get_the_title( $post );
 		$label     = sprintf(
@@ -341,7 +406,7 @@ class Blaze {
 			return;
 		}
 		// Bail if criteria is not met to enable Blaze features.
-		if ( ! self::should_initialize() ) {
+		if ( ! self::should_initialize()['can_init'] ) {
 			return;
 		}
 
@@ -364,9 +429,7 @@ class Blaze {
 			self::SCRIPT_HANDLE,
 			'blazeInitialState',
 			array(
-				'adminUrl'           => esc_url( admin_url() ),
-				'isDashboardEnabled' => self::is_dashboard_enabled(),
-				'siteFragment'       => ( new Jetpack_Status() )->get_site_suffix(),
+				'blazeUrlTemplate' => self::get_campaign_management_url( '__POST_ID__' ),
 			)
 		);
 	}

@@ -49,7 +49,9 @@ class Cookie_State {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'save' ),
-				'permission_callback' => '__return_true',
+				'permission_callback' => function () {
+						return current_user_can( 'manage_options' );
+				},
 				'args'                => array(
 					'key'   => array(
 						'description' => 'The state key.',

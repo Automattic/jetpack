@@ -15,7 +15,7 @@ const NavigationList = ( { children } ) => (
 );
 
 const NavigationDropdown = ( { children, data } ) => {
-	const ref = useRef();
+	const ref = useRef( undefined );
 	const [ listOpen, setListOpen ] = useState( false );
 	const item = data?.items?.find( navItem => navItem?.id === data?.selectedItem ) ?? {
 		label: __( 'See all results', 'jetpack-protect' ),

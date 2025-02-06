@@ -5,6 +5,137 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.24.1 - 2025-02-03
+### Changed
+- Phan: Update baselines. [#41263]
+
+## 0.24.0 - 2025-01-06
+### Added
+- Stats: Add API support for location stats. [#40852]
+
+## 0.23.1 - 2024-11-25
+### Changed
+- Updated dependencies. [#40286]
+
+### Fixed
+- Catch an issue when custom code removes `ver` param. [#40322]
+- Stats: Remove cache for purchases and usage endpoints. [#40266]
+
+## 0.23.0 - 2024-11-18
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## 0.22.6 - 2024-11-11
+### Fixed
+- Fixed flaky tests [#40062]
+
+## 0.22.5 - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Fixed
+- API cache not refreshing when cache is bypassed. [#39955]
+
+## 0.22.4 - 2024-10-28
+### Changed
+- Odyssey Stats cache busting: Use option instead of transient. [#39887]
+
+## 0.22.3 - 2024-10-21
+### Changed
+- JITM: Expose function to render message. [#39714]
+
+## 0.22.2 - 2024-10-14
+### Fixed
+- Added missing fields for stats single post endpoint. [#39691]
+
+## 0.22.1 - 2024-09-23
+### Changed
+- Update dependencies. [#39303]
+
+## 0.22.0 - 2024-09-16
+### Added
+- Create the user feedback endpoint proxy with a user login status check. [#39287]
+
+## 0.21.2 - 2024-09-09
+### Changed
+- Update dependencies. [#39253]
+
+## 0.21.1 - 2024-08-23
+### Changed
+- Updated package dependencies. [#39004]
+
+## 0.21.0 - 2024-07-08
+### Added
+- Stats: Add purchases endpoint [#38150]
+
+## 0.20.0 - 2024-06-18
+### Added
+- Check if Jetpack is integrated with the Complianz plugin to show the notice from blocking Stats. [#37870]
+
+## 0.19.3 - 2024-06-10
+### Changed
+- Update dependencies.
+
+## 0.19.2 - 2024-05-20
+### Fixed
+- Stats: Use user language instead of site language for translations. [#37423]
+
+## 0.19.1 - 2024-05-06
+### Changed
+- Internal updates.
+
+## 0.19.0 - 2024-04-29
+### Added
+- Proxy Devices Stats API endpoint. [#37098]
+
+## 0.18.3 - 2024-04-25
+### Changed
+- Update dependencies.
+
+## 0.18.2 - 2024-04-22
+### Changed
+- Internal updates.
+
+## 0.18.1 - 2024-04-08
+### Fixed
+- Change Odyssey Stats default admin menu name and slug for Simple Classic. [#36689]
+
+## 0.18.0 - 2024-04-01
+### Added
+- Change Phan baselines. [#36627]
+- Stats: Add commercial classification endpoint [#36597]
+
+### Changed
+- Add config fields for odyssey stats to be loaded in Simple Site Classic. [#36633]
+
+## 0.17.1 - 2024-03-25
+### Changed
+- Internal updates.
+
+## 0.17.0 - 2024-03-18
+### Added
+- Stats: Add UTM stats endpoint [#36402]
+
+## 0.16.2 - 2024-03-04
+### Fixed
+- Stats: fix posts endpoint for Atomic sites [#36039]
+
+## 0.16.1 - 2024-02-26
+### Changed
+- Update dependencies.
+
+## 0.16.0 - 2024-02-19
+### Added
+- Stats: added support for Email stats [#35703]
+
+## 0.15.3 - 2024-02-14
+### Fixed
+- Stats: clear usage, modules, module-settings cache after purchase [#35590]
+
+## 0.15.2 - 2024-02-05
+### Changed
+- Update dependencies.
+
 ## 0.15.1 - 2023-12-25
 ### Changed
 - Update dependencies.

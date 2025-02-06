@@ -1,13 +1,13 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import React, { Component } from 'react';
 import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import { FEATURE_GOOGLE_ANALYTICS_JETPACK } from 'lib/plans/constants';
-import React, { Component } from 'react';
 
 export const GoogleAnalytics = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -42,9 +42,13 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 							{
 								a: (
 									<a
-										href={ getRedirectUrl( 'calypso-stats-day', {
-											site: this.props.siteRawUrl,
-										} ) }
+										href={
+											this.props.siteUsesWpAdminInterface
+												? this.props.siteAdminUrl + 'admin.php?page=jetpack#/stats'
+												: getRedirectUrl( 'calypso-stats-day', {
+														site: this.props.siteRawUrl,
+												  } )
+										}
 									/>
 								),
 							}
@@ -55,7 +59,15 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 							compact
 							className="jp-settings-card__configure-link"
 							onClick={ this.trackConfigureClick }
-							href={ this.props.configureUrl }
+							href={ getRedirectUrl(
+								this.props.siteUsesWpAdminInterface
+									? 'calypso-marketing-connections'
+									: 'calypso-marketing-traffic',
+								{
+									site: this.props.site,
+									anchor: 'analytics',
+								}
+							) }
 							target="_blank"
 						>
 							{ __( 'Configure your Google Analytics settings', 'jetpack' ) }

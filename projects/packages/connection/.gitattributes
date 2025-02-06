@@ -10,8 +10,10 @@ tests/           export-ignore
 /dist/**         production-include
 
 # Files not needed in the production build.
-.phpcs.dir.xml     production-exclude
-/changelog/**      production-exclude
-.gitignore         production-exclude
-src/js/**          production-exclude
-webpack.config.js  production-exclude
+.phpcs.dir.xml    production-exclude
+/changelog/**     production-exclude
+.gitignore        production-exclude
+src/js/**         production-exclude
+webpack.config.js production-exclude
+/dist/*.css.map   production-exclude
+/dist/*.js.map    production-exclude

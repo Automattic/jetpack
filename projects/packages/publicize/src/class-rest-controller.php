@@ -9,8 +9,11 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Rest_Authentication;
 use Jetpack_Options;
 use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
 use WP_REST_Server;
 
 /**
@@ -29,8 +32,9 @@ class REST_Controller {
 	 *
 	 * @var string
 	 */
-	const JETPACK_SOCIAL_BASIC_YEARLY    = 'jetpack_social_basic_yearly';
-	const JETPACK_SOCIAL_ADVANCED_YEARLY = 'jetpack_social_advanced_yearly';
+	const JETPACK_SOCIAL_V1_YEARLY = 'jetpack_social_v1_yearly';
+
+	const SOCIAL_SHARES_POST_META_KEY = '_publicize_shares';
 
 	/**
 	 * Constructor
@@ -54,7 +58,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_publicize_connection_test_results' ),
-				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+				'permission_callback' => array( $this, 'require_author_privilege_callback' ),
 			)
 		);
 
@@ -64,17 +68,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_publicize_connections' ),
-				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
-			)
-		);
-
-		register_rest_route(
-			'jetpack/v4',
-			'/publicize/shares-count',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_publicize_shares_count' ),
-				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+				'permission_callback' => array( $this, 'require_author_privilege_callback' ),
 			)
 		);
 
@@ -90,13 +84,15 @@ class REST_Controller {
 		);
 
 		// Dismiss a notice.
+		// Flagged to be removed after deprecation.
+		// @deprecated 0.47.2
 		register_rest_route(
 			'jetpack/v4',
 			'/social/dismiss-notice',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'update_dismissed_notices' ),
-				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+				'permission_callback' => array( $this, 'require_author_privilege_callback' ),
 				'args'                => rest_get_endpoint_args_for_schema( $this->get_dismiss_notice_endpoint_schema(), WP_REST_Server::CREATABLE ),
 				'schema'              => array( $this, 'get_dismiss_notice_endpoint_schema' ),
 			)
@@ -108,7 +104,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'share_post' ),
-				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+				'permission_callback' => array( $this, 'require_author_privilege_callback' ),
 				'args'                => array(
 					'message'             => array(
 						'description'       => __( 'The message to share.', 'jetpack-publicize-pkg' ),
@@ -130,9 +126,135 @@ class REST_Controller {
 							return array_map( 'absint', $param );
 						},
 					),
+					'async'               => array(
+						'description' => __( 'Whether to share the post asynchronously.', 'jetpack-publicize-pkg' ),
+						'type'        => 'boolean',
+						'default'     => false,
+					),
 				),
 			)
 		);
+
+		// Create a Jetpack Social connection.
+		register_rest_route(
+			'jetpack/v4',
+			'/social/connections',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'create_publicize_connection' ),
+				'permission_callback' => array( $this, 'require_author_privilege_callback' ),
+				'schema'              => array( $this, 'get_jetpack_social_connections_schema' ),
+			)
+		);
+
+		// Update a Jetpack Social connection.
+		register_rest_route(
+			'jetpack/v4',
+			'/social/connections/(?P<connection_id>\d+)',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'update_publicize_connection' ),
+				'permission_callback' => array( $this, 'update_connection_permission_check' ),
+				'schema'              => array( $this, 'get_jetpack_social_connections_update_schema' ),
+			)
+		);
+
+		// Delete a Jetpack Social connection.
+		register_rest_route(
+			'jetpack/v4',
+			'/social/connections/(?P<connection_id>\d+)',
+			array(
+				'methods'             => WP_REST_Server::DELETABLE,
+				'callback'            => array( $this, 'delete_publicize_connection' ),
+				'permission_callback' => array( $this, 'manage_connection_permission_check' ),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/social/sync-shares/post/(?P<id>\d+)',
+			array(
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'update_post_shares' ),
+					'permission_callback' => array( Rest_Authentication::class, 'is_signed_with_blog_token' ),
+					'args'                => array(
+						'meta' => array(
+							'type'       => 'object',
+							'required'   => true,
+							'properties' => array(
+								'_publicize_shares' => array(
+									'type'     => 'array',
+									'required' => true,
+								),
+							),
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/social/share-status/(?P<post_id>\d+)',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_post_share_status' ),
+					'permission_callback' => array( $this, 'require_author_privilege_callback' ),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Manage connection permission check
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
+	 *
+	 * @return bool True if the user can manage the connection, false otherwise.
+	 */
+	public function manage_connection_permission_check( WP_REST_Request $request ) {
+
+		if ( current_user_can( 'edit_others_posts' ) ) {
+			return true;
+		}
+
+		/**
+		 * Publicize instance.
+		 *
+		 * @var Publicize $publicize Publicize instance.
+		 */
+		global $publicize;
+
+		$connection = $publicize->get_connection_for_user( $request->get_param( 'connection_id' ) );
+
+		$owns_connection = isset( $connection['user_id'] ) && get_current_user_id() === (int) $connection['user_id'];
+
+		return $owns_connection;
+	}
+
+	/**
+	 * Update connection permission check.
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
+	 *
+	 * @return bool True if the user can update the connection, false otherwise.
+	 */
+	public function update_connection_permission_check( WP_REST_Request $request ) {
+
+		// If the user cannot manage the connection, they can't update it either.
+		if ( ! $this->manage_connection_permission_check( $request ) ) {
+			return false;
+		}
+
+		// If the connection is being marked/unmarked as shared.
+		if ( $request->has_param( 'shared' ) ) {
+			// Only editors and above can mark a connection as shared.
+			return current_user_can( 'edit_others_posts' );
+		}
+
+		return $this->require_author_privilege_callback();
 	}
 
 	/**
@@ -141,16 +263,71 @@ class REST_Controller {
 	 * @return bool|WP_Error True if a blog token was used to sign the request, WP_Error otherwise.
 	 */
 	public function require_admin_privilege_callback() {
-		if ( current_user_can( 'manage_options' ) ) {
-			return true;
-		}
+		return current_user_can( 'manage_options' );
+	}
 
-		$error_msg = esc_html__(
-			'You are not allowed to perform this action.',
-			'jetpack-publicize-pkg'
+	/**
+	 * Only Authors can access the API.
+	 *
+	 * @return bool|WP_Error True if a blog token was used to sign the request, WP_Error otherwise.
+	 */
+	public function require_author_privilege_callback() {
+		return current_user_can( 'publish_posts' );
+	}
+
+	/**
+	 * Retrieves the JSON schema for creating a jetpack social connection.
+	 *
+	 * @return array Schema data.
+	 */
+	public function get_jetpack_social_connections_schema() {
+		$schema = array(
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'jetpack-social-connection',
+			'type'       => 'object',
+			'properties' => array(
+				'keyring_connection_ID' => array(
+					'description' => __( 'Keyring connection ID', 'jetpack-publicize-pkg' ),
+					'type'        => 'integer',
+					'required'    => true,
+				),
+				'external_user_ID'      => array(
+					'description' => __( 'External User Id - in case of services like Facebook', 'jetpack-publicize-pkg' ),
+					'type'        => 'string',
+				),
+				'shared'                => array(
+					'description' => __( 'Whether the connection is shared with other users', 'jetpack-publicize-pkg' ),
+					'type'        => 'boolean',
+				),
+			),
 		);
 
-		return new WP_Error( 'rest_forbidden', $error_msg, array( 'status' => rest_authorization_required_code() ) );
+		return rest_default_additional_properties_to_false( $schema );
+	}
+
+	/**
+	 * Retrieves the JSON schema for updating a jetpack social connection.
+	 *
+	 * @return array Schema data.
+	 */
+	public function get_jetpack_social_connections_update_schema() {
+		$schema = array(
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'jetpack-social-connection',
+			'type'       => 'object',
+			'properties' => array(
+				'external_user_ID' => array(
+					'description' => __( 'External User Id - in case of services like Facebook', 'jetpack-publicize-pkg' ),
+					'type'        => 'string',
+				),
+				'shared'           => array(
+					'description' => __( 'Whether the connection is shared with other users', 'jetpack-publicize-pkg' ),
+					'type'        => 'boolean',
+				),
+			),
+		);
+
+		return rest_default_additional_properties_to_false( $schema );
 	}
 
 	/**
@@ -167,7 +344,7 @@ class REST_Controller {
 				'notice'            => array(
 					'description' => __( 'Name of the notice to dismiss', 'jetpack-publicize-pkg' ),
 					'type'        => 'string',
-					'enum'        => array( 'instagram', 'advanced-upgrade-nudge-admin', 'advanced-upgrade-nudge-editor', 'auto-conversion-editor-notice' ),
+					'enum'        => array( 'instagram', 'advanced-upgrade-nudge-admin', 'advanced-upgrade-nudge-editor' ),
 					'required'    => true,
 				),
 				'reappearance_time' => array(
@@ -197,23 +374,25 @@ class REST_Controller {
 	 * Gets the current Publicize connections for the site.
 	 *
 	 * GET `jetpack/v4/publicize/connections`
-	 */
-	public function get_publicize_connections() {
-		$blog_id  = $this->get_blog_id();
-		$path     = sprintf( '/sites/%d/publicize/connections', absint( $blog_id ) );
-		$response = Client::wpcom_json_api_request_as_user( $path, '2', array(), null, 'wpcom' );
-		return rest_ensure_response( $this->make_proper_response( $response ) );
-	}
-
-	/**
-	 * Gets the publicize shares count for the site.
 	 *
-	 * GET `jetpack/v4/publicize/shares-count`
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
 	 */
-	public function get_publicize_shares_count() {
+	public function get_publicize_connections( $request ) {
+		$run_test_results = $request->get_param( 'test_connections' );
+		$clear_cache      = $request->get_param( 'clear_cache' );
+
+		$args = array();
+
+		if ( ! empty( $run_test_results ) ) {
+			$args['test_connections'] = true;
+		}
+
+		if ( ! empty( $clear_cache ) ) {
+			$args['clear_cache'] = true;
+		}
+
 		global $publicize;
-		$response = $publicize->get_publicize_shares_count( $this->get_blog_id() );
-		return rest_ensure_response( $response );
+		return rest_ensure_response( $publicize->get_all_connections_for_user( $args ) );
 	}
 
 	/**
@@ -240,15 +419,14 @@ class REST_Controller {
 
 		$products = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
 		return array(
-			'advanced' => $products->{self::JETPACK_SOCIAL_ADVANCED_YEARLY},
-			'basic'    => $products->{self::JETPACK_SOCIAL_BASIC_YEARLY},
+			'v1' => $products->{self::JETPACK_SOCIAL_V1_YEARLY},
 		);
 	}
 
 	/**
 	 * Dismisses a notice to prevent it from appearing again.
 	 *
-	 * @param WP_Request $request The request object, which includes the parameters.
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
 	 * @return WP_REST_Response|WP_Error True if the request was successful, or a WP_Error otherwise.
 	 */
 	public function update_dismissed_notices( $request ) {
@@ -275,12 +453,13 @@ class REST_Controller {
 	 *
 	 * POST jetpack/v4/publicize/(?P<postId>\d+)
 	 *
-	 * @param WP_Request $request The request object, which includes the parameters.
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
 	 */
 	public function share_post( $request ) {
 		$post_id             = $request->get_param( 'postId' );
 		$message             = trim( $request->get_param( 'message' ) );
 		$skip_connection_ids = $request->get_param( 'skipped_connections' );
+		$async               = (bool) $request->get_param( 'async' );
 
 		/*
 		 * Publicize endpoint on WPCOM:
@@ -304,6 +483,7 @@ class REST_Controller {
 			array(
 				'message'             => $message,
 				'skipped_connections' => $skip_connection_ids,
+				'async'               => $async,
 			)
 		);
 
@@ -339,5 +519,188 @@ class REST_Controller {
 	 */
 	protected function get_blog_id() {
 		return $this->is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
+	}
+
+	/**
+	 * Calls the WPCOM endpoint to update the publicize connection.
+	 *
+	 * POST jetpack/v4/social/connections/{connection_id}
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
+	 */
+	public function update_publicize_connection( $request ) {
+		$external_user_id = $request->get_param( 'external_user_ID' );
+		$shared           = $request->get_param( 'shared' );
+		$blog_id          = $this->get_blog_id();
+		$connection_id    = $request->get_param( 'connection_id' );
+
+		$path = sprintf(
+			'/sites/%d/jetpack-social-connections/%d',
+			$blog_id,
+			$connection_id
+		);
+
+		$body = array();
+
+		if ( ! empty( $external_user_id ) ) {
+			$body['external_user_ID'] = $external_user_id;
+		}
+
+		if ( $shared || ( false === $shared ) ) {
+			$body['shared'] = $shared;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			$path,
+			'2',
+			array(
+				'method'  => 'POST',
+				'timeout' => 120,
+			),
+			$body,
+			'wpcom'
+		);
+
+		$response = $this->make_proper_response( $response );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		global $publicize;
+		return rest_ensure_response( $publicize->get_connection_for_user( (int) $connection_id ) );
+	}
+
+	/**
+	 * Calls the WPCOM endpoint to delete the publicize connection.
+	 *
+	 * DELETE jetpack/v4/social/connections/{connection_id}
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
+	 */
+	public function delete_publicize_connection( $request ) {
+		$connection_id = $request->get_param( 'connection_id' );
+		$blog_id       = $this->get_blog_id();
+
+		$path = sprintf(
+			'/sites/%d/jetpack-social-connections/%d',
+			$blog_id,
+			$connection_id
+		);
+
+		$response = Client::wpcom_json_api_request_as_user( $path, '2', array( 'method' => 'DELETE' ), null, 'wpcom' );
+		return rest_ensure_response( $this->make_proper_response( $response ) );
+	}
+
+	/**
+	 * Create a publicize connection
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
+	 * @return WP_REST_Response|WP_Error True if the request was successful, or a WP_Error otherwise.
+	 */
+	public function create_publicize_connection( $request ) {
+		$keyring_connection_id = $request->get_param( 'keyring_connection_ID' );
+		$shared                = $request->get_param( 'shared' );
+		$external_user_id      = $request->get_param( 'external_user_ID' );
+		$blog_id               = $this->get_blog_id();
+
+		$path = sprintf(
+			'/sites/%d/jetpack-social-connections/new',
+			$blog_id
+		);
+
+		$body = array(
+			'keyring_connection_ID' => $keyring_connection_id,
+			'shared'                => $shared,
+		);
+
+		if ( ! empty( $external_user_id ) ) {
+			$body['external_user_ID'] = $external_user_id;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			$path,
+			'2',
+			array(
+				'method'  => 'POST',
+				'timeout' => 120,
+			),
+			$body,
+			'wpcom'
+		);
+
+		$response = $this->make_proper_response( $response );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		if ( isset( $response['ID'] ) ) {
+			global $publicize;
+			return rest_ensure_response( $publicize->get_connection_for_user( (int) $response['ID'] ) );
+		}
+
+		return new WP_Error(
+			'could_not_create_connection',
+			__( 'Something went wrong while creating a connection.', 'jetpack-publicize-pkg' )
+		);
+	}
+
+	/**
+	 * Update the post with information about shares.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 */
+	public function update_post_shares( $request ) {
+		$request_body = $request->get_json_params();
+
+		$post_id   = $request->get_param( 'id' );
+		$post_meta = $request_body['meta'];
+		$post      = get_post( $post_id );
+
+		if ( $post && 'publish' === $post->post_status && isset( $post_meta[ self::SOCIAL_SHARES_POST_META_KEY ] ) ) {
+			update_post_meta( $post_id, self::SOCIAL_SHARES_POST_META_KEY, $post_meta[ self::SOCIAL_SHARES_POST_META_KEY ] );
+			$urls = array();
+			foreach ( $post_meta[ self::SOCIAL_SHARES_POST_META_KEY ] as $share ) {
+				if ( isset( $share['status'] ) && 'success' === $share['status'] ) {
+					$urls[] = array(
+						'url'     => $share['message'],
+						'service' => $share['service'],
+					);
+				}
+			}
+			/**
+			 * Fires after Publicize Shares post meta has been saved.
+			 *
+			 * @param array $urls {
+			 *     An array of social media shares.
+			 *     @type array $url URL to the social media post.
+			 *     @type string $service Social media service shared to.
+			 * }
+			 */
+			do_action( 'jetpack_publicize_share_urls_saved', $urls );
+			return rest_ensure_response( new WP_REST_Response() );
+		}
+
+		return new WP_Error(
+			'rest_cannot_edit',
+			__( 'Failed to update the post meta', 'jetpack-publicize-pkg' ),
+			array( 'status' => 500 )
+		);
+	}
+
+	/**
+	 * Gets the share status for a post.
+	 *
+	 * GET `jetpack/v4/social/share-status/<post_id>`
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 */
+	public function get_post_share_status( WP_REST_Request $request ) {
+		global $publicize;
+
+		$post_id = $request->get_param( 'post_id' );
+
+		return rest_ensure_response( $publicize->get_post_share_status( $post_id ) );
 	}
 }

@@ -410,6 +410,43 @@ abstract class SAL_Site {
 	abstract public function get_user_interactions();
 
 	/**
+	 * Flag a site as deleted. Not used in Jetpack.
+	 *
+	 * @see class.json-api-site-jetpack.php for implementation.
+	 */
+	abstract public function is_deleted();
+
+	/**
+	 * Indicates that a site is an A4A client. Not used in Jetpack.
+	 *
+	 * @see class.json-api-site-jetpack.php for implementation.
+	 */
+	abstract public function is_a4a_client();
+
+	/**
+	 * Indicates that a site is an A4A dev site.
+	 *
+	 * @return bool
+	 */
+	public function is_a4a_dev_site() {
+		if ( function_exists( 'has_blog_sticker' ) ) {
+			return has_blog_sticker( 'a4a-is-dev-site' );
+		}
+		return false;
+	}
+
+	/**
+	 * Return the user interactions with a site. Not used in Jetpack.
+	 *
+	 * @param string $role The capability to check.
+	 * @return bool
+	 * @see class.json-api-site-jetpack.php for implementation.
+	 * @see class.json-api-site-wpcom.php (on WPCOM) for Simple-site implementation.
+	 * @see class.json-api-site-jetpack-shadow.php (on WPCOM) for Atomic-site implementation.
+	 */
+	abstract public function current_user_can( $role );
+
+	/**
 	 * Defines a filter to set whether a site is an automated_transfer site or not.
 	 *
 	 * Default is false.
@@ -439,7 +476,7 @@ abstract class SAL_Site {
 	 *
 	 * @see class.json-api-site-jetpack.php for implementation.
 	 */
-	abstract protected function is_wpforteams_site();
+	abstract public function is_wpforteams_site();
 
 	/**
 	 * Get hub blog id for P2 sites.
@@ -721,8 +758,8 @@ abstract class SAL_Site {
 		if ( ! $post || is_wp_error( $post ) ) {
 			return false;
 		}
-
-		if ( 'inherit' === $post->post_status ) {
+		// If the post is of status inherit, check if the parent exists ( different to 0 ) to check for the parent status object.
+		if ( 'inherit' === $post->post_status && 0 !== (int) $post->post_parent ) {
 			$parent_post     = get_post( $post->post_parent );
 			$post_status_obj = get_post_status_object( $parent_post->post_status );
 		} else {
@@ -903,24 +940,24 @@ abstract class SAL_Site {
 		$is_wpcom_blog_owner = wpcom_get_blog_owner() === (int) get_current_user_id();
 
 		return array(
-			'edit_pages'          => current_user_can( 'edit_pages' ),
-			'edit_posts'          => current_user_can( 'edit_posts' ),
-			'edit_others_posts'   => current_user_can( 'edit_others_posts' ),
-			'edit_others_pages'   => current_user_can( 'edit_others_pages' ),
-			'delete_posts'        => current_user_can( 'delete_posts' ),
-			'delete_others_posts' => current_user_can( 'delete_others_posts' ),
-			'edit_theme_options'  => current_user_can( 'edit_theme_options' ),
-			'edit_users'          => current_user_can( 'edit_users' ),
-			'list_users'          => current_user_can( 'list_users' ),
-			'manage_categories'   => current_user_can( 'manage_categories' ),
-			'manage_options'      => current_user_can( 'manage_options' ),
-			'moderate_comments'   => current_user_can( 'moderate_comments' ),
+			'edit_pages'          => $this->current_user_can( 'edit_pages' ),
+			'edit_posts'          => $this->current_user_can( 'edit_posts' ),
+			'edit_others_posts'   => $this->current_user_can( 'edit_others_posts' ),
+			'edit_others_pages'   => $this->current_user_can( 'edit_others_pages' ),
+			'delete_posts'        => $this->current_user_can( 'delete_posts' ),
+			'delete_others_posts' => $this->current_user_can( 'delete_others_posts' ),
+			'edit_theme_options'  => $this->current_user_can( 'edit_theme_options' ),
+			'edit_users'          => $this->current_user_can( 'edit_users' ),
+			'list_users'          => $this->current_user_can( 'list_users' ),
+			'manage_categories'   => $this->current_user_can( 'manage_categories' ),
+			'manage_options'      => $this->current_user_can( 'manage_options' ),
+			'moderate_comments'   => $this->current_user_can( 'moderate_comments' ),
 			'activate_wordads'    => $is_wpcom_blog_owner,
-			'promote_users'       => current_user_can( 'promote_users' ),
-			'publish_posts'       => current_user_can( 'publish_posts' ),
-			'upload_files'        => current_user_can( 'upload_files' ),
-			'delete_users'        => current_user_can( 'delete_users' ),
-			'remove_users'        => current_user_can( 'remove_users' ),
+			'promote_users'       => $this->current_user_can( 'promote_users' ),
+			'publish_posts'       => $this->current_user_can( 'publish_posts' ),
+			'upload_files'        => $this->current_user_can( 'upload_files' ),
+			'delete_users'        => $this->current_user_can( 'delete_users' ),
+			'remove_users'        => $this->current_user_can( 'remove_users' ),
 			'own_site'            => $is_wpcom_blog_owner,
 			/**
 			 * Filter whether the Hosting section in Calypso should be available for site.
@@ -933,7 +970,10 @@ abstract class SAL_Site {
 			 */
 			'view_hosting'        => apply_filters( 'jetpack_json_api_site_can_view_hosting', false ),
 			'view_stats'          => stats_is_blog_user( $this->blog_id ),
-			'activate_plugins'    => current_user_can( 'activate_plugins' ),
+			'activate_plugins'    => $this->current_user_can( 'activate_plugins' ),
+			'update_plugins'      => $this->current_user_can( 'update_plugins' ),
+			'export'              => $this->current_user_can( 'export' ),
+			'import'              => $this->current_user_can( 'import' ),
 		);
 	}
 
@@ -1027,6 +1067,29 @@ abstract class SAL_Site {
 	 **/
 	public function get_theme_slug() {
 		return get_option( 'stylesheet' );
+	}
+
+	/**
+	 * Returns a list of errors for broken themes on the site.
+	 *
+	 * @return array
+	 */
+	public function get_theme_errors() {
+		$themes_with_errors = wp_get_themes( array( 'errors' => true ) );
+		$theme_errors       = array();
+
+		foreach ( $themes_with_errors as $theme ) {
+			$errors = $theme->errors();
+
+			if ( is_wp_error( $errors ) && ! empty( $errors->get_error_messages() ) ) {
+				$theme_errors[] = array(
+					'name'   => sanitize_title( $theme->get( 'Name' ) ),
+					'errors' => (array) $errors->get_error_messages(),
+				);
+			}
+		}
+
+		return $theme_errors;
 	}
 
 	/**
@@ -1329,15 +1392,19 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Returns the 'siteGoals' option if set (eg. share, promote, educate, sell, showcase), null otherwise.
+	 * Returns the 'site_goals' option if set (eg. share, promote, educate, sell, showcase).
 	 *
-	 * @return string|null
+	 * @return array
 	 **/
 	public function get_site_goals() {
-		$options = get_option( 'options' );
-		return empty( $options['siteGoals'] ) ? null : $options['siteGoals'];
-	}
+		$site_goals_option = get_option( 'site_goals' );
 
+		if ( is_array( $site_goals_option ) ) {
+			return $site_goals_option;
+		}
+
+		return array();
+	}
 	/**
 	 * Return site's launch status. Expanded in class.json-api-site-jetpack.php.
 	 *
@@ -1445,15 +1512,6 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * The site options for DIFM lite in the design picker step
-	 *
-	 * @return string
-	 */
-	public function get_difm_lite_site_options() {
-		return get_option( 'difm_lite_site_options' );
-	}
-
-	/**
 	 * Get the option of site intent which value is coming from the Hero Flow
 	 *
 	 * @return string
@@ -1463,12 +1521,30 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Get the option of site partner bundle which value is coming from the Partner Flow
+	 *
+	 * @return string
+	 */
+	public function get_site_partner_bundle() {
+		return get_option( 'site_partner_bundle', '' );
+	}
+
+	/**
 	 * Get site option to determine if and how to display launchpad onboarding
 	 *
 	 * @return string
 	 */
 	public function get_launchpad_screen() {
 		return get_option( 'launchpad_screen' );
+	}
+
+	/**
+	 * Get the option onboarding_segment coming from the Guided Flow
+	 *
+	 * @return string
+	 */
+	public function get_onboarding_segment() {
+		return get_option( 'onboarding_segment', '' );
 	}
 
 	/**
@@ -1484,6 +1560,15 @@ abstract class SAL_Site {
 		}
 
 		return array();
+	}
+
+	/**
+	 * Get site option for migration source site domain
+	 *
+	 * @return string
+	 */
+	public function get_migration_source_site_domain() {
+		return get_option( 'migration_source_site_domain', '' );
 	}
 
 	/**
@@ -1552,6 +1637,24 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Returns an array of reasons why the site is considered commercial.
+	 *
+	 * @return array|null
+	 */
+	public function get_is_commercial_reasons() {
+		$reasons = get_option( '_jetpack_site_is_commercial_reason', array() );
+
+		// Add override as reason if blog has the commercial stickers.
+		if ( empty( $reasons ) && $this->is_commercial() ) {
+			return array( 'manual-override' );
+		} elseif ( ! is_array( $reasons ) ) {
+			return array();
+		}
+
+		return $reasons;
+	}
+
+	/**
 	 * Returns the site's interface selection e.g. calypso vs. wp-admin
 	 *
 	 * @return string
@@ -1559,4 +1662,27 @@ abstract class SAL_Site {
 	public function get_wpcom_admin_interface() {
 		return (string) get_option( 'wpcom_admin_interface' );
 	}
+
+	/**
+	 * Returns whether the site is part of the classic view early release.
+	 *
+	 * @return bool
+	 **/
+	public function get_wpcom_classic_early_release() {
+		return ! empty( get_option( 'wpcom_classic_early_release' ) );
+	}
+
+	/**
+	 * Get Zendesk site meta.
+	 *
+	 * @return array|null
+	 */
+	abstract public function get_zendesk_site_meta();
+
+	/**
+	 * Detect whether there's a pending plan for this site.
+	 *
+	 * @return bool
+	 */
+	abstract public function is_pending_plan();
 }

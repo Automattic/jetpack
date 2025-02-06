@@ -1,0 +1,23 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "id" },
+			"Pick a pre-defined layout or continue with a blank page": [
+				"Pilih tata letak yang telah ditetapkan atau lanjutkan dengan halaman kosong."
+			],
+			"Choose a Pattern": [ "Pilih Pola" ],
+			"Page categories": [ "Kategori halaman" ],
+			"Blank page": [ "Halaman kosong" ],
+			"Pick a pre-defined layout or start with a blank page.": [
+				"Pilih tata letak yang telah ditetapkan atau mulai dengan halaman kosong."
+			],
+			"Add a page": [ "Tambah halaman" ],
+			"Layout": [ "Tata letak" ],
+			"default address\u0004123 Main St": [ "Jl. Utama 123" ]
+		}
+	},
+	"comment": { "reference": "starter-page-templates/dist/starter-page-templates.js" }
+}

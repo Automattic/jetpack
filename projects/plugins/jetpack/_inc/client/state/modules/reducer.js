@@ -31,7 +31,7 @@ export const items = ( state = {}, action ) => {
 			return assign( {}, state, {
 				[ action.module ]: assign( {}, state[ action.module ], { activated: false } ),
 			} );
-		case JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS:
+		case JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS: {
 			const updatedModule = assign( {}, state[ action.module ] );
 			Object.keys( action.newOptionValues ).forEach( key => {
 				updatedModule.options[ key ].current_value = action.newOptionValues[ key ];
@@ -39,6 +39,7 @@ export const items = ( state = {}, action ) => {
 			return assign( {}, state, {
 				[ action.module ]: updatedModule,
 			} );
+		}
 		default:
 			return state;
 	}
@@ -84,7 +85,7 @@ export const requests = ( state = initialRequestsState, action ) => {
 					[ action.module ]: false,
 				} ),
 			} );
-		case JETPACK_MODULE_UPDATE_OPTIONS:
+		case JETPACK_MODULE_UPDATE_OPTIONS: {
 			const updatingOption = assign( {}, state.updatingOption );
 			updatingOption[ action.module ] = assign( {}, updatingOption[ action.module ] );
 			Object.keys( action.newOptionValues ).forEach( key => {
@@ -93,8 +94,9 @@ export const requests = ( state = initialRequestsState, action ) => {
 			return assign( {}, state, {
 				updatingOption: assign( {}, state.updatingOption, updatingOption ),
 			} );
+		}
 		case JETPACK_MODULE_UPDATE_OPTIONS_FAIL:
-		case JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS:
+		case JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS: {
 			const _updatingOption = assign( {}, state.updatingOption );
 			_updatingOption[ action.module ] = assign( {}, _updatingOption[ action.module ] );
 			Object.keys( action.newOptionValues ).forEach( key => {
@@ -103,6 +105,7 @@ export const requests = ( state = initialRequestsState, action ) => {
 			return assign( {}, state, {
 				updatingOption: assign( {}, state.updatingOption, _updatingOption ),
 			} );
+		}
 		default:
 			return state;
 	}
@@ -117,8 +120,8 @@ export const reducer = combineReducers( {
  * Returns true if currently requesting modules lists or false
  * otherwise.
  *
- * @param  {Object}  state  Global state tree
- * @return {Boolean}         Whether modules are being requested
+ * @param {object} state - Global state tree
+ * @return {boolean}         Whether modules are being requested
  */
 export function isFetchingModulesList( state ) {
 	return state.jetpack.modules.requests.fetchingModulesList ? true : false;
@@ -127,9 +130,9 @@ export function isFetchingModulesList( state ) {
 /**
  * Returns true if we are currently making a request to activate a module
  *
- * @param  {Object}  state  Global state tree
- * @param  {String}  name module name
- * @return {Boolean}         Whether module is being activated
+ * @param {object} state - Global state tree
+ * @param {string} name  - module name
+ * @return {boolean}         Whether module is being activated
  */
 export function isActivatingModule( state, name ) {
 	return state.jetpack.modules.requests.activating[ name ] ? true : false;
@@ -138,9 +141,9 @@ export function isActivatingModule( state, name ) {
 /**
  * Returns true if we are currently making a request to deactivate a module
  *
- * @param  {Object}  state  Global state tree
- * @param  {String}  name module name
- * @return {Boolean}         Whether module is being deactivated
+ * @param {object} state - Global state tree
+ * @param {string} name  - module name
+ * @return {boolean}         Whether module is being deactivated
  */
 export function isDeactivatingModule( state, name ) {
 	return state.jetpack.modules.requests.deactivating[ name ] ? true : false;
@@ -149,15 +152,23 @@ export function isDeactivatingModule( state, name ) {
 /**
  * Returns true if we are currently making a request to update a module's option
  *
- * @param  {Object}  state  Global state tree
- * @param  {String}  module_slug slug of the module to check
- * @param  {String}  option_name option key to check if currently updating
- * @return {Boolean}         Whether option is being updated on the module
+ * @param {object} state       - Global state tree
+ * @param {string} module_slug - slug of the module to check
+ * @param {string} option_name - option key to check if currently updating
+ * @return {boolean}         Whether option is being updated on the module
  */
 export function isUpdatingModuleOption( state, module_slug, option_name ) {
 	return get( state.jetpack.modules.requests.updatingOption, [ module_slug, option_name ], false );
 }
 
+/**
+ * Return a module option's value.
+ *
+ * @param {object} state       - Global state tree
+ * @param {string} module_slug - slug of the module to check
+ * @param {string} option_name - option key to check if currently updating
+ * @return {*}         Module option value.
+ */
 export function getModuleOption( state, module_slug, option_name ) {
 	return get( state.jetpack.modules.items, [
 		module_slug,
@@ -170,9 +181,9 @@ export function getModuleOption( state, module_slug, option_name ) {
 /**
  * Return a list of key & value pairs admitted.
  *
- * @param  {Object}  state   Global state tree.
- * @param  {String}  group   Slug of the set of settings to check.
- * @param  {String}  setting Setting to check for valid values.
+ * @param {object} state   - Global state tree.
+ * @param {string} group   - Slug of the set of settings to check.
+ * @param {string} setting - Setting to check for valid values.
  * @return {Array}           The list of key => value pairs.
  */
 export function getModuleOptionValidValues( state, group, setting ) {
@@ -181,8 +192,8 @@ export function getModuleOptionValidValues( state, group, setting ) {
 
 /**
  * Returns an object with jetpack modules descriptions keyed by module name
- * @param  {Object} state Global state tree
- * @return {Object}       Modules keyed by module name
+ * @param {object} state - Global state tree
+ * @return {object}       Modules keyed by module name
  */
 export function getModules( state ) {
 	return state.jetpack.modules.items;
@@ -191,8 +202,8 @@ export function getModules( state ) {
 /**
  * Returns an array of module slugs for all active modules on the site.
  *
- * @param  {object} state - Global state tree
- * @returns {Array}         Array of module slugs.
+ * @param {object} state - Global state tree
+ * @return {Array}         Array of module slugs.
  */
 export function getActiveModules( state ) {
 	return Object.keys( state.jetpack.modules.items ).filter(
@@ -202,9 +213,9 @@ export function getActiveModules( state ) {
 
 /**
  * Returns a module object by its name as present in the state
- * @param  {Object} state Global state tree
- * @param  {String}  name module name
- * @return {Object}       Module description
+ * @param {object} state - Global state tree
+ * @param {string} name  - module name
+ * @return {object}       Module description
  */
 export function getModule( state, name ) {
 	return get( state.jetpack.modules.items, name, {} );
@@ -215,8 +226,8 @@ export function getModule( state, name ) {
  *
  * Module features are defined in the module's header comments
  *
- * @param  {Object} state   Global state tree
- * @param  {String} feature Feature to select
+ * @param {object} state   - Global state tree
+ * @param {string} feature - Feature to select
  * @return {Array}          Array of modules that match the feature.
  */
 export function getModulesByFeature( state, feature ) {
@@ -230,7 +241,7 @@ export function getModulesByFeature( state, feature ) {
  *
  * The module's header comments indicates if it requires connection or not.
  *
- * @param  {Object} state   Global state tree
+ * @param {object} state - Global state tree
  * @return {Array}          Array of modules that require connection.
  */
 export function getModulesThatRequireConnection( state ) {
@@ -244,8 +255,8 @@ export function getModulesThatRequireConnection( state ) {
  *
  * The module's header comments indicates if it requires user connection or not.
  *
- * @param  {object} state - Global state tree
- * @returns {Array} Array of modules that require user connection.
+ * @param {object} state - Global state tree
+ * @return {Array} Array of modules that require user connection.
  */
 export function getModulesThatRequireUserConnection( state ) {
 	return Object.keys( state.jetpack.modules.items ).filter(
@@ -256,8 +267,8 @@ export function getModulesThatRequireUserConnection( state ) {
 /**
  * Check that the module list includes at least one of these modules.
  *
- * @param  {Object} state   Global state tree
- * @param  {array}   modules Modules that are probably included in the module list.
+ * @param {object} state   - Global state tree
+ * @param {Array}  modules - Modules that are probably included in the module list.
  *
  * @return {boolean}         True if at least one of the modules is included in the list.
  */
@@ -269,9 +280,9 @@ export function hasAnyOfTheseModules( state, modules = [] ) {
 /**
  * Check that the site has any of the performance features available.
  *
- * @param {object} state   - Global state tree
+ * @param {object} state - Global state tree
  *
- * @returns {boolean}        True if at least one of the performance features is available
+ * @return {boolean}        True if at least one of the performance features is available
  */
 export function hasAnyPerformanceFeature( state ) {
 	return hasAnyOfTheseModules( state, [
@@ -286,7 +297,7 @@ export function hasAnyPerformanceFeature( state ) {
 /**
  * Check that the site has any of the security features available.
  *
- * @param  {Object} state   Global state tree
+ * @param {object} state - Global state tree
  *
  * @return {boolean}        True if at least one of the security features is available.
  */
@@ -298,9 +309,9 @@ export function hasAnySecurityFeature( state ) {
 }
 /**
  * Returns true if the module is activated
- * @param  {Object}  state Global state tree
- * @param  {String}  name  A module's name
- * @return {Boolean}       Weather a module is activated
+ * @param {object} state - Global state tree
+ * @param {string} name  - A module's name
+ * @return {boolean}       Weather a module is activated
  */
 export function isModuleActivated( state, name ) {
 	return get( state.jetpack.modules.items, [ name, 'activated' ], false ) ? true : false;
@@ -308,9 +319,9 @@ export function isModuleActivated( state, name ) {
 
 /**
  * Returns true if the module is available.
- * @param  {Object}  state      Global state tree.
- * @param  {String}  moduleSlug The slug of a module.
- * @return {Boolean}            Whether a module is available to be displayed in the dashboard.
+ * @param {object} state      - Global state tree.
+ * @param {string} moduleSlug - The slug of a module.
+ * @return {boolean}            Whether a module is available to be displayed in the dashboard.
  */
 export function isModuleAvailable( state, moduleSlug ) {
 	return includes( Object.keys( state.jetpack.modules.items ), moduleSlug );
@@ -322,10 +333,10 @@ export function isModuleAvailable( state, moduleSlug ) {
  * Expected values are false if no override, 'active' if module forced on,
  * or 'inactive' if module forced off.
  *
- * @param {Object} state Global state tree
- * @param {String} name  A module's name
+ * @param {object} state - Global state tree
+ * @param {string} name  - A module's name
  *
- * @return {Boolean|String} Whether the module is overriden, and if so, how.
+ * @return {boolean | string} Whether the module is overriden, and if so, how.
  */
 export function getModuleOverride( state, name ) {
 	return get( state.jetpack.modules.items, [ name, 'override' ], false );
@@ -333,9 +344,9 @@ export function getModuleOverride( state, name ) {
 
 /**
  * Returns true if the module is forced to be active.
- * @param {Object}   state Global state tree
- * @param {String}   name  A module's name
- * @return {Boolean}       Whether the module is forced to be active.
+ * @param {object} state - Global state tree
+ * @param {string} name  - A module's name
+ * @return {boolean}       Whether the module is forced to be active.
  */
 export function isModuleForcedActive( state, name ) {
 	return getModuleOverride( state, name ) === 'active';
@@ -343,9 +354,9 @@ export function isModuleForcedActive( state, name ) {
 
 /**
  * Returns true if the module is forced to be inactive.
- * @param {Object}   state Global state tree
- * @param {String}   name  A module's name
- * @return {Boolean}       Whether the module is forced to be inactive.
+ * @param {object} state - Global state tree
+ * @param {string} name  - A module's name
+ * @return {boolean}       Whether the module is forced to be inactive.
  */
 export function isModuleForcedInactive( state, name ) {
 	return getModuleOverride( state, name ) === 'inactive';

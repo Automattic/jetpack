@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use WP_Block;
+
 /**
  * Initialized the VideoPress package
  */

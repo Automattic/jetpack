@@ -1,17 +1,25 @@
-import logger from 'jetpack-e2e-commons/logger.js';
-import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.js';
-
 import { expect } from '@playwright/test';
+import { ensureUserIsLoggedIn } from '_jetpack-e2e-commons/env/prerequisites.js';
+import { execWpCommand } from '_jetpack-e2e-commons/helpers/utils-helper.js';
+import logger from '_jetpack-e2e-commons/logger.js';
 import { JetpackBoostPage } from '../pages/index.js';
 
+/**
+ * Create a prerequisites builder.
+ * @param {page} page - Playwright page instance.
+ * @return {object} Builder
+ */
 export function boostPrerequisitesBuilder( page ) {
 	const state = {
 		testPostTitles: [],
 		clean: undefined,
+		loggedIn: undefined,
 		modules: { active: undefined, inactive: undefined },
 		connected: undefined,
 		jetpackDeactivated: undefined,
 		mockSpeedScore: undefined,
+		enqueuedAssets: undefined,
+		appendImage: undefined,
 	};
 
 	return {
@@ -21,6 +29,10 @@ export function boostPrerequisitesBuilder( page ) {
 		},
 		withInactiveModules( modules = [] ) {
 			state.modules.inactive = modules;
+			return this;
+		},
+		withLoggedIn( shouldBeLoggedIn ) {
+			state.loggedIn = shouldBeLoggedIn;
 			return this;
 		},
 		withConnection( shouldBeConnected ) {
@@ -35,6 +47,14 @@ export function boostPrerequisitesBuilder( page ) {
 			state.mockSpeedScore = shouldMockSpeedScore;
 			return this;
 		},
+		withEnqueuedAssets( shouldEnqueueAssets ) {
+			state.enqueuedAssets = shouldEnqueueAssets;
+			return this;
+		},
+		withAppendedImage( shouldAppendImage ) {
+			state.appendImage = shouldAppendImage;
+			return this;
+		},
 		withCleanEnv() {
 			state.clean = true;
 			return this;
@@ -45,13 +65,30 @@ export function boostPrerequisitesBuilder( page ) {
 	};
 }
 
+/**
+ * Build prerequisites.
+ * @param {object}  state                - State
+ * @param {boolean} state.clean          - Whether to reset the environment.
+ * @param {boolean} state.connected      - Whether the site should be connected.
+ * @param {object}  state.plugins        - Plugins state, see ensurePluginsState()
+ * @param {object}  state.modules        - Modules state, see ensureModulesState()
+ * @param {Array}   state.loggedIn       -
+ * @param {Array}   state.testPostTitles -
+ * @param {boolean} state.mockSpeedScore -
+ * @param {boolean} state.enqueuedAssets -
+ * @param {boolean} state.appendImage    -
+ * @param {page}    page                 - Playwright page instance.
+ */
 async function buildPrerequisites( state, page ) {
 	const functions = {
 		modules: () => ensureModulesState( state.modules ),
+		loggedIn: () => ensureUserIsLoggedIn( page ),
 		connected: () => ensureConnectedState( state.connected, page ),
 		testPostTitles: () => ensureTestPosts( state.testPostTitles ),
 		clean: () => ensureCleanState( state.clean ),
 		mockSpeedScore: () => ensureMockSpeedScoreState( state.mockSpeedScore ),
+		enqueuedAssets: () => ensureEnqueuedAssets( state.enqueuedAssets ),
+		appendImage: () => ensureAppendedImage( state.appendImage ),
 	};
 
 	logger.prerequisites( JSON.stringify( state, null, 2 ) );
@@ -68,6 +105,12 @@ async function buildPrerequisites( state, page ) {
 	}
 }
 
+/**
+ * Ensure modules are active/inactive
+ * @param {object}   modules          - State
+ * @param {string[]} modules.active   - Modules to activate.
+ * @param {string[]} modules.inactive - Modules to deactivate.
+ */
 export async function ensureModulesState( modules ) {
 	if ( modules.active ) {
 		await activateModules( modules.active );
@@ -82,6 +125,10 @@ export async function ensureModulesState( modules ) {
 	}
 }
 
+/**
+ * Ensure speed score mock plugin state.
+ * @param {boolean} mockSpeedScore - Whether mocking plugin is active.
+ */
 export async function ensureMockSpeedScoreState( mockSpeedScore ) {
 	if ( mockSpeedScore ) {
 		logger.prerequisites( 'Mocking Speed Score' );
@@ -93,6 +140,38 @@ export async function ensureMockSpeedScoreState( mockSpeedScore ) {
 	}
 }
 
+/**
+ * Ensure enqueued assets mock plugin state.
+ * @param {boolean} enqueue - Whether mocking plugin is active.
+ */
+export async function ensureEnqueuedAssets( enqueue ) {
+	if ( enqueue ) {
+		logger.prerequisites( 'Enqueuing assets' );
+		await execWpCommand( 'plugin activate e2e-concatenate-enqueue/e2e-concatenate-enqueue.php' );
+	} else {
+		logger.prerequisites( 'Deactivating assets' );
+		await execWpCommand( 'plugin deactivate e2e-concatenate-enqueue/e2e-concatenate-enqueue.php' );
+	}
+}
+
+/**
+ * Ensure append image mock plugin state.
+ * @param {boolean} append - Whether mocking plugin is active.
+ */
+export async function ensureAppendedImage( append ) {
+	if ( append ) {
+		logger.prerequisites( 'Appending image' );
+		await execWpCommand( 'plugin activate e2e-appended-image/e2e-appended-image.php' );
+	} else {
+		logger.prerequisites( 'Removing appended image' );
+		await execWpCommand( 'plugin deactivate e2e-appended-image/e2e-appended-image.php' );
+	}
+}
+
+/**
+ * Activate modules.
+ * @param {string[]} modules - Modules
+ */
 export async function activateModules( modules ) {
 	for ( const module of modules ) {
 		logger.prerequisites( `Activating module ${ module }` );
@@ -101,6 +180,10 @@ export async function activateModules( modules ) {
 	}
 }
 
+/**
+ * Deactivate modules.
+ * @param {string[]} modules - Modules
+ */
 export async function deactivateModules( modules ) {
 	for ( const module of modules ) {
 		logger.prerequisites( `Deactivating module ${ module }` );
@@ -109,6 +192,11 @@ export async function deactivateModules( modules ) {
 	}
 }
 
+/**
+ * Ensure connected state.
+ * @param {boolean} requiredConnected - Whether the site should be connected.
+ * @param {page}    page              - Playwright page instance.
+ */
 export async function ensureConnectedState( requiredConnected, page ) {
 	const isConnected = await checkIfConnected();
 
@@ -125,12 +213,19 @@ export async function ensureConnectedState( requiredConnected, page ) {
 	}
 }
 
+/**
+ * Connect.
+ * @param {page} page - Playwright page instance.
+ */
 export async function connect( page ) {
 	const jetpackBoostPage = await JetpackBoostPage.visit( page );
 	await jetpackBoostPage.chooseFreePlan();
 	await jetpackBoostPage.isOverallScoreHeaderShown();
 }
 
+/**
+ * Disconnect.
+ */
 export async function disconnect() {
 	logger.prerequisites( `Disconnecting Boost plugin to WP.com` );
 	const cliCmd = 'jetpack disconnect blog';
@@ -138,6 +233,10 @@ export async function disconnect() {
 	expect( result ).toContain( 'Success: Jetpack has been successfully disconnected' );
 }
 
+/**
+ * Check if connected.
+ * @return {boolean} If connected.
+ */
 export async function checkIfConnected() {
 	const cliCmd = 'jetpack-boost connection status';
 	const result = await execWpCommand( cliCmd );
@@ -151,6 +250,10 @@ export async function checkIfConnected() {
 	throw result;
 }
 
+/**
+ * Ensure test posts exist.
+ * @param {string[]} testPostTitles - Predefined post titles to create.
+ */
 async function ensureTestPosts( testPostTitles ) {
 	const testPostTitlesCommands = {
 		'Hello World with image':
@@ -171,6 +274,10 @@ async function ensureTestPosts( testPostTitles ) {
 	}
 }
 
+/**
+ * Reset environment.
+ * @param {boolean} shouldReset - Whether to actually do it.
+ */
 async function ensureCleanState( shouldReset ) {
 	if ( shouldReset ) {
 		logger.prerequisites( 'Resetting Jetpack Boost' );

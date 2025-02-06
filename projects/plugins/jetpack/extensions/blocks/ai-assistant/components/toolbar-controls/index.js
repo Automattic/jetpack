@@ -1,28 +1,27 @@
 /**
  * External dependencies
  */
+import {
+	PROMPT_TYPE_CHANGE_TONE,
+	PROMPT_TYPE_CHANGE_LANGUAGE,
+} from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { image, update, check } from '@wordpress/icons';
+import { update, check } from '@wordpress/icons';
 /*
  * Internal dependencies
  */
-import { PROMPT_TYPE_CHANGE_TONE, PROMPT_TYPE_CHANGE_LANGUAGE } from '../../lib/prompt';
 import I18nDropdownControl from '../i18n-dropdown-control';
 import ImproveToolbarDropdownMenu from '../improve-dropdown-control';
 import PromptTemplatesControl from '../prompt-templates-control';
 import ToneToolbarDropdownMenu from '../tone-dropdown-control';
-
-// Consider to enable when we have image support
-const isImageGenerationEnabled = false;
 
 const ToolbarControls = ( {
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
 	retryRequest,
 	handleAcceptContent,
-	handleImageRequest,
 	handleTryAgain,
 	showRetry,
 	contentBefore,
@@ -120,15 +119,6 @@ const ToolbarControls = ( {
 								{ __( 'Retry', 'jetpack' ) }
 							</ToolbarButton>
 						) }
-					</ToolbarGroup>
-				) }
-
-				{ isImageGenerationEnabled && ! showRetry && ! contentIsLoaded && (
-					// Image/text toggle
-					<ToolbarGroup>
-						<ToolbarButton icon={ image } onClick={ handleImageRequest }>
-							{ __( 'Ask AI for an image', 'jetpack' ) }
-						</ToolbarButton>
 					</ToolbarGroup>
 				) }
 			</BlockControls>

@@ -1,15 +1,13 @@
-/**
- * External dependencies
- */
 import { registerJetpackPlugin } from '@automattic/jetpack-shared-extension-utils';
 import { dispatch } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { addFilter } from '@wordpress/hooks';
-/**
- * Internal dependencies
- */
+import debugFactory from 'debug';
 import metadata from '../../blocks/ai-assistant/block.json';
-import { isPossibleToExtendBlock } from '../../blocks/ai-assistant/extensions/ai-assistant';
+import { canAIAssistantBeEnabled } from '../../blocks/ai-assistant/extensions/lib/can-ai-assistant-be-enabled';
 import { aiExcerptPluginName, aiExcerptPluginSettings } from '.';
+
+const debug = debugFactory( 'jetpack-ai-content-lens:registration' );
 
 export const AI_CONTENT_LENS = 'ai-content-lens';
 
@@ -22,7 +20,7 @@ const isAiAssistantSupportExtensionEnabled =
  *
  * @param {object} settings - Block settings.
  * @param {string} name     - Block name.
- * @returns {object}          Block settings.
+ * @return {object}          Block settings.
  */
 function extendAiContentLensFeatures( settings, name ) {
 	// Bail early when the block is not the AI Assistant.
@@ -34,15 +32,21 @@ function extendAiContentLensFeatures( settings, name ) {
 	 * Bail early when the AI Assistant block is not registered.
 	 * It will handle with the site requires an upgrade.
 	 */
-	if ( ! isPossibleToExtendBlock() ) {
+	if ( ! canAIAssistantBeEnabled() ) {
 		return settings;
 	}
 
 	// Register AI Excerpt plugin.
 	registerJetpackPlugin( aiExcerptPluginName, aiExcerptPluginSettings );
+	debug( 'Registered AI Excerpt plugin' );
+
+	// check if the removeEditorPanel function exists in the editorStore.
+	// íf not, look for it in the editPostStore.
+	const removeEditorPanel = dispatch( editorStore ).removeEditorPanel;
 
 	// Remove the excerpt panel by dispatching an action.
-	dispatch( 'core/edit-post' )?.removeEditorPanel( 'post-excerpt' );
+	removeEditorPanel( 'post-excerpt' );
+	debug( 'Removed the post-excerpt panel' );
 
 	return settings;
 }
@@ -54,4 +58,5 @@ if ( isAiAssistantSupportExtensionEnabled?.available ) {
 		'jetpack/ai-content-lens-features',
 		extendAiContentLensFeatures
 	);
+	debug( 'Added filter for AI Content Lens features' );
 }

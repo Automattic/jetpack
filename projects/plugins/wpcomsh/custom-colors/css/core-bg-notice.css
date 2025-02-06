@@ -1,0 +1,16 @@
+.color-admin-notice {
+	background-color: #78c8e6;
+
+	padding: 1px 20px;
+	overflow: hidden;
+	border-radius: 2px;
+}
+.color-admin-notice a {
+	color: #005684;
+	white-space: nowrap;
+}
+.color-admin-notice img {
+	margin: 0 24px 12px 0;
+	float: left;
+	width: 88px;
+}

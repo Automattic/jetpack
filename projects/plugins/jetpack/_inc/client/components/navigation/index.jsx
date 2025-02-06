@@ -1,15 +1,15 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { _x, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import SectionNav from 'components/section-nav';
 import NavItem from 'components/section-nav/item';
 import NavTabs from 'components/section-nav/tabs';
 import analytics from 'lib/analytics';
-import PropTypes from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 import { hasConnectedOwner, isCurrentUserLinked, isOfflineMode } from 'state/connection';
 import {
 	getSiteRawUrl,
@@ -17,6 +17,7 @@ import {
 	userCanManageModules as _userCanManageModules,
 	userCanViewStats as _userCanViewStats,
 	getPurchaseToken,
+	getSiteAdminUrl,
 } from 'state/initial-state';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import { getNonViewedRecommendationsCount } from 'state/recommendations';
@@ -70,16 +71,28 @@ export class Navigation extends React.Component {
 
 	render() {
 		let navTabs;
+		const redirectUri = `redirect_to=${ this.props.adminUrl }admin.php?page=jetpack`;
+		const purchaseToken = this.props.purchaseToken
+			? `&purchasetoken=${ this.props.purchaseToken }`
+			: '';
+		// If the user is not connected, this query will trigger a connection after checkout flow.
+		const connectQuery = this.props.isLinked
+			? ''
+			: `&connect_after_checkout=true&from_site_slug=${ this.props.siteUrl }&admin_url=${ this.props.adminUrl }`;
+		const query = `${ redirectUri }${ purchaseToken }${ connectQuery }`;
 
-		const jetpackPlansPath = getRedirectUrl(
-			this.props.hasConnectedOwner ? 'jetpack-plans' : 'jetpack-nav-site-only-plans',
-			{
-				site: this.props.siteUrl,
-				...( this.props.purchaseToken
-					? { query: `purchasetoken=${ this.props.purchaseToken }` }
-					: {} ),
-			}
+		let jetpackPlansPath = getRedirectUrl(
+			this.props.hasConnectedOwner ? 'jetpack-plans' : 'jetpack-nav-plans-no-site',
+			{ query }
 		);
+
+		// If the user is not connected, we want to remove the site query parameter from the URL.
+		// The pricing page sends the user to a list of sites rather than checkout if a site is in context
+		// and the user is not connected to the site.
+		// This is hacky, but we are deprecating the dashboard soon so it's not worth the effort for a more robust fix.
+		if ( ! this.props.isLinked ) {
+			jetpackPlansPath = jetpackPlansPath.replace( /&site=\d+/, '' );
+		}
 
 		if ( this.props.userCanManageModules ) {
 			navTabs = (
@@ -127,8 +140,8 @@ export class Navigation extends React.Component {
 								{
 									count: (
 										<span
-											className={ classNames( 'dops-section-nav-tab__update-badge', {
-												[ 'is-hidden' ]:
+											className={ clsx( 'dops-section-nav-tab__update-badge', {
+												'is-hidden':
 													this.props.location.pathname.startsWith( '/recommendations' ) ||
 													! this.props.newRecommendationsCount,
 											} ) }
@@ -178,6 +191,7 @@ export default connect( state => {
 		showRecommendations: showRecommendations( state ),
 		newRecommendationsCount: getNonViewedRecommendationsCount( state ),
 		siteUrl: getSiteRawUrl( state ),
+		adminUrl: getSiteAdminUrl( state ),
 		purchaseToken: getPurchaseToken( state ),
 	};
-} )( withRouter( Navigation ) );
+} )( props => <Navigation { ...props } location={ useLocation() } /> );

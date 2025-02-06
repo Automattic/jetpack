@@ -110,6 +110,28 @@ class Callables extends Module {
 	}
 
 	/**
+	 * Set module defaults at a later time.
+	 * Reset the callable whitelist if needed to account for plugins adding the 'jetpack_sync_callable_whitelist'
+	 * and 'jetpack_sync_multisite_callable_whitelist' filters late.
+	 *
+	 * @see Automattic\Jetpack\Sync\Modules::set_module_defaults
+	 * @access public
+	 */
+	public function set_late_default() {
+		if ( is_multisite() ) {
+			$late_callables = array_merge(
+				apply_filters( 'jetpack_sync_callable_whitelist', array() ),
+				apply_filters( 'jetpack_sync_multisite_callable_whitelist', array() )
+			);
+		} else {
+			$late_callables = apply_filters( 'jetpack_sync_callable_whitelist', array() );
+		}
+		if ( ! empty( $late_callables ) && is_array( $late_callables ) ) {
+			$this->callable_whitelist = array_merge( $this->callable_whitelist, $late_callables );
+		}
+	}
+
+	/**
 	 * Initialize callables action listeners.
 	 *
 	 * @access public
@@ -357,12 +379,12 @@ class Callables extends Module {
 
 		$plugins_action_links = array();
 		// Is the transient lock in place?
-		$plugins_lock = get_transient( 'jetpack_plugin_api_action_links_refresh', false );
+		$plugins_lock = get_transient( 'jetpack_plugin_api_action_links_refresh' );
 		if ( ! empty( $plugins_lock ) && ( isset( $current_screeen->id ) && 'plugins' !== $current_screeen->id ) ) {
 			return;
 		}
-		$plugins = array_keys( Functions::get_plugins() );
-		foreach ( $plugins as $plugin_file ) {
+		$plugins = Functions::get_plugins();
+		foreach ( $plugins as $plugin_file => $plugin_data ) {
 			/**
 			 *  Plugins often like to unset things but things break if they are not able to.
 			 */
@@ -374,13 +396,13 @@ class Callables extends Module {
 				'edit'       => '',
 			);
 			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
-			$action_links = apply_filters( 'plugin_action_links', $action_links, $plugin_file, null, 'all' );
+			$action_links = apply_filters( 'plugin_action_links', $action_links, $plugin_file, $plugin_data, 'all' );
 			// Verify $action_links is still an array.
 			if ( ! is_array( $action_links ) ) {
 				$action_links = array();
 			}
 			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
-			$action_links = apply_filters( "plugin_action_links_{$plugin_file}", $action_links, $plugin_file, null, 'all' );
+			$action_links = apply_filters( "plugin_action_links_{$plugin_file}", $action_links, $plugin_file, $plugin_data, 'all' );
 			// Verify $action_links is still an array to resolve warnings from filters not returning an array.
 			if ( is_array( $action_links ) ) {
 				$action_links = array_filter( $action_links );
@@ -404,7 +426,7 @@ class Callables extends Module {
 
 					$link_element = $link_elements->item( 0 );
 					// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					if ( $link_element->hasAttribute( 'href' ) && $link_element->nodeValue ) {
+					if ( $link_element instanceof \DOMElement && $link_element->hasAttribute( 'href' ) && $link_element->nodeValue ) {
 						$link_url = trim( $link_element->getAttribute( 'href' ) );
 
 						// Add the full admin path to the url if the plugin did not provide it.

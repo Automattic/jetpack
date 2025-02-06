@@ -1,0 +1,414 @@
+# Translation of Plugins - WordPress.com Editing Toolkit - Stable (latest release) in Spanish (Colombia)
+# This file is distributed under the same license as the Plugins - WordPress.com Editing Toolkit - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2023-11-09 02:13:32+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/4.0.1\n"
+"Language: es_CO\n"
+"Project-Id-Version: Plugins - WordPress.com Editing Toolkit - Stable (latest release)\n"
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:7049
+#: wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:119
+msgid "View your product"
+msgstr "Ver tu producto"
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:7040
+#: wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:110
+msgid "Preview your product on your site before launching and sharing with others."
+msgstr "Previsualiza el producto en tu sitio antes de lanzarlo y compartirlo con otros."
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:7039
+#: wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:109
+msgid "You've added your first product!"
+msgstr "¡Has añadido tu primer producto!"
+
+#: paragraph-block/index.php:60
+msgid "Add a post title"
+msgstr "Añade un título a la entrada"
+
+#: paragraph-block/index.php:33 paragraph-block/index.php:79
+msgid "Start writing or type '/' to insert a block"
+msgstr "Empieza a escribir o escribe `/` para insertar un bloque"
+
+#: global-styles/class-global-styles.php:272
+msgid "Fonts"
+msgstr "Fuentes"
+
+#. Translators: This is a link which opens the block editor, and then opens the
+#. global styles sidebar.
+#: global-styles/class-global-styles-fonts-message-control.php:63
+msgid "Click here to open the Block Editor and change your fonts."
+msgstr "Haz clic aquí para abrir el editor de bloques y cambiar tus fuentes."
+
+#. Translators: This is a link which opens:
+#. https://wordpress.com/support/custom-fonts/#changing-fonts-with-global-styles.
+#: global-styles/class-global-styles-fonts-message-control.php:40
+msgid "Learn more about changing fonts using Global Styles."
+msgstr "Aprende más sobre el cambio de las fuentes usando los estilos globales."
+
+#: global-styles/class-global-styles-fonts-message-control.php:27
+msgid "You can change your fonts using Global Styles, which can be found in the Block Editor."
+msgstr "Puedes cambiar tus fuentes usando los estilos globales, que se encuentran en el editor de bloques."
+
+#. translators: separates all but the last two sponsor names; needs a space at
+#. the end.
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1004
+msgid ", "
+msgstr ", "
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:7044
+#: wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:117
+msgid "Continue editing"
+msgstr "Continuar editando"
+
+#: starter-page-templates/class-starter-page-templates.php:236
+msgid "Current"
+msgstr "Actual"
+
+#. Plugin Name of the plugin
+#: full-site-editing-plugin.php
+msgid "WordPress.com Editing Toolkit"
+msgstr "Herramienta de edición de WordPress.com"
+
+#: mailerlite/subscriber-popup.php:116
+msgid "UUID:"
+msgstr "UUID:"
+
+#. translators: link to documentation
+#: mailerlite/subscriber-popup.php:113
+msgid "Account ID <a href=\"%s\" target=\"_blank\">(instructions)</a>:"
+msgstr "ID de cuenta <a href=\"%s\" target=\"_blank\">(instrucciones)</a>:"
+
+#. translators: %1$s - URL to manage the widget, %2$s - documentation URL.
+#: mailerlite/subscriber-popup.php:42
+msgid "You need to enter your numeric account ID and UUID for the <a href=\"%1$s\">Mailerlite Widget</a> to work correctly. <a href=\"%2$s\" target=\"_blank\">Full instructions</a>."
+msgstr "Debes introducir tu ID de cuenta numérico y UUID para que el <a href=\"%1$s\">widget de Mailerlite</a> funcione bien. <a href=\"%2$s\" target=\"_blank\">Instrucciones completas</a>."
+
+#: mailerlite/subscriber-popup.php:20
+msgid "Display Mailerlite subscriber popup"
+msgstr "Mostrar formulario emergente de suscripción a Mailerlite"
+
+#: mailerlite/subscriber-popup.php:17
+msgid "Mailerlite subscriber popup"
+msgstr "Formulario emergente de suscripción a Mailerlite"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:277
+msgid "Play Slideshow"
+msgstr "Reproducir la presentación"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:276
+msgid "Pause Slideshow"
+msgstr "Pausar la presentación"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:231
+msgid "Previous Slide"
+msgstr "Diapositiva anterior"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:232
+msgid "Next Slide"
+msgstr "Diapositiva siguiente"
+
+#. translators: %d: Slide number.
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:210
+msgid "Go to slide %d"
+msgstr "Ir a la diapositiva %d"
+
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:900
+msgid "Common"
+msgstr "Común"
+
+#: starter-page-templates/class-starter-page-templates.php:231
+msgid "Blank"
+msgstr "En blanco"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:223
+#: newspack-blocks/dist/blog-posts-block-editor.js:4516
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/edit.js:785
+msgid "Load more posts"
+msgstr "Cargar más entradas"
+
+#. translators: separates last two sponsor names; needs a space on either side.
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1001
+msgid " and "
+msgstr " y "
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:328
+#: newspack-blocks/dist/blog-posts-block-editor.js:5849
+#: newspack-blocks/dist/blog-posts-block-editor.js:5871
+#: newspack-blocks/dist/carousel-block-editor.js:5512
+#: newspack-blocks/dist/carousel-block-editor.js:5534
+#: newspack-blocks/synced-newspack-blocks/shared/js/utils.js:30
+#: newspack-blocks/synced-newspack-blocks/shared/js/utils.js:67
+msgctxt "post author"
+msgid " and "
+msgstr " y "
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:305
+#: newspack-blocks/dist/blog-posts-block-editor.js:5842
+#: newspack-blocks/dist/carousel-block-editor.js:5505
+#: newspack-blocks/synced-newspack-blocks/shared/js/utils.js:18
+msgctxt "post author"
+msgid "by"
+msgstr "por"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:231
+msgid "Something went wrong. Please refresh the page and/or try again."
+msgstr "Algo ha ido mal. Por favor, recarga la página y/o inténtalo de nuevo."
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:228
+msgid "Loading..."
+msgstr "Cargando..."
+
+#: dotcom-fse/blocks/site-credit/index.php:155
+msgid "WordPress Icon"
+msgstr "Icono de WordPress"
+
+#: dotcom-fse/blocks/site-credit/index.php:150
+msgid "Proudly powered by WordPress"
+msgstr "Funciona gracias a WordPress"
+
+#: dotcom-fse/templates/class-wp-template.php:149
+#: common/dist/data-stores.js:6621
+msgid "Footer"
+msgstr "Pie de página"
+
+#: dotcom-fse/templates/class-wp-template.php:147
+#: common/dist/data-stores.js:6616
+msgid "Header"
+msgstr "Cabecera"
+
+#: dotcom-fse/blocks/navigation-menu/index.php:86
+msgid "collapsed"
+msgstr "cerrado"
+
+#: dotcom-fse/blocks/navigation-menu/index.php:85
+msgid "expanded"
+msgstr "expandido"
+
+#: dotcom-fse/blocks/navigation-menu/index.php:82
+msgid "Menu"
+msgstr "Menú"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:398
+msgctxt "Default page title"
+msgid "Contact"
+msgstr "Contacto"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:386
+msgctxt "Default page title"
+msgid "About"
+msgstr "Acerca de"
+
+#: starter-page-templates/class-wp-rest-sideload-image-controller.php:77
+msgid "Invalid parent type."
+msgstr "Tipo superior no válido."
+
+#: starter-page-templates/class-starter-page-templates.php:221
+msgid "No templates available. Skipped showing modal window with template selection."
+msgstr "No hay plantillas disponibles. Se ignoró la visualización de la ventana emergente con la selección de la plantilla."
+
+#: starter-page-templates/class-starter-page-templates.php:216
+msgid "No data received from the vertical API. Skipped showing modal window with template selection."
+msgstr "No se han recibido datos de la API vertical. Se ignoró la visualización de la ventana emergente con la selección de la plantilla."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:503
+msgid "Back to template part types"
+msgstr "Volver a los tipos de parte de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:502
+msgid "No template part types found."
+msgstr "No se han encontrado tipos de parte de plantilla."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:501
+msgid "Search Template Part Types"
+msgstr "Buscar tipos de parte de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:500
+msgid "Parent Template Part Type:"
+msgstr "Tipo de parte de plantilla superior:"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:499
+msgid "Parent Template Part Type"
+msgstr "Tipo de parte de plantilla superior"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:498
+msgid "New Template Part Type"
+msgstr "Nuevo tipo de parte de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:497
+msgid "Add New Template Part Type"
+msgstr "Añadir nuevo tipo de parte de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:496
+msgid "Update Template Part Type"
+msgstr "Actualizar tipo de parte de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:495
+msgid "View Template Part Type"
+msgstr "Ver tipo de parte de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:494
+msgid "Edit Template Part Type"
+msgstr "Editar tipo de parte de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:493
+msgid "All Template Part Types"
+msgstr "Todos los tipos de parte de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:492
+msgctxt "admin menu"
+msgid "Template Part Types"
+msgstr "Tipos de parte de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:491
+msgctxt "taxonomy singular name"
+msgid "Template Part Type"
+msgstr "Tipo de parte de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:490
+msgctxt "taxonomy general name"
+msgid "Template Part Types"
+msgstr "Tipos de parte de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:455
+msgid "Template part updated."
+msgstr "Parte de plantilla actualizada."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:454
+msgid "Template part scheduled."
+msgstr "Parte de plantilla programada."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:453
+msgid "Template part reverted to draft."
+msgstr "Parte de plantilla guardada como borrador."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:452
+msgid "Template part published privately."
+msgstr "Parte de plantilla publicada como privada."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:451
+msgid "Template part published."
+msgstr "Parte de plantilla publicada."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:450
+msgid "Template parts list"
+msgstr "Lista de partes de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:449
+msgid "Template parts list navigation"
+msgstr "Navegación por la lista de partes de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:448
+msgid "Filter template parts list"
+msgstr "Filtrar lista de partes de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:447
+msgid "No template parts found in Trash."
+msgstr "No se han encontrado partes de plantilla en la papelera."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:446
+msgid "No template parts found."
+msgstr "No se han encontrado partes de plantilla."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:445
+msgid "Search Template Parts"
+msgstr "Buscar partes de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:444
+msgid "All Template Parts"
+msgstr "Todas las partes de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:443
+msgid "View Template Part"
+msgstr "Ver parte de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:442
+msgid "Edit Template Part"
+msgstr "Editar parte de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:441
+msgid "New Template Part"
+msgstr "Nueva parte de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:440
+msgid "Add New Template Part"
+msgstr "Añadir nueva parte de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:438
+msgctxt "add new on admin bar"
+msgid "Template Part"
+msgstr "Parte de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:437
+msgctxt "admin menu"
+msgid "Template Parts"
+msgstr "Partes de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:436
+msgctxt "post type singular name"
+msgid "Template Part"
+msgstr "Parte de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:435
+msgctxt "post type general name"
+msgid "Template Parts"
+msgstr "Partes de plantilla"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:439
+msgctxt "Template"
+msgid "Add New"
+msgstr "Añadir nueva"
+
+#: posts-list-block/class-posts-list-block.php:165
+msgid "Read more"
+msgstr "Leer más"
+
+#. translators: %s: Name of current post
+#: posts-list-block/class-posts-list-block.php:162
+msgid "Continue reading %s"
+msgstr "Sigue leyendo %s"
+
+#: posts-list-block/templates/post-item.php:36
+msgid "Edit"
+msgstr "Editar"
+
+#: posts-list-block/templates/post-item.php:31
+msgctxt "designating the post author (eg: by John Doe"
+msgid "by"
+msgstr "por"
+
+#: posts-list-block/templates/post-item.php:23
+msgid "Featured"
+msgstr "Destacados"
+
+#: posts-list-block/templates/posts-list.php:30
+msgid "View all posts"
+msgstr "Ver todas las entradas"
+
+#. translators: 1: link to WP admin new post page.
+#: posts-list-block/templates/no-posts.php:17
+msgid "Ready to publish your first post? <a href=\"%1$s\">Get started here</a>."
+msgstr "¿Todo listo para publicar tu primera entrada? <a href=\"%1$s\">Empieza aquí</a>."
+
+#: posts-list-block/templates/no-posts.php:11
+msgid "There are currently no posts to display."
+msgstr "No hay entradas que mostrar."
+
+#. Author URI of the plugin
+#: full-site-editing-plugin.php
+msgid "https://automattic.com/wordpress-plugins/"
+msgstr "https://automattic.com/wordpress-plugins/"
+
+#. Author of the plugin
+#: full-site-editing-plugin.php
+msgid "Automattic"
+msgstr "Automattic"
+
+#. Description of the plugin
+#: full-site-editing-plugin.php
+msgid "Enhances your page creation workflow within the Block Editor."
+msgstr "Mejora el flujo de trabajo de creación de páginas dentro del editor de bloques."

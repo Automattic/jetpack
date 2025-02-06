@@ -1,7 +1,7 @@
-import WpPage from '../wp-page.js';
-import logger from '../../logger.js';
 import { getDotComCredentials } from '../../helpers/utils-helper.js';
+import logger from '../../logger.js';
 import PageActions from '../page-actions.js';
+import WpPage from '../wp-page.js';
 
 export default class LoginPage extends WpPage {
 	constructor( page ) {
@@ -30,14 +30,9 @@ export default class LoginPage extends WpPage {
 			await this.fill( usernameSelector, credentials.username );
 			await this.click( continueButtonSelector );
 			await this.waitForElementToBeVisible( passwordSelector );
-			// Even if we wait for the field to become visible Playwright might still type the password too fast
-			// and the first characters will miss the password field. A short wait fixes this
-			await this.waitForTimeout( 2000 );
 			await this.fill( passwordSelector, credentials.password );
 			await this.click( submitButtonSelector );
-
-			await this.waitForDomContentLoaded();
-			await this.waitForElementToBeHidden( this.selectors[ 0 ] );
+			await this.waitForElementToBeHidden( submitButtonSelector );
 		} catch ( e ) {
 			if ( retry === true ) {
 				logger.warn( `The login didn't work as expected - retrying now: '${ e }'` );

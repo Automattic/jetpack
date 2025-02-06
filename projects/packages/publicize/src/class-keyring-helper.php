@@ -104,7 +104,7 @@ class Keyring_Helper {
 	 * @param string $service Shortname of a specific service.
 	 * @param array  $params  Parameters to append to an API connection URL.
 	 *
-	 * @return URL to specific public-api process
+	 * @return string URL to specific public-api process
 	 */
 	private static function api_url( $service = false, $params = array() ) {
 		/**
@@ -246,7 +246,7 @@ class Keyring_Helper {
 						)
 					);
 					wp_redirect( $redirect ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- The API URL is an external URL and is filterable.
-					exit;
+					exit( 0 );
 
 				case 'completed':
 					/*

@@ -7,35 +7,35 @@ import './style.scss';
 /**
  * The in-place connection component.
  *
- * @param {object} props -- The properties.
- * @param {string} props.title -- Element title.
- * @param {boolean} props.isLoading -- Whether the element is still loading.
- * @param {string|number} props.width -- Iframe width.
- * @param {string|number} props.height -- Iframe height.
- * @param {boolean} props.displayTOS -- Whether the site has connection owner connected.
- * @param {boolean} props.scrollToIframe -- Whether we need to auto-scroll the window upon element rendering.
- * @param {string} props.connectUrl -- The connection URL.
- * @param {Function} props.onComplete -- The callback to be called upon complete of the connection process.
- * @param {Function} props.onThirdPartyCookiesBlocked -- The callback to be called if third-party cookies are disabled.
- * @param {string} props.location -- Component location identifier passed to WP.com.
- * @returns {React.Component} The in-place connection component.
+ * @param {object}        props                            -- The properties.
+ * @param {string}        props.title                      -- Element title.
+ * @param {boolean}       props.isLoading                  -- Whether the element is still loading.
+ * @param {string|number} props.width                      -- Iframe width.
+ * @param {string|number} props.height                     -- Iframe height.
+ * @param {boolean}       props.displayTOS                 -- Whether the site has connection owner connected.
+ * @param {boolean}       props.scrollToIframe             -- Whether we need to auto-scroll the window upon element rendering.
+ * @param {string}        props.connectUrl                 -- The connection URL.
+ * @param {Function}      props.onComplete                 -- The callback to be called upon complete of the connection process.
+ * @param {Function}      props.onThirdPartyCookiesBlocked -- The callback to be called if third-party cookies are disabled.
+ * @param {string}        props.location                   -- Component location identifier passed to WP.com.
+ * @return {React.Component} The in-place connection component.
  */
 const InPlaceConnection = props => {
 	const {
 		title,
-		isLoading,
-		width,
+		isLoading = false,
+		width = '100%',
 		displayTOS,
-		scrollToIframe,
+		scrollToIframe = false,
 		connectUrl,
 		onComplete,
 		onThirdPartyCookiesBlocked,
 		location,
 	} = props;
-	let { height } = props;
+	let { height = '300' } = props;
 
-	const iframeWrapRef = useRef();
-	const iframeRef = useRef();
+	const iframeWrapRef = useRef( undefined );
+	const iframeRef = useRef( undefined );
 
 	/**
 	 * Handles messages received from inside the iframe.
@@ -103,7 +103,7 @@ const InPlaceConnection = props => {
 		<div className="dops-card fade-in jp-iframe-wrap" ref={ iframeWrapRef }>
 			<h1>{ title }</h1>
 			{ isLoading ? (
-				<p>{ __( 'Loading…', 'jetpack' ) }</p>
+				<p>{ __( 'Loading…', 'jetpack-connection-js' ) }</p>
 			) : (
 				<iframe
 					title={ title }
@@ -128,13 +128,6 @@ InPlaceConnection.propTypes = {
 	onComplete: PropTypes.func,
 	onThirdPartyCookiesBlocked: PropTypes.func,
 	location: PropTypes.string,
-};
-
-InPlaceConnection.defaultProps = {
-	isLoading: false,
-	height: '300',
-	width: '100%',
-	scrollToIframe: false,
 };
 
 export default InPlaceConnection;

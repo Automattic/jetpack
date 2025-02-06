@@ -31,4 +31,6 @@ export default {
 	nonAdminBodyText: PropTypes.string,
 	/** The support page URL. */
 	supportURL: PropTypes.string,
+	/** The "stay in safe mode" button title. */
+	stayInSafeModeButtonLabel: PropTypes.string,
 };

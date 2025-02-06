@@ -47,24 +47,74 @@ function wp_unslash( $value ) {
  *       [ "field2[2]", "f" ],
  * ]
  *
- * @param array  $array       An array that resembles one of the PHP superglobals like $_GET or $_POST.
- * @param string $key_prefix  String that should be prepended to the keys output by this function.
- *                             Usually only used internally as part of recursion when flattening a nested array.
- * @return array{ 0: string, 1: scalar }[]  $key_prefix  An array of key/value tuples, one for each distinct value in the input array.
+ * @param array     $array         An array that resembles one of the PHP superglobals like $_GET or $_POST.
+ * @param string    $key_prefix    String that should be prepended to the keys output by this function.
+ *                                 Usually only used internally as part of recursion when flattening a nested array.
+ * @param bool|null $dot_notation  Whether to use dot notation instead of bracket notation.
+ *
+ * @return array{0: string, 1: scalar}[]  $key_prefix  An array of key/value tuples, one for each distinct value in the input array.
  */
-function flatten_array( $array, $key_prefix = '' ) {
+function flatten_array( $array, $key_prefix = '', $dot_notation = null ) {
 	$return = array();
 	foreach ( $array as $source_key => $source_value ) {
-		$key = ( '' === $key_prefix )
-			// if this is the first level, the key name isn't enclosed in brackets
-			? $source_key
-			// for every level after the first, enclose the key name in brackets.
-			: $key_prefix . '[' . $source_key . ']';
+		$key = $source_key;
+		if ( ! empty( $key_prefix ) ) {
+			$key = $dot_notation ? "$key_prefix.$source_key" : $key_prefix . "[$source_key]";
+		}
+
 		if ( ! is_array( $source_value ) ) {
 			$return[] = array( $key, $source_value );
 		} else {
-			$return = array_merge( $return, flatten_array( $source_value, $key ) );
+			$return = array_merge( $return, flatten_array( $source_value, $key, $dot_notation ) );
 		}
 	}
 	return $return;
+}
+
+/**
+ * Polyfill for getallheaders, which is not available in all PHP environments.
+ *
+ * @link https://github.com/ralouphie/getallheaders
+ */
+if ( ! function_exists( 'getallheaders' ) ) {
+	/**
+	 * Get all HTTP header key/values as an associative array for the current request.
+	 *
+	 * @return array The HTTP header key/value pairs.
+	 */
+	function getallheaders() {
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput
+		$headers = array();
+
+		$copy_server = array(
+			'CONTENT_TYPE'   => 'Content-Type',
+			'CONTENT_LENGTH' => 'Content-Length',
+			'CONTENT_MD5'    => 'Content-Md5',
+		);
+
+		foreach ( $_SERVER as $key => $value ) {
+			if ( substr( $key, 0, 5 ) === 'HTTP_' ) {
+				$key = substr( $key, 5 );
+				if ( ! isset( $copy_server[ $key ] ) || ! isset( $_SERVER[ $key ] ) ) {
+					$key             = str_replace( ' ', '-', ucwords( strtolower( str_replace( '_', ' ', $key ) ) ) );
+					$headers[ $key ] = $value;
+				}
+			} elseif ( isset( $copy_server[ $key ] ) ) {
+				$headers[ $copy_server[ $key ] ] = $value;
+			}
+		}
+
+		if ( ! isset( $headers['Authorization'] ) ) {
+			if ( isset( $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ) ) {
+				$headers['Authorization'] = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+			} elseif ( isset( $_SERVER['PHP_AUTH_USER'] ) ) {
+				$basic_pass               = $_SERVER['PHP_AUTH_PW'] ?? '';
+				$headers['Authorization'] = 'Basic ' . base64_encode( $_SERVER['PHP_AUTH_USER'] . ':' . $basic_pass );
+			} elseif ( isset( $_SERVER['PHP_AUTH_DIGEST'] ) ) {
+				$headers['Authorization'] = $_SERVER['PHP_AUTH_DIGEST'];
+			}
+		}
+
+		return $headers;
+	}
 }

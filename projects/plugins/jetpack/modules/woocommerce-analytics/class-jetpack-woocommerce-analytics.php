@@ -5,10 +5,8 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Assets;
-
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 require __DIR__ . '/classes/class-jetpack-woocommerce-analytics-trait.php';
@@ -114,12 +112,21 @@ class Jetpack_WooCommerce_Analytics {
 	 * Place script to call s.js, Store Analytics.
 	 */
 	public function enqueue_tracking_script() {
-		$filename = sprintf(
+		$url = sprintf(
 			'https://stats.wp.com/s-%d.js',
 			gmdate( 'YW' )
 		);
 
-		Assets::enqueue_async_script( 'woocommerce-analytics', esc_url( $filename ), esc_url( $filename ), array(), null, false );
+		wp_enqueue_script(
+			'woocommerce-analytics',
+			$url,
+			array(),
+			null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- The version is set in the URL.
+			array(
+				'in_footer' => false,
+				'strategy'  => 'defer',
+			)
+		);
 	}
 
 	/**

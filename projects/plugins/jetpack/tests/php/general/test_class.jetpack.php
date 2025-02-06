@@ -9,11 +9,10 @@
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 
-// Extend with a public constructor so that can be mocked in tests
+/** Extend with a public constructor so that can be mocked in tests. */
 class MockJetpack extends Jetpack {
 
 	/**
@@ -97,6 +96,7 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		parent::tear_down();
+		unset( $_GET['for'] );
 		Constants::clear_constants();
 		StatusCache::clear();
 	}
@@ -200,64 +200,6 @@ EXPECTED;
 		$this->assertEquals( $expected, $result );
 	}
 
-	/*
-	 * @author tonykova
-	 */
-	public function test_implode_frontend_css_enqueues_bundle_file_handle() {
-		global $wp_styles;
-		$wp_styles = new WP_Styles();
-
-		add_filter( 'jetpack_implode_frontend_css', '__return_true' );
-
-		if ( ! file_exists( plugins_url( 'jetpack-carousel.css', __FILE__ ) ) ) {
-			$this->markTestSkipped( 'Required CSS file not found.' );
-		}
-
-		// Enqueue some script on the $to_dequeue list
-		$style_handle = 'jetpack-carousel';
-		wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ) ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
-
-		Jetpack::init()->implode_frontend_css( true );
-
-		$seen_bundle = false;
-		foreach ( $wp_styles->registered as $handle => $handle_obj ) {
-			if ( $style_handle === $handle ) {
-				$expected = ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? "<!-- `{$style_handle}` is included in the concatenated jetpack.css -->\r\n" : '';
-				$this->assertEquals( $expected, get_echo( array( $wp_styles, 'do_item' ), array( $handle ) ) );
-			} elseif ( 'jetpack_css' === $handle ) {
-				$seen_bundle = true;
-			}
-		}
-
-		$this->assertTrue( $seen_bundle );
-	}
-
-	/**
-	 * @author tonykova
-	 * @since 3.2.0
-	 */
-	public function test_implode_frontend_css_does_not_enqueue_bundle_when_disabled_through_filter() {
-		global $wp_styles;
-		$wp_styles = new WP_Styles();
-
-		add_filter( 'jetpack_implode_frontend_css', '__return_false' );
-
-		// Enqueue some script on the $to_dequeue list
-		wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ) ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
-
-		Jetpack::init()->implode_frontend_css();
-
-		$seen_orig = false;
-		foreach ( $wp_styles->registered as $handle => $handle_obj ) {
-			$this->assertNotEquals( 'jetpack_css', $handle );
-			if ( 'jetpack-carousel' === $handle ) {
-				$seen_orig = true;
-			}
-		}
-
-		$this->assertTrue( $seen_orig );
-	}
-
 	public function test_activating_deactivating_modules_fires_actions() {
 		self::reset_tracking_of_module_activation();
 
@@ -342,7 +284,7 @@ EXPECTED;
 		$this->assertEquals( $active_modules, array( 'monitor', 'stats' ) );
 	}
 
-	// This filter overrides the 'monitor' module.
+	/** This filter overrides the 'monitor' module. */
 	public static function e2e_test_filter( $modules ) {
 		$disabled_modules = array( 'monitor' );
 
@@ -447,17 +389,36 @@ EXPECTED;
 
 	public function test_is_dev_version_true_with_alpha() {
 		Constants::set_constant( 'JETPACK__VERSION', '4.3.1-alpha' );
-		$this->assertTrue( Jetpack::is_development_version() );
+
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+
+			// Atomic sites are not allowed to report Jetpack as development versions.
+			$this->assertFalse( Jetpack::is_development_version() );
+		} else {
+			$this->assertTrue( Jetpack::is_development_version() );
+		}
 	}
 
 	public function test_is_dev_version_true_with_beta() {
 		Constants::set_constant( 'JETPACK__VERSION', '4.3-beta2' );
-		$this->assertTrue( Jetpack::is_development_version() );
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+
+			// Atomic sites are not allowed to report Jetpack as development versions.
+			$this->assertFalse( Jetpack::is_development_version() );
+		} else {
+			$this->assertTrue( Jetpack::is_development_version() );
+		}
 	}
 
 	public function test_is_dev_version_true_with_rc() {
 		Constants::set_constant( 'JETPACK__VERSION', '4.3-rc2' );
-		$this->assertTrue( Jetpack::is_development_version() );
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+
+			// Atomic sites are not allowed to report Jetpack as development versions.
+			$this->assertFalse( Jetpack::is_development_version() );
+		} else {
+			$this->assertTrue( Jetpack::is_development_version() );
+		}
 	}
 
 	public function test_is_dev_version_false_with_number_dot_number() {
@@ -771,11 +732,13 @@ EXPECTED;
 	private function mocked_setup_xmlrpc_handlers( $request_params, $has_connected_owner, $is_signed, $user = false ) {
 		$GLOBALS['HTTP_RAW_POST_DATA'] = '';
 
+		$_GET['for'] = $request_params['for'];
+
 		Constants::set_constant( 'XMLRPC_REQUEST', true );
 
 		$jetpack       = new MockJetpack();
 		$xmlrpc_server = new MockJetpack_XMLRPC_Server( $user );
-		return $jetpack::connection()->setup_xmlrpc_handlers( $request_params, $has_connected_owner, $is_signed, $xmlrpc_server );
+		return $jetpack::connection()->setup_xmlrpc_handlers( null, $has_connected_owner, $is_signed, $xmlrpc_server );
 	}
 
 	/**
@@ -864,6 +827,7 @@ EXPECTED;
 			'jetpack.subscriptions.subscribe',
 			'jetpack.updatePublicizeConnections',
 			'jetpack.getHeartbeatData',
+			'jetpack.userDisconnect',
 		);
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
@@ -920,6 +884,7 @@ EXPECTED;
 			'jetpack.subscriptions.subscribe',
 			'jetpack.updatePublicizeConnections',
 			'jetpack.getHeartbeatData',
+			'jetpack.userDisconnect',
 		);
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
@@ -1020,56 +985,6 @@ EXPECTED;
 	}
 
 	/**
-	 * Tests if Partner codes are added to the connect url.
-	 *
-	 * @dataProvider partner_code_provider
-	 *
-	 * @param string $code_type Partner code type.
-	 * @param string $option_name Option and filter name.
-	 * @param string $query_string_name Query string variable name.
-	 */
-	public function test_partner_codes_are_added_to_authorize_url( $code_type, $option_name, $query_string_name ) {
-		$test_code = 'abc-123';
-		Partner::init();
-		add_filter(
-			$option_name,
-			function () use ( $test_code ) {
-				return $test_code;
-			}
-		);
-		$jetpack = \Jetpack::init();
-		$url     = $jetpack->build_authorize_url();
-
-		$parsed_vars = array();
-		parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $parsed_vars );
-
-		$this->assertArrayHasKey( $query_string_name, $parsed_vars );
-		$this->assertSame( $test_code, $parsed_vars[ $query_string_name ] );
-	}
-
-	/**
-	 * Provides code for test_partner_codes_are_added_to_authorize_url.
-	 *
-	 * @return array
-	 */
-	public function partner_code_provider() {
-		return array(
-			'subsidiary_code' =>
-				array(
-					Partner::SUBSIDIARY_CODE,            // Code type.
-					'jetpack_partner_subsidiary_id',     // filter/option key.
-					'subsidiaryId',                      // Query string parameter.
-				),
-			'affiliate_code'  =>
-				array(
-					Partner::AFFILIATE_CODE,
-					'jetpack_affiliate_code',
-					'aff',
-				),
-		);
-	}
-
-	/**
 	 * Tests login URL only adds redirect param when redirect param is in original request.
 	 *
 	 * @since 8.4.0
@@ -1094,6 +1009,9 @@ EXPECTED;
 	public function test_login_init_redirect() {
 		tests_add_filter(
 			'wp_redirect',
+			/**
+			 * @return never
+			 */
 			function ( $location ) {
 				$expected_location = add_query_arg(
 					array(

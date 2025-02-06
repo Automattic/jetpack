@@ -9,6 +9,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Connection\SSO;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Plugins_Installer;
@@ -20,7 +21,7 @@ use Automattic\Jetpack\Waf\Waf_Compatibility;
 
 // Disable direct access.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 // Load WP_Error for error messages.
@@ -31,6 +32,8 @@ add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register
 // Load API endpoints that are synced with WP.com
 // Each of these is a class that will register its own routes on 'rest_api_init'.
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/load-wpcom-endpoints.php';
+
+require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-settings.php';
 
 /**
  * Class Jetpack_Core_Json_Api_Endpoints
@@ -786,6 +789,36 @@ class Jetpack_Core_Json_Api_Endpoints {
 				),
 			)
 		);
+
+		/**
+		 * Get the list of available Jetpack features.
+		 *
+		 * @since 13.9
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'/features/available',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( static::class, 'get_features_available' ),
+				'permission_callback' => array( static::class, 'get_features_permission_check' ),
+			)
+		);
+
+		/**
+		 * Get the list of enabled Jetpack features.
+		 *
+		 * @since 13.9
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'/features/enabled',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( static::class, 'get_features_enabled' ),
+				'permission_callback' => array( static::class, 'get_features_permission_check' ),
+			)
+		);
 	}
 
 	/**
@@ -1143,7 +1176,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
-	 * @return array|wp-error
+	 * @return array|WP_Error
 	 */
 	public static function is_site_verified_and_token( $request ) {
 		/**
@@ -1171,6 +1204,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			|| ( Jetpack::is_plugin_active( 'under-construction-page/under-construction.php' ) && isset( $ucp_options['status'] ) && 1 == $ucp_options['status'] ) // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			|| ( Jetpack::is_plugin_active( 'ultimate-under-construction/ultimate-under-construction.php' ) && isset( $uuc_settings['enable'] ) && 1 == $uuc_settings['enable'] ) // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			|| ( Jetpack::is_plugin_active( 'coming-soon/coming-soon.php' ) && isset( $csp4['status'] ) && ( 1 == $csp4['status'] || 2 == $csp4['status'] ) ) // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			||
 			/**
 			 * Allow plugins to mark a site as "under construction".
 			 *
@@ -1178,7 +1212,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			 *
 			 * @param false bool Is the site under construction? Default to false.
 			 */
-			|| true === apply_filters( 'jetpack_is_under_construction_plugin', false )
+			true === apply_filters( 'jetpack_is_under_construction_plugin', false )
 		) {
 			return new WP_Error( 'forbidden', __( 'Site is under construction and cannot be verified', 'jetpack' ) );
 		}
@@ -1252,7 +1286,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
-	 * @return array|wp-error
+	 * @return array|WP_Error
 	 */
 	public static function dismiss_notice( $request ) {
 		$notice = $request['notice'];
@@ -1593,10 +1627,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		return rest_ensure_response(
 			array(
 				'code'  => 'response',
-				'debug' => array(
-					'data' => $encrypted['data'],
-					'key'  => $encrypted['key'],
-				),
+				'debug' => $encrypted,
 			)
 		);
 	}
@@ -1775,39 +1806,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'disconnect_failed', esc_html__( 'Was not able to disconnect the site. Please try again.', 'jetpack' ), array( 'status' => 400 ) );
-	}
-
-	/**
-	 * Registers the Jetpack site
-	 *
-	 * @deprecated since Jetpack 9.7.0
-	 * @see Automattic\Jetpack\Connection\REST_Connector::connection_register()
-	 *
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 *
-	 * @return bool|WP_Error True if Jetpack successfully registered
-	 */
-	public static function register_site( $request ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.7.0', '\Automattic\Jetpack\Connection\REST_Connector::connection_register' );
-
-		if ( ! wp_verify_nonce( $request->get_param( 'registration_nonce' ), 'jetpack-registration-nonce' ) ) {
-			return new WP_Error( 'invalid_nonce', __( 'Unable to verify your request.', 'jetpack' ), array( 'status' => 403 ) );
-		}
-
-		if ( isset( $request['from'] ) ) {
-			Jetpack::connection()->add_register_request_param( 'from', (string) $request['from'] );
-		}
-		$response = Jetpack::connection()->try_registration();
-
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		return rest_ensure_response(
-			array(
-				'authorizeUrl' => Jetpack::build_authorize_url( false ),
-			)
-		);
 	}
 
 	/**
@@ -2259,7 +2257,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		$options = array(
 			// Blocks.
-			'jetpack_blocks_disabled'              => array(
+			'jetpack_blocks_disabled'                   => array(
 				'description'       => esc_html__( 'Jetpack Blocks disabled.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => false,
@@ -2268,7 +2266,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Carousel
-			'carousel_background_color'            => array(
+			'carousel_background_color'                 => array(
 				'description'       => esc_html__( 'Color scheme.', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => 'black',
@@ -2283,7 +2281,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_list_item',
 				'jp_group'          => 'carousel',
 			),
-			'carousel_display_exif'                => array(
+			'carousel_display_exif'                     => array(
 				'description'       => wp_kses(
 					sprintf( __( 'Show photo metadata (<a href="https://en.wikipedia.org/wiki/Exchangeable_image_file_format" target="_blank">Exif</a>) in carousel, when available.', 'jetpack' ) ),
 					array(
@@ -2298,7 +2296,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'carousel',
 			),
-			'carousel_display_comments'            => array(
+			'carousel_display_comments'                 => array(
 				'description'       => esc_html__( 'Show comments area in carousel', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
@@ -2307,14 +2305,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Comments.
-			'highlander_comment_form_prompt'       => array(
+			'highlander_comment_form_prompt'            => array(
 				'description'       => esc_html__( 'Greeting Text', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => esc_html__( 'Leave a Reply', 'jetpack' ),
 				'sanitize_callback' => 'sanitize_text_field',
 				'jp_group'          => 'comments',
 			),
-			'jetpack_comment_form_color_scheme'    => array(
+			'jetpack_comment_form_color_scheme'         => array(
 				'description'       => esc_html__( 'Color scheme', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => 'light',
@@ -2333,51 +2331,51 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Custom Content Types.
-			'jetpack_portfolio'                    => array(
+			'jetpack_portfolio'                         => array(
 				'description'       => esc_html__( 'Enable or disable Jetpack portfolio post type.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'custom-content-types',
+				'jp_group'          => 'settings',
 			),
-			'jetpack_portfolio_posts_per_page'     => array(
+			'jetpack_portfolio_posts_per_page'          => array(
 				'description'       => esc_html__( 'Number of entries to show at most in Portfolio pages.', 'jetpack' ),
 				'type'              => 'integer',
 				'default'           => 10,
 				'validate_callback' => __CLASS__ . '::validate_posint',
-				'jp_group'          => 'custom-content-types',
+				'jp_group'          => 'settings',
 			),
-			'jetpack_testimonial'                  => array(
+			'jetpack_testimonial'                       => array(
 				'description'       => esc_html__( 'Enable or disable Jetpack testimonial post type.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'custom-content-types',
+				'jp_group'          => 'settings',
 			),
-			'jetpack_testimonial_posts_per_page'   => array(
+			'jetpack_testimonial_posts_per_page'        => array(
 				'description'       => esc_html__( 'Number of entries to show at most in Testimonial pages.', 'jetpack' ),
 				'type'              => 'integer',
 				'default'           => 10,
 				'validate_callback' => __CLASS__ . '::validate_posint',
-				'jp_group'          => 'custom-content-types',
+				'jp_group'          => 'settings',
 			),
 
 			// WAF.
-			'jetpack_waf_automatic_rules'          => array(
+			'jetpack_waf_automatic_rules'               => array(
 				'description'       => esc_html__( 'Enable automatic rules - Protect your site against untrusted traffic sources with automatic security rules.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => Waf_Compatibility::get_default_automatic_rules_option(),
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'waf',
 			),
-			'jetpack_waf_ip_list'                  => array(
-				'description'       => esc_html__( 'Allow / Block list - Block or allow a specific request IP.', 'jetpack' ),
+			'jetpack_waf_ip_block_list_enabled'         => array(
+				'description'       => esc_html__( 'Block list - Block a specific request IP.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'waf',
 			),
-			'jetpack_waf_ip_block_list'            => array(
+			'jetpack_waf_ip_block_list'                 => array(
 				'description'       => esc_html__( 'Blocked IP addresses', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
@@ -2385,7 +2383,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'sanitize_callback' => 'esc_textarea',
 				'jp_group'          => 'waf',
 			),
-			'jetpack_waf_ip_allow_list'            => array(
+			'jetpack_waf_ip_allow_list_enabled'         => array(
+				'description'       => esc_html__( 'Allow list - Allow a specific request IP.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'settings',
+			),
+			'jetpack_waf_ip_allow_list'                 => array(
 				'description'       => esc_html__( 'Always allowed IP addresses', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
@@ -2393,15 +2398,22 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'sanitize_callback' => 'esc_textarea',
 				'jp_group'          => 'settings',
 			),
-			'jetpack_waf_share_data'               => array(
-				'description'       => esc_html__( 'Share data with Jetpack.', 'jetpack' ),
+			'jetpack_waf_share_data'                    => array(
+				'description'       => esc_html__( 'Share basic data with Jetpack.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'waf',
+			),
+			'jetpack_waf_share_debug_data'              => array(
+				'description'       => esc_html__( 'Share detailed data with Jetpack.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'waf',
 			),
 			// Galleries.
-			'tiled_galleries'                      => array(
+			'tiled_galleries'                           => array(
 				'description'       => esc_html__( 'Display all your gallery pictures in a cool mosaic.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
@@ -2409,7 +2421,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'tiled-gallery',
 			),
 
-			'gravatar_disable_hovercards'          => array(
+			'gravatar_disable_hovercards'               => array(
 				'description'       => esc_html__( "View people's profiles when you mouse over their Gravatars", 'jetpack' ),
 				'type'              => 'string',
 				'default'           => 'enabled',
@@ -2427,14 +2439,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Infinite Scroll.
-			'infinite_scroll'                      => array(
+			'infinite_scroll'                           => array(
 				'description'       => esc_html__( 'To infinity and beyond', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'infinite-scroll',
 			),
-			'infinite_scroll_google_analytics'     => array(
+			'infinite_scroll_google_analytics'          => array(
 				'description'       => esc_html__( 'Use Google Analytics with Infinite Scroll', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
@@ -2443,7 +2455,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Likes.
-			'wpl_default'                          => array(
+			'wpl_default'                               => array(
 				'description'       => esc_html__( 'WordPress.com Likes are', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => 'on',
@@ -2458,7 +2470,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_list_item',
 				'jp_group'          => 'likes',
 			),
-			'social_notifications_like'            => array(
+			'social_notifications_like'                 => array(
 				'description'       => esc_html__( 'Send email notification when someone likes a post', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
@@ -2467,14 +2479,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Markdown.
-			'wpcom_publish_comments_with_markdown' => array(
+			'wpcom_publish_comments_with_markdown'      => array(
 				'description'       => esc_html__( 'Use Markdown for comments.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'markdown',
 			),
-			'wpcom_publish_posts_with_markdown'    => array(
+			'wpcom_publish_posts_with_markdown'         => array(
 				'description'       => esc_html__( 'Use Markdown for posts.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
@@ -2483,7 +2495,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Monitor.
-			'monitor_receive_notifications'        => array(
+			'monitor_receive_notifications'             => array(
 				'description'       => esc_html__( 'Receive Monitor Email Notifications.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
@@ -2492,7 +2504,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Post by Email.
-			'post_by_email_address'                => array(
+			'post_by_email_address'                     => array(
 				'description'       => esc_html__( 'Email Address', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => 'noop',
@@ -2513,14 +2525,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Protect.
-			'jetpack_protect_key'                  => array(
+			'jetpack_protect_key'                       => array(
 				'description'       => esc_html__( 'Protect API key', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
 				'validate_callback' => __CLASS__ . '::validate_alphanum',
 				'jp_group'          => 'protect',
 			),
-			'jetpack_protect_global_whitelist'     => array(
+			'jetpack_protect_global_whitelist'          => array(
 				'description'       => esc_html__( 'Protect global IP allow list', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
@@ -2530,7 +2542,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Sharing.
-			'sharing_services'                     => array(
+			'sharing_services'                          => array(
 				'description'       => esc_html__( 'Enabled Services and those hidden behind a button', 'jetpack' ),
 				'type'              => 'object',
 				'default'           => array(
@@ -2540,7 +2552,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_services',
 				'jp_group'          => 'sharedaddy',
 			),
-			'button_style'                         => array(
+			'button_style'                              => array(
 				'description'       => esc_html__( 'Button Style', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => 'icon',
@@ -2559,7 +2571,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_list_item',
 				'jp_group'          => 'sharedaddy',
 			),
-			'sharing_label'                        => array(
+			'sharing_label'                             => array(
 				'description'       => esc_html__( 'Sharing Label', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
@@ -2567,7 +2579,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'sanitize_callback' => 'esc_html',
 				'jp_group'          => 'sharedaddy',
 			),
-			'show'                                 => array(
+			'show'                                      => array(
 				'description'       => esc_html__( 'Views where buttons are shown', 'jetpack' ),
 				'type'              => 'array',
 				'items'             => array(
@@ -2577,7 +2589,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_sharing_show',
 				'jp_group'          => 'sharedaddy',
 			),
-			'jetpack-twitter-cards-site-tag'       => array(
+			'jetpack-twitter-cards-site-tag'            => array(
 				'description'       => esc_html__( "The Twitter username of the owner of this site's domain.", 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
@@ -2585,14 +2597,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'sanitize_callback' => 'esc_html',
 				'jp_group'          => 'sharedaddy',
 			),
-			'sharedaddy_disable_resources'         => array(
+			'sharedaddy_disable_resources'              => array(
 				'description'       => esc_html__( 'Disable CSS and JS', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'sharedaddy',
 			),
-			'custom'                               => array(
+			'custom'                                    => array(
 				'description'       => esc_html__( 'Custom sharing services added by user.', 'jetpack' ),
 				'type'              => 'object',
 				'default'           => array(
@@ -2604,7 +2616,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'sharedaddy',
 			),
 			// Not an option, but an action that can be performed on the list of custom services passing the service ID.
-			'sharing_delete_service'               => array(
+			'sharing_delete_service'                    => array(
 				'description'       => esc_html__( 'Delete custom sharing service.', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
@@ -2613,14 +2625,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// SSO.
-			'jetpack_sso_require_two_step'         => array(
+			'jetpack_sso_require_two_step'              => array(
 				'description'       => esc_html__( 'Require Two-Step Authentication', 'jetpack' ),
 				'type'              => 'boolean',
-				'default'           => 0,
+				'default'           => SSO\Helpers::is_require_two_step_checkbox_disabled(),
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'sso',
 			),
-			'jetpack_sso_match_by_email'           => array(
+			'jetpack_sso_match_by_email'                => array(
 				'description'       => esc_html__( 'Match by Email', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
@@ -2629,44 +2641,160 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Subscriptions.
-			'stb_enabled'                          => array(
+			'stb_enabled'                               => array(
 				'description'       => esc_html__( "Show a <em>'follow blog'</em> option in the comment form", 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
-			'stc_enabled'                          => array(
+			'stc_enabled'                               => array(
 				'description'       => esc_html__( "Show a <em>'follow comments'</em> option in the comment form", 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
-			'sm_enabled'                           => array(
+			'wpcom_newsletter_categories'               => array(
+				'description'       => esc_html__( 'Array of post category ids that are marked as newsletter categories', 'jetpack' ),
+				'type'              => 'array',
+				'default'           => array(),
+				'validate_callback' => __CLASS__ . '::validate_array',
+				'jp_group'          => 'subscriptions',
+			),
+			'wpcom_newsletter_categories_enabled'       => array(
+				'description'       => esc_html__( 'Whether the newsletter categories are enabled or not', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'wpcom_newsletter_categories_modal_hidden'  => array(
+				'description'       => esc_html__( 'Whether the newsletter categories modal is hidden or not', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'wpcom_featured_image_in_email'             => array(
+				'description'       => esc_html__( 'Whether to include the featured image in the email or not', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'jetpack_gravatar_in_email'                 => array(
+				'description'       => esc_html__( 'Whether to show author avatar in the email byline', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'jetpack_author_in_email'                   => array(
+				'description'       => esc_html__( 'Whether to show author display name in the email byline', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'jetpack_post_date_in_email'                => array(
+				'description'       => esc_html__( 'Whether to show date in the email byline', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'wpcom_subscription_emails_use_excerpt'     => array(
+				'description'       => esc_html__( 'Whether to use the excerpt in the email or not', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'jetpack_subscriptions_reply_to'            => array(
+				'description'       => esc_html__( 'Reply to email behaviour for newsletters emails', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => Automattic\Jetpack\Modules\Subscriptions\Settings::$default_reply_to,
+				'validate_callback' => __CLASS__ . '::validate_subscriptions_reply_to',
+				'jp_group'          => 'subscriptions',
+			),
+			'jetpack_subscriptions_from_name'           => array(
+				'description'       => esc_html__( 'From name for newsletters emails', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_subscriptions_reply_to_name',
+				'jp_group'          => 'subscriptions',
+			),
+			'sm_enabled'                                => array(
 				'description'       => esc_html__( 'Show popup Subscribe modal to readers.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
-			'social_notifications_subscribe'       => array(
-				'description'       => esc_html__( 'Send email notification when someone follows my blog', 'jetpack' ),
+			'jetpack_subscribe_overlay_enabled'         => array(
+				'description'       => esc_html__( 'Show subscribe overlay on homepage.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
+			'jetpack_subscribe_floating_button_enabled' => array(
+				'description'       => esc_html__( 'Show a floating subscribe button.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'jetpack_subscriptions_subscribe_post_end_enabled' => array(
+				'description'       => esc_html__( 'Add Subscribe block at the end of each post.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'jetpack_subscriptions_login_navigation_enabled' => array(
+				'description'       => esc_html__( 'Add Subscriber Login block to the navigation.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'jetpack_subscriptions_subscribe_navigation_enabled' => array(
+				'description'       => esc_html__( 'Add Subscribe block to the navigation.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'social_notifications_subscribe'            => array(
+				'description'       => esc_html__( 'Send email notification when someone subscribes to my blog', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'subscription_options'                      => array(
+				'description'       => esc_html__( 'Three options used in subscription email templates: \'invitation\', \'welcome\' and \'comment_follow\'.', 'jetpack' ),
+				'type'              => 'object',
+				'default'           => array(
+					'invitation'     => '',
+					'welcome'        => '',
+					'comment_follow' => '',
+				),
+				'validate_callback' => __CLASS__ . '::validate_subscription_options',
+				'jp_group'          => 'subscriptions',
+			),
 
 			// Related Posts.
-			'show_headline'                        => array(
+			'show_headline'                             => array(
 				'description'       => esc_html__( 'Highlight related content with a heading', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'related-posts',
 			),
-			'show_thumbnails'                      => array(
+			'show_thumbnails'                           => array(
 				'description'       => esc_html__( 'Show a thumbnail image where available', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
@@ -2675,7 +2803,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Search.
-			'instant_search_enabled'               => array(
+			'instant_search_enabled'                    => array(
 				'description'       => esc_html__( 'Enable Instant Search', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
@@ -2683,7 +2811,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'search',
 			),
 
-			'has_jetpack_search_product'           => array(
+			'has_jetpack_search_product'                => array(
 				'description'       => esc_html__( 'Has an active Jetpack Search product purchase', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
@@ -2691,7 +2819,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'settings',
 			),
 
-			'search_auto_config'                   => array(
+			'search_auto_config'                        => array(
 				'description'       => esc_html__( 'Trigger an auto config of instant search', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
@@ -2700,35 +2828,35 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Verification Tools.
-			'google'                               => array(
+			'google'                                    => array(
 				'description'       => esc_html__( 'Google Search Console', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
 				'validate_callback' => __CLASS__ . '::validate_verification_service',
 				'jp_group'          => 'verification-tools',
 			),
-			'bing'                                 => array(
+			'bing'                                      => array(
 				'description'       => esc_html__( 'Bing Webmaster Center', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
 				'validate_callback' => __CLASS__ . '::validate_verification_service',
 				'jp_group'          => 'verification-tools',
 			),
-			'pinterest'                            => array(
+			'pinterest'                                 => array(
 				'description'       => esc_html__( 'Pinterest Site Verification', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
 				'validate_callback' => __CLASS__ . '::validate_verification_service',
 				'jp_group'          => 'verification-tools',
 			),
-			'yandex'                               => array(
+			'yandex'                                    => array(
 				'description'       => esc_html__( 'Yandex Site Verification', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
 				'validate_callback' => __CLASS__ . '::validate_verification_service',
 				'jp_group'          => 'verification-tools',
 			),
-			'facebook'                             => array(
+			'facebook'                                  => array(
 				'description'       => esc_html__( 'Facebook Domain Verification', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
@@ -2737,63 +2865,70 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// WordAds.
-			'enable_header_ad'                     => array(
+			'enable_header_ad'                          => array(
 				'description'       => esc_html__( 'Display an ad unit at the top of each page.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'wordads',
 			),
-			'wordads_approved'                     => array(
+			'wordads_approved'                          => array(
 				'description'       => esc_html__( 'Is site approved for WordAds?', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'wordads',
 			),
-			'wordads_second_belowpost'             => array(
+			'wordads_second_belowpost'                  => array(
 				'description'       => esc_html__( 'Display second ad below post?', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'wordads',
 			),
-			'wordads_display_front_page'           => array(
+			'wordads_inline_enabled'                    => array(
+				'description'       => esc_html__( 'Display inline ad within post content?', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'wordads',
+			),
+			'wordads_display_front_page'                => array(
 				'description'       => esc_html__( 'Display ads on the front page?', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'wordads',
 			),
-			'wordads_display_post'                 => array(
+			'wordads_display_post'                      => array(
 				'description'       => esc_html__( 'Display ads on posts?', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'wordads',
 			),
-			'wordads_display_page'                 => array(
+			'wordads_display_page'                      => array(
 				'description'       => esc_html__( 'Display ads on pages?', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'wordads',
 			),
-			'wordads_display_archive'              => array(
+			'wordads_display_archive'                   => array(
 				'description'       => esc_html__( 'Display ads on archive pages?', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'wordads',
 			),
-			'wordads_custom_adstxt_enabled'        => array(
+			'wordads_custom_adstxt_enabled'             => array(
 				'description'       => esc_html__( 'Custom ads.txt', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'wordads',
 			),
-			'wordads_custom_adstxt'                => array(
+			'wordads_custom_adstxt'                     => array(
 				'description'       => esc_html__( 'Custom ads.txt entries', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
@@ -2801,14 +2936,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'sanitize_callback' => 'sanitize_textarea_field',
 				'jp_group'          => 'wordads',
 			),
-			'wordads_ccpa_enabled'                 => array(
+			'wordads_ccpa_enabled'                      => array(
 				'description'       => esc_html__( 'Enable support for California Consumer Privacy Act', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'wordads',
 			),
-			'wordads_ccpa_privacy_policy_url'      => array(
+			'wordads_ccpa_privacy_policy_url'           => array(
 				'description'       => esc_html__( 'Privacy Policy URL', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
@@ -2816,9 +2951,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'sanitize_callback' => 'sanitize_text_field',
 				'jp_group'          => 'wordads',
 			),
+			'wordads_cmp_enabled'                       => array(
+				'description'       => esc_html__( 'Enable GDPR Consent Management Banner for WordAds', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'wordads',
+			),
 
 			// Google Analytics.
-			'google_analytics_tracking_id'         => array(
+			'google_analytics_tracking_id'              => array(
 				'description'       => esc_html__( 'Google Analytics', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
@@ -2827,21 +2969,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Stats.
-			'admin_bar'                            => array(
+			'admin_bar'                                 => array(
 				'description'       => esc_html__( 'Include a small chart in your admin bar with a 48-hour traffic snapshot.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'stats',
 			),
-			'enable_odyssey_stats'                 => array(
+			'enable_odyssey_stats'                      => array(
 				'description'       => esc_html__( 'Preview the new Jetpack Stats experience (Experimental).', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'stats',
 			),
-			'roles'                                => array(
+			'roles'                                     => array(
 				'description'       => esc_html__( 'Select the roles that will be able to view stats reports.', 'jetpack' ),
 				'type'              => 'array',
 				'items'             => array(
@@ -2852,7 +2994,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'sanitize_callback' => __CLASS__ . '::sanitize_stats_allowed_roles',
 				'jp_group'          => 'stats',
 			),
-			'count_roles'                          => array(
+			'count_roles'                               => array(
 				'description'       => esc_html__( 'Count the page views of registered users who are logged in.', 'jetpack' ),
 				'type'              => 'array',
 				'items'             => array(
@@ -2862,28 +3004,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_stats_roles',
 				'jp_group'          => 'stats',
 			),
-			'blog_id'                              => array(
+			'blog_id'                                   => array(
 				'description'       => esc_html__( 'Blog ID.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'stats',
 			),
-			'do_not_track'                         => array(
+			'do_not_track'                              => array(
 				'description'       => esc_html__( 'Do not track.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'stats',
 			),
-			'version'                              => array(
+			'version'                                   => array(
 				'description'       => esc_html__( 'Version.', 'jetpack' ),
 				'type'              => 'integer',
 				'default'           => 9,
 				'validate_callback' => __CLASS__ . '::validate_posint',
 				'jp_group'          => 'stats',
 			),
-			'collapse_nudges'                      => array(
+			'collapse_nudges'                           => array(
 				'description'       => esc_html__( 'Collapse upgrade nudges', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
@@ -2892,7 +3034,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Whether to share stats views with WordPress.com Reader.
-			'wpcom_reader_views_enabled'           => array(
+			'wpcom_reader_views_enabled'                => array(
 				'description'       => esc_html__( 'Show post views in the WordPress.com Reader.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
@@ -2901,7 +3043,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Akismet - Not a module, but a plugin. The options can be passed and handled differently.
-			'akismet_show_user_comments_approved'  => array(
+			'akismet_show_user_comments_approved'       => array(
 				'description'       => '',
 				'type'              => 'boolean',
 				'default'           => 0,
@@ -2909,7 +3051,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'settings',
 			),
 
-			'wordpress_api_key'                    => array(
+			'wordpress_api_key'                         => array(
 				'description'       => '',
 				'type'              => 'string',
 				'default'           => '',
@@ -2918,7 +3060,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Empty stats card dismiss.
-			'dismiss_empty_stats_card'             => array(
+			'dismiss_empty_stats_card'                  => array(
 				'description'       => '',
 				'type'              => 'boolean',
 				'default'           => 0,
@@ -2927,7 +3069,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Backup Getting Started card on dashboard.
-			'dismiss_dash_backup_getting_started'  => array(
+			'dismiss_dash_backup_getting_started'       => array(
 				'description'       => '',
 				'type'              => 'boolean',
 				'default'           => 0,
@@ -2936,7 +3078,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Agencies Learn More card on dashboard.
-			'dismiss_dash_agencies_learn_more'     => array(
+			'dismiss_dash_agencies_learn_more'          => array(
 				'description'       => '',
 				'type'              => 'boolean',
 				'default'           => 0,
@@ -2944,37 +3086,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'settings',
 			),
 
-			'lang_id'                              => array(
+			'lang_id'                                   => array(
 				'description' => esc_html__( 'Primary language for the site.', 'jetpack' ),
 				'type'        => 'string',
 				'default'     => 'en_US',
 				'jp_group'    => 'settings',
 			),
 
-			'onboarding'                           => array(
-				'description'       => '',
-				'type'              => 'object',
-				'default'           => array(
-					'siteTitle'          => '',
-					'siteDescription'    => '',
-					'siteType'           => 'personal',
-					'homepageFormat'     => 'posts',
-					'addContactForm'     => 0,
-					'businessAddress'    => array(
-						'name'   => '',
-						'street' => '',
-						'city'   => '',
-						'state'  => '',
-						'zip'    => '',
-					),
-					'installWooCommerce' => false,
-				),
-				'validate_callback' => __CLASS__ . '::validate_onboarding',
-				'jp_group'          => 'settings',
-			),
-
 			// SEO Tools.
-			'advanced_seo_front_page_description'  => array(
+			'advanced_seo_front_page_description'       => array(
 				'description'       => esc_html__( 'Front page meta description.', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
@@ -2982,7 +3102,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'seo-tools',
 			),
 
-			'advanced_seo_title_formats'           => array(
+			'advanced_seo_title_formats'                => array(
 				'description'       => esc_html__( 'SEO page title structures.', 'jetpack' ),
 				'type'              => 'object',
 				'default'           => array(
@@ -2998,7 +3118,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// VideoPress.
-			'videopress_private_enabled_for_site'  => array(
+			'videopress_private_enabled_for_site'       => array(
 				'description'       => esc_html__( 'Video Privacy: Restrict views to members of this site', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
@@ -3054,28 +3174,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 5.4.0
 	 *
+	 * @deprecated since 13.9
+	 *
 	 * @param array           $onboarding_data Values to check.
 	 * @param WP_REST_Request $request         The request sent to the WP REST API.
 	 * @param string          $param           Name of the parameter passed to endpoint holding $value.
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_onboarding( $onboarding_data, $request, $param ) {
-		if ( ! is_array( $onboarding_data ) ) {
-			return new WP_Error( 'invalid_param', esc_html__( 'Not valid onboarding data.', 'jetpack' ) );
-		}
-		foreach ( $onboarding_data as $value ) {
-			if ( is_string( $value ) ) {
-				$onboarding_choice = self::validate_string( $value, $request, $param );
-			} elseif ( is_array( $value ) ) {
-				$onboarding_choice = self::validate_onboarding( $value, $request, $param );
-			} else {
-				$onboarding_choice = self::validate_boolean( $value, $request, $param );
-			}
-			if ( is_wp_error( $onboarding_choice ) ) {
-				return $onboarding_choice;
-			}
-		}
+	public static function validate_onboarding( $onboarding_data, $request, $param ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		_deprecated_function( __METHOD__, '13.9' );
 		return true;
 	}
 
@@ -3298,14 +3406,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error
 	 */
 	public static function validate_stats_roles( $value, $request, $param ) {
-		if ( ! empty( $value ) && ! array_intersect( self::$stats_roles, $value ) ) {
+		if ( ! function_exists( 'get_editable_roles' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/user.php';
+		}
+		$editable_roles = array_keys( get_editable_roles() );
+		if ( ! empty( $value ) && ! array_intersect( $editable_roles, $value ) ) {
 			return new WP_Error(
 				'invalid_param',
 				sprintf(
 					/* Translators: first variable is the name of a parameter passed to endpoint holding the role that will be checked, the second is a list of roles allowed to see stats. The parameter is checked against this list. */
 					esc_html__( '%1$s must be %2$s.', 'jetpack' ),
 					$param,
-					implode( ', ', self::$stats_roles )
+					implode( ', ', $editable_roles )
 				)
 			);
 		}
@@ -3343,6 +3455,57 @@ class Jetpack_Core_Json_Api_Endpoints {
 					esc_html__( '%1$s must be %2$s.', 'jetpack' ),
 					$param,
 					implode( ', ', $views )
+				)
+			);
+		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter is among the valid reply-to types for subscriptions.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param string|bool     $value Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_subscriptions_reply_to( $value, $request, $param ) {
+		require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-settings.php';
+		if ( ! empty( $value ) && ! Automattic\Jetpack\Modules\Subscriptions\Settings::is_valid_reply_to( $value ) ) {
+			return new WP_Error(
+				'invalid_param',
+				sprintf(
+					/* Translators: Placeholder is a parameter name. */
+					esc_html__( '%s must be a valid type.', 'jetpack' ),
+					$param
+				)
+			);
+		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter is among the valid reply-to types for subscriptions.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param string|bool     $value Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_subscriptions_reply_to_name( $value, $request, $param ) {
+		if ( ! empty( $value ) && ! is_string( $value ) ) {
+			return new WP_Error(
+				'invalid_param',
+				sprintf(
+					/* Translators: Placeholder is a parameter name. */
+					esc_html__( '%s must be a valid type.', 'jetpack' ),
+					$param
 				)
 			);
 		}
@@ -3562,6 +3725,59 @@ class Jetpack_Core_Json_Api_Endpoints {
 			}
 		}
 
+		return true;
+	}
+
+	/**
+	 * Validates the subscription_options parameter.
+	 *
+	 * @param array $values Value to check.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_subscription_options( $values ) {
+		if ( is_object( $values ) ) {
+			return new WP_Error(
+				'invalid_param',
+				/* Translators: subscription_options is a variable name, and shouldn't be translated. */
+				esc_html__( 'subscription_options must be an object.', 'jetpack' )
+			);
+		}
+		foreach ( array_keys( $values ) as $key ) {
+			if ( ! in_array( $key, array( 'welcome', 'invitation', 'comment_follow' ), true ) ) {
+				return new WP_Error(
+					'invalid_param',
+					sprintf(
+						/* Translators: Placeholder is the invalid param being sent. */
+						esc_html__( '%s is not one of the allowed members of subscription_options.', 'jetpack' ),
+						$key
+					)
+				);
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter is an array.
+	 *
+	 * @param array           $values Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to the endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_array( $values, $request, $param ) {
+		if ( ! is_array( $values ) ) {
+			return new WP_Error(
+				'invalid_param',
+				sprintf(
+					/* Translators: Placeholder is a parameter name. */
+					esc_html__( '%s must be an object.', 'jetpack' ),
+					$param
+				)
+			);
+		}
 		return true;
 	}
 
@@ -4301,5 +4517,54 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'data' => $data,
 			)
 		);
+	}
+
+	/**
+	 * Return the list of available features.
+	 *
+	 * @return array
+	 */
+	public static function get_features_available() {
+		$raw_modules = Jetpack::get_available_modules();
+		$modules     = array();
+		foreach ( $raw_modules as $module ) {
+			$modules[] = Jetpack::get_module_slug( $module );
+		}
+
+		return $modules;
+	}
+
+	/**
+	 * Returns what features are enabled. Uses the slug of the modules files.
+	 *
+	 * @return array
+	 */
+	public static function get_features_enabled() {
+		$raw_modules = Jetpack::get_active_modules();
+		$modules     = array();
+		foreach ( $raw_modules as $module ) {
+			$modules[] = Jetpack::get_module_slug( $module );
+		}
+
+		return $modules;
+	}
+
+	/**
+	 * Verify that the API client is allowed to replace user token.
+	 *
+	 * @since 1.29.0
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function get_features_permission_check() {
+		if ( ! Rest_Authentication::is_signed_with_blog_token() ) {
+			$message = esc_html__(
+				'You do not have the correct user permissions to perform this action. Please contact your site admin if you think this is a mistake.',
+				'jetpack'
+			);
+			return new WP_Error( 'invalid_permission_fetch_features', $message, array( 'status' => rest_authorization_required_code() ) );
+		}
+
+		return true;
 	}
 } // class end

@@ -1,7 +1,6 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 
 export const Image = ( { title, alt, className, id, mediaRef, mime, sizes, srcset, url } ) => (
-	// eslint-disable-next-line jsx-a11y/media-has-caption
 	<img
 		ref={ mediaRef }
 		data-id={ id }
@@ -9,16 +8,15 @@ export const Image = ( { title, alt, className, id, mediaRef, mime, sizes, srcse
 		title={ title }
 		alt={ alt }
 		src={ url }
-		className={ classNames( 'wp-story-image', `wp-image-${ id }`, className ) }
+		className={ clsx( 'wp-story-image', `wp-image-${ id }`, className ) }
 		srcSet={ srcset }
 		sizes={ sizes }
 	/>
 );
 
 export const Video = ( { title, className, id, mediaRef, mime, url, poster } ) => (
-	// eslint-disable-next-line jsx-a11y/media-has-caption
 	<video
-		className={ classNames( 'wp-story-video', 'intrinsic-ignore', `wp-video-${ id }`, className ) }
+		className={ clsx( 'wp-story-video', 'intrinsic-ignore', `wp-video-${ id }`, className ) }
 		ref={ mediaRef }
 		data-id={ id }
 		title={ title }

@@ -1,6 +1,7 @@
 import { getCurrencyObject } from '@automattic/format-currency';
 import { Button } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
+import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import TermsOfService from '../terms-of-service';
 import type { PricingCardProps } from './types';
 import type { CurrencyObject } from '@automattic/format-currency/src/types';
@@ -14,7 +15,7 @@ import './style.scss';
  * doesn't exist.
  *
  * @param {CurrencyObject} currencyObject -- A currency object returned from `getCurrencyObject`.
- * @returns {boolean} Whether or not to display the price decimal part.
+ * @return {boolean} Whether or not to display the price decimal part.
  */
 const showPriceDecimals = ( currencyObject: CurrencyObject ): boolean => {
 	return currencyObject.fraction.indexOf( '00' ) === -1;
@@ -24,11 +25,11 @@ const showPriceDecimals = ( currencyObject: CurrencyObject ): boolean => {
  * The Pricing card component.
  *
  * @param {PricingCardProps} props -- The component props.
- * @returns {React.ReactNode} The rendered component.
+ * @return {React.ReactNode} The rendered component.
  */
 const PricingCard: React.FC< PricingCardProps > = ( {
 	currencyCode = 'USD',
-	priceDetails = __( '/month, paid yearly', 'jetpack' ),
+	priceDetails = __( '/month, paid yearly', 'jetpack-components' ),
 	...props
 } ) => {
 	const currencyObjectBefore = getCurrencyObject( props.priceBefore, currencyCode );
@@ -43,7 +44,7 @@ const PricingCard: React.FC< PricingCardProps > = ( {
 							src={ props.icon }
 							alt={ sprintf(
 								/* translators: placeholder is a product name */
-								__( 'Icon for the product %s', 'jetpack' ),
+								__( 'Icon for the product %s', 'jetpack-components' ),
 								props.title
 							) }
 						/>
@@ -54,7 +55,8 @@ const PricingCard: React.FC< PricingCardProps > = ( {
 			) }
 			<h1 className="jp-components__pricing-card__title">{ props.title }</h1>
 			<div className="jp-components__pricing-card__pricing">
-				{ props.priceBefore !== props.priceAfter && (
+				{ props.priceAfter === 0 && <LoadingPlaceholder width="100%" height={ 48 } /> }
+				{ props.priceBefore !== props.priceAfter && props.priceAfter > 0 && (
 					<div className="jp-components__pricing-card__price-before">
 						<span className="jp-components__pricing-card__currency">
 							{ currencyObjectBefore.symbol }
@@ -71,20 +73,24 @@ const PricingCard: React.FC< PricingCardProps > = ( {
 						<div className="jp-components__pricing-card__price-strikethrough"></div>
 					</div>
 				) }
-				<div className="jp-components__pricing-card__price-after">
-					<span className="jp-components__pricing-card__currency">
-						{ currencyObjectAfter.symbol }
-					</span>
-					<span className="jp-components__pricing-card__price">
-						{ currencyObjectAfter.integer }
-					</span>
-					{ showPriceDecimals( currencyObjectAfter ) && (
-						<span className="jp-components__pricing-card__price-decimal">
-							{ currencyObjectAfter.fraction }
-						</span>
-					) }
-				</div>
-				<span className="jp-components__pricing-card__price-details">{ priceDetails }</span>
+				{ props.priceAfter > 0 && (
+					<>
+						<div className="jp-components__pricing-card__price-after">
+							<span className="jp-components__pricing-card__currency">
+								{ currencyObjectAfter.symbol }
+							</span>
+							<span className="jp-components__pricing-card__price">
+								{ currencyObjectAfter.integer }
+							</span>
+							{ showPriceDecimals( currencyObjectAfter ) && (
+								<span className="jp-components__pricing-card__price-decimal">
+									{ currencyObjectAfter.fraction }
+								</span>
+							) }
+						</div>
+						<span className="jp-components__pricing-card__price-details">{ priceDetails }</span>
+					</>
+				) }
 			</div>
 
 			{ props.children && (

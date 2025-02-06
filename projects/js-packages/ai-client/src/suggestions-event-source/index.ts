@@ -6,8 +6,8 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import { getErrorData } from '../hooks/use-ai-suggestions';
-import requestJwt from '../jwt';
+import { getErrorData } from '../hooks/use-ai-suggestions/index.js';
+import requestJwt from '../jwt/index.js';
 /*
  * Types & constants
  */
@@ -19,20 +19,20 @@ import {
 	ERROR_RESPONSE,
 	ERROR_SERVICE_UNAVAILABLE,
 	ERROR_UNCLEAR_PROMPT,
-} from '../types';
+} from '../types.js';
 import type {
 	AiModelTypeProp,
 	PromptMessagesProp,
 	PromptProp,
 	SuggestionErrorCode,
-} from '../types';
+} from '../types.js';
 
 type SuggestionsEventSourceConstructorArgs = {
 	url?: string;
 	question: PromptProp;
 	token?: string;
 	options?: {
-		postId?: number;
+		postId?: number | string;
 		feature?: 'ai-assistant-experimental' | string | undefined;
 		fromCache?: boolean;
 		functions?: Array< object >;
@@ -53,7 +53,7 @@ const debug = debugFactory( 'jetpack-ai-client:suggestions-event-source' );
  * when the stream is closed.
  * It also emits a 'suggestion' event with the full suggestion received so far
  *
- * @returns {EventSource} The event source
+ * @return {EventSource} The event source
  * @fires SuggestionsEventSource#suggestion                - The full suggestion has been received so far
  * @fires SuggestionsEventSource#message                   - A message has been received
  * @fires SuggestionsEventSource#chunk                     - A chunk of data has been received
@@ -117,9 +117,9 @@ export default class SuggestionsEventSource extends EventTarget {
 			model?: AiModelTypeProp;
 		} = {};
 
-		// Populate body data with post id
-		if ( options?.postId ) {
-			bodyData.post_id = options.postId;
+		// Populate body data with post id only if it is an integer
+		if ( Number.isInteger( parseInt( options.postId as string ) ) ) {
+			bodyData.post_id = +options.postId;
 		}
 
 		// If the url is not provided, we use the default one
@@ -197,7 +197,9 @@ export default class SuggestionsEventSource extends EventTarget {
 					response.status <= 500 &&
 					! [ 413, 422, 429 ].includes( response.status )
 				) {
-					this.processConnectionError( response );
+					debug( 'Connection error: %o', response );
+					errorCode = ERROR_NETWORK;
+					this.dispatchEvent( new CustomEvent( ERROR_NETWORK, { detail: response } ) );
 				}
 
 				/*
@@ -356,16 +358,6 @@ export default class SuggestionsEventSource extends EventTarget {
 				new CustomEvent( 'functionCallChunk', { detail: this.fullFunctionCall } )
 			);
 		}
-	}
-
-	processConnectionError( response ) {
-		debug( 'Connection error: %o', response );
-		this.dispatchEvent( new CustomEvent( ERROR_NETWORK, { detail: response } ) );
-		this.dispatchEvent(
-			new CustomEvent( ERROR_RESPONSE, {
-				detail: getErrorData( ERROR_NETWORK ),
-			} )
-		);
 	}
 
 	processErrorEvent( e ) {

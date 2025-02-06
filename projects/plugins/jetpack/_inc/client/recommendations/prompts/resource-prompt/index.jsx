@@ -2,10 +2,10 @@ import { ProgressBar } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import Button from 'components/button';
-import analytics from 'lib/analytics';
 import React, { useEffect, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
+import Button from 'components/button';
+import analytics from 'lib/analytics';
 import { ProductSpotlight } from 'recommendations/sidebar/product-spotlight';
 import {
 	addViewedRecommendation as addViewedRecommendationAction,
@@ -29,7 +29,7 @@ import { PromptLayout } from '../prompt-layout';
  *
  * @param {object} props - Component props.
  * @function Object() { [native code] }
- * @returns {Element} - A react component.
+ * @return {Element} - A react component.
  */
 const ResourcePromptComponent = props => {
 	const {
@@ -45,6 +45,7 @@ const ResourcePromptComponent = props => {
 		illustration,
 		ctaText,
 		ctaLink,
+		ctaForceExternal,
 		hasNoAction,
 		skipText,
 		stepSlug,
@@ -119,6 +120,9 @@ const ResourcePromptComponent = props => {
 		return null;
 	}, [ stepProgressValue, progressValue ] );
 
+	const ctaLinkIsExternal =
+		ctaLink?.match( /^https:\/\/jetpack.com\/redirect/ ) || ctaForceExternal;
+
 	return (
 		<PromptLayout
 			progressBar={ progressBarComponent }
@@ -155,14 +159,20 @@ const ResourcePromptComponent = props => {
 				<div className="jp-recommendations-question__install-section">
 					{ ! hasNoAction ? (
 						<>
-							<ExternalLink
-								type="button"
-								className="dops-button is-rna is-primary"
-								href={ ctaLink }
-								onClick={ onResourceLinkClick }
-							>
-								{ ctaText }
-							</ExternalLink>
+							{ ctaLinkIsExternal ? (
+								<ExternalLink
+									type="button"
+									className="dops-button is-rna is-primary"
+									href={ ctaLink }
+									onClick={ onResourceLinkClick }
+								>
+									{ ctaText }
+								</ExternalLink>
+							) : (
+								<Button rna primary href={ ctaLink } onClick={ onResourceLinkClick } va>
+									{ ctaText }
+								</Button>
+							) }
 							<div className="jp-recommendations-question__jump-nav">
 								<a href={ nextRoute } onClick={ onResourceSkipClick }>
 									{ skipText || __( 'Not now', 'jetpack' ) }

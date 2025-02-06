@@ -172,7 +172,7 @@ while IFS= read -r LINE; do
 	fi
 done < <( svn status )
 if $ANY; then
-	proceed_p "Files were added and/or removed."
+	proceed_p "Files were added and/or removed." "" Y
 else
 	success "None found!"
 fi
@@ -201,7 +201,7 @@ if [[ -n "$CHECK" ]]; then
 	fi
 fi
 
-proceed_p "We're ready to update trunk and tag $SVNTAG!" "Do it?"
+proceed_p "We're ready to update trunk and tag $SVNTAG!" "Do it?" Y
 info "Updating trunk"
 svn commit -m "Updating trunk to version $SVNTAG"
 success "Done!"

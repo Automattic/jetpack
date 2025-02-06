@@ -1,9 +1,13 @@
 import fs from 'fs';
-import { execWpCommand, resolveSiteUrl } from './utils-helper.js';
-import logger from '../logger.js';
-import config from 'config';
 import path from 'path';
+import config from 'config';
+import logger from '../logger.js';
+import { execWpCommand, resolveSiteUrl } from './utils-helper.js';
 
+/**
+ * Persist plan data.
+ * @param {string} planType - Jetpack plan slug.
+ */
 export async function persistPlanData( planType = 'jetpack_complete' ) {
 	const planDataOption = 'e2e_jetpack_plan_data';
 	const siteId = await getSiteId();
@@ -16,15 +20,34 @@ export async function persistPlanData( planType = 'jetpack_complete' ) {
 	await execWpCommand( cmd );
 }
 
+/**
+ * Activate e2e-plan-data-interceptor plugin
+ * @return {string} output
+ */
 export async function activatePlanDataInterceptor() {
 	return await execWpCommand( 'plugin activate e2e-plan-data-interceptor' );
 }
 
+/**
+ * Get site ID
+ *
+ * @return {string} ID
+ */
 async function getSiteId() {
 	const output = await execWpCommand( 'jetpack options get id' );
 	return output.split( ':' )[ 1 ].trim();
 }
 
+/**
+ * Get plan data.
+ *
+ * @param {*}      id          - ID.
+ * @param {string} siteUrl     - Site URL.
+ * @param {string} planType    - Jetpack plan slug.
+ * @param {string} siteName    - Site name.
+ * @param {string} description - Description
+ * @return {object} data
+ */
 function getPlanData(
 	id,
 	siteUrl,
@@ -171,7 +194,6 @@ function getPlanData(
 				'contact-form',
 				'custom-content-types',
 				'custom-css',
-				'enhanced-distribution',
 				'gravatar-hovercards',
 				'json-api',
 				'latex',
@@ -235,7 +257,7 @@ function getPlanData(
 /**
  * Returns a JSON representation of Jetpack plan data.
  *
- * @param {string} type Jetpack plan slug.
+ * @param {string} type - Jetpack plan slug.
  * @return {JSON} JSON Jetpack plan object.
  */
 function getPlan( type ) {
@@ -525,6 +547,11 @@ function getPlan( type ) {
 	}
 }
 
+/**
+ * Sync plan data.
+ *
+ * @param {page} page - Playwright page instance.
+ */
 export async function syncPlanData( page ) {
 	let isSame = false;
 	let fePlan = null;
@@ -535,7 +562,7 @@ export async function syncPlanData( page ) {
 	let i = 0;
 	do {
 		await page.reload( { waitFor: 'domcontentloaded' } );
-		// eslint-disable-next-line no-undef, camelcase
+		// eslint-disable-next-line no-undef
 		fePlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
 		logger.debug( `PLANS: frontend: ${ fePlan }, backend: ${ bePlan.product_slug }` );
 		isSame = fePlan.trim() === bePlan.product_slug.trim();

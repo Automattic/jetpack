@@ -28,7 +28,7 @@ class Setup {
 		add_action( 'rest_api_init', array( new REST_Token_Controller(), 'register_routes' ) );
 
 		// Flagged to be removed after deprecation.
-		// @deprecated $$next_version$$
+		// @deprecated 0.38.3
 		add_action( 'rest_api_init', array( new REST_Settings_Controller(), 'register_routes' ) );
 	}
 
@@ -94,7 +94,8 @@ class Setup {
 			! $update &&
 			'auto-draft' === $post->post_status &&
 			$settings->get_settings()['socialImageGeneratorSettings']['enabled'] &&
-			empty( $post_settings->get_settings( true ) )
+			empty( $post_settings->get_settings( true ) ) &&
+			'jetpack-social-note' !== $post->post_type
 		) {
 			$post_settings->update_setting( 'enabled', true );
 			return;

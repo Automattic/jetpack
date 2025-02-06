@@ -175,15 +175,18 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	 * @param string $url      The URL to test.
 	 * @param string $video_id The expected video ID.
 	 */
-	public function test_replace_url_with_iframe_in_the_content( $url, $video_id ) {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	public function test_shortcodes_vimeo_replace_url_with_iframe_in_the_content( $url, $video_id ) {
+		if (
+			( defined( 'IS_WPCOM' ) && IS_WPCOM )
+				|| ( defined( 'IS_ATOMIC' ) && IS_ATOMIC )
+		) {
 			self::markTestSkipped( 'Embeds are handled by core on WordPress.com. See D27860-code' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		global $post;
 
-		$post = self::factory()->post->create_and_get( array( 'post_content' => $url ) );
+		$post = self::factory()->post->create_and_get( array( 'post_content' => "[vimeo $url]" ) );
 
 		do_action( 'init' );
 		setup_postdata( $post );
@@ -313,7 +316,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 		// Test AMP version. On AMP views, we only show a link.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::markTestSkipped( 'WordPress.com does not run the latest version of the AMP plugin yet.' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		unset( $GLOBALS['content_width'] );
@@ -329,7 +332,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 		// Test AMP version. On AMP views, we only show a link.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::markTestSkipped( 'WordPress.com does not run the latest version of the AMP plugin yet.' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		add_filter( 'jetpack_is_amp_request', '__return_true' );

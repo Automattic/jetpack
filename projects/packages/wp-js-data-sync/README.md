@@ -1,5 +1,30 @@
 # WP JS Data Sync
 
+## Debug
+
+WP JS DataSync listens for `ds-debug-disable` GET parameter to disable certain DataSync values.
+
+To disable a specific DataSync value, add `?ds-debug-disable=<entry-key>` to the URL.
+To disable all data sync values, add `?ds-debug-disable=all` to the URL.
+
+#### Debug Example
+
+If your dashboard URL is `https://example.com/wp-admin/admin.php?page=example`, and you want to disable the `widget_status` value, you would navigate to `https://example.com/wp-admin/admin.php?page=example?ds-debug-disable=widget_status`.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Outdated Documentation:
 WP JS Data Sync is a library designed to help sync data between WordPress and the JavaScript in the admin dashboard.
 
 This helps create streamlined way to pass data from the WordPress backend to JavaScript and:

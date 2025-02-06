@@ -38,7 +38,7 @@ function AudioPlayer( {
 	loadWhenReady = false,
 	preload = 'metadata',
 } ) {
-	const audioRef = useRef();
+	const audioRef = useRef( undefined );
 
 	/**
 	 * Play current audio.
@@ -188,7 +188,6 @@ function AudioPlayer( {
 
 	return (
 		<div className="jetpack-audio-player">
-			{ /* eslint-disable-next-line jsx-a11y/media-has-caption */ }
 			<audio src={ trackSource } ref={ audioRef }></audio>
 		</div>
 	);

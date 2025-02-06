@@ -1,7 +1,8 @@
 /*
  * External dependencies
  */
-import { speakToneIcon } from '@automattic/jetpack-ai-client';
+import { PROMPT_TONES_MAP, speakToneIcon, TONE_LABEL } from '@automattic/jetpack-ai-client';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import {
 	MenuItem,
 	MenuGroup,
@@ -23,109 +24,16 @@ const PROMPT_TONES_LIST = [
 	'formal',
 	'informal',
 	'optimistic',
-	// 'pessimistic',
 	'humorous',
 	'serious',
 	'skeptical',
 	'empathetic',
-	// 'enthusiastic',
-	// 'neutral',
 	'confident',
-	// 'curious',
-	// 'respectful',
 	'passionate',
-	// 'cautious',
 	'provocative',
-	// 'inspirational',
-	// 'satirical',
-	// 'dramatic',
-	// 'mysterious',
 ] as const;
 
 export const DEFAULT_PROMPT_TONE = 'formal';
-
-export const PROMPT_TONES_MAP = {
-	formal: {
-		label: __( 'Formal', 'jetpack' ),
-		emoji: '🎩',
-	},
-	informal: {
-		label: __( 'Informal', 'jetpack' ),
-		emoji: '😊',
-	},
-	optimistic: {
-		label: __( 'Optimistic', 'jetpack' ),
-		emoji: '😃',
-	},
-	// pessimistic: {
-	// 	label: __( 'Pessimistic', 'jetpack' ),
-	// 	emoji: '☹️',
-	// },
-	humorous: {
-		label: __( 'Humorous', 'jetpack' ),
-		emoji: '😂',
-	},
-	serious: {
-		label: __( 'Serious', 'jetpack' ),
-		emoji: '😐',
-	},
-	skeptical: {
-		label: __( 'Skeptical', 'jetpack' ),
-		emoji: '🤨',
-	},
-	empathetic: {
-		label: __( 'Empathetic', 'jetpack' ),
-		emoji: '💗',
-	},
-	// enthusiastic: {
-	// 	label: __( 'Enthusiastic', 'jetpack' ),
-	// 	emoji: '🤩',
-	// },
-	// neutral: {
-	// 	label: __( 'Neutral', 'jetpack' ),
-	// 	emoji: '😶',
-	// },
-	confident: {
-		label: __( 'Confident', 'jetpack' ),
-		emoji: '😎',
-	},
-	// curious: {
-	// 	label: __( 'Curious', 'jetpack' ),
-	// 	emoji: '🧐',
-	// },
-	// respectful: {
-	// 	label: __( 'Respectful', 'jetpack' ),
-	// 	emoji: '🙏',
-	// },
-	passionate: {
-		label: __( 'Passionate', 'jetpack' ),
-		emoji: '❤️',
-	},
-	// cautious: {
-	// 	label: __( 'Cautious', 'jetpack' ),
-	// 	emoji: '🚧',
-	// },
-	provocative: {
-		label: __( 'Provocative', 'jetpack' ),
-		emoji: '🔥',
-	},
-	// inspirational: {
-	// 	label: __( 'Inspirational', 'jetpack' ),
-	// 	emoji: '✨',
-	// },
-	// satirical: {
-	// 	label: __( 'Satirical', 'jetpack' ),
-	// 	emoji: '🃏',
-	// },
-	// dramatic: {
-	// 	label: __( 'Dramatic', 'jetpack' ),
-	// 	emoji: '🎭',
-	// },
-	// mysterious: {
-	// 	label: __( 'Mysterious', 'jetpack' ),
-	// 	emoji: '🔮',
-	// },
-};
 
 export type ToneProp = ( typeof PROMPT_TONES_LIST )[ number ];
 
@@ -153,7 +61,7 @@ const ToneMenuGroup = ( { value, onChange }: ToneToolbarDropdownMenuProps ) => (
 );
 
 export function ToneDropdownMenu( {
-	label = __( 'Change tone', 'jetpack' ),
+	label = TONE_LABEL,
 	value = DEFAULT_PROMPT_TONE,
 	onChange,
 	disabled = false,
@@ -194,10 +102,16 @@ export default function ToneToolbarDropdownMenu( {
 	onChange,
 	disabled = false,
 }: ToneToolbarDropdownMenuProps ) {
-	const label = __( 'Change tone', 'jetpack' );
+	const { tracks } = useAnalytics();
+
+	const toggleHandler = isOpen => {
+		if ( isOpen ) {
+			tracks.recordEvent( 'jetpack_ai_assistant_block_toolbar_menu_show', { tool: 'tone' } );
+		}
+	};
 
 	return disabled ? (
-		<Tooltip text={ label }>
+		<Tooltip text={ TONE_LABEL }>
 			<Button disabled>
 				<Icon icon={ speakToneIcon } />
 			</Button>
@@ -205,11 +119,12 @@ export default function ToneToolbarDropdownMenu( {
 	) : (
 		<ToolbarDropdownMenu
 			icon={ speakToneIcon }
-			label={ label }
+			label={ TONE_LABEL }
 			popoverProps={ {
 				variant: 'toolbar',
 			} }
 			disabled={ disabled }
+			onToggle={ toggleHandler }
 		>
 			{ () => <ToneMenuGroup value={ value } onChange={ onChange } /> }
 		</ToolbarDropdownMenu>

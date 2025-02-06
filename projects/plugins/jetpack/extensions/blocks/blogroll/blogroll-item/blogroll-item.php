@@ -75,7 +75,7 @@ function load_assets( $attr, $content, $block ) {
 
 	$placeholder_site_icon = '';
 	$site_icon_html        = <<<HTML
-	<img src="$icon" alt="$name_attr" onerror="this.parentNode.classList.add('empty-site-icon')">
+	<img class="blogroll-item-image" src="$icon" alt="$name_attr" onerror="this.parentNode.classList.add('empty-site-icon')">
 HTML;
 
 	if ( empty( $icon ) ) {
@@ -118,7 +118,7 @@ HTML;
 
 	$subscribe_button_html = '';
 	$fieldset              = '';
-	$has_subscription_form = defined( 'IS_WPCOM' ) && IS_WPCOM && ! $attr['is_non_wpcom_site'];
+	$has_subscription_form = defined( 'IS_WPCOM' ) && IS_WPCOM && isset( $attr['is_non_wpcom_site'] ) && ! $attr['is_non_wpcom_site'];
 	$classes               = Blocks::classes( FEATURE_NAME, $attr );
 
 	if ( $has_subscription_form ) {
@@ -143,7 +143,7 @@ HTML;
 			<figure class="$placeholder_site_icon">
 				$site_icon_html
 			</figure>
-			<div>
+			<div class="jetpack-blogroll-item-content">
 				<a class="jetpack-blogroll-item-title" href="$url" target="$target" rel="noopener noreferrer">$name</a>
 				<div class="jetpack-blogroll-item-description">$description</div>
 			</div>
@@ -154,6 +154,7 @@ HTML;
 
 	return sprintf(
 		'<div class="%1$s">
+			<hr class="wp-block-separator jetpack-blogroll-item-divider" />
 			<div class="jetpack-blogroll-item-slider">%2$s</div>
 		</div>',
 		esc_attr( $classes ),

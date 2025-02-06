@@ -9,16 +9,20 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
+use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
+
 /**
  * Class Environment_Change_Detector
  */
 class Environment_Change_Detector {
 
-	const ENV_CHANGE_LEGACY         = '1';
-	const ENV_CHANGE_PAGE_SAVED     = 'page_saved';
-	const ENV_CHANGE_POST_SAVED     = 'post_saved';
-	const ENV_CHANGE_SWITCHED_THEME = 'switched_theme';
-	const ENV_CHANGE_PLUGIN_CHANGE  = 'plugin_change';
+	const ENV_CHANGE_LEGACY                         = '1';
+	const ENV_CHANGE_PAGE_SAVED                     = 'page_saved';
+	const ENV_CHANGE_POST_SAVED                     = 'post_saved';
+	const ENV_CHANGE_SWITCHED_THEME                 = 'switched_theme';
+	const ENV_CHANGE_PLUGIN_CHANGE                  = 'plugin_change';
+	const ENV_CHANGE_CORNERSTONE_PAGE_SAVED         = 'cornerstone_page_saved';
+	const ENV_CHANGE_CORNERSTONE_PAGES_LIST_UPDATED = 'cornerstone_pages_list_updated';
 
 	/**
 	 * Initialize the change detection hooks.
@@ -46,13 +50,7 @@ class Environment_Change_Detector {
 			return;
 		}
 
-		if ( 'page' === $post->post_type ) {
-			$change_type = $this::ENV_CHANGE_PAGE_SAVED;
-		} else {
-			$change_type = $this::ENV_CHANGE_POST_SAVED;
-		}
-
-		$this->do_action( false, $change_type );
+		$this->do_action( false, $this->get_post_change_type( $post ) );
 	}
 
 	public function handle_theme_change() {
@@ -63,14 +61,18 @@ class Environment_Change_Detector {
 		$this->do_action( false, $this::ENV_CHANGE_PLUGIN_CHANGE );
 	}
 
+	public function handle_cornerstone_pages_list_update() {
+		$this->do_action( false, $this::ENV_CHANGE_CORNERSTONE_PAGES_LIST_UPDATED );
+	}
+
 	/**
 	 * Fire the environment change action.
 	 *
+	 * @param bool   $is_major_change Whether the change is such that we should stop serving existing critical CSS immediately unless refreshed.
 	 * @param string $change_type The change type.
-	 * @param bool   $is_major_change Whether the change is major.
 	 */
 	public function do_action( $is_major_change, $change_type ) {
-		do_action( 'handle_environment_change', $is_major_change, $change_type );
+		do_action( 'jetpack_boost_critical_css_environment_changed', $is_major_change, $change_type );
 	}
 
 	public static function get_available_env_change_statuses() {
@@ -79,6 +81,8 @@ class Environment_Change_Detector {
 			self::ENV_CHANGE_POST_SAVED,
 			self::ENV_CHANGE_SWITCHED_THEME,
 			self::ENV_CHANGE_PLUGIN_CHANGE,
+			self::ENV_CHANGE_CORNERSTONE_PAGE_SAVED,
+			self::ENV_CHANGE_CORNERSTONE_PAGES_LIST_UPDATED,
 		);
 	}
 
@@ -98,5 +102,25 @@ class Environment_Change_Detector {
 		if ( is_post_type_viewable( $post_type ) ) {
 			return true;
 		}
+	}
+
+	/**
+	 * Get the type of change for a specific post.
+	 *
+	 * @param \WP_Post $post The post object.
+	 * @return string The change type.
+	 */
+	private function get_post_change_type( $post ) {
+		if ( Cornerstone_Utils::is_cornerstone_page( $post->ID ) ) {
+			return $this::ENV_CHANGE_CORNERSTONE_PAGE_SAVED;
+		}
+
+		if ( 'page' === $post->post_type ) {
+			$change_type = $this::ENV_CHANGE_PAGE_SAVED;
+		} else {
+			$change_type = $this::ENV_CHANGE_POST_SAVED;
+		}
+
+		return $change_type;
 	}
 }

@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
-import classNames from 'classnames';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 
@@ -80,15 +80,13 @@ export default class FormToggle extends Component {
 
 	render() {
 		const id = this.props.id || 'toggle-' + this.id;
-		const toggleClasses = classNames( 'form-toggle', this.props.className, {
+		const toggleClasses = clsx( 'form-toggle', this.props.className, {
 			'is-toggling': this.props.toggling,
 		} );
 
 		return (
 			<Fragment>
-				<div
-					className={ classNames( 'form-toggle__switch-container', this.props.switchClassNames ) }
-				>
+				<div className={ clsx( 'form-toggle__switch-container', this.props.switchClassNames ) }>
 					<input
 						className={ toggleClasses }
 						type="checkbox"
@@ -97,7 +95,7 @@ export default class FormToggle extends Component {
 						disabled={ this.props.disabled }
 					/>
 					<span
-						className={ classNames( 'form-toggle__switch', this.props.switchClassNames ) }
+						className={ clsx( 'form-toggle__switch', this.props.switchClassNames ) }
 						disabled={ this.props.disabled }
 						id={ id }
 						onClick={ this.onClick }
@@ -106,15 +104,14 @@ export default class FormToggle extends Component {
 						aria-checked={ this.props.checked }
 						aria-label={ this.props[ 'aria-label' ] }
 						tabIndex={ this.props.disabled ? -1 : 0 }
-						ref="toggleSwitch"
 					/>
 				</div>
 				<label
-					className={ classNames( 'form-toggle__label', this.props.labelClassNames ) }
+					className={ clsx( 'form-toggle__label', this.props.labelClassNames ) }
 					htmlFor={ id }
 				>
 					<span
-						className={ classNames( 'form-toggle__label-content', this.props.labelClassNames ) }
+						className={ clsx( 'form-toggle__label-content', this.props.labelClassNames ) }
 						onClick={ this.onLabelClick }
 					>
 						{ this.props.children }

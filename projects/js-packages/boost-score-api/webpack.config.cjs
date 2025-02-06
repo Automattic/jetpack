@@ -8,11 +8,10 @@ module.exports = {
 	module: {
 		strictExportPresence: true,
 		rules: [
-			{
-				test: /\.ts?$/,
-				use: 'ts-loader',
-				exclude: /node_modules/,
-			},
+			// Transpile JavaScript and TypeScript
+			jetpackWebpackConfig.TranspileRule( {
+				exclude: /node_modules\//,
+			} ),
 		],
 	},
 	optimization: {
@@ -25,10 +24,16 @@ module.exports = {
 		...jetpackWebpackConfig.output,
 		path: path.resolve( __dirname, 'build' ),
 		filename: 'index.js',
+		uniqueName: 'BoostScoreApiLibrary',
 		library: {
 			name: 'BoostScoreApiLibrary',
 			type: 'umd',
 		},
 	},
-	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
+	plugins: [
+		...jetpackWebpackConfig.StandardPlugins( {
+			// Generate `.d.ts` files per tsconfig settings.
+			ForkTSCheckerPlugin: {},
+		} ),
+	],
 };

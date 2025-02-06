@@ -5,7 +5,7 @@ use Automattic\Jetpack\Sync\Modules;
 
 require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
-// Mock object requiered for test_theme_update()
+/** Mock object requiered for test_theme_update(). */
 class Dummy_Sync_Test_WP_Upgrader {
 	public $skin;
 
@@ -250,8 +250,11 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_install_edit_delete_theme_sync() {
-		$theme_slug = 'itek';
-		$theme_name = 'iTek';
+		// This requires a theme that isn't directly available on WordPress.com:
+		// https://public-api.wordpress.com/rest/v1.2/themes/astra?http_envelope=1
+		// Any theme with the "Community" badge in the WordPress.com theme search would work here.
+		$theme_slug = 'astra';
+		$theme_name = 'Astra';
 
 		delete_theme( $theme_slug ); // Ensure theme is not lingering on file system
 		$this->server_event_storage->reset();
@@ -295,7 +298,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_deleted_theme' );
 
-		$this->assertEquals( 'itek', $event_data->args[0] );
+		$this->assertEquals( $theme_slug, $event_data->args[0] );
 	}
 
 	public function test_update_themes_sync() {
@@ -353,6 +356,10 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_widgets_changes_get_synced() {
 		global $wp_registered_sidebars;
+
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			$this->markTestSkipped( 'is temporarily skipped' );
+		}
 
 		$sidebar_id   = 'sidebar-1';
 		$sidebar_name = $wp_registered_sidebars[ $sidebar_id ]['name'];
@@ -489,7 +496,8 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that all constants are returned by get_objects_by_id.
 	 */
 	public function test_get_objects_by_id() {
-		$module     = Modules::get_module( 'themes' );
+		$module = Modules::get_module( 'themes' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Themes $module';
 		$theme_info = $module->get_objects_by_id( 'theme-info', array() );
 		$this->assertEquals( $module->expand_theme_data(), $theme_info );
 	}

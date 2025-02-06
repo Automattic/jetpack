@@ -10,13 +10,13 @@ import './style.scss';
 /**
  * Shows a list of benefits that Jetpack provides.
  *
- * @param {object} props - The component props.
- * @param {Array} props.siteBenefits - An array of site benefits.
- * @param {Array} props.context - Context in which the component will be used. disconnect or deactivate.
- * @returns {React.Component} - The JetpackBenefits component.
+ * @param {object} props              - The component props.
+ * @param {Array}  props.siteBenefits - An array of site benefits.
+ * @param {Array}  props.context      - Context in which the component will be used. disconnect or deactivate.
+ * @return {React.Component} - The JetpackBenefits component.
  */
 const JetpackBenefits = props => {
-	const { siteBenefits, context } = props;
+	const { siteBenefits, context = 'disconnect' } = props;
 
 	return (
 		<React.Fragment>
@@ -120,10 +120,6 @@ JetpackBenefits.propTypes = {
 	siteBenefits: PropTypes.array,
 	/** Context in which the component will be used. disconnect or deactivate. */
 	context: PropTypes.oneOf( [ 'disconnect', 'deactivate' ] ),
-};
-
-JetpackBenefits.defaultProps = {
-	context: 'disconnect',
 };
 
 export default JetpackBenefits;

@@ -1,0 +1,129 @@
+/* This file was automatically generated on Dec 23 2022 01:06:01 */
+
+/* NOTICE! This file exists in WPCOM & WPCOMSH. Updates need to be synced to both repos. */
+
+.wpcom-coming-soon-body .wpcom-gifting-banner,
+.wpcom-coming-soon-private-default-body .wpcom-gifting-banner,
+.error410 .wpcom-gifting-banner {
+	display: none;
+}
+
+.wpcom-gifting-banner {
+	background: #000;
+	color: #fff;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu",
+	"Cantarell", "Helvetica Neue", sans-serif;
+}
+
+.wpcom-gifting-banner__img {
+	width: 21px;
+	height: 21px;
+	margin: 0 10px;
+}
+
+.wpcom-gifting-banner__inner {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 12px;
+}
+
+.wpcom-gifting-banner__logo {
+	min-width: 28px;
+	width: 28px;
+	height: 28px;
+	margin-left: 8px;
+	fill: #fff;
+	display: block;
+	overflow: visible;
+}
+
+.wpcom-gifting-banner__wrapper {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.wpcom-gifting-banner__title,
+.wpcom-gifting-banner__subtitle {
+	font-size: 18px;
+	line-height: 22px;
+	margin: 0;
+}
+
+.wpcom-gifting-banner__title {
+	font-weight: 800;
+}
+
+.wpcom-gifting-banner__subtitle {
+	font-weight: 400;
+	text-align: right;
+}
+
+.wpcom-gifting-banner__button {
+	cursor: pointer;
+	background: #fff;
+	color: #000;
+	border: none;
+	border-radius: 2px;
+	font-weight: 600;
+	font-size: 16px;
+	line-height: 20px;
+	height: 32px;
+	margin-right: 12px;
+	padding: 6px 24px 6px 24px;
+}
+
+.wpcom-gifting-banner .wpcom-gifting-banner__button:hover {
+	background: #fff;
+	color: #000;
+}
+
+.wpcom-gifting-banner__more-info-button,
+.wpcom-gifting-banner__more-info-button:hover {
+	cursor: pointer;
+	position: relative;
+	background: none;
+	border: 0;
+	padding: 6px 12px;
+}
+
+.wpcom-gifting-banner__more-info-button:before {
+	background: url(../../images/gridicons-help-outline.svg) no-repeat center;
+	content: '';
+	height: 16px;
+	width: 16px;
+	position: absolute;
+	bottom: 4px;
+	right: 5px;
+}
+
+@media (max-width: 480px) {
+	.wpcom-gifting-banner__inner {
+		padding: 16px 14px 16px 14px;
+	}
+
+	.wpcom-gifting-banner__logo {
+		min-width: 26px;
+		width: 26px;
+		height: 26px;
+	}
+
+	.wpcom-gifting-banner__img {
+		height: 16px;
+		width: 16px;
+	}
+
+	.wpcom-gifting-banner__title,
+	.wpcom-gifting-banner__subtitle {
+		font-size: 12px;
+		line-height: 15px;
+	}
+
+	.wpcom-gifting-banner__title {
+		font-weight: 600;
+	}
+
+	.wpcom-gifting-banner__button {
+		font-size: 12px;
+	}
+}

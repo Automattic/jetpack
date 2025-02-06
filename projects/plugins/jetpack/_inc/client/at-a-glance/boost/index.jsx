@@ -1,17 +1,22 @@
 import restApi from '@automattic/jetpack-api';
-import { getScoreLetter, requestSpeedScores } from '@automattic/jetpack-boost-score-api';
+import {
+	getScoreLetter,
+	requestSpeedScores,
+	calculateDaysSince,
+} from '@automattic/jetpack-boost-score-api';
 import { BoostScoreBar, getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
+import PropTypes from 'prop-types';
+import { useCallback, useEffect, useState } from 'react';
+import { connect } from 'react-redux';
 import InfoPopover from 'components/info-popover';
 import PluginInstallSection from 'components/plugin-install-section';
 import SectionHeader from 'components/section-header';
 import analytics from 'lib/analytics';
-import PropTypes from 'prop-types';
-import { useCallback, useEffect, useState } from 'react';
-import { connect } from 'react-redux';
+import { FEATURE_JETPACK_BOOST, getJetpackProductUpsellByFeature } from 'lib/plans/constants';
 import { getSiteConnectionStatus } from 'state/connection';
 import {
 	getApiRootUrl,
@@ -114,21 +119,6 @@ const DashBoost = ( {
 		}
 	};
 
-	const calculateDaysSince = timestamp => {
-		// Create Date objects for the provided timestamp and the current date
-		const providedDate = new Date( timestamp );
-		const currentDate = new Date();
-
-		// Calculate the difference in milliseconds between the two dates
-		const differenceInMilliseconds = currentDate - providedDate;
-
-		// Convert milliseconds to days
-		const millisecondsInADay = 24 * 60 * 60 * 1000;
-		const differenceInDays = Math.floor( differenceInMilliseconds / millisecondsInADay );
-
-		return differenceInDays;
-	};
-
 	useEffect( () => {
 		// Use cache scores if they are less than 21 days old.
 		if ( latestSpeedScores && calculateDaysSince( latestSpeedScores.timestamp * 1000 ) < 21 ) {
@@ -186,7 +176,7 @@ const DashBoost = ( {
 						'jetpack'
 					),
 					bottom: __(
-						'Jetpack Boost enhance your site’s performance like top websites, no developer needed.',
+						'Jetpack Boost enhances your site’s performance like top websites, no developer needed.',
 						'jetpack'
 					),
 				};
@@ -211,11 +201,17 @@ const DashBoost = ( {
 
 		return createInterpolateElement(
 			__(
-				'<a>Re-generate your Critical CSS after you make changes on your site</a><Info/>',
+				'<a><u>Regenerate your Critical CSS</u> after making changes to your site</a><Info/>',
 				'jetpack'
 			),
 			{
-				a: <a href={ siteAdminUrl + BOOST_PLUGIN_DASH } />,
+				a: (
+					<a
+						href={ siteAdminUrl + BOOST_PLUGIN_DASH }
+						className="dash-boost-critical-css-info__text"
+					/>
+				),
+				u: <u />,
 				Info: <CriticalCssInfoPopover />,
 			}
 		);
@@ -294,7 +290,7 @@ const DashBoost = ( {
 								</span>
 
 								<p
-									className={ classnames(
+									className={ clsx(
 										'dash-boost-speed-score__score-text',
 										[ 'C', 'D', 'E', 'F' ].includes( speedLetterGrade ) ? 'warning' : ''
 									) }
@@ -357,6 +353,7 @@ const DashBoost = ( {
 						}
 					) }
 					installedPrompt={ getPluginInstallSectionText() }
+					plan={ getJetpackProductUpsellByFeature( FEATURE_JETPACK_BOOST ) }
 				/>
 			</div>
 		</div>
@@ -487,7 +484,7 @@ const ConversionLossPopover = () => {
 				screenReaderText={ __( 'Learn more about how slow sites lose visitors', 'jetpack' ) }
 			>
 				<p className="boost-conversion-loss-info__source">
-					{ __( 'Source: ', 'jetpack' ) }
+					{ __( 'Source:', 'jetpack' ) }{ ' ' }
 					<ExternalLink
 						href="https://web.dev/why-speed-matters/"
 						target="_blank"
@@ -526,7 +523,7 @@ const CriticalCssInfoPopover = () => {
 				screenReaderText={ __( 'Learn more about how critical CSS works', 'jetpack' ) }
 			>
 				<h3 className="boost-critical-css-info__title">
-					{ __( 'Regenerate Critical CSS', 'jetpack' ) }
+					{ __( 'Get automated Critical CSS', 'jetpack' ) }
 				</h3>
 				<p>
 					{ createInterpolateElement(

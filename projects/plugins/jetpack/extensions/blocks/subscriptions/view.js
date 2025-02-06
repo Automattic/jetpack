@@ -2,7 +2,7 @@ import './view.scss';
 import '../../shared/memberships.scss';
 
 import domReady from '@wordpress/dom-ready';
-import { showModal } from '../../shared/memberships';
+import { showModal, spinner } from '../../shared/memberships';
 
 // @ts-ignore
 function show_iframe_retrieve_subscriptions_from_email() {
@@ -33,7 +33,7 @@ function show_iframe( data ) {
 
 	const url = 'https://subscribe.wordpress.com/memberships/?' + params.toString();
 
-	showModal( url );
+	return showModal( url );
 }
 
 domReady( function () {
@@ -49,16 +49,28 @@ domReady( function () {
 	forms.forEach( form => {
 		if ( ! form.payments_attached ) {
 			form.payments_attached = true;
+
+			const button = form.querySelector( 'button[type="submit"]' );
+
+			// Injects loading animation in hidden state
+			button.insertAdjacentHTML( 'beforeend', spinner );
+
 			form.addEventListener( 'submit', function ( event ) {
 				if ( form.resubmitted ) {
 					return;
 				}
 
-				const emailInput = form.querySelector( 'input[type=email]' );
-				const email = emailInput ? emailInput.value : form.dataset.subscriber_email;
+				button.classList.add( 'is-loading' );
+				button.setAttribute( 'aria-busy', 'true' );
+				button.setAttribute( 'aria-live', 'polite' );
 
-				if ( ! email ) {
-					return;
+				// If email is empty, we will ask for it in the modal that opens
+				// Email input can be hidden for "button only style" for example.
+				let email = form.querySelector( 'input[type=email]' )?.value ?? '';
+
+				// Fallback to provided email from the logged in user when set
+				if ( ! email && form.dataset.subscriber_email ) {
+					email = form.dataset.subscriber_email;
 				}
 
 				const action = form.querySelector( 'input[name=action]' ).value;
@@ -68,6 +80,7 @@ domReady( function () {
 
 					const post_id = form.querySelector( 'input[name=post_id]' )?.value ?? '';
 					const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
+					const app_source = form.querySelector( 'input[name=app_source]' )?.value ?? '';
 
 					show_iframe( {
 						email,
@@ -76,8 +89,15 @@ domReady( function () {
 						blog: form.dataset.blog,
 						plan: 'newsletter',
 						source: 'jetpack_subscribe',
+						app_source,
 						post_access_level: form.dataset.post_access_level,
 						display: 'alternate',
+					} ).then( () => {
+						// Allows hiding other modals when the subscription modal/iframe shows up, e.g. hiding the subscription overlay modal
+						form.dispatchEvent( new Event( 'subscription-modal-loaded' ) );
+
+						button.classList.remove( 'is-loading' );
+						button.setAttribute( 'aria-busy', 'false' );
 					} );
 				}
 			} );

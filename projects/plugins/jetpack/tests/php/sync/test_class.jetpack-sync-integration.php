@@ -76,7 +76,9 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 	 */
 	public function test_starts_initial_sync_on_site_registered() {
 		do_action( 'jetpack_site_registered', 'abcd1234' );
-		$this->assertTrue( Modules::get_module( 'full-sync' )->is_started() );
+		$full_sync_module = Modules::get_module( 'full-sync' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $full_sync_module';
+		$this->assertTrue( $full_sync_module->is_started() );
 	}
 
 	/**
@@ -84,7 +86,9 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 	 */
 	public function test_starts_initial_sync_on_user_authorized() {
 		do_action( 'jetpack_user_authorized', 'abcd1234' );
-		$this->assertTrue( Modules::get_module( 'full-sync' )->is_started() );
+		$full_sync_module = Modules::get_module( 'full-sync' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $full_sync_module';
+		$this->assertTrue( $full_sync_module->is_started() );
 	}
 
 	public function test_sends_updating_jetpack_version_event() {

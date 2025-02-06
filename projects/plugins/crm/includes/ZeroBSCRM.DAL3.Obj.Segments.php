@@ -11,7 +11,7 @@
 
 use Automattic\JetpackCRM\Segment_Condition_Exception;
 
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
 * ZBS DAL >> Segments
@@ -339,11 +339,6 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
                             'id'            => $id,
                             'saveOrphans'   => $saveOrphans,
                         ));
-
-                        $customViews = $zbs->settings->get('customviews2');
-                        $segment_slug = $segment['slug'];
-                        unset( $customViews['customer_filters']["segment_$segment_slug"] );
-                        $zbs->settings->update('customviews2', $customViews);
 
                         return $del;
 

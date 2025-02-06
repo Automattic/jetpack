@@ -39,7 +39,7 @@ abstract class REST_Base_Test_Case extends JPCRM_Base_Integration_Test_Case {
 	 * This user will use the 'zerobs_admin' role by default and can be used
 	 * to test e.g. API endpoints.
 	 *
-	 * @param array  $args A list of arguments to create the WP user from.
+	 * @param array $args A list of arguments to create the WP user from.
 	 *
 	 * @return int
 	 */

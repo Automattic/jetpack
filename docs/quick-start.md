@@ -102,7 +102,7 @@ Note: This is for Automattician use only. For other methods, check out [ngrok](.
 Once you have a local copy of Jetpack and all development tools installed, you can start developing.
 
 1. Make sure the plugin you're developing is activated on your WordPress site.
-2. [Build your project](#building-your-project) using `jetpack build [type/project]`, such as `jetpack build plugins/jetpack`
+2. [Build your project](development-environment.md#building-your-project) using `jetpack build [type/project]` and including its dependencies, such as `jetpack build plugins/jetpack --deps`
 3. Access the plugin's dashboard in your browser.
 
 By default the development build above will run once and if you change any of the files, you need to run `jetpack build` again to see the changes on the site. If you want to avoid that, you can run a continuous build that will rebuild anytime it sees any changes on your local filesystem. To run it, use:
@@ -112,6 +112,6 @@ jetpack watch
 ```
 ### Running Tests
 
-To run PHP and JS tests, you can use the Jetpack CLI: `jetpack test` and then choose the project and type of test you'd like to run.
+To run PHP, JS, and coverage tests, you can use the Jetpack CLI: `jetpack test` and then choose the project and type of test you'd like to run.
 
 That's all!

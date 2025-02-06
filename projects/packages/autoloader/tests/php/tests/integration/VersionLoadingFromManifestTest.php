@@ -48,8 +48,8 @@ class VersionLoadingFromManifestTest extends TestCase {
 		$loader = new Version_Loader(
 			new Version_Selector(),
 			$path_map,
-			null,
-			null
+			array(),
+			array()
 		);
 
 		$file = $loader->find_class_file( Classmap_Test_Class::class );
@@ -70,9 +70,9 @@ class VersionLoadingFromManifestTest extends TestCase {
 
 		$loader = new Version_Loader(
 			new Version_Selector(),
-			null,
+			array(),
 			$path_map,
-			null
+			array()
 		);
 
 		$file = $loader->find_class_file( UniqueTestClass::class );
@@ -96,8 +96,8 @@ class VersionLoadingFromManifestTest extends TestCase {
 
 		$loader = new Version_Loader(
 			new Version_Selector(),
-			null,
-			null,
+			array(),
+			array(),
 			$path_map
 		);
 

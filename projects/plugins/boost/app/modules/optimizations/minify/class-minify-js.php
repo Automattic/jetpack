@@ -2,10 +2,13 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Minify;
 
+use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
+use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
+use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Minify\Concatenate_JS;
 
-class Minify_JS implements Pluggable {
+class Minify_JS implements Pluggable, Changes_Page_Output, Optimization, Has_Deactivate {
 
 	public static $default_excludes = array( 'jquery', 'jquery-core', 'underscore', 'backbone' );
 
@@ -25,6 +28,15 @@ class Minify_JS implements Pluggable {
 		return 'minify_js';
 	}
 
+	/**
+	 * The module starts serving as soon as it's enabled.
+	 *
+	 * @return bool
+	 */
+	public function is_ready() {
+		return true;
+	}
+
 	public static function is_available() {
 		return true;
 	}
@@ -35,5 +47,9 @@ class Minify_JS implements Pluggable {
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wp_scripts                         = new Concatenate_JS( $wp_scripts );
 		$wp_scripts->allow_gzip_compression = true; // @todo - used constant ALLOW_GZIP_COMPRESSION = true if not defined.
+	}
+
+	public static function deactivate() {
+		jetpack_boost_page_optimize_cleanup_cache( 'js' );
 	}
 }

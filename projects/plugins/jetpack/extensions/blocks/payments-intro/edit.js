@@ -1,17 +1,20 @@
-import { InnerBlocks, store as blockEditorStore } from '@wordpress/block-editor';
+import { InnerBlocks, store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
 import { cloneBlock, createBlock, getBlockType, registerBlockVariation } from '@wordpress/blocks';
 import { Placeholder } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { get } from 'lodash';
+import ConnectBanner from '../../shared/components/connect-banner';
+import useIsUserConnected from '../../shared/use-is-user-connected';
 import PaymentsIntroBlockPicker from './block-picker';
 import PaymentsIntroPatternPicker from './pattern-picker';
 import defaultVariations from './variations';
 
-export default function JetpackPaymentsIntroEdit( { name, clientId, className } ) {
+export default function JetpackPaymentsIntroEdit( { name, clientId } ) {
 	const patternFilter = pattern => pattern.categories?.includes( 'shop' );
 
+	const blockProps = useBlockProps();
 	const { blockType, hasInnerBlocks, hasPatterns, settings } = useSelect( select => {
 		const { getBlocks, __experimentalGetAllowedPatterns, getSettings } = select( blockEditorStore );
 
@@ -22,6 +25,8 @@ export default function JetpackPaymentsIntroEdit( { name, clientId, className } 
 			hasPatterns: __experimentalGetAllowedPatterns?.().filter( patternFilter ).length > 0,
 		};
 	} );
+
+	const isUserConnected = useIsUserConnected();
 
 	const { replaceBlock, selectBlock, updateSettings } = useDispatch( blockEditorStore );
 
@@ -64,13 +69,24 @@ export default function JetpackPaymentsIntroEdit( { name, clientId, className } 
 		instructions = __( 'Start by choosing one of our suggested layout patterns.', 'jetpack' );
 	}
 
-	if ( ! hasInnerBlocks && displayVariations ) {
-		return (
+	let content;
+
+	if ( ! isUserConnected ) {
+		content = (
+			<ConnectBanner
+				block="Payments"
+				explanation={ __(
+					'Connect your WordPress.com account to start using payments blocks.',
+					'jetpack'
+				) }
+			/>
+		);
+	} else if ( ! hasInnerBlocks && displayVariations ) {
+		content = (
 			<Placeholder
 				icon={ get( blockType, [ 'icon', 'src' ] ) }
 				label={ get( blockType, [ 'title' ] ) }
 				instructions={ instructions }
-				className={ className }
 			>
 				{ hasPatterns && (
 					<>
@@ -90,7 +106,9 @@ export default function JetpackPaymentsIntroEdit( { name, clientId, className } 
 				/>
 			</Placeholder>
 		);
+	} else {
+		content = <InnerBlocks />;
 	}
 
-	return <InnerBlocks />;
+	return <div { ...blockProps }>{ content }</div>;
 }

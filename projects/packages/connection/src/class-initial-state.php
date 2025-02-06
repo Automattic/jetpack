@@ -40,6 +40,18 @@ class Initial_State {
 	}
 
 	/**
+	 * Set the connection script data.
+	 *
+	 * @param array $data The script data.
+	 */
+	public static function set_connection_script_data( $data ) {
+
+		$data['connection'] = self::get_data();
+
+		return $data;
+	}
+
+	/**
 	 * Render the initial state into a JavaScript variable.
 	 *
 	 * @return string

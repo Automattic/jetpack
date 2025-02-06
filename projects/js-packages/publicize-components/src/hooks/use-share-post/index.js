@@ -1,4 +1,3 @@
-import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -6,12 +5,13 @@ import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
+import { getSocialScriptData } from '../../utils/script-data';
 
 /**
  * Takes an error object and returns a more meaningful error message.
  *
  * @param {object} result - An API error object.
- * @returns {{ message: string, result: object }} The error message and passed in error object.
+ * @return {{ message: string, result: object }} The error message and passed in error object.
  */
 function getHumanReadableError( result ) {
 	// Errors coming from the API.
@@ -35,26 +35,26 @@ function getHumanReadableError( result ) {
 		switch ( errorCode ) {
 			case 'http_request_failed':
 				// Define error message when external service is down.
-				errorMessage = __( 'Unable to share the Post', 'jetpack' );
+				errorMessage = __( 'Unable to share the Post', 'jetpack-publicize-components' );
 				break;
 			case 'rest_invalid_param':
 				// Error when something is wrong with the request.
-				errorMessage = __( 'Unable to share the Post', 'jetpack' );
+				errorMessage = __( 'Unable to share the Post', 'jetpack-publicize-components' );
 				break;
 
 			case 'rest_missing_callback_param':
 				// Error when something is wrong with the request.
-				errorMessage = __( 'Unable to share the Post', 'jetpack' );
+				errorMessage = __( 'Unable to share the Post', 'jetpack-publicize-components' );
 				break;
 
 			default:
-				errorMessage = __( 'Unable to share the Post', 'jetpack' );
+				errorMessage = __( 'Unable to share the Post', 'jetpack-publicize-components' );
 		}
 	}
 
 	// Im multiple requests, the response contains the errors array.
 	if ( hasSharingErrors ) {
-		errorMessage = __( 'Unable to share the Post', 'jetpack' );
+		errorMessage = __( 'Unable to share the Post', 'jetpack-publicize-components' );
 	}
 
 	return {
@@ -66,25 +66,23 @@ function getHumanReadableError( result ) {
 /**
  * A hook to get the necessary data and callbacks to reshare a post.
  *
- * @param {number} postId - The ID of the post to share.
- * @returns { { doPublicize: Function, data: object } } The doPublicize callback to share the post.
+ * @param {number} [postId] - The ID of the post to share.
+ * @return { { doPublicize: (connectionsToSkip?: Array<string>) => Promise<void>, data: object } } The doPublicize callback to share the post.
  */
 export default function useSharePost( postId ) {
 	// Sharing data.
 	const { message } = useSocialMediaMessage();
-	const { skippedConnections: skipped_connections } = useSocialMediaConnections();
+	const { skippedConnections } = useSocialMediaConnections();
 
 	// Get post ID to share.
 	const currentPostId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	postId = postId || currentPostId;
 
 	const [ data, setData ] = useState( { data: [], error: {} } );
-	const path = (
-		getJetpackData()?.social?.resharePath ?? '/wpcom/v2/posts/{postId}/publicize'
-	).replace( '{postId}', postId );
+	const path = getSocialScriptData().api_paths.resharePost.replace( '{postId}', postId );
 
 	const doPublicize = useCallback(
-		function () {
+		async function ( connectionsToSkip = null ) {
 			const initialState = {
 				isFetching: false,
 				isError: false,
@@ -99,18 +97,21 @@ export default function useSharePost( postId ) {
 				return;
 			}
 
+			const skipped_connections = connectionsToSkip || skippedConnections;
+
 			// Start the request.
 			setData( {
 				...initialState,
 				isFetching: true,
 			} );
 
-			apiFetch( {
+			await apiFetch( {
 				path,
 				method: 'POST',
 				data: {
 					message,
 					skipped_connections,
+					async: true,
 				},
 			} )
 				.then( ( result = {} ) => {
@@ -151,7 +152,7 @@ export default function useSharePost( postId ) {
 				setData( initialState ); // clean the state.
 			};
 		},
-		[ postId, message, skipped_connections, data.isFetching, path ]
+		[ postId, message, skippedConnections, data.isFetching, path ]
 	);
 
 	return { ...data, doPublicize };

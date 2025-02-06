@@ -5,13 +5,7 @@
  * Copyright 2021 Automattic
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 /**
@@ -109,6 +103,12 @@ function jpcrm_retrieve_template( $template_file = '', $load = true ) {
 		// do we have a valid template?
 		if ( !empty( $template_file_path ) && file_exists( $template_file_path ) ){
 
+			// Prevent file traversal attacks.
+			$allowed_template_paths = jpcrm_get_allowed_template_paths();
+			if ( ! jpcrm_is_allowed_path( $template_file_path, $allowed_template_paths ) ) {
+				return __( 'Unable to load template.', 'zero-bs-crm' );
+			}
+
 			// load or return contents
 			if ( $load ){
 
@@ -174,7 +174,19 @@ function jpcrm_retrieve_template( $template_file = '', $load = true ) {
 
 }
 
-
+/**
+ * Returns an array of allowed template paths.
+ */
+function jpcrm_get_allowed_template_paths() {
+	global $zbs;
+	$allowed_template_paths = array(
+		'default'      => ZEROBSCRM_PATH . 'templates/',
+		'theme'        => get_stylesheet_directory() . '/' . $zbs->template_path . '/',
+		'template'     => get_template_directory() . '/' . $zbs->template_path . '/',
+		'theme-compat' => ABSPATH . WPINC . '/theme-compat/' . $zbs->template_path . '/',
+	);
+	return $allowed_template_paths;
+}
 
 /**
  * Attempts to find variants of a template file and returns as an array
@@ -309,36 +321,6 @@ function jpcrm_template_missing_notification( $template_file = '' ) {
 
 }
 
-
-
-
-/*
-* Function to return html file related to PDF
-* we've done away with the need for this via the jpcrm_templating_placeholders class.
-*/
-function zeroBSCRM_retrievePDFTemplate($template='default'){
-
-	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_retrievePDFTemplate was deprecated in v4.5.0, please use the jpcrm_templating_placeholders class');
-
-	return '';
-
-}
-
-
-/*
-* Function to return html file of a quote template
-* we've done away with the need for this via the jpcrm_templating_placeholders class.
-*/
-function zeroBSCRM_retrieveQuoteTemplate($template='default'){
-
-	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_retrieveQuoteTemplate was deprecated in v4.5.0, please use the jpcrm_templating_placeholders class');
-
-	return '';
-
-}
-
-
-
 /* WH Notes:
 
 	There was all this note-age from old vers:
@@ -363,24 +345,22 @@ function zeroBSCRM_replace_customer_placeholders($html = '', $cID = -1, $contact
 		if (is_array($contactObj) && isset($contactObj['id']))
 			$contact = $contactObj;
 		else {
-			if ($zbs->isDAL3())
-				// v3.0
-				$contact = $zbs->DAL->contacts->getContact($cID,array(
-		            'withCustomFields'  => true,
-		            // need any of these?
-		            'withQuotes'        => false,
-		            'withInvoices'      => false,
-		            'withTransactions'  => false,
-		            'withLogs'          => false,
-		            'withLastLog'       => false,
-		            'withTags'          => false,
-		            'withCompanies'     => false,
-		            'withOwner'         => false,
-		            'withValues'        => false,
-            ));
-			else
-				// pre v3.0
-				$contact = zeroBS_getCustomerMeta($cID);
+			$contact = $zbs->DAL->contacts->getContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$cID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				array(
+					'withCustomFields' => true,
+					// need any of these?
+					'withQuotes'       => false,
+					'withInvoices'     => false,
+					'withTransactions' => false,
+					'withLogs'         => false,
+					'withLastLog'      => false,
+					'withTags'         => false,
+					'withCompanies'    => false,
+					'withOwner'        => false,
+					'withValues'       => false,
+				)
+			);
 		}
 
 		// replace all placeholders :)

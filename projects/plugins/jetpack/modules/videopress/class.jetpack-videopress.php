@@ -73,23 +73,25 @@ class Jetpack_VideoPress {
 	 */
 	public function media_new_page_admin_notice() {
 		global $pagenow;
-
-		if ( 'media-new.php' === $pagenow ) {
-			echo '<div class="notice notice-warning is-dismissible">' .
-					'<p>' .
-					wp_kses(
-						sprintf(
-							/* translators: %s is the url to the Media Library */
-							__( 'VideoPress uploads are not supported here. To upload to VideoPress, add your videos from the <a href="%s">Media Library</a> or the block editor using the Video block.', 'jetpack' ),
-							esc_url( admin_url( 'upload.php' ) )
-						),
-						array(
-							'a' => array( 'href' => array() ),
-						)
-					) .
-					'</p>' .
-				'</div>';
+		if ( 'media-new.php' !== $pagenow ) {
+			return;
 		}
+
+		$message = sprintf(
+			wp_kses(
+				/* translators: %s is the url to the Media Library */
+				__( 'VideoPress uploads are not supported here. To upload to VideoPress, add your videos from the <a href="%s">Media Library</a> or the block editor using the Video block.', 'jetpack' ),
+				array( 'a' => array( 'href' => array() ) )
+			),
+			esc_url( admin_url( 'upload.php?mode=grid&action=add-new' ) )
+		);
+		wp_admin_notice(
+			$message,
+			array(
+				'type'        => 'warning',
+				'dismissible' => true,
+			)
+		);
 	}
 
 	/**

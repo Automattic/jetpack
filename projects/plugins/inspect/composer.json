@@ -16,6 +16,7 @@
 		}
 	},
 	"require": {
+		"php": ">=7.4",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
@@ -23,7 +24,7 @@
 		"automattic/jetpack-config": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.1.0",
+		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"config": {
@@ -37,7 +38,9 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
-		"skip-test-php": "tests/action-skip-test-php.sh",
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+		],
 		"test-php": [
 			"@composer phpunit"
 		],

@@ -14,9 +14,6 @@
  */
 $tools = array(
 	// Always loaded, but only registered if theme supports it.
-	'custom-post-types/comics.php',
-	'custom-post-types/testimonial.php',
-	'custom-post-types/nova.php',
 	'geo-location.php',
 	// Those oEmbed providers are always available.
 	'shortcodes/facebook.php',
@@ -24,27 +21,22 @@ $tools = array(
 	// Theme Tools.
 	'theme-tools.php',
 	'theme-tools/social-links.php',
-	'theme-tools/random-redirect.php',
 	'theme-tools/featured-content.php',
-	'theme-tools/infinite-scroll.php',
 	'theme-tools/responsive-videos.php',
 	'theme-tools/site-logo.php',
 	'theme-tools/site-breadcrumbs.php',
 	'theme-tools/social-menu.php',
 	'theme-tools/content-options.php',
-	'theme-tools/devicepx.php',
 	// Needed for VideoPress, so videos keep working in existing posts/pages when the module is deactivated.
 	'videopress/class.videopress-gutenberg.php',
 );
 
 // Some features are only available when connected to WordPress.com.
 $connected_tools = array(
-	'calypsoify/class-jetpack-calypsoify.php',
-	'cloudflare-analytics/cloudflare-analytics.php',
+	'external-media/external-media.php',
 	'plugin-search.php',
 	'scan/scan.php', // Shows Jetpack Scan alerts in the admin bar if threats found.
 	'simple-payments/simple-payments.php',
-	'wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
 	'wpcom-tos/wpcom-tos.php',
 	// These oEmbed providers are available when connected to WordPress.com.
 	// Starting from 2020-10-24, they need an authentication token, and that token is stored on WordPress.com.

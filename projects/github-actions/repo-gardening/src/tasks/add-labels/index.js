@@ -1,6 +1,7 @@
 const { getInput } = require( '@actions/core' );
 const debug = require( '../../utils/debug' );
 const getFiles = require( '../../utils/get-files' );
+const getLabels = require( '../../utils/labels/get-labels' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -11,7 +12,7 @@ const getFiles = require( '../../utils/get-files' );
  * - Capitalize.
  *
  * @param {string} name - Feature name.
- * @returns {string} Cleaned up feature name.
+ * @return {string} Cleaned up feature name.
  */
 function cleanName( name ) {
 	const name_exceptions = {
@@ -49,17 +50,17 @@ function cleanName( name ) {
 }
 
 /**
- * Build a list of labels to add to the issue, based off our file list.
+ * Build a list of labels to add to the pull request, based off our file list.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - PR number.
+ * @param {GitHub}  octokit  - Initialized Octokit REST client.
+ * @param {string}  owner    - Repository owner.
+ * @param {string}  repo     - Repository name.
+ * @param {string}  number   - PR number.
  * @param {boolean} isDraft  - Whether the pull request is a draft.
- * @param {boolean} isRevert  - Whether the pull request is a revert.
- * @returns {Promise<Array>} Promise resolving to an array of keywords we'll search for.
+ * @param {boolean} isRevert - Whether the pull request is a revert.
+ * @return {Promise<Array>} Promise resolving to an array of keywords we'll search for.
  */
-async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert ) {
+async function getFileDerivedLabels( octokit, owner, repo, number, isDraft, isRevert ) {
 	const keywords = new Set();
 
 	// Get next valid milestone.
@@ -71,12 +72,11 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 
 	debug( 'add-labels: Loop through all files modified in this PR and add matching labels.' );
 
-	files.map( file => {
+	for ( const file of files ) {
 		// Projects.
 		const project = file.match( /^projects\/(?<ptype>[^/]*)\/(?<pname>[^/]*)\// );
 		if ( project && project.groups.ptype && project.groups.pname ) {
 			const prefix = {
-				'editor-extensions': 'Block',
 				'github-actions': 'Action',
 				packages: 'Package',
 				plugins: 'Plugin',
@@ -138,6 +138,58 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 			}
 		}
 
+		// The SSO feature now lives in both a package and a Jetpack module.
+		const sso = file.match( /^projects\/packages\/connection\/src\/sso\// );
+		if ( sso !== null ) {
+			keywords.add( '[Feature] SSO' );
+		}
+
+		// The Google Analytics feature now lives in both a package and a Jetpack module.
+		const googleAnalytics = file.match( /^projects\/packages\/google-analytics\// );
+		if ( googleAnalytics !== null ) {
+			keywords.add( '[Feature] Google Analytics' );
+		}
+
+		// The Publicize feature now lives in a package, a Jetpack module, and a js package.
+		const publicize = file.match(
+			/^projects\/(packages\/publicize|js-packages\/publicize-components)\//
+		);
+		if ( publicize !== null ) {
+			keywords.add( '[Feature] Publicize' );
+		}
+
+		// Theme Tools have now been extracted to their own package.
+		const themeTools = file.match( /^projects\/packages\/classic-theme-helper\// );
+		if ( themeTools !== null ) {
+			keywords.add( '[Feature] Theme Tools' );
+		}
+
+		// The WooCommerce Analytics feature now lives in both a package and a Jetpack module.
+		const wooCommerceAnalytics = file.match( /^projects\/packages\/woocommerce-analytics\// );
+		if ( wooCommerceAnalytics !== null ) {
+			keywords.add( '[Feature] WooCommerce Analytics' );
+		}
+
+		// The Masterbar feature now lives in both a package and a Jetpack module.
+		const masterbar = file.match( /^projects\/packages\/masterbar\// );
+		if ( masterbar !== null ) {
+			keywords.add( '[Feature] Masterbar' );
+		}
+
+		// The Calypsoify feature now lives in both a package and a Jetpack module.
+		const calypsoify = file.match( /^projects\/packages\/calypsoify\// );
+		if ( calypsoify !== null ) {
+			keywords.add( '[Feature] Calypsoify' );
+		}
+
+		// Social Previews are now developed in a separate package.
+		const socialPreviews = file.match(
+			/^projects\/js-packages\/publicize-components\/src\/components\/social-previews\//
+		);
+		if ( socialPreviews !== null ) {
+			keywords.add( '[Extension] Social Previews' );
+		}
+
 		// Docker.
 		const docker = file.match( /^(projects\/plugins\/boost\/docker|tools\/docker)\// );
 		if ( docker !== null ) {
@@ -149,8 +201,8 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 			keywords.add( '[Tools] Development CLI' );
 		}
 
-		const docs = file.match( /^docs\/|\.md$/ ) && ! file.match( /\/CHANGELOG\.md$/ );
-		if ( docs !== null ) {
+		const docs = file.match( /^docs\/|\.md$/ ) && ! file.match( /CHANGELOG\.md$/i );
+		if ( docs ) {
 			keywords.add( 'Docs' );
 		}
 
@@ -165,6 +217,14 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 					`[${ 'plugins' === blockType ? 'Extension' : 'Block' }] ${ cleanName( blockName ) }`
 				);
 			}
+		}
+
+		// External Media extension.
+		const externalMedia = file.match(
+			/^projects\/plugins\/jetpack\/extensions\/shared\/external-media\//
+		);
+		if ( externalMedia !== null ) {
+			keywords.add( '[Extension] External Media' );
 		}
 
 		// React Dashboard and Boost Admin.
@@ -210,9 +270,9 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 			keywords.add( `[mu wpcom Feature] ${ cleanName( muWpcomFeatureName ) }` );
 		}
 
-		// Boost Critical CSS.
+		// Boost Features
 		const boostModules = file.match(
-			/^projects\/plugins\/boost\/app\/(?:modules|features)\/(?<boostModule>[^/]*)\//
+			/^projects\/plugins\/boost\/app\/(?:modules|features)\/(?:optimizations\/)?(?<boostModule>[^/]*)\//
 		);
 		const boostModuleName = boostModules && boostModules.groups.boostModule;
 		if ( boostModuleName ) {
@@ -238,7 +298,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 		if ( anyTestFile ) {
 			keywords.add( '[Tests] Includes Tests' );
 		}
-	} );
+	}
 
 	// The Image CDN was previously named "Photon".
 	// If we're touching that package, let's add the Photon label too
@@ -261,7 +321,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 }
 
 /**
- * Assigns any issues that are being worked to the author of the matching PR.
+ * Adds appropriate labels to the specified PR.
  *
  * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
  * @param {GitHub}                    octokit - Initialized Octokit REST client.
@@ -271,26 +331,83 @@ async function addLabels( payload, octokit ) {
 	const { owner, name } = repository;
 	const { draft, title } = pull_request;
 
+	// GitHub allows 100 labels on a PR.
+	// Limit to less than that to allow a buffer for future manual labels.
+	const maxLabels = 90;
+	const bigProjectLabel = '[Project] All the things!';
+
 	// Get labels to add to the PR.
 	const isDraft = !! ( pull_request && draft );
 
 	// If the PR title includes the word "revert", mark it as such.
 	const isRevert = title.toLowerCase().includes( 'revert' );
 
-	const labels = await getLabelsToAdd( octokit, owner.login, name, number, isDraft, isRevert );
+	const fileDerivedLabels = await getFileDerivedLabels(
+		octokit,
+		owner.login,
+		name,
+		number,
+		isDraft,
+		isRevert
+	);
 
-	if ( ! labels.length ) {
-		debug( 'add-labels: Could not find labels to add to that PR. Aborting' );
+	// Grab current labels on the PR.
+	// We can't rely on payload, as it could be outdated by the time this runs.
+	const currentLabels = await getLabels( octokit, owner.login, name, number );
+
+	// This is an array of labels that GitHub doesn't already have.
+	let labelsToAdd = fileDerivedLabels.filter( label => ! currentLabels.includes( label ) );
+
+	// Nothing new was added, so abort.
+	if ( labelsToAdd.length === 0 ) {
+		debug( 'add-labels: No new labels to add to that PR. Aborting.' );
 		return;
 	}
 
-	debug( `add-labels: Adding labels ${ labels } to PR #${ number }` );
+	// Determine how many labels can safely be added.
+	let maxLabelsToAdd = Math.max( 0, maxLabels - currentLabels.length );
+
+	// Overkill, but let's prevent this label from counting toward the max.
+	const hasBigProjectLabel = currentLabels.includes( bigProjectLabel );
+	if ( hasBigProjectLabel ) {
+		maxLabelsToAdd++;
+	}
+
+	// If there are too many labels, we need to reduce the label count to keep GitHub happy.
+	if ( labelsToAdd.length > maxLabelsToAdd ) {
+		debug( `add-labels: Too many labels! Grouping project labels into '${ bigProjectLabel }'.` );
+
+		// Filter out project-type labels in deference to bigProjectLabel.
+		// In theory we could also remove any existing project-type labels here, but for now
+		// let's not as that would prevent manually adding specific project labels.
+		const projectLabelRegex = /^(\[Action\]|\[Package\]|\[Plugin\]|\[JS Package\])/;
+		labelsToAdd = labelsToAdd.filter( label => ! projectLabelRegex.test( label ) );
+
+		if ( ! hasBigProjectLabel ) {
+			// Add to the beginning of the labels array in case the array gets truncated later on.
+			labelsToAdd.unshift( bigProjectLabel );
+		}
+	} else if ( hasBigProjectLabel ) {
+		await octokit.rest.issues.removeLabel( {
+			owner: owner.login,
+			repo: name,
+			issue_number: number,
+			name: bigProjectLabel,
+		} );
+	}
+	// In the rare chance there would still be too many labels...
+	if ( labelsToAdd.length > maxLabelsToAdd ) {
+		debug( `add-labels: Limiting to the first ${ maxLabels }.` );
+		labelsToAdd.splice( maxLabelsToAdd );
+	}
+
+	debug( `add-labels: Adding labels ${ labelsToAdd } to PR #${ number }` );
 
 	await octokit.rest.issues.addLabels( {
 		owner: owner.login,
 		repo: name,
 		issue_number: number,
-		labels,
+		labels: labelsToAdd,
 	} );
 }
 

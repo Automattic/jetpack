@@ -11,6 +11,7 @@ use Automattic\Jetpack\Assets;
 use WP_Block_Parser;
 use WP_Block_Patterns_Registry;
 use WP_Error;
+use WP_Query;
 use WP_REST_Templates_Controller;
 
 /**
@@ -365,6 +366,7 @@ class Instant_Search extends Classic_Search {
 
 		// Init overlay sidebar if it doesn't exists.
 		if ( ! isset( $sidebars[ self::INSTANT_SEARCH_SIDEBAR ] ) ) {
+			$this->register_jetpack_instant_sidebar();
 			$sidebars[ self::INSTANT_SEARCH_SIDEBAR ] = array();
 		}
 
@@ -379,6 +381,9 @@ class Instant_Search extends Classic_Search {
 			$widget_options[ $next_id ] = $widget_options[ $sidebar_jp_searchbox_wiget_id ];
 		} else {
 			// If JP Search widget doesn't exist in the theme sidebar, we have nothing to copy from, so we create a new one within the overlay sidebar.
+			$search_widget = new Search_Widget();
+			$search_widget->_set( $next_id );
+			$search_widget->_register_one( $next_id );
 			$widget_options[ $next_id ] = $this->get_preconfig_widget_options();
 		}
 		array_unshift( $sidebars[ self::INSTANT_SEARCH_SIDEBAR ], Helper::build_widget_id( $next_id ) );
@@ -610,7 +615,7 @@ class Instant_Search extends Classic_Search {
 	/**
 	 * Append Search block to block if no 'wp:search' exists already.
 	 *
-	 * @param {string} $block_content - the content to append the search block.
+	 * @param string $block_content - the content to append the search block.
 	 */
 	public static function inject_search_widget_to_block( $block_content ) {
 		$search_block = sprintf(

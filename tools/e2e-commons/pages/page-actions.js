@@ -1,6 +1,6 @@
-import logger from '../logger.js';
 import chalk from 'chalk';
 import config from 'config';
+import logger from '../logger.js';
 import pwConfig from '../playwright.config.mjs';
 
 /**
@@ -8,6 +8,10 @@ import pwConfig from '../playwright.config.mjs';
  * It is supposed to be the base of a page object, extended by any page or page component class
  */
 export default class PageActions {
+	/**
+	 * @type {import('@playwright/test').PlaywrightTestArgs['page']} The page instance
+	 */
+	page;
 	constructor( page, pageName, selectors, timeoutOverride = null ) {
 		this.page = page;
 		this.selectors = selectors;
@@ -20,8 +24,8 @@ export default class PageActions {
 	/**
 	 * Navigate to a given URL
 	 *
-	 * @param {string} url
-	 * @param {Object} options object. see: https://playwright.dev/docs/api/class-page?_highlight=goto#pagegotourl-options
+	 * @param {string} url     - URL.
+	 * @param {object} options - object. see: https://playwright.dev/docs/api/class-page?_highlight=goto#pagegotourl-options
 	 * @return {Promise<void>}
 	 */
 	async goto( url, options = { waitUntil: 'domcontentloaded' } ) {
@@ -45,7 +49,7 @@ export default class PageActions {
 	/**
 	 * Waits for DOM content load and the for each of the given selectors to become visible on the page.
 	 *
-	 * @param {boolean} checkSelectors whether to check for expected selectors
+	 * @param {boolean} checkSelectors - whether to check for expected selectors
 	 */
 	async waitForPage( checkSelectors = true ) {
 		logger.action( `Waiting for ${ this.pageName }` );
@@ -68,12 +72,12 @@ export default class PageActions {
 	/**
 	 * Reloads the page and waits for page to be loaded
 	 *
-	 * @param {Object} options page.reload options object
+	 * @param {object} options - page.reload options object
 	 */
 	async reload( options = {} ) {
 		logger.action( 'Reloading page' );
 		await this.page.reload( options );
-		return await this.waitForPage();
+		await this.waitForPage();
 	}
 
 	/**
@@ -81,7 +85,7 @@ export default class PageActions {
 	 *
 	 * TODO: Deprecate and remove this, see https://github.com/playwright-community/eslint-plugin-playwright/blob/main/docs/rules/no-wait-for-timeout.md
 	 *
-	 * @param {number} timeout A timeout to wait for in milliseconds
+	 * @param {number} timeout - A timeout to wait for in milliseconds
 	 * @return {Promise<void>}
 	 */
 	async waitForTimeout( timeout ) {
@@ -95,7 +99,7 @@ export default class PageActions {
 	 *
 	 * TODO: Deprecate and remove this, see https://github.com/playwright-community/eslint-plugin-playwright/blob/main/docs/rules/no-networkidle.md
 	 *
-	 * @param {number} timeout
+	 * @param {number} timeout - Timeout.
 	 * @return {Promise<void>}
 	 */
 	async waitForNetworkIdle( timeout = this.timeout ) {
@@ -106,7 +110,7 @@ export default class PageActions {
 	/**
 	 * Waits for page to reach the 'load' load state or timeout in given ms
 	 *
-	 * @param {number} timeout
+	 * @param {number} timeout - Timeout.
 	 * @return {Promise<void>}
 	 */
 	async waitForLoad( timeout = this.timeout ) {
@@ -116,7 +120,7 @@ export default class PageActions {
 	/**
 	 * Waits for page to reach the 'domcontentloaded' load state or timeout in given ms
 	 *
-	 * @param {number} timeout
+	 * @param {number} timeout - Timeout.
 	 * @return {Promise<void>}
 	 */
 	async waitForDomContentLoaded( timeout = this.timeout ) {
@@ -127,8 +131,8 @@ export default class PageActions {
 	 * Waits for page to reach the given load state or timeout in given ms
 	 * https://playwright.dev/docs/api/class-page?_highlight=waitforlo#pagewaitforloadstatestate-options
 	 *
-	 * @param {string} state
-	 * @param {number} timeout
+	 * @param {string} state   - expected state (load|domcontentloaded|networkidle)
+	 * @param {number} timeout - Timeout.
 	 * @return {Promise<void>}
 	 */
 	async waitForLoadState( state, timeout ) {
@@ -149,7 +153,7 @@ export default class PageActions {
 	/**
 	 * Adds a cookie to browser and reloads the page
 	 *
-	 * @param {Object} cookie the cookie object
+	 * @param {object} cookie - the cookie object
 	 * @return {Promise<void>}
 	 */
 	async setCookie( cookie ) {
@@ -174,8 +178,8 @@ export default class PageActions {
 	/**
 	 * Click element in page
 	 *
-	 * @param {string} selector the element's selector
-	 * @param {Object} options  click options. see: https://playwright.dev/docs/api/class-page#pageclickselector-options
+	 * @param {string} selector - the element's selector
+	 * @param {object} options  - click options. see: https://playwright.dev/docs/api/class-page#pageclickselector-options
 	 * @return {Promise<void>}
 	 */
 	async click( selector, options = {} ) {
@@ -186,7 +190,8 @@ export default class PageActions {
 	/**
 	 * Clicks on the element which will open up a new page and waits for that page to load and returns a new page object
 	 *
-	 * @param {string} selector CSS selector of the element to be clicked
+	 * @param {string} selector - CSS selector of the element to be clicked
+	 * @return {Promise<import('@playwright/test').PlaywrightTestArgs['page']>} Page
 	 */
 	async clickAndWaitForNewPage( selector ) {
 		const [ newPage ] = await Promise.all( [
@@ -203,7 +208,7 @@ export default class PageActions {
 	/**
 	 * Clear element's text by typing ''
 	 *
-	 * @param {string} selector the element's selector
+	 * @param {string} selector - the element's selector
 	 * @return {Promise<void>}
 	 */
 	async clear( selector ) {
@@ -215,9 +220,9 @@ export default class PageActions {
 	 * Types text in an element in page, can be used to send fine-grained keyboard events.
 	 * Do not used for form filling. See `fill` method for that.
 	 *
-	 * @param {string} selector the element's selector
-	 * @param {string} text     to be typed
-	 * @param {Object} options  click options. see: https://playwright.dev/docs/api/class-page#pagetypeselector-text-options
+	 * @param {string} selector - the element's selector
+	 * @param {string} text     - to be typed
+	 * @param {object} options  - click options. see: https://playwright.dev/docs/api/class-page#pagetypeselector-text-options
 	 * @return {Promise<void>}
 	 */
 	async type( selector, text, options = {} ) {
@@ -230,9 +235,9 @@ export default class PageActions {
 	 * Fills an editable text type element.
 	 * It waits for actionability checks before filling
 	 *
-	 * @param {string} selector the element's selector
-	 * @param {string} text     to be filled in
-	 * @param {Object} options  see: https://playwright.dev/docs/api/class-page/#pagefillselector-value-options
+	 * @param {string} selector - the element's selector
+	 * @param {string} text     - to be filled in
+	 * @param {object} options  - see: https://playwright.dev/docs/api/class-page/#pagefillselector-value-options
 	 * @return {Promise<void>}
 	 */
 	async fill( selector, text, options = {} ) {
@@ -243,8 +248,8 @@ export default class PageActions {
 	/**
 	 * Focus an element in page.
 	 *
-	 * @param {string} selector the element's selector
-	 * @param {Object} options  see: https://playwright.dev/docs/api/class-page?_highlight=focus#pagefocusselector-options
+	 * @param {string} selector - the element's selector
+	 * @param {object} options  - see: https://playwright.dev/docs/api/class-page?_highlight=focus#pagefocusselector-options
 	 * @return {Promise<void>}
 	 */
 	async focus( selector, options = {} ) {
@@ -256,8 +261,8 @@ export default class PageActions {
 	 * Waits for an element to be visible in a given timeout or throws timeout error
 	 * See https://playwright.dev/docs/api/class-page?_highlight=waitforselector#pagewaitforselectorselector-options for what visible means
 	 *
-	 * @param {string} selector
-	 * @param {number} timeout
+	 * @param {string} selector - Selector.
+	 * @param {number} timeout  - Timeout.
 	 * @return {Promise<*>} Returns the element handler
 	 */
 	async waitForElementToBeVisible( selector, timeout = this.timeout ) {
@@ -267,8 +272,8 @@ export default class PageActions {
 	/**
 	 * Waits for an element to be attached in a given timeout or throws timeout error
 	 *
-	 * @param {string} selector
-	 * @param {number} timeout
+	 * @param {string} selector - Selector.
+	 * @param {number} timeout  - Timeout.
 	 * @return {Promise<*>} Returns the element handler
 	 */
 	async waitForElementToBeAttached( selector, timeout = this.timeout ) {
@@ -278,8 +283,8 @@ export default class PageActions {
 	/**
 	 * Waits for an element to be detached in a given timeout or throws timeout error
 	 *
-	 * @param {string} selector
-	 * @param {number} timeout
+	 * @param {string} selector - Selector.
+	 * @param {number} timeout  - Timeout.
 	 * @return {Promise<*>} Returns null
 	 */
 	async waitForElementToBeDetached( selector, timeout = this.timeout ) {
@@ -290,8 +295,8 @@ export default class PageActions {
 	 * Waits for an element to be hidden in a given timeout or throws timeout error
 	 * See https://playwright.dev/docs/api/class-page?_highlight=waitforselector#pagewaitforselectorselector-options for what hidden means
 	 *
-	 * @param {string} selector
-	 * @param {number} timeout
+	 * @param {string} selector - Selector.
+	 * @param {number} timeout  - Timeout.
 	 * @return {Promise<*>} Returns null
 	 */
 	async waitForElementToBeHidden( selector, timeout = this.timeout ) {
@@ -302,23 +307,25 @@ export default class PageActions {
 	 * Waits for an element to has the given state in a given timeout or throws timeout error
 	 * https://playwright.dev/docs/api/class-page?_highlight=waitforselector#pagewaitforselectorselector-options
 	 *
-	 * @param {string} selector
+	 * @param {string} selector - Selector.
 	 * @param {string} state    - expected element state (visible|attached|detached|hidden)
-	 * @param {number} timeout
+	 * @param {number} timeout  - Timeout.
 	 * @return {Promise<*>} Returns element handler or null if waiting for hidden or detached
 	 */
 	async waitForElementState( selector, state, timeout = this.timeout ) {
 		logger.action(
 			`Waiting for element '${ selector }' to be ${ state } [timeout: ${ timeout } ms]`
 		);
-		return await this.page.waitForSelector( selector, { state, timeout } );
+		const element = this.page.locator( selector ).first();
+		await element.waitFor( { state, timeout } );
+		return element;
 	}
 
 	/**
 	 * Returns whether an element with the given selector is visible.
 	 *
-	 * @param {string} selector
-	 * @param {number} timeout
+	 * @param {string} selector - Selector.
+	 * @param {number} timeout  - Timeout.
 	 * @return {Promise<boolean>} true if at least one element with the given selector is visible, false otherwise
 	 */
 	async isElementVisible( selector, timeout = this.timeout ) {
@@ -326,18 +333,18 @@ export default class PageActions {
 		try {
 			await this.page.locator( selector ).first().waitFor( { timeout } );
 			return true;
-		} catch ( e ) {
+		} catch {
 			logger.warn( `Element '${ selector }' was not visible. Waited for ${ timeout }ms` );
 			return false;
 		}
 	}
 
 	/**
-	 * See https://playwright.dev/docs/api/class-elementhandle?_highlight=selectoption#elementhandleselectoptionvalues-options
+	 * See https://playwright.dev/docs/api/class-page?_highlight=hover#page-select-option
 	 *
-	 * @param {string} selector
-	 * @param {Object} values   - can be null|string|ElementHandle|Array<string>|Object|Array<ElementHandle>|Array<Object>
-	 * @param {Object} options
+	 * @param {string} selector - Selector.
+	 * @param {object} values   - can be null|string|ElementHandle|Array<string>|Object|Array<ElementHandle>|Array<Object>
+	 * @param {object} options  - See https://playwright.dev/docs/api/class-page?_highlight=hover#page-select-option
 	 * @return {Promise<void>}
 	 */
 	async selectOption( selector, values, options = {} ) {
@@ -348,8 +355,8 @@ export default class PageActions {
 	/**
 	 * This method hovers over an element matching selector
 	 *
-	 * @param {string} selector
-	 * @param {Object} options  see https://playwright.dev/docs/api/class-page?_highlight=hover#pagehoverselector-options
+	 * @param {string} selector - Selector.
+	 * @param {object} options  - see https://playwright.dev/docs/api/class-page?_highlight=hover#pagehoverselector-options
 	 * @return {Promise<void>}
 	 */
 	async hover( selector, options = {} ) {
@@ -360,8 +367,8 @@ export default class PageActions {
 	/**
 	 * Returns whether an element with the given selector is checked.
 	 *
-	 * @param {string} selector
-	 * @param {number} timeout
+	 * @param {string} selector - Selector.
+	 * @param {number} timeout  - Timeout.
 	 * @return {Promise<boolean>} true if element is checked, false otherwise
 	 */
 	async isElementChecked( selector, timeout = this.timeout ) {

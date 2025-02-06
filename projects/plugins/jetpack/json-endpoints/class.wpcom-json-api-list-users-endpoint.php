@@ -38,6 +38,7 @@ new WPCOM_JSON_API_List_Users_Endpoint(
 			'search'          => '(string) Find matching users.',
 			'search_columns'  => "(array) Specify which columns to check for matching users. Can be any of 'ID', 'user_login', 'user_email', 'user_url', 'user_nicename', and 'display_name'. Only works when combined with `search` parameter.",
 			'role'            => '(string) Specify a specific user role to fetch.',
+			'capability'      => '(string) Specify a specific capability to fetch. You can specify multiple by comma separating them, in which case the user needs to match all capabilities provided.',
 		),
 
 		'response_format'      => array(
@@ -159,6 +160,10 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$query['role'] = $args['role'];
 		}
 
+		if ( ! empty( $args['capability'] ) ) {
+			$query['capability'] = $args['capability'];
+		}
+
 		$user_query = new WP_User_Query( $query );
 
 		remove_filter( 'user_search_columns', array( $this, 'api_user_override_search_columns' ) );
@@ -176,14 +181,16 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 		) : array();
 		$viewers = array_map( array( $this, 'get_author' ), $viewers );
 
-		// we restrict search field to name when include_viewers is true.
+		// When include_viewers is true, search by username or email.
 		if ( $include_viewers && ! empty( $args['search'] ) ) {
 			$viewers = array_filter(
 				$viewers,
 				function ( $viewer ) use ( $args ) {
+					// Convert to WP_User so expected fields are available.
+					$wp_viewer = new WP_User( $viewer->ID );
 					// remove special database search characters from search term
 					$search_term = str_replace( '*', '', $args['search'] );
-					return strpos( $viewer->name, $search_term ) !== false;
+					return ( str_contains( $wp_viewer->user_login, $search_term ) || str_contains( $wp_viewer->user_email, $search_term ) || str_contains( $wp_viewer->display_name, $search_term ) );
 				}
 			);
 		}

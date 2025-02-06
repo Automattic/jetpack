@@ -1,18 +1,24 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import QuerySite from 'components/data/query-site';
 import React from 'react';
 import { connect } from 'react-redux';
+import QuerySite from 'components/data/query-site';
 import {
 	isSiteConnected,
 	isOfflineMode,
 	isUnavailableInOfflineMode,
 	hasConnectedOwner,
 } from 'state/connection';
-import { getLastPostUrl, currentThemeIsBlockTheme } from 'state/initial-state';
+import {
+	getLastPostUrl,
+	currentThemeIsBlockTheme,
+	getSiteId,
+	isWoASite,
+} from 'state/initial-state';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
+import { siteUsesWpAdminInterface } from 'state/site';
 import Blaze from './blaze';
 import { GoogleAnalytics } from './google-analytics';
 import { RelatedPosts } from './related-posts';
@@ -38,7 +44,12 @@ export class Traffic extends React.Component {
 			hasConnectedOwner: this.props.hasConnectedOwner,
 			lastPostUrl: this.props.lastPostUrl,
 			siteAdminUrl: this.props.siteAdminUrl,
+			siteUsesWpAdminInterface: this.props.siteUsesWpAdminInterface,
 		};
+
+		if ( ! this.props.searchTerm && ! this.props.active ) {
+			return null;
+		}
 
 		const foundSeo = this.props.isModuleFound( 'seo-tools' ),
 			foundStats = this.props.isModuleFound( 'stats' ),
@@ -46,12 +57,8 @@ export class Traffic extends React.Component {
 			foundRelated = this.props.isModuleFound( 'related-posts' ),
 			foundVerification = this.props.isModuleFound( 'verification-tools' ),
 			foundSitemaps = this.props.isModuleFound( 'sitemaps' ),
-			foundAnalytics = this.props.isModuleFound( 'google-analytics' ),
+			foundAnalytics = this.props.isWoASite,
 			foundBlaze = this.props.isModuleFound( 'blaze' );
-
-		if ( ! this.props.searchTerm && ! this.props.active ) {
-			return null;
-		}
 
 		if (
 			! foundSeo &&
@@ -83,20 +90,14 @@ export class Traffic extends React.Component {
 					<SEO
 						{ ...commonProps }
 						configureUrl={ getRedirectUrl( 'calypso-marketing-traffic', {
-							site: this.props.siteRawUrl,
+							site: this.props.blogID ?? this.props.siteRawUrl,
 							anchor: 'seo',
 						} ) }
 					/>
 				) }
 				{ foundStats && <SiteStats { ...commonProps } /> }
 				{ foundAnalytics && (
-					<GoogleAnalytics
-						{ ...commonProps }
-						configureUrl={ getRedirectUrl( 'calypso-marketing-traffic', {
-							site: this.props.siteRawUrl,
-							anchor: 'analytics',
-						} ) }
-					/>
+					<GoogleAnalytics { ...commonProps } site={ this.props.blogID ?? this.props.siteRawUrl } />
 				) }
 				{ foundBlaze && <Blaze { ...commonProps } /> }
 				{ foundShortlinks && <Shortlinks { ...commonProps } /> }
@@ -116,8 +117,11 @@ export default connect( state => {
 		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		isModuleFound: module_name => isModuleFound( state, module_name ),
 		isSiteConnected: isSiteConnected( state ),
+		isWoASite: isWoASite( state ),
 		lastPostUrl: getLastPostUrl( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		hasConnectedOwner: hasConnectedOwner( state ),
+		blogID: getSiteId( state ),
+		siteUsesWpAdminInterface: siteUsesWpAdminInterface( state ),
 	};
 } )( Traffic );

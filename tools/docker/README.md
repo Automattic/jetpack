@@ -29,7 +29,7 @@ cp tools/docker/default.env tools/docker/.env
 
 Anything you put in `.env` overrides values in `default.env`. You should modify all the password fields for security, for example.
 
-**Note**: in older versions of docker-compose (earlier than 1.28), you'll need to place that file at the root of the monorepo.
+**Note**: in older versions of Docker compose (earlier than 1.28), you'll need to place that file at the root of the monorepo.
 
 ## Quick start
 
@@ -59,7 +59,7 @@ WordPress’ `WP_SITEURL` and `WP_HOME` constants are configured to be dynamic i
 ## Custom mounts, environment Variables, `.env` Files, and Ports
 
 You can control some of the behavior of Jetpack's Docker configuration with environment variables. Note, though, that there are two types of environments:
-1. The host environment in which the `jetpack docker *` (`docker-compose`) commands run when creating/managing the containers.
+1. The host environment in which the `jetpack docker *` (Docker compose) commands run when creating/managing the containers.
 2. The containers' environments.
 
 ### Host Environment
@@ -90,7 +90,7 @@ Users can extended these configurations further via override config file `tools/
 The default config file `tools/docker/jetpack-docker-config-default.yml` includes inline comments explaining the structure of config, but here's quick overview. The configuration is grouped per environment type: `default`, `dev`, `e2e`. Each type may define `volumeMappings` and `extras`:
 
 * `volumeMappings` - list of key value pairs which defines local directory mappings with following structure: local_path: wordpress_container_path
-* `extras` - basically any other configuration that is supported by `docker-compose`
+* `extras` - basically any other configuration that is supported by Docker compose.
 
 ## Working with containers
 
@@ -144,7 +144,7 @@ Stops all containers.
 jetpack docker down
 ```
 
-Will stop all of the containers created by this docker-compose configuration and remove them, too. It won’t remove the images. Just the containers that have just been stopped.
+Will stop all of the containers created by this Docker compose configuration and remove them, too. It won’t remove the images. Just the containers that have just been stopped.
 
 ### Running unit tests
 

@@ -1,5 +1,9 @@
 import { Icon } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
+import { noop, size } from 'lodash';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect as reduxConnect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
 import Gridicon from 'components/gridicon';
@@ -11,10 +15,6 @@ import {
 	isJetpackBundle,
 	isJetpackLegacyPlan,
 } from 'lib/plans/constants';
-import { noop, size } from 'lodash';
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { connect as reduxConnect } from 'react-redux';
 import { isCurrentUserLinked, isConnectionOwner } from 'state/connection';
 import { getCurrentVersion } from 'state/initial-state';
 import './style.scss';
@@ -154,17 +154,15 @@ export class Banner extends Component {
 				</div>
 				{ callToAction && (
 					<div className="dops-banner__action">
-						{ callToAction && (
-							<Button
-								rna={ rna }
-								compact
-								href={ this.getHref() }
-								onClick={ this.handleClick }
-								primary
-							>
-								{ callToAction }
-							</Button>
-						) }
+						<Button
+							rna={ rna }
+							compact
+							href={ this.getHref() }
+							onClick={ this.handleClick }
+							primary
+						>
+							{ callToAction }
+						</Button>
 					</div>
 				) }
 			</div>
@@ -177,7 +175,7 @@ export class Banner extends Component {
 		const isLegacy = isJetpackLegacyPlan( plan );
 		const isProduct = isJetpackProduct( plan );
 
-		const classes = classNames(
+		const classes = clsx(
 			'dops-banner',
 			className,
 			{ 'has-call-to-action': callToAction },
@@ -207,7 +205,7 @@ export class Banner extends Component {
  * Redux-connect a Banner or subclass.
  *
  * @param {Banner} BannerComponent - Component to connect.
- * @returns {Component} Wrapped component.
+ * @return {Component} Wrapped component.
  */
 export function connect( BannerComponent ) {
 	return reduxConnect( state => ( {

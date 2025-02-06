@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Connection\Webhooks\Authorize_Redirect;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -81,6 +82,49 @@ class REST_Connector {
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::remote_authorize',
 				'permission_callback' => '__return_true',
+			)
+		);
+
+		// Authorize a remote user.
+		register_rest_route(
+			'jetpack/v4',
+			'/remote_provision',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'remote_provision' ),
+				'permission_callback' => array( $this, 'remote_provision_permission_check' ),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/remote_register',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'remote_register' ),
+				'permission_callback' => array( $this, 'remote_register_permission_check' ),
+			)
+		);
+
+		// Connect a remote user.
+		register_rest_route(
+			'jetpack/v4',
+			'/remote_connect',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'remote_connect' ),
+				'permission_callback' => array( $this, 'remote_connect_permission_check' ),
+			)
+		);
+
+		// The endpoint verifies blog connection and blog token validity.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/check',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'connection_check' ),
+				'permission_callback' => array( $this, 'connection_check_permission_check' ),
 			)
 		);
 
@@ -177,7 +221,6 @@ class REST_Connector {
 					'registration_nonce' => array(
 						'description' => __( 'The registration nonce', 'jetpack-connection' ),
 						'type'        => 'string',
-						'required'    => true,
 					),
 					'redirect_uri'       => array(
 						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack-connection' ),
@@ -274,7 +317,7 @@ class REST_Connector {
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
-	 * @return array|wp-error
+	 * @return array|WP_Error
 	 */
 	public static function remote_authorize( $request ) {
 		$xmlrpc_server = new Jetpack_XMLRPC_Server();
@@ -285,6 +328,120 @@ class REST_Connector {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Initiate the site provisioning process.
+	 *
+	 * @since 2.5.0
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return WP_Error|array
+	 */
+	public function remote_provision( WP_REST_Request $request ) {
+		$request_data = $request->get_params();
+
+		if ( did_action( 'application_password_did_authenticate' ) && current_user_can( 'jetpack_connect_user' ) ) {
+			$request_data['local_user'] = get_current_user_id();
+		}
+
+		$xmlrpc_server = new Jetpack_XMLRPC_Server();
+		$result        = $xmlrpc_server->remote_provision( $request_data );
+
+		if ( is_a( $result, 'IXR_Error' ) ) {
+			$result = new WP_Error( $result->code, $result->message );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Connect a remote user.
+	 *
+	 * @since 2.6.0
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return WP_Error|array
+	 */
+	public static function remote_connect( WP_REST_Request $request ) {
+		$xmlrpc_server = new Jetpack_XMLRPC_Server();
+		$result        = $xmlrpc_server->remote_connect( $request );
+
+		if ( is_a( $result, 'IXR_Error' ) ) {
+			$result = new WP_Error( $result->code, $result->message );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Register the site so that a plan can be provisioned.
+	 *
+	 * @since 2.5.0
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
+	 * @return WP_Error|array
+	 */
+	public function remote_register( WP_REST_Request $request ) {
+		$xmlrpc_server = new Jetpack_XMLRPC_Server();
+		$result        = $xmlrpc_server->remote_register( $request );
+
+		if ( is_a( $result, 'IXR_Error' ) ) {
+			$result = new WP_Error( $result->code, $result->message );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Remote provision endpoint permission check.
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
+	 * @return true|WP_Error
+	 */
+	public function remote_provision_permission_check( WP_REST_Request $request ) {
+		// We allow the app password authentication only if 'local_user' is empty for security reasons.
+		if ( empty( $request['local_user'] ) && did_action( 'application_password_did_authenticate' ) ) {
+			if ( current_user_can( 'jetpack_connect_user' ) ) {
+				return true;
+			}
+
+			return new WP_Error( 'invalid_user_permission_remote_provision', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+		}
+
+		return Rest_Authentication::is_signed_with_blog_token()
+			? true
+			: new WP_Error( 'invalid_permission_remote_provision', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Remote connect endpoint permission check.
+	 *
+	 * @return true|WP_Error
+	 */
+	public function remote_connect_permission_check() {
+		return Rest_Authentication::is_signed_with_blog_token()
+			? true
+			: new WP_Error( 'invalid_permission_remote_connect', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Remote register endpoint permission check.
+	 *
+	 * @return true|WP_Error
+	 */
+	public function remote_register_permission_check() {
+		if ( $this->connection->has_connected_owner() ) {
+			return Rest_Authentication::is_signed_with_blog_token()
+				? true
+				: new WP_Error( 'already_registered', __( 'Blog is already registered', 'jetpack-connection' ), 400 );
+		}
+
+		return true;
 	}
 
 	/**
@@ -303,7 +460,7 @@ class REST_Connector {
 
 		$connection_status = array(
 			'isActive'          => $connection->has_connected_owner(), // TODO deprecate this.
-			'isStaging'         => $status->is_staging_site(),
+			'isStaging'         => $status->in_safe_mode(), // TODO deprecate this.
 			'isRegistered'      => $connection->is_connected(),
 			'isUserConnected'   => $connection->is_user_connected(),
 			'hasConnectedOwner' => $connection->has_connected_owner(),
@@ -404,18 +561,18 @@ class REST_Connector {
 	 *
 	 * @since 1.30.1
 	 *
-	 * @return bool|WP_Error True if user is able to disconnect the site.
+	 * @since 5.1.0 Modified the permission check to accept requests signed with blog tokens.
+	 *
+	 * @return bool|WP_Error True if user is able to disconnect the site or the request is signed with a blog token (aka a direct request from WPCOM).
 	 */
 	public static function disconnect_site_permission_check() {
 		if ( current_user_can( 'jetpack_disconnect' ) ) {
 			return true;
 		}
 
-		return new WP_Error(
-			'invalid_user_permission_jetpack_disconnect',
-			self::get_user_permissions_error_msg(),
-			array( 'status' => rest_authorization_required_code() )
-		);
+		return Rest_Authentication::is_signed_with_blog_token()
+			? true
+			: new WP_Error( 'invalid_user_permission_jetpack_disconnect', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -466,7 +623,7 @@ class REST_Connector {
 			'id'          => $current_user->ID,
 			'blogId'      => $blog_id,
 			'wpcomUser'   => $wpcom_user_data,
-			'gravatar'    => get_avatar_url( $current_user->ID, 64, 'mm', '', array( 'force_display' => true ) ),
+			'gravatar'    => get_avatar_url( $current_user->ID ),
 			'permissions' => array(
 				'connect'      => current_user_can( 'jetpack_connect' ),
 				'connect_user' => current_user_can( 'jetpack_connect_user' ),
@@ -650,7 +807,8 @@ class REST_Connector {
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public function connection_register( $request ) {
-		if ( ! wp_verify_nonce( $request->get_param( 'registration_nonce' ), 'jetpack-registration-nonce' ) ) {
+		// Only require nonce if cookie authentication is used.
+		if ( did_action( 'auth_cookie_valid' ) && ! wp_verify_nonce( $request->get_param( 'registration_nonce' ), 'jetpack-registration-nonce' ) ) {
 			return new WP_Error( 'invalid_nonce', __( 'Unable to verify your request.', 'jetpack-connection' ), array( 'status' => 403 ) );
 		}
 
@@ -674,11 +832,7 @@ class REST_Connector {
 
 		$redirect_uri = $request->get_param( 'redirect_uri' ) ? admin_url( $request->get_param( 'redirect_uri' ) ) : null;
 
-		if ( class_exists( 'Jetpack' ) ) {
-			$authorize_url = \Jetpack::build_authorize_url( $redirect_uri );
-		} else {
-			$authorize_url = $this->connection->get_authorization_url( null, $redirect_uri );
-		}
+		$authorize_url = ( new Authorize_Redirect( $this->connection ) )->build_authorize_url( $redirect_uri );
 
 		/**
 		 * Filters the response of jetpack/v4/connection/register endpoint
@@ -798,7 +952,7 @@ class REST_Connector {
 	 *
 	 * @since 1.29.0
 	 *
-	 * @return bool|WP_Error.
+	 * @return bool|WP_Error
 	 */
 	public static function update_user_token_permission_check() {
 		return Rest_Authentication::is_signed_with_blog_token()
@@ -846,5 +1000,42 @@ class REST_Connector {
 		}
 
 		return new WP_Error( 'invalid_user_permission_set_connection_owner', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * The endpoint verifies blog connection and blog token validity.
+	 *
+	 * @since 2.7.0
+	 *
+	 * @return mixed|null
+	 */
+	public function connection_check() {
+		/**
+		 * Filters the successful response of the REST API test_connection method
+		 *
+		 * @param string $response The response string.
+		 */
+		$status = apply_filters( 'jetpack_rest_connection_check_response', 'success' );
+
+		return rest_ensure_response(
+			array(
+				'status' => $status,
+			)
+		);
+	}
+
+	/**
+	 * Remote connect endpoint permission check.
+	 *
+	 * @return true|WP_Error
+	 */
+	public function connection_check_permission_check() {
+		if ( current_user_can( 'jetpack_connect' ) ) {
+			return true;
+		}
+
+		return Rest_Authentication::is_signed_with_blog_token()
+			? true
+			: new WP_Error( 'invalid_permission_connection_check', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
 	}
 }

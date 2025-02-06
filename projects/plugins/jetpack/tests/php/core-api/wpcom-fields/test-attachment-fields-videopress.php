@@ -37,12 +37,15 @@ class Test_WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WP_Test_Jetpack
 	 */
 	public function test_attachment_fields_videopress_get() {
 		$mock = $this->getMockBuilder( 'Automattic\Jetpack\VideoPress\WPCOM_REST_API_V2_Attachment_VideoPress_Field' )
-						->setMethods( array( 'get_videopress_guid' ) )
+						->onlyMethods( array( 'get_videopress_guid' ) )
 						->getMock();
 
 		$mock->expects( $this->once() )
 				->method( 'get_videopress_guid' )
 				->willReturn( 'mocked_videopress_guid' );
+
+		// Mock a Jetpack connection by providing a fake site ID.
+		Jetpack_Options::update_option( 'id', 1234 );
 
 		$attachment_id = self::factory()->attachment->create_upload_object( dirname( __DIR__, 2 ) . '/jetpack-icon.jpg', 0 );
 		$object        = array(

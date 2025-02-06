@@ -3,20 +3,19 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
+use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
+use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
-use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
-use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Critical_CSS_Insert;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Critical_CSS_Start;
 
-class Critical_CSS implements Pluggable, Has_Endpoints {
+class Critical_CSS implements Pluggable, Changes_Page_Output, Optimization {
 
 	/**
 	 * Critical CSS storage class instance.
@@ -40,6 +39,15 @@ class Critical_CSS implements Pluggable, Has_Endpoints {
 		$this->paths   = new Source_Providers();
 	}
 
+	/**
+	 * Check if the module is ready and already serving critical CSS.
+	 *
+	 * @return bool
+	 */
+	public function is_ready() {
+		return ( new Critical_CSS_State() )->is_generated();
+	}
+
 	public static function is_available() {
 		return true !== Premium_Features::has_feature( Premium_Features::CLOUD_CSS );
 	}
@@ -50,13 +58,8 @@ class Critical_CSS implements Pluggable, Has_Endpoints {
 	public function setup() {
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
 		add_filter( 'jetpack_boost_total_problem_count', array( $this, 'update_total_problem_count' ) );
-		add_filter( 'query_vars', array( '\Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Generator', 'add_generate_query_action_to_list' ) );
 
-		if ( Generator::is_generating_critical_css() ) {
-			add_action( 'wp_head', array( $this, 'display_generate_meta' ), 0 );
-			$this->force_logged_out_render();
-		}
-
+		Generator::init();
 		Critical_CSS_Invalidator::init();
 		CSS_Proxy::init();
 
@@ -68,15 +71,6 @@ class Critical_CSS implements Pluggable, Has_Endpoints {
 
 	public static function get_slug() {
 		return 'critical_css';
-	}
-
-	/**
-	 * Renders a <meta> tag used to verify this is a valid page to generate Critical CSS with.
-	 */
-	public function display_generate_meta() {
-		?>
-		<meta name="<?php echo esc_attr( Generator::GENERATE_QUERY_ACTION ); ?>" content="true"/>
-		<?php
 	}
 
 	public function display_critical_css() {
@@ -100,6 +94,10 @@ class Critical_CSS implements Pluggable, Has_Endpoints {
 			return;
 		}
 
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG === true ) {
+			$critical_css = "/* Critical CSS Key: {$this->paths->get_current_critical_css_key()} */\n" . $critical_css;
+		}
+
 		$display = new Display_Critical_CSS( $critical_css );
 		add_action( 'wp_head', array( $display, 'display_critical_css' ), 0 );
 		add_filter( 'style_loader_tag', array( $display, 'asynchronize_stylesheets' ), 10, 4 );
@@ -107,33 +105,6 @@ class Critical_CSS implements Pluggable, Has_Endpoints {
 
 		// Ensure admin bar compatibility.
 		Admin_Bar_Compatibility::init();
-	}
-
-	/**
-	 * Force the current page to render as viewed by a logged out user. Useful when generating
-	 * Critical CSS.
-	 */
-	private function force_logged_out_render() {
-		$current_user_id = get_current_user_id();
-
-		if ( 0 !== $current_user_id ) {
-			// Force current user to 0 to ensure page is rendered as a non-logged-in user.
-			wp_set_current_user( 0 );
-
-			// Turn off display of admin bar.
-			add_filter( 'show_admin_bar', '__return_false', PHP_INT_MAX );
-		}
-	}
-
-	/**
-	 * @return Endpoint::class[]
-	 *
-	 */
-	public function get_endpoints() {
-		return array(
-			Critical_CSS_Insert::class,
-			Critical_CSS_Start::class,
-		);
 	}
 
 	public function update_total_problem_count( $count ) {

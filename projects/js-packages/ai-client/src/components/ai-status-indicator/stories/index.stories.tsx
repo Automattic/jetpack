@@ -5,8 +5,7 @@ import React from 'react';
 /*
  * Internal Dependencies
  */
-import AiStatusIndicator, { AiStatusIndicatorProps } from '..';
-import { REQUESTING_STATES } from '../../../types';
+import AiStatusIndicator, { AiStatusIndicatorProps } from '../index.js';
 
 type AiStatusIndicatoryStoryProps = AiStatusIndicatorProps & {
 	icon: string;
@@ -21,7 +20,7 @@ export default {
 			control: {
 				type: 'select',
 			},
-			options: REQUESTING_STATES,
+			options: [ 'init', 'requesting', 'suggesting', 'done', 'error' ],
 		},
 		size: {
 			control: {

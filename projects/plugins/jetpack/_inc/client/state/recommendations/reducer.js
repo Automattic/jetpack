@@ -1,3 +1,5 @@
+import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
+import { combineReducers } from 'redux';
 import {
 	isJetpackPlanWithAntiSpam,
 	isJetpackPlanWithBackup,
@@ -5,10 +7,9 @@ import {
 	PLAN_JETPACK_VIDEOPRESS,
 	PLAN_JETPACK_ANTI_SPAM,
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
-	PLAN_JETPACK_CREATOR_YEARLY,
 	getPlanClass,
+	PLAN_JETPACK_GROWTH_YEARLY,
 } from 'lib/plans/constants';
-import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
 import {
 	ONBOARDING_JETPACK_BACKUP,
 	ONBOARDING_JETPACK_COMPLETE,
@@ -22,8 +23,9 @@ import {
 	SUMMARY_SECTION_BY_ONBOARDING_NAME,
 	RECOMMENDATION_WIZARD_STEP,
 	ONBOARDING_SUPPORT_START_TIMESTAMP,
+	ONBOARDING_JETPACK_SOCIAL_V1,
+	ONBOARDING_JETPACK_SOCIAL_BASIC,
 } from 'recommendations/constants';
-import { combineReducers } from 'redux';
 import {
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION,
@@ -63,12 +65,14 @@ import {
 	getSitePurchases,
 	hasActiveProductPurchase,
 	hasActiveSecurityPurchase,
-	hasActiveCreatorPurchase,
+	hasActiveGrowthPurchase,
 	siteHasFeature,
 	isFetchingSiteData,
 	hasActiveAntiSpamPurchase,
 	hasSecurityComparableLegacyPlan,
 	hasActiveBackupPurchase,
+	hasActiveSocialPurchase,
+	hasActiveCompletePurchase,
 } from 'state/site';
 import { isPluginActive } from 'state/site/plugins';
 import { sortByOnboardingPriority, getOnboardingNameByProductSlug } from './onboarding-utils';
@@ -357,7 +361,8 @@ const stepToNextStepByPath = {
 			'backup-activated': 'scan-activated',
 			'scan-activated': 'antispam-activated',
 			'antispam-activated': 'videopress-activated',
-			'videopress-activated': 'search-activated',
+			'videopress-activated': 'social-v1-activated',
+			'social-v1-activated': 'search-activated',
 			'search-activated': 'server-credentials',
 			'server-credentials': 'summary',
 		},
@@ -405,6 +410,17 @@ const stepToNextStepByPath = {
 			monitor: 'site-accelerator',
 			'site-accelerator': 'summary',
 		},
+		[ ONBOARDING_JETPACK_SOCIAL_BASIC ]: {
+			welcome__social_basic: 'monitor',
+			monitor: 'site-accelerator',
+			'site-accelerator': 'summary',
+		},
+		[ ONBOARDING_JETPACK_SOCIAL_V1 ]: {
+			welcome__social_v1: 'welcome__social_image_generator',
+			welcome__social_image_generator: 'monitor',
+			monitor: 'site-accelerator',
+			'site-accelerator': 'summary',
+		},
 		[ ONBOARDING_JETPACK_GOLDEN_TOKEN ]: {
 			welcome__golden_token: 'backup-activated',
 			'backup-activated': 'scan-activated',
@@ -443,9 +459,14 @@ export const stepToRoute = {
 	welcome__videopress: '#/recommendations/welcome-videopress',
 	welcome__search: '#/recommendations/welcome-search',
 	welcome__scan: '#/recommendations/welcome-scan',
+	welcome__social_basic: '#/recommendations/welcome-social-basic',
+	welcome__social_v1: '#/recommendations/welcome-social-v1',
+	welcome__social_image_generator: '#/recommendations/welcome-social-image-generator',
 	welcome__golden_token: '#/recommendations/welcome-golden-token',
 	'backup-activated': '#/recommendations/backup-activated',
 	'scan-activated': '#/recommendations/scan-activated',
+	'unlimited-sharing-activated': '#/recommendations/unlimited-sharing-activated',
+	'social-v1-activated': '#/recommendations/social-v1-activated',
 	'antispam-activated': '#/recommendations/antispam-activated',
 	'videopress-activated': '#/recommendations/videopress-activated',
 	'search-activated': '#/recommendations/search-activated',
@@ -554,8 +575,8 @@ export const getProductSlugForStep = ( state, step ) => {
 			}
 			break;
 		case 'newsletter':
-			if ( ! hasActiveCreatorPurchase( state ) ) {
-				return PLAN_JETPACK_CREATOR_YEARLY;
+			if ( ! hasActiveGrowthPurchase( state ) ) {
+				return PLAN_JETPACK_GROWTH_YEARLY;
 			}
 			break;
 		case 'anti-spam':
@@ -634,6 +655,8 @@ const isStepEligibleToShow = ( state, step ) => {
 		// Onboarding specific steps (`-activated` and `welcome__`):
 		case 'backup-activated':
 		case 'scan-activated':
+		case 'unlimited-sharing-activated':
+		case 'social-v1-activated':
 		case 'search-activated':
 		case 'welcome__complete':
 		case 'welcome__security':
@@ -642,6 +665,9 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'welcome__videopress':
 		case 'welcome__search':
 		case 'welcome__scan':
+		case 'welcome__social_basic':
+		case 'welcome__social_v1':
+		case 'welcome__social_image_generator':
 		case 'welcome__backup':
 		case 'welcome__golden_token':
 			return true;
@@ -679,7 +705,6 @@ export const getInitialStepForOnboarding = onboarding => getStepsForOnboarding( 
 // Gets the step to show when one has not been set in the state yet.
 export const getInitialStep = state => {
 	// Gets new recommendations from initial state.
-	const newRecommendations = getNewRecommendations( state );
 	const initialStep = getInitialRecommendationsStep( state );
 	const onboardingData = getOnboardingData( state );
 
@@ -694,6 +719,7 @@ export const getInitialStep = state => {
 	}
 
 	// Jump to a new recommendation if there is one to show.
+	const newRecommendations = getNewRecommendations( state );
 	if ( newRecommendations.length > 0 ) {
 		return newRecommendations[ 0 ];
 	}
@@ -800,6 +826,7 @@ const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 		case 'boost':
 			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
 		case 'publicize':
+			return ! hasActiveSocialPurchase( state ) && ! hasActiveCompletePurchase( state );
 		case 'protect':
 			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
 		case 'anti-spam':
@@ -828,6 +855,8 @@ export const isOnboardingEligibleToShowInSummary = ( state, onboardingName ) => 
 		case ONBOARDING_JETPACK_VIDEOPRESS:
 		case ONBOARDING_JETPACK_SEARCH:
 		case ONBOARDING_JETPACK_SECURITY:
+		case ONBOARDING_JETPACK_SOCIAL_BASIC:
+		case ONBOARDING_JETPACK_SOCIAL_V1:
 			// Don't show plans that overlap with active plan: Complete
 			return ! viewedOnboardings.includes( ONBOARDING_JETPACK_COMPLETE );
 		case ONBOARDING_JETPACK_BACKUP:

@@ -1,7 +1,7 @@
 import { derived } from 'svelte/store';
 import { z } from 'zod';
-import { DataSync } from './DataSync';
-import { SyncedStore } from './SyncedStore';
+import { DataSync } from './DataSync.js';
+import { SyncedStore } from './SyncedStore.js';
 
 /**
  * Initialize the client-side data sync.

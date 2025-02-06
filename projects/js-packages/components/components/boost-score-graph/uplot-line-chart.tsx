@@ -4,13 +4,13 @@ import uPlot from 'uplot';
 import UplotReact from 'uplot-react';
 import { getUserLocale } from '../../lib/locale';
 import numberFormat from '../number-format';
+import { annotationsPlugin } from './annotations-plugin';
 import { dayHighlightPlugin } from './day-highlight-plugin';
 import getDateFormat from './get-date-format';
 import { tooltipsPlugin } from './tooltips-plugin';
 import { useBoostScoreTransform } from './use-boost-score-transform';
 import useResize from './use-resize';
-import { Period } from '.';
-
+import { type Annotation, Period } from '.';
 import './style-uplot.scss';
 
 const DEFAULT_DIMENSIONS = {
@@ -20,6 +20,7 @@ const DEFAULT_DIMENSIONS = {
 
 interface UplotChartProps {
 	periods: Period[];
+	annotations?: Annotation[];
 	options?: Partial< uPlot.Options >;
 	legendContainer?: React.RefObject< HTMLDivElement >;
 	solidFill?: boolean;
@@ -32,7 +33,7 @@ interface UplotChartProps {
  *
  * @param {string} label - The label for the series.
  * @param {number} score - The last score for the series.
- * @returns {object} The series information object.
+ * @return {object} The series information object.
  */
 function createSerieInfo( label: string, score ) {
 	const { spline } = uPlot.paths;
@@ -66,9 +67,9 @@ function createSerieInfo( label: string, score ) {
 /**
  * Get the color value based on the score.
  *
- * @param {number} score - The score to get the color for.
+ * @param {number} score   - The score to get the color for.
  * @param {string} opacity - Whether to return a transparent color.
- * @returns {string} The color value.
+ * @return {string} The color value.
  */
 function getColor( score: number, opacity = 'FF' ) {
 	let color = '#D63638'; // bad
@@ -85,12 +86,13 @@ function getColor( score: number, opacity = 'FF' ) {
 /**
  * UplotLineChart component.
  *
- * @param {object} props - The props object for the UplotLineChart component.
- * @param {{ startDate: number, endDate: number }} props.range - The date range of the chart.
- * @param {Period[]} props.periods - The periods to display in the chart.
- * @returns {React.Element} The JSX element representing the UplotLineChart component.
+ * @param {object}                                 props             - The props object for the UplotLineChart component.
+ * @param {{ startDate: number, endDate: number }} props.range       - The date range of the chart.
+ * @param {Period[]}                               props.periods     - The periods to display in the chart.
+ * @param {Annotation[]}                           props.annotations - The annotations to display in the chart.
+ * @return {React.Element} The JSX element representing the UplotLineChart component.
  */
-export default function UplotLineChart( { range, periods }: UplotChartProps ) {
+export default function UplotLineChart( { range, periods, annotations = [] }: UplotChartProps ) {
 	const uplot = useRef< uPlot | null >( null );
 	const uplotContainer = useRef( null );
 
@@ -149,7 +151,7 @@ export default function UplotLineChart( { range, periods }: UplotChartProps ) {
 			},
 			series: [
 				{
-					label: __( 'Date', 'jetpack' ),
+					label: __( 'Date', 'jetpack-components' ),
 					value: ( self: uPlot, rawValue: number ) => {
 						// outputs legend content - value available when mouse is hovering the chart
 						if ( ! rawValue ) {
@@ -159,8 +161,8 @@ export default function UplotLineChart( { range, periods }: UplotChartProps ) {
 						return date.toLocaleDateString( getUserLocale() );
 					},
 				},
-				createSerieInfo( __( 'Desktop', 'jetpack' ), lastDesktopScore ),
-				createSerieInfo( __( 'Mobile', 'jetpack' ), lastMobileScore ),
+				createSerieInfo( __( 'Desktop', 'jetpack-components' ), lastDesktopScore ),
+				createSerieInfo( __( 'Mobile', 'jetpack-components' ), lastMobileScore ),
 			],
 			scales: {
 				x: {
@@ -176,12 +178,24 @@ export default function UplotLineChart( { range, periods }: UplotChartProps ) {
 			legend: {
 				show: false,
 			},
-			plugins: [ tooltipsPlugin( periods ), dayHighlightPlugin() ],
+			plugins: [
+				annotationsPlugin( annotations ),
+				tooltipsPlugin( periods ),
+				dayHighlightPlugin(),
+			],
 		};
 		return {
 			...defaultOptions,
 		};
-	}, [ width, lastDesktopScore, lastMobileScore, periods, range.endDate, range.startDate ] );
+	}, [
+		width,
+		lastDesktopScore,
+		lastMobileScore,
+		range.startDate,
+		range.endDate,
+		periods,
+		annotations,
+	] );
 
 	useResize( uplot, uplotContainer );
 	const onCreate = useCallback( chart => {

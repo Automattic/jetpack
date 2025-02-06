@@ -80,9 +80,10 @@ class Full_Sync extends Module {
 	 * @access public
 	 *
 	 * @param array $module_configs Full sync configuration for all sync modules.
+	 * @param mixed $context        Context for the full sync.
 	 * @return bool Always returns true at success.
 	 */
-	public function start( $module_configs = null ) {
+	public function start( $module_configs = null, $context = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$was_already_running = $this->is_started() && ! $this->is_finished();
 
 		// Remove all evidence of previous full sync items and status.
@@ -125,6 +126,7 @@ class Full_Sync extends Module {
 			}
 
 			if ( 'users' === $module_name && 'initial' === $module_config ) {
+				'@phan-var Users $module';
 				$module_config = $module->get_initial_sync_user_config();
 			}
 
@@ -212,7 +214,7 @@ class Full_Sync extends Module {
 			/**
 			 * Select configured and not finished modules.
 			 *
-			 * @var $module Module
+			 * @param Module $module
 			 * @return bool
 			 */
 			function ( $module ) use ( $configs, $enqueue_status ) {

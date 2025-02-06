@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Image_CDN;
 
+use WP_Error;
+
 /**
  * Represents a resizable image, exposing properties necessary for properly generating srcset.
  */
@@ -69,8 +71,8 @@ class Image_CDN_Image {
 	 *  width  : int    Image width
 	 *  height : int    Image height
 	 *
-	 * @param array            $data                Array of attachment metadata, typically value of _wp_attachment_metadata postmeta.
-	 * @param string|\WP_Error $mime_type Typically value returned from get_post_mime_type function.
+	 * @param array           $data                Array of attachment metadata, typically value of _wp_attachment_metadata postmeta.
+	 * @param string|WP_Error $mime_type Typically value returned from get_post_mime_type function.
 	 */
 	public function __construct( $data, $mime_type ) {
 		$this->filename        = $data['file'];
@@ -86,18 +88,18 @@ class Image_CDN_Image {
 	 *
 	 * @param array $size_data Array of width, height, and crop properties of a size.
 	 *
-	 * @return bool|\WP_Error True if resize was successful, WP_Error on failure.
+	 * @return bool|WP_Error True if resize was successful, WP_Error on failure.
 	 */
 	public function resize( $size_data ) {
 
 		$dimensions = $this->image_resize_dimensions( $size_data['width'], $size_data['height'], $size_data['crop'] );
 
 		if ( true === is_wp_error( $dimensions ) ) {
-			return $dimensions; // Returns \WP_Error.
+			return $dimensions; // Returns WP_Error.
 		}
 
 		if ( true === is_wp_error( $this->mime_type ) ) {
-			return $this->mime_type; // Returns \WP_Error.
+			return $this->mime_type; // Returns WP_Error.
 		}
 
 		$this->set_width_height( $dimensions );
@@ -112,7 +114,7 @@ class Image_CDN_Image {
 	 *
 	 * @param array $size_data Array of width, height, and crop properties of a size.
 	 *
-	 * @return array|\WP_Error An array containing file, width, height, and mime-type keys and it's values. WP_Error on failure.
+	 * @return array|WP_Error An array containing file, width, height, and mime-type keys and it's values. WP_Error on failure.
 	 */
 	public function get_size( $size_data ) {
 
@@ -184,7 +186,7 @@ class Image_CDN_Image {
 	/**
 	 * Returns image mime type.
 	 *
-	 * @return string|\WP_Error Image's mime type or WP_Error if it was not determined.
+	 * @return string|WP_Error Image's mime type or WP_Error if it was not determined.
 	 */
 	public function get_mime_type() {
 		return $this->mime_type;
@@ -229,12 +231,12 @@ class Image_CDN_Image {
 	 * @param int        $max_height Maximum height.
 	 * @param bool|array $crop       Cropping parameters.
 	 *
-	 * @return array|\WP_Error Array of dimensions matching the parameters to imagecopyresampled. WP_Error on failure.
+	 * @return array|WP_Error Array of dimensions matching the parameters to imagecopyresampled. WP_Error on failure.
 	 */
 	protected function image_resize_dimensions( $max_width, $max_height, $crop ) {
 		$dimensions = image_resize_dimensions( $this->original_width, $this->original_height, $max_width, $max_height, $crop );
 		if ( ! $dimensions ) {
-			return new \WP_Error( 'error_getting_dimensions', __( 'Could not calculate resized image dimensions', 'jetpack-image-cdn' ), $this->filename );
+			return new WP_Error( 'error_getting_dimensions', __( 'Could not calculate resized image dimensions', 'jetpack-image-cdn' ), $this->filename );
 		}
 
 		return array_combine(

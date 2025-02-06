@@ -18,7 +18,6 @@ use Wikimedia\TestingAccessWrapper;
  * @covers \Automattic\Jetpack\Changelogger\Config
  */
 class ConfigTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
 
 	/**
 	 * Set up.
@@ -228,9 +227,9 @@ class ConfigTest extends TestCase {
 
 		$w->config = array(
 			'ordering' => array(
-				'subheading',
-				'bogus',
-				123,
+				0   => 'subheading',
+				1   => 'bogus',
+				2   => 123,
 				'x' => 'y',
 			),
 		);
@@ -242,9 +241,9 @@ class ConfigTest extends TestCase {
 		$w->cache = array();
 		$this->assertSame(
 			array(
-				'subheading',
-				'bogus',
-				'123',
+				0   => 'subheading',
+				1   => 'bogus',
+				2   => '123',
 				'x' => 'y',
 			),
 			Config::ordering()
@@ -313,7 +312,7 @@ class ConfigTest extends TestCase {
 		);
 
 		// Get plugin by name.
-		class_alias( DummyPluginImpl::class, \Automattic\Jetpack\Changelogger\Plugins\FooDummy::class );
+		class_alias( DummyPluginImpl::class, \Automattic\Jetpack\Changelogger\Plugins\FooDummy::class ); // @phan-suppress-current-line PhanUndeclaredClassReference -- `class_alias` is *creating* it, Phan.
 		$ret = $w->getPlugin( 'foo', 'Dummy', DummyPlugin::class );
 		$this->assertInstanceOf( DummyPluginImpl::class, $ret );
 		$this->assertSame( array( 'name' => 'foo' ), $ret->config );
@@ -349,12 +348,14 @@ class ConfigTest extends TestCase {
 			'Dummy',
 			DummyPlugin::class
 		);
+		// @phan-suppress-next-line PhanUndeclaredClassReference -- Will be loaded from dummy.php created just above.
 		$this->assertInstanceOf( __NAMESPACE__ . '\\TestFromFile', $ret );
 		$this->assertSame(
 			array(
 				'filename' => 'dummy.php',
 				'option'   => 'value',
 			),
+			// @phan-suppress-next-line PhanUndeclaredClassProperty -- Same.
 			$ret->c
 		);
 
@@ -375,6 +376,7 @@ class ConfigTest extends TestCase {
 			"<?php\nnamespace $ns;\nclass TestFromFile4a {}\nclass TestFromFile4b $classBody\n"
 		);
 		$ret = $w->getPlugin( array( 'filename' => 'dummy4.php' ), 'Dummy', DummyPlugin::class );
+		// @phan-suppress-next-line PhanUndeclaredClassReference -- Will be loaded from dummy4.php created just above.
 		$this->assertInstanceOf( __NAMESPACE__ . '\\TestFromFile4b', $ret );
 
 		// Get by loading file, file with two valid class.

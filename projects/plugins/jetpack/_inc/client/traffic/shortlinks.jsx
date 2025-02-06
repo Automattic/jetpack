@@ -1,11 +1,11 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { getModule } from 'state/modules';
 
 class Shortlinks extends Component {
@@ -34,7 +34,9 @@ class Shortlinks extends Component {
 						toggling={ this.props.isSavingAnyOption( 'shortlinks' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
-						{ __( 'Generate shortened URLs for simpler sharing.', 'jetpack' ) }
+						<span className="jp-form-toggle-explanation">
+							{ __( 'Generate shortened URLs for simpler sharing.', 'jetpack' ) }
+						</span>
 					</ModuleToggle>
 				</SettingsGroup>
 			</SettingsCard>

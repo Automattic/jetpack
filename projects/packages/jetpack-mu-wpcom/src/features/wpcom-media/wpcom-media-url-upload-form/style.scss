@@ -1,0 +1,15 @@
+.wpcom-media-url-upload-form {
+	margin-top: -15px;
+	margin-bottom: 15px;
+	height: 30px;
+
+	button#{&}__pre-upload-button {
+		padding: 0 21px;
+	}
+
+	input {
+		width: 100%;
+		max-width: 600px;
+		margin-right: 6px;
+	}
+}

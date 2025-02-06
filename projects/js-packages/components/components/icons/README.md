@@ -16,6 +16,7 @@ Available slugs are:
 * star
 * videopress
 * jetpack
+* ai
 
 ```es6
 import {
@@ -43,6 +44,7 @@ return (
 * VideopressIcon
 * JetpackIcon
 * ShareIcon
+* AiIcon
 
 ```es6
 import {
@@ -57,6 +59,7 @@ import {
 	VideoPressIcon,
 	JetpackIcon,
 	ShareIcon,
+	AiIcon,
 } from '@automattic/jetpack-components';
 
 return (
@@ -72,6 +75,7 @@ return (
 		<VideoPressIcon />
 		<JetpackIcon />
 		<ShareIcon />
+		<AiIcon />
 	</div>
 )
 ```

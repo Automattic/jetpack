@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { RichText, useBlockProps } from '@wordpress/block-editor';
-import classnames from 'classnames';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -21,9 +21,9 @@ type videoBlockSaveProps = {
 /**
  * VideoPress block save function
  *
- * @param {object} props             - Component props.
- * @param {object} props.attributes  - Block attributes.
- * @returns {object}                 - React component.
+ * @param {object} props            - Component props.
+ * @param {object} props.attributes - Block attributes.
+ * @return {object}                 - React component.
  */
 function save( { attributes }: videoBlockSaveProps ): React.ReactNode {
 	const {
@@ -46,7 +46,7 @@ function save( { attributes }: videoBlockSaveProps ): React.ReactNode {
 	} = attributes;
 
 	const blockProps = useBlockProps.save( {
-		className: classnames( 'wp-block-jetpack-videopress', 'jetpack-videopress-player', {
+		className: clsx( 'wp-block-jetpack-videopress', 'jetpack-videopress-player', {
 			[ `align${ align }` ]: align,
 		} ),
 	} );

@@ -1,7 +1,6 @@
 process.env.NODE_ENV = 'production';
 
-// Cross-project deps are ugh, but pnpm whines about "cyclic dependencies" if we try to make it an actual devDepenency.
-const jetpackWebpackConfig = require( '../../../../webpack-config/src/webpack.js' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 
 module.exports = {
 	entry: './src/index.js',

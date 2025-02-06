@@ -1,9 +1,11 @@
+/* global __webpack_public_path__ */
+
 /**
  * Returns the current document and window contexts for `elementRef`.
  * Use to retrieve the correct context for elements that may be within an iframe.
  *
- * @param   {HTMLElement} elementRef - The element whose context we want to return.
- * @returns {object}                 - The current document (`currentDoc`) and window (`currentWindow`) contexts.
+ * @param {HTMLElement} elementRef - The element whose context we want to return.
+ * @return {object}                 - The current document (`currentDoc`) and window (`currentWindow`) contexts.
  */
 
 export function getLoadContext( elementRef ) {
@@ -17,8 +19,8 @@ export function getLoadContext( elementRef ) {
  * Returns whether a given element is contained within an Editor iframe.
  * See: https://github.com/WordPress/gutenberg/blob/bee52e68292357011a799f067ad47aa1c1d710e1/packages/block-editor/src/components/iframe/index.js
  *
- * @param   {HTMLElement} elementRef - The element whose context we want to return.
- * @returns {boolean}                - Whether `elementRef` is contained within an Editor iframe.
+ * @param {HTMLElement} elementRef - The element whose context we want to return.
+ * @return {boolean}                - Whether `elementRef` is contained within an Editor iframe.
  */
 export function isElementInEditorIframe( elementRef ) {
 	const { currentWindow } = getLoadContext( elementRef );
@@ -28,13 +30,13 @@ export function isElementInEditorIframe( elementRef ) {
 /**
  * Returns whether a iframe has domain access to its parent.
  *
- * @param   {HTMLElement} currentWindow - The window context for which we want to test access.
- * @returns {boolean}                   - Whether we have access to the parent window.
+ * @param {HTMLElement} currentWindow - The window context for which we want to test access.
+ * @return {boolean}                   - Whether we have access to the parent window.
  */
 function canIframeAccessParentWindow( currentWindow ) {
 	try {
 		return !! currentWindow?.parent?.location.href;
-	} catch ( e ) {
+	} catch {
 		return false;
 	}
 }
@@ -47,10 +49,10 @@ function canIframeAccessParentWindow( currentWindow ) {
  * For use until Gutenberg offers a standardized way of including enqueued/3rd-party assets.
  * Target usage is the Podcast Playerblock: projects/plugins/jetpack/extensions/blocks/podcast-player/.
  *
- * @param   {Array}       elementSelectors   - An array of selectors, e.g., [ '#conan', '#robocop' ]
- * @param   {HTMLElement} elementRef         - The current element.
- * @param   {boolean}     shouldRemoveSource - Optional. Whether to remove the source element in the parent frame.
- * @returns {Array}                          - An array of successfully migrated selectors;
+ * @param {Array}       elementSelectors   - An array of selectors, e.g., [ '#conan', '#robocop' ]
+ * @param {HTMLElement} elementRef         - The current element.
+ * @param {boolean}     shouldRemoveSource - Optional. Whether to remove the source element in the parent frame.
+ * @return {Array}                          - An array of successfully migrated selectors;
  */
 export function maybeCopyElementsToSiteEditorContext(
 	elementSelectors,
@@ -103,17 +105,26 @@ export function maybeCopyElementsToSiteEditorContext(
  * It's a temporary work-around to until core gutenberg has an API to allow loading of 3rd party resources
  * into the current editor iframe.
  *
- * @param   {Array}       resources - An array of css and js resources to copy to iframe head.
- * @param   {object}      callbacks - A map of any callbacks for js resources to be called when script loaded.
- * @param   {HTMLElement} elementRef  - A reference for an element within the current block.
+ * @param {Array}       resources  - An array of css and js resources to copy to iframe head.
+ * @param {object}      callbacks  - A map of any callbacks for js resources to be called when script loaded.
+ * @param {HTMLElement} elementRef - A reference for an element within the current block.
  */
 export function loadBlockEditorAssets( resources, callbacks, elementRef ) {
-	const resourcePath = `${ window.Jetpack_Block_Assets_Base_Url.url }editor-assets`;
+	let editorAssetsUrl;
+
+	try {
+		editorAssetsUrl = new URL( 'editor-assets', __webpack_public_path__ );
+	} catch {
+		return;
+	}
+
+	const resourcePath = editorAssetsUrl.href;
 	const { currentDoc } = getLoadContext( elementRef );
 
 	const currentHead = currentDoc.getElementsByTagName( 'head' )[ 0 ];
 
 	resources.forEach( resource => {
+		// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- https://github.com/WordPress/gutenberg/issues/45049
 		const [ filename, fileExtension ] = resource.file.split( '/' ).pop().split( '.' );
 
 		if ( fileExtension === 'css' ) {
@@ -145,9 +156,9 @@ export function loadBlockEditorAssets( resources, callbacks, elementRef ) {
 /**
  * Returns a promise that resolves when a specified object becomes available on specified window.
  *
- * @param   {HTMLElement} currentWindow - The window on which to check for the object.
- * @param   {object} objectName         - The object to check for.
- * @returns {Promise}                   - Whether `elementRef` is contained within an Editor iframe.
+ * @param {HTMLElement} currentWindow - The window on which to check for the object.
+ * @param {object}      objectName    - The object to check for.
+ * @return {Promise}                   - Whether `elementRef` is contained within an Editor iframe.
  */
 export function waitForObject( currentWindow, objectName ) {
 	return new Promise( resolve => {

@@ -2,7 +2,7 @@ import { PlainText } from '@wordpress/block-editor';
 import { ToggleControl } from '@wordpress/components';
 import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import save from './save';
 
 class AddressEdit extends Component {
@@ -15,7 +15,6 @@ class AddressEdit extends Component {
 	preventEnterKey( event ) {
 		if ( event.key === 'Enter' ) {
 			event.preventDefault();
-			return;
 		}
 	}
 
@@ -38,13 +37,14 @@ class AddressEdit extends Component {
 		const hasContent = [ address, addressLine2, addressLine3, city, region, postal, country ].some(
 			value => value !== ''
 		);
-		const classNames = classnames( {
+		const classNames = clsx( {
 			'jetpack-address-block': true,
 			'is-selected': isSelected,
 		} );
 
 		const externalLink = (
 			<ToggleControl
+				__nextHasNoMarginBottom={ true }
 				label={ __( 'Link address to Google Maps', 'jetpack' ) }
 				checked={ linkToGoogleMaps }
 				onChange={ newlinkToGoogleMaps =>

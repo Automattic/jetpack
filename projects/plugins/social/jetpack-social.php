@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack Social
  * Plugin URI: https://wordpress.org/plugins/jetpack-social
  * Description: Share your site’s posts on several social media networks automatically when you publish a new post.
- * Version: 4.0.0-alpha
+ * Version: 6.1.0
  * Author: Automattic - Jetpack Social team
  * Author URI: https://jetpack.com/social/
  * License: GPLv2 or later
@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 define( 'JETPACK_SOCIAL_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
@@ -40,6 +40,7 @@ define( 'JETPACK_SOCIAL_PLUGIN_SLUG', 'jetpack-social' );
 define( 'JETPACK_SOCIAL_PLUGIN_NAME', 'Jetpack Social' );
 define( 'JETPACK_SOCIAL_PLUGIN_URI', 'https://jetpack.com/jetpack-social' );
 define( 'JETPACK_SOCIAL_PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
+define( 'JETPACK_SOCIAL_HAS_ADMIN_PAGE', true );
 
 // Jetpack Autoloader.
 $jetpack_autoloader = JETPACK_SOCIAL_PLUGIN_DIR . 'vendor/autoload_packages.php';
@@ -55,31 +56,48 @@ if ( is_readable( $jetpack_autoloader ) ) {
 		);
 	}
 
+	// Add a red bubble notification to My Jetpack if the installation is bad.
+	add_filter(
+		'my_jetpack_red_bubble_notification_slugs',
+		function ( $slugs ) {
+			$slugs['jetpack-social-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'Jetpack Social',
+				),
+			);
+
+			return $slugs;
+		}
+	);
+
 	add_action(
 		'admin_notices',
 		function () {
-			?>
-		<div class="notice notice-error is-dismissible">
-			<p>
-				<?php
-				printf(
-					wp_kses(
-						/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack Social is incomplete. If you installed Jetpack Social from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Social must have Composer dependencies installed and built via the build command.', 'jetpack-social' ),
-						array(
-							'a' => array(
-								'href'   => array(),
-								'target' => array(),
-								'rel'    => array(),
-							),
-						)
-					),
-					'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
-				);
-				?>
-			</p>
-		</div>
-			<?php
+			if ( get_current_screen()->id !== 'plugins' ) {
+				return;
+			}
+
+			$message = sprintf(
+				wp_kses(
+					/* translators: Placeholder is a link to a support document. */
+					__( 'Your installation of Jetpack Social is incomplete. If you installed Jetpack Social from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Social must have Composer dependencies installed and built via the build command.', 'jetpack-social' ),
+					array(
+						'a' => array(
+							'href'   => array(),
+							'target' => array(),
+							'rel'    => array(),
+						),
+					)
+				),
+				'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
+			);
+			wp_admin_notice(
+				$message,
+				array(
+					'type'        => 'error',
+					'dismissible' => true,
+				)
+			);
 		}
 	);
 

@@ -1,6 +1,6 @@
 <div class="wpsc-settings-inner">
 <?php
-global $wp_cache_mod_rewrite, $wp_cache_mfunc_enabled, $wp_cache_mobile_enabled;
+global $wp_cache_mod_rewrite, $wp_cache_mfunc_enabled, $wp_cache_mobile_enabled, $cache_enabled, $cache_path, $cache_time_interval, $cache_schedule_type;
 
 $faq_url          = 'https://jetpack.com/support/wp-super-cache/wp-super-cache-faq/';
 $kses_allow_links = array( 'a' => array( 'href' => array() ) ); // Arguments for wp_kses to allow links.
@@ -19,12 +19,12 @@ echo '<input type="hidden" name="action" value="scupdates" />';
 	<td>
 		<fieldset>
 		<legend class="hidden"><?php _e( 'Caching', 'wp-super-cache' ); ?></legend>
-		<label><input type='checkbox' name='wp_cache_enabled' value='1' <?php if ( $cache_enabled == true ) { echo 'checked=checked'; } ?>> <?php _e( 'Enable Caching', 'wp-super-cache' ); ?><br />
+		<label><input type='checkbox' name='wp_cache_enabled' id='wp_cache_enabled' value='1' <?php checked( $cache_enabled, true ); ?>> <?php esc_html_e( 'Enable Caching', 'wp-super-cache' ); ?><br />
 		</fieldset>
 	</td>
 </tr>
 <tr valign="top">
-	<th scope="row"><label for="super_cache_enabled"><?php _e( 'Cache Delivery Method', 'wp-super-cache' ); ?></label></th>
+	<th scope="row"><?php esc_html_e( 'Cache Delivery Method', 'wp-super-cache' ); ?></th>
 	<td>
 		<fieldset>
 		<label><input type='radio' name='wp_cache_mod_rewrite' <?php if ( $wp_cache_mod_rewrite == 0 ) echo "checked"; ?> value='0'> <?php _e( '<acronym title="Use PHP to serve cached files">Simple</acronym>', 'wp-super-cache' ); echo " <em>(" . __( "Recommended", "wp-super-cache" ) . ")</em>"; ?></label><br />
@@ -52,7 +52,7 @@ echo '<input type="hidden" name="action" value="scupdates" />';
 	</td>
 </tr>
 <tr valign="top">
-	<th scope="row"><label for="wp_cache_status"><?php esc_html_e( 'Miscellaneous', 'wp-super-cache' ); ?></label></th>
+	<th scope="row"><?php esc_html_e( 'Miscellaneous', 'wp-super-cache' ); ?></th>
 	<td>
 		<fieldset>
 		<legend class="hidden">Miscellaneous</legend>
@@ -84,7 +84,7 @@ echo '<input type="hidden" name="action" value="scupdates" />';
 	</td>
 </tr>
 <tr valign="top">
-	<th scope="row"><label for="wp_cache_status"><?php _e( 'Advanced', 'wp-super-cache' ); ?></label></th>
+	<th scope="row"><?php esc_html_e( 'Advanced', 'wp-super-cache' ); ?></th>
 	<td>
 		<fieldset>
 		<legend class="hidden">Advanced</legend>
@@ -157,7 +157,7 @@ echo '<blockquote><h5>' . __( 'Mobile Browsers', 'wp-super-cache' ) . '</h5>' . 
 	<td>
 		<fieldset>
 			<legend class="hidden">Cache Location</legend>
-			<input type='text' size=80 name='wp_cache_location' value='<?php echo esc_attr( $cache_path ); ?>' />
+			<input type='text' size=80 name='wp_cache_location' id='wp_cache_location' value='<?php echo esc_attr( $cache_path ); ?>' />
 			<p><?php printf( __( 'Change the location of your cache files. The default is WP_CONTENT_DIR . /cache/ which translates to %s.', 'wp-super-cache' ), WP_CONTENT_DIR . '/cache/' ); ?></p>
 			<ol>
 				<li><?php _e( 'Warning: do not use a shared directory like /tmp/ where other users on this server can modify files. Your cache files could be modified to deface your website.', 'wp-super-cache' ); ?></li>
@@ -313,8 +313,8 @@ echo '<table class="form-table">';
 echo '<tr><td><label for="wp_max_time"><strong>' . __( 'Cache Timeout', 'wp-super-cache' ) . '</strong></label></td>';
 echo "<td><input type='text' id='wp_max_time' size=6 name='wp_max_time' value='" . esc_attr( $cache_max_time ) . "' /> " . __( "seconds", 'wp-super-cache' ) . "</td></tr>\n";
 echo "<tr><td></td><td>" . __( 'How long should cached pages remain fresh? Set to 0 to disable garbage collection. A good starting point is 3600 seconds.', 'wp-super-cache' ) . "</td></tr>\n";
-echo '<tr><td valign="top"><strong>' . __( 'Scheduler', 'wp-super-cache' ) . '</strong></td><td><table cellpadding=0 cellspacing=0><tr><td valign="top"><input type="radio" id="schedule_interval" name="cache_schedule_type" value="interval" ' . checked( 'interval', $cache_schedule_type, false ) . ' /></td><td valign="top"><label for="cache_interval_time">' . __( 'Timer:', 'wp-super-cache' ) . '</label></td>';
-echo "<td><input type='text' id='cache_interval_time' size=6 name='cache_time_interval' value='" . esc_attr( $cache_time_interval ) . "' /> " . __( "seconds", 'wp-super-cache' ) . '<br />' . __( 'Check for stale cached files every <em>interval</em> seconds.', 'wp-super-cache' ) . "</td></tr>";
+echo '<tr><td valign="top"><strong>' . esc_html__( 'Scheduler', 'wp-super-cache' ) . '</strong></td><td><table cellpadding=0 cellspacing=0><tr><td valign="top"><input type="radio" id="schedule_interval" name="cache_schedule_type" value="interval" ' . checked( 'interval', $cache_schedule_type, false ) . ' /></td><td valign="top"><label for="schedule_interval">' . esc_html__( 'Timer:', 'wp-super-cache' ) . '</label></td>';
+echo "<td><input type='text' id='cache_interval_time' size=6 name='cache_time_interval' value='" . esc_attr( $cache_time_interval ) . "' /> " . esc_html__( 'seconds', 'wp-super-cache' ) . '<br />' . esc_html__( 'How often to check for stale cached files.', 'wp-super-cache' ) . '</td></tr>';
 echo '<tr><td valign="top"><input type="radio" id="schedule_time" name="cache_schedule_type" value="time" ' . checked( 'time', $cache_schedule_type, false ) . ' /></td><td valign="top"><label for="schedule_time">' . __( 'Clock:', 'wp-super-cache' ) . '</label></td>';
 echo "<td><input type=\"text\" size=5 id='cache_scheduled_time' name='cache_scheduled_time' value=\"" . esc_attr( $cache_scheduled_time ) . "\" /> " . __( "HH:MM", 'wp-super-cache' ) . "<br />" . __( 'Check for stale cached files at this time <strong>(UTC)</strong> or starting at this time every <em>interval</em> below.', 'wp-super-cache' ) . "</td></tr>";
 $schedules = wp_get_schedules();

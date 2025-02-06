@@ -1,9 +1,9 @@
 import { addQueryArgs, getQueryArg, isURL } from '@wordpress/url';
 
 /**
- * @param { string } postId - ID of the current post
+ * @param { string } postId     - ID of the current post
  * @param { string } connectURL - Stripe connect URL
- * @returns { null | string } URL
+ * @return { null | string } URL
  */
 export default function getConnectUrl( postId, connectURL ) {
 	if ( ! isURL( connectURL ) ) {
@@ -29,6 +29,7 @@ export default function getConnectUrl( postId, connectURL ) {
 
 		url = addQueryArgs( connectURL, { state: btoa( JSON.stringify( decodedState ) ) } );
 	} catch ( err ) {
+		// eslint-disable-next-line no-undef -- webpack sets process.env.NODE_ENV
 		if ( process.env.NODE_ENV !== 'production' ) {
 			console.error( err ); // eslint-disable-line no-console
 		}

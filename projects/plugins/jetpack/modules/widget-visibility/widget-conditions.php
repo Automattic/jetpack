@@ -175,6 +175,13 @@ class Jetpack_Widget_Conditions {
 		 */
 		$blocks_to_add_visibility_conditions = apply_filters( 'jetpack_widget_visibility_server_side_render_blocks', $blocks );
 
+		/**
+		 * Block registration filter callback.
+		 *
+		 * @param array $settings Array of arguments for registering a block type.
+		 * @param string $name    Block type name including namespace.
+		 * @return array
+		 */
 		$filter_metadata_registration = function ( $settings, $name ) use ( $blocks_to_add_visibility_conditions ) {
 			if ( in_array( $name, $blocks_to_add_visibility_conditions, true ) && ! empty( $settings['attributes'] ) ) {
 				$settings['attributes']['conditions'] = array(
@@ -969,13 +976,15 @@ class Jetpack_Widget_Conditions {
 						}
 						break;
 					case 'author':
-						$post = get_post();
 						if ( ! $rule['minor'] && is_author() ) {
 							$condition_result = true;
 						} elseif ( $rule['minor'] && is_author( $rule['minor'] ) ) {
 							$condition_result = true;
-						} elseif ( is_singular() && $rule['minor'] && $rule['minor'] === $post->post_author ) {
-							$condition_result = true;
+						} elseif ( is_singular() && $rule['minor'] ) {
+							$post = get_post();
+							if ( $post && $rule['minor'] === $post->post_author ) {
+								$condition_result = true;
+							}
 						}
 						break;
 					case 'role':

@@ -10,7 +10,15 @@ function constCombining() {
 		/* Translators: This comment will not be lost */
 		_x( 'This is the workaround', 'context', 'domain' );
 
-	return { bugged, fixed };
+	const bugged2 =
+		_x(
+			/* Translators: This comment will be in the source but not detected for the right message. */
+			'This is another workaround', 'context', 'domain'
+		);
+
+	const bugged3 = __( 'This will get the above comment', 'domain' );
+
+	return { bugged, fixed, bugged2, bugged3 };
 }
 
 function conditionals( foo, bar ) {

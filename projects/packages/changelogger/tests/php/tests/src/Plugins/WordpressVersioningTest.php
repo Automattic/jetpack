@@ -23,13 +23,12 @@ use Symfony\Component\Console\Output\BufferedOutput;
  */
 class WordpressVersioningTest extends TestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
-	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
 
 	/**
 	 * Test getOptions.
 	 */
 	public function testGetOptions() {
-		$obj  = new WordpressVersioning( array() );
+		$obj  = new WordpressVersioning();
 		$opts = $obj->getOptions();
 		$this->assertIsArray( $opts );
 		foreach ( $opts as $opt ) {
@@ -46,7 +45,7 @@ class WordpressVersioningTest extends TestCase {
 	 * @param string|null                     $normalized Normalized value, if different from `$version`.
 	 */
 	public function testParseVersion( $version, $expect, $normalized = null ) {
-		$obj = new WordpressVersioning( array() );
+		$obj = new WordpressVersioning();
 		if ( $expect instanceof InvalidArgumentException ) {
 			$this->expectException( InvalidArgumentException::class );
 			$this->expectExceptionMessage( $expect->getMessage() );
@@ -60,7 +59,7 @@ class WordpressVersioningTest extends TestCase {
 	/**
 	 * Data provider for testParseVersion.
 	 */
-	public function provideParseVersion() {
+	public static function provideParseVersion() {
 		return array(
 			array(
 				'1.2',
@@ -276,7 +275,7 @@ class WordpressVersioningTest extends TestCase {
 	 * @param array                           $extra Extra, if any.
 	 */
 	public function testNormalizeVersion( $version, $expect, $extra = array() ) {
-		$obj = new WordpressVersioning( array() );
+		$obj = new WordpressVersioning();
 		if ( $expect instanceof InvalidArgumentException ) {
 			$this->expectException( InvalidArgumentException::class );
 			$this->expectExceptionMessage( $expect->getMessage() );
@@ -289,14 +288,14 @@ class WordpressVersioningTest extends TestCase {
 	/**
 	 * Data provider for testNormalizeVersion.
 	 */
-	public function provideNormalizeVersion() {
+	public static function provideNormalizeVersion() {
 		return array(
-			array(
+			'add prerelease = alpha'          => array(
 				'1.2',
 				'1.2-alpha',
 				array( 'prerelease' => 'alpha' ),
 			),
-			array(
+			'add prerelease and buildinfo'    => array(
 				'1.2-alpha',
 				'1.2-beta+12345',
 				array(
@@ -304,7 +303,7 @@ class WordpressVersioningTest extends TestCase {
 					'buildinfo'  => '12345',
 				),
 			),
-			array(
+			'remove prerelease and buildinfo' => array(
 				'1.2-beta+12345',
 				'1.2',
 				array(
@@ -313,12 +312,12 @@ class WordpressVersioningTest extends TestCase {
 				),
 			),
 
-			'Invalid prerelease component' => array(
+			'Invalid prerelease component'    => array(
 				'1.2.3',
 				new InvalidArgumentException( 'Invalid prerelease data' ),
 				array( 'prerelease' => 'delta?' ),
 			),
-			'Invalid buildinfo component'  => array(
+			'Invalid buildinfo component'     => array(
 				'1.2.3',
 				new InvalidArgumentException( 'Invalid buildinfo data' ),
 				array( 'buildinfo' => 'build?' ),
@@ -337,10 +336,10 @@ class WordpressVersioningTest extends TestCase {
 	 * @param string                          $expectPoint Expected result for a point release.
 	 */
 	public function testNextVersion( $version, array $changes, array $extra, $expect, $expectPoint = null ) {
-		$obj = new WordpressVersioning( array() );
+		$obj = new WordpressVersioning();
 
 		$out1 = $this->getMockBuilder( BufferedOutput::class )
-			->setMethods( array( 'getErrorOutput' ) )
+			->addMethods( array( 'getErrorOutput' ) )
 			->getMock();
 		$out2 = new BufferedOutput();
 		$out1->method( 'getErrorOutput' )->willReturn( $out2 );
@@ -367,7 +366,7 @@ class WordpressVersioningTest extends TestCase {
 	/**
 	 * Data provider for testNextVersion.
 	 */
-	public function provideNextVersion() {
+	public static function provideNextVersion() {
 		return array(
 			'No changes'                               => array(
 				'1.2.3',
@@ -484,7 +483,7 @@ class WordpressVersioningTest extends TestCase {
 	 * @param string $b Version B.
 	 */
 	public function testCompareVersions( $a, $expect, $b ) {
-		$obj = new WordpressVersioning( array() );
+		$obj = new WordpressVersioning();
 		$ret = $obj->compareVersions( $a, $b );
 		$this->assertIsInt( $ret );
 		$ret = $ret < 0 ? '<' : ( $ret > 0 ? '>' : '==' );
@@ -494,7 +493,7 @@ class WordpressVersioningTest extends TestCase {
 	/**
 	 * Data provider for testCompareVersions.
 	 */
-	public function provideCompareVersions() {
+	public static function provideCompareVersions() {
 		return array(
 			array( '1.0', '==', '1.0' ),
 			array( '1.0.0', '==', '1.0' ),
@@ -532,7 +531,7 @@ class WordpressVersioningTest extends TestCase {
 	 * @param string|InvalidArgumentException $expect Expected result.
 	 */
 	public function testFirstVersion( array $extra, $expect ) {
-		$obj = new WordpressVersioning( array() );
+		$obj = new WordpressVersioning();
 
 		if ( $expect instanceof InvalidArgumentException ) {
 			$this->expectException( InvalidArgumentException::class );
@@ -546,7 +545,7 @@ class WordpressVersioningTest extends TestCase {
 	/**
 	 * Data provider for testFirstVersion.
 	 */
-	public function provideFirstVersion() {
+	public static function provideFirstVersion() {
 		return array(
 			'Normal'             => array(
 				array(),

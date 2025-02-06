@@ -7,19 +7,40 @@
 
 namespace Automattic\Jetpack\Post_List;
 
+use Automattic\Jetpack\Assets;
+use WP_Post;
+use WP_Screen;
+
 /**
  * The Post_List Admin Area
  */
 class Post_List {
 
-	const PACKAGE_VERSION = '0.5.1';
+	const PACKAGE_VERSION = '0.8.0';
+	const FEATURE         = 'enhanced_post_list';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
+	 *
+	 * @return Post_List Post_List instance.
 	 */
 	public static function configure() {
+		add_post_type_support( 'post', self::FEATURE );
+		add_post_type_support( 'page', self::FEATURE );
+		return self::setup();
+	}
+
+	/**
+	 * Convenience function to create an instance of the class and register the
+	 * filters and actions. It allows for the feature to be set up without adding
+	 * support for posts and pages.
+	 *
+	 * @return Post_List Post_List instance.
+	 */
+	public static function setup() {
 		$post_list = self::get_instance();
 		$post_list->register();
+		return $post_list;
 	}
 
 	/**
@@ -71,6 +92,16 @@ class Post_List {
 				'rtl',
 				plugin_dir_url( __DIR__ ) . './src/rtl.css'
 			);
+			Assets::register_script(
+				'jetpack_posts_list',
+				'../build/index.js',
+				__FILE__,
+				array(
+					'in_footer'  => true,
+					'enqueue'    => true,
+					'textdomain' => 'jetpack-post-list',
+				)
+			);
 		}
 	}
 
@@ -82,7 +113,7 @@ class Post_List {
 	 */
 	public function maybe_customize_columns( $post_type ) {
 		// Add the thumbnail column if this is specifically "Posts" or "Pages".
-		if ( in_array( $post_type, array( 'post', 'page' ), true ) ) {
+		if ( post_type_supports( $post_type, self::FEATURE ) ) {
 			// Add the thumbnail column to the "Posts" admin table.
 			add_filter( 'manage_posts_columns', array( $this, 'add_thumbnail_column' ), 10, 2 );
 			add_action( 'manage_posts_custom_column', array( $this, 'populate_thumbnail_rows' ), 10, 2 );
@@ -133,6 +164,43 @@ class Post_List {
 
 		$this->maybe_customize_columns( $current_screen->post_type );
 		$this->maybe_add_share_action( $current_screen->post_type );
+		$this->maybe_add_copy_link_action( $current_screen->post_type );
+	}
+
+	/**
+	 * Checks the current post type and adds the Copy link post
+	 * action if it is appropriate to do so.
+	 *
+	 * @param string $post_type The post type associated with the current request.
+	 */
+	public function maybe_add_copy_link_action( $post_type ) {
+		if ( ! is_post_type_viewable( $post_type ) ) {
+			return;
+		}
+		add_filter( 'post_row_actions', array( $this, 'add_copy_link_action' ), 20, 2 );
+		add_filter( 'page_row_actions', array( $this, 'add_copy_link_action' ), 20, 2 );
+	}
+
+	/**
+	 * Adds the Copy link post action which copies the post link to the clipboard.
+	 *
+	 * @param array   $post_actions The current array of post actions.
+	 * @param WP_Post $post The current post in the post list table.
+	 *
+	 * @return array The modified post actions array.
+	 */
+	public function add_copy_link_action( $post_actions, $post ) {
+		if ( $post->post_status === 'trash' ) {
+			return $post_actions;
+		}
+
+		$post_actions['copy-link'] = sprintf(
+			'<a href="%1$s" aria-label="%2$s" class="jetpack-post-list__copy-link-action">%3$s</a>',
+			esc_url( get_permalink( $post ) ),
+			esc_html__( 'Copy link to clipboard', 'jetpack-post-list' ),
+			esc_html__( 'Copy link', 'jetpack-post-list' )
+		);
+		return $post_actions;
 	}
 
 	/**
@@ -229,7 +297,7 @@ class Post_List {
 	 * @return array    The columns to hide by default.
 	 */
 	public function adjust_default_columns( $cols, $screen ) {
-		if ( ! ( 'edit' === $screen->base && in_array( $screen->post_type, array( 'post', 'page' ), true ) ) ) {
+		if ( ! ( 'edit' === $screen->base && post_type_supports( $screen->post_type, self::FEATURE ) ) ) {
 			return $cols;
 		}
 

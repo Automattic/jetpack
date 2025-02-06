@@ -47,7 +47,7 @@ class Jetpack_Social_Test extends BaseTestCase {
 		// Publicize global is not available at the moment during these tests
 		$this->social = $this->getMockBuilder( Jetpack_Social::class )
 			->setConstructorArgs( array( $connection_manager ) )
-			->setMethods( array( 'calculate_scheduled_shares' ) )
+			->onlyMethods( array( 'calculate_scheduled_shares' ) )
 			->getMock();
 		$this->social->expects( $this->once() )->method( 'calculate_scheduled_shares' );
 
@@ -56,7 +56,7 @@ class Jetpack_Social_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Testh that the Publicize package isn't ensured without a user connection
+	 * Test that the Publicize package isn't ensured without a user connection
 	 */
 	public function test_publicize_not_configured() {
 		$connection_manager = $this->createMock( Connection_Manager::class );

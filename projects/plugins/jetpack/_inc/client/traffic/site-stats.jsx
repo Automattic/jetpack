@@ -1,22 +1,20 @@
-import { imagePath, JETPACK_STATS_OPT_OUT_SURVEY } from 'constants/urls';
 import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
+import { filter, includes } from 'lodash';
+import React from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
 import FoldableCard from 'components/foldable-card';
 import { FormFieldset, FormLegend } from 'components/forms';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-import SimpleNotice from 'components/notice';
-import NoticeAction from 'components/notice/notice-action';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
-import { filter, includes } from 'lodash';
-import React from 'react';
-import { connect } from 'react-redux';
 import { isWoASite } from 'state/initial-state';
 
 class SiteStatsComponent extends React.Component {
@@ -44,9 +42,22 @@ class SiteStatsComponent extends React.Component {
 			wpcom_reader_views_enabled: props.getOptionValue( 'wpcom_reader_views_enabled' ),
 		};
 
-		if ( roles ) {
-			this.addCustomCountRolesState( countRoles );
-			this.addCustomRolesState( roles );
+		const defaultRoles = [ 'administrator', 'editor', 'author', 'contributor', 'subscriber' ];
+
+		if ( roles?.length > 0 ) {
+			roles.forEach( role => {
+				if ( ! defaultRoles.includes( role ) ) {
+					this.state[ `roles_${ role }` ] = true;
+				}
+			} );
+		}
+
+		if ( countRoles?.length > 0 ) {
+			countRoles.forEach( role => {
+				if ( ! defaultRoles.includes( role ) ) {
+					this.state[ `count_roles_${ role }` ] = true;
+				}
+			} );
 		}
 	}
 
@@ -109,38 +120,6 @@ class SiteStatsComponent extends React.Component {
 		return () => this.updateOptions( role, setting );
 	};
 
-	/**
-	 * Allows for custom roles 'count logged in page views' stats settings to be added to the current state.
-	 *
-	 * @param {Array} countRoles - All roles (including custom) that have 'count logged in page views' enabled.
-	 */
-	addCustomCountRolesState( countRoles ) {
-		countRoles.forEach( role => {
-			if (
-				! [ 'administrator', 'editor', 'author', 'subscriber', 'contributor' ].includes(
-					countRoles
-				)
-			) {
-				this.state[ `count_roles_${ role }` ] = includes( countRoles, role, false );
-			}
-		} );
-	}
-
-	/**
-	 * Allows for custom roles 'allow stats reports' stats settings to be added to the current state.
-	 *
-	 * @param {Array} roles - All roles (including custom) that have 'allow stats reports' enabled.
-	 */
-	addCustomRolesState( roles ) {
-		roles.forEach( role => {
-			if (
-				! [ 'administrator', 'editor', 'author', 'subscriber', 'contributor' ].includes( role )
-			) {
-				this.state[ `roles_${ role }` ] = includes( roles, role, false );
-			}
-		} );
-	}
-
 	handleStatsOptionToggle( option_slug ) {
 		return () => this.props.updateFormStateModuleOption( 'stats', option_slug );
 	}
@@ -172,11 +151,6 @@ class SiteStatsComponent extends React.Component {
 		const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'stats' );
 		const siteRoles = this.props.getSiteRoles();
 
-		const optedOutOfOdyssey =
-			isStatsActive &&
-			! unavailableInOfflineMode &&
-			! this.props.getOptionValue( 'enable_odyssey_stats' );
-
 		if ( 'inactive' === this.props.getModuleOverride( 'stats' ) ) {
 			return <ModuleOverriddenBanner moduleName={ stats.name } />;
 		}
@@ -203,13 +177,10 @@ class SiteStatsComponent extends React.Component {
 								? __( 'Unavailable in Offline Mode', 'jetpack' )
 								: createInterpolateElement(
 										__(
-											'<Button>Activate Jetpack Stats</Button> to see page views, likes, followers, subscribers, and more! <a>Learn More</a>',
+											'Activate Jetpack Stats to see page views, likes, followers, subscribers, and more! <a>Learn More</a>',
 											'jetpack'
 										),
 										{
-											Button: (
-												<Button rna className="jp-link-button" onClick={ this.activateStats } />
-											),
 											a: (
 												<a
 													href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
@@ -246,7 +217,7 @@ class SiteStatsComponent extends React.Component {
 						'jetpack'
 					) }
 					clickableHeader={ true }
-					className={ classNames( 'jp-foldable-settings-standalone', {
+					className={ clsx( 'jp-foldable-settings-standalone', {
 						'jp-foldable-settings-disable': unavailableInOfflineMode,
 					} ) }
 				>
@@ -261,46 +232,7 @@ class SiteStatsComponent extends React.Component {
 							link: getRedirectUrl( 'jetpack-support-wordpress-com-stats' ),
 						} }
 					>
-						{ ! this.props.isWoASite && (
-							<>
-								{ optedOutOfOdyssey && (
-									<SimpleNotice
-										className="jp-stats-odyssey-disabled-notice"
-										showDismiss={ false }
-										status="is-error"
-										text={ __(
-											'Not into the new stats? Tell us why so we can make stats better for you.',
-											'jetpack'
-										) }
-									>
-										<NoticeAction href={ JETPACK_STATS_OPT_OUT_SURVEY } external={ true }>
-											{ __( 'Take a Quick Survey', 'jetpack' ) }
-										</NoticeAction>
-									</SimpleNotice>
-								) }
-								{ /* Hide Odyssey Stats toggle on WoA sites, which should use Calypso Stats instead. */ }
-								<FormFieldset className="jp-stats-odyssey-toggle">
-									<ToggleControl
-										checked={ !! this.props.getOptionValue( 'enable_odyssey_stats' ) }
-										disabled={
-											! isStatsActive ||
-											unavailableInOfflineMode ||
-											this.props.isSavingAnyOption( [ 'stats' ] )
-										}
-										toggling={ this.props.isSavingAnyOption( [ 'enable_odyssey_stats' ] ) }
-										onChange={ this.handleStatsOptionToggle( 'enable_odyssey_stats' ) }
-										label={
-											<>
-												{ /* This toggle enables Odyssey Stats. */ }
-												{ __( 'Enable a new Jetpack Stats experience', 'jetpack' ) }
-												<span className="jp-stats-odyssey-badge">{ __( 'New', 'jetpack' ) }</span>
-											</>
-										}
-									/>
-								</FormFieldset>
-							</>
-						) }
-						<FormFieldset>
+						<FormFieldset className="jp-stats-form-fieldset">
 							<ToggleControl
 								checked={ !! this.props.getOptionValue( 'admin_bar' ) }
 								disabled={
@@ -316,7 +248,7 @@ class SiteStatsComponent extends React.Component {
 								) }
 							/>
 						</FormFieldset>
-						<FormFieldset>
+						<FormFieldset className="jp-stats-form-fieldset">
 							<FormLegend>{ __( 'Count logged in page views from', 'jetpack' ) }</FormLegend>
 							{ Object.keys( siteRoles ).map( key => (
 								<ToggleControl
@@ -333,7 +265,7 @@ class SiteStatsComponent extends React.Component {
 								/>
 							) ) }
 						</FormFieldset>
-						<FormFieldset>
+						<FormFieldset className="jp-stats-form-fieldset">
 							<FormLegend>{ __( 'Allow Jetpack Stats to be viewed by', 'jetpack' ) }</FormLegend>
 							<ToggleControl
 								checked={ true }
@@ -357,7 +289,7 @@ class SiteStatsComponent extends React.Component {
 								) : null
 							) }
 						</FormFieldset>
-						<FormFieldset>
+						<FormFieldset className="jp-stats-form-fieldset">
 							<FormLegend>{ __( 'WordPress.com Reader', 'jetpack' ) }</FormLegend>
 							<ToggleControl
 								checked={ this.state.wpcom_reader_views_enabled }

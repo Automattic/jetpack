@@ -41,7 +41,7 @@ jobs:
         run: [...] # Run tests for suite ${{ matrix.suite }}
 
       - name: Upload test artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-output-${{ matrix.suite }}
 
@@ -49,10 +49,12 @@ jobs:
     name: 'Send Slack notification'
     runs-on: ubuntu-latest
     needs: run-tests
+    # Notify even if tests failed.
+    if: ${{ !cancelled() }}
   
     steps:
       - name: Download test artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: test-artifacts
 
@@ -74,15 +76,33 @@ jobs:
 
 The action relies on the following parameters.
 
-- (Required) `github_token` is a GitHub Access Token used to access GitHub's API. The token should be stored in a [secret](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository)
-- (Required) `slack_token` is the Auth token of a bot that is installed on your Slack workspace. The token should be stored in a [secret](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository). See the [instructions here](https://slack.com/intl/en-hu/help/articles/115005265703-Create-a-bot-for-your-workspace) on how to create a bot.
+- (Required) `github_token` is a GitHub Access Token used to access GitHub's API. The token should be stored in a [secret](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository).
+- (Required) `slack_token` is the Auth token of a bot that is installed on your Slack workspace. See [Slack token](#slack-token) below for details. The token should be stored in a [secret](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository).
 - (Required) `slack_channel` is the Slack channel ID where the messages will be sent to. Check the channel's details in your Slack app to find the channel ID.
 - (Optional) `slack_username` is the Slack username the bot will use to send messages. Defaults to "GitHub Reporter".
 - (Optional) `slack_icon_emoji` is the icon emoji to use for messages. If not set it will use your app's default icon.
 - (Optional) `suite_name` is the name of the test suite. It will be included in the message, and it can also be used to define notification rules. See more in the Rules section.
 - (Optional) `rules_configuration_path` is the path to the configuration file that defines the rules. See more in the Rules section.
-- (Optional) `playwright_report_path` is the path to the JSON report, output from Playwright test runner JSON reporter. See [Playwright's docs](  https://playwright.dev/docs/test-reporters#json-reporter) for details on how to generate this file. If specified, it will be parsed and failures details will be included in the message. You can use the glob pattern to specify multiple files. For example: `playwright_report_path: 'artifacts/**/report.json'`.
+- (Optional) `playwright_report_path` is the path to the JSON report, output from Playwright test runner JSON reporter. See [Playwright's docs](https://playwright.dev/docs/test-reporters#json-reporter) for details on how to generate this file. If specified, it will be parsed and failures details will be included in the message. You can use the glob pattern to specify multiple files. For example: `playwright_report_path: 'artifacts/**/report.json'`.
 - (Optional) `playwright_output_dir` is the path to the Playwright's configured output directory, where results and attachments are saved. It is needed when the artefacts are downloaded from a previous job, and the absolute paths to attachments found in the JSON report are not valid anymore. This path will be used to convert the paths to those attachments. You can use the glob pattern. For example: `playwright_output_dir: 'artifacts/**/results'`
+
+### GitHub permissions required
+
+This action needs access to list jobs for workflow runs.
+
+For OAuth apps and classic access tokens, no special scopes are needed.
+
+For GitHub Apps and fine-grained access tokens, that's read-only for repository "Actions" (`actions`).
+
+### Slack token
+
+You will need to [create a Slack bot for your workspace](https://slack.com/intl/en-hu/help/articles/115005265703-Create-a-bot-for-your-workspace) for the action to use. The bot will need the following scopes:
+
+- `chat:write` - To post messages to the configured channel.
+- `chat:write.public` - If the bot is not a member of the configured channel.
+- `chat:write.customize` - For the `slack_username` and `slack_icon_emoji` parmeters to work.
+- `channels:history` - For the bot to find its messages from previous runs to update.
+- `files:write` - For the bot to upload PNG images (if any) along with the report.
 
 ### Rules
 

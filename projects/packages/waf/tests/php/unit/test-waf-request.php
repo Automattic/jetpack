@@ -188,6 +188,13 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 		$_SERVER['HTTP_HOST']   = 'wordpress.com';
 		$request                = new Waf_Request();
 		$this->assertSame( 'https://wordpress.com/index.php', $request->get_uri( true ) );
+		// test with encoded characters in REQUEST_URI
+		$_SERVER['REQUEST_URI'] = 'https://wordpress.com/wp-%61dmin/index.php';
+		$request                = new Waf_Request();
+		$this->assertSame( 'https://wordpress.com/wp-admin/index.php', $request->get_uri( true ) );
+		// should still work with query strings
+		$_SERVER['QUERY_STRING'] = 'red=1&orange=2';
+		$this->assertSame( 'https://wordpress.com/wp-admin/index.php', $request->get_uri( true ) );
 		// test with a query string
 		$_SERVER['QUERY_STRING'] = 'red=1&orange=2';
 		$_SERVER['REQUEST_URI']  = 'https://wordpress.com/index.php?incorrect=bad';
@@ -210,6 +217,35 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 		$_SERVER['REQUEST_URI'] = '/';
 		$request                = new Waf_Request();
 		$this->assertSame( '/', $request->get_filename() );
+	}
+
+	/**
+	 * Test Waf_Request::get_basename()
+	 */
+	public function testGetBasename() {
+		$_SERVER['REQUEST_URI'] = 'https://wordpress.com/some/file?test';
+		$request                = new Waf_Request();
+		$this->assertSame( 'file', $request->get_basename() );
+		// test with a root path request
+		$_SERVER['REQUEST_URI'] = 'https://wordpress.com/';
+		$request                = new Waf_Request();
+		$this->assertSame( '', $request->get_basename() );
+		// test with a relative root path request
+		$_SERVER['REQUEST_URI'] = '/';
+		$request                = new Waf_Request();
+		$this->assertSame( '', $request->get_basename() );
+		// test with encoded characters
+		$_SERVER['REQUEST_URI'] = 'https://wordpress.com/some/filé.php?test';
+		$request                = new Waf_Request();
+		$this->assertSame( 'filé.php', $request->get_basename() );
+		// test with trailing slash
+		$_SERVER['REQUEST_URI'] = 'https://wordpress.com/some/file/?test';
+		$request                = new Waf_Request();
+		$this->assertSame( 'file', $request->get_basename() );
+		// test with single period
+		$_SERVER['REQUEST_URI'] = 'https://wordpress.com/.';
+		$request                = new Waf_Request();
+		$this->assertSame( '.', $request->get_basename() );
 	}
 
 	/**
@@ -261,6 +297,136 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 		$this->assertContains( array( 'test_var', 'test_value' ), $value );
 		$this->assertContains( array( 'test_2[child]', 'value' ), $value );
 		$this->assertContains( array( 'test_num[0]', 'value1' ), $value );
+
+		$_POST = array();
+	}
+
+	/**
+	 * Test that the Waf_Request class returns POST-ed data correctly decoded from JSON via Waf_Request::get_post_vars().
+	 */
+	public function testGetVarsPostWithJsonBodyProcessor() {
+		$_SERVER['CONTENT_TYPE'] = 'irrelevant';
+
+		$request = $this->mock_request(
+			array(
+				'body' => json_encode(
+					array(
+						'str' => 'value',
+						'arr' => array( 'a', 'b', 'c' ),
+						'obj' => (object) array( 'foo' => 'bar' ),
+					)
+				),
+			)
+		);
+		$value   = $request->get_post_vars( 'JSON' );
+		$this->assertIsArray( $value );
+		$this->assertContains( array( 'json.str', 'value' ), $value );
+		$this->assertContains( array( 'json.arr.0', 'a' ), $value );
+		$this->assertContains( array( 'json.arr.1', 'b' ), $value );
+		$this->assertContains( array( 'json.arr.2', 'c' ), $value );
+		$this->assertContains( array( 'json.obj.foo', 'bar' ), $value );
+
+		unset( $_SERVER['CONTENT_TYPE'] );
+	}
+
+	/**
+	 * Test that the Waf_Request class returns POST-ed data correctly decoded from URLENCODED body via Waf_Request::get_post_vars().
+	 */
+	public function testGetVarsPostWithUrlencodedBodyProcessor() {
+		$_SERVER['CONTENT_TYPE'] = 'irrelevant';
+
+		$request = $this->mock_request(
+			array(
+				'body' => (
+					http_build_query(
+						array(
+							'str' => 'value',
+							'arr' => array( 'a', 'b', 'c' ),
+							'obj' => (object) array( 'foo' => 'bar' ),
+						)
+					)
+				),
+			)
+		);
+		$value   = $request->get_post_vars( 'URLENCODED' );
+		$this->assertIsArray( $value );
+		$this->assertContains( array( 'str', 'value' ), $value );
+		$this->assertContains( array( 'arr[0]', 'a' ), $value );
+		$this->assertContains( array( 'arr[1]', 'b' ), $value );
+		$this->assertContains( array( 'arr[2]', 'c' ), $value );
+		$this->assertContains( array( 'obj[foo]', 'bar' ), $value );
+
+		unset( $_SERVER['CONTENT_TYPE'] );
+	}
+
+	/**
+	 * Test that the Waf_Request class returns POST-ed data correctly decoded from JSON via Waf_Request::get_post_vars().
+	 */
+	public function testGetVarsPostWithJson() {
+		$_SERVER['CONTENT_TYPE'] = 'application/json';
+
+		$request = $this->mock_request(
+			array(
+				'body' => json_encode(
+					array(
+						'str' => 'value',
+						'arr' => array( 'a', 'b', 'c' ),
+						'obj' => (object) array( 'foo' => 'bar' ),
+					)
+				),
+			)
+		);
+		$value   = $request->get_post_vars();
+		$this->assertIsArray( $value );
+		$this->assertContains( array( 'json.str', 'value' ), $value );
+		$this->assertContains( array( 'json.arr.0', 'a' ), $value );
+		$this->assertContains( array( 'json.arr.1', 'b' ), $value );
+		$this->assertContains( array( 'json.arr.2', 'c' ), $value );
+		$this->assertContains( array( 'json.obj.foo', 'bar' ), $value );
+
+		unset( $_SERVER['CONTENT_TYPE'] );
+	}
+
+	/**
+	 * Test that the Waf_Request class returns POST data correctly when the content is XML
+	 */
+	public function testGetVarsPostWithXml() {
+		$_SERVER['CONTENT_TYPE'] = 'text/xml';
+		$request                 = $this->mock_request(
+			array(
+				'body' => '<?xml version="1.0"?><methodCall><methodName>methodName</methodName><params><param><value><string>AB</string></value></param></params></methodCall>',
+			)
+		);
+		$this->assertEmpty( $request->get_post_vars() );
+	}
+
+	/**
+	 * Test that the Waf_Request class returns any parameters when HTTP method isn't POST.
+	 */
+	public function testGetVarsPostWithUrlEncoded() {
+		$_SERVER['CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
+		$request                 = $this->mock_request(
+			array(
+				'body' => (
+					http_build_query(
+						array(
+							'str' => 'value',
+							'arr' => array( 'a', 'b', 'c' ),
+							'obj' => (object) array( 'foo' => 'bar' ),
+						)
+					)
+				),
+			)
+		);
+		$value                   = $request->get_post_vars();
+		$this->assertIsArray( $value );
+		$this->assertContains( array( 'str', 'value' ), $value );
+		$this->assertContains( array( 'arr[0]', 'a' ), $value );
+		$this->assertContains( array( 'arr[1]', 'b' ), $value );
+		$this->assertContains( array( 'arr[2]', 'c' ), $value );
+		$this->assertContains( array( 'obj[foo]', 'bar' ), $value );
+
+		unset( $_SERVER['CONTENT_TYPE'] );
 	}
 
 	/**
@@ -324,5 +490,25 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 			),
 			$values
 		);
+	}
+
+	/**
+	 * Returned a Waf_Request instance with mocked data.
+	 *
+	 * @param array $data Key/value assoc. array of mocked data to pre-fill the request with.
+	 * @return Waf_Request
+	 */
+	protected function mock_request( $data ) {
+		$method_names = array_map(
+			function ( $k ) {
+				return "get_$k";
+			},
+			array_keys( $data )
+		);
+		$mock         = $this->createPartialMock( Waf_Request::class, $method_names );
+		foreach ( $data as $k => $v ) {
+			$mock->method( "get_$k" )->willReturn( $v );
+		}
+		return $mock;
 	}
 }

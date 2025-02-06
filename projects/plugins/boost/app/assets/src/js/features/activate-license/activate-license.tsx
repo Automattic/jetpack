@@ -1,8 +1,13 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import styles from './activate-license.module.scss';
+import { isWoaHosting } from '$lib/utils/hosting';
 
 const ActivateLicense = () => {
+	if ( isWoaHosting() ) {
+		return null;
+	}
+
 	const activateLicenseUrl = 'admin.php?page=my-jetpack#/add-license';
 
 	return (

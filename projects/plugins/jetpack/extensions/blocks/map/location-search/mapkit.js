@@ -1,4 +1,4 @@
-import { BaseControl, TextControl } from '@wordpress/components';
+import { TextControl } from '@wordpress/components';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import Lookup from '../lookup';
@@ -7,17 +7,17 @@ import { useMapkit } from '../mapkit/hooks';
 const placeholderText = __( 'Add a marker…', 'jetpack' );
 
 const MapkitLocationSearch = ( { label, onAddPoint } ) => {
-	const containerRef = useRef();
-	const textRef = useRef();
+	const containerRef = useRef( undefined );
+	const textRef = useRef( undefined );
 	const { mapkit } = useMapkit();
+	const search = new mapkit.Search( {
+		includePointsOfInterest: false,
+	} );
 
 	const autocompleter = {
 		name: 'placeSearch',
 		options: async value => {
 			return new Promise( function ( resolve, reject ) {
-				const search = new mapkit.Search( {
-					includePointsOfInterest: false,
-				} );
 				search.autocomplete( value, ( err, results ) => {
 					if ( err ) {
 						reject( err );
@@ -30,6 +30,7 @@ const MapkitLocationSearch = ( { label, onAddPoint } ) => {
 					const withPlaceName = filtered.map( result => ( {
 						...result,
 						placeName: result.displayLines?.join( ', ' ),
+						original: result, // save the original result for later - otherwise mapkit.js gives a type error
 					} ) );
 
 					resolve( withPlaceName );
@@ -56,7 +57,21 @@ const MapkitLocationSearch = ( { label, onAddPoint } ) => {
 					value.coordinate.longitude
 				).toFixed( 2 ) }`,
 			};
-			onAddPoint( point );
+			search.search( value.original, ( err, results ) => {
+				if ( ! err ) {
+					const { places } = results;
+					if ( places.length > 0 ) {
+						const place = places[ 0 ];
+						point.coordinates = {
+							longitude: place.coordinate.longitude,
+							latitude: place.coordinate.latitude,
+						};
+					}
+				}
+
+				onAddPoint( point );
+			} );
+
 			return value.placeName;
 		},
 	};
@@ -73,10 +88,11 @@ const MapkitLocationSearch = ( { label, onAddPoint } ) => {
 
 	return (
 		<div ref={ containerRef }>
-			<BaseControl label={ label } className="components-location-search">
+			<div className="components-location-search">
 				<Lookup completer={ autocompleter } onReset={ onReset }>
 					{ ( { isExpanded, listBoxId, activeId, onChange, onKeyDown } ) => (
 						<TextControl
+							label={ label }
 							placeholder={ placeholderText }
 							ref={ textRef }
 							onChange={ onChange }
@@ -84,10 +100,11 @@ const MapkitLocationSearch = ( { label, onAddPoint } ) => {
 							aria-owns={ listBoxId }
 							aria-activedescendant={ activeId }
 							onKeyDown={ onKeyDown }
+							__nextHasNoMarginBottom={ true }
 						/>
 					) }
 				</Lookup>
-			</BaseControl>
+			</div>
 		</div>
 	);
 };

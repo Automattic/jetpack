@@ -190,7 +190,7 @@ function jetpack_the_site_logo() {
  */
 function jetpack_is_customize_preview() {
 	global $wp_customize;
-
+	// @phan-suppress-next-line PhanTypeMismatchArgumentInternal -- this continues to work as expected, but given the feature deprecation no extra work is needed.
 	return is_a( $wp_customize, 'WP_Customize_Manager' ) && $wp_customize->is_preview();
 }
 

@@ -1,13 +1,14 @@
 import domReady from '@wordpress/dom-ready';
-import { render } from '@wordpress/element';
+import { createRoot } from '@wordpress/element';
+import { DEFAULT_ASK_BUTTON_LABEL, DEFAULT_PLACEHOLDER } from './constants';
 import QuestionAnswer from './question-answer';
 import './view.scss';
 
 const AiChat = ( {
-	askButtonLabel,
+	askButtonLabel = DEFAULT_ASK_BUTTON_LABEL,
 	blogId,
 	blogType,
-	placeholder,
+	placeholder = DEFAULT_PLACEHOLDER,
 	showCopy,
 	showFeedback,
 	showSources,
@@ -33,7 +34,8 @@ domReady( function () {
 	const placeholder = container.getAttribute( 'data-placeholder' );
 	const blogId = container.getAttribute( 'data-blog-id' );
 	const blogType = container.getAttribute( 'data-blog-type' );
-	render(
+	const root = createRoot( container );
+	root.render(
 		<AiChat
 			askButtonLabel={ askButtonLabel }
 			blogId={ blogId }
@@ -42,7 +44,6 @@ domReady( function () {
 			showCopy={ !! parseInt( container.getAttribute( 'data-show-copy' ) ) }
 			showFeedback={ !! parseInt( container.getAttribute( 'data-show-feedback' ) ) }
 			showSources={ !! parseInt( container.getAttribute( 'data-show-sources' ) ) }
-		/>,
-		container
+		/>
 	);
 } );

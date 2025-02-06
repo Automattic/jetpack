@@ -1,101 +1,54 @@
 import CriticalCssMeta from '$features/critical-css/critical-css-meta/critical-css-meta';
-import { CriticalCssState } from '$features/critical-css/lib/stores/critical-css-state-types';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
-import { Button, Notice, getRedirectUrl } from '@automattic/jetpack-components';
+import { Notice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { usePremiumFeatures, useSuggestRegenerate } from './lib/hooks';
-import {
-	RegenerateCriticalCssSuggestion,
-	continueGeneratingLocalCriticalCss,
-	regenerateCriticalCss,
-} from '$features/critical-css';
-import { useCallback, useEffect, useState } from 'react';
-import {
-	startPollingCloudStatus,
-	stopPollingCloudCssStatus,
-} from '$features/critical-css/lib/cloud-css';
+import { usePremiumFeatures } from '$lib/stores/premium-features';
 import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
 import MinifyMeta from '$features/minify-meta/minify-meta';
-import { QualitySettings } from '$features/image-cdn';
+import { QualitySettings, ImageCdnLiar } from '$features/image-cdn';
 import styles from './index.module.scss';
-import { RecommendationsMeta } from '$features/image-size-analysis/recommendations-meta/recommendations-meta';
-import { initializeIsaSummary } from '$features/image-size-analysis/lib/stores/isa-summary';
-import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
+import { RecommendationsMeta } from '$features/image-size-analysis';
+import CornerstonePages from '$features/cornerstone-pages/cornerstone-pages';
+import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
+import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
+import Upgraded from '$features/ui/upgraded/upgraded';
+import PageCacheModule from '$features/page-cache/page-cache';
+import Pill from '$features/ui/pill/pill';
+import { recordBoostEvent } from '$lib/utils/analytics';
 
-type IndexProps = {
-	/*
-	 * TODO: Move these to react DS and get them directly from DS instead of as props.
-	 * This should be done when moving the Main.svelte component to React.
-	 */
-	criticalCss: {
-		criticalCssState: CriticalCssState;
-		continueGeneratingLocalCriticalCss: unknown;
-		regenerateCriticalCss: unknown;
-		criticalCssProgress: number;
-		isFatalError: boolean;
-		issues: CriticalCssState[ 'providers' ];
-		primaryErrorSet: unknown;
-	};
-};
-
-const Index = ( { criticalCss }: IndexProps ) => {
-	const [ alreadyResumed, setAlreadyResumed ] = useState( false );
-	const resume = useCallback( () => {
-		if ( alreadyResumed ) {
-			return;
-		}
-		setAlreadyResumed( true );
-
-		if (
-			! criticalCss.criticalCssState ||
-			criticalCss.criticalCssState.status === 'not_generated'
-		) {
-			return regenerateCriticalCss();
-		}
-		continueGeneratingLocalCriticalCss( criticalCss.criticalCssState );
-	}, [ alreadyResumed, criticalCss.criticalCssState ] );
-
+const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
-	const lazyLoadLink = getRedirectUrl( 'jetpack-boost-lazy-load' );
-	const learnLazyLoadDeprecation = () => {
-		window.open( getRedirectUrl( 'jetpack-boost-lazy-load-deprecation' ), '_blank' );
-	};
 
-	const [ lazyLoadState ] = useSingleModuleState( 'lazy_images' );
-	const [ cloudCssState ] = useSingleModuleState( 'cloud_css' );
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
+	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
 
-	const lazyLoadDeprecationMessage = lazyLoadState?.available
-		? __(
-				'Modern browsers now support lazy loading, and WordPress itself bundles lazy loading for images. This feature will consequently be removed from Jetpack Boost.',
-				'jetpack-boost'
-		  )
-		: __(
-				'Modern browsers now support lazy loading, and WordPress itself bundles lazy loading for images. This feature has been disabled to avoid potential conflicts with Gutenberg 16.6.0+ or WordPress 6.4+. This feature will consequently be removed from Jetpack Boost.',
-				'jetpack-boost'
-		  );
+	const regenerateCssAction = useRegenerateCriticalCssAction();
 
-	const [ { data: suggestRegenerate } ] = useSuggestRegenerate();
+	const requestRegenerateCriticalCss = () => {
+		regenerateCssAction.mutate();
+	};
+	const { canResizeImages } = Jetpack_Boost;
+
 	const premiumFeatures = usePremiumFeatures();
 
-	useEffect( () => {
-		if ( isaState?.active ) {
-			initializeIsaSummary();
-		}
-	}, [ isaState?.active ] );
+	const hasPremiumCdnFeatures =
+		premiumFeatures.includes( 'image-cdn-liar' ) && premiumFeatures.includes( 'image-cdn-quality' );
+
+	const handleCriticalCssLink = () => {
+		recordBoostEvent( 'critical_css_link_clicked', {} );
+	};
 
 	return (
 		<div className="jb-container--narrow">
+			<CornerstonePages />
 			<Module
 				slug="critical_css"
 				title={ __( 'Optimize Critical CSS Loading (manual)', 'jetpack-boost' ) }
-				onDisable={ () => setAlreadyResumed( false ) }
-				onEnable={ resume }
-				onMountEnable={ resume }
+				onEnable={ requestRegenerateCriticalCss }
 				description={
 					<>
 						<p>
@@ -105,40 +58,40 @@ const Index = ( { criticalCss }: IndexProps ) => {
 									'jetpack-boost'
 								),
 								{
-									// eslint-disable-next-line jsx-a11y/anchor-has-content
-									link: <a href={ criticalCssLink } target="_blank" rel="noopener noreferrer" />,
+									link: (
+										// eslint-disable-next-line jsx-a11y/anchor-has-content
+										<a
+											href={ criticalCssLink }
+											target="_blank"
+											onClick={ handleCriticalCssLink }
+											style={ { cursor: 'pointer' } }
+											rel="noopener noreferrer"
+										/>
+									),
 								}
 							) }
 						</p>
-						<p>
-							{ createInterpolateElement(
-								__(
-									`<b>You should regenerate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.`,
-									'jetpack-boost'
-								),
-								{
-									b: <b />,
-								}
-							) }
-						</p>
+						<div className={ styles[ 'tooltip-wrapper' ] }>
+							<p>
+								{ createInterpolateElement(
+									__(
+										`<b>You should regenerate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.`,
+										'jetpack-boost'
+									),
+									{
+										b: <b />,
+									}
+								) }
+							</p>
+							<PremiumTooltip />
+						</div>
 					</>
 				}
 			>
-				<CriticalCssMeta
-					cssState={ criticalCss.criticalCssState }
-					isCloudCssAvailable={ cloudCssState?.available === true }
-					criticalCssProgress={ criticalCss.criticalCssProgress }
-					issues={ criticalCss.issues }
-					isFatalError={ criticalCss.isFatalError }
-					primaryErrorSet={ criticalCss.primaryErrorSet }
-					suggestRegenerate={ suggestRegenerate }
-					regenerateCriticalCss={ criticalCss.regenerateCriticalCss }
-				/>
-				<RegenerateCriticalCssSuggestion
-					show={ suggestRegenerate && criticalCss.criticalCssState.status !== 'pending' }
-					type={ suggestRegenerate }
-				/>
+				<CriticalCssMeta />
+
 				<UpgradeCTA
+					identifier="critical-css"
 					description={ __(
 						'Save time by upgrading to Automatic Critical CSS generation.',
 						'jetpack-boost'
@@ -150,9 +103,10 @@ const Index = ( { criticalCss }: IndexProps ) => {
 				title={
 					<>
 						{ __( 'Automatically Optimize CSS Loading', 'jetpack-boost' ) }
-						<span className="jb-badge">Upgraded</span>
+						<Upgraded />
 					</>
 				}
+				onEnable={ requestRegenerateCriticalCss }
 				description={
 					<>
 						<p>
@@ -162,8 +116,16 @@ const Index = ( { criticalCss }: IndexProps ) => {
 									'jetpack-boost'
 								),
 								{
-									// eslint-disable-next-line jsx-a11y/anchor-has-content
-									link: <a href={ criticalCssLink } target="_blank" rel="noopener noreferrer" />,
+									link: (
+										// eslint-disable-next-line jsx-a11y/anchor-has-content
+										<a
+											href={ criticalCssLink }
+											target="_blank"
+											onClick={ handleCriticalCssLink }
+											style={ { cursor: 'pointer' } }
+											rel="noopener noreferrer"
+										/>
+									),
 								}
 							) }
 						</p>
@@ -180,21 +142,10 @@ const Index = ( { criticalCss }: IndexProps ) => {
 						</p>
 					</>
 				}
-				onEnable={ startPollingCloudStatus }
-				onDisable={ stopPollingCloudCssStatus }
-				onMountEnable={ startPollingCloudStatus }
 			>
-				<CloudCssMeta
-					cssState={ criticalCss.criticalCssState }
-					isCloudCssAvailable={ cloudCssState?.available === true }
-					criticalCssProgress={ criticalCss.criticalCssProgress }
-					issues={ criticalCss.issues }
-					isFatalError={ criticalCss.isFatalError }
-					primaryErrorSet={ criticalCss.primaryErrorSet }
-					suggestRegenerate={ suggestRegenerate }
-					regenerateCriticalCss={ regenerateCriticalCss }
-				/>
+				<CloudCssMeta />
 			</Module>
+			<PageCacheModule />
 			<Module
 				slug="render_blocking_js"
 				title={ __( 'Defer Non-Essential JavaScript', 'jetpack-boost' ) }
@@ -206,49 +157,18 @@ const Index = ( { criticalCss }: IndexProps ) => {
 								'jetpack-boost'
 							),
 							{
-								// eslint-disable-next-line jsx-a11y/anchor-has-content
-								link: <a href={ deferJsLink } target="_blank" rel="noopener noreferrer" />,
+								link: (
+									// eslint-disable-next-line jsx-a11y/anchor-has-content
+									<a
+										onClick={ () => recordBoostEvent( 'defer_js_link_clicked', {} ) }
+										href={ deferJsLink }
+										target="_blank"
+										rel="noopener noreferrer"
+									/>
+								),
 							}
 						) }
 					</p>
-				}
-			></Module>
-			<Module
-				slug="lazy_images"
-				title={ __( 'Lazy Image Loading', 'jetpack-boost' ) }
-				description={
-					<>
-						<p>
-							{ createInterpolateElement(
-								__(
-									`Improve page loading speed by only loading images when they are required. Read more on <link>web.dev</link>.`,
-									'jetpack-boost'
-								),
-								{
-									// eslint-disable-next-line jsx-a11y/anchor-has-content
-									link: <a href={ lazyLoadLink } target="_blank" rel="noopener noreferrer" />,
-								}
-							) }
-						</p>
-						<Notice
-							level="info"
-							title={ __( 'Lazy image loading is going away', 'jetpack-boost' ) }
-							hideCloseButton={ true }
-							actions={ [
-								<Button
-									key="learn-more"
-									isPrimary={ true }
-									onClick={ learnLazyLoadDeprecation }
-									isExternalLink={ true }
-									variant="link"
-								>
-									{ __( 'Learn more', 'jetpack-boost' ) }
-								</Button>,
-							] }
-						>
-							{ lazyLoadDeprecationMessage }
-						</Notice>
-					</>
 				}
 			></Module>
 			<Module
@@ -265,9 +185,8 @@ const Index = ( { criticalCss }: IndexProps ) => {
 			>
 				<MinifyMeta
 					datasyncKey="minify_js_excludes"
-					inputLabel={ __( 'Exclude JS Strings:', 'jetpack-boost' ) }
-					buttonText={ __( 'Exclude JS Strings', 'jetpack-boost' ) }
-					placeholder={ __( 'Comma separated list of JS scripts to exclude', 'jetpack-boost' ) }
+					buttonText={ __( 'Exclude JS handles', 'jetpack-boost' ) }
+					placeholder={ __( 'Comma separated list of JS handles to exclude', 'jetpack-boost' ) }
 				/>
 			</Module>
 			<Module
@@ -284,17 +203,18 @@ const Index = ( { criticalCss }: IndexProps ) => {
 			>
 				<MinifyMeta
 					datasyncKey="minify_css_excludes"
-					inputLabel={ __( 'Exclude CSS Strings:', 'jetpack-boost' ) }
-					buttonText={ __( 'Exclude CSS Strings', 'jetpack-boost' ) }
-					placeholder={ __(
-						'Comma separated list of CSS stylesheets to exclude',
-						'jetpack-boost'
-					) }
+					buttonText={ __( 'Exclude CSS handles', 'jetpack-boost' ) }
+					placeholder={ __( 'Comma separated list of CSS handles to exclude', 'jetpack-boost' ) }
 				/>
 			</Module>
 			<Module
 				slug="image_cdn"
-				title={ __( 'Image CDN', 'jetpack-boost' ) }
+				title={
+					<>
+						{ __( 'Image CDN', 'jetpack-boost' ) }
+						{ hasPremiumCdnFeatures && <Upgraded /> }
+					</>
+				}
 				description={
 					<p>
 						{ __(
@@ -304,18 +224,23 @@ const Index = ( { criticalCss }: IndexProps ) => {
 					</p>
 				}
 			>
-				<QualitySettings isPremium={ premiumFeatures?.includes( 'image-cdn-quality' ) ?? false } />
+				{ ! hasPremiumCdnFeatures && (
+					<UpgradeCTA
+						identifier="image-cdn"
+						description={ __(
+							'Auto-resize lazy images and adjust their quality.',
+							'jetpack-boost'
+						) }
+					/>
+				) }
+				<ImageCdnLiar isPremium={ premiumFeatures.includes( 'image-cdn-liar' ) } />
+				<QualitySettings isPremium={ premiumFeatures.includes( 'image-cdn-quality' ) } />
 			</Module>
 
 			<div className={ styles.settings }>
 				<Module
 					slug="image_guide"
-					title={
-						<>
-							{ __( 'Image Guide', 'jetpack-boost' ) }
-							<span className={ styles.beta }>Beta</span>
-						</>
-					}
+					title={ __( 'Image Guide', 'jetpack-boost' ) }
 					description={
 						<>
 							<p>
@@ -326,6 +251,7 @@ const Index = ( { criticalCss }: IndexProps ) => {
 							</p>
 							{ ! isaState?.available && (
 								<UpgradeCTA
+									identifier="image-guide"
 									description={ __(
 										'Upgrade to scan your site for issues - automatically!',
 										'jetpack-boost'
@@ -335,7 +261,7 @@ const Index = ( { criticalCss }: IndexProps ) => {
 						</>
 					}
 				>
-					{ false === Jetpack_Boost.site.canResizeImages && (
+					{ false === canResizeImages && (
 						<Notice
 							level="warning"
 							title={ __( 'Image resizing is unavailable', 'jetpack-boost' ) }
@@ -369,7 +295,7 @@ const Index = ( { criticalCss }: IndexProps ) => {
 					title={
 						<>
 							{ __( 'Image Size Analysis', 'jetpack-boost' ) }
-							<span className={ styles.beta }>Beta</span>
+							<Pill text={ __( 'Beta', 'jetpack-boost' ) } />
 						</>
 					}
 					description={
@@ -381,11 +307,9 @@ const Index = ( { criticalCss }: IndexProps ) => {
 						</p>
 					}
 				>
-					{ isaState?.active && <RecommendationsMeta /> }
+					{ isaState?.active && <RecommendationsMeta isCdnActive={ !! imageCdn?.active } /> }
 				</Module>
 			</div>
-
-			<SuperCacheInfo />
 		</div>
 	);
 };

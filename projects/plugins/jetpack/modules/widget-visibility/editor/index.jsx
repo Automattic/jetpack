@@ -1,13 +1,13 @@
 import { isSimpleSite, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-disable-line import/no-unresolved
+import { InspectorAdvancedControls } from '@wordpress/block-editor';
 import { BaseControl, Button, SelectControl, ToggleControl } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { Fragment, useCallback, useMemo } from '@wordpress/element';
+import { addFilter } from '@wordpress/hooks';
 import { __, _x } from '@wordpress/i18n';
 
 /* global widget_conditions_data */
-/* eslint-disable react/react-in-jsx-scope */
 
 //// Unescape utility
 const htmlUnescapes = {
@@ -49,7 +49,7 @@ const blockHasVisibilitySettings = name => {
  * Used to store visibility rules.
  *
  * @param {object} settings - Block settings.
- * @param {string} name - Block name.
+ * @param {string} name     - Block name.
  * @return {object} Modified settings.
  */
 function addVisibilityAttribute( settings, name ) {
@@ -64,7 +64,7 @@ function addVisibilityAttribute( settings, name ) {
 	return settings;
 }
 
-wp.hooks.addFilter( 'blocks.registerBlockType', 'widget/visibility', addVisibilityAttribute );
+addFilter( 'blocks.registerBlockType', 'widget/visibility', addVisibilityAttribute );
 
 /*
  * We are using the same options data for legacy widgets (rendered in PHP) and
@@ -387,6 +387,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 							label={ __( 'Match all rules', 'jetpack' ) }
 							checked={ conditions.match_all === '1' }
 							onChange={ toggleMatchAll }
+							__nextHasNoMarginBottom={ true }
 						/>
 					) }
 					<Button variant="secondary" onClick={ addNewRule }>
@@ -421,4 +422,4 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 	'visibilityAdvancedControls'
 );
 
-wp.hooks.addFilter( 'editor.BlockEdit', 'widget/visibility', visibilityAdvancedControls );
+addFilter( 'editor.BlockEdit', 'widget/visibility', visibilityAdvancedControls );

@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Label cleanup: Task now runs for closed issues as well as PRs.

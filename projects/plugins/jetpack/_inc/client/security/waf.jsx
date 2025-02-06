@@ -1,10 +1,12 @@
-import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
+import { getRedirectUrl, ToggleControl, Status } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import FoldableCard from 'components/foldable-card';
-import { FormFieldset, FormLabel } from 'components/forms';
+import { FormFieldset } from 'components/forms';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import JetpackBanner from 'components/jetpack-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -13,37 +15,44 @@ import SettingsGroup from 'components/settings-group';
 import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_SECURITY_SCANNING_JETPACK,
+	PLAN_JETPACK_SCAN,
 } from 'lib/plans/constants';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { getSitePlan, siteHasFeature } from 'state/site';
+import Card from '../components/card';
 import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 import InfoPopover from '../components/info-popover';
 import { ModuleToggle } from '../components/module-toggle';
+import PlanIcon from '../components/plans/plan-icon';
 import Textarea from '../components/textarea';
-import { getSetting } from '../state/settings/reducer';
-import { updateWafSettings, updateWafIpAllowList } from '../state/waf/actions';
+import { getSiteAdminUrl } from '../state/initial-state';
+import { isPluginActive } from '../state/site/plugins';
+import { updateWafSettings } from '../state/waf/actions';
 import {
 	getAutomaticRulesAvailable,
 	getWafSettings,
-	getWafIpAllowListInputState,
 	isFetchingWafSettings,
 	isUpdatingWafSettings,
 } from '../state/waf/reducer';
+
+const PROTECT_PLUGIN_FILES = [
+	'protect/jetpack-protect.php',
+	'jetpack-protect/jetpack-protect.php',
+	'jetpack-protect-dev/jetpack-protect.php',
+];
 
 export const Waf = class extends Component {
 	/**
 	 * Get options for initial state.
 	 *
-	 * @returns {object}
+	 * @return {object}
 	 */
 	state = {
 		automaticRulesEnabled: this.props.settings?.automaticRulesEnabled,
-		manualRulesEnabled: this.props.settings?.manualRulesEnabled,
+		ipBlockListEnabled: this.props.settings?.ipBlockListEnabled,
 		ipBlockList: this.props.settings?.ipBlockList,
-		ipAllowList: this.props.settings?.ipAllowList,
 		shareData: this.props.settings?.shareData,
+		shareDebugData: this.props.settings?.shareDebugData,
 	};
 
 	/**
@@ -57,18 +66,10 @@ export const Waf = class extends Component {
 			this.setState( {
 				...this.state,
 				automaticRulesEnabled: this.props.settings?.automaticRulesEnabled,
-				manualRulesEnabled: this.props.settings?.manualRulesEnabled,
+				ipBlockListEnabled: this.props.settings?.ipBlockListEnabled,
 				ipBlockList: this.props.settings?.ipBlockList,
-				ipAllowList: this.props.settings?.ipAllowList,
 				shareData: this.props.settings?.shareData,
-			} );
-		}
-
-		// Sync the allow list value with the value in redux.
-		if ( prevProps.allowListInputState !== this.props.allowListInputState ) {
-			this.setState( {
-				...this.state,
-				ipAllowList: this.props.allowListInputState,
+				shareDebugData: this.props.settings?.shareDebugData,
 			} );
 		}
 	};
@@ -77,7 +78,7 @@ export const Waf = class extends Component {
 	 * Get a custom error message based on the error code.
 	 *
 	 * @param {object} error - Error object.
-	 * @returns {string|boolean} Custom error message or false if no custom message exists.
+	 * @return {string|boolean} Custom error message or false if no custom message exists.
 	 */
 	getCustomErrorMessage = error => {
 		switch ( error.code ) {
@@ -93,7 +94,7 @@ export const Waf = class extends Component {
 	/**
 	 * Handle settings updates.
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	onSubmit = () => {
 		this.props.removeNotice( 'module-setting-update' );
@@ -141,11 +142,11 @@ export const Waf = class extends Component {
 	};
 
 	/**
-	 * Toggle manual rules.
+	 * Toggle IP block list.
 	 */
-	toggleManualRules = () => {
+	toggleIpBlockList = () => {
 		this.setState(
-			{ ...this.state, manualRulesEnabled: ! this.state.manualRulesEnabled },
+			{ ...this.state, ipBlockListEnabled: ! this.state.ipBlockListEnabled },
 			this.onSubmit
 		);
 	};
@@ -160,25 +161,35 @@ export const Waf = class extends Component {
 	};
 
 	/**
-	 * Handle IP allow list change.
-	 *
-	 * @param {Event} event - = The event object.
-	 */
-	handleIpAllowListChange = event => {
-		this.props.updateWafIpAllowList( event.target.value );
-	};
-
-	/**
 	 * Toggle share data.
 	 */
 	toggleShareData = () => {
-		this.setState(
-			{
-				...this.state,
-				shareData: ! this.state.shareData,
-			},
-			this.onSubmit
-		);
+		const state = {
+			...this.state,
+			shareData: ! this.state.shareData,
+		};
+
+		if ( ! state.shareData ) {
+			state.shareDebugData = state.shareData;
+		}
+
+		this.setState( state, this.onSubmit );
+	};
+
+	/**
+	 * Toggle share debug data.
+	 */
+	toggleShareDebugData = () => {
+		const state = {
+			...this.state,
+			shareDebugData: ! this.state.shareDebugData,
+		};
+
+		if ( state.shareDebugData ) {
+			state.shareData = state.shareDebugData;
+		}
+
+		this.setState( state, this.onSubmit );
 	};
 
 	render() {
@@ -193,14 +204,13 @@ export const Waf = class extends Component {
 		const moduleHeader = (
 			<div className="waf__header">
 				<span>{ _x( 'Firewall', 'Settings header', 'jetpack' ) }</span>
-				<a
-					href={ getRedirectUrl( 'jetpack-support-waf' ) }
-					target="_blank"
-					rel="noopener noreferrer"
-					className="waf__header__badge"
-				>
-					{ _x( 'NEW', 'Settings header badge', 'jetpack' ) }
-				</a>
+				{ this.props.settings?.standaloneMode && (
+					<Status
+						className="waf__standalone__mode"
+						status="active"
+						label={ __( 'Standalone mode', 'jetpack' ) }
+					/>
+				) }
 			</div>
 		);
 
@@ -221,95 +231,15 @@ export const Waf = class extends Component {
 						( ! this.props.hasScan && ! this.props.settings?.automaticRulesAvailable )
 					}
 					onChange={ this.toggleAutomaticRules }
-					label={ __(
-						'Automatic rules - Protect your site against untrusted traffic sources with automatic security rules',
-						'jetpack'
-					) }
-				/>
-			</div>
-		);
-
-		const ipListSettings = (
-			<div className="waf__settings__toggle-setting">
-				<ToggleControl
-					checked={ this.props.settings?.manualRulesEnabled }
-					toggling={
-						this.props.isUpdatingWafSettings &&
-						this.state.manualRulesEnabled !== this.props.settings?.manualRulesEnabled
+					label={
+						<span className="jp-form-toggle-explanation">
+							{ __(
+								'Automatic rules - Protect your site against untrusted traffic sources with automatic security rules',
+								'jetpack'
+							) }
+						</span>
 					}
-					disabled={ baseInputDisabledCase }
-					onChange={ this.toggleManualRules }
-					label={ __( 'Allow / Block list - Block or allow a specific request IP', 'jetpack' ) }
 				/>
-
-				{ this.state.manualRulesEnabled && (
-					<>
-						<div className="waf__settings__ips">
-							<FormLabel>{ __( 'Blocked IP addresses', 'jetpack' ) }</FormLabel>
-							<Textarea
-								disabled={
-									baseInputDisabledCase ||
-									( this.props.isUpdatingWafSettings &&
-										this.state.ipBlockList !== this.props.settings?.ipBlockList )
-								}
-								name="ipBlockList"
-								placeholder={ sprintf(
-									/* translators: Placeholder is a list of example IP addresses. */
-									__( 'Example: %s', 'jetpack' ),
-									'\n12.12.12.1\n12.12.12.2'
-								) }
-								value={ this.state.ipBlockList }
-								onChange={ this.handleIpBlockListChange }
-							/>
-							<Button
-								primary
-								rna
-								compact
-								type="button"
-								className="waf__settings__ips__save-button"
-								disabled={
-									baseInputDisabledCase ||
-									this.state.ipBlockList === this.props.settings?.ipBlockList ||
-									( this.props.isUpdatingWafSettings &&
-										this.state.ipBlockList !== this.props.settings?.ipBlockList )
-								}
-								onClick={ this.onSubmit }
-							>
-								{ __( 'Save block list', 'jetpack' ) }
-							</Button>
-						</div>
-						<div className="waf__settings__ips">
-							<FormLabel>{ __( 'Always allowed IP addresses', 'jetpack' ) }</FormLabel>
-							<Textarea
-								disabled={
-									baseInputDisabledCase ||
-									( this.props.isUpdatingWafSettings &&
-										this.state.ipAllowList !== this.props.settings?.ipAllowList )
-								}
-								name="ipAllowList"
-								placeholder={ __( 'Example:', 'jetpack' ) + '\n12.12.12.1\n12.12.12.2' }
-								value={ this.props.allowListInputState }
-								onChange={ this.handleIpAllowListChange }
-							/>
-							<Button
-								primary
-								rna
-								compact
-								type="button"
-								className="waf__settings__ips__save-button"
-								disabled={
-									baseInputDisabledCase ||
-									this.state.ipAllowList === this.props.settings?.ipAllowList ||
-									( this.props.isUpdatingWafSettings &&
-										this.state.ipAllowList !== this.props.settings?.ipAllowList )
-								}
-								onClick={ this.onSubmit }
-							>
-								{ __( 'Save allow list', 'jetpack' ) }
-							</Button>
-						</div>
-					</>
-				) }
 			</div>
 		);
 
@@ -325,7 +255,9 @@ export const Waf = class extends Component {
 					onChange={ this.toggleShareData }
 					label={
 						<div className="waf__settings__toggle-setting__label">
-							<span>{ __( 'Share data with Jetpack', 'jetpack' ) }</span>
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Share basic data with Jetpack', 'jetpack' ) }
+							</span>
 							<InfoPopover
 								position="right"
 								screenReaderText={ __( 'Learn more', 'jetpack' ) }
@@ -333,7 +265,48 @@ export const Waf = class extends Component {
 							>
 								{ createInterpolateElement(
 									__(
-										'Allow Jetpack to collect data to improve Firewall protection and rules. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
+										'Allow Jetpack to collect basic data from blocked requests to improve firewall protection and accuracy. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
+										'jetpack'
+									),
+									{
+										ExternalLink: (
+											<ExternalLink
+												href={ getRedirectUrl( 'jetpack-waf-settings-privacy-info' ) }
+											/>
+										),
+										hr: <hr />,
+									}
+								) }
+							</InfoPopover>
+						</div>
+					}
+				/>
+			</div>
+		);
+
+		const shareDebugDataSettings = (
+			<div className="waf__settings__toggle-setting">
+				<ToggleControl
+					checked={ this.props.settings?.shareDebugData }
+					disabled={ baseInputDisabledCase }
+					toggling={
+						this.props.isUpdatingWafSettings &&
+						this.state.shareDebugData !== this.props.settings?.shareDebugData
+					}
+					onChange={ this.toggleShareDebugData }
+					label={
+						<div className="waf__settings__toggle-setting__label">
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Share detailed data with Jetpack', 'jetpack' ) }
+							</span>
+							<InfoPopover
+								position="right"
+								screenReaderText={ __( 'Learn more', 'jetpack' ) }
+								className="waf__settings__share-data-popover"
+							>
+								{ createInterpolateElement(
+									__(
+										'Allow Jetpack to collect detailed data from blocked requests to enhance firewall protection and accuracy. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
 										'jetpack'
 									),
 									{
@@ -430,6 +403,93 @@ export const Waf = class extends Component {
 			/>
 		);
 
+		const ipBlockListSettings = (
+			<div className="waf__settings__toggle-setting">
+				<ToggleControl
+					checked={ this.props.settings?.ipBlockListEnabled }
+					toggling={
+						this.props.isUpdatingWafSettings &&
+						this.state.ipBlockListEnabled !== this.props.settings?.ipBlockListEnabled
+					}
+					disabled={ baseInputDisabledCase }
+					onChange={ this.toggleIpBlockList }
+					label={
+						<span className="jp-form-toggle-explanation">
+							{ __(
+								'Manual rules - Block specific IP addresses from accessing your site',
+								'jetpack'
+							) }
+						</span>
+					}
+				/>
+				{ ( this.state.ipBlockListEnabled || !! this.state.ipBlockList ) && (
+					<div className="waf__settings__ips">
+						<Textarea
+							disabled={
+								baseInputDisabledCase ||
+								this.props.isUpdatingWafSettings ||
+								! this.props.settings?.ipBlockListEnabled
+							}
+							name="ipBlockList"
+							placeholder={ sprintf(
+								/* translators: Placeholder is a list of example IP addresses. */
+								__( 'Example: %s', 'jetpack' ),
+								'\n12.12.12.1\n12.12.12.2'
+							) }
+							value={ this.state.ipBlockList }
+							onChange={ this.handleIpBlockListChange }
+						/>
+						{ this.state.ipBlockListEnabled && (
+							<Button
+								primary
+								rna
+								compact
+								type="button"
+								className="waf__settings__ips__save-button"
+								disabled={
+									baseInputDisabledCase ||
+									this.state.ipBlockList === this.props.settings?.ipBlockList ||
+									( this.props.isUpdatingWafSettings &&
+										this.state.ipBlockList !== this.props.settings?.ipBlockList )
+								}
+								onClick={ this.onSubmit }
+							>
+								{ __( 'Save block list', 'jetpack' ) }
+							</Button>
+						) }
+					</div>
+				) }
+			</div>
+		);
+
+		// If the site has Jetpack Protect activated, redirect the user to the dedicated Protect settings screen.
+		if ( this.props.isProtectActive ) {
+			return (
+				<SettingsCard { ...this.props } header={ moduleHeader } module="waf" hideButton={ true }>
+					<Card className="dops-banner has-call-to-action">
+						<div className="dops-banner__icon-plan">
+							<PlanIcon plan={ PLAN_JETPACK_SCAN } />
+						</div>
+						<div className="dops-banner__content">
+							<div className="dops-banner__info">
+								<div className="dops-banner__title">
+									{ __(
+										'Firewall settings have been moved to the Jetpack Protect plugin.',
+										'jetpack'
+									) }
+								</div>
+							</div>
+							<div className="dops-banner__action">
+								<Button rna={ true } compact href={ this.props.protectAdminUrl } primary>
+									{ __( 'View Firewall Settings', 'jetpack' ) }
+								</Button>
+							</div>
+						</div>
+					</Card>
+				</SettingsCard>
+			);
+		}
+
 		return (
 			<SettingsCard
 				{ ...this.props }
@@ -458,12 +518,12 @@ export const Waf = class extends Component {
 							{ this.props.getModule( 'waf' ).description }
 						</span>
 					</ModuleToggle>
-
 					{ isWafActive && ! this.props.isFetchingWafSettings && (
 						<FormFieldset className="waf__settings">
 							{ automaticRulesSettings }
-							{ ipListSettings }
+							{ ipBlockListSettings }
 							{ shareDataSettings }
+							{ shareDebugDataSettings }
 						</FormFieldset>
 					) }
 				</SettingsGroup>
@@ -477,15 +537,15 @@ export const Waf = class extends Component {
 export default connect(
 	state => {
 		const sitePlan = getSitePlan( state );
-		const allowListInputState = getWafIpAllowListInputState( state );
 
 		return {
 			automaticRulesAvailable: getAutomaticRulesAvailable( state ),
-			allowListInputState:
-				allowListInputState !== null
-					? allowListInputState
-					: getSetting( state, 'jetpack_waf_ip_allow_list' ),
 			hasScan: siteHasFeature( state, 'scan' ),
+			protectAdminUrl: `${ getSiteAdminUrl( state ) }admin.php?page=jetpack-protect#/firewall`,
+			isProtectActive: PROTECT_PLUGIN_FILES.some( pluginFile =>
+				isPluginActive( state, pluginFile )
+			),
+			getProtectUrl: `${ getSiteAdminUrl( state ) }admin.php?page=my-jetpack#/add-protect`,
 			isFetchingSettings: isFetchingWafSettings( state ),
 			isUpdatingWafSettings: isUpdatingWafSettings( state ),
 			settings: getWafSettings( state ),
@@ -495,7 +555,6 @@ export default connect(
 	},
 	dispatch => {
 		return {
-			updateWafIpAllowList: allowList => dispatch( updateWafIpAllowList( allowList ) ),
 			updateWafSettings: newSettings => dispatch( updateWafSettings( newSettings ) ),
 			createNotice: ( type, message, props ) => dispatch( createNotice( type, message, props ) ),
 			removeNotice: notice => dispatch( removeNotice( notice ) ),

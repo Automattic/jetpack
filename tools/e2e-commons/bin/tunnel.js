@@ -1,20 +1,20 @@
 #!/usr/bin/env node
 
-import fs from 'fs';
 import childProcess from 'child_process';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
-import config from 'config';
-import { getReusableUrlFromFile } from '../helpers/utils-helper.js';
 import axios from 'axios';
+import config from 'config';
+import localtunnel from 'localtunnel';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import localtunnel from 'localtunnel';
+import { getReusableUrlFromFile } from '../helpers/utils-helper.js';
 
 const tunnelConfig = config.get( 'tunnel' );
 
 fs.mkdirSync( config.get( 'dirs.temp' ), { recursive: true } );
 
-// eslint-disable-next-line no-unused-expressions
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 yargs( hideBin( process.argv ) )
 	.usage( 'Usage: $0 <cmd>' )
 	.demandCommand( 1, 1 )
@@ -35,13 +35,37 @@ yargs( hideBin( process.argv ) )
 	.alias( 'h', 'help' ).argv;
 
 /**
+ * This allows overriding the tunnel with a custom tunnel like ngrok.
+ * Useful when running e2e tests locally and you want to use a tunnel that's
+ * closer to you than the localtunnel instance.
+ *
+ * For example:
+ * ```
+ * TUNNEL_URL=https://somethingsomething.ngrok.io npm run test-e2e:start
+ * ```
+ *
+ * @return {string|undefined} URL
+ */
+function getTunnelOverrideURL() {
+	return process.env.TUNNEL_URL;
+}
+
+/**
+ * Save tunnel URL to file
+ * @param {string} url - URL
+ */
+function saveTunnelUrlToFile( url ) {
+	fs.writeFileSync( config.get( 'temp.tunnels' ), url );
+}
+
+/**
  * Fork a subprocess to run the tunnel.
  *
  * The `localtunnel` needs a process to keep running for the entire time the tunnel is up.
  * This function forks a subprocess to do that, then exits when that subprocess indicates
  * that the tunnel actually is up so the caller can proceed with running tests or whatever.
  *
- * @param {Object} argv - Args.
+ * @param {object} argv - Args.
  * @return {Promise<void>}
  */
 async function tunnelOn( argv ) {
@@ -87,6 +111,13 @@ async function tunnelChild() {
 	console.log = wrap( console.log );
 	console.error = wrap( console.error );
 
+	const customTunnelUrl = getTunnelOverrideURL();
+	if ( customTunnelUrl ) {
+		console.log( `Using custom tunnel URL: ${ customTunnelUrl }` );
+		saveTunnelUrlToFile( customTunnelUrl );
+		process.exit( 0 );
+	}
+
 	const subdomain = await getTunnelSubdomain();
 
 	if ( ! ( await isTunnelOn( subdomain ) ) ) {
@@ -101,8 +132,8 @@ async function tunnelChild() {
 			console.log( `${ tunnel.clientId } tunnel closed` );
 		} );
 
-		fs.writeFileSync( config.get( 'temp.tunnels' ), tunnel.url );
 		console.log( `Opened tunnel '${ tunnel.url }'` );
+		saveTunnelUrlToFile( tunnel.url );
 		fs.writeFileSync( config.get( 'temp.pid' ), `${ process.pid }` );
 	}
 
@@ -164,7 +195,7 @@ async function tunnelOff() {
  * If status is 200 we assume the tunnel is on, and off for any other status
  * This is definitely not bullet proof, as the tunnel can be on while the app is down, this returning a non 200 response
  *
- * @param {string} subdomain tunnel's subdomain
+ * @param {string} subdomain - tunnel's subdomain
  * @return {Promise<boolean>} tunnel on - true, off - false
  */
 async function isTunnelOn( subdomain ) {
@@ -183,7 +214,7 @@ async function isTunnelOn( subdomain ) {
 /**
  * Returns the http status code for tunnel url
  *
- * @param {string} subdomain tunnel's subdomain
+ * @param {string} subdomain - tunnel's subdomain
  * @return {Promise<number>} http status code
  */
 async function getTunnelStatus( subdomain ) {

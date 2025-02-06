@@ -13,7 +13,7 @@ use Automattic\Jetpack\Status;
 use WP_Error;
 
 /**
- * To get and set Searh module settings
+ * To get and set Search module settings
  */
 class Module_Control {
 	/**
@@ -26,7 +26,7 @@ class Module_Control {
 	/**
 	 * Connection_Manager object
 	 *
-	 * @var Automattic\Jetpack\Connection\Manager
+	 * @var \Automattic\Jetpack\Connection\Manager
 	 */
 	protected $connection_manager;
 
@@ -40,8 +40,8 @@ class Module_Control {
 	/**
 	 * Contructor
 	 *
-	 * @param Plan|null                                  $plan - Plan object.
-	 * @param Automattic\Jetpack\Connection\Manager|null $connection_manager - Connection_Manager object.
+	 * @param Plan|null                                   $plan - Plan object.
+	 * @param \Automattic\Jetpack\Connection\Manager|null $connection_manager - Connection_Manager object.
 	 */
 	public function __construct( $plan = null, $connection_manager = null ) {
 		$this->plan               = $plan === null ? new Plan() : $plan;
@@ -73,7 +73,7 @@ class Module_Control {
 	 * @return bool
 	 */
 	public function is_instant_search_enabled() {
-		return (bool) get_option( self::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
+		return (bool) $this->plan->supports_instant_search() && get_option( self::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
 	}
 
 	/**

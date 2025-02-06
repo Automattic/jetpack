@@ -9,7 +9,7 @@ export const useGettingStarted = () => {
 	);
 
 	return {
-		shouldGetStarted: data,
+		shouldGetStarted: Boolean( data ),
 		markGettingStartedComplete: async () => await mutateAsync( false ),
 	};
 };

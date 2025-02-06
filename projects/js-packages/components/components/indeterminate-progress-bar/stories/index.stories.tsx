@@ -1,12 +1,12 @@
 import IndeterminateProgressBar from '..';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'JS Packages/Components/Indeterminate Progress Bar',
 	component: IndeterminateProgressBar,
-} as ComponentMeta< typeof IndeterminateProgressBar >;
+} as Meta< typeof IndeterminateProgressBar >;
 
-const Template: ComponentStory< typeof IndeterminateProgressBar > = args => {
+const Template: StoryFn< typeof IndeterminateProgressBar > = args => {
 	return <IndeterminateProgressBar { ...args } />;
 };
 

@@ -6,57 +6,53 @@ import { Period } from '.';
 /**
  * Custom tooltips plugin for uPlot.
  *
- * @param {Period[]} periods - The periods to display in the tooltip.
- * @returns {object} The uPlot plugin object with hooks.
+ * @param periods - The periods to display in the tooltip.
+ * @return The uPlot plugin object with hooks.
  */
-export function tooltipsPlugin( periods ) {
+export function tooltipsPlugin( periods: Period[] ) {
 	const reactRoot = document.createElement( 'div' );
+	const container = document.createElement( 'div' );
 	let reactDom;
 
 	/**
 	 * Initializes the tooltips plugin.
 	 *
 	 * @param {uPlot} u - The uPlot instance.
-	 * @param {object} _opts - Options for the uPlot instance.
 	 */
-	function init( u, _opts ) {
-		const over = u.over;
-		reactDom = ReactDOM.createRoot( reactRoot );
-		reactRoot.style.position = 'absolute';
-		reactRoot.style.bottom = -20 + 'px';
-		reactRoot.style.translate = '-50% calc( 100% - 20px )';
-
-		over.appendChild( reactRoot );
-
-		/**
-		 * Hides all tooltips.
-		 */
-		function hideTips() {
-			reactRoot.style.display = 'none';
+	function init( u: uPlot ) {
+		container.classList.add( 'jb-score-tooltips-container' );
+		if ( ! reactDom ) {
+			reactDom = ReactDOM.createRoot( reactRoot );
 		}
+		reactRoot.classList.add( 'jb-score-tooltip-react-root' );
 
-		/**
-		 * Shows all tooltips.
-		 */
-		function showTips() {
-			reactRoot.style.display = null;
-		}
+		container.appendChild( reactRoot );
 
-		over.addEventListener( 'mouseleave', () => {
-			if ( ! u.cursor._lock ) {
-				hideTips();
-			}
+		u.over.appendChild( container );
+
+		u.over.addEventListener( 'mouseenter', () => {
+			container.classList.add( 'visible' );
 		} );
 
-		over.addEventListener( 'mouseenter', () => {
-			showTips();
+		u.over.addEventListener( 'mouseleave', () => {
+			container.classList.remove( 'visible' );
 		} );
 
-		if ( u.cursor.left < 0 ) {
-			hideTips();
-		} else {
-			showTips();
-		}
+		reactRoot.addEventListener( 'mouseenter', () => {
+			reactRoot.classList.add( 'visible' );
+		} );
+
+		reactRoot.addEventListener( 'mouseleave', () => {
+			reactRoot.classList.remove( 'visible' );
+		} );
+	}
+
+	/**
+	 * Called when the chart is resized.
+	 * @param {uPlot} u - The uPlot instance.
+	 */
+	function setSize( u: uPlot ) {
+		container.style.paddingTop = u.over.clientHeight + 'px';
 	}
 
 	/**
@@ -68,6 +64,10 @@ export function tooltipsPlugin( periods ) {
 		const { idx } = u.cursor;
 
 		const period = periods[ idx ];
+
+		if ( ! period ) {
+			return;
+		}
 
 		// Timestamp of the cursor position
 		const timestamp = u.data[ 0 ][ idx ];
@@ -93,6 +93,7 @@ export function tooltipsPlugin( periods ) {
 		hooks: {
 			init,
 			setCursor,
+			setSize,
 		},
 	};
 }

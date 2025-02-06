@@ -1,12 +1,12 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
-import Card from 'components/card';
-import DashItem from 'components/dash-item';
-import analytics from 'lib/analytics';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import Card from 'components/card';
+import DashItem from 'components/dash-item';
+import analytics from 'lib/analytics';
 import { isOfflineMode } from 'state/connection';
 
 class DashActivity extends Component {
@@ -40,7 +40,7 @@ class DashActivity extends Component {
 				<DashItem
 					label={ __( 'Activity', 'jetpack' ) }
 					isModule={ false }
-					className={ classNames( {
+					className={ clsx( {
 						'jp-dash-item__is-inactive': inOfflineMode,
 					} ) }
 					pro={ false }

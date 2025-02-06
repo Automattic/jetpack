@@ -3,10 +3,7 @@ name: Jetpack block performance
 on:
   schedule:
     - cron:  '0 */12 * * *'
-
-env:
-  # Work around a bug in node 18.18.0. See https://github.com/webpack-contrib/thread-loader/issues/191 for details.
-  UV_USE_IO_URING: 0
+  workflow_dispatch:
 
 jobs:
   block-performance:
@@ -14,16 +11,23 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90  # 2023-04-18: Some runs exceeded 50 minutes
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: 'WordPress/gutenberg'
           path: 'gutenberg'
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('gutenberg/**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Build Gutenberg
         working-directory: gutenberg
@@ -32,14 +36,7 @@ jobs:
           npx playwright install chromium --with-deps
           npm run build:packages
 
-      - uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('gutenberg/**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Setup tools for J
+      - name: Setup tools for Jetpack
         uses: ./.github/actions/tool-setup
 
       - name: Build Production Jetpack
@@ -83,10 +80,11 @@ jobs:
       - name: Upload test artifacts
         if: ${{ always() }}
         continue-on-error: true
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-output-block-perf
           path: tools/e2e-commons/results
+          include-hidden-files: true
 
   test-reports:
     name: "Trigger test report workflow"
@@ -96,7 +94,7 @@ jobs:
 
     steps:
       - name: Repository Dispatch
-        uses: peter-evans/repository-dispatch@v2
+        uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
           repository: automattic/jetpack-e2e-reports
@@ -110,7 +108,7 @@ jobs:
     needs: [block-performance]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up tools
         uses: ./.github/actions/tool-setup
