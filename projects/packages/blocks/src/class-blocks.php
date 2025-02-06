@@ -540,7 +540,7 @@ class Blocks {
 		 * Allow customizing the variation of blocks in use on a site.
 		 * Overwrites any previously set values, whether by constant or filter.
 		 *
-		 * @since 8.1.0
+		 * @since jetpack-8.1.0
 		 *
 		 * @param string $block_variation Can be beta, experimental, and production. Defaults to production.
 		 */
