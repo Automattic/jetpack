@@ -4,7 +4,7 @@ import getJetpackData from './get-jetpack-data';
  * Return whether a Jetpack Gutenberg extension is available or not.
  *
  * @param {string} name - The extension's name (without the `jetpack/` prefix)
- * @returns {object} Object indicating if the extension is available (property `available`) and the reason why it is
+ * @return {object} Object indicating if the extension is available (property `available`) and the reason why it is
  * unavailable (property `unavailable_reason`).
  */
 export default function getJetpackExtensionAvailability( name ) {

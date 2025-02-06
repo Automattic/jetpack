@@ -9,20 +9,8 @@
 namespace Automattic\JetpackCRM;
 
 // block direct access
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
-use MailPoet\Config\Changelog;
-use MailPoet\DI\ContainerWrapper;
-use MailPoet\Models\Segment;
-use MailPoet\Models\Subscriber;
-use MailPoet\Models\SubscriberSegment;
-use MailPoet\Entities\subscriberEntity;
-use MailPoet\Subscribers\SubscribersRepository;
-use MailPoet\Subscribers\RequiredCustomFieldValidator;
-use MailPoet\Subscribers\SubscriberCustomFieldEntity;
-use MailPoet\Subscribers\Source;
-use MailPoet\Util\Helpers;
-use MailPoet\WP\Functions as WPFunctions;
 use MailPoet\API\MP\v1\APIException;
 
 /**
@@ -196,7 +184,7 @@ class Mailpoet {
 		global $zbs;
 
 		$core_reqs = array(
-			'req_core_ver' => $zbs->version, // will match current core version
+			'req_core_ver' => $zbs::VERSION, // will match current core version
 			'req_DAL_ver'  => '3.0',
 		);
 		$plugin_reqs = array(
@@ -282,7 +270,7 @@ class Mailpoet {
 		global $zbs;
 
 		// Contact Tabs
-		if ( $zbs->isDAL2() && zeroBSCRM_is_customer_view_page() ){
+		if ( zeroBSCRM_is_customer_view_page() ) {
 
 			require_once JPCRM_MAILPOET_ROOT_PATH . 'includes/jpcrm-mailpoet-contact-tabs.php';
 			$this->contact_tabs = Mailpoet_Contact_Tabs::instance();
@@ -307,8 +295,8 @@ class Mailpoet {
 		// Edit / Add page
 		if ( $this->is_add_edit_page() ) {
 
-			wp_enqueue_style( 'jpcrm-mailpoet-add-edit-page', plugins_url( '/css/jpcrm-mailpoet-add-edit-page'.wp_scripts_get_suffix().'.css', JPCRM_MAILPOET_ROOT_FILE ) );
-			wp_enqueue_script('jpcrm-mailpoet-add-edit-page', plugins_url('/js/jpcrm-mailpoet-add-edit-page'.wp_scripts_get_suffix().'.js', JPCRM_MAILPOET_ROOT_FILE), array( 'jquery' ), $zbs->version);
+			wp_enqueue_style( 'jpcrm-mailpoet-add-edit-page', plugins_url( '/css/jpcrm-mailpoet-add-edit-page' . wp_scripts_get_suffix() . '.css', JPCRM_MAILPOET_ROOT_FILE ), array(), $zbs::VERSION );
+			wp_enqueue_script( 'jpcrm-mailpoet-add-edit-page', plugins_url( '/js/jpcrm-mailpoet-add-edit-page' . wp_scripts_get_suffix() . '.js', JPCRM_MAILPOET_ROOT_FILE ), array( 'jquery' ), $zbs::VERSION ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
 
 		}
 

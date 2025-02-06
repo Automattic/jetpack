@@ -6,5 +6,8 @@ jQuery( function ( $ ) {
 		dateFormat,
 		constrainInput: false,
 		showOptions: { direction: 'down' },
+		onSelect: function () {
+			$( this ).focus();
+		},
 	} );
 } );

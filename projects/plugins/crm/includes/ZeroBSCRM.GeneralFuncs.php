@@ -9,13 +9,7 @@
  * Date: 01/11/16
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
  * Wrapper for zerobscrm_doing_it_wrong.
@@ -163,10 +157,10 @@ function zeroBSCRM_stripSlashesFromArr( $value ) { // phpcs:ignore WordPress.Nam
 
    # from http://wordpress.stackexchange.com/questions/91900/how-to-force-a-404-on-wordpress
 	function zeroBSCRM_force_404() {
-        status_header( 404 );
-        nocache_headers();
-        include( get_query_template( '404' ) );
-        die();
+		status_header( 404 );
+		nocache_headers();
+		include get_query_template( '404' );
+		die( 0 );
 	}
 
 	// WH not sure why we need this, shuttled off into zeroBSCRM_generateHash which is cleaner.
@@ -610,19 +604,13 @@ function zeroBSCRM_retrieveFile( $url, $filepath, $args = array() ) {
 
 					if (file_exists($filepath) && file_exists($expandTo)){
 
-							$archive = new PclZip($filepath);
-
-							if ($archive->extract(PCLZIP_OPT_PATH, $expandTo) == 0) {
-							    
-							    return false;
-
-							} else {
-							    
-							    return true;
-
-							}
-
-
+					$archive = new PclZip( $filepath );
+					// @phan-suppress-next-line PhanParamTooMany -- PclZip functions use func_get_args.
+					if ( $archive->extract( PCLZIP_OPT_PATH, $expandTo ) === 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						return false;
+					} else {
+						return true;
+					}
 					}
 
 				} catch (Exception $ex){
@@ -670,27 +658,27 @@ function jpcrm_inject_contacts( $contacts, $args ) {
 		$injected_contacts = array(
 			array(
 				'id'   => 0,
-				'name' => '<i class="fa fa-diamond green"></i>',
+				'name' => 'Project Oz 🌈',
 			),
 			array(
 				'id'   => -1,
-				'name' => 'Wizard of Oz',
+				'name' => 'Dorothy 👠',
 			),
 			array(
 				'id'   => -2,
-				'name' => 'Dorothy',
+				'name' => 'Toto the Dog 🐶',
 			),
 			array(
 				'id'   => -3,
-				'name' => 'Toto the Dog',
+				'name' => 'Scarecrow 🧑‍🌾',
 			),
 			array(
 				'id'   => -4,
-				'name' => 'Scarecrow',
+				'name' => 'Tin Man 🤖',
 			),
 			array(
 				'id'   => -5,
-				'name' => 'Tin Man',
+				'name' => 'Cowardly Lion 🦁',
 			),
 		);
 	}
@@ -1713,7 +1701,7 @@ function jpcrm_get_mimetype( $file_path ) {
 		$credentials = request_filesystem_credentials( site_url() );
 		wp_filesystem( $credentials );
 	}
-	$lines = $wp_filesystem->get_contents_array( $file_path, 8 );
+	$lines = $wp_filesystem->get_contents_array( $file_path );
 	if ( $lines === false ) {
 		return 'application/octet-stream';
 	}

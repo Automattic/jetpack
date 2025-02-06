@@ -1,6 +1,9 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 import { __ } from '@wordpress/i18n';
+import { chunk, get } from 'lodash';
+import { Component } from 'react';
+import { connect } from 'react-redux';
 import DashSectionHeader from 'components/dash-section-header';
 import QueryRecommendationsData from 'components/data/query-recommendations-data';
 import QueryScanStatus from 'components/data/query-scan-status';
@@ -8,9 +11,6 @@ import QuerySite from 'components/data/query-site';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import analytics from 'lib/analytics';
-import { chunk, get } from 'lodash';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { isOfflineMode, hasConnectedOwner, getConnectionStatus } from 'state/connection';
 import {
 	isAtomicSite,
@@ -34,6 +34,7 @@ import DashBackups from './backups';
 import DashBoost from './boost';
 import DashConnections from './connections';
 import DashCRM from './crm';
+import DashJetpackAi from './jetpack-ai';
 import DashMonitor from './monitor';
 import DashPhoton from './photon';
 import DashProtect from './protect';
@@ -53,9 +54,9 @@ class AtAGlance extends Component {
 	/**
 	 * Determines whether a card should be added based on the feature and module availability.
 	 *
-	 * @param {string} feature - The feature to check.
+	 * @param {string}  feature                         - The feature to check.
 	 * @param {boolean} [checkModuleAvailability=false] - Whether to check module availability.
-	 * @returns {boolean} - Whether the card should be added.
+	 * @return {boolean} - Whether the card should be added.
 	 */
 	shouldAddCard = ( feature, checkModuleAvailability = false ) => {
 		const isActive = 'inactive' !== this.props.getModuleOverride( feature );
@@ -162,6 +163,10 @@ class AtAGlance extends Component {
 
 			if ( this.props.userCanManagePlugins ) {
 				performanceCards.push( <DashCRM siteAdminUrl={ this.props.siteAdminUrl } /> );
+			}
+
+			if ( this.shouldAddCard( 'jetpack-ai' ) ) {
+				performanceCards.push( <DashJetpackAi /> );
 			}
 
 			const redeemPartnerCoupon = ! this.props.isOfflineMode && this.props.partnerCoupon && (

@@ -23,7 +23,7 @@ import {
 } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { isEmpty, isEqual, join } from 'lodash';
 import { getActiveStyleName } from '../../shared/block-styles';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
@@ -119,7 +119,7 @@ function OpenTableEdit( {
 		// Need to force attribute to be updated after switch to using block styles
 		// so it still meets frontend rendering expectations.
 		setAttributes( { style } );
-	}, [ style ] );
+	}, [ align, style, prevStyle, setAttributes ] );
 
 	const parseEmbedCode = embedCode => {
 		const newAttributes = getAttributesFromEmbedCode( embedCode );
@@ -193,12 +193,14 @@ function OpenTableEdit( {
 					checked={ iframe }
 					onChange={ () => setAttributes( { iframe: ! iframe } ) }
 					className="is-opentable"
+					__nextHasNoMarginBottom={ true }
 				/>
 				{ 'button' === style && (
 					<ToggleControl
 						label={ __( 'Remove button margin', 'jetpack' ) }
 						checked={ negativeMargin }
 						onChange={ () => setAttributes( { negativeMargin: ! negativeMargin } ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 				) }
 			</InspectorAdvancedControls>
@@ -210,11 +212,13 @@ function OpenTableEdit( {
 						value={ lang }
 						onChange={ newLang => setAttributes( { lang: newLang } ) }
 						options={ languageOptions }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<ToggleControl
 						label={ __( 'Open in a new window', 'jetpack' ) }
 						checked={ newtab }
 						onChange={ () => setAttributes( { newtab: ! newtab } ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</PanelBody>
 			</InspectorControls>
@@ -246,7 +250,7 @@ function OpenTableEdit( {
 		</Placeholder>
 	);
 
-	const editClasses = classnames( {
+	const editClasses = clsx( {
 		[ `is-style-${ style }` ]: ! isPlaceholder && styleValues.includes( style ),
 		'is-placeholder': isPlaceholder,
 		'is-multi': 'multi' === getTypeAndTheme( style )[ 0 ],

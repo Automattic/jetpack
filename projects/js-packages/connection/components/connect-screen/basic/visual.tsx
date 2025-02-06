@@ -1,5 +1,4 @@
-import { ActionButton, TermsOfService } from '@automattic/jetpack-components';
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ActionButton, TermsOfService, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
@@ -46,20 +45,25 @@ const getErrorMessage = ( errorCode, isOfflineMode ) => {
 		case 'siteurl_private_ip':
 			return __(
 				'Your site host is on a private network. Jetpack can only connect to public sites.',
-				'jetpack'
+				'jetpack-connection-js'
 			);
+		case 'connection_disabled':
+			return __( 'This site has been suspended.', 'jetpack-connection-js' );
 	}
 
 	if ( isOfflineMode ) {
-		return createInterpolateElement( __( 'Unavailable in <a>Offline Mode</a>', 'jetpack' ), {
-			a: (
-				<a
-					href={ getRedirectUrl( 'jetpack-support-development-mode' ) }
-					target="_blank"
-					rel="noopener noreferrer"
-				/>
-			),
-		} );
+		return createInterpolateElement(
+			__( 'Unavailable in <a>Offline Mode</a>', 'jetpack-connection-js' ),
+			{
+				a: (
+					<a
+						href={ getRedirectUrl( 'jetpack-support-development-mode' ) }
+						target="_blank"
+						rel="noopener noreferrer"
+					/>
+				),
+			}
+		);
 	}
 };
 
@@ -107,7 +111,7 @@ const ConnectScreenVisual: React.FC< Props > = ( {
 				isDisabled={ isOfflineMode }
 			/>
 			<span className="jp-connection__connect-screen__loading-message" role="status">
-				{ buttonIsLoading ? loadingLabel || __( 'Loading', 'jetpack' ) : '' }
+				{ buttonIsLoading ? loadingLabel || __( 'Loading', 'jetpack-connection-js' ) : '' }
 			</span>
 
 			{ footer && <div className="jp-connection__connect-screen__footer">{ footer }</div> }

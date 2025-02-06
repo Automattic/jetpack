@@ -49,32 +49,31 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field_Inactive extends W
 
 		self::$user_id = $factory->user->create( array( 'role' => 'administrator' ) );
 
-		Jetpack_Options::update_options(
+		set_transient(
+			'jetpack_social_connections',
 			array(
-				'publicize_connections' => array(
-					// Normally connected facebook.
-					'facebook' => array(
-						'id_number' => array(
-							'connection_data' => array(
-								'user_id'  => self::$user_id,
-								'id'       => '456',
-								'token_id' => 'test-unique-id456',
-								'meta'     => array(
-									'display_name' => 'test-display-name456',
-								),
+				// Normally connected facebook.
+				'facebook' => array(
+					'id_number' => array(
+						'connection_data' => array(
+							'user_id'  => self::$user_id,
+							'id'       => '456',
+							'token_id' => 'test-unique-id456',
+							'meta'     => array(
+								'display_name' => 'test-display-name456',
 							),
 						),
 					),
-					// Globally connected tumblr.
-					'tumblr'   => array(
-						'id_number' => array(
-							'connection_data' => array(
-								'user_id'  => 0,
-								'id'       => '123',
-								'token_id' => 'test-unique-id123',
-								'meta'     => array(
-									'display_name' => 'test-display-name123',
-								),
+				),
+				// Globally connected tumblr.
+				'tumblr'   => array(
+					'id_number' => array(
+						'connection_data' => array(
+							'user_id'  => 0,
+							'id'       => '123',
+							'token_id' => 'test-unique-id123',
+							'meta'     => array(
+								'display_name' => 'test-display-name123',
 							),
 						),
 					),

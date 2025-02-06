@@ -1,13 +1,12 @@
 import { __ } from '@wordpress/i18n';
+import { includes, forEach } from 'lodash';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Banner from 'components/banner';
 import ConnectUserBar from 'components/connect-user-bar';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { includes, forEach } from 'lodash';
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,
@@ -19,6 +18,22 @@ import { isModuleFound } from 'state/search';
 
 export const SearchableModules = withModuleSettingsFormHelpers(
 	class extends Component {
+		componentDidMount() {
+			document.addEventListener( 'click', this.handleAnchorClick );
+		}
+
+		componentWillUnmount() {
+			document.removeEventListener( 'click', this.handleAnchorClick );
+		}
+
+		handleAnchorClick = event => {
+			const anchor = event.target.closest( '.jp-searchable-banner a.dops-button[href="#"]' );
+
+			if ( anchor ) {
+				event.preventDefault();
+			}
+		};
+
 		handleBannerClick = module => {
 			return () => this.props.updateOptions( { [ module ]: true } );
 		};
@@ -30,7 +45,7 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 			}
 
 			// Only render if search terms present
-			const searchTerms = this.props.searchTerm;
+			const searchTerms = this.props.searchTerm || '';
 			if ( searchTerms.length < 3 ) {
 				return null;
 			}
@@ -69,7 +84,7 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 								key={ slug }
 								callToAction={ __( 'Activate', 'jetpack' ) }
 								description={ moduleData.description }
-								href="javascript:void( 0 )"
+								href="#"
 								icon="cog"
 								onClick={ this.handleBannerClick( moduleData.module ) }
 								title={ moduleData.name }
@@ -83,14 +98,6 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 		}
 	}
 );
-
-SearchableModules.propTypes = {
-	searchTerm: PropTypes.string,
-};
-
-SearchableModules.defaultProps = {
-	searchTerm: '',
-};
 
 class ActiveCard extends Component {
 	render() {

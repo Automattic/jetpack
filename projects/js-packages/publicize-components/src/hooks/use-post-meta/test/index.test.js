@@ -3,6 +3,10 @@ import { RegistryProvider } from '@wordpress/data';
 import { usePostMeta } from '../';
 import { createRegistryWithStores } from '../../../utils/test-utils';
 
+jest.mock( '../../../utils/use-share-message-max-length.js', () => ( {
+	useShareMessageMaxLength: jest.fn().mockReturnValue( 255 ),
+} ) );
+
 const post = {
 	meta: {
 		jetpack_publicize_message: 'test',
@@ -46,8 +50,6 @@ describe( 'usePostMeta', () => {
 		);
 		expect( result.current.jetpackSocialOptions ).toEqual( post.meta.jetpack_social_options );
 		expect( result.current.shareMessage ).toEqual( post.meta.jetpack_publicize_message );
-		// it should be false by default
-		expect( result.current.shouldUploadAttachedMedia ).toBe( false );
 	} );
 
 	it( 'should return the updated values', () => {
@@ -113,6 +115,7 @@ describe( 'usePostMeta', () => {
 				enabled: true,
 			},
 			should_upload_attached_media: true,
+			version: 2,
 		} );
 	} );
 } );

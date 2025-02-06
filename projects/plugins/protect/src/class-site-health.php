@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Protect;
 
+use Automattic\Jetpack\Protect_Status\Status;
+
 /**
  * Site_Health.
  *

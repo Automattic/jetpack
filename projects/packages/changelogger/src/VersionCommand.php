@@ -230,7 +230,8 @@ EOF
 		} else {
 			$dir = Config::changesDir();
 			if ( is_dir( $dir ) ) {
-				$changes = Utils::loadAllChanges( Config::changesDir(), Config::types(), $formatter, $output );
+				$dummy   = null;
+				$changes = Utils::loadAllChanges( Config::changesDir(), Config::types(), $formatter, $output, $dummy, array( 'skip-data' => true ) );
 			} else {
 				$output->writeln( '<warning>Changes directory does not exist</>' );
 				$changes = array();

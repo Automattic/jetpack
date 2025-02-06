@@ -3,63 +3,69 @@
  */
 import {
 	AdminSection,
-	AdminSectionHero,
 	AdminPage,
 	Container,
 	Col,
 	Notice,
-	Text,
 	ZendeskChat,
 	useBreakpointMatch,
 	ActionButton,
+	GlobalNotices,
 } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import { __, _x } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useState } from 'react';
 /*
  * Internal dependencies
  */
 import { NoticeContext } from '../../context/notices/noticeContext';
+import { NOTICE_SITE_CONNECTION_ERROR } from '../../context/notices/noticeTemplates';
 import {
 	REST_API_CHAT_AUTHENTICATION_ENDPOINT,
 	REST_API_CHAT_AVAILABILITY_ENDPOINT,
 	QUERY_CHAT_AVAILABILITY_KEY,
 	QUERY_CHAT_AUTHENTICATION_KEY,
 } from '../../data/constants';
-import useProduct from '../../data/products/use-product';
+import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import onKeyDownCallback from '../../data/utils/onKeyDownCallback';
+import resetJetpackOptions from '../../data/utils/reset-jetpack-options';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import ConnectionsSection from '../connections-section';
+import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import JetpackManageBanner from '../jetpack-manage-banner';
 import PlansSection from '../plans-section';
-import { PRODUCT_STATUSES } from '../product-card';
 import ProductCardsSection from '../product-cards-section';
-import StatsSection from '../stats-section';
-import WelcomeBanner from '../welcome-banner';
+import WelcomeFlow from '../welcome-flow';
 import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, title, options } ) => {
 	const { recordEvent } = useAnalytics();
-
 	useEffect( () => {
+		const tracksArgs = options?.tracksArgs || {};
+
 		recordEvent( 'jetpack_myjetpack_global_notice_view', {
-			noticeId: options.id,
+			notice_id: options.id,
+			...tracksArgs,
 		} );
-	}, [ options.id, recordEvent ] );
+	}, [ options.id, recordEvent, options?.tracksArgs ] );
 
 	const [ isBiggerThanMedium ] = useBreakpointMatch( [ 'md' ], [ '>' ] );
 
 	const actionButtons = options.actions?.map( action => {
-		return <ActionButton customClass={ styles.cta } { ...action } />;
+		return (
+			<ActionButton key={ action.key || action.label } customClass={ styles.cta } { ...action } />
+		);
 	} );
 
 	return (
 		<div
-			className={ classnames( styles.notice, {
+			className={ clsx( styles.notice, {
 				[ styles[ 'bigger-than-medium' ] ]: isBiggerThanMedium,
 			} ) }
 		>
@@ -73,15 +79,25 @@ const GlobalNotice = ( { message, title, options } ) => {
 /**
  * The My Jetpack App Main Screen.
  *
- * @returns {object} The MyJetpackScreen component.
+ * @return {object} The MyJetpackScreen component.
  */
 export default function MyJetpackScreen() {
+	const [ welcomeFlowExperiment, setWelcomeFlowExperiment ] = useState( {
+		isLoading: false,
+		variation: 'control',
+	} );
 	useNotificationWatcher();
-	const { redBubbleAlerts } = getMyJetpackWindowInitialState();
-	const { showFullJetpackStatsCard = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
-	const { jetpackManage = {}, adminUrl } = getMyJetpackWindowInitialState();
+	const {
+		isAtomic = false,
+		jetpackManage = {},
+		adminUrl,
+		sandboxedDomain,
+	} = getMyJetpackWindowInitialState();
+	const { redBubbleAlerts, isDevVersion, userIsAdmin } = getMyJetpackWindowInitialState();
 
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
+	const { isSectionVisible } = useEvaluationRecommendations();
+	const { siteIsRegistered, apiRoot, apiNonce } = useMyJetpackConnection();
 	const { currentNotice } = useContext( NoticeContext );
 	const {
 		message: noticeMessage,
@@ -92,7 +108,6 @@ export default function MyJetpackScreen() {
 		name: QUERY_CHAT_AVAILABILITY_KEY,
 		query: { path: REST_API_CHAT_AVAILABILITY_ENDPOINT },
 	} );
-	const { detail: statsDetails } = useProduct( 'stats' );
 	const { data: authData, isLoading: isJwtLoading } = useSimpleQuery( {
 		name: QUERY_CHAT_AUTHENTICATION_KEY,
 		query: { path: REST_API_CHAT_AUTHENTICATION_ENDPOINT },
@@ -128,54 +143,76 @@ export default function MyJetpackScreen() {
 		return null;
 	}
 
+	const resetOptionsMenuItem = {
+		label: _x(
+			'Reset Options (dev only)',
+			'Button for option to reset Jetpack Options',
+			'jetpack-my-jetpack'
+		),
+		title: __( 'Reset Options', 'jetpack-my-jetpack' ),
+		role: 'button',
+		onClick: () => resetJetpackOptions(),
+		onKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
+	};
+
 	return (
-		<AdminPage siteAdminUrl={ adminUrl }>
+		<AdminPage
+			siteAdminUrl={ adminUrl }
+			sandboxedDomain={ sandboxedDomain }
+			apiRoot={ apiRoot }
+			apiNonce={ apiNonce }
+			optionalMenuItems={ isDevVersion && userIsAdmin ? [ resetOptionsMenuItem ] : [] }
+		>
+			<hr className={ styles.separator } />
+
 			<IDCModal />
-			<AdminSectionHero>
-				{ ! isNewUser && (
-					<Container horizontalSpacing={ 0 }>
+			<GlobalNotices />
+			{ ! isNewUser && (
+				<Container horizontalSpacing={ 0 }>
+					<Col>
+						<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
+					</Col>
+				</Container>
+			) }
+			{ isWelcomeBannerVisible ? (
+				<WelcomeFlow
+					welcomeFlowExperiment={ welcomeFlowExperiment }
+					setWelcomeFlowExperiment={ setWelcomeFlowExperiment }
+				>
+					{ noticeMessage &&
+						( siteIsRegistered ||
+							noticeOptions?.id === NOTICE_SITE_CONNECTION_ERROR.options.id ) && (
+							<GlobalNotice
+								message={ noticeMessage }
+								title={ noticeTitle }
+								options={ noticeOptions }
+							/>
+						) }
+				</WelcomeFlow>
+			) : (
+				noticeMessage && (
+					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col>
-							<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
+							<GlobalNotice
+								message={ noticeMessage }
+								title={ noticeTitle }
+								options={ noticeOptions }
+							/>
 						</Col>
 					</Container>
-				) }
-				<WelcomeBanner />
-				<Container horizontalSpacing={ 5 } horizontalGap={ noticeMessage ? 3 : 6 }>
-					<Col sm={ 4 } md={ 8 } lg={ 12 }>
-						<Text variant="headline-small">
-							{ __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' ) }
-						</Text>
-					</Col>
-					{ noticeMessage && ! isWelcomeBannerVisible && (
-						<Col>
-							{
-								<GlobalNotice
-									message={ noticeMessage }
-									title={ noticeTitle }
-									options={ noticeOptions }
-								/>
-							}
-						</Col>
-					) }
-					{ showFullJetpackStatsCard && (
-						<Col
-							className={ classnames( {
-								[ styles.stats ]: statsDetails?.status !== PRODUCT_STATUSES.ERROR,
-							} ) }
-						>
-							<StatsSection />
-						</Col>
-					) }
+				)
+			) }
+			{ ! isWelcomeBannerVisible && isSectionVisible && <EvaluationRecommendations /> }
+
+			<ProductCardsSection />
+
+			{ jetpackManage.isEnabled && (
+				<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
 					<Col>
-						<ProductCardsSection />
+						<JetpackManageBanner isAgencyAccount={ jetpackManage.isAgencyAccount } />
 					</Col>
-					{ jetpackManage.isEnabled && (
-						<Col>
-							<JetpackManageBanner isAgencyAccount={ jetpackManage.isAgencyAccount } />
-						</Col>
-					) }
 				</Container>
-			</AdminSectionHero>
+			) }
 
 			<AdminSection>
 				<Container horizontalSpacing={ 8 }>
@@ -183,7 +220,7 @@ export default function MyJetpackScreen() {
 						<PlansSection />
 					</Col>
 					<Col sm={ 4 } md={ 4 } lg={ 6 }>
-						<ConnectionsSection />
+						{ ! isAtomic && <ConnectionsSection /> }
 					</Col>
 				</Container>
 			</AdminSection>

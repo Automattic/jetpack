@@ -50,7 +50,7 @@ class Odyssey_Config_Data {
 			'google_maps_and_places_api_key' => '',
 			'hostname'                       => wp_parse_url( get_site_url(), PHP_URL_HOST ),
 			'i18n_default_locale_slug'       => 'en',
-			'i18n_locale_slug'               => $this->get_site_locale(),
+			'i18n_locale_slug'               => $this->get_user_locale(),
 			'mc_analytics_enabled'           => false,
 			'meta'                           => array(),
 			'nonce'                          => wp_create_nonce( 'wp_rest' ),
@@ -158,13 +158,13 @@ class Odyssey_Config_Data {
 	/**
 	 * Get locale acceptable by Calypso.
 	 */
-	protected function get_site_locale() {
+	protected function get_user_locale() {
 		/**
 		 * In WP, locales are formatted as LANGUAGE_REGION, for example `en`, `en_US`, `es_AR`,
 		 * but Calypso expects language-region, e.g. `en-us`, `en`,  `es-ar`. So we need to convert
 		 * them to lower case and replace the underscore with a dash.
 		 */
-		$locale = strtolower( get_locale() );
+		$locale = strtolower( get_user_locale() );
 		$locale = str_replace( '_', '-', $locale );
 
 		return $locale;

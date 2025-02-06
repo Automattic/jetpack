@@ -1,13 +1,15 @@
 /**
  * Create a random email
+ * @return {string} A random email
  */
-export function createRandomEmail() {
+export function createRandomEmail(): string {
 	return `${ Math.random().toString( 36 ).substring( 7 ) }@example.com`;
 }
 /**
  * Create a random name
+ * @return {string} A random name
  */
-export function createRandomName() {
+export function createRandomName(): string {
 	return ` ${ Math.random().toString( 36 ).substring( 7 ) } ${ Math.random()
 		.toString( 36 )
 		.substring( 7 ) }`;
@@ -66,8 +68,9 @@ const commonWords = [
 
 /**
  * Create a random comment
+ * @return {string} A random comment
  */
-export function createRandomComment() {
+export function createRandomComment(): string {
 	const sentence = [];
 	for ( let i = 0; i < 15; i++ ) {
 		sentence.push( commonWords[ Math.floor( Math.random() * commonWords.length ) ] );

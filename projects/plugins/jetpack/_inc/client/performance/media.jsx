@@ -1,6 +1,8 @@
 import { ProgressBar, ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import React from 'react';
+import { connect } from 'react-redux';
 import { FormLegend, FormFieldset } from 'components/forms';
 import JetpackBanner from 'components/jetpack-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -13,8 +15,6 @@ import {
 	FEATURE_VIDEO_HOSTING_JETPACK,
 } from 'lib/plans/constants';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
-import React from 'react';
-import { connect } from 'react-redux';
 import { hasConnectedOwner as hasConnectedOwnerSelector, isOfflineMode } from 'state/connection';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
@@ -119,7 +119,11 @@ class Media extends React.Component {
 								toggling={ this.props.isSavingAnyOption( 'videopress_private_enabled_for_site' ) }
 								checked={ this.props.getOptionValue( 'videopress_private_enabled_for_site' ) }
 								onChange={ this.togglePrivacySetting }
-								label={ __( 'Video Privacy: Restrict views to members of this site', 'jetpack' ) }
+								label={
+									<span className="jp-form-toggle-explanation">
+										{ __( 'Video Privacy: Restrict views to members of this site', 'jetpack' ) }
+									</span>
+								}
 							/>
 						</FormFieldset>
 					</>

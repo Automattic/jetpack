@@ -119,6 +119,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 		}
 
+		if ( get_option( 'wpcom_is_staging_site' ) ) {
+			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
+		}
+
 		return current_user_can( 'update_plugins' );
 	}
 
@@ -156,6 +160,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 		}
 
+		if ( get_option( 'wpcom_is_staging_site' ) ) {
+			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
+		}
+
 		if ( ! ( method_exists( 'Automattic\Jetpack\Current_Plan', 'supports' ) && Automattic\Jetpack\Current_Plan::supports( 'scheduled-updates' ) ) ) {
 			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 		}
@@ -175,23 +183,25 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return $result;
 		}
 
-		$verified_plugins = apply_filters( 'jetpack_scheduled_update_verify_plugins', $request['plugins'] );
-
-		if ( is_wp_error( $verified_plugins ) ) {
-			return $verified_plugins;
-		}
-
 		$schedule = $request['schedule'];
 		$plugins  = $request['plugins'];
 		usort( $plugins, 'strnatcasecmp' );
 
-		$event = Scheduled_Updates::create_scheduled_update( $schedule['timestamp'], $schedule['interval'], $plugins );
+		$event = wp_schedule_event( $schedule['timestamp'], $schedule['interval'], Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins, true );
 
 		if ( is_wp_error( $event ) ) {
+			// If the schedule could not be created, return an error.
+			$event->add_data( array( 'status' => 404 ) );
+
 			return $event;
 		}
 
-		$id = Scheduled_Updates::generate_schedule_id( $plugins );
+		$id    = Scheduled_Updates::generate_schedule_id( $plugins );
+		$event = wp_get_scheduled_event( Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins, $schedule['timestamp'] );
+
+		if ( ! $event ) {
+			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be created.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
+		}
 
 		/**
 		 * Fires when a scheduled update is created.
@@ -202,9 +212,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		 */
 		do_action( 'jetpack_scheduled_update_created', $id, $event, $request );
 
-		$event              = wp_get_scheduled_event( Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins, $schedule['timestamp'] );
 		$event->schedule_id = $id;
 		$this->update_additional_fields_for_object( $event, $request );
+
+		// Clear the case and add a transient to clear it again if in 10 seconds another event is scheduled.
+		Scheduled_Updates::clear_cron_cache();
+		set_transient( 'pre_schedule_event_clear_cron_cache', true, 10 );
 
 		return rest_ensure_response( $id );
 	}
@@ -217,6 +230,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 */
 	public function get_item_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
+		}
+
+		if ( get_option( 'wpcom_is_staging_site' ) ) {
 			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 		}
 
@@ -253,6 +270,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 		}
 
+		if ( get_option( 'wpcom_is_staging_site' ) ) {
+			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
+		}
+
 		if ( ! ( method_exists( 'Automattic\Jetpack\Current_Plan', 'supports' ) && Automattic\Jetpack\Current_Plan::supports( 'scheduled-updates' ) ) ) {
 			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 		}
@@ -272,12 +293,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return $result;
 		}
 
-		$verified_plugins = apply_filters( 'jetpack_scheduled_update_verify_plugins', $request['plugins'] );
-
-		if ( is_wp_error( $verified_plugins ) ) {
-			return $verified_plugins;
-		}
-
 		// Prevent the sync option to be updated during deletion. This will ensure that the sync is performed only once.
 		// Context: https://github.com/Automattic/jetpack/issues/27763
 		add_filter( Scheduled_Updates::PLUGIN_CRON_SYNC_HOOK, '__return_false' );
@@ -291,14 +306,16 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		remove_filter( Scheduled_Updates::PLUGIN_CRON_SYNC_HOOK, '__return_false' );
 		$item = $this->create_item( $request );
 
-		/**
-		 * Fires when a scheduled update is updated.
-		 *
-		 * @param string          $old_id  The ID of the schedule to update.
-		 * @param string          $new_id  The ID of the updated event.
-		 * @param WP_REST_Request $request The request object.
-		 */
-		do_action( 'jetpack_scheduled_update_updated', $request['schedule_id'], $item->data, $request );
+		if ( ! is_wp_error( $item ) ) {
+			/**
+			 * Fires when a scheduled update is updated.
+			 *
+			 * @param string          $old_id  The ID of the schedule to update.
+			 * @param string          $new_id  The ID of the updated event.
+			 * @param WP_REST_Request $request The request object.
+			 */
+			do_action( 'jetpack_scheduled_update_updated', $request['schedule_id'], $item->data, $request );
+		}
 
 		return $item;
 	}
@@ -311,6 +328,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 */
 	public function delete_item_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
+		}
+
+		if ( get_option( 'wpcom_is_staging_site' ) ) {
 			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 		}
 
@@ -330,9 +351,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
 		}
 
-		$event = $events[ $request['schedule_id'] ];
+		$event  = $events[ $request['schedule_id'] ];
+		$result = wp_unschedule_event( $event->timestamp, Scheduled_Updates::PLUGIN_CRON_HOOK, $event->args, true );
 
-		$result = Scheduled_Updates::delete_scheduled_update( $event->timestamp, $event->args );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
@@ -349,6 +370,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		 * @param WP_REST_Request $request The request object.
 		 */
 		do_action( 'jetpack_scheduled_update_deleted', $request['schedule_id'], $event, $request );
+
+		if ( 'DELETE' === $request->get_method() ) {
+			// In a direct call clear the case and a transient to clear it again if in 10 seconds another event is scheduled.
+			Scheduled_Updates::clear_cron_cache();
+			set_transient( 'pre_schedule_event_clear_cron_cache', true, 10 );
+		}
 
 		return rest_ensure_response( true );
 	}
@@ -395,6 +422,61 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		unset( $item['schedule_id'] );
 
 		return rest_ensure_response( $item );
+	}
+
+	/**
+	 * Checks that the "plugins" parameter is not empty.
+	 *
+	 * @param array           $plugins List of plugins to update.
+	 * @param WP_REST_Request $request Request object.
+	 * @param string          $param   The parameter name.
+	 * @return bool|WP_Error
+	 */
+	public function validate_plugins_param( $plugins, $request, $param ) {
+		$result = rest_validate_request_arg( $plugins, $request, $param );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		// We don't need to check if plugins are installed if we're on WPCOM.
+		$installed_plugins = defined( 'IS_WPCOM' ) && IS_WPCOM ? $plugins : array_filter( $plugins, array( $this, 'is_plugin_installed' ) );
+
+		if ( empty( $installed_plugins ) ) {
+			add_filter( 'rest_request_after_callbacks', array( $this, 'transform_error_response' ) );
+
+			return new \WP_Error(
+				'rest_invalid_param',
+				__( 'The specified plugins are not installed on the website. Please make sure the plugins are installed before attempting to schedule updates.', 'jetpack-scheduled-updates' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$unmanaged_plugins = array_diff( $plugins, array_filter( $plugins, array( Scheduled_Updates::class, 'is_managed_plugin' ) ) );
+		if ( empty( $unmanaged_plugins ) ) {
+			add_filter( 'rest_request_after_callbacks', array( $this, 'transform_error_response' ) );
+
+			return new \WP_Error(
+				'rest_invalid_param',
+				__( 'The specified plugins are managed and auto-updated by WordPress.com.', 'jetpack-scheduled-updates' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check if a plugin is installed.
+	 *
+	 * @param string $plugin The plugin to check.
+	 * @return bool
+	 */
+	public function is_plugin_installed( $plugin ) {
+		if ( ! function_exists( 'validate_plugin' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		return 0 === validate_plugin( $plugin );
 	}
 
 	/**
@@ -471,6 +553,23 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	}
 
 	/**
+	 * Transforms nested error message for the plugins parameter to a top-level error.
+	 *
+	 * @see WP_REST_Request::has_valid_params()
+	 *
+	 * @param WP_REST_Response|WP_HTTP_Response|WP_Error|mixed $response Result to send to the client.
+	 * @return mixed
+	 */
+	public function transform_error_response( $response ) {
+		if ( is_wp_error( $response ) && 'rest_invalid_param' === $response->get_error_code() && isset( $response->get_error_data()['details']['plugins'] ) ) {
+			$error    = $response->get_error_data()['details']['plugins'];
+			$response = new WP_Error( $error['code'], $error['message'], $error['data'] );
+		}
+
+		return $response;
+	}
+
+	/**
 	 * Retrieves the update schedule's schema, conforming to JSON Schema.
 	 *
 	 * @return array Item schema data.
@@ -532,6 +631,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 					'description' => 'List of plugin slugs to update.',
 					'type'        => 'array',
 					'maxItems'    => 10,
+					'required'    => true,
+					'arg_options' => array(
+						'validate_callback' => array( $this, 'validate_plugins_param' ),
+					),
 					'items'       => array(
 						'type'        => 'string',
 						'arg_options' => array(

@@ -27,7 +27,12 @@ class Jetpack_Google_Font_Face {
 		add_action( 'current_screen', array( $this, 'current_screen' ), 10 );
 
 		// Collect and print fonts in use
-		add_action( 'wp_head', array( $this, 'print_font_faces' ), 50 );
+		if ( wp_is_block_theme() ) {
+			add_action( 'wp_head', array( $this, 'print_font_faces' ), 50 );
+		} else {
+			// In classic themes wp_head runs before the blocks are processed to collect the block fonts.
+			add_action( 'wp_footer', array( $this, 'print_font_faces' ), 50 );
+		}
 		add_filter( 'pre_render_block', array( $this, 'collect_block_fonts' ), 10, 2 );
 	}
 
@@ -54,8 +59,6 @@ class Jetpack_Google_Font_Face {
 	 * Print fonts that are used in global styles or block-level settings.
 	 */
 	public function print_font_faces() {
-		// @todo Remove suppression when we drop support for core versions without the Font library.
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- This file is only loaded (via modules/google-fonts/load.php) when core's new Font library exists. @phan-suppress-current-line UnusedPluginSuppression
 		$fonts             = WP_Font_Face_Resolver::get_fonts_from_theme_json();
 		$font_slug_aliases = $this->get_font_slug_aliases();
 		$fonts_to_print    = array();
@@ -77,8 +80,6 @@ class Jetpack_Google_Font_Face {
 		}
 
 		if ( ! empty( $fonts_to_print ) ) {
-			// @todo Remove suppression when we drop support for core versions without the Font library.
-			// @phan-suppress-next-line PhanUndeclaredFunction -- This file is only loaded (via modules/google-fonts/load.php) when core's new Font library exists. @phan-suppress-current-line UnusedPluginSuppression
 			wp_print_font_faces( $fonts_to_print );
 		}
 	}
@@ -138,7 +139,9 @@ class Jetpack_Google_Font_Face {
 	 * @param string $font_slug The font slug.
 	 */
 	public function add_font( $font_slug ) {
-		$this->fonts_in_use[] = $this->format_font( $font_slug );
+		if ( is_string( $font_slug ) ) {
+			$this->fonts_in_use[] = $this->format_font( $font_slug );
+		}
 	}
 
 	/**

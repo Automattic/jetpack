@@ -6,8 +6,8 @@ import { fetchWordAdsSettings } from './controls';
 /**
  * Yield actions to get Search Module Status
  *
- * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @yield {object} - an action object.
+ * @return {object} - an action object.
  */
 export function* getWordAdsModuleStatus() {
 	try {
@@ -15,7 +15,7 @@ export function* getWordAdsModuleStatus() {
 		if ( settings ) {
 			return setJetpackSettings( settings );
 		}
-	} catch ( e ) {
+	} catch {
 		return errorNotice( __( 'Error fetching settings…', 'jetpack-wordads' ) );
 	}
 }

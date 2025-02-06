@@ -2,6 +2,7 @@
 /**
  * Jetpack Beta wp-admin page notice.
  *
+ * @html-template \Automattic\JetpackBeta\Admin::render_banner -- Also from render() via plugin-select.template.php or plugin-manage.template.php
  * @package automattic/jetpack-beta
  */
 
@@ -9,14 +10,12 @@ use Automattic\JetpackBeta\Utils;
 
 // Check that the file is not accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 global $current_screen;
 
-// -------------
-
-$is_notice = ( 'plugins' === $current_screen->base ? true : false );
+$is_notice = ( 'plugins' === $current_screen->base );
 
 ?>
 		<style type="text/css">

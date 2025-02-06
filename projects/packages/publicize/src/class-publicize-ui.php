@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Only user facing pieces of Publicize are found here.
@@ -37,7 +39,7 @@ class Publicize_UI {
 		}
 		$this->publicize = $publicize;
 
-		add_action( 'init', array( $this, 'init' ) );
+		add_action( 'admin_init', array( $this, 'init' ) );
 	}
 
 	/**
@@ -161,6 +163,10 @@ class Publicize_UI {
 			return;
 		}
 
+		$is_atomic_site = ( new Host() )->is_woa_site();
+		$is_simple_site = ( new Host() )->is_wpcom_simple();
+		$site_type      = $is_atomic_site ? 'atomic' : ( $is_simple_site ? 'simple' : 'jetpack' );
+
 		Assets::register_script(
 			'jetpack-social-classic-editor-options',
 			'../build/classic-editor-connections.js',
@@ -171,6 +177,8 @@ class Publicize_UI {
 				'textdomain' => 'jetpack-publicize-pkg',
 			)
 		);
+		$is_simple_site = ( new Host() )->is_wpcom_simple();
+
 		wp_add_inline_script(
 			'jetpack-social-classic-editor-options',
 			'var jetpackSocialClassicEditorOptions = ' . wp_json_encode(
@@ -178,6 +186,9 @@ class Publicize_UI {
 					'ajaxUrl'                     => admin_url( 'admin-ajax.php' ),
 					'connectionsUrl'              => esc_url( $this->publicize_settings_url ),
 					'isEnhancedPublishingEnabled' => $this->publicize->has_enhanced_publishing_feature(),
+					'resharePath'                 => '/jetpack/v4/publicize/{postId}',
+					'isReshareSupported'          => ! $is_simple_site && Current_Plan::supports( 'republicize' ),
+					'siteType'                    => $site_type,
 				)
 			),
 			'before'
@@ -592,7 +603,6 @@ jQuery( function($) {
 			<li>
 				<label
 					for="wpas-submit-<?php echo esc_attr( $connection_data['id'] ); ?>"
-					<?php echo ! $connection_data['toggleable'] ? 'class="wpas-disabled"' : ''; ?>
 				>
 					<input
 						type="checkbox"
@@ -600,9 +610,10 @@ jQuery( function($) {
 						id="wpas-submit-<?php echo esc_attr( $connection_data['id'] ); ?>"
 						class="wpas-submit-<?php echo esc_attr( $connection_data['service_name'] ); ?>"
 						value="1"
+						data-id="<?php echo esc_attr( $connection_data['id'] ); ?>"
 					<?php
 						checked( true, $connection_data['enabled'] && $connection_healthy );
-						disabled( false, $connection_data['toggleable'] && $connection_healthy );
+						disabled( false, $connection_healthy );
 					?>
 					/>
 				<?php if ( $connection_data['enabled'] && $connection_healthy && ! $connection_data['toggleable'] ) : // Need to submit a value to force a global connection to POST. ?>
@@ -627,7 +638,11 @@ jQuery( function($) {
 
 		$is_social_note = 'jetpack-social-note' === get_post_type( $post->ID );
 
+		$is_post_published = 'publish' === get_post_status( $post->ID );
+
 		$all_done = $all_done || $all_connections_done;
+
+		$is_simple_site = ( new Host() )->is_wpcom_simple();
 
 		?>
 
@@ -636,9 +651,15 @@ jQuery( function($) {
 			<?php if ( ! $is_social_note ) : ?>
 				<label for="wpas-title"><?php esc_html_e( 'Custom Message:', 'jetpack-publicize-pkg' ); ?></label>
 				<span id="wpas-title-counter" class="alignright hide-if-no-js">0</span>
-				<textarea name="wpas_title" id="wpas-title"<?php disabled( $all_done ); ?>><?php echo esc_textarea( $title ); ?></textarea>
+				<textarea name="wpas_title" id="wpas-title"><?php echo esc_textarea( $title ); ?></textarea>
 				<a href="#" class="hide-if-no-js button" id="publicize-form-hide"><?php esc_html_e( 'OK', 'jetpack-publicize-pkg' ); ?></a>
 				<input type="hidden" name="wpas[0]" value="1" />
+			<?php endif; ?>
+			<?php if ( $is_post_published && ! $is_simple_site && Current_Plan::supports( 'republicize' ) ) : ?>
+				<button type="button" class="hide-if-no-js button" id="publicize-share-now">
+					<?php esc_html_e( 'Share now', 'jetpack-publicize-pkg' ); ?>
+				</button>
+				<span id="publicize-share-now-notice" class="hidden"></span>
 			<?php endif; ?>
 		</div>
 

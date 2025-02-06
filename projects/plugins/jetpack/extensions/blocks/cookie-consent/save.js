@@ -12,10 +12,10 @@ import { DEFAULT_TEXT } from './constants';
  * be combined into the final markup, which is then serialized by the block
  * editor into `post_content`.
  *
- * @param {object} props - Save props.
+ * @param {object} props            - Save props.
  * @param {object} props.attributes - Block attributes.
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-edit-save/#save
- * @returns {object} Element to render.
+ * @return {object} Element to render.
  */
 export default function save( { attributes } ) {
 	const blockProps = useBlockProps.save();

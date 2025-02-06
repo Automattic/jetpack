@@ -1,4 +1,4 @@
-/* global pluploadL10n, plupload, _wpPluploadSettings, JSON */
+/* global pluploadL10n, plupload, _wpPluploadSettings */
 
 window.wp = window.wp || {};
 
@@ -99,7 +99,7 @@ window.wp = window.wp || {};
 			! isIE &&
 			'flash' === plupload.predictRuntime( this.plupload ) &&
 			( ! this.plupload.required_features ||
-				! this.plupload.required_features.hasOwnProperty( 'send_binary_string' ) )
+				! Object.hasOwn( this.plupload.required_features, 'send_binary_string' ) )
 		) {
 			this.plupload.required_features = this.plupload.required_features || {};
 			this.plupload.required_features.send_binary_string = true;
@@ -127,9 +127,9 @@ window.wp = window.wp || {};
 		 * Add a new error to the errors collection, so other modules can track
 		 * and display errors. @see wp.Uploader.errors.
 		 *
-		 * @param  {string}        message
-		 * @param  {object}        data
-		 * @param  {plupload.File} file     File that was uploaded.
+		 * @param {string}        message
+		 * @param {object}        data
+		 * @param {plupload.File} file    File that was uploaded.
 		 */
 		error = function ( message, data, file ) {
 			if ( file.attachment ) {
@@ -295,8 +295,8 @@ window.wp = window.wp || {};
 				response = vp.handleStandardResponse( response, file );
 			}
 
-			_.each( [ 'file', 'loaded', 'size', 'percent' ], function ( key ) {
-				file.attachment.unset( key );
+			_.each( [ 'file', 'loaded', 'size', 'percent' ], function ( k ) {
+				file.attachment.unset( k );
 			} );
 
 			file.attachment.set( _.extend( response.data, { uploading: false } ) );
@@ -336,9 +336,9 @@ window.wp = window.wp || {};
 			var message = pluploadL10n.default_error;
 
 			// Check for plupload errors.
-			for ( var key in Uploader.errorMap ) {
-				if ( pluploadError.code === plupload[ key ] ) {
-					message = Uploader.errorMap[ key ];
+			for ( var k in Uploader.errorMap ) {
+				if ( pluploadError.code === plupload[ k ] ) {
+					message = Uploader.errorMap[ k ];
 
 					if ( _.isFunction( message ) ) {
 						message = message( pluploadError.file, pluploadError );
@@ -363,7 +363,7 @@ window.wp = window.wp || {};
 							message = pluploadResponseObject.message;
 						}
 					}
-				} catch ( e ) {
+				} catch {
 					// Do nothing ...
 				}
 			}

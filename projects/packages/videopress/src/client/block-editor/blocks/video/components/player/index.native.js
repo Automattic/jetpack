@@ -27,10 +27,10 @@ const IS_ANDROID = Platform.isAndroid;
 /**
  * VideoPlayer react component
  *
- * @param {object} props - Component props.
- * @param {object} props.attributes - Block attributes.
+ * @param {object}  props            - Component props.
+ * @param {object}  props.attributes - Block attributes.
  * @param {boolean} props.isSelected - Whether the block is selected.
- * @returns {import('react').ReactElement} - React component.
+ * @return {import('react').ReactElement} - React component.
  */
 export default function Player( { isSelected, attributes } ) {
 	const {
@@ -54,7 +54,7 @@ export default function Player( { isSelected, attributes } ) {
 	const [ isPlayerReady, setIsPlayerReady ] = useState( false );
 	const [ token, setToken ] = useState();
 	const [ previewCheckAttempts, setPreviewCheckAttempts ] = useState( 0 );
-	const previewCheckTimer = useRef();
+	const previewCheckTimer = useRef( undefined );
 
 	// Fetch token for a VideoPress GUID
 	useEffect( () => {

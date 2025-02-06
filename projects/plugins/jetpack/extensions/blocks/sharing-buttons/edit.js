@@ -1,7 +1,7 @@
 import { useInnerBlocksProps, useBlockProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import './style.scss';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import SharingButtonsBlockControls from './components/block-controls';
 import SharingButtonsInspectorControls from './components/inspector-controls';
 
@@ -15,7 +15,7 @@ function SharingButtonsEdit( props ) {
 		<li>{ __( 'Click plus to add a Sharing Button', 'jetpack' ) }</li>
 	);
 
-	const className = classNames( size, 'jetpack-sharing-buttons__services-list' );
+	const className = clsx( size, 'jetpack-sharing-buttons__services-list' );
 
 	const blockProps = useBlockProps( { className } );
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {

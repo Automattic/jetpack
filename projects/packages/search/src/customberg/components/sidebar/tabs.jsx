@@ -1,15 +1,15 @@
 import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { JP_SEARCH_TAB_IDENTIFIER, OPTIONS_TAB_IDENTIFIER } from 'lib/constants';
 
 /**
  * Sidebar tabs.
  *
- * @param {object} props - Component properties
- * @param {string} props.enabledSidebarName - Currently enabled sidebar name.
- * @param {Function} props.enableSidebar - Enables the sidebar upon invocation.
- * @returns {Element} component instance
+ * @param {object}   props                    - Component properties
+ * @param {string}   props.enabledSidebarName - Currently enabled sidebar name.
+ * @param {Function} props.enableSidebar      - Enables the sidebar upon invocation.
+ * @return {Element} component instance
  */
 export default function Tabs( { enabledSidebarName, enableSidebar } ) {
 	return (
@@ -37,12 +37,12 @@ export default function Tabs( { enabledSidebarName, enableSidebar } ) {
 /**
  * Sidebar tab.
  *
- * @param {object} props - Component properties
+ * @param {object}   props               - Component properties
  * @param {Function} props.enableSidebar - Callback to enable a specific sidebar by name
- * @param {string} props.identifier - Identifier.
- * @param {string} props.label - Label.
- * @param {boolean} props.isActive - Whether the tab is active.
- * @returns {Element} component instance
+ * @param {string}   props.identifier    - Identifier.
+ * @param {string}   props.label         - Label.
+ * @param {boolean}  props.isActive      - Whether the tab is active.
+ * @return {Element} component instance
  */
 function Tab( { enableSidebar, identifier, label, isActive } ) {
 	const ariaLabel = isActive
@@ -54,9 +54,8 @@ function Tab( { enableSidebar, identifier, label, isActive } ) {
 		: label;
 	return (
 		<Button
-			// eslint-disable-next-line react/jsx-no-bind
 			onClick={ () => enableSidebar( identifier ) }
-			className={ classNames( 'jp-search-configure-sidebar__panel-tab', {
+			className={ clsx( 'jp-search-configure-sidebar__panel-tab', {
 				'is-active': isActive,
 			} ) }
 			aria-label={ ariaLabel }

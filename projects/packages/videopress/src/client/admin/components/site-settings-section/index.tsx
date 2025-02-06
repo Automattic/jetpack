@@ -20,7 +20,7 @@ import type React from 'react';
  * VideoPress SettingsSection component
  *
  * @param {SiteSettingsSectionProps} props - Component props.
- * @returns {React.ReactElement}   Component template
+ * @return {React.ReactElement}   Component template
  */
 const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
 	videoPressVideosPrivateForSite,

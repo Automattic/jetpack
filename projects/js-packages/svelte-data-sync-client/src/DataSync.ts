@@ -66,8 +66,8 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 	 * This would make a request to: http://localhost/wp-json/namespace/key
 	 *
 	 * @param namespace - The namespace of the endpoint. This matches the name of the global variable (window.{namespace}.{endpoint_name}).
-	 * @param key - The key of the value that's being synced. This is used to fetch the value from the global window object.
-	 * @param schema - The Zod schema to validate the value against. This ensures that the value is of the expected type.
+	 * @param key       - The key of the value that's being synced. This is used to fetch the value from the global window object.
+	 * @param schema    - The Zod schema to validate the value against. This ensures that the value is of the expected type.
 	 */
 	constructor(
 		namespace: string,
@@ -128,7 +128,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 	 * Helper function to get values
 	 * from the window object and validate them.
 	 *
-	 * @param valueName - The name of the value. For example, `posts`.
+	 * @param valueName   - The name of the value. For example, `posts`.
 	 * @param valueSchema - The Zod schema to validate the value against.
 	 * @returns The parsed value.
 	 */
@@ -213,9 +213,9 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 
 	/**
 	 * Method to parse the request.
-	 * @param method - The request method.
+	 * @param method      - The request method.
 	 * @param requestPath - The request path.
-	 * @param params - The request parameters.
+	 * @param params      - The request parameters.
 	 * @param abortSignal - The abort signal.
 	 * @returns The parsed value.
 	 */
@@ -240,7 +240,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 
 	/**
 	 * Method to attempt the request.
-	 * @param url - The request URL.
+	 * @param url  - The request URL.
 	 * @param args - The request arguments.
 	 * @returns The result of the request.
 	 */

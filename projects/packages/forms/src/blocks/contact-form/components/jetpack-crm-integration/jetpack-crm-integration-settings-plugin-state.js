@@ -126,6 +126,7 @@ const CRMPluginIsActive = ( { crmData, setCRMData, jetpackCRM, setAttributes } )
 			checked={ jetpackCRM }
 			onChange={ value => setAttributes( { jetpackCRM: value } ) }
 			help={ __( 'Store contact form submissions in your CRM.', 'jetpack-forms' ) }
+			__nextHasNoMarginBottom={ true }
 		/>
 	);
 };

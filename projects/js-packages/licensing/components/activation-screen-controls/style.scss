@@ -37,7 +37,8 @@
 
 
 	.jp-license-activation-screen-controls--license-field,
-	.jp-license-activation-screen-controls--license-field-with-error {
+	.jp-license-activation-screen-controls--license-field-with-error,
+	.jp-license-activation-screen-controls--license-field-with-success {
 		max-width: 500px;
 		.components-input-control__label.components-input-control__label.components-input-control__label {
 			font-weight: 600;
@@ -67,21 +68,10 @@
 		}
 	}
 
-	.jp-license-activation-screen-controls--license-field-error {
-		display: flex;
-		flex-direction: row;
-		align-items: flex-start;
-		color: var(--jp-red);
-		max-width: 500px;
-
-		svg {
-			margin-right: 4px;
-			fill: var(--jp-red);
-			min-width: 24px;
-		}
-
-		span {
-			font-size: var(--font-body);
+	.jp-license-activation-screen-controls--license-field-with-success {
+		input.components-text-control__input,
+		select.components-select-control__input {
+			border: 1px solid var(--jp-green);
 		}
 	}
 

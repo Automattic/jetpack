@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'preact/hooks';
+import { Signal } from '@preact/signals';
+import clsx from 'clsx';
+import { useContext, useEffect, useState } from 'preact/hooks';
 import { translate } from '../i18n';
-import { commentParent } from '../state';
-import { classNames, serviceData } from '../utils';
+import { VerbumSignals } from '../state';
+import { serviceData } from '../utils';
 import { EmailForm } from './EmailForm';
 
 const { mustLogIn, requireNameEmail, commentRegistration } = VerbumComments;
@@ -11,7 +13,7 @@ interface LoggedOutProps {
 	loginWindow: Window | null;
 }
 
-const getLoginCommentText = () => {
+const getLoginCommentText = ( commentParent: Signal ) => {
 	let defaultText = translate( 'Log in to leave a comment.' );
 	let optionalText = translate( 'Leave a comment. (log in optional)' );
 	let nameAndEmailRequired = translate(
@@ -79,20 +81,24 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 		setActiveService( service );
 	};
 
+	const { commentParent } = useContext( VerbumSignals );
+
 	return (
 		<div className="verbum-subscriptions logged-out">
 			<div className="verbum-subscriptions__wrapper">
 				<div className="verbum-subscriptions__login">
 					{ canWeAccessCookies && (
 						<>
-							<div className="verbum-subscriptions__login-header">{ getLoginCommentText() }</div>
+							<div className="verbum-subscriptions__login-header">
+								{ getLoginCommentText( commentParent ) }
+							</div>
 							<div
-								className={ classNames( 'verbum-logins', {
+								className={ clsx( 'verbum-logins', {
 									'logging-in': activeService,
 								} ) }
 							>
 								<div
-									className={ classNames( 'verbum-logins__social-buttons', {
+									className={ clsx( 'verbum-logins__social-buttons', {
 										'show-form-content': ! mustLogIn,
 									} ) }
 								>
@@ -105,10 +111,11 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 
 										return (
 											<button
+												aria-label={ value.name }
 												type="button"
 												key={ service }
 												onClick={ e => handleClick( e, service ) }
-												className={ classNames( 'social-button', service, {
+												className={ clsx( 'social-button', service, {
 													active: service === activeService,
 												} ) }
 											>
@@ -119,7 +126,7 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 								</div>
 								{ [ 'wordpress', 'facebook' ].includes( activeService ) && (
 									<div
-										className={ classNames( 'verbum-login__social-loading', {
+										className={ clsx( 'verbum-login__social-loading', {
 											'must-login': mustLogIn,
 										} ) }
 									>

@@ -12,8 +12,8 @@ export default class FilterStream extends stream.Transform {
 	/**
 	 * Constructor.
 	 *
-	 * @param {Function} filter - Function taking a line (without trailing newline) as a parameter and returning a string (replacement line) or null/undefined (to skip the line).
-	 * @param {object} options - Options for stream constructors.
+	 * @param {Function} filter  - Function taking a line (without trailing newline) as a parameter and returning a string (replacement line) or null/undefined (to skip the line).
+	 * @param {object}   options - Options for stream constructors.
 	 */
 	constructor( filter, options = {} ) {
 		super( options );

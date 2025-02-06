@@ -4,7 +4,7 @@ import { ResponsiveWrapper, Spinner, VisuallyHidden } from '@wordpress/component
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { isVideo } from '../../hooks/use-media-restrictions';
 import { SELECTABLE_MEDIA_TYPES } from '../../hooks/use-media-restrictions/restrictions';
 import VideoPreview from '../video-preview';
@@ -20,15 +20,15 @@ const clickHandler = open => e => {
 /**
  * Wrapper that handles media-related functionality.
  *
- * @param {object} props - Props for the Media Picker
- * @param {string} props.buttonLabel - Label for the button of the picker
- * @param {string} props.subTitle - Alt text under the button
- * @param {number} props.mediaId - The ID of the currently selected media
- * @param {object} props.mediaDetails - The details of the media for preview
- * @param {Function} props.onChange - A callback that can be passed to parent for validation
- * @param {string} props.wrapperClassName - A class name to be added to the wrapper
- * @param {object} props.allowedMediaTypes - Custom allowed media types
- * @returns {object} The media section.
+ * @param {object}   props                   - Props for the Media Picker
+ * @param {string}   props.buttonLabel       - Label for the button of the picker
+ * @param {string}   props.subTitle          - Alt text under the button
+ * @param {number}   props.mediaId           - The ID of the currently selected media
+ * @param {object}   props.mediaDetails      - The details of the media for preview
+ * @param {Function} props.onChange          - A callback that can be passed to parent for validation
+ * @param {string}   props.wrapperClassName  - A class name to be added to the wrapper
+ * @param {object}   props.allowedMediaTypes - Custom allowed media types
+ * @return {object} The media section.
  */
 export default function MediaPicker( {
 	buttonLabel,
@@ -63,9 +63,11 @@ export default function MediaPicker( {
 			}
 
 			return (
-				<div className={ classNames( styles[ 'preview-wrapper' ], wrapperClassName ) }>
+				<div className={ clsx( styles[ 'preview-wrapper' ], wrapperClassName ) }>
 					<button className={ styles.remove } onClick={ onRemoveMedia }>
-						<VisuallyHidden>{ __( 'Remove media', 'jetpack' ) }</VisuallyHidden>
+						<VisuallyHidden>
+							{ __( 'Remove media', 'jetpack-publicize-components' ) }
+						</VisuallyHidden>
 						<Icon icon={ closeSmall } />
 					</button>
 					<button
@@ -129,7 +131,9 @@ export default function MediaPicker( {
 				) : (
 					<>
 						<button className={ styles[ 'remove-loading' ] } onClick={ onRemoveMedia }>
-							<VisuallyHidden>{ __( 'Remove media', 'jetpack' ) }</VisuallyHidden>
+							<VisuallyHidden>
+								{ __( 'Remove media', 'jetpack-publicize-components' ) }
+							</VisuallyHidden>
 							<Icon icon={ closeSmall } />
 						</button>
 						<Spinner data-testid="spinner" />

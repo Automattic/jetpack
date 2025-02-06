@@ -1,3 +1,5 @@
+import type * as BlockEditorSelectors from '@wordpress/block-editor/store/selectors.js';
+
 export const ERROR_SERVICE_UNAVAILABLE = 'error_service_unavailable' as const;
 export const ERROR_QUOTA_EXCEEDED = 'error_quota_exceeded' as const;
 export const ERROR_MODERATION = 'error_moderation' as const;
@@ -15,11 +17,22 @@ export type SuggestionErrorCode =
 	| typeof ERROR_UNCLEAR_PROMPT
 	| typeof ERROR_RESPONSE;
 
+export const ROLE_SYSTEM = 'system' as const;
+export const ROLE_USER = 'user' as const;
+export const ROLE_ASSISTANT = 'assistant' as const;
+export const ROLE_JETPACK_AI = 'jetpack-ai' as const;
+
+export type RoleType =
+	| typeof ROLE_SYSTEM
+	| typeof ROLE_USER
+	| typeof ROLE_ASSISTANT
+	| typeof ROLE_JETPACK_AI;
+
 /*
  * Prompt types
  */
 export type PromptItemProps = {
-	role: 'system' | 'user' | 'assistant' | 'jetpack-ai';
+	role: RoleType;
 	content?: string;
 	context?: object;
 };
@@ -108,3 +121,14 @@ export type Block = {
  * Transcription types
  */
 export type TranscriptionState = RecordingState | 'validating' | 'processing' | 'error';
+
+/*
+ * Lib types
+ */
+export type { RenderHTMLRules } from './libs/index.js';
+
+export interface BlockEditorStore {
+	selectors: {
+		[ key in keyof typeof BlockEditorSelectors ]: ( typeof BlockEditorSelectors )[ key ];
+	};
+}

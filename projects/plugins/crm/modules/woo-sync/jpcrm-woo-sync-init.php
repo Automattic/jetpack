@@ -8,7 +8,7 @@
  */
 
 // block direct access
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 // Add to $zeroBSCRM_extensionsCompleteList global
@@ -241,6 +241,17 @@ function jpcrm_woosync_is_hpos_enabled() {
 		return \Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled();
 	}
 	return false;
+}
+
+// If we ever have more WooSync constants we should create a separate php file.
+if ( ! defined( 'JPCRM_WOOSYNC_DO_NOT_CREATE' ) ) {
+	define(
+		'JPCRM_WOOSYNC_DO_NOT_CREATE',
+		array(
+			'id'    => 'woo_do_not_create',
+			'label' => __( 'Do not create', 'zero-bs-crm' ),
+		)
+	);
 }
 
 // Extension legacy definitions

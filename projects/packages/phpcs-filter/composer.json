@@ -13,13 +13,13 @@
 		"testing"
 	],
 	"require": {
-		"php": ">=7.0",
+		"php": ">=7.2",
 		"automattic/ignorefile": "@dev",
 		"squizlabs/php_codesniffer": "^3.6.1"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
-		"yoast/phpunit-polyfills": "1.1.0"
+		"yoast/phpunit-polyfills": "^1.1.1"
 	},
 	"autoload": {
 		"classmap": [
@@ -29,6 +29,9 @@
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -51,7 +54,7 @@
 	"prefer-stable": true,
 	"extra": {
 		"branch-alias": {
-			"dev-trunk": "2.0.x-dev"
+			"dev-trunk": "3.0.x-dev"
 		}
 	}
 }

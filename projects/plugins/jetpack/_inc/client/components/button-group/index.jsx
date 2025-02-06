@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 
 import './style.scss';
@@ -19,7 +19,7 @@ export default class ButtonGroup extends React.Component {
 	};
 
 	render() {
-		const buttonGroupClasses = classNames( 'dops-button-group', this.props.className );
+		const buttonGroupClasses = clsx( 'dops-button-group', this.props.className );
 
 		return <span className={ buttonGroupClasses }>{ this.props.children }</span>;
 	}

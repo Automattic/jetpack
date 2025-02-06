@@ -117,10 +117,15 @@ class Test_Connection_Notice extends TestCase {
 		\Jetpack_Options::update_option( 'master_user', $id_admin );
 
 		$this->users_query_filter = function ( $result, $query ) {
-			if ( str_starts_with( trim( $query ), 'SELECT wp_users.user_registered' )
+			if ( str_starts_with( trim( $query ), 'SELECT wp_users.ID,wp_users.user_registered' )
 				&& preg_match( '#wp_usermeta\.meta_value LIKE \'\{.*?\}"administrator"\{.*?\}\'#i', $query )
 			) {
-				return array( (object) array( 'user_registered' => '2012-03-19 00:00:00' ) );
+				return array(
+					(object) array(
+						'ID'              => 12346,
+						'user_registered' => '2012-03-19 00:00:00',
+					),
+				);
 			}
 
 			return $result;

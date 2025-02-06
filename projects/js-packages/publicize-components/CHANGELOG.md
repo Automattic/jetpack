@@ -5,6 +5,423 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.77.0] - 2025-02-03
+### Added
+- Social Connections: Handle LinkedIn connections requiring reauthentication. [#41494]
+- Social: Enable Social Post UI for WordPress.com. [#41219]
+
+### Changed
+- Moved Social admin page code and assets logic to publicize package [#41239]
+- Move initial state from Social plugin to publicize package [#41381]
+- Replace getSite selector with getEntityRecord to avoid redundant API calls [#41386]
+- Social post character limits are now dynamic based on selected connections [#41429]
+- Social: Move settings endpoint to publicize package [#41456]
+- Update the settings endppoint to use existing endpoints [#41461]
+
+### Removed
+- Social Previews: Remove "Your post" section in favour of Social Post UI [#41329]
+
+## [0.76.0] - 2025-01-27
+### Changed
+- Moved the Social admin page to the publicize-components package [#41181]
+- Refactored Social Note settings to use core [#41153]
+- Social: Unify connections management API schema [#40679]
+
+## [0.75.4] - 2025-01-20
+### Changed
+- Updated package dependencies. [#41099]
+
+## [0.75.3] - 2025-01-13
+### Fixed
+- Social: Handle publicize connections meta error gracefully. [#40916]
+
+## [0.75.2] - 2025-01-06
+### Changed
+- Updated package dependencies. [#40792] [#40797] [#40798]
+
+## [0.75.1] - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564] [#40598]
+
+## [0.75.0] - 2024-12-09
+### Changed
+- Changed text domain from 'jetpack' to 'jetpack-publicize-components'. [#40368]
+- Updated package dependencies. [#40363]
+
+## [0.74.2] - 2024-12-02
+### Changed
+- Updated messaging for async sharing in block editor. [#40302]
+- Updated @wordpress/editor to the latest version. [#40373]
+
+## [0.74.1] - 2024-11-26
+### Changed
+- Update dependencies. [#39855]
+
+## [0.74.0] - 2024-11-25
+### Added
+- Added warnings when linkedin permission is cached. [#40220]
+
+### Changed
+- Updated package dependencies. [#40288]
+
+### Fixed
+- Add missing ids to radio buttons in the confirmation form. [#40199]
+- Decode entities in post titles and descriptions for social previews. [#40256]
+- Fixed TS errors following @wordpress/editor update. [#40291]
+
+## [0.73.0] - 2024-11-18
+### Added
+- Added toggle for UTM settings. [#39998]
+
+### Changed
+- Removed some unused code for Social. [#40122]
+
+## [0.72.1] - 2024-11-11
+### Changed
+- Social: Clean up social store. [#40033]
+- Social: Migrated social plugins settings to new script data. [#40032] [#40081]
+- Updated package dependencies. [#39999] [#40000] [#40060]
+
+## [0.72.0] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Changed
+- Change order of social connections. [#40020]
+- Social: Migrate Social Image Generator settings to new store. [#39904]
+
+### Fixed
+- Fix dataviews styles imported in share status being added globally. [#39991]
+- Social: Fix empty whitespace in Bluesky and Mastodon connection forms. [#39984]
+- Social: Fix the Instagram max video length. [#39930]
+
+## [0.71.5] - 2024-10-29
+### Changed
+- Components: Add __nextHasNoMarginBottom to BaseControl-based components, preventing deprecation notices. [#39877]
+
+## [0.71.4] - 2024-10-25
+### Changed
+- Initial state: Migrated isEnhancedPublishingEnabled to feature check [#39835]
+
+### Fixed
+- Fixed Bsky conneciton management profile name [#39889]
+- Fixed reconnection for broken Bluesky connections [#39844]
+- Social: Fixed Bluesky custom domain handle not being accepted [#39872]
+
+## [0.71.3] - 2024-10-21
+### Changed
+- Initial state: Migrated URLs in the editor to the new script data. [#39799] [#39797]
+- Update dependencies. [#39781]
+
+### Fixed
+- Social: Fixed Bluesky display name when it's not set in Bluesky profile. [#39840]
+
+## [0.71.2] - 2024-10-14
+### Added
+- Social: Added Bluesky to social previews. [#39659]
+
+### Changed
+- Updated package dependencies. [#39707]
+
+### Fixed
+- Add missing deps in calls to the `useSelect` React hook. [#39421]
+- Social: Updated the check to see if Bluesky is already connected. [#39661]
+
+## [0.71.1] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+### Fixed
+- Social: Fixed share status tooltip text overflow [#39599]
+
+## [0.71.0] - 2024-10-01
+### Added
+- Social: Added support for Bluesky [#39561]
+
+## [0.70.1] - 2024-09-30
+### Changed
+- Update dependencies. [#39528]
+
+## [0.70.0] - 2024-09-23
+### Added
+- Added tracking for the resharing action [#39408]
+
+### Changed
+- Social: Migrated useEditorPreview feature flag to new script data [#39405]
+- Social: Migrated useShareStatus feature flag to new script data [#39404]
+
+### Fixed
+- Social: Updated social previews button styles to fit the translated string [#39430]
+
+## [0.69.0] - 2024-09-16
+### Added
+- Social: Share status | Updated retry to show spinner and start polling [#39293]
+
+### Changed
+- Social: Disable reshare button and hide post publish share status when all the enabled connections are invalid [#39346]
+- Social: Migrated useAdminUiV1 feature flag to new script data [#39137]
+- Updated package dependencies. [#39332]
+
+### Fixed
+- Fixed the display where the error wasn't visible to the user. [#39372]
+
+## [0.68.0] - 2024-09-10
+### Added
+- Added share status feedback to resharing [#39294]
+
+### Changed
+- Updated package dependencies. [#39302]
+
+## [0.67.0] - 2024-09-09
+### Added
+- Added tracking for the share status modal [#39198]
+
+### Changed
+- Updated package dependencies. [#39278]
+
+### Fixed
+- Social: Fixed multiple issues in share status retry UI and logic [#39291]
+
+## [0.66.1] - 2024-09-06
+### Added
+- Social: Added polling flag for share status for better UI [#39265]
+- Updated share status modal to use dataviews [#39230]
+
+## [0.66.0] - 2024-09-05
+### Added
+- Added the functionality to reshare from the modal [#39157]
+- Poll for share status after reshare [#39156]
+
+### Changed
+- Made resharing async [#39227]
+- Updated package dependencies. [#39176]
+
+### Fixed
+- Fixed resharing for jetpack sites when only social plugin is active [#39220]
+- Fixed unnececarry call to API if feature flag is off [#39184]
+- Social: Improved polling performance for share status [#39194]
+
+## [0.65.0] - 2024-09-02
+### Added
+- Add share status log modal to published posts. [#39051]
+
+### Changed
+- Social: Renamed review sharing status to 'View sharing history'. [#39150]
+
+### Fixed
+- Fixed a bug on when to show the share log modal trigger. [#39135]
+- Fixed share status being shown even if no connection is enabled. [#39120]
+- Social: Improve ts error reporting in publicize. [#39133]
+
+## [0.64.0] - 2024-08-29
+### Added
+- Added share status info to Jetpack sidebar [#39073]
+- Added usePostPrePublishValue hook [#39119]
+
+### Changed
+- Social: Default to the current post ID for share status selector [#39112]
+- Social: Updated the share status modal to render it globally [#39116]
+
+### Fixed
+- Fixed a deadlock with media validation and media picker [#38933]
+
+## [0.63.0] - 2024-08-26
+### Added
+- Added the new feature flag for the social share status [#39015]
+
+### Changed
+- Moved PostPublishPanels component to publicize-components package [#39049]
+- Social: Migrated shares data to the new script data [#38988]
+- Updated package dependencies. [#39004]
+
+## [0.62.0] - 2024-08-21
+### Changed
+- Social: Migrated the API paths from initial state to the new script data. [#38962]
+
+### Removed
+- Social: Removed share limits UI and data logic. [#38904]
+
+## [0.61.0] - 2024-08-19
+### Added
+- Added a description for the social modal. [#38927]
+
+### Changed
+- Social: Migrated services list to the initial state. [#38924]  [#38861] [#38662] [#38665]
+
+### Removed
+- Remove the unused Advanced plan nudge. [#38926]
+
+### Fixed
+- Fixed a ui issue with the toggle naming. [#38925]
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
+## [0.60.0] - 2024-08-12
+### Changed
+- Hid most of the actions and notices when sharing is off [#38801]
+- Updated the position of connection notices in the editor [#38789]
+- Social: Updated intial state logic to use the new consolidated initial state [#38606]
+- Updated the custom message placeholder [#38784]
+
+### Fixed
+- Fixed a UI issue in the editor [#38829]
+- Fixed social post modal max-height [#38830]
+- Social post UI: Fix connection toggle and media notice [#38799]
+
+## [0.59.0] - 2024-08-05
+### Added
+- Added connection toggle to social post preview [#38686]
+- Added feature flag management for social [#38669]
+- Added preview section to the social post modal [#38686]
+- Added Social post UI modal and trigger [#38666]
+- Added tracking for the publicize settings changes [#38714]
+- Social: Added settings section to the social post modal [#38683]
+
+### Fixed
+- Fix the media validation notice for Instagram when SIG is enabled [#38689]
+
+## [0.58.0] - 2024-08-01
+### Changed
+- Fixup versions [#38612]
+
+### Removed
+- Removed the unused code for image auto-conversion from social store [#38609]
+- Social | Removed the media auto-conversion UI [#38497]
+
+### Fixed
+- Improved broken connection messaging for non-admins [#38639]
+- Social | Fixed and improved media auto conversion notices [#38499]
+
+## [0.57.0] - 2024-07-29
+### Added
+- Added mentioning of Manual Sharing [#38411]
+
+### Fixed
+- Fixed broken connection notices to make them more helpful [#38450]
+
+## [0.56.2] - 2024-07-22
+### Fixed
+- Fixed double request issue and simplifed refresh logic [#38350]
+- Social: Fixed parallel social connection requests messing up the UI state. [#38408]
+
+## [0.56.1] - 2024-07-15
+### Changed
+- Social: Removed unnecessary feature checks for social connections [#38216]
+
+### Fixed
+- Fixed an issue with frontend media validation [#38234]
+
+## [0.56.0] - 2024-07-08
+### Added
+- Updated the connections cofirmation logic to preselect the reconnecting account by default on confirmation screen [#38193]
+
+### Changed
+- Changed `Manage connections` to a link with at least 1 connection [#38220]
+
+## [0.55.1] - 2024-07-03
+### Changed
+- Updated package dependencies. [#38132]
+
+## [0.55.0] - 2024-07-01
+### Added
+- Added "Save to media library" button for images generated by SIG [#38106]
+
+### Removed
+- Removed share as a social post toggle [#37964]
+
+### Fixed
+- Added service status to broken connections for a service [#38053]
+- Fixed Threads and Instagram social previews [#38138]
+- Social | Updated "Share post" logic to hide the button when there are no connections [#38056]
+
+## [0.54.6] - 2024-06-26
+### Added
+- Added social preview for Threads [#38003]
+
+## [0.54.5] - 2024-06-24
+### Added
+- Added Threads to the social connections services [#37977]
+
+### Fixed
+- Fixed skipped connections id [#37810]
+- Social | Replaced + icon with connections management link in the post editor [#37961]
+
+## [0.54.4] - 2024-06-17
+### Fixed
+- Social: Fixed broken connections reconnect link to point it to new connections UI [#37869]
+
+## [0.54.3] - 2024-06-13
+### Changed
+- Updated package dependencies. [#37795] [#37796]
+
+### Fixed
+- Social: Fixed WSOD on connections UI when an old Twitter connection exists. [#37836]
+
+## [0.54.2] - 2024-06-10
+### Changed
+- Change codebase to use clsx instead of classnames. [#37708]
+- Social | Added optmistic response for connection creation [#37730]
+
+### Fixed
+- Clean up the creating connection spinner for confirm button [#37734]
+
+## [0.54.1] - 2024-06-05
+### Changed
+- Updated package dependencies. [#37669]
+
+## [0.54.0] - 2024-06-03
+### Changed
+- Social | Updated upgrade nudges to use the new plan. [#37638]
+- Updated the editor nudge text and logic. [#37644]
+
+## [0.53.0] - 2024-05-29
+### Added
+- Added tests for manage connections modal and services. [#37582]
+
+### Removed
+- Social | Removed sharing buttons info from connections modal. [#37593]
+
+### Fixed
+- Social | Hide "Mark as shared" for non-admin authors. [#37595]
+
+## [0.52.0] - 2024-05-27
+### Added
+- Added tests. [#37516]
+- Added the connection modal to the editor. [#37405]
+
+### Changed
+- Refactored the connection list UI. [#37437]
+- Social | Cleaned up connections management list. [#37570]
+- Social | Fixed no connections UI for editor. [#37571]
+- Social | Improved reconnect flow to automatically open the connection window. [#37467]
+- Social | Made the editor connections modal behavior similar to the modal on the social admin page. [#37501]
+- Social | Updated connection fields to match the API schema. [#37529]
+- Social | Updated the connection test results endpoint for front-end. [#37531]
+
+### Fixed
+- Fixed an issue where non-admins saw action on connection management. [#37507]
+- Fixed UI bug with border. [#37490]
+
+## [0.51.1] - 2024-05-20
+### Added
+- Added globalize/unglobalize connection UI. [#37377]
+- Social: Wired up confirmation UI with connect button. [#37295]
+
+### Changed
+- Social: Updated connection modal UI. [#37420]
+- Updated package dependencies. [#37379] [#37380] [#37382]
+
+## [0.51.0] - 2024-05-13
+### Added
+- Add connect form/button for connection management. [#37196]
+- Social: Added add connection modal. [#37211]
+- Social Connections: Added disconnection confirmation dialog. [#37310]
+- Social Limits: Added clarification of cycle reset. [#37350]
+- Wired up disconnect button and added reconnect button. [#37237]
+
+### Fixed
+- Fixed a CSS styling issue in the connection management component. [#37304]
+- Fixed social connections list not displayed for simple sites. [#37267]
+
 ## [0.50.0] - 2024-05-06
 ### Added
 - Added feature flag for new social admin UI. [#37134]
@@ -35,8 +452,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Extracted the connection toggle state logic. [#36776]
 - Only show custom media picker for normal posts. [#36640]
-- Updated package dependencies. [#36760]
-- Updated package dependencies. [#36761]
+- Updated package dependencies. [#36760] [#36761]
 - Update to the most recent version of Color Studio, 2.6.0. [#36751]
 
 ### Fixed
@@ -242,8 +658,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.38.0] - 2023-09-19
 ### Changed
 - Move auto-conversion notice near the Instagram one [#33106]
-- Updated package dependencies. [#33001]
-- Updated package dependencies. [#33043]
+- Updated package dependencies. [#33001] [#33043]
 
 ### Fixed
 - Fixed video previews for Social Previews [#33132]
@@ -260,8 +675,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.36.0] - 2023-09-04
 ### Changed
 - Changed logic that disables the connections based on the auto-conversion feature [#32671]
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
+- Updated package dependencies. [#32803] [#32804]
 
 ### Fixed
 - Fixed an issue with the logic of getting the enchanced publishing feature [#32707]
@@ -328,8 +742,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.28.0] - 2023-07-05
 ### Changed
 - Refactored the media validation so that it is done on a per connection basis [#31565]
-- Updated package dependencies. [#31659]
-- Updated package dependencies. [#31661]
+- Updated package dependencies. [#31659] [#31661]
 
 ## [0.27.0] - 2023-06-26
 ### Changed
@@ -663,6 +1076,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.77.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.76.0...v0.77.0
+[0.76.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.75.4...v0.76.0
+[0.75.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.75.3...v0.75.4
+[0.75.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.75.2...v0.75.3
+[0.75.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.75.1...v0.75.2
+[0.75.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.75.0...v0.75.1
+[0.75.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.74.2...v0.75.0
+[0.74.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.74.1...v0.74.2
+[0.74.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.74.0...v0.74.1
+[0.74.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.73.0...v0.74.0
+[0.73.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.72.1...v0.73.0
+[0.72.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.72.0...v0.72.1
+[0.72.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.5...v0.72.0
+[0.71.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.4...v0.71.5
+[0.71.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.3...v0.71.4
+[0.71.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.2...v0.71.3
+[0.71.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.1...v0.71.2
+[0.71.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.0...v0.71.1
+[0.71.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.70.1...v0.71.0
+[0.70.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.70.0...v0.70.1
+[0.70.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.69.0...v0.70.0
+[0.69.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.68.0...v0.69.0
+[0.68.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.67.0...v0.68.0
+[0.67.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.66.1...v0.67.0
+[0.66.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.66.0...v0.66.1
+[0.66.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.65.0...v0.66.0
+[0.65.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.64.0...v0.65.0
+[0.64.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.63.0...v0.64.0
+[0.63.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.62.0...v0.63.0
+[0.62.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.61.0...v0.62.0
+[0.61.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.60.0...v0.61.0
+[0.60.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.59.0...v0.60.0
+[0.59.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.58.0...v0.59.0
+[0.58.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.57.0...v0.58.0
+[0.57.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.56.2...v0.57.0
+[0.56.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.56.1...v0.56.2
+[0.56.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.56.0...v0.56.1
+[0.56.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.55.1...v0.56.0
+[0.55.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.55.0...v0.55.1
+[0.55.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.54.6...v0.55.0
+[0.54.6]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.54.5...v0.54.6
+[0.54.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.54.4...v0.54.5
+[0.54.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.54.3...v0.54.4
+[0.54.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.54.2...v0.54.3
+[0.54.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.54.1...v0.54.2
+[0.54.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.54.0...v0.54.1
+[0.54.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.53.0...v0.54.0
+[0.53.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.52.0...v0.53.0
+[0.52.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.51.1...v0.52.0
+[0.51.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.51.0...v0.51.1
+[0.51.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.50.0...v0.51.0
 [0.50.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.49.3...v0.50.0
 [0.49.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.49.2...v0.49.3
 [0.49.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.49.1...v0.49.2

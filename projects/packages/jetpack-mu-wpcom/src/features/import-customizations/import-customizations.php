@@ -30,7 +30,7 @@ function import_admin_banner() {
 	}
 
 	$site_slug  = wpcom_get_site_slug();
-	$import_url = esc_url( "https://wordpress.com/setup/import-focused/import?siteSlug={$site_slug}&ref=wp-admin" );
+	$import_url = esc_url( "https://wordpress.com/setup/hosted-site-migration?siteSlug={$site_slug}&ref=wp-admin" );
 
 	$banner_content = sprintf(
 		'<p>%s</p><a href="%s" class="button">%s</a>',

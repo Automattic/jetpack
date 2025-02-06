@@ -51,6 +51,8 @@ class Custom_CSS extends \WP_REST_Posts_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
+		// Set the WP_IMPORTING constant to prevent sync notifications
+		$this->set_importing();
 		$args = array(
 			'stylesheet' => $request['title'],
 		);

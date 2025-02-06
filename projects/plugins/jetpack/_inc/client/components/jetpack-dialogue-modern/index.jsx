@@ -1,8 +1,8 @@
-import classNames from 'classnames';
-import Gridicon from 'components/gridicon';
+import clsx from 'clsx';
 import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import Gridicon from 'components/gridicon';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 
 class ModernOverlay extends Component {
@@ -27,7 +27,7 @@ class ModernOverlay extends Component {
 	}
 
 	render() {
-		const classes = classNames( this.props.className, 'jp-dialogue-modern', {
+		const classes = clsx( this.props.className, 'jp-dialogue-modern', {
 			'has-featured-image': !! this.props.svg,
 		} );
 		return (

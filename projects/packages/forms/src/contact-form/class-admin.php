@@ -190,8 +190,8 @@ class Admin {
 		$grunion     = Contact_Form_Plugin::init();
 		$export_data = $grunion->get_feedback_entries_from_post();
 
-		$fields    = array_keys( $export_data );
-		$row_count = count( reset( $export_data ) );
+		$fields    = is_array( $export_data ) ? array_keys( $export_data ) : array();
+		$row_count = ! is_array( $export_data ) || empty( $export_data ) ? 0 : count( reset( $export_data ) );
 
 		$sheet_data = array( $fields );
 
@@ -439,7 +439,7 @@ class Admin {
 		if ( current_user_can( 'edit_posts' ) ) {
 			Form_View::display();
 		}
-		exit;
+		exit( 0 );
 	}
 
 	/**
@@ -549,7 +549,7 @@ class Admin {
 
 		if ( empty( $_REQUEST['post'] ) ) {
 			wp_safe_redirect( wp_get_referer() );
-			exit;
+			exit( 0 );
 		}
 
 		$post_ids = array_map( 'intval', $_REQUEST['post'] );
@@ -583,7 +583,7 @@ class Admin {
 
 		$redirect_url = add_query_arg( 'message', 'marked-spam', wp_get_referer() );
 		wp_safe_redirect( $redirect_url );
-		exit;
+		exit( 0 );
 	}
 
 	/**
@@ -738,6 +738,18 @@ class Admin {
 			}
 		}
 
+		// Extract IP address if we still do not have it at this point.
+		if (
+			! isset( $content_fields['_feedback_ip'] )
+			&& is_array( $chunks )
+			&& ! empty( $chunks[0] )
+		) {
+			preg_match( '/^IP: (.+)$/m', $chunks[0], $matches );
+			if ( ! empty( $matches[1] ) ) {
+				$content_fields['_feedback_ip'] = $matches[1];
+			}
+		}
+
 		$response_fields = array_diff_key( $response_fields, array_flip( $non_printable_keys ) );
 
 		echo '<hr class="feedback_response__mobile-separator" />';
@@ -757,7 +769,7 @@ class Admin {
 		echo '<hr />';
 
 		echo '<div class="feedback_response__item">';
-		if ( isset( $content_fields['_feedback_ip'] ) ) {
+		if ( ! empty( $content_fields['_feedback_ip'] ) ) {
 			echo '<div class="feedback_response__item-key">' . esc_html__( 'IP', 'jetpack-forms' ) . '</div>';
 			echo '<div class="feedback_response__item-value">' . esc_html( $content_fields['_feedback_ip'] ) . '</div>';
 		}
@@ -969,11 +981,28 @@ class Admin {
 			}
 		}
 
-		if ( isset( $_POST['fields'] ) && is_array( $_POST['fields'] ) ) {
-			$fields = sanitize_text_field( stripslashes_deep( $_POST['fields'] ) );
-			usort( $fields, array( $this, 'grunion_sort_objects' ) );
+		$field_shortcodes = array();
 
-			$field_shortcodes = array();
+		if ( isset( $_POST['fields'] ) && is_array( $_POST['fields'] ) ) {
+			$fields = array_map(
+				function ( $field ) {
+					if ( is_array( $field ) ) {
+
+						foreach ( array( 'label', 'type', 'required' ) as $key ) {
+							if ( isset( $field[ $key ] ) ) {
+								$field[ $key ] = sanitize_text_field( wp_unslash( $field[ $key ] ) );
+							}
+						}
+
+						if ( isset( $field['options'] ) && is_array( $field['options'] ) ) {
+							$field['options'] = array_map( 'sanitize_text_field', array_map( 'wp_unslash', $field['options'] ) );
+						}
+					}
+					return $field;
+				},
+				$_POST['fields'] // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- each item sanitized above.
+			);
+			usort( $fields, array( $this, 'grunion_sort_objects' ) );
 
 			foreach ( $fields as $field ) {
 				$field_attributes = array();
@@ -1087,14 +1116,23 @@ class Admin {
 		$post_type_object = get_post_type_object( $post->post_type );
 		$akismet_values   = get_post_meta( $post_id, '_feedback_akismet_values', true );
 		if ( $_POST['make_it'] === 'spam' ) {
-			$post->post_status = 'spam';
-			$status            = wp_insert_post( $post );
+
+			$status = wp_update_post(
+				array(
+					'ID'          => $post_id,
+					'post_status' => 'spam',
+				)
+			);
 
 			/** This action is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 			do_action( 'contact_form_akismet', 'spam', $akismet_values );
 		} elseif ( $_POST['make_it'] === 'ham' ) {
-			$post->post_status = 'publish';
-			$status            = wp_insert_post( $post );
+			$status = wp_update_post(
+				array(
+					'ID'          => $post_id,
+					'post_status' => 'publish',
+				)
+			);
 
 			/** This action is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 			do_action( 'contact_form_akismet', 'ham', $akismet_values );
@@ -1171,6 +1209,14 @@ class Admin {
 			if ( ! wp_trash_post( $post_id ) ) {
 				wp_die( esc_html__( 'Error in moving to Trash.', 'jetpack-forms' ) );
 			}
+		} elseif ( $_POST['make_it'] === 'delete' ) {
+			if ( ! current_user_can( $post_type_object->cap->delete_post, $post_id ) ) {
+				wp_die( esc_html__( 'You are not allowed to move this item to the Trash.', 'jetpack-forms' ) );
+			}
+
+			if ( ! wp_delete_post( $post_id, true ) ) {
+				wp_die( esc_html__( 'Error in deleting post.', 'jetpack-forms' ) );
+			}
 		}
 
 		$sql          = "
@@ -1226,7 +1272,7 @@ class Admin {
 		}
 
 		echo $status_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we're building the html to echo.
-		exit;
+		exit( 0 );
 	}
 
 	/**
@@ -1286,7 +1332,7 @@ class Admin {
 
 		$button_parameters = array(
 			/* translators: The placeholder is for showing how much of the process has completed, as a percent. e.g., "Emptying Spam (40%)" */
-			'progress_label' => __( 'Emptying Spam (%1$s%)', 'jetpack-forms' ),
+			'progress_label' => __( 'Emptying Spam (%1$s%%)', 'jetpack-forms' ),
 			'success_url'    => $success_url,
 			'failure_url'    => $failure_url,
 			'spam_count'     => $spam_count,
@@ -1399,8 +1445,7 @@ class Admin {
 		$query = 'post_type=feedback&post_status=publish';
 
 		if ( isset( $_POST['limit'] ) && isset( $_POST['offset'] ) ) {
-			// phpcs:ignore Generic.Strings.UnnecessaryStringConcat.Found -- Avoiding https://github.com/WordPress/WordPress-Coding-Standards/issues/2390
-			$query .= '&posts_per' . '_page=' . (int) $_POST['limit'] . '&offset=' . (int) $_POST['offset'];
+			$query .= '&posts_per_page=' . (int) $_POST['limit'] . '&offset=' . (int) $_POST['offset'];
 		}
 
 		$approved_feedbacks = get_posts( $query );

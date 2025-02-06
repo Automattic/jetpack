@@ -4,12 +4,12 @@ import { useCallback, useEffect } from 'react';
 /**
  * Handle partner coupon redeem analytics and clicks.
  *
- * @param {object} partnerCoupon - Partner coupon details.
- * @param {string} siteRawUrl - Site's raw URL.
- * @param {object} connectionStatus - Connection status.
- * @param {boolean} tracksUserData - Should we track user data.
- * @param {object} analytics - Analytics.
- * @returns {Function} Click handler for coupon redemption.
+ * @param {object}  partnerCoupon    - Partner coupon details.
+ * @param {string}  siteRawUrl       - Site's raw URL.
+ * @param {object}  connectionStatus - Connection status.
+ * @param {boolean} tracksUserData   - Should we track user data.
+ * @param {object}  analytics        - Analytics.
+ * @return {Function} Click handler for coupon redemption.
  */
 export function usePartnerCouponRedemption(
 	partnerCoupon,

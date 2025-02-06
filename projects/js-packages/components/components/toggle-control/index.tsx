@@ -1,5 +1,5 @@
 import { ToggleControl as WPToggleControl } from '@wordpress/components';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { useCallback } from 'react';
 import styles from './styles.module.scss';
 
@@ -56,8 +56,9 @@ const ToggleControl: React.FC< ToggleControlProps > = ( {
 
 	return (
 		<WPToggleControl
+			__nextHasNoMarginBottom={ true }
 			checked={ showChecked }
-			className={ classNames( styles.toggle, className, {
+			className={ clsx( styles.toggle, className, {
 				[ styles[ 'is-toggling' ] ]: toggling,
 				[ styles[ 'is-small' ] ]: size === 'small',
 				[ styles[ 'no-label' ] ]: ! label,

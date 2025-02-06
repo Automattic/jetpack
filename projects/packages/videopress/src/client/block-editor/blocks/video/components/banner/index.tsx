@@ -20,11 +20,11 @@ export type BlockBannerProps = {
 /**
  * React component to render a banner above a block.
  *
- * @param {BlockBannerProps} props         - Component props.
- * @param {React.ReactNode} props.action   - Banner action button.
- * @param {React.ReactNode} props.children - Banner content.
- * @param {React.ReactNode} props.icon     - Banner icon.
- * @returns {React.ReactElement }            Banner component.
+ * @param {BlockBannerProps} props          - Component props.
+ * @param {React.ReactNode}  props.action   - Banner action button.
+ * @param {React.ReactNode}  props.children - Banner content.
+ * @param {React.ReactNode}  props.icon     - Banner icon.
+ * @return {React.ReactElement }            Banner component.
  */
 export default function BlockBanner( {
 	icon = warning,
@@ -34,7 +34,7 @@ export default function BlockBanner( {
 }: BlockBannerProps ): React.ReactElement {
 	return (
 		<div className="block-banner">
-			<Icon icon={ icon } />
+			{ icon && <Icon icon={ icon } /> }
 			<div className="block-banner__content">{ children }</div>
 			{ isLoading && <Spinner /> }
 			{ action && <div className="block-banner__action">{ action }</div> }

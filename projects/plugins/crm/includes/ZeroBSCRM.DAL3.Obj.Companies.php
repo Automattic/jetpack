@@ -9,13 +9,7 @@
  * Date: 14/01/19
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
 * ZBS DAL >> Companies
@@ -101,7 +95,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
             'placeholder'=> 'e.g. New York',
             'area'=> 'Main Address',
             'migrate'=>'addresses',
-            'max_len' => 100
+            'max_len' => 200, // phpcs:ignore Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsed, WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned
         ),
         'county'            => array(
             // db model:
@@ -174,7 +168,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
             'area'=> 'Second Address',
             'migrate'=>'addresses',
             'opt'=>'secondaddress',
-            'max_len' => 100,
+            'max_len' => 200, // phpcs:ignore Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsed, WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned
             'dal1key' => 'secaddr_city' // previous field name
         ),
         'seccounty'            => array(
@@ -1661,10 +1655,6 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                         }
 
                         if ($withInvoices){
-                            
-                            #} only gets first 100?
-                            #} CURRENTLY inc meta..? (isn't huge... but isn't efficient)
-                            //$resArr['invoices']         = zeroBS_getInvoicesForCompany($resDataLine->ID,true,100);
                             //DAL3 ver, more perf, gets all
                             $resArr['invoices'] = $zbs->DAL->invoices->getInvoices(array(
 
@@ -3268,7 +3258,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
 
             //$resArr['id'] = $company['id'];
             //$resArr['name'] = $company['coname'];
-            $resArr['avatar'] = false; //zeroBS_customerAvatar($resArr['id']);
+			$resArr['avatar'] = false; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
             #} Format the date in the list view..
             //$formatted_date = zeroBSCRM_date_i18n(-1, strtotime($obj['created']));

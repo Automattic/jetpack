@@ -1,11 +1,19 @@
 <?php
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
 
 /**
  * Test pluggable functionality for bruteprotect
  */
 class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
+
+	public function set_up() {
+		parent::set_up();
+
+		// Ensure the Brute Force Protection module is loaded
+		Brute_Force_Protection::instance();
+	}
 
 	public function test_sends_failed_login_message() {
 		$user_id = self::factory()->user->create();
@@ -15,8 +23,7 @@ class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
 		do_action(
 			'jpp_log_failed_attempt',
 			array(
-				'login'             => $user->user_email,
-				'has_login_ability' => true,
+				'login' => $user->user_email,
 			)
 		);
 
@@ -35,8 +42,7 @@ class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
 		do_action(
 			'jpp_log_failed_attempt',
 			array(
-				'login'             => $user->user_email,
-				'has_login_ability' => true,
+				'login' => $user->user_email,
 			)
 		);
 		Constants::clear_single_constant( 'XMLRPC_REQUEST' );
@@ -51,8 +57,7 @@ class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
 		do_action(
 			'jpp_log_failed_attempt',
 			array(
-				'login'             => null,
-				'has_login_ability' => true,
+				'login' => null,
 			)
 		);
 

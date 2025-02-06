@@ -5,6 +5,252 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.36.0] - 2025-02-03
+### Added
+- Prevent empty client-side form submission. [#41464]
+
+### Changed
+- Remove legacy code and improve code quality. [#41348]
+- Rename contact form block placeholder to "Forms". [#41384]
+- Updated package dependencies. [#41286]
+
+### Fixed
+- Add wrapping div to the core HTML block when inserted inside the form block. [#41269]
+- Code: Remove extra params on function calls. [#41263]
+- Feedback: Fix encoding when going from spam to regular type. [#41359]
+- Feedback: Fix missing spacing bug in list view. [#41367]
+- Fix date picker styles in dark themes. [#41342]
+- Fix field spacing and widths. [#41415]
+- Fix permanent deletion of form reponses via quicklinks. [#41321]
+- Fix submission when date field errored. [#41511]
+- Hide empty radio fields. [#41379]
+- Prevent empty style values within form field block attributes. [#41206]
+- Prevent error in block placeholder when the Forms module is disabled. [#41382]
+- Translations: Fix spam % character. [#41345]
+
+## [0.35.1] - 2025-01-27
+### Added
+- Add Checkbox and Consent field enter action to create a new block. [#41297]
+- Forms: Create new default block when pressing Enter on text inputs. [#41177]
+
+### Changed
+- Forms: Remove wrapping <div> element from form block. [#41274]
+
+### Fixed
+- Adds missing deprecation for checkboxes and radio fields. [#41198]
+- Form: fix the default checkstate for admins. [#40847]
+- Forms: Add unique ids to each form. [#40998]
+- Forms: fix send to settings for multiple authors. [#41290]
+- Forms: Make the icons show up as expected in the style editor. [#41314]
+- Updates the icon colours to the new standard. [#41250]
+
+## [0.35.0] - 2025-01-20
+### Added
+- Forms: Allow HTML block within forms. [#41040]
+- Forms: Handle `Enter` on empty radio/checkbox input. [#41082]
+
+### Changed
+- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
+- Forms: rename "URL" field to "Website" [#41029]
+- Forms: settings, opt-in for default 40px size in gutenberg [#41127]
+- Forms: update width control to use more modern ToggleGroupControl [#41130]
+- Forms: use core icons for phone and email fields [#41034]
+- Updated package dependencies. [#41099]
+
+### Fixed
+- Forms: Fix dropdown icon styling. [#41074]
+- Forms: Fix redirect field styles [#41030]
+- Forms: fix spacing issue in sidebar settings [#41133]
+- Forms: Properly support formatting options for labels and required text [#40924]
+
+## [0.34.6] - 2025-01-13
+### Fixed
+- Add webpack plugin to rename RTL files to match core WP expectations. [#40881]
+- Show email only in form submission view if name is empty. [#40898]
+- Forms: Fix success message color inside a dark Cover block. [#40917]
+- Forms: Update default URL field label to match front-end. [#40921]
+
+## [0.34.5] - 2025-01-06
+### Changed
+- Updated package dependencies. [#40705] [#40784] [#40792] [#40800] [#40831]
+
+### Fixed
+- Form block: Fix submit button styles when there are errors. [#40762]
+
+## [0.34.4] - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564]
+
+### Fixed
+- Form Block: Fix validation of URL input types to allow query strings. [#40490]
+
+## [0.34.3] - 2024-12-09
+### Changed
+- Updated package dependencies. [#40363]
+
+## [0.34.2] - 2024-11-26
+### Changed
+- Update dependencies. [#39855]
+
+## [0.34.1] - 2024-11-25
+### Changed
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#40288]
+
+### Fixed
+- Forms: fixed arrow positioning on select elements [#40206]
+
+## [0.34.0] - 2024-11-18
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+### Fixed
+- Fix a fatal error occurring due to a function receiving an unexpected input type. [#40183]
+
+## [0.33.8] - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999] [#40060]
+
+## [0.33.7] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Fixed
+- Fix PHPUnit coverage warnings. [#39989]
+
+## [0.33.6] - 2024-10-29
+### Changed
+- Components: Add __nextHasNoMarginBottom to BaseControl-based components, preventing deprecation notices. [#39877]
+
+## [0.33.5] - 2024-10-28
+### Changed
+- Updated package dependencies. [#39910]
+
+## [0.33.4] - 2024-10-21
+### Changed
+- Update dependencies. [#39781]
+
+## [0.33.3] - 2024-10-14
+### Changed
+- Only include `wp-polyfill` as a script dependency when needed. [#39629]
+- Updated package dependencies. [#39707]
+
+### Fixed
+- Improve security of the form endpoint. [#39759]
+
+## [0.33.2] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## [0.33.1] - 2024-09-30
+### Changed
+- Internal updates.
+
+## [0.33.0] - 2024-09-23
+### Added
+- New filter to allow for excluding the contact form submission IP from being saved or e-mailed. [#39395]
+
+### Changed
+- Options: Get selection from the element's document instead of the global `window`. [#39364]
+- Refactor Choice fields [#39141]
+
+## [0.32.16] - 2024-09-16
+### Changed
+- Email submissions: on sites using www., ensure that the sending email address does not use the www. prefix. [#39370]
+
+### Fixed
+- Use en-dash in numeric range in i18n message to conform to guidelines. [#39305]
+
+## [0.32.15] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [0.32.14] - 2024-09-09
+### Changed
+- Updated package dependencies. [#39176] [#39278]
+
+### Fixed
+- Contact Forms: added checks for unexpected contents of textarea elements. [#39271]
+
+## [0.32.13] - 2024-09-04
+### Changed
+- Check for private and password-protected posts when handling the contact form submissions. [#39238]
+
+## [0.32.12] - 2024-09-02
+### Changed
+- Forms: update child blocks to Block API v3 [#38916]
+- Updated package dependencies. [#39111]
+
+## [0.32.11] - 2024-08-26
+### Changed
+- Updated package dependencies. [#39004]
+
+## [0.32.10] - 2024-08-21
+### Changed
+- Internal updates.
+
+## [0.32.9] - 2024-08-19
+### Changed
+- Updated package dependencies. [#38662]
+
+### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
+## [0.32.8] - 2024-08-12
+### Added
+- React 19 compatibility: Making sure useRef includes an argument. [#38765]
+
+## [0.32.7] - 2024-08-05
+### Changed
+- React compatibility: Changing ReactDOM.render usage to be via ReactDOM.createRoot. [#38649]
+
+## [0.32.6] - 2024-07-29
+### Changed
+- Update dependencies. [#38558]
+
+## [0.32.5] - 2024-07-22
+### Fixed
+- Block Picker: Fixed display of the picker in the block editor following changes in WordPress 6.6. [#38406]
+- Form Submissions Table: Ensured the IP address is displayed for each submission, when available. [#38352]
+
+## [0.32.4] - 2024-07-15
+### Changed
+- Internal updates.
+
+## [0.32.3] - 2024-07-08
+### Changed
+- Updated package dependencies. [#38132]
+
+## [0.32.2] - 2024-06-24
+### Changed
+- Update dependencies. [#37979]
+
+## [0.32.1] - 2024-06-17
+### Changed
+- Updated package dependencies. [#37796]
+
+## [0.32.0] - 2024-06-10
+### Changed
+- Change codebase to use clsx instead of classnames. [#37708]
+- Updated package dependencies. [#37669] [#37706]
+
+### Fixed
+- Allow users to add multiple options to a dropdown field [#37739]
+- Avoid PHP notice when form is submitted to the wrong URL [#37672]
+
+## [0.31.4] - 2024-05-27
+### Changed
+- Update dependencies. [#37356]
+
+## [0.31.3] - 2024-05-20
+### Changed
+- Forms: Ensure non-minified JS file location is also an option when loading the tiny-mce-plugin-form-button script file. [#37351]
+- Updated package dependencies. [#37379] [#37380] [#37382]
+
+## [0.31.2] - 2024-05-13
+### Changed
+- Update dependencies. [#37280]
+
 ## [0.31.1] - 2024-05-07
 ### Fixed
 - Contact Form: Prevent an editor error when using the Classic Editor and contact forms are enabled. [#37270]
@@ -251,8 +497,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add Jetpack AI Form section to new Forms landing page [#32726]
 
 ### Changed
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
+- Updated package dependencies. [#32803] [#32804]
 
 ### Fixed
 - Fix block icons for display on wp.org [#32754]
@@ -433,8 +678,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Forms: Include bulk actions menu [#29766]
 - Forms: Update Dashboard inbox columns responsiveness and sticky items style [#29914]
 - Updated form responses endpoint to embed available filter data. [#29805]
-- Updated package dependencies. [#29854]
-- Updated package dependencies. [#29857]
+- Updated package dependencies. [#29854] [#29857]
 
 ### Fixed
 - Made feedback bulk actions more explicit and easier to work with. [#29884]
@@ -568,6 +812,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.36.0]: https://github.com/automattic/jetpack-forms/compare/v0.35.1...v0.36.0
+[0.35.1]: https://github.com/automattic/jetpack-forms/compare/v0.35.0...v0.35.1
+[0.35.0]: https://github.com/automattic/jetpack-forms/compare/v0.34.6...v0.35.0
+[0.34.6]: https://github.com/automattic/jetpack-forms/compare/v0.34.5...v0.34.6
+[0.34.5]: https://github.com/automattic/jetpack-forms/compare/v0.34.4...v0.34.5
+[0.34.4]: https://github.com/automattic/jetpack-forms/compare/v0.34.3...v0.34.4
+[0.34.3]: https://github.com/automattic/jetpack-forms/compare/v0.34.2...v0.34.3
+[0.34.2]: https://github.com/automattic/jetpack-forms/compare/v0.34.1...v0.34.2
+[0.34.1]: https://github.com/automattic/jetpack-forms/compare/v0.34.0...v0.34.1
+[0.34.0]: https://github.com/automattic/jetpack-forms/compare/v0.33.8...v0.34.0
+[0.33.8]: https://github.com/automattic/jetpack-forms/compare/v0.33.7...v0.33.8
+[0.33.7]: https://github.com/automattic/jetpack-forms/compare/v0.33.6...v0.33.7
+[0.33.6]: https://github.com/automattic/jetpack-forms/compare/v0.33.5...v0.33.6
+[0.33.5]: https://github.com/automattic/jetpack-forms/compare/v0.33.4...v0.33.5
+[0.33.4]: https://github.com/automattic/jetpack-forms/compare/v0.33.3...v0.33.4
+[0.33.3]: https://github.com/automattic/jetpack-forms/compare/v0.33.2...v0.33.3
+[0.33.2]: https://github.com/automattic/jetpack-forms/compare/v0.33.1...v0.33.2
+[0.33.1]: https://github.com/automattic/jetpack-forms/compare/v0.33.0...v0.33.1
+[0.33.0]: https://github.com/automattic/jetpack-forms/compare/v0.32.16...v0.33.0
+[0.32.16]: https://github.com/automattic/jetpack-forms/compare/v0.32.15...v0.32.16
+[0.32.15]: https://github.com/automattic/jetpack-forms/compare/v0.32.14...v0.32.15
+[0.32.14]: https://github.com/automattic/jetpack-forms/compare/v0.32.13...v0.32.14
+[0.32.13]: https://github.com/automattic/jetpack-forms/compare/v0.32.12...v0.32.13
+[0.32.12]: https://github.com/automattic/jetpack-forms/compare/v0.32.11...v0.32.12
+[0.32.11]: https://github.com/automattic/jetpack-forms/compare/v0.32.10...v0.32.11
+[0.32.10]: https://github.com/automattic/jetpack-forms/compare/v0.32.9...v0.32.10
+[0.32.9]: https://github.com/automattic/jetpack-forms/compare/v0.32.8...v0.32.9
+[0.32.8]: https://github.com/automattic/jetpack-forms/compare/v0.32.7...v0.32.8
+[0.32.7]: https://github.com/automattic/jetpack-forms/compare/v0.32.6...v0.32.7
+[0.32.6]: https://github.com/automattic/jetpack-forms/compare/v0.32.5...v0.32.6
+[0.32.5]: https://github.com/automattic/jetpack-forms/compare/v0.32.4...v0.32.5
+[0.32.4]: https://github.com/automattic/jetpack-forms/compare/v0.32.3...v0.32.4
+[0.32.3]: https://github.com/automattic/jetpack-forms/compare/v0.32.2...v0.32.3
+[0.32.2]: https://github.com/automattic/jetpack-forms/compare/v0.32.1...v0.32.2
+[0.32.1]: https://github.com/automattic/jetpack-forms/compare/v0.32.0...v0.32.1
+[0.32.0]: https://github.com/automattic/jetpack-forms/compare/v0.31.4...v0.32.0
+[0.31.4]: https://github.com/automattic/jetpack-forms/compare/v0.31.3...v0.31.4
+[0.31.3]: https://github.com/automattic/jetpack-forms/compare/v0.31.2...v0.31.3
+[0.31.2]: https://github.com/automattic/jetpack-forms/compare/v0.31.1...v0.31.2
 [0.31.1]: https://github.com/automattic/jetpack-forms/compare/v0.31.0...v0.31.1
 [0.31.0]: https://github.com/automattic/jetpack-forms/compare/v0.30.18...v0.31.0
 [0.30.18]: https://github.com/automattic/jetpack-forms/compare/v0.30.17...v0.30.18

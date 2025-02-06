@@ -9,8 +9,6 @@ package.json                                             export-ignore
 # Files not needed in the production build.
 /changelog/**                                            production-exclude
 /.gitignore                                              production-exclude
-/.eslintrc.js                                            production-exclude
-/.eslintignore                                           production-exclude
 /.size-limit.js                                          production-exclude
 /babel.config*                                           production-exclude
 /jest.config.js                                          production-exclude

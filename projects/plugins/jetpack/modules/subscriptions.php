@@ -15,6 +15,7 @@
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Redirect;
@@ -369,21 +370,6 @@ class Jetpack_Subscriptions {
 			'stc_enabled'
 		);
 
-		/** Enable Subscribe Modal */
-
-		add_settings_field(
-			'jetpack_subscriptions_comment_subscribe',
-			__( 'Enable Subscribe Modal', 'jetpack' ),
-			array( $this, 'subscribe_modal_setting' ),
-			'discussion',
-			'jetpack_subscriptions'
-		);
-
-		register_setting(
-			'discussion',
-			'sm_enabled'
-		);
-
 		/** Email me whenever: Someone subscribes to my blog */
 		/* @since 8.1 */
 
@@ -461,22 +447,6 @@ class Jetpack_Subscriptions {
 				array( 'em' => array() )
 			);
 			?>
-		</p>
-
-		<?php
-	}
-
-	/**
-	 * Subscribe Modal Toggle.
-	 */
-	public function subscribe_modal_setting() {
-
-		$sm_enabled = get_option( 'sm_enabled', 1 );
-		?>
-
-		<p class="description">
-			<input type="checkbox" name="sm_enabled" id="jetpack-subscribe-modal" value="1" <?php checked( $sm_enabled, 1 ); ?> />
-			<?php esc_html_e( 'Show a popup subscribe modal to readers.', 'jetpack' ); ?>
 		</p>
 
 		<?php
@@ -725,7 +695,7 @@ class Jetpack_Subscriptions {
 		do_action( 'jetpack_subscriptions_form_submission', $result );
 
 		wp_safe_redirect( "$redirect#$redirect_fragment" );
-		exit;
+		exit( 0 );
 	}
 
 	/**
@@ -1031,13 +1001,13 @@ class Jetpack_Subscriptions {
 			array( 'site' => $blog_id ? $blog_id : $status->get_site_suffix() )
 		);
 
-		add_submenu_page(
-			'jetpack',
-			esc_attr__( 'Subscribers', 'jetpack' ),
+		Admin_Menu::add_menu(
+			__( 'Subscribers', 'jetpack' ),
 			__( 'Subscribers', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>',
 			'manage_options',
 			esc_url( $link ),
-			null
+			null,
+			11
 		);
 	}
 
@@ -1076,3 +1046,5 @@ Jetpack_Subscriptions::init();
 
 require __DIR__ . '/subscriptions/views.php';
 require __DIR__ . '/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php';
+require __DIR__ . '/subscriptions/subscribe-overlay/class-jetpack-subscribe-overlay.php';
+require __DIR__ . '/subscriptions/subscribe-floating-button/class-jetpack-subscribe-floating-button.php';

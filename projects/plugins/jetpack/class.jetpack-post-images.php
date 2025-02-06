@@ -495,10 +495,18 @@ class Jetpack_PostImages {
 		// Let's grab all image tags from the HTML.
 		$dom_doc = new DOMDocument();
 
+		// DOMDocument defaults to ISO-8859 because we're loading only the post content, without head tag.
+		// Fix: Enforce encoding with meta tag.
+		$charset = get_option( 'blog_charset' );
+		if ( empty( $charset ) || ! preg_match( '/^[a-zA-Z0-9_-]+$/', $charset ) ) {
+			$charset = 'UTF-8';
+		}
+		$html_prefix = sprintf( '<meta http-equiv="Content-Type" content="text/html; charset=%s">', esc_attr( $charset ) );
+
 		// The @ is not enough to suppress errors when dealing with libxml,
 		// we have to tell it directly how we want to handle errors.
 		libxml_use_internal_errors( true );
-		@$dom_doc->loadHTML( $html_info['html'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		@$dom_doc->loadHTML( $html_prefix . $html_info['html'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		libxml_use_internal_errors( false );
 
 		$image_tags = $dom_doc->getElementsByTagName( 'img' );
@@ -515,6 +523,12 @@ class Jetpack_PostImages {
 			if ( stripos( $img_src, '/smilies/' ) ) {
 				continue;
 			}
+
+			// Do not grab Gravatar images.
+			if ( stripos( $img_src, 'gravatar.com' ) ) {
+				continue;
+			}
+
 			// First try to get the width and height from the img attributes, but if they are not set, check to see if they are specified in the url. WordPress automatically names files like foo-1024x768.jpg during the upload process
 			$width  = (int) $image_tag->getAttribute( 'width' );
 			$height = (int) $image_tag->getAttribute( 'height' );

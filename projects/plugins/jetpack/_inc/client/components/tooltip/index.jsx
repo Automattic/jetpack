@@ -1,8 +1,8 @@
 import { isMobile } from '@automattic/viewport';
-import classnames from 'classnames';
-import Popover from 'components/popover';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import Popover from 'components/popover';
 
 import './style.scss';
 
@@ -35,7 +35,7 @@ class Tooltip extends Component {
 			return null;
 		}
 
-		const classes = classnames(
+		const classes = clsx(
 			'dops-popover',
 			'dops-tooltip',
 			`is-${ this.props.position }`,

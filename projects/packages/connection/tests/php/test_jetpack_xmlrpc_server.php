@@ -433,7 +433,7 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 	 */
 	protected function get_mocked_ixr_client( $query_called = false, $response = '', $query_return = true, $error = null ) {
 		$xml = $this->getMockBuilder( 'Jetpack_IXR_Client' )
-			->setMethods(
+			->onlyMethods(
 				array(
 					'query',
 					'isError',

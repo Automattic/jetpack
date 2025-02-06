@@ -21,7 +21,7 @@ export default {
 	},
 	isEligible: attr => {
 		// Newer block versions do not have `subscribeButton` attribute.
-		if ( ! attr.hasOwnProperty( 'subscribeButton' ) || ! isEmpty( attr.subscribeButton ) ) {
+		if ( ! Object.hasOwn( attr, 'subscribeButton' ) || ! isEmpty( attr.subscribeButton ) ) {
 			return false;
 		}
 		return true;

@@ -1,8 +1,8 @@
+import { useAutosaveAndRedirect } from '@automattic/jetpack-shared-extension-utils';
 import { Warning } from '@wordpress/block-editor';
 import { Button, ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
-import useAutosaveAndRedirect from '../../../shared/use-autosave-and-redirect/index';
+import clsx from 'clsx';
 
 import './style.scss';
 
@@ -31,6 +31,7 @@ export default function BlockNudge( {
 				// Use href to determine whether or not to display the Upgrade button.
 				href && [
 					<Button
+						key="nudge"
 						href={ href } // Only for server-side rendering, since onClick doesn't work there.
 						onClick={ handleClick }
 						target="_top"
@@ -41,7 +42,7 @@ export default function BlockNudge( {
 					</Button>,
 				]
 			}
-			className={ classNames( className, 'jetpack-block-nudge wp-block' ) }
+			className={ clsx( className, 'jetpack-block-nudge wp-block' ) }
 		>
 			<span className="jetpack-block-nudge__info">
 				{ icon }

@@ -46,7 +46,7 @@ class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
 		$filtered_content = preg_replace( '/\R+/', '', Verbum_Block_Utils::render_verbum_blocks( $comment_content ) );
 
 		$expected_content = '<p>test</p><ul><li>1</li><li>2</li><li>3</li></ul><blockquote class="wp-block-quote is-layout-flow wp-block-quote-is-layout-flow"><p>something</p><cite>someone</cite></blockquote>';
-		$this->assertEquals( $expected_content, $filtered_content );
+		$this->assertSame( $expected_content, $filtered_content );
 	}
 
 	/**

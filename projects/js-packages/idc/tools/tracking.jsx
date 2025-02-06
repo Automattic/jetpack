@@ -4,23 +4,23 @@ import analytics from '@automattic/jetpack-analytics';
  * Initialize the analytics object.
  *
  * @param {object} tracksEventData - Tracks data.
- * @param {object} tracksUserData - User data.
+ * @param {object} tracksUserData  - User data.
  */
 export function initializeAnalytics( tracksEventData, tracksUserData ) {
 	if (
 		tracksUserData &&
-		tracksUserData.hasOwnProperty( 'userid' ) &&
-		tracksUserData.hasOwnProperty( 'username' )
+		Object.hasOwn( tracksUserData, 'userid' ) &&
+		Object.hasOwn( tracksUserData, 'username' )
 	) {
 		analytics.initialize( tracksUserData.userid, tracksUserData.username );
 	}
 
 	if ( tracksEventData ) {
-		if ( tracksEventData.hasOwnProperty( 'blogID' ) ) {
+		if ( Object.hasOwn( tracksEventData, 'blogID' ) ) {
 			analytics.assignSuperProps( { blog_id: tracksEventData.blogID } );
 		}
 
-		if ( tracksEventData.hasOwnProperty( 'platform' ) ) {
+		if ( Object.hasOwn( tracksEventData, 'platform' ) ) {
 			analytics.assignSuperProps( { platform: tracksEventData.platform } );
 		}
 	}
@@ -35,7 +35,7 @@ export function initializeAnalytics( tracksEventData, tracksUserData ) {
  * Tracks Will be prefixed by 'jetpack_idc_' and use underscores.
  * MC Will not be prefixed, and will use dashes.
  *
- * @param {string} eventName - name.
+ * @param {string} eventName  - name.
  * @param {object} extraProps - extra props.
  */
 export default function trackAndBumpMCStats( eventName, extraProps = {} ) {

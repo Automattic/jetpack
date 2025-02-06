@@ -139,7 +139,7 @@ if [[ "$SVN_LATEST" == "$GH_LATEST" ]] && version_compare "$SVN_LATEST" "$CURREN
 	svn diff
 
 	echo ""
-	proceed_p "You are about to update the stable tag for ${WPSLUG} via the diff above." "Would you like to commit it now?"
+	proceed_p "You are about to update the stable tag for ${WPSLUG} via the diff above." "Would you like to commit it now?" Y
 	svn ci -m "Update stable tag"
 
 elif [[ "$SVN_LATEST" == "$CURRENT_STABLE_VERSION" && "$GH_LATEST" == "$CURRENT_STABLE_VERSION" ]]; then

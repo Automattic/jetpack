@@ -5,6 +5,474 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.4.1] - 2025-02-03
+### Added
+- My Jetpack: Add red bubble and notice when pain plan is missing plugin. [#41013]
+
+### Changed
+- Make Action Button component more reusable. [#41361]
+- Replace Jetpack AI upgrade page with a modal. [#41301]
+- Updated package dependencies. [#41286]
+- Update My Jetpack interstitial modal with new styles and layout. [#41300]
+
+### Fixed
+- AI: Avoid using relative URLs in admin URLs to support sites where WordPress is installed in a subdirectory. [#41459]
+- Code: Remove extra params on function calls. [#41263]
+- My Jetpack: Fix secondary action of Protect card when plugin is not installed. [#41347]
+
+## [5.4.0] - 2025-01-23
+### Added
+- Adding new modal based interstitial component. [#40945]
+
+### Fixed
+- Fix bug where My Jetpack would throw critical error if only a standalone plugin is not installed. [#41192]
+
+## [5.3.3] - 2025-01-20
+### Added
+- Add caching for the red bubble alerts for My Jetpack. [#41131]
+- Add option for devs to reset jetpack options from My Jetpack footer. [#40943]
+- Add sandboxed tag to My Jetpack. [#40971]
+
+### Changed
+- Updated package dependencies. [#41099]
+
+## [5.3.2] - 2025-01-14
+### Fixed
+- Fix bug where description doesn't show up on backup card in specific scenarios. [#40904]
+
+## [5.3.1] - 2025-01-10
+### Added
+- Add new WAF status on Protect card for when WAF is unsupported. [#40880]
+
+### Changed
+- Show an upgrade CTA anytime a product has an available upgrade. [#40900]
+
+## [5.3.0] - 2025-01-06
+### Added
+- My Jetpack: Added a new status for when Protect detects threats on the site. [#40628]
+- My Jetpack: Adds a red bubble and notice when Protect threats are detected. [#40719]
+- My Jetpack: introduce feature cards for recommendations in My Jetpack. [#40639]
+
+### Changed
+- Updated package dependencies. [#40705] [#40798] [#40810] [#40841]
+
+### Fixed
+- Tests: Fix failure on 31 December. [#40781]
+
+## [5.2.0] - 2024-12-23
+### Added
+- My Jetpack: add features as possible modules to the recommendations list. [#40492]
+
+### Changed
+- My Jetpack: Add 'Needs attention' status to Backup product card when Backups are failing. [#40454]
+- My Jetpack: Add red bubble and notice/banner when Backup has 'needs-attention' status. [#40512]
+- My Jetpack: Plans section: Improvements to how we display plan expiration date. [#40575]
+- My Jetpack: Protect card- Fixed Tooltip placement & content issues. [#40691]
+- Unify connection flows in My Jetpack. [#40632]
+
+### Fixed
+- Fix an issue where high posts counts would cause backend issues for the get_raw_post_type_breakdown function used in My Jetpack. Sites with over 100,000 posts can now have this query managed remotely. [#40635]
+- Fix issue where backup card was not updating after site connection in some situations. [#40653]
+
+## [5.1.2] - 2024-12-16
+### Added
+- Add AI to Complete feature copy. [#40577]
+
+### Changed
+- Remove purchase related elements when Complete is on site. [#40554]
+- Updated package dependencies. [#40564]
+
+### Fixed
+- Fixed lints following ESLint rule changes for TS. [#40584]
+- My Jetpack: fix animation flick on connection screen in My Jetpack. [#40533]
+
+## [5.1.1] - 2024-12-04
+### Changed
+- Updated package dependencies. [#40363]
+
+## [5.1.0] - 2024-12-02
+### Added
+- Add animation during site connection. [#40343]
+- Add "loading" animation to recommendations step. [#40405]
+
+### Changed
+- Fix usage of random() in animation to prevent build step from generating a different CSS file every time. [#40413]
+
+### Removed
+- Remove experiment code. [#40406]
+
+### Fixed
+- Fix My Jetpack recommendation card styling on mobile [#40370]
+
+## [5.0.4] - 2024-11-28
+### Added
+- Added "Expired" & "Expires soon" statuses to My Jetpack product cards. [#39816]
+
+### Changed
+- Social | Changed My Jetpack CTA for Social from "Learn more" to "Activate" [#40359]
+
+### Fixed
+- Fix stats not showing sale discount [#40348]
+
+## [5.0.3] - 2024-11-26
+### Changed
+- Update dependencies. [#38910]
+
+## [5.0.2] - 2024-11-25
+### Added
+- Add bundles to recommendations and add interstitials for them [#40281]
+- Add growth upsell to Stats and Social interstitials [#40236]
+
+### Changed
+- Notices: do not display the Jetpack Manage banners for accounts enrolled into our agency program. [#40251]
+- Remove creator card and update paid plan checks to account for growth [#40192]
+- Updated dependencies. [#40286]
+- Updated feature for stats in growth to 10K instead of 100K [#40312]
+- Updated package dependencies. [#40288]
+
+## [5.0.1] - 2024-11-18
+### Changed
+- Update dependencies. [#38910]
+
+## [5.0.0] - 2024-11-14
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## [4.37.0] - 2024-11-11
+### Added
+- My Jetpack: update the recommendations section in My Jetpack to include a slider interaction for the cards. [#39850]
+
+### Changed
+- Admin: Updating deprecation notices. [#39567]
+- Updated package dependencies. [#39999] [#40000] [#40060]
+
+## [4.36.0] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Changed
+- My Jetpack: Add experiment to the post-connection flow in My Jetpack. [#39902]
+- Skip pricing page when connecting via block editor. [#39865]
+
+### Removed
+- My Jetpack: Remove A/B test code in My Jetpack. [#39928]
+
+## [4.35.16] - 2024-10-29
+### Changed
+- Components: Add __nextHasNoMarginBottom to BaseControl-based components, preventing deprecation notices. [#39877]
+
+## [4.35.15] - 2024-10-17
+### Fixed
+- Fix the "Missing site connection" notice. [#39809]
+
+## [4.35.14] - 2024-10-15
+### Changed
+- Update dependencies. [#38910]
+
+## [4.35.13] - 2024-10-14
+### Changed
+- Only include `wp-polyfill` as a script dependency when needed. [#39629]
+
+## [4.35.12] - 2024-10-10
+### Changed
+- Update Boost's pricing table to include latest feature list. [#39130]
+- Updated package dependencies. [#39669] [#39707]
+
+### Fixed
+- Fixed My Jetpack recommendations VideoPress product card not showing Purchase and Learn more buttons. [#39612]
+
+## [4.35.11] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## [4.35.10] - 2024-10-02
+### Changed
+- Internal updates.
+
+## [4.35.9] - 2024-09-30
+### Changed
+- Fix parameters to allow for connectAfterCheckout flow from recommendation card [#39578]
+- My Jetpack Welcome Flow: Display default recommendations upfront first, then offer optional survey for customized recommendations. [#39485]
+
+### Fixed
+- Fixed a bug where the purchases and highlights APIs were being called without a valid Jetpack connection [#39522]
+- My Jetpack: visual update to make the GlobalNotice component look better on mobile. [#39537]
+
+## [4.35.8] - 2024-09-25
+### Changed
+- Update dependencies. [#38910]
+
+## [4.35.7] - 2024-09-23
+### Changed
+- Get active element from tooltip button's document rather than the global `document`. [#39364]
+- My Jetpack product interstitial: Don't show intro offer price if user is not eligible for the offer. [#39403]
+- Send non-connected users to a "connect after checkout" flow [#39444]
+
+### Fixed
+- Fix issue on interstitials show both buttons loading when only one is pressed [#39356]
+- Fix issue where recommendations are showing slightly before the welcome banner dismisses [#39383]
+
+## [4.35.6] - 2024-09-16
+### Added
+- Add new action myjetpack_enqueue_scripts [#39380]
+
+### Changed
+- My Jetpack: Always show the purchase link regardless of the number of plans owned. [#39299]
+- Updated package dependencies. [#39332]
+
+## [4.35.5] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [4.35.4] - 2024-09-09
+### Added
+- Jetpack AI: add fair usage policy link to the Jetpack AI product interstitial. [#39281]
+
+### Changed
+- Updated package dependencies. [#39278]
+
+### Fixed
+- Jetpack AI: fix default_content filter so it doesn't enforce parameter type [#39276]
+
+## [4.35.3] - 2024-09-06
+### Fixed
+- Optimize repeated requests for unavailable WPCOM. [#39218]
+
+## [4.35.2] - 2024-09-06
+### Changed
+- Internal updates.
+
+## [4.35.1] - 2024-09-05
+### Changed
+- Internal updates.
+
+## [4.35.0] - 2024-09-05
+### Added
+- My Jetpack: add support for feature-specific handling to product interstitials. [#38661]
+
+### Changed
+- Jetpack AI product page: add fair usage link on over quota notice [#39192]
+- Updated package dependencies. [#39176]
+
+### Fixed
+- Gracefully fail when user data fetch failed. [#39179]
+
+## [4.34.0] - 2024-09-02
+### Changed
+- My Jetpack: show over quota notice and period usage counter for unlimited plans [#39129]
+- We update Welcome Flow A/B experiment to test other things [#39154]
+
+### Fixed
+- My Jetpack: change Jetpack AI post checkout URL so the redirect works [#39166]
+
+## [4.33.1] - 2024-08-29
+### Changed
+- Admin menu: change order of Jetpack sub-menu items [#39095]
+- My Jetpack: reflect tier filters properly on product class and UI. Fix little nuances with date constructor [#39074]
+- Updated package dependencies. [#39111]
+
+### Fixed
+- Don't consider user lifecycle status when repeating evaluation [#39069]
+- My Jetpack: Fix the popover and active button of the Bboost card are overlapping [#39067]
+
+## [4.33.0] - 2024-08-26
+### Added
+- Add context switching to videopress card from yearly views to monthly views [#38979]
+
+### Changed
+- My Jetpack: AI product class to handle better disabling tiers [#38989]
+- Updated package dependencies. [#39004]
+
+### Fixed
+- allow user currency in My Jetpack pricing [#38977]
+- Fix tooltip title for videopress card [#39030]
+
+## [4.32.4] - 2024-08-21
+### Changed
+- Removed unnecessary WAF dependency in My Jetpack. [#38942]
+
+### Fixed
+- Notification bubbles: avoid PHP warning when information is missing. [#38963]
+- Revert recent SVG image optimizations. [#38981]
+
+## [4.32.3] - 2024-08-19
+### Added
+- Add stat trends for videopress card. [#38868]
+- Add tooltip to VideoPress card. [#38842]
+- Add value to active card state on VideoPress My Jetpack card. [#38812]
+
+### Changed
+- Updated package dependencies. [#38893]
+
+### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+- My Jetpack: ensure product screens redirect to the correct post-checkout URLs. [#38704]
+
+## [4.32.2] - 2024-08-15
+### Changed
+- Updated package dependencies. [#38665]
+
+### Fixed
+- fix empty hrefs causing page reload [#38845]
+
+## [4.32.1] - 2024-08-09
+### Added
+- Add value to the inactive state on the VideoPress card in My Jetpack [#38748]
+
+### Changed
+- Update uses of useConnection to useMyJetpackConnection and improve typing in a few places [#38721]
+
+### Removed
+- Tests: Removed react-test-renderer. [#38755]
+
+### Fixed
+- My Jetpack: fix a bug where a user would see and infinite loading spinner when trying to connect Jetpack with one click in the Welcome flow. [#38813]
+
+## [4.32.0] - 2024-08-05
+### Added
+- Add Tracks events for Welcome Flow [#38641]
+
+### Changed
+- change Jetpack AI product page link redirect [#38691]
+- copy updates [#38648]
+- Modify the Google Analytics notice to notify of the feature removal. [#38701]
+
+## [4.31.0] - 2024-08-01
+### Added
+- Update Welcome Banner and set async site-only connection [#38534]
+
+### Changed
+- Fixup versions [#38612]
+- My Jetpack: modify Jetpack AI product class and interstitial links [#38602]
+- React: Changing global JSX namespace to React.JSX [#38585]
+
+## [4.30.0] - 2024-07-29
+### Added
+- Async card update after async site connection [#38549]
+- My Jetpack: add A/A experiment to test for correct random assignment and prevent bias in metric performance. [#38327]
+- Show View button on product card along with upgrade cta [#38550]
+
+### Changed
+- Final minor enhancements to the Protect product card in My Jetpack. [#38420]
+
+### Removed
+- Remove functionality that hid 1 value on the backup card for mid-sized screens [#38441]
+
+### Fixed
+- Include Jetpack Legacy plans when checking if user has social included with plan [#38516]
+- Update all tracks to snake case, camel case is not supported [#38576]
+
+## [4.29.0] - 2024-07-22
+### Added
+- Added the auto-firewall status to the Protect product  card in My Jetpack. [#38332]
+- Added the number of logins blocked to the Protect card in My Jetpack. [#38396]
+
+### Changed
+- Connection Screen: Removed mention of Stats from the list of available free features. [#38328]
+- Display My Jetpack products segemented by ownership. [#38283]
+- My Jetpack: Updated social icons in the connection screen. [#38334]
+- Updated statuses to make more sense in relation to ownership. [#38390]
+
+## [4.28.0] - 2024-07-15
+### Added
+- Add scan/threat info to the Protect card in My Jetpack. [#38165]
+
+### Changed
+- Protect card: Add the Last scan time (with tooltip) based on product state. [#38091]
+- Updated package dependencies. [#38091]
+
+### Fixed
+- Fix Learn More link destination when the site was never connected. [#38225]
+
+## [4.27.2] - 2024-07-10
+### Fixed
+- Social: Fixed plan slug [#38222]
+
+## [4.27.1] - 2024-07-03
+### Changed
+- Updated package dependencies. [#38132]
+
+## [4.27.0] - 2024-07-01
+### Added
+- Add the Google Analytics deprecation notice. [#38078]
+
+### Changed
+- Reduce amount of historically active modules updates by only triggering on activation of plugin is a jetpack plugin [#38065]
+
+### Fixed
+- Fix an issue where the connection error hook was always resetting the notice [#38120]
+
+## [4.26.0] - 2024-06-27
+### Changed
+- Jetpack AI: Add Title Optimization section on the product page. [#38072]
+
+## [4.25.4] - 2024-06-26
+### Fixed
+- Move historically active modules sync to admin_init [#38041]
+
+## [4.25.3] - 2024-06-24
+### Added
+- Add more default args for tracks events [#37974]
+
+## [4.25.2] - 2024-06-21
+### Fixed
+- Remove the need for api requests in broken modules check [#37908]
+
+## [4.25.1] - 2024-06-17
+### Fixed
+- Remove check for broken modules from red bubble connection check [#37911]
+
+## [4.25.0] - 2024-06-17
+### Changed
+- Show tooltip on card hover instead of letter hover [#37858]
+- Update connection footer to conditionally render warnings or errors [#37802]
+- Update connection status card tests to TS [#37829]
+
+## [4.24.7] - 2024-06-13
+### Changed
+- Updated package dependencies. [#37796]
+
+## [4.24.6] - 2024-06-11
+### Changed
+- Conditionally show connection banner as error or info [#37707]
+- Updated package dependencies. [#37779]
+
+## [4.24.5] - 2024-06-10
+### Changed
+- Change codebase to use clsx instead of classnames. [#37708]
+
+## [4.24.4] - 2024-06-10
+### Added
+- Add mechanism to track previously working plugins [#37537]
+
+### Changed
+- Move PRODUCT_STATUSES to constants file [#37748]
+- Send user to siteless pricing page if site is not connected [#37667]
+
+## [4.24.3] - 2024-06-05
+### Changed
+- Updated package dependencies. [#37669]
+
+## [4.24.2] - 2024-06-03
+### Changed
+- Update ToS wording. [#37536]
+- Update CTA on A4A banner in My Jetpack. [#37628]
+
+## [4.24.1] - 2024-05-24
+### Changed
+- Update Search to require user connection. [#37496]
+
+## [4.24.0] - 2024-05-23
+### Changed
+- Improve the active/inactive statuses on My Jetpack. [#37217]
+
+## [4.23.3] - 2024-05-20
+### Added
+- Add tracks events for dropdown on action buttons. [#37292]
+
+### Changed
+- Updated package dependencies. [#37379] [#37380] [#37382]
+
 ## [4.23.2] - 2024-05-09
 ### Changed
 - My Jetpack Agency banner copy change. [#37248]
@@ -471,8 +939,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.4.3] - 2023-09-04
 ### Changed
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
+- Updated package dependencies. [#32803] [#32804]
 
 ## [3.4.2] - 2023-08-23
 ### Changed
@@ -528,8 +995,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - My Jetpack: changed Stats features wording [#32046]
-- Updated package dependencies. [#31999]
-- Updated package dependencies. [#32040]
+- Updated package dependencies. [#31999] [#32040]
 
 ### Fixed
 - Make Jetpack logo in footer smaller [#31627]
@@ -1471,6 +1937,70 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.4.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.4.0...5.4.1
+[5.4.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.3.3...5.4.0
+[5.3.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.3.2...5.3.3
+[5.3.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.3.1...5.3.2
+[5.3.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.3.0...5.3.1
+[5.3.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.2.0...5.3.0
+[5.2.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.1.2...5.2.0
+[5.1.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.1.1...5.1.2
+[5.1.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.1.0...5.1.1
+[5.1.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.0.4...5.1.0
+[5.0.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.0.3...5.0.4
+[5.0.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.0.2...5.0.3
+[5.0.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.0.1...5.0.2
+[5.0.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.0.0...5.0.1
+[5.0.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.37.0...5.0.0
+[4.37.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.36.0...4.37.0
+[4.36.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.16...4.36.0
+[4.35.16]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.15...4.35.16
+[4.35.15]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.14...4.35.15
+[4.35.14]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.13...4.35.14
+[4.35.13]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.12...4.35.13
+[4.35.12]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.11...4.35.12
+[4.35.11]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.10...4.35.11
+[4.35.10]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.9...4.35.10
+[4.35.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.8...4.35.9
+[4.35.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.7...4.35.8
+[4.35.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.6...4.35.7
+[4.35.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.5...4.35.6
+[4.35.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.4...4.35.5
+[4.35.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.3...4.35.4
+[4.35.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.2...4.35.3
+[4.35.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.1...4.35.2
+[4.35.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.0...4.35.1
+[4.35.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.34.0...4.35.0
+[4.34.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.33.1...4.34.0
+[4.33.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.33.0...4.33.1
+[4.33.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.32.4...4.33.0
+[4.32.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.32.3...4.32.4
+[4.32.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.32.2...4.32.3
+[4.32.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.32.1...4.32.2
+[4.32.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.32.0...4.32.1
+[4.32.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.31.0...4.32.0
+[4.31.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.30.0...4.31.0
+[4.30.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.29.0...4.30.0
+[4.29.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.28.0...4.29.0
+[4.28.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.27.2...4.28.0
+[4.27.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.27.1...4.27.2
+[4.27.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.27.0...4.27.1
+[4.27.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.26.0...4.27.0
+[4.26.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.4...4.26.0
+[4.25.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.3...4.25.4
+[4.25.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.2...4.25.3
+[4.25.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.1...4.25.2
+[4.25.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.0...4.25.1
+[4.25.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.7...4.25.0
+[4.24.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.6...4.24.7
+[4.24.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.5...4.24.6
+[4.24.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.4...4.24.5
+[4.24.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.3...4.24.4
+[4.24.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.2...4.24.3
+[4.24.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.1...4.24.2
+[4.24.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.0...4.24.1
+[4.24.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.23.3...4.24.0
+[4.23.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.23.2...4.23.3
 [4.23.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.23.1...4.23.2
 [4.23.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.23.0...4.23.1
 [4.23.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.22.3...4.23.0

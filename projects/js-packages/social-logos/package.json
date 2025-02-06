@@ -1,0 +1,53 @@
+{
+	"name": "social-logos",
+	"version": "3.1.17",
+	"description": "A repository of all the social logos used on WordPress.com.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/social-logos/",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Social Logos"
+	},
+	"main": "build/react/index.js",
+	"types": "build/react/index.d.ts",
+	"exports": {
+		".": {
+			"jetpack:src": "./src/react/index.ts",
+			"default": "./build/react/index.js"
+		},
+		"./svg-sprite/*": {
+			"default": "./build/svg-sprite/social-logos.svg"
+		},
+		"./font/*": {
+			"default": "./build/font/*"
+		}
+	},
+	"peerDependencies": {
+		"react": "^18.0.0",
+		"react-dom": "^18.0.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/social-logos"
+	},
+	"license": "GPL-2.0+",
+	"dependencies": {
+		"prop-types": "^15.8.1",
+		"react": "18.3.1",
+		"react-dom": "18.3.1"
+	},
+	"devDependencies": {
+		"@types/react": "18.3.18",
+		"@types/react-dom": "18.3.5",
+		"glob": "11.0.0",
+		"svg2ttf": "^6.0.3",
+		"svgicons2svgfont": "^15.0.0",
+		"svgo": "^3.3.2",
+		"svgstore": "^3.0.1",
+		"typescript": "5.0.4",
+		"wawoff2": "^2.0.1",
+		"xml2js": "^0.6.2"
+	},
+	"scripts": {
+		"build": "./tools/build"
+	}
+}

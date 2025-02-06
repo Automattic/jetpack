@@ -1,0 +1,29 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "id" },
+			"Remove premium styles": [ "Hapus gaya premium" ],
+			"Change all of your site's fonts, colors and more. Available on the %s plan.": [
+				"Ubah semua font, warna, dan hal lainnya di situs Anda. Tersedia pada paket %s."
+			],
+			"Your site includes premium styles that are only visible to visitors after upgrading to the %s plan or higher.": [
+				"Situs Anda dilengkapi gaya premium yang hanya akan ditampilkan ke pengunjung setelah upgrade ke paket %s atau yang lebih tinggi."
+			],
+			"Your site includes premium styles that are only visible to visitors after <a>upgrading to the %s plan or higher</a>.": [
+				"Situs Anda dilengkapi gaya premium yang hanya akan ditampilkan ke pengunjung setelah <a>upgrade ke paket %s atau yang lebih tinggi</a>."
+			],
+			"Generating preview\u2026": [ "Menyiapkan pratinjau\u2026" ],
+			"Preview without premium styles": [ "Pratinjau tanpa gaya premium" ],
+			"Upgrade now": [ "Upgrade sekarang" ],
+			"Upgrade plan": [ "Upgrade paket" ],
+			"Try it out": [ "Cobalah" ],
+			"A powerful new way to style your site": [
+				"Cara baru yang andal untuk memberi sentuhan gaya pada situs Anda"
+			]
+		}
+	},
+	"comment": { "reference": "wpcom-global-styles/dist/wpcom-global-styles.js" }
+}

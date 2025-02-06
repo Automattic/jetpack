@@ -1,5 +1,5 @@
 import { IconTooltip, Spinner } from '@automattic/jetpack-components';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import styles from './hero.module.scss';
 import ImageCdnRecommendation from '$features/image-size-analysis/image-cdn-recommendation/image-cdn-recommendation';
@@ -60,7 +60,7 @@ const Hero = ( {
 	return (
 		<>
 			{ group && group.total_pages > 0 ? (
-				<div className={ classNames( styles.hero, styles[ 'fade-in' ] ) }>
+				<div className={ clsx( styles.hero, styles[ 'fade-in' ] ) }>
 					{ isUpdateInProgress ? (
 						<UpdateInProgress lastUpdated={ isaLastUpdated } />
 					) : (

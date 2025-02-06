@@ -20,7 +20,7 @@ export type UseTranscriptionInserterReturn = {
 /**
  * Hook to handle the insertion of the transcription into the editor.
  *
- * @returns {UseTranscriptionInserterReturn} - Object with function to handle transcription upserting.
+ * @return {UseTranscriptionInserterReturn} - Object with function to handle transcription upserting.
  */
 export default function useTranscriptionInserter(): UseTranscriptionInserterReturn {
 	const { updateBlockAttributes, insertBlocks, replaceInnerBlocks } =

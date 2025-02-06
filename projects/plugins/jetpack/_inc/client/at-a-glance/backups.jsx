@@ -4,6 +4,10 @@ import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon, backup } from '@wordpress/icons';
+import { get, noop } from 'lodash';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
@@ -15,11 +19,7 @@ import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_SITE_BACKUPS_JETPACK,
 } from 'lib/plans/constants';
-import { get, noop } from 'lodash';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import {
 	getBackupUndoEvent,
 	hasLoadedBackupUndoEvent,
@@ -36,8 +36,8 @@ import BackupUpgrade from './backup-upgrade';
 /**
  * Displays a card for Backups based on the props given.
  *
- * @param   {object} props - Settings to render the card.
- * @returns {object}       Backups card
+ * @param {object} props - Settings to render the card.
+ * @return {object}       Backups card
  */
 const renderCard = props => (
 	<DashItem

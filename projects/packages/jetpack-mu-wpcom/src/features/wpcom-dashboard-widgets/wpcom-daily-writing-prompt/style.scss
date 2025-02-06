@@ -1,0 +1,48 @@
+.wpcom-daily-writing-prompt--prompt {
+	background-color: #f0f0f1;
+	padding: 1px 16px;
+	border-radius: 4px;
+	margin: 1em 0;
+
+	button.button-link {
+		line-height: inherit;
+		min-height: auto;
+		// Override mobile styles.
+		padding: 0;
+    	margin: 0;
+
+		&[disabled] {
+			background-color: transparent !important;
+		}
+	}
+}
+
+.wpcom-daily-writing-prompt--previous-next {
+	display: flex;
+	justify-content: flex-end;
+	margin: 1em 0;
+}
+
+.wpcom-daily-writing-prompt--action-row {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	gap: 10px;
+
+	img {
+		vertical-align: middle;
+		border-radius: 100%;
+		border: 2px solid #fff;
+		margin-left: -10px;
+	}
+
+	img:first-child {
+		margin-left: 0;
+	}
+
+	.wpcom-daily-writing-prompt--previous-next {
+		display: flex;
+		flex-direction: row;
+		gap: 5px;
+	}
+}

@@ -9,7 +9,7 @@
 namespace Automattic\JetpackCRM;
 
 // block direct access
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 #} the WooCommerce API
 use Automattic\WooCommerce\Client;
@@ -450,16 +450,6 @@ class Woo_Sync {
 			}
 
 		}
-
-	}
-
-
-	/**
-	 * Include WooCommerce REST API (well, in fact, autoload /vendor)
-	 */
-	public function include_woocommerce_rest_api(){
-
-		require_once ZEROBSCRM_PATH .  'vendor/autoload.php';
 
 	}
 
@@ -1495,7 +1485,7 @@ class Woo_Sync {
 		$log[] = 'fini';
 		//update_option('wlogtemp', $log, false);
 
-		exit();
+		exit( 0 );
 
 
 	}
@@ -1555,7 +1545,11 @@ class Woo_Sync {
 
 		if (
 			! empty( $settings[ $woo_order_status_mapping[ $order_status ] ] )
-			&& $zbs->DAL->is_valid_obj_status( $obj_type_id, $settings[ $woo_order_status_mapping[ $order_status ] ] ) // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			&& 
+			( 
+				$zbs->DAL->is_valid_obj_status( $obj_type_id, $settings[ $woo_order_status_mapping[ $order_status ] ] ) // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				|| $settings[ $woo_order_status_mapping[ $order_status ] ] === JPCRM_WOOSYNC_DO_NOT_CREATE['id'] // Our 'Do not create' status is also a valid one.
+			)
 		) {
 			// there's a valid mapping in settings, so use that
 			return $settings[ $woo_order_status_mapping[ $order_status ] ];
@@ -2118,9 +2112,6 @@ class Woo_Sync {
 		// got creds?
 		if ( !empty( $key ) && !empty( $secret ) && !empty( $domain ) ){
 
-			// include the rest API files
-			$this->include_woocommerce_rest_api();
-
 			return new Client(
 				$domain, 
 				$key, 
@@ -2235,7 +2226,7 @@ class Woo_Sync {
 				$new_sync_site = $this->add_sync_site( $data );
 
 			    // verify
-			    if ( is_array( $new_sync_site ) && !empty( $new_sync_site['site_key'] ) && $this->get_active_sync_site( $new_sync_site['site_key'], true ) ){
+			    if ( is_array( $new_sync_site ) && !empty( $new_sync_site['site_key'] ) && $this->get_active_sync_site( $new_sync_site['site_key'] ) ){
 
 			    	// backup and remove old settings
 			    	update_option( 'jpcrm_woosync_52_mig_backup', $settings, false );

@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 import { connect } from 'react-redux';
 
@@ -6,7 +6,7 @@ export class LoadingPlaceholder extends React.Component {
 	static displayName = 'LoadingPlaceholder';
 
 	render() {
-		const classes = classNames( this.props.className, 'jp-loading-placeholder' );
+		const classes = clsx( this.props.className, 'jp-loading-placeholder' );
 
 		return (
 			<div className={ classes }>

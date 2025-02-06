@@ -22,10 +22,10 @@ const blockEditorDirectories = [ 'plugins', 'blocks' ];
 /**
  * Filters block editor scripts
  *
- * @param {string} type - script type
- * @param {string} inputDir - input directory
- * @param {Array} presetBlocks - preset blocks
- * @returns {Array} list of block scripts
+ * @param {string} type         - script type
+ * @param {string} inputDir     - input directory
+ * @param {Array}  presetBlocks - preset blocks
+ * @return {Array} list of block scripts
  */
 function presetProductionExtensions( type, inputDir, presetBlocks ) {
 	return presetBlocks
@@ -111,7 +111,30 @@ const sharedWebpackConfig = {
 	node: {},
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
-			DependencyExtractionPlugin: { injectPolyfill: true },
+			MiniCssExtractPlugin: {
+				// This is a bit of a hack to handle simple cases of `import( './file.css' )` in block editor scripts.
+				// If we're ever able to get rid of the monolithic editor.js files, this should go away in favor
+				// of doing the `import()` from inside the `script` (not `editorScript` or `viewScript`).
+				insert: linkTag => {
+					// Insert at the top level, in the way minicss does normally.
+					/* global oldTag */
+					if ( oldTag ) {
+						oldTag.parentNode.insertBefore( linkTag, oldTag.nextSibling );
+					} else {
+						document.head.appendChild( linkTag );
+					}
+
+					// Also insert into any editor-canvas iframes.
+					for ( const iframe of document.querySelectorAll( 'iframe[name=editor-canvas]' ) ) {
+						try {
+							const iframeDoc = iframe.contentDocument;
+							iframeDoc.head.appendChild( iframeDoc.importNode( linkTag ) );
+						} catch {
+							// Browser won't allow access. Never mind.
+						}
+					}
+				},
+			},
 		} ),
 	],
 	externals: {
@@ -200,12 +223,7 @@ module.exports = [
 						noErrorOnMissing: true,
 						// Automatically link scripts and styles
 						transform( content ) {
-							let metadata = {};
-
-							try {
-								metadata = JSON.parse( content.toString() );
-							} catch ( e ) {}
-
+							const metadata = JSON.parse( content.toString() );
 							const name = metadata.name.replace( 'jetpack/', '' );
 
 							if ( ! name ) {

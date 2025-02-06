@@ -59,6 +59,35 @@ const i18nFilterFunction = file => {
 	return i < 14 || file.startsWith( '@automattic/', i );
 };
 
+const getUniqueName = () => {
+	let dir = process.cwd(),
+		olddir;
+	do {
+		const file = path.join( dir, 'package.json' );
+		if ( fs.existsSync( file ) ) {
+			const cfg = JSON.parse( fs.readFileSync( file, { encoding: 'utf8' } ) );
+			if ( cfg.name ) {
+				return cfg.name;
+			}
+		}
+
+		const file2 = path.join( dir, 'composer.json' );
+		if ( fs.existsSync( file2 ) ) {
+			const cfg = JSON.parse( fs.readFileSync( file2, { encoding: 'utf8' } ) );
+			if ( cfg.name ) {
+				// Prepend an '@' to make it look more like a JS package name.
+				return '@' + cfg.name;
+			}
+			break;
+		}
+
+		olddir = dir;
+		dir = path.dirname( dir );
+	} while ( dir !== olddir );
+
+	throw new Error( 'Cannot determine unique name' );
+};
+
 /****** Options ******/
 
 // See README.md for explanations of all these settings.
@@ -70,6 +99,7 @@ const devtool = isProduction ? false : 'source-map';
 const output = {
 	filename: '[name].js',
 	chunkFilename: '[name].js?minify=false&ver=[contenthash]',
+	uniqueName: getUniqueName(),
 };
 const optimization = {
 	minimize: isProduction,
@@ -105,7 +135,36 @@ const DefinePlugin = defines => [
 	} ),
 ];
 
-const DependencyExtractionPlugin = options => [ new DependencyExtractionWebpackPlugin( options ) ];
+const defaultRequestMap = {
+	'@automattic/jetpack-script-data': {
+		external: 'JetpackScriptDataModule',
+		handle: 'jetpack-script-data',
+	},
+	'@automattic/jetpack-connection': {
+		external: 'JetpackConnection',
+		handle: 'jetpack-connection',
+	},
+};
+
+const DependencyExtractionPlugin = ( { requestMap, ...options } = {} ) => {
+	const finalRequestMap = { ...defaultRequestMap, ...requestMap };
+
+	const requestToExternal = request => {
+		return finalRequestMap[ request ]?.external;
+	};
+
+	const requestToHandle = request => {
+		return finalRequestMap[ request ]?.handle;
+	};
+
+	return [
+		new DependencyExtractionWebpackPlugin( {
+			requestToExternal,
+			requestToHandle,
+			...options,
+		} ),
+	];
+};
 
 const DuplicatePackageCheckerPlugin = options => [
 	new DuplicatePackageCheckerWebpackPlugin( options ),
@@ -128,9 +187,26 @@ const ForkTSCheckerPlugin = options => [
 
 const I18nCheckPlugin = options => {
 	const opts = { filter: i18nFilterFunction, ...options };
+
+	// Default text domain.
 	if ( typeof opts.expectDomain === 'undefined' ) {
 		opts.expectDomain = loadTextDomainFromComposerJson();
 	}
+
+	// Default Babel options for extractor.
+	if ( typeof opts.extractorOptions?.babelOptions === 'undefined' ) {
+		const babelOptions = { babelrc: false };
+		const configFile = path.resolve( 'babel.config.js' );
+		if ( fs.existsSync( configFile ) ) {
+			babelOptions.configFile = configFile;
+		} else {
+			babelOptions.presets = [ require.resolve( './babel-preset.js' ) ];
+		}
+
+		opts.extractorOptions ??= {};
+		opts.extractorOptions.babelOptions = babelOptions;
+	}
+
 	return [ new I18nCheckWebpackPlugin( opts ) ];
 };
 I18nCheckPlugin.defaultFilter = i18nFilterFunction;

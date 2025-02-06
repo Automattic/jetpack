@@ -1,9 +1,7 @@
-/* eslint-disable react/react-in-jsx-scope */
-
 import React from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import ConnectedProductCard from '../';
-import { PRODUCT_STATUSES } from '../../product-card';
+import { PRODUCT_STATUSES } from '../../../../constants';
 import { getAllMockData, getProductSlugs } from '../../product-detail-card/stories/utils.js';
 
 // Set myJetpackRest global var.

@@ -1,6 +1,7 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import React from 'react';
 import Card from 'components/card';
 import { FormFieldset, FormLabel } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -8,13 +9,12 @@ import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
-import React from 'react';
 
 class RelatedPostsComponent extends React.Component {
 	/**
 	 * Get options for initial state.
 	 *
-	 * @returns {{show_headline: boolean, show_thumbnails: boolean}} Initial state object.
+	 * @return {{show_headline: boolean, show_thumbnails: boolean}} Initial state object.
 	 */
 	state = {
 		show_headline: this.props.getOptionValue( 'show_headline', 'related-posts' ),
@@ -144,7 +144,11 @@ class RelatedPostsComponent extends React.Component {
 							}
 							toggling={ this.props.isSavingAnyOption( [ 'show_headline' ] ) }
 							onChange={ this.handleShowHeadlineToggleChange }
-							label={ __( 'Highlight related content with a heading', 'jetpack' ) }
+							label={
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Highlight related content with a heading', 'jetpack' ) }
+								</span>
+							}
 						/>
 						<ToggleControl
 							checked={ this.props.getOptionValue( 'show_thumbnails', 'related-posts' ) }
@@ -155,7 +159,11 @@ class RelatedPostsComponent extends React.Component {
 							}
 							toggling={ this.props.isSavingAnyOption( [ 'show_thumbnails' ] ) }
 							onChange={ this.handleShowThumbnailsToggleChange }
-							label={ __( 'Show a thumbnail image where available', 'jetpack' ) }
+							label={
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Show a thumbnail image where available', 'jetpack' ) }
+								</span>
+							}
 						/>
 						{ isRelatedPostsActive && (
 							<div>

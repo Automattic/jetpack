@@ -10,7 +10,7 @@ const STATE_SUCCESS = 'success';
 /**
  * Report a status check to GitHub.
  *
- * @param {string} state - One of the `STATE_*` constants.
+ * @param {string} state       - One of the `STATE_*` constants.
  * @param {string} description - Description for the status.
  */
 async function status( state, description ) {

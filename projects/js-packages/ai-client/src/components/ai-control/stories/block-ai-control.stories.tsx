@@ -50,7 +50,12 @@ export default {
 			mapping: {
 				None: null,
 				'Guideline message': <GuidelineMessage />,
-				'Error message': <ErrorMessage onTryAgainClick={ action( 'onTryAgainClick' ) } />,
+				'Error message': (
+					<ErrorMessage
+						onTryAgainClick={ action( 'onTryAgainClick' ) }
+						onUpgradeClick={ action( 'onUpgradeClick' ) }
+					/>
+				),
 				'Upgrade message': (
 					<UpgradeMessage requestsRemaining={ 10 } onUpgradeClick={ action( 'onUpgradeClick' ) } />
 				),

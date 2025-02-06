@@ -5,7 +5,6 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.1.0",
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"scripts": {
@@ -19,13 +18,11 @@
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
 		],
+		"test-coverage": [
+			"pnpm run test-coverage"
+		],
 		"test-js": [
 			"pnpm run test"
-		]
-	},
-	"autoload": {
-		"classmap": [
-			"src/"
 		]
 	},
 	"repositories": [
@@ -42,6 +39,7 @@
 	"extra": {
 		"npmjs-autopublish": true,
 		"mirror-repo": "Automattic/jetpack-boost-score-api",
+		"textdomain": "boost-score-api",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-boost-score-api/compare/v${old}...v${new}"
 		},

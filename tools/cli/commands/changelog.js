@@ -5,6 +5,7 @@ import process from 'process';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import enquirer from 'enquirer';
+import { getDependencies, filterDeps } from '../helpers/dependencyAnalysis.js';
 import { readComposerJson } from '../helpers/json.js';
 import { normalizeProject } from '../helpers/normalizeArgv.js';
 import { projectTypes, allProjects } from '../helpers/projectHelpers.js';
@@ -18,7 +19,7 @@ let changeloggerPath = null;
  * Comand definition for changelog subcommand.
  *
  * @param {yargs} yargs - The Yargs dependency.
- * @returns {object} Yargs with the changelog commands defined.
+ * @return {object} Yargs with the changelog commands defined.
  */
 export function changelogDefine( yargs ) {
 	// Main Changelog command
@@ -70,6 +71,16 @@ export function changelogDefine( yargs ) {
 								alias: 'c',
 								describe: 'Changelog comment',
 								type: 'string',
+							} )
+							.option( 'check-indirect-plugins', {
+								describe:
+									'Always ask whether affected plugins without direct changes should have change entries added.',
+								type: 'boolean',
+							} )
+							.option( 'no-check-indirect-plugins', {
+								describe:
+									'Never ask whether affected plugins without direct changes should have change entries added.',
+								type: 'boolean',
 							} );
 					},
 					async argv => {
@@ -269,7 +280,7 @@ async function changelogCommand( argv ) {
  * Checks if any projects have special changelog type configurations.
  *
  * @param {Array} needChangelog - files that need a changelog.
- * @returns {object} - Object containing types associated with each project.
+ * @return {object} - Object containing types associated with each project.
  */
 async function getProjectChangeTypes( needChangelog ) {
 	const types = {};
@@ -300,7 +311,111 @@ async function changelogAdd( argv ) {
 		return;
 	}
 
-	let needChangelog;
+	let changelogInfo,
+		needChangelog = [];
+
+	if ( argv.project ) {
+		needChangelog = [ argv.project ];
+		argv.checkIndirectPlugins = false;
+	}
+
+	// If we weren't passed a project, check if any projects need changelogs.
+	if ( argv._[ 1 ] === 'add' && ! argv.project ) {
+		changelogInfo = await checkChangelogFiles();
+		needChangelog = changelogInfo.need;
+	}
+	if ( needChangelog.length === 0 ) {
+		console.log(
+			chalk.green(
+				// prettier-ignore
+				`Did not detect a touched project that still needs a changelog. You can still add a changelog manually by running \`${ chalk.cyan( 'jetpack changelog add <type/project>' ) }\``
+			)
+		);
+	} else if ( ! ( await doAddChangelogs( argv, needChangelog, changelogInfo?.files ) ) ) {
+		return;
+	}
+
+	if ( argv.checkIndirectPlugins ?? needChangelog.length > 0 ) {
+		changelogInfo ??= await checkChangelogFiles();
+		await addIndirectPlugins(
+			argv,
+			argv.checkIndirectPlugins ? changelogInfo.touched : needChangelog,
+			changelogInfo.files
+		);
+	}
+}
+
+/**
+ * Run the changelog add wizard, which checks if multiple projects need changelogs.
+ *
+ * @param {argv}                 argv           - the arguments passed.
+ * @param {string[]}             directProjects - Directly-affected projects.
+ * @param {Map<string,string[]>} changelogFiles - Detected change entry files.
+ */
+async function addIndirectPlugins( argv, directProjects, changelogFiles ) {
+	const indirectPlugins = [];
+
+	const deps = filterDeps( await getDependencies( process.cwd(), 'build', true ), directProjects, {
+		dependents: true,
+	} );
+	projloop: for ( const proj of deps.keys() ) {
+		if ( ! proj.startsWith( 'plugins/' ) ) {
+			continue;
+		}
+
+		// If it has a changelog file other than "Updated composer.lock" or "Updated dependencies", skip it.
+		// Either it's directly affected or we added an entry in a previous run.
+		if ( changelogFiles.has( proj ) ) {
+			for ( const file of changelogFiles.get( proj ) ) {
+				const contents = fs.readFileSync( file, 'utf-8' );
+				if (
+					! contents.match( /^Comment: Updated composer\.lock\.$/m ) ||
+					contents.match( /\r?\n\r?\n(?!Updated package dependencies\.[\r\n]*$)\s*\S/ )
+				) {
+					continue projloop;
+				}
+			}
+		}
+
+		indirectPlugins.push( proj );
+	}
+
+	if ( indirectPlugins.length > 0 ) {
+		console.log( '' );
+		console.log(
+			chalk.bold( 'The following plugins are indirectly affected by this commit:' ),
+			indirectPlugins.join( ' ' )
+		);
+		const userFacingResponse = await enquirer.prompt( {
+			type: 'confirm',
+			name: 'userFacing',
+			message:
+				'Is this change something an end user or site administrator of a site using any of those plugins would like to know about?',
+			initial: true,
+		} );
+		if ( userFacingResponse.userFacing ) {
+			argv.project = undefined; // so doAddChangelogs doesn't assume separate changelogs.
+			await doAddChangelogs( argv, indirectPlugins, changelogFiles );
+		} else {
+			console.log(
+				chalk.green(
+					// prettier-ignore
+					`If you change your mind, run \`${ chalk.cyan( 'jetpack changelog add --check-indirect-plugins' ) }\` to ask again.`
+				)
+			);
+		}
+	}
+}
+
+/**
+ * Do the prompting for a set of projects.
+ *
+ * @param {object}                         argv           - Args.
+ * @param {string[]}                       needChangelog  - Projects needing a changelog entry.
+ * @param {Map<string,string[]>|undefined} changelogFiles - If defined, record added files into this map.
+ * @return {boolean} Whether changelogs were successfully added.
+ */
+async function doAddChangelogs( argv, needChangelog, changelogFiles ) {
 	const defaultProjects = [];
 	const uniqueProjects = [];
 	const defaultTypes = {
@@ -311,23 +426,6 @@ async function changelogAdd( argv ) {
 		removed: 'Removed existing functionality.',
 		fixed: 'Fixed a bug.',
 	};
-
-	if ( argv.project ) {
-		needChangelog = [ argv.project ];
-	}
-
-	// If we weren't passed a project, check if any projects need changelogs.
-	if ( argv._[ 1 ] === 'add' && ! argv.project ) {
-		needChangelog = await checkChangelogFiles();
-		if ( needChangelog.length === 0 ) {
-			console.log(
-				chalk.green(
-					'Did not detect a touched project that still needs a changelog. You can still add a changelog manually by running `jetpack changelog add <type/project>'
-				)
-			);
-			return;
-		}
-	}
 
 	const projectChangeTypes = await getProjectChangeTypes( needChangelog );
 
@@ -344,11 +442,11 @@ async function changelogAdd( argv ) {
 	// Confirm what projects we're adding a changelog to, and how we want to add them.
 	const promptConfirm = argv.project
 		? { separateChangelogFiles: true }
-		: await changelogAddPrompt( argv, defaultProjects, uniqueProjects );
+		: await changelogAddPrompt( defaultProjects, uniqueProjects );
 
 	if ( ! promptConfirm ) {
 		console.log( 'Changelog command cancelled' );
-		return;
+		return false;
 	}
 
 	if ( promptConfirm.separateChangelogFiles ) {
@@ -367,6 +465,14 @@ async function changelogAdd( argv ) {
 		for ( const proj of defaultProjects ) {
 			argv = await formatAutoArgs( proj, argv, response );
 			await changelogArgs( argv );
+			if ( changelogFiles ) {
+				if ( ! changelogFiles.has( proj ) ) {
+					changelogFiles.set( proj, [] );
+				}
+				changelogFiles
+					.get( proj )
+					.push( `projects/${ proj }/changelog/${ response.changelogName }` );
+			}
 		}
 	}
 
@@ -375,18 +481,24 @@ async function changelogAdd( argv ) {
 		const response = await promptChangelog( argv, [ proj ], projectChangeTypes[ proj ] );
 		argv = await formatAutoArgs( proj, argv, response );
 		await changelogArgs( argv );
+		if ( changelogFiles ) {
+			if ( ! changelogFiles.has( proj ) ) {
+				changelogFiles.set( proj, [] );
+			}
+			changelogFiles.get( proj ).push( `projects/${ proj }/changelog/${ response.changelogName }` );
+		}
 	}
 
-	return;
+	return true;
 }
 
 /**
  * If we're auto-adding to multiple projects, format argv the way changelogger likes.
  *
- * @param {string} proj - project we're running changelog for.
- * @param {object} argv - argv values.
+ * @param {string} proj     - project we're running changelog for.
+ * @param {object} argv     - argv values.
  * @param {object} response - changelog command response.
- * @returns {object} argv - returns argv.
+ * @return {object} argv - returns argv.
  */
 async function formatAutoArgs( proj, argv, response ) {
 	argv.pass = [];
@@ -411,10 +523,15 @@ async function changelogArgs( argv ) {
 	argv = await validateProject( argv );
 	argv.success = `Command '${ argv.cmd || argv._[ 1 ] }' for ${
 		argv.project
-	} completed succesfully!`;
+	} completed successfully!`;
 	argv.error = `Command '${ argv.cmd || argv._[ 1 ] }' for ${ argv.project } has failed! See error`;
 	argv.args = [ argv.cmd || argv._[ 1 ], ...process.argv.slice( 4 ) ];
-	const removeArg = [ argv.project, ...projectTypes ];
+	const removeArg = [
+		argv.project,
+		...projectTypes,
+		'--check-indirect-plugins',
+		'--no-check-indirect-plugins',
+	];
 	let file;
 
 	if ( argv.auto ) {
@@ -486,9 +603,9 @@ async function changeloggerSquash( argv, file ) {
 /**
  * Remove project from arguments list we pass to the changelogger.
  *
- * @param {object} argv - arguments passed as cli.
- * @param {Array} removeArg - the array of projects we want to remove.
- * @returns {argv} - the arguemnts.
+ * @param {object} argv      - arguments passed as cli.
+ * @param {Array}  removeArg - the array of projects we want to remove.
+ * @return {argv} - the arguemnts.
  */
 async function removeArgs( argv, removeArg ) {
 	for ( const proj of removeArg ) {
@@ -565,7 +682,10 @@ async function gitAdd( argv ) {
 /**
  * Checks if changelog files are required.
  *
- * @returns {Array} matchedProjects - projects that need a changelog.
+ * @return {object} as follows:
+ * - {string[]}             touched - Touched projects.
+ * - {Map<string,string[]>} files   - Change files by project.
+ * - {string[]}             need    - Projects needing changelogs.
  */
 async function checkChangelogFiles() {
 	console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
@@ -576,12 +696,17 @@ async function checkChangelogFiles() {
 	const branchReg = /\/branch-/; // match example: jetpack/branch-1.2.3
 	if ( currentBranch.match( branchReg ) ) {
 		console.log( chalk.green( 'Release branch detected. No changelog required.' ) );
-		return [];
+		return {
+			touched: [],
+			files: new Map(),
+			need: [],
+		};
 	}
 
-	const re = /^projects\/([^/]+\/[^/]+)\//; // regex matches project file path, ie 'project/packages/connection/..'
-	const modifiedProjects = new Set();
-	const changelogsAdded = new Set();
+	const re1 = /^projects\/([^/]+\/[^/]+)\//; // regex matches project file path, ie 'project/packages/connection/..'
+	const re2 = /^projects\/([^/]+\/[^/]+)\/changelog\/[^.]/; // regex matches project changelog dir path, ie 'project/packages/connection/changelog/..'
+	const touchedProjects = new Set();
+	const changelogFiles = new Map();
 	let touchedFiles = child_process.spawnSync( 'git', [
 		'-c',
 		'core.quotepath=off',
@@ -593,31 +718,37 @@ async function checkChangelogFiles() {
 	] );
 	touchedFiles = touchedFiles.stdout.toString().trim().split( '\n' );
 
-	// Check for any existing changelog files.
+	// Check for touched projects and change files.
 	for ( const file of touchedFiles ) {
-		const match = file.match( /^projects\/([^/]+\/[^/]+)\/changelog\/[^.]/ );
-		if ( match ) {
-			changelogsAdded.add( match[ 1 ] );
+		const match1 = file.match( re1 );
+		if ( match1 ) {
+			touchedProjects.add( match1[ 1 ] );
+		}
+
+		const match2 = file.match( re2 );
+		if ( match2 ) {
+			if ( ! changelogFiles.has( match2[ 1 ] ) ) {
+				changelogFiles.set( match2[ 1 ], [] );
+			}
+			changelogFiles.get( match2[ 1 ] ).push( file );
 		}
 	}
 
-	// Check for any touched projects without a changelog.
-	for ( const file of touchedFiles ) {
-		const match = file.match( re );
-		if ( match && ! changelogsAdded.has( match[ 1 ] ) ) {
-			modifiedProjects.add( match[ 1 ] );
-		}
-	}
-
-	return allProjects().filter( proj => modifiedProjects.has( proj ) );
+	return {
+		touched: allProjects().filter( proj => touchedProjects.has( proj ) ),
+		files: changelogFiles,
+		need: allProjects().filter(
+			proj => touchedProjects.has( proj ) && ! changelogFiles.has( proj )
+		),
+	};
 }
 
 /**
  * Checks if any projects already have a changelog file by that name.
  *
- * @param {string} fileName - what we want to name the file.
- * @param {Array} needChangelog - projects that need changelog.
- * @returns {argv}.
+ * @param {string} fileName      - what we want to name the file.
+ * @param {Array}  needChangelog - projects that need changelog.
+ * @return {argv}.
  */
 function doesFilenameExist( fileName, needChangelog ) {
 	let fileExists = false;
@@ -646,7 +777,7 @@ function doesFilenameExist( fileName, needChangelog ) {
  * prompt for one if we're not.
  *
  * @param {object} argv - arguments passed as cli.
- * @returns {object} argv - arguments with project added.
+ * @return {object} argv - arguments with project added.
  */
 export async function validateProject( argv ) {
 	argv = normalizeProject( argv );
@@ -660,7 +791,7 @@ export async function validateProject( argv ) {
  * Validate that the project exists
  *
  * @param {object} argv - arguments passed to the wizard.
- * @param {string} dir - path to file we're adding changlog too.
+ * @param {string} dir  - path to file we're adding changlog too.
  */
 function validatePath( argv, dir ) {
 	if ( ! fs.existsSync( dir ) ) {
@@ -672,7 +803,7 @@ function validatePath( argv, dir ) {
  * Prompts for changelog command if not passed one.
  *
  * @param {argv} argv - the arguments passed.
- * @returns {argv}.
+ * @return {argv}.
  */
 async function promptCommand( argv ) {
 	const response = await enquirer.prompt( {
@@ -686,12 +817,11 @@ async function promptCommand( argv ) {
 }
 
 /**
- * Prompts for for the readme
+ * Prompts for the file to squash.
  *
- * @param {argv} argv - the arguments passed.
- * @returns {argv}.
+ * @return {string} 'readme' or 'changelog'.
  */
-async function promptForFile( argv ) {
+async function promptForFile() {
 	const response = await enquirer.prompt( {
 		type: 'select',
 		name: 'file',
@@ -705,7 +835,7 @@ async function promptForFile( argv ) {
  * Prompts for which version to return.
  *
  * @param {argv} argv - the arguments passed.
- * @returns {argv}.
+ * @return {argv}.
  */
 async function promptVersion( argv ) {
 	const response = await enquirer.prompt( {
@@ -721,11 +851,11 @@ async function promptVersion( argv ) {
 /**
  * Prompts for changelog options.
  *
- * @param {object} argv - the arguments passed.
- * @param {Array} needChangelog - projects that need changelog.
- * @param {object} types - the changelog types for the projects.
+ * @param {object} argv          - the arguments passed.
+ * @param {Array}  needChangelog - projects that need changelog.
+ * @param {object} types         - the changelog types for the projects.
  *
- * @returns {argv}.
+ * @return {argv}.
  */
 async function promptChangelog( argv, needChangelog, types ) {
 	const gitBranch = child_process
@@ -864,12 +994,11 @@ async function promptChangelog( argv, needChangelog, types ) {
 /**
  * Prompts you for how you want changelogger to run (add to all projects or not, etc).
  *
- * @param {object} argv - the arguments passed.
  * @param {Array} defaultProjects - projects that use the default changelog types.
- * @param {Array} uniqueProjects - projects with unique changelog types.
- * @returns {argv}.
+ * @param {Array} uniqueProjects  - projects with unique changelog types.
+ * @return {object} Responses.
  */
-async function changelogAddPrompt( argv, defaultProjects, uniqueProjects ) {
+async function changelogAddPrompt( defaultProjects, uniqueProjects ) {
 	const totalProjects = [ ...defaultProjects, ...uniqueProjects ];
 	let prompts;
 

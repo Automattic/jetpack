@@ -1,20 +1,20 @@
 import { QRCode } from '@automattic/jetpack-components';
+import { JetpackLogo } from '@automattic/jetpack-shared-extension-utils/icons';
 import { Component, Button, Modal } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { JetpackLogo } from '../../../shared/icons.js';
 import useSiteLogo from '../hooks/use-site-logo.js';
 
 /**
  * React component that renders a QR code for the post,
  * pulling the post data from the editor store.
  *
- * @returns {Component} The react component.
+ * @return {Component} The react component.
  */
 export function QRPost() {
-	const wrapperElementRef = useRef();
+	const wrapperElementRef = useRef( undefined );
 
 	// Pick and convert Jetpack logo to data image.
 	const [ jetpackLogoUrl, setJetpackLogo ] = useState();
@@ -59,7 +59,7 @@ export function QRPost() {
 }
 
 export function QRPostButton() {
-	const qrCodeRef = useRef();
+	const qrCodeRef = useRef( undefined );
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const switchModal = () => setIsModalOpen( v => ! v );
 	const closeModal = () => setIsModalOpen( false );

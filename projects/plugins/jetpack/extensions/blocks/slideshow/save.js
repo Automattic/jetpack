@@ -1,18 +1,19 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import Slideshow from './slideshow';
 
-export default ( { attributes: { align, autoplay, delay, effect, images } } ) => {
-	const blockProps = useBlockProps.save();
+export default ( { attributes: { align, autoplay, delay, effect, images }, className } ) => {
+	const blockProps = useBlockProps.save( {
+		className: className,
+	} );
 
 	return (
-		<div { ...blockProps }>
-			<Slideshow
-				align={ align }
-				autoplay={ autoplay }
-				delay={ delay }
-				effect={ effect }
-				images={ images }
-			/>
-		</div>
+		<Slideshow
+			align={ align }
+			autoplay={ autoplay }
+			className={ blockProps.className }
+			delay={ delay }
+			effect={ effect }
+			images={ images }
+		/>
 	);
 };

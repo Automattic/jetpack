@@ -1,5 +1,7 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import React, { Fragment, useCallback, useEffect } from 'react';
+import { connect } from 'react-redux';
 import Card from 'components/card';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -7,8 +9,6 @@ import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { FEATURE_SEARCH_JETPACK } from 'lib/plans/constants';
-import React, { Fragment, useCallback, useEffect } from 'react';
-import { connect } from 'react-redux';
 import { isOfflineMode } from 'state/connection';
 import { currentThemeSupports } from 'state/initial-state';
 import { hasUpdatedSetting, isSettingActivated, isUpdatingSetting } from 'state/settings';
@@ -19,13 +19,13 @@ const SEARCH_DESCRIPTION = __(
 	'jetpack'
 );
 const SEARCH_CUSTOMIZE_CTA = __( 'Customize your Search experience.', 'jetpack' );
-const SEARCH_SUPPORT = __( 'Search supports many customizations. ', 'jetpack' );
+const SEARCH_SUPPORT = __( 'Search supports many customizations.', 'jetpack' );
 
 /**
  * Search settings component to be used within the Performance section.
  *
- * @param  {object} props - Component properties.
- * @returns {React.Component}	Search settings component.
+ * @param {object} props - Component properties.
+ * @return {React.Component} Search settings component.
  */
 function Search( props ) {
 	const { failedToEnableSearch, hasInstantSearch, updateOptions } = props;
@@ -85,7 +85,9 @@ function Search( props ) {
 							slug="search"
 							toggleModule={ toggleSearchModule }
 						>
-							{ __( 'Enable Search', 'jetpack' ) }
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Enable Search', 'jetpack' ) }
+							</span>
 						</ModuleToggle>
 
 						<FormFieldset>
@@ -94,7 +96,11 @@ function Search( props ) {
 								disabled={ togglingModule || ! props.hasInstantSearch }
 								toggling={ togglingInstantSearch }
 								onChange={ toggleInstantSearch }
-								label={ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
+								label={
+									<span className="jp-form-toggle-explanation">
+										{ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
+									</span>
+								}
 								help={
 									<span className="jp-form-setting-explanation jp-form-search-setting-explanation">
 										{ __(

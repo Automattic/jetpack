@@ -37,6 +37,9 @@ Disallow: /
 User-agent: anthropic-ai
 Disallow: /
 
+User-agent: Applebot-Extended
+Disallow: /
+
 User-agent: Bytespider
 Disallow: /
 
@@ -55,10 +58,16 @@ Disallow: /
 User-agent: GPTBot
 Disallow: /
 
+User-agent: meta-externalagent
+Disallow: /
+
 User-agent: omgili
 Disallow: /
 
 User-agent: omgilibot
+Disallow: /
+
+User-agent: PerplexityBot
 Disallow: /
 
 User-agent: SentiBot

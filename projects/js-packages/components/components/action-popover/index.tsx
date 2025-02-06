@@ -46,6 +46,7 @@ const ActionPopover = ( {
 	const popoverProps = {
 		...otherPopoverProps,
 		offset,
+		onClose,
 	};
 
 	const showSteps = Number.isFinite( step ) && Number.isFinite( totalSteps );
@@ -53,7 +54,7 @@ const ActionPopover = ( {
 	if ( showSteps ) {
 		stepsText = sprintf(
 			/* translators: 1 Current step, 2 Total steps */
-			__( '%1$d of %2$d', 'jetpack' ),
+			__( '%1$d of %2$d', 'jetpack-components' ),
 			step,
 			totalSteps
 		);

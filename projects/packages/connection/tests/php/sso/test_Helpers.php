@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Connection\SSO;
 
+use Automattic\Jetpack\Connection\Utils;
 use Automattic\Jetpack\Constants;
 use WorDBless\BaseTestCase;
 
@@ -259,7 +260,7 @@ class Test_Helpers extends BaseTestCase {
 	 * Test "generate_user_returns_user_when_username_not_exists".
 	 */
 	public function test_generate_user_returns_user_when_username_not_exists() {
-		$user = Helpers::generate_user( $this->user_data );
+		$user = Utils::generate_user( $this->user_data );
 		$this->assertIsObject( $user );
 		$this->assertInstanceOf( 'WP_User', $user );
 
@@ -273,7 +274,7 @@ class Test_Helpers extends BaseTestCase {
 		add_filter( 'jetpack_sso_allowed_username_generate_retries', array( $this, 'return_one' ) );
 		wp_insert_user( $this->user_data );
 
-		$user = Helpers::generate_user( $this->user_data );
+		$user = Utils::generate_user( $this->user_data );
 
 		$this->assertIsObject( $user );
 		$this->assertInstanceOf( 'WP_User', $user );
@@ -289,7 +290,7 @@ class Test_Helpers extends BaseTestCase {
 	 */
 	public function test_generate_user_sets_user_role_when_provided() {
 		$this->user_data->role = 'administrator';
-		$user                  = Helpers::generate_user( $this->user_data );
+		$user                  = Utils::generate_user( $this->user_data );
 		$this->assertContains( 'administrator', get_userdata( $user->ID )->roles );
 	}
 

@@ -6,7 +6,7 @@ import {
 } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import debugFactory from 'debug';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -19,7 +19,7 @@ const debug = debugFactory( 'jetpack:connection:ConnectScreenRequiredPlanVisual'
  * The Connection Screen Visual component for consumers that require a Plan.
  *
  * @param {object} props -- The properties.
- * @returns {React.Component} The `ConnectScreenRequiredPlanVisual` component.
+ * @return {React.Component} The `ConnectScreenRequiredPlanVisual` component.
  */
 const ConnectScreenRequiredPlanVisual = props => {
 	const {
@@ -30,11 +30,11 @@ const ConnectScreenRequiredPlanVisual = props => {
 		priceAfter,
 		pricingIcon,
 		pricingTitle,
-		pricingCurrencyCode,
-		isLoading,
-		handleButtonClick,
-		displayButtonError,
-		buttonIsLoading,
+		pricingCurrencyCode = 'USD',
+		isLoading = false,
+		handleButtonClick = () => {},
+		displayButtonError = false,
+		buttonIsLoading = false,
 		logo,
 		isOfflineMode,
 		rna = false,
@@ -43,11 +43,11 @@ const ConnectScreenRequiredPlanVisual = props => {
 	debug( 'props are %o', props );
 
 	const withSubscription = createInterpolateElement(
-		__( 'Already have a subscription? <connectButton/>', 'jetpack' ),
+		__( 'Already have a subscription? <connectButton/>', 'jetpack-connection-js' ),
 		{
 			connectButton: (
 				<ActionButton
-					label={ __( 'Log in to get started', 'jetpack' ) }
+					label={ __( 'Log in to get started', 'jetpack-connection-js' ) }
 					onClick={ handleButtonClick }
 					isLoading={ buttonIsLoading }
 				/>
@@ -56,21 +56,24 @@ const ConnectScreenRequiredPlanVisual = props => {
 	);
 
 	const errorMessage = isOfflineMode
-		? createInterpolateElement( __( 'Unavailable in <a>Offline Mode</a>', 'jetpack' ), {
-				a: (
-					<a
-						href={ getRedirectUrl( 'jetpack-support-development-mode' ) }
-						target="_blank"
-						rel="noopener noreferrer"
-					/>
-				),
-		  } )
+		? createInterpolateElement(
+				__( 'Unavailable in <a>Offline Mode</a>', 'jetpack-connection-js' ),
+				{
+					a: (
+						<a
+							href={ getRedirectUrl( 'jetpack-support-development-mode' ) }
+							target="_blank"
+							rel="noopener noreferrer"
+						/>
+					),
+				}
+		  )
 		: undefined;
 
 	return (
 		<ConnectScreenLayout
 			title={ title }
-			className={ classNames(
+			className={ clsx(
 				'jp-connection__connect-screen-required-plan',
 				isLoading ? 'jp-connection__connect-screen-required-plan__loading' : '',
 				rna ? 'rna' : ''
@@ -138,14 +141,6 @@ ConnectScreenRequiredPlanVisual.propTypes = {
 	logo: PropTypes.element,
 	/** Whether the site is in offline mode. */
 	isOfflineMode: PropTypes.bool,
-};
-
-ConnectScreenRequiredPlanVisual.defaultProps = {
-	pricingCurrencyCode: 'USD',
-	isLoading: false,
-	buttonIsLoading: false,
-	displayButtonError: false,
-	handleButtonClick: () => {},
 };
 
 export default ConnectScreenRequiredPlanVisual;

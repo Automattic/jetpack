@@ -45,7 +45,7 @@ export type ValidatedAudioInformation = {
 /**
  * Hook to handle the validation of an audio file.
  *
- * @returns {UseAudioValidationReturn} - Object with the audio validation state and the function to validate the audio.
+ * @return {UseAudioValidationReturn} - Object with the audio validation state and the function to validate the audio.
  */
 export default function useAudioValidation(): UseAudioValidationReturn {
 	const [ isValidatingAudio, setIsValidatingAudio ] = useState< boolean >( false );

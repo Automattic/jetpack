@@ -1,47 +1,41 @@
 import {
 	getConnections,
-	getConnectionsAdminUrl,
 	hasConnections,
 	getFailedConnections,
 	getMustReauthConnections,
-	getConnectionProfileDetails,
 	getEnabledConnections,
 	getDisabledConnections,
 } from '../connection-data';
 
 const state = {
 	connectionData: {
-		adminUrl: 'https://wordpress.com/some-url',
 		connections: [
 			{
-				id: '123456789',
 				service_name: 'facebook',
 				display_name: 'Some name',
 				profile_picture: 'https://wordpress.com/some-url-of-a-picture',
-				username: 'username',
+				external_handle: 'external_handle',
 				enabled: false,
 				connection_id: '987654321',
-				test_success: true,
+				status: 'ok',
 			},
 			{
-				id: '234567891',
 				service_name: 'tumblr',
 				display_name: 'Some name',
 				profile_picture: 'https://wordpress.com/some-url-of-another-picture',
-				username: 'username',
+				external_handle: 'external_handle',
 				enabled: true,
 				connection_id: '198765432',
-				test_success: false,
+				status: 'broken',
 			},
 			{
-				id: '345678912',
 				service_name: 'mastodon',
 				display_name: 'somename',
 				profile_picture: 'https://wordpress.com/some-url-of-one-more-picture',
-				username: '@somename@mastodon.social',
+				external_handle: '@somename@mastodon.social',
 				enabled: false,
 				connection_id: '219876543',
-				test_success: 'must_reauth',
+				status: 'must_reauth',
 			},
 		],
 	},
@@ -61,17 +55,6 @@ describe( 'Social store selectors: connectionData', () => {
 		it( 'should return connections', () => {
 			const connections = getConnections( state );
 			expect( connections ).toEqual( state.connectionData.connections );
-		} );
-	} );
-
-	describe( 'getConnectionsAdminUrl', () => {
-		it( 'should return null if no adminUrl', () => {
-			expect( getConnectionsAdminUrl( {} ) ).toBeNull();
-		} );
-
-		it( 'should return adminUrl', () => {
-			const adminUrl = getConnectionsAdminUrl( state );
-			expect( adminUrl ).toEqual( state.connectionData.adminUrl );
 		} );
 	} );
 
@@ -133,34 +116,6 @@ describe( 'Social store selectors: connectionData', () => {
 				state.connectionData.connections[ 0 ],
 				state.connectionData.connections[ 2 ],
 			] );
-		} );
-	} );
-
-	describe( 'getConnectionProfileDetails', () => {
-		const defaultProfileDetails = {
-			displayName: '',
-			profileImage: '',
-			username: '',
-		};
-
-		it( 'should return default values if no connections', () => {
-			expect( getConnectionProfileDetails( {}, 'linkedin' ) ).toEqual( defaultProfileDetails );
-		} );
-
-		it( 'should return the profile details', () => {
-			const connection = state.connectionData.connections[ 0 ];
-
-			expect( getConnectionProfileDetails( state, 'facebook' ) ).toEqual( {
-				displayName: connection.display_name,
-				profileImage: connection.profile_picture,
-				username: connection.username,
-			} );
-		} );
-
-		it( 'should return default values if forced', () => {
-			expect( getConnectionProfileDetails( state, 'facebook', { forceDefaults: true } ) ).toEqual(
-				defaultProfileDetails
-			);
 		} );
 	} );
 } );

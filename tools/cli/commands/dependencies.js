@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import chalk from 'chalk';
+import { chalkStderr } from 'chalk';
 import ignore from 'ignore';
 import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
 
@@ -20,6 +20,11 @@ infrastructureFileSets.base = new Set( [
 infrastructureFileSets.test = new Set( [
 	...infrastructureFileSets.base,
 	'.github/files/generate-ci-matrix.php',
+	'.github/files/coverage-munger/composer.json',
+	'.github/files/coverage-munger/package.json',
+	'.github/files/coverage-munger/extract-php-summary-data.php',
+	'.github/files/coverage-munger/process-coverage.sh',
+	'.github/files/coverage-munger/upload-coverage.sh',
 	'.github/files/setup-wordpress-env.sh',
 	'.github/workflows/tests.yml',
 ] );
@@ -41,7 +46,7 @@ export const describe = 'Report monorepo project dependencies';
  * Options definition for the dependencies subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the build commands defined.
+ * @return {object} Yargs with the build commands defined.
  */
 export function builder( yargs ) {
 	return yargs
@@ -130,7 +135,7 @@ export async function handler( argv ) {
 		const infrastructureFiles = infrastructureFileSets[ argv.extra ] || infrastructureFileSets.base;
 		const projset = new Set( argv.projects );
 		const ig = ignore().add( ignoreFiles );
-		const debug = argv.v ? m => console.error( chalk.stderr.blue( m ) ) : () => {};
+		const debug = argv.v ? m => console.error( chalkStderr.blue( m ) ) : () => {};
 		for ( const file of stdout.split( '\n' ).filter( v => v.length ) ) {
 			if ( infrastructureFiles.has( file ) ) {
 				debug( `Diff touches infrastructure file ${ file }, considering all projects as changed.` );
@@ -178,21 +183,14 @@ export async function handler( argv ) {
 				argv.pretty ? '\t' : null
 			)
 		);
-		return;
-	}
-
-	if ( argv.subcommand === 'list' ) {
+	} else if ( argv.subcommand === 'list' ) {
 		if ( deps.size ) {
 			console.log( Array.from( deps.keys() ).join( '\n' ) );
 		}
-		return;
-	}
-
-	if ( argv.subcommand === 'build-order' ) {
+	} else if ( argv.subcommand === 'build-order' ) {
 		const order = getBuildOrder( deps );
 		for ( const group of order ) {
 			console.log( Array.from( group ).join( argv.pretty ? '\n' : ' ' ) );
 		}
-		return;
 	}
 }

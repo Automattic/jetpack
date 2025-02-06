@@ -93,7 +93,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 
 		// We're splitting out videos for Jetpack sites.
 		foreach ( $media_files as $media_item ) {
-			if ( preg_match( '@^video/@', $media_item['type'] ) && $is_jetpack_site ) {
+			if ( isset( $media_item['type'] ) && preg_match( '@^video/@', $media_item['type'] ) && $is_jetpack_site ) {
 				if ( defined( 'IS_WPCOM' ) && IS_WPCOM &&
 					defined( 'VIDEOPRESS_JETPACK_VIDEO_ENABLED' ) && VIDEOPRESS_JETPACK_VIDEO_ENABLED
 				) {

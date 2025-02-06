@@ -16,23 +16,23 @@ export function convertToLink( url, onReplace ) {
 /**
  * Extracts an event id from an Eventbrite URL.
  *
- * @param   {string}  url - Eventbrite URL.
- * @returns {?number}     - Event id.
+ * @param {string} url - Eventbrite URL.
+ * @return {?number}     - Event id.
  */
 export function eventIdFromUrl( url ) {
 	if ( ! url ) {
 		return null;
 	}
 
-	const match = url.match( /(\d+)\/?(?:\?[^\/]*)?\s*$/ );
+	const match = url.match( /(\d+)\/?(?:\?[^/]*)?\s*$/ );
 	return match && match[ 1 ] ? parseInt( match[ 1 ], 10 ) : null;
 }
 
 /**
  * Returns a normalized URL string from raw input. For now we're just trimming to avoid broken URLs.
  *
- * @param   {string}  url - Eventbrite URL string.
- * @returns {?string}     - Normalized string.
+ * @param {string} url - Eventbrite URL string.
+ * @return {?string}     - Normalized string.
  */
 export function normalizeUrlInput( url = '' ) {
 	if ( ! url || typeof url !== 'string' ) {

@@ -9,13 +9,7 @@
  * Date: 01/11/16
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
    /* DAL3.0 Notes:
@@ -124,6 +118,87 @@ class zbsDAL {
     * A general key-value pair store
     */
     private $cache = array();
+
+	/**
+	 * This is a temporary fix for issue #3504, until we don't change how we load settings this should help to avoid slowing down websites.
+	 *
+	 * @var array Associative array used for caching settings (key: 'settings') and a flag to indicate if all settings were loaded (key: 'contains_all').
+	 */
+	private static $mitigation_cache_for_issue_3504;
+
+	/**
+	 * Resets the mitigation cache for issue #3504.
+	 *
+	 * Initializes the static cache property to its default state, clearing cached settings
+	 * and resetting the "contains all" flag to false.
+	 *
+	 * @return void
+	 */
+	public static function reset_mitigation_cache_for_issue_3504() {
+		static::$mitigation_cache_for_issue_3504 = array(
+			'settings'     => array(),
+			'contains_all' => false,
+		);
+	}
+
+	/**
+	 * Retrieves a specific setting from the cache.
+	 *
+	 * @param string $key The setting key.
+	 * @return mixed|null The value of the setting or null if not found.
+	 */
+	private static function mitigation_cache_for_issue_3504_single_setting( $key ) {
+		return static::$mitigation_cache_for_issue_3504['settings'][ $key ] ?? null;
+	}
+
+	/**
+	 * Checks if a specific setting exists in the cache.
+	 *
+	 * @param string $key The setting key.
+	 * @return bool True if the setting exists, false otherwise.
+	 */
+	private static function mitigation_cache_for_issue_3504_contains_key( $key ) {
+		return isset( static::$mitigation_cache_for_issue_3504['settings'][ $key ] );
+	}
+
+	/**
+	 * Checks if all settings are loaded.
+	 *
+	 * @return bool True if all settings are loaded, false otherwise.
+	 */
+	private static function mitigation_cache_for_issue_3504_contains_all_settings() {
+		return static::$mitigation_cache_for_issue_3504['contains_all'];
+	}
+
+	/**
+	 * Sets a specific setting in the cache.
+	 *
+	 * @param string $key   The setting key.
+	 * @param mixed  $value The setting value.
+	 * @return void
+	 */
+	private static function mitigation_cache_for_issue_3504_set_single_setting( $key, $value ) {
+		static::$mitigation_cache_for_issue_3504['settings'][ $key ] = $value;
+	}
+
+	/**
+	 * Sets the "contains all" flag in the cache.
+	 *
+	 * @param bool $contains_all Whether all settings are loaded.
+	 * @return void
+	 */
+	private static function mitigation_cache_for_issue_3504_set_contains_all( $contains_all ) {
+		static::$mitigation_cache_for_issue_3504['contains_all'] = $contains_all;
+	}
+
+	/**
+	 * Retrieves all cached settings.
+	 *
+	 * @return array An array of all cached settings.
+	 */
+	private static function mitigation_cache_for_issue_3504_all_settings() {
+		return static::$mitigation_cache_for_issue_3504['settings'];
+	}
 
     // ===============================================================================
     // ===========  SUB DAL LAYERS  ==================================================
@@ -295,8 +370,6 @@ class zbsDAL {
         $this->contacts = new zbsDAL_contacts;
         $this->segments = new zbsDAL_segments;
 
-        global $zbs;
-        if ($zbs->isDAL3()){
             $this->companies = new zbsDAL_companies;
             $this->quotes = new zbsDAL_quotes;
             $this->invoices = new zbsDAL_invoices;
@@ -309,7 +382,6 @@ class zbsDAL {
             $this->quotetemplates = new zbsDAL_quotetemplates;
             // Not yet implemented:
             // $this->addresses = new zbsDAL_addresses;
-        }
         
         // any post-settings-loaded actions
         add_action( 'after_zerobscrm_settings_preinit', [ $this, 'postSettingsInit' ] );
@@ -1633,19 +1705,16 @@ class zbsDAL {
      * @return bool result
      */
     public function setting( $key = '', $default = false, $accept_cached = false){
-
-        if ( !empty( $key ) ){
-
-            return $this->getSetting(array(
-
-                'key'            => $key,
-                'fullDetails'    => false,
-                'default'        => $default,
-                'accept_cached'  => $accept_cached
-
-            ));
-
-        }
+		if ( ! empty( $key ) ) {
+			return $this->getSetting(
+				array(
+					'key'           => $key,
+					'fullDetails'   => false,
+					'default'       => $default,
+					'accept_cached' => $accept_cached,
+				)
+			);
+		}
 
         return $default;
     }
@@ -1689,6 +1758,13 @@ class zbsDAL {
      * @return array result
      */
     public function getSetting($args=array()){
+
+		$key         = isset( $args['key'] ) ? $args['key'] : false;
+		$fullDetails = isset( $args['fullDetails'] ) ? $args['fullDetails'] : false; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+		if ( ! $fullDetails && static::mitigation_cache_for_issue_3504_contains_key( $key ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			return static::mitigation_cache_for_issue_3504_single_setting( $key ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+		}
 
         #} =========== LOAD ARGS ==============
         $defaultArgs = array(
@@ -1797,6 +1873,9 @@ class zbsDAL {
 
                         $setting = $this->tidy_settingSingular($potentialRes);
 
+						// We only update the mitigation cache when $fullDetails is false.
+						static::mitigation_cache_for_issue_3504_set_single_setting( $key, $setting ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+
                         // cache (commonly retrieved)
                         $this->update_cache_var( 'setting_' . $key, $setting );
 
@@ -1807,6 +1886,11 @@ class zbsDAL {
             }
 
         } // / if ID
+
+		if ( ! $fullDetails ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			// We only update the mitigation cache when $fullDetails is false.
+			static::mitigation_cache_for_issue_3504_set_single_setting( $key, $default ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+		}
 
         return $default;
 
@@ -1821,6 +1905,13 @@ class zbsDAL {
      * @return array of settings lines
      */
     public function getSettings($args=array()){
+		// If we have already loaded all settings in our cache, return them.
+		// In this function we won't care if the values have changed or not because when they become invalid due to other functions, these functions should reset the cache.
+		if ( static::mitigation_cache_for_issue_3504_contains_all_settings() ) {
+			return static::mitigation_cache_for_issue_3504_all_settings();
+		}
+		// Reseting any single settings we may have already loaded.
+		static::reset_mitigation_cache_for_issue_3504();
 
         #} ============ LOAD ARGS =============
         $defaultArgs = array(
@@ -1892,20 +1983,21 @@ class zbsDAL {
 
             #} Has results, tidy + return 
             foreach ($potentialRes as $resDataLine) {
+				// We are only caching the singular setting (i.e. the value), because it is good enough.
+				static::mitigation_cache_for_issue_3504_set_single_setting( $resDataLine->zbsset_key, $this->tidy_settingSingular( $resDataLine ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-                    // DEBUG echo $resDataLine->zbsset_key.' = ';
-
-                    if ($fullDetails){
-                        // tidy
-                        $resArr = $this->tidy_setting($resDataLine);
-                        $res[$resArr['key']] = $resArr;
-                    } else
-                        $res[$resDataLine->zbsset_key] = $this->tidy_settingSingular($resDataLine);
-
+				if ( $fullDetails ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+					$resArr                = $this->tidy_setting( $resDataLine ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					$res[ $resArr['key'] ] = $resArr; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				} else {
+					$res[ $resDataLine->zbsset_key ] = $this->tidy_settingSingular( $resDataLine ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				}
             }
         }
 
-        return $res;
+		static::mitigation_cache_for_issue_3504_set_contains_all( true );
+
+		return $res;
     } 
 
      /**
@@ -2007,6 +2099,9 @@ class zbsDAL {
 
         ); foreach ($defaultArgs as $argK => $argV){ $$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$$argK = $newData;} else { $$argK = $args[$argK]; } } }
         #} =========== / LOAD ARGS ============
+
+		// Invalidates our whole cache.
+		static::reset_mitigation_cache_for_issue_3504();
 
         #} ========== CHECK FIELDS ============
 
@@ -7642,13 +7737,11 @@ class zbsDAL {
 
     }
 
+	/**
+	 * Counts below are as of 19 November 2024.
+	 */
 
-   // polite flag:
-   private function ____MIDDLEMAN_FUNCS(){}
-
-
-
-
+	/* Stripe Sync: 1 */
 public function getContact(...$args){
 
     // hard-typed
@@ -7669,6 +7762,7 @@ public function getContact(...$args){
 
 }
 
+	/* Automations: 1 */
 public function getContacts(...$args){
 
     // hard-typed
@@ -7689,6 +7783,7 @@ public function getContacts(...$args){
 
 }
 
+	/* Stripe Sync: 1, Awesome Support: 1 */
 public function addUpdateContact(...$args){
 
     // hard-typed
@@ -7709,6 +7804,7 @@ public function addUpdateContact(...$args){
 
 }
 
+	/* Automations: 1, Livestorm: 1 */ // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
 public function addUpdateContactTags(...$args){
 
     // hard-typed
@@ -7729,46 +7825,7 @@ public function addUpdateContactTags(...$args){
 
 }
 
-public function addUpdateContactCompanies(...$args){
-
-    // hard-typed
-    $funcName = 'addUpdateContactCompanies';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function addUpdateContactWPID(...$args){
-
-    // hard-typed
-    $funcName = 'addUpdateContactWPID';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
+	/* Automations: 1 */
 public function deleteContact(...$args){
 
     // hard-typed
@@ -7789,1071 +7846,30 @@ public function deleteContact(...$args){
 
 }
 
-public function tidy_contact(...$args){
-
-    // hard-typed
-    $funcName = 'tidy_contact';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function db_ready_contact(...$args){
-
-    // hard-typed
-    $funcName = 'db_ready_contact';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getContactOwner(...$args){
-
-    // hard-typed
-    $funcName = 'getContactOwner';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getContactStatus(...$args){
-
-    // hard-typed
-    $funcName = 'getContactStatus';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getContactEmail(...$args){
-
-    // hard-typed
-    $funcName = 'getContactEmail';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getContactMobile(...$args){
-
-    // hard-typed
-    $funcName = 'getContactMobile';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getContactFullName(...$args){
-
-    // hard-typed
-    $funcName = 'getContactFullName';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getContactFullNameEtc(...$args){
-
-    // hard-typed
-    $funcName = 'getContactFullNameEtc';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getContactAddress(...$args){
-
-    // hard-typed
-    $funcName = 'getContactAddress';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getContact2ndAddress(...$args){
-
-    // hard-typed
-    $funcName = 'getContact2ndAddress';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getContactTags(...$args){
-
-    // hard-typed
-    $funcName = 'getContactTags';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getContactLastContactUTS(...$args){
-
-    // hard-typed
-    $funcName = 'getContactLastContactUTS';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function setContactLastContactUTS(...$args){
-
-    // hard-typed
-    $funcName = 'setContactLastContactUTS';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getContactSocials(...$args){
-
-    // hard-typed
-    $funcName = 'getContactSocials';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getContactWPID(...$args){
-
-    // hard-typed
-    $funcName = 'getContactWPID';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getContactDoNotMail(...$args){
-
-    // hard-typed
-    $funcName = 'getContactDoNotMail';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function setContactDoNotMail(...$args){
-
-    // hard-typed
-    $funcName = 'setContactDoNotMail';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getContactAvatarURL(...$args){
-
-    // hard-typed
-    $funcName = 'getContactAvatarURL';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getContactAvatar(...$args){
-
-    // hard-typed
-    $funcName = 'getContactAvatar';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getContactAvatarHTML(...$args){
-
-    // hard-typed
-    $funcName = 'getContactAvatarHTML';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getContactCount(...$args){
-
-    // hard-typed
-    $funcName = 'getContactCount';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getContactCompanies(...$args){
-
-    // hard-typed
-    $funcName = 'getContactCompanies';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getContactPrevNext(...$args){
-
-    // hard-typed
-    $funcName = 'getContactPrevNext';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->contacts, $funcName)) return call_user_func_array(array($this->contacts,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-
-
-
-
-
-
-
-public function getSegments(...$args){
-
-    // hard-typed
-    $funcName = 'getSegments';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getSegmentCount(...$args){
-
-    // hard-typed
-    $funcName = 'getSegmentCount';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function deleteSegment(...$args){
-
-    // hard-typed
-    $funcName = 'deleteSegment';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function tidy_segment(...$args){
-
-    // hard-typed
-    $funcName = 'tidy_segment';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function tidy_segment_condition(...$args){
-
-    // hard-typed
-    $funcName = 'tidy_segment_condition';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getSegmentsCountIncParams(...$args){
-
-    // hard-typed
-    $funcName = 'getSegmentsCountIncParams';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function previewSegment(...$args){
-
-    // hard-typed
-    $funcName = 'previewSegment';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function segmentConditionsToArgs(...$args){
-
-    // hard-typed
-    $funcName = 'segmentConditionsToArgs';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getSegmentBySlug(...$args){
-
-    // hard-typed
-    $funcName = 'getSegmentBySlug';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getSegment(...$args){
-
-    // hard-typed
-    $funcName = 'getSegment';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getSegementAudience(...$args){
-
-    // hard-typed
-    $funcName = 'getSegementAudience';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getSegmentsContainingContact(...$args){
-
-    // hard-typed
-    $funcName = 'getSegmentsContainingContact';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function isContactInSegment(...$args){
-
-    // hard-typed
-    $funcName = 'isContactInSegment';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function compileSegmentsAffectedByContact(...$args){
-
-    // hard-typed
-    $funcName = 'compileSegmentsAffectedByContact';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getSegmentConditions(...$args){
-
-    // hard-typed
-    $funcName = 'getSegmentConditions';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function updateSegmentCompiled(...$args){
-
-    // hard-typed
-    $funcName = 'updateSegmentCompiled';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function addUpdateSegment(...$args){
-
-    // hard-typed
-    $funcName = 'addUpdateSegment';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function addUpdateSegmentConditions(...$args){
-
-    // hard-typed
-    $funcName = 'addUpdateSegmentConditions';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function addUpdateSegmentCondition(...$args){
-
-    // hard-typed
-    $funcName = 'addUpdateSegmentCondition';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function removeSegmentConditions(...$args){
-
-    // hard-typed
-    $funcName = 'removeSegmentConditions';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function segmentConditionArgs(...$args){
-
-    // hard-typed
-    $funcName = 'segmentConditionArgs';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function segmentBuildDirectOrClause(...$args){
-
-    // hard-typed
-    $funcName = 'segmentBuildDirectOrClause';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function compileSegment(...$args){
-
-    // hard-typed
-    $funcName = 'compileSegment';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->segments, $funcName)) return call_user_func_array(array($this->segments,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-public function getLog(...$args){
-
-    // hard-typed
-    $funcName = 'getLog';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->logs, $funcName)) return call_user_func_array(array($this->logs,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getLogsForObj(...$args){
-
-    // hard-typed
-    $funcName = 'getLogsForObj';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->logs, $funcName)) return call_user_func_array(array($this->logs,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function getLogsForANYObj(...$args){
-
-    // hard-typed
-    $funcName = 'getLogsForANYObj';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->logs, $funcName)) return call_user_func_array(array($this->logs,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function addUpdateLog(...$args){
-
-    // hard-typed
-    $funcName = 'addUpdateLog';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->logs, $funcName)) return call_user_func_array(array($this->logs,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function deleteLog(...$args){
-
-    // hard-typed
-    $funcName = 'deleteLog';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->logs, $funcName)) return call_user_func_array(array($this->logs,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-public function tidy_log(...$args){
-
-    // hard-typed
-    $funcName = 'tidy_log';
-
-    // retrieve backtrace
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-    $caller = array_shift($backtrace);
-
-    // log to db, if logging
-    $this->v3templogBacktrace($funcName,$caller,$backtrace);
-
-    // return, if available
-    if (method_exists($this->logs, $funcName)) return call_user_func_array(array($this->logs,$funcName),func_get_args()); 
-
-    // ultimate fallback
-    return false;
-
-}
-
-
-
-   // polite flag:
-   private function ____MIDDLEMAN_FUNCS_END(){}
+	/* Advanced Segments: 4 */
+	public function segmentBuildDirectOrClause( ...$args ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid,VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable,Squiz.Commenting.FunctionComment.WrongStyle
+		// hard-typed
+		$func_name = 'segmentBuildDirectOrClause';
+
+		// retrieve backtrace
+		$backtrace = debug_backtrace( DEBUG_BACKTRACE_PROVIDE_OBJECT, 1 ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
+		$caller    = array_shift( $backtrace );
+
+		// log to db, if logging
+		$this->v3templogBacktrace( $func_name, $caller, $backtrace );
+
+		if ( method_exists( $this->segments, $func_name ) ) {
+			return call_user_func_array( array( $this->segments, $func_name ), func_get_args() );
+		}
+
+		// ultimate fallback
+		return false;
+	}
 
 /* ======================================================
     / Middle Man funcs (until DAL3.0)
    ====================================================== */
 } // / DAL class
+
+// Initialize the static mitigation cache.
+zbsDAL::reset_mitigation_cache_for_issue_3504();

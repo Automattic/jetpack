@@ -1,6 +1,8 @@
+import { useBlockProps } from '@wordpress/block-editor';
+import { createBlock, getDefaultBlockName } from '@wordpress/blocks';
 import { createHigherOrderComponent, compose } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { isEmpty } from 'lodash';
 import { useFormStyle } from '../util/form';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
@@ -20,19 +22,23 @@ const JetpackField = props => {
 		setAttributes,
 		placeholder,
 		width,
+		insertBlocksAfter,
+		type,
 	} = props;
 
 	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
 	const formStyle = useFormStyle( clientId );
-
-	const classes = classnames( 'jetpack-field', {
-		'is-selected': isSelected,
-		'has-placeholder': ! isEmpty( placeholder ),
+	const blockProps = useBlockProps( {
+		className: clsx( 'jetpack-field', {
+			'is-selected': isSelected,
+			'has-placeholder': ! isEmpty( placeholder ),
+		} ),
+		style: blockStyle,
 	} );
 
 	return (
 		<>
-			<div className={ classes } style={ blockStyle }>
+			<div { ...blockProps }>
 				<JetpackFieldLabel
 					attributes={ attributes }
 					label={ label }
@@ -45,8 +51,15 @@ const JetpackField = props => {
 					className="jetpack-field__input"
 					onChange={ e => setAttributes( { placeholder: e.target.value } ) }
 					style={ fieldStyle }
-					type="text"
+					type={ type }
 					value={ placeholder }
+					onClick={ event => type === 'file' && event.preventDefault() }
+					onKeyDown={ event => {
+						if ( event.defaultPrevented || event.key !== 'Enter' ) {
+							return;
+						}
+						insertBlocksAfter( createBlock( getDefaultBlockName() ) );
+					} }
 				/>
 			</div>
 

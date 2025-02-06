@@ -4,8 +4,8 @@ import ProgressBar from '$features/ui/progress-bar/progress-bar';
 import styles from './critical-css-meta.module.scss';
 import { useCriticalCssState } from '../lib/stores/critical-css-state';
 import { RegenerateCriticalCssSuggestion, useRegenerationReason } from '..';
-import { useLocalCriticalCssGenerator } from '../local-generator/local-generator-provider';
-import { useRetryRegenerate } from '../lib/use-retry-regenerate';
+import { useLocalCriticalCssGenerator } from '../critical-css-context/critical-css-context-provider';
+import { isFatalError } from '../lib/critical-css-errors';
 
 /**
  * Critical CSS Meta - the information and options displayed under the Critical CSS toggle on the
@@ -13,11 +13,11 @@ import { useRetryRegenerate } from '../lib/use-retry-regenerate';
  */
 export default function CriticalCssMeta() {
 	const [ cssState ] = useCriticalCssState();
-	const [ hasRetried, retry ] = useRetryRegenerate();
-	const [ regenerateReason ] = useRegenerationReason();
+	const [ { data: regenerateReason } ] = useRegenerationReason();
 	const { progress } = useLocalCriticalCssGenerator();
+	const showFatalError = isFatalError( cssState );
 
-	if ( cssState.status === 'pending' ) {
+	if ( cssState.status === 'pending' || cssState.status === 'not_generated' ) {
 		return (
 			<div className="jb-critical-css-progress">
 				<div className={ styles[ 'progress-label' ] }>
@@ -36,8 +36,7 @@ export default function CriticalCssMeta() {
 			<Status
 				cssState={ cssState }
 				isCloud={ false }
-				hasRetried={ hasRetried }
-				retry={ retry }
+				showFatalError={ showFatalError }
 				highlightRegenerateButton={ !! regenerateReason }
 				extraText={ __(
 					'Remember to regenerate each time you make changes that affect your HTML or CSS structure.',
@@ -45,7 +44,9 @@ export default function CriticalCssMeta() {
 				) }
 			/>
 
-			<RegenerateCriticalCssSuggestion regenerateReason={ regenerateReason } />
+			{ ! showFatalError && (
+				<RegenerateCriticalCssSuggestion regenerateReason={ regenerateReason } />
+			) }
 		</>
 	);
 }

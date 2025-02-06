@@ -15,6 +15,7 @@
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 // Register the widget for use in Appearance -> Widgets
 add_action( 'widgets_init', 'jetpack_top_posts_widget_init' );
@@ -72,10 +73,6 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 		$this->default_title = __( 'Top Posts &amp; Pages', 'jetpack' );
 
-		if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
-		}
-
 		/**
 		 * Add explanation about how the statistics are calculated.
 		 *
@@ -94,7 +91,10 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	 * @return array $widget_types New list of widgets that will be removed.
 	 */
 	public function hide_widget_in_block_editor( $widget_types ) {
-		$widget_types[] = 'top-posts';
+		// @TODO: Hide for Simple sites when the block API starts working.
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
+			$widget_types[] = 'top-posts';
+		}
 		return $widget_types;
 	}
 
@@ -301,6 +301,9 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $title );
+
+		// Enqueue front end assets.
+		$this->enqueue_style();
 
 		$count = isset( $instance['count'] ) ? (int) $instance['count'] : false;
 		if ( $count < 1 || 10 < $count ) {

@@ -13,11 +13,11 @@ vendor/autoload_packages.php                    production-include
 vendor/automattic/**                            production-include
 vendor/composer/**                              production-include
 vendor/jetpack-autoloader/**                    production-include
+vendor/wikimedia/aho-corasick/**                production-include
 
 # Files to exclude from the mirror repo, but included in the monorepo.
 # Remember to end all directories with `/**` to properly tag every file.
 .babelrc                                        production-exclude
-/.eslintrc.js                                   production-exclude
 .gitattributes                                  production-exclude
 .gitignore                                      production-exclude
 .phpcs.dir.xml                                  production-exclude

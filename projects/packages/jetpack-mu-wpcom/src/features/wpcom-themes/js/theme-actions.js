@@ -18,7 +18,7 @@ const wpcomThemesRemoveWpcomActions = () => {
 		}
 	} );
 	observer.observe( themeOverlay, { childList: true } );
-	observer.observe( themeBrowser, { childList: true } );
+	observer.observe( themeBrowser, { childList: true, subtree: true } );
 };
 
 document.addEventListener( 'DOMContentLoaded', wpcomThemesRemoveWpcomActions );

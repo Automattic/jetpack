@@ -10,7 +10,6 @@ import styles from './getting-started.module.scss';
 import { useGettingStarted } from '$lib/stores/getting-started';
 import { useNavigate } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
-import { usePricing } from '$lib/stores/pricing';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { useSingleModuleState } from '$features/module/lib/stores';
 
@@ -23,7 +22,6 @@ const GettingStarted: React.FC = () => {
 		site: { domain },
 	} = Jetpack_Boost;
 
-	const pricing = usePricing();
 	const premiumFeatures = usePremiumFeatures();
 	const isPremium = premiumFeatures.length > 0;
 
@@ -83,35 +81,28 @@ const GettingStarted: React.FC = () => {
 	}
 
 	return (
-		pricing && (
-			<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
-				<Header>
-					<ActivateLicense />
-				</Header>
+		<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
+			<Header>
+				<ActivateLicense />
+			</Header>
 
-				<div className="jb-section jb-section--alt">
-					<div className="jb-container">
-						<div className={ styles[ 'pricing-table' ] }>
-							<BoostPricingTable
-								pricing={ pricing }
-								onPremiumCTA={ () => initialize( 'premium' ) }
-								onFreeCTA={ () => initialize( 'free' ) }
-								chosenFreePlan={ selectedPlan === 'free' }
-								chosenPaidPlan={ selectedPlan === 'premium' }
-							/>
-							{ snackbarMessage !== '' && (
-								<Snackbar
-									children={ snackbarMessage }
-									onDismiss={ () => setSnackbarMessage( '' ) }
-								/>
-							) }
-						</div>
+			<div className="jb-section jb-section--alt">
+				<div className="jb-container">
+					<div className={ styles[ 'pricing-table' ] }>
+						<BoostPricingTable
+							onPremiumCTA={ () => initialize( 'premium' ) }
+							onFreeCTA={ () => initialize( 'free' ) }
+							chosenFreePlan={ selectedPlan === 'free' }
+							chosenPaidPlan={ selectedPlan === 'premium' }
+						/>
+						{ snackbarMessage !== '' && (
+							<Snackbar children={ snackbarMessage } onDismiss={ () => setSnackbarMessage( '' ) } />
+						) }
 					</div>
 				</div>
-
-				<Footer />
 			</div>
-		)
+			<Footer />
+		</div>
 	);
 };
 

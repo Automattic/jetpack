@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { render } from '@wordpress/element';
+import { createRoot } from '@wordpress/element';
 import { get } from 'lodash';
 import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom';
 /**
@@ -18,7 +18,7 @@ export const config = key => get( settings, key );
 window.addEventListener( 'load', () => {
 	const container = document.getElementById( 'jp-forms-dashboard' );
 
-	settings = JSON.parse( unescape( container.dataset.config ) );
+	settings = JSON.parse( decodeURIComponent( container.dataset.config ) );
 	delete container.dataset.config;
 
 	const router = createHashRouter( [
@@ -36,5 +36,6 @@ window.addEventListener( 'load', () => {
 		},
 	] );
 
-	render( <RouterProvider router={ router } />, container );
+	const root = createRoot( container );
+	root.render( <RouterProvider router={ router } /> );
 } );

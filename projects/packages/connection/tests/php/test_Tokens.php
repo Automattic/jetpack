@@ -41,7 +41,7 @@ class TokensTest extends TestCase {
 	 */
 	public function set_up() {
 		$this->tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
-			->setMethods( array( 'get_access_token' ) )
+			->onlyMethods( array( 'get_access_token' ) )
 			->getMock();
 	}
 

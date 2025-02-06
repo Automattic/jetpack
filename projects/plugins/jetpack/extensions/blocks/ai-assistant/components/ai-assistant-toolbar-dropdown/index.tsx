@@ -12,7 +12,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import { getStoreBlockId } from '../../extensions/ai-assistant/with-ai-assistant';
+import { getStoreBlockId } from '../../hooks/use-transform-to-assistant';
 import { getBlocksContent, getRawTextFromHTML } from '../../lib/utils/block-content';
 import { transformToAIAssistantBlock } from '../../transforms';
 import AiAssistantToolbarDropdownContent from './dropdown-content';
@@ -21,9 +21,8 @@ import './style.scss';
  * Types and constants
  */
 import type { AiAssistantDropdownOnChangeOptionsArgProps } from './dropdown-content';
-import type { ExtendedBlockProp } from '../../extensions/ai-assistant';
+import type { ExtendedBlockProp } from '../../extensions/constants';
 import type { PromptTypeProp } from '../../lib/prompt';
-import type { ReactElement } from 'react';
 
 const debug = debugFactory( 'jetpack-ai-assistant:dropdown' );
 
@@ -35,7 +34,7 @@ type AiAssistantBlockToolbarDropdownContentProps = {
 /**
  * The dropdown component with logic for the AI Assistant block.
  * @param {AiAssistantBlockToolbarDropdownContentProps} props - The props.
- * @returns {ReactElement} The React content of the dropdown.
+ * @return The React content of the dropdown.
  */
 function AiAssistantBlockToolbarDropdownContent( {
 	onClose,
@@ -144,9 +143,12 @@ function AiAssistantBlockToolbarDropdownContent( {
 		tracks.recordEvent( 'jetpack_ai_assistant_prompt_show', { block_type: blockType } );
 	};
 
+	const [ clientId ] = getSelectedBlockClientIds();
+
 	return (
 		<AiAssistantToolbarDropdownContent
 			blockType={ blockType }
+			clientId={ clientId }
 			onRequestSuggestion={ requestSuggestion }
 			onAskAiAssistant={ replaceWithAiAssistantBlock }
 			disabled={ noContent }
@@ -162,7 +164,7 @@ type AiAssistantBlockToolbarDropdownProps = {
 /**
  * The AI Assistant dropdown component.
  * @param {AiAssistantBlockToolbarDropdownProps} props - The props.
- * @returns {ReactElement} The AI Assistant dropdown component.
+ * @return The AI Assistant dropdown component.
  */
 export default function AiAssistantBlockToolbarDropdown( {
 	blockType,

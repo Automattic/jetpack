@@ -5,6 +5,59 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2025-01-10
+### Added
+- Enable test coverage. [#39961]
+
+### Changed
+- General: Indicate compatibility with the upcoming version of WordPress - 6.7. [#39786]
+- Updated package dependencies. [#38822] [#38870] [#39004] [#39278] [#39288] [#39653] [#40116] [#40515]
+
+### Removed
+- Cleaned up legacy code. [#40200]
+- General: Update minimum PHP version to 7.2. [#40147]
+- General: Update minimum WordPress version to 6.6. [#40146]
+
+### Fixed
+- Caching: make sure there is cache content to serve, even if the cache file was found [#40342]
+- Ensure homepage cache gets flushed when a post is unpublished. [#40879]
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750] [#38981]
+- Move trailing space out of i18n message. [#39305]
+- Fix apache_request_headers fallback so it works when that command is disabled. [#39951]
+
+## [1.12.4] - 2024-07-17
+### Removed
+- General: update WordPress version requirements to WordPress 6.5. [#38382]
+
+### Fixed
+- Fixed problem with is_utf8_charset missing in WP 6.6 [#38383]
+
+## [1.12.3] - 2024-07-10
+### Fixed
+- Don't delete the log viewer when doing garbage collection [#38276]
+- Fix clearing the cache when scheduled posts are published [#38263]
+
+## [1.12.2] - 2024-06-27
+### Added
+- add an admin notice to encourage migration to Jetpack Boost [#37933]
+- modify boost install code so it can be used by multiple buttons [#37824]
+- notify Boost of migration to that plugin [#37797]
+
+### Changed
+- General: indicate compatibility with the upcoming version of WordPress - 6.6. [#37962]
+- tell user that Cache module of Boost must be deactivated to use WPSC [#37265]
+- WP Updated banner designs, added auto-install Jetpack Boost buttons [#37963]
+
+### Fixed
+- Detect when WP_CACHE is defined with "const" in wp-config.php [#38022]
+- Align detection of Boost installs with activation of that plugin [#37896]
+- create the cache directory before creating the config file [#38028]
+- do not show migration notice if already using Boost Cache [#38005]
+- fixed a PHP warning when deactivating the plugin. [#37968]
+- make sure plugins links is an array before using it. [#37604]
+- remove the preload interval based on the post count. Preload as often as you want. [#37618]
+- renamed WPSC_VERSION because it conflicted with other plugins [#38007]
+
 ## [1.12.1] - 2024-05-09
 ### Changed
 - General: update WordPress version requirements to WordPress 6.4. [#37047]
@@ -731,6 +784,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Misc fixes
 
+[2.0.0]: https://github.com/Automattic/wp-super-cache/compare/v1.12.4...v2.0.0
+[1.12.4]: https://github.com/Automattic/wp-super-cache/compare/v1.12.3...v1.12.4
+[1.12.3]: https://github.com/Automattic/wp-super-cache/compare/v1.12.2...v1.12.3
+[1.12.2]: https://github.com/Automattic/wp-super-cache/compare/v1.12.1...v1.12.2
 [1.12.1]: https://github.com/Automattic/wp-super-cache/compare/v1.12.0...v1.12.1
 [1.12.0]: https://github.com/Automattic/wp-super-cache/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/Automattic/wp-super-cache/compare/v1.10.0...v1.11.0

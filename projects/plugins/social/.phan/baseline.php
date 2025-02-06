@@ -10,7 +10,6 @@
 return [
     // # Issue statistics:
     // PhanUndeclaredProperty : 20+ occurrences
-    // PhanDeprecatedFunction : 1 occurrence
     // PhanNoopNew : 1 occurrence
     // PhanTypeMismatchArgument : 1 occurrence
     // PhanTypeMismatchReturnProbablyReal : 1 occurrence
@@ -20,7 +19,7 @@ return [
         'jetpack-social.php' => ['PhanNoopNew'],
         'src/class-jetpack-social.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-note.php' => ['PhanTypeMismatchArgument'],
-        'tests/php/test-class-jetpack-social.php' => ['PhanDeprecatedFunction', 'PhanUndeclaredProperty'],
+        'tests/php/test-class-jetpack-social.php' => ['PhanUndeclaredProperty'],
         'tests/php/test-class-meta-tags.php' => ['PhanUndeclaredProperty'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

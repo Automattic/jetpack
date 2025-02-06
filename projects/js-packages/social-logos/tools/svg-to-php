@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+# Start in the right folder.
+root_dir="$(dirname "${BASH_SOURCE[0]}")/.."
+cd "$root_dir"
+
+# Define some paths.
+svg_dir=build/svg-clean
+dest_php_dir=build/php
+dest_php_file="$dest_php_dir"/social-logos.php
+
+# Make dir if it doesn't exist.
+mkdir -p "$dest_php_dir"
+
+# Output header to PHP file.
+cat <<"EOF" > $dest_php_file
+<?php // phpcs:disable
+/** This is a generated file. Do not edit. */
+function get_all_social_logos() {
+	return array(
+EOF
+
+# Ensure consistent sort order.
+LC_COLLATE=C
+
+for i in "$svg_dir"/*.svg; do
+	# Get logo name and add it as a PHP array key.
+	logoName=$(basename $i | cut -d. -f1)
+	printf "\t\t'%s' => '" "$logoName" >> $dest_php_file
+
+	# Get SVG value, add some classes, and add it as a PHP array value.
+	sed -E "s|<svg |<svg class=\"social-logo social-logo-$logoName\" height=\"24\" width=\"24\" |" $i >> $dest_php_file
+
+	echo "'," >> $dest_php_file
+done
+
+# Close out PHP array and append helper function.
+cat <<"EOF" >> $dest_php_file
+	);
+}
+
+function get_social_logo( $social_logo ) {
+	$social_logo_data = get_all_social_logos();
+
+	if ( array_key_exists( $social_logo, $social_logo_data ) ) {
+		return $social_logo_data[ $social_logo ];
+	}
+
+	// If not found, return empty SVG.
+	return '<svg class="social-logo social-logo-notfound" height="24" width="24" />';
+}
+// phpcs:enable
+EOF
+
+# Output.
+echo "Created PHP file in '$dest_php_dir'."

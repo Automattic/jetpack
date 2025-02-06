@@ -1,11 +1,6 @@
 /*!
  * Jetpack CRM
- * http://www.zerobscrm.com
- * V1.0
- *
- * Copyright 2020 Automattic
- *
- * Date: 02/06/16
+ * https://jetpackcrm.com
  */
 
 // This file is to be included on all wp admin pages
@@ -62,9 +57,6 @@
 
 // Import "animation" styles
 @import 'ZeroBSCRM.animations';
-
-// Import "betafeedback" styles
-@import 'ZeroBSCRM.betafeedback';
 
 // Import "mobile" styles
 @import 'ZeroBSCRM.mobile';

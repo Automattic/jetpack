@@ -8,7 +8,7 @@ import { useConnectionState } from './use-connection-state';
 /**
  * Displays enabled connections text.
  *
- * @returns {import('react').ReactElement} Enabled connections text.
+ * @return {import('react').ReactElement} Enabled connections text.
  */
 export function EnabledConnectionsNotice() {
 	const { enabledConnections } = useSocialMediaConnections();
@@ -28,7 +28,7 @@ export function EnabledConnectionsNotice() {
 						'This post will be shared to %d connection.',
 						'This post will be shared to %d connections.',
 						validConnections.length,
-						'jetpack'
+						'jetpack-publicize-components'
 					),
 					validConnections.length
 				) }

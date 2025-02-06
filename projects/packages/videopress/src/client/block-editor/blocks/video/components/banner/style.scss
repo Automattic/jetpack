@@ -1,15 +1,39 @@
 .block-banner {
 	display: flex;
-    height: 48px;
+    justify-content: space-between;
     font-size: 14px;
     align-self: center;
     align-items: center;
-    background: #F6F7F7;
-    padding: 0 16px;
+    background: black;
+    border-radius: 2px;
+    padding: 0 20px;
+    box-shadow: 0 0 1px inset white;
 
     .block-banner__content {
-        color: #01283d;
-        flex-grow: 2;
-        margin: 0 8px;
+        color: white;
+        margin: 10px 10px 10px 0;
+    }
+
+    .block-banner__action {
+        padding: 0;
+
+        .components-button.is-primary {
+            background: white;
+            color: black;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 4px 8px;
+            height: 28px;
+            margin: 8px 0 8px auto;
+
+            &:hover:not(:disabled) {
+                background: #F6F7F7;
+            }
+        }
+
+        .components-button.is-primary.is-busy {
+            background-size: 100px 100%;
+            background-image: linear-gradient(-45deg, #e34c84 28%, #ab235a 28%, #ab235a 72%, #e34c84 72%);
+        }
     }
 }

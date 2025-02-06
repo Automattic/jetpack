@@ -1,6 +1,6 @@
 import { RichText, useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { getVideoPressUrl } from './url';
 
 const VideoPressSave = CoreVideoSave => props => {
@@ -26,12 +26,6 @@ const VideoPressSave = CoreVideoSave => props => {
 		} = {},
 	} = props;
 
-	const blockProps = useBlockProps.save( {
-		className: classnames( 'wp-block-video', className, videoPressClassNames, {
-			[ `align${ align }` ]: align,
-		} ),
-	} );
-
 	if ( ! guid ) {
 		/**
 		 * We return the element produced by the render so Gutenberg can add the block class when cloning the element.
@@ -44,6 +38,12 @@ const VideoPressSave = CoreVideoSave => props => {
 		 */
 		return CoreVideoSave( props );
 	}
+
+	const blockProps = useBlockProps.save( {
+		className: clsx( 'wp-block-video', className, videoPressClassNames, {
+			[ `align${ align }` ]: align,
+		} ),
+	} );
 
 	const url = getVideoPressUrl( guid, {
 		autoplay,

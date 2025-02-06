@@ -10,10 +10,11 @@ import { docsDefine } from './commands/docs.js';
 import { draftDefine } from './commands/draft.js';
 import { generateDefine } from './commands/generate.js';
 import * as installCommand from './commands/install.js';
+import * as noopCommand from './commands/noop.js';
 import * as phanCommand from './commands/phan.js';
 import { releaseDefine } from './commands/release.js';
 import { rsyncDefine } from './commands/rsync.js';
-import { testDefine } from './commands/test.js';
+import * as testCommand from './commands/test.js';
 import { watchDefine } from './commands/watch.js';
 
 /**
@@ -43,10 +44,11 @@ export async function cli() {
 	argv = draftDefine( argv );
 	argv = generateDefine( argv );
 	argv.command( installCommand );
+	argv.command( noopCommand );
 	argv.command( phanCommand );
 	argv = releaseDefine( argv );
 	argv = rsyncDefine( argv );
-	argv = testDefine( argv );
+	argv.command( testCommand );
 	argv = watchDefine( argv );
 
 	// This adds usage information on failure and demands that a subcommand must be passed.

@@ -1,3 +1,4 @@
+/* global subscriptionData */
 document.addEventListener( 'DOMContentLoaded', function () {
 	const modal = document.getElementsByClassName( 'jetpack-subscription-modal' )[ 0 ];
 
@@ -18,10 +19,18 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			return;
 		}
 
-		localStorage.setItem( 'jetpack-subscription-modal-on-comment-scroll-to', destinationUrl.hash );
+		try {
+			localStorage.setItem(
+				'jetpack-subscription-modal-on-comment-scroll-to',
+				destinationUrl.hash
+			);
+		} catch {
+			// Ok if we can't set it.
+		}
 
-		// For avoiding Firefox reload, we need to force reload bypassing the cache.
-		window.location.reload( true );
+		// Add cache-busting parameter
+		destinationUrl.searchParams.set( '_ctn', Date.now() );
+		window.location.href = destinationUrl.toString();
 	}
 
 	function JetpackSubscriptionModalOnCommentMessageListener( event ) {
@@ -29,7 +38,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		if ( typeof message === 'string' ) {
 			try {
 				message = JSON.parse( message );
-			} catch ( err ) {
+			} catch {
 				return;
 			}
 		}
@@ -41,7 +50,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			return;
 		}
 
-		if ( ! event.origin.includes( window.location.host ) ) {
+		if ( subscriptionData.homeUrl !== event.origin ) {
 			return;
 		}
 
@@ -50,6 +59,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 				'.jetpack-subscription-modal__modal-content input[type=email]'
 			);
 			if ( ! emailInput ) {
+				reloadOnCloseSubscriptionModal( data.url );
 				return;
 			}
 
@@ -57,6 +67,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 				'.jetpack-subscription-modal__modal-content input[name=app_source]'
 			);
 			if ( ! appSource ) {
+				reloadOnCloseSubscriptionModal( data.url );
 				return;
 			}
 
@@ -68,20 +79,24 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		}
 
 		if ( ! hasLoaded ) {
-			const storedCount = parseInt(
-				sessionStorage.getItem( 'jetpack-subscription-modal-shown-count' )
-			);
-			const showCount = ( isNaN( storedCount ) ? 0 : storedCount ) + 1;
-			sessionStorage.setItem( 'jetpack-subscription-modal-shown-count', showCount );
+			try {
+				const storedCount = parseInt(
+					sessionStorage.getItem( 'jetpack-subscription-modal-shown-count' )
+				);
+				const showCount = ( isNaN( storedCount ) ? 0 : storedCount ) + 1;
+				sessionStorage.setItem( 'jetpack-subscription-modal-shown-count', showCount );
 
-			if ( showCount > 5 ) {
-				new Image().src =
-					document.location.protocol +
-					'//pixel.wp.com/g.gif?v=wpcom-no-pv&x_jetpack-subscribe-modal-comm=hidden_views_limit&r=' +
-					Math.random();
+				if ( showCount > 5 ) {
+					new Image().src =
+						document.location.protocol +
+						'//pixel.wp.com/g.gif?v=wpcom-no-pv&x_jetpack-subscribe-modal-comm=hidden_views_limit&r=' +
+						Math.random();
 
-				reloadOnCloseSubscriptionModal( data.url );
-				return;
+					reloadOnCloseSubscriptionModal( data.url );
+					return;
+				}
+			} catch {
+				// Ignore any errors.
 			}
 
 			new Image().src =
@@ -92,7 +107,6 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			modal.classList.toggle( 'open' );
 			hasLoaded = true;
 			redirectUrl = data.url;
-			return;
 		}
 	}
 

@@ -1,10 +1,10 @@
-import classNames from 'classnames';
-import Card from 'components/card';
-import CompactCard from 'components/card/compact';
-import Gridicon from 'components/gridicon';
+import clsx from 'clsx';
 import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
+import Card from 'components/card';
+import CompactCard from 'components/card/compact';
+import Gridicon from 'components/gridicon';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import './style.scss';
 
@@ -120,11 +120,11 @@ class FoldableCard extends React.Component {
 				onClick: this.getClickAction(),
 				onKeyDown: onKeyDownCallback( this.getClickAction() ),
 			},
-			headerClasses = classNames( 'dops-foldable-card__header', {
+			headerClasses = clsx( 'dops-foldable-card__header', {
 				'is-clickable': !! this.props.clickableHeader,
 				'has-border': !! this.props.summary,
 			} ),
-			headerTextClasses = classNames( 'dops-foldable-card__header-text', {
+			headerTextClasses = clsx( 'dops-foldable-card__header-text', {
 				'is-clickable': !! this.props.clickableHeaderText,
 			} );
 		return (
@@ -149,7 +149,7 @@ class FoldableCard extends React.Component {
 
 	render() {
 		const Container = this.props.compact ? CompactCard : Card,
-			itemSiteClasses = classNames( 'dops-foldable-card', this.props.className, {
+			itemSiteClasses = clsx( 'dops-foldable-card', this.props.className, {
 				'is-disabled': !! this.props.disabled,
 				'is-expanded': !! this.state.expanded,
 				'has-expanded-summary': !! this.props.expandedSummary,

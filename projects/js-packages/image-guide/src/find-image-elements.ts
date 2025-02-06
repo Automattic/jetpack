@@ -1,4 +1,4 @@
-import { FetchFn, MeasurableImage } from './MeasurableImage.js';
+import { MeasurableImage, type FetchFn } from './MeasurableImage.js';
 
 /**
  * Get elements that either are image tags or have a background image.
@@ -9,6 +9,18 @@ import { FetchFn, MeasurableImage } from './MeasurableImage.js';
 export function findMeasurableElements( nodes: Element[] ): HTMLElement[] | HTMLImageElement[] {
 	return nodes.filter( ( el ): el is HTMLElement | HTMLImageElement => {
 		if ( el instanceof HTMLImageElement ) {
+			// Handle img tags with empty or no src attributes.
+			if ( ! el.src.trim() ) {
+				return false;
+			}
+
+			try {
+				if ( isSvgUrl( el.src ) ) {
+					return false;
+				}
+			} catch {
+				return false;
+			}
 			return true;
 		}
 		if ( el instanceof HTMLElement ) {
@@ -56,6 +68,18 @@ export function backgroundImageSource( node: HTMLElement ) {
 }
 
 /**
+ * Check if a URL is an SVG.
+ *
+ * @param {string} srcUrl - The URL to check
+ * @throws {Error} - If the URL is not valid.
+ * @return {boolean} - true if the URL is an SVG
+ */
+function isSvgUrl( srcUrl: string ): boolean {
+	const url = new URL( srcUrl );
+	return url.pathname.toLowerCase().endsWith( '.svg' );
+}
+
+/**
  * Create MeasurableImage objects from a list of nodes
  * and remove any nodes that can't be measured.
  *
@@ -79,7 +103,6 @@ export async function getMeasurableImages(
 				 */
 				return null;
 			}
-
 			return new MeasurableImage( node, backgroundImageSource );
 		}
 
@@ -119,7 +142,7 @@ function imageLikeURL( value: string ): boolean {
 	try {
 		const url = new URL( value );
 		return url.protocol === 'http:' || url.protocol === 'https:';
-	} catch ( e ) {
+	} catch {
 		return false;
 	}
 }

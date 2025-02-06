@@ -6,8 +6,6 @@
  * @package automattic/jetpack
  */
 
-// phpcs:disable WordPress.WP.GlobalVariablesOverride
-
 chdir( __DIR__ . '/../../' );
 
 // Default versions for PHP and Node.
@@ -25,6 +23,9 @@ foreach ( file( '.github/versions.sh' ) as $line ) {
 $default_matrix_vars = array(
 	// {string} Name for the job. Required, and must be unique.
 	'name'                => null,
+
+	// {string} Runner name as found in https://github.com/actions/runner-images/.
+	'runner'              => 'ubuntu-latest',
 
 	// {string} Composer script for the job. Required.
 	'script'              => null,
@@ -58,13 +59,13 @@ $default_matrix_vars = array(
 $matrix = array();
 
 // Add PHP tests.
-foreach ( array( '7.0', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3' ) as $php ) {
+foreach ( array( '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4' ) as $php ) {
 	$matrix[] = array(
 		'name'    => "PHP tests: PHP $php WP latest",
 		'script'  => 'test-php',
 		'php'     => $php,
 		'wp'      => 'latest',
-		'timeout' => 20, // 2023-08-17: Successful runs seem to take up to ~12 minutes.
+		'timeout' => 20, // 2024-11-12: Successful runs seem to take up to ~7 minutes.
 	);
 }
 
@@ -75,7 +76,7 @@ foreach ( array( 'previous', 'trunk' ) as $wp ) {
 		'script'  => 'test-php',
 		'php'     => $phpver,
 		'wp'      => $wp,
-		'timeout' => 15, // 2021-01-18: Successful runs seem to take ~8 minutes for the 7.4 trunk run, ~5.5-6 for 7.x and 8.0.
+		'timeout' => 15, // 2024-11-12: Successful runs seem to take ~7 minutes with PHP 8.2.
 	);
 }
 
@@ -89,11 +90,29 @@ $matrix[] = array(
 	'with-woocommerce' => true,
 );
 
+// Add wpcomsh tests.
+$matrix[] = array(
+	'name'         => 'PHP tests: PHP 8.1 WP latest with wpcomsh',
+	'script'       => 'test-php',
+	'php'          => '8.1',
+	'wp'           => 'latest',
+	'timeout'      => 20,
+	'with-wpcomsh' => true,
+);
+
 // Add JS tests.
 $matrix[] = array(
 	'name'    => 'JS tests',
 	'script'  => 'test-js',
-	'timeout' => 15, // 2021-01-18: Successful runs seem to take ~5 minutes.
+	'timeout' => 15, // 2024-11-12: Successful runs seem to take ~5 minutes.
+);
+
+// Add Coverage tests.
+$matrix[] = array(
+	'name'    => 'Code coverage',
+	'script'  => 'test-coverage',
+	'wp'      => 'latest',
+	'timeout' => 40, // 2024-11-12: Successful runs seem to take ~14 minutes.
 );
 
 // END matrix definitions.

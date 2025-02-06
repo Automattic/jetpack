@@ -1,6 +1,6 @@
-import analytics from 'lib/analytics';
 import React, { useState, useCallback } from 'react';
 import { connect } from 'react-redux';
+import analytics from 'lib/analytics';
 import {
 	getStatsData,
 	getPluginItems,
@@ -18,7 +18,7 @@ const MIN_POSTS_FOR_VISIBLE_BAR = 20;
  * It renders a bar chart if the user has more than a certain number of posts
  *
  * @param {BackupUpgradeProps} props - Props
- * @returns {React.ReactElement} - JSX Element
+ * @return {React.ReactElement} - JSX Element
  */
 const BackupUpgrade: React.FC< BackupUpgradeProps > = ( {
 	comments,

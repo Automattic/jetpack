@@ -14,12 +14,12 @@ import IDCScreenVisual from './visual';
  * The IDC screen component.
  *
  * @param {object} props - The properties.
- * @returns {React.Component} The `ConnectScreen` component.
+ * @return {React.Component} The `ConnectScreen` component.
  */
 const IDCScreen = props => {
 	const {
 		logo,
-		customContent,
+		customContent = {},
 		wpcomHomeUrl,
 		currentUrl,
 		apiNonce,
@@ -29,6 +29,7 @@ const IDCScreen = props => {
 		tracksEventData,
 		isAdmin,
 		possibleDynamicSiteUrlDetected,
+		isDevelopmentSite,
 	} = props;
 
 	const [ isMigrated, setIsMigrated ] = useState( false );
@@ -54,11 +55,11 @@ const IDCScreen = props => {
 		initializeAnalytics( tracksEventData, tracksUserData );
 
 		if ( tracksEventData ) {
-			if ( tracksEventData.hasOwnProperty( 'isAdmin' ) && tracksEventData.isAdmin ) {
+			if ( Object.hasOwn( tracksEventData, 'isAdmin' ) && tracksEventData.isAdmin ) {
 				trackAndBumpMCStats( 'notice_view' );
 			} else {
 				trackAndBumpMCStats( 'non_admin_notice_view', {
-					page: tracksEventData.hasOwnProperty( 'currentScreen' )
+					page: Object.hasOwn( tracksEventData, 'currentScreen' )
 						? tracksEventData.currentScreen
 						: false,
 				} );
@@ -85,6 +86,7 @@ const IDCScreen = props => {
 			hasFreshError={ errorType === 'start-fresh' }
 			hasMigrateError={ errorType === 'migrate' }
 			possibleDynamicSiteUrlDetected={ possibleDynamicSiteUrlDetected }
+			isDevelopmentSite={ isDevelopmentSite }
 		/>
 	);
 };
@@ -112,10 +114,8 @@ IDCScreen.propTypes = {
 	isAdmin: PropTypes.bool.isRequired,
 	/** If potentially dynamic HTTP_HOST usage was detected for site URLs in wp-config which can lead to a JP IDC. */
 	possibleDynamicSiteUrlDetected: PropTypes.bool,
-};
-
-IDCScreen.defaultProps = {
-	customContent: {},
+	/** Whether the site is in development mode. */
+	isDevelopmentSite: PropTypes.bool,
 };
 
 export default IDCScreen;

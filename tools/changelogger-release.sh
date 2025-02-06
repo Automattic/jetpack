@@ -32,6 +32,9 @@ if [[ $# -eq 0 ]]; then
 	usage
 fi
 
+# Make sure Jetpack CLI works. Otherwise stuff might fail oddly later when we try to do `jetpack dependencies | jq`.
+pnpm jetpack noop >&2
+
 # Check whether it looks like a major version bump.
 #
 # 0.x -> 0.(x+1) also counts as major.
@@ -128,7 +131,7 @@ init_changelogger
 cd "$BASE/projects/$REL_SLUG"
 CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 if [[ ! -d "$CHANGES_DIR" || -z "$(ls -- "$CHANGES_DIR")" ]]; then
-	proceed_p "Project $SLUG has no changes." 'Do a release anyway?'
+	proceed_p "Project $REL_SLUG has no changes." 'Do a release anyway?'
 	changelogger_add 'Internal updates.' '' --filename=force-a-release
 fi
 
@@ -141,10 +144,13 @@ TO_RELEASE=()
 TMP="$(pnpm jetpack dependencies build-order --add-dependencies --pretty "$REL_SLUG")"
 mapfile -t TO_RELEASE <<<"$TMP"
 
-# If it's being released as a dependency (and is not a js-package), pre-check that it has a mirror repo set up.
+# If it's being released as a non-dev dependency (and is not a js-package), pre-check that it has a mirror repo set up.
 # Can't do the release without one.
+NEEDS_MIRROR_REPO=()
+TMP="$(pnpm jetpack dependencies build-order --no-dev --add-dependencies --pretty "$REL_SLUG")"
+mapfile -t NEEDS_MIRROR_REPO <<<"$TMP"
 ANY=false
-for SLUG in "${TO_RELEASE[@]}"; do
+for SLUG in "${NEEDS_MIRROR_REPO[@]}"; do
 	if [[ "$SLUG" != "$REL_SLUG" && "$SLUG" != js-packages/* ]] &&
 		! jq -e '.extra["mirror-repo"] // null' "$BASE/projects/$SLUG/composer.json" > /dev/null
 	then
@@ -158,7 +164,6 @@ if $ANY; then
 fi
 
 # Release the projects, in build order so we can force a release of something if one of its deps got updated.
-declare -A RELEASED
 for SLUG in "${TO_RELEASE[@]}"; do
 	cd "$BASE/projects/$SLUG"
 
@@ -169,7 +174,6 @@ for SLUG in "${TO_RELEASE[@]}"; do
 	fi
 
 	info "Processing $SLUG..."
-	RELEASED[$SLUG]=1
 
 	# Avoid "There are no changes with content for this write. Proceed?" prompts and empty changelog entries.
 	ANY=false
@@ -221,6 +225,22 @@ for SLUG in "${TO_RELEASE[@]}"; do
 	if [[ -z "$OLDVER" ]] || is_major_bump "$OLDVER" "$VER"; then
 		debug "  Version bump ${OLDVER:-none} -> $VER looks like a major bump, adding a change entry to dependents without one"
 		for S in $( jq -r --arg slug "$SLUG" '.[$slug] // empty | .[]' <<<"$DEPTS" ); do
+			[[ "$S" == monorepo ]] && continue
+			cd "$BASE/projects/$S"
+			CHANGES_DIR=$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)
+			if [[ ! -d "$CHANGES_DIR" || -z "$(ls -- "$CHANGES_DIR")" ]]; then
+				debug "    $S"
+				changelogger_add 'Update dependencies.' '' --filename=force-a-release
+			fi
+		done
+		cd "$BASE/projects/$SLUG"
+	fi
+
+	# Our js-packages are usually bundled in packages and plugins. Flag to force updates of any dependents.
+	if [[ "$SLUG" == js-packages/* ]]; then
+		debug "  It's a js-package, adding a change entry to dependents without one because they're usually bundled"
+		for S in $( jq -r --arg slug "$SLUG" '.[$slug] // empty | .[]' <<<"$DEPTS" ); do
+			[[ "$S" == monorepo ]] && continue
 			cd "$BASE/projects/$S"
 			CHANGES_DIR=$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)
 			if [[ ! -d "$CHANGES_DIR" || -z "$(ls -- "$CHANGES_DIR")" ]]; then
@@ -248,25 +268,25 @@ done
 
 cd "$BASE"
 info "Updating dependencies..."
-SLUGS=()
-# Use a temp variable so pipefail works
-TMP="$(pnpm jetpack dependencies build-order --pretty)"
-mapfile -t SLUGS <<<"$TMP"
+debug "  tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -U -P"
+"$BASE"/tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -U -P
+info "Adding changelog entries for unreleased projects..."
+for DS in $( git -c core.quotepath=off diff --name-only projects | sed -E -e 's!^projects/([^/]+/[^/]+)/.*$!\1!' | sort -u ); do
+	cd "$BASE/projects/$DS"
 
-TMPDIR="${TMPDIR:-/tmp}"
-TEMP=$(mktemp "${TMPDIR%/}/changelogger-release-XXXXXXXX")
-
-for DEPENDENCY_SLUG in "${SLUGS[@]}"; do
-	if [[ -n "${RELEASED[$DEPENDENCY_SLUG]}" ]]; then
-		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -U $DEPENDENCY_SLUG"
-		PACKAGE_VERSIONS_CACHE="$TEMP" tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -U "$DEPENDENCY_SLUG"
+	if ! git diff --quiet ./CHANGELOG.md; then
+		debug "  $DS is being released, no change entry needed"
+	elif ! git diff --quiet -- "./$( jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json )/"; then
+		debug "  $DS already has an uncommitted change entry file, skipping"
+	elif ! git diff --quiet -- . ":!./composer.lock"; then
+		debug "  $DS has non-lockfile changes"
+		changelogger_add 'Updated package dependencies.'
 	else
-		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -u $DEPENDENCY_SLUG"
-		PACKAGE_VERSIONS_CACHE="$TEMP" tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -u "$DEPENDENCY_SLUG"
+		debug "  $DS has lockfile changes only"
+		changelogger_add '' 'Updated composer.lock.'
 	fi
 done
-
-rm "$TEMP"
+cd "$BASE"
 
 debug "  Updating pnpm.lock..."
 pnpm install --silent

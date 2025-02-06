@@ -23,6 +23,7 @@ if ( ! class_exists( 'WP_CLI_Command' ) ) {
 	return;
 }
 
+// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 WP_CLI::add_command( 'jetpack', 'Jetpack_CLI' );
 
 /**
@@ -985,8 +986,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in offline mode.', 'jetpack' ) );
 						return;
 					}
-					if ( $status->is_staging_site() ) {
-						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in staging mode.', 'jetpack' ) );
+					if ( $status->in_safe_mode() ) {
+						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in safe mode.', 'jetpack' ) );
 						return;
 					}
 				}
@@ -1035,7 +1036,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				}
 
 				// Kick off a full sync.
-				if ( Actions::do_full_sync( $modules ) ) {
+				if ( Actions::do_full_sync( $modules, 'jetpack_cli' ) ) {
 					if ( $modules ) {
 						/* translators: %s is a comma separated list of Jetpack modules */
 						WP_CLI::log( sprintf( __( 'Initialized a new full sync with modules: %s', 'jetpack' ), implode( ', ', array_keys( $modules ) ) ) );
@@ -1219,8 +1220,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$result = Client::_wp_remote_request( $url, $request );
 
-		Jetpack_Options::delete_option( 'onboarding' );
-
 		if ( is_wp_error( $result ) ) {
 			$this->partner_provision_error( $result );
 		}
@@ -1243,8 +1242,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * : WordPress.com ID of user to connect as (must be whitelisted against partner key)
 	 * [--wpcom_user_email=<wpcom_user_email>]
 	 * : Override the email we send to WordPress.com for registration
-	 * [--onboarding=<onboarding>]
-	 * : Guide the user through an onboarding wizard
 	 * [--force_register=<register>]
 	 * : Whether to force a site to register
 	 * [--force_connect=<force_connect>]
@@ -1261,7 +1258,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *     $ wp jetpack partner_provision '{ some: "json" }' premium 1
 	 *     { success: true }
 	 *
-	 * @synopsis <token_json> [--wpcom_user_id=<user_id>] [--plan=<plan_name>] [--onboarding=<onboarding>] [--force_register=<register>] [--force_connect=<force_connect>] [--home_url=<home_url>] [--site_url=<site_url>] [--wpcom_user_email=<wpcom_user_email>] [--partner_tracking_id=<partner_tracking_id>]
+	 * @synopsis <token_json> [--wpcom_user_id=<user_id>] [--plan=<plan_name>] [--force_register=<register>] [--force_connect=<force_connect>] [--home_url=<home_url>] [--site_url=<site_url>] [--wpcom_user_email=<wpcom_user_email>] [--partner_tracking_id=<partner_tracking_id>]
 	 *
 	 * @param array $args Positional args.
 	 * @param array $named_args Named args.
@@ -1866,16 +1863,18 @@ class Jetpack_CLI extends WP_CLI_Command {
 								);
 							}
 
+							// @phan-suppress-next-line PhanUndeclaredClassMethod - Class is missing from php-stubs/wp-cli-stubs 🤷
 							$progress->tick();
 						}
 
+						// @phan-suppress-next-line PhanUndeclaredClassMethod - Class is missing from php-stubs/wp-cli-stubs 🤷
 						$progress->finish();
 
 						if ( 'all' === $service ) {
 							WP_CLI::success( __( 'All Jetpack Social connections were successfully disconnected.', 'jetpack' ) );
 						} else {
 							/* translators: %s is a lowercase string for a social network. */
-							WP_CLI::success( __( 'All Jetpack Social connections to %s were successfully disconnected.', 'jetpack' ), $service );
+							WP_CLI::success( sprintf( __( 'All Jetpack Social connections to %s were successfully disconnected.', 'jetpack' ), $service ) );
 						}
 					}
 				} elseif ( false !== $publicize->disconnect( false, $identifier ) ) {
@@ -1967,12 +1966,12 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * @param array $assoc_args Associative parameters defined in the scaffold() method.
 	 */
 	public function block( $args, $assoc_args ) {
-		if ( isset( $args[1] ) ) {
-			$title = ucwords( $args[1] );
-		} else {
+		if ( ! isset( $args[1] ) ) {
 			WP_CLI::error( esc_html__( 'The title parameter is required.', 'jetpack' ) . ' 👻' );
 			exit( 1 );
 		}
+
+		$title = ucwords( $args[1] );
 
 		$slug = isset( $assoc_args['slug'] )
 			? $assoc_args['slug']

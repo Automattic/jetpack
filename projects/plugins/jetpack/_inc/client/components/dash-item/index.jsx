@@ -1,6 +1,10 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
+import { includes } from 'lodash';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -9,11 +13,7 @@ import SimpleNotice from 'components/notice';
 import SectionHeader from 'components/section-header';
 import SupportInfo from 'components/support-info';
 import analytics from 'lib/analytics';
-import { includes } from 'lodash';
 import ProStatus from 'pro-status';
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { isOfflineMode } from 'state/connection';
 import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
 import { getModule as _getModule } from 'state/modules';
@@ -60,7 +60,7 @@ export class DashItem extends Component {
 			toggle,
 			proButton = '';
 
-		const classes = classNames(
+		const classes = clsx(
 			this.props.className,
 			'jp-dash-item',
 			this.props.disabled ? 'jp-dash-item__disabled' : ''

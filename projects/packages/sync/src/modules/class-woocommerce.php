@@ -61,14 +61,50 @@ class WooCommerce extends Module {
 	private $order_item_table_name;
 
 	/**
-	 * The table in the database.
+	 * The table name.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 * @deprecated since 3.11.0 Use table() instead.
+	 */
+	public function table_name() {
+		_deprecated_function( __METHOD__, '3.11.0', 'Automattic\\Jetpack\\Sync\\WooCommerce->table' );
+		return $this->order_item_table_name;
+	}
+
+	/**
+	 * The table in the database with the prefix.
+	 *
+	 * @access public
+	 *
+	 * @return string|bool
+	 */
+	public function table() {
+		global $wpdb;
+		return $wpdb->prefix . 'woocommerce_order_items';
+	}
+
+	/**
+	 * The id field in the database.
 	 *
 	 * @access public
 	 *
 	 * @return string
 	 */
-	public function table_name() {
-		return $this->order_item_table_name;
+	public function id_field() {
+		return 'order_item_id';
+	}
+
+	/**
+	 * The full sync action name for this module.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function full_sync_action_name() {
+		return 'jetpack_full_sync_woocommerce_order_items';
 	}
 
 	/**
@@ -185,7 +221,7 @@ class WooCommerce extends Module {
 	 */
 	public function init_before_send() {
 		// Full sync.
-		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_woocommerce_order_items', array( $this, 'expand_order_item_ids' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_woocommerce_order_items', array( $this, 'build_full_sync_action_array' ) );
 	}
 
 	/**
@@ -230,14 +266,17 @@ class WooCommerce extends Module {
 	 *
 	 * @param array $args The hook arguments.
 	 * @return array $args Expanded order items with meta.
+	 * @deprecated since $$next-version$$
 	 */
 	public function expand_order_item_ids( $args ) {
+		_deprecated_function( __METHOD__, '$$next-version$$' );
 		$order_item_ids = $args[0];
 
 		global $wpdb;
 
 		$order_item_ids_sql = implode( ', ', array_map( 'intval', $order_item_ids ) );
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$order_items = $wpdb->get_results(
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			"SELECT * FROM $this->order_item_table_name WHERE order_item_id IN ( $order_item_ids_sql )"
@@ -248,7 +287,6 @@ class WooCommerce extends Module {
 			$this->get_metadata( $order_item_ids, 'order_item', static::$order_item_meta_whitelist ),
 		);
 	}
-
 	/**
 	 * Extract the full order item from the database by its ID.
 	 *
@@ -293,8 +331,8 @@ class WooCommerce extends Module {
 		global $wpdb;
 
 		$query = "SELECT count(*) FROM $this->order_item_table_name WHERE " . $this->get_where_sql( $config );
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$count = $wpdb->get_var( $query );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$count = (int) $wpdb->get_var( $query );
 
 		return (int) ceil( $count / self::ARRAY_CHUNK_SIZE );
 	}
@@ -549,14 +587,15 @@ class WooCommerce extends Module {
 		'_date_completed',
 		'_date_paid',
 		'_payment_tokens',
-		'_billing_address_index',
-		'_shipping_address_index',
+		// '_billing_address_index', do not sync these as they contain personal data.
+		// '_shipping_address_index',
 		'_recorded_sales',
 		'_recorded_coupon_usage_counts',
 		// See https://github.com/woocommerce/woocommerce/blob/8ed6e7436ff87c2153ed30edd83c1ab8abbdd3e9/includes/data-stores/class-wc-order-data-store-cpt.php#L539 .
 		'_download_permissions_granted',
 		// See https://github.com/woocommerce/woocommerce/blob/8ed6e7436ff87c2153ed30edd83c1ab8abbdd3e9/includes/data-stores/class-wc-order-data-store-cpt.php#L594 .
 		'_order_stock_reduced',
+		'_cart_hash',
 
 		// Woocommerce order refunds.
 		// See https://github.com/woocommerce/woocommerce/blob/b8a2815ae546c836467008739e7ff5150cb08e93/includes/data-stores/class-wc-order-refund-data-store-cpt.php#L20 .
@@ -607,13 +646,14 @@ class WooCommerce extends Module {
 	/**
 	 * Returns a list of order_item objects by their IDs.
 	 *
-	 * @param array $ids List of order_item IDs to fetch.
+	 * @param array  $ids List of order_item IDs to fetch.
+	 * @param string $order Either 'ASC' or 'DESC'.
 	 *
 	 * @access public
 	 *
 	 * @return array|object|null
 	 */
-	public function get_order_item_by_ids( $ids ) {
+	public function get_order_item_by_ids( $ids, $order = '' ) {
 		global $wpdb;
 
 		if ( ! is_array( $ids ) ) {
@@ -631,8 +671,77 @@ class WooCommerce extends Module {
 		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
 
 		$query = "SELECT * FROM {$this->order_item_table_name} WHERE order_item_id IN ( $placeholders )";
+		if ( ! empty( $order ) && in_array( $order, array( 'ASC', 'DESC' ), true ) ) {
+			$query .= " ORDER BY order_item_id $order";
+		}
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		return $wpdb->get_results( $wpdb->prepare( $query, $ids ), ARRAY_A );
+	}
+
+	/**
+	 * Build the full sync action object for WooCommerce order items.
+	 *
+	 * @access public
+	 *
+	 * @param array $args An array with the order items and the previous end.
+	 *
+	 * @return array An array with the order items, order item meta and the previous end.
+	 */
+	public function build_full_sync_action_array( $args ) {
+		list( $filtered_order_items, $previous_end ) = $args;
+		return array(
+			'order_items'     => $filtered_order_items['objects'],
+			'order_item_meta' => $filtered_order_items['meta'],
+			'previous_end'    => $previous_end,
+		);
+	}
+
+	/**
+	 * Given the Module Configuration and Status return the next chunk of items to send.
+	 * This function also expands the posts and metadata and filters them based on the maximum size constraints.
+	 *
+	 * @param array $config This module Full Sync configuration.
+	 * @param array $status This module Full Sync status.
+	 * @param int   $chunk_size Chunk size.
+	 *
+	 * @return array
+	 */
+	public function get_next_chunk( $config, $status, $chunk_size ) {
+
+		$order_item_ids = parent::get_next_chunk( $config, $status, $chunk_size );
+
+		if ( empty( $order_item_ids ) ) {
+			return array();
+		}
+		// Fetch the order items in DESC order for the next chunk logic to work.
+		$order_items = $this->get_order_item_by_ids( $order_item_ids, 'DESC' );
+
+		// If no orders were fetched, make sure to return the expected structure so that status is updated correctly.
+		if ( empty( $order_items ) ) {
+			return array(
+				'object_ids' => $order_item_ids,
+				'objects'    => array(),
+			);
+		}
+
+		// Get the order IDs from the orders that were fetched.
+		$fetched_order_item_ids = wp_list_pluck( $order_items, 'order_item_id' );
+		$metadata               = $this->get_metadata( $fetched_order_item_ids, 'order_item', static::$order_item_meta_whitelist );
+
+		// Filter the orders and metadata based on the maximum size constraints.
+		list( $filtered_order_item_ids, $filtered_order_items, $filtered_order_items_metadata ) = $this->filter_objects_and_metadata_by_size(
+			'order_item',
+			$order_items,
+			$metadata,
+			self::MAX_META_LENGTH,
+			self::MAX_SIZE_FULL_SYNC
+		);
+
+		return array(
+			'object_ids' => $filtered_order_item_ids,
+			'objects'    => $filtered_order_items,
+			'meta'       => $filtered_order_items_metadata,
+		);
 	}
 }

@@ -13,11 +13,16 @@ jest.mock( '../utils.js', () => {
 } );
 
 jest.mock( '@wordpress/components', () => {
-	const originalComponents = jest.requireActual( '@wordpress/components' );
-	return {
-		...originalComponents,
-		SandBox: jest.fn(),
-	};
+	const ret = {};
+	// Can't just do the simple thing here, @wordpress/components internally requires itself at one point.
+	// But this works.
+	for ( const [ k, v ] of Object.entries(
+		Object.getOwnPropertyDescriptors( jest.requireActual( '@wordpress/components' ) )
+	) ) {
+		Object.defineProperty( ret, k, { ...v, configurable: true } );
+	}
+	Object.defineProperty( ret, 'SandBox', { value: jest.fn(), configurable: true } );
+	return ret;
 } );
 
 jest.mock( '../utils.js', () => ( {

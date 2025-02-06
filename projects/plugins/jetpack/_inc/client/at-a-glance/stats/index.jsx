@@ -3,6 +3,10 @@ import { ExternalLink, Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { forEach, get, isEmpty } from 'lodash';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
 import Chart from 'components/chart';
@@ -10,10 +14,6 @@ import DashSectionHeader from 'components/dash-section-header';
 import QueryStatsData from 'components/data/query-stats-data';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
 import analytics from 'lib/analytics';
-import { forEach, get, isEmpty } from 'lodash';
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { getStatsData, statsSwitchTab, fetchStatsData, getActiveStatsTab } from 'state/at-a-glance';
 import { isOfflineMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
 import {
@@ -58,6 +58,10 @@ export class DashStats extends Component {
 		const { siteAdminUrl, siteRawUrl, statsData } = this.props,
 			s = [];
 
+		if ( 'object' !== typeof statsData[ unit ] ) {
+			return { chartData: s, totalViews: false };
+		}
+
 		let totalViews = 0;
 
 		const /* translators: short date format, such as: Jan 12. */
@@ -66,10 +70,6 @@ export class DashStats extends Component {
 			longMonthFormat = __( 'F jS', 'jetpack' ),
 			/* translators: long month/year format, such as: January, 2021. */
 			longMonthYearFormat = __( 'F Y', 'jetpack' );
-
-		if ( 'object' !== typeof statsData[ unit ] ) {
-			return { chartData: s, totalViews: false };
-		}
 
 		forEach( statsData[ unit ].data, v => {
 			const views = v[ 1 ];
@@ -129,7 +129,7 @@ export class DashStats extends Component {
 	/**
 	 * Checks that the stats fetching didn't return errors.
 	 *
-	 * @returns {object|boolean} Returns statsData.general.errors or false if it is not an object
+	 * @return {object|boolean} Returns statsData.general.errors or false if it is not an object
 	 */
 	statsErrors() {
 		return get( this.props.statsData, [ 'general', 'errors' ], false );

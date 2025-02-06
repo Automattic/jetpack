@@ -49,6 +49,8 @@
 /* Subscribe/Login buttons */
 
 .wp-block-buttons .wp-block[data-type='jetpack/recurring-payments'] {
+	--jetpack-payment-buttons-gap: 0.5em;
+	
 	display: inline-block;
 	margin: 0 0.5em 0 0;
 	width: auto;
@@ -59,6 +61,20 @@
 	.wp-block[data-type='jetpack/recurring-payments']
 	.wp-block-button:not( .alignleft ):not( .alignright ) {
 	margin: 0;
+}
+
+%button-outline-style {
+	background-color: unset;
+	color: $gray-800;
+}
+
+.wp-block-premium-content-login-button,
+.wp-block-jetpack-button {
+	&.is-style-outline {
+		.wp-block-button__link {
+			@extend %button-outline-style;
+		}
+	}
 }
 
 /* Hide Stripe nudge from Jetpack payments block */

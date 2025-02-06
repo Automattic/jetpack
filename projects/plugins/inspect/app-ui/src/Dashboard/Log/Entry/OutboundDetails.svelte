@@ -1,15 +1,14 @@
 <script lang="ts">
-	import Tab from "../../../Components/Tabs/Tab.svelte";
-	import TabList from "../../../Components/Tabs/TabList.svelte";
-	import TabPanel from "../../../Components/Tabs/TabPanel.svelte";
-	import Tabs from "../../../Components/Tabs/Tabs.svelte";
-	import PrettyJSON from "../PrettyJSON.svelte";
-	import type { OutgoingDetails } from "../../../utils/ZodSchema";
+	import Tab from '../../../Components/Tabs/Tab.svelte';
+	import TabList from '../../../Components/Tabs/TabList.svelte';
+	import TabPanel from '../../../Components/Tabs/TabPanel.svelte';
+	import Tabs from '../../../Components/Tabs/Tabs.svelte';
+	import PrettyJSON from '../PrettyJSON.svelte';
+	import type { OutgoingDetails } from '../../../utils/ZodSchema';
 
 	export let details: OutgoingDetails;
 
 	const { args, response } = details;
-
 </script>
 
 <Tabs>
@@ -22,7 +21,7 @@
 	</TabList>
 
 	<TabPanel>
-		{#if "body" in response}
+		{#if 'body' in response}
 			<PrettyJSON data={response.body} />
 		{:else}
 			<div class="error">Whoops! An error!</div>
@@ -31,13 +30,13 @@
 	</TabPanel>
 
 	<TabPanel>
-		{#if "headers" in response}
+		{#if 'headers' in response}
 			<PrettyJSON data={response.headers} />
 		{/if}
 	</TabPanel>
 
 	<TabPanel>
-		{#if "cookies" in response}
+		{#if 'cookies' in response}
 			<PrettyJSON data={response.cookies} />
 		{/if}
 	</TabPanel>

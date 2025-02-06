@@ -17,12 +17,13 @@ type Option = {
 
 /**
  * Frequency toggle component.
- * @param {FrequencyToggleProps} props - props
- * @param {string} props.name - name of the radio group
- * @param {Option[]} props.initialOptions - the options to pick one from
- * @param {Function} props.onChange - callback when the selected option changes
- * @param {Option[]} props.selectedOption - the currently selected option
- * @param {boolean} props.disabled - whether the toggle is disabled
+ * @param {FrequencyToggleProps} props                - props
+ * @param {string}               props.name           - name of the radio group
+ * @param {Option[]}             props.initialOptions - the options to pick one from
+ * @param {Function}             props.onChange       - callback when the selected option changes
+ * @param {Option[]}             props.selectedOption - the currently selected option
+ * @param {boolean}              props.disabled       - whether the toggle is disabled
+ * @return {JSX.Element} The rendered component.
  */
 export function FrequencyToggle( {
 	name = 'frequency-toggle',
@@ -30,7 +31,7 @@ export function FrequencyToggle( {
 	onChange,
 	selectedOption,
 	disabled,
-}: FrequencyToggleProps ) {
+}: FrequencyToggleProps ): JSX.Element {
 	return (
 		<div className="verbum-frequency-toggle">
 			<fieldset className="fieldset" disabled={ disabled }>

@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import debugFactory from 'debug';
 import * as tus from 'tus-js-client';
 /**
  * Internal dependencies
@@ -10,7 +11,27 @@ import getMediaToken from '../get-media-token';
 import { VideoMediaProps } from './types';
 import type { MediaTokenProps } from '../../lib/get-media-token/types';
 
+const debug = debugFactory( 'videopress:resumable-file-uploader' );
+
 const jwtsForKeys = {};
+
+declare module 'tus-js-client' {
+	interface Upload {
+		_urlStorageKey: string;
+	}
+}
+
+type VPUploadHttpRequest = tus.HttpRequest & {
+	_method: string;
+	_url: string;
+	_headers: Record< string, string >;
+	_xhr: XMLHttpRequest;
+};
+
+type TokenData = {
+	token?: string;
+	key?: string;
+};
 
 type UploadVideoArguments = {
 	file: File;
@@ -18,6 +39,13 @@ type UploadVideoArguments = {
 	onSuccess: ( media: VideoMediaProps, file: File ) => void;
 	onError: ( error ) => void;
 	tokenData: MediaTokenProps;
+};
+
+const getJwtKey = ( url: string ) => {
+	const parsedUrl = new URL( url );
+	const path = parsedUrl.pathname;
+	const parts = path.split( '/' );
+	return parts.pop();
 };
 
 const resumableFileUploader = ( {
@@ -28,12 +56,10 @@ const resumableFileUploader = ( {
 	onError,
 }: UploadVideoArguments ) => {
 	const upload = new tus.Upload( file, {
-		onError: onError,
+		onError,
 		onProgress,
 		endpoint: tokenData.url,
 		removeFingerprintOnSuccess: true,
-		withCredentials: false,
-		autoRetry: true,
 		overridePatchMethod: false,
 		chunkSize: 10000000, // 10 Mb.
 		metadata: {
@@ -41,9 +67,22 @@ const resumableFileUploader = ( {
 			filetype: file.type,
 		},
 		retryDelays: [ 0, 1000, 3000, 5000, 10000 ],
-		onBeforeRequest: function ( req ) {
+		onShouldRetry: function ( err: tus.DetailedError ) {
+			const status = err.originalResponse ? err.originalResponse.getStatus() : 0;
+			// Do not retry if the status is a 400.
+			if ( status === 400 ) {
+				debug( 'cleanup retry due to 400 error' );
+				localStorage.removeItem( upload._urlStorageKey );
+				return false;
+			}
+
+			// For any other status code, we retry.
+			return true;
+		},
+		onBeforeRequest: async function ( req: VPUploadHttpRequest ) {
 			// make ALL requests be either POST or GET to honor the public-api.wordpress.com "contract".
 			const method = req._method;
+
 			if ( [ 'HEAD', 'OPTIONS' ].indexOf( method ) >= 0 ) {
 				req._method = 'GET';
 				req.setHeader( 'X-HTTP-Method-Override', method );
@@ -56,7 +95,7 @@ const resumableFileUploader = ( {
 
 			req._xhr.open( req._method, req._url, true );
 			// Set the headers again, reopening the xhr resets them.
-			Object.keys( req._headers ).map( function ( headerName ) {
+			Object.keys( req._headers ).forEach( function ( headerName ) {
 				req.setHeader( headerName, req._headers[ headerName ] );
 			} );
 
@@ -70,26 +109,23 @@ const resumableFileUploader = ( {
 			}
 
 			if ( [ 'OPTIONS', 'GET', 'HEAD', 'DELETE', 'PUT', 'PATCH' ].indexOf( method ) >= 0 ) {
-				const url = new URL( req._url );
-				const path = url.pathname;
-				const parts = path.split( '/' );
-				const maybeUploadkey = parts[ parts.length - 1 ];
+				const maybeUploadkey = getJwtKey( req._url );
 				if ( jwtsForKeys[ maybeUploadkey ] ) {
 					req.setHeader( 'x-videopress-upload-token', jwtsForKeys[ maybeUploadkey ] );
 				} else if ( 'HEAD' === method ) {
-					return getMediaToken( 'upload-jwt' ).then( responseData => {
+					const responseData = await getMediaToken( 'upload-jwt' );
+					if ( responseData?.token ) {
 						jwtsForKeys[ maybeUploadkey ] = responseData.token;
 						req.setHeader( 'x-videopress-upload-token', responseData.token );
-						return req;
-					} );
+					}
 				}
 			}
-
-			return Promise.resolve( req );
 		},
-		onAfterResponse: function ( req, res ) {
+		onAfterResponse: async function ( req, res ) {
 			// Why is this not showing the x-headers?
 			if ( res.getStatus() >= 400 ) {
+				// Return, do nothing, it's handed to invoker's onError.
+				debug( 'upload error' );
 				return;
 			}
 
@@ -111,7 +147,7 @@ const resumableFileUploader = ( {
 				'x-videopress-upload-key': 'key',
 			};
 
-			const _tokenData = {};
+			const _tokenData: TokenData = {};
 			Object.keys( headerMap ).forEach( function ( header ) {
 				const value = res.getHeader( header );
 				if ( ! value ) {

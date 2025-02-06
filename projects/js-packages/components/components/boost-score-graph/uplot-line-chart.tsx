@@ -33,7 +33,7 @@ interface UplotChartProps {
  *
  * @param {string} label - The label for the series.
  * @param {number} score - The last score for the series.
- * @returns {object} The series information object.
+ * @return {object} The series information object.
  */
 function createSerieInfo( label: string, score ) {
 	const { spline } = uPlot.paths;
@@ -67,9 +67,9 @@ function createSerieInfo( label: string, score ) {
 /**
  * Get the color value based on the score.
  *
- * @param {number} score - The score to get the color for.
+ * @param {number} score   - The score to get the color for.
  * @param {string} opacity - Whether to return a transparent color.
- * @returns {string} The color value.
+ * @return {string} The color value.
  */
 function getColor( score: number, opacity = 'FF' ) {
 	let color = '#D63638'; // bad
@@ -86,11 +86,11 @@ function getColor( score: number, opacity = 'FF' ) {
 /**
  * UplotLineChart component.
  *
- * @param {object} props - The props object for the UplotLineChart component.
- * @param {{ startDate: number, endDate: number }} props.range - The date range of the chart.
- * @param {Period[]} props.periods - The periods to display in the chart.
- * @param {Annotation[]} props.annotations - The annotations to display in the chart.
- * @returns {React.Element} The JSX element representing the UplotLineChart component.
+ * @param {object}                                 props             - The props object for the UplotLineChart component.
+ * @param {{ startDate: number, endDate: number }} props.range       - The date range of the chart.
+ * @param {Period[]}                               props.periods     - The periods to display in the chart.
+ * @param {Annotation[]}                           props.annotations - The annotations to display in the chart.
+ * @return {React.Element} The JSX element representing the UplotLineChart component.
  */
 export default function UplotLineChart( { range, periods, annotations = [] }: UplotChartProps ) {
 	const uplot = useRef< uPlot | null >( null );
@@ -151,7 +151,7 @@ export default function UplotLineChart( { range, periods, annotations = [] }: Up
 			},
 			series: [
 				{
-					label: __( 'Date', 'jetpack' ),
+					label: __( 'Date', 'jetpack-components' ),
 					value: ( self: uPlot, rawValue: number ) => {
 						// outputs legend content - value available when mouse is hovering the chart
 						if ( ! rawValue ) {
@@ -161,8 +161,8 @@ export default function UplotLineChart( { range, periods, annotations = [] }: Up
 						return date.toLocaleDateString( getUserLocale() );
 					},
 				},
-				createSerieInfo( __( 'Desktop', 'jetpack' ), lastDesktopScore ),
-				createSerieInfo( __( 'Mobile', 'jetpack' ), lastMobileScore ),
+				createSerieInfo( __( 'Desktop', 'jetpack-components' ), lastDesktopScore ),
+				createSerieInfo( __( 'Mobile', 'jetpack-components' ), lastMobileScore ),
 			],
 			scales: {
 				x: {

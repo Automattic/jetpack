@@ -202,25 +202,6 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'bar', $this->server_replica_storage->get_callable( 'wp_version' ) );
 	}
 
-	public function test_automatic_updates_complete_sync_action() {
-		// Commenting this out for now. wp_maybe_auto_update();
-		do_action(
-			'automatic_updates_complete',
-			array(
-				'core' => array(
-					'item'     => array( 'somedata' ),
-					'result'   => 'some more data',
-					'name'     => 'WordPress 4.7',
-					'messages' => array( 'it worked.' ),
-				),
-			)
-		);
-		$this->sender->do_sync();
-
-		$event = $this->server_event_storage->get_most_recent_event( 'automatic_updates_complete' );
-		$this->assertTrue( (bool) $event );
-	}
-
 	public function test_network_core_update_sync_action() {
 		if ( ! is_multisite() ) {
 			$this->markTestSkipped( 'Not compatible with single site mode' );

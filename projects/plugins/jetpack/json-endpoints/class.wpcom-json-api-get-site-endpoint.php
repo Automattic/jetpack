@@ -84,6 +84,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'was_hosting_trial'           => '(bool) If the site ever used a hosting trial.',
 		'wpcom_site_setup'            => '(string) The WP.com site setup identifier.',
 		'is_deleted'                  => '(bool) If the site flagged as deleted.',
+		'is_a4a_client'               => '(bool) If the site is an A4A client site.',
+		'is_a4a_dev_site'             => '(bool) If the site is an A4A dev site.',
 	);
 
 	/**
@@ -118,6 +120,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_wpcom_atomic',
 		'is_wpcom_staging_site',
 		'is_deleted',
+		'is_a4a_client',
+		'is_a4a_dev_site',
 	);
 
 	/**
@@ -138,6 +142,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'unmapped_url',
 		'featured_images_enabled',
 		'theme_slug',
+		'theme_errors',
 		'header_image',
 		'background_color',
 		'image_default_link_type',
@@ -199,10 +204,14 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'videopress_storage_used',
 		'is_difm_lite_in_progress',
 		'site_intent',
+		'site_partner_bundle',
+		'site_goals',
+		'onboarding_segment',
 		'site_vertical_id',
 		'blogging_prompts_settings',
 		'launchpad_screen',
 		'launchpad_checklist_tasks_statuses',
+		'migration_source_site_domain',
 		'wpcom_production_blog_id',
 		'wpcom_staging_blog_ids',
 		'can_blaze',
@@ -227,6 +236,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'was_migration_trial',
 		'was_hosting_trial',
 		'was_upgraded_from_trial',
+		'is_a4a_dev_site',
 	);
 
 	/**
@@ -289,7 +299,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Site
 	 *
-	 * @var $site.
+	 * @var SAL_Site $site.
 	 */
 	private $site;
 
@@ -560,11 +570,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[ $key ] = $this->site->get_products();
 				break;
 			case 'zendesk_site_meta':
-				// D59613-code only added this function to the wpcom SAL subclasses. Absent any better idea,
-				// we'll just omit the key entirely in Jetpack.
-				if ( is_callable( array( $this->site, 'get_zendesk_site_meta' ) ) ) {
-					$response[ $key ] = $this->site->get_zendesk_site_meta();
-				}
+				$response[ $key ] = $this->site->get_zendesk_site_meta();
 				break;
 			case 'quota':
 				$response[ $key ] = $this->site->get_quota();
@@ -607,6 +613,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'is_deleted':
 				$response[ $key ] = $this->site->is_deleted();
+				break;
+			case 'is_a4a_client':
+				$response[ $key ] = $this->site->is_a4a_client();
+				break;
+			case 'is_a4a_dev_site':
+				$response[ $key ] = $this->site->is_a4a_dev_site();
 				break;
 		}
 
@@ -658,6 +670,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'theme_slug':
 					$options[ $key ] = $site->get_theme_slug();
+					break;
+				case 'theme_errors':
+					$options[ $key ] = $site->get_theme_errors();
 					break;
 				case 'header_image':
 					$options[ $key ] = $site->get_header_image();
@@ -819,11 +834,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$options[ $key ] = $site->get_import_engine();
 					break;
 				case 'is_pending_plan':
-					// D40032-code only added this function to the wpcom SAL subclasses. Absent any better idea,
-					// we'll just omit the key entirely in Jetpack.
-					if ( is_callable( array( $site, 'is_pending_plan' ) ) ) {
-						$options[ $key ] = $site->is_pending_plan();
-					}
+					$options[ $key ] = $site->is_pending_plan();
 					break;
 
 				case 'is_wpforteams_site':
@@ -869,6 +880,15 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'site_intent':
 					$options[ $key ] = $site->get_site_intent();
 					break;
+				case 'site_partner_bundle':
+					$options[ $key ] = $site->get_site_partner_bundle();
+					break;
+				case 'site_goals':
+					$options[ $key ] = $site->get_site_goals();
+					break;
+				case 'onboarding_segment':
+					$options[ $key ] = $site->get_onboarding_segment();
+					break;
 				case 'site_vertical_id':
 					$options[ $key ] = $site->get_site_vertical_id();
 					break;
@@ -882,6 +902,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'launchpad_checklist_tasks_statuses':
 					$options[ $key ] = $site->get_launchpad_checklist_tasks_statuses();
+					break;
+				case 'migration_source_site_domain':
+					$options[ $key ] = $site->get_migration_source_site_domain();
 					break;
 				case 'wpcom_production_blog_id':
 					$options[ $key ] = $site->get_wpcom_production_blog_id();

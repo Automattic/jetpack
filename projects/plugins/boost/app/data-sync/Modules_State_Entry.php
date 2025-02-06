@@ -4,44 +4,43 @@ namespace Automattic\Jetpack_Boost\Data_Sync;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Merge;
-use Automattic\Jetpack_Boost\Modules\Modules_Index;
+use Automattic\Jetpack_Boost\Modules\Module;
 
 class Modules_State_Entry implements Entry_Can_Get, Entry_Can_Merge {
-	public function get( $_fallback = false ) {
-		$modules = Modules_Index::MODULES;
 
-		$modules_state     = array();
-		$available_modules = ( new Modules_Index() )->available_modules();
+	protected $modules = array();
+
+	public function __construct( $features ) {
+		foreach ( $features as $feature ) {
+			$instance                               = new Module( new $feature() );
+			$this->modules[ $instance->get_slug() ] = $instance;
+		}
+	}
+
+	public function get( $_fallback = false ) {
+		$state = array();
 
 		/*
 		 * Module states are stored in their individual wp_options records.
-		 * We combining the states of all modules into a single record and attaching the availability of the module.
+		 * We're combining the states of all modules into a single record and attaching the availability of the module.
 		 */
-		foreach ( $modules as $module ) {
-			$slug      = $module::get_slug();
-			$always_on = is_subclass_of( $module, 'Automattic\Jetpack_Boost\Contracts\Is_Always_On' );
-
-			if ( $always_on ) {
-				$is_on = true;
-			} else {
-				$option_name = $this->get_module_option_name( $slug );
-				$is_on       = (bool) get_option( $option_name, false );
-			}
-
-			$modules_state[ $slug ] = array(
-				'active'    => isset( $available_modules[ $slug ] ) && $is_on,
-				'available' => isset( $available_modules[ $slug ] ),
+		foreach ( $this->modules as $module ) {
+			$state[ $module->get_slug() ] = array(
+				'active'    => $module->is_available() && $module->is_enabled(),
+				'available' => $module->is_available(),
 			);
 		}
 
-		return $modules_state;
+		return $state;
 	}
 
 	public function set( $value ) {
 		foreach ( $value as $module_slug => $module_state ) {
-			$option_name = $this->get_module_option_name( $module_slug );
-			$updated     = update_option( $option_name, $module_state['active'] );
+			if ( ! isset( $this->modules[ $module_slug ] ) ) {
+				continue;
+			}
 
+			$updated = $this->modules[ $module_slug ]->update( $module_state['active'] );
 			if ( $updated ) {
 				/**
 				 * Fires when a module is enabled or disabled.
@@ -57,9 +56,5 @@ class Modules_State_Entry implements Entry_Can_Get, Entry_Can_Merge {
 
 	public function merge( $value, $partial_value ) {
 		return array_merge( $value, $partial_value );
-	}
-
-	private function get_module_option_name( $module_slug ) {
-		return 'jetpack_boost_status_' . str_replace( '_', '-', $module_slug );
 	}
 }

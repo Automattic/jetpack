@@ -1,4 +1,4 @@
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { memoize } from 'lodash';
 
 /**
@@ -11,10 +11,10 @@ import { memoize } from 'lodash';
  * const className = getColorClassName( 'color', canvasPrimaryColor );
  *
  * @param {string} colorContextName - Context/place where color is being used
- * e.g: background, text etc...
- * @param {string} colorSlug - Slug of the color.
+ *                                  e.g: background, text etc...
+ * @param {string} colorSlug        - Slug of the color.
  *
- * @returns {string|undefined} String with the class corresponding to the color
+ * @return {string|undefined} String with the class corresponding to the color
  * in the provided context. Undefined if either colorContextName or colorSlug
  * are not provided.
  */
@@ -38,7 +38,7 @@ export function getColorClassName( colorContextName, colorSlug ) {
  *
  * @param {Promise} promise - the Promise to make cancelable
  *
- * @returns {object} Object containing original promise object and cancel
+ * @return {object} Object containing original promise object and cancel
  * method.
  */
 export function makeCancellable( promise ) {
@@ -67,8 +67,14 @@ export function makeCancellable( promise ) {
  *   primaryColor: '…',
  *   customPrimaryColor: '…',
  * } );
- * @param Object config with all color-related block attributes.
- * @returns Object with color details.
+ * @param {object} config                         - with all color-related block attributes.
+ * @param {string} [config.primaryColor]          - Primary color name.
+ * @param {string} [config.customPrimaryColor]    - Primary color.
+ * @param {string} [config.secondaryColor]        - Secondary color name.
+ * @param {string} [config.customSecondaryColor]  - Secondary color.
+ * @param {string} [config.backgroundColor]       - Background color name.
+ * @param {string} [config.customBackgroundColor] - Background color.
+ * @return {object} with color details.
  */
 const generateColorsObject = ( {
 	primaryColor,
@@ -88,7 +94,7 @@ const generateColorsObject = ( {
 		primary: {
 			name: primaryColor,
 			custom: customPrimaryColor,
-			classes: classnames( {
+			classes: clsx( {
 				'has-primary': primaryColorClass || customPrimaryColor,
 				[ primaryColorClass ]: primaryColorClass,
 			} ),
@@ -96,7 +102,7 @@ const generateColorsObject = ( {
 		secondary: {
 			name: secondaryColor,
 			custom: customSecondaryColor,
-			classes: classnames( {
+			classes: clsx( {
 				'has-secondary': secondaryColorClass || customSecondaryColor,
 				[ secondaryColorClass ]: secondaryColorClass,
 			} ),
@@ -104,7 +110,7 @@ const generateColorsObject = ( {
 		background: {
 			name: backgroundColor,
 			custom: customBackgroundColor,
-			classes: classnames( {
+			classes: clsx( {
 				'has-background': backgroundColorClass || customBackgroundColor,
 				[ backgroundColorClass ]: backgroundColorClass,
 			} ),

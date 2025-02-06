@@ -1,5 +1,5 @@
 import domReady from '@wordpress/dom-ready';
-import { render } from '@wordpress/element';
+import { createRoot } from '@wordpress/element';
 import StoryPlayer from './player';
 
 function renderPlayer( rootElement, settings ) {
@@ -21,17 +21,20 @@ function renderPlayer( rootElement, settings ) {
 	}
 
 	const id = parseId( rootElement );
+	const container = document.querySelector( `[data-id='${ id }']` );
 
-	render(
-		<StoryPlayer
-			id={ id }
-			slides={ slides }
-			metadata={ metadata }
-			disabled={ false }
-			{ ...settings }
-		/>,
-		rootElement
-	);
+	if ( container ) {
+		const root = createRoot( container );
+		root.render(
+			<StoryPlayer
+				id={ id }
+				slides={ slides }
+				metadata={ metadata }
+				disabled={ false }
+				{ ...settings }
+			/>
+		);
+	}
 }
 
 function parseSlides( slidesWrapper ) {
@@ -74,7 +77,7 @@ if ( typeof window !== 'undefined' ) {
 			try {
 				// try to cast numbers and booleans first
 				settings[ settingName ] = JSON.parse( searchParam[ 1 ] );
-			} catch ( err ) {
+			} catch {
 				// assume valid string
 				settings[ settingName ] = JSON.parse( `"${ searchParam[ 1 ] }"` );
 			}
@@ -104,7 +107,7 @@ if ( typeof window !== 'undefined' ) {
 						...settings,
 						...JSON.parse( settingsFromTemplate ),
 					};
-				} catch ( e ) {
+				} catch {
 					// ignore parsing errors
 				}
 			}

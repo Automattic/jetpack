@@ -1,4 +1,4 @@
-import { InspectorControls, PanelColorSettings } from '@wordpress/block-editor';
+import { InspectorControls, PanelColorSettings, useBlockProps } from '@wordpress/block-editor';
 import { BaseControl, PanelBody, SelectControl, ToggleControl } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
@@ -15,12 +15,15 @@ const JetpackFieldConsent = ( {
 	explicitConsentMessage,
 	setAttributes,
 	attributes,
+	insertBlocksAfter,
 } ) => {
+	const blockProps = useBlockProps( {
+		id: `jetpack-field-consent-${ instanceId }`,
+		className: 'jetpack-field jetpack-field-consent',
+	} );
+
 	return (
-		<div
-			id={ `jetpack-field-consent-${ instanceId }` }
-			className="jetpack-field jetpack-field-consent"
-		>
+		<div { ...blockProps }>
 			{ consentType === 'explicit' && (
 				<input className="jetpack-field-consent__checkbox" type="checkbox" disabled />
 			) }
@@ -40,6 +43,7 @@ const JetpackFieldConsent = ( {
 					__( 'Add %s consent message…', 'jetpack-forms' ),
 					consentType
 				) }
+				insertBlocksAfter={ insertBlocksAfter }
 			/>
 			<InspectorControls>
 				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
@@ -52,6 +56,7 @@ const JetpackFieldConsent = ( {
 						checked={ attributes.shareFieldAttributes }
 						onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
 						help={ __( 'Deactivate for individual styling of this block', 'jetpack-forms' ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</PanelBody>
 				<PanelColorSettings
@@ -66,7 +71,7 @@ const JetpackFieldConsent = ( {
 					] }
 				/>
 				<PanelBody title={ __( 'Consent Settings', 'jetpack-forms' ) }>
-					<BaseControl>
+					<BaseControl __nextHasNoMarginBottom={ true }>
 						<SelectControl
 							label={ __( 'Permission to email', 'jetpack-forms' ) }
 							value={ consentType }
@@ -75,6 +80,8 @@ const JetpackFieldConsent = ( {
 								{ label: __( 'Add a privacy checkbox', 'jetpack-forms' ), value: 'explicit' },
 							] }
 							onChange={ value => setAttributes( { consentType: value } ) }
+							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize={ true }
 						/>
 					</BaseControl>
 				</PanelBody>

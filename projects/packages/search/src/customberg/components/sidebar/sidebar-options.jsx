@@ -6,7 +6,7 @@ import {
 	ToggleControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import useEntityRecordState from 'hooks/use-entity-record-state';
 import useSiteLoadingState from 'hooks/use-loading-state';
 import useSearchOptions from 'hooks/use-search-options';
@@ -17,12 +17,10 @@ import ThemeControl from './theme-control';
 
 const { isFreePlan = false } = window[ SERVER_OBJECT_NAME ];
 
-/* eslint-disable react/jsx-no-bind */
-
 /**
  * Customization/configuration tab for the sidebar.
  *
- * @returns {Element} component instance
+ * @return {Element} component instance
  */
 export default function SidebarOptions() {
 	// Initializes default values used for FormToggle in order to avoid changing
@@ -73,7 +71,7 @@ export default function SidebarOptions() {
 
 	return (
 		<Panel
-			className={ classNames( 'jp-search-configure-sidebar-options', {
+			className={ clsx( 'jp-search-configure-sidebar-options', {
 				'jp-search-configure-sidebar-options--is-disabled': isDisabled,
 			} ) }
 		>
@@ -104,6 +102,7 @@ export default function SidebarOptions() {
 					value={ sort }
 					options={ sortOptions }
 					onChange={ setSort }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<SelectControl
 					className="jp-search-configure-overlay-trigger-select"
@@ -121,6 +120,7 @@ export default function SidebarOptions() {
 						},
 					] }
 					onChange={ setTrigger }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<ToggleControl
 					className="jp-search-configure-filtering-opens-overlay-toggle"
@@ -132,6 +132,7 @@ export default function SidebarOptions() {
 					) }
 					label={ __( 'Open overlay from filter links', 'jetpack-search-pkg' ) }
 					onChange={ setFilteringOpensOverlay }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<ExcludedPostTypesControl
 					disabled={ isDisabled }
@@ -147,6 +148,7 @@ export default function SidebarOptions() {
 					disabled={ isDisabled }
 					label={ __( 'Show sort selector', 'jetpack-search-pkg' ) }
 					onChange={ setSortEnabled }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<ToggleControl
 					className="jp-search-configure-infinite-scroll-toggle"
@@ -154,6 +156,7 @@ export default function SidebarOptions() {
 					disabled={ isDisabled }
 					label={ __( 'Enable infinite scroll', 'jetpack-search-pkg' ) }
 					onChange={ setInfiniteScroll }
+					__nextHasNoMarginBottom={ true }
 				/>
 				{ 'expanded' === resultFormat && (
 					<ToggleControl
@@ -162,6 +165,7 @@ export default function SidebarOptions() {
 						disabled={ isDisabled }
 						label={ __( 'Show post date', 'jetpack-search-pkg' ) }
 						onChange={ setPostDate }
+						__nextHasNoMarginBottom={ true }
 					/>
 				) }
 				{ ! isFreePlan && (
@@ -171,6 +175,7 @@ export default function SidebarOptions() {
 						disabled={ isDisabled }
 						label={ __( 'Show "Powered by Jetpack"', 'jetpack-search-pkg' ) }
 						onChange={ setShowLogo }
+						__nextHasNoMarginBottom={ true }
 					/>
 				) }
 			</PanelBody>

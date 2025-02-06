@@ -18,7 +18,7 @@ export const describe = 'Run Phan on a monorepo project';
 /**
  * Load list of monorepo pseudo-projects.
  *
- * @returns {object} Map of key to dir.
+ * @return {object} Map of key to dir.
  */
 async function monorepoPseudoProjects() {
 	const contents = await fs.readFile(
@@ -32,7 +32,7 @@ async function monorepoPseudoProjects() {
  * Options definition for the phan subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the phan commands defined.
+ * @return {object} Yargs with the phan commands defined.
  */
 export async function builder( yargs ) {
 	return yargs
@@ -66,7 +66,7 @@ export async function builder( yargs ) {
 		} )
 		.option( 'concurrency', {
 			type: 'number',
-			description: 'Maximum number of phan tasks to run at once. Ignored with `--verbose`.',
+			description: 'Maximum number of phan tasks to run at once.',
 			default: os.cpus().length,
 			coerce: coerceConcurrency,
 		} )
@@ -457,7 +457,7 @@ export async function handler( argv ) {
 									}
 									throw new Error( 'Output is JSON but not an array' );
 								}
-							} catch ( e2 ) {
+							} catch {
 								if ( argv.v ) {
 									sstdout.write( stdout );
 								}
@@ -468,11 +468,13 @@ export async function handler( argv ) {
 							}
 							if ( json.length ) {
 								issues.push( ...json );
-								throw new Error(
+								const err = new Error(
 									json.length === 1
 										? 'Phan reported 1 issue'
 										: `Phan reported ${ json.length } issues`
 								);
+								err.isSuccessfulError = true;
+								throw err;
 							}
 						}
 					},
@@ -481,6 +483,7 @@ export async function handler( argv ) {
 				return new Listr( subtasks, {
 					concurrent: false,
 					renderer: argv.v ? VerboseRenderer : UpdateRenderer,
+					exitOnError: true,
 				} );
 			},
 		} );
@@ -491,8 +494,11 @@ export async function handler( argv ) {
 		renderer: argv.v ? VerboseRenderer : UpdateRenderer,
 		exitOnError: false,
 	} );
-	await listr.run().catch( e => {
-		process.exitCode = e.exitCode || 1;
+	await listr.run().catch( err => {
+		for ( const e of err.errors ?? [ err ] ) {
+			// eslint-disable-next-line no-bitwise
+			process.exitCode |= e.isSuccessfulError ? 1 : 2;
+		}
 	} );
 
 	issues.sort( ( a, b ) => {
@@ -562,6 +568,7 @@ export async function handler( argv ) {
 						'%0A%0ASuggestion: ' +
 						issue.suggestion.replace( /[%\r\n]/g, m => encodeURIComponent( m[ 0 ] ) );
 				}
+				msg += '%0A%0AFAQ on Phan issues: pdWQjU-Jb-p2';
 				await writeln( msg );
 			}
 			break;
@@ -655,11 +662,27 @@ export async function handler( argv ) {
 				await writeln(
 					issues.length === 1 ? 'FOUND 1 ISSUE TOTAL' : `FOUND ${ issues.length } ISSUES TOTAL`
 				);
+				if ( issues.length > 0 ) {
+					await writeln( chalk.green( 'FAQ on Phan issues: https://wp.me/pdWQjU-Jb' ) );
+				}
 			}
 			break;
 	}
 	if ( argv.reportFile ) {
 		reportStream.end();
 		console.log( `Report written to ${ argv.reportFile }` );
+	}
+	// eslint-disable-next-line no-bitwise
+	if ( ( process.exitCode & 2 ) !== 0 ) {
+		console.error(
+			chalk.red(
+				'Errors were encountered while running Phan for one or more projects! Results may not be complete.'
+			)
+		);
+		if ( ! argv.v ) {
+			console.error(
+				chalk.yellow( 'You might try running with `-v` to get more information on the failure' )
+			);
+		}
 	}
 }

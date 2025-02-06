@@ -1,5 +1,5 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 import ImageSlider from './image-slider';
 import type { Props as ConnectScreenProps } from '../basic';
@@ -35,7 +35,7 @@ const ConnectScreenLayout: React.FC< Props > = ( {
 
 	return (
 		<div
-			className={ classNames(
+			className={ clsx(
 				'jp-connection__connect-screen-layout',
 				showImageSlider ? 'jp-connection__connect-screen-layout__two-columns' : '',
 				className ? ' ' + className : ''

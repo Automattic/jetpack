@@ -154,10 +154,14 @@ class Jetpack_Currencies {
 	 * @return string           Formatted price.
 	 */
 	public static function format_price( $price, $currency, $symbol = true ) {
+		// Add some basic formatting for the price.
+		$formatted_number = new NumberFormatter( get_locale(), NumberFormatter::DECIMAL );
+		$price            = (float) $formatted_number->parse( $price );
+
 		// Fall back to unspecified currency symbol like `¤1,234.05`.
 		// @link https://en.wikipedia.org/wiki/Currency_sign_(typography).
 		if ( ! array_key_exists( $currency, self::CURRENCIES ) ) {
-			return '¤' . number_format_i18n( $price, 2 );
+			return ( $symbol ? '¤' : '' ) . number_format_i18n( $price, 2 );
 		}
 
 		$currency_details = self::CURRENCIES[ $currency ];

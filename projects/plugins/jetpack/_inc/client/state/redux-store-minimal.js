@@ -7,7 +7,7 @@ export default createJetpackStore();
 /**
  * Creates redux store
  *
- * @returns {object} store
+ * @return {object} store
  */
 function createJetpackStore() {
 	const finalCreateStore = compose(

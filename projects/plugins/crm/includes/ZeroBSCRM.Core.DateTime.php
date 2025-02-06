@@ -1,13 +1,7 @@
 <?php
 /*
-!
  * Jetpack CRM
- * http://www.zerobscrm.com
- * V2.98.2+
- *
- * Copyright 2020 Automattic
- *
- * Date: 05/03/2019
+ * https://jetpackcrm.com
  */
 
 /*
@@ -15,7 +9,7 @@
 	Breaking Checks ( stops direct access )
 	====================================================== */
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 /*
 ======================================================

@@ -5,11 +5,12 @@
  * @package automattic/jetpack
  */
 
-if ( ! function_exists( 'jetpack_social_menu_include_svg_icons' ) ) :
+if ( ! function_exists( 'jetpack_social_menu_include_svg_icons' ) ) {
 	/**
 	 * Add SVG definitions to the footer.
 	 */
 	function jetpack_social_menu_include_svg_icons() {
+		_deprecated_function( __FUNCTION__, 'jetpack-13.7' );
 		// Return early if Social Menu doesn't exist.
 		if ( ! has_nav_menu( 'jetpack-social-menu' ) ) {
 			return;
@@ -18,13 +19,34 @@ if ( ! function_exists( 'jetpack_social_menu_include_svg_icons' ) ) :
 		$svg_icons = __DIR__ . '/social-menu.svg';
 		// If it exists and we use the SVG menu type, include it.
 		if ( file_exists( $svg_icons ) && 'svg' === jetpack_social_menu_get_type() ) {
-			require_once $svg_icons;
+			$svg_contents = file_get_contents( $svg_icons ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Only reading a local file.
+		}
+
+		if ( ! empty( $svg_contents ) ) {
+			$allowed_tags = array(
+				'svg'    => array(
+					'style'       => true,
+					'version'     => true,
+					'xmlns'       => true,
+					'xmlns:xlink' => true,
+				),
+				'defs'   => array(),
+				'symbol' => array(
+					'id'      => true,
+					'viewbox' => true,
+				),
+				'path'   => array(
+					'd'     => true,
+					'style' => true,
+				),
+			);
+			echo wp_kses( $svg_contents, $allowed_tags );
 		}
 	}
 	add_action( 'wp_footer', 'jetpack_social_menu_include_svg_icons', 9999 );
-endif;
+}
 
-if ( ! function_exists( 'jetpack_social_menu_get_svg' ) ) :
+if ( ! function_exists( 'jetpack_social_menu_get_svg' ) ) {
 	/**
 	 * Return SVG markup.
 	 *
@@ -36,6 +58,7 @@ if ( ! function_exists( 'jetpack_social_menu_get_svg' ) ) :
 	 * @return string SVG markup.
 	 */
 	function jetpack_social_menu_get_svg( $args = array() ) {
+		_deprecated_function( __FUNCTION__, 'jetpack-13.7' );
 		// Make sure $args are an array.
 		if ( empty( $args ) ) {
 			return esc_html__( 'Please define default parameters in the form of an array.', 'jetpack' );
@@ -79,9 +102,9 @@ if ( ! function_exists( 'jetpack_social_menu_get_svg' ) ) :
 
 		return $svg;
 	}
-endif;
+}
 
-if ( ! function_exists( 'jetpack_social_menu_nav_menu_social_icons' ) ) :
+if ( ! function_exists( 'jetpack_social_menu_nav_menu_social_icons' ) ) {
 	/**
 	 * Display SVG icons in social links menu.
 	 *
@@ -92,6 +115,7 @@ if ( ! function_exists( 'jetpack_social_menu_nav_menu_social_icons' ) ) :
 	 * @return string  $item_output The menu item output with social icon.
 	 */
 	function jetpack_social_menu_nav_menu_social_icons( $item_output, $item, $depth, $args ) {
+		_deprecated_function( __FUNCTION__, 'jetpack-13.7' );
 		// Get supported social icons.
 		$social_icons = jetpack_social_menu_social_links_icons();
 
@@ -123,9 +147,9 @@ if ( ! function_exists( 'jetpack_social_menu_nav_menu_social_icons' ) ) :
 		return $item_output;
 	}
 	add_filter( 'walker_nav_menu_start_el', 'jetpack_social_menu_nav_menu_social_icons', 10, 4 );
-endif;
+}
 
-if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
+if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) {
 	/**
 	 * Returns an array of supported social links (URL / regex and icon name).
 	 * For regex, use the # delimiter.
@@ -133,6 +157,7 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 	 * @return array $social_links_icons
 	 */
 	function jetpack_social_menu_social_links_icons() {
+		_deprecated_function( __FUNCTION__, 'jetpack-13.7' );
 		// Supported social links icons.
 		$social_links_icons = array(
 			'#https?:\/\/(www\.)?amazon\.(com|cn|in|fr|de|it|nl|es|co|ca)\/#' => 'amazon',
@@ -210,4 +235,4 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 
 		return $social_links_icons;
 	}
-endif;
+}

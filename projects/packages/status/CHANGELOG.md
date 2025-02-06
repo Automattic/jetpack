@@ -5,6 +5,78 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.3] - 2025-02-03
+### Fixed
+- Code: Remove extra params on function calls. [#41263]
+
+## [5.0.2] - 2025-01-20
+### Changed
+- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
+
+## [5.0.1] - 2024-11-25
+### Changed
+- Updated package dependencies. [#40258]
+
+## [5.0.0] - 2024-11-14
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## [4.0.3] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+## [4.0.2] - 2024-09-23
+### Changed
+- Update dependencies.
+
+## [4.0.1] - 2024-09-06
+### Removed
+- Removed usage of _deprecated_function when deprecating Status::is_onboarding [#39272]
+
+## [4.0.0] - 2024-09-05
+### Deprecated
+- Deprecated Jetpack Onboarding system. [#39229]
+
+## [3.3.4] - 2024-08-23
+### Changed
+- Updated package dependencies. [#39004]
+
+## [3.3.3] - 2024-08-19
+### Changed
+- Internal updates.
+
+## [3.3.2] - 2024-06-24
+### Changed
+- Internal updates.
+
+## [3.3.1] - 2024-06-21
+### Added
+- Check for active modules among the unavailable ones. [#37358]
+
+## [3.3.0] - 2024-06-10
+### Deprecated
+- Deprecated is_staging_site [#37023]
+
+## [3.2.3] - 2024-06-03
+### Removed
+- Remove the Identity Crisis dev dependency. [#37654]
+
+## [3.2.2] - 2024-05-29
+### Changed
+- Phab baseline file update. [#36968]
+
+## [3.2.1] - 2024-05-28
+### Changed
+- Internal updates.
+
+## [3.2.0] - 2024-05-22
+### Deprecated
+- Jetpack: Deprecated Errors class. [#37451]
+
+## [3.1.0] - 2024-05-20
+### Added
+- Add the 'is_current_request_activating_plugin_from_plugins_screen' method extracted from the Plugin Install package. [#37430]
+
 ## [3.0.3] - 2024-05-08
 ### Fixed
 - Status: Added check for compatibility reasons [#37256]
@@ -349,6 +421,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Introduce a status package
 
+[5.0.3]: https://github.com/Automattic/jetpack-status/compare/v5.0.2...v5.0.3
+[5.0.2]: https://github.com/Automattic/jetpack-status/compare/v5.0.1...v5.0.2
+[5.0.1]: https://github.com/Automattic/jetpack-status/compare/v5.0.0...v5.0.1
+[5.0.0]: https://github.com/Automattic/jetpack-status/compare/v4.0.3...v5.0.0
+[4.0.3]: https://github.com/Automattic/jetpack-status/compare/v4.0.2...v4.0.3
+[4.0.2]: https://github.com/Automattic/jetpack-status/compare/v4.0.1...v4.0.2
+[4.0.1]: https://github.com/Automattic/jetpack-status/compare/v4.0.0...v4.0.1
+[4.0.0]: https://github.com/Automattic/jetpack-status/compare/v3.3.4...v4.0.0
+[3.3.4]: https://github.com/Automattic/jetpack-status/compare/v3.3.3...v3.3.4
+[3.3.3]: https://github.com/Automattic/jetpack-status/compare/v3.3.2...v3.3.3
+[3.3.2]: https://github.com/Automattic/jetpack-status/compare/v3.3.1...v3.3.2
+[3.3.1]: https://github.com/Automattic/jetpack-status/compare/v3.3.0...v3.3.1
+[3.3.0]: https://github.com/Automattic/jetpack-status/compare/v3.2.3...v3.3.0
+[3.2.3]: https://github.com/Automattic/jetpack-status/compare/v3.2.2...v3.2.3
+[3.2.2]: https://github.com/Automattic/jetpack-status/compare/v3.2.1...v3.2.2
+[3.2.1]: https://github.com/Automattic/jetpack-status/compare/v3.2.0...v3.2.1
+[3.2.0]: https://github.com/Automattic/jetpack-status/compare/v3.1.0...v3.2.0
+[3.1.0]: https://github.com/Automattic/jetpack-status/compare/v3.0.3...v3.1.0
 [3.0.3]: https://github.com/Automattic/jetpack-status/compare/v3.0.2...v3.0.3
 [3.0.2]: https://github.com/Automattic/jetpack-status/compare/v3.0.1...v3.0.2
 [3.0.1]: https://github.com/Automattic/jetpack-status/compare/v3.0.0...v3.0.1

@@ -2,13 +2,12 @@ import { useEntityProp } from '@wordpress/core-data';
 import { PRODUCT_SORT_OPTIONS, RELEVANCE_SORT_KEY } from 'instant-search/lib/constants';
 import { useMemo } from 'react';
 
-/* eslint-disable react/jsx-no-bind */
-const VALID_POST_TYPES = global.JetpackInstantSearchOptions.postTypes;
+const VALID_POST_TYPES = window.JetpackInstantSearchOptions.postTypes;
 
 /**
  * Fetches values and setters for various search configuration values.
  *
- * @returns {object} values and setters
+ * @return {object} values and setters
  */
 export default function useSearchOptions() {
 	const [ theme, setTheme ] = useEntityProp( 'root', 'site', 'jetpack_search_color_theme' );

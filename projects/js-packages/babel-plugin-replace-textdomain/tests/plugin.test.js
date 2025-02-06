@@ -1,5 +1,3 @@
-/* eslint-disable import/order */
-
 const mockOrigDebug = jest.requireActual( 'debug' );
 const mockDebug = jest.fn();
 jest.mock( 'debug', () => {

@@ -127,6 +127,15 @@ class Output_Filter {
 			$this->is_filtering = false;
 
 			// Join remaining buffers and allow plugin to append anything to them.
+			/**
+			 * Filter the Critical CSS output buffer
+			 *
+			 * @param string $joint_buffer The entire output buffer
+			 * @param string $buffer_start The top half of the buffer
+			 * @param string $buffer_end The bottom half of the buffer
+			 *
+			 * @since   1.0.0
+			 */
 			return apply_filters( 'jetpack_boost_output_filtering_last_buffer', $joint_buffer, $buffer_start, $buffer_end );
 		}
 

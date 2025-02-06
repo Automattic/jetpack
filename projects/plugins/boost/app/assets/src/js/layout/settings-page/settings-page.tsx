@@ -3,10 +3,10 @@ import Footer from '$layout/footer/footer';
 import Header from '$layout/header/header';
 import Support from './support/support';
 import Tips from './tips/tips';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import styles from './settings-page.module.scss';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
-import LocalCriticalCssGeneratorProvider from '$features/critical-css/local-generator/local-generator-provider';
+import CriticalCssProvider from '$features/critical-css/critical-css-context/critical-css-context-provider';
 import NoticeManager from '$features/notice/manager';
 import { NoticeProvider } from '$features/notice/context';
 
@@ -20,7 +20,7 @@ const SettingsPage = ( { children }: SettingsPageProps ) => {
 
 	return (
 		<NoticeProvider>
-			<LocalCriticalCssGeneratorProvider>
+			<CriticalCssProvider>
 				<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
 					<Header />
 
@@ -29,7 +29,7 @@ const SettingsPage = ( { children }: SettingsPageProps ) => {
 					</div>
 
 					{ children && (
-						<div className={ classNames( 'jb-section jb-section--main', styles.section ) }>
+						<div className={ clsx( 'jb-section jb-section--main', styles.section ) }>
 							{ children }
 						</div>
 					) }
@@ -41,7 +41,7 @@ const SettingsPage = ( { children }: SettingsPageProps ) => {
 					<Footer />
 					<NoticeManager />
 				</div>
-			</LocalCriticalCssGeneratorProvider>
+			</CriticalCssProvider>
 		</NoticeProvider>
 	);
 };

@@ -1,19 +1,21 @@
 import { VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import styles from './styles.module.scss';
 
 const Notice = ( { children, type = 'default', actions = [], onDismiss } ) => {
-	const className = classnames( styles.notice, styles[ `notice--${ type }` ] );
+	const className = clsx( styles.notice, styles[ `notice--${ type }` ] );
 
 	return (
 		<div className={ className }>
-			<div className={ styles.content }> { children } </div>
+			<div> { children } </div>
 			{ onDismiss && (
 				<button className={ styles.dismiss } onClick={ onDismiss }>
-					<VisuallyHidden>{ __( 'Dismiss notice', 'jetpack' ) }</VisuallyHidden>
+					<VisuallyHidden>
+						{ __( 'Dismiss notice', 'jetpack-publicize-components' ) }
+					</VisuallyHidden>
 					<Icon icon={ closeSmall } />
 				</button>
 			) }

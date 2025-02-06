@@ -298,3 +298,11 @@
 .screen-reader-text {
 	position: absolute;
 }
+
+/* Contact form */
+/* See https: //core.trac.wordpress.org/browser/trunk/src/wp-content/themes/twentytwenty/style.css?rev=58726#L710 */
+.contact-form input.grunion-field[type="checkbox"] {
+	padding: 0;
+	width: 1.5rem;
+	height: 1.5rem;
+}

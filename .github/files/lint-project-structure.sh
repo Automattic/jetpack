@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -eo pipefail
 shopt -s dotglob
@@ -8,12 +8,6 @@ BASE=$PWD
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
 . "$BASE/.github/versions.sh"
-
-if [[ -n "$CI" ]]; then
-	function debug {
-		blue "$@"
-	}
-fi
 
 EXIT=0
 declare -A OKFILES
@@ -27,6 +21,11 @@ declare -A PROJECT_PREFIXES=(
 	['plugins']='Plugin'
 	['js-packages']='JS Package'
 )
+
+declare -A PKG_VENDOR_DIR_CACHE=()
+while IFS=$'\t' read -r PKG VENDOR; do
+	PKG_VENDOR_DIR_CACHE["$PKG=dev-trunk"]="$VENDOR"
+done < <( jq -r '[ .name, if .type == "jetpack-library" then "jetpack_vendor" else "vendor" end ] | @tsv' "$BASE"/projects/packages/*/composer.json )
 
 PACKAGES=$(jq -nc 'reduce inputs as $in ({}; .[ $in.name ] |= ( $in.extra["mirror-repo"] | type == "string" ) )' "$BASE"/projects/packages/*/composer.json)
 JSPACKAGES='{}'
@@ -407,6 +406,58 @@ for PROJECT in projects/*/*; do
 		fi
 	fi
 
+	# - Plugin non-dev composer dependencies need to be production-included.
+	if [[ "$TYPE" == "plugins" && -e "$PROJECT/composer.lock" ]]; then
+		HAS_COMPOSER_PLUGIN=false
+		if composer -d "$PROJECT" info --locked automattic/jetpack-composer-plugin &>/dev/null; then
+			HAS_COMPOSER_PLUGIN=true
+		fi
+		while IFS=$'\t' read -r PKG VER; do
+			VENDOR=vendor
+			if $HAS_COMPOSER_PLUGIN; then
+				if [[ -z "${PKG_VENDOR_DIR_CACHE["$PKG=$VER"]}" ]]; then
+					if composer -d "$PROJECT" info --locked --format=json "$PKG" | jq -e '.type == "jetpack-library"' &>/dev/null; then
+						PKG_VENDOR_DIR_CACHE["$PKG=$VER"]=jetpack_vendor
+					else
+						PKG_VENDOR_DIR_CACHE["$PKG=$VER"]=vendor
+					fi
+				fi
+				VENDOR=${PKG_VENDOR_DIR_CACHE["$PKG=$VER"]}
+			fi
+			if [[ "$(git check-attr production-include -- "$PROJECT/$VENDOR/$PKG/file")" != *": production-include: set" ]]; then
+				EXIT=1
+				echo "---"
+				echo "::error file=$PROJECT/.gitattributes::Non-dev composer dependency $PKG is not being production-included. Either make it a dev dependency, or add a line like%0A/$VENDOR/$PKG/**    production-include%0Ain \`.gitattributes\`."
+				echo "---"
+			fi
+		done < <( composer -d "$PROJECT" info --locked --no-dev --format=json | jq -r 'if type == "object" then .locked[] | [ .name, .version ] | @tsv else empty end' )
+	fi
+
+	# - `.extra.dependencies.test-only` must refer to dev dependencies.
+	if jq -e '.extra.dependencies["test-only"] // empty' "$PROJECT/composer.json" >/dev/null; then
+		while IFS=$'\t' read -r LINE DEP; do
+			if [[ ! -e "projects/$DEP/composer.json" ]]; then
+				EXIT=1
+				echo "::error file=$PROJECT/composer.json,line=${LINE}::Dependency \"$DEP\" does not exist in the monorepo."
+			elif [[ "$DEP" == packages/* ]]; then
+				N=$( jq -r .name "projects/$DEP/composer.json" )
+				if ! jq -e --arg N "$N" '.["require-dev"][$N]' "$PROJECT/composer.json" &>/dev/null; then
+					EXIT=1
+					echo "::error file=$PROJECT/composer.json,line=${LINE}::Project \"$DEP\" ($N) is not a dev dependency of $SLUG."
+				fi
+			elif [[ "$DEP" == js-packages/* ]]; then
+				N=$( jq -r .name "projects/$DEP/package.json" 2>/dev/null || true )
+				if ! jq -e --arg N "$N" '.devDependencies[$N]' "$PROJECT/package.json" &>/dev/null; then
+					EXIT=1
+					echo "::error file=$PROJECT/composer.json,line=${LINE}::Project \"$DEP\" ($N) is not a dev dependency of $SLUG."
+				fi
+			else
+				EXIT=1
+				echo "::error file=$PROJECT/composer.json,line=${LINE}::Dependency \"$DEP\" is neither a package nor a js-package."
+			fi
+		done < <( jq --stream -r 'if length == 2 and .[0][:-1] == ["extra","dependencies","test-only"] then [input_line_number,.[1]] | @tsv else empty end' "$PROJECT/composer.json" )
+	fi
+
 done
 
 # - Monorepo root composer.json must also use dev deps appropriately.
@@ -461,7 +512,7 @@ done
 
 # - Text domains in phpcs config should match composer.json.
 debug "Checking package textdomain usage in phpcs config"
-for FILE in $(git -c core.quotepath=off ls-files 'projects/packages/**/.phpcs.dir.xml'); do
+for FILE in $(git -c core.quotepath=off ls-files 'projects/*/**/.phpcs.dir.xml'); do
 	DOM="$(php -r '$doc = new DOMDocument(); $doc->load( $argv[1] ); $xpath = new DOMXPath( $doc ); echo $xpath->evaluate( "string(//rule[@ref=\"WordPress.WP.I18n\"]/properties/property[@name=\"text_domain\"]/element/@value)" );' "$FILE")"
 	[[ -z "$DOM" ]] && continue
 	DIR="$FILE"
@@ -469,7 +520,13 @@ for FILE in $(git -c core.quotepath=off ls-files 'projects/packages/**/.phpcs.di
 		DIR="${DIR%/*}"
 	done
 	SLUG="${DIR#projects/}"
-	DOM2="$(jq -r '.extra.textdomain // ""' "$DIR/composer.json")"
+	if [[ "$SLUG" == plugins/* ]]; then
+		WHAT='`.extra.wp-plugin-slug` or `.extra.beta-plugin-slug`'
+		DOM2="$(jq -r '.extra["wp-plugin-slug"] // .extra["beta-plugin-slug"] // ""' "$DIR/composer.json")"
+	else
+		WHAT='`.extra.textdomain`'
+		DOM2="$(jq -r '.extra.textdomain // ""' "$DIR/composer.json")"
+	fi
 	if [[ "$DOM" != "$DOM2" ]]; then
 		EXIT=1
 		LINE=$(grep --line-number --max-count=1 'name="text_domain"' "$FILE" || true)
@@ -477,34 +534,9 @@ for FILE in $(git -c core.quotepath=off ls-files 'projects/packages/**/.phpcs.di
 			LINE=",line=${LINE%%:*}"
 		fi
 		if [[ -z "$DOM2" ]]; then
-			echo "::error file=$FILE$LINE::PHPCS config sets textdomain \"$DOM\", but $SLUG's composer.json does not set \`.extra.textdomain\`."
+			echo "::error file=$FILE$LINE::PHPCS config sets textdomain \"$DOM\", but $SLUG's composer.json does not set $WHAT."
 		else
 			echo "::error file=$FILE$LINE::PHPCS config sets textdomain \"$DOM\", but $SLUG's composer.json sets domain \"$DOM2\"."
-		fi
-	fi
-done
-
-# - Text domains in eslint config should match composer.json.
-debug "Checking package textdomain usage in eslint config"
-for FILE in $(git -c core.quotepath=off ls-files 'projects/packages/**/.eslintrc.js' 'projects/packages/**/.eslintrc.cjs'); do
-	DOM="$(node -e 'const x = require( `./${ process.argv[1] }` ); console.log( x.rules?.["@wordpress/i18n-text-domain"]?.[1]?.allowedTextDomain ?? "" );' "$FILE")"
-	[[ -z "$DOM" ]] && continue
-	DIR="$FILE"
-	while ! [[ "$DIR" =~ ^projects/[^/]*/[^/]*$ ]]; do
-		DIR="${DIR%/*}"
-	done
-	SLUG="${DIR#projects/}"
-	DOM2="$(jq -r '.extra.textdomain // ""' "$DIR/composer.json")"
-	if [[ "$DOM" != "$DOM2" ]]; then
-		EXIT=1
-		LINE=$(grep --line-number --max-count=1 'allowedTextDomain' "$FILE" || true)
-		if [[ -n "$LINE" ]]; then
-			LINE=",line=${LINE%%:*}"
-		fi
-		if [[ -z "$DOM2" ]]; then
-			echo "::error file=$FILE$LINE::Eslint config sets textdomain \"$DOM\", but $SLUG's composer.json does not set \`.extra.textdomain\`."
-		else
-			echo "::error file=$FILE$LINE::Eslint config sets textdomain \"$DOM\", but $SLUG's composer.json sets domain \"$DOM2\"."
 		fi
 	fi
 done
@@ -521,8 +553,10 @@ for FILE in $(git -c core.quotepath=off ls-files 'projects/packages/**/block.jso
 	done
 	SLUG="${DIR#projects/}"
 	if [[ "$SLUG" == plugins/* ]]; then
-		DOM2="$(jq -r '.extra["wp-plugin-slug"] // .extra["wp-theme-slug"] // ""' "$DIR/composer.json")"
+		WHAT='`.extra.wp-plugin-slug` or `.extra.beta-plugin-slug`'
+		DOM2="$(jq -r '.extra["wp-plugin-slug"] // .extra["beta-plugin-slug"] // ""' "$DIR/composer.json")"
 	else
+		WHAT='`.extra.textdomain`'
 		DOM2="$(jq -r '.extra.textdomain // ""' "$DIR/composer.json")"
 	fi
 	if [[ "$DOM" != "$DOM2" ]]; then
@@ -532,7 +566,7 @@ for FILE in $(git -c core.quotepath=off ls-files 'projects/packages/**/block.jso
 			LINE=",line=${LINE%%:*}"
 		fi
 		if [[ -z "$DOM2" ]]; then
-			echo "::error file=$FILE$LINE::block.json sets textdomain \"$DOM\", but $SLUG's composer.json does not set \`.extra.textdomain\`."
+			echo "::error file=$FILE$LINE::block.json sets textdomain \"$DOM\", but $SLUG's composer.json does not set $WHAT."
 		else
 			echo "::error file=$FILE$LINE::block.json sets textdomain \"$DOM\", but $SLUG's composer.json sets domain \"$DOM2\"."
 		fi
@@ -583,5 +617,50 @@ if ! pnpm semver --range "$RANGE" "$PNPM_VERSION" &>/dev/null; then
 	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["engines","pnpm"] then input_line_number - 1 else empty end' package.json)
 	echo "::error file=package.json,line=$LINE::Pnpm version $PNPM_VERSION in .github/versions.sh does not satisfy requirement $RANGE from package.json"
 fi
+if ! jq -e --arg v "pnpm@$PNPM_VERSION" '.packageManager == $v' package.json &>/dev/null; then
+	EXIT=1
+	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["packageManager"] then input_line_number - 1 else empty end' package.json)
+	echo "::error file=package.json,line=$LINE::Version in package.json packageManager must be \"pnpm@$PNPM_VERSION\", to match .github/versions.sh."
+fi
+
+# - Check for incorrect next-version tokens.
+debug "Checking for incorrect next-version tokens."
+RE='[^$]\$next[-_]version\$\|\$next[-_]version\$[^$]\|\$\$next_version\$\$'
+while IFS= read -r FILE; do
+	EXIT=1
+	while IFS=: read -r LINE COL X; do
+		X=${X/#[^$]/}
+		X=${X/%[^$]/}
+		echo "::error file=$FILE,line=$LINE,col=$COL::You probably mean \`\$\$next-version\$\$\` here rather than \`$X\`."
+	done < <( git grep -h --line-number --column -o "$RE" "$FILE" )
+done < <( git -c core.quotepath=off grep -l "$RE" )
+
+# - Check for `random(` in scss files.
+debug "Checking for SCSS random."
+while IFS= read -r FILE; do
+	EXIT=1
+	while IFS=: read -r LINE COL X; do
+		X=${X%(}
+		echo "::error file=$FILE,line=$LINE,col=$COL::Do not use SCSS \`$X()\`. It means that every build will have different CSS, dirtying the diffs (and making for redudant Simple deploys if this gets into a relevant plugin)."
+	done < <( git grep -h --line-number --column -o '\(random\|unique-id\)\s*(' "$FILE" )
+done < <( git -c core.quotepath=off grep -l '\(random\|unique-id\)\s*(' '*.sass' '*.scss' )
+
+# - package.json name fields must be prefixed or already registered.
+debug "Checking for bad package.json names"
+while IFS=$'\t' read -r FILE NAME; do
+	LINE=$(grep --line-number --max-count=1 '^	"name":' "$FILE" || true)
+	if [[ -n "$LINE" ]]; then
+		LINE=",line=${LINE%%:*}"
+	fi
+
+	J=$( curl -sS "https://registry.npmjs.com/$( jq -rn --arg V "$NAME" '$V | @uri' )" )
+	if ! jq -e '.maintainers' <<<"$J" &>/dev/null; then
+		EXIT=1
+		echo "::error file=$FILE$LINE::Name $NAME is not published and not scoped. If it is not supposed to be published to npmjs, then if possible omit the \"name\" field entirely or otherwise rename it like \"@automattic/$NAME\" or \"_$NAME\" or manually publish a dummy version. If it will be published, rename it like \"@automattic/$NAME\" or manually publish a dummy version."
+	elif ! jq -e '.maintainers[] | select( .name == "matticbot" or .name == "npm" )' <<<"$J" &>/dev/null; then
+		EXIT=1
+		echo "::error file=$FILE$LINE::Name $NAME is not owned by us (\`matticbot\`) or the NPM security account (\`npm\`). If this is not supposed to be published to npmjs, then if possible omit the \"name\" field entirely or otherwise rename it like \"@automattic/$NAME\" or \"_$NAME\". If it will be published, either add \`matticbot\` as a maintainer if we can or you'll have to rename (e.g. like \"@automattic/$NAME\")."
+	fi
+done < <( jq -r '.name // empty | select( startswith( "@automattic/" ) or startswith( "_" ) | not ) | [ input_filename, . ] | @tsv' $( git ls-files package.json '*/package.json' ) )
 
 exit $EXIT

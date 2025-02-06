@@ -8,8 +8,8 @@ import services from './services';
  * an array of available services in order to populate the new blocks.
  *
  * @param {object} instance - The widget instance returned from the API
- * @param {string} idBase - The widget name
- * @returns {object} The transforms settings
+ * @param {string} idBase   - The widget name
+ * @return {object} The transforms settings
  */
 const socialLinksTransform = {
 	from: [
@@ -54,8 +54,8 @@ const socialLinksTransform = {
  * handle this addition.
  *
  * @param {object} settings - Block settings object.
- * @param {string} name - The block name
- * @returns {object} The settings for the given block with the patched variations.
+ * @param {string} name     - The block name
+ * @return {object} The settings for the given block with the patched variations.
  */
 function addTransformToSocialLinksWidget( settings, name ) {
 	if ( name !== 'core/social-links' ) {

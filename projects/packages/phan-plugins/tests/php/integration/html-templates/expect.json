@@ -1,0 +1,943 @@
+[
+	{
+		"type": "issue",
+		"type_id": 999,
+		"check_name": "HtmlTemplateVarUnparseable",
+		"description": "Plugin HtmlTemplateVarUnparseable Unparseable @html-template-var",
+		"severity": 5,
+		"location": {
+			"path": "loader.php",
+			"lines": {
+				"begin": 39,
+				"end": 39
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 999,
+		"check_name": "HtmlTemplateVarUnparseable",
+		"description": "Plugin HtmlTemplateVarUnparseable Unparseable @html-template-var",
+		"severity": 5,
+		"location": {
+			"path": "loader.php",
+			"lines": {
+				"begin": 40,
+				"end": 40
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 999,
+		"check_name": "HtmlTemplateVarUnparseable",
+		"description": "Plugin HtmlTemplateVarUnparseable Unparseable @html-template-var",
+		"severity": 5,
+		"location": {
+			"path": "loader.php",
+			"lines": {
+				"begin": 41,
+				"end": 41
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $this - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/000-no-annotation.php",
+			"lines": {
+				"begin": 0,
+				"end": 0
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 4000,
+		"check_name": "PhanContextNotObject",
+		"description": "Context PhanContextNotObject Cannot access self when not in object context",
+		"severity": 10,
+		"location": {
+			"path": "templates/000-no-annotation.php",
+			"lines": {
+				"begin": 7,
+				"end": 7
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $inst - it has union type object(real=object)",
+		"severity": 0,
+		"location": {
+			"path": "templates/000-no-annotation.php",
+			"lines": {
+				"begin": 7,
+				"end": 7
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/000-no-annotation.php",
+			"lines": {
+				"begin": 7,
+				"end": 7
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var2 - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/000-no-annotation.php",
+			"lines": {
+				"begin": 7,
+				"end": 7
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $this - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/001-function-annotation.php",
+			"lines": {
+				"begin": 0,
+				"end": 0
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 4000,
+		"check_name": "PhanContextNotObject",
+		"description": "Context PhanContextNotObject Cannot access self when not in object context",
+		"severity": 10,
+		"location": {
+			"path": "templates/001-function-annotation.php",
+			"lines": {
+				"begin": 7,
+				"end": 7
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $inst - it has union type object(real=object)",
+		"severity": 0,
+		"location": {
+			"path": "templates/001-function-annotation.php",
+			"lines": {
+				"begin": 7,
+				"end": 7
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var - it has union type 'f2'",
+		"severity": 0,
+		"location": {
+			"path": "templates/001-function-annotation.php",
+			"lines": {
+				"begin": 7,
+				"end": 7
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var2 - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/001-function-annotation.php",
+			"lines": {
+				"begin": 7,
+				"end": 7
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 11018,
+		"check_name": "PhanUndeclaredVariable",
+		"description": "UndefError PhanUndeclaredVariable Variable $someGlobal is undeclared",
+		"severity": 5,
+		"location": {
+			"path": "templates/001-function-annotation.php",
+			"lines": {
+				"begin": 11,
+				"end": 11
+			}
+		},
+		"suggestion": "Did you mean (global $someGlobal)"
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $this - it has union type static(real=static)",
+		"severity": 0,
+		"location": {
+			"path": "templates/002-method-annotation.php",
+			"lines": {
+				"begin": 0,
+				"end": 0
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $inst - it has union type \\LoaderClass(real=\\LoaderClass)",
+		"severity": 0,
+		"location": {
+			"path": "templates/002-method-annotation.php",
+			"lines": {
+				"begin": 7,
+				"end": 7
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var - it has union type 'c2'",
+		"severity": 0,
+		"location": {
+			"path": "templates/002-method-annotation.php",
+			"lines": {
+				"begin": 7,
+				"end": 7
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var2 - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/002-method-annotation.php",
+			"lines": {
+				"begin": 7,
+				"end": 7
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var - it has union type 'ns/f2'",
+		"severity": 0,
+		"location": {
+			"path": "templates/003-ns-function-annotation.php",
+			"lines": {
+				"begin": 0,
+				"end": 0
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $this - it has union type static(real=static)",
+		"severity": 0,
+		"location": {
+			"path": "templates/004-ns-method-annotation.php",
+			"lines": {
+				"begin": 0,
+				"end": 0
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $inst - it has union type \\Some\\NS\\LoaderClass(real=\\Some\\NS\\LoaderClass)",
+		"severity": 0,
+		"location": {
+			"path": "templates/004-ns-method-annotation.php",
+			"lines": {
+				"begin": 7,
+				"end": 7
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var - it has union type 'ns/c2'",
+		"severity": 0,
+		"location": {
+			"path": "templates/004-ns-method-annotation.php",
+			"lines": {
+				"begin": 7,
+				"end": 7
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var2 - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/004-ns-method-annotation.php",
+			"lines": {
+				"begin": 7,
+				"end": 7
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $this - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/005-static-method.php",
+			"lines": {
+				"begin": 0,
+				"end": 0
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $inst - it has union type \\LoaderClass(real=\\LoaderClass)",
+		"severity": 0,
+		"location": {
+			"path": "templates/005-static-method.php",
+			"lines": {
+				"begin": 7,
+				"end": 7
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var - it has union type 'c3'",
+		"severity": 0,
+		"location": {
+			"path": "templates/005-static-method.php",
+			"lines": {
+				"begin": 7,
+				"end": 7
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var2 - it has union type 'c3'",
+		"severity": 0,
+		"location": {
+			"path": "templates/005-static-method.php",
+			"lines": {
+				"begin": 7,
+				"end": 7
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var - it has union type 'ns/c3'",
+		"severity": 0,
+		"location": {
+			"path": "templates/006-var-annotation-in-template.php",
+			"lines": {
+				"begin": 0,
+				"end": 0
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var2 - it has union type 'xxx'",
+		"severity": 0,
+		"location": {
+			"path": "templates/006-var-annotation-in-template.php",
+			"lines": {
+				"begin": 0,
+				"end": 0
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var3 - it has union type 'yyy'",
+		"severity": 0,
+		"location": {
+			"path": "templates/006-var-annotation-in-template.php",
+			"lines": {
+				"begin": 0,
+				"end": 0
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $z - it has union type 'zzz'",
+		"severity": 0,
+		"location": {
+			"path": "templates/007-function-no-phpdoc.php",
+			"lines": {
+				"begin": 0,
+				"end": 0
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 11018,
+		"check_name": "PhanUndeclaredVariable",
+		"description": "UndefError PhanUndeclaredVariable Variable $someGlobal is undeclared",
+		"severity": 5,
+		"location": {
+			"path": "templates/007-function-no-phpdoc.php",
+			"lines": {
+				"begin": 8,
+				"end": 8
+			}
+		},
+		"suggestion": "Did you mean (global $someGlobal)"
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $z - it has union type 'zzz'",
+		"severity": 0,
+		"location": {
+			"path": "templates/008-method-no-phpdoc.php",
+			"lines": {
+				"begin": 0,
+				"end": 0
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 11018,
+		"check_name": "PhanUndeclaredVariable",
+		"description": "UndefError PhanUndeclaredVariable Variable $someGlobal is undeclared",
+		"severity": 5,
+		"location": {
+			"path": "templates/008-method-no-phpdoc.php",
+			"lines": {
+				"begin": 8,
+				"end": 8
+			}
+		},
+		"suggestion": "Did you mean (global $someGlobal)"
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/009-misplaced-annotation.php",
+			"lines": {
+				"begin": 2,
+				"end": 2
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var2 - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/009-misplaced-annotation.php",
+			"lines": {
+				"begin": 2,
+				"end": 2
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 999,
+		"check_name": "HtmlTemplateTooLate",
+		"description": "Plugin HtmlTemplateTooLate Ignored @html-template as it is after the first code in the file",
+		"severity": 5,
+		"location": {
+			"path": "templates/009-misplaced-annotation.php",
+			"lines": {
+				"begin": 5,
+				"end": 5
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/010-misplaced-annotation-2.php",
+			"lines": {
+				"begin": 1,
+				"end": 1
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var2 - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/010-misplaced-annotation-2.php",
+			"lines": {
+				"begin": 1,
+				"end": 1
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 999,
+		"check_name": "HtmlTemplateTooLate",
+		"description": "Plugin HtmlTemplateTooLate Ignored @html-template as it is after the first code in the file",
+		"severity": 5,
+		"location": {
+			"path": "templates/010-misplaced-annotation-2.php",
+			"lines": {
+				"begin": 4,
+				"end": 4
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $tmp - it has union type array<string,string>|array<string,string[]>",
+		"severity": 0,
+		"location": {
+			"path": "templates/011-cant-change-superglobals.php",
+			"lines": {
+				"begin": 7,
+				"end": 7
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 999,
+		"check_name": "HtmlTemplateUndeclaredFunctionReference",
+		"description": "Plugin HtmlTemplateUndeclaredFunctionReference Reference to undeclared function \\loadTemplateMissing",
+		"severity": 5,
+		"location": {
+			"path": "templates/012-missing-function.php",
+			"lines": {
+				"begin": 3,
+				"end": 3
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/012-missing-function.php",
+			"lines": {
+				"begin": 3,
+				"end": 3
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 999,
+		"check_name": "HtmlTemplateUndeclaredClassReference",
+		"description": "Plugin HtmlTemplateUndeclaredClassReference Reference to method \\MissingClass::loadTemplateMissing from undeclared class \\MissingClass",
+		"severity": 5,
+		"location": {
+			"path": "templates/013-missing-class.php",
+			"lines": {
+				"begin": 3,
+				"end": 3
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/013-missing-class.php",
+			"lines": {
+				"begin": 3,
+				"end": 3
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 999,
+		"check_name": "HtmlTemplateUndeclaredMethodReference",
+		"description": "Plugin HtmlTemplateUndeclaredMethodReference Reference to undeclared method \\LoaderClass::loadTemplateMissing",
+		"severity": 5,
+		"location": {
+			"path": "templates/014-missing-method.php",
+			"lines": {
+				"begin": 3,
+				"end": 3
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/014-missing-method.php",
+			"lines": {
+				"begin": 3,
+				"end": 3
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 999,
+		"check_name": "HtmlTemplateRedefined",
+		"description": "Plugin HtmlTemplateRedefined @html-template is redefined later in the file",
+		"severity": 5,
+		"location": {
+			"path": "templates/015-multiple-html-templates.php",
+			"lines": {
+				"begin": 3,
+				"end": 3
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var - it has union type 'ns/c3'",
+		"severity": 0,
+		"location": {
+			"path": "templates/015-multiple-html-templates.php",
+			"lines": {
+				"begin": 3,
+				"end": 3
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 999,
+		"check_name": "HtmlTemplateUnparseable",
+		"description": "Plugin HtmlTemplateUnparseable Unparseable @html-template",
+		"severity": 5,
+		"location": {
+			"path": "templates/016-ignore-invalid-html-template.php",
+			"lines": {
+				"begin": 4,
+				"end": 4
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 999,
+		"check_name": "HtmlTemplateUnparseable",
+		"description": "Plugin HtmlTemplateUnparseable Unparseable @html-template",
+		"severity": 5,
+		"location": {
+			"path": "templates/016-ignore-invalid-html-template.php",
+			"lines": {
+				"begin": 7,
+				"end": 7
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var - it has union type 'f2'",
+		"severity": 0,
+		"location": {
+			"path": "templates/016-ignore-invalid-html-template.php",
+			"lines": {
+				"begin": 7,
+				"end": 7
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 999,
+		"check_name": "HtmlTemplateVarTooLate",
+		"description": "Plugin HtmlTemplateVarTooLate Ignored @html-template-var as it is after the first code in the file (and isn't in a function doc block)",
+		"severity": 5,
+		"location": {
+			"path": "templates/017-var-without-template.php",
+			"lines": {
+				"begin": 11,
+				"end": 11
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $a - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/017-var-without-template.php",
+			"lines": {
+				"begin": 11,
+				"end": 11
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $b - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/017-var-without-template.php",
+			"lines": {
+				"begin": 11,
+				"end": 11
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $c - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/017-var-without-template.php",
+			"lines": {
+				"begin": 11,
+				"end": 11
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $d - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/017-var-without-template.php",
+			"lines": {
+				"begin": 11,
+				"end": 11
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 999,
+		"check_name": "HtmlTemplateVarUnparseable",
+		"description": "Plugin HtmlTemplateVarUnparseable Unparseable @html-template-var",
+		"severity": 5,
+		"location": {
+			"path": "templates/018-invalid-var.php",
+			"lines": {
+				"begin": 4,
+				"end": 4
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 999,
+		"check_name": "HtmlTemplateVarUnparseable",
+		"description": "Plugin HtmlTemplateVarUnparseable Unparseable @html-template-var",
+		"severity": 5,
+		"location": {
+			"path": "templates/018-invalid-var.php",
+			"lines": {
+				"begin": 6,
+				"end": 6
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 999,
+		"check_name": "HtmlTemplateVarUnparseable",
+		"description": "Plugin HtmlTemplateVarUnparseable Unparseable @html-template-var",
+		"severity": 5,
+		"location": {
+			"path": "templates/018-invalid-var.php",
+			"lines": {
+				"begin": 9,
+				"end": 9
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $i1 - it has union type \\bogus",
+		"severity": 0,
+		"location": {
+			"path": "templates/018-invalid-var.php",
+			"lines": {
+				"begin": 9,
+				"end": 9
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $i2 - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/018-invalid-var.php",
+			"lines": {
+				"begin": 9,
+				"end": 9
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $i3 - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/018-invalid-var.php",
+			"lines": {
+				"begin": 9,
+				"end": 9
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $i4 - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/018-invalid-var.php",
+			"lines": {
+				"begin": 9,
+				"end": 9
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $i5 - it has union type (undefined)",
+		"severity": 0,
+		"location": {
+			"path": "templates/018-invalid-var.php",
+			"lines": {
+				"begin": 9,
+				"end": 9
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $i6 - it has union type \\bogus",
+		"severity": 0,
+		"location": {
+			"path": "templates/018-invalid-var.php",
+			"lines": {
+				"begin": 9,
+				"end": 9
+			}
+		}
+	},
+	{
+		"type": "issue",
+		"type_id": 16020,
+		"check_name": "PhanDebugAnnotation",
+		"description": "CommentError PhanDebugAnnotation @phan-debug-var requested for variable $var - it has union type 'c3'",
+		"severity": 0,
+		"location": {
+			"path": "templates/018-invalid-var.php",
+			"lines": {
+				"begin": 9,
+				"end": 9
+			}
+		}
+	}
+]

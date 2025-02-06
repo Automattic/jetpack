@@ -1,11 +1,11 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { getModule } from 'state/modules';
 import { isModuleFound } from 'state/search';
 
@@ -39,10 +39,12 @@ class Widgets extends Component {
 							toggling={ this.props.isSavingAnyOption( 'widgets' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
-							{ __(
-								'Make extra widgets available for use on your site including subscription forms and more',
-								'jetpack'
-							) }
+							<span className="jp-form-toggle-explanation">
+								{ __(
+									'Make extra widgets available for use on your site including subscription forms and more',
+									'jetpack'
+								) }
+							</span>
 						</ModuleToggle>
 					</SettingsGroup>
 				) }
@@ -63,10 +65,12 @@ class Widgets extends Component {
 							toggling={ this.props.isSavingAnyOption( 'widget-visibility' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
-							{ __(
-								'Enable widget visibility controls to display widgets only on particular posts or pages',
-								'jetpack'
-							) }
+							<span className="jp-form-toggle-explanation">
+								{ __(
+									'Enable widget visibility controls to display widgets only on particular posts or pages',
+									'jetpack'
+								) }
+							</span>
 						</ModuleToggle>
 					</SettingsGroup>
 				) }

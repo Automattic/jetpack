@@ -60,7 +60,7 @@ class WPCOM_API_Request_Tracker {
 		$url_host = wp_parse_url( $url, PHP_URL_HOST );
 
 		if ( 'public-api.wordpress.com' === $url_host ) {
-			$this->requests[ $url ] = array_key_exists( $url, $this->requests ) ? $this->requests[ $url ]++ : 1;
+			$this->requests[ $url ] = array_key_exists( $url, $this->requests ) ? $this->requests[ $url ] + 1 : 1;
 		}
 	}
 

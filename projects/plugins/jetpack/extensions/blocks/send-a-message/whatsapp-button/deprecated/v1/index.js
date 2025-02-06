@@ -1,5 +1,5 @@
 import { RichText } from '@wordpress/block-editor';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import attr from '../../attributes';
 import { whatsAppURL } from '../../index';
 
@@ -37,7 +37,7 @@ export default {
 			return url;
 		};
 
-		const cssClassNames = classnames(
+		const cssClassNames = clsx(
 			className,
 			colorClass ? 'is-color-' + colorClass : undefined,
 			! buttonText.length ? 'has-no-text' : undefined

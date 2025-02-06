@@ -1,6 +1,20 @@
 /*
  * External dependencies
  */
+import {
+	CORRECT_SPELLING_LABEL,
+	GENERATE_TITLE_LABEL,
+	PROMPT_TYPE_CONTINUE,
+	PROMPT_TYPE_GENERATE_TITLE,
+	PROMPT_TYPE_SUMMARY_BY_TITLE,
+	SIMPLIFY_LABEL,
+	SUMMARIZE_LABEL,
+	SUMMARY_BASED_ON_TITLE_LABEL,
+	CONTINUE_LABEL,
+	PROMPT_TYPE_SUMMARIZE,
+	PROMPT_TYPE_SIMPLIFY,
+	PROMPT_TYPE_CORRECT_SPELLING,
+} from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MenuItem, MenuGroup, ToolbarDropdownMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -27,7 +41,7 @@ export const defaultPromptTemplate = {
 	label: __( 'Post about…', 'jetpack' ),
 	description: {
 		original: 'Write a post about ',
-		translated: __( 'Write a post about ', 'jetpack' ),
+		translated: __( 'Write a post about', 'jetpack' ) + ' ',
 	},
 };
 
@@ -37,21 +51,21 @@ export const promptTemplates = [
 		label: __( 'Informative article on…', 'jetpack' ),
 		description: {
 			original: 'Craft an informative article explaining ',
-			translated: __( 'Craft an informative article explaining ', 'jetpack' ),
+			translated: __( 'Craft an informative article explaining', 'jetpack' ) + ' ',
 		},
 	},
 	{
 		label: __( 'Step-by-step tutorial on…', 'jetpack' ),
 		description: {
 			original: 'Write a step-by-step tutorial on ',
-			translated: __( 'Write a step-by-step tutorial on ', 'jetpack' ),
+			translated: __( 'Write a step-by-step tutorial on', 'jetpack' ) + ' ',
 		},
 	},
 	{
 		label: __( 'Motivational post on…', 'jetpack' ),
 		description: {
 			original: 'Create a motivational post on ',
-			translated: __( 'Create a motivational post on ', 'jetpack' ),
+			translated: __( 'Create a motivational post on', 'jetpack' ) + ' ',
 		},
 	},
 ];
@@ -61,21 +75,21 @@ export const promptTemplatesForGeneratedContent = [
 		label: __( 'Say it differently…', 'jetpack' ),
 		description: {
 			original: 'Rewrite it in a way that ',
-			translated: __( 'Rewrite it in a way that ', 'jetpack' ),
+			translated: __( 'Rewrite it in a way that', 'jetpack' ) + ' ',
 		},
 	},
 	{
 		label: __( 'Add…', 'jetpack' ),
 		description: {
 			original: 'Add more details about ',
-			translated: __( 'Add more details about ', 'jetpack' ),
+			translated: __( 'Add more details about', 'jetpack' ) + ' ',
 		},
 	},
 	{
 		label: __( 'Remove…', 'jetpack' ),
 		description: {
 			original: 'Remove unnecessary details about ',
-			translated: __( 'Remove unnecessary details about ', 'jetpack' ),
+			translated: __( 'Remove unnecessary details about', 'jetpack' ) + ' ',
 		},
 	},
 ];
@@ -134,23 +148,23 @@ export default function PromptTemplatesControl( {
 								<MenuItem
 									icon={ postContent }
 									iconPosition="left"
-									onClick={ () => onSuggestionSelect( 'continue' ) }
+									onClick={ () => onSuggestionSelect( PROMPT_TYPE_CONTINUE ) }
 								>
-									{ __( 'Continue writing', 'jetpack' ) }
+									{ CONTINUE_LABEL }
 								</MenuItem>
 								<MenuItem
 									icon={ termDescription }
 									iconPosition="left"
-									onClick={ () => onSuggestionSelect( 'correctSpelling' ) }
+									onClick={ () => onSuggestionSelect( PROMPT_TYPE_CORRECT_SPELLING ) }
 								>
-									{ __( 'Correct spelling and grammar', 'jetpack' ) }
+									{ CORRECT_SPELLING_LABEL }
 								</MenuItem>
 								<MenuItem
 									icon={ post }
 									iconPosition="left"
-									onClick={ () => onSuggestionSelect( 'simplify' ) }
+									onClick={ () => onSuggestionSelect( PROMPT_TYPE_SIMPLIFY ) }
 								>
-									{ __( 'Simplify', 'jetpack' ) }
+									{ SIMPLIFY_LABEL }
 								</MenuItem>
 							</MenuGroup>
 						) }
@@ -160,18 +174,18 @@ export default function PromptTemplatesControl( {
 									<MenuItem
 										icon={ postExcerpt }
 										iconPosition="left"
-										onClick={ () => onSuggestionSelect( 'summarize' ) }
+										onClick={ () => onSuggestionSelect( PROMPT_TYPE_SUMMARIZE ) }
 									>
-										{ __( 'Summarize', 'jetpack' ) }
+										{ SUMMARIZE_LABEL }
 									</MenuItem>
 								) }
 								{ hasContent && (
 									<MenuItem
 										icon={ title }
 										iconPosition="left"
-										onClick={ () => onSuggestionSelect( 'generateTitle' ) }
+										onClick={ () => onSuggestionSelect( PROMPT_TYPE_GENERATE_TITLE ) }
 									>
-										{ __( 'Generate a post title', 'jetpack' ) }
+										{ GENERATE_TITLE_LABEL }
 									</MenuItem>
 								) }
 							</MenuGroup>
@@ -181,9 +195,9 @@ export default function PromptTemplatesControl( {
 								<MenuItem
 									icon={ pencil }
 									iconPosition="left"
-									onClick={ () => onSuggestionSelect( 'titleSummary' ) }
+									onClick={ () => onSuggestionSelect( PROMPT_TYPE_SUMMARY_BY_TITLE ) }
 								>
-									{ __( 'Summary based on title', 'jetpack' ) }
+									{ SUMMARY_BASED_ON_TITLE_LABEL }
 								</MenuItem>
 							) }
 							{ promptTemplates.map( ( prompt: PromptTemplateProps, i: number ) => (

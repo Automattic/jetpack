@@ -20,13 +20,7 @@
  * around the CRM so that they don't miss important features.
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 function zeroBS_onboardme_scripts(){
@@ -35,9 +29,9 @@ function zeroBS_onboardme_scripts(){
 
 	// Changed from bootstrap tour to hopscotch
 	wp_enqueue_script( 'jquery' );
-	wp_enqueue_script( 'onboardme-front', ZEROBSCRM_URL . 'js/lib/hopscotch.min.js', array( 'jquery' ), $zbs->version, true );
-	wp_enqueue_style( 'onboardme-css', ZEROBSCRM_URL . 'css/lib/hopscotch.min.css', array(), $zbs->version );
-	wp_enqueue_script( 'tour-front', ZEROBSCRM_URL . 'js/ZeroBSCRM.admin.tour' . wp_scripts_get_suffix() . '.js', array( 'jquery', 'onboardme-front' ), $zbs->version, true );
+	wp_enqueue_script( 'onboardme-front', ZEROBSCRM_URL . 'js/lib/hopscotch.min.js', array( 'jquery' ), $zbs::VERSION, true );
+	wp_enqueue_style( 'onboardme-css', ZEROBSCRM_URL . 'css/lib/hopscotch.min.css', array(), $zbs::VERSION );
+	wp_enqueue_script( 'tour-front', ZEROBSCRM_URL . 'js/ZeroBSCRM.admin.tour' . wp_scripts_get_suffix() . '.js', array( 'jquery', 'onboardme-front' ), $zbs::VERSION, true );
 
 	$zbs_tour_root = admin_url();
 

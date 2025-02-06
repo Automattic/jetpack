@@ -1,0 +1,29 @@
+<html>
+	<head>
+		<title>Test page</title>
+		<link rel="stylesheet" href="style.css" />
+		<link rel="stylesheet" href="print.css" media="print" />
+		<link rel="stylesheet" href="min-width.css" media="(min-width: 50px)" />
+		<link
+			rel="stylesheet"
+			type="text/css"
+			media="only screen and (max-device-width: 480px) and (orientation: landscape)"
+			href="complex-rules.css"
+		/>
+		"
+		<meta name="testing-page" content="testing-page" />
+	</head>
+
+	<body>
+		<div class="top"></div>
+		<div class="four_eighty"></div>
+		<div class="eight_hundred"></div>
+		<div class="sir_not_appearing_in_this_film"></div>
+		<div class="min_width_screen"></div>
+		<div class="complex_media_rules"></div>
+
+		<script>
+			document.writeln(["script", "created", "content"].join("-"));
+		</script>
+	</body>
+</html>

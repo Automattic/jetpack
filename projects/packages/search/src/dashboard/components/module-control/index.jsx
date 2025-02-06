@@ -4,7 +4,7 @@ import { useConnection } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Button from 'components/button';
 import Card from 'components/card';
 import CompactFormToggle from 'components/form-toggle/compact';
@@ -30,21 +30,21 @@ const WIDGETS_EDITOR_URL = 'widgets.php';
 /**
  * Search settings component to be used within the Performance section.
  *
- * @param {object} props - Component properties.
- * @param {string} props.domain - Calypso slug.
- * @param {string} props.siteAdminUrl - site admin URL.
- * @param {Function} props.updateOptions - function to update settings.
- * @param {boolean} props.isDisabledFromOverLimit - true if the subscription is invalid to manipulate controls.
- * @param {boolean} props.isSavingEitherOption - true if Saving options.
- * @param {boolean} props.isModuleEnabled - true if Search module is enabled.
- * @param {boolean} props.isInstantSearchEnabled - true if Instant Search is enabled.
- * @param {boolean} props.isInstantSearchPromotionActive - true if search promotion is active.
- * @param {boolean} props.supportsOnlyClassicSearch - true if site has plan that supports only Classic Search.
- * @param {boolean} props.supportsSearch - true if site has plan that supports either Classic or Instant Search.
- * @param {boolean} props.supportsInstantSearch - true if site has plan that supports Instant Search.
- * @param {boolean} props.isTogglingModule - true if toggling Search module.
- * @param {boolean} props.isTogglingInstantSearch - true if toggling Instant Search option.
- * @returns {React.Component}	Search settings component.
+ * @param {object}   props                                - Component properties.
+ * @param {string}   props.domain                         - Calypso slug.
+ * @param {string}   props.siteAdminUrl                   - site admin URL.
+ * @param {Function} props.updateOptions                  - function to update settings.
+ * @param {boolean}  props.isDisabledFromOverLimit        - true if the subscription is invalid to manipulate controls.
+ * @param {boolean}  props.isSavingEitherOption           - true if Saving options.
+ * @param {boolean}  props.isModuleEnabled                - true if Search module is enabled.
+ * @param {boolean}  props.isInstantSearchEnabled         - true if Instant Search is enabled.
+ * @param {boolean}  props.isInstantSearchPromotionActive - true if search promotion is active.
+ * @param {boolean}  props.supportsOnlyClassicSearch      - true if site has plan that supports only Classic Search.
+ * @param {boolean}  props.supportsSearch                 - true if site has plan that supports either Classic or Instant Search.
+ * @param {boolean}  props.supportsInstantSearch          - true if site has plan that supports Instant Search.
+ * @param {boolean}  props.isTogglingModule               - true if toggling Search module.
+ * @param {boolean}  props.isTogglingInstantSearch        - true if toggling Instant Search option.
+ * @return {React.Component} Search settings component.
  */
 export default function SearchModuleControl( {
 	siteAdminUrl,
@@ -111,13 +111,13 @@ export default function SearchModuleControl( {
 
 	return (
 		<div
-			className={ classNames( {
+			className={ clsx( {
 				'jp-form-settings-group jp-form-search-settings-group': true,
 				'jp-form-search-settings-group--disabled': isDisabledFromOverLimit,
 			} ) }
 		>
 			<Card
-				className={ classNames( {
+				className={ clsx( {
 					'jp-form-has-child': true,
 				} ) }
 			>
@@ -279,25 +279,28 @@ const SearchToggle = ( {
 	const isSearchToggleChecked = isModuleEnabled && supportsSearch && ! isDisabledFromOverLimit;
 	const isSearchToggleDisabled =
 		isSavingEitherOption || ! supportsSearch || isDisabledFromOverLimit;
+	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 
 	return (
 		<div className="jp-form-search-settings-group__toggle is-search jp-search-dashboard-wrap">
-			<div className="jp-search-dashboard-row">
-				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
-				<CompactFormToggle
-					checked={ isSearchToggleChecked }
-					disabled={ isSearchToggleDisabled }
-					onChange={ toggleSearchModule }
-					toggling={ isTogglingModule }
-					className="is-search-admin"
-					switchClassNames="lg-col-span-1 md-col-span-1 sm-col-span-1"
-					labelClassNames=" lg-col-span-7 md-col-span-5 sm-col-span-3"
-					aria-label={ __( 'Enable Jetpack Search', 'jetpack-search-pkg' ) }
-				>
-					{ __( 'Enable Jetpack Search', 'jetpack-search-pkg' ) }
-				</CompactFormToggle>
-				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
-			</div>
+			{ ! isWpcom && (
+				<div className="jp-search-dashboard-row">
+					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
+					<CompactFormToggle
+						checked={ isSearchToggleChecked }
+						disabled={ isSearchToggleDisabled }
+						onChange={ toggleSearchModule }
+						toggling={ isTogglingModule }
+						className="is-search-admin"
+						switchClassNames="lg-col-span-1 md-col-span-1 sm-col-span-1"
+						labelClassNames=" lg-col-span-7 md-col-span-5 sm-col-span-3"
+						aria-label={ __( 'Enable Jetpack Search', 'jetpack-search-pkg' ) }
+					>
+						{ __( 'Enable Jetpack Search', 'jetpack-search-pkg' ) }
+					</CompactFormToggle>
+					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
+				</div>
+			) }
 			<div className="jp-search-dashboard-row">
 				<div className="lg-col-span-3 md-col-span-2 sm-col-span-1"></div>
 				<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-3">

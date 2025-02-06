@@ -5,21 +5,24 @@ import path from 'path';
  * Command definition for the docs subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the docs commands defined.
+ * @return {object} Yargs with the docs commands defined.
  */
 export function docsDefine( yargs ) {
 	yargs.command(
-		'docs [project]',
-		'Parses documentation from a project and outputs them into a JSON file.',
+		'docs [path] [dest]',
+		'Parses PHPDoc documentation from a project and outputs it into a JSON file.',
 		yarg => {
-			yarg.positional( 'project', {
-				describe:
-					'Project in the form of type/name, e.g. plugins/jetpack, ' +
-					'or type, e.g. plugins, or "all". Note that "all" means' +
-					'the Jetpack plugin plus all packages.',
-				type: 'string',
-				default: 'all',
-			} );
+			yarg
+				.positional( 'path', {
+					describe: 'e.g. path to a jetpack-production folder',
+					type: 'string',
+					default: '.',
+				} )
+				.positional( 'dest', {
+					describe: 'path to where the generated file should be saved',
+					type: 'string',
+					default: '.',
+				} );
 		},
 		async argv => {
 			await docsCli( argv );
@@ -35,19 +38,14 @@ export function docsDefine( yargs ) {
 /**
  * Handle args for docs command.
  *
- * @param {argv}  argv - the arguments passed.
+ * @param {argv} argv - the arguments passed.
  */
 export async function docsCli( argv ) {
-	let paths;
-	if ( 'all' === argv.project ) {
-		// "All" is a keyword for Jetpack plus packages.
-
-		paths = [ path.resolve( './projects/plugins/jetpack' ), path.resolve( './projects/packages' ) ];
-	} else {
-		paths = [ path.resolve( `./projects/plugins/${ argv.project }` ) ];
-	}
-
-	const parser_options = [ path.resolve( './tools/cli/helpers/doc-parser/runner.php' ), ...paths ];
+	const parser_options = [
+		path.resolve( './tools/cli/helpers/doc-parser/runner.php' ),
+		argv.path,
+		argv.dest,
+	];
 
 	let data = child_process.spawnSync( 'php', parser_options, {
 		cwd: path.resolve( './' ),

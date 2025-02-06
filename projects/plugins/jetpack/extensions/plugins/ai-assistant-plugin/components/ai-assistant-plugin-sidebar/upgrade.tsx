@@ -5,22 +5,21 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-/**
- * Internal dependencies
- */
-import { TierProp } from '../../../../store/wordpress-com/types';
+import type { TierProp } from '@automattic/jetpack-shared-extension-utils/store/wordpress-com/types';
 
 export default function Upgrade( {
 	onClick,
 	type,
 	placement = '',
 	currentTier,
+	upgradeUrl,
 }: {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	onClick: ( event: any ) => void;
+	onClick?: ( event: any ) => void;
 	type: string;
 	placement?: string;
 	currentTier?: TierProp;
+	upgradeUrl: string;
 } ) {
 	const { tracks } = useAnalytics();
 
@@ -61,7 +60,7 @@ export default function Upgrade( {
 		requestLimit === 20 ? freeLimitUpgradePrompt : tierLimitUpgradePrompt,
 		{
 			strong: <strong />,
-			button: <Button variant="link" onClick={ handleClick } />,
+			button: <Button variant="link" onClick={ handleClick } href={ upgradeUrl } target="_blank" />,
 		}
 	);
 

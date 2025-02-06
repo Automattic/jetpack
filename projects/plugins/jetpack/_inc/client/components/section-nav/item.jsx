@@ -1,10 +1,10 @@
 /** @ssr-ready **/
 
 import { ExternalLink } from '@wordpress/components';
-import classNames from 'classnames';
-import Count from 'components/count';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React from 'react';
+import Count from 'components/count';
 
 /**
  * Main
@@ -23,6 +23,8 @@ class NavItem extends React.PureComponent {
 		count: PropTypes.number,
 	};
 
+	domNode = null;
+
 	render() {
 		const itemClassPrefix = this.props.itemType ? this.props.itemType : 'tab';
 		const itemClasses = {
@@ -30,7 +32,7 @@ class NavItem extends React.PureComponent {
 			'is-external': this.props.isExternalLink,
 		};
 		itemClasses[ 'dops-section-nav-' + itemClassPrefix ] = true;
-		const itemClassName = classNames( itemClasses );
+		const itemClassName = clsx( itemClasses );
 		let onClick;
 
 		if ( ! this.props.disabled ) {
@@ -38,7 +40,12 @@ class NavItem extends React.PureComponent {
 		}
 
 		return (
-			<li className={ itemClassName }>
+			<li
+				ref={ node => {
+					this.domNode = node;
+				} }
+				className={ itemClassName }
+			>
 				{ ! this.props.isExternalLink && (
 					<a
 						href={ this.props.path }

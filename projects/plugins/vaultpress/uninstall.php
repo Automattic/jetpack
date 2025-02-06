@@ -7,7 +7,7 @@
  */
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
-	exit();
+	exit( 0 );
 }
 
 delete_option( 'vaultpress' );

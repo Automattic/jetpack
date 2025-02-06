@@ -14,7 +14,7 @@ const webpack = jetpackWebpackConfig.webpack;
  * This enables us to alias Preact to all React imports.
  *
  * @param {string} request - Requested module
- * @returns {(string|string[]|undefined)} Script global
+ * @return {(string|string[]|undefined)} Script global
  */
 function requestToExternal( request ) {
 	// Ensure that React will be aliased to preact/compat by preventing externalization.

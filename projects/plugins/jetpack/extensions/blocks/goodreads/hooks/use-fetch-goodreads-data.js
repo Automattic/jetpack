@@ -46,6 +46,31 @@ export default function useFetchGoodreadsData( input ) {
 		}
 	};
 
+	const findProfileLink = async goodreadsLink => {
+		// Checks for alternative format - eg. https://www.goodreads.com/photomatt
+		testEmbedUrl( goodreadsLink )
+			.then( response => {
+				const goodreadsId = extractGoodreadsId( response );
+				if ( goodreadsId ) {
+					setGoodreadsUserId( goodreadsId );
+				} else {
+					setIs404( true );
+				}
+			} )
+			.catch( () => {
+				setIs404( true );
+			} )
+			.finally( () => {
+				setIsFetchingData( false );
+			} );
+	};
+
+	const extractGoodreadsId = link => {
+		const regex = /\/(user|author)\/show\/(\d+)/;
+		const match = link.match( regex );
+		return match ? parseInt( match[ 2 ] ) : false;
+	};
+
 	useEffect( () => {
 		// Needs to be reset because user can edit URLs.
 		setIsError( false );
@@ -55,16 +80,15 @@ export default function useFetchGoodreadsData( input ) {
 			setIsError( true );
 		}
 
-		const regex = /\/(user|author)\/show\/(\d+)/;
-		const goodreadsId = input.match( regex ) ? parseInt( input.match( regex )[ 2 ] ) : false;
-
-		if ( input.length && ! goodreadsId ) {
-			setIsError( true );
-		}
+		const goodreadsId = extractGoodreadsId( input );
 
 		if ( ! isError && input.length ) {
 			setIsFetchingData( true );
-			fetchData( goodreadsId );
+			if ( ! goodreadsId ) {
+				findProfileLink( input );
+			} else {
+				fetchData( goodreadsId );
+			}
 		}
 	}, [ input, isError ] ); // eslint-disable-line react-hooks/exhaustive-deps
 

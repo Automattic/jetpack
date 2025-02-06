@@ -12,7 +12,7 @@
 /* ======================================================
   Breaking Checks ( stops direct access )
    ====================================================== */
-	if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
+	defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 /* ======================================================
   / Breaking Checks
    ====================================================== */
@@ -478,13 +478,14 @@ class zbsDAL_quotetemplates extends zbsDAL_ObjectLayer {
 
 
 
-    /**
-     * Returns a count of contacts (owned)
-     * Replaces zeroBS_customerCount AND zeroBS_getCustomerCount AND zeroBS_customerCountByStatus
-     *
-     *
-     * @return int count
-     */
+	/**
+	 * Returns a count of contacts (owned)
+	 * Replaces zeroBS_customerCount
+	 *
+	 * @param object $args - DAL args.
+	 *
+	 * @return int count
+	 */
     public function getQuotetemplateCount($args=array()){
 
         #} ============ LOAD ARGS =============

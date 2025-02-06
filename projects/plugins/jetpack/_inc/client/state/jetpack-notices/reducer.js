@@ -41,8 +41,8 @@ export const reducer = combineReducers( {
 /**
  * Returns any Jetpack notice hooked onto 'jetpack_notices' in PHP
  *
- * @param  {Object} state Global state tree
- * @return {bool|string}  False if no notice, string if there is.
+ * @param {object} state - Global state tree
+ * @return {boolean|string}  False if no notice, string if there is.
  */
 export function getJetpackNotices( state ) {
 	return state.jetpack.jetpackNotices.notice;
@@ -51,7 +51,7 @@ export function getJetpackNotices( state ) {
 /**
  * Returns any Jetpack notice error code hooked onto 'jetpack_notices' in PHP
  *
- * @param  {Object} state Global state tree
+ * @param {object} state - Global state tree
  * @return {number}  An error code.
  */
 export function getJetpackStateNoticesErrorCode( state ) {
@@ -61,7 +61,7 @@ export function getJetpackStateNoticesErrorCode( state ) {
 /**
  * Returns any Jetpack notice message code hooked onto 'jetpack_notices' in PHP
  *
- * @param  {Object} state Global state tree
+ * @param {object} state - Global state tree
  * @return {number}  A message code.
  */
 export function getJetpackStateNoticesMessageCode( state ) {
@@ -71,7 +71,7 @@ export function getJetpackStateNoticesMessageCode( state ) {
 /**
  * Returns the message content passed from PHP to the intial state of the app.
  *
- * @param {Object} state Global state tree
+ * @param {object} state - Global state tree
  * @return {string} The message content.
  */
 export function getJetpackStateNoticesMessageContent( state ) {
@@ -81,7 +81,7 @@ export function getJetpackStateNoticesMessageContent( state ) {
 /**
  * Returns any Jetpack notice error description hooked onto 'jetpack_notices' in PHP
  *
- * @param  {Object} state Global state tree
+ * @param {object} state - Global state tree
  * @return {string}  An error description.
  */
 export function getJetpackStateNoticesErrorDescription( state ) {
@@ -91,9 +91,9 @@ export function getJetpackStateNoticesErrorDescription( state ) {
 /**
  * Returns whether or not a Jetpack notice has been dismissed.
  *
- * @param  {Object} state  Global state tree
- * @param  {String} notice_name Name of the jetpack notice to check for.
- * @return {bool}          False if notice is still active, True if it's been dismissed.
+ * @param {object} state       - Global state tree
+ * @param {string} notice_name - Name of the jetpack notice to check for.
+ * @return {boolean}          False if notice is still active, True if it's been dismissed.
  */
 export function isNoticeDismissed( state, notice_name ) {
 	return get( state.jetpack.jetpackNotices.dismissed, [ notice_name ], false );

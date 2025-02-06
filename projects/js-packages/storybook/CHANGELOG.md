@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.6.0 - 2025-02-05
+### Added
+- Charts: adds Barchart functionality and storybook item [#40353]
+- Storybook: Improve launch instructions [#41115]
+
+### Changed
+- Storybook: Change target to esnext [#41078]
+- Updated package dependencies. [#40564] [#40693] [#40797] [#40841] [#41099] [#41286] [#41491]
+
+## 0.5.1 - 2024-12-04
+### Changed
+- Updated package dependencies. [#39176] [#39302] [#39594] [#39669] [#39707] [#39910] [#39999] [#40060] [#40288] [#40363]
+
+### Fixed
+- Update Storybook FAQ reference. [#40199]
+
+## 0.5.0 - 2024-08-29
+### Added
+- Add jetpack as project [#37216]
+- add social logos [#38036]
+
+### Changed
+- Add webpack resolve.extensionAlias for tsc compat. [#35453]
+- Don't minify in dev builds. [#35919]
+- Try adding support for `@storybook/test-runner`. [#35919]
+- Updated package dependencies.
+- Use `jetpack:src` condition when building, so all deps don't have to be built first. [#35919]
+
+### Removed
+- Remove unused JS deps on `autoprefixer`, `postcss-custom-properties`. [#35695]
+
+### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
 ## 0.4.1 - 2024-02-07
 ### Added
 - Add AI Client icon components [#32079]

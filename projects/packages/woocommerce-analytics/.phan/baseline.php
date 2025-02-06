@@ -10,16 +10,14 @@
 return [
     // # Issue statistics:
     // PhanPluginRedundantAssignment : 4 occurrences
-    // PhanUndeclaredFunction : 4 occurrences
     // PhanTypeSuspiciousNonTraversableForeach : 1 occurrence
     // PhanUndeclaredMethod : 1 occurrence
     // PhanUndeclaredMethodInCallable : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-checkout-flow.php' => ['PhanPluginRedundantAssignment'],
         'src/class-universal.php' => ['PhanPluginRedundantAssignment', 'PhanUndeclaredMethodInCallable'],
-        'src/class-woo-analytics-trait.php' => ['PhanTypeSuspiciousNonTraversableForeach', 'PhanUndeclaredFunction', 'PhanUndeclaredMethod'],
+        'src/class-woo-analytics-trait.php' => ['PhanTypeSuspiciousNonTraversableForeach', 'PhanUndeclaredMethod'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

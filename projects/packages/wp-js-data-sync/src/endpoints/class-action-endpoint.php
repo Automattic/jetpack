@@ -7,9 +7,9 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Endpoints;
 
+use Automattic\Jetpack\Schema\Schema_Parser;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Action;
 use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parser;
 
 class Action_Endpoint {
 
@@ -41,11 +41,11 @@ class Action_Endpoint {
 	/**
 	 * This class handles endpoints for DataSync actions.
 	 *
-	 * @param $namespace
-	 * @param $key
-	 * @param $action_name
-	 * @param $request_schema
-	 * @param $action_class
+	 * @param string           $namespace
+	 * @param string           $key
+	 * @param string           $action_name
+	 * @param Schema_Parser    $request_schema
+	 * @param Data_Sync_Action $action_class
 	 */
 	public function __construct( $namespace, $key, $action_name, $request_schema, $action_class ) {
 		$this->action_class   = $action_class;

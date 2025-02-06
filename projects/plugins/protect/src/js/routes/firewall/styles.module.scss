@@ -1,0 +1,239 @@
+.container {
+    width: 100%;
+    max-width: calc( 744px + ( var( --spacing-base ) * 6 ) ); // 744px + 48px (desired inner width + horizontal padding)
+}
+
+.toggle-section {
+    display: flex;
+
+    &:not(:first-child) {
+        margin-top: calc( var( --spacing-base ) * 7 ); // 56px
+    }
+
+    &__control {
+        padding-top: calc( var( --spacing-base ) / 2 ); // 4px
+        margin-right: calc( var( --spacing-base ) * 2 ); // 16px
+
+        @media ( min-width: 600px ) {
+            margin-right: calc( var( --spacing-base ) * 5 ); // 48px
+        }
+    } 
+
+    &__content {
+        width: 100%;
+    }
+
+    &__title {
+        display: flex;
+        align-items: center;
+    }
+
+    &--disabled .toggle-section__content {
+        opacity: 0.5;
+    }
+
+    &__details {
+    
+        >:last-child {
+            margin-top: calc( var( --spacing-base ) * 2 ); // 16px
+        }
+    
+        @media ( min-width: 600px ) {
+            display: flex;
+            justify-content: space-between;
+        }
+    }
+}
+
+.automatic-rules-stats {
+    margin-top: calc( var( --spacing-base ) * 2 ); // 16px
+    display: flex;
+    flex-wrap: wrap;
+
+    &__version {
+        color: var( --jp-green-50 );
+        margin-right: calc( var( --spacing-base ) / 2 ); // 4px
+    }
+
+    &__last-updated {
+        color: var( --jp-gray-50 );
+    }
+
+    &__failed-install {
+        color: var( --jp-red-50 );
+    }
+}
+
+.upgrade-trigger-section {
+    margin-top: calc( var( --spacing-base ) * 3 ); // 24px
+
+    @media ( min-width: 600px ) {
+        padding-left: calc( var( --spacing-base ) * 11 ); // 88px
+    }
+}
+
+.upgrade-prompt-button {
+    margin-top: calc( var( --spacing-base ) * 3 ); // 24px
+}
+
+.badge {
+    color: var( --jp-gray-30 );
+    font-size: 12px;
+    height: 21px;
+    padding: calc( var( --spacing-base ) / 2 ); // 4px
+    border: 1px solid var( --jp-gray-30 );
+    border-radius: 4px;
+    margin-left: var( --spacing-base ); // 8px
+    margin-bottom: calc( var( --spacing-base ) * 2 ); // 16px
+    display: flex;
+    align-items: center;
+}
+
+.popover {
+    width: 304px;
+    padding: calc( var( --spacing-base ) * 3 ); // 24px
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    &__button {
+        margin: calc( var( --spacing-base ) * -1 ) calc( var( --spacing-base ) * -3 ); // -8px | -24px
+
+        &:focus, &:focus:not(:disabled) {
+            box-shadow: none;
+        }
+    }
+
+    &__footer {
+        display: flex;
+        justify-content: flex-end;
+    }
+}
+
+.allow-list-current-ip {
+    line-height: 1;
+    margin-bottom: calc( var( --spacing-base ) * 1.5 ); // 12px
+}
+
+.allow-list-button-container {
+    margin-top: calc( var( --spacing-base ) * 2 );
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.block-list-button-container {
+    margin-top: calc( var( --spacing-base ) * 2 );
+    display: flex;
+    justify-content: right;
+}
+
+.divider {
+    margin-top: calc( var( --spacing-base ) * 7 ); // 56px
+    border-bottom: solid 2px var( --jp-gray-5 );
+}
+
+.popover-text {
+	width: 250px;
+	padding: calc( var( --spacing-base ) * 2 ); // 16px
+}
+
+.firewall-subheading {
+    display: flex;
+    align-items: center;
+}
+
+.stat-card-wrapper {
+    display: flex;
+    margin-left: auto;
+    flex-wrap: wrap;
+
+    >:first-child {
+        margin-right: calc( var( --spacing-base ) * 3 ); // 24px
+    }
+
+    .disabled {
+        opacity: 0.5;
+    }
+}
+
+.stat-card-icon {
+    width: 100%;
+    margin-bottom: calc( var( --spacing-base ) * 3 ); // 24px
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stat-card-label {
+    white-space: nowrap;
+}
+
+@media ( max-width: 1115px ) {
+    .stat-card-wrapper {
+        margin-top: calc( var( --spacing-base ) * 3 ); // 24px
+    }
+}
+
+@media ( max-width: 599px ) {
+    .stat-card-wrapper {
+        margin-top: calc( var( --spacing-base ) * 3 ); // 24px
+
+        >:first-child {
+            margin-right: 0;
+            margin-bottom: var( --spacing-base ); // 8px
+        }
+    }
+
+    .stat-card-icon {
+        margin-bottom: 0;
+    }
+}
+
+.share-data-section {
+    display: flex;
+
+    .share-data-toggle {
+        margin-top: calc( var( --spacing-base ) / 2 ); // 4px
+        margin-right: var( --spacing-base ); // 8px
+    }
+}
+
+.icon-tooltip {
+    max-height: 20px;
+    margin-left: calc( var( --spacing-base ) / 2 ); // 4px
+
+    &__icon {
+        color: var( --jp-gray-20 );
+    }
+
+    &__content {
+        color: var( --jp-gray-70 );
+        font-weight: 400;
+        line-height: 24px;
+    }
+}
+
+.footer {
+    background-color: var( --jp-white-off );
+}
+
+.standalone-mode, .share-data {
+    display: flex;
+    flex-direction: column;
+    gap: calc( var( --spacing-base ) * 2 ); // 16px
+    align-items: flex-start;
+
+    :global {
+        .components-toggle-control__label {
+            font-size: var( --font-body );
+            font-weight: 500;
+        }
+        .components-base-control__help{
+            color: inherit;
+        }
+    }
+}
+

@@ -33,15 +33,10 @@ function register_block() {
 	);
 
 	/*
-	 * Automatically add the sharing block to the end of single posts
-	 * only when running WordPress 6.5 or later.
-	 * @todo: remove when WordPress 6.5 is the minimum required version.
+	 * Automatically add the sharing block to the end of single posts.
 	 */
-	global $wp_version;
-	if ( version_compare( $wp_version, '6.5-beta2', '>=' ) ) {
-		add_filter( 'hooked_block_types', __NAMESPACE__ . '\add_block_to_single_posts_template', 10, 4 );
-		add_filter( 'hooked_block_' . PARENT_BLOCK_NAME, __NAMESPACE__ . '\add_default_services_to_block', 10, 5 );
-	}
+	add_filter( 'hooked_block_types', __NAMESPACE__ . '\add_block_to_single_posts_template', 10, 4 );
+	add_filter( 'hooked_block_' . PARENT_BLOCK_NAME, __NAMESPACE__ . '\add_default_services_to_block', 10, 5 );
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
@@ -207,7 +202,11 @@ function sharing_process_requests() {
 		}
 	}
 }
-add_action( 'template_redirect', __NAMESPACE__ . '\sharing_process_requests', 9 );
+
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checking for the data being present.
+if ( isset( $_GET['share'] ) ) {
+	add_action( 'template_redirect', __NAMESPACE__ . '\sharing_process_requests', 9 );
+}
 
 /**
  * Automatically add the Sharing Buttons block to the end of the Single Posts template.
@@ -222,6 +221,14 @@ add_action( 'template_redirect', __NAMESPACE__ . '\sharing_process_requests', 9 
  * @return array
  */
 function add_block_to_single_posts_template( $hooked_block_types, $relative_position, $anchor_block_type, $context ) {
+	// Add the block at the end of the post content.
+	if (
+		'after' !== $relative_position
+		|| 'core/post-content' !== $anchor_block_type
+	) {
+		return $hooked_block_types;
+	}
+
 	// Only automate the addition of the block in block-based themes.
 	if ( ! wp_is_block_theme() ) {
 		return $hooked_block_types;
@@ -266,20 +273,7 @@ function add_block_to_single_posts_template( $hooked_block_types, $relative_posi
 		return $hooked_block_types;
 	}
 
-	$content = $context->content ?? '';
-	// Check if the block is already in the template. If so, abort.
-	if ( false !== strpos( $content, 'wp:' . PARENT_BLOCK_NAME ) ) {
-		return $hooked_block_types;
-	}
-
-	// Add the block at the end of the post content.
-	if (
-		'after' === $relative_position
-		&& 'core/post-content' === $anchor_block_type
-	) {
-		$hooked_block_types[] = PARENT_BLOCK_NAME;
-	}
-
+	$hooked_block_types[] = PARENT_BLOCK_NAME;
 	return $hooked_block_types;
 }
 

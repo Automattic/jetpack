@@ -12,7 +12,7 @@ import { chalkJetpackGreen } from '../helpers/styling.js';
 /**
  * Returns the path to the .jetpack-draft file
  *
- * @returns {string} - the draft file full path
+ * @return {string} - the draft file full path
  */
 function getDraftFile() {
 	return path.join( process.cwd(), '.jetpack-draft' );
@@ -130,7 +130,7 @@ export async function draftDisable( argv ) {
  * Command definition for the generate subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the generate commands defined.
+ * @return {object} Yargs with the generate commands defined.
  */
 export function draftDefine( yargs ) {
 	yargs.command(

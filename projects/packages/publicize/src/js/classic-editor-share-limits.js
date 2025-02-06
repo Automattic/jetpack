@@ -2,7 +2,6 @@ import jQuery from 'jquery';
 
 jQuery( function ( $ ) {
 	const state = window.jetpackSocialClassicEditorInitialState ?? {};
-	const form = $( '#publicize-form' );
 
 	if ( ! state || state.sharesRemaining > state.numberOfConnections ) {
 		return;
@@ -20,6 +19,7 @@ jQuery( function ( $ ) {
 		return;
 	}
 
+	const form = $( '#publicize-form' );
 	form.click( function ( event ) {
 		const target = $( event.target );
 

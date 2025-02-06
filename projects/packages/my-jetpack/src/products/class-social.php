@@ -1,6 +1,6 @@
 <?php
 /**
- * Search product
+ * Jetpack Social product
  *
  * @package my-jetpack
  */
@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
+use Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status\Host;
 
@@ -63,6 +64,13 @@ class Social extends Hybrid_Product {
 	public static $has_free_offering = true;
 
 	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'social-enhanced-publishing';
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string
@@ -86,7 +94,7 @@ class Social extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Auto-publish to social media', 'jetpack-my-jetpack' );
+		return __( 'Effortlessly share content across social media. Right from within WordPress', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -95,7 +103,7 @@ class Social extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'Promote your content on social media by automatically publishing when you publish on your site.', 'jetpack-my-jetpack' );
+		return __( 'Grow your following by sharing your content across social media automatically.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -141,7 +149,43 @@ class Social extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_wpcom_product_slug() {
-		return 'jetpack_social_basic_yearly';
+		return 'jetpack_social_v1_yearly';
+	}
+
+	/**
+	 * Gets the 'status' of the Social product
+	 *
+	 * @return string
+	 */
+	public static function get_status() {
+		$status = parent::get_status();
+		if ( Products::STATUS_NEEDS_PLAN === $status ) {
+			// If the status says that the site needs a plan,
+			// My Jetpack shows "Learn more" CTA,
+			// We want to instead show the "Activate" CTA.
+			$status = Products::STATUS_NEEDS_ACTIVATION;
+		}
+		return $status;
+	}
+
+	/**
+	 * Get the product-slugs of the paid plans for this product (not including bundles)
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_social_v1_yearly',
+			'jetpack_social_v1_monthly',
+			'jetpack_social_v1_bi_yearly',
+			'jetpack_social_basic_yearly',
+			'jetpack_social_monthly',
+			'jetpack_social_basic_monthly',
+			'jetpack_social_basic_bi_yearly',
+			'jetpack_social_advanced_yearly',
+			'jetpack_social_advanced_monthly',
+			'jetpack_social_advanced_bi_yearly',
+		);
 	}
 
 	/**
@@ -149,25 +193,17 @@ class Social extends Hybrid_Product {
 	 *
 	 * @return boolean
 	 */
-	public static function has_required_plan() {
-		// For atomic sites, do a feature check to see if the republicize feature is available
-		// This feature is available by default on all Jetpack sites
-		if ( ( new Host() )->is_woa_site() ) {
-			return static::does_site_have_feature( 'republicize' );
+	public static function has_paid_plan_for_product() {
+		if ( parent::has_paid_plan_for_product() ) {
+			return true;
 		}
 
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
+		// For atomic sites, do a feature check to see if the republicize feature is available
+		// This feature is available by default on all Jetpack sites
+		if ( ( new Host() )->is_woa_site() && static::does_site_have_feature( 'republicize' ) ) {
+			return true;
 		}
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				// Social is available as standalone bundle and as part of the Complete plan.
-				if ( strpos( $purchase->product_slug, 'jetpack_social' ) !== false || str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
-					return true;
-				}
-			}
-		}
+
 		return false;
 	}
 
@@ -186,5 +222,15 @@ class Social extends Hybrid_Product {
 		}
 
 		return admin_url( 'admin.php?page=jetpack#/settings?term=publicize' );
+	}
+
+	/**
+	 * Return product bundles list
+	 * that supports the product.
+	 *
+	 * @return boolean|array Products bundle list.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return array( 'growth', 'complete' );
 	}
 }

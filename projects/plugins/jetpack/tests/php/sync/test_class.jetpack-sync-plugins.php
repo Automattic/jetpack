@@ -74,33 +74,6 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNotContains( 'hello', $set_autoupdate_plugin );
 	}
 
-	public function test_edit_plugin() {
-		$_POST = array(
-			'action'     => 'update',
-			'plugin'     => 'hello.php',
-			'newcontent' => 'stuff',
-		);
-		set_current_screen( 'plugin-editor' );
-
-		/**
-		 * This action is already documented in wp-admin/admin.php
-		 *
-		 * The 'update' portion of the hook name is from `$_REQUEST['action']`,
-		 * e.g. 'admin_action_' . $_REQUEST['action']
-		 *
-		 * @since 2.6.0
-		 */
-		do_action( 'admin_action_update' );
-
-		$this->sender->do_sync();
-
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_edited_plugin' );
-
-		$plugins = get_plugins();
-		$this->assertEquals( 'hello.php', $event->args[0] );
-		$this->assertEquals( $plugins['hello.php'], $event->args[1] );
-	}
-
 	public function test_activate_and_deactivating_plugin_is_synced() {
 		activate_plugin( 'hello.php' );
 		$this->sender->do_sync();

@@ -1,8 +1,8 @@
 import { execSync, exec } from 'child_process';
-import config from 'config';
-import fetch from 'node-fetch';
 import fs from 'fs';
 import path from 'path';
+import config from 'config';
+import fetch from 'node-fetch';
 import logger from '../logger.js';
 const { E2E_DEBUG } = process.env;
 export const BASE_DOCKER_CMD = 'pnpm jetpack docker --type e2e --name t1';
@@ -10,7 +10,7 @@ export const BASE_DOCKER_CMD = 'pnpm jetpack docker --type e2e --name t1';
 /**
  * Executes a shell command and return it as a Promise.
  *
- * @param {string} cmd shell command
+ * @param {string} cmd - shell command
  * @return {Promise<string>} output
  */
 export async function execShellCommand( cmd ) {
@@ -35,16 +35,28 @@ export async function execShellCommand( cmd ) {
 	} );
 }
 
+/**
+ * Execute shell command synchronously
+ *
+ * @param {string} cmd - shell command
+ * @return {string} output
+ */
 export function execSyncShellCommand( cmd ) {
 	return execSync( cmd ).toString();
 }
 
+/**
+ * Reset WordPress install
+ */
 export async function resetWordpressInstall() {
 	const cmd = 'pnpm e2e-env reset';
 	await cancelPartnerPlan();
 	execSyncShellCommand( cmd );
 }
 
+/**
+ * Cancel partner plan
+ */
 async function cancelPartnerPlan() {
 	logger.step( `Cancelling partner plan` );
 	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
@@ -55,8 +67,9 @@ async function cancelPartnerPlan() {
 /**
  * Runs wp cli command to activate jetpack module, also checks if the module is available in the list of active modules.
  *
- * @param {page}   page   Playwright page object
- * @param {string} module Jetpack module name
+ * @param {page}   page   - Playwright page object
+ * @param {string} module - Jetpack module name
+ * @return {boolean} Always true.
  */
 export async function activateModule( page, module ) {
 	const cliCmd = `jetpack module activate ${ module }`;
@@ -72,6 +85,13 @@ export async function activateModule( page, module ) {
 	return true;
 }
 
+/**
+ * Exec wp cli command.
+ *
+ * @param {string}  wpCmd   - command
+ * @param {boolean} sendUrl - Whether to add a `--url` argument
+ * @return {Promise<string>} output
+ */
 export async function execWpCommand( wpCmd, sendUrl = true ) {
 	const urlArgument = sendUrl ? `--url="${ resolveSiteUrl() }"` : '';
 	const cmd = `${ BASE_DOCKER_CMD } wp -- ${ wpCmd } ${ urlArgument }`;
@@ -91,10 +111,19 @@ export async function execWpCommand( wpCmd, sendUrl = true ) {
 	return result;
 }
 
+/**
+ * Exec shell command in container.
+ *
+ * @param {string} cmd - shell command
+ * @return {Promise<string>} output
+ */
 export async function execContainerShellCommand( cmd ) {
 	return execShellCommand( `${ BASE_DOCKER_CMD } -v exec-silent ${ cmd }` );
 }
 
+/**
+ * Log WordPress debug.log file.
+ */
 export async function logDebugLog() {
 	let log;
 	try {
@@ -125,6 +154,9 @@ export async function logDebugLog() {
 	}
 }
 
+/**
+ * Log Apache access log file.
+ */
 export async function logAccessLog() {
 	// const apacheLog = execSyncShellCommand( 'pnpm wp-env logs tests --watch=false' );
 	const apacheLog = 'EMPTY';
@@ -136,8 +168,8 @@ export async function logAccessLog() {
 /**
  * Formats a given file name by replacing unaccepted characters (e.g. space)
  *
- * @param {string}  filePath         the file path. can be absolute file path, file name only, with or without extension
- * @param {boolean} includeTimestamp if true, the current timestamp will be added as a prefix
+ * @param {string}  filePath         - the file path. can be absolute file path, file name only, with or without extension
+ * @param {boolean} includeTimestamp - if true, the current timestamp will be added as a prefix
  * @return {string} the formatted file path
  */
 export function fileNameFormatter( filePath, includeTimestamp = true ) {
@@ -155,17 +187,43 @@ export function fileNameFormatter( filePath, includeTimestamp = true ) {
 	return path.join( dirname, `${ fileName }${ ext }` );
 }
 
+/**
+ * Get test site config.
+ *
+ * @return {object} Site config
+ */
 function getConfigTestSite() {
 	const testSite = process.env.TEST_SITE ? process.env.TEST_SITE : 'default';
 	logger.debug( `Using '${ testSite }' test site config` );
 	return config.get( `testSites.${ testSite }` );
 }
 
+/**
+ * Get site credentials.
+ *
+ * @return {object} Credentials.
+ */
 export function getSiteCredentials() {
 	const site = getConfigTestSite();
 	return { username: site.username, password: site.password, apiPassword: site.apiPassword };
 }
 
+/**
+ * Set environment variables expected by @wordpress/e2e-test-utils-playwright
+ */
+export function setWpEnvVars() {
+	const site = getConfigTestSite();
+
+	process.env.WP_BASE_URL = resolveSiteUrl();
+	process.env.WP_USERNAME = site.username;
+	process.env.WP_PASSWORD = site.password;
+}
+
+/**
+ * Get DotCom credentials.
+ *
+ * @return {object} Credentials.
+ */
 export function getDotComCredentials() {
 	const site = getConfigTestSite();
 	return {
@@ -176,6 +234,11 @@ export function getDotComCredentials() {
 	};
 }
 
+/**
+ * Get Mailchimp credentials.
+ *
+ * @return {object} Credentials.
+ */
 export function getMailchimpCredentials() {
 	const site = getConfigTestSite();
 	return {
@@ -213,6 +276,8 @@ export function getReusableUrlFromFile() {
  * 1. Write it in 'temp.tunnels' file
  * 2. Configure a test site in local config and use a TEST_SITE env variable with the config property name. This overrides any value written in file
  * If none of the above is valid we throw an error
+ *
+ * @return {string} URL.
  */
 export function resolveSiteUrl() {
 	let url;
@@ -232,10 +297,11 @@ export function resolveSiteUrl() {
 /**
  * Throw an error if the passed parameter is not a valid URL
  *
- * @param {string} url the string to to be validated as URL
+ * @param {string} url - the string to to be validated as URL
  */
 export function validateUrl( url ) {
-	if ( ! new URL( url ) ) {
+	const obj = new URL( url );
+	if ( ! obj ) {
 		throw new Error( `Undefined or invalid url!` );
 	}
 }
@@ -249,6 +315,9 @@ export function isLocalSite() {
 	return ! process.env.TEST_SITE;
 }
 
+/**
+ * Log environment details.
+ */
 export async function logEnvironment() {
 	try {
 		const envFilePath = path.join( `${ config.get( 'dirs.output' ) }`, 'environment.json' );
@@ -282,6 +351,11 @@ export async function logEnvironment() {
 	}
 }
 
+/**
+ * Get Jetpack version.
+ *
+ * @return {string|undefined} Version.
+ */
 export async function getJetpackVersion() {
 	let version;
 

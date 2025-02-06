@@ -1,4 +1,4 @@
-## Jetpack 13.5
+## Jetpack 14.4
 
 ### Before you start:
 
@@ -8,13 +8,12 @@
 - Blocks in beta status require a small change for you to be able to test them. You can do either of the following:
   - Edit your `wp-config.php` file to include: `define( 'JETPACK_BLOCKS_VARIATION', 'beta' );`
   - Or add the following to something like a code snippet plugin: `add_filter( 'jetpack_blocks_variation', function () { return 'beta'; } );`
-
-### Todo Section
-
-- Todo Content
-
-### And More!
+	- To test Breve further in the document please enable the feature with the following snippet: `add_filter( 'breve_enabled', '__return_true' );`
 
 You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
+
+## General testing
+
+Once ready for testing, you'll find instructions here.
 
 **Thank you for all your help!**

@@ -1,8 +1,7 @@
-import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { check, close, info, warning, Icon } from '@wordpress/icons';
 import { useCallback, useEffect } from 'react';
-import { STORE_ID } from '../../state/store';
+import useNotices from '../../hooks/use-notices';
 import styles from './styles.module.scss';
 
 const Notice = ( {
@@ -12,7 +11,7 @@ const Notice = ( {
 	message,
 	type = 'success',
 } ) => {
-	const { clearNotice } = useDispatch( STORE_ID );
+	const { clearNotice } = useNotices();
 
 	let icon;
 	switch ( type ) {

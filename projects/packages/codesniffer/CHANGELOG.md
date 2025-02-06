@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.0] - 2025-01-09
+### Added
+- Add `Jetpack-Compat-84` ruleset. [#40253]
+- Enable test coverage. [#39961]
+
+### Changed
+- Add `WordPress.WP.GlobalVariablesOverride` to `Jetpack-NoWP` ruleset. [#40016]
+- Disable new `Generic.CodeAnalysis.RequireExplicitBooleanOperatorPrecedence.MissingParentheses` sniff for now, pending discussion. [#39648]
+- Updated package dependencies. [#40283]
+- Update Jetpack-Compat rulesets. [#39665]
+- Use mediawiki/mediawiki-codesniffer v44. [#39648]
+
+### Removed
+- General: Remove PHP 7.0 and 7.1 support. [#40174]
+- General: Update minimum PHP version to 7.2. [#40147]
+- `MediaWiki.Usage.DoubleNotOperator` has been removed. `Universal.CodeAnalysis.NoDoubleNegative.FoundDouble`, which serves the same purpose, will be included via the WordPress-Extra ruleset v3.1.0. [#39648]
+
+## [4.0.0] - 2024-08-29
+### Added
+- Jetpack.Functions.SetCookie: Support new options syntax from PHP 7.3+. [#37062]
+
+### Changed
+- Jetpack-Tests: No longer exclude `Squiz.Commenting.*.WrongStyle`. [#37290]
+- Updated mediawiki/mediawiki-code-sniffer dep. This may bring new sniffs. [#36408]
+- Updated package dependencies. [#39004]
+
+### Fixed
+- Jetpack.Functions.SetCookie: Report correct line numbers for multi-line calls. [#37062]
+
 ## [3.0.0] - 2024-02-07
 ### Added
 - Add "Jetpack-NoWP" ruleset. [#33287]
@@ -18,9 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - BREAKING: Drop support for PHP 5.6. `testVersion` should be set to `7.0-`. [#34126]
-- Updated package dependencies. [#31609]
-- Updated package dependencies. [#32605]
-- Updated package dependencies. [#34338]
+- Updated package dependencies. [#31609] [#32605] [#34338]
 - Update to WordPress-Coding-Standards 3.0. [#32608]
 - Update `Jetpack-Compat-*` rulesets against PHPCompatibility develop branch. [#33112]
 
@@ -147,6 +174,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Codesniffer: Add a package to hold our coding standard
 
+[5.0.0]: https://github.com/Automattic/jetpack-codesniffer/compare/v4.0.0...v5.0.0
+[4.0.0]: https://github.com/Automattic/jetpack-codesniffer/compare/v3.0.0...v4.0.0
 [3.0.0]: https://github.com/Automattic/jetpack-codesniffer/compare/v2.8.0...v3.0.0
 [2.8.0]: https://github.com/Automattic/jetpack-codesniffer/compare/v2.7.0...v2.8.0
 [2.7.0]: https://github.com/Automattic/jetpack-codesniffer/compare/v2.6.1...v2.7.0

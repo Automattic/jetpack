@@ -164,10 +164,6 @@
 		width: 49.5%;
 	}
 
-	@include breakpoint( ">660px" ) {
-		margin-bottom: 24px;
-	}
-
 	@include breakpoint( "<660px" ) {
 		max-width: 100%;
 		margin-bottom: rem( 8px );
@@ -213,6 +209,10 @@
 	button {
 		font-weight: 500;
 		font-size: var(--font-body-extra-small);
+	
+		.components-external-link__contents {
+			text-decoration: none;
+		}
 	}
 }
 
@@ -227,6 +227,7 @@
 	flex-direction: row;
 	align-items: stretch;
 	justify-content: space-between;
+	gap: 24px;
 	margin-bottom: rem( 32px );
 	margin-left: rem( -8px );
 	margin-right: rem( -8px );
@@ -237,8 +238,6 @@
 }
 
 .jp-landing__plan-features-card:nth-child(odd) {
-	margin-right: 24px;
-
 	@include breakpoint( "<660px" ) {
 		margin-right: 8px;
 	}

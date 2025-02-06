@@ -19,12 +19,16 @@ use WP_Post;
  * registration if we need to.
  */
 function register_block() {
-	Blocks::jetpack_register_block(
-		__DIR__,
-		array(
-			'render_callback' => __NAMESPACE__ . '\render_block',
-		)
-	);
+
+	require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
+	if ( \Jetpack_Memberships::should_enable_monetize_blocks_in_editor() ) {
+		Blocks::jetpack_register_block(
+			__DIR__,
+			array(
+				'render_callback' => __NAMESPACE__ . '\render_block',
+			)
+		);
+	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
@@ -39,6 +43,18 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 function render_block( $attr, $content ) {
 	// Keep content as-is if rendered in other contexts than frontend (i.e. feed, emails, API, etc.).
 	if ( ! jetpack_is_frontend() ) {
+		$parsed = parse_blocks( $content );
+		if ( ! empty( $parsed[0] ) ) {
+			// Inject the link of the current post from the server side as the fallback link to make sure the donations block
+			// points to the correct post when it's inserted from the synced pattern (aka “My Pattern”).
+			$post_link                             = get_permalink();
+			$parsed[0]['attrs']['fallbackLinkUrl'] = $post_link;
+			$content                               = \render_block( $parsed[0] );
+			if ( preg_match( '/<a\s+class="jetpack-donations-fallback-link"\s+href="([^"]*)"/', $content, $matches ) ) {
+				$content = str_replace( $matches[1], $post_link, $content );
+			}
+		}
+
 		return $content;
 	}
 
@@ -58,6 +74,7 @@ function render_block( $attr, $content ) {
 	$donations = array(
 		'one-time' => array_merge(
 			array(
+				'planId'     => null,
 				'title'      => __( 'One-Time', 'jetpack' ),
 				'class'      => 'donations__one-time-item',
 				'heading'    => $default_texts['oneTimeDonation']['heading'],
@@ -69,6 +86,7 @@ function render_block( $attr, $content ) {
 	if ( $attr['monthlyDonation']['show'] ) {
 		$donations['1 month'] = array_merge(
 			array(
+				'planId'     => null,
 				'title'      => __( 'Monthly', 'jetpack' ),
 				'class'      => 'donations__monthly-item',
 				'heading'    => $default_texts['monthlyDonation']['heading'],
@@ -80,6 +98,7 @@ function render_block( $attr, $content ) {
 	if ( $attr['annualDonation']['show'] ) {
 		$donations['1 year'] = array_merge(
 			array(
+				'planId'     => null,
 				'title'      => __( 'Yearly', 'jetpack' ),
 				'class'      => 'donations__annual-item',
 				'heading'    => $default_texts['annualDonation']['heading'],
@@ -153,14 +172,14 @@ function render_block( $attr, $content ) {
 			'<p>%s</p>',
 			wp_kses_post( $custom_amount_text )
 		);
-		$default_custom_amount = \Jetpack_Memberships::SUPPORTED_CURRENCIES[ $currency ] * 100;
+		$default_custom_amount = ( \Jetpack_Memberships::SUPPORTED_CURRENCIES[ $currency ] ?? 1 ) * 100;
 		$custom_amount        .= sprintf(
 			'<div class="donations__amount donations__custom-amount">
 				%1$s
 				<div class="donations__amount-value" data-currency="%2$s" data-empty-text="%3$s"></div>
 			</div>',
-			esc_html( \Jetpack_Currencies::CURRENCIES[ $attr['currency'] ]['symbol'] ),
-			esc_attr( $attr['currency'] ),
+			esc_html( \Jetpack_Currencies::CURRENCIES[ $currency ]['symbol'] ?? '¤' ),
+			esc_attr( $currency ),
 			esc_attr( \Jetpack_Currencies::format_price( $default_custom_amount, $currency, false ) )
 		);
 	}

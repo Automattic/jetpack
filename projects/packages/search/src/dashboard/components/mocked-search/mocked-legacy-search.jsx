@@ -6,7 +6,7 @@ import './mocked-legacy-search.scss';
 /**
  * Generate mocked search dialog
  *
- * @returns {React.Component}	Mocked Search dialog component.
+ * @return {React.Component} Mocked Search dialog component.
  */
 export default function MockedLegacySearch() {
 	return (

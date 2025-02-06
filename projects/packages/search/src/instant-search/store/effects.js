@@ -26,7 +26,7 @@ const debouncedSetQuery = debounce( setQuery, DEBOUNCED_TIME_TO_SET_QUERY_MILLIS
  * Effect handler which will fetch search results from the API.
  *
  * @param {object} action - Action which had initiated the effect handler.
- * @param {object} store -  Store instance.
+ * @param {object} store  - Store instance.
  */
 function makeSearchAPIRequest( action, store ) {
 	requestCounter++;
@@ -50,7 +50,7 @@ function makeSearchAPIRequest( action, store ) {
  * Initialize query values from the browser's address bar.
  *
  * @param {object} action - Action which had initiated the effect handler.
- * @param {object} store -  Store instance.
+ * @param {object} store  - Store instance.
  */
 function initializeQueryValues( action, store ) {
 	const queryObject = getQuery();

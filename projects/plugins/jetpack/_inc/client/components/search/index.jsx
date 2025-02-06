@@ -1,11 +1,12 @@
 import { isMobile } from '@automattic/viewport';
-import classNames from 'classnames';
-import Gridicon from 'components/gridicon';
-import analytics from 'lib/analytics';
+import clsx from 'clsx';
 import { debounce, noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
-import ReactDom from 'react-dom';
+import Gridicon from 'components/gridicon';
+import analytics from 'lib/analytics';
+import SearchClearButton from './clear-btn';
+import SearchCloseButton from './close-btn';
 
 import './style.scss';
 
@@ -14,6 +15,12 @@ import './style.scss';
  */
 const SEARCH_DEBOUNCE_MS = 300;
 
+/**
+ * Listener for key events
+ *
+ * @param {Function} methodToCall - Method to call
+ * @param {Event}    event        - Event
+ */
 function keyListener( methodToCall, event ) {
 	switch ( event.key ) {
 		case ' ':
@@ -37,7 +44,6 @@ class Search extends React.Component {
 		onSearch: PropTypes.func.isRequired,
 		onSearchChange: PropTypes.func,
 		onSearchOpen: PropTypes.func,
-		onSearchClose: PropTypes.func,
 		analyticsGroup: PropTypes.string,
 		overlayStyling: PropTypes.func,
 		autoFocus: PropTypes.bool,
@@ -62,7 +68,6 @@ class Search extends React.Component {
 		disabled: false,
 		onSearchChange: noop,
 		onSearchOpen: noop,
-		onSearchClose: noop,
 		onKeyDown: noop,
 		onClick: noop,
 		//undefined value for overlayStyling is an optimization that will
@@ -75,6 +80,10 @@ class Search extends React.Component {
 		fitsContainer: false,
 		hideClose: false,
 	};
+
+	overlayRef = React.createRef();
+	searchInputRef = React.createRef();
+	openIconRef = React.createRef();
 
 	state = {
 		keyword: this.props.initialValue || '',
@@ -99,10 +108,6 @@ class Search extends React.Component {
 			this.onSearch = this.props.delaySearch
 				? debounce( this.props.onSearch, this.props.delayTimeout )
 				: this.props.onSearch;
-		}
-
-		if ( nextProps.isOpen ) {
-			this.setState( { isOpen: nextProps.isOpen } );
 		}
 
 		if (
@@ -155,10 +160,10 @@ class Search extends React.Component {
 	}
 
 	scrollOverlay = () => {
-		this.refs.overlay &&
+		this.overlayRef.current &&
 			window.requestAnimationFrame( () => {
-				if ( this.refs.overlay && this.refs.searchInput ) {
-					this.refs.overlay.scrollLeft = this.getScrollLeft( this.refs.searchInput );
+				if ( this.overlayRef.current && this.searchInputRef.current ) {
+					this.overlayRef.current.scrollLeft = this.getScrollLeft( this.searchInputRef.current );
 				}
 			} );
 	};
@@ -187,18 +192,15 @@ class Search extends React.Component {
 	focus = () => {
 		// if we call focus before the element has been entirely synced up with the DOM, we stand a decent chance of
 		// causing the browser to scroll somewhere odd. Instead, defer the focus until a future turn of the event loop.
-		setTimeout(
-			() => this.refs.searchInput && ReactDom.findDOMNode( this.refs.searchInput ).focus(),
-			0
-		);
+		setTimeout( () => this.searchInputRef.current && this.searchInputRef.current.focus(), 0 );
 	};
 
 	blur = () => {
-		ReactDom.findDOMNode( this.refs.searchInput ).blur();
+		this.searchInputRef.current.blur();
 	};
 
 	getCurrentSearchValue = () => {
-		return ReactDom.findDOMNode( this.refs.searchInput ).value;
+		return this.searchInputRef.current.value;
 	};
 
 	clear = () => {
@@ -237,23 +239,21 @@ class Search extends React.Component {
 			return;
 		}
 
-		const input = ReactDom.findDOMNode( this.refs.searchInput );
-
 		this.setState( {
 			keyword: '',
-			isOpen: this.props.isOpen || false,
+			isOpen: false,
 		} );
 
-		input.value = ''; // will not trigger onChange
-		input.blur();
-
 		if ( this.props.pinned ) {
-			ReactDom.findDOMNode( this.refs.openIcon ).focus();
+			this.openIconRef.current.focus();
 		}
 
-		this.props.onSearchClose( event );
-
 		analytics.ga.recordEvent( this.props.analyticsGroup, 'Clicked Close Search' );
+	};
+
+	clearSearch = () => {
+		this.clear();
+		this.focus();
 	};
 
 	keyUp = event => {
@@ -283,7 +283,7 @@ class Search extends React.Component {
 	// Puts the cursor at end of the text when starting
 	// with `initialValue` set.
 	onFocus = () => {
-		const input = ReactDom.findDOMNode( this.refs.searchInput ),
+		const input = this.searchInputRef.current,
 			setValue = input.value;
 
 		if ( setValue ) {
@@ -310,7 +310,7 @@ class Search extends React.Component {
 			spellCheck: 'false',
 		};
 
-		const searchClass = classNames( this.props.additionalClasses, this.props.dir, {
+		const searchClass = clsx( this.props.additionalClasses, this.props.dir, {
 			'is-expanded-to-container': this.props.fitsContainer,
 			'is-open': isOpenUnpinnedOrQueried,
 			'is-searching': this.props.searching,
@@ -318,15 +318,17 @@ class Search extends React.Component {
 			'dops-search': true,
 		} );
 
-		const fadeDivClass = classNames( 'dops-search__input-fade', this.props.dir );
-		const inputClass = classNames( 'dops-search__input', this.props.dir );
+		const fadeDivClass = clsx( 'dops-search__input-fade', this.props.dir );
+		const inputClass = clsx( 'dops-search__input', this.props.dir );
+		const showCloseButton = ! this.props.hideClose && ( this.state.keyword || this.state.isOpen );
+		const showClearButton = showCloseButton && searchValue;
 
 		return (
 			<div dir={ this.props.dir || null } className={ searchClass } role="search">
 				<div
 					role="button"
 					className="dops-search__icon-navigation"
-					ref="openIcon"
+					ref={ this.openIconRef }
 					onClick={ enableOpenIcon ? this.openSearch : this.focus }
 					tabIndex={ enableOpenIcon ? '0' : null }
 					onKeyDown={ enableOpenIcon ? this.openListener : null }
@@ -343,8 +345,9 @@ class Search extends React.Component {
 						className={ inputClass }
 						placeholder={ placeholder }
 						role="searchbox"
+						tabIndex={ isOpenUnpinnedOrQueried ? '0' : '-1' }
 						value={ searchValue }
-						ref="searchInput"
+						ref={ this.searchInputRef }
 						onKeyUp={ this.keyUp }
 						onKeyDown={ this.keyDown }
 						onMouseUp={ this.props.onClick }
@@ -359,37 +362,24 @@ class Search extends React.Component {
 					/>
 					{ this.props.overlayStyling && this.renderStylingDiv() }
 				</div>
-				{ this.closeButton() }
+				{ showClearButton && <SearchClearButton onClick={ this.clearSearch } /> }
+				{ showCloseButton && (
+					<SearchCloseButton
+						closeSearch={ this.closeSearch }
+						closeListener={ this.closeListener }
+						instanceId={ this.state.instanceId }
+					/>
+				) }
 			</div>
 		);
 	}
 
 	renderStylingDiv = () => {
 		return (
-			<div className="dops-search__text-overlay" ref="overlay">
+			<div className="dops-search__text-overlay" ref={ this.overlayRef }>
 				{ this.props.overlayStyling( this.state.keyword ) }
 			</div>
 		);
-	};
-
-	closeButton = () => {
-		if ( ! this.props.hideClose && ( this.state.keyword || this.state.isOpen ) ) {
-			return (
-				<div
-					role="button"
-					className="dops-search__icon-navigation"
-					onClick={ this.closeSearch }
-					tabIndex="0"
-					onKeyDown={ this.closeListener }
-					aria-controls={ 'dops-search-component-' + this.state.instanceId }
-					aria-label="Close Search"
-				>
-					<Gridicon icon="cross" className="dops-search__close-icon" />
-				</div>
-			);
-		}
-
-		return null;
 	};
 }
 

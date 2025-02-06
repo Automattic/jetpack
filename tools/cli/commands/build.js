@@ -28,7 +28,7 @@ export const describe = 'Builds one or more monorepo projects';
  * Options definition for the build subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the build commands defined.
+ * @return {object} Yargs with the build commands defined.
  */
 export function builder( yargs ) {
 	return yargs
@@ -210,6 +210,11 @@ export async function handler( argv ) {
 					}
 				}
 			}
+			if ( ! argv.v ) {
+				console.error(
+					chalk.yellow( 'You might try running with `-v` to get more information on the failure' )
+				);
+			}
 			process.exit( err.exitCode || 1 );
 		} );
 }
@@ -217,11 +222,11 @@ export async function handler( argv ) {
 /**
  * Create a build task.
  *
- * @param {string} project - Project slug.
- * @param {object} argv - Command line arguments.
- * @param {string} title - Task title.
- * @param {Function} build - Build function.
- * @returns {object} Listr task.
+ * @param {string}   project - Project slug.
+ * @param {object}   argv    - Command line arguments.
+ * @param {string}   title   - Task title.
+ * @param {Function} build   - Build function.
+ * @return {object} Listr task.
  */
 function createBuildTask( project, argv, title, build ) {
 	return {
@@ -396,7 +401,7 @@ function createBuildTask( project, argv, title, build ) {
  * Prompt for whether dependencies should be built too.
  *
  * @param {object} options - Passthrough of the argv object.
- * @returns {object} argv object with the project property.
+ * @return {object} argv object with the project property.
  */
 async function promptForDeps( options ) {
 	if ( typeof options.deps !== 'undefined' ) {
@@ -421,7 +426,7 @@ async function promptForDeps( options ) {
  * Set up the environment for building for mirrors.
  *
  * @param {object} argv - Arguments. Will be modified in place.
- * @returns {boolean} Whether to proceed.
+ * @return {boolean} Whether to proceed.
  */
 async function setupForMirroring( argv ) {
 	if ( ! argv.forMirrors ) {
@@ -466,6 +471,7 @@ async function setupForMirroring( argv ) {
 	if ( ! stats.isDirectory() ) {
 		throw new Error( `${ argv.forMirrors } is not a directory` );
 	}
+	// eslint-disable-next-line no-bitwise
 	await fs.access( argv.forMirrors, fsconstants.R_OK | fsconstants.W_OK | fsconstants.X_OK );
 	if ( ( await fs.readdir( argv.forMirrors ).then( a => a.length ) ) > 0 ) {
 		throw new Error( `Directory ${ argv.forMirrors } is not empty` );
@@ -483,7 +489,7 @@ async function setupForMirroring( argv ) {
  * Test if a given path exists.
  *
  * @param {string|Buffer|URL} path - Path to check.
- * @returns {boolean} Whether it exists.
+ * @return {boolean} Whether it exists.
  */
 async function fsExists( path ) {
 	return fs.access( path ).then(
@@ -495,7 +501,7 @@ async function fsExists( path ) {
 /**
  * Copy directories recursively.
  *
- * @param {string} src - Directory to copy from.
+ * @param {string} src  - Directory to copy from.
  * @param {string} dest - Directory to copy to.
  */
 async function copyDirectory( src, dest ) {
@@ -516,8 +522,8 @@ async function copyDirectory( src, dest ) {
  *
  * Writes to a temporary file then renames, on the assumption that the latter is an atomic operation.
  *
- * @param {string} file - File name.
- * @param {string} data - Contents to write.
+ * @param {string} file    - File name.
+ * @param {string} data    - Contents to write.
  * @param {object} options - Options.
  */
 async function writeFileAtomic( file, data, options = {} ) {
@@ -538,7 +544,7 @@ async function writeFileAtomic( file, data, options = {} ) {
  *
  * Copies to a temporary file then renames, on the assumption that the latter is an atomic operation.
  *
- * @param {string} src - Source file.
+ * @param {string} src  - Source file.
  * @param {string} dest - Dest file.
  */
 async function copyFileAtomic( src, dest ) {
@@ -558,23 +564,10 @@ async function copyFileAtomic( src, dest ) {
  * Check for filename collisions.
  *
  * @param {string} basedir - Base directory.
- * @returns {string[]} Colliding file names.
+ * @return {string[]} Colliding file names.
  */
 async function checkCollisions( basedir ) {
-	// @todo Once we require Node 20.1+, use the new `recursive` option to `fs.readdir` instead of manually recursing here.
-	// Doing `const files = await fs.readdir( basedir, { recursive: true } );` should suffice.
-	const files = [];
-	const ls = async dir => {
-		for ( const file of await fs.readdir( dir, { withFileTypes: true } ) ) {
-			const path = npath.join( dir, file.name );
-			files.push( npath.relative( basedir, path ) );
-			if ( file.isDirectory() ) {
-				await ls( path );
-			}
-		}
-	};
-	await ls( basedir );
-
+	const files = await fs.readdir( basedir, { recursive: true } );
 	const collisions = new Set();
 	const compare = Intl.Collator( 'und', { sensitivity: 'accent' } ).compare;
 	let prev = null;
@@ -596,9 +589,89 @@ async function checkCollisions( basedir ) {
 async function buildProject( t ) {
 	await t.setStatus( 'installing' );
 
-	const composerJson = JSON.parse(
+	let composerJson = JSON.parse(
 		await fs.readFile( `${ t.cwd }/composer.json`, { encoding: 'utf8' } )
 	);
+
+	// Update the changelog, if applicable.
+	if (
+		t.argv.forMirrors &&
+		( t.project === 'packages/changelogger' ||
+			composerJson.require?.[ 'automattic/jetpack-changelogger' ] ||
+			composerJson[ 'require-dev' ]?.[ 'automattic/jetpack-changelogger' ] )
+	) {
+		const changelogger = npath.resolve( 'projects/packages/changelogger/bin/changelogger' );
+		const changesDir = npath.resolve(
+			t.cwd,
+			composerJson.extra?.changelogger?.[ 'changes-dir' ] || 'changelog'
+		);
+		t.output( '\n=== Updating changelog ===\n\n' );
+		if (
+			await fs.readdir( changesDir ).then(
+				a => a.filter( f => ! f.startsWith( '.' ) ).length > 0,
+				() => false
+			)
+		) {
+			// If we're building changelogger itself, we need to install before we can run it.
+			if ( t.project === 'packages/changelogger' ) {
+				await t.execa( 'composer', await getInstallArgs( t.project, 'composer', t.argv ), {
+					cwd: t.cwd,
+					stdio: [ 'ignore', 'inherit', 'inherit' ],
+					buffer: false,
+				} );
+			}
+
+			let prerelease = 'alpha';
+			if ( composerJson.extra?.[ 'dev-releases' ] ) {
+				const m = (
+					await t.execa( changelogger, [ 'version', 'current', '--default-first-version' ], {
+						cwd: t.cwd,
+						stdio: [ 'ignore', 'pipe', 'inherit' ],
+					} )
+				).stdout.match( /^.*-a\.(\d+)$/ );
+				// eslint-disable-next-line no-bitwise
+				prerelease = 'a.' + ( m ? ( parseInt( m[ 1 ] ) & ~1 ) + 2 : 0 );
+			}
+			await t.execa(
+				changelogger,
+				[
+					'write',
+					'--prologue=This is an alpha version! The changes listed here are not final.',
+					'--default-first-version',
+					`--prerelease=${ prerelease }`,
+					`--release-date=unreleased`,
+					`--no-interaction`,
+					`--yes`,
+					`-vvv`,
+				],
+				{ cwd: t.cwd, stdio: [ 'ignore', 'inherit', 'inherit' ], buffer: false }
+			);
+
+			t.output( '\n=== Updating version numbers ===\n\n' );
+			const ver = (
+				await t.execa( changelogger, [ 'version', 'current' ], {
+					cwd: t.cwd,
+					stdio: [ 'ignore', 'pipe', 'inherit' ],
+				} )
+			).stdout;
+			await t.execa( npath.resolve( 'tools/project-version.sh' ), [ '-v', '-u', ver, t.project ], {
+				stdio: [ 'ignore', 'inherit', 'inherit' ],
+				buffer: false,
+			} );
+			await t.execa(
+				npath.resolve( 'tools/replace-next-version-tag.sh' ),
+				[ '-v', t.project, ver ],
+				{ stdio: [ 'ignore', 'inherit', 'inherit' ], buffer: false }
+			);
+
+			// Reload composer.json after the above may have changed it.
+			composerJson = JSON.parse(
+				await fs.readFile( `${ t.cwd }/composer.json`, { encoding: 'utf8' } )
+			);
+		} else {
+			t.output( 'Not updating changelog, there are no change files\n' );
+		}
+	}
 
 	// Determine the composer script to run.
 	const scripts = t.argv.production
@@ -644,16 +717,31 @@ async function buildProject( t ) {
 				}
 			}
 
-			if ( Object.keys( versions ).length > 0 ) {
-				t.output( `\n=== Munging composer.json to fetch built packages ===\n\n` );
-				composerJson.repositories.splice( idx, 0, {
-					type: 'path',
-					url: t.argv.forMirrors + '/*/*',
-					options: {
-						monorepo: true,
-						versions,
-					},
-				} );
+			if (
+				Object.keys( versions ).length > 0 ||
+				composerJson.extra?.dependencies?.[ 'test-only' ]?.length > 0
+			) {
+				t.output(
+					`\n=== Munging composer.json to fetch built packages and/or remove test-only deps ===\n\n`
+				);
+				if ( Object.keys( versions ).length > 0 ) {
+					composerJson.repositories.splice( idx, 0, {
+						type: 'path',
+						url: t.argv.forMirrors + '/*/*',
+						options: {
+							monorepo: true,
+							versions,
+						},
+					} );
+				}
+				if ( composerJson.extra?.dependencies?.[ 'test-only' ]?.length > 0 ) {
+					for ( const dep of composerJson.extra.dependencies[ 'test-only' ] ) {
+						const depName = JSON.parse(
+							await fs.readFile( `projects/${ dep }/composer.json`, { encoding: 'utf8' } )
+						).name;
+						delete composerJson[ 'require-dev' ]?.[ depName ];
+					}
+				}
 				await writeFileAtomic(
 					`${ t.cwd }/composer.json`,
 					JSON.stringify( composerJson, null, '\t' ) + '\n',
@@ -697,66 +785,6 @@ async function buildProject( t ) {
 	// If we're not mirroring, the build is done. Mirroring has a bunch of stuff to do yet.
 	if ( ! t.argv.forMirrors ) {
 		return;
-	}
-
-	// Update the changelog, if applicable.
-	if (
-		t.project === 'packages/changelogger' ||
-		composerJson.require?.[ 'automattic/jetpack-changelogger' ] ||
-		composerJson[ 'require-dev' ]?.[ 'automattic/jetpack-changelogger' ]
-	) {
-		const changelogger = npath.resolve( 'projects/packages/changelogger/bin/changelogger' );
-		const changesDir = npath.resolve(
-			t.cwd,
-			composerJson.extra?.changelogger?.[ 'changes-dir' ] || 'changelog'
-		);
-		t.output( '\n=== Updating changelog ===\n\n' );
-		if (
-			await fs.readdir( changesDir ).then(
-				a => a.filter( f => ! f.startsWith( '.' ) ).length > 0,
-				() => false
-			)
-		) {
-			let prerelease = 'alpha';
-			if ( composerJson.extra?.[ 'dev-releases' ] ) {
-				const m = (
-					await t.execa( changelogger, [ 'version', 'current', '--default-first-version' ], {
-						cwd: t.cwd,
-						stdio: [ 'ignore', 'pipe', 'inherit' ],
-					} )
-				).stdout.match( /^.*-a\.(\d+)$/ );
-				prerelease = 'a.' + ( m ? ( parseInt( m[ 1 ] ) & ~1 ) + 2 : 0 );
-			}
-			await t.execa(
-				changelogger,
-				[
-					'write',
-					'--prologue=This is an alpha version! The changes listed here are not final.',
-					'--default-first-version',
-					`--prerelease=${ prerelease }`,
-					`--release-date=unreleased`,
-					`--no-interaction`,
-					`--yes`,
-					`-vvv`,
-				],
-				{ cwd: t.cwd, stdio: [ 'ignore', 'inherit', 'inherit' ], buffer: false }
-			);
-
-			t.output( '\n=== Updating $$next-version$$ ===\n\n' );
-			const ver = (
-				await t.execa( changelogger, [ 'version', 'current' ], {
-					cwd: t.cwd,
-					stdio: [ 'ignore', 'pipe', 'inherit' ],
-				} )
-			).stdout;
-			await t.execa(
-				npath.resolve( 'tools/replace-next-version-tag.sh' ),
-				[ '-v', t.project, ver ],
-				{ stdio: [ 'ignore', 'inherit', 'inherit' ], buffer: false }
-			);
-		} else {
-			t.output( 'Not updating changelog, there are no change files\n' );
-		}
 	}
 
 	// Read mirror repo from composer.json.

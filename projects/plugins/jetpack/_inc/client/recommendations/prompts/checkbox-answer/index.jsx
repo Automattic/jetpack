@@ -1,9 +1,9 @@
-import classNames from 'classnames';
-import InfoPopover from 'components/info-popover';
-import analytics from 'lib/analytics';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
+import InfoPopover from 'components/info-popover';
+import analytics from 'lib/analytics';
 import { getDataByKey, updateRecommendationsData } from 'state/recommendations';
 
 import './style.scss';
@@ -22,10 +22,7 @@ const CheckboxAnswerComponent = ( { answerKey, checked, info, title, updateCheck
 
 	return (
 		<div className="jp-checkbox-answer__container">
-			<label
-				htmlFor={ answerKey }
-				className={ classNames( 'jp-checkbox-answer__title', { checked } ) }
-			>
+			<label htmlFor={ answerKey } className={ clsx( 'jp-checkbox-answer__title', { checked } ) }>
 				<input
 					id={ answerKey }
 					className="jp-checkbox-answer__checkbox-input"

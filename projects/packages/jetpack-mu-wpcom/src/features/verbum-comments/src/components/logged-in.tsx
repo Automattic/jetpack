@@ -1,18 +1,21 @@
+import clsx from 'clsx';
+import { useContext } from 'preact/hooks';
 import useSubscriptionApi from '../hooks/useSubscriptionApi';
 import { translate } from '../i18n';
 import { Close } from '../images';
-import { isTrayOpen, subscriptionSettings, userInfo } from '../state';
-import { serviceData, classNames, isFastConnection } from '../utils';
+import { VerbumSignals } from '../state';
+import { serviceData, isFastConnection } from '../utils';
 import { NewCommentEmail } from './new-comment-email';
 import { NewPostsEmail } from './new-posts-email';
 import { NewPostsNotifications } from './new-posts-notifications';
 
 /**
  * Replace the first occurrence of %s in a string with a parameter.
- * @param s - string to replace
- * @param param - parameter to replace with
+ * @param {string} s     - string to replace
+ * @param {string} param - parameter to replace with
+ * @return {string} The string with the first occurrence of %s replaced by the parameter.
  */
-function sprintf( s: string, param: string ) {
+function sprintf( s: string, param: string ): string {
 	return s.replace( '%s', param );
 }
 
@@ -23,6 +26,7 @@ interface LoggedInProps {
 }
 
 export const LoggedIn = ( { toggleTray, logout }: LoggedInProps ) => {
+	const { isTrayOpen, subscriptionSettings, userInfo } = useContext( VerbumSignals );
 	const { setEmailPostsSubscription, setCommentSubscription, setNotificationSubscription } =
 		useSubscriptionApi();
 	const { subscribeToComment, subscribeToBlog } = VerbumComments;
@@ -74,7 +78,7 @@ export const LoggedIn = ( { toggleTray, logout }: LoggedInProps ) => {
 
 	return (
 		<div
-			className={ classNames( 'verbum-subscriptions logged-in', {
+			className={ clsx( 'verbum-subscriptions logged-in', {
 				'no-options': ! hasSubOptions,
 			} ) }
 		>

@@ -1,5 +1,5 @@
 import { NumberSlider } from '@automattic/jetpack-components';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { __ } from '@wordpress/i18n';
 import styles from './quality-control.module.scss';
 import { useEffect, useId, useState } from 'react';
@@ -31,7 +31,7 @@ const QualityControl = ( {
 	return (
 		<div className={ styles[ 'quality-control' ] }>
 			<div className={ styles.label }>{ label }</div>
-			<div className={ classNames( styles.slider, { [ styles.disabled ]: lossless } ) }>
+			<div className={ clsx( styles.slider, { [ styles.disabled ]: lossless } ) }>
 				<NumberSlider
 					value={ value }
 					onAfterChange={ updatedValue => {

@@ -1,4 +1,3 @@
-/* eslint-disable react/react-in-jsx-scope */
 import React from 'react';
 import PlansSection from '../index.jsx';
 import { purchasesList, siteWithSecurityPlanResponseBody } from './mock-data';

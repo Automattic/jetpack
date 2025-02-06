@@ -1,7 +1,9 @@
 <script lang="ts">
+	/* eslint-disable import/no-duplicates -- https://github.com/import-js/eslint-plugin-import/issues/2992 */
 	import { onMount } from 'svelte';
 	import { backOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
+	/* eslint-enable import/no-duplicates */
 	import JetpackLogo from './JetpackLogo.svelte';
 	import Portal from './Portal.svelte';
 	import External from './assets/External.svelte';
@@ -36,10 +38,6 @@
 	$: imageURL = store.url;
 	$: imageName = $imageURL.split( '/' ).pop();
 
-	// Get the image origin
-	$: origin = new URL( window.location.href ).origin;
-	$: imageOrigin = new URL( $imageURL ).origin;
-
 	$: previewWidth = size === 'normal' ? 100 : 50;
 	$: previewHeight = Math.floor( previewWidth / ( $fileSize.width / $fileSize.height ) );
 	$: ratio = maybeDecimals( $oversizedRatio );
@@ -71,6 +69,9 @@
 
 <svelte:window bind:scrollY />
 <Portal>
+	<!-- Clear up complaints about needing an ARIA role: -->
+	<!-- svelte-ignore a11y-no-static-element-interactions -->
+	<!-- eslint-disable-next-line svelte/valid-compile -->
 	<div
 		class="jetpack-boost-guide-popup keep-guide-open"
 		in:fly={{ duration: 150, y: 4, easing: backOut }}

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Initializer;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
+use Automattic\Jetpack\My_jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
@@ -67,6 +68,13 @@ class Stats extends Module_Product {
 	public static $has_free_offering = true;
 
 	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'stats-paid';
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string
@@ -90,7 +98,7 @@ class Stats extends Module_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Simple, yet powerful analytics', 'jetpack-my-jetpack' );
+		return __( 'The simplest way to track visitor insights and unlock your site’s growth', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -99,7 +107,7 @@ class Stats extends Module_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'With Jetpack Stats, you don’t need to be a data scientist to see how your site is performing.', 'jetpack-my-jetpack' );
+		return __( 'With Jetpack Stats, you don’t need to be a data scientist to see how your site is performing, understand your visitors, and grow your site.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -169,10 +177,10 @@ class Stats extends Module_Product {
 	 */
 	public static function get_status() {
 		$status = parent::get_status();
-		if ( 'module_disabled' === $status && ! Initializer::is_registered() ) {
+		if ( Products::STATUS_MODULE_DISABLED === $status && ! Initializer::is_registered() ) {
 			// If the site has never been connected before, show the "Learn more" CTA,
 			// that points to the add Stats product interstitial.
-			$status = 'needs_purchase_or_free';
+			$status = Products::STATUS_NEEDS_FIRST_SITE_CONNECTION;
 		}
 		return $status;
 	}
@@ -193,7 +201,10 @@ class Stats extends Module_Product {
 		if ( ! is_wp_error( $purchases_data ) && is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
 				// Jetpack complete includes Stats commercial & cannot be upgraded
-				if ( str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
+				if (
+					str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ||
+					str_starts_with( $purchase->product_slug, 'jetpack_growth' )
+				) {
 					return false;
 				} elseif (
 					// Stats commercial purchased with highest tier cannot be upgraded.
@@ -216,24 +227,17 @@ class Stats extends Module_Product {
 	}
 
 	/**
-	 * Checks if the site has a paid plan that supports this product
+	 * Get the product-slugs of the paid plans for this product (not including bundles)
 	 *
-	 * @return boolean
+	 * @return array
 	 */
-	public static function has_paid_plan_for_product() {
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
-		}
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				// Stats is available as standalone product and as part of the Complete plan.
-				if ( strpos( $purchase->product_slug, 'jetpack_stats' ) !== false || str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
-					return true;
-				}
-			}
-		}
-		return false;
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_stats_yearly',
+			'jetpack_stats_monthly',
+			'jetpack_stats_bi_yearly',
+			'jetpack_stats_pwyw_yearly',
+		);
 	}
 
 	/**
@@ -305,5 +309,15 @@ class Stats extends Module_Product {
 	 */
 	public static function get_manage_url() {
 		return admin_url( 'admin.php?page=stats' );
+	}
+
+	/**
+	 * Return product bundles list
+	 * that supports the product.
+	 *
+	 * @return boolean|array Products bundle list.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return array( 'growth', 'complete' );
 	}
 }

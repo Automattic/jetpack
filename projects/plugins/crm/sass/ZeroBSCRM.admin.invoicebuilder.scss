@@ -1,11 +1,6 @@
 /*!
  * Jetpack CRM
- * http://www.zerobscrm.com
- * V1.0
- *
- * Copyright 2020 Automattic
- *
- * Date: 02/06/16
+ * https://jetpackcrm.com
  */
 
 // The invoice builder CSS
@@ -119,10 +114,15 @@
 					margin-right:1%;
 				}
 				.invoice-discount-total{
-					margin-top:-6px;
+					margin-top:-9px;
 				}
 				#invoice_discount_total{
 					float:left;
+					width: 32% !important;
+				}
+				#invoice_postage_total{
+					width: 32%;
+					float:right;
 				}
 				.half{
 					width:50%;
@@ -187,10 +187,15 @@
 					margin-right:1%;
 				}
 				.invoice-discount-total{
-					margin-top:-6px;
+					margin-top:-9px;
 				}
 				#invoice_discount_total{
 					float:left;
+					width: 32% !important;
+				}
+				#invoice_postage_total{
+					width: 32%;
+					float:right;
 				}
 				.half{
 					width:50%;

@@ -1,11 +1,11 @@
-import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
-import { SearchDashboard } from '../pages/wp-admin/index.js';
+import { prerequisitesBuilder, Plans } from '_jetpack-e2e-commons/env/index.js';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
 import {
 	enableInstantSearch,
 	disableInstantSearch,
 	clearSearchPlanInfo,
 } from '../helpers/search-helper.js';
-import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
+import { SearchDashboard } from '../pages/wp-admin/index.js';
 import playwrightConfig from '../playwright.config.mjs';
 
 test.describe( 'Search Dashboard', () => {

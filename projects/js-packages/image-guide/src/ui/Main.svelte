@@ -1,5 +1,8 @@
 <script lang="ts">
+	/* eslint-disable import/no-duplicates -- https://github.com/import-js/eslint-plugin-import/issues/2992 */
 	import { onMount } from 'svelte';
+	import { derived } from 'svelte/store';
+	/* eslint-enable import/no-duplicates */
 	import { guideState } from '../stores/GuideState';
 	import Bubble from './Bubble.svelte';
 	import Popup from './Popup.svelte';
@@ -63,9 +66,21 @@
 		position = detail.position;
 		show = index;
 	}
+
+	/**
+	 * Only show image guide if at least one of the images
+	 * has a file size available.
+	 */
+	const hasItemsWithFileSize = derived(
+		stores.map( s => s.fileSize ),
+		$fileSizes => $fileSizes.some( fileSize => fileSize.width !== -1 && fileSize.height !== -1 )
+	);
 </script>
 
-{#if $guideState === 'active'}
+{#if $guideState === 'active' && $hasItemsWithFileSize}
+	<!-- Clear up complaints about needing an ARIA role: -->
+	<!-- svelte-ignore a11y-no-static-element-interactions -->
+	<!-- eslint-disable-next-line svelte/valid-compile -->
 	<div
 		class="guide {size}"
 		class:show={show !== false}

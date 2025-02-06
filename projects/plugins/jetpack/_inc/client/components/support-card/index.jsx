@@ -1,6 +1,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
 import Gridicon from 'components/gridicon';
@@ -10,9 +13,6 @@ import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_PRIORITY_SUPPORT_JETPACK,
 } from 'lib/plans/constants';
-import PropTypes from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
 import {
 	getSiteConnectionStatus,
 	hasConnectedOwner,
@@ -71,7 +71,7 @@ class SupportCard extends React.Component {
 			return <div />;
 		}
 
-		const classes = classNames( this.props.className, 'jp-support-card' );
+		const classes = clsx( this.props.className, 'jp-support-card' );
 
 		return (
 			<div className={ classes }>

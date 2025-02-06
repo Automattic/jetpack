@@ -511,12 +511,12 @@ class Sharing_Service {
 	/**
 	 * Save a sharing service for use.
 	 *
-	 * @param int            $id Sharing unique ID.
-	 * @param Sharing_Source $service Sharing service.
+	 * @param int                     $id Sharing unique ID.
+	 * @param Sharing_Advanced_Source $service Sharing service.
 	 *
 	 * @return void
 	 */
-	public function set_service( $id, Sharing_Source $service ) {
+	public function set_service( $id, Sharing_Advanced_Source $service ) {
 		// Update the options for this service
 		$options = get_option( 'sharing-options' );
 
@@ -930,7 +930,11 @@ function sharing_process_requests() {
 		}
 	}
 }
-add_action( 'template_redirect', 'sharing_process_requests', 9 );
+
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checking for the data being present.
+if ( isset( $_GET['share'] ) ) {
+	add_action( 'template_redirect', 'sharing_process_requests', 9 );
+}
 
 /**
  * Gets the url to customise the sharing buttons in Calypso.

@@ -1,10 +1,13 @@
+import {
+	ControlBackFiveIcon,
+	ControlForwardFiveIcon,
+} from '@automattic/jetpack-shared-extension-utils/icons';
 import { ToolbarGroup, ToolbarButton, ToolbarItem } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import './style.scss';
 import { STATE_PAUSED, STORE_ID } from '../../../store/media-source/constants';
-import { ControlBackFiveIcon, ControlForwardFiveIcon } from '../../icons';
 import { convertSecondsToTimeCode } from './utils';
 
 export function MediaPlayerControl( {
@@ -90,7 +93,7 @@ export function MediaPlayerControl( {
 
 			{ currenTimeDisplay && (
 				<ToolbarButton
-					className={ classnames( 'media-player-control__current-time', {
+					className={ clsx( 'media-player-control__current-time', {
 						'is-disabled': isDisabled,
 					} ) }
 					label={ __( 'Set timestamp', 'jetpack' ) }

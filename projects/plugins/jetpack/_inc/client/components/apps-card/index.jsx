@@ -1,15 +1,15 @@
-import { imagePath } from 'constants/urls';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
-import AppsBadge from 'components/apps-badge';
-import Card from 'components/card';
-import analytics from 'lib/analytics';
-import detectMobileDevice from 'lib/device-detector';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import AppsBadge from 'components/apps-badge';
+import Card from 'components/card';
+import { imagePath } from 'constants/urls';
+import analytics from 'lib/analytics';
+import detectMobileDevice from 'lib/device-detector';
 
 class AppsCard extends React.Component {
 	static displayName = 'AppsCard';
@@ -74,7 +74,7 @@ class AppsCard extends React.Component {
 	);
 
 	render() {
-		const classes = classNames( this.props.className, 'jp-apps-card' );
+		const classes = clsx( this.props.className, 'jp-apps-card' );
 
 		return (
 			<div className={ classes }>
@@ -115,4 +115,4 @@ AppsCard.propTypes = {
 	className: PropTypes.string,
 };
 
-export default withRouter( AppsCard );
+export default props => <AppsCard { ...props } location={ useLocation() } />;

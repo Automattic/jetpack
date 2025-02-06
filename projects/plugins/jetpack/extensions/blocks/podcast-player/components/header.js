@@ -1,5 +1,5 @@
 import { memo } from '@wordpress/element';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { default as linkIcon } from '../icons/link';
 
 const Header = memo(
@@ -71,7 +71,7 @@ const Title = memo(
 		<h2 id={ `${ playerId }__title` } className="jetpack-podcast-player__title">
 			{ !! ( track && track.title ) && (
 				<span
-					className={ classnames(
+					className={ clsx(
 						'jetpack-podcast-player__current-track-title',
 						colors.primary.classes
 					) }

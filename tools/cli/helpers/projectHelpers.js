@@ -12,7 +12,7 @@ export const projectTypes = [ 'github-actions', 'js-packages', 'packages', 'plug
 /**
  * Returns an array of all projects.
  *
- * @returns {Array} Array of all projects.
+ * @return {Array} Array of all projects.
  */
 export function allProjects() {
 	let projects = [];
@@ -27,9 +27,9 @@ export function allProjects() {
 /**
  * Checks if a project name already is valid to use.
  *
- * @param {string} dir - the directory we're checking.
+ * @param {string} dir     - the directory we're checking.
  * @param {string} newName - the name of the new project we're checking.
- * @returns {boolean} - return true if we're newName matches an existing project name.
+ * @return {boolean} - return true if we're newName matches an existing project name.
  */
 export function checkNameValid( dir, newName ) {
 	const existingNames = dirs( './projects/' + pluralize( dir ) );
@@ -60,7 +60,7 @@ export function checkNameValid( dir, newName ) {
  * Returns an array of projects by the given type.
  *
  * @param {string} type - The project type. Must be one of projectTypes
- * @returns {Error|Array} - Array of projects on success, error if an unknown type is passed.
+ * @return {Error|Array} - Array of projects on success, error if an unknown type is passed.
  */
 export function allProjectsByType( type ) {
 	if ( ! projectTypes.includes( type ) ) {

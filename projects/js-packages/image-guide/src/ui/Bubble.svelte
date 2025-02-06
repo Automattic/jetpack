@@ -1,7 +1,9 @@
 <script lang="ts">
+	/* eslint-disable import/no-duplicates -- https://github.com/import-js/eslint-plugin-import/issues/2992 */
 	import { createEventDispatcher } from 'svelte';
 	import { backOut } from 'svelte/easing';
 	import { fade, fly } from 'svelte/transition';
+	/* eslint-enable import/no-duplicates */
 	import Spinner from './Spinner.svelte';
 	import Checkmark from './assets/Checkmark.svelte';
 	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
@@ -35,6 +37,9 @@
 	}
 </script>
 
+<!-- Clear up complaints about needing an ARIA role: -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- eslint-disable-next-line svelte/valid-compile -->
 <div
 	class="interaction-area {severity}"
 	bind:this={bubble}

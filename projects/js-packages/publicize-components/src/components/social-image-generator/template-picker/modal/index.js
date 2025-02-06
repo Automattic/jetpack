@@ -10,11 +10,11 @@ import styles from './styles.module.scss';
 /**
  * Wraps the template picker component in a modal, and saves the selected template on modal save.
  *
- * @param {object} props - The component props.
- * @param {Function} props.onSelect - A function that will be called when a template is selected. Receives the name of the selected template as an argument.
- * @param {Function} props.render - A function that will be called with an object containing an "open" function, which can be called to open the template picker.
+ * @param {object}      props              - The component props.
+ * @param {Function}    props.onSelect     - A function that will be called when a template is selected. Receives the name of the selected template as an argument.
+ * @param {Function}    props.render       - A function that will be called with an object containing an "open" function, which can be called to open the template picker.
  * @param {string|null} [props.value=null] - The name of the currently selected template.
- * @returns {JSXElement} - The component's rendered output.
+ * @return {JSXElement} - The component's rendered output.
  */
 const TemplatePickerModal = ( { onSelect, render, value = null } ) => {
 	const [ isOpen, setIsOpen ] = useState( false );
@@ -33,14 +33,17 @@ const TemplatePickerModal = ( { onSelect, render, value = null } ) => {
 		<ThemeProvider targetDom={ document.body }>
 			{ render( { open: openPicker } ) }
 			{ isOpen && (
-				<Modal onRequestClose={ closePicker } title={ __( 'Pick a Template', 'jetpack' ) }>
+				<Modal
+					onRequestClose={ closePicker }
+					title={ __( 'Pick a Template', 'jetpack-publicize-components' ) }
+				>
 					<TemplatePicker value={ selectedTemplate } onTemplateSelected={ setSelectedTemplate } />
 					<div className={ styles.footer }>
 						<Button variant="tertiary" onClick={ closePicker }>
-							{ __( 'Cancel', 'jetpack' ) }
+							{ __( 'Cancel', 'jetpack-publicize-components' ) }
 						</Button>
 						<Button variant="primary" onClick={ saveAndClosePicker }>
-							{ __( 'Save', 'jetpack' ) }
+							{ __( 'Save', 'jetpack-publicize-components' ) }
 						</Button>
 					</div>
 				</Modal>

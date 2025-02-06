@@ -69,6 +69,13 @@ class Videopress extends Hybrid_Product {
 	public static $has_free_offering = true;
 
 	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'videopress';
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string
@@ -92,7 +99,7 @@ class Videopress extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'High quality, ad-free video', 'jetpack-my-jetpack' );
+		return __( 'Stunning-quality, ad-free video in the WordPress Editor', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -101,7 +108,7 @@ class Videopress extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'High-quality, ad-free video built specifically for WordPress.', 'jetpack-my-jetpack' );
+		return __( 'Stunning-quality, ad-free video in the WordPress Editor', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -174,11 +181,25 @@ class Videopress extends Hybrid_Product {
 	}
 
 	/**
-	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 * Get the product-slugs of the paid plans for this product (not including bundles)
 	 *
-	 * @return boolean
+	 * @return array
 	 */
-	public static function has_required_plan() {
-		return static::does_site_have_feature( 'videopress' );
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_videopress',
+			'jetpack_videopress_monthly',
+			'jetpack_videopress_bi_yearly',
+		);
+	}
+
+	/**
+	 * Return product bundles list
+	 * that supports the product.
+	 *
+	 * @return boolean|array Products bundle list.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return array( 'complete' );
 	}
 }

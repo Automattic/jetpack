@@ -9,6 +9,7 @@ import {
 import { DropZone, FormFileUpload, withNotices } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
+import domReady from '@wordpress/dom-ready';
 import { mediaUpload } from '@wordpress/editor';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -16,6 +17,7 @@ import { get, map, pick } from 'lodash';
 import metadata from './block.json';
 import { PanelControls, ToolbarControls } from './controls';
 import Slideshow from './slideshow';
+import applyPaddingForStackBlock from './utils';
 
 import './editor.scss';
 
@@ -33,6 +35,7 @@ export const pickRelevantMediaFiles = ( image, sizeSlug ) => {
 export const SlideshowEdit = ( {
 	attributes,
 	setAttributes,
+	className,
 	isSelected,
 	noticeOperations,
 	noticeUI,
@@ -43,7 +46,9 @@ export const SlideshowEdit = ( {
 } ) => {
 	const { align, autoplay, delay, effect, images, sizeSlug, ids } = attributes;
 
-	const blockProps = useBlockProps();
+	const blockProps = useBlockProps( {
+		className: className,
+	} );
 
 	const setImages = imgs => {
 		setAttributes( {
@@ -51,6 +56,13 @@ export const SlideshowEdit = ( {
 			ids: imgs.map( ( { id } ) => parseInt( id, 10 ) ),
 		} );
 	};
+	useEffect( () => {
+		if ( typeof window !== 'undefined' ) {
+			domReady( function () {
+				applyPaddingForStackBlock();
+			} );
+		}
+	}, [] );
 
 	const onSelectImages = imgs =>
 		setImages( imgs.map( image => pickRelevantMediaFiles( image, sizeSlug ) ) );

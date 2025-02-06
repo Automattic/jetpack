@@ -2,21 +2,10 @@
 /*!
  * Jetpack CRM
  * https://jetpackcrm.com
- * V2.2
- *
- * Copyright 2017 ZeroBSCRM.com
- *
- * Date: 30/07/2017
  */
 
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
    #{ Wh NOTE: this should all be in 1 global, messy to ahve them all separate! }

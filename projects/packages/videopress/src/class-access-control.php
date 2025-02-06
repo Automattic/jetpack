@@ -179,6 +179,7 @@ class Access_Control {
 			$paywall             = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
 
 			// Only paid subscribers should be granted access to the premium content.
+			$access_level = '';
 			if ( class_exists( Abstract_Token_Subscription_Service::class ) ) {
 				$access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS;
 			}

@@ -2,11 +2,13 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 
-class Status {
+class Status implements Entry_Can_Get, Entry_Can_Set {
 
 	/**
 	 * Slug of the optimization module which is currently being toggled
@@ -22,8 +24,15 @@ class Status {
 	 */
 	protected $status_sync_map;
 
+	/**
+	 * @var string $option_name
+	 */
+	protected $option_name;
+
 	public function __construct( $slug ) {
-		$this->slug = $slug;
+		$this->slug        = $slug;
+		$module_slug       = str_replace( '_', '-', $this->slug );
+		$this->option_name = 'jetpack_boost_status_' . $module_slug;
 
 		$this->status_sync_map = array(
 			Cloud_CSS::get_slug() => array(
@@ -32,20 +41,12 @@ class Status {
 		);
 	}
 
-	public function update( $new_status ) {
-		$entry                          = jetpack_boost_ds_get( 'modules_state' );
-		$entry[ $this->slug ]['active'] = $new_status;
-		jetpack_boost_ds_set( 'modules_state', $entry );
+	public function get( $_fallback = false ) {
+		return get_option( $this->option_name, false );
 	}
 
-	public function is_enabled() {
-		$modules_state = jetpack_boost_ds_get( 'modules_state' );
-		return $modules_state[ $this->slug ]['active'];
-	}
-
-	public function is_available() {
-		$modules_state = jetpack_boost_ds_get( 'modules_state' );
-		return $modules_state[ $this->slug ]['available'];
+	public function set( $value ) {
+		return update_option( $this->option_name, $value );
 	}
 
 	/**
@@ -79,9 +80,9 @@ class Status {
 			remove_action( 'jetpack_boost_module_status_updated', array( $modules_instance, 'on_module_status_update' ) );
 		}
 
-		foreach ( $this->status_sync_map[ $this->slug ] as $mapped_module ) {
-			$mapped_status = new Status( $mapped_module );
-			$mapped_status->update( $new_status );
+		foreach ( $this->status_sync_map[ $this->slug ] as $mapped_module_slug ) {
+			$status = new Status( $mapped_module_slug );
+			$status->set( $new_status );
 		}
 
 		// The moduleInstance will be there. But check just in case.

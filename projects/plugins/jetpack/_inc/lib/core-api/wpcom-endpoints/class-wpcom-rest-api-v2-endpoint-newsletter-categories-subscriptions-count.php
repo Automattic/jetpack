@@ -6,15 +6,14 @@
  * @since 12.6
  */
 
+use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 use Automattic\Jetpack\Status\Host;
-
-require_once __DIR__ . '/trait-wpcom-rest-api-proxy-request-trait.php';
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Newsletter_Categories_Subscriptions_Count
  */
 class WPCOM_REST_API_V2_Endpoint_Newsletter_Categories_Subscriptions_Count extends WP_REST_Controller {
-	use WPCOM_REST_API_Proxy_Request_Trait;
+	use WPCOM_REST_API_Proxy_Request;
 
 	/**
 	 * Constructor.
@@ -76,7 +75,7 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Categories_Subscriptions_Count exten
 		$blog_id  = get_current_blog_id();
 		$term_ids = explode( ',', $request->get_param( 'term_ids' ) );
 
-		$subscriptions_count = get_blog_subscriptions_aggregate_count( $blog_id, $term_ids );
+		$subscriptions_count = \Newsletter_Categories\get_blog_subscriptions_aggregate_count( $blog_id, $term_ids );
 
 		return rest_ensure_response(
 			array(

@@ -8,11 +8,18 @@ import useConnection from '../use-connection';
  * The RNA connection component.
  *
  * @param {object} props -- The properties.
- * @returns {React.Component} The RNA connection component.
+ * @return {React.Component} The RNA connection component.
  */
 const ConnectButton = props => {
-	const { apiRoot, apiNonce, connectLabel, registrationNonce, redirectUri, from, autoTrigger } =
-		props;
+	const {
+		apiRoot,
+		apiNonce,
+		connectLabel = __( 'Connect', 'jetpack-connection-js' ),
+		registrationNonce,
+		redirectUri = null,
+		from,
+		autoTrigger = false,
+	} = props;
 
 	const {
 		handleRegisterSite,
@@ -59,12 +66,6 @@ ConnectButton.propTypes = {
 	registrationNonce: PropTypes.string.isRequired,
 	/** Whether to initiate the connection process automatically upon rendering the component. */
 	autoTrigger: PropTypes.bool,
-};
-
-ConnectButton.defaultProps = {
-	connectLabel: __( 'Connect', 'jetpack' ),
-	redirectUri: null,
-	autoTrigger: false,
 };
 
 export default ConnectButton;

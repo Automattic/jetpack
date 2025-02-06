@@ -27,6 +27,10 @@ class Run_Setup implements Data_Sync_Action {
 
 		Garbage_Collection::activate();
 		Boost_Cache_Settings::get_instance()->set( array( 'enabled' => true ) );
-		return true;
+
+		return array(
+			'success' => true,
+			'notices' => Page_Cache_Setup::get_notices(),
+		);
 	}
 }

@@ -2,10 +2,13 @@
 /**
  * Template used to display arguments used to build the carousel modal.
  *
+ * @html-template Jetpack_Tiled_Gallery_Layout::partial
  * @package automattic/jetpack
  */
 
-$item             = $context['item']; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
+
+$item             = $context['item'];
 $fuzzy_image_meta = $item->fuzzy_image_meta(); // See https://github.com/Automattic/jetpack/issues/2765 .
 if ( isset( $fuzzy_image_meta['keywords'] ) ) {
 	unset( $fuzzy_image_meta['keywords'] );

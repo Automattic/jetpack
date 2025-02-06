@@ -6,7 +6,7 @@ import { Spinner } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { useCallback, ChangeEvent, KeyboardEvent } from 'react';
 /**
  * Internal dependencies
@@ -45,20 +45,20 @@ const InputWrapper = ( {
 	);
 
 	const baseProps = {
-		className: classnames( styles.input, {
+		className: clsx( styles.input, {
 			[ styles[ 'with-icon' ] ]: icon != null,
 		} ),
 		onChange: handleChangeEvent,
 		onKeyUp: handleKeyUpEvent,
 		disabled: disabled,
-		[ 'aria-disabled' ]: disabled,
+		'aria-disabled': disabled,
 	};
 
 	const isTextarea = inputProps?.type === 'textarea';
 
 	return (
 		<div
-			className={ classnames( className, styles[ 'input-wrapper' ], {
+			className={ clsx( className, styles[ 'input-wrapper' ], {
 				[ styles.disabled ]: disabled,
 				[ styles.large ]: size === 'large',
 				[ styles[ 'is-textarea' ] ]: isTextarea,
@@ -70,7 +70,7 @@ const InputWrapper = ( {
 				<>
 					{ loading || icon ? (
 						<div
-							className={ classnames( styles[ 'icon-wrapper' ], {
+							className={ clsx( styles[ 'icon-wrapper' ], {
 								[ styles.loader ]: loading,
 							} ) }
 						>
@@ -89,7 +89,7 @@ const InputWrapper = ( {
  * Input component
  *
  * @param {InputProps} props - Component props.
- * @returns {React.ReactNode} - Input react component.
+ * @return {React.ReactNode} - Input react component.
  */
 export const Input = ( {
 	name,
@@ -120,7 +120,7 @@ export const Input = ( {
  * Search Input component
  *
  * @param {InputProps} props - Component props.
- * @returns {React.ReactNode} - Input react component.
+ * @return {React.ReactNode} - Input react component.
  */
 export const SearchInput = ( {
 	placeholder = __( 'Search your library', 'jetpack-videopress-pkg' ),
@@ -162,11 +162,11 @@ export const SearchInput = ( {
 			endAdornment={
 				<>
 					{ Boolean( componentProps.value ) && (
-						<div className={ classnames( styles[ 'icon-wrapper' ] ) }>
+						<div className={ clsx( styles[ 'icon-wrapper' ] ) }>
 							<Icon
 								icon={ closeSmall }
 								onClick={ clearInput }
-								className={ classnames( styles[ 'clear-icon' ] ) }
+								className={ clsx( styles[ 'clear-icon' ] ) }
 							/>
 						</div>
 					) }

@@ -511,8 +511,6 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Encrypt data for sending to WordPress.com.
 	 *
-	 * @todo When PHP minimum is 5.3+, add cipher detection to use an agreed better cipher than RC4. RC4 should be the last resort.
-	 *
 	 * @param string $data Data to encrypt with the WP.com Public Key.
 	 *
 	 * @return false|array False if functionality not available. Array of encrypted data, encryption key.
@@ -525,12 +523,19 @@ class Jetpack_Cxn_Test_Base {
 
 		$public_key = openssl_get_publickey( JETPACK__DEBUGGER_PUBLIC_KEY );
 
-		if ( $public_key && openssl_seal( $data, $encrypted_data, $env_key, array( $public_key ), 'RC4' ) ) {
+		// Select the first allowed cipher method.
+		$allowed_methods = array( 'aes-256-ctr', 'aes-256-cbc' );
+		$methods         = array_intersect( $allowed_methods, openssl_get_cipher_methods() );
+		$method          = array_shift( $methods );
+
+		$iv = '';
+		if ( $public_key && $method && openssl_seal( $data, $encrypted_data, $env_key, array( $public_key ), $method, $iv ) ) {
 			// We are returning base64-encoded values to ensure they're characters we can use in JSON responses without issue.
 			$return = array(
 				'data'   => base64_encode( $encrypted_data ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 				'key'    => base64_encode( $env_key[0] ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-				'cipher' => 'RC4', // When Jetpack's minimum WP version is at PHP 5.3+, we will add in detecting and using a stronger one.
+				'iv'     => base64_encode( $iv ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				'cipher' => strtoupper( $method ),
 			);
 		}
 

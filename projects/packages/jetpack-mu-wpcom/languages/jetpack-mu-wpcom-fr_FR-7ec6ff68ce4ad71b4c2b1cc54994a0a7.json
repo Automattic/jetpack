@@ -1,0 +1,170 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": {
+				"domain": "messages",
+				"plural-forms": "nplurals=2; plural=n > 1;",
+				"lang": "fr"
+			},
+			"Post Answer": [ "Partager une r\u00e9ponse" ],
+			"Show next prompt": [ "Afficher l\u2019invite suivante" ],
+			"Show previous prompt": [ "Afficher l\u2019invite pr\u00e9c\u00e9dente" ],
+			"Some ideas for writing topics": [
+				"Quelques id\u00e9es pour des sujets d\u2019\u00e9criture"
+			],
+			"Add these tags": [ "Ajouter ces \u00e9tiquettes" ],
+			"Adding tags can help drive more traffic to your post.": [
+				"Ajouter des \u00e9tiquettes peut aider \u00e0 g\u00e9n\u00e9rer davantage de trafic vers votre article."
+			],
+			"Based on the topics and themes in your post, here are some suggested tags to consider:": [
+				"D\u2019apr\u00e8s les th\u00e8mes et sujets de votre article, voici quelques suggestions d\u2019\u00e9tiquettes \u00e0 envisager\u00a0:"
+			],
+			"Recommended tags:": [ "\u00c9tiquettes recommand\u00e9es\u00a0:" ],
+			"No Tags Added.": [ "Aucune \u00e9tiquette ajout\u00e9e." ],
+			"Tag Added.": [ "\u00c9tiquette ajout\u00e9e.", "\u00c9tiquettes ajout\u00e9es." ],
+			"Share Post": [ "Partager la publication" ],
+			"Don't show again": [ "Ne plus afficher" ],
+			"Get more traffic to your post by sharing:": [
+				"Augmentez le trafic de votre publication en partageant\u00a0:"
+			],
+			"Post published!": [ "Publication en ligne\u00a0!" ],
+			"Link copied to clipboard.": [ "Lien copi\u00e9 dans le presse-papiers." ],
+			"Next Steps": [ "\u00c9tapes suivantes" ],
+			"Take the tour": [ "Commencer" ],
+			"This is the Site Editor, where you can change everything about your site, including adding content to your homepage. <link_to_site_editor_course>Watch these short videos</link_to_site_editor_course> and take this tour to get started.": [
+				"Voici l\u2019\u00e9diteur de site, qui vous permet d\u2019apporter toutes les modifications souhait\u00e9es \u00e0 votre site, y compris ajouter du contenu \u00e0 votre page d\u2019accueil. <link_to_site_editor_course>Regardez ces courtes vid\u00e9os</link_to_site_editor_course> et d\u00e9couvrez cette pr\u00e9sentation pour commencer."
+			],
+			"Nice job! Your new page is set up.": [
+				"Super\u00a0! Votre nouvelle page est configur\u00e9e."
+			],
+			"Feel free to keep editing your homepage, or continue and launch your site.": [
+				"Poursuivez l\u2019\u00e9dition de la page d\u2019accueil ou continuez et lancez votre site."
+			],
+			"Continue and launch": [ "Continuer et lancer" ],
+			"Keep editing": [ "Poursuivre l\u2019\u00e9dition" ],
+			"Design everything on your site - from the header right down to the footer - in the Site Editor. <link_to_fse_docs>Learn more</link_to_fse_docs>": [
+				"Concevez l\u2019ensemble de votre site, de l\u2019en-t\u00eate au pied de page, dans l\u2019\u00e9diteur de site. <link_to_fse_docs>En savoir plus</link_to_fse_docs>"
+			],
+			"Take this short, interactive tour to learn the fundamentals of the WordPress Site Editor.": [
+				"Suivez cette courte visite interactive pour d\u00e9couvrir les bases de l\u2019\u00e9diteur de site WordPress."
+			],
+			"Use the toolbar to change the appearance of a selected block. Try replacing a video!": [
+				"Utilisez la barre d\u2019outils pour modifier l\u2019apparence du bloc s\u00e9lectionn\u00e9. Essayez de remplacer une vid\u00e9o\u00a0!"
+			],
+			"Congrats! Premium blocks are now available to use.": [
+				"F\u00e9licitations\u00a0! Les blocs Premium sont d\u00e9sormais disponibles, ils peuvent \u00eatre utilis\u00e9s."
+			],
+			"The Payments block": [ "Le bloc Paiements" ],
+			"Learn more": [ "Lire la suite" ],
+			"Design everything on your site - from the header right down to the footer - in the Site Editor.": [
+				"Concevez l\u2019ensemble de votre site, de l\u2019en-t\u00eate au pied de page, dans l\u2019\u00e9diteur de site."
+			],
+			"Edit your site": [ "Modifier votre site" ],
+			"The Payments block allows you to accept payments for one-time, monthly recurring, or annual payments on your website": [
+				"Le bloc Paiements vous permet d\u2019accepter des versements ponctuels, mensuels ou annuels sur votre site\u00a0Web"
+			],
+			"Tour Media": [ "Support de visite" ],
+			"Resume tour <span>(%1$d/%2$d)</span>": [ "Reprendre la visite <span>(%1$d/%2$d)</span>" ],
+			"View your product": [ "Voir votre produit" ],
+			"Preview your product on your site before launching and sharing with others.": [
+				"Pr\u00e9visualisez votre produit sur votre site avant la mise en ligne."
+			],
+			"You've added your first product!": [
+				"Votre premier produit a \u00e9t\u00e9 ajout\u00e9\u00a0!"
+			],
+			"Pagination control": [ "Contr\u00f4le de la pagination" ],
+			"Use List View to see all the blocks you've added. Click and drag any block to move it around.": [
+				"Utilisez la vue en liste pour voir tous les blocs que vous avez ajout\u00e9s. Cliquez sur n\u2019importe quel bloc et faites-le glisser pour le d\u00e9placer."
+			],
+			"Find your way": [ "Trouvez votre chemin" ],
+			"To move blocks around, tap the up and down arrows.": [
+				"Pour d\u00e9placer les blocs, appuyez sur les fl\u00e8ches haut et bas."
+			],
+			"Tap the settings icon to see even more options.": [
+				"Appuyez sur l\u2019ic\u00f4ne R\u00e9glages pour voir toujours plus d\u2019options."
+			],
+			"Tap + to open the inserter. Then tap the block you want to add.": [
+				"Appuyez sur + pour ouvrir l\u2019outil d\u2019insertion. Ensuite, appuyez sur le bloc \u00e0 ajouter."
+			],
+			"View Post": [ "Voir l\u2019article" ],
+			"Congratulations! You did it. View your post to see how it will look on your site.": [
+				"Bravo\u00a0! Vous l\u2019avez fait. Affichez votre article pour voir \u00e0 quoi il ressemblera sur votre site."
+			],
+			"Your first post is published!": [ "Votre premier article est publi\u00e9\u00a0!" ],
+			"Resume Tour": [ "Reprendre la visite" ],
+			"I'm not ready": [ "Je ne suis pas pr\u00eat" ],
+			"Start writing": [ "Commencer \u00e0 \u00e9crire" ],
+			"It\u2019s time to flex those writing muscles and start drafting your first post!": [
+				"Il est temps de faire appel \u00e0 ces muscles r\u00e9dactionnels et d\u2019\u00e9crire votre premier article de blog\u00a0!"
+			],
+			"Write your first post": [ "R\u00e9digez votre premier article de blog" ],
+			"workaround\u0004Take this short, interactive tour to learn the fundamentals of the WordPress editor.": [
+				"Poursuivez cette petite visite pour en savoir plus sur les bases de l\u2019\u00e9diteur WordPress."
+			],
+			"You've learned the basics. Remember, your site is private until you <link_to_launch_site_docs>decide to launch</link_to_launch_site_docs>. View the <link_to_editor_docs>block editing docs</link_to_editor_docs> to learn more.": [
+				"Vous ma\u00eetrisez les bases. N\u2019oubliez pas que votre site reste priv\u00e9 tant que vous n\u2019avez pas<link_to_launch_site_docs>d\u00e9cid\u00e9 de le lancer</link_to_launch_site_docs>. Voir la <link_to_editor_docs>documentation sur la modification des blocs</link_to_editor_docs> pour en savoir plus."
+			],
+			"Restart tour": [ "Recommencer la visite" ],
+			"Did you find this guide helpful?": [ "Avez-vous trouv\u00e9 ce guide utile ?" ],
+			"Rate thumbs down": [ "Noter avec un pouce vers le bas" ],
+			"Rate thumbs up": [ "Noter avec un pouce vers le haut" ],
+			"Close Tour": [ "Fermer la visite" ],
+			"Minimize Tour": [ "R\u00e9duire la visite" ],
+			"Next": [ "Suivant" ],
+			"Skip": [ "Passer" ],
+			"To move blocks around, click and drag the handle.": [
+				"Pour d\u00e9placer des blocs, cliquez sur la poign\u00e9e et faites-la glisser."
+			],
+			"Congratulations!": [ "Bravo\u00a0!" ],
+			"Drag & drop": [ "Glisser-d\u00e9poser" ],
+			"Click the Undo button if you've made a mistake.": [
+				"Cliquez sur le bouton Annuler si vous avez fait une erreur."
+			],
+			"Undo any mistake": [ "Annuler une erreur" ],
+			"Click the settings icon to see even more options.": [
+				"Cliquez sur l\u2019ic\u00f4ne R\u00e9glages pour voir toujours plus d\u2019options."
+			],
+			"More Options": [ "Plus d\u2019options" ],
+			"Use the toolbar to change the appearance of a selected block. Try making it bold.": [
+				"Utilisez la barre d\u2019outils pour modifier l\u2019apparence du bloc s\u00e9lectionn\u00e9. Essayez de le basculer en gras."
+			],
+			"Click a block to change it": [ "Cliquez sur un bloc pour le modifier" ],
+			"Click + to open the inserter. Then click the block you want to add.": [
+				"Cliquez sur + pour ouvrir l\u2019outil d\u2019insertion. Cliquez ensuite sur le bloc \u00e0 ajouter."
+			],
+			"Adding a new block": [ "Ajout d\u2019un nouveau bloc" ],
+			"In the WordPress Editor, paragraphs, images, and videos are all blocks.": [
+				"Dans l\u2019\u00e9diteur WordPress, les paragraphes, les images et les vid\u00e9os sont tous des blocs."
+			],
+			"Everything is a block": [ "Tous les \u00e9l\u00e9ments sont des blocs" ],
+			"workaround\u0004Welcome to WordPress!": [ "Bienvenue dans WordPress !" ],
+			"Page %1$d of %2$d": [ "Page %1$d sur %2$d" ],
+			"Copy Link": [ "Copier le lien" ],
+			"Your site will remain hidden until launched. Click \u201cLaunch\u201d in the toolbar to share it with the world.": [
+				"Votre site restera priv\u00e9 jusqu\u2019\u00e0 son lancement. Cliquez sur \u00ab\u00a0Lancement\u00a0\u00bb dans la barre d\u2019outils pour le partager avec le monde entier."
+			],
+			"Hidden until you\u2019re ready": [ "Priv\u00e9 jusqu'\u00e0 ce que vous soyez pr\u00eat" ],
+			"As you edit your site content, click \u201cPreview\u201d to see your site the way your visitors will.": [
+				"Lorsque vous modifiez le contenu de votre site, cliquez sur \u00ab\u00a0Aper\u00e7u\u00a0\u00bb pour voir votre site tel que vos visiteurs le verront."
+			],
+			"Preview your site as you go": [ "Pr\u00e9visualisez votre site o\u00f9 que vous soyez" ],
+			"Edit the placeholder content we\u2019ve started you off with, or click the plus sign to add more content.": [
+				"Modifiez le contenu du texte indicatif avec lequel vous avez commenc\u00e9, ou cliquez sur le signe plus pour ajouter du contenu suppl\u00e9mentaire."
+			],
+			"Add or edit your content": [ "Ajoutez ou modifiez du contenu" ],
+			"Edit your homepage, add the pages you need, and change your site\u2019s look and feel.": [
+				"Modifiez votre page d'accueil, ajoutez les pages requises et modifiez l'apparence de votre site."
+			],
+			"Welcome to your website": [ "Bienvenue sur votre site Web" ],
+			"Get started": [ "Premiers pas" ],
+			"Tags": [ "\u00c9tiquettes" ],
+			"Back": [ "Retour" ]
+		}
+	},
+	"comment": {
+		"reference": "wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js"
+	}
+}

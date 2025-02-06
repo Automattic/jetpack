@@ -1,33 +1,44 @@
-// Note if you change something here, you'll have to make a package.json mismatch pnpm-lock.yaml to
-// get it re-run. An easy way to do that is to just edit pnpm-lock.yaml to change the version number
-// of husky near the top.
-
 /**
  * Fix package dependencies.
  *
  * We could generally do the same with pnpm.overrides in packages.json, but this allows for comments.
  *
  * @param {object} pkg - Dependency package.json contents.
- * @returns {object} Modified pkg.
+ * @return {object} Modified pkg.
  */
 function fixDeps( pkg ) {
-	// Outdated dep. Already fixed upstream, just waiting on a release.
-	// https://github.com/Automattic/wp-calypso/pull/87350
+	// Deps tend to get outdated due to a slow release cycle.
+	// So change `^` to `>=` and hope any breaking changes will not really break.
 	if (
-		pkg.name === '@automattic/social-previews' &&
-		pkg.dependencies?.[ '@wordpress/components' ] === '^26.0.1'
+		pkg.name === '@automattic/social-previews' ||
+		pkg.name === '@automattic/page-pattern-modal'
 	) {
-		pkg.dependencies[ '@wordpress/components' ] = '>=26.0.1';
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( dep.startsWith( '@wordpress/' ) && ver.startsWith( '^' ) ) {
+				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
+			}
+		}
 	}
 
 	// Missing dep or peer dep on react.
 	// https://github.com/WordPress/gutenberg/issues/55171
+	// https://github.com/WordPress/gutenberg/issues/68694
 	if (
-		pkg.name === '@wordpress/icons' &&
+		( pkg.name === '@wordpress/icons' || pkg.name === '@wordpress/upload-media' ) &&
 		! pkg.dependencies?.react &&
 		! pkg.peerDependencies?.react
 	) {
 		pkg.peerDependencies.react = '^18';
+	}
+
+	// Missing dep or peer dep on @babel/runtime and react
+	// https://github.com/WordPress/gutenberg/issues/68694
+	if (
+		pkg.name === '@wordpress/upload-media' &&
+		! pkg.dependencies?.[ '@babel/runtime' ] &&
+		! pkg.peerDependencies?.[ '@babel/runtime' ]
+	) {
+		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
 	}
 
 	// Missing dep or peer dep.
@@ -48,10 +59,25 @@ function fixDeps( pkg ) {
 				dep.startsWith( 'eslint-plugin-' ) ||
 				dep.endsWith( '/eslint-plugin' ) ||
 				dep.startsWith( 'eslint-config-' ) ||
-				dep.endsWith( '/eslint-config' )
+				dep.endsWith( '/eslint-config' ) ||
+				dep.startsWith( '@typescript-eslint/' )
 			) {
 				delete pkg.dependencies[ dep ];
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
+			}
+		}
+
+		// Doesn't really need these at all with eslint 9 and our config.
+		pkg.peerDependenciesMeta ??= {};
+		pkg.peerDependenciesMeta[ '@typescript-eslint/eslint-plugin' ] = { optional: true };
+		pkg.peerDependenciesMeta[ '@typescript-eslint/parser' ] = { optional: true };
+	}
+
+	// Unnecessarily explicit deps. I don't think we really even need @wordpress/babel-preset-default at all.
+	if ( pkg.name === '@wordpress/babel-preset-default' || pkg.name === '@wordpress/eslint-plugin' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( dep.startsWith( '@babel/' ) && ! ver.startsWith( '^' ) && ! ver.startsWith( '>' ) ) {
+				pkg.dependencies[ dep ] = '^' + ver;
 			}
 		}
 	}
@@ -72,10 +98,26 @@ function fixDeps( pkg ) {
 		}
 	}
 
+	// Seemingly unmaintained upstream, and has strict deps that are outdated.
+	// https://github.com/mbalabash/estimo/issues/50
+	if ( pkg.name === 'estimo' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( ver.match( /^\d+(\.\d+)+$/ ) ) {
+				pkg.dependencies[ dep ] = '^' + ver;
+			}
+		}
+	}
+
 	// Outdated dependency.
 	// No upstream bug link yet.
 	if ( pkg.name === 'rollup-plugin-postcss' && pkg.dependencies.cssnano === '^5.0.1' ) {
 		pkg.dependencies.cssnano = '^5.0.1 || ^6';
+	}
+
+	// Outdated dependency. And it doesn't really use it in our configuration anyway.
+	// No upstream bug link yet.
+	if ( pkg.name === 'rollup-plugin-svelte-svg' && pkg.dependencies.svgo === '^2.3.1' ) {
+		pkg.dependencies.svgo = '*';
 	}
 
 	// Missing dep or peer dep on @babel/runtime
@@ -96,11 +138,10 @@ function fixDeps( pkg ) {
 		delete pkg.peerDependenciesMeta?.ajv;
 	}
 
-	// Missing deps.
-	// https://github.com/storybookjs/test-runner/issues/414
-	if ( pkg.name === '@storybook/test-runner' ) {
-		pkg.dependencies.semver ??= '*';
-		pkg.dependencies[ 'detect-package-manager' ] ??= '*';
+	// Gutenberg is intending to get rid of this. For now, let's just not upgrade it.
+	// https://github.com/WordPress/gutenberg/issues/60975
+	if ( pkg.name === '@wordpress/components' && pkg.dependencies?.[ 'framer-motion' ] ) {
+		pkg.dependencies[ 'framer-motion' ] += ' <11.5.0';
 	}
 
 	// Types packages have outdated deps. Reset all their `@wordpress/*` deps to star-version,
@@ -123,7 +164,7 @@ function fixDeps( pkg ) {
  * This can't be done with pnpm.overrides.
  *
  * @param {object} pkg - Dependency package.json contents.
- * @returns {object} Modified pkg.
+ * @return {object} Modified pkg.
  */
 function fixPeerDeps( pkg ) {
 	// Indirect deps that still depend on React <18.
@@ -152,6 +193,15 @@ function fixPeerDeps( pkg ) {
 		}
 	}
 
+	// It assumes hoisting to find its plugins. Sigh. Add peer deps for the plugins we use.
+	// https://github.com/ai/size-limit/issues/366
+	if ( pkg.name === 'size-limit' ) {
+		pkg.peerDependencies ??= {};
+		pkg.peerDependencies[ '@size-limit/preset-app' ] = '*';
+		pkg.peerDependenciesMeta ??= {};
+		pkg.peerDependenciesMeta[ '@size-limit/preset-app' ] = { optional: true };
+	}
+
 	return pkg;
 }
 
@@ -159,9 +209,9 @@ function fixPeerDeps( pkg ) {
  * Pnpm package hook.
  *
  * @see https://pnpm.io/pnpmfile#hooksreadpackagepkg-context-pkg--promisepkg
- * @param {object} pkg - Dependency package.json contents.
+ * @param {object} pkg     - Dependency package.json contents.
  * @param {object} context - Pnpm object of some sort.
- * @returns {object} Modified pkg.
+ * @return {object} Modified pkg.
  */
 function readPackage( pkg, context ) {
 	if ( pkg.name ) {
@@ -176,7 +226,7 @@ function readPackage( pkg, context ) {
  *
  * @see https://pnpm.io/pnpmfile#hooksafterallresolvedlockfile-context-lockfile--promiselockfile
  * @param {object} lockfile - Lockfile data.
- * @returns {object} Modified lockfile.
+ * @return {object} Modified lockfile.
  */
 function afterAllResolved( lockfile ) {
 	// If there's only one "importer", it's probably pnpx rather than the monorepo. Don't interfere.
@@ -187,12 +237,13 @@ function afterAllResolved( lockfile ) {
 	for ( const [ k, v ] of Object.entries( lockfile.packages ) ) {
 		// Forbid installing webpack without webpack-cli. It results in lots of spurious lockfile changes.
 		// https://github.com/pnpm/pnpm/issues/3935
-		if ( k.startsWith( '/webpack/' ) && ! v.dependencies[ 'webpack-cli' ] ) {
+		if ( k.startsWith( 'webpack@' ) && ! v.optionalDependencies?.[ 'webpack-cli' ] ) {
 			throw new Error(
-				"Something you've done is trying to add a dependency on webpack without webpack-cli.\nThis is not allowed, as it tends to result in pnpm lockfile flip-flopping.\nSee https://github.com/pnpm/pnpm/issues/3935 for the upstream bug report."
+				"Something you've done is trying to add a dependency on webpack without webpack-cli.\nThis is not allowed, as it tends to result in pnpm lockfile flip-flopping.\nSee https://github.com/pnpm/pnpm/issues/3935 for the upstream bug report.\n"
 			);
 		}
 	}
+
 	return lockfile;
 }
 

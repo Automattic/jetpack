@@ -4,10 +4,22 @@ import {
 	isSimpleSite,
 } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL } from '@wordpress/blob';
+import { select } from '@wordpress/data';
 import { range } from 'lodash';
 import photon from 'photon';
 import isOfflineMode from '../../../shared/is-offline-mode';
 import { PHOTON_MAX_RESIZE } from '../constants';
+
+let jetpackPlanFromState;
+
+window.addEventListener( 'load', function () {
+	const hasImageCompare = select( 'core/block-editor' )
+		.getBlocks()
+		.some( block => block.name === 'jetpack/image-compare' );
+	if ( hasImageCompare && ! jetpackPlanFromState ) {
+		jetpackPlanFromState = window?.Jetpack_Editor_Initial_State?.jetpack?.jetpack_plan;
+	}
+} );
 
 export function isSquareishLayout( layout ) {
 	return [ 'circle', 'square' ].includes( layout );
@@ -16,14 +28,14 @@ export function isSquareishLayout( layout ) {
 /**
  * Build src and srcSet properties which can be used on an <img />
  *
- * @param {object} img -        Image
- * @param {number} img.height - Image height
- * @param {string} img.url -    Image URL
- * @param {number} img.width -  Image width
- * @param {object} galleryAtts - Gallery attributes relevant for image optimization.
+ * @param {object} img                     - Image
+ * @param {number} img.height              - Image height
+ * @param {string} img.url                 - Image URL
+ * @param {number} img.width               - Image width
+ * @param {object} galleryAtts             - Gallery attributes relevant for image optimization.
  * @param {string} galleryAtts.layoutStyle - Gallery layout. 'rectangular', 'circle', etc.
- * @param {number} galleryAtts.columns -     Gallery columns. Not applicable for all layouts.
- * @returns {object} Returns an object. If possible, the object will include `src` and `srcSet` properties {string} for use on an image.
+ * @param {number} galleryAtts.columns     - Gallery columns. Not applicable for all layouts.
+ * @return {object} Returns an object. If possible, the object will include `src` and `srcSet` properties {string} for use on an image.
  */
 export function photonizedImgProps( img, galleryAtts = {} ) {
 	if ( ! img.height || ! img.width ) {
@@ -112,9 +124,14 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 }
 function isVIP() {
 	/*global jetpack_plan*/
-	if ( typeof jetpack_plan !== 'undefined' && jetpack_plan.data === 'vip' ) {
-		return true;
+	// Use `jetpackPlanFromState` if available, otherwise fall back to `jetpack_plan` defined within the render function in tiled-gallery.php.
+	let jetpackPlan;
+	if ( typeof jetpackPlanFromState !== 'undefined' ) {
+		jetpackPlan = jetpackPlanFromState;
+	} else if ( typeof jetpack_plan !== 'undefined' ) {
+		jetpackPlan = jetpack_plan;
 	}
+	return jetpackPlan && jetpackPlan?.data === 'vip';
 }
 
 /**
@@ -128,9 +145,9 @@ function isVIP() {
  * If we pass all images through Photon servers, some images are unreachable. *.files.wordpress.com
  * is already photon-like so we can pass it the same parameters for image resizing.
  *
- * @param  {string} url  - Image url
- * @param  {object} opts - Options to pass to photon
- * @returns {string}      Url string with options applied
+ * @param {string} url  - Image url
+ * @param {object} opts - Options to pass to photon
+ * @return {string}      Url string with options applied
  */
 function photonWpcomImage( url, opts = {} ) {
 	// Adhere to the same options API as the photon.js lib
@@ -153,7 +170,7 @@ function photonWpcomImage( url, opts = {} ) {
 	// Build query
 	for ( const [ k, v ] of Object.entries( opts ) ) {
 		urlObj.searchParams.set(
-			photonLibMappings.hasOwnProperty( k ) ? photonLibMappings[ k ] : k,
+			Object.hasOwn( photonLibMappings, k ) ? photonLibMappings[ k ] : k,
 			v
 		);
 	}

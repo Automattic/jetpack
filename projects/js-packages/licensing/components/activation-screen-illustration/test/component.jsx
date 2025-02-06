@@ -11,7 +11,7 @@ describe( 'ActivationScreenIllustration', () => {
 
 		it( 'correct images src is used', () => {
 			render( <ActivationScreenIllustration { ...testProps } /> );
-			const image = screen.getByRole( 'img' );
+			const image = screen.getByRole( 'presentation' );
 			expect( image ).toHaveAttribute( 'src', testProps.imageUrl );
 		} );
 

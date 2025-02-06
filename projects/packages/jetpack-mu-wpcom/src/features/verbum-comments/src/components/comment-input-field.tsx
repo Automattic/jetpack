@@ -1,8 +1,10 @@
+/* global verbumBlockEditor */
+import clsx from 'clsx';
 import { forwardRef, type TargetedEvent } from 'preact/compat';
-import { useEffect, useState } from 'preact/hooks';
+import { useContext, useEffect, useState } from 'preact/hooks';
 import { translate } from '../i18n';
-import { commentParent, commentValue } from '../state';
-import { classNames, isFastConnection } from '../utils';
+import { VerbumSignals } from '../state';
+import { isFastConnection } from '../utils';
 import { EditorPlaceholder } from './editor-placeholder';
 
 type CommentInputFieldProps = {
@@ -34,6 +36,7 @@ export const CommentInputField = forwardRef(
 		{ handleOnKeyUp }: CommentInputFieldProps,
 		ref: React.MutableRefObject< HTMLTextAreaElement | null >
 	) => {
+		const { commentParent, commentValue } = useContext( VerbumSignals );
 		const [ editorState, setEditorState ] = useState< 'LOADING' | 'LOADED' | 'ERROR' >( null );
 		const [ isGBEditorEnabled, setIsGBEditorEnabled ] = useState( false );
 
@@ -68,11 +71,12 @@ export const CommentInputField = forwardRef(
 						handleOnKeyUp();
 					},
 					VerbumComments.isRTL,
-					embedContentCallback
+					embedContentCallback,
+					VerbumComments.colorScheme === 'dark'
 				);
 				// Wait fro the block editor to render.
 				setTimeout( () => setEditorState( 'LOADED' ), 100 );
-			} catch ( error ) {
+			} catch {
 				// Switch to the textarea if the editor fails to load.
 				setEditorState( 'ERROR' );
 				setIsGBEditorEnabled( false );
@@ -99,7 +103,7 @@ export const CommentInputField = forwardRef(
 							id="comment"
 							name="comment"
 							ref={ ref }
-							className={ classNames( {
+							className={ clsx( {
 								'editor-enabled': isGBEditorEnabled,
 							} ) }
 							style={ {

@@ -17,7 +17,6 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function __construct() {
 		parent::__construct();
 		$this->inst = new Jetpack_Display_Posts_Widget();
-		remove_action( 'shutdown', 'jetpack_display_posts_conditionally_set_cron_run_status' );
 	}
 
 	/**
@@ -162,7 +161,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_fetch_blog_data_invalid_site_info() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods(
+					->onlyMethods(
 						array(
 							'fetch_site_info',
 							'parse_site_info_response',
@@ -226,7 +225,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_fetch_blog_data_invalid_post_info() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods(
+					->onlyMethods(
 						array(
 							'fetch_site_info',
 							'parse_site_info_response',
@@ -296,7 +295,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_fetch_blog_data_invalid_post_info_predefined_data() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods(
+					->onlyMethods(
 						array(
 							'fetch_site_info',
 							'parse_site_info_response',
@@ -377,7 +376,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_fetch_blog_data_valid() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods(
+					->onlyMethods(
 						array(
 							'fetch_site_info',
 							'parse_site_info_response',
@@ -445,7 +444,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_fetch_blog_data_only_site_info() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods(
+					->onlyMethods(
 						array(
 							'fetch_site_info',
 							'parse_site_info_response',
@@ -507,7 +506,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_get_blog_data_invalid_cache() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods( array( 'get_site_hash', 'wp_get_option' ) )
+					->onlyMethods( array( 'get_site_hash', 'wp_get_option' ) )
 					->disableOriginalConstructor()
 					->getMock();
 
@@ -540,7 +539,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_get_blog_data_valid_cache() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods( array( 'get_site_hash', 'wp_get_option' ) )
+					->onlyMethods( array( 'get_site_hash', 'wp_get_option' ) )
 					->disableOriginalConstructor()
 					->getMock();
 
@@ -565,7 +564,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_parse_posts_response_valid() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods( array( 'format_posts_for_storage' ) )
+					->onlyMethods( array( 'format_posts_for_storage' ) )
 					->disableOriginalConstructor()
 					->getMock();
 
@@ -589,7 +588,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_parse_posts_response_wp_error() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods( array( 'format_posts_for_storage' ) )
+					->onlyMethods( array( 'format_posts_for_storage' ) )
 					->disableOriginalConstructor()
 					->getMock();
 
@@ -617,7 +616,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_parse_posts_response_invalid_data() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods( array( 'format_posts_for_storage' ) )
+					->onlyMethods( array( 'format_posts_for_storage' ) )
 					->disableOriginalConstructor()
 					->getMock();
 
@@ -800,7 +799,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_cron_task_valid_data() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods( array( 'get_instances_sites', 'update_instance', 'should_cron_be_running' ) )
+					->onlyMethods( array( 'get_instances_sites', 'update_instance', 'should_cron_be_running' ) )
 					->disableOriginalConstructor()
 					->getMock();
 
@@ -831,7 +830,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_cron_task_no_data() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods( array( 'get_instances_sites', 'update_instance', 'should_cron_be_running' ) )
+					->onlyMethods( array( 'get_instances_sites', 'update_instance', 'should_cron_be_running' ) )
 					->disableOriginalConstructor()
 					->getMock();
 
@@ -857,7 +856,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_cron_task_invalid_data() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods( array( 'get_instances_sites', 'update_instance', 'should_cron_be_running' ) )
+					->onlyMethods( array( 'get_instances_sites', 'update_instance', 'should_cron_be_running' ) )
 					->disableOriginalConstructor()
 					->getMock();
 
@@ -883,7 +882,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_cron_task_cron_should_not_be_running() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods(
+					->onlyMethods(
 						array(
 							'get_instances_sites',
 							'update_instance',
@@ -914,7 +913,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_get_instances_sites_valid_data() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods( array( 'wp_get_option' ) )
+					->onlyMethods( array( 'wp_get_option' ) )
 					->disableOriginalConstructor()
 					->getMock();
 
@@ -948,7 +947,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_get_instances_sites_invalid_data() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods( array( 'wp_get_option' ) )
+					->onlyMethods( array( 'wp_get_option' ) )
 					->disableOriginalConstructor()
 					->getMock();
 
@@ -968,7 +967,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_get_instances_sites_invalid_data_2() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods( array( 'wp_get_option' ) )
+					->onlyMethods( array( 'wp_get_option' ) )
 					->disableOriginalConstructor()
 					->getMock();
 
@@ -988,7 +987,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_get_instances_sites_empty_data() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods( array( 'wp_get_option' ) )
+					->onlyMethods( array( 'wp_get_option' ) )
 					->disableOriginalConstructor()
 					->getMock();
 
@@ -1008,7 +1007,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_get_instances_sites_broken_data() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods( array( 'wp_get_option' ) )
+					->onlyMethods( array( 'wp_get_option' ) )
 					->disableOriginalConstructor()
 					->getMock();
 
@@ -1046,7 +1045,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_update_instance_valid_data_new_option() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods(
+					->onlyMethods(
 						array(
 							'get_site_hash',
 							'wp_get_option',
@@ -1091,7 +1090,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_update_instance_valid_data_update_option() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods(
+					->onlyMethods(
 						array(
 							'get_site_hash',
 							'wp_get_option',
@@ -1394,7 +1393,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_fetch_service_endpoint_no_cache_hits() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods(
+					->onlyMethods(
 						array(
 							'wp_wp_remote_get',
 							'parse_service_response',
@@ -1434,7 +1433,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function test_fetch_service_endpoint_with_cache_hits() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-					->setMethods(
+					->onlyMethods(
 						array(
 							'wp_wp_remote_get',
 							'parse_service_response',

@@ -1,0 +1,29 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "fr" },
+			"Remove premium styles": [ "Supprimer les styles premium" ],
+			"Change all of your site's fonts, colors and more. Available on the %s plan.": [
+				"Modifiez toutes les polices, couleurs et autres de votre site. Disponible avec le plan %s."
+			],
+			"Your site includes premium styles that are only visible to visitors after upgrading to the %s plan or higher.": [
+				"Votre site inclut des styles premium que les visiteurs ne peuvent voir qu\u2019\u00e0 partir du moment o\u00f9 vous passez au plan %s ou \u00e0 un plan sup\u00e9rieur."
+			],
+			"Your site includes premium styles that are only visible to visitors after <a>upgrading to the %s plan or higher</a>.": [
+				"Votre site inclut des styles premium que les visiteurs ne peuvent voir qu\u2019\u00e0 partir du moment o\u00f9 ils <a>passent au plan %s ou \u00e0 un plan sup\u00e9rieur.</a>"
+			],
+			"Generating preview\u2026": [ "G\u00e9n\u00e9ration de l\u2019aper\u00e7u\u2026" ],
+			"Preview without premium styles": [ "Pr\u00e9visualiser sans les styles premium" ],
+			"Upgrade now": [ "Choisir une option payante" ],
+			"Upgrade plan": [ "Mettre le plan \u00e0 niveau" ],
+			"Try it out": [ "Essayez-le" ],
+			"A powerful new way to style your site": [
+				"Une nouvelle mani\u00e8re efficace de donner du style \u00e0 votre site"
+			]
+		}
+	},
+	"comment": { "reference": "wpcom-global-styles/dist/wpcom-global-styles.js" }
+}

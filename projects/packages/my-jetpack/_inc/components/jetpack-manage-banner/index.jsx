@@ -7,12 +7,11 @@ import jetpackManageIcon from './jetpack-manage.svg';
 /**
  * Jetpack Manager Banner component that renders a banner with CTAs.
  *
- * @param {object} props - Component props.
+ * @param {object}  props                 - Component props.
  * @param {boolean} props.isAgencyAccount - Whether users account is an Agency account or not.
- * @returns {object} The JetpackManageBanner component.
+ * @return {object} The JetpackManageBanner component.
  */
 const JetpackManageBanner = props => {
-	// eslint-disable-next-line no-unused-vars
 	const { isAgencyAccount = false } = props;
 	const { recordEvent } = useAnalytics();
 
@@ -37,6 +36,10 @@ const JetpackManageBanner = props => {
 		trackClick( 'jp-agencies-register-interest' );
 	}, [ trackClick ] );
 
+	if ( isAgencyAccount ) {
+		return null;
+	}
+
 	return (
 		<UpsellBanner
 			icon={ jetpackManageIcon }
@@ -45,7 +48,7 @@ const JetpackManageBanner = props => {
 				'Are you an agency or freelancer? We’re working on a new partnership program bringing together the best of Jetpack, Woo, WordPress.com, and Pressable. Get bulk discounts, referral commissions, and more.',
 				'jetpack-my-jetpack'
 			) }
-			primaryCtaLabel={ __( 'Register your interest', 'jetpack-my-jetpack' ) }
+			primaryCtaLabel={ __( 'Sign up now', 'jetpack-my-jetpack' ) }
 			primaryCtaURL={ getRedirectUrl( 'jetpack-for-agencies-register-interest' ) }
 			primaryCtaIsExternalLink={ true }
 			primaryCtaOnClick={ handleAgencyInterestClick }

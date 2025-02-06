@@ -1,4 +1,4 @@
-import { classNames } from '../utils';
+import clsx from 'clsx';
 
 interface ErrorMessageProps {
 	message: string | null;
@@ -11,7 +11,7 @@ export const CommentMessage = ( { message, isError }: ErrorMessageProps ) => {
 	}
 	return (
 		<div
-			className={ classNames( 'verbum-message', {
+			className={ clsx( 'verbum-message', {
 				'is-error': isError,
 			} ) }
 		>

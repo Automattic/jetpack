@@ -7,6 +7,7 @@ const projects = [
 	'../../components/components',
 	'../../connection/components',
 	'../../idc/components',
+	'../../social-logos/src/react',
 	'../../shared-extension-utils/src',
 	'../../../packages/my-jetpack/_inc/components',
 	'../../../packages/search/src/dashboard/components',
@@ -16,6 +17,7 @@ const projects = [
 	'../../../packages/videopress/src/client/components',
 	'../../../packages/videopress/src/client/block-editor',
 	'../../../plugins/jetpack/extensions/',
+	'../../charts/src',
 ];
 
 module.exports = projects.map( project => path.join( __dirname, project ) );

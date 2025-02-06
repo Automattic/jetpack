@@ -1,12 +1,12 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf, _x } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import ConnectButton from 'components/connect-button';
 import DashItem from 'components/dash-item';
 import QueryUserConnectionData from 'components/data/query-user-connection';
 import Gridicon from 'components/gridicon';
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import {
 	getSiteConnectionStatus,
 	isConnectionOwner,
@@ -71,7 +71,6 @@ export class DashConnections extends Component {
 							<Gridicon icon="globe" size={ 64 } />
 						) }
 						<div className="jp-connection-settings__text">
-							{ __( 'Your site is connected to WordPress.com.', 'jetpack' ) }
 							{ this.props.isConnectionOwner && (
 								<span className="jp-connection-settings__is-owner">
 									{ __( 'You are the Jetpack owner.', 'jetpack' ) }
@@ -100,7 +99,7 @@ export class DashConnections extends Component {
 	 */
 	userConnection() {
 		const maybeShowLinkUnlinkBtn = this.props.isConnectionOwner ? null : (
-			<ConnectButton asLink connectUser={ true } from="connection-settings" />
+			<ConnectButton asBanner connectUser={ true } from="connection-settings" />
 		);
 
 		let cardContent = '';
@@ -131,16 +130,21 @@ export class DashConnections extends Component {
 		}
 
 		if ( ! this.props.isLinked ) {
+			cardContent = <div className="jp-connection-settings__info">{ maybeShowLinkUnlinkBtn }</div>;
+		} else if ( this.props.isFetchingUserData ) {
+			cardContent = __( 'Loading…', 'jetpack' );
+		} else if ( ! this.props.wpComConnectedUser?.email ) {
+			// Couldn't fetch the data for some reason.
 			cardContent = (
 				<div>
 					<div className="jp-connection-settings__info">
-						{ __( 'Get the most out of Jetpack.', 'jetpack' ) }
+						<Gridicon icon="user" size={ 64 } />
+						<div className="jp-connection-settings__text">
+							{ __( 'Failed to fetch connection data, please try again later.', 'jetpack' ) }
+						</div>
 					</div>
-					<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
 				</div>
 			);
-		} else if ( this.props.isFetchingUserData ) {
-			cardContent = __( 'Loading…', 'jetpack' );
 		} else {
 			cardContent = (
 				<div>

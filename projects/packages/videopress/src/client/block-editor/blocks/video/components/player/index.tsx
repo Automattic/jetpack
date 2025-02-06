@@ -42,8 +42,8 @@ if ( window?.videoPressEditorState?.playerBridgeUrl ) {
 /**
  * VideoPlayer react component
  *
- * @param {PlayerProps} props  - Component props.
- * @returns {React.ReactElement} Playback block sidebar panel
+ * @param {PlayerProps} props - Component props.
+ * @return {React.ReactElement} Playback block sidebar panel
  */
 export default function Player( {
 	showCaption,
@@ -160,7 +160,7 @@ export default function Player( {
 	const { atTime, previewOnHover, previewAtTime, previewLoopDuration, type } =
 		attributes.posterData;
 
-	let timeToSetPlayerPosition = undefined;
+	let timeToSetPlayerPosition;
 	if ( type === 'video-frame' ) {
 		if ( previewOnHover ) {
 			timeToSetPlayerPosition = previewAtTime;

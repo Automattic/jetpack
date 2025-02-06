@@ -10,14 +10,14 @@ const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
  * Search for a previous comment from this task in our issue.
  *
  * @param {Array} issueComments - Array of all comments on that issue.
- * @returns {Promise<object>} Promise resolving to an object of information about our comment.
+ * @return {Promise<object>} Promise resolving to an object of information about our comment.
  */
 async function getListComment( issueComments ) {
 	let commentInfo = {};
 
 	debug( `gather-support-references: Looking for a previous comment from this task in our issue.` );
 
-	issueComments.map( comment => {
+	for ( const comment of issueComments ) {
 		if (
 			comment.user.login === 'github-actions[bot]' &&
 			comment.body.includes( '**Support References**' )
@@ -27,7 +27,7 @@ async function getListComment( issueComments ) {
 				body: comment.body,
 			};
 		}
-	} );
+	}
 
 	return commentInfo;
 }
@@ -39,23 +39,22 @@ async function getListComment( issueComments ) {
  * Support references can be in the following formats:
  * - xxx-zen
  * - xxx-zd
- * - xxxx-xxx-p2#comment-xxx
  *
  * They could also be forum links:
  * - https://wordpress.com/forums/topic/xxx
  * - https://wordpress.com/xxx/forums/topic/xxx (for non-English forums)
  *
- * @param {GitHub} octokit      - Initialized Octokit REST client.
- * @param {string} owner        - Repository owner.
- * @param {string} repo         - Repository name.
- * @param {string} number       - Issue number.
- * @param {Array} issueComments - Array of all comments on that issue.
- * @returns {Promise<Array>} Promise resolving to an array.
+ * @param {GitHub} octokit       - Initialized Octokit REST client.
+ * @param {string} owner         - Repository owner.
+ * @param {string} repo          - Repository name.
+ * @param {string} number        - Issue number.
+ * @param {Array}  issueComments - Array of all comments on that issue.
+ * @return {Promise<Array>} Promise resolving to an array.
  */
 async function getIssueReferences( octokit, owner, repo, number, issueComments ) {
 	const ticketReferences = [];
 	const referencesRegexP =
-		/[0-9]*-(?:zen|zd)|[a-zA-Z0-9-]+-p2#comment-[0-9]*|https:\/\/wordpress\.com\/(?:[a-z]+\/)?forums\/topic\/(?:[a-zA-Z0-9-]+)/gim;
+		/[0-9]*-(?:zen|zd)|https:\/\/wordpress\.com\/(?:[a-z]+\/)?forums\/topic\/(?:[a-zA-Z0-9-]+)/gim;
 
 	debug( `gather-support-references: Getting references from issue body.` );
 	const {
@@ -71,18 +70,18 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 	}
 
 	debug( `gather-support-references: Getting references from comments.` );
-	issueComments.map( comment => {
+	for ( const comment of issueComments ) {
 		if (
 			comment.user.login !== 'github-actions[bot]' ||
 			! comment.body.includes( '**Support References**' )
 		) {
 			ticketReferences.push( ...comment.body.matchAll( referencesRegexP ) );
 		}
-	} );
+	}
 
 	// Let's build a array with unique and correct support IDs, formatted properly.
 	const correctedSupportIds = new Set();
-	ticketReferences.map( reference => {
+	for ( const reference of ticketReferences ) {
 		let supportId = reference[ 0 ];
 
 		// xxx-zen is the preferred format for tickets.
@@ -98,7 +97,7 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 		}
 
 		correctedSupportIds.add( supportId );
-	} );
+	}
 
 	return [ ...correctedSupportIds ];
 }
@@ -110,7 +109,7 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
  * @param {Set}     checkedRefs         - Set of support references already checked.
  * @param {boolean} needsEscalationNote - Whether the issue needs an escalation note.
  * @param {string}  escalationNote      - String that indicates an issue was escalated.
- * @returns {string} Comment body.
+ * @return {string} Comment body.
  */
 function buildCommentBody(
 	issueReferences,
@@ -144,7 +143,7 @@ ${ issueReferences
  * @param {WebhookPayloadIssue} payload - Issue event payload.
  * @param {string}              channel - Slack channel ID.
  * @param {string}              message - Basic message (without the formatting).
- * @returns {object} Object containing the slack message and its formatting.
+ * @return {object} Object containing the slack message and its formatting.
  */
 function formatSlackMessage( payload, channel, message ) {
 	const { issue, repository } = payload;
@@ -153,11 +152,7 @@ function formatSlackMessage( payload, channel, message ) {
 	let dris = '';
 	switch ( repository.full_name ) {
 		case 'Automattic/jetpack':
-			dris = '@jpop-da';
-			break;
-		case 'Automattic/zero-bs-crm':
-		case 'Automattic/sensei':
-			dris = '@heysatellite';
+			dris = '@jetpack-da';
 			break;
 		case 'Automattic/WP-Job-Manager':
 		case 'Automattic/Crowdsignal':
@@ -206,7 +201,7 @@ function formatSlackMessage( payload, channel, message ) {
  * @param {string}              commentBody     - Previous comment ID.
  * @param {string}              escalationNote  - String that indicates an issue was escalated.
  * @param {WebhookPayloadIssue} payload         - Issue event payload.
- * @returns {Promise<boolean>} Was the issue escalated?
+ * @return {Promise<boolean>} Was the issue escalated?
  */
 async function checkForEscalation( issueReferences, commentBody, escalationNote, payload ) {
 	// No Slack tokens, we won't be able to escalate. Bail.
@@ -251,12 +246,12 @@ async function checkForEscalation( issueReferences, commentBody, escalationNote,
  * Add or update a label on the issue to indicate a number range of support references,
  * once it has gathered more than 10 support references.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} repo - Repository name.
- * @param {string} ownerLogin - Owner of the repository.
- * @param {number} number - Issue number.
+ * @param {GitHub} octokit              - Initialized Octokit REST client.
+ * @param {string} repo                 - Repository name.
+ * @param {string} ownerLogin           - Owner of the repository.
+ * @param {number} number               - Issue number.
  * @param {number} issueReferencesCount - Number of support references gathered in this issue.
- * @returns {Promise<void>}
+ * @return {Promise<void>}
  */
 async function addOrUpdateInteractionCountLabel(
 	octokit,
@@ -265,7 +260,11 @@ async function addOrUpdateInteractionCountLabel(
 	number,
 	issueReferencesCount
 ) {
-	const ranges = [ 50, 20, 10 ];
+	let ranges = [ 50, 20, 10 ];
+
+	if ( 'Automattic/sensei' === repo ) {
+		ranges = [ 5 ];
+	}
 
 	// Check if our issue has issues in one of the ranges where we want to label it.
 	const issueRange = ranges.find( range => issueReferencesCount > range );
@@ -329,10 +328,10 @@ async function addOrUpdateInteractionCountLabel(
 /**
  * Creates or updates a comment on issue.
  *
- * @param {WebhookPayloadIssue} payload - Issue event payload.
- * @param {GitHub} octokit              - Initialized Octokit REST client.
- * @param {Array} issueReferences       - Array of support references.
- * @param {Array} issueComments         - Array of all comments on that issue.
+ * @param {WebhookPayloadIssue} payload         - Issue event payload.
+ * @param {GitHub}              octokit         - Initialized Octokit REST client.
+ * @param {Array}               issueReferences - Array of support references.
+ * @param {Array}               issueComments   - Array of all comments on that issue.
  */
 async function createOrUpdateComment( payload, octokit, issueReferences, issueComments ) {
 	const { issue, repository } = payload;
@@ -409,13 +408,19 @@ async function createOrUpdateComment( payload, octokit, issueReferences, issueCo
 /**
  * Add a label to the issue, if it does not exist yet.
  *
- * @param {GitHub} octokit       - Initialized Octokit REST client.
- * @param {string} ownerLogin    - Repository owner login.
- * @param {string} repo          - Repository name.
- * @param {number} number        - Issue number.
- * @returns {Promise<void>}
+ * @param {WebhookPayloadIssue} payload - Issue or issue comment event payload.
+ * @param {GitHub}              octokit - Initialized Octokit REST client.
+ * @return {Promise<void>}
  */
-async function addHappinessLabel( octokit, ownerLogin, repo, number ) {
+async function addHappinessLabel( payload, octokit ) {
+	const {
+		issue: { number, state },
+		repository: {
+			name: repo,
+			owner: { login: ownerLogin },
+		},
+	} = payload;
+
 	const happinessLabel = 'Customer Report';
 
 	const labels = await getLabels( octokit, ownerLogin, repo, number );
@@ -433,6 +438,19 @@ async function addHappinessLabel( octokit, ownerLogin, repo, number ) {
 		issue_number: number,
 		labels: [ happinessLabel ],
 	} );
+
+	// Send Slack notification, if we have the necessary tokens.
+	// No Slack tokens, we won't be able to escalate. Bail.
+	// If the issue is already closed, do not send any Slack reminder.
+	const slackToken = getInput( 'slack_token' );
+	const channel = getInput( 'slack_quality_channel' );
+	if ( ! slackToken || ! channel || state === 'closed' ) {
+		return false;
+	}
+
+	const message = `This issue has been labeled as a Customer Report. Please complete first-line triage within 24 hours.`;
+	const slackMessageFormat = formatSlackMessage( payload, channel, message );
+	await sendSlackMessage( message, channel, payload, slackMessageFormat );
 }
 
 /**
@@ -461,7 +479,7 @@ async function gatherSupportReferences( payload, octokit ) {
 	if ( issueReferences.length > 0 ) {
 		debug( `gather-support-references: Found ${ issueReferences.length } references.` );
 		await createOrUpdateComment( payload, octokit, issueReferences, issueComments );
-		await addHappinessLabel( octokit, owner.login, repo, number );
+		await addHappinessLabel( payload, octokit );
 	}
 }
 

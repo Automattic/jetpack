@@ -4,6 +4,46 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [3.1] - 2025-01-10
+### Changed
+- Resolve an issue where revoked licenses were incorrectly treated as unattached. This caused users to be redirected to the license activation page after site connection, even when unattached licenses were not valid for activation. [#40215]
+- Social: Change My Jetpack CTA for Social from "Learn more" to "Activate". [#40359]
+- Update backup plugin screenshots [#40386]
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#40515]
+
+## [3.0] - 2024-11-14
+### Added
+- Display next scheduled daily backup time on the admin page.
+
+### Changed
+- Exclude discarded backups from being counted as successful on the admin page.
+- General: Indicate compatibility with WordPress version 6.7.
+- Updated package dependencies.
+- Various internal updates and improvements.
+
+### Fixed
+- Resolved an issue on the pricing page where the loading placeholder remained visible after the price loaded.
+
+## [2.9] - 2024-09-06
+### Changed
+- Internal updates.
+
+## [2.8] - 2024-09-05
+### Changed
+- General: Update WordPress version requirements to WordPress 6.5. [#38382]
+- Docs: Update README to include on-demand backups reference. [#38960]
+
+## [2.7] - 2024-06-27
+### Added
+- On-demand backups feature
+
+### Changed
+- General: indicate compatibility with the upcoming version of WordPress - 6.6. [#37962]
+- Remove the explicit Plugin Install package dependency. [#37430]
+- Updated package dependencies. [#37348] [#37767]
+- Updated backup header layout for responsive design
+
 ## [2.6] - 2024-05-09
 ### Added
 - Add Woocommerce event remove_order_items to Jetpack Sync [#33748]
@@ -223,6 +263,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Use `absoluteRuntime` in babel JS build to avoid module not found errors.
 
 [2.2-beta]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.1...2.2-beta
+[3.1]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.0...3.1
+[3.0]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.9...3.0
+[2.9]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.8...2.9
+[2.8]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.7...2.8
+[2.7]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.6...2.7
 [2.6]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.5...2.6
 [2.5]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.4...2.5
 [2.4]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.3...2.4

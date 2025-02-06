@@ -1,27 +1,26 @@
 import fs from 'fs/promises';
-import { promisify } from 'util';
-import glob from 'glob';
+import { glob } from 'glob';
 
 /**
  * Collect project dependencies.
  *
- * @param {string} root - Monorepo root directory.
+ * @param {string}      root  - Monorepo root directory.
  * @param {string|null} extra - Extra deps to include, "build" or "test".
- * @param {boolean} noDev - Exclude dev dependencies.
- * @returns {Map} Key is the project slug, value is a Set of slugs depended on.
+ * @param {boolean}     noDev - Exclude dev dependencies.
+ * @return {Map} Key is the project slug, value is a Set of slugs depended on.
  */
 export async function getDependencies( root, extra = null, noDev = false ) {
 	const ret = new Map();
 
 	// Collect all project slugs.
 	ret.set( 'monorepo', new Set() );
-	for ( const file of await promisify( glob )( 'projects/*/*/composer.json', { cwd: root } ) ) {
+	for ( const file of await glob( 'projects/*/*/composer.json', { cwd: root } ) ) {
 		ret.set( file.substring( 9, file.length - 14 ), new Set() );
 	}
 
 	// Collect package name→slug mappings.
 	const packageMap = new Map();
-	for ( const file of await promisify( glob )( 'projects/packages/*/composer.json', {
+	for ( const file of await glob( 'projects/packages/*/composer.json', {
 		cwd: root,
 	} ) ) {
 		const slug = file.substring( 9, file.length - 14 );
@@ -38,7 +37,7 @@ export async function getDependencies( root, extra = null, noDev = false ) {
 
 	// Collect js-package name→slug mappings.
 	const jsPackageMap = new Map();
-	for ( const file of await promisify( glob )( 'projects/js-packages/*/package.json', {
+	for ( const file of await glob( 'projects/js-packages/*/package.json', {
 		cwd: root,
 	} ) ) {
 		const slug = file.substring( 9, file.length - 13 );
@@ -105,12 +104,12 @@ export async function getDependencies( root, extra = null, noDev = false ) {
 /**
  * Filter dependencies to a set of projects.
  *
- * @param {Map} deps - Dependencies.
- * @param {string[]} projects - Projects to include.
- * @param {object} options - Options.
- * @param {boolean} options.dependencies - Keep the dependencies of the specified projects too.
- * @param {boolean} options.dependents - Keep the dependents of the specified projects too.
- * @returns {Map} Filtered dependencies.
+ * @param {Map}      deps                 - Dependencies.
+ * @param {string[]} projects             - Projects to include.
+ * @param {object}   options              - Options.
+ * @param {boolean}  options.dependencies - Keep the dependencies of the specified projects too.
+ * @param {boolean}  options.dependents   - Keep the dependents of the specified projects too.
+ * @return {Map} Filtered dependencies.
  */
 export function filterDeps( deps, projects, options = {} ) {
 	const keep = new Set( projects );
@@ -158,7 +157,7 @@ export function filterDeps( deps, projects, options = {} ) {
  * List projects in build order.
  *
  * @param {Map} deps - Dependencies.
- * @returns {string[][]} Groups of project slugs. Projects in each group only depend on earlier groups.
+ * @return {string[][]} Groups of project slugs. Projects in each group only depend on earlier groups.
  * @throws {Error} If the dependencies contain a cycle. The error object has a `deps` property with the residual dependencies.
  */
 export function getBuildOrder( deps ) {

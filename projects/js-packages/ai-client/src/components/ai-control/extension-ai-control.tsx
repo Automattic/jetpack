@@ -10,16 +10,22 @@ import React, { forwardRef } from 'react';
 /**
  * Internal dependencies
  */
-import { GuidelineMessage, ErrorMessage, UpgradeMessage } from '../message/index.js';
+import {
+	GuidelineMessage,
+	ErrorMessage,
+	UpgradeMessage,
+	FairUsageLimitMessage,
+} from '../message/index.js';
 import AIControl from './ai-control.js';
 import './style.scss';
 /**
  * Types
  */
-import type { RequestingStateProp } from '../../types.js';
+import type { RequestingErrorProps, RequestingStateProp } from '../../types.js';
 import type { ReactElement, MouseEvent } from 'react';
 
 type ExtensionAIControlProps = {
+	className?: string;
 	disabled?: boolean;
 	value: string;
 	placeholder?: string;
@@ -27,9 +33,11 @@ type ExtensionAIControlProps = {
 	isTransparent?: boolean;
 	state?: RequestingStateProp;
 	showGuideLine?: boolean;
-	error?: string;
+	error?: RequestingErrorProps;
 	requestsRemaining?: number;
 	showUpgradeMessage?: boolean;
+	showFairUsageMessage?: boolean;
+	upgradeUrl?: string;
 	wrapperRef?: React.MutableRefObject< HTMLDivElement | null >;
 	onChange?: ( newValue: string ) => void;
 	onSend?: ( currentValue: string ) => void;
@@ -38,17 +46,20 @@ type ExtensionAIControlProps = {
 	onUndo?: () => void;
 	onUpgrade?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 	onTryAgain?: () => void;
+	lastAction?: string;
+	blockType: string;
 };
 
 /**
  * ExtensionAIControl component. Used by the AI Assistant inline extensions, adding logic and components to the base AIControl component.
  *
- * @param {ExtensionAIControlProps} props  - Component props
- * @param {React.MutableRefObject} ref     - Ref to the component
- * @returns {ReactElement}                 Rendered component
+ * @param {ExtensionAIControlProps} props - Component props
+ * @param {React.MutableRefObject}  ref   - Ref to the component
+ * @return {ReactElement}                 Rendered component
  */
 export function ExtensionAIControl(
 	{
+		className,
 		disabled = false,
 		value = '',
 		placeholder = '',
@@ -59,6 +70,8 @@ export function ExtensionAIControl(
 		error,
 		requestsRemaining,
 		showUpgradeMessage = false,
+		showFairUsageMessage = false,
+		upgradeUrl,
 		wrapperRef,
 		onChange,
 		onSend,
@@ -67,6 +80,8 @@ export function ExtensionAIControl(
 		onUndo,
 		onUpgrade,
 		onTryAgain,
+		lastAction,
+		blockType,
 	}: ExtensionAIControlProps,
 	ref: React.MutableRefObject< HTMLInputElement >
 ): ReactElement {
@@ -74,6 +89,7 @@ export function ExtensionAIControl(
 	const [ editRequest, setEditRequest ] = useState( false );
 	const [ lastValue, setLastValue ] = useState( value || null );
 	const promptUserInputRef = useRef( null );
+	const isDone = value?.length <= 0 && state === 'done';
 
 	// Pass the ref to forwardRef.
 	useImperativeHandle( ref, () => promptUserInputRef.current );
@@ -172,7 +188,7 @@ export function ExtensionAIControl(
 							</Button>
 						</div>
 					) }
-					{ value?.length <= 0 && state === 'done' && (
+					{ isDone && (
 						<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
 							<ButtonGroup>
 								<Button
@@ -200,18 +216,45 @@ export function ExtensionAIControl(
 	);
 
 	let message = null;
-	if ( error ) {
-		message = <ErrorMessage error={ error } onTryAgainClick={ tryAgainHandler } />;
+
+	if ( error?.message ) {
+		message = (
+			<ErrorMessage
+				error={ error.message }
+				code={ error.code }
+				onTryAgainClick={ tryAgainHandler }
+				onUpgradeClick={ upgradeHandler }
+				upgradeUrl={ upgradeUrl }
+			/>
+		);
+	} else if ( showFairUsageMessage ) {
+		message = <FairUsageLimitMessage />;
 	} else if ( showUpgradeMessage ) {
 		message = (
-			<UpgradeMessage requestsRemaining={ requestsRemaining } onUpgradeClick={ upgradeHandler } />
+			<UpgradeMessage
+				requestsRemaining={ requestsRemaining }
+				onUpgradeClick={ upgradeHandler }
+				upgradeUrl={ upgradeUrl }
+			/>
 		);
 	} else if ( showGuideLine ) {
-		message = <GuidelineMessage />;
+		message = isDone ? (
+			<GuidelineMessage
+				aiFeedbackThumbsOptions={ {
+					showAIFeedbackThumbs: true,
+					ratedItem: 'ai-assistant',
+					prompt: lastAction,
+					block: blockType,
+				} }
+			/>
+		) : (
+			<GuidelineMessage />
+		);
 	}
 
 	return (
 		<AIControl
+			className={ className }
 			disabled={ disabled || loading }
 			value={ value }
 			placeholder={ placeholder }

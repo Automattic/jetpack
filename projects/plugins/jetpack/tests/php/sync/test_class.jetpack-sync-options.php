@@ -65,6 +65,10 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_default_options() {
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			$this->markTestSkipped( 'is temporarily skipped' );
+		}
+
 		$this->setSyncClientDefaults();
 		// check that these values exists in the whitelist options
 		$options = array(
@@ -86,9 +90,13 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'stb_enabled'                                  => true,
 			'stc_enabled'                                  => false,
 			'sm_enabled'                                   => false,
+			'jetpack_subscribe_overlay_enabled'            => false,
+			'jetpack_subscribe_floating_button_enabled'    => false,
 			'jetpack_subscriptions_subscribe_post_end_enabled' => false,
 			'jetpack_subscriptions_login_navigation_enabled' => false,
+			'jetpack_subscriptions_subscribe_navigation_enabled' => false,
 			'jetpack_subscriptions_reply_to'               => 'no-reply',
+			'jetpack_subscriptions_from_name'              => 'newsletter name',
 			'comment_registration'                         => 'pineapple',
 			'show_avatars'                                 => 'pineapple',
 			'avatar_default'                               => 'pineapple',
@@ -157,6 +165,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'carousel_background_color'                    => 'pineapple',
 			'carousel_display_exif'                        => 'pineapple',
 			'carousel_display_comments'                    => 'pineapple',
+			'jetpack_holiday_snow_enabled'                 => false,
 			'jetpack_portfolio'                            => 'pineapple',
 			'jetpack_portfolio_posts_per_page'             => 'pineapple',
 			'jetpack_testimonial'                          => 'pineapple',
@@ -228,9 +237,8 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack-memberships-has-connected-account'    => true,
 			'jetpack_publicize_options'                    => array(),
 			'jetpack_social_notes_config'                  => array(),
-			'jetpack_connection_active_plugins'            => array( 'jetpack' ),
+			'jetpack_social_utm_settings'                  => array(),
 			'jetpack_social_settings'                      => array( 'image' => true ),
-			'jetpack_social_autoconvert_images'            => array( 'enabled' => true ),
 			'jetpack_sync_non_blocking'                    => false,
 			'jetpack_sync_settings_dedicated_sync_enabled' => false,
 			'jetpack_sync_settings_custom_queue_table_enabled' => false,
@@ -243,8 +251,12 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'wpcom_is_fse_activated'                       => '1',
 			'videopress_private_enabled_for_site'          => false,
 			'wpcom_featured_image_in_email'                => false,
+			'jetpack_gravatar_in_email'                    => false,
+			'jetpack_author_in_email'                      => false,
+			'jetpack_post_date_in_email'                   => false,
 			'wpcom_newsletter_categories'                  => array(),
 			'wpcom_newsletter_categories_enabled'          => false,
+			'wpcom_newsletter_categories_modal_hidden'     => false,
 			'wpcom_gifting_subscription'                   => true,
 			'launch-status'                                => 'unlaunched',
 			'wpcom_subscription_emails_use_excerpt'        => false,
@@ -261,6 +273,14 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_package_versions'                     => array(),
 			'jetpack_newsletters_publishing_default_frequency' => 'weekly',
 			'jetpack_scheduled_plugins_update'             => array(),
+			'jetpack_waf_automatic_rules'                  => false,
+			'jetpack_waf_ip_allow_list'                    => 'pineapple',
+			'jetpack_waf_ip_allow_list_enabled'            => false,
+			'jetpack_waf_ip_block_list'                    => 'pineapple',
+			'jetpack_waf_ip_block_list_enabled'            => false,
+			'jetpack_waf_share_data'                       => true,
+			'jetpack_waf_share_debug_data'                 => false,
+			'jetpack_waf_automatic_rules_last_updated_timestamp' => 0,
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );

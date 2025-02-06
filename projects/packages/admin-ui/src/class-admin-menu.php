@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Admin_UI;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.4.2';
+	const PACKAGE_VERSION = '0.5.2';
 
 	/**
 	 * Whether this class has been initialized
@@ -58,7 +58,7 @@ class Admin_Menu {
 					remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
 
 					// Add an Anti-spam menu item for Jetpack.
-					self::add_menu( __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
+					self::add_menu( __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ), 6 );
 				},
 				4
 			);
@@ -82,7 +82,7 @@ class Admin_Menu {
 			add_menu_page(
 				'Jetpack',
 				'Jetpack',
-				'read',
+				'edit_posts',
 				'jetpack',
 				'__return_null',
 				$icon,
@@ -171,6 +171,26 @@ class Admin_Menu {
 		 * Using get_plugin_page_hookname here won't work because the top level page is not registered yet.
 		 */
 		return 'jetpack_page_' . $menu_slug;
+	}
+
+	/**
+	 * Removes an already added submenu
+	 *
+	 * @param string $menu_slug   The slug of the submenu to remove.
+	 *
+	 * @return array|false The removed submenu on success, false if not found.
+	 */
+	public static function remove_menu( $menu_slug ) {
+
+		foreach ( self::$menu_items as $index => $menu_item ) {
+			if ( $menu_item['menu_slug'] === $menu_slug ) {
+				unset( self::$menu_items[ $index ] );
+
+				return $menu_item;
+			}
+		}
+
+		return false;
 	}
 
 	/**

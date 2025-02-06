@@ -5,7 +5,6 @@ set -eo pipefail
 BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
-. "$BASE/tools/includes/changelogger.sh"
 . "$BASE/tools/includes/plugin-functions.sh"
 
 # Print help and exit.
@@ -15,14 +14,12 @@ function usage {
 
 		  Check that the project's versions are updated to the specified version.
 
-		usage: $0 [-f] [-C] [-v] -u version <slug>
+		usage: $0 [-f] [-v] -u version <slug>
 
 		  Update the versions of the specified project.
 
 		  Specifying -f updates the referenced version in other packages that depend
 		  on the updated package (see tools/check-intra-monorepo-deps.sh -ua).
-
-		  Specifying -C creates a changelog entry for the project's version bump.
 
 		The following version numbers are updated:
 		   - Version in the WordPress plugin header, if applicable.
@@ -42,7 +39,6 @@ fi
 OP=
 VERBOSE=false
 FIX_INTRA_MONOREPO_DEPS=false
-DO_CHANGELOG=false
 while getopts ":c:u:fCvsh" opt; do
 	case ${opt} in
 		c)
@@ -58,7 +54,7 @@ while getopts ":c:u:fCvsh" opt; do
 			OPING=Updating
 			;;
 		C)
-			DO_CHANGELOG=true
+			die 'The -C option has been removed. Since we no longer set alpha versions in trunk, CI would just call for the version change to be reverted.'
 			;;
 		f)
 			FIX_INTRA_MONOREPO_DEPS=true
@@ -132,7 +128,7 @@ function sedver {
 		LINE=$(grep --line-number --max-count=1 -E "$2" "$1" || true)
 		if [[ -n "$CI" ]]; then
 			echo "---" # Bracket message containing newlines for better visibility in GH's logs.
-			echo "::error file=${1#$BASE/},line=${LINE%%:*}::Version mismatch, expected $3 but found $VER!%0AYou might use \`tools/project-version.sh -f -u $VERSION $SLUG\` or \`tools/fixup-project-versions.sh\` to fix this."
+			echo "::error file=${1#$BASE/},line=${LINE%%:*}::Version mismatch, expected $3 but found $VER!%0ABefore you can merge your PR, please run \`tools/fixup-project-versions.sh\`, commit, and push the generated changes to your branch to fix this."
 			echo "---"
 		else
 			error "${1#$BASE/}:${LINE%%:*}: Version mismatch, expected $3 but found $VER!"
@@ -178,7 +174,7 @@ function jsver {
 		LINE=$(grep --line-number --max-count=1 -E "^	{$N}\"${X##*.}\": $VE,?$" "$1" || true)
 		if [[ -n "$CI" ]]; then
 			echo "---" # Bracket message containing newlines for better visibility in GH's logs.
-			echo "::error file=${1#$BASE/},line=${LINE%%:*}::Version mismatch, expected $3 but found $VER!%0AYou might use \`tools/project-version.sh -f -u $VERSION $SLUG\` or \`tools/fixup-project-versions.sh\` to fix this."
+			echo "::error file=${1#$BASE/},line=${LINE%%:*}::Version mismatch, expected $3 but found $VER!%0ABefore you can merge your PR, please run \`tools/fixup-project-versions.sh\`, commit, and push the generated changes to your branch to fix this."
 			echo "---"
 		else
 			error "${1#$BASE/}:${LINE%%:*}: Version mismatch, expected $3 but found $VER!"
@@ -244,14 +240,6 @@ while IFS=" " read -r C F; do
 	sedver "$BASE/projects/$SLUG/$F" "$PAT" "$VERSION" "version constant $C"
 done < <(jq -r '.extra["version-constants"] // {} | to_entries | .[] | .key + " " + .value' "$FILE")
 
-# Add change entry, if applicable
-
-if $DO_CHANGELOG; then
-	cd "$BASE/projects/$SLUG"
-	changelogger_add '' "Init $VERSION" --filename=init-release-cycle --filename-auto-suffix
-	cd "$BASE"
-fi
-
 # Update other dependencies
 
 if $FIX_INTRA_MONOREPO_DEPS; then
@@ -260,7 +248,7 @@ if $FIX_INTRA_MONOREPO_DEPS; then
 fi
 
 if $FIXHINT; then
-	green "You might use \`tools/project-version.sh -f -u $VERSION $SLUG\` or \`tools/fixup-project-versions.sh\` to fix this."
+	green "Before you can merge your PR, please run \`tools/fixup-project-versions.sh\`, commit, and push the generated changes to your branch to fix this."
 fi
 
 exit $EXIT

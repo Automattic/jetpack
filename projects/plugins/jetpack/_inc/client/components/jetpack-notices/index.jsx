@@ -1,21 +1,20 @@
-import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { useLocation } from 'react-router-dom';
+import { SocialLogo } from 'social-logos';
 import ConnectionBanner from 'components/connection-banner';
 import NoticesList from 'components/global-notices';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action.jsx';
-import PropTypes from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
-import SocialLogo from 'social-logos';
+import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import {
 	getSiteConnectionStatus,
 	getSiteOfflineMode,
 	isConnectionOwner,
-	isStaging,
 	isInIdentityCrisis,
 	isCurrentUserLinked,
 	isReconnectingSite,
@@ -32,6 +31,7 @@ import {
 } from 'state/initial-state';
 import { getLicensingError, clearLicensingError } from 'state/licensing';
 import { getSiteDataErrors } from 'state/site';
+import DeprecationNotice from './deprecation-notice';
 import DismissableNotices from './dismissable';
 import JetpackConnectionErrors from './jetpack-connection-errors';
 import PlanConflictWarning from './plan-conflict-warning';
@@ -61,36 +61,6 @@ export class DevVersionNotice extends React.Component {
 DevVersionNotice.propTypes = {
 	isDevVersion: PropTypes.bool.isRequired,
 	userIsSubscriber: PropTypes.bool.isRequired,
-};
-
-export class StagingSiteNotice extends React.Component {
-	static displayName = 'StagingSiteNotice';
-
-	render() {
-		if ( this.props.isStaging && ! this.props.isInIdentityCrisis ) {
-			const stagingSiteSupportLink = getRedirectUrl( 'jetpack-support-staging-sites' ),
-				props = {
-					text: __( 'You are running Jetpack on a staging server.', 'jetpack' ),
-					status: 'is-basic',
-					showDismiss: false,
-				};
-
-			return (
-				<SimpleNotice { ...props }>
-					<NoticeAction href={ stagingSiteSupportLink }>
-						{ __( 'More Info', 'jetpack' ) }
-					</NoticeAction>
-				</SimpleNotice>
-			);
-		}
-
-		return false;
-	}
-}
-
-StagingSiteNotice.propTypes = {
-	isStaging: PropTypes.bool.isRequired,
-	isInIdentityCrisis: PropTypes.bool.isRequired,
 };
 
 export class OfflineModeNotice extends React.Component {
@@ -206,9 +176,13 @@ UserUnlinked.propTypes = {
 class JetpackNotices extends React.Component {
 	static displayName = 'JetpackNotices';
 
+	dismissNotice = noticeKey => {
+		document.cookie = `jetpack_deprecate_dismissed[${ noticeKey }]=1; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/; Secure; SameSite=None`;
+	};
+
 	render() {
 		const siteDataErrors = this.props.siteDataErrors.filter( error =>
-			error.hasOwnProperty( 'action' )
+			Object.hasOwn( error, 'action' )
 		);
 
 		const isUserConnectScreen = this.props.location.pathname.startsWith( '/connect-user' );
@@ -233,11 +207,7 @@ class JetpackNotices extends React.Component {
 					siteConnectionStatus={ this.props.siteConnectionStatus }
 					siteOfflineMode={ this.props.siteOfflineMode }
 				/>
-				<StagingSiteNotice
-					isStaging={ this.props.isStaging }
-					isInIdentityCrisis={ this.props.isInIdentityCrisis }
-				/>
-				<PlanConflictWarning />
+				<PlanConflictWarning location={ this.props.location } />
 				<DismissableNotices />
 				{ ! this.props.isReconnectingSite &&
 					this.props.userCanConnectAccount &&
@@ -269,6 +239,20 @@ class JetpackNotices extends React.Component {
 						onDismissClick={ this.props.clearLicensingError }
 					/>
 				) }
+
+				{ window.noticeInfo &&
+					Object.entries( window.noticeInfo ).map( ( [ noticeKey, { title, message, link } ] ) => (
+						<DeprecationNotice
+							key={ noticeKey }
+							noticeKey={ noticeKey }
+							// eslint-disable-next-line react/jsx-no-bind
+							dismissNotice={ () => this.dismissNotice( noticeKey ) }
+							title={ title }
+							message={ message }
+							link={ getRedirectUrl( link.url ) }
+							linkText={ link.label }
+						/>
+					) ) }
 			</div>
 		);
 	}
@@ -287,7 +271,6 @@ export default connect(
 			isDevVersion: isDevVersion( state ),
 			isAtomicSite: isAtomicSite( state ),
 			siteOfflineMode: getSiteOfflineMode( state ),
-			isStaging: isStaging( state ),
 			isInIdentityCrisis: isInIdentityCrisis( state ),
 			connectionErrors: getConnectionErrors( state ),
 			siteDataErrors: getSiteDataErrors( state ),
@@ -303,4 +286,4 @@ export default connect(
 			},
 		};
 	}
-)( withRouter( JetpackNotices ) );
+)( props => <JetpackNotices { ...props } location={ useLocation() } /> );

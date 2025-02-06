@@ -95,9 +95,11 @@ class PluginLocatorTest extends TestCase {
 		);
 		$this->path_processor->expects( $this->exactly( 2 ) )
 			->method( 'find_directory_with_autoloader' )
-			->withConsecutive(
-				array( 0 ),
-				array( 'test/test.php' )
+			->with(
+				...with_consecutive(
+					array( 0 ),
+					array( 'test/test.php' )
+				)
 			)
 			->willReturn( false );
 
@@ -117,9 +119,11 @@ class PluginLocatorTest extends TestCase {
 
 		$this->path_processor->expects( $this->exactly( 2 ) )
 			->method( 'find_directory_with_autoloader' )
-			->withConsecutive(
-				array( 0 ),
-				array( 'dummy_current/dummy_current.php' )
+			->with(
+				...with_consecutive(
+					array( 0 ),
+					array( 'dummy_current/dummy_current.php' )
+				)
 			)
 			->willReturnOnConsecutiveCalls( false, WP_PLUGIN_DIR . '/dummy_current' );
 
@@ -141,9 +145,11 @@ class PluginLocatorTest extends TestCase {
 
 		$this->path_processor->expects( $this->exactly( 2 ) )
 			->method( 'find_directory_with_autoloader' )
-			->withConsecutive(
-				array( 0 ),
-				array( 'dummy_current/dummy_current.php' )
+			->with(
+				...with_consecutive(
+					array( 0 ),
+					array( 'dummy_current/dummy_current.php' )
+				)
 			)
 			->willReturnOnConsecutiveCalls( false, WP_PLUGIN_DIR . '/dummy_current' );
 
@@ -165,9 +171,11 @@ class PluginLocatorTest extends TestCase {
 
 		$this->path_processor->expects( $this->exactly( 2 ) )
 			->method( 'find_directory_with_autoloader' )
-			->withConsecutive(
-				array( 'dummy_current/dummy_current.php' ),
-				array( 123456 )
+			->with(
+				...with_consecutive(
+					array( 'dummy_current/dummy_current.php' ),
+					array( 123456 )
+				)
 			)
 			->willReturnOnConsecutiveCalls( WP_PLUGIN_DIR . '/dummy_current', false );
 
@@ -255,9 +263,11 @@ class PluginLocatorTest extends TestCase {
 
 		$this->path_processor->expects( $this->exactly( 2 ) )
 			->method( 'find_directory_with_autoloader' )
-			->withConsecutive(
-				array( 0 ),
-				array( 'dummy_current\\dummy_current.php' )
+			->with(
+				...with_consecutive(
+					array( 0 ),
+					array( 'dummy_current\\dummy_current.php' )
+				)
 			)
 			->willReturnOnConsecutiveCalls( false, WP_PLUGIN_DIR . '/dummy_current' );
 
@@ -278,9 +288,11 @@ class PluginLocatorTest extends TestCase {
 
 		$this->path_processor->expects( $this->exactly( 2 ) )
 			->method( 'find_directory_with_autoloader' )
-			->withConsecutive(
-				array( 0 ),
-				array( 'dummy_current\\dummy_current.php' )
+			->with(
+				...with_consecutive(
+					array( 0 ),
+					array( 'dummy_current\\dummy_current.php' )
+				)
 			)
 			->willReturnOnConsecutiveCalls( false, WP_PLUGIN_DIR . '/dummy_current' );
 

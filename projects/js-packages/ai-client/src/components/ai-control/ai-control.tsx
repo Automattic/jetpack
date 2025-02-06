@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { PlainText } from '@wordpress/block-editor';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 /**
  * Internal dependencies
@@ -16,6 +16,7 @@ import type { RequestingStateProp } from '../../types.js';
 import type { ReactElement } from 'react';
 
 type AIControlProps = {
+	className?: string;
 	disabled?: boolean;
 	value: string;
 	placeholder?: string;
@@ -34,9 +35,10 @@ type AIControlProps = {
  * Base AIControl component. Contains the main structure of the control component and slots for banner, error, actions and message.
  *
  * @param {AIControlProps} props - Component props
- * @returns {ReactElement}       Rendered component
+ * @return {ReactElement}       Rendered component
  */
 export default function AIControl( {
+	className,
 	disabled = false,
 	value = '',
 	placeholder = '',
@@ -51,12 +53,15 @@ export default function AIControl( {
 	wrapperRef = null,
 }: AIControlProps ): ReactElement {
 	return (
-		<div className="jetpack-components-ai-control__container-wrapper" ref={ wrapperRef }>
+		<div
+			className={ clsx( 'jetpack-components-ai-control__container-wrapper', className ) }
+			ref={ wrapperRef }
+		>
 			{ error }
 			<div className="jetpack-components-ai-control__container">
 				{ banner }
 				<div
-					className={ classNames( 'jetpack-components-ai-control__wrapper', {
+					className={ clsx( 'jetpack-components-ai-control__wrapper', {
 						'is-transparent': isTransparent,
 					} ) }
 				>

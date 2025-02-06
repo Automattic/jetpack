@@ -18,6 +18,24 @@ if ( ! class_exists( 'Jetpack_Google_Font_Face' ) ) {
  * @return object[] The collection data of the Google Fonts.
  */
 function jetpack_get_google_fonts_data() {
+	/**
+	 * Filters the Google Fonts data before the default retrieval process.
+	 *
+	 * This filter allows short-circuiting the default Google Fonts data retrieval process.
+	 * Returning a non-null value from this filter will bypass the default retrieval
+	 * and return the filtered value instead.
+	 *
+	 * @module google-fonts
+	 *
+	 * @since 13.7
+	 *
+	 * @param null|array $pre The pre-filtered Google Fonts data, default null.
+	 */
+	$pre = apply_filters( 'pre_jetpack_get_google_fonts_data', null );
+	if ( null !== $pre ) {
+		return $pre;
+	}
+
 	$default_google_fonts_api_url        = 'https://fonts.gstatic.com';
 	$jetpack_google_fonts_collection_url = 'https://s0.wp.com/i/font-collections/jetpack-google-fonts.json';
 	$cache_key                           = 'jetpack_google_fonts_' . md5( $jetpack_google_fonts_collection_url );
@@ -38,7 +56,15 @@ function jetpack_get_google_fonts_data() {
 
 	// Replace the google fonts api url if the custom one is provided.
 	$custom_google_fonts_api_url = \esc_url(
-		/** This filter is documented in projects/packages/google-fonts-provider/src/class-google-fonts-provider.php */
+		/**
+		 * Filters the Google Fonts API URL.
+		 *
+		 * @module google-fonts
+		 *
+		 * @since 12.8
+		 *
+		 * @param string $url The Google Fonts API URL.
+		 */
 		apply_filters( 'jetpack_google_fonts_api_url', $default_google_fonts_api_url )
 	);
 	if ( $custom_google_fonts_api_url !== $default_google_fonts_api_url ) {
@@ -72,7 +98,15 @@ function jetpack_get_available_google_fonts_map( $google_fonts_data ) {
 		$google_fonts_data['fontFamilies']
 	);
 
-	/** This filter is documented in modules/google-fonts/wordpress-6.3/load-google-fonts.php */
+	/**
+	 * Curated list of Google Fonts.
+	 *
+	 * @module google-fonts
+	 *
+	 * @since 10.8
+	 *
+	 * @param array $fonts_to_register Array of Google Font names to register.
+	 */
 	$google_font_list           = apply_filters( 'jetpack_google_fonts_list', $jetpack_google_fonts_list );
 	$available_google_fonts_map = array();
 
@@ -176,6 +210,38 @@ function jetpack_unregister_deprecated_google_fonts_from_theme_json_data( $theme
 
 add_filter( 'wp_theme_json_data_theme', 'jetpack_unregister_deprecated_google_fonts_from_theme_json_data' );
 add_filter( 'wp_theme_json_data_user', 'jetpack_unregister_deprecated_google_fonts_from_theme_json_data' );
+
+/**
+ * Clean up the Google Fonts data if either google fonts module is disabled or Jetpack is disabled.
+ */
+function jetpack_unregister_google_fonts() {
+	$post_id = WP_Theme_JSON_Resolver::get_user_global_styles_post_id();
+
+	// Get user config
+	$user_config          = WP_Theme_JSON_Resolver::get_user_data();
+	$user_config_raw_data = $user_config->get_raw_data();
+	$user_config_raw_data['isGlobalStylesUserThemeJSON'] = true;
+
+	// Prepare data for saving
+	if ( ! empty( $user_config_raw_data['settings']['typography']['fontFamilies']['default'] ) ) {
+		$user_config_raw_data['settings']['typography']['fontFamilies']['default'] = array();
+	}
+
+	if ( ! empty( $user_config_raw_data['settings']['typography']['fontFamilies']['theme'] ) ) {
+		$user_config_raw_data['settings']['typography']['fontFamilies']['theme'] = jetpack_google_fonts_filter_out_deprecated_font_data(
+			$user_config_raw_data['settings']['typography']['fontFamilies']['theme'] // @phan-suppress-current-line PhanTypeInvalidDimOffset, PhanTypeMismatchArgument
+		);
+	}
+
+	// Prepare changes
+	$changes               = new stdClass();
+	$changes->ID           = $post_id;
+	$changes->post_content = wp_json_encode( $user_config_raw_data );
+
+	// Update user config
+	wp_update_post( wp_slash( (array) $changes ), true );
+}
+add_action( 'jetpack_deactivate_module_google-fonts', 'jetpack_unregister_google_fonts' );
 
 // Initialize Jetpack Google Font Face to avoid printing **ALL** google fonts provided by this module.
 // See p1700040028362329-slack-C4GAQ900P and p7DVsv-jib-p2

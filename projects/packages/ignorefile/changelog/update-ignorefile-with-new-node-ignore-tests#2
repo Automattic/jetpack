@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Ignore a UTF-8 BOM when a string is passed to `->add()`, to match `git` behavior when reading the `.gitignore` file.

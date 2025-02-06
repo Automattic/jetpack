@@ -33,11 +33,18 @@ class Jetpack_AI_Helper {
 	public static $image_generation_cache_timeout = MONTH_IN_SECONDS;
 
 	/**
-	 * Cache AI-assistant feature for ten seconds.
+	 * Cache AI-assistant feature for 60 seconds.
 	 *
 	 * @var int
 	 */
-	public static $ai_assistant_feature_cache_timeout = 10;
+	public static $ai_assistant_feature_cache_timeout = 60;
+
+	/**
+	 * Cache AI-assistant errors for ten seconds.
+	 *
+	 * @var int
+	 */
+	public static $ai_assistant_feature_error_cache_timeout = 10;
 
 	/**
 	 * Stores the number of JetpackAI calls in case we want to mark AI-assisted posts some way.
@@ -45,6 +52,13 @@ class Jetpack_AI_Helper {
 	 * @var int
 	 */
 	public static $post_meta_with_ai_generation_number = '_jetpack_ai_calls';
+
+	/**
+	 * Storing the error to prevent repeated requests to WPCOM after failure.
+	 *
+	 * @var null|WP_Error
+	 */
+	private static $ai_assistant_failed_request = null;
 
 	/**
 	 * Checks if a given request is allowed to get AI data from WordPress.com.
@@ -366,6 +380,17 @@ class Jetpack_AI_Helper {
 				}
 			}
 
+			if ( ! class_exists( 'WPCOM\Jetpack_AI\Feature_Control' ) ) {
+				if ( is_readable( WP_CONTENT_DIR . '/lib/jetpack-ai/feature-control.php' ) ) {
+					require_once WP_CONTENT_DIR . '/lib/jetpack-ai/feature-control.php';
+				} else {
+					return new WP_Error(
+						'jetpack_ai_feature_control_not_found',
+						__( 'WPCOM\Jetpack_AI\Feature_Control class not found.', 'jetpack' )
+					);
+				}
+			}
+
 			// Determine the upgrade type
 			$upgrade_type = wpcom_is_vip( $blog_id ) ? 'vip' : 'default';
 
@@ -377,11 +402,13 @@ class Jetpack_AI_Helper {
 				'usage-period'         => WPCOM\Jetpack_AI\Usage\Helper::get_period_data( $blog_id ),
 				'site-require-upgrade' => WPCOM\Jetpack_AI\Usage\Helper::site_requires_upgrade( $blog_id ),
 				'upgrade-type'         => $upgrade_type,
+				'upgrade-url'          => WPCOM\Jetpack_AI\Usage\Helper::get_upgrade_url( $blog_id ),
 				'current-tier'         => WPCOM\Jetpack_AI\Usage\Helper::get_current_tier( $blog_id ),
 				'next-tier'            => WPCOM\Jetpack_AI\Usage\Helper::get_next_tier( $blog_id ),
 				'tier-plans'           => WPCOM\Jetpack_AI\Usage\Helper::get_tier_plans_list(),
 				'tier-plans-enabled'   => WPCOM\Jetpack_AI\Usage\Helper::ai_tier_plans_enabled(),
 				'costs'                => WPCOM\Jetpack_AI\Usage\Helper::get_costs(),
+				'features-control'     => WPCOM\Jetpack_AI\Feature_Control::get_features(),
 			);
 		}
 
@@ -395,6 +422,10 @@ class Jetpack_AI_Helper {
 			return $cache;
 		}
 
+		if ( null !== static::$ai_assistant_failed_request ) {
+			return static::$ai_assistant_failed_request;
+		}
+
 		$request_path = sprintf( '/sites/%d/jetpack-ai/ai-assistant-feature', $blog_id );
 
 		$wpcom_request = Client::wpcom_json_api_request_as_user(
@@ -405,6 +436,7 @@ class Jetpack_AI_Helper {
 				'headers' => array(
 					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 				),
+				'timeout' => 30,
 			),
 			null,
 			'wpcom'
@@ -419,11 +451,21 @@ class Jetpack_AI_Helper {
 
 			return $ai_assistant_feature_data;
 		} else {
-			return new WP_Error(
+			$error = new WP_Error(
 				'failed_to_fetch_data',
 				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
-				array( 'status' => $response_code )
+				array(
+					'status' => $response_code,
+					'ts'     => time(),
+				)
 			);
+
+			// Cache the AI Assistant feature error, for Jetpack sites, avoid API hammering.
+			set_transient( $transient_name, $error, self::$ai_assistant_feature_error_cache_timeout );
+
+			static::$ai_assistant_failed_request = $error;
+
+			return $error;
 		}
 	}
 }

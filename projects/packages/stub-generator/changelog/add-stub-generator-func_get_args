@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add a fake `...$func_get_args` parameter to functions/methods that call `func_get_args()`.

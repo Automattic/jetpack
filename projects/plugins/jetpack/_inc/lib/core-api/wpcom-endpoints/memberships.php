@@ -6,7 +6,7 @@
  * @since      7.3.0
  */
 
-use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Memberships
@@ -14,11 +14,15 @@ use Automattic\Jetpack\Connection\Client;
  */
 class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 
+	use WPCOM_REST_API_Proxy_Request;
+
 	/**
 	 * WPCOM_REST_API_V2_Endpoint_Memberships constructor.
 	 */
 	public function __construct() {
-		$this->namespace                       = 'wpcom/v2';
+		$this->base_api_path                   = 'wpcom';
+		$this->version                         = 'v2';
+		$this->namespace                       = $this->base_api_path . '/' . $this->version;
 		$this->rest_base                       = 'memberships';
 		$this->wpcom_is_wpcom_only_endpoint    = true;
 		$this->wpcom_is_site_specific_endpoint = true;
@@ -58,6 +62,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 										'gutenberg',
 										'gutenberg-wpcom',
 										'launchpad',
+										'import-paid-subscribers',
 									),
 									true
 								);
@@ -85,7 +90,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 							'required' => true,
 						),
 						'price'                   => array(
-							'type'     => 'float',
+							'type'     => 'number',
 							'required' => true,
 						),
 						'currency'                => array(
@@ -119,6 +124,20 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'create_products' ),
 					'permission_callback' => array( $this, 'can_modify_products_permission_check' ),
+					'args'                => array(
+						'currency'    => array(
+							'type'     => 'string',
+							'required' => true,
+						),
+						'type'        => array(
+							'type'     => 'string',
+							'required' => true,
+						),
+						'is_editable' => array(
+							'type'     => 'boolean',
+							'required' => false,
+						),
+					),
 				),
 				array(
 					'methods'             => WP_REST_Server::READABLE,
@@ -141,7 +160,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 							'required' => true,
 						),
 						'price'                   => array(
-							'type'     => 'float',
+							'type'     => 'number',
 							'required' => true,
 						),
 						'currency'                => array(
@@ -210,6 +229,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 
 		if ( $this->is_wpcom() ) {
 			require_lib( 'memberships' );
+			Memberships_Store_Sandbox::get_instance()->init( true );
 
 			$result = Memberships_Product::generate_default_products( get_current_blog_id(), $request['type'], $request['currency'], $is_editable );
 
@@ -219,37 +239,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			}
 			return $result;
 		} else {
-			$payload = array(
-				'type'     => $request['type'],
-				'currency' => $request['currency'],
-			);
-
-			// If we pass directly is_editable as null, it would break API argument validation.
-			if ( null !== $is_editable ) {
-				$payload['is_editable'] = $is_editable;
-			}
-
-			$blog_id  = Jetpack_Options::get_option( 'id' );
-			$response = Client::wpcom_json_api_request_as_user(
-				"/sites/$blog_id/{$this->rest_base}/products",
-				'v2',
-				array(
-					'method' => 'POST',
-				),
-				$payload
-			);
-			if ( is_wp_error( $response ) ) {
-				if ( $response->get_error_code() === 'missing_token' ) {
-					return new WP_Error( 'missing_token', __( 'Please connect your user account to WordPress.com', 'jetpack' ), 404 );
-				}
-				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WordPress.com', 'jetpack' ), 404 );
-			}
-			$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
-			// If endpoint returned error, we have to detect it.
-			if ( 200 !== $response['response']['code'] && $data['code'] ) {
-				return new WP_Error( $data['code'], $data['message'] ? $data['message'] : '', 401 );
-			}
-			return $data;
+			return $this->proxy_request_to_wpcom_as_user( $request, 'products' );
 		}
 
 		return $request;
@@ -263,7 +253,6 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 * @return WP_Error|array ['products']
 	 */
 	public function list_products( WP_REST_Request $request ) {
-		$query       = null;
 		$is_editable = isset( $request['is_editable'] ) ? (bool) $request['is_editable'] : null;
 		$type        = isset( $request['type'] ) ? $request['type'] : null;
 
@@ -276,17 +265,8 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				return array( 'error' => $e->getMessage() );
 			}
 		} else {
-			$query_parts = array();
-			if ( $type !== null ) {
-				$query_parts[] = 'type=' . $type;
-			}
-			if ( $is_editable !== null ) {
-				$query_parts[] = 'is_editable=' . $is_editable;
-			}
-			if ( ! empty( $query_parts ) ) {
-				$query = '?' . implode( '&', $query_parts );
-			}
-			return $this->proxy_request_to_wpcom( "products$query", 'GET' );
+
+			return $this->proxy_request_to_wpcom_as_user( $request, 'products' );
 		}
 	}
 
@@ -308,7 +288,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				return array( 'error' => $e->getMessage() );
 			}
 		} else {
-			return $this->proxy_request_to_wpcom( 'product', 'POST', $payload );
+			return $this->proxy_request_to_wpcom_as_user( $request, 'product' );
 		}
 	}
 
@@ -331,7 +311,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				return array( 'error' => $e->getMessage() );
 			}
 		} else {
-			return $this->proxy_request_to_wpcom( "product/$product_id", 'POST', $payload );
+			return $this->proxy_request_to_wpcom_as_user( $request, "product/$product_id" );
 		}
 	}
 
@@ -354,11 +334,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				return array( 'error' => $e->getMessage() );
 			}
 		} else {
-			return $this->proxy_request_to_wpcom(
-				"product/$product_id",
-				'DELETE',
-				array( 'cancel_subscriptions' => $cancel_subscriptions )
-			);
+			return $this->proxy_request_to_wpcom_as_user( $request, "product/$product_id" );
 		}
 	}
 
@@ -382,6 +358,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 
 		if ( $this->is_wpcom() ) {
 			require_lib( 'memberships' );
+			Memberships_Store_Sandbox::get_instance()->init( true );
 			$blog_id             = get_current_blog_id();
 			$membership_settings = get_memberships_settings_for_site( $blog_id, $product_type, $is_editable, $source );
 
@@ -408,77 +385,8 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 
 			return (array) $membership_settings;
 		} else {
-			$payload = array(
-				'type'   => $request['type'],
-				'source' => $source,
-			);
-
-			// If we pass directly is_editable as null, it would break API argument validation.
-			// This also needs to be converted to int because boolean false is ignored by add_query_arg.
-			if ( null !== $is_editable ) {
-				$payload['is_editable'] = (int) $is_editable;
-			}
-
-			$blog_id = Jetpack_Options::get_option( 'id' );
-			$path    = "/sites/$blog_id/{$this->rest_base}/status";
-			if ( $product_type ) {
-				$path = add_query_arg(
-					$payload,
-					$path
-				);
-			}
-			$response = Client::wpcom_json_api_request_as_user( $path, 'v2' );
-			if ( is_wp_error( $response ) ) {
-				if ( $response->get_error_code() === 'missing_token' ) {
-					return new WP_Error( 'missing_token', __( 'Please connect your user account to WordPress.com', 'jetpack' ), 404 );
-				}
-				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WordPress.com', 'jetpack' ), 404 );
-			}
-			$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
-			if ( 200 !== $response['response']['code'] && $data['code'] && $data['message'] ) {
-				return new WP_Error( $data['code'], $data['message'], 401 );
-			}
-			return $data;
+			return $this->proxy_request_to_wpcom_as_user( $request, 'status' );
 		}
-	}
-
-	/**
-	 * Proxy a request to WPCOM, look for errors and return a response or a WP_Error.
-	 *
-	 * @param string     $uri Whatever would go at the end of the url after /sites/$blog_id/$this->rest_base/. This is usually `product`, `products`, or `product/$product_id`.
-	 * @param string     $method The HTTP method being used.
-	 * @param array|null $payload An optional payload to be sent with the request.
-	 * @return string    The response from WPCOM
-	 */
-	private function proxy_request_to_wpcom( $uri, $method, $payload = null ) {
-		// get blog id
-		$blog_id = Jetpack_Options::get_option( 'id' );
-
-		// proxy request to wpcom
-		$response = Client::wpcom_json_api_request_as_user(
-			"/sites/$blog_id/{$this->rest_base}/$uri",
-			'v2',
-			array(
-				'method' => strtoupper( $method ),
-			),
-			$payload
-		);
-		if ( is_wp_error( $response ) ) {
-			if ( $response->get_error_code() === 'missing_token' ) {
-				return new WP_Error( 'missing_token', __( 'Please connect your user account to WordPress.com', 'jetpack' ), 404 );
-			}
-			return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WordPress.com', 'jetpack' ), 404 );
-		}
-
-		// decode response
-		$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
-		// If endpoint returned error, we have to detect it.
-		if ( 200 !== $response['response']['code'] && $data['code'] && $data['message'] ) {
-			return new WP_Error( $data['code'], $data['message'], 401 );
-		}
-
-		// return response
-		return $data;
 	}
 
 	/**
@@ -504,6 +412,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 */
 	private function list_products_from_wpcom( WP_REST_Request $request, $type, $is_editable ) {
 		$this->prevent_running_outside_of_wpcom();
+		Memberships_Store_Sandbox::get_instance()->init( true );
 		$blog_id = $request->get_param( 'blog_id' );
 		if ( is_wp_error( $blog_id ) ) {
 			throw new \Exception( 'Unknown blog' );
@@ -524,6 +433,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 */
 	private function find_product_from_wpcom( $product_id ) {
 		$this->prevent_running_outside_of_wpcom();
+		Memberships_Store_Sandbox::get_instance()->init( true );
 		$product = Memberships_Product::get_from_post( get_current_blog_id(), $product_id );
 		if ( is_wp_error( $product ) ) {
 			throw new \Exception( $product->get_error_message() );
@@ -543,6 +453,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 */
 	private function create_product_from_wpcom( $payload ) {
 		$this->prevent_running_outside_of_wpcom();
+		Memberships_Store_Sandbox::get_instance()->init( true );
 		$product = Memberships_Product::create( get_current_blog_id(), $payload );
 		if ( is_wp_error( $product ) ) {
 			throw new \Exception( __( 'Creating product has failed.', 'jetpack' ) );
@@ -559,6 +470,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 * @return object The newly updated product.
 	 */
 	private function update_product_from_wpcom( $product_id, $payload ) {
+		Memberships_Store_Sandbox::get_instance()->init( true );
 		$product         = $this->find_product_from_wpcom( $product_id ); // prevents running outside of wpcom
 		$updated_product = $product->update( $payload );
 		if ( is_wp_error( $updated_product ) ) {
@@ -576,6 +488,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 * @return void
 	 */
 	private function delete_product_from_wpcom( $product_id, $cancel_subscriptions = false ) {
+		Memberships_Store_Sandbox::get_instance()->init( true );
 		$product = $this->find_product_from_wpcom( $product_id ); // prevents running outside of wpcom
 		$result  = $product->delete( $cancel_subscriptions ? Memberships_Product::CANCEL_SUBSCRIPTIONS : Memberships_Product::KEEP_SUBSCRIPTIONS );
 		if ( is_wp_error( $result ) ) {

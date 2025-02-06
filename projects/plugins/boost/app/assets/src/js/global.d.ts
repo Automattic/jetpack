@@ -2,8 +2,6 @@
  * Type definitions for the global namespace. i.e.: things we expect to find in window.
  */
 
-import type { BrowserInterfaceIframe, generateCriticalCSS } from 'jetpack-boost-critical-css-gen';
-
 // <reference types ="@types/jquery"/>
 
 declare global {
@@ -28,7 +26,7 @@ declare global {
 			domain: string;
 			url: string;
 			online: boolean;
-			isAtomic: boolean;
+			host: string;
 		};
 		assetPath: string;
 		pluginDirUrl: string;
@@ -36,20 +34,15 @@ declare global {
 		postTypes: {
 			[ key: string ]: string;
 		};
-	};
-
-	// Critical CSS Generator library.
-	const CriticalCSSGenerator: {
-		generateCriticalCSS: typeof generateCriticalCSS;
-		BrowserInterfaceIframe: typeof BrowserInterfaceIframe;
+		developmentFeatures: boolean;
 	};
 
 	const jpTracksAJAX: {
-		record_ajax_event(
+		record_ajax_event: (
 			eventName: string,
 			eventType: string,
 			eventProp: TracksEventProperites
-		): JQueryXHR;
+		) => JQueryXHR;
 	};
 
 	const jetpackBoostAnalytics: {

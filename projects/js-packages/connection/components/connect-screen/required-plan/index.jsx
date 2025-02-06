@@ -9,13 +9,16 @@ import ConnectScreenRequiredPlanVisual from './visual';
  * The Connection Screen Visual component for consumers that require a Plan.
  *
  * @param {object} props -- The properties.
- * @returns {React.Component} The `ConnectScreenForRequiredPlan` component.
+ * @return {React.Component} The `ConnectScreenForRequiredPlan` component.
  */
 const ConnectScreenRequiredPlan = props => {
 	const {
-		title,
-		autoTrigger,
-		buttonLabel,
+		title = __(
+			'Over 5 million WordPress sites are faster and more secure',
+			'jetpack-connection-js'
+		),
+		autoTrigger = false,
+		buttonLabel = __( 'Set up Jetpack', 'jetpack-connection-js' ),
 		apiRoot,
 		apiNonce,
 		registrationNonce,
@@ -26,7 +29,7 @@ const ConnectScreenRequiredPlan = props => {
 		priceAfter,
 		pricingIcon,
 		pricingTitle,
-		pricingCurrencyCode,
+		pricingCurrencyCode = 'USD',
 		wpcomProductSlug,
 		siteProductAvailabilityHandler,
 		logo,
@@ -115,13 +118,6 @@ ConnectScreenRequiredPlan.propTypes = {
 	checkSiteHasWpcomProduct: PropTypes.func,
 	/** The logo to display at the top of the component. */
 	logo: PropTypes.element,
-};
-
-ConnectScreenRequiredPlan.defaultProps = {
-	title: __( 'Over 5 million WordPress sites are faster and more secure', 'jetpack' ),
-	buttonLabel: __( 'Set up Jetpack', 'jetpack' ),
-	pricingCurrencyCode: 'USD',
-	autoTrigger: false,
 };
 
 export default ConnectScreenRequiredPlan;

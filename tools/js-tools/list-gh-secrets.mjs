@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-/* eslint-disable no-console */
-
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -9,14 +7,14 @@ import { createTokenAuth } from '@octokit/auth-token';
 import { Octokit } from '@octokit/rest';
 import chalk from 'chalk';
 import enquirer from 'enquirer';
-import glob from 'glob';
+import { glob } from 'glob';
 
 /**
  * List secrets.
  *
  * @param {Octokit} octokit - Octokit object.
- * @param {string}  slug - GitHub repo slug.
- * @returns {Promise} Empty
+ * @param {string}  slug    - GitHub repo slug.
+ * @return {Promise} Empty
  */
 async function listSecrets( octokit, slug ) {
 	const [ owner, repo ] = slug.split( '/', 2 );

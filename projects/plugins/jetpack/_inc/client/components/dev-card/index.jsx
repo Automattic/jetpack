@@ -1,9 +1,9 @@
-import classNames from 'classnames';
-import Card from 'components/card';
-import { getPlanClass } from 'lib/plans/constants';
+import clsx from 'clsx';
 import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
+import Card from 'components/card';
+import { getPlanClass } from 'lib/plans/constants';
 import { getVaultPressScanThreatCount } from 'state/at-a-glance';
 import { isConnectionOwner, isCurrentUserLinked } from 'state/connection';
 import {
@@ -128,7 +128,7 @@ export class DevCard extends React.Component {
 			return null;
 		}
 
-		const classes = classNames( this.props.className, 'jp-dev-card' );
+		const classes = clsx( this.props.className, 'jp-dev-card' );
 
 		const planClass = getPlanClass( this.props.sitePlan.product_slug );
 		const rewindState = get( this.props.rewindStatus, [ 'state' ], false );

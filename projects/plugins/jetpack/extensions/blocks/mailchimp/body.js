@@ -1,7 +1,7 @@
 import { InnerBlocks, RichText } from '@wordpress/block-editor';
 import { TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import {
 	BLOCK_CLASS,
 	NOTIFICATION_ERROR,
@@ -40,11 +40,13 @@ const Body = ( { attributes, setAttributes, audition } ) => {
 
 	return (
 		<div
-			className={ classnames( {
+			className={ clsx( {
 				[ `${ BLOCK_CLASS }_notication-audition` ]: audition,
 			} ) }
 		>
 			<TextControl
+				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize
 				aria-label={ emailPlaceholder }
 				className={ `${ BLOCK_CLASS }_text-input` }
 				disabled

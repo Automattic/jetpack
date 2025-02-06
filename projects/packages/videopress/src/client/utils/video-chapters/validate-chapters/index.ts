@@ -4,7 +4,7 @@ import type { VideoPressChapter } from '../types';
  * Calculates the number of seconds from a timestamp in the format hh:mm:ss
  *
  * @param {string} time - The timestamp
- * @returns {number}    - The number of seconds
+ * @return {number}    - The number of seconds
  */
 function getSeconds( time: string ): number {
 	const timeSections = time.split( ':' );
@@ -20,7 +20,7 @@ function getSeconds( time: string ): number {
  * Validates the generated chapters against UX restrictions
  *
  * @param {VideoPressChapter[]} chapters - The chapters to be validated
- * @returns {boolean} - Whether the generated chapters are valid or not
+ * @return {boolean} - Whether the generated chapters are valid or not
  */
 export default function validateChapters( chapters: VideoPressChapter[] ): boolean {
 	if ( ! chapters || chapters.length === 0 ) {

@@ -6,6 +6,7 @@
 		"typeRoots": [ "./node_modules/@types/" ],
 		"sourceMap": true,
 		"outDir": "./build/",
-		"target": "es2019"
+		"target": "es2019",
+		"verbatimModuleSyntax": true
 	}
 }

@@ -14,7 +14,8 @@ function FeedbackControl() {
 
 	return (
 		<div className="jetpack-ai-feedback-control">
-			<BaseControl label={ __( 'Feedback', 'jetpack' ) }>
+			<BaseControl>
+				<BaseControl.VisualLabel>{ __( 'Feedback', 'jetpack' ) }</BaseControl.VisualLabel>
 				<p>
 					{ __(
 						'Your feedback is valuable in our commitment to refine and improve this feature.',

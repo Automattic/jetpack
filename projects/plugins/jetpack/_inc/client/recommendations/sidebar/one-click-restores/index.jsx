@@ -1,10 +1,10 @@
-import { imagePath, GETTING_STARTED_WITH_JETPACK_BACKUP_VIDEO_URL } from 'constants/urls';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import Button from 'components/button';
-import analytics from 'lib/analytics';
 import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
+import Button from 'components/button';
+import { imagePath, GETTING_STARTED_WITH_JETPACK_BACKUP_VIDEO_URL } from 'constants/urls';
+import analytics from 'lib/analytics';
 import { getSiteRawUrl } from 'state/initial-state';
 import { siteHasFeature } from 'state/site';
 import { SidebarCard } from '../sidebar-card';

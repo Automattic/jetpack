@@ -1,8 +1,10 @@
+import restApi from '@automattic/jetpack-api';
 import {
 	AdminPage,
 	Container,
 	Col,
 	PricingCard,
+	getUserLocale,
 	AdminSectionHero,
 	ProductPrice,
 	PricingTable,
@@ -32,12 +34,13 @@ const JETPACK_SEARCH__LINK = 'https://jetpack.com/upgrade/search';
 /**
  * defines UpsellPage.
  *
- * @param {object} props - Component properties.
+ * @param {object} props           - Component properties.
  * @param {string} props.isLoading - should page show Loading spinner.
- * @returns {React.Component} UpsellPage component.
+ * @return {React.Component} UpsellPage component.
  */
 export default function UpsellPage( { isLoading = false } ) {
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
+	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
@@ -46,10 +49,10 @@ export default function UpsellPage( { isLoading = false } ) {
 	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 
 	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
-	const checkSiteHasSearchProduct = useCallback(
-		() => fetchSearchPlanInfo().then( response => response?.supports_search ),
-		[ fetchSearchPlanInfo ]
-	);
+	const checkSiteHasSearchProduct = useCallback( () => {
+		restApi.setApiNonce( APINonce );
+		fetchSearchPlanInfo().then( response => response?.supports_search );
+	}, [ APINonce, fetchSearchPlanInfo ] );
 
 	const { run: sendToCartPaid, hasCheckoutStarted: hasCheckoutStartedPaid } =
 		useProductCheckoutWorkflow( {
@@ -141,7 +144,6 @@ const OldPricingComponent = ( { sendToCart } ) => {
 					ctaText={ __( 'Get Jetpack Search', 'jetpack-search-pkg' ) }
 					icon="data:image/svg+xml,%3Csvg width='32' height='32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M21 19l-5.154-5.154C16.574 12.742 17 11.42 17 10c0-3.866-3.134-7-7-7s-7 3.134-7 7 3.134 7 7 7c1.42 0 2.742-.426 3.846-1.154L19 21l2-2zM5 10c0-2.757 2.243-5 5-5s5 2.243 5 5-2.243 5-5 5-5-2.243-5-5z' fill='%23000'/%3E%3C/svg%3E"
 					infoText={ priceAfter === priceBefore ? basicInfoText : onSaleInfoText }
-					// eslint-disable-next-line react/jsx-no-bind
 					onCtaClick={ sendToCart }
 					priceAfter={ priceAfter }
 					priceBefore={ priceBefore }
@@ -155,7 +157,7 @@ const OldPricingComponent = ( { sendToCart } ) => {
 
 const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 	const siteDomain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
-
+	const localeSlug = getUserLocale();
 	const priceBefore = useSelect( select => select( STORE_ID ).getPriceBefore() / 12, [] );
 	const priceAfter = useSelect( select => select( STORE_ID ).getPriceAfter() / 12, [] );
 	const priceCurrencyCode = useSelect( select => select( STORE_ID ).getPriceCurrencyCode(), [] );
@@ -166,7 +168,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const paidRecordsLimitRaw = useSelect( select => select( STORE_ID ).getPaidRecordsLimit(), [] );
-	const paidRecordsLimit = new Intl.NumberFormat( 'en-US', {
+	const paidRecordsLimit = new Intl.NumberFormat( localeSlug, {
 		notation: 'compact',
 		compactDisplay: 'short',
 	} ).format( paidRecordsLimitRaw );
@@ -176,14 +178,14 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 	const unlimitedText = __( 'Unlimited', 'jetpack-search-pkg' );
 	const paidRequestsLimit = hasUnlimitedRequests
 		? unlimitedText
-		: new Intl.NumberFormat( 'en-US', {
+		: new Intl.NumberFormat( localeSlug, {
 				notation: 'compact',
 				compactDisplay: 'short',
 		  } ).format( paidRequestsLimitRaw );
 
 	const unitPrice = useSelect( select => select( STORE_ID ).getAdditionalUnitPrice(), [] );
 	const unitQuantityRaw = useSelect( select => select( STORE_ID ).getAdditionalUnitQuantity(), [] );
-	const unitQuantity = new Intl.NumberFormat( 'en-US', {
+	const unitQuantity = new Intl.NumberFormat( localeSlug, {
 		notation: 'compact',
 		compactDisplay: 'short',
 	} ).format( unitQuantityRaw );

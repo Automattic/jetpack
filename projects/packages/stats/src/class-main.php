@@ -196,9 +196,9 @@ class Main {
 			return false;
 		}
 
-		// Staging Sites should not generate tracking stats.
+		// Sites in Safe Mode should not generate tracking stats.
 		$status = new Status();
-		if ( $status->is_staging_site() ) {
+		if ( $status->in_safe_mode() ) {
 			return false;
 		}
 

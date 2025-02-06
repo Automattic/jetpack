@@ -4,6 +4,58 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 2.2 - 2025-01-10
+### Added
+- Add tracks for connection banner [#39732]
+- My Jetpack: Update the recommendations section in My Jetpack to include a slider interaction for the cards. [#39850]
+
+### Changed
+- General: Indicate compatibility with the upcoming version of WordPress - 6.7. [#39786]
+- Include `wp-polyfill` as a script dependency only when needed. [#39629]
+- Resolve an issue where revoked licenses were incorrectly treated as unattached. This caused users to be redirected to the license activation page after site connection, even when unattached licenses were not valid for activation. [#40215]
+- Social: Change My Jetpack CTA for Social from "Learn more" to "Activate". [#40359]
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#39288] [#39302] [#39594] [#39653] [#39707] [#39999] [#40060] [#40116] [#40288] [#40363] [#40515] [#40564] [#40693] [#40815]
+
+### Removed
+- Connection: Remove deprecated `features_available` method. [#39442]
+- Connection: Remove deprecated `features_enabled` method. [#39475]
+- General: Update minimum PHP version to 7.2. [#40147]
+- General: Update minimum WordPress version to 6.6. [#40146]
+
+### Fixed
+- E2E Tests: Only install single browser used by Playwright. [#40827]
+- My Jetpack: Update GlobalNotice component to look better on mobile. [#39537]
+
+## 2.1 - 2024-09-06
+### Changed
+- Internal updates.
+
+## 2.0 - 2024-09-05
+### Changed
+- General: Dependency updates. [#38942] [#38822] [#39004] [#39111] [#39176]
+
+## 1.9 - 2024-08-15
+### Changed
+- General: indicate compatibility with the upcoming version of WordPress - 6.6.
+- Updated package dependencies.
+
+### Removed
+- General: update WordPress version requirements to WordPress 6.5.
+
+### Fixed
+- Updated package dependencies.
+
+## 1.8 - 2024-05-22
+### Added
+- Trigger a red bubble notification when a bad plugin install is detected.
+
+### Changed
+- Updated WordPRess tested version to 6.5.
+- Updated minimum WordPress version requirement to WordPress 6.4.
+- Switched to wp_admin_notice function to display notices.
+- Updated to show installation errors only on the plugins page.
+
 ## 1.7 - 2023-11-21
 ### Changed
 - Updated WordPress tested version to 6.4.

@@ -5,7 +5,10 @@ import {
 	GoogleSearchPreview,
 } from '@automattic/social-previews';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { SocialLogo } from 'social-logos';
 import Button from 'components/button';
 import FoldableCard from 'components/foldable-card';
 import { FormLabel, FormTextarea } from 'components/forms';
@@ -14,9 +17,6 @@ import { ModuleToggle } from 'components/module-toggle';
 import SimpleNotice from 'components/notice';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import SocialLogo from 'social-logos';
 import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
 import CustomSeoTitles from './seo/custom-seo-titles.jsx';
 
@@ -145,7 +145,7 @@ export const SEO = withModuleSettingsFormHelpers(
 			}, [] );
 			const hasConflictingSeoPlugin = conflictingSeoPlugins.length > 0;
 
-			const frontPageMetaCharCountClasses = classNames( {
+			const frontPageMetaCharCountClasses = clsx( {
 				'jp-seo-front-page-description-count': true,
 				'jp-seo-front-page-description-count-max':
 					frontPageMetaDescription.length >= this.constants.frontPageMetaMaxLength,
@@ -199,7 +199,9 @@ export const SEO = withModuleSettingsFormHelpers(
 							}
 							toggleModule={ this.props.toggleModuleNow }
 						>
-							{ __( 'Customize your SEO settings', 'jetpack' ) }
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Customize your SEO settings', 'jetpack' ) }
+							</span>
 						</ModuleToggle>
 					</SettingsGroup>
 					{ isSeoActive &&

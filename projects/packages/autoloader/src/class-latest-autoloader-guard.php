@@ -75,4 +75,83 @@ class Latest_Autoloader_Guard {
 
 		return false;
 	}
+
+	/**
+	 * Check for conflicting autoloaders.
+	 *
+	 * A common source of strange and confusing problems is when another plugin
+	 * registers a Composer autoloader at a higher priority that us. If enabled,
+	 * check for this problem and warn about it.
+	 *
+	 * Called from the plugins_loaded hook.
+	 *
+	 * @since 3.1.0
+	 * @return void
+	 */
+	public function check_for_conflicting_autoloaders() {
+		if ( ! defined( 'JETPACK_AUTOLOAD_DEBUG_CONFLICTING_LOADERS' ) || ! JETPACK_AUTOLOAD_DEBUG_CONFLICTING_LOADERS ) {
+			return;
+		}
+
+		global $jetpack_autoloader_loader;
+		if ( ! isset( $jetpack_autoloader_loader ) ) {
+			return;
+		}
+		$prefixes = array();
+		foreach ( ( $jetpack_autoloader_loader->get_class_map() ?? array() ) as $classname => $data ) {
+			$parts = explode( '\\', trim( $classname, '\\' ) );
+			array_pop( $parts );
+			while ( $parts ) {
+				$prefixes[ implode( '\\', $parts ) . '\\' ] = true;
+				array_pop( $parts );
+			}
+		}
+		foreach ( ( $jetpack_autoloader_loader->get_psr4_map() ?? array() ) as $prefix => $data ) {
+			$parts = explode( '\\', trim( $prefix, '\\' ) );
+			while ( $parts ) {
+				$prefixes[ implode( '\\', $parts ) . '\\' ] = true;
+				array_pop( $parts );
+			}
+		}
+
+		$autoload_chain = spl_autoload_functions();
+		if ( ! $autoload_chain ) {
+			return;
+		}
+
+		foreach ( $autoload_chain as $autoloader ) {
+			// No need to check anything after us.
+			if ( is_array( $autoloader ) && is_string( $autoloader[0] ) && substr( $autoloader[0], 0, strlen( __NAMESPACE__ ) + 1 ) === __NAMESPACE__ . '\\' ) {
+				break;
+			}
+
+			// We can check Composer autoloaders easily enough.
+			if ( is_array( $autoloader ) && $autoloader[0] instanceof \Composer\Autoload\ClassLoader && is_callable( array( $autoloader[0], 'getPrefixesPsr4' ) ) ) {
+				$composer_autoloader = $autoloader[0];
+				foreach ( $composer_autoloader->getClassMap() as $classname => $path ) {
+					if ( $jetpack_autoloader_loader->find_class_file( $classname ) ) {
+						$msg = "A Composer autoloader is registered with a higher priority than the Jetpack Autoloader and would also handle some of the classes we handle (e.g. $classname => $path). This may cause strange and confusing problems.";
+						wp_trigger_error( '', $msg );
+						continue 2;
+					}
+				}
+				foreach ( $composer_autoloader->getPrefixesPsr4() as $prefix => $paths ) {
+					if ( isset( $prefixes[ $prefix ] ) ) {
+						$path = array_pop( $paths );
+						$msg  = "A Composer autoloader is registered with a higher priority than the Jetpack Autoloader and would also handle some of the namespaces we handle (e.g. $prefix => $path). This may cause strange and confusing problems.";
+						wp_trigger_error( '', $msg );
+						continue 2;
+					}
+				}
+				foreach ( $composer_autoloader->getPrefixes() as $prefix => $paths ) {
+					if ( isset( $prefixes[ $prefix ] ) ) {
+						$path = array_pop( $paths );
+						$msg  = "A Composer autoloader is registered with a higher priority than the Jetpack Autoloader and would also handle some of the namespaces we handle (e.g. $prefix => $path). This may cause strange and confusing problems.";
+						wp_trigger_error( '', $msg );
+						continue 2;
+					}
+				}
+			}
+		}
+	}
 }

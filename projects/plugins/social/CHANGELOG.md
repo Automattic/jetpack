@@ -5,6 +5,205 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 6.1.0 - 2025-01-27
+### Changed
+- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
+- License: Social admin page header hides license link on WoA sites. [#41076]
+- Moved the Social admin page to the publicize-components package [#41181]
+- Refactored Social Note settings to use core [#41153]
+- Updated package dependencies. [#41099]
+
+### Fixed
+- Fixed profile links for LinkedIn connections [#40873]
+- Fixed wordpress.com log in error when connecting Social accounts [#41149]
+- Fix publicize error in the editor due to malformed connections data [#40679]
+
+## 6.0.0 - 2025-01-14
+### Added
+- Add Bluesky to social feature copy. [#40487]
+- Add a new toggle for UTM tracking. [#39998]
+- Add LinkedIn permissions warning. [#40220]
+- Enable test coverage. [#39961]
+- Make Post share status immediately available in the editor on page load. [#40301]
+- My Jetpack: Update recommendations section in My Jetpack to include a slider interaction for the cards. [#39850]
+
+### Changed
+- Change My Jetpack CTA from "Learn more" to "Activate". [#40359]
+- Change order of connections. [#40020]
+- Clean up unused TypeScript types [#40033]
+- E2E Tests: Update tests to use @wordpress/e2e-test-utils-playwright. [#40750]
+- Ensure the support link points to Jetpack support. [#40760]
+- Image Generator: Change description for toggle. [#40991]
+- Image Generator: Move settings to new store. [#39904]
+- Migrate settings to new script data. [#40032]
+- Migrate the last bits of social store to new script data. [#40081]
+- Move the admin menu initialization to the init hook. [#40474]
+- Readme: Update documentation to include all supported social networks. [#40248]
+- Remove some unused code. [#40122]
+- Resolve an issue where revoked licenses were incorrectly treated as unattached. This caused users to be redirected to the license activation page after site connection, even when unattached licenses were not valid for activation. [#40215]
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#39999] [#40000] [#40060] [#40116] [#40258] [#40288] [#40363] [#40515] [#40564] [#40693] [#40784] [#40792] [#40798] [#40815] [#40980]
+
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+- General: Update minimum WordPress version to 6.6. [#40146]
+
+### Fixed
+- E2E Tests: Only install single browser used by Playwright. [#40827]
+- Fix an issue where we showed the license message even with a plan. [#40931]
+- Fix the infinite reload issue on Jetpack Sharing settings. [#40089]
+- Fix the Instagram max video length. [#39930]
+- Page & Post: Fix the layout on mobile when details are open. [#40872]
+- Prevent dataviews styles imported in share status from being added globally. [#39991]
+
+## 5.5.1 - 2024-10-29
+### Changed
+- Components: Add __nextHasNoMarginBottom to BaseControl-based components, preventing deprecation notices. [#39877]
+- Updated package dependencies. [#39910]
+
+## 5.5.0 - 2024-10-25
+### Added
+- Added Bluesky to social previews [#39659]
+- Social Notes: add support for the ActivityPub Reply-To block. [#39738]
+
+### Changed
+- General: indicate compatibility with the upcoming version of WordPress - 6.7. [#39786]
+- Initial State: Migrated URLs to script data [#39797]
+- Only include `wp-polyfill` as a script dependency when needed. [#39629]
+- Updated package dependencies. [#39594] [#39653] [#39707]
+
+### Fixed
+- Added Jetpack Beta's slug to Social OG conflicting plugins [#39792]
+- Social: Fixed share status tooltip text overflow [#39599]
+
+## 5.4.1 - 2024-10-02
+### Changed
+- Internal updates.
+
+## 5.4.0 - 2024-10-01
+### Added
+- Added support for Bluesky 🎉 [#39561]
+- Social: adds hook for plugin developers to be able to pull social share URLs on save. [#39398]
+
+### Changed
+- Social: Migrated useAdminUiV1 feature flag to new script data [#39137]
+- Updated package dependencies. [#39278] [#39288] [#39302] [#39332]
+
+### Removed
+- Connection: Removed deprecated method features_available [#39442]
+- Connection: Removed features_enabled deprecated method [#39475]
+- Social: Cleaned up media auto-conversion backend logic [#38587]
+
+### Fixed
+- My Jetpack: visual update to the GlobalNotice component look better on mobile. [#39537]
+- Social: Updated social previews button styles to fit the translated string [#39430]
+
+## 5.3.1 - 2024-09-06
+### Changed
+- Internal updates.
+
+## 5.3.0 - 2024-09-05
+### Changed
+- Updated connection js to load its bundle via connection package [#38877]
+- Updated package dependencies. [#39176]
+
+### Fixed
+- Updated pricing table to clarify features [#39182]
+
+## 5.2.0 - 2024-08-29
+### Changed
+- Admin menu: change order of Jetpack sub-menu items [#39095]
+- Moved PostPublishPanels component to publicize-components package [#39049]
+- Social: Migrated shares data to the new script data [#38988]
+- Social: Updated intial state logic to use the new consolidated initial state [#38606]
+- Social: Updated the share status modal to render it globally [#39116]
+- Update composer lock file [#38942]
+- Updated package dependencies. [#38662] [#38665] [#38822] [#38822] [#39111]
+
+### Removed
+- Remove the unused Advanced plan nudge [#38926]
+- Social: Removed share limits UI and data logic [#38904]
+
+### Fixed
+- Revert recent SVG image optimizations. [#38981]
+
+## 5.1.0 - 2024-08-08
+### Added
+- Added feature flag management for social [#38669]
+
+### Fixed
+- Lossless image optimization of images in projects/plugins [subdirectories from a* through social] [#38573]
+
+## 5.0.0 - 2024-08-01
+### Changed
+- Social: Removed unnecessary feature checks for social connections [#38216]
+- Updated package dependencies. [#38228] [#38235] [#38464]
+
+### Removed
+- General: update WordPress version requirements to WordPress 6.5. [#38382]
+- Removed the unused code for image auto-conversion from social store [#38609]
+- Social | Removed the media auto-conversion UI [#38497]
+
+## 4.5.2 - 2024-07-03
+### Changed
+- General: indicate compatibility with the upcoming version of WordPress - 6.6. [#37962]
+- Updated package dependencies. [#37917] [#38132]
+
+### Fixed
+- Fixed E2E tests navigating to block editor [#37875]
+- Fixed the admin page pricing table not shown [#37877]
+- Social: Fixed broken connections reconnect link to point it to new connections UI [#37869]
+
+## 4.5.1 - 2024-06-18
+### Fixed
+- My Jetpack: Update My Jetpack to a more stable version. [#37911]
+
+## 4.5.0 - 2024-06-13
+### Changed
+- Move the admin upsell to the toggle section [#37731]
+- Updated package dependencies. [#37767] [#37776] [#37796]
+
+### Removed
+- Removed the social basic plan from the admin page [#36846]
+
+### Fixed
+- Updated wp.org screenshots [#37726]
+
+## 4.4.0 - 2024-06-05
+### Changed
+- Social | Removed the top "Connect accounts" on the admin page [#37697]
+- Social | Updated upgrade nudges to use the new plan [#37638]
+- Updated package dependencies. [#37669]
+- Updated the editor nudge text and logic [#37644]
+
+## 4.3.0 - 2024-05-29
+### Added
+- Add connect form/button for connection management [#37196]
+- Added a CTA button to create a social note [#36972]
+- Added and rendered GlobalNotices component [#37237]
+- Added feature flag for new social admin ui [#37134]
+- Added more E2E tests [#37046]
+- Added the connection modal to the editor [#37405]
+- Add Woocommerce event remove_order_items to Jetpack Sync [#33748]
+- Disabled the Note config toggles while the API calls are pending [#36872]
+- Social: Added add connection modal [#37211]
+- Social Admin page: Added connection management component [#37120]
+- Social Limits: Added clarification of cycle reset [#37350]
+
+### Changed
+- General: update WordPress version requirements to WordPress 6.4. [#37047]
+- General: use wp_admin_notice function introduced in WP 6.4 to display notices. [#37051]
+- Remove explicit Plugin Install package dependency. [#37430]
+- Remove the 'jetpack-identity-crisis' dependency. [#36968]
+- Social | Updated the connection test results endpoint for front-end [#37531]
+- Updated package dependencies. [#37147] [#37148] [#37348] [#37379] [#37380] [#37382]
+- Update the Social sidebar share post panel to direct non-admin authors to user connection if there is no user connection. [#36976]
+
+### Fixed
+- Adjusted the webpack config so the social icon colours are picked up by PostCSS [#37327]
+- Fixed CSS variables not loaded for modals on Social admin page [#37391]
+- Fixed timeouts in E2E tests [#37045]
+
 ## 4.2.0 - 2024-04-11
 ### Added
 - Added functions to display share urls [#36328]

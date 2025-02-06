@@ -1,24 +1,6 @@
 import { translate } from './i18n';
 import { Facebook, Mail, WordPress } from './images';
-import type { UserInfo, VerbumComments } from './types';
-
-/**
- * Returns a string of class names from the arguments.
- * @param {...any} args - The arguments to be passed to the function.
- */
-export function classNames( ...args: Array< string | Record< string, boolean | string > > ) {
-	const result = [];
-	for ( let i = 0; i < args.length; i++ ) {
-		if ( typeof args[ i ] === 'object' ) {
-			result[ i ] = Object.keys( args[ i ] )
-				.filter( key => args[ i ][ key ] )
-				.join( ' ' );
-		} else if ( args[ i ] ) {
-			result[ i ] = args[ i ];
-		}
-	}
-	return result.join( ' ' );
-}
+import type { UserInfo } from './types';
 
 export const serviceData = {
 	wordpress: {
@@ -59,8 +41,10 @@ export const canWeAccessCookies = () => {
 
 /**
  * Uses the current bundle's size and the time it took to download and execute to estimate connection speed.
+ *
+ * @return {boolean} - True if the connection is fast, false otherwise.
  */
-export function isFastConnection() {
+export function isFastConnection(): boolean {
 	// Hardcoding the size of the bundle.
 	const bytes = 30000;
 	const bytesPerMs = bytes / VerbumComments.fullyLoadedTime;
@@ -80,7 +64,7 @@ export function isFastConnection() {
  * Get how many times the user saw the subscription modal.
  *
  * @param {number} uid - The user ID associated with the subscription modal.
- * @returns {number} - The number of times the user saw the subscription modal.
+ * @return {number} - The number of times the user saw the subscription modal.
  */
 export function getSubscriptionModalViewCount( uid: number ) {
 	const cookieName = 'verbum_subscription_modal_counter_' + uid;
@@ -95,8 +79,8 @@ export function getSubscriptionModalViewCount( uid: number ) {
  * Set the view count for the subscription modal in a cookie.
  *
  * @param {number} count - The view count to be set.
- * @param {number} uid - The user ID associated with the subscription modal.
- * @returns {void}
+ * @param {number} uid   - The user ID associated with the subscription modal.
+ * @return {void}
  */
 export function setSubscriptionModalViewCount( count: number, uid: number ) {
 	const cookieName = 'verbum_subscription_modal_counter_' + uid;
@@ -107,8 +91,8 @@ export function setSubscriptionModalViewCount( count: number, uid: number ) {
  * and if the user already view this modal > 5 times.
  *
  * @param {boolean} alreadySubscribed - boolean
- * @param {number} uid - The user ID associated with the subscription modal.
- * @returns {string} - The string that will be used to determine if the modal should be shown.
+ * @param {number}  uid               - The user ID associated with the subscription modal.
+ * @return {string} - The string that will be used to determine if the modal should be shown.
  */
 export function shouldShowSubscriptionModal( alreadySubscribed: boolean, uid: number ) {
 	const { subscribeToBlog } = VerbumComments;
@@ -136,8 +120,8 @@ export function shouldShowSubscriptionModal( alreadySubscribed: boolean, uid: nu
  * Wraps a textarea with a setter that calls onChange when the value changes.
  *
  * @param {HTMLTextAreaElement} textarea - the textarea to wrap.
- * @param {event} onChange - the callback to call when .value is set.
- * @returns {object} the textarea with a reactive .value setter.
+ * @param {event}               onChange - the callback to call when .value is set.
+ * @return {object} the textarea with a reactive .value setter.
  */
 export function makeReactiveTextArea(
 	textarea: HTMLTextAreaElement,
@@ -163,7 +147,7 @@ export function makeReactiveTextArea(
  * Used by the textarea and editor components.
  *
  * @param {string} html - The contents of the comment textarea.
- * @returns {boolean} indicating if the editor content is empty.
+ * @return {boolean} indicating if the editor content is empty.
  */
 export function isEmptyEditor( html: string ) {
 	const parser = new DOMParser();
@@ -214,7 +198,7 @@ export const setUserInfoCookie = ( userData: UserInfo ) => {
 /**
  * Get the user info from the cookie.
  *
- * @returns {UserInfo} the user info.
+ * @return {UserInfo} the user info.
  */
 export const getUserInfoCookie = () => {
 	let userData: UserInfo = { service: 'guest' };

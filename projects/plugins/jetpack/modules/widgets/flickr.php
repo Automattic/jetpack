@@ -7,7 +7,7 @@
  * Disable direct access/execution to/of the widget code.
  */
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
@@ -31,10 +31,6 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 				),
 				array()
 			);
-
-			if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
-				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
-			}
 		}
 
 		/**
@@ -64,11 +60,18 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 		/**
 		 * Front-end display of the widget.
 		 *
+		 * @html-template-var array $instance
+		 * @html-template-var string|null $flickr_home
+		 * @html-template-var string $photos';
+		 *
 		 * @param array $args     Widget arguments.
 		 * @param array $instance Saved values from database.
 		 */
 		public function widget( $args, $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
+
+			// Enqueue front end assets.
+			$this->enqueue_style();
 
 			if ( ! empty( $instance['flickr_rss_url'] ) ) {
 				/*
@@ -115,7 +118,8 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 
 			$rss = fetch_feed( $rss_url );
 
-			$photos = '';
+			$photos      = '';
+			$flickr_home = null; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Used in flickr/widget.php template file.
 			if ( ! is_wp_error( $rss ) ) {
 				foreach ( $rss->get_items( 0, $instance['items'] ) as $photo ) {
 					switch ( $instance['flickr_image_size'] ) {
@@ -167,6 +171,8 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 
 		/**
 		 * Back-end widget form.
+		 *
+		 * @html-template-var array $instance
 		 *
 		 * @param array $instance Previously saved values from database.
 		 */

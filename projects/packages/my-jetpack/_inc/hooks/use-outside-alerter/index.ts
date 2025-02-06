@@ -1,7 +1,10 @@
 import { useEffect } from 'react';
 import type { MutableRefObject } from 'react';
 
-const useOutsideAlerter = ( ref: MutableRefObject< HTMLElement >, onClickOutside: () => void ) => {
+const useOutsideAlerter = (
+	ref: MutableRefObject< HTMLElement >,
+	onClickOutside: ( event: Event ) => void
+) => {
 	useEffect( () => {
 		const handleClickOutside = ( event: Event ) => {
 			if (
@@ -9,7 +12,7 @@ const useOutsideAlerter = ( ref: MutableRefObject< HTMLElement >, onClickOutside
 				ref.current &&
 				! ref.current.contains( event.target )
 			) {
-				onClickOutside();
+				onClickOutside( event );
 			}
 		};
 

@@ -4,7 +4,7 @@ import pluralize from 'pluralize';
  * Normalize the argv used for the generate command.
  *
  * @param {object} argv - The argvs for the generate command.
- * @returns {object} argv object with standard elements needed to generate a new project.
+ * @return {object} argv object with standard elements needed to generate a new project.
  */
 export function normalizeGenerateArgv( argv ) {
 	return {
@@ -20,7 +20,7 @@ export function normalizeGenerateArgv( argv ) {
  * Normalize argv when passing an incomplete project as a parameter
  *
  * @param {object} argv - The argvs for the generate command.
- * @returns {object} argv object with standard elements needed to generate a new project.
+ * @return {object} argv object with standard elements needed to generate a new project.
  */
 export function normalizeProject( argv ) {
 	if ( argv.project && argv.project.indexOf( '/' ) < 0 ) {
@@ -34,7 +34,7 @@ export function normalizeProject( argv ) {
  * Normalize the argv used for the clean command.
  *
  * @param {object} argv - The argvs for the clean command.
- * @returns {object} argv object with standard elements needed for clean.
+ * @return {object} argv object with standard elements needed for clean.
  */
 export function normalizeCleanArgv( argv ) {
 	return {
@@ -53,7 +53,7 @@ export function normalizeCleanArgv( argv ) {
  * Intended for use as a `coerce` in a yargs option definition.
  *
  * @param {number} v - Value to check.
- * @returns {number} Number.
+ * @return {number} Number.
  * @throws {Error} If the value is invalid.
  */
 export function coerceConcurrency( v ) {

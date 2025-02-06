@@ -5,7 +5,7 @@ import { Button, Col, Container, Text, useBreakpointMatch } from '@automattic/je
 import { Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 /**
  * Types
  */
@@ -36,12 +36,12 @@ export const FilterButton = ( props: {
 	isActive: boolean;
 	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 	disabled?: boolean;
-} ): JSX.Element => {
+} ): React.JSX.Element => {
 	const { isActive, ...componentProps } = props;
 	return (
 		<Button
 			variant={ isActive ? 'primary' : 'secondary' }
-			className={ classnames( styles[ 'filter-button' ], {
+			className={ clsx( styles[ 'filter-button' ], {
 				[ styles[ 'is-active' ] ]: isActive,
 			} ) }
 			icon={ filterIcon }
@@ -53,7 +53,7 @@ export const FilterButton = ( props: {
 	);
 };
 
-const DisabledReasonTooltip = ( props: { message: string } ): JSX.Element => {
+const DisabledReasonTooltip = ( props: { message: string } ): React.JSX.Element => {
 	return (
 		<Tooltip position="middle center" text={ props.message }>
 			<span className={ styles[ 'title-adornment' ] }>
@@ -70,7 +70,7 @@ export const CheckboxCheckmark = ( props: {
 	disabled?: boolean;
 	disabledReason?: string;
 	onChange?: ( checked: boolean ) => void;
-} ): JSX.Element => {
+} ): React.JSX.Element => {
 	return (
 		<label htmlFor={ props.for } className={ styles[ 'checkbox-container' ] }>
 			<Checkbox
@@ -96,7 +96,7 @@ export const FilterSection = ( props: {
 	) => void;
 	className?: string;
 	filter?: FilterObject;
-} ): JSX.Element => {
+} ): React.JSX.Element => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
 	const filterIsChecked = (
@@ -107,7 +107,7 @@ export const FilterSection = ( props: {
 	};
 
 	return (
-		<div className={ classnames( styles[ 'filters-section' ], props.className ) }>
+		<div className={ clsx( styles[ 'filters-section' ], props.className ) }>
 			<Container horizontalSpacing={ isSm ? 2 : 4 } horizontalGap={ 2 }>
 				<Col sm={ 4 } md={ 4 } lg={ 4 }>
 					<Text variant="body-extra-small-bold" weight="bold">

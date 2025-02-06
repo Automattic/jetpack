@@ -16,7 +16,7 @@ import styles from './styles.scss';
 /**
  * React component that renders a warning message about the video not owned by the site.
  *
- * @returns {import('react').ReactElement} - Details panel component.
+ * @return {import('react').ReactElement} - Details panel component.
  */
 export default function VideoNotOwnedWarning() {
 	const msgStyle = usePreferredColorSchemeStyle(

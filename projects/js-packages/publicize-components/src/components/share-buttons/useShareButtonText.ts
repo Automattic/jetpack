@@ -1,19 +1,18 @@
 import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
 import { usePostMeta } from '../../hooks/use-post-meta';
 
 /**
  * Prepares the text to share.
  *
- * @returns {(textWithPlaceholders: string, isUrl: boolean) => string} A function that accepts the text with placeholders and returns the text with the placeholders replaced.
+ * @return {(textWithPlaceholders: string, isUrl: boolean) => string} A function that accepts the text with placeholders and returns the text with the placeholders replaced.
  */
 export function useShareButtonText() {
 	const { shareMessage } = usePostMeta();
 	const { message, link } = useSelect(
 		select => {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const getEditedPostAttribute = ( select( 'core/editor' ) as any )
-				.getEditedPostAttribute satisfies ( attribute: string ) => unknown;
+			const { getEditedPostAttribute } = select( editorStore );
 
 			return {
 				link: getEditedPostAttribute( 'link' ),

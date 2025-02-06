@@ -6,7 +6,7 @@ import { ExternalLink, Modal } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight, external } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React, { useCallback, useState } from 'react';
 /**
@@ -19,19 +19,19 @@ import './style.scss';
  * The RNA Manage Connection Dialog component.
  *
  * @param {object} props -- The properties.
- * @returns {React.Component} The `ManageConnectionDialog` component.
+ * @return {React.JSX} The `ManageConnectionDialog` component.
  */
 const ManageConnectionDialog = props => {
 	const {
-		title,
+		title = __( 'Manage your Jetpack connection', 'jetpack-connection-js' ),
 		apiRoot,
 		apiNonce,
 		connectedPlugins,
 		onDisconnected,
-		context,
-		connectedUser,
+		context = 'jetpack-dashboard',
+		connectedUser = {}, // Pass empty object to avoid undefined errors.
 		connectedSiteId,
-		isOpen,
+		isOpen = false,
 		onClose,
 	} = props;
 
@@ -79,11 +79,11 @@ const ManageConnectionDialog = props => {
 							<Text className="jp-connection__manage-dialog__large-text">
 								{ __(
 									'At least one user must be connected for your Jetpack products to work properly.',
-									'jetpack'
+									'jetpack-connection-js'
 								) }
 							</Text>
 							<ManageConnectionActionCard
-								title={ __( 'Transfer ownership to another admin', 'jetpack' ) }
+								title={ __( 'Transfer ownership to another admin', 'jetpack-connection-js' ) }
 								link={ getRedirectUrl( 'calypso-settings-manage-connection', {
 									site: window?.myJetpackInitialState?.siteSuffix,
 								} ) }
@@ -91,7 +91,7 @@ const ManageConnectionDialog = props => {
 								action="transfer"
 							/>
 							<ManageConnectionActionCard
-								title={ __( 'Disconnect Jetpack', 'jetpack' ) }
+								title={ __( 'Disconnect Jetpack', 'jetpack-connection-js' ) }
 								onClick={ openDisconnectDialog }
 								key="disconnect"
 								action="disconnect"
@@ -123,10 +123,7 @@ const ManageConnectionActionCard = ( { title, onClick = () => null, link = '#', 
 			<div className="jp-connection__manage-dialog__action-card__card-content">
 				<a
 					href={ link }
-					className={ classNames(
-						'jp-connection__manage-dialog__action-card__card-headline',
-						action
-					) }
+					className={ clsx( 'jp-connection__manage-dialog__action-card__card-headline', action ) }
 					onClick={ onClick }
 				>
 					{ title }
@@ -148,7 +145,7 @@ const HelpFooter = ( { onClose } ) => {
 					{ createInterpolateElement(
 						__(
 							'<strong>Need help?</strong> Learn more about the <connectionInfoLink>Jetpack connection</connectionInfoLink> or <supportLink>contact Jetpack support</supportLink>',
-							'jetpack'
+							'jetpack-connection-js'
 						),
 						{
 							strong: <strong></strong>,
@@ -179,7 +176,7 @@ const HelpFooter = ( { onClose } ) => {
 					onClick={ onClose }
 					className="jp-connection__manage-dialog__btn-dismiss"
 				>
-					{ __( 'Cancel', 'jetpack' ) }
+					{ __( 'Cancel', 'jetpack-connection-js' ) }
 				</Button>
 			</div>
 		</div>
@@ -207,13 +204,6 @@ ManageConnectionDialog.propTypes = {
 	isOpen: PropTypes.bool,
 	/** Callback function for when the modal closes. */
 	onClose: PropTypes.func,
-};
-
-ManageConnectionDialog.defaultProps = {
-	title: __( 'Manage your Jetpack connection', 'jetpack' ),
-	isOpen: false,
-	context: 'jetpack-dashboard',
-	connectedUser: {}, // Pass empty object to avoid undefined errors.
 };
 
 export default ManageConnectionDialog;

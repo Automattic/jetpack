@@ -8,7 +8,7 @@ export default function useSubscriptions( { ignore_user_blogs } ) {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( null );
 	const [ subscriptions, setSubscriptions ] = useState( [] );
-	const abortControllerRef = useRef();
+	const abortControllerRef = useRef( undefined );
 
 	useEffect( () => {
 		setIsLoading( true );
@@ -60,7 +60,6 @@ export default function useSubscriptions( { ignore_user_blogs } ) {
 				abortControllerRef.current = null;
 				setIsLoading( false );
 			} );
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ ignore_user_blogs ] );
 
 	return { isLoading, errorMessage, subscriptions };

@@ -405,6 +405,11 @@
 	.jp-dash-item {
 		.dops-card {
 			flex-grow: 1;
+			align-items: flex-start;
+
+			&.dops-section-header {
+				align-items: center
+			}
 		}
 		.dops-card.is-compact {
 			flex-grow: 0;
@@ -710,5 +715,46 @@ a.jp-dash-item__manage-in-wpcom,
 	.dops-banner {
 		margin-bottom: 0;
 		border-top: 1px solid $gray-5;
+	}
+}
+
+.jp-dash-item.jp-connection-type {
+	border: 1px solid transparent;
+	border-radius: 4px;
+
+	.jp-dash-item__card {
+		padding: 16px 16px 16px 24px;
+	}
+
+	.jp-dash-item__content {
+		display: block;
+	}
+
+	.jp-connection-settings__text {
+		flex-grow: 1;
+	}
+
+	.jp-dash-item__content,
+	.jp-connection-settings__text {
+		align-self: center;
+	}
+
+	.dops-banner {
+		padding: 0;
+
+		&__title {
+			padding: 0 0.5rem 0 0;
+		}
+	}
+
+	.dops-banner.dops-card {
+		display: block;
+	}
+}
+
+// We only underline part of the link to Critical CSS info.
+.dops-banner__title {
+	a.dash-boost-critical-css-info__text {
+		text-decoration: none;
 	}
 }

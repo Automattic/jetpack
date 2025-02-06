@@ -14,7 +14,9 @@ test( 'Simple: user_must_be_registered_and_logged_in_to_comment - Anonymous', as
 			.frameLocator( '#cmp-app-container iframe' )
 			.getByRole( 'button', { name: 'I Agree!' } )
 			.click();
-	} catch ( e ) {}
+	} catch {
+		// It's ok if it wasn't there to be dismissed.
+	}
 
 	await page.getByText( 'Leave a comment', { exact: true } ).click();
 
@@ -23,7 +25,7 @@ test( 'Simple: user_must_be_registered_and_logged_in_to_comment - Anonymous', as
 		.locator( 'p[contenteditable="true"]' )
 		.pressSequentially( randomComment );
 
-	await expect( page.locator( '#comment-form__verbum' ) ).toContainText(
+	await expect( page.locator( '.comment-form__verbum' ) ).toContainText(
 		'Log in to leave a comment.'
 	);
 	// Reply button should be disabled before log in.
@@ -39,7 +41,7 @@ test( 'Simple: user_must_be_registered_and_logged_in_to_comment - Anonymous', as
 	await loginPopupPage.getByRole( 'button', { name: 'Log In' } ).click();
 	// <!---- end login ----->
 
-	await expect( page.locator( '#comment-form__verbum' ) ).toContainText(
+	await expect( page.locator( '.comment-form__verbum' ) ).toContainText(
 		`${ testingUser.username } - Logged in via WordPress.com`
 	);
 	await page.getByRole( 'button', { name: 'Comment' } ).click();

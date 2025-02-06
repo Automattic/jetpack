@@ -12,9 +12,9 @@ import './connection-page.scss';
 /**
  * defines ConnectionPage.
  *
- * @param {object} props - Component properties.
+ * @param {object} props           - Component properties.
  * @param {string} props.isLoading - should page show Loading spinner.
- * @returns {React.Component} ConnectionPage component.
+ * @return {React.Component} ConnectionPage component.
  */
 export default function ConnectionPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );

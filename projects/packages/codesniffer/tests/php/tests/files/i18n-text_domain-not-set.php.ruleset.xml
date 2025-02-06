@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <ruleset>
 
-	<config name="minimum_supported_wp_version" value="6.3" />
-	<config name="testVersion" value="7.0-"/>
+	<config name="minimum_supported_wp_version" value="6.6" />
+	<config name="testVersion" value="7.2-"/>
 
 	<!-- Ruleset under test. -->
 	<rule ref="../../../../Jetpack/ruleset.xml" />

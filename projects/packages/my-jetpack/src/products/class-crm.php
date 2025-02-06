@@ -54,6 +54,13 @@ class Crm extends Product {
 	public static $has_free_offering = true;
 
 	/**
+	 * CRM has a standalone plugin
+	 *
+	 * @var bool
+	 */
+	public static $has_standalone_plugin = true;
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string
@@ -77,7 +84,7 @@ class Crm extends Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Nurture your contacts to grow your business', 'jetpack-my-jetpack' );
+		return __( 'Strengthen customer relationships and grow your business', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -86,7 +93,7 @@ class Crm extends Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'All of your contacts in one place. Build better relationships with your customers and clients.', 'jetpack-my-jetpack' );
+		return __( 'Build better relationships with your customers and grow your business.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -164,5 +171,28 @@ class Crm extends Product {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get the product-slugs of the paid bundles/plans that this product/module is included in.
+	 *
+	 * @return array
+	 */
+	public static function get_paid_bundles_that_include_product() {
+		return array(
+			'jetpack_complete',
+			'jetpack_complete_monthly',
+			'jetpack_complete_bi_yearly',
+		);
+	}
+
+	/**
+	 * Return product bundles list
+	 * that supports the product.
+	 *
+	 * @return boolean|array Products bundle list.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return array( 'complete' );
 	}
 }

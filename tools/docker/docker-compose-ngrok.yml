@@ -1,4 +1,3 @@
-version: '3.3'
 # See "Docker ngrok" section in docker/README
 
 services:

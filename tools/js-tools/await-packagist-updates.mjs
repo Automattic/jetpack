@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-/* eslint-disable no-console, no-process-exit */
-
 import events from 'node:events';
 import http2 from 'node:http2';
 import path from 'node:path';
@@ -63,9 +61,9 @@ if ( http2Client ) {
 /**
  * Poll packagist until the specified version of the named package is available.
  *
- * @param {string} name - Package name to poll.
+ * @param {string} name         - Package name to poll.
  * @param {string} versionRange - Version number/range to look for.
- * @returns {object} Listr task object.
+ * @return {object} Listr task object.
  */
 function pollPackagist( name, versionRange ) {
 	const delay = 10 * 1000;
@@ -80,7 +78,7 @@ function pollPackagist( name, versionRange ) {
 		task: async ( ctx, task ) => {
 			while ( ! aborter.aborted ) {
 				try {
-					let req;
+					const cleanup = [];
 					// http2 isn't a promise-based API, so wrap in a promise ourselves and await it.
 					const done = await new Promise( ( resolve, reject ) => {
 						// Reject the promise with a fatal-flagged error.
@@ -112,9 +110,22 @@ function pollPackagist( name, versionRange ) {
 						// So listen for that just in case, because hung promises are bad.
 						// @see https://nodejs.org/api/http2.html#error-handling
 						http2Client.on( 'error', reject );
+						cleanup.push( () => {
+							if ( http2Client ) {
+								http2Client.off( 'error', reject );
+							}
+						} );
 
 						// Make the actual request.
-						req = http2Client.request( reqHeaders, { signal: aborter.signal } );
+						const req = http2Client.request( reqHeaders, { signal: aborter.signal } );
+						cleanup.push( () => {
+							// Make sure the request actually gets closed whenever the promise settles.
+							// We don't want hung connections waiting on us to read more data or something.
+							if ( ! req.closed && ! req.destroyed ) {
+								req.close( http2.constants.NGHTTP2_CANCEL );
+							}
+						} );
+
 						req.on( 'error', reject );
 						req.on( 'response', resHeaders => {
 							const status = resHeaders[ http2.constants.HTTP2_HEADER_STATUS ];
@@ -178,10 +189,8 @@ function pollPackagist( name, versionRange ) {
 						} );
 						req.end();
 					} ).finally( () => {
-						// Make sure the request actually gets closed whenever the promise settles.
-						// We don't want hung connections waiting on us to read more data or something.
-						if ( ! req.closed && ! req.destroyed ) {
-							req.close( http2.constants.NGHTTP2_CANCEL );
+						for ( const cb of cleanup ) {
+							cb();
 						}
 					} );
 

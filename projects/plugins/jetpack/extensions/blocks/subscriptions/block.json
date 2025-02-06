@@ -18,13 +18,17 @@
 	},
 	"styles": [
 		{
+			"name": "split",
+			"label": "Split",
+			"isDefault": true
+		},
+		{
 			"name": "compact",
 			"label": "Compact"
 		},
 		{
-			"name": "split",
-			"label": "Split",
-			"isDefault": true
+			"name": "button",
+			"label": "Button only"
 		}
 	],
 	"attributes": {
@@ -107,6 +111,9 @@
 			"default": "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm' to start subscribing."
 		},
 		"appSource": {
+			"type": "string"
+		},
+		"className": {
 			"type": "string"
 		}
 	},

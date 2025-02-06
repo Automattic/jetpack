@@ -56,7 +56,7 @@ abstract class WP_Test_Jetpack_Sync_Queue_Base_Tests extends WP_Test_Jetpack_Syn
 		 * @var $queue Automattic\Jetpack\Sync\Queue|\PHPUnit\Framework\MockObject\MockObject
 		 */
 		$queue = $this->getMockBuilder( 'Automattic\\Jetpack\\Sync\\Queue' )
-						->setMethods( array( 'generate_option_name_timestamp' ) )
+						->onlyMethods( array( 'generate_option_name_timestamp' ) )
 						->setConstructorArgs( array( 'my_queue' ) )
 						->getMock();
 
@@ -164,7 +164,7 @@ abstract class WP_Test_Jetpack_Sync_Queue_Base_Tests extends WP_Test_Jetpack_Syn
 	}
 
 	public function test_checkout_enforced_across_multiple_instances() {
-		$other_queue = new Queue( $this->queue->id, 2 );
+		$other_queue = new Queue( $this->queue->id );
 
 		$this->queue->add_all( array( 1, 2, 3, 4, 5 ) );
 

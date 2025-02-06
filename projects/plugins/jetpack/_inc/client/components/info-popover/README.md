@@ -56,21 +56,24 @@ This optional property admits a string that will be wrapped in a span.screen-rea
 
 ```js
 
+infoPopRef = createRef();
+moreInfoLabelRef = createRef();
+
 handleAction( event ) {
-	this.refs && this.refs.infoPop._onClick( event );
+	this.infoPopRef.current._onClick( event );
 },
 
 render() {
 	return (
 		<div>
-			<label onClick={ this.handleAction } ref="moreInfoLabel">More Info</label>
+			<label onClick={ this.handleAction } ref={ this.moreInfoLabelRef }>More Info</label>
 			<InfoPopover
 				position="bottom left"
-				ref="infoPop"
+				ref={ this.infoPopRef }
 				className="more-info"
 				gaEventCategory="Reader"
 				popoverName="More info in the reader"
-				ignoreContext={ this.refs && this.refs.moreInfoLabel }
+				ignoreContext={ this.moreInfoLabelRef.current }
 				screenReaderText="Learn more" >
 				This is some informational text
 			</InfoPopover>

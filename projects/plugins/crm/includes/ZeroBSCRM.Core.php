@@ -8,7 +8,7 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
+	exit( 0 ); // Exit if accessed directly.
 }
 
 /**
@@ -20,18 +20,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class ZeroBSCRM {
 
 	/**
-	 * ZeroBSCRM version.
+	 * Jetpack CRM version.
 	 *
 	 * @var string
 	 */
-	public $version = '6.4.2';
+	const VERSION = '6.5.1';
+
+	/**
+	 * Jetpack CRM version (used in various extensions as of January 2025).
+	 *
+	 * @deprecated
+	 * @var string
+	 */
+	public $version = '';
 
 	/**
 	 * WordPress version tested with.
 	 *
 	 * @var string
 	 */
-	public $wp_tested = '6.5';
+	public $wp_tested = '6.7';
 
 	/**
 	 * WordPress update API version.
@@ -545,6 +553,8 @@ final class ZeroBSCRM {
 	 * Jetpack CRM Constructor.
 	 */
 	public function __construct() {
+		// @phan-suppress-next-line PhanDeprecatedProperty - Define old property for backward compatibility.
+		$this->version = $this::VERSION;
 
 		// Simple global definitions without loading any core files...
 		// required for verify_minimum_requirements()
@@ -619,10 +629,10 @@ final class ZeroBSCRM {
 			$this->setupUrlsSlugsEtc();
 
 			// build message
-			$message_html = '<p>' . sprintf( esc_html__( 'This version of CRM (%1$s) requires an upgraded database (3.0). Your database is using an older version than this (%2$s). To use CRM you will need to install version 4 of CRM and run the database upgrade.', 'zero-bs-crm' ), $this->version, $this->dal_version ) . '</p>'; // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+			$message_html = '<p>' . sprintf( esc_html__( 'This version of CRM (%1$s) requires an upgraded database (3.0). Your database is using an older version than this (%2$s). To use CRM you will need to install version 4 of CRM and run the database upgrade.', 'zero-bs-crm' ), $this::VERSION, $this->dal_version ) . '</p>'; // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
 
 			##WLREMOVE
-			$message_html  = '<p>' . sprintf( esc_html__( 'This version of Jetpack CRM (%1$s) requires an upgraded database (3.0). Your database is using an older version than this (%2$s). To use Jetpack CRM you will need to install version 4 of Jetpack CRM and run the database upgrade.', 'zero-bs-crm' ), $this->version, $this->dal_version ) . '</p>'; // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+			$message_html  = '<p>' . sprintf( esc_html__( 'This version of Jetpack CRM (%1$s) requires an upgraded database (3.0). Your database is using an older version than this (%2$s). To use Jetpack CRM you will need to install version 4 of Jetpack CRM and run the database upgrade.', 'zero-bs-crm' ), $this::VERSION, $this->dal_version ) . '</p>'; // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
 			$message_html .= '<p><a href="' . esc_url( $this->urls['kb-pre-v5-migration-todo'] ) . '" target="_blank" class="button">' . __( 'Read the guide on migrating', 'zero-bs-crm' ) . '</a></p>';
 			##/WLREMOVE
 
@@ -639,7 +649,7 @@ final class ZeroBSCRM {
 		} elseif ( ! function_exists( 'openssl_get_cipher_methods' ) ) {
 
 			// build message
-			$message_html  = '<p>' . sprintf( __( 'Jetpack CRM uses the OpenSSL extension for PHP to properly protect sensitive data. Most PHP environments have this installed by default, but it seems yours does not; we recommend contacting your host for further help.', 'zero-bs-crm' ), $this->version, $this->dal_version ) . '</p>';
+			$message_html  = '<p>' . sprintf( __( 'Jetpack CRM uses the OpenSSL extension for PHP to properly protect sensitive data. Most PHP environments have this installed by default, but it seems yours does not; we recommend contacting your host for further help.', 'zero-bs-crm' ), $this::VERSION, $this->dal_version ) . '</p>';
 			$message_html .= '<p><a href="' . esc_url( 'https://www.php.net/manual/en/book.openssl.php' ) . '" target="_blank" class="button">' . __( 'PHP docs on OpenSSL', 'zero-bs-crm' ) . '</a></p>';
 
 			$this->add_wp_admin_notice(
@@ -868,13 +878,6 @@ final class ZeroBSCRM {
 		return $this->database_server_info;
 	}
 
-	// } Use this for shorthand checking old DAL
-	public function isDAL1() {
-
-		// is DAL = 1.0
-		return ( version_compare( $this->dal_version, '2.53' ) < 0 );
-	}
-
 	// } Use this for shorthand checking new DAL additions
 	// this says "is At least DAL2"
 	public function isDAL2() {
@@ -931,10 +934,6 @@ final class ZeroBSCRM {
 		$this->urls['usagetrackinginfo'] = 'https://jetpackcrm.com/usage-tracking/';
 		$this->urls['support-forum']     = 'https://wordpress.org/support/plugin/zero-bs-crm';
 
-		##WLREMOVE
-		$this->urls['betafeedbackemail'] = 'hello@jetpackcrm.com'; // SPECIFICALLY ONLY USED FOR FEEDBACK ON BETA RELEASES, DO NOT USE ELSEWHERE
-		##/WLREMOVE
-
 		$this->urls['docs']              = 'https://kb.jetpackcrm.com/';
 		$this->urls['productsdatatools'] = 'https://jetpackcrm.com/data-tools/';
 		$this->urls['extimgrepo']        = 'https://jetpackcrm.com/_plugin_dependent_assets/_i/';
@@ -990,11 +989,6 @@ final class ZeroBSCRM {
 
 		// assets
 		$this->urls['crm-logo'] = plugins_url( 'i/jpcrm-logo-stacked-black.png', ZBS_ROOTFILE );
-
-		// temp/updates
-		$this->urls['db3migrate']         = 'https://kb.jetpackcrm.com/knowledge-base/upgrading-database-v3-0-migration/';
-		$this->urls['migrationhelpemail'] = 'hello@jetpackcrm.com';
-		$this->urls['db3migrateexts']     = 'https://kb.jetpackcrm.com/knowledge-base/upgrading-database-v3-0-migration/#extension-compatibility';
 
 		// kb
 		$this->urls['kbdevmode']                = 'https://kb.jetpackcrm.com/knowledge-base/developer-mode/';
@@ -1342,9 +1336,6 @@ final class ZeroBSCRM {
 		// } Put Plugin update message (notifications into the transient /wp-admin/plugins.php) page.. that way the nag message is not needed at the top of pages (and will always show, not need to be dismissed)
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.PluginUpdates.php';
 
-		// v3.0 update coming, warning
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.PluginUpdates.ImminentRelease.php';
-
 		// } FROM PLUGIN HUNT THEME - LOT OF USEFUL CODE IN HERE.
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.NotifyMe.php';
 
@@ -1612,7 +1603,7 @@ final class ZeroBSCRM {
 
 		// } Setup Config (centralises version numbers temp)
 		global $zeroBSCRM_Conf_Setup;
-		$zeroBSCRM_Conf_Setup['conf_pluginver']   = $this->version;
+		$zeroBSCRM_Conf_Setup['conf_pluginver']   = $this::VERSION; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		$zeroBSCRM_Conf_Setup['conf_plugindbver'] = $this->db_version;
 
 		// Not needed yet :) do_action( 'before_zerobscrm_settings_init' );
@@ -1649,8 +1640,10 @@ final class ZeroBSCRM {
 		$this->dependency_checker = new JPCRM_DependencyChecker();
 
 		// load feature sniffer to alert user to available integrations
+		##WLREMOVE
 		$this->feature_sniffer = new JPCRM_FeatureSniffer();
 		$this->jpcrm_sniff_features();
+		##/WLREMOVE
 
 		// load WordPress User integrations
 		$this->wordpress_user_integration = new Automattic\JetpackCRM\Wordpress_User_Integration();
@@ -1780,9 +1773,12 @@ final class ZeroBSCRM {
 		// } Brutal override for feeding in json data to typeahead
 		// WH: should these be removed now we're using REST?
 		if ( isset( $_GET['zbscjson'] ) && is_user_logged_in() && zeroBSCRM_permsCustomers() ) {
-			exit( zeroBSCRM_cjson() ); }
-		if ( isset( $_GET['zbscojson'] ) && is_user_logged_in() && zeroBSCRM_permsCustomers() ) {
-			exit( zeroBSCRM_cojson() ); }
+			// This function outputs JSON-encoded contacts and exits.
+			zeroBSCRM_cjson();
+		} elseif ( isset( $_GET['zbscojson'] ) && is_user_logged_in() && zeroBSCRM_permsCustomers() ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			// This function outputs JSON-encoded companies and exits.
+			zeroBSCRM_cojson();
+		}
 
 		// } Brutal override for inv previews
 		// No longer req. v3.0 + this is delivered via HASH URL
@@ -1839,64 +1835,57 @@ final class ZeroBSCRM {
 			// } Using ownership
 			if ( ! $this->settings->get( 'usercangiveownership' ) ) {
 
-				// DAL3/pre switch
-				if ( $this->isDAL3() ) {
+				// } is one of our dal3 edit pages
+				if ( zeroBSCRM_is_zbs_edit_page() ) {
 
-						// } is one of our dal3 edit pages
-					if ( zeroBSCRM_is_zbs_edit_page() ) {
+					// in this specific case we pre-call globalise_vars
+					// ... which later gets recalled if on an admin page (but it's safe to do so here too)
+					// this moves any _GET into $zbsPage
+					$this->globalise_vars();
 
-						// in this specific case we pre-call globalise_vars
-						// ... which later gets recalled if on an admin page (but it's safe to do so here too)
-						// this moves any _GET into $zbsPage
-						$this->globalise_vars();
+					// this allows us to use these:
+					$obj_id       = $this->zbsvar( 'zbsid' ); // -1 or 123 ID
+					$obj_type_str = $this->zbsvar( 'zbstype' ); // -1 or 'contact'
 
-						// this allows us to use these:
-						$objID      = $this->zbsvar( 'zbsid' ); // -1 or 123 ID
-						$objTypeStr = $this->zbsvar( 'zbstype' ); // -1 or 'contact'
+					// if objtypestr is -1, assume contact (default)
+					if ( $obj_type_str === -1 ) {
+						$obj_type_id = ZBS_TYPE_CONTACT;
+					} else {
+						$obj_type_id = $this->DAL->objTypeID( $obj_type_str ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					}
 
-						// if objtypestr is -1, assume contact (default)
-						if ( $objTypeStr == -1 ) {
-							$objType = ZBS_TYPE_CONTACT;
-						} else {
-							$objType = $this->DAL->objTypeID( $objTypeStr );
-						}
+					// if is edit page + has obj id, (e.g. is not "new")
+					// then check ownership
+					if ( isset( $obj_id ) && $obj_id > 0 && $obj_type_id > 0 ) {
 
-						// if is edit page + has obj id, (e.g. is not "new")
-						// then check ownership
-						if ( isset( $objID ) && $objID > 0 && $objType > 0 ) {
+						$is_ownership_valid = $this->DAL->checkObjectOwner( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+							array(
 
-							$ownershipValid = $this->DAL->checkObjectOwner(
-								array(
+								'objID'              => $obj_id,
+								'objTypeID'          => $obj_type_id,
+								'potentialOwnerID'   => get_current_user_id(),
+								'allowNoOwnerAccess' => true, // ?
 
-									'objID'              => $objID,
-									'objTypeID'          => $objType,
-									'potentialOwnerID'   => get_current_user_id(),
-									'allowNoOwnerAccess' => true, // ?
+							)
+						);
 
-								)
-							);
+						// } If user ! has rights, redir
+						if ( ! $is_ownership_valid ) {
 
-							// } If user ! has rights, redir
-							if ( ! $ownershipValid ) {
+							// Redirect to our "no rights" page
+							// OLD WAY header("Location: edit.php?post_type=".$postType."&page=".$this->slugs['zbs-noaccess']."&id=".$postID);
+							header( 'Location: admin.php?page=' . $this->slugs['zbs-noaccess'] . '&zbsid=' . $obj_id . '&zbstype=' . $obj_type_str );
+							exit( 0 );
 
-								// } Redirect to our "no rights" page
-								// OLD WAY header("Location: edit.php?post_type=".$postType."&page=".$this->slugs['zbs-noaccess']."&id=".$postID);
-								header( 'Location: admin.php?page=' . $this->slugs['zbs-noaccess'] . '&zbsid=' . $objID . '&zbstype=' . $objTypeStr );
-								exit();
+						} // / no rights.
 
-							} // / no rights.
+					} // / obj ID
 
-						} // / obj ID
+				} // / is edit page
 
-					} // / is edit page
-
-				}
 			} // / is setting usercangiveownership
 
 		} // / !is admin
-
-		// debug
-		// print_r($GLOBALS['wp_post_types']['zerobs_quo_template']); exit();
 
 		// ====================================================================
 		// ==================== General Perf Testing ==========================
@@ -2042,7 +2031,7 @@ final class ZeroBSCRM {
 			// instead re-direct to one of our pages which tells them about making sure extensions are
 			// deactivated before deactivating core
 			wp_safe_redirect( admin_url( 'admin.php?page=' . $zbs->slugs['extensions-active'] ) );
-			die(); // will killing it here stop deactivation?
+			die( 0 ); // will killing it here stop deactivation?
 
 			// failsafe?
 			return false;
@@ -2060,14 +2049,11 @@ final class ZeroBSCRM {
 			return;
 		}
 
-		// if($this->pre_deactivation_check_exts_deactivated()){
-
 			##WLREMOVE
 
 			// Remove roles :)
 			zeroBSCRM_clearUserRoles();
 
-			// Debug delete_option('zbsfeedback');exit();
 			$feedbackAlready = get_option( 'zbsfeedback' );
 
 			// if php notice, (e.g. php ver to low, skip this)
@@ -2091,7 +2077,7 @@ final class ZeroBSCRM {
 
 					// } require template
 					require_once ZEROBSCRM_PATH . 'admin/activation/before-you-go.php';
-					exit();
+					exit( 0 );
 
 				} catch ( Exception $e ) {
 
@@ -2137,7 +2123,7 @@ final class ZeroBSCRM {
 			// Send the user to the Dash board
 			global $zbs;
 			if ( wp_redirect( zeroBSCRM_getAdminURL( $zbs->slugs['dash'] ) ) ) {
-				exit;
+				exit( 0 );
 			}
 		}
 	}
@@ -2193,7 +2179,7 @@ final class ZeroBSCRM {
 		if ( $run_count <= 0 || $force_wizard ) {
 			// require welcome wizard template
 			require_once ZEROBSCRM_PATH . 'admin/activation/welcome-to-jpcrm.php';
-			exit();
+			exit( 0 );
 		}
 		##/WLREMOVE
 	}
@@ -2213,8 +2199,8 @@ final class ZeroBSCRM {
 				$this->update_api_version,
 				ZBS_ROOTFILE,
 				array(
-					'version' => $this->version,
-					'license' => false,                   // license initiated to false..
+					'version' => $this::VERSION,
+					'license' => false, // license initiated to false..
 				)
 			);
 		}
@@ -2402,7 +2388,7 @@ final class ZeroBSCRM {
 				$redirect = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : home_url( '/' );
 				if ( current_user_can( 'zerobs_customer' ) ) {
 					wp_redirect( $redirect );
-					exit();
+					exit( 0 );
 				}
 			}
 
@@ -2546,9 +2532,6 @@ final class ZeroBSCRM {
 
 		// default
 		$pageTitle = ( ( $adminTitle == '' ) ? __( 'Jetpack CRM', 'zero-bs-crm' ) : $adminTitle );
-
-		// useful? global $post, $title, $action, $current_screen;
-		// global $zbsPage; print_r($zbsPage); exit();
 
 		// we only need to do this for pages where we're using custom setups (not added via wp_add_menu whatever)
 		if ( $this->zbsvar( 'page' ) != -1 ) {
@@ -3042,14 +3025,6 @@ final class ZeroBSCRM {
 	}
 
 				/**
-				 * Autoload vendor libraries
-				 */
-	public function autoload_libraries() {
-
-		require_once ZEROBSCRM_PATH . 'vendor/autoload.php';
-	}
-
-				/**
 				 * Autoload files from a directory which match a regex filter
 				 */
 	public function autoload_from_directory( string $directory, string $regex_filter ) {
@@ -3251,8 +3226,16 @@ final class ZeroBSCRM {
 		// this batch of option setting ensures we allow remote images (http/s)
 		// ... but they're only allowed from same-site urls
 		$options->set( 'isRemoteEnabled', true );
-		$options->addAllowedProtocol( 'http://', 'jpcrm_dompdf_assist_validate_remote_uri' );
-		$options->addAllowedProtocol( 'https://', 'jpcrm_dompdf_assist_validate_remote_uri' );
+
+		// We have to specify a temporary dir to download the remote images. Not all systems have a writable /tmp dir.
+		$jpcrm_storage_path = wf_jpcrm_storage_dir_path();
+		if ( $jpcrm_storage_path ) {
+			$options->setTempDir( $jpcrm_storage_path . '/tmp' );
+		}
+
+		// Commented: Not necessary. Using CDN sites (Jetpack Boost) for assets will fail because of the validation.
+		// $options->addAllowedProtocol( 'http://', 'jpcrm_dompdf_assist_validate_remote_uri' );
+		// $options->addAllowedProtocol( 'https://', 'jpcrm_dompdf_assist_validate_remote_uri' );
 
 		// use JPCRM storage dir for extra fonts
 		$options->set( 'fontDir', jpcrm_storage_fonts_dir_path() );
@@ -3368,7 +3351,7 @@ final class ZeroBSCRM {
 			set_transient( $transient_key, $this->pageMessages, MINUTE_IN_SECONDS );
 		}
 		wp_redirect( jpcrm_esc_link( 'edit', $inserted_id, $obj_type ) );
-		exit;
+		exit( 0 );
 	}
 
 	public function catch_preheader_interrupts() {

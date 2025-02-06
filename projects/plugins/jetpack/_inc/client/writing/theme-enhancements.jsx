@@ -1,23 +1,22 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
+import { connect } from 'react-redux';
 import { FormLabel, FormLegend } from 'components/forms';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
-import React from 'react';
-import { connect } from 'react-redux';
 import { currentThemeSupports } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound } from 'state/search';
-import CustomCss from './custom-css';
 
 class ThemeEnhancements extends React.Component {
 	/**
 	 * Translate Infinite Scroll module and option status into our three values for the options.
 	 *
-	 * @returns {string} Check the Infinite Scroll and its mode and translate into a string.
+	 * @return {string} Check the Infinite Scroll and its mode and translate into a string.
 	 */
 	getInfiniteMode = () => {
 		if ( ! this.props.getOptionValue( 'infinite-scroll' ) ) {
@@ -64,7 +63,7 @@ class ThemeEnhancements extends React.Component {
 	 * Update state so toggles are updated.
 	 *
 	 * @param {string} optionName - option slug
-	 * @param {string} module - module slug
+	 * @param {string} module     - module slug
 	 */
 	updateOptions = ( optionName, module ) => {
 		this.setState(
@@ -86,7 +85,7 @@ class ThemeEnhancements extends React.Component {
 	/**
 	 * Get options for initial state.
 	 *
-	 * @returns {object} {{
+	 * @return {object} {{
 	 * infinite_scroll: *
 	 * }}
 	 */
@@ -99,10 +98,9 @@ class ThemeEnhancements extends React.Component {
 	};
 
 	render() {
-		const foundInfiniteScroll = this.props.isModuleFound( 'infinite-scroll' ),
-			foundCustomCSS = this.props.isModuleFound( 'custom-css' );
+		const foundInfiniteScroll = this.props.isModuleFound( 'infinite-scroll' );
 
-		if ( ! foundInfiniteScroll && ! foundCustomCSS ) {
+		if ( ! foundInfiniteScroll ) {
 			return null;
 		}
 
@@ -185,7 +183,6 @@ class ThemeEnhancements extends React.Component {
 						) }
 					</SettingsGroup>
 				) }
-				{ foundCustomCSS && <CustomCss /> }
 			</SettingsCard>
 		);
 	}

@@ -1,0 +1,54 @@
+body {
+	padding: 0px;
+	margin: 0px;
+}
+
+div.top {
+	position: absolute;
+	top: 0px;
+}
+
+div.four_eighty {
+	position: absolute;
+	top: 480px;
+}
+
+div.six_hundred {
+	position: absolute;
+	top: 600px;
+}
+
+div.seven_sixty_eight {
+	position: absolute;
+	top: 768px;
+}
+
+@media print {
+	div.top::before {
+		content: "print";
+	}
+}
+
+@media not screen {
+	div.top::before {
+		content: "not screen";
+	}
+}
+
+@media print {
+	div.top::before {
+		content: "print";
+	}
+}
+
+@media screen {
+	div.top::before {
+		content: "screen";
+	}
+}
+
+@media all {
+	div.top::before {
+		content: "all";
+	}
+}

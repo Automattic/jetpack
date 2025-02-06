@@ -14,13 +14,13 @@ import ErrorMessage from '../error-message';
  * Render the error message.
  *
  * @param {string} supportURL - The support page URL.
- * @returns {React.Component} The error message.
+ * @return {React.Component} The error message.
  */
 const renderError = supportURL => {
 	return (
 		<ErrorMessage>
 			{ createInterpolateElement(
-				__( 'Could not move your settings. Retry or find out more <a>here</a>.', 'jetpack' ),
+				__( 'Could not move your settings. Retry or find out more <a>here</a>.', 'jetpack-idc' ),
 				{
 					a: (
 						<a
@@ -39,7 +39,7 @@ const renderError = supportURL => {
  * The "migrate" card.
  *
  * @param {object} props - The properties.
- * @returns {React.Component} The `ConnectScreen` component.
+ * @return {React.Component} The `ConnectScreen` component.
  */
 const CardMigrate = props => {
 	const wpcomHostName = extractHostname( props.wpcomHomeUrl );
@@ -47,9 +47,14 @@ const CardMigrate = props => {
 
 	const isActionInProgress = useSelect( select => select( STORE_ID ).getIsActionInProgress(), [] );
 
-	const { isMigrating, migrateCallback, customContent, hasError } = props;
+	const {
+		isMigrating = false,
+		migrateCallback = () => {},
+		customContent = {},
+		hasError = false,
+	} = props;
 
-	const buttonLabel = customContent.migrateButtonLabel || __( 'Move your settings', 'jetpack' );
+	const buttonLabel = customContent.migrateButtonLabel || __( 'Move your settings', 'jetpack-idc' );
 
 	return (
 		<div
@@ -62,7 +67,7 @@ const CardMigrate = props => {
 				<h4>
 					{ customContent.migrateCardTitle
 						? createInterpolateElement( customContent.migrateCardTitle, { em: <em /> } )
-						: __( 'Move Jetpack data', 'jetpack' ) }
+						: __( 'Move Jetpack data', 'jetpack-idc' ) }
 				</h4>
 
 				<p>
@@ -72,7 +77,7 @@ const CardMigrate = props => {
 								/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
 								__(
 									'Move all your settings, stats and subscribers to your other URL, <hostname>%1$s</hostname>. <hostname>%2$s</hostname> will be disconnected from Jetpack.',
-									'jetpack'
+									'jetpack-idc'
 								),
 								currentHostName,
 								wpcomHostName
@@ -112,20 +117,13 @@ CardMigrate.propTypes = {
 	/** The current site URL. */
 	currentUrl: PropTypes.string.isRequired,
 	/** Whether the migration is in progress. */
-	isMigrating: PropTypes.bool.isRequired,
+	isMigrating: PropTypes.bool,
 	/** Migration callback. */
-	migrateCallback: PropTypes.func.isRequired,
+	migrateCallback: PropTypes.func,
 	/** Custom text content. */
 	customContent: PropTypes.shape( customContentShape ),
 	/** Whether the component has an error. */
-	hasError: PropTypes.bool.isRequired,
-};
-
-CardMigrate.defaultProps = {
-	isMigrating: false,
-	migrateCallback: () => {},
-	customContent: {},
-	hasError: false,
+	hasError: PropTypes.bool,
 };
 
 export default CardMigrate;

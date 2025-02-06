@@ -102,7 +102,8 @@ class Dashboard {
 				_x( 'Search', 'product name shown in menu', 'jetpack-search-pkg' ),
 				'manage_options',
 				'jetpack-search',
-				array( $this, 'render' )
+				array( $this, 'render' ),
+				10
 			);
 		} else {
 			// always add the page, but hide it from the menu.

@@ -343,46 +343,6 @@ function jetpack_carousel_more_info() {
 add_action( 'jetpack_module_more_info_carousel', 'jetpack_carousel_more_info' );
 
 /**
- * Custom CSS support link.
- */
-function jetpack_custom_css_more_button() {
-	echo esc_url( Redirect::get_url( 'jetpack-support-custom-css' ) );
-}
-add_action( 'jetpack_learn_more_button_custom-css', 'jetpack_custom_css_more_button' );
-
-/**
- * Custom CSS description.
- */
-function jetpack_custom_css_more_info() {
-	esc_html_e(
-		"Add to or replace your theme's CSS including mobile styles, LESS, and SaSS.
-		Includes syntax coloring, auto-indentation, and immediate CSS validation.",
-		'jetpack'
-	);
-}
-add_action( 'jetpack_module_more_info_custom-css', 'jetpack_custom_css_more_info' );
-
-/**
- * Masterbar support link.
- */
-function jetpack_masterbar_more_link() {
-	echo esc_url( Redirect::get_url( 'jetpack-support-masterbar' ) );
-}
-add_action( 'jetpack_learn_more_button_masterbar', 'jetpack_masterbar_more_link' );
-
-/**
- * Masterbar description.
- */
-function jetpack_masterbar_more_info() {
-	esc_html_e(
-		'Quickly access your Stats, Notifications, Posts and more on WordPress.com.
-		The Toolbar is displayed for any user on the site that is connected to WordPress.com.',
-		'jetpack'
-	);
-}
-add_action( 'jetpack_module_more_info_masterbar', 'jetpack_masterbar_more_info' );
-
-/**
  * Infinite Scroll support link.
  */
 function jetpack_infinite_scroll_more_button() {

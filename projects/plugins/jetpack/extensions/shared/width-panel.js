@@ -1,13 +1,13 @@
 import {
 	BaseControl,
-	Button,
-	ButtonGroup,
 	PanelBody,
-	__experimentalUnitControl as UnitControl, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+	__experimentalUnitControl as UnitControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import './width-panel.scss';
 
 const widthUnits = [
@@ -56,35 +56,43 @@ export function WidthControl( { align, width, onChange, showLabel = true } ) {
 	}
 
 	return (
-		<BaseControl label={ showLabel && __( 'Width', 'jetpack' ) }>
+		<BaseControl __nextHasNoMarginBottom={ true }>
+			{ showLabel && (
+				<BaseControl.VisualLabel>{ __( 'Width', 'jetpack' ) }</BaseControl.VisualLabel>
+			) }
 			<div
-				className={ classnames( 'jetpack-block-width-controls', {
+				className={ clsx( 'jetpack-block-width-controls', {
 					'is-aligned': isAlignedLeftOrRight,
 				} ) }
 			>
 				{ ! isAlignedLeftOrRight && (
-					<ButtonGroup aria-label={ __( 'Percentage Width', 'jetpack' ) }>
+					<ToggleGroupControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						aria-label={ __( 'Percentage Width', 'jetpack' ) }
+						isBlock
+						value={ width }
+						onChange={ handleChange }
+					>
 						{ predefinedWidths.map( widthValue => {
 							return (
-								<Button
+								<ToggleGroupControlOption
 									key={ widthValue }
-									isSmall
-									variant={ widthValue === width ? 'primary' : undefined }
-									onClick={ () => handleChange( widthValue ) }
-								>
-									{ widthValue }
-								</Button>
+									label={ widthValue }
+									value={ widthValue }
+								/>
 							);
 						} ) }
-					</ButtonGroup>
+					</ToggleGroupControl>
 				) }
 				<UnitControl
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
 					isResetValueOnUnitChange
 					max={ unit === '%' || width?.includes( '%' ) ? 100 : undefined }
 					min={ 0 }
 					onChange={ selectedWidth => onChange( selectedWidth ) }
 					onUnitChange={ selectedUnit => setUnit( selectedUnit ) }
-					size={ 'small' }
 					units={ isAlignedLeftOrRight ? alignedWidthUnits : widthUnits }
 					value={ width }
 				/>

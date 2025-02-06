@@ -8,6 +8,16 @@
 			width: 200%;
 		}
 
+		.jetpack-blogroll-item-divider {
+			margin-block-start: 0;
+			margin-block-end: 0;
+			display: none;
+			border-width: 1px 0 0 0;
+			border-style: solid;
+			opacity: 0.2;
+			width: 100%;
+		}
+
 		.jetpack-blogroll-item-slider {
 			display: flex;
 			transition: transform 0.3s ease-in-out;
@@ -24,7 +34,7 @@
 		}
 
 		.jetpack-blogroll-item-title {
-			font-size: 1.2em;
+			font-weight: bold;
 		}
 
 		.jetpack-blogroll-item-title, .jetpack-blogroll-item-description {
@@ -34,7 +44,7 @@
 		.jetpack-blogroll-item-information {
 			width: 100%;
 			display: flex;
-			padding: 20px 8px;
+			padding: 20px 0;
 			gap: 20px;
 			box-sizing: border-box;
 
@@ -43,6 +53,7 @@
 				flex-shrink: 0;
 				height: 48px;
 				width: 48px;
+				align-self: flex-start;
 
 				&.empty-site-icon {
 					background: url('./placeholder-site-icon.svg');
@@ -58,6 +69,10 @@
 					width: 48px;
 					height: 48px;
 				}
+			}
+
+			.jetpack-blogroll-item-content {
+				align-self: flex-start;
 			}
 		}
 

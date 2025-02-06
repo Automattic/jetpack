@@ -15,7 +15,7 @@ import { isaGroupKeys } from '$features/image-size-analysis/lib/isa-groups';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import styles from './image-size-analysis.module.scss';
-import classNames from 'classnames';
+import clsx from 'clsx';
 
 type Props = {
 	isImageCdnModuleActive: boolean;
@@ -44,7 +44,7 @@ const ImageSizeAnalysis = ( { page, group, isImageCdnModuleActive }: Props ) => 
 	return (
 		<div id="jb-dashboard" className="jb-dashboard">
 			<Header subPageTitle={ __( 'Image analysis report', 'jetpack-boost' ) } />
-			<div className={ classNames( styles.page, 'jb-section--alt' ) }>
+			<div className={ clsx( styles.page, 'jb-section--alt' ) }>
 				<div className="jb-container">
 					<Hero
 						group={ activeReport }

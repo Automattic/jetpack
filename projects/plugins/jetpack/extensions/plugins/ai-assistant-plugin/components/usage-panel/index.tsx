@@ -1,8 +1,18 @@
 /**
  * External dependencies
  */
+import { useAICheckout, useAiFeature } from '@automattic/jetpack-ai-client';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import {
+	isAtomicSite,
+	isSimpleSite,
+	useAutosaveAndRedirect,
+	PLAN_TYPE_FREE,
+	PLAN_TYPE_TIERED,
+	usePlanType,
+	PlanType,
+	canUserPurchasePlan,
+} from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { useCallback } from '@wordpress/element';
@@ -11,18 +21,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import './style.scss';
-import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
-import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import useAnalytics from '../../../../blocks/ai-assistant/hooks/use-analytics';
-import { canUserPurchasePlan } from '../../../../blocks/ai-assistant/lib/connection';
-import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
-import {
-	PLAN_TYPE_FREE,
-	PLAN_TYPE_TIERED,
-	usePlanType,
-	PlanType,
-} from '../../../../shared/use-plan-type';
 import UsageControl from '../usage-bar';
 import './style.scss';
 import type { UsagePanelProps, InternalUsagePanelProps } from './types';
@@ -31,7 +30,7 @@ import type { UsagePanelProps, InternalUsagePanelProps } from './types';
  * Simple hook to get the days until the next reset
  *
  * @param {string} nextStartDate - the next start date from the AI Feature data
- * @returns {string} an string with the the next reset date
+ * @return {string} an string with the the next reset date
  */
 const useNextResetDate = ( nextStartDate: string ): string => {
 	// Bail early if we don't have a next start date
@@ -45,9 +44,9 @@ const useNextResetDate = ( nextStartDate: string ): string => {
 /**
  * Handle the upgrade button text.
  *
- * @param {PlanType} planType - the type of the current plan
- * @param {number} nextTierRequestLimit - the request limit of the next tier, or null if there is no next tier
- * @returns {string} the proper upgrade button text
+ * @param {PlanType} planType             - the type of the current plan
+ * @param {number}   nextTierRequestLimit - the request limit of the next tier, or null if there is no next tier
+ * @return {string} the proper upgrade button text
  */
 const useUpgradeButtonText = ( planType: PlanType, nextTierRequestLimit: number ): string => {
 	// If the current plan is free, the upgrade button text is just "Upgrade"
@@ -70,7 +69,7 @@ const useUpgradeButtonText = ( planType: PlanType, nextTierRequestLimit: number 
 
 /**
  * Helper to get the Contact Us URL
- * @returns {object} an object with the Contact Us URL, the autosaveAndRedirect function and a boolean indicating if we are redirecting
+ * @return {object} an object with the Contact Us URL, the autosaveAndRedirect function and a boolean indicating if we are redirecting
  */
 const useContactUsLink = (): {
 	contactUsURL: string;
@@ -96,7 +95,6 @@ export function UsagePanel( {
 	loading,
 	canUpgrade,
 	showContactUsCallToAction,
-	isRedirecting,
 	nextLimit,
 	contactUsURL,
 	handleContactUsClick,
@@ -127,6 +125,7 @@ export function UsagePanel( {
 								<>
 									<p>{ __( 'Need more requests?', 'jetpack' ) }</p>
 									<Button
+										target="_blank"
 										variant="primary"
 										label={ __( 'Contact us for more requests', 'jetpack' ) }
 										href={ contactUsURL }
@@ -138,11 +137,11 @@ export function UsagePanel( {
 							) }
 							{ ! showContactUsCallToAction && (
 								<Button
+									target="_blank"
 									variant="primary"
 									label={ __( 'Upgrade your Jetpack AI plan', 'jetpack' ) }
 									href={ checkoutUrl }
 									onClick={ handleUpgradeClick }
-									disabled={ isRedirecting }
 								>
 									{ upgradeButtonText }
 								</Button>
@@ -155,8 +154,8 @@ export function UsagePanel( {
 }
 
 export default function ConnectedUsagePanel( { placement = null }: UsagePanelProps ) {
-	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
-	const { contactUsURL, autosaveAndRedirectContactUs } = useContactUsLink();
+	const { checkoutUrl } = useAICheckout();
+	const { contactUsURL } = useContactUsLink();
 	const { tracks } = useAnalytics();
 	const canUpgrade = canUserPurchasePlan();
 
@@ -165,31 +164,21 @@ export default function ConnectedUsagePanel( { placement = null }: UsagePanelPro
 		useAiFeature();
 	const planType = usePlanType( currentTier );
 
-	const handleUpgradeClick = useCallback(
-		( event: React.MouseEvent< HTMLButtonElement > ) => {
-			event.preventDefault();
-			tracks.recordEvent( 'jetpack_ai_upgrade_button', {
-				current_tier_slug: currentTier?.slug,
-				requests_count: requestsCount,
-				...( placement ? { placement } : {} ),
-			} );
-			autosaveAndRedirect( event );
-		},
-		[ tracks, currentTier, requestsCount, placement, autosaveAndRedirect ]
-	);
+	const handleUpgradeClick = useCallback( () => {
+		tracks.recordEvent( 'jetpack_ai_upgrade_button', {
+			current_tier_slug: currentTier?.slug,
+			requests_count: requestsCount,
+			...( placement ? { placement } : {} ),
+		} );
+	}, [ tracks, currentTier, requestsCount, placement ] );
 
-	const handleContactUsClick = useCallback(
-		( event: React.MouseEvent< HTMLButtonElement > ) => {
-			event.preventDefault();
-			tracks.recordEvent( 'jetpack_ai_upgrade_button', {
-				current_tier_slug: currentTier?.slug,
-				requests_count: requestsCount,
-				...( placement ? { placement } : {} ),
-			} );
-			autosaveAndRedirectContactUs();
-		},
-		[ tracks, currentTier, requestsCount, placement, autosaveAndRedirectContactUs ]
-	);
+	const handleContactUsClick = useCallback( () => {
+		tracks.recordEvent( 'jetpack_ai_upgrade_button', {
+			current_tier_slug: currentTier?.slug,
+			requests_count: requestsCount,
+			...( placement ? { placement } : {} ),
+		} );
+	}, [ tracks, currentTier, requestsCount, placement ] );
 
 	// Handle upgrade for simple and atomic sites on the last plan
 	const showContactUsCallToAction =
@@ -206,7 +195,6 @@ export default function ConnectedUsagePanel( { placement = null }: UsagePanelPro
 			loading={ loading }
 			canUpgrade={ canUpgrade }
 			showContactUsCallToAction={ showContactUsCallToAction }
-			isRedirecting={ isRedirecting }
 			contactUsURL={ contactUsURL }
 			handleContactUsClick={ handleContactUsClick }
 			checkoutUrl={ checkoutUrl }

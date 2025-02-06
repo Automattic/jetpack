@@ -1,0 +1,166 @@
+{
+	"translation-revision-date": "2024-06-27 11:45:59+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": {
+				"domain": "messages",
+				"plural-forms": "nplurals=2; plural=n != 1;",
+				"lang": "nl"
+			},
+			"Post Answer": [ "Plaats antwoord" ],
+			"Show next prompt": [ "Volgende opdracht tonen" ],
+			"Show previous prompt": [ "Vorige opdracht tonen" ],
+			"Some ideas for writing topics": [ "Enkele onderwerp idee\u00ebn om over te schrijven" ],
+			"Add these tags": [ "Deze tags toevoegen" ],
+			"Adding tags can help drive more traffic to your post.": [
+				"Door tags toe te voegen kun je meer verkeer naar je bericht leiden."
+			],
+			"Based on the topics and themes in your post, here are some suggested tags to consider:": [
+				"Gebaseerd op de topics en thema's in je bericht, zijn hier enkele voorgestelde tags om te overwegen:"
+			],
+			"Recommended tags:": [ "Aanbevolen tags:" ],
+			"No Tags Added.": [ "Geen tags toegevoegd." ],
+			"Tag Added.": [ "Tag toegevoegd.", "Tags toegevoegd." ],
+			"Share Post": [ "Deel bericht" ],
+			"Don't show again": [ "Niet meer weergeven" ],
+			"Get more traffic to your post by sharing:": [
+				"Krijg meer verkeer naar je bericht door het volgende te delen:"
+			],
+			"Post published!": [ "Bericht gepubliceerd!" ],
+			"Link copied to clipboard.": [ "Link gekopieerd naar klembord." ],
+			"Next Steps": [ "Volgende stappen" ],
+			"Take the tour": [ "Doe de rondleiding" ],
+			"This is the Site Editor, where you can change everything about your site, including adding content to your homepage. <link_to_site_editor_course>Watch these short videos</link_to_site_editor_course> and take this tour to get started.": [
+				"Dit is de Site-editor, waar je alles aan je site kunt veranderen, inclusief het toevoegen van inhoud aan je homepage. <link_to_site_editor_course>Bekijk deze korte video's</link_to_site_editor_course> en neem deze rondleiding om te beginnen."
+			],
+			"Nice job! Your new page is set up.": [ "Mooi werk! Je nieuwe pagina is opgezet." ],
+			"Feel free to keep editing your homepage, or continue and launch your site.": [
+				"Voel je vrij om je homepage te blijven bewerken, of ga verder en lanceer je site."
+			],
+			"Continue and launch": [ "Doorgaan en lanceren" ],
+			"Keep editing": [ "Doorgaan met bewerken" ],
+			"Design everything on your site - from the header right down to the footer - in the Site Editor. <link_to_fse_docs>Learn more</link_to_fse_docs>": [
+				"Ontwerp alles op je site - van de header tot de footer - in de Site-editor. <link_to_fse_docs>Leer meer</link_to_fse_docs>"
+			],
+			"Take this short, interactive tour to learn the fundamentals of the WordPress Site Editor.": [
+				"Volg deze korte, interactieve rondleiding om de grondbeginselen van de WordPress Site-editor te leren kennen."
+			],
+			"You\u2019ve added your first video!": [ "Je hebt je eerste video toegevoegd!" ],
+			"Use the toolbar to change the appearance of a selected block. Try replacing a video!": [
+				"Gebruik de toolbar om het uiterlijk van een geselecteerd blok te wijzigen. Probeer een video te vervangen!"
+			],
+			"Congrats! Premium blocks are now available to use.": [
+				"Gefeliciteerd! Premium blokken zijn nu beschikbaar om te gebruiken."
+			],
+			"The Payments block": [ "Het blok Betalingen" ],
+			"Learn more": [ "Meer informatie" ],
+			"Design everything on your site - from the header right down to the footer - in the Site Editor.": [
+				"Ontwerp alles op je site - van de header tot de footer - in de Site-editor."
+			],
+			"Edit your site": [ "Bewerk je site" ],
+			"The Payments block allows you to accept payments for one-time, monthly recurring, or annual payments on your website": [
+				"Met het blok Betalingen kun je betalingen accepteren voor eenmalige, maandelijks terugkerende of jaarlijkse betalingen op je site"
+			],
+			"Tour Media": [ "Rondleiding media" ],
+			"Resume tour <span>(%1$d/%2$d)</span>": [ "Hervat rondleiding <span>(%1$d/%2$d)</span>" ],
+			"View your product": [ "Bekijk je product" ],
+			"Preview your product on your site before launching and sharing with others.": [
+				"Bekijk een voorbeeld van je product op je site voordat je het lanceert en deelt met anderen."
+			],
+			"You've added your first product!": [ "Je hebt je eerste product toegevoegd!" ],
+			"Pagination control": [ "Paginering besturing" ],
+			"Use List View to see all the blocks you've added. Click and drag any block to move it around.": [
+				"Gebruik Lijstweergave om alle blokken te zien die je hebt toegevoegd. Klik en sleep een willekeurig blok om het te verplaatsen."
+			],
+			"Find your way": [ "Vind je weg" ],
+			"To move blocks around, tap the up and down arrows.": [
+				"Als je blokken wilt verplaatsen, tik je op de omhoog en omlaag pijlen."
+			],
+			"Tap the settings icon to see even more options.": [
+				"Tik op het instellingenpictogram om nog meer opties te zien."
+			],
+			"Tap + to open the inserter. Then tap the block you want to add.": [
+				"Tik op + om de invoeger te openen. Tik vervolgens op het blok dat je wilt toevoegen."
+			],
+			"View Post": [ "Bekijk bericht" ],
+			"Congratulations! You did it. View your post to see how it will look on your site.": [
+				"Gefeliciteerd! Goed gedaan. Bekijk je bericht om te zien hoe het eruit zal zien op je site."
+			],
+			"Your first post is published!": [ "Je eerste bericht is gepubliceerd!" ],
+			"Resume Tour": [ "Tour hervatten" ],
+			"I'm not ready": [ "Ik ben er nog niet klaar voor" ],
+			"Start writing": [ "Begin met schrijven" ],
+			"It\u2019s time to flex those writing muscles and start drafting your first post!": [
+				"Het is tijd om die schrijfspieren te buigen en te beginnen met het opstellen van je eerste bericht!"
+			],
+			"Write your first post": [ "Schrijf je eerste bericht" ],
+			"workaround\u0004Take this short, interactive tour to learn the fundamentals of the WordPress editor.": [
+				"Volg deze korte, interactieve rondleiding om de grondbeginselen van de WordPress editor te leren kennen."
+			],
+			"You've learned the basics. Remember, your site is private until you <link_to_launch_site_docs>decide to launch</link_to_launch_site_docs>. View the <link_to_editor_docs>block editing docs</link_to_editor_docs> to learn more.": [
+				"Je hebt de basis geleerd. Onthoud dat je site priv\u00e9 is tot je <link_to_launch_site_docs>beslist hebt om te lanceren</link_to_launch_site_docs>. Bekijk de <link_to_editor_docs>documentatie over blokken</link_to_editor_docs> om meer te leren."
+			],
+			"Restart tour": [ "Tour herstarten" ],
+			"Did you find this guide helpful?": [ "Vond je deze gids nuttig?" ],
+			"Rate thumbs down": [ "Waardeer duimen omlaag" ],
+			"Rate thumbs up": [ "Waardeer duimen omhoog" ],
+			"Close Tour": [ "Rondleiding sluiten" ],
+			"Minimize Tour": [ "Minimaliseer rondleiding" ],
+			"Next": [ "Volgende" ],
+			"Skip": [ "Overslaan" ],
+			"To move blocks around, click and drag the handle.": [
+				"Om blokken te verplaatsen, klik en sleep de handle."
+			],
+			"Congratulations!": [ "Gefeliciteerd!" ],
+			"Drag & drop": [ "Verslepen" ],
+			"Click the Undo button if you've made a mistake.": [
+				"Klik op de knop Ongedaan maken als je een fout hebt gemaakt."
+			],
+			"Undo any mistake": [ "Herstel elke fout" ],
+			"Click the settings icon to see even more options.": [
+				"Klik op het instellingen pictogram om meer opties te zien."
+			],
+			"More Options": [ "Meer opties" ],
+			"Use the toolbar to change the appearance of a selected block. Try making it bold.": [
+				"Gebruik de toolbar om het uiterlijk van een geselecteerd blok te wijzigen. Probeer het vetgedrukt te maken."
+			],
+			"Click a block to change it": [ "Klik op een blok om het te wijzigen" ],
+			"Click + to open the inserter. Then click the block you want to add.": [
+				"Klik op + om de invoeger te openen. Klik vervolgens op het blok dat je wil toevoegen."
+			],
+			"Adding a new block": [ "Nieuw blok toevoegen" ],
+			"In the WordPress Editor, paragraphs, images, and videos are all blocks.": [
+				"In de WordPress editor zijn paragrafen, afbeeldingen, en video's allemaal blokken."
+			],
+			"Everything is a block": [ "Alles is een blok" ],
+			"workaround\u0004Welcome to WordPress!": [ "Welkom bij WordPress!" ],
+			"Page %1$d of %2$d": [ "Pagina %1$d van %2$d" ],
+			"Continue editing": [ "Doorgaan met bewerken" ],
+			"Copy Link": [ "Kopieer link" ],
+			"Your site will remain hidden until launched. Click \u201cLaunch\u201d in the toolbar to share it with the world.": [
+				"Je site blijft verborgen totdat hij wordt gelanceerd. Klik \"Lanceer\" in de toolbar om het te delen met de wereld."
+			],
+			"Hidden until you\u2019re ready": [ "Verborgen tot je klaar bent" ],
+			"As you edit your site content, click \u201cPreview\u201d to see your site the way your visitors will.": [
+				"Terwijl je de inhoud van je site bewerkt, kun je op 'Voorbeeld bekijken' klikken om je site te kunnen zien zoals je bezoekers deze zien."
+			],
+			"Preview your site as you go": [ "Bekijk je site waar je ook bent" ],
+			"Edit the placeholder content we\u2019ve started you off with, or click the plus sign to add more content.": [
+				"Bewerk de plaatshouder inhoud waarmee we zijn begonnen of klik op het plusteken om meer inhoud toe te voegen."
+			],
+			"Add or edit your content": [ "Voeg je inhoud toe of bewerk deze" ],
+			"Edit your homepage, add the pages you need, and change your site\u2019s look and feel.": [
+				"Bewerk je homepage, voeg de pagina's die je nodig hebt toe en verander de uitstraling van je site."
+			],
+			"Welcome to your website": [ "Welkom op je site" ],
+			"Get started": [ "Aan de slag" ],
+			"Tags": [ "Tags" ],
+			"Back": [ "Terug" ]
+		}
+	},
+	"comment": {
+		"reference": "wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js"
+	}
+}

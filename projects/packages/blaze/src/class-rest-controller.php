@@ -94,12 +94,7 @@ class REST_Controller {
 	 * @return bool
 	 */
 	public function is_dashboard_enabled() {
-		$site_id = $this->get_site_id();
-		if ( is_wp_error( $site_id ) ) {
-			return false;
-		}
-
-		return (bool) Blaze::is_dashboard_enabled( $site_id );
+		return (bool) Blaze::is_dashboard_enabled();
 	}
 
 	/**

@@ -4,7 +4,7 @@ import { Spinner, BaseControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, _x } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import styles from './styles.module.scss';
@@ -34,11 +34,12 @@ export const calculateImageUrl = ( imageType, customImageId, featuredImageId, ge
  * Fetches the preview of the generated image based on the post info
  *
  * @param {{shouldDebounce:boolean, customText: string, imageType: string, imageId: number, template: string}} props -
- * The props to pass to the generator config. Contains the imageType, imageId, template and customText. Also contains boolean shouldDebounce.
- * @returns {React.ReactNode} The generated image preview.
+ *                                                                                                                   The props to pass to the generator config. Contains the imageType, imageId, template and customText. Also contains boolean shouldDebounce.
+ * @return {React.ReactNode} The generated image preview.
  */
 export default function GeneratedImagePreview( {
 	shouldDebounce = true,
+	onNewToken = undefined,
 	...generatorConfigProps
 } ) {
 	const [ generatedImageUrl, setGeneratedImageUrl ] = useState( null );
@@ -84,6 +85,7 @@ export default function GeneratedImagePreview( {
 					},
 				} );
 				setToken?.( sig_token );
+				onNewToken?.( sig_token );
 				const url = getSigImageUrl( sig_token );
 				// If the URL turns out to be the same, we set the loading state to false,
 				// as the <img> onLoad event will not fire if the src is the same.
@@ -103,7 +105,7 @@ export default function GeneratedImagePreview( {
 		};
 		// setToken is not a dependency here
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ imageTitle, template, imageUrl ] );
+	}, [ imageTitle, template, imageUrl, onNewToken ] );
 
 	const onImageLoad = useCallback( () => {
 		setIsLoading( false );
@@ -111,14 +113,21 @@ export default function GeneratedImagePreview( {
 
 	return (
 		<ThemeProvider>
-			<BaseControl label={ _x( 'Preview', 'Heading for the generated preview image', 'jetpack' ) }>
+			<BaseControl __nextHasNoMarginBottom={ true }>
+				<BaseControl.VisualLabel>
+					{ _x(
+						'Preview',
+						'Heading for the generated preview image',
+						'jetpack-publicize-components'
+					) }
+				</BaseControl.VisualLabel>
 				<div className={ styles.container }>
 					<img
-						className={ classNames( {
+						className={ clsx( {
 							[ styles.hidden ]: isLoading,
 						} ) }
 						src={ generatedImageUrl }
-						alt={ __( 'Generated preview', 'jetpack' ) }
+						alt={ __( 'Generated preview', 'jetpack-publicize-components' ) }
 						onLoad={ onImageLoad }
 					/>
 					{ isLoading && <Spinner data-testid="spinner" /> }

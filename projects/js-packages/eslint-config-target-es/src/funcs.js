@@ -10,9 +10,9 @@ const warn = debug( '@automattic/eslint-config-target-es:warn' );
 /**
  * Get the list of supported browsers.
  *
- * @param {object} options - Options.
+ * @param {object} options       - Options.
  * @param {string} options.query - Browserslist query.
- * @returns {object} Browsers mapped to arrays of versions.
+ * @return {object} Browsers mapped to arrays of versions.
  */
 function getAllBrowsers( options = {} ) {
 	const browsers = {};
@@ -42,9 +42,9 @@ function getAllBrowsers( options = {} ) {
  * Get the list of supported browsers.
  *
  * @deprecated since 2.1.0. Use getAllBrowsers instead.
- * @param {object} options - Options.
+ * @param {object} options       - Options.
  * @param {string} options.query - Browserslist query.
- * @returns {object} Browsers mapped to minimum versions.
+ * @return {object} Browsers mapped to minimum versions.
  */
 function getBrowsers( options = {} ) {
 	warn( 'getBrowsers is deprecated. Use getAllBrowsers instead.' );
@@ -59,10 +59,10 @@ function getBrowsers( options = {} ) {
 /**
  * Get the es-x rule configurations.
  *
- * @param {object} options - Options.
+ * @param {object}       options          - Options.
  * @param {boolean|null} options.builtins - If true, only rules with "javascript.builtins" paths are checked. If false, such rules are not checked. If null/undefined, all may be checked.
- * @param {string} options.query - Browserslist query.
- * @returns {object} Rules configuration.
+ * @param {string}       options.query    - Browserslist query.
+ * @return {object} Rules configuration.
  */
 function getRules( options = {} ) {
 	const browsers = getAllBrowsers( options );

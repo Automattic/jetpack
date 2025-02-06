@@ -1,10 +1,9 @@
 import { Gridicon } from '@automattic/jetpack-components';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import assign from 'lodash/assign';
 import omit from 'lodash/omit';
 import PropTypes from 'prop-types';
 import React from 'react';
-/*eslint lodash/import-scope: [2, "method"]*/
 /*eslint lodash/import-scope: [2, "method"]*/
 
 import './style.scss';
@@ -23,7 +22,7 @@ class CardSection extends React.Component {
 	render() {
 		return (
 			<div
-				className={ classnames( 'dops-card-section', this.props.className ) }
+				className={ clsx( 'dops-card-section', this.props.className ) }
 				style={ this.props.style }
 			>
 				{ this.props.title ? this._renderWithTitle() : this.props.children }
@@ -37,12 +36,8 @@ class CardSection extends React.Component {
 
 		return (
 			<div className={ wrapperClassName }>
-				<h4 ref="label" className="dops-card-section-label">
-					{ this.props.title }
-				</h4>
-				<div ref="content" className="dops-card-section-content">
-					{ this.props.children }
-				</div>
+				<h4 className="dops-card-section-label">{ this.props.title }</h4>
+				<div className="dops-card-section-content">{ this.props.children }</div>
 			</div>
 		);
 	};
@@ -79,7 +74,7 @@ class Card extends React.Component {
 	};
 
 	render() {
-		const className = classnames( 'dops-card', this.props.className, {
+		const className = clsx( 'dops-card', this.props.className, {
 			'is-card-link': !! this.props.href,
 			'is-compact': this.props.compact,
 		} );

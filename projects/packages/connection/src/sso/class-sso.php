@@ -47,14 +47,6 @@ class SSO {
 
 		self::$instance = $this;
 
-		/*
-		 * This feature currently relies on the Jetpack plugin.
-		 * Bail if Jetpack isn't installed.
-		 */
-		if ( ! class_exists( 'Jetpack' ) ) {
-			return;
-		}
-
 		add_action( 'admin_init', array( $this, 'maybe_authorize_user_after_sso' ), 1 );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'login_init', array( $this, 'login_init' ) );
@@ -70,6 +62,9 @@ class SSO {
 		add_action( 'login_form_jetpack-sso', '__return_true' );
 
 		add_filter( 'wp_login_errors', array( $this, 'sso_reminder_logout_wpcom' ) );
+
+		// Synchronize SSO options with WordPress.com.
+		add_filter( 'jetpack_sync_callable_whitelist', array( $this, 'sync_sso_callables' ), 10, 1 );
 
 		/**
 		 * Filter to include Force 2FA feature.
@@ -135,6 +130,27 @@ class SSO {
 	}
 
 	/**
+	 * Add SSO callables to the sync whitelist.
+	 *
+	 * @since 2.8.1
+	 *
+	 * @param array $callables list of callables.
+	 *
+	 * @return array list of callables.
+	 */
+	public function sync_sso_callables( $callables ) {
+		$sso_callables = array(
+			'sso_is_two_step_required'      => array( Helpers::class, 'is_two_step_required' ),
+			'sso_should_hide_login_form'    => array( Helpers::class, 'should_hide_login_form' ),
+			'sso_match_by_email'            => array( Helpers::class, 'match_by_email' ),
+			'sso_new_user_override'         => array( Helpers::class, 'new_user_override' ),
+			'sso_bypass_default_login_form' => array( Helpers::class, 'bypass_login_forward_wpcom' ),
+		);
+
+		return array_merge( $callables, $sso_callables );
+	}
+
+	/**
 	 * Safety heads-up added to the logout messages when SSO is enabled.
 	 * Some folks on a shared computer don't know that they need to log out of WordPress.com as well.
 	 *
@@ -175,7 +191,7 @@ class SSO {
 			Helpers::delete_connection_for_user( $current_user->ID );
 			wp_logout();
 			wp_safe_redirect( wp_login_url() );
-			exit;
+			exit( 0 );
 		}
 	}
 
@@ -252,7 +268,7 @@ class SSO {
 		// Always add the jetpack-sso class so that we can add SSO specific styling even when the SSO form isn't being displayed.
 		$classes[] = 'jetpack-sso';
 
-		if ( ! ( new Status() )->is_staging_site() ) {
+		if ( ! ( new Status() )->in_safe_mode() ) {
 			/**
 			 * Should we show the SSO login form?
 			 *
@@ -431,13 +447,6 @@ class SSO {
 	}
 
 	/**
-	 * Checks to determine if the user has indicated they want to use the wp-admin interface.
-	 */
-	private function use_wp_admin_interface() {
-		return 'wp-admin' === get_option( 'wpcom_admin_interface' );
-	}
-
-	/**
 	 * Initialization for a SSO request.
 	 */
 	public function login_init() {
@@ -472,8 +481,8 @@ class SSO {
 			if ( isset( $_GET['result'] ) && isset( $_GET['user_id'] ) && isset( $_GET['sso_nonce'] ) && 'success' === $_GET['result'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$this->handle_login();
 				$this->display_sso_login_form();
-			} elseif ( ( new Status() )->is_staging_site() ) {
-				add_filter( 'login_message', array( Notices::class, 'sso_not_allowed_in_staging' ) );
+			} elseif ( ( new Status() )->in_safe_mode() ) {
+				add_filter( 'login_message', array( Notices::class, 'sso_not_allowed_in_safe_mode' ) );
 			} else {
 				// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
 				add_filter( 'allowed_redirect_hosts', array( Helpers::class, 'allowed_redirect_hosts' ) );
@@ -482,7 +491,7 @@ class SSO {
 
 				$tracking->record_user_event( 'sso_login_redirect_success' );
 				wp_safe_redirect( $sso_url );
-				exit;
+				exit( 0 );
 			}
 		} elseif ( Helpers::display_sso_form_for_action( $action ) ) {
 
@@ -494,13 +503,13 @@ class SSO {
 			 * to the WordPress.com login page AND  that the request to wp-login.php
 			 * is not something other than login (Like logout!)
 			 */
-			if ( ! $this->use_wp_admin_interface() && Helpers::bypass_login_forward_wpcom() && $this->wants_to_login() ) {
+			if ( Helpers::bypass_login_forward_wpcom() && $this->wants_to_login() ) {
 				add_filter( 'allowed_redirect_hosts', array( Helpers::class, 'allowed_redirect_hosts' ) );
 				$reauth  = ! empty( $_GET['force_reauth'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$sso_url = $this->get_sso_url_or_die( $reauth );
 				$tracking->record_user_event( 'sso_login_redirect_bypass_success' );
 				wp_safe_redirect( $sso_url );
-				exit;
+				exit( 0 );
 			}
 
 			$this->display_sso_login_form();
@@ -515,8 +524,8 @@ class SSO {
 		add_filter( 'login_body_class', array( $this, 'login_body_class' ) );
 		add_action( 'login_head', array( $this, 'print_inline_admin_css' ) );
 
-		if ( ( new Status() )->is_staging_site() ) {
-			add_filter( 'login_message', array( Notices::class, 'sso_not_allowed_in_staging' ) );
+		if ( ( new Status() )->in_safe_mode() ) {
+			add_filter( 'login_message', array( Notices::class, 'sso_not_allowed_in_safe_mode' ) );
 			return;
 		}
 
@@ -864,7 +873,7 @@ class SSO {
 					$user_data->role = $new_user_override_role;
 				}
 
-				$user = Helpers::generate_user( $user_data );
+				$user = Utils::generate_user( $user_data );
 				if ( ! $user ) {
 					$tracking->record_user_event(
 						'sso_login_failed',
@@ -960,7 +969,7 @@ class SSO {
 						admin_url()
 					)
 				);
-				exit;
+				exit( 0 );
 			}
 
 			add_filter( 'allowed_redirect_hosts', array( Helpers::class, 'allowed_redirect_hosts' ) );
@@ -968,7 +977,7 @@ class SSO {
 			/** This filter is documented in core/src/wp-login.php */
 				apply_filters( 'login_redirect', $redirect_to, $_request_redirect_to, $user )
 			);
-			exit;
+			exit( 0 );
 		}
 
 		add_filter( 'jetpack_sso_default_to_sso_login', '__return_false' );
@@ -1198,7 +1207,7 @@ class SSO {
 
 		add_filter( 'allowed_redirect_hosts', array( Helpers::class, 'allowed_redirect_hosts' ) );
 		wp_safe_redirect( $connect_url );
-		exit;
+		exit( 0 );
 	}
 
 	/**

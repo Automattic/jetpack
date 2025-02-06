@@ -27,7 +27,7 @@ class Boost_API {
 	 * Get the API client instance.
 	 *
 	 * @return Boost_API_Client
-	 * @deprecated $$next_version$$ Use get(), and post() directly instead.
+	 * @deprecated 3.1.1 Use get(), and post() directly instead.
 	 */
 	public static function get_client() {
 		return self::get_api_client();
@@ -55,6 +55,7 @@ class Boost_API {
 	 * @return array|\WP_Error
 	 */
 	public static function get( $path, $query = array(), $args = null ) {
+		// @phan-suppress-next-line PhanParamTooMany -- By default this is WPCOM_Boost_API_Client, which accepts an extra param.
 		return self::get_api_client()->get( $path, $query, self::merge_args( $args ) );
 	}
 
@@ -67,6 +68,7 @@ class Boost_API {
 	 * @return mixed
 	 */
 	public static function post( $path, $payload = array(), $args = null ) {
+		// @phan-suppress-next-line PhanParamTooMany -- By default this is WPCOM_Boost_API_Client, which accepts an extra param.
 		return self::get_api_client()->post( $path, $payload, self::merge_args( $args ) );
 	}
 

@@ -1,10 +1,10 @@
 /** @ssr-ready **/
 
-import classNames from 'classnames';
-import Search from 'components/search';
+import clsx from 'clsx';
 import { isEqual } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
+import Search from 'components/search';
 import NavItem from './item';
 import NavTabs from './tabs';
 import './style.scss';
@@ -52,7 +52,7 @@ class SectionNav extends React.Component {
 		let className;
 
 		if ( ! children ) {
-			className = classNames( {
+			className = clsx( {
 				'dops-section-nav': true,
 				'is-empty': true,
 			} );
@@ -66,7 +66,7 @@ class SectionNav extends React.Component {
 			);
 		}
 
-		className = classNames( {
+		className = clsx( {
 			'dops-section-nav': true,
 			'is-open': this.state.mobileOpen,
 			'has-pinned-items': this.hasPinnedSearch || this.props.hasPinnedItems,

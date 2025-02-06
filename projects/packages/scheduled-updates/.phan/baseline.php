@@ -9,14 +9,13 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredProperty : 40+ occurrences
     // PhanTypeArraySuspiciousNullable : 2 occurrences
     // PhanCompatibleAccessMethodOnTraitDefinition : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/pluggable.php' => ['PhanTypeArraySuspiciousNullable'],
-        'tests/php/class-scheduled-updates-test.php' => ['PhanCompatibleAccessMethodOnTraitDefinition', 'PhanUndeclaredProperty'],
+        'tests/php/class-scheduled-updates-test.php' => ['PhanCompatibleAccessMethodOnTraitDefinition'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

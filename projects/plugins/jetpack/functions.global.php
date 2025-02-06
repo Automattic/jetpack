@@ -17,7 +17,7 @@ use Automattic\Jetpack\Sync\Functions;
 
 // Disable direct access.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 require_once __DIR__ . '/functions.is-mobile.php';
@@ -50,8 +50,10 @@ function jetpack_deprecated_function( $function, $replacement, $version ) { // p
 	) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			sprintf(
-				/* Translators: 1. Function name. 2. Jetpack version number. */
-				__( 'The %1$s function will be removed from the Jetpack plugin in version %2$s.', 'jetpack' ),
+				doing_action( 'after_setup_theme' ) || did_action( 'after_setup_theme' ) ?
+					/* Translators: 1. Function name. 2. Jetpack version number. */
+					__( 'The %1$s function will be removed from the Jetpack plugin in version %2$s.', 'jetpack' )
+					: 'The %1$s function will be removed from the Jetpack plugin in version %2$s.',
 				$function,
 				$removed_version
 			)
@@ -259,7 +261,7 @@ function jetpack_render_tos_blurb() {
 	printf(
 		wp_kses(
 			/* Translators: placeholders are links. */
-			__( 'By clicking the <strong>Set up Jetpack</strong> button, you agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com.', 'jetpack' ),
+			__( 'By clicking <strong>Set up Jetpack</strong>, you agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">sync your site‘s data</a> with us.', 'jetpack' ),
 			array(
 				'a'      => array(
 					'href'   => array(),
@@ -513,37 +515,42 @@ function jetpack_is_frontend() {
 	return (bool) apply_filters( 'jetpack_is_frontend', $is_frontend );
 }
 
-/**
- * Build a list of Mastodon instance hosts.
- * That list can be extended via a filter.
- *
- * @since 11.8
- *
- * @return array
- */
-function jetpack_mastodon_get_instance_list() {
-	$mastodon_instance_list = array(
-		// Regex pattern to match any .tld for the mastodon host name.
-		'#https?:\/\/(www\.)?mastodon\.(\w+)(\.\w+)?#',
-		// Regex pattern to match any .tld for the mstdn host name.
-		'#https?:\/\/(www\.)?mstdn\.(\w+)(\.\w+)?#',
-		'counter.social',
-		'fosstodon.org',
-		'gc2.jp',
-		'hachyderm.io',
-		'infosec.exchange',
-		'mas.to',
-		'pawoo.net',
-	);
-
+if ( ! function_exists( 'jetpack_mastodon_get_instance_list' ) ) {
 	/**
-	 * Filter the list of Mastodon instances.
+	 * Build a list of Mastodon instance hosts.
+	 * That list can be extended via a filter.
+	 *
+	 * @todo This function is now replicated in the Classic Theme Helper package and can be
+	 * removed here once Social Links are moved out of Jetpack.
 	 *
 	 * @since 11.8
 	 *
-	 * @module widgets, theme-tools
-	 *
-	 * @param array $mastodon_instance_list Array of Mastodon instances.
+	 * @return array
 	 */
-	return (array) apply_filters( 'jetpack_mastodon_instance_list', $mastodon_instance_list );
+	function jetpack_mastodon_get_instance_list() {
+		$mastodon_instance_list = array(
+			// Regex pattern to match any .tld for the mastodon host name.
+			'#https?:\/\/(www\.)?mastodon\.(\w+)(\.\w+)?#',
+			// Regex pattern to match any .tld for the mstdn host name.
+			'#https?:\/\/(www\.)?mstdn\.(\w+)(\.\w+)?#',
+			'counter.social',
+			'fosstodon.org',
+			'gc2.jp',
+			'hachyderm.io',
+			'infosec.exchange',
+			'mas.to',
+			'pawoo.net',
+		);
+
+		/**
+		 * Filter the list of Mastodon instances.
+		 *
+		 * @since 11.8
+		 *
+		 * @module widgets, theme-tools
+		 *
+		 * @param array $mastodon_instance_list Array of Mastodon instances.
+		 */
+		return (array) apply_filters( 'jetpack_mastodon_instance_list', $mastodon_instance_list );
+	}
 }

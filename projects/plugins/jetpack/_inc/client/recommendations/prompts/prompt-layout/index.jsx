@@ -1,10 +1,10 @@
-import { imagePath } from 'constants/urls';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
+import { imagePath } from 'constants/urls';
 import { isFetchingIntroOffers } from 'state/intro-offers';
 import { isFetchingRecommendationsProductSuggestions } from 'state/recommendations';
 import { isFetchingSiteDiscount } from 'state/site/reducer';
@@ -28,10 +28,7 @@ const SideContent = ( { isLoading, illustration, illustrationClassName, sidebarC
 				<picture className="jp-recommendations-question__illustration-picture">
 					<source type="image/webp" srcSet={ `${ imgBase }.webp 1x, ${ imgBase }-2x.webp 2x` } />
 					<img
-						className={ classNames(
-							'jp-recommendations-question__illustration',
-							illustrationClassName
-						) }
+						className={ clsx( 'jp-recommendations-question__illustration', illustrationClassName ) }
 						srcSet={ `${ imgBase }-2x.png 2x` }
 						src={ `${ imgBase }.png` }
 						alt=""
@@ -50,7 +47,7 @@ const PromptLayoutComponent = props => {
 
 	return (
 		<div
-			className={ classNames( 'jp-recommendations-question__main', {
+			className={ clsx( 'jp-recommendations-question__main', {
 				'jp-recommendations-question__main--with-sidebar': !! illustration || !! sidebarCard,
 			} ) }
 		>
@@ -83,7 +80,7 @@ const PromptLayoutComponent = props => {
 
 PromptLayoutComponent.propTypes = {
 	answer: PropTypes.element.isRequired,
-	description: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ).isRequired,
+	description: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
 	illustration: PropTypes.string,
 	illustrationClassName: PropTypes.string,
 	progressBar: PropTypes.element,

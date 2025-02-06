@@ -9,13 +9,7 @@
  * Date: 01/11/16
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 
@@ -255,14 +249,6 @@
 						$changeFlag = false; $fileObjToDelete = false;
 
 						#} Load files arr
-
-						/* centralised into zeroBSCRM_files_getFiles
-						// for DAL1 contacts + quotes/invs:
-						if (!$zbs->isDAL2() || $filesArrayKey == 'zbs_customer_quotes' || $filesArrayKey == 'zbs_customer_invoices') // DAL1
-							$filesList = get_post_meta($objectID, $filesArrayKey, true);
-						else // DAL2
-							$filesList = $zbs->DAL->contacts->getContactMeta($objectID,'files');
-						*/
 						$filesList = zeroBSCRM_files_getFiles($fileType,$objectID);
 
 
@@ -290,16 +276,7 @@
 							}
 
 							if ($changeFlag) {
-
-								/* zeroBSCRM_files_updateFiles 
-								// for DAL1 contacts + quotes/invs:
-								if (!$zbs->isDAL2() || $filesArrayKey == 'zbs_customer_quotes' || $filesArrayKey == 'zbs_customer_invoices') // DAL1
-									update_post_meta($objectID,$filesArrayKey,$ret);
-								else // DAL2
-									$zbs->DAL->updateMeta(ZBS_TYPE_CONTACT,$objectID,'files',$ret);
-								*/
 								zeroBSCRM_files_updateFiles($fileType,$objectID,$ret);
-
 							}
 
 						} #} else w/e
@@ -468,6 +445,21 @@ function jpcrm_storage_dir_info() {
 	}
 
 	return false;
+}
+
+/**
+ * Returns the 'dir info' for the JPCRM storage folder.
+ *
+ * @return false|string
+ */
+function wf_jpcrm_storage_dir_path() {
+	$root_storage_info = jpcrm_storage_dir_info();
+
+	if ( ! $root_storage_info ) {
+		return false;
+	}
+
+	return $root_storage_info['path'];
 }
 
 /*

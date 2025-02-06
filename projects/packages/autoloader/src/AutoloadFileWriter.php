@@ -57,7 +57,7 @@ AUTOLOADER_COMMENT;
 				continue;
 			}
 
-			$newFile = isset( $renameList[ $file ] ) ? $renameList[ $file ] : $file;
+			$newFile = $renameList[ $file ] ?? $file;
 			$content = self::prepareAutoloaderFile( $file, $suffix );
 
 			$written = file_put_contents( $outDir . '/' . $newFile, $content );

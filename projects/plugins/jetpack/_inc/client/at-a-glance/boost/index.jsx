@@ -8,14 +8,15 @@ import { BoostScoreBar, getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
+import PropTypes from 'prop-types';
+import { useCallback, useEffect, useState } from 'react';
+import { connect } from 'react-redux';
 import InfoPopover from 'components/info-popover';
 import PluginInstallSection from 'components/plugin-install-section';
 import SectionHeader from 'components/section-header';
 import analytics from 'lib/analytics';
-import PropTypes from 'prop-types';
-import { useCallback, useEffect, useState } from 'react';
-import { connect } from 'react-redux';
+import { FEATURE_JETPACK_BOOST, getJetpackProductUpsellByFeature } from 'lib/plans/constants';
 import { getSiteConnectionStatus } from 'state/connection';
 import {
 	getApiRootUrl,
@@ -175,7 +176,7 @@ const DashBoost = ( {
 						'jetpack'
 					),
 					bottom: __(
-						'Jetpack Boost enhance your site’s performance like top websites, no developer needed.',
+						'Jetpack Boost enhances your site’s performance like top websites, no developer needed.',
 						'jetpack'
 					),
 				};
@@ -200,11 +201,17 @@ const DashBoost = ( {
 
 		return createInterpolateElement(
 			__(
-				'<a>Re-generate your Critical CSS after you make changes on your site</a><Info/>',
+				'<a><u>Regenerate your Critical CSS</u> after making changes to your site</a><Info/>',
 				'jetpack'
 			),
 			{
-				a: <a href={ siteAdminUrl + BOOST_PLUGIN_DASH } />,
+				a: (
+					<a
+						href={ siteAdminUrl + BOOST_PLUGIN_DASH }
+						className="dash-boost-critical-css-info__text"
+					/>
+				),
+				u: <u />,
 				Info: <CriticalCssInfoPopover />,
 			}
 		);
@@ -283,7 +290,7 @@ const DashBoost = ( {
 								</span>
 
 								<p
-									className={ classnames(
+									className={ clsx(
 										'dash-boost-speed-score__score-text',
 										[ 'C', 'D', 'E', 'F' ].includes( speedLetterGrade ) ? 'warning' : ''
 									) }
@@ -346,6 +353,7 @@ const DashBoost = ( {
 						}
 					) }
 					installedPrompt={ getPluginInstallSectionText() }
+					plan={ getJetpackProductUpsellByFeature( FEATURE_JETPACK_BOOST ) }
 				/>
 			</div>
 		</div>
@@ -476,7 +484,7 @@ const ConversionLossPopover = () => {
 				screenReaderText={ __( 'Learn more about how slow sites lose visitors', 'jetpack' ) }
 			>
 				<p className="boost-conversion-loss-info__source">
-					{ __( 'Source: ', 'jetpack' ) }
+					{ __( 'Source:', 'jetpack' ) }{ ' ' }
 					<ExternalLink
 						href="https://web.dev/why-speed-matters/"
 						target="_blank"
@@ -515,7 +523,7 @@ const CriticalCssInfoPopover = () => {
 				screenReaderText={ __( 'Learn more about how critical CSS works', 'jetpack' ) }
 			>
 				<h3 className="boost-critical-css-info__title">
-					{ __( 'Regenerate Critical CSS', 'jetpack' ) }
+					{ __( 'Get automated Critical CSS', 'jetpack' ) }
 				</h3>
 				<p>
 					{ createInterpolateElement(

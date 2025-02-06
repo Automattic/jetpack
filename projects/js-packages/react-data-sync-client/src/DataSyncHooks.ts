@@ -8,8 +8,8 @@ import {
 	useMutation,
 	QueryClientProvider,
 } from '@tanstack/react-query';
-import React from 'react';
-import { useRef, useEffect } from 'react';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import React, { useEffect } from 'react';
 import { z } from 'zod';
 import { DataSync } from './DataSync';
 import { DataSyncError } from './DataSyncError';
@@ -30,10 +30,12 @@ export function invalidateQuery( key: string ) {
  * @see https://tanstack.com/query/v5/docs/react/reference/QueryClientProvider
  */
 export function DataSyncProvider( props: { children: React.ReactNode } ) {
-	return QueryClientProvider( {
-		client: queryClient,
-		...props,
-	} );
+	return React.createElement(
+		QueryClientProvider,
+		{ client: queryClient },
+		props.children,
+		React.createElement( ReactQueryDevtools )
+	);
 }
 
 /**
@@ -71,10 +73,10 @@ function buildQueryKey( key: string, params: Record< string, string | number > )
 /**
  * React Query hook for DataSync.
  * @param namespace - The namespace of the endpoint.
- * @param key - The key of the value that's being synced.
- * @param schema - The Zod schema to validate the value against.
- * @param config - React Query configuration.
- * @param params - key/value pairs to be used as GET parameters.
+ * @param key       - The key of the value that's being synced.
+ * @param schema    - The Zod schema to validate the value against.
+ * @param config    - React Query configuration.
+ * @param params    - key/value pairs to be used as GET parameters.
  * @returns A tuple of React Query hooks.
  * @see https://tanstack.com/query/v5/docs/react/reference/useQuery
  * @see https://tanstack.com/query/v5/docs/react/reference/useMutation
@@ -90,10 +92,6 @@ export function useDataSync<
 	config: DataSyncConfig< Schema, Value > = {},
 	params: Record< string, string | number > = {}
 ): DataSyncHook< Schema, Value > {
-	// AbortController is used to track rapid value mutations
-	// and will cancel in-flight requests and prevent
-	// the optimistic value from being reverted.
-	const abortController = useRef< AbortController | null >( null );
 	const datasync = new DataSync( namespace, key, schema );
 	const queryKey = buildQueryKey( key, params );
 
@@ -118,12 +116,29 @@ export function useDataSync<
 		initialData: () => {
 			try {
 				return datasync.getInitialValue();
-			} catch ( e ) {
-				return;
+			} catch {
+				return undefined;
 			}
 		},
 	};
 
+	// AbortController is used to track rapid value mutations
+	// and will cancel in-flight requests and prevent
+	// the optimistic value from being reverted.
+	const getAbortController = () => {
+		const defaults = queryClient.getMutationDefaults( queryKey );
+		return defaults?.meta?.abortController instanceof AbortController
+			? defaults.meta.abortController
+			: undefined;
+	};
+
+	const setAbortController = ( abortController: AbortController ) => {
+		queryClient.setMutationDefaults( queryKey, {
+			meta: {
+				abortController,
+			},
+		} );
+	};
 	/**
 	 * Defaults for `useMutation`:
 	 * - `mutationKey` is the key of the value that's being synced.
@@ -135,19 +150,19 @@ export function useDataSync<
 	 * @see https://tanstack.com/query/v5/docs/react/guides/optimistic-updates
 	 */
 	const mutationConfigDefaults = {
-		mutationKey: queryKey,
-
+		meta: {
+			abortController: null,
+		},
 		// Mutation function that's called when the mutation is triggered
-		mutationFn: value => datasync.SET( value, params, abortController.current.signal ),
-
+		mutationFn: value => datasync.SET( value, params, getAbortController()?.signal ),
 		// Mutation actions that occur before the mutationFn is called
 		onMutate: async data => {
-			// If there's an existing mutation in progress, cancel it
-			if ( abortController.current ) {
-				abortController.current.abort();
+			// If there's any existing mutations in progress with the same key, cancel them.
+			const existingAbortController = getAbortController();
+			if ( existingAbortController ) {
+				existingAbortController.abort();
 			}
-			// Create a new AbortController for the upcoming request
-			abortController.current = new AbortController();
+			setAbortController( new AbortController() );
 
 			const value = schema.parse( data );
 
@@ -180,7 +195,7 @@ export function useDataSync<
 		onSettled: ( _, error ) => {
 			// Clear the abortController on either success or failure that is not an abort
 			if ( ! error || ( error instanceof DataSyncError && ! error.isAborted() ) ) {
-				abortController.current = null;
+				setAbortController( null );
 			}
 		},
 	};
@@ -313,7 +328,7 @@ export function useDataSyncAction<
 					queryClient.setQueryData( queryKey, data );
 				}
 				return data;
-			} catch ( e ) {
+			} catch {
 				return queryClient.getQueryData( queryKey );
 			}
 		},

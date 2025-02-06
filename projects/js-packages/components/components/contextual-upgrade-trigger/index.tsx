@@ -1,5 +1,5 @@
 import { Icon, arrowRight } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import IconTooltip from '../icon-tooltip';
 import Text from '../text';
 import styles from './style.module.scss';
@@ -20,7 +20,7 @@ const ContextualUpgradeTrigger: React.FC< CutBaseProps > = ( {
 		Tag === 'a' ? { href, ...( openInNewTab && { target: '_blank' } ) } : { onClick };
 
 	return (
-		<div className={ classnames( styles.cut, className ) }>
+		<div className={ clsx( styles.cut, className ) }>
 			<div>
 				<div>
 					<Text className={ styles.description }>{ description }</Text>

@@ -43,10 +43,10 @@ export default function TitleOptimizationOptions( {
 							htmlFor={ `${ titleOptimizationId }-${ index }` }
 						>
 							{ option.label }
+							<div className="jetpack-ai-title-optimization__option-description">
+								{ option.description }
+							</div>
 						</label>
-						<span className="jetpack-ai-title-optimization__option-description">
-							{ option.description }
-						</span>
 					</div>
 				</div>
 			) ) }

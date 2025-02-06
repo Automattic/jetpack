@@ -3,7 +3,7 @@ import { RichText, useBlockProps } from '@wordpress/block-editor';
 import { Placeholder } from '@wordpress/components';
 import { createRef, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import metadata from './block.json';
 import SearchForm from './components/search-form';
 import Controls from './controls';
@@ -48,7 +48,7 @@ function GifEdit( { attributes, setAttributes, isSelected } ) {
 	const onSelectThumbnail = thumbnail => setAttributes( getSelectedGiphyAttributes( thumbnail ) );
 
 	return (
-		<div { ...blockProps } className={ classNames( blockProps.className, `align${ align }` ) }>
+		<div { ...blockProps } className={ clsx( blockProps.className, `align${ align }` ) }>
 			<Controls />
 			{ ! giphyUrl ? (
 				<Placeholder

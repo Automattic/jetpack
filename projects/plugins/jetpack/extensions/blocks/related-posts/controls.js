@@ -10,6 +10,8 @@ export function RelatedPostsInspectorControls( { attributes, setAttributes } ) {
 		<>
 			<PanelBody title={ __( 'Layout settings', 'jetpack' ) }>
 				<RangeControl
+					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					label={ __( 'Number of posts', 'jetpack' ) }
 					value={ postsToShow }
 					onChange={ value =>
@@ -21,21 +23,25 @@ export function RelatedPostsInspectorControls( { attributes, setAttributes } ) {
 			</PanelBody>
 			<PanelBody title={ __( 'Metadata settings', 'jetpack' ) }>
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Display date', 'jetpack' ) }
 					checked={ displayDate }
 					onChange={ value => setAttributes( { displayDate: value } ) }
 				/>
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Display author', 'jetpack' ) }
 					checked={ displayAuthor }
 					onChange={ value => setAttributes( { displayAuthor: value } ) }
 				/>
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Display context (category or tag)', 'jetpack' ) }
 					checked={ displayContext }
 					onChange={ value => setAttributes( { displayContext: value } ) }
 				/>
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Display thumbnail', 'jetpack' ) }
 					checked={ displayThumbnails }
 					onChange={ value => setAttributes( { displayThumbnails: value } ) }

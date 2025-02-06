@@ -8,7 +8,7 @@ import { useEffect, useState, useMemo } from '@wordpress/element';
  * Fetch Related Posts.
  *
  * @param {number} postId - The ID of the post.
- * @returns {Promise<Array>} The related posts.
+ * @return {Promise<Array>} The related posts.
  */
 async function fetchRelatedPosts( postId ) {
 	try {
@@ -16,7 +16,7 @@ async function fetchRelatedPosts( postId ) {
 			path: `/wpcom/v2/related-posts/${ postId }`,
 		} );
 		return result;
-	} catch ( error ) {
+	} catch {
 		return [];
 	}
 }

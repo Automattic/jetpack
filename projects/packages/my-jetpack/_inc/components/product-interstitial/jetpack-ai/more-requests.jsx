@@ -11,7 +11,7 @@ import {
 	getRedirectUrl,
 } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React, { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 /**
@@ -25,9 +25,9 @@ import styles from './style.module.scss';
 /**
  * JetpackAIInterstitialMoreRequests component
  *
- * @param {object} props                 - Component props.
+ * @param {object}   props               - Component props.
  * @param {Function} props.onClickGoBack - onClick handler for the "Back" button.
- * @returns {object}                       JetpackAIInterstitialMoreRequests react component.
+ * @return {object}                       JetpackAIInterstitialMoreRequests react component.
  */
 export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } ) {
 	const title = __( 'Do you need more requests for Jetpack AI Assistant?', 'jetpack-my-jetpack' );
@@ -55,7 +55,7 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 						fluid
 					>
 						<Col sm={ 4 } md={ 4 } lg={ 7 }>
-							<div className={ classNames( styles.card ) }>
+							<div className={ clsx( styles.card ) }>
 								<div>
 									<H3>{ title }</H3>
 									<Text mb={ 3 }>{ longDescription }</Text>
@@ -74,7 +74,7 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 							sm={ 4 }
 							md={ 4 }
 							lg={ 5 }
-							className={ classNames( styles.imageContainer, styles.aiImageContainer ) }
+							className={ clsx( styles.imageContainer, styles.aiImageContainer ) }
 						>
 							<img src={ jetpackAiImage } alt="Jetpack AI" />
 						</Col>

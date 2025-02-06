@@ -10,7 +10,7 @@
 *
 */
 
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 if ( ! function_exists( 'zeroBSCRM_portal_plainPermaCheck' ) ) {
 	function zeroBSCRM_portal_plainPermaCheck() {

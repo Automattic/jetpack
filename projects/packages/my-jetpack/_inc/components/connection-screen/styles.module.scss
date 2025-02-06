@@ -12,13 +12,14 @@
 .account-description {
 	color: var(--jp-gray-50);
 	font-size: 13px;
-	margin-bottom: 16px;
+	margin-bottom: 8px;
 	width: 60%;
 }
 
 .account-images {
 	display: flex;
 	align-items: center;
+	gap: 8px;
 	
 	li {
 		background: none !important;
@@ -28,7 +29,6 @@
 }
 
 .wordpress {
-	margin-right: 8px;
 	max-width: 110px;
 }
 
@@ -37,8 +37,11 @@
 }
 
 .apple {
-	margin-left: 8px;
 	height: 18px;
+}
+
+.github {
+	width: 16px;
 }
 
 .all-features {

@@ -11,6 +11,8 @@ export default class ModuleChartXAxis extends React.Component {
 		data: PropTypes.array.isRequired,
 	};
 
+	axisRef = React.createRef();
+
 	state = {
 		divisor: 1,
 		spacing: this.props.labelWidth,
@@ -38,7 +40,7 @@ export default class ModuleChartXAxis extends React.Component {
 	resize = nextProps => {
 		let props = this.props;
 
-		const node = this.refs.axis;
+		const node = this.axisRef.current;
 
 		if ( nextProps && ! ( nextProps instanceof Event ) ) {
 			props = nextProps;
@@ -82,7 +84,7 @@ export default class ModuleChartXAxis extends React.Component {
 		}, this );
 
 		return (
-			<div ref="axis" className="dops-chart__x-axis">
+			<div ref={ this.axisRef } className="dops-chart__x-axis">
 				{ labels }
 			</div>
 		);

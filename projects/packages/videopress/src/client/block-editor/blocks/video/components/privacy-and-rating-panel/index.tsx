@@ -12,7 +12,7 @@ import type React from 'react';
  * React component that renders the main privacy and ratings panel.
  *
  * @param {PrivacyAndRatingPanelProps} props - Component props.
- * @returns {React.ReactElement}               Panel to contain privacy and ratings settings.
+ * @return {React.ReactElement}               Panel to contain privacy and ratings settings.
  */
 export default function PrivacyAndRatingPanel( {
 	attributes,

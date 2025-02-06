@@ -7,6 +7,7 @@ import { useSingleModuleState } from '$features/module/lib/stores';
 import { useNavigate } from 'react-router-dom';
 import CardPage from '$layout/card-page/card-page';
 import styles from './purchase-success.module.scss';
+import { isWoaHosting } from '$lib/utils/hosting';
 
 const PurchaseSuccess: React.FC = () => {
 	const [ , setCloudCssState ] = useSingleModuleState( 'cloud_css' );
@@ -14,7 +15,7 @@ const PurchaseSuccess: React.FC = () => {
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const navigate = useNavigate();
 	const isaRequest = useImageAnalysisRequest();
-	const { site, canResizeImages } = Jetpack_Boost;
+	const { canResizeImages } = Jetpack_Boost;
 
 	useEffect( () => {
 		setCloudCssState( true );
@@ -97,7 +98,7 @@ const PurchaseSuccess: React.FC = () => {
 				</li>
 
 				<li>
-					{ site.isAtomic
+					{ isWoaHosting()
 						? createInterpolateElement(
 								__(
 									`Dedicated email support plus priority Live Chat if <link>your plan</link> includes <strong>Premium Support</strong>`,

@@ -297,10 +297,70 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 		$this->assertContains( array( 'test_var', 'test_value' ), $value );
 		$this->assertContains( array( 'test_2[child]', 'value' ), $value );
 		$this->assertContains( array( 'test_num[0]', 'value1' ), $value );
+
+		$_POST = array();
 	}
 
 	/**
-	 * Test that the Waf_Request class returns $_POST data correctly decoded from JSON via Waf_Request::get_post_vars().
+	 * Test that the Waf_Request class returns POST-ed data correctly decoded from JSON via Waf_Request::get_post_vars().
+	 */
+	public function testGetVarsPostWithJsonBodyProcessor() {
+		$_SERVER['CONTENT_TYPE'] = 'irrelevant';
+
+		$request = $this->mock_request(
+			array(
+				'body' => json_encode(
+					array(
+						'str' => 'value',
+						'arr' => array( 'a', 'b', 'c' ),
+						'obj' => (object) array( 'foo' => 'bar' ),
+					)
+				),
+			)
+		);
+		$value   = $request->get_post_vars( 'JSON' );
+		$this->assertIsArray( $value );
+		$this->assertContains( array( 'json.str', 'value' ), $value );
+		$this->assertContains( array( 'json.arr.0', 'a' ), $value );
+		$this->assertContains( array( 'json.arr.1', 'b' ), $value );
+		$this->assertContains( array( 'json.arr.2', 'c' ), $value );
+		$this->assertContains( array( 'json.obj.foo', 'bar' ), $value );
+
+		unset( $_SERVER['CONTENT_TYPE'] );
+	}
+
+	/**
+	 * Test that the Waf_Request class returns POST-ed data correctly decoded from URLENCODED body via Waf_Request::get_post_vars().
+	 */
+	public function testGetVarsPostWithUrlencodedBodyProcessor() {
+		$_SERVER['CONTENT_TYPE'] = 'irrelevant';
+
+		$request = $this->mock_request(
+			array(
+				'body' => (
+					http_build_query(
+						array(
+							'str' => 'value',
+							'arr' => array( 'a', 'b', 'c' ),
+							'obj' => (object) array( 'foo' => 'bar' ),
+						)
+					)
+				),
+			)
+		);
+		$value   = $request->get_post_vars( 'URLENCODED' );
+		$this->assertIsArray( $value );
+		$this->assertContains( array( 'str', 'value' ), $value );
+		$this->assertContains( array( 'arr[0]', 'a' ), $value );
+		$this->assertContains( array( 'arr[1]', 'b' ), $value );
+		$this->assertContains( array( 'arr[2]', 'c' ), $value );
+		$this->assertContains( array( 'obj[foo]', 'bar' ), $value );
+
+		unset( $_SERVER['CONTENT_TYPE'] );
+	}
+
+	/**
+	 * Test that the Waf_Request class returns POST-ed data correctly decoded from JSON via Waf_Request::get_post_vars().
 	 */
 	public function testGetVarsPostWithJson() {
 		$_SERVER['CONTENT_TYPE'] = 'application/json';
@@ -323,6 +383,48 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 		$this->assertContains( array( 'json.arr.1', 'b' ), $value );
 		$this->assertContains( array( 'json.arr.2', 'c' ), $value );
 		$this->assertContains( array( 'json.obj.foo', 'bar' ), $value );
+
+		unset( $_SERVER['CONTENT_TYPE'] );
+	}
+
+	/**
+	 * Test that the Waf_Request class returns POST data correctly when the content is XML
+	 */
+	public function testGetVarsPostWithXml() {
+		$_SERVER['CONTENT_TYPE'] = 'text/xml';
+		$request                 = $this->mock_request(
+			array(
+				'body' => '<?xml version="1.0"?><methodCall><methodName>methodName</methodName><params><param><value><string>AB</string></value></param></params></methodCall>',
+			)
+		);
+		$this->assertEmpty( $request->get_post_vars() );
+	}
+
+	/**
+	 * Test that the Waf_Request class returns any parameters when HTTP method isn't POST.
+	 */
+	public function testGetVarsPostWithUrlEncoded() {
+		$_SERVER['CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
+		$request                 = $this->mock_request(
+			array(
+				'body' => (
+					http_build_query(
+						array(
+							'str' => 'value',
+							'arr' => array( 'a', 'b', 'c' ),
+							'obj' => (object) array( 'foo' => 'bar' ),
+						)
+					)
+				),
+			)
+		);
+		$value                   = $request->get_post_vars();
+		$this->assertIsArray( $value );
+		$this->assertContains( array( 'str', 'value' ), $value );
+		$this->assertContains( array( 'arr[0]', 'a' ), $value );
+		$this->assertContains( array( 'arr[1]', 'b' ), $value );
+		$this->assertContains( array( 'arr[2]', 'c' ), $value );
+		$this->assertContains( array( 'obj[foo]', 'bar' ), $value );
 
 		unset( $_SERVER['CONTENT_TYPE'] );
 	}

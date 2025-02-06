@@ -51,9 +51,11 @@ that can trigger the opening and closing of the Popover then you need to pass in
 ### `Popover` Usage
 
 ```js
-<button ref="popoverButton" className="button"
+popoverButtonRef = createRef();
+
+<button ref={ this.popoverButtonRef } className="button"
 		onClick={ this._onTogglePopover }>Show Popover</button>
-<Popover context={ this.refs && this.refs.popoverButton }
+<Popover context={ this.popoverButtonRef.current }
 		isVisible={ this.state.showPopover }
 		onClose={ this._closePopover }
 		className='component__popover'
@@ -65,9 +67,11 @@ that can trigger the opening and closing of the Popover then you need to pass in
 ### `PopoverMenu` Usage
 
 ```js
-<button ref="popoverMenuButton" className="button"
+popoverMenuButtonRef = createRef();
+
+<button ref={ this.popoverMenuButtonRef } className="button"
 		onClick={ this._onTogglePopoverMenu }>Show Popover Menu</button>
-<PopoverMenu context={ this.refs && this.refs.popoverMenuButton }
+<PopoverMenu context={ this.popoverMenuButtonRef.current }
 	 	isVisible={ this.state.showPopoverMenu }
 		onClose={ this._closePopoverMenu }
 		position={ this.state.popoverPosition }>

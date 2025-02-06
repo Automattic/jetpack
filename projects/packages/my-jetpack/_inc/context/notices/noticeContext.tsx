@@ -1,11 +1,11 @@
 import { createContext, useCallback, useState } from 'react';
-import { NoticeContextType, Notice } from './types';
+import { NoticeContextType, Notice, NoticeOptions } from './types';
 
 const defaultNotice: Notice = {
 	message: '',
 	title: null,
 	options: {
-		level: '',
+		level: 'info',
 		priority: 0,
 	},
 };
@@ -21,19 +21,27 @@ export const NoticeContext = createContext< NoticeContextType >( {
 const NoticeContextProvider = ( { children } ) => {
 	const [ currentNotice, setCurrentNotice ] = useState< Notice >( defaultNotice );
 
-	const setNotice = useCallback(
-		( notice: Notice ) => {
-			// Only update notice if there is not already a notice or the new notice has a higher priority
-			if ( ! currentNotice.message || notice.options.priority > currentNotice.options.priority ) {
-				setCurrentNotice( notice );
-			}
-		},
-		[ currentNotice.message, currentNotice.options.priority ]
-	);
-
 	const resetNotice = useCallback( () => {
 		setCurrentNotice( defaultNotice );
 	}, [] );
+
+	const setNotice = useCallback(
+		// If onClose is not provided in the "notice", and close button is not hidden, use the custom onClose function
+		( notice: Notice, onClose?: NoticeOptions[ 'onClose' ] ) => {
+			// Only update notice if there is not already a notice or the new notice has a higher priority
+			if ( ! currentNotice.message || notice.options.priority > currentNotice.options.priority ) {
+				const newOptions = {
+					...notice.options,
+					onClose:
+						notice.options?.onClose || ( ! notice.options?.hideCloseButton ? onClose : undefined ),
+				};
+
+				resetNotice();
+				setCurrentNotice( { ...notice, options: newOptions } );
+			}
+		},
+		[ currentNotice.message, currentNotice.options.priority, resetNotice ]
+	);
 
 	return (
 		<NoticeContext.Provider

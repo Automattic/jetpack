@@ -191,7 +191,6 @@ Fetch Jetpack's current connection status.
 ```json
 {
 	"isActive": true,
-	"isStaging": false,
 	"offlineMode": {
 		"isActive":false,
 		"constant":false,
@@ -457,6 +456,28 @@ Dismiss a Jetpack notice by Id.
 * `notice`: {String} The identifier of the notice to dismiss. Possible values:
 	* `"feedback_dash_request"`
 	* `"welcome"`.
+
+### Jetpack Features (not modules)
+
+This has primarily been introduced to distinguish between former modules moved to the Classic Theme Helper package (predominantly Custom Content Types), and existing modules.
+
+#### GET wp-json/jetpack/v4/feature/:feature-slug
+
+Get a single feature status, over-ride property, description and search queries by its slug.
+
+**Example response** for `/feature/custom-content-types`
+
+```json
+{
+    "custom-content-types": {
+        "active": true,
+        "over_ride": false,
+        "description": "Display different types of content on your site with custom content types.",
+        "additional_search_queries": "cpt, custom post types, portfolio, portfolios, testimonial, testimonials",
+    }
+}
+```
+
 
 ### Site information
 

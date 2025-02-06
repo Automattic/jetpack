@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Connection\Utils;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Users;
@@ -731,7 +732,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		// Fake it till you make it
 		Constants::set_constant( 'JETPACK_INVITE_ACCEPTED', true );
 		// We modify the input here to mimick the same call structure of the update user endpoint.
-		Jetpack_SSO_Helpers::generate_user( $this->get_invite_user_data() );
+		Utils::generate_user( $this->get_invite_user_data() );
 		$this->sender->do_sync();
 
 		Constants::clear_constants();
@@ -750,7 +751,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		// Fake it till we make it
 		Constants::set_constant( 'JETPACK_INVITE_ACCEPTED', false );
 		// We modify the input here to mimick the same call structure of the update user endpoint.
-		Jetpack_SSO_Helpers::generate_user( $this->get_invite_user_data() );
+		Utils::generate_user( $this->get_invite_user_data() );
 		$this->sender->do_sync();
 
 		Constants::clear_constants();

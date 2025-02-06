@@ -239,7 +239,9 @@
 	margin-bottom: 0;
 
 	a.dops-section-nav-tab__link {
-		text-decoration: none;
+		span.components-external-link__contents {
+			text-decoration: none;
+		}
 	}
 
 	@include breakpoint( ">660px" ) {

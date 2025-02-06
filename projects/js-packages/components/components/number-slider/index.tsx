@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 import ReactSlider from 'react-slider';
 import { NumberSliderProps } from './types';
@@ -9,7 +9,7 @@ import './style.scss';
  * More support from the original ReactSlider component: https://zillow.github.io/react-slider/
  *
  * @param {NumberSliderProps} props - Props
- * @returns {React.ReactElement} - JSX element
+ * @return {React.ReactElement} - JSX element
  */
 const NumberSlider: React.FC< NumberSliderProps > = ( {
 	className,
@@ -24,7 +24,7 @@ const NumberSlider: React.FC< NumberSliderProps > = ( {
 } ) => {
 	const [ isThumbHolding, setIsThumbHolding ] = React.useState( false );
 
-	const componentClassName = classNames( 'jp-components-number-slider', className, {
+	const componentClassName = clsx( 'jp-components-number-slider', className, {
 		'jp-components-number-slider--is-holding': isThumbHolding,
 	} );
 
@@ -47,7 +47,13 @@ const NumberSlider: React.FC< NumberSliderProps > = ( {
 	const renderThumbCallback = renderThumb
 		? renderThumb
 		: ( props, state ) => {
-				return <div { ...props }>{ state.valueNow }</div>;
+				const { key, ...otherProps } = props;
+
+				return (
+					<div key={ key } { ...otherProps }>
+						{ state.valueNow }
+					</div>
+				);
 		  };
 
 	return (
@@ -62,7 +68,7 @@ const NumberSlider: React.FC< NumberSliderProps > = ( {
 				min={ minValue }
 				step={ step }
 				renderThumb={ renderThumbCallback } // eslint-disable-line react/jsx-no-bind
-				onChange={ onChange } // eslint-disable-line react/jsx-no-bind
+				onChange={ onChange }
 				onBeforeChange={ onBeforeChangeCallback } // eslint-disable-line react/jsx-no-bind
 				onAfterChange={ onAfterChangeCallback } // eslint-disable-line react/jsx-no-bind
 			/>

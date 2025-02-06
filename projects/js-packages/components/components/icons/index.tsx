@@ -1,6 +1,6 @@
 import { Path, SVG, G, Polygon } from '@wordpress/components';
-import classNames from 'classnames';
-import SocialLogo from 'social-logos';
+import clsx from 'clsx';
+import { SocialLogo } from 'social-logos';
 import styles from './style.module.scss';
 import { BaseIconProps } from './types';
 import type React from 'react';
@@ -9,7 +9,7 @@ import type React from 'react';
  * Icon Wrapper component.
  *
  * @param {BaseIconProps} props - Component props.
- * @returns {React.ReactNode} Icon Wrapper component.
+ * @return {React.ReactNode} Icon Wrapper component.
  */
 const IconWrapper: React.FC< BaseIconProps > = ( {
 	className,
@@ -20,7 +20,7 @@ const IconWrapper: React.FC< BaseIconProps > = ( {
 	children,
 } ) => {
 	const iconProps = {
-		className: classNames( styles.iconWrapper, className ),
+		className: clsx( styles.iconWrapper, className ),
 		width: size,
 		height: size,
 		viewBox,
@@ -234,6 +234,18 @@ export const AiIcon: React.FC< BaseIconProps > = ( {
 	);
 };
 
+export const StatsIcon: React.FC< BaseIconProps > = ( { opacity = 1, size, color } ) => {
+	return (
+		<IconWrapper size={ size } opacity={ opacity } color={ color }>
+			<Path
+				fillRule="evenodd"
+				clipRule="evenodd"
+				d="M11.25 5H12.75V20H11.25V5ZM6 10H7.5V20H6V10ZM18 14H16.5V20H18V14Z"
+			/>
+		</IconWrapper>
+	);
+};
+
 const jetpackIcons = {
 	'anti-spam': AntiSpamIcon,
 	backup: BackupIcon,
@@ -249,6 +261,7 @@ const jetpackIcons = {
 	jetpack: JetpackIcon,
 	share: ShareIcon,
 	ai: AiIcon,
+	stats: StatsIcon,
 };
 
 const iconsMap = {
@@ -264,8 +277,8 @@ export type IconSlug = keyof IconsMap;
 /**
  * Return icon component by slug.
  *
- * @param {string} slug       - Icon slug.
- * @returns {React.ComponentType<BaseIconProps>}   Icon component.
+ * @param {string} slug - Icon slug.
+ * @return {React.ComponentType<BaseIconProps>}   Icon component.
  */
 export function getIconBySlug< Slug extends IconSlug >( slug: Slug ): IconsMap[ Slug ] {
 	if ( ! iconsMap[ slug ] ) {
@@ -282,7 +295,7 @@ export const SocialServiceIcon: React.FC< {
 } > = ( { serviceName, className, iconSize } ) => {
 	return (
 		<SocialLogo
-			className={ classNames( styles.socialIcon, styles[ serviceName ], className ) }
+			className={ clsx( styles.socialIcon, styles[ serviceName ], className ) }
 			icon={ serviceName }
 			size={ iconSize || 24 }
 		/>

@@ -1,0 +1,26 @@
+{
+	"translation-revision-date": "2024-07-05 12:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=1; plural=0;", "lang": "zh_TW" },
+			"Pick a pre-defined layout or continue with a blank page": [
+				"\u9078\u64c7\u9810\u5148\u5b9a\u7fa9\u7684\u7248\u9762\u914d\u7f6e\uff0c\u6216\u7e7c\u7e8c\u4f7f\u7528\u7a7a\u767d\u9801\u9762"
+			],
+			"Choose a Pattern": [ "\u9078\u64c7\u4e00\u500b\u7248\u9762\u914d\u7f6e" ],
+			"Page categories": [ "\u9801\u9762\u5206\u985e" ],
+			"Blank page": [ "\u7a7a\u767d\u9801\u9762" ],
+			"Pick a pre-defined layout or start with a blank page.": [
+				"\u9078\u64c7\u4e00\u500b\u9810\u5148\u5b9a\u7fa9\u7684\u7248\u9762\u914d\u7f6e\uff0c\u6216\u5f9e\u7a7a\u767d\u9801\u9762\u958b\u59cb\u8457\u624b\u3002"
+			],
+			"Add a page": [ "\u65b0\u589e\u9801\u9762" ],
+			"Layout": [ "\u7248\u9762\u914d\u7f6e" ],
+			"default vertical name\u0004Business": [ "\u5546\u52d9" ],
+			"default company name\u0004Your Company Name": [ "\u516c\u53f8\u540d\u7a31" ],
+			"default phone number\u0004555-555-5555": [ "02-2320-6208" ],
+			"default address\u0004123 Main St": [ "\u91cd\u6176\u5357\u8def\u4e00\u6bb5 122 \u865f" ]
+		}
+	},
+	"comment": { "reference": "starter-page-templates/dist/starter-page-templates.js" }
+}

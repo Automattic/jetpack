@@ -1,4 +1,4 @@
-import { BaseControl, TextControl } from '@wordpress/components';
+import { TextControl } from '@wordpress/components';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import Lookup from '../lookup';
@@ -7,8 +7,8 @@ import { useMapkit } from '../mapkit/hooks';
 const placeholderText = __( 'Add a marker…', 'jetpack' );
 
 const MapkitLocationSearch = ( { label, onAddPoint } ) => {
-	const containerRef = useRef();
-	const textRef = useRef();
+	const containerRef = useRef( undefined );
+	const textRef = useRef( undefined );
 	const { mapkit } = useMapkit();
 	const search = new mapkit.Search( {
 		includePointsOfInterest: false,
@@ -88,10 +88,11 @@ const MapkitLocationSearch = ( { label, onAddPoint } ) => {
 
 	return (
 		<div ref={ containerRef }>
-			<BaseControl label={ label } className="components-location-search">
+			<div className="components-location-search">
 				<Lookup completer={ autocompleter } onReset={ onReset }>
 					{ ( { isExpanded, listBoxId, activeId, onChange, onKeyDown } ) => (
 						<TextControl
+							label={ label }
 							placeholder={ placeholderText }
 							ref={ textRef }
 							onChange={ onChange }
@@ -99,10 +100,11 @@ const MapkitLocationSearch = ( { label, onAddPoint } ) => {
 							aria-owns={ listBoxId }
 							aria-activedescendant={ activeId }
 							onKeyDown={ onKeyDown }
+							__nextHasNoMarginBottom={ true }
 						/>
 					) }
 				</Lookup>
-			</BaseControl>
+			</div>
 		</div>
 	);
 };

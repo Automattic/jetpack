@@ -1,5 +1,6 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
 import { FormFieldset, FormLabel, FormSelect } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -7,7 +8,6 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import SupportInfo from 'components/support-info';
 import TextInput from 'components/text-input';
-import React from 'react';
 
 import './style.scss';
 
@@ -16,8 +16,8 @@ class CommentsComponent extends React.Component {
 	 * If markdown module is inactive and this is toggling markdown for comments on, activate module.
 	 * If markdown for posts is off and this is toggling markdown for comments off, deactivate module.
 	 *
-	 * @param {string} module	- the module slug.
-	 * @returns {*}             the updated value
+	 * @param {string} module - the module slug.
+	 * @return {*}             the updated value
 	 */
 	updateFormStateByMarkdown = module => {
 		if ( this.props.getSettingCurrentValue( 'wpcom_publish_posts_with_markdown', module ) ) {

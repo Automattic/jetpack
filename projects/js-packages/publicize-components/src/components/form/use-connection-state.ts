@@ -1,46 +1,25 @@
-import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { useMemo } from 'react';
 import { usePublicizeConfig } from '../../..';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useFeaturedImage from '../../hooks/use-featured-image';
-import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useMediaDetails from '../../hooks/use-media-details';
-import useMediaRestrictions, { NO_MEDIA_ERROR } from '../../hooks/use-media-restrictions';
+import useMediaRestrictions from '../../hooks/use-media-restrictions';
+import { NO_MEDIA_ERROR } from '../../hooks/use-media-restrictions/constants';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
 
 export const useConnectionState = () => {
-	const { connections, enabledConnections } = useSocialMediaConnections();
+	const { connections } = useSocialMediaConnections();
 	const { isPublicizeEnabled, isPublicizeDisabledBySitePlan } = usePublicizeConfig();
-	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
-	const { showShareLimits, numberOfSharesRemaining } = useSelect( select => {
-		return {
-			showShareLimits: select( socialStore ).showShareLimits(),
-			numberOfSharesRemaining: select( socialStore ).numberOfSharesRemaining(),
-		};
-	}, [] );
-	const { attachedMedia, shouldUploadAttachedMedia } = useAttachedMedia();
+	const { attachedMedia } = useAttachedMedia();
 	const featuredImageId = useFeaturedImage();
 	const mediaId = attachedMedia[ 0 ]?.id || featuredImageId;
 
 	const { validationErrors, isConvertible } = useMediaRestrictions(
 		connections,
-		useMediaDetails( mediaId )[ 0 ],
-		{
-			isSocialImageGeneratorEnabledForPost,
-			shouldUploadAttachedMedia,
-		}
+		useMediaDetails( mediaId )[ 0 ]
 	);
-
-	const isAutoConversionEnabled = useSelect(
-		select => select( socialStore ).isAutoConversionEnabled(),
-		[]
-	);
-	const shouldAutoConvert = isAutoConversionEnabled && isConvertible;
-
-	const outOfConnections = showShareLimits && numberOfSharesRemaining <= enabledConnections.length;
 
 	/**
 	 * Returns whether a connection is in good shape.
@@ -52,22 +31,20 @@ export const useConnectionState = () => {
 	 */
 	const isInGoodShape = useCallback(
 		( connection: Connection ) => {
-			const { id, is_healthy, connection_id } = connection;
-			const currentId = connection_id ? connection_id : id;
+			const { connection_id: id, status } = connection;
 
 			// 1. Be healthy
-			const isHealthy = false !== is_healthy;
+			const isHealthy = status !== 'broken';
 
 			// 2. Have no validation errors
-			const hasValidationErrors =
-				validationErrors[ currentId ] !== undefined && ! shouldAutoConvert;
+			const hasValidationErrors = validationErrors[ id ] !== undefined && ! isConvertible;
 
 			// 3. Not have a NO_MEDIA_ERROR when media is required
-			const hasNoMediaError = validationErrors[ currentId ] === NO_MEDIA_ERROR;
+			const hasNoMediaError = validationErrors[ id ] === NO_MEDIA_ERROR;
 
 			return isHealthy && ! hasValidationErrors && ! hasNoMediaError;
 		},
-		[ shouldAutoConvert, validationErrors ]
+		[ isConvertible, validationErrors ]
 	);
 
 	/**
@@ -81,20 +58,14 @@ export const useConnectionState = () => {
 	 */
 	const shouldBeDisabled = useCallback(
 		( connection: Connection ) => {
-			const { enabled, toggleable } = connection;
-
-			const isOutOfConnections = ! enabled && toggleable && outOfConnections;
-			// A connection toggle should be disabled if
 			return (
 				// Publicize is disabled
 				! isPublicizeEnabled ||
-				// or if there are no more connections available
-				isOutOfConnections ||
 				// or the connection is not in good shape
 				! isInGoodShape( connection )
 			);
 		},
-		[ isInGoodShape, isPublicizeEnabled, outOfConnections ]
+		[ isInGoodShape, isPublicizeEnabled ]
 	);
 
 	/**

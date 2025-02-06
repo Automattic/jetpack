@@ -19,6 +19,11 @@ const suggestionMap: { [ key: string ]: string } = {
 		"We noticed you've recently updated a plugin that may affect your site's HTML/CSS structure.",
 		'jetpack-boost'
 	),
+	cornerstone_page_saved: __( 'A Cornerstone page was updated.', 'jetpack-boost' ),
+	cornerstone_pages_list_updated: __(
+		'The list of Cornerstone pages was updated.',
+		'jetpack-boost'
+	),
 };
 
 const getSuggestionMessage = ( type: RegenerationReason | null ) => {
