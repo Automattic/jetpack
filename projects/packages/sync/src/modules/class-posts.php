@@ -809,7 +809,7 @@ class Posts extends Module {
 	 * @deprecated since $$next-version$$
 	 */
 	public function add_term_relationships( $args ) {
-		_deprecated_function( __METHOD__, 'next-version' );
+		_deprecated_function( __METHOD__, '$$next-version$$' );
 		list( $filtered_posts, $previous_interval_end ) = $args;
 
 		return array(
