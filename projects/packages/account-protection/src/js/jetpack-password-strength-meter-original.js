@@ -16,46 +16,104 @@ jQuery( document ).ready( function ( $ ) {
 	const coreStrengthMeter = $( '#pass-strength-result' );
 	coreStrengthMeter.hide();
 
-	const passwordValidationStatus = $( '<div>', {
+	const passwordValidationStatus = $( '<div></div>', {
 		id: 'password-validation-status',
+		css: {
+			width: 'fit-content',
+			margin: 'auto',
+		},
 	} );
 
 	const userSpecific = Boolean( jetpackData.userSpecific );
 
-	const validationCheckList = $( '<ul>', { class: 'validation-checklist' } );
+	const validationCheckList = $( '<ul></ul>', {
+		css: {
+			display: 'flex',
+			'flex-direction': 'column',
+			gap: '4px',
+			'margin-bottom': '16px',
+		},
+	} );
 
 	const validationItems = {};
 
 	Object.entries( jetpackData.validationInitialState ).forEach( ( [ key, value ] ) => {
-		const listItem = $( '<li>', {
-			class: 'validation-item',
+		const listItem = $( '<li></li>', {
+			css: {
+				display: 'contains_backslash' === key ? 'none' : 'flex',
+				'align-items': 'center',
+				gap: '8px',
+			},
 			'data-key': key,
 		} );
 
 		const validationIcon = $( '<img>', {
 			src: jetpackData.loadingIcon,
 			alt: 'Validating...',
-			class: 'validation-icon',
+			css: {
+				height: '24px',
+			},
 		} );
 
 		const validationCheckListItemText = $( '<p>', {
 			text: value.message,
-			class: 'validation-text',
+			css: {
+				'margin-top': '0',
+			},
 		} );
 
 		let infoIconPopover = null;
 		if ( userSpecific && value.info ) {
-			infoIconPopover = $( '<div>', { class: 'info-popover' } );
+			infoIconPopover = $( '<div></div>', {
+				css: {
+					position: 'relative',
+					display: 'inline-block',
+					height: '20px',
+				},
+			} );
 			const infoIcon = $( '<img>', {
 				src: jetpackData.infoIcon,
 				alt: 'Info',
-				class: 'info-icon',
+				css: {
+					height: '20px',
+					cursor: 'pointer',
+				},
 			} );
 
-			const popover = $( '<div>', {
+			const popover = $( '<div></div>', {
 				text: value.info,
-				class: 'popover',
-			} ).append( $( '<div>', { class: 'popover-arrow' } ) );
+				css: {
+					display: 'none',
+					position: 'absolute',
+					bottom: '30px',
+					left: '50%',
+					transform: 'translateX(-50%)',
+					background: '#333',
+					color: '#fff',
+					padding: '6px 10px',
+					'border-radius': '4px',
+					'white-space': 'normal',
+					width: '200px',
+					'font-size': '12px',
+					'box-shadow': '0px 4px 6px rgba(0, 0, 0, 0.1)',
+					'z-index': 10,
+					'text-align': 'center',
+				},
+			} );
+
+			const popoverArrow = $( '<div></div>', {
+				css: {
+					position: 'absolute',
+					bottom: '-6px',
+					left: '50%',
+					transform: 'translateX(-50%)',
+					'border-left': '6px solid transparent',
+					'border-right': '6px solid transparent',
+					'border-top': '6px solid #333',
+				},
+			} );
+
+			popover.append( popoverArrow );
 
 			infoIcon.hover(
 				function () {
@@ -66,10 +124,15 @@ jQuery( document ).ready( function ( $ ) {
 				}
 			);
 
-			infoIconPopover.append( infoIcon, popover );
+			infoIconPopover.append( infoIcon );
+			infoIconPopover.append( popover );
 		}
 
-		listItem.append( validationIcon, validationCheckListItemText, infoIconPopover );
+		listItem.append( validationIcon );
+		listItem.append( validationCheckListItemText );
+		if ( infoIconPopover ) {
+			listItem.append( infoIconPopover );
+		}
 		validationCheckList.append( listItem );
 
 		validationItems[ key ] = {
@@ -83,23 +146,65 @@ jQuery( document ).ready( function ( $ ) {
 	passwordInput.after( passwordValidationStatus );
 
 	const strengthMeter = $( '<div>', {
-		class: 'strength-meter' + ( userSpecific ? ' user-specific' : null ),
+		css: {
+			display: 'flex',
+			'justify-content': 'space-between',
+			'align-items': 'center',
+			height: '30px',
+			padding: '0px 16px',
+			'margin-bottom': '16px',
+			'border-radius': '0px 0px 4px 4px',
+			'background-color': '#8C8F94',
+		},
 	} );
+
+	if ( userSpecific ) {
+		strengthMeter.css( { 'margin-left': '1px', 'margin-right': '1px' } );
+	}
 
 	const strength = $( '<p>', {
-		class: 'strength',
 		text: 'Validating...',
+		css: {
+			display: 'flex',
+			'align-items': 'center',
+			'font-size': '12px',
+			'font-weight': 'bold',
+			color: '#1D2327',
+			margin: '0',
+		},
 	} );
 
-	const jetpackBranding = $( '<div>', { class: 'branding' } ).append(
-		$( '<p>', { class: 'powered-by', text: 'Powered by ' } ),
-		$( '<img>', { src: jetpackData.logo, alt: 'Jetpack Logo' } )
-	);
+	const jetpackBranding = $( '<div>', {
+		css: {
+			display: 'flex',
+			'align-items': 'center',
+			gap: '4px',
+		},
+	} );
 
-	strengthMeter.append( strength, jetpackBranding );
+	const brandingMessage = $( '<p>', {
+		text: 'Powered by ',
+		css: {
+			'font-size': '12px',
+			color: '#1D2327',
+			margin: '0',
+		},
+	} );
+
+	const jetpackLogo = $( '<img>', {
+		src: jetpackData.logo,
+		alt: 'Jetpack Logo',
+		css: {
+			height: '18px',
+		},
+	} );
+
+	jetpackBranding.append( brandingMessage );
+	jetpackBranding.append( jetpackLogo );
+	strengthMeter.append( strength );
+	strengthMeter.append( jetpackBranding );
 	passwordInput.after( strengthMeter );
 
-	// Event listeners
 	passwordInput.on( 'input', () => validatePassword() );
 
 	setTimeout( () => {
@@ -108,7 +213,7 @@ jQuery( document ).ready( function ( $ ) {
 		}
 	}, 1500 );
 
-	generatePasswordButton.on( 'click', () => validatePassword() );
+	generatePasswordButton.on( 'click', () => validatePassword( 'on password generation' ) );
 
 	let currentAjaxRequest = null;
 

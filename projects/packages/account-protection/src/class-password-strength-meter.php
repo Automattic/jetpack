@@ -59,14 +59,8 @@ class Password_Strength_Meter {
 	 */
 	public function enqueue_jetpack_password_strength_meter_profile_script(): void {
 		if ( ! wp_script_is( 'jetpack-password-strength-meter', 'enqueued' ) ) {
-			wp_enqueue_script(
-				'jetpack-password-strength-meter',
-				plugin_dir_url( __FILE__ ) . 'js/jetpack-password-strength-meter.js',
-				array( 'jquery' ),
-				Account_Protection::PACKAGE_VERSION,
-				true
-			);
-
+			$this->enqueue_script();
+			$this->enqueue_styles();
 			$this->localize_jetpack_data( true );
 		}
 	}
@@ -81,14 +75,8 @@ class Password_Strength_Meter {
 		// phpcs:disable WordPress.Security.NonceVerification
 		if ( isset( $_GET['action'] ) && ( $_GET['action'] === 'rp' || $_GET['action'] === 'resetpass' ) ) {
 			if ( ! wp_script_is( 'jetpack-password-strength-meter', 'enqueued' ) ) {
-				wp_enqueue_script(
-					'jetpack-password-strength-meter',
-					plugin_dir_url( __FILE__ ) . 'js/jetpack-password-strength-meter.js',
-					array( 'jquery' ),
-					Account_Protection::PACKAGE_VERSION,
-					true
-				);
-
+				$this->enqueue_script();
+				$this->enqueue_styles();
 				$this->localize_jetpack_data();
 			}
 		}
@@ -116,6 +104,35 @@ class Password_Strength_Meter {
 				'loadingIcon'            => plugin_dir_url( __FILE__ ) . 'assets/loading.svg',
 				'validationInitialState' => $this->validation_service->get_validation_initial_state( $user_specific ),
 			)
+		);
+	}
+
+	/**
+	 * Enqueue the password strength meter script.
+	 *
+	 * @return void
+	 */
+	public function enqueue_script(): void {
+		wp_enqueue_script(
+			'jetpack-password-strength-meter',
+			plugin_dir_url( __FILE__ ) . 'js/jetpack-password-strength-meter.js',
+			array( 'jquery' ),
+			Account_Protection::PACKAGE_VERSION,
+			true
+		);
+	}
+
+	/**
+	 * Enqueue the password strength meter styles.
+	 *
+	 * @return void
+	 */
+	public function enqueue_styles(): void {
+		wp_enqueue_style(
+			'strength-meter-styles',
+			plugin_dir_url( __FILE__ ) . 'css/strength-meter.css',
+			array(),
+			Account_Protection::PACKAGE_VERSION
 		);
 	}
 }
