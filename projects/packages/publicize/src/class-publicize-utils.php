@@ -116,6 +116,7 @@ class Publicize_Utils {
 	 * @return bool
 	 */
 	public static function has_new_module_endpoint() {
+		// @phan-suppress-next-line PhanTypeMismatchArgumentNullableInternal - Phan thinks JETPACK__VERSION is not a string (it is).
 		return class_exists( 'Jetpack' ) && defined( 'JETPACK__VERSION' ) && ( version_compare( JETPACK__VERSION, '14.3', '>=' ) );
 	}
 }
