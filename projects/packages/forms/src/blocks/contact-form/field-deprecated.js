@@ -248,3 +248,43 @@ export const CONSENT_INNER_BLOCKS_DEPRECATION = {
 		return [ restAttributes, [ inputBlock, labelBlock ] ];
 	},
 };
+
+export const DROPDOWN_INNER_BLOCKS_DEPRECATION = {
+	...INNER_BLOCKS_DEPRECATION,
+	attributes: {
+		...INNER_BLOCKS_DEPRECATION.attributes,
+		toggleLabel: {
+			type: 'string',
+			default: null,
+			role: 'content',
+		},
+		options: {
+			type: 'array',
+			default: [ '' ],
+			role: 'content',
+		},
+	},
+	migrate( attributes ) {
+		const { restAttributes, labelStyles, inputStyles } = deprecateLabelAndInputStyles( attributes );
+		const { toggleLabel, ...newAttributes } = restAttributes;
+		// TODO: Similar to the checkbox field. We might need to migrate option styles?
+
+		const labelBlock = createBlock( 'jetpack/field-label', {
+			label: attributes.label,
+			requiredText: attributes.requiredText,
+			style: labelStyles,
+		} );
+
+		const inputBlock = createBlock( 'jetpack/field-input', {
+			placeholder: toggleLabel ?? __( 'Select one option', 'jetpack-forms' ),
+			style: inputStyles,
+			type: 'dropdown',
+		} );
+
+		return [ newAttributes, [ labelBlock, inputBlock ] ];
+	},
+	isEligible( attributes, innerBlocks ) {
+		const hasToggleLabel = attributes.toggleLabel && attributes.toggleLabel !== '';
+		return hasToggleLabel || ! innerBlocks.length;
+	},
+};

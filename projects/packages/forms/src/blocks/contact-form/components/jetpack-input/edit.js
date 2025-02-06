@@ -1,7 +1,8 @@
-import { useBlockProps } from '@wordpress/block-editor';
+import { RichText, useBlockProps } from '@wordpress/block-editor';
 import { createBlock, getDefaultBlockName } from '@wordpress/blocks';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import useSyncStyleAttributes from '../../util/use-sync-style-attributes.js';
 
 const SYNCED_ATTRIBUTES = [
@@ -14,6 +15,9 @@ const SYNCED_ATTRIBUTES = [
 ];
 
 const getInputClass = type => {
+	if ( type === 'dropdown' ) {
+		return 'jetpack-field-dropdown__toggle';
+	}
 	if ( type ) {
 		return `jetpack-field__${ type }`;
 	}
@@ -77,6 +81,20 @@ const JetpackInputEdit = ( { attributes, clientId, context, name, setAttributes 
 		},
 		[ setAttributes ]
 	);
+
+	if ( type === 'dropdown' ) {
+		return (
+			<div { ...blockProps }>
+				<RichText
+					value={ placeholder ? placeholder : __( 'Select one option', 'jetpack-forms' ) }
+					onChange={ onChange }
+					allowedFormats={ [ 'core/bold', 'core/italic' ] }
+					withoutInteractiveFormatting
+				/>
+				<span className="jetpack-field-dropdown__icon" />
+			</div>
+		);
+	}
 
 	if ( type === 'checkbox' ) {
 		return (

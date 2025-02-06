@@ -547,14 +547,15 @@ class Contact_Form_Plugin {
 	/**
 	 * Render the select field.
 	 *
-	 * @param array  $atts - the block attributes.
-	 * @param string $content - html content.
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
 	 *
 	 * @return string HTML for the contact form field.
 	 */
-	public static function gutenblock_render_field_select( $atts, $content ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'select' );
-		return Contact_Form::parse_contact_field( $atts, $content );
+	public static function gutenblock_render_field_select( $atts, $content, $block ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'select', $block );
+		return Contact_Form::parse_contact_field( $atts, $content, $block );
 	}
 
 	/**

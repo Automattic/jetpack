@@ -67,7 +67,7 @@ const FieldLabel = ( {
 					}
 					setAttributes( { label: value } );
 				} }
-				placeholder={ placeholder ?? __( 'Add label…', 'jetpack-forms' ) }
+				placeholder={ placeholder ? placeholder : __( 'Add label…', 'jetpack-forms' ) }
 				withoutInteractiveFormatting
 				allowedFormats={ [ 'core/italic' ] }
 			/>

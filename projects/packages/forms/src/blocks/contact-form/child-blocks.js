@@ -19,6 +19,7 @@ import JetpackFieldLabel from './components/jetpack-label';
 import {
 	CHECKBOX_INNER_BLOCKS_DEPRECATION,
 	CONSENT_INNER_BLOCKS_DEPRECATION,
+	DROPDOWN_INNER_BLOCKS_DEPRECATION,
 	INNER_BLOCKS_DEPRECATION,
 	TEXTAREA_INNER_BLOCKS_DEPRECATION,
 } from './field-deprecated';
@@ -772,6 +773,10 @@ export const childBlocks = [
 				),
 			},
 			edit: JetpackDropdown,
+			save() {
+				const innerBlocksProps = useInnerBlocksProps.save();
+				return <div { ...innerBlocksProps } />;
+			},
 			attributes: {
 				...FieldDefaults.attributes,
 				toggleLabel: {
@@ -785,6 +790,7 @@ export const childBlocks = [
 					role: 'content',
 				},
 			},
+			deprecated: [ DROPDOWN_INNER_BLOCKS_DEPRECATION ],
 		},
 	},
 ];

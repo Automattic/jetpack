@@ -20,6 +20,8 @@ import ToolbarRequiredGroup from './block-controls/toolbar-required-group';
 import JetpackFieldWidth from './jetpack-field-width';
 import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 
+const USING_INNER_BLOCKS = [ 'text', 'textarea', 'email', 'url', 'tel', 'date', 'dropdown' ];
+
 const JetpackFieldControls = ( {
 	attributes,
 	blockClassNames,
@@ -37,7 +39,7 @@ const JetpackFieldControls = ( {
 	const formStyle = useFormStyle( clientId );
 	const blockStyle = getBlockStyle( blockClassNames );
 	const isChoicesBlock = [ 'radio', 'checkbox' ].includes( type );
-	const isTextField = [ 'text', 'textarea', 'email', 'url', 'tel', 'date' ].includes( type );
+	const isUsingInnerBlocks = USING_INNER_BLOCKS.includes( type );
 
 	const setNumberAttribute =
 		( key, parse = parseInt ) =>
@@ -115,7 +117,7 @@ const JetpackFieldControls = ( {
 			help={ __( 'You can edit the "required" label in the editor', 'jetpack-forms' ) }
 			__nextHasNoMarginBottom={ true }
 		/>,
-		! hidePlaceholder && (
+		! hidePlaceholder && ! isUsingInnerBlocks && (
 			<TextControl
 				key="placeholderField"
 				label={ __( 'Placeholder text', 'jetpack-forms' ) }
@@ -172,7 +174,7 @@ const JetpackFieldControls = ( {
 				<PanelBody title={ __( 'Field Settings', 'jetpack-forms' ) }>
 					<>{ fieldSettings }</>
 				</PanelBody>
-				{ ! isTextField && (
+				{ ! isUsingInnerBlocks && (
 					<>
 						<PanelColorSettings
 							title={ __( 'Color', 'jetpack-forms' ) }

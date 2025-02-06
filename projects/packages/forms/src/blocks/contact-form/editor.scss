@@ -602,13 +602,13 @@
 .jetpack-field-checkbox,
 .jetpack-field-consent {
 	display: flex;
-	
-	:where(.jetpack-field-label) {
+
+	:where( .jetpack-field-label ) {
 		font-weight: 400;
 	}
 
-	:where(.jetpack-field-label .jetpack-field-label__input) {
-		font-weight: inherit
+	:where( .jetpack-field-label .jetpack-field-label__input ) {
+		font-weight: inherit;
 	}
 }
 
@@ -629,11 +629,11 @@
 	.wp-block-jetpack-field-label {
 		max-width: 100%;
 	}
-	:where(.jetpack-field-label) {
+	:where( .jetpack-field-label ) {
 		font-size: 13px;
 		text-transform: uppercase;
 	}
-	:where(.jetpack-field-label .jetpack-field-label__input) {
+	:where( .jetpack-field-label .jetpack-field-label__input ) {
 		font-size: inherit;
 		text-transform: inherit;
 	}
@@ -755,6 +755,9 @@
 	:where( .jetpack-field .jetpack-field__input ),
 	:where( .jetpack-field .jetpack-field__textarea ) {
 		color: #787c82; //Simulates a placeholder color
+	}
+	.jetpack-field-dropdown__toggle {
+		box-sizing: border-box;
 	}
 
 	&.is-style-outlined,

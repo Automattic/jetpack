@@ -323,7 +323,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$this->label_classes .= esc_attr( $label_classes );
 			}
 			if ( ! empty( $input_classes ) ) {
-				$class .= $class ? ' ' . esc_attr( $input_classes ) : esc_attr( $input_classes );
+				$class              .= $class ? ' ' . esc_attr( $input_classes ) : esc_attr( $input_classes );
+				$this->field_classes = $input_classes; // TODO: Find better means of applying classes and styles to select field wrapper.
 			}
 
 			// Styles.
@@ -871,9 +872,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text );
-		$field .= "<div class='contact-form__select-wrapper'>";
-		$field .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . $class . ( $required ? "required aria-required='true'" : '' ) . ">\n";
+		$field = $this->render_label( 'select', $id, $label, $required, $required_field_text );
+		// TODO: Prevent application of styles and classes on bother wrapper and `select` to avoid double spacing, relative font size issues etc.
+		$field .= "<div class='contact-form__select-wrapper " . esc_attr( $this->field_classes ) . "' style='" . esc_attr( $this->field_styles ) . "'>";
+		$field .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . $class . ( $required ? "required aria-required='true'" : '' ) . " style='" . esc_attr( $this->field_styles ) . "'>\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
 			$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";

@@ -1,21 +1,22 @@
-import { RichText, useBlockProps } from '@wordpress/block-editor';
+import { RichText, useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
+import { getBlockType } from '@wordpress/blocks';
 import { compose } from '@wordpress/compose';
-import { useEffect, useRef } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
+import { useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { isEmpty, isNil, noop, split, trim } from 'lodash';
+import { isEmpty, noop, split, trim } from 'lodash';
 import { getCaretPosition } from '../util/caret';
+import { ALLOWED_INNER_BLOCKS } from '../util/constants';
 import { setFocus } from '../util/focus';
-import { useFormStyle, useFormWrapper } from '../util/form';
+import { useFormWrapper } from '../util/form';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
 import JetpackFieldControls from './jetpack-field-controls';
-import JetpackFieldLabel from './jetpack-field-label';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
 const JetpackDropdown = ( { attributes, clientId, isSelected, name, setAttributes } ) => {
 	const { id, label, options, required, requiredText, toggleLabel, width } = attributes;
 	const optionsWrapper = useRef( undefined );
-	const formStyle = useFormStyle( clientId );
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 	const blockProps = useBlockProps( {
 		className: clsx( 'jetpack-field jetpack-field-dropdown', {
@@ -26,6 +27,29 @@ const JetpackDropdown = ( { attributes, clientId, isSelected, name, setAttribute
 	} );
 
 	useFormWrapper( { attributes, clientId, name } );
+
+	// Does this need to be used for the `is-selected` class above?
+	const isInnerBlockSelected = useSelect( select =>
+		select( 'core/block-editor' ).hasSelectedInnerBlock( clientId, true )
+	);
+
+	const labelBlockType = getBlockType( 'jetpack/field-label' );
+	const defaultLabel = labelBlockType.attributes.label.default;
+	const template = useMemo( () => {
+		return [
+			[ 'jetpack/field-label', { label, required, defaultLabel, requiredText } ],
+			[ 'jetpack/field-input', { type: 'dropdown' } ],
+		];
+	}, [ label, defaultLabel, required, requiredText ] );
+
+	const innerBlocksProps = useInnerBlocksProps(
+		{ className: 'jetpack-field-dropdown__wrapper' },
+		{
+			allowedBlocks: ALLOWED_INNER_BLOCKS,
+			template,
+			templateLock: 'all',
+		}
+	);
 
 	const changeFocus = ( index, cursorToEnd ) =>
 		setFocus( optionsWrapper.current, '[role=textbox]', index, cursorToEnd );
@@ -104,43 +128,10 @@ const JetpackDropdown = ( { attributes, clientId, isSelected, name, setAttribute
 		changeFocus( Math.max( index - 1, 0 ), true );
 	};
 
-	useEffect( () => {
-		if ( isNil( label ) ) {
-			setAttributes( { label: '' } );
-		}
-
-		if ( isNil( toggleLabel ) ) {
-			setAttributes( { toggleLabel: __( 'Select one option', 'jetpack-forms' ) } );
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
-
 	return (
 		<div { ...blockProps }>
-			<div className="jetpack-field-dropdown__wrapper">
-				<JetpackFieldLabel
-					required={ required }
-					requiredText={ requiredText }
-					label={ label }
-					attributes={ attributes }
-					setAttributes={ setAttributes }
-					isSelected={ isSelected }
-					style={ formStyle }
-				/>
-				<div className="jetpack-field-dropdown__toggle">
-					<RichText
-						value={ toggleLabel }
-						onChange={ value => {
-							setAttributes( { toggleLabel: value } );
-						} }
-						allowedFormats={ [ 'core/bold', 'core/italic' ] }
-						withoutInteractiveFormatting
-					/>
-					<span className="jetpack-field-dropdown__icon" />
-				</div>
-			</div>
-
-			{ isSelected && (
+			<div { ...innerBlocksProps } />
+			{ ( isSelected || isInnerBlockSelected ) && (
 				<div className="jetpack-field-dropdown__popover" ref={ optionsWrapper }>
 					{ options.map( ( option, index ) => (
 						<RichText
@@ -162,8 +153,6 @@ const JetpackDropdown = ( { attributes, clientId, isSelected, name, setAttribute
 				attributes={ attributes }
 				setAttributes={ setAttributes }
 				width={ width }
-				placeholder={ toggleLabel }
-				placeholderField="toggleLabel"
 				type="dropdown"
 			/>
 		</div>
