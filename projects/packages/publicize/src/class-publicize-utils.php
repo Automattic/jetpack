@@ -109,4 +109,13 @@ class Publicize_Utils {
 			throw new \Exception( esc_html( "Method $method can only be called on WordPress.com." ) );
 		}
 	}
+
+	/**
+	 * Check if the new module endpoint is available in the used Jetpack version.
+	 *
+	 * @return bool
+	 */
+	public static function has_new_module_endpoint() {
+		return class_exists( 'Jetpack' ) && defined( 'JETPACK__VERSION' ) && ( version_compare( JETPACK__VERSION, '13.4', '>=' ) );
+	}
 }

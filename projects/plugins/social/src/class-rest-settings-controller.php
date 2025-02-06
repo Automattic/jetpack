@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Social;
 
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Publicize\Publicize_Utils;
 use Jetpack_Social;
 use WP_Error;
 use WP_REST_Controller;
@@ -26,24 +27,28 @@ class REST_Settings_Controller extends WP_REST_Controller {
 	 * @static
 	 */
 	public function register_rest_routes() {
-		register_rest_route(
-			'jetpack/v4',
-			'/social/settings',
-			array(
+		// If the site has an older version of Jetpack we still need to register the route.
+		if ( ! Publicize_Utils::has_new_module_endpoint() ) {
+			register_rest_route(
+				'jetpack/v4',
+				'/social/settings',
 				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_item' ),
-					'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
-					'args'                => $this->get_endpoint_args_for_item_schema(),
-				),
-				array(
-					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => array( $this, 'update_item' ),
-					'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
-					'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::EDITABLE ),
-				),
-			)
-		);
+					array(
+						'methods'             => WP_REST_Server::READABLE,
+						'callback'            => array( $this, 'get_item' ),
+						'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+						'args'                => $this->get_endpoint_args_for_item_schema(),
+					),
+					array(
+						'methods'             => WP_REST_Server::EDITABLE,
+						'callback'            => array( $this, 'update_item' ),
+						'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+						'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::EDITABLE ),
+					),
+				)
+			);
+		}
+
 		register_rest_route(
 			'jetpack/v4',
 			'/social/review-dismiss',
