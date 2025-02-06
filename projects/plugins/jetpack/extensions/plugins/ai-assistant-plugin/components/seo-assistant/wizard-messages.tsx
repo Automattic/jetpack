@@ -69,6 +69,7 @@ export const MessageBubble = ( { message, onSelect = ( m: Message ) => m } ) => 
 		<div
 			className={ clsx( 'assistant-wizard__message', {
 				'is-user': message.isUser,
+				'is-option': message.type === 'option',
 			} ) }
 		>
 			<div className="assistant-wizard__message-icon">
