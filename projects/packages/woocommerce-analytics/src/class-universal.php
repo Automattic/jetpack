@@ -31,9 +31,6 @@ class Universal {
 		// delayed events stored in session (can be add_to_carts, product_views...)
 		add_action( 'wp_head', array( $this, 'loop_session_events' ), 2 );
 
-		// Initialize session
-		add_action( 'template_redirect', array( $this, 'initialize_woocommerceanalytics_session' ) );
-
 		// Capture search
 		add_action( 'template_redirect', array( $this, 'capture_search_query' ), 11 );
 
@@ -72,35 +69,6 @@ class Universal {
 
 		// cart page view
 		add_action( 'wp_footer', array( $this, 'capture_cart_view' ), 11 );
-	}
-
-	/**
-	 * Set a UUID for the current session if is not yet loaded and record the session started event
-	 */
-	public function initialize_woocommerceanalytics_session() {
-		if ( ! isset( $_COOKIE['woocommerceanalytics_session'] ) ) {
-			$session_id         = wp_generate_uuid4();
-			$this->session_id   = $session_id;
-			$this->landing_page = sanitize_url( wp_unslash( ( empty( $_SERVER['HTTPS'] ) ? 'http' : 'https' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidatedNotSanitized -- actually escaped with sanitize_url.
-			// Disabled the below temporarily to avoid caching issues.
-			// phpcs:disable Squiz.PHP.CommentedOutCode.Found
-			// setcookie(
-			// 'woocommerceanalytics_session',
-			// wp_json_encode(
-			// array(
-			// 'session_id'   => $this->session_id,
-			// 'landing_page' => $this->landing_page,
-			// )
-			// ),
-			// 0,
-			// COOKIEPATH,
-			// COOKIE_DOMAIN,
-			// is_ssl(),
-			// true
-			// );
-			// $this->record_event( 'woocommerceanalytics_session_started' );
-			// phpcs:enable Squiz.PHP.CommentedOutCode.Found
-		}
 	}
 
 	/**

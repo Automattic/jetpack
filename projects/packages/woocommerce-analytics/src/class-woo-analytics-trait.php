@@ -57,14 +57,14 @@ trait Woo_Analytics_Trait {
 	 *
 	 *  @var string
 	 */
-	protected $session_id;
+	protected $session_id = '';
 
 	/**
 	 *  Landing page where session started.
 	 *
 	 *  @var string
 	 */
-	protected $landing_page;
+	protected $landing_page = '';
 
 	/**
 	 * Format Cart Items or Order Items to an array
@@ -263,19 +263,16 @@ trait Woo_Analytics_Trait {
 	 * @return array Array of standard event props.
 	 */
 	public function get_common_properties() {
-		// phpcs:disable Squiz.PHP.CommentedOutCode.Found
-		// Disabled the below temporarily to avoid caching issues.
-		// $session_data       = json_decode( sanitize_text_field( wp_unslash( $_COOKIE['woocommerceanalytics_session'] ?? '' ) ), true ) ?? array();
-		// $session_id         = sanitize_text_field( $session_data['session_id'] ?? $this->session_id );
-		// $landing_page       = sanitize_url( $session_data['landing_page'] ?? $this->landing_page );
-		// phpcs:enable Squiz.PHP.CommentedOutCode.Found
+		$session_data       = json_decode( sanitize_text_field( wp_unslash( $_COOKIE['woocommerceanalytics_session'] ?? '' ) ), true ) ?? array();
+		$session_id         = sanitize_text_field( $session_data['session_id'] ?? $this->session_id );
+		$landing_page       = sanitize_url( $session_data['landing_page'] ?? $this->landing_page );
 		$site_info          = array(
-			'session_id'                         => null,
+			'session_id'                         => $session_id,
 			'blog_id'                            => Jetpack_Connection::get_site_id(),
 			'store_id'                           => defined( '\\WC_Install::STORE_ID_OPTION' ) ? get_option( \WC_Install::STORE_ID_OPTION ) : false,
 			'ui'                                 => $this->get_user_id(),
 			'url'                                => home_url(),
-			'landing_page'                       => null,
+			'landing_page'                       => $landing_page,
 			'woo_version'                        => WC()->version,
 			'wp_version'                         => get_bloginfo( 'version' ),
 			'store_admin'                        => in_array( array( 'administrator', 'shop_manager' ), wp_get_current_user()->roles, true ) ? 1 : 0,
@@ -326,8 +323,32 @@ trait Woo_Analytics_Trait {
 	 * @return string|void
 	 */
 	public function record_event( $event_name, $properties = array(), $product_id = null, $clickhouse = true ) {
+		$this->maybe_start_session();
 		$js = $this->process_event_properties( $event_name, $properties, $product_id, $clickhouse );
 		wc_enqueue_js( "_wca.push({$js});" );
+	}
+
+	/**
+	 * In case session_id is empty. A new session should be created.
+	 *
+	 * @return void
+	 */
+	public function maybe_start_session() {
+		if ( ! isset( $_COOKIE['woocommerceanalytics_session'] ) ) {
+			$session_id         = wp_generate_uuid4();
+			$this->session_id   = $session_id;
+			$this->landing_page = sanitize_url( wp_unslash( ( empty( $_SERVER['HTTPS'] ) ? 'http' : 'https' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidatedNotSanitized -- actually escaped with sanitize_url.
+			$event_js           = $this->process_event_properties( 'woocommerceanalytics_session_started' );
+			$cookie_js          = "
+            const sessionData = JSON.stringify({
+                    session_id: '{$this->session_id}',
+                    landing_page: encodeURIComponent('{$this->landing_page}'),
+            });
+            document.cookie = `woocommerceanalytics_session=\${sessionData}; path=/; secure; samesite=strict`;
+            ";
+			wc_enqueue_js( $cookie_js ); // save the session cookie for further events in the session
+			wc_enqueue_js( "_wca.push({$event_js});" ); // trigger session started event
+		}
 	}
 
 	/**

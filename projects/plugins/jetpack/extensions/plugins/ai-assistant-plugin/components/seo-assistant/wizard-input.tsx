@@ -11,11 +11,16 @@ export const OptionsInput = ( {
 } ) => {
 	return (
 		<div className="assistant-wizard__actions">
-			<Button variant="secondary" onClick={ handleRetry }>
+			<Button variant="secondary" className="assistant-wizard__submit" onClick={ handleRetry }>
 				{ retryCtaLabel }
 			</Button>
 
-			<Button variant="primary" onClick={ handleSubmit } disabled={ disabled }>
+			<Button
+				variant="primary"
+				className="assistant-wizard__submit"
+				onClick={ handleSubmit }
+				disabled={ disabled }
+			>
 				{ submitCtaLabel }&nbsp;
 				<Icon icon={ arrowRight } size={ 24 } />
 			</Button>
@@ -47,7 +52,7 @@ export const TextInput = forwardRef( UnforwardedKeywordsInput );
 export const CompletionInput = ( { submitCtaLabel, handleSubmit } ) => {
 	return (
 		<div className="assistant-wizard__completion">
-			<Button variant="primary" className="assistant-wizard__done" onClick={ handleSubmit }>
+			<Button variant="primary" className="assistant-wizard__submit" onClick={ handleSubmit }>
 				{ submitCtaLabel }
 			</Button>
 		</div>
