@@ -16,7 +16,7 @@ use Automattic\JetpackCRM\Segment_Condition_Exception;
 	Breaking Checks ( stops direct access )
 	====================================================== */
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 /*
 ======================================================
@@ -67,7 +67,7 @@ function zbs_create_email_templates() {
 		$m['message'] = 'no permissions';
 	}
 	echo json_encode( $m );
-	die();
+	die( 0 );
 }
 
 	// save email template
@@ -156,7 +156,7 @@ function zbs_save_email_status() {
 	}
 
 	echo json_encode( $m );
-	die();
+	die( 0 );
 	// nonce field is zbs-save-email_active
 }
 
@@ -185,7 +185,7 @@ function zeroBSCRM_AJAX_logClose() {
 
 	header( 'Content-Type: application/json' );
 	echo json_encode( array( 'fini' => 1 ) );
-	exit();
+	exit( 0 );
 }
 
 	/*
@@ -252,7 +252,7 @@ function zeroBSCRM_AJAX_markFeedback() {
 	}
 	header( 'Content-Type: application/json' );
 	echo json_encode( array( 'fini' => 1 ) );
-	exit();
+	exit( 0 );
 }
 
 	// } Retrieve list of invoice deets for customer ID
@@ -283,7 +283,7 @@ function zeroBSCRM_AJAX_getCustInvs() {
 
 	header( 'Content-Type: application/json' );
 	echo json_encode( $ret );
-	exit();
+	exit( 0 );
 }
 
 	// } Remove file
@@ -345,7 +345,7 @@ function zeroBSCRM_removeFile() {
 			'errors' => $errors,
 		)
 	);
-	exit();
+	exit( 0 );
 }
 
 	// } Filter customers + retrieve count
@@ -374,7 +374,7 @@ function zeroBSCRM_AJAX_filterCustomers() {
 
 	header( 'Content-Type: application/json' );
 	echo json_encode( $res );
-	exit();
+	exit( 0 );
 }
 
 	// Add log
@@ -456,7 +456,7 @@ function zeroBSCRM_AJAX_addLog() {
 	}
 
 	echo json_encode( array( 'processed' => $res ) );
-	exit();
+	exit( 0 );
 }
 
 	// Update log
@@ -551,7 +551,7 @@ function zeroBSCRM_AJAX_updateLog() {
 	}
 
 	echo json_encode( array( 'processed' => $res ) );
-	exit();
+	exit( 0 );
 }
 
 	// } Del log
@@ -588,33 +588,11 @@ function zeroBSCRM_AJAX_deleteLog() {
 		global $zbs;
 
 		// } Brutal
-		if ( $zbs->isDAL2() ) {
-			$res = $zbs->DAL->logs->deleteLog( array( 'id' => $zbsNoteID ) );
-		} else {
-
-			// DAL 1
-			$res = wp_delete_post( $zbsNoteID, false ); // } Don't force delete (leaves a kind of audit trail for now...?)
-
-			if ( isset( $res ) && isset( $res->ID ) ) {
-
-				$res = 1;
-
-				// } Internal Automator
-				zeroBSCRM_FireInternalAutomator(
-					'log.delete',
-					array(
-						'id' => $zbsNoteID,
-					)
-				);
-
-			} else {
-				$res = -1;
-			}
-		}
+		$res = $zbs->DAL->logs->deleteLog( array( 'id' => $zbsNoteID ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	}
 
 	echo json_encode( array( 'processed' => $res ) );
-	exit();
+	exit( 0 );
 }
 
 	// Pin log
@@ -745,7 +723,7 @@ function ZeroBSCRM_get_quote_template() {
 
 		global $zbs;
 
-		// DEBUG: print_r($_POST['quote_fields']); exit();
+		// DEBUG: print_r($_POST['quote_fields']); exit( 0 );
 		// DAL3+ takes all quote inputs into account and fills out based on these (quote_fields), not above
 		if ( isset( $_POST['quote_fields'] ) && is_array( $_POST['quote_fields'] ) ) {
 
@@ -1084,7 +1062,7 @@ function jpcrm_ajax_quote_send_email() {
 
 		}
 
-		exit();
+		exit( 0 );
 }
 
 /**
@@ -1124,12 +1102,13 @@ function ZeroBSCRM_accept_quote() {
 		$uinfo = wp_get_current_user();
 
 		// validate that this has been posted by the contact associated with the quote
+		global $zbs;
 		if ( ! $uinfo->ID
-			|| zeroBS_getCustomerIDWithEmail( $uinfo->user_email ) !== zeroBSCRM_quote_getContactAssigned( $quoteID ) // phpcs:ignore
+			|| zeroBS_getCustomerIDWithEmail( $uinfo->user_email ) !== $zbs->DAL->quotes->getQuoteContactID( $quoteID ) // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		) {
 			zeroBSCRM_sendJSONError( array( 'access' => 1 ), 403 );
 		}
-	} elseif ( ! zeroBSCRM_quotes_getFromHash( $quoteHash, -1 )['success'] ) {
+	} elseif ( ! zeroBSCRM_quotes_getFromHash( $quoteHash )['success'] ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		zeroBSCRM_sendJSONError( array( 'hash' => 1 ), 403 );
 	}
 
@@ -1227,7 +1206,7 @@ function zbs_lead_form_views() {
 	$form_views = $zbs->DAL->forms->add_form_view( $form_id );
 
 	echo json_encode( array( 'view_logged' => 'true' ) );
-	exit();
+	exit( 0 );
 }
 	add_action( 'wp_ajax_nopriv_zbs_lead_form_views', 'zbs_lead_form_views' );
 	add_action( 'wp_ajax_zbs_lead_form_views', 'zbs_lead_form_views' );
@@ -1480,7 +1459,7 @@ function zbs_lead_form_capture() {
 					if ( $autoLogCCreation <= 0 && $cID > 0 ) {
 
 						// add form log manually
-						$logID = $zbs->DAL->addUpdateLog(
+						$zbs->DAL->logs->addUpdateLog( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 							array(
 
 								// fields (directly)
@@ -1583,7 +1562,7 @@ function zbs_lead_form_capture() {
 						global $zbs;
 
 						// add form log manually
-						$logID = $zbs->DAL->addUpdateLog(
+						$zbs->DAL->logs->addUpdateLog( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 							array(
 
 								// fields (directly)
@@ -1604,7 +1583,7 @@ function zbs_lead_form_capture() {
 
 					break;
 				default:
-					exit();  // if not one of our cases then die.
+					exit( 0 );  // if not one of our cases then die.
 			}
 
 			// } TODO we could add some tracking here (e.g. "originated from form x on page y")
@@ -1616,7 +1595,7 @@ function zbs_lead_form_capture() {
 			$r['message'] = 'Contact received.';
 			$r['code']    = 'success';
 			echo json_encode( $r );
-			die();
+			die( 0 );
 
 	}
 }
@@ -1684,7 +1663,7 @@ function zeroBSCRM_AJAX_addAlias() {
 		// } Return
 		header( 'Content-Type: application/json' );
 		echo json_encode( $passBack );
-		exit();
+		exit( 0 );
 
 	}
 
@@ -1727,7 +1706,7 @@ function zeroBSCRM_AJAX_removeAlias() {
 			// } Return
 			header( 'Content-Type: application/json' );
 			echo json_encode( $passBack );
-			exit();
+			exit( 0 );
 
 	}
 
@@ -1765,12 +1744,6 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 		$listColumns = $_POST['v']; // NEEDS SANITATION!
 
 		/*
-			debug
-		header('Content-Type: application/json');
-		echo json_encode($listColumns);
-		exit(); */
-
-		/*
 		#} Centralised into ZeroBSCRM.List.Columns.php 30/7/17
 		global $zeroBSCRM_columns_customer;
 		$defaultColumns = $zeroBSCRM_columns_customer['default'];
@@ -1806,7 +1779,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			// } Return
 			header( 'Content-Type: application/json' );
 			echo json_encode( $passBack );
-			exit();
+			exit( 0 );
 
 			break;
 
@@ -1835,7 +1808,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			// } Return
 			header( 'Content-Type: application/json' );
 			echo json_encode( $passBack );
-			exit();
+			exit( 0 );
 
 			break;
 
@@ -1864,7 +1837,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			// } Return
 			header( 'Content-Type: application/json' );
 			echo json_encode( $passBack );
-			exit();
+			exit( 0 );
 
 			break;
 
@@ -1893,7 +1866,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			// } Return
 			header( 'Content-Type: application/json' );
 			echo json_encode( $passBack );
-			exit();
+			exit( 0 );
 
 			break;
 
@@ -1922,7 +1895,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			// } Return
 			header( 'Content-Type: application/json' );
 			echo json_encode( $passBack );
-			exit();
+			exit( 0 );
 
 			break;
 
@@ -1951,7 +1924,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			// } Return
 			header( 'Content-Type: application/json' );
 			echo json_encode( $passBack );
-			exit();
+			exit( 0 );
 
 			break;
 
@@ -1980,7 +1953,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			// } Return
 			header( 'Content-Type: application/json' );
 			echo json_encode( $passBack );
-			exit();
+			exit( 0 );
 
 			break;
 
@@ -2007,7 +1980,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			// } Return
 			header( 'Content-Type: application/json' );
 			echo json_encode( $passBack );
-			exit();
+			exit( 0 );
 
 			break;
 
@@ -2020,7 +1993,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 
 	}
 
-		exit();
+		exit( 0 );
 }
 
 	// } Retrieves data sets for list views, with passed params :)
@@ -3723,7 +3696,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 		header( 'Content-Type: application/json' );
 		echo json_encode( $res );
-		exit();
+		exit( 0 );
 }
 
 	// } Enact some bulk action :)
@@ -3804,7 +3777,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 							// } Return
 							header( 'Content-Type: application/json' );
 							echo json_encode( $passBack );
-							exit();
+							exit( 0 );
 
 							break;
 
@@ -3835,19 +3808,19 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 							// } Return
 							header( 'Content-Type: application/json' );
 							echo json_encode( $passBack );
-							exit();
+							exit( 0 );
 
 							break;
 
 						// add tag(s) to customers
 						case 'addtag':
-							zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_CONTACT, 'zerobscrm_customertag' );
+							zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_CONTACT ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 							break;
 
 						// remove tag(S) from customers
 						case 'removetag':
-							zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_CONTACT, 'zerobscrm_customertag' );
+							zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_CONTACT ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 							break;
 
@@ -3881,7 +3854,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 							// } Return
 							header( 'Content-Type: application/json' );
 							echo json_encode( $passBack );
-							exit();
+							exit( 0 );
 
 							break;
 
@@ -3890,7 +3863,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 						// } Return - will be an error if here, really!?!? should be passsing headers as such.
 						header( 'Content-Type: application/json' );
 						echo json_encode( $passBack );
-					exit();
+					exit( 0 );
 
 					break;
 
@@ -3937,19 +3910,19 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								// } Return
 								header( 'Content-Type: application/json' );
 								echo json_encode( $passBack );
-								exit();
+								exit( 0 );
 
 								break;
 
 							// add tag(s) to company(s)
 							case 'addtag':
-								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_COMPANY, 'zerobscrm_companytag' );
+								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_COMPANY ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								break;
 
 							// remove tag(S) from company(s)
 							case 'removetag':
-								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_COMPANY, 'zerobscrm_companytag' );
+								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_COMPANY ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								break;
 
@@ -3963,7 +3936,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 					// } Return - will be an error if here, really!?!? should be passsing headers as such.
 					header( 'Content-Type: application/json' );
 					echo json_encode( $passBack );
-					exit();
+					exit( 0 );
 
 					break;
 
@@ -4007,7 +3980,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								// } Return
 								header( 'Content-Type: application/json' );
 								echo json_encode( $passBack );
-								exit();
+								exit( 0 );
 
 								break;
 
@@ -4029,7 +4002,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								// } Return
 								header( 'Content-Type: application/json' );
 								echo json_encode( $passBack );
-								exit();
+								exit( 0 );
 
 								break;
 
@@ -4040,7 +4013,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								foreach ( $legitIDs as $id ) {
 
 									// } Update quote as unaccepted (should verify this worked...)
-									zeroBS_markQuoteUnAccepted( $id, zeroBS_getCurrentUserUsername() );
+									zeroBS_markQuoteUnAccepted( $id );
 
 									++$unaccepted;
 
@@ -4051,19 +4024,19 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								// } Return
 								header( 'Content-Type: application/json' );
 								echo json_encode( $passBack );
-								exit();
+								exit( 0 );
 
 								break;
 
 							// add tag(s) to quote(s)
 							case 'addtag':
-								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_QUOTE, 'zerobscrm_quotetag' );
+								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_QUOTE ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								break;
 
 							// remove tag(S) from quote(s)
 							case 'removetag':
-								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_QUOTE, 'zerobscrm_quotetag' );
+								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_QUOTE ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								break;
 
@@ -4077,7 +4050,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 					// } Return - will be an error if here, really!?!? should be passsing headers as such.
 					header( 'Content-Type: application/json' );
 					echo json_encode( $passBack );
-					exit();
+					exit( 0 );
 
 					break;
 
@@ -4120,7 +4093,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								// } Return
 								header( 'Content-Type: application/json' );
 								echo json_encode( $passBack );
-								exit();
+								exit( 0 );
 
 								break;
 
@@ -4148,19 +4121,19 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								// } Return
 								header( 'Content-Type: application/json' );
 								echo json_encode( $passBack );
-								exit();
+								exit( 0 );
 
 								break;
 
 							// add tag(s) to invoice(s)
 							case 'addtag':
-								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_INVOICE, 'zerobscrm_invoicetag' );
+								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_INVOICE ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								break;
 
 							// remove tag(S) from invoice(s)
 							case 'removetag':
-								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_INVOICE, 'zerobscrm_invoicetag' );
+								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_INVOICE ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								break;
 
@@ -4174,7 +4147,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 					// } Return - will be an error if here, really!?!? should be passsing headers as such.
 					header( 'Content-Type: application/json' );
 					echo json_encode( $passBack );
-					exit();
+					exit( 0 );
 
 					break;
 
@@ -4218,19 +4191,19 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								// } Return
 								header( 'Content-Type: application/json' );
 								echo json_encode( $passBack );
-								exit();
+								exit( 0 );
 
 								break;
 
 							// add tag(s) to transaction(s)
 							case 'addtag':
-								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_TRANSACTION, 'zerobscrm_transactiontag' );
+								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_TRANSACTION ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								break;
 
 							// remove tag(S) from transaction(s)
 							case 'removetag':
-								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_TRANSACTION, 'zerobscrm_transactiontag' );
+								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_TRANSACTION ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								break;
 
@@ -4244,7 +4217,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 					// } Return - will be an error if here, really!?!? should be passsing headers as such.
 					header( 'Content-Type: application/json' );
 					echo json_encode( $passBack );
-					exit();
+					exit( 0 );
 
 					break;
 
@@ -4288,7 +4261,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								// } Return
 								header( 'Content-Type: application/json' );
 								echo json_encode( $passBack );
-								exit();
+								exit( 0 );
 
 								break;
 
@@ -4302,7 +4275,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 					// } Return - will be an error if here, really!?!? should be passsing headers as such.
 					header( 'Content-Type: application/json' );
 					echo json_encode( $passBack );
-					exit();
+					exit( 0 );
 
 					break;
 
@@ -4340,7 +4313,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								// } Return
 								header( 'Content-Type: application/json' );
 								echo json_encode( $passBack );
-								exit();
+								exit( 0 );
 
 								break;
 
@@ -4354,7 +4327,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 					// } Return - will be an error if here, really!?!? should be passsing headers as such.
 					header( 'Content-Type: application/json' );
 					echo json_encode( $passBack );
-					exit();
+					exit( 0 );
 
 					break;
 
@@ -4392,7 +4365,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								// } Return
 								header( 'Content-Type: application/json' );
 								echo json_encode( $passBack );
-								exit();
+								exit( 0 );
 
 								break;
 
@@ -4406,7 +4379,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 					// } Return - will be an error if here, really!?!? should be passsing headers as such.
 					header( 'Content-Type: application/json' );
 					echo json_encode( $passBack );
-					exit();
+					exit( 0 );
 
 					break;
 
@@ -4450,19 +4423,19 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								// } Return
 								header( 'Content-Type: application/json' );
 								echo json_encode( $passBack );
-								exit();
+								exit( 0 );
 
 								break;
 
 								// add tag(s) to transaction(s)
 							case 'addtag':
-								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_TASK, 'zerobscrm_transactiontag' );
+								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_TASK ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								break;
 
 								// remove tag(S) from transaction(s)
 							case 'removetag':
-								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_TASK, 'zerobscrm_transactiontag' );
+								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_TASK ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								break;
 
@@ -4484,7 +4457,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								// } Return
 								header( 'Content-Type: application/json' );
 								echo json_encode( $passBack );
-								exit();
+								exit( 0 );
 
 									break;
 
@@ -4506,7 +4479,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								// } Return
 								header( 'Content-Type: application/json' );
 								echo json_encode( $passBack );
-								exit();
+								exit( 0 );
 
 									break;
 
@@ -4520,7 +4493,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 					// } Return - will be an error if here, really!?!? should be passsing headers as such.
 					header( 'Content-Type: application/json' );
 					echo json_encode( $passBack );
-					exit();
+					exit( 0 );
 
 					break;
 
@@ -4538,19 +4511,18 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 		}
 
-		exit();
+		exit( 0 );
 }
 
 	/**
 	 * Adds tags to any object (for bulk action AJAX requests called in zeroBSCRM_AJAX_enactListViewBulkAction())
 	 *
-	 * @param array objIDs          Array of object id (int)s
-	 * @param int objTypeInt        ZBS_TYPE (if DAL3) or -1 (if <DAL3)
-	 * @param string objTaxonomy    wp taxonomy (if <DAL3) or '' (if DAL3)
+	 * @param int[] $obj_ids     Array of object ids.
+	 * @param int   $obj_type_id Object type ID.
 	 *
-	 * @return json success/error
+	 * @return void Outputs JSON and exits.
 	 */
-function zeroBSCRM_bulkAction_enact_addTags( $objIDs = array(), $objTypeInt = -1, $objTaxonomy = '' ) {
+function zeroBSCRM_bulkAction_enact_addTags( $obj_ids = array(), $obj_type_id = -1 ) {
 
 		global $zbs;
 
@@ -4576,14 +4548,14 @@ function zeroBSCRM_bulkAction_enact_addTags( $objIDs = array(), $objTypeInt = -1
 
 			// cycle through + add tag
 			$tagged = 0;
-		foreach ( $objIDs as $id ) {
+		foreach ( $obj_ids as $id ) {
 
 			// pass as array of term ID's :)
 
 			$zbs->DAL->addUpdateObjectTags(
 				array(
 					'objid'   => $id,
-					'objtype' => $objTypeInt,
+					'objtype' => $obj_type_id,
 					'tagIDs'  => $tagIDs,
 					'mode'    => 'append',
 				)
@@ -4596,9 +4568,8 @@ function zeroBSCRM_bulkAction_enact_addTags( $objIDs = array(), $objTypeInt = -1
 
 			$passBack['tagged'] = $tagged;
 
-			// } Return
+			// This function outputs JSON and exits.
 			zeroBSCRM_sendJSONSuccess( $passBack );
-			exit();
 
 	} else {
 
@@ -4608,19 +4579,18 @@ function zeroBSCRM_bulkAction_enact_addTags( $objIDs = array(), $objTypeInt = -1
 
 		// err
 		zeroBSCRM_sendJSONError( -1 );
-		exit();
+		exit( 0 );
 }
 
 	/**
 	 * Remove tags from any object (for bulk action AJAX requests called in zeroBSCRM_AJAX_enactListViewBulkAction())
 	 *
-	 * @param array objIDs          Array of object id (int)s
-	 * @param int objTypeInt        ZBS_TYPE (if DAL3) or -1 (if <DAL3)
-	 * @param string objTaxonomy    wp taxonomy (if <DAL3) or '' (if DAL3)
+	 * @param int[] $obj_ids     Array of object ids.
+	 * @param int   $obj_type_id Object type ID.
 	 *
-	 * @return json success/error
+	 * @return void Outputs JSON and exits.
 	 */
-function zeroBSCRM_bulkAction_enact_removeTags( $objIDs = array(), $objTypeInt = -1, $objTaxonomy = '' ) {
+function zeroBSCRM_bulkAction_enact_removeTags( $obj_ids = array(), $obj_type_id = -1 ) {
 
 		global $zbs;
 
@@ -4646,14 +4616,14 @@ function zeroBSCRM_bulkAction_enact_removeTags( $objIDs = array(), $objTypeInt =
 
 			// cycle through + remove tags
 			$untagged = 0;
-		foreach ( $objIDs as $id ) {
+		foreach ( $obj_ids as $id ) {
 
 			// pass as array of term ID's :)
 			// https://codex.wordpress.org/Function_Reference/wp_remove_object_terms
 			$zbs->DAL->addUpdateObjectTags(
 				array(
 					'objid'   => $id,
-					'objtype' => $objTypeInt,
+					'objtype' => $obj_type_id,
 					'tagIDs'  => $tagIDs,
 					'mode'    => 'remove',
 				)
@@ -4666,9 +4636,8 @@ function zeroBSCRM_bulkAction_enact_removeTags( $objIDs = array(), $objTypeInt =
 
 			$passBack['untagged'] = $untagged;
 
-			// } Return
+			// This function outputs JSON and exits.
 			zeroBSCRM_sendJSONSuccess( $passBack );
-			exit();
 
 	} else {
 
@@ -4678,7 +4647,7 @@ function zeroBSCRM_bulkAction_enact_removeTags( $objIDs = array(), $objTypeInt =
 
 		// err
 		zeroBSCRM_sendJSONError( -1 );
-		exit();
+		exit( 0 );
 }
 
 /*
@@ -4760,7 +4729,7 @@ function zeroBSCRM_AJAX_previewSegment() {
 				),
 				$status
 			);
-			exit();
+			exit( 0 );
 
 		}
 
@@ -4768,14 +4737,14 @@ function zeroBSCRM_AJAX_previewSegment() {
 
 			// return id / fail
 			echo json_encode( $ret );
-			exit();
+			exit( 0 );
 
 		}
 	}
 
 	// empty handed
 	echo json_encode( array( 'count' => 0 ) );
-	exit();
+	exit( 0 );
 }
 // } Save a segment down (update or add)
 add_action( 'wp_ajax_zbs_segment_savesegment', 'zeroBSCRM_AJAX_saveSegment' );
@@ -4816,13 +4785,13 @@ function zeroBSCRM_AJAX_saveSegment() {
 
 			// return id / fail
 			echo json_encode( array( 'id' => $segmentID ) );
-			exit();
+			exit( 0 );
 
 		}
 	}
 
 	// empty handed
-	exit();
+	exit( 0 );
 }
 
 /*
@@ -4879,7 +4848,7 @@ function zeroBSCRM_AJAX_addTag() {
 
 		if ( empty( $objType ) ) {
 			zeroBSCRM_sendJSONError( array( 'notag' => 1 ) );
-			exit();
+			exit( 0 );
 		}
 
 		global $zbs;
@@ -4930,7 +4899,7 @@ function zeroBSCRM_AJAX_addTag() {
 	}
 
 	zeroBSCRM_sendJSONError( array( 'dataerr' => 1 ) );
-	exit();
+	exit( 0 );
 }
 
 add_action( 'wp_ajax_zbs_delete_tag', 'zeroBSCRM_AJAX_deleteTag' );
@@ -4951,7 +4920,7 @@ function zeroBSCRM_AJAX_deleteTag() {
 
 		if ( empty( $objTagID ) ) {
 			zeroBSCRM_sendJSONError( array( 'notag' => 1 ) );
-			exit();
+			exit( 0 );
 		}
 
 		global $zbs;
@@ -4975,7 +4944,7 @@ function zeroBSCRM_AJAX_deleteTag() {
 	}
 
 	zeroBSCRM_sendJSONError( array( 'dataerr' => 1 ) );
-	exit();
+	exit( 0 );
 }
 
 // } Preview a tagged group
@@ -5034,14 +5003,14 @@ function zeroBSCRM_AJAX_previewTagged() {
 
 			// return id / fail
 			echo json_encode( $ret );
-			exit();
+			exit( 0 );
 
 		}
 	}
 
 	// empty handed
 	echo json_encode( array( 'count' => 0 ) );
-	exit();
+	exit( 0 );
 }
 
 /*
@@ -5150,12 +5119,12 @@ function zeroBSCRM_AJAX_saveScreenOptions() {
 		$zbs->DAL->updateSetting( 'screenopts_' . $pageKey, $screenOpts ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 		zeroBSCRM_sendJSONSuccess( array( 'fini' => 1 ) );
-		exit();
+		exit( 0 );
 
 	}
 
 	zeroBSCRM_sendJSONError( array( 'err' => 'pagekey' ) );
-	exit();
+	exit( 0 );
 }
 
 /*
@@ -5176,11 +5145,6 @@ function zeroBSCRM_AJAX_listViewInlineEdit_save() {
 	check_ajax_referer( 'zbscrmjs-ajax-nonce', 'sec' );  // nonce to bounce out if not from right page
 
 	global $zbs;
-
-	// } DAL2 check
-	if ( ! $zbs->isDAL2() ) {
-		zeroBSCRM_sendJSONError( array( 'no-action-or-rights' => 1 ) );
-	}
 
 	// } Retrieve deets
 	$listtype = sanitize_text_field( $_POST['listtype'] );
@@ -5266,7 +5230,7 @@ function zbs_invoice_send_invoice() {
 	if ( ! zeroBSCRM_validateEmail( $em ) ) {
 
 		zeroBSCRM_sendJSONError( array( 'message' => __( 'Not valid', 'zero-bs-crm' ) ) );
-		exit();
+		exit( 0 );
 
 	}
 
@@ -5274,7 +5238,7 @@ function zbs_invoice_send_invoice() {
 	if ( $zbs_invID <= 0 || empty( $em ) || ! zeroBSCRM_permsInvoices() ) {
 
 		zeroBSCRM_sendJSONError( array( 'message' => __( 'Not valid', 'zero-bs-crm' ) ) );
-		exit();
+		exit( 0 );
 
 	}
 
@@ -5293,7 +5257,7 @@ function zbs_invoice_send_invoice() {
 	}
 
 	// whatever:
-	exit();
+	exit( 0 );
 }
 
 // v3.0+ send email for an invoice
@@ -5489,7 +5453,7 @@ function zeroBSCRM_AJAX_sendStatement() {
 
 		$r['error'] = __( 'Not a valid email', 'zero-bs-crm' );
 		zeroBSCRM_sendJSONError( $r );
-		exit();
+		exit( 0 );
 
 	} else {
 		$email = $em;
@@ -5500,7 +5464,7 @@ function zeroBSCRM_AJAX_sendStatement() {
 
 		$r['error'] = '';
 		zeroBSCRM_sendJSONError( $r );
-		exit();
+		exit( 0 );
 
 	}
 
@@ -5514,7 +5478,7 @@ function zeroBSCRM_AJAX_sendStatement() {
 
 		$r['error'] = '';
 		zeroBSCRM_sendJSONError( $r );
-		exit();
+		exit( 0 );
 
 	}
 
@@ -5574,7 +5538,7 @@ function zeroBSCRM_AJAX_sendStatement() {
 
 		$r['success'] = __( 'Sent', 'zero-bs-crm' );
 		zeroBSCRM_sendJSONSuccess( $r );
-		exit();
+		exit( 0 );
 }
 
 /*
@@ -5601,7 +5565,7 @@ function zbs_invoice_mark_paid() {
 	// } Check id + perms + em
 	if ( $zbs_invID < 1 || ! zeroBSCRM_permsInvoices() ) {
 
-		die();
+		die( 0 );
 
 	} else {
 
@@ -5618,7 +5582,7 @@ function zbs_invoice_mark_paid() {
 
 	}
 
-	die(); // exiting ... yarp..
+	die( 0 ); // exiting ... yarp..
 }
 
 // } and send test so they can test before actually sending the invoice
@@ -5645,14 +5609,14 @@ function zbs_invoice_send_test_invoice() {
 	if ( ! zeroBSCRM_validateEmail( $em ) ) {
 		$r['message'] = 'Not a valid email';
 		echo json_encode( $r );
-		die();
+		die( 0 );
 	} else {
 		$email = $em;
 	}
 
 	// } Check id + perms + em
 	if ( $zbs_invID <= 0 || empty( $em ) || ! zeroBSCRM_permsInvoices() ) {
-		die();
+		die( 0 );
 	}
 
 	$body = zeroBSCRM_invoice_generateNotificationHTML( $zbs_invID, true );
@@ -5736,7 +5700,7 @@ function zbs_invoice_send_test_invoice() {
 	// sends the invoice via wp_mail (for now)...
 	$r['message'] = 'All done OK';
 	echo json_encode( $r );
-	die(); // exiting ... yarp..
+	die( 0 ); // exiting ... yarp..
 }
 
 /*
@@ -5778,7 +5742,7 @@ function zeroBSCRM_AJAX_getInvoice() {
 	// check perms
 	if ( ! zeroBSCRM_permsIsZBSUser() ) {
 			zeroBSCRM_sendJSONError();
-			exit();
+			exit( 0 );
 	}
 
 		// build + return
@@ -5797,7 +5761,7 @@ function zeroBSCRM_AJAX_getInvoice() {
 
 		// pass back in json
 		zeroBSCRM_sendJSONSuccess( $data );
-		exit();
+		exit( 0 );
 
 	} else {
 
@@ -5811,100 +5775,26 @@ function zeroBSCRM_AJAX_getInvoice() {
 		// WH Notes: Agreed, for now just rolling this in, to discuss, (perhaps v3.1?)
 
 		// build default
+		$data = array();
+
 		$data['invoiceObj']   = zeroBSCRM_get_invoice_defaults( -1 );
-		$data['tax_linesObj'] = zeroBSCRM_getTaxTableArr();
+		$data['tax_linesObj'] = zeroBSCRM_taxRates_getTaxTableArr();
 
 		// pass back in json
 		zeroBSCRM_sendJSONSuccess( $data );
-		exit();
+		exit( 0 );
 
 	}
 
 		// exit json
 		zeroBSCRM_sendJSONError( array( 'here' ) );
-		exit();
+		exit( 0 );
 }
 
 /*
 ======================================================
 	/ ZBS Invoicing
 	====================================================== */
-
-/*
-======================================================
-	Admin AJAX: New Feedback
-====================================================== */
-
-	// } General Helpers - sends us back a feedback comment
-	add_action( 'wp_ajax_zbsbfeedback', 'zeroBSCRM_AJAX_betaFeedback' );
-function zeroBSCRM_AJAX_betaFeedback() {
-
-	// } Check nonce
-	check_ajax_referer( 'zbscrmjs-glob-ajax-nonce', 'sec' );  // nonce to bounce out if not from right page
-
-	// is admin side, so trust up to this point. (check has zbs rights though)
-	if ( ! zeroBSCRM_permsIsZBSUser() ) {
-		zeroBSCRM_sendJSONError();
-		exit();
-	}
-
-	// retrieve deets
-	$comm = '';
-	if ( isset( $_POST['comm'] ) && ! empty( $_POST['comm'] ) ) {
-		$comm = zeroBSCRM_textProcess( $_POST['comm'] );
-	}
-	$email = '';
-	if ( isset( $_POST['email'] ) && ! empty( $_POST['email'] ) ) {
-		$email = sanitize_email( $_POST['email'] );
-	}
-	$page = '';
-	if ( isset( $_POST['page'] ) && ! empty( $_POST['page'] ) ) {
-		$page = sanitize_text_field( $_POST['page'] );
-	}
-	$area = '';
-	if ( isset( $_POST['area'] ) && ! empty( $_POST['area'] ) ) {
-		$area = sanitize_text_field( $_POST['area'] );
-	}
-
-	// simple send :) (via their default mail route)
-	global $zbs;
-
-		$title    = 'Feedback: ' . $area;
-		$content  = '<p>Feedback from: ' . $email . '</p>';
-		$content .= '<p>User: ' . zeroBSCRM_currentUser_displayName() . '</p>';
-		$content .= '<p>Area: ' . $area . '</p>';
-		$content .= '<p>Page: ' . $page . '</p>';
-		$content .= '<p>Site: ' . get_site_url() . '</p>';
-		$content .= '<hr /><p>Comment:</p><hr /><div>' . zeroBSCRM_textExpose( $comm ) . '</div>';
-
-		// use this template, is useful :)
-		$emailHTML = jpcrm_mailTemplates_generic_msg( true, $content, $title );
-
-		// build send array
-		$mailArray = array(
-			'toEmail'  => $zbs->urls['betafeedbackemail'],
-			'toName'   => 'Support',
-			'subject'  => $title,
-			'headers'  => array(),
-			'body'     => $emailHTML,
-			'textbody' => '',
-			'options'  => array(
-				'html' => 1,
-			),
-			'tracking' => false,
-		);
-
-		$sent = zeroBSCRM_mailDelivery_sendMessage( -1, $mailArray );
-
-		header( 'Content-Type: application/json' );
-		echo json_encode( array( 'fini' => 1 ) );
-		exit();
-}
-
-/*
-======================================================
-	/ Admin AJAX: Beta Feedback
-====================================================== */
 
 /*
 ======================================================
@@ -5919,7 +5809,7 @@ function zeroBSCRM_ajax_mark_task_complete() {
 	if ( ! zeroBSCRM_perms_tasks() ) {
 
 		zeroBSCRM_sendJSONError( array( 'permission_error' => 1 ) );
-		exit();
+		exit( 0 );
 
 	}
 
@@ -5941,17 +5831,17 @@ function zeroBSCRM_ajax_mark_task_complete() {
 			$zbs->DAL->events->setEventCompleteness( $taskID, $new_status ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		} else {
 			zeroBSCRM_sendJSONError( array( 'nostatus' => 1 ) );
-			exit();
+			exit( 0 );
 		}
 
 		$m['message'] = 'Marked ' . $way;
 		echo json_encode( $m, true );
-		die();
+		die( 0 );
 
 	}
 
 	zeroBSCRM_sendJSONError( array( 'noparams' => 1 ) );
-	exit();
+	exit( 0 );
 }
 
 /*
@@ -5968,5 +5858,5 @@ function zeroBSCRM_sendJSONSuccess( $successObj = '' ) {
 
 	header( 'Content-Type: application/json' );
 	echo json_encode( $successObj, true );
-	exit();
+	exit( 0 );
 }

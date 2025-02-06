@@ -66,6 +66,15 @@ class Jetpack_Gutenberg {
 	);
 
 	/**
+	 * Storing the contents of the preset file.
+	 *
+	 * Already been json_decode.
+	 *
+	 * @var null|object JSON decoded object after first usage.
+	 */
+	private static $preset_cache = null;
+
+	/**
 	 * Check to see if a minimum version of Gutenberg is available. Because a Gutenberg version is not available in
 	 * php if the Gutenberg plugin is not installed, if we know which minimum WP release has the required version we can
 	 * optionally fall back to that.
@@ -101,6 +110,7 @@ class Jetpack_Gutenberg {
 		}
 
 		if ( ! $version_available ) {
+			$slug = self::remove_extension_prefix( $slug );
 			self::set_extension_unavailable(
 				$slug,
 				'incorrect_gutenberg_version',
@@ -161,7 +171,8 @@ class Jetpack_Gutenberg {
 	 * @param string $slug Slug of the extension.
 	 */
 	public static function set_extension_available( $slug ) {
-		self::$availability[ self::remove_extension_prefix( $slug ) ] = true;
+		$slug                        = self::remove_extension_prefix( $slug );
+		self::$availability[ $slug ] = true;
 	}
 
 	/**
@@ -196,8 +207,8 @@ class Jetpack_Gutenberg {
 			// Add a descriptive suffix to disable behavior but provide informative reason.
 			$reason .= '__nudge_disabled';
 		}
-
-		self::$availability[ self::remove_extension_prefix( $slug ) ] = array(
+		$slug                        = self::remove_extension_prefix( $slug );
+		self::$availability[ $slug ] = array(
 			'reason'  => $reason,
 			'details' => $details,
 		);
@@ -245,26 +256,40 @@ class Jetpack_Gutenberg {
 	/**
 	 * Checks for a given .json file in the blocks folder.
 	 *
+	 * @deprecated 14.3
+	 *
 	 * @param string $preset The name of the .json file to look for.
 	 *
 	 * @return bool True if the file is found.
 	 */
 	public static function preset_exists( $preset ) {
+		_deprecated_function( __METHOD__, '14.3' );
 		return file_exists( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $preset . '.json' );
 	}
 
 	/**
-	 * Decodes JSON loaded from a preset file in the blocks folder
+	 * Decodes JSON loaded from the preset file in the blocks folder
 	 *
-	 * @param string $preset The name of the .json file to load.
+	 * @since 14.3 Deprecated argument. Only one value is ever used.
+	 *
+	 * @param null $deprecated No longer used.
 	 *
 	 * @return mixed Returns an object if the file is present, or false if a valid .json file is not present.
 	 */
-	public static function get_preset( $preset ) {
-		return json_decode(
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			file_get_contents( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $preset . '.json' )
+	public static function get_preset( $deprecated = null ) {
+		if ( $deprecated ) {
+			_deprecated_argument( __METHOD__, '$$next-version', 'The $preset argument is no longer needed or used.' );
+		}
+
+		if ( self::$preset_cache ) {
+			return self::$preset_cache;
+		}
+
+		self::$preset_cache = json_decode(
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			file_get_contents( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . 'index.json' )
 		);
+		return self::$preset_cache;
 	}
 
 	/**
@@ -273,9 +298,7 @@ class Jetpack_Gutenberg {
 	 * @return array A list of blocks: eg [ 'publicize', 'markdown' ]
 	 */
 	public static function get_jetpack_gutenberg_extensions_allowed_list() {
-		$preset_extensions_manifest = self::preset_exists( 'index' )
-			? self::get_preset( 'index' )
-			: (object) array();
+		$preset_extensions_manifest = ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) ? array() : self::get_preset();
 		$blocks_variation           = self::blocks_variation();
 
 		return self::get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation );
@@ -715,11 +738,12 @@ class Jetpack_Gutenberg {
 			$modules              = $module_list_endpoint->get_modules();
 		}
 
+		$jetpack_plan  = Jetpack_Plan::get();
 		$initial_state = array(
-			'available_blocks' => self::get_availability(),
-			'blocks_variation' => $blocks_variation,
-			'modules'          => $modules,
-			'jetpack'          => array(
+			'available_blocks'    => self::get_availability(),
+			'blocks_variation'    => $blocks_variation,
+			'modules'             => $modules,
+			'jetpack'             => array(
 				'is_active'                     => Jetpack::is_connection_ready(),
 				'is_current_user_connected'     => $is_current_user_connected,
 				/** This filter is documented in class.jetpack-gutenberg.php */
@@ -731,6 +755,9 @@ class Jetpack_Gutenberg {
 				// this is the equivalent of JP initial state siteData.showMyJetpack (class-jetpack-redux-state-helper)
 				// used to determine if we can link to My Jetpack from the block editor
 				'is_my_jetpack_available'       => My_Jetpack_Initializer::should_initialize(),
+				'jetpack_plan'                  => array(
+					'data' => $jetpack_plan['product_slug'],
+				),
 				/**
 				 * Enable the RePublicize UI in the block editor context.
 				 *
@@ -743,15 +770,16 @@ class Jetpack_Gutenberg {
 				 */
 				'republicize_enabled'           => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
 			),
-			'siteFragment'     => $status->get_site_suffix(),
-			'adminUrl'         => esc_url( admin_url() ),
-			'tracksUserData'   => $user_data,
-			'wpcomBlogId'      => $blog_id,
-			'allowedMimeTypes' => wp_get_mime_types(),
-			'siteLocale'       => str_replace( '_', '-', get_locale() ),
-			'ai-assistant'     => $ai_assistant_state,
-			'screenBase'       => $screen_base,
-			'pluginBasePath'   => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
+			'siteFragment'        => $status->get_site_suffix(),
+			'adminUrl'            => esc_url( admin_url() ),
+			'tracksUserData'      => $user_data,
+			'wpcomBlogId'         => $blog_id,
+			'allowedMimeTypes'    => wp_get_mime_types(),
+			'siteLocale'          => str_replace( '_', '-', get_locale() ),
+			'ai-assistant'        => $ai_assistant_state,
+			'screenBase'          => $screen_base,
+			'pluginBasePath'      => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
+			'next40pxDefaultSize' => self::site_supports_next_default_size(),
 		);
 
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
@@ -807,7 +835,7 @@ class Jetpack_Gutenberg {
 			 * Look for files that match our list of available Jetpack Gutenberg extensions (blocks and plugins).
 			 * If available, load them.
 			 */
-			$directories = array( 'blocks', 'plugins', 'extended-blocks', 'shared', 'store' );
+			$directories = array( 'blocks', 'plugins', 'extended-blocks' );
 
 			foreach ( static::get_extensions() as $extension ) {
 				foreach ( $directories as $dirname ) {
@@ -1291,6 +1319,101 @@ class Jetpack_Gutenberg {
 		}
 
 		return $block_content;
+	}
+
+	/**
+	 * Check whether the environment supports the newer default size of elements, gradually introduced starting with WP 6.4.
+	 *
+	 * @since 14.0
+	 *
+	 * @see https://make.wordpress.org/core/2023/10/16/editor-components-updates-in-wordpress-6-4/#improving-size-consistency-for-ui-components
+	 *
+	 * @to-do: Deprecate this method and the logic around it when Jetpack requires WordPress 6.7.
+	 *
+	 * @return bool
+	 */
+	public static function site_supports_next_default_size() {
+		/*
+		 * If running a local dev build of gutenberg,
+		 * let's assume it supports the newest changes included in Gutenberg.
+		 */
+		if ( defined( 'GUTENBERG_DEVELOPMENT_MODE' ) && GUTENBERG_DEVELOPMENT_MODE ) {
+			return true;
+		}
+
+		// Let's now check if the Gutenberg plugin is installed on the site.
+		if (
+			defined( 'GUTENBERG_VERSION' )
+			&& version_compare( GUTENBERG_VERSION, '19.4', '>=' )
+		) {
+			return true;
+		}
+
+		// Finally, let's check for the WordPress version.
+		global $wp_version;
+		if ( version_compare( $wp_version, '6.7', '>=' ) ) {
+			return true;
+		}
+
+		// Final fallback.
+		return false;
+	}
+
+	/**
+	 * Temporarily bypasses _doing_it_wrong() notices for block metadata collection registration.
+	 *
+	 * WordPress 6.7 introduced block metadata collections (with strict path validation).
+	 * Any sites using symlinks for plugins will fail the validation which causes the metadata
+	 * collection to not be registered. However, the blocks will still fall back to the regular
+	 * registration and no functionality is affected.
+	 * While this validation is being discussed in WordPress Core (#62140),
+	 * this method allows registration to proceed by temporarily disabling
+	 * the relevant notice.
+	 *
+	 * @since 14.2
+	 *
+	 * @param bool   $trigger       Whether to trigger the error.
+	 * @param string $function      The function that was called.
+	 * @param string $message       A message explaining what was done incorrectly.
+	 * @param string $version       The version of WordPress where the message was added.
+	 * @return bool Whether to trigger the error.
+	 */
+	public static function bypass_block_metadata_doing_it_wrong( $trigger, $function, $message, $version ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( $function === 'WP_Block_Metadata_Registry::register_collection' ) {
+			return false;
+		}
+		return $trigger;
+	}
+
+	/**
+	 * Register block metadata collection for Jetpack blocks.
+	 * This allows for more efficient block metadata loading by avoiding
+	 * individual block.json file reads at runtime.
+	 *
+	 * Uses wp_register_block_metadata_collection() if available (WordPress 6.7+)
+	 * and if the manifest file exists. The manifest file is auto-generated
+	 * during the build process.
+	 *
+	 * Runs on plugins_loaded to ensure registration happens before individual
+	 * blocks register themselves on init.
+	 *
+	 * @static
+	 * @since 14.1
+	 * @return void
+	 */
+	public static function register_block_metadata_collection() {
+		$meta_file_path = JETPACK__PLUGIN_DIR . '_inc/blocks/blocks-manifest.php';
+		if ( function_exists( 'wp_register_block_metadata_collection' ) && file_exists( $meta_file_path ) ) {
+			add_filter( 'doing_it_wrong_trigger_error', array( __CLASS__, 'bypass_block_metadata_doing_it_wrong' ), 10, 4 );
+
+			// @phan-suppress-next-line PhanUndeclaredFunction -- New in WP 6.7. We're checking if it exists first. @phan-suppress-current-line UnusedPluginSuppression
+			wp_register_block_metadata_collection(
+				JETPACK__PLUGIN_DIR . '_inc/blocks/',
+				$meta_file_path
+			);
+
+			remove_filter( 'doing_it_wrong_trigger_error', array( __CLASS__, 'bypass_block_metadata_doing_it_wrong' ), 10 );
+		}
 	}
 }
 

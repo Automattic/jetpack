@@ -10,7 +10,7 @@ namespace Automattic\Jetpack;
 /**
  * Test class for Scheduled_Updates.
  *
- * @coversDefaultClass Scheduled_Updates
+ * @coversDefaultClass Automattic\Jetpack\Scheduled_Updates
  */
 class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
@@ -659,7 +659,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Test when all requested plugins are not installed.
 	 *
-	 * @covers ::verify_plugins
+	 * @covers WPCOM_REST_API_V2_Endpoint_Update_Schedules::validate_plugins_param
 	 */
 	public function test_verify_plugins_not_installed() {
 		$plugins = array( 'not-installed-plugin-1/not-installed-plugin-1.php', 'not-installed-plugin-2/not-installed-plugin-2.php' );
@@ -686,7 +686,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Test when all requested plugins are managed.
 	 *
-	 * @covers ::verify_plugins
+	 * @covers WPCOM_REST_API_V2_Endpoint_Update_Schedules::validate_plugins_param
 	 */
 	public function test_verify_plugins_all_managed() {
 		$plugins = array( 'managed-plugin-1/managed-plugin-1.php', 'managed-plugin-2/managed-plugin-2.php' );
@@ -713,7 +713,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Test when one requested plugin is installed and not managed, and another is installed but managed.
 	 *
-	 * @covers ::verify_plugins
+	 * @covers WPCOM_REST_API_V2_Endpoint_Update_Schedules::validate_plugins_param
 	 */
 	public function test_verify_plugins_installed_mixed() {
 		$plugins = array( 'managed-plugin/managed-plugin.php', 'installed-plugin/installed-plugin.php' );

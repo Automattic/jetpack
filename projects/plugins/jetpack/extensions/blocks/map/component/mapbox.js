@@ -74,6 +74,7 @@ export class MapBoxComponent extends Component {
 							label={ __( 'Marker Title', 'jetpack' ) }
 							value={ title }
 							onChange={ value => updateActiveMarker( { title: value } ) }
+							__nextHasNoMarginBottom={ true }
 						/>
 						<TextareaControl
 							className="wp-block-jetpack-map__marker-caption"
@@ -82,6 +83,7 @@ export class MapBoxComponent extends Component {
 							rows="2"
 							tag="textarea"
 							onChange={ value => updateActiveMarker( { caption: value } ) }
+							__nextHasNoMarginBottom={ true }
 						/>
 						<Button onClick={ deleteActiveMarker } className="wp-block-jetpack-map__delete-btn">
 							<Dashicon icon="trash" size="15" /> { __( 'Delete Marker', 'jetpack' ) }
@@ -243,7 +245,7 @@ export class MapBoxComponent extends Component {
 			this.setState( { boundsSetProgrammatically: true } );
 			try {
 				map.removeControl( zoomControl );
-			} catch ( e ) {
+			} catch {
 				// Ok if control wasn't there to remove.
 			}
 			return;
@@ -360,7 +362,7 @@ export class MapBoxComponent extends Component {
 					// If there's an old map instance hanging around, try to
 					// clean it up.
 					prevMap?.remove();
-				} catch ( error ) {
+				} catch {
 					// Ok if there wasn't one to clean up.
 				}
 

@@ -2,12 +2,12 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Component } from 'react';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
-import { Component } from 'react';
 import { FEATURE_DOWNTIME_MONITORING_JETPACK } from '../lib/plans/constants';
 
 export const Monitor = withModuleSettingsFormHelpers(

@@ -60,10 +60,11 @@ class Full_Sync_Immediately extends Module {
 	 * @access public
 	 *
 	 * @param array $full_sync_config Full sync configuration.
+	 * @param mixed $context The context where the full sync was initiated from.
 	 *
 	 * @return bool Always returns true at success.
 	 */
-	public function start( $full_sync_config = null ) {
+	public function start( $full_sync_config = null, $context = null ) {
 		// There was a full sync in progress.
 		if ( $this->is_started() && ! $this->is_finished() ) {
 			/**
@@ -114,15 +115,15 @@ class Full_Sync_Immediately extends Module {
 		 *
 		 * @param array $full_sync_config Sync configuration for all sync modules.
 		 * @param array $range Range of the sync items, containing min and max IDs for some item types.
-		 * @param array $empty The modules with no items to sync during a full sync.
+		 * @param mixed $context The context where the full sync was initiated from.
 		 *
 		 * @since 1.6.3
 		 * @since-jetpack 4.2.0
 		 * @since-jetpack 7.3.0 Added $range arg.
-		 * @since-jetpack 7.4.0 Added $empty arg.
+		 * @since 4.4.0 Added $context arg.
 		 */
 		do_action( 'jetpack_full_sync_start', $full_sync_config, $range );
-		$this->send_action( 'jetpack_full_sync_start', array( $full_sync_config, $range ) );
+		$this->send_action( 'jetpack_full_sync_start', array( $full_sync_config, $range, $context ) );
 
 		return true;
 	}
@@ -414,33 +415,25 @@ class Full_Sync_Immediately extends Module {
 	 * @return array
 	 */
 	public function get_remaining_modules_to_send() {
-		$status = $this->get_status();
-
-		return array_filter(
-			Modules::get_modules(),
-			/**
-			 * Select configured and not finished modules.
-			 *
-			 * @param Module $module
-			 * @return bool
-			 */
-			function ( $module ) use ( $status ) {
-				// Skip module if not configured for this sync or module is done.
-				if ( ! isset( $status['config'][ $module->name() ] ) ) {
-					return false;
-				}
-				if ( ! $status['config'][ $module->name() ] ) {
-					return false;
-				}
-				if ( isset( $status['progress'][ $module->name() ]['finished'] ) ) {
-					if ( true === $status['progress'][ $module->name() ]['finished'] ) {
-						return false;
-					}
-				}
-
-				return true;
+		$status            = $this->get_status();
+		$remaining_modules = array();
+		foreach ( array_keys( $status['config'] ) as $module_name ) {
+			$module = Modules::get_module( $module_name );
+			if ( ! $module ) {
+				continue;
 			}
-		);
+			if ( isset( $status['progress'][ $module_name ]['finished'] ) &&
+				true === $status['progress'][ $module_name ]['finished'] ) {
+					continue;
+			}
+			// Ensure that 'constants', 'options', and 'callables' are sent first.
+			if ( in_array( $module_name, array( 'network_options', 'options', 'functions', 'constants' ), true ) ) {
+				array_unshift( $remaining_modules, $module );
+			} else {
+				$remaining_modules[] = $module;
+			}
+		}
+		return $remaining_modules;
 	}
 
 	/**

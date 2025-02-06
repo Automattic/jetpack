@@ -29,6 +29,13 @@ class WP_Test_Jetpack_Base_Json_Api_Endpoints extends WP_UnitTestCase {
 	private static $super_admin_alt_user_id;
 
 	/**
+	 * A contributor user used for test.
+	 *
+	 * @var int
+	 */
+	private static $contributor_user_id;
+
+	/**
 	 * Inserts globals needed to initialize the endpoint.
 	 */
 	private function set_globals() {
@@ -45,6 +52,21 @@ class WP_Test_Jetpack_Base_Json_Api_Endpoints extends WP_UnitTestCase {
 	public static function wpSetUpBeforeClass( $factory ) {
 		self::$super_admin_user_id     = $factory->user->create( array( 'role' => 'administrator' ) );
 		self::$super_admin_alt_user_id = $factory->user->create( array( 'role' => 'administrator' ) );
+		self::$contributor_user_id     = $factory->user->create(
+			array(
+				'user_login'    => 'john_doe',
+				'user_pass'     => 'password123',
+				'user_nicename' => 'John Doe',
+				'user_email'    => 'john.doe@example.com',
+				'user_url'      => 'https://example.com',
+				'display_name'  => 'John Doe',
+				'nickname'      => 'Johnny',
+				'first_name'    => 'John',
+				'last_name'     => 'Doe',
+				'description'   => 'This is a dummy user for testing.',
+				'role'          => 'contributor',
+			)
+		);
 	}
 
 	/**
@@ -111,6 +133,69 @@ class WP_Test_Jetpack_Base_Json_Api_Endpoints extends WP_UnitTestCase {
 		// The user should be the same as the one passed as object to the method.
 		$this->assertIsObject( $author );
 		$this->assertSame( self::$super_admin_user_id, $author->ID );
+	}
+
+	/**
+	 * @covers Jetpack_JSON_API_Endpoint::get_author
+	 * @group json-api
+	 */
+	public function test_get_author_should_provide_additional_data_when_user_id_is_specified() {
+		$endpoint                            = $this->get_dummy_endpoint();
+		$commment_data                       = new stdClass();
+		$commment_data->comment_author_email = 'foo@bar.foo';
+		$commment_data->comment_author       = 'John Doe';
+		$commment_data->comment_author_url   = 'https://foo.bar.foo';
+		$commment_data->user_id              = static::$contributor_user_id;
+		$comment                             = new WP_Comment( $commment_data );
+
+		$author = $endpoint->get_author( $comment, true );
+
+		$this->assertIsObject( $author, 'The returned author should be an object.' );
+		$this->assertNotNull( $author, 'The returned author should not be null.' );
+		$this->assertSame(
+			$commment_data->comment_author_email,
+			$author->email,
+			'The author email does not match the expected comment author email.'
+		);
+		$this->assertSame(
+			$commment_data->comment_author,
+			$author->name,
+			'The author name does not match the expected comment author name.'
+		);
+		$this->assertSame(
+			$commment_data->comment_author_url,
+			$author->URL, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			'The author URL does not match the expected comment author URL.'
+		);
+
+		$user = get_user_by( 'id', static::$contributor_user_id );
+
+		// The user should be the same as the one passed as object to the method.
+		$this->assertSame(
+			static::$contributor_user_id,
+			$author->ID,
+			'The author ID does not match the expected user ID.'
+		);
+		$this->assertSame(
+			$user->user_login,
+			$author->login,
+			'The author login does not match the expected user login.'
+		);
+		$this->assertSame(
+			$user->first_name,
+			$author->first_name,
+			'The author first name does not match the expected first name.'
+		);
+		$this->assertSame(
+			$user->last_name,
+			$author->last_name,
+			'The author last name does not match the expected last name.'
+		);
+		$this->assertSame(
+			$user->user_nicename,
+			$author->nice_name,
+			'The author nicename does not match the expected nicename.'
+		);
 	}
 
 	/**

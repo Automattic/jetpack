@@ -44,7 +44,7 @@ class Admin {
 		$total_problems = apply_filters( 'jetpack_boost_total_problem_count', 0 );
 		$menu_label     = _x( 'Boost', 'The Jetpack Boost product name, without the Jetpack prefix', 'jetpack-boost' );
 		if ( $total_problems ) {
-			$menu_label .= sprintf( ' <span class="update-plugins">%d</span>', $total_problems );
+			$menu_label .= sprintf( ' <span class="menu-counter count-%d"><span class="count">%d</span></span>', $total_problems, $total_problems );
 		}
 
 		$page_suffix = Admin_Menu::add_menu(

@@ -10,7 +10,7 @@ namespace Automattic\Jetpack;
 /**
  * Test class for Scheduled_Updates_Logs.
  *
- * @coversDefaultClass Scheduled_Updates_Logs
+ * @coversDefaultClass Automattic\Jetpack\Scheduled_Updates_Logs
  */
 class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 

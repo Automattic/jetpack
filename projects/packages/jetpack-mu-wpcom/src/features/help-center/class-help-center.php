@@ -285,12 +285,20 @@ class Help_Center {
 		$controller = new WP_REST_Help_Center_Support_Activity();
 		$controller->register_rest_route();
 
+		require_once __DIR__ . '/class-wp-rest-help-center-support-interactions.php';
+		$controller = new WP_REST_Help_Center_Support_Interactions();
+		$controller->register_rest_route();
+
 		require_once __DIR__ . '/class-wp-rest-help-center-user-fields.php';
 		$controller = new WP_REST_Help_Center_User_Fields();
 		$controller->register_rest_route();
 
 		require_once __DIR__ . '/class-wp-rest-help-center-odie.php';
 		$controller = new WP_REST_Help_Center_Odie();
+		$controller->register_rest_route();
+
+		require_once __DIR__ . '/class-wp-rest-help-center-persisted-open-state.php';
+		$controller = new WP_REST_Help_Center_Persisted_Open_State();
 		$controller->register_rest_route();
 
 		require_once __DIR__ . '/class-wp-rest-help-center-email-support-enabled.php';

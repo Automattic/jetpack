@@ -1,20 +1,20 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { noop } from 'lodash';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
 import analytics from 'lib/analytics';
 import { getJetpackProductUpsellByFeature, FEATURE_SEARCH_JETPACK } from 'lib/plans/constants';
-import { noop } from 'lodash';
 import {
 	getProductDescriptionUrl,
 	isSearchNewPricingLaunched202208,
 } from 'product-descriptions/utils';
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import { currentThemeIsBlockTheme } from 'state/initial-state';
 import { siteHasFeature, isFetchingSitePurchases } from 'state/site';

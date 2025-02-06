@@ -18,7 +18,7 @@ use Automattic\Jetpack\Assets;
 
 $GLOBALS['concatenate_scripts'] = false; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
-Assets::add_resource_hint( '//c0.wp.com', 'dns-prefetch' );
+Assets::add_resource_hint( '//c0.wp.com', 'preconnect' );
 
 /**
  * Asset CDN module main class file.

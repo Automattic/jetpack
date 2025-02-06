@@ -1,7 +1,7 @@
 /*
  * External dependencies
  */
-import { ExtensionAIControl } from '@automattic/jetpack-ai-client';
+import { ExtensionAIControl, useAICheckout, useAiFeature } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -10,8 +10,6 @@ import React from 'react';
 /*
  * Internal dependencies
  */
-import useAICheckout from '../../../hooks/use-ai-checkout';
-import useAiFeature from '../../../hooks/use-ai-feature';
 import './style.scss';
 /*
  * Types
@@ -35,6 +33,7 @@ export type AiAssistantInputProps = {
 	close?: () => void;
 	undo?: () => void;
 	tryAgain?: () => void;
+	lastAction?: string;
 };
 
 const defaultClassNames = clsx(
@@ -57,6 +56,7 @@ export default function AiAssistantInput( {
 	close,
 	undo,
 	tryAgain,
+	lastAction,
 }: AiAssistantInputProps ): ReactElement {
 	const defaultPlaceholder = customPlaceholder
 		? customPlaceholder
@@ -102,8 +102,11 @@ export default function AiAssistantInput( {
 			block_type: blockType,
 		} );
 
+		// Reset the placeholder to the default placeholder.
+		setPlaceholder( defaultPlaceholder );
+
 		stopSuggestion?.();
-	}, [ blockType, stopSuggestion, tracks ] );
+	}, [ blockType, defaultPlaceholder, stopSuggestion, tracks ] );
 
 	function handleClose(): void {
 		close?.();
@@ -188,6 +191,8 @@ export default function AiAssistantInput( {
 			onTryAgain={ handleTryAgain }
 			wrapperRef={ wrapperRef }
 			ref={ inputRef }
+			lastAction={ lastAction }
+			blockType={ blockType }
 		/>
 	);
 }

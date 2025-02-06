@@ -9,13 +9,10 @@ const doNotMinify = false;
  *
  * Format: [ './full/path/file' => './full/path/file.js'].
  *
- * @returns {Array} The list of js files that must be minified.
+ * @return {Array} The list of js files that must be minified.
  */
 function getLegacyJsEntries() {
-	const patterns = [
-		'js/**/*.js',
-		'modules/**/js/*.js',
-	];
+	const patterns = [ 'js/**/*.js', 'modules/**/js/*.js' ];
 	const ignorePatterns = [
 		'**/js/**/*.min.js',
 		// The js/lib directory contains directly "hosted" 3. party libraries.
@@ -35,15 +32,12 @@ function getLegacyJsEntries() {
  *
  * Format: [ './full/path/file' => './full/path/file.scss'].
  *
- * @param boolean minification Whether or not the scss should be minified.
+ * @param {boolean} minification - Whether or not the scss should be minified.
  *
- * @returns {Array} The list of scss files that must be compiled and minified.
+ * @return {Array} The list of scss files that must be compiled and minified.
  */
 function getLegacySassEntries( minification = true ) {
-	const patterns = [
-		'sass/**/*.scss',
-		'modules/**/sass/**/*.scss',
-	];
+	const patterns = [ 'sass/**/*.scss', 'modules/**/sass/**/*.scss' ];
 	const ignorePatterns = [
 		'**/sass/**/_*.scss',
 		/*
@@ -57,12 +51,10 @@ function getLegacySassEntries( minification = true ) {
 	glob.sync( `{${ patterns.join( ',' ) }}`, { ignore: ignorePatterns } ).forEach( file => {
 		const newPath = file.replace( 'sass', 'css' );
 		if ( minification ) {
-		entries[ './' + newPath.substring( 0, newPath.length - '.scss'.length ) + '.min' ] =
-			'./' + file;
-		}
-		else {
-			entries[ './' + newPath.substring( 0, newPath.length - '.scss'.length ) ] =
-			'./' + file;
+			entries[ './' + newPath.substring( 0, newPath.length - '.scss'.length ) + '.min' ] =
+				'./' + file;
+		} else {
+			entries[ './' + newPath.substring( 0, newPath.length - '.scss'.length ) ] = './' + file;
 		}
 	} );
 	return entries;
@@ -73,12 +65,10 @@ function getLegacySassEntries( minification = true ) {
  *
  * Format: [ './full/path/file' => './full/path/file.css'].
  *
- * @returns {Array} The list of css files that must be minified.
+ * @return {Array} The list of css files that must be minified.
  */
 function getLegacyWelcomeZBSCSSEntries() {
-	const ignorePatterns = [
-		'**/welcome-to-zbs/*.min.css',
-	];
+	const ignorePatterns = [ '**/welcome-to-zbs/*.min.css' ];
 
 	const entries = {};
 	glob.sync( 'css/welcome-to-zbs/*.css', { ignore: ignorePatterns } ).forEach( file => {
@@ -94,7 +84,7 @@ function getLegacyWelcomeZBSCSSEntries() {
  * if we should build the component or not. This is useful for bootstrap/app components
  * that import other components.
  *
- * @returns {object} An object with a build path and a corresponding file path.
+ * @return {object} An object with a build path and a corresponding file path.
  */
 function getReactComponentViewMapping() {
 	const entries = {};
@@ -124,7 +114,7 @@ const crmWebpackConfig = {
 		alias: {
 			...jetpackWebpackConfig.resolve.alias,
 			crm: path.resolve( __dirname, 'src/js/' ),
-		}
+		},
 	},
 	node: false,
 	plugins: [
@@ -224,7 +214,7 @@ module.exports = [
 				// // Handle CSS.
 				jetpackWebpackConfig.CssRule( {
 					extensions: [ 'css', 'sass', 'scss' ],
-					extraLoaders: [ 
+					extraLoaders: [
 						{
 							loader: 'sass-loader',
 							options: {
@@ -282,9 +272,7 @@ module.exports = [
 			...jetpackWebpackConfig.output,
 			path: path.resolve( './build' ),
 		},
-		plugins: [
-			...jetpackWebpackConfig.StandardPlugins(),
-		],
+		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 		module: {
 			...crmWebpackConfig.module,
 			rules: [
@@ -293,7 +281,7 @@ module.exports = [
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {
 					extensions: [ 'css', 'sass', 'scss' ],
-					extraLoaders: [ 
+					extraLoaders: [
 						{
 							loader: 'sass-loader',
 							options: {
@@ -304,10 +292,12 @@ module.exports = [
 						},
 					],
 					CssLoader: {
-						modules: ! jetpackWebpackConfig.isProduction ? {
-							localIdentName: '[name]__[local]--[hash:base64:5]',
-						} : {},
-					}
+						modules: ! jetpackWebpackConfig.isProduction
+							? {
+									localIdentName: '[name]__[local]--[hash:base64:5]',
+							  }
+							: {},
+					},
 				} ),
 
 				// Handle images.

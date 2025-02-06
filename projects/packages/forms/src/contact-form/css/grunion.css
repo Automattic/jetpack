@@ -183,7 +183,7 @@
 
 .contact-form-submission .go-back-message .link {
 	font-weight: 200;
-	color: #000;
+	color: inherit;
 }
 
 .contact-form-submission .field-name {
@@ -230,7 +230,7 @@
 	gap: var(--wp--style--block-gap, 1.5rem);
 }
 
-.wp-block-jetpack-contact-form > * {
+.wp-block-jetpack-contact-form > *:not(.wp-block-jetpack-button) {
 	flex: 0 0 100%;
 	box-sizing: border-box;
 }
@@ -241,8 +241,27 @@
 	padding-left: 0;
 }
 
-.wp-block-jetpack-button.alignright button {
-	float: right;
+.wp-block-jetpack-contact-form .wp-block-jetpack-button {
+	width: fit-content;
+}
+
+.wp-block-jetpack-contact-form .wp-block-jetpack-button.aligncenter {
+	display: block;
+
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.wp-block-jetpack-contact-form .wp-block-jetpack-button.alignleft {
+	display: block;
+
+	margin-right: auto;
+}
+
+.wp-block-jetpack-contact-form .wp-block-jetpack-button.alignright {
+	display: block;
+
+	margin-left: auto;
 }
 
 .wp-block-jetpack-contact-form .grunion-field-wrap {
@@ -320,17 +339,17 @@
 
 .contact-form .contact-form__select-wrapper::after {
 	position: absolute;
-	inset-inline-end: calc(var(--jetpack--contact-form--input-padding) + 4px);
-	top: calc(var(--jetpack--contact-form--input-padding) + var(--jetpack--contact-form--line-height) / 2);  
+	inset-inline-end: 20px;
+	top: 50%;
 
   content: "";
   display: block;
 	width: 8px;
 	height: 8px;
-  
+
 	border-bottom: 2px solid;
   border-right: 2px solid;
-  
+
 	transform: translateY(-50%) rotate(45deg);
 	transform-origin: center center;
 
@@ -594,7 +613,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .grunion-field-wrap input.checkbox-multiple:checked::before {
 	content: "\2713";
-	
+
 	position: absolute;
 	top: calc(var(--jetpack--contact-form--font-size) / 2);
 	left: calc(var(--jetpack--contact-form--font-size) / 2);
@@ -603,7 +622,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 	font-size: var(--jetpack--contact-form--font-size);
 	line-height: 1;
-	
+
   transform: translate(-50%, -50%);
 }
 
@@ -714,7 +733,6 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form__error {
-	margin-bottom: var(--wp--style--block-gap, 1.5rem);
 	padding: 1em;
 	gap: var(--warning-icon-margin);
 

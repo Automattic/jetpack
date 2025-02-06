@@ -1,9 +1,9 @@
+const tsJestResolver = require( 'ts-jest-resolver' );
+
 // Some packages assume that a "browser" environment is esm or otherwise break in node.
 // List them here and the resolver will adjust the conditions to resolve them as "node" instead.
 // cf. https://github.com/microsoft/accessibility-insights-web/pull/5421#issuecomment-1109168149
 const badBrowserPackages = new Set( [
-	// v3 is still supposed to be commonjs-compatible. https://github.com/ai/nanoid/issues/462
-	'nanoid',
 	// https://github.com/LeaVerou/parsel/issues/79
 	'parsel-js',
 ] );
@@ -22,7 +22,7 @@ module.exports = ( path, options ) => {
 		conditions.add( 'node' );
 	}
 
-	return options.defaultResolver( path, {
+	return tsJestResolver( path, {
 		...options,
 		basedir,
 		conditions,

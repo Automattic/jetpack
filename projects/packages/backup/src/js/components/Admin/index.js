@@ -259,13 +259,11 @@ const ReviewMessage = connectionLoaded => {
 						strong: <strong></strong>,
 					}
 				) }
-				// eslint-disable-next-line react/jsx-no-bind
 				href={ getRedirectUrl( 'jetpack-backup-new-review' ) }
 				onClick={ trackSendToReview }
 				requestReason={ requestReason }
 				reviewText={ reviewText }
 				dismissedReview={ dismissedReview }
-				// eslint-disable-next-line react/jsx-no-bind
 				dismissMessage={ dismissMessage }
 			/>
 		</Col>

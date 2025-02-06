@@ -1036,7 +1036,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				}
 
 				// Kick off a full sync.
-				if ( Actions::do_full_sync( $modules ) ) {
+				if ( Actions::do_full_sync( $modules, 'jetpack_cli' ) ) {
 					if ( $modules ) {
 						/* translators: %s is a comma separated list of Jetpack modules */
 						WP_CLI::log( sprintf( __( 'Initialized a new full sync with modules: %s', 'jetpack' ), implode( ', ', array_keys( $modules ) ) ) );
@@ -1874,7 +1874,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 							WP_CLI::success( __( 'All Jetpack Social connections were successfully disconnected.', 'jetpack' ) );
 						} else {
 							/* translators: %s is a lowercase string for a social network. */
-							WP_CLI::success( __( 'All Jetpack Social connections to %s were successfully disconnected.', 'jetpack' ), $service );
+							WP_CLI::success( sprintf( __( 'All Jetpack Social connections to %s were successfully disconnected.', 'jetpack' ), $service ) );
 						}
 					}
 				} elseif ( false !== $publicize->disconnect( false, $identifier ) ) {
@@ -1966,12 +1966,12 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * @param array $assoc_args Associative parameters defined in the scaffold() method.
 	 */
 	public function block( $args, $assoc_args ) {
-		if ( isset( $args[1] ) ) {
-			$title = ucwords( $args[1] );
-		} else {
+		if ( ! isset( $args[1] ) ) {
 			WP_CLI::error( esc_html__( 'The title parameter is required.', 'jetpack' ) . ' 👻' );
 			exit( 1 );
 		}
+
+		$title = ucwords( $args[1] );
 
 		$slug = isset( $assoc_args['slug'] )
 			? $assoc_args['slug']

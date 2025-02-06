@@ -1344,15 +1344,11 @@ function jpcrm_mail_delivery_send_via_gmail_oauth( $args ){
         ); foreach ($default_args as $argK => $argV){ $$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$$argK = $newData;} else { $$argK = $args[$argK]; } } }
         // ============ / LOAD ARGS =============
 
-    // declare debug string (to return if $return_debug)
+		// declare debug string (to return if $return_debug)
 		$debug_string = '';
 
-		// Let's make sure we've loaded the Google API library:
-    // https://developers.google.com/gmail/api/quickstart/php
-		$zbs->autoload_libraries();
-
-    // Load OAuth
-    $zbs->load_oauth_handler();           
+		// Load OAuth
+		$zbs->load_oauth_handler();
 
     // got a usable connection profile?
 		if ( $zbs->oauth->connection_status( 'google_mail' ) ){

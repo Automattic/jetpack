@@ -250,8 +250,11 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_install_edit_delete_theme_sync() {
-		$theme_slug = 'itek';
-		$theme_name = 'iTek';
+		// This requires a theme that isn't directly available on WordPress.com:
+		// https://public-api.wordpress.com/rest/v1.2/themes/astra?http_envelope=1
+		// Any theme with the "Community" badge in the WordPress.com theme search would work here.
+		$theme_slug = 'astra';
+		$theme_name = 'Astra';
 
 		delete_theme( $theme_slug ); // Ensure theme is not lingering on file system
 		$this->server_event_storage->reset();
@@ -295,7 +298,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_deleted_theme' );
 
-		$this->assertEquals( 'itek', $event_data->args[0] );
+		$this->assertEquals( $theme_slug, $event_data->args[0] );
 	}
 
 	public function test_update_themes_sync() {

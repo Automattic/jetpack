@@ -7,10 +7,11 @@
  *
  * Date: 29/12/16
  */
+/* global tinymce */
 
 ( function () {
 	// hardtyped, unless window.jpcrm_placeholder_list is set (overrides)
-	var template_placeholders = [
+	let template_placeholders = [
 		{ text: 'Contact Full Name', value: '##CONTACT-FULLNAME##' },
 		{ text: 'Contact First Name', value: '##CONTACT-FNAME##' },
 		{ text: 'Contact Last Name', value: '##CONTACT-LNAME##' },
@@ -27,7 +28,7 @@
 		template_placeholders = window.jpcrm_placeholder_list;
 	}
 
-	tinymce.PluginManager.add( 'zbsQuoteTemplates', function ( editor, url ) {
+	tinymce.PluginManager.add( 'zbsQuoteTemplates', function ( editor ) {
 		// This is simple button
 		editor.addButton( 'zbsQuoteTemplates', {
 			title: 'Quote Template Placeholders',

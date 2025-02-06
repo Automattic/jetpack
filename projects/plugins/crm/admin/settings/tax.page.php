@@ -6,13 +6,13 @@
 
 // stop direct access
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 global $wpdb, $zbs;  // } Req
 
 $confirmAct = false;
-$taxTables  = zeroBSCRM_getTaxTableArr();
+$taxTables  = zeroBSCRM_taxRates_getTaxTableArr(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 // } Act on any edits!
 if ( isset( $_POST['editzbstax'] ) ) {
@@ -75,7 +75,7 @@ if ( isset( $_POST['editzbstax'] ) ) {
 	}
 
 	// Reload most recent tax rate table
-	$taxTables = zeroBSCRM_getTaxTableArr();
+	$taxTables = zeroBSCRM_taxRates_getTaxTableArr(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	$sbupdated = true;
 

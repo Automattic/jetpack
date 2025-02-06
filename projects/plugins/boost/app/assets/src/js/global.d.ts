@@ -34,6 +34,7 @@ declare global {
 		postTypes: {
 			[ key: string ]: string;
 		};
+		developmentFeatures: boolean;
 	};
 
 	const jpTracksAJAX: {

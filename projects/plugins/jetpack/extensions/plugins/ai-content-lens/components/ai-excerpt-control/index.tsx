@@ -1,21 +1,15 @@
 /*
  * External dependencies
  */
-import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
+import { aiAssistantIcon, LANGUAGE_MAP, PROMPT_TONES_MAP } from '@automattic/jetpack-ai-client';
 import { RangeControl, Button, BaseControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 /**
  * Internal dependencies
  */
-import {
-	I18nMenuDropdown,
-	LANGUAGE_MAP,
-} from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
-import {
-	PROMPT_TONES_MAP,
-	ToneDropdownMenu,
-} from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
+import { I18nMenuDropdown } from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
+import { ToneDropdownMenu } from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
 /**
  * Types and constants
  */
@@ -90,7 +84,10 @@ export function AiExcerptControl( {
 
 	return (
 		<div className="jetpack-ai-generate-excerpt-control">
-			<BaseControl className="jetpack-ai-generate-excerpt-control__header">
+			<BaseControl
+				className="jetpack-ai-generate-excerpt-control__header"
+				__nextHasNoMarginBottom={ true }
+			>
 				<BaseControl.VisualLabel>{ __( 'Settings', 'jetpack' ) }</BaseControl.VisualLabel>
 				<Button
 					label={ __( 'Advanced AI options', 'jetpack' ) }
@@ -131,6 +128,7 @@ export function AiExcerptControl( {
 				) }
 				showTooltip={ false }
 				disabled={ disabled }
+				__nextHasNoMarginBottom={ true }
 			/>
 		</div>
 	);

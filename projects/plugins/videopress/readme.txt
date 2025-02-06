@@ -2,10 +2,10 @@
 Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski, nunyvega, leogermani, cgastrell
 Tags: video, video-hosting, video-player, cdn, video-streaming
 
-Requires at least: 6.5
-Tested up to: 6.6
+Requires at least: 6.6
+Tested up to: 6.7
 Stable tag: 1.5
-Requires PHP: 7.0
+Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 The finest video hosting for WordPress. Drag and drop videos through the WordPress editor and keep the focus on your content, not the ads.
@@ -84,7 +84,26 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 2.1 - 2024-09-06
+### 2.2 - 2025-01-10
+#### Added
+- Add tracks for connection banner
+- My Jetpack: Update the recommendations section in My Jetpack to include a slider interaction for the cards.
+
 #### Changed
-- Internal updates.
+- General: Indicate compatibility with the upcoming version of WordPress - 6.7.
+- Include `wp-polyfill` as a script dependency only when needed.
+- Resolve an issue where revoked licenses were incorrectly treated as unattached. This caused users to be redirected to the license activation page after site connection, even when unattached licenses were not valid for activation.
+- Social: Change My Jetpack CTA for Social from "Learn more" to "Activate".
+- Updated dependencies.
+- Updated package dependencies.
+
+#### Removed
+- Connection: Remove deprecated `features_available` method.
+- Connection: Remove deprecated `features_enabled` method.
+- General: Update minimum PHP version to 7.2.
+- General: Update minimum WordPress version to 6.6.
+
+#### Fixed
+- E2E Tests: Only install single browser used by Playwright.
+- My Jetpack: Update GlobalNotice component to look better on mobile.
 

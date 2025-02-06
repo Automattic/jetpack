@@ -39,7 +39,6 @@ async function getListComment( issueComments ) {
  * Support references can be in the following formats:
  * - xxx-zen
  * - xxx-zd
- * - xxxx-xxx-p2#comment-xxx
  *
  * They could also be forum links:
  * - https://wordpress.com/forums/topic/xxx
@@ -55,7 +54,7 @@ async function getListComment( issueComments ) {
 async function getIssueReferences( octokit, owner, repo, number, issueComments ) {
 	const ticketReferences = [];
 	const referencesRegexP =
-		/[0-9]*-(?:zen|zd)|[a-zA-Z0-9-]+-p2#comment-[0-9]*|https:\/\/wordpress\.com\/(?:[a-z]+\/)?forums\/topic\/(?:[a-zA-Z0-9-]+)/gim;
+		/[0-9]*-(?:zen|zd)|https:\/\/wordpress\.com\/(?:[a-z]+\/)?forums\/topic\/(?:[a-zA-Z0-9-]+)/gim;
 
 	debug( `gather-support-references: Getting references from issue body.` );
 	const {
@@ -154,10 +153,6 @@ function formatSlackMessage( payload, channel, message ) {
 	switch ( repository.full_name ) {
 		case 'Automattic/jetpack':
 			dris = '@jetpack-da';
-			break;
-		case 'Automattic/zero-bs-crm':
-		case 'Automattic/sensei':
-			dris = '@heysatellite';
 			break;
 		case 'Automattic/WP-Job-Manager':
 		case 'Automattic/Crowdsignal':
@@ -265,7 +260,11 @@ async function addOrUpdateInteractionCountLabel(
 	number,
 	issueReferencesCount
 ) {
-	const ranges = [ 50, 20, 10 ];
+	let ranges = [ 50, 20, 10 ];
+
+	if ( 'Automattic/sensei' === repo ) {
+		ranges = [ 5 ];
+	}
 
 	// Check if our issue has issues in one of the ranges where we want to label it.
 	const issueRange = ranges.find( range => issueReferencesCount > range );
@@ -409,13 +408,19 @@ async function createOrUpdateComment( payload, octokit, issueReferences, issueCo
 /**
  * Add a label to the issue, if it does not exist yet.
  *
- * @param {GitHub} octokit    - Initialized Octokit REST client.
- * @param {string} ownerLogin - Repository owner login.
- * @param {string} repo       - Repository name.
- * @param {number} number     - Issue number.
+ * @param {WebhookPayloadIssue} payload - Issue or issue comment event payload.
+ * @param {GitHub}              octokit - Initialized Octokit REST client.
  * @return {Promise<void>}
  */
-async function addHappinessLabel( octokit, ownerLogin, repo, number ) {
+async function addHappinessLabel( payload, octokit ) {
+	const {
+		issue: { number, state },
+		repository: {
+			name: repo,
+			owner: { login: ownerLogin },
+		},
+	} = payload;
+
 	const happinessLabel = 'Customer Report';
 
 	const labels = await getLabels( octokit, ownerLogin, repo, number );
@@ -433,6 +438,19 @@ async function addHappinessLabel( octokit, ownerLogin, repo, number ) {
 		issue_number: number,
 		labels: [ happinessLabel ],
 	} );
+
+	// Send Slack notification, if we have the necessary tokens.
+	// No Slack tokens, we won't be able to escalate. Bail.
+	// If the issue is already closed, do not send any Slack reminder.
+	const slackToken = getInput( 'slack_token' );
+	const channel = getInput( 'slack_quality_channel' );
+	if ( ! slackToken || ! channel || state === 'closed' ) {
+		return false;
+	}
+
+	const message = `This issue has been labeled as a Customer Report. Please complete first-line triage within 24 hours.`;
+	const slackMessageFormat = formatSlackMessage( payload, channel, message );
+	await sendSlackMessage( message, channel, payload, slackMessageFormat );
 }
 
 /**
@@ -461,7 +479,7 @@ async function gatherSupportReferences( payload, octokit ) {
 	if ( issueReferences.length > 0 ) {
 		debug( `gather-support-references: Found ${ issueReferences.length } references.` );
 		await createOrUpdateComment( payload, octokit, issueReferences, issueComments );
-		await addHappinessLabel( octokit, owner.login, repo, number );
+		await addHappinessLabel( payload, octokit );
 	}
 }
 

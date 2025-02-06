@@ -97,11 +97,27 @@ class Threat_Model {
 	public $context;
 
 	/**
+	 * The database table of the threat.
+	 *
+	 * @var null|string
+	 */
+	public $table;
+
+	/**
 	 * The source URL of the threat.
 	 *
 	 * @var null|string
 	 */
 	public $source;
+
+	/**
+	 * The threat's extension information.
+	 *
+	 * @since 0.4.0
+	 *
+	 * @var null|Extension_Model
+	 */
+	public $extension;
 
 	/**
 	 * Threat Constructor
@@ -114,6 +130,10 @@ class Threat_Model {
 		}
 
 		foreach ( $threat as $property => $value ) {
+			if ( 'extension' === $property && ! empty( $value ) ) {
+				$this->extension = new Extension_Model( $value );
+				continue;
+			}
 			if ( property_exists( $this, $property ) ) {
 				$this->$property = $value;
 			}

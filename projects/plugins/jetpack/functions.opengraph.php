@@ -99,14 +99,12 @@ function jetpack_og_tags() {
 		$tags['og:title'] = wp_get_document_title();
 
 		$archive = get_queried_object();
-		if ( ! empty( $archive ) ) {
-			if ( is_category() || is_tag() || is_tax() ) {
-				$tags['og:url']         = get_term_link( $archive->term_id, $archive->taxonomy );
-				$tags['og:description'] = $archive->description;
-			} elseif ( is_post_type_archive() ) {
+		if ( $archive instanceof WP_Term ) {
+			$tags['og:url']         = get_term_link( $archive->term_id, $archive->taxonomy );
+			$tags['og:description'] = $archive->description;
+		} elseif ( ! empty( $archive ) && is_post_type_archive() ) {
 				$tags['og:url']         = get_post_type_archive_link( $archive->name );
 				$tags['og:description'] = $archive->description;
-			}
 		}
 	} elseif ( is_singular() && is_a( $data, 'WP_Post' ) ) {
 		$tags['og:type'] = 'article';
@@ -246,7 +244,7 @@ function jetpack_og_tags() {
 	foreach ( (array) $tags as $tag_property => $tag_content ) {
 		// to accommodate multiple images.
 		$tag_content = (array) $tag_content;
-		$tag_content = array_unique( $tag_content );
+		$tag_content = array_unique( array_filter( $tag_content, 'is_scalar' ) );
 
 		foreach ( $tag_content as $tag_content_single ) {
 			if ( empty( $tag_content_single ) && ! in_array( $tag_property, $allowed_empty_tags, true ) ) {

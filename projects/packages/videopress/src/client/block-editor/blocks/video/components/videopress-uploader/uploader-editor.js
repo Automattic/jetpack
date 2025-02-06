@@ -88,7 +88,7 @@ const UploadingEditor = props => {
 
 	return (
 		<div className="uploading-editor">
-			<BaseControl>
+			<BaseControl __nextHasNoMarginBottom={ true }>
 				<BaseControl.VisualLabel>
 					{ __( 'Video poster (optional)', 'jetpack-videopress-pkg' ) }
 				</BaseControl.VisualLabel>

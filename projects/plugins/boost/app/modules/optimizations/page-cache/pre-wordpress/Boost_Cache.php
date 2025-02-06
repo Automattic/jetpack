@@ -60,6 +60,16 @@ class Boost_Cache {
 	private $do_cache = false;
 
 	/**
+	 * @var string - The ignored cookies that were removed from the cache parameters.
+	 */
+	private $ignored_cookies = '';
+
+	/**
+	 * @var string - The ignored GET parameters that were removed from the cache parameters.
+	 */
+	private $ignored_get_parameters = '';
+
+	/**
 	 * @param ?Storage\Storage $storage - Optionally provide a Storage subclass to handle actually storing and retrieving cached content. Defaults to a new instance of File_Storage.
 	 */
 	public function __construct( $storage = null ) {
@@ -81,6 +91,15 @@ class Boost_Cache {
 		add_action( 'wp_trash_post', array( $this, 'delete_on_post_trash' ), 10, 2 );
 		add_filter( 'wp_php_error_message', array( $this, 'disable_caching_on_error' ) );
 		add_filter( 'init', array( $this, 'init_do_cache' ) );
+		add_filter( 'jetpack_boost_cache_parameters', array( $this, 'ignore_cookies' ) );
+		add_filter( 'jetpack_boost_cache_parameters', array( $this, 'ignore_get_parameters' ) );
+		$this->load_extra();
+	}
+
+	private function load_extra() {
+		if ( file_exists( WP_CONTENT_DIR . '/boost-cache-extra.php' ) ) {
+			include_once WP_CONTENT_DIR . '/boost-cache-extra.php';
+		}
 	}
 
 	/**
@@ -141,9 +160,11 @@ class Boost_Cache {
 
 		if ( is_string( $cached ) ) {
 			$this->send_header( 'X-Jetpack-Boost-Cache: hit' );
-			Logger::debug( 'Serving cached page' );
+			$ignored_cookies_message = $this->ignored_cookies === '' ? '' : " and ignored cookies: {$this->ignored_cookies}";
+			$ignored_get_message     = $this->ignored_get_parameters === '' ? '' : " and ignored GET parameters: {$this->ignored_get_parameters}";
+			Logger::debug( 'Serving cached page' . $ignored_cookies_message . $ignored_get_message );
 			echo $cached; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			die();
+			die( 0 );
 		}
 
 		$cache_status = $rebuild_found ? 'rebuild' : 'miss';
@@ -198,7 +219,9 @@ class Boost_Cache {
 			if ( $result instanceof Boost_Cache_Error ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 				Logger::debug( 'Error writing cache file: ' . $result->get_error_message() );
 			} else {
-				Logger::debug( 'Cache file created' );
+				$ignored_cookies_message = $this->ignored_cookies === '' ? '' : " and ignored cookies: {$this->ignored_cookies}";
+				$ignored_get_message     = $this->ignored_get_parameters === '' ? '' : " and ignored GET parameters: {$this->ignored_get_parameters}";
+				Logger::debug( 'Cache file created' . $ignored_cookies_message . $ignored_get_message );
 			}
 		}
 
@@ -471,6 +494,141 @@ class Boost_Cache {
 	 */
 	public function invalidate_cache( $action = Filesystem_Utils::REBUILD_ALL ) {
 		return $this->invalidate_cache_for_url( home_url(), $action );
+	}
+
+	/**
+	 * Ignore certain GET parameters in the cache parameters so cached pages can be served to these visitors.
+	 *
+	 * @param array $parameters - The parameters with the GET array to filter.
+	 * @return array - The parameters with GET parameters removed.
+	 */
+	public function ignore_get_parameters( $parameters ) {
+		static $params = false;
+
+		// Only run this once as it may be called multiple times on uncached pages.
+		if ( $params ) {
+			return $params;
+		}
+
+		/**
+		 * Filters the GET parameters so cached pages can be served to these visitors.
+		 * The list is an array of regex patterns. The default list contains the
+		 * most common GET parameters used by analytics services.
+		 *
+		 * @since 3.8.0
+		 *
+		 * @param array $get_parameters An array of regexes to remove items from the GET parameter list.
+		 */
+		$get_parameters = apply_filters(
+			'jetpack_boost_ignore_get_parameters',
+			array( 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term' )
+		);
+
+		$get_parameters = array_unique(
+			array_map(
+				'trim',
+				$get_parameters
+			)
+		);
+
+		foreach ( $get_parameters as $get_parameter ) {
+			foreach ( array_keys( $parameters['get'] ) as $get_parameter_name ) {
+				if ( preg_match( '/^' . $get_parameter . '$/', $get_parameter_name ) ) {
+					unset( $parameters['get'][ $get_parameter_name ] );
+					$this->ignored_get_parameters .= $get_parameter_name . ',';
+				}
+			}
+		}
+		if ( $this->ignored_get_parameters !== '' ) {
+			$this->ignored_get_parameters = rtrim( $this->ignored_get_parameters, ',' );
+		}
+
+		$params = $parameters;
+
+		return $parameters;
+	}
+
+	/**
+	 * Ignore certain cookies in the cache parameters so cached pages can be served to these visitors.
+	 *
+	 * @param array $parameters - The parameters with the cookies array to filter.
+	 * @return array - The parameters with cookies removed.
+	 */
+	public function ignore_cookies( $parameters ) {
+		static $params = false;
+
+		// Only run this once as it may be called multiple times on uncached pages.
+		if ( $params ) {
+			return $params;
+		}
+
+		$default_cookies = array( 'cf_clearance', 'cf_chl_rc_i', 'cf_chl_rc_ni', 'cf_chl_rc_m', '_cfuvid', '__cfruid', '__cfwaitingroom', 'cf_ob_info', 'cf_use_ob', '__cfseq', '__cf_bm', '__cflb', 'sbjs_(.*)' );
+		$jetpack_cookies = array( 'tk_ai', 'tk_qs' );
+		$cookies         = array_merge( $default_cookies, $jetpack_cookies );
+
+		/**
+		 * Filters the browser cookies so cached pages can be served to these visitors.
+		 * The list is an array of regex patterns. The default list contains the
+		 * cookies used by Cloudflare, and the regex pattern for the sbjs_ cookies
+		 * used by sourcebuster.js
+		 *
+		 * @since 3.8.0
+		 *
+		 * @param array $cookies An array of regexes to remove items from the cookie list.
+		 */
+		$cookies = apply_filters(
+			'jetpack_boost_ignore_cookies',
+			$cookies
+		);
+
+		$cookies = array_unique(
+			array_map(
+				'trim',
+				$cookies
+			)
+		);
+
+		/**
+		 * The Jetpack Cookie Banner plugin sets a cookie to indicate that the
+		 * user has accepted the cookie policy.
+		 * The value of the cookie is the expiry date of the cookie, which means
+		 * that everyone who has accepted the cookie policy will use a different
+		 * cache file.
+		 * Set it to 1 here so those visitors will use the same cache file.
+		 */
+		if ( isset( $parameters['cookies']['eucookielaw'] ) ) {
+			$parameters['cookies']['eucookielaw'] = 1;
+		}
+
+		/**
+		 * This is for the personalized ads consent cookie.
+		 */
+		if ( isset( $parameters['cookies']['personalized-ads-consent'] ) ) {
+			$parameters['cookies']['personalized-ads-consent'] = 1;
+		}
+
+		$cookie_keys = array();
+		if ( isset( $parameters['cookies'] ) && is_array( $parameters['cookies'] ) ) {
+			$cookie_keys = array_keys( $parameters['cookies'] );
+		} else {
+			return $parameters;
+		}
+
+		foreach ( $cookies as $cookie ) {
+			foreach ( $cookie_keys as $cookie_name ) {
+				if ( preg_match( '/^' . $cookie . '$/', $cookie_name ) ) {
+					unset( $parameters['cookies'][ $cookie_name ] );
+					$this->ignored_cookies .= $cookie_name . ',';
+				}
+			}
+		}
+		if ( $this->ignored_cookies !== '' ) {
+			$this->ignored_cookies = rtrim( $this->ignored_cookies, ',' );
+		}
+
+		$params = $parameters;
+
+		return $parameters;
 	}
 
 	public function disable_caching_on_error( $message ) {

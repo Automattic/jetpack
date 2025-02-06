@@ -23,7 +23,6 @@ export function PostPublishShareStatus() {
 		const _editorStore = select( editorStore );
 
 		return {
-			// @ts-expect-error -- `@wordpress/editor` is a nightmare to work with TypeScript
 			isPostPublished: _editorStore.isCurrentPostPublished(),
 		};
 	}, [] );

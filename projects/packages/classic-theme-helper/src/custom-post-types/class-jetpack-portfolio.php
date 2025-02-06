@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Classic_Theme_Helper;
 
-use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 use WP_Customize_Image_Control;
@@ -277,7 +276,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 			}
 
 			// Otherwise, say no unless something wants to filter us to say yes.
-			/** This action is documented in modules/custom-post-types/nova.php */
+			/** This action is documented in classic-theme-helper/src/custom-post-types/class-nova-restaurant.php */
 			return (bool) apply_filters( 'jetpack_enable_cpt', false, self::CUSTOM_POST_TYPE );
 		}
 
@@ -319,7 +318,6 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 		public static function activation_post_type_support() {
 			if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
 				update_option( self::OPTION_NAME, '1' );
-				( new Modules() )->activate( 'custom-content-types', false, false );
 			}
 		}
 
@@ -1069,7 +1067,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 				$project_type_link = get_term_link( $project_type, self::CUSTOM_TAXONOMY_TYPE );
 
 				if ( is_wp_error( $project_type_link ) ) {
-					return $project_type_link;
+					return '';
 				}
 
 				$types[] = '<a href="' . esc_url( $project_type_link ) . '" rel="tag">' . esc_html( $project_type->name ) . '</a>';
@@ -1102,7 +1100,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 				$project_tag_link = get_term_link( $project_tag, self::CUSTOM_TAXONOMY_TYPE );
 
 				if ( is_wp_error( $project_tag_link ) ) {
-					return $project_tag_link;
+					return '';
 				}
 
 				$tags[] = '<a href="' . esc_url( $project_tag_link ) . '" rel="tag">' . esc_html( $project_tag->name ) . '</a>';

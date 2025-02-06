@@ -44,6 +44,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					className="jetpack-ai-chat-question-input"
 					placeholder={ placeholder }
 					disabled={ true }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<RichText
 					className="wp-block-button__link jetpack-ai-chat-question-button"

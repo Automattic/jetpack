@@ -48,10 +48,8 @@ class WPCOM_Client {
 			return $response_body;
 		}
 
-		if ( $use_cache ) {
-			// Cache the successful JSON response for 5 minutes.
-			set_transient( $cache_key, wp_json_encode( $response_body ), 5 * MINUTE_IN_SECONDS );
-		}
+		// Cache the response for 5 minutes.
+		set_transient( $cache_key, wp_json_encode( $response_body ), 5 * MINUTE_IN_SECONDS );
 
 		return $response_body;
 	}

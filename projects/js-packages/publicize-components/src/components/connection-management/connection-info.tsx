@@ -27,7 +27,7 @@ export function ConnectionInfo( { connection, service }: ConnectionInfoProps ) {
 			<div className={ styles[ 'connection-item' ] }>
 				<ConnectionIcon
 					serviceName={ connection.service_name }
-					label={ connection.display_name || connection.external_display }
+					label={ connection.display_name }
 					profilePicture={ connection.profile_picture }
 				/>
 				<div className={ styles[ 'connection-name-wrapper' ] }>
@@ -43,8 +43,8 @@ export function ConnectionInfo( { connection, service }: ConnectionInfoProps ) {
 					onClick={ togglePanel }
 					aria-label={
 						isPanelOpen
-							? __( 'Close panel', 'jetpack' )
-							: _x( 'Open panel', 'Accessibility label', 'jetpack' )
+							? __( 'Close panel', 'jetpack-publicize-components' )
+							: _x( 'Open panel', 'Accessibility label', 'jetpack-publicize-components' )
 					}
 				>
 					{ <Icon className={ styles.chevron } icon={ isPanelOpen ? chevronUp : chevronDown } /> }
@@ -57,7 +57,7 @@ export function ConnectionInfo( { connection, service }: ConnectionInfoProps ) {
 						<IconTooltip>
 							{ __(
 								'If enabled, the connection will be available to all administrators, editors, and authors.',
-								'jetpack'
+								'jetpack-publicize-components'
 							) }
 						</IconTooltip>
 					</div>

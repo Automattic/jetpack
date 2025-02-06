@@ -11,7 +11,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 define( 'NEWSPACK_BLOCKS__BLOCKS_DIRECTORY', Jetpack_Mu_Wpcom::BASE_DIR . 'build/' );
 define( 'NEWSPACK_BLOCKS__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'NEWSPACK_BLOCKS__VERSION', '4.0.1' );
+define( 'NEWSPACK_BLOCKS__VERSION', 'v4.5.2' );
 
 require_once __DIR__ . '/../../utils.php';
 require_once __DIR__ . '/synced-newspack-blocks/class-newspack-blocks.php';
@@ -86,7 +86,7 @@ if ( ! $disable_blog_posts_block ) {
 	);
 
 	add_action(
-		is_admin() ? 'enqueue_block_assets' : 'enqueue_block_editor_assets',
+		'enqueue_block_editor_assets',
 		function () {
 			$handle = \jetpack_mu_wpcom_enqueue_assets( 'newspack-blocks-blog-posts-editor', array( 'js', 'css' ) );
 			enqueue_newspack_blocks_data( $handle );
@@ -112,7 +112,7 @@ if ( ! $disable_posts_carousel_block ) {
 	);
 
 	add_action(
-		is_admin() ? 'enqueue_block_assets' : 'enqueue_block_editor_assets',
+		'enqueue_block_editor_assets',
 		function () {
 			$handle = \jetpack_mu_wpcom_enqueue_assets( 'newspack-blocks-carousel-editor', array( 'js', 'css' ) );
 			enqueue_newspack_blocks_data( $handle );

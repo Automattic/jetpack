@@ -2,6 +2,7 @@
 @import '../../shared/styles/jetpack-variables.scss';
 
 .wp-block-jetpack-slideshow {
+	min-width: 0;
 	margin-bottom: $jetpack-block-margin-bottom;
 	position: relative;
 
@@ -304,5 +305,18 @@
 		background-color: transparent;
 		color: inherit;
 		padding-top: 0;
+	}
+}
+
+.entry-content:has(.wp-block-group.is-vertical:not(.is-layout-constrained)) .wp-block-group.is-vertical:not(.is-layout-constrained),
+#editor:has(.wp-block-group.is-vertical:not(.is-layout-constrained)) .wp-block-group.is-vertical:not(.is-layout-constrained)  {
+	.wp-block-jetpack-slideshow {
+		max-width: inherit;
+	}
+}
+
+div:not(.entry-content):not(.block-editor__container) > .wp-block-group.is-vertical:not(.is-layout-constrained) {
+	.wp-block-jetpack-slideshow {
+		max-width: 100vw;
 	}
 }

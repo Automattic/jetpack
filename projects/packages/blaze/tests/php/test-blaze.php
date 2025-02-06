@@ -1,7 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * This file contains PHPUnit tests for the Blaze class.
- * To run the package unit tests, run jetpack test packages/blaze
+ * To run the package unit tests, run jetpack test php packages/blaze
  *
  * @package automattic/jetpack-blaze
  */

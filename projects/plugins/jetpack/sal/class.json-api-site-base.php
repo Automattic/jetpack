@@ -1521,6 +1521,15 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Get the option of site partner bundle which value is coming from the Partner Flow
+	 *
+	 * @return string
+	 */
+	public function get_site_partner_bundle() {
+		return get_option( 'site_partner_bundle', '' );
+	}
+
+	/**
 	 * Get site option to determine if and how to display launchpad onboarding
 	 *
 	 * @return string
@@ -1551,6 +1560,15 @@ abstract class SAL_Site {
 		}
 
 		return array();
+	}
+
+	/**
+	 * Get site option for migration source site domain
+	 *
+	 * @return string
+	 */
+	public function get_migration_source_site_domain() {
+		return get_option( 'migration_source_site_domain', '' );
 	}
 
 	/**

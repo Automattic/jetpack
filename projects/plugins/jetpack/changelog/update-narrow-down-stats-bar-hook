@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Optimize the Stats Admin Bar hook by narrowing down the callback.

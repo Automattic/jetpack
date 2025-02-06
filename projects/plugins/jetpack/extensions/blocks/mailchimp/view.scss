@@ -1,5 +1,6 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 @import '../../shared/styles/jetpack-variables.scss';
+@import "../../shared/styles/align";
 
 .wp-block-jetpack-mailchimp {
 	&.is-processing {
@@ -9,6 +10,8 @@
 	}
 
 	.wp-block-jetpack-button, p {
+		@include align-block;
+
 		margin-bottom: 1em;
 	}
 

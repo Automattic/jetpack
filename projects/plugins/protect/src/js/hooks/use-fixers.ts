@@ -1,8 +1,8 @@
+import { type FixersStatus, type ThreatFixStatus } from '@automattic/jetpack-scan';
 import { useCallback } from 'react';
 import useFixersMutation from '../data/scan/use-fixers-mutation';
 import useFixersQuery from '../data/scan/use-fixers-query';
 import useScanStatusQuery from '../data/scan/use-scan-status-query';
-import { FixersStatus, ThreatFixStatus } from '../types/fixers';
 
 const FIXER_IS_STALE_THRESHOLD = 1000 * 60 * 60 * 24; // 24 hours
 
@@ -16,7 +16,7 @@ export const fixerStatusIsStale = ( fixerStatus: ThreatFixStatus ) => {
 	return (
 		'status' in fixerStatus &&
 		fixerStatus.status === 'in_progress' &&
-		fixerTimestampIsStale( fixerStatus.last_updated )
+		fixerTimestampIsStale( fixerStatus.lastUpdated )
 	);
 };
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixes a bug in Analyzer tring to call toCodeString() in Variable class.

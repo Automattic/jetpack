@@ -170,7 +170,7 @@ class Note {
 		 *
 		 * Default is ['core/paragraph', 'core/post-featured-image']
 		 *
-		 * @since $$next-version$$
+		 * @since 5.5.0
 		 *
 		 * @param array $allowed_blocks A linear array of blocks allowed by the CPT.
 		 */
@@ -187,51 +187,6 @@ class Note {
 			flush_rewrite_rules( false );
 			update_option( self::FLUSH_REWRITE_RULES_FLUSHED, true );
 		}
-	}
-
-	/**
-	 * Set whether or not the Notes feature is enabled.
-	 *
-	 * @param boolean $enabled Whether or not the Notes feature is enabled.
-	 */
-	public function set_enabled( $enabled ) {
-		if ( $enabled === self::enabled() ) {
-			return;
-		}
-
-		if ( $enabled ) {
-			update_option( self::JETPACK_SOCIAL_NOTE_CPT, true );
-		} else {
-			delete_option( self::JETPACK_SOCIAL_NOTE_CPT );
-		}
-		// Delete this option, so the rules get flushe in maybe_flush_rewrite_rules when the CPT is registered.
-		delete_option( self::FLUSH_REWRITE_RULES_FLUSHED );
-	}
-
-	/**
-	 * Get the social notes config.
-	 *
-	 * @return array The social notes config.
-	 */
-	public function get_config() {
-		return get_option(
-			self::JETPACK_SOCIAL_NOTES_CONFIG,
-			// Append link by default.
-			array(
-				'append_link' => true,
-			)
-		);
-	}
-
-	/**
-	 * Update social notes config
-	 *
-	 * @param array $config The config to update.
-	 */
-	public function update_config( $config ) {
-		$old_config = get_option( self::JETPACK_SOCIAL_NOTES_CONFIG, array() );
-		$new_config = array_merge( $old_config, $config );
-		update_option( self::JETPACK_SOCIAL_NOTES_CONFIG, $new_config );
 	}
 
 	/**

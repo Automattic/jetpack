@@ -11,6 +11,7 @@ interface AdminSectionHeroProps {
 	main: React.ReactNode;
 	secondary?: React.ReactNode;
 	preserveSecondaryOnMobile?: boolean;
+	spacing?: number;
 }
 
 interface AdminSectionHeroComponent extends React.FC< AdminSectionHeroProps > {
@@ -22,12 +23,13 @@ const AdminSectionHero: AdminSectionHeroComponent = ( {
 	main,
 	secondary,
 	preserveSecondaryOnMobile = true,
+	spacing = 7,
 } ) => {
 	return (
 		<JetpackAdminSectionHero>
 			<AdminSectionHeroNotices />
 			<SeventyFiveLayout
-				spacing={ 7 }
+				spacing={ spacing }
 				gap={ 0 }
 				main={ main }
 				mainClassName={ styles[ 'header-main' ] }

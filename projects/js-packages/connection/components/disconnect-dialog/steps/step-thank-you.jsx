@@ -20,12 +20,12 @@ const StepThankYou = props => {
 			<DecorativeCard format="vertical" imageUrl={ disconnectImage } />
 
 			<div className="jp-connection__disconnect-dialog__copy">
-				<h1>{ __( 'Thank you!', 'jetpack' ) }</h1>
+				<h1>{ __( 'Thank you!', 'jetpack-connection-js' ) }</h1>
 				<p className="jp-connection__disconnect-dialog__large-text">
 					{ createInterpolateElement(
 						__(
 							'Your answer has been submitted. <br/>Thanks for your input on how we can improve Jetpack.',
-							'jetpack'
+							'jetpack-connection-js'
 						),
 						{
 							br: <br />,
@@ -37,7 +37,7 @@ const StepThankYou = props => {
 					onClick={ onExit }
 					className="jp-connection__disconnect-dialog__btn-back-to-wp"
 				>
-					{ __( 'Back to my website', 'jetpack' ) }
+					{ __( 'Back to my website', 'jetpack-connection-js' ) }
 				</Button>
 			</div>
 		</div>

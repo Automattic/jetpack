@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Initial state: Migrated isEnhancedPublishingEnabled to feature check

@@ -11,13 +11,7 @@
  */
 
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /* ================================================================================================================
  *
@@ -68,43 +62,42 @@ function zeroBSCRM_notifyme_createDBtable(){
 
 
 function zeroBSCRM_notifyme_scripts(){
+	global $zbs;
+	wp_enqueue_script( 'jquery' );
+	wp_enqueue_script( 'notifyme-front', ZEROBSCRM_URL . 'js/lib/notifyme-front.min.js', array( 'jquery' ), $zbs::VERSION ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
+	wp_enqueue_style( 'notifyme-css', ZEROBSCRM_URL . 'css/lib/notifyme-front.min.css', array(), $zbs::VERSION );
 
-    global $zbs;
-    wp_enqueue_script("jquery");
-    wp_enqueue_script('notifyme-front', ZEROBSCRM_URL . 'js/lib/notifyme-front.min.js',array('jquery'), $zbs->version );
-    wp_enqueue_style('notifyme-css',  ZEROBSCRM_URL . 'css/lib/notifyme-front.min.css', array(), $zbs->version );
+	#} this does the browser notifications
+	wp_register_script( 'notifyme_push', ZEROBSCRM_URL . 'js/lib/push.min.js', array( 'jquery' ), $zbs::VERSION, true );
+	wp_enqueue_script( 'notifyme_push' );
 
-    #} this does the browser notifications
-    wp_register_script( 'notifyme_push', ZEROBSCRM_URL . 'js/lib/push.min.js', array( 'jquery' ) , $zbs->version, true ); 
-    wp_enqueue_script( 'notifyme_push' );
+	#} this stores things in cookies, so not to keep notifying
+	wp_register_script( 'notifyme_cookie', ZEROBSCRM_URL . 'js/lib/cookie.min.js', array( 'jquery' ), $zbs::VERSION, true );
+	wp_enqueue_script( 'notifyme_cookie' );
 
-    #} this stores things in cookies, so not to keep notifying 
-    wp_register_script( 'notifyme_cookie', ZEROBSCRM_URL . 'js/lib/cookie.min.js', array( 'jquery' ) , $zbs->version, true ); 
-    wp_enqueue_script( 'notifyme_cookie' );
+	#} this is the browser notification icon.
+	$notify_logo = jpcrm_get_logo();
 
-    #} this is the browser notification icon.
-    $notify_logo = jpcrm_get_logo();
+	#} this is which user to notify for..
+	$cid = get_current_user_id();
 
-    #} this is which user to notify for..
-    $cid = get_current_user_id();
+	#} we want to browser notify our users :-)
+	$notification_meta = array( 'browser_push' => 1 );
 
-    #} we want to browser notify our users :-)
-    $notification_meta['browser_push'] = 1;
-    $args = array(
-            'ph_notify_logo' =>  $notify_logo,
-            'current_user' => $cid,
-            'notification_nonce' => wp_create_nonce( "notifyme_nonce" ),
-            'notification_settings' => $notification_meta,
-            'ajaxurl'  => admin_url( 'admin-ajax.php' )
-    );
-    wp_localize_script('notifyme_push','notifyme',$args);
+	$args = array(
+		'ph_notify_logo'        => $notify_logo,
+		'current_user'          => $cid,
+		'notification_nonce'    => wp_create_nonce( 'notifyme_nonce' ),
+		'notification_settings' => $notification_meta,
+		'ajaxurl'               => admin_url( 'admin-ajax.php' ),
+	);
+	wp_localize_script( 'notifyme_push', 'notifyme', $args );
 }
 add_action( 'zbs-global-admin-styles', 'zeroBSCRM_notifyme_scripts' );
 
-
 //ADD ANY CORE FUNCTIONS FOR THE PLUGIN HERE
 function zeroBSCRM_notify_me(){
-  global $zbs, $zeroBSCRM_notifications;
+	global $zbs;
 
   // jQuery fills in the number in the bubble..
   if ( is_user_logged_in() && zeroBSCRM_permsNotify() ){
@@ -225,34 +218,6 @@ function zeroBSCRM_notifyme_echo_type($type = '', $title = '', $sender = -999, $
         echo wp_kses( __( 'Template File Error:<br /> It was not possible to load the following template file. This will mean that related documents will not be loaded properly.<br/>Template File: ', 'zero-bs-crm' ), $zbs->acceptable_restricted_html ) . $content;
     break;
 
-
-    // ========= DAL 3 MIGRATIONS
-
-    // v3.0 - DB3 objs migration :)
-    case 'db3.update.300':
-        echo sprintf( __( '🔔 [URGENT] Your CRM Database needs migrating. <a href="%s">Click here to run migration routine</a><div style="margin: 2em;margin-left: 4em;">Running this database update will increase your CRM load-times by up to 60x!<br /><a href="%s" target="_blank" class="ui button basic">Read Guide</a> <a href="%s" class="ui button green">Run now</a>', "zero-bs-crm" ), jpcrm_esc_link( $zbs->slugs['migratedal3'] ), esc_url( $zbs->urls['db3migrate'] ), jpcrm_esc_link( $zbs->slugs['migratedal3'] ) );
-        break;
-
-    // v3.0 - DB3 objs migration :) FINI
-    case 'db3.update.300.success':
-       echo wp_kses( sprintf( __( 'Your CRM database was successfully migrated. Please update any <a href="%s" target="_blank">PRO Extensions</a> you may have installed.',"zero-bs-crm"), esc_url( $zbs->urls['products'] ) ), $zbs->acceptable_restricted_html );
-       break;
-
-    // v3.0 - DB3 objs migration :) FINI
-    case 'db3.update.300.errors':
-
-        echo __("Jetpack CRM has tried to updated your core CRM successfully, despite a few errors:","zero-bs-crm").'</hr><a href="'. esc_url( zeroBSCRM_getAdminURL($zbs->slugs['systemstatus']) ).'&v3migrationlog=1" target="_blank">'. esc_html__('View Migration Report','zero-bs-crm').'</a>';
-        break;
-
-    // v3.0 - DB3 objs migration :) FINI + has extensions to update
-    case 'db3.extupdate.300':
-        ##WLREMOVE
-        echo esc_html__("Please Update your Extensions (DB Migration makes this essential!)","zero-bs-crm").' <a href="'. jpcrm_esc_link( $zbs->slugs['connect'] ).'">'. esc_html__("View Extension Updates","zero-bs-crm").'</a>';
-        ##/WLREMOVE
-        break;
-
-    // ========= / DAL 3 MIGRATIONS
-
     // ========= v5+ MIGRATIONS
 
     // v5.1 - migrate woosync sites
@@ -336,9 +301,9 @@ function zeroBSCRM_notifyme_echo_type($type = '', $title = '', $sender = -999, $
         break;
     // ========= / Package Installer
 
-    default:
-        esc_html_e(" something went wrong", 'zero-bs-crm');
-    }
+		default:
+			esc_html_e( 'Unable to load notification.', 'zero-bs-crm' );
+	}
 }
 
 function zeroBSCRM_notifyme_time_ago($datetime){
@@ -562,7 +527,7 @@ function zeroBSCRM_notifyme_get_notifications_ajax(){
         $res['count'] = count($res['notifications']);
       }
       echo json_encode($res,true);
-      die();
+	die( 0 );
 }
 
 

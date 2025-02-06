@@ -1,3 +1,5 @@
+/* global window, jest */
+
 if ( ! window.matchMedia ) {
 	window.matchMedia = query => ( {
 		matches: false,
@@ -9,4 +11,13 @@ if ( ! window.matchMedia ) {
 		removeEventListener: jest.fn(),
 		dispatchEvent: jest.fn(),
 	} );
+}
+
+// Needed by various Gutenberg packages
+if ( ! global.ResizeObserver ) {
+	global.ResizeObserver = class ResizeObserver {
+		observe() {}
+		unobserve() {}
+		disconnect() {}
+	};
 }

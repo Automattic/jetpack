@@ -1,3 +1,4 @@
+import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import useProduct from '../../../data/products/use-product';
@@ -9,7 +10,6 @@ import ShieldInactive from './assets/shield-inactive.svg';
 import ShieldOff from './assets/shield-off.svg';
 import ShieldSuccess from './assets/shield-success.svg';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
-import type { ReactElement, PropsWithChildren } from 'react';
 
 export const AutoFirewallStatus = () => {
 	const slug = 'protect';
@@ -35,13 +35,14 @@ export const AutoFirewallStatus = () => {
 /**
  * WafStatus component
  *
- * @param {PropsWithChildren}             props        - The component props
- * @param {'active' | 'inactive' | 'off'} props.status - The status of the WAF
+ * @param props        - The component props
+ * @param props.status - The status of the WAF
  *
- * @return {ReactElement} rendered component
+ * @return rendered component
  */
 function WafStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) {
 	const slug = 'protect';
+	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
 	const { detail } = useProduct( slug );
 	const { hasPaidPlanForProduct = false } = detail || {};
 	const tooltipContent = useProtectTooltipCopy();
@@ -79,11 +80,10 @@ function WafStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) {
 							feature: 'jetpack-protect',
 							has_paid_plan: hasPaidPlanForProduct,
 						} }
+						placement={ isMobileViewport ? 'top' : 'right' }
 					>
-						<>
-							<h3>{ autoFirewallTooltip.title }</h3>
-							<p>{ autoFirewallTooltip.text }</p>
-						</>
+						<h3>{ autoFirewallTooltip.title }</h3>
+						<p>{ autoFirewallTooltip.text }</p>
 					</InfoTooltip>
 				</div>
 				<div className="value-section__data">

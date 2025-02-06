@@ -70,6 +70,7 @@ export const TiledGalleryInspectorControls = ( {
 						onChange={ onColumnsChange }
 						min={ 1 }
 						max={ Math.min( MAX_COLUMNS, images.length ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 				) }
 				{ layoutStyle !== LAYOUT_CIRCLE && (
@@ -79,6 +80,7 @@ export const TiledGalleryInspectorControls = ( {
 						onChange={ onRoundedCornersChange }
 						min={ 0 }
 						max={ MAX_ROUNDED_CORNERS }
+						__nextHasNoMarginBottom={ true }
 					/>
 				) }
 				<SelectControl
@@ -86,6 +88,7 @@ export const TiledGalleryInspectorControls = ( {
 					value={ linkTo }
 					onChange={ onLinkToChange }
 					options={ linkOptions }
+					__nextHasNoMarginBottom={ true }
 				/>
 			</PanelBody>
 		</InspectorControls>

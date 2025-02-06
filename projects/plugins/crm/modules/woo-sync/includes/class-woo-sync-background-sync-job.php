@@ -9,7 +9,7 @@
 namespace Automattic\JetpackCRM;
 
 // block direct access
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 #} the WooCommerce API
 use Automattic\WooCommerce\Client;
@@ -533,7 +533,7 @@ class Woo_Sync_Background_Sync_Job {
 						'percentage_completed' => 0,
 					)
 				);
-				exit;
+				exit( 0 );
 			}
 
 			// cache values

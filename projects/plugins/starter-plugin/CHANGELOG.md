@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.5.0 - 2024-12-04
+### Added
+- Add Woocommerce event remove_order_items to Jetpack Sync [#33748]
+- Enable test coverage. [#39961]
+- Explicitly add the Connection package as dependency [#36418]
+- My Jetpack: update the recommendations section in My Jetpack to include a slider interaction for the cards. [#39850]
+- New setting in /sties/$site/settings that is not relevant to this plugin. [#35509]
+- Packages: add version tracking for identity-crisis package. [#36635]
+- Trigger red bubble notification when bad install is detected [#36449]
+
+### Changed
+- General: indicate compatibility with the upcoming version of WordPress, 6.5. [#35820]
+- General: indicate compatibility with the upcoming version of WordPress - 6.6. [#37962]
+- General: indicate compatibility with the upcoming version of WordPress - 6.7. [#39786]
+- General: update WordPress version requirements to WordPress 6.4. [#37047]
+- General: use wp_admin_notice function introduced in WP 6.4 to display notices. [#37051]
+- Only include `wp-polyfill` as a script dependency when needed. [#39629]
+- Only show installation errors on plugins page [#36390]
+- Remove explicit Plugin Install package dependency. [#37430]
+- Remove the 'jetpack-identity-crisis' dependency. [#36968]
+- Resolved an issue where revoked licenses were incorrectly treated as unattached. This caused users to be redirected to the license activation page after site connection, even when unattached licenses were not valid for activation. [#40215]
+- Social | Changed My Jetpack CTA for Social from "Learn more" to "Activate" [#40359]
+- Update composer lock file [#38942]
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#35591] [#35608] [#36095] [#36097] [#36142] [#36309] [#36325] [#36585] [#36760] [#36775] [#36788] [#37147] [#37348] [#37379] [#37380] [#37382] [#37669] [#37767] [#37776] [#37796] [#38132] [#38228] [#38235] [#38662] [#38822] [#39004] [#39111] [#39176] [#39278] [#39288] [#39302] [#39332] [#39594] [#39653] [#39707] [#39999] [#40060] [#40116] [#40258] [#40288] [#40363]
+- Update package lock [#35672]
+
+### Removed
+- Connection: Removed deprecated method features_available [#39442]
+- Connection: Removed features_enabled deprecated method [#39475]
+- General: Update minimum PHP version to 7.2. [#40147]
+- General: Update minimum WordPress version to 6.6. [#40146]
+- General: update WordPress version requirements to WordPress 6.5. [#38382]
+
+### Fixed
+- My Jetpack: visual update to the GlobalNotice component look better on mobile. [#39537]
+- Updated package dependencies. [#38464]
+
 ## 0.4.0 - 2024-02-07
 ### Changed
 - General: indicate full compatibility with the latest version of WordPress, 6.3. [#31910]

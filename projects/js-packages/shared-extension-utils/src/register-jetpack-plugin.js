@@ -13,6 +13,7 @@ export default function registerJetpackPlugin( name, settings ) {
 	const unavailable = ! available;
 
 	if ( unavailable ) {
+		// eslint-disable-next-line no-undef -- webpack defines it
 		if ( 'production' !== process.env.NODE_ENV ) {
 			// eslint-disable-next-line no-console
 			console.warn(

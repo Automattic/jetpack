@@ -17,23 +17,46 @@ function load_wpcom_dashboard_widgets() {
 
 	$wpcom_dashboard_widgets = array(
 		array(
-			'id'       => 'wpcom_site_management_widget',
-			'name'     => __( 'Site Management Panel', 'jetpack-mu-wpcom' ),
+			'id'       => 'wpcom_site_preview_widget',
+			'name'     => __( 'Site', 'jetpack-mu-wpcom' ),
+			'context'  => 'side',
+			'priority' => 'high',
+		),
+		array(
+			'id'       => 'wpcom_daily_writing_prompt',
+			'name'     => __( 'Daily Writing Prompt', 'jetpack-mu-wpcom' ),
+			'context'  => 'side',
 			'priority' => 'high',
 		),
 	);
+
+	$launchpad_context = 'customer-home';
+	$checklist_slug    = get_option( 'site_intent' );
+
+	if (
+		get_option( 'launch-status', 'launched' ) !== 'launched' &&
+		! empty( wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug, $launchpad_context ) ) &&
+		! wpcom_launchpad_is_task_list_dismissed( $checklist_slug )
+	) {
+		$wpcom_dashboard_widgets[] = array(
+			'id'       => 'wpcom_launchpad_widget',
+			'name'     => __( 'Site Setup', 'jetpack-mu-wpcom' ),
+			'context'  => 'normal',
+			'priority' => 'high',
+		);
+	}
 
 	foreach ( $wpcom_dashboard_widgets as $wpcom_dashboard_widget ) {
 		wp_add_dashboard_widget(
 			$wpcom_dashboard_widget['id'],
 			$wpcom_dashboard_widget['name'],
 			'render_wpcom_dashboard_widget',
-			function () {},
+			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. See https://core.trac.wordpress.org/ticket/52539.
 			array(
 				'id'   => $wpcom_dashboard_widget['id'],
 				'name' => $wpcom_dashboard_widget['name'],
 			),
-			'normal',
+			$wpcom_dashboard_widget['context'],
 			$wpcom_dashboard_widget['priority']
 		);
 	}
@@ -46,17 +69,25 @@ add_action( 'wp_dashboard_setup', 'load_wpcom_dashboard_widgets' );
 function enqueue_wpcom_dashboard_widgets() {
 	$handle = jetpack_mu_wpcom_enqueue_assets( 'wpcom-dashboard-widgets', array( 'js', 'css' ) );
 
+	$bundles      = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) );
+	$current_plan = array_pop( $bundles );
+
 	$data = wp_json_encode(
 		array(
-			'siteName'    => get_bloginfo( 'name' ),
-			'siteDomain'  => wp_parse_url( home_url(), PHP_URL_HOST ),
-			'siteIconUrl' => get_site_icon_url( 38 ),
+			'siteName'        => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
+			'siteUrl'         => home_url(),
+			'siteIconUrl'     => get_site_icon_url( 38 ),
+			'isBlockTheme'    => wp_is_block_theme(),
+			'siteDomain'      => wp_parse_url( home_url(), PHP_URL_HOST ),
+			'siteIntent'      => get_option( 'site_intent' ),
+			'sitePlan'        => $current_plan,
+			'hasCustomDomain' => wpcom_site_has_feature( 'custom-domain' ),
 		)
 	);
 
 	wp_add_inline_script(
 		$handle,
-		"var JETPACK_MU_WPCOM_DASHBOARD_WIDGETS = $data;",
+		"var JETPACK_MU_WPCOM_DASHBOARD_WIDGETS = $data;var configData = {};",
 		'before'
 	);
 }
@@ -80,7 +111,7 @@ function render_wpcom_dashboard_widget( $post, $callback_args ) {
 	);
 
 	?>
-	<div style="min-height: 200px;">
+	<div>
 		<div class="hide-if-js">
 			<?php echo esc_html( $warning ); ?>
 		</div>

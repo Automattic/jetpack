@@ -70,7 +70,7 @@ export function usePostData() {
 					getEditedPostAttribute( 'meta' )?.advanced_seo_description ||
 					getEditedPostAttribute( 'excerpt' ) ||
 					getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ] ||
-					__( 'Visit the post for more.', 'jetpack' ) ||
+					__( 'Visit the post for more.', 'jetpack-publicize-components' ) ||
 					''
 				).trim(),
 				url: getEditedPostAttribute( 'link' ),

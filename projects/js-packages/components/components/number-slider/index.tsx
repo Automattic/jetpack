@@ -68,7 +68,7 @@ const NumberSlider: React.FC< NumberSliderProps > = ( {
 				min={ minValue }
 				step={ step }
 				renderThumb={ renderThumbCallback } // eslint-disable-line react/jsx-no-bind
-				onChange={ onChange } // eslint-disable-line react/jsx-no-bind
+				onChange={ onChange }
 				onBeforeChange={ onBeforeChangeCallback } // eslint-disable-line react/jsx-no-bind
 				onAfterChange={ onAfterChangeCallback } // eslint-disable-line react/jsx-no-bind
 			/>

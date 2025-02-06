@@ -8,6 +8,18 @@
 		<whitelist processUncoveredFilesFromWhitelist="false">
 			<!-- Better to only include "src" than to add "." and then exclude "tests", "vendor", and so on, as PHPUnit still scans the excluded directories. -->
 			<!-- Add additional lines for any files or directories outside of src/ that need coverage. -->
+			<!-- Can't just <directory>.</directory> because PHPUnit is dumb about scanning before applying any exclusions, and can't glob in <file>. Sigh. -->
+			<file>advanced-cache.php</file>
+			<file>ossdl-cdn.php</file>
+			<file>wp-cache-base.php</file>
+			<file>wp-cache-config-sample.php</file>
+			<file>wp-cache-phase1.php</file>
+			<file>wp-cache-phase2.php</file>
+			<file>wp-cache.php</file>
+			<directory suffix=".php">inc</directory>
+			<directory suffix=".php">partials</directory>
+			<directory suffix=".php">plugins</directory>
+			<directory suffix=".php">rest</directory>
 			<directory suffix=".php">src</directory>
 		</whitelist>
 	</filter>

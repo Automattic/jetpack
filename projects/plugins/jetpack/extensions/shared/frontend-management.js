@@ -41,8 +41,7 @@ export class FrontendManagement {
 			if ( attribute.type === 'array' || attribute.type === 'object' ) {
 				try {
 					data[ name ] = JSON.parse( data[ name ] );
-				} catch ( e ) {
-					// console.log( 'Error decoding JSON data for field ' + name, e);
+				} catch {
 					data[ name ] = null;
 				}
 			}

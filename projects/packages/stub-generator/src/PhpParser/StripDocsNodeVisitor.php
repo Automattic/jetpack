@@ -18,6 +18,7 @@ use PHPStan\PhpDocParser\Parser\ConstExprParser;
 use PHPStan\PhpDocParser\Parser\PhpDocParser;
 use PHPStan\PhpDocParser\Parser\TokenIterator;
 use PHPStan\PhpDocParser\Parser\TypeParser;
+use PHPStan\PhpDocParser\ParserConfig;
 use PHPStan\PhpDocParser\Printer\Printer;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -68,14 +69,16 @@ class StripDocsNodeVisitor extends NodeVisitorAbstract {
 	 */
 	public function __construct( OutputInterface $output ) {
 		$this->output    = $output;
-		$usedAttributes  = array(
-			'lines'   => true,
-			'indexes' => true,
+		$config          = new ParserConfig(
+			array(
+				'lines'   => true,
+				'indexes' => true,
+			)
 		);
-		$this->lexer     = new Lexer();
-		$constExprParser = new ConstExprParser( true, true, $usedAttributes );
-		$typeParser      = new TypeParser( $constExprParser, true, $usedAttributes );
-		$this->parser    = new PhpDocParser( $typeParser, $constExprParser, true, true, $usedAttributes );
+		$this->lexer     = new Lexer( $config );
+		$constExprParser = new ConstExprParser( $config );
+		$typeParser      = new TypeParser( $config, $constExprParser );
+		$this->parser    = new PhpDocParser( $config, $typeParser, $constExprParser );
 		$this->traverser = new NodeTraverser( array( new CloningVisitor(), new PhpDocParser_StripDocsNodeVisitor( $output ) ) );
 		$this->printer   = new Printer();
 	}

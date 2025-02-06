@@ -1,10 +1,10 @@
 import { PagePatternModal, PatternDefinition } from '@automattic/page-pattern-modal';
+import { BlockInstance } from '@wordpress/blocks';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { addFilter, removeFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { pageLayoutStore } from './store';
-import '@wordpress/nux';
 
 const INSERTING_HOOK_NAME = 'isInsertingPagePattern';
 const INSERTING_HOOK_NAMESPACE = 'automattic/full-site-editing/inserting-pattern';
@@ -12,40 +12,62 @@ const INSERTING_HOOK_NAMESPACE = 'automattic/full-site-editing/inserting-pattern
 interface PagePatternsPluginProps {
 	patterns: PatternDefinition[];
 }
+type CoreBlockEditorPlaceholder = {
+	getBlocks: ( ...args: unknown[] ) => BlockInstance[];
+};
 type CoreEditorPlaceholder = {
-	getBlocks: ( ...args: unknown[] ) => Array< { name: string; clientId: string } >;
 	getEditedPostAttribute: ( ...args: unknown[] ) => unknown;
 };
 type CoreEditPostPlaceholder = {
 	isFeatureActive: ( ...args: unknown[] ) => boolean;
 };
-type CoreNuxPlaceholder = {
-	areTipsEnabled: ( ...args: unknown[] ) => boolean;
-};
+
+/**
+ * Recursively finds the Content block if any.
+ *
+ * @param blocks - The current blocks
+ * @return Block found, if any
+ */
+function findPostContentBlock( blocks: BlockInstance[] ): BlockInstance | null {
+	for ( const block of blocks ) {
+		if ( block.name === 'core/post-content' || block.name === 'a8c/post-content' ) {
+			return block;
+		}
+		const result = findPostContentBlock( block.innerBlocks );
+		if ( result ) {
+			return result;
+		}
+	}
+	return null;
+}
 
 /**
  * Starter page templates feature plugin
  *
- * @param props - An object that receives the page patterns
+ * @param  props - An object that receives the page patterns
+ * @return {JSX.Element} The rendered page pattern modal component.
  */
-export function PagePatternsPlugin( props: PagePatternsPluginProps ) {
+export function PagePatternsPlugin( props: PagePatternsPluginProps ): JSX.Element {
 	const { setOpenState } = useDispatch( pageLayoutStore );
 	const { setUsedPageOrPatternsModal } = useDispatch( 'automattic/wpcom-welcome-guide' );
 	const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
 	const { editPost } = useDispatch( 'core/editor' );
 	const { toggleFeature } = useDispatch( 'core/edit-post' );
-	const { disableTips } = useDispatch( 'core/nux' );
 
 	const selectProps = useSelect( select => {
+		const getMetaNew = () =>
+			( select( 'core/editor' ) as CoreEditorPlaceholder ).getEditedPostAttribute( 'meta' );
+		const currentBlocks = (
+			select( 'core/block-editor' ) as CoreBlockEditorPlaceholder
+		 ).getBlocks();
 		const { isOpen, isPatternPicker } = select( pageLayoutStore );
 		return {
+			getMeta: getMetaNew,
+			postContentBlock: findPostContentBlock( currentBlocks ),
 			isOpen: isOpen(),
 			isWelcomeGuideActive: (
 				select( 'core/edit-post' ) as CoreEditPostPlaceholder
-			 ).isFeatureActive( 'welcomeGuide' ) as boolean, // Gutenberg 7.2.0 or higher
-			areTipsEnabled: select( 'core/nux' )
-				? ( ( select( 'core/nux' ) as CoreNuxPlaceholder ).areTipsEnabled() as boolean )
-				: false, // Gutenberg 7.1.0 or lower
+			 ).isFeatureActive( 'welcomeGuide' ) as boolean,
 			...( isPatternPicker() && {
 				title: __( 'Choose a Pattern', 'jetpack-mu-wpcom' ),
 				description: __(
@@ -56,15 +78,7 @@ export function PagePatternsPlugin( props: PagePatternsPluginProps ) {
 		};
 	}, [] );
 
-	const { getMeta, postContentBlock } = useSelect( select => {
-		const getMetaNew = () =>
-			( select( 'core/editor' ) as CoreEditorPlaceholder ).getEditedPostAttribute( 'meta' );
-		const currentBlocks = ( select( 'core/editor' ) as CoreEditorPlaceholder ).getBlocks();
-		return {
-			getMeta: getMetaNew,
-			postContentBlock: currentBlocks.find( block => block.name === 'a8c/post-content' ),
-		};
-	}, [] );
+	const { getMeta, postContentBlock } = selectProps;
 
 	const savePatternChoice = useCallback(
 		( name: string, selectedCategory: string | null ) => {
@@ -104,17 +118,13 @@ export function PagePatternsPlugin( props: PagePatternsPluginProps ) {
 		[ editPost, postContentBlock, replaceInnerBlocks ]
 	);
 
-	const { isWelcomeGuideActive, areTipsEnabled } = selectProps;
+	const { isWelcomeGuideActive } = selectProps;
 
 	const hideWelcomeGuide = useCallback( () => {
 		if ( isWelcomeGuideActive ) {
-			// Gutenberg 7.2.0 or higher.
 			toggleFeature( 'welcomeGuide' );
-		} else if ( areTipsEnabled ) {
-			// Gutenberg 7.1.0 or lower.
-			disableTips();
 		}
-	}, [ areTipsEnabled, disableTips, isWelcomeGuideActive, toggleFeature ] );
+	}, [ isWelcomeGuideActive, toggleFeature ] );
 
 	const handleClose = useCallback( () => {
 		setOpenState( 'CLOSED' );

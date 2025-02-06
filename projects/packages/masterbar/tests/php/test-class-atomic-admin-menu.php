@@ -106,7 +106,7 @@ class Test_Atomic_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_new_site_link.
 	 *
-	 * @covers ::add_new_site_link
+	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_new_site_link
 	 */
 	public function test_add_new_site_link() {
 		global $menu;
@@ -133,7 +133,7 @@ class Test_Atomic_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_site_card_menu
 	 *
-	 * @covers ::add_site_card_menu
+	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_site_card_menu
 	 */
 	public function test_add_site_card_menu() {
 		global $menu;
@@ -161,7 +161,7 @@ class Test_Atomic_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_site_card_menu for Private sites
 	 *
-	 * @covers ::add_site_card_menu
+	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_site_card_menu
 	 */
 	public function test_add_site_card_menu_private_site() {
 		global $menu;
@@ -192,7 +192,7 @@ class Test_Atomic_Admin_Menu extends TestCase {
 	/**
 	 * Tests set_site_card_menu_class
 	 *
-	 * @covers ::set_site_card_menu_class
+	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::set_site_card_menu_class
 	 */
 	public function test_set_site_card_menu_class() {
 		global $menu;
@@ -236,7 +236,7 @@ class Test_Atomic_Admin_Menu extends TestCase {
 	/**
 	 * Tests get_preferred_view
 	 *
-	 * @covers ::get_preferred_view
+	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::get_preferred_view
 	 */
 	public function test_get_preferred_view() {
 		$this->assertSame( 'classic', static::$admin_menu->get_preferred_view( 'export.php' ) );
@@ -245,7 +245,7 @@ class Test_Atomic_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_upgrades_menu
 	 *
-	 * @covers ::add_upgrades_menu
+	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_upgrades_menu
 	 */
 	public function test_add_upgrades_menu() {
 		global $submenu;
@@ -267,7 +267,7 @@ class Test_Atomic_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_my_mailboxes_menu
 	 *
-	 * @covers ::add_my_mailboxes_menu
+	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_my_mailboxes_menu
 	 */
 	public function test_add_my_mailboxes_menu() {
 		global $menu;
@@ -280,7 +280,7 @@ class Test_Atomic_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_options_menu
 	 *
-	 * @covers ::add_options_menu
+	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_options_menu
 	 */
 	public function test_add_options_menu() {
 		global $submenu;
@@ -297,7 +297,7 @@ class Test_Atomic_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_users_menu
 	 *
-	 * @covers ::add_users_menu
+	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_users_menu
 	 */
 	public function test_add_users_menu() {
 		global $submenu;
@@ -313,7 +313,7 @@ class Test_Atomic_Admin_Menu extends TestCase {
 	/**
 	 * Tests remove_gutenberg_menu
 	 *
-	 * @covers ::remove_gutenberg_menu
+	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::remove_gutenberg_menu
 	 */
 	public function test_remove_gutenberg_menu() {
 		global $menu;
@@ -326,7 +326,7 @@ class Test_Atomic_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_plugins_menu
 	 *
-	 * @covers ::add_plugins_menu
+	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_plugins_menu
 	 */
 	public function test_add_plugins_menu() {
 		global $submenu;
@@ -348,7 +348,7 @@ class Test_Atomic_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_tools_menu
 	 *
-	 * @covers ::add_tools_menu
+	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_tools_menu
 	 */
 	public function test_add_site_monitoring_menu() {
 		global $submenu;
@@ -362,7 +362,7 @@ class Test_Atomic_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_github_deployments_menu
 	 *
-	 * @covers ::add_tools_menu
+	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_tools_menu
 	 */
 	public function test_add_github_deployments_menu() {
 		global $submenu;
@@ -376,7 +376,7 @@ class Test_Atomic_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_jetpack_scan_menu
 	 *
-	 * @covers ::add_jetpack_menu
+	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_jetpack_menu
 	 */
 	public function test_add_jetpack_scan_submenu() {
 		global $submenu;

@@ -34,6 +34,20 @@ class Jetpack_Memberships {
 	public static $post_type_plan = 'jp_mem_plan';
 
 	/**
+	 * Our CPT type for the product (plan).
+	 *
+	 * @var string
+	 */
+	public static $post_type_coupon = 'memberships_coupon';
+
+	/**
+	 * Our CPT type for the product (plan).
+	 *
+	 * @var string
+	 */
+	public static $post_type_gift = 'memberships_gift';
+
+	/**
 	 * Tier type for plans
 	 *
 	 * @var string
@@ -220,6 +234,7 @@ class Jetpack_Memberships {
 	private function register_init_hook() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
 		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_gutenberg_block' ) );
+		// phpcs:ignore WPCUT.SwitchBlog.SwitchBlog -- wpcom flags **every** use of switch_blog, apparently expecting valid instances to ignore or suppress the sniff.
 		add_action( 'switch_blog', array( $this, 'clear_post_access_level_cache' ) );
 	}
 
@@ -282,6 +297,44 @@ class Jetpack_Memberships {
 			'show_in_rest'        => false,
 		);
 		register_post_type( self::$post_type_plan, $order_args );
+		$coupon_args = array(
+			'label'               => esc_html__( 'Coupon', 'jetpack' ),
+			'description'         => esc_html__( 'Memberships coupons', 'jetpack' ),
+			'supports'            => array( 'title', 'custom-fields', 'content' ),
+			'hierarchical'        => false,
+			'public'              => false,
+			'show_ui'             => false,
+			'show_in_menu'        => false,
+			'show_in_admin_bar'   => false,
+			'show_in_nav_menus'   => false,
+			'can_export'          => true,
+			'has_archive'         => false,
+			'exclude_from_search' => true,
+			'publicly_queryable'  => false,
+			'rewrite'             => false,
+			'capabilities'        => $capabilities,
+			'show_in_rest'        => false,
+		);
+		register_post_type( self::$post_type_coupon, $coupon_args );
+		$gift_args = array(
+			'label'               => esc_html__( 'Gift', 'jetpack' ),
+			'description'         => esc_html__( 'Memberships gifts', 'jetpack' ),
+			'supports'            => array( 'title', 'custom-fields', 'content' ),
+			'hierarchical'        => false,
+			'public'              => false,
+			'show_ui'             => false,
+			'show_in_menu'        => false,
+			'show_in_admin_bar'   => false,
+			'show_in_nav_menus'   => false,
+			'can_export'          => true,
+			'has_archive'         => false,
+			'exclude_from_search' => true,
+			'publicly_queryable'  => false,
+			'rewrite'             => false,
+			'capabilities'        => $capabilities,
+			'show_in_rest'        => false,
+		);
+		register_post_type( self::$post_type_gift, $gift_args );
 	}
 
 	/**
@@ -294,6 +347,8 @@ class Jetpack_Memberships {
 	 */
 	public function allow_rest_api_types( $post_types ) {
 		$post_types[] = self::$post_type_plan;
+		$post_types[] = self::$post_type_coupon;
+		$post_types[] = self::$post_type_gift;
 
 		return $post_types;
 	}
@@ -306,11 +361,42 @@ class Jetpack_Memberships {
 	 * @return array
 	 */
 	public function allow_sync_post_meta( $post_meta ) {
-		$meta_keys = array_map(
+		$meta_keys_plans = array_map(
 			array( $this, 'return_meta' ),
 			self::get_plan_property_mapping()
 		);
-		return array_merge( $post_meta, array_values( $meta_keys ) );
+
+		$meta_coupons_prefix = self::$post_type_coupon . '_';
+		$meta_keys_coupons   = array(
+			$meta_coupons_prefix . 'coupon_code',
+			$meta_coupons_prefix . 'can_be_combined',
+			$meta_coupons_prefix . 'first_time_purchase_only',
+			$meta_coupons_prefix . 'limit_per_user',
+			$meta_coupons_prefix . 'discount_type',
+			$meta_coupons_prefix . 'discount_value',
+			$meta_coupons_prefix . 'discount_percentage',
+			$meta_coupons_prefix . 'discount_currency',
+			$meta_coupons_prefix . 'start_date',
+			$meta_coupons_prefix . 'end_date',
+			$meta_coupons_prefix . 'plan_ids_allow_list',
+			$meta_coupons_prefix . 'duration',
+			$meta_coupons_prefix . 'email_allow_list',
+			$meta_coupons_prefix . 'is_deleted',
+			$meta_coupons_prefix . 'is_sandboxed',
+		);
+
+		$meta_gifts_prefix = self::$post_type_gift . '_';
+		$meta_keys_gifts   = array(
+			$meta_gifts_prefix . 'user_id',
+			$meta_gifts_prefix . 'plan_id',
+			$meta_gifts_prefix . 'is_deleted',
+		);
+		return array_merge(
+			$post_meta,
+			array_values( $meta_keys_plans ),
+			$meta_keys_coupons,
+			$meta_keys_gifts
+		);
 	}
 
 	/**
@@ -631,7 +717,7 @@ class Jetpack_Memberships {
 	 * @param int|null $user_id The user_id to unset in the cache, otherwise the entire static cache is cleared.
 	 * @return void
 	 */
-	public static function clear_cache( int $user_id = null ) {
+	public static function clear_cache( ?int $user_id = null ) {
 		if ( empty( $user_id ) ) {
 			self::$user_is_paid_subscriber_cache = array();
 			self::$user_can_view_post_cache      = array();
@@ -887,7 +973,7 @@ class Jetpack_Memberships {
 			);
 		} else {
 			Jetpack_Gutenberg::set_extension_unavailable(
-				'jetpack/recurring-payments',
+				'recurring-payments',
 				'missing_plan',
 				array(
 					'required_feature' => 'memberships',
