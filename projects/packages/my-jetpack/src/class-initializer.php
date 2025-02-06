@@ -65,7 +65,6 @@ class Initializer {
 	const VIDEOPRESS_STATS_KEY                           = 'my-jetpack-videopress-stats';
 	const VIDEOPRESS_PERIOD_KEY                          = 'my-jetpack-videopress-period';
 	const MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY            = 'my-jetpack-red-bubble-transient';
-	const BACKUP_STATUS_TRANSIENT_KEY                    = 'my-jetpack-backup-status';
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
