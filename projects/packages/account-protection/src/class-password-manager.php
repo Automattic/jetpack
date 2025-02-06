@@ -67,6 +67,11 @@ class Password_Manager {
 			return;
 		}
 
+		// If bypass is enabled, do not validate the password
+		if ( isset( $_POST['pw_weak'] ) && 'on' === $_POST['pw_weak'] ) {
+			return;
+		}
+
 		if ( ( ! $update && ( ! isset( $_POST['_wpnonce_create-user'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce_create-user'] ) ), 'create-user' ) ) )
 			|| ( $update && ! $this->verify_profile_update_nonce( $user->ID ) ) ) {
 			$errors->add( 'nonce_error', __( '<strong>Error:</strong> Nonce verification failed.', 'jetpack-account-protection' ) );
@@ -106,6 +111,8 @@ class Password_Manager {
 	/**
 	 * Validate the password reset.
 	 *
+	 * No nonce verification necessary - action hooks in after a robust verification process
+	 *
 	 * @param \WP_Error          $errors The error object.
 	 * @param \WP_User|\WP_Error $user The user object.
 	 *
@@ -116,20 +123,27 @@ class Password_Manager {
 			return;
 		}
 
-		// No nonce verification necessary - action hooks in after a robust verification process
 		// phpcs:disable WordPress.Security.NonceVerification
-		if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
-			$password = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );
-			if ( $this->validation_service->is_current_password( $user, $password ) ) {
-				$errors->add( 'password_error', __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' ) );
-				return;
-			}
+		if ( empty( $_POST['pass1'] ) ) {
+			return;
+		}
 
-			$error = $this->validation_service->return_first_validation_error( $user, $password, 'reset' );
-			if ( ! empty( $error ) ) {
-				$errors->add( 'password_error', $error );
-				return;
-			}
+		// If bypass is enabled, do not validate the password
+		// phpcs:disable WordPress.Security.NonceVerification
+		if ( isset( $_POST['pw_weak'] ) && 'on' === $_POST['pw_weak'] ) {
+			return;
+		}
+
+		$password = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );
+		if ( $this->validation_service->is_current_password( $user, $password ) ) {
+			$errors->add( 'password_error', __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' ) );
+			return;
+		}
+
+		$error = $this->validation_service->return_first_validation_error( $user, $password, 'reset' );
+		if ( ! empty( $error ) ) {
+			$errors->add( 'password_error', $error );
+			return;
 		}
 	}
 
