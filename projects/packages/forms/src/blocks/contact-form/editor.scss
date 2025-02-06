@@ -620,6 +620,10 @@
 	}
 }
 
+.wp-block-jetpack-field-label :where( label ) {
+	margin-bottom: 0;
+}
+
 .jetpack-field-consent {
 	align-items: center;
 

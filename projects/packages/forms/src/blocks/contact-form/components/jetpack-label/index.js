@@ -1,7 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import edit from './edit';
 import save from './save';
-
 const name = 'field-label';
 const settings = {
 	apiVersion: 3,
@@ -53,6 +52,10 @@ const settings = {
 			default: '',
 		},
 		inline: {
+			type: 'boolean',
+			default: false,
+		},
+		isOption: {
 			type: 'boolean',
 			default: false,
 		},

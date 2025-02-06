@@ -12,7 +12,7 @@ function useEnter( props ) {
 	propsRef.current = props;
 
 	return useRefEffect( element => {
-		const { insertBlocksAfter } = propsRef.current;
+		const { insertBlocksAfter, parentBlockName } = propsRef.current;
 		if ( ! insertBlocksAfter ) {
 			return;
 		}
@@ -22,7 +22,22 @@ function useEnter( props ) {
 			}
 
 			event.preventDefault();
-			insertBlocksAfter( createBlock( getDefaultBlockName() ) );
+
+			const type = parentBlockName?.replace( /^jetpack\/field-option-/, '' );
+			const block = parentBlockName
+				? createBlock( parentBlockName, {}, [
+						createBlock( 'jetpack/field-input', {
+							type: type,
+							inline: true,
+							isOption: true,
+						} ),
+						createBlock( 'jetpack/field-label', {
+							inline: true,
+							isOption: true,
+						} ),
+				  ] )
+				: createBlock( getDefaultBlockName() );
+			insertBlocksAfter( block );
 		}
 
 		element.addEventListener( 'keydown', onKeyDown );
@@ -38,6 +53,7 @@ const FieldLabel = ( {
 	label,
 	suffix,
 	labelFieldName,
+	parentBlockName,
 	placeholder,
 	resetFocus,
 	required,
@@ -47,7 +63,7 @@ const FieldLabel = ( {
 	style,
 } ) => {
 	const { labelStyle } = useJetpackFieldStyles( attributes );
-	const useEnterRef = useEnter( { insertBlocksAfter } );
+	const useEnterRef = useEnter( { insertBlocksAfter, parentBlockName } );
 
 	return (
 		<div

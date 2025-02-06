@@ -9,13 +9,14 @@ const SYNCED_ATTRIBUTES = [ 'textColor', 'fontFamily', 'fontSize', 'style' ];
 
 const JetpackLabelEdit = ( { attributes, clientId, name, setAttributes, context } ) => {
 	useSyncStyleAttributes( clientId, name, 'jetpack/contact-form', SYNCED_ATTRIBUTES );
+	const { inline, label, defaultLabel, requiredText } = attributes;
 	const { 'jetpack/field-required': required, 'jetpack/field-dateFormat': dateFormat } = context;
 	const suffix = dateFormat
 		? `(${ DATE_FORMATS.find( f => f.value === dateFormat )?.label })`
 		: undefined;
 	const blockProps = useBlockProps( {
 		style: {
-			flexBasis: attributes.inline ? 'auto' : undefined,
+			flexBasis: inline ? 'auto' : undefined,
 		},
 	} );
 
@@ -23,15 +24,16 @@ const JetpackLabelEdit = ( { attributes, clientId, name, setAttributes, context 
 	// the logic here will need improving so that the new block is inserted correctly.
 	// TODO: Refactor all this to follow `useEnter` hook and ref approach if possible.
 	// Either way it needs fixing.
-	const { parentIndex, formParentId } = useSelect(
+	const { formParentId, parentBlockName, parentIndex } = useSelect(
 		select => {
 			const blockEditor = select( 'core/block-editor' );
 			const parentClientIds = blockEditor.getBlockParents( clientId );
-			const parentId = parentClientIds[ parentClientIds.length - 1 ];
 
+			const parentId = parentClientIds[ parentClientIds.length - 1 ];
 			return {
-				parentIndex: parentId ? blockEditor.getBlockIndex( parentId ) : undefined,
 				formParentId: parentClientIds[ parentClientIds.length - 2 ],
+				parentIndex: parentId ? blockEditor.getBlockIndex( parentId ) : undefined,
+				parentBlockName: parentId ? blockEditor.getBlock( parentId )?.name : undefined,
 			};
 		},
 		[ clientId ]
@@ -52,11 +54,12 @@ const JetpackLabelEdit = ( { attributes, clientId, name, setAttributes, context 
 		<JetpackFieldLabel
 			blockProps={ blockProps }
 			attributes={ attributes }
-			insertBlocksAfter={ attributes.inline ? insertAfterLabel : undefined }
-			label={ attributes.label }
-			placeholder={ attributes.defaultLabel ?? attributes.label }
+			insertBlocksAfter={ inline ? insertAfterLabel : undefined }
+			parentBlockName={ parentBlockName }
+			label={ label }
+			placeholder={ defaultLabel ?? label }
 			required={ required }
-			requiredText={ attributes.requiredText }
+			requiredText={ requiredText }
 			setAttributes={ setAttributes }
 			suffix={ suffix }
 		/>

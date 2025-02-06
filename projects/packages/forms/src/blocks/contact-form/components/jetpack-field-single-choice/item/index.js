@@ -1,5 +1,7 @@
+import { useInnerBlocksProps } from '@wordpress/block-editor';
 import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { RADIO_INNER_BLOCKS_DEPRECATION } from '../../../field-deprecated';
 import { getIconColor } from '../../../util/block-icons';
 import renderMaterialIcon from '../../../util/render-material-icon';
 import choiceItemSettings from '../../jetpack-field-choice/item/settings';
@@ -17,6 +19,11 @@ const settings = {
 		),
 	},
 	edit,
+	save() {
+		const innerBlocksProps = useInnerBlocksProps.save();
+		return <> { innerBlocksProps.children } </>;
+	},
+	deprecated: [ RADIO_INNER_BLOCKS_DEPRECATION ],
 };
 
 export default {

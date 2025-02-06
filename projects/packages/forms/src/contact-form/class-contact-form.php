@@ -813,10 +813,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$shortcode_type = 'contact-field-option';
 			}
 
-			$html = '[' . $shortcode_type . ' ' . implode( ' ', $att_strs );
+			$html            = '[' . $shortcode_type . ' ' . implode( ' ', $att_strs );
+			$trimmed_content = isset( $content ) ? trim( $content ) : '';
 
-			if ( isset( $content ) && ! empty( $content ) ) { // If there is content, let's add a closing tag
-				$html .= ']' . esc_html( $content ) . '[/contact-field]';
+			if ( ! empty( $trimmed_content ) ) { // If there is content, let's add a closing tag
+				$html .= ']' . esc_html( $trimmed_content ) . '[/contact-field]';
 			} else { // Otherwise let's add a closing slash in the first tag
 				$html .= '/]';
 			}

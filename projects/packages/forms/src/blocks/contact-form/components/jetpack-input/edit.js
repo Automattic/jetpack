@@ -14,12 +14,15 @@ const SYNCED_ATTRIBUTES = [
 	'textColor',
 ];
 
-const getInputClass = type => {
-	if ( type === 'dropdown' ) {
+const getInputClass = attributes => {
+	if ( attributes.isOption ) {
+		return 'jetpack-option__type';
+	}
+	if ( attributes.type === 'dropdown' ) {
 		return 'jetpack-field-dropdown__toggle';
 	}
-	if ( type ) {
-		return `jetpack-field__${ type }`;
+	if ( attributes.type ) {
+		return `jetpack-field__${ attributes.type }`;
 	}
 	return 'jetpack-field__input';
 };
@@ -27,9 +30,9 @@ const getInputClass = type => {
 const JetpackInputEdit = ( { attributes, clientId, context, name, setAttributes } ) => {
 	useSyncStyleAttributes( clientId, name, 'jetpack/contact-form', SYNCED_ATTRIBUTES );
 	// TODO: Do we really need an inline attribtue or can we just infer that via `type`?
-	const { inline, placeholder, type } = attributes;
+	const { inline, isOption, placeholder, type } = attributes;
 	const { 'jetpack/field-defaultValue': defaultValue } = context;
-	const className = getInputClass( type );
+	const className = getInputClass( attributes );
 	// TODO: Avoid inline style for flex-basis: auto.
 	const blockProps = useBlockProps( {
 		className,
@@ -82,18 +85,8 @@ const JetpackInputEdit = ( { attributes, clientId, context, name, setAttributes 
 		[ setAttributes ]
 	);
 
-	if ( type === 'dropdown' ) {
-		return (
-			<div { ...blockProps }>
-				<RichText
-					value={ placeholder ? placeholder : __( 'Select one option', 'jetpack-forms' ) }
-					onChange={ onChange }
-					allowedFormats={ [ 'core/bold', 'core/italic' ] }
-					withoutInteractiveFormatting
-				/>
-				<span className="jetpack-field-dropdown__icon" />
-			</div>
-		);
+	if ( isOption ) {
+		return <input { ...blockProps } type={ type } tabIndex="-1" />;
 	}
 
 	if ( type === 'checkbox' ) {
@@ -105,6 +98,20 @@ const JetpackInputEdit = ( { attributes, clientId, context, name, setAttributes 
 				style={ blockProps.style }
 				type={ type }
 			/>
+		);
+	}
+
+	if ( type === 'dropdown' ) {
+		return (
+			<div { ...blockProps }>
+				<RichText
+					value={ placeholder ? placeholder : __( 'Select one option', 'jetpack-forms' ) }
+					onChange={ onChange }
+					allowedFormats={ [ 'core/bold', 'core/italic' ] }
+					withoutInteractiveFormatting
+				/>
+				<span className="jetpack-field-dropdown__icon" />
+			</div>
 		);
 	}
 

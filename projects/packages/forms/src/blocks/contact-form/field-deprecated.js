@@ -288,3 +288,59 @@ export const DROPDOWN_INNER_BLOCKS_DEPRECATION = {
 		return hasToggleLabel || ! innerBlocks.length;
 	},
 };
+
+export const CHOICE_ITEM_INNER_BLOCKS_DEPRECATION = {
+	attributes: {
+		label: {
+			type: 'string',
+			role: 'content',
+		},
+		fieldType: {
+			enum: [ 'checkbox', 'radio' ],
+			default: 'checkbox',
+		},
+	},
+	migrate( attributes ) {
+		const { fieldType, label, ...restAttributes } = attributes;
+		return [
+			restAttributes,
+			[
+				createBlock( 'jetpack/field-input', {
+					type: attributes.fieldType,
+					inline: true,
+					isOption: true,
+				} ),
+				createBlock( 'jetpack/field-label', {
+					label: attributes.label,
+					inline: true,
+					isOption: true,
+				} ),
+			],
+		];
+	},
+	isEligible: ( attributes, innerBlocks ) => ! innerBlocks.length,
+};
+
+export const RADIO_INNER_BLOCKS_DEPRECATION = {
+	// Note: the old blocks used shared attributes and didn't update the default for type for radio fields.
+	// So we can't rely on proper attribute values to create inner blocks of the correct type.
+	...CHOICE_ITEM_INNER_BLOCKS_DEPRECATION,
+	migrate( attributes ) {
+		const { fieldType, label, ...restAttributes } = attributes;
+		return [
+			restAttributes,
+			[
+				createBlock( 'jetpack/field-input', {
+					type: 'radio',
+					inline: true,
+					isOption: true,
+				} ),
+				createBlock( 'jetpack/field-label', {
+					label: attributes.label,
+					inline: true,
+					isOption: true,
+				} ),
+			],
+		];
+	},
+};

@@ -32,7 +32,6 @@ const JetpackFieldChoiceEdit = props => {
 		className: classes,
 	} );
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		defaultBlock: `jetpack/field-option-${ type }`,
 		template: [ [ `jetpack/field-option-${ type }` ] ],
 		templateInsertUpdatesSelection: true,
 	} );

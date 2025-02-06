@@ -508,40 +508,43 @@ class Contact_Form_Plugin {
 	/**
 	 * Render the multiple checkbox field.
 	 *
-	 * @param array  $atts - the block attributes.
-	 * @param string $content - html content.
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
 	 *
 	 * @return string HTML for the contact form field.
 	 */
-	public static function gutenblock_render_field_checkbox_multiple( $atts, $content ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox-multiple' );
-		return Contact_Form::parse_contact_field( $atts, $content );
+	public static function gutenblock_render_field_checkbox_multiple( $atts, $content, $block ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox-multiple', $block );
+		return Contact_Form::parse_contact_field( $atts, $content, $block );
 	}
 
 	/**
 	 * Render the multiple choice field option.
 	 *
-	 * @param array  $atts - the block attributes.
-	 * @param string $content - html content.
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
 	 *
 	 * @return string HTML for the contact form field.
 	 */
-	public static function gutenblock_render_field_option( $atts, $content ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'field-option' );
-		return Contact_Form::parse_contact_field( $atts, $content );
+	public static function gutenblock_render_field_option( $atts, $content, $block ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'field-option', $block );
+		return Contact_Form::parse_contact_field( $atts, $content, $block );
 	}
 
 	/**
 	 * Render the radio button field.
 	 *
-	 * @param array  $atts - the block attributes.
-	 * @param string $content - html content.
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
 	 *
 	 * @return string HTML for the contact form field.
 	 */
-	public static function gutenblock_render_field_radio( $atts, $content ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'radio' );
-		return Contact_Form::parse_contact_field( $atts, $content );
+	public static function gutenblock_render_field_radio( $atts, $content, $block ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'radio', $block );
+		return Contact_Form::parse_contact_field( $atts, $content, $block );
 	}
 
 	/**
