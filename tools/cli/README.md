@@ -96,7 +96,7 @@ Watch a monorepo project, which will rebuild the project as changes are made so 
 Maybe you'd prefer to develop against a live site instead of Docker. Or maybe you want to quickly push the plugin you're building to a live JN site without waiting for the builds. This rsync wrapper knows which files to send and not send. 
 
 - Rsync the Jetpack plugin to server destination: `jetpack rsync jetpack user@your.server.example.com:/home/path/to/wp-content/plugins`
-
+- Note: You need to git add new files so jetpack rsync will take them into account.
 [the Jetpack monorepo]: https://github.com/Automattic/jetpack
 
 **Draft**: Enable or disable "draft mode" for the repo.
