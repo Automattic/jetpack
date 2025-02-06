@@ -1,0 +1,23 @@
+name: Coverage check label
+on:
+  pull_request:
+    types: [labeled, unlabeled]
+concurrency:
+  group: coverage-check-label-${{ github.event.pull_request.head.ref }}-${{ github.event.pull_request.label.id }}
+  cancel-in-progress: true
+
+jobs:
+  code-coverage-label:
+    name: "Update code coverage check"
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.label.name == 'I don''t care about code coverage for this PR'
+    timeout-minutes: 5  # 2025-02-06: Should be pretty quick.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Post message
+        env:
+          PR_ID: ${{ github.event.pull_request.number }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+        run: .github/files/coverage-munger/post-message.sh
