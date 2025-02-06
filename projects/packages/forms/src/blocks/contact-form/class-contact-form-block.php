@@ -185,8 +185,7 @@ class Contact_Form_Block {
 			)
 		);
 
-		$blocks_variation = apply_filters( 'jetpack_blocks_variation', \Automattic\Jetpack\Constants::get_constant( 'JETPACK_BLOCKS_VARIATION' ) );
-		if ( 'beta' === $blocks_variation ) {
+		if ( 'beta' === Blocks::get_variation() ) {
 			self::register_beta_blocks();
 		}
 	}
