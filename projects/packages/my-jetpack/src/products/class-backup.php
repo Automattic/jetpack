@@ -249,7 +249,7 @@ class Backup extends Hybrid_Product {
 
 		// If we have a previous backup status, show it.
 		if ( ! empty( $previous_backup_status ) ) {
-			return $previous_backup_status;
+			return $previous_backup_status === 'no_errors' ? false : $previous_backup_status;
 		}
 
 		$backup_failed_status = false;
@@ -296,7 +296,7 @@ class Backup extends Hybrid_Product {
 		if ( is_array( $backup_failed_status ) && $backup_failed_status['type'] === 'error' ) {
 			set_transient( self::BACKUP_STATUS_TRANSIENT_KEY, $backup_failed_status, 5 * MINUTE_IN_SECONDS );
 		} else {
-			set_transient( self::BACKUP_STATUS_TRANSIENT_KEY, 'successful', HOUR_IN_SECONDS );
+			set_transient( self::BACKUP_STATUS_TRANSIENT_KEY, 'no_errors', HOUR_IN_SECONDS );
 		}
 
 		return $backup_failed_status;
