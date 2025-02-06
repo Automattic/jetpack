@@ -8,7 +8,7 @@ jQuery( document ).ready( function ( $ ) {
 	const updateProfileFormSubmitButton = $( '#submit' );
 	const resetPasswordFormSaveButton = $( '#wp-submit' );
 
-	// Non JS form flashes momentarily, we should hide it initially to avoid UI awkwardness
+	// TODO: Non JS form flashes momentarily, we should hide it initially to avoid UI awkwardness
 
 	const passwordInput = $( '#pass1' );
 	passwordInput.css( { 'border-color': '#8C8F94' } );
