@@ -3,7 +3,8 @@
 	flex-wrap: wrap;
 	gap: 4px;
 
-	.wrap & .page-title-action {
+	.wrap & .page-title-action,
+	.wrap & .page-title-action:active {
 		margin-left: 0;
 	}
 }
