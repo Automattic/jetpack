@@ -49,7 +49,7 @@ export { default as ThreatSeverityBadge } from './components/threat-severity-bad
 export { default as ThreatsDataViews } from './components/threats-data-views/index.js';
 export { default as Text, H2, H3, Title } from './components/text/index.js';
 export { default as ToggleControl } from './components/toggle-control/index.js';
-export { default as NumberControl } from './components/number-control/index.js';
+export { default as NumberControl } from './components/number-control/index.jsx';
 export { default as numberFormat } from './components/number-format/index.js';
 export { default as QRCode } from './components/qr-code/index.js';
 export { default as Button } from './components/button/index.js';
