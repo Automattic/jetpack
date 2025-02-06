@@ -1046,6 +1046,11 @@ function sharing_display( $text = '', $echo = false ) {
 	 */
 	$show = apply_filters( 'sharing_show', $show, $post );
 
+	// We require the post to remain an object after all filters. If it's not - we just return.
+	if ( ! is_object( $post ) || ! isset( $post->ID ) ) {
+		return $text;
+	}
+
 	// Disabled for this post?
 	$switched_status = get_post_meta( $post->ID, 'sharing_disabled', false );
 
