@@ -77,13 +77,17 @@ function jetpack_boost_404_tester() {
 		return;
 	}
 
+	$minification_enabled = 0;
 	wp_remote_get( home_url( '/wp-content/boost-cache/static/testing_404' ) );
 	if ( file_exists( Config::get_static_cache_dir_path() . '/404' ) ) {
 		wp_delete_file( Config::get_static_cache_dir_path() . '/404' );
-		update_site_option( 'jetpack_boost_static_minification', 1 );
+		$minification_enabled = 1;
 	} else {
-		update_site_option( 'jetpack_boost_static_minification', 0 );
+		$minification_enabled = 0;
 	}
+	update_site_option( 'jetpack_boost_static_minification', $minification_enabled );
+
+	return $minification_enabled;
 }
 add_action( 'jetpack_boost_404_tester_cron', 'jetpack_boost_404_tester' );
 
