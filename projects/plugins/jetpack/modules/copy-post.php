@@ -345,7 +345,7 @@ class Jetpack_Copy_Post {
 				'<a href="%1$s" aria-label="%2$s">%3$s %4$s</a>',
 				esc_url( $edit_url ),
 				esc_attr__( 'Duplicate this post with Jetpack.', 'jetpack' ),
-				esc_html__( 'Duplicate', 'jetpack' )
+				esc_html__( 'Duplicate', 'jetpack' ),
 				$jetpack_logo->get_jp_emblem()
 			),
 		);
