@@ -33,20 +33,23 @@ class Password_Strength_Meter {
 	 * @return void
 	 */
 	public function validate_password_ajax(): void {
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'validate_password_nonce' ) ) {
-			wp_send_json_error( array( 'message' => 'Invalid nonce.' ) );
-		}
-
 		if ( ! isset( $_POST['password'] ) ) {
-			wp_send_json_error( array( 'message' => 'No password provided.' ) );
+			wp_send_json_error( array( 'message' => __( 'No password provided.', 'jetpack-account-protection' ) ) );
 		}
 
-		// TODO: Find user object when logged out
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'validate_password_nonce' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid nonce.', 'jetpack-account-protection' ) ) );
+		}
+
+		$user_specific = false;
+		if ( isset( $_POST['user_specific'] ) ) {
+			$user_specific = filter_var( sanitize_text_field( wp_unslash( $_POST['user_specific'] ) ), FILTER_VALIDATE_BOOLEAN );
+		}
 
 		$password = sanitize_text_field( wp_unslash( $_POST['password'] ) );
-		$state    = $this->validation_service->get_validation_state( $password );
+		$state    = $this->validation_service->get_validation_state( $password, $user_specific );
 
-		wp_send_json_success( array( 'status' => $state ) );
+		wp_send_json_success( array( 'state' => $state ) );
 	}
 
 	/**
@@ -64,7 +67,7 @@ class Password_Strength_Meter {
 				true
 			);
 
-			$this->localize_jetpack_data( 'profile' );
+			$this->localize_jetpack_data( true );
 		}
 	}
 
@@ -86,7 +89,7 @@ class Password_Strength_Meter {
 					true
 				);
 
-				$this->localize_jetpack_data( 'reset' );
+				$this->localize_jetpack_data();
 			}
 		}
 	}
@@ -94,23 +97,23 @@ class Password_Strength_Meter {
 	/**
 	 * Localize the Jetpack data for the password strength meter.
 	 *
-	 * @param string $context The context of the password strength meter.
+	 * @param bool $user_specific Whether or not to run user specific checks.
 	 *
 	 * @return void
 	 */
-	public function localize_jetpack_data( $context ): void {
+	public function localize_jetpack_data( bool $user_specific = false ): void {
 		wp_localize_script(
 			'jetpack-password-strength-meter',
 			'jetpackData',
 			array(
 				'ajaxurl'                => admin_url( 'admin-ajax.php' ),
 				'nonce'                  => wp_create_nonce( 'validate_password_nonce' ),
-				'context'                => $context,
+				'userSpecific'           => $user_specific,
 				'logo'                   => plugin_dir_url( __FILE__ ) . 'assets/jetpack-logo.svg',
 				'checkIcon'              => plugin_dir_url( __FILE__ ) . 'assets/check.svg',
 				'crossIcon'              => plugin_dir_url( __FILE__ ) . 'assets/cross.svg',
 				'loadingIcon'            => plugin_dir_url( __FILE__ ) . 'assets/loading.svg',
-				'validationInitialState' => $this->validation_service->get_validation_initial_state(),
+				'validationInitialState' => $this->validation_service->get_validation_initial_state( $user_specific ),
 			)
 		);
 	}

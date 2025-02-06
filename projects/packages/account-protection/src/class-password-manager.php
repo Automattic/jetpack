@@ -80,32 +80,12 @@ class Password_Manager {
 
 		$password = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );
 
-		if ( $update ) {
-			$old_user_data = $this->get_old_user_data( $user->ID );
-			if ( $this->validation_service->is_current_password( $old_user_data, $password ) ) {
-				$errors->add( 'password_error', __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' ) );
-				return;
-			}
-		}
-
-		$context = $update ? 'update' : 'create-user';
-		$error   = $this->validation_service->get_first_validation_error( $user, $password, $context );
+		$error = $this->validation_service->get_first_validation_error( $password, true, $user );
 
 		if ( ! empty( $error ) ) {
 			$errors->add( 'password_error', $error );
 			return;
 		}
-	}
-
-	/**
-	 * Get the old user data.
-	 *
-	 * @param int $user_id The user ID.
-	 *
-	 * @return \WP_User|false The old user data, or false if the user does not exist.
-	 */
-	public function get_old_user_data( $user_id ) {
-		return get_userdata( $user_id );
 	}
 
 	/**
@@ -135,12 +115,7 @@ class Password_Manager {
 		}
 
 		$password = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );
-		if ( $this->validation_service->is_current_password( $user, $password ) ) {
-			$errors->add( 'password_error', __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' ) );
-			return;
-		}
-
-		$error = $this->validation_service->get_first_validation_error( $user, $password, 'reset' );
+		$error    = $this->validation_service->get_first_validation_error( $password );
 		if ( ! empty( $error ) ) {
 			$errors->add( 'password_error', $error );
 			return;
