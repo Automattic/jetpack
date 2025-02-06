@@ -16,7 +16,13 @@ jQuery( document ).ready( function ( $ ) {
 	const coreStrengthMeter = $( '#pass-strength-result' );
 	coreStrengthMeter.hide();
 
-	const passwordValidationStatus = $( '<div id="password-validation-status"></div>' );
+	const passwordValidationStatus = $( '<div></div>', {
+		id: 'password-validation-status',
+		css: {
+			width: 'fit-content',
+			margin: 'auto',
+		},
+	} );
 
 	const userSpecific = Boolean( jetpackData.userSpecific );
 
