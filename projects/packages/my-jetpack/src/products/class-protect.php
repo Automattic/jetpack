@@ -22,9 +22,8 @@ class Protect extends Hybrid_Product {
 	const UPGRADED_TIER_SLUG         = 'upgraded';
 	const UPGRADED_TIER_PRODUCT_SLUG = 'jetpack_scan';
 
-	const SCAN_FEATURE_SLUG                  = 'scan';
-	const FIREWALL_FEATURE_SLUG              = 'firewall';
-	const PROTECT_THREAT_COUNT_TRANSIENT_KEY = 'protect_threat_count';
+	const SCAN_FEATURE_SLUG     = 'scan';
+	const FIREWALL_FEATURE_SLUG = 'firewall';
 
 	/**
 	 * The product slug
