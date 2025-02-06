@@ -460,7 +460,7 @@ class Blocks {
 	 * Determine whether a site should use the default set of blocks, or a custom set.
 	 * Possible variations are currently beta, experimental, and production.
 	 *
-	 * @since $$next_version$$
+	 * @since $$next-version$$
 	 *
 	 * @return string $block_varation production|beta|experimental
 	 */
