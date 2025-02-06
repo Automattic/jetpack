@@ -859,7 +859,7 @@ class Jetpack_Gutenberg {
 	 * @return string $block_varation production|beta|experimental
 	 */
 	public static function blocks_variation() {
-		_deprecated_function( __METHOD__, $$next-version$$, 'Automattic\\Jetpack\\Blocks::get_variation' );
+		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\\Jetpack\\Blocks::get_variation' );
 		return Blocks::get_variation();
 	}
 
