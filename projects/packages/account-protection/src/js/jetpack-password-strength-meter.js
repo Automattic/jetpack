@@ -3,7 +3,10 @@
 jQuery( document ).ready( function ( $ ) {
 	const generatePasswordButton = $( '.wp-generate-pw' );
 	const weakPasswordConfirmation = $( '.pw-weak' );
-	const submitButton = $( '#submit' );
+	const updateProfileFormSubmitButton = $( '#submit' );
+	const resetPasswordFormSaveButton = $( '#wp-submit' );
+
+	// Non JS form flashes momentarily, we should hide it initially to avoid UI awkwardness
 
 	const passwordInput = $( '#pass1' );
 	passwordInput.css( { 'border-color': '#8C8F94' } );
@@ -26,6 +29,7 @@ jQuery( document ).ready( function ( $ ) {
 			display: 'flex',
 			'flex-direction': 'column',
 			gap: '4px',
+			'margin-bottom': '16px',
 		},
 	} );
 
@@ -77,13 +81,15 @@ jQuery( document ).ready( function ( $ ) {
 			'align-items': 'center',
 			height: '30px',
 			padding: '0px 16px',
-			'margin-left': '1px',
-			'margin-right': '1px',
 			'margin-bottom': '16px',
-			'border-radius': '0px 0px 4px 4px',
+			'border-radius': '0px 0px 4px 4px', // TODO: Radius is off initially, we also flash the non JS form quickly...
 			'background-color': '#8C8F94',
 		},
 	} );
+
+	if ( 'profile' === jetpackData.context ) {
+		strengthMeter.css( { 'margin-left': '1px', 'margin-right': '1px' } );
+	}
 
 	const strength = $( '<p>', {
 		text: 'Validating...',
@@ -138,6 +144,8 @@ jQuery( document ).ready( function ( $ ) {
 
 	generatePasswordButton.on( 'click', () => validatePassword( 'on password generation' ) );
 
+	let currentAjaxRequest = null;
+
 	/**
 	 *
 	 * Validate the current password input
@@ -147,15 +155,15 @@ jQuery( document ).ready( function ( $ ) {
 		const currentPasswordInput = passwordInput.val();
 		const failedValidationConditions = {};
 
-		if ( ! currentPasswordInput || currentPasswordInput.length === 0 ) {
+		if ( currentAjaxRequest ) {
+			currentAjaxRequest.abort();
+			currentAjaxRequest = null;
+		}
+
+		if ( ! currentPasswordInput || currentPasswordInput.trim().length === 0 ) {
 			applyStyling( failedValidationConditions, true );
 			return;
 		}
-
-		// strengthMeter loading state
-		strength.text( 'Validating...' );
-		strengthMeter.css( 'background-color', '#8C8F94' );
-		passwordInput.css( { 'border-color': '#8C8F94' } );
 
 		// passwordValidationStatus loading state
 		Object.values( validationItems ).forEach( ( { icon, text } ) => {
@@ -164,25 +172,44 @@ jQuery( document ).ready( function ( $ ) {
 			text.css( { color: '#3C434A', transition: 'color 0.2s ease-in-out' } );
 		} );
 
+		// strengthMeter loading state
+		strength.text( 'Validating...' );
+		jetpackBranding.show();
+		strengthMeter.css( 'background-color', '#8C8F94' );
+		passwordValidationStatus.show(); // TODO: Reset to validating state AND text renders before icon is ready PLUS better transitions
+		passwordInput.css( { 'border-color': '#8C8F94', 'border-radius': '4px 4px 0px 0px' } );
+
+		if ( ! updateProfileFormSubmitButton.prop( 'disabled' ) ) {
+			updateProfileFormSubmitButton.prop( 'disabled', true );
+		}
+
+		if ( ! resetPasswordFormSaveButton.prop( 'disabled' ) ) {
+			resetPasswordFormSaveButton.prop( 'disabled', true );
+		}
+
 		const corePasswordStrengthMeterClass = corePasswordStrengthMeter.attr( 'class' ) || '';
-		const coreValidationFailed =
-			corePasswordStrengthMeterClass !== 'strong' && corePasswordStrengthMeterClass !== 'good';
+
+		const coreValidationFailed = ! (
+			corePasswordStrengthMeterClass.includes( 'strong' ) ||
+			corePasswordStrengthMeterClass.includes( 'good' )
+		);
 
 		const uiUpdates = [];
 
 		uiUpdates.push( () => {
+			// TODO: Could this be improved? Better transitions from initial-loading/validation-results
 			const { icon, text } = validationItems.core;
 
 			icon.attr( 'src', coreValidationFailed ? jetpackData.crossIcon : jetpackData.checkIcon );
 			icon.attr( 'alt', coreValidationFailed ? 'Jetpack Cross' : 'Jetpack Check' );
 			text.css( 'color', coreValidationFailed ? '#E65054' : '#008710' );
-
-			if ( coreValidationFailed ) {
-				failedValidationConditions.core = true;
-			}
 		} );
 
-		$.ajax( {
+		if ( coreValidationFailed ) {
+			failedValidationConditions.core = true;
+		}
+
+		currentAjaxRequest = $.ajax( {
 			url: jetpackData.ajaxurl,
 			type: 'POST',
 			data: {
@@ -191,6 +218,8 @@ jQuery( document ).ready( function ( $ ) {
 				password: currentPasswordInput,
 			},
 			success: function ( response ) {
+				currentAjaxRequest = null;
+
 				if ( response.success ) {
 					Object.entries( response.data.status ).forEach( ( [ key, item ] ) => {
 						const isInvalid = item.status;
@@ -231,11 +260,14 @@ jQuery( document ).ready( function ( $ ) {
 					);
 				}
 			},
-			error: function () {
+			error: function ( jqXHR, textStatus ) {
 				// TODO: Test this
-				passwordValidationStatus.html(
-					'<p style="color: #E65054">Error connecting to server.</p>'
-				);
+				if ( textStatus !== 'abort' ) {
+					// Ignore aborted requests
+					passwordValidationStatus.html(
+						'<p style="color: #E65054">Error connecting to server.</p>'
+					);
+				}
 			},
 		} );
 	}
@@ -252,9 +284,13 @@ jQuery( document ).ready( function ( $ ) {
 		let finalStrengthText = '';
 
 		if ( passwordIsEmpty ) {
-			strengthMeter.hide();
+			// strengthMeter.hide();
+			strength.text( '' );
+			jetpackBranding.hide();
+			strengthMeter.css( 'background-color', 'transparent' );
 			passwordValidationStatus.hide();
 			passwordInput.css( { 'border-color': '#8c8f94', 'border-radius': '4px' } );
+
 			return;
 		}
 
@@ -262,8 +298,12 @@ jQuery( document ).ready( function ( $ ) {
 			finalColor = '#64CA43';
 			finalStrengthText = 'Strong';
 
-			if ( submitButton.prop( 'disabled' ) ) {
-				submitButton.prop( 'disabled', false );
+			if ( updateProfileFormSubmitButton.prop( 'disabled' ) ) {
+				updateProfileFormSubmitButton.prop( 'disabled', false );
+			}
+
+			if ( resetPasswordFormSaveButton.prop( 'disabled' ) ) {
+				resetPasswordFormSaveButton.prop( 'disabled', false );
 			}
 
 			if ( weakPasswordConfirmation.is( ':visible' ) ) {
@@ -273,12 +313,19 @@ jQuery( document ).ready( function ( $ ) {
 			finalColor = '#E65054';
 			finalStrengthText = 'Weak';
 
-			if ( ! submitButton.prop( 'disabled' ) ) {
-				submitButton.prop( 'disabled', true );
+			if ( ! updateProfileFormSubmitButton.prop( 'disabled' ) ) {
+				updateProfileFormSubmitButton.prop( 'disabled', true );
 			}
 
-			if ( weakPasswordConfirmation.css( 'display' ) !== 'table-row' ) {
-				weakPasswordConfirmation.css( 'display', 'table-row' );
+			if ( ! resetPasswordFormSaveButton.prop( 'disabled' ) ) {
+				resetPasswordFormSaveButton.prop( 'disabled', true );
+			}
+
+			if ( weakPasswordConfirmation.css( 'display' ) === 'none' ) {
+				weakPasswordConfirmation.css(
+					'display',
+					'reset' === jetpackData.context ? 'block' : 'table-row'
+				);
 			}
 		}
 

@@ -64,38 +64,38 @@ class Validation_Service {
 				'status'  => null,
 				'message' => __( 'Between 6 and 150 characters', 'jetpack-account-protection' ),
 			),
-			'matches_user_data'  => array(
-				'status'  => null,
-				'message' => __( "Doesn't match user data", 'jetpack-account-protection' ),
-			),
-			'recent'             => array(
-				'status'  => null,
-				'message' => __( 'Not used recently', 'jetpack-account-protection' ),
-			),
-			'weak'               => array(
-				'status'  => null,
-				'message' => __( 'Not a leaked password', 'jetpack-account-protection' ),
-			),
+			// 'matches_user_data'  => array(
+			// 'status'  => null,
+			// 'message' => __( "Doesn't match user data", 'jetpack-account-protection' ),
+			// ),
+			// 'recent'             => array(
+			// 'status'  => null,
+			// 'message' => __( 'Not used recently', 'jetpack-account-protection' ),
+			// ),
+			// 'weak'               => array(
+			// 'status'  => null,
+			// 'message' => __( 'Not a leaked password', 'jetpack-account-protection' ),
+			// ),
 		);
 	}
 
 	/**
 	 * Return validation state.
 	 *
-	 * @param \WP_User|\stdClass $user The user object or a copy.
-	 * @param string             $password The password to check.
+	 * @param string $password The password to check.
 	 *
 	 * @return array An array of the status of each check.
 	 */
-	public function get_validation_state( $user, string $password ): array {
+	public function get_validation_state( string $password ): array {
 		$validation_state = $this->get_validation_initial_state();
 		// TODO: We maybe need skip certain user specific checks on reset, unless we can confidently retrieve the user object.
 
 		$validation_state['contains_backslash']['status'] = $this->contains_backslash( $password );
 		$validation_state['invalid_length']['status']     = $this->is_invalid_length( $password );
-		$validation_state['matches_user_data']['status']  = $this->matches_user_data( $user, $password );
-		$validation_state['recent']['status']             = $this->is_recent_password( $user->ID, $password );
-		$validation_state['weak']['status']               = $this->is_weak_password( $password );
+		// $validation_state['matches_user_data']['status']  = $this->matches_user_data( $user, $password );
+		// $validation_state['recent']['status']             = $this->is_recent_password( $user->ID, $password ); // TODO: Skip on create-user.
+		// $validation_state['weak']['status']               = $this->is_weak_password( $password );
+		// TODO: Do we need ot include a check for current password also?
 
 		return $validation_state;
 	}

@@ -130,7 +130,7 @@ class Account_Protection {
 		add_action( 'profile_update', array( $this->password_manager, 'on_profile_update' ), 10, 3 );
 		add_action( 'after_password_reset', array( $this->password_manager, 'on_password_reset' ), 10, 2 );
 
-		// Eneuque password strength meter scripts
+		// Enqueue password strength meter scripts
 		add_action( 'admin_enqueue_scripts', array( $this->password_strength_meter, 'enqueue_jetpack_password_strength_meter_profile_script' ) );
 		add_action( 'login_enqueue_scripts', array( $this->password_strength_meter, 'enqueue_jetpack_password_strength_meter_reset_script' ) );
 

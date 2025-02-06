@@ -41,10 +41,10 @@ class Password_Strength_Meter {
 			wp_send_json_error( array( 'message' => 'No password provided.' ) );
 		}
 
-		// TODO: May need to skip user specific validation in pass reset unless we can retreive the user object
+		// TODO: Find user object when logged out
 
 		$password = sanitize_text_field( wp_unslash( $_POST['password'] ) );
-		$state    = $this->validation_service->get_validation_state( wp_get_current_user(), $password );
+		$state    = $this->validation_service->get_validation_state( $password );
 
 		wp_send_json_success( array( 'status' => $state ) );
 	}
@@ -63,9 +63,9 @@ class Password_Strength_Meter {
 				Account_Protection::PACKAGE_VERSION,
 				true
 			);
-		}
 
-		$this->localize_jetpack_data();
+			$this->localize_jetpack_data( 'profile' );
+		}
 	}
 
 	/**
@@ -85,24 +85,27 @@ class Password_Strength_Meter {
 					Account_Protection::PACKAGE_VERSION,
 					true
 				);
+
+				$this->localize_jetpack_data( 'reset' );
 			}
 		}
-
-		$this->localize_jetpack_data();
 	}
 
 	/**
 	 * Localize the Jetpack data for the password strength meter.
 	 *
+	 * @param string $context The context of the password strength meter.
+	 *
 	 * @return void
 	 */
-	public function localize_jetpack_data(): void {
+	public function localize_jetpack_data( $context ): void {
 		wp_localize_script(
 			'jetpack-password-strength-meter',
 			'jetpackData',
 			array(
 				'ajaxurl'                => admin_url( 'admin-ajax.php' ),
 				'nonce'                  => wp_create_nonce( 'validate_password_nonce' ),
+				'context'                => $context,
 				'logo'                   => plugin_dir_url( __FILE__ ) . 'assets/jetpack-logo.svg',
 				'checkIcon'              => plugin_dir_url( __FILE__ ) . 'assets/check.svg',
 				'crossIcon'              => plugin_dir_url( __FILE__ ) . 'assets/cross.svg',
