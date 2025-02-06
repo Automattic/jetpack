@@ -116,6 +116,6 @@ class Publicize_Utils {
 	 * @return bool
 	 */
 	public static function has_new_module_endpoint() {
-		return class_exists( 'Jetpack' ) && defined( 'JETPACK__VERSION' ) && ( version_compare( JETPACK__VERSION, '13.4', '>=' ) );
+		return class_exists( 'Jetpack' ) && defined( 'JETPACK__VERSION' ) && ( version_compare( JETPACK__VERSION, '14.3', '>=' ) );
 	}
 }
