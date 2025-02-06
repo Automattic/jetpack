@@ -102,8 +102,8 @@ class REST_Settings_Controller extends WP_REST_Controller {
 		$fields = $this->get_fields_for_response( $request );
 		$data   = array();
 
-		if ( rest_is_field_included( 'publicize_active', $fields ) ) {
-			$data['publicize_active'] = Jetpack_Social::is_publicize_active();
+		if ( rest_is_field_included( 'publicize', $fields ) ) {
+			$data['publicize'] = Jetpack_Social::is_publicize_active();
 		}
 
 		return $this->prepare_item_for_response( $data, $request );
@@ -124,7 +124,7 @@ class REST_Settings_Controller extends WP_REST_Controller {
 			}
 
 			switch ( $name ) {
-				case 'publicize_active':
+				case 'publicize':
 					$updated = ( new Modules() )->update_status( \Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG, (bool) $params[ $name ], false, false );
 					if ( is_wp_error( $updated ) ) {
 						return $updated;
@@ -197,7 +197,7 @@ class REST_Settings_Controller extends WP_REST_Controller {
 			'title'      => 'system_status',
 			'type'       => 'object',
 			'properties' => array(
-				'publicize_active' => array(
+				'publicize' => array(
 					'description' => __( 'Is the publicize module enabled?', 'jetpack-social' ),
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),

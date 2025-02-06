@@ -5,6 +5,8 @@ import type { CSSProperties } from 'react';
 
 type ValueOf< T > = T[ keyof T ];
 
+export type Optional< T, K extends keyof T > = Pick< Partial< T >, K > & Omit< T, K >;
+
 declare type OrientationType = ValueOf< typeof Orientation >;
 
 export type DataPoint = {
@@ -84,6 +86,7 @@ declare type AxisOptions = {
 	axisLineClassName?: string;
 	labelClassName?: string;
 	tickClassName?: string;
+	tickFormat?: ( value: number ) => string;
 };
 
 /**
@@ -107,13 +110,17 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 */
 	height?: number;
 	/**
+	 * Size of the chart in pixels for pie and donut charts
+	 */
+	size?: number;
+	/**
 	 * Chart margins
 	 */
 	margin?: {
-		top: number;
-		right: number;
-		bottom: number;
-		left: number;
+		top?: number;
+		right?: number;
+		bottom?: number;
+		left?: number;
 	};
 	/**
 	 * Whether to show tooltips on hover. False by default.

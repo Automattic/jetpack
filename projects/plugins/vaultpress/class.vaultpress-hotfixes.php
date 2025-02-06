@@ -30,7 +30,7 @@ class VaultPress_Hotfixes {
 		}
 
 		wp_embed_unregister_handler( 'youtube_embed_url' );
-		wp_embed_register_handler( 'youtube_embed_url', '#https?://(www.)?youtube\.com/(?:v|embed)/([^/]+)#i', array( $this, 'safe_embed_handler_youtube' ), 9, 4 );
+		wp_embed_register_handler( 'youtube_embed_url', '#https?://(www.)?youtube\.com/(?:v|embed)/([^/]+)#i', array( $this, 'safe_embed_handler_youtube' ), 9 );
 	}
 
 	function safe_embed_handler_youtube( $matches, $attr, $url, $rawattr ) {

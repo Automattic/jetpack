@@ -49,6 +49,8 @@
 /* Subscribe/Login buttons */
 
 .wp-block-buttons .wp-block[data-type='jetpack/recurring-payments'] {
+	--jetpack-payment-buttons-gap: 0.5em;
+	
 	display: inline-block;
 	margin: 0 0.5em 0 0;
 	width: auto;

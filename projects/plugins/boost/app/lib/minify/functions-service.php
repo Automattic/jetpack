@@ -2,158 +2,161 @@
 
 use Automattic\Jetpack_Boost\Lib\Minify;
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
-use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
 use Automattic\Jetpack_Boost\Lib\Minify\File_Paths;
 use Automattic\Jetpack_Boost\Lib\Minify\Utils;
 
-function jetpack_boost_page_optimize_types() {
-	return array(
-		'css' => 'text/css',
-		'js'  => 'application/javascript',
-	);
-}
-
-/**
- * Handle serving a minified / concatenated file from the virtual _jb_static dir.
- *
- * @return never
- */
-function jetpack_boost_page_optimize_service_request() {
-	$use_wp = defined( 'JETPACK_BOOST_CONCAT_USE_WP' ) && JETPACK_BOOST_CONCAT_USE_WP;
-	$utils  = new Utils( $use_wp );
-
+function jetpack_boost_handle_minify_request( $request_uri ) {
 	// We handle the cache here, tell other caches not to.
 	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
 		define( 'DONOTCACHEPAGE', true );
 	}
 
-	$use_cache = Config::can_use_cache();
-
-	if ( $use_cache ) {
-		$cache_dir = Config::get_cache_dir_path();
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-		$request_uri      = isset( $_SERVER['REQUEST_URI'] ) ? $utils->unslash( $_SERVER['REQUEST_URI'] ) : '';
-		$request_uri_hash = md5( $request_uri );
-		$cache_file       = $cache_dir . "/page-optimize-cache-$request_uri_hash";
-		$cache_file_meta  = $cache_dir . "/page-optimize-cache-meta-$request_uri_hash";
-
-		// Serve an existing file.
-		if ( file_exists( $cache_file ) ) {
-			if ( isset( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) {
-				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-				if ( strtotime( $utils->unslash( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) < filemtime( $cache_file ) ) {
-					header( 'HTTP/1.1 304 Not Modified' );
-					exit( 0 );
-				}
-			}
-
-			if ( file_exists( $cache_file_meta ) ) {
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-				$meta = json_decode( file_get_contents( $cache_file_meta ), ARRAY_A );
-				if ( ! empty( $meta ) && ! empty( $meta['headers'] ) ) {
-					foreach ( $meta['headers'] as $header ) {
-						header( $header );
-					}
-				}
-			}
-
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			$etag = '"' . md5( file_get_contents( $cache_file ) ) . '"';
-
-			// Check if we're on Atomic and take advantage of the Atomic Edge Cache.
-			if ( defined( 'ATOMIC_CLIENT_ID' ) ) {
-				header( 'A8c-Edge-Cache: cache' );
-			}
-			header( 'X-Page-Optimize: cached' );
-			header( 'Cache-Control: max-age=' . 31536000 );
-			header( 'ETag: ' . $etag );
-
-			echo file_get_contents( $cache_file ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- We need to trust this unfortunately.
-			die( 0 );
-		}
-	}
-
-	// Existing file not available; generate new content.
-	$output  = jetpack_boost_page_optimize_build_output();
+	$output  = jetpack_boost_build_minify_output( $request_uri );
 	$content = $output['content'];
 	$headers = $output['headers'];
 
 	foreach ( $headers as $header ) {
 		header( $header );
 	}
+
 	// Check if we're on Atomic and take advantage of the Atomic Edge Cache.
 	if ( defined( 'ATOMIC_CLIENT_ID' ) ) {
 		header( 'A8c-Edge-Cache: cache' );
 	}
+
 	header( 'X-Page-Optimize: uncached' );
 	header( 'Cache-Control: max-age=' . 31536000 );
 	header( 'ETag: "' . md5( $content ) . '"' );
 
 	echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- We need to trust this unfortunately.
 
-	// Cache the generated data, if available.
+	// Cache the generated data, if possible.
+	$use_cache = Config::can_use_static_cache();
 	if ( $use_cache ) {
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		file_put_contents( $cache_file, $content );
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		file_put_contents( $cache_file_meta, wp_json_encode( array( 'headers' => $headers ) ) );
-	}
+		$file_parts = jetpack_boost_minify_get_file_parts( $request_uri );
+		if ( is_array( $file_parts ) && isset( $file_parts['file_name'] ) && isset( $file_parts['file_extension'] ) ) {
+			$cache_dir       = Config::get_static_cache_dir_path();
+			$cache_file_path = $cache_dir . '/' . $file_parts['file_name'] . '.min.' . $file_parts['file_extension'];
 
-	die( 0 );
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			file_put_contents( $cache_file_path, $content );
+		}
+	}
 }
 
 /**
- * Strip matching parent paths off a string. Returns $path without $parent_path.
+ * Using a crafted request, we can check if is_404() is working in wp-content/
  */
-function jetpack_boost_strip_parent_path( $parent_path, $path ) {
-	$trimmed_parent = ltrim( $parent_path, '/' );
-	$trimmed_path   = ltrim( $path, '/' );
-
-	if ( substr( $trimmed_path, 0, strlen( $trimmed_parent ) === $trimmed_parent ) ) {
-		$trimmed_path = substr( $trimmed_path, strlen( $trimmed_parent ) );
+function jetpack_boost_check_404_handler( $request_uri ) {
+	if ( ! str_contains( strtolower( $request_uri ), 'wp-content/boost-cache/static/testing_404' ) ) {
+		return;
 	}
 
-	return str_starts_with( $trimmed_path, '/' ) ? $trimmed_path : '/' . $trimmed_path;
+	if ( is_404() ) {
+		if ( ! is_dir( Config::get_static_cache_dir_path() ) ) {
+			mkdir( Config::get_static_cache_dir_path(), 0775, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+		}
+		file_put_contents( Config::get_static_cache_dir_path() . '/404', '1' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		return true;
+	} else {
+		wp_delete_file( Config::get_static_cache_dir_path() . '/404' );
+		return false;
+	}
 }
 
 /**
- * Generate a combined and minified output for the current request. This is run regardless of the
- * type of content being fetched; JavaScript or CSS, so it must handle either.
+ * This function is used to test if is_404() is working in wp-content/
+ * It sends a request to a non-existent URL, that will execute the 404 handler
+ * in jetpack_boost_check_404_handler().
+ *
+ * This function is called when the Minify_CSS or Minify_JS module is activated.
  */
-function jetpack_boost_page_optimize_build_output() {
-	$use_wp = defined( 'JETPACK_BOOST_CONCAT_USE_WP' ) && JETPACK_BOOST_CONCAT_USE_WP;
-	$utils  = new Utils( $use_wp );
+function jetpack_boost_404_tester() {
+	wp_remote_get( home_url( '/wp-content/boost-cache/static/testing_404' ) );
+	if ( file_exists( Config::get_static_cache_dir_path() . '/404' ) ) {
+		wp_delete_file( Config::get_static_cache_dir_path() . '/404' );
+		update_site_option( 'jetpack_boost_static_minification', 1 );
+	} else {
+		update_site_option( 'jetpack_boost_static_minification', 0 );
+	}
+}
+add_action( 'jetpack_boost_404_tester_cron', 'jetpack_boost_404_tester' );
 
+/**
+ * Setup the 404 tester.
+ *
+ * Schedule the 404 tester in three seconds if the concatenation modules
+ * haven't been toggled since this feature was released.
+ * Only run this in wp-admin to avoid excessive updates to the option.
+ */
+function jetpack_boost_404_setup() {
+	if ( is_admin() && get_site_option( 'jetpack_boost_static_minification', 'na' ) === 'na' ) {
+		update_site_option( 'jetpack_boost_static_minification', 0 ); // Add a default value if not set to avoid an extra SQL query.
+	}
+	jetpack_boost_page_optimize_schedule_404_tester();
+}
+
+/**
+ * This function is used to clean up the static cache folder.
+ * It removes files with the file extension passed in the $file_extension parameter.
+ *
+ * @param string $file_extension The file extension to clean up.
+ */
+function jetpack_boost_page_optimize_cleanup_cache( $file_extension ) {
+	$files = glob( Config::get_static_cache_dir_path() . "/*.min.{$file_extension}" );
+	foreach ( $files as $file ) {
+		wp_delete_file( $file );
+	}
+}
+
+/**
+ * This function is used to clean up the static cache folder.
+ * It removes files that are stale and no longer needed.
+ * A file is considered stale if it's older than the files it depends on.
+ */
+function jetpack_boost_minify_remove_stale_static_files() {
+	$files = glob( Config::get_static_cache_dir_path() . '/*.min.*' );
+	foreach ( $files as $file ) {
+		if ( ! file_exists( $file ) ) {
+			continue;
+		}
+
+		$file_mtime = filemtime( $file );
+		$file_parts = pathinfo( $file );
+		$hash       = substr( $file_parts['basename'], 0, strpos( $file_parts['basename'], '.' ) );
+		$paths      = File_Paths::get( $hash );
+		if ( $paths ) {
+			$args = $paths->get_paths();
+			if ( ! is_array( $args ) ) {
+				continue;
+			}
+
+			foreach ( $args as $filename ) {
+				if ( ! file_exists( ABSPATH . $filename ) || filemtime( ABSPATH . $filename ) > $file_mtime ) {
+					wp_delete_file( $file ); // remove the file from the cache because it's stale.
+				}
+			}
+		}
+	}
+}
+
+function jetpack_boost_build_minify_output( $request_uri ) {
+	$utils                             = new Utils();
 	$jetpack_boost_page_optimize_types = jetpack_boost_page_optimize_types();
 
 	// Config
 	$concat_max_files = 150;
 	$concat_unique    = true;
 
-	// Main
-	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-	$method = isset( $_SERVER['REQUEST_METHOD'] ) ? $utils->unslash( $_SERVER['REQUEST_METHOD'] ) : 'GET';
-	if ( ! in_array( $method, array( 'GET', 'HEAD' ), true ) ) {
-		jetpack_boost_page_optimize_status_exit( 400 );
+	$file_parts = jetpack_boost_minify_get_file_parts( $request_uri );
+	if ( ! $file_parts ) {
+		jetpack_boost_page_optimize_status_exit( 404 );
 	}
 
-	// Ensure the path follows one of these forms:
-	// /_jb_static/??/foo/bar.css,/foo1/bar/baz.css?m=293847g
-	// -- or --
-	// /_jb_static/??-eJzTT8vP109KLNJLLi7W0QdyDEE8IK4CiVjn2hpZGluYmKcDABRMDPM=
-	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? $utils->unslash( $_SERVER['REQUEST_URI'] ) : '';
-	$args        = $utils->parse_url( $request_uri, PHP_URL_QUERY );
-	if ( ! $args || ! str_contains( $args, '?' ) ) {
-		jetpack_boost_page_optimize_status_exit( 400 );
-	}
+	$file_paths = jetpack_boost_page_optimize_get_file_paths( $file_parts['file_name'] );
 
-	$args = substr( $args, strpos( $args, '?' ) + 1 );
-
-	$args = jetpack_boost_page_optimize_get_file_paths( $args );
-
-	// args contain something like array( '/foo/bar.css', '/foo1/bar/baz.css' )
-	if ( 0 === count( $args ) || count( $args ) > $concat_max_files ) {
+	// file_paths contain something like array( '/foo/bar.css', '/foo1/bar/baz.css' )
+	if ( count( $file_paths ) > $concat_max_files ) {
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
 
@@ -171,7 +174,9 @@ function jetpack_boost_page_optimize_build_output() {
 	$pre_output    = '';
 	$output        = '';
 
-	foreach ( $args as $uri ) {
+	$mime_type = '';
+
+	foreach ( $file_paths as $uri ) {
 		$fullpath = jetpack_boost_page_optimize_get_path( $uri );
 
 		if ( ! file_exists( $fullpath ) ) {
@@ -224,7 +229,7 @@ function jetpack_boost_page_optimize_build_output() {
 
 			// The @charset rules must be on top of the output
 			if ( str_starts_with( $buf, '@charset' ) ) {
-				preg_replace_callback(
+				$buf = preg_replace_callback(
 					'/(?P<charset_rule>@charset\s+[\'"][^\'"]+[\'"];)/i',
 					function ( $match ) use ( &$pre_output ) {
 						if ( str_starts_with( $pre_output, '@charset' ) ) {
@@ -290,102 +295,43 @@ function jetpack_boost_page_optimize_build_output() {
 	);
 }
 
-function jetpack_boost_page_optimize_get_file_paths( $args ) {
-	$paths = File_Paths::get( $args );
-	if ( $paths ) {
-		$args = $paths->get_paths();
-	} else {
-		// Kept for backward compatibility in case cached page is still referring to old formal asset URLs.
-
-		// It's a base64 encoded list of file path.
-		// e.g.: /_jb_static/??-eJzTT8vP109KLNJLLi7W0QdyDEE8IK4CiVjn2hpZGluYmKcDABRMDPM=
-		if ( '-' === $args[0] ) {
-
-			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
-			$args = @gzuncompress( base64_decode( substr( $args, 1 ) ) );
-		}
-
-		// It's an unencoded comma separated list of file paths.
-		// /foo/bar.css,/foo1/bar/baz.css?m=293847g
-		$version_string_pos = strpos( $args, '?' );
-		if ( false !== $version_string_pos ) {
-			$args = substr( $args, 0, $version_string_pos );
-		}
-		// /foo/bar.css,/foo1/bar/baz.css
-		$args = explode( ',', $args );
-	}
-
-	if ( ! is_array( $args ) || false === $args ) {
-		// Invalid data, abort!
-		jetpack_boost_page_optimize_status_exit( 400 );
-	}
-
-	return $args;
-}
-
 /**
- * Exit with a given HTTP status code.
+ * Get the file name and extension from the request URI.
  *
- * @param int $status HTTP status code.
- *
- * @return never
+ * @param string $request_uri The request URI.
+ * @return array|false The file name and extension, or false if the request URI is invalid.
  */
-function jetpack_boost_page_optimize_status_exit( $status ) {
-	http_response_code( $status );
-	exit( 0 ); // This is a workaround, until a bug in phan is fixed - https://github.com/phan/phan/issues/4888
-}
+function jetpack_boost_minify_get_file_parts( $request_uri ) {
+	$utils       = new Utils();
+	$request_uri = $utils->unslash( $request_uri );
 
-function jetpack_boost_page_optimize_get_mime_type( $file ) {
-	$jetpack_boost_page_optimize_types = jetpack_boost_page_optimize_types();
-
-	$lastdot_pos = strrpos( $file, '.' );
-	if ( false === $lastdot_pos ) {
+	$file_path = $utils->parse_url( $request_uri, PHP_URL_PATH );
+	if ( $file_path === false ) {
 		return false;
 	}
 
-	$ext = substr( $file, $lastdot_pos + 1 );
+	$file_info = pathinfo( $file_path );
+	$real_path = realpath( ABSPATH . $file_info['dirname'] );
+	$cache_dir = realpath( WP_CONTENT_DIR . '/boost-cache/static' );
 
-	return isset( $jetpack_boost_page_optimize_types[ $ext ] ) ? $jetpack_boost_page_optimize_types[ $ext ] : false;
-}
+	// Security check: Ensure requested file is strictly within the designated cache directory
+	// by comparing the resolved absolute paths.
+	if ( $real_path === false || $cache_dir === false || stripos( $real_path, $cache_dir ) !== 0 ) {
+		return false;
+	}
 
-function jetpack_boost_page_optimize_relative_path_replace( $buf, $dirpath ) {
-	// url(relative/path/to/file) -> url(/absolute/and/not/relative/path/to/file)
-	$buf = preg_replace(
-		'/(:?\s*url\s*\()\s*(?:\'|")?\s*([^\/\'"\s\)](?:(?<!data:|http:|https:|[\(\'"]#|%23).)*)[\'"\s]*\)/isU',
-		'$1' . ( $dirpath === '/' ? '/' : $dirpath . '/' ) . '$2)',
-		$buf
+	$allowed_extensions = array_keys( jetpack_boost_page_optimize_types() );
+	if ( ! isset( $file_info['extension'] ) || ! in_array( $file_info['extension'], $allowed_extensions, true ) ) {
+		return false;
+	}
+
+	// The base name (without the extension) might contain ".min".
+	// Example - 777873a36e.min
+	$file_name_parts = explode( '.', $file_info['basename'] );
+	$file_name       = $file_name_parts[0];
+
+	return array(
+		'file_name'      => $file_name,
+		'file_extension' => $file_info['extension'] ?? '',
 	);
-
-	return $buf;
-}
-
-function jetpack_boost_page_optimize_get_path( $uri ) {
-	static $dependency_path_mapping;
-
-	if ( ! strlen( $uri ) ) {
-		jetpack_boost_page_optimize_status_exit( 400 );
-	}
-
-	if ( str_contains( $uri, '..' ) || str_contains( $uri, "\0" ) ) {
-		jetpack_boost_page_optimize_status_exit( 400 );
-	}
-
-	if ( defined( 'PAGE_OPTIMIZE_CONCAT_BASE_DIR' ) ) {
-		$path = realpath( PAGE_OPTIMIZE_CONCAT_BASE_DIR . "/$uri" );
-
-		if ( false === $path ) {
-			$path = realpath( Config::get_abspath() . "/$uri" );
-		}
-	} else {
-		if ( empty( $dependency_path_mapping ) ) {
-			$dependency_path_mapping = new Dependency_Path_Mapping();
-		}
-		$path = $dependency_path_mapping->uri_path_to_fs_path( $uri );
-	}
-
-	if ( false === $path ) {
-		jetpack_boost_page_optimize_status_exit( 404 );
-	}
-
-	return $path;
 }

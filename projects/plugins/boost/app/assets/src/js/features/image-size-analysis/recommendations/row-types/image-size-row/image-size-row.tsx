@@ -11,6 +11,7 @@ import TableRowHover from '../table-row-hover/table-row-hover';
 import { removeGetParams } from '$lib/utils/remove-get-params';
 import { recordBoostEventAndRedirect } from '$lib/utils/analytics';
 import styles from './image-size-row.module.scss';
+import rowStyles from '../../row.module.scss';
 import clsx from 'clsx';
 
 interface ImageSizeRowProps {
@@ -63,7 +64,7 @@ const TableRowContent: React.FC< ContentProps > = ( { title, details, toggleImag
 				<Thumbnail title={ title } url={ details.image.url } width={ 65 } height={ 65 } />
 			</div>
 
-			<div className="jb-table-row__title">
+			<div className={ rowStyles[ 'table-row-title' ] }>
 				<RowTitle
 					title={ title ? removeGetParams( title ) : __( 'Untitled', 'jetpack-boost' ) }
 					url={ details.page.url }
@@ -78,10 +79,10 @@ const TableRowContent: React.FC< ContentProps > = ( { title, details, toggleImag
 				<Pill color="#d0e6b8">{ potentialSize } KB</Pill>
 			</div>
 
-			<div className={ clsx( styles[ 'hover-content' ], 'jb-table-row__hover-content' ) }>
+			<div className={ clsx( styles[ 'hover-content' ], rowStyles[ 'hover-content' ] ) }>
 				<TableRowHover
 					device_type={ details.device_type }
-					edit_url={ details.page.edit_url }
+					edit_url={ details.page.edit_url || undefined }
 					instructions={ details.instructions }
 					imageId={ details.id }
 					isFixed={ details.image.fixed }
@@ -89,11 +90,11 @@ const TableRowContent: React.FC< ContentProps > = ( { title, details, toggleImag
 				/>
 			</div>
 
-			<div className={ clsx( styles.device, 'jb-table-row__device' ) }>
+			<div className={ clsx( styles.device, rowStyles.device ) }>
 				<Device device={ details.device_type } />
 			</div>
 
-			<div className={ clsx( styles.page, 'jb-table-row__page' ) }>
+			<div className={ clsx( styles.page, rowStyles.page ) }>
 				<a href={ details.page.url } className={ styles.link }>
 					{ details.page.title }
 				</a>

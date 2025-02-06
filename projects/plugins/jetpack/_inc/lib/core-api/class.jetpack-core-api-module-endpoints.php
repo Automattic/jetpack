@@ -635,6 +635,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$not_updated[ $option ] = $error;
 				}
 
+				if ( $updated ) {
+					// Return the module state.
+					$response[ $option ] = $value;
+				}
+
 				// Remove module from list so we don't go through it again.
 				unset( $params[ $option ] );
 			}
@@ -968,6 +973,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'jetpack_subscribe_overlay_enabled':
 				case 'jetpack_subscribe_floating_button_enabled':
 				case 'wpcom_newsletter_categories_enabled':
+				case 'wpcom_newsletter_categories_modal_hidden':
 				case 'wpcom_featured_image_in_email':
 				case 'jetpack_gravatar_in_email':
 				case 'jetpack_author_in_email':

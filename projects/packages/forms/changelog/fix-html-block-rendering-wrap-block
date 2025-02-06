@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Form: Add wrapping div to the core html block when inserted inside the form block

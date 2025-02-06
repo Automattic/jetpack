@@ -1,4 +1,4 @@
-import { curveNatural } from '@visx/curve';
+import { curveCatmullRom, curveLinear } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
 import {
 	XYChart,
@@ -17,8 +17,8 @@ import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 
 interface LineChartProps extends BaseChartProps< SeriesData[] > {
-	margin?: { top: number; right: number; bottom: number; left: number };
 	withGradientFill: boolean;
+	smoothing?: boolean;
 }
 
 type TooltipData = {
@@ -102,6 +102,7 @@ const LineChart: FC< LineChartProps > = ( {
 	showLegend = false,
 	legendOrientation = 'horizontal',
 	withGradientFill = false,
+	smoothing = true,
 	options = {},
 } ) => {
 	const providerTheme = useChartTheme();
@@ -118,7 +119,7 @@ const LineChart: FC< LineChartProps > = ( {
 	margin = useMemo( () => {
 		// Auto-margin unless specified to make room for axis labels.
 		// Default margin is for bottom and left axis labels.
-		let defaultMargin = { top: 0, right: 0, bottom: 40, left: 40 };
+		let defaultMargin = {};
 		if ( options.axis?.y?.orientation === 'right' ) {
 			defaultMargin = { ...defaultMargin, right: 40, left: 0 };
 		}
@@ -157,7 +158,7 @@ const LineChart: FC< LineChartProps > = ( {
 				theme={ theme }
 				width={ width }
 				height={ height }
-				margin={ margin }
+				margin={ { top: 0, right: 0, bottom: 0, left: 0, ...margin } }
 				xScale={ { type: 'time', ...options?.xScale } }
 				yScale={ { type: 'linear', nice: true, zero: false, ...options?.yScale } }
 			>
@@ -191,7 +192,7 @@ const LineChart: FC< LineChartProps > = ( {
 								{ ...accessors }
 								fill={ withGradientFill ? `url(#area-gradient-${ index + 1 })` : undefined }
 								renderLine={ true }
-								curve={ curveNatural }
+								curve={ smoothing ? curveCatmullRom : curveLinear }
 							/>
 						</g>
 					);

@@ -28,7 +28,7 @@ const fasterMessage: ScoreChangeMessage = {
 	title: __( 'Your site got faster', 'jetpack-boost' ),
 	body: <p>{ __( `That's great! If you’re happy, why not rate Boost?`, 'jetpack-boost' ) }</p>,
 	cta: __( 'Rate the Plugin', 'jetpack-boost' ),
-	ctaLink: 'https://wordpress.org/support/plugin/jetpack-boost/reviews/#new-post',
+	ctaLink: getRedirectUrl( 'boost-rate-plugin' ),
 };
 
 const slowerMessage: ScoreChangeMessage = {
@@ -77,13 +77,23 @@ function PopOut( { scoreChange }: Props ) {
 
 	const hideAlert = () => setClose( true );
 
+	const scoreDirection = scoreChange && scoreChange > 0 ? 'up' : 'down';
+
 	useEffect( () => {
 		if ( hasScoreChanged && ! isDismissed && ! isClosed ) {
 			recordBoostEvent( 'speed_score_alert_shown', {
-				score_direction: scoreChange > 0 ? 'up' : 'down',
+				score_direction: scoreDirection,
 			} );
 		}
-	}, [ hasScoreChanged, scoreChange, isDismissed, isClosed ] );
+	}, [ hasScoreChanged, isDismissed, isClosed, scoreDirection ] );
+
+	const handleCtaClick = () => {
+		recordBoostEvent( 'speed_score_alert_cta_clicked', {
+			score_direction: scoreDirection,
+		} );
+
+		dismissAlert();
+	};
 
 	const animationStyles = useSpring( {
 		from: {
@@ -113,7 +123,7 @@ function PopOut( { scoreChange }: Props ) {
 					href={ message?.ctaLink }
 					target="_blank"
 					rel="noreferrer"
-					onClick={ dismissAlert }
+					onClick={ handleCtaClick }
 				>
 					{ message.cta }
 				</a>
@@ -122,7 +132,7 @@ function PopOut( { scoreChange }: Props ) {
 					variant="link"
 					size="small"
 					className={ styles[ 'dismiss-button' ] }
-					onClick={ dismissAlert }
+					onClick={ handleCtaClick }
 				>
 					{ __( 'Do not show me again', 'jetpack-boost' ) }
 				</Button>

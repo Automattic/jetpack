@@ -98,7 +98,7 @@ class Schema {
 	}
 
 	public static function as_float() {
-		return new Schema_Parser( new Type_Float( true ) );
+		return new Schema_Parser( new Type_Float() );
 	}
 
 	/**

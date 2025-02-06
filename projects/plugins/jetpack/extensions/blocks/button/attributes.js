@@ -17,12 +17,15 @@ export default {
 	},
 	text: {
 		type: 'string',
+		role: 'content',
 	},
 	placeholder: {
 		type: 'string',
+		role: 'content',
 	},
 	url: {
 		type: 'string',
+		role: 'content',
 	},
 	textColor: {
 		type: 'string',

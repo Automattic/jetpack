@@ -256,21 +256,21 @@ class Jetpack_Gutenberg {
 	/**
 	 * Checks for a given .json file in the blocks folder.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 14.3
 	 *
 	 * @param string $preset The name of the .json file to look for.
 	 *
 	 * @return bool True if the file is found.
 	 */
 	public static function preset_exists( $preset ) {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '14.3' );
 		return file_exists( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $preset . '.json' );
 	}
 
 	/**
 	 * Decodes JSON loaded from the preset file in the blocks folder
 	 *
-	 * @since $$next-version$$ Deprecated argument. Only one value is ever used.
+	 * @since 14.3 Deprecated argument. Only one value is ever used.
 	 *
 	 * @param null $deprecated No longer used.
 	 *

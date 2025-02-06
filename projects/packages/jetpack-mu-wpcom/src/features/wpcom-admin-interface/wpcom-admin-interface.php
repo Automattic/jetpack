@@ -18,7 +18,7 @@ use Automattic\Jetpack\Status\Host;
  * The setting is displayed only if the has the wp-admin interface selected.
  */
 function wpcomsh_wpcom_admin_interface_settings_field() {
-	add_settings_field( 'wpcom_admin_interface', '', 'wpcom_admin_interface_display', 'general', 'default' );
+	add_settings_field( 'wpcom_admin_interface', __( 'Admin Interface Style', 'jetpack-mu-wpcom' ), 'wpcom_admin_interface_display', 'general', 'default' );
 
 	register_setting( 'general', 'wpcom_admin_interface', array( 'sanitize_callback' => 'esc_attr' ) );
 }
@@ -27,9 +27,10 @@ function wpcomsh_wpcom_admin_interface_settings_field() {
  * Display the wpcom_admin_interface setting on the General settings page.
  */
 function wpcom_admin_interface_display() {
+	remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
 	$value = get_option( 'wpcom_admin_interface' );
+	add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
 
-	echo '<tr valign="top"><th scope="row"><label for="wpcom_admin_interface">' . esc_html__( 'Admin Interface Style', 'jetpack-mu-wpcom' ) . '</label></th><td>';
 	echo '<fieldset>';
 	echo '<label><input type="radio" name="wpcom_admin_interface" value="wp-admin" ' . checked( 'wp-admin', $value, false ) . '/> <span>' . esc_html__( 'Classic style', 'jetpack-mu-wpcom' ) . '</span></label><p>' . esc_html__( 'Use WP-Admin to manage your site.', 'jetpack-mu-wpcom' ) . '</p><br>';
 	echo '<label><input type="radio" name="wpcom_admin_interface" value="calypso" ' . checked( 'calypso', $value, false ) . '/> <span>' . esc_html__( 'Default style', 'jetpack-mu-wpcom' ) . '</span></label><p>' . esc_html__( 'Use WordPress.com’s native dashboard to manage your site.', 'jetpack-mu-wpcom' ) . '</p><br>';
@@ -104,7 +105,7 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 			 */
 			function ( $location ) {
 				$updated_settings_page = add_query_arg( 'settings-updated', 'true', wp_get_referer() );
-				if ( $location === $updated_settings_page ) {
+				if ( $location === $updated_settings_page && ! wpcom_is_duplicate_views_experiment_enabled() ) {
 					return 'https://wordpress.com/settings/general/' . wpcom_get_site_slug();
 				} else {
 					return $location;
@@ -126,6 +127,10 @@ const WPCOM_DUPLICATED_VIEW = array(
 	'edit-comments.php',
 	'edit-tags.php?taxonomy=category',
 	'edit-tags.php?taxonomy=post_tag',
+	'options-general.php',
+	'options-writing.php',
+	'options-reading.php',
+	'options-discussion.php',
 );
 
 /**

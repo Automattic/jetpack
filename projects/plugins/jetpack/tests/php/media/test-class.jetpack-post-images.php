@@ -84,6 +84,19 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @covers Jetpack_PostImages::from_html
+	 */
+	public function test_from_html_alt_utf8() {
+		$s = '<img src="bob.jpg" width="200" height="200" alt="Ḽơᶉëᶆ ȋṕšᶙṁ ḍỡḽǭᵳ ʂǐť ӓṁệẗ" />';
+
+		$result = Jetpack_PostImages::from_html( $s );
+
+		$this->assertIsArray( $result );
+		$this->assertNotEmpty( $result );
+		$this->assertEquals( 'Ḽơᶉëᶆ ȋṕšᶙṁ ḍỡḽǭᵳ ʂǐť ӓṁệẗ', $result[0]['alt_text'] );
+	}
+
+	/**
 	 * @author scotchfield
 	 * @covers Jetpack_PostImages::from_slideshow
 	 * @since 3.2

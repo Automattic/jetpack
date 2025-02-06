@@ -2,7 +2,7 @@ import { InnerBlocks } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { Path, Icon } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
-import { globe, envelope, mobile } from '@wordpress/icons';
+import { globe, envelope, mobile, upload } from '@wordpress/icons';
 import { filter, isEmpty, map, startsWith, trim } from 'lodash';
 import JetpackField from './components/jetpack-field';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
@@ -31,6 +31,7 @@ const FieldDefaults = {
 		label: {
 			type: 'string',
 			default: null,
+			role: 'content',
 		},
 		required: {
 			type: 'boolean',
@@ -38,18 +39,22 @@ const FieldDefaults = {
 		},
 		requiredText: {
 			type: 'string',
+			role: 'content',
 		},
 		options: {
 			type: 'array',
 			default: [],
+			role: 'content',
 		},
 		defaultValue: {
 			type: 'string',
 			default: '',
+			role: 'content',
 		},
 		placeholder: {
 			type: 'string',
 			default: '',
+			role: 'content',
 		},
 		id: {
 			type: 'string',
@@ -366,6 +371,7 @@ export const childBlocks = [
 				label: {
 					type: 'string',
 					default: 'Text',
+					role: 'content',
 				},
 			},
 		},
@@ -375,7 +381,7 @@ export const childBlocks = [
 		settings: {
 			...FieldDefaults,
 			title: __( 'Name Field', 'jetpack-forms' ),
-			description: __( 'Collect the site visitor’s name.', 'jetpack-forms' ),
+			description: __( "Collect the site visitor's name.", 'jetpack-forms' ),
 			icon: {
 				foreground: getIconColor(),
 				src: renderMaterialIcon(
@@ -388,6 +394,7 @@ export const childBlocks = [
 				label: {
 					type: 'string',
 					default: 'Name',
+					role: 'content',
 				},
 			},
 		},
@@ -409,6 +416,7 @@ export const childBlocks = [
 				label: {
 					type: 'string',
 					default: 'Email',
+					role: 'content',
 				},
 			},
 		},
@@ -435,6 +443,7 @@ export const childBlocks = [
 				label: {
 					type: 'string',
 					default: __( 'Website', 'jetpack-forms' ),
+					role: 'content',
 				},
 			},
 		},
@@ -464,6 +473,7 @@ export const childBlocks = [
 				label: {
 					type: 'string',
 					default: 'Date',
+					role: 'content',
 				},
 				dateFormat: {
 					type: 'string',
@@ -493,8 +503,40 @@ export const childBlocks = [
 				label: {
 					type: 'string',
 					default: 'Phone',
+					role: 'content',
 				},
 			},
+		},
+	},
+	{
+		name: 'field-file',
+		settings: {
+			...FieldDefaults,
+			title: __( 'File Upload Field', 'jetpack-forms' ),
+			keywords: [
+				__( 'File', 'jetpack-forms' ),
+				__( 'Upload', 'jetpack-forms' ),
+				__( 'Attachment', 'jetpack-forms' ),
+			],
+			description: __( 'Allow visitors to upload files through your form.', 'jetpack-forms' ),
+			icon: {
+				foreground: getIconColor(),
+				src: <Icon icon={ upload } />,
+			},
+			edit: editField( 'file' ),
+			attributes: {
+				...FieldDefaults.attributes,
+				label: {
+					type: 'string',
+					default: __( 'Upload a file', 'jetpack-forms' ),
+					role: 'content',
+				},
+				filetype: {
+					type: 'string',
+					default: '',
+				},
+			},
+			isBeta: true,
 		},
 	},
 	{
@@ -542,6 +584,7 @@ export const childBlocks = [
 				label: {
 					type: 'string',
 					default: '',
+					role: 'content',
 				},
 			},
 		},
@@ -649,10 +692,12 @@ export const childBlocks = [
 				toggleLabel: {
 					type: 'string',
 					default: null,
+					role: 'content',
 				},
 				options: {
 					type: 'array',
 					default: [ '' ],
+					role: 'content',
 				},
 			},
 		},

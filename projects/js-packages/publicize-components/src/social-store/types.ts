@@ -142,8 +142,8 @@ export type SocialNotesSettings = {
 	config: SocialNotesConfig;
 };
 
-export type SocialPluginSettings = {
-	publicize_active: boolean;
+export type SocialModuleSettings = {
+	publicize: boolean;
 };
 
 export type SocialSettingsFields = {
