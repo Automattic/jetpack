@@ -1,5 +1,5 @@
 Significance: patch
 Type: other
-Comment: not useful
+Comment: deprecated Jetpack_Gutenberg::blocks_variation() method for Blocks::get_variation. 
 
 
