@@ -119,7 +119,7 @@ class Scan extends Module_Product {
 	 *
 	 * @todo Maybe add caching.
 	 *
-	 * @return Object|WP_Error
+	 * @return object|WP_Error
 	 */
 	private static function get_state_from_wpcom() {
 		static $status = null;
