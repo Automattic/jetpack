@@ -71,6 +71,8 @@ class Backup extends Hybrid_Product {
 	 */
 	public static $feature_identifying_paid_plan = 'backups';
 
+	public const BACKUP_STATUS_TRANSIENT_KEY = 'my-jetpack-backup-status';
+
 	/**
 	 * Get the product name
 	 *
@@ -243,6 +245,13 @@ class Backup extends Hybrid_Product {
 	 * @return boolean|array
 	 */
 	public static function does_module_need_attention() {
+		$previous_backup_status = get_transient( self::BACKUP_STATUS_TRANSIENT_KEY );
+
+		// If we have a previous backup status, show it.
+		if ( ! empty( $previous_backup_status ) ) {
+			return $previous_backup_status;
+		}
+
 		$backup_failed_status = false;
 		// First check the status of Rewind for failure.
 		$rewind_state = self::get_state_from_wpcom();
@@ -282,6 +291,12 @@ class Backup extends Hybrid_Product {
 					);
 				}
 			}
+		}
+
+		if ( is_array( $backup_failed_status ) && $backup_failed_status['type'] === 'error' ) {
+			set_transient( self::BACKUP_STATUS_TRANSIENT_KEY, $backup_failed_status, 5 * MINUTE_IN_SECONDS );
+		} else {
+			set_transient( self::BACKUP_STATUS_TRANSIENT_KEY, 'successful', HOUR_IN_SECONDS );
 		}
 
 		return $backup_failed_status;
