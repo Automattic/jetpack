@@ -1,14 +1,46 @@
-import { useDispatch } from '@wordpress/data';
+/*
+ * External dependencies
+ */
+import { askQuestionSync, usePostContent } from '@automattic/jetpack-ai-client';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useState, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+/*
+ * Internal dependencies
+ */
 import { useMessages } from './wizard-messages';
 import type { Step, OptionMessage } from './types';
 
-export const useMetaDescriptionStep = (): Step => {
+export const useMetaDescriptionStep = ( { keywords }: { keywords: string } ): Step => {
 	const [ selectedMetaDescription, setSelectedMetaDescription ] = useState< string >();
 	const [ metaDescriptionOptions, setMetaDescriptionOptions ] = useState< OptionMessage[] >( [] );
 	const { messages, setMessages, addMessage, editLastMessage, setSelectedMessage } = useMessages();
-	const { editPost } = useDispatch( 'core/editor' );
+	const { editPost } = useDispatch( editorStore );
+	const postContent = usePostContent();
+	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
+	const [ generatedCount, setGeneratedCount ] = useState( 0 );
+
+	const request = useCallback( async () => {
+		const response = await askQuestionSync(
+			[
+				{
+					role: 'jetpack-ai' as const,
+					context: {
+						type: 'seo-meta-description',
+						content: postContent,
+						keywords: keywords.split( ',' ),
+					},
+				},
+			],
+			{
+				postId,
+				feature: 'seo-meta-description',
+			}
+		);
+
+		return response;
+	}, [ keywords, postContent, postId ] );
 
 	const handleMetaDescriptionSelect = useCallback(
 		( option: OptionMessage ) => {
@@ -17,6 +49,21 @@ export const useMetaDescriptionStep = (): Step => {
 		},
 		[ setSelectedMessage ]
 	);
+
+	const getMetaDescriptions = useCallback( async () => {
+		const response = await request();
+		// TODO: handle errors
+		const parsedResponse: { descriptions: string[] } = JSON.parse( response );
+		const count = parsedResponse.descriptions?.length;
+		const newDescriptions = parsedResponse.descriptions.map( ( description, index ) => ( {
+			id: `meta-${ generatedCount + count + index }`,
+			content: description,
+		} ) );
+
+		setGeneratedCount( current => current + count );
+
+		return newDescriptions;
+	}, [ generatedCount, request ] );
 
 	const handleMetaDescriptionSubmit = useCallback( async () => {
 		await editPost( { meta: { advanced_seo_description: selectedMetaDescription } } );
@@ -42,19 +89,7 @@ export const useMetaDescriptionStep = (): Step => {
 			// we only generate if options are empty
 			setMessages( [ initialMessage ] );
 			if ( newMetaDescriptions.length === 0 ) {
-				newMetaDescriptions = await new Promise( resolve =>
-					setTimeout(
-						() =>
-							resolve( [
-								{
-									id: 'meta-1',
-									content:
-										'Explore breathtaking flower and plant photography in our Flora Guide, featuring tips and inspiration for gardening and plant enthusiasts to enhance their outdoor spaces.',
-								},
-							] ),
-						1500
-					)
-				);
+				newMetaDescriptions = await getMetaDescriptions();
 			}
 			setMetaDescriptionOptions( newMetaDescriptions );
 			const editedFirstMessage = fromSkip
@@ -74,27 +109,15 @@ export const useMetaDescriptionStep = (): Step => {
 				addMessage( { ...meta, type: 'option', isUser: true } )
 			);
 		},
-		[ metaDescriptionOptions, addMessage, setMessages, editLastMessage ]
+		[ metaDescriptionOptions, setMessages, editLastMessage, getMetaDescriptions, addMessage ]
 	);
 
 	const handleMetaDescriptionRegenerate = useCallback( async () => {
-		const newMetaDescription = await new Promise< Array< OptionMessage > >( resolve =>
-			setTimeout(
-				() =>
-					resolve( [
-						{
-							id: 'meta-1' + Math.random(),
-							content:
-								'Explore breathtaking flower and plant photography in our Flora Guide, featuring tips and inspiration for gardening and plant enthusiasts to enhance their outdoor spaces.',
-						},
-					] ),
-				1500
-			)
-		);
+		const newMetaDescription = await getMetaDescriptions();
 
 		setMetaDescriptionOptions( prev => [ ...prev, ...newMetaDescription ] );
 		newMetaDescription.forEach( meta => addMessage( { ...meta, type: 'option', isUser: true } ) );
-	}, [ addMessage ] );
+	}, [ addMessage, getMetaDescriptions ] );
 
 	return {
 		id: 'meta',

@@ -1,15 +1,47 @@
-import { useDispatch } from '@wordpress/data';
+/*
+ * External dependencies
+ */
+import { askQuestionSync, usePostContent } from '@automattic/jetpack-ai-client';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useState, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+/*
+ * Internal dependencies
+ */
 import { useMessages } from './wizard-messages';
 import type { Step, OptionMessage } from './types';
 
-export const useTitleStep = (): Step => {
+export const useTitleStep = ( { keywords }: { keywords: string } ): Step => {
 	const [ selectedTitle, setSelectedTitle ] = useState< string >( '' );
 	const [ titleOptions, setTitleOptions ] = useState< OptionMessage[] >( [] );
 	const { editPost } = useDispatch( 'core/editor' );
 	const { messages, setMessages, addMessage, editLastMessage, setSelectedMessage } = useMessages();
 	const [ prevStepValue, setPrevStepValue ] = useState();
+	const postContent = usePostContent();
+	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
+	const [ generatedCount, setGeneratedCount ] = useState( 0 );
+
+	const request = useCallback( async () => {
+		const response = await askQuestionSync(
+			[
+				{
+					role: 'jetpack-ai' as const,
+					context: {
+						type: 'seo-title',
+						content: postContent,
+						keywords: keywords.split( ',' ),
+					},
+				},
+			],
+			{
+				postId,
+				feature: 'seo-title',
+			}
+		);
+
+		return response;
+	}, [ keywords, postContent, postId ] );
 
 	const handleTitleSelect = useCallback(
 		( option: OptionMessage ) => {
@@ -19,13 +51,30 @@ export const useTitleStep = (): Step => {
 		[ setSelectedMessage ]
 	);
 
+	const getTitles = useCallback( async () => {
+		const response = await request();
+		// TODO: handle errors
+		const parsedResponse: { titles: string[] } = JSON.parse( response );
+		const count = parsedResponse.titles?.length;
+		const newTitles = parsedResponse.titles.map( ( title, index ) => ( {
+			id: `title-${ generatedCount + count + index }`,
+			content: title,
+		} ) );
+
+		setGeneratedCount( current => current + count );
+
+		return newTitles;
+	}, [ generatedCount, request ] );
+
 	const handleTitleGenerate = useCallback(
-		async ( { fromSkip, stepValue: keywords } ) => {
-			const prevStepHasChanged = keywords !== prevStepValue;
+		async ( { fromSkip, stepValue: stepKeywords } ) => {
+			const prevStepHasChanged = stepKeywords !== prevStepValue;
+
 			if ( ! prevStepHasChanged ) {
 				return;
 			}
-			setPrevStepValue( keywords );
+
+			setPrevStepValue( stepKeywords );
 			const initialMessage = fromSkip
 				? {
 						content: createInterpolateElement(
@@ -40,26 +89,12 @@ export const useTitleStep = (): Step => {
 				  };
 			setMessages( [ initialMessage ] );
 			let newTitles = [ ...titleOptions ];
+
 			// we only generate if options are empty
 			if ( newTitles.length === 0 || prevStepHasChanged ) {
-				newTitles = await new Promise( resolve =>
-					setTimeout(
-						() =>
-							resolve( [
-								{
-									id: '1',
-									content: 'A Photo Gallery for Gardening Enthusiasths: Flora Guide',
-								},
-								{
-									id: '2',
-									content:
-										'Flora Guide: Beautiful Photos of Flowers and Plants for Gardening Enthusiasts',
-								},
-							] ),
-						1500
-					)
-				);
+				newTitles = await getTitles();
 			}
+
 			let editedMessage;
 
 			if ( fromSkip ) {
@@ -81,6 +116,7 @@ export const useTitleStep = (): Step => {
 			}
 
 			editLastMessage( editedMessage );
+
 			if ( newTitles.length ) {
 				// this sets the title options for internal state
 				setTitleOptions( newTitles );
@@ -88,30 +124,15 @@ export const useTitleStep = (): Step => {
 				newTitles.forEach( title => addMessage( { ...title, type: 'option', isUser: true } ) );
 			}
 		},
-		[ titleOptions, addMessage, setMessages, prevStepValue, editLastMessage ]
+		[ prevStepValue, setMessages, titleOptions, editLastMessage, getTitles, addMessage ]
 	);
 
 	const handleTitleRegenerate = useCallback( async () => {
-		const newTitles = await new Promise< Array< OptionMessage > >( resolve =>
-			setTimeout(
-				() =>
-					resolve( [
-						{
-							id: '1' + Math.random(),
-							content: 'A Photo Gallery for Gardening Enthusiasths: Flora Guide',
-						},
-						{
-							id: '2' + Math.random(),
-							content:
-								'Flora Guide: Beautiful Photos of Flowers and Plants for Gardening Enthusiasts',
-						},
-					] ),
-				1500
-			)
-		);
+		const newTitles = await getTitles();
+
 		setTitleOptions( [ ...titleOptions, ...newTitles ] );
 		newTitles.forEach( title => addMessage( { ...title, type: 'option', isUser: true } ) );
-	}, [ addMessage, titleOptions ] );
+	}, [ addMessage, getTitles, titleOptions ] );
 
 	const handleTitleSubmit = useCallback( async () => {
 		await editPost( { title: selectedTitle, meta: { jetpack_seo_html_title: selectedTitle } } );

@@ -31,8 +31,8 @@ export default function AssistantWizard( { close } ) {
 
 	// Keywords
 	const keywordsStepData = useKeywordsStep();
-	const titleStepData = useTitleStep();
-	const metaStepData = useMetaDescriptionStep();
+	const titleStepData = useTitleStep( { keywords: keywordsStepData.value } );
+	const metaStepData = useMetaDescriptionStep( { keywords: keywordsStepData.value } );
 	const completionStepData = useCompletionStep();
 	const welcomeStepData = useWelcomeStep();
 	// Memoize steps array to prevent unnecessary recreations
