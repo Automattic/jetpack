@@ -68,6 +68,7 @@ jQuery( document ).ready( function ( $ ) {
 				css: {
 					position: 'relative',
 					display: 'inline-block',
+					height: '20px',
 				},
 			} );
 			const infoIcon = $( '<img>', {

@@ -10,6 +10,7 @@ use WorDBless\BaseTestCase;
 class Password_Manager_Test extends BaseTestCase {
 	public function test_validate_profile_update_nonce_failure() {
 		$_POST['_wpnonce'] = 'invalid_nonce';
+		$_POST['pass1']    = 'newpassword';
 
 		$errors = new \WP_Error();
 		$user   = (object) array( 'ID' => 1 );
@@ -41,16 +42,12 @@ class Password_Manager_Test extends BaseTestCase {
 
 		$password_manager_mock = $this->getMockBuilder( Password_Manager::class )
 			->setConstructorArgs( array( $validation_service_mock ) )
-			->onlyMethods( array( 'verify_profile_update_nonce', 'get_old_user_data' ) )
+			->onlyMethods( array( 'verify_profile_update_nonce' ) )
 			->getMock();
 
 		$password_manager_mock->expects( $this->once() )
 			->method( 'verify_profile_update_nonce' )
 			->willReturn( true );
-
-		$password_manager_mock->expects( $this->once() )
-			->method( 'get_old_user_data' )
-			->willReturn( $fake_user );
 
 		$password_manager_mock->validate_profile_update( $errors, true, $user );
 
@@ -146,7 +143,7 @@ class Password_Manager_Test extends BaseTestCase {
 			'hash10',
 		);
 
-		update_user_meta( $user_id, Config::PASSWORD_MANAGER__RECENT_PASSWORD_HASHES_USER_META_KEY, $password_hashes );
+		update_user_meta( $user_id, Config::PASSWORD_MANAGER_RECENT_PASSWORD_HASHES_USER_META_KEY, $password_hashes );
 
 		$validation_service_mock = $this->createMock( Validation_Service::class );
 		$password_manager_mock   = new Password_Manager( $validation_service_mock );

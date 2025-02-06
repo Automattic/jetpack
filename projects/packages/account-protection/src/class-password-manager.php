@@ -72,9 +72,13 @@ class Password_Manager {
 			return;
 		}
 
-		if ( ( ! $update && ( ! isset( $_POST['_wpnonce_create-user'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce_create-user'] ) ), 'create-user' ) ) )
-			|| ( $update && ! $this->verify_profile_update_nonce( $user->ID ) ) ) {
-			$errors->add( 'nonce_error', __( '<strong>Error:</strong> Nonce verification failed.', 'jetpack-account-protection' ) );
+		if ( ! $update && ( ! isset( $_POST['_wpnonce_create-user'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce_create-user'] ) ), 'create-user' ) ) ) {
+			$errors->add( 'nonce_error', __( '<strong>Error:</strong> Create user nonce verification failed.', 'jetpack-account-protection' ) );
+			return;
+		}
+
+		if ( $update && ! $this->verify_profile_update_nonce( $user->ID ) ) {
+			$errors->add( 'nonce_error', __( '<strong>Error:</strong> Update user nonce verification failed.', 'jetpack-account-protection' ) );
 			return;
 		}
 
