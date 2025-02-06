@@ -77,7 +77,7 @@ function jetpack_boost_404_tester() {
 		return;
 	}
 
-	$minification_enabled = 0;
+	$minification_enabled = '';
 	wp_remote_get( home_url( '/wp-content/boost-cache/static/testing_404' ) );
 	if ( file_exists( Config::get_static_cache_dir_path() . '/404' ) ) {
 		wp_delete_file( Config::get_static_cache_dir_path() . '/404' );
