@@ -10,7 +10,7 @@ use WorDBless\BaseTestCase;
 class Password_Detection_Test extends BaseTestCase {
 
 	public function test_handle_password_detection_validation_error_redirects_to_login(): void {
-		$error = new \WP_Error( Config::PASSWORD_DETECTION_ERROR_CODE, Config::PASSWORD_DETECTION_ERROR_MESSAGE, array( 'token' => 'my-token' ) );
+		$error = new \WP_Error( Config::PASSWORD_DETECTION_ERROR_CODE, 'Password validation failed.', array( 'token' => 'my-token' ) );
 
 		$sut = $this->createPartialMock( Password_Detection::class, array( 'redirect_and_exit' ) );
 		$sut->expects( $this->once() )
@@ -96,7 +96,7 @@ class Password_Detection_Test extends BaseTestCase {
 		$error = $sut->login_form_password_detection( $user, 'pw' );
 
 		$this->assertInstanceOf( \WP_Error::class, $error, 'Should return a WP_Error object.' );
-		$this->assertSame( Config::PASSWORD_DETECTION_ERROR_MESSAGE, $error->get_error_message( Config::PASSWORD_DETECTION_ERROR_CODE ), 'Should return the correct error message.' );
+		$this->assertSame( 'Password validation failed.', $error->get_error_message( Config::PASSWORD_DETECTION_ERROR_CODE ), 'Should return the correct error message.' );
 		$token = $error->get_error_data( Config::PASSWORD_DETECTION_ERROR_CODE )['token'];
 		$this->assertSame( 32, strlen( $token ), 'Token should be 32 characters long.' );
 

@@ -103,19 +103,21 @@ class Validation_Service {
 	/**
 	 * Return first validation error.
 	 *
-	 * @param \WP_User|\stdClass $user The user object or a copy.
-	 * @param string             $password The password to check.
-	 * @param 'profile'|'reset'  $context The context the validation is run in.
+	 * @param \WP_User|\stdClass             $user The user object or a copy.
+	 * @param string                         $password The password to check.
+	 * @param 'create-user'|'update'|'reset' $context The context the validation is run in.
 	 *
 	 * @return string The first validation errors (if any).
 	 */
 	public function get_first_validation_error( $user, string $password, $context ): string {
-		if ( 'profile' === $context ) {
+		// Reset form includes this validation in core
+		if ( 'reset' !== $context ) {
 			if ( empty( $password ) ) {
 				return __( '<strong>Error:</strong> The password cannot be a space or all spaces.', 'jetpack-account-protection' );
 			}
 		}
 
+		// Update and create-user forms include this validation in core
 		if ( 'reset' === $context ) {
 			if ( $this->contains_backslash( $password ) ) {
 				return __( '<strong>Error:</strong> The password cannot contain a backslash (\\) character.', 'jetpack-account-protection' );
@@ -130,8 +132,10 @@ class Validation_Service {
 			return __( '<strong>Error:</strong> The password matches user data.', 'jetpack-account-protection' );
 		}
 
-		if ( $this->is_recent_password( $user->ID, $password ) ) {
-			return __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' );
+		if ( 'create-user' !== $context ) {
+			if ( $this->is_recent_password( $user->ID, $password ) ) {
+				return __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' );
+			}
 		}
 
 		if ( $this->is_weak_password( $password ) ) {
@@ -183,14 +187,14 @@ class Validation_Service {
 		$email_provider = explode( '.', $email_domain )[0]; // 'example'
 
 		$user_data = array(
-			$user->user_login,
-			$user->display_name,
-			$user->first_name,
-			$user->last_name,
-			$user->user_email,
-			$email_username,
-			$email_provider,
-			$user->nickname,
+			$user->user_login ?? '',
+			$user->display_name ?? '',
+			$user->first_name ?? '',
+			$user->last_name ?? '',
+			$user->user_email ?? '',
+			$email_username ?? '',
+			$email_provider ?? '',
+			$user->nickname ?? '',
 		);
 
 		$password_lower = strtolower( $password );
@@ -267,7 +271,7 @@ class Validation_Service {
 	 * @return bool True if the password hash was recently used, false otherwise.
 	 */
 	public function is_recent_password( int $user_id, string $password ): bool {
-		$recent_passwords = get_user_meta( $user_id, Config::PASSWORD_MANAGER_USER_META_KEY, true );
+		$recent_passwords = get_user_meta( $user_id, Config::PASSWORD_MANAGER_RECENT_PASSWORD_HASHES_USER_META_KEY, true );
 
 		if ( empty( $recent_passwords ) || ! is_array( $recent_passwords ) ) {
 			return false;

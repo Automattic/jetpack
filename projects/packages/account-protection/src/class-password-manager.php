@@ -63,37 +63,38 @@ class Password_Manager {
 	 * @return void
 	 */
 	public function validate_profile_update( \WP_Error $errors, bool $update, \stdClass $user ): void {
-		if ( ! $update ) {
-			// This is a new user (wp-admin/user-new.php)
-			if ( ! isset( $_POST['_new_user_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_new_user_nonce'] ) ), 'add-new-user' ) ) {
-				$errors->add( 'nonce_error', __( '<strong>Error:</strong> Nonce verification failed for new user creation.', 'jetpack-account-protection' ) );
-				return;
-			}
-			// This is an existing user update (wp-admin/profile.php or user-edit.php)
-		} elseif ( ! $this->verify_profile_update_nonce( $user->ID ) ) {
-			$errors->add( 'nonce_error', __( '<strong>Error:</strong> Nonce verification failed for profile update.', 'jetpack-account-protection' ) );
+		if ( empty( $_POST['pass1'] ) ) {
 			return;
 		}
 
-		if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
-			$password = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );
+		// If bypass is enabled, do not validate the password
+		if ( isset( $_POST['pw_weak'] ) && 'on' === $_POST['pw_weak'] ) {
+			return;
+		}
 
-			if ( $update ) {
-				$old_user_data = $this->get_old_user_data( $user->ID );
-				if ( $this->validation_service->is_current_password( $old_user_data, $password ) ) {
-					$errors->add( 'password_error', __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' ) );
-					return;
-				}
-			}
+		if ( ( ! $update && ( ! isset( $_POST['_wpnonce_create-user'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce_create-user'] ) ), 'create-user' ) ) )
+			|| ( $update && ! $this->verify_profile_update_nonce( $user->ID ) ) ) {
+			$errors->add( 'nonce_error', __( '<strong>Error:</strong> Nonce verification failed.', 'jetpack-account-protection' ) );
+			return;
+		}
 
-			$error = $this->validation_service->get_first_validation_error( $user, $password, 'profile' );
-			if ( ! empty( $error ) ) {
-				$errors->add( 'password_error', $error );
+		$password = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );
+
+		if ( $update ) {
+			$old_user_data = $this->get_old_user_data( $user->ID );
+			if ( $this->validation_service->is_current_password( $old_user_data, $password ) ) {
+				$errors->add( 'password_error', __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' ) );
 				return;
 			}
 		}
 
-		// TODO: Run this even if JS validation passes?
+		$context = $update ? 'update' : 'create-user';
+		$error   = $this->validation_service->get_first_validation_error( $user, $password, $context );
+
+		if ( ! empty( $error ) ) {
+			$errors->add( 'password_error', $error );
+			return;
+		}
 	}
 
 	/**
@@ -110,6 +111,8 @@ class Password_Manager {
 	/**
 	 * Validate the password reset.
 	 *
+	 * No nonce verification necessary - action hooks in after a robust verification process
+	 *
 	 * @param \WP_Error          $errors The error object.
 	 * @param \WP_User|\WP_Error $user The user object.
 	 *
@@ -120,23 +123,28 @@ class Password_Manager {
 			return;
 		}
 
-		// No nonce verification necessary as the action hooks in after a robust verification process
 		// phpcs:disable WordPress.Security.NonceVerification
-		if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
-			$password = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );
-			if ( $this->validation_service->is_current_password( $user, $password ) ) {
-				$errors->add( 'password_error', __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' ) );
-				return;
-			}
-
-			$error = $this->validation_service->get_first_validation_error( $user, $password, 'reset' );
-			if ( ! empty( $error ) ) {
-				$errors->add( 'password_error', $error );
-				return;
-			}
+		if ( empty( $_POST['pass1'] ) ) {
+			return;
 		}
 
-		// TODO: Run this even if JS validation passes?
+		// If bypass is enabled, do not validate the password
+		// phpcs:disable WordPress.Security.NonceVerification
+		if ( isset( $_POST['pw_weak'] ) && 'on' === $_POST['pw_weak'] ) {
+			return;
+		}
+
+		$password = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );
+		if ( $this->validation_service->is_current_password( $user, $password ) ) {
+			$errors->add( 'password_error', __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' ) );
+			return;
+		}
+
+		$error = $this->validation_service->get_first_validation_error( $user, $password, 'reset' );
+		if ( ! empty( $error ) ) {
+			$errors->add( 'password_error', $error );
+			return;
+		}
 	}
 
 	/**
@@ -150,9 +158,9 @@ class Password_Manager {
 	 */
 	public function on_profile_update( int $user_id, \WP_User $old_user_data, array $userdata ): void { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( isset( $_POST['action'] ) && $_POST['action'] === 'update' ) {
-			if ( $this->verify_profile_update_nonce( $user_id ) ) {
-				if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
-					$this->save_recent_password( $user_id, $old_user_data->user_pass );
+			if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
+				if ( $this->verify_profile_update_nonce( $user_id ) ) {
+						$this->save_recent_password( $user_id, $old_user_data->user_pass );
 				}
 			}
 		}
@@ -179,7 +187,7 @@ class Password_Manager {
 	 * @return void
 	 */
 	public function save_recent_password( int $user_id, string $password_hash ): void {
-		$recent_passwords = get_user_meta( $user_id, Config::PASSWORD_MANAGER_USER_META_KEY, true );
+		$recent_passwords = get_user_meta( $user_id, Config::PASSWORD_MANAGER_RECENT_PASSWORD_HASHES_USER_META_KEY, true );
 
 		if ( ! is_array( $recent_passwords ) ) {
 			$recent_passwords = array();
@@ -193,6 +201,6 @@ class Password_Manager {
 		array_unshift( $recent_passwords, $password_hash );
 		$recent_passwords = array_slice( $recent_passwords, 0, Config::PASSWORD_MANAGER_RECENT_PASSWORDS_LIMIT );
 
-		update_user_meta( $user_id, Config::PASSWORD_MANAGER_USER_META_KEY, $recent_passwords );
+		update_user_meta( $user_id, Config::PASSWORD_MANAGER_RECENT_PASSWORD_HASHES_USER_META_KEY, $recent_passwords );
 	}
 }

@@ -59,7 +59,7 @@ class Password_Detection {
 
 			return new \WP_Error(
 				Config::PASSWORD_DETECTION_ERROR_CODE,
-				Config::PASSWORD_DETECTION_ERROR_MESSAGE,
+				__( 'Password validation failed.', 'jetpack-account-protection' ),
 				array( 'token' => $transient['token'] )
 			);
 		}
@@ -356,11 +356,15 @@ class Password_Detection {
 	 * @return void
 	 */
 	public function enqueue_styles(): void {
-		wp_enqueue_style(
-			'password-detection-styles',
-			plugin_dir_url( __FILE__ ) . 'css/password-detection.css',
-			array(),
-			Account_Protection::PACKAGE_VERSION
-		);
+		// No nonce verification necessary - reading only
+		// phpcs:disable WordPress.Security.NonceVerification
+		if ( ( isset( $GLOBALS['pagenow'] ) && $GLOBALS['pagenow'] === 'wp-login.php' ) && ( isset( $_GET['action'] ) && $_GET['action'] === 'password-detection' ) ) {
+				wp_enqueue_style(
+					'password-detection-styles',
+					plugin_dir_url( __FILE__ ) . 'css/password-detection.css',
+					array(),
+					Account_Protection::PACKAGE_VERSION
+				);
+		}
 	}
 }
