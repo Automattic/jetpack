@@ -144,9 +144,9 @@ class Password_Manager {
 	 */
 	public function on_profile_update( int $user_id, \WP_User $old_user_data, array $userdata ): void { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( isset( $_POST['action'] ) && $_POST['action'] === 'update' ) {
-			if ( $this->verify_profile_update_nonce( $user_id ) ) {
-				if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
-					$this->save_recent_password( $user_id, $old_user_data->user_pass );
+			if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
+				if ( $this->verify_profile_update_nonce( $user_id ) ) {
+						$this->save_recent_password( $user_id, $old_user_data->user_pass );
 				}
 			}
 		}
