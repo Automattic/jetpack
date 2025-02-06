@@ -1,4 +1,5 @@
 Significance: minor
 Type: added
 
-Adds the add first subscribers task to the blogger launchpad ('write' intent).
+Defines a new launchpad task: add_first_subscribers.
+Adds the add_first_subscribers task and verify_email taskto the blogger launchpad ('write' intent).
