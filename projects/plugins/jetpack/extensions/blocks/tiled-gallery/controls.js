@@ -75,6 +75,7 @@ export const TiledGalleryInspectorControls = ( {
 						min={ 1 }
 						max={ Math.min( MAX_COLUMNS, images.length ) }
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 				) }
 				{ layoutStyle !== LAYOUT_CIRCLE && (
@@ -85,6 +86,7 @@ export const TiledGalleryInspectorControls = ( {
 						min={ 0 }
 						max={ MAX_ROUNDED_CORNERS }
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 				) }
 				<SelectControl
@@ -93,6 +95,7 @@ export const TiledGalleryInspectorControls = ( {
 					onChange={ onLinkToChange }
 					options={ linkOptions }
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize={ true }
 				/>
 			</PanelBody>
 			{ selectedImage !== null && linkTo === 'custom' && (
@@ -108,6 +111,8 @@ export const TiledGalleryInspectorControls = ( {
 							}
 						} }
 						placeholder={ __( 'Enter URL', 'jetpack' ) }
+						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 				</PanelBody>
 			) }
