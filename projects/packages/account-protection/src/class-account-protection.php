@@ -132,22 +132,6 @@ class Account_Protection {
 		// AJAX endpoint for password validation
 		add_action( 'wp_ajax_validate_password_ajax', array( $this->password_strength_meter, 'validate_password_ajax' ) );
 		add_action( 'wp_ajax_nopriv_validate_password_ajax', array( $this->password_strength_meter, 'validate_password_ajax' ) );
-
-		// TESTING
-		add_filter(
-			'retrieve_password_message',
-			function ( $message, $key, $user_login, $user_data ) {
-
-				$reset_link = network_site_url( 'wp-login.php?login=' . rawurlencode( $user_login ) . "&key=$key&action=rp", 'login' );
-
-				// Log or store the reset link for debugging
-				error_log( 'Generated Reset Link: ' . $reset_link );
-
-				return $message; // Keep the original email message intact
-			},
-			10,
-			4
-		);
 	}
 
 	/**
