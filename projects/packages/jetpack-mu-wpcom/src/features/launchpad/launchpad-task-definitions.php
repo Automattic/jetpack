@@ -663,9 +663,8 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 		),
 		'add_first_subscribers'           => array(
-			// Note, we do not want this mapped to the 'subscribers_added' task. This is intended as
-			// a nudge and is marked complete after the user visits the subscribers interfaces,
-			// regardless of whether or not they actually added subscribers.
+			// We do not want this mapped to the 'subscribers_added' task, since this task supports
+			// being marked as complete in situations where subscribers are not added.
 			'get_title'            => function () {
 				return __( 'Add your first subscribers', 'jetpack-mu-wpcom' );
 			},
