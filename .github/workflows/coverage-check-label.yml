@@ -6,6 +6,11 @@ concurrency:
   group: coverage-check-label-${{ github.event.pull_request.head.ref }}-${{ github.event.pull_request.label.id }}
   cancel-in-progress: true
 
+permissions:
+  checks: read
+  pull-requests: write
+  statuses: write
+
 jobs:
   code-coverage-label:
     name: "Update code coverage check"
