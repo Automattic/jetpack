@@ -61,7 +61,7 @@ class Validation_Service {
 			'core'               => array(
 				'status'  => null,
 				'message' => __( 'Passes core validation', 'jetpack-account-protection' ),
-				'info'    => __( 'This password meets the minimum WordPress core requirements.', 'jetpack-account-protection' ),
+				'info'    => __( 'Passwords should meet WordPress core security requirements to enhance account protection.', 'jetpack-account-protection' ),
 			),
 			'contains_backslash' => array(
 				'status'  => null,
