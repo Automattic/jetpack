@@ -24,7 +24,7 @@ COMMIT=$( jq --arg V "$PR_HEAD" -nr '$V | @uri' )
 if [[ -z "$COVINFO" ]]; then
 	echo '::group::Fetching coverage info from server'
 	RES=$( curl -v \
-		--write-out '\nCode: %{response_code}'
+		--write-out '\nCode: %{response_code}' \
 		--url "https://jetpackcodecoverage.atomicsites.blog/get-pr-info.php?id=${ID}&commit=${COMMIT}"
 	)
 	STS=${RES##*$'\n'Code: }
