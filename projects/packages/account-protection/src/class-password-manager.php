@@ -63,13 +63,13 @@ class Password_Manager {
 	 * @return void
 	 */
 	public function validate_profile_update( \WP_Error $errors, bool $update, \stdClass $user ): void {
-		if ( ( ! $update && ( ! isset( $_POST['_wpnonce_create-user'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce_create-user'] ) ), 'create-user' ) ) )
-			|| ( $update && ! $this->verify_profile_update_nonce( $user->ID ) ) ) {
-			$errors->add( 'nonce_error', __( '<strong>Error:</strong> Nonce verification failed.', 'jetpack-account-protection' ) );
+		if ( empty( $_POST['pass1'] ) ) {
 			return;
 		}
 
-		if ( empty( $_POST['pass1'] ) ) {
+		if ( ( ! $update && ( ! isset( $_POST['_wpnonce_create-user'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce_create-user'] ) ), 'create-user' ) ) )
+			|| ( $update && ! $this->verify_profile_update_nonce( $user->ID ) ) ) {
+			$errors->add( 'nonce_error', __( '<strong>Error:</strong> Nonce verification failed.', 'jetpack-account-protection' ) );
 			return;
 		}
 
