@@ -88,6 +88,6 @@ const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
 		</WPButton>
 	);
 } );
-Button.displayName = 'button';
+Button.displayName = 'Button';
 
 export default Button;

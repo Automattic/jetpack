@@ -5,7 +5,7 @@ import type { SpacingValue } from '../types.js';
 const SPACING_VALUES: Array< SpacingValue > = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
 
 export default {
-	title: 'JS Packages/Components/text/index.js',
+	title: 'JS Packages/Components/Text',
 	component: Text,
 	argTypes: {
 		...BOX_MODEL_VALUES.reduce(
