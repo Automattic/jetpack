@@ -1,3 +1,4 @@
+import { ThreatsContextProvider } from '@automattic/jetpack-scan';
 import { render, screen } from '@testing-library/react';
 import ThreatsDataViews from '../index.js';
 
@@ -68,7 +69,11 @@ const mockProps = {
 
 describe( 'ThreatsDataViews', () => {
 	it( 'renders threat data', () => {
-		render( <ThreatsDataViews data={ data } { ...mockProps } /> );
+		render(
+			<ThreatsContextProvider>
+				<ThreatsDataViews data={ data } { ...mockProps } />
+			</ThreatsContextProvider>
+		);
 		expect( screen.getByText( 'Malicious code found in file: index.php' ) ).toBeInTheDocument();
 		expect(
 			screen.getByText( 'WooCommerce <= 3.2.3 - Authenticated PHP Object Injection' )
