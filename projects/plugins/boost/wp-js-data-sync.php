@@ -259,6 +259,13 @@ jetpack_boost_register_readonly_option(
 	}
 );
 
+jetpack_boost_register_readonly_option(
+	'static_minification',
+	function () {
+		return (bool) get_site_option( 'jetpack_boost_static_minification' );
+	}
+);
+
 jetpack_boost_register_option(
 	'image_cdn_quality',
 	Schema::as_assoc_array(

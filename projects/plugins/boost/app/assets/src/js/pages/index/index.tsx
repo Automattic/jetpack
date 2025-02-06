@@ -18,6 +18,7 @@ import Upgraded from '$features/ui/upgraded/upgraded';
 import PageCacheModule from '$features/page-cache/page-cache';
 import Pill from '$features/ui/pill/pill';
 import { recordBoostEvent } from '$lib/utils/analytics';
+import { useStaticMinification } from '$lib/stores/static-minification';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -41,6 +42,12 @@ const Index = () => {
 	const handleCriticalCssLink = () => {
 		recordBoostEvent( 'critical_css_link_clicked', {} );
 	};
+
+	const isStaticMinification = useStaticMinification();
+	const minificationWarningMessage = __(
+		'You are using the legacy cache delivery method for concatenated files. Learn more.',
+		'jetpack-boost'
+	);
 
 	return (
 		<div className="jb-container--narrow">
@@ -175,12 +182,19 @@ const Index = () => {
 				slug="minify_js"
 				title={ __( 'Concatenate JS', 'jetpack-boost' ) }
 				description={
-					<p>
-						{ __(
-							'Scripts are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
-							'jetpack-boost'
+					<>
+						<p>
+							{ __(
+								'Scripts are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
+								'jetpack-boost'
+							) }
+						</p>
+						{ ! isStaticMinification && (
+							<Notice level="warning" hideCloseButton={ true }>
+								{ minificationWarningMessage }
+							</Notice>
 						) }
-					</p>
+					</>
 				}
 			>
 				<MinifyMeta
@@ -193,12 +207,19 @@ const Index = () => {
 				slug="minify_css"
 				title={ __( 'Concatenate CSS', 'jetpack-boost' ) }
 				description={
-					<p>
-						{ __(
-							'Styles are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
-							'jetpack-boost'
+					<>
+						<p>
+							{ __(
+								'Styles are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
+								'jetpack-boost'
+							) }
+						</p>
+						{ ! isStaticMinification && (
+							<Notice level="warning" hideCloseButton={ true }>
+								{ minificationWarningMessage }
+							</Notice>
 						) }
-					</p>
+					</>
 				}
 			>
 				<MinifyMeta
