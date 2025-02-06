@@ -75,7 +75,7 @@ function enqueue_jetpack_external_media_import_button() {
 		$asset_name,
 		'JETPACK_EXTERNAL_MEDIA_IMPORT_BUTTON',
 		array(
-			'href' => admin_url( 'upload.php?page=jetpack_external_media_import_page&jetpack_external_media_import_page=true' ),
+			'href' => admin_url( 'upload.php?page=jetpack_external_media_import_page&untangling-media=true' ),
 		)
 	);
 }
