@@ -80,6 +80,20 @@ class Protect extends Hybrid_Product {
 	public static $feature_identifying_paid_plan = 'scan';
 
 	/**
+	 * Holds the scan data
+	 *
+	 * @var Status_Model
+	 */
+	private static $scan_data;
+
+	/**
+	 * Protect constructor.
+	 */
+	public static function initialize() {
+		self::$scan_data = Protect_Status::get_status();
+	}
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string
@@ -130,15 +144,6 @@ class Protect extends Hybrid_Product {
 	}
 
 	/**
-	 * Get the normalized protect/scan data
-	 *
-	 * @return Status_Model
-	 */
-	public static function get_protect_data() {
-		return Protect_Status::get_status();
-	}
-
-	/**
 	 * Get the product's available tiers
 	 *
 	 * @return string[] Slugs of the available tiers
@@ -148,6 +153,15 @@ class Protect extends Hybrid_Product {
 			self::UPGRADED_TIER_SLUG,
 			self::FREE_TIER_SLUG,
 		);
+	}
+
+	/**
+	 * Get the normalized protect/scan data
+	 *
+	 * @return Status_Model
+	 */
+	public static function get_protect_data() {
+		return self::$scan_data;
 	}
 
 	/**
@@ -261,16 +275,10 @@ class Protect extends Hybrid_Product {
 	 * @return boolean|array
 	 */
 	public static function does_module_need_attention() {
-		$previous_critical_threat_count = get_transient( self::PROTECT_THREAT_COUNT_TRANSIENT_KEY );
-
-		if ( 'no_threats' === $previous_critical_threat_count ) {
-			return false;
-		}
-
 		$protect_threat_status = false;
 
 		// Check if there are scan threats.
-		$protect_data = self::get_protect_data();
+		$protect_data = self::$scan_data;
 		if ( is_wp_error( $protect_data ) ) {
 			return $protect_threat_status; // false
 		}
@@ -292,11 +300,6 @@ class Protect extends Hybrid_Product {
 					'fixable_threat_ids'    => $protect_data->fixable_threat_ids,
 				),
 			);
-		}
-
-		// If no threats were found, cache results for an hour so we aren't hitting the API on every page load.
-		if ( $critical_threat_count === false ) {
-			set_transient( self::PROTECT_THREAT_COUNT_TRANSIENT_KEY, 'no_threats', HOUR_IN_SECONDS );
 		}
 
 		return $protect_threat_status;
