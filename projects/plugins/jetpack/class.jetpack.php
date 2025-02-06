@@ -2912,9 +2912,9 @@ p {
 	public static function log( $code, $data = null ) {
 
 		$raw_log = Jetpack_Options::get_option( 'log', array() );
-		// This can be modified by the `jetpack_options` filter, so make sure we have an array.
+		// This can be modified by the `jetpack_options` filter, so abort if we don't have an array.
 		if ( ! is_array( $raw_log ) ) {
-			$raw_log = array();
+			return;
 		}
 
 		// only grab the latest 200 entries.
