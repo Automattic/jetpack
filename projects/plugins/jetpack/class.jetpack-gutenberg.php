@@ -298,7 +298,7 @@ class Jetpack_Gutenberg {
 	 */
 	public static function get_jetpack_gutenberg_extensions_allowed_list() {
 		$preset_extensions_manifest = ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) ? array() : self::get_preset();
-		$blocks_variation           = Blocks::blocks_variation();
+		$blocks_variation           = Blocks::get_variation();
 
 		return self::get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation );
 	}
