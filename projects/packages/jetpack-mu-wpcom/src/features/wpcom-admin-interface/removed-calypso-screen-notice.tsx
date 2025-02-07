@@ -242,7 +242,16 @@ const Notice = () => {
 					content: (
 						<>
 							<h1>{ config[ removedCalypsoScreenNoticeConfig.screen ].title }</h1>
-							<p>{ config[ removedCalypsoScreenNoticeConfig.screen ].description }</p>
+							<p>
+								{ config[ removedCalypsoScreenNoticeConfig.screen ].description }&nbsp;
+								<a
+									href="https://wordpress.com/blog/2025/01/22/interface-update/"
+									target="_blank"
+									rel="noreferrer"
+								>
+									{ __( 'Learn more ↗', 'jetpack-mu-wpcom' ) }
+								</a>
+							</p>
 						</>
 					),
 				},
