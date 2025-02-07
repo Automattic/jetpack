@@ -317,8 +317,7 @@ const isDateFieldValid = input => {
 			return false;
 		}
 	}
-	input.setCustomValidity( L10N.invalidDate );
-	return false;
+	return true;
 };
 
 /**
