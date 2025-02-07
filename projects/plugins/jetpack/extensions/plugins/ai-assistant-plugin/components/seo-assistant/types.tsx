@@ -37,7 +37,8 @@ export interface Step {
 
 	// Input step properties
 	placeholder?: string;
-
+	rawInput?: string;
+	setRawInput?: React.Dispatch< React.SetStateAction< string > >;
 	// Options step properties
 	options?: OptionMessage[];
 	onSelect?: ( option: OptionMessage ) => void;

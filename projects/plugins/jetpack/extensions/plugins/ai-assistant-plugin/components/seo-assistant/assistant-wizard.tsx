@@ -214,8 +214,8 @@ export default function AssistantWizard( { close } ) {
 					<TextInput
 						ref={ keywordsInputRef }
 						placeholder={ steps[ currentStep ].placeholder }
-						value={ steps[ currentStep ].value }
-						setValue={ steps[ currentStep ].setValue }
+						value={ steps[ currentStep ].rawInput }
+						setValue={ steps[ currentStep ].setRawInput }
 						handleSubmit={ handleStepSubmit }
 					/>
 				) }
