@@ -28,17 +28,16 @@ const ALLOWED_BLOCKS = [
 const TEMPLATE = [ [ 'jetpack/email' ], [ 'jetpack/phone' ], [ 'jetpack/address' ] ];
 
 const ContactInfoEdit = props => {
-	const { isSelected } = props;
-	const blockProps = useBlockProps();
+	const { className, isSelected } = props;
+	const blockProps = useBlockProps( {
+		className: clsx( className, {
+			'jetpack-contact-info-block': true,
+			'is-selected': isSelected,
+		} ),
+	} );
 
 	return (
-		<div
-			{ ...blockProps }
-			className={ clsx( blockProps.className, {
-				'jetpack-contact-info-block': true,
-				'is-selected': isSelected,
-			} ) }
-		>
+		<div { ...blockProps }>
 			<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } templateLock={ false } template={ TEMPLATE } />
 		</div>
 	);
