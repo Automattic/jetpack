@@ -68,17 +68,26 @@ function jetpack_boost_check_404_handler( $request_uri ) {
  * This function is used to test if is_404() is working in wp-content/
  * It sends a request to a non-existent URL, that will execute the 404 handler
  * in jetpack_boost_check_404_handler().
+ * Define the constant JETPACK_BOOST_DISABLE_404_TESTER to disable this.
  *
- * This function is called when the Minify_CSS or Minify_JS module is activated.
+ * This function is called when the Minify_CSS or Minify_JS module is activated, and once per day.
  */
 function jetpack_boost_404_tester() {
+	if ( defined( 'JETPACK_BOOST_DISABLE_404_TESTER' ) && JETPACK_BOOST_DISABLE_404_TESTER ) {
+		return;
+	}
+
+	$minification_enabled = '';
 	wp_remote_get( home_url( '/wp-content/boost-cache/static/testing_404' ) );
 	if ( file_exists( Config::get_static_cache_dir_path() . '/404' ) ) {
 		wp_delete_file( Config::get_static_cache_dir_path() . '/404' );
-		update_site_option( 'jetpack_boost_static_minification', 1 );
+		$minification_enabled = 1;
 	} else {
-		update_site_option( 'jetpack_boost_static_minification', 0 );
+		$minification_enabled = 0;
 	}
+	update_site_option( 'jetpack_boost_static_minification', $minification_enabled );
+
+	return $minification_enabled;
 }
 add_action( 'jetpack_boost_404_tester_cron', 'jetpack_boost_404_tester' );
 

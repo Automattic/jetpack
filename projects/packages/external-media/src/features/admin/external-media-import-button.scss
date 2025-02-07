@@ -1,0 +1,12 @@
+.wpcom-media-library-action-buttons {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: 4px;
+
+	> a {
+		position: relative;
+		top: -3px;
+		margin-left: 0;
+		vertical-align: baseline;
+	}
+}
