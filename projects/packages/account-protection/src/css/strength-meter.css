@@ -1,14 +1,10 @@
 /* General Styling */
-#password-validation-status {
-    width: fit-content;
-    margin: auto;
-}
-
 .validation-checklist {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    margin-bottom: 16px;
+    width: fit-content;
+    margin: 16px auto;
 }
 
 .validation-item {
@@ -86,11 +82,6 @@
     font-weight: bold;
     color: #1D2327;
     margin: 0;
-}
-
-.user-specific {
-    margin-left: 1px;
-    margin-right: 1px;
 }
 
 .branding {

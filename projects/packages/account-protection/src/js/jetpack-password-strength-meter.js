@@ -3,75 +3,39 @@
 jQuery( document ).ready( function ( $ ) {
 	const coreElements = {
 		generatePasswordButton: $( '.wp-generate-pw' ),
+		passwordInputWrapper: $( '.user-pass1-wrap' ),
 		passwordInput: $( '#pass1' ),
 		strengthMeter: $( '#pass-strength-result' ),
 		weakPasswordConfirmation: $( '.pw-weak' ),
 		weakPasswordConfirmationCheckbox: $( '.pw-weak input[type="checkbox"]' ),
 		updateFormSubmitButton: $( '#submit' ),
+		createUserFormSubmitButton: $( '#createusersub' ),
 		resetFormSaveButton: $( '#wp-submit' ),
 	};
 
 	// TODO: Non JS form flashes momentarily, we should hide it initially to avoid UI awkwardness
 
-	coreElements.passwordInput.css( { 'border-color': '#8C8F94' } );
+	coreElements.passwordInputWrapper.css( {
+		'margin-bottom': '16px',
+	} );
+	coreElements.passwordInput.css( {
+		'border-color': '#8C8F94',
+		'border-radius': '4px 4px 0 0',
+		margin: '0',
+	} );
 	coreElements.strengthMeter.hide();
 
 	const passwordValidationStatus = $( '<div>', { id: 'password-validation-status' } );
+	coreElements.passwordInput.after( passwordValidationStatus );
 	const validationCheckList = $( '<ul>', { class: 'validation-checklist' } );
+	passwordValidationStatus.append( validationCheckList );
+
 	const validationItems = {};
 	const userSpecific = Boolean( jetpackData.userSpecific );
 
-	Object.entries( jetpackData.validationInitialState ).forEach( ( [ key, value ] ) => {
-		const listItem = $( '<li>', { class: 'validation-item', 'data-key': key } );
-
-		const validationIcon = $( '<img>', {
-			src: jetpackData.loadingIcon,
-			alt: 'Validating...',
-			class: 'validation-icon',
-		} );
-
-		const validationCheckListItemText = $( '<p>', {
-			text: value.message,
-			class: 'validation-text',
-		} );
-
-		let infoIconPopover = null;
-		if ( userSpecific && value.info ) {
-			infoIconPopover = $( '<div>', { class: 'info-popover' } );
-			const infoIcon = $( '<img>', {
-				src: jetpackData.infoIcon,
-				alt: 'Info',
-				class: 'info-icon',
-			} );
-
-			const popover = $( '<div>', {
-				text: value.info,
-				class: 'popover',
-			} ).append( $( '<div>', { class: 'popover-arrow' } ) );
-
-			infoIcon.hover(
-				() => popover.fadeIn( 200 ),
-				() => popover.fadeOut( 200 )
-			);
-
-			infoIconPopover.append( infoIcon, popover );
-		}
-
-		listItem.append( validationIcon, validationCheckListItemText, infoIconPopover );
-		validationCheckList.append( listItem );
-
-		validationItems[ key ] = {
-			icon: validationIcon,
-			text: validationCheckListItemText,
-			item: listItem,
-		};
-	} );
-
-	passwordValidationStatus.append( validationCheckList );
-	coreElements.passwordInput.after( passwordValidationStatus );
-
+	// Strength meter initial state
 	const strengthMeter = $( '<div>', {
-		class: 'strength-meter' + ( userSpecific ? ' user-specific' : null ),
+		class: 'strength-meter',
 	} );
 
 	const strength = $( '<p>', {
@@ -85,21 +49,20 @@ jQuery( document ).ready( function ( $ ) {
 	);
 
 	strengthMeter.append( strength, jetpackBranding );
-	coreElements.passwordInput.after( strengthMeter );
+	validationCheckList.before( strengthMeter );
+
+	// Validation initial state
+	generateAndAppendValidationInitialState();
 
 	// Event listeners
 	coreElements.passwordInput.on( 'input', () => validatePassword() );
 	coreElements.generatePasswordButton.on( 'click', () => validatePassword() );
 
 	setTimeout( () => {
-		if (
-			coreElements.passwordInput &&
-			coreElements.passwordInput.val() &&
-			coreElements.passwordInput.val().length > 0
-		) {
+		if ( coreElements.passwordInput?.val()?.length ) {
 			validatePassword();
 		}
-	}, 1500 );
+	}, 1000 ); // TODO: This might not always catching the initial password value
 
 	let currentAjaxRequest = null;
 
@@ -117,7 +80,7 @@ jQuery( document ).ready( function ( $ ) {
 			currentAjaxRequest = null;
 		}
 
-		if ( ! currentPasswordInput.trim() ) {
+		if ( ! currentPasswordInput?.trim() ) {
 			applyStyling( failedValidationConditions, true );
 			return;
 		}
@@ -143,13 +106,9 @@ jQuery( document ).ready( function ( $ ) {
 		passwordValidationStatus.show();
 
 		// Disable submit buttons while validating
-		if ( ! coreElements.updateFormSubmitButton.prop( 'disabled' ) ) {
-			coreElements.updateFormSubmitButton.prop( 'disabled', true );
-		}
-
-		if ( ! coreElements.resetFormSaveButton.prop( 'disabled' ) ) {
-			coreElements.resetFormSaveButton.prop( 'disabled', true );
-		}
+		coreElements.updateFormSubmitButton.prop( 'disabled', true );
+		coreElements.createUserFormSubmitButton.prop( 'disabled', true );
+		coreElements.resetFormSaveButton.prop( 'disabled', true );
 
 		const uiUpdates = [];
 
@@ -251,23 +210,25 @@ jQuery( document ).ready( function ( $ ) {
 
 			coreElements.weakPasswordConfirmation.css( 'display', 'none' );
 			coreElements.updateFormSubmitButton.prop( 'disabled', false );
+			coreElements.createUserFormSubmitButton.prop( 'disabled', false );
 			coreElements.resetFormSaveButton.prop( 'disabled', false );
 		} else {
 			finalColor = '#E65054';
 			finalStrengthText = 'Weak';
 
 			if ( coreElements.weakPasswordConfirmation.css( 'display' ) === 'none' ) {
-				coreElements.weakPasswordConfirmation.css(
-					'display',
-					userSpecific ? 'table-row' : 'block'
-				);
+				coreElements.weakPasswordConfirmation.css( {
+					display: 'table-row',
+				} );
 			}
 
 			if ( coreElements.weakPasswordConfirmationCheckbox.prop( 'checked' ) ) {
 				coreElements.updateFormSubmitButton.prop( 'disabled', false );
+				coreElements.createUserFormSubmitButton.prop( 'disabled', false );
 				coreElements.resetFormSaveButton.prop( 'disabled', false );
 			} else {
 				coreElements.updateFormSubmitButton.prop( 'disabled', true );
+				coreElements.createUserFormSubmitButton.prop( 'disabled', true );
 				coreElements.resetFormSaveButton.prop( 'disabled', true );
 			}
 		}
@@ -289,11 +250,62 @@ jQuery( document ).ready( function ( $ ) {
 			coreElements.passwordInput.after( strengthMeter );
 		}
 
-		if ( strengthMeter.is( ':hidden' ) ) {
-			strengthMeter.show();
-		}
-		if ( passwordValidationStatus.is( ':hidden' ) ) {
-			passwordValidationStatus.show();
-		}
+		strengthMeter.show();
+		passwordValidationStatus.show();
+	}
+
+	/**
+	 * Generate and append the initial validation state
+	 */
+	function generateAndAppendValidationInitialState() {
+		Object.entries( jetpackData.validationInitialState ).forEach( ( [ key, value ] ) => {
+			const listItem = $( '<li>', { class: 'validation-item', 'data-key': key } );
+
+			if ( key === 'contains_backslash' ) {
+				listItem.hide();
+			}
+
+			const validationIcon = $( '<img>', {
+				src: jetpackData.loadingIcon,
+				alt: 'Validating...',
+				class: 'validation-icon',
+			} );
+
+			const validationCheckListItemText = $( '<p>', {
+				text: value.message,
+				class: 'validation-text',
+			} );
+
+			let infoIconPopover = null;
+			if ( userSpecific && value.info ) {
+				infoIconPopover = $( '<div>', { class: 'info-popover' } );
+				const infoIcon = $( '<img>', {
+					src: jetpackData.infoIcon,
+					alt: 'Info',
+					class: 'info-icon',
+				} );
+
+				const popover = $( '<div>', {
+					text: value.info,
+					class: 'popover',
+				} ).append( $( '<div>', { class: 'popover-arrow' } ) );
+
+				infoIcon.hover(
+					() => popover.fadeIn( 200 ),
+					() => popover.fadeOut( 200 )
+				);
+
+				infoIconPopover.append( infoIcon, popover );
+			}
+
+			listItem.append( validationIcon, validationCheckListItemText, infoIconPopover );
+			validationCheckList.append( listItem );
+
+			validationItems[ key ] = {
+				icon: validationIcon,
+				text: validationCheckListItemText,
+				item: listItem,
+			};
+		} );
 	}
 } );

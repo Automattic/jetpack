@@ -58,11 +58,17 @@ class Password_Strength_Meter {
 	 * @return void
 	 */
 	public function enqueue_jetpack_password_strength_meter_profile_script(): void {
-		if ( ! wp_script_is( 'jetpack-password-strength-meter', 'enqueued' ) ) {
-			$this->enqueue_script();
-			$this->enqueue_styles();
-			$this->localize_jetpack_data( true );
+		global $pagenow;
+
+		if ( ! isset( $pagenow ) || ! in_array( $pagenow, array( 'profile.php', 'user-new.php', 'user-edit.php' ), true ) ) {
+			return;
 		}
+
+		$this->enqueue_script();
+		$this->enqueue_styles();
+
+		// Only profile page should run user specific checks.
+		$this->localize_jetpack_data( 'profile.php' === $pagenow );
 	}
 
 	/**
@@ -73,12 +79,10 @@ class Password_Strength_Meter {
 	public function enqueue_jetpack_password_strength_meter_reset_script(): void {
 		// No nonce verification necessary as the action includes a robust verification process
 		// phpcs:disable WordPress.Security.NonceVerification
-		if ( isset( $_GET['action'] ) && ( $_GET['action'] === 'rp' || $_GET['action'] === 'resetpass' ) ) {
-			if ( ! wp_script_is( 'jetpack-password-strength-meter', 'enqueued' ) ) {
-				$this->enqueue_script();
-				$this->enqueue_styles();
-				$this->localize_jetpack_data();
-			}
+		if ( isset( $_GET['action'] ) && ( 'rp' === $_GET['action'] || 'resetpass' === $_GET['action'] ) ) {
+			$this->enqueue_script();
+			$this->enqueue_styles();
+			$this->localize_jetpack_data();
 		}
 	}
 
