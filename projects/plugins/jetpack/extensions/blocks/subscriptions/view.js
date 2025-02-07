@@ -82,7 +82,7 @@ domReady( function () {
 					const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
 					const app_source = form.querySelector( 'input[name=app_source]' )?.value ?? '';
 					const selected_newsletter_categories =
-						form.querySelector( 'input[name=newsletter_category_ids]' )?.value ?? '';
+						form.querySelector( 'input[name=selected_newsletter_categories]' )?.value ?? '';
 
 					show_iframe( {
 						email,

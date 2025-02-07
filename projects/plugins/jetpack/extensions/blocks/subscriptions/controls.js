@@ -319,38 +319,35 @@ export default function SubscriptionControls( {
 							label={ __( 'Pre-select categories', 'jetpack' ) }
 							checked={ preselectNewsletterCategories }
 							onChange={ value => {
-								const updates = { preselectNewsletterCategories: value };
-								// Clear selected categories if pre-select is disabled
-								if ( ! value ) {
-									updates.selectedNewsletterCategoryIds = [];
-								}
-								setAttributes( updates );
+								setAttributes( { preselectNewsletterCategories: value } );
 							} }
 							help={ __(
 								'When enabled, the user will be automatically subscribed to the selected categories below when they submit the form.',
 								'jetpack'
 							) }
 						/>
-						<fieldset>
-							<legend className="wp-block-jetpack-subscriptions__legend">
-								{ __( 'Categories', 'jetpack' ) }
-							</legend>
-							{ availableNewsletterCategories.map( category => (
-								<CheckboxControl
-									key={ category.id }
-									__nextHasNoMarginBottom={ true }
-									disabled={ ! preselectNewsletterCategories }
-									label={ category.name }
-									checked={ selectedNewsletterCategoryIds.includes( category.id ) }
-									onChange={ () => {
-										const selectedIds = selectedNewsletterCategoryIds.includes( category.id )
-											? selectedNewsletterCategoryIds.filter( id => id !== category.id )
-											: [ ...selectedNewsletterCategoryIds, category.id ];
-										setAttributes( { selectedNewsletterCategoryIds: selectedIds } );
-									} }
-								/>
-							) ) }
-						</fieldset>
+						{ preselectNewsletterCategories && (
+							<fieldset>
+								<legend className="wp-block-jetpack-subscriptions__legend">
+									{ __( 'Categories', 'jetpack' ) }
+								</legend>
+								{ availableNewsletterCategories.map( category => (
+									<CheckboxControl
+										key={ category.id }
+										__nextHasNoMarginBottom={ true }
+										disabled={ ! preselectNewsletterCategories }
+										label={ category.name }
+										checked={ selectedNewsletterCategoryIds.includes( category.id ) }
+										onChange={ () => {
+											const selectedIds = selectedNewsletterCategoryIds.includes( category.id )
+												? selectedNewsletterCategoryIds.filter( id => id !== category.id )
+												: [ ...selectedNewsletterCategoryIds, category.id ];
+											setAttributes( { selectedNewsletterCategoryIds: selectedIds } );
+										} }
+									/>
+								) ) }
+							</fieldset>
+						) }
 					</>
 				) }
 			</PanelBody>
