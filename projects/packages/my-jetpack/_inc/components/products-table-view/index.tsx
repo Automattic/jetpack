@@ -34,7 +34,7 @@ import type {
 	Operator,
 	Option,
 } from '@wordpress/dataviews';
-import type { FC } from 'react';
+import type { FC, MouseEvent } from 'react';
 
 import './style.scss';
 
@@ -132,6 +132,15 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 	const categories = useMemo(
 		() => getCategories( products, allProductData ),
 		[ products, allProductData ]
+	);
+
+	const navigateToInterstitial = useCallback(
+		( slug: string ) => ( event: MouseEvent< HTMLButtonElement > ) => {
+			event.preventDefault();
+			recordEvent( `jetpack_myjetpack_product_list_item_${ slug }_learnmore_mobile_click` );
+			navigate( `add-${ slug }` );
+		},
+		[ navigate, recordEvent ]
 	);
 
 	const fields = useMemo( () => {
