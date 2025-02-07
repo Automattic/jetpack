@@ -18,7 +18,6 @@ jQuery( document ).ready( function ( $ ) {
 
 	let currentAjaxRequest = null;
 
-	// TODO: Investigate UI awkwardness
 	initializeUI();
 	bindEvents();
 
