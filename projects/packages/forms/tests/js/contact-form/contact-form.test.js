@@ -106,7 +106,7 @@ describe( 'Contact Form', () => {
 			expect( spy ).toHaveBeenCalledTimes( 1 );
 		} );
 
-		it( "shouldn't submit an invalid form", () => {
+		it( "shouldn't submit form with missing required fields", () => {
 			const form = screen.getByRole( 'form' );
 			const input = screen.getByLabelText( 'Name' );
 			input.setAttribute( 'required', '' );
