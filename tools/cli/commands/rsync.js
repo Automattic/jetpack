@@ -104,8 +104,13 @@ export async function rsyncInit( argv ) {
 
 			const paths = await rsyncToDest( sourcePluginPath, finalDest );
 
-			// Warn but don't fail if file was intentionally not synced.
-			if ( event === 'change' && ! paths.has( eventfile ) ) {
+			// Warn but don't fail if file was intentionally not synced. We still want to sync
+			// if a change event occurs, as other change events could have been debounced.
+			if (
+				event === 'change' &&
+				! paths.has( eventfile ) &&
+				! [ '../../../.git/index', '.gitignore', '.gitattributes' ].includes( eventfile ) // ignore some specific files
+			) {
 				let unsync_reason;
 				if ( ! ( await isFileTracked( sourcePluginPath + eventfile ) ) ) {
 					unsync_reason = 'not tracked by git';
