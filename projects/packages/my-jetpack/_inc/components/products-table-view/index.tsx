@@ -234,7 +234,7 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 		// and a 'jumping' of the CTA buttons. Having categories as a dependency here is unnecessary
 		// and leaving it out doesn't cause the values to be incorrect.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
+	}, [ isMobileViewport, navigateToInterstitial ] );
 
 	const [ view, setView ] = useState< View >( {
 		type: 'list',

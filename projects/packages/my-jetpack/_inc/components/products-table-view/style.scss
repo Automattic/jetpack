@@ -58,6 +58,7 @@ div.dataviews-wrapper {
     
             .dataviews-view-list__fields {
                 justify-content: space-between;
+                flex-wrap: nowrap;
             }
     
             &:not(.is-selected).is-hovered,
@@ -103,6 +104,7 @@ button.product-list-item-chevron {
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 0;
 
     cursor: pointer;
     background: transparent;
