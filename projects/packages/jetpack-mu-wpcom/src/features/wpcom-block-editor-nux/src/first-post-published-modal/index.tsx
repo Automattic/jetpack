@@ -2,7 +2,7 @@ import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { isURL } from '@wordpress/url';
+import { getQueryArg, isURL } from '@wordpress/url';
 import React from 'react';
 import postPublishedImage from '../../../../assets/images/post-published.svg';
 import { useSiteIntent, useShouldShowFirstPostPublishedModal } from '../../../../common/tour-kit';
@@ -48,6 +48,8 @@ const FirstPostPublishedModalInner: React.FC = () => {
 		siteUrl = new URL( siteUrlOption ).hostname;
 	}
 
+	const isLaunchpadHomeTask = window.location.hash === '#publish-first-post';
+	const siteOriginParam = getQueryArg( window.location.search, 'origin' );
 	useEffect( () => {
 		// If the user is set to see the first post modal and current post status changes to publish,
 		// open the post publish modal
@@ -75,9 +77,11 @@ const FirstPostPublishedModalInner: React.FC = () => {
 
 	const handleNextStepsClick = ( event: React.MouseEvent ) => {
 		event.preventDefault();
-		(
-			window.top as Window
-		 ).location.href = `https://wordpress.com/setup/write/launchpad?siteSlug=${ siteUrl }`;
+		const siteOrigin = siteOriginParam || 'https://wordpress.com';
+		const redirectUrl = isLaunchpadHomeTask
+			? `${ siteOrigin }/home/${ siteUrl }`
+			: `${ siteOrigin }/setup/write/launchpad?siteSlug=${ siteUrl }`;
+		( window.top as Window ).location.href = redirectUrl;
 	};
 	return (
 		<NuxModal
