@@ -26,10 +26,10 @@ export { default as AutomatticBylineLogo } from './components/automattic-byline-
 export { default as AutomatticIconLogo } from './components/automattic-icon-logo/index.js';
 export { default as AutomatticForAgenciesLogo } from './components/automattic-for-agencies-logo/index.js';
 export { default as JetpackFooter } from './components/jetpack-footer/index.js';
-export { default as Spinner } from './components/spinner/index.jsx';
+export { default as Spinner } from './components/spinner/index.js';
 export { default as Gridicon } from './components/gridicon/index.js';
 export { default as IconTooltip } from './components/icon-tooltip/index.js';
-export { default as ActionButton } from './components/action-button/index.jsx';
+export { default as ActionButton } from './components/action-button/index.js';
 export { default as PricingCard } from './components/pricing-card/index.js';
 export { default as NumberSlider } from './components/number-slider/index.js';
 export { default as AdminSection } from './components/admin-section/basic/index.js';
@@ -49,7 +49,7 @@ export { default as ThreatSeverityBadge } from './components/threat-severity-bad
 export { default as ThreatsDataViews } from './components/threats-data-views/index.js';
 export { default as Text, H2, H3, Title } from './components/text/index.js';
 export { default as ToggleControl } from './components/toggle-control/index.js';
-export { default as NumberControl } from './components/number-control/index.jsx';
+export { default as NumberControl } from './components/number-control/index.js';
 export { default as numberFormat } from './components/number-format/index.js';
 export { default as QRCode } from './components/qr-code/index.js';
 export { default as Button } from './components/button/index.js';
