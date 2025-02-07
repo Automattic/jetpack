@@ -109,7 +109,14 @@ const ManageConnectionDialog = props => {
 				setUnlinkError( errorMessage );
 				setIsDisconnectingUser( false );
 			} );
-	}, [ setIsDisconnectingUser, isCurrentUserAdmin, onUnlinked, onClose, connectedUser ] );
+	}, [
+		setIsDisconnectingUser,
+		setUnlinkError,
+		isCurrentUserAdmin,
+		onUnlinked,
+		onClose,
+		connectedUser,
+	] );
 
 	const handleDisconnectUser = useCallback(
 		e => {
