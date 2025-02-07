@@ -112,7 +112,7 @@ class External_Media {
 		// Let's now check if the Gutenberg plugin is installed on the site.
 		if (
 			defined( 'GUTENBERG_VERSION' )
-			&& version_compare( GUTENBERG_VERSION, '19.4', '>=' )
+			&& version_compare( (string) GUTENBERG_VERSION, '19.4', '>=' )
 		) {
 			return true;
 		}
