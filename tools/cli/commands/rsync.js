@@ -107,6 +107,7 @@ export async function rsyncInit( argv ) {
 			// Warn but don't fail if file was intentionally not synced. We still want to sync
 			// if a change event occurs, as other change events could have been debounced.
 			if (
+				argv.v &&
 				event === 'change' &&
 				! paths.has( eventfile ) &&
 				! [ '../../../.git/index', '.gitignore', '.gitattributes' ].includes( eventfile ) // ignore some specific files
@@ -119,10 +120,10 @@ export async function rsyncInit( argv ) {
 				} else {
 					unsync_reason = 'something odd 🤷';
 				}
-				console.warn(
+				console.debug(
 					`Sync was triggered by a change to '${ eventfile }', but it was not synced.`
 				);
-				console.warn( `Reason: ${ unsync_reason }` );
+				console.debug( `Reason: ${ unsync_reason }` );
 			}
 
 			// On some systems, using multiple 'watcher.add()' calls breaks the firing of the 'ready' event.
