@@ -9,7 +9,7 @@ export interface Message {
 	selected?: boolean;
 }
 
-export type OptionMessage = Pick< Message, 'id' | 'content' >;
+export type OptionMessage = Pick< Message, 'id' | 'content' | 'selected' >;
 
 export interface Results {
 	[ key: string ]: {
