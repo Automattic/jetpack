@@ -219,7 +219,7 @@ for SLUG in "${SLUGS[@]}"; do
 
 				if $DOCL; then
 					info "Creating changelog entry for $SLUG"
-					do_changelogger "$SLUG" 'Updated package dependencies.'
+					do_changelogger "$SLUG" 'Update package dependencies.'
 					DOCL=false
 				fi
 			fi
@@ -233,7 +233,7 @@ for SLUG in "${SLUGS[@]}"; do
 
 				if $DOCL; then
 					info "Creating changelog entry for $SLUG"
-					do_changelogger "$SLUG" 'Updated package dependencies.'
+					do_changelogger "$SLUG" 'Update package dependencies.'
 					DOCL=false
 				fi
 			fi

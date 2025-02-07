@@ -369,8 +369,8 @@ async function addIndirectPlugins( argv, directProjects, changelogFiles ) {
 			for ( const file of changelogFiles.get( proj ) ) {
 				const contents = fs.readFileSync( file, 'utf-8' );
 				if (
-					! contents.match( /^Comment: Updated composer\.lock\.$/m ) ||
-					contents.match( /\r?\n\r?\n(?!Updated package dependencies\.[\r\n]*$)\s*\S/ )
+					! contents.match( /^Comment: Updated? composer\.lock\.$/m ) ||
+					contents.match( /\r?\n\r?\n(?!Updated? package dependencies\.[\r\n]*$)\s*\S/ )
 				) {
 					continue projloop;
 				}
