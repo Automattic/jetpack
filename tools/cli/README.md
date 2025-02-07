@@ -1,6 +1,6 @@
 # jetpack CLI
 
-The `jetpack` CLI tool is used to help with development in [the Jetpack monorepo].
+The `jetpack` CLI tool is used to help with development in [the Jetpack monorepo](https://github.com/Automattic/jetpack).
 
 ## Installation
 
@@ -97,7 +97,6 @@ Maybe you'd prefer to develop against a live site instead of Docker. Or maybe yo
 
 - Rsync the Jetpack plugin to server destination: `jetpack rsync jetpack user@your.server.example.com:/home/path/to/wp-content/plugins`
 - Note: You need to git add new files so jetpack rsync will take them into account.
-[the Jetpack monorepo]: https://github.com/Automattic/jetpack
 
 **Draft**: Enable or disable "draft mode" for the repo.
 
