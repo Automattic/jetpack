@@ -59,12 +59,8 @@ export const settings = {
 		},
 		align: [ 'wide', 'full' ],
 		layout: {
-			allowSwitching: false,
-			allowJustification: true,
-			allowVerticalAlignment: false,
-			allowOrientation: false,
 			allowSizingOnChildren: false,
-			allowEditing: true,
+			allowEditing: false,
 			default: {
 				type: 'flex',
 			},
