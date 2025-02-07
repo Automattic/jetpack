@@ -1,15 +1,32 @@
 .wpcom-media-url-upload-form {
-	margin-top: -15px;
-	margin-bottom: 15px;
-	height: 30px;
+	margin: -15px 30px 15px;
 
 	button#{&}__pre-upload-button {
 		padding: 0 21px;
 	}
 
 	input {
+		height: 30px;
 		width: 100%;
 		max-width: 600px;
-		margin-right: 6px;
+		margin-inline-end: 6px;
+		margin-bottom: 6px;
+	}
+}
+
+#plupload-upload-ui.has-wpcom-media-url-upload {
+	#drag-drop-area {
+		min-height: 200px;
+		height: auto;
+	}
+
+	.drag-drop-inside {
+		min-width: 250px;
+		width: auto;
+		margin-bottom: 60px;
+	}
+
+	.wpcom-media-url-upload-form {
+		margin-top: 15px;
 	}
 }

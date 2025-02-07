@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { wpcomTrackEvent } from '../../../common/tracks';
 
 import './style.scss';
@@ -11,38 +11,54 @@ const WpcomMediaUrlUploadForm = ( { ajaxUrl, action, nonce, page } ) => {
 	const [ show, setShow ] = useState( false );
 	const [ isUploading, setIsUploading ] = useState( false );
 
+	const hasMediaItemsForm = useMemo( () => {
+		return (
+			page === 'media-new' &&
+			!! document.getElementById( 'media-items' ) &&
+			!! window.fileQueued &&
+			!! window.uploadSuccess &&
+			!! window.uploadError
+		);
+	}, [ page ] );
+
 	const handleUrlChange = e => {
 		setUrl( e.target.value );
 	};
 
-	const handleSubmit = async e => {
-		if ( isUploading ) {
-			return false;
-		}
-		try {
-			new URL( url ); // eslint-disable-line no-new
-		} catch {
-			return false;
-		}
-		e.preventDefault();
+	const handleBeforeUpload = fileObj => {
+		setIsUploading( true );
 
-		wpcomTrackEvent( 'wpcom_media_upload_from_url_submit', {
-			page,
-		} );
+		if ( hasMediaItemsForm ) {
+			window.fileQueued( fileObj );
+		}
+	};
 
+	const handleUpload = async () => {
 		const formData = new FormData();
 		formData.append( 'action', action );
 		formData.append( 'url', url );
 		formData.append( '_ajax_nonce', nonce );
-
-		setIsUploading( true );
 
 		const response = await fetch( ajaxUrl, {
 			method: 'POST',
 			body: formData,
 		} );
 
-		const { success, data } = await response.json();
+		return await response.json();
+	};
+
+	const handlePostUpload = ( fileObj, { success, data } ) => {
+		if ( hasMediaItemsForm ) {
+			if ( success ) {
+				window.uploadSuccess( fileObj, data.attachment_id );
+				setIsUploading( false );
+				setUrl( '' );
+			} else {
+				window.uploadError( fileObj );
+				setIsUploading( false );
+			}
+			return;
+		}
 
 		if ( success ) {
 			window.wp.media.model.Attachment.get( data.attachment_id ).fetch( {
@@ -74,6 +90,33 @@ const WpcomMediaUrlUploadForm = ( { ajaxUrl, action, nonce, page } ) => {
 			setIsUploading( false );
 			window.wp.Uploader.errors.add( { file: { name: url }, message: data[ 0 ].message } );
 		}
+	};
+
+	const handleSubmit = async e => {
+		if ( isUploading ) {
+			return false;
+		}
+		try {
+			new URL( url ); // eslint-disable-line no-new
+		} catch {
+			return false;
+		}
+		e.preventDefault();
+
+		wpcomTrackEvent( 'wpcom_media_upload_from_url_submit', {
+			page,
+		} );
+
+		const fileObj = {
+			id: Date.now(),
+			name: new URL( url ).pathname.split( '/' ).pop(),
+		};
+
+		handleBeforeUpload( fileObj );
+
+		const response = await handleUpload();
+
+		handlePostUpload( fileObj, response );
 
 		return false;
 	};
