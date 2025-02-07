@@ -363,7 +363,7 @@ async function addIndirectPlugins( argv, directProjects, changelogFiles ) {
 			continue;
 		}
 
-		// If it has a changelog file other than "Updated composer.lock" or "Updated dependencies", skip it.
+		// If it has a changelog file other than "Update composer.lock" or "Update dependencies", skip it.
 		// Either it's directly affected or we added an entry in a previous run.
 		if ( changelogFiles.has( proj ) ) {
 			for ( const file of changelogFiles.get( proj ) ) {
