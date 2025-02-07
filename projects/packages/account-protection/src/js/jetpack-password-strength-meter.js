@@ -30,41 +30,23 @@ jQuery( document ).ready( function ( $ ) {
 	const validationCheckList = $( '<ul>', { class: 'validation-checklist' } );
 	passwordValidationStatus.append( validationCheckList );
 
-	const validationItems = {};
-	const userSpecific = Boolean( jetpackData.userSpecific );
+	let currentAjaxRequest = null;
+	const strengthMeterItems = {};
+	const validationChecklistItems = {};
 
-	// Strength meter initial state
-	const strengthMeter = $( '<div>', {
-		class: 'strength-meter',
-	} );
+	generateAndAppendStrengthMeterInitialState();
+	generateAndAppendValidationChecklistInitialState();
 
-	const strength = $( '<p>', {
-		class: 'strength',
-		text: 'Validating...',
-	} );
-
-	const jetpackBranding = $( '<div>', { class: 'branding' } ).append(
-		$( '<p>', { class: 'powered-by', text: 'Powered by ' } ),
-		$( '<img>', { src: jetpackData.logo, alt: 'Jetpack Logo' } )
-	);
-
-	strengthMeter.append( strength, jetpackBranding );
-	validationCheckList.before( strengthMeter );
-
-	// Validation initial state
-	generateAndAppendValidationInitialState();
-
-	// Event listeners
-	coreElements.passwordInput.on( 'input', () => validatePassword() );
-	coreElements.generatePasswordButton.on( 'click', () => validatePassword() );
-
+	// Initial password auto-population check
 	setTimeout( () => {
 		if ( coreElements.passwordInput?.val()?.length ) {
 			validatePassword();
 		}
 	}, 1000 ); // TODO: This might not always catching the initial password value
 
-	let currentAjaxRequest = null;
+	// Event listeners
+	coreElements.passwordInput.on( 'input', () => validatePassword() );
+	coreElements.generatePasswordButton.on( 'click', () => validatePassword() );
 
 	/**
 	 *
@@ -88,21 +70,21 @@ jQuery( document ).ready( function ( $ ) {
 		coreElements.strengthMeter.hide();
 
 		// passwordValidationStatus loading state
-		Object.values( validationItems ).forEach( ( { icon, text } ) => {
+		Object.values( validationChecklistItems ).forEach( ( { icon, text } ) => {
 			icon.attr( 'src', jetpackData.loadingIcon );
 			icon.attr( 'alt', 'Validating...' );
 			text.css( { color: '#3C434A', transition: 'color 0.2s ease-in-out' } );
 		} );
 
 		// strengthMeter loading state
-		strength.text( 'Validating...' );
-		jetpackBranding.show();
-		strengthMeter.css( 'background-color', '#8C8F94' );
+		strengthMeterItems.strength.text( 'Validating...' );
+		strengthMeterItems.jetpackBranding.show();
+		strengthMeterItems.strengthMeterWrapper.css( 'background-color', '#8C8F94' );
 		coreElements.passwordInput.css( {
 			'border-color': '#8C8F94',
 			'border-radius': '4px 4px 0px 0px',
 		} );
-		strengthMeter.show();
+		strengthMeterItems.strengthMeterWrapper.show();
 		passwordValidationStatus.show();
 
 		// Disable submit buttons while validating
@@ -133,7 +115,7 @@ jQuery( document ).ready( function ( $ ) {
 
 					Object.entries( response.data.state ).forEach( ( [ key, item ] ) => {
 						const isInvalid = item.status;
-						const { icon, text, item: listItem } = validationItems[ key ] || {};
+						const { icon, text, item: listItem } = validationChecklistItems[ key ] || {};
 
 						if ( ! icon || ! text ) return;
 
@@ -165,7 +147,7 @@ jQuery( document ).ready( function ( $ ) {
 					} );
 				} else {
 					// TODO: Restore core strength meter state, show error?
-					strengthMeter.hide();
+					strengthMeterItems.strengthMeterWrapper.hide();
 					passwordValidationStatus.hide();
 					coreElements.passwordInput.removeAttr( 'style' );
 					coreElements.strengthMeter.show();
@@ -174,7 +156,7 @@ jQuery( document ).ready( function ( $ ) {
 			error: function ( jqXHR, textStatus ) {
 				if ( textStatus !== 'abort' ) {
 					// TODO: Restore core strength meter state, show error?
-					strengthMeter.hide();
+					strengthMeterItems.strengthMeterWrapper.hide();
 					passwordValidationStatus.hide();
 					coreElements.passwordInput.removeAttr( 'style' );
 					coreElements.strengthMeter.show();
@@ -195,9 +177,9 @@ jQuery( document ).ready( function ( $ ) {
 		let finalStrengthText = '';
 
 		if ( passwordIsEmpty ) {
-			strength.text( '' );
-			jetpackBranding.hide();
-			strengthMeter.css( 'background-color', 'transparent' );
+			strengthMeterItems.strength.text( '' );
+			strengthMeterItems.jetpackBranding.hide();
+			strengthMeterItems.strengthMeterWrapper.css( 'background-color', 'transparent' );
 			passwordValidationStatus.hide();
 			coreElements.passwordInput.css( { 'border-color': '#8c8f94', 'border-radius': '4px' } );
 
@@ -233,31 +215,33 @@ jQuery( document ).ready( function ( $ ) {
 			}
 		}
 
-		strength.text( finalStrengthText );
-		strengthMeter.css( 'background-color', finalColor );
+		strengthMeterItems.strength.text( finalStrengthText );
+		strengthMeterItems.strengthMeterWrapper.css( 'background-color', finalColor );
 		coreElements.passwordInput.css( {
 			'border-color': finalColor,
 			'border-radius': '4px 4px 0px 0px',
 		} );
 
-		if ( ! strengthMeter.find( strength ).length ) {
-			strengthMeter.append( strength );
+		if ( ! strengthMeterItems.strengthMeterWrapper.find( strengthMeterItems.strength ).length ) {
+			strengthMeterItems.strengthMeterWrapper.append( strengthMeterItems.strength );
 		}
-		if ( ! strengthMeter.find( jetpackBranding ).length ) {
-			strengthMeter.append( jetpackBranding );
+		if (
+			! strengthMeterItems.strengthMeterWrapper.find( strengthMeterItems.jetpackBranding ).length
+		) {
+			strengthMeterItems.strengthMeterWrapper.append( strengthMeterItems.jetpackBranding );
 		}
-		if ( ! strengthMeter.parent().length ) {
-			coreElements.passwordInput.after( strengthMeter );
+		if ( ! strengthMeterItems.strengthMeterWrapper.parent().length ) {
+			coreElements.passwordInput.after( strengthMeterItems.strengthMeterWrapper );
 		}
 
-		strengthMeter.show();
+		strengthMeterItems.strengthMeterWrapper.show();
 		passwordValidationStatus.show();
 	}
 
 	/**
-	 * Generate and append the initial validation state
+	 * Generate and append the initial validation checklist state
 	 */
-	function generateAndAppendValidationInitialState() {
+	function generateAndAppendValidationChecklistInitialState() {
 		Object.entries( jetpackData.validationInitialState ).forEach( ( [ key, value ] ) => {
 			const listItem = $( '<li>', { class: 'validation-item', 'data-key': key } );
 
@@ -277,7 +261,7 @@ jQuery( document ).ready( function ( $ ) {
 			} );
 
 			let infoIconPopover = null;
-			if ( userSpecific && value.info ) {
+			if ( Boolean( jetpackData.userSpecific ) && value.info ) {
 				infoIconPopover = $( '<div>', { class: 'info-popover' } );
 				const infoIcon = $( '<img>', {
 					src: jetpackData.infoIcon,
@@ -301,11 +285,37 @@ jQuery( document ).ready( function ( $ ) {
 			listItem.append( validationIcon, validationCheckListItemText, infoIconPopover );
 			validationCheckList.append( listItem );
 
-			validationItems[ key ] = {
+			validationChecklistItems[ key ] = {
 				icon: validationIcon,
 				text: validationCheckListItemText,
 				item: listItem,
 			};
 		} );
+	}
+
+	/**
+	 * Generate and append the initial strength meter state
+	 */
+	function generateAndAppendStrengthMeterInitialState() {
+		const strengthMeterWrapper = $( '<div>', {
+			class: 'strength-meter',
+		} );
+
+		const strength = $( '<p>', {
+			class: 'strength',
+			text: 'Validating...',
+		} );
+
+		const jetpackBranding = $( '<div>', { class: 'branding' } ).append(
+			$( '<p>', { class: 'powered-by', text: 'Powered by ' } ),
+			$( '<img>', { src: jetpackData.logo, alt: 'Jetpack Logo' } )
+		);
+
+		strengthMeterWrapper.append( strength, jetpackBranding );
+		validationCheckList.before( strengthMeterWrapper );
+
+		strengthMeterItems.strengthMeterWrapper = strengthMeterWrapper;
+		strengthMeterItems.strength = strength;
+		strengthMeterItems.jetpackBranding = jetpackBranding;
 	}
 } );

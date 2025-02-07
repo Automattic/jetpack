@@ -3,8 +3,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    width: fit-content;
-    margin: 16px auto;
+    margin: 16px 0;
 }
 
 .validation-item {
