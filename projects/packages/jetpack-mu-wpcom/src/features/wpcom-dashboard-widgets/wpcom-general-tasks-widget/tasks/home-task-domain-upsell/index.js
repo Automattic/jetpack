@@ -1,12 +1,56 @@
-export default () => {
-	// To do: actually fetch it from the API.
-	const domain = new URL( window.location.href ).hostname.split( '.' )[ 0 ] + '.com';
+import apiFetch from '@wordpress/api-fetch';
+import { useState, useEffect, createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
+
+export default ( { siteDomain, sitePlan } ) => {
+	const [ domains, setDomains ] = useState( [] );
+	useEffect( () => {
+		const path = addQueryArgs( `/rest/v1.1/domains/suggestions`, {
+			query: siteDomain.split( '.' )[ 0 ],
+			quantity: 1,
+			vendor: 'domain-upsell',
+			only_wordpressdotcom: false,
+			include_dotblogsubdomain: false,
+			include_wordpressdotcom: false,
+		} );
+		apiFetch( { path, global: true } ).then( setDomains );
+	}, [ siteDomain ] );
+
+	if ( domains.length === 0 ) {
+		return null;
+	}
+
+	const domain = domains[ 0 ].domain_name;
+	const cart = [ `domain_reg:${ domain }` ];
+
+	if ( ! sitePlan || sitePlan.product_slug.includes( 'monthly' ) ) {
+		cart.push( 'personal' );
+	}
+
+	const getLink = `http://wordpress.com/checkout/${ siteDomain }/${ cart.join( ',' ) }`;
+	const searchLink = addQueryArgs( `https://wordpress.com/domains/add/${ siteDomain }`, {
+		domainAndPlanPackage: true,
+		domain: true,
+	} );
+
 	return (
 		<>
-			<h2>Own a domain. Build a site.</h2>
+			<h2>{ __( 'Own a domain. Build a site.', 'jetpack-mu-wpcom' ) }</h2>
 			<p>
-				<strong>{ domain }</strong> is a perfect site address. It’s available, easy to find, share,
-				and follow. Get it now and claim a corner of the web.
+				{ createInterpolateElement(
+					sprintf(
+						// translators: %s is the domain name.
+						__(
+							'<strong>%s</strong> is a perfect site address. It’s available, easy to find, share, and follow. Get it now and claim a corner of the web.',
+							'jetpack-mu-wpcom'
+						),
+						domain
+					),
+					{
+						strong: <strong />,
+					}
+				) }
 			</p>
 			<p style={ { position: 'relative' } }>
 				{ /* To do: convert to SVG.  */ }
@@ -26,12 +70,12 @@ export default () => {
 				/>
 			</p>
 			<div>
-				<a href="https://wordpress.com/domains/register" className="button button-primary">
-					Get this domain
+				<a href={ getLink } className="button button-primary">
+					{ __( 'Get this domain', 'jetpack-mu-wpcom' ) }
 				</a>
 				{ ' ' }
-				<a href="https://wordpress.com/domains/register" className="button button-secondary">
-					Find other domains
+				<a href={ searchLink } className="button button-secondary">
+					{ __( 'Find other domains', 'jetpack-mu-wpcom' ) }
 				</a>
 			</div>
 		</>

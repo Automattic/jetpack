@@ -16,7 +16,7 @@ function load_wpcom_dashboard_widgets() {
 	}
 
 	$layout_response = Client::wpcom_json_api_request_as_blog(
-		'/sites/' . get_current_blog_id() . '/home/layout',
+		'/sites/' . get_wpcom_blog_id() . '/home/layout',
 		'v2',
 		array(),
 		null,
@@ -119,7 +119,6 @@ function enqueue_wpcom_dashboard_widgets( $args = array() ) {
 			'siteIntent'      => get_option( 'site_intent' ),
 			'sitePlan'        => $current_plan,
 			'hasCustomDomain' => wpcom_site_has_feature( 'custom-domain' ),
-			'siteId'          => get_current_blog_id(),
 			'tasks'           => $args['tasks'],
 		)
 	);

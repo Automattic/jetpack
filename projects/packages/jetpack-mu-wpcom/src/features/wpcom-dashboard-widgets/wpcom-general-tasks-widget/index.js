@@ -8,31 +8,34 @@ const taskMap = {
 	'home-task-domain-upsell': TaskDomainUpsell,
 };
 
-export default ( { tasks } ) => {
+export default ( { tasks, ...props } ) => {
+	const availableTasks = tasks.filter( _task => taskMap[ _task ] );
 	const [ index, setIndex ] = useState( 0 );
-	const task = tasks[ index ];
+	const task = availableTasks[ index ];
 	const TaskComponent = taskMap[ task ];
 
 	return (
 		<>
-			<p className="wpcom_general_tasks_widget_buttons">
-				<button
-					className="button button-link"
-					onClick={ () => setIndex( index - 1 ) }
-					disabled={ index === 0 }
-				>
-					{ __( '← Previous', 'jetpack-mu-wpcom' ) }
-				</button>
-				{ ' ' }
-				<button
-					className="button button-link"
-					onClick={ () => setIndex( index + 1 ) }
-					disabled={ index === tasks.length - 1 }
-				>
-					{ __( 'Next →', 'jetpack-mu-wpcom' ) }
-				</button>
-			</p>
-			{ TaskComponent ? <TaskComponent /> : <p style={ { minHeight: '180px' } }>[{ task }]</p> }
+			{ availableTasks.length > 1 && (
+				<p className="wpcom_general_tasks_widget_buttons">
+					<button
+						className="button button-link"
+						onClick={ () => setIndex( index - 1 ) }
+						disabled={ index === 0 }
+					>
+						{ __( '← Previous', 'jetpack-mu-wpcom' ) }
+					</button>
+					{ ' ' }
+					<button
+						className="button button-link"
+						onClick={ () => setIndex( index + 1 ) }
+						disabled={ index === availableTasks.length - 1 }
+					>
+						{ __( 'Next →', 'jetpack-mu-wpcom' ) }
+					</button>
+				</p>
+			) }
+			<TaskComponent { ...props } />
 		</>
 	);
 };
