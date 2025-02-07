@@ -30,6 +30,7 @@ export const useMetaDescriptionStep = ( { keywords }: { keywords: string } ): St
 						type: 'seo-meta-description',
 						content: postContent,
 						keywords: keywords.split( ',' ),
+						count: 1,
 					},
 				},
 			],
