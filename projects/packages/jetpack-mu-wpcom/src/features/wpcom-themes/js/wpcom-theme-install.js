@@ -1,5 +1,6 @@
+/* global Backbone, jQuery, wp */
 ( function ( $ ) {
-	var themes = wp.themes;
+	const themes = wp.themes;
 
 	/**
 	 * Customize backbone router for theme subpage URL.
@@ -25,10 +26,15 @@
 		},
 
 		navigate: function ( url, state ) {
-			var router = this;
+			const router = this;
 			if ( Backbone.history._hasPushState ) {
 				Backbone.Router.prototype.navigate.call( router, url, state );
 			}
 		},
+	} );
+
+	// Switch installTheme handler to a noop, to prevent AJAX install request.
+	themes.view.Theme = themes.view.Theme.extend( {
+		installTheme: function () {},
 	} );
 } )( jQuery );
