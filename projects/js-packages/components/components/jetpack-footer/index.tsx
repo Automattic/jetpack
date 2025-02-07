@@ -3,7 +3,7 @@ import { __, _x } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import clsx from 'clsx';
 import React from 'react';
-import { STORE_ID as CONNECTION_STORE_ID } from '../../../../js-packages/connection/state/store.js';
+import { STORE_ID as CONNECTION_STORE_ID } from '../../../../js-packages/connection/state/store.jsx';
 import { getRedirectUrl } from '../../index.js';
 import getSiteAdminUrl from '../../tools/get-site-admin-url/index.js';
 import AutomatticBylineLogo from '../automattic-byline-logo/index.js';
