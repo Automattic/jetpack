@@ -960,6 +960,11 @@ function sharing_display( $text = '', $echo = false ) {
 		return $text;
 	}
 
+	// We require the post to not be empty and be an actual WordPress post object. If it's not - we just return.
+	if ( empty( $post ) || ! $post instanceof \WP_Post ) {
+		return $text;
+	}
+
 	if ( empty( $post ) ) {
 		return $text;
 	}
@@ -1045,11 +1050,6 @@ function sharing_display( $text = '', $echo = false ) {
 	 * @param WP_Post $post The post to share.
 	 */
 	$show = apply_filters( 'sharing_show', $show, $post );
-
-	// We require the post to remain an object after all filters. If it's not - we just return.
-	if ( ! is_object( $post ) || ! isset( $post->ID ) ) {
-		return $text;
-	}
 
 	// Disabled for this post?
 	$switched_status = get_post_meta( $post->ID, 'sharing_disabled', false );
