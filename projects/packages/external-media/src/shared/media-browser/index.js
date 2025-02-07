@@ -72,8 +72,8 @@ function MediaBrowser( {
 	);
 
 	const onCopyAndInsert = useCallback( () => {
-		tracks.recordEvent( 'jetpack_external_media_modal_cta_click', {
-			page_source: pageSource,
+		tracks.recordEvent( 'jetpack_external_media_modal_submit', {
+			page: pageSource,
 			media_source: mediaSource,
 			media_count: selected.length,
 			multiple: !! multiple,

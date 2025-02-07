@@ -1,18 +1,12 @@
 import { useSelect } from '@wordpress/data';
 
 const usePageSource = () => {
-	const isSiteEditor = useSelect( select => !! select( 'core/edit-site' ), [] );
-	const postType = useSelect( select => select( 'core/editor' )?.getCurrentPostType(), [] );
+	const isEditor = useSelect( select => !! select( 'core/editor' ), [] );
 
-	if ( ! postType ) {
-		return 'jetpack-external-media-import-page';
+	if ( isEditor ) {
+		return 'editor';
 	}
-
-	if ( isSiteEditor ) {
-		return 'site-editor';
-	}
-
-	return postType === 'page' ? 'page-editor' : 'post-editor';
+	return 'media-library';
 };
 
 export default usePageSource;
