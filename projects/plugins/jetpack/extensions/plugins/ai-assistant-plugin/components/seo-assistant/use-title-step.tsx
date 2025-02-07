@@ -9,7 +9,6 @@ export const useTitleStep = (): Step => {
 	const [ titleOptions, setTitleOptions ] = useState< OptionMessage[] >( [] );
 	const { editPost } = useDispatch( 'core/editor' );
 	const { messages, setMessages, addMessage, editLastMessage, setSelectedMessage } = useMessages();
-	const [ completed, setCompleted ] = useState( false );
 	const [ prevStepValue, setPrevStepValue ] = useState();
 
 	const handleTitleSelect = useCallback(
@@ -57,7 +56,7 @@ export const useTitleStep = (): Step => {
 										'Flora Guide: Beautiful Photos of Flowers and Plants for Gardening Enthusiasts',
 								},
 							] ),
-						3000
+						1500
 					)
 				);
 			}
@@ -107,7 +106,7 @@ export const useTitleStep = (): Step => {
 								'Flora Guide: Beautiful Photos of Flowers and Plants for Gardening Enthusiasts',
 						},
 					] ),
-				2000
+				1500
 			)
 		);
 		setTitleOptions( [ ...titleOptions, ...newTitles ] );
@@ -117,13 +116,13 @@ export const useTitleStep = (): Step => {
 	const handleTitleSubmit = useCallback( async () => {
 		await editPost( { title: selectedTitle, meta: { jetpack_seo_html_title: selectedTitle } } );
 		addMessage( { content: __( 'Title updated! ✅', 'jetpack' ) } );
-		setCompleted( true );
 		return selectedTitle;
 	}, [ selectedTitle, addMessage, editPost ] );
 
 	return {
 		id: 'title',
 		title: __( 'Optimise Title', 'jetpack' ),
+		label: __( 'Title', 'jetpack' ),
 		messages,
 		type: 'options',
 		options: titleOptions,
@@ -135,7 +134,6 @@ export const useTitleStep = (): Step => {
 		onStart: handleTitleGenerate,
 		value: selectedTitle,
 		setValue: setSelectedTitle,
-		completed,
-		setCompleted,
+		includeInResults: true,
 	};
 };

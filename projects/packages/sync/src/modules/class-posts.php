@@ -228,7 +228,7 @@ class Posts extends Module {
 		// Full sync.
 		$sync_module = Modules::get_module( 'full-sync' );
 		if ( $sync_module instanceof Full_Sync_Immediately ) {
-			add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'add_term_relationships' ) );
+			add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'build_full_sync_action_array' ) );
 		} else {
 			add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_posts_with_metadata_and_terms' ) );
 		}
@@ -780,6 +780,25 @@ class Posts extends Module {
 	}
 
 	/**
+	 * Build the full sync action object for Posts.
+	 *
+	 * @access public
+	 *
+	 * @param array $args An array with the posts and the previous end.
+	 *
+	 * @return array An array with the posts, postmeta and the previous end.
+	 */
+	public function build_full_sync_action_array( $args ) {
+		list( $filtered_posts, $previous_end ) = $args;
+		return array(
+			$filtered_posts['objects'],
+			$filtered_posts['meta'],
+			array(), // WPCOM does not process term relationships in full sync posts actions for a while now, let's skip them.
+			$previous_end,
+		);
+	}
+
+	/**
 	 * Add term relationships to post objects within a hook before they are serialized and sent to the server.
 	 * This is used in Full Sync Immediately
 	 *
@@ -787,8 +806,10 @@ class Posts extends Module {
 	 *
 	 * @param array $args The hook parameters.
 	 * @return array $args The expanded hook parameters.
+	 * @deprecated since $$next-version$$
 	 */
 	public function add_term_relationships( $args ) {
+		_deprecated_function( __METHOD__, '$$next-version$$' );
 		list( $filtered_posts, $previous_interval_end ) = $args;
 
 		return array(

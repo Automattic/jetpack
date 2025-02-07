@@ -9,7 +9,6 @@ export const useMetaDescriptionStep = (): Step => {
 	const [ metaDescriptionOptions, setMetaDescriptionOptions ] = useState< OptionMessage[] >( [] );
 	const { messages, setMessages, addMessage, editLastMessage, setSelectedMessage } = useMessages();
 	const { editPost } = useDispatch( 'core/editor' );
-	const [ completed, setCompleted ] = useState( false );
 
 	const handleMetaDescriptionSelect = useCallback(
 		( option: OptionMessage ) => {
@@ -22,7 +21,6 @@ export const useMetaDescriptionStep = (): Step => {
 	const handleMetaDescriptionSubmit = useCallback( async () => {
 		await editPost( { meta: { advanced_seo_description: selectedMetaDescription } } );
 		addMessage( { content: __( 'Meta description updated! ✅', 'jetpack' ) } );
-		setCompleted( true );
 		return selectedMetaDescription;
 	}, [ selectedMetaDescription, addMessage, editPost ] );
 
@@ -54,7 +52,7 @@ export const useMetaDescriptionStep = (): Step => {
 										'Explore breathtaking flower and plant photography in our Flora Guide, featuring tips and inspiration for gardening and plant enthusiasts to enhance their outdoor spaces.',
 								},
 							] ),
-						3000
+						1500
 					)
 				);
 			}
@@ -90,7 +88,7 @@ export const useMetaDescriptionStep = (): Step => {
 								'Explore breathtaking flower and plant photography in our Flora Guide, featuring tips and inspiration for gardening and plant enthusiasts to enhance their outdoor spaces.',
 						},
 					] ),
-				3000
+				1500
 			)
 		);
 
@@ -101,6 +99,7 @@ export const useMetaDescriptionStep = (): Step => {
 	return {
 		id: 'meta',
 		title: __( 'Add meta description', 'jetpack' ),
+		label: __( 'Meta description', 'jetpack' ),
 		messages: messages,
 		type: 'options',
 		options: metaDescriptionOptions,
@@ -112,7 +111,6 @@ export const useMetaDescriptionStep = (): Step => {
 		onStart: handleMetaDescriptionGenerate,
 		value: selectedMetaDescription,
 		setValue: setSelectedMetaDescription,
-		completed,
-		setCompleted,
+		includeInResults: true,
 	};
 };
