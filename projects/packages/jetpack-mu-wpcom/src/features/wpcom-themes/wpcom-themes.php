@@ -75,6 +75,15 @@ add_action(
 	'load-appearance_page_wpcom-install-theme',
 	function () {
 		add_action( 'admin_enqueue_scripts', 'wpcom_themes_enqueue_theme_install_script' );
+
+		// Inject the theme-install-php class to apply CSS for the
+		// core theme-install.php page.
+		add_filter(
+			'admin_body_class',
+			function ( $classes ) {
+				return $classes . ' theme-install-php ';
+			}
+		);
 	}
 );
 
