@@ -16,21 +16,13 @@ jQuery( document ).ready( function ( $ ) {
 	coreElements.passwordInput.css( { 'border-color': '#8C8F94' } );
 	coreElements.strengthMeter.hide();
 
-	const passwordValidationStatus = $( '<div>', {
-		id: 'password-validation-status',
-	} );
-
+	const passwordValidationStatus = $( '<div>', { id: 'password-validation-status' } );
+	const validationCheckList = $( '<ul>', { class: 'validation-checklist' } );
+	const validationItems = {};
 	const userSpecific = Boolean( jetpackData.userSpecific );
 
-	const validationCheckList = $( '<ul>', { class: 'validation-checklist' } );
-
-	const validationItems = {};
-
 	Object.entries( jetpackData.validationInitialState ).forEach( ( [ key, value ] ) => {
-		const listItem = $( '<li>', {
-			class: 'validation-item',
-			'data-key': key,
-		} );
+		const listItem = $( '<li>', { class: 'validation-item', 'data-key': key } );
 
 		const validationIcon = $( '<img>', {
 			src: jetpackData.loadingIcon,
@@ -58,12 +50,8 @@ jQuery( document ).ready( function ( $ ) {
 			} ).append( $( '<div>', { class: 'popover-arrow' } ) );
 
 			infoIcon.hover(
-				function () {
-					popover.fadeIn( 200 );
-				},
-				function () {
-					popover.fadeOut( 200 );
-				}
+				() => popover.fadeIn( 200 ),
+				() => popover.fadeOut( 200 )
 			);
 
 			infoIconPopover.append( infoIcon, popover );
@@ -101,6 +89,7 @@ jQuery( document ).ready( function ( $ ) {
 
 	// Event listeners
 	coreElements.passwordInput.on( 'input', () => validatePassword() );
+	coreElements.generatePasswordButton.on( 'click', () => validatePassword() );
 
 	setTimeout( () => {
 		if (
@@ -111,8 +100,6 @@ jQuery( document ).ready( function ( $ ) {
 			validatePassword();
 		}
 	}, 1500 );
-
-	coreElements.generatePasswordButton.on( 'click', () => validatePassword() );
 
 	let currentAjaxRequest = null;
 
@@ -130,14 +117,12 @@ jQuery( document ).ready( function ( $ ) {
 			currentAjaxRequest = null;
 		}
 
-		if ( ! currentPasswordInput || currentPasswordInput.trim().length === 0 ) {
+		if ( ! currentPasswordInput.trim() ) {
 			applyStyling( failedValidationConditions, true );
 			return;
 		}
 
-		if ( coreElements.strengthMeter.is( ':visible' ) ) {
-			coreElements.strengthMeter.hide();
-		}
+		coreElements.strengthMeter.hide();
 
 		// passwordValidationStatus loading state
 		Object.values( validationItems ).forEach( ( { icon, text } ) => {
@@ -264,17 +249,9 @@ jQuery( document ).ready( function ( $ ) {
 			finalColor = '#64CA43';
 			finalStrengthText = 'Strong';
 
-			if ( coreElements.weakPasswordConfirmation.is( ':visible' ) ) {
-				coreElements.weakPasswordConfirmation.css( 'display', 'none' );
-			}
-
-			if ( coreElements.updateFormSubmitButton.prop( 'disabled' ) ) {
-				coreElements.updateFormSubmitButton.prop( 'disabled', false );
-			}
-
-			if ( coreElements.resetFormSaveButton.prop( 'disabled' ) ) {
-				coreElements.resetFormSaveButton.prop( 'disabled', false );
-			}
+			coreElements.weakPasswordConfirmation.css( 'display', 'none' );
+			coreElements.updateFormSubmitButton.prop( 'disabled', false );
+			coreElements.resetFormSaveButton.prop( 'disabled', false );
 		} else {
 			finalColor = '#E65054';
 			finalStrengthText = 'Weak';
@@ -287,21 +264,11 @@ jQuery( document ).ready( function ( $ ) {
 			}
 
 			if ( coreElements.weakPasswordConfirmationCheckbox.prop( 'checked' ) ) {
-				if ( coreElements.updateFormSubmitButton.prop( 'disabled' ) ) {
-					coreElements.updateFormSubmitButton.prop( 'disabled', false );
-				}
-
-				if ( coreElements.resetFormSaveButton.prop( 'disabled' ) ) {
-					coreElements.resetFormSaveButton.prop( 'disabled', false );
-				}
+				coreElements.updateFormSubmitButton.prop( 'disabled', false );
+				coreElements.resetFormSaveButton.prop( 'disabled', false );
 			} else {
-				if ( ! coreElements.updateFormSubmitButton.prop( 'disabled' ) ) {
-					coreElements.updateFormSubmitButton.prop( 'disabled', true );
-				}
-
-				if ( ! coreElements.resetFormSaveButton.prop( 'disabled' ) ) {
-					coreElements.resetFormSaveButton.prop( 'disabled', true );
-				}
+				coreElements.updateFormSubmitButton.prop( 'disabled', true );
+				coreElements.resetFormSaveButton.prop( 'disabled', true );
 			}
 		}
 
