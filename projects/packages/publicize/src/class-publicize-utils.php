@@ -112,11 +112,12 @@ class Publicize_Utils {
 
 	/**
 	 * Check if the new module endpoint is available in the used Jetpack version.
+	 * More: https://github.com/Automattic/jetpack-reach/issues/794
 	 *
 	 * @return bool
 	 */
-	public static function has_new_module_endpoint() {
+	public static function should_use_jetpack_module_endpoint() {
 		// @phan-suppress-next-line PhanTypeMismatchArgumentNullableInternal - Phan thinks JETPACK__VERSION is not a string (it is).
-		return class_exists( 'Jetpack' ) && defined( 'JETPACK__VERSION' ) && ( version_compare( JETPACK__VERSION, '14.3', '>=' ) );
+		return class_exists( 'Jetpack' ) && defined( 'JETPACK__VERSION' ) && ( version_compare( (string) JETPACK__VERSION, '14.3', '>=' ) );
 	}
 }

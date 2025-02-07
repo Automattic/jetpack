@@ -27,28 +27,6 @@ class REST_Settings_Controller extends WP_REST_Controller {
 	 * @static
 	 */
 	public function register_rest_routes() {
-		// If the site has an older version of Jetpack we still need to register the route.
-		if ( ! Publicize_Utils::has_new_module_endpoint() ) {
-			register_rest_route(
-				'jetpack/v4',
-				'/social/settings',
-				array(
-					array(
-						'methods'             => WP_REST_Server::READABLE,
-						'callback'            => array( $this, 'get_item' ),
-						'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
-						'args'                => $this->get_endpoint_args_for_item_schema(),
-					),
-					array(
-						'methods'             => WP_REST_Server::EDITABLE,
-						'callback'            => array( $this, 'update_item' ),
-						'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
-						'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::EDITABLE ),
-					),
-				)
-			);
-		}
-
 		register_rest_route(
 			'jetpack/v4',
 			'/social/review-dismiss',
@@ -57,6 +35,30 @@ class REST_Settings_Controller extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'update_review_dismissed' ),
 					'permission_callback' => array( $this, 'require_publish_posts_permission_callback' ),
+					'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::EDITABLE ),
+				),
+			)
+		);
+
+		if ( Publicize_Utils::should_use_jetpack_module_endpoint() ) {
+			return;
+		}
+
+		// If the site has an older version of Jetpack we still need to register the route.
+		register_rest_route(
+			'jetpack/v4',
+			'/social/settings',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_item' ),
+					'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+					'args'                => $this->get_endpoint_args_for_item_schema(),
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'update_item' ),
+					'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 					'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::EDITABLE ),
 				),
 			)
