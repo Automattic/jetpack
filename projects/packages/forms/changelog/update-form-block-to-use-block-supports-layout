@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: Use layout support for the Form block, adopting a flex layout.
