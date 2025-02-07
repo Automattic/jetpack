@@ -1,247 +1,81 @@
 /* global jQuery, jetpackData */
 
 jQuery( document ).ready( function ( $ ) {
-	const coreElements = {
-		generatePasswordButton: $( '.wp-generate-pw' ),
-		passwordInputWrapper: $( '.user-pass1-wrap' ),
-		passwordInput: $( '#pass1' ),
-		strengthMeter: $( '#pass-strength-result' ),
-		weakPasswordConfirmation: $( '.pw-weak' ),
-		weakPasswordConfirmationCheckbox: $( '.pw-weak input[type="checkbox"]' ),
-		updateFormSubmitButton: $( '#submit' ),
-		createUserFormSubmitButton: $( '#createusersub' ),
-		resetFormSaveButton: $( '#wp-submit' ),
+	const UIComponents = {
+		core: {
+			passwordInputWrapper: $( '.user-pass1-wrap' ),
+			passwordInput: $( '#pass1' ),
+			passwordStrengthResults: $( '#pass-strength-result' ),
+			weakPasswordConfirmation: $( '.pw-weak' ),
+			weakPasswordConfirmationCheckbox: $( '.pw-weak input[type="checkbox"]' ),
+			submitButtons: $( '#submit, #createusersub, #wp-submit' ),
+		},
+		passwordValidationStatus: $( '<div>', { id: 'password-validation-status' } ),
+		validationCheckList: $( '<ul>', { class: 'validation-checklist' } ),
+		strengthMeter: {},
+		validationChecklistItems: {},
 	};
 
-	// TODO: Non JS form flashes momentarily, we should hide it initially to avoid UI awkwardness
-
-	coreElements.passwordInputWrapper.css( {
-		'margin-bottom': '16px',
-	} );
-	coreElements.passwordInput.css( {
-		'border-color': '#8C8F94',
-		'border-radius': '4px 4px 0 0',
-		margin: '0',
-	} );
-	coreElements.strengthMeter.hide();
-
-	const passwordValidationStatus = $( '<div>', { id: 'password-validation-status' } );
-	coreElements.passwordInput.after( passwordValidationStatus );
-	const validationCheckList = $( '<ul>', { class: 'validation-checklist' } );
-	passwordValidationStatus.append( validationCheckList );
-
 	let currentAjaxRequest = null;
-	const strengthMeterItems = {};
-	const validationChecklistItems = {};
 
-	generateAndAppendStrengthMeterInitialState();
-	generateAndAppendValidationChecklistInitialState();
-
-	// Initial password auto-population check
-	setTimeout( () => {
-		if ( coreElements.passwordInput?.val()?.length ) {
-			validatePassword();
-		}
-	}, 1000 ); // TODO: This might not always catching the initial password value
-
-	// Event listeners
-	coreElements.passwordInput.on( 'input', () => validatePassword() );
-	coreElements.generatePasswordButton.on( 'click', () => validatePassword() );
+	// TODO: Investigate UI awkwardness
+	initializeUI();
+	bindEvents();
 
 	/**
-	 *
-	 * Validate the current password input
-	 *
+	 * Apply initial UI structure and styling
 	 */
-	function validatePassword() {
-		const currentPasswordInput = coreElements.passwordInput.val();
-		const failedValidationConditions = {};
+	function initializeUI() {
+		const { passwordInputWrapper, passwordInput, passwordStrengthResults } = UIComponents.core;
 
-		if ( currentAjaxRequest ) {
-			currentAjaxRequest.abort();
-			currentAjaxRequest = null;
-		}
-
-		if ( ! currentPasswordInput?.trim() ) {
-			applyStyling( failedValidationConditions, true );
-			return;
-		}
-
-		coreElements.strengthMeter.hide();
-
-		// passwordValidationStatus loading state
-		Object.values( validationChecklistItems ).forEach( ( { icon, text } ) => {
-			icon.attr( 'src', jetpackData.loadingIcon );
-			icon.attr( 'alt', 'Validating...' );
-			text.css( { color: '#3C434A', transition: 'color 0.2s ease-in-out' } );
+		passwordInputWrapper.css( {
+			'margin-bottom': '16px',
 		} );
-
-		// strengthMeter loading state
-		strengthMeterItems.strength.text( 'Validating...' );
-		strengthMeterItems.jetpackBranding.show();
-		strengthMeterItems.strengthMeterWrapper.css( 'background-color', '#8C8F94' );
-		coreElements.passwordInput.css( {
+		passwordInput.css( {
 			'border-color': '#8C8F94',
-			'border-radius': '4px 4px 0px 0px',
+			'border-radius': '4px 4px 0 0',
+			margin: '0',
 		} );
-		strengthMeterItems.strengthMeterWrapper.show();
-		passwordValidationStatus.show();
+		passwordStrengthResults.hide();
+		passwordInput.after( UIComponents.passwordValidationStatus );
+		UIComponents.passwordValidationStatus.append( UIComponents.validationCheckList );
 
-		// Disable submit buttons while validating
-		coreElements.updateFormSubmitButton.prop( 'disabled', true );
-		coreElements.createUserFormSubmitButton.prop( 'disabled', true );
-		coreElements.resetFormSaveButton.prop( 'disabled', true );
-
-		const uiUpdates = [];
-
-		currentAjaxRequest = $.ajax( {
-			url: jetpackData.ajaxurl,
-			type: 'POST',
-			data: {
-				action: 'validate_password_ajax',
-				nonce: jetpackData.nonce,
-				password: currentPasswordInput,
-				user_specific: jetpackData.userSpecific,
-			},
-			success: function ( response ) {
-				currentAjaxRequest = null;
-
-				if ( response.success ) {
-					// Manually update core strength meter status
-					const coreStrengthMeterClass = coreElements.strengthMeter.attr( 'class' ) || '';
-					response.data.state.core.status = ! (
-						coreStrengthMeterClass.includes( 'strong' ) || coreStrengthMeterClass.includes( 'good' )
-					);
-
-					Object.entries( response.data.state ).forEach( ( [ key, item ] ) => {
-						const isInvalid = item.status;
-						const { icon, text, item: listItem } = validationChecklistItems[ key ] || {};
-
-						if ( ! icon || ! text ) return;
-
-						if ( key === 'contains_backslash' ) {
-							listItem.css( 'display', isInvalid ? 'flex' : 'none' );
-						}
-
-						uiUpdates.push( () => {
-							icon.attr( 'src', isInvalid ? jetpackData.crossIcon : jetpackData.checkIcon );
-							icon.attr( 'alt', isInvalid ? 'Jetpack Cross' : 'Jetpack Check' );
-							text.css( {
-								color: isInvalid ? '#E65054' : '#008710',
-								transition: 'color 0.2s ease-in-out',
-							} );
-						} );
-
-						if ( isInvalid ) {
-							failedValidationConditions[ key ] = isInvalid;
-						}
-					} );
-
-					requestAnimationFrame( () => {
-						uiUpdates.forEach( update => update() );
-
-						validationCheckList.css( 'opacity', 0.99 );
-						setTimeout( () => validationCheckList.css( 'opacity', 1 ), 1 );
-
-						applyStyling( failedValidationConditions );
-					} );
-				} else {
-					// TODO: Restore core strength meter state, show error?
-					strengthMeterItems.strengthMeterWrapper.hide();
-					passwordValidationStatus.hide();
-					coreElements.passwordInput.removeAttr( 'style' );
-					coreElements.strengthMeter.show();
-				}
-			},
-			error: function ( jqXHR, textStatus ) {
-				if ( textStatus !== 'abort' ) {
-					// TODO: Restore core strength meter state, show error?
-					strengthMeterItems.strengthMeterWrapper.hide();
-					passwordValidationStatus.hide();
-					coreElements.passwordInput.removeAttr( 'style' );
-					coreElements.strengthMeter.show();
-				}
-			},
-		} );
+		initializeStrengthMeter();
+		initializeValidationChecklist();
 	}
 
 	/**
-	 *
-	 * Apply styling based on validation results
-	 *
-	 * @param {object}  failedValidationConditions - Object containing failed validation conditions
-	 * @param {boolean} passwordIsEmpty            - Whether the password input is empty
+	 * Generate and append the initial strength meter state
 	 */
-	function applyStyling( failedValidationConditions, passwordIsEmpty = false ) {
-		let finalColor = '#8c8f94';
-		let finalStrengthText = '';
-
-		if ( passwordIsEmpty ) {
-			strengthMeterItems.strength.text( '' );
-			strengthMeterItems.jetpackBranding.hide();
-			strengthMeterItems.strengthMeterWrapper.css( 'background-color', 'transparent' );
-			passwordValidationStatus.hide();
-			coreElements.passwordInput.css( { 'border-color': '#8c8f94', 'border-radius': '4px' } );
-
-			return;
-		}
-
-		if ( 0 === Object.keys( failedValidationConditions ).length ) {
-			finalColor = '#64CA43';
-			finalStrengthText = 'Strong';
-
-			coreElements.weakPasswordConfirmation.css( 'display', 'none' );
-			coreElements.updateFormSubmitButton.prop( 'disabled', false );
-			coreElements.createUserFormSubmitButton.prop( 'disabled', false );
-			coreElements.resetFormSaveButton.prop( 'disabled', false );
-		} else {
-			finalColor = '#E65054';
-			finalStrengthText = 'Weak';
-
-			if ( coreElements.weakPasswordConfirmation.css( 'display' ) === 'none' ) {
-				coreElements.weakPasswordConfirmation.css( {
-					display: 'table-row',
-				} );
-			}
-
-			if ( coreElements.weakPasswordConfirmationCheckbox.prop( 'checked' ) ) {
-				coreElements.updateFormSubmitButton.prop( 'disabled', false );
-				coreElements.createUserFormSubmitButton.prop( 'disabled', false );
-				coreElements.resetFormSaveButton.prop( 'disabled', false );
-			} else {
-				coreElements.updateFormSubmitButton.prop( 'disabled', true );
-				coreElements.createUserFormSubmitButton.prop( 'disabled', true );
-				coreElements.resetFormSaveButton.prop( 'disabled', true );
-			}
-		}
-
-		strengthMeterItems.strength.text( finalStrengthText );
-		strengthMeterItems.strengthMeterWrapper.css( 'background-color', finalColor );
-		coreElements.passwordInput.css( {
-			'border-color': finalColor,
-			'border-radius': '4px 4px 0px 0px',
+	function initializeStrengthMeter() {
+		const strengthMeterWrapper = $( '<div>', {
+			class: 'strength-meter',
 		} );
 
-		if ( ! strengthMeterItems.strengthMeterWrapper.find( strengthMeterItems.strength ).length ) {
-			strengthMeterItems.strengthMeterWrapper.append( strengthMeterItems.strength );
-		}
-		if (
-			! strengthMeterItems.strengthMeterWrapper.find( strengthMeterItems.jetpackBranding ).length
-		) {
-			strengthMeterItems.strengthMeterWrapper.append( strengthMeterItems.jetpackBranding );
-		}
-		if ( ! strengthMeterItems.strengthMeterWrapper.parent().length ) {
-			coreElements.passwordInput.after( strengthMeterItems.strengthMeterWrapper );
-		}
+		const strengthText = $( '<p>', {
+			class: 'strength',
+			text: 'Validating...',
+		} );
 
-		strengthMeterItems.strengthMeterWrapper.show();
-		passwordValidationStatus.show();
+		const branding = $( '<div>', { class: 'branding' } ).append(
+			$( '<p>', { class: 'powered-by', text: 'Powered by ' } ),
+			$( '<img>', { src: jetpackData.logo, alt: 'Jetpack Logo' } )
+		);
+
+		strengthMeterWrapper.append( strengthText, branding );
+		UIComponents.validationCheckList.before( strengthMeterWrapper );
+
+		UIComponents.strengthMeter = {
+			wrapper: strengthMeterWrapper,
+			text: strengthText,
+			branding,
+		};
 	}
 
 	/**
 	 * Generate and append the initial validation checklist state
 	 */
-	function generateAndAppendValidationChecklistInitialState() {
+	function initializeValidationChecklist() {
 		Object.entries( jetpackData.validationInitialState ).forEach( ( [ key, value ] ) => {
 			const listItem = $( '<li>', { class: 'validation-item', 'data-key': key } );
 
@@ -255,67 +89,247 @@ jQuery( document ).ready( function ( $ ) {
 				class: 'validation-icon',
 			} );
 
-			const validationCheckListItemText = $( '<p>', {
+			const validationMessage = $( '<p>', {
 				text: value.message,
-				class: 'validation-text',
+				class: 'validation-message',
 			} );
 
 			let infoIconPopover = null;
-			if ( Boolean( jetpackData.userSpecific ) && value.info ) {
-				infoIconPopover = $( '<div>', { class: 'info-popover' } );
-				const infoIcon = $( '<img>', {
-					src: jetpackData.infoIcon,
-					alt: 'Info',
-					class: 'info-icon',
-				} );
-
-				const popover = $( '<div>', {
-					text: value.info,
-					class: 'popover',
-				} ).append( $( '<div>', { class: 'popover-arrow' } ) );
-
-				infoIcon.hover(
-					() => popover.fadeIn( 200 ),
-					() => popover.fadeOut( 200 )
-				);
-
-				infoIconPopover.append( infoIcon, popover );
+			if ( value.info ) {
+				infoIconPopover = createInfoIconPopover( value.info );
 			}
 
-			listItem.append( validationIcon, validationCheckListItemText, infoIconPopover );
-			validationCheckList.append( listItem );
+			listItem.append( validationIcon, validationMessage, infoIconPopover );
+			UIComponents.validationCheckList.append( listItem );
 
-			validationChecklistItems[ key ] = {
+			UIComponents.validationChecklistItems[ key ] = {
 				icon: validationIcon,
-				text: validationCheckListItemText,
+				text: validationMessage,
 				item: listItem,
 			};
 		} );
 	}
 
 	/**
-	 * Generate and append the initial strength meter state
+	 * Bind events to the UI components
 	 */
-	function generateAndAppendStrengthMeterInitialState() {
-		const strengthMeterWrapper = $( '<div>', {
-			class: 'strength-meter',
-		} );
+	function bindEvents() {
+		const { passwordInput } = UIComponents.core;
 
-		const strength = $( '<p>', {
-			class: 'strength',
-			text: 'Validating...',
-		} );
+		passwordInput.on( 'input', () => validatePassword() );
+		$( '.wp-generate-pw' ).on( 'click', validatePassword );
 
-		const jetpackBranding = $( '<div>', { class: 'branding' } ).append(
-			$( '<p>', { class: 'powered-by', text: 'Powered by ' } ),
-			$( '<img>', { src: jetpackData.logo, alt: 'Jetpack Logo' } )
+		// TODO: Ensure this captures auto-population every time
+		setTimeout( () => {
+			if ( passwordInput.val() && passwordInput.val().length ) validatePassword();
+		}, 1500 );
+	}
+
+	/**
+	 * Validate the current password input
+	 */
+	function validatePassword() {
+		const { passwordInput, passwordStrengthResults } = UIComponents.core;
+
+		const password = passwordInput.val();
+
+		if ( currentAjaxRequest ) {
+			const oldRequest = currentAjaxRequest;
+			currentAjaxRequest = null;
+			oldRequest.abort();
+		}
+
+		if ( ! password?.trim() ) {
+			applyStyling( [], true );
+			return;
+		}
+
+		// Ensure core strength meter is hidden
+		passwordStrengthResults.hide();
+
+		renderLoadingState();
+
+		currentAjaxRequest = $.ajax( {
+			url: jetpackData.ajaxurl,
+			type: 'POST',
+			data: {
+				action: 'validate_password_ajax',
+				nonce: jetpackData.nonce,
+				password: password,
+				user_specific: jetpackData.userSpecific,
+			},
+			success: handleValidationResponse,
+			error: handleValidationError,
+		} );
+	}
+
+	/**
+	 * Handles the password validation response.
+	 * @param {object} response - The response object.
+	 */
+	function handleValidationResponse( response ) {
+		currentAjaxRequest = null;
+
+		if ( response.success ) {
+			const failedValidationConditions = updateValidationChecklist( response.data.state );
+			applyStyling( failedValidationConditions );
+		} else {
+			restoreCoreStrengthMeter();
+		}
+	}
+
+	/**
+	 * Handles validation errors.
+	 * @param {object} jqXHR      - The jqXHR object.
+	 * @param {any}    textStatus - The status of the request.
+	 */
+	function handleValidationError( jqXHR, textStatus ) {
+		if ( textStatus !== 'abort' ) {
+			restoreCoreStrengthMeter();
+		}
+	}
+
+	/**
+	 * Updates the validation checklist based on the response data.
+	 *
+	 * @param {object} state - The validation state.
+	 * @return {object} - The failed conditions.
+	 */
+	function updateValidationChecklist( state ) {
+		const failedConditions = [];
+
+		// Manually update core strength meter status
+		const corePasswordStrengthResultsClass =
+			UIComponents.core.passwordStrengthResults.attr( 'class' ) || '';
+		const coreValidationFailed = ! (
+			corePasswordStrengthResultsClass.includes( 'strong' ) ||
+			corePasswordStrengthResultsClass.includes( 'good' )
 		);
 
-		strengthMeterWrapper.append( strength, jetpackBranding );
-		validationCheckList.before( strengthMeterWrapper );
+		Object.entries( state ).forEach( ( [ key, item ] ) => {
+			const validationFailed = key === 'core' ? coreValidationFailed : item.status;
+			const checklistItem = UIComponents.validationChecklistItems[ key ];
 
-		strengthMeterItems.strengthMeterWrapper = strengthMeterWrapper;
-		strengthMeterItems.strength = strength;
-		strengthMeterItems.jetpackBranding = jetpackBranding;
+			if ( key === 'contains_backslash' ) {
+				checklistItem.item.css( 'display', validationFailed ? 'flex' : 'none' );
+			}
+
+			if ( checklistItem ) {
+				checklistItem.icon.attr(
+					'src',
+					validationFailed ? jetpackData.crossIcon : jetpackData.checkIcon
+				);
+				checklistItem.icon.attr( 'alt', validationFailed ? 'Invalid' : 'Valid' );
+				checklistItem.text.css( { color: validationFailed ? '#E65054' : '#008710' } );
+			}
+
+			if ( validationFailed ) failedConditions.push( key );
+		} );
+
+		return failedConditions;
+	}
+
+	/**
+	 *
+	 * Apply styling based on validation results
+	 *
+	 * @param {Array}   failedValidationConditions - Array containing failed validation conditions keys
+	 * @param {boolean} passwordIsEmpty            - Whether the password input is empty
+	 */
+	function applyStyling( failedValidationConditions, passwordIsEmpty = false ) {
+		if ( passwordIsEmpty ) {
+			renderEmptyInputState();
+			return;
+		}
+
+		const isPasswordStrong = failedValidationConditions.length === 0;
+		const color = isPasswordStrong ? '#64CA43' : '#E65054';
+		const strengthText = isPasswordStrong ? 'Strong' : 'Weak';
+
+		const {
+			weakPasswordConfirmation,
+			weakPasswordConfirmationCheckbox,
+			submitButtons,
+			passwordInput,
+		} = UIComponents.core;
+		const { wrapper, text } = UIComponents.strengthMeter;
+
+		if ( isPasswordStrong || weakPasswordConfirmationCheckbox.prop( 'checked' ) ) {
+			submitButtons.prop( 'disabled', false );
+		} else {
+			submitButtons.prop( 'disabled', true );
+		}
+
+		weakPasswordConfirmation.css( 'display', isPasswordStrong ? 'none' : 'table-row' );
+
+		text.text( strengthText );
+		wrapper.css( 'background-color', color );
+
+		passwordInput.css( {
+			'border-color': color,
+			'border-radius': '4px 4px 0px 0px',
+		} );
+
+		UIComponents.passwordValidationStatus.show();
+	}
+
+	/**
+	 * Render the empty input state
+	 */
+	function renderEmptyInputState() {
+		UIComponents.passwordValidationStatus.hide();
+		UIComponents.core.passwordInput.removeAttr( 'style' );
+	}
+
+	/**
+	 * Render the loading state
+	 */
+	function renderLoadingState() {
+		const { passwordInput, weakPasswordConfirmation, submitButtons } = UIComponents.core;
+		submitButtons.prop( 'disabled', true );
+		weakPasswordConfirmation.hide();
+
+		Object.values( UIComponents.validationChecklistItems ).forEach( ( { icon, text } ) => {
+			icon.attr( 'src', jetpackData.loadingIcon );
+			icon.attr( 'alt', 'Validating...' );
+			text.css( { color: '#3C434A', transition: 'color 0.2s ease-in-out' } );
+		} );
+
+		UIComponents.strengthMeter.text.text( 'Validating...' );
+		UIComponents.strengthMeter.wrapper.css( 'background-color', '#8C8F94' );
+		passwordInput.css( {
+			'border-color': '#8C8F94',
+			'border-radius': '4px 4px 0px 0px',
+		} );
+
+		UIComponents.passwordValidationStatus.show();
+	}
+
+	/**
+	 * Resets UI to core strength meter.
+	 */
+	function restoreCoreStrengthMeter() {
+		renderEmptyInputState();
+		UIComponents.core.passwordStrengthResults.show();
+	}
+
+	/**
+	 * Creates an info popover element.
+	 *
+	 * @param {string} infoText - The text to display in the popover.
+	 * @return {jQuery} - The info popover element.
+	 */
+	function createInfoIconPopover( infoText ) {
+		const infoIcon = $( '<img>', { src: jetpackData.infoIcon, alt: 'Info', class: 'info-icon' } );
+		const popover = $( '<div>', { text: infoText, class: 'popover' } ).append(
+			$( '<div>', { class: 'popover-arrow' } )
+		);
+
+		infoIcon.hover(
+			() => popover.fadeIn( 200 ),
+			() => popover.fadeOut( 200 )
+		);
+
+		return $( '<div>', { class: 'info-popover' } ).append( infoIcon, popover );
 	}
 } );
