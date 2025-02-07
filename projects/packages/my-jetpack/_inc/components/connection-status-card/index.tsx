@@ -193,7 +193,7 @@ const getUserConnectionLineData: getUserConnectionLineDataType = ( {
 		userConnectionText = userConnectionData.currentUser?.wpcomUser?.display_name
 			? sprintf(
 					/* translators: %1$s is user name, %2$s is the user email */
-					__( 'Connected as %1$s (Owner) ( %2$s ).', 'jetpack-my-jetpack' ),
+					__( 'Connected as %1$s (Owner) (%2$s).', 'jetpack-my-jetpack' ),
 					userConnectionData.currentUser?.wpcomUser?.display_name,
 					userConnectionData.currentUser?.wpcomUser?.email
 			  )
@@ -202,7 +202,7 @@ const getUserConnectionLineData: getUserConnectionLineDataType = ( {
 		userConnectionText = userConnectionData.currentUser?.wpcomUser?.display_name
 			? sprintf(
 					/* translators: %1$s is user name, %2$s is the user email */
-					__( 'Connected as %1$s ( %2$s ).', 'jetpack-my-jetpack' ),
+					__( 'Connected as %1$s (%2$s).', 'jetpack-my-jetpack' ),
 					userConnectionData.currentUser?.wpcomUser?.display_name,
 					userConnectionData.currentUser?.wpcomUser?.email
 			  )

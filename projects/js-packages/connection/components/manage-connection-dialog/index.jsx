@@ -14,6 +14,7 @@ import React, { useCallback, useEffect, useState, useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import ConnectionErrorNotice from '../connection-error-notice/index.jsx';
 import DisconnectDialog from '../disconnect-dialog';
 import './style.scss';
 
@@ -40,6 +41,7 @@ const ManageConnectionDialog = props => {
 
 	const [ isDisconnectDialogOpen, setIsDisconnectDialogOpen ] = useState( false );
 	const [ isDisconnectingUser, setIsDisconnectingUser ] = useState( false );
+	const [ unlinkError, setUnlinkError ] = useState( '' );
 
 	/**
 	 * Initialize the REST API.
@@ -82,6 +84,7 @@ const ManageConnectionDialog = props => {
 		}
 
 		setIsDisconnectingUser( true );
+		setUnlinkError( '' );
 
 		restApi
 			// Passing true to unlink will force the user disconnection
@@ -93,6 +96,17 @@ const ManageConnectionDialog = props => {
 				onUnlinked();
 			} )
 			.catch( () => {
+				let errorMessage = __(
+					'There was some trouble disconnecting your user account, your Jetpack plugin(s) may be outdated. Please visit your plugins page and make sure all Jetpack plugins are updated.',
+					'jetpack-connection-js'
+				);
+				if ( ! isCurrentUserAdmin ) {
+					errorMessage = __(
+						'There was some trouble disconnecting your user account, your Jetpack plugin(s) may be outdated. Please ask a site admin to update Jetpack',
+						'jetpack-connection-js'
+					);
+				}
+				setUnlinkError( errorMessage );
 				setIsDisconnectingUser( false );
 			} );
 	}, [ setIsDisconnectingUser, isCurrentUserAdmin, onUnlinked, onClose, connectedUser ] );
@@ -147,23 +161,27 @@ const ManageConnectionDialog = props => {
 										link={ getRedirectUrl( 'calypso-settings-manage-connection', {
 											site: window?.myJetpackInitialState?.siteSuffix,
 										} ) }
+										isExternal={ true }
 										key="transfer"
 										action="transfer"
 										disabled={ isControlsDisabled }
 									/>
 								) }
 							{ connectedUser.currentUser?.isConnected && (
-								<ManageConnectionActionCard
-									title={
-										isDisconnectingUser
-											? disconnectingText
-											: __( 'Disconnect my user account', 'jetpack-connection-js' )
-									}
-									onClick={ handleDisconnectUser }
-									key="unlink"
-									action="unlink"
-									disabled={ isControlsDisabled }
-								/>
+								<>
+									{ '' !== unlinkError && <ConnectionErrorNotice message={ unlinkError } /> }
+									<ManageConnectionActionCard
+										title={
+											isDisconnectingUser
+												? disconnectingText
+												: __( 'Disconnect my user account', 'jetpack-connection-js' )
+										}
+										onClick={ handleDisconnectUser }
+										key="unlink"
+										action="unlink"
+										disabled={ isControlsDisabled }
+									/>
+								</>
 							) }
 							{ isCurrentUserAdmin && (
 								<ManageConnectionActionCard
@@ -198,9 +216,10 @@ const ManageConnectionDialog = props => {
 const ManageConnectionActionCard = ( {
 	title,
 	onClick = () => null,
+	isExternal = false,
 	link = '#',
 	action,
-	disabled,
+	disabled = false,
 } ) => {
 	const disabledCallback = useCallback( e => e.preventDefault(), [] );
 
@@ -215,10 +234,12 @@ const ManageConnectionActionCard = ( {
 					href={ link }
 					className={ clsx( 'jp-connection__manage-dialog__action-card__card-headline', action ) }
 					onClick={ ! disabled ? onClick : disabledCallback }
+					target={ isExternal ? '_blank' : '_self' }
+					rel={ 'noopener noreferrer' }
 				>
 					{ title }
 					<Icon
-						icon={ action === 'disconnect' || action === 'unlink' ? chevronRight : external }
+						icon={ isExternal ? external : chevronRight }
 						className="jp-connection__manage-dialog__action-card__icon"
 					/>
 				</a>

@@ -23,7 +23,8 @@
 		}
 	}
 
-	&__large-text {
+	// shorthand intentionally not used here for overriding the .reset class
+	.jp-connection__manage-dialog__large-text {
 		margin-top: calc( var( --spacing-base ) * 3 );
 		margin-bottom: calc( var( --spacing-base ) * 4 );
 		max-width: 60%;
@@ -106,6 +107,13 @@
 			fill: var( --jp-red );
 		}
 
+	}
+
+	.components-notice {
+		width: 750px;
+		max-width: 100%;
+		margin: var( --spacing-base ) auto;
+		text-align: left;
 	}
 
 	.components-modal {

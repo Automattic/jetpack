@@ -1339,6 +1339,22 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Verify that a user can use the /connection/user endpoint. Has to be a registered user and be currently linked.
+	 *
+	 * @deprecated since Jetpack 14.4.0
+	 * @see Automattic\Jetpack\Connection\REST_Connector::unlink_user_permission_callback()
+	 * @since 4.3.0
+	 *
+	 * @uses Automattic\Jetpack\Connection\Manager::is_user_connected();)
+	 *
+	 * @return bool|WP_Error True if user is able to unlink.
+	 */
+	public static function unlink_user_permission_callback() {
+		_deprecated_function( __METHOD__, 'jetpack-14.4.0', 'Automattic\Jetpack\Connection\REST_Connector::unlink_user_permission_callback()' );
+		return REST_Connector::unlink_user_permission_callback();
+	}
+
+	/**
 	 * Verify that user can manage Jetpack modules.
 	 *
 	 * @since 4.3.0
@@ -1822,6 +1838,23 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'connectionOwner' => $owner_display_name,
 		);
 		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Unlinks current user from the WordPress.com Servers.
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return bool|WP_Error True if user successfully unlinked.
+	 * @since 4.3.0
+	 * @uses  Automattic\Jetpack\Connection\Manager->disconnect_user
+	 *
+	 * @deprecated since Jetpack 14.4.0
+	 *  @see Automattic\Jetpack\Connection\REST_Connector::unlink_user()
+	 */
+	public static function unlink_user( $request ) {
+		_deprecated_function( __METHOD__, 'jetpack-14.4.0', 'Automattic\Jetpack\Connection\REST_Connector::unlink_user()' );
+		return REST_Connector::unlink_user( $request );
 	}
 
 	/**
