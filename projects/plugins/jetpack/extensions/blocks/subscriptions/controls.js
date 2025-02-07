@@ -52,6 +52,7 @@ export default function SubscriptionControls( {
 	isGradientAvailable,
 	padding,
 	preselectNewsletterCategories,
+	onNewsletterCategoryChange,
 	selectedNewsletterCategoryIds,
 	setAttributes,
 	setBorderColor,
@@ -342,12 +343,7 @@ export default function SubscriptionControls( {
 									disabled={ ! preselectNewsletterCategories }
 									label={ category.name }
 									checked={ selectedNewsletterCategoryIds.includes( category.id ) }
-									onChange={ () => {
-										const selectedIds = selectedNewsletterCategoryIds.includes( category.id )
-											? selectedNewsletterCategoryIds.filter( id => id !== category.id )
-											: [ ...selectedNewsletterCategoryIds, category.id ];
-										setAttributes( { selectedNewsletterCategoryIds: selectedIds } );
-									} }
+									onChange={ () => onNewsletterCategoryChange( category.id ) }
 								/>
 							) ) }
 						</fieldset>

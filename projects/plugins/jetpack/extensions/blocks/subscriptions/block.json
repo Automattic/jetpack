@@ -120,7 +120,7 @@
 			"type": "boolean",
 			"default": false
 		},
-		"selectedNewsletterCategoryIds": {
+		"excludedNewsletterCategoryIds": {
 			"type": "array",
 			"default": []
 		}

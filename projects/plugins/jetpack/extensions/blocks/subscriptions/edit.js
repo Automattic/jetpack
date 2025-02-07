@@ -55,6 +55,11 @@ const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
 	};
 } );
 
+const determineSelectedCategoryIds = ( excludedIds, availableCategories ) =>
+	availableCategories
+		.filter( category => ! excludedIds.includes( category.id ) )
+		.map( category => category.id );
+
 export function SubscriptionEdit( props ) {
 	const {
 		attributes,
@@ -86,7 +91,7 @@ export function SubscriptionEdit( props ) {
 		includeSocialFollowers,
 		padding,
 		preselectNewsletterCategories,
-		selectedNewsletterCategoryIds,
+		excludedNewsletterCategoryIds,
 		spacing,
 		submitButtonText = DEFAULT_SUBMIT_BUTTON_LABEL,
 		subscribePlaceholder = DEFAULT_SUBSCRIBE_PLACEHOLDER,
@@ -123,6 +128,21 @@ export function SubscriptionEdit( props ) {
 			areNewsletterCategoriesEnabled: store.getNewsletterCategoriesEnabled(),
 		};
 	} );
+
+	const selectedNewsletterCategoryIds = determineSelectedCategoryIds(
+		excludedNewsletterCategoryIds,
+		availableNewsletterCategories
+	);
+
+	const handleNewsletterCategoryChange = selectedId => {
+		const newExcludedIds = excludedNewsletterCategoryIds.includes( selectedId )
+			? excludedNewsletterCategoryIds.filter( id => id !== selectedId )
+			: [ ...excludedNewsletterCategoryIds, selectedId ];
+
+		setAttributes( {
+			excludedNewsletterCategoryIds: newExcludedIds,
+		} );
+	};
 
 	const emailFieldGradient = useGradientIfAvailable( {
 		gradientAttribute: 'emailFieldGradient',
@@ -253,6 +273,7 @@ export function SubscriptionEdit( props ) {
 					isGradientAvailable={ isGradientAvailable }
 					padding={ padding }
 					preselectNewsletterCategories={ preselectNewsletterCategories }
+					onNewsletterCategoryChange={ handleNewsletterCategoryChange }
 					setAttributes={ setAttributes }
 					setBorderColor={ setBorderColor }
 					setButtonBackgroundColor={ setButtonBackgroundColor }
