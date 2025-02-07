@@ -38,6 +38,7 @@ export const useTitleStep = ( {
 	const postContent = usePostContent();
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const [ generatedCount, setGeneratedCount ] = useState( 0 );
+	const [ hasFailed, setHasFailed ] = useState( false );
 
 	const prevStepHasChanged = useMemo( () => keywords !== lastValue, [ keywords, lastValue ] );
 
@@ -108,8 +109,14 @@ export const useTitleStep = ( {
 
 			// we only generate if options are empty
 			if ( newTitles.length === 0 || prevStepHasChanged ) {
-				setSelectedTitle( '' );
-				newTitles = await getTitles();
+				try {
+					setSelectedTitle( '' );
+					setHasFailed( false );
+					newTitles = await getTitles();
+				} catch {
+					setHasFailed( true );
+					return;
+				}
 			}
 
 			const readyMessageSuffix = createInterpolateElement(
@@ -122,7 +129,7 @@ export const useTitleStep = ( {
 			if ( newTitles.length ) {
 				// this sets the title options for internal state
 				setTitleOptions( newTitles );
-				// this addes title options as message-buttons
+				// this adds title options as message-buttons
 				newTitles.forEach( title => addMessage( { ...title, type: 'option', isUser: true } ) );
 			}
 			return value;
@@ -140,11 +147,16 @@ export const useTitleStep = ( {
 	);
 
 	const handleTitleRegenerate = useCallback( async () => {
-		const newTitles = await getTitles();
+		try {
+			setHasFailed( false );
+			const newTitles = await getTitles();
 
-		setTitleOptions( [ ...titleOptions, ...newTitles ] );
-		newTitles.forEach( title => addMessage( { ...title, type: 'option', isUser: true } ) );
-	}, [ addMessage, getTitles, titleOptions ] );
+			setTitleOptions( [ ...titleOptions, ...newTitles ] );
+			newTitles.forEach( title => addMessage( { ...title, type: 'option', isUser: true } ) );
+		} catch {
+			setHasFailed( true );
+		}
+	}, [ getTitles, titleOptions, addMessage ] );
 
 	const handleTitleSubmit = useCallback( async () => {
 		setValue( selectedTitle );
@@ -170,5 +182,6 @@ export const useTitleStep = ( {
 		setValue,
 		includeInResults: true,
 		hasSelection: !! selectedTitle,
+		showFailureNotice: hasFailed,
 	};
 };
