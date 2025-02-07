@@ -186,10 +186,8 @@ class Password_Detection {
 	 *
 	 * @param \WP_User $user The user.
 	 * @param string   $token The token.
-	 *
-	 * @return void
 	 */
-	public function render_content( \WP_User $user, string $token ): void {
+	public function render_content( \WP_User $user, string $token ) {
 		$transient_key = Config::TRANSIENT_PREFIX . "_error_{$user->ID}";
 		$error_message = get_transient( $transient_key );
 		delete_transient( $transient_key );

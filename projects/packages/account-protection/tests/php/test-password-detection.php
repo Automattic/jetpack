@@ -201,7 +201,7 @@ class Password_Detection_Test extends BaseTestCase {
 		$user->user_pass = 'pw';
 		$user->add_cap( 'publish_posts' );
 
-		$sut = $this->createPartialMock( Password_Detection::class, array( 'redirect_and_exit', 'load_user' ) );
+		$sut = $this->createPartialMock( Password_Detection::class, array( 'load_user', 'redirect_and_exit', 'render_content' ) );
 		$sut->expects( $this->once() )
 			->method( 'load_user' )
 			->with( 123 )
@@ -209,8 +209,11 @@ class Password_Detection_Test extends BaseTestCase {
 		$sut->expects( $this->once() )
 			->method( 'redirect_and_exit' )
 			->with( 'http://example.org/wp-admin/' );
+		$sut->expects( $this->once() )
+			->method( 'render_content' )
+			->willReturn( null );
 
-		$calls        = 0;
+			$calls    = 0;
 		$call_counter = function () use ( &$calls ) {
 			++$calls;
 			return false;
@@ -249,11 +252,14 @@ class Password_Detection_Test extends BaseTestCase {
 		$user->user_pass = 'pw';
 		$user->add_cap( 'publish_posts' );
 
-		$sut = $this->createPartialMock( Password_Detection::class, array( 'load_user' ) );
+		$sut = $this->createPartialMock( Password_Detection::class, array( 'load_user', 'render_content' ) );
 		$sut->expects( $this->once() )
 			->method( 'load_user' )
 			->with( 123 )
 			->willReturn( $user );
+		$sut->expects( $this->once() )
+			->method( 'render_content' )
+			->willReturn( null );
 
 		$sut->render_page();
 
