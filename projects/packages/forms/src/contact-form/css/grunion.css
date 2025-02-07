@@ -221,15 +221,6 @@
 	margin-top: 7px;
 }
 
-.wp-block-jetpack-contact-form {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: flex-start;
-	flex-direction: row;
-	flex-grow: 1;
-	gap: var(--wp--style--block-gap, 1.5rem);
-}
-
 .wp-block-jetpack-contact-form > *:not(.wp-block-jetpack-button) {
 	flex: 0 0 100%;
 	box-sizing: border-box;
