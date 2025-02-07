@@ -26,7 +26,7 @@ import { useGoBack } from '../../../hooks/use-go-back';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../../go-back-link';
-import { ProductInterstitialPlugin } from '../../product-interstitial-modal';
+import { ProductInterstitialMyJetpack } from '../../product-interstitial-modal';
 import styles from './style.module.scss';
 
 const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai-product-page' );
@@ -239,7 +239,7 @@ export default function () {
 							</div>
 							{ ! shouldContactUs && ! hasUnlimited && (
 								<>
-									<ProductInterstitialPlugin
+									<ProductInterstitialMyJetpack
 										slug="jetpack-ai"
 										onOpen={ upgradeClickHandlerModal }
 										triggerButton={ __( 'Get more requests', 'jetpack-my-jetpack' ) }
@@ -252,6 +252,7 @@ export default function () {
 													height="447"
 													src="https://video.wordpress.com/embed/whyeZF1t?cover=1&autoPlay=0&controls=0&loop=1&muted=0&persistVolume=1&playsinline=0&preloadContent=metadata&useAverageColor=1&posterUrl=https%3A%2F%2Fjetpack.com%2Fwp-content%2Fuploads%2F2024%2F09%2Fthumbnail-1.png&hd=1"
 													allowFullScreen
+													// poster?
 													allow="clipboard-write"
 													title={ __( 'Discover Jetpack AI', 'jetpack-my-jetpack' ) }
 												></iframe>

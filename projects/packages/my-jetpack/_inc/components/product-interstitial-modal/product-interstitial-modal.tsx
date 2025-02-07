@@ -2,8 +2,7 @@ import { Text, Button, ThemeProvider, Col, Container } from '@automattic/jetpack
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useState, type FC } from 'react';
-import React from 'react';
+import { useCallback, useState, cloneElement, type FC } from 'react';
 import styles from './style.module.scss';
 
 interface BaseProductInterstitialModalProps {
@@ -16,13 +15,17 @@ interface BaseProductInterstitialModalProps {
 	 */
 	description?: string;
 	/**
+	 * Custom trigger component to replace default button. It also handles the onOpen callback like the regular button.
+	 */
+	customModalTrigger?: React.ReactElement;
+	/**
 	 * Trigger button of the modal
 	 */
-	triggerButton?: React.ReactNode;
+	modalTriggerButtonLabel?: string;
 	/**
 	 * Variant of the trigger button
 	 */
-	triggerButtonVariant?: 'primary' | 'secondary';
+	modalTriggerButtonVariant?: 'primary' | 'secondary';
 	/**
 	 * Class name of the modal
 	 */
@@ -119,8 +122,9 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 		description,
 		className,
 		children,
-		triggerButton,
-		triggerButtonVariant = 'primary',
+		customModalTrigger,
+		modalTriggerButtonLabel,
+		modalTriggerButtonVariant = 'primary',
 		onOpen,
 		onClose,
 		onClick,
@@ -147,16 +151,25 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 		setOpen( false );
 	}, [ onClose ] );
 
-	if ( ! title || ! children || ! triggerButton ) {
+	if ( ! title || ( ! modalTriggerButtonLabel && ! customModalTrigger ) ) {
 		return null;
 	}
+
+	// Render trigger element
+	const triggerElement = customModalTrigger ? (
+		// Clone custom trigger and inject onClick handler
+		cloneElement( customModalTrigger, { onClick: openModal } )
+	) : (
+		// Default button behavior
+		<Button variant={ modalTriggerButtonVariant } onClick={ openModal }>
+			{ modalTriggerButtonLabel }
+		</Button>
+	);
 
 	return (
 		<>
 			<ThemeProvider>
-				<Button variant={ triggerButtonVariant } onClick={ openModal }>
-					{ triggerButton }
-				</Button>
+				{ triggerElement }
 				{ isOpen && (
 					<Modal
 						onRequestClose={ closeModal }

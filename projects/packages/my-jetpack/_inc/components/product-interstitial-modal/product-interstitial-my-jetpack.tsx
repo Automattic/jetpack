@@ -8,7 +8,7 @@ import {
 	ProductInterstitialModal,
 	ProductInterstitialFeatureList,
 	ProductInterstitialModalCta,
-} from './';
+} from '.';
 
 interface ProductInterstitialPluginProps {
 	/**
