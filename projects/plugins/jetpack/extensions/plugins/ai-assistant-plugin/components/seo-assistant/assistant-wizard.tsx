@@ -221,7 +221,7 @@ export default function AssistantWizard( { close } ) {
 				) }
 				{ currentStep === 2 && steps[ currentStep ].type === 'options' && (
 					<OptionsInput
-						disabled={ ! steps[ currentStep ].value }
+						disabled={ ! steps[ currentStep ].hasSelection }
 						submitCtaLabel={ steps[ currentStep ].submitCtaLabel }
 						retryCtaLabel={ steps[ currentStep ].retryCtaLabel }
 						handleRetry={ handleRetry }
@@ -230,7 +230,7 @@ export default function AssistantWizard( { close } ) {
 				) }
 				{ currentStep === 3 && steps[ currentStep ].type === 'options' && (
 					<OptionsInput
-						disabled={ ! steps[ currentStep ].value }
+						disabled={ ! steps[ currentStep ].hasSelection }
 						submitCtaLabel={ steps[ currentStep ].submitCtaLabel }
 						retryCtaLabel={ steps[ currentStep ].retryCtaLabel }
 						handleRetry={ handleRetry }

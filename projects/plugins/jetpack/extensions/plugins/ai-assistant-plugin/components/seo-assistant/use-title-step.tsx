@@ -13,6 +13,7 @@ import { useMessages } from './wizard-messages';
 import type { Step, OptionMessage } from './types';
 
 export const useTitleStep = ( { keywords }: { keywords: string } ): Step => {
+	const [ value, setValue ] = useState< string >( '' );
 	const [ selectedTitle, setSelectedTitle ] = useState< string >( '' );
 	const [ titleOptions, setTitleOptions ] = useState< OptionMessage[] >( [] );
 	const { editPost } = useDispatch( 'core/editor' );
@@ -47,6 +48,7 @@ export const useTitleStep = ( { keywords }: { keywords: string } ): Step => {
 		( option: OptionMessage ) => {
 			setSelectedTitle( option.content as string );
 			setSelectedMessage( option );
+			setTitleOptions( prev => prev.map( o => ( { ...o, selected: o.id === option.id } ) ) );
 		},
 		[ setSelectedMessage ]
 	);
@@ -135,6 +137,7 @@ export const useTitleStep = ( { keywords }: { keywords: string } ): Step => {
 	}, [ addMessage, getTitles, titleOptions ] );
 
 	const handleTitleSubmit = useCallback( async () => {
+		setValue( selectedTitle );
 		await editPost( { title: selectedTitle, meta: { jetpack_seo_html_title: selectedTitle } } );
 		addMessage( { content: __( 'Title updated! ✅', 'jetpack' ) } );
 		return selectedTitle;
@@ -153,8 +156,9 @@ export const useTitleStep = ( { keywords }: { keywords: string } ): Step => {
 		onRetry: handleTitleRegenerate,
 		retryCtaLabel: __( 'Regenerate', 'jetpack' ),
 		onStart: handleTitleGenerate,
-		value: selectedTitle,
-		setValue: setSelectedTitle,
+		value,
+		setValue,
 		includeInResults: true,
+		hasSelection: !! selectedTitle,
 	};
 };

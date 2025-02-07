@@ -44,4 +44,5 @@ export interface Step {
 	submitCtaLabel?: string;
 	onRetry?: () => void;
 	retryCtaLabel?: string;
+	hasSelection?: boolean;
 }

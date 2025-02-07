@@ -13,6 +13,7 @@ import { useMessages } from './wizard-messages';
 import type { Step, OptionMessage } from './types';
 
 export const useMetaDescriptionStep = ( { keywords }: { keywords: string } ): Step => {
+	const [ value, setValue ] = useState< string >();
 	const [ selectedMetaDescription, setSelectedMetaDescription ] = useState< string >();
 	const [ metaDescriptionOptions, setMetaDescriptionOptions ] = useState< OptionMessage[] >( [] );
 	const { messages, setMessages, addMessage, editLastMessage, setSelectedMessage } = useMessages();
@@ -47,6 +48,9 @@ export const useMetaDescriptionStep = ( { keywords }: { keywords: string } ): St
 		( option: OptionMessage ) => {
 			setSelectedMetaDescription( option.content as string );
 			setSelectedMessage( option );
+			setMetaDescriptionOptions( prev =>
+				prev.map( o => ( { ...o, selected: o.id === option.id } ) )
+			);
 		},
 		[ setSelectedMessage ]
 	);
@@ -67,6 +71,7 @@ export const useMetaDescriptionStep = ( { keywords }: { keywords: string } ): St
 	}, [ generatedCount, request ] );
 
 	const handleMetaDescriptionSubmit = useCallback( async () => {
+		setValue( selectedMetaDescription );
 		await editPost( { meta: { advanced_seo_description: selectedMetaDescription } } );
 		addMessage( { content: __( 'Meta description updated! ✅', 'jetpack' ) } );
 		return selectedMetaDescription;
@@ -87,8 +92,8 @@ export const useMetaDescriptionStep = ( { keywords }: { keywords: string } ): St
 						showIcon: true,
 				  };
 			let newMetaDescriptions = [ ...metaDescriptionOptions ];
-			// we only generate if options are empty
 			setMessages( [ initialMessage ] );
+			// we only generate if options are empty
 			if ( newMetaDescriptions.length === 0 ) {
 				newMetaDescriptions = await getMetaDescriptions();
 			}
@@ -133,8 +138,9 @@ export const useMetaDescriptionStep = ( { keywords }: { keywords: string } ): St
 		onRetry: handleMetaDescriptionRegenerate,
 		retryCtaLabel: __( 'Regenerate', 'jetpack' ),
 		onStart: handleMetaDescriptionGenerate,
-		value: selectedMetaDescription,
-		setValue: setSelectedMetaDescription,
+		value,
+		setValue,
 		includeInResults: true,
+		hasSelection: !! selectedMetaDescription,
 	};
 };
