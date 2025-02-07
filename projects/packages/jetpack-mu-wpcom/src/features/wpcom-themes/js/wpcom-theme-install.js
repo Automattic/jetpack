@@ -37,4 +37,7 @@
 	themes.view.Theme = themes.view.Theme.extend( {
 		installTheme: function () {},
 	} );
+	themes.view.Preview = themes.view.Preview.extend( {
+		installTheme: function () {},
+	} );
 } )( jQuery );
