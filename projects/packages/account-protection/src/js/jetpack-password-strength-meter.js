@@ -1,20 +1,20 @@
 /* global jQuery, jetpackData */
 
 jQuery( document ).ready( function ( $ ) {
-	const generatePasswordButton = $( '.wp-generate-pw' );
-	const weakPasswordConfirmation = $( '.pw-weak' );
-	const weakPasswordConfirmationCheckbox =
-		weakPasswordConfirmation.find( 'input[type="checkbox"]' );
-	const updateProfileFormSubmitButton = $( '#submit' );
-	const resetPasswordFormSaveButton = $( '#wp-submit' );
+	const coreElements = {
+		generatePasswordButton: $( '.wp-generate-pw' ),
+		passwordInput: $( '#pass1' ),
+		strengthMeter: $( '#pass-strength-result' ),
+		weakPasswordConfirmation: $( '.pw-weak' ),
+		weakPasswordConfirmationCheckbox: $( '.pw-weak input[type="checkbox"]' ),
+		updateFormSubmitButton: $( '#submit' ),
+		resetFormSaveButton: $( '#wp-submit' ),
+	};
 
 	// TODO: Non JS form flashes momentarily, we should hide it initially to avoid UI awkwardness
 
-	const passwordInput = $( '#pass1' );
-	passwordInput.css( { 'border-color': '#8C8F94' } );
-
-	const coreStrengthMeter = $( '#pass-strength-result' );
-	coreStrengthMeter.hide();
+	coreElements.passwordInput.css( { 'border-color': '#8C8F94' } );
+	coreElements.strengthMeter.hide();
 
 	const passwordValidationStatus = $( '<div>', {
 		id: 'password-validation-status',
@@ -80,7 +80,7 @@ jQuery( document ).ready( function ( $ ) {
 	} );
 
 	passwordValidationStatus.append( validationCheckList );
-	passwordInput.after( passwordValidationStatus );
+	coreElements.passwordInput.after( passwordValidationStatus );
 
 	const strengthMeter = $( '<div>', {
 		class: 'strength-meter' + ( userSpecific ? ' user-specific' : null ),
@@ -97,18 +97,22 @@ jQuery( document ).ready( function ( $ ) {
 	);
 
 	strengthMeter.append( strength, jetpackBranding );
-	passwordInput.after( strengthMeter );
+	coreElements.passwordInput.after( strengthMeter );
 
 	// Event listeners
-	passwordInput.on( 'input', () => validatePassword() );
+	coreElements.passwordInput.on( 'input', () => validatePassword() );
 
 	setTimeout( () => {
-		if ( passwordInput && passwordInput.val() && passwordInput.val().length > 0 ) {
+		if (
+			coreElements.passwordInput &&
+			coreElements.passwordInput.val() &&
+			coreElements.passwordInput.val().length > 0
+		) {
 			validatePassword();
 		}
 	}, 1500 );
 
-	generatePasswordButton.on( 'click', () => validatePassword() );
+	coreElements.generatePasswordButton.on( 'click', () => validatePassword() );
 
 	let currentAjaxRequest = null;
 
@@ -118,7 +122,7 @@ jQuery( document ).ready( function ( $ ) {
 	 *
 	 */
 	function validatePassword() {
-		const currentPasswordInput = passwordInput.val();
+		const currentPasswordInput = coreElements.passwordInput.val();
 		const failedValidationConditions = {};
 
 		if ( currentAjaxRequest ) {
@@ -131,8 +135,8 @@ jQuery( document ).ready( function ( $ ) {
 			return;
 		}
 
-		if ( coreStrengthMeter.is( ':visible' ) ) {
-			coreStrengthMeter.hide();
+		if ( coreElements.strengthMeter.is( ':visible' ) ) {
+			coreElements.strengthMeter.hide();
 		}
 
 		// passwordValidationStatus loading state
@@ -146,17 +150,20 @@ jQuery( document ).ready( function ( $ ) {
 		strength.text( 'Validating...' );
 		jetpackBranding.show();
 		strengthMeter.css( 'background-color', '#8C8F94' );
-		passwordInput.css( { 'border-color': '#8C8F94', 'border-radius': '4px 4px 0px 0px' } );
+		coreElements.passwordInput.css( {
+			'border-color': '#8C8F94',
+			'border-radius': '4px 4px 0px 0px',
+		} );
 		strengthMeter.show();
 		passwordValidationStatus.show();
 
 		// Disable submit buttons while validating
-		if ( ! updateProfileFormSubmitButton.prop( 'disabled' ) ) {
-			updateProfileFormSubmitButton.prop( 'disabled', true );
+		if ( ! coreElements.updateFormSubmitButton.prop( 'disabled' ) ) {
+			coreElements.updateFormSubmitButton.prop( 'disabled', true );
 		}
 
-		if ( ! resetPasswordFormSaveButton.prop( 'disabled' ) ) {
-			resetPasswordFormSaveButton.prop( 'disabled', true );
+		if ( ! coreElements.resetFormSaveButton.prop( 'disabled' ) ) {
+			coreElements.resetFormSaveButton.prop( 'disabled', true );
 		}
 
 		const uiUpdates = [];
@@ -175,7 +182,7 @@ jQuery( document ).ready( function ( $ ) {
 
 				if ( response.success ) {
 					// Manually update core strength meter status
-					const coreStrengthMeterClass = coreStrengthMeter.attr( 'class' ) || '';
+					const coreStrengthMeterClass = coreElements.strengthMeter.attr( 'class' ) || '';
 					response.data.state.core.status = ! (
 						coreStrengthMeterClass.includes( 'strong' ) || coreStrengthMeterClass.includes( 'good' )
 					);
@@ -216,8 +223,8 @@ jQuery( document ).ready( function ( $ ) {
 					// TODO: Restore core strength meter state, show error?
 					strengthMeter.hide();
 					passwordValidationStatus.hide();
-					passwordInput.removeAttr( 'style' );
-					coreStrengthMeter.show();
+					coreElements.passwordInput.removeAttr( 'style' );
+					coreElements.strengthMeter.show();
 				}
 			},
 			error: function ( jqXHR, textStatus ) {
@@ -225,8 +232,8 @@ jQuery( document ).ready( function ( $ ) {
 					// TODO: Restore core strength meter state, show error?
 					strengthMeter.hide();
 					passwordValidationStatus.hide();
-					passwordInput.removeAttr( 'style' );
-					coreStrengthMeter.show();
+					coreElements.passwordInput.removeAttr( 'style' );
+					coreElements.strengthMeter.show();
 				}
 			},
 		} );
@@ -248,7 +255,7 @@ jQuery( document ).ready( function ( $ ) {
 			jetpackBranding.hide();
 			strengthMeter.css( 'background-color', 'transparent' );
 			passwordValidationStatus.hide();
-			passwordInput.css( { 'border-color': '#8c8f94', 'border-radius': '4px' } );
+			coreElements.passwordInput.css( { 'border-color': '#8c8f94', 'border-radius': '4px' } );
 
 			return;
 		}
@@ -257,47 +264,53 @@ jQuery( document ).ready( function ( $ ) {
 			finalColor = '#64CA43';
 			finalStrengthText = 'Strong';
 
-			if ( weakPasswordConfirmation.is( ':visible' ) ) {
-				weakPasswordConfirmation.css( 'display', 'none' );
+			if ( coreElements.weakPasswordConfirmation.is( ':visible' ) ) {
+				coreElements.weakPasswordConfirmation.css( 'display', 'none' );
 			}
 
-			if ( updateProfileFormSubmitButton.prop( 'disabled' ) ) {
-				updateProfileFormSubmitButton.prop( 'disabled', false );
+			if ( coreElements.updateFormSubmitButton.prop( 'disabled' ) ) {
+				coreElements.updateFormSubmitButton.prop( 'disabled', false );
 			}
 
-			if ( resetPasswordFormSaveButton.prop( 'disabled' ) ) {
-				resetPasswordFormSaveButton.prop( 'disabled', false );
+			if ( coreElements.resetFormSaveButton.prop( 'disabled' ) ) {
+				coreElements.resetFormSaveButton.prop( 'disabled', false );
 			}
 		} else {
 			finalColor = '#E65054';
 			finalStrengthText = 'Weak';
 
-			if ( weakPasswordConfirmation.css( 'display' ) === 'none' ) {
-				weakPasswordConfirmation.css( 'display', userSpecific ? 'table-row' : 'block' );
+			if ( coreElements.weakPasswordConfirmation.css( 'display' ) === 'none' ) {
+				coreElements.weakPasswordConfirmation.css(
+					'display',
+					userSpecific ? 'table-row' : 'block'
+				);
 			}
 
-			if ( weakPasswordConfirmationCheckbox.prop( 'checked' ) ) {
-				if ( updateProfileFormSubmitButton.prop( 'disabled' ) ) {
-					updateProfileFormSubmitButton.prop( 'disabled', false );
+			if ( coreElements.weakPasswordConfirmationCheckbox.prop( 'checked' ) ) {
+				if ( coreElements.updateFormSubmitButton.prop( 'disabled' ) ) {
+					coreElements.updateFormSubmitButton.prop( 'disabled', false );
 				}
 
-				if ( resetPasswordFormSaveButton.prop( 'disabled' ) ) {
-					resetPasswordFormSaveButton.prop( 'disabled', false );
+				if ( coreElements.resetFormSaveButton.prop( 'disabled' ) ) {
+					coreElements.resetFormSaveButton.prop( 'disabled', false );
 				}
 			} else {
-				if ( ! updateProfileFormSubmitButton.prop( 'disabled' ) ) {
-					updateProfileFormSubmitButton.prop( 'disabled', true );
+				if ( ! coreElements.updateFormSubmitButton.prop( 'disabled' ) ) {
+					coreElements.updateFormSubmitButton.prop( 'disabled', true );
 				}
 
-				if ( ! resetPasswordFormSaveButton.prop( 'disabled' ) ) {
-					resetPasswordFormSaveButton.prop( 'disabled', true );
+				if ( ! coreElements.resetFormSaveButton.prop( 'disabled' ) ) {
+					coreElements.resetFormSaveButton.prop( 'disabled', true );
 				}
 			}
 		}
 
 		strength.text( finalStrengthText );
 		strengthMeter.css( 'background-color', finalColor );
-		passwordInput.css( { 'border-color': finalColor, 'border-radius': '4px 4px 0px 0px' } );
+		coreElements.passwordInput.css( {
+			'border-color': finalColor,
+			'border-radius': '4px 4px 0px 0px',
+		} );
 
 		if ( ! strengthMeter.find( strength ).length ) {
 			strengthMeter.append( strength );
@@ -306,7 +319,7 @@ jQuery( document ).ready( function ( $ ) {
 			strengthMeter.append( jetpackBranding );
 		}
 		if ( ! strengthMeter.parent().length ) {
-			passwordInput.after( strengthMeter );
+			coreElements.passwordInput.after( strengthMeter );
 		}
 
 		if ( strengthMeter.is( ':hidden' ) ) {

@@ -7,7 +7,7 @@
 .validation-checklist {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
     margin-bottom: 16px;
 }
 
@@ -15,14 +15,16 @@
     display: flex;
     align-items: center;
     gap: 8px;
-}
+    margin-bottom: 0;
 
-.validation-icon {
-    height: 24px;
-}
+    .validation-icon {
+        height: 24px;
+    }
+    
+    .validation-text {
+        margin-top: 0;
+    }
 
-.validation-text {
-    margin-top: 0;
 }
 
 /* Info Popover */
