@@ -31,10 +31,10 @@ export default function AssistantWizard( { close } ) {
 
 	// Keywords
 	const keywordsStepData = useKeywordsStep();
-	const titleStepData = useTitleStep( { keywords: keywordsStepData.value, mockRequests: true } );
+	const titleStepData = useTitleStep( { keywords: keywordsStepData.value, mockRequests: false } );
 	const metaStepData = useMetaDescriptionStep( {
 		keywords: keywordsStepData.value,
-		mockRequests: true,
+		mockRequests: false,
 	} );
 	const completionStepData = useCompletionStep();
 	const welcomeStepData = useWelcomeStep();
