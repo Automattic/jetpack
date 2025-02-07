@@ -33,6 +33,7 @@ function load_wpcom_dashboard_widgets() {
 			foreach ( $layout['secondary'] as $item ) {
 				if ( is_array( $item ) ) {
 					$tasks = $item;
+					break;
 				}
 			}
 		}
@@ -120,13 +121,6 @@ function enqueue_wpcom_dashboard_widgets( $args = array() ) {
 			'hasCustomDomain' => wpcom_site_has_feature( 'custom-domain' ),
 			'siteId'          => get_current_blog_id(),
 			'tasks'           => $args['tasks'],
-			'siteSuggestions' => Client::wpcom_json_api_request_as_blog(
-				'/sites/' . get_current_blog_id() . '/home/layout',
-				'v2',
-				array(),
-				null,
-				'wpcom'
-			),
 		)
 	);
 
