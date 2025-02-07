@@ -32,7 +32,13 @@ function UnforwardedKeywordsInput( { placeholder, value, setValue, handleSubmit 
 	return (
 		<div ref={ ref } className="assistant-wizard__input">
 			<KeyboardShortcuts shortcuts={ { enter: handleSubmit } }>
-				<TextControl value={ value } onChange={ setValue } placeholder={ placeholder } />
+				<TextControl
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
+					value={ value }
+					onChange={ setValue }
+					placeholder={ placeholder }
+				/>
 			</KeyboardShortcuts>
 			<Button
 				variant="primary"

@@ -39,6 +39,26 @@ abstract class Module {
 	const MAX_DB_QUERY_LENGTH = 15 * 1024;
 
 	/**
+	 * Max bytes allowed for full sync upload for the module.
+	 * Default Setting : 7MB.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const MAX_SIZE_FULL_SYNC = 7000000;
+
+	/**
+	 * Max bytes allowed for post meta_value => length.
+	 * Default Setting : 2MB.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const MAX_META_LENGTH = 2000000;
+
+	/**
 	 * Sync module name.
 	 *
 	 * @access public
@@ -439,6 +459,9 @@ abstract class Module {
 
 	/**
 	 * Set the status of the full sync action based on the objects that were sent.
+	 * Used to update the status of the module after sending a chunk of objects.
+	 * Since Full Sync logic chunking relies on order of items being processed in descending order, we need to sort
+	 * due to some modules (e.g. WooCommerce) changing the order while getting the objects.
 	 *
 	 * @access protected
 	 *
@@ -448,8 +471,10 @@ abstract class Module {
 	 * @return array The updated status.
 	 */
 	protected function set_send_full_sync_actions_status( $status, $objects ) {
-		$status['last_sent'] = end( $objects );
-		$status['sent']     += count( $objects );
+
+		$object_ids          = $objects['object_ids'] ?? $objects;
+		$status['last_sent'] = end( $object_ids );
+		$status['sent']     += count( $object_ids );
 		return $status;
 	}
 
@@ -715,9 +740,11 @@ abstract class Module {
 			$object_size      = strlen( maybe_serialize( $object ) );
 			$current_metadata = array();
 			$metadata_size    = 0;
+			$id_field         = $this->id_field();
+			$object_id        = (int) ( is_object( $object ) ? $object->{$id_field} : $object[ $id_field ] );
 
 			foreach ( $metadata as $key => $metadata_item ) {
-				if ( (int) $metadata_item->{$type . '_id'} === (int) $object->{$this->id_field()} ) {
+				if ( (int) $metadata_item->{$type . '_id'} === $object_id ) {
 					$metadata_item_size = strlen( maybe_serialize( $metadata_item->meta_value ) );
 					if ( $metadata_item_size >= $max_meta_size ) {
 						$metadata_item->meta_value = ''; // Trim metadata if too large.
@@ -734,7 +761,7 @@ abstract class Module {
 
 			// Always allow the first object with metadata.
 			if ( empty( $filtered_object_ids ) || ( $current_size + $object_size + $metadata_size ) <= $max_total_size ) {
-				$filtered_object_ids[] = strval( $object->{$this->id_field()} );
+				$filtered_object_ids[] = strval( is_object( $object ) ? $object->{$id_field} : $object[ $id_field ] );
 				$filtered_objects[]    = $object;
 				$filtered_metadata     = array_merge( $filtered_metadata, $current_metadata );
 				$current_size         += $object_size + $metadata_size;

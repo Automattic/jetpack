@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9f3ce7d5ead6179da04a6e8b9db4da67",
+    "content-hash": "7ecab5a74142874080feb1d962e2a159",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -1416,7 +1416,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/post-list",
-                "reference": "f5f91acacd48fd2ed2d080fa7f94b1051e17376f"
+                "reference": "1b8f3f65ef18811d07b00e4282ca1d40bfd18852"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1442,7 +1442,7 @@
                     "link-template": "https://github.com/automattic/jetpack-post-list/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.7.x-dev"
+                    "dev-trunk": "0.8.x-dev"
                 }
             },
             "autoload": {
@@ -1459,6 +1459,12 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "build-development": [
+                    "pnpm run build"
                 ]
             },
             "license": [
@@ -1776,7 +1782,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "a70bbb708b593062cf5e3c2f241360ffccfae42b"
+                "reference": "3497edb9f8e5341772150fdd9a9b698f1ec551a2"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1809,7 +1815,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.5.x-dev"
+                    "dev-trunk": "4.6.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1928,16 +1934,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v2.8.2",
+            "version": "v2.8.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "7592a687a9a36afa49cd25557fac8f6a6d4e899c"
+                "reference": "db9790112a06fe6a0c57c07a37d1e3083199baf6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/7592a687a9a36afa49cd25557fac8f6a6d4e899c",
-                "reference": "7592a687a9a36afa49cd25557fac8f6a6d4e899c",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/db9790112a06fe6a0c57c07a37d1e3083199baf6",
+                "reference": "db9790112a06fe6a0c57c07a37d1e3083199baf6",
                 "shasum": ""
             },
             "require-dev": {
@@ -1976,7 +1982,7 @@
                     "phpcbf -p"
                 ]
             },
-            "time": "2025-01-31T03:41:01+00:00"
+            "time": "2025-02-05T07:13:06+00:00"
         },
         {
             "name": "scssphp/scssphp",

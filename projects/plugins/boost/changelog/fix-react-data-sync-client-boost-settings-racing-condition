@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+UI: Fix UI discrepancy in Boost settings page upon toggling multiple Modules at same time.

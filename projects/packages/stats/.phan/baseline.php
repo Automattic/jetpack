@@ -9,7 +9,6 @@
  */
 return [
     // # Issue statistics:
-    // PhanParamTooMany : 7 occurrences
     // PhanTypeVoidAssignment : 4 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 2 occurrences
     // PhanTypeMismatchReturn : 1 occurrence
@@ -18,9 +17,9 @@ return [
     'file_suppressions' => [
         'src/class-tracking-pixel.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-wpcom-stats.php' => ['PhanTypeMismatchReturn'],
-        'tests/php/test-main.php' => ['PhanParamTooMany', 'PhanTypeVoidAssignment'],
+        'tests/php/test-main.php' => ['PhanTypeVoidAssignment'],
         'tests/php/test-options.php' => ['PhanTypeVoidAssignment'],
-        'tests/php/test-xmlrpc-provider.php' => ['PhanParamTooMany', 'PhanTypeVoidAssignment'],
+        'tests/php/test-xmlrpc-provider.php' => ['PhanTypeVoidAssignment'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

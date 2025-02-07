@@ -1,6 +1,5 @@
-import { Col, Text, getRedirectUrl } from '@automattic/jetpack-components';
+import { Col, Text } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect, useMemo, useCallback } from 'react';
 import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
@@ -12,6 +11,7 @@ import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useAnalytics from '../use-analytics';
+import { useGetPaidPlanNeedsPluginsContent } from './get-paid-plan-needs-plugins-content';
 import type { NoticeOptions } from '../../context/notices/types';
 import type { MyJetpackInitialState } from '../../data/types';
 
@@ -52,18 +52,27 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 		( needs_installed?.length ?? 0 ) + ( needs_activated_only?.length ?? 0 );
 
 	const {
-		siteSuffix,
 		products: { items: products },
 	} = getMyJetpackWindowInitialState();
 
+	const actionType = useMemo( () => {
+		if ( needs_installed && needs_activated_only ) {
+			return 'install_activate';
+		} else if ( needs_installed ) {
+			return 'install';
+		}
+		return 'activate';
+	}, [ needs_activated_only, needs_installed ] );
+
 	const getPluginInfo = useCallback(
-		productSlug => ( {
+		( productSlug, action ) => ( {
 			productSlug: productSlug,
 			pluginSlug: products[ productSlug ].plugin_slug,
 			pluginName:
 				products[ productSlug ].plugin_slug === 'jetpack'
 					? 'Jetpack'
 					: products[ productSlug ].title,
+			action,
 			pluginUri: `https://wordpress.org/plugins/${ products[ productSlug ].plugin_slug }/`,
 		} ),
 		[ products ]
@@ -72,56 +81,113 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 	const pluginsList = useMemo( () => {
 		if ( needs_installed && needs_activated_only ) {
 			const slugs = new Set();
-			return [ ...needs_installed, ...needs_activated_only ]
-				.map( getPluginInfo )
-				.filter( ( { pluginSlug } ) => ! slugs.has( pluginSlug ) && slugs.add( pluginSlug ) ); // filters out duplicates
+			const needsInstalled = [ ...needs_installed ].map( productSlug =>
+				getPluginInfo( productSlug, 'install' )
+			);
+			const needsActivated = [ ...needs_activated_only ].map( productSlug =>
+				getPluginInfo( productSlug, 'activate' )
+			);
+			return [ ...needsInstalled, ...needsActivated ].filter(
+				/* filters out duplicates */
+				( { pluginSlug } ) => ! slugs.has( pluginSlug ) && slugs.add( pluginSlug )
+			);
 		} else if ( needs_installed ) {
 			const slugs = new Set();
-			return needs_installed
-				.map( getPluginInfo )
-				.filter( ( { pluginSlug } ) => ! slugs.has( pluginSlug ) && slugs.add( pluginSlug ) );
+			return (
+				needs_installed
+					.map( productSlug => getPluginInfo( productSlug, 'install' ) )
+					/* filters out duplicates */
+					.filter( ( { pluginSlug } ) => ! slugs.has( pluginSlug ) && slugs.add( pluginSlug ) )
+			);
 		}
 		const slugs = new Set();
-		return needs_activated_only
-			?.map( getPluginInfo )
-			.filter( ( { pluginSlug } ) => ! slugs.has( pluginSlug ) && slugs.add( pluginSlug ) );
+		return (
+			needs_activated_only
+				?.map( productSlug => getPluginInfo( productSlug, 'activate' ) )
+				/* filters out duplicates */
+				.filter( ( { pluginSlug } ) => ! slugs.has( pluginSlug ) && slugs.add( pluginSlug ) )
+		);
 	}, [ getPluginInfo, needs_activated_only, needs_installed ] );
 
-	const actionNoun = useMemo( () => {
-		if ( needs_installed && needs_activated_only ) {
-			return 'installation and/or activation';
-		} else if ( needs_installed ) {
-			return 'installation';
-		}
-		return 'activation';
-	}, [ needs_activated_only, needs_installed ] );
+	const { noticeTitle, noticeMessage, buttonLabel } = useGetPaidPlanNeedsPluginsContent( {
+		alert,
+		planName,
+		planPurchaseId: planPurchase?.ID,
+	} );
 
-	const actionVerb = useMemo( () => {
-		if ( needs_installed && needs_activated_only ) {
-			return 'install and/or activate';
-		} else if ( needs_installed ) {
-			return 'install and activate';
-		}
-		return 'activate';
-	}, [ needs_activated_only, needs_installed ] );
+	const prepareProductsArray = useCallback(
+		productsArray => {
+			if ( ! productsArray ) {
+				return [];
+			}
+			const prepared = [ ...productsArray ]
+				.map( productSlug => ( { productSlug, pluginSlug: products[ productSlug ].plugin_slug } ) )
+				.sort( ( a, b ) => {
+					if ( a.pluginSlug === 'jetpack' ) {
+						return 1; // Move `jetpack` to the end
+					} else if ( b.pluginSlug === 'jetpack' ) {
+						return -1; // Keep others before `jetpack`
+					}
+					return a.productSlug - b.productSlug; // Otherwise sort ascending
+				} )
+				.map( ( { productSlug } ) => productSlug );
+			return prepared;
+		},
+		[ products ]
+	);
+
+	const needsInstalled = prepareProductsArray( needs_installed );
+	const needsActivated = prepareProductsArray( needs_activated_only );
+
+	const needsInstalledContainsJetpack = needsInstalled.find(
+		productSlug => products[ productSlug ].plugin_slug === 'jetpack'
+	);
 
 	const { install: installAndActivatePlugins, isPending: isInstalling } =
-		useInstallPlugins( needs_installed );
+		useInstallPlugins( needsInstalled );
 	const { activate: activatePlugins, isPending: isActivating } =
-		useActivatePlugins( needs_activated_only );
+		useActivatePlugins( needsActivated );
 
 	const handleInstallActivateInOneClick = useCallback( () => {
 		recordEvent( 'jetpack_my_jetpack_plugin_needs_installed_notice_cta_click' );
 
-		if ( needs_installed ) {
+		if ( needsInstalled.length && needsActivated.length ) {
+			if ( needsInstalledContainsJetpack ) {
+				activatePlugins( null, {
+					onSuccess: () => {
+						installAndActivatePlugins( null, {
+							onSuccess: () => {
+								delete redBubbleAlerts[ pluginsNeedingActionAlerts[ 0 ] ];
+								resetNotice();
+							},
+						} );
+					},
+				} );
+				return;
+			}
+			installAndActivatePlugins( null, {
+				onSuccess: () => {
+					activatePlugins( null, {
+						onSuccess: () => {
+							delete redBubbleAlerts[ pluginsNeedingActionAlerts[ 0 ] ];
+							resetNotice();
+						},
+					} );
+				},
+			} );
+			return;
+		}
+
+		if ( needsInstalled.length ) {
 			installAndActivatePlugins( null, {
 				onSuccess: () => {
 					delete redBubbleAlerts[ pluginsNeedingActionAlerts[ 0 ] ];
 					resetNotice();
 				},
 			} );
+			return;
 		}
-		if ( needs_activated_only ) {
+		if ( needsActivated.length ) {
 			activatePlugins( null, {
 				onSuccess: () => {
 					delete redBubbleAlerts[ pluginsNeedingActionAlerts[ 0 ] ];
@@ -131,13 +197,14 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 		}
 	}, [
 		recordEvent,
-		needs_installed,
-		needs_activated_only,
+		needsInstalled,
+		needsActivated,
+		needsInstalledContainsJetpack,
 		installAndActivatePlugins,
+		activatePlugins,
 		redBubbleAlerts,
 		pluginsNeedingActionAlerts,
 		resetNotice,
-		activatePlugins,
 	] );
 
 	useEffect( () => {
@@ -145,70 +212,38 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 			return;
 		}
 
-		const noticeTitle = sprintf(
-			/* translators: %s is the word(s), "installation", or "activation", or "installation and/or activation". */
-			_n(
-				'Plugin %s needed',
-				'Some plugins need %s',
-				numPluginsNeedingAction,
-				'jetpack-my-jetpack'
-			),
-			actionNoun
-		);
+		const actionNounMap = {
+			install: __( 'Needs installation and activation', 'jetpack-my-jetpack' ),
+			activate: __( 'Needs activation', 'jetpack-my-jetpack' ),
+		};
 
-		const noticeMessage = (
+		const noticeContent = (
 			<>
 				<Col>
 					<Text mt={ 2 } mb={ 2 }>
-						{ createInterpolateElement(
-							sprintf(
-								// translators: %1$s is the name of the Jetpack paid plan, i.e.- "Jetpack Security", %2$s is either "the [plugin name] plugin" or "the following plugins", and %3$s is a verb being either "installed", or "activated", or "installed and/or activated".
-								__(
-									'To get the most out of your <link>%1$s paid subscription</link> and have access to all it’s features, we recommend you %2$s the following %3$s:',
-									'jetpack-my-jetpack'
-								),
-								planName,
-								actionVerb,
-								_n( 'plugin', 'plugins', numPluginsNeedingAction, 'jetpack-my-jetpack' )
-							),
-							{
-								link: (
-									<ExternalLink
-										href={ getRedirectUrl( 'jetpack-subscription-renew', {
-											site: siteSuffix,
-											path: planPurchase.ID,
-										} ) }
-									/>
-								),
-							}
-						) }
+						{ noticeMessage }
 					</Text>
 					<ul className="plugins-list">
-						{ pluginsList.map( ( pluginInfo, index ) => (
-							<li key={ index } className="plugin-item">
-								{ actionVerb === 'activate' ? (
-									<a href="/wp-admin/plugins.php">{ pluginInfo.pluginName }</a>
-								) : (
-									<ExternalLink href={ pluginInfo.pluginUri }>
-										{ pluginInfo.pluginName }
-									</ExternalLink>
-								) }
-								<span>(Needs { actionNoun })</span>
-							</li>
-						) ) }
+						{ pluginsList.map( ( pluginInfo, index ) => {
+							return (
+								<li key={ index } className="plugin-item">
+									{ pluginInfo.action === 'activate' ? (
+										<a href="/wp-admin/plugins.php">{ pluginInfo.pluginName }</a>
+									) : (
+										<ExternalLink href={ pluginInfo.pluginUri }>
+											{ pluginInfo.pluginName }
+										</ExternalLink>
+									) }
+									<span>({ actionNounMap[ pluginInfo.action ] })</span>
+								</li>
+							);
+						} ) }
 					</ul>
 				</Col>
 			</>
 		);
 
-		const buttonLabel = sprintf(
-			/* translators: %1$s is either "Install and activate", or "Install and/or activate", or "Activate"; And %2$s is "plugin" or "plugins" (singular/plural). */
-			__( '%1$s %2$s in one click', 'jetpack-my-jetpack' ),
-			actionVerb.charAt( 0 ).toUpperCase() + actionVerb.slice( 1 ),
-			_n( 'plugin', 'plugins', numPluginsNeedingAction, 'jetpack-my-jetpack' )
-		);
-
-		const isinstallingOrActivating = isActivating || isInstalling;
+		const isInstallingOrActivating = isActivating || isInstalling;
 
 		const noticeOptions: NoticeOptions = {
 			id: 'plugin_needs_installed_activated',
@@ -217,9 +252,9 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 				{
 					label: buttonLabel,
 					onClick: handleInstallActivateInOneClick,
-					isLoading: isinstallingOrActivating,
+					isLoading: isInstallingOrActivating,
 					loadingText:
-						actionVerb === 'activate'
+						actionType === 'activate'
 							? sprintf(
 									/* translators: %s is the singular or plural "plugin" or "plugins". */
 									__( 'Activating %s…', 'jetpack-my-jetpack' ),
@@ -233,17 +268,19 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 					noDefaultClasses: true,
 				},
 			],
-			priority: NOTICE_PRIORITY_MEDIUM + ( isinstallingOrActivating ? 1 : 0 ),
+			priority: NOTICE_PRIORITY_MEDIUM + ( isInstallingOrActivating ? 1 : 0 ),
 		};
 
 		setNotice( {
 			title: noticeTitle,
-			message: noticeMessage,
+			message: noticeContent,
 			options: noticeOptions,
 		} );
 	}, [
-		actionNoun,
-		actionVerb,
+		actionType,
+		noticeTitle,
+		noticeMessage,
+		buttonLabel,
 		isPurchasesDataLoaded,
 		numPluginsNeedingAction,
 		handleInstallActivateInOneClick,
@@ -252,7 +289,6 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 		pluginsList,
 		pluginsNeedingActionAlerts.length,
 		setNotice,
-		siteSuffix,
 		isInstalling,
 		isActivating,
 	] );

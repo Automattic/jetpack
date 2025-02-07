@@ -68,8 +68,8 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 				unset( $_SERVER[ $key ] );
 			}
 		}
-		remove_filter( 'rest_pre_dispatch', array( $this, 'rest_pre_dispatch' ), 100, 2 );
-		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
+		remove_filter( 'rest_pre_dispatch', array( $this, 'rest_pre_dispatch' ), 100 );
+		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10 );
 		wp_set_current_user( 0 );
 		$jetpack = Jetpack::init(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	}
