@@ -8,6 +8,7 @@
 		<whitelist processUncoveredFilesFromWhitelist="false">
 			<!-- Better to only include "src" than to add "." and then exclude "tests", "vendor", and so on, as PHPUnit still scans the excluded directories. -->
 			<!-- Add additional lines for any files or directories outside of src/ that need coverage. -->
+			<file>stdin-bootstrap.php</file>
 			<directory suffix=".php">src</directory>
 		</whitelist>
 	</filter>

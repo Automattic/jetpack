@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack Starter Plugin
  * Plugin URI: https://wordpress.org/plugins/jetpack-starter-plugin
  * Description: plugin--description.
- * Version: 0.4.0
+ * Version: 0.5.0
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 define( 'JETPACK_STARTER_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
@@ -117,7 +117,7 @@ function jetpack_starter_plugin_activation( $plugin ) {
 		( new \Automattic\Jetpack\Paths() )->is_current_request_activating_plugin_from_plugins_screen( JETPACK_STARTER_PLUGIN_ROOT_FILE_RELATIVE_PATH )
 	) {
 		wp_safe_redirect( esc_url( admin_url( 'admin.php?page=jetpack-starter-plugin' ) ) );
-		exit;
+		exit( 0 );
 	}
 }
 

@@ -1,7 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * This file contains PHPUnit tests for the Blaze class.
- * To run the package unit tests, run jetpack test packages/blaze
+ * To run the package unit tests, run jetpack test php packages/blaze
  *
  * @package automattic/jetpack-blaze
  */
@@ -97,10 +97,10 @@ class Test_Blaze extends BaseTestCase {
 	 * @covers Automattic\Jetpack\Blaze::should_initialize
 	 */
 	public function test_filter_overwrites_eligibility() {
-		$this->assertFalse( Blaze::should_initialize() );
+		$this->assertFalse( Blaze::should_initialize()['can_init'] );
 		wp_set_current_user( $this->admin_id );
 		add_filter( 'jetpack_blaze_enabled', '__return_true' );
-		$this->assertTrue( Blaze::should_initialize() );
+		$this->assertTrue( Blaze::should_initialize()['can_init'] );
 		add_filter( 'jetpack_blaze_enabled', '__return_false' );
 	}
 
@@ -111,7 +111,7 @@ class Test_Blaze extends BaseTestCase {
 	 */
 	public function test_editor_not_eligible() {
 		wp_set_current_user( $this->editor_id );
-		$this->assertFalse( Blaze::should_initialize() );
+		$this->assertFalse( Blaze::should_initialize()['can_init'] );
 	}
 
 	/**

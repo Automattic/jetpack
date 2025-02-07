@@ -1,6 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require( 'path' );
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 
 module.exports = {
@@ -26,6 +24,7 @@ module.exports = {
 		...jetpackWebpackConfig.output,
 		path: path.resolve( __dirname, 'build' ),
 		filename: 'index.js',
+		uniqueName: 'ReactDataSyncClient',
 		library: {
 			name: 'ReactDataSyncClient',
 			type: 'umd',

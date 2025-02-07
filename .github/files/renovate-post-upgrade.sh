@@ -19,9 +19,7 @@ function die {
 
 # Renovate has a bug where they modify `.npmrc` and don't clean up after themselves,
 # resulting in those modifications being included in the diff.
-# https://github.com/renovatebot/renovate/issues/23528
-# Further, it seems they're reluctant to even admit this is actually a bug, and would
-# rather cast aspersions than collaborate on a fix.
+# https://github.com/renovatebot/renovate/discussions/23489
 # So work around it by manually reverting the file.
 git restore .npmrc
 

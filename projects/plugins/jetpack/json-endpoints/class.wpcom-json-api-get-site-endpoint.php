@@ -204,12 +204,14 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'videopress_storage_used',
 		'is_difm_lite_in_progress',
 		'site_intent',
+		'site_partner_bundle',
 		'site_goals',
 		'onboarding_segment',
 		'site_vertical_id',
 		'blogging_prompts_settings',
 		'launchpad_screen',
 		'launchpad_checklist_tasks_statuses',
+		'migration_source_site_domain',
 		'wpcom_production_blog_id',
 		'wpcom_staging_blog_ids',
 		'can_blaze',
@@ -878,6 +880,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'site_intent':
 					$options[ $key ] = $site->get_site_intent();
 					break;
+				case 'site_partner_bundle':
+					$options[ $key ] = $site->get_site_partner_bundle();
+					break;
 				case 'site_goals':
 					$options[ $key ] = $site->get_site_goals();
 					break;
@@ -897,6 +902,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'launchpad_checklist_tasks_statuses':
 					$options[ $key ] = $site->get_launchpad_checklist_tasks_statuses();
+					break;
+				case 'migration_source_site_domain':
+					$options[ $key ] = $site->get_migration_source_site_domain();
 					break;
 				case 'wpcom_production_blog_id':
 					$options[ $key ] = $site->get_wpcom_production_blog_id();

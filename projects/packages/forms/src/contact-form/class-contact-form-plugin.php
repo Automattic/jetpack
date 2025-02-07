@@ -52,6 +52,20 @@ class Contact_Form_Plugin {
 	 */
 	private $pde_email_address = '';
 
+	/*
+	 * Field keys that might be present in the entry json but we don't want to show to the admin
+	 * since they not something that the visitor entered into the form.
+	 *
+	 * @var array
+	 */
+	const NON_PRINTABLE_FIELDS = array(
+		'entry_title'             => '',
+		'email_marketing_consent' => '',
+		'entry_permalink'         => '',
+		'entry_page'              => '',
+		'feedback_id'             => '',
+	);
+
 	/**
 	 * Initializing function.
 	 */
@@ -117,13 +131,13 @@ class Contact_Form_Plugin {
 		if ( is_array( $data_with_tags ) ) {
 			foreach ( $data_with_tags as $index => $value ) {
 				$index = sanitize_text_field( (string) $index );
-				$value = wp_kses( (string) $value, array() );
+				$value = wp_kses_post( (string) $value );
 				$value = str_replace( '&amp;', '&', $value ); // undo damage done by wp_kses_normalize_entities()
 
 				$data_without_tags[ $index ] = $value;
 			}
 		} else {
-			$data_without_tags = wp_kses( (string) $data_with_tags, array() );
+			$data_without_tags = wp_kses_post( (string) $data_with_tags );
 			$data_without_tags = str_replace( '&amp;', '&', $data_without_tags ); // undo damage done by wp_kses_normalize_entities()
 		}
 
@@ -494,6 +508,19 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Render the file upload field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the file upload field.
+	 */
+	public static function gutenblock_render_field_file( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'file' );
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
 	 * Add the 'Form Responses' menu item as a submenu of Feedback.
 	 */
 	public function admin_menu() {
@@ -699,8 +726,16 @@ class Contact_Form_Plugin {
 
 			// Process the content to populate Contact_Form::$last
 			if ( $post ) {
+				if ( str_contains( $post->post_content, '<!--nextpage-->' ) ) {
+					$postdata = generate_postdata( $post );
+					$page     = isset( $_POST['page'] ) ? absint( wp_unslash( $_POST['page'] ) ) : null; // phpcs:Ignore WordPress.Security.NonceVerification.Missing
+					$paged    = isset( $page ) ? $page : 1;
+					$content  = isset( $postdata['pages'][ $paged - 1 ] ) ? $postdata['pages'][ $paged - 1 ] : $post->post_content;
+				} else {
+					$content = $post->post_content;
+				}
 				/** This filter is already documented in core. wp-includes/post-template.php */
-				apply_filters( 'the_content', $post->post_content );
+				apply_filters( 'the_content', $content );
 			}
 		}
 
@@ -776,7 +811,7 @@ class Contact_Form_Plugin {
 			);
 		}
 
-		die;
+		die( 0 );
 	}
 
 	/**
@@ -1135,7 +1170,7 @@ class Contact_Form_Plugin {
 		$content_fields = self::parse_fields_from_content( $post_id );
 		$all_fields     = isset( $content_fields['_feedback_all_fields'] ) ? $content_fields['_feedback_all_fields'] : array();
 		$md             = $has_json_data
-			? array_diff_key( $all_fields, array_flip( array( 'entry_title', 'email_marketing_consent', 'entry_permalink', 'feedback_id' ) ) )
+			? array_diff_key( $all_fields, array_flip( array_keys( self::NON_PRINTABLE_FIELDS ) ) )
 			: (array) get_post_meta( $post_id, '_feedback_extra_fields', true );
 
 		$md['-3_response_date'] = get_the_date( 'Y-m-d H:i:s', $post_id );
@@ -1801,7 +1836,8 @@ class Contact_Form_Plugin {
 		/**
 		 * Print CSV headers
 		 */
-		fputcsv( $output, $fields );
+		// @todo When we drop support for PHP <7.4, consider passing empty-string for `$escape` here for better spec compatibility.
+		fputcsv( $output, $fields, ',', '"', '\\' );
 
 		/**
 		 * Print rows to the output.
@@ -1820,13 +1856,14 @@ class Contact_Form_Plugin {
 			/**
 			 * Output the complete CSV row
 			 */
-			fputcsv( $output, $current_row );
+			// @todo When we drop support for PHP <7.4, consider passing empty-string for `$escape` here for better spec compatibility.
+			fputcsv( $output, $current_row, ',', '"', '\\' );
 		}
 
 		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 
 		$this->record_tracks_event( 'forms_export_responses', array( 'format' => 'csv' ) );
-		exit();
+		exit( 0 );
 	}
 
 	/**
@@ -2044,10 +2081,7 @@ class Contact_Form_Plugin {
 			if ( str_contains( $content, 'JSON_DATA' ) ) {
 				$chunks     = explode( "\nJSON_DATA", $content );
 				$all_values = json_decode( $chunks[1], true );
-				if ( is_array( $all_values ) ) {
-					$fields_array = array_keys( $all_values );
-				}
-				$lines = array_filter( explode( "\n", $chunks[0] ) );
+				$lines      = array_filter( explode( "\n", $chunks[0] ) );
 			} else {
 				$fields_array = preg_replace( '/.*Array\s\( (.*)\)/msx', '$1', $content );
 

@@ -9,7 +9,6 @@ import AiCard from './ai-card';
 import AntiSpamCard from './anti-spam-card';
 import BackupCard from './backup-card';
 import BoostCard from './boost-card';
-import CreatorCard from './creator-card';
 import CrmCard from './crm-card';
 import ProtectCard from './protect-card';
 import SearchCard from './search-card';
@@ -24,16 +23,29 @@ type DisplayItemsProps = {
 };
 
 type DisplayItemType = Record<
-	// We don't have a card for Security or Extras, and scan is displayed as protect.
+	// We don't have a card for these products/bundles, and scan is displayed as protect.
 	// 'jetpack-ai' is the official slug for the AI module, so we also exclude 'ai'.
 	// The backend still supports the 'ai' slug, so it is part of the JetpackModule type.
-	Exclude< JetpackModule, 'extras' | 'scan' | 'security' | 'ai' >,
+	// Related-posts, newsletter, and site-accelerator are features, not products.
+	Exclude<
+		JetpackModule,
+		| 'extras'
+		| 'scan'
+		| 'security'
+		| 'ai'
+		| 'creator'
+		| 'growth'
+		| 'complete'
+		| 'site-accelerator'
+		| 'newsletter'
+		| 'related-posts'
+	>,
 	FC< { admin: boolean } >
 >;
 
 const DisplayItems: FC< DisplayItemsProps > = ( { slugs } ) => {
 	const { showFullJetpackStatsCard = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
-	const { isAtomic = false, userIsAdmin = false } = getMyJetpackWindowInitialState();
+	const { userIsAdmin = false } = getMyJetpackWindowInitialState();
 
 	const items: DisplayItemType = {
 		backup: BackupCard,
@@ -44,7 +56,6 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs } ) => {
 		videopress: VideopressCard,
 		stats: StatsCard,
 		crm: CrmCard,
-		creator: ! isAtomic ? CreatorCard : null,
 		social: SocialCard,
 		'jetpack-ai': AiCard,
 	};
@@ -105,8 +116,9 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 	}, [ ownedProducts.length ] );
 
 	const filterProducts = ( products: JetpackModule[] ) => {
+		const productsWithNoCard = [ 'scan', 'security', 'growth', 'extras', 'complete' ];
 		return products.filter( product => {
-			if ( product === 'scan' || product === 'security' || product === 'extras' ) {
+			if ( productsWithNoCard.includes( product ) ) {
 				return false;
 			}
 			return true;

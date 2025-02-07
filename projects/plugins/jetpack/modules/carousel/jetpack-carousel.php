@@ -481,6 +481,7 @@ class Jetpack_Carousel {
 				'post_comment'                    => __( 'Post Comment', 'jetpack' ),
 				'write_comment'                   => __( 'Write a Comment...', 'jetpack' ),
 				'loading_comments'                => __( 'Loading Comments...', 'jetpack' ),
+				'image_label'                     => __( 'Open image in full-screen.', 'jetpack' ),
 				'download_original'               => sprintf(
 					/* translators: %1s is the full-size image width, and %2s is the height. */
 					__( 'View full size <span class="photo-size">%1$s<span class="photo-size-times">&times;</span>%2$s</span>', 'jetpack' ),
@@ -993,8 +994,6 @@ class Jetpack_Carousel {
 		$attr['data-image-caption']     = esc_attr( htmlspecialchars( $attachment_caption, ENT_COMPAT ) );
 		$attr['data-medium-file']       = esc_attr( $medium_file );
 		$attr['data-large-file']        = esc_attr( $large_file );
-		$attr['tabindex']               = '0';
-		$attr['role']                   = 'button';
 		return $attr;
 	}
 

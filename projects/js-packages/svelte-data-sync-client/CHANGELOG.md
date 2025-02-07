@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.7] - 2025-02-05
+### Changed
+- Updated package dependencies. [#41286]
+
+## [0.3.6] - 2024-12-04
+### Added
+- Enable test coverage. [#39961]
+
+### Changed
+- Update build configuration to better match supported target environments. [#35713]
+- Updated package dependencies. [#37830] [#38288] [#39004] [#39111] [#39170] [#39898]
+
+### Fixed
+- Adjust build to work with `tsc` and `moduleResolution:nodenext`. [#35713]
+
 ## [0.3.5] - 2024-02-07
 ### Changed
 - Updated package dependencies. [#34427]
@@ -12,10 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.4] - 2023-10-26
 ### Changed
 - DataSync: Refactor the datasync interface [#33538]
-- Updated package dependencies. [#32957]
-- Updated package dependencies. [#33454]
-- Updated package dependencies. [#33567]
-- Updated package dependencies. [#33569]
+- Updated package dependencies. [#32957] [#33454] [#33567] [#33569]
 
 ## [0.3.3] - 2023-09-13
 ### Changed
@@ -58,6 +70,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies. [#29471]
 - Updated to use Abort Controller to allow cancelling requests mid-stream. [#29122]
 
+[0.3.7]: https://github.com/Automattic/jetpack-svelte-data-sync-client/compare/v0.3.6...v0.3.7
+[0.3.6]: https://github.com/Automattic/jetpack-svelte-data-sync-client/compare/v0.3.5...v0.3.6
 [0.3.5]: https://github.com/Automattic/jetpack-svelte-data-sync-client/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/Automattic/jetpack-svelte-data-sync-client/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/Automattic/jetpack-svelte-data-sync-client/compare/v0.3.2...v0.3.3

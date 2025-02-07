@@ -1,23 +1,116 @@
-/**
- * Disable the email field except on Atomic Classic sites.
- */
-const wpcom_profile_settings_disable_email_field = () => {
-	if ( window.wpcomProfileSettingsLinkToWpcom?.isWpcomAtomicClassic ) {
-		return;
+const wpcom_profile_settings_modify_language_section = () => {
+	const section = document.querySelector( '.user-language-wrap' )?.querySelector( 'td' );
+	const select = document.getElementById( 'locale' );
+	const settingsLink = window.wpcomProfileSettingsLinkToWpcom?.language?.link;
+	const settingsLinkText = window.wpcomProfileSettingsLinkToWpcom?.language?.text;
+	if ( settingsLink && settingsLinkText ) {
+		const notice = document.createElement( 'p' );
+		notice.className = 'description';
+		notice.innerHTML = `<a href="${ settingsLink }">${ settingsLinkText }</a>`;
+		section?.appendChild( notice );
+		select?.remove();
 	}
-	const emailField = document.getElementById( 'email' ) as HTMLInputElement;
-	if ( emailField ) {
-		emailField.readOnly = true;
-	}
-
-	const emailDescription = document.getElementById( 'email-description' ) as HTMLInputElement;
-	emailDescription?.remove();
 };
 
-/**
- * Add a link to the WordPress.com profile settings page.
- */
-const wpcom_profile_settings_add_links_to_wpcom = () => {
+const wpcom_profile_settings_modify_name_section = () => {
+	const table = document.querySelector( '.user-user-login-wrap' )?.parentElement;
+
+	const tr = document.createElement( 'tr' );
+	const th = document.createElement( 'th' );
+	const td = document.createElement( 'td' );
+
+	const settingsLink = window.wpcomProfileSettingsLinkToWpcom?.name?.link;
+	const settingsLinkText = window.wpcomProfileSettingsLinkToWpcom?.name?.text;
+	if ( table && settingsLink && settingsLinkText ) {
+		const h2 = document.createElement( 'h2' );
+		h2.innerHTML = 'Name';
+		h2.style = 'font-size: 1.2em';
+		th.appendChild( h2 );
+
+		const notice = document.createElement( 'p' );
+		notice.className = 'description';
+		notice.innerHTML = `<a href="${ settingsLink }">${ settingsLinkText }</a>`;
+		td.appendChild( notice );
+
+		tr.appendChild( th );
+		tr.appendChild( td );
+		table?.appendChild( tr );
+		table?.parentElement?.previousElementSibling?.remove();
+	}
+
+	[
+		'.user-user-login-wrap',
+		'.user-first-name-wrap',
+		'.user-last-name-wrap',
+		'.user-nickname-wrap',
+		'.user-display-name-wrap',
+	].forEach( selector => {
+		const field = document.querySelector( selector );
+		if ( field ) {
+			field.classList.add( 'hidden' );
+		}
+	} );
+};
+
+const wpcom_profile_settings_modify_email_section = () => {
+	// Hide the email field except on Atomic Classic sites.
+	if ( ! window.wpcomProfileSettingsLinkToWpcom?.isWpcomAtomicClassic ) {
+		const field = document.getElementById( 'email' ) as HTMLInputElement;
+		if ( field ) {
+			field.classList.add( 'hidden' );
+		}
+
+		const description = document.getElementById( 'email-description' ) as HTMLInputElement;
+		description?.remove();
+	}
+
+	const section = document.querySelector( '.user-email-wrap' )?.querySelector( 'td' );
+	const settingsLink = window.wpcomProfileSettingsLinkToWpcom?.email?.link;
+	const settingsLinkText = window.wpcomProfileSettingsLinkToWpcom?.email?.text;
+	if ( section && settingsLink && settingsLinkText ) {
+		const notice = document.createElement( 'p' );
+		notice.className = 'description';
+		notice.innerHTML = `<a href="${ settingsLink }">${ settingsLinkText }</a>`;
+		section.appendChild( notice );
+	}
+};
+
+const wpcom_profile_settings_modify_website_section = () => {
+	const section = document.querySelector( '.user-url-wrap' )?.querySelector( 'td' );
+	const settingsLink = window.wpcomProfileSettingsLinkToWpcom?.website?.link;
+	const settingsLinkText = window.wpcomProfileSettingsLinkToWpcom?.website?.text;
+	if ( section && settingsLink && settingsLinkText ) {
+		const notice = document.createElement( 'p' );
+		notice.className = 'description';
+		notice.innerHTML = `<a href="${ settingsLink }">${ settingsLinkText }</a>`;
+		section.appendChild( notice );
+	}
+
+	const field = section?.querySelector( 'input' );
+	if ( field ) {
+		field.classList.add( 'hidden' );
+	}
+};
+
+const wpcom_profile_settings_modify_bio_section = () => {
+	const section = document.querySelector( '.user-description-wrap' )?.querySelector( 'td' );
+	const settingsLink = window.wpcomProfileSettingsLinkToWpcom?.bio?.link;
+	const settingsLinkText = window.wpcomProfileSettingsLinkToWpcom?.bio?.text;
+	if ( section && settingsLink && settingsLinkText ) {
+		const notice = document.createElement( 'p' );
+		notice.className = 'description';
+		notice.innerHTML = `<a href="${ settingsLink }">${ settingsLinkText }</a>`;
+		section.appendChild( notice );
+	}
+
+	const field = section?.querySelector( 'textarea' );
+	if ( field ) {
+		field.classList.add( 'hidden' );
+	}
+	section?.querySelector( 'p' )?.remove();
+};
+
+const wpcom_profile_settings_modify_password_section = () => {
 	const userSessionSection = document.querySelector( '.user-sessions-wrap' );
 	userSessionSection?.remove();
 
@@ -27,69 +120,21 @@ const wpcom_profile_settings_add_links_to_wpcom = () => {
 		newPasswordSection.innerHTML = '';
 	}
 
-	const languageSection = document.querySelector( '.user-language-wrap' )?.querySelector( 'td' );
-	const languageSelect = document.getElementById( 'locale' );
-	const languageSettingsLink = window.wpcomProfileSettingsLinkToWpcom?.language?.link;
-	const languageSettingsLinkText = window.wpcomProfileSettingsLinkToWpcom?.language?.text;
-	if ( languageSettingsLink && languageSettingsLinkText ) {
+	const settingsLink = window.wpcomProfileSettingsLinkToWpcom?.password?.link;
+	const settingsLinkText = window.wpcomProfileSettingsLinkToWpcom?.password?.text;
+	if ( newPasswordSection && settingsLink && settingsLinkText ) {
 		const notice = document.createElement( 'p' );
 		notice.className = 'description';
-		notice.innerHTML = `<a href="${ languageSettingsLink }">${ languageSettingsLinkText }</a>.`;
-		languageSection?.appendChild( notice );
-		languageSelect?.remove();
-	}
-
-	const emailSection = document.querySelector( '.user-email-wrap' )?.querySelector( 'td' );
-	const emailSettingsLink = window.wpcomProfileSettingsLinkToWpcom?.email?.link;
-	const emailSettingsLinkText = window.wpcomProfileSettingsLinkToWpcom?.email?.text;
-	if ( emailSection && emailSettingsLink && emailSettingsLinkText ) {
-		const notice = document.createElement( 'p' );
-		notice.className = 'description';
-		notice.innerHTML = `<a href="${ emailSettingsLink }">${ emailSettingsLinkText }</a>.`;
-		emailSection.appendChild( notice );
-	}
-
-	const passwordSettingsLink = window.wpcomProfileSettingsLinkToWpcom?.password?.link;
-	const passwordSettingsLinkText = window.wpcomProfileSettingsLinkToWpcom?.password?.text;
-	if ( newPasswordSection && passwordSettingsLink && passwordSettingsLinkText ) {
-		const notice = document.createElement( 'p' );
-		notice.className = 'description';
-		notice.innerHTML = `<a href="${ passwordSettingsLink }">${ passwordSettingsLinkText }</a>.`;
+		notice.innerHTML = `<a href="${ settingsLink }">${ settingsLinkText }</a>`;
 		newPasswordSection.appendChild( notice );
 	}
-
-	const usernameSection = document.querySelector( '.user-user-login-wrap' )?.querySelector( 'td' );
-	const syncedSettingsLink = window.wpcomProfileSettingsLinkToWpcom?.synced?.link;
-	const syncedSettingsLinkText = window.wpcomProfileSettingsLinkToWpcom?.synced?.text;
-	if ( usernameSection && syncedSettingsLink && syncedSettingsLinkText ) {
-		const notice = document.createElement( 'p' );
-		notice.className = 'description';
-		notice.innerHTML = `<a href="${ syncedSettingsLink }">${ syncedSettingsLinkText }</a>.`;
-		usernameSection.appendChild( notice );
-	}
-};
-
-/**
- * Hide the fields that are synced from /me.
- */
-const wpcom_profile_settings_hide_synced_fields = () => {
-	[
-		'.user-first-name-wrap',
-		'.user-last-name-wrap',
-		'.user-nickname-wrap',
-		'.user-display-name-wrap',
-		'.user-url-wrap',
-		'.user-description-wrap',
-	].forEach( selector => {
-		const field = document.querySelector( selector );
-		if ( field ) {
-			field.classList.add( 'hidden' );
-		}
-	} );
 };
 
 document.addEventListener( 'DOMContentLoaded', () => {
-	wpcom_profile_settings_add_links_to_wpcom();
-	wpcom_profile_settings_disable_email_field();
-	wpcom_profile_settings_hide_synced_fields();
+	wpcom_profile_settings_modify_language_section();
+	wpcom_profile_settings_modify_name_section();
+	wpcom_profile_settings_modify_email_section();
+	wpcom_profile_settings_modify_website_section();
+	wpcom_profile_settings_modify_bio_section();
+	wpcom_profile_settings_modify_password_section();
 } );

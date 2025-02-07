@@ -4,7 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.0",
+		"php": ">=7.2",
 		"automattic/jetpack-a8c-mc-stats": "@dev",
 		"automattic/jetpack-status": "@dev"
 	},
@@ -24,6 +24,9 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+		],
 		"test-php": [
 			"@composer phpunit"
 		]
@@ -41,7 +44,7 @@
 	"prefer-stable": true,
 	"extra": {
 		"branch-alias": {
-			"dev-trunk": "0.4.x-dev"
+			"dev-trunk": "0.5.x-dev"
 		},
 		"mirror-repo": "Automattic/jetpack-plugins-installer",
 		"changelogger": {

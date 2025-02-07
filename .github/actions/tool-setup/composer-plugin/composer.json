@@ -4,10 +4,10 @@
 	"type": "composer-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"composer-plugin-api": "^2.0"
+		"composer-plugin-api": "^2.2"
 	},
 	"require-dev": {
-		"composer/composer": "^2.0"
+		"composer/composer": "^2.2"
 	},
 	"autoload": {
 		"psr-4": {

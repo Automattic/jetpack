@@ -47,6 +47,9 @@ class Template extends \WP_REST_Templates_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
+		// Set the WP_IMPORTING constant to prevent sync notifications
+		$this->set_importing();
+
 		$response = parent::create_item( $request );
 
 		return $this->add_import_id_metadata( $request, $response );

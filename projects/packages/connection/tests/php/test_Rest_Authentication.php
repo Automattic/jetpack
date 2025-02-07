@@ -37,7 +37,7 @@ class REST_Authentication_Test extends TestCase {
 		$this->rest_authentication = Rest_Authentication::init();
 
 		$this->manager = $this->getMockBuilder( Manager::class )
-			->setMethods( array( 'verify_xml_rpc_signature', 'reset_saved_auth_state' ) )
+			->onlyMethods( array( 'verify_xml_rpc_signature', 'reset_saved_auth_state' ) )
 			->getMock();
 
 		$reflection_class = new \ReflectionClass( get_class( $this->rest_authentication ) );

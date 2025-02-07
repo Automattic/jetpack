@@ -3,8 +3,8 @@ import { reduce } from 'lodash';
 /**
  * Take user set attributes and validate them against the attribute definition.
  *
- * @param {string} attributeDetails     An object representing the attributes for a block, formatted as an object with these properties: type, default, validator.
- * @param {string} attributesToValidate The attributes for an instance of the block, which may have been edited by a user
+ * @param {string} attributeDetails     - An object representing the attributes for a block, formatted as an object with these properties: type, default, validator.
+ * @param {string} attributesToValidate - The attributes for an instance of the block, which may have been edited by a user
  * @return {object} Block attributes that have been validated.
  */
 export const getValidatedAttributes = ( attributeDetails, attributesToValidate ) =>

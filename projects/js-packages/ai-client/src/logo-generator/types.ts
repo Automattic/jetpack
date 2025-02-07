@@ -16,10 +16,9 @@ export interface GeneratorModalProps {
 	isOpen: boolean;
 	onClose: () => void;
 	onApplyLogo: ( mediaId: number ) => void;
-	onReload: () => void;
+	onReload?: () => void;
 	context: string;
 	placement: string;
-	showStyleSelector?: boolean;
 }
 
 export interface LogoPresenterProps {
@@ -93,6 +92,7 @@ export type UpdateInStorageProps = {
 	url: Logo[ 'url' ];
 	newUrl: Logo[ 'url' ];
 	mediaId: Logo[ 'mediaId' ];
+	rating?: Logo[ 'rating' ];
 };
 
 export type RemoveFromStorageProps = {

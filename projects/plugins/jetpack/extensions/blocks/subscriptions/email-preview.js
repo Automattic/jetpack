@@ -1,4 +1,4 @@
-import { useBreakpointMatch } from '@automattic/jetpack-components';
+import { getRedirectUrl, useBreakpointMatch } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import {
@@ -13,12 +13,13 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOptionIcon as ToggleGroupControlOptionIcon, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Spinner,
+	ExternalLink,
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useState, useCallback, useEffect } from '@wordpress/element';
+import { useState, useCallback, useEffect, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { desktop, mobile, tablet, check, people, currencyDollar } from '@wordpress/icons';
+import { desktop, mobile, tablet, check, people, currencyDollar, warning } from '@wordpress/icons';
 import './email-preview.scss';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
@@ -226,6 +227,8 @@ const PreviewControls = ( {
 
 export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 	const [ isLoading, setIsLoading ] = useState( true );
+	const [ isError, setError ] = useState( false );
+	const [ refetchedOnError, setRefetchedOnError ] = useState( false );
 	const [ previewCache, setPreviewCache ] = useState( {} );
 	const [ selectedAccess, setSelectedAccess ] = useState( accessOptions.subscribers.key );
 	const [ selectedDevice, setSelectedDevice ] = useState( 'desktop' );
@@ -238,6 +241,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 			}
 
 			setIsLoading( true );
+			setError( false );
 
 			try {
 				const response = await apiFetch( {
@@ -253,19 +257,14 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 				} else {
 					throw new Error( 'Invalid response format' );
 				}
-			} catch ( error ) {
-				setPreviewCache( prevCache => ( {
-					...prevCache,
-					[ accessLevel ]: `<html><body>${ __(
-						'Error loading preview',
-						'jetpack'
-					) }</body></html>`,
-				} ) );
+			} catch {
+				tracks.recordEvent( 'jetpack_newsletter_preview_modal_error' );
+				setError( true );
 			} finally {
 				setIsLoading( false );
 			}
 		},
-		[ postId ]
+		[ postId, tracks ]
 	);
 
 	useEffect( () => {
@@ -312,14 +311,46 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 						justifyContent: 'center',
 						alignItems: 'center',
 						height: 'calc(100vh - 190px)',
-						backgroundColor: '#ddd',
+						backgroundColor: isError ? '#fff' : '#ddd',
 						paddingTop: selectedDevice !== 'desktop' ? '36px' : '0',
 						transition: 'padding 0.3s ease-in-out',
 					} }
 				>
-					{ isLoading ? (
-						<Spinner />
-					) : (
+					{ isLoading && <Spinner /> }
+					{ isError && (
+						<VStack
+							alignment="center"
+							aria-live="polite"
+							role="alert"
+							style={ { textAlign: 'center' } }
+						>
+							<Icon icon={ warning } />
+							<h3>{ __( 'Oops, something went wrong showing the preview…', 'jetpack' ) }</h3>
+							<Button
+								onClick={ () => {
+									setRefetchedOnError( true );
+									fetchPreview( selectedAccess );
+								} }
+								variant="primary"
+							>
+								{ __( 'Try again', 'jetpack' ) }
+							</Button>
+							{ refetchedOnError && (
+								<p>
+									{ createInterpolateElement(
+										__(
+											'If the issue persists, please <supportLink>contact support</supportLink>.',
+											'jetpack'
+										),
+										{
+											supportLink: <ExternalLink href={ getRedirectUrl( 'jetpack-support' ) } />,
+										}
+									) }
+								</p>
+							) }
+						</VStack>
+					) }
+					{ ! isLoading && ! isError && (
 						<iframe
 							srcDoc={ previewCache?.[ selectedAccess ] }
 							style={ {

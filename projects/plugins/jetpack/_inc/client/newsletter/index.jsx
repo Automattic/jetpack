@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
-import QuerySite from 'components/data/query-site';
 import React from 'react';
 import { connect } from 'react-redux';
+import QuerySite from 'components/data/query-site';
 import { getModule } from 'state/modules';
 import { isModuleFound as isModuleFoundSelector } from 'state/search';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';

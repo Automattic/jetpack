@@ -64,6 +64,7 @@ const EvaluationStep = ( {
 							label={ question }
 							checked={ values[ key ] }
 							onChange={ setChecked( key ) }
+							__nextHasNoMarginBottom={ true }
 						/>
 					) ) }
 					<div className={ styles[ 'form-actions' ] }>

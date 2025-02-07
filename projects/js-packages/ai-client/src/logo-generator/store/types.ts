@@ -1,3 +1,4 @@
+import type { ImageStyleObject } from '../../hooks/use-image-generator/constants.js';
 import type { SiteDetails } from '../types.js';
 
 /**
@@ -13,7 +14,7 @@ export type UpgradeTypeProp = 'vip' | 'default';
 
 export type TierUnlimitedProps = {
 	slug: 'ai-assistant-tier-unlimited';
-	limit: 999999999;
+	limit: 999999999 | 3000;
 	value: 1;
 	readableLimit: string;
 };
@@ -88,13 +89,17 @@ export type TierValueProp =
 	| Tier750Props[ 'value' ]
 	| Tier1000Props[ 'value' ];
 
-export type FeatureControl = {
-	enabled: boolean;
-	'min-jetpack-version': string;
-	[ key: string ]: FeatureControl | boolean | string;
+export type LogoGeneratorFeatureControl = FeatureControl & {
+	styles: Array< ImageStyleObject > | [];
 };
 
-export type FeaturesControl = { [ key: string ]: FeatureControl };
+export type FeatureControl = {
+	enabled: boolean;
+};
+
+export type FeaturesControl = {
+	[ key: string ]: FeatureControl | LogoGeneratorFeatureControl;
+};
 
 export type AiFeatureProps = {
 	hasFeature: boolean;
@@ -135,6 +140,8 @@ export type Logo = {
 	url: string;
 	description: string;
 	mediaId?: number;
+	rating?: string;
+	revisedPrompt?: string;
 };
 
 export type RequestError = string | Error | null;
@@ -215,6 +222,7 @@ export type AiAssistantFeatureEndpointResponseProps = {
 		};
 	};
 	'features-control'?: FeaturesControl;
+	data?: string; // when WP responds with a 200 status code but it's the error wrap
 };
 
 export type SaveLogo = ( logo: Logo ) => Promise< { mediaId: number; mediaURL: string } >;

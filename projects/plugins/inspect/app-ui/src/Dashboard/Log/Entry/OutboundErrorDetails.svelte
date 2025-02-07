@@ -1,10 +1,10 @@
 <script lang="ts">
-	import Tab from "../../../Components/Tabs/Tab.svelte";
-	import TabList from "../../../Components/Tabs/TabList.svelte";
-	import TabPanel from "../../../Components/Tabs/TabPanel.svelte";
-	import Tabs from "../../../Components/Tabs/Tabs.svelte";
-	import PrettyJSON from "../PrettyJSON.svelte";
-	import type { OutgoingError } from "../../../utils/ZodSchema";
+	import Tab from '../../../Components/Tabs/Tab.svelte';
+	import TabList from '../../../Components/Tabs/TabList.svelte';
+	import TabPanel from '../../../Components/Tabs/TabPanel.svelte';
+	import Tabs from '../../../Components/Tabs/Tabs.svelte';
+	import PrettyJSON from '../PrettyJSON.svelte';
+	import type { OutgoingError } from '../../../utils/ZodSchema';
 
 	export let details: OutgoingError;
 </script>
@@ -16,7 +16,7 @@
 	</TabList>
 
 	<TabPanel>
-		{#each Object.entries(details.error.errors) as [error, name]}
+		{#each Object.entries( details.error.errors ) as [error, name]}
 			<h4>{name}</h4>
 			<p>{error}</p>
 		{/each}

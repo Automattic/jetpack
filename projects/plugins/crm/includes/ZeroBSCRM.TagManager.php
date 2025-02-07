@@ -9,13 +9,7 @@
  * Date: 19/03/18
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 class zeroBSCRM_TagManager{
 
@@ -57,7 +51,7 @@ class zeroBSCRM_TagManager{
         global $zbs;
 
         // we load from DAL defaults, if objType passed (overriding anything passed, if empty/false)
-        if ($zbs->isDAL3() && isset($objTypeID)){
+		if ( isset( $objTypeID ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
             $objTypeID = (int)$objTypeID;
             if ($objTypeID > 0){

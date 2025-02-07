@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Prevent PHP error when error log retrieved from database is an unexpected type. 

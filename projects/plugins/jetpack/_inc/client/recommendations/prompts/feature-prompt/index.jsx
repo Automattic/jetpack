@@ -2,11 +2,11 @@ import { ProgressBar } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import React, { useCallback, useEffect, useMemo } from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import analytics from 'lib/analytics';
-import React, { useCallback, useEffect, useMemo } from 'react';
-import { connect } from 'react-redux';
 import {
 	addSelectedRecommendation as addSelectedRecommendationAction,
 	addSkippedRecommendation as addSkippedRecommendationAction,

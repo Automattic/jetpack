@@ -346,7 +346,7 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 		typeof renderTooltip === 'function' ? renderTooltip : ( time: number ) => formatTime( time );
 
 	return (
-		<BaseControl { ...baseControlProps }>
+		<BaseControl { ...baseControlProps } __nextHasNoMarginBottom={ true }>
 			<div className={ styles[ 'timestamp-control__controls-wrapper' ] }>
 				{ NumberControl && (
 					<TimestampInput
@@ -372,6 +372,7 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 					marks={ marksEvery ? marks : undefined }
 					renderTooltipContent={ renderTooltipHandler }
 					{ ...( renderTooltip === false ? { showTooltip: false } : {} ) }
+					__nextHasNoMarginBottom={ true }
 				/>
 			</div>
 		</BaseControl>

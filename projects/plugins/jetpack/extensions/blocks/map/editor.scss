@@ -44,7 +44,6 @@
 	}
 
 	 .wp-block-jetpack-map__gm-container {
-	 	position: absolute;
 	 	inset: 0;
 	 	z-index: 0;
 	 }
@@ -57,10 +56,6 @@
 		background-color: transparent;
 		pointer-events: auto;
 	}
-}
-
-.wp-block-jetpack-map__height_input {
-	display: block;
 }
 
 .component__add-point__popover {

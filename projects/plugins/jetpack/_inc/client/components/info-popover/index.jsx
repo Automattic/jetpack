@@ -1,10 +1,10 @@
 import clsx from 'clsx';
-import Gridicon from 'components/gridicon';
-import Popover from 'components/popover';
-import analytics from 'lib/analytics';
 import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
+import Gridicon from 'components/gridicon';
+import Popover from 'components/popover';
+import analytics from 'lib/analytics';
 
 import './style.scss';
 

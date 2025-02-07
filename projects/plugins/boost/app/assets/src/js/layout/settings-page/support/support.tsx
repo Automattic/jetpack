@@ -1,9 +1,11 @@
 import { __ } from '@wordpress/i18n';
 import { Button } from '@automattic/jetpack-components';
 import styles from './support.module.scss';
+import { recordBoostEvent } from '$lib/utils/analytics';
 
 const Support = () => {
 	const openPaidSupport = () => {
+		recordBoostEvent( 'support_contact_us_clicked', {} );
 		const supportUrl = 'https://jetpackme.wordpress.com/contact-support/';
 		window.open( supportUrl, '_blank' );
 	};

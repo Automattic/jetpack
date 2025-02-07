@@ -30,11 +30,14 @@ export function ConnectionName( { connection }: ConnectionNameProps ) {
 				<span className={ styles[ 'profile-link' ] }>{ connection.display_name }</span>
 			) : (
 				<ExternalLink className={ styles[ 'profile-link' ] } href={ connection.profile_link }>
-					{ connection.display_name || connection.external_display }
+					{ connection.display_name }
 				</ExternalLink>
 			) }
 			{ isUpdating ? (
-				<Spinner color="black" aria-label={ __( 'Updating account', 'jetpack' ) } />
+				<Spinner
+					color="black"
+					aria-label={ __( 'Updating account', 'jetpack-publicize-components' ) }
+				/>
 			) : null }
 		</div>
 	);

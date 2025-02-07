@@ -229,6 +229,7 @@ class SearchApp extends Component {
 			postsPerPage: this.props.options.postsPerPage,
 			adminQueryFilter: this.props.options.adminQueryFilter,
 			highlightFields: this.props.options.highlightFields,
+			customResults: this.props.options.customResults,
 			isInCustomizer: this.props.isInCustomizer,
 		} );
 	};

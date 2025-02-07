@@ -9,7 +9,7 @@
 namespace Automattic\JetpackCRM;
 
 // block direct access
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
  * WooSync Contact Tabs class
@@ -378,7 +378,8 @@ class Woo_Sync_Contact_Tabs {
 			}
 
 			// 2 - find subs for all emails (inc aliases)
-			$emails = zeroBS_customerEmails( $object_id );
+			global $zbs;
+			$emails = $zbs->DAL->contacts->getContactEmails( $object_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			if ( is_array( $emails ) ) {
 
 				foreach ( $emails as $email ) {

@@ -76,73 +76,6 @@ class Jetpack {
 	public $xmlrpc_server = null;
 
 	/**
-	 * List of Jetpack modules that have CSS that gets concatenated into jetpack.css.
-	 *
-	 * See $concatenated_style_handles for the list of handles,
-	 * and the implode_frontend_css method for more details.
-	 *
-	 * When updating this list, make sure to update $concatenated_style_handles as well.
-	 *
-	 * @var array List of Jetpack modules.
-	 */
-	public $modules_with_concatenated_css = array(
-		'carousel',
-		'contact-form',
-		'infinite-scroll',
-		'likes',
-		'related-posts',
-		'sharedaddy',
-		'shortcodes',
-		'subscriptions',
-		'tiled-gallery',
-		'widgets',
-	);
-
-	/**
-	 * The handles of styles that are concatenated into jetpack.css.
-	 *
-	 * When making changes to that list,
-	 * you must also update concat_list in tools/webpack.config.css.js,
-	 * and to $modules_with_concatenated_css if necessary.
-	 *
-	 * @var array The handles of styles that are concatenated into jetpack.css.
-	 */
-	public $concatenated_style_handles = array(
-		'jetpack-carousel-swiper-css',
-		'jetpack-carousel',
-		'grunion.css',
-		'the-neverending-homepage',
-		'jetpack_likes',
-		'jetpack_related-posts',
-		'sharedaddy',
-		'jetpack-slideshow',
-		'presentations',
-		'quiz',
-		'jetpack-subscriptions',
-		'jetpack-responsive-videos',
-		'jetpack-social-menu',
-		'tiled-gallery',
-		'jetpack_display_posts_widget',
-		'gravatar-profile-widget',
-		'goodreads-widget',
-		'jetpack_social_media_icons_widget',
-		'jetpack-top-posts-widget',
-		'jetpack_image_widget',
-		'jetpack-my-community-widget',
-		'jetpack-authors-widget',
-		'wordads',
-		'eu-cookie-law-style',
-		'flickr-widget-style',
-		'jetpack-search-widget',
-		'jetpack-simple-payments-widget-style',
-		'jetpack-widget-social-icons-styles',
-		'wpcom_instagram_widget',
-		'milestone-widget',
-		'subscribe-modal-css',
-		'subscribe-overlay-css',
-	);
-
-	/**
 	 * Contains all assets that have had their URL rewritten to minified versions.
 	 *
 	 * @var array
@@ -325,7 +258,6 @@ class Jetpack {
 	 *
 	 * - All in One SEO Pack, All in one SEO Pack Pro
 	 * - WordPress SEO by Yoast, WordPress SEO Premium by Yoast
-	 * - SEOPress, SEOPress Pro
 	 *
 	 * Plugin authors: If you'd like to prevent Jetpack's Open Graph tag generation in your plugin, you can do so via this filter:
 	 * add_filter( 'jetpack_enable_open_graph', '__return_false' );
@@ -370,6 +302,8 @@ class Jetpack {
 		'wp-facebook-like-send-open-graph-meta/wp-facebook-like-send-open-graph-meta.php', // WP Facebook Like Send & Open Graph Meta.
 		'wp-facebook-open-graph-protocol/wp-facebook-ogp.php',   // WP Facebook Open Graph protocol.
 		'wp-ogp/wp-ogp.php',                                     // WP-OGP.
+		'wp-seopress/seopress.php',                              // SEOPress.
+		'wp-seopress-pro/seopress-pro.php',                      // SEOPress Pro.
 		'zoltonorg-social-plugin/zosp.php',                      // Zolton.org Social Plugin.
 		'wp-fb-share-like-button/wp_fb_share-like_widget.php',   // WP Facebook Like Button.
 		'open-graph-metabox/open-graph-metabox.php',              // Open Graph Metabox.
@@ -691,22 +625,11 @@ class Jetpack {
 
 		/**
 		 * Prepare Gutenberg Editor functionality
+		 *
+		 * The hooks previously here have been moved to modules/blocks.php but leaving this here pending
+		 * a longer investigation to see if code is expecting the Gutenberg class to always be available.
 		 */
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-gutenberg.php';
-		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_independent_blocks' ) );
-		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_block_editor_extensions' ), 9 );
-		/**
-		 * We've switched from enqueue_block_editor_assets to enqueue_block_assets in WP-Admin because the assets with the former are loaded on the main site-editor.php.
-		 *
-		 * With the latter, the assets are now loaded in the SE iframe; the implementation is now faster because Gutenberg doesn't need to inject the assets in the iframe on client-side.
-		 */
-		if ( is_admin() ) {
-			add_action( 'enqueue_block_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
-		} else {
-			add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
-		}
-		add_filter( 'render_block', array( 'Jetpack_Gutenberg', 'display_deprecated_block_message' ), 10, 2 );
-
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 
 		add_action( 'jetpack_event_log', array( 'Jetpack', 'log' ), 10, 2 );
@@ -763,17 +686,6 @@ class Jetpack {
 		// Update the site's Jetpack plan and products from API on heartbeats.
 		add_action( 'jetpack_heartbeat', array( Jetpack_Plan::class, 'refresh_from_wpcom' ) );
 
-		/**
-		 * This is the hack to concatenate all css files into one.
-		 * For description and reasoning see the implode_frontend_css method.
-		 *
-		 * Super late priority so we catch all the registered styles.
-		 */
-		if ( ! is_admin() ) {
-			add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), -1 ); // Run first.
-			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`.
-		}
-
 		// Actually push the stats on shutdown.
 		if ( ! has_action( 'shutdown', array( $this, 'push_stats' ) ) ) {
 			add_action( 'shutdown', array( $this, 'push_stats' ) );
@@ -828,8 +740,7 @@ class Jetpack {
 
 		// Add 5-star
 		add_filter( 'plugin_row_meta', array( $this, 'add_5_star_review_link' ), 10, 2 );
-
-		Deprecate::instance();
+		add_action( 'init', array( Deprecate::class, 'instance' ) );
 	}
 
 	/**
@@ -945,8 +856,7 @@ class Jetpack {
 	 * @action plugins_loaded
 	 */
 	public function late_initialization() {
-		add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
-
+		add_action( 'after_setup_theme', array( 'Jetpack', 'load_modules' ), -2 );
 		My_Jetpack_Initializer::init();
 
 		// Initialize Boost Speed Score
@@ -2089,7 +1999,7 @@ class Jetpack {
 				$page = sanitize_text_field( wp_unslash( $_GET['page'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- we're not changing the site.
 			}
 			wp_safe_redirect( self::admin_url( 'page=' . rawurlencode( $page ) ) );
-			exit;
+			exit( 0 );
 		}
 	}
 
@@ -2229,6 +2139,15 @@ class Jetpack {
 						}
 					}
 				}
+			}
+		}
+
+		// Special case to convert block setting to a block module.
+		$block_key = array_search( 'blocks', $modules, true );
+		if ( $block_key !== false ) { // Only care if 'blocks' made it through the previous filters.
+			$block_option = get_option( 'jetpack_blocks_disabled', null );
+			if ( $block_option ) {
+				unset( $modules[ $block_key ] );
 			}
 		}
 
@@ -2471,7 +2390,7 @@ class Jetpack {
 					add_query_arg( compact( 'min_version', 'max_version', 'other_modules' ), self::admin_url( 'page=jetpack' ) )
 				);
 				wp_safe_redirect( $url );
-				exit;
+				exit( 0 );
 			}
 		}
 
@@ -2679,7 +2598,7 @@ p {
 				update_option( 'active_plugins', array_filter( $plugins ) );
 			}
 		}
-		exit;
+		exit( 0 );
 	}
 
 	/**
@@ -2991,8 +2910,15 @@ p {
 	 * @param mixed $data Data to log.
 	 */
 	public static function log( $code, $data = null ) {
+
+		$raw_log = Jetpack_Options::get_option( 'log', array() );
+		// This can be modified by the `jetpack_options` filter, so abort if we don't have an array.
+		if ( ! is_array( $raw_log ) ) {
+			return;
+		}
+
 		// only grab the latest 200 entries.
-		$log = array_slice( Jetpack_Options::get_option( 'log', array() ), -199, 199 );
+		$log = array_slice( $raw_log, -199, 199 );
 
 		// Append our event to the log.
 		$log_entry = array(
@@ -3394,7 +3320,7 @@ p {
 
 		status_header( 200 );
 		if ( true === $response ) {
-			exit;
+			exit( 0 );
 		}
 
 		die( wp_json_encode( (object) $response ) );
@@ -3558,16 +3484,6 @@ p {
 	}
 
 	/**
-	 * Doesn't do anything anymore.
-	 *
-	 * @deprecated $$next-version$$ We no longer show the "Help" button.
-	 *
-	 * @since Jetpack (1.2.3)
-	 * @return void
-	 */
-	public function admin_help() {}
-
-	/**
 	 * Add action links for the Jetpack plugin.
 	 *
 	 * @param array $actions Plugin actions.
@@ -3607,12 +3523,8 @@ p {
 				'_inc/build/plugins-page.js',
 				JETPACK__PLUGIN_FILE,
 				array(
-					'in_footer'    => true,
-					'textdomain'   => 'jetpack',
-					'dependencies' => array(
-						'wp-polyfill',
-						'wp-components',
-					),
+					'in_footer'  => true,
+					'textdomain' => 'jetpack',
 				)
 			);
 			Assets::enqueue_script( 'jetpack-plugins-page-js' );
@@ -3670,7 +3582,7 @@ p {
 					self::get_calypso_host() . 'jetpack/connect'
 				)
 			);
-			exit;
+			exit( 0 );
 		}
 	}
 
@@ -3777,7 +3689,7 @@ p {
 
 					add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
 					wp_safe_redirect( $url );
-					exit;
+					exit( 0 );
 				case 'activate':
 					if ( ! current_user_can( 'jetpack_activate_modules' ) ) {
 						$error = 'cheatin';
@@ -3793,7 +3705,7 @@ p {
 					}
 					// The following two lines will rarely happen, as Jetpack::activate_module normally exits at the end.
 					wp_safe_redirect( self::admin_url( 'page=jetpack' ) );
-					exit;
+					exit( 0 );
 				case 'activate_default_modules':
 					check_admin_referer( 'activate_default_modules' );
 					self::log( 'activate_default_modules' );
@@ -3803,7 +3715,7 @@ p {
 					$other_modules = isset( $_GET['other_modules'] ) && is_array( $_GET['other_modules'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_GET['other_modules'] ) ) : array();
 					self::activate_default_modules( $min_version, $max_version, $other_modules );
 					wp_safe_redirect( self::admin_url( 'page=jetpack' ) );
-					exit;
+					exit( 0 );
 				case 'disconnect':
 					if ( ! current_user_can( 'jetpack_disconnect' ) ) {
 						$error = 'cheatin';
@@ -3814,7 +3726,7 @@ p {
 					self::log( 'disconnect' );
 					self::disconnect();
 					wp_safe_redirect( self::admin_url( 'disconnected=true' ) );
-					exit;
+					exit( 0 );
 				case 'reconnect':
 					if ( ! current_user_can( 'jetpack_reconnect' ) ) {
 						$error = 'cheatin';
@@ -3827,7 +3739,7 @@ p {
 
 					add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
 					wp_safe_redirect( $this->build_connect_url( true, false, 'reconnect' ) );
-					exit;
+					exit( 0 );
 				case 'deactivate':
 					if ( ! current_user_can( 'jetpack_deactivate_modules' ) ) {
 						$error = 'cheatin';
@@ -3843,7 +3755,7 @@ p {
 					}
 					self::state( 'module', $modules );
 					wp_safe_redirect( self::admin_url( 'page=jetpack' ) );
-					exit;
+					exit( 0 );
 				case 'unlink':
 					$redirect = isset( $_GET['redirect'] ) ? sanitize_text_field( wp_unslash( $_GET['redirect'] ) ) : '';
 					check_admin_referer( 'jetpack-unlink' );
@@ -3855,7 +3767,7 @@ p {
 					} else {
 						wp_safe_redirect( self::admin_url( array( 'page' => rawurlencode( $redirect ) ) ) );
 					}
-					exit;
+					exit( 0 );
 				default:
 					/**
 					 * Fires when a Jetpack admin page is loaded with an unrecognized parameter.
@@ -4586,6 +4498,7 @@ endif;
 				if ( is_a( $jp_user, 'WP_User' ) ) {
 					wp_set_current_user( $jp_user->ID );
 					$user_can = is_multisite()
+						// @phan-suppress-next-line PhanDeprecatedFunction -- @todo Switch to current_user_can_for_site when we drop support for WP 6.6.
 						? current_user_can_for_blog( get_current_blog_id(), 'manage_options' )
 						: current_user_can( 'manage_options' );
 					if ( $user_can ) {
@@ -5490,6 +5403,8 @@ endif;
 				'replacement' => null,
 				'version'     => 'jetpack-13.4.0',
 			),
+			// jetpack_implode_frontend_css has been removed, but is not listed here. The updated behavior is exactly the only use of the filter.
+			// We can reassess formally deprecating it here later; for now, it would be noise with no functional difference.
 		);
 
 		foreach ( $filter_deprecated_list as $tag => $args ) {
@@ -5619,127 +5534,6 @@ endif;
 		}
 
 		return $css;
-	}
-
-	/**
-	 * This methods removes all of the registered css files on the front end
-	 * from Jetpack in favor of using a single file. In effect "imploding"
-	 * all the files into one file.
-	 *
-	 * Pros:
-	 * - Uses only ONE css asset connection instead of 15
-	 * - Saves a minimum of 56k
-	 * - Reduces server load
-	 * - Reduces time to first painted byte
-	 *
-	 * Cons:
-	 * - Loads css for ALL modules. However all selectors are prefixed so it
-	 *      should not cause any issues with themes.
-	 * - Plugins/themes dequeuing styles no longer do anything. See
-	 *      jetpack_implode_frontend_css filter for a workaround
-	 *
-	 * For some situations developers may wish to disable css imploding and
-	 * instead operate in legacy mode where each file loads seperately and
-	 * can be edited individually or dequeued. This can be accomplished with
-	 * the following line:
-	 *
-	 * add_filter( 'jetpack_implode_frontend_css', '__return_false' );
-	 *
-	 * @param bool $travis_test Is this a test run.
-	 *
-	 * @since 3.2
-	 * @since $$next-version$$ Default to not imploding. Requires a filter to enable. This may be temporary before dropping completely.
-	 */
-	public function implode_frontend_css( $travis_test = false ) {
-		$do_implode = false;
-		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-			// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-			// $do_implode = false;
-		}
-
-		// Do not implode CSS when the page loads via the AMP plugin.
-		if ( class_exists( Jetpack_AMP_Support::class ) && Jetpack_AMP_Support::is_amp_request() ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-			// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-			// $do_implode = false;
-		}
-
-		/*
-		 * Only proceed if at least 2 modules with concatenated CSS are active.
-		 * There is no point in serving a big concatenated CSS file
-		 * if there are no features (or only one) that actually need some CSS loaded.
-		 */
-		$active_modules                = self::get_active_modules();
-		$modules_with_concatenated_css = $this->modules_with_concatenated_css;
-		$active_module_with_css_count  = count( array_intersect( $active_modules, $modules_with_concatenated_css ) );
-		if ( $active_module_with_css_count < 2 ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-			// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-			// $do_implode = false;
-		}
-
-		/**
-		 * Allow CSS to be concatenated into a single jetpack.css file.
-		 *
-		 * @since 3.2.0
-		 *
-		 * @param bool $do_implode Should CSS be concatenated? Default to true.
-		 */
-		$do_implode = apply_filters( 'jetpack_implode_frontend_css', $do_implode );
-
-		// Do not use the imploded file when default behavior was altered through the filter.
-		if ( ! $do_implode ) {
-			return;
-		}
-
-		// We do not want to use the imploded file in dev mode, or if not connected.
-		if ( ( new Status() )->is_offline_mode() || ! self::is_connection_ready() ) {
-			if ( ! $travis_test ) {
-				return;
-			}
-		}
-
-		// Do not use the imploded file if sharing css was dequeued via the sharing settings screen.
-		if ( get_option( 'sharedaddy_disable_resources' ) ) {
-			return;
-		}
-
-		/*
-		 * Now we assume Jetpack is connected and able to serve the single
-		 * file.
-		 *
-		 * In the future there will be a check here to serve the file locally
-		 * or potentially from the Jetpack CDN
-		 *
-		 * For now:
-		 * - Enqueue a single imploded css file
-		 * - Zero out the style_loader_tag for the bundled ones
-		 * - Be happy, drink scotch
-		 */
-
-		add_filter( 'style_loader_tag', array( $this, 'concat_remove_style_loader_tag' ), 10, 2 );
-
-		$version = self::is_development_version() ? filemtime( JETPACK__PLUGIN_DIR . 'css/jetpack.css' ) : JETPACK__VERSION;
-
-		wp_enqueue_style( 'jetpack_css', plugins_url( 'css/jetpack.css', __FILE__ ), array(), $version );
-		wp_style_add_data( 'jetpack_css', 'rtl', 'replace' );
-	}
-
-	/**
-	 * Removes styles that are part of concatenated group.
-	 *
-	 * @param string $tag Style tag.
-	 * @param string $handle Style handle.
-	 *
-	 * @return string
-	 */
-	public function concat_remove_style_loader_tag( $tag, $handle ) {
-		if ( in_array( $handle, $this->concatenated_style_handles, true ) ) {
-			$tag = '';
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				$tag = '<!-- `' . esc_html( $handle ) . "` is included in the concatenated jetpack.css -->\r\n";
-			}
-		}
-
-		return $tag;
 	}
 
 	/**
@@ -6118,6 +5912,23 @@ endif;
 				_x( 'Earn more from your content', 'Creator Product Feature', 'jetpack' ),
 				_x( 'Accept payments with PayPal', 'Creator Product Feature', 'jetpack' ),
 				_x( 'Increase earnings with WordAds', 'Creator Product Feature', 'jetpack' ),
+			),
+		);
+
+		$products['growth'] = array(
+			'title'             => __( 'Jetpack Growth', 'jetpack' ),
+			'slug'              => 'jetpack_growth_yearly',
+			'description'       => __( 'Essential tools to help you grow your audience, track visitor engagement, and turn leads into loyal customers and advocates.', 'jetpack' ),
+			'show_promotion'    => true,
+			'discount_percent'  => 50,
+			'included_in_plans' => array( 'complete' ),
+			'features'          => array(
+				_x( 'Jetpack Social', 'Growth Product Feature', 'jetpack' ),
+				_x( 'Jetpack Stats (10K site views, upgradeable)', 'Growth Product Feature', 'jetpack' ),
+				_x( 'Unlimited subscriber imports', 'Growth Product Feature', 'jetpack' ),
+				_x( 'Earn more from your content', 'Growth Product Feature', 'jetpack' ),
+				_x( 'Accept payments with PayPal', 'Growth Product Feature', 'jetpack' ),
+				_x( 'Increase earnings with WordAds', 'Growth Product Feature', 'jetpack' ),
 			),
 		);
 

@@ -21,7 +21,7 @@ NOTE: it might become outdated, so it could be a good idea to generate this file
 
 ### PHP versions(Low)
 
-- 7.0 - current
+- 7.2 - current
 
 ### Hosting providers(High)
 

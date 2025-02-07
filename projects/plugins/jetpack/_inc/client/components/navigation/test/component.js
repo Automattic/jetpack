@@ -17,9 +17,7 @@ describe( 'Navigation', () => {
 		it( 'renders 1 NavItem component', () => {
 			render( <Navigation { ...testProps } /> );
 
-			// eslint-disable-next-line jest-dom/prefer-in-document -- No, we really want to assert there's exactly 1.
 			expect( screen.getAllByRole( 'menuitem' ) ).toHaveLength( 1 );
-			// eslint-disable-next-line jest-dom/prefer-in-document -- No, we really want to assert there's exactly 1.
 			expect( screen.getAllByRole( 'option' ) ).toHaveLength( 1 );
 
 			expect( screen.getByRole( 'menuitem', { name: 'At a Glance' } ) ).toBeInTheDocument();
@@ -35,9 +33,7 @@ describe( 'Navigation', () => {
 
 		it( 'renders 1 NavItem components', () => {
 			render( <Navigation { ...currentTestProps } /> );
-			// eslint-disable-next-line jest-dom/prefer-in-document -- No, we really want to assert there's exactly 1.
 			expect( screen.getAllByRole( 'menuitem' ) ).toHaveLength( 1 );
-			// eslint-disable-next-line jest-dom/prefer-in-document -- No, we really want to assert there's exactly 1.
 			expect( screen.getAllByRole( 'option' ) ).toHaveLength( 1 );
 		} );
 

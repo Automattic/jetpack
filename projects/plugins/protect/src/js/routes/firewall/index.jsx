@@ -3,6 +3,7 @@ import {
 	Col,
 	Container,
 	Text,
+	ToggleControl,
 	ContextualUpgradeTrigger,
 	useBreakpointMatch,
 	Notice as JetpackNotice,
@@ -14,10 +15,6 @@ import { Icon, closeSmall } from '@wordpress/icons';
 import moment from 'moment';
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import AdminPage from '../../components/admin-page';
-import FirewallFooter from '../../components/firewall-footer';
-import ConnectedFirewallHeader from '../../components/firewall-header';
-import FormToggle from '../../components/form-toggle';
-import ScanFooter from '../../components/scan-footer';
 import Textarea from '../../components/textarea';
 import { FREE_PLUGIN_SUPPORT_URL, PAID_PLUGIN_SUPPORT_URL } from '../../constants';
 import useWafSeenMutation from '../../data/waf/use-waf-seen-mutation';
@@ -25,6 +22,9 @@ import useWafUpgradeSeenMutation from '../../data/waf/use-waf-upgrade-seen-mutat
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
+import ScanFooter from '../scan/scan-footer';
+import FirewallAdminSectionHero from './firewall-admin-section-hero';
+import FirewallFooter from './firewall-footer';
 import styles from './styles.module.scss';
 
 const ADMIN_URL = window?.jetpackProtectInitialState?.adminUrl;
@@ -48,7 +48,7 @@ const FirewallPage = () => {
 		displayUpgradeBadge,
 		wafSupported,
 		isUpdating,
-		stats: { automaticRulesLastUpdated },
+		stats,
 		toggleAutomaticRules,
 		toggleIpAllowList,
 		saveIpAllowList,
@@ -62,6 +62,8 @@ const FirewallPage = () => {
 	const { recordEvent } = useAnalyticsTracks();
 	const wafSeenMutation = useWafSeenMutation();
 	const wafUpgradeSeenMutation = useWafUpgradeSeenMutation();
+	const { automaticRulesLastUpdated } = stats;
+
 	/**
 	 * Automatic Rules Installation Error State
 	 *
@@ -115,24 +117,6 @@ const FirewallPage = () => {
 	);
 
 	/**
-	 * Returns an event listener that syncs the target input's value with form state, before calling a callback.
-	 *
-	 * @param {*} callback - The function to call with the input's value.
-	 * @return {Function} - Event listener
-	 */
-	const withFormState = callback => {
-		return event => {
-			const { id, value, ariaChecked } = event.target;
-			const inputValue = ariaChecked ? ariaChecked !== 'true' : value;
-			setFormState( prevState => ( {
-				...prevState,
-				[ id ]: inputValue,
-			} ) );
-			return callback( inputValue );
-		};
-	};
-
-	/**
 	 * Handle Automatic Rules Change
 	 *
 	 * Toggles the WAF's automatic rules option.
@@ -148,7 +132,7 @@ const FirewallPage = () => {
 		try {
 			toggleAutomaticRules();
 			setAutomaticRulesInstallationError( false );
-		} catch ( error ) {
+		} catch {
 			setAutomaticRulesInstallationError( true );
 			setFormState( prevState => ( {
 				...prevState,
@@ -257,6 +241,7 @@ const FirewallPage = () => {
 			children={ <Text>{ __( 'Re-enable the Firewall to continue.', 'jetpack-protect' ) }</Text> }
 			actions={ [
 				<Button
+					key="enable"
 					variant="link"
 					onClick={ toggleWaf }
 					isLoading={ isUpdating }
@@ -280,9 +265,9 @@ const FirewallPage = () => {
 				}` }
 			>
 				<div className={ styles[ 'toggle-section__control' ] }>
-					<FormToggle
+					<ToggleControl
 						checked={ canToggleAutomaticRules ? jetpackWafAutomaticRules : false }
-						onChange={ withFormState( handleAutomaticRulesChange ) }
+						onChange={ handleAutomaticRulesChange }
 						disabled={ ! canEditFirewallSettings || ! canToggleAutomaticRules || isUpdating }
 					/>
 					{ hasPlan && upgradeIsSeen === false && (
@@ -308,7 +293,7 @@ const FirewallPage = () => {
 									mb={ 3 }
 								>
 									{ __(
-										'Turn on Jetpack Firewall to automatically protect your site with the latest security rules.',
+										'Turn on Automatic firewall protection to apply the latest security rules.',
 										'jetpack-protect'
 									) }
 								</Text>
@@ -413,10 +398,9 @@ const FirewallPage = () => {
 	const bruteForceProtectionSettings = (
 		<div className={ styles[ 'toggle-section' ] }>
 			<div className={ styles[ 'toggle-section__control' ] }>
-				<FormToggle
-					id="brute_force_protection"
+				<ToggleControl
 					checked={ isBruteForceModuleEnabled }
-					onChange={ withFormState( toggleBruteForceProtection ) }
+					onChange={ toggleBruteForceProtection }
 					disabled={ isUpdating }
 				/>
 			</div>
@@ -441,10 +425,9 @@ const FirewallPage = () => {
 			}` }
 		>
 			<div className={ styles[ 'toggle-section__control' ] }>
-				<FormToggle
-					id="jetpack_waf_ip_block_list_enabled"
+				<ToggleControl
 					checked={ ipBlockListEnabled }
-					onChange={ withFormState( toggleIpBlockList ) }
+					onChange={ toggleIpBlockList }
 					disabled={ ! canEditFirewallSettings }
 				/>
 			</div>
@@ -497,8 +480,7 @@ const FirewallPage = () => {
 		<>
 			<div className={ styles[ 'toggle-section' ] }>
 				<div className={ styles[ 'toggle-section__control' ] }>
-					<FormToggle
-						id="jetpack_waf_ip_allow_list_enabled"
+					<ToggleControl
 						checked={ jetpackWafIpAllowListEnabled }
 						onChange={ toggleIpAllowList }
 						disabled={ isUpdating }
@@ -577,7 +559,7 @@ const FirewallPage = () => {
 	 */
 	return (
 		<AdminPage>
-			<ConnectedFirewallHeader />
+			<FirewallAdminSectionHero />
 			<Container className={ styles.container } horizontalSpacing={ 8 } horizontalGap={ 4 }>
 				{ wafSupported && ! isWafModuleEnabled && <Col>{ moduleDisabledNotice } </Col> }
 				<Col>

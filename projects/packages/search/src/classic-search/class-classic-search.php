@@ -1448,7 +1448,7 @@ class Classic_Search {
 	 *
 	 * @return array Array of filters applied and info about them.
 	 */
-	public function get_filters( WP_Query $query = null ) {
+	public function get_filters( ?WP_Query $query = null ) {
 		if ( ! $query instanceof WP_Query ) {
 			global $wp_query;
 

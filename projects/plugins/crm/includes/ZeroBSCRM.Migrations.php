@@ -9,13 +9,7 @@
  * Date: 30/08/16
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /* ======================================================
 	MIGRATION FUNCS
@@ -43,12 +37,13 @@ global $zeroBSCRM_migrations; $zeroBSCRM_migrations = array(
 	'gh3465_increase_city_field_size',  // from gh issue 3465, increases the city field size to 200
 	);
 
-global $zeroBSCRM_migrations_requirements; $zeroBSCRM_migrations_requirements = array(
-		'288' => array('isDAL2','postsettings'),
-		'53'     => array('isDAL3','postsettings'),
-		'5402'   => array('isDAL3','postsettings'),
-		'55a'    => array( 'wp_loaded' ),
-	);
+global $zeroBSCRM_migrations_requirements; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+$zeroBSCRM_migrations_requirements = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	'288'  => array( 'postsettings' ),
+	'53'   => array( 'postsettings' ),
+	'5402' => array( 'postsettings' ),
+	'55a'  => array( 'wp_loaded' ),
+);
 
 
 // mark's a migration complete
@@ -164,7 +159,7 @@ function zeroBSCRM_migrations_run( $settingsArr = false, $run_at = 'init' ){
 
 						// stop running migrations, reload the page
 						header("Refresh:0");
-						exit();
+						exit( 0 );
 
 					} else {
 
@@ -218,19 +213,6 @@ function zeroBSCRM_migrations_run( $settingsArr = false, $run_at = 'init' ){
 		}
 
 	}
-
-}
-
-// Migration dependency check for DAL2
-function zeroBSCRM_migrations_checks_isDAL2(){
-
-	global $zbs; return $zbs->isDAL2();
-
-}
-// Migration dependency check for DAL3
-function zeroBSCRM_migrations_checks_isDAL3(){
-
-	global $zbs; return $zbs->isDAL3();
 
 }
 
@@ -1254,6 +1236,13 @@ function zeroBSCRM_migration_invoice_language_fixes() {
  * From Gh Issue 3465, this migration increases the city field size to 200 chars
  */
 function zeroBSCRM_migration_gh3465_increase_city_field_size() {
+
+	// SQLite doesn't support column modification.
+	$db_engine = jpcrm_database_engine();
+	if ( $db_engine === 'sqlite' ) {
+		return;
+	}
+
 	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	$sql = 'ALTER TABLE ' . $ZBSCRM_t['contacts'] . ' MODIFY COLUMN `zbsc_city` VARCHAR(200);'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase

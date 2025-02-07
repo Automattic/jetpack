@@ -395,6 +395,7 @@ export function VideoHoverPreviewControl( {
 				checked={ previewOnHover }
 				onChange={ onPreviewOnHoverChange }
 				disabled={ ! previewOnHover && disabled }
+				__nextHasNoMarginBottom={ true }
 			/>
 
 			{ previewOnHover && (
@@ -551,6 +552,7 @@ export default function PosterPanel( {
 				checked={ pickPosterFromFrame && videoBelongToSite }
 				onChange={ switchPosterSource }
 				disabled={ ! videoBelongToSite }
+				__nextHasNoMarginBottom={ true }
 			/>
 
 			<div

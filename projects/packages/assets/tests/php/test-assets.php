@@ -343,9 +343,8 @@ class AssetsTest extends TestCase {
 			$this->expectExceptionMessage( $extra['exception']->getMessage() );
 		}
 		if ( isset( $extra['enqueue'] ) ) {
-			// @phan-suppress-next-line PhanDeprecatedFunction -- Keep using setMethods until we drop PHP 7.0 support.
 			$obj = $this->getMockBuilder( \stdClass::class )
-				->setMethods( array( 'get_data' ) )
+				->addMethods( array( 'get_data' ) )
 				->getMock();
 			$obj->method( 'get_data' )->with( ...$extra['enqueue'][0] )->willReturn( $extra['enqueue'][1] );
 			Functions\expect( 'wp_scripts' )->andReturn( $obj );
@@ -727,9 +726,8 @@ class AssetsTest extends TestCase {
 			$obj->andReturn( $options['filter'] );
 		}
 
-		// @phan-suppress-next-line PhanDeprecatedFunction -- Keep using setMethods until we drop PHP 7.0 support.
 		$mock = $this->getMockBuilder( \stdClass::class )
-			->setMethods( array( 'add', 'add_inline_script', 'add_data' ) )
+			->addMethods( array( 'add', 'add_inline_script', 'add_data' ) )
 			->getMock();
 
 		// Unfortunately PHPUnit deprecated withConsecutive with no replacement, so we have to roll our own version.
@@ -757,8 +755,7 @@ class AssetsTest extends TestCase {
 			return $funcs;
 		};
 
-		// @todo: Remove `react-jsx-runtime` from the list of dependencies once we drop support for WordPress 6.5 and remove the dependency from wp_default_scripts_hook.
-		$mock->expects( $this->exactly( 3 ) )->method( 'add' )
+		$mock->expects( $this->exactly( 2 ) )->method( 'add' )
 			->with(
 				...$with_consecutive(
 					array(
@@ -769,12 +766,7 @@ class AssetsTest extends TestCase {
 						),
 						array( 'wp-i18n' ),
 					),
-					array( 'wp-jp-i18n-state', false, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) ),
-					array(
-						'react-jsx-runtime',
-						'http://www.example.com/wp-content/plugins/jetpack/packages/assets/build/react-jsx-runtime.js',
-						array( 'react' ),
-					)
+					array( 'wp-jp-i18n-state', false, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) )
 				)
 			);
 		$mock->expects( $this->exactly( 3 ) )->method( 'add_inline_script' )
@@ -785,11 +777,10 @@ class AssetsTest extends TestCase {
 					array( 'wp-jp-i18n-state', 'wp.jpI18nState = wp.jpI18nLoader.state;' )
 				)
 			);
-		$mock->expects( $this->exactly( 2 ) )->method( 'add_data' )
+		$mock->expects( $this->once() )->method( 'add_data' )
 			->with(
 				...$with_consecutive(
-					array( 'wp-jp-i18n-loader', 'group', 1 ),
-					array( 'react-jsx-runtime', 'group', 1 )
+					array( 'wp-jp-i18n-loader', 'group', 1 )
 				)
 			);
 

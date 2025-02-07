@@ -6,22 +6,6 @@
 		margin-left: 20px !important;
 	}
 
-	.head {
-		display: flex;
-		flex-direction: row;
-		align-items: flex-start;
-
-		:global(svg) {
-			fill: var(--jetpack-green-40);
-		}
-
-		.summary {
-			flex-grow: 1;
-			margin-right: 5px;
-			color: var(--gray-40);
-		}
-	}
-
 	.body {
 		margin-top: 16px;
 

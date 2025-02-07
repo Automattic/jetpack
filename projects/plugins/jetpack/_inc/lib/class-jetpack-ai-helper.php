@@ -33,11 +33,18 @@ class Jetpack_AI_Helper {
 	public static $image_generation_cache_timeout = MONTH_IN_SECONDS;
 
 	/**
-	 * Cache AI-assistant feature for ten seconds.
+	 * Cache AI-assistant feature for 60 seconds.
 	 *
 	 * @var int
 	 */
-	public static $ai_assistant_feature_cache_timeout = 10;
+	public static $ai_assistant_feature_cache_timeout = 60;
+
+	/**
+	 * Cache AI-assistant errors for ten seconds.
+	 *
+	 * @var int
+	 */
+	public static $ai_assistant_feature_error_cache_timeout = 10;
 
 	/**
 	 * Stores the number of JetpackAI calls in case we want to mark AI-assisted posts some way.
@@ -429,6 +436,7 @@ class Jetpack_AI_Helper {
 				'headers' => array(
 					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 				),
+				'timeout' => 30,
 			),
 			null,
 			'wpcom'
@@ -443,11 +451,18 @@ class Jetpack_AI_Helper {
 
 			return $ai_assistant_feature_data;
 		} else {
-			$error                               = new WP_Error(
+			$error = new WP_Error(
 				'failed_to_fetch_data',
 				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
-				array( 'status' => $response_code )
+				array(
+					'status' => $response_code,
+					'ts'     => time(),
+				)
 			);
+
+			// Cache the AI Assistant feature error, for Jetpack sites, avoid API hammering.
+			set_transient( $transient_name, $error, self::$ai_assistant_feature_error_cache_timeout );
+
 			static::$ai_assistant_failed_request = $error;
 
 			return $error;

@@ -38,7 +38,7 @@ class Test_Tracking extends TestCase {
 		Monkey\setUp();
 
 		$this->connection = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
-			->setMethods( array( 'is_user_connected' ) )
+			->onlyMethods( array( 'is_user_connected' ) )
 			->getMock();
 		$this->tracking   = new Tracking( 'jetpack', $this->connection );
 	}
@@ -63,14 +63,14 @@ class Test_Tracking extends TestCase {
 	 */
 	public function test_should_enable_tracking( $inputs, $expected_output ) {
 		$tos = $this->getMockBuilder( 'Automattic\Jetpack\Terms_Of_Service' )
-			->setMethods( array( 'has_agreed' ) )
+			->onlyMethods( array( 'has_agreed' ) )
 			->getMock();
 
 		$tos->method( 'has_agreed' )
 			->willReturn( $inputs['has_agreed'] );
 
 		$status = $this->getMockBuilder( 'Automattic\Jetpack\Status' )
-			->setMethods( array( 'is_offline_mode' ) )
+			->onlyMethods( array( 'is_offline_mode' ) )
 			->getMock();
 
 		$status->method( 'is_offline_mode' )

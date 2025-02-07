@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# Enable debug mode if DEBUG environment variable is set
+if [ "${DEBUG:-}" = "1" ]; then
+    set -x
+fi
+
+# Get the absolute path to the monorepo root
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+MONOREPO_ROOT="$( cd "$SCRIPT_DIR/../../.." && pwd )"
+
+echo "Running command in monorepo container: $*"
+
+# Source the versions file
+source "$MONOREPO_ROOT/.github/versions.sh"
+
+# Export variables needed by docker-compose
+export HOST_CWD="$MONOREPO_ROOT"
+
+# Build the image if it doesn't exist
+if ! docker image inspect jetpack-monorepo:latest >/dev/null 2>&1; then
+    if [ "${BUILD_LOCAL:-}" = "1" ]; then
+        echo "Building monorepo image locally..."
+        docker build \
+            --build-arg PHP_VERSION="$PHP_VERSION" \
+            --build-arg COMPOSER_VERSION="$COMPOSER_VERSION" \
+            --build-arg NODE_VERSION="$NODE_VERSION" \
+            --build-arg PNPM_VERSION="$PNPM_VERSION" \
+            -t jetpack-monorepo:latest \
+            -f "$MONOREPO_ROOT/tools/docker/Dockerfile.monorepo" \
+            "$MONOREPO_ROOT/tools/docker"
+    else
+        echo "Pulling monorepo image..."
+        docker pull automattic/jetpack-monorepo:latest
+        docker tag automattic/jetpack-monorepo:latest jetpack-monorepo:latest
+    fi
+fi
+
+# Run the command in the container
+docker run --rm -it \
+    -v "$MONOREPO_ROOT:/workspace" \
+    -v "$MONOREPO_ROOT/tools/docker/data/monorepo:/root" \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -w /workspace \
+    -e TERM=$TERM \
+    -e COLORTERM=$COLORTERM \
+    -e DOCKER_ROOT="$MONOREPO_ROOT/tools/docker" \
+    -e HOST_CWD="$MONOREPO_ROOT" \
+    -e WORKSPACE_PATH="$MONOREPO_ROOT" \
+    -e NPM_CONFIG_USERCONFIG=/root/.npmrc \
+    -e NPM_CONFIG_CACHE=/root/.npm \
+    -e PNPM_HOME=/root/.local/share/pnpm \
+    -e PNPM_STORE_DIR=/root/.pnpm-store \
+    jetpack-monorepo:latest \
+    "$@"

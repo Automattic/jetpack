@@ -23,6 +23,7 @@ class Meta_Tags {
 	 */
 	private $open_graph_conflicting_plugins = array(
 		'jetpack/jetpack.php',                                   // The Jetpack plugin adds its own meta tags.
+		'jetpack-dev/jetpack.php',                               // Jetpack's location with the beta plugin.
 		'2-click-socialmedia-buttons/2-click-socialmedia-buttons.php', // 2 Click Social Media Buttons.
 		'add-link-to-facebook/add-link-to-facebook.php',         // Add Link to Facebook.
 		'add-meta-tags/add-meta-tags.php',                       // Add Meta Tags.
@@ -60,6 +61,8 @@ class Meta_Tags {
 		'wp-facebook-like-send-open-graph-meta/wp-facebook-like-send-open-graph-meta.php', // WP Facebook Like Send & Open Graph Meta.
 		'wp-facebook-open-graph-protocol/wp-facebook-ogp.php',   // WP Facebook Open Graph protocol.
 		'wp-ogp/wp-ogp.php',                                     // WP-OGP.
+		'wp-seopress/seopress.php',                              // SEOPress.
+		'wp-seopress-pro/seopress-pro.php',                      // SEOPress Pro.
 		'zoltonorg-social-plugin/zosp.php',                      // Zolton.org Social Plugin.
 		'wp-fb-share-like-button/wp_fb_share-like_widget.php',   // WP Facebook Like Button.
 		'open-graph-metabox/open-graph-metabox.php',             // Open Graph Metabox.

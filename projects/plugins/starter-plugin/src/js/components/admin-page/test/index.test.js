@@ -23,7 +23,8 @@ describe( 'Admin', () => {
 			.mockReturnValue( { isRegistered: false, isUserConnected: false } );
 
 		render( <Admin /> );
-		expect( screen.getByLabelText( 'Jetpack Starter Plugin' ) ).toBeInTheDocument();
+		// Look for the link in the footer.
+		expect( screen.getByRole( 'link', { name: 'Jetpack Starter Plugin' } ) ).toBeInTheDocument();
 		expect(
 			screen.getByRole( 'heading', { name: 'Connection screen title' } )
 		).toBeInTheDocument();

@@ -1,7 +1,5 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
-
-
 .services {
 	outline: 1px solid var(--jp-gray-5);
 	border-radius: 4px;
@@ -95,23 +93,6 @@
 		:global(.components-panel__body.is-opened) {
 			margin-top: 1rem;
 		}
-
-		.connect-form-wrapper {
-			margin-top: 1rem;
-			display: flex;
-
-			form {
-				display: flex;
-				gap: 1rem;
-				flex-direction: column;
-				justify-content: flex-end;
-				width: 100%;
-
-				@include break-small {
-					flex-direction: row;
-				}
-			}
-		}
 	}
 
 	.active-connection {
@@ -194,7 +175,19 @@
 	}
 }
 
+.connect-form-wrapper {
+	margin-top: 2rem;
+	display: flex;
+	justify-content: flex-end;
+}
+
 .connect-form {
+	display: flex;
+	gap: 1.5rem;
+	flex-direction: column;
+	justify-content: flex-end;
+	width: 100%;
+
 	.connect-button {
 		&:global(.components-button) {
 			padding: 6px 16px;
@@ -204,12 +197,47 @@
 		}
 	}
 
+	.fields-wrapper {
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-end;
+		width: 100%;
+		gap: 1rem;
+
+		@include break-medium {
+			flex-direction: row;
+		}
+	}
+
+	.fields-item {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		flex-basis: 100%;
+		@include break-medium {
+			flex-basis: 50%;
+		}
+
+		@include break-small {
+			button {
+				align-self: flex-end;
+			}
+		}
+	}
+
+	label {
+		font-weight: 600;
+	}
+
 	input {
 		min-width: 220px;
+		height: auto;
+		font-size: var(--font-body);
+		line-height: 22px;
+		padding: var(--spacing-base) calc(var(--spacing-base)* 3); // To make the inputs of the same size as the Connect button
 
 		// Override the default input styles for small screens
 		@media (max-width: #{ ($break-medium) }) {
-			min-height: 30px;
 			padding: 0 8px;
 			font-size: 14px;
 		}

@@ -5,10 +5,8 @@
  * @package jetpack
  */
 
-use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats_Admin\WP_Dashboard_Odyssey_Widget as Dashboard_Stats_Widget;
 use Automattic\Jetpack\Status;
 
@@ -53,7 +51,10 @@ class Jetpack_Stats_Dashboard_Widget {
 		 *
 		 * @param bool Whether to show the widget to the current user.
 		 */
-		if ( ! apply_filters( 'jetpack_stats_dashboard_widget_show_to_user', current_user_can( 'view_stats' ) ) ) {
+		// Temporarily show the widget to administrators for Simple sites as the view_stats capability is not available.
+		// TODO: Grant the view_stats capability to corresponding users for Simple sites.
+		$can_user_view_stats = current_user_can( 'manage_options' ) || current_user_can( 'view_stats' );
+		if ( ! apply_filters( 'jetpack_stats_dashboard_widget_show_to_user', $can_user_view_stats ) ) {
 			return;
 		}
 
@@ -64,34 +65,15 @@ class Jetpack_Stats_Dashboard_Widget {
 				__( 'Jetpack Stats', 'jetpack' )
 			);
 
-			if ( Stats_Options::get_option( 'enable_odyssey_stats' ) ) {
-				// New widget implemented in Odyssey Stats.
-				$stats_widget = new Dashboard_Stats_Widget();
-				wp_add_dashboard_widget(
-					Dashboard_Stats_Widget::DASHBOARD_WIDGET_ID,
-					$widget_title,
-					array( $stats_widget, 'render' )
-				);
-				// Only load scripts when the widget is not hidden
-				$stats_widget->maybe_load_admin_scripts();
-			} else {
-				// Legacy widget.
-				wp_add_dashboard_widget(
-					Dashboard_Stats_Widget::DASHBOARD_WIDGET_ID,
-					$widget_title,
-					array( __CLASS__, 'render_widget' )
-				);
-				wp_enqueue_style(
-					'jetpack-dashboard-widget',
-					Assets::get_file_url_for_environment(
-						'css/dashboard-widget.min.css',
-						'css/dashboard-widget.css'
-					),
-					array(),
-					JETPACK__VERSION
-				);
-				wp_style_add_data( 'jetpack-dashboard-widget', 'rtl', 'replace' );
-			}
+			// New widget implemented in Odyssey Stats.
+			$stats_widget = new Dashboard_Stats_Widget();
+			wp_add_dashboard_widget(
+				Dashboard_Stats_Widget::DASHBOARD_WIDGET_ID,
+				$widget_title,
+				array( $stats_widget, 'render' )
+			);
+			// Only load scripts when the widget is not hidden
+			$stats_widget->maybe_load_admin_scripts();
 		}
 	}
 

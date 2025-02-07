@@ -50,10 +50,14 @@ export const MisconfigurationWarning = () => (
 	</Notice>
 );
 
-export default function GetAddPaidPlanButton( { context = 'other', hasTierPlans } ) {
-	const addPaidPlanButtonText = hasTierPlans
+export const paidPlanButtonText = hasTierPlans => {
+	return hasTierPlans
 		? _x( 'Manage plans', 'unused context to distinguish translations', 'jetpack' )
 		: __( 'Set up a paid plan', 'jetpack' );
+};
+
+export default function GetAddPaidPlanButton( { context = 'other', hasTierPlans } ) {
+	const addPaidPlanButtonText = paidPlanButtonText( hasTierPlans );
 
 	if ( 'toolbar' === context ) {
 		return (

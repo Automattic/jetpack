@@ -10,7 +10,7 @@ namespace Automattic\Jetpack;
 /**
  * Test class for Scheduled_Updates_Admin.
  *
- * @coversDefaultClass Scheduled_Updates_Admin
+ * @coversDefaultClass Automattic\Jetpack\Scheduled_Updates_Admin
  */
 class Scheduled_Updates_Admin_Test extends \WorDBless\BaseTestCase {
 	/**

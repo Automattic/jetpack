@@ -11,11 +11,11 @@ interface StatusProps {
 
 const Status = ( { className, label, status = 'inactive' }: StatusProps ): React.JSX.Element => {
 	const defaultLabels: Record< string, string > = {
-		active: __( 'Active', 'jetpack' ),
-		error: __( 'Error', 'jetpack' ),
-		action: __( 'Action needed', 'jetpack' ),
-		inactive: __( 'Inactive', 'jetpack' ),
-		initializing: __( 'Setting up', 'jetpack' ),
+		active: __( 'Active', 'jetpack-components' ),
+		error: __( 'Error', 'jetpack-components' ),
+		action: __( 'Action needed', 'jetpack-components' ),
+		inactive: __( 'Inactive', 'jetpack-components' ),
+		initializing: __( 'Setting up', 'jetpack-components' ),
 	};
 
 	return (

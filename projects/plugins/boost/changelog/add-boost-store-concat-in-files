@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Concatenate JS/CSS: Update concatenated assets to be stored on the server as files.

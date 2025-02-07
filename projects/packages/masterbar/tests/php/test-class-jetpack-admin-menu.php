@@ -104,7 +104,7 @@ class Test_Jetpack_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_jetpack_menu
 	 *
-	 * @covers ::add_jetpack_menu
+	 * @covers Automattic\Jetpack\Masterbar\Jetpack_Admin_Menu::add_jetpack_menu
 	 */
 	public function test_add_jetpack_menu() {
 		global $submenu;
@@ -116,7 +116,7 @@ class Test_Jetpack_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_tools_menu
 	 *
-	 * @covers ::add_tools_menu
+	 * @covers Automattic\Jetpack\Masterbar\Jetpack_Admin_Menu::add_tools_menu
 	 */
 	public function test_add_tools_menu() {
 		global $submenu;
@@ -134,7 +134,7 @@ class Test_Jetpack_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_wp_admin_menu
 	 *
-	 * @covers ::add_wp_admin_menu
+	 * @covers Automattic\Jetpack\Masterbar\Jetpack_Admin_Menu::add_wp_admin_menu
 	 */
 	public function test_add_wp_admin_menu() {
 		global $menu;
@@ -147,7 +147,7 @@ class Test_Jetpack_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_appearance_menu
 	 *
-	 * @covers ::add_appearance_menu
+	 * @covers Automattic\Jetpack\Masterbar\Jetpack_Admin_Menu::add_appearance_menu
 	 */
 	public function test_add_appearance_menu() {
 		global $submenu;
@@ -163,7 +163,7 @@ class Test_Jetpack_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_posts_menu
 	 *
-	 * @covers ::add_posts_menu
+	 * @covers Automattic\Jetpack\Masterbar\Jetpack_Admin_Menu::add_posts_menu
 	 */
 	public function test_add_posts_menu() {
 		global $menu;
@@ -176,7 +176,7 @@ class Test_Jetpack_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_page_menu
 	 *
-	 * @covers ::add_page_menu
+	 * @covers Automattic\Jetpack\Masterbar\Jetpack_Admin_Menu::add_page_menu
 	 */
 	public function test_add_page_menu() {
 		global $menu;
@@ -189,7 +189,7 @@ class Test_Jetpack_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_users_menu
 	 *
-	 * @covers ::add_users_menu
+	 * @covers Automattic\Jetpack\Masterbar\Jetpack_Admin_Menu::add_users_menu
 	 */
 	public function test_add_users_menu() {
 		global $menu;
@@ -202,7 +202,7 @@ class Test_Jetpack_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_users_menu
 	 *
-	 * @covers ::add_feedback_menu
+	 * @covers Automattic\Jetpack\Masterbar\Jetpack_Admin_Menu::add_feedback_menu
 	 */
 	public function add_feedback_menu() {
 		global $menu;
@@ -215,7 +215,7 @@ class Test_Jetpack_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_plugins_menu
 	 *
-	 * @covers ::add_plugins_menu
+	 * @covers Automattic\Jetpack\Masterbar\Jetpack_Admin_Menu::add_plugins_menu
 	 */
 	public function test_add_plugins_menu() {
 		global $menu;

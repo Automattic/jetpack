@@ -2,6 +2,7 @@ import { H3, Text } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __, _n } from '@wordpress/i18n';
 import { useMemo, useState } from 'react';
+import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import usePlan from '../../hooks/use-plan';
 import useProtectData from '../../hooks/use-protect-data';
 import OnboardingPopover from '../onboarding-popover';
@@ -88,6 +89,7 @@ const timeSince = date => {
 const EmptyList = () => {
 	const { lastChecked } = useProtectData();
 	const { hasPlan } = usePlan();
+	const { data: status } = useScanStatusQuery();
 
 	const [ dailyAndManualScansPopoverAnchor, setDailyAndManualScansPopoverAnchor ] =
 		useState( null );
@@ -103,28 +105,32 @@ const EmptyList = () => {
 				{ __( "Don't worry about a thing", 'jetpack-protect' ) }
 			</H3>
 			<Text mb={ 4 }>
-				{ createInterpolateElement(
-					sprintf(
-						// translators: placeholder is the amount of time since the last scan, i.e. "5 minutes ago".
-						__(
-							'The last Protect scan ran <strong>%s</strong> and everything looked great.',
-							'jetpack-protect'
-						),
-						timeSinceLastScan
-					),
-					{
-						strong: <strong />,
-					}
-				) }
+				{ timeSinceLastScan
+					? createInterpolateElement(
+							sprintf(
+								// translators: placeholder is the amount of time since the last scan, i.e. "5 minutes ago".
+								__(
+									'The last Protect scan ran <strong>%s</strong> and everything looked great.',
+									'jetpack-protect'
+								),
+								timeSinceLastScan
+							),
+							{
+								strong: <strong />,
+							}
+					  )
+					: __( 'No threats have been detected by the current scan.', 'jetpack-protect' ) }
 			</Text>
 			{ hasPlan && (
 				<>
 					<ScanButton ref={ setDailyAndManualScansPopoverAnchor } />
-					<OnboardingPopover
-						id="paid-daily-and-manual-scans"
-						position={ 'bottom middle' }
-						anchor={ dailyAndManualScansPopoverAnchor }
-					/>
+					{ ! isScanInProgress( status ) && (
+						<OnboardingPopover
+							id="paid-daily-and-manual-scans"
+							position={ 'bottom middle' }
+							anchor={ dailyAndManualScansPopoverAnchor }
+						/>
+					) }
 				</>
 			) }
 		</div>

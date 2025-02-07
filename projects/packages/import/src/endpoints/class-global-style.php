@@ -71,6 +71,9 @@ class Global_Style extends \WP_REST_Posts_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
+		// Set the WP_IMPORTING constant to prevent sync notifications
+		$this->set_importing();
+
 		if ( ! class_exists( 'WP_Theme_JSON_Resolver' ) ) {
 			require_once ABSPATH . 'wp-includes/class-wp-theme-json-resolver.php';
 		}

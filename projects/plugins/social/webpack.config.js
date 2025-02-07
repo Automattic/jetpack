@@ -14,11 +14,7 @@ const socialWebpackConfig = {
 		...jetpackWebpackConfig.resolve,
 	},
 	node: false,
-	plugins: [
-		...jetpackWebpackConfig.StandardPlugins( {
-			DependencyExtractionPlugin: { injectPolyfill: true },
-		} ),
-	],
+	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 	module: {
 		strictExportPresence: true,
 		rules: [
@@ -55,23 +51,6 @@ module.exports = [
 		...socialWebpackConfig,
 		entry: {
 			editor: './src/js/editor.js',
-		},
-		module: {
-			...socialWebpackConfig.module,
-			rules: [
-				...socialWebpackConfig.module.rules,
-				// Handle CSS.
-				jetpackWebpackConfig.CssRule( {
-					extensions: [ 'css', 'sass', 'scss' ],
-					extraLoaders: [ postcssLoader, 'sass-loader' ],
-				} ),
-			],
-		},
-	},
-	{
-		...socialWebpackConfig,
-		entry: {
-			index: './src/js/index.js',
 		},
 		module: {
 			...socialWebpackConfig.module,

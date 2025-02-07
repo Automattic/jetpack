@@ -109,8 +109,11 @@ const MultiProgress: React.FC< MultiProgressProps > = ( { reportProgress } ) => 
 								trackEventProps={ report.group }
 							>
 								{ report.has_issues
-									? // translators: %d: The number of issues
-									  sprintf( __( '%d issues', 'jetpack-boost' ), report.issue_count )
+									? sprintf(
+											// translators: %d: The number of issues
+											__( '%d issues', 'jetpack-boost' ),
+											report.issue_count
+									  )
 									: __( 'No issues', 'jetpack-boost' ) }
 							</MaybeLink>
 						</div>

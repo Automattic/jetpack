@@ -273,12 +273,16 @@ class Terms extends Module {
 	}
 
 	/**
-	 * Filter out set_object_terms actions where the terms have not changed.
+	 * Filter out set_object_terms actions with blacklisted taxonomies or where the terms have not changed.
 	 *
 	 * @param array $args Hook args.
-	 * @return array|boolean False if no change in terms, the original hook args otherwise.
+	 * @return array|boolean False if blacklisted taxonomy or no change in terms, the original hook args otherwise.
 	 */
 	public function filter_set_object_terms_no_update( $args ) {
+		// Check if the taxonomy is blacklisted. $args[3] is the taxonomy.
+		if ( isset( $args[3] ) && in_array( $args[3], Settings::get_setting( 'taxonomies_blacklist' ), true ) ) {
+			return false;
+		}
 		// There is potential for other plugins to modify args, therefore lets validate # of and types.
 		// $args[2] is $tt_ids, $args[5] is $old_tt_ids see wp-includes/taxonomy.php L2740.
 		if ( 6 === count( $args ) && is_array( $args[2] ) && is_array( $args[5] ) ) {

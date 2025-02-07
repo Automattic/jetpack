@@ -25,5 +25,8 @@
 	<rule ref="WordPress.WP.AlternativeFunctions">
 		<severity>0</severity>
 	</rule>
+	<rule ref="WordPress.WP.GlobalVariablesOverride">
+		<severity>0</severity>
+	</rule>
 
 </ruleset>

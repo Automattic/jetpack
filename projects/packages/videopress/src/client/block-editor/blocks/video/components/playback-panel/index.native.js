@@ -107,6 +107,7 @@ export default function PlaybackPanel( { attributes, setAttributes } ) {
 						checked={ autoplay && ! isPreviewOnHoverEnabled }
 						disabled={ isPreviewOnHoverEnabled }
 						help={ <AutoplayHelp /> }
+						__nextHasNoMarginBottom={ true }
 					/>
 
 					<ToggleControl
@@ -114,12 +115,14 @@ export default function PlaybackPanel( { attributes, setAttributes } ) {
 						onChange={ handleAttributeChange( 'loop' ) }
 						checked={ loop }
 						help={ __( 'Restarts the video when it reaches the end.', 'jetpack-videopress-pkg' ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 
 					<ToggleControl
 						label={ __( 'Muted', 'jetpack-videopress-pkg' ) }
 						onChange={ handleAttributeChange( 'muted' ) }
 						checked={ muted }
+						__nextHasNoMarginBottom={ true }
 					/>
 
 					<ToggleControl
@@ -127,6 +130,7 @@ export default function PlaybackPanel( { attributes, setAttributes } ) {
 						onChange={ handleAttributeChange( 'controls' ) }
 						checked={ controls }
 						help={ __( 'Display the video playback controls.', 'jetpack-videopress-pkg' ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 
 					<ToggleControl
@@ -137,6 +141,7 @@ export default function PlaybackPanel( { attributes, setAttributes } ) {
 							'Play the video inline instead of full-screen on mobile devices.',
 							'jetpack-videopress-pkg'
 						) }
+						__nextHasNoMarginBottom={ true }
 					/>
 
 					<ToggleControl
@@ -150,6 +155,7 @@ export default function PlaybackPanel( { attributes, setAttributes } ) {
 							'Preload the video metadata when the page is loaded.',
 							'jetpack-videopress-pkg'
 						) }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</PanelBody>
 			</>

@@ -9,8 +9,6 @@ node_modules      export-ignore
 # Files to exclude from the mirror repo
 /build/svg-clean/**     production-exclude
 /changelog/**     production-exclude
-/.eslintignore    production-exclude
-/.eslintrc.cjs    production-exclude
 /jest.config.cjs  production-exclude
 **/stories/**     production-exclude
 /src/**           production-exclude

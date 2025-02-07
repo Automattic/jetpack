@@ -3,7 +3,7 @@
  * Disable direct access/execution to/of the widget code.
  */
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
@@ -33,10 +33,6 @@ class Jetpack_Widget_Authors extends WP_Widget {
 				'customize_selective_refresh' => true,
 			)
 		);
-
-		if ( is_active_widget( false, false, $this->id_base ) || is_active_widget( false, false, 'monster' ) || is_customize_preview() ) {
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
-		}
 
 		add_action( 'publish_post', array( __CLASS__, 'flush_cache' ) );
 		add_action( 'deleted_post', array( __CLASS__, 'flush_cache' ) );
@@ -68,6 +64,9 @@ class Jetpack_Widget_Authors extends WP_Widget {
 	 * @param array $instance Widget settings for the instance.
 	 */
 	public function widget( $args, $instance ) {
+		// Enqueue front end assets.
+		$this->enqueue_style();
+
 		$cache_bucket = is_ssl() ? 'widget_authors_ssl' : 'widget_authors';
 
 		if ( '%BEG_OF_TITLE%' !== $args['before_title'] ) {
@@ -290,7 +289,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 	 */
 	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$new_instance['title']       = wp_strip_all_tags( $new_instance['title'] );
-		$new_instance['all']         = isset( $new_instance['all'] );
+		$new_instance['all']         = isset( $new_instance['all'] ) ? (bool) $new_instance['all'] : false;
 		$new_instance['number']      = (int) $new_instance['number'];
 		$new_instance['avatar_size'] = (int) $new_instance['avatar_size'];
 

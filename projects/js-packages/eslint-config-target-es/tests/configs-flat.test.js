@@ -4,8 +4,6 @@ const path = require( 'path' );
 const globals = require( 'globals' );
 const { getRules } = require( '../src/funcs.js' );
 
-/* global globalThis */
-
 // "Mock" to ensure the same object is returned every time so `toEqual()` later won't try to descend it.
 jest.mock( 'eslint-plugin-es-x', () => {
 	globalThis.mockEsx ??= jest.requireActual( 'eslint-plugin-es-x' );

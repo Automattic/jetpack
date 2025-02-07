@@ -99,7 +99,7 @@ class Test_Admin_Menu extends TestCase {
 	/**
 	 * Test_Admin_Menu.
 	 *
-	 * @covers ::reregister_menu_items
+	 * @covers Automattic\Jetpack\Masterbar\Admin_Menu::reregister_menu_items
 	 */
 	public function test_admin_menu_output() {
 		global $menu, $submenu;
@@ -114,7 +114,7 @@ class Test_Admin_Menu extends TestCase {
 	/**
 	 * Tests get_preferred_view
 	 *
-	 * @covers ::get_preferred_view
+	 * @covers Automattic\Jetpack\Masterbar\Admin_Menu::get_preferred_view
 	 */
 	public function test_get_preferred_view() {
 		static::$admin_menu->set_preferred_view( 'users.php', 'unknown' );
@@ -126,7 +126,7 @@ class Test_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_my_home_menu
 	 *
-	 * @covers ::add_my_home_menu
+	 * @covers Automattic\Jetpack\Masterbar\Admin_Menu::add_my_home_menu
 	 */
 	public function test_add_my_home_menu() {
 		global $menu, $submenu;
@@ -154,7 +154,7 @@ class Test_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_stats_menu
 	 *
-	 * @covers ::add_stats_menu
+	 * @covers Automattic\Jetpack\Masterbar\Admin_Menu::add_stats_menu
 	 */
 	public function test_add_stats_menu() {
 		global $menu;
@@ -173,7 +173,7 @@ class Test_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_upgrades_menu
 	 *
-	 * @covers ::add_upgrades_menu
+	 * @covers Automattic\Jetpack\Masterbar\Admin_Menu::add_upgrades_menu
 	 */
 	public function test_add_upgrades_menu() {
 		global $submenu;
@@ -187,7 +187,7 @@ class Test_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_posts_menu
 	 *
-	 * @covers ::add_posts_menu
+	 * @covers Automattic\Jetpack\Masterbar\Admin_Menu::add_posts_menu
 	 */
 	public function test_add_posts_menu() {
 		global $submenu;
@@ -200,7 +200,7 @@ class Test_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_media_menu
 	 *
-	 * @covers ::add_media_menu
+	 * @covers Automattic\Jetpack\Masterbar\Admin_Menu::add_media_menu
 	 */
 	public function test_add_media_menu() {
 		global $menu, $submenu;
@@ -214,7 +214,7 @@ class Test_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_page_menu
 	 *
-	 * @covers ::add_page_menu
+	 * @covers Automattic\Jetpack\Masterbar\Admin_Menu::add_page_menu
 	 */
 	public function test_add_page_menu() {
 		global $submenu;
@@ -227,7 +227,7 @@ class Test_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_custom_post_type_menu
 	 *
-	 * @covers ::add_custom_post_type_menu
+	 * @covers Automattic\Jetpack\Masterbar\Admin_Menu::add_custom_post_type_menu
 	 */
 	public function test_add_custom_post_type_menu() {
 		global $menu, $submenu;
@@ -258,7 +258,7 @@ class Test_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_comments_menu
 	 *
-	 * @covers ::add_comments_menu
+	 * @covers Automattic\Jetpack\Masterbar\Admin_Menu::add_comments_menu
 	 */
 	public function test_add_comments_menu() {
 		global $menu, $submenu;
@@ -272,7 +272,7 @@ class Test_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_appearance_menu
 	 *
-	 * @covers ::add_appearance_menu
+	 * @covers Automattic\Jetpack\Masterbar\Admin_Menu::add_appearance_menu
 	 */
 	public function test_add_appearance_menu() {
 		global $submenu;
@@ -285,7 +285,7 @@ class Test_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_plugins_menu
 	 *
-	 * @covers ::add_plugins_menu
+	 * @covers Automattic\Jetpack\Masterbar\Admin_Menu::add_plugins_menu
 	 */
 	public function test_add_plugins_menu() {
 		global $menu, $submenu;
@@ -299,7 +299,7 @@ class Test_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_users_menu
 	 *
-	 * @covers ::add_users_menu
+	 * @covers Automattic\Jetpack\Masterbar\Admin_Menu::add_users_menu
 	 */
 	public function test_add_users_menu() {
 		global $menu, $submenu;
@@ -361,7 +361,7 @@ class Test_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_tools_menu
 	 *
-	 * @covers ::add_tools_menu
+	 * @covers Automattic\Jetpack\Masterbar\Admin_Menu::add_tools_menu
 	 */
 	public function test_add_tools_menu() {
 		global $submenu;
@@ -377,7 +377,7 @@ class Test_Admin_Menu extends TestCase {
 	/**
 	 * Tests add_options_menu
 	 *
-	 * @covers ::add_options_menu
+	 * @covers Automattic\Jetpack\Masterbar\Admin_Menu::add_options_menu
 	 */
 	public function test_add_options_menu() {
 		global $submenu;
@@ -391,7 +391,7 @@ class Test_Admin_Menu extends TestCase {
 	 * Tests add_jetpack_menu
 	 * §
 	 *
-	 * @covers ::add_jetpack_menu
+	 * @covers Automattic\Jetpack\Masterbar\Admin_Menu::add_jetpack_menu
 	 */
 	public function test_add_jetpack_menu() {
 		global $submenu;
@@ -515,7 +515,7 @@ class Test_Admin_Menu extends TestCase {
 	/**
 	 * Tests test_add_woocommerce_installation_menu
 	 *
-	 * @covers ::add_woocommerce_installation_menu
+	 * @covers Automattic\Jetpack\Masterbar\Admin_Menu::add_woocommerce_installation_menu
 	 */
 	public function test_add_woocommerce_installation_menu() {
 		global $menu;

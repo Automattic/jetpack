@@ -9,6 +9,7 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import AiFeedbackThumbs from '../../components/ai-feedback/index.js';
 import CheckIcon from '../assets/icons/check.js';
 import LogoIcon from '../assets/icons/logo.js';
 import MediaIcon from '../assets/icons/media.js';
@@ -111,6 +112,7 @@ const UseOnSiteButton: React.FC< { onApplyLogo: ( mediaId: number ) => void } > 
 			className="jetpack-ai-logo-generator-modal-presenter__action"
 			onClick={ handleClick }
 			disabled={ isSavingLogoToLibrary || ! selectedLogo?.mediaId }
+			variant="secondary"
 		>
 			<Icon icon={ <LogoIcon /> } />
 			<span className="action-text">{ __( 'Use on block', 'jetpack-ai-client' ) }</span>
@@ -140,11 +142,61 @@ const LogoFetching: React.FC = () => {
 	);
 };
 
+const LogoEmpty: React.FC = () => {
+	return (
+		<>
+			<div style={ { width: 0, height: '229px' } }></div>
+			<span className="jetpack-ai-logo-generator-modal-presenter__loading-text">
+				{ __( 'Once you generate a logo, it will show up here', 'jetpack-ai-client' ) }
+			</span>
+		</>
+	);
+};
+
+const RateLogo: React.FC< {
+	disabled: boolean;
+	ratedItem: string;
+	onRate: ( rating: string ) => void;
+} > = ( { disabled, ratedItem, onRate } ) => {
+	const { logos, selectedLogo } = useLogoGenerator();
+	const savedRatings = logos
+		.filter( logo => logo.rating )
+		.reduce( ( acc, logo ) => {
+			acc[ logo.url ] = logo.rating;
+			return acc;
+		}, {} );
+
+	return (
+		<AiFeedbackThumbs
+			disabled={ disabled }
+			ratedItem={ ratedItem }
+			feature="logo-generator"
+			savedRatings={ savedRatings }
+			options={ {
+				mediaLibraryId: selectedLogo.mediaId,
+				prompt: selectedLogo.description,
+			} }
+			onRate={ onRate }
+		/>
+	);
+};
+
 const LogoReady: React.FC< {
 	siteId: string;
 	logo: Logo;
 	onApplyLogo: ( mediaId: number ) => void;
 } > = ( { siteId, logo, onApplyLogo } ) => {
+	const handleRateLogo = ( rating: string ) => {
+		// Update localStorage
+		updateLogo( {
+			siteId,
+			url: logo.url,
+			newUrl: logo.url,
+			mediaId: logo.mediaId,
+			rating,
+		} );
+	};
+
 	return (
 		<>
 			<img
@@ -159,6 +211,7 @@ const LogoReady: React.FC< {
 				<div className="jetpack-ai-logo-generator-modal-presenter__actions">
 					<SaveInLibraryButton siteId={ siteId } />
 					<UseOnSiteButton onApplyLogo={ onApplyLogo } />
+					<RateLogo ratedItem={ logo.url } disabled={ false } onRate={ handleRateLogo } />
 				</div>
 			</div>
 		</>
@@ -188,13 +241,14 @@ export const LogoPresenter: React.FC< LogoPresenterProps > = ( {
 	logoAccepted = false,
 	siteId,
 } ) => {
-	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const { isRequestingImage } = useLogoGenerator();
 	const { saveToLibraryError, logoUpdateError } = useRequestErrors();
 
 	let logoContent: React.ReactNode;
 
-	if ( ! logo ) {
+	if ( ! logo && ! isRequestingImage ) {
+		logoContent = <LogoEmpty />;
+	} else if ( ! logo ) {
 		debug( 'No logo provided, history still loading or logo being generated' );
 		logoContent = <LogoFetching />;
 	} else if ( loading || isRequestingImage ) {

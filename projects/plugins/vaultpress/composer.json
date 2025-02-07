@@ -19,6 +19,9 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+		],
 		"test-php": [
 			"@composer phpunit"
 		]
@@ -35,7 +38,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_vaultpressⓥ3_0_0",
+		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_vaultpressⓥ4_0_0",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true
 		}

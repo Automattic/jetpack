@@ -1,4 +1,3 @@
-/* eslint-disable no-use-before-define */
 /**
  * Generic type for handling JSON-like objects.
  *

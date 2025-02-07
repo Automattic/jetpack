@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const pkgDir = require( 'pkg-dir' );
@@ -17,6 +16,7 @@ module.exports = [
 				'./src/features/custom-css/custom-css/js/core-customizer-css-preview.js',
 			'customizer-control': './src/features/custom-css/custom-css/css/customizer-control.css',
 			'error-reporting': './src/features/error-reporting/index.js',
+			'holiday-snow': './src/features/holiday-snow/holiday-snow.scss',
 			'jetpack-global-styles': './src/features/jetpack-global-styles/index.js',
 			'jetpack-global-styles-customizer-fonts':
 				'./src/features/jetpack-global-styles/customizer-fonts/index.js',
@@ -38,17 +38,27 @@ module.exports = [
 			'wpcom-blocks-timeline-view': './src/features/wpcom-blocks/timeline/view.js',
 			'wpcom-block-description-links': './src/features/wpcom-block-description-links/index.tsx',
 			'wpcom-block-editor-nux': './src/features/wpcom-block-editor-nux/index.js',
+			'wpcom-dashboard-widgets':
+				'./src/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.js',
 			'wpcom-global-styles-editor': './src/features/wpcom-global-styles/index.js',
 			'wpcom-global-styles-frontend':
 				'./src/features/wpcom-global-styles/wpcom-global-styles-view.js',
 			'wpcom-documentation-links':
 				'./src/features/wpcom-documentation-links/wpcom-documentation-links.ts',
+			'wpcom-media-url-upload': './src/features/wpcom-media/wpcom-media-url-upload.js',
+			'wpcom-options-general': [
+				'./src/features/wpcom-options-general/options-general.js',
+				'./src/features/wpcom-options-general/options-general.scss',
+			],
 			'wpcom-plugins-banner': './src/features/wpcom-plugins/js/banner.js',
 			'wpcom-plugins-banner-style': './src/features/wpcom-plugins/css/banner.css',
 			'wpcom-profile-settings-link-to-wpcom':
 				'./src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.ts',
 			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
 			'starter-page-templates': './src/features/starter-page-templates/index.tsx',
+			'removed-calypso-screen-notice':
+				'./src/features/wpcom-admin-interface/removed-calypso-screen-notice.tsx',
+			'adminbar-launch-button': './src/features/launch-button/index.js',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
@@ -67,6 +77,10 @@ module.exports = [
 				'@automattic/calypso-config': '@automattic/calypso-config/src/client.js',
 				/** Replace the classnames used by @automattic/newspack-blocks with clsx because we changed to use clsx */
 				classnames: findPackage( 'clsx' ),
+			},
+			fallback: {
+				...jetpackWebpackConfig.resolve.fallback,
+				events: require.resolve( 'events/' ),
 			},
 		},
 		node: false,
@@ -88,9 +102,9 @@ module.exports = [
 					exclude: /node_modules\//,
 				} ),
 
-				// Transpile @automattic/jetpack-* in node_modules too.
+				// Transpile @automattic/* in node_modules too.
 				jetpackWebpackConfig.TranspileRule( {
-					includeNodeModules: [ '@automattic/jetpack-' ],
+					includeNodeModules: [ '@automattic/' ],
 				} ),
 
 				// Handle CSS.
@@ -124,6 +138,7 @@ module.exports = [
  * Note this is not the same as looking for `__dirname+'/node_modules/'+pkgName`, as the package may be in a parent
  * `node_modules`
  * @param {string} pkgName - Name of the package to search for.
+ * @return {string} - The absolute path of the package.
  */
 function findPackage( pkgName ) {
 	const fullPath = require.resolve( pkgName );

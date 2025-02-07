@@ -2,6 +2,121 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.66.0] - 2025-02-05
+### Added
+- jetpack-components: Export the getRedirectUrl function with subpath [#41078]
+
+### Changed
+- Updated package dependencies. [#41486] [#41491] [#41577]
+
+## [0.65.5] - 2025-02-03
+### Changed
+- Updated package dependencies. [#41286]
+
+## [0.65.4] - 2025-01-20
+### Added
+- Add an optional sandboxed tag to show if the current user is sandboxing their API. [#40971]
+- Add option for additional custom footer elements. [#40943]
+
+### Changed
+- Updated package dependencies. [#41099]
+
+## [0.65.3] - 2025-01-09
+### Changed
+- Updated social-logos import from default to named. [#40816]
+
+## [0.65.2] - 2025-01-06
+### Changed
+- Updated package dependencies. [#40797] [#40798] [#40835] [#40841]
+
+## [0.65.1] - 2024-12-23
+### Changed
+- Internal updates.
+
+## [0.65.0] - 2024-12-16
+### Changed
+- Fixes ThreatsDataViews defaultLayouts. [#40598]
+- Updated package dependencies. [#40564] [#40598]
+
+### Fixed
+- Fix ToggleControl's help text indent to align with label text. [#40510]
+
+## [0.64.1] - 2024-12-09
+### Removed
+- Remove bulk action support from the ThreatsDataViews component. [#40483]
+
+### Fixed
+- Fixed threat type values and labels. [#40467]
+
+## [0.64.0] - 2024-12-04
+### Changed
+- Changed text domain from 'jetpack' to 'jetpack-components'. [#40368]
+- Minor enhancements to the ThreatsDataViews component [#40398]
+- Updated package dependencies. [#40363]
+
+## [0.63.0] - 2024-11-26
+### Changed
+- Updates ThreatModal flow [#40214]
+
+## [0.62.0] - 2024-11-25
+### Added
+- Add Stats icon [#40236]
+- Adds ThreatModal component and stories [#40197]
+
+### Changed
+- Updated package dependencies. [#40288]
+
+## [0.61.0] - 2024-11-18
+### Added
+- Gridicon Component: Add support for help-outline icon. [#39867]
+
+## [0.60.0] - 2024-11-14
+### Added
+- Adds tooltips for each ThreatFixerButton state [#40111]
+
+### Fixed
+- Fixes the loading placeholder that didn't disappear when the price loads. [#40157]
+
+## [0.59.0] - 2024-11-11
+### Added
+- Add ThreatsDataViews component [#39754]
+- Components: add ref for container component [#39850]
+- IconTooltip: add support for showing tooltip on hover. [#39916]
+
+### Changed
+- Add ToggleGroupControl to ThreatsDataViews for easily toggling between Active and Historical threats [#39901]
+- Updated package dependencies. [#39999] [#40000] [#40060]
+
+## [0.58.1] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Fixed
+- Fix tooltip behavior. [#39879]
+
+## [0.58.0] - 2024-10-15
+### Added
+- Add DiffViewer component [#39672]
+- Add ThreatSeverityBadge component [#39758]
+
+## [0.57.0] - 2024-10-14
+### Added
+- Add JetpackProtectLogo component. [#39703]
+- Add MarkedLines component. [#39674]
+
+## [0.56.3] - 2024-10-10
+### Changed
+- Components - getRedirectUrl: use file extension on import for linter to find definitions
+- Updated package dependencies.
+
+## [0.56.2] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## [0.56.1] - 2024-10-02
+### Changed
+- Updated package dependencies. [#39610]
+
 ## [0.56.0] - 2024-09-25
 ### Added
 - Added StatCard component export [#35739]
@@ -140,9 +255,7 @@
 - Social | Wired up confirmation UI with connect button [#37295]
 
 ### Changed
-- Updated package dependencies. [#37379]
-- Updated package dependencies. [#37380]
-- Updated package dependencies. [#37382]
+- Updated package dependencies. [#37379] [#37380] [#37382]
 
 ## [0.53.2] - 2024-05-13
 ### Added
@@ -367,8 +480,7 @@
 
 ## [0.42.1] - 2023-09-04
 ### Changed
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
+- Updated package dependencies. [#32803] [#32804]
 
 ## [0.42.0] - 2023-09-01
 ### Added
@@ -418,8 +530,7 @@
 ## [0.40.1] - 2023-07-05
 ### Changed
 - Adjust component pricing slider border and box-shadow styling. [#31593]
-- Updated package dependencies. [#31659]
-- Updated package dependencies. [#31661]
+- Updated package dependencies. [#31659] [#31661]
 - Update storybook mdx to use `@storybook/blocks` directly rather than `@storybook/addon-docs`. [#31607]
 
 ### Fixed
@@ -697,8 +808,7 @@
 - Fix ProductPrice layout for long prices [#26595]
 - IconTooltip: Use click instead of mouseover for summoning [#26457]
 - Refactor props for structure consistency with JetpackLogo component. [#26510]
-- Updated package dependencies. [#26568]
-- Updated package dependencies. [#26583]
+- Updated package dependencies. [#26568] [#26583]
 
 ### Fixed
 - Components: fix the positio of TOS component of the PricingTable cmp [#26509]
@@ -1172,6 +1282,26 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.66.0]: https://github.com/Automattic/jetpack-components/compare/0.65.5...0.66.0
+[0.65.5]: https://github.com/Automattic/jetpack-components/compare/0.65.4...0.65.5
+[0.65.4]: https://github.com/Automattic/jetpack-components/compare/0.65.3...0.65.4
+[0.65.3]: https://github.com/Automattic/jetpack-components/compare/0.65.2...0.65.3
+[0.65.2]: https://github.com/Automattic/jetpack-components/compare/0.65.1...0.65.2
+[0.65.1]: https://github.com/Automattic/jetpack-components/compare/0.65.0...0.65.1
+[0.65.0]: https://github.com/Automattic/jetpack-components/compare/0.64.1...0.65.0
+[0.64.1]: https://github.com/Automattic/jetpack-components/compare/0.64.0...0.64.1
+[0.64.0]: https://github.com/Automattic/jetpack-components/compare/0.63.0...0.64.0
+[0.63.0]: https://github.com/Automattic/jetpack-components/compare/0.62.0...0.63.0
+[0.62.0]: https://github.com/Automattic/jetpack-components/compare/0.61.0...0.62.0
+[0.61.0]: https://github.com/Automattic/jetpack-components/compare/0.60.0...0.61.0
+[0.60.0]: https://github.com/Automattic/jetpack-components/compare/0.59.0...0.60.0
+[0.59.0]: https://github.com/Automattic/jetpack-components/compare/0.58.1...0.59.0
+[0.58.1]: https://github.com/Automattic/jetpack-components/compare/0.58.0...0.58.1
+[0.58.0]: https://github.com/Automattic/jetpack-components/compare/0.57.0...0.58.0
+[0.57.0]: https://github.com/Automattic/jetpack-components/compare/0.56.3...0.57.0
+[0.56.3]: https://github.com/Automattic/jetpack-components/compare/0.56.2...0.56.3
+[0.56.2]: https://github.com/Automattic/jetpack-components/compare/0.56.1...0.56.2
+[0.56.1]: https://github.com/Automattic/jetpack-components/compare/0.56.0...0.56.1
 [0.56.0]: https://github.com/Automattic/jetpack-components/compare/0.55.17...0.56.0
 [0.55.17]: https://github.com/Automattic/jetpack-components/compare/0.55.16...0.55.17
 [0.55.16]: https://github.com/Automattic/jetpack-components/compare/0.55.15...0.55.16

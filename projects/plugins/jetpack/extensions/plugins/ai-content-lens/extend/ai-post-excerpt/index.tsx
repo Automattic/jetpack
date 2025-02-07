@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { useAiSuggestions } from '@automattic/jetpack-ai-client';
+import {
+	useAiSuggestions,
+	useAiFeature,
+	QuotaExceededMessage,
+} from '@automattic/jetpack-ai-client';
 import {
 	isAtomicSite,
 	isSimpleSite,
@@ -9,16 +13,17 @@ import {
 } from '@automattic/jetpack-shared-extension-utils';
 import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
-import { store as editorStore, PostTypeSupportCheck } from '@wordpress/editor';
+import {
+	store as editorStore,
+	PostTypeSupportCheck,
+	PluginDocumentSettingPanel,
+} from '@wordpress/editor';
 import { useState, useEffect, useCallback } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { count } from '@wordpress/wordcount';
 /**
  * Internal dependencies
  */
-import QuotaExceededMessage from '../../../../blocks/ai-assistant/components/quota-exceeded-message';
-import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import { isBetaExtension } from '../../../../editor';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
 /**
@@ -27,7 +32,7 @@ import { AiExcerptControl } from '../../components/ai-excerpt-control';
 import type { LanguageProp } from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
 import type { ToneProp } from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
 import type { AiModelTypeProp, PromptProp } from '@automattic/jetpack-ai-client';
-import type * as EditorSelectors from '@wordpress/editor/store/selectors';
+import type { ReactElement } from 'react';
 
 import './style.scss';
 
@@ -45,9 +50,7 @@ type ContentLensMessageContextProps = {
 
 function AiPostExcerpt() {
 	const { excerpt, postId } = useSelect( select => {
-		const { getEditedPostAttribute, getCurrentPostId } = select(
-			editorStore
-		) as typeof EditorSelectors;
+		const { getEditedPostAttribute, getCurrentPostId } = select( editorStore );
 
 		return {
 			excerpt: getEditedPostAttribute( 'excerpt' ) ?? '',
@@ -108,22 +111,19 @@ function AiPostExcerpt() {
 	}, [ stopSuggestion, reset ] );
 
 	// Pick raw post content
-	const postContent = useSelect(
-		select => {
-			const content = ( select( editorStore ) as typeof EditorSelectors ).getEditedPostContent();
-			if ( ! content ) {
-				return '';
-			}
+	const postContent = useSelect( select => {
+		const content = select( editorStore ).getEditedPostContent();
+		if ( ! content ) {
+			return '';
+		}
 
-			const document = new window.DOMParser().parseFromString( content, 'text/html' );
+		const document = new window.DOMParser().parseFromString( content, 'text/html' );
 
-			const documentRawText = document.body.textContent || document.body.innerText || '';
+		const documentRawText = document.body.textContent || document.body.innerText || '';
 
-			// Keep only one break line (\n) between blocks.
-			return documentRawText.replace( /\n{2,}/g, '\n' ).trim();
-		},
-		[ postId ]
-	);
+		// Keep only one break line (\n) between blocks.
+		return documentRawText.replace( /\n{2,}/g, '\n' ).trim();
+	}, [] );
 
 	// Show custom prompt number of words
 	const currentExcerpt = suggestion || excerpt;
@@ -266,6 +266,7 @@ ${ postContent }
 					help={
 						! postContent?.length ? __( 'Add content to generate an excerpt.', 'jetpack' ) : null
 					}
+					__nextHasNoMarginBottom={ true }
 				>
 					<div className="jetpack-generated-excerpt__generate-buttons-container">
 						<Button
@@ -300,7 +301,7 @@ ${ postContent }
 
 export const PluginDocumentSettingPanelAiExcerpt = () => {
 	const isExcerptUsedAsDescription = useSelect( select => {
-		const { getCurrentPostType } = select( editorStore ) as typeof EditorSelectors;
+		const { getCurrentPostType } = select( editorStore );
 		const postType = getCurrentPostType();
 		const isTemplateOrTemplatePart = postType === 'wp_template' || postType === 'wp_template_part';
 		const isPattern = postType === 'wp_block';
@@ -309,15 +310,26 @@ export const PluginDocumentSettingPanelAiExcerpt = () => {
 	if ( isExcerptUsedAsDescription ) {
 		return null;
 	}
+
+	const SettingPanel = props => {
+		const Panel = PluginDocumentSettingPanel as unknown as React.ComponentType< {
+			className?: string;
+			name?: string;
+			title?: string;
+		} >;
+		return ( <Panel { ...props } /> ) as ReactElement;
+	};
+
 	return (
+		// @ts-expect-error - TS1003: TypeScript is unhappy with it returning ReactNode rather than ReactElement.
 		<PostTypeSupportCheck supportKeys="excerpt">
-			<PluginDocumentSettingPanel
+			<SettingPanel
 				className={ isBetaExtension( 'ai-content-lens' ) ? 'is-beta-extension inset-shadow' : '' }
 				name="ai-content-lens-plugin"
 				title={ __( 'Excerpt', 'jetpack' ) }
 			>
 				<AiPostExcerpt />
-			</PluginDocumentSettingPanel>
+			</SettingPanel>
 		</PostTypeSupportCheck>
 	);
 };

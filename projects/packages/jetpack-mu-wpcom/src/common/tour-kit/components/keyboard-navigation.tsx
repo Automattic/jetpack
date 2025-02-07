@@ -28,12 +28,14 @@ const KeyboardNavigation: React.FunctionComponent< Props > = ( {
 } ) => {
 	/**
 	 * Expand Tour Nav
+	 * @return {null} This component is non-rendering.
 	 */
 	function ExpandedTourNav() {
 		useKeydownHandler( {
 			onEscape: onMinimize,
 			onArrowRight: onNextStepProgression,
 			onArrowLeft: onPreviousStepProgression,
+			tourContainerRef,
 		} );
 		useFocusTrap( tourContainerRef );
 
@@ -42,9 +44,10 @@ const KeyboardNavigation: React.FunctionComponent< Props > = ( {
 
 	/**
 	 * Minimize Tour Nav
+	 * @return {null} This component is non-rendering.
 	 */
-	function MinimizedTourNav() {
-		useKeydownHandler( { onEscape: onDismiss( 'esc-key-minimized' ) } );
+	function MinimizedTourNav(): null {
+		useKeydownHandler( { onEscape: onDismiss( 'esc-key-minimized' ), tourContainerRef } );
 
 		return null;
 	}

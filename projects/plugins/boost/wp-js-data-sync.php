@@ -16,6 +16,7 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Regenerate_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_Error_Dismissed;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_Errors;
+use Automattic\Jetpack_Boost\Lib\My_Jetpack;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
 use Automattic\Jetpack_Boost\Lib\Status;
@@ -173,6 +174,8 @@ $critical_css_suggest_regenerate_schema = Schema::enum(
 		'post_saved',
 		'switched_theme',
 		'plugin_change',
+		'cornerstone_page_saved',
+		'cornerstone_pages_list_updated',
 	)
 )->nullable();
 
@@ -243,6 +246,19 @@ $js_excludes_entry  = new Minify_Excludes_State_Entry( 'minify_js_excludes' );
 $css_excludes_entry = new Minify_Excludes_State_Entry( 'minify_css_excludes' );
 jetpack_boost_register_option( 'minify_js_excludes', Schema::as_array( Schema::as_string() )->fallback( Minify_JS::$default_excludes ), $js_excludes_entry );
 jetpack_boost_register_option( 'minify_css_excludes', Schema::as_array( Schema::as_string() )->fallback( Minify_CSS::$default_excludes ), $css_excludes_entry );
+jetpack_boost_register_readonly_option(
+	'minify_js_excludes_default',
+	function () {
+		return Minify_JS::$default_excludes;
+	}
+);
+jetpack_boost_register_readonly_option(
+	'minify_css_excludes_default',
+	function () {
+		return Minify_CSS::$default_excludes;
+	}
+);
+
 jetpack_boost_register_option(
 	'image_cdn_quality',
 	Schema::as_assoc_array(
@@ -346,6 +362,7 @@ jetpack_boost_register_option(
 
 jetpack_boost_register_readonly_option( 'connection', array( new Connection(), 'get_connection_api_response' ) );
 jetpack_boost_register_readonly_option( 'pricing', array( Premium_Pricing::class, 'get_yearly_pricing' ) );
+jetpack_boost_register_readonly_option( 'product', array( My_Jetpack::class, 'get_product' ) );
 jetpack_boost_register_readonly_option( 'premium_features', array( Premium_Features::class, 'get_features' ) );
 jetpack_boost_register_readonly_option( 'cache_debug_log', array( Logger::class, 'read' ) );
 jetpack_boost_register_readonly_option( 'cache_engine_loading', array( Boost_Cache::class, 'is_loaded' ) );

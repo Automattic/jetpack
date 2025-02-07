@@ -12,10 +12,7 @@
 		"automattic/jetpack-plugins-installer": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "^1.1.1",
-		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "0.4.2",
-		"brain/monkey": "2.6.1"
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -23,11 +20,9 @@
 		]
 	},
 	"scripts": {
-		"phpunit": [
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		],
-		"test-php": [
-			"@composer phpunit"
+		"test-coverage": "pnpm concurrently --names js 'pnpm:test-coverage'",
+		"test-js": [
+			"pnpm run test"
 		],
 		"build-development": [
 			"pnpm run build"
@@ -38,9 +33,7 @@
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
-		],
-		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+		]
 	},
 	"repositories": [
 		{

@@ -17,6 +17,10 @@
 
 	<filter>
 		<whitelist processUncoveredFilesFromWhitelist="false">
+			<file>index.php</file>
+			<file>jetpack-boost.php</file>
+			<file>serve-minified-content.php</file>
+			<file>wp-js-data-sync.php</file>
 			<directory suffix=".php">app</directory>
 			<directory suffix=".php">compatibility</directory>
 		</whitelist>

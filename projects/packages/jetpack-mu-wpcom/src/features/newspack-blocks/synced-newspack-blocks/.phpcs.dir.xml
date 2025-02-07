@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<ruleset>
-
-	<rule ref="MediaWiki.Usage.ForbiddenFunctions">
-		<exclude name="MediaWiki.Usage.ForbiddenFunctions.isset"/>
-	</rule>
-
-</ruleset>

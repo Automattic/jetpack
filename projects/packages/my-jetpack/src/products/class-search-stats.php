@@ -36,6 +36,8 @@ class Search_Stats {
 	const CACHE_EXPIRY                  = 1 * MINUTE_IN_SECONDS;
 	const CACHE_GROUP                   = 'jetpack_search';
 	const POST_TYPE_BREAKDOWN_CACHE_KEY = 'post_type_break_down';
+	const TOTAL_POSTS_COUNT_CACHE_KEY   = 'total-post-count';
+	const POST_COUNT_QUERY_LIMIT        = 1e5;
 
 	/**
 	 * Get stats from the WordPress.com API for the current blog ID.
@@ -56,6 +58,25 @@ class Search_Stats {
 		);
 
 		return $response;
+	}
+
+	/**
+	 * Queue querying the post type breakdown from WordPress.com API for the current blog ID.
+	 */
+	public function queue_post_count_query_from_wpcom() {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		if ( ! is_numeric( $blog_id ) ) {
+			return null;
+		}
+
+		Client::wpcom_json_api_request_as_blog(
+			'/sites/' . (int) $blog_id . '/jetpack-search/queue-post-count',
+			'2',
+			array(),
+			null,
+			'wpcom'
+		);
 	}
 
 	/**
@@ -127,7 +148,7 @@ class Search_Stats {
 	}
 
 	/**
-	 * Get raw post type breakdown from the database.
+	 * Get raw post type breakdown from the database or a remote request if posts count is high.
 	 */
 	protected static function get_raw_post_type_breakdown() {
 		global $wpdb;
@@ -135,6 +156,27 @@ class Search_Stats {
 		$results = wp_cache_get( self::POST_TYPE_BREAKDOWN_CACHE_KEY, self::CACHE_GROUP );
 		if ( false !== $results ) {
 			return $results;
+		}
+
+		$total_posts_count = wp_cache_get( self::TOTAL_POSTS_COUNT_CACHE_KEY, self::CACHE_GROUP );
+		if ( false === $total_posts_count ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery */
+			$total_posts_counts = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts}" );
+			wp_cache_set( self::TOTAL_POSTS_COUNT_CACHE_KEY, $total_posts_counts, self::CACHE_GROUP, self::CACHE_EXPIRY );
+		}
+
+		// Get post type breakdown from a remote request if the post count is high
+		if ( $total_posts_count > self::POST_COUNT_QUERY_LIMIT ) {
+			$search_stats = new Search_Stats();
+			$search_stats->queue_post_count_query_from_wpcom();
+			$wpcom_stats = json_decode( wp_remote_retrieve_body( $search_stats->get_stats_from_wpcom() ), true );
+			if ( ! empty( $wpcom_stats['raw_post_type_breakdown'] ) ) {
+				$results = $wpcom_stats['raw_post_type_breakdown'];
+				wp_cache_set( self::POST_TYPE_BREAKDOWN_CACHE_KEY, $results, self::CACHE_GROUP, self::CACHE_EXPIRY );
+				return $results;
+			} else {
+				return array();
+			}
 		}
 
 		$query = "SELECT post_type, post_status, COUNT( * ) AS num_posts

@@ -11,6 +11,8 @@ namespace Automattic\Jetpack\ExPlat;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
 use WP_REST_Server;
 
 /**
@@ -71,7 +73,7 @@ class REST_Controller {
 	 * Get the assignments for a given experiment and anon_id
 	 *
 	 * @param WP_REST_Request $request The REST request object.
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
 	public function get_assignments( $request ) {
 		$response          = null;

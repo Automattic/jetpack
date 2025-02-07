@@ -70,7 +70,6 @@ domReady( function () {
 
 				// Fallback to provided email from the logged in user when set
 				if ( ! email && form.dataset.subscriber_email ) {
-					// eslint-disable-next-line no-console
 					email = form.dataset.subscriber_email;
 				}
 

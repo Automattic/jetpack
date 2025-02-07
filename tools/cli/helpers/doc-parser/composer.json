@@ -5,8 +5,8 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=8.2",
-		"wordpress/phpdoc-parser": "dev-master",
-		"michelf/php-markdown": "^2.0"
+		"nikic/php-parser": "^5.4.0",
+		"phpstan/phpdoc-parser": "^2.0"
 	},
 	"autoload": {
 		"classmap": [

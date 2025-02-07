@@ -1,13 +1,13 @@
-import { Chip, ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { Chip, getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
+import React from 'react';
+import { connect } from 'react-redux';
 import CompactCard from 'components/card/compact';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import React from 'react';
-import { connect } from 'react-redux';
 import { showMyJetpack } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
@@ -17,11 +17,11 @@ export class Composing extends React.Component {
 	 * If markdown module is inactive and this is toggling markdown for posts on, activate module.
 	 * If markdown for comments is off and this is toggling markdown for posts off, deactivate module.
 	 *
-	 * @param {string} module the slug of the module to update
+	 * @param {string} module - the slug of the module to update
 	 * @return {*}           the updated value
 	 */
 	updateFormStateByMarkdown = module => {
-		if ( !! this.props.getSettingCurrentValue( 'wpcom_publish_comments_with_markdown', module ) ) {
+		if ( this.props.getSettingCurrentValue( 'wpcom_publish_comments_with_markdown', module ) ) {
 			return this.props.updateFormStateModuleOption( module, 'wpcom_publish_posts_with_markdown' );
 		}
 		return this.props.updateFormStateModuleOption(
@@ -173,29 +173,27 @@ export class Composing extends React.Component {
 						} }
 					>
 						<FormFieldset>
-							<ToggleControl
-								checked={ ! this.props.getOptionValue( 'jetpack_blocks_disabled' ) }
-								toggling={ this.props.isSavingAnyOption( [ 'jetpack_blocks_disabled' ] ) }
-								onChange={ this.toggleBlocks }
-								label={
-									<>
-										<span className="jp-form-toggle-explanation">
-											{ __(
-												'Jetpack Blocks give you the power to deliver quality content that hooks website visitors without needing to hire a developer or learn a single line of code.',
-												'jetpack'
-											) }
-										</span>
-										{ ! this.props.getOptionValue( 'jetpack_blocks_disabled' ) && (
-											<span className="jp-form-setting-explanation">
-												{ __(
-													'Caution: if there are Jetpack blocks used in existing posts or pages, disabling this setting will cause those blocks to stop working.',
-													'jetpack'
-												) }
-											</span>
+							<ModuleToggle
+								slug="blocks"
+								activated={ !! this.props.getOptionValue( 'blocks' ) }
+								toggling={ this.props.isSavingAnyOption( [ 'blocks' ] ) }
+								toggleModule={ this.props.toggleModuleNow }
+							>
+								<span className="jp-form-toggle-explanation">
+									{ __(
+										'Jetpack Blocks give you the power to deliver quality content that hooks website visitors without needing to hire a developer or learn a single line of code.',
+										'jetpack'
+									) }
+								</span>
+								{ this.props.getOptionValue( 'blocks' ) && (
+									<span className="jp-form-setting-explanation">
+										{ __(
+											'Caution: if there are Jetpack blocks used in existing posts or pages, disabling this setting will cause those blocks to stop working.',
+											'jetpack'
 										) }
-									</>
-								}
-							/>
+									</span>
+								) }
+							</ModuleToggle>
 						</FormFieldset>
 					</SettingsGroup>
 					<CompactCard

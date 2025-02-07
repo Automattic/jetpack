@@ -96,7 +96,7 @@ export const saveProduct =
 				);
 			}
 			callback( true );
-		} catch ( error ) {
+		} catch {
 			onError(
 				getMessageByProductType( 'there was an error when adding the product', productType ),
 				registry
