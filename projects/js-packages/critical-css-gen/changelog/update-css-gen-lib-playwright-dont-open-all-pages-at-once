@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update Playwright interface, to open less pages at the same time.
