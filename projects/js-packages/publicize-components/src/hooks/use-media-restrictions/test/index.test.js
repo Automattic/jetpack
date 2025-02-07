@@ -10,6 +10,10 @@ import useMediaRestrictions from '../index';
 
 jest.mock( '../../use-attached-media', () => jest.fn() );
 
+jest.mock( '../../../utils/use-share-message-max-length.js', () => ( {
+	useShareMessageMaxLength: jest.fn().mockReturnValue( 255 ),
+} ) );
+
 const DUMMY_CONNECTIONS = [
 	{
 		service_name: 'facebook',

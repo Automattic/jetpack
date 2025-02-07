@@ -1,4 +1,4 @@
-import { PlanType } from '../../../../shared/use-plan-type';
+import { PlanType } from '@automattic/jetpack-shared-extension-utils';
 import {
 	PLACEMENT_DOCUMENT_SETTINGS,
 	PLACEMENT_JETPACK_SIDEBAR,

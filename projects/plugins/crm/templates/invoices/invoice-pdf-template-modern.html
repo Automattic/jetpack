@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Invoice</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Core Styles */
+        * { 
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            line-height: 1.3;
+            color: #111;
+            background: #fff;
+            font-size: 14px;
+        }
+
+        /* Layout */
+        .zbs-invoice {
+            max-width: 795px;
+            margin: 0 auto;
+            padding: 25px;
+            background: #fff;
+            position: relative;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        /* Header Section */
+        .invoice-header {
+            border-bottom: 3px solid #111;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: table;
+            width: 100%;
+        }
+
+        #zbs_invoice_logos {
+            width: 50%;
+            float: left;
+        }
+
+        #wh-logo-set-img {
+            max-width: 60%;
+            max-height: 140px;
+        }
+
+        .invoice-meta {
+            width: 50%;
+            float: right;
+            padding-top: 0;
+            margin-top:-10px;
+        }
+
+        .invoice-meta table td {
+            padding: 3px 0;
+            line-height: 1.3;
+            font-size: 11pt;
+        }
+
+        .invoice-meta table td:last-child {
+            text-align: right;
+        }
+
+        .zbs-invoice-number {
+            display: inline-block;
+            border-bottom: 2px solid #e1def3;
+        }
+
+        /* Business Info Section */
+        .invoice-infos {
+            padding: 0 15px;
+            margin-bottom: 20px;
+            display: table;
+            width: 100%;
+        }
+
+        .business-from,
+        .business-to {
+            width: 50%;
+            float: left;
+        }
+
+        .business-to {
+            float: right;
+        }
+
+        .invoice-title4 {
+            font-size: 13px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .business-to .invoice-title4 {
+            text-align: right;
+        }
+
+        .business-infos {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        /* Line Items Table */
+        .striped {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e1def3;
+        }
+
+        .striped th {
+            padding: 12px 10px;
+            text-transform: uppercase;
+            border-bottom: 2px solid #111;
+            font-weight: 600;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        .striped td {
+            padding: 10px;
+            line-height: 1.3;
+            font-size: 14px;
+            vertical-align: top;
+        }
+
+        .striped tbody tr:nth-child(odd) {
+            background: #f6f5fb;
+        }
+
+        /* Line Items Styling */
+        .jpcrm-invoice-lineitem-description {
+            width: 50%;
+            text-align: left;
+            padding-right: 20px;
+        }
+
+        .jpcrm-invoice-lineitem-description .title {
+            font-weight: bold;
+            margin-bottom: 6px;
+            font-size: 15px;
+            line-height: 16px;
+        }
+
+        .jpcrm-invoice-lineitem-description .subtitle {
+            font-size: 14px;
+            color: #555;
+            line-height: 17px;
+        }
+
+        .jpcrm-invoice-lineitem-quantity,
+        .jpcrm-invoice-lineitem-price,
+        .jpcrm-invoice-lineitem-amount {
+            width: 15%;
+            text-align: right;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        /* Totals Table */
+        .zbs_grand_total td {
+            padding: 15px 10px;
+            font-size: 16px;
+        }
+
+        .zbs-total {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* Payment Details */
+        .zbs-payment-details {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .deets {
+            text-align: center;
+            padding: 25px;
+            border: 1px solid #111;
+            width: 80%;
+            margin-right:20%;
+        }
+
+        .deets h2 {
+            margin-top: 0;
+            text-transform: uppercase;
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #111;
+        }
+
+        #invoice-payments{
+            text-align: right !important;
+        }
+
+        .striped tbody tr:nth-child(even) {
+            background-color: #f5f5f5;
+        }
+
+        .striped tbody tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        .striped tbody tr {
+            transition: background-color 0.2s ease;
+            padding: 5px;
+        }
+
+        .striped tbody tr:hover {
+            background-color: #e9e9e9;
+        }
+        .zbs-minitotal{
+            font-weight:bold !important;
+            text-align: right;
+        }
+        
+
+        .deets-line {
+            font-size: 14px;
+            margin: 6px 0;
+            line-height: 1.5;
+        }
+
+        /* Utility Classes */
+        .clear {
+            clear: both;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+            }
+            .zbs-invoice {
+                margin: 0;
+                padding: 10px;
+            }
+            .striped tbody tr:nth-child(odd) {
+                background-color: #f6f5fb !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="zbs-invoice">
+        <div class="invoice-header">
+            <div id="zbs_invoice_logos">
+                <div class="wh-logo-set">
+                    <img id="wh-logo-set-img" src="##LOGO-URL##" alt="Company Logo" />
+                </div>
+            </div>
+            
+            <div class="invoice-meta">
+                <table>
+                    <tr class="wh-large">
+                        <td><label>##INVOICE-LABEL-INV-NUMBER##</label></td>
+                        <td><div class="zbs-invoice-number">###INVOICE-NUMBER##</div></td>
+                    </tr>
+                    <tr>
+                        <td><label>##INVOICE-LABEL-INV-REF##</label></td>
+                        <td>##INVOICE-REF##</td>
+                    </tr>
+                    <tr>
+                        <td><label>##INVOICE-LABEL-INV-DATE##</label></td>
+                        <td>##INVOICE-DATE##</td>
+                    </tr>
+                    <tr>
+                        <td><label>##INVOICE-LABEL-DUE-DATE##</label></td>
+                        <td>##INVOICE-DUE-DATE##</td>
+                    </tr>
+                    <tr>
+                        <td><label>##INVOICE-LABEL-STATUS##</label></td>
+                        <td>##INVOICE-HTML-STATUS##</td>
+                    </tr>
+                    ##INV-CUSTOM-FIELDS##
+                </table>
+            </div>
+            <div class="clear"></div>
+        </div>
+
+        <div class="invoice-infos">
+            <div class="business-from">
+                <h4 class="invoice-title4">##INVOICE-LABEL-FROM##</h4>
+                <div class="business-infos">##BIZ-INFO##</div>
+            </div>
+            
+            <div class="business-to">
+                <h4 class="invoice-title4">##INVOICE-LABEL-TO##</h4>
+                <div class="business-infos" style="text-align: right;">##INVOICE-CUSTOMER-INFO##</div>
+            </div>
+            <div class="clear"></div>
+        </div>
+
+        <table class="striped">
+            <thead id="jpcrm-invoice-lineitems-header">
+                ##INVOICE-TABLE-HEADERS##
+            </thead>
+            <tbody id="jpcrm-invoice-lineitems">
+                ##INVOICE-LINE-ITEMS##
+            </tbody>
+        </table>
+
+        <div>##INVOICE-TOTALS-TABLE##</div>
+
+        <div id="crm-invoice-partials">
+            <table>
+                <tr>
+                    <td style="width:50%">##PRE-INVOICE-PAYMENT-DETAILS##</td>
+                    <td>##INVOICE-PARTIALS-TABLE##</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="zbs-payment-details">
+            ##INVOICE-PAYMENT-DETAILS##
+            <div class="clear"></div>
+        </div>
+    </div>
+</body>
+</html>

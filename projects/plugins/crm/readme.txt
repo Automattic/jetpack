@@ -362,11 +362,13 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.4.4 - 2024-08-07
+### 6.5.1 - 2025-01-22
+#### Changed
+- Code: Use function-style exit() and die() with a default status code of 0.
 
 #### Removed
-- MailPoet: Remove unused MailPoet use statements.
+- Remove legacy Groove code.
 
 #### Fixed
-- WooSync: Fix a warning message on sync and fatal error when a fee value is not a number
+- Invoices: Fix bug introduced in 6.5.0 that prevented email invoices from being sent.
 

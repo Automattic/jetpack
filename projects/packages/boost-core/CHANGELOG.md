@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.5] - 2025-02-03
+### Fixed
+- Code: Remove extra params on function calls. [#41263]
+
+## [0.3.4] - 2025-01-23
+### Changed
+- Internal updates.
+
 ## [0.3.3] - 2024-12-23
 ### Fixed
 - General: Fixed not parsing error responses from WordPress.com properly. [#40660]
@@ -101,6 +109,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Introduce new package. [#31163]
 
+[0.3.5]: https://github.com/Automattic/jetpack-boost-core/compare/v0.3.4...v0.3.5
+[0.3.4]: https://github.com/Automattic/jetpack-boost-core/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/Automattic/jetpack-boost-core/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/Automattic/jetpack-boost-core/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/Automattic/jetpack-boost-core/compare/v0.3.0...v0.3.1

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useAiSuggestions } from '@automattic/jetpack-ai-client';
+import { useAiSuggestions, usePostContent, AiAssistantModal } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -12,8 +12,6 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import usePostContent from '../../hooks/use-post-content';
-import AiAssistantModal from '../modal';
 import './style.scss';
 
 export default function Feedback( {
@@ -98,12 +96,15 @@ export default function Feedback( {
 					<div className="ai-assistant-post-feedback__suggestion">{ suggestion }</div>
 				</AiAssistantModal>
 			) }
-			<p>{ __( 'Get feedback on content structure.', 'jetpack' ) }</p>
+			<p className="jetpack-ai-assistant__help-text">
+				{ __( 'Get feedback on content structure.', 'jetpack' ) }
+			</p>
 			<Button
 				onClick={ handleRequest }
 				variant="secondary"
 				disabled={ ! postContent || disabled }
 				isBusy={ busy }
+				__next40pxDefaultSize
 			>
 				{ __( 'Generate feedback', 'jetpack' ) }
 			</Button>

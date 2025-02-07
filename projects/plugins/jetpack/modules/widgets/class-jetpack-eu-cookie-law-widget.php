@@ -11,7 +11,7 @@ use Automattic\Jetpack\Assets;
  * Disable direct access/execution to/of the widget code.
  */
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {

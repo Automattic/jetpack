@@ -18,7 +18,7 @@ use Automattic\Jetpack\Status\Host;
  * The setting is displayed only if the has the wp-admin interface selected.
  */
 function wpcomsh_wpcom_admin_interface_settings_field() {
-	add_settings_field( 'wpcom_admin_interface', '', 'wpcom_admin_interface_display', 'general', 'default' );
+	add_settings_field( 'wpcom_admin_interface', __( 'Admin Interface Style', 'jetpack-mu-wpcom' ), 'wpcom_admin_interface_display', 'general', 'default' );
 
 	register_setting( 'general', 'wpcom_admin_interface', array( 'sanitize_callback' => 'esc_attr' ) );
 }
@@ -27,9 +27,10 @@ function wpcomsh_wpcom_admin_interface_settings_field() {
  * Display the wpcom_admin_interface setting on the General settings page.
  */
 function wpcom_admin_interface_display() {
+	remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
 	$value = get_option( 'wpcom_admin_interface' );
+	add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
 
-	echo '<tr valign="top"><th scope="row"><label for="wpcom_admin_interface">' . esc_html__( 'Admin Interface Style', 'jetpack-mu-wpcom' ) . '</label></th><td>';
 	echo '<fieldset>';
 	echo '<label><input type="radio" name="wpcom_admin_interface" value="wp-admin" ' . checked( 'wp-admin', $value, false ) . '/> <span>' . esc_html__( 'Classic style', 'jetpack-mu-wpcom' ) . '</span></label><p>' . esc_html__( 'Use WP-Admin to manage your site.', 'jetpack-mu-wpcom' ) . '</p><br>';
 	echo '<label><input type="radio" name="wpcom_admin_interface" value="calypso" ' . checked( 'calypso', $value, false ) . '/> <span>' . esc_html__( 'Default style', 'jetpack-mu-wpcom' ) . '</span></label><p>' . esc_html__( 'Use WordPress.com’s native dashboard to manage your site.', 'jetpack-mu-wpcom' ) . '</p><br>';
@@ -104,7 +105,7 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 			 */
 			function ( $location ) {
 				$updated_settings_page = add_query_arg( 'settings-updated', 'true', wp_get_referer() );
-				if ( $location === $updated_settings_page ) {
+				if ( $location === $updated_settings_page && ! wpcom_is_duplicate_views_experiment_enabled() ) {
 					return 'https://wordpress.com/settings/general/' . wpcom_get_site_slug();
 				} else {
 					return $location;
@@ -120,11 +121,16 @@ add_filter( 'pre_update_option_wpcom_admin_interface', 'wpcom_admin_interface_pr
 const WPCOM_DUPLICATED_VIEW = array(
 	'edit.php',
 	'edit.php?post_type=page',
+	'edit.php?post_type=post', // Alias for posts. It's used for the post filters (published, draft, sticky, etc).
 	'edit.php?post_type=jetpack-portfolio',
 	'edit.php?post_type=jetpack-testimonial',
 	'edit-comments.php',
 	'edit-tags.php?taxonomy=category',
 	'edit-tags.php?taxonomy=post_tag',
+	'options-general.php',
+	'options-writing.php',
+	'options-reading.php',
+	'options-discussion.php',
 );
 
 /**
@@ -387,36 +393,77 @@ function wpcom_show_admin_interface_notice() {
 add_action( 'admin_notices', 'wpcom_show_admin_interface_notice' );
 
 /**
+ * Option to force and cache the Remove duplicate Views experiment assigned variation.
+ */
+const RDV_EXPERIMENT_FORCE_ASSIGN_OPTION = 'remove_duplicate_views_experiment_assignment_160125';
+
+/**
  * Check if the duplicate views experiment is enabled.
  *
  * @return boolean
  */
 function wpcom_is_duplicate_views_experiment_enabled() {
 	$experiment_platform = 'calypso';
-	$experiment_name     = "{$experiment_platform}_post_onboarding_holdout_120924";
+	$experiment_name     = "{$experiment_platform}_post_onboarding_holdout_160125";
+	$aa_test_name        = "{$experiment_platform}_post_onboarding_aa_150125";
 
 	static $is_enabled = null;
 	if ( $is_enabled !== null ) {
 		return $is_enabled;
 	}
 
-	if ( ( new Host() )->is_wpcom_simple() ) {
-		$is_enabled = 'treatment' === \ExPlat\assign_current_user( $experiment_name );
-		return $is_enabled;
-	}
+	$variation = get_user_option( RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, get_current_user_id() );
 
-	$option_name = 'duplicate_views_experiment_assignment';
-	$variation   = get_user_option( $option_name, get_current_user_id() );
-
+	/**
+	 * We cache it for both AT and Simple because we want to give a12s to be able to switch between variations for their accounts - this can be useful during support.
+	 *
+	 * If we don't cache it, the is_automattician conditions will force treatment every time.
+	 */
 	if ( false !== $variation ) {
 		$is_enabled = 'treatment' === $variation;
 		return $is_enabled;
+	}
+
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		\ExPlat\assign_current_user( $aa_test_name );
+		$is_enabled = 'treatment' === \ExPlat\assign_current_user( $experiment_name );
+
+		if ( is_automattician() ) {
+			$is_enabled = true;
+			update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, 'treatment', true );
+		}
+
+		return $is_enabled;
+	}
+
+	$is_proxy_atomic    = defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST;
+	$is_support_session = WPCOMSH_Support_Session_Detect::is_probably_support_session();
+	$admin_menu_is_a11n = isset( $_GET['admin_menu_is_a11n'] ) && function_exists( 'wpcomsh_is_admin_menu_api_request' ) && wpcomsh_is_admin_menu_api_request();
+
+	/**
+	 * This handles two contexts: Calypso and WP-Admin.
+	 *
+	 * Calypso: WPCOM admin-menu API endpoint mapper sends a "admin_menu_is_a11n" param for a12s. If the param exists, then we'll switch to treatment.
+	 * WP-Admin: We check if the user is proxied and if it's not in a support session.
+	 */
+
+	if ( $admin_menu_is_a11n || ( $is_proxy_atomic && ! $is_support_session ) ) {
+		update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, 'treatment', true );
+		$is_enabled = true;
+
+		return true;
 	}
 
 	if ( ! ( new Jetpack_Connection() )->is_user_connected() ) {
 		$is_enabled = false;
 		return $is_enabled;
 	}
+
+	$aa_test_request_path = add_query_arg(
+		array( 'experiment_name' => $aa_test_name ),
+		"/experiments/0.1.0/assignments/{$experiment_platform}"
+	);
+	Client::wpcom_json_api_request_as_user( $aa_test_request_path, 'v2' );
 
 	$request_path = add_query_arg(
 		array( 'experiment_name' => $experiment_name ),
@@ -438,9 +485,9 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 
 	$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
-	if ( isset( $data['variations'] ) && isset( $data['variations'][ $experiment_name ] ) ) {
+	if ( isset( $data['variations'] ) && array_key_exists( $experiment_name, $data['variations'] ) ) {
 		$variation = $data['variations'][ $experiment_name ];
-		update_user_option( get_current_user_id(), $option_name, $variation, true );
+		update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, $variation, true );
 
 		$is_enabled = 'treatment' === $variation;
 		return $is_enabled;
@@ -451,10 +498,118 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 }
 
 /**
+ * Set the Calypso preference for rdv.
+ *
+ * This is needed to override the ExPlat variation assignment in order to be able to revert the variation for some users.
+ *
+ * @param string|null $assignment The experiment variation.
+ * @return void
+ */
+function wpcom_set_rdv_calypso_preference( $assignment ) {
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		$preferences                                       = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
+		$preferences[ RDV_EXPERIMENT_FORCE_ASSIGN_OPTION ] = $assignment;
+		update_user_attribute( get_current_user_id(), 'calypso_preferences', $preferences );
+	} else {
+		Client::wpcom_json_api_request_as_user(
+			'/me/preferences',
+			'2',
+			array(
+				'method' => 'POST',
+			),
+			array( 'calypso_preferences' => array( RDV_EXPERIMENT_FORCE_ASSIGN_OPTION => $assignment ) )
+		);
+	}
+}
+
+/**
+ * Force a variation (control/treatment) for the Remove Duplicate Views experiment.
+ *
+ * @return void
+ */
+function wpcom_force_assign_variation_for_remove_duplicate_views_experiment() {
+	if ( ! isset( $_GET['force-assign-rdv-variation'] ) ) {
+		return;
+	}
+
+	$assignment = in_array( $_GET['force-assign-rdv-variation'], array( 'control', 'treatment' ), true ) ? sanitize_text_field( wp_unslash( $_GET['force-assign-rdv-variation'] ) ) : false;
+
+	if ( ! $assignment ) {
+		return;
+	}
+
+	wpcom_set_rdv_calypso_preference( $assignment );
+
+	/**
+	 * Setting the option globally (third parameter) will have the following behavior:
+	 * - On Simple Sites, the option will be shared between them.
+	 * - On Atomic Sites, the option will NOT be shared.
+	 *
+	 * This also means that if a user has a Simple Sites and Atomic sites, the option will not be shared between them.
+	 *
+	 * For example, if the option is set on a Simple Site, every other site will get it, except for the Atomic ones.
+	 * If the option is set on an Atomic Site, this will apply only on this site - it won't be shared between the other Atomic Sites OR Simple Sites.
+	 *
+	 *  This option is also not moved from Simple to Atomic on AT transfer.
+	 */
+	update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, $assignment, true );
+}
+
+/**
+ * Reset the assignment cache for the Remove duplicate views experiment.
+ *
+ * @return void
+ */
+function wpcom_reset_assignment_for_remove_duplicate_views_experiment() {
+	if ( ! isset( $_GET['force-reset-rdv-variation'] ) ) {
+		return;
+	}
+
+	wpcom_set_rdv_calypso_preference( null );
+
+	/**
+	 * Setting the option globally (third parameter) will have the following behavior:
+	 * - On Simple Sites, the option will be shared between them.
+	 * - On Atomic Sites, the option will NOT be shared.
+	 *
+	 * This also means that if a user has a Simple Sites and Atomic sites, the option will not be shared between them.
+	 *
+	 * For example, if the option is set on a Simple Site, every other site will get it, except for the Atomic ones.
+	 * If the option is set on an Atomic Site, this will apply only on this site - it won't be shared between the other Atomic Sites OR Simple Sites.
+	 *
+	 * This option is also not moved from Simple to Atomic on AT transfer.
+	 *
+	 * Since this should be used only in exceptional cases, there's no need to implement something better.
+	 */
+	delete_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, true );
+}
+
+if ( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST || defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) {
+	add_action( 'admin_init', 'wpcom_force_assign_variation_for_remove_duplicate_views_experiment' );
+	add_action( 'admin_init', 'wpcom_reset_assignment_for_remove_duplicate_views_experiment' );
+}
+
+/**
  * Displays a notice when a user visits the enforced WP Admin view of a removed Calypso screen for
  * the first time.
  */
 function wpcom_show_removed_calypso_screen_notice() {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		$blog_id = get_current_blog_id();
+	} else {
+		$jetpack_options = get_option( 'jetpack_options' );
+		if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
+			$blog_id = (int) $jetpack_options['id'];
+		} else {
+			$blog_id = get_current_blog_id();
+		}
+	}
+
+	// Do not show notice on sites created after the experiment started (2025-01-16).
+	if ( $blog_id > 240790000 ) { // 240790000 is the ID of a site created on 2025-01-16.
+		return;
+	}
+
 	$admin_menu_class = wpcom_get_custom_admin_menu_class();
 	if ( ! $admin_menu_class ) {
 		return;
@@ -466,9 +621,51 @@ function wpcom_show_removed_calypso_screen_notice() {
 		return;
 	}
 
-	$dismissed_notices = get_user_option( 'wpcom_removed_calypso_screen_dismissed_notices' );
-	if ( is_array( $dismissed_notices ) && in_array( $current_screen, $dismissed_notices, true ) ) {
-		return;
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		$preferences  = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
+		$is_dismissed = $preferences[ 'removed-calypso-screen-dismissed-notice-' . $current_screen ] ?? false;
+		if ( $is_dismissed ) {
+			return;
+		}
+	} else {
+		$notices_dismissed_locally = get_user_option( 'wpcom_removed_calypso_screen_dismissed_notices' );
+		if ( ! is_array( $notices_dismissed_locally ) ) {
+			$notices_dismissed_locally = array();
+		}
+
+		if ( in_array( $current_screen, $notices_dismissed_locally, true ) ) {
+			return;
+		}
+
+		if ( ! ( new Jetpack_Connection() )->is_user_connected() ) {
+			return;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user( '/me/preferences', 'v2' );
+		if ( is_wp_error( $response ) ) {
+			return;
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $response_code ) {
+			return;
+		}
+
+		$notices_dismissed_globally = array();
+		$preferences                = json_decode( wp_remote_retrieve_body( $response ), true );
+		foreach ( $preferences as $key => $value ) {
+			if ( $value && preg_match( '/^removed-calypso-screen-dismissed-notice-(.+)$/', $key, $matches ) ) {
+				$notices_dismissed_globally[] = $matches[1];
+			}
+		}
+
+		if ( array_diff( $notices_dismissed_globally, $notices_dismissed_locally ) ) {
+			update_user_option( get_current_user_id(), 'wpcom_removed_calypso_screen_dismissed_notices', $notices_dismissed_globally, true );
+		}
+
+		if ( in_array( $current_screen, $notices_dismissed_globally, true ) ) {
+			return;
+		}
 	}
 
 	if ( ! wpcom_is_duplicate_views_experiment_enabled() ) {
@@ -531,18 +728,46 @@ function wpcom_get_custom_admin_menu_class() {
 }
 
 /**
- * Handles the AJAX request to dismiss a notice of a removed Calypsos screen.
+ * Handles the AJAX request to dismiss a notice of a removed Calypso screen.
  */
 function wpcom_dismiss_removed_calypso_screen_notice() {
 	check_ajax_referer( 'wpcom_dismiss_removed_calypso_screen_notice' );
 	if ( isset( $_REQUEST['screen'] ) ) {
-		$screen            = sanitize_text_field( wp_unslash( $_REQUEST['screen'] ) );
-		$dismissed_notices = get_user_option( 'wpcom_removed_calypso_screen_dismissed_notices' );
-		if ( ! is_array( $dismissed_notices ) ) {
-			$dismissed_notices = array();
+		$screen = sanitize_text_field( wp_unslash( $_REQUEST['screen'] ) );
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			$preferences = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
+
+			// If $preferences is not array we log the contents so that we can further debug.
+			if ( ! is_array( $preferences ) && function_exists( 'log2logstash' ) ) {
+				log2logstash(
+					array(
+						'feature' => 'wpcom-dismiss-wp-admin-notice',
+						'message' => 'Retrieved a non-array value from Calypso preferences.',
+						'extra'   => wp_json_encode( $preferences ),
+					)
+				);
+				// Bail if we can't update the preferences array.
+				wp_die();
+			}
+
+			$preferences[ 'removed-calypso-screen-dismissed-notice-' . $screen ] = true;
+			update_user_attribute( get_current_user_id(), 'calypso_preferences', $preferences );
+		} else {
+			Client::wpcom_json_api_request_as_user(
+				'/me/preferences',
+				'2',
+				array(
+					'method' => 'POST',
+				),
+				array( 'calypso_preferences' => (object) array( 'removed-calypso-screen-dismissed-notice-' . $screen => true ) )
+			);
+			$notices_dismissed_locally = get_user_option( 'wpcom_removed_calypso_screen_dismissed_notices' );
+			if ( ! is_array( $notices_dismissed_locally ) ) {
+				$notices_dismissed_locally = array();
+			}
+			$notices_dismissed_locally[] = $screen;
+			update_user_option( get_current_user_id(), 'wpcom_removed_calypso_screen_dismissed_notices', $notices_dismissed_locally, true );
 		}
-		$dismissed_notices[] = $screen;
-		update_user_option( get_current_user_id(), 'wpcom_removed_calypso_screen_dismissed_notices', $dismissed_notices, true );
 	}
 	wp_die();
 }

@@ -9,24 +9,30 @@ import { FC, useCallback, type MouseEvent } from 'react';
 import { useChartTheme } from '../../providers/theme';
 import { GridControl } from '../grid-control';
 import { Legend } from '../legend';
+import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './bar-chart.module.scss';
-import type { BaseChartProps, SeriesData } from '../shared/types';
+import type { BaseChartProps, SeriesData } from '../../types';
+
+type BarChartTooltipData = {
+	value: number;
+	xLabel: string;
+	yLabel: string;
+	seriesIndex: number;
+};
 
 interface BarChartProps extends BaseChartProps< SeriesData[] > {}
 
-type BarChartTooltipData = { value: number; xLabel: string; yLabel: string; seriesIndex: number };
-
 const BarChart: FC< BarChartProps > = ( {
 	data,
-	width = 500, //TODO: replace when making the components responsive
-	height = 500, //TODO: replace when making the components responsive
 	margin = { top: 20, right: 20, bottom: 40, left: 40 },
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
 	className,
 	gridVisibility = 'x',
+	width,
+	height = 400,
 } ) => {
 	const theme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
@@ -42,7 +48,6 @@ const BarChart: FC< BarChartProps > = ( {
 		) => {
 			const coords = localPoint( event );
 			if ( ! coords ) return;
-
 			showTooltip( {
 				tooltipData: { value, xLabel, yLabel, seriesIndex },
 				tooltipLeft: coords.x,
@@ -52,12 +57,25 @@ const BarChart: FC< BarChartProps > = ( {
 		[ showTooltip ]
 	);
 
-	const handleMouseLeave = useCallback( () => {
-		hideTooltip();
-	}, [ hideTooltip ] );
-
+	// Check for empty data
 	if ( ! data?.length ) {
-		return <div className={ clsx( 'bar-chart-empty', styles[ 'bat-chart-empty' ] ) }>Empty...</div>;
+		return <div className={ clsx( styles[ 'bar-chart-empty' ] ) }>No data available</div>;
+	}
+
+	// Add date validation to hasInvalidData check
+	const hasInvalidData = data.some( series =>
+		series.data.some(
+			d =>
+				d.value === null ||
+				d.value === undefined ||
+				isNaN( d.value ) ||
+				! d.label ||
+				( d.date && isNaN( d.date.getTime() ) ) // Add date validation
+		)
+	);
+
+	if ( hasInvalidData ) {
+		return <div className={ clsx( styles[ 'bar-chart-error' ] ) }>Invalid data</div>;
 	}
 
 	const margins = margin;
@@ -96,7 +114,12 @@ const BarChart: FC< BarChartProps > = ( {
 	} ) );
 
 	return (
-		<div className={ clsx( 'bar-chart', className, styles[ 'bar-chart' ] ) }>
+		<div
+			className={ clsx( 'bar-chart', styles[ 'bar-chart' ], className ) }
+			data-testid="bar-chart"
+			role="img"
+			aria-label="bar chart"
+		>
 			<svg width={ width } height={ height }>
 				<Group left={ margins.left } top={ margins.top }>
 					<GridControl
@@ -127,7 +150,7 @@ const BarChart: FC< BarChartProps > = ( {
 										height={ yMax - ( yScale( d.value ) ?? 0 ) }
 										fill={ theme.colors[ seriesIndex % theme.colors.length ] }
 										onMouseMove={ withTooltips ? handleBarMouseMove : undefined }
-										onMouseLeave={ withTooltips ? handleMouseLeave : undefined }
+										onMouseLeave={ withTooltips ? hideTooltip : undefined }
 									/>
 								);
 							} ) }
@@ -153,7 +176,7 @@ const BarChart: FC< BarChartProps > = ( {
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
-					className={ styles[ 'bar-chart-legend' ] }
+					className={ styles[ 'bar-chart__legend' ] }
 				/>
 			) }
 		</div>
@@ -161,4 +184,4 @@ const BarChart: FC< BarChartProps > = ( {
 };
 
 BarChart.displayName = 'BarChart';
-export default BarChart;
+export default withResponsive< BarChartProps >( BarChart );

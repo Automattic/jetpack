@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Post_List;
 
+use Automattic\Jetpack\Assets;
 use WP_Post;
 use WP_Screen;
 
@@ -15,7 +16,7 @@ use WP_Screen;
  */
 class Post_List {
 
-	const PACKAGE_VERSION = '0.7.2';
+	const PACKAGE_VERSION = '0.8.0';
 	const FEATURE         = 'enhanced_post_list';
 
 	/**
@@ -91,6 +92,16 @@ class Post_List {
 				'rtl',
 				plugin_dir_url( __DIR__ ) . './src/rtl.css'
 			);
+			Assets::register_script(
+				'jetpack_posts_list',
+				'../build/index.js',
+				__FILE__,
+				array(
+					'in_footer'  => true,
+					'enqueue'    => true,
+					'textdomain' => 'jetpack-post-list',
+				)
+			);
 		}
 	}
 
@@ -153,6 +164,43 @@ class Post_List {
 
 		$this->maybe_customize_columns( $current_screen->post_type );
 		$this->maybe_add_share_action( $current_screen->post_type );
+		$this->maybe_add_copy_link_action( $current_screen->post_type );
+	}
+
+	/**
+	 * Checks the current post type and adds the Copy link post
+	 * action if it is appropriate to do so.
+	 *
+	 * @param string $post_type The post type associated with the current request.
+	 */
+	public function maybe_add_copy_link_action( $post_type ) {
+		if ( ! is_post_type_viewable( $post_type ) ) {
+			return;
+		}
+		add_filter( 'post_row_actions', array( $this, 'add_copy_link_action' ), 20, 2 );
+		add_filter( 'page_row_actions', array( $this, 'add_copy_link_action' ), 20, 2 );
+	}
+
+	/**
+	 * Adds the Copy link post action which copies the post link to the clipboard.
+	 *
+	 * @param array   $post_actions The current array of post actions.
+	 * @param WP_Post $post The current post in the post list table.
+	 *
+	 * @return array The modified post actions array.
+	 */
+	public function add_copy_link_action( $post_actions, $post ) {
+		if ( $post->post_status === 'trash' ) {
+			return $post_actions;
+		}
+
+		$post_actions['copy-link'] = sprintf(
+			'<a href="%1$s" aria-label="%2$s" class="jetpack-post-list__copy-link-action">%3$s</a>',
+			esc_url( get_permalink( $post ) ),
+			esc_html__( 'Copy link to clipboard', 'jetpack-post-list' ),
+			esc_html__( 'Copy link', 'jetpack-post-list' )
+		);
+		return $post_actions;
 	}
 
 	/**

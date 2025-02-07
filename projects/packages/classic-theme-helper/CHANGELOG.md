@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.3] - 2025-02-03
+### Added
+- Theme compat: Move relevant functionality to the package. [#41394]
+
+### Changed
+- Updated package dependencies. [#41286]
+
+## [0.9.2] - 2025-01-27
+### Fixed
+- Classic Theme Helper: Fix Fatal in Jetpack_Portfolio. [#41304]
+
+## [0.9.1] - 2025-01-20
+### Changed
+- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
+- Updated package dependencies. [#41099]
+
+## [0.9.0] - 2025-01-13
+### Added
+- Nova Restaurant: ensuring the custom post type is now being required via the package. [#40782]
+
+## [0.8.3] - 2025-01-10
+### Fixed
+- Testimonials: Fix a shortcode-related bug which occurs if the column attribute is added and set to 0. [#40896]
+
 ## [0.8.2] - 2025-01-06
 ### Changed
 - Updated package dependencies. [#40784] [#40831]
@@ -185,6 +209,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add wordpress folder on gitignore. [#37177]
 
+[0.9.3]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.9.2...v0.9.3
+[0.9.2]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.9.1...v0.9.2
+[0.9.1]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.9.0...v0.9.1
+[0.9.0]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.8.3...v0.9.0
+[0.8.3]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.8.2...v0.8.3
 [0.8.2]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.7.4...v0.8.0

@@ -1,6 +1,6 @@
+import { getIconColor } from '@automattic/jetpack-shared-extension-utils';
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
-import { getIconColor } from '../../../shared/block-icons';
 import PlaceholderSiteIcon from '../placeholder-site-icon.svg';
 import { default as deprecated } from './deprecated';
 import edit from './edit';

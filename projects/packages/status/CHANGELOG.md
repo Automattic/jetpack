@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.3] - 2025-02-03
+### Fixed
+- Code: Remove extra params on function calls. [#41263]
+
+## [5.0.2] - 2025-01-20
+### Changed
+- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
+
 ## [5.0.1] - 2024-11-25
 ### Changed
 - Updated package dependencies. [#40258]
@@ -413,6 +421,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Introduce a status package
 
+[5.0.3]: https://github.com/Automattic/jetpack-status/compare/v5.0.2...v5.0.3
+[5.0.2]: https://github.com/Automattic/jetpack-status/compare/v5.0.1...v5.0.2
 [5.0.1]: https://github.com/Automattic/jetpack-status/compare/v5.0.0...v5.0.1
 [5.0.0]: https://github.com/Automattic/jetpack-status/compare/v4.0.3...v5.0.0
 [4.0.3]: https://github.com/Automattic/jetpack-status/compare/v4.0.2...v4.0.3

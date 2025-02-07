@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 27c49bf2f318cd2fb105e5bd9719a910def72a53.
+ * Stubs automatically generated from WordPress.com commit 57b033879305add761d5f6f4ae7858580a986d8e.
  */
 
 namespace {
@@ -107,6 +107,9 @@ namespace {
          * @return array|false|WP_Error
          */
         public function republicize_post($post_id, $message, $skip_connections, $check_feature = \false, $sync = \true, $_user_id = \null)
+        {
+        }
+        public function get_all_connections_for_blog_id($_blog_id = \false, $format = 'complete')
         {
         }
     }
@@ -248,6 +251,23 @@ namespace {
     }
     function global_css()
     {
+    }
+    class WPCOM_External_Connections
+    {
+        /**
+         * @return WPCOM_External_Connections
+         */
+        static function init()
+        {
+        }
+        /**
+         * @param string $type
+         * @param int|false $blog_id
+         * @return array
+         */
+        public function get_external_services_list($type = \false, $blog_id = \false)
+        {
+        }
     }
     class WPCOM_Google_Sheets_Helper
     {
@@ -458,6 +478,24 @@ namespace {
         {
         }
         public static function filter_blog($blog_id, $filters)
+        {
+        }
+    }
+    class Social_Connections_Rest_Helper
+    {
+        /**
+         * @return Jetpack_Social_Connections
+         */
+        public static function init()
+        {
+        }
+        public function delete_publicize_connection($publicize_connection_id, $blog_id = \false)
+        {
+        }
+        public function create_publicize_connection($input)
+        {
+        }
+        public function update_connection($publicize_connection_id, $input, $blog_id = \false)
         {
         }
     }
@@ -1032,7 +1070,7 @@ namespace {
     {
     }
     /**
-     * @return bool
+     * @return int|bool
      */
     function wpcom_subs_is_subscribed($args = array())
     {
@@ -1252,6 +1290,12 @@ namespace {
         }
     }
     /**
+     * @phan-return mixed
+     */
+    function is_graylisted($_blog_id = \NULL)
+    {
+    }
+    /**
      * @param string $new_path
      * @param string $path
      * @return string
@@ -1430,6 +1474,14 @@ namespace ExPlat {
     function assign_current_user(string $experiment_name): ?string
     {
     }
+    /**
+     * @param string $experiment_name
+     * @param \WP_User $user
+     * @return string|null
+     */
+    function assign_given_user(string $experiment_name, \WP_User $user): ?string
+    {
+    }
 }
 namespace JITM {
     class Engine
@@ -1469,6 +1521,16 @@ namespace Newsletter_Categories {
      * @return int
      */
     function get_blog_subscriptions_aggregate_count(int $blog_id = null, $post_term_ids = []): int
+    {
+    }
+}
+namespace WPCOM\Experiments\Internal {
+    /**
+     * @param string $name
+     * @return \WPCOM\Experiments\Models\Experiment|null
+     * @throws File_Cache_Failure
+     */
+    function get_cached_experiment_by_name(string $name): ?\WPCOM\Experiments\Models\Experiment
     {
     }
 }

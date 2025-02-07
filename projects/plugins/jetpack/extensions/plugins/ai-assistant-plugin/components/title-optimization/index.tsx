@@ -8,8 +8,11 @@ import {
 	ERROR_NETWORK,
 	ERROR_SERVICE_UNAVAILABLE,
 	ERROR_UNCLEAR_PROMPT,
+	QuotaExceededMessage,
+	usePostContent,
+	AiAssistantModal,
 } from '@automattic/jetpack-ai-client';
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { useAnalytics, useAutosaveAndRedirect } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Spinner, ExternalLink, Notice } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
@@ -17,11 +20,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import QuotaExceededMessage from '../../../../blocks/ai-assistant/components/quota-exceeded-message';
 import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
-import useAutoSaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
-import usePostContent from '../../hooks/use-post-content';
-import AiAssistantModal from '../modal';
 import TitleOptimizationKeywords from './title-optimization-keywords';
 import TitleOptimizationOptions from './title-optimization-options';
 import './style.scss';
@@ -83,17 +82,17 @@ export default function TitleOptimization( {
 	const SEOModalTitle = __( 'Improve title for SEO', 'jetpack' );
 	const modalTitle = isKeywordsFeatureAvailable ? SEOModalTitle : currentModalTitle;
 
-	const currentSidebarDescription = __( 'Use AI to optimize key details of your post.', 'jetpack' );
+	const currentSidebarDescription = __( 'Based on your post content.', 'jetpack' );
 	const SEOSidebarDescription = __(
-		'AI suggested titles based on your content and keywords for better SEO results.',
+		'Based on your post content and SEO best practices.',
 		'jetpack'
 	);
 	const sidebarDescription = isKeywordsFeatureAvailable
 		? SEOSidebarDescription
 		: currentSidebarDescription;
 
-	const currentSidebarButtonLabel = __( 'Improve title', 'jetpack' );
-	const SEOSidebarButtonLabel = __( 'Improve title for SEO', 'jetpack' );
+	const currentSidebarButtonLabel = __( 'Generate title options', 'jetpack' );
+	const SEOSidebarButtonLabel = __( 'Generate title options', 'jetpack' );
 	const sidebarButtonLabel = isKeywordsFeatureAvailable
 		? SEOSidebarButtonLabel
 		: currentSidebarButtonLabel;
@@ -106,7 +105,7 @@ export default function TitleOptimization( {
 	const [ error, setError ] = useState< TitleOptimizationError | null >( null );
 	const [ optimizationKeywords, setOptimizationKeywords ] = useState( '' );
 	const { editPost } = useDispatch( 'core/editor' );
-	const { autosave } = useAutoSaveAndRedirect();
+	const { autosave } = useAutosaveAndRedirect();
 	const { increaseAiAssistantRequestsCount } = useDispatch( 'wordpress-com/plans' );
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
@@ -228,12 +227,13 @@ export default function TitleOptimization( {
 
 	return (
 		<div>
-			<p>{ sidebarDescription }</p>
+			<p className="jetpack-ai-assistant__help-text">{ sidebarDescription }</p>
 			<Button
 				isBusy={ busy }
 				disabled={ ! postContent || disabled }
 				onClick={ handleTitleOptimization }
 				variant="secondary"
+				__next40pxDefaultSize
 			>
 				{ sidebarButtonLabel }
 			</Button>

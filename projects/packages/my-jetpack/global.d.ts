@@ -47,7 +47,8 @@ type JetpackModule =
 	| 'complete'
 	| 'site-accelerator'
 	| 'newsletter'
-	| 'related-posts';
+	| 'related-posts'
+	| 'brute-force';
 
 type ThreatItem = {
 	// Protect API properties (free plan)
@@ -287,6 +288,7 @@ interface Window {
 				jetpack_waf_share_debug_data: boolean;
 				standalone_mode: boolean;
 				waf_supported: boolean;
+				waf_enabled: boolean;
 			};
 		};
 		videopress: {
@@ -425,6 +427,10 @@ interface Window {
 					fixable_threat_ids: number[];
 				};
 			};
+			[ key: `${ string }--plugins_needing_installed_activated` ]: {
+				needs_installed?: string[];
+				needs_activated_only?: string[];
+			};
 		};
 		recommendedModules: {
 			modules: JetpackModule[] | null;
@@ -448,6 +454,8 @@ interface Window {
 		};
 		topJetpackMenuItemUrl: string;
 		isAtomic: boolean;
+		sandboxedDomain: string;
+		isDevVersion: boolean;
 		userIsAdmin: string;
 		userIsNewToJetpack: string;
 	};

@@ -78,20 +78,22 @@ export function getPostShareStatus( _postId ) {
 }
 
 /**
- * Resolves the social plugin settings to ensure the core-data entities are registered.
+ * Resolves the social module settings to ensure the core-data entities are registered.
  *
  * @return {Function} Resolver
  */
-export function getSocialPluginSettings() {
+export function getSocialModuleSettings() {
 	return async ( { registry } ) => {
+		const { socialToggleBase } = getSocialScriptData().api_paths;
+
 		const jetpackEntities = registry.select( coreStore ).getEntitiesConfig( 'jetpack/v4' );
 
-		if ( ! jetpackEntities.some( ( { name } ) => name === 'social/settings' ) ) {
+		if ( ! jetpackEntities.some( ( { name } ) => name === socialToggleBase ) ) {
 			await registry.dispatch( coreStore ).addEntities( [
 				{
 					kind: 'jetpack/v4',
-					name: 'social/settings',
-					baseURL: '/jetpack/v4/social/settings',
+					name: socialToggleBase,
+					baseURL: `/jetpack/v4/${ socialToggleBase }`,
 					label: __( 'Social Settings', 'jetpack-publicize-components' ),
 				},
 			] );
@@ -102,5 +104,5 @@ export function getSocialPluginSettings() {
 export default {
 	getConnections,
 	getPostShareStatus,
-	getSocialPluginSettings,
+	getSocialModuleSettings,
 };

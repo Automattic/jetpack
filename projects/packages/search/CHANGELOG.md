@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.47.8] - 2025-02-03
+### Changed
+- Updated package dependencies. [#41286]
+
+## [0.47.7] - 2025-01-27
+### Changed
+- Internal updates.
+
+## [0.47.6] - 2025-01-20
+### Changed
+- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
+- Updated package dependencies. [#41099]
+
 ## [0.47.5] - 2025-01-06
 ### Changed
 - Updated package dependencies. [#40784] [#40792] [#40797] [#40813] [#40843]
@@ -1107,6 +1120,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.47.8]: https://github.com/Automattic/jetpack-search/compare/v0.47.7...v0.47.8
+[0.47.7]: https://github.com/Automattic/jetpack-search/compare/v0.47.6...v0.47.7
+[0.47.6]: https://github.com/Automattic/jetpack-search/compare/v0.47.5...v0.47.6
 [0.47.5]: https://github.com/Automattic/jetpack-search/compare/v0.47.4...v0.47.5
 [0.47.4]: https://github.com/Automattic/jetpack-search/compare/v0.47.3...v0.47.4
 [0.47.3]: https://github.com/Automattic/jetpack-search/compare/v0.47.2...v0.47.3

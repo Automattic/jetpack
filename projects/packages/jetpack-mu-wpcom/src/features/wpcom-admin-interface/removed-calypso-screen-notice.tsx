@@ -2,7 +2,7 @@
 
 import { Guide } from '@wordpress/components';
 import { createRoot, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, hasTranslation as _hasTranslation, sprintf } from '@wordpress/i18n';
 import {
 	Icon,
 	archive,
@@ -12,25 +12,199 @@ import {
 	postComments,
 	tag,
 	verse,
+	settings,
+	page,
 } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
-import bgPattern from './removed-calypso-screen-bg-pattern.png';
 
 import './removed-calypso-screen-notice.scss';
 
+const hasTranslation = text => {
+	const currentLanguage = document.querySelector( 'html' )?.getAttribute( 'lang' );
+
+	if ( currentLanguage?.startsWith( 'en' ) ) {
+		return true;
+	}
+
+	return _hasTranslation( text, undefined, 'jetpack-mu-wpcom' );
+};
+
 const Notice = () => {
 	const [ isOpen, setIsOpen ] = useState( true );
-	const icons = {
-		'edit.php': verse,
-		'edit.php?post_type=page': pages,
-		'edit.php?post_type=jetpack-portfolio': archive,
-		'edit.php?post_type=jetpack-testimonial': commentContent,
-		'edit-comments.php': postComments,
-		'edit-tags.php?taxonomy=category': category,
-		'edit-tags.php?taxonomy=post_tag': tag,
+
+	const titleFallback = sprintf(
+		// translators: %s: page name
+		__( 'The %s view just got better', 'jetpack-mu-wpcom' ),
+		removedCalypsoScreenNoticeConfig.title
+	);
+
+	const descriptionFallback = sprintf(
+		// translators: %s: page name
+		__(
+			"We've adopted WordPress's main %s view to bring improvements to you and millions of WordPress users worldwide.",
+			'jetpack-mu-wpcom'
+		),
+		removedCalypsoScreenNoticeConfig.title
+	);
+
+	const config = {
+		'edit.php': {
+			icon: verse,
+			title: hasTranslation( 'The Posts view just got an update' )
+				? __( 'The Posts view just got an update', 'jetpack-mu-wpcom' )
+				: titleFallback,
+			description: hasTranslation(
+				"We've adopted WordPress' main Posts view to bring improvements to you and millions of WordPress users worldwide."
+			)
+				? __(
+						"We've adopted WordPress' main Posts view to bring improvements to you and millions of WordPress users worldwide.",
+						'jetpack-mu-wpcom'
+				  )
+				: descriptionFallback,
+		},
+		'edit.php?post_type=page': {
+			icon: pages,
+			title: hasTranslation( 'The Pages view just got an update' )
+				? __( 'The Pages view just got an update', 'jetpack-mu-wpcom' )
+				: titleFallback,
+			description: hasTranslation(
+				"We've adopted WordPress' main Pages view to bring improvements to you and millions of WordPress users worldwide."
+			)
+				? __(
+						"We've adopted WordPress' main Pages view to bring improvements to you and millions of WordPress users worldwide.",
+						'jetpack-mu-wpcom'
+				  )
+				: descriptionFallback,
+		},
+		'edit.php?post_type=jetpack-portfolio': {
+			icon: archive,
+			title: hasTranslation( 'The Portfolio Projects view just got an update' )
+				? __( 'The Portfolio Projects view just got an update', 'jetpack-mu-wpcom' )
+				: titleFallback,
+			description: hasTranslation(
+				"We've adopted WordPress' main Portfolio Projects view to bring improvements to you and millions of WordPress users worldwide."
+			)
+				? __(
+						"We've adopted WordPress' main Portfolio Projects view to bring improvements to you and millions of WordPress users worldwide.",
+						'jetpack-mu-wpcom'
+				  )
+				: descriptionFallback,
+		},
+		'edit.php?post_type=jetpack-testimonial': {
+			icon: commentContent,
+			title: hasTranslation( 'The Testimonials view just got an update' )
+				? __( 'The Testimonials view just got an update', 'jetpack-mu-wpcom' )
+				: titleFallback,
+			description: hasTranslation(
+				"We've adopted WordPress' main Testimonials view to bring improvements to you and millions of WordPress users worldwide."
+			)
+				? __(
+						"We've adopted WordPress' main Testimonials view to bring improvements to you and millions of WordPress users worldwide.",
+						'jetpack-mu-wpcom'
+				  )
+				: descriptionFallback,
+		},
+		'edit-comments.php': {
+			icon: postComments,
+			title: hasTranslation( 'The Comments view just got an update' )
+				? __( 'The Comments view just got an update', 'jetpack-mu-wpcom' )
+				: titleFallback,
+			description: hasTranslation(
+				"We've adopted WordPress' main Comments view to bring improvements to you and millions of WordPress users worldwide."
+			)
+				? __(
+						"We've adopted WordPress' main Comments view to bring improvements to you and millions of WordPress users worldwide.",
+						'jetpack-mu-wpcom'
+				  )
+				: descriptionFallback,
+		},
+		'edit-tags.php?taxonomy=category': {
+			icon: category,
+			title: hasTranslation( 'The Categories view just got an update' )
+				? __( 'The Categories view just got an update', 'jetpack-mu-wpcom' )
+				: titleFallback,
+			description: hasTranslation(
+				"We've adopted WordPress' main Categories view to bring improvements to you and millions of WordPress users worldwide."
+			)
+				? __(
+						"We've adopted WordPress' main Categories view to bring improvements to you and millions of WordPress users worldwide.",
+						'jetpack-mu-wpcom'
+				  )
+				: descriptionFallback,
+		},
+		'edit-tags.php?taxonomy=post_tag': {
+			icon: tag,
+			title: hasTranslation( 'The Tags view just got an update' )
+				? __( 'The Tags view just got an update', 'jetpack-mu-wpcom' )
+				: titleFallback,
+			description: hasTranslation(
+				"We've adopted WordPress' main Tags view to bring improvements to you and millions of WordPress users worldwide."
+			)
+				? __(
+						"We've adopted WordPress' main Tags view to bring improvements to you and millions of WordPress users worldwide.",
+						'jetpack-mu-wpcom'
+				  )
+				: descriptionFallback,
+		},
+		'options-general.php': {
+			icon: settings,
+			title: hasTranslation( 'The General Settings view just got an update' )
+				? __( 'The General Settings view just got an update', 'jetpack-mu-wpcom' )
+				: titleFallback,
+			description: hasTranslation(
+				"We've adopted WordPress' main General Settings view to bring improvements to you and millions of WordPress users worldwide."
+			)
+				? __(
+						"We've adopted WordPress' main General Settings view to bring improvements to you and millions of WordPress users worldwide.",
+						'jetpack-mu-wpcom'
+				  )
+				: descriptionFallback,
+		},
+		'options-writing.php': {
+			icon: verse,
+			title: hasTranslation( 'The Writing Settings view just got an update' )
+				? __( 'The Writing Settings view just got an update', 'jetpack-mu-wpcom' )
+				: titleFallback,
+			description: hasTranslation(
+				"We've adopted WordPress' main Writing Settings view to bring improvements to you and millions of WordPress users worldwide."
+			)
+				? __(
+						"We've adopted WordPress' main Writing Settings view to bring improvements to you and millions of WordPress users worldwide.",
+						'jetpack-mu-wpcom'
+				  )
+				: descriptionFallback,
+		},
+		'options-reading.php': {
+			icon: page,
+			title: hasTranslation( 'The Reading Settings view just got an update' )
+				? __( 'The Reading Settings view just got an update', 'jetpack-mu-wpcom' )
+				: titleFallback,
+			description: hasTranslation(
+				"We've adopted WordPress' main Reading Settings view to bring improvements to you and millions of WordPress users worldwide."
+			)
+				? __(
+						"We've adopted WordPress' main Reading Settings view to bring improvements to you and millions of WordPress users worldwide.",
+						'jetpack-mu-wpcom'
+				  )
+				: descriptionFallback,
+		},
+		'options-discussion.php': {
+			icon: postComments,
+			title: hasTranslation( 'The Discussion Settings view just got an update' )
+				? __( 'The Discussion Settings view just got an update', 'jetpack-mu-wpcom' )
+				: titleFallback,
+			description: hasTranslation(
+				"We've adopted WordPress' main Discussion Settings view to bring improvements to you and millions of WordPress users worldwide."
+			)
+				? __(
+						"We've adopted WordPress' main Discussion Settings view to bring improvements to you and millions of WordPress users worldwide.",
+						'jetpack-mu-wpcom'
+				  )
+				: descriptionFallback,
+		},
 	};
 
-	if ( ! Object.keys( icons ).includes( removedCalypsoScreenNoticeConfig.screen ) ) {
+	if ( ! Object.keys( config ).includes( removedCalypsoScreenNoticeConfig.screen ) ) {
 		return null;
 	}
 
@@ -49,47 +223,40 @@ const Notice = () => {
 		);
 	};
 
-	const title = sprintf(
+	let title = sprintf(
 		// translators: %s: page name
 		__( 'The %s view just got better', 'jetpack-mu-wpcom' ),
 		removedCalypsoScreenNoticeConfig.title
 	);
 
+	if ( hasTranslation( 'The %s view just got an update' ) ) {
+		title = sprintf(
+			// translators: %s: page name
+			__( 'The %s view just got an update', 'jetpack-mu-wpcom' ),
+			removedCalypsoScreenNoticeConfig.title
+		);
+	}
+
 	return (
 		<Guide
 			className="removed-calypso-screen-notice"
-			contentLabel={ title }
+			contentLabel={ config[ removedCalypsoScreenNoticeConfig.screen ].title }
 			finishButtonText={ __( 'Got it', 'jetpack-mu-wpcom' ) }
 			onFinish={ dismiss }
 			pages={ [
 				{
 					image: (
-						<>
-							<div
-								className="removed-calypso-screen-notice__image"
-								style={ { backgroundImage: `url(${ bgPattern })` } }
-							>
-								<Icon
-									icon={ icons[ removedCalypsoScreenNoticeConfig.screen ] }
-									size={ 72 }
-									className="removed-calypso-screen-notice__icon"
-								></Icon>
-							</div>
-						</>
+						<div className="removed-calypso-screen-notice__image">
+							<Icon
+								icon={ config[ removedCalypsoScreenNoticeConfig.screen ].icon }
+								className="removed-calypso-screen-notice__icon"
+							></Icon>
+						</div>
 					),
 					content: (
 						<>
 							<h1>{ title }</h1>
-							<p>
-								{ sprintf(
-									// translators: %s: page name
-									__(
-										"We've adopted WordPress's main %s view to bring improvements to you and millions of WordPress users worldwide.",
-										'jetpack-mu-wpcom'
-									),
-									removedCalypsoScreenNoticeConfig.title
-								) }
-							</p>
+							<p>{ config[ removedCalypsoScreenNoticeConfig.screen ].description }</p>
 						</>
 					),
 				},

@@ -14,7 +14,7 @@ use Automattic\Jetpack\Tracking;
 
 // Disable direct access and execution.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 if (

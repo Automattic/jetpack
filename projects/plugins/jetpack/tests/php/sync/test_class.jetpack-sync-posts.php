@@ -1519,7 +1519,7 @@ That was a cool video.';
 	}
 
 	/**
-	 * Verify metadata meta_value is limited based on MAX_POST_META_LENGTH.
+	 * Verify metadata meta_value is limited based on MAX_META_LENGTH.
 	 */
 	public function test_metadata_limit() {
 
@@ -1527,13 +1527,13 @@ That was a cool video.';
 			(object) array(
 				'post_id'    => $this->post_id,
 				'meta_key'   => 'test_key',
-				'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_META_LENGTH - 1 ),
+				'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_META_LENGTH - 1 ),
 				'meta_id'    => 1,
 			),
 			(object) array(
 				'post_id'    => $this->post_id,
 				'meta_key'   => 'test_key',
-				'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_META_LENGTH ),
+				'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_META_LENGTH ),
 				'meta_id'    => 2,
 			),
 
@@ -1541,16 +1541,22 @@ That was a cool video.';
 
 		$post_sync_module = Modules::get_module( 'posts' );
 		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
-		list( ,, $filtered_metadata ) = $post_sync_module->filter_posts_and_metadata_max_size( array( $this->post ), $metadata );
+		list( ,, $filtered_metadata ) = $post_sync_module->filter_objects_and_metadata_by_size(
+			'post',
+			array( $this->post ),
+			$metadata,
+			Automattic\Jetpack\Sync\Modules\Posts::MAX_META_LENGTH,
+			Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC
+		);
 
 		$this->assertNotEmpty( $filtered_metadata[0]->meta_value, 'Filtered metadata meta_value is not empty for strings of allowed length.' );
 		$this->assertEmpty( $filtered_metadata[1]->meta_value, 'Filtered metadata meta_value is trimmed for strings larger than allowed length.' );
 	}
 
 	/**
-	 * Verify test_filter_posts_and_metadata_max_size returns all posts and metadata when the total size is less than MAX_SIZE_FULL_SYNC.
+	 * Verify test_filter_objects_and_metadata_by_size returns all posts and metadata when the total size is less than MAX_SIZE_FULL_SYNC.
 	 */
-	public function test_filter_posts_and_metadata_max_size_returns_all_posts_and_metadata() {
+	public function test_filter_objects_and_metadata_by_size_returns_all_posts_and_metadata() {
 
 		$post_ids  = self::factory()->post->create_many( 3 );
 		$post_id_1 = $post_ids[0];
@@ -1599,7 +1605,13 @@ That was a cool video.';
 
 		$post_sync_module = Modules::get_module( 'posts' );
 		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
-		list( $filtered_post_ids, $filtered_posts, $filtered_metadata ) = $post_sync_module->filter_posts_and_metadata_max_size( $posts, $metadata );
+		list( $filtered_post_ids, $filtered_posts, $filtered_metadata ) = $post_sync_module->filter_objects_and_metadata_by_size(
+			'post',
+			$posts,
+			$metadata,
+			Automattic\Jetpack\Sync\Modules\Posts::MAX_META_LENGTH,
+			Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC
+		);
 
 		$this->assertEquals( $filtered_post_ids, $post_ids );
 		$this->assertEquals( $filtered_posts, $posts );
@@ -1607,9 +1619,9 @@ That was a cool video.';
 	}
 
 	/**
-	 * Verify test_filter_posts_and_metadata_max_size returns only one post when the first post and its meta is bigger than MAX_SIZE_FULL_SYNC.
+	 * Verify test_filter_objects_and_metadata_by_size returns only one post when the first post and its meta is bigger than MAX_SIZE_FULL_SYNC.
 	 */
-	public function test_filter_posts_and_metadata_max_size_returns_only_one_post() {
+	public function test_filter_objects_and_metadata_by_size_returns_only_one_post() {
 
 		$post_id_1 = self::factory()->post->create();
 		$post_id_2 = self::factory()->post->create();
@@ -1619,13 +1631,13 @@ That was a cool video.';
 
 		$posts = array( $post_1, $post_2 );
 
-		$metadata_items_number = Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC / Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_META_LENGTH;
+		$metadata_items_number = Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC / Automattic\Jetpack\Sync\Modules\Posts::MAX_META_LENGTH;
 		$post_metadata_1       = array_map(
 			function ( $x ) use ( $post_id_1 ) {
 				return (object) array(
 					'post_id'    => $post_id_1,
 					'meta_key'   => 'test_key',
-					'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_META_LENGTH - 1 ),
+					'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_META_LENGTH - 1 ),
 					'meta_id'    => $x,
 				);
 			},
@@ -1646,7 +1658,13 @@ That was a cool video.';
 
 		$post_sync_module = Modules::get_module( 'posts' );
 		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
-		list( $filtered_post_ids, $filtered_posts, $filtered_metadata ) = $post_sync_module->filter_posts_and_metadata_max_size( $posts, $metadata );
+		list( $filtered_post_ids, $filtered_posts, $filtered_metadata ) = $post_sync_module->filter_objects_and_metadata_by_size(
+			'post',
+			$posts,
+			$metadata,
+			Automattic\Jetpack\Sync\Modules\Posts::MAX_META_LENGTH,
+			Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC
+		);
 
 		$this->assertEquals( $filtered_post_ids, array( $post_id_1 ) );
 		$this->assertEquals( $filtered_posts, array( $post_1 ) );

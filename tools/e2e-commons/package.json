@@ -1,9 +1,9 @@
 {
-	"name": "jetpack-e2e-commons",
+	"private": true,
+	"name": "_jetpack-e2e-commons",
 	"description": "Jetpack end-to-end tests commons",
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
-	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
 		"distclean": "rm -rf node_modules",
@@ -22,7 +22,7 @@
 		"@playwright/test": "1.48.2",
 		"@slack/web-api": "7.3.2",
 		"@types/lodash-es": "4.17.12",
-		"@wordpress/e2e-test-utils-playwright": "1.14.0",
+		"@wordpress/e2e-test-utils-playwright": "1.17.0",
 		"allure-playwright": "2.9.2",
 		"axios": "1.7.4",
 		"chalk": "5.4.1",

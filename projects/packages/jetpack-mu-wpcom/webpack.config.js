@@ -45,6 +45,11 @@ module.exports = [
 				'./src/features/wpcom-global-styles/wpcom-global-styles-view.js',
 			'wpcom-documentation-links':
 				'./src/features/wpcom-documentation-links/wpcom-documentation-links.ts',
+			'wpcom-media-url-upload': './src/features/wpcom-media/wpcom-media-url-upload.js',
+			'wpcom-options-general': [
+				'./src/features/wpcom-options-general/options-general.js',
+				'./src/features/wpcom-options-general/options-general.scss',
+			],
 			'wpcom-plugins-banner': './src/features/wpcom-plugins/js/banner.js',
 			'wpcom-plugins-banner-style': './src/features/wpcom-plugins/css/banner.css',
 			'wpcom-profile-settings-link-to-wpcom':
@@ -53,6 +58,7 @@ module.exports = [
 			'starter-page-templates': './src/features/starter-page-templates/index.tsx',
 			'removed-calypso-screen-notice':
 				'./src/features/wpcom-admin-interface/removed-calypso-screen-notice.tsx',
+			'adminbar-launch-button': './src/features/launch-button/index.js',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
@@ -71,6 +77,10 @@ module.exports = [
 				'@automattic/calypso-config': '@automattic/calypso-config/src/client.js',
 				/** Replace the classnames used by @automattic/newspack-blocks with clsx because we changed to use clsx */
 				classnames: findPackage( 'clsx' ),
+			},
+			fallback: {
+				...jetpackWebpackConfig.resolve.fallback,
+				events: require.resolve( 'events/' ),
 			},
 		},
 		node: false,
@@ -92,9 +102,9 @@ module.exports = [
 					exclude: /node_modules\//,
 				} ),
 
-				// Transpile @automattic/jetpack-* in node_modules too.
+				// Transpile @automattic/* in node_modules too.
 				jetpackWebpackConfig.TranspileRule( {
-					includeNodeModules: [ '@automattic/jetpack-' ],
+					includeNodeModules: [ '@automattic/' ],
 				} ),
 
 				// Handle CSS.

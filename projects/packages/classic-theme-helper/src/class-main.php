@@ -14,7 +14,7 @@ use WP_Error;
  */
 class Main {
 
-	const PACKAGE_VERSION = '0.8.2';
+	const PACKAGE_VERSION = '0.9.3';
 
 	/**
 	 * Modules to include.
@@ -98,10 +98,12 @@ class Main {
 		$compat_files = apply_filters(
 			'jetpack_theme_compat_files',
 			array(
-				'twentyfourteen' => __DIR__ . '/compat/twentyfourteen.php',
-				'twentyfifteen'  => __DIR__ . '/compat/twentyfifteen.php',
-				'twentysixteen'  => __DIR__ . '/compat/twentysixteen.php',
-				'twentynineteen' => __DIR__ . '/compat/twentynineteen.php',
+				'twentyfourteen'  => __DIR__ . '/compat/twentyfourteen.php',
+				'twentyfifteen'   => __DIR__ . '/compat/twentyfifteen.php',
+				'twentysixteen'   => __DIR__ . '/compat/twentysixteen.php',
+				'twentynineteen'  => __DIR__ . '/compat/twentynineteen.php',
+				'twentytwenty'    => __DIR__ . '/compat/twentytwenty.php',
+				'twentytwentyone' => __DIR__ . '/compat/twentytwentyone.php',
 			)
 		);
 
