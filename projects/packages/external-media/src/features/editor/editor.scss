@@ -49,6 +49,7 @@
 
 		.components-placeholder.is-medium .components-placeholder__fieldset & {
 			flex-direction: column;
+			align-items: flex-start;
 		}
 	}
 }
