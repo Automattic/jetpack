@@ -12,7 +12,23 @@ import { __ } from '@wordpress/i18n';
 import { useMessages } from './wizard-messages';
 import type { Step, OptionMessage } from './types';
 
-export const useTitleStep = ( { keywords }: { keywords: string } ): Step => {
+const mockTitleRequest = ( keywords: string ) => {
+	return new Promise< string >( resolve => {
+		setTimeout( () => {
+			resolve(
+				JSON.stringify( { titles: [ 'Title 1 about ' + keywords, 'Title 2 about ' + keywords ] } )
+			);
+		}, 1000 );
+	} );
+};
+
+export const useTitleStep = ( {
+	keywords,
+	mockRequests = false,
+}: {
+	keywords: string;
+	mockRequests?: boolean;
+} ): Step => {
 	const [ value, setValue ] = useState< string >( '' );
 	const [ selectedTitle, setSelectedTitle ] = useState< string >( '' );
 	const [ titleOptions, setTitleOptions ] = useState< OptionMessage[] >( [] );
@@ -24,7 +40,10 @@ export const useTitleStep = ( { keywords }: { keywords: string } ): Step => {
 	const [ generatedCount, setGeneratedCount ] = useState( 0 );
 
 	const request = useCallback( async () => {
-		const response = await askQuestionSync(
+		if ( mockRequests ) {
+			return mockTitleRequest( keywords );
+		}
+		return askQuestionSync(
 			[
 				{
 					role: 'jetpack-ai' as const,
@@ -40,9 +59,7 @@ export const useTitleStep = ( { keywords }: { keywords: string } ): Step => {
 				feature: 'seo-title',
 			}
 		);
-
-		return response;
-	}, [ keywords, postContent, postId ] );
+	}, [ keywords, postContent, postId, mockRequests ] );
 
 	const handleTitleSelect = useCallback(
 		( option: OptionMessage ) => {

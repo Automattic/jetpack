@@ -12,7 +12,29 @@ import { __ } from '@wordpress/i18n';
 import { useMessages } from './wizard-messages';
 import type { Step, OptionMessage } from './types';
 
-export const useMetaDescriptionStep = ( { keywords }: { keywords: string } ): Step => {
+const mockMetaDescriptionRequest = ( keywords: string ) => {
+	return new Promise< string >( resolve => {
+		setTimeout( () => {
+			resolve(
+				JSON.stringify( {
+					descriptions: [
+						'Discover everything you need to know about ' +
+							keywords +
+							'. Our comprehensive guide covers essential tips, expert advice and practical techniques for success.',
+					],
+				} )
+			);
+		}, 1000 );
+	} );
+};
+
+export const useMetaDescriptionStep = ( {
+	keywords,
+	mockRequests = false,
+}: {
+	keywords: string;
+	mockRequests?: boolean;
+} ): Step => {
 	const [ value, setValue ] = useState< string >();
 	const [ selectedMetaDescription, setSelectedMetaDescription ] = useState< string >();
 	const [ metaDescriptionOptions, setMetaDescriptionOptions ] = useState< OptionMessage[] >( [] );
@@ -23,7 +45,10 @@ export const useMetaDescriptionStep = ( { keywords }: { keywords: string } ): St
 	const [ generatedCount, setGeneratedCount ] = useState( 0 );
 
 	const request = useCallback( async () => {
-		const response = await askQuestionSync(
+		if ( mockRequests ) {
+			return mockMetaDescriptionRequest( keywords );
+		}
+		return askQuestionSync(
 			[
 				{
 					role: 'jetpack-ai' as const,
@@ -40,9 +65,7 @@ export const useMetaDescriptionStep = ( { keywords }: { keywords: string } ): St
 				feature: 'seo-meta-description',
 			}
 		);
-
-		return response;
-	}, [ keywords, postContent, postId ] );
+	}, [ keywords, postContent, postId, mockRequests ] );
 
 	const handleMetaDescriptionSelect = useCallback(
 		( option: OptionMessage ) => {
