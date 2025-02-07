@@ -236,14 +236,53 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 					$combined_users = array_merge( $users, $viewers );
 
-					// When viewers are included, we ignore the order & orderby parameters.
+					// When viewers are included, we try to respect orderby if it's login or email.
 					if ( $include_viewers ) {
-						usort(
-							$combined_users,
-							function ( $a, $b ) {
-								return strcmp( strtolower( $a->name ), strtolower( $b->name ) );
+						// First we need to be sure to obtain the viewer emails and logins.
+						foreach ( $combined_users as &$user ) {
+							$user = new WP_User( $user->ID );
+						}
+
+						if ( 'email' === $args['order_by'] ) {
+							if ( 'asc' === strtolower( $args['order'] ) ) {
+								usort(
+									$combined_users,
+									function ( $a, $b ) {
+										return strcmp( strtolower( $a->user_email ), strtolower( $b->user_email ) );
+									}
+								);
+							} else {
+								usort(
+									$combined_users,
+									function ( $a, $b ) {
+										return gmp_neg( strcmp( strtolower( $a->user_email ), strtolower( $b->user_email ) ) );
+									}
+								);
 							}
-						);
+						} elseif ( 'login' === $args['order_by'] ) {
+							if ( 'asc' === strtolower( $args['order'] ) ) {
+								usort(
+									$combined_users,
+									function ( $a, $b ) {
+										return strcmp( strtolower( $a->user_login ), strtolower( $b->user_login ) );
+									}
+								);
+							} else {
+								usort(
+									$combined_users,
+									function ( $a, $b ) {
+										return gmp_neg( strcmp( strtolower( $a->user_login ), strtolower( $b->user_login ) ) );
+									}
+								);
+							}
+						} else {
+							usort(
+								$combined_users,
+								function ( $a, $b ) {
+									return strcmp( strtolower( $a->display_name ), strtolower( $b->display_name ) );
+								}
+							);
+						}
 					}
 
 					$return[ $key ] = $combined_users;
