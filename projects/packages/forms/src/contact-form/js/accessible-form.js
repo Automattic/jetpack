@@ -264,6 +264,41 @@ const isMultipleChoiceFieldValid = fieldset => {
 
 	return false;
 };
+/**
+ * Check if a Date Picker field is valid.
+ *
+ * @param {string} value  Date value
+ * @param {string} format Date format
+ *
+ * @returns {boolean}
+ */
+const validateDate = ( value, format ) => {
+	let year, month, day;
+
+	switch ( format ) {
+		case 'mm/dd/yy':
+			[ month, day, year ] = value.split( '/' ).map( Number );
+			break;
+
+		case 'dd/mm/yy':
+			[ day, month, year ] = value.split( '/' ).map( Number );
+			break;
+
+		case 'yy-mm-dd':
+			[ year, month, day ] = value.split( '-' ).map( Number );
+			break;
+
+		default:
+			return false;
+	}
+	if ( isNaN( year ) || isNaN( month ) || isNaN( day ) ) {
+		return false;
+	}
+
+	const date = new Date( year, month - 1, day );
+
+	return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
+};
 
 /**
  * Check if a Date Picker field is valid.
@@ -282,8 +317,8 @@ const isDateFieldValid = input => {
 			return false;
 		}
 	}
-
-	return true;
+	input.setCustomValidity( L10N.invalidDate );
+	return false;
 };
 
 /**
