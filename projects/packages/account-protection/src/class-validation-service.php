@@ -76,7 +76,7 @@ class Validation_Service {
 			'weak'               => array(
 				'status'  => null,
 				'message' => __( 'Not a leaked password', 'jetpack-account-protection' ),
-				'info'    => __( 'If found in a public breach, this password may already be known to attackers. Using a unique password improves security.', 'jetpack-account-protection' ),
+				'info'    => __( 'If found in a public breach, this password may already be known to attackers.', 'jetpack-account-protection' ),
 			),
 		);
 
@@ -88,7 +88,7 @@ class Validation_Service {
 			'matches_user_data' => array(
 				'status'  => null,
 				'message' => __( "Doesn't match existing user data", 'jetpack-account-protection' ),
-				'info'    => __( 'Using a password similar to your username or email makes it easier to guess. A unique password is more secure.', 'jetpack-account-protection' ),
+				'info'    => __( 'Using a password similar to your username or email makes it easier to guess.', 'jetpack-account-protection' ),
 			),
 			'recent'            => array(
 				'status'  => null,
