@@ -92,7 +92,7 @@ class External_Media {
 	/**
 	 * Check whether the environment supports the newer default size of elements, gradually introduced starting with WP 6.4.
 	 *
-	 * @since 14.0
+	 * @since jetpack-14.0
 	 *
 	 * @see https://make.wordpress.org/core/2023/10/16/editor-components-updates-in-wordpress-6-4/#improving-size-consistency-for-ui-components
 	 *
