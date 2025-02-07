@@ -458,7 +458,7 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 	CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$PLUGIN")
 	# shellcheck disable=SC2310
 	if version_compare "$CUR_VERSION" "$NORMALIZED_VERSION"; then
-		proceed_p "$PLUGIN: Version $NORMALIZED_VERSION is lower than $CUR_VERSION." || die "User aborted script."
+		proceed_p "$PLUGIN: Version $NORMALIZED_VERSION is not higher than $CUR_VERSION." || die "User aborted script."
 	fi
 	echo "$PLUGIN: $CUR_VERSION -> ${PROJECTS[$PLUGIN]}"
 done
