@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: update the datepicker to be a more accessible and not use jquery
