@@ -1,3 +1,4 @@
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { __ } from '@wordpress/i18n';
 
 document.addEventListener( 'DOMContentLoaded', function () {
@@ -11,6 +12,11 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		importButton.role = 'button';
 		importButton.innerHTML = __( 'Import Media', 'jetpack-external-media' );
 		importButton.href = window.JETPACK_EXTERNAL_MEDIA_IMPORT_BUTTON?.href;
+		importButton.onclick = function () {
+			jetpackAnalytics.tracks.recordEvent( 'jetpack_external_media_import_media_button_click', {
+				page: 'media-library',
+			} );
+		};
 
 		const parentNode = addNewButton.parentNode;
 		const nextSibling = addNewButton.nextSibling;
