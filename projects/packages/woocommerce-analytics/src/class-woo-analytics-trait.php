@@ -435,8 +435,9 @@ trait Woo_Analytics_Trait {
 
 		$js = "{'_en': '" . esc_js( $event_name ) . "'";
 
+		// ch param is needed to identify ClickHouse queries in the JS Analytics library
 		if ( $clickhouse ) {
-			$js .= ", '_ch':'1'";
+			$js .= ", 'ch':'1'";
 		}
 
 		if ( isset( $product_details ) ) {
