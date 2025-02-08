@@ -2,7 +2,7 @@ import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getQueryArg, isURL } from '@wordpress/url';
+import { isURL } from '@wordpress/url';
 import React from 'react';
 import postPublishedImage from '../../../../assets/images/post-published.svg';
 import { useSiteIntent, useShouldShowFirstPostPublishedModal } from '../../../../common/tour-kit';
@@ -38,6 +38,7 @@ const FirstPostPublishedModalInner: React.FC = () => {
 	const previousIsCurrentPostPublished = useRef( isCurrentPostPublished );
 	const shouldShowFirstPostPublishedModal = useShouldShowFirstPostPublishedModal();
 	const [ isOpen, setIsOpen ] = useState( false );
+	const initialHash = useRef( window.location.hash );
 	const closeModal = () => setIsOpen( false );
 
 	const { siteUrlOption, launchpadScreenOption, siteIntentOption } = window?.launchpadOptions || {};
@@ -48,8 +49,7 @@ const FirstPostPublishedModalInner: React.FC = () => {
 		siteUrl = new URL( siteUrlOption ).hostname;
 	}
 
-	const isLaunchpadHomeTask = window.location.hash === '#publish-first-post';
-	const siteOriginParam = getQueryArg( window.location.search, 'origin' );
+	const isLaunchpadHomeTask = initialHash.current === '#publish-first-post';
 	useEffect( () => {
 		// If the user is set to see the first post modal and current post status changes to publish,
 		// open the post publish modal
@@ -77,7 +77,7 @@ const FirstPostPublishedModalInner: React.FC = () => {
 
 	const handleNextStepsClick = ( event: React.MouseEvent ) => {
 		event.preventDefault();
-		const siteOrigin = siteOriginParam || 'https://wordpress.com';
+		const siteOrigin = 'https://wordpress.com';
 		const redirectUrl = isLaunchpadHomeTask
 			? `${ siteOrigin }/home/${ siteUrl }`
 			: `${ siteOrigin }/setup/write/launchpad?siteSlug=${ siteUrl }`;
