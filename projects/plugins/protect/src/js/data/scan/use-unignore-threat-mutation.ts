@@ -1,3 +1,4 @@
+import { ScanStatus } from '@automattic/jetpack-scan';
 import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import API from '../../api';
@@ -14,23 +15,60 @@ export default function useUnIgnoreThreatMutation(): UseMutationResult {
 	const { showSuccessNotice, showErrorNotice } = useNotices();
 
 	return useMutation( {
-		mutationFn: async ( threatId: number ) => {
-			const response = await API.unIgnoreThreat( threatId );
+		mutationFn: API.unIgnoreThreat,
+		onMutate: async ( threatId: number ) => {
+			// Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+			await queryClient.cancelQueries( { queryKey: [ QUERY_HISTORY_KEY ] } );
+			await queryClient.cancelQueries( { queryKey: [ QUERY_SCAN_STATUS_KEY ] } );
 
-			// Refetch the scan status and history queries as a part of the mutation function.
-			// This keeps the mutator in a loading state until the side effects of the mutation are handled.
-			await Promise.all( [
-				queryClient.refetchQueries( { queryKey: [ QUERY_SCAN_STATUS_KEY ] } ),
-				queryClient.refetchQueries( { queryKey: [ QUERY_HISTORY_KEY ] } ),
+			// Snapshot the current value
+			const previousHistory = queryClient.getQueryData< ScanStatus >( [ QUERY_HISTORY_KEY ] );
+			const previousScanStatus = queryClient.getQueryData< ScanStatus >( [
+				QUERY_SCAN_STATUS_KEY,
 			] );
 
-			return response;
-		},
-		onSuccess: () => {
+			// Optimistically update to the new value
+			queryClient.setQueryData( [ QUERY_HISTORY_KEY ], ( old?: ScanStatus ) => {
+				if ( ! old ) {
+					return;
+				}
+
+				return {
+					...old,
+					threats: old.threats.filter( threat => threat.id !== threatId ),
+				};
+			} );
+			queryClient.setQueryData( [ QUERY_SCAN_STATUS_KEY ], ( old?: ScanStatus ) => {
+				if ( ! old ) {
+					return;
+				}
+
+				return {
+					...old,
+					threats: [
+						...old.threats,
+						{
+							...previousHistory.threats.find( threat => threat.id === threatId ),
+							status: 'current',
+						},
+					],
+				};
+			} );
+
 			showSuccessNotice( __( 'Threat is no longer ignored.', 'jetpack-protect' ) );
+
+			return { previousHistory, previousScanStatus };
 		},
-		onError: () => {
+		onError: ( error, threatId, context ) => {
+			// Roll back to the previous value
+			queryClient.setQueryData( [ QUERY_HISTORY_KEY ], context.previousHistory );
+			queryClient.setQueryData( [ QUERY_SCAN_STATUS_KEY ], context.previousScanStatus );
+
 			showErrorNotice( __( 'An error occurred un-ignoring the threat.', 'jetpack-protect' ) );
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries( { queryKey: [ QUERY_HISTORY_KEY ] } );
+			queryClient.invalidateQueries( { queryKey: [ QUERY_SCAN_STATUS_KEY ] } );
 		},
 	} );
 }

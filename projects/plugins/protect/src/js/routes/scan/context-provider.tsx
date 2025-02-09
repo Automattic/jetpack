@@ -50,25 +50,25 @@ export default function ScanContextProvider( { children } ) {
 	);
 
 	const actionCallbacks = {
-		[ THREAT_ACTION_FIX ]: async (
+		[ THREAT_ACTION_FIX ]: (
 			threats: Threat[],
 			{ onActionPerformed }: { onActionPerformed: ( items: Threat[] ) => void }
 		) => {
-			await fixThreats( [ threats[ 0 ].id ] );
+			fixThreats( [ threats[ 0 ].id ] );
 			onActionPerformed?.( threats );
 		},
-		[ THREAT_ACTION_IGNORE ]: async (
+		[ THREAT_ACTION_IGNORE ]: (
 			threats: Threat[],
 			{ onActionPerformed }: { onActionPerformed: ( items: Threat[] ) => void }
 		) => {
-			await ignoreThreatMutation.mutateAsync( threats[ 0 ].id );
+			ignoreThreatMutation.mutateAsync( threats[ 0 ].id );
 			onActionPerformed?.( threats );
 		},
-		[ THREAT_ACTION_UNIGNORE ]: async (
+		[ THREAT_ACTION_UNIGNORE ]: (
 			threats: Threat[],
 			{ onActionPerformed }: { onActionPerformed: ( items: Threat[] ) => void }
 		) => {
-			await unignoreThreatMutation.mutateAsync( threats[ 0 ].id );
+			unignoreThreatMutation.mutateAsync( threats[ 0 ].id );
 			onActionPerformed?.( threats );
 		},
 	};
