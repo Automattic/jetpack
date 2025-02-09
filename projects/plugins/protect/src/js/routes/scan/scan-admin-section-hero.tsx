@@ -137,7 +137,7 @@ const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' 
 						</Text>
 					) : (
 						<>
-							<Text mb={ 4 }>
+							<Text mb={ 4 } className={ styles[ 'vulnerabilities-text' ] }>
 								{ sprintf(
 									// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
 									__(

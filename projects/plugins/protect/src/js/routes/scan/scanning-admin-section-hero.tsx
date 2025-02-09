@@ -40,7 +40,7 @@ const ScanningAdminSectionHero = ( {
 						total={ 100 }
 					/>
 				) }
-				<Text>
+				<Text className={ styles[ 'scanning-text' ] }>
 					{ hasPlan
 						? __(
 								"Jetpack is actively scanning your site's files line-by-line to identify threats and vulnerabilities. This could take a minute or two.",
