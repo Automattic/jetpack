@@ -21,6 +21,9 @@ export default {
 				disable: true,
 			},
 		},
+		hideValue: {
+			control: { type: 'boolean' },
+		},
 	},
 } as Meta< typeof StatCard >;
 
