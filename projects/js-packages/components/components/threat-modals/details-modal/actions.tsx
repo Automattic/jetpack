@@ -61,18 +61,6 @@ export default function ThreatDetailsModalActions(): JSX.Element {
 			} );
 		}
 
-		if ( ! result.length ) {
-			result.push( {
-				id: 'confirm',
-				title: __( 'Close', 'jetpack-components' ),
-				onClick: () => {
-					setActionToConfirm( undefined );
-					setSelectedThreat( null );
-				},
-				variant: 'secondary',
-			} );
-		}
-
 		return result;
 	}, [ threat, setActionToConfirm, actions, setSelectedThreat ] );
 
