@@ -271,9 +271,12 @@ const isMultipleChoiceFieldValid = fieldset => {
  *
  * @returns {boolean}
  */
-const validateDate = ( value, format ) => {
+export const validateDate = ( value, format ) => {
 	let year, month, day;
 
+	if ( ! value ) {
+		return false;
+	}
 	switch ( format ) {
 		case 'mm/dd/yy':
 			[ month, day, year ] = value.split( '/' ).map( Number );
@@ -309,6 +312,7 @@ const isDateFieldValid = input => {
 	const value = input.value;
 
 	if ( value && format ) {
+		// only test if we have a value and format.
 		if ( validateDate( value, format ) ) {
 			input.setCustomValidity( '' );
 		} else {
