@@ -44,11 +44,6 @@ abstract class Minify implements Pluggable, Changes_Page_Output, Optimization, H
 	}
 
 	public function init_minify() {
-		global $wp_styles;
-
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wp_styles                         = new Concatenate_CSS( $wp_styles );
-		$wp_styles->allow_gzip_compression = true; // @todo - used constant ALLOW_GZIP_COMPRESSION = true if not defined.
 	}
 
 	/**
