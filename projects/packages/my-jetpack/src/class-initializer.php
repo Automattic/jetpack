@@ -868,7 +868,7 @@ class Initializer {
 		$red_bubble_alerts = array_filter(
 			self::get_red_bubble_alerts(),
 			function ( $alert ) {
-				// We don't want to show silent alerts
+				// We don't want to show the red bubble for silent alerts
 				return empty( $alert['is_silent'] );
 			}
 		);
@@ -1068,13 +1068,13 @@ class Initializer {
 						'manage_url'     => $product::get_manage_paid_plan_purchase_url(),
 					);
 
-					if ( $product::is_paid_plan_expired() ) {
+					if ( $product::is_paid_plan_expired() && empty( $_COOKIE[ "$purchase->product_slug--plan_expired_dismissed" ] ) ) {
 						$red_bubble_slugs[ "$purchase->product_slug--plan_expired" ] = $redbubble_notice_data;
 						if ( ! $product::is_bundle_product() ) {
 							$products_included_in_expiring_plan[ "$purchase->product_slug--plan_expired" ][] = $product::get_name();
 						}
 					}
-					if ( $product::is_paid_plan_expiring() ) {
+					if ( $product::is_paid_plan_expiring() && empty( $_COOKIE[ "$purchase->product_slug--plan_expiring_soon_dismissed" ] ) ) {
 						$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ]               = $redbubble_notice_data;
 						$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ]['manage_url'] = $product::get_renew_paid_plan_purchase_url();
 						if ( ! $product::is_bundle_product() ) {
