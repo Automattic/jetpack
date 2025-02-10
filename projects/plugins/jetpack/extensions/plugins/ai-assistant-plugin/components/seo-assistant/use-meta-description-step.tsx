@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { askQuestionSync, usePostContent } from '@automattic/jetpack-ai-client';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import {
@@ -52,13 +53,17 @@ export const useMetaDescriptionStep = ( {
 	const [ generatedCount, setGeneratedCount ] = useState( 0 );
 	const [ hasFailed, setHasFailed ] = useState( false );
 	const [ failurePoint, setFailurePoint ] = useState< 'generate' | 'regenerate' | null >( null );
-
+	const { tracks } = useAnalytics();
 	const prevStepHasChanged = useMemo( () => keywords !== lastValue, [ keywords, lastValue ] );
 
 	const request = useCallback( async () => {
 		if ( mockRequests ) {
 			return mockMetaDescriptionRequest( keywords );
 		}
+		tracks.recordEvent( 'jetpack_seo_assistant_request', {
+			step: 'meta',
+			keywords,
+		} );
 		return askQuestionSync(
 			[
 				{
@@ -76,7 +81,7 @@ export const useMetaDescriptionStep = ( {
 				feature: 'jetpack-seo-assistant',
 			}
 		);
-	}, [ keywords, postContent, postId, mockRequests ] );
+	}, [ keywords, postContent, postId, mockRequests, tracks ] );
 
 	const handleMetaDescriptionSelect = useCallback(
 		( option: OptionMessage ) => {
