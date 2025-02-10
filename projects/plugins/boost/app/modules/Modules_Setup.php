@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules;
 
+use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
+use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Regenerate;
 use Automattic\Jetpack_Boost\Lib\Setup;
@@ -77,6 +79,19 @@ class Modules_Setup implements Has_Setup {
 		REST_API::register( $feature->get_always_available_endpoints() );
 	}
 
+	/**
+	 * Used to register data sync for the module.
+	 *
+	 * @return bool|void
+	 */
+	public function register_data_sync( $feature ) {
+		if ( ! $feature instanceof Has_Data_Sync ) {
+			return false;
+		}
+
+		$feature->register_data_sync( Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE ) );
+	}
+
 	public function register_endpoints( $feature ) {
 		if ( ! $feature instanceof Has_Endpoints ) {
 			return false;
@@ -97,6 +112,7 @@ class Modules_Setup implements Has_Setup {
 		foreach ( $modules as $slug => $module ) {
 
 			$this->register_always_available_endpoints( $module->feature );
+			$this->register_data_sync( $module->feature );
 
 			if ( ! $module->is_enabled() ) {
 				continue;

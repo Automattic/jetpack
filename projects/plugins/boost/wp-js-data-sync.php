@@ -9,7 +9,6 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Readonly;
 use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Meta_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Mergeable_Array_Entry;
-use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Regenerate_CSS;
@@ -22,8 +21,6 @@ use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
 use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Modules\Modules_Index;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Liar;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync\Page_Cache_Entry;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions\Clear_Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions\Deactivate_WPSC;
@@ -238,26 +235,6 @@ $entry = new Modules_State_Entry( Modules_Index::FEATURES );
 jetpack_boost_register_option( 'modules_state', $modules_state_schema, $entry );
 
 require_once __DIR__ . '/app/modules/image-size-analysis/data-sync/init.php';
-
-/**
- * Register Minify Excludes stores.
- */
-$js_excludes_entry  = new Minify_Excludes_State_Entry( 'minify_js_excludes' );
-$css_excludes_entry = new Minify_Excludes_State_Entry( 'minify_css_excludes' );
-jetpack_boost_register_option( 'minify_js_excludes', Schema::as_array( Schema::as_string() )->fallback( Minify_JS::$default_excludes ), $js_excludes_entry );
-jetpack_boost_register_option( 'minify_css_excludes', Schema::as_array( Schema::as_string() )->fallback( Minify_CSS::$default_excludes ), $css_excludes_entry );
-jetpack_boost_register_readonly_option(
-	'minify_js_excludes_default',
-	function () {
-		return Minify_JS::$default_excludes;
-	}
-);
-jetpack_boost_register_readonly_option(
-	'minify_css_excludes_default',
-	function () {
-		return Minify_CSS::$default_excludes;
-	}
-);
 
 jetpack_boost_register_option(
 	'image_cdn_quality',
