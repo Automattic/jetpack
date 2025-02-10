@@ -846,7 +846,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Return the HTML for the email field.
+	 * Return the HTML for the date field.
 	 *
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
@@ -907,6 +907,31 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		wp_enqueue_style( 'jp-jquery-ui-datepicker', plugins_url( '../../dist/contact-form/css/jquery-ui-datepicker.css', __FILE__ ), array( 'dashicons' ), '1.0' );
 
+		return $field;
+	}
+
+	/**
+	 * Return the HTML for the file field.
+	 *
+	 * @param string $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $class - the field class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 *
+	 * @return string HTML
+	 */
+	private function render_file_field( $id, $label, $class, $required, $required_field_text ) {
+		$field  = $this->render_label( 'file', $id, $label, $required, $required_field_text );
+		$field .= "<input 
+			type='file' 
+			name='" . esc_attr( $id ) . "' 
+			id='" . esc_attr( $id ) . "' 
+			" . $class . '
+			' . ( $required ? "required aria-required='true'" : '' ) . "
+			accept='.pdf,.jpg'
+			style='" . $this->field_styles . "'
+		/>\n";
 		return $field;
 	}
 
@@ -1101,6 +1126,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				break;
 			case 'consent':
 				$field .= $this->render_consent_field( $id, $field_class );
+				break;
+			case 'file':
+				$field .= $this->render_file_field( $id, $label, $field_class, $required, $required_field_text );
 				break;
 			default: // text field
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );
