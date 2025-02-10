@@ -118,7 +118,7 @@ export default function AssistantWizard( { close } ) {
 
 			tracks.recordEvent( 'jetpack_seo_assistant_close', {
 				completion,
-				step_name: steps[ currentStep ].id,
+				step: steps[ currentStep ].id,
 				steps: steps.length,
 				step_number: currentStep,
 				placement: isCloseButton ? 'close' : 'done',
