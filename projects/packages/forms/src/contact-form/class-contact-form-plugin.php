@@ -52,6 +52,20 @@ class Contact_Form_Plugin {
 	 */
 	private $pde_email_address = '';
 
+	/*
+	 * Field keys that might be present in the entry json but we don't want to show to the admin
+	 * since they not something that the visitor entered into the form.
+	 *
+	 * @var array
+	 */
+	const NON_PRINTABLE_FIELDS = array(
+		'entry_title'             => '',
+		'email_marketing_consent' => '',
+		'entry_permalink'         => '',
+		'entry_page'              => '',
+		'feedback_id'             => '',
+	);
+
 	/**
 	 * Initializing function.
 	 */
@@ -712,8 +726,16 @@ class Contact_Form_Plugin {
 
 			// Process the content to populate Contact_Form::$last
 			if ( $post ) {
+				if ( str_contains( $post->post_content, '<!--nextpage-->' ) ) {
+					$postdata = generate_postdata( $post );
+					$page     = isset( $_POST['page'] ) ? absint( wp_unslash( $_POST['page'] ) ) : null; // phpcs:Ignore WordPress.Security.NonceVerification.Missing
+					$paged    = isset( $page ) ? $page : 1;
+					$content  = isset( $postdata['pages'][ $paged - 1 ] ) ? $postdata['pages'][ $paged - 1 ] : $post->post_content;
+				} else {
+					$content = $post->post_content;
+				}
 				/** This filter is already documented in core. wp-includes/post-template.php */
-				apply_filters( 'the_content', $post->post_content );
+				apply_filters( 'the_content', $content );
 			}
 		}
 
@@ -1148,7 +1170,7 @@ class Contact_Form_Plugin {
 		$content_fields = self::parse_fields_from_content( $post_id );
 		$all_fields     = isset( $content_fields['_feedback_all_fields'] ) ? $content_fields['_feedback_all_fields'] : array();
 		$md             = $has_json_data
-			? array_diff_key( $all_fields, array_flip( array( 'entry_title', 'email_marketing_consent', 'entry_permalink', 'feedback_id' ) ) )
+			? array_diff_key( $all_fields, array_flip( array_keys( self::NON_PRINTABLE_FIELDS ) ) )
 			: (array) get_post_meta( $post_id, '_feedback_extra_fields', true );
 
 		$md['-3_response_date'] = get_the_date( 'Y-m-d H:i:s', $post_id );

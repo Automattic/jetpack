@@ -34,6 +34,13 @@ class Scan extends Module_Product {
 	public static $module_name = 'scan';
 
 	/**
+	 * The category of the product
+	 *
+	 * @var string
+	 */
+	public static $category = 'security';
+
+	/**
 	 * The feature slug that identifies the paid plan
 	 *
 	 * @var string

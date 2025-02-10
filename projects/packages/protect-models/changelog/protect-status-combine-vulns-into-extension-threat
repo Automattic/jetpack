@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Combine vulnerabilities for the same extension into single vulnerable extension threats.

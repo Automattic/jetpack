@@ -243,9 +243,7 @@ class Doc_Parser {
 
 					if ( ! empty( $entry->text ) ) {
 						$block['doc']['description'] .=
-							'<p>'
-							. str_replace( array( "\r\n", "\n", "\r" ), '</p><p>', $entry->text )
-							. '</p>';
+							str_replace( array( "\r\n", "\n", "\r" ), ' ', $entry->text );
 					}
 				}
 

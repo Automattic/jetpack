@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Jetpack SEO: switch mockRequests flag to false so it defaults to make requests to backend
