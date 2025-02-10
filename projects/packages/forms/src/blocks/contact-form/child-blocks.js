@@ -238,15 +238,16 @@ const FieldDefaults = {
 	example: {},
 };
 
+// Storing in variables to avoid JS mangling breaking translation calls
+const severalOptionsDefault = __( 'Choose several options', 'jetpack-forms' );
+const oneOptionDefault = __( 'Choose one option', 'jetpack-forms' );
+
 const multiFieldV1 = fieldType => ( {
 	attributes: {
 		...FieldDefaults.attributes,
 		label: {
 			type: 'string',
-			default:
-				fieldType === 'checkbox'
-					? __( 'Choose several options', 'jetpack-forms' )
-					: __( 'Choose one option', 'jetpack-forms' ),
+			default: fieldType === 'checkbox' ? severalOptionsDefault : oneOptionDefault,
 		},
 	},
 	migrate: attributes => {
