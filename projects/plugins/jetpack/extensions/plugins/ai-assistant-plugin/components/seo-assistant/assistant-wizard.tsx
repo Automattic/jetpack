@@ -22,6 +22,7 @@ export default function AssistantWizard( { close } ) {
 		stepsEndRef.current?.scrollIntoView( { behavior: 'smooth' } );
 	};
 	const keywordsInputRef = useRef( null );
+	const prevStepIdRef = useRef< string | undefined >();
 	const [ results, setResults ] = useState( {} );
 
 	useEffect( () => {
@@ -75,14 +76,16 @@ export default function AssistantWizard( { close } ) {
 		} );
 	}, [ stepsCount, steps ] );
 
-	useEffect(
-		() => {
-			debug( 'currentStepData changed', currentStepData?.id );
+	useEffect( () => {
+		const currentId = currentStepData?.id;
+
+		if ( prevStepIdRef.current !== currentId ) {
+			debug( 'currentStepData changed', currentId );
 			handleStepStart();
-		},
-		// @ts-expect-error - including handleStepStart in the dependency array causes the effect to run twice
-		[ currentStepData ]
-	);
+		}
+
+		prevStepIdRef.current = currentId;
+	}, [ currentStepData, handleStepStart ] );
 
 	// Initialize current step data
 	useEffect( () => {
