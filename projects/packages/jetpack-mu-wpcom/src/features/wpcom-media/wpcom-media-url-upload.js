@@ -18,6 +18,13 @@ const insertWpcomMediaUrlUploadForm = () => {
 	}
 };
 
+const removeWpcomMediaUrlUploadForm = () => {
+	const container = document.getElementById( selectors.WPCOM_MEDIA_URL_UPLOAD_CONTAINER );
+	if ( container ) {
+		container.innerHTML = '';
+	}
+};
+
 document.addEventListener( 'DOMContentLoaded', function () {
 	const pluploadUploadUI = document.getElementById( selectors.PLUPLOAD_UPLOAD_UI );
 	const selectFilesButton = document.getElementById( selectors.PLUPLOAD_BROWSE_BUTTON );
@@ -39,9 +46,13 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		const originalUploaderInline = window.wp.media.view.UploaderInline;
 
 		window.wp.media.view.UploaderInline = originalUploaderInline.extend( {
-			ready: function () {
-				originalUploaderInline.prototype.ready.apply( this, arguments );
+			show: function () {
+				originalUploaderInline.prototype.show.apply( this, arguments );
 				insertWpcomMediaUrlUploadForm();
+			},
+			hide: function () {
+				originalUploaderInline.prototype.hide.apply( this, arguments );
+				removeWpcomMediaUrlUploadForm();
 			},
 		} );
 	}
