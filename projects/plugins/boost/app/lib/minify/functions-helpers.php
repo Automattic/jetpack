@@ -350,6 +350,10 @@ function jetpack_boost_minify_serve_concatenated() {
  * @return void
  */
 function jetpack_boost_minify_activation() {
+	// Schedule cache cleanup.
+	jetpack_boost_page_optimize_schedule_cache_cleanup();
+	// Setup the cronjob to periodically test for the 404 handler.
+	jetpack_boost_404_setup();
 }
 
 /**
@@ -374,19 +378,7 @@ function jetpack_boost_minify_deactivation() {
  *
  * Run during every page load if any minify module is active.
  */
-function jetpack_boost_minify_setup() {
-	static $init_done = false;
-
-	if ( ! $init_done && is_admin() ) {
-		/**
-		 * Schedule these jobs because they may not be scheduled if the modules
-		 * are enabled, and the plugin is deactivated, and then reactivated.
-		 */
-		jetpack_boost_page_optimize_schedule_cache_cleanup();
-		jetpack_boost_404_setup();
-		$init_done = true;
-	}
-
+function jetpack_boost_minify_init() {
 	add_action( 'jetpack_boost_minify_cron_cache_cleanup', 'jetpack_boost_page_optimize_cache_cleanup' );
 
 	if ( jetpack_boost_page_optimize_bail() ) {
