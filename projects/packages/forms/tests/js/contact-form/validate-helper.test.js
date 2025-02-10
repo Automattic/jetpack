@@ -1,6 +1,5 @@
 // Add these mocks at the top of your test file
-import './wp-mocks';
-import { validateDate } from '../../../src/contact-form/js/accessible-form';
+import { validateDate } from '../../../src/contact-form/js/validate-helper';
 
 describe( 'validateDate', () => {
 	// Test mm/dd/yy format
