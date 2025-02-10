@@ -1204,6 +1204,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			|| ( Jetpack::is_plugin_active( 'under-construction-page/under-construction.php' ) && isset( $ucp_options['status'] ) && 1 == $ucp_options['status'] ) // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			|| ( Jetpack::is_plugin_active( 'ultimate-under-construction/ultimate-under-construction.php' ) && isset( $uuc_settings['enable'] ) && 1 == $uuc_settings['enable'] ) // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			|| ( Jetpack::is_plugin_active( 'coming-soon/coming-soon.php' ) && isset( $csp4['status'] ) && ( 1 == $csp4['status'] || 2 == $csp4['status'] ) ) // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			||
 			/**
 			 * Allow plugins to mark a site as "under construction".
 			 *
@@ -1211,7 +1212,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			 *
 			 * @param false bool Is the site under construction? Default to false.
 			 */
-			|| true === apply_filters( 'jetpack_is_under_construction_plugin', false )
+			true === apply_filters( 'jetpack_is_under_construction_plugin', false )
 		) {
 			return new WP_Error( 'forbidden', __( 'Site is under construction and cannot be verified', 'jetpack' ) );
 		}
@@ -2335,28 +2336,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'custom-content-types',
+				'jp_group'          => 'settings',
 			),
 			'jetpack_portfolio_posts_per_page'          => array(
 				'description'       => esc_html__( 'Number of entries to show at most in Portfolio pages.', 'jetpack' ),
 				'type'              => 'integer',
 				'default'           => 10,
 				'validate_callback' => __CLASS__ . '::validate_posint',
-				'jp_group'          => 'custom-content-types',
+				'jp_group'          => 'settings',
 			),
 			'jetpack_testimonial'                       => array(
 				'description'       => esc_html__( 'Enable or disable Jetpack testimonial post type.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'custom-content-types',
+				'jp_group'          => 'settings',
 			),
 			'jetpack_testimonial_posts_per_page'        => array(
 				'description'       => esc_html__( 'Number of entries to show at most in Testimonial pages.', 'jetpack' ),
 				'type'              => 'integer',
 				'default'           => 10,
 				'validate_callback' => __CLASS__ . '::validate_posint',
-				'jp_group'          => 'custom-content-types',
+				'jp_group'          => 'settings',
 			),
 
 			// WAF.
@@ -2663,6 +2664,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 			'wpcom_newsletter_categories_enabled'       => array(
 				'description'       => esc_html__( 'Whether the newsletter categories are enabled or not', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'wpcom_newsletter_categories_modal_hidden'  => array(
+				'description'       => esc_html__( 'Whether the newsletter categories modal is hidden or not', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
@@ -3398,14 +3406,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error
 	 */
 	public static function validate_stats_roles( $value, $request, $param ) {
-		if ( ! empty( $value ) && ! array_intersect( self::$stats_roles, $value ) ) {
+		if ( ! function_exists( 'get_editable_roles' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/user.php';
+		}
+		$editable_roles = array_keys( get_editable_roles() );
+		if ( ! empty( $value ) && ! array_intersect( $editable_roles, $value ) ) {
 			return new WP_Error(
 				'invalid_param',
 				sprintf(
 					/* Translators: first variable is the name of a parameter passed to endpoint holding the role that will be checked, the second is a list of roles allowed to see stats. The parameter is checked against this list. */
 					esc_html__( '%1$s must be %2$s.', 'jetpack' ),
 					$param,
-					implode( ', ', self::$stats_roles )
+					implode( ', ', $editable_roles )
 				)
 			);
 		}

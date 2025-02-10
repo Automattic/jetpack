@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Map block: Catch error if content is empty.

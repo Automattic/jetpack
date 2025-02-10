@@ -2910,8 +2910,15 @@ p {
 	 * @param mixed $data Data to log.
 	 */
 	public static function log( $code, $data = null ) {
+
+		$raw_log = Jetpack_Options::get_option( 'log', array() );
+		// This can be modified by the `jetpack_options` filter, so abort if we don't have an array.
+		if ( ! is_array( $raw_log ) ) {
+			return;
+		}
+
 		// only grab the latest 200 entries.
-		$log = array_slice( Jetpack_Options::get_option( 'log', array() ), -199, 199 );
+		$log = array_slice( $raw_log, -199, 199 );
 
 		// Append our event to the log.
 		$log_entry = array(

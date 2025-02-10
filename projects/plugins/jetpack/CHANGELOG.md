@@ -2,111 +2,91 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 14.3-beta - 2025-02-03
+## 14.3 - 2025-02-04
 ### Enhancements
 - Blocks: Improve performance. [#39734]
-- Social: Post character limits are now dynamic based on selected connections. [#41429]
+- Forms: Add Checkbox and Consent field enter action to create a new block. [#41297]
+- Forms: Allow HTML block within forms. [#41040]
+- Show Infinite Scroll options in Simple Classic. [#41144]
 - Social: Enable Social post UI for WordPress.com sites. [#41219]
+- Social: Post character limits are now dynamic based on selected connections. [#41429]
 
 ### Improved compatibility
+- Nova Restaurant: ensure that the custom post type is now loaded via the Classic Theme Helper package. [#40782]
 - Open Graph Meta Tags: Do not display Jetpack's tags when the SEOPress plugin is active. [#41331]
 - Social: Remove "Your post" section from previews in favor of newer Social Post UI. [#41329]
 
 ### Bug fixes
+- Authors widget: Fix saving of unchecked "Display all authors" checkbox in the legacy widget editor. [#40878]
 - Copy Post: Ensure Copy option is still available on all CPTs after quick edit in post list. [#41339]
+- Fix: Newsletter toggle in editor sidebar has a visually broken active state. [#41036]
 - Forms: Fix datepicker appearance on dark themes. [#41342]
+- Forms: Fix dropdown icon style. [#41074]
 - Forms: Fix field spacing and widths. [#41415]
 - Forms: Fix permanent deletion of form reponses via quicklinks. [#41321]
 - Forms: Hide empty radio fields. [#41379]
 - Forms: Keep content as-is when switching Feedback status between spam and publish. [#41359]
-- Forms: Prevent error in block placeholder when the Forms module is disabled. [#41382]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Code: Remove extra params on function calls. [#41263]
-- Forms: Rename contact form module to "Forms". [#41384]
-- Post List: Add a Copy Link Quick Action. [#41305]
-- SEO Assistant: Adjust step flow in wizard. [#41268]
-- SEO Assistant: Implement completion step and review copy edits. [#41469]
-- SEO Assistant: Improve assistant flow by letting steps depend on previous steps. [#41341]
-- SEO Assistant: Tweak design CSS. [#41506] [#41473]
-- Subscriptions block: Fix button width when not on a new line. [#41156]
-- Sync: Full Sync comments now send dynamic chunks if chunk size default is too big. [#41350]
-- Testing: Add manual testing instructions. [#41364]
-- Theme compat: Wrap relevant functions in a `function_exists` check to prevent collisions with Classic Theme Helper package. [#41394]
-- Updated package dependencies. [#41286]
-- Update text copies based on whether the site is public. [#41387]
-- Update settings endpoint to return the updated toggle state in the success response. [#41461]
-
-## 14.3-a.5 - 2025-01-27
-### Enhancements
-- Forms: Add Checkbox and Consent field enter action to create a new block. [#41297]
-
-### Bug fixes
 - Forms: Make the icons show up as expected in the style editor. [#41314]
+- Forms: Prevent error in block placeholder when the Forms module is disabled. [#41382]
+- Pages and Posts: Fix the layout on mobile when details are open. [#40872]
+- Photon: Fix double encoding image urls. [#40886]
+- Sharing: Fix the location of the sharing dialog so it is not always the first sharing element on the page. [#41002]
 - Sitemaps: Ensure a valid news sitemap is present even if no posts are eligible. [#40893]
 - Social: Fix profile links for LinkedIn connections. [#40873]
 - Social: Fix Publicize error in the editor due to malformed connections data. [#40679]
+- Social: Fix wordpress.com login error when connecting Social accounts. [#41149]
+- Stats: Fix saving of custom roles settings. [#40853]
+- Testimonials: Fix shortcode-related bug. [#40896]
+- Tiled Gallery block: Ensure icons are visible when selecting image in editor. [#40779]
 - VideoPress: Fix issue with VideoPress block with zero height and width. [#41319]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Code: Remove extra params on function calls. [#41263]
+- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
 - Comments API: Add wpcom_id and wpcom_login fields to comment author responses when requested via author_wpcom_data parameter. [#41254]
+- Embeds: Fix the Descript block variation icon SVG path. [#41017]
 - Forms: Fix default editor stying for textarea. [#41229]
 - Forms: Remove wrapping <div> element from form block. [#41274]
-- General: Fix the rendering of Jetpack Google Fonts font faces for classic themes. [#41190]
-- General: Deprecate Jetpack geo location module. [#41193]
-- Jetpack AI: Use the PluginDocumentSettingPanel slotfill for compatibility with site and post editor in the Excerpt panel. [#41251]
-- Jetpack button: Implement outline style. [#41194]
-- Related Posts: Revert "Hide settings in block themes." [#41203]
-
-## 14.3-a.3 - 2025-01-20
-### Enhancements
-- Forms: Allow HTML block within forms. [#41040]
-- Show Infinite Scroll options in Simple Classic. [#41144]
-
-### Bug fixes
-- Fix: Newsletter toggle in editor sidebar has a visually broken active state. [#41036]
-- Forms: Fix dropdown icon style. [#41074]
-- Photon: Fix double encoding image urls. [#40886]
-- Sharing: Fix the location of the sharing dialog so it is not always the first sharing element on the page. [#41002]
-- Social: Fix wordpress.com login error when connecting Social accounts. [#41149]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
-- Embeds: Fix the Descript block variation icon SVG path. [#41017]
+- Forms: Rename contact form module to "Forms". [#41384]
 - Full Sync: Send context on initial sync action. [#40930]
+- General: Deprecate Jetpack geo location module. [#41193]
+- General: Fix the rendering of Jetpack Google Fonts font faces for classic themes. [#41190]
 - Hide related posts options for block themes. [#41075]
 - Jetpack AI: Add message that displays when a post has no content. [#41161]
 - Jetpack AI: Add PoC for SEO assistant (hardcoded and no actionables yet). [#40802]
 - Jetpack AI: Buttons now have 100% width and are 40px tall. [#41161]
 - Jetpack AI: Changed color of some text. [#41161]
-- Jetpack AI: Updated text and spacing in various places. [#41161]
-- Jetpack AI: Write Brief checkboxes are hidden by toggle now. [#41161]
-- Move WPCOM_REST_API_Proxy_Request trait to the connection package. [#41023]
-- Social Image Generator: Change description for toggle. [#40991]
-- Update composer.lock files. [#41066]
-- Updated package dependencies. [#40980] [#41099]
-- Pexels: Update title of option to be sentence case. [#41024]
-
-## 14.3-a.1 - 2025-01-13
-### Improved compatibility
-- Nova Restaurant: ensure that the custom post type is now loaded via the Classic Theme Helper package. [#40782]
-
-### Bug fixes
-- Authors widget: Fix saving of unchecked "Display all authors" checkbox in the legacy widget editor. [#40878]
-- Stats: Fix saving of custom roles settings. [#40853]
-- Pages and Posts: Fix the layout on mobile when details are open. [#40872]
-- Testimonials: Fix shortcode-related bug. [#40896]
-- Tiled Gallery block: Ensure icons are visible when selecting image in editor. [#40779]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Jetpack AI: Enable ratings feedback thumbs for all. [#40772]
+- Jetpack AI: Prevent error when generating a featured image while quota is exceeded. [#41551]
+- Jetpack AI: Updated text and spacing in various places. [#41161]
+- Jetpack AI: Use the PluginDocumentSettingPanel slotfill for compatibility with site and post editor in the Excerpt panel. [#41251]
+- Jetpack AI: Write Brief checkboxes are hidden by toggle now. [#41161]
+- Jetpack button: Implement outline style. [#41194]
+- Move WPCOM_REST_API_Proxy_Request trait to the connection package. [#41023]
 - Newsletter: Update category settings to clarify that one or more categories must be selected to allow people to subscribe. [#40727]
 - Notifications: Support three-letter language code translations. [#40973]
+- Pexels: Update title of option to be sentence case. [#41024]
+- Post List: Add a Copy Link Quick Action. [#41305]
 - Post list: Ensure copy quick link is added after quick edit. [#40889]
+- Related Posts: Revert "Hide settings in block themes." [#41203]
+- SEO Assistant: Adjust step flow in wizard. [#41268]
+- SEO Assistant: Implement completion step and review copy edits. [#41469]
+- SEO Assistant: Improve assistant flow by letting steps depend on previous steps. [#41341]
+- SEO Assistant: Tweak design CSS. [#41506] [#41473]
+- Social Image Generator: Change description for toggle. [#40991]
 - Stats: Load the adminbar stats graph lazily. [#40865]
 - Stats: Remove legacy Stats widget loader. [#40839]
+- Subscriptions block: Fix button width when not on a new line. [#41156]
+- Sync: Full Sync comments now send dynamic chunks if chunk size default is too big. [#41350]
+- Testing: Add manual testing instructions. [#41364]
+- Theme compat: Wrap relevant functions in a `function_exists` check to prevent collisions with Classic Theme Helper package. [#41394]
+- Update composer.lock files. [#41066]
 - Updated dependencies. [#40773]
+- Updated package dependencies. [#40980] [#41099]
+- Updated package dependencies. [#41286]
+- Update settings endpoint to return the updated toggle state in the success response. [#41461]
 - Update social-logos import from default to named. [#40816]
+- Update text copies based on whether the site is public. [#41387]
 
 ## 14.2.1 - 2025-01-09
 ### Bug fixes

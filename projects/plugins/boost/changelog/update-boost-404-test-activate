@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Minification: run the 404 tester when activating either of the minification/concatenation modules.
+
+
