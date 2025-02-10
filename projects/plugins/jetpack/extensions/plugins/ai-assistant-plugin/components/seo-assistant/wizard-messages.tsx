@@ -35,13 +35,27 @@ export const useMessages = () => {
 	};
 
 	/* Edits content of last message */
-	const editLastMessage = ( content: Message[ 'content' ] ) => {
+	const editLastMessage = ( content: Message[ 'content' ], append = false ) => {
 		setMessages( prev => {
 			const prevMessages = [ ...prev ];
 			if ( prevMessages.length > 0 ) {
+				const lastMessageContent = prevMessages[ prevMessages.length - 1 ].content;
+				let newContent = content;
+				if ( append ) {
+					if ( typeof lastMessageContent === 'string' ) {
+						newContent = lastMessageContent + content;
+					} else if ( typeof lastMessageContent === 'object' ) {
+						newContent = (
+							<>
+								{ lastMessageContent }
+								{ content }
+							</>
+						);
+					}
+				}
 				prevMessages[ prevMessages.length - 1 ] = {
 					...prevMessages[ prevMessages.length - 1 ],
-					content,
+					content: newContent,
 				};
 			}
 			return prevMessages;
