@@ -115,7 +115,9 @@
 		display: block;
 	}
 
+	.wp-block-jetpack-button,
 	.wp-block[data-type='jetpack/button'] {
+		width: 100%;
 		margin-top: 0;
 		margin-bottom: 0;
 	}

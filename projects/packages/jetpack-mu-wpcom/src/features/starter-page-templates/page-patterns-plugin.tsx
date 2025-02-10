@@ -5,7 +5,6 @@ import { useCallback } from '@wordpress/element';
 import { addFilter, removeFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { pageLayoutStore } from './store';
-import '@wordpress/nux';
 
 const INSERTING_HOOK_NAME = 'isInsertingPagePattern';
 const INSERTING_HOOK_NAMESPACE = 'automattic/full-site-editing/inserting-pattern';
@@ -13,15 +12,14 @@ const INSERTING_HOOK_NAMESPACE = 'automattic/full-site-editing/inserting-pattern
 interface PagePatternsPluginProps {
 	patterns: PatternDefinition[];
 }
-type CoreEditorPlaceholder = {
+type CoreBlockEditorPlaceholder = {
 	getBlocks: ( ...args: unknown[] ) => BlockInstance[];
+};
+type CoreEditorPlaceholder = {
 	getEditedPostAttribute: ( ...args: unknown[] ) => unknown;
 };
 type CoreEditPostPlaceholder = {
 	isFeatureActive: ( ...args: unknown[] ) => boolean;
-};
-type CoreNuxPlaceholder = {
-	areTipsEnabled: ( ...args: unknown[] ) => boolean;
 };
 
 /**
@@ -55,16 +53,21 @@ export function PagePatternsPlugin( props: PagePatternsPluginProps ): JSX.Elemen
 	const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
 	const { editPost } = useDispatch( 'core/editor' );
 	const { toggleFeature } = useDispatch( 'core/edit-post' );
-	const { disableTips } = useDispatch( 'core/nux' );
 
 	const selectProps = useSelect( select => {
+		const getMetaNew = () =>
+			( select( 'core/editor' ) as CoreEditorPlaceholder ).getEditedPostAttribute( 'meta' );
+		const currentBlocks = (
+			select( 'core/block-editor' ) as CoreBlockEditorPlaceholder
+		 ).getBlocks();
 		const { isOpen, isPatternPicker } = select( pageLayoutStore );
 		return {
+			getMeta: getMetaNew,
+			postContentBlock: findPostContentBlock( currentBlocks ),
 			isOpen: isOpen(),
 			isWelcomeGuideActive: (
 				select( 'core/edit-post' ) as CoreEditPostPlaceholder
 			 ).isFeatureActive( 'welcomeGuide' ) as boolean,
-			areTipsEnabled: ( select( 'core/nux' ) as CoreNuxPlaceholder ).areTipsEnabled() as boolean,
 			...( isPatternPicker() && {
 				title: __( 'Choose a Pattern', 'jetpack-mu-wpcom' ),
 				description: __(
@@ -75,15 +78,7 @@ export function PagePatternsPlugin( props: PagePatternsPluginProps ): JSX.Elemen
 		};
 	}, [] );
 
-	const { getMeta, postContentBlock } = useSelect( select => {
-		const getMetaNew = () =>
-			( select( 'core/editor' ) as CoreEditorPlaceholder ).getEditedPostAttribute( 'meta' );
-		const currentBlocks = ( select( 'core/editor' ) as CoreEditorPlaceholder ).getBlocks();
-		return {
-			getMeta: getMetaNew,
-			postContentBlock: findPostContentBlock( currentBlocks ),
-		};
-	}, [] );
+	const { getMeta, postContentBlock } = selectProps;
 
 	const savePatternChoice = useCallback(
 		( name: string, selectedCategory: string | null ) => {
@@ -123,17 +118,13 @@ export function PagePatternsPlugin( props: PagePatternsPluginProps ): JSX.Elemen
 		[ editPost, postContentBlock, replaceInnerBlocks ]
 	);
 
-	const { isWelcomeGuideActive, areTipsEnabled } = selectProps;
+	const { isWelcomeGuideActive } = selectProps;
 
 	const hideWelcomeGuide = useCallback( () => {
 		if ( isWelcomeGuideActive ) {
-			// Gutenberg 7.2.0 or higher.
 			toggleFeature( 'welcomeGuide' );
-		} else if ( areTipsEnabled ) {
-			// Gutenberg 7.1.0 or lower.
-			disableTips();
 		}
-	}, [ areTipsEnabled, disableTips, isWelcomeGuideActive, toggleFeature ] );
+	}, [ isWelcomeGuideActive, toggleFeature ] );
 
 	const handleClose = useCallback( () => {
 		setOpenState( 'CLOSED' );

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "0.7.0",
+	"version": "0.8.1",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -28,7 +28,7 @@
 	},
 	"main": "./dist/cjs/index.js",
 	"module": "./dist/mjs/index.js",
-	"types": "./dist/types/index.d.ts",
+	"types": "./dist/index.d.ts",
 	"sideEffects": [
 		"*.css",
 		"*.scss"
@@ -80,14 +80,15 @@
 		"@rollup/plugin-typescript": "12.1.0",
 		"@storybook/blocks": "8.4.7",
 		"@storybook/react": "8.4.7",
+		"@testing-library/dom": "^10.0.0",
 		"@testing-library/jest-dom": "^6.0.0",
-		"@testing-library/react": "^14.0.0",
+		"@testing-library/react": "^16.0.0",
+		"@testing-library/user-event": "^14.4.3",
 		"@types/jest": "^29.0.0",
 		"@types/react": "18.3.18",
 		"@types/react-dom": "18.3.5",
-		"@types/testing-library__jest-dom": "^5.14.9",
-		"@wordpress/babel-plugin-import-jsx-pragma": "5.14.0",
-		"@wordpress/element": "6.14.0",
+		"@wordpress/babel-plugin-import-jsx-pragma": "5.17.0",
+		"@wordpress/element": "6.17.0",
 		"babel-jest": "^29.7.0",
 		"babel-loader": "9.1.2",
 		"clean-webpack-plugin": "^4.0.0",

@@ -20,7 +20,7 @@ use Automattic\Jetpack\Status;
  */
 class JITM {
 
-	const PACKAGE_VERSION = '4.0.4';
+	const PACKAGE_VERSION = '4.0.5';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -270,7 +270,7 @@ class JITM {
 				/**
 				 * Filter to force display the new Woo logo in Woo JITM's, or not.
 				 *
-				 * @since $$next-version$$
+				 * @since 4.0.5
 				 *
 				 * @param bool $show_woo_logo Whether to show the new Woo logo or not.
 				 */

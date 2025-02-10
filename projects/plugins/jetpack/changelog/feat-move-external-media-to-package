@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+External Media: Move the GooglePhotosMedia, OpenverseMedia, PexelsMedia to @automattic/jetpack-shared-extension-utils
