@@ -135,9 +135,12 @@ class Contact_Form_Plugin {
 		if ( is_array( $data_with_tags ) ) {
 			foreach ( $data_with_tags as $index => $value ) {
 				$index = sanitize_text_field( (string) $index );
-				$value = wp_kses_post( (string) $value );
-				$value = str_replace( '&amp;', '&', $value ); // undo damage done by wp_kses_normalize_entities()
-
+				if ( is_array( $value ) ) {
+					$value = self::strip_tags( $value ); // Recursively handle nested arrays
+				} else {
+					$value = wp_kses_post( (string) $value );
+					$value = str_replace( '&amp;', '&', $value ); // undo damage done by wp_kses_normalize_entities()
+				}
 				$data_without_tags[ $index ] = $value;
 			}
 		} else {
