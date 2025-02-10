@@ -25,7 +25,7 @@ function enqueue_wpcom_media_url_upload_form() {
 	$page = 'editor';
 	if ( $pagenow === 'upload.php' ) {
 		$page = 'media-library';
-	} else if ( $pagenow === 'media-new.php' ) {
+	} elseif ( $pagenow === 'media-new.php' ) {
 		$page = 'media-new';
 	}
 
