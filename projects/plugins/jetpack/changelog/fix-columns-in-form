@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: fix column block width when used in the form block.
