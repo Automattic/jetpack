@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Forms: Add file upload field support with PDF and JPG/JPEG file formats, including validation and error handling. 
