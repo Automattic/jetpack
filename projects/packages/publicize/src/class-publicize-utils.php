@@ -106,18 +106,18 @@ class Publicize_Utils {
 	 */
 	public static function assert_is_wpcom( $method ) {
 		if ( ! self::is_wpcom() ) {
-			throw new \Exception( esc_html( "Method $method can only be called on WordPress.com." ) );
+			throw new \Exception( esc_html( "Method $method can only b`e called on WordPress.com." ) );
 		}
 	}
 
 	/**
 	 * Check if the new module endpoint is available in the used Jetpack version.
+	 * We need the module status in response that's why we do the version check https://github.com/Automattic/jetpack/pull/41461/files#diff-f8e5ef1115599de750b64143dd1901554254eddd95ab4371b6b6b3b2a5914224R638-R642.
 	 * More: https://github.com/Automattic/jetpack-reach/issues/794
 	 *
 	 * @return bool
 	 */
 	public static function should_use_jetpack_module_endpoint() {
-		// @phan-suppress-next-line PhanTypeMismatchArgumentNullableInternal - Phan thinks JETPACK__VERSION is not a string (it is).
 		return class_exists( 'Jetpack' ) && defined( 'JETPACK__VERSION' ) && ( version_compare( (string) JETPACK__VERSION, '14.3', '>=' ) );
 	}
 }
