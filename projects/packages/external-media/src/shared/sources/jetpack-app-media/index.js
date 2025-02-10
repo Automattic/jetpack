@@ -136,6 +136,7 @@ function JetpackAppMedia( props ) {
 					key={ 'jetpack-app-media' }
 					className="jetpack-external-media-browser__jetpack_app_media_browser"
 					media={ media }
+					mediaSource={ MediaSource.JetpackAppMedia }
 					isCopying={ isCopying }
 					isLoading={ false }
 					nextPage={ getNextPage }

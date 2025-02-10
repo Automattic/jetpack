@@ -93,6 +93,17 @@
 			&[data-type='jetpack/field-consent'] {
 				align-self: center;
 			}
+
+			&:where( .wp-block-jetpack-contact-form .wp-block-separator ){
+				max-width: var( --wp--preset--spacing--80, 100px );
+				margin-left: auto;
+				margin-right: auto;
+			}
+			&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-wide ),
+			&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-dots ) {
+				max-width: inherit;
+			}
+
 		}
 	}
 

@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Added a safeguard for unset array item warnings.
+
+

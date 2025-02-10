@@ -68,6 +68,7 @@ function PexelsMedia( props ) {
 			<MediaBrowser
 				className="jetpack-external-media-browser__pexels"
 				media={ media }
+				mediaSource={ MediaSource.Pexels }
 				isCopying={ isCopying }
 				isLoading={ isLoading }
 				nextPage={ () => getNextPage( searchQuery ) }
