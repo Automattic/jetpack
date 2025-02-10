@@ -1,6 +1,8 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { Spinner, BaseControl } from '@wordpress/components';
 import { useState, useEffect, useCallback } from '@wordpress/element';
+import { installAndActivatePlugin, activatePlugin } from '../../util/plugin-management';
 import CRMPluginState from './jetpack-crm-integration-settings-plugin-state';
 
 const fetchCRMData = ( setHasCRMDataError, setCRMData, setIsFetchingCRMData ) => {
@@ -23,9 +25,17 @@ const CRMPluginData = ( { jetpackCRM, setAttributes } ) => {
 	const [ hasCRMDataError, setHasCRMDataError ] = useState( false );
 	const [ crmData, setCRMData ] = useState();
 	const [ isInstalling, setIsInstalling ] = useState( false );
+	const { tracks } = useAnalytics();
 
 	const onCRMPluginClick = useCallback(
 		( func, arg ) => {
+			// Track the event before starting installation/activation
+			if ( func === installAndActivatePlugin ) {
+				tracks.recordEvent( 'jetpack_forms_crm_install_click' );
+			} else if ( func === activatePlugin ) {
+				tracks.recordEvent( 'jetpack_forms_crm_activate_click' );
+			}
+
 			setIsInstalling( true );
 			func( arg )
 				.catch( () => {
@@ -37,7 +47,7 @@ const CRMPluginData = ( { jetpackCRM, setAttributes } ) => {
 					fetchCRMData( setHasCRMDataError, setCRMData, setIsFetchingCRMData );
 				} );
 		},
-		[ setIsInstalling, setHasCRMDataError, setIsFetchingCRMData ]
+		[ setIsInstalling, setHasCRMDataError, setIsFetchingCRMData, tracks ]
 	);
 
 	useEffect( () => {
