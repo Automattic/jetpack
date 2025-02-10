@@ -45,6 +45,8 @@ export default function useConnectSiteMutation(): UseMutationResult {
 			queryClient.invalidateQueries( { queryKey: [ QUERY_WAF_KEY ] } );
 			queryClient.invalidateQueries( { queryKey: [ QUERY_HAS_PLAN_KEY ] } );
 			queryClient.invalidateQueries( { queryKey: [ QUERY_CREDENTIALS_KEY ] } );
+
+			queryClient.ensureQueryData( { queryKey: [ QUERY_ACCOUNT_PROTECTION_KEY ] } );
 			queryClient.invalidateQueries( { queryKey: [ QUERY_ACCOUNT_PROTECTION_KEY ] } );
 		},
 		onError: () => {

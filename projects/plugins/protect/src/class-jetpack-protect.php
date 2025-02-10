@@ -286,9 +286,9 @@ class Jetpack_Protect {
 	 */
 	public static function activate_modules() {
 		delete_option( self::JETPACK_PROTECT_ACTIVATION_OPTION );
+		( new Modules() )->activate( self::JETPACK_ACCOUNT_PROTECTION_MODULE_SLUG, false, false );
 		( new Modules() )->activate( self::JETPACK_WAF_MODULE_SLUG, false, false );
 		( new Modules() )->activate( self::JETPACK_BRUTE_FORCE_PROTECTION_MODULE_SLUG, false, false );
-		( new Modules() )->activate( self::JETPACK_ACCOUNT_PROTECTION_MODULE_SLUG, false, false );
 	}
 
 	/**
@@ -346,7 +346,7 @@ class Jetpack_Protect {
 	 * @return array
 	 */
 	public function protect_filter_available_modules( $modules ) {
-		return array_merge( array( self::JETPACK_WAF_MODULE_SLUG, self::JETPACK_BRUTE_FORCE_PROTECTION_MODULE_SLUG, self::JETPACK_ACCOUNT_PROTECTION_MODULE_SLUG ), $modules );
+		return array_merge( array( self::JETPACK_ACCOUNT_PROTECTION_MODULE_SLUG, self::JETPACK_WAF_MODULE_SLUG, self::JETPACK_BRUTE_FORCE_PROTECTION_MODULE_SLUG ), $modules );
 	}
 
 	/**
