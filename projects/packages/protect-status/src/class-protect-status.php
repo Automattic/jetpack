@@ -226,7 +226,7 @@ class Protect_Status extends Status {
 			$extension->checked         = true;
 			$extension_threats[ $slug ] = $extension;
 
-			if ( ! empty( $checked_extension->vulnerabilities ) ) {
+			if ( is_array( $checked_extension->vulnerabilities ) && ! empty( $checked_extension->vulnerabilities ) ) {
 				// normalize the vulnerabilities data
 				$vulnerabilities = array_map(
 					function ( $vulnerability ) {
