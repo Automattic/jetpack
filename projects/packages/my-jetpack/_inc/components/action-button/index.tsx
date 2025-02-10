@@ -138,7 +138,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 		installStandalonePlugin();
 	}, [ slug, installStandalonePlugin, recordEvent, tracksIdentifier ] );
 
-	const getStatusAction = useCallback( (): SecondaryButtonProps => {
+	const statusAction: SecondaryButtonProps = useMemo( () => {
 		switch ( status ) {
 			case PRODUCT_STATUSES.ABSENT: {
 				const buttonText = __( 'Learn more', 'jetpack-my-jetpack' );
@@ -322,9 +322,8 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	] );
 
 	const allActions = useMemo(
-		() =>
-			hasAdditionalActions ? [ ...additionalActions, getStatusAction() ] : [ getStatusAction() ],
-		[ additionalActions, getStatusAction, hasAdditionalActions ]
+		() => ( hasAdditionalActions ? [ ...additionalActions, statusAction ] : [ statusAction ] ),
+		[ additionalActions, statusAction, hasAdditionalActions ]
 	);
 
 	const recordDropdownStateChange = useCallback( () => {
@@ -374,7 +373,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	const dropdown = hasAdditionalActions && (
 		<div ref={ dropdownRef } className={ styles[ 'action-button-dropdown' ] }>
 			<ul className={ styles[ 'dropdown-menu' ] }>
-				{ [ ...additionalActions, getStatusAction() ].map( ( { label, isExternalLink }, index ) => {
+				{ [ ...additionalActions, statusAction ].map( ( { label, isExternalLink }, index ) => {
 					const onDropdownMenuItemClick = () => {
 						setCurrentAction( allActions[ index ] );
 						setIsDropdownOpen( false );

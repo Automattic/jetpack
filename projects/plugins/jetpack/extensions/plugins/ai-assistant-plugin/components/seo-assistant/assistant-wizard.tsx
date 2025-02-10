@@ -31,8 +31,11 @@ export default function AssistantWizard( { close } ) {
 
 	// Keywords
 	const keywordsStepData = useKeywordsStep();
-	const titleStepData = useTitleStep();
-	const metaStepData = useMetaDescriptionStep();
+	const titleStepData = useTitleStep( { keywords: keywordsStepData.value, mockRequests: false } );
+	const metaStepData = useMetaDescriptionStep( {
+		keywords: keywordsStepData.value,
+		mockRequests: false,
+	} );
 	const completionStepData = useCompletionStep();
 	const welcomeStepData = useWelcomeStep();
 	// Memoize steps array to prevent unnecessary recreations
@@ -214,14 +217,14 @@ export default function AssistantWizard( { close } ) {
 					<TextInput
 						ref={ keywordsInputRef }
 						placeholder={ steps[ currentStep ].placeholder }
-						value={ steps[ currentStep ].value }
-						setValue={ steps[ currentStep ].setValue }
+						value={ steps[ currentStep ].rawInput }
+						setValue={ steps[ currentStep ].setRawInput }
 						handleSubmit={ handleStepSubmit }
 					/>
 				) }
 				{ currentStep === 2 && steps[ currentStep ].type === 'options' && (
 					<OptionsInput
-						disabled={ ! steps[ currentStep ].value }
+						disabled={ ! steps[ currentStep ].hasSelection }
 						submitCtaLabel={ steps[ currentStep ].submitCtaLabel }
 						retryCtaLabel={ steps[ currentStep ].retryCtaLabel }
 						handleRetry={ handleRetry }
@@ -230,7 +233,7 @@ export default function AssistantWizard( { close } ) {
 				) }
 				{ currentStep === 3 && steps[ currentStep ].type === 'options' && (
 					<OptionsInput
-						disabled={ ! steps[ currentStep ].value }
+						disabled={ ! steps[ currentStep ].hasSelection }
 						submitCtaLabel={ steps[ currentStep ].submitCtaLabel }
 						retryCtaLabel={ steps[ currentStep ].retryCtaLabel }
 						handleRetry={ handleRetry }

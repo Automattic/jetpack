@@ -20,7 +20,7 @@ export const useCompletionStep = (): Step => {
 			}
 			setMessages( firstMessages );
 
-			await new Promise( resolve => setTimeout( resolve, 1500 ) );
+			await new Promise( resolve => setTimeout( resolve, 1000 ) );
 
 			const resultsString = Object.values( results )
 				.map( ( result: Results[ string ] ) => `${ result.value ? '✅' : '❌' } ${ result.label }` )

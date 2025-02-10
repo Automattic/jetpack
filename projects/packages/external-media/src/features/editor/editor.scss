@@ -41,6 +41,17 @@
 
 .jetpack-external-media-button-wrapper {
 	display: contents;
+
+	&:not(.is-support-next-40px-default-button) {
+		display: flex;
+		flex-direction: row;
+		gap: 12px;
+
+		.components-placeholder.is-medium .components-placeholder__fieldset & {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+	}
 }
 
 // Reset placeholder button margin.

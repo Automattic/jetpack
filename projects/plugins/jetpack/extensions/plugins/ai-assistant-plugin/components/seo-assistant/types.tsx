@@ -9,7 +9,7 @@ export interface Message {
 	selected?: boolean;
 }
 
-export type OptionMessage = Pick< Message, 'id' | 'content' >;
+export type OptionMessage = Pick< Message, 'id' | 'content' | 'selected' >;
 
 export interface Results {
 	[ key: string ]: {
@@ -37,11 +37,13 @@ export interface Step {
 
 	// Input step properties
 	placeholder?: string;
-
+	rawInput?: string;
+	setRawInput?: React.Dispatch< React.SetStateAction< string > >;
 	// Options step properties
 	options?: OptionMessage[];
 	onSelect?: ( option: OptionMessage ) => void;
 	submitCtaLabel?: string;
 	onRetry?: () => void;
 	retryCtaLabel?: string;
+	hasSelection?: boolean;
 }

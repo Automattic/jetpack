@@ -20,7 +20,6 @@ function jetpack_boost_minify_cache_buster() {
  * @param int    $file_age The age of files to purge, in seconds.
  */
 function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file_age = DAY_IN_SECONDS ) {
-
 	if ( $cache_folder !== Config::get_static_cache_dir_path() ) {
 		if ( $file_age !== 0 ) {
 			// Cleanup obsolete files in static cache folder
@@ -329,29 +328,34 @@ function jetpack_boost_minify_serve_concatenated() {
 }
 
 /**
- * Handles cache service initialization, scheduling of cache cleanup, and disabling of
- * Jetpack photon-cdn for static JS/CSS. Automatically ensures that we don't setup
- * the cache service more than once per request.
+ * Run during activation of any minify module.
+ *
+ * This handles scheduling cache cleanup, and setting up the cronjob to periodically test for the 404 handler.
  *
  * @return void
  */
-function jetpack_boost_minify_setup() {
-	static $setup_done = false;
-	if ( $setup_done ) {
-		return;
-	}
-	$setup_done = true;
-
+function jetpack_boost_minify_activation() {
 	// Schedule cache cleanup.
-	add_action( 'jetpack_boost_minify_cron_cache_cleanup', 'jetpack_boost_page_optimize_cache_cleanup' );
 	jetpack_boost_page_optimize_schedule_cache_cleanup();
 
-	if ( ! jetpack_boost_page_optimize_bail() ) {
-		// Disable Jetpack Site Accelerator CDN for static JS/CSS, if we're minifying this page.
-		add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
+	// Setup the cronjob to periodically test for the 404 handler.
+	jetpack_boost_404_setup();
+}
+
+/**
+ * Run during initialization of any minify module.
+ *
+ * Run during every page load if any minify module is active.
+ */
+function jetpack_boost_minify_init() {
+	add_action( 'jetpack_boost_minify_cron_cache_cleanup', 'jetpack_boost_page_optimize_cache_cleanup' );
+
+	if ( jetpack_boost_page_optimize_bail() ) {
+		return;
 	}
 
-	jetpack_boost_404_setup();
+	// Disable Jetpack Site Accelerator CDN for static JS/CSS, if we're minifying this page.
+	add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
 }
 
 function jetpack_boost_page_optimize_generate_concat_path( $url_paths, $dependency_path_mapping ) {

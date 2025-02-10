@@ -1,24 +1,100 @@
-import { useDispatch } from '@wordpress/data';
+/*
+ * External dependencies
+ */
+import { askQuestionSync, usePostContent } from '@automattic/jetpack-ai-client';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useState, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+/*
+ * Internal dependencies
+ */
 import { useMessages } from './wizard-messages';
 import type { Step, OptionMessage } from './types';
 
-export const useMetaDescriptionStep = (): Step => {
+const mockMetaDescriptionRequest = ( keywords: string ) => {
+	return new Promise< string >( resolve => {
+		setTimeout( () => {
+			resolve(
+				JSON.stringify( {
+					descriptions: [
+						'Discover everything you need to know about ' +
+							keywords +
+							'. Our comprehensive guide covers essential tips, expert advice and practical techniques for success.',
+					],
+				} )
+			);
+		}, 1000 );
+	} );
+};
+
+export const useMetaDescriptionStep = ( {
+	keywords,
+	mockRequests = false,
+}: {
+	keywords: string;
+	mockRequests?: boolean;
+} ): Step => {
+	const [ value, setValue ] = useState< string >();
 	const [ selectedMetaDescription, setSelectedMetaDescription ] = useState< string >();
 	const [ metaDescriptionOptions, setMetaDescriptionOptions ] = useState< OptionMessage[] >( [] );
 	const { messages, setMessages, addMessage, editLastMessage, setSelectedMessage } = useMessages();
-	const { editPost } = useDispatch( 'core/editor' );
+	const { editPost } = useDispatch( editorStore );
+	const postContent = usePostContent();
+	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
+	const [ generatedCount, setGeneratedCount ] = useState( 0 );
+
+	const request = useCallback( async () => {
+		if ( mockRequests ) {
+			return mockMetaDescriptionRequest( keywords );
+		}
+		return askQuestionSync(
+			[
+				{
+					role: 'jetpack-ai' as const,
+					context: {
+						type: 'seo-meta-description',
+						content: postContent,
+						keywords: keywords.split( ',' ),
+						count: 1,
+					},
+				},
+			],
+			{
+				postId,
+				feature: 'seo-meta-description',
+			}
+		);
+	}, [ keywords, postContent, postId, mockRequests ] );
 
 	const handleMetaDescriptionSelect = useCallback(
 		( option: OptionMessage ) => {
 			setSelectedMetaDescription( option.content as string );
 			setSelectedMessage( option );
+			setMetaDescriptionOptions( prev =>
+				prev.map( o => ( { ...o, selected: o.id === option.id } ) )
+			);
 		},
 		[ setSelectedMessage ]
 	);
 
+	const getMetaDescriptions = useCallback( async () => {
+		const response = await request();
+		// TODO: handle errors
+		const parsedResponse: { descriptions: string[] } = JSON.parse( response );
+		const count = parsedResponse.descriptions?.length;
+		const newDescriptions = parsedResponse.descriptions.map( ( description, index ) => ( {
+			id: `meta-${ generatedCount + count + index }`,
+			content: description,
+		} ) );
+
+		setGeneratedCount( current => current + count );
+
+		return newDescriptions;
+	}, [ generatedCount, request ] );
+
 	const handleMetaDescriptionSubmit = useCallback( async () => {
+		setValue( selectedMetaDescription );
 		await editPost( { meta: { advanced_seo_description: selectedMetaDescription } } );
 		addMessage( { content: __( 'Meta description updated! ✅', 'jetpack' ) } );
 		return selectedMetaDescription;
@@ -39,22 +115,10 @@ export const useMetaDescriptionStep = (): Step => {
 						showIcon: true,
 				  };
 			let newMetaDescriptions = [ ...metaDescriptionOptions ];
-			// we only generate if options are empty
 			setMessages( [ initialMessage ] );
+			// we only generate if options are empty
 			if ( newMetaDescriptions.length === 0 ) {
-				newMetaDescriptions = await new Promise( resolve =>
-					setTimeout(
-						() =>
-							resolve( [
-								{
-									id: 'meta-1',
-									content:
-										'Explore breathtaking flower and plant photography in our Flora Guide, featuring tips and inspiration for gardening and plant enthusiasts to enhance their outdoor spaces.',
-								},
-							] ),
-						1500
-					)
-				);
+				newMetaDescriptions = await getMetaDescriptions();
 			}
 			setMetaDescriptionOptions( newMetaDescriptions );
 			const editedFirstMessage = fromSkip
@@ -74,27 +138,15 @@ export const useMetaDescriptionStep = (): Step => {
 				addMessage( { ...meta, type: 'option', isUser: true } )
 			);
 		},
-		[ metaDescriptionOptions, addMessage, setMessages, editLastMessage ]
+		[ metaDescriptionOptions, setMessages, editLastMessage, getMetaDescriptions, addMessage ]
 	);
 
 	const handleMetaDescriptionRegenerate = useCallback( async () => {
-		const newMetaDescription = await new Promise< Array< OptionMessage > >( resolve =>
-			setTimeout(
-				() =>
-					resolve( [
-						{
-							id: 'meta-1' + Math.random(),
-							content:
-								'Explore breathtaking flower and plant photography in our Flora Guide, featuring tips and inspiration for gardening and plant enthusiasts to enhance their outdoor spaces.',
-						},
-					] ),
-				1500
-			)
-		);
+		const newMetaDescription = await getMetaDescriptions();
 
 		setMetaDescriptionOptions( prev => [ ...prev, ...newMetaDescription ] );
 		newMetaDescription.forEach( meta => addMessage( { ...meta, type: 'option', isUser: true } ) );
-	}, [ addMessage ] );
+	}, [ addMessage, getMetaDescriptions ] );
 
 	return {
 		id: 'meta',
@@ -109,8 +161,9 @@ export const useMetaDescriptionStep = (): Step => {
 		onRetry: handleMetaDescriptionRegenerate,
 		retryCtaLabel: __( 'Regenerate', 'jetpack' ),
 		onStart: handleMetaDescriptionGenerate,
-		value: selectedMetaDescription,
-		setValue: setSelectedMetaDescription,
+		value,
+		setValue,
 		includeInResults: true,
+		hasSelection: !! selectedMetaDescription,
 	};
 };
