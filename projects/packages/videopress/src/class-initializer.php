@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use Automattic\Jetpack\Extensions\VideoPress_Video;
 use WP_Block;
 
 /**
@@ -283,6 +284,23 @@ class Initializer {
 			$block_attributes['muted']    = true;
 		}
 
+		// VideoPress URL
+		$guid           = isset( $block_attributes['guid'] ) ? $block_attributes['guid'] : null;
+		$videopress_url = Utils::get_video_press_url( $guid, $block_attributes );
+
+		if ( ! empty( $guid ) ) {
+			$video = new VideoPress_Video( $guid, $max_width );
+
+			if ( ! is_wp_error( $video ) && empty( $video->error ) ) {
+				$width  = $video->width;
+				$height = $video->height;
+
+				if ( $width && $height ) {
+					$style = $style . sprintf( 'width: %s; height: %s;', $width, $height );
+				}
+			}
+		}
+
 		$figure_template = '
 		<figure class="%1$s" style="%2$s" %3$s>
 			%4$s
@@ -290,10 +308,6 @@ class Initializer {
 			%6$s
 		</figure>
 		';
-
-		// VideoPress URL
-		$guid           = isset( $block_attributes['guid'] ) ? $block_attributes['guid'] : null;
-		$videopress_url = Utils::get_video_press_url( $guid, $block_attributes );
 
 		$video_wrapper         = '';
 		$video_wrapper_classes = 'jetpack-videopress-player__wrapper';
