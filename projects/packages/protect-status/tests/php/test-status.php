@@ -522,6 +522,8 @@ class Test_Status extends BaseTestCase {
 
 	/**
 	 * Test graceful handling of invalid data from the API.
+	 *
+	 * @phan-suppress PhanDeprecatedProperty -- Testing backwards compatibility.
 	 */
 	public function test_invalid_extension_data() {
 		add_filter( 'pre_http_request', array( $this, 'return_broken_sample_response' ) );
