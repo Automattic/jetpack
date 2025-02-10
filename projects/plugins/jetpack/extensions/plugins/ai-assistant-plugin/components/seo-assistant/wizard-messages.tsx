@@ -42,15 +42,15 @@ export const useMessages = () => {
 				const lastMessageContent = prevMessages[ prevMessages.length - 1 ].content;
 				let newContent = content;
 				if ( append ) {
-					if ( typeof lastMessageContent === 'string' ) {
-						newContent = lastMessageContent + content;
-					} else if ( typeof lastMessageContent === 'object' ) {
+					if ( typeof lastMessageContent === 'object' || typeof newContent === 'object' ) {
 						newContent = (
 							<>
 								{ lastMessageContent }
-								{ content }
+								{ newContent }
 							</>
 						);
+					} else {
+						newContent = `${ lastMessageContent } + ${ newContent }`;
 					}
 				}
 				prevMessages[ prevMessages.length - 1 ] = {
