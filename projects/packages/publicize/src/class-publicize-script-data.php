@@ -267,21 +267,7 @@ class Publicize_Script_Data {
 			return true;
 		}
 
-		$feature_name = 'social-' . $feature;
-
-		if ( Current_Plan::supports( $feature_name ) ) {
-			return true;
-		}
-
-		// Currently, Current_Plan::supports() doesn't work well for Simple sites.
-		// So, we need to do some extra work to check for Simple sites.
-		if ( ! ( new Host() )->is_wpcom_simple() ) {
-			return false;
-		}
-
-		$features = Current_Plan::get_simple_site_specific_features();
-
-		return ! empty( $features['active'] ) && in_array( $feature_name, $features['active'], true );
+		return Current_Plan::supports( 'social-' . $feature );
 	}
 
 	/**
