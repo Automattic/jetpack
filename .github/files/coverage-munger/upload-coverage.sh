@@ -3,9 +3,14 @@
 ## Environment used by this script:
 #
 # Required:
+# - API_TOKEN_GITHUB: GitHub API token.
+# - GITHUB_API_URL: GitHub API URL.
+# - GITHUB_REPOSITORY: GitHub repo.
 # - GITHUB_SHA: Commit SHA.
+# - PR_HEAD: SHA for the PR head commit (versus GITHUB_SHA which is a merge commit)
 # - PR_ID: PR number or "trunk".
 # - SECRET: Shared secret.
+# - STATUS: Status of the coverage run.
 
 set -eo pipefail
 
@@ -95,3 +100,7 @@ done
 do_req "op=finish&token=$TOKEN"
 TOKEN=
 echo '::endgroup::'
+
+if [[ "$PR_ID" != "trunk" ]]; then
+	STATUS=$STATUS COVINFO=$JSON .github/files/coverage-munger/post-message.sh
+fi

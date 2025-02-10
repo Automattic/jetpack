@@ -1,0 +1,13 @@
+---
+description: General guidelines on code style and structure
+globs: 
+---
+General guidelines are defined in [coding-guidelines.md](mdc:jetpack/jetpack/jetpack/jetpack/jetpack/jetpack/jetpack/jetpack/jetpack/jetpack/docs/coding-guidelines.md).
+
+### Naming Conventions
+
+- Use WordPress naming conventions for functions and classes
+- Prefix any global php functions or hooks with `jetpack_`
+- Use lowercase with underscores for PHP functions
+- Follow WordPress React component naming patterns
+- Use BEM-like naming for SCSS

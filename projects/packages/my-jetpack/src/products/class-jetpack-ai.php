@@ -29,6 +29,13 @@ class Jetpack_Ai extends Product {
 	public static $slug = 'jetpack-ai';
 
 	/**
+	 * The category of the product
+	 *
+	 * @var string
+	 */
+	public static $category = 'create';
+
+	/**
 	 * Whether this product has a free offering
 	 *
 	 * @var bool
@@ -501,7 +508,7 @@ class Jetpack_Ai extends Product {
 	 * @return ?string
 	 */
 	public static function get_post_checkout_url() {
-		return 'admin.php?page=my-jetpack#/jetpack-ai';
+		return self::get_manage_url();
 	}
 
 	/**
@@ -510,7 +517,7 @@ class Jetpack_Ai extends Product {
 	 * @return ?string
 	 */
 	public static function get_post_activation_url() {
-		return '/wp-admin/admin.php?page=my-jetpack#/jetpack-ai';
+		return self::get_manage_url();
 	}
 
 	/**
@@ -519,7 +526,7 @@ class Jetpack_Ai extends Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		return '/wp-admin/admin.php?page=my-jetpack#/jetpack-ai';
+		return admin_url( 'admin.php?page=my-jetpack#/jetpack-ai' );
 	}
 
 	/**

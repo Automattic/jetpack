@@ -483,8 +483,8 @@ function get_element_styles_from_attributes( $attributes ) {
 
 		// Account for custom margins on inline forms.
 		$submit_button_styles .= true === get_attribute( $attributes, 'buttonOnNewLine' )
-			? sprintf( 'width: calc(100%% - %dpx);', get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE ) )
-			: 'width: 100%;';
+			? 'width: 100%;'
+			: sprintf( 'width: calc(100%% - %dpx);', get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE ) );
 	}
 
 	$font_size = get_attribute( $attributes, 'customFontSize', DEFAULT_FONTSIZE_VALUE );
@@ -765,7 +765,7 @@ function render_for_website( $data, $classes, $styles ) {
 					<?php endif; ?>
 				>
 						<a
-							href="<?php echo esc_url( 'https://wordpress.com/read/site/subscription/' . $blog_id ); ?>"
+							href="<?php echo esc_url( 'https://wordpress.com/reader/site/subscription/' . $blog_id ); ?>"
 							<?php if ( ! empty( $classes['submit_button'] ) ) : ?>
 								class="<?php echo esc_attr( $classes['submit_button'] ); ?>"
 							<?php endif; ?>

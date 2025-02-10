@@ -623,6 +623,7 @@ add_filter( 'oembed_fetch_url', 'wpcom_youtube_oembed_fetch_url', 10, 2 );
 
 if (
 	! is_admin()
+	&&
 	/**
 	 * Allow oEmbeds in Jetpack's Comment form.
 	 *
@@ -632,7 +633,7 @@ if (
 	 *
 	 * @param int $allow_oembed Option to automatically embed all plain text URLs.
 	 */
-	&& apply_filters( 'jetpack_comments_allow_oembed', true )
+	apply_filters( 'jetpack_comments_allow_oembed', true )
 	// No need for this on WordPress.com, this is done for multiple shortcodes at a time there.
 	&& ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM )
 ) {

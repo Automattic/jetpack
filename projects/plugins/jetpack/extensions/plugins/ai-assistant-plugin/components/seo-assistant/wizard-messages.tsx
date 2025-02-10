@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import bigSkyIcon from './big-sky-icon.svg';
@@ -48,20 +48,28 @@ export const useMessages = () => {
 		} );
 	};
 
+	const setSelectedMessage = message => {
+		setMessages( prev =>
+			prev.map( prevMessage => ( { ...prevMessage, selected: message.id === prevMessage.id } ) )
+		);
+	};
+
 	return {
 		messages,
 		setMessages: wrapMessagesWithId,
 		addMessage,
 		removeLastMessage,
 		editLastMessage,
+		setSelectedMessage,
 	};
 };
 
-export const MessageBubble = ( { message } ) => {
+export const MessageBubble = ( { message, onSelect = ( m: Message ) => m } ) => {
 	return (
 		<div
 			className={ clsx( 'assistant-wizard__message', {
 				'is-user': message.isUser,
+				'is-option': message.type === 'option',
 			} ) }
 		>
 			<div className="assistant-wizard__message-icon">
@@ -70,19 +78,15 @@ export const MessageBubble = ( { message } ) => {
 				) }
 			</div>
 
-			{ message.type === 'past-options' && (
-				<div className="assistant-wizard__options">
-					{ message.options.map( option => (
-						<div
-							key={ option.id }
-							className={ clsx( 'assistant-wizard__option', {
-								'is-selected': option.selected,
-							} ) }
-						>
-							{ option.content }
-						</div>
-					) ) }
-				</div>
+			{ message.type === 'option' && (
+				<button
+					className={ clsx( 'assistant-wizard__option', {
+						'is-selected': message.selected,
+					} ) }
+					onClick={ () => onSelect( message ) }
+				>
+					{ message.content }
+				</button>
 			) }
 
 			{ ( ! message.type || message.type === 'chat' ) && (
@@ -92,53 +96,15 @@ export const MessageBubble = ( { message } ) => {
 	);
 };
 
-const OptionMessages = ( { options = [], onSelect } ) => {
-	if ( ! options.length ) {
-		return null;
-	}
-
-	return (
-		<div className="assistant-wizard__message">
-			<div className="assistant-wizard__message-icon"></div>
-			<div className="assistant-wizard__message-text">
-				<div className="assistant-wizard__options">
-					{ options.map( option => (
-						<button
-							key={ option.id }
-							className={ clsx( 'assistant-wizard__option', {
-								'is-selected': option.selected,
-							} ) }
-							onClick={ () => onSelect( option ) }
-						>
-							{ option.content }
-						</button>
-					) ) }
-				</div>
-			</div>
-		</div>
-	);
-};
-
-export default function Messages( { options, onSelect, messages, loading } ) {
-	const messagesEndRef = useRef< HTMLDivElement >( null );
-	const scrollToBottom = () => {
-		messagesEndRef.current?.scrollIntoView( { behavior: 'smooth' } );
-	};
-
-	useEffect( () => {
-		scrollToBottom();
-	}, [ messages ] );
-
+export default function Messages( { onSelect, messages, isBusy } ) {
 	return (
 		<>
 			<div className="assistant-wizard__messages">
 				{ messages.map( message => (
-					<MessageBubble key={ message.id } message={ message } />
+					<MessageBubble key={ message.id } onSelect={ onSelect } message={ message } />
 				) ) }
-				<OptionMessages options={ options } onSelect={ onSelect } />
-				{ loading && <MessageBubble message={ { content: <TypingMessage /> } } /> }
+				{ isBusy && <MessageBubble message={ { content: <TypingMessage />, showIcon: true } } /> }
 			</div>
-			<div ref={ messagesEndRef } />
 		</>
 	);
 }

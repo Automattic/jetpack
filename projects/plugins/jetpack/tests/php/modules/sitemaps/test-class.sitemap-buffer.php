@@ -117,7 +117,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_add_item_below_byte_capacity() {
-		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 1, 48, '(', ')', '1970-01-01 00:00:00' );
+		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 1, 48, '1970-01-01 00:00:00' );
 		$buffer->append( 'foobarbazquux' );
 		$buffer->append( 'crunchly' );
 		$this->assertEquals(
@@ -226,21 +226,6 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 			),
 		);
 
-		$xml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL
-		. '<dummy>'
-		. '<url><loc>http://example.com/blog-url-about-stuff</loc>'
-		. "<lastmod>$timestamp</lastmod>"
-		. '<news:news>'
-		. '<news:publication>'
-		. '<news:name>Blog about stuff</news:name>'
-		. '<news:language>en</news:language>'
-		. '</news:publication>'
-		. '<news:title>Stuff with stuff to escape, like less than signs: &lt; and ampersands: &amp;</news:title>'
-		. "<news:publication_date>$timestamp</news:publication_date>"
-		. '<news:genres>Blog with some already escaped stuff: &amp;amp;&amp;#321;</news:genres>'
-		. '</news:news>'
-		. '</url></dummy>' . PHP_EOL;
-
 		foreach (
 			array(
 				new Jetpack_Sitemap_Buffer_Dummy( JP_SITEMAP_MAX_ITEMS, JP_SITEMAP_MAX_BYTES, $timestamp ),
@@ -249,9 +234,24 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 		) {
 			$buffer->append( $array );
 
+			// Normalize the XML by removing whitespace between tags and normalizing newlines
+			$actual = preg_replace( '/>\s+</', '><', $buffer->contents() );
+			$actual = str_replace( "\r\n", "\n", $actual );
+
+			$expected = '<?xml version="1.0" encoding="UTF-8"?><dummy><url><loc>http://example.com/blog-url-about-stuff</loc>'
+				. "<lastmod>$timestamp</lastmod>"
+				. '<news:news><news:publication>'
+				. '<news:name>Blog about stuff</news:name>'
+				. '<news:language>en</news:language>'
+				. '</news:publication>'
+				. '<news:title>Stuff with stuff to escape, like less than signs: &lt; and ampersands: &amp;</news:title>'
+				. "<news:publication_date>$timestamp</news:publication_date>"
+				. '<news:genres>Blog with some already escaped stuff: &amp;amp;&amp;#321;</news:genres>'
+				. '</news:news></url></dummy>' . "\n";
+
 			$this->assertEquals(
-				$xml,
-				$buffer->contents(),
+				$expected,
+				$actual,
 				get_class( $buffer )
 			);
 		}

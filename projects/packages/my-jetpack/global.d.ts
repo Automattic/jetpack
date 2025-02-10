@@ -50,6 +50,18 @@ type JetpackModule =
 	| 'related-posts'
 	| 'brute-force';
 
+type JetpackModuleWithCard =
+	| 'anti-spam'
+	| 'backup'
+	| 'boost'
+	| 'crm'
+	| 'jetpack-ai'
+	| 'protect'
+	| 'search'
+	| 'social'
+	| 'stats'
+	| 'videopress';
+
 type ThreatItem = {
 	// Protect API properties (free plan)
 	id: string;
@@ -172,6 +184,7 @@ interface Window {
 				[ key: string ]: {
 					class: string;
 					description: string;
+					category: 'security' | 'performance' | 'growth' | 'create' | 'management';
 					disclaimers: Array< string[] >;
 					features: string[];
 					has_free_offering: boolean;
@@ -241,7 +254,7 @@ interface Window {
 					};
 					purchase_url?: string;
 					requires_user_connection: boolean;
-					slug: string;
+					slug: JetpackModule;
 					standalone_plugin_info: {
 						has_standalone_plugin: boolean;
 						is_standalone_installed: boolean;
@@ -288,6 +301,7 @@ interface Window {
 				jetpack_waf_share_debug_data: boolean;
 				standalone_mode: boolean;
 				waf_supported: boolean;
+				waf_enabled: boolean;
 			};
 		};
 		videopress: {
@@ -425,6 +439,10 @@ interface Window {
 					critical_threat_count: number;
 					fixable_threat_ids: number[];
 				};
+			};
+			[ key: `${ string }--plugins_needing_installed_activated` ]: {
+				needs_installed?: string[];
+				needs_activated_only?: string[];
 			};
 		};
 		recommendedModules: {

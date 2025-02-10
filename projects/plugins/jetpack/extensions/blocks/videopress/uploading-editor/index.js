@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-
+import { PlayIcon } from '@automattic/jetpack-shared-extension-utils/icons';
 /**
  * WordPress dependencies
  */
@@ -11,10 +11,6 @@ import { createInterpolateElement, useEffect, useRef, useState } from '@wordpres
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import clsx from 'clsx';
-/**
- * Internal dependencies
- */
-import { PlayIcon } from '../../../shared/icons';
 
 import './style.scss';
 
