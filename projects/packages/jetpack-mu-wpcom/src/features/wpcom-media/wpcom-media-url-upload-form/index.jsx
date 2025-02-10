@@ -121,14 +121,6 @@ const WpcomMediaUrlUploadForm = ( { ajaxUrl, action, nonce, page } ) => {
 		return false;
 	};
 
-	const renderLink = () => {
-		return (
-			<a href="#" onClick={ () => setShow( true ) }>
-				{ __( 'Upload from URL', 'jetpack-mu-wpcom' ) }
-			</a>
-		);
-	};
-
 	const renderForm = () => {
 		let buttonText = __( 'Upload', 'jetpack-mu-wpcom' );
 		if ( isUploading ) {
@@ -157,7 +149,18 @@ const WpcomMediaUrlUploadForm = ( { ajaxUrl, action, nonce, page } ) => {
 		);
 	};
 
-	return <div className="wpcom-media-url-upload-form">{ show ? renderForm() : renderLink() }</div>;
+	return (
+		<div className="wpcom-media-url-upload-form">
+			<a
+				className="wpcom-media-url-upload-form__link"
+				href="#"
+				onClick={ () => setShow( value => ! value ) }
+			>
+				{ __( 'Upload from URL', 'jetpack-mu-wpcom' ) }
+			</a>
+			{ show && renderForm() }
+		</div>
+	);
 };
 
 export default WpcomMediaUrlUploadForm;
