@@ -369,7 +369,17 @@ class Current_Plan {
 			wpcom_feature_exists( $feature )
 		);
 		if ( $should_wpcom_gate_feature ) {
-			return wpcom_site_has_feature( $feature );
+			if ( wpcom_site_has_feature( $feature ) ) {
+				return true;
+			}
+
+			/**
+			 * We need to condider the features enabled via
+			 * Store_Product_List::get_site_specific_features_data() for Simple sites.
+			 */
+			$features = self::get_simple_site_specific_features();
+
+			return ! empty( $features['active'] ) && in_array( $feature, $features['active'], true );
 		}
 
 		// Search product bypasses plan feature check.
