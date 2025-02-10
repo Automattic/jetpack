@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import Text from '../text/index.js';
 import styles from './style.module.scss';
 
-export interface StatusProps {
+interface StatusProps {
 	status?: 'active' | 'error' | 'inactive' | 'action' | 'initializing';
 	label?: string;
 	className?: string;

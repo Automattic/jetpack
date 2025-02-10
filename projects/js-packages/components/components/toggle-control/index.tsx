@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { useCallback } from 'react';
 import styles from './styles.module.scss';
 
-export interface ToggleControlProps {
+interface ToggleControlProps {
 	/** Whether or not the toggle is currently enabled. */
 	checked?: boolean;
 
