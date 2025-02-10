@@ -5,12 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.4.1] - 2025-02-03
+### Added
+- My Jetpack: Add red bubble and notice when pain plan is missing plugin. [#41013]
+
+### Changed
+- Make Action Button component more reusable. [#41361]
+- Replace Jetpack AI upgrade page with a modal. [#41301]
+- Updated package dependencies. [#41286]
+- Update My Jetpack interstitial modal with new styles and layout. [#41300]
+
+### Fixed
+- AI: Avoid using relative URLs in admin URLs to support sites where WordPress is installed in a subdirectory. [#41459]
+- Code: Remove extra params on function calls. [#41263]
+- My Jetpack: Fix secondary action of Protect card when plugin is not installed. [#41347]
+
 ## [5.4.0] - 2025-01-23
 ### Added
 - Adding new modal based interstitial component. [#40945]
 
 ### Fixed
-- Fix bug where My Jetpack would throw critical error if only a standalone plugin is not installed [#41192]
+- Fix bug where My Jetpack would throw critical error if only a standalone plugin is not installed. [#41192]
 
 ## [5.3.3] - 2025-01-20
 ### Added
@@ -1922,6 +1937,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.4.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.4.0...5.4.1
 [5.4.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.3.3...5.4.0
 [5.3.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.3.2...5.3.3
 [5.3.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.3.1...5.3.2

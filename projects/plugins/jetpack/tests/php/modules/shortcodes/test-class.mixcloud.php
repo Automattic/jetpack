@@ -86,7 +86,7 @@ class WP_Test_Jetpack_Shortcodes_Mixcloud extends WP_UnitTestCase {
 
 		$this->assertEquals( $this->invalid_markup, $shortcode_content );
 
-		remove_filter( 'pre_http_request', $http_request_filter, 10, 1 );
+		remove_filter( 'pre_http_request', $http_request_filter, 10 );
 	}
 
 	/**
@@ -118,7 +118,7 @@ class WP_Test_Jetpack_Shortcodes_Mixcloud extends WP_UnitTestCase {
 
 		$this->assertEquals( '<iframe width="500" height="60" src="https://www.mixcloud.com/widget/iframe/?feed=https%3A%2F%2Fwww.mixcloud.com%2FDJOneF%2Fdjonef-mashup-mix-june-2020%2F&amp;hide_artwork=1&amp;hide_cover=1&amp;light=1&amp;mini=1" frameborder="0" sandbox="allow-popups allow-scripts allow-same-origin allow-presentation"></iframe>', $shortcode_content );
 
-		remove_filter( 'pre_http_request', $http_request_filter, 10, 1 );
+		remove_filter( 'pre_http_request', $http_request_filter, 10 );
 	}
 
 	/**
@@ -151,6 +151,6 @@ class WP_Test_Jetpack_Shortcodes_Mixcloud extends WP_UnitTestCase {
 
 		$this->assertEquals( '<iframe width="500" height="60" src="https://www.mixcloud.com/widget/iframe/?feed=https%3A%2F%2Fwww.mixcloud.com%2FDJOneF%2Fdjonef-mashup-mix-june-2020%2F&amp;hide_artwork=1&amp;hide_cover=1&amp;light=1&amp;mini=1" frameborder="0" sandbox="allow-popups allow-scripts allow-same-origin allow-presentation"></iframe>', $shortcode_content );
 
-		remove_filter( 'pre_http_request', $http_request_filter, 10, 1 );
+		remove_filter( 'pre_http_request', $http_request_filter, 10 );
 	}
 }

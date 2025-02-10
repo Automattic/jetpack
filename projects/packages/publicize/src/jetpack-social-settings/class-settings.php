@@ -72,6 +72,26 @@ class Settings {
 	);
 
 	/**
+	 * Whether the actions have been hooked into.
+	 *
+	 * @var bool
+	 */
+	protected static $actions_hooked_in = false;
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+
+		if ( ! self::$actions_hooked_in ) {
+			add_action( 'rest_api_init', array( $this, 'register_settings' ) );
+			add_action( 'admin_init', array( $this, 'register_settings' ) );
+
+			self::$actions_hooked_in = true;
+		}
+	}
+
+	/**
 	 * Migrate old options to the new settings. Previously SIG settings were stored in the
 	 * jetpack_social_image_generator_settings option. Now they are stored in the jetpack_social_settings.
 	 *

@@ -172,6 +172,7 @@ class REST_Products {
 
 		return true;
 	}
+
 	/**
 	 * Check Products argument.
 	 *
@@ -204,7 +205,7 @@ class REST_Products {
 		$product_slugs = ! empty( $slugs ) ? array_map( 'trim', explode( ',', $slugs ) ) : array();
 
 		$response = Products::get_products( $product_slugs );
-		return rest_ensure_response( $response, 200 );
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -217,7 +218,7 @@ class REST_Products {
 			'unownedProducts' => Products::get_products_by_ownership( 'unowned' ),
 			'ownedProducts'   => Products::get_products_by_ownership( 'owned' ),
 		);
-		return rest_ensure_response( $response, 200 );
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -239,7 +240,7 @@ class REST_Products {
 	 * Callback for activating products
 	 *
 	 * @param \WP_REST_Request $request The request object.
-	 * @return \WP_REST_Response
+	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public static function activate_products( $request ) {
 		$products_array = $request->get_param( 'products' );
@@ -266,14 +267,14 @@ class REST_Products {
 		}
 		set_transient( 'my_jetpack_product_activated', implode( ',', $products_array ), 10 );
 
-		return rest_ensure_response( Products::get_products( $products_array ), 200 );
+		return rest_ensure_response( Products::get_products( $products_array ) );
 	}
 
 	/**
 	 * Callback for deactivating products
 	 *
 	 * @param \WP_REST_Request $request The request object.
-	 * @return \WP_REST_Response
+	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public static function deactivate_products( $request ) {
 		$products_array = $request->get_param( 'products' );
@@ -299,14 +300,14 @@ class REST_Products {
 			}
 		}
 
-		return rest_ensure_response( Products::get_products( $products_array ), 200 );
+		return rest_ensure_response( Products::get_products( $products_array ) );
 	}
 
 	/**
 	 * Callback for installing (and activating) multiple product plugins.
 	 *
 	 * @param \WP_REST_Request $request The request object.
-	 * @return \WP_REST_Response
+	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public static function install_plugins( $request ) {
 		$products_array = $request->get_param( 'products' );
@@ -332,6 +333,6 @@ class REST_Products {
 			}
 		}
 
-		return rest_ensure_response( Products::get_products( $products_array ), 200 );
+		return rest_ensure_response( Products::get_products( $products_array ) );
 	}
 }

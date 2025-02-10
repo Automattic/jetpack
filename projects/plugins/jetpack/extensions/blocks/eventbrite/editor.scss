@@ -1,5 +1,11 @@
+@import '../../shared/styles/align';
+
 .wp-block-jetpack-eventbrite {
 	position: relative;
+
+	.wp-block-jetpack-button {
+		@include align-block;
+	}
 
 	.components-placeholder__learn-more {
 		margin-top: 1em;

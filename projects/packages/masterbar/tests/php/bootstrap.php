@@ -13,6 +13,7 @@ require_once __DIR__ . '/../../vendor/antecedent/patchwork/Patchwork.php';
 
 define( 'WP_DEBUG', true );
 
-\WorDBless\Load::load();
+// Initialize WordPress test environment
+\Automattic\Jetpack\Test_Environment::init();
 
 \Automattic\RedefineExit::setup();

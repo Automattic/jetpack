@@ -9,7 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanNoopNew : 5 occurrences
+    // PhanNoopNew : 4 occurrences
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
