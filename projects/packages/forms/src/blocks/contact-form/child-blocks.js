@@ -26,14 +26,7 @@ const FieldDefaults = {
 	supports: {
 		reusable: false,
 		html: false,
-		spacing: {
-			margin: true,
-			padding: true,
-			__experimentalDefaultControls: {
-				margin: false,
-				padding: false,
-			},
-		},
+		spacing: {},
 	},
 	attributes: {
 		label: {
