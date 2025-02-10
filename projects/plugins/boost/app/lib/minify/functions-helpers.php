@@ -3,6 +3,9 @@
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
 use Automattic\Jetpack_Boost\Lib\Minify\File_Paths;
+use Automattic\Jetpack_Boost\Modules\Module;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 
 /**
  * Get an extra cache key for requests. We can manually bump this when we want
@@ -340,6 +343,22 @@ function jetpack_boost_minify_activation() {
 
 	// Setup the cronjob to periodically test for the 404 handler.
 	jetpack_boost_404_setup();
+}
+
+/**
+ * Run during deactivation of any minify module.
+ *
+ * This handles removing the 404 tester if both css and js minification are disabled.
+ *
+ * @return void
+ */
+function jetpack_boost_minify_deactivation() {
+	$minify_css = new Module( new Minify_CSS() );
+	$minify_js  = new Module( new Minify_JS() );
+
+	if ( ! $minify_css->is_enabled() && ! $minify_js->is_enabled() ) {
+		wp_clear_scheduled_hook( 'jetpack_boost_404_tester_cron' );
+	}
 }
 
 /**
