@@ -325,6 +325,27 @@ describe( 'Inspector controls', () => {
 					<SubscriptionsInspectorControls
 						{ ...defaultProps }
 						preselectNewsletterCategories
+						selectedNewsletterCategoryIds={ [
+							defaultProps.availableNewsletterCategories[ 0 ].id,
+							defaultProps.availableNewsletterCategories[ 1 ].id,
+						] }
+					/>
+				);
+
+				await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
+				await user.click( screen.getByLabelText( 'Category 1' ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith( {
+					selectedNewsletterCategoryIds: [ defaultProps.availableNewsletterCategories[ 1 ].id ],
+				} );
+			} );
+
+			test( 'toggles pre-select control when all categories are unchecked', async () => {
+				const user = userEvent.setup();
+				render(
+					<SubscriptionsInspectorControls
+						{ ...defaultProps }
+						preselectNewsletterCategories
 						selectedNewsletterCategoryIds={ [ defaultProps.availableNewsletterCategories[ 0 ].id ] }
 					/>
 				);
@@ -334,6 +355,7 @@ describe( 'Inspector controls', () => {
 
 				expect( setAttributes ).toHaveBeenCalledWith( {
 					selectedNewsletterCategoryIds: [],
+					preselectNewsletterCategories: false,
 				} );
 			} );
 		} );

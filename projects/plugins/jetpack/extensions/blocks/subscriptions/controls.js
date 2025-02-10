@@ -342,7 +342,15 @@ export default function SubscriptionControls( {
 											const selectedIds = selectedNewsletterCategoryIds.includes( category.id )
 												? selectedNewsletterCategoryIds.filter( id => id !== category.id )
 												: [ ...selectedNewsletterCategoryIds, category.id ];
-											setAttributes( { selectedNewsletterCategoryIds: selectedIds } );
+
+											const updates = { selectedNewsletterCategoryIds: selectedIds };
+
+											// If no categories are selected, disable the preselect option
+											if ( selectedIds.length === 0 ) {
+												updates.preselectNewsletterCategories = false;
+											}
+
+											setAttributes( updates );
 										} }
 									/>
 								) ) }
