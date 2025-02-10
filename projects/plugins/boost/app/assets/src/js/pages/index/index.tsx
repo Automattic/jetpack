@@ -19,6 +19,7 @@ import PageCacheModule from '$features/page-cache/page-cache';
 import Pill from '$features/ui/pill/pill';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { useStaticMinification } from '$lib/stores/static-minification';
+import React from 'react';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -26,6 +27,8 @@ const Index = () => {
 
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
+	const [ jsModule ] = useSingleModuleState( 'minify_js' );
+	const isStaticMinification = useStaticMinification();
 
 	const regenerateCssAction = useRegenerateCriticalCssAction();
 
@@ -43,11 +46,17 @@ const Index = () => {
 		recordBoostEvent( 'critical_css_link_clicked', {} );
 	};
 
-	const isStaticMinification = useStaticMinification();
+	const shouldShowMinificationNotice = ( moduleActive: boolean ) => {
+		return ! moduleActive && ! isStaticMinification;
+	};
+
 	const minificationWarningMessage = __(
 		'You are using the legacy cache delivery method for concatenated files. Learn more.',
 		'jetpack-boost'
 	);
+
+	// Add state for notice visibility
+	const [ isMinificationNoticeVisible, setMinificationNoticeVisible ] = React.useState( true );
 
 	return (
 		<div className="jb-container--narrow">
@@ -182,19 +191,12 @@ const Index = () => {
 				slug="minify_js"
 				title={ __( 'Concatenate JS', 'jetpack-boost' ) }
 				description={
-					<>
-						<p>
-							{ __(
-								'Scripts are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
-								'jetpack-boost'
-							) }
-						</p>
-						{ ! isStaticMinification && (
-							<Notice level="warning" hideCloseButton={ true }>
-								{ minificationWarningMessage }
-							</Notice>
+					<p>
+						{ __(
+							'Scripts are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
+							'jetpack-boost'
 						) }
-					</>
+					</p>
 				}
 			>
 				<MinifyMeta
@@ -202,24 +204,26 @@ const Index = () => {
 					buttonText={ __( 'Exclude JS handles', 'jetpack-boost' ) }
 					placeholder={ __( 'Comma separated list of JS handles to exclude', 'jetpack-boost' ) }
 				/>
+				{ ! isStaticMinification && isMinificationNoticeVisible && (
+					<Notice
+						level="info"
+						hideCloseButton={ false }
+						onClose={ () => setMinificationNoticeVisible( false ) }
+					>
+						{ minificationWarningMessage }
+					</Notice>
+				) }
 			</Module>
 			<Module
 				slug="minify_css"
 				title={ __( 'Concatenate CSS', 'jetpack-boost' ) }
 				description={
-					<>
-						<p>
-							{ __(
-								'Styles are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
-								'jetpack-boost'
-							) }
-						</p>
-						{ ! isStaticMinification && (
-							<Notice level="warning" hideCloseButton={ true }>
-								{ minificationWarningMessage }
-							</Notice>
+					<p>
+						{ __(
+							'Styles are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
+							'jetpack-boost'
 						) }
-					</>
+					</p>
 				}
 			>
 				<MinifyMeta
@@ -227,6 +231,16 @@ const Index = () => {
 					buttonText={ __( 'Exclude CSS handles', 'jetpack-boost' ) }
 					placeholder={ __( 'Comma separated list of CSS handles to exclude', 'jetpack-boost' ) }
 				/>
+				{ isMinificationNoticeVisible &&
+					shouldShowMinificationNotice( jsModule?.active ?? true ) && (
+						<Notice
+							level="info"
+							hideCloseButton={ false }
+							onClose={ () => setMinificationNoticeVisible( false ) }
+						>
+							{ minificationWarningMessage }
+						</Notice>
+					) }
 			</Module>
 			<Module
 				slug="image_cdn"
