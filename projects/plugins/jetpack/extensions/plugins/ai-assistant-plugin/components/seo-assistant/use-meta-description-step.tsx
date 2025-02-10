@@ -55,13 +55,14 @@ export const useMetaDescriptionStep = ( {
 	const [ failurePoint, setFailurePoint ] = useState< 'generate' | 'regenerate' | null >( null );
 	const { tracks } = useAnalytics();
 	const prevStepHasChanged = useMemo( () => keywords !== lastValue, [ keywords, lastValue ] );
+	const stepId = 'meta';
 
 	const request = useCallback( async () => {
 		if ( mockRequests ) {
 			return mockMetaDescriptionRequest( keywords );
 		}
 		tracks.recordEvent( 'jetpack_seo_assistant_request', {
-			step: 'meta',
+			step: stepId,
 			keywords,
 		} );
 		return askQuestionSync(
@@ -209,7 +210,7 @@ export const useMetaDescriptionStep = ( {
 	const regenerateLabel = __( 'Regenerate', 'jetpack' );
 
 	return {
-		id: 'meta',
+		id: stepId,
 		title: __( 'Add meta description', 'jetpack' ),
 		label: __( 'Meta description', 'jetpack' ),
 		messages: messages,

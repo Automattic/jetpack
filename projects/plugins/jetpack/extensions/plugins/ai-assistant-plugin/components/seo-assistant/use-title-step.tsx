@@ -50,13 +50,14 @@ export const useTitleStep = ( {
 	const { tracks } = useAnalytics();
 
 	const prevStepHasChanged = useMemo( () => keywords !== lastValue, [ keywords, lastValue ] );
+	const stepId = 'title';
 
 	const request = useCallback( async () => {
 		if ( mockRequests ) {
 			return mockTitleRequest( keywords );
 		}
 		tracks.recordEvent( 'jetpack_seo_assistant_request', {
-			step: 'title',
+			step: stepId,
 			keywords,
 		} );
 		return askQuestionSync(
@@ -205,7 +206,7 @@ export const useTitleStep = ( {
 	const regenerateLabel = __( 'Regenerate', 'jetpack' );
 
 	return {
-		id: 'title',
+		id: stepId,
 		title: __( 'Optimise Title', 'jetpack' ),
 		label: __( 'Title', 'jetpack' ),
 		messages,
