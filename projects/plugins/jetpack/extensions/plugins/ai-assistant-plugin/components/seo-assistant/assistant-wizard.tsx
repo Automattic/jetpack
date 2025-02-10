@@ -22,7 +22,7 @@ export default function AssistantWizard( { close } ) {
 		stepsEndRef.current?.scrollIntoView( { behavior: 'smooth' } );
 	};
 	const keywordsInputRef = useRef( null );
-	const [ , setResults ] = useState( {} );
+	const [ results, setResults ] = useState( {} );
 	const [ lastStepValue, setLastStepValue ] = useState( '' );
 
 	useEffect( () => {
@@ -31,8 +31,11 @@ export default function AssistantWizard( { close } ) {
 
 	// Keywords
 	const keywordsStepData = useKeywordsStep();
-	const titleStepData = useTitleStep();
-	const metaStepData = useMetaDescriptionStep();
+	const titleStepData = useTitleStep( { keywords: keywordsStepData.value, mockRequests: false } );
+	const metaStepData = useMetaDescriptionStep( {
+		keywords: keywordsStepData.value,
+		mockRequests: false,
+	} );
 	const completionStepData = useCompletionStep();
 	const welcomeStepData = useWelcomeStep();
 	// Memoize steps array to prevent unnecessary recreations
@@ -52,9 +55,10 @@ export default function AssistantWizard( { close } ) {
 		await currentStepData?.onStart( {
 			fromSkip: ! lastStepValue,
 			stepValue: lastStepValue,
+			results,
 		} );
 		setIsBusy( false );
-	}, [ currentStepData, lastStepValue ] );
+	}, [ currentStepData, lastStepValue, results ] );
 
 	const handleNext = useCallback( () => {
 		debug( 'handleNext, stepsCount', stepsCount );
@@ -97,22 +101,25 @@ export default function AssistantWizard( { close } ) {
 		setIsBusy( true );
 		const stepValue = await steps[ currentStep ]?.onSubmit?.();
 		debug( 'stepValue', stepValue );
-		const newResults = {
-			[ steps[ currentStep ].id ]: {
-				value: steps[ currentStep ].value.trim(),
-				type: steps[ currentStep ].type,
-				label: steps[ currentStep ].label,
-			},
-		};
-		debug( 'newResults', newResults );
-		setResults( prev => ( { ...prev, ...newResults } ) );
+		if ( steps[ currentStep ].includeInResults ) {
+			const newResults = {
+				[ steps[ currentStep ].id ]: {
+					value: stepValue?.trim?.(),
+					type: steps[ currentStep ].type,
+					label: steps[ currentStep ].label,
+				},
+			};
+			debug( 'newResults', newResults );
+			setResults( prev => ( { ...prev, ...newResults } ) );
+		}
 		debug( 'set last step value', stepValue );
-		setLastStepValue( stepValue.trim() );
+		setLastStepValue( stepValue?.trim?.() );
 
 		if ( steps[ currentStep ]?.type === 'completion' ) {
+			debug( 'completion step, closing wizard' );
 			handleDone();
 		} else {
-			// always give half a second before moving forward
+			debug( 'step type', steps[ currentStep ]?.type );
 			handleNext();
 		}
 	}, [ currentStep, handleDone, handleNext, steps ] );
@@ -139,6 +146,7 @@ export default function AssistantWizard( { close } ) {
 
 	const handleBack = () => {
 		if ( currentStep > 1 ) {
+			setIsBusy( true );
 			debug( 'moving back to ' + ( currentStep - 1 ) );
 			setCurrentStep( currentStep - 1 );
 			setCurrentStepData( steps[ currentStep - 1 ] );
@@ -148,8 +156,19 @@ export default function AssistantWizard( { close } ) {
 	const handleSkip = useCallback( async () => {
 		setIsBusy( true );
 		await steps[ currentStep ]?.onSkip?.();
+		const step = steps[ currentStep ];
+		if ( ! results[ step.id ] && step.includeInResults ) {
+			setResults( prev => ( {
+				...prev,
+				[ step.id ]: {
+					value: '',
+					type: step.type,
+					label: step.label,
+				},
+			} ) );
+		}
 		handleNext();
-	}, [ currentStep, steps, handleNext ] );
+	}, [ currentStep, steps, handleNext, results ] );
 
 	const handleRetry = useCallback( async () => {
 		debug( 'handleRetry' );
@@ -198,14 +217,14 @@ export default function AssistantWizard( { close } ) {
 					<TextInput
 						ref={ keywordsInputRef }
 						placeholder={ steps[ currentStep ].placeholder }
-						value={ steps[ currentStep ].value }
-						setValue={ steps[ currentStep ].setValue }
+						value={ steps[ currentStep ].rawInput }
+						setValue={ steps[ currentStep ].setRawInput }
 						handleSubmit={ handleStepSubmit }
 					/>
 				) }
 				{ currentStep === 2 && steps[ currentStep ].type === 'options' && (
 					<OptionsInput
-						disabled={ ! steps[ currentStep ].value }
+						disabled={ ! steps[ currentStep ].hasSelection }
 						submitCtaLabel={ steps[ currentStep ].submitCtaLabel }
 						retryCtaLabel={ steps[ currentStep ].retryCtaLabel }
 						handleRetry={ handleRetry }
@@ -214,7 +233,7 @@ export default function AssistantWizard( { close } ) {
 				) }
 				{ currentStep === 3 && steps[ currentStep ].type === 'options' && (
 					<OptionsInput
-						disabled={ ! steps[ currentStep ].value }
+						disabled={ ! steps[ currentStep ].hasSelection }
 						submitCtaLabel={ steps[ currentStep ].submitCtaLabel }
 						retryCtaLabel={ steps[ currentStep ].retryCtaLabel }
 						handleRetry={ handleRetry }

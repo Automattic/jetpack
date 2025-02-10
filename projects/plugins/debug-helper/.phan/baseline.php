@@ -45,6 +45,7 @@ return [
         'modules/class-scan-helper.php' => ['PhanNoopNew', 'PhanSuspiciousValueComparison', 'PhanTypeConversionFromArray', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/class-sync-data-settings-tester.php' => ['PhanNoopNew', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredClass'],
         'modules/class-waf-helper.php' => ['PhanNoopNew', 'PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod'],
+        'modules/class-wpcom-api-request-faker-module.php' => ['PhanUndeclaredClassMethod'],
         'modules/class-wpcom-api-request-tracker-module.php' => ['PhanNoopNew', 'PhanTypeMismatchArgument'],
         'modules/class-xmlrpc-blocker.php' => ['PhanNoopNew'],
         'modules/class-xmlrpc-logger.php' => ['PhanNoopNew', 'PhanUndeclaredFunction'],

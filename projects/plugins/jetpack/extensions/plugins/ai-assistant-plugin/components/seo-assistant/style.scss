@@ -17,6 +17,15 @@
 		width: unset;
 	}
 
+	.components-button.is-primary {
+		background-color: #3858E9;
+	}
+
+	.components-button.is-secondary {
+		box-shadow: inset 0 0 0 1px #3858e9, 0 0 0 currentColor;
+		color: #3858e9;
+	}
+
 	&__header {
 		flex: 0 0 auto;
 		display: flex;
@@ -54,6 +63,7 @@
 
 	&__content {
 		flex: 1 1 auto;
+		gap: 8px;
 		display: flex;
 		flex-direction: column;
 		height: 100%;
@@ -69,11 +79,24 @@
 		flex: 1 1 auto;
 		display: flex;
 		flex-direction: column;
-		gap: 16px;
-		padding: 8px 8px 8px 0;
+		gap: 8px;
+		padding: 0 8px;
 		overflow-y: auto;
 		scroll-behavior: smooth;
 		align-items: flex-start;
+
+		// weirdly placed here, this makes the first option have a top margin
+		& > .assistant-wizard__message.is-option {
+			margin-top: 8px;
+		}
+
+		& > .assistant-wizard__message.is-option ~ .assistant-wizard__message.is-option {
+			margin-top: 0px;
+		}
+
+		& > .assistant-wizard__message.is-option:last-of-type {
+			margin-bottom: 8px;
+		}
 	}
 
 	&__message {
@@ -84,6 +107,11 @@
 		display: flex;
 		align-items: center;
 		max-width: 255px;
+
+		&:not( .is-option ) {
+			margin-top: 8px;
+			margin-bottom: 8px;
+		}
 
 		.assistant-wizard__message-icon {
 			flex-shrink: 0;
@@ -112,6 +140,10 @@
 			.assistant-wizard__message-icon {
 				display: none;
 			}
+		}
+
+		&.is-option {
+			align-self: flex-start;
 		}
 	}
 
@@ -153,10 +185,6 @@
 			border-radius: 12px;
 			box-shadow: none;
 			outline: 0;
-		}
-
-		.components-button.is-primary {
-			background-color: #3858E9;
 		}
 	}
 
@@ -204,15 +232,6 @@
 		align-items: center;
 		gap: 16px;
 		animation: assistantInputAppear 0.3s ease-out;
-
-		.components-button.is-primary {
-			background-color: #3858E9;
-		}
-
-		.components-button.is-secondary {
-			box-shadow: inset 0 0 0 1px #3858e9, 0 0 0 currentColor;
-			color: #3858e9;
-		}
 	}
 
 	&__completion {

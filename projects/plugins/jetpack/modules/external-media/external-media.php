@@ -7,6 +7,6 @@
  * @package automattic/jetpack
  */
 
-if ( class_exists( 'Automattic\Jetpack\External_Media' ) ) {
-	Automattic\Jetpack\External_Media::init();
+if ( class_exists( 'Automattic\Jetpack\External_Media\External_Media' ) ) {
+	Automattic\Jetpack\External_Media\External_Media::init();
 }

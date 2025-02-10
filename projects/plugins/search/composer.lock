@@ -1293,9 +1293,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect-models",
-                "reference": "6b8a84b23ab688f32c77c37bf835ef2b9d3ef6b1"
+                "reference": "817a607f312421144a2acf0c4b65165d8125ec59"
             },
             "require": {
+                "automattic/jetpack-redirect": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {

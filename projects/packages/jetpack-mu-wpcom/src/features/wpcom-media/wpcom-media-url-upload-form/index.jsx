@@ -1,10 +1,11 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useState } from 'react';
+import { wpcomTrackEvent } from '../../../common/tracks';
 
 import './style.scss';
 
-const WpcomMediaUrlUploadForm = ( { ajaxUrl, action, nonce, isEditor } ) => {
+const WpcomMediaUrlUploadForm = ( { ajaxUrl, action, nonce, page } ) => {
 	const [ url, setUrl ] = useState( '' );
 
 	const [ show, setShow ] = useState( false );
@@ -24,6 +25,10 @@ const WpcomMediaUrlUploadForm = ( { ajaxUrl, action, nonce, isEditor } ) => {
 			return false;
 		}
 		e.preventDefault();
+
+		wpcomTrackEvent( 'wpcom_media_upload_from_url_submit', {
+			page,
+		} );
 
 		const formData = new FormData();
 		formData.append( 'action', action );
@@ -48,7 +53,7 @@ const WpcomMediaUrlUploadForm = ( { ajaxUrl, action, nonce, isEditor } ) => {
 							.collection.add( attachmentToAdd );
 					};
 
-					if ( isEditor ) {
+					if ( page === 'editor' ) {
 						const mediaLibraryTab = window.wp.media.frame.state( 'library' );
 						mediaLibraryTab.trigger( 'open' );
 

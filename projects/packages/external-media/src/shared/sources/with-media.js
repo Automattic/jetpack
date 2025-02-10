@@ -3,7 +3,7 @@ import { withNotices, Modal } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
 import { Component } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
 import clsx from 'clsx';
 import { uniqBy } from 'lodash';
@@ -14,14 +14,16 @@ import {
 	setGooglePhotosPickerSession,
 } from '../media-service';
 import { MediaSource } from '../media-service/types';
+import './with-media.scss';
 
 /**
  * withMedia
  *
- * @param {MediaSource} mediaSource - External media sources.
+ * @param {MediaSource} mediaSource  - External media sources.
+ * @param {object}      mediaOptions - The options of the media.
  * @return {Function} - The function to create higher order component.
  */
-export default function withMedia( mediaSource = MediaSource.Unknown ) {
+export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptions = {} ) {
 	return createHigherOrderComponent( OriginalComponent => {
 		// Legacy class as it was ported from an older codebase.
 		class WithMediaComponent extends Component {
@@ -106,8 +108,8 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 			}
 
 			getMedia = ( url, resetMedia = false, isLoading = true ) => {
-				if ( this.state.isLoading ) {
-					return;
+				if ( this.abortController ) {
+					this.abortController.abort();
 				}
 
 				if ( resetMedia ) {
@@ -126,6 +128,11 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 			};
 
 			handleApiError = error => {
+				if ( error.name === 'AbortError' ) {
+					// We don't want to log aborted requests.
+					return;
+				}
+
 				if ( error.code === 'authorization_required' ) {
 					this.setAuthenticated( false );
 					this.setState( { isLoading: false, isCopying: false } );
@@ -169,10 +176,14 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 				const path = this.getRequestUrl( url );
 				const method = 'GET';
 
+				this.abortController =
+					typeof window.AbortController === 'undefined' ? undefined : new window.AbortController();
+
 				apiFetch( {
 					path,
 					method,
 					parse: window.wpcomFetch === undefined,
+					signal: this.abortController?.signal,
 				} )
 					.then( result => {
 						// If we don't have media available, we should show an error instead of crashing the editor.
@@ -186,6 +197,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 							isLoading: false,
 						} );
 						this.setAuthenticated( true );
+						this.abortController = null;
 					} )
 					.catch( this.handleApiError );
 			};
@@ -338,31 +350,73 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 				this.setState( { path }, cb );
 			};
 
-			render() {
-				const { account, isAuthenticated, isCopying, isLoading, media, nextHandle, path } =
-					this.state;
-				const { allowedTypes, multiple = false, noticeUI, onClose } = this.props;
-
+			getTitle = () => {
+				const { getTitle } = this.props;
+				const { isCopying } = this.state;
 				const defaultTitle =
 					mediaSource !== 'jetpack_app_media' ? __( 'Select media', 'jetpack-external-media' ) : '';
 
 				const title = isCopying ? __( 'Inserting media', 'jetpack-external-media' ) : defaultTitle;
+				if ( getTitle ) {
+					return getTitle( { title, isCopying } );
+				}
 
-				const description = isCopying
-					? __(
-							'When the media is finished copying and inserting, you will be returned to the editor.',
-							'jetpack-external-media'
-					  )
-					: __(
-							'Select the media you would like to insert into the editor.',
-							'jetpack-external-media',
-							/* dummy arg to avoid bad minification */ 0
-					  );
+				return title;
+			};
+
+			getTexts = () => {
+				const { externalSource, isImport } = this.props;
+				const { isCopying } = this.state;
+
+				if ( isImport ) {
+					return {
+						title: sprintf(
+							/* translators: %s is the name of the external media */
+							__( 'Import from %s', 'jetpack-external-media' ),
+							externalSource.label
+						),
+						description: sprintf(
+							/* translators: %s is the name of the external media */
+							__( 'Import media from %s into the Media Library.', 'jetpack-external-media' ),
+							externalSource.label
+						),
+					};
+				}
+
+				const defaultTitle =
+					mediaSource !== 'jetpack_app_media'
+						? sprintf(
+								/* translators: %s is the name of the external media */
+								__( 'Select media from %s', 'jetpack-external-media' ),
+								externalSource.label
+						  )
+						: '';
+				return {
+					title: isCopying ? __( 'Inserting media', 'jetpack-external-media' ) : defaultTitle,
+					description: isCopying
+						? __(
+								'When the media is finished copying and inserting, you will be returned to the editor.',
+								'jetpack-external-media'
+						  )
+						: __(
+								'Select the media you would like to insert into the editor.',
+								'jetpack-external-media',
+								/* dummy arg to avoid bad minification */ 0
+						  ),
+				};
+			};
+
+			render() {
+				const { account, isAuthenticated, isCopying, isLoading, media, nextHandle, path } =
+					this.state;
+				const { allowedTypes, multiple = false, selectButtonText, noticeUI, onClose } = this.props;
+
+				const { title, description } = this.getTexts();
 
 				const describedby = 'jetpack-external-media-browser__description';
 				const classes = clsx( {
-					'jetpack-external-media-browser': true,
-					'jetpack-external-media-browser--is-copying': isCopying,
+					'jetpack-external-media-browser__modal': true,
+					'jetpack-external-media-browser__modal--is-copying': isCopying,
 					'is-jetpack-app-media': mediaSource === 'jetpack_app_media',
 				} );
 
@@ -372,15 +426,20 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 						title={ title }
 						aria={ { describedby } }
 						className={ classes }
+						size={ mediaOptions.modalSize }
 					>
 						<div ref={ this.contentRef }>
 							{ noticeUI }
 
-							<p id={ describedby } className="jetpack-external-media-browser--visually-hidden">
+							<p
+								id={ describedby }
+								className="jetpack-external-media-browser__modal--visually-hidden"
+							>
 								{ description }
 							</p>
 
 							<OriginalComponent
+								className="jetpack-external-media-browser__modal-content"
 								account={ account }
 								getMedia={ this.getMedia }
 								copyMedia={ this.copyMedia }
@@ -393,6 +452,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 								isAuthenticated={ isAuthenticated }
 								setAuthenticated={ this.setAuthenticated }
 								multiple={ multiple }
+								selectButtonText={ selectButtonText }
 								path={ path }
 								onChangePath={ this.onChangePath }
 								pickerSession={ this.props.pickerSession }

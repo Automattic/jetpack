@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+Sync: Full sync for posts not sending term relationships

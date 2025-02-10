@@ -1,10 +1,11 @@
-import { TextControl, Button } from '@wordpress/components';
-import { useRef, useCallback, useState, useEffect } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { usePrevious } from '@wordpress/compose';
+import { useCallback, useState, useEffect } from '@wordpress/element';
+import clsx from 'clsx';
 import { sample } from 'lodash';
 import React from 'react';
 import { SOURCE_PEXELS, PEXELS_EXAMPLE_QUERIES } from '../../constants';
 import MediaBrowser from '../../media-browser';
+import MediaSearch from '../../media-search';
 import { MediaSource } from '../../media-service/types';
 import { getExternalMediaApiUrl } from '../api';
 import withMedia from '../with-media';
@@ -17,10 +18,20 @@ import './style.scss';
  * @return {React.ReactElement} - JSX element
  */
 function PexelsMedia( props ) {
-	const { media, isCopying, isLoading, pageHandle, multiple, copyMedia, getMedia } = props;
+	const {
+		className,
+		media,
+		isCopying,
+		isLoading,
+		pageHandle,
+		multiple,
+		selectButtonText,
+		copyMedia,
+		getMedia,
+	} = props;
 
 	const [ searchQuery, setSearchQuery ] = useState( sample( PEXELS_EXAMPLE_QUERIES ) );
-	const [ lastSearchQuery, setLastSearchQuery ] = useState( '' );
+	const previousSearchQuery = usePrevious( searchQuery );
 
 	const onCopy = useCallback(
 		items => {
@@ -30,94 +41,44 @@ function PexelsMedia( props ) {
 	);
 
 	const getNextPage = useCallback(
-		( event, reset = false ) => {
-			if ( searchQuery ) {
-				getMedia(
-					getExternalMediaApiUrl( 'list', SOURCE_PEXELS, {
-						number: 20,
-						path: 'recent',
-						search: searchQuery,
-					} ),
-					reset
-				);
+		( query, reset = false ) => {
+			if ( ! query ) {
+				return;
 			}
+
+			getMedia(
+				getExternalMediaApiUrl( 'list', SOURCE_PEXELS, {
+					number: 20,
+					path: 'recent',
+					search: query,
+				} ),
+				reset
+			);
 		},
-		[ getMedia, searchQuery ]
+		[ getMedia ]
 	);
 
-	const previousSearchQueryValue = useRef( undefined );
-	const onSearch = useCallback(
-		event => {
-			event.preventDefault();
-			setLastSearchQuery( searchQuery );
-			getNextPage( event, true );
-			previousSearchQueryValue.current = searchQuery;
-		},
-		[ getNextPage, searchQuery ]
-	);
-
-	// Load initial results for the random example query. Only do it once.
-	useEffect( getNextPage, [] ); // eslint-disable-line react-hooks/exhaustive-deps
-
-	const searchFormEl = useRef( null );
-
-	const focusSearchInput = () => {
-		if ( ! searchFormEl.current ) {
-			return;
-		}
-
-		const formElements = Array.from( searchFormEl.current.elements );
-		// TextControl does not support ref forwarding, so we need to find the input:
-		const searchInputEl = formElements.find( element => element.type === 'search' );
-
-		if ( searchInputEl ) {
-			searchInputEl.focus();
-			searchInputEl.select();
-		}
-	};
-
-	useEffect( focusSearchInput, [] );
+	useEffect( () => {
+		getNextPage( searchQuery, searchQuery !== previousSearchQuery );
+	}, [ searchQuery ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
-		<div className="jetpack-external-media-wrapper__pexels">
-			<form
-				ref={ searchFormEl }
-				className="jetpack-external-media-header__pexels"
-				onSubmit={ onSearch }
-			>
-				<TextControl
-					aria-label={ __( 'Search', 'jetpack-external-media' ) }
-					type="search"
-					value={ searchQuery }
-					onChange={ setSearchQuery }
-					disabled={ !! isCopying }
-					__nextHasNoMarginBottom={ true }
-				/>
-				<Button
-					variant="primary"
-					onClick={ onSearch }
-					type="submit"
-					disabled={
-						! searchQuery.length || searchQuery === previousSearchQueryValue.current || isCopying
-					}
-				>
-					{ __( 'Search', 'jetpack-external-media' ) }
-				</Button>
-			</form>
-
+		<div className={ clsx( className, 'jetpack-external-media-wrapper__pexels' ) }>
+			<MediaSearch defaultValue={ searchQuery } onSearch={ setSearchQuery } />
 			<MediaBrowser
-				key={ lastSearchQuery }
 				className="jetpack-external-media-browser__pexels"
 				media={ media }
+				mediaSource={ MediaSource.Pexels }
 				isCopying={ isCopying }
 				isLoading={ isLoading }
-				nextPage={ getNextPage }
+				nextPage={ () => getNextPage( searchQuery ) }
 				onCopy={ onCopy }
 				pageHandle={ pageHandle }
 				multiple={ multiple }
+				selectButtonText={ selectButtonText }
 			/>
 		</div>
 	);
 }
 
-export default withMedia( MediaSource.Pexels )( PexelsMedia );
+export default withMedia( MediaSource.Pexels, { modalSize: 'fill' } )( PexelsMedia );

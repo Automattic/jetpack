@@ -1204,6 +1204,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			|| ( Jetpack::is_plugin_active( 'under-construction-page/under-construction.php' ) && isset( $ucp_options['status'] ) && 1 == $ucp_options['status'] ) // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			|| ( Jetpack::is_plugin_active( 'ultimate-under-construction/ultimate-under-construction.php' ) && isset( $uuc_settings['enable'] ) && 1 == $uuc_settings['enable'] ) // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			|| ( Jetpack::is_plugin_active( 'coming-soon/coming-soon.php' ) && isset( $csp4['status'] ) && ( 1 == $csp4['status'] || 2 == $csp4['status'] ) ) // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			||
 			/**
 			 * Allow plugins to mark a site as "under construction".
 			 *
@@ -1211,7 +1212,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			 *
 			 * @param false bool Is the site under construction? Default to false.
 			 */
-			|| true === apply_filters( 'jetpack_is_under_construction_plugin', false )
+			true === apply_filters( 'jetpack_is_under_construction_plugin', false )
 		) {
 			return new WP_Error( 'forbidden', __( 'Site is under construction and cannot be verified', 'jetpack' ) );
 		}
