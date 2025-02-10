@@ -14,12 +14,13 @@ type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
 
 const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const { recordEvent } = useAnalytics();
-	const { setNotice } = useContext( NoticeContext );
+	const { setNotice, resetNotice } = useContext( NoticeContext );
 
 	const {
 		type,
 		data: { status, last_updated: lastUpdated },
-	} = redBubbleAlerts?.backup_failure || { type: 'error', data: {} };
+		is_silent: isSilent,
+	} = redBubbleAlerts?.backup_failure || { type: 'error', data: {}, isSilent: false };
 	const { text: errorDescription } = useGetReadableFailedBackupReason() || {};
 
 	const {
@@ -36,6 +37,13 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 
 	const noticeTitle = __( 'Oops! We couldn’t back up your site', 'jetpack-my-jetpack' );
 
+	const onCloseClick = useCallback( () => {
+		// Session cookie. Expires at session end.
+		document.cookie = `backup_failure_dismissed=1; SameSite=None; Secure`;
+		delete redBubbleAlerts.backup_failure;
+		resetNotice();
+	}, [ redBubbleAlerts.backup_failure, resetNotice ] );
+
 	const onPrimaryCtaClick = useCallback( () => {
 		window.open( troubleshootBackupsUrl );
 		recordEvent( 'jetpack_my_jetpack_backup_needs_attention_notice_primary_cta_click', {
@@ -51,7 +59,7 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	}, [ recordEvent, status, contactSupportUrl ] );
 
 	useEffect( () => {
-		if ( ! redBubbleAlerts?.backup_failure ) {
+		if ( ! redBubbleAlerts?.backup_failure || isSilent ) {
 			return;
 		}
 
@@ -95,6 +103,8 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 					isExternalLink: true,
 				},
 			],
+			onClose: onCloseClick,
+			hideCloseButton: false,
 			priority: NOTICE_PRIORITY_HIGH,
 		};
 
@@ -107,11 +117,13 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		redBubbleAlerts,
 		setNotice,
 		recordEvent,
+		onCloseClick,
 		onPrimaryCtaClick,
 		onSecondaryCtaClick,
 		noticeTitle,
 		backupStatusLastUpdatedDate,
 		type,
+		isSilent,
 		errorDescription,
 	] );
 };

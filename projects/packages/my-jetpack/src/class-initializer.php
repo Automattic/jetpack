@@ -1115,7 +1115,11 @@ class Initializer {
 
 		$backup_failed_status = Products\Backup::does_module_need_attention();
 		if ( $backup_failed_status ) {
-			$red_bubble_slugs['backup_failure'] = $backup_failed_status;
+			if ( ! empty( $_COOKIE['backup_failure_dismissed'] ) ) {
+				$red_bubble_slugs['backup_failure'] = array_merge( $backup_failed_status, array( 'is_silent' => true ) );
+			} else {
+				$red_bubble_slugs['backup_failure'] = $backup_failed_status;
+			}
 		}
 
 		return $red_bubble_slugs;

@@ -415,6 +415,7 @@ interface Window {
 					status: RewindStatus | BackupStatus;
 					last_updated: string;
 				};
+				is_silent: boolean;
 			};
 			[ key: `${ string }--plan_expired` ]: {
 				product_slug: string;
