@@ -20,7 +20,6 @@ const JetpackFieldTextarea = props => {
 		label,
 		setAttributes,
 		placeholder,
-		width,
 	} = props;
 
 	const formStyle = useFormStyle( clientId );
@@ -64,7 +63,6 @@ const JetpackFieldTextarea = props => {
 				id={ id }
 				required={ required }
 				setAttributes={ setAttributes }
-				width={ width }
 				placeholder={ placeholder }
 				attributes={ attributes }
 			/>

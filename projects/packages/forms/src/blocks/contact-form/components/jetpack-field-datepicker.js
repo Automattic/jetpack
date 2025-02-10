@@ -36,7 +36,7 @@ const DATE_FORMATS = [
 
 const JetpackDatePicker = props => {
 	const { attributes, clientId, isSelected, name, setAttributes, insertBlocksAfter } = props;
-	const { id, label, required, requiredText, width, placeholder, dateFormat } = attributes;
+	const { id, label, required, requiredText, placeholder, dateFormat } = attributes;
 
 	useFormWrapper( { attributes, clientId, name } );
 
@@ -80,7 +80,6 @@ const JetpackDatePicker = props => {
 			<JetpackFieldControls
 				id={ id }
 				required={ required }
-				width={ width }
 				setAttributes={ setAttributes }
 				placeholder={ placeholder }
 				attributes={ attributes }

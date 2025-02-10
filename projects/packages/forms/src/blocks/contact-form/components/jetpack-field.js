@@ -21,7 +21,6 @@ const JetpackField = props => {
 		label,
 		setAttributes,
 		placeholder,
-		width,
 		insertBlocksAfter,
 		type,
 	} = props;
@@ -66,7 +65,6 @@ const JetpackField = props => {
 			<JetpackFieldControls
 				id={ id }
 				required={ required }
-				width={ width }
 				setAttributes={ setAttributes }
 				placeholder={ placeholder }
 				attributes={ attributes }

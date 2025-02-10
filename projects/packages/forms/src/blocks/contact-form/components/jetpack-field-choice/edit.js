@@ -12,7 +12,7 @@ import { useJetpackFieldStyles } from '../use-jetpack-field-styles';
 const JetpackFieldChoiceEdit = props => {
 	const { name, className, clientId, instanceId, setAttributes, isSelected, attributes, type } =
 		props;
-	const { required, requiredText, options, id, width } = attributes;
+	const { required, requiredText, options, id } = attributes;
 
 	useFormWrapper( props );
 
@@ -60,7 +60,6 @@ const JetpackFieldChoiceEdit = props => {
 				attributes={ attributes }
 				setAttributes={ setAttributes }
 				type={ type }
-				width={ width }
 				hidePlaceholder
 			/>
 		</>

@@ -22,7 +22,6 @@ function JetpackFieldCheckbox( props ) {
 		requiredText,
 		label,
 		setAttributes,
-		width,
 		defaultValue,
 		attributes,
 		insertBlocksAfter,
@@ -81,7 +80,7 @@ function JetpackFieldCheckbox( props ) {
 							help={ __( 'You can edit the "required" label in the editor', 'jetpack-forms' ) }
 							__nextHasNoMarginBottom={ true }
 						/>
-						<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
+						<JetpackFieldWidth setAttributes={ setAttributes } attributes={ attributes } />
 
 						<ToggleControl
 							label={ __( 'Sync fields style', 'jetpack-forms' ) }

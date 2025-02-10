@@ -31,7 +31,6 @@ const JetpackFieldControls = ( {
 	required,
 	setAttributes,
 	type,
-	width,
 	extraFieldSettings = [],
 } ) => {
 	const formStyle = useFormStyle( clientId );
@@ -128,7 +127,7 @@ const JetpackFieldControls = ( {
 				__next40pxDefaultSize={ true }
 			/>
 		),
-		<JetpackFieldWidth key="width" setAttributes={ setAttributes } width={ width } />,
+		<JetpackFieldWidth key="width" setAttributes={ setAttributes } attributes={ attributes } />,
 		<ToggleControl
 			key="shareFieldAttributes"
 			label={ __( 'Sync fields style', 'jetpack-forms' ) }

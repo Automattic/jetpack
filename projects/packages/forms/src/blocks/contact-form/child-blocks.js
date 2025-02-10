@@ -26,6 +26,14 @@ const FieldDefaults = {
 	supports: {
 		reusable: false,
 		html: false,
+		spacing: {
+			margin: true,
+			padding: true,
+			__experimentalDefaultControls: {
+				margin: false,
+				padding: false,
+			},
+		},
 	},
 	attributes: {
 		label: {
@@ -110,6 +118,10 @@ const FieldDefaults = {
 		shareFieldAttributes: {
 			type: 'boolean',
 			default: true,
+		},
+		style: {
+			type: 'object',
+			default: { layout: { selfStretch: 'fixed', flexSize: '100%' } },
 		},
 	},
 	transforms: {
@@ -318,7 +330,6 @@ const EditCheckbox = props => {
 			isSelected={ props.isSelected }
 			defaultValue={ props.attributes.defaultValue }
 			id={ props.attributes.id }
-			width={ props.attributes.width }
 			attributes={ props.attributes }
 			insertBlocksAfter={ props.insertBlocksAfter }
 		/>
@@ -335,13 +346,12 @@ const EditConsent = ( {
 } ) => {
 	useFormWrapper( { attributes, clientId, name } );
 
-	const { id, width, consentType, implicitConsentMessage, explicitConsentMessage } = attributes;
+	const { id, consentType, implicitConsentMessage, explicitConsentMessage } = attributes;
 	return (
 		<JetpackFieldConsent
 			clientId={ clientId }
 			id={ id }
 			isSelected={ isSelected }
-			width={ width }
 			consentType={ consentType }
 			implicitConsentMessage={ implicitConsentMessage }
 			explicitConsentMessage={ explicitConsentMessage }

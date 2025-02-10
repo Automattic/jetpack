@@ -5,9 +5,9 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
-const PERCENTAGE_WIDTHS = [ 25, 50, 75, 100 ];
+const PERCENTAGE_WIDTHS = [ '25%', '50%', '75%', '100%' ];
 
-export default function JetpackFieldWidth( { setAttributes, width } ) {
+export default function JetpackFieldWidth( { setAttributes, attributes } ) {
 	return (
 		<BaseControl
 			help={ __(
@@ -22,14 +22,18 @@ export default function JetpackFieldWidth( { setAttributes, width } ) {
 				aria-label={ __( 'Width', 'jetpack-forms' ) }
 				isBlock
 				label={ __( 'Width', 'jetpack-forms' ) }
-				onChange={ value => setAttributes( { width: value } ) }
-				value={ width }
+				onChange={ value =>
+					setAttributes( {
+						style: { ...attributes.style, layout: { flexSize: value, selfStretch: 'fixed' } },
+					} )
+				}
+				value={ attributes.style.layout.flexSize ?? '100%' }
 			>
 				{ PERCENTAGE_WIDTHS.map( widthValue => {
 					return (
 						<ToggleGroupControlOption
 							key={ widthValue }
-							label={ `${ widthValue }%` }
+							label={ widthValue }
 							value={ widthValue }
 						/>
 					);
