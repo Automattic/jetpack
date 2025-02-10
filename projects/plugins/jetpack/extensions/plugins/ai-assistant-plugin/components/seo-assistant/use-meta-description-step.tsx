@@ -121,19 +121,11 @@ export const useMetaDescriptionStep = ( {
 				newMetaDescriptions = await getMetaDescriptions();
 			}
 			setMetaDescriptionOptions( newMetaDescriptions );
-			const editedFirstMessage = fromSkip
-				? createInterpolateElement(
-						__(
-							"Skipped!<br />Now, let's optimize your meta description.<br />Here's a suggestion:",
-							'jetpack'
-						),
-						{ br: <br /> }
-				  )
-				: createInterpolateElement(
-						__( "Now, let's optimize your meta description.<br />Here's a suggestion:", 'jetpack' ),
-						{ br: <br /> }
-				  );
-			editLastMessage( editedFirstMessage );
+			const readyMessageSuffix = createInterpolateElement(
+				__( '<br />Here are two suggestions based on your keywords:', 'jetpack' ),
+				{ br: <br /> }
+			);
+			editLastMessage( readyMessageSuffix, true );
 			newMetaDescriptions.forEach( meta =>
 				addMessage( { ...meta, type: 'option', isUser: true } )
 			);

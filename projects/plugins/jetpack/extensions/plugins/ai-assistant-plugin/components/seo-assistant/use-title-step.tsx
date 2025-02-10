@@ -114,27 +114,12 @@ export const useTitleStep = ( {
 				newTitles = await getTitles();
 			}
 
-			let editedMessage;
+			const readyMessageSuffix = createInterpolateElement(
+				__( '<br />Here are two suggestions based on your keywords:', 'jetpack' ),
+				{ br: <br /> }
+			);
 
-			if ( fromSkip ) {
-				editedMessage = createInterpolateElement(
-					__(
-						"Skipped!<br />Let's optimise your title first.<br />Here are two suggestions based on your keywords:",
-						'jetpack'
-					),
-					{ br: <br /> }
-				);
-			} else {
-				editedMessage = createInterpolateElement(
-					__(
-						"Let's optimise your title first.<br />Here are two suggestions based on your keywords:",
-						'jetpack'
-					),
-					{ br: <br /> }
-				);
-			}
-
-			editLastMessage( editedMessage );
+			editLastMessage( readyMessageSuffix, true );
 
 			if ( newTitles.length ) {
 				// this sets the title options for internal state
