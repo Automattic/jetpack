@@ -7,9 +7,7 @@ use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 
-abstract class Minify implements Pluggable, Changes_Page_Output, Optimization, Has_Activate, Has_Deactivate {
-
-	public static $default_excludes = array( 'admin-bar', 'dashicons', 'elementor-app' );
+class Minify implements Pluggable, Changes_Page_Output, Optimization, Has_Activate, Has_Deactivate {
 
 	/**
 	 * Setup the module. This runs on every page load.
