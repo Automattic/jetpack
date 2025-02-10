@@ -432,7 +432,7 @@ class Data {
 	 *
 	 * @param string $guid VideoPress unique identifier.
 	 * @param int    $max_width maximum requested video width. final width and height are calculated on VideoPress servers based on the aspect ratio of the original video upload.
-	 * @return stdClass|WP_Error video data or WP_Error if request unsuccessful
+	 * @return array video data or WP_Error if request unsuccessful
 	 */
 	public static function get_single_video_data( $guid, $max_width = 0 ) {
 		$domain = wp_parse_url( home_url(), PHP_URL_HOST );
