@@ -122,7 +122,7 @@ export const useMetaDescriptionStep = ( {
 			}
 			setMetaDescriptionOptions( newMetaDescriptions );
 			const readyMessageSuffix = createInterpolateElement(
-				__( '<br />Here are two suggestions based on your keywords:', 'jetpack' ),
+				__( "<br />Here's a suggestion:", 'jetpack' ),
 				{ br: <br /> }
 			);
 			editLastMessage( readyMessageSuffix, true );
