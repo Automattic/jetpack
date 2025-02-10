@@ -49,7 +49,7 @@
 		flex-direction: row;
 		gap: var(--wp--style--block-gap, 1.5rem);
 
-		.wp-block {
+		> .wp-block {
 			flex: 0 0 100%;
 			margin-top: 0;
 			margin-bottom: 0;
