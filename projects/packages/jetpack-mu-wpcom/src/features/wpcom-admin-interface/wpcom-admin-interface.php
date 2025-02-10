@@ -746,8 +746,14 @@ function wpcom_dismiss_removed_calypso_screen_notice() {
 						'extra'   => wp_json_encode( $preferences ),
 					)
 				);
-				// Bail if we can't update the preferences array.
-				wp_die();
+
+				// The expected value when preferences aren't set is an empty string.
+				if ( $preferences !== '' ) {
+					wp_die();
+				}
+
+				// If the preferences are empty, we set them to an empty array.
+				$preferences = array();
 			}
 
 			$preferences[ 'removed-calypso-screen-dismissed-notice-' . $screen ] = true;
