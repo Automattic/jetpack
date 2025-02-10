@@ -124,6 +124,7 @@ export const useMetaDescriptionStep = ( {
 			setMessages( [ initialMessage ] );
 			// we only generate if options are empty
 			if ( newMetaDescriptions.length === 0 || prevStepHasChanged ) {
+				setSelectedMetaDescription( '' );
 				newMetaDescriptions = await getMetaDescriptions();
 			}
 			setMetaDescriptionOptions( newMetaDescriptions );

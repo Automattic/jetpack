@@ -108,6 +108,7 @@ export const useTitleStep = ( {
 
 			// we only generate if options are empty
 			if ( newTitles.length === 0 || prevStepHasChanged ) {
+				setSelectedTitle( '' );
 				newTitles = await getTitles();
 			}
 
