@@ -9,6 +9,7 @@ import {
 	QUERY_SCAN_STATUS_KEY,
 	QUERY_WAF_KEY,
 	SCAN_STATUS_OPTIMISTICALLY_SCANNING,
+	QUERY_ACCOUNT_PROTECTION_KEY,
 } from '../constants';
 import useNotices from '../hooks/use-notices';
 
@@ -44,6 +45,7 @@ export default function useConnectSiteMutation(): UseMutationResult {
 			queryClient.invalidateQueries( { queryKey: [ QUERY_WAF_KEY ] } );
 			queryClient.invalidateQueries( { queryKey: [ QUERY_HAS_PLAN_KEY ] } );
 			queryClient.invalidateQueries( { queryKey: [ QUERY_CREDENTIALS_KEY ] } );
+			queryClient.invalidateQueries( { queryKey: [ QUERY_ACCOUNT_PROTECTION_KEY ] } );
 		},
 		onError: () => {
 			showErrorNotice( __( 'Could not connect site.', 'jetpack-protect' ) );
