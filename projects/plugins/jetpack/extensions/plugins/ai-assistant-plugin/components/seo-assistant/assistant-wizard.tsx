@@ -177,8 +177,14 @@ export default function AssistantWizard( { close } ) {
 				},
 			} ) );
 		}
-		handleNext();
-	}, [ currentStep, steps, handleNext, results ] );
+		if ( steps[ currentStep ]?.type === 'completion' ) {
+			debug( 'completion step, closing wizard' );
+			handleDone();
+		} else {
+			debug( 'step type', steps[ currentStep ]?.type );
+			handleNext();
+		}
+	}, [ currentStep, steps, handleNext, results, handleDone ] );
 
 	const handleRetry = useCallback( async () => {
 		debug( 'handleRetry' );
@@ -198,7 +204,11 @@ export default function AssistantWizard( { close } ) {
 				<h2>{ currentStepData?.title }</h2>
 				<div className="assistant-wizard__header-actions">
 					<Tooltip text={ __( 'Skip', 'jetpack' ) }>
-						<Button variant="link" disabled={ isBusy } onClick={ handleSkip }>
+						<Button
+							variant="link"
+							disabled={ isBusy || currentStep >= steps.length - 1 }
+							onClick={ handleSkip }
+						>
 							<Icon icon={ next } size={ 32 } />
 						</Button>
 					</Tooltip>
