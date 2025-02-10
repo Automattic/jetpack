@@ -150,11 +150,12 @@ namespace {
     class WPCOM_Store
     {
         /**
-         * @deprecated 
          * @param int $user_id
          * @param int $blog_id
          * @param false $ids_only
+         *
          * @return array
+         * @deprecated
          */
         public static function get_user_subscriptions($user_id = 0, $blog_id = 0, $ids_only = \false)
         {
@@ -959,8 +960,9 @@ namespace {
     }
     /**
      * @param  string $url
+     *
      * @return string
-     * @internal 
+     * @internal
      */
     function staticize_subdomain($url)
     {
@@ -1026,11 +1028,11 @@ namespace {
     /**
      * @return bool
      */
-    function wpcom_should_load_theme_files_on_rest_api()
-    {
+	function wpcom_should_load_theme_files_on_rest_api() {
     }
-    /**
-     * @deprecated 
+
+	/**
+	 * @deprecated
      * @return bool
     */
     function wpcom_is_jetpack_search_supported($blog_id)
@@ -1642,7 +1644,18 @@ namespace WPForTeams\Workspace {
      * @param int $blog_id
      * @return false|int
      */
-    function get_hub_blog_id_from_blog_id($blog_id)
-    {
+	function get_hub_blog_id_from_blog_id( $blog_id ) {
     }
+}
+
+namespace Automattic\Jetpack\Dashboard_Customizations {
+	/**
+	 * A helper function which determines if unified nav should be shown to the given user.
+	 *
+	 * @param int $user_id User ID. (Optional, defaults to current user).
+	 *
+	 * @return bool Whether the unified nav should be shown.
+	 */
+	function show_unified_nav( $user_id = null ) {
+	}
 }

@@ -67,7 +67,7 @@ function wpcom_should_disable_calypso_links( string $screen ): bool {
 		return true;
 	}
 
-	if ( ( new Host() )->is_wpcom_simple() && ! \Automattic\Jetpack\Dashboard_Customizations\show_unified_nav() ) {
+	if ( ( new Host() )->is_wpcom_simple() && function_exists( '\Automattic\Jetpack\Dashboard_Customizations\show_unified_nav' ) && ! \Automattic\Jetpack\Dashboard_Customizations\show_unified_nav() ) {
 		return true;
 	}
 
