@@ -243,7 +243,10 @@ const multiFieldV1 = fieldType => ( {
 		...FieldDefaults.attributes,
 		label: {
 			type: 'string',
-			default: fieldType === 'checkbox' ? 'Choose several options' : 'Choose one option',
+			default:
+				fieldType === 'checkbox'
+					? __( 'Choose several options', 'jetpack-forms' )
+					: __( 'Choose one option', 'jetpack-forms' ),
 		},
 	},
 	migrate: attributes => {
@@ -370,7 +373,7 @@ export const childBlocks = [
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
-					default: 'Text',
+					default: __( 'Text', 'jetpack-forms' ),
 					role: 'content',
 				},
 			},
@@ -393,7 +396,7 @@ export const childBlocks = [
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
-					default: 'Name',
+					default: __( 'Name', 'jetpack-forms' ),
 					role: 'content',
 				},
 			},
@@ -415,7 +418,7 @@ export const childBlocks = [
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
-					default: 'Email',
+					default: __( 'Email', 'jetpack-forms' ),
 					role: 'content',
 				},
 			},
@@ -472,7 +475,7 @@ export const childBlocks = [
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
-					default: 'Date',
+					default: __( 'Date', 'jetpack-forms' ),
 					role: 'content',
 				},
 				dateFormat: {
