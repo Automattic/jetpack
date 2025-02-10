@@ -290,7 +290,7 @@ class Initializer {
 		if ( ! empty( $guid ) ) {
 			$video = new VideoPress_Video( $guid, $max_width );
 
-			if ( ! empty( $video ) && ! is_wp_error( $video ) && empty( $video->error ) ) {
+			if ( ! is_wp_error( $video ) && empty( $video->error ) ) {
 				$width  = $video->width;
 				$height = $video->height;
 
