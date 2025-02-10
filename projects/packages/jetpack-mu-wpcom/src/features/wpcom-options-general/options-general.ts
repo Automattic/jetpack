@@ -6,7 +6,7 @@ import { wpcomTrackEvent } from '../../common/tracks';
  * @param fragment - The document fragment for options general.
  */
 const _wpcomBuildFiverrCta = ( fragment: DocumentFragment ) => {
-	const fiverrCtaRow = document.querySelector( '.wpcom-fiverr-cta' );
+	const fiverrCtaRow = document.getElementById( 'wpcom-fiverr-cta' )?.closest( 'tr' );
 	if ( fiverrCtaRow ) {
 		fragment.appendChild( fiverrCtaRow );
 	}

@@ -1,0 +1,14 @@
+---
+description: Guidelines when testing PHP
+globs: 
+---
+When developing Unit Tests in PHP, follow these guidelines:
+
+- Use PHPUnit with WordPress test framework
+- Follow WordPress testing conventions
+- Use WordPress fixtures and mocks
+- Test WordPress hooks and filters
+
+Check [test_Manager_integration.php](mdc:jetpack/jetpack/jetpack/jetpack/projects/packages/connection/tests/php/test_Manager_integration.php) for an example.
+
+Find out more rules on how to write tests at [automated-testing.md](mdc:jetpack/jetpack/docs/automated-testing.md)

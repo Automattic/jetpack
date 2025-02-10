@@ -22,6 +22,11 @@ if ( ! $is_wp_admin ) {
  * Enqueue assets needed by the WordPress.com sidebar notice.
  */
 function wpcom_enqueue_sidebar_notice_assets() {
+	$data = wpcom_get_sidebar_notice_data();
+	if ( ! $data ) {
+		return;
+	}
+
 	$asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-sidebar-notice/wpcom-sidebar-notice.asset.php';
 
 	wp_enqueue_script(
@@ -42,11 +47,7 @@ function wpcom_enqueue_sidebar_notice_assets() {
 		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-sidebar-notice/wpcom-sidebar-notice.css' )
 	);
 
-	$data          = array(
-		'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-		'nonce'   => wp_create_nonce( 'wpcom_fetch_sidebar_notice' ),
-	);
-	$inline_script = 'const wpcomSidebarNoticeConfig = ' . wp_json_encode( $data ) . ';';
+	$inline_script = 'const wpcomSidebarNoticeData = ' . wp_json_encode( $data ) . ';';
 	wp_add_inline_script( 'wpcom-sidebar-notice', $inline_script, 'before' );
 }
 add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_sidebar_notice_assets' );
@@ -93,15 +94,12 @@ function wpcom_get_sidebar_notice() {
 }
 
 /**
- * Fetch sidebar notice data asynchronously via AJAX.
+ * Get sidebar notice data.
  */
-function wpcom_fetch_sidebar_notice_data() {
-	check_ajax_referer( 'wpcom_fetch_sidebar_notice', 'nonce' );
-
+function wpcom_get_sidebar_notice_data() {
 	$notice = wpcom_get_sidebar_notice();
 	if ( ! $notice ) {
-		status_header( 204 );
-		wp_die();
+		return;
 	}
 
 	$link = ! empty( $notice['link'] ) ? $notice['link'] : '';
@@ -125,14 +123,7 @@ function wpcom_fetch_sidebar_notice_data() {
 		}
 	}
 
-	$data = array(
-		'url'          => esc_url( $link ),
-		'text'         => wp_kses( $notice['content'] ?? '', array() ),
-		'action'       => wp_kses( $notice['cta'] ?? '', array() ),
-		'dismissible'  => $notice['dismissible'] ?? false,
-		'dismissLabel' => esc_html__( 'Dismiss', 'jetpack-mu-wpcom' ),
-		'id'           => $notice['id'] ?? '',
-		'featureClass' => $notice['feature_class'] ?? '',
+	return array(
 		'dismissNonce' => wp_create_nonce( 'wpcom_dismiss_sidebar_notice' ),
 		'tracks'       => $notice['tracks'] ?? null,
 		'user'         => array(
@@ -140,10 +131,32 @@ function wpcom_fetch_sidebar_notice_data() {
 			'username' => $user_login,
 		),
 	);
-
-	wp_send_json_success( $data );
 }
-add_action( 'wp_ajax_wpcom_fetch_sidebar_notice', 'wpcom_fetch_sidebar_notice_data' );
+
+/**
+ * Add a menu page to the admin menu.
+ */
+function wpcom_add_sidebar_notice_menu_page() {
+	$notice = wpcom_get_sidebar_notice();
+	if ( ! $notice ) {
+		return;
+	}
+
+	$link = ! empty( $notice['link'] ) ? $notice['link'] : '';
+	if ( str_starts_with( $link, '/' ) ) {
+		$link = 'https://wordpress.com' . $link;
+	}
+
+	echo '<li id="toplevel_page_site-notices" class="toplevel_page_site-notices" data-id="' . esc_attr( $notice['id'] ) . '" data-feature-class="' . esc_attr( $notice['feature_class'] ) . '">';
+	echo '<div class="upsell_banner">';
+	echo '<div class="upsell_banner__text">' . wp_kses( $notice['content'] ?? '', array() ) . '</div>';
+	echo '<a href="' . esc_url( $link ) . '" class="upsell_banner__action button">' . wp_kses( $notice['cta'] ?? '', array() ) . '</a>';
+	echo $notice['dismissible'] ? '<button type="button" class="upsell_banner__dismiss button button-link">' . esc_html__( 'Dismiss', 'jetpack-mu-wpcom' ) . '</button>' : '';
+	echo '</div>';
+	echo '</li>';
+	echo '<script>(function(el){el.parentNode.prepend(el)})(document.getElementById( "toplevel_page_site-notices" ))</script>';
+}
+add_action( 'adminmenu', 'wpcom_add_sidebar_notice_menu_page' );
 
 /**
  * Handle AJAX requests to dismiss a sidebar notice.

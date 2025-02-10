@@ -5,7 +5,7 @@ import {
 	useSocialMediaConnections,
 	usePostCanUseSig,
 } from '@automattic/jetpack-publicize-components';
-import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
 import UpsellNotice from './components/upsell';

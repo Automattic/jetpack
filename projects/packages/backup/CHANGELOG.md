@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.8] - 2025-02-03
+### Changed
+- Updated package dependencies. [#41286]
+
 ## [4.0.7] - 2025-01-20
 ### Changed
 - Code: Use function-style exit() and die() with a default status code of 0. [#41167]
@@ -766,6 +770,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[4.0.8]: https://github.com/Automattic/jetpack-backup/compare/v4.0.7...v4.0.8
 [4.0.7]: https://github.com/Automattic/jetpack-backup/compare/v4.0.6...v4.0.7
 [4.0.6]: https://github.com/Automattic/jetpack-backup/compare/v4.0.5...v4.0.6
 [4.0.5]: https://github.com/Automattic/jetpack-backup/compare/v4.0.4...v4.0.5

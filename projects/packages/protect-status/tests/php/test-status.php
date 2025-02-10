@@ -13,6 +13,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Protect_Models\Extension_Model;
 use Automattic\Jetpack\Protect_Models\Status_Model;
 use Automattic\Jetpack\Protect_Models\Threat_Model;
+use Automattic\Jetpack\Protect_Models\Vulnerability_Model;
 use Jetpack_Options;
 use WorDBless\BaseTestCase;
 
@@ -103,14 +104,14 @@ class Test_Status extends BaseTestCase {
 			'themes'                      => (object) array(
 				'theme-1' => (object) array(
 					'slug'            => 'theme-1',
-					'name'            => 'Sample Theme',
+					'name'            => 'Sample Theme 1',
 					'version'         => '1.0.2',
 					'checked'         => true,
 					'vulnerabilities' => array(
 						(object) array(
 							'id'       => 'test-vuln-1',
 							'title'    => 'Test Vuln 1',
-							'fixed_in' => '2.0.0',
+							'fixed_in' => '1.0.0',
 						),
 					),
 				),
@@ -118,7 +119,7 @@ class Test_Status extends BaseTestCase {
 			'plugins'                     => (object) array(
 				'plugin-1' => (object) array(
 					'slug'            => 'plugin-1',
-					'name'            => 'Sample Plugin',
+					'name'            => 'Sample Plugin 1',
 					'version'         => '1.0.2',
 					'checked'         => true,
 					'vulnerabilities' => array(
@@ -131,7 +132,7 @@ class Test_Status extends BaseTestCase {
 				),
 				'plugin-2' => (object) array(
 					'slug'            => 'plugin-2',
-					'name'            => 'Sample Plugin',
+					'name'            => 'Sample Plugin 2',
 					'version'         => '1.0.2',
 					'checked'         => true,
 					'vulnerabilities' => array(),
@@ -144,7 +145,7 @@ class Test_Status extends BaseTestCase {
 					(object) array(
 						'id'       => 'test-vuln-3',
 						'title'    => 'Test Vuln 3',
-						'fixed_in' => '2.0.0',
+						'fixed_in' => null,
 					),
 				),
 				'name'            => 'WordPress',
@@ -155,10 +156,117 @@ class Test_Status extends BaseTestCase {
 	/**
 	 * Get a sample result of Protect_Status::get_status().
 	 *
+	 * @phan-suppress PhanDeprecatedProperty -- Testing backwards compatibility.
+	 *
 	 * @return object
 	 */
 	public function get_sample_status() {
 		global $wp_version;
+
+		$vulnerability_1 = new Vulnerability_Model(
+			array(
+				'id'       => 'test-vuln-1',
+				'title'    => 'Test Vuln 1',
+				'fixed_in' => '1.0.0',
+			)
+		);
+
+		$vulnerability_2 = new Vulnerability_Model(
+			array(
+				'id'       => 'test-vuln-2',
+				'title'    => 'Test Vuln 2',
+				'fixed_in' => '2.0.0',
+			)
+		);
+
+		$vulnerability_3 = new Vulnerability_Model(
+			array(
+				'id'       => 'test-vuln-3',
+				'title'    => 'Test Vuln 3',
+				'fixed_in' => null,
+			)
+		);
+
+		$plugin_1 = new Extension_Model(
+			array(
+				'version' => '1.0.2',
+				'name'    => 'Sample Plugin 1',
+				'checked' => true,
+				'type'    => 'plugins',
+				'slug'    => 'plugin-1',
+			)
+		);
+
+		$theme_1 = new Extension_Model(
+			array(
+				'version' => '1.0.2',
+				'name'    => 'Sample Theme 1',
+				'checked' => true,
+				'type'    => 'themes',
+				'slug'    => 'theme-1',
+			)
+		);
+
+		$core = new Extension_Model(
+			array(
+				'version' => $wp_version,
+				'name'    => 'WordPress',
+				'checked' => true,
+				'type'    => 'core',
+				'slug'    => 'wordpress',
+			)
+		);
+
+		$plugin_1_threat = new Threat_Model(
+			array(
+				'id'              => 'plugins-plugin-1-1.0.2',
+				'title'           => 'Vulnerable plugin: Sample Plugin 1 (version 1.0.2)',
+				'description'     => 'The installed version of Sample Plugin 1 (1.0.2) has a known security vulnerability.',
+				'fixed_in'        => '2.0.0',
+				'source'          => null,
+				'vulnerabilities' => array( $vulnerability_2 ),
+			)
+		);
+
+		$theme_1_threat = new Threat_Model(
+			array(
+				'id'              => 'themes-theme-1-1.0.2',
+				'title'           => 'Vulnerable theme: Sample Theme 1 (version 1.0.2)',
+				'description'     => 'The installed version of Sample Theme 1 (1.0.2) has a known security vulnerability.',
+				'fixed_in'        => '1.0.0',
+				'source'          => null,
+				'vulnerabilities' => array( $vulnerability_1 ),
+			)
+		);
+
+		$core_threat = new Threat_Model(
+			array(
+				'id'              => 'core-wordpress-' . $wp_version,
+				'title'           => 'Vulnerable WordPress (version ' . $wp_version . ')',
+				'description'     => 'The installed version of WordPress (' . $wp_version . ') has a known security vulnerability.',
+				'fixed_in'        => null,
+				'source'          => null,
+				'vulnerabilities' => array( $vulnerability_3 ),
+			)
+		);
+
+		$core_threat_with_extension            = clone $core_threat;
+		$core_threat_with_extension->extension = $core;
+
+		$plugin_1_threat_with_extension            = clone $plugin_1_threat;
+		$plugin_1_threat_with_extension->extension = $plugin_1;
+
+		$theme_1_threat_with_extension            = clone $theme_1_threat;
+		$theme_1_threat_with_extension->extension = $theme_1;
+
+		$plugin_1_with_threats          = clone $plugin_1;
+		$plugin_1_with_threats->threats = array( $plugin_1_threat );
+
+		$theme_1_with_threats          = clone $theme_1;
+		$theme_1_with_threats->threats = array( $theme_1_threat );
+
+		$core_with_threats          = clone $core;
+		$core_with_threats->threats = array( $core_threat );
 
 		return new Status_Model(
 			array(
@@ -172,125 +280,23 @@ class Test_Status extends BaseTestCase {
 					new Extension_Model(
 						array(
 							'version' => '1.0.2',
-							'name'    => 'Sample Plugin',
+							'name'    => 'Sample Plugin 2',
 							'checked' => true,
 							'type'    => 'plugins',
 							'threats' => array(),
 							'slug'    => 'plugin-2',
 						)
 					),
-					new Extension_Model(
-						array(
-							'version' => '1.0.2',
-							'name'    => 'Sample Plugin',
-							'checked' => true,
-							'type'    => 'plugins',
-							'threats' => array(
-								new Threat_Model(
-									array(
-										'id'       => 'test-vuln-2',
-										'title'    => 'Test Vuln 2',
-										'fixed_in' => '2.0.0',
-										'source'   => 'https://jetpack.com/redirect/?source=jetpack-protect-vul-info&site=example.org&path=test-vuln-2',
-									)
-								),
-							),
-							'slug'    => 'plugin-1',
-						)
-					),
+					$plugin_1_with_threats,
 				),
 				'themes'              => array(
-					new Extension_Model(
-						array(
-							'version' => '1.0.2',
-							'name'    => 'Sample Theme',
-							'checked' => true,
-							'type'    => 'themes',
-							'threats' => array(
-								new Threat_Model(
-									array(
-										'id'       => 'test-vuln-1',
-										'title'    => 'Test Vuln 1',
-										'fixed_in' => '2.0.0',
-										'source'   => 'https://jetpack.com/redirect/?source=jetpack-protect-vul-info&site=example.org&path=test-vuln-1',
-									)
-								),
-							),
-							'slug'    => 'theme-1',
-						)
-					),
+					$theme_1_with_threats,
 				),
-				'core'                => new Extension_Model(
-					array(
-						'version' => $wp_version,
-						'threats' => array(
-							new Threat_Model(
-								array(
-									'id'       => 'test-vuln-3',
-									'title'    => 'Test Vuln 3',
-									'fixed_in' => '2.0.0',
-									'source'   => 'https://jetpack.com/redirect/?source=jetpack-protect-vul-info&site=example.org&path=test-vuln-3',
-								)
-							),
-						),
-						'checked' => true,
-						'name'    => 'WordPress',
-						'slug'    => 'wordpress',
-						'type'    => 'core',
-					)
-				),
+				'core'                => $core_with_threats,
 				'threats'             => array(
-					new Threat_Model(
-						array(
-							'id'        => 'test-vuln-1',
-							'title'     => 'Test Vuln 1',
-							'fixed_in'  => '2.0.0',
-							'source'    => 'https://jetpack.com/redirect/?source=jetpack-protect-vul-info&site=example.org&path=test-vuln-1',
-							'extension' => new Extension_Model(
-								array(
-									'version' => '1.0.2',
-									'name'    => 'Sample Theme',
-									'checked' => true,
-									'type'    => 'themes',
-									'slug'    => 'theme-1',
-								)
-							),
-						)
-					),
-					new Threat_Model(
-						array(
-							'id'        => 'test-vuln-2',
-							'title'     => 'Test Vuln 2',
-							'fixed_in'  => '2.0.0',
-							'source'    => 'https://jetpack.com/redirect/?source=jetpack-protect-vul-info&site=example.org&path=test-vuln-2',
-							'extension' => new Extension_Model(
-								array(
-									'version' => '1.0.2',
-									'name'    => 'Sample Plugin',
-									'checked' => true,
-									'type'    => 'plugins',
-									'slug'    => 'plugin-1',
-								)
-							),
-						)
-					),
-					new Threat_Model(
-						array(
-							'id'        => 'test-vuln-3',
-							'title'     => 'Test Vuln 3',
-							'fixed_in'  => '2.0.0',
-							'source'    => 'https://jetpack.com/redirect/?source=jetpack-protect-vul-info&site=example.org&path=test-vuln-3',
-							'extension' => new Extension_Model(
-								array(
-									'version' => $wp_version,
-									'name'    => 'WordPress',
-									'checked' => true,
-									'type'    => 'core',
-									'slug'    => 'wordpress',
-								)
-							),
-						)
-					),
+					$theme_1_threat_with_extension,
+					$plugin_1_threat_with_extension,
+					$core_threat_with_extension,
 				),
 			)
 		);
@@ -319,11 +325,11 @@ class Test_Status extends BaseTestCase {
 	public function return_sample_plugins() {
 		return array(
 			'plugin-1' => array(
-				'Name'    => 'Sample Plugin',
+				'Name'    => 'Sample Plugin 1',
 				'Version' => '1.0.2',
 			),
 			'plugin-2' => array(
-				'Name'    => 'Sample Plugin',
+				'Name'    => 'Sample Plugin 2',
 				'Version' => '1.0.2',
 			),
 		);
@@ -337,7 +343,7 @@ class Test_Status extends BaseTestCase {
 	public function return_sample_themes() {
 		return array(
 			'theme-1' => array(
-				'Name'    => 'Sample Theme',
+				'Name'    => 'Sample Theme 1',
 				'Version' => '1.0.2',
 			),
 		);

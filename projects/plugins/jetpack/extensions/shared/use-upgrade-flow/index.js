@@ -1,8 +1,7 @@
-import { getUpgradeUrl } from '@automattic/jetpack-shared-extension-utils';
+import { getUpgradeUrl, useAutosaveAndRedirect } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
 import { doAction, hasAction } from '@wordpress/hooks';
 import { noop } from 'lodash';
-import useAutosaveAndRedirect from '../use-autosave-and-redirect/index';
 
 const HOOK_OPEN_CHECKOUT_MODAL = 'a8c.wpcom-block-editor.openCheckoutModal';
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix bug where firewall was displayed as active if automatic rules were enabled but firewall was off

@@ -1,0 +1,14 @@
+---
+description: Guidelines to write JavaScript tests
+globs: 
+---
+- Use Jest with WordPress test utilities
+- Follow WordPress testing patterns
+- Test React components with `@testing-library/react`
+- Implement proper async testing
+- Use WordPress mocking patterns
+
+
+Check [component.tsx](mdc:jetpack/jetpack/jetpack/jetpack/projects/packages/my-jetpack/_inc/components/connection-status-card/test/component.tsx) for an example.
+
+Find out more about how to develop tests at [automated-testing.md](mdc:jetpack/jetpack/docs/automated-testing.md)

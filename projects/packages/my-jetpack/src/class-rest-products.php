@@ -172,6 +172,7 @@ class REST_Products {
 
 		return true;
 	}
+
 	/**
 	 * Check Products argument.
 	 *
