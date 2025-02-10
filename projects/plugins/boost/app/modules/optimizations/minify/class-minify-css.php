@@ -13,10 +13,13 @@ class Minify_CSS implements Pluggable, Changes_Page_Output, Optimization, Has_Ac
 
 	public static $default_excludes = array( 'admin-bar', 'dashicons', 'elementor-app' );
 
+	/**
+	 * Setup the module. This runs on every page load.
+	 */
 	public function setup() {
 		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-helpers.php';
 
-		jetpack_boost_minify_init();
+		jetpack_boost_minify_setup();
 
 		if ( jetpack_boost_page_optimize_bail() ) {
 			return;
@@ -50,11 +53,15 @@ class Minify_CSS implements Pluggable, Changes_Page_Output, Optimization, Has_Ac
 		$wp_styles->allow_gzip_compression = true; // @todo - used constant ALLOW_GZIP_COMPRESSION = true if not defined.
 	}
 
+	/**
+	 * This is called only when the module is activated.
+	 */
 	public static function activate() {
-		jetpack_boost_minify_activation();
-		jetpack_boost_404_tester();
 	}
 
+	/**
+	 * This is called only when the module is deactivated.
+	 */
 	public static function deactivate() {
 		jetpack_boost_page_optimize_cleanup_cache( 'css' );
 		jetpack_boost_minify_deactivation();
