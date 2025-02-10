@@ -95,6 +95,7 @@ function jetpack_boost_page_optimize_deactivate() {
 	jetpack_boost_page_optimize_cache_cleanup( $cache_folder, 0 /* max file age in seconds */ );
 
 	jetpack_boost_clear_cache_cleanup_hook( $cache_folder );
+	wp_clear_scheduled_hook( 'jetpack_boost_404_tester_cron' );
 }
 
 /**
