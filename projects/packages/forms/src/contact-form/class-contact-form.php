@@ -377,7 +377,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$form_classes .= ' wp-block-jetpack-contact-form';
 			}
 
-			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "' $form_aria_label novalidate>\n";
+			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "' $form_aria_label enctype='multipart/form-data' novalidate>\n";
 			$r .= $form->body;
 
 			// In new versions of the contact form block the button is an inner block
@@ -1010,6 +1010,31 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Get human readable error message for a given file upload error code
+	 *
+	 * @param int $error_code The error code from $_FILES['error'].
+	 * @return string Error message
+	 */
+	protected function get_upload_error_message( $error_code ) {
+		$upload_error_strings = array(
+			UPLOAD_ERR_OK         => __( 'There is no error, the file uploaded with success.', 'jetpack-forms' ),
+			UPLOAD_ERR_INI_SIZE   => __( 'The uploaded file exceeds the upload_max_filesize directive in php.ini.', 'jetpack-forms' ),
+			UPLOAD_ERR_FORM_SIZE  => __( 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.', 'jetpack-forms' ),
+			UPLOAD_ERR_PARTIAL    => __( 'The uploaded file was only partially uploaded.', 'jetpack-forms' ),
+			UPLOAD_ERR_NO_FILE    => __( 'No file was uploaded.', 'jetpack-forms' ),
+			UPLOAD_ERR_NO_TMP_DIR => __( 'Missing a temporary folder.', 'jetpack-forms' ),
+			UPLOAD_ERR_CANT_WRITE => __( 'Failed to write file to disk.', 'jetpack-forms' ),
+			UPLOAD_ERR_EXTENSION  => __( 'A PHP extension stopped the file upload.', 'jetpack-forms' ),
+		);
+
+		if ( isset( $upload_error_strings[ $error_code ] ) ) {
+			return $upload_error_strings[ $error_code ];
+		}
+
+		return __( 'Unknown upload error.', 'jetpack-forms' );
+	}
+
+	/**
 	 * Process the contact form's POST submission
 	 * Stores feedback.  Sends email.
 	 */
@@ -1154,6 +1179,83 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$email_marketing_consent = false;
 		}
 
+		// Initialize an empty array for storing uploaded file paths
+		$uploaded_files = array();
+
+		// Define allowed mime types
+		$allowed_mime_types = array(
+			'pdf'  => 'application/pdf',
+			'jpeg' => 'image/jpeg',
+			'jpg'  => 'image/jpeg',
+		);
+
+		// Process file uploads first
+		foreach ( $this->fields as $id => $field ) {
+			if ( $field->get_attribute( 'type' ) !== 'file' ) {
+				continue;
+			}
+
+			$field_id = sanitize_key( $id );
+
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled by process_form_submission()
+			if ( ! isset( $_FILES[ $field_id ] ) || ! is_array( $_FILES[ $field_id ] ) ) {
+				continue;
+			}
+
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled by process_form_submission()
+			$file = array_map( 'sanitize_text_field', $_FILES[ $field_id ] );
+
+			// Basic validation
+			if ( ! empty( $file['error'] ) ) {
+				if ( UPLOAD_ERR_NO_FILE !== $file['error'] ) {
+					$field->add_error( $this->get_upload_error_message( $file['error'] ) );
+				}
+				continue;
+			}
+
+			// Validate file type
+			$file_name = sanitize_file_name( wp_unslash( $file['name'] ) );
+			$file_type = wp_check_filetype( $file_name, $allowed_mime_types );
+
+			if ( ! $file_type['type'] ) {
+				$field->add_error( __( 'Invalid file type. Only PDF and JPG files are allowed.', 'jetpack-forms' ) );
+				continue;
+			}
+
+			// Get upload directory
+			$upload_dir = wp_upload_dir();
+			if ( ! empty( $upload_dir['error'] ) ) {
+				$field->add_error( __( 'Unable to process file upload.', 'jetpack-forms' ) );
+				continue;
+			}
+
+			$jetpack_forms_dir = $upload_dir['basedir'] . '/jetpack-forms';
+
+			// Create upload directory if it doesn't exist
+			if ( ! wp_mkdir_p( $jetpack_forms_dir ) ) {
+				$field->add_error( __( 'Unable to create upload directory.', 'jetpack-forms' ) );
+				continue;
+			}
+
+			// Generate unique filename
+			$filename = wp_unique_filename( $jetpack_forms_dir, $file_name );
+			$new_file = $jetpack_forms_dir . '/' . $filename;
+
+			// Move uploaded file
+			$move_result = move_uploaded_file( $file['tmp_name'], $new_file );
+			if ( ! $move_result ) {
+				$field->add_error( __( 'Failed to upload file.', 'jetpack-forms' ) );
+				continue;
+			}
+
+			$uploaded_files[ $field_id ] = array(
+				'name' => $file_name,
+				'path' => $new_file,
+				'url'  => esc_url_raw( $upload_dir['baseurl'] . '/jetpack-forms/' . $filename ),
+				'type' => $file_type['type'],
+			);
+		}
+
 		$all_values   = array();
 		$extra_values = array();
 		$i            = 1; // Prefix counter for stored metadata
@@ -1181,6 +1283,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			$extra_values[ $label ] = $value;
 			++$i; // Increment prefix counter for the next extra field
+		}
+
+		if ( ! empty( $uploaded_files ) ) {
+			$extra_values['files'] = $uploaded_files;
 		}
 
 		if ( ! empty( $_REQUEST['is_block'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not changing the site.
