@@ -501,6 +501,8 @@ interface Window {
 				blogId: number;
 				wpcomUser: {
 					avatar: boolean;
+					display_name: string;
+					email: string;
 				};
 				gravatar: string;
 				permissions: {
