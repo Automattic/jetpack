@@ -293,7 +293,7 @@ class Protect_Status extends Status {
 		$core->checked = true;
 
 		// Generate a threat from core vulnerabilities.
-		if ( ! empty( $report_data->core->vulnerabilities ) ) {
+		if ( is_array( $report_data->core->vulnerabilities ) && ! empty( $report_data->core->vulnerabilities ) ) {
 			// normalize the vulnerabilities data
 			$vulnerabilities = array_map(
 				function ( $vulnerability ) {
