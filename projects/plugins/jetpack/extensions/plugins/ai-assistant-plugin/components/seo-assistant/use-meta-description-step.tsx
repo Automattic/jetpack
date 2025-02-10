@@ -107,10 +107,6 @@ export const useMetaDescriptionStep = ( {
 		async ( { fromSkip } ) => {
 			let newMetaDescriptions = [ ...metaDescriptionOptions ];
 
-			if ( ! prevStepHasChanged && newMetaDescriptions.length > 0 ) {
-				return;
-			}
-
 			setLastValue( keywords );
 			const initialMessage = fromSkip
 				? {

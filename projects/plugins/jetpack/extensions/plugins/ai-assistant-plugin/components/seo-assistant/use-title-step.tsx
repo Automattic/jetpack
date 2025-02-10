@@ -91,10 +91,6 @@ export const useTitleStep = ( {
 		async ( { fromSkip } ) => {
 			let newTitles = [ ...titleOptions ];
 
-			if ( ! prevStepHasChanged && newTitles.length > 0 ) {
-				return value;
-			}
-
 			setLastValue( keywords );
 			const initialMessage = fromSkip
 				? {
