@@ -293,10 +293,10 @@ class Initializer {
 			if ( ! empty( $video ) && ! is_wp_error( $video ) && empty( $video->error ) ) {
 				$width  = $video->width;
 				$height = $video->height;
-			}
 
-			if ( $width && $height ) {
-				$style = $style . sprintf( 'width: %s; height: %s;', $width, $height );
+				if ( $width && $height ) {
+					$style = $style . sprintf( 'width: %s; height: %s;', $width, $height );
+				}
 			}
 		}
 
