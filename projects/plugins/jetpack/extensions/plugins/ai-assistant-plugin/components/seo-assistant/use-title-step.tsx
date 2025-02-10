@@ -4,7 +4,7 @@
 import { askQuestionSync, usePostContent } from '@automattic/jetpack-ai-client';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useCallback, useState, createInterpolateElement } from '@wordpress/element';
+import { useCallback, useState, createInterpolateElement, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /*
  * Internal dependencies
@@ -34,10 +34,12 @@ export const useTitleStep = ( {
 	const [ titleOptions, setTitleOptions ] = useState< OptionMessage[] >( [] );
 	const { editPost } = useDispatch( 'core/editor' );
 	const { messages, setMessages, addMessage, editLastMessage, setSelectedMessage } = useMessages();
-	const [ prevStepValue, setPrevStepValue ] = useState();
+	const [ lastValue, setLastValue ] = useState< string >( '' );
 	const postContent = usePostContent();
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const [ generatedCount, setGeneratedCount ] = useState( 0 );
+
+	const prevStepHasChanged = useMemo( () => keywords !== lastValue, [ keywords, lastValue ] );
 
 	const request = useCallback( async () => {
 		if ( mockRequests ) {
@@ -86,14 +88,10 @@ export const useTitleStep = ( {
 	}, [ generatedCount, request ] );
 
 	const handleTitleGenerate = useCallback(
-		async ( { fromSkip, stepValue: stepKeywords } ) => {
-			const prevStepHasChanged = stepKeywords !== prevStepValue;
+		async ( { fromSkip } ) => {
+			let newTitles = [ ...titleOptions ];
 
-			if ( ! prevStepHasChanged ) {
-				return;
-			}
-
-			setPrevStepValue( stepKeywords );
+			setLastValue( keywords );
 			const initialMessage = fromSkip
 				? {
 						content: createInterpolateElement(
@@ -107,10 +105,10 @@ export const useTitleStep = ( {
 						showIcon: true,
 				  };
 			setMessages( [ initialMessage ] );
-			let newTitles = [ ...titleOptions ];
 
 			// we only generate if options are empty
 			if ( newTitles.length === 0 || prevStepHasChanged ) {
+				setSelectedTitle( '' );
 				newTitles = await getTitles();
 			}
 
@@ -142,8 +140,18 @@ export const useTitleStep = ( {
 				// this addes title options as message-buttons
 				newTitles.forEach( title => addMessage( { ...title, type: 'option', isUser: true } ) );
 			}
+			return value;
 		},
-		[ prevStepValue, setMessages, titleOptions, editLastMessage, getTitles, addMessage ]
+		[
+			titleOptions,
+			prevStepHasChanged,
+			keywords,
+			setMessages,
+			editLastMessage,
+			getTitles,
+			addMessage,
+			value,
+		]
 	);
 
 	const handleTitleRegenerate = useCallback( async () => {

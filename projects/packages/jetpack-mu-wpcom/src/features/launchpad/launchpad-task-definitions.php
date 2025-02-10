@@ -958,12 +958,13 @@ function wpcom_launchpad_is_woocommerce_task_completed( $task, $is_complete ) {
 /**
  * Record completion event in Tracks if we're running on WP.com.
  *
- * @param string $task_id The task ID.
- * @param array  $extra_props Optional extra arguments to pass to the Tracks event.
+ * @param string       $task_id The task ID.
+ * @param array        $extra_props Optional extra arguments to pass to the Tracks event.
+ * @param WP_User|null $user Optional user to use instead of the current user.
  *
  * @return void
  */
-function wpcom_launchpad_track_completed_task( $task_id, $extra_props = array() ) {
+function wpcom_launchpad_track_completed_task( $task_id, $extra_props = array(), $user = null ) {
 	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
 		return;
 	}
@@ -971,7 +972,7 @@ function wpcom_launchpad_track_completed_task( $task_id, $extra_props = array() 
 	require_lib( 'tracks/client' );
 
 	tracks_record_event(
-		wp_get_current_user(),
+		$user ?? wp_get_current_user(),
 		'wpcom_launchpad_mark_task_complete',
 		array_merge(
 			array( 'task_id' => $task_id ),
@@ -1898,6 +1899,20 @@ function wpcom_launchpad_is_email_verified() {
 
 	return ! Email_Verification::is_email_unverified();
 }
+
+/**
+ * Handles WPCOM action fired when email verification is completed.
+ *
+ * @param int $user_id The user ID.
+ */
+function wpcom_launchpad_mark_verify_email_complete( $user_id ) {
+	$user = get_user_by( 'id', $user_id );
+	if ( empty( $user ) ) {
+		return;
+	}
+	wpcom_launchpad_track_completed_task( 'verify_email', array(), $user );
+}
+add_action( 'wpcom_email_verification_complete', 'wpcom_launchpad_mark_verify_email_complete' );
 
 /**
  * If the site has a paid-subscriber goal.

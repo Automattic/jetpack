@@ -1,4 +1,11 @@
 /**
+ * Values come from https://opengrok.a8c.com/source/xref/jetpack/projects/packages/status/src/class-host.php?r=9f212812&fi=get_known_host_guess#240
+ *
+ * @type {Array<import('@automattic/jetpack-script-data').AdminSiteData['host']>}
+ */
+const NON_SELF_HOSTED_TYPES = [ 'woa', 'atomic', 'newspack', 'vip', 'wpcom' ];
+
+/**
  * Get the script data from the window object.
  *
  * @return {import('./types').JetpackScriptData} The script data.
@@ -67,4 +74,31 @@ export function getActiveFeatures() {
  */
 export function siteHasFeature( feature: string ) {
 	return getActiveFeatures().includes( feature );
+}
+
+/**
+ * Check if the site host is wpcom.
+ *
+ * @return {boolean} Whether the site host is wpcom.
+ */
+export function isSimpleSite() {
+	return getScriptData()?.site?.host === 'wpcom';
+}
+
+/**
+ * Check if the site host is woa.
+ *
+ * @return {boolean} Whether the site host is woa.
+ */
+export function isAtomicSite() {
+	return getScriptData()?.site?.host === 'atomic';
+}
+
+/**
+ * Check if the site is self-hosted Jetpack site.
+ *
+ * @return {boolean} Whether the site is self-hosted Jetpack site.
+ */
+export function isJetpackSelfHostedSite() {
+	return ! NON_SELF_HOSTED_TYPES.includes( getSiteData()?.host );
 }

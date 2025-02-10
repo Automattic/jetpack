@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Fix warnnings for videos with no prior metadata.

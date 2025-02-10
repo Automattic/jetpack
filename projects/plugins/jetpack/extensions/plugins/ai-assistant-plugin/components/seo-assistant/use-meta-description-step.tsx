@@ -4,7 +4,7 @@
 import { askQuestionSync, usePostContent } from '@automattic/jetpack-ai-client';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useCallback, useState, createInterpolateElement } from '@wordpress/element';
+import { useCallback, useState, createInterpolateElement, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /*
  * Internal dependencies
@@ -36,6 +36,7 @@ export const useMetaDescriptionStep = ( {
 	mockRequests?: boolean;
 } ): Step => {
 	const [ value, setValue ] = useState< string >();
+	const [ lastValue, setLastValue ] = useState< string >( '' );
 	const [ selectedMetaDescription, setSelectedMetaDescription ] = useState< string >();
 	const [ metaDescriptionOptions, setMetaDescriptionOptions ] = useState< OptionMessage[] >( [] );
 	const { messages, setMessages, addMessage, editLastMessage, setSelectedMessage } = useMessages();
@@ -43,6 +44,8 @@ export const useMetaDescriptionStep = ( {
 	const postContent = usePostContent();
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const [ generatedCount, setGeneratedCount ] = useState( 0 );
+
+	const prevStepHasChanged = useMemo( () => keywords !== lastValue, [ keywords, lastValue ] );
 
 	const request = useCallback( async () => {
 		if ( mockRequests ) {
@@ -102,6 +105,9 @@ export const useMetaDescriptionStep = ( {
 
 	const handleMetaDescriptionGenerate = useCallback(
 		async ( { fromSkip } ) => {
+			let newMetaDescriptions = [ ...metaDescriptionOptions ];
+
+			setLastValue( keywords );
 			const initialMessage = fromSkip
 				? {
 						content: createInterpolateElement(
@@ -114,10 +120,11 @@ export const useMetaDescriptionStep = ( {
 						content: __( "Now, let's optimize your meta description.", 'jetpack' ),
 						showIcon: true,
 				  };
-			let newMetaDescriptions = [ ...metaDescriptionOptions ];
+
 			setMessages( [ initialMessage ] );
 			// we only generate if options are empty
-			if ( newMetaDescriptions.length === 0 ) {
+			if ( newMetaDescriptions.length === 0 || prevStepHasChanged ) {
+				setSelectedMetaDescription( '' );
 				newMetaDescriptions = await getMetaDescriptions();
 			}
 			setMetaDescriptionOptions( newMetaDescriptions );
@@ -138,7 +145,15 @@ export const useMetaDescriptionStep = ( {
 				addMessage( { ...meta, type: 'option', isUser: true } )
 			);
 		},
-		[ metaDescriptionOptions, setMessages, editLastMessage, getMetaDescriptions, addMessage ]
+		[
+			metaDescriptionOptions,
+			setMessages,
+			editLastMessage,
+			getMetaDescriptions,
+			addMessage,
+			keywords,
+			prevStepHasChanged,
+		]
 	);
 
 	const handleMetaDescriptionRegenerate = useCallback( async () => {
