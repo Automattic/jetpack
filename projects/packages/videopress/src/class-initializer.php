@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
-use Automattic\Jetpack\Extensions\VideoPress_Video;
 use WP_Block;
 
 /**
@@ -289,7 +288,7 @@ class Initializer {
 		$videopress_url = Utils::get_video_press_url( $guid, $block_attributes );
 
 		if ( ! empty( $guid ) ) {
-			$video = new VideoPress_Video( $guid, $max_width );
+			$video = Data::get_single_video_data( $guid, $max_width );
 
 			if ( ! is_wp_error( $video ) && empty( $video->error ) ) {
 				$width  = $video->width;

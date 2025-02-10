@@ -426,4 +426,34 @@ class Data {
 
 		return $initial_state;
 	}
+
+	/**
+	 * Get single video data from VideoPress servers.
+	 *
+	 * @param string $guid VideoPress unique identifier.
+	 * @param int    $max_width maximum requested video width. final width and height are calculated on VideoPress servers based on the aspect ratio of the original video upload.
+	 * @return stdClass|WP_Error video data or WP_Error if request unsuccessful
+	 */
+	public static function get_single_video_data( $guid, $max_width = 0 ) {
+		$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+		$args   = array(
+			'guid'   => $guid,
+			'domain' => $domain,
+		);
+
+		$request = new WP_REST_Request( 'GET', 'https://v.wordpress.com/data/wordpress.json' );
+		$request->set_query_params( $args );
+
+		if ( $max_width > 0 ) {
+			$request->set_body_params( array( 'maxwidth' => $max_width ) );
+		}
+
+		$response = rest_do_request( $request );
+
+		if ( $response->is_error() ) {
+			return $response;
+		}
+
+		return $response->get_data();
+	}
 }
