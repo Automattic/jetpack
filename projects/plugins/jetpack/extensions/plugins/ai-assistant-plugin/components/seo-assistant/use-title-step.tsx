@@ -105,9 +105,11 @@ export const useTitleStep = ( {
 	const handleTitleGenerate = useCallback(
 		async ( { fromSkip } ) => {
 			let newTitles = [ ...titleOptions ];
+			const previousLastValue = lastValue;
+
+			setLastValue( keywords );
 
 			if ( ! hasFailed ) {
-				setLastValue( keywords );
 				const initialMessage = fromSkip
 					? {
 							content: createInterpolateElement(
@@ -132,6 +134,8 @@ export const useTitleStep = ( {
 				} catch {
 					setFailurePoint( 'generate' );
 					setHasFailed( true );
+					// reset the last value to the previous value on failure to avoid a wrong value for prevStepHasChanged
+					setLastValue( previousLastValue );
 					return;
 				}
 			}
@@ -153,11 +157,12 @@ export const useTitleStep = ( {
 		},
 		[
 			titleOptions,
+			lastValue,
+			keywords,
 			hasFailed,
 			prevStepHasChanged,
 			editLastMessage,
 			value,
-			keywords,
 			setMessages,
 			getTitles,
 			addMessage,
