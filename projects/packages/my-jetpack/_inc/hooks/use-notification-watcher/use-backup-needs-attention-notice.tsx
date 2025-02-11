@@ -19,8 +19,7 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const {
 		type,
 		data: { status, last_updated: lastUpdated },
-		is_silent: isSilent,
-	} = redBubbleAlerts?.backup_failure || { type: 'error', data: {}, isSilent: false };
+	} = redBubbleAlerts?.backup_failure || { type: 'error', data: {} };
 	const { text: errorDescription } = useGetReadableFailedBackupReason() || {};
 
 	const {
@@ -59,7 +58,7 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	}, [ recordEvent, status, contactSupportUrl ] );
 
 	useEffect( () => {
-		if ( ! redBubbleAlerts?.backup_failure || isSilent ) {
+		if ( ! redBubbleAlerts?.backup_failure ) {
 			return;
 		}
 
@@ -123,7 +122,6 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		noticeTitle,
 		backupStatusLastUpdatedDate,
 		type,
-		isSilent,
 		errorDescription,
 	] );
 };
