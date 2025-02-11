@@ -28,8 +28,12 @@ function wpcom_launchpad_should_use_wp_admin_link() {
 function wpcom_launchpad_get_task_definitions() {
 	$experiment_name  = 'calypso_signup_onboarding_goals_first_flow_holdout_v2_20250131';
 	$user             = wp_get_current_user();
-	$assignment       = \ExPlat\get_user_assignment( $experiment_name, $user );
-	$is_user_assigned = 'treatment_cumulative' === $assignment;
+	$is_user_assigned = false;
+
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && $user && function_exists( '\ExPlat\get_user_assignment' ) ) {
+		$assignment       = \ExPlat\get_user_assignment( $experiment_name, $user );
+		$is_user_assigned = 'treatment_cumulative' === $assignment;
+	}
 
 	$task_definitions = array(
 		// Core tasks.
