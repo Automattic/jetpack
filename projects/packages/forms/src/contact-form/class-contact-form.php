@@ -365,19 +365,54 @@ class Contact_Form extends Contact_Form_Shortcode {
 			 * @param string $contact_form_id Contact form post URL.
 			 * @param $post $GLOBALS['post'] Post global variable.
 			 * @param int $id Contact Form ID.
+			 * @param int $page Page number.
 			 */
 			$url                     = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id, $page );
 			$has_submit_button_block = str_contains( $content, 'wp-block-jetpack-button' );
 			$form_classes            = 'contact-form commentsblock';
 			$post_title              = $post->post_title ?? '';
 			$form_accessible_name    = ! empty( $attributes['formTitle'] ) ? $attributes['formTitle'] : $post_title;
-			$form_aria_label         = isset( $form_accessible_name ) && ! empty( $form_accessible_name ) ? 'aria-label="' . esc_attr( $form_accessible_name ) . '"' : '';
+			$form_aria_label         = isset( $form_accessible_name ) && ! empty( $form_accessible_name ) ? esc_attr( $form_accessible_name ) : '';
 
 			if ( $has_submit_button_block ) {
 				$form_classes .= ' wp-block-jetpack-contact-form';
 			}
 
-			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "' $form_aria_label enctype='multipart/form-data' novalidate>\n";
+			/**
+			 * Filter the contact form attributes that are applied to the form element.
+			 *
+			 * @module contact-form
+			 *
+			 * @since $$next-version&&
+			 *
+			 * @param array $attributes Contact form attributes. Array of key value pairs.
+			 * @param $post $GLOBALS['post'] Post global variable.
+			 * @param int $id Contact Form ID.
+			 * @param int $page Page number.
+			 */
+			$attributes = apply_filters(
+				'jetpack_form_attributes',
+				array(
+					'aria-label' => $form_aria_label,
+					'class'      => $form_classes,
+				),
+				$GLOBALS['post'],
+				$id,
+				$page
+			);
+
+			// Remove the form enctype attribute if it was applied.
+			remove_filter( 'jetpack_form_attributes', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'add_enctype_attribute' ) );
+
+			$form_attributes = '';
+			foreach ( $attributes  as $key => $attributes ) {
+				if ( empty( $attributes ) ) {
+					continue;
+				}
+				$form_attributes .= $key . '="' . esc_attr( $attributes ) . '" ';
+			}
+
+			$r .= "<form action='" . esc_url( $url ) . "' method='post' " . $form_attributes . " novalidate>\n";
 			$r .= $form->body;
 
 			// In new versions of the contact form block the button is an inner block
@@ -459,6 +494,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param string $r The contact form HTML.
 		 */
 		return apply_filters( 'jetpack_contact_form_html', $r );
+	}
+
+	/**
+	 * Function that adds the enctype attribute to the form element attributes.
+	 * This is useful for addin the myultipart/form-data to the form HTML element.
+	 *
+	 * @param array $attributes - the attributes.
+	 */
+	public static function add_enctype_multipart_attribute( $attributes ) {
+		$attributes['enctype'] = 'multipart/form-data';
+		return $attributes;
 	}
 
 	/**
