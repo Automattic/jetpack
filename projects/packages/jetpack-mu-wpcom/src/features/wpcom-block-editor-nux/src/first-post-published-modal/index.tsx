@@ -35,10 +35,14 @@ const FirstPostPublishedModalInner: React.FC = () => {
 		select => ( select( 'core/editor' ) as CoreEditorPlaceholder ).isCurrentPostPublished(),
 		[]
 	);
-	const previousIsCurrentPostPublished = useRef( isCurrentPostPublished );
-	const shouldShowFirstPostPublishedModal = useShouldShowFirstPostPublishedModal();
-	const [ isOpen, setIsOpen ] = useState( false );
+
 	const initialHash = useRef( window.location.hash );
+	const isLaunchpadHomeTask = initialHash.current === '#publish-first-post';
+
+	const shouldShowFirstPostPublishedModal =
+		useShouldShowFirstPostPublishedModal() && ! isLaunchpadHomeTask;
+
+	const [ isOpen, setIsOpen ] = useState( false );
 	const closeModal = () => setIsOpen( false );
 
 	const { siteUrlOption, launchpadScreenOption, siteIntentOption } = window?.launchpadOptions || {};
@@ -49,7 +53,8 @@ const FirstPostPublishedModalInner: React.FC = () => {
 		siteUrl = new URL( siteUrlOption ).hostname;
 	}
 
-	const isLaunchpadHomeTask = initialHash.current === '#publish-first-post';
+	const previousIsCurrentPostPublished = useRef( isCurrentPostPublished );
+
 	useEffect( () => {
 		// If the user is set to see the first post modal and current post status changes to publish,
 		// open the post publish modal
