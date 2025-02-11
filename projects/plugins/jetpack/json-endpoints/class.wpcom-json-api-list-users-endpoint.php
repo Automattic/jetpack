@@ -243,46 +243,28 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 							$user = new WP_User( $user->ID );
 						}
 
-						if ( 'email' === $args['order_by'] ) {
-							if ( 'asc' === strtolower( $args['order'] ) ) {
-								usort(
-									$combined_users,
-									function ( $a, $b ) {
-										return strcmp( strtolower( $a->user_email ), strtolower( $b->user_email ) );
-									}
-								);
-							} else {
-								usort(
-									$combined_users,
-									function ( $a, $b ) {
-										return gmp_neg( strcmp( strtolower( $a->user_email ), strtolower( $b->user_email ) ) );
-									}
-								);
-							}
-						} elseif ( 'login' === $args['order_by'] ) {
-							if ( 'asc' === strtolower( $args['order'] ) ) {
-								usort(
-									$combined_users,
-									function ( $a, $b ) {
-										return strcmp( strtolower( $a->user_login ), strtolower( $b->user_login ) );
-									}
-								);
-							} else {
-								usort(
-									$combined_users,
-									function ( $a, $b ) {
-										return gmp_neg( strcmp( strtolower( $a->user_login ), strtolower( $b->user_login ) ) );
-									}
-								);
-							}
-						} else {
-							usort(
-								$combined_users,
-								function ( $a, $b ) {
-									return strcmp( strtolower( $a->display_name ), strtolower( $b->display_name ) );
-								}
-							);
+						$order = $args['order'] ?? 'asc';
+
+						switch ( $args['order_by'] ) {
+							case 'email':
+								$orderby = 'user_email';
+								break;
+							case 'login':
+								$orderby = 'user_login';
+								break;
+							default:
+								$orderby = 'display_name';
 						}
+
+						usort(
+							$combined_users,
+							function ( $a, $b ) use ( $order, $orderby ) {
+								if ( 'desc' === strtolower( $order ) ) {
+									return gmp_neg( strcmp( strtolower( $a->{$orderby} ), strtolower( $b->{$orderby} ) ) );
+								}
+								return strcmp( strtolower( $a->{$orderby} ), strtolower( $b->{$orderby} ) );
+							}
+						);
 					}
 
 					$return[ $key ] = $combined_users;
