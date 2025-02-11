@@ -53,6 +53,13 @@ class Protect extends Hybrid_Product {
 	public static $plugin_slug = 'jetpack-protect';
 
 	/**
+	 * The category of the product
+	 *
+	 * @var string
+	 */
+	public static $category = 'security';
+
+	/**
 	 * Whether this product requires a user connection
 	 *
 	 * @var string

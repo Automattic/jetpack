@@ -618,7 +618,7 @@ function wpcom_launchpad_get_task_definitions() {
 				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
 					return admin_url( 'themes.php' );
 				}
-				return '/themes/' . $data['site_slug_encoded'];
+				return '/themes/' . $data['site_slug_encoded'] . '#theme-selected';
 			},
 		),
 		'install_custom_plugin'           => array(
@@ -630,7 +630,7 @@ function wpcom_launchpad_get_task_definitions() {
 				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
 					return admin_url( 'plugins.php' );
 				}
-				return '/plugins/' . $data['site_slug_encoded'];
+				return '/plugins/' . $data['site_slug_encoded'] . '#install-plugin';
 			},
 		),
 		'setup_ssh'                       => array(
@@ -648,7 +648,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/site-monitoring/' . $data['site_slug_encoded'];
+				return '/site-monitoring/' . $data['site_slug_encoded'] . '#site-monitoring';
 			},
 		),
 		'import_subscribers'              => array(
@@ -657,6 +657,18 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'id_map'               => 'subscribers_added',
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
+			},
+		),
+		'add_first_subscribers'           => array(
+			// We do not want this mapped to the 'subscribers_added' task, since this task supports
+			// being marked as complete in situations where subscribers are not added.
+			'get_title'            => function () {
+				return __( 'Add your first subscribers', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_add_first_subscribers_completed',
 			'is_visible_callback'  => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
@@ -946,12 +958,13 @@ function wpcom_launchpad_is_woocommerce_task_completed( $task, $is_complete ) {
 /**
  * Record completion event in Tracks if we're running on WP.com.
  *
- * @param string $task_id The task ID.
- * @param array  $extra_props Optional extra arguments to pass to the Tracks event.
+ * @param string       $task_id The task ID.
+ * @param array        $extra_props Optional extra arguments to pass to the Tracks event.
+ * @param WP_User|null $user Optional user to use instead of the current user.
  *
  * @return void
  */
-function wpcom_launchpad_track_completed_task( $task_id, $extra_props = array() ) {
+function wpcom_launchpad_track_completed_task( $task_id, $extra_props = array(), $user = null ) {
 	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
 		return;
 	}
@@ -959,7 +972,7 @@ function wpcom_launchpad_track_completed_task( $task_id, $extra_props = array() 
 	require_lib( 'tracks/client' );
 
 	tracks_record_event(
-		wp_get_current_user(),
+		$user ?? wp_get_current_user(),
 		'wpcom_launchpad_mark_task_complete',
 		array_merge(
 			array( 'task_id' => $task_id ),
@@ -1888,6 +1901,20 @@ function wpcom_launchpad_is_email_verified() {
 }
 
 /**
+ * Handles WPCOM action fired when email verification is completed.
+ *
+ * @param int $user_id The user ID.
+ */
+function wpcom_launchpad_mark_verify_email_complete( $user_id ) {
+	$user = get_user_by( 'id', $user_id );
+	if ( empty( $user ) ) {
+		return;
+	}
+	wpcom_launchpad_track_completed_task( 'verify_email', array(), $user );
+}
+add_action( 'wpcom_email_verification_complete', 'wpcom_launchpad_mark_verify_email_complete' );
+
+/**
  * If the site has a paid-subscriber goal.
  *
  * @return bool True if the site has a paid-subscriber goal, false otherwise.
@@ -2697,6 +2724,25 @@ function wpcom_launchpad_is_domain_customize_completed( $task, $default ) {
 
 	// For everyone else, show the task as incomplete.
 	return $default;
+}
+
+/**
+ * Determines whether the add_first_subscribers task is complete by checking both the task option
+ * and related tasks like subscribers_added and import_subscribers.
+ *
+ * This exists because we need a 1-way relationship between these tasks: completion of other
+ * subscriber tasks implies add_first_subscribers is completed, but completion of
+ * add_first_subscribers does not imply completion of other subscriber tasks. This is because
+ * add_first_subscribers is allowed to be marked complete at times when no subscribers are actually
+ * added, and why using id_map here will not work since it creates a 2-way relationship.
+ *
+ * @param Task $task    The Task object.
+ * @return bool True if either condition is met.
+ */
+function wpcom_launchpad_is_add_first_subscribers_completed( $task ) {
+	return wpcom_launchpad_is_task_option_completed( $task )
+		|| wpcom_is_checklist_task_complete( 'subscribers_added' )
+		|| wpcom_is_checklist_task_complete( 'import_subscribers' );
 }
 
 /**

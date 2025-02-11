@@ -100,7 +100,11 @@ if [ "$COMPOSE_PROJECT_NAME" == "jetpack_dev" ] ; then
 	# Symlink jetpack into wordpress-develop for WP >= 5.6-beta1
 	WP_TESTS_JP_DIR="/tmp/wordpress-develop/tests/phpunit/data/plugins/jetpack"
 	if [ ! -L $WP_TESTS_JP_DIR ] || [ ! -e $WP_TESTS_JP_DIR ]; then
-		ln -s /var/www/html/wp-content/plugins/jetpack $WP_TESTS_JP_DIR
+		mkdir -p "$(dirname "$WP_TESTS_JP_DIR")" || true
+		ln -s /var/www/html/wp-content/plugins/jetpack $WP_TESTS_JP_DIR || {
+			echo "Warning: Failed to create symlink for test environment. This is non-fatal."
+			echo "Jetpack plugin PHPUnit tests will not run until this is resolved."
+		}
 	fi
 fi
 

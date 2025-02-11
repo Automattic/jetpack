@@ -1077,16 +1077,16 @@
         },
         {
             "name": "codeception/module-db",
-            "version": "3.1.4",
+            "version": "3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-db.git",
-                "reference": "06be16dcf4dda46eaef9454f1361d62bcb971c36"
+                "reference": "8a295c40d009f9821fae5e32c4d3ce10273e57a6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-db/zipball/06be16dcf4dda46eaef9454f1361d62bcb971c36",
-                "reference": "06be16dcf4dda46eaef9454f1361d62bcb971c36",
+                "url": "https://api.github.com/repos/Codeception/module-db/zipball/8a295c40d009f9821fae5e32c4d3ce10273e57a6",
+                "reference": "8a295c40d009f9821fae5e32c4d3ce10273e57a6",
                 "shasum": ""
             },
             "require": {
@@ -1129,9 +1129,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-db/issues",
-                "source": "https://github.com/Codeception/module-db/tree/3.1.4"
+                "source": "https://github.com/Codeception/module-db/tree/3.2.1"
             },
-            "time": "2024-05-16T20:12:18+00:00"
+            "time": "2025-02-06T19:34:04+00:00"
         },
         {
             "name": "codeception/module-filesystem",
@@ -4152,16 +4152,16 @@
         },
         {
             "name": "symfony/dom-crawler",
-            "version": "v6.4.16",
+            "version": "v6.4.18",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/dom-crawler.git",
-                "reference": "4304e6ad5c894a9c72831ad459f627bfd35d766d"
+                "reference": "fd07959d3e8992795029bdab3605c2e8e895034e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/dom-crawler/zipball/4304e6ad5c894a9c72831ad459f627bfd35d766d",
-                "reference": "4304e6ad5c894a9c72831ad459f627bfd35d766d",
+                "url": "https://api.github.com/repos/symfony/dom-crawler/zipball/fd07959d3e8992795029bdab3605c2e8e895034e",
+                "reference": "fd07959d3e8992795029bdab3605c2e8e895034e",
                 "shasum": ""
             },
             "require": {
@@ -4199,7 +4199,7 @@
             "description": "Eases DOM navigation for HTML and XML documents",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/dom-crawler/tree/v6.4.16"
+                "source": "https://github.com/symfony/dom-crawler/tree/v6.4.18"
             },
             "funding": [
                 {
@@ -4215,7 +4215,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-11-13T15:06:22+00:00"
+            "time": "2025-01-09T15:35:00+00:00"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -4988,16 +4988,16 @@
         },
         {
             "name": "symfony/var-dumper",
-            "version": "v7.2.0",
+            "version": "v7.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/var-dumper.git",
-                "reference": "c6a22929407dec8765d6e2b6ff85b800b245879c"
+                "reference": "82b478c69745d8878eb60f9a049a4d584996f73a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/c6a22929407dec8765d6e2b6ff85b800b245879c",
-                "reference": "c6a22929407dec8765d6e2b6ff85b800b245879c",
+                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/82b478c69745d8878eb60f9a049a4d584996f73a",
+                "reference": "82b478c69745d8878eb60f9a049a4d584996f73a",
                 "shasum": ""
             },
             "require": {
@@ -5051,7 +5051,7 @@
                 "dump"
             ],
             "support": {
-                "source": "https://github.com/symfony/var-dumper/tree/v7.2.0"
+                "source": "https://github.com/symfony/var-dumper/tree/v7.2.3"
             },
             "funding": [
                 {
@@ -5067,20 +5067,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-11-08T15:48:14+00:00"
+            "time": "2025-01-17T11:39:41+00:00"
         },
         {
             "name": "symfony/yaml",
-            "version": "v7.2.0",
+            "version": "v7.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "099581e99f557e9f16b43c5916c26380b54abb22"
+                "reference": "ac238f173df0c9c1120f862d0f599e17535a87ec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/099581e99f557e9f16b43c5916c26380b54abb22",
-                "reference": "099581e99f557e9f16b43c5916c26380b54abb22",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/ac238f173df0c9c1120f862d0f599e17535a87ec",
+                "reference": "ac238f173df0c9c1120f862d0f599e17535a87ec",
                 "shasum": ""
             },
             "require": {
@@ -5123,7 +5123,7 @@
             "description": "Loads and dumps YAML files",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/yaml/tree/v7.2.0"
+                "source": "https://github.com/symfony/yaml/tree/v7.2.3"
             },
             "funding": [
                 {
@@ -5139,7 +5139,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-10-23T06:56:12+00:00"
+            "time": "2025-01-07T12:55:42+00:00"
         },
         {
             "name": "theseer/tokenizer",
@@ -5193,16 +5193,16 @@
         },
         {
             "name": "yoast/phpunit-polyfills",
-            "version": "1.1.3",
+            "version": "1.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Yoast/PHPUnit-Polyfills.git",
-                "reference": "0b31ce834facf03b8b44b6587e65b3cf1d7cfb94"
+                "reference": "e6faedf5e34cea4438e341f660e2f719760c531d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Yoast/PHPUnit-Polyfills/zipball/0b31ce834facf03b8b44b6587e65b3cf1d7cfb94",
-                "reference": "0b31ce834facf03b8b44b6587e65b3cf1d7cfb94",
+                "url": "https://api.github.com/repos/Yoast/PHPUnit-Polyfills/zipball/e6faedf5e34cea4438e341f660e2f719760c531d",
+                "reference": "e6faedf5e34cea4438e341f660e2f719760c531d",
                 "shasum": ""
             },
             "require": {
@@ -5217,7 +5217,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "3.x-dev"
+                    "dev-main": "4.x-dev"
                 }
             },
             "autoload": {
@@ -5252,7 +5252,7 @@
                 "security": "https://github.com/Yoast/PHPUnit-Polyfills/security/policy",
                 "source": "https://github.com/Yoast/PHPUnit-Polyfills"
             },
-            "time": "2025-01-08T16:58:34+00:00"
+            "time": "2025-02-09T18:13:44+00:00"
         }
     ],
     "aliases": [],

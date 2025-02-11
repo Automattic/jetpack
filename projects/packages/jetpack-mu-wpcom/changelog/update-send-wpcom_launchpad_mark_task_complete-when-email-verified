@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+verify_email task sends appropriate tracks event
