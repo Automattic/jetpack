@@ -1033,6 +1033,93 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		return __( 'Unknown upload error.', 'jetpack-forms' );
 	}
+	/**
+	 * A function that gets called when processing form submissions and returns a list of files that were processed or errors.
+	 */
+	private function process_file_uploads() {
+
+		// Initialize an empty array for storing uploaded file paths
+		$uploaded_files = array();
+
+		// Define allowed mime types
+		$allowed_mime_types = array(
+			'pdf'  => 'application/pdf',
+			'jpeg' => 'image/jpeg',
+			'jpg'  => 'image/jpeg',
+		);
+
+		// Process file uploads first
+		foreach ( $this->fields as $id => $field ) {
+			if ( $field->get_attribute( 'type' ) !== 'file' ) {
+				continue;
+			}
+
+			$field_id = sanitize_key( $id );
+
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled by process_form_submission()
+			if ( ! isset( $_FILES[ $field_id ] ) || ! is_array( $_FILES[ $field_id ] ) ) {
+				continue;
+			}
+
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled by process_form_submission()
+			$file = array_map( 'sanitize_text_field', $_FILES[ $field_id ] );
+
+			// Basic validation
+			if ( ! empty( $file['error'] ) ) {
+				if ( UPLOAD_ERR_NO_FILE !== $file['error'] ) {
+					$field->add_error( $this->get_upload_error_message( $file['error'] ) );
+				}
+				continue;
+			}
+
+			// Validate file type
+			$file_name = sanitize_file_name( wp_unslash( $file['name'] ) );
+			$file_type = wp_check_filetype( $file_name, $allowed_mime_types );
+
+			if ( ! $file_type['type'] ) {
+				$field->add_error( __( 'Invalid file type. Only PDF and JPG files are allowed.', 'jetpack-forms' ) );
+				continue;
+			}
+
+			// Get upload directory
+			$upload_dir = wp_upload_dir();
+			if ( ! empty( $upload_dir['error'] ) ) {
+				$field->add_error( __( 'Unable to process file upload.', 'jetpack-forms' ) );
+				continue;
+			}
+
+			$jetpack_forms_dir = $upload_dir['basedir'] . '/jetpack-forms';
+
+			// Create upload directory if it doesn't exist
+			if ( ! wp_mkdir_p( $jetpack_forms_dir ) ) {
+				$field->add_error( __( 'Unable to create upload directory.', 'jetpack-forms' ) );
+				continue;
+			}
+
+			// Generate unique filename
+			$filename        = wp_unique_filename( $jetpack_forms_dir, $file_name );
+			$secret_filename = wp_hash( $filename . microtime() ) . '-' . $filename;
+			$new_file        = $jetpack_forms_dir . '/' . $secret_filename;
+
+			// Move uploaded file
+			$move_result = move_uploaded_file( $file['tmp_name'], $new_file );
+			if ( ! $move_result ) {
+				$field->add_error( __( 'Failed to upload file.', 'jetpack-forms' ) );
+				continue;
+			}
+
+			$uploaded_files[ $field_id ] = array(
+				'field_type' => $field->get_attribute( 'type' ),
+				'name'       => $file_name,
+				'path'       => $new_file,
+				'url'        => esc_url_raw( $upload_dir['baseurl'] . '/jetpack-forms/' . $secret_filename ),
+				'type'       => $file_type['type'],
+				'size'       => wp_filesize( $new_file ),
+			);
+		}
+
+		return $uploaded_files;
+	}
 
 	/**
 	 * Process the contact form's POST submission
@@ -1179,82 +1266,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$email_marketing_consent = false;
 		}
 
-		// Initialize an empty array for storing uploaded file paths
-		$uploaded_files = array();
-
-		// Define allowed mime types
-		$allowed_mime_types = array(
-			'pdf'  => 'application/pdf',
-			'jpeg' => 'image/jpeg',
-			'jpg'  => 'image/jpeg',
-		);
-
-		// Process file uploads first
-		foreach ( $this->fields as $id => $field ) {
-			if ( $field->get_attribute( 'type' ) !== 'file' ) {
-				continue;
-			}
-
-			$field_id = sanitize_key( $id );
-
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled by process_form_submission()
-			if ( ! isset( $_FILES[ $field_id ] ) || ! is_array( $_FILES[ $field_id ] ) ) {
-				continue;
-			}
-
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled by process_form_submission()
-			$file = array_map( 'sanitize_text_field', $_FILES[ $field_id ] );
-
-			// Basic validation
-			if ( ! empty( $file['error'] ) ) {
-				if ( UPLOAD_ERR_NO_FILE !== $file['error'] ) {
-					$field->add_error( $this->get_upload_error_message( $file['error'] ) );
-				}
-				continue;
-			}
-
-			// Validate file type
-			$file_name = sanitize_file_name( wp_unslash( $file['name'] ) );
-			$file_type = wp_check_filetype( $file_name, $allowed_mime_types );
-
-			if ( ! $file_type['type'] ) {
-				$field->add_error( __( 'Invalid file type. Only PDF and JPG files are allowed.', 'jetpack-forms' ) );
-				continue;
-			}
-
-			// Get upload directory
-			$upload_dir = wp_upload_dir();
-			if ( ! empty( $upload_dir['error'] ) ) {
-				$field->add_error( __( 'Unable to process file upload.', 'jetpack-forms' ) );
-				continue;
-			}
-
-			$jetpack_forms_dir = $upload_dir['basedir'] . '/jetpack-forms';
-
-			// Create upload directory if it doesn't exist
-			if ( ! wp_mkdir_p( $jetpack_forms_dir ) ) {
-				$field->add_error( __( 'Unable to create upload directory.', 'jetpack-forms' ) );
-				continue;
-			}
-
-			// Generate unique filename
-			$filename = wp_unique_filename( $jetpack_forms_dir, $file_name );
-			$new_file = $jetpack_forms_dir . '/' . $filename;
-
-			// Move uploaded file
-			$move_result = move_uploaded_file( $file['tmp_name'], $new_file );
-			if ( ! $move_result ) {
-				$field->add_error( __( 'Failed to upload file.', 'jetpack-forms' ) );
-				continue;
-			}
-
-			$uploaded_files[ $field_id ] = array(
-				'name' => $file_name,
-				'path' => $new_file,
-				'url'  => esc_url_raw( $upload_dir['baseurl'] . '/jetpack-forms/' . $filename ),
-				'type' => $file_type['type'],
-			);
-		}
+		$uploaded_files = $this->process_file_uploads();
 
 		$all_values   = array();
 		$extra_values = array();
@@ -1265,6 +1277,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$field = $this->fields[ $field_id ];
 			$label = $i . '_' . $field->get_attribute( 'label' );
 			$value = $field->value;
+
+			if ( $uploaded_files && isset( $uploaded_files[ $field_id ] ) ) {
+				$value = wp_json_encode( $uploaded_files[ $field_id ] );
+			}
 
 			$all_values[ $label ] = $value;
 			++$i; // Increment prefix counter for the next field
@@ -1283,10 +1299,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			$extra_values[ $label ] = $value;
 			++$i; // Increment prefix counter for the next extra field
-		}
-
-		if ( ! empty( $uploaded_files ) ) {
-			$extra_values['files'] = $uploaded_files;
 		}
 
 		if ( ! empty( $_REQUEST['is_block'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not changing the site.
