@@ -756,23 +756,22 @@ function wpcom_dismiss_removed_calypso_screen_notice() {
 
 			// If $preferences is not array we log the contents so that we can further debug.
 			if ( ! is_array( $preferences ) && function_exists( 'log2logstash' ) ) {
-				$blog_id = wpcom_get_current_blog_id();
-				log2logstash(
-					array(
-						'feature' => 'wpcom-dismiss-wp-admin-notice',
-						'message' => 'Retrieved a non-array value from Calypso preferences.',
-						'extra'   => wp_json_encode(
-							array(
-								'preferences' => $preferences,
-								'user_id'     => get_current_user_id(),
-								'blog_id'     => $blog_id,
-							)
-						),
-					)
-				);
-
 				// The expected value when preferences aren't set is an empty string.
 				if ( $preferences !== '' ) {
+					$blog_id = wpcom_get_current_blog_id();
+					log2logstash(
+						array(
+							'feature' => 'wpcom-dismiss-wp-admin-notice',
+							'message' => 'Retrieved non-empty, non-array Calypso preferences.',
+							'extra'   => wp_json_encode(
+								array(
+									'preferences' => $preferences,
+									'user_id'     => get_current_user_id(),
+									'blog_id'     => $blog_id,
+								)
+							),
+						)
+					);
 					wp_die();
 				}
 
