@@ -208,7 +208,7 @@ class Password_Detection_Test extends BaseTestCase {
 		$user->user_pass = 'pw';
 		$user->add_cap( 'publish_posts' );
 
-		$sut = $this->createPartialMock( Password_Detection::class, array( 'redirect_and_exit', 'load_user', 'render_content' ) );
+		$sut = $this->createPartialMock( Password_Detection::class, array( 'load_user', 'render_content' ) );
 		$sut->expects( $this->once() )
 			->method( 'load_user' )
 			->with( 123 )
