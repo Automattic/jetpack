@@ -55,7 +55,13 @@ class Password_Detection {
 
 			$email_sent = $this->email_service->api_send_auth_email( $user, $transient['auth_code'] );
 			if ( ! $email_sent ) {
-				$this->set_transient_error( $user->ID, __( 'Failed to send authentication email. Please try again.', 'jetpack-account-protection' ) );
+				$this->set_transient_error(
+					$user->ID,
+					array(
+						'code'    => 'email_send_error',
+						'message' => __( 'Failed to send authentication email. Please try again.', 'jetpack-account-protection' ),
+					)
+				);
 			}
 
 			return new \WP_Error(
@@ -149,21 +155,41 @@ class Password_Detection {
 			&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'resend_email_nonce' )
 			) {
 				$email_resent = $this->email_service->resend_auth_email( $user, $transient_data, $token );
-				if ( ! $email_resent ) {
-					$message = __( 'Failed to resend authentication email. Please try again.', 'jetpack-account-protection' );
+				if ( $email_resent ) {
+					$this->set_transient_success(
+						$user->ID,
+						array(
+							'code'    => 'email_resend_success',
+							'message' => __( 'Authentication email resent successfully.', 'jetpack-account-protection' ),
+						)
+					);
+				} else {
+					$error = array(
+						'code'    => 'email_resend_error',
+						'message' => __( 'Failed to resend authentication email. Please try again.', 'jetpack-account-protection' ),
+					);
 
 					if ( $transient_data['resend_attempts'] >= Config::MAX_RESEND_ATTEMPTS ) {
-						$message = __( 'Resend limit exceeded. Please try again later.', 'jetpack-account-protection' );
+						$error = array(
+							'code'    => 'email_resend_limit_error',
+							'message' => __( 'Resend limit exceeded. Please try again later.', 'jetpack-account-protection' ),
+						);
 					}
 
-					$this->set_transient_error( $user->ID, $message );
+					$this->set_transient_error( $user->ID, $error );
 				}
 
 				$this->redirect_and_exit( $this->get_redirect_url( $token ) );
 				// @phan-suppress-next-line PhanPluginUnreachableCode This would fall through in unit tests otherwise.
 				return;
 			} else {
-				$this->set_transient_error( $user->ID, __( 'Resend nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
+				$this->set_transient_error(
+					$user->ID,
+					array(
+						'code'    => 'email_resend_nonce_error',
+						'message' => __( 'Resend nonce verification failed. Please try again.', 'jetpack-account-protection' ),
+					)
+				);
 			}
 		}
 
@@ -173,9 +199,14 @@ class Password_Detection {
 				$user_input = isset( $_POST['user_input'] ) ? sanitize_text_field( wp_unslash( $_POST['user_input'] ) ) : null;
 
 				$this->handle_auth_form_submission( $user, $token, $transient_data['auth_code'] ?? null, $user_input );
-				return;
 			} else {
-				$this->set_transient_error( $user->ID, __( 'Verify nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
+				$this->set_transient_error(
+					$user->ID,
+					array(
+						'code'    => 'verify_nonce_error',
+						'message' => __( 'Verify nonce verification failed. Please try again.', 'jetpack-account-protection' ),
+					)
+				);
 			}
 		}
 
@@ -191,9 +222,29 @@ class Password_Detection {
 	 * @return void
 	 */
 	public function render_content( \WP_User $user, string $token ): void {
-		$transient_key = Config::TRANSIENT_PREFIX . "_error_{$user->ID}";
-		$error_message = get_transient( $transient_key );
-		delete_transient( $transient_key );
+		$error_transient_key   = Config::TRANSIENT_PREFIX . "_error_{$user->ID}";
+		$success_transient_key = Config::TRANSIENT_PREFIX . "_success_{$user->ID}";
+
+		$error_data   = get_transient( $error_transient_key );
+		$success_data = get_transient( $success_transient_key );
+
+		delete_transient( $error_transient_key );
+		delete_transient( $success_transient_key );
+
+		$error_message   = null;
+		$error_code      = null;
+		$success_message = null;
+		$success_code    = null;
+
+		if ( is_array( $error_data ) ) {
+			$error_message = isset( $error_data['message'] ) ? $error_data['message'] : null;
+			$error_code    = isset( $error_data['code'] ) ? $error_data['code'] : 'error';
+		}
+
+		if ( is_array( $success_data ) ) {
+			$success_message = isset( $success_data['message'] ) ? $success_data['message'] : null;
+			$success_code    = isset( $success_data['code'] ) ? $success_data['code'] : 'success';
+		}
 
 		defined( 'ABSPATH' ) || exit;
 		?>
@@ -208,12 +259,39 @@ class Password_Detection {
 			<body class="password-detection-wrapper">
 				<div class="password-detection">
 					<?php require plugin_dir_path( __FILE__ ) . '/assets/jetpack-logo.svg'; ?>
-					<p class="password-detection-title"><?php esc_html_e( 'Verify your identity', 'jetpack-account-protection' ); ?></p>
-						<?php if ( $error_message ) : ?>
-							<div class="error notice-wrapper">
-								<p class="notice-message"><?php echo esc_html( $error_message ); ?></p>
-							</div>
-						<?php endif; ?>
+					<p class="password-detection-title"><?php echo $success_code === 'auth_code_success' ? esc_html__( 'Take action to stay secure', 'jetpack-account-protection' ) : esc_html__( 'Verify your identity', 'jetpack-account-protection' ); ?></p>
+					<?php if ( $error_message ) : ?>
+						<div class="error notice">
+							<p class="notice-message"><?php echo esc_html( $error_message ); ?></p>
+						</div>
+					<?php endif; ?>
+					<?php if ( $success_message ) : ?>
+						<div class="success notice">
+							<p class="notice-message"><?php echo esc_html( $success_message ); ?></p>
+						</div>
+					<?php endif; ?>
+					<?php if ( $success_code === 'auth_code_success' ) : ?>
+						<p><?php esc_html_e( "You're all set! You can now access your account.", 'jetpack-account-protection' ); ?></p>
+						<p><?php esc_html_e( 'Please keep in mind that your current password was found in a public leak, which means your account might be at risk. It is highly recommended that you update your password.', 'jetpack-account-protection' ); ?></p>
+						<div class="actions">
+							<a href="<?php echo esc_url( admin_url( 'profile.php#password' ) ); ?>" class="action action-update-password">
+								<?php esc_html_e( 'Create a new password', 'jetpack-account-protection' ); ?>
+							</a>
+							<a href="<?php echo esc_url( admin_url() ); ?>" class="action action-proceed">
+								<?php esc_html_e( 'Proceed without updating', 'jetpack-account-protection' ); ?>
+							</a>
+						</div>
+
+						<p>
+							<?php
+								printf(
+									/* translators: %s: Risks of using weak passwords link */
+									esc_html__( 'Learn more about the %1$s and how to protect your account.', 'jetpack-account-protection' ),
+									'<a class="risks-link" href="#" target="_blank" rel="noopener noreferrer">' . esc_html__( 'risks of using weak passwords', 'jetpack-account-protection' ) . '</a>' // TODO: Update this redirect URL once document exists
+								);
+							?>
+						</p>
+					<?php else : ?>
 						<p><?php esc_html_e( 'We\'ve noticed that your current password may have been compromised in a public leak. To keep your account safe, we\'ve added an extra layer of security.', 'jetpack-account-protection' ); ?></p>
 						<p>
 							<?php
@@ -242,12 +320,15 @@ class Password_Detection {
 								<button class="action action-verify" type="submit" name="verify"><?php esc_html_e( 'Verify', 'jetpack-account-protection' ); ?></button>
 							</form>
 						</div>
-						<p class="email-status">
-							<span><?php esc_html_e( 'Didn\'t get the code?', 'jetpack-account-protection' ); ?> </span>
-							<a href="<?php echo esc_url( $this->get_redirect_url( $token ) . '&resend_email=1&_wpnonce=' . wp_create_nonce( 'resend_email_nonce' ) ); ?>">
-								<?php esc_html_e( 'Resend email', 'jetpack-account-protection' ); ?>
-							</a>
-						</p>
+						<?php if ( $error_code !== 'email_resend_limit_error' ) : ?>
+							<p class="email-status">
+								<span><?php esc_html_e( "Didn't get the code?", 'jetpack-account-protection' ); ?> </span>
+								<a class="resend-email-link" href="<?php echo esc_url( $this->get_redirect_url( $token ) . '&resend_email=1&_wpnonce=' . wp_create_nonce( 'resend_email_nonce' ) ); ?>">
+									<?php esc_html_e( 'Resend email', 'jetpack-account-protection' ); ?>
+								</a>
+							</p>
+						<?php endif; ?>
+					<?php endif; ?>
 				</div>
 				<?php wp_footer(); ?>
 			</body>
@@ -291,7 +372,13 @@ class Password_Detection {
 
 		$transient_set = set_transient( Config::TRANSIENT_PREFIX . "_{$token}", $data, Config::EMAIL_SENT_EXPIRATION );
 		if ( ! $transient_set ) {
-			$this->set_transient_error( $user_id, __( 'Failed to set transient data. Please try again.', 'jetpack-account-protection' ) );
+			$this->set_transient_error(
+				$user_id,
+				array(
+					'code'    => 'transient_error',
+					'message' => __( 'Failed to set transient data. Please try again.', 'jetpack-account-protection' ),
+				)
+			);
 		}
 
 		return array(
@@ -332,27 +419,51 @@ class Password_Detection {
 	 */
 	private function handle_auth_form_submission( \WP_User $user, string $token, string $auth_code, string $user_input ): void {
 		if ( $auth_code && $auth_code === $user_input ) {
+			$this->set_transient_success(
+				$user->ID,
+				array(
+					'code'    => 'auth_code_success',
+					'message' => __( 'Authentication code verified successfully.', 'jetpack-account-protection' ),
+				)
+			);
 			// TODO: Ensure all transient are also removed on module and/or plugin deactivation
 			delete_transient( Config::TRANSIENT_PREFIX . "_{$token}" );
 			wp_set_auth_cookie( $user->ID, true );
-			// TODO: Notify user to update their password/redirect to password update page
-			$this->redirect_and_exit( admin_url() );
 		} else {
-			$this->set_transient_error( $user->ID, __( 'Authentication code verification failed. Please try again.', 'jetpack-account-protection' ) );
+			$this->set_transient_error(
+				$user->ID,
+				array(
+					'code'    => 'auth_code_error',
+					'message' => __( 'Authentication code verification failed. Please try again.', 'jetpack-account-protection' ),
+				)
+			);
 		}
+	}
+
+	/**
+	 * Set a transient success message.
+	 *
+	 * @param int   $user_id    The user ID.
+	 * @param array $success    An array of the success code and message.
+	 * @param int   $expiration The expiration time in seconds.
+	 *
+	 * @return void
+	 */
+	private function set_transient_success( int $user_id, array $success, int $expiration = 60 ): void {
+		set_transient( Config::TRANSIENT_PREFIX . "_success_{$user_id}", $success, $expiration );
 	}
 
 	/**
 	 * Set a transient error message.
 	 *
-	 * @param int    $user_id    The user ID.
-	 * @param string $message    The error message.
-	 * @param int    $expiration The expiration time in seconds.
+	 * @param int   $user_id    The user ID.
+	 * @param array $error      An array of the error code and message.
+	 * @param int   $expiration The expiration time in seconds.
 	 *
 	 * @return void
 	 */
-	private function set_transient_error( int $user_id, string $message, int $expiration = 60 ): void {
-		set_transient( Config::TRANSIENT_PREFIX . "_error_{$user_id}", $message, $expiration );
+	private function set_transient_error( int $user_id, array $error, int $expiration = 60 ): void {
+		set_transient( Config::TRANSIENT_PREFIX . "_error_{$user_id}", $error, $expiration );
 	}
 
 	/**
