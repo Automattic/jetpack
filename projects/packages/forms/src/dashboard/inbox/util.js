@@ -1,4 +1,6 @@
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { Icon } from '@wordpress/components';
+import { upload } from '@wordpress/icons';
 import { isArray, isEmpty, join } from 'lodash';
 
 export const getDisplayName = response => {
@@ -37,6 +39,20 @@ export const formatFieldValue = fieldValue => {
 		return '-';
 	} else if ( isArray( fieldValue ) ) {
 		return join( fieldValue, ', ' );
+	}
+
+	if ( fieldValue.startsWith( '{' ) ) {
+		const fieldValueObj = JSON.parse( fieldValue );
+		if ( fieldValueObj.field_type === 'file' ) {
+			return (
+				<>
+					<Icon icon={ upload } />
+					<a href={ fieldValueObj.url } target="_blank" rel="noopener noreferrer">
+						{ fieldValueObj.name }
+					</a>
+				</>
+			);
+		}
 	}
 
 	return fieldValue;

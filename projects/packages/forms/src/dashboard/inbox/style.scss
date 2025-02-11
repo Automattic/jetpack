@@ -5,7 +5,7 @@ $action-bar-height: 88px;
 .jp-forms__inbox {
 	a.back-button {
 		align-items: center;
-		color: #2C3338;
+		color: #2c3338;
 		cursor: pointer;
 		display: none;
 		font-size: 14px;
@@ -18,7 +18,7 @@ $action-bar-height: 88px;
 
 	// visual aid for focus, currently only export button
 	.button-primary.export-button:focus {
-		box-shadow: var( --jp-forms-focus-shadow );
+		box-shadow: var(--jp-forms-focus-shadow);
 	}
 
 	.components-dropdown-menu {
@@ -105,7 +105,7 @@ $action-bar-height: 88px;
 	border: 1px solid #dcdcde;
 	border-radius: 3px;
 	box-sizing: border-box;
-	color: #2C3338;
+	color: #2c3338;
 	display: inline-flex;
 	font-size: 12px;
 	font-weight: 400;
@@ -216,7 +216,7 @@ $action-bar-height: 88px;
 
 	.jp-forms__table-item {
 		max-height: 52px;
-		transition: max-height .2s;
+		transition: max-height 0.2s;
 
 		&.exit-active {
 			overflow: hidden;
@@ -249,7 +249,10 @@ $action-bar-height: 88px;
 
 	@media (min-width: 1025px) {
 		display: flex;
-		min-height: calc(100vh - calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height} + 48px));
+		min-height: calc(
+			100vh -
+				calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height} + 48px)
+		);
 	}
 
 	.jp-forms__table-cell {
@@ -284,9 +287,9 @@ $action-bar-height: 88px;
 			white-space: nowrap;
 			text-decoration: none;
 
-			 &:hover {
-				 text-decoration: underline;
-			 }
+			&:hover {
+				text-decoration: underline;
+			}
 		}
 	}
 
@@ -311,7 +314,7 @@ $action-bar-height: 88px;
 
 			// visual aid for focus
 			&:focus {
-				box-shadow: var( --jp-forms-focus-shadow );
+				box-shadow: var(--jp-forms-focus-shadow);
 			}
 		}
 
@@ -404,7 +407,10 @@ $action-bar-height: 88px;
 	position: relative;
 
 	@media (min-width: 1025px) {
-		height: calc(100vh - calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height} + 48px));
+		height: calc(
+			100vh -
+				calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height} + 48px)
+		);
 		overflow-y: auto;
 		position: sticky;
 		top: calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height});
@@ -414,7 +420,7 @@ $action-bar-height: 88px;
 		background: linear-gradient(30deg, #eaeff5, #f2f3e3);
 		border-bottom: 1px solid #dcdcde;
 		box-sizing: border-box;
-		content: "";
+		content: '';
 		display: flex;
 		padding-top: 24px;
 	}
@@ -426,7 +432,7 @@ $action-bar-height: 88px;
 	@media (min-width: 1025px) {
 		&.enter,
 		&.enter-active {
-			animation: jp-forms__slide-in .2s ease-out forwards, jp-forms__fade-in .2s ease-in forwards;
+			animation: jp-forms__slide-in 0.2s ease-out forwards, jp-forms__fade-in 0.2s ease-in forwards;
 
 			.jp-forms__inbox.is-response-animation-reverted & {
 				animation: none;
@@ -442,7 +448,8 @@ $action-bar-height: 88px;
 			z-index: -1;
 
 			.jp-forms__inbox.is-response-animation-reverted & {
-				animation: jp-forms__slide-in .2s ease-out forwards reverse, jp-forms__fade-in .2s ease-in forwards reverse;
+				animation: jp-forms__slide-in 0.2s ease-out forwards reverse,
+					jp-forms__fade-in 0.2s ease-in forwards reverse;
 				z-index: 1;
 			}
 		}
@@ -568,7 +575,7 @@ $action-bar-height: 88px;
 }
 
 .jp-forms__inbox-response-separator {
-	border-bottom: 1px solid var( --jp-forms-border-color );
+	border-bottom: 1px solid var(--jp-forms-border-color);
 	width: 100%;
 }
 
@@ -587,6 +594,7 @@ $action-bar-height: 88px;
 
 .jp-forms__inbox-response-data-value {
 	white-space: pre-wrap;
+	display: flex;
 }
 
 // ACTIONS ROW
@@ -594,7 +602,7 @@ $action-bar-height: 88px;
 	background: white;
 	display: flex;
 	flex-direction: row;
-	gap: var( --jp-forms-spacing-base );
+	gap: var(--jp-forms-spacing-base);
 	padding: 32px 64px 16px;
 	position: sticky;
 	top: calc(var(--wp-admin--admin-bar--height) + #{$tabs-height});
@@ -605,7 +613,7 @@ $action-bar-height: 88px;
 	}
 
 	@media (max-width: 660px) {
-		padding: calc( var(--jp-forms-spacing-base ) * 2 ) 24px;
+		padding: calc(var(--jp-forms-spacing-base) * 2) 24px;
 	}
 
 	.jp-forms__inbox.is-response-view & {
@@ -623,22 +631,22 @@ $action-bar-height: 88px;
 	}
 
 	.components-button {
-		border-radius: var( --jp-forms-border-radius );
-		height: var( --jp-forms-input-wrapper-height );
+		border-radius: var(--jp-forms-border-radius);
+		height: var(--jp-forms-input-wrapper-height);
 		letter-spacing: -0.02em;
 		font-size: var(--jp-forms-font-size-regular);
 		font-weight: 400;
-		padding: var( --jp-forms-spacing-base ) calc( var( --jp-forms-spacing-base ) * 1.5 );
+		padding: var(--jp-forms-spacing-base) calc(var(--jp-forms-spacing-base) * 1.5);
 
 		&.is-secondary {
-			background: var( --jp-forms-white );
-			color: var( --jp-forms-black );
-			box-shadow: inset 0 0 0 1px var( --jp-forms-border-color );
+			background: var(--jp-forms-white);
+			color: var(--jp-forms-black);
+			box-shadow: inset 0 0 0 1px var(--jp-forms-border-color);
 
 			&.is-opened,
 			&:hover:not(:disabled) {
-				background: var(--jp-forms-color-darker-10 );
-				color: var( --jp-forms-white );
+				background: var(--jp-forms-color-darker-10);
+				color: var(--jp-forms-white);
 			}
 		}
 	}
@@ -648,8 +656,8 @@ $action-bar-height: 88px;
 	}
 
 	.button-primary.export-button {
-		background-color: var( --wp-admin-theme-color, #000 );
-		border-color: var( --wp-admin-theme-color, #000 );
+		background-color: var(--wp-admin-theme-color, #000);
+		border-color: var(--wp-admin-theme-color, #000);
 		margin-left: auto;
 
 		@media (max-width: 782px) {
@@ -657,5 +665,3 @@ $action-bar-height: 88px;
 		}
 	}
 }
-
-
