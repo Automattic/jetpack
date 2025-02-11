@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Data_Sync;
+namespace Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync;
 
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
@@ -11,6 +11,9 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_CSS
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_Error_Dismissed;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_Errors;
 
+/**
+ * Registers data sync for both the Critical CSS module and the Cloud CSS module. Both of these modules cannot be available at the same time.
+ */
 class Data_Sync_Setup implements Has_Data_Sync {
 	public static function register_data_sync( Data_Sync $instance ) {
 		// Represents a set of errors that can be stored for a single Provider Key in a Critical CSS state block.
