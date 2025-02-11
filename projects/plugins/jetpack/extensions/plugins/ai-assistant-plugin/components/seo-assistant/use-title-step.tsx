@@ -189,6 +189,10 @@ export const useTitleStep = ( {
 		setFailurePoint( null );
 	}, [] );
 
+	// The build fails if we use i18n strings directly in a ternary operator.
+	const tryAgainLabel = __( 'Try again', 'jetpack' );
+	const regenerateLabel = __( 'Regenerate', 'jetpack' );
+
 	return {
 		id: 'title',
 		title: __( 'Optimise Title', 'jetpack' ),
@@ -200,8 +204,7 @@ export const useTitleStep = ( {
 		onSubmit: handleTitleSubmit,
 		submitCtaLabel: __( 'Insert', 'jetpack' ),
 		onRetry: failurePoint === 'generate' ? handleTitleGenerate : handleTitleRegenerate,
-		retryCtaLabel:
-			failurePoint === 'generate' ? __( 'Try again', 'jetpack' ) : __( 'Regenerate', 'jetpack' ),
+		retryCtaLabel: failurePoint === 'generate' ? tryAgainLabel : regenerateLabel,
 		onStart: handleTitleGenerate,
 		value,
 		setValue,
