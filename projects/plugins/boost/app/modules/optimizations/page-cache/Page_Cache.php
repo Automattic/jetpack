@@ -85,7 +85,7 @@ class Page_Cache implements Pluggable, Has_Deactivate, Has_Data_Sync, Optimizati
 					'logging'         => Schema::as_boolean(),
 				)
 			),
-			new Page_Cache_Entry( JETPACK_BOOST_DATASYNC_NAMESPACE . '_page_cache' )
+			new Page_Cache_Entry()
 		);
 
 		$instance->register_action( 'page_cache', 'clear-page-cache', Schema::as_void(), new Clear_Page_Cache() );

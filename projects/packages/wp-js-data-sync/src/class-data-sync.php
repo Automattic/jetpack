@@ -233,7 +233,7 @@ final class Data_Sync {
 	 *
 	 * @param string   $key The key to register the entry under.
 	 * @param Parser   $parser The parser to use for the entry.
-	 * @param function $callback The callback to use for the entry.
+	 * @param callable $callback The callback to use for the entry.
 	 *
 	 * @return void
 	 */
