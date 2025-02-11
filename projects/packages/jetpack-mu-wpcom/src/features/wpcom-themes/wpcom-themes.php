@@ -290,7 +290,7 @@ function wpcom_themes_tmpl_theme_activate_button( $tmpl ) {
 	$button_labels = array(
 		__( 'Activate', 'jetpack-mu-wpcom' ) => '{{{ data.can_activate_with_current_plan ? "' . __( 'Activate', 'jetpack-mu-wpcom' ) . '" : "' . __( 'Upgrade to activate', 'jetpack-mu-wpcom' ) . '" }}}',
 		// No need to check permissions here, this screen is only on Simple sites.
-		__( 'Install', 'jetpack-mu-wpcom' ) => __( 'Upgrade to install', 'jetpack-mu-wpcom' ),
+		__( 'Install', 'jetpack-mu-wpcom' )  => __( 'Upgrade to install', 'jetpack-mu-wpcom' ),
 	);
 
 	foreach ( $button_labels as $search => $replace ) {
@@ -343,7 +343,7 @@ function wpcom_themes_get_activation_url( $theme ) {
 				'https://wordpress.com/checkout/' . $blog_id . '/business'
 			);
 		}
-	} else if ( 'managed-external' === $theme->theme_type ) {
+	} elseif ( 'managed-external' === $theme->theme_type ) {
 		if ( ! empty( $theme->product_details ) ) {
 			$theme_product_slug = $theme->product_details[0]->product_slug;
 
@@ -365,3 +365,5 @@ function wpcom_themes_get_activation_url( $theme ) {
 
 	return $activate_url;
 }
+
+add_filter( 'install_themes_should_display_upload_button', '__return_true' );
