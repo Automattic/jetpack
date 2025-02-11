@@ -868,6 +868,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			case 'name':
 				$str = __( 'Name', 'jetpack-forms' );
 				break;
+			case 'number':
+				$str = __( 'Number', 'jetpack-forms' );
+				break;
 			case 'email':
 				$str = __( 'Email', 'jetpack-forms' );
 				break;
@@ -977,6 +980,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			switch ( $type ) {
 				case 'email':
 				case 'name':
+				case 'number':
 				case 'url':
 				case 'subject':
 				case 'textarea':
