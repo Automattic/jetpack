@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-API: Added caching to JSON API requests for comments.

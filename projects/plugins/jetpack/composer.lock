@@ -1203,7 +1203,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/external-media",
-				"reference": "75d507a6f36e4571f7ae617063e1cbf87ae9b3bb"
+				"reference": "bb06f7fafebadd0c1e942a9cbc9f1215e2574173"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1227,7 +1227,7 @@
 				},
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.1.x-dev"
+					"dev-trunk": "0.2.x-dev"
 				},
 				"textdomain": "jetpack-external-media",
 				"version-constants": {
@@ -2266,7 +2266,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "f6e2b695508876c65d357871dcd3924f41632d71"
+				"reference": "0d9a2df2d50d65e40cc633fe30dca730a19467bd"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -2296,7 +2296,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.59.x-dev"
+					"dev-trunk": "0.60.x-dev"
 				}
 			},
 			"autoload": {

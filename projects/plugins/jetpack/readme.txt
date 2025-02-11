@@ -326,28 +326,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.4-a.1 - 2025-02-10
+### 14.4-a.3 - 2025-02-11
 #### Enhancements
-- Dashboard: Display connection owner to all users.
-- External Media: Add external media modal on the Media Import page.
-- Forms: Add support for having multiple forms accross paginated pages.
-- Forms: Update field and button blocks to support contentOnly editing.
-- Newsletter: Add setting to hide category selection modal.
-- Post actions: Rename Copy action to Duplicate, which is clearer.
-- Tiled Gallery block: Add ability to link to custom URLs from each image.
-- My Jetpack: Update the unowned section from a product grid to a product list.
-
-#### Improved compatibility
-- Custom Content Types: Ensure feature works on Jetpack settings page without using module functionality.
-
-#### Bug fixes
-- External Media: Fix the button size in the editor for Gutenberg 18 or below.
-- Forms: Fix block style variations not showing in the editor.
-- Forms: Fix invalid html IDs.
-- Forms: Hide fields without options.
-- Forms: Improve the styling of the separator block when placed inside the form block.
-- Sharing: Fix possible warnings related to plugin compatibility.
-- Stats: Fix a problem where count roles weren't able to be updated.
+- Media Page: Enable the "Untangle Calypso" feature.
 
 --------
 

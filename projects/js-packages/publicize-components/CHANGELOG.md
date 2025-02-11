@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.77.2] - 2025-02-11
+### Changed
+- Hide Social Notes if Social plugin is not active. [#41393]
+
 ## [0.77.1] - 2025-02-10
 ### Changed
 - External Media: Move the external-media to the new @automattic/jetpack-external-media package [#41078]
@@ -1081,6 +1085,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.77.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.77.1...v0.77.2
 [0.77.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.77.0...v0.77.1
 [0.77.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.76.0...v0.77.0
 [0.76.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.75.4...v0.76.0
