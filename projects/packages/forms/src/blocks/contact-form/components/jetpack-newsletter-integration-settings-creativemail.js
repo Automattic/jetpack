@@ -1,7 +1,8 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Spinner } from '@wordpress/components';
 import { useCallback, useState, useEffect } from '@wordpress/element';
 import { get } from 'lodash';
-import { getPlugins } from '../util/plugin-management';
+import { getPlugins, installAndActivatePlugin, activatePlugin } from '../util/plugin-management';
 import CreativeMailPluginErrorState from './jetpack-newsletter-integration-settings-error-state';
 import CreativeMailPluginState, {
 	pluginStateEnum,
@@ -11,8 +12,17 @@ const pluginPathWithoutPhp = 'creative-mail-by-constant-contact/creative-mail-pl
 const pluginPath = `${ pluginPathWithoutPhp }.php`;
 
 const useOnCreativeMailPluginPromise = ( setPluginError, setIsInstalling, setPluginState ) => {
+	const { tracks } = useAnalytics();
+
 	const onCreativeMailPluginClick = useCallback(
 		( func, arg ) => {
+			// Track the event before starting installation/activation
+			if ( func === installAndActivatePlugin ) {
+				tracks.recordEvent( 'jetpack_forms_creative_mail_install_click' );
+			} else if ( func === activatePlugin ) {
+				tracks.recordEvent( 'jetpack_forms_creative_mail_activate_click' );
+			}
+
 			setPluginError( undefined );
 			setIsInstalling( true );
 			func( arg )
@@ -24,7 +34,7 @@ const useOnCreativeMailPluginPromise = ( setPluginError, setIsInstalling, setPlu
 				} )
 				.finally( () => setIsInstalling( false ) );
 		},
-		[ setIsInstalling, setPluginError, setPluginState ]
+		[ setIsInstalling, setPluginError, setPluginState, tracks ]
 	);
 	return onCreativeMailPluginClick;
 };
