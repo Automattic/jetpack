@@ -260,7 +260,7 @@ function do_packagist_check {
 	# We expect a new version when (1) the package is touched in this release and (2) it has no change entry files remaining.
 	POLL_ARGS=()
 	cd "$BASE"
-	GITBASE=$(git merge-base trunk HEAD)
+	GITBASE=$(git merge-base origin/trunk HEAD)
 	for PKGDIR in $(git -c core.quotepath=off diff --name-only "$GITBASE..HEAD" projects/packages/ | sed 's!^\(projects/packages/[^/]*\)/.*!\1!' | sort -u); do
 		cd "$BASE/$PKGDIR"
 		CHANGES_DIR=$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)
