@@ -315,15 +315,16 @@ trait Woo_Analytics_Trait {
 	/**
 	 * Record an event with optional product and custom properties.
 	 *
-	 * @param string  $event_name The name of the event to record.
-	 * @param array   $properties Optional array of (key => value) event properties.
-	 * @param integer $product_id The id of the product relating to the event.
+	 * @param string       $event_name The name of the event to record.
+	 * @param array        $properties Optional array of (key => value) event properties.
+	 * @param integer|null $product_id The id of the product relating to the event.
+	 * @param boolean      $clickhouse Send event to clickhouse.
 	 *
 	 * @return string|void
 	 */
-	public function record_event( $event_name, $properties = array(), $product_id = null ) {
+	public function record_event( $event_name, $properties = array(), $product_id = null, $clickhouse = true ) {
 		$this->maybe_start_session();
-		$js = $this->process_event_properties( $event_name, $properties, $product_id );
+		$js = $this->process_event_properties( $event_name, $properties, $product_id, $clickhouse );
 		wc_enqueue_js( "_wca.push({$js});" );
 	}
 
@@ -397,13 +398,14 @@ trait Woo_Analytics_Trait {
 	/**
 	 * Compose event properties.
 	 *
-	 * @param string  $event_name The name of the event to record.
-	 * @param array   $properties Optional array of (key => value) event properties.
-	 * @param integer $product_id Optional id of the product relating to the event.
+	 * @param string       $event_name The name of the event to record.
+	 * @param array        $properties Optional array of (key => value) event properties.
+	 * @param integer|null $product_id Optional id of the product relating to the event.
+	 * @param boolean      $clickhouse Send event to clickhouse.
 	 *
 	 * @return string|void
 	 */
-	public function process_event_properties( $event_name, $properties = array(), $product_id = null ) {
+	public function process_event_properties( $event_name, $properties = array(), $product_id = null, $clickhouse = true ) {
 
 		// Only set product details if we have a product id.
 		if ( $product_id ) {
@@ -432,6 +434,11 @@ trait Woo_Analytics_Trait {
 		);
 
 		$js = "{'_en': '" . esc_js( $event_name ) . "'";
+
+		// ch param is needed to identify ClickHouse queries in the JS Analytics library
+		if ( $clickhouse ) {
+			$js .= ", 'ch':'1'";
+		}
 
 		if ( isset( $product_details ) ) {
 				$all_props = array_merge( $all_props, $product_details );
