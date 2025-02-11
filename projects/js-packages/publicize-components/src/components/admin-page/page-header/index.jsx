@@ -1,4 +1,4 @@
-import { getMyJetpackUrl, getScriptData } from '@automattic/jetpack-script-data';
+import { getMyJetpackUrl, isJetpackSelfHostedSite } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { hasSocialPaidFeatures } from '../../../utils';
@@ -6,7 +6,7 @@ import Logo from './logo';
 import styles from './styles.module.scss';
 
 const AdminPageHeader = () => {
-	const activateLicenseUrl = getMyJetpackUrl( '#/add-license' );
+	const isJetpackSite = isJetpackSelfHostedSite();
 
 	return (
 		<div className={ styles.header }>
@@ -14,7 +14,7 @@ const AdminPageHeader = () => {
 				<Logo />
 			</span>
 
-			{ ! hasSocialPaidFeatures() && getScriptData().site.host !== 'woa' && (
+			{ ! hasSocialPaidFeatures() && isJetpackSite && (
 				<p>
 					{ createInterpolateElement(
 						__(
@@ -22,7 +22,7 @@ const AdminPageHeader = () => {
 							'jetpack-publicize-components'
 						),
 						{
-							a: <a href={ activateLicenseUrl } />,
+							a: <a href={ getMyJetpackUrl( '#/add-license' ) } />,
 						}
 					) }
 				</p>
