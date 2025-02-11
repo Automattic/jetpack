@@ -8,7 +8,7 @@ import edit from './edit';
 const name = 'field-option-checkbox';
 const settings = {
 	...choiceItemSettings,
-	title: __( 'Multiple Choice Option', 'jetpack-forms' ),
+	title: __( 'Multiple choice option', 'jetpack-forms' ),
 	parent: [ 'jetpack/field-checkbox-multiple' ],
 	icon: {
 		foreground: getIconColor(),

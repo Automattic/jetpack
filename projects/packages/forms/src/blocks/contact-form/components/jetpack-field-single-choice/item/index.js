@@ -8,7 +8,7 @@ import edit from './edit';
 const name = 'field-option-radio';
 const settings = {
 	...choiceItemSettings,
-	title: __( 'Single Choice Option', 'jetpack-forms' ),
+	title: __( 'Single choice option', 'jetpack-forms' ),
 	parent: [ 'jetpack/field-radio' ],
 	icon: {
 		foreground: getIconColor(),
