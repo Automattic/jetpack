@@ -76,16 +76,15 @@ function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file
 }
 
 /**
- * Clear the cache cleanup hook for the given cache folder.
+ * Clear scheduled cron events for minification.
  *
- * @param string $cache_folder The path to the cache folder to clear the hook for.
+ * Removes the cache cleanup cron job and the 404 tester cron job.
  */
-function jetpack_boost_clear_cache_cleanup_hook( $cache_folder = false ) {
-	if ( ! $cache_folder ) {
-		$cache_folder = Config::get_cache_dir_path();
-	}
-	wp_clear_scheduled_hook( 'jetpack_boost_minify_cron_cache_cleanup', array( $cache_folder ) );
+function jetpack_boost_minify_clear_scheduled_events() {
+	wp_unschedule_hook( 'jetpack_boost_minify_cron_cache_cleanup' );
+	wp_clear_scheduled_hook( 'jetpack_boost_404_tester_cron' );
 }
+
 /**
  * Plugin deactivation hook - unschedule cronjobs and purge cache.
  */
@@ -94,8 +93,7 @@ function jetpack_boost_page_optimize_deactivate() {
 
 	jetpack_boost_page_optimize_cache_cleanup( $cache_folder, 0 /* max file age in seconds */ );
 
-	jetpack_boost_clear_cache_cleanup_hook( $cache_folder );
-	wp_clear_scheduled_hook( 'jetpack_boost_404_tester_cron' );
+	jetpack_boost_minify_clear_scheduled_events();
 }
 
 /**
@@ -369,8 +367,7 @@ function jetpack_boost_minify_deactivation() {
 	$minify_js  = new Module( new Minify_JS() );
 
 	if ( ! $minify_css->is_enabled() && ! $minify_js->is_enabled() ) {
-		wp_clear_scheduled_hook( 'jetpack_boost_404_tester_cron' );
-		jetpack_boost_clear_cache_cleanup_hook();
+		jetpack_boost_minify_clear_scheduled_events();
 	}
 }
 
