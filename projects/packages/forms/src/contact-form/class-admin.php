@@ -763,7 +763,7 @@ class Admin {
 			printf(
 				'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value">%s</div>',
 				esc_html( preg_replace( '#^\d+_#', '', $key ) ),
-				nl2br( esc_html( $value ) )
+				$this->esc_field_value( $value ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we're escaping the value in the function
 			);
 		}
 		echo '</div>';
@@ -777,6 +777,31 @@ class Admin {
 		echo '<div class="feedback_response__item-key">' . esc_html__( 'Source', 'jetpack-forms' ) . '</div>';
 		echo '<div class="feedback_response__item-value"><a href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $url ) . '</a></div>';
 		echo '</div>';
+	}
+	/**
+	 * Escapes the field value for display.
+	 *
+	 * @param  string $value field value.
+	 * @return string
+	 */
+	public function esc_field_value( $value ) {
+
+		// check that the $value is a json_encoded value
+		if ( str_starts_with( $value, '{' ) ) {
+			try {
+				$json_data = json_decode( $value );
+				if ( is_string( $json_data ) ) {
+					return nl2br( esc_html( $value ) );
+				}
+				if ( $json_data->field_type === 'file' ) {
+					return '<a href="' . esc_url( $json_data->url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $json_data->name ) . '</a> - ' . size_format( $json_data->size ) . '<br />';
+				}
+			} catch ( \Exception $e ) {
+				return nl2br( esc_html( $value ) );
+			}
+		}
+
+		return nl2br( esc_html( $value ) );
 	}
 
 	/**
