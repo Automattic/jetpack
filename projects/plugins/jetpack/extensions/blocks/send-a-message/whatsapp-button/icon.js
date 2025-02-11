@@ -1,5 +1,5 @@
+import { getIconColor } from '@automattic/jetpack-shared-extension-utils';
 import { SVG, Path } from '@wordpress/components';
-import { getIconColor } from '../../../shared/block-icons';
 
 export default (
 	<SVG width="24" height="24" viewBox="0 0 24 24" version="1.1">

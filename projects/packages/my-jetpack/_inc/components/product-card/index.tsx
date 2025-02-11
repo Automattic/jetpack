@@ -19,7 +19,7 @@ import type { FC, MouseEventHandler, ReactNode, MouseEvent } from 'react';
 export type ProductCardProps = {
 	children?: ReactNode;
 	name: string;
-	Description: FC;
+	Description: FC | string;
 	admin: boolean;
 	recommendation?: boolean;
 	isDataLoading?: boolean;

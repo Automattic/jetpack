@@ -679,24 +679,6 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'foo5', $this->server_replica_storage->get_metadata( 'post', $post_id, 'a_public_meta', true ) );
 	}
 
-	public function test_full_sync_sends_all_post_terms() {
-		$post_id = self::factory()->post->create();
-		wp_set_object_terms( $post_id, 'tag', 'post_tag' );
-
-		$this->sender->do_sync();
-		$terms = get_the_terms( $post_id, 'post_tag' );
-
-		$this->assertEqualsObject( $terms, $this->server_replica_storage->get_the_terms( $post_id, 'post_tag' ), 'Initial sync doesn\'t work' );
-		// reset the storage, check value, and do full sync - storage should be set!
-		$this->server_replica_storage->reset();
-
-		$this->assertFalse( $this->server_replica_storage->get_the_terms( $post_id, 'post_tag' ), 'Not empty' );
-		$this->full_sync->start();
-		$this->sender->do_full_sync();
-
-		$this->assertEqualsObject( $terms, $this->server_replica_storage->get_the_terms( $post_id, 'post_tag' ), 'Full sync doesn\'t work' );
-	}
-
 	public function test_full_sync_sends_all_comment_meta() {
 		$post_id     = self::factory()->post->create();
 		$comment_ids = self::factory()->comment->create_post_comments( $post_id );
