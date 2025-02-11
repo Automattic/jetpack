@@ -238,6 +238,21 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 					// When viewers are included, we ignore the order & orderby parameters.
 					if ( $include_viewers ) {
+						$viewer_ids     = array_map(
+							function ( $viewer ) {
+								return $viewer->ID;
+							},
+							$viewers
+						);
+						$combined_users = array_map(
+							function ( $user ) use ( $viewer_ids ) {
+								if ( in_array( $user->ID, $viewer_ids, true ) ) {
+									$user->roles[] = 'viewer';
+								}
+								return $user;
+							},
+							$combined_users
+						);
 						usort(
 							$combined_users,
 							function ( $a, $b ) {
@@ -250,7 +265,7 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 			}
 		}
-
+		$return['viewers'] = $viewers;
 		return $return;
 	}
 
