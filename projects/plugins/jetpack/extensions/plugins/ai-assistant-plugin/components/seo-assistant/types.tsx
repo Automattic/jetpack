@@ -25,7 +25,7 @@ export interface Step {
 	label?: string;
 	messages: Message[];
 	type: StepType;
-	onStart?: ( options?: { fromSkip: boolean; stepValue: string; results: Results } ) => void;
+	onStart?: ( options?: { fromSkip: boolean; results: Results } ) => void;
 	onSubmit?: () => Promise< string >;
 	onSkip?: () => void;
 	value?: string;

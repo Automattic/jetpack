@@ -148,8 +148,8 @@ const Notice = () => {
 		},
 		'options-general.php': {
 			icon: settings,
-			title: hasTranslation( 'The General Settings view just got an update' )
-				? __( 'The General Settings view just got an update', 'jetpack-mu-wpcom' )
+			title: hasTranslation( 'General Settings just got an update' )
+				? __( 'General Settings just got an update', 'jetpack-mu-wpcom' )
 				: titleFallback,
 			description: hasTranslation(
 				"We've adopted WordPress' main General Settings view to bring improvements to you and millions of WordPress users worldwide."
@@ -162,8 +162,8 @@ const Notice = () => {
 		},
 		'options-writing.php': {
 			icon: verse,
-			title: hasTranslation( 'The Writing Settings view just got an update' )
-				? __( 'The Writing Settings view just got an update', 'jetpack-mu-wpcom' )
+			title: hasTranslation( 'Writing Settings just got an update' )
+				? __( 'Writing Settings just got an update', 'jetpack-mu-wpcom' )
 				: titleFallback,
 			description: hasTranslation(
 				"We've adopted WordPress' main Writing Settings view to bring improvements to you and millions of WordPress users worldwide."
@@ -176,8 +176,8 @@ const Notice = () => {
 		},
 		'options-reading.php': {
 			icon: page,
-			title: hasTranslation( 'The Reading Settings view just got an update' )
-				? __( 'The Reading Settings view just got an update', 'jetpack-mu-wpcom' )
+			title: hasTranslation( 'Reading Settings just got an update' )
+				? __( 'Reading Settings just got an update', 'jetpack-mu-wpcom' )
 				: titleFallback,
 			description: hasTranslation(
 				"We've adopted WordPress' main Reading Settings view to bring improvements to you and millions of WordPress users worldwide."
@@ -190,8 +190,8 @@ const Notice = () => {
 		},
 		'options-discussion.php': {
 			icon: postComments,
-			title: hasTranslation( 'The Discussion Settings view just got an update' )
-				? __( 'The Discussion Settings view just got an update', 'jetpack-mu-wpcom' )
+			title: hasTranslation( 'Discussion Settings just got an update' )
+				? __( 'Discussion Settings just got an update', 'jetpack-mu-wpcom' )
 				: titleFallback,
 			description: hasTranslation(
 				"We've adopted WordPress' main Discussion Settings view to bring improvements to you and millions of WordPress users worldwide."
@@ -223,20 +223,6 @@ const Notice = () => {
 		);
 	};
 
-	let title = sprintf(
-		// translators: %s: page name
-		__( 'The %s view just got better', 'jetpack-mu-wpcom' ),
-		removedCalypsoScreenNoticeConfig.title
-	);
-
-	if ( hasTranslation( 'The %s view just got an update' ) ) {
-		title = sprintf(
-			// translators: %s: page name
-			__( 'The %s view just got an update', 'jetpack-mu-wpcom' ),
-			removedCalypsoScreenNoticeConfig.title
-		);
-	}
-
 	return (
 		<Guide
 			className="removed-calypso-screen-notice"
@@ -255,8 +241,17 @@ const Notice = () => {
 					),
 					content: (
 						<>
-							<h1>{ title }</h1>
-							<p>{ config[ removedCalypsoScreenNoticeConfig.screen ].description }</p>
+							<h1>{ config[ removedCalypsoScreenNoticeConfig.screen ].title }</h1>
+							<p>
+								{ config[ removedCalypsoScreenNoticeConfig.screen ].description }&nbsp;
+								<a
+									href="https://wordpress.com/blog/2025/01/22/interface-update/"
+									target="_blank"
+									rel="noreferrer"
+								>
+									{ __( 'Learn more ↗', 'jetpack-mu-wpcom' ) }
+								</a>
+							</p>
 						</>
 					),
 				},

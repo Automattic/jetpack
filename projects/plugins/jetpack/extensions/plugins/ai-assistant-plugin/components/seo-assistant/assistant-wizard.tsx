@@ -22,8 +22,8 @@ export default function AssistantWizard( { close } ) {
 		stepsEndRef.current?.scrollIntoView( { behavior: 'smooth' } );
 	};
 	const keywordsInputRef = useRef( null );
+	const prevStepIdRef = useRef< string | undefined >();
 	const [ results, setResults ] = useState( {} );
-	const [ lastStepValue, setLastStepValue ] = useState( '' );
 
 	useEffect( () => {
 		scrollToBottom();
@@ -44,6 +44,7 @@ export default function AssistantWizard( { close } ) {
 		[ welcomeStepData, keywordsStepData, titleStepData, metaStepData, completionStepData ]
 	);
 	const [ currentStepData, setCurrentStepData ] = useState< Step >( welcomeStepData );
+	const [ assistantFlowAction, setAssistantFlowAction ] = useState( '' );
 
 	const stepsCount = steps.length;
 
@@ -52,13 +53,14 @@ export default function AssistantWizard( { close } ) {
 		if ( ! currentStepData || ! currentStepData.onStart ) {
 			return;
 		}
-		await currentStepData?.onStart( {
-			fromSkip: ! lastStepValue,
-			stepValue: lastStepValue,
-			results,
-		} );
+		if ( assistantFlowAction !== 'backwards' ) {
+			await currentStepData?.onStart( {
+				fromSkip: assistantFlowAction === 'skip',
+				results,
+			} );
+		}
 		setIsBusy( false );
-	}, [ currentStepData, lastStepValue, results ] );
+	}, [ currentStepData, assistantFlowAction, results ] );
 
 	const handleNext = useCallback( () => {
 		debug( 'handleNext, stepsCount', stepsCount );
@@ -75,16 +77,22 @@ export default function AssistantWizard( { close } ) {
 	}, [ stepsCount, steps ] );
 
 	useEffect( () => {
-		debug( 'currentStepData changed', currentStepData?.id );
-		handleStepStart();
+		const currentId = currentStepData?.id;
+
+		if ( prevStepIdRef.current !== currentId ) {
+			debug( 'currentStepData changed', currentId );
+			handleStepStart();
+		}
+
+		prevStepIdRef.current = currentId;
 	}, [ currentStepData, handleStepStart ] );
 
 	// Initialize current step data
 	useEffect( () => {
 		if ( currentStep === 0 && steps[ 0 ].autoAdvance ) {
 			debug( 'init assistant wizard' );
-			debug( 'auto advancing' );
 			setIsBusy( true );
+			setAssistantFlowAction( 'forwards' );
 			const timeout = setTimeout( handleNext, steps[ 0 ].autoAdvance );
 			return () => clearTimeout( timeout );
 		}
@@ -112,8 +120,7 @@ export default function AssistantWizard( { close } ) {
 			debug( 'newResults', newResults );
 			setResults( prev => ( { ...prev, ...newResults } ) );
 		}
-		debug( 'set last step value', stepValue );
-		setLastStepValue( stepValue?.trim?.() );
+		setAssistantFlowAction( 'submit' );
 
 		if ( steps[ currentStep ]?.type === 'completion' ) {
 			debug( 'completion step, closing wizard' );
@@ -127,6 +134,7 @@ export default function AssistantWizard( { close } ) {
 	const jumpToStep = useCallback(
 		( stepNumber: number ) => {
 			if ( stepNumber < steps.length - 1 ) {
+				setAssistantFlowAction( 'jump' );
 				setCurrentStep( stepNumber );
 				setCurrentStepData( steps[ stepNumber ] );
 			}
@@ -147,6 +155,7 @@ export default function AssistantWizard( { close } ) {
 	const handleBack = () => {
 		if ( currentStep > 1 ) {
 			setIsBusy( true );
+			setAssistantFlowAction( 'backwards' );
 			debug( 'moving back to ' + ( currentStep - 1 ) );
 			setCurrentStep( currentStep - 1 );
 			setCurrentStepData( steps[ currentStep - 1 ] );
@@ -155,6 +164,7 @@ export default function AssistantWizard( { close } ) {
 
 	const handleSkip = useCallback( async () => {
 		setIsBusy( true );
+		setAssistantFlowAction( 'skip' );
 		await steps[ currentStep ]?.onSkip?.();
 		const step = steps[ currentStep ];
 		if ( ! results[ step.id ] && step.includeInResults ) {
@@ -167,8 +177,14 @@ export default function AssistantWizard( { close } ) {
 				},
 			} ) );
 		}
-		handleNext();
-	}, [ currentStep, steps, handleNext, results ] );
+		if ( steps[ currentStep ]?.type === 'completion' ) {
+			debug( 'completion step, closing wizard' );
+			handleDone();
+		} else {
+			debug( 'step type', steps[ currentStep ]?.type );
+			handleNext();
+		}
+	}, [ currentStep, steps, handleNext, results, handleDone ] );
 
 	const handleRetry = useCallback( async () => {
 		debug( 'handleRetry' );
@@ -188,7 +204,11 @@ export default function AssistantWizard( { close } ) {
 				<h2>{ currentStepData?.title }</h2>
 				<div className="assistant-wizard__header-actions">
 					<Tooltip text={ __( 'Skip', 'jetpack' ) }>
-						<Button variant="link" disabled={ isBusy } onClick={ handleSkip }>
+						<Button
+							variant="link"
+							disabled={ isBusy || currentStep >= steps.length - 1 }
+							onClick={ handleSkip }
+						>
 							<Icon icon={ next } size={ 32 } />
 						</Button>
 					</Tooltip>

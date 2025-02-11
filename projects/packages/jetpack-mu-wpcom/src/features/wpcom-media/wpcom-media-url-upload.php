@@ -8,25 +8,33 @@
 /**
  * Appends the wpcom media URL upload form.
  */
-function wpcom_media_url_upload() {
-	global $pagenow;
-
-	if ( empty( $_GET['untangling-media'] ) ) { // phpcs:disable WordPress.Security.NonceVerification.Recommended
-		return;
-	}
-
+function append_wpcom_media_url_upload() {
 	?>
 	<div id="wpcom-media-url-upload"></div>
 	<?php
+}
+
+/**
+ * Enqueue the assets of the wpcom media URL upload form
+ */
+function enqueue_wpcom_media_url_upload_form() {
+	global $pagenow;
 
 	$handle = jetpack_mu_wpcom_enqueue_assets( 'wpcom-media-url-upload', array( 'js', 'css' ) );
+
+	$page = 'editor';
+	if ( $pagenow === 'upload.php' ) {
+		$page = 'media-library';
+	} elseif ( $pagenow === 'media-new.php' ) {
+		$page = 'media-new';
+	}
 
 	$data = wp_json_encode(
 		array(
 			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 			'action'  => 'wpcom_media_url_upload',
 			'nonce'   => wp_create_nonce( 'wpcom_media_url_upload' ),
-			'page'    => $pagenow === 'upload.php' ? 'media-library' : 'editor',
+			'page'    => $page,
 		)
 	);
 
@@ -76,7 +84,21 @@ function wpcom_handle_media_url_upload() {
 	}
 }
 
-if ( current_user_can( 'upload_files' ) ) {
-	add_action( 'pre-upload-ui', 'wpcom_media_url_upload', 9 );
+/**
+ * Load the wpcom media URL upload form.
+ */
+function load_wpcom_media_url_upload_form() {
+	if ( ! current_user_can( 'upload_files' ) ) {
+		return;
+	}
+
 	add_action( 'wp_ajax_wpcom_media_url_upload', 'wpcom_handle_media_url_upload' );
+
+	global $pagenow;
+	if ( $pagenow !== 'media-new.php' ) {
+		add_action( 'pre-upload-ui', 'append_wpcom_media_url_upload', 9 );
+	}
+
+	add_action( 'post-plupload-upload-ui', 'enqueue_wpcom_media_url_upload_form' );
 }
+load_wpcom_media_url_upload_form();
