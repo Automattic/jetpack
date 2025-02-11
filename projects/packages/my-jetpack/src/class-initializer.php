@@ -1160,7 +1160,9 @@ class Initializer {
 		}
 
 		foreach ( $plugins_needing_installed_activated as $plan_slug => $plugins_requirements ) {
-			$red_bubble_slugs[ "$plan_slug--plugins_needing_installed_activated" ] = $plugins_requirements;
+			if ( empty( $_COOKIE[ "$plan_slug--plugins_needing_installed_dismissed" ] ) ) {
+				$red_bubble_slugs[ "$plan_slug--plugins_needing_installed_activated" ] = $plugins_requirements;
+			}
 		}
 
 		return $red_bubble_slugs;

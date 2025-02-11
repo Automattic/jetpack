@@ -94,7 +94,7 @@ add_action( 'jetpack_boost_404_tester_cron', 'jetpack_boost_404_tester' );
 /**
  * Setup the 404 tester.
  *
- * Schedule the 404 tester in three seconds if the concatenation modules
+ * Schedule the 404 tester if the concatenation modules
  * haven't been toggled since this feature was released.
  * Only run this in wp-admin to avoid excessive updates to the option.
  */
