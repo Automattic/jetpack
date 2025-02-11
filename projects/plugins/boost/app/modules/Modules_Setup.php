@@ -111,6 +111,9 @@ class Modules_Setup implements Has_Setup {
 		$this->init_modules( $this->available_modules );
 	}
 
+	/**
+	 * Registers general data sync for the modules.
+	 */
 	private function init_data_sync() {
 		$modules_state_schema = Schema::as_array(
 			Schema::as_assoc_array(
