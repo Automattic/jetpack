@@ -82,10 +82,8 @@ const FirstPostPublishedModalInner: React.FC = () => {
 
 	const handleNextStepsClick = ( event: React.MouseEvent ) => {
 		event.preventDefault();
-		const siteOrigin = 'https://wordpress.com';
-		const redirectUrl = isLaunchpadHomeTask
-			? `${ siteOrigin }/home/${ siteUrl }`
-			: `${ siteOrigin }/setup/write/launchpad?siteSlug=${ siteUrl }`;
+		const redirectUrl = `https://wordpress.com/setup/write/launchpad?siteSlug=${ siteUrl }`;
+
 		( window.top as Window ).location.href = redirectUrl;
 	};
 	return (
