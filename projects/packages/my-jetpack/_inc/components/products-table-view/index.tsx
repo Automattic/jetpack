@@ -34,7 +34,7 @@ import type {
 	Operator,
 	Option,
 } from '@wordpress/dataviews';
-import type { FC, MouseEvent } from 'react';
+import type { FC } from 'react';
 
 import './style.scss';
 
@@ -102,7 +102,6 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 	const onChangeView = useCallback( ( newView: View ) => {
 		setView( newView );
 	}, [] );
-	const isItemClickable = useCallback( () => false, [] );
 	const allProductData = useAllProducts();
 	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
 	const navigate = useNavigate();
@@ -135,12 +134,22 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 	);
 
 	const navigateToInterstitial = useCallback(
-		( slug: string ) => ( event: MouseEvent< HTMLButtonElement > ) => {
-			event.preventDefault();
+		( slug: string ) => {
 			recordEvent( `jetpack_myjetpack_product_list_item_${ slug }_learnmore_mobile_click` );
 			navigate( `add-${ slug }` );
 		},
 		[ navigate, recordEvent ]
+	);
+
+	const onChangeSelection = useCallback(
+		( items: JetpackModule[] ) => {
+			if ( isMobileViewport ) {
+				const slug = items[ 0 ];
+
+				navigateToInterstitial( slug );
+			}
+		},
+		[ navigateToInterstitial, isMobileViewport ]
 	);
 
 	const fields = useMemo( () => {
@@ -211,10 +220,7 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 
 					if ( isMobileViewport ) {
 						return (
-							<button
-								onClick={ navigateToInterstitial( slug ) }
-								className="product-list-item-chevron"
-							>
+							<button className="product-list-item-chevron">
 								<Icon icon={ chevronRight } size={ 24 } />
 							</button>
 						);
@@ -261,7 +267,7 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 			paginationInfo={ paginationInfo }
 			onChangeView={ onChangeView }
 			defaultLayouts={ defaultLayouts }
-			isItemClickable={ isItemClickable }
+			onChangeSelection={ onChangeSelection }
 		/>
 	);
 };
