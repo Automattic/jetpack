@@ -94,10 +94,6 @@ function load_wpcom_media_url_upload_form() {
 
 	add_action( 'wp_ajax_wpcom_media_url_upload', 'wpcom_handle_media_url_upload' );
 
-	if ( empty( $_GET['untangling-media'] ) ) { // phpcs:disable WordPress.Security.NonceVerification.Recommended
-		return;
-	}
-
 	global $pagenow;
 	if ( $pagenow !== 'media-new.php' ) {
 		add_action( 'pre-upload-ui', 'append_wpcom_media_url_upload', 9 );
