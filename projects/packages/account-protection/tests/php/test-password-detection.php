@@ -211,7 +211,7 @@ class Password_Detection_Test extends BaseTestCase {
 			->with( 'http://example.org/wp-admin/' );
 		$sut->expects( $this->once() )
 			->method( 'render_content' )
-			->willReturn( null );
+			->with( $user, 'my_cool_token' );
 
 			$calls    = 0;
 		$call_counter = function () use ( &$calls ) {
@@ -259,7 +259,7 @@ class Password_Detection_Test extends BaseTestCase {
 			->willReturn( $user );
 		$sut->expects( $this->once() )
 			->method( 'render_content' )
-			->willReturn( null );
+			->with( $user, 'my_cool_token' );
 
 		$sut->render_page();
 
