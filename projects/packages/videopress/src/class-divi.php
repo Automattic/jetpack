@@ -28,7 +28,7 @@ class Divi {
 	/**
 	 * VideoPress Divi Extension object.
 	 *
-	 * @var ?\Automattic\Jetpack\VideoPress\VideoPress_Divi_Extension
+	 * @var ?\VideoPress_Divi_Extension
 	 **/
 	private $vidi_extension;
 
