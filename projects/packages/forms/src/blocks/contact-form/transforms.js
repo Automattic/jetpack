@@ -120,7 +120,7 @@ export default {
 					blockData.innerBlocks.push(
 						createBlock( 'jetpack/button', {
 							element: 'button',
-							text: blockData.root.attrs.submitButtonText || __( 'Contact Us', 'jetpack-forms' ),
+							text: blockData.root.attrs.submitButtonText || __( 'Contact us', 'jetpack-forms' ),
 						} )
 					);
 

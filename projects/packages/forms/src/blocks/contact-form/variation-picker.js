@@ -77,7 +77,7 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 			/>
 			<div className="form-placeholder__footer">
 				<Button variant="secondary" onClick={ () => setIsPatternsModalOpen( true ) }>
-					{ __( 'Explore Form Patterns', 'jetpack-forms' ) }
+					{ __( 'Explore form patterns', 'jetpack-forms' ) }
 				</Button>
 				<div className="form-placeholder__footer-links">
 					<Button

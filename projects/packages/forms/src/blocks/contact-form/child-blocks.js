@@ -361,7 +361,7 @@ export const childBlocks = [
 		name: 'field-text',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Text Input Field', 'jetpack-forms' ),
+			title: __( 'Text input field', 'jetpack-forms' ),
 			description: __( 'Collect short text responses from site visitors.', 'jetpack-forms' ),
 			icon: {
 				foreground: getIconColor(),
@@ -384,7 +384,7 @@ export const childBlocks = [
 		name: 'field-name',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Name Field', 'jetpack-forms' ),
+			title: __( 'Name field', 'jetpack-forms' ),
 			description: __( "Collect the site visitor's name.", 'jetpack-forms' ),
 			icon: {
 				foreground: getIconColor(),
@@ -407,7 +407,7 @@ export const childBlocks = [
 		name: 'field-email',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Email Field', 'jetpack-forms' ),
+			title: __( 'Email field', 'jetpack-forms' ),
 			keywords: [ __( 'e-mail', 'jetpack-forms' ), __( 'mail', 'jetpack-forms' ), 'email' ],
 			description: __( 'Collect email addresses from your visitors.', 'jetpack-forms' ),
 			icon: {
@@ -429,7 +429,7 @@ export const childBlocks = [
 		name: 'field-url',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Website Field', 'jetpack-forms' ),
+			title: __( 'Website field', 'jetpack-forms' ),
 			keywords: [
 				__( 'url', 'jetpack-forms' ),
 				__( 'internet page', 'jetpack-forms' ),
@@ -456,7 +456,7 @@ export const childBlocks = [
 		name: 'field-date',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Date Picker', 'jetpack-forms' ),
+			title: __( 'Date picker', 'jetpack-forms' ),
 			keywords: [
 				__( 'Calendar', 'jetpack-forms' ),
 				_x( 'day month year', 'block search term', 'jetpack-forms' ),
@@ -490,7 +490,7 @@ export const childBlocks = [
 		name: 'field-telephone',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Phone Number Field', 'jetpack-forms' ),
+			title: __( 'Phone number field', 'jetpack-forms' ),
 			keywords: [
 				__( 'Phone', 'jetpack-forms' ),
 				__( 'Cellular phone', 'jetpack-forms' ),
@@ -516,7 +516,7 @@ export const childBlocks = [
 		name: 'field-file',
 		settings: {
 			...FieldDefaults,
-			title: __( 'File Upload Field', 'jetpack-forms' ),
+			title: __( 'File upload field', 'jetpack-forms' ),
 			keywords: [
 				__( 'File', 'jetpack-forms' ),
 				__( 'Upload', 'jetpack-forms' ),
@@ -547,7 +547,7 @@ export const childBlocks = [
 		name: 'field-textarea',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Multi-line Text Field', 'jetpack-forms' ),
+			title: __( 'Multi-line text field', 'jetpack-forms' ),
 			keywords: [
 				__( 'Textarea', 'jetpack-forms' ),
 				'textarea',
@@ -597,7 +597,7 @@ export const childBlocks = [
 		name: 'field-consent',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Terms Consent', 'jetpack-forms' ),
+			title: __( 'Terms consent', 'jetpack-forms' ),
 			keywords: [ __( 'Consent', 'jetpack-forms' ) ],
 			description: __(
 				'Communicate site terms and offer visitors consent to those terms.',
@@ -671,7 +671,7 @@ export const childBlocks = [
 		name: 'field-select',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Dropdown Field', 'jetpack-forms' ),
+			title: __( 'Dropdown field', 'jetpack-forms' ),
 			keywords: [
 				__( 'Choose', 'jetpack-forms' ),
 				__( 'Dropdown', 'jetpack-forms' ),

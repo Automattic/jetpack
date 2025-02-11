@@ -46,10 +46,10 @@ const JetpackFieldConsent = ( {
 				insertBlocksAfter={ insertBlocksAfter }
 			/>
 			<InspectorControls>
-				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
+				<PanelBody title={ __( 'Manage responses', 'jetpack-forms' ) }>
 					<JetpackManageResponsesSettings isChildBlock />
 				</PanelBody>
-				<PanelBody title={ __( 'Field Settings', 'jetpack-forms' ) }>
+				<PanelBody title={ __( 'Field settings', 'jetpack-forms' ) }>
 					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 					<ToggleControl
 						label={ __( 'Sync fields style', 'jetpack-forms' ) }
@@ -66,11 +66,11 @@ const JetpackFieldConsent = ( {
 						{
 							value: attributes.labelColor,
 							onChange: value => setAttributes( { labelColor: value } ),
-							label: __( 'Label Text', 'jetpack-forms' ),
+							label: __( 'Label text', 'jetpack-forms' ),
 						},
 					] }
 				/>
-				<PanelBody title={ __( 'Consent Settings', 'jetpack-forms' ) }>
+				<PanelBody title={ __( 'Consent settings', 'jetpack-forms' ) }>
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<SelectControl
 							label={ __( 'Permission to email', 'jetpack-forms' ) }

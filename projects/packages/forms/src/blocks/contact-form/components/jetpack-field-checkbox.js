@@ -60,7 +60,7 @@ function JetpackFieldCheckbox( props ) {
 					insertBlocksAfter={ insertBlocksAfter }
 				/>
 				<InspectorControls>
-					<PanelBody title={ __( 'Checkbox Settings', 'jetpack-forms' ) }>
+					<PanelBody title={ __( 'Checkbox settings', 'jetpack-forms' ) }>
 						<ToggleControl
 							label={ __( 'Checked by default', 'jetpack-forms' ) }
 							checked={ defaultValue }
@@ -70,10 +70,10 @@ function JetpackFieldCheckbox( props ) {
 					</PanelBody>
 				</InspectorControls>
 				<InspectorControls>
-					<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
+					<PanelBody title={ __( 'Manage responses', 'jetpack-forms' ) }>
 						<JetpackManageResponsesSettings isChildBlock />
 					</PanelBody>
-					<PanelBody title={ __( 'Field Settings', 'jetpack-forms' ) }>
+					<PanelBody title={ __( 'Field settings', 'jetpack-forms' ) }>
 						<ToggleControl
 							label={ __( 'Field is required', 'jetpack-forms' ) }
 							checked={ required }
@@ -98,12 +98,12 @@ function JetpackFieldCheckbox( props ) {
 							{
 								value: attributes.labelColor,
 								onChange: value => setAttributes( { labelColor: value } ),
-								label: __( 'Label Text', 'jetpack-forms' ),
+								label: __( 'Label text', 'jetpack-forms' ),
 							},
 						] }
 					/>
 					<PanelBody
-						title={ __( 'Label Styles', 'jetpack-forms' ) }
+						title={ __( 'Label styles', 'jetpack-forms' ) }
 						initialOpen={ attributes.labelFontSize }
 					>
 						<FontSizePicker

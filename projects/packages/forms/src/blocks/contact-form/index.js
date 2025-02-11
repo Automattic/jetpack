@@ -86,7 +86,7 @@ export const settings = {
 			{
 				name: 'jetpack/button',
 				attributes: {
-					text: __( 'Contact Us', 'jetpack-forms' ),
+					text: __( 'Contact us', 'jetpack-forms' ),
 					element: 'button',
 					lock: { remove: true },
 				},
