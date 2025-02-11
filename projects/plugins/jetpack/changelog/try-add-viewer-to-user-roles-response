@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Users API: add 'viewer' to user role array.
