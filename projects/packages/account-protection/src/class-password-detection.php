@@ -170,7 +170,6 @@ class Password_Detection {
 				$user_input = isset( $_POST['user_input'] ) ? sanitize_text_field( wp_unslash( $_POST['user_input'] ) ) : null;
 
 				$this->handle_auth_form_submission( $user, $token, $transient_data['auth_code'] ?? null, $user_input );
-				return;
 			} else {
 				$this->set_transient_error( $user->ID, __( 'Verify nonce verification failed. Please try again.', 'jetpack-account-protection' ) );
 			}
