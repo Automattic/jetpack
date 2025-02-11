@@ -3,7 +3,7 @@
  */
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect } from '@wordpress/element';
-import { isEmpty, filter, first, map, pick, isNil } from 'lodash';
+import { isEmpty, first, map, pick, isNil } from 'lodash';
 
 export const useSharedFieldAttributes = ( {
 	attributes,
@@ -21,10 +21,18 @@ export const useSharedFieldAttributes = ( {
 				blockEditor.getBlockParentsByBlockName( clientId, 'jetpack/contact-form' )
 			);
 
-			return filter(
-				blockEditor.getBlocks( parentId ),
-				block => block.name.indexOf( 'jetpack/field' ) > -1 && block.attributes.shareFieldAttributes
-			);
+			if ( ! parentId ) {
+				return [];
+			}
+
+			const formDescendants = blockEditor.getClientIdsOfDescendants( parentId );
+
+			return blockEditor
+				.getBlocksByClientId( formDescendants )
+				.filter(
+					block =>
+						block?.name?.indexOf( 'jetpack/field' ) > -1 && block?.attributes?.shareFieldAttributes
+				);
 		},
 		[ clientId ]
 	);
