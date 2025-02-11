@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useDispatch, useSelect } from '@wordpress/data';
+import { select, useDispatch } from '@wordpress/data';
 import { useCallback, useEffect } from '@wordpress/element';
 import { isEmpty, first, map, pick, isNil } from 'lodash';
 
@@ -13,31 +13,29 @@ export const useSharedFieldAttributes = ( {
 } ) => {
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
 
-	const siblings = useSelect(
-		select => {
-			const blockEditor = select( 'core/block-editor' );
+	// Not using `useSelect` here to get fresh sibling data within `useEffect` and `useCallback`.
+	const getSiblings = useCallback( () => {
+		const blockEditor = select( 'core/block-editor' );
+		const parentId = first(
+			blockEditor.getBlockParentsByBlockName( clientId, 'jetpack/contact-form' )
+		);
 
-			const parentId = first(
-				blockEditor.getBlockParentsByBlockName( clientId, 'jetpack/contact-form' )
+		if ( ! parentId ) {
+			return [];
+		}
+
+		const formDescendants = blockEditor.getClientIdsOfDescendants( parentId );
+
+		return blockEditor
+			.getBlocksByClientId( formDescendants )
+			.filter(
+				block => block?.name?.includes( 'jetpack/field' ) && block?.attributes?.shareFieldAttributes
 			);
-
-			if ( ! parentId ) {
-				return [];
-			}
-
-			const formDescendants = blockEditor.getClientIdsOfDescendants( parentId );
-
-			return blockEditor
-				.getBlocksByClientId( formDescendants )
-				.filter(
-					block =>
-						block?.name?.indexOf( 'jetpack/field' ) > -1 && block?.attributes?.shareFieldAttributes
-				);
-		},
-		[ clientId ]
-	);
+	}, [ clientId ] );
 
 	useEffect( () => {
+		const siblings = getSiblings();
+
 		if ( ! isEmpty( siblings ) && attributes.shareFieldAttributes ) {
 			const newSharedAttributes = pick( first( siblings ).attributes, sharedAttributes );
 			updateBlockAttributes( [ clientId ], newSharedAttributes );
@@ -45,10 +43,12 @@ export const useSharedFieldAttributes = ( {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
-	return useCallback(
+	const updateAttributes = useCallback(
 		newAttributes => {
-			let blocksToUpdate;
-			let newSharedAttributes;
+			const siblings = getSiblings();
+
+			let blocksToUpdate = [];
+			let newSharedAttributes = {};
 
 			if ( attributes.shareFieldAttributes && isNil( newAttributes.shareFieldAttributes ) ) {
 				blocksToUpdate = map( siblings, block => block.clientId );
@@ -64,8 +64,10 @@ export const useSharedFieldAttributes = ( {
 
 			setAttributes( newAttributes );
 		},
-		[ attributes, clientId, setAttributes, sharedAttributes, siblings, updateBlockAttributes ]
+		[ attributes, clientId, getSiblings, setAttributes, sharedAttributes, updateBlockAttributes ]
 	);
+
+	return updateAttributes;
 };
 
 export const withSharedFieldAttributes =
