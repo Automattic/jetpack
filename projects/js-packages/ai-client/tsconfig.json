@@ -1,7 +1,6 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.tsc.json",
-	"include": [ "./src/**/*" ],
-	"files": [ "./global.d.ts" ],
+	"include": [ "./src/**/*", "./global.d.ts" ],
 	"compilerOptions": {
 		"typeRoots": [ "./node_modules/@types/", "src/*" ],
 		"sourceMap": false,

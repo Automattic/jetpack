@@ -1,6 +1,6 @@
 export declare global {
 	interface Window {
-		translation: {
+		translation?: {
 			canTranslate: ( options: {
 				sourceLanguage: string;
 				targetLanguage: string;
@@ -12,7 +12,7 @@ export declare global {
 				translate: ( text: string ) => Promise< string >;
 			} >;
 		};
-		ai: {
+		ai?: {
 			languageDetector: {
 				create: () => Promise< {
 					detect: ( text: string ) => Promise<
