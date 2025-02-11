@@ -46,9 +46,9 @@ class Initializer {
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
 	 */
-	const IDC_CONTAINER_ID = 'my-jetpack-identity-crisis-container';
+	private const IDC_CONTAINER_ID = 'my-jetpack-identity-crisis-container';
 
-	const JETPACK_PLUGIN_SLUGS = array(
+	private const JETPACK_PLUGIN_SLUGS = array(
 		'jetpack-backup',
 		'jetpack-boost',
 		'zerobscrm',
@@ -59,12 +59,12 @@ class Initializer {
 		'jetpack-search',
 	);
 
-	const MY_JETPACK_SITE_INFO_TRANSIENT_KEY             = 'my-jetpack-site-info';
-	const UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY = 'update-historically-active-jetpack-modules';
-	const MISSING_CONNECTION_NOTIFICATION_KEY            = 'missing-connection';
-	const VIDEOPRESS_STATS_KEY                           = 'my-jetpack-videopress-stats';
-	const VIDEOPRESS_PERIOD_KEY                          = 'my-jetpack-videopress-period';
-	const MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY            = 'my-jetpack-red-bubble-transient';
+	private const MY_JETPACK_SITE_INFO_TRANSIENT_KEY             = 'my-jetpack-site-info';
+	private const UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY = 'update-historically-active-jetpack-modules';
+	private const MISSING_CONNECTION_NOTIFICATION_KEY            = 'missing-connection';
+	private const VIDEOPRESS_STATS_KEY                           = 'my-jetpack-videopress-stats';
+	private const VIDEOPRESS_PERIOD_KEY                          = 'my-jetpack-videopress-period';
+	private const MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY            = 'my-jetpack-red-bubble-transient';
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
