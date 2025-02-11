@@ -41,7 +41,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.4.1';
+	const PACKAGE_VERSION = '5.4.2';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -1160,7 +1160,9 @@ class Initializer {
 		}
 
 		foreach ( $plugins_needing_installed_activated as $plan_slug => $plugins_requirements ) {
-			$red_bubble_slugs[ "$plan_slug--plugins_needing_installed_activated" ] = $plugins_requirements;
+			if ( empty( $_COOKIE[ "$plan_slug--plugins_needing_installed_dismissed" ] ) ) {
+				$red_bubble_slugs[ "$plan_slug--plugins_needing_installed_activated" ] = $plugins_requirements;
+			}
 		}
 
 		return $red_bubble_slugs;

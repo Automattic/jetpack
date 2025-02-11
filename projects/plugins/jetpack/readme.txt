@@ -326,43 +326,28 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.3 - 2025-02-04
+### 14.4-a.1 - 2025-02-10
 #### Enhancements
-- Blocks: Improve performance.
-- Forms: Add Checkbox and Consent field enter action to create a new block.
-- Forms: Allow HTML block within forms.
-- Show Infinite Scroll options in Simple Classic.
-- Social: Enable Social post UI for WordPress.com sites.
-- Social: Post character limits are now dynamic based on selected connections.
+- Dashboard: Display connection owner to all users.
+- External Media: Add external media modal on the Media Import page.
+- Forms: Add support for having multiple forms accross paginated pages.
+- Forms: Update field and button blocks to support contentOnly editing.
+- Newsletter: Add setting to hide category selection modal.
+- Post actions: Rename Copy action to Duplicate, which is clearer.
+- Tiled Gallery block: Add ability to link to custom URLs from each image.
+- My Jetpack: Update the unowned section from a product grid to a product list.
 
 #### Improved compatibility
-- Nova Restaurant: ensure that the custom post type is now loaded via the Classic Theme Helper package.
-- Open Graph Meta Tags: Do not display Jetpack's tags when the SEOPress plugin is active.
-- Social: Remove "Your post" section from previews in favor of newer Social Post UI.
+- Custom Content Types: Ensure feature works on Jetpack settings page without using module functionality.
 
 #### Bug fixes
-- Authors widget: Fix saving of unchecked "Display all authors" checkbox in the legacy widget editor.
-- Copy Post: Ensure Copy option is still available on all CPTs after quick edit in post list.
-- Fix: Newsletter toggle in editor sidebar has a visually broken active state.
-- Forms: Fix datepicker appearance on dark themes.
-- Forms: Fix dropdown icon style.
-- Forms: Fix field spacing and widths.
-- Forms: Fix permanent deletion of form reponses via quicklinks.
-- Forms: Hide empty radio fields.
-- Forms: Keep content as-is when switching Feedback status between spam and publish.
-- Forms: Make the icons show up as expected in the style editor.
-- Forms: Prevent error in block placeholder when the Forms module is disabled.
-- Pages and Posts: Fix the layout on mobile when details are open.
-- Photon: Fix double encoding image urls.
-- Sharing: Fix the location of the sharing dialog so it is not always the first sharing element on the page.
-- Sitemaps: Ensure a valid news sitemap is present even if no posts are eligible.
-- Social: Fix profile links for LinkedIn connections.
-- Social: Fix Publicize error in the editor due to malformed connections data.
-- Social: Fix wordpress.com login error when connecting Social accounts.
-- Stats: Fix saving of custom roles settings.
-- Testimonials: Fix shortcode-related bug.
-- Tiled Gallery block: Ensure icons are visible when selecting image in editor.
-- VideoPress: Fix issue with VideoPress block with zero height and width.
+- External Media: Fix the button size in the editor for Gutenberg 18 or below.
+- Forms: Fix block style variations not showing in the editor.
+- Forms: Fix invalid html IDs.
+- Forms: Hide fields without options.
+- Forms: Improve the styling of the separator block when placed inside the form block.
+- Sharing: Fix possible warnings related to plugin compatibility.
+- Stats: Fix a problem where count roles weren't able to be updated.
 
 --------
 
