@@ -2,6 +2,18 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.4-a.3 - 2025-02-11
+### Enhancements
+- Media Page: Enable the "Untangle Calypso" feature. [#41628]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- API: Added caching to JSON API requests for comments. [#41545]
+- Jetpack SEO: Add assisstant flow state to better handle navigation transitions and effects. [#41686]
+- Jetpack SEO: Allow editLastMessage to append new content instead of replacing. Simplifies message flow editing. [#41690]
+- Jetpack SEO: Remove code from the first attempt of the trigger, placed on AI panel of the Jetpack sidebar. [#41721]
+- Jetpack SEO: Wee CSS fix on message width. [#41676]
+- Updated package dependencies. [#41659]
+
 ## 14.4-a.1 - 2025-02-10
 ### Enhancements
 - Dashboard: Display connection owner to all users. [#41606]

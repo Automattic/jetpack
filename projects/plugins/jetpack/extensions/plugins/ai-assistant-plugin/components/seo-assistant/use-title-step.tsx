@@ -4,7 +4,13 @@
 import { askQuestionSync, usePostContent } from '@automattic/jetpack-ai-client';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useCallback, useState, createInterpolateElement, useMemo } from '@wordpress/element';
+import {
+	useCallback,
+	useState,
+	createInterpolateElement,
+	useMemo,
+	useEffect,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /*
  * Internal dependencies
@@ -38,6 +44,8 @@ export const useTitleStep = ( {
 	const postContent = usePostContent();
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const [ generatedCount, setGeneratedCount ] = useState( 0 );
+	const [ hasFailed, setHasFailed ] = useState( false );
+	const [ failurePoint, setFailurePoint ] = useState< 'generate' | 'regenerate' | null >( null );
 
 	const prevStepHasChanged = useMemo( () => keywords !== lastValue, [ keywords, lastValue ] );
 
@@ -87,29 +95,49 @@ export const useTitleStep = ( {
 		return newTitles;
 	}, [ generatedCount, request ] );
 
+	useEffect( () => {
+		if ( ! hasFailed ) {
+			// Reset the failure point when the request is successful
+			setFailurePoint( null );
+		}
+	}, [ hasFailed ] );
+
 	const handleTitleGenerate = useCallback(
 		async ( { fromSkip } ) => {
 			let newTitles = [ ...titleOptions ];
+			const previousLastValue = lastValue;
 
 			setLastValue( keywords );
-			const initialMessage = fromSkip
-				? {
-						content: createInterpolateElement(
-							__( "Skipped!<br />Let's optimise your title first.", 'jetpack' ),
-							{ br: <br /> }
-						),
-						showIcon: true,
-				  }
-				: {
-						content: __( "Let's optimise your title first.", 'jetpack' ),
-						showIcon: true,
-				  };
-			setMessages( [ initialMessage ] );
+
+			if ( ! hasFailed ) {
+				const initialMessage = fromSkip
+					? {
+							content: createInterpolateElement(
+								__( "Skipped!<br />Let's optimise your title first.", 'jetpack' ),
+								{ br: <br /> }
+							),
+							showIcon: true,
+					  }
+					: {
+							content: __( "Let's optimise your title first.", 'jetpack' ),
+							showIcon: true,
+					  };
+				setMessages( [ initialMessage ] );
+			}
 
 			// we only generate if options are empty
 			if ( newTitles.length === 0 || prevStepHasChanged ) {
-				setSelectedTitle( '' );
-				newTitles = await getTitles();
+				try {
+					setSelectedTitle( '' );
+					setHasFailed( false );
+					newTitles = await getTitles();
+				} catch {
+					setFailurePoint( 'generate' );
+					setHasFailed( true );
+					// reset the last value to the previous value on failure to avoid a wrong value for prevStepHasChanged
+					setLastValue( previousLastValue );
+					return;
+				}
 			}
 
 			const readyMessageSuffix = createInterpolateElement(
@@ -122,29 +150,37 @@ export const useTitleStep = ( {
 			if ( newTitles.length ) {
 				// this sets the title options for internal state
 				setTitleOptions( newTitles );
-				// this addes title options as message-buttons
+				// this adds title options as message-buttons
 				newTitles.forEach( title => addMessage( { ...title, type: 'option', isUser: true } ) );
 			}
 			return value;
 		},
 		[
 			titleOptions,
-			prevStepHasChanged,
+			lastValue,
 			keywords,
-			setMessages,
+			hasFailed,
+			prevStepHasChanged,
 			editLastMessage,
+			value,
+			setMessages,
 			getTitles,
 			addMessage,
-			value,
 		]
 	);
 
 	const handleTitleRegenerate = useCallback( async () => {
-		const newTitles = await getTitles();
+		try {
+			setHasFailed( false );
+			const newTitles = await getTitles();
 
-		setTitleOptions( [ ...titleOptions, ...newTitles ] );
-		newTitles.forEach( title => addMessage( { ...title, type: 'option', isUser: true } ) );
-	}, [ addMessage, getTitles, titleOptions ] );
+			setTitleOptions( [ ...titleOptions, ...newTitles ] );
+			newTitles.forEach( title => addMessage( { ...title, type: 'option', isUser: true } ) );
+		} catch {
+			setFailurePoint( 'regenerate' );
+			setHasFailed( true );
+		}
+	}, [ getTitles, titleOptions, addMessage ] );
 
 	const handleTitleSubmit = useCallback( async () => {
 		setValue( selectedTitle );
@@ -152,6 +188,15 @@ export const useTitleStep = ( {
 		addMessage( { content: __( 'Title updated! ✅', 'jetpack' ) } );
 		return selectedTitle;
 	}, [ selectedTitle, addMessage, editPost ] );
+
+	const resetState = useCallback( () => {
+		setHasFailed( false );
+		setFailurePoint( null );
+	}, [] );
+
+	// The build fails if we use i18n strings directly in a ternary operator.
+	const tryAgainLabel = __( 'Try again', 'jetpack' );
+	const regenerateLabel = __( 'Regenerate', 'jetpack' );
 
 	return {
 		id: 'title',
@@ -163,12 +208,14 @@ export const useTitleStep = ( {
 		onSelect: handleTitleSelect,
 		onSubmit: handleTitleSubmit,
 		submitCtaLabel: __( 'Insert', 'jetpack' ),
-		onRetry: handleTitleRegenerate,
-		retryCtaLabel: __( 'Regenerate', 'jetpack' ),
+		onRetry: failurePoint === 'generate' ? handleTitleGenerate : handleTitleRegenerate,
+		retryCtaLabel: failurePoint === 'generate' ? tryAgainLabel : regenerateLabel,
 		onStart: handleTitleGenerate,
 		value,
 		setValue,
 		includeInResults: true,
 		hasSelection: !! selectedTitle,
+		hasFailed,
+		resetState,
 	};
 };
