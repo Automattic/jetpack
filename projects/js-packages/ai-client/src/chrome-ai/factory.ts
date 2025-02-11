@@ -38,10 +38,8 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 
 		if (
 			! ( 'translation' in self ) ||
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			! ( self.translation as any ).createTranslator ||
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			! ( self.translation as any ).canTranslate
+			! self.translation.createTranslator ||
+			! self.translation.canTranslate
 		) {
 			return false;
 		}
@@ -52,10 +50,8 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 		};
 
 		// see if we can detect the source language
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		if ( 'ai' in self && ( self.ai as any ).languageDetector ) {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const detector = await ( self.ai as any ).languageDetector.create();
+		if ( 'ai' in self && self.ai.languageDetector ) {
+			const detector = await self.ai.languageDetector.create();
 			const confidences = await detector.detect( context.content );
 
 			for ( const confidence of confidences ) {
@@ -70,8 +66,7 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 			}
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const canTranslate = await ( self.translation as any ).canTranslate( languageOpts );
+		const canTranslate = await self.translation.canTranslate( languageOpts );
 
 		if ( canTranslate === 'no' ) {
 			return false;

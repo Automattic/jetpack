@@ -107,8 +107,7 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 			return;
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const translator = await ( self.translation as any ).createTranslator( {
+		const translator = await self.translation.createTranslator( {
 			sourceLanguage: source,
 			targetLanguage: target,
 		} );
