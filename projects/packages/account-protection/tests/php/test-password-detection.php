@@ -213,7 +213,7 @@ class Password_Detection_Test extends BaseTestCase {
 			->method( 'render_content' )
 			->with( $user, 'my_cool_token' );
 
-			$calls    = 0;
+		$calls        = 0;
 		$call_counter = function () use ( &$calls ) {
 			++$calls;
 			return false;
