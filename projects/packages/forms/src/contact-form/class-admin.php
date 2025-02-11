@@ -794,7 +794,7 @@ class Admin {
 				if ( $json_data->field_type === 'file' ) {
 					return '<a href="' . esc_url( $json_data->url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $json_data->name ) . '</a> - ' . size_format( $json_data->size ) . '<br />';
 				}
-			} catch ( Exception $e ) {
+			} catch ( \Exception $e ) {
 				return nl2br( esc_html( $value ) );
 			}
 		}
