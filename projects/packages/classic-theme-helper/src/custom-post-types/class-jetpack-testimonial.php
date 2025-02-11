@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Classic_Theme_Helper;
 
+use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 use WP_Customize_Image_Control;
@@ -147,12 +148,42 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 		}
 
 		/**
+		 * Check if a site should display testimonials - it should not if:
+		 * - the theme is a block theme without testimonials enabled or any published testimonials.
+		 *
+		 * @return bool
+		 */
+		public static function site_should_display_testimonials() {
+			$should_display = true;
+			if ( Blocks::is_fse_theme() ) {
+				// The count is only useful as a possible safety net as it uses transients if the CPT is disabled.
+				if ( ! get_option( self::OPTION_NAME, '0' ) && empty( self::count_testimonials() ) ) {
+					$should_display = false;
+				}
+			}
+
+			/**
+			 * Filter whether the site should display testimonials.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param bool $should_display Whether testimonials should be displayed.
+			 */
+			return apply_filters( 'classic_theme_helper_should_display_testimonials', $should_display );
+		}
+
+		/**
 		 * Add a checkbox field in 'Settings' > 'Writing'
 		 * for enabling CPT functionality.
 		 *
 		 * @return void
 		 */
 		public function settings_api_init() {
+
+			if ( ! self::site_should_display_testimonials() ) {
+				return;
+			}
+
 			add_settings_field(
 				self::OPTION_NAME,
 				'<span class="cpt-options">' . __( 'Testimonials', 'jetpack-classic-theme-helper' ) . '</span>',
@@ -338,6 +369,9 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 			if ( post_type_exists( self::CUSTOM_POST_TYPE ) ) {
 				return;
 			}
+			if ( ! self::site_should_display_testimonials() ) {
+				return;
+			}
 
 			register_post_type(
 				self::CUSTOM_POST_TYPE,
@@ -515,11 +549,15 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 		 *
 		 * @return int
 		 */
-		private function count_testimonials() {
+		private static function count_testimonials() {
 			$testimonials = get_transient( 'jetpack-testimonial-count-cache' );
 
 			if ( false === $testimonials ) {
-				$testimonials = (int) wp_count_posts( self::CUSTOM_POST_TYPE )->publish;
+				// If testimonials are not active, we'll rely on the transient for the count if it exists,
+				// see site_should_display_testimonials for usage.
+				$testimonials = post_type_exists( self::CUSTOM_POST_TYPE )
+				? (int) ( wp_count_posts( self::CUSTOM_POST_TYPE )->publish ?? 0 )
+				: 0;
 
 				if ( ! empty( $testimonials ) ) {
 					set_transient( 'jetpack-testimonial-count-cache', $testimonials, 60 * 60 * 12 );
