@@ -56,7 +56,7 @@ const CRMPluginIsNotInstalled = ( { installAndActivateCRMPlugin, isInstalling } 
 		<Button
 			variant="secondary"
 			onClick={ () => {
-				tracks.recordEvent( 'jetpack_forms_crm_plugin_install_click' );
+				tracks.recordEvent( 'jetpack_forms_plugin_install_crm_click' );
 				installAndActivateCRMPlugin();
 			} }
 		>
@@ -98,7 +98,7 @@ const CRMPluginIsInstalled = ( { activateCRMPlugin, isInstalling } ) => {
 				<Button
 					variant="secondary"
 					onClick={ () => {
-						tracks.recordEvent( 'jetpack_forms_crm_plugin_activate_click' );
+						tracks.recordEvent( 'jetpack_forms_plugin_activate_crm_click' );
 						activateCRMPlugin();
 					} }
 				>
