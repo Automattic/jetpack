@@ -130,7 +130,14 @@ class Password_Detection_Test extends BaseTestCase {
 		$sut->login_form_password_detection( $user, 'pw' );
 
 		$transient_data = get_transient( Config::TRANSIENT_PREFIX . "_error_{$user->ID}" );
-		$this->assertSame( 'Failed to send authentication email. Please try again.', $transient_data, 'Should have set the correct error message.' );
+		$this->assertSame(
+			array(
+				'code'    => 'email_send_error',
+				'message' => 'Failed to send authentication email. Please try again.',
+			),
+			$transient_data,
+			'Should have set the correct error message.'
+		);
 
 		remove_filter( 'check_password', '__return_true' );
 	}
@@ -201,14 +208,14 @@ class Password_Detection_Test extends BaseTestCase {
 		$user->user_pass = 'pw';
 		$user->add_cap( 'publish_posts' );
 
-		$sut = $this->createPartialMock( Password_Detection::class, array( 'redirect_and_exit', 'load_user' ) );
+		$sut = $this->createPartialMock( Password_Detection::class, array( 'redirect_and_exit', 'load_user', 'render_content' ) );
 		$sut->expects( $this->once() )
 			->method( 'load_user' )
 			->with( 123 )
 			->willReturn( $user );
 		$sut->expects( $this->once() )
-			->method( 'redirect_and_exit' )
-			->with( 'http://example.org/wp-admin/' );
+			->method( 'render_content' )
+			->with( $user, 'my_cool_token' );
 
 		$calls        = 0;
 		$call_counter = function () use ( &$calls ) {
@@ -249,17 +256,27 @@ class Password_Detection_Test extends BaseTestCase {
 		$user->user_pass = 'pw';
 		$user->add_cap( 'publish_posts' );
 
-		$sut = $this->createPartialMock( Password_Detection::class, array( 'load_user' ) );
+		$sut = $this->createPartialMock( Password_Detection::class, array( 'load_user', 'render_content' ) );
 		$sut->expects( $this->once() )
 			->method( 'load_user' )
 			->with( 123 )
 			->willReturn( $user );
+		$sut->expects( $this->once() )
+			->method( 'render_content' )
+			->with( $user, 'my_cool_token' );
 
 		$sut->render_page();
 
 		$error = get_transient( Config::TRANSIENT_PREFIX . '_error_123' );
 
-		$this->assertSame( 'Authentication code verification failed. Please try again.', $error, 'Error message is not as expected.' );
+		$this->assertSame(
+			array(
+				'code'    => 'auth_code_error',
+				'message' => 'Authentication code verification failed. Please try again.',
+			),
+			$error,
+			'Error message is not as expected.'
+		);
 
 		unset( $_GET['token'] );
 		unset( $_POST['verify'] );
@@ -280,9 +297,10 @@ class Password_Detection_Test extends BaseTestCase {
 			)
 		);
 
-		$user            = new \WP_User();
-		$user->ID        = 123;
-		$user->user_pass = 'pw';
+		$user             = new \WP_User();
+		$user->ID         = 123;
+		$user->user_email = 'email@example.com';
+		$user->user_pass  = 'pw';
 		$user->add_cap( 'publish_posts' );
 
 		$sut = $this->createPartialMock( Password_Detection::class, array( 'load_user', 'render_content' ) );
@@ -298,7 +316,14 @@ class Password_Detection_Test extends BaseTestCase {
 
 		$error = get_transient( Config::TRANSIENT_PREFIX . '_error_123' );
 
-		$this->assertSame( 'Verify nonce verification failed. Please try again.', $error, 'Error message is not as expected.' );
+		$this->assertSame(
+			array(
+				'code'    => 'verify_nonce_error',
+				'message' => 'Verify nonce verification failed. Please try again.',
+			),
+			$error,
+			'Error message is not as expected.'
+		);
 
 		unset( $_GET['token'] );
 		unset( $_POST['verify'] );
@@ -377,9 +402,12 @@ class Password_Detection_Test extends BaseTestCase {
 	}
 
 	public function test_render_content_shows_transient_error_if_set(): void {
-		$error_message = 'This is a error message to test things with.';
+		$error = array(
+			'code'    => 'error',
+			'message' => 'This is a error message to test things with.',
+		);
 
-		set_transient( Config::TRANSIENT_PREFIX . '_error_123', $error_message );
+		set_transient( Config::TRANSIENT_PREFIX . '_error_123', $error );
 
 		$user             = new \WP_User();
 		$user->ID         = 123;
@@ -392,7 +420,7 @@ class Password_Detection_Test extends BaseTestCase {
 		$sut->expects( $this->once() )
 			->method( 'exit' );
 
-		$this->expectOutputRegex( '@' . $error_message . '@' );
+		$this->expectOutputRegex( '@' . $error['message'] . '@' );
 		$sut->render_content( $user, 'my_cool_token' );
 	}
 }
