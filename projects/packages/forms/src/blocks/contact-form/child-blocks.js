@@ -238,12 +238,16 @@ const FieldDefaults = {
 	example: {},
 };
 
+// Storing in variables to avoid JS mangling breaking translation calls
+const severalOptionsDefault = __( 'Choose several options', 'jetpack-forms' );
+const oneOptionDefault = __( 'Choose one option', 'jetpack-forms' );
+
 const multiFieldV1 = fieldType => ( {
 	attributes: {
 		...FieldDefaults.attributes,
 		label: {
 			type: 'string',
-			default: fieldType === 'checkbox' ? 'Choose several options' : 'Choose one option',
+			default: fieldType === 'checkbox' ? severalOptionsDefault : oneOptionDefault,
 		},
 	},
 	migrate: attributes => {
@@ -370,7 +374,7 @@ export const childBlocks = [
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
-					default: 'Text',
+					default: __( 'Text', 'jetpack-forms' ),
 					role: 'content',
 				},
 			},
@@ -393,7 +397,7 @@ export const childBlocks = [
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
-					default: 'Name',
+					default: __( 'Name', 'jetpack-forms' ),
 					role: 'content',
 				},
 			},
@@ -415,7 +419,7 @@ export const childBlocks = [
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
-					default: 'Email',
+					default: __( 'Email', 'jetpack-forms' ),
 					role: 'content',
 				},
 			},
@@ -472,7 +476,7 @@ export const childBlocks = [
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
-					default: 'Date',
+					default: __( 'Date', 'jetpack-forms' ),
 					role: 'content',
 				},
 				dateFormat: {

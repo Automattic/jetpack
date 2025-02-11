@@ -33,6 +33,11 @@ type ToggleSectionProps = {
 	 * Children to be rendered inside the toggle.
 	 */
 	children: React.ReactNode;
+
+	/**
+	 * Whether to hide the toggle.
+	 */
+	hideToggle?: boolean;
 };
 
 /**
@@ -51,17 +56,20 @@ const ToggleSection: React.FC< ToggleSectionProps > = ( {
 	checked,
 	disabled,
 	children,
+	hideToggle,
 } ) => (
 	<Container horizontalSpacing={ 7 } horizontalGap={ 3 }>
-		<div className={ styles.column }>
-			<ToggleControl
-				label={ '' }
-				className={ styles.toggle }
-				disabled={ disabled }
-				checked={ checked }
-				onChange={ onChange }
-				__nextHasNoMarginBottom={ true }
-			/>
+		<div className={ `${ styles.column } ${ hideToggle ? styles.notoggle : '' }` }>
+			{ ! hideToggle && (
+				<ToggleControl
+					label={ '' }
+					className={ styles.toggle }
+					disabled={ disabled }
+					checked={ checked }
+					onChange={ onChange }
+					__nextHasNoMarginBottom={ true }
+				/>
+			) }
 			<Text className={ styles.title } variant="title-medium">
 				{ title }
 				{ beta && <div className={ styles.beta }>Beta</div> }
