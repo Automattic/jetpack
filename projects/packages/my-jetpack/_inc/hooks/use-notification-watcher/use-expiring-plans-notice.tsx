@@ -48,7 +48,7 @@ const useExpiringPlansNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 
 	const onCloseClick = useCallback( () => {
 		const cookieKey = isExpiredAlert
-			? `${ productSlug }--plan-expired`
+			? `${ productSlug }--plan_expired`
 			: `${ productSlug }--plan_expiring_soon`;
 		// Session cookie. Expires when session ends.
 		document.cookie = `${ cookieKey }_dismissed=1; SameSite=None; Secure`;
