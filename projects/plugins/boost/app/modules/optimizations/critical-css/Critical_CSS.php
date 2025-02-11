@@ -2,8 +2,10 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS;
 
+use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
+use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
@@ -14,8 +16,9 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Data_Sync\Data_Sync_Setup;
 
-class Critical_CSS implements Pluggable, Changes_Page_Output, Optimization {
+class Critical_CSS implements Pluggable, Changes_Page_Output, Optimization, Has_Data_Sync {
 
 	/**
 	 * Critical CSS storage class instance.
@@ -67,6 +70,10 @@ class Critical_CSS implements Pluggable, Changes_Page_Output, Optimization {
 		Regenerate_Admin_Notice::init();
 
 		return true;
+	}
+
+	public static function register_data_sync( Data_Sync $instance ) {
+		Data_Sync_Setup::register_data_sync( $instance );
 	}
 
 	public static function get_slug() {

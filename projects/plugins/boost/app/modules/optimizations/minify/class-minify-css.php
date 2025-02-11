@@ -29,7 +29,7 @@ class Minify_CSS implements Pluggable, Changes_Page_Output, Optimization, Has_Ac
 		add_action( 'init', array( $this, 'init_minify' ) );
 	}
 
-	public function register_data_sync( Data_Sync $instance ) {
+	public static function register_data_sync( Data_Sync $instance ) {
 		$parser = Schema::as_array( Schema::as_string() )->fallback( self::$default_excludes );
 		$entry  = new Minify_Excludes_State_Entry( 'minify_css_excludes' );
 

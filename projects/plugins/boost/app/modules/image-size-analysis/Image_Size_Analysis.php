@@ -2,14 +2,20 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Image_Size_Analysis;
 
+use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
+use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Data_Sync\Data_Sync_Setup;
 
 class Image_Size_Analysis implements Pluggable, Is_Always_On {
 
 	public function setup() {
 		Image_Size_Analysis_Fixer::setup();
+	}
+
+	public static function register_data_sync( Data_Sync $instance ) {
+		Data_Sync_Setup::register_data_sync( $instance );
 	}
 
 	public static function is_available() {

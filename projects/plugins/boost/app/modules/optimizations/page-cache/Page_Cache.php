@@ -2,18 +2,26 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 
+use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
+use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Modules\Modules_Index;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Liar;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync\Page_Cache_Entry;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions\Clear_Page_Cache;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions\Deactivate_WPSC;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions\Run_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 
-class Page_Cache implements Pluggable, Has_Deactivate, Optimization {
+class Page_Cache implements Pluggable, Has_Deactivate, Has_Data_Sync, Optimization {
 	/**
 	 * @var array - The errors that occurred when removing the cache.
 	 */
@@ -49,6 +57,39 @@ class Page_Cache implements Pluggable, Has_Deactivate, Optimization {
 		add_action( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_css_excludes', array( $this, 'invalidate_cache' ) );
 		add_action( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_image_cdn_quality', array( $this, 'invalidate_cache' ) );
 		add_action( 'update_option_jetpack_boost_status_' . Liar::get_slug(), array( $this, 'invalidate_cache' ) );
+	}
+
+	public static function register_data_sync( Data_Sync $instance ) {
+		$instance->register_readonly( 'cache_debug_log', Schema::as_unsafe_any(), array( Logger::class, 'read' ) );
+		$instance->register_readonly( 'cache_engine_loading', Schema::as_unsafe_any(), array( Boost_Cache::class, 'is_loaded' ) );
+
+		// Page Cache error
+		$instance->register(
+			'page_cache_error',
+			Schema::as_assoc_array(
+				array(
+					'code'      => Schema::as_string(),
+					'message'   => Schema::as_string(),
+					'dismissed' => Schema::as_boolean()->fallback( false ),
+				)
+			)->nullable()
+		);
+
+		$instance->register_action( 'page_cache', 'run-setup', Schema::as_void(), new Run_Setup() );
+
+		$instance->register(
+			'page_cache',
+			Schema::as_assoc_array(
+				array(
+					'bypass_patterns' => Schema::as_array( Schema::as_string() ),
+					'logging'         => Schema::as_boolean(),
+				)
+			),
+			new Page_Cache_Entry( JETPACK_BOOST_DATASYNC_NAMESPACE . '_page_cache' )
+		);
+
+		$instance->register_action( 'page_cache', 'clear-page-cache', Schema::as_void(), new Clear_Page_Cache() );
+		$instance->register_action( 'page_cache', 'deactivate-wpsc', Schema::as_void(), new Deactivate_WPSC() );
 	}
 
 	/**

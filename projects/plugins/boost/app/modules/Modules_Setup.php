@@ -2,9 +2,11 @@
 
 namespace Automattic\Jetpack_Boost\Modules;
 
+use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
+use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Regenerate;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Status;
@@ -89,7 +91,7 @@ class Modules_Setup implements Has_Setup {
 			return false;
 		}
 
-		$feature->register_data_sync( Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE ) );
+		$feature::register_data_sync( Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE ) );
 	}
 
 	public function register_endpoints( $feature ) {
@@ -105,7 +107,23 @@ class Modules_Setup implements Has_Setup {
 	}
 
 	public function load_modules() {
+		$this->init_data_sync();
 		$this->init_modules( $this->available_modules );
+	}
+
+	private function init_data_sync() {
+		$modules_state_schema = Schema::as_array(
+			Schema::as_assoc_array(
+				array(
+					'active'    => Schema::as_boolean()->fallback( false ),
+					'available' => Schema::as_boolean()->nullable(),
+				)
+			)
+		)->fallback( array() );
+
+		$instance = Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE );
+		$entry    = new Modules_State_Entry( Modules_Index::FEATURES );
+		$instance->register( 'modules_state', $modules_state_schema, $entry );
 	}
 
 	private function init_modules( $modules ) {
