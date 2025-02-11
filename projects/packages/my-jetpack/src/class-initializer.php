@@ -235,7 +235,7 @@ class Initializer {
 		}
 		$latest_score['previousScores'] = $previous_score['scores'] ?? array();
 
-		Products\Protect::initialize();
+		Products::initialize_products();
 		$scan_data = Products\Protect::get_protect_data();
 
 		self::update_historically_active_jetpack_modules();
@@ -556,9 +556,10 @@ class Initializer {
 		new REST_Products();
 		new REST_Purchases();
 		new REST_Zendesk_Chat();
-		new REST_Product_Data();
 		new REST_AI();
 		new REST_Recommendations_Evaluation();
+
+		Products::register_product_endpoints();
 
 		register_rest_route(
 			'my-jetpack/v1',
