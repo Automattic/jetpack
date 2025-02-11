@@ -1131,6 +1131,10 @@ class Initializer {
 	 * @return array
 	 */
 	public static function alert_if_protect_has_threats( array $red_bubble_slugs ) {
+		// Make sure the Notice hasn't been dismissed.
+		if ( ! empty( $_COOKIE['protect_threats_detected_dismissed'] ) ) {
+			return $red_bubble_slugs;
+		}
 		// Make sure we're dealing with the Protect product only
 		if ( ! Products\Protect::has_paid_plan_for_product() ) {
 			return $red_bubble_slugs;
