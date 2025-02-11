@@ -231,19 +231,26 @@ class Password_Detection {
 		delete_transient( $error_transient_key );
 		delete_transient( $success_transient_key );
 
-		$error_message   = null;
-		$error_code      = null;
-		$success_message = null;
-		$success_code    = null;
-
+		$error_message = null;
+		$error_code    = null;
 		if ( is_array( $error_data ) ) {
-			$error_message = isset( $error_data['message'] ) ? $error_data['message'] : null;
-			$error_code    = isset( $error_data['code'] ) ? $error_data['code'] : 'error';
+			if ( isset( $error_data['message'] ) ) {
+				$error_message = $error_data['message'];
+			}
+			if ( isset( $error_data['code'] ) ) {
+				$error_code = $error_data['code'];
+			}
 		}
 
+		$success_message = null;
+		$success_code    = null;
 		if ( is_array( $success_data ) ) {
-			$success_message = isset( $success_data['message'] ) ? $success_data['message'] : null;
-			$success_code    = isset( $success_data['code'] ) ? $success_data['code'] : 'success';
+			if ( isset( $success_data['message'] ) ) {
+				$success_message = $success_data['message'];
+			}
+			if ( isset( $success_data['code'] ) ) {
+				$success_code = $success_data['code'];
+			}
 		}
 
 		defined( 'ABSPATH' ) || exit;
