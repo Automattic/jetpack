@@ -885,19 +885,19 @@ abstract class Publicize_Base {
 			$post_id = null;
 		}
 
-		// TODO Get these services->connections from the cache populated from the REST API.
-		$services = $this->get_services( 'connected' );
 		$all_done = $this->post_is_done_sharing( $post_id );
 
 		// We don't allow Publicizing to the same external id twice, to prevent spam.
 		$service_id_done = (array) get_post_meta( $post_id, $this->POST_SERVICE_DONE, true );
 
-		foreach ( $services as $service_name => $connections ) {
+		$connections = Connections::get_all_for_user();
+
+		if ( ! empty( $connections ) ) {
+
 			foreach ( $connections as $connection ) {
-				$connection_meta = $this->get_connection_meta( $connection );
-				$connection_data = $connection_meta['connection_data'];
-				$unique_id       = $this->get_connection_unique_id( $connection );
-				$connection_id   = $this->get_connection_id( $connection );
+				$service_name  = $connection['service_name'];
+				$unique_id     = $connection['id'];
+				$connection_id = $connection['connection_id'];
 				// Was this connection (OR, old-format service) already Publicized to?
 				$done = ! empty( $post ) && (
 					// Flags based on token_id.
@@ -916,10 +916,10 @@ abstract class Publicize_Base {
 				 * @param bool true Should the post be publicized to a given service? Default to true.
 				 * @param int $post_id Post ID.
 				 * @param string $service_name Service name.
-				 * @param array $connection_data Array of information about all Publicize details for the site.
+				 * @param array $connection The connection data.
 				 */
 				/* phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores */
-				if ( ! apply_filters( 'wpas_submit_post?', true, $post_id, $service_name, $connection_data ) ) {
+				if ( ! apply_filters( 'wpas_submit_post?', true, $post_id, $service_name, $connection ) ) {
 					continue;
 				}
 
@@ -943,9 +943,7 @@ abstract class Publicize_Base {
 					)
 					||
 					(
-						is_array( $connection )
-						&&
-						isset( $connection_meta['external_id'] ) && ! empty( $service_id_done[ $service_name ][ $connection_meta['external_id'] ] )
+						isset( $connection['external_id'] ) && ! empty( $service_id_done[ $service_name ][ $connection['external_id'] ] )
 					)
 				);
 
@@ -971,7 +969,7 @@ abstract class Publicize_Base {
 				 * If this is a global connection and this user doesn't have enough permissions to modify
 				 * those connections, don't let them change it.
 				 */
-				if ( ! $done && $this->is_global_connection( $connection_meta ) && ! current_user_can( $this->GLOBAL_CAP ) ) {
+				if ( ! $done && $connection['shared'] && ! current_user_can( $this->GLOBAL_CAP ) ) {
 					$toggleable = false;
 
 					/**
@@ -993,28 +991,16 @@ abstract class Publicize_Base {
 					$enabled = true;
 				}
 
-				$connection_list[] = array(
-					// REST Meta fields.
-					'connection_id'   => $connection_id,
-					'display_name'    => $this->get_display_name( $service_name, $connection ),
-					'enabled'         => $enabled,
-					'external_handle' => $this->get_external_handle( $service_name, $connection ),
-					'external_id'     => $connection_meta['external_id'] ?? '',
-					'profile_link'    => (string) $this->get_profile_link( $service_name, $connection ),
-					'profile_picture' => (string) $this->get_profile_picture( $connection ),
-					'service_label'   => static::get_service_label( $service_name ),
-					'service_name'    => $service_name,
-					'shared'          => ! $connection_data['user_id'],
-					'status'          => null,
-
-					// Deprecated fields.
-					'id'              => $connection_id,
-					'unique_id'       => $unique_id,
-					'username'        => $this->get_username( $service_name, $connection ),
-					'done'            => $done,
-					'toggleable'      => $toggleable,
-					'global'          => 0 == $connection_data['user_id'], // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,WordPress.PHP.StrictComparisons.LooseComparison -- Other types can be used at times.
-					'user_id'         => (int) $connection_data['user_id'],
+				$connection_list[] = array_merge(
+					$connection,
+					array(
+						'enabled'    => $enabled,
+						// Deprecated fields.
+						'id'         => $connection_id,
+						'unique_id'  => $unique_id,
+						'done'       => $done,
+						'toggleable' => $toggleable,
+					)
 				);
 			}
 		}
@@ -1303,13 +1289,9 @@ abstract class Publicize_Base {
 		// - API/XML-RPC Test Posts
 		if (
 			(
-				defined( 'XMLRPC_REQUEST' )
-			&&
-				XMLRPC_REQUEST
+			( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
 			||
-				defined( 'APP_REQUEST' )
-			&&
-				APP_REQUEST
+			( defined( 'APP_REQUEST' ) && constant( 'APP_REQUEST' ) )
 			)
 		&&
 			str_starts_with( $post->post_title, 'Temporary Post Used For Theme Detection' )
