@@ -1,0 +1,57 @@
+/* 
+ * Copied from Gutenberg's Badge component. See:
+ * https://github.com/WordPress/gutenberg/blob/trunk/packages/components/src/badge/styles.scss
+
+ * The scss code was translated to plain css to make it work in wp-admin
+ */
+
+.components-badge {
+	background-color: color-mix(in srgb, #fff 90%, var(--base-color));
+	color: color-mix(in srgb, #000 50%, var(--base-color));
+	padding: 0 8px;
+	min-height: 24px;
+	max-width: 100%;
+	border-radius: 4px;
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 1.4;
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+}
+
+.components-badge.is-default {
+	background-color: #f0f0f0;
+	color: #2c3338;
+}
+
+.components-badge.has-icon {
+	padding-inline-start: 4px;
+}
+
+/* Color variants */
+.components-badge.is-info {
+	--base-color: #3858e9;
+}
+
+.components-badge.is-warning {
+	--base-color: #f0b849;
+}
+
+.components-badge.is-error {
+	--base-color: #d63638;
+}
+
+.components-badge.is-success {
+	--base-color: #00a32a;
+}
+
+.components-badge__icon {
+	flex-shrink: 0;
+}
+
+.components-badge__content {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
