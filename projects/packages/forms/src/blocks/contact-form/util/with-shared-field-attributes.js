@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { select, useDispatch } from '@wordpress/data';
+import { select, useDispatch, useRegistry } from '@wordpress/data';
 import { useCallback, useEffect } from '@wordpress/element';
 import { isEmpty, first, map, pick, isNil } from 'lodash';
 
@@ -12,6 +12,7 @@ export const useSharedFieldAttributes = ( {
 	sharedAttributes,
 } ) => {
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
+	const registry = useRegistry();
 
 	// Not using `useSelect` here to get fresh sibling data within `useEffect` and `useCallback`.
 	const getSiblings = useCallback( () => {
@@ -61,13 +62,23 @@ export const useSharedFieldAttributes = ( {
 				newSharedAttributes = pick( first( siblings ).attributes, sharedAttributes );
 			}
 
-			if ( ! isEmpty( blocksToUpdate ) && ! isEmpty( newSharedAttributes ) ) {
-				updateBlockAttributes( blocksToUpdate, newSharedAttributes );
-			}
+			registry.batch( () => {
+				if ( ! isEmpty( blocksToUpdate ) && ! isEmpty( newSharedAttributes ) ) {
+					updateBlockAttributes( blocksToUpdate, newSharedAttributes );
+				}
 
-			setAttributes( newAttributes );
+				setAttributes( newAttributes );
+			} );
 		},
-		[ attributes, clientId, getSiblings, setAttributes, sharedAttributes, updateBlockAttributes ]
+		[
+			attributes,
+			clientId,
+			getSiblings,
+			registry,
+			setAttributes,
+			sharedAttributes,
+			updateBlockAttributes,
+		]
 	);
 
 	return updateAttributes;
