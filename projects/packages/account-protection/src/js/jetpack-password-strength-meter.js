@@ -33,7 +33,6 @@ jQuery( document ).ready( function ( $ ) {
 		passwordInput.css( {
 			'border-color': '#8C8F94',
 			'border-radius': '4px 4px 0 0',
-			margin: '0',
 		} );
 		passwordStrengthResults.hide();
 		passwordInput.after( UIComponents.passwordValidationStatus );

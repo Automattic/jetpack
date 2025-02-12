@@ -59,6 +59,11 @@
     border-top: 6px solid #333;
 }
 
+#your-profile .strength-meter,
+#createuser .strength-meter {
+    margin: 0 1px;
+}
+
 .strength-meter {
     display: flex;
     justify-content: space-between;
