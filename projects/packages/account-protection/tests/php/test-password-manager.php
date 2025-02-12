@@ -10,6 +10,7 @@ use WorDBless\BaseTestCase;
 class Password_Manager_Test extends BaseTestCase {
 	public function test_validate_profile_update_nonce_failure() {
 		$_POST['_wpnonce'] = 'invalid_nonce';
+		$_POST['pass1']    = 'newpassword';
 
 		$errors = new \WP_Error();
 		$user   = (object) array( 'ID' => 1 );
