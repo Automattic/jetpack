@@ -56,11 +56,11 @@ class Password_Manager {
 			}
 		}
 
-		$wp_user = new \WP_User( $user );
-		$error   = $this->validation_service->return_first_validation_error( $wp_user, $password );
+		$wp_user           = new \WP_User( $user );
+		$validation_errors = $this->validation_service->validate_user_password( $wp_user, $password );
 
-		if ( ! empty( $error ) ) {
-			$errors->add( 'password_error', $error );
+		if ( ! empty( $validation_errors ) ) {
+			$errors->add( 'pass', $validation_errors[0], array( 'form-field' => 'pass1' ) );
 			return;
 		}
 	}
@@ -98,9 +98,9 @@ class Password_Manager {
 			return;
 		}
 
-		$error = $this->validation_service->return_first_validation_error( $user, $password );
-		if ( ! empty( $error ) ) {
-			$errors->add( 'password_error', $error );
+		$validation_errors = $this->validation_service->validate_user_password( $user, $password );
+		if ( ! empty( $validation_errors ) ) {
+			$errors->add( 'pass', $validation_errors[0], array( 'form-field' => 'pass1' ) );
 			return;
 		}
 	}

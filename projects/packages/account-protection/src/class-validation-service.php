@@ -84,41 +84,43 @@ class Validation_Service {
 	}
 
 	/**
-	 * Return first validation error.
+	 * Validate a potential password for a given user.
 	 *
-	 * @param \WP_User $user     The user data.
-	 * @param string   $password The password to check.
+	 * @param \WP_User $user The user.
+	 * @param string   $password The password.
 	 *
-	 * @return string The first validation errors (if any).
+	 * @return string[] Validation error messages.
 	 */
-	public function return_first_validation_error( \WP_User $user, string $password ): string {
+	public function validate_user_password( \WP_User $user, string $password ) {
+		$errors = array();
+
 		if ( empty( $password ) ) {
-			return __( '<strong>Error:</strong> The password cannot be a space or all spaces.', 'jetpack-account-protection' );
+			$errors[] = __( '<strong>Error:</strong> The password cannot be a space or all spaces.', 'jetpack-account-protection' );
 		}
 
 		if ( $this->contains_backslash( $password ) ) {
-			return __( '<strong>Error:</strong> The password cannot contain a backslash (\\) character.', 'jetpack-account-protection' );
+			$errors[] = __( '<strong>Error:</strong> The password cannot contain a backslash (\\) character.', 'jetpack-account-protection' );
 		}
 
 		if ( $this->is_invalid_length( $password ) ) {
-			return __( '<strong>Error:</strong> The password must be between 6 and 150 characters.', 'jetpack-account-protection' );
+			$errors[] = __( '<strong>Error:</strong> The password must be between 6 and 150 characters.', 'jetpack-account-protection' );
 		}
 
 		if ( $this->matches_user_data( $user, $password ) ) {
-			return __( '<strong>Error:</strong> The password matches user data.', 'jetpack-account-protection' );
+			$errors[] = __( '<strong>Error:</strong> The password matches user data.', 'jetpack-account-protection' );
 		}
 
 		if ( isset( $user->ID ) ) {
 			if ( $this->is_recent_password( $user->ID, $password ) ) {
-				return __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' );
+				$errors[] = __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' );
 			}
 		}
 
 		if ( $this->is_weak_password( $password ) ) {
-			return __( '<strong>Error:</strong> The password was found in a public leak.', 'jetpack-account-protection' );
+			$errors[] = __( '<strong>Error:</strong> The password was found in a public leak.', 'jetpack-account-protection' );
 		}
 
-		return '';
+		return $errors;
 	}
 
 	/**
