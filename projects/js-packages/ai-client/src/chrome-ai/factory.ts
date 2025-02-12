@@ -3,7 +3,7 @@ import {
 	PROMPT_TYPE_CHANGE_LANGUAGE,
 	//PROMPT_TYPE_SUMMARIZE,
 } from '../constants.js';
-import { PromptProp } from '../types.js';
+import { PromptProp, PromptItemProps } from '../types.js';
 import ChromeAISuggestionsEventSource from './suggestions.js';
 
 /**
@@ -13,6 +13,12 @@ import ChromeAISuggestionsEventSource from './suggestions.js';
  */
 function shouldUseChromeAI() {
 	return getJetpackExtensionAvailability( 'ai-use-chrome-ai-sometimes' ).available === true;
+}
+
+interface PromptContext {
+	type?: string;
+	content?: string;
+	language?: string;
 }
 
 /**
@@ -26,26 +32,34 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 		return false;
 	}
 
-	const context = {};
+	const context = {
+		content: '',
+		language: '',
+	};
 	let promptType = '';
 	if ( Array.isArray( promptArg ) ) {
-		for ( const prompt of promptArg ) {
+		for ( let i = 0; i < promptArg.length; i++ ) {
+			const prompt: PromptItemProps = promptArg[ i ];
 			if ( prompt.content ) {
 				context.content = prompt.content;
 			}
 
-			if ( prompt.context ) {
-				if ( prompt.context.type ) {
-					promptType = prompt.context.type;
-				}
+			if ( ! ( 'context' in prompt ) ) {
+				continue;
+			}
 
-				if ( prompt.context.language ) {
-					context.language = prompt.context.language;
-				}
+			const promptContext: PromptContext = prompt.context;
 
-				if ( prompt.context.content ) {
-					context.content = prompt.context.content;
-				}
+			if ( promptContext.type ) {
+				promptType = promptContext.type;
+			}
+
+			if ( promptContext.language ) {
+				context.language = promptContext.language;
+			}
+
+			if ( promptContext.content ) {
+				context.content = promptContext.content;
 			}
 		}
 	}
