@@ -86,25 +86,18 @@ class Validation_Service {
 	/**
 	 * Return first validation error.
 	 *
-	 * @param \WP_User                       $user     The user data.
-	 * @param string                         $password The password to check.
-	 * @param 'create-user'|'update'|'reset' $context  The context the validation is run in.
+	 * @param \WP_User $user     The user data.
+	 * @param string   $password The password to check.
 	 *
 	 * @return string The first validation errors (if any).
 	 */
-	public function return_first_validation_error( \WP_User $user, string $password, $context ): string {
-		// Reset form includes this validation in core
-		if ( 'reset' !== $context ) {
-			if ( empty( $password ) ) {
-				return __( '<strong>Error:</strong> The password cannot be a space or all spaces.', 'jetpack-account-protection' );
-			}
+	public function return_first_validation_error( \WP_User $user, string $password ): string {
+		if ( empty( $password ) ) {
+			return __( '<strong>Error:</strong> The password cannot be a space or all spaces.', 'jetpack-account-protection' );
 		}
 
-		// Update and create-user forms include this validation in core
-		if ( 'reset' === $context ) {
-			if ( $this->contains_backslash( $password ) ) {
-				return __( '<strong>Error:</strong> The password cannot contain a backslash (\\) character.', 'jetpack-account-protection' );
-			}
+		if ( $this->contains_backslash( $password ) ) {
+			return __( '<strong>Error:</strong> The password cannot contain a backslash (\\) character.', 'jetpack-account-protection' );
 		}
 
 		if ( $this->is_invalid_length( $password ) ) {
@@ -115,7 +108,7 @@ class Validation_Service {
 			return __( '<strong>Error:</strong> The password matches user data.', 'jetpack-account-protection' );
 		}
 
-		if ( 'create-user' !== $context ) {
+		if ( isset( $user->ID ) ) {
 			if ( $this->is_recent_password( $user->ID, $password ) ) {
 				return __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' );
 			}
