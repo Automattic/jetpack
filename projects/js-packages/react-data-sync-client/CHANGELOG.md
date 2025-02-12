@@ -7,13 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.10] - 2025-02-12
 ### Added
-- Add React Query Devtools [#41357]
+- Add React Query Devtools. [#41357]
 
 ### Changed
 - Updated package dependencies. [#41286]
 
 ### Fixed
-- Fix potential race condition if multiple requests are triggered [#41472]
+- Fix potential race condition if multiple requests are triggered. [#41472]
 
 ## [0.1.9] - 2025-01-23
 ### Changed
