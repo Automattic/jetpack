@@ -118,16 +118,6 @@ jobs:
           echo "::group::Composer"
           composer install --working-dir=tools/php-test-env
 
-          # Add WorDBless for various package tests that use uploads since concurrency can nuke uploads that are in use.
-          # @todo Update WorDBless to be able to use a customized upload dir, do that, and remove this.
-          if [[ "$TEST_SCRIPT" =~ ^test-(php|coverage)$ ]]; then
-            VER=$( jq -r '.require["automattic/wordbless"]' tools/php-test-env/composer.json )
-            for pkg in packages/image-cdn packages/publicize packages/videopress; do
-              echo "Adding WordBless for $pkg tests"
-              composer require --working-dir="projects/$pkg" "automattic/wordbless:$VER" --dev --no-update
-            done
-          fi
-
           if [[ ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) && ( "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ) ]]; then
             VER=$(composer --format=json --working-dir="tools/php-test-env" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
             if [[ -n "$VER" ]]; then

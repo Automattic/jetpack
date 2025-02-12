@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Dev testing only: add support for custom directories when unit testing with WorDBless.
+
+
