@@ -332,9 +332,8 @@ function wpcom_themes_get_activation_url( $theme ) {
 	}
 
 	// Non `hosted-internal` are community or partner, both need Atomic first.
-	// By default, bring the user back to calypso to handle atomic conversion.
-	// @todo Update this flow to avoid the theme showcase page, or add redirect after activation.
-	$activate_url = 'https://wordpress.com/theme/' . $theme->slug . '/' . $blog_id . '?activating=true';
+	// The marketplace route is a simple screen that triggers the Atomic conversion and installs the theme.
+	$activate_url = 'https://wordpress.com/marketplace/theme/' . $theme->slug . '/install/' . $blog_id;
 
 	if ( 'community' === $theme->tier ) {
 		if ( ! wpcom_site_has_feature( WPCOM_Features::INSTALL_THEMES, $blog_id ) ) {
