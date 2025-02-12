@@ -45,8 +45,7 @@
 			"storefront",
 			"widgets",
 			"wpcom-features",
-			"wpcom-migration-helpers",
-			"wpcom-themes"
+			"wpcom-migration-helpers"
 		]
 	},
 	"scripts": {
