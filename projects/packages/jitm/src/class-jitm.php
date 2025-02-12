@@ -156,7 +156,7 @@ class JITM {
 		return (
 			$current_screen
 			&& $current_screen->id
-			&& (bool) preg_match( '/jetpack|woo|shop|product/', $current_screen->id )
+			&& (bool) preg_match( '/jetpack|woo|shop|product|themes/', $current_screen->id )
 		);
 	}
 
