@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Related Posts: ensure images using the AVIF format are properly displayed.
