@@ -28,32 +28,6 @@ class Password_Manager {
 	}
 
 	/**
-	 * Verify the nonce for password update.
-	 *
-	 * @param string $key The nonce key.
-	 *
-	 * @return bool True if the nonce is valid, false otherwise.
-	 */
-	private function verify_password_update_nonce( $key ) {
-		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), $key ) ) {
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Verify the nonce for profile update.
-	 *
-	 * @param int $user_id The user ID.
-	 *
-	 * @return bool True if the nonce is valid, false otherwise.
-	 */
-	public function verify_profile_update_nonce( $user_id ) {
-		return $this->verify_password_update_nonce( 'update-user_' . $user_id );
-	}
-
-	/**
 	 * Validate the profile update.
 	 *
 	 * @param \WP_Error $errors The error object.
@@ -63,49 +37,30 @@ class Password_Manager {
 	 * @return void
 	 */
 	public function validate_profile_update( \WP_Error $errors, bool $update, \stdClass $user ): void {
-		if ( empty( $_POST['pass1'] ) ) {
+		if ( empty( $user->user_pass ) ) {
 			return;
 		}
 
 		// If bypass is enabled, do not validate the password
+		// phpcs:ignore WordPress.Security.NonceVerification
 		if ( isset( $_POST['pw_weak'] ) && 'on' === $_POST['pw_weak'] ) {
 			return;
 		}
 
-		if ( ( ! $update && ( ! isset( $_POST['_wpnonce_create-user'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce_create-user'] ) ), 'create-user' ) ) )
-			|| ( $update && ! $this->verify_profile_update_nonce( $user->ID ) ) ) {
-			$errors->add( 'nonce_error', __( '<strong>Error:</strong> Nonce verification failed.', 'jetpack-account-protection' ) );
-			return;
-		}
-
-		$password = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );
-
 		if ( $update ) {
-			$old_user_data = $this->get_old_user_data( $user->ID );
-			if ( $this->validation_service->is_current_password( $old_user_data, $password ) ) {
+			if ( $this->validation_service->is_current_password( $user->ID, $user->user_pass ) ) {
 				$errors->add( 'password_error', __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' ) );
 				return;
 			}
 		}
 
 		$context = $update ? 'update' : 'create-user';
-		$error   = $this->validation_service->return_first_validation_error( $user, $password, $context );
+		$error   = $this->validation_service->return_first_validation_error( $user, $user->user_pass, $context );
 
 		if ( ! empty( $error ) ) {
 			$errors->add( 'password_error', $error );
 			return;
 		}
-	}
-
-	/**
-	 * Get the old user data.
-	 *
-	 * @param int $user_id The user ID.
-	 *
-	 * @return \WP_User|false The old user data, or false if the user does not exist.
-	 */
-	public function get_old_user_data( $user_id ) {
-		return get_userdata( $user_id );
 	}
 
 	/**
@@ -123,19 +78,20 @@ class Password_Manager {
 			return;
 		}
 
-		// phpcs:disable WordPress.Security.NonceVerification
+		// phpcs:ignore WordPress.Security.NonceVerification
 		if ( empty( $_POST['pass1'] ) ) {
 			return;
 		}
 
 		// If bypass is enabled, do not validate the password
-		// phpcs:disable WordPress.Security.NonceVerification
+		// phpcs:ignore WordPress.Security.NonceVerification
 		if ( isset( $_POST['pw_weak'] ) && 'on' === $_POST['pw_weak'] ) {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification
 		$password = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );
-		if ( $this->validation_service->is_current_password( $user, $password ) ) {
+		if ( $this->validation_service->is_current_password( $user->ID, $password ) ) {
 			$errors->add( 'password_error', __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' ) );
 			return;
 		}
@@ -151,18 +107,14 @@ class Password_Manager {
 	 * Handle the profile update.
 	 *
 	 * @param int      $user_id The user ID.
-	 * @param \WP_User $old_user_data The old user data.
-	 * @param array    $userdata The user data.
+	 * @param \WP_User $old_user_data Object containing user data prior to update.
 	 *
 	 * @return void
 	 */
-	public function on_profile_update( int $user_id, \WP_User $old_user_data, array $userdata ): void { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function on_profile_update( int $user_id, \WP_User $old_user_data ): void {
+		// phpcs:ignore WordPress.Security.NonceVerification
 		if ( isset( $_POST['action'] ) && $_POST['action'] === 'update' ) {
-			if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
-				if ( $this->verify_profile_update_nonce( $user_id ) ) {
-						$this->save_recent_password( $user_id, $old_user_data->user_pass );
-				}
-			}
+			$this->save_recent_password( $user_id, $old_user_data->user_pass );
 		}
 	}
 
@@ -170,11 +122,10 @@ class Password_Manager {
 	 * Handle the password reset.
 	 *
 	 * @param \WP_User $user The user.
-	 * @param string   $new_password The new password.
 	 *
 	 * @return void
 	 */
-	public function on_password_reset( $user, $new_password ): void { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function on_password_reset( $user ): void {
 		$this->save_recent_password( $user->ID, $user->user_pass );
 	}
 
