@@ -938,8 +938,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$field  = $this->render_label( 'file', $id, $label, $required, $required_field_text );
 		$field .= "<div class='jetpack-form-file-field__dropzone'>\n";
-		$field .= "<a href='#' class='wp-block-button__link wp-element-button'>Upload a file</a>\n";
-		$field .= "<span class='jetpack-form-file-field__filename'>...or drag and drop a file.</span>\n";
+		$field .= "<a href='#' class='wp-block-button__link wp-element-button'>" . esc_html__( 'Select a file', 'jetpack-forms' ) . "</a>\n";
+		$field .= "<span class='jetpack-form-file-field__filename'>" . esc_html__( '....or drag and drop a file.', 'jetpack-forms' ) . " </span>\n";
 		$field .= "<input
 			type='file'
 			class='jetpack-form-file-field'
@@ -953,7 +953,49 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field .= "<div class='jetpack-form-file-field__preview-wrap'></div>\n";
 		$field .= "</div>\n";
 
+		$this->localize_file_field_script();
+
 		return $field;
+	}
+
+	/**
+	 * Helper functions that localizes the jetpack-form-file-field script once.
+	 */
+	private function localize_file_field_script() {
+		/**
+		 * Filter to disable the localization of the file field script.
+		 *
+		 * @since $$next-version$$
+		 */
+		if ( apply_filters( 'jetpack_form_localize_file_field', false ) ) {
+			return;
+		}
+		add_filter( 'jetpack_form_localize_file_field', '__return_true' );
+
+		// Order of this is important
+		$file_size_units = array(
+			_x( 'B', 'unit symbol', 'jetpack-forms' ),
+			_x( 'KB', 'unit symbol', 'jetpack-forms' ),
+			_x( 'MB', 'unit symbol', 'jetpack-forms' ),
+			_x( 'GB', 'unit symbol', 'jetpack-forms' ),
+			_x( 'TB', 'unit symbol', 'jetpack-forms' ),
+			_x( 'PB', 'unit symbol', 'jetpack-forms' ),
+			_x( 'EB', 'unit symbol', 'jetpack-forms' ),
+			_x( 'ZB', 'unit symbol', 'jetpack-forms' ),
+			_x( 'YB', 'unit symbol', 'jetpack-forms' ),
+		);
+
+		wp_localize_script(
+			'jetpack-form-file-field',
+			'jetpackFormFileField',
+			array(
+				'i18n' => array(
+					'language'      => get_bloginfo( 'language' ),
+					'fileSizeUnits' => $file_size_units,
+					'removeFile'    => __( 'Remove', 'jetpack-forms' ),
+				),
+			)
+		);
 	}
 
 	/**

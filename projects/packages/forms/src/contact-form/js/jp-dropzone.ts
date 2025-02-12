@@ -128,6 +128,8 @@ export default class JP_Dropzone {
 			return;
 		}
 
+		const removeButtonText = this.options?.i18n?.removeFile || 'Remove';
+
 		const reader = new FileReader();
 		reader.readAsDataURL( file );
 		reader.addEventListener( 'load', event => {
@@ -141,7 +143,7 @@ export default class JP_Dropzone {
 					<span class="jetpack-form-file-field__file-name">${ file.name }</span>
 					<span class="jetpack-form-file-field__file-size">${ this.formatBytes( file.size ) }</span>
 				</div>
-				<a href="#" class="jetpack-form-file-field__remove" aria-label="Remove file">Remove</a>
+				<a href="#" class="jetpack-form-file-field__remove" aria-label="Remove file">${ removeButtonText }</a>
 			`;
 			this.previewContainer.appendChild( div );
 			const removeButton = div.querySelector( '.jetpack-form-file-field__remove' ) as HTMLElement;
@@ -167,16 +169,32 @@ export default class JP_Dropzone {
 
 	/**
 	 * Format the file size to a human-readable string.
-	 * @param {number} size         The size of the file in bytes.
-	 * @param {number} [decimals=2] The number of decimals to include.
+	 * @param {number} size             The size of the file in bytes.
+	 * @param {number} [decimals=2]     The number of decimals to include.
+	 * @param {string} [locale='en-US'] The locale to use for formatting.
 	 * @returns {string} The formatted file size.
 	 */
-	formatBytes( size: number, decimals = 2 ): string {
+	formatBytes( size: number, decimals = 2, locale = 'en-US' ): string {
 		if ( size === 0 ) return '0 bytes';
 		const k = 1024;
 		const dm = decimals < 0 ? 0 : decimals;
-		const sizes = [ 'Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ];
+		const sizes = this.options?.i18n?.fileSizeUnits || [
+			'Bytes',
+			'KB',
+			'MB',
+			'GB',
+			'TB',
+			'PB',
+			'EB',
+			'ZB',
+			'YB',
+		];
 		const i = Math.floor( Math.log( size ) / Math.log( k ) );
-		return parseFloat( ( size / Math.pow( k, i ) ).toFixed( dm ) ) + ' ' + sizes[ i ];
+		const formattedSize = parseFloat( ( size / Math.pow( k, i ) ).toFixed( dm ) );
+		const numberFormat = new Intl.NumberFormat( locale, {
+			minimumFractionDigits: dm,
+			maximumFractionDigits: dm,
+		} );
+		return `${ numberFormat.format( formattedSize ) } ${ sizes[ i ] }`;
 	}
 }
