@@ -17,7 +17,7 @@
 		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
 	},
 	"minimum-stability": "dev",
-	"prefer-stable": false,
+	"prefer-stable": true,
 	"config": {
 		"sort-packages": true,
 		"allow-plugins": {
