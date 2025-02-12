@@ -45,6 +45,7 @@ module.exports = [
 				'./src/features/wpcom-global-styles/wpcom-global-styles-view.js',
 			'wpcom-documentation-links':
 				'./src/features/wpcom-documentation-links/wpcom-documentation-links.ts',
+			'wpcom-media-url-upload': './src/features/wpcom-media/wpcom-media-url-upload.js',
 			'wpcom-options-general': [
 				'./src/features/wpcom-options-general/options-general.js',
 				'./src/features/wpcom-options-general/options-general.scss',

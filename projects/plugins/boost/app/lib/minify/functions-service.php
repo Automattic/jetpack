@@ -68,24 +68,33 @@ function jetpack_boost_check_404_handler( $request_uri ) {
  * This function is used to test if is_404() is working in wp-content/
  * It sends a request to a non-existent URL, that will execute the 404 handler
  * in jetpack_boost_check_404_handler().
+ * Define the constant JETPACK_BOOST_DISABLE_404_TESTER to disable this.
  *
- * This function is called when the Minify_CSS or Minify_JS module is activated.
+ * This function is called when the Minify_CSS or Minify_JS module is activated, and once per day.
  */
 function jetpack_boost_404_tester() {
+	if ( defined( 'JETPACK_BOOST_DISABLE_404_TESTER' ) && JETPACK_BOOST_DISABLE_404_TESTER ) {
+		return;
+	}
+
+	$minification_enabled = '';
 	wp_remote_get( home_url( '/wp-content/boost-cache/static/testing_404' ) );
 	if ( file_exists( Config::get_static_cache_dir_path() . '/404' ) ) {
 		wp_delete_file( Config::get_static_cache_dir_path() . '/404' );
-		update_site_option( 'jetpack_boost_static_minification', 1 );
+		$minification_enabled = 1;
 	} else {
-		update_site_option( 'jetpack_boost_static_minification', 0 );
+		$minification_enabled = 0;
 	}
+	update_site_option( 'jetpack_boost_static_minification', $minification_enabled );
+
+	return $minification_enabled;
 }
 add_action( 'jetpack_boost_404_tester_cron', 'jetpack_boost_404_tester' );
 
 /**
  * Setup the 404 tester.
  *
- * Schedule the 404 tester in three seconds if the concatenation modules
+ * Schedule the 404 tester if the concatenation modules
  * haven't been toggled since this feature was released.
  * Only run this in wp-admin to avoid excessive updates to the option.
  */
@@ -311,12 +320,9 @@ function jetpack_boost_minify_get_file_parts( $request_uri ) {
 	}
 
 	$file_info = pathinfo( $file_path );
-	$real_path = realpath( ABSPATH . $file_info['dirname'] );
-	$cache_dir = realpath( WP_CONTENT_DIR . '/boost-cache/static' );
 
-	// Security check: Ensure requested file is strictly within the designated cache directory
-	// by comparing the resolved absolute paths.
-	if ( $real_path === false || $cache_dir === false || stripos( $real_path, $cache_dir ) !== 0 ) {
+	$minify_path = $utils->parse_url( jetpack_boost_get_minify_url(), PHP_URL_PATH );
+	if ( trailingslashit( $file_info['dirname'] ) !== $minify_path ) {
 		return false;
 	}
 

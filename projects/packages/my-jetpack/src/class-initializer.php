@@ -41,7 +41,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.4.1';
+	const PACKAGE_VERSION = '5.4.3';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -234,11 +234,15 @@ class Initializer {
 			$previous_score = $speed_score_history->latest( 1 );
 		}
 		$latest_score['previousScores'] = $previous_score['scores'] ?? array();
-		$scan_data                      = Products\Protect::get_protect_data();
+
+		Products\Protect::initialize();
+		$scan_data = Products\Protect::get_protect_data();
+
 		self::update_historically_active_jetpack_modules();
 
-		$waf_config    = array();
-		$waf_supported = false;
+		$waf_config     = array();
+		$waf_supported  = false;
+		$is_waf_enabled = false;
 
 		$sandboxed_domain = '';
 		$is_dev_version   = false;
@@ -248,8 +252,9 @@ class Initializer {
 		}
 
 		if ( class_exists( 'Automattic\Jetpack\Waf\Waf_Runner' ) ) {
-			$waf_config    = Waf_Runner::get_config();
-			$waf_supported = Waf_Runner::is_supported_environment();
+			$waf_config     = Waf_Runner::get_config();
+			$is_waf_enabled = Waf_Runner::is_enabled();
+			$waf_supported  = Waf_Runner::is_supported_environment();
 		}
 
 		wp_localize_script(
@@ -313,6 +318,7 @@ class Initializer {
 						$waf_config,
 						array(
 							'waf_supported' => $waf_supported,
+							'waf_enabled'   => $is_waf_enabled,
 						),
 						array( 'blocked_logins' => (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) )
 					),
@@ -1157,7 +1163,9 @@ class Initializer {
 		}
 
 		foreach ( $plugins_needing_installed_activated as $plan_slug => $plugins_requirements ) {
-			$red_bubble_slugs[ "$plan_slug--plugins_needing_installed_activated" ] = $plugins_requirements;
+			if ( empty( $_COOKIE[ "$plan_slug--plugins_needing_installed_dismissed" ] ) ) {
+				$red_bubble_slugs[ "$plan_slug--plugins_needing_installed_activated" ] = $plugins_requirements;
+			}
 		}
 
 		return $red_bubble_slugs;

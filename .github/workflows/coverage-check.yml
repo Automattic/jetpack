@@ -1,0 +1,35 @@
+name: Coverage check
+on:
+  pull_request:
+    types: [labeled, unlabeled]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: PR
+        type: number
+        required: true
+
+concurrency:
+  group: coverage-check-${{ github.head_ref || github.ref_name }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || inputs.pr }}-${{ github.event.pull_request.label.id || '' }}
+  cancel-in-progress: true
+
+permissions:
+  checks: read
+  pull-requests: write
+  statuses: write
+
+jobs:
+  code-coverage-label:
+    name: "Update code coverage check"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'I don''t care about code coverage for this PR'
+    timeout-minutes: 5  # 2025-02-06: Should be pretty quick.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Post message
+        env:
+          PR_ID: ${{ github.event_name == 'pull_request' && github.event.pull_request.number || inputs.pr }}
+          PR_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+        run: .github/files/coverage-munger/post-message.sh

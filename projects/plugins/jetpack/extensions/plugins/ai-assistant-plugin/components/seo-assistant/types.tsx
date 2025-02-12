@@ -9,7 +9,17 @@ export interface Message {
 	selected?: boolean;
 }
 
-export type OptionMessage = Pick< Message, 'id' | 'content' >;
+export type OptionMessage = Pick< Message, 'id' | 'content' | 'selected' >;
+
+export interface Results {
+	[ key: string ]: {
+		value: string;
+		type: string;
+		label: string;
+	};
+}
+
+type OnStart = ( options?: { fromSkip?: boolean; results?: Results } ) => Promise< void | string >;
 
 export interface Step {
 	id: string;
@@ -17,24 +27,27 @@ export interface Step {
 	label?: string;
 	messages: Message[];
 	type: StepType;
-	onStart?: ( options?: { fromSkip: boolean; stepValue: string } ) => void;
+	onStart?: OnStart;
 	onSubmit?: () => Promise< string >;
-	onSkip?: () => void;
+	onSkip?: () => Promise< void >;
 	value?: string;
 	setValue?:
 		| React.Dispatch< React.SetStateAction< string > >
 		| React.Dispatch< React.SetStateAction< Array< string > > >;
-	setCompleted?: React.Dispatch< React.SetStateAction< boolean > >;
-	completed?: boolean;
 	autoAdvance?: number;
+	includeInResults?: boolean;
 
 	// Input step properties
 	placeholder?: string;
-
+	rawInput?: string;
+	setRawInput?: React.Dispatch< React.SetStateAction< string > >;
 	// Options step properties
 	options?: OptionMessage[];
 	onSelect?: ( option: OptionMessage ) => void;
 	submitCtaLabel?: string;
-	onRetry?: () => void;
+	onRetry?: OnStart;
 	retryCtaLabel?: string;
+	hasSelection?: boolean;
+	hasFailed?: boolean;
+	resetState?: () => void;
 }
