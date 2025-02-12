@@ -52,12 +52,12 @@ class Validation_Service {
 	/**
 	 * Return all validation errors.
 	 *
-	 * @param \WP_User|\stdClass $user The user object or a copy.
-	 * @param string             $password The password to check.
+	 * @param \WP_User $user The user object or a copy.
+	 * @param string   $password The password to check.
 	 *
 	 * @return array An array of validation errors (if any).
 	 */
-	public function return_all_validation_errors( $user, string $password ): array {
+	public function return_all_validation_errors( \WP_User $user, string $password ): array {
 		$errors = array();
 
 		if ( $this->contains_backslash( $password ) ) {
@@ -86,13 +86,13 @@ class Validation_Service {
 	/**
 	 * Return first validation error.
 	 *
-	 * @param \WP_User|\stdClass             $user The user object or a copy.
+	 * @param \WP_User                       $user     The user data.
 	 * @param string                         $password The password to check.
-	 * @param 'create-user'|'update'|'reset' $context The context the validation is run in.
+	 * @param 'create-user'|'update'|'reset' $context  The context the validation is run in.
 	 *
 	 * @return string The first validation errors (if any).
 	 */
-	public function return_first_validation_error( $user, string $password, $context ): string {
+	public function return_first_validation_error( \WP_User $user, string $password, $context ): string {
 		// Reset form includes this validation in core
 		if ( 'reset' !== $context ) {
 			if ( empty( $password ) ) {
@@ -154,16 +154,12 @@ class Validation_Service {
 	/**
 	 * Check if the password matches any user data.
 	 *
-	 * @param \WP_User|\stdClass $user The user.
-	 * @param string             $password The password to check.
+	 * @param \WP_User $user     The user.
+	 * @param string   $password The password to check.
 	 *
 	 * @return bool True if the password matches any user data, false otherwise.
 	 */
-	public function matches_user_data( $user, string $password ): bool {
-		if ( ! $user ) {
-			return false;
-		}
-
+	public function matches_user_data( \WP_User $user, string $password ): bool {
 		$email_parts    = explode( '@', $user->user_email ); // test@example.com
 		$email_username = $email_parts[0]; // 'test'
 		$email_domain   = $email_parts[1]; // 'example.com'

@@ -55,8 +55,9 @@ class Password_Manager {
 			}
 		}
 
+		$wp_user = new \WP_User( $user );
 		$context = $update ? 'update' : 'create-user';
-		$error   = $this->validation_service->return_first_validation_error( $user, $password, $context );
+		$error   = $this->validation_service->return_first_validation_error( $wp_user, $password, $context );
 
 		if ( ! empty( $error ) ) {
 			$errors->add( 'password_error', $error );
