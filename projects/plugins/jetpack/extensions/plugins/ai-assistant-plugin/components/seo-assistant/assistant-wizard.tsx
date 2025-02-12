@@ -119,7 +119,7 @@ export default function AssistantWizard( { close } ) {
 			tracks.recordEvent( 'jetpack_seo_assistant_close', {
 				completion,
 				step: steps[ currentStep ].id,
-				steps: steps.length,
+				steps: steps.length - 1,
 				step_number: currentStep,
 				placement: isCloseButton ? 'close' : 'done',
 			} );
@@ -199,6 +199,12 @@ export default function AssistantWizard( { close } ) {
 
 	const handleStepSubmit = useCallback( async () => {
 		debug( 'step submitted' );
+		if ( steps[ currentStep ]?.type === 'completion' ) {
+			debug( 'completion step, closing wizard' );
+			handleDone();
+			return;
+		}
+
 		setIsBusy( true );
 		const stepValue = await steps[ currentStep ]?.onSubmit?.();
 		if ( ! stepValue?.trim?.() ) {
@@ -223,13 +229,8 @@ export default function AssistantWizard( { close } ) {
 			value_length: stepValue?.length || 0,
 		} );
 
-		if ( steps[ currentStep ]?.type === 'completion' ) {
-			debug( 'completion step, closing wizard' );
-			handleDone();
-		} else {
-			debug( 'step type', steps[ currentStep ]?.type );
-			handleNext();
-		}
+		debug( 'step type', steps[ currentStep ]?.type );
+		handleNext();
 	}, [ currentStep, handleDone, handleNext, steps, tracks, handleSkip ] );
 
 	const handleRetry = useCallback( async () => {
