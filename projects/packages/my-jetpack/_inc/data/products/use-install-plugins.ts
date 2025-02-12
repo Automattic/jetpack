@@ -10,6 +10,14 @@ const useInstallPlugins = ( productSlugs: string | string[] ) => {
 	const { products, refetch } = useProducts( productIds );
 	const { createSuccessNotice } = useGlobalNotices();
 
+	const successMessageSingular = sprintf(
+		/* translators: %s is the name of a Jetpack plugin, i.e.- "VaultPress Backup" or "Boost" or "Social" or "Search" or "VideoPress", etc. */
+		__( '%s installed successfully!', 'jetpack-my-jetpack' ),
+		products[ 0 ].title
+	);
+	const successMessagePlural = __( 'Plugins installed successfully!', 'jetpack-my-jetpack' );
+	const successMessage = products?.length === 1 ? successMessageSingular : successMessagePlural;
+
 	const { mutate: install, isPending } = useSimpleMutation( {
 		name: QUERY_INSTALL_PRODUCT_KEY,
 		query: {
@@ -20,17 +28,6 @@ const useInstallPlugins = ( productSlugs: string | string[] ) => {
 		options: {
 			onSuccess: () => {
 				refetch().then( () => {
-					const successMessageSingular = sprintf(
-						/* translators: %s is the name of a Jetpack plugin, i.e.- "VaultPress Backup" or "Boost" or "Social" or "Search" or "VideoPress", etc. */
-						__( '%s installed successfully!', 'jetpack-my-jetpack' ),
-						products[ 0 ].title
-					);
-					const successMessagePlural = __(
-						'Plugins installed successfully!',
-						'jetpack-my-jetpack'
-					);
-					const successMessage =
-						products?.length === 1 ? successMessageSingular : successMessagePlural;
 					createSuccessNotice( successMessage );
 				} );
 			},
