@@ -454,6 +454,7 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 
 	/**
 	 * We cache it for both AT and Simple because we want to give a12s to be able to switch between variations for their accounts - this can be useful during support.
+	 * Note that switching the variations can only be achieved through the escape hatch, not via ExPlat.
 	 *
 	 * If we don't cache it, the is_automattician conditions will force treatment every time.
 	 */
