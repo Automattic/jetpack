@@ -20,18 +20,23 @@ const useInstallPlugins = ( productSlugs: string | string[] ) => {
 		options: {
 			onSuccess: () => {
 				refetch().then( () => {
-					createSuccessNotice(
-						sprintf(
-							/* translators: %s is the word "Plugin" or "Pluigns" (singular or plural). */
-							__( '%s installed successfully!', 'jetpack-my-jetpack' ),
-							products?.length === 1 ? products[ 0 ].title : __( 'Plugins', 'jetpack-my-jetpack' )
-						)
+					const successMessageSingular = sprintf(
+						/* translators: %s is the name of a Jetpack plugin, i.e.- "VaultPress Backup" or "Boost" or "Social" or "Search" or "VideoPress", etc. */
+						__( '%s installed successfully!', 'jetpack-my-jetpack' ),
+						products[ 0 ].title
 					);
+					const successMessagePlural = __(
+						'Plugins installed successfully!',
+						'jetpack-my-jetpack'
+					);
+					const successMessage =
+						products?.length === 1 ? successMessageSingular : successMessagePlural;
+					createSuccessNotice( successMessage );
 				} );
 			},
 		},
 		errorMessage: sprintf(
-			// translators: %s is the Jetpack product name or comma seperated list of multiple Jetpack product names.
+			// translators: %s is the Jetpack plugin name or comma seperated list of multiple Jetpack plugin names.
 			__( 'There was a problem installing and activating %s.', 'jetpack-my-jetpack' ),
 			products?.map( product => product?.name ).join( ', ' )
 		),
