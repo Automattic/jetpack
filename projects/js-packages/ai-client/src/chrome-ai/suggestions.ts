@@ -1,6 +1,7 @@
 import { EventSourceMessage } from '@microsoft/fetch-event-source';
 import { PROMPT_TYPE_CHANGE_LANGUAGE, PROMPT_TYPE_SUMMARIZE } from '../constants.js';
 import { getErrorData } from '../hooks/use-ai-suggestions/index.js';
+import { renderHTMLFromMarkdown, renderMarkdownFromHTML } from '../libs/markdown/index.js';
 import { AiModelTypeProp, ERROR_RESPONSE, ERROR_NETWORK } from '../types.js';
 
 type ChromeAISuggestionsEventSourceConstructorArgs = {
@@ -117,12 +118,12 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 		}
 
 		try {
-			const translation = await translator.translate( text );
+			const translation = await translator.translate( renderHTMLFromMarkdown( { content: text } ) );
 			this.processEvent( {
 				id: '',
 				event: 'translation',
 				data: JSON.stringify( {
-					message: translation,
+					message: renderMarkdownFromHTML( { content: translation } ),
 					complete: true,
 				} ),
 			} );

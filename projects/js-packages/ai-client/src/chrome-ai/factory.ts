@@ -26,11 +26,28 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 		return false;
 	}
 
-	let context;
+	const context = {};
 	let promptType = '';
 	if ( Array.isArray( promptArg ) ) {
-		context = promptArg[ promptArg.length - 1 ].context;
-		promptType = context.type;
+		for ( const prompt of promptArg ) {
+			if ( prompt.content ) {
+				context.content = prompt.content;
+			}
+
+			if ( prompt.context ) {
+				if ( prompt.context.type ) {
+					promptType = prompt.context.type;
+				}
+
+				if ( prompt.context.language ) {
+					context.language = prompt.context.language;
+				}
+
+				if ( prompt.context.content ) {
+					context.content = prompt.context.content;
+				}
+			}
+		}
 	}
 
 	if ( promptType.startsWith( 'ai-assistant-change-language' ) ) {
