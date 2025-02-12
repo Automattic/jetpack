@@ -66,6 +66,8 @@ class Password_Manager_Test extends BaseTestCase {
 	}
 
 	public function test_on_profile_update_with_valid_nonce() {
+		$_POST['action'] = 'update';
+
 		$user_id                  = 1;
 		$old_user_data            = new \WP_User();
 		$old_user_data->user_pass = 'oldhashedpassword';
@@ -82,11 +84,7 @@ class Password_Manager_Test extends BaseTestCase {
 
 		$password_manager_mock->on_profile_update(
 			$user_id,
-			$old_user_data,
-			array(
-				'ID'        => 1,
-				'user_pass' => 'newpassword',
-			)
+			$old_user_data
 		);
 	}
 

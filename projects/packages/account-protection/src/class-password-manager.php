@@ -58,8 +58,6 @@ class Password_Manager {
 	/**
 	 * Validate the password reset.
 	 *
-	 * No nonce verification necessary - action hooks in after a robust verification process
-	 *
 	 * @param \WP_Error          $errors The error object.
 	 * @param \WP_User|\WP_Error $user The user object.
 	 *
