@@ -49,8 +49,13 @@ class Password_Detection {
 			return $user;
 		}
 
+		// Skip if we're validating a Brute force protection recovery token
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['validate_jetpack_protect_recovery'] ) ) {
+			return $user;
+		}
+
 		if ( $this->validation_service->is_weak_password( $password ) ) {
-			// TODO: Every time the user logs in we generate a new token based transient. This might not be ideal.
 			$transient = $this->generate_and_store_transient_data( $user->ID );
 
 			$email_sent = $this->email_service->api_send_auth_email( $user, $transient['auth_code'] );
