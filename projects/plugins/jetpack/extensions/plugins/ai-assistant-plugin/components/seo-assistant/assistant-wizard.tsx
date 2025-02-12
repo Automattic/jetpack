@@ -220,7 +220,7 @@ export default function AssistantWizard( { close } ) {
 		tracks.recordEvent( 'jetpack_seo_assistant_step_submit', {
 			step_from: steps[ currentStep ].id,
 			step_to: steps[ currentStep + 1 ].id,
-			value: stepValue,
+			value_length: stepValue?.length || 0,
 		} );
 
 		if ( steps[ currentStep ]?.type === 'completion' ) {
