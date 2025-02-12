@@ -358,6 +358,13 @@ function jetpack_boost_minify_activation() {
 	jetpack_boost_404_setup();
 }
 
+function jetpack_boost_minify_is_enabled() {
+	$minify_css = new Module( new Minify_CSS() );
+	$minify_js  = new Module( new Minify_JS() );
+
+	return $minify_css->is_enabled() || $minify_js->is_enabled();
+}
+
 /**
  * Run during deactivation of any minify module.
  *
@@ -366,10 +373,7 @@ function jetpack_boost_minify_activation() {
  * @return void
  */
 function jetpack_boost_minify_deactivation() {
-	$minify_css = new Module( new Minify_CSS() );
-	$minify_js  = new Module( new Minify_JS() );
-
-	if ( ! $minify_css->is_enabled() && ! $minify_js->is_enabled() ) {
+	if ( ! jetpack_boost_minify_is_enabled() ) {
 		jetpack_boost_minify_clear_scheduled_events();
 	}
 }
