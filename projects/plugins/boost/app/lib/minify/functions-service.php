@@ -5,6 +5,10 @@ use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\File_Paths;
 use Automattic\Jetpack_Boost\Lib\Minify\Utils;
 
+if ( ! defined( 'JETPACK_BOOST_STATIC_CACHE_404_TESTER_PATH' ) ) {
+	define( 'JETPACK_BOOST_STATIC_CACHE_404_TESTER_PATH', '/wp-content/boost-cache/static/testing_404.js' );
+}
+
 function jetpack_boost_handle_minify_request( $request_uri ) {
 	// We handle the cache here, tell other caches not to.
 	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
@@ -48,7 +52,7 @@ function jetpack_boost_handle_minify_request( $request_uri ) {
  * Using a crafted request, we can check if is_404() is working in wp-content/
  */
 function jetpack_boost_check_404_handler( $request_uri ) {
-	if ( ! str_contains( strtolower( $request_uri ), 'wp-content/boost-cache/static/testing_404' ) ) {
+	if ( ! str_contains( strtolower( $request_uri ), JETPACK_BOOST_STATIC_CACHE_404_TESTER_PATH ) ) {
 		return;
 	}
 
@@ -78,7 +82,7 @@ function jetpack_boost_404_tester() {
 	}
 
 	$minification_enabled = '';
-	wp_remote_get( home_url( '/wp-content/boost-cache/static/testing_404' ) );
+	wp_remote_get( home_url( JETPACK_BOOST_STATIC_CACHE_404_TESTER_PATH ) );
 	if ( file_exists( Config::get_static_cache_dir_path() . '/404' ) ) {
 		wp_delete_file( Config::get_static_cache_dir_path() . '/404' );
 		$minification_enabled = 1;
