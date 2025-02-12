@@ -44,7 +44,7 @@ export const useMetaDescriptionStep = ( {
 	const [ value, setValue ] = useState< string >();
 	const [ lastValue, setLastValue ] = useState< string >( '' );
 	const [ selectedMetaDescription, setSelectedMetaDescription ] = useState< string >();
-	const [ metaDescriptionOptions, setMetaDescriptionOptions ] = useState< OptionMessage[] >( [] );
+	const [ valueOptions, setValueOptions ] = useState< OptionMessage[] >( [] );
 	const { messages, setMessages, addMessage, editLastMessage, setSelectedMessage } = useMessages();
 	const { editPost } = useDispatch( editorStore );
 	const postContent = usePostContent();
@@ -82,9 +82,7 @@ export const useMetaDescriptionStep = ( {
 		( option: OptionMessage ) => {
 			setSelectedMetaDescription( option.content as string );
 			setSelectedMessage( option );
-			setMetaDescriptionOptions( prev =>
-				prev.map( o => ( { ...o, selected: o.id === option.id } ) )
-			);
+			setValueOptions( prev => prev.map( o => ( { ...o, selected: o.id === option.id } ) ) );
 		},
 		[ setSelectedMessage ]
 	);
@@ -120,7 +118,7 @@ export const useMetaDescriptionStep = ( {
 
 	const handleMetaDescriptionGenerate = useCallback(
 		async ( { fromSkip } ) => {
-			let newMetaDescriptions = [ ...metaDescriptionOptions ];
+			let newMetaDescriptions = [ ...valueOptions ];
 			const previousLastValue = lastValue;
 
 			setLastValue( keywords );
@@ -157,7 +155,7 @@ export const useMetaDescriptionStep = ( {
 				}
 			}
 
-			setMetaDescriptionOptions( newMetaDescriptions );
+			setValueOptions( newMetaDescriptions );
 
 			const readyMessageSuffix = createInterpolateElement(
 				__( "<br />Here's a suggestion:", 'jetpack' ),
@@ -171,7 +169,7 @@ export const useMetaDescriptionStep = ( {
 			);
 		},
 		[
-			metaDescriptionOptions,
+			valueOptions,
 			lastValue,
 			keywords,
 			hasFailed,
@@ -188,7 +186,7 @@ export const useMetaDescriptionStep = ( {
 			setHasFailed( false );
 			const newMetaDescription = await getMetaDescriptions();
 
-			setMetaDescriptionOptions( prev => [ ...prev, ...newMetaDescription ] );
+			setValueOptions( prev => [ ...prev, ...newMetaDescription ] );
 			newMetaDescription.forEach( meta => addMessage( { ...meta, type: 'option', isUser: true } ) );
 		} catch {
 			setFailurePoint( 'regenerate' );
@@ -211,7 +209,7 @@ export const useMetaDescriptionStep = ( {
 		label: __( 'Meta description', 'jetpack' ),
 		messages: messages,
 		type: 'options',
-		options: metaDescriptionOptions,
+		options: valueOptions,
 		onSelect: handleMetaDescriptionSelect,
 		onSubmit: handleMetaDescriptionSubmit,
 		submitCtaLabel: __( 'Insert', 'jetpack' ),

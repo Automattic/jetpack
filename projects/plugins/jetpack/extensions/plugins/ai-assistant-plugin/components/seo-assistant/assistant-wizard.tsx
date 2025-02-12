@@ -53,14 +53,15 @@ export default function AssistantWizard( { close } ) {
 		if ( ! currentStepData || ! currentStepData.onStart ) {
 			return;
 		}
-		if ( assistantFlowAction !== 'backwards' ) {
+		// If the step is backwards, we don't want to start the step again, unless it failed before and has no options
+		if ( assistantFlowAction !== 'backwards' || steps[ currentStep ]?.options?.length === 0 ) {
 			await currentStepData?.onStart( {
 				fromSkip: assistantFlowAction === 'skip',
 				results,
 			} );
 		}
 		setIsBusy( false );
-	}, [ currentStepData, assistantFlowAction, results ] );
+	}, [ currentStepData, assistantFlowAction, steps, currentStep, results ] );
 
 	const handleNext = useCallback( () => {
 		debug( 'handleNext, stepsCount', stepsCount );
