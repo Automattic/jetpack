@@ -11,8 +11,7 @@ declare global {
 			textarea: HTMLTextAreaElement,
 			content: ( embedUrl: string ) => void,
 			isRtl: boolean,
-			onEmbedContent: ( embedUrl: string ) => void,
-			isDarkMode: boolean
+			onEmbedContent: ( embedUrl: string ) => void
 		) => void;
 	};
 	const vbeCacheBuster: string;

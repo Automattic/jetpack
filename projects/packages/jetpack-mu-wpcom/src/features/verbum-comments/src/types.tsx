@@ -72,7 +72,6 @@ export interface VerbumComments {
 	 */
 	fullyLoadedTime: number;
 	vbeCacheBuster: string;
-	colorScheme: string;
 }
 
 export type EmailSubscriptionResponse = {
