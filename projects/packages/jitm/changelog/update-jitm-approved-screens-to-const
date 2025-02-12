@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Refactor approved screens in preparation for https://github.com/Automattic/jetpack/pull/41252
