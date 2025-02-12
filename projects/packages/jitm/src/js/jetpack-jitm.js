@@ -1,4 +1,6 @@
 import jQuery from 'jquery';
+import apiFetch from '@wordpress/api-fetch';
+import { addQueryArgs } from '@wordpress/url';
 
 import '../css/jetpack-admin-jitm.scss';
 
@@ -154,12 +156,9 @@ jQuery( document ).ready( function ( $ ) {
 
 				$my_template.hide();
 
-				$.ajax( {
-					url: window.jitm_config.api_root + 'jetpack/v4/jitm',
-					method: 'POST', // using DELETE without permalinks is broken in default nginx configuration.
-					beforeSend: function ( xhr ) {
-						xhr.setRequestHeader( 'X-WP-Nonce', window.jitm_config.nonce );
-					},
+				apiFetch( {
+					path: '/jetpack/v4/jitm',
+					method: 'POST', // using POST since DELETE has nginx issues
 					data: {
 						id: response.id,
 						feature_class: response.feature_class,
@@ -205,22 +204,15 @@ jQuery( document ).ready( function ( $ ) {
 				return false;
 			}
 
-			// Make request to activate module.
-			$.ajax( {
-				url:
-					window.jitm_config.api_root +
-					'jetpack/v4/module/' +
-					$activate_button.data( 'module' ) +
-					'/active',
-				method: 'POST',
-				beforeSend: function ( xhr ) {
-					xhr.setRequestHeader( 'X-WP-Nonce', $el.data( 'nonce' ) );
+			// Change the button status to disabled as the change is in progress.
+			$( '#jitm-banner__activate a' ).text( window.jitm_config.activating_module_text );
+			$( '#jitm-banner__activate a' ).attr( 'disabled', true );
 
-					// Change the button status to disabled as the change is in progress.
-					$( '#jitm-banner__activate a' ).text( window.jitm_config.activating_module_text );
-					$( '#jitm-banner__activate a' ).attr( 'disabled', true );
-				},
-			} ).done( function () {
+			// Make request to activate module.
+			apiFetch( {
+				path: `/jetpack/v4/module/${ $activate_button.data( 'module' ) }/active`,
+				method: 'POST',
+			} ).then( function () {
 				// Display the link to settings and hide the activate link
 				$( '#jitm-banner__activate a' ).text( window.jitm_config.activated_module_text );
 				$( '#jitm-banner__activate a' ).attr( 'disabled', true );
@@ -303,11 +295,13 @@ jQuery( document ).ready( function ( $ ) {
 
 			var full_jp_logo_exists = $( '.jetpack-logo__masthead' ).length ? true : false;
 
-			$.get( window.jitm_config.api_root + 'jetpack/v4/jitm', {
-				message_path: message_path,
-				query: query,
-				full_jp_logo_exists: full_jp_logo_exists,
-				_wpnonce: $el.data( 'nonce' ),
+			apiFetch( {
+				path: addQueryArgs( '/jetpack/v4/jitm', {
+					message_path: message_path,
+					query: query,
+					full_jp_logo_exists: full_jp_logo_exists,
+				} ),
+				method: 'GET',
 			} ).then( function ( response ) {
 				if ( 'object' === typeof response && response[ '1' ] ) {
 					response = [ response[ '1' ] ];
