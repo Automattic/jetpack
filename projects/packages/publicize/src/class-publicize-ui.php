@@ -421,24 +421,6 @@ jQuery( function($) {
 	}
 
 	/**
-	 * Extracts the connections that require reauthentication, for example, LinkedIn, when it switched v1 to v2 of its API.
-	 *
-	 * @return array Connections that must be reauthenticated
-	 */
-	public function get_must_reauth_connections() {
-		$must_reauth = array();
-		$connections = $this->publicize->get_connections( 'linkedin' );
-		if ( is_array( $connections ) ) {
-			foreach ( $connections as $index => $connection ) {
-				if ( $this->publicize->is_invalid_linkedin_connection( $connection ) ) {
-					$must_reauth[ $index ] = 'LinkedIn';
-				}
-			}
-		}
-		return $must_reauth;
-	}
-
-	/**
 	 * Controls the metabox that is displayed on the post page
 	 * Allows the user to customize the message that will be sent out to the social network, as well as pick which
 	 * networks to publish to. Also displays the character counter and some other information.
@@ -469,34 +451,6 @@ jQuery( function($) {
 
 			if ( ! empty( $connections_data ) ) :
 				$publicize_form = $this->get_metabox_form_connected( $connections_data );
-
-				$must_reauth = $this->get_must_reauth_connections();
-				if ( ! empty( $must_reauth ) ) {
-					foreach ( $must_reauth as $connection_name ) {
-						?>
-						<span class="notice-warning publicize__notice-warning">
-							<?php
-								printf(
-									/* translators: %s is the name of a Jetpack Social service like "LinkedIn" */
-									esc_html__(
-										'Your %s connection needs to be reauthenticated to continue working – head to Sharing to take care of it.',
-										'jetpack-publicize-pkg'
-									),
-									$connection_name // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-								);
-							?>
-							<a
-								class="publicize-external-link"
-								href="<?php echo esc_url( $this->publicize->publicize_connections_url() ); ?>"
-								target="_blank"
-							>
-								<span class="publicize-external-link__text"><?php esc_html_e( 'Go to Sharing settings', 'jetpack-publicize-pkg' ); ?></span>
-								<span class="dashicons dashicons-external"></span>
-							</a>
-						</span>
-						<?php
-					}
-				}
 
 				$labels = array();
 

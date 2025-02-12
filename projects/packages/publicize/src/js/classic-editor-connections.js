@@ -125,7 +125,7 @@ jQuery( function ( $ ) {
 				unsupportedConnections++;
 
 				isInvalid = true;
-			} else if ( connection.status === 'broken' ) {
+			} else if ( [ 'broken', 'must_reauth' ].includes( connection.status ) ) {
 				brokenConnections++;
 
 				isInvalid = true;
@@ -139,10 +139,10 @@ jQuery( function ( $ ) {
 		}
 
 		if ( brokenConnections ) {
-			/* translators: %s is the link to the connections page in Calypso */
+			/* translators: %s is the link to the connections page */
 			const msg = _n(
-				'One of your social connections is broken. Reconnect it on the <a href="%s" rel="noopener noreferrer" target="_blank">connection management</a> page.',
-				'Some of your social connections are broken. Reconnect them on the <a href="%s" rel="noopener noreferrer" target="_blank">connection management</a> page.',
+				'One of your social connections needs attention. You can fix it on the <a href="%s" rel="noopener noreferrer" target="_blank">connection management</a> page.',
+				'Some of your social connections need attention. You can fix them on the <a href="%s" rel="noopener noreferrer" target="_blank">connection management</a> page.',
 				brokenConnections,
 				'jetpack-publicize-pkg'
 			);
@@ -155,7 +155,7 @@ jQuery( function ( $ ) {
 		}
 
 		if ( unsupportedConnections ) {
-			/* translators: %s is the link to the connections page in Calypso */
+			/* translators: %s is the link to the connections page */
 			const msg = __(
 				'Twitter is not supported anymore. <a href="%s" rel="noopener noreferrer" target="_blank">Learn more</a>.',
 				'jetpack-publicize-pkg'
