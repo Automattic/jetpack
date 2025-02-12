@@ -27,7 +27,7 @@ class Password_Manager_Test extends BaseTestCase {
 		$validation_service_mock = $this->createMock( Validation_Service::class );
 		$validation_service_mock->expects( $this->once() )
 			->method( 'validate_user_password' )
-			->willReturn( '' );
+			->willReturn( array() );
 
 		$password_manager_mock = new Password_Manager( $validation_service_mock );
 		$password_manager_mock->validate_profile_update( $errors, true, $user );
@@ -57,7 +57,7 @@ class Password_Manager_Test extends BaseTestCase {
 		$validation_service_mock = $this->createMock( Validation_Service::class );
 		$validation_service_mock->expects( $this->once() )
 			->method( 'validate_user_password' )
-			->willReturn( '' );
+			->willReturn( array() );
 
 		$password_manager_mock = new Password_Manager( $validation_service_mock );
 		$password_manager_mock->validate_password_reset( $errors, $user );

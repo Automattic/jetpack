@@ -95,15 +95,19 @@ class Validation_Service {
 		$errors = array();
 
 		if ( empty( $password ) ) {
-			$errors[] = __( '<strong>Error:</strong> The password cannot be a space or all spaces.', 'jetpack-account-protection' );
+			$errors[] = __( '<strong>Error:</strong> Please enter a password.', 'jetpack-account-protection' );
 		}
 
 		if ( $this->contains_backslash( $password ) ) {
-			$errors[] = __( '<strong>Error:</strong> The password cannot contain a backslash (\\) character.', 'jetpack-account-protection' );
+			$errors[] = __( '<strong>Error:</strong> Passwords may not contain the character "\\".', 'jetpack-account-protection' );
 		}
 
 		if ( $this->is_invalid_length( $password ) ) {
 			$errors[] = __( '<strong>Error:</strong> The password must be between 6 and 150 characters.', 'jetpack-account-protection' );
+		}
+
+		if ( $this->is_weak_password( $password ) ) {
+			$errors[] = __( '<strong>Error:</strong> The password was found in a public leak.', 'jetpack-account-protection' );
 		}
 
 		if ( $this->matches_user_data( $user, $password ) ) {
@@ -114,10 +118,10 @@ class Validation_Service {
 			if ( $this->is_recent_password( $user->ID, $password ) ) {
 				$errors[] = __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' );
 			}
-		}
 
-		if ( $this->is_weak_password( $password ) ) {
-			$errors[] = __( '<strong>Error:</strong> The password was found in a public leak.', 'jetpack-account-protection' );
+			if ( $this->is_current_password( $user->ID, $password ) ) {
+				$errors[] = __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' );
+			}
 		}
 
 		return $errors;

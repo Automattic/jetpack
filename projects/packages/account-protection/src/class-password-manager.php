@@ -56,12 +56,13 @@ class Password_Manager {
 			}
 		}
 
-		$wp_user           = new \WP_User( $user );
-		$validation_errors = $this->validation_service->validate_user_password( $wp_user, $password );
-
-		if ( ! empty( $validation_errors ) ) {
-			$errors->add( 'pass', $validation_errors[0], array( 'form-field' => 'pass1' ) );
-			return;
+		$core_validation_errors    = $errors->get_error_messages( 'pass' );
+		$jetpack_validation_errors = $this->validation_service->validate_user_password( new \WP_User( $user ), $password );
+		$validation_errors         = array_unique( array_merge( $core_validation_errors, $jetpack_validation_errors ) );
+		foreach ( $validation_errors as $validation_error ) {
+			if ( ! in_array( $validation_error, $core_validation_errors, true ) ) {
+				$errors->add( 'pass', $validation_error, array( 'form-field' => 'pass1' ) );
+			}
 		}
 	}
 
@@ -93,15 +94,12 @@ class Password_Manager {
 
 		// phpcs:ignore WordPress.Security.NonceVerification
 		$password = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );
-		if ( $this->validation_service->is_current_password( $user->ID, $password ) ) {
-			$errors->add( 'password_error', __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' ) );
-			return;
-		}
 
-		$validation_errors = $this->validation_service->validate_user_password( $user, $password );
-		if ( ! empty( $validation_errors ) ) {
-			$errors->add( 'pass', $validation_errors[0], array( 'form-field' => 'pass1' ) );
-			return;
+		$core_validation_errors    = $errors->get_error_messages( 'pass' );
+		$jetpack_validation_errors = $this->validation_service->validate_user_password( $user, $password );
+		$validation_errors         = array_unique( array_merge( $core_validation_errors, $jetpack_validation_errors ) );
+		foreach ( $validation_errors as $validation_error ) {
+			$errors->add( 'pass', $validation_error, array( 'form-field' => 'pass1' ) );
 		}
 	}
 
