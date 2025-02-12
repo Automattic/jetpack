@@ -81,10 +81,10 @@
 .jetpack-form-file-field__file-wrap {
 	display: flex;
 	flex-direction: column;
-	gap: 0.5em;
 	align-items: baseline;
 	font-size: 0.9em;
 }
 .jetpack-form-file-field__file-size {
 	font-weight: bold;
+	line-height: 1;
 }
