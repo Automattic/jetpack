@@ -115,13 +115,8 @@ jQuery( document ).ready( function ( $ ) {
 	function bindEvents() {
 		const { passwordInput } = UIComponents.core;
 
-		passwordInput.on( 'input', () => validatePassword() );
-		$( '.wp-generate-pw' ).on( 'click', validatePassword );
-
-		// TODO: Ensure this captures auto-population every time
-		setTimeout( () => {
-			if ( passwordInput.val() && passwordInput.val().length ) validatePassword();
-		}, 1500 );
+		passwordInput.on( 'input', validatePassword );
+		passwordInput.on( 'pwupdate', validatePassword );
 	}
 
 	/**
