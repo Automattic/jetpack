@@ -28,32 +28,6 @@ class Password_Manager {
 	}
 
 	/**
-	 * Verify the nonce for password update.
-	 *
-	 * @param string $key The nonce key.
-	 *
-	 * @return bool True if the nonce is valid, false otherwise.
-	 */
-	private function verify_password_update_nonce( $key ) {
-		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), $key ) ) {
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Verify the nonce for profile update.
-	 *
-	 * @param int $user_id The user ID.
-	 *
-	 * @return bool True if the nonce is valid, false otherwise.
-	 */
-	public function verify_profile_update_nonce( $user_id ) {
-		return $this->verify_password_update_nonce( 'update-user_' . $user_id );
-	}
-
-	/**
 	 * Validate the profile update.
 	 *
 	 * @param \WP_Error $errors The error object.
@@ -63,22 +37,16 @@ class Password_Manager {
 	 * @return void
 	 */
 	public function validate_profile_update( \WP_Error $errors, bool $update, \stdClass $user ): void {
-		if ( empty( $_POST['pass1'] ) ) {
+		if ( empty( $user->user_pass ) ) {
 			return;
 		}
 
 		// If bypass is enabled, do not validate the password
-		if ( isset( $_POST['pw_weak'] ) && 'on' === $_POST['pw_weak'] ) {
+		if ( isset( $_POST['pw_weak'] ) && 'on' === $_POST['pw_weak'] ) { // phpcs:disable 
 			return;
 		}
 
-		if ( ( ! $update && ( ! isset( $_POST['_wpnonce_create-user'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce_create-user'] ) ), 'create-user' ) ) )
-			|| ( $update && ! $this->verify_profile_update_nonce( $user->ID ) ) ) {
-			$errors->add( 'nonce_error', __( '<strong>Error:</strong> Nonce verification failed.', 'jetpack-account-protection' ) );
-			return;
-		}
-
-		$password = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );
+		$password = sanitize_text_field( wp_unslash( $user->user_pass ) );
 
 		if ( $update ) {
 			if ( $this->validation_service->is_current_password( $user->ID, $password ) ) {
