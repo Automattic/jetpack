@@ -133,14 +133,15 @@ export default function AssistantWizard( { close } ) {
 		( stepNumber: number ) => {
 			if ( stepNumber < steps.length - 1 ) {
 				tracks.recordEvent( 'jetpack_seo_assistant_step_jump', {
-					step: steps[ stepNumber ]?.id,
+					step_from: steps[ currentStep ]?.id,
+					step_to: steps[ stepNumber ]?.id,
 				} );
 				setAssistantFlowAction( 'jump' );
 				setCurrentStep( stepNumber );
 				setCurrentStepData( steps[ stepNumber ] );
 			}
 		},
-		[ steps, tracks ]
+		[ steps, tracks, currentStep ]
 	);
 
 	const handleSelect = useCallback(
@@ -158,6 +159,10 @@ export default function AssistantWizard( { close } ) {
 			setIsBusy( true );
 			setAssistantFlowAction( 'backwards' );
 			debug( 'moving back to ' + ( currentStep - 1 ) );
+			tracks.recordEvent( 'jetpack_seo_assistant_step_back', {
+				step_from: steps[ currentStep ]?.id,
+				step_to: steps[ currentStep - 1 ]?.id,
+			} );
 			steps[ currentStep ].resetState?.();
 			setCurrentStep( currentStep - 1 );
 			setCurrentStepData( steps[ currentStep - 1 ] );
@@ -180,7 +185,8 @@ export default function AssistantWizard( { close } ) {
 			} ) );
 		}
 		tracks.recordEvent( 'jetpack_seo_assistant_step_skip', {
-			step: steps[ currentStep ]?.id,
+			step_from: steps[ currentStep ]?.id,
+			step_to: steps[ currentStep + 1 ]?.id,
 		} );
 		if ( steps[ currentStep ]?.type === 'completion' ) {
 			debug( 'completion step, closing wizard' );
@@ -212,7 +218,8 @@ export default function AssistantWizard( { close } ) {
 		}
 		setAssistantFlowAction( 'submit' );
 		tracks.recordEvent( 'jetpack_seo_assistant_step_submit', {
-			step: steps[ currentStep ].id,
+			step_from: steps[ currentStep ].id,
+			step_to: steps[ currentStep + 1 ].id,
 			value: stepValue,
 		} );
 
