@@ -20,9 +20,10 @@ class Test_Environment {
 	 *
 	 * This ensures we only load WordPress once across all packages.
 	 *
+	 * @param string|null $package_slug Optional package slug for custom upload directory.
 	 * @throws \RuntimeException If WordPress test environment fails to initialize.
 	 */
-	public static function init() {
+	public static function init( $package_slug = null ) {
 		if ( ! defined( 'WORDBLESS_RUNNING' ) ) {
 			// Try the simple path first (works for symlinked/development case)
 			$test_env_vendor = dirname( __DIR__, 4 ) . '/tools/php-test-env/vendor/autoload.php';
@@ -53,6 +54,12 @@ class Test_Environment {
 				if ( ! class_exists( '\WorDBless\Load' ) ) {
 					throw new \RuntimeException( 'WorDBless not found. Please ensure automattic/wordbless is installed in tools/php-test-env/composer.json' );
 				}
+
+				// If a package slug is provided, use it for a custom upload dir.
+				if ( $package_slug && ! defined( 'dbless_UPLOADS' ) ) {
+					define( 'dbless_UPLOADS', 'uploads-' . $package_slug ); // phpcs:ignore Generic.NamingConventions.UpperCaseConstantName.ConstantNotUpperCase
+				}
+
 				\WorDBless\Load::load();
 			} catch ( \Exception $e ) {
 				throw new \RuntimeException( 'Failed to initialize WordPress test environment: ' . $e->getMessage() );
