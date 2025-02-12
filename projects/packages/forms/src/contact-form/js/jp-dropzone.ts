@@ -141,9 +141,25 @@ export default class JP_Dropzone {
 					<span class="jetpack-form-file-field__file-name">${ file.name }</span>
 					<span class="jetpack-form-file-field__file-size">${ this.formatBytes( file.size ) }</span>
 				</div>
+				<a href="#" class="jetpack-form-file-field__remove" aria-label="Remove file">Remove</a>
 			`;
 			this.previewContainer.appendChild( div );
+			const removeButton = div.querySelector( '.jetpack-form-file-field__remove' ) as HTMLElement;
+			removeButton.addEventListener( 'click', this.removeFile.bind( this, file, div ) );
 		} );
+	}
+
+	/**
+	 * Remove a file from the list of selected files.
+	 * @param {File}        file The file to remove.
+	 * @param {HTMLElement} div  The preview element to remove.
+	 */
+	removeFile( file: File, div: HTMLElement ) {
+		this.files = this.files.filter( f => f !== file );
+		div.remove();
+		if ( this.files.length === 0 ) {
+			this.previewContainer.classList.remove( 'is-active' );
+		}
 	}
 
 	/**
