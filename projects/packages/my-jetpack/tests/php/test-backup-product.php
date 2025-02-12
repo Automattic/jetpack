@@ -72,6 +72,15 @@ class Test_Backup_Product extends TestCase {
 		WorDBless_Users::init()->clear_all_users();
 	}
 
+	private function get_server() {
+		global $wp_rest_server;
+		if ( ! $wp_rest_server ) {
+			$wp_rest_server = new \WP_REST_Server();
+			do_action( 'rest_api_init' );
+		}
+		return $wp_rest_server;
+	}
+
 	/**
 	 * Tests with Jetpack active
 	 */
@@ -160,5 +169,18 @@ class Test_Backup_Product extends TestCase {
 		deactivate_plugins( 'jetpack/jetpack.php' );
 		activate_plugins( Backup::get_installed_plugin_filename() );
 		$this->assertSame( '', Backup::get_post_activation_url() );
+	}
+
+	public function test_if_backup_registers_endpoints() {
+		Backup::register_endpoints();
+
+		$server = $this->get_server();
+		$routes = $server->get_routes();
+
+		$namespace  = '/my-jetpack/v1';
+		$route      = '/site/backup/undo-event';
+		$full_route = $namespace . $route;
+
+		$this->assertArrayHasKey( $full_route, $routes );
 	}
 }
