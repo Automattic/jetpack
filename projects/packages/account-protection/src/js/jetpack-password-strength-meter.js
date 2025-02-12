@@ -205,6 +205,7 @@ jQuery( document ).ready( function ( $ ) {
 			const validationFailed = key === 'core' ? coreValidationFailed : item.status;
 			const checklistItem = UIComponents.validationChecklistItems[ key ];
 
+			// Display the core and backslash validation items they fail
 			if ( [ 'core', 'contains_backslash' ].includes( key ) ) {
 				checklistItem.item.css( 'display', validationFailed ? 'flex' : 'none' );
 			}
