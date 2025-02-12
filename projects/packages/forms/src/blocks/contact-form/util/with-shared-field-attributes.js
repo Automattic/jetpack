@@ -29,7 +29,10 @@ export const useSharedFieldAttributes = ( {
 		return blockEditor
 			.getBlocksByClientId( formDescendants )
 			.filter(
-				block => block?.name?.includes( 'jetpack/field' ) && block?.attributes?.shareFieldAttributes
+				block =>
+					block?.name?.includes( 'jetpack/field' ) &&
+					block?.attributes?.shareFieldAttributes &&
+					block?.clientId !== clientId
 			);
 	}, [ clientId ] );
 
