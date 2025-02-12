@@ -274,7 +274,7 @@ add_filter( 'wpcom_themes_api_theme_object', 'wpcom_themes_api_theme_object' );
 function wpcom_themes_tmpl_theme_plan_tag( $tmpl ) {
 	return str_replace(
 		'<h3 class="theme-name">{{ data.name }}</h3>',
-		'<h3 class="theme-name">{{ data.name }}</h3> <span>{{ data.tier }}</span>',
+		'<h3 class="theme-name">{{ data.name }}</h3> <span class="theme-tier"><span>{{{ data.can_activate_with_current_plan ? "' . __( 'Included with plan', 'jetpack-mu-wpcom' ) . '" : (data.tier === "business" || data.tier === "partner" || data.tier === "woocommerce" ? "' . __( 'Available on Business', 'jetpack-mu-wpcom' ) . '" : "' . __( 'Available on', 'jetpack-mu-wpcom' ) . ' " + data.tier) }}}</span></span>',
 		$tmpl
 	);
 }
@@ -290,7 +290,7 @@ function wpcom_themes_tmpl_theme_activate_button( $tmpl ) {
 	$button_labels = array(
 		__( 'Activate', 'jetpack-mu-wpcom' ) => '{{{ data.can_activate_with_current_plan ? "' . __( 'Activate', 'jetpack-mu-wpcom' ) . '" : "' . __( 'Upgrade to activate', 'jetpack-mu-wpcom' ) . '" }}}',
 		// No need to check permissions here, this screen is only on Simple sites.
-		__( 'Install', 'jetpack-mu-wpcom' ) => __( 'Upgrade to install', 'jetpack-mu-wpcom' ),
+		__( 'Install', 'jetpack-mu-wpcom' )  => __( 'Upgrade to install', 'jetpack-mu-wpcom' ),
 	);
 
 	foreach ( $button_labels as $search => $replace ) {
@@ -343,7 +343,7 @@ function wpcom_themes_get_activation_url( $theme ) {
 				'https://wordpress.com/checkout/' . $blog_id . '/business'
 			);
 		}
-	} else if ( 'managed-external' === $theme->theme_type ) {
+	} elseif ( 'managed-external' === $theme->theme_type ) {
 		if ( ! empty( $theme->product_details ) ) {
 			$theme_product_slug = $theme->product_details[0]->product_slug;
 
