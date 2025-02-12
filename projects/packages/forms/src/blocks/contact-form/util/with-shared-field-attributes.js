@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { select, useDispatch, useRegistry } from '@wordpress/data';
+import { useDispatch, useRegistry, useSelect } from '@wordpress/data';
 import { useCallback, useEffect } from '@wordpress/element';
 import { isEmpty, first, map, pick, isNil } from 'lodash';
 
@@ -14,28 +14,25 @@ export const useSharedFieldAttributes = ( {
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
 	const registry = useRegistry();
 
-	// Not using `useSelect` here to get fresh sibling data within `useEffect` and `useCallback`.
+	const { getBlockParentsByBlockName, getClientIdsOfDescendants, getBlocksByClientId } =
+		useSelect( 'core/block-editor' );
+
 	const getSiblings = useCallback( () => {
-		const blockEditor = select( 'core/block-editor' );
-		const parentId = first(
-			blockEditor.getBlockParentsByBlockName( clientId, 'jetpack/contact-form' )
-		);
+		const parentId = first( getBlockParentsByBlockName( clientId, 'jetpack/contact-form' ) );
 
 		if ( ! parentId ) {
 			return [];
 		}
 
-		const formDescendants = blockEditor.getClientIdsOfDescendants( parentId );
+		const formDescendants = getClientIdsOfDescendants( parentId );
 
-		return blockEditor
-			.getBlocksByClientId( formDescendants )
-			.filter(
-				block =>
-					block?.name?.includes( 'jetpack/field' ) &&
-					block?.attributes?.shareFieldAttributes &&
-					block?.clientId !== clientId
-			);
-	}, [ clientId ] );
+		return getBlocksByClientId( formDescendants ).filter(
+			block =>
+				block?.name?.includes( 'jetpack/field' ) &&
+				block?.attributes?.shareFieldAttributes &&
+				block?.clientId !== clientId
+		);
+	}, [ clientId, getBlockParentsByBlockName, getClientIdsOfDescendants, getBlocksByClientId ] );
 
 	useEffect( () => {
 		const siblings = getSiblings();
