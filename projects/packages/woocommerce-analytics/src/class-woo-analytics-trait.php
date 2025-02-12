@@ -433,11 +433,11 @@ trait Woo_Analytics_Trait {
 			)
 		);
 
-		$js = "{'_en': '" . esc_js( $event_name ) . "'";
-
-		// ch param is needed to identify ClickHouse queries in the JS Analytics library
+		// ch param is needed to identify ClickHouse queries in the JS Analytics library. Remove prefix also for ClickHouse
 		if ( $clickhouse ) {
-			$js .= ", 'ch':'1'";
+			$js = "{'_en': '" . esc_js( str_replace( 'woocommerceanalytics_', '', $event_name ) ) . "','ch':'1'";
+		} else {
+			$js = "{'_en': '" . esc_js( $event_name ) . "'";
 		}
 
 		if ( isset( $product_details ) ) {
