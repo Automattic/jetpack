@@ -159,13 +159,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			array_diff_key( $filter_args, array( 'post_parent' => '' ) )
 		);
 
-		$base_fields = array(
-			'email_marketing_consent' => '',
-			'entry_title'             => '',
-			'entry_permalink'         => '',
-			'feedback_id'             => '',
-		);
-
+		$base_fields   = Contact_Form_Plugin::NON_PRINTABLE_FIELDS;
 		$data_defaults = array(
 			'_feedback_author'       => '',
 			'_feedback_author_email' => '',

@@ -14,6 +14,8 @@
 
 /** Subscribe button **/
 .wp-block-premium-content-logged-out-view .wp-block-jetpack-recurring-payments {
+	--jetpack-payment-buttons-gap: 0.5em;
+
 	display: inline-block;
 	margin-inline-end: 0.5em;
 }

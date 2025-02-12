@@ -230,9 +230,19 @@
 	gap: var(--wp--style--block-gap, 1.5rem);
 }
 
-.wp-block-jetpack-contact-form > * {
+.wp-block-jetpack-contact-form > *:not(.wp-block-jetpack-button) {
 	flex: 0 0 100%;
 	box-sizing: border-box;
+}
+
+:where( .wp-block-jetpack-contact-form .wp-block-separator ) {
+	max-width: var( --wp--preset--spacing--80, 100px );
+	margin-top: 0;
+	margin-bottom: 0;
+}
+:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-wide ),
+:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-dots ) {
+	max-width: inherit;
 }
 
 /* Added circa Nov 2022: container class assigned to topmost block div */
@@ -241,8 +251,27 @@
 	padding-left: 0;
 }
 
-.wp-block-jetpack-button.alignright button {
-	float: right;
+.wp-block-jetpack-contact-form .wp-block-jetpack-button {
+	width: fit-content;
+}
+
+.wp-block-jetpack-contact-form .wp-block-jetpack-button.aligncenter {
+	display: block;
+
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.wp-block-jetpack-contact-form .wp-block-jetpack-button.alignleft {
+	display: block;
+
+	margin-right: auto;
+}
+
+.wp-block-jetpack-contact-form .wp-block-jetpack-button.alignright {
+	display: block;
+
+	margin-left: auto;
 }
 
 .wp-block-jetpack-contact-form .grunion-field-wrap {

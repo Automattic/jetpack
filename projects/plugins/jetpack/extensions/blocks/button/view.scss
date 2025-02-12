@@ -1,13 +1,21 @@
+@import "../../shared/styles/align";
+
 .amp-wp-article .wp-block-jetpack-button {
 	color: #ffffff;
 }
 
 .wp-block-jetpack-button {
+	@include align-block;
+	max-width: 100%;
+	width: fit-content;
+	margin: 0;
+
 	&.is-style-outline > .wp-block-button__link {
 		background-color: transparent;
 		border: solid 1px currentColor;
 		color: currentColor;
 	}
+
 	&:not(.is-style-outline) button {
 		border: none;
 	}
