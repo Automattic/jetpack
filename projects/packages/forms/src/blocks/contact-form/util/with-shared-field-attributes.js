@@ -11,8 +11,9 @@ export const useSharedFieldAttributes = ( {
 	setAttributes,
 	sharedAttributes,
 } ) => {
-	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
 	const registry = useRegistry();
+	const { updateBlockAttributes, __unstableMarkNextChangeAsNotPersistent } =
+		useDispatch( 'core/block-editor' );
 
 	const { getBlockParentsByBlockName, getClientIdsOfDescendants, getBlocksByClientId } =
 		useSelect( 'core/block-editor' );
@@ -39,7 +40,10 @@ export const useSharedFieldAttributes = ( {
 
 		if ( ! isEmpty( siblings ) && attributes.shareFieldAttributes ) {
 			const newSharedAttributes = pick( first( siblings ).attributes, sharedAttributes );
-			updateBlockAttributes( [ clientId ], newSharedAttributes );
+			registry.batch( () => {
+				__unstableMarkNextChangeAsNotPersistent();
+				updateBlockAttributes( [ clientId ], newSharedAttributes );
+			} );
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
