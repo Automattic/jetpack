@@ -52,7 +52,7 @@ const renderDefaultTooltip = ( {
 	return (
 		<div className={ styles[ 'line-chart__tooltip' ] }>
 			<div className={ styles[ 'line-chart__tooltip-date' ] }>
-				{ nearestDatum.date.toLocaleDateString() }
+				{ nearestDatum.label ?? nearestDatum.date.toLocaleDateString() }
 			</div>
 			{ tooltipPoints.map( point => (
 				<div key={ point.key } className={ styles[ 'line-chart__tooltip-row' ] }>
@@ -81,7 +81,7 @@ const validateData = ( data: SeriesData[] ) => {
 				isNaN( point.value as number ) ||
 				point.value === null ||
 				point.value === undefined ||
-				isNaN( point.date.getTime() )
+				( isNaN( point.date.getTime() ) && ! point.label )
 		)
 	);
 
