@@ -143,8 +143,8 @@ const LineChart: FC< LineChartProps > = ( {
 	} ) );
 
 	const accessors = {
-		xAccessor: ( d: DataPointDate ) => d.date,
-		yAccessor: ( d: DataPointDate ) => d.value,
+		xAccessor: ( d: DataPointDate ) => d?.label ?? d?.date,
+		yAccessor: ( d: DataPointDate ) => d?.value,
 	};
 
 	return (
