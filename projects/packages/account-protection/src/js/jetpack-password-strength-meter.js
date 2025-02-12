@@ -49,6 +49,7 @@ jQuery( document ).ready( function ( $ ) {
 	function initializeStrengthMeter() {
 		const strengthMeterWrapper = $( '<div>', {
 			class: 'strength-meter',
+			'aria-live': 'polite',
 		} );
 
 		const strengthText = $( '<p>', {
