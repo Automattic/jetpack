@@ -131,6 +131,7 @@ const WPCOM_DUPLICATED_VIEW = array(
 	'options-writing.php',
 	'options-reading.php',
 	'options-discussion.php',
+	'upload.php',
 );
 
 /**
