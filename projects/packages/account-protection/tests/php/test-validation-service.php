@@ -168,18 +168,28 @@ class Validation_Service_Test extends BaseTestCase {
 	}
 
 	public function test_returns_true_if_password_is_current_password() {
-		$user            = new \WP_User();
-		$user->user_pass = wp_hash_password( 'somepassword' );
-		$user->ID        = 1;
+		$user = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'somepassword',
+				'user_email' => 'admin@admin.com',
+				'role'       => 'administrator',
+			)
+		);
 
 		$validation_service = new Validation_Service( $this->get_connection_manager() );
 		$this->assertTrue( $validation_service->is_current_password( $user, 'somepassword' ) );
 	}
 
 	public function test_returns_false_if_password_is_not_current_password() {
-		$user            = new \WP_User();
-		$user->user_pass = wp_hash_password( 'somepassword' );
-		$user->ID        = 1;
+		$user = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'somepassword',
+				'user_email' => 'admin@admin.com',
+				'role'       => 'administrator',
+			)
+		);
 
 		$validation_service = new Validation_Service( $this->get_connection_manager() );
 		$this->assertFalse( $validation_service->is_current_password( $user, 'anotherpassword' ) );

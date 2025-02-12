@@ -279,12 +279,17 @@ class Validation_Service {
 	/**
 	 * Check if the password is the current password for the user.
 	 *
-	 * @param \WP_User $user The user.
-	 * @param string   $password The password to check.
+	 * @param int    $user_id  The user ID.
+	 * @param string $password The password to check.
 	 *
 	 * @return bool True if the password is the current password, false otherwise.
 	 */
-	public function is_current_password( \WP_User $user, string $password ): bool {
+	public function is_current_password( int $user_id, string $password ): bool {
+		$user = get_userdata( $user_id );
+		if ( ! $user ) {
+			return false;
+		}
+
 		return wp_check_password( $password, $user->user_pass, $user->ID );
 	}
 
@@ -303,7 +308,7 @@ class Validation_Service {
 		}
 
 		$user_data = $user instanceof \WP_User ? $user : $this->get_old_user_data( $user->ID );
-		if ( $this->is_current_password( $user_data, $password ) ) {
+		if ( $this->is_current_password( $user_data->ID, $password ) ) {
 			return true;
 		}
 
