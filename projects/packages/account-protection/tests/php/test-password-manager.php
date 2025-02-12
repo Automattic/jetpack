@@ -111,7 +111,7 @@ class Password_Manager_Test extends BaseTestCase {
 			->method( 'save_recent_password' )
 			->with( $user_id, 'oldhashedpassword' );
 
-		$password_manager_mock->on_profile_update( $user_id, $old_user_data, array() );
+		$password_manager_mock->on_profile_update( $user_id, $old_user_data );
 	}
 
 	public function test_on_password_reset_saves_recent_password() {

@@ -113,7 +113,7 @@ class Account_Protection {
 		add_action( 'validate_password_reset', array( $this->password_manager, 'validate_password_reset' ), 10, 2 );
 
 		// Update recent passwords list
-		add_action( 'profile_update', array( $this->password_manager, 'on_profile_update' ), 10, 3 );
+		add_action( 'profile_update', array( $this->password_manager, 'on_profile_update' ), 10, 2 );
 		add_action( 'after_password_reset', array( $this->password_manager, 'on_password_reset' ), 10, 2 );
 	}
 

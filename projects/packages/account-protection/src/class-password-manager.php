@@ -152,11 +152,10 @@ class Password_Manager {
 	 *
 	 * @param int      $user_id The user ID.
 	 * @param \WP_User $old_user_data The old user data.
-	 * @param array    $userdata The user data.
 	 *
 	 * @return void
 	 */
-	public function on_profile_update( int $user_id, \WP_User $old_user_data, array $userdata ): void { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function on_profile_update( int $user_id, \WP_User $old_user_data ): void {
 		if ( isset( $_POST['action'] ) && $_POST['action'] === 'update' ) {
 			if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
 				if ( $this->verify_profile_update_nonce( $user_id ) ) {
