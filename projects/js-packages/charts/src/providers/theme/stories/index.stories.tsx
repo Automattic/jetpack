@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { ThemeProvider, jetpackTheme, wooTheme } from '../.';
+import { ThemeProvider, jetpackTheme, wooTheme, wpcomTheme } from '../';
 import { LineChart, BarChart, PieSemiCircleChart } from '../../../.';
 import barSampleData from '../../../components/bar-chart/stories/sample-data';
 
@@ -89,6 +89,18 @@ export const JetpackTheme: Story = {
 				<LineChart data={ lineSampleData } width={ 400 } height={ 300 } />
 				<BarChart data={ sampleData } width={ 400 } height={ 300 } />
 				<PieSemiCircleChart data={ pieData } width={ 400 } label="Pie Chart" note="Jetpack Theme" />
+			</GridComponent>
+		</ThemeProvider>
+	),
+};
+
+export const WPCOMTheme: Story = {
+	render: () => (
+		<ThemeProvider theme={ wpcomTheme }>
+			<GridComponent>
+				<LineChart data={ lineSampleData } width={ 400 } height={ 300 } />
+				<BarChart data={ sampleData } width={ 400 } height={ 300 } />
+				<PieSemiCircleChart data={ pieData } width={ 400 } label="Pie Chart" note="WPCOM Theme" />
 			</GridComponent>
 		</ThemeProvider>
 	),

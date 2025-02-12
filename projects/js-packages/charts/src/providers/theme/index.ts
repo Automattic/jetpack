@@ -1,2 +1,2 @@
 export { ThemeProvider, useChartTheme } from './theme-provider';
-export { defaultTheme, jetpackTheme, wooTheme } from './themes';
+export { defaultTheme, jetpackTheme, wooTheme, wpcomTheme } from './themes';

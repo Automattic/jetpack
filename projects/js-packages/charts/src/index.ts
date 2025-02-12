@@ -10,7 +10,7 @@ export { Legend } from './components/legend';
 
 // Themes
 export { ThemeProvider } from './providers/theme';
-export { defaultTheme, jetpackTheme, wooTheme } from './providers/theme/themes';
+export { defaultTheme, jetpackTheme, wooTheme, wpcomTheme } from './providers/theme/themes';
 
 // Hooks
 export { default as useChartMouseHandler } from './hooks/use-chart-mouse-handler';
