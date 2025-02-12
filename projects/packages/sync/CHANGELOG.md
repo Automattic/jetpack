@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.8.0] - 2025-02-12
 ### Removed
-- Remove unused setting [#41658]
+- Remove unused setting. [#41658]
 
 ## [4.7.0] - 2025-02-10
 ### Added
