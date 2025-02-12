@@ -240,21 +240,13 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( $include_viewers ) {
 						// First we need to be sure to obtain the viewer emails and logins.
 						foreach ( $combined_users as &$user ) {
-							$user = new WP_User( $user->ID );
+							$wp_user     = new WP_User( $user->ID );
+							$user->email = $wp_user->user_email;
+							$user->login = $wp_user->user_login;
 						}
 
-						$order = $args['order'] ?? 'asc';
-
-						switch ( $args['order_by'] ) {
-							case 'email':
-								$orderby = 'user_email';
-								break;
-							case 'login':
-								$orderby = 'user_login';
-								break;
-							default:
-								$orderby = 'display_name';
-						}
+						$order   = $args['order'] ?? 'asc';
+						$orderby = $args['order_by'] ?? 'name';
 
 						usort(
 							$combined_users,
