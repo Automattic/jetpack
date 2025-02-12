@@ -7,23 +7,23 @@ import CompactCard from 'components/card/compact';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { getModule, getModuleOverride } from 'state/modules';
-import { isModuleFound as _isModuleFound } from 'state/search';
+import { getModule } from 'state/modules';
+import { updateSettings } from 'state/settings';
 
 export class CustomContentTypes extends React.Component {
 	state = {
-		testimonial:
-			this.props.getOptionValue( 'jetpack_testimonial', 'custom-content-types' ) || false,
-		portfolio: this.props.getOptionValue( 'jetpack_portfolio', 'custom-content-types' ) || false,
+		testimonial: this.props.getOptionValue( 'jetpack_testimonial' ) || false,
+		portfolio: this.props.getOptionValue( 'jetpack_portfolio' ) || false,
 	};
 
 	updateCPTs = type => {
-		const deactivate =
-			'testimonial' === type
-				? ! ( ! this.state.testimonial || this.state.portfolio )
-				: ! ( ! this.state.portfolio || this.state.testimonial );
+		const deactivate = 'testimonial' === type ? ! this.state.testimonial : ! this.state.portfolio;
 
-		this.props.updateFormStateModuleOption( 'custom-content-types', 'jetpack_' + type, deactivate );
+		if ( type === 'portfolio' ) {
+			this.props.updateSettings( { jetpack_portfolio: deactivate } );
+		} else {
+			this.props.updateSettings( { jetpack_testimonial: deactivate } );
+		}
 
 		this.setState( {
 			[ type ]: ! this.state[ type ],
@@ -31,7 +31,7 @@ export class CustomContentTypes extends React.Component {
 	};
 
 	linkIfActiveCPT = type => {
-		return this.props.getSettingCurrentValue( `jetpack_${ type }`, 'custom-content-types' ) ? (
+		return this.props.getSettingCurrentValue( `jetpack_${ type }` ) ? (
 			<a href={ `${ this.props.siteAdminUrl }edit.php?post_type=jetpack-${ type }` } />
 		) : (
 			<span />
@@ -47,13 +47,11 @@ export class CustomContentTypes extends React.Component {
 	};
 
 	render() {
-		if ( ! this.props.isModuleFound( 'custom-content-types' ) ) {
+		if ( ! this.props.customContentTypeIsActive ) {
 			return null;
 		}
 
-		const module = this.props.module( 'custom-content-types' );
-		const disabledByOverride =
-			'inactive' === this.props.getModuleOverride( 'custom-content-types' );
+		const disabledByOverride = this.props.customContentTypeIsOverridden;
 		const disabledReason =
 			disabledByOverride &&
 			__( 'This feature has been disabled by a site administrator.', 'jetpack' );
@@ -115,10 +113,15 @@ export class CustomContentTypes extends React.Component {
 			  );
 
 		return (
-			<SettingsCard { ...this.props } module="custom-content-types" hideButton>
+			<SettingsCard
+				{ ...this.props }
+				module="custom-content-types"
+				header="Custom content types"
+				hideButton
+			>
 				<SettingsGroup
 					hasChild
-					module={ module }
+					module={ { module: 'custom-content-types' } }
 					support={ {
 						link: getRedirectUrl( 'jetpack-support-custom-content-types' ),
 					} }
@@ -126,8 +129,8 @@ export class CustomContentTypes extends React.Component {
 					<p> { testimonialText } </p>
 					<ToggleControl
 						checked={
-							this.props.getOptionValue( 'jetpack_testimonial', 'custom-content-types' )
-								? this.props.getOptionValue( 'jetpack_testimonial', 'custom-content-types' )
+							this.props.getOptionValue( 'jetpack_testimonial' )
+								? this.props.getOptionValue( 'jetpack_testimonial' )
 								: false
 						}
 						disabled={ disabledByOverride || woa_theme_supports_jetpack_testimonial }
@@ -146,7 +149,7 @@ export class CustomContentTypes extends React.Component {
 						}
 					/>
 				</SettingsGroup>
-				{ this.props.testimonialActive && (
+				{ this.props.getOptionValue( 'jetpack_testimonial' ) && (
 					<CompactCard
 						className="jp-settings-card__configure-link"
 						href={ `${ this.props.siteAdminUrl }post-new.php?post_type=jetpack-testimonial` }
@@ -156,7 +159,7 @@ export class CustomContentTypes extends React.Component {
 				) }
 				<SettingsGroup
 					hasChild
-					module={ module }
+					module={ { module: 'custom-content-types' } }
 					support={ {
 						link: getRedirectUrl( 'jetpack-support-custom-content-types' ),
 					} }
@@ -164,8 +167,8 @@ export class CustomContentTypes extends React.Component {
 					<p>{ portfolioText }</p>
 					<ToggleControl
 						checked={
-							this.props.getOptionValue( 'jetpack_portfolio', 'custom-content-types' )
-								? this.props.getOptionValue( 'jetpack_portfolio', 'custom-content-types' )
+							this.props.getOptionValue( 'jetpack_portfolio' )
+								? this.props.getOptionValue( 'jetpack_portfolio' )
 								: false
 						}
 						disabled={ disabledByOverride || woa_theme_supports_jetpack_portfolio }
@@ -182,7 +185,7 @@ export class CustomContentTypes extends React.Component {
 						}
 					/>
 				</SettingsGroup>
-				{ this.props.portfolioActive && (
+				{ this.props.getOptionValue( 'jetpack_portfolio' ) && (
 					<CompactCard
 						className="jp-settings-card__configure-link"
 						href={ `${ this.props.siteAdminUrl }post-new.php?post_type=jetpack-portfolio` }
@@ -196,21 +199,16 @@ export class CustomContentTypes extends React.Component {
 }
 
 export default withModuleSettingsFormHelpers(
-	connect( ( state, ownProps ) => {
-		const portfolioActive = ownProps.getSettingCurrentValue(
-			'jetpack_portfolio',
-			'custom-content-types'
-		);
-		const testimonialActive = ownProps.getSettingCurrentValue(
-			'jetpack_testimonial',
-			'custom-content-types'
-		);
-		return {
-			module: module_name => getModule( state, module_name ),
-			isModuleFound: module_name => _isModuleFound( state, module_name ),
-			getModuleOverride: module_name => getModuleOverride( state, module_name ),
-			portfolioActive,
-			testimonialActive,
-		};
-	} )( CustomContentTypes )
+	connect(
+		state => {
+			return {
+				module: module_name => getModule( state, module_name ),
+			};
+		},
+		dispatch => ( {
+			updateSettings: module_option => {
+				return dispatch( updateSettings( module_option ) );
+			},
+		} )
+	)( CustomContentTypes )
 );

@@ -277,6 +277,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		getFeatureTypeStatus: customContentType =>
+			getRequest( `${ apiRoot }jetpack/v4/feature/${ customContentType }`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		fetchStatsData: range =>
 			getRequest( statsDataUrl( range ), getParams )
 				.then( checkStatus )

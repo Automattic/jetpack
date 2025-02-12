@@ -47,7 +47,10 @@ export const ServiceConnectionInfo = ( {
 					 * if the user can disconnect the connection.
 					 * Otherwise, non-admin authors will see only the status without any further context.
 					 */
-					if ( conn.status === 'broken' && canManageConnection ) {
+					if (
+						( conn.status === 'broken' || conn.status === 'must_reauth' ) &&
+						canManageConnection
+					) {
 						return <ConnectionStatus connection={ conn } service={ service } />;
 					}
 

@@ -49,6 +49,7 @@ export { default as ThreatSeverityBadge } from './components/threat-severity-bad
 export { default as ThreatsDataViews } from './components/threats-data-views';
 export { default as Text, H2, H3, Title } from './components/text';
 export { default as ToggleControl } from './components/toggle-control';
+export { default as NumberControl } from './components/number-control';
 export { default as numberFormat } from './components/number-format';
 export { default as QRCode } from './components/qr-code';
 export { default as Button } from './components/button';

@@ -634,7 +634,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
-	 * Verify metadata meta_value is limited based on MAX_COMMENT_META_LENGTH.
+	 * Verify metadata meta_value is limited based on MAX_META_LENGTH.
 	 */
 	public function test_metadata_limit() {
 
@@ -642,13 +642,13 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 			(object) array(
 				'comment_id' => $this->comment->comment_ID,
 				'meta_key'   => 'test_key',
-				'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Comments::MAX_COMMENT_META_LENGTH - 1 ),
+				'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Comments::MAX_META_LENGTH - 1 ),
 				'meta_id'    => 1,
 			),
 			(object) array(
 				'comment_id' => $this->comment->comment_ID,
 				'meta_key'   => 'test_key',
-				'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Comments::MAX_COMMENT_META_LENGTH ),
+				'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Comments::MAX_META_LENGTH ),
 				'meta_id'    => 2,
 			),
 
@@ -660,7 +660,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 			'comment',
 			array( $this->comment ),
 			$metadata,
-			Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_META_LENGTH,
+			Automattic\Jetpack\Sync\Modules\Posts::MAX_META_LENGTH,
 			Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC
 		);
 
@@ -723,7 +723,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 			'comment',
 			$comments,
 			$metadata,
-			Automattic\Jetpack\Sync\Modules\Comments::MAX_COMMENT_META_LENGTH,
+			Automattic\Jetpack\Sync\Modules\Comments::MAX_META_LENGTH,
 			Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC
 		);
 
@@ -745,13 +745,13 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 		$comments = array( $comment_1, $comment_2 );
 
-		$metadata_items_number = Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC / Automattic\Jetpack\Sync\Modules\Comments::MAX_COMMENT_META_LENGTH;
+		$metadata_items_number = Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC / Automattic\Jetpack\Sync\Modules\Comments::MAX_META_LENGTH;
 		$comment_metadata_1    = array_map(
 			function ( $x ) use ( $comment_id_1 ) {
 				return (object) array(
 					'comment_id' => $comment_id_1,
 					'meta_key'   => 'test_key',
-					'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Comments::MAX_COMMENT_META_LENGTH - 1 ),
+					'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Comments::MAX_META_LENGTH - 1 ),
 					'meta_id'    => $x,
 				);
 			},
@@ -775,7 +775,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 			'comment',
 			$comments,
 			$metadata,
-			Automattic\Jetpack\Sync\Modules\Comments::MAX_COMMENT_META_LENGTH,
+			Automattic\Jetpack\Sync\Modules\Comments::MAX_META_LENGTH,
 			Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC
 		);
 
