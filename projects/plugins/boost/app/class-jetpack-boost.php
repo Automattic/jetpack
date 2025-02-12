@@ -159,6 +159,8 @@ class Jetpack_Boost {
 		update_option( 'jetpack_boost_version', JETPACK_BOOST_VERSION );
 
 		if ( jetpack_boost_minify_is_enabled() ) {
+			// We need to clear Minify scheduled events to ensure the latest scheduled jobs are only scheduled irrespective of scheduled arguments.
+			jetpack_boost_minify_clear_scheduled_events();
 			jetpack_boost_minify_activation();
 		}
 	}
