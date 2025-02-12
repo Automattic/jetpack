@@ -10,7 +10,7 @@ use WorDBless\BaseTestCase;
 class Password_Detection_Test extends BaseTestCase {
 
 	public function test_handle_password_detection_validation_error_redirects_to_login(): void {
-		$error = new \WP_Error( Config::ERROR_CODE, Config::ERROR_MESSAGE, array( 'token' => 'my-token' ) );
+		$error = new \WP_Error( Config::PASSWORD_DETECTION_ERROR_CODE, 'Password validation failed.', array( 'token' => 'my-token' ) );
 
 		$sut = $this->createPartialMock( Password_Detection::class, array( 'redirect_and_exit' ) );
 		$sut->expects( $this->once() )
@@ -96,8 +96,8 @@ class Password_Detection_Test extends BaseTestCase {
 		$error = $sut->login_form_password_detection( $user, 'pw' );
 
 		$this->assertInstanceOf( \WP_Error::class, $error, 'Should return a WP_Error object.' );
-		$this->assertSame( Config::ERROR_MESSAGE, $error->get_error_message( Config::ERROR_CODE ), 'Should return the correct error message.' );
-		$token = $error->get_error_data( Config::ERROR_CODE )['token'];
+		$this->assertSame( 'Password validation failed.', $error->get_error_message( Config::PASSWORD_DETECTION_ERROR_CODE ), 'Should return the correct error message.' );
+		$token = $error->get_error_data( Config::PASSWORD_DETECTION_ERROR_CODE )['token'];
 		$this->assertSame( 32, strlen( $token ), 'Token should be 32 characters long.' );
 
 		remove_filter( 'check_password', '__return_true' );
@@ -129,7 +129,7 @@ class Password_Detection_Test extends BaseTestCase {
 
 		$sut->login_form_password_detection( $user, 'pw' );
 
-		$transient_data = get_transient( Config::TRANSIENT_PREFIX . "_error_{$user->ID}" );
+		$transient_data = get_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_error_{$user->ID}" );
 		$this->assertSame( 'Failed to send authentication email. Please try again.', $transient_data, 'Should have set the correct error message.' );
 
 		remove_filter( 'check_password', '__return_true' );
@@ -166,7 +166,7 @@ class Password_Detection_Test extends BaseTestCase {
 
 	public function test_render_page_redirects_to_login_if_user_with_id_from_transient_does_not_exist(): void {
 		$_GET['token'] = 'my_cool_token';
-		set_transient( Config::TRANSIENT_PREFIX . '_my_cool_token', array( 'user_id' => 123 ) );
+		set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . '_my_cool_token', array( 'user_id' => 123 ) );
 
 		$sut = $this->createPartialMock( Password_Detection::class, array( 'redirect_and_exit', 'load_user' ) );
 		$sut->expects( $this->once() )
@@ -189,7 +189,7 @@ class Password_Detection_Test extends BaseTestCase {
 		$_POST['_wpnonce_verify'] = wp_create_nonce( 'verify_action' );
 
 		set_transient(
-			Config::TRANSIENT_PREFIX . '_my_cool_token',
+			Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . '_my_cool_token',
 			array(
 				'user_id'   => 123,
 				'auth_code' => '123456',
@@ -240,7 +240,7 @@ class Password_Detection_Test extends BaseTestCase {
 		$_POST['_wpnonce_verify'] = wp_create_nonce( 'verify_action' );
 
 		set_transient(
-			Config::TRANSIENT_PREFIX . '_my_cool_token',
+			Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . '_my_cool_token',
 			array(
 				'user_id'   => 123,
 				'auth_code' => '123456',
@@ -263,7 +263,7 @@ class Password_Detection_Test extends BaseTestCase {
 
 		$sut->render_page();
 
-		$error = get_transient( Config::TRANSIENT_PREFIX . '_error_123' );
+		$error = get_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . '_error_123' );
 
 		$this->assertSame( 'Authentication code verification failed. Please try again.', $error, 'Error message is not as expected.' );
 
@@ -279,7 +279,7 @@ class Password_Detection_Test extends BaseTestCase {
 		$_POST['_wpnonce_verify'] = 'wrong nonce'; // intentionally wrong
 
 		set_transient(
-			Config::TRANSIENT_PREFIX . '_my_cool_token',
+			Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . '_my_cool_token',
 			array(
 				'user_id'   => 123,
 				'auth_code' => '123456',
@@ -302,7 +302,7 @@ class Password_Detection_Test extends BaseTestCase {
 
 		$sut->render_page();
 
-		$error = get_transient( Config::TRANSIENT_PREFIX . '_error_123' );
+		$error = get_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . '_error_123' );
 
 		$this->assertSame( 'Verify nonce verification failed. Please try again.', $error, 'Error message is not as expected.' );
 
@@ -317,7 +317,7 @@ class Password_Detection_Test extends BaseTestCase {
 		$_GET['_wpnonce']     = wp_create_nonce( 'resend_email_nonce' );
 
 		set_transient(
-			Config::TRANSIENT_PREFIX . '_my_cool_token',
+			Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . '_my_cool_token',
 			array(
 				'user_id'   => 123,
 				'auth_code' => '123456',
@@ -385,7 +385,7 @@ class Password_Detection_Test extends BaseTestCase {
 	public function test_render_content_shows_transient_error_if_set(): void {
 		$error_message = 'This is a error message to test things with.';
 
-		set_transient( Config::TRANSIENT_PREFIX . '_error_123', $error_message );
+		set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . '_error_123', $error_message );
 
 		$user             = new \WP_User();
 		$user->ID         = 123;

@@ -50,7 +50,6 @@ class Password_Detection {
 		}
 
 		if ( $this->validation_service->is_weak_password( $password ) ) {
-			// TODO: Every time the user logs in we generate a new token based transient. This might not be ideal.
 			$transient = $this->generate_and_store_transient_data( $user->ID );
 
 			$email_sent = $this->email_service->api_send_auth_email( $user, $transient['auth_code'] );
@@ -59,8 +58,8 @@ class Password_Detection {
 			}
 
 			return new \WP_Error(
-				Config::ERROR_CODE,
-				Config::ERROR_MESSAGE,
+				Config::PASSWORD_DETECTION_ERROR_CODE,
+				__( 'Password validation failed.', 'jetpack-account-protection' ),
 				array( 'token' => $transient['token'] )
 			);
 		}
@@ -126,7 +125,7 @@ class Password_Detection {
 		}
 
 		$token          = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( $_GET['token'] ) ) : null;
-		$transient_data = get_transient( Config::TRANSIENT_PREFIX . "_{$token}" );
+		$transient_data = get_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$token}" );
 		if ( ! $transient_data ) {
 			$this->redirect_to_login();
 			// @phan-suppress-next-line PhanPluginUnreachableCode This would fall through in unit tests otherwise.
@@ -141,8 +140,6 @@ class Password_Detection {
 			return;
 		}
 
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
-
 		// Handle resend email request
 		if ( isset( $_GET['resend_email'] ) && $_GET['resend_email'] === '1' ) {
 			if ( isset( $_GET['_wpnonce'] )
@@ -152,7 +149,7 @@ class Password_Detection {
 				if ( ! $email_resent ) {
 					$message = __( 'Failed to resend authentication email. Please try again.', 'jetpack-account-protection' );
 
-					if ( $transient_data['resend_attempts'] >= Config::MAX_RESEND_ATTEMPTS ) {
+					if ( $transient_data['resend_attempts'] >= Config::PASSWORD_DETECTION_MAX_RESEND_ATTEMPTS ) {
 						$message = __( 'Resend limit exceeded. Please try again later.', 'jetpack-account-protection' );
 					}
 
@@ -190,7 +187,7 @@ class Password_Detection {
 	 * @return void
 	 */
 	public function render_content( \WP_User $user, string $token ): void {
-		$transient_key = Config::TRANSIENT_PREFIX . "_error_{$user->ID}";
+		$transient_key = Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_error_{$user->ID}";
 		$error_message = get_transient( $transient_key );
 		delete_transient( $transient_key );
 
@@ -288,7 +285,7 @@ class Password_Detection {
 			'resend_attempts' => 0,
 		);
 
-		$transient_set = set_transient( Config::TRANSIENT_PREFIX . "_{$token}", $data, Config::EMAIL_SENT_EXPIRATION );
+		$transient_set = set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$token}", $data, Config::PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION );
 		if ( ! $transient_set ) {
 			$this->set_transient_error( $user_id, __( 'Failed to set transient data. Please try again.', 'jetpack-account-protection' ) );
 		}
@@ -332,7 +329,7 @@ class Password_Detection {
 	private function handle_auth_form_submission( \WP_User $user, string $token, string $auth_code, string $user_input ): void {
 		if ( $auth_code && $auth_code === $user_input ) {
 			// TODO: Ensure all transient are also removed on module and/or plugin deactivation
-			delete_transient( Config::TRANSIENT_PREFIX . "_{$token}" );
+			delete_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$token}" );
 			wp_set_auth_cookie( $user->ID, true );
 			// TODO: Notify user to update their password/redirect to password update page
 			$this->redirect_and_exit( admin_url() );
@@ -351,7 +348,7 @@ class Password_Detection {
 	 * @return void
 	 */
 	private function set_transient_error( int $user_id, string $message, int $expiration = 60 ): void {
-		set_transient( Config::TRANSIENT_PREFIX . "_error_{$user_id}", $message, $expiration );
+		set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_error_{$user_id}", $message, $expiration );
 	}
 
 	/**
@@ -360,11 +357,15 @@ class Password_Detection {
 	 * @return void
 	 */
 	public function enqueue_styles(): void {
-		wp_enqueue_style(
-			'password-detection-styles',
-			plugin_dir_url( __FILE__ ) . 'css/password-detection.css',
-			array(),
-			Account_Protection::PACKAGE_VERSION
-		);
+		// No nonce verification necessary - reading only
+		// phpcs:disable WordPress.Security.NonceVerification
+		if ( ( isset( $GLOBALS['pagenow'] ) && $GLOBALS['pagenow'] === 'wp-login.php' ) && ( isset( $_GET['action'] ) && $_GET['action'] === 'password-detection' ) ) {
+				wp_enqueue_style(
+					'password-detection-styles',
+					plugin_dir_url( __FILE__ ) . 'css/password-detection.css',
+					array(),
+					Account_Protection::PACKAGE_VERSION
+				);
+		}
 	}
 }
