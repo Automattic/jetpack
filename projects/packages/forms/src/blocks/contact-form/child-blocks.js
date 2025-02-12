@@ -27,6 +27,7 @@ const FieldDefaults = {
 	supports: {
 		reusable: false,
 		html: false,
+		spacing: {},
 	},
 	attributes: {
 		label: {
