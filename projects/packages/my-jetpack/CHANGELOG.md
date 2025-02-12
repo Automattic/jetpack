@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.4.4] - 2025-02-12
 ### Changed
-- Cache scan calls if no threats are found to improve performance [#41614]
+- Performance: Cache scan calls if no threats are found. [#41614]
 
 ## [5.4.3] - 2025-02-11
 ### Added
