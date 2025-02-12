@@ -817,8 +817,8 @@ class Jetpack_Carousel {
 	 * @param string $content HTML content of the post.
 	 * @return string
 	 */
-	public function add_data_img_tags_and_enqueue_assets( $content = '' ) {
-		if ( ! is_string( $content ) ) {
+	public function add_data_img_tags_and_enqueue_assets( $content ) {
+		if ( ! is_string( $content ) || $content === '' ) {
 			return '';
 		}
 		if (
