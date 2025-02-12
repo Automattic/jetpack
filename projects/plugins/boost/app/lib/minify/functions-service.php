@@ -50,6 +50,7 @@ function jetpack_boost_handle_minify_request( $request_uri ) {
 
 /**
  * Using a crafted request, we can check if is_404() is working in wp-content/
+ * The constant JETPACK_BOOST_STATIC_CACHE_404_TESTER_PATH is the path to the file that will be requested.
  */
 function jetpack_boost_check_404_handler( $request_uri ) {
 	if ( ! str_contains( strtolower( $request_uri ), JETPACK_BOOST_STATIC_CACHE_404_TESTER_PATH ) ) {
@@ -73,6 +74,7 @@ function jetpack_boost_check_404_handler( $request_uri ) {
  * It sends a request to a non-existent URL, that will execute the 404 handler
  * in jetpack_boost_check_404_handler().
  * Define the constant JETPACK_BOOST_DISABLE_404_TESTER to disable this.
+ * The constant JETPACK_BOOST_STATIC_CACHE_404_TESTER_PATH is the path to the file that will be requested.
  *
  * This function is called when the Minify_CSS or Minify_JS module is activated, and once per day.
  */
