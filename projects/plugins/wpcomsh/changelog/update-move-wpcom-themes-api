@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Moved WordPress.com themes api work from wpcomsh into jetpack-mu-wpcom so it can be used on WPcom as well"
+Moved WordPress.com themes api work from wpcomsh into jetpack-mu-wpcom so it can be used on WPcom as well
