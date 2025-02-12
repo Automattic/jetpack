@@ -157,11 +157,10 @@ class Password_Manager {
 	 * Handle the password reset.
 	 *
 	 * @param \WP_User $user The user.
-	 * @param string   $new_password The new password.
 	 *
 	 * @return void
 	 */
-	public function on_password_reset( $user, $new_password ): void { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function on_password_reset( $user ): void {
 		$this->save_recent_password( $user->ID, $user->user_pass );
 	}
 

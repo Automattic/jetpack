@@ -114,7 +114,7 @@ class Account_Protection {
 
 		// Update recent passwords list
 		add_action( 'profile_update', array( $this->password_manager, 'on_profile_update' ), 10, 2 );
-		add_action( 'after_password_reset', array( $this->password_manager, 'on_password_reset' ), 10, 2 );
+		add_action( 'after_password_reset', array( $this->password_manager, 'on_password_reset' ), 10, 1 );
 	}
 
 	/**
