@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { askQuestionSync, usePostContent } from '@automattic/jetpack-ai-client';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import {
@@ -46,13 +47,19 @@ export const useTitleStep = ( {
 	const [ generatedCount, setGeneratedCount ] = useState( 0 );
 	const [ hasFailed, setHasFailed ] = useState( false );
 	const [ failurePoint, setFailurePoint ] = useState< 'generate' | 'regenerate' | null >( null );
+	const { tracks } = useAnalytics();
 
 	const prevStepHasChanged = useMemo( () => keywords !== lastValue, [ keywords, lastValue ] );
+	const stepId = 'title';
 
 	const request = useCallback( async () => {
 		if ( mockRequests ) {
 			return mockTitleRequest( keywords );
 		}
+		tracks.recordEvent( 'jetpack_seo_assistant_request', {
+			step: stepId,
+			keywords,
+		} );
 		return askQuestionSync(
 			[
 				{
@@ -69,7 +76,7 @@ export const useTitleStep = ( {
 				feature: 'jetpack-seo-assistant',
 			}
 		);
-	}, [ keywords, postContent, postId, mockRequests ] );
+	}, [ keywords, postContent, postId, mockRequests, tracks ] );
 
 	const handleTitleSelect = useCallback(
 		( option: OptionMessage ) => {
@@ -199,7 +206,7 @@ export const useTitleStep = ( {
 	const regenerateLabel = __( 'Regenerate', 'jetpack' );
 
 	return {
-		id: 'title',
+		id: stepId,
 		title: __( 'Optimise Title', 'jetpack' ),
 		label: __( 'Title', 'jetpack' ),
 		messages,

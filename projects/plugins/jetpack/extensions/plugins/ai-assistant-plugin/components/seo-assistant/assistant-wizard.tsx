@@ -1,3 +1,4 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Icon, Tooltip, Notice } from '@wordpress/components';
 import { useState, useEffect, useRef, useMemo, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -24,6 +25,7 @@ export default function AssistantWizard( { close } ) {
 	const keywordsInputRef = useRef( null );
 	const prevStepIdRef = useRef< string | undefined >();
 	const [ results, setResults ] = useState( {} );
+	const { tracks } = useAnalytics();
 
 	useEffect( () => {
 		scrollToBottom();
@@ -103,47 +105,43 @@ export default function AssistantWizard( { close } ) {
 	}, [ currentStep, handleNext, steps ] );
 
 	// Reset states and close the wizard
-	const handleDone = useCallback( () => {
-		close();
-		setCurrentStep( 0 );
-	}, [ close ] );
+	const handleDone = useCallback(
+		( isCloseButton = false ) => {
+			debug( isCloseButton );
+			const completion =
+				steps.reduce( ( acc, step ) => {
+					if ( step.includeInResults && results[ step.id ]?.value ) {
+						acc++;
+					}
+					return acc;
+				}, 0 ) / steps.filter( step => step.includeInResults ).length;
 
-	const handleStepSubmit = useCallback( async () => {
-		debug( 'step submitted' );
-		setIsBusy( true );
-		const stepValue = await steps[ currentStep ]?.onSubmit?.();
-		debug( 'stepValue', stepValue );
-		if ( steps[ currentStep ].includeInResults ) {
-			const newResults = {
-				[ steps[ currentStep ].id ]: {
-					value: stepValue?.trim?.(),
-					type: steps[ currentStep ].type,
-					label: steps[ currentStep ].label,
-				},
-			};
-			debug( 'newResults', newResults );
-			setResults( prev => ( { ...prev, ...newResults } ) );
-		}
-		setAssistantFlowAction( 'submit' );
-
-		if ( steps[ currentStep ]?.type === 'completion' ) {
-			debug( 'completion step, closing wizard' );
-			handleDone();
-		} else {
-			debug( 'step type', steps[ currentStep ]?.type );
-			handleNext();
-		}
-	}, [ currentStep, handleDone, handleNext, steps ] );
+			tracks.recordEvent( 'jetpack_seo_assistant_close', {
+				completion,
+				step: steps[ currentStep ].id,
+				steps: steps.length - 1,
+				step_number: currentStep,
+				placement: isCloseButton ? 'close' : 'done',
+			} );
+			close();
+			setCurrentStep( 0 );
+		},
+		[ close, currentStep, steps, tracks, results ]
+	);
 
 	const jumpToStep = useCallback(
 		( stepNumber: number ) => {
 			if ( stepNumber < steps.length - 1 ) {
+				tracks.recordEvent( 'jetpack_seo_assistant_step_jump', {
+					step_from: steps[ currentStep ]?.id,
+					step_to: steps[ stepNumber ]?.id,
+				} );
 				setAssistantFlowAction( 'jump' );
 				setCurrentStep( stepNumber );
 				setCurrentStepData( steps[ stepNumber ] );
 			}
 		},
-		[ steps ]
+		[ steps, tracks, currentStep ]
 	);
 
 	const handleSelect = useCallback(
@@ -161,6 +159,10 @@ export default function AssistantWizard( { close } ) {
 			setIsBusy( true );
 			setAssistantFlowAction( 'backwards' );
 			debug( 'moving back to ' + ( currentStep - 1 ) );
+			tracks.recordEvent( 'jetpack_seo_assistant_step_back', {
+				step_from: steps[ currentStep ]?.id,
+				step_to: steps[ currentStep - 1 ]?.id,
+			} );
 			steps[ currentStep ].resetState?.();
 			setCurrentStep( currentStep - 1 );
 			setCurrentStepData( steps[ currentStep - 1 ] );
@@ -182,6 +184,10 @@ export default function AssistantWizard( { close } ) {
 				},
 			} ) );
 		}
+		tracks.recordEvent( 'jetpack_seo_assistant_step_skip', {
+			step_from: steps[ currentStep ]?.id,
+			step_to: steps[ currentStep + 1 ]?.id,
+		} );
 		if ( steps[ currentStep ]?.type === 'completion' ) {
 			debug( 'completion step, closing wizard' );
 			handleDone();
@@ -189,14 +195,53 @@ export default function AssistantWizard( { close } ) {
 			debug( 'step type', steps[ currentStep ]?.type );
 			handleNext();
 		}
-	}, [ currentStep, steps, handleNext, results, handleDone ] );
+	}, [ currentStep, steps, handleNext, results, handleDone, tracks ] );
+
+	const handleStepSubmit = useCallback( async () => {
+		debug( 'step submitted' );
+		if ( steps[ currentStep ]?.type === 'completion' ) {
+			debug( 'completion step, closing wizard' );
+			handleDone();
+			return;
+		}
+
+		setIsBusy( true );
+		const stepValue = await steps[ currentStep ]?.onSubmit?.();
+		if ( ! stepValue?.trim?.() ) {
+			return handleSkip();
+		}
+		debug( 'stepValue', stepValue );
+		if ( steps[ currentStep ].includeInResults ) {
+			const newResults = {
+				[ steps[ currentStep ].id ]: {
+					value: stepValue?.trim?.(),
+					type: steps[ currentStep ].type,
+					label: steps[ currentStep ].label,
+				},
+			};
+			debug( 'newResults', newResults );
+			setResults( prev => ( { ...prev, ...newResults } ) );
+		}
+		setAssistantFlowAction( 'submit' );
+		tracks.recordEvent( 'jetpack_seo_assistant_step_submit', {
+			step_from: steps[ currentStep ].id,
+			step_to: steps[ currentStep + 1 ].id,
+			value_length: stepValue?.length || 0,
+		} );
+
+		debug( 'step type', steps[ currentStep ]?.type );
+		handleNext();
+	}, [ currentStep, handleDone, handleNext, steps, tracks, handleSkip ] );
 
 	const handleRetry = useCallback( async () => {
 		debug( 'handleRetry' );
+		tracks.recordEvent( 'jetpack_seo_assistant_step_retry', {
+			step: steps[ currentStep ]?.id,
+		} );
 		setIsBusy( true );
 		await steps[ currentStep ].onRetry?.( {} );
 		setIsBusy( false );
-	}, [ currentStep, steps ] );
+	}, [ currentStep, steps, tracks ] );
 
 	return (
 		<div className="assistant-wizard">
@@ -217,7 +262,7 @@ export default function AssistantWizard( { close } ) {
 							<Icon icon={ next } size={ 32 } />
 						</Button>
 					</Tooltip>
-					<Button variant="link" onClick={ handleDone }>
+					<Button variant="link" onClick={ () => handleDone( true ) }>
 						<Icon icon={ closeSmall } size={ 32 } />
 					</Button>
 				</div>
