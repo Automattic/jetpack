@@ -95,7 +95,7 @@ class Email_Service {
 	 * @return bool True if the email was resent successfully, false otherwise.
 	 */
 	public function resend_auth_email( \WP_User $user, array $transient_data, string $token ): bool {
-		if ( $transient_data['resend_attempts'] >= Config::MAX_RESEND_ATTEMPTS ) {
+		if ( $transient_data['resend_attempts'] >= Config::PASSWORD_DETECTION_MAX_RESEND_ATTEMPTS ) {
 			return false;
 		}
 
@@ -108,7 +108,7 @@ class Email_Service {
 
 		++$transient_data['resend_attempts'];
 
-		if ( ! set_transient( Config::TRANSIENT_PREFIX . "_{$token}", $transient_data, Config::EMAIL_SENT_EXPIRATION ) ) {
+		if ( ! set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$token}", $transient_data, Config::PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION ) ) {
 			return false;
 		}
 
