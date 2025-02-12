@@ -475,7 +475,7 @@ HTML;
 			require_once WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
 
 			$data = array(
-				'post_nonce'         => sanitize_text_field( wp_unslash( $_POST['highlander_comment_nonce'] ) ),
+				'post_nonce'         => sanitize_text_field( wp_unslash( $_POST['highlander_comment_nonce'] ?? '' ) ),
 				'hc_post_as'         => isset( $_POST['hc_post_as'] ) ? sanitize_text_field( wp_unslash( $_POST['hc_post_as'] ) ) : '',
 				'hc_foreign_user_id' => isset( $_POST['hc_foreign_user_id'] ) ? sanitize_text_field( wp_unslash( $_POST['hc_foreign_user_id'] ) ) : '',
 			);
