@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fix some JS lints ahead of eslint 9 upgrade.
-
-

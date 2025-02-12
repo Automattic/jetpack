@@ -20,15 +20,23 @@ export type ConnectionStatusProps = {
  * @return {import('react').ReactNode} - React element
  */
 export function ConnectionStatus( { connection, service }: ConnectionStatusProps ) {
-	if ( connection.status !== 'broken' ) {
+	if ( connection.status !== 'broken' && connection.status !== 'must_reauth' ) {
 		return null;
 	}
+
+	const statusMessage =
+		connection.status === 'broken'
+			? __( 'There is an issue with this connection.', 'jetpack-publicize-components' )
+			: __(
+					'To keep sharing with this connection, please reconnect it.',
+					'jetpack-publicize-components'
+			  );
 
 	return (
 		<div>
 			<span className="description">
 				{ service
-					? __( 'There is an issue with this connection.', 'jetpack-publicize-components' )
+					? statusMessage
 					: createInterpolateElement(
 							sprintf(
 								'%1$s %2$s',

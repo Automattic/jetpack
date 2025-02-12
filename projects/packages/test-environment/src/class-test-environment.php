@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  */
 class Test_Environment {
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.0';
 
 	/**
 	 * Initialize the shared WordPress test environment.

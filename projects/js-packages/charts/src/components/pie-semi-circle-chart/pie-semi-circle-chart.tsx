@@ -25,64 +25,64 @@ interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] 
 	thickness?: number;
 
 	/**
-	 * Label text to display above the chart
-	 */
-	label?: string;
-	/**
-	 * Note text to display below the label
-	 */
-	note?: string;
-	/**
 	 * Direction of chart rendering
 	 * true for clockwise, false for counter-clockwise
 	 */
 	clockwise?: boolean;
+
+	/**
+	 * Label text to display above the chart
+	 */
+	label?: string;
+
+	/**
+	 * Note text to display below the label
+	 */
+	note?: string;
 }
 
 type ArcData = PieArcDatum< DataPointPercentage >;
 
+/**
+ * Validates the semi-circle pie chart data
+ * @param data - The data to validate
+ * @return Object containing validation result and error message
+ */
+const validateData = ( data: DataPointPercentage[] ) => {
+	if ( ! data.length ) {
+		return { isValid: false, message: 'No data available' };
+	}
+
+	// Check for negative values
+	const hasNegativeValues = data.some( item => item.percentage < 0 || item.value < 0 );
+	if ( hasNegativeValues ) {
+		return { isValid: false, message: 'Invalid data: Negative values are not allowed' };
+	}
+
+	// Validate total percentage is greater than 0
+	const totalPercentage = data.reduce( ( sum, item ) => sum + item.percentage, 0 );
+	if ( totalPercentage <= 0 ) {
+		return { isValid: false, message: 'Invalid percentage total: Must be greater than 0' };
+	}
+
+	return { isValid: true, message: '' };
+};
+
 const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	data,
-	width,
+	width = 400,
+	thickness = 0.4,
+	clockwise = true,
+	withTooltips = false,
+	showLegend = false,
+	legendOrientation = 'horizontal',
 	label,
 	note,
 	className,
-	withTooltips = false,
-	clockwise = true,
-	thickness = 0.4,
-	showLegend,
-	legendOrientation,
 } ) => {
 	const providerTheme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentage >();
-
-	const centerX = width / 2;
-	const height = width / 2;
-	const radius = width / 2;
-	const pad = 0.03;
-	const innerRadius = radius * ( 1 - thickness + pad );
-
-	// Map the data to include index for color assignment
-	const dataWithIndex = data.map( ( d, index ) => ( {
-		...d,
-		index,
-	} ) );
-
-	// Set the clockwise direction based on the prop
-	const startAngle = clockwise ? -Math.PI / 2 : Math.PI / 2;
-	const endAngle = clockwise ? Math.PI / 2 : -Math.PI / 2;
-
-	const accessors = {
-		value: ( d: DataPointPercentage & { index: number } ) => d.value,
-		sort: (
-			a: DataPointPercentage & { index: number },
-			b: DataPointPercentage & { index: number }
-		) => b.value - a.value,
-		// Use the color property from the data object as a last resort. The theme provides colours by default.
-		fill: ( d: DataPointPercentage & { index: number } ) =>
-			d.color || providerTheme.colors[ d.index % providerTheme.colors.length ],
-	};
 
 	const handleMouseMove = useCallback(
 		( event: React.MouseEvent, arc: ArcData ) => {
@@ -109,6 +109,52 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 		[ handleMouseMove ]
 	);
 
+	// Add validation check
+	const { isValid, message } = validateData( data );
+
+	if ( ! isValid ) {
+		return (
+			<div className={ styles[ 'pie-semi-circle-chart' ] }>
+				<svg width={ width } height={ width / 2 } data-testid="pie-chart-svg">
+					<text x="50%" y="50%" textAnchor="middle" className={ styles.error }>
+						{ message }
+					</text>
+				</svg>
+			</div>
+		);
+	}
+
+	const height = width / 2;
+	const pad = 0.03;
+
+	// Use padding for the overall chart dimensions
+	const chartWidth = width - pad * 2;
+	const chartHeight = height - pad;
+	const radius = Math.min( chartWidth, chartHeight * 2 ) / 2;
+
+	const innerRadius = radius * ( 1 - thickness + pad );
+
+	// Map the data to include index for color assignment
+	const dataWithIndex = data.map( ( d, index ) => ( {
+		...d,
+		index,
+	} ) );
+
+	// Set the clockwise direction based on the prop
+	const startAngle = clockwise ? -Math.PI / 2 : Math.PI / 2;
+	const endAngle = clockwise ? Math.PI / 2 : -Math.PI / 2;
+
+	const accessors = {
+		value: ( d: DataPointPercentage & { index: number } ) => d.value,
+		sort: (
+			a: DataPointPercentage & { index: number },
+			b: DataPointPercentage & { index: number }
+		) => b.value - a.value,
+		// Use the color property from the data object as a last resort. The theme provides colours by default.
+		fill: ( d: DataPointPercentage & { index: number } ) =>
+			d.color || providerTheme.colors[ d.index % providerTheme.colors.length ],
+	};
+
 	// Create legend items
 	const legendItems = data.map( ( item, index ) => ( {
 		label: item.label,
@@ -119,10 +165,16 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	return (
 		<div
 			className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
+			data-testid="pie-chart-container"
 		>
-			<svg viewBox={ `0 0 ${ width } ${ height }` } width={ width } height={ height }>
+			<svg
+				width={ width }
+				height={ height }
+				viewBox={ `0 0 ${ width } ${ height }` }
+				data-testid="pie-chart-svg"
+			>
 				{ /* Main chart group that contains both the pie and text elements */ }
-				<Group top={ centerX } left={ centerX }>
+				<Group top={ radius } left={ radius }>
 					{ /* Pie chart */ }
 					<Pie< DataPointPercentage & { index: number } >
 						data={ dataWithIndex }
@@ -142,7 +194,11 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 									onMouseMove={ handleArcMouseMove( arc ) }
 									onMouseLeave={ handleMouseLeave }
 								>
-									<path d={ pie.path( arc ) || '' } fill={ accessors.fill( arc.data ) } />
+									<path
+										d={ pie.path( arc ) || '' }
+										fill={ accessors.fill( arc.data ) }
+										data-testid="pie-segment"
+									/>
 								</g>
 							) );
 						} }
