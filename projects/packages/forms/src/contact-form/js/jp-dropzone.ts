@@ -156,10 +156,13 @@ export default class JP_Dropzone {
 	 */
 	removeFile( file: File, div: HTMLElement ) {
 		this.files = this.files.filter( f => f !== file );
-		div.remove();
-		if ( this.files.length === 0 ) {
-			this.previewContainer.classList.remove( 'is-active' );
-		}
+		div.classList.add( 'fade-out' );
+		div.addEventListener( 'animationend', () => {
+			div.remove();
+			if ( this.files.length === 0 ) {
+				this.previewContainer.classList.remove( 'is-active' );
+			}
+		} );
 	}
 
 	/**
