@@ -13,7 +13,7 @@ const useInstallPlugins = ( productSlugs: string | string[] ) => {
 	const successMessageSingular = sprintf(
 		/* translators: %s is the name of a Jetpack plugin, i.e.- "VaultPress Backup" or "Boost" or "Social" or "Search" or "VideoPress", etc. */
 		__( '%s installed successfully!', 'jetpack-my-jetpack' ),
-		products[ 0 ].title
+		products[ 0 ]?.title
 	);
 	const successMessagePlural = __( 'Plugins installed successfully!', 'jetpack-my-jetpack' );
 	const successMessage = products?.length === 1 ? successMessageSingular : successMessagePlural;
