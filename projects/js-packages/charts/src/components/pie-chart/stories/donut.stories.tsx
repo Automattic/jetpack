@@ -1,6 +1,6 @@
 import { Group } from '@visx/group';
 import { Text } from '@visx/text';
-import { ThemeProvider, jetpackTheme, wooTheme, WPCOMTheme } from '../../../providers/theme';
+import { ThemeProvider, jetpackTheme, wooTheme, wpcomTheme } from '../../../providers/theme';
 import { PieChart } from '../../pie-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -86,7 +86,7 @@ const meta = {
 				default: undefined,
 				jetpack: jetpackTheme,
 				woo: wooTheme,
-				wpcom: WPCOMTheme,
+				wpcom: wpcomTheme,
 			},
 			defaultValue: undefined,
 		},

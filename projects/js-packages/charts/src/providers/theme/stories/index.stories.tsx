@@ -94,7 +94,7 @@ export const JetpackTheme: Story = {
 	),
 };
 
-export const WPCOMTheme: Story = {
+export const wpcomTheme: Story = {
 	render: () => (
 		<ThemeProvider theme={ wpcomTheme }>
 			<GridComponent>
@@ -113,31 +113,6 @@ export const WooTheme: Story = {
 				<LineChart data={ lineSampleData } width={ 400 } height={ 300 } />
 				<BarChart data={ sampleData } width={ 400 } height={ 300 } />
 				<PieSemiCircleChart data={ pieData } width={ 400 } label="Pie Chart" note="Woo Theme" />
-			</GridComponent>
-		</ThemeProvider>
-	),
-};
-
-export const CustomColorTheme: Story = {
-	render: () => (
-		<ThemeProvider
-			theme={ {
-				colors: [ '#073B3A', '#0B6E4F', '#08A045', '#6BBF59', '#DDB771' ],
-				gridStyles: {
-					stroke: '#ffe3e3',
-					strokeWidth: 2,
-				},
-			} }
-		>
-			<GridComponent>
-				<LineChart data={ lineSampleData } width={ 400 } height={ 300 } />
-				<BarChart data={ sampleData } width={ 400 } height={ 300 } />
-				<PieSemiCircleChart
-					data={ pieData }
-					width={ 400 }
-					label="Pie Chart"
-					note="Custom Color Theme"
-				/>
 			</GridComponent>
 		</ThemeProvider>
 	),
