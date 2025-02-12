@@ -42,16 +42,12 @@ class Password_Manager_Test extends BaseTestCase {
 
 		$password_manager_mock = $this->getMockBuilder( Password_Manager::class )
 			->setConstructorArgs( array( $validation_service_mock ) )
-			->onlyMethods( array( 'verify_profile_update_nonce', 'get_old_user_data' ) )
+			->onlyMethods( array( 'verify_profile_update_nonce' ) )
 			->getMock();
 
 		$password_manager_mock->expects( $this->once() )
 			->method( 'verify_profile_update_nonce' )
 			->willReturn( true );
-
-		$password_manager_mock->expects( $this->once() )
-			->method( 'get_old_user_data' )
-			->willReturn( $fake_user );
 
 		$password_manager_mock->validate_profile_update( $errors, true, $user );
 
