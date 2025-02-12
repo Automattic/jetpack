@@ -220,7 +220,7 @@ class Validation_Service_Test extends BaseTestCase {
 		$user->user_email = 'example@wordpress.com';
 
 		$validation_service = new Validation_Service( $this->get_connection_manager() );
-		$this->assertTrue( $validation_service->matches_user_data( $user, 'WordPress' ) );
+		$this->assertTrue( $validation_service->matches_user_data( $user->to_array(), 'WordPress' ) );
 	}
 
 	public function test_returns_false_if_password_is_too_short() {

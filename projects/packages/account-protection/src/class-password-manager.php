@@ -57,7 +57,7 @@ class Password_Manager {
 		}
 
 		$core_validation_errors    = $errors->get_error_messages( 'pass' );
-		$jetpack_validation_errors = $this->validation_service->validate_user_password( new \WP_User( $user ), $password );
+		$jetpack_validation_errors = $this->validation_service->validate_user_password( $user, $password );
 		$validation_errors         = array_unique( array_merge( $core_validation_errors, $jetpack_validation_errors ) );
 		foreach ( $validation_errors as $validation_error ) {
 			if ( ! in_array( $validation_error, $core_validation_errors, true ) ) {

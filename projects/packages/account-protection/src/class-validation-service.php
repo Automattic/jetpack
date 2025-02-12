@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Account_Protection;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use WP_User;
 
 /**
  * Class Validation_Service
@@ -68,7 +69,7 @@ class Validation_Service {
 			$errors[] = __( 'Between 6 and 150 characters', 'jetpack-account-protection' );
 		}
 
-		if ( $this->matches_user_data( $user, $password ) ) {
+		if ( $this->matches_user_data( $user->to_array(), $password ) ) {
 			$errors[] = __( 'Doesn\'t match user data', 'jetpack-account-protection' );
 		}
 
@@ -86,13 +87,23 @@ class Validation_Service {
 	/**
 	 * Validate a potential password for a given user.
 	 *
-	 * @param \WP_User $user The user.
-	 * @param string   $password The password.
+	 * @param array|object|WP_User $userdata An array of user data or a user object of type stdClass or WP_User.
+	 * @param string               $password The password to validate.
 	 *
 	 * @return string[] Validation error messages.
 	 */
-	public function validate_user_password( \WP_User $user, string $password ) {
+	public function validate_user_password( $userdata, string $password ) {
 		$errors = array();
+
+		if ( $userdata instanceof \stdClass ) {
+			$userdata = get_object_vars( $userdata );
+		} elseif ( $userdata instanceof WP_User ) {
+			$userdata = $userdata->to_array();
+		}
+
+		if ( ! is_array( $userdata ) ) {
+			return $errors;
+		}
 
 		if ( empty( $password ) ) {
 			$errors[] = __( '<strong>Error:</strong> Please enter a password.', 'jetpack-account-protection' );
@@ -110,16 +121,16 @@ class Validation_Service {
 			$errors[] = __( '<strong>Error:</strong> The password was found in a public leak.', 'jetpack-account-protection' );
 		}
 
-		if ( $this->matches_user_data( $user, $password ) ) {
+		if ( $this->matches_user_data( $userdata, $password ) ) {
 			$errors[] = __( '<strong>Error:</strong> The password matches user data.', 'jetpack-account-protection' );
 		}
 
-		if ( isset( $user->ID ) ) {
-			if ( $this->is_recent_password( $user->ID, $password ) ) {
+		if ( isset( $userdata['ID'] ) ) {
+			if ( $this->is_recent_password( $userdata['ID'], $password ) ) {
 				$errors[] = __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' );
 			}
 
-			if ( $this->is_current_password( $user->ID, $password ) ) {
+			if ( $this->is_current_password( $userdata['ID'], $password ) ) {
 				$errors[] = __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' );
 			}
 		}
@@ -153,31 +164,34 @@ class Validation_Service {
 	/**
 	 * Check if the password matches any user data.
 	 *
-	 * @param \WP_User $user     The user.
-	 * @param string   $password The password to check.
+	 * @param array  $userdata An array of user data.
+	 * @param string $password The password to check.
 	 *
 	 * @return bool True if the password matches any user data, false otherwise.
 	 */
-	public function matches_user_data( \WP_User $user, string $password ): bool {
-		$email_parts    = explode( '@', $user->user_email ); // test@example.com
-		$email_username = $email_parts[0]; // 'test'
-		$email_domain   = $email_parts[1]; // 'example.com'
-		$email_provider = explode( '.', $email_domain )[0]; // 'example'
-
-		$user_data = array(
-			$user->user_login ?? '',
-			$user->display_name ?? '',
-			$user->first_name ?? '',
-			$user->last_name ?? '',
-			$user->user_email ?? '',
-			$email_username ?? '',
-			$email_provider ?? '',
-			$user->nickname ?? '',
+	public function matches_user_data( array $userdata, string $password ): bool {
+		$user_data_parts = array(
+			$userdata['user_login'] ?? '',
+			$userdata['display_name'] ?? '',
+			$userdata['first_name'] ?? '',
+			$userdata['last_name'] ?? '',
+			$userdata['user_email'] ?? '',
+			$userdata['nickname'] ?? '',
 		);
+
+		if ( isset( $userdata['user_email'] ) ) {
+			$email_parts    = explode( '@', $userdata['user_email'] ); // test@example.com
+			$email_username = $email_parts[0]; // 'test'
+			$email_domain   = $email_parts[1]; // 'example.com'
+			$email_provider = explode( '.', $email_domain )[0]; // 'example'
+
+			$user_data_parts[] = $email_username;
+			$user_data_parts[] = $email_provider;
+		}
 
 		$password_lower = strtolower( $password );
 
-		foreach ( $user_data as $data ) {
+		foreach ( $user_data_parts as $data ) {
 			// Skip if $data is 3 characters or less.
 			if ( strlen( $data ) <= 3 ) {
 				continue;
@@ -238,6 +252,10 @@ class Validation_Service {
 	 */
 	public function is_current_password( int $user_id, string $password ): bool {
 		$user = get_userdata( $user_id );
+		if ( ! $user ) {
+			return false;
+		}
+
 		return wp_check_password( $password, $user->user_pass, $user->ID );
 	}
 
