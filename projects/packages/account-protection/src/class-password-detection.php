@@ -50,7 +50,6 @@ class Password_Detection {
 		}
 
 		if ( $this->validation_service->is_weak_password( $password ) ) {
-			// TODO: Every time the user logs in we generate a new token based transient. This might not be ideal.
 			$transient = $this->generate_and_store_transient_data( $user->ID );
 
 			$email_sent = $this->email_service->api_send_auth_email( $user, $transient['auth_code'] );
@@ -65,8 +64,8 @@ class Password_Detection {
 			}
 
 			return new \WP_Error(
-				Config::ERROR_CODE,
-				Config::ERROR_MESSAGE,
+				Config::PASSWORD_DETECTION_ERROR_CODE,
+				__( 'Password validation failed.', 'jetpack-account-protection' ),
 				array( 'token' => $transient['token'] )
 			);
 		}
@@ -132,7 +131,7 @@ class Password_Detection {
 		}
 
 		$token          = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( $_GET['token'] ) ) : null;
-		$transient_data = get_transient( Config::TRANSIENT_PREFIX . "_{$token}" );
+		$transient_data = get_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$token}" );
 		if ( ! $transient_data ) {
 			$this->redirect_to_login();
 			// @phan-suppress-next-line PhanPluginUnreachableCode This would fall through in unit tests otherwise.
@@ -146,8 +145,6 @@ class Password_Detection {
 			// @phan-suppress-next-line PhanPluginUnreachableCode This would fall through in unit tests otherwise.
 			return;
 		}
-
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 
 		// Handle resend email request
 		if ( isset( $_GET['resend_email'] ) && $_GET['resend_email'] === '1' ) {
@@ -377,7 +374,7 @@ class Password_Detection {
 			'resend_attempts' => 0,
 		);
 
-		$transient_set = set_transient( Config::TRANSIENT_PREFIX . "_{$token}", $data, Config::EMAIL_SENT_EXPIRATION );
+		$transient_set = set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$token}", $data, Config::PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION );
 		if ( ! $transient_set ) {
 			$this->set_transient_error(
 				$user_id,
@@ -434,7 +431,7 @@ class Password_Detection {
 				)
 			);
 			// TODO: Ensure all transient are also removed on module and/or plugin deactivation
-			delete_transient( Config::TRANSIENT_PREFIX . "_{$token}" );
+			delete_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$token}" );
 			wp_set_auth_cookie( $user->ID, true );
 		} else {
 			$this->set_transient_error(
@@ -479,11 +476,15 @@ class Password_Detection {
 	 * @return void
 	 */
 	public function enqueue_styles(): void {
-		wp_enqueue_style(
-			'password-detection-styles',
-			plugin_dir_url( __FILE__ ) . 'css/password-detection.css',
-			array(),
-			Account_Protection::PACKAGE_VERSION
-		);
+		// No nonce verification necessary - reading only
+		// phpcs:disable WordPress.Security.NonceVerification
+		if ( ( isset( $GLOBALS['pagenow'] ) && $GLOBALS['pagenow'] === 'wp-login.php' ) && ( isset( $_GET['action'] ) && $_GET['action'] === 'password-detection' ) ) {
+				wp_enqueue_style(
+					'password-detection-styles',
+					plugin_dir_url( __FILE__ ) . 'css/password-detection.css',
+					array(),
+					Account_Protection::PACKAGE_VERSION
+				);
+		}
 	}
 }
