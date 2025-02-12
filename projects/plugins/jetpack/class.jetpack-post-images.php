@@ -897,8 +897,8 @@ class Jetpack_PostImages {
 		}
 
 		// If WPCOM hosted image use native transformations.
-		$img_host = wp_parse_url( $src, PHP_URL_HOST ) ?? '';
-		if ( str_ends_with( $img_host, '.files.wordpress.com' ) ) {
+		$img_host = wp_parse_url( $src, PHP_URL_HOST );
+		if ( $img_host && str_ends_with( $img_host, '.files.wordpress.com' ) ) {
 			return add_query_arg(
 				array(
 					'w'    => $width,
