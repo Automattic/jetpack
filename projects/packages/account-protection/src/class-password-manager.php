@@ -42,7 +42,8 @@ class Password_Manager {
 		}
 
 		// If bypass is enabled, do not validate the password
-		if ( isset( $_POST['pw_weak'] ) && 'on' === $_POST['pw_weak'] ) { // phpcs:disable 
+		// phpcs:ignore WordPress.Security.NonceVerification
+		if ( isset( $_POST['pw_weak'] ) && 'on' === $_POST['pw_weak'] ) {
 			return;
 		}
 
@@ -80,17 +81,18 @@ class Password_Manager {
 			return;
 		}
 
-		// phpcs:disable WordPress.Security.NonceVerification
+		// phpcs:ignore WordPress.Security.NonceVerification
 		if ( empty( $_POST['pass1'] ) ) {
 			return;
 		}
 
 		// If bypass is enabled, do not validate the password
-		// phpcs:disable WordPress.Security.NonceVerification
+		// phpcs:ignore WordPress.Security.NonceVerification
 		if ( isset( $_POST['pw_weak'] ) && 'on' === $_POST['pw_weak'] ) {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification
 		$password = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );
 		if ( $this->validation_service->is_current_password( $user->ID, $password ) ) {
 			$errors->add( 'password_error', __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' ) );
