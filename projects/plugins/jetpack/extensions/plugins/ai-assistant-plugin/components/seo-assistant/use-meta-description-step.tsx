@@ -65,7 +65,7 @@ export const useMetaDescriptionStep = ( {
 			],
 			{
 				postId,
-				feature: 'seo-meta-description',
+				feature: 'jetpack-seo-assistant',
 			}
 		);
 	}, [ keywords, postContent, postId, mockRequests ] );

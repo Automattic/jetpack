@@ -66,7 +66,7 @@ export const useTitleStep = ( {
 			],
 			{
 				postId,
-				feature: 'seo-title',
+				feature: 'jetpack-seo-assistant',
 			}
 		);
 	}, [ keywords, postContent, postId, mockRequests ] );
