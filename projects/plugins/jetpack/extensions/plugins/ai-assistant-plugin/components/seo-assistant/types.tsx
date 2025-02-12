@@ -41,6 +41,8 @@ export interface Step {
 	placeholder?: string;
 	rawInput?: string;
 	setRawInput?: React.Dispatch< React.SetStateAction< string > >;
+	inputRef?: React.RefObject< HTMLInputElement >;
+
 	// Options step properties
 	options?: OptionMessage[];
 	onSelect?: ( option: OptionMessage ) => void;

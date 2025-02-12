@@ -1,28 +1,28 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Icon, Tooltip, Notice } from '@wordpress/components';
-import { useState, useEffect, useRef, useMemo, useCallback } from '@wordpress/element';
+import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { next, closeSmall, chevronLeft } from '@wordpress/icons';
 import debugFactory from 'debug';
-import { useCompletionStep } from './use-completion-step';
-import { useKeywordsStep } from './use-keywords-step';
-import { useMetaDescriptionStep } from './use-meta-description-step';
-import { useTitleStep } from './use-title-step';
-import { useWelcomeStep } from './use-welcome-step';
+// import { useCompletionStep } from './use-completion-step';
+// import { useKeywordsStep } from './use-keywords-step';
+// import { useMetaDescriptionStep } from './use-meta-description-step';
+// import { useTitleStep } from './use-title-step';
+// import { useWelcomeStep } from './use-welcome-step';
 import { OptionsInput, TextInput, CompletionInput } from './wizard-input';
 import WizardStep from './wizard-step';
 import type { Step, OptionMessage } from './types';
 
 const debug = debugFactory( 'jetpack-seo:assistant-wizard' );
 
-export default function AssistantWizard( { close } ) {
+export default function AssistantWizard( { close, steps } ) {
 	const [ currentStep, setCurrentStep ] = useState( 0 );
 	const [ isBusy, setIsBusy ] = useState( false );
 	const stepsEndRef = useRef( null );
 	const scrollToBottom = () => {
 		stepsEndRef.current?.scrollIntoView( { behavior: 'smooth' } );
 	};
-	const keywordsInputRef = useRef( null );
+
 	const prevStepIdRef = useRef< string | undefined >();
 	const [ results, setResults ] = useState( {} );
 	const { tracks } = useAnalytics();
@@ -31,21 +31,7 @@ export default function AssistantWizard( { close } ) {
 		scrollToBottom();
 	} );
 
-	// Keywords
-	const keywordsStepData = useKeywordsStep();
-	const titleStepData = useTitleStep( { keywords: keywordsStepData.value, mockRequests: false } );
-	const metaStepData = useMetaDescriptionStep( {
-		keywords: keywordsStepData.value,
-		mockRequests: false,
-	} );
-	const completionStepData = useCompletionStep();
-	const welcomeStepData = useWelcomeStep();
-	// Memoize steps array to prevent unnecessary recreations
-	const steps = useMemo(
-		() => [ welcomeStepData, keywordsStepData, titleStepData, metaStepData, completionStepData ],
-		[ welcomeStepData, keywordsStepData, titleStepData, metaStepData, completionStepData ]
-	);
-	const [ currentStepData, setCurrentStepData ] = useState< Step >( welcomeStepData );
+	const [ currentStepData, setCurrentStepData ] = useState< Step >( steps[ 0 ] );
 	const [ assistantFlowAction, setAssistantFlowAction ] = useState( '' );
 
 	const stepsCount = steps.length;
@@ -289,16 +275,16 @@ export default function AssistantWizard( { close } ) {
 			</div>
 
 			<div className="assistant-wizard__input-container">
-				{ currentStep === 1 && steps[ currentStep ].type === 'input' && (
+				{ steps[ currentStep ].type === 'input' && (
 					<TextInput
-						ref={ keywordsInputRef }
+						ref={ steps[ currentStep ].inputRef }
 						placeholder={ steps[ currentStep ].placeholder }
 						value={ steps[ currentStep ].rawInput }
 						setValue={ steps[ currentStep ].setRawInput }
 						handleSubmit={ handleStepSubmit }
 					/>
 				) }
-				{ currentStep === 2 && steps[ currentStep ].type === 'options' && (
+				{ steps[ currentStep ].type === 'options' && (
 					<OptionsInput
 						disabled={ ! steps[ currentStep ].hasSelection }
 						loading={ isBusy }
@@ -308,17 +294,7 @@ export default function AssistantWizard( { close } ) {
 						handleSubmit={ handleStepSubmit }
 					/>
 				) }
-				{ currentStep === 3 && steps[ currentStep ].type === 'options' && (
-					<OptionsInput
-						disabled={ ! steps[ currentStep ].hasSelection }
-						loading={ isBusy }
-						submitCtaLabel={ steps[ currentStep ].submitCtaLabel }
-						retryCtaLabel={ steps[ currentStep ].retryCtaLabel }
-						handleRetry={ handleRetry }
-						handleSubmit={ handleStepSubmit }
-					/>
-				) }
-				{ currentStep === steps.length - 1 && (
+				{ steps[ currentStep ].type === 'completion' && (
 					<CompletionInput
 						submitCtaLabel={ steps[ currentStep ].submitCtaLabel }
 						handleSubmit={ handleStepSubmit }
