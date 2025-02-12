@@ -138,18 +138,15 @@ class Password_Manager {
 	/**
 	 * Handle the profile update.
 	 *
-	 * @param int      $user_id The user ID.
-	 * @param \WP_User $old_user_data The old user data.
+	 * @param int      $user_id       User ID.
+	 * @param \WP_User $old_user_data Object containing user’s data prior to update.
+	 * @param array    $userdata      The raw array of data passed to wp_insert_user().
 	 *
 	 * @return void
 	 */
-	public function on_profile_update( int $user_id, \WP_User $old_user_data ): void {
-		if ( isset( $_POST['action'] ) && $_POST['action'] === 'update' ) {
-			if ( isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
-				if ( $this->verify_profile_update_nonce( $user_id ) ) {
-						$this->save_recent_password( $user_id, $old_user_data->user_pass );
-				}
-			}
+	public function on_profile_update( int $user_id, \WP_User $old_user_data, array $userdata ): void {
+		if ( $userdata['user_pass'] !== $old_user_data->user_pass ) {
+			$this->save_recent_password( $user_id, $old_user_data->user_pass );
 		}
 	}
 
