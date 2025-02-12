@@ -320,7 +320,9 @@ function jetpack_boost_minify_get_file_parts( $request_uri ) {
 	}
 
 	$file_info = pathinfo( $file_path );
-	if ( trailingslashit( site_url( $file_info['dirname'] ) ) !== jetpack_boost_get_minify_url() ) {
+
+	$minify_path = $utils->parse_url( jetpack_boost_get_minify_url(), PHP_URL_PATH );
+	if ( trailingslashit( $file_info['dirname'] ) !== $minify_path ) {
 		return false;
 	}
 
