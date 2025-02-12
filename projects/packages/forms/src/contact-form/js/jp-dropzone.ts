@@ -168,6 +168,19 @@ export default class JP_Dropzone {
 	}
 
 	/**
+	 * Remove a file from the list of selected files.
+	 * @param {File}        file The file to remove.
+	 * @param {HTMLElement} div  The preview element to remove.
+	 */
+	removeFile( file: File, div: HTMLElement ) {
+		this.files = this.files.filter( f => f !== file );
+		div.remove();
+		if ( this.files.length === 0 ) {
+			this.previewContainer.classList.remove( 'is-active' );
+		}
+	}
+
+	/**
 	 * Format the file size to a human-readable string.
 	 * @param {number} size             The size of the file in bytes.
 	 * @param {number} [decimals=2]     The number of decimals to include.
