@@ -590,20 +590,37 @@ if ( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST || defined( 'AT_PRO
 }
 
 /**
+ * Retrieves the current blog ID in a WordPress.com or Jetpack environment.
+ *
+ * This function determines the blog ID based on the hosting environment:
+ * - On WordPress.com (`IS_WPCOM` defined), it returns the current blog ID.
+ * - In a Jetpack environment, it checks the Jetpack options for the associated blog ID.
+ * - If no valid ID is found in the Jetpack options, it falls back to the default current blog ID.
+ *
+ * @return int The current blog ID.
+ */
+function wpcom_get_current_blog_id() {
+	// Check if we’re in a WordPress.com environment
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		return get_current_blog_id();
+	}
+
+	// Attempt to retrieve the blog ID from Jetpack options
+	$jetpack_options = get_option( 'jetpack_options' );
+	if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
+		return (int) $jetpack_options['id'];
+	}
+
+	// Default fallback to the standard blog ID
+	return get_current_blog_id();
+}
+
+/**
  * Displays a notice when a user visits the enforced WP Admin view of a removed Calypso screen for
  * the first time.
  */
 function wpcom_show_removed_calypso_screen_notice() {
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		$blog_id = get_current_blog_id();
-	} else {
-		$jetpack_options = get_option( 'jetpack_options' );
-		if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
-			$blog_id = (int) $jetpack_options['id'];
-		} else {
-			$blog_id = get_current_blog_id();
-		}
-	}
+	$blog_id = wpcom_get_current_blog_id();
 
 	// Do not show notice on sites created after the experiment started (2025-01-16).
 	if ( $blog_id > 240790000 ) { // 240790000 is the ID of a site created on 2025-01-16.
@@ -739,15 +756,27 @@ function wpcom_dismiss_removed_calypso_screen_notice() {
 
 			// If $preferences is not array we log the contents so that we can further debug.
 			if ( ! is_array( $preferences ) && function_exists( 'log2logstash' ) ) {
-				log2logstash(
-					array(
-						'feature' => 'wpcom-dismiss-wp-admin-notice',
-						'message' => 'Retrieved a non-array value from Calypso preferences.',
-						'extra'   => wp_json_encode( $preferences ),
-					)
-				);
-				// Bail if we can't update the preferences array.
-				wp_die();
+				// The expected value when preferences aren't set is an empty string.
+				if ( $preferences !== '' ) {
+					$blog_id = wpcom_get_current_blog_id();
+					log2logstash(
+						array(
+							'feature' => 'wpcom-dismiss-wp-admin-notice',
+							'message' => 'Retrieved non-empty, non-array Calypso preferences.',
+							'extra'   => wp_json_encode(
+								array(
+									'preferences' => $preferences,
+									'user_id'     => get_current_user_id(),
+									'blog_id'     => $blog_id,
+								)
+							),
+						)
+					);
+					wp_die();
+				}
+
+				// If the preferences are empty, we set them to an empty array.
+				$preferences = array();
 			}
 
 			$preferences[ 'removed-calypso-screen-dismissed-notice-' . $screen ] = true;

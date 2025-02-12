@@ -16,7 +16,7 @@ class Minify_CSS implements Pluggable, Changes_Page_Output, Optimization, Has_Ac
 	public function setup() {
 		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-helpers.php';
 
-		jetpack_boost_minify_setup();
+		jetpack_boost_minify_init();
 
 		if ( jetpack_boost_page_optimize_bail() ) {
 			return;
@@ -51,6 +51,7 @@ class Minify_CSS implements Pluggable, Changes_Page_Output, Optimization, Has_Ac
 	}
 
 	public static function activate() {
+		jetpack_boost_minify_activation();
 		jetpack_boost_404_tester();
 	}
 
