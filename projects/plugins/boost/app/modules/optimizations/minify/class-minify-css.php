@@ -52,10 +52,10 @@ class Minify_CSS implements Pluggable, Changes_Page_Output, Optimization, Has_Ac
 
 	public static function activate() {
 		jetpack_boost_minify_activation();
-		jetpack_boost_404_tester();
 	}
 
 	public static function deactivate() {
 		jetpack_boost_page_optimize_cleanup_cache( 'css' );
+		jetpack_boost_minify_deactivation();
 	}
 }

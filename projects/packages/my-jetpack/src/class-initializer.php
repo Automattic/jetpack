@@ -41,7 +41,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.4.1';
+	const PACKAGE_VERSION = '5.4.4';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -234,7 +234,10 @@ class Initializer {
 			$previous_score = $speed_score_history->latest( 1 );
 		}
 		$latest_score['previousScores'] = $previous_score['scores'] ?? array();
-		$scan_data                      = Products\Protect::get_protect_data();
+
+		Products\Protect::initialize();
+		$scan_data = Products\Protect::get_protect_data();
+
 		self::update_historically_active_jetpack_modules();
 
 		$waf_config     = array();

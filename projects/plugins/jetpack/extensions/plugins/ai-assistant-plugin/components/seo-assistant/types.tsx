@@ -19,15 +19,17 @@ export interface Results {
 	};
 }
 
+type OnStart = ( options?: { fromSkip?: boolean; results?: Results } ) => Promise< void | string >;
+
 export interface Step {
 	id: string;
 	title: string;
 	label?: string;
 	messages: Message[];
 	type: StepType;
-	onStart?: ( options?: { fromSkip: boolean; results: Results } ) => void;
+	onStart?: OnStart;
 	onSubmit?: () => Promise< string >;
-	onSkip?: () => void;
+	onSkip?: () => Promise< void >;
 	value?: string;
 	setValue?:
 		| React.Dispatch< React.SetStateAction< string > >
@@ -43,7 +45,9 @@ export interface Step {
 	options?: OptionMessage[];
 	onSelect?: ( option: OptionMessage ) => void;
 	submitCtaLabel?: string;
-	onRetry?: () => void;
+	onRetry?: OnStart;
 	retryCtaLabel?: string;
 	hasSelection?: boolean;
+	hasFailed?: boolean;
+	resetState?: () => void;
 }

@@ -152,7 +152,7 @@ const WpcomMediaUrlUploadForm = ( { ajaxUrl, action, nonce, page } ) => {
 	return (
 		<div className="wpcom-media-url-upload-form">
 			<a
-				className="wpcom-media-url-upload-form__link"
+				className="wpcom-media-url-upload-form__link button-link"
 				href="#"
 				onClick={ event => {
 					event.preventDefault();

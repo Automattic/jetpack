@@ -157,7 +157,6 @@ function do_trunk_and_prelease_branch_prep() {
 		send_tracks_event "jetpack_release_prerelease_push" '{"result": "failure"}'
 		die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
 	fi
-	GITBASE=$( git rev-parse --verify HEAD )
 	send_tracks_event "jetpack_release_prerelease_push" '{"result": "success"}'
 }
 
@@ -261,6 +260,7 @@ function do_packagist_check {
 	# We expect a new version when (1) the package is touched in this release and (2) it has no change entry files remaining.
 	POLL_ARGS=()
 	cd "$BASE"
+	GITBASE=$(git merge-base origin/trunk HEAD)
 	for PKGDIR in $(git -c core.quotepath=off diff --name-only "$GITBASE..HEAD" projects/packages/ | sed 's!^\(projects/packages/[^/]*\)/.*!\1!' | sort -u); do
 		cd "$BASE/$PKGDIR"
 		CHANGES_DIR=$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)
@@ -458,7 +458,7 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 	CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$PLUGIN")
 	# shellcheck disable=SC2310
 	if version_compare "$CUR_VERSION" "$NORMALIZED_VERSION"; then
-		proceed_p "$PLUGIN: Version $NORMALIZED_VERSION is lower than $CUR_VERSION." || die "User aborted script."
+		proceed_p "$PLUGIN: Version $NORMALIZED_VERSION is not higher than $CUR_VERSION." || die "User aborted script."
 	fi
 	echo "$PLUGIN: $CUR_VERSION -> ${PROJECTS[$PLUGIN]}"
 done
