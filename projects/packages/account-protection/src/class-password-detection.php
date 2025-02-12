@@ -49,6 +49,12 @@ class Password_Detection {
 			return $user;
 		}
 
+		// Skip if we're validating a Brute force protection recovery token
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['validate_jetpack_protect_recovery'] ) ) {
+			return $user;
+		}
+
 		if ( $this->validation_service->is_weak_password( $password ) ) {
 			$transient = $this->generate_and_store_transient_data( $user->ID );
 
