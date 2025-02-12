@@ -434,12 +434,6 @@ jQuery( function($) {
 
 		$connections_data = $this->publicize->get_filtered_connection_data();
 
-		$available_services = $this->publicize->get_services( 'all' );
-
-		if ( ! is_array( $available_services ) ) {
-			$available_services = array();
-		}
-
 		if ( ! is_array( $connections_data ) ) {
 			$connections_data = array();
 		}
@@ -471,7 +465,7 @@ jQuery( function($) {
 					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack-publicize-pkg' ); ?></a>&nbsp;<a href="<?php echo esc_url( $this->publicize->publicize_connections_url( 'jetpack-social-connections-classic-editor' ) ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Settings', 'jetpack-publicize-pkg' ); ?></a><br />
 					<?php
 			else :
-				$publicize_form = $this->get_metabox_form_disconnected( $available_services );
+				$publicize_form = '';
 				?>
 				<strong><?php esc_html_e( 'Not Connected', 'jetpack-publicize-pkg' ); ?></strong>
 				<a href="<?php echo esc_url( $this->publicize->publicize_connections_url( 'jetpack-social-connections-classic-editor' ) ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Settings', 'jetpack-publicize-pkg' ); ?></a><br />
@@ -598,36 +592,6 @@ jQuery( function($) {
 
 		<div id="pub-connection-needs-media"></div>
 		<div id="pub-connection-tests"></div>
-		<?php
-
-		return ob_get_clean();
-	}
-
-	/**
-	 * Metabox that is shown when no services are connected.
-	 *
-	 * @param array $available_services Array of available services for connecting.
-	 */
-	private function get_metabox_form_disconnected( $available_services ) {
-		ob_start();
-		?>
-		<div id="publicize-form" class="hide-if-js">
-			<div id="add-publicize-check" style="display: none;"></div>
-
-			<?php esc_html_e( 'Connect to', 'jetpack-publicize-pkg' ); ?>:
-
-			<ul class="not-connected">
-				<?php foreach ( $available_services as $service_name => $service ) : ?>
-				<li>
-					<?php /* translators: %s is the name of a Publicize service such as "LinkedIn" */ ?>
-					<a class="pub-service" data-service="<?php echo esc_attr( $service_name ); ?>" title="<?php echo esc_attr( sprintf( __( 'Connect and share your posts on %s', 'jetpack-publicize-pkg' ), $this->publicize->get_service_label( $service_name ) ) ); ?>" rel="noopener noreferrer" target="_blank" href="<?php echo esc_url( $this->publicize->connect_url( $service_name ) ); ?>">
-						<?php echo esc_html( $this->publicize->get_service_label( $service_name ) ); ?>
-					</a>
-				</li>
-				<?php endforeach; ?>
-			</ul>
-			<a href="#" class="hide-if-no-js button" id="publicize-disconnected-form-hide"><?php esc_html_e( 'OK', 'jetpack-publicize-pkg' ); ?></a>
-		</div>
 		<?php
 
 		return ob_get_clean();
