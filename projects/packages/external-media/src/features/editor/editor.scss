@@ -1,0 +1,77 @@
+/**
+* External Media
+*/
+
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+@keyframes animate-drop {
+	0% {
+		opacity: 0;
+		transform: translateY(-100%);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/**
+* Media button menu
+*/
+
+/**
+* Hide the menu when the modal is open. Hacky, but necessary to allow the focus
+* to return to selected option when modal is closed. This is how it's currenly
+* also implemented in Gutenberg's MediaReplaceFlow.
+*/
+.modal-open .jetpack-external-media-button-menu__options {
+	display: none;
+}
+
+.jetpack-external-media-button-menu__dropdown {
+	display: flex;
+
+	.jetpack-external-media-button-menu {
+		width: 100%;
+		flex-direction: row;
+		padding-left: 12px;
+		padding-right: 12px;
+	}
+}
+
+.jetpack-external-media-button-wrapper {
+	display: contents;
+
+	&:not(.is-support-next-40px-default-button) {
+		display: flex;
+		flex-direction: row;
+		gap: 12px;
+
+		.components-placeholder.is-medium .components-placeholder__fieldset & {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+	}
+}
+
+// Reset placeholder button margin.
+.components-placeholder__fieldset,
+.editor-post-featured-image {
+	.components-dropdown .jetpack-external-media-button-menu {
+		> svg {
+			display: none;
+		}
+	}
+}
+
+// Override DropDown component styles when warpping the "Set featured image" button.
+.editor-post-featured-image .components-dropdown {
+	display: initial;
+}
+
+.block-editor-inserter__media-panel .components-search-control input[type=search].components-search-control__input[placeholder~="Google"] {
+	display: none;
+	& + .components-search-control__icon {
+		display: none;
+	}
+}

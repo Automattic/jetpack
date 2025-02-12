@@ -76,6 +76,24 @@ export async function rsyncInit( argv ) {
 		finalDest = path.join( argv.dest, '/' );
 	}
 
+	const untrackedFiles = await getUntrackedFiles( sourcePluginPath );
+	if ( untrackedFiles ) {
+		console.log( 'The below untracked files were detected in your plugin path:\n' );
+		console.log( untrackedFiles.replace( /^/gm, '  ' ) + '\n' );
+		await enquirer
+			.prompt( {
+				type: 'confirm',
+				name: 'ignoreUntracked',
+				message: 'Untracked files will not be synced. Proceed?',
+				initial: false,
+			} )
+			.then( answer => {
+				if ( ! answer.ignoreUntracked ) {
+					process.exit( 0 );
+				}
+			} );
+	}
+
 	if ( argv.watch ) {
 		await tracks( 'rsync_watch' );
 		let watcher;
@@ -85,6 +103,28 @@ export async function rsyncInit( argv ) {
 			}
 
 			const paths = await rsyncToDest( sourcePluginPath, finalDest );
+
+			// Warn but don't fail if file was intentionally not synced. We still want to sync
+			// if a change event occurs, as other change events could have been debounced.
+			if (
+				argv.v &&
+				event === 'change' &&
+				! paths.has( eventfile ) &&
+				! [ '../../../.git/index', '.gitignore', '.gitattributes' ].includes( eventfile ) // ignore some specific files
+			) {
+				let unsync_reason;
+				if ( ! ( await isFileTracked( sourcePluginPath + eventfile ) ) ) {
+					unsync_reason = 'not tracked by git';
+				} else if ( await isFileExcluded( sourcePluginPath + eventfile ) ) {
+					unsync_reason = 'excluded from production';
+				} else {
+					unsync_reason = 'something odd 🤷';
+				}
+				console.debug(
+					`Sync was triggered by a change to '${ eventfile }', but it was not synced.`
+				);
+				console.debug( `Reason: ${ unsync_reason }` );
+			}
 
 			// On some systems, using multiple 'watcher.add()' calls breaks the firing of the 'ready' event.
 			// Instead, we add all the paths to an array and call add() once.
@@ -385,6 +425,57 @@ async function createFilterFile( paths ) {
 	await util.promisify( tmpStream.close ).call( tmpStream );
 
 	return tmpFile;
+}
+
+/**
+ * Checks if file is tracked by git.
+ *
+ * @param {string} filePath - file path.
+ * @return {boolean} true if tracked, otherwise false.
+ */
+async function isFileTracked( filePath ) {
+	try {
+		await execa( 'git', [ 'ls-files', '--error-unmatch', filePath ] );
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+/**
+ * Checks if file attribute is set to production-exclude by `.gitattributes`.
+ *
+ * @param {string} filePath - file path.
+ * @return {boolean} true if excluded, otherwise false.
+ */
+async function isFileExcluded( filePath ) {
+	try {
+		const { stdout } = await execa( 'git', [ 'check-attr', 'production-exclude', '--', filePath ] );
+		return stdout.split( ': ' )[ 2 ] === 'set';
+	} catch {
+		return false;
+	}
+}
+
+/**
+ * Get all untracked files in the plugin directory.
+ *
+ * @param {string} pluginPath - Path to plugin.
+ * @return {string} Files that aren't tracked.
+ */
+async function getUntrackedFiles( pluginPath ) {
+	try {
+		const { stdout } = await execa( 'git', [
+			'ls-files',
+			'--others',
+			'--exclude-standard',
+			pluginPath,
+		] );
+		return stdout;
+	} catch ( e ) {
+		console.log( e );
+		console.error( chalk.red( 'Uh oh! ' + e.message ) );
+	}
 }
 
 /**

@@ -256,21 +256,21 @@ class Jetpack_Gutenberg {
 	/**
 	 * Checks for a given .json file in the blocks folder.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 14.3
 	 *
 	 * @param string $preset The name of the .json file to look for.
 	 *
 	 * @return bool True if the file is found.
 	 */
 	public static function preset_exists( $preset ) {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '14.3' );
 		return file_exists( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $preset . '.json' );
 	}
 
 	/**
 	 * Decodes JSON loaded from the preset file in the blocks folder
 	 *
-	 * @since $$next-version$$ Deprecated argument. Only one value is ever used.
+	 * @since 14.3 Deprecated argument. Only one value is ever used.
 	 *
 	 * @param null $deprecated No longer used.
 	 *
@@ -740,10 +740,10 @@ class Jetpack_Gutenberg {
 
 		$jetpack_plan  = Jetpack_Plan::get();
 		$initial_state = array(
-			'available_blocks'    => self::get_availability(),
-			'blocks_variation'    => $blocks_variation,
-			'modules'             => $modules,
-			'jetpack'             => array(
+			'available_blocks' => self::get_availability(),
+			'blocks_variation' => $blocks_variation,
+			'modules'          => $modules,
+			'jetpack'          => array(
 				'is_active'                     => Jetpack::is_connection_ready(),
 				'is_current_user_connected'     => $is_current_user_connected,
 				/** This filter is documented in class.jetpack-gutenberg.php */
@@ -770,16 +770,15 @@ class Jetpack_Gutenberg {
 				 */
 				'republicize_enabled'           => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
 			),
-			'siteFragment'        => $status->get_site_suffix(),
-			'adminUrl'            => esc_url( admin_url() ),
-			'tracksUserData'      => $user_data,
-			'wpcomBlogId'         => $blog_id,
-			'allowedMimeTypes'    => wp_get_mime_types(),
-			'siteLocale'          => str_replace( '_', '-', get_locale() ),
-			'ai-assistant'        => $ai_assistant_state,
-			'screenBase'          => $screen_base,
-			'pluginBasePath'      => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
-			'next40pxDefaultSize' => self::site_supports_next_default_size(),
+			'siteFragment'     => $status->get_site_suffix(),
+			'adminUrl'         => esc_url( admin_url() ),
+			'tracksUserData'   => $user_data,
+			'wpcomBlogId'      => $blog_id,
+			'allowedMimeTypes' => wp_get_mime_types(),
+			'siteLocale'       => str_replace( '_', '-', get_locale() ),
+			'ai-assistant'     => $ai_assistant_state,
+			'screenBase'       => $screen_base,
+			'pluginBasePath'   => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
 		);
 
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
@@ -1319,44 +1318,6 @@ class Jetpack_Gutenberg {
 		}
 
 		return $block_content;
-	}
-
-	/**
-	 * Check whether the environment supports the newer default size of elements, gradually introduced starting with WP 6.4.
-	 *
-	 * @since 14.0
-	 *
-	 * @see https://make.wordpress.org/core/2023/10/16/editor-components-updates-in-wordpress-6-4/#improving-size-consistency-for-ui-components
-	 *
-	 * @to-do: Deprecate this method and the logic around it when Jetpack requires WordPress 6.7.
-	 *
-	 * @return bool
-	 */
-	public static function site_supports_next_default_size() {
-		/*
-		 * If running a local dev build of gutenberg,
-		 * let's assume it supports the newest changes included in Gutenberg.
-		 */
-		if ( defined( 'GUTENBERG_DEVELOPMENT_MODE' ) && GUTENBERG_DEVELOPMENT_MODE ) {
-			return true;
-		}
-
-		// Let's now check if the Gutenberg plugin is installed on the site.
-		if (
-			defined( 'GUTENBERG_VERSION' )
-			&& version_compare( GUTENBERG_VERSION, '19.4', '>=' )
-		) {
-			return true;
-		}
-
-		// Finally, let's check for the WordPress version.
-		global $wp_version;
-		if ( version_compare( $wp_version, '6.7', '>=' ) ) {
-			return true;
-		}
-
-		// Final fallback.
-		return false;
 	}
 
 	/**

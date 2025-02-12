@@ -1519,7 +1519,7 @@ That was a cool video.';
 	}
 
 	/**
-	 * Verify metadata meta_value is limited based on MAX_POST_META_LENGTH.
+	 * Verify metadata meta_value is limited based on MAX_META_LENGTH.
 	 */
 	public function test_metadata_limit() {
 
@@ -1527,13 +1527,13 @@ That was a cool video.';
 			(object) array(
 				'post_id'    => $this->post_id,
 				'meta_key'   => 'test_key',
-				'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_META_LENGTH - 1 ),
+				'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_META_LENGTH - 1 ),
 				'meta_id'    => 1,
 			),
 			(object) array(
 				'post_id'    => $this->post_id,
 				'meta_key'   => 'test_key',
-				'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_META_LENGTH ),
+				'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_META_LENGTH ),
 				'meta_id'    => 2,
 			),
 
@@ -1545,7 +1545,7 @@ That was a cool video.';
 			'post',
 			array( $this->post ),
 			$metadata,
-			Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_META_LENGTH,
+			Automattic\Jetpack\Sync\Modules\Posts::MAX_META_LENGTH,
 			Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC
 		);
 
@@ -1609,7 +1609,7 @@ That was a cool video.';
 			'post',
 			$posts,
 			$metadata,
-			Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_META_LENGTH,
+			Automattic\Jetpack\Sync\Modules\Posts::MAX_META_LENGTH,
 			Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC
 		);
 
@@ -1631,13 +1631,13 @@ That was a cool video.';
 
 		$posts = array( $post_1, $post_2 );
 
-		$metadata_items_number = Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC / Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_META_LENGTH;
+		$metadata_items_number = Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC / Automattic\Jetpack\Sync\Modules\Posts::MAX_META_LENGTH;
 		$post_metadata_1       = array_map(
 			function ( $x ) use ( $post_id_1 ) {
 				return (object) array(
 					'post_id'    => $post_id_1,
 					'meta_key'   => 'test_key',
-					'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_META_LENGTH - 1 ),
+					'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_META_LENGTH - 1 ),
 					'meta_id'    => $x,
 				);
 			},
@@ -1662,7 +1662,7 @@ That was a cool video.';
 			'post',
 			$posts,
 			$metadata,
-			Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_META_LENGTH,
+			Automattic\Jetpack\Sync\Modules\Posts::MAX_META_LENGTH,
 			Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC
 		);
 

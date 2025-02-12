@@ -7,13 +7,11 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Protect_Models\Status_Model;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Redirect;
-use Jetpack_Options;
-use WP_Error;
 
 /**
  * Class responsible for handling the Protect product
@@ -53,6 +51,13 @@ class Protect extends Hybrid_Product {
 	public static $plugin_slug = 'jetpack-protect';
 
 	/**
+	 * The category of the product
+	 *
+	 * @var string
+	 */
+	public static $category = 'security';
+
+	/**
 	 * Whether this product requires a user connection
 	 *
 	 * @var string
@@ -79,6 +84,20 @@ class Protect extends Hybrid_Product {
 	 * @var string
 	 */
 	public static $feature_identifying_paid_plan = 'scan';
+
+	/**
+	 * Holds the scan data
+	 *
+	 * @var Status_Model
+	 */
+	private static $scan_data;
+
+	/**
+	 * Protect constructor.
+	 */
+	public static function initialize() {
+		self::$scan_data = Protect_Status::get_status();
+	}
 
 	/**
 	 * Get the product name
@@ -131,42 +150,6 @@ class Protect extends Hybrid_Product {
 	}
 
 	/**
-	 * Hits the wpcom api to check scan status.
-	 *
-	 * @todo Maybe add caching.
-	 *
-	 * @return Object|WP_Error
-	 */
-	private static function get_state_from_wpcom() {
-		static $status = null;
-
-		if ( $status !== null ) {
-			return $status;
-		}
-
-		$site_id = Jetpack_Options::get_option( 'id' );
-
-		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/scan', $site_id ) . '?force=wpcom', '2', array( 'timeout' => 2 ), null, 'wpcom' );
-
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return new WP_Error( 'scan_state_fetch_failed' );
-		}
-
-		$body   = wp_remote_retrieve_body( $response );
-		$status = json_decode( $body );
-		return $status;
-	}
-
-	/**
-	 * Get the normalized protect/scan data
-	 *
-	 * @return Object|WP_Error
-	 */
-	public static function get_protect_data() {
-		return Protect_Status::get_status();
-	}
-
-	/**
 	 * Get the product's available tiers
 	 *
 	 * @return string[] Slugs of the available tiers
@@ -176,6 +159,15 @@ class Protect extends Hybrid_Product {
 			self::UPGRADED_TIER_SLUG,
 			self::FREE_TIER_SLUG,
 		);
+	}
+
+	/**
+	 * Get the normalized protect/scan data
+	 *
+	 * @return Status_Model
+	 */
+	public static function get_protect_data() {
+		return self::$scan_data;
 	}
 
 	/**
@@ -292,7 +284,7 @@ class Protect extends Hybrid_Product {
 		$protect_threat_status = false;
 
 		// Check if there are scan threats.
-		$protect_data = self::get_protect_data();
+		$protect_data = self::$scan_data;
 		if ( is_wp_error( $protect_data ) ) {
 			return $protect_threat_status; // false
 		}

@@ -1392,109 +1392,118 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$nice       = null;
 		$url        = null;
 		$ip_address = isset( $author->comment_author_IP ) ? $author->comment_author_IP : '';
+		$site_id    = -1;
 
 		if ( isset( $author->comment_author_email ) ) {
-			$id          = ( isset( $author->user_id ) && $author->user_id ) ? $author->user_id : 0;
-			$login       = '';
-			$email       = $author->comment_author_email;
-			$name        = $author->comment_author;
-			$first_name  = '';
-			$last_name   = '';
-			$url         = $author->comment_author_url;
-			$avatar_url  = $this->api->get_avatar_url( $author );
-			$profile_url = 'https://gravatar.com/' . md5( strtolower( trim( $email ) ) );
-			$nice        = '';
-			$site_id     = -1;
+			$id         = empty( $author->user_id ) ? 0 : (int) $author->user_id;
+			$login      = '';
+			$email      = $author->comment_author_email;
+			$name       = $author->comment_author;
+			$first_name = '';
+			$last_name  = '';
+			$url        = $author->comment_author_url;
+			$avatar_url = $this->api->get_avatar_url( $author );
+			$nice       = '';
+
+			// Add additional user data to the response if a valid user ID is available.
+			if ( 0 < $id ) {
+				$user = get_user_by( 'id', $id );
+				if ( $user instanceof WP_User ) {
+					$login      = $user->user_login ?? '';
+					$first_name = $user->first_name ?? '';
+					$last_name  = $user->last_name ?? '';
+					$nice       = $user->user_nicename ?? '';
+				} else {
+					trigger_error( 'Unknown user', E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+				}
+			}
 
 			// Comment author URLs and Emails are sent through wp_kses() on save, which replaces "&" with "&amp;"
 			// "&" is the only email/URL character altered by wp_kses().
 			foreach ( array( 'email', 'url' ) as $field ) {
 				$$field = str_replace( '&amp;', '&', $$field );
 			}
-		} else {
-			if ( $author instanceof WP_User || isset( $author->user_email ) ) {
-				$author = $author->ID;
-			} elseif ( isset( $author->user_id ) && $author->user_id ) {
-				$author = $author->user_id;
-			} elseif ( isset( $author->post_author ) ) {
-				// then $author is a Post Object.
-				if ( ! $author->post_author ) {
-					return null;
-				}
-				/**
-				 * Filter whether the current site is a Jetpack site.
-				 *
-				 * @module json-api
-				 *
-				 * @since 3.3.0
-				 *
-				 * @param bool false Is the current site a Jetpack site. Default to false.
-				 * @param int get_current_blog_id() Blog ID.
-				 */
-				$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
-				$post_id    = $author->ID;
-				if ( $is_jetpack && ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
-					$id         = get_post_meta( $post_id, '_jetpack_post_author_external_id', true );
-					$email      = get_post_meta( $post_id, '_jetpack_author_email', true );
-					$login      = '';
-					$name       = get_post_meta( $post_id, '_jetpack_author', true );
-					$first_name = '';
-					$last_name  = '';
-					$url        = '';
-					$nice       = '';
-				} else {
-					$author = $author->post_author;
-				}
+		} elseif ( $author instanceof WP_User || isset( $author->user_email ) ) {
+			$author = $author->ID;
+		} elseif ( isset( $author->user_id ) && $author->user_id ) {
+			$author = $author->user_id;
+		} elseif ( isset( $author->post_author ) ) {
+			// then $author is a Post Object.
+			if ( ! $author->post_author ) {
+				return null;
 			}
-
-			if ( ! isset( $id ) ) {
-				$user = get_user_by( 'id', $author );
-				if ( ! $user || is_wp_error( $user ) ) {
-					trigger_error( 'Unknown user', E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-
-					return null;
-				}
-				$id         = $user->ID;
-				$email      = $user->user_email;
-				$login      = $user->user_login;
-				$name       = $user->display_name;
-				$first_name = $user->first_name;
-				$last_name  = $user->last_name;
-				$url        = $user->user_url;
-				$nice       = $user->user_nicename;
-			}
-			if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack ) {
-				$site_id = -1;
-
-				/**
-				 * Allow customizing the blog ID returned with the author in WordPress.com REST API queries.
-				 *
-				 * @since 12.9
-				 *
-				 * @module json-api
-				 *
-				 * @param bool|int $active_blog  Blog ID, or false by default.
-				 * @param int      $id           User ID.
-				 */
-				$active_blog = apply_filters( 'wpcom_api_pre_get_active_blog_author', false, $id );
-				if ( false === $active_blog ) {
-					$active_blog = get_active_blog_for_user( $id );
-				}
-				if ( ! empty( $active_blog ) ) {
-					$site_id = $active_blog->blog_id;
-				}
-				if ( $site_id > -1 ) {
-					$site_visible = (
-						-1 !== (int) $active_blog->public ||
-						is_private_blog_user( $site_id, get_current_user_id() )
-					);
-				}
-				$profile_url = "https://gravatar.com/{$login}";
+			/**
+			 * Filter whether the current site is a Jetpack site.
+			 *
+			 * @module json-api
+			 *
+			 * @since 3.3.0
+			 *
+			 * @param bool false Is the current site a Jetpack site. Default to false.
+			 * @param int get_current_blog_id() Blog ID.
+			 */
+			$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
+			$post_id    = $author->ID;
+			if ( $is_jetpack && ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+				$id         = get_post_meta( $post_id, '_jetpack_post_author_external_id', true );
+				$email      = get_post_meta( $post_id, '_jetpack_author_email', true );
+				$login      = '';
+				$name       = get_post_meta( $post_id, '_jetpack_author', true );
+				$first_name = '';
+				$last_name  = '';
+				$url        = '';
+				$nice       = '';
 			} else {
-				$profile_url = 'https://gravatar.com/' . md5( strtolower( trim( $email ) ) );
-				$site_id     = -1;
+				$author = $author->post_author;
 			}
+		}
 
+		if ( ! isset( $id ) ) {
+			$user = get_user_by( 'id', $author );
+			if ( ! $user || is_wp_error( $user ) ) {
+				trigger_error( 'Unknown user', E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+
+				return null;
+			}
+			$id         = $user->ID;
+			$email      = $user->user_email;
+			$login      = $user->user_login;
+			$name       = $user->display_name;
+			$first_name = $user->first_name;
+			$last_name  = $user->last_name;
+			$url        = $user->user_url;
+			$nice       = $user->user_nicename;
+		}
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack ) {
+			/**
+			 * Allow customizing the blog ID returned with the author in WordPress.com REST API queries.
+			 *
+			 * @since 12.9
+			 *
+			 * @module json-api
+			 *
+			 * @param bool|int $active_blog  Blog ID, or false by default.
+			 * @param int      $id           User ID.
+			 */
+			$active_blog = apply_filters( 'wpcom_api_pre_get_active_blog_author', false, $id );
+			if ( false === $active_blog ) {
+				$active_blog = get_active_blog_for_user( $id );
+			}
+			if ( ! empty( $active_blog ) ) {
+				$site_id = $active_blog->blog_id;
+			}
+			if ( $site_id > - 1 ) {
+				$site_visible = (
+					- 1 !== (int) $active_blog->public ||
+					is_private_blog_user( $site_id, get_current_user_id() )
+				);
+			}
+			$profile_url = "https://gravatar.com/{$login}";
+		} else {
+			$profile_url = 'https://gravatar.com/' . md5( strtolower( trim( $email ) ) );
+		}
+
+		if ( ! isset( $avatar_url ) ) {
 			$avatar_url = $this->api->get_avatar_url( $email );
 		}
 

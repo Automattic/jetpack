@@ -39,6 +39,7 @@ Default.args = {
 	showLegend: false,
 	legendOrientation: 'horizontal',
 	withGradientFill: false,
+	smoothing: true,
 	margin: { top: 20, right: 40, bottom: 40, left: 20 },
 	options: {
 		axis: {
@@ -181,4 +182,10 @@ export const ErrorStates: StoryObj< typeof LineChart > = {
 			},
 		},
 	},
+};
+
+export const WithoutSmoothing: StoryObj< typeof LineChart > = Template.bind( {} );
+WithoutSmoothing.args = {
+	...Default.args,
+	smoothing: false,
 };
