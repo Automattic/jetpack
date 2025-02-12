@@ -4,10 +4,10 @@ import { _n, __ } from '@wordpress/i18n';
 import jQuery from 'jquery';
 
 const {
-	ajaxUrl,
 	connectionsUrl,
 	isEnhancedPublishingEnabled,
 	resharePath,
+	refreshConnections,
 	isReshareSupported,
 	siteType,
 } = window.jetpackSocialClassicEditorOptions;
@@ -82,11 +82,20 @@ jQuery( function ( $ ) {
 		};
 	}
 
+	//#region Connection tests
 	let fetchingConnTest = false;
 	const publicizeConnTestStart = function () {
 		if ( ! fetchingConnTest ) {
-			$.post( ajaxUrl, { action: 'test_publicize_conns' }, publicizeConnTestComplete );
 			fetchingConnTest = true;
+
+			apiFetch( {
+				path: refreshConnections,
+				method: 'GET',
+			} )
+				.then( publicizeConnTestComplete )
+				.finally( () => {
+					fetchingConnTest = false;
+				} );
 		}
 	};
 
@@ -98,25 +107,7 @@ jQuery( function ( $ ) {
 		timer = setTimeout( publicizeConnTestStart, 2000 );
 	} );
 
-	const countConnectionsBy = ( status, response ) => {
-		return ! response.data
-			? 0
-			: response.data.reduce( ( count, testResult ) => {
-					if (
-						! testResult.connectionTestPassed &&
-						status === ( testResult.connectionTestErrorCode ?? 'broken' )
-					) {
-						$( '#wpas-submit-' + testResult.id )
-							.prop( 'checked', false )
-							.prop( 'disabled', true );
-						return count + 1;
-					}
-					return count;
-			  }, 0 );
-	};
-
-	const publicizeConnTestComplete = function ( response ) {
-		fetchingConnTest = false;
+	const publicizeConnTestComplete = function ( freshConnections ) {
 		const testsSelector = $( '#pub-connection-tests' );
 		testsSelector
 			.removeClass( 'test-in-progress' )
@@ -125,8 +116,27 @@ jQuery( function ( $ ) {
 			.removeClass( 'publicize-token-refresh-message' )
 			.html( '' );
 
-		const brokenConnections = countConnectionsBy( 'broken', response );
-		const unsupportedConnections = countConnectionsBy( 'unsupported', response );
+		let brokenConnections = 0;
+		let unsupportedConnections = 0;
+
+		for ( const connection of freshConnections ) {
+			let isInvalid = false;
+			if ( 'twitter' === connection.service_name ) {
+				unsupportedConnections++;
+
+				isInvalid = true;
+			} else if ( connection.status === 'broken' ) {
+				brokenConnections++;
+
+				isInvalid = true;
+			}
+
+			if ( isInvalid ) {
+				$( '#wpas-submit-' + connection.connection_id )
+					.prop( 'checked', false )
+					.prop( 'disabled', true );
+			}
+		}
 
 		if ( brokenConnections ) {
 			/* translators: %s is the link to the connections page in Calypso */
@@ -168,6 +178,7 @@ jQuery( function ( $ ) {
 	if ( $( '#pub-connection-tests' ).length ) {
 		publicizeConnTestStart();
 	}
+	//#endregion
 
 	//#region Share post NOW
 	const shareNowButton = $( '#publicize-share-now' );

@@ -183,10 +183,10 @@ class Publicize_UI {
 			'jetpack-social-classic-editor-options',
 			'var jetpackSocialClassicEditorOptions = ' . wp_json_encode(
 				array(
-					'ajaxUrl'                     => admin_url( 'admin-ajax.php' ),
 					'connectionsUrl'              => esc_url( $this->publicize_settings_url ),
 					'isEnhancedPublishingEnabled' => $this->publicize->has_enhanced_publishing_feature(),
 					'resharePath'                 => '/jetpack/v4/publicize/{postId}',
+					'refreshConnections'          => '/wpcom/v2/publicize/connections?test_connections=1',
 					'isReshareSupported'          => ! $is_simple_site && Current_Plan::supports( 'republicize' ),
 					'siteType'                    => $site_type,
 				)
@@ -580,10 +580,6 @@ jQuery( function($) {
 	private function get_metabox_form_connected( $connections_data ) {
 		global $post;
 
-		$all_done             = $this->publicize->post_is_done_sharing();
-		$all_connections_done = true;
-		$broken_connections   = array();
-
 		ob_start();
 
 		?>
@@ -592,38 +588,23 @@ jQuery( function($) {
 		<?php
 
 		foreach ( $connections_data as $connection_data ) {
-			$all_connections_done = $all_connections_done && $connection_data['done'];
-			$connection_healthy   = ! isset( $connection_data['is_healthy'] ) || $connection_data['is_healthy'];
-			if ( ! $connection_healthy ) {
-				$broken_connections[] = $connection_data;
-
-			}
 			?>
 
 			<li>
 				<label
-					for="wpas-submit-<?php echo esc_attr( $connection_data['id'] ); ?>"
+					for="wpas-submit-<?php echo esc_attr( $connection_data['connection_id'] ); ?>"
 				>
 					<input
 						type="checkbox"
-						name="wpas[submit][<?php echo esc_attr( $connection_data['id'] ); ?>]"
-						id="wpas-submit-<?php echo esc_attr( $connection_data['id'] ); ?>"
+						name="wpas[submit][<?php echo esc_attr( $connection_data['connection_id'] ); ?>]"
+						id="wpas-submit-<?php echo esc_attr( $connection_data['connection_id'] ); ?>"
 						class="wpas-submit-<?php echo esc_attr( $connection_data['service_name'] ); ?>"
 						value="1"
-						data-id="<?php echo esc_attr( $connection_data['id'] ); ?>"
+						data-id="<?php echo esc_attr( $connection_data['connection_id'] ); ?>"
 					<?php
-						checked( true, $connection_data['enabled'] && $connection_healthy );
-						disabled( false, $connection_healthy );
+						checked( true, $connection_data['enabled'] );
 					?>
 					/>
-				<?php if ( $connection_data['enabled'] && $connection_healthy && ! $connection_data['toggleable'] ) : // Need to submit a value to force a global connection to POST. ?>
-					<input
-						type="hidden"
-						name="wpas[submit][<?php echo esc_attr( $connection_data['id'] ); ?>]"
-						value="1"
-					/>
-				<?php endif; ?>
-
 					<?php echo esc_html( $this->connection_label( $connection_data['service_label'], $connection_data['display_name'] ) ); ?>
 
 				</label>
@@ -639,8 +620,6 @@ jQuery( function($) {
 		$is_social_note = 'jetpack-social-note' === get_post_type( $post->ID );
 
 		$is_post_published = 'publish' === get_post_status( $post->ID );
-
-		$all_done = $all_done || $all_connections_done;
 
 		$is_simple_site = ( new Host() )->is_wpcom_simple();
 
@@ -664,36 +643,7 @@ jQuery( function($) {
 		</div>
 
 		<div id="pub-connection-needs-media"></div>
-
-		<?php if ( ! $all_done ) : ?>
-			<?php if ( $broken_connections ) : ?>
-				<div id="pub-connection-tests" class="error below-h2 publicize-token-refresh-message">
-					<?php
-						printf(
-							wp_kses(
-								/* translators: %s is the link to the connections page in Calypso */
-								_n(
-									'One of your social connections is broken. Reconnect it on the <a href="%s" rel="noopener noreferrer" target="_blank">connection management</a> page.',
-									'Some of your social connections are broken. Reconnect them on the <a href="%s" rel="noopener noreferrer" target="_blank">connection management</a> page.',
-									count( $broken_connections ),
-									'jetpack-publicize-pkg'
-								),
-								array(
-									'a' => array(
-										'href'   => array(),
-										'target' => array(),
-										'rel'    => array(),
-									),
-								)
-							),
-							esc_url( $this->publicize->publicize_connections_url() )
-						);
-					?>
-				</div>
-			<?php else : ?>
-				<div id="pub-connection-tests"></div>
-			<?php endif; ?>
-		<?php endif; ?>
+		<div id="pub-connection-tests"></div>
 		<?php
 
 		return ob_get_clean();

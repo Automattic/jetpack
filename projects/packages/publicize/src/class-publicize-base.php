@@ -245,6 +245,7 @@ abstract class Publicize_Base {
 		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 20, 1 );
 
 		// Connection test callback.
+		// TODO Get rid of this and the method after April 2025.
 		add_action( 'wp_ajax_test_publicize_conns', array( $this, 'test_publicize_conns' ) );
 
 		// Custom priority to ensure post type support is added prior to thumbnail support being added to the theme.
