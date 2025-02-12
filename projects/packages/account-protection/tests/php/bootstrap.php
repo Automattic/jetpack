@@ -10,4 +10,5 @@
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-\WorDBless\Load::load();
+// Initialize WordPress test environment
+\Automattic\Jetpack\Test_Environment::init();

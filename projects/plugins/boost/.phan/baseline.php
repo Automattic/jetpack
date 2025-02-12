@@ -13,26 +13,24 @@ return [
     // PhanPluginDuplicateConditionalNullCoalescing : 10+ occurrences
     // PhanTypeArraySuspicious : 9 occurrences
     // PhanTypeMismatchArgument : 8 occurrences
-    // PhanPossiblyUndeclaredVariable : 5 occurrences
     // PhanTypeMismatchReturnProbablyReal : 5 occurrences
     // PhanUndeclaredConstant : 5 occurrences
-    // PhanTypeMismatchArgumentNullableInternal : 4 occurrences
     // PhanUndeclaredFunction : 4 occurrences
-    // PhanImpossibleTypeComparison : 3 occurrences
-    // PhanPluginUseReturnValueInternalKnown : 3 occurrences
-    // PhanTypeMismatchArgumentInternal : 3 occurrences
+    // PhanPossiblyUndeclaredVariable : 3 occurrences
     // PhanTypeMismatchPropertyDefault : 3 occurrences
     // PhanTypePossiblyInvalidDimOffset : 3 occurrences
     // PhanUndeclaredClassConstant : 3 occurrences
     // PhanNoopNew : 2 occurrences
-    // PhanTypeComparisonToArray : 2 occurrences
-    // PhanTypeMismatchReturnNullable : 2 occurrences
+    // PhanPluginUseReturnValueInternalKnown : 2 occurrences
+    // PhanTypeMismatchArgumentNullableInternal : 2 occurrences
     // PhanCoalescingNeverNull : 1 occurrence
     // PhanImpossibleTypeComparisonInGlobalScope : 1 occurrence
     // PhanParamTooMany : 1 occurrence
     // PhanRedefineFunction : 1 occurrence
     // PhanRedundantCondition : 1 occurrence
+    // PhanTypeComparisonToArray : 1 occurrence
     // PhanTypeInvalidUnaryOperandIncOrDec : 1 occurrence
+    // PhanTypeMismatchArgumentInternal : 1 occurrence
     // PhanTypeMismatchDefault : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
     // PhanTypeMissingReturn : 1 occurrence
@@ -51,10 +49,8 @@ return [
         'app/lib/critical-css/source-providers/providers/Provider.php' => ['PhanTypeMismatchArgumentInternal'],
         'app/lib/minify/Concatenate_CSS.php' => ['PhanPluginUseReturnValueInternalKnown', 'PhanTypeMismatchArgument'],
         'app/lib/minify/Concatenate_JS.php' => ['PhanPluginUseReturnValueInternalKnown', 'PhanPossiblyUndeclaredVariable', 'PhanTypeInvalidUnaryOperandIncOrDec', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypePossiblyInvalidDimOffset'],
-        'app/lib/minify/Config.php' => ['PhanTypeMismatchReturnNullable'],
         'app/lib/minify/Dependency_Path_Mapping.php' => ['PhanUndeclaredConstant'],
-        'app/lib/minify/functions-helpers.php' => ['PhanImpossibleTypeComparison', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDefault', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant'],
-        'app/lib/minify/functions-service.php' => ['PhanImpossibleTypeComparison', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginUseReturnValueInternalKnown', 'PhanPossiblyUndeclaredVariable', 'PhanTypeComparisonToArray', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullableInternal'],
+        'app/lib/minify/functions-helpers.php' => ['PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDefault', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant'],
         'app/modules/Modules_Setup.php' => ['PhanTypeMismatchPropertyDefault'],
         'app/modules/image-guide/Image_Guide_Proxy.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'app/modules/image-size-analysis/data-sync/Image_Size_Analysis_Action_Fix.php' => ['PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition'],
