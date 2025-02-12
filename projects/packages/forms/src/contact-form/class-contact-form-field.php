@@ -922,16 +922,37 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	private function render_file_field( $id, $label, $class, $required, $required_field_text ) {
+
+		Assets::register_script(
+			'jetpack-form-file-field',
+			'../../dist/contact-form/js/file-field.js',
+			__FILE__,
+			array(
+				'enqueue'      => true,
+				'dependencies' => array(),
+				'version'      => \JETPACK__VERSION,
+			)
+		);
+
+		\wp_enqueue_style( 'jetpack-form-file-field', plugins_url( '../../dist/contact-form/css/file-field.css', __FILE__ ), array(), '1.0' );
+
 		$field  = $this->render_label( 'file', $id, $label, $required, $required_field_text );
-		$field .= "<input 
-			type='file' 
-			name='" . esc_attr( $id ) . "' 
-			id='" . esc_attr( $id ) . "' 
+		$field .= "<div class='jetpack-form-file-field__dropzone'>\n";
+		$field .= "<a href='#' class='wp-block-button__link wp-element-button'>Upload a file</a>\n";
+		$field .= "<span class='jetpack-form-file-field__filename'>...or drag and drop a file.</span>\n";
+		$field .= "<input
+			type='file'
+			class='jetpack-form-file-field'
+			name='" . esc_attr( $id ) . "'
+			id='" . esc_attr( $id ) . "'
 			" . $class . '
 			' . ( $required ? "required aria-required='true'" : '' ) . "
 			accept='.pdf,.jpg'
 			style='" . $this->field_styles . "'
 		/>\n";
+		$field .= "<div class='jetpack-form-file-field__preview-wrap'></div>\n";
+		$field .= "</div>\n";
+
 		return $field;
 	}
 
