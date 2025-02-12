@@ -351,8 +351,17 @@ class Post_Connection_JITM extends JITM {
 
 			$dismissed_feature = isset( $hidden_jitms[ $envelope->feature_class ] ) && is_array( $hidden_jitms[ $envelope->feature_class ] ) ? $hidden_jitms[ $envelope->feature_class ] : null;
 
+			/**
+			 * Allow ignoring JITM dismissals. Typically used for development purposes.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param bool $ignore_dismissible Whether to ignore JITM dismissal state. Default false.
+			 */
+			$ignore_dismissible = apply_filters( 'jetpack_jitm_should_ignore_dismissals', false );
+
 			// If the this feature class has been dismissed and the request has not passed the ttl, skip it as it's been dismissed.
-			if ( is_array( $dismissed_feature ) && ( time() - $dismissed_feature['last_dismissal'] < $envelope->expires || $dismissed_feature['number'] >= $envelope->max_dismissal ) ) {
+			if ( ! $ignore_dismissible && is_array( $dismissed_feature ) && ( time() - $dismissed_feature['last_dismissal'] < $envelope->expires || $dismissed_feature['number'] >= $envelope->max_dismissal ) ) {
 				unset( $envelopes[ $idx ] );
 				continue;
 			}
