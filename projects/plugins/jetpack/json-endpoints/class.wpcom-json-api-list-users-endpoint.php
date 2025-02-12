@@ -265,7 +265,7 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 			}
 		}
-		$return['viewers'] = $viewers;
+
 		return $return;
 	}
 
