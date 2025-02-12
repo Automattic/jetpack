@@ -995,12 +995,7 @@ abstract class Publicize_Base {
 				$connection_list[] = array_merge(
 					$connection,
 					array(
-						'enabled'    => $enabled,
-						// Deprecated fields.
-						'id'         => $connection_id,
-						'unique_id'  => $unique_id,
-						'done'       => $done,
-						'toggleable' => $toggleable,
+						'enabled' => $enabled,
 					)
 				);
 			}

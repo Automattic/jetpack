@@ -449,7 +449,7 @@ jQuery( function($) {
 				$labels = array();
 
 				foreach ( $connections_data as $connection_data ) {
-					if ( ! $connection_data['enabled'] || ( isset( $connection_data['is_healthy'] ) && false === $connection_data['is_healthy'] ) ) {
+					if ( ! $connection_data['enabled'] ) {
 						continue;
 					}
 
