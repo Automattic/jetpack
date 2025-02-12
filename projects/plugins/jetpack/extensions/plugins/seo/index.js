@@ -107,7 +107,7 @@ const Seo = () => {
 								isBetaExtension( 'ai-seo-assistant' ) ? 'is-beta-extension' : ''
 							}` }
 						>
-							<SeoAssistant disabled={ false } />
+							<SeoAssistant disabled={ false } placement="jetpack-sidebar" />
 						</PanelRow>
 					) }
 					<PanelRow>

@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Jetpack SEO: fix state inconsistencies, change effects and use global isBusy suspense flag

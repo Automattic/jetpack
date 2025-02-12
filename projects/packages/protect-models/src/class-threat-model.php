@@ -122,7 +122,7 @@ class Threat_Model {
 	/**
 	 * The threat's related vulnerabilities.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.5.0
 	 *
 	 * @var null|Vulnerability_Model[]
 	 */
@@ -152,7 +152,7 @@ class Threat_Model {
 	/**
 	 * Get the ID value of the threat based on its related extension and vulnerabilities.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.5.0
 	 *
 	 * @param Extension_Model $extension       The extension to get the ID from.
 	 *
@@ -165,7 +165,7 @@ class Threat_Model {
 	/**
 	 * Get the title from a vulnerable extension.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.5.0
 	 *
 	 * @param Extension_Model $extension The extension to get the title from.
 	 *
@@ -198,7 +198,7 @@ class Threat_Model {
 	/**
 	 * Get the description from a vulnerable extension.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.5.0
 	 *
 	 * @param Extension_Model $extension The extension to get the description from.
 	 * @param array           $vulnerabilities The vulnerabilities to get the description from.
@@ -217,7 +217,7 @@ class Threat_Model {
 	/**
 	 * Get the latest fixed_in version from a list of vulnerabilities.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.5.0
 	 *
 	 * @param array $vulnerabilities The vulnerabilities to get the fixed_in version from.
 	 *
@@ -244,7 +244,7 @@ class Threat_Model {
 	/**
 	 * Generate a threat from extension vulnerabilities.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.5.0
 	 *
 	 * @param Extension_Model       $extension       The extension to generate the threat for.
 	 * @param Vulnerability_Model[] $vulnerabilities The vulnerabilities to generate the threat from.
