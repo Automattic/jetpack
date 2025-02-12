@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Concatenation: make the 404 test url look like a static file to detect hosts that treat those files differently
+
+
