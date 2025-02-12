@@ -78,7 +78,7 @@ class WPCom_Themes_Mapper {
 		$theme->tags                 = $this->build_theme_tags( $wpcom_theme );
 		$theme->tier                 = $wpcom_theme->theme_tier->slug;
 		$theme->theme_type           = $wpcom_theme->theme_type;
-		$theme->product_details      = $wpcom_theme->product_details;
+		$theme->product_details      = property_exists( $wpcom_theme, 'product_details' ) ? $wpcom_theme->product_details : '';
 
 		return $theme;
 	}

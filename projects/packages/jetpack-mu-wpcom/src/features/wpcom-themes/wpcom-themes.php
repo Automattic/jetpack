@@ -320,7 +320,7 @@ function wpcom_themes_get_activation_url( $theme ) {
 		admin_url( 'themes.php' )
 	);
 
-	if ( 'hosted-internal' === $theme->theme_type ) {
+	if ( property_exists( $theme, 'theme_type' ) && 'hosted-internal' === $theme->theme_type ) {
 		if ( \A8C\Lib\Themes\Theme_Tiers::is_theme_allowed_on_site( $theme->slug ) ) {
 			return $activate_url;
 		} else {
