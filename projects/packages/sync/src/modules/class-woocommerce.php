@@ -266,10 +266,10 @@ class WooCommerce extends Module {
 	 *
 	 * @param array $args The hook arguments.
 	 * @return array $args Expanded order items with meta.
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 4.7.0
 	 */
 	public function expand_order_item_ids( $args ) {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '4.7.0' );
 		$order_item_ids = $args[0];
 
 		global $wpdb;

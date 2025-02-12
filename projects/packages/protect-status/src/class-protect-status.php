@@ -226,7 +226,7 @@ class Protect_Status extends Status {
 			$extension->checked         = true;
 			$extension_threats[ $slug ] = $extension;
 
-			if ( ! empty( $checked_extension->vulnerabilities ) ) {
+			if ( is_array( $checked_extension->vulnerabilities ) && ! empty( $checked_extension->vulnerabilities ) ) {
 				// normalize the vulnerabilities data
 				$vulnerabilities = array_map(
 					function ( $vulnerability ) {
@@ -293,7 +293,7 @@ class Protect_Status extends Status {
 		$core->checked = true;
 
 		// Generate a threat from core vulnerabilities.
-		if ( ! empty( $report_data->core->vulnerabilities ) ) {
+		if ( is_array( $report_data->core->vulnerabilities ) && ! empty( $report_data->core->vulnerabilities ) ) {
 			// normalize the vulnerabilities data
 			$vulnerabilities = array_map(
 				function ( $vulnerability ) {

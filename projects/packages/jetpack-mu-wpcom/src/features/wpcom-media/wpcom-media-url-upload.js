@@ -46,6 +46,13 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		const originalUploaderInline = window.wp.media.view.UploaderInline;
 
 		window.wp.media.view.UploaderInline = originalUploaderInline.extend( {
+			ready: function () {
+				originalUploaderInline.prototype.ready.apply( this, arguments );
+				// Insert the form directly if it cannot be closed.
+				if ( ! this.options.canClose ) {
+					insertWpcomMediaUrlUploadForm();
+				}
+			},
 			show: function () {
 				originalUploaderInline.prototype.show.apply( this, arguments );
 				insertWpcomMediaUrlUploadForm();

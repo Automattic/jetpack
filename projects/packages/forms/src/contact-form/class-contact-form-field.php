@@ -181,7 +181,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $message The error message to display on the form.
 	 */
 	public function add_error( $message ) {
-		$this->is_error = true;
+		$this->error = true;
 
 		if ( ! is_wp_error( $this->form->errors ) ) {
 			$this->form->errors = new \WP_Error();

@@ -4,7 +4,6 @@ import { forwardRef, type TargetedEvent } from 'preact/compat';
 import { useContext, useEffect, useState } from 'preact/hooks';
 import { translate } from '../i18n';
 import { VerbumSignals } from '../state';
-import { isFastConnection } from '../utils';
 import { EditorPlaceholder } from './editor-placeholder';
 
 type CommentInputFieldProps = {
@@ -41,9 +40,10 @@ export const CommentInputField = forwardRef(
 		const [ isGBEditorEnabled, setIsGBEditorEnabled ] = useState( false );
 
 		useEffect( () => {
-			setTimeout( () => {
-				setIsGBEditorEnabled( VerbumComments.enableBlocks && isFastConnection() );
-			} );
+			// TODO: Fix Gutenberg editor not loading for logged out users.
+			// setTimeout( () => {
+			// 	setIsGBEditorEnabled( VerbumComments.enableBlocks && isFastConnection() );
+			// } );
 		}, [] );
 
 		/**

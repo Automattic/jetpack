@@ -1,4 +1,4 @@
-import { Button, Icon, Tooltip } from '@wordpress/components';
+import { Button, Icon, Tooltip, Notice } from '@wordpress/components';
 import { useState, useEffect, useRef, useMemo, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { next, closeSmall, chevronLeft } from '@wordpress/icons';
@@ -64,7 +64,10 @@ export default function AssistantWizard( { close } ) {
 
 	const handleNext = useCallback( () => {
 		debug( 'handleNext, stepsCount', stepsCount );
-		let nextStep;
+		let nextStep: number;
+
+		steps[ currentStep ].resetState?.();
+
 		setCurrentStep( prev => {
 			if ( prev + 1 < stepsCount ) {
 				nextStep = prev + 1;
@@ -74,7 +77,7 @@ export default function AssistantWizard( { close } ) {
 			}
 			return prev;
 		} );
-	}, [ stepsCount, steps ] );
+	}, [ stepsCount, steps, currentStep ] );
 
 	useEffect( () => {
 		const currentId = currentStepData?.id;
@@ -157,6 +160,7 @@ export default function AssistantWizard( { close } ) {
 			setIsBusy( true );
 			setAssistantFlowAction( 'backwards' );
 			debug( 'moving back to ' + ( currentStep - 1 ) );
+			steps[ currentStep ].resetState?.();
 			setCurrentStep( currentStep - 1 );
 			setCurrentStepData( steps[ currentStep - 1 ] );
 		}
@@ -189,7 +193,7 @@ export default function AssistantWizard( { close } ) {
 	const handleRetry = useCallback( async () => {
 		debug( 'handleRetry' );
 		setIsBusy( true );
-		await steps[ currentStep ].onRetry?.();
+		await steps[ currentStep ].onRetry?.( {} );
 		setIsBusy( false );
 	}, [ currentStep, steps ] );
 
@@ -229,6 +233,12 @@ export default function AssistantWizard( { close } ) {
 						isBusy={ isBusy }
 					/>
 				) ) }
+
+				{ steps[ currentStep ].hasFailed && (
+					<Notice status="error" isDismissible={ false }>
+						{ __( 'Something went wrong. Please try again or skip this step.', 'jetpack' ) }
+					</Notice>
+				) }
 				<div ref={ stepsEndRef } />
 			</div>
 
@@ -245,6 +255,7 @@ export default function AssistantWizard( { close } ) {
 				{ currentStep === 2 && steps[ currentStep ].type === 'options' && (
 					<OptionsInput
 						disabled={ ! steps[ currentStep ].hasSelection }
+						loading={ isBusy }
 						submitCtaLabel={ steps[ currentStep ].submitCtaLabel }
 						retryCtaLabel={ steps[ currentStep ].retryCtaLabel }
 						handleRetry={ handleRetry }
@@ -254,6 +265,7 @@ export default function AssistantWizard( { close } ) {
 				{ currentStep === 3 && steps[ currentStep ].type === 'options' && (
 					<OptionsInput
 						disabled={ ! steps[ currentStep ].hasSelection }
+						loading={ isBusy }
 						submitCtaLabel={ steps[ currentStep ].submitCtaLabel }
 						retryCtaLabel={ steps[ currentStep ].retryCtaLabel }
 						handleRetry={ handleRetry }
