@@ -237,7 +237,7 @@ jQuery( document ).ready( function ( $ ) {
 		}
 
 		const isPasswordStrong = failedValidationConditions.length === 0;
-		const color = isPasswordStrong ? '#64CA43' : '#E65054';
+		const color = isPasswordStrong ? '#9DD977' : '#FFABAF';
 		const strengthText = isPasswordStrong ? 'Strong' : 'Weak';
 
 		const {
@@ -290,9 +290,9 @@ jQuery( document ).ready( function ( $ ) {
 		} );
 
 		UIComponents.strengthMeter.text.text( 'Validating...' );
-		UIComponents.strengthMeter.wrapper.css( 'background-color', '#8C8F94' );
+		UIComponents.strengthMeter.wrapper.css( 'background-color', '#C3C4C7' );
 		passwordInput.css( {
-			'border-color': '#8C8F94',
+			'border-color': '#C3C4C7',
 			'border-radius': '4px 4px 0px 0px',
 		} );
 

@@ -67,15 +67,15 @@
     padding: 0 16px;
     margin-bottom: 16px;
     border-radius: 0 0 4px 4px;
-    background-color: #8C8F94;
+    background-color: #C3C4C7;
 }
 
 .strength-meter .strength {
     display: flex;
     align-items: center;
     font-size: 12px;
-    font-weight: bold;
-    color: #1D2327;
+    font-weight: 500;
+    color: black;
     margin: 0;
 }
 
@@ -87,7 +87,7 @@
 
 .branding .powered-by {
     font-size: 12px;
-    color: #1D2327;
+    color: black;
     margin: 0;
 }
 
