@@ -4,6 +4,7 @@ import { arrowRight } from '@wordpress/icons';
 
 export const OptionsInput = ( {
 	disabled,
+	loading,
 	handleRetry,
 	retryCtaLabel,
 	handleSubmit,
@@ -11,7 +12,12 @@ export const OptionsInput = ( {
 } ) => {
 	return (
 		<div className="assistant-wizard__actions">
-			<Button variant="secondary" className="assistant-wizard__submit" onClick={ handleRetry }>
+			<Button
+				variant="secondary"
+				className="assistant-wizard__submit"
+				onClick={ handleRetry }
+				disabled={ loading }
+			>
 				{ retryCtaLabel }
 			</Button>
 

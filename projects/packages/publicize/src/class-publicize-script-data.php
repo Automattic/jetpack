@@ -306,7 +306,7 @@ class Publicize_Script_Data {
 		$commom_paths = array(
 			'refreshConnections' => '/wpcom/v2/publicize/connections?test_connections=1',
 			// The complete path will be like `/jetpack/v4/social/settings`.
-			'socialToggleBase'   => class_exists( 'Jetpack' ) ? 'settings' : 'social/settings',
+			'socialToggleBase'   => Utils::should_use_jetpack_module_endpoint() ? 'settings' : 'social/settings',
 		);
 
 		$specific_paths = array();
