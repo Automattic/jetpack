@@ -78,7 +78,8 @@ jQuery( document ).ready( function ( $ ) {
 		Object.entries( jetpackData.validationInitialState ).forEach( ( [ key, value ] ) => {
 			const listItem = $( '<li>', { class: 'validation-item', 'data-key': key } );
 
-			if ( key === 'contains_backslash' ) {
+			// Hide the core and backslash validation items by default
+			if ( [ 'core', 'contains_backslash' ].includes( key ) ) {
 				listItem.hide();
 			}
 
@@ -204,7 +205,7 @@ jQuery( document ).ready( function ( $ ) {
 			const validationFailed = key === 'core' ? coreValidationFailed : item.status;
 			const checklistItem = UIComponents.validationChecklistItems[ key ];
 
-			if ( key === 'contains_backslash' ) {
+			if ( [ 'core', 'contains_backslash' ].includes( key ) ) {
 				checklistItem.item.css( 'display', validationFailed ? 'flex' : 'none' );
 			}
 

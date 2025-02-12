@@ -60,7 +60,7 @@ class Validation_Service {
 		$base_conditions = array(
 			'core'               => array(
 				'status'  => null,
-				'message' => __( 'Passes core validation', 'jetpack-account-protection' ),
+				'message' => __( 'Strong password', 'jetpack-account-protection' ),
 				'info'    => __( 'Passwords should meet WordPress core security requirements to enhance account protection.', 'jetpack-account-protection' ),
 			),
 			'contains_backslash' => array(
