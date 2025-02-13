@@ -1,0 +1,20 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "pt_BR",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"block style\u0004Borders": [ "Margens" ],
+			"block style\u0004Default": [ "Padr\u00e3o" ],
+			"A block for displaying homepage posts.": [
+				"Um bloco para exibir posts da p\u00e1gina inicial."
+			],
+			"latest": [ "mais recentes" ],
+			"articles": [ "artigos" ],
+			"Homepage Posts": [ "Posts da p\u00e1gina inicial" ],
+			"posts": [ "posts" ]
+		}
+	}
+}

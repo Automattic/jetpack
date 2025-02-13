@@ -1,0 +1,69 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "nl",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Safe mode": [ "Veilige modus" ],
+			"Or decide later and stay in <button>Safe mode</button>": [
+				"Of beslis laten en blijf in <button>Veilige modus</button>"
+			],
+			"Finishing setting up Safe mode\u2026": [ "Instellen Veilige modus afronden..." ],
+			"<p><strong>Recommended for</strong></p><list><item>short-lived test sites</item><item>sites that will be cloned back to production after testing</item></list><p><strong>Please note</strong> that staying in Safe mode will disable some Jetpack features, including security features such as SSO, firewall, and site monitor. <safeModeLink>Learn more</safeModeLink>.</p>": [
+				"<p><strong>Aanbevolen voor</strong></p><list><item>testsites die kort worden gebruikt</item><item>sites die na het testen terug worden gekloond naar de live site</item></list><p><strong>Let op:</strong> sommige functies van Jetpack zijn uitgeschakeld in de veilige modus, waaronder beveiligingsfuncties zoals SSO, firewall en sitebewaking. <safeModeLink>Meer informatie</safeModeLink>.</p>"
+			],
+			"Stay in Safe Mode": [ "In veilige modus blijven" ],
+			"Stay in Safe mode": [ "In veilige modus blijven" ],
+			"Could not stay in safe mode. Retry or find out more <a>here</a>.": [
+				"Kan niet in veilige modus blijven Probeer het opnieuw of lees <a>hier</a> meer informatie."
+			],
+			"Safe Mode": [ "Veilige modus" ],
+			"An administrator of this site can take Jetpack out of Safe Mode.": [
+				"Een beheerder van deze site kan Jetpack uit de Veilige modus halen."
+			],
+			"This site is in Safe Mode because there are 2 Jetpack-powered sites that appear to be duplicates. 2 sites that are telling Jetpack they\u2019re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>": [
+				"Deze site verkeert in Veilige modus omdat er 2 identieke Jetpack-sites zijn. 2 sites vertellen Jetpack dat ze hetzelfde zijn. <safeModeLink>Meer informatie over de Veilige modus.</safeModeLink>"
+			],
+			"Safe Mode has been switched off for <hostname>%1$s</hostname> website and Jetpack is fully functional.": [
+				"Veilige modus is uitgeschakeld voor <hostname>%1$s</hostname> website en Jetpack is volledig functioneel."
+			],
+			"Your Jetpack settings have migrated successfully": [
+				"Je Jetpack-instellingen zijn gemigreerd"
+			],
+			"Got it, thanks": [ "Begrepen, dank je" ],
+			"Please select an option": [ "Selecteer een optie" ],
+			"<strong>Notice:</strong> It appears that your 'wp-config.php' file might be using dynamic site URL values. Dynamic site URLs could cause Jetpack to enter Safe Mode. <dynamicSiteUrlSupportLink>Learn how to set a static site URL.</dynamicSiteUrlSupportLink>": [
+				"<strong>Opmerking:</strong> Het ziet ernaar uit dat je 'wp-config.php\u2019 bestand misschien dynamische URL-waarden bevat. Dynamische URL's kunnen zorgen dat Jetpack naar de Veilige modus overgaat. <dynamicSiteUrlSupportLink>Leer hoe je een statische URL instelt.</dynamicSiteUrlSupportLink>"
+			],
+			"Your site is in Safe Mode because you have 2 Jetpack-powered sites that appear to be duplicates. Two sites that are telling Jetpack they\u2019re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>": [
+				"Je site verkeert in Veilige modus, omdat je 2 identieke Jetpack-sites hebt. Twee sites vertellen Jetpack dat ze hetzelfde zijn. <safeModeLink>Meer informatie over de Veilige modus.</safeModeLink>"
+			],
+			"<span>Your site is in Safe Mode because <hostname>%1$s</hostname> appears to be a staging or development copy of <hostname>%2$s</hostname>.</span>2 sites that are telling Jetpack they\u2019re the same site. <safeModeLink>Learn more or troubleshoot common Safe mode issues</safeModeLink>.": [
+				"<span>Je site verkeert in Veilige modus omdat <hostname>%1$s</hostname> een test- of ontwikkelingskopie van <hostname>%2$s</hostname> lijkt te zijn.</span>2 sites vertellen Jetpack dat ze hetzelfde zijn. <safeModeLink>Meer informatie over of probleemoplossing voor problemen met de veilige modus</safeModeLink>."
+			],
+			"Safe Mode has been activated": [ "Veilige modus is geactiveerd" ],
+			"Could not move your settings. Retry or find out more <a>here</a>.": [
+				"Kan je instellingen niet verplaatsen. Opnieuw proberen of <a>hier</a> voor meer informatie."
+			],
+			"Move all your settings, stats and subscribers to your other URL, <hostname>%1$s</hostname>. <hostname>%2$s</hostname> will be disconnected from Jetpack.": [
+				"Verplaats al je instellingen, statistieken en abonnees naar je andere URL<hostname>%1$s</hostname>. <hostname>%2$s</hostname> zal worden losgekoppeld van Jetpack."
+			],
+			"Move Jetpack data": [ "Verplaats Jetpack gegevens" ],
+			"Move your settings": [ "Verplaats je instellingen" ],
+			"Could not create the connection. Retry or find out more <a>here</a>.": [
+				"Deze verbinding kon niet aangemaakt worden. Opnieuw proberen of <a>hier</a> voor meer informatie."
+			],
+			"<hostname>%1$s</hostname> settings, stats, and subscribers will start fresh. <hostname>%2$s</hostname> will keep its data as is.": [
+				"<hostname>%1$s</hostname> instellingen, statistieken en abonnees worden teruggezet naar nul. <hostname>%2$s</hostname> bewaren de gegevens."
+			],
+			"<p><strong>Recommended for</strong></p><list><item>development sites</item><item>sites that need access to all Jetpack features</item></list><p><strong>Please note</strong> that creating a fresh connection for <hostname>%1$s</hostname> would require restoring the connection on <hostname>%2$s</hostname> if that site is cloned back to production. <safeModeLink>Learn more</safeModeLink>.</p>": [
+				"<p><strong>Aanbevolen voor</strong></p><list><item>ontwikkelingssites</item><item>sites die toegang moeten hebben tot alle functies van Jetpack</item></list><p><strong>Let op:</strong> als je opnieuw wil verbinden met <hostname>%1$s</hostname>, moet je de verbinding met <hostname>%2$s</hostname> herstellen als die site is gekloond van de productiesite. <safeModeLink>Meer informatie</safeModeLink>.</p>"
+			],
+			"Treat each site as independent sites": [ "Behandel elke site als individuele site" ],
+			"Create a fresh connection": [ "Maak een nieuwe verbinding" ],
+			"Jetpack Logo": [ "Jetpack-logo" ]
+		}
+	}
+}

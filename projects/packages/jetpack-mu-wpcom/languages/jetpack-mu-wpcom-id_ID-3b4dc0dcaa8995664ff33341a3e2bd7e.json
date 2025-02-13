@@ -1,0 +1,43 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n > 1;",
+				"language": "id",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Task enabled": [ "Perintah diaktifkan" ],
+			"Task complete": [ "Tugas selesai" ],
+			"Copy": [ "Salin" ],
+			"Edit Site": [ "Sunting Situs" ],
+			"Hosting Overview": [ "Ikhtisar hosting" ],
+			"User avatar": [ "Avatar pengguna" ],
+			"View all responses": [ "Lihat semua tanggapan" ],
+			"Next \u2192": [ "Berikutnya\u2192" ],
+			"\u2190 Previous": [ "\u2190 Sebelumnya" ],
+			"Supercharge your website with a <strong>custom address</strong> that matches your blog, brand, or business.": [
+				"Jadikan situs lebih andal dengan <strong>alamat khusus</strong> yang sesuai dengan blog, merek, atau bisnis Anda."
+			],
+			"Claim your free domain": [ "Klaim domain gratis Anda" ],
+			"Your paid plan includes a domain name <strong>free for one year</strong>. Choose one that\u2019s easy to remember and even easier to share.": [
+				"Paket berbayar Anda mencakup nama domain <strong>gratis selama satu tahun</strong>. Pilih yang mudah diingat dan gampang dibagikan."
+			],
+			"Claim your domain": [ "Klaim domain Anda" ],
+			"Interested in a custom domain? It\u2019s free for the first year when you switch to annual billing.": [
+				"Ingin mencoba domain khusus? Dapatkan domain gratis selama satu tahun pertama jika Anda beralih ke pembayaran tahunan."
+			],
+			"View site": [ "Lihat Situs" ],
+			"Copy URL": [ "Salin URL" ],
+			"Copied to clipboard!": [ "Disalin ke clipboard!" ],
+			"Now you can head over to your site and share it with the world.": [
+				"Sekarang Anda dapat mengakses situs Anda dan membagikannya ke seluruh dunia."
+			],
+			"Congrats, your site is live!": [ "Selamat, situs Anda sudah aktif!" ],
+			"Home": [ "Beranda" ],
+			"Post Answer": [ "Poskan Jawaban" ],
+			"Footer": [ "footer" ],
+			"Header": [ "Kepala" ],
+			"Share your site": [ "Bagikan situs Anda" ]
+		}
+	}
+}

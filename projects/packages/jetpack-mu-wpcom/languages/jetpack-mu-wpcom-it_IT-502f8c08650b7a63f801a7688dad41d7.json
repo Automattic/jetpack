@@ -1,0 +1,17 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "it",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Selection here has effect only for editors, regular users will only see published posts.": [
+				"La selezione qui ha effetto solo per gli editor, gli utenti regolari vedranno solo gli articoli pubblicati."
+			],
+			"Additional Post Statuses": [ "Stati aggiuntivi dell'articolo" ],
+			"Post Types": [ "Tipi di articoli" ],
+			"Listings": [ "Elenchi" ]
+		}
+	}
+}

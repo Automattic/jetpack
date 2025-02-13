@@ -1,0 +1,100 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "nl",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"<strong>Need help?</strong> Learn more about the <connectionInfoLink>Jetpack connection</connectionInfoLink> or <supportLink>contact Jetpack support</supportLink>": [
+				"<strong>Hulp nodig?</strong> Meer informatie over de <connectionInfoLink>Jetpack-verbinding</connectionInfoLink> of <supportLink>contact opnemen met Jetpack-ondersteuning</supportLink>"
+			],
+			"Disconnect Jetpack": [ "Jetpack loskoppelen" ],
+			"Transfer ownership to another admin": [ "Eigendom overdragen aan een andere beheerder" ],
+			"At least one user must be connected for your Jetpack products to work properly.": [
+				"Ten minste \u00e9\u00e9n gebruiker moet verbonden zijn om je Jetpack-producten naar behoren te laten werken."
+			],
+			"Manage your Jetpack connection": [ "Beheer je Jetpack verbinding" ],
+			"Loading\u2026": [ "aan het laden..." ],
+			"Submit Feedback": [ "Feedback indienen" ],
+			"Submitting\u2026": [ "Verzenden \u2026" ],
+			"share your experience": [ "deel je ervaring" ],
+			"Other:": [ "Anders:" ],
+			"I don't know what it does.": [ "Ik weet niet wat het doet." ],
+			"It's buggy.": [ "Er zijn veel mankementen." ],
+			"It slowed down my site.": [ "Het vertraagde mijn site." ],
+			"I can't get it to work.": [ "Ik krijg het niet aan de praat." ],
+			"Troubleshooting - I'll be reconnecting afterwards.": [
+				"Probleemoplossing - Hierna maak ik opnieuw verbinding."
+			],
+			"Your answer has been submitted. <br/>Thanks for your input on how we can improve Jetpack.": [
+				"Je antwoord is ingediend. <br/>Bedankt voor je feedback omtrent het verbeteren van Jetpack."
+			],
+			"Thank you!": [ "Bedankt!" ],
+			"Skip for now": [ "Tijdelijk overslaan" ],
+			"Let us know what didn\u2018t work for you": [ "Laat ons weten wat je minder vond" ],
+			"Before you go, help us improve Jetpack": [
+				"Help ons Jetpack te verbeteren voordat je vertrekt"
+			],
+			"Deactivate": [ "Deactiveer" ],
+			"Disconnecting\u2026": [ "Verbinding verbreken ..." ],
+			"Disconnect": [ "Verbroken" ],
+			"Stay connected": [ "Verbonden blijven" ],
+			"<strong>Need help?</strong> Learn more about the <jpConnectionInfoLink>Jetpack connection</jpConnectionInfoLink> or <jpSupportLink>contact Jetpack support</jpSupportLink>.": [
+				"<strong>Hulp nodig?</strong> Meer informatie over de <jpConnectionInfoLink>Jetpack-verbinding </jpConnectionInfoLink> of <jpSupportLink>contact opnemen met Jetpack-ondersteuning</jpSupportLink>."
+			],
+			"Once you disconnect Jetpack, these will no longer work.": [
+				"Als je Jetpack loskoppelt, zullen deze niet langer werken."
+			],
+			"Jetpack is currently powering multiple products on your site.": [
+				"Jetpack verbetert momenteel meerdere producten op je site."
+			],
+			"Back to my website": [ "Terug naar mijn site" ],
+			"No thank you": [ "Nee, bedankt" ],
+			"Help us improve": [ "Help ons verbeteren" ],
+			"We\u2019re sorry to see you go. Here at Jetpack, we\u2019re always striving to provide the best experience for our customers. Please take our short survey (2 minutes, promise).": [
+				"Jammer dat je weggaat. Bij Jetpack streven we er altijd naar onze klanten de beste ervaring te bieden. Vul onze korte enqu\u00eate in (duurt maar 2 minuten, beloofd)."
+			],
+			"Jetpack has been <br/>successfully disconnected.": [ "Jetpack is <br/>losgekoppeld." ],
+			"Are you sure you want to disconnect?": [ "Weet je zeker dat je wilt loskoppelen?" ],
+			"Restore Connection": [ "Verbinding herstellen" ],
+			"There was an error reconnecting Jetpack. Error: %s": [
+				"Er is een fout opgetreden bij het opnieuw verbinding maken met Jetpack-servers. Fout: %s"
+			],
+			"Reconnecting Jetpack": [ "Jetpack opnieuw verbinden" ],
+			"Jetpack is powering other plugins on your site. If you disconnect, these plugins will no longer work.": [
+				"Jetpack verbetert andere plugins op je site. Als je loskoppelt, zullen deze plugins niet meer werken."
+			],
+			"Log in to get started": [ "Log in om aan de slag te gaan" ],
+			"Already have a subscription? <connectButton/>": [
+				"Heb je al een abonnement? <connectButton/>"
+			],
+			"Unavailable in <a>Offline Mode</a>": [ "Niet beschikbaar in <a>offlinemodus</a>" ],
+			"This site has been suspended.": [ "Deze site is buiten werking gesteld." ],
+			"Your site host is on a private network. Jetpack can only connect to public sites.": [
+				"Je sitehost zit op een priv\u00e9netwerk. Jetpack kan alleen verbinding maken met openbare sites."
+			],
+			"Set up Jetpack": [ "Jetpack instellen" ],
+			"Over 5 million WordPress sites are faster and more secure": [
+				"Meer dan 5 miljoen WordPress sites zijn sneller en veiliger"
+			],
+			"By clicking <strong>%s</strong>, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site\u2018s data</shareDetailsLink> with us.": [
+				"Door op <strong>%s</strong> te klikken, ga je akkoord met onze <tosLink>servicevoorwaarden</tosLink> en geef je toestemming dat de<shareDetailsLink> gegevens van je website met ons worden gesynchroniseerd</shareDetailsLink>."
+			],
+			"By clicking the buttons above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site\u2018s data</shareDetailsLink> with us.": [
+				"Door op de bovenstaande knoppen te klikken, ga je akkoord met onze <tosLink>servicevoorwaarden</tosLink> en met het <shareDetailsLink>synchroniseren van de gegevens</shareDetailsLink> van je site met ons."
+			],
+			"By clicking <strong>%1$s</strong> or <strong>%2$s</strong>, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site\u2018s data</shareDetailsLink> with us.": [
+				"Door op <strong>%1$s</strong> of <strong>%2$s</strong> te klikken, ga je akkoord met onze <tosLink>servicevoorwaarden</tosLink> en met het <shareDetailsLink>synchroniseren van de gegevens</shareDetailsLink> van je site met ons."
+			],
+			"Icon for the product %s": [ "Pictogram voor product %s" ],
+			"/month, paid yearly": [ "/maand, jaarlijks betaald" ],
+			"(opens in a new tab)": [ "(opent in een nieuwe tab)" ],
+			"An error occurred. Please try again.": [ "Er is een fout opgetreden. Probeer opnieuw." ],
+			"Jetpack Logo": [ "Jetpack-logo" ],
+			"Connect": [ "Verbinden" ],
+			"Loading": [ "aan het laden..." ],
+			"Cancel": [ "Annuleren" ]
+		}
+	}
+}

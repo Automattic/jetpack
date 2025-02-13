@@ -1,0 +1,51 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "pt_BR",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Show Featured Image Credit": [ "Mostrar cr\u00e9dito de imagem destacada" ],
+			"Show Featured Image Caption": [ "Mostrar legenda de imagem destacada" ],
+			"Show Author Avatar": [ "Mostrar avatar do autor" ],
+			"Show Author": [ "Mostrar autor" ],
+			"Show Category": [ "Mostrar categoria" ],
+			"Show Date": [ "Mostrar data" ],
+			"Show Title": [ "Mostrar t\u00edtulo" ],
+			"Article Meta Settings": [ "Metaconfigura\u00e7\u00f5es de artigo" ],
+			"Number of slides to show at once": [ "N\u00famero de slides exibidos de uma vez" ],
+			"Delay between transitions (in seconds)": [
+				"Atraso entre as transi\u00e7\u00f5es (em segundos)"
+			],
+			"Autoplay between slides": [ "Reprodu\u00e7\u00e3o autom\u00e1tica entre os slides" ],
+			"Autoplay": [ "Reprodu\u00e7\u00e3o autom\u00e1tica" ],
+			"Hide the slideshow UI. Useful when used with Autoplay.": [
+				"Oculte a IU de slideshow. Isso \u00e9 \u00fatil quando usado com a reprodu\u00e7\u00e3o autom\u00e1tica."
+			],
+			"Hide Controls": [ "Ocultar controles" ],
+			"Contain": [ "Conter" ],
+			"Cover": [ "Abranger" ],
+			"The image will be resized to fit inside the slide without being cropped.": [
+				"A imagem ser\u00e1 redimensionada para caber no slide sem ser recortada."
+			],
+			"The image will fill the entire slide and will be cropped if necessary.": [
+				"A imagem preencher\u00e1 todo o slide e ser\u00e1 recortada se necess\u00e1rio."
+			],
+			"Image Fit": [ "Adequa\u00e7\u00e3o de imagem" ],
+			"All slides will share the same aspect ratio, for consistency.": [
+				"Todos os slides ter\u00e3o a mesma propor\u00e7\u00e3o de tela por quest\u00f5es de consist\u00eancia."
+			],
+			"Slide Aspect Ratio": [ "Propor\u00e7\u00e3o de tela do slide" ],
+			"Slideshow Settings": [ "Configura\u00e7\u00f5es de apresenta\u00e7\u00e3o de slides" ],
+			"Display Settings": [ "Exibir configura\u00e7\u00f5es" ],
+			"Sorry, no posts were found.": [ "Nenhum post encontrado." ],
+			"9:16": [ "9:16" ],
+			"3:4": [ "3:4" ],
+			"16:9": [ "16:9" ],
+			"4:3": [ "4:3" ],
+			"1:1": [ "1:1" ],
+			"Square": [ "Quadrado" ]
+		}
+	}
+}

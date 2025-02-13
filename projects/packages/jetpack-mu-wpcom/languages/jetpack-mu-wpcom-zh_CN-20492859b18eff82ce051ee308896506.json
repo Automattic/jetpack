@@ -1,0 +1,16 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "zh_CN",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Paused": [ "\u5df2\u6682\u505c" ],
+			"Playing": [ "\u64ad\u653e" ],
+			"Image: %s, ": [ "\u56fe\u50cf\uff1a%s\uff0c" ],
+			"Slide %1$s of %2$s": [ "\u5e7b\u706f\u7247 %1$s\uff08\u5171 %2$s \u5f20\uff09 " ],
+			"Slide %s": [ "\u7b2c %s \u5f20\u5e7b\u706f\u7247" ]
+		}
+	}
+}

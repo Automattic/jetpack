@@ -1,0 +1,46 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "de",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Add these tags": [ "Diese Schlagw\u00f6rter hinzuf\u00fcgen" ],
+			"Don't show again": [ "Nicht erneut anzeigen" ],
+			"Adding tags can help drive more traffic to your post.": [
+				"Das Hinzuf\u00fcgen von Schlagw\u00f6rtern kann dazu beitragen, dass dein Beitrag mehr Traffic erh\u00e4lt."
+			],
+			"Based on the topics and themes in your post, here are some suggested tags to consider:": [
+				"Basierend auf den Themen und Themes in deinem Beitrag, sind hier einige Vorschl\u00e4ge f\u00fcr Schlagw\u00f6rter:"
+			],
+			"Recommended tags": [ "Empfohlene Schlagw\u00f6rter" ],
+			"No Tags Added.": [ "Keine Schlagw\u00f6rter hinzugef\u00fcgt." ],
+			"Tag Added.": [ "Schlagwort hinzugef\u00fcgt.", "Schlagw\u00f6rter hinzugef\u00fcgt." ],
+			"Required": [ "Erforderlich" ],
+			"Next Steps": [ "N\u00e4chste Schritte" ],
+			"View Post": [ "Beitrag ansehen" ],
+			"Congratulations! You did it. View your post to see how it will look on your site.": [
+				"Gl\u00fcckwunsch! Du hast es geschafft. Sieh dir an, wie dein Beitrag auf deiner Website angezeigt wird."
+			],
+			"Your first post is published!": [ "Dein erster Beitrag ist ver\u00f6ffentlicht!" ],
+			"Continue and launch": [ "Fortfahren und ver\u00f6ffentlichen" ],
+			"Keep editing": [ "Weiter bearbeiten" ],
+			"Feel free to keep editing your homepage, or continue and launch your site.": [
+				"Du kannst deine Startseite weiter bearbeiten oder fortfahren und deine Website ver\u00f6ffentlichen."
+			],
+			"You\u2019ve added your first video!": [ "Du hast dein erstes Video hinzugef\u00fcgt!" ],
+			"View your product": [ "Dein Produkt anzeigen" ],
+			"Continue editing": [ "Bearbeitung fortsetzen" ],
+			"Preview your product on your site before launching and sharing with others.": [
+				"Zeige dein Produkt auf deiner Website in der Vorschau an, bevor du es ver\u00f6ffentlichst und mit anderen teilst."
+			],
+			"You've added your first product!": [ "Du hast dein erstes Produkt hinzugef\u00fcgt!" ],
+			"Congrats! Premium blocks are now available to use.": [
+				"Gl\u00fcckwunsch! Premium-Bl\u00f6cke k\u00f6nnen ab sofort verwendet werden."
+			],
+			"Tags": [ "Schlagw\u00f6rter" ],
+			"Optional": [ "Optional" ]
+		}
+	}
+}

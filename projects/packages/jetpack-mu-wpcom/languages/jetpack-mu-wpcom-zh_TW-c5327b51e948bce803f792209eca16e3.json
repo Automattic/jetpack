@@ -1,0 +1,26 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "zh_TW",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Choose a Pattern": [ "\u9078\u64c7\u7248\u9762\u914d\u7f6e" ],
+			"Pick a pre-defined layout or continue with a blank page": [
+				"\u9078\u64c7\u9810\u5148\u5b9a\u7fa9\u7684\u7248\u9762\u5f62\u5f0f\u6216\u7e7c\u7e8c\u4f7f\u7528\u7a7a\u767d\u9801\u9762"
+			],
+			"default vertical name\u0004Business": [ "\u5546\u52d9" ],
+			"default company name\u0004Your Company Name": [ "\u516c\u53f8\u540d\u7a31" ],
+			"default phone number\u0004555-555-5555": [ "02-2320-6208" ],
+			"default address\u0004123 Main St": [ "\u91cd\u6176\u5357\u8def\u4e00\u6bb5 122 \u865f" ],
+			"Page categories": [ "\u9801\u9762\u5206\u985e" ],
+			"Blank page": [ "\u7a7a\u767d\u9801\u9762" ],
+			"Pick a pre-defined layout or start with a blank page.": [
+				"\u5f9e\u9019\u4e9b\u5df2\u7d93\u8a2d\u8a08\u597d\u7684\u7248\u578b\u4e2d\u9078\u64c7\u4e00\u7a2e\u4f60\u559c\u6b61\u7684\u7248\u9762\uff0c\u4e5f\u53ef\u4ee5\u76f4\u63a5\u5f9e\u7a7a\u767d\u9801\u9762\u958b\u59cb\u3002"
+			],
+			"Add a page": [ "\u65b0\u589e\u9801\u9762" ],
+			"Layout": [ "\u7248\u9762\u914d\u7f6e" ]
+		}
+	}
+}

@@ -1,0 +1,17 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "nl",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Selection here has effect only for editors, regular users will only see published posts.": [
+				"Selectie hier heeft alleen effect voor redacteuren, gewone gebruikers zien alleen gepubliceerde berichten."
+			],
+			"Additional Post Statuses": [ "Extra bericht statussen" ],
+			"Post Types": [ "Berichttypes" ],
+			"Listings": [ "Vermeldingen" ]
+		}
+	}
+}

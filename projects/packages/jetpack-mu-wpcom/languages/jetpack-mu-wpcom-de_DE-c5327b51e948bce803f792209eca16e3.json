@@ -1,0 +1,26 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "de",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Choose a Pattern": [ "W\u00e4hle eine Vorlage aus" ],
+			"Pick a pre-defined layout or continue with a blank page": [
+				"W\u00e4hle ein vordefiniertes Layout aus oder fahre mit einer leeren Seite fort"
+			],
+			"default vertical name\u0004Business": [ "Business" ],
+			"default company name\u0004Your Company Name": [ "Dein Firmenname" ],
+			"default phone number\u0004555-555-5555": [ "030 123456" ],
+			"default address\u0004123 Main St": [ "Musterstra\u00dfe 1" ],
+			"Page categories": [ "Seitenkategorien" ],
+			"Blank page": [ "Leere Seite" ],
+			"Pick a pre-defined layout or start with a blank page.": [
+				"W\u00e4hle ein vordefiniertes Layout oder starte mit einer leeren Seite."
+			],
+			"Add a page": [ "Seite hinzuf\u00fcgen" ],
+			"Layout": [ "Layout" ]
+		}
+	}
+}

@@ -1,0 +1,25 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "tr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"You can visit the plugin directory to get started with installing new plugins.": [
+				"Yeni eklentiler y\u00fcklemeye ba\u015flamak i\u00e7in eklenti dizinini ziyaret edebilirsiniz."
+			],
+			"You can visit the <a>plugin directory</a> to get started with installing new plugins.": [
+				"Yeni eklentiler y\u00fcklemeye ba\u015flamak i\u00e7in <a>eklenti dizinini</a> ziyaret edebilirsiniz."
+			],
+			"plugin": [ "eklenti" ],
+			"You can visit the theme directory to select a different design for your site.": [
+				"Siteniz i\u00e7in farkl\u0131 bir tasar\u0131m se\u00e7mek \u00fczere tema dizinini ziyaret edebilirsiniz."
+			],
+			"You can visit the <a>theme directory</a> to select a different design for your site.": [
+				"Siteniz i\u00e7in farkl\u0131 bir tasar\u0131m se\u00e7mek \u00fczere <a>tema dizinini</a> ziyaret edebilirsiniz."
+			],
+			"theme": [ "tema" ]
+		}
+	}
+}

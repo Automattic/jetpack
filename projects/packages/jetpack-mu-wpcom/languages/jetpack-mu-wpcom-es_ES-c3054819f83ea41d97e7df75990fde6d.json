@@ -1,0 +1,14 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "es",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Base Font": [ "Fuente base" ],
+			"Heading Font": [ "Fuente para encabezados" ],
+			"custom font selection": [ "selecci\u00f3n de fuente personalizada" ]
+		}
+	}
+}

@@ -1,0 +1,17 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "nl",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Block guide": [ "Handleiding voor blokken" ],
+			"Upgrade your plan to upload audio": [ "Upgrade je abonnement om audio te uploaden" ],
+			"Upgrade your plan to use video covers": [
+				"Upgrade je abonnement om videocovers te gebruiken"
+			],
+			"Learn more": [ "Meer informatie" ]
+		}
+	}
+}

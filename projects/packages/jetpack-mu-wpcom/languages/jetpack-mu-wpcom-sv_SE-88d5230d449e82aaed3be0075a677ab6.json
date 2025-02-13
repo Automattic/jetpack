@@ -1,0 +1,16 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "sv_SE",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Buy a <a href=\"https://wordpress.com/domains/add/%1$s?redirect_to=%2$s\">custom domain</a>, <a href=\"https://wordpress.com/domains/add/mapping/%1$s?redirect_to=%2$s\">map</a> a domain you already own, or <a href=\"https://wordpress.com/domains/add/site-redirect/%1$s?redirect_to=%2$s\">redirect</a> this site. <a href=\"https://wordpress.com/domains/manage/%1$s/edit/%1$s\">You can change your site address in Domain Settings</a>.": [
+				"K\u00f6p en <a href=\"https://wordpress.com/domains/add/%1$s?redirect_to=%2$s\">anpassad dom\u00e4n</a>, <a href=\"https://wordpress.com/domains/add/mapping/%1$s?redirect_to=%2$s\">mappa</a> en dom\u00e4n som du redan \u00e4ger eller <a href=\"https://wordpress.com/domains/add/site-redirect/%1$s?redirect_to=%2$s\">omdirigera</a> den h\u00e4r webbplatsen. <a href=\"https://wordpress.com/domains/manage/%1$s/edit/%1$s\">Du kan \u00e4ndra din webbplatsadress i dom\u00e4ninst\u00e4llningarna</a>."
+			],
+			"Site Address (URL)": [ "Webbplatsadress (URL)" ],
+			"WordPress Address (URL)": [ "WordPressadress (URL)" ]
+		}
+	}
+}

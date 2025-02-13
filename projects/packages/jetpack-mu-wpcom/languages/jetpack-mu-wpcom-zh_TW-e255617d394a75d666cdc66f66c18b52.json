@@ -1,0 +1,103 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "zh_TW",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Featured image caption": [ "\u7cbe\u9078\u5716\u7247\u8aaa\u660e" ],
+			"Category": [ "\u5206\u985e" ],
+			"Author Name": [ "\u4f5c\u8005\u540d\u7a31" ],
+			"Post Title": [ "\u6587\u7ae0\u6a19\u984c" ],
+			"Post Subtitle": [ "\u6587\u7ae0\u526f\u6a19\u984c" ],
+			"Full post content.": [ "\u5b8c\u6574\u6587\u7ae0\u5167\u5bb9\u3002" ],
+			"The post excerpt.": [ "\u6587\u7ae0\u6458\u8981\u3002" ],
+			"The post content.": [ "\u6587\u7ae0\u5167\u5bb9\u3002" ],
+			"Excluded %s": [ "\u5df2\u6392\u9664 %s" ],
+			"Excluded Categories": [ "\u6392\u9664\u7684\u5206\u985e" ],
+			"Excluded Tags": [ "\u6392\u9664\u7684\u6a19\u7c64" ],
+			"Show Advanced Filters": [ "\u986f\u793a\u9032\u968e\u7be9\u9078\u689d\u4ef6" ],
+			"Hide Advanced Filters": [ "\u96b1\u85cf\u9032\u968e\u7be9\u9078\u689d\u4ef6" ],
+			"Tags": [ "\u6a19\u7c64" ],
+			"Include subcategories ": [ "\u5305\u542b\u5b50\u5206\u985e " ],
+			"Categories": [ "\u5206\u985e" ],
+			"Authors": [ "\u4f5c\u8005" ],
+			"Begin typing post title, click autocomplete result to select.": [
+				"\u8acb\u8f38\u5165\u6587\u7ae0\u6a19\u984c\uff0c\u4e26\u9ede\u64ca\u81ea\u52d5\u5b8c\u6210\u7d50\u679c\u4ee5\u9078\u53d6\u3002"
+			],
+			"Posts": [ "\u6587\u7ae0" ],
+			"Choose Specific Posts": [ "\u9078\u53d6\u6307\u5b9a\u6587\u7ae0" ],
+			"(no name)": [ "(\u7121\u540d\u7a31)" ],
+			"(no title)": [ "(\u7121\u6a19\u984c)" ],
+			"Selection here has effect only for editors, regular users will only see published posts.": [
+				"\u6b64\u8655\u7684\u9078\u53d6\u9805\u76ee\u53ea\u9069\u7528\u65bc\u7de8\u8f2f\u8005\uff0c\u4e00\u822c\u4f7f\u7528\u8005\u53ea\u6703\u770b\u898b\u5df2\u767c\u8868\u7684\u6587\u7ae0\u3002"
+			],
+			"Additional Post Statuses": [ "\u5176\u4ed6\u6587\u7ae0\u72c0\u614b" ],
+			"Post Types": [ "\u767c\u6587\u985e\u578b" ],
+			"Listings": [ "\u6e05\u55ae" ],
+			"A carousel of posts.": [ "\u6587\u7ae0\u96a8\u9078\u5340\u3002" ],
+			"carousel": [ "\u8f2a\u64ad" ],
+			"slideshow": [ "\u6295\u5f71\u7247" ],
+			"posts": [ "\u6587\u7ae0" ],
+			"Post Carousel": [ "\u6587\u7ae0\u96a8\u9078\u5340" ],
+			"Show Featured Image Credit": [
+				"\u986f\u793a\u7cbe\u9078\u5716\u7247\u64c1\u6709\u8005\u540d\u55ae"
+			],
+			"Show Featured Image Caption": [
+				"\u986f\u793a\u7cbe\u9078\u5716\u7247\u8aaa\u660e\u6587\u5b57"
+			],
+			"Show Author Avatar": [ "\u986f\u793a\u4f5c\u8005\u500b\u4eba\u982d\u50cf" ],
+			"Show Author": [ "\u986f\u793a\u4f5c\u8005" ],
+			"Show Category": [ "\u986f\u793a\u5206\u985e" ],
+			"Show Date": [ "\u9865\u793a\u767c\u4f48\u65e5\u671f" ],
+			"Show Title": [ "\u986f\u793a\u6a19\u984c" ],
+			"Article Meta Settings": [ "\u6587\u7ae0\u4e2d\u7e7c\u8cc7\u6599\u8a2d\u5b9a" ],
+			"Number of slides to show at once": [
+				"\u4e00\u6b21\u986f\u793a\u7684\u6295\u5f71\u7247\u6578"
+			],
+			"Delay between transitions (in seconds)": [
+				"\u904e\u5834\u5ef6\u9072 (\u4ee5\u79d2\u70ba\u55ae\u4f4d)"
+			],
+			"Autoplay between slides": [ "\u81ea\u52d5\u64ad\u653e\u4e0b\u4e00\u5f35\u6295\u5f71\u7247" ],
+			"Autoplay": [ "\u81ea\u52d5\u64ad\u653e" ],
+			"Hide the slideshow UI. Useful when used with Autoplay.": [
+				"\u96b1\u85cf\u6295\u5f71\u7247 UI\u3002 \u642d\u914d\u300c\u81ea\u52d5\u64ad\u653e\u300d\u4f7f\u7528\u7684\u5be6\u7528\u529f\u80fd\u3002"
+			],
+			"Hide Controls": [ "\u96b1\u85cf\u63a7\u5236\u9078\u9805" ],
+			"Contain": [ "\u5305\u542b" ],
+			"Cover": [ "\u5c01\u9762" ],
+			"The image will be resized to fit inside the slide without being cropped.": [
+				"\u5716\u7247\u6703\u91cd\u65b0\u8abf\u6574\u5927\u5c0f\u4ee5\u7f6e\u65bc\u6295\u5f71\u7247\u4e2d\uff0c\u4e0d\u6703\u88c1\u5207\u3002"
+			],
+			"The image will fill the entire slide and will be cropped if necessary.": [
+				"\u5716\u7247\u5c07\u586b\u6eff\u6574\u5f35\u6295\u5f71\u7247\uff0c\u4e26\u5728\u5fc5\u8981\u6642\u88c1\u5207\u3002"
+			],
+			"Image Fit": [ "\u5716\u7247\u6700\u9069\u5927\u5c0f" ],
+			"All slides will share the same aspect ratio, for consistency.": [
+				"\u6240\u6709\u6295\u5f71\u7247\u7684\u9577\u5bec\u6bd4\u90fd\u76f8\u540c\uff0c\u4ee5\u78ba\u4fdd\u4e00\u81f4\u6027\u3002"
+			],
+			"Slide Aspect Ratio": [ "\u6295\u5f71\u7247\u9577\u5bec\u6bd4" ],
+			"Slideshow Settings": [ "\u6295\u5f71\u7247\u8a2d\u5b9a" ],
+			"Display Settings": [ "\u986f\u793a\u8a2d\u5b9a" ],
+			"Sorry, no posts were found.": [
+				"\u5f88\u62b1\u6b49\uff0c\u627e\u4e0d\u5230\u7b26\u5408\u689d\u4ef6\u7684\u6587\u7ae0\u3002"
+			],
+			"9:16": [ "9:16" ],
+			"3:4": [ "3:4" ],
+			"16:9": [ "16:9" ],
+			"4:3": [ "4:3" ],
+			"1:1": [ "1:1" ],
+			"Square": [ "\u65b9\u5f62" ],
+			"Paused": [ "\u66ab\u505c" ],
+			"Playing": [ "\u64ad\u653e\u4e2d" ],
+			"Image: %s, ": [ "\u5716\u7247\uff1a%s\uff0c" ],
+			"Slide %1$s of %2$s": [ "\u6295\u5f71\u7247 %1$s\uff0c\u5171 %2$s" ],
+			"Slide %s": [ "\u7b2c %s \u5f35\u6295\u5f71\u7247" ],
+			"Scheduled": [ "\u5df2\u6392\u7a0b" ],
+			"Draft": [ "\u8349\u7a3f" ],
+			"post author\u0004 and ": [ " \u53ca " ],
+			"post author\u0004by": [ "\u4f5c\u8005:" ]
+		}
+	}
+}

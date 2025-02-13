@@ -1,0 +1,12 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n > 1;",
+				"language": "fr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Generating preview\u2026": [ "G\u00e9n\u00e9ration de l\u2019aper\u00e7u\u2026" ]
+		}
+	}
+}

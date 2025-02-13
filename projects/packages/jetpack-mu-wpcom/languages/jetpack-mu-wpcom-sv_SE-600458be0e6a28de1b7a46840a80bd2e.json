@@ -1,0 +1,61 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "sv_SE",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Learn more \u2197": [ "L\u00e4r dig mer \u2197" ],
+			"We've adopted WordPress' main Discussion Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Discussion Settings just got an update": [ "" ],
+			"We've adopted WordPress' main Reading Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Reading Settings just got an update": [ "" ],
+			"We've adopted WordPress' main Writing Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Writing Settings just got an update": [ "" ],
+			"We've adopted WordPress' main General Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"General Settings just got an update": [ "" ],
+			"The Tags view just got an update": [ "" ],
+			"The Categories view just got an update": [ "" ],
+			"The Comments view just got an update": [ "" ],
+			"The Pages view just got an update": [ "" ],
+			"The Posts view just got an update": [ "" ],
+			"We've adopted WordPress' main Tags view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Vi har anammat WordPress-huvudvyn Etiketter f\u00f6r att tillhandah\u00e5lla f\u00f6rb\u00e4ttringar f\u00f6r dig och miljontals WordPress-anv\u00e4ndare v\u00e4rlden \u00f6ver."
+			],
+			"We've adopted WordPress' main Categories view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Vi har anammat WordPress-huvudvyn Kategorier f\u00f6r att tillhandah\u00e5lla f\u00f6rb\u00e4ttringar f\u00f6r dig och miljontals WordPress-anv\u00e4ndare v\u00e4rlden \u00f6ver."
+			],
+			"We've adopted WordPress' main Comments view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Vi har anammat WordPress-huvudvyn Kommentarer f\u00f6r att tillhandah\u00e5lla f\u00f6rb\u00e4ttringar f\u00f6r dig och miljontals WordPress-anv\u00e4ndare v\u00e4rlden \u00f6ver."
+			],
+			"We've adopted WordPress' main Testimonials view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Vi har anammat WordPress-huvudvyn Omd\u00f6men f\u00f6r att tillhandah\u00e5lla f\u00f6rb\u00e4ttringar f\u00f6r dig och miljontals WordPress-anv\u00e4ndare v\u00e4rlden \u00f6ver."
+			],
+			"The Testimonials view just got an update": [ "" ],
+			"We've adopted WordPress' main Portfolio Projects view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Vi har anammat WordPress-huvudvyn Portf\u00f6ljprojekt f\u00f6r att tillhandah\u00e5lla f\u00f6rb\u00e4ttringar f\u00f6r dig och miljontals WordPress-anv\u00e4ndare v\u00e4rlden \u00f6ver."
+			],
+			"The Portfolio Projects view just got an update": [ "" ],
+			"We've adopted WordPress' main Pages view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Vi har anammat WordPress-huvudvyn Sidor f\u00f6r att tillhandah\u00e5lla f\u00f6rb\u00e4ttringar f\u00f6r dig och miljontals WordPress-anv\u00e4ndare v\u00e4rlden \u00f6ver."
+			],
+			"We've adopted WordPress' main Posts view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Vi har anammat WordPress-huvudvyn Inl\u00e4gg f\u00f6r att tillhandah\u00e5lla f\u00f6rb\u00e4ttringar f\u00f6r dig och miljontals WordPress-anv\u00e4ndare v\u00e4rlden \u00f6ver."
+			],
+			"We've adopted WordPress's main %s view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Vi har inf\u00f6rt WordPress huvudsakliga %s-vy f\u00f6r att ge f\u00f6rb\u00e4ttringar till dig och miljontals WordPress-anv\u00e4ndare \u00f6ver hela v\u00e4rlden."
+			],
+			"The %s view just got better": [ "%s-vyn blev precis b\u00e4ttre" ],
+			"Got it": [ "F\u00f6rst\u00e5tt!" ]
+		}
+	}
+}

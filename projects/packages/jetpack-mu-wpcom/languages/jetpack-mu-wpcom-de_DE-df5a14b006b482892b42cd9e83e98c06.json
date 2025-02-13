@@ -1,0 +1,13 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "de",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"An entry on the timeline": [ "Ein Eintrag auf der Zeitleiste" ],
+			"Timeline Entry": [ "Zeitleisteneintrag" ]
+		}
+	}
+}

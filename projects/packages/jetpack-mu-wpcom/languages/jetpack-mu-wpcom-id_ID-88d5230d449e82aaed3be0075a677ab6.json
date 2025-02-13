@@ -1,0 +1,16 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n > 1;",
+				"language": "id",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Buy a <a href=\"https://wordpress.com/domains/add/%1$s?redirect_to=%2$s\">custom domain</a>, <a href=\"https://wordpress.com/domains/add/mapping/%1$s?redirect_to=%2$s\">map</a> a domain you already own, or <a href=\"https://wordpress.com/domains/add/site-redirect/%1$s?redirect_to=%2$s\">redirect</a> this site. <a href=\"https://wordpress.com/domains/manage/%1$s/edit/%1$s\">You can change your site address in Domain Settings</a>.": [
+				"Beli <a href=\"https://wordpress.com/domains/add/%1$s?redirect_to=%2$s\">domain khusus</a>, <a href=\"https://wordpress.com/domains/add/mapping/%1$s?redirect_to=%2$s\">petakan</a> domain yang sudah Anda punya, atau <a href=\"https://wordpress.com/domains/add/site-redirect/%1$s?redirect_to=%2$s\">alihkan</a> situs ini. <a href=\"https://wordpress.com/domains/manage/%1$s/edit/%1$s\">Anda dapat mengubah alamat situs Anda di Pengaturan Domain</a>."
+			],
+			"Site Address (URL)": [ "Alamat Situs (URL)" ],
+			"WordPress Address (URL)": [ "Alamat WordPress (URL)" ]
+		}
+	}
+}

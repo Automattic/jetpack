@@ -1,0 +1,24 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "ja_JP",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Reach a larger audience boosting the content to the WordPress.com community of blogs and sites.": [
+				""
+			],
+			"Blaze this product": [ "" ],
+			"Blaze this post": [ "" ],
+			"Blaze this page": [ "" ],
+			"Promote with Blaze": [ "Blaze \u3092\u4f7f\u3063\u3066\u5ba3\u4f1d" ],
+			"Upgrade your plan to upload audio": [
+				"\u30d7\u30e9\u30f3\u3092\u30a2\u30c3\u30d7\u30b0\u30ec\u30fc\u30c9\u3057\u3066\u97f3\u58f0\u3092\u30a2\u30c3\u30d7\u30ed\u30fc\u30c9\u3059\u308b"
+			],
+			"Upgrade your plan to use video covers": [
+				"\u30d7\u30e9\u30f3\u3092\u30a2\u30c3\u30d7\u30b0\u30ec\u30fc\u30c9\u3057\u3066\u52d5\u753b\u306e\u30ab\u30d0\u30fc\u3092\u4f7f\u7528\u3059\u308b"
+			]
+		}
+	}
+}

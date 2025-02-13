@@ -1,0 +1,15 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "it",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Scheduled": [ "Programmato" ],
+			"Draft": [ "Bozza" ],
+			"post author\u0004 and ": [ " e " ],
+			"post author\u0004by": [ "di" ]
+		}
+	}
+}

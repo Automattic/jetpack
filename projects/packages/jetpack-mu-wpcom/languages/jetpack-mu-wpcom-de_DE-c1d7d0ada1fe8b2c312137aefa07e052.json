@@ -1,0 +1,15 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "de",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Enter media URL": [ "" ],
+			"Uploading\u2026": [ "Wird hochgeladen \u2026" ],
+			"Upload": [ "Hochladen" ],
+			"Upload from URL": [ "" ]
+		}
+	}
+}

@@ -1,0 +1,25 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "sv_SE",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"You can visit the plugin directory to get started with installing new plugins.": [
+				"Du kan bes\u00f6ka till\u00e4ggskatalogen f\u00f6r att komma ig\u00e5ng med att installera nya till\u00e4gg."
+			],
+			"You can visit the <a>plugin directory</a> to get started with installing new plugins.": [
+				"Du kan bes\u00f6ka <a>till\u00e4ggskatalogen</a> f\u00f6r att komma ig\u00e5ng med att installera nya till\u00e4gg."
+			],
+			"plugin": [ "till\u00e4gg" ],
+			"You can visit the theme directory to select a different design for your site.": [
+				"Du kan bes\u00f6ka temakatalogen f\u00f6r att v\u00e4lja en annan design f\u00f6r din webbplats."
+			],
+			"You can visit the <a>theme directory</a> to select a different design for your site.": [
+				"Du kan bes\u00f6ka <a>temakatalogen</a> f\u00f6r att v\u00e4lja en annan design f\u00f6r din webbplats."
+			],
+			"theme": [ "tema" ]
+		}
+	}
+}

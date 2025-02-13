@@ -1,0 +1,30 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "tr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Upgrade your plan to upload audio": [
+				"Ses y\u00fcklemek i\u00e7in paketinizi y\u00fckseltin"
+			],
+			"Upgrade your plan to use video covers": [
+				"Video ba\u015fl\u0131klar\u0131 kullanmak i\u00e7in paketinizi y\u00fckseltin"
+			],
+			"until": [ "\u015funa kadar:" ],
+			"Countdown seconds remaining\u0004seconds": [ "saniye" ],
+			"Countdown minutes remaining\u0004minutes": [ "dakika" ],
+			"Countdown hours remaining\u0004hours": [ "saat" ],
+			"Countdown days remaining\u0004days": [ "g\u00fcn" ],
+			"Date:": [ "Tarih:" ],
+			"Event Title": [ "Olay Ba\u015fl\u0131\u011f\u0131" ],
+			"Title:": [ "Ba\u015fl\u0131k:" ],
+			"Count down to an event. Set a title and pick a time and date.": [
+				"Bir olay i\u00e7in geri say\u0131m yap\u0131n. Ba\u015fl\u0131k belirleyip tarih ve saat se\u00e7in."
+			],
+			"Event Countdown": [ "Olay Geri Say\u0131m\u0131" ],
+			"Choose Date": [ "Tarih Se\u00e7" ]
+		}
+	}
+}

@@ -1,0 +1,16 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "tr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Buy a <a href=\"https://wordpress.com/domains/add/%1$s?redirect_to=%2$s\">custom domain</a>, <a href=\"https://wordpress.com/domains/add/mapping/%1$s?redirect_to=%2$s\">map</a> a domain you already own, or <a href=\"https://wordpress.com/domains/add/site-redirect/%1$s?redirect_to=%2$s\">redirect</a> this site. <a href=\"https://wordpress.com/domains/manage/%1$s/edit/%1$s\">You can change your site address in Domain Settings</a>.": [
+				"<a href=\"https://wordpress.com/domains/add/%1$s?redirect_to=%2$s\">\u00d6zel alan ad\u0131</a> sat\u0131n al\u0131n, zaten saihibi old\u011funuz bir alan ad\u0131n\u0131 <a href=\"https://wordpress.com/domains/add/mapping/%1$s?redirect_to=%2$s\">e\u015fleyin</a> vya bu siteyi <a href=\"https://wordpress.com/domains/add/site-redirect/%1$s?redirect_to=%2$s\">yeniden y\u00f6nlendirin</a>. <a href=\"https://wordpress.com/domains/manage/%1$s/edit/%1$s\">Sitenizin adresini Alan Ad\u0131 Ayarlar\u0131'ndan de\u011fi\u015ftirebilirsiniz.</a>"
+			],
+			"Site Address (URL)": [ "Site Adresi (URL)" ],
+			"WordPress Address (URL)": [ "WordPress Adresi (URL)" ]
+		}
+	}
+}

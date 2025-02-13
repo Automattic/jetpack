@@ -1,0 +1,15 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n > 1;",
+				"language": "fr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Background Color": [ "Couleur d'arri\u00e8re-plan" ],
+			"Color Settings": [ "R\u00e9glages des couleurs" ],
+			"Right": [ "Droite" ],
+			"Left": [ "Gauche" ]
+		}
+	}
+}

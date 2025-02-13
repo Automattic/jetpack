@@ -1,0 +1,14 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "ko_KR",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Base Font": [ "\uae30\ubcf8 \uae00\uaf34" ],
+			"Heading Font": [ "\uc81c\ubaa9 \uae00\uaf34" ],
+			"custom font selection": [ "\uc0ac\uc6a9\uc790 \uc815\uc758 \uae00\uaf34 \uc120\ud0dd" ]
+		}
+	}
+}

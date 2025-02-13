@@ -1,0 +1,61 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n > 1;",
+				"language": "id",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Learn more \u2197": [ "Baca selengkapnya \u2197" ],
+			"We've adopted WordPress' main Discussion Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Discussion Settings just got an update": [ "" ],
+			"We've adopted WordPress' main Reading Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Reading Settings just got an update": [ "" ],
+			"We've adopted WordPress' main Writing Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Writing Settings just got an update": [ "" ],
+			"We've adopted WordPress' main General Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"General Settings just got an update": [ "" ],
+			"The Tags view just got an update": [ "" ],
+			"The Categories view just got an update": [ "" ],
+			"The Comments view just got an update": [ "" ],
+			"The Pages view just got an update": [ "" ],
+			"The Posts view just got an update": [ "" ],
+			"We've adopted WordPress' main Tags view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Kami telah mengadopsi tampilan Tag utama WordPress untuk menghadirkan penyempurnaan kepada Anda dan jutaan pengguna WordPress di seluruh dunia."
+			],
+			"We've adopted WordPress' main Categories view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Kami telah mengadopsi tampilan Kategori utama WordPress untuk menghadirkan penyempurnaan kepada Anda dan jutaan pengguna WordPress di seluruh dunia."
+			],
+			"We've adopted WordPress' main Comments view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Kami telah mengadopsi tampilan Komentar utama WordPress untuk menghadirkan penyempurnaan kepada Anda dan jutaan pengguna WordPress di seluruh dunia."
+			],
+			"We've adopted WordPress' main Testimonials view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Kami telah mengadopsi tampilan Testimoni utama WordPress untuk menghadirkan penyempurnaan kepada Anda dan jutaan pengguna WordPress di seluruh dunia."
+			],
+			"The Testimonials view just got an update": [ "" ],
+			"We've adopted WordPress' main Portfolio Projects view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Kami telah mengadopsi tampilan Proyek Portofolio utama WordPress untuk menghadirkan penyempurnaan kepada Anda dan jutaan pengguna WordPress di seluruh dunia."
+			],
+			"The Portfolio Projects view just got an update": [ "" ],
+			"We've adopted WordPress' main Pages view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Kami telah mengadopsi tampilan Halaman utama WordPress untuk menghadirkan penyempurnaan kepada Anda dan jutaan pengguna WordPress di seluruh dunia."
+			],
+			"We've adopted WordPress' main Posts view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Kami telah mengadopsi tampilan Pos utama WordPress untuk menghadirkan penyempurnaan kepada Anda dan jutaan pengguna WordPress di seluruh dunia."
+			],
+			"We've adopted WordPress's main %s view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Kami telah mengadopsi tampilan utama %s WordPress untuk menghadirkan pengalaman yang lebih baik untuk Anda dan jutaan pengguna WordPress di seluruh dunia."
+			],
+			"The %s view just got better": [ "Tampilan %s kini lebih baik" ],
+			"Got it": [ "Berhasil!" ]
+		}
+	}
+}

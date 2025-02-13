@@ -1,0 +1,16 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "pt_BR",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"A carousel of posts.": [ "Um carrossel de posts." ],
+			"carousel": [ "carrossel" ],
+			"slideshow": [ "slideshow" ],
+			"posts": [ "posts" ],
+			"Post Carousel": [ "Carrossel de posts" ]
+		}
+	}
+}

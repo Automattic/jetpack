@@ -1,0 +1,20 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "es",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"block style\u0004Borders": [ "Bordes" ],
+			"block style\u0004Default": [ "Por defecto" ],
+			"A block for displaying homepage posts.": [
+				"Un bloque para mostrar entradas en la portada."
+			],
+			"latest": [ "recientes" ],
+			"articles": [ "art\u00edculos" ],
+			"Homepage Posts": [ "Entradas en portada" ],
+			"posts": [ "entradas" ]
+		}
+	}
+}

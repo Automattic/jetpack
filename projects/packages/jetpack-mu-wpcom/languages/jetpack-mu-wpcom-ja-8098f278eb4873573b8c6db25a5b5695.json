@@ -1,0 +1,20 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "ja_JP",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"block style\u0004Borders": [ "\u67a0\u7dda" ],
+			"block style\u0004Default": [ "\u30c7\u30d5\u30a9\u30eb\u30c8" ],
+			"A block for displaying homepage posts.": [
+				"\u30db\u30fc\u30e0\u30da\u30fc\u30b8\u306e\u6295\u7a3f\u3092\u8868\u793a\u3059\u308b\u30d6\u30ed\u30c3\u30af\u3002"
+			],
+			"latest": [ "\u6700\u65b0" ],
+			"articles": [ "\u8a18\u4e8b" ],
+			"Homepage Posts": [ "\u30db\u30fc\u30e0\u30da\u30fc\u30b8\u306e\u6295\u7a3f" ],
+			"posts": [ "\u6295\u7a3f" ]
+		}
+	}
+}

@@ -1,0 +1,20 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "es",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Font Selection": [ "Selecci\u00f3n de fuente" ],
+			"You have unsaved changes.": [ "Tienes cambios sin guardar." ],
+			"Any change you make here will apply to the entire website.": [
+				"Cualquier cambio que hagas aqu\u00ed se aplicar\u00e1 a toda la web."
+			],
+			"You are customizing %s.": [ "Est\u00e1s personalizando %s." ],
+			"Global Styles": [ "Estilos globales" ],
+			"Publish": [ "Publicar" ],
+			"Reset": [ "Restablecer" ]
+		}
+	}
+}

@@ -1,0 +1,30 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "tr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Upgrade your plan to upload audio": [
+				"Ses y\u00fcklemek i\u00e7in paketinizi y\u00fckseltin"
+			],
+			"Upgrade your plan to use video covers": [
+				"Video ba\u015fl\u0131klar\u0131 kullanmak i\u00e7in paketinizi y\u00fckseltin"
+			],
+			"An entry on the timeline": [ "Zaman \u00e7izelgesinde bir giri\u015f" ],
+			"Timeline Entry": [ "Zaman \u00c7izelgesi Giri\u015fi" ],
+			"Background Color": [ "Arka Plan Rengi" ],
+			"Color Settings": [ "Renk Ayarlar\u0131" ],
+			"Right": [ "Sa\u011fda" ],
+			"Left": [ "Solda" ],
+			"Winter": [ "K\u0131\u015f" ],
+			"Fall": [ "Sonbahar" ],
+			"Summer": [ "Yaz" ],
+			"Spring": [ "\u0130lkbahar" ],
+			"Alternate items": [ "\u00d6\u011feleri de\u011fi\u015ftir" ],
+			"Timeline settings": [ "Zaman \u00e7izelgesi ayarlar\u0131" ],
+			"Add entry": [ "Giri\u015f ekle" ]
+		}
+	}
+}

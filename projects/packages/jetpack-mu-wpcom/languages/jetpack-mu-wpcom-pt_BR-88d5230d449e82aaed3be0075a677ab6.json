@@ -1,0 +1,16 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "pt_BR",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Buy a <a href=\"https://wordpress.com/domains/add/%1$s?redirect_to=%2$s\">custom domain</a>, <a href=\"https://wordpress.com/domains/add/mapping/%1$s?redirect_to=%2$s\">map</a> a domain you already own, or <a href=\"https://wordpress.com/domains/add/site-redirect/%1$s?redirect_to=%2$s\">redirect</a> this site. <a href=\"https://wordpress.com/domains/manage/%1$s/edit/%1$s\">You can change your site address in Domain Settings</a>.": [
+				"Compre um <a href=\"https://wordpress.com/domains/add/%1$s?redirect_to=%2$s\">dom\u00ednio personalizado</a>, <a href=\"https://wordpress.com/domains/add/mapping/%1$s?redirect_to=%2$s\">mapeie</a> um dom\u00ednio que voc\u00ea j\u00e1 possui ou <a href=\"https://wordpress.com/domains/add/site-redirect/%1$s?redirect_to=%2$s\">redirecione</a> este site. <a href=\"https://wordpress.com/domains/manage/%1$s/edit/%1$s\">Voc\u00ea pode alterar o endere\u00e7o do seu site em Configura\u00e7\u00f5es do dom\u00ednio</a>."
+			],
+			"Site Address (URL)": [ "Endere\u00e7o do site (URL)" ],
+			"WordPress Address (URL)": [ "Endere\u00e7o do WordPress (URL)" ]
+		}
+	}
+}

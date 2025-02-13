@@ -1,0 +1,19 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "es",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Start customizing": [ "Empezar a personalizar" ],
+			"Try customizing your theme styles to get your site looking just right.": [
+				"Prueba a personalizar los estilos de tu tema para que el sitio tenga un buen aspecto."
+			],
+			"Changes you make in the editor won\u2019t be applied to your site until you activate the theme.": [
+				"Los cambios que hagas en el editor no se aplicar\u00e1n a tu sitio hasta que actives el tema."
+			],
+			"You\u2019re previewing %s": [ "Est\u00e1s previsualizando %s" ]
+		}
+	}
+}

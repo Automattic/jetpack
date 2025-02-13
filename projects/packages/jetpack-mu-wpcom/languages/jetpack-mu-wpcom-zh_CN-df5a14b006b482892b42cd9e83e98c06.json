@@ -1,0 +1,13 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "zh_CN",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"An entry on the timeline": [ "\u65f6\u95f4\u8f74\u4e0a\u7684\u4e00\u4e2a\u6761\u76ee" ],
+			"Timeline Entry": [ "\u65f6\u95f4\u8f74\u6761\u76ee" ]
+		}
+	}
+}

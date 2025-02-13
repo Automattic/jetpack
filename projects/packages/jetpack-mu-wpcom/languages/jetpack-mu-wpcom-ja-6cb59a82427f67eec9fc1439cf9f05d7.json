@@ -1,0 +1,12 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "ja_JP",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Add entry": [ "\u6295\u7a3f\u3092\u8ffd\u52a0" ]
+		}
+	}
+}

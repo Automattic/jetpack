@@ -1,0 +1,20 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "sv_SE",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"block style\u0004Borders": [ "Ramar" ],
+			"block style\u0004Default": [ "Standard" ],
+			"A block for displaying homepage posts.": [
+				"Ett block f\u00f6r visning av inl\u00e4gg p\u00e5 startsidan."
+			],
+			"latest": [ "senaste" ],
+			"articles": [ "artiklar" ],
+			"Homepage Posts": [ "Startsidans inl\u00e4gg" ],
+			"posts": [ "inl\u00e4gg" ]
+		}
+	}
+}

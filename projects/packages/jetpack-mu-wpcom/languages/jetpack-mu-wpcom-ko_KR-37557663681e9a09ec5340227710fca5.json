@@ -1,0 +1,12 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "ko_KR",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Generating preview\u2026": [ "\ubbf8\ub9ac\ubcf4\uae30 \uc0dd\uc131 \uc911\u2026" ]
+		}
+	}
+}

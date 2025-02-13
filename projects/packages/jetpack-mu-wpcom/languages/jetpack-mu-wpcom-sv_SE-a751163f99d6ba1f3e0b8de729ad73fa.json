@@ -1,0 +1,19 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "sv_SE",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Start customizing": [ "B\u00f6rja anpassa" ],
+			"Try customizing your theme styles to get your site looking just right.": [
+				"Prova att anpassa dina temastilar f\u00f6r att f\u00e5 din webbplats att se ut som du vill."
+			],
+			"Changes you make in the editor won\u2019t be applied to your site until you activate the theme.": [
+				"\u00c4ndringar du g\u00f6r i redigeraren kommer inte att till\u00e4mpas p\u00e5 din webbplats f\u00f6rr\u00e4n du aktiverar temat."
+			],
+			"You\u2019re previewing %s": [ "Du f\u00f6rhandsgranskar %s" ]
+		}
+	}
+}

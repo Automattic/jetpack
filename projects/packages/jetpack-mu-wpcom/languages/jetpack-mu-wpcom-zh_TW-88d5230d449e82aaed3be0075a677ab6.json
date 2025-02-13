@@ -1,0 +1,16 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "zh_TW",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Buy a <a href=\"https://wordpress.com/domains/add/%1$s?redirect_to=%2$s\">custom domain</a>, <a href=\"https://wordpress.com/domains/add/mapping/%1$s?redirect_to=%2$s\">map</a> a domain you already own, or <a href=\"https://wordpress.com/domains/add/site-redirect/%1$s?redirect_to=%2$s\">redirect</a> this site. <a href=\"https://wordpress.com/domains/manage/%1$s/edit/%1$s\">You can change your site address in Domain Settings</a>.": [
+				"\u8cfc\u8cb7<a href=\"https://wordpress.com/domains/add/%1$s?redirect_to=%2$s\">\u81ea\u8a02\u7db2\u57df</a>\u3001<a href=\"https://wordpress.com/domains/add/mapping/%1$s?redirect_to=%2$s\">\u5c0d\u61c9</a>\u5df2\u64c1\u6709\u7684\u7db2\u57df\uff0c\u6216<a href=\"https://wordpress.com/domains/add/site-redirect/%1$s?redirect_to=%2$s\">\u91cd\u65b0\u5c0e\u5411</a>\u6b64\u7db2\u7ad9\u3002 <a href=\"https://wordpress.com/domains/manage/%1$s/edit/%1$s\">\u4f60\u53ef\u4ee5\u5728\u300c\u7db2\u57df\u8a2d\u5b9a\u300d\u8b8a\u66f4\u7db2\u7ad9\u4f4d\u5740</a>\u3002"
+			],
+			"Site Address (URL)": [ "\u7db2\u7ad9\u4f4d\u5740 (\u7db2\u5740)" ],
+			"WordPress Address (URL)": [ "WordPress \u4f4d\u5740 (\u7db2\u5740)" ]
+		}
+	}
+}

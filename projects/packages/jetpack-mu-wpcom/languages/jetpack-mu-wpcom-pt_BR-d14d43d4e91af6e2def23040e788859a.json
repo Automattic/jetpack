@@ -1,0 +1,113 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "pt_BR",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Featured image caption": [ "Legenda de imagem destacada" ],
+			"Category": [ "Categoria" ],
+			"Author Name": [ "Nome do autor" ],
+			"Post Title": [ "T\u00edtulo do post" ],
+			"Post Subtitle": [ "Legenda do post" ],
+			"Full post content.": [ "Conte\u00fado do post completo." ],
+			"The post excerpt.": [ "O resumo do post." ],
+			"The post content.": [ "O conte\u00fado do post." ],
+			"Write header\u2026": [ "Escreva o cabe\u00e7alho\u2026" ],
+			"Uncropped": [ "N\u00e3o cortado" ],
+			"Square Image Shape": [ "Imagem no formato quadrado" ],
+			"portrait Image Shape": [ "Imagem no formato retrato" ],
+			"Landscape Image Shape": [ "Imagem no formato paisagem" ],
+			"Show media behind": [ "Mostrar m\u00eddia atr\u00e1s" ],
+			"Show media on right": [ "Mostrar m\u00eddia \u00e0 direita" ],
+			"Show media on left": [ "Mostrar m\u00eddia \u00e0 esquerda" ],
+			"Show media on top": [ "Mostrar m\u00eddia acima" ],
+			"Grid View": [ "Visualiza\u00e7\u00e3o em grade" ],
+			"List View": [ "Visualiza\u00e7\u00e3o em lista" ],
+			"Post Meta Settings": [ "Configura\u00e7\u00f5es de informa\u00e7\u00f5es do post" ],
+			"Text Color": [ "Cor do texto" ],
+			"Type Scale": [ "Escala tipogr\u00e1fica" ],
+			"\"Read More\" link text": [ "Texto do link \"Leia mais\"" ],
+			"Add a \"Read More\" link": [ "Adicionar um link \"Leia mais\"" ],
+			"Show Full Content": [ "Mostrar conte\u00fado completo" ],
+			"Max number of words in excerpt": [ "N\u00famero m\u00e1ximo de palavras no resumo" ],
+			"Show Excerpt": [ "Mostrar resumo" ],
+			"Show Subtitle": [ "Mostrar legenda" ],
+			"Post Control Settings": [ "Configura\u00e7\u00f5es de controle do post" ],
+			"Sets a minimum height for the block, using a percentage of the screen's current height.": [
+				"Define uma altura m\u00ednima para o bloco usando uma porcentagem da altura atual da tela."
+			],
+			"Minimum height": [ "Altura m\u00ednima" ],
+			"Featured Image Size": [ "Tamanho da imagem destacada" ],
+			"Stack on mobile": [ "Empilhar nos dispositivos m\u00f3veis" ],
+			"Show Featured Image": [ "Mostrar Imagem em Destaque" ],
+			"Featured Image Settings": [ "Configura\u00e7\u00f5es da imagem destacada" ],
+			"If checked, this block will be excluded from the page's de-duplication logic. Duplicate stories may appear.": [
+				"Se esta op\u00e7\u00e3o estiver marcada, este bloco ser\u00e1 exclu\u00eddo da l\u00f3gica de deduplica\u00e7\u00e3o da p\u00e1gina. Stories duplicados talvez apare\u00e7am."
+			],
+			"Allow duplicate stories": [ "Permitir stories duplicados" ],
+			"Infinite Scroll": [ "Rolagem Infinita" ],
+			"Show \"Load more posts\" Button": [ "Mostrar o bot\u00e3o \"Carregar mais posts\"" ],
+			"This blog is private, therefore the \"Load more posts\" feature is not active.": [
+				"Este blog \u00e9 privado, portanto, a funcionalidade \"Carregar mais posts\" n\u00e3o est\u00e1 ativo."
+			],
+			"Columns Gap": [ "Intervalo entre colunas" ],
+			"Columns": [ "Colunas" ],
+			"XL": [ "GG" ],
+			"Extra Large": [ "Extra Grande" ],
+			"L": [ "G" ],
+			"Large": [ "Grande" ],
+			"M": [ "M" ],
+			"Medium": [ "M\u00e9dio" ],
+			"S": [ "P" ],
+			"Small": [ "Pequeno" ],
+			"Color Settings": [ "Configura\u00e7\u00f5es de cor" ],
+			"Excluded %s": [ "Exclu\u00eddo %s" ],
+			"Excluded Categories": [ "Categorias exclu\u00eddas" ],
+			"Excluded Tags": [ "Tags exclu\u00eddas" ],
+			"Show Advanced Filters": [ "Mostrar filtros avan\u00e7ados" ],
+			"Hide Advanced Filters": [ "Ocultar filtros avan\u00e7ados" ],
+			"Tags": [ "Tags" ],
+			"Include subcategories ": [ "Incluir subcategorias " ],
+			"Categories": [ "Categorias" ],
+			"Authors": [ "Autores" ],
+			"Begin typing post title, click autocomplete result to select.": [
+				"Para come\u00e7ar, insira o t\u00edtulo da publica\u00e7\u00e3o e clique em completar resultado automaticamente para selecionar."
+			],
+			"Posts": [ "Posts" ],
+			"Choose Specific Posts": [ "Escolher publica\u00e7\u00f5es espec\u00edficas" ],
+			"(no name)": [ "(sem nome)" ],
+			"(no title)": [ "(sem t\u00edtulo)" ],
+			"Selection here has effect only for editors, regular users will only see published posts.": [
+				"A sele\u00e7\u00e3o aqui s\u00f3 \u00e9 v\u00e1lida para editores. Os usu\u00e1rios comuns s\u00f3 ver\u00e3o os posts publicados."
+			],
+			"Additional Post Statuses": [ "Status adicionais do post" ],
+			"Post Types": [ "Tipos de post" ],
+			"Listings": [ "Listas" ],
+			"block style\u0004Borders": [ "Margens" ],
+			"block style\u0004Default": [ "Padr\u00e3o" ],
+			"A block for displaying homepage posts.": [
+				"Um bloco para exibir posts da p\u00e1gina inicial."
+			],
+			"latest": [ "mais recentes" ],
+			"articles": [ "artigos" ],
+			"Homepage Posts": [ "Posts da p\u00e1gina inicial" ],
+			"posts": [ "posts" ],
+			"Show Featured Image Credit": [ "Mostrar cr\u00e9dito de imagem destacada" ],
+			"Show Featured Image Caption": [ "Mostrar legenda de imagem destacada" ],
+			"Show Author Avatar": [ "Mostrar avatar do autor" ],
+			"Show Author": [ "Mostrar autor" ],
+			"Show Category": [ "Mostrar categoria" ],
+			"Show Date": [ "Mostrar data" ],
+			"Display Settings": [ "Exibir configura\u00e7\u00f5es" ],
+			"Sorry, no posts were found.": [ "Nenhum post encontrado." ],
+			"Blog Posts": [ "Posts de blog" ],
+			"Scheduled": [ "Agendado" ],
+			"Draft": [ "Rascunho" ],
+			"post author\u0004 and ": [ " e " ],
+			"post author\u0004by": [ "por" ],
+			"Load more posts": [ "Carregar mais posts" ]
+		}
+	}
+}

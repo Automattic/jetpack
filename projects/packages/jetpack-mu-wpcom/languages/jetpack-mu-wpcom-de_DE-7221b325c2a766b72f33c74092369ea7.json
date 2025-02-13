@@ -1,0 +1,106 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "de",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"<strong>Need help?</strong> Learn more about the <connectionInfoLink>Jetpack connection</connectionInfoLink> or <supportLink>contact Jetpack support</supportLink>": [
+				"<strong>Brauchst du Hilfe?</strong>Erfahre mehr \u00fcber die <connectionInfoLink>Jetpack-Verbindung</connectionInfoLink> oder <supportLink>kontaktiere den Jetpack-Support</supportLink>"
+			],
+			"Disconnect Jetpack": [ "Jetpack trennen" ],
+			"Transfer ownership to another admin": [
+				"Inhaberschaft auf einen anderen Administrator \u00fcbertragen"
+			],
+			"At least one user must be connected for your Jetpack products to work properly.": [
+				"Damit deine Jetpack-Produkte richtig funktionieren, muss mindestens ein Benutzer verbunden sein."
+			],
+			"Manage your Jetpack connection": [ "Jetpack-Verbindung verwalten" ],
+			"Loading\u2026": [ "Wird geladen\u00a0\u2026" ],
+			"Submit Feedback": [ "Feedback \u00fcbermitteln" ],
+			"Submitting\u2026": [ "Sendevorgang l\u00e4uft \u2026" ],
+			"share your experience": [ "Teile deine Erfahrungen" ],
+			"Other:": [ "Sonstiges:" ],
+			"I don't know what it does.": [ "Ich kenne die Funktionen nicht" ],
+			"It's buggy.": [ "Jetpack ist fehleranf\u00e4llig." ],
+			"It slowed down my site.": [ "Jetpack hat meine Website verlangsamt." ],
+			"I can't get it to work.": [ "Jetpack funktioniert nicht." ],
+			"Troubleshooting - I'll be reconnecting afterwards.": [
+				"Problembehandlung\u00a0\u2013 Ich stelle anschlie\u00dfend wieder eine Verbindung her."
+			],
+			"Your answer has been submitted. <br/>Thanks for your input on how we can improve Jetpack.": [
+				"Deine Antwort wurde gesendet. <br/>Danke f\u00fcr dein Feedback, wie wir Jetpack verbessern k\u00f6nnen."
+			],
+			"Thank you!": [ "Vielen Dank!" ],
+			"Skip for now": [ "Vorl\u00e4ufig \u00fcberspringen" ],
+			"Let us know what didn\u2018t work for you": [ "Sag uns, was dir nicht gefallen hat" ],
+			"Before you go, help us improve Jetpack": [ "Hilf uns dabei, Jetpack zu verbessern" ],
+			"Deactivate": [ "Deaktivieren" ],
+			"Disconnecting\u2026": [ "Verbindung wird getrennt\u00a0..." ],
+			"Disconnect": [ "Getrennt" ],
+			"Stay connected": [ "Verbunden bleiben" ],
+			"<strong>Need help?</strong> Learn more about the <jpConnectionInfoLink>Jetpack connection</jpConnectionInfoLink> or <jpSupportLink>contact Jetpack support</jpSupportLink>.": [
+				"<strong>Brauchst du Hilfe?</strong>Erfahre mehr \u00fcber die <jpConnectionInfoLink>Jetpack-Verbindung</jpConnectionInfoLink> oder <jpSupportLink>kontaktiere den Jetpack-Support</jpSupportLink>."
+			],
+			"Once you disconnect Jetpack, these will no longer work.": [
+				"Wenn du die Verbindung zu Jetpack trennst, funktionieren diese nicht mehr."
+			],
+			"Jetpack is currently powering multiple products on your site.": [
+				"Du nutzt Jetpack aktuell f\u00fcr mehrere Produkte auf deiner Website."
+			],
+			"Back to my website": [ "Zur\u00fcck zu meiner Website" ],
+			"No thank you": [ "Nein danke" ],
+			"Help us improve": [ "Hilf mit, uns zu verbessern" ],
+			"We\u2019re sorry to see you go. Here at Jetpack, we\u2019re always striving to provide the best experience for our customers. Please take our short survey (2 minutes, promise).": [
+				"Schade, dass du Jetpack nicht mehr nutzen m\u00f6chtest. Wir bei Jetpack m\u00f6chten allen unseren Kunden das bestm\u00f6gliche Erlebnis bieten. Bitte nimm an unserer kurzen Umfrage teil (sie dauert wirklich nur 2\u00a0Minuten)."
+			],
+			"Jetpack has been <br/>successfully disconnected.": [
+				"Jetpack wurde <br/>erfolgreich getrennt."
+			],
+			"Are you sure you want to disconnect?": [
+				"Bist du sicher, dass du die Verbindung trennen m\u00f6chtest?"
+			],
+			"Restore Connection": [ "Verbindung wiederherstellen" ],
+			"There was an error reconnecting Jetpack. Error: %s": [
+				"Fehler beim erneuten Verbinden von Jetpack Fehler: %s"
+			],
+			"Reconnecting Jetpack": [ "Jetpack wird erneut verbunden" ],
+			"Jetpack is powering other plugins on your site. If you disconnect, these plugins will no longer work.": [
+				"Andere Plugins auf deiner Website nutzen Jetpack. Wenn du die Verbindung trennst, funktionieren diese Plugins nicht mehr."
+			],
+			"Log in to get started": [ "Melde dich an, um loszulegen" ],
+			"Already have a subscription? <connectButton/>": [
+				"Du hast bereits ein Abonnement? <connectButton/>"
+			],
+			"Unavailable in <a>Offline Mode</a>": [ "Im <a>Offlinemodus</a> nicht verf\u00fcgbar" ],
+			"This site has been suspended.": [ "Diese Website wurde eingestellt." ],
+			"Your site host is on a private network. Jetpack can only connect to public sites.": [
+				"Dein Website-Host befindet sich in einem privaten Netzwerk. Jetpack kann nur mit \u00f6ffentlichen Websites verbunden werden."
+			],
+			"Set up Jetpack": [ "Jetpack einrichten" ],
+			"Over 5 million WordPress sites are faster and more secure": [
+				"\u00dcber 5\u00a0Millionen WordPress-Websites sind schneller und sicherer"
+			],
+			"By clicking <strong>%s</strong>, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site\u2018s data</shareDetailsLink> with us.": [
+				"Wenn du auf <strong>%s</strong> klickst, stimmst du unseren <tosLink>Gesch\u00e4ftsbedingungen</tosLink> und der <shareDetailsLink>Synchronisation der Daten deiner Website</shareDetailsLink> mit uns zu."
+			],
+			"By clicking the buttons above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site\u2018s data</shareDetailsLink> with us.": [
+				"Wenn du auf die Buttons oben klickst, stimmst du unseren <tosLink>Gesch\u00e4ftsbedingungen</tosLink> und der <shareDetailsLink>Synchronisation der Daten deiner Website</shareDetailsLink> mit uns zu."
+			],
+			"By clicking <strong>%1$s</strong> or <strong>%2$s</strong>, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site\u2018s data</shareDetailsLink> with us.": [
+				"Wenn du auf <strong>%1$s</strong> oder <strong>%2$s</strong> klickst, stimmst du unseren <tosLink>Gesch\u00e4ftsbedingungen</tosLink> und der <shareDetailsLink>Synchronisation der Daten deiner Website</shareDetailsLink> mit uns zu."
+			],
+			"Icon for the product %s": [ "Icon f\u00fcr das Produkt %s" ],
+			"/month, paid yearly": [ "/Monat, j\u00e4hrliche Zahlung" ],
+			"(opens in a new tab)": [ "(\u00f6ffnet in neuem Tab)" ],
+			"An error occurred. Please try again.": [
+				"Ein Fehler ist aufgetreten. Bitte versuche es noch einmal."
+			],
+			"Jetpack Logo": [ "Jetpack-Logo" ],
+			"Connect": [ "Verbinden" ],
+			"Loading": [ "Wird geladen\u00a0\u2026" ],
+			"Cancel": [ "Abbrechen" ]
+		}
+	}
+}

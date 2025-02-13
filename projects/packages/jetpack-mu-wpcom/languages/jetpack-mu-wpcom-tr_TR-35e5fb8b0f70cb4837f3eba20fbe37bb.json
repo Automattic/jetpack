@@ -1,0 +1,16 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "tr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"User avatar": [ "Kullan\u0131c\u0131 avatar\u0131" ],
+			"View all responses": [ "T\u00fcm yan\u0131tlar\u0131 g\u00f6r\u00fcn" ],
+			"Next \u2192": [ "Sonraki \u2192" ],
+			"\u2190 Previous": [ "\u2190 \u00d6nceki" ],
+			"Post Answer": [ "Yan\u0131t\u0131n\u0131z\u0131 Payla\u015f\u0131n" ]
+		}
+	}
+}

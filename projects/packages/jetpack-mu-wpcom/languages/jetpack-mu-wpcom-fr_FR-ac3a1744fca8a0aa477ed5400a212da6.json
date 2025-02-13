@@ -1,0 +1,30 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n > 1;",
+				"language": "fr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Upgrade your plan to upload audio": [
+				"Mettre \u00e0 niveau votre plan pour charger des fichiers audio"
+			],
+			"Upgrade your plan to use video covers": [
+				"Mettre \u00e0 niveau votre plan pour utiliser des banni\u00e8res vid\u00e9o"
+			],
+			"An entry on the timeline": [ "Une entr\u00e9e sur le fil d'actualit\u00e9" ],
+			"Timeline Entry": [ "Entr\u00e9e de fil d'actualit\u00e9" ],
+			"Background Color": [ "Couleur d'arri\u00e8re-plan" ],
+			"Color Settings": [ "R\u00e9glages des couleurs" ],
+			"Right": [ "Droite" ],
+			"Left": [ "Gauche" ],
+			"Winter": [ "Hiver" ],
+			"Fall": [ "Automne" ],
+			"Summer": [ "\u00c9t\u00e9" ],
+			"Spring": [ "Printemps" ],
+			"Alternate items": [ "\u00c9l\u00e9ments alternatifs" ],
+			"Timeline settings": [ "R\u00e9glages du fil d'actualit\u00e9" ],
+			"Add entry": [ "Ajouter un titre" ]
+		}
+	}
+}

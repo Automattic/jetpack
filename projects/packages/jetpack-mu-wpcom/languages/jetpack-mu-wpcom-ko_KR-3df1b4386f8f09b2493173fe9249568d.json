@@ -1,0 +1,14 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "ko_KR",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Your active theme doesn't support %s.": [
+				"\ud65c\uc131 \ud14c\ub9c8\uac00 %s\uc744(\ub97c) \uc9c0\uc6d0\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4."
+			]
+		}
+	}
+}

@@ -1,0 +1,13 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "sv_SE",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"font pairings": [ "teckensnittsparning" ],
+			"Font Pairings": [ "Teckensnittsparningar" ]
+		}
+	}
+}

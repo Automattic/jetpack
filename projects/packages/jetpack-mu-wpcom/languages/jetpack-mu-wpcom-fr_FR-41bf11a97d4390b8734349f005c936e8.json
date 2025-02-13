@@ -1,0 +1,22 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n > 1;",
+				"language": "fr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Number of posts": [ "Nombre d\u2019articles" ],
+			"Number of posts to show": [ "Nombre d\u2019articles \u00e0 afficher" ],
+			"Your recent blog posts will be displayed here.": [
+				"Vos articles de blog r\u00e9cents s'afficheront ici."
+			],
+			"An improved version of this block is available. Update for a better, more natural way to manage your blog post listings. There may be small visual changes.": [
+				"Une version am\u00e9lior\u00e9e de ce bloc est disponible. Proc\u00e9dez \u00e0 la mise \u00e0 jour pour g\u00e9rer plus efficacement et naturellement les listes d'articles de votre blog. Quelques petites modifications visuelles ont pu \u00eatre apport\u00e9es."
+			],
+			"Update Block": [ "Mettre \u00e0 jour le bloc" ],
+			"Displays your latest Blog Posts.": [ "Affiche vos derniers articles de blog." ],
+			"Blog Posts Listing": [ "Liste des articles du blog" ]
+		}
+	}
+}

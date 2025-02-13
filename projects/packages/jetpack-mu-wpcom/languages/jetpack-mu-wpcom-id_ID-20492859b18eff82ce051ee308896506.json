@@ -1,0 +1,16 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n > 1;",
+				"language": "id",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Paused": [ "Tunda" ],
+			"Playing": [ "Memutar" ],
+			"Image: %s, ": [ "Gambar: %s, " ],
+			"Slide %1$s of %2$s": [ "Slide %1$s dari %2$s" ],
+			"Slide %s": [ "Slide %s" ]
+		}
+	}
+}

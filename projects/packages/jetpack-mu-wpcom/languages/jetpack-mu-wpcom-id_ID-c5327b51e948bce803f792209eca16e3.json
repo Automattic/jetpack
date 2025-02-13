@@ -1,0 +1,26 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n > 1;",
+				"language": "id",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Choose a Pattern": [ "Pilih Pola" ],
+			"Pick a pre-defined layout or continue with a blank page": [
+				"Pilih tata letak yang telah tersedia atau lanjutkan dengan halaman kosong"
+			],
+			"default vertical name\u0004Business": [ "Bisnis" ],
+			"default company name\u0004Your Company Name": [ "Nama Perusahaan Anda" ],
+			"default phone number\u0004555-555-5555": [ "555-555-5555" ],
+			"default address\u0004123 Main St": [ "123 Main St" ],
+			"Page categories": [ "Kategori halaman" ],
+			"Blank page": [ "Halaman kosong" ],
+			"Pick a pre-defined layout or start with a blank page.": [
+				"Pilih tata letak yang telah ditetapkan atau mulai dengan halaman kosong."
+			],
+			"Add a page": [ "Tambah laman" ],
+			"Layout": [ "Tampilan" ]
+		}
+	}
+}

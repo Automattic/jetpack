@@ -1,0 +1,43 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "tr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Task enabled": [ "G\u00f6rev a\u00e7\u0131ld\u0131" ],
+			"Task complete": [ "G\u00f6rev tamamland\u0131" ],
+			"Copy": [ "Kopyala" ],
+			"Edit Site": [ "Siteyi D\u00fczenle" ],
+			"Hosting Overview": [ "Depolama genel bak\u0131\u015f\u0131" ],
+			"User avatar": [ "Kullan\u0131c\u0131 avatar\u0131" ],
+			"View all responses": [ "T\u00fcm yan\u0131tlar\u0131 g\u00f6r\u00fcn" ],
+			"Next \u2192": [ "Sonraki \u2192" ],
+			"\u2190 Previous": [ "\u2190 \u00d6nceki" ],
+			"Supercharge your website with a <strong>custom address</strong> that matches your blog, brand, or business.": [
+				"Blogunuz, markan\u0131z veya i\u015fletmenizle e\u015fle\u015fen bir <strong>\u00f6zel adresle</strong> web sitenize g\u00fc\u00e7 kat\u0131n."
+			],
+			"Claim your free domain": [ "\u00dccretsiz alan ad\u0131n\u0131z\u0131 isteyin" ],
+			"Your paid plan includes a domain name <strong>free for one year</strong>. Choose one that\u2019s easy to remember and even easier to share.": [
+				"Plan\u0131n\u0131za <strong>bir y\u0131l boyunca \u00fccretsiz</strong> alan ad\u0131 dahildir. Hat\u0131rlamas\u0131 ve payla\u015fmas\u0131 kolay bir alan ad\u0131 se\u00e7in."
+			],
+			"Claim your domain": [ "Alan ad\u0131n\u0131z\u0131 talep edin" ],
+			"Interested in a custom domain? It\u2019s free for the first year when you switch to annual billing.": [
+				"\u00d6zel alan ad\u0131 ister misiniz? Y\u0131ll\u0131k faturaland\u0131rmaya ge\u00e7erseniz, ilk y\u0131l\u0131 bedavaya gelecek."
+			],
+			"View site": [ "Siteyi g\u00f6r\u00fcnt\u00fcle" ],
+			"Copy URL": [ "Ba\u011flant\u0131y\u0131 kopyala" ],
+			"Copied to clipboard!": [ "Panoya kopyaland\u0131!" ],
+			"Now you can head over to your site and share it with the world.": [
+				"\u015eimdi sitenize ge\u00e7ebilir, sitenizi t\u00fcm d\u00fcnyayla payla\u015fabilirsiniz."
+			],
+			"Congrats, your site is live!": [ "Tebrikler, siteniz yay\u0131nda!" ],
+			"Home": [ "Ba\u015flang\u0131\u00e7" ],
+			"Post Answer": [ "Yan\u0131t\u0131n\u0131z\u0131 Payla\u015f\u0131n" ],
+			"Footer": [ "Alt Bilgi" ],
+			"Header": [ "\u00dcst Bilgi" ],
+			"Share your site": [ "Sitenizi payla\u015f\u0131n" ]
+		}
+	}
+}

@@ -1,0 +1,16 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "nl",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"until": [ "tot" ],
+			"Countdown seconds remaining\u0004seconds": [ "seconden" ],
+			"Countdown minutes remaining\u0004minutes": [ "minuten" ],
+			"Countdown hours remaining\u0004hours": [ "uren" ],
+			"Countdown days remaining\u0004days": [ "dagen" ]
+		}
+	}
+}

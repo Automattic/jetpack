@@ -1,0 +1,19 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n > 1;",
+				"language": "id",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Start customizing": [ "Mulai menyesuaikan" ],
+			"Try customizing your theme styles to get your site looking just right.": [
+				"Atur gaya tema sesuai keinginan agar situs Anda terlihat menarik."
+			],
+			"Changes you make in the editor won\u2019t be applied to your site until you activate the theme.": [
+				"Perubahan di editor tidak akan diterapkan ke situs sampai Anda mengaktifkan tema."
+			],
+			"You\u2019re previewing %s": [ "Anda sedang mempratinjau %s" ]
+		}
+	}
+}

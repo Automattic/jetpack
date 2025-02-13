@@ -1,0 +1,13 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "tr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Edit Site": [ "Siteyi D\u00fczenle" ],
+			"Hosting Overview": [ "Depolama genel bak\u0131\u015f\u0131" ]
+		}
+	}
+}

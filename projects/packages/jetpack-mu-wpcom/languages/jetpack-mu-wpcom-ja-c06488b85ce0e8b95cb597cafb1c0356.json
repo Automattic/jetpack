@@ -1,0 +1,16 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "ja_JP",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"A carousel of posts.": [ "\u6295\u7a3f\u306e\u30ab\u30eb\u30fc\u30bb\u30eb\u3002" ],
+			"carousel": [ "\u30ab\u30eb\u30fc\u30bb\u30eb" ],
+			"slideshow": [ "\u30b9\u30e9\u30a4\u30c9\u30b7\u30e7\u30fc" ],
+			"posts": [ "\u6295\u7a3f" ],
+			"Post Carousel": [ "\u6295\u7a3f\u30ab\u30eb\u30fc\u30bb\u30eb" ]
+		}
+	}
+}

@@ -1,0 +1,127 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "tr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Featured image caption": [
+				"\u00d6ne \u00e7\u0131kan g\u00f6rsel ba\u015fl\u0131\u011f\u0131"
+			],
+			"Category": [ "Kategori" ],
+			"Author Name": [ "Yazar ad\u0131" ],
+			"Post Title": [ "Yaz\u0131 Ba\u015fl\u0131\u011f\u0131" ],
+			"Post Subtitle": [ "G\u00f6nderi Altyaz\u0131s\u0131" ],
+			"Full post content.": [ "Tam g\u00f6nderi i\u00e7eri\u011fi." ],
+			"The post excerpt.": [ "G\u00f6nderi al\u0131nt\u0131s\u0131." ],
+			"The post content.": [ "G\u00f6nderi i\u00e7eri\u011fi." ],
+			"Write header\u2026": [ "\u00dcst bilgiyi yaz\u2026" ],
+			"Uncropped": [ "K\u0131rp\u0131lmam\u0131\u015f" ],
+			"Square Image Shape": [ "Kare G\u00f6rsel \u015eekli" ],
+			"portrait Image Shape": [ "Portre G\u00f6rsel \u015eekli" ],
+			"Landscape Image Shape": [ "Manzara G\u00f6rsel \u015eekli" ],
+			"Show media behind": [ "Medyay\u0131 arkada g\u00f6ster" ],
+			"Show media on right": [ "Ortam\u0131 sa\u011fda g\u00f6r\u00fcnt\u00fcle" ],
+			"Show media on left": [ "Ortam\u0131 solda g\u00f6r\u00fcnt\u00fcle" ],
+			"Show media on top": [ "Medyay\u0131 \u00fcstte g\u00f6ster" ],
+			"Grid View": [ "Izgara G\u00f6r\u00fcn\u00fcm\u00fc" ],
+			"List View": [ "Liste g\u00f6r\u00fcn\u00fcm\u00fc" ],
+			"Post Meta Settings": [ "G\u00f6nderi Meta Verileri Ayarlar\u0131" ],
+			"Text Color": [ "Metin rengi" ],
+			"Type Scale": [ "T\u00fcr \u00d6l\u00e7e\u011fi" ],
+			"\"Read More\" link text": [ "\"Devam\u0131n\u0131 oku\" ba\u011flant\u0131 metni" ],
+			"Add a \"Read More\" link": [
+				"\"Devam\u0131n\u0131 oku\" ba\u011flant\u0131s\u0131 ekleyin"
+			],
+			"Show Full Content": [ "T\u00fcm \u0130\u00e7eri\u011fi G\u00f6ster" ],
+			"Max number of words in excerpt": [ "Al\u0131nt\u0131daki azami kelime say\u0131s\u0131" ],
+			"Show Excerpt": [ "Al\u0131nt\u0131y\u0131 G\u00f6ster" ],
+			"Show Subtitle": [ "Alt Ba\u015fl\u0131\u011f\u0131 G\u00f6ster" ],
+			"Post Control Settings": [ "G\u00f6nderi Kontrol Ayarlar\u0131" ],
+			"Sets a minimum height for the block, using a percentage of the screen's current height.": [
+				"Ekran\u0131n ge\u00e7erli y\u00fckseklik y\u00fczdesiyle blok i\u00e7in minimum y\u00fcksekli\u011fi ayarlar."
+			],
+			"Minimum height": [ "Minimum y\u00fckseklik" ],
+			"Featured Image Size": [ "\u00d6ne \u00c7\u0131kan G\u00f6rsel Boyutu" ],
+			"Stack on mobile": [ "Mobilde y\u0131\u011f\u0131nla" ],
+			"Show Featured Image": [
+				"\u00d6ne \u00e7\u0131kar\u0131lm\u0131\u015f g\u00f6rseli g\u00f6ster"
+			],
+			"Featured Image Settings": [ "\u00d6ne \u00c7\u0131kan G\u00f6rsel Ayarlar\u0131" ],
+			"If checked, this block will be excluded from the page's de-duplication logic. Duplicate stories may appear.": [
+				"\u0130\u015faretliyse bu blok sayfan\u0131n yinelenenleri kald\u0131rma mant\u0131\u011f\u0131ndan \u00e7\u0131kar\u0131l\u0131r. Yinelenen \u00f6yk\u00fcler g\u00f6r\u00fcnebilir."
+			],
+			"Allow duplicate stories": [ "Yinelenen \u00f6yk\u00fclere izin verin" ],
+			"Infinite Scroll": [ "Sonsuz Kayd\u0131rma" ],
+			"Show \"Load more posts\" Button": [
+				"\"Daha fazla g\u00f6nderi y\u00fckle\" D\u00fc\u011fmesini G\u00f6ster"
+			],
+			"This blog is private, therefore the \"Load more posts\" feature is not active.": [
+				"Bu blog \u00f6zel oldu\u011fundan \"Daha fazla g\u00f6nderi y\u00fckle\" \u00f6zelli\u011fi etkin de\u011fildir."
+			],
+			"Columns Gap": [ "S\u00fctun Bo\u015flu\u011fu" ],
+			"Columns": [ "S\u00fctunlar" ],
+			"XL": [ "XL" ],
+			"Extra Large": [ "Ekstra B\u00fcy\u00fck" ],
+			"L": [ "L" ],
+			"Large": [ "B\u00fcy\u00fck" ],
+			"M": [ "M" ],
+			"Medium": [ "Orta" ],
+			"S": [ "C" ],
+			"Small": [ "K\u00fc\u00e7\u00fck" ],
+			"Color Settings": [ "Renk Ayarlar\u0131" ],
+			"Excluded %s": [ "%s hari\u00e7 tutuldu" ],
+			"Excluded Categories": [ "Hari\u00e7 Tutulan Kategoriler" ],
+			"Excluded Tags": [ "\u00c7\u0131kar\u0131lan Etiketler" ],
+			"Show Advanced Filters": [ "Geli\u015fmi\u015f Filtreleri G\u00f6ster" ],
+			"Hide Advanced Filters": [ "Geli\u015fmi\u015f Filtreleri Gizle" ],
+			"Tags": [ "Etiketler" ],
+			"Include subcategories ": [ "Alt kategorileri dahil et " ],
+			"Categories": [ "Kategoriler" ],
+			"Authors": [ "Yazarlar" ],
+			"Begin typing post title, click autocomplete result to select.": [
+				"Yaz\u0131 ba\u015fl\u0131\u011f\u0131 yazmaya ba\u015flay\u0131n, se\u00e7mek i\u00e7in sonucu otomatik tamamla \u00f6\u011fesine t\u0131klay\u0131n."
+			],
+			"Posts": [ "G\u00f6nderiler" ],
+			"Choose Specific Posts": [ "Belirli Yaz\u0131lar\u0131 Se\u00e7" ],
+			"(no name)": [ "(ads\u0131z)" ],
+			"(no title)": [ "(ba\u015fl\u0131ks\u0131z)" ],
+			"Selection here has effect only for editors, regular users will only see published posts.": [
+				"Buradaki se\u00e7im sadece edit\u00f6rleri etkiler, normal kullan\u0131c\u0131lar sadece yay\u0131mlanm\u0131\u015f blog g\u00f6nderilerini g\u00f6recektir."
+			],
+			"Additional Post Statuses": [ "Ek Yaz\u0131 Durumlar\u0131" ],
+			"Post Types": [ "Yaz\u0131 T\u00fcrleri" ],
+			"Listings": [ "Listeler" ],
+			"block style\u0004Borders": [ "Kenarl\u0131klar" ],
+			"block style\u0004Default": [ "Varsay\u0131lan" ],
+			"A block for displaying homepage posts.": [
+				"Ana sayfa g\u00f6nderilerini g\u00f6r\u00fcnt\u00fclemek i\u00e7in bir blok."
+			],
+			"latest": [ "en yeni" ],
+			"articles": [ "makaleler" ],
+			"Homepage Posts": [ "Ana Sayfa G\u00f6nderileri" ],
+			"posts": [ "g\u00f6nderiler" ],
+			"Show Featured Image Credit": [
+				"\u00d6ne \u00c7\u0131kan G\u00f6rselin Bilgilerini G\u00f6ster"
+			],
+			"Show Featured Image Caption": [
+				"\u00d6ne \u00c7\u0131kan Resim Ba\u015fl\u0131\u011f\u0131n\u0131 G\u00f6ster"
+			],
+			"Show Author Avatar": [ "Yazar\u0131n Avatar\u0131n\u0131 G\u00f6ster" ],
+			"Show Author": [ "Yazar\u0131 G\u00f6ster" ],
+			"Show Category": [ "Kategoriyi G\u00f6ster" ],
+			"Show Date": [ "Tarihi G\u00f6ster" ],
+			"Display Settings": [ "G\u00f6r\u00fcnt\u00fcleme Ayarlar\u0131" ],
+			"Sorry, no posts were found.": [
+				"\u00dczg\u00fcn\u00fcz, hi\u00e7bir g\u00f6nderi bulunamad\u0131."
+			],
+			"Blog Posts": [ "Blog G\u00f6nderileri" ],
+			"Scheduled": [ "Zamanland\u0131" ],
+			"Draft": [ "Taslak" ],
+			"post author\u0004 and ": [ " ve " ],
+			"post author\u0004by": [ "yazan:" ],
+			"Load more posts": [ "Daha fazla g\u00f6nderi y\u00fckle" ]
+		}
+	}
+}

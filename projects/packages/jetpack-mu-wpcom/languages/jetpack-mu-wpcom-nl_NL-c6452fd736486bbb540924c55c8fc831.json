@@ -1,0 +1,21 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "nl",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Your site includes premium styles that are only visible to visitors after upgrading to the %s plan or higher.": [
+				"Je site bevat aangepaste stijlen die alleen zichtbaar zijn voor bezoekers na het upgraden naar het %s abonnement of hoger."
+			],
+			"Learn more": [ "Meer informatie" ],
+			"Preview without premium styles": [ "Voorbeeld zonder aangepaste stijlen" ],
+			"Your site includes premium styles that are only visible to visitors after <a>upgrading to the %s plan or higher</a>.": [
+				"Je site bevat aangepaste stijlen die alleen zichtbaar zijn voor bezoekers na <a>upgraden naar het %s abonnement of hoger</a>."
+			],
+			"Remove premium styles": [ "Verwijder premium stijlen" ],
+			"Upgrade now": [ "Upgrade nu" ]
+		}
+	}
+}

@@ -1,0 +1,24 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "de",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Reach a larger audience boosting the content to the WordPress.com community of blogs and sites.": [
+				"Erreiche ein gr\u00f6\u00dferes Publikum, indem du deine Inhalte in der WordPress.com-Community aus Blogs und Websites bewirbst."
+			],
+			"Blaze this product": [ "Dieses Produkt mit Blaze bewerben" ],
+			"Blaze this post": [ "Diesen Beitrag mit Blaze bewerben" ],
+			"Blaze this page": [ "Diese Seite mit Blaze bewerben" ],
+			"Promote with Blaze": [ "Mit Blaze bewerben" ],
+			"Upgrade your plan to upload audio": [
+				"F\u00fchre ein Upgrade deines Tarifs durch, um Audioinhalte hochladen zu k\u00f6nnen"
+			],
+			"Upgrade your plan to use video covers": [
+				"F\u00fchre ein Upgrade deines Tarifs durch, um Video-Cover verwenden zu k\u00f6nnen"
+			]
+		}
+	}
+}

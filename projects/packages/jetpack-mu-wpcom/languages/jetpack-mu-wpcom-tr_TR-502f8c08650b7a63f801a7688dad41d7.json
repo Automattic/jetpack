@@ -1,0 +1,17 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "tr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Selection here has effect only for editors, regular users will only see published posts.": [
+				"Buradaki se\u00e7im sadece edit\u00f6rleri etkiler, normal kullan\u0131c\u0131lar sadece yay\u0131mlanm\u0131\u015f blog g\u00f6nderilerini g\u00f6recektir."
+			],
+			"Additional Post Statuses": [ "Ek Yaz\u0131 Durumlar\u0131" ],
+			"Post Types": [ "Yaz\u0131 T\u00fcrleri" ],
+			"Listings": [ "Listeler" ]
+		}
+	}
+}

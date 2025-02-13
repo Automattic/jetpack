@@ -1,0 +1,31 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n > 1;",
+				"language": "fr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Supercharge your website with a <strong>custom address</strong> that matches your blog, brand, or business.": [
+				"Dynamisez votre site Web avec une <strong>adresse personnalis\u00e9e</strong> qui correspond \u00e0 votre blog, votre marque ou votre entreprise."
+			],
+			"Claim your free domain": [ "Demander votre domaine gratuit" ],
+			"Your paid plan includes a domain name <strong>free for one year</strong>. Choose one that\u2019s easy to remember and even easier to share.": [
+				"Votre plan payant comprend un nom de domaine <strong>gratuit pendant un an</strong>. Choisissez un nom simple \u00e0 retenir et encore plus simple \u00e0 partager."
+			],
+			"Claim your domain": [ "Demandez votre domaine." ],
+			"Interested in a custom domain? It\u2019s free for the first year when you switch to annual billing.": [
+				"Tent\u00e9\u2219e par un domaine personnalis\u00e9\u00a0? Il est gratuit la premi\u00e8re ann\u00e9e si vous passez \u00e0 la facturation annuelle."
+			],
+			"View site": [ "Afficher le site" ],
+			"Copy URL": [ "Copier l\u2019URL" ],
+			"Copied to clipboard!": [ "Copi\u00e9 dans le presse-papier\u00a0!" ],
+			"Now you can head over to your site and share it with the world.": [
+				"Vous pouvez maintenant vous rendre sur votre site et le partager avec le reste du monde."
+			],
+			"Congrats, your site is live!": [
+				"F\u00e9licitations, votre site vient d\u2019\u00eatre mis en ligne\u00a0!"
+			]
+		}
+	}
+}

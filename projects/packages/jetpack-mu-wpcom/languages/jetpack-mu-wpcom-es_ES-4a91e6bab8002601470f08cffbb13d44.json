@@ -1,0 +1,17 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "es",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Block guide": [ "Gu\u00eda de bloques" ],
+			"Upgrade your plan to upload audio": [ "Actualiza tu plan para subir audio" ],
+			"Upgrade your plan to use video covers": [
+				"Actualiza tu plan para usar fondos de v\u00eddeo"
+			],
+			"Learn more": [ "Aprender m\u00e1s" ]
+		}
+	}
+}

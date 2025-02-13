@@ -1,0 +1,61 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "es",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Learn more \u2197": [ "M\u00e1s informaci\u00f3n \u2197" ],
+			"We've adopted WordPress' main Discussion Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Discussion Settings just got an update": [ "" ],
+			"We've adopted WordPress' main Reading Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Reading Settings just got an update": [ "" ],
+			"We've adopted WordPress' main Writing Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Writing Settings just got an update": [ "" ],
+			"We've adopted WordPress' main General Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"General Settings just got an update": [ "" ],
+			"The Tags view just got an update": [ "" ],
+			"The Categories view just got an update": [ "" ],
+			"The Comments view just got an update": [ "" ],
+			"The Pages view just got an update": [ "" ],
+			"The Posts view just got an update": [ "" ],
+			"We've adopted WordPress' main Tags view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Hemos adoptado la vista principal Etiquetas de WordPress para ofrecerte mejoras a ti y a los millones de usuarios de WordPress en todo el mundo."
+			],
+			"We've adopted WordPress' main Categories view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Hemos adoptado la vista principal Categor\u00edas de WordPress para ofrecerte mejoras a ti y a los millones de usuarios de WordPress en todo el mundo."
+			],
+			"We've adopted WordPress' main Comments view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Hemos adoptado la vista principal Comentarios de WordPress para ofrecerte mejoras a ti y a los millones de usuarios de WordPress en todo el mundo."
+			],
+			"We've adopted WordPress' main Testimonials view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Hemos adoptado la vista principal Recomendaciones de WordPress para ofrecerte mejoras a ti y a los millones de usuarios de WordPress en todo el mundo."
+			],
+			"The Testimonials view just got an update": [ "" ],
+			"We've adopted WordPress' main Portfolio Projects view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Hemos adoptado la vista principal Proyectos del portafolio de WordPress para ofrecerte mejoras a ti y a los millones de usuarios de WordPress en todo el mundo."
+			],
+			"The Portfolio Projects view just got an update": [ "" ],
+			"We've adopted WordPress' main Pages view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Hemos adoptado la vista principal P\u00e1ginas de WordPress para ofrecerte mejoras a ti y a los millones de usuarios de WordPress en todo el mundo."
+			],
+			"We've adopted WordPress' main Posts view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Hemos adoptado la vista principal Entradas de WordPress para ofrecerte mejoras a ti y a los millones de usuarios de WordPress en todo el mundo."
+			],
+			"We've adopted WordPress's main %s view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Hemos adoptado la interfaz principal de %s de WordPress para ofrecerte mejoras a ti y a millones de usuarios de WordPress de todo el mundo."
+			],
+			"The %s view just got better": [ "La interfaz de %s ahora es mucho mejor" ],
+			"Got it": [ "Entendido" ]
+		}
+	}
+}

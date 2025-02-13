@@ -1,0 +1,46 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "es",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Add these tags": [ "A\u00f1adir estas etiquetas" ],
+			"Don't show again": [ "No mostrar de nuevo" ],
+			"Adding tags can help drive more traffic to your post.": [
+				"A\u00f1adir etiquetas puede ayudar a dirigir m\u00e1s tr\u00e1fico a tu publicaci\u00f3n."
+			],
+			"Based on the topics and themes in your post, here are some suggested tags to consider:": [
+				"En funci\u00f3n de los temas de tu publicaci\u00f3n, te sugerimos algunas etiquetas:"
+			],
+			"Recommended tags": [ "Etiquetas recomendadas" ],
+			"No Tags Added.": [ "No se han a\u00f1adido etiquetas." ],
+			"Tag Added.": [ "Etiqueta a\u00f1adida.", "Etiquetas a\u00f1adidas." ],
+			"Required": [ "Obligatorio" ],
+			"Next Steps": [ "Siguientes pasos" ],
+			"View Post": [ "Ver la entrada" ],
+			"Congratulations! You did it. View your post to see how it will look on your site.": [
+				"\u00a1Enhorabuena! Lo has conseguido. Revisa tu entrada para ver c\u00f3mo queda en tu sitio."
+			],
+			"Your first post is published!": [ "Se ha publicado tu primera entrada." ],
+			"Continue and launch": [ "Continuar y lanzar" ],
+			"Keep editing": [ "Seguir editando" ],
+			"Feel free to keep editing your homepage, or continue and launch your site.": [
+				"No dudes en seguir editando tu p\u00e1gina de inicio, o continuar y lanzar tu sitio."
+			],
+			"You\u2019ve added your first video!": [ "\u00a1Has a\u00f1adido tu primer v\u00eddeo!" ],
+			"View your product": [ "Ver tu producto" ],
+			"Continue editing": [ "Continuar editando" ],
+			"Preview your product on your site before launching and sharing with others.": [
+				"Previsualiza el producto en tu sitio antes de lanzarlo y compartirlo con otros."
+			],
+			"You've added your first product!": [ "\u00a1Has a\u00f1adido tu primer producto!" ],
+			"Congrats! Premium blocks are now available to use.": [
+				"\u00a1Enhorabuena! Ahora est\u00e1n disponibles para usar los bloques premium."
+			],
+			"Tags": [ "Etiquetas" ],
+			"Optional": [ "Opcional" ]
+		}
+	}
+}

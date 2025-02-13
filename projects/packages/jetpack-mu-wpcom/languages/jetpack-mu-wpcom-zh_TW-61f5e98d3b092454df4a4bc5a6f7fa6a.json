@@ -1,0 +1,19 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "zh_TW",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Date:": [ "\u65e5\u671f:" ],
+			"Event Title": [ "\u6d3b\u52d5\u6a19\u984c" ],
+			"Title:": [ "\u6a19\u984c:" ],
+			"Count down to an event. Set a title and pick a time and date.": [
+				"\u6d3b\u52d5\u7684\u5012\u6578\u8a08\u6642\u3002\u8acb\u64b0\u5beb\u6a19\u984c\u4e26\u9078\u53d6\u65e5\u671f\u548c\u6642\u9593\u3002"
+			],
+			"Event Countdown": [ "\u6d3b\u52d5\u5012\u6578\u8a08\u6642" ],
+			"Choose Date": [ "\u9078\u53d6\u65e5\u671f" ]
+		}
+	}
+}

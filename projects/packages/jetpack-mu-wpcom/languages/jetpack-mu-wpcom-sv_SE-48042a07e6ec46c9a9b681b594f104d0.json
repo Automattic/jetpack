@@ -1,0 +1,26 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "sv_SE",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Your active theme doesn't support %s.": [ "Ditt aktiva tema st\u00f6der inte %s." ],
+			"Font Selection": [ "Typsnittsval" ],
+			"You have unsaved changes.": [ "Inl\u00e4gget har osparade \u00e4ndringar." ],
+			"Any change you make here will apply to the entire website.": [
+				"Alla \u00e4ndringar du g\u00f6r h\u00e4r kommer att till\u00e4mpas p\u00e5 hela webbplatsen."
+			],
+			"You are customizing %s.": [ "Du anpassar %s." ],
+			"Global Styles": [ "Globala stilar" ],
+			"Publish": [ "Publicera" ],
+			"Reset": [ "\u00c5terst\u00e4ll" ],
+			"Base Font": [ "Grundtypsnitt" ],
+			"Heading Font": [ "Typsnitt f\u00f6r rubrik" ],
+			"custom font selection": [ "anpassade typsnittsval" ],
+			"font pairings": [ "teckensnittsparning" ],
+			"Font Pairings": [ "Teckensnittsparningar" ]
+		}
+	}
+}

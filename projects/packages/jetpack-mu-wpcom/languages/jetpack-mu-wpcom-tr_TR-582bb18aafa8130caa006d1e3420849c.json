@@ -1,0 +1,73 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "tr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Safe mode": [ "G\u00fcvenli mod" ],
+			"Or decide later and stay in <button>Safe mode</button>": [
+				"Veya daha sonra karar verin ve <button>G\u00fcvenli modda</button> kal\u0131n"
+			],
+			"Finishing setting up Safe mode\u2026": [
+				"G\u00fcvenli mod kurulumu tamamlan\u0131yor\u2026"
+			],
+			"<p><strong>Recommended for</strong></p><list><item>short-lived test sites</item><item>sites that will be cloned back to production after testing</item></list><p><strong>Please note</strong> that staying in Safe mode will disable some Jetpack features, including security features such as SSO, firewall, and site monitor. <safeModeLink>Learn more</safeModeLink>.</p>": [
+				"<p><strong>G\u00fcvenli mod,</strong></p><list><item>k\u0131sa \u00f6m\u00fcrl\u00fc test siteleri</item><item>testten sonra \u00fcretime geri kopyalanacak siteler i\u00e7in \u00f6nerilir</item></list><p><strong>L\u00fctfen</strong> g\u00fcvenli modda kalmadn\u0131n SSO, g\u00fcvenlik duvar\u0131 ve sire izleme gibi g\u00fcvenlik \u00f6zellikleri dahil olmak \u00fczere baz\u0131 Jetpack \u00f6zelliklerini devre d\u0131\u015f\u0131 b\u0131rakabilece\u011fini unutmay\u0131n. <safeModeLink>Daha fazla bilgi edinin</safeModeLink>.</p>"
+			],
+			"Stay in Safe Mode": [ "Stay in Safe Mode" ],
+			"Stay in Safe mode": [ "Stay in Safe mode" ],
+			"Could not stay in safe mode. Retry or find out more <a>here</a>.": [
+				"G\u00fcvenli modda kalamad\u0131. Yeniden deneyin veya daha fazlas\u0131n\u0131 <a>buradan</a> \u00f6\u011frenin."
+			],
+			"Safe Mode": [ "G\u00fcvenli Mod" ],
+			"An administrator of this site can take Jetpack out of Safe Mode.": [
+				"Bu sitenin y\u00f6neticisi Jetpack\u2019i G\u00fcvenli Mod\u2019dan \u00e7\u0131karabilir."
+			],
+			"This site is in Safe Mode because there are 2 Jetpack-powered sites that appear to be duplicates. 2 sites that are telling Jetpack they\u2019re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>": [
+				""
+			],
+			"Safe Mode has been switched off for <hostname>%1$s</hostname> website and Jetpack is fully functional.": [
+				""
+			],
+			"Your Jetpack settings have migrated successfully": [
+				"Jetpack ayarlar\u0131n\u0131z ba\u015far\u0131yla ta\u015f\u0131nd\u0131"
+			],
+			"Got it, thanks": [ "Anlad\u0131m, te\u015fekk\u00fcrler" ],
+			"Please select an option": [ "L\u00fctfen bir se\u00e7enek belirtin" ],
+			"<strong>Notice:</strong> It appears that your 'wp-config.php' file might be using dynamic site URL values. Dynamic site URLs could cause Jetpack to enter Safe Mode. <dynamicSiteUrlSupportLink>Learn how to set a static site URL.</dynamicSiteUrlSupportLink>": [
+				"<strong>Uyar\u0131:</strong> \"wp-config.php\" dosyan\u0131z dinamik site URL de\u011ferleri kullan\u0131yor olabilir. Dinamik site URL'leri Jetpack'in G\u00fcvenli Mod'a girmesine neden olabilir. <dynamicSiteUrlSupportLink>Statik site URL'sinin nas\u0131l ayarlanaca\u011f\u0131n\u0131 \u00f6\u011frenin.</dynamicSiteUrlSupportLink>"
+			],
+			"Your site is in Safe Mode because you have 2 Jetpack-powered sites that appear to be duplicates. Two sites that are telling Jetpack they\u2019re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>": [
+				"G\u00f6r\u00fcn\u00fc\u015fe g\u00f6re yinelenen 2 Jetpack destekli siteniz oldu\u011fundan siteniz G\u00fcvenli Modda. Jetpack'e ayn\u0131 site oldu\u011funu s\u00f6yleyen iki site. <safeModeLink>G\u00fcvenli mod hakk\u0131nda daha fazla bilgi edinin.</safeModeLink>"
+			],
+			"<span>Your site is in Safe Mode because <hostname>%1$s</hostname> appears to be a staging or development copy of <hostname>%2$s</hostname>.</span>2 sites that are telling Jetpack they\u2019re the same site. <safeModeLink>Learn more or troubleshoot common Safe mode issues</safeModeLink>.": [
+				"<span>Your site is in Safe Mode because <hostname>%1$s</hostname> appears to be a staging or development copy of <hostname>%2$s</hostname>.</span>2 sites that are telling Jetpack they\u2019re the same site. <safeModeLink>Learn more or troubleshoot common Safe mode issues</safeModeLink>."
+			],
+			"Safe Mode has been activated": [ "G\u00fcvenli Mod etkinle\u015ftirildi" ],
+			"Could not move your settings. Retry or find out more <a>here</a>.": [
+				"Ayarlar\u0131n\u0131z ta\u015f\u0131namad\u0131. Yeniden deneyin veya daha fazlas\u0131n\u0131 <a>buradan</a> \u00f6\u011frenin."
+			],
+			"Move all your settings, stats and subscribers to your other URL, <hostname>%1$s</hostname>. <hostname>%2$s</hostname> will be disconnected from Jetpack.": [
+				""
+			],
+			"Move Jetpack data": [ "Move Jetpack data" ],
+			"Move your settings": [ "Ayarlar\u0131n\u0131z\u0131 ta\u015f\u0131y\u0131n" ],
+			"Could not create the connection. Retry or find out more <a>here</a>.": [
+				"Ba\u011flant\u0131 olu\u015fturulamad\u0131. Yeniden deneyin veya daha fazlas\u0131n\u0131 <a>buradan</a> \u00f6\u011frenin."
+			],
+			"<hostname>%1$s</hostname> settings, stats, and subscribers will start fresh. <hostname>%2$s</hostname> will keep its data as is.": [
+				""
+			],
+			"<p><strong>Recommended for</strong></p><list><item>development sites</item><item>sites that need access to all Jetpack features</item></list><p><strong>Please note</strong> that creating a fresh connection for <hostname>%1$s</hostname> would require restoring the connection on <hostname>%2$s</hostname> if that site is cloned back to production. <safeModeLink>Learn more</safeModeLink>.</p>": [
+				"<p><strong>Recommended for</strong></p><list><item>development sites</item><item>sites that need access to all Jetpack features</item></list><p><strong>Please note</strong> that creating a fresh connection for <hostname>%1$s</hostname> would require restoring the connection on <hostname>%2$s</hostname> if that site is cloned back to production. <safeModeLink>Daha fazla bilgi edinin</safeModeLink>.</p>"
+			],
+			"Treat each site as independent sites": [
+				"Her siteye ba\u011f\u0131ms\u0131z site gibi davran"
+			],
+			"Create a fresh connection": [ "Yeni bir ba\u011flant\u0131 olu\u015ftur" ],
+			"Jetpack Logo": [ "Jetpack logosu" ]
+		}
+	}
+}

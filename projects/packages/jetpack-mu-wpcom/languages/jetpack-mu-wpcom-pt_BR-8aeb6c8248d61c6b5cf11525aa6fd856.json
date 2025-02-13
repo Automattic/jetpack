@@ -1,0 +1,13 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "pt_BR",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Alternate items": [ "Alternar itens" ],
+			"Timeline settings": [ "Configura\u00e7\u00f5es da linha do tempo" ]
+		}
+	}
+}

@@ -1,0 +1,25 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n > 1;",
+				"language": "id",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"You can visit the plugin directory to get started with installing new plugins.": [
+				"Anda dapat mengunjungi direktori plugin untuk mulai menginstal plugin baru."
+			],
+			"You can visit the <a>plugin directory</a> to get started with installing new plugins.": [
+				"Anda dapat mengunjungi <a>direktori plugin</a> untuk mulai menginstal plugin baru."
+			],
+			"plugin": [ "plugin" ],
+			"You can visit the theme directory to select a different design for your site.": [
+				"Anda dapat mengunjungi direktori tema untuk memilih desain yang berbeda untuk situs Anda."
+			],
+			"You can visit the <a>theme directory</a> to select a different design for your site.": [
+				"Anda dapat mengunjungi <a>direktori tema</a> untuk memilih desain yang berbeda untuk situs Anda."
+			],
+			"theme": [ "tema" ]
+		}
+	}
+}

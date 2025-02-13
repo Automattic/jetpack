@@ -1,0 +1,24 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "zh_CN",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Reach a larger audience boosting the content to the WordPress.com community of blogs and sites.": [
+				"\u5c06\u5185\u5bb9\u63a8\u5e7f\u5230 WordPress.com \u535a\u5ba2\u548c\u7ad9\u70b9\u793e\u533a\uff0c\u89e6\u8fbe\u66f4\u591a\u53d7\u4f17\u3002"
+			],
+			"Blaze this product": [ "\u901a\u8fc7 Blaze \u5ba3\u4f20\u6b64\u4ea7\u54c1" ],
+			"Blaze this post": [ "\u901a\u8fc7 Blaze \u5ba3\u4f20\u6b64\u6587\u7ae0" ],
+			"Blaze this page": [ "\u901a\u8fc7 Blaze \u5ba3\u4f20\u6b64\u9875\u9762" ],
+			"Promote with Blaze": [ "\u4f7f\u7528 Blaze \u8fdb\u884c\u5ba3\u4f20" ],
+			"Upgrade your plan to upload audio": [
+				"\u5347\u7ea7\u60a8\u7684\u5957\u9910\u4ee5\u4e0a\u4f20\u97f3\u9891"
+			],
+			"Upgrade your plan to use video covers": [
+				"\u5347\u7ea7\u60a8\u7684\u5957\u9910\u4ee5\u4f7f\u7528\u89c6\u9891\u5c01\u9762"
+			]
+		}
+	}
+}

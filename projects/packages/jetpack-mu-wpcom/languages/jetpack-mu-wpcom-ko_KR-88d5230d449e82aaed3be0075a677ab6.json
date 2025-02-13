@@ -1,0 +1,16 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "ko_KR",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Buy a <a href=\"https://wordpress.com/domains/add/%1$s?redirect_to=%2$s\">custom domain</a>, <a href=\"https://wordpress.com/domains/add/mapping/%1$s?redirect_to=%2$s\">map</a> a domain you already own, or <a href=\"https://wordpress.com/domains/add/site-redirect/%1$s?redirect_to=%2$s\">redirect</a> this site. <a href=\"https://wordpress.com/domains/manage/%1$s/edit/%1$s\">You can change your site address in Domain Settings</a>.": [
+				"<a href=\"https://wordpress.com/domains/add/%1$s?redirect_to=%2$s\">\uc0ac\uc6a9\uc790 \uc815\uc758 \ub3c4\uba54\uc778</a>\uc744 \uad6c\ub9e4\ud558\uac70\ub098, \ubcf4\uc720\ud55c \uae30\uc874 \ub3c4\uba54\uc778\uc744 <a href=\"https://wordpress.com/domains/add/mapping/%1$s?redirect_to=%2$s\">\ub9e4\ud551</a>\ud558\uac70\ub098, \uc774 \uc0ac\uc774\ud2b8\ub97c <a href=\"https://wordpress.com/domains/add/site-redirect/%1$s?redirect_to=%2$s\">\ub9ac\ub514\ub809\ud305</a>\ud558\uc138\uc694. <a href=\"https://wordpress.com/domains/manage/%1$s/edit/%1$s\">\ub3c4\uba54\uc778 \uc124\uc815\uc5d0\uc11c \uc0ac\uc774\ud2b8 \uc8fc\uc18c\ub97c \ubcc0\uacbd\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4</a>."
+			],
+			"Site Address (URL)": [ "\uc0ac\uc774\ud2b8 \uc8fc\uc18c (URL)" ],
+			"WordPress Address (URL)": [ "\uc6cc\ub4dc\ud504\ub808\uc2a4 \uc8fc\uc18c (URL)" ]
+		}
+	}
+}

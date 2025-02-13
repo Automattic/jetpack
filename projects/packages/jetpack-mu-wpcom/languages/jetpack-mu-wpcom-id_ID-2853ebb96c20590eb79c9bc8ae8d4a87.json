@@ -1,0 +1,15 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n > 1;",
+				"language": "id",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Upgrade your plan to upload audio": [ "Upgrade paket Anda untuk mengunggah audio" ],
+			"Upgrade your plan to use video covers": [
+				"Upgrade paket Anda untuk menggunakan sampul video"
+			]
+		}
+	}
+}

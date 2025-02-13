@@ -1,0 +1,71 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "it",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Safe mode": [ "Modalit\u00e0 sicura" ],
+			"Or decide later and stay in <button>Safe mode</button>": [
+				"In alternativa, decidi in seguito e rimani in <button>modalit\u00e0 sicura</button>"
+			],
+			"Finishing setting up Safe mode\u2026": [
+				"Completamento della configurazione della Modalit\u00e0 sicura in corso\u2026"
+			],
+			"<p><strong>Recommended for</strong></p><list><item>short-lived test sites</item><item>sites that will be cloned back to production after testing</item></list><p><strong>Please note</strong> that staying in Safe mode will disable some Jetpack features, including security features such as SSO, firewall, and site monitor. <safeModeLink>Learn more</safeModeLink>.</p>": [
+				"<p><strong>Consigliata per</strong></p><list><item>siti di test provvisori</item><item>siti che verranno clonati e riportati in produzione dopo i test</item></list><p><strong>Ricorda</strong> che nella Modalit\u00e0 sicura alcune funzionalit\u00e0 di Jetpack verranno disabilitate, tra cui le funzionalit\u00e0 di sicurezza come SSO, firewall e monitoraggio del sito. <safeModeLink>Scopri di pi\u00f9</safeModeLink>.</p>"
+			],
+			"Stay in Safe Mode": [ "Rimani in Modalit\u00e0 sicura" ],
+			"Stay in Safe mode": [ "Rimani in Modalit\u00e0 sicura" ],
+			"Could not stay in safe mode. Retry or find out more <a>here</a>.": [
+				"Impossibile rimanere in Modalit\u00e0 sicura. Riprova o scopri di pi\u00f9 <a>qui</a>."
+			],
+			"Safe Mode": [ "Modalit\u00e0 sicura" ],
+			"An administrator of this site can take Jetpack out of Safe Mode.": [
+				"Un amministratore di questo sito pu\u00f2 togliere Jetpack dalla Modalit\u00e0 sicura."
+			],
+			"This site is in Safe Mode because there are 2 Jetpack-powered sites that appear to be duplicates. 2 sites that are telling Jetpack they\u2019re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>": [
+				"Il sito \u00e8 in Modalit\u00e0 sicura perch\u00e9 sono presenti due siti con tecnologia Jetpack apparentemente duplicati. Due siti comunicano a Jetpack di essere uguali. <safeModeLink>Scopri di pi\u00f9 sulla Modalit\u00e0 sicura.</safeModeLink>"
+			],
+			"Safe Mode has been switched off for <hostname>%1$s</hostname> website and Jetpack is fully functional.": [
+				"La Modalit\u00e0 sicura \u00e8 stata disattivata per il sito web <hostname>%1$s</hostname> e Jetpack funziona perfettamente."
+			],
+			"Your Jetpack settings have migrated successfully": [
+				"La migrazione delle impostazioni di Jetpack \u00e8 stata completata"
+			],
+			"Got it, thanks": [ "Perfetto, grazie" ],
+			"Please select an option": [ "Seleziona un'opzione" ],
+			"<strong>Notice:</strong> It appears that your 'wp-config.php' file might be using dynamic site URL values. Dynamic site URLs could cause Jetpack to enter Safe Mode. <dynamicSiteUrlSupportLink>Learn how to set a static site URL.</dynamicSiteUrlSupportLink>": [
+				"<strong>Nota:</strong> sembra che valori URL dinamici del sito possano essere in uso nel tuo file \"wp-config.php\". Gli URL del sito dinamico potrebbero far s\u00ec che Jetpack entri in Modalit\u00e0 sicura. <dynamicSiteUrlSupportLink>Scopri come impostare un URL statico del sito.</dynamicSiteUrlSupportLink>"
+			],
+			"Your site is in Safe Mode because you have 2 Jetpack-powered sites that appear to be duplicates. Two sites that are telling Jetpack they\u2019re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>": [
+				"Il tuo sito \u00e8 in Modalit\u00e0 sicura poich\u00e9 possiedi due siti con tecnologia Jetpack che sembrano essere duplicati. Due siti che dicono di essere uguali a Jetpack. <safeModeLink>Scopri di pi\u00f9 sulla Modalit\u00e0 sicura.</safeModeLink>"
+			],
+			"<span>Your site is in Safe Mode because <hostname>%1$s</hostname> appears to be a staging or development copy of <hostname>%2$s</hostname>.</span>2 sites that are telling Jetpack they\u2019re the same site. <safeModeLink>Learn more or troubleshoot common Safe mode issues</safeModeLink>.": [
+				"<span>Il tuo sito \u00e8 in Modalit\u00e0 sicura poich\u00e9 <hostname>%1$s</hostname> sembra essere una copia di staging o di sviluppo di <hostname>%2$s</hostname>.</span>Due siti comunicano a Jetpack di essere uguali. <safeModeLink>Scopri di pi\u00f9 o risolvi i problemi pi\u00f9 comuni della Modalit\u00e0 sicura</safeModeLink>."
+			],
+			"Safe Mode has been activated": [ "La Modalit\u00e0 sicura \u00e8 stata attivata" ],
+			"Could not move your settings. Retry or find out more <a>here</a>.": [
+				"Impossibile trasferire le impostazioni. Riprova o scopri di pi\u00f9 <a>qui</a>."
+			],
+			"Move all your settings, stats and subscribers to your other URL, <hostname>%1$s</hostname>. <hostname>%2$s</hostname> will be disconnected from Jetpack.": [
+				"Trasferisci tutte le impostazioni, le statistiche e gli abbonati al nuovo URL, <hostname>%1$s</hostname>. <hostname>%2$s</hostname> sar\u00e0 disconnesso da Jetpack."
+			],
+			"Move Jetpack data": [ "Trasferisci i dati di Jetpack" ],
+			"Move your settings": [ "Trasferisci le impostazioni" ],
+			"Could not create the connection. Retry or find out more <a>here</a>.": [
+				"Impossibile creare la connessione. Riprova o scopri di pi\u00f9 <a>qui</a>."
+			],
+			"<hostname>%1$s</hostname> settings, stats, and subscribers will start fresh. <hostname>%2$s</hostname> will keep its data as is.": [
+				"Le impostazioni, le statistiche e gli abbonati di <hostname>%1$s</hostname> verranno azzerati. <hostname>%2$s</hostname> conserver\u00e0 i dati attuali."
+			],
+			"<p><strong>Recommended for</strong></p><list><item>development sites</item><item>sites that need access to all Jetpack features</item></list><p><strong>Please note</strong> that creating a fresh connection for <hostname>%1$s</hostname> would require restoring the connection on <hostname>%2$s</hostname> if that site is cloned back to production. <safeModeLink>Learn more</safeModeLink>.</p>": [
+				"<p><strong>Consigliata per</strong></p><list><item>siti di sviluppo</item><item>siti che richiedono l'accesso a tutte le funzionalit\u00e0 Jetpack</item></list><p><strong>Ricorda</strong> che la creazione di una nuova connessione per <hostname>%1$s</hostname> richiede il ripristino della connessione in <hostname>%2$s</hostname> se tale sito viene clonato e riportato in produzione. <safeModeLink>Scopri di pi\u00f9</safeModeLink>.</p>"
+			],
+			"Treat each site as independent sites": [ "Tratta ogni sito come sito indipendente" ],
+			"Create a fresh connection": [ "Crea una nuova connessione" ],
+			"Jetpack Logo": [ "Logo Jetpack" ]
+		}
+	}
+}

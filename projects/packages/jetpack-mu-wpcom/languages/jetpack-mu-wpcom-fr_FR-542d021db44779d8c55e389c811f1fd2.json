@@ -1,0 +1,15 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n > 1;",
+				"language": "fr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Scheduled": [ "Planifi\u00e9" ],
+			"Draft": [ "Brouillon" ],
+			"post author\u0004 and ": [ " et " ],
+			"post author\u0004by": [ "par" ]
+		}
+	}
+}

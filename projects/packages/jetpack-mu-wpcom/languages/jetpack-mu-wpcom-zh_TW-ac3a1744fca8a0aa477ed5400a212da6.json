@@ -1,0 +1,30 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "zh_TW",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Upgrade your plan to upload audio": [
+				"\u5347\u7d1a\u65b9\u6848\u5373\u53ef\u4e0a\u50b3\u97f3\u8a0a"
+			],
+			"Upgrade your plan to use video covers": [
+				"\u5347\u7d1a\u65b9\u6848\u5373\u53ef\u4f7f\u7528\u5f71\u7247\u5c01\u9762"
+			],
+			"An entry on the timeline": [ "\u6642\u9593\u8868\u4e0a\u7684\u9805\u76ee\u3002" ],
+			"Timeline Entry": [ "\u6642\u9593\u8868\u9805\u76ee" ],
+			"Background Color": [ "\u80cc\u666f\u8272\u5f69" ],
+			"Color Settings": [ "\u8272\u5f69\u8a2d\u5b9a" ],
+			"Right": [ "\u53f3" ],
+			"Left": [ "\u5de6" ],
+			"Winter": [ "\u51ac\u5b63" ],
+			"Fall": [ "\u79cb\u5b63" ],
+			"Summer": [ "\u590f\u5b63" ],
+			"Spring": [ "\u6625\u5b63" ],
+			"Alternate items": [ "\u66ff\u4ee3\u9805\u76ee" ],
+			"Timeline settings": [ "\u6642\u9593\u8ef8\u8a2d\u5b9a" ],
+			"Add entry": [ "\u8f38\u5165\u5167\u5bb9" ]
+		}
+	}
+}

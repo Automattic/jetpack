@@ -1,0 +1,46 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "sv_SE",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Add these tags": [ "L\u00e4gg till dessa etiketter" ],
+			"Don't show again": [ "Visa inte igen" ],
+			"Adding tags can help drive more traffic to your post.": [
+				"Att l\u00e4gga till etiketter kan hj\u00e4lpa till att f\u00e5 mer trafik till ditt inl\u00e4gg."
+			],
+			"Based on the topics and themes in your post, here are some suggested tags to consider:": [
+				"H\u00e4r \u00e4r n\u00e5gra f\u00f6rslag p\u00e5 etiketter, baserat p\u00e5 ditt inl\u00e4ggs \u00e4mnen och teman:"
+			],
+			"Recommended tags": [ "Rekommenderade etiketter" ],
+			"No Tags Added.": [ "Inga etiketter tillagda." ],
+			"Tag Added.": [ "Etikett tillagd.", "Etiketter tillagda." ],
+			"Required": [ "Obligatoriskt" ],
+			"Next Steps": [ "N\u00e4sta steg" ],
+			"View Post": [ "Visa inl\u00e4gg" ],
+			"Congratulations! You did it. View your post to see how it will look on your site.": [
+				"Grattis! Du gjorde det. Visa ditt inl\u00e4gg f\u00f6r att se hur det kommer att se ut p\u00e5 din webbplats."
+			],
+			"Your first post is published!": [ "Ditt f\u00f6rsta inl\u00e4gg \u00e4r publicerat!" ],
+			"Continue and launch": [ "Forts\u00e4tt och lansera" ],
+			"Keep editing": [ "Forts\u00e4tt redigera" ],
+			"Feel free to keep editing your homepage, or continue and launch your site.": [
+				"Forts\u00e4tt g\u00e4rna redigera din startsida eller forts\u00e4tt och lansera din webbplats."
+			],
+			"You\u2019ve added your first video!": [ "Du har lagt till ditt f\u00f6rsta videoklipp!" ],
+			"View your product": [ "Visa din produkt" ],
+			"Continue editing": [ "Forts\u00e4tt redigera" ],
+			"Preview your product on your site before launching and sharing with others.": [
+				"F\u00f6rhandsgranska din produkt p\u00e5 din webbplats innan du lanserar och delar med andra."
+			],
+			"You've added your first product!": [ "Du har lagt till din f\u00f6rsta produkt!" ],
+			"Congrats! Premium blocks are now available to use.": [
+				"Grattis! Premiumblock \u00e4r nu tillg\u00e4ngliga att anv\u00e4nda."
+			],
+			"Tags": [ "Etiketter" ],
+			"Optional": [ "Valfritt" ]
+		}
+	}
+}

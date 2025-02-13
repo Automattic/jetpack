@@ -1,0 +1,16 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "zh_CN",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"User avatar": [ "\u7528\u6237\u5934\u50cf" ],
+			"View all responses": [ "\u67e5\u770b\u6240\u6709\u56de\u590d" ],
+			"Next \u2192": [ "\u4e0b\u4e00\u9875 \u2192" ],
+			"\u2190 Previous": [ "\u2190 \u4e0a\u4e00\u9875" ],
+			"Post Answer": [ "\u53d1\u5e03\u7b54\u6848" ]
+		}
+	}
+}

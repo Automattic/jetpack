@@ -1,0 +1,13 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "it",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Edit Site": [ "Modifica sito" ],
+			"Hosting Overview": [ "Panoramica Hosting" ]
+		}
+	}
+}

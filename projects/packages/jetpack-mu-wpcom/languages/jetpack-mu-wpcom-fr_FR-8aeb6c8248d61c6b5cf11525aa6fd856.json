@@ -1,0 +1,13 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n > 1;",
+				"language": "fr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Alternate items": [ "\u00c9l\u00e9ments alternatifs" ],
+			"Timeline settings": [ "R\u00e9glages du fil d'actualit\u00e9" ]
+		}
+	}
+}

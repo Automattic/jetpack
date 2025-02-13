@@ -1,0 +1,12 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "ja_JP",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Blog Posts": [ "\u30d6\u30ed\u30b0\u306e\u6295\u7a3f" ]
+		}
+	}
+}

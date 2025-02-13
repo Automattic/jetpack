@@ -1,0 +1,24 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "it",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Number of posts": [ "Numero di articoli" ],
+			"Number of posts to show": [ "Numero di articoli da visualizzare" ],
+			"Your recent blog posts will be displayed here.": [
+				"I tuoi articoli del blog recenti saranno visualizzati qui."
+			],
+			"An improved version of this block is available. Update for a better, more natural way to manage your blog post listings. There may be small visual changes.": [
+				"\u00c8 disponibile una versione migliorata di questo blocco. Esegui l'aggiornamento per avere un modo migliore e pi\u00f9 naturale di gestire i tuoi elenchi presenti nell'articolo del blog. Potrebbero esserci piccole modifiche visive."
+			],
+			"Update Block": [ "Aggiorna blocco" ],
+			"Displays your latest Blog Posts.": [
+				"Visualizza i tuoi articoli del blog pi\u00f9 recenti."
+			],
+			"Blog Posts Listing": [ "Elenco degli articoli del blog" ]
+		}
+	}
+}

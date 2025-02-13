@@ -1,0 +1,63 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "ko_KR",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Learn more \u2197": [ "\ub354 \uc54c\uc544\ubcf4\uae30 \u2197" ],
+			"We've adopted WordPress' main Discussion Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Discussion Settings just got an update": [ "" ],
+			"We've adopted WordPress' main Reading Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Reading Settings just got an update": [ "" ],
+			"We've adopted WordPress' main Writing Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Writing Settings just got an update": [ "" ],
+			"We've adopted WordPress' main General Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"General Settings just got an update": [ "" ],
+			"The Tags view just got an update": [ "" ],
+			"The Categories view just got an update": [ "" ],
+			"The Comments view just got an update": [ "" ],
+			"The Pages view just got an update": [ "" ],
+			"The Posts view just got an update": [ "" ],
+			"We've adopted WordPress' main Tags view to bring improvements to you and millions of WordPress users worldwide.": [
+				"\uc804 \uc138\uacc4 \uc218\ubc31\ub9cc \uc6cc\ub4dc\ud504\ub808\uc2a4 \uc0ac\uc6a9\uc790\uc5d0\uac8c \uac1c\uc120\ub41c \uc11c\ube44\uc2a4\ub97c \uc81c\uacf5\ud574 \ub4dc\ub9ac\uace0\uc790 \uc6cc\ub4dc\ud504\ub808\uc2a4\uc758 \uc8fc\uc694 \uae30\ub2a5\uc778 \ud0dc\uadf8 \ubcf4\uae30\ub97c \ub3c4\uc785\ud588\uc2b5\ub2c8\ub2e4."
+			],
+			"We've adopted WordPress' main Categories view to bring improvements to you and millions of WordPress users worldwide.": [
+				"\uc804 \uc138\uacc4 \uc218\ubc31\ub9cc \uc6cc\ub4dc\ud504\ub808\uc2a4 \uc0ac\uc6a9\uc790\uc5d0\uac8c \uac1c\uc120\ub41c \uc11c\ube44\uc2a4\ub97c \uc81c\uacf5\ud574 \ub4dc\ub9ac\uace0\uc790 \uc6cc\ub4dc\ud504\ub808\uc2a4\uc758 \uc8fc\uc694 \uae30\ub2a5\uc778 \uce74\ud14c\uace0\ub9ac \ubcf4\uae30\ub97c \ub3c4\uc785\ud588\uc2b5\ub2c8\ub2e4."
+			],
+			"We've adopted WordPress' main Comments view to bring improvements to you and millions of WordPress users worldwide.": [
+				"\uc804 \uc138\uacc4 \uc218\ubc31\ub9cc \uc6cc\ub4dc\ud504\ub808\uc2a4 \uc0ac\uc6a9\uc790\uc5d0\uac8c \uac1c\uc120\ub41c \uc11c\ube44\uc2a4\ub97c \uc81c\uacf5\ud574 \ub4dc\ub9ac\uace0\uc790 \uc6cc\ub4dc\ud504\ub808\uc2a4\uc758 \uc8fc\uc694 \uae30\ub2a5\uc778 \ub313\uae00 \ubcf4\uae30\ub97c \ub3c4\uc785\ud588\uc2b5\ub2c8\ub2e4."
+			],
+			"We've adopted WordPress' main Testimonials view to bring improvements to you and millions of WordPress users worldwide.": [
+				"\uc804 \uc138\uacc4 \uc218\ubc31\ub9cc \uc6cc\ub4dc\ud504\ub808\uc2a4 \uc0ac\uc6a9\uc790\uc5d0\uac8c \uac1c\uc120\ub41c \uc11c\ube44\uc2a4\ub97c \uc81c\uacf5\ud574 \ub4dc\ub9ac\uace0\uc790 \uc6cc\ub4dc\ud504\ub808\uc2a4\uc758 \uc8fc\uc694 \uae30\ub2a5\uc778 \ucd94\ucc9c \uae00 \ubcf4\uae30\ub97c \ub3c4\uc785\ud588\uc2b5\ub2c8\ub2e4."
+			],
+			"The Testimonials view just got an update": [ "" ],
+			"We've adopted WordPress' main Portfolio Projects view to bring improvements to you and millions of WordPress users worldwide.": [
+				"\uc804 \uc138\uacc4 \uc218\ubc31\ub9cc \uc6cc\ub4dc\ud504\ub808\uc2a4 \uc0ac\uc6a9\uc790\uc5d0\uac8c \uac1c\uc120\ub41c \uc11c\ube44\uc2a4\ub97c \uc81c\uacf5\ud574 \ub4dc\ub9ac\uace0\uc790 \uc6cc\ub4dc\ud504\ub808\uc2a4\uc758 \uc8fc\uc694 \uae30\ub2a5\uc778 \ud3ec\ud2b8\ud3f4\ub9ac\uc624 \ud504\ub85c\uc81d\ud2b8 \ubcf4\uae30\ub97c \ub3c4\uc785\ud588\uc2b5\ub2c8\ub2e4."
+			],
+			"The Portfolio Projects view just got an update": [ "" ],
+			"We've adopted WordPress' main Pages view to bring improvements to you and millions of WordPress users worldwide.": [
+				"\uc804 \uc138\uacc4 \uc218\ubc31\ub9cc \uc6cc\ub4dc\ud504\ub808\uc2a4 \uc0ac\uc6a9\uc790\uc5d0\uac8c \uac1c\uc120\ub41c \uc11c\ube44\uc2a4\ub97c \uc81c\uacf5\ud574 \ub4dc\ub9ac\uace0\uc790 \uc6cc\ub4dc\ud504\ub808\uc2a4\uc758 \uc8fc\uc694 \uae30\ub2a5\uc778 \ud398\uc774\uc9c0 \ubcf4\uae30\ub97c \ub3c4\uc785\ud588\uc2b5\ub2c8\ub2e4."
+			],
+			"We've adopted WordPress' main Posts view to bring improvements to you and millions of WordPress users worldwide.": [
+				"\uc804 \uc138\uacc4 \uc218\ubc31\ub9cc \uc6cc\ub4dc\ud504\ub808\uc2a4 \uc0ac\uc6a9\uc790\uc5d0\uac8c \uac1c\uc120\ub41c \uc11c\ube44\uc2a4\ub97c \uc81c\uacf5\ud574 \ub4dc\ub9ac\uace0\uc790 \uc6cc\ub4dc\ud504\ub808\uc2a4\uc758 \uc8fc\uc694 \uae30\ub2a5\uc778 \uae00 \ubcf4\uae30\ub97c \ub3c4\uc785\ud588\uc2b5\ub2c8\ub2e4."
+			],
+			"We've adopted WordPress's main %s view to bring improvements to you and millions of WordPress users worldwide.": [
+				"\uc800\ud76c\ub294 \uc5ec\ub7ec\ubd84\uacfc \uc804 \uc138\uacc4 \uc218\ubc31\ub9cc WordPress \uc0ac\uc6a9\uc790\uc5d0\uac8c \ub354 \ub098\uc740 \uacbd\u001d\ud5d8\uc744 \uc81c\uacf5\ud558\uae30 \uc704\ud574 WordPress\uc758 \uae30\ubcf8 %s \ubcf4\uae30\ub97c \ub3c4\uc785\ud588\uc2b5\ub2c8\ub2e4."
+			],
+			"The %s view just got better": [
+				"%s \ubcf4\uae30\uac00 \ub354 \uc88b\uc544\uc84c\uc2b5\ub2c8\ub2e4"
+			],
+			"Got it": [ "\ud655\uc778 \uc644\ub8cc" ]
+		}
+	}
+}

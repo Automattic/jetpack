@@ -1,0 +1,63 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "tr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Learn more \u2197": [ "Daha fazla bilgi edinin \u2197" ],
+			"We've adopted WordPress' main Discussion Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Discussion Settings just got an update": [ "" ],
+			"We've adopted WordPress' main Reading Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Reading Settings just got an update": [ "" ],
+			"We've adopted WordPress' main Writing Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Writing Settings just got an update": [ "" ],
+			"We've adopted WordPress' main General Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"General Settings just got an update": [ "" ],
+			"The Tags view just got an update": [ "" ],
+			"The Categories view just got an update": [ "" ],
+			"The Comments view just got an update": [ "" ],
+			"The Pages view just got an update": [ "" ],
+			"The Posts view just got an update": [ "" ],
+			"We've adopted WordPress' main Tags view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Size ve d\u00fcnya \u00e7ap\u0131ndaki milyonlarca WordPress kullan\u0131c\u0131s\u0131na iyile\u015ftirmeler sunmak i\u00e7in WordPress'in ana Etiketler g\u00f6r\u00fcn\u00fcm\u00fcn\u00fc adapte ettik."
+			],
+			"We've adopted WordPress' main Categories view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Size ve d\u00fcnya \u00e7ap\u0131ndaki milyonlarca WordPress kullan\u0131c\u0131s\u0131na iyile\u015ftirmeler sunmak i\u00e7in WordPress'in ana Kategoriler g\u00f6r\u00fcn\u00fcm\u00fcn\u00fc adapte ettik."
+			],
+			"We've adopted WordPress' main Comments view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Size ve d\u00fcnya \u00e7ap\u0131ndaki milyonlarca WordPress kullan\u0131c\u0131s\u0131na iyile\u015ftirmeler sunmak i\u00e7in WordPress'in ana Yorumlar g\u00f6r\u00fcn\u00fcm\u00fcn\u00fc adapte ettik."
+			],
+			"We've adopted WordPress' main Testimonials view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Size ve d\u00fcnya \u00e7ap\u0131ndaki milyonlarca WordPress kullan\u0131c\u0131s\u0131na iyile\u015ftirmeler sunmak i\u00e7in WordPress'in ana G\u00f6r\u00fc\u015fler g\u00f6r\u00fcn\u00fcm\u00fcn\u00fc adapte ettik."
+			],
+			"The Testimonials view just got an update": [ "" ],
+			"We've adopted WordPress' main Portfolio Projects view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Size ve d\u00fcnya \u00e7ap\u0131ndaki milyonlarca WordPress kullan\u0131c\u0131s\u0131na iyile\u015ftirmeler sunmak i\u00e7in WordPress'in ana Portfolyo Projeleri g\u00f6r\u00fcn\u00fcm\u00fcn\u00fc adapte ettik."
+			],
+			"The Portfolio Projects view just got an update": [ "" ],
+			"We've adopted WordPress' main Pages view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Size ve d\u00fcnya \u00e7ap\u0131ndaki milyonlarca WordPress kullan\u0131c\u0131s\u0131na iyile\u015ftirmeler sunmak i\u00e7in WordPress'in ana Sayfalar g\u00f6r\u00fcn\u00fcm\u00fcn\u00fc adapte ettik."
+			],
+			"We've adopted WordPress' main Posts view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Size ve d\u00fcnya \u00e7ap\u0131ndaki milyonlarca WordPress kullan\u0131c\u0131s\u0131na iyile\u015ftirmeler sunmak i\u00e7in WordPress'in ana G\u00f6nderiler g\u00f6r\u00fcn\u00fcm\u00fcn\u00fc adapte ettik."
+			],
+			"We've adopted WordPress's main %s view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Size ve d\u00fcnya \u00e7ap\u0131ndaki milyonlarca WordPress kullan\u0131c\u0131s\u0131na iyile\u015ftirmeler sunmak i\u00e7in WordPress'in ana %s g\u00f6r\u00fcn\u00fcm\u00fcn\u00fc uyarlad\u0131k."
+			],
+			"The %s view just got better": [
+				"%s sayfas\u0131n\u0131n g\u00f6r\u00fcn\u00fcm\u00fc art\u0131k daha iyi"
+			],
+			"Got it": [ "Anlad\u0131m!" ]
+		}
+	}
+}

@@ -1,0 +1,15 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "tr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Winter": [ "K\u0131\u015f" ],
+			"Fall": [ "Sonbahar" ],
+			"Summer": [ "Yaz" ],
+			"Spring": [ "\u0130lkbahar" ]
+		}
+	}
+}

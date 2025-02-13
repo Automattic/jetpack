@@ -1,0 +1,16 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "pt_BR",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"User avatar": [ "Avatar do usu\u00e1rio" ],
+			"View all responses": [ "Ver todas as respostas" ],
+			"Next \u2192": [ "Seguinte \u2192" ],
+			"\u2190 Previous": [ "\u2190 Anterior" ],
+			"Post Answer": [ "Publicar resposta" ]
+		}
+	}
+}

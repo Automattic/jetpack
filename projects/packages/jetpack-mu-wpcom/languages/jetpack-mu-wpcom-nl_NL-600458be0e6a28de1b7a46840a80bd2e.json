@@ -1,0 +1,61 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "nl",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Learn more \u2197": [ "Meer informatie \u2197" ],
+			"We've adopted WordPress' main Discussion Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Discussion Settings just got an update": [ "" ],
+			"We've adopted WordPress' main Reading Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Reading Settings just got an update": [ "" ],
+			"We've adopted WordPress' main Writing Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Writing Settings just got an update": [ "" ],
+			"We've adopted WordPress' main General Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"General Settings just got an update": [ "" ],
+			"The Tags view just got an update": [ "" ],
+			"The Categories view just got an update": [ "" ],
+			"The Comments view just got an update": [ "" ],
+			"The Pages view just got an update": [ "" ],
+			"The Posts view just got an update": [ "" ],
+			"We've adopted WordPress' main Tags view to bring improvements to you and millions of WordPress users worldwide.": [
+				"We hebben het Tags-overzicht van WordPress overgenomen om verbeteringen te leveren aan jou en miljoenen WordPress-gebruikers wereldwijd."
+			],
+			"We've adopted WordPress' main Categories view to bring improvements to you and millions of WordPress users worldwide.": [
+				"We hebben het Categorie\u00ebn-overzicht van WordPress overgenomen om verbeteringen te leveren aan jou en miljoenen WordPress-gebruikers wereldwijd."
+			],
+			"We've adopted WordPress' main Comments view to bring improvements to you and millions of WordPress users worldwide.": [
+				"We hebben het Reacties-overzicht van WordPress overgenomen om verbeteringen te leveren aan jou en miljoenen WordPress-gebruikers wereldwijd."
+			],
+			"We've adopted WordPress' main Testimonials view to bring improvements to you and millions of WordPress users worldwide.": [
+				"We hebben het Aanbevelingen-overzicht van WordPress overgenomen om verbeteringen te leveren aan jou en miljoenen WordPress-gebruikers wereldwijd."
+			],
+			"The Testimonials view just got an update": [ "" ],
+			"We've adopted WordPress' main Portfolio Projects view to bring improvements to you and millions of WordPress users worldwide.": [
+				"We hebben het Portfolioprojecten-overzicht van Wordpress overgenomen om verbeteringen te leveren aan jou en miljoenen andere Wordpress-gebruikers wereldwijd."
+			],
+			"The Portfolio Projects view just got an update": [ "" ],
+			"We've adopted WordPress' main Pages view to bring improvements to you and millions of WordPress users worldwide.": [
+				"We hebben het Pagina-overzicht van WordPress overgenomen om verbeteringen te leveren aan jou en miljoenen WordPress-gebruikers wereldwijd."
+			],
+			"We've adopted WordPress' main Posts view to bring improvements to you and millions of WordPress users worldwide.": [
+				"We hebben het Berichten-overzicht van WordPress overgenomen om verbeteringen te leveren aan jou en miljoenen WordPress-gebruikers wereldwijd."
+			],
+			"We've adopted WordPress's main %s view to bring improvements to you and millions of WordPress users worldwide.": [
+				"We hebben de belangrijkste %s weergave van WordPress overgenomen om verbeteringen voor jou en miljoenen WordPress gebruikers wereldwijd te brengen."
+			],
+			"The %s view just got better": [ "De %s weergave is net beter geworden" ],
+			"Got it": [ "Begrepen!" ]
+		}
+	}
+}

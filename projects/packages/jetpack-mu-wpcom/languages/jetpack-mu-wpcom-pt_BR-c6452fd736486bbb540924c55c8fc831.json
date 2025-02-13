@@ -1,0 +1,21 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "pt_BR",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Your site includes premium styles that are only visible to visitors after upgrading to the %s plan or higher.": [
+				"Seu site inclui estilos premium, que s\u00f3 s\u00e3o vis\u00edveis aos visitantes ap\u00f3s o upgrade para o plano %s ou superior."
+			],
+			"Learn more": [ "Saiba mais" ],
+			"Preview without premium styles": [ "Visualizar sem estilos premium" ],
+			"Your site includes premium styles that are only visible to visitors after <a>upgrading to the %s plan or higher</a>.": [
+				"Seu site inclui estilos premium, que s\u00f3 s\u00e3o vis\u00edveis aos visitantes ap\u00f3s o <a>upgrade para o plano %s ou superior</a>."
+			],
+			"Remove premium styles": [ "Remover estilos premium" ],
+			"Upgrade now": [ "Fa\u00e7a upgrade agora mesmo" ]
+		}
+	}
+}

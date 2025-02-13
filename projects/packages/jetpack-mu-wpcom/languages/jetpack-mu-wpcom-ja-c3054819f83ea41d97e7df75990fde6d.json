@@ -1,0 +1,16 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "ja_JP",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Base Font": [ "\u30d9\u30fc\u30b9\u30d5\u30a9\u30f3\u30c8" ],
+			"Heading Font": [ "\u898b\u51fa\u3057\u306e\u30d5\u30a9\u30f3\u30c8" ],
+			"custom font selection": [
+				"\u30ab\u30b9\u30bf\u30e0\u30d5\u30a9\u30f3\u30c8\u306e\u9078\u629e"
+			]
+		}
+	}
+}

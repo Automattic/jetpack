@@ -1,0 +1,16 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "nl",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"A carousel of posts.": [ "Een carrousel met berichten." ],
+			"carousel": [ "carrousel" ],
+			"slideshow": [ "slideshow" ],
+			"posts": [ "berichten" ],
+			"Post Carousel": [ "Bericht carrousel" ]
+		}
+	}
+}

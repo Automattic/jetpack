@@ -1,0 +1,22 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n > 1;",
+				"language": "id",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Number of posts": [ "Jumlah pos" ],
+			"Number of posts to show": [ "Jumlah pos yang akan ditampilkan" ],
+			"Your recent blog posts will be displayed here.": [
+				"Pos blog terbaru Anda akan ditampilkan di sini."
+			],
+			"An improved version of this block is available. Update for a better, more natural way to manage your blog post listings. There may be small visual changes.": [
+				"Versi blok yang ditingkatkan sudah tersedia. Update untuk merasakan cara yang lebih baik dan alami dalam mengelola daftar pos blog Anda. Mungkin terdapat perubahan visual yang kecil."
+			],
+			"Update Block": [ "Perbarui Blok" ],
+			"Displays your latest Blog Posts.": [ "Menampilkan Pos Blog terbaru Anda." ],
+			"Blog Posts Listing": [ "Pembuatan Daftar Pos Blog" ]
+		}
+	}
+}

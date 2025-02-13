@@ -1,0 +1,19 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "tr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Block guide": [ "Blok k\u0131lavuzu" ],
+			"Upgrade your plan to upload audio": [
+				"Ses y\u00fcklemek i\u00e7in paketinizi y\u00fckseltin"
+			],
+			"Upgrade your plan to use video covers": [
+				"Video ba\u015fl\u0131klar\u0131 kullanmak i\u00e7in paketinizi y\u00fckseltin"
+			],
+			"Learn more": [ "Daha fazlas\u0131n\u0131 \u00f6\u011frenin" ]
+		}
+	}
+}

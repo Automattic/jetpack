@@ -1,0 +1,27 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n > 1;",
+				"language": "fr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Excluded %s": [ "%s\u00a0exclu" ],
+			"Excluded Categories": [ "Cat\u00e9gories exclues" ],
+			"Excluded Tags": [ "Balises exclues" ],
+			"Show Advanced Filters": [ "Afficher les filtres avanc\u00e9s" ],
+			"Hide Advanced Filters": [ "Masquer les filtres avanc\u00e9s" ],
+			"Tags": [ "\u00c9tiquettes" ],
+			"Include subcategories ": [ "Inclure les sous-cat\u00e9gories " ],
+			"Categories": [ "Cat\u00e9gories" ],
+			"Authors": [ "Auteurs" ],
+			"Begin typing post title, click autocomplete result to select.": [
+				"Commencer \u00e0 saisir le titre de l'article, cliquer sur le r\u00e9sultat qui s'affiche pour le s\u00e9lectionner."
+			],
+			"Posts": [ "Articles" ],
+			"Choose Specific Posts": [ "Choisir des articles sp\u00e9cifiques" ],
+			"(no name)": [ "(sans nom)" ],
+			"(no title)": [ "(sans titre)" ]
+		}
+	}
+}

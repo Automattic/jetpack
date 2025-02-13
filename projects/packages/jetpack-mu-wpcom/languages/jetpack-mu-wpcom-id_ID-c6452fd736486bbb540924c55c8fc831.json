@@ -1,0 +1,21 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n > 1;",
+				"language": "id",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Your site includes premium styles that are only visible to visitors after upgrading to the %s plan or higher.": [
+				"Situs Anda dilengkapi gaya premium yang hanya akan ditampilkan ke pengunjung setelah upgrade ke paket %s atau yang lebih tinggi."
+			],
+			"Learn more": [ "Pelajari selengkapnya" ],
+			"Preview without premium styles": [ "Pratinjau tanpa gaya premium" ],
+			"Your site includes premium styles that are only visible to visitors after <a>upgrading to the %s plan or higher</a>.": [
+				"Situs Anda dilengkapi gaya premium yang hanya akan ditampilkan ke pengunjung setelah <a>upgrade ke paket %s atau yang lebih tinggi</a>."
+			],
+			"Remove premium styles": [ "Hapus gaya premium" ],
+			"Upgrade now": [ "Upgrade sekarang" ]
+		}
+	}
+}

@@ -1,0 +1,17 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "zh_CN",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Upgrade your plan to upload audio": [
+				"\u5347\u7ea7\u60a8\u7684\u5957\u9910\u4ee5\u4e0a\u4f20\u97f3\u9891"
+			],
+			"Upgrade your plan to use video covers": [
+				"\u5347\u7ea7\u60a8\u7684\u5957\u9910\u4ee5\u4f7f\u7528\u89c6\u9891\u5c01\u9762"
+			]
+		}
+	}
+}

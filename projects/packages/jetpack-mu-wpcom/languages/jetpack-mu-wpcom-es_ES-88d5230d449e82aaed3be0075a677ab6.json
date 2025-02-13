@@ -1,0 +1,16 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "es",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Buy a <a href=\"https://wordpress.com/domains/add/%1$s?redirect_to=%2$s\">custom domain</a>, <a href=\"https://wordpress.com/domains/add/mapping/%1$s?redirect_to=%2$s\">map</a> a domain you already own, or <a href=\"https://wordpress.com/domains/add/site-redirect/%1$s?redirect_to=%2$s\">redirect</a> this site. <a href=\"https://wordpress.com/domains/manage/%1$s/edit/%1$s\">You can change your site address in Domain Settings</a>.": [
+				"Compra un <a href=\"https://wordpress.com/domains/add/%1$s?redirect_to=%2$s\">dominio personalizado</a>, <a href=\"https://wordpress.com/domains/add/mapping/%1$s?redirect_to=%2$s\">asigna</a> un dominio que ya tengas o <a href=\"https://wordpress.com/domains/add/site-redirect/%1$s?redirect_to=%2$s\">redirige</a> este sitio. <a href=\"https://wordpress.com/domains/manage/%1$s/edit/%1$s\">Puedes modificar la direcci\u00f3n de tu sitio en los ajustes de dominio</a>."
+			],
+			"Site Address (URL)": [ "Direcci\u00f3n del sitio (URL)" ],
+			"WordPress Address (URL)": [ "Direcci\u00f3n de WordPress (URL)" ]
+		}
+	}
+}

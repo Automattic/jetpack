@@ -1,0 +1,53 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n > 1;",
+				"language": "fr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Show Featured Image Credit": [ "Afficher le cr\u00e9dit de l\u2019image mise en avant" ],
+			"Show Featured Image Caption": [ "Afficher la l\u00e9gende de l'image mise en avant" ],
+			"Show Author Avatar": [ "Afficher l'avatar de l'auteur" ],
+			"Show Author": [ "Afficher l'auteur" ],
+			"Show Category": [ "Afficher la cat\u00e9gorie" ],
+			"Show Date": [ "Afficher la date" ],
+			"Show Title": [ "Afficher le titre" ],
+			"Article Meta Settings": [ "Param\u00e8tres des m\u00e9tadonn\u00e9es des articles" ],
+			"Number of slides to show at once": [
+				"Nombre de diapositives \u00e0 afficher \u00e0 la fois"
+			],
+			"Delay between transitions (in seconds)": [
+				"D\u00e9lai entre les transitions (en secondes)"
+			],
+			"Autoplay between slides": [ "Lecture automatique entre les diapositives" ],
+			"Autoplay": [ "Lecture automatique" ],
+			"Hide the slideshow UI. Useful when used with Autoplay.": [
+				"Masquer l'interface utilisateur du diaporama. Utile en cas d'utilisation avec la lecture automatique."
+			],
+			"Hide Controls": [ "Masquer les contr\u00f4les" ],
+			"Contain": [ "Contient" ],
+			"Cover": [ "Banni\u00e8re" ],
+			"The image will be resized to fit inside the slide without being cropped.": [
+				"L'image sera redimensionn\u00e9e pour \u00eatre \u00e0 la taille ad\u00e9quate \u00e0 l'int\u00e9rieur de la diapositive sans avoir \u00e0 \u00eatre rogn\u00e9e."
+			],
+			"The image will fill the entire slide and will be cropped if necessary.": [
+				"L'image remplira la diapositive enti\u00e8re et sera rogn\u00e9e si n\u00e9cessaire."
+			],
+			"Image Fit": [ "Adaptation de l'image" ],
+			"All slides will share the same aspect ratio, for consistency.": [
+				"Toutes les diapositives disposeront des m\u00eames proportions, par mesure de coh\u00e9rence."
+			],
+			"Slide Aspect Ratio": [ "Proportions des diapositives" ],
+			"Slideshow Settings": [ "Param\u00e8tres du diaporama" ],
+			"Display Settings": [ "Param\u00e8tres d'affichage" ],
+			"Sorry, no posts were found.": [ "D\u00e9sol\u00e9, article introuvable." ],
+			"9:16": [ "9\u00a0:16" ],
+			"3:4": [ "3\u00a0:4" ],
+			"16:9": [ "16\u00a0:9" ],
+			"4:3": [ "4:3" ],
+			"1:1": [ "1:1" ],
+			"Square": [ "Carr\u00e9" ]
+		}
+	}
+}

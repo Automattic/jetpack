@@ -1,0 +1,20 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "de",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Font Selection": [ "Schriftauswahl" ],
+			"You have unsaved changes.": [ "Es sind nicht gespeicherte \u00c4nderungen vorhanden." ],
+			"Any change you make here will apply to the entire website.": [
+				"Alle hier durchgef\u00fchrten \u00c4nderungen werden f\u00fcr die gesamte Website \u00fcbernommen."
+			],
+			"You are customizing %s.": [ "Du passt %s an." ],
+			"Global Styles": [ "Globale Stile" ],
+			"Publish": [ "Ver\u00f6ffentlichen" ],
+			"Reset": [ "Zur\u00fccksetzen" ]
+		}
+	}
+}

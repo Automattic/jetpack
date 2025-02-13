@@ -1,0 +1,61 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "zh_TW",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Learn more \u2197": [ "\u6df1\u5165\u4e86\u89e3 \u2197" ],
+			"We've adopted WordPress' main Discussion Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Discussion Settings just got an update": [ "" ],
+			"We've adopted WordPress' main Reading Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Reading Settings just got an update": [ "" ],
+			"We've adopted WordPress' main Writing Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Writing Settings just got an update": [ "" ],
+			"We've adopted WordPress' main General Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"General Settings just got an update": [ "" ],
+			"The Tags view just got an update": [ "" ],
+			"The Categories view just got an update": [ "" ],
+			"The Comments view just got an update": [ "" ],
+			"The Pages view just got an update": [ "" ],
+			"The Posts view just got an update": [ "" ],
+			"We've adopted WordPress' main Tags view to bring improvements to you and millions of WordPress users worldwide.": [
+				"\u6211\u5011\u63a1\u7528 WordPress \u4e3b\u8981\u300c\u6a19\u7c64\u300d\u6aa2\u8996\uff0c\u70ba\u4f60\u8207 WordPress \u5168\u7403\u6578\u767e\u842c\u4f7f\u7528\u8005\u63d0\u4f9b\u66f4\u597d\u7684\u9ad4\u9a57\u3002"
+			],
+			"We've adopted WordPress' main Categories view to bring improvements to you and millions of WordPress users worldwide.": [
+				"\u6211\u5011\u63a1\u7528 WordPress \u4e3b\u8981\u300c\u5206\u985e\u300d\u6aa2\u8996\uff0c\u70ba\u4f60\u8207 WordPress \u5168\u7403\u6578\u767e\u842c\u4f7f\u7528\u8005\u63d0\u4f9b\u66f4\u597d\u7684\u9ad4\u9a57\u3002"
+			],
+			"We've adopted WordPress' main Comments view to bring improvements to you and millions of WordPress users worldwide.": [
+				"\u6211\u5011\u63a1\u7528 WordPress \u4e3b\u8981\u300c\u7559\u8a00\u300d\u6aa2\u8996\uff0c\u70ba\u4f60\u8207 WordPress \u5168\u7403\u6578\u767e\u842c\u4f7f\u7528\u8005\u63d0\u4f9b\u66f4\u597d\u7684\u9ad4\u9a57\u3002"
+			],
+			"We've adopted WordPress' main Testimonials view to bring improvements to you and millions of WordPress users worldwide.": [
+				"\u6211\u5011\u63a1\u7528 WordPress \u4e3b\u8981\u300c\u9867\u5ba2\u8a55\u8ad6\u300d\u6aa2\u8996\uff0c\u70ba\u4f60\u8207 WordPress \u5168\u7403\u6578\u767e\u842c\u4f7f\u7528\u8005\u63d0\u4f9b\u66f4\u597d\u7684\u9ad4\u9a57\u3002"
+			],
+			"The Testimonials view just got an update": [ "" ],
+			"We've adopted WordPress' main Portfolio Projects view to bring improvements to you and millions of WordPress users worldwide.": [
+				"\u6211\u5011\u63a1\u7528 WordPress \u4e3b\u8981\u300c\u500b\u4eba\u4f5c\u54c1\u96c6\u5c08\u6848\u300d\u6aa2\u8996\uff0c\u70ba\u4f60\u8207 WordPress \u5168\u7403\u6578\u767e\u842c\u4f7f\u7528\u8005\u63d0\u4f9b\u66f4\u597d\u7684\u9ad4\u9a57\u3002"
+			],
+			"The Portfolio Projects view just got an update": [ "" ],
+			"We've adopted WordPress' main Pages view to bring improvements to you and millions of WordPress users worldwide.": [
+				"\u6211\u5011\u63a1\u7528 WordPress \u4e3b\u8981\u300c\u9801\u9762\u300d\u6aa2\u8996\uff0c\u70ba\u4f60\u8207 WordPress \u5168\u7403\u6578\u767e\u842c\u4f7f\u7528\u8005\u63d0\u4f9b\u66f4\u597d\u7684\u9ad4\u9a57\u3002"
+			],
+			"We've adopted WordPress' main Posts view to bring improvements to you and millions of WordPress users worldwide.": [
+				"\u6211\u5011\u63a1\u7528 WordPress \u4e3b\u8981\u300c\u6587\u7ae0\u300d\u6aa2\u8996\uff0c\u70ba\u4f60\u8207 WordPress \u5168\u7403\u6578\u767e\u842c\u4f7f\u7528\u8005\u63d0\u4f9b\u66f4\u597d\u7684\u9ad4\u9a57\u3002"
+			],
+			"We've adopted WordPress's main %s view to bring improvements to you and millions of WordPress users worldwide.": [
+				"\u6211\u5011\u5df2\u7d93\u63a1\u7d0d WordPress \u7684\u4e3b\u8981 %s \u6aa2\u8996\u65b9\u5f0f\uff0c\u8b93\u4f60\u548c\u5168\u4e16\u754c\u6578\u767e\u842c WordPress \u4f7f\u7528\u8005\u90fd\u80fd\u4eab\u6709\u6539\u5584\u7684\u6210\u679c\u3002"
+			],
+			"The %s view just got better": [ "%s \u6aa2\u8996\u65b9\u5f0f\u5df2\u6709\u6539\u5584" ],
+			"Got it": [ "\u77e5\u9053\u4e86\uff01" ]
+		}
+	}
+}

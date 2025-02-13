@@ -1,0 +1,45 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "zh_CN",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Task enabled": [ "\u4efb\u52a1\u5df2\u542f\u7528" ],
+			"Task complete": [ "\u5b8c\u6210\u4efb\u52a1" ],
+			"Copy": [ "\u590d\u5236" ],
+			"Edit Site": [ "\u7f16\u8f91\u7ad9\u70b9" ],
+			"Hosting Overview": [ "\u6258\u7ba1\u670d\u52a1\u6982\u8ff0" ],
+			"User avatar": [ "\u7528\u6237\u5934\u50cf" ],
+			"View all responses": [ "\u67e5\u770b\u6240\u6709\u56de\u590d" ],
+			"Next \u2192": [ "\u4e0b\u4e00\u9875 \u2192" ],
+			"\u2190 Previous": [ "\u2190 \u4e0a\u4e00\u9875" ],
+			"Supercharge your website with a <strong>custom address</strong> that matches your blog, brand, or business.": [
+				"\u6dfb\u52a0\u4e0e\u60a8\u7684\u535a\u5ba2\u3001\u54c1\u724c\u6216\u4e1a\u52a1\u76f8\u5339\u914d\u7684<strong>\u81ea\u5b9a\u4e49\u5730\u5740</strong>\uff0c\u8ba9\u60a8\u7684\u7f51\u7ad9\u5927\u653e\u5f02\u5f69\u3002"
+			],
+			"Claim your free domain": [ "\u58f0\u660e\u60a8\u7684\u514d\u8d39\u57df" ],
+			"Your paid plan includes a domain name <strong>free for one year</strong>. Choose one that\u2019s easy to remember and even easier to share.": [
+				"\u60a8\u7684\u4ed8\u8d39\u5957\u9910\u5305\u542b\u4e00\u4e2a\u81ea\u5b9a\u4e49\u57df\u540d\uff0c\u53ef\u4f9b\u60a8<strong>\u514d\u8d39\u4f7f\u7528\u4e00\u5e74</strong>\u3002 \u9009\u62e9\u4e00\u4e2a\u6613\u4e8e\u8bb0\u4f4f\u3001\u66f4\u6613\u4e8e\u5171\u4eab\u7684\u57df\u540d\u3002"
+			],
+			"Claim your domain": [ "\u8ba4\u9886\u60a8\u7684\u57df" ],
+			"Interested in a custom domain? It\u2019s free for the first year when you switch to annual billing.": [
+				"\u60f3\u8bd5\u8bd5\u81ea\u8ba2\u57df\u540d\u5417\uff1f\u53ea\u8981\u6539\u7528\u5e74\u7f34\u65b9\u5f0f\uff0c\u5c31\u53ef\u4ee5\u4eab\u6709\u7b2c\u4e00\u5e74\u514d\u8d39\u3002"
+			],
+			"View site": [ "\u67e5\u770b\u7f51\u7ad9" ],
+			"Copy URL": [ "\u590d\u5236URL" ],
+			"Copied to clipboard!": [ "\u5df2\u590d\u5236\u5230\u526a\u8d34\u7c3f\u5185\uff01" ],
+			"Now you can head over to your site and share it with the world.": [
+				"\u73b0\u5728\u60a8\u53ef\u4ee5\u524d\u53bb\u770b\u770b\u60a8\u7684\u7ad9\u70b9\uff0c\u8ba9\u5927\u5bb6\u90fd\u77e5\u9053\u3002"
+			],
+			"Congrats, your site is live!": [
+				"\u606d\u559c\uff0c\u60a8\u7684\u7ad9\u70b9\u4e0a\u7ebf\u4e86\uff01"
+			],
+			"Home": [ "\u9996\u9875" ],
+			"Post Answer": [ "\u53d1\u5e03\u7b54\u6848" ],
+			"Footer": [ "\u9875\u811a" ],
+			"Header": [ "\u6807\u9898" ],
+			"Share your site": [ "\u5171\u4eab\u60a8\u7684\u7ad9\u70b9" ]
+		}
+	}
+}

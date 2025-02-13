@@ -1,0 +1,13 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "tr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"font pairings": [ "yaz\u0131 tipi \u00e7iftleri" ],
+			"Font Pairings": [ "Yaz\u0131 Tipi \u00c7iftleri" ]
+		}
+	}
+}

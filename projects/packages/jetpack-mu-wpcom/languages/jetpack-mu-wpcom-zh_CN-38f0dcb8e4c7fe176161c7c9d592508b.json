@@ -1,0 +1,13 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "zh_CN",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Edit Site": [ "\u7f16\u8f91\u7ad9\u70b9" ],
+			"Hosting Overview": [ "\u6258\u7ba1\u670d\u52a1\u6982\u8ff0" ]
+		}
+	}
+}

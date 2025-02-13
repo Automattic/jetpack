@@ -1,0 +1,19 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "es",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Date:": [ "Fecha:" ],
+			"Event Title": [ "T\u00edtulo del evento" ],
+			"Title:": [ "T\u00edtulo:" ],
+			"Count down to an event. Set a title and pick a time and date.": [
+				"Cuenta atr\u00e1s para un evento. Escribe un t\u00edtulo y elige la fecha y la hora."
+			],
+			"Event Countdown": [ "Cuenta atr\u00e1s para el evento" ],
+			"Choose Date": [ "Elegir la fecha" ]
+		}
+	}
+}

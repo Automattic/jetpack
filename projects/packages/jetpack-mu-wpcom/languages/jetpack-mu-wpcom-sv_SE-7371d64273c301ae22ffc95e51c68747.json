@@ -1,0 +1,51 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "sv_SE",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Show Featured Image Credit": [ "Visa kredit f\u00f6r utvald bild" ],
+			"Show Featured Image Caption": [ "Visa bildtext p\u00e5 utvalda bilder" ],
+			"Show Author Avatar": [ "Visa profilbild f\u00f6r f\u00f6rfattare" ],
+			"Show Author": [ "Visa f\u00f6rfattare" ],
+			"Show Category": [ "Visa kategori" ],
+			"Show Date": [ "Visa datum" ],
+			"Show Title": [ "Visa rubrik" ],
+			"Article Meta Settings": [ "Metainst\u00e4llningar f\u00f6r artikel" ],
+			"Number of slides to show at once": [ "Antal bilder som ska visas samtidigt" ],
+			"Delay between transitions (in seconds)": [
+				"F\u00f6rdr\u00f6jning mellan \u00f6verg\u00e5ngar (i sekunder)"
+			],
+			"Autoplay between slides": [ "Automatisk uppspelning mellan bilder" ],
+			"Autoplay": [ "Spela upp automatiskt" ],
+			"Hide the slideshow UI. Useful when used with Autoplay.": [
+				"D\u00f6lj anv\u00e4ndargr\u00e4nssnittet f\u00f6r bildspel. Anv\u00e4ndbart vid anv\u00e4ndning med automatisk uppspelning."
+			],
+			"Hide Controls": [ "D\u00f6lj kontroller" ],
+			"Contain": [ "Inneslut" ],
+			"Cover": [ "T\u00e4ck" ],
+			"The image will be resized to fit inside the slide without being cropped.": [
+				"Storleken p\u00e5 bilden kommer att \u00e4ndras s\u00e5 att den passar in i bildspelet utan att besk\u00e4ras."
+			],
+			"The image will fill the entire slide and will be cropped if necessary.": [
+				"Bilden kommer att fylla hela bildspelet och besk\u00e4ras om det beh\u00f6vs."
+			],
+			"Image Fit": [ "Anpassa bild" ],
+			"All slides will share the same aspect ratio, for consistency.": [
+				"F\u00f6r konsekvensens skull kommer alla bildspel att ha samma bildf\u00f6rh\u00e5llande."
+			],
+			"Slide Aspect Ratio": [ "Bildf\u00f6rh\u00e5llande f\u00f6r bildspel" ],
+			"Slideshow Settings": [ "Bildspelsinst\u00e4llningar" ],
+			"Display Settings": [ "Visningsinst\u00e4llningar" ],
+			"Sorry, no posts were found.": [ "Inga inl\u00e4gg hittades." ],
+			"9:16": [ "9:16" ],
+			"3:4": [ "3:4" ],
+			"16:9": [ "16:9" ],
+			"4:3": [ "4:3" ],
+			"1:1": [ "1:1" ],
+			"Square": [ "Fyrkant" ]
+		}
+	}
+}

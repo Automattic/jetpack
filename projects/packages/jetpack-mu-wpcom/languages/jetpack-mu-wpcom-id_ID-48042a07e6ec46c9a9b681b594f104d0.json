@@ -1,0 +1,26 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n > 1;",
+				"language": "id",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Your active theme doesn't support %s.": [ "Tema aktif Anda tidak mendukung %s." ],
+			"Font Selection": [ "Pilihan Font" ],
+			"You have unsaved changes.": [ "Anda memiliki perubahan yang belum disimpan." ],
+			"Any change you make here will apply to the entire website.": [
+				"Semua perubahan yang Anda lakukan di sini akan diterapkan ke seluruh situs."
+			],
+			"You are customizing %s.": [ "Anda sedang menyesuaikan %s." ],
+			"Global Styles": [ "Gaya Global" ],
+			"Publish": [ "Poskan" ],
+			"Reset": [ "Atur ulang" ],
+			"Base Font": [ "Font Dasar" ],
+			"Heading Font": [ "Font Judul" ],
+			"custom font selection": [ "pilihan font khusus" ],
+			"font pairings": [ "pemasangan font" ],
+			"Font Pairings": [ "Pemasangan Font" ]
+		}
+	}
+}

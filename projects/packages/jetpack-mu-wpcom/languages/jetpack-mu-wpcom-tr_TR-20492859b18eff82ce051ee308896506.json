@@ -1,0 +1,16 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "tr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Paused": [ "Duraklat\u0131ld\u0131" ],
+			"Playing": [ "Oynat\u0131l\u0131yor" ],
+			"Image: %s, ": [ "G\u00f6rsel: %s, " ],
+			"Slide %1$s of %2$s": [ "Slayt %1$s / %2$s" ],
+			"Slide %s": [ "Slayt %s" ]
+		}
+	}
+}

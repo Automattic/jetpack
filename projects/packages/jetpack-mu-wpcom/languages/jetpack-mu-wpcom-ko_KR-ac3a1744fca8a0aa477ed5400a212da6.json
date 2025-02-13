@@ -1,0 +1,30 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "ko_KR",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Upgrade your plan to upload audio": [
+				"\uc624\ub514\uc624\ub97c \uc5c5\ub85c\ub4dc\ud558\ub824\uba74 \uc694\uae08\uc81c\ub97c \uc5c5\uadf8\ub808\uc774\ub4dc\ud558\uc138\uc694."
+			],
+			"Upgrade your plan to use video covers": [
+				"\ube44\ub514\uc624 \ucee4\ubc84\ub97c \uc0ac\uc6a9\ud558\ub824\uba74 \uc694\uae08\uc81c\ub97c \uc5c5\uadf8\ub808\uc774\ub4dc\ud558\uc138\uc694."
+			],
+			"An entry on the timeline": [ "\ud0c0\uc784\ub77c\uc778 \ud56d\ubaa9" ],
+			"Timeline Entry": [ "\ud0c0\uc784\ub77c\uc778 \ud56d\ubaa9" ],
+			"Background Color": [ "\ubc30\uacbd \uc0c9\uc0c1" ],
+			"Color Settings": [ "\uc0c9\uc0c1 \uc124\uc815" ],
+			"Right": [ "\uc624\ub978\ucabd" ],
+			"Left": [ "\uc67c\ucabd" ],
+			"Winter": [ "\uaca8\uc6b8" ],
+			"Fall": [ "\uac00\uc744" ],
+			"Summer": [ "\uc5ec\ub984" ],
+			"Spring": [ "\ubd04" ],
+			"Alternate items": [ "\ub300\uccb4 \uc544\uc774\ud15c" ],
+			"Timeline settings": [ "\ud0c0\uc784\ub77c\uc778 \uc124\uc815" ],
+			"Add entry": [ "\ud56d\ubaa9 \ucd94\uac00" ]
+		}
+	}
+}

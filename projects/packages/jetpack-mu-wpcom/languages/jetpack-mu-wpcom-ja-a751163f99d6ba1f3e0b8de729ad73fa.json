@@ -1,0 +1,19 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "ja_JP",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Start customizing": [ "\u30ab\u30b9\u30bf\u30de\u30a4\u30ba\u3092\u30b9\u30bf\u30fc\u30c8" ],
+			"Try customizing your theme styles to get your site looking just right.": [
+				"\u30c6\u30fc\u30de\u306e\u30b9\u30bf\u30a4\u30eb\u3092\u30ab\u30b9\u30bf\u30de\u30a4\u30ba\u3057\u3066\u3001\u30b5\u30a4\u30c8\u306e\u5916\u89b3\u3092\u9069\u5207\u306b\u3057\u307e\u3057\u3087\u3046\u3002"
+			],
+			"Changes you make in the editor won\u2019t be applied to your site until you activate the theme.": [
+				"\u30a8\u30c7\u30a3\u30bf\u30fc\u3067\u884c\u3063\u305f\u5909\u66f4\u306f\u30c6\u30fc\u30de\u3092\u6709\u52b9\u5316\u3059\u308b\u307e\u3067\u30b5\u30a4\u30c8\u306b\u9069\u7528\u3055\u308c\u307e\u305b\u3093\u3002"
+			],
+			"You\u2019re previewing %s": [ "%s \u3092\u30d7\u30ec\u30d3\u30e5\u30fc\u4e2d\u3067\u3059" ]
+		}
+	}
+}

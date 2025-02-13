@@ -1,0 +1,25 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "zh_TW",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"You can visit the plugin directory to get started with installing new plugins.": [
+				"\u4f60\u53ef\u4ee5\u524d\u5f80\u5916\u639b\u7a0b\u5f0f\u76ee\u9304\uff0c\u958b\u59cb\u5b89\u88dd\u65b0\u5916\u639b\u7a0b\u5f0f\u3002"
+			],
+			"You can visit the <a>plugin directory</a> to get started with installing new plugins.": [
+				"\u4f60\u53ef\u4ee5\u524d\u5f80<a>\u5916\u639b\u7a0b\u5f0f\u76ee\u9304</a>\uff0c\u958b\u59cb\u5b89\u88dd\u65b0\u5916\u639b\u7a0b\u5f0f\u3002"
+			],
+			"plugin": [ "\u5916\u639b\u7a0b\u5f0f" ],
+			"You can visit the theme directory to select a different design for your site.": [
+				"\u4f60\u53ef\u4ee5\u524d\u5f80\u4f48\u666f\u4e3b\u984c\u76ee\u9304\uff0c\u70ba\u7db2\u7ad9\u9078\u53d6\u5176\u4ed6\u8a2d\u8a08\u3002"
+			],
+			"You can visit the <a>theme directory</a> to select a different design for your site.": [
+				"\u4f60\u53ef\u4ee5\u524d\u5f80<a>\u4f48\u666f\u4e3b\u984c\u76ee\u9304</a>\uff0c\u70ba\u7db2\u7ad9\u9078\u53d6\u5176\u4ed6\u8a2d\u8a08\u3002"
+			],
+			"theme": [ "\u4f48\u666f\u4e3b\u984c" ]
+		}
+	}
+}

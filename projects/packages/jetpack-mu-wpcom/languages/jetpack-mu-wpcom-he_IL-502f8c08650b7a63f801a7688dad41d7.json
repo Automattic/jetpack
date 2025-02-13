@@ -1,0 +1,19 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "he_IL",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Selection here has effect only for editors, regular users will only see published posts.": [
+				"\u05d4\u05d1\u05d7\u05d9\u05e8\u05d4 \u05db\u05d0\u05df \u05de\u05e9\u05e4\u05d9\u05e2\u05d4 \u05e8\u05e7 \u05e2\u05dc \u05d4\u05e2\u05d5\u05e8\u05db\u05d9\u05dd, \u05de\u05e9\u05ea\u05de\u05e9\u05d9\u05dd \u05e8\u05d2\u05d9\u05dc\u05d9\u05dd \u05d9\u05e8\u05d0\u05d5 \u05e8\u05e7 \u05e4\u05d5\u05e1\u05d8\u05d9\u05dd \u05e9\u05e4\u05d5\u05e8\u05e1\u05de\u05d5."
+			],
+			"Additional Post Statuses": [
+				"\u05e1\u05d8\u05d8\u05d5\u05e1\u05d9\u05dd \u05e0\u05d5\u05e1\u05e4\u05d9\u05dd \u05dc\u05e4\u05d5\u05e1\u05d8"
+			],
+			"Post Types": [ "\u05e1\u05d5\u05d2\u05d9 \u05e4\u05d5\u05e1\u05d8\u05d9\u05dd" ],
+			"Listings": [ "\u05de\u05d5\u05d3\u05e2\u05d5\u05ea" ]
+		}
+	}
+}

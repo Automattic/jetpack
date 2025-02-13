@@ -1,0 +1,45 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "de",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Task enabled": [ "Aufgabe aktiviert" ],
+			"Task complete": [ "Aufgabe abgeschlossen" ],
+			"Copy": [ "Kopieren" ],
+			"Edit Site": [ "Website bearbeiten" ],
+			"Hosting Overview": [ "\u00dcbersicht \u00fcber das Hosting" ],
+			"User avatar": [ "Benutzer-Avatar" ],
+			"View all responses": [ "Alle Beitr\u00e4ge anzeigen" ],
+			"Next \u2192": [ "Weiter \u2192" ],
+			"\u2190 Previous": [ "\u2190 Zur\u00fcck" ],
+			"Supercharge your website with a <strong>custom address</strong> that matches your blog, brand, or business.": [
+				"Lege f\u00fcr deine Website eine <strong>individuelle Adresse</strong> fest, die zu deinem Blog, deiner Marke oder deinem Unternehmen passt."
+			],
+			"Claim your free domain": [ "Kostenlose Domain nutzen" ],
+			"Your paid plan includes a domain name <strong>free for one year</strong>. Choose one that\u2019s easy to remember and even easier to share.": [
+				"In deinem kostenpflichtigen Tarif ist ein Domainname <strong>ein Jahr lang kostenlos</strong> enthalten. Verwende einen Domainnamen, der leicht zu merken ist und mindestens genauso leicht geteilt werden kann."
+			],
+			"Claim your domain": [ "Deine Domain holen" ],
+			"Interested in a custom domain? It\u2019s free for the first year when you switch to annual billing.": [
+				"Interesse an einer individuellen Domain? Wenn du auf j\u00e4hrliche Zahlung umstellst, ist sie im ersten Jahr kostenlos."
+			],
+			"View site": [ "Website ansehen" ],
+			"Copy URL": [ "URL kopieren" ],
+			"Copied to clipboard!": [ "In die Zwischenablage kopiert!" ],
+			"Now you can head over to your site and share it with the world.": [
+				"Jetzt kannst du deine Website ansehen und mit der Welt teilen."
+			],
+			"Congrats, your site is live!": [
+				"Herzlichen Gl\u00fcckwunsch, deine Website ist jetzt online!"
+			],
+			"Home": [ "Home" ],
+			"Post Answer": [ "Antwort ver\u00f6ffentlichen" ],
+			"Footer": [ "Footer" ],
+			"Header": [ "Header" ],
+			"Share your site": [ "Deine Website teilen" ]
+		}
+	}
+}

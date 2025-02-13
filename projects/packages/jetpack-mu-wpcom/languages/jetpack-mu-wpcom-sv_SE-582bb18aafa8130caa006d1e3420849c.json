@@ -1,0 +1,73 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "sv_SE",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Safe mode": [ "S\u00e4kert l\u00e4ge" ],
+			"Or decide later and stay in <button>Safe mode</button>": [
+				"Eller best\u00e4m dig senare och stanna i <button>s\u00e4kert l\u00e4ge</button>"
+			],
+			"Finishing setting up Safe mode\u2026": [
+				"Slutf\u00f6r konfiguration av s\u00e4kert l\u00e4ge..."
+			],
+			"<p><strong>Recommended for</strong></p><list><item>short-lived test sites</item><item>sites that will be cloned back to production after testing</item></list><p><strong>Please note</strong> that staying in Safe mode will disable some Jetpack features, including security features such as SSO, firewall, and site monitor. <safeModeLink>Learn more</safeModeLink>.</p>": [
+				"<p><strong>Rekommenderas f\u00f6r</strong></p><list><item>kortlivade testwebbplatser</item><item>webbplatser som kommer att klonas tillbaka till produktionen efter testning</item></list><p><strong>Observera</strong> att om du stannar i S\u00e4kert l\u00e4ge inaktiveras vissa Jetpack-funktioner, bland annat s\u00e4kerhetsfunktioner som SSO, brandv\u00e4gg och webbplats\u00f6vervakning. <safeModeLink>L\u00e4s mer</safeModeLink>.</p>"
+			],
+			"Stay in Safe Mode": [ "Stanna i s\u00e4kert l\u00e4ge" ],
+			"Stay in Safe mode": [ "Stanna i s\u00e4kert l\u00e4ge" ],
+			"Could not stay in safe mode. Retry or find out more <a>here</a>.": [
+				"Kunde inte stanna i s\u00e4kert l\u00e4ge. F\u00f6rs\u00f6k igen eller f\u00e5 mer information <a>h\u00e4r</a>."
+			],
+			"Safe Mode": [ "S\u00e4kert l\u00e4ge" ],
+			"An administrator of this site can take Jetpack out of Safe Mode.": [
+				"En administrat\u00f6r av den h\u00e4r webbplatsen kan ta Jetpack ur fels\u00e4kert l\u00e4ge."
+			],
+			"This site is in Safe Mode because there are 2 Jetpack-powered sites that appear to be duplicates. 2 sites that are telling Jetpack they\u2019re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>": [
+				"Den h\u00e4r webbplatsen \u00e4r i s\u00e4kert l\u00e4ge, eftersom det finns 2 Jetpack-drivna webbplatser som f\u00f6refaller vara duplikat. 2 webbplatser som ber\u00e4ttar f\u00f6r Jetpack att de \u00e4r samma webbplats. <safeModeLink>L\u00e4s mer om s\u00e4kert l\u00e4ge.</safeModeLink>"
+			],
+			"Safe Mode has been switched off for <hostname>%1$s</hostname> website and Jetpack is fully functional.": [
+				"S\u00e4kert l\u00e4ge har st\u00e4ngts av f\u00f6r webbplatsen <hostname>%1$s</hostname> och Jetpack \u00e4r fullt fungerande."
+			],
+			"Your Jetpack settings have migrated successfully": [
+				"Dina Jetpack-inst\u00e4llningar har migrerats."
+			],
+			"Got it, thanks": [ "Uppfattat, tack" ],
+			"Please select an option": [ "V\u00e4lj ett alternativ" ],
+			"<strong>Notice:</strong> It appears that your 'wp-config.php' file might be using dynamic site URL values. Dynamic site URLs could cause Jetpack to enter Safe Mode. <dynamicSiteUrlSupportLink>Learn how to set a static site URL.</dynamicSiteUrlSupportLink>": [
+				"<strong>Obs!</strong> Det verkar som att din \"wp-config.php\"-fil anv\u00e4nder dynamiska v\u00e4rden f\u00f6r webbplats-URL. Dynamiska webbplats-URL:er kan f\u00e5 Jetpack att g\u00e5 in i s\u00e4kert l\u00e4ge. <dynamicSiteUrlSupportLink>L\u00e4r dig hur du anger en statisk webbplats-URL.</dynamicSiteUrlSupportLink>"
+			],
+			"Your site is in Safe Mode because you have 2 Jetpack-powered sites that appear to be duplicates. Two sites that are telling Jetpack they\u2019re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>": [
+				"Din webbplats \u00e4r i S\u00e4kert l\u00e4ge eftersom du har tv\u00e5 Jetpack-styrda webbplatser som verkar vara dubbletter. Tv\u00e5 webbplatser som talar om f\u00f6r Jetpack att de \u00e4r samma webbplats. <safeModeLink>L\u00e4s mer om s\u00e4kert l\u00e4ge.</safeModeLink>"
+			],
+			"<span>Your site is in Safe Mode because <hostname>%1$s</hostname> appears to be a staging or development copy of <hostname>%2$s</hostname>.</span>2 sites that are telling Jetpack they\u2019re the same site. <safeModeLink>Learn more or troubleshoot common Safe mode issues</safeModeLink>.": [
+				"<span>Din webbplats \u00e4r i S\u00e4kert l\u00e4ge eftersom <hostname>%1$s</hostname> verkar vara en mellanlagrings- eller utvecklingskopia av <hostname>%2$s</hostname>.</span>2 webbplatser som s\u00e4ger till Jetpack att de \u00e4r samma webbplats. <safeModeLink>L\u00e4s mer eller fels\u00f6k vanliga problem med S\u00e4kert l\u00e4ge</safeModeLink>."
+			],
+			"Safe Mode has been activated": [ "S\u00e4kert l\u00e4ge har aktiverats" ],
+			"Could not move your settings. Retry or find out more <a>here</a>.": [
+				"Kunde inte flytta dina inst\u00e4llningar. F\u00f6rs\u00f6k igen eller ta reda p\u00e5 mer <a>h\u00e4r</a>."
+			],
+			"Move all your settings, stats and subscribers to your other URL, <hostname>%1$s</hostname>. <hostname>%2$s</hostname> will be disconnected from Jetpack.": [
+				"Flytta alla dina inst\u00e4llningar, din statistik och dina prenumeranter till din andra URL, <hostname>%1$s</hostname>. <hostname>%2$s</hostname> kommer att kopplas bort fr\u00e5n Jetpack."
+			],
+			"Move Jetpack data": [ "Flytta Jetpack-data" ],
+			"Move your settings": [ "Flytta dina inst\u00e4llningar" ],
+			"Could not create the connection. Retry or find out more <a>here</a>.": [
+				"Kunde inte skapa anslutningen. F\u00f6rs\u00f6k igen eller ta reda p\u00e5 mer <a>h\u00e4r</a>."
+			],
+			"<hostname>%1$s</hostname> settings, stats, and subscribers will start fresh. <hostname>%2$s</hostname> will keep its data as is.": [
+				"Inst\u00e4llningar, statistik och prenumeranter f\u00f6r <hostname>%1$s</hostname> kommer att nollst\u00e4llas. <hostname>%2$s</hostname> kommer att beh\u00e5lla sina data."
+			],
+			"<p><strong>Recommended for</strong></p><list><item>development sites</item><item>sites that need access to all Jetpack features</item></list><p><strong>Please note</strong> that creating a fresh connection for <hostname>%1$s</hostname> would require restoring the connection on <hostname>%2$s</hostname> if that site is cloned back to production. <safeModeLink>Learn more</safeModeLink>.</p>": [
+				"<p><strong>Rekommenderas f\u00f6r</strong></p><list><item>utvecklingswebbplatser</item><item>webbplatser som beh\u00f6ver tillg\u00e5ng till alla Jetpack-funktioner</item></list><p><strong>Observera</strong> att om du skapar en ny anslutning f\u00f6r <hostname>%1$s</hostname> m\u00e5ste anslutningen \u00e5terst\u00e4llas p\u00e5 <hostname>%2$s</hostname> om webbplatsen klonas tillbaka till produktionen. <safeModeLink>L\u00e4s mer</safeModeLink>.</p>"
+			],
+			"Treat each site as independent sites": [
+				"Behandla webbplatserna som oberoende webbplatser"
+			],
+			"Create a fresh connection": [ "Skapa en ny anslutning" ],
+			"Jetpack Logo": [ "Jetpack-logga" ]
+		}
+	}
+}

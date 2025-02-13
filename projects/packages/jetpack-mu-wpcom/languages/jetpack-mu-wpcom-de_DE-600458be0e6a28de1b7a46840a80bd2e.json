@@ -1,0 +1,61 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "de",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Learn more \u2197": [ "Weitere Informationen\u00a0\u2197" ],
+			"We've adopted WordPress' main Discussion Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Discussion Settings just got an update": [ "" ],
+			"We've adopted WordPress' main Reading Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Reading Settings just got an update": [ "" ],
+			"We've adopted WordPress' main Writing Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"Writing Settings just got an update": [ "" ],
+			"We've adopted WordPress' main General Settings view to bring improvements to you and millions of WordPress users worldwide.": [
+				""
+			],
+			"General Settings just got an update": [ "" ],
+			"The Tags view just got an update": [ "" ],
+			"The Categories view just got an update": [ "" ],
+			"The Comments view just got an update": [ "" ],
+			"The Pages view just got an update": [ "" ],
+			"The Posts view just got an update": [ "" ],
+			"We've adopted WordPress' main Tags view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Wir haben die Hauptansicht f\u00fcr Tags von WordPress \u00fcbernommen, damit du und Millionen weitere WordPress-Benutzer auf der ganzen Welt davon profitieren k\u00f6nnen."
+			],
+			"We've adopted WordPress' main Categories view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Wir haben die Hauptansicht f\u00fcr Kategorien von WordPress \u00fcbernommen, damit du und Millionen weitere WordPress-Benutzer auf der ganzen Welt davon profitieren k\u00f6nnen."
+			],
+			"We've adopted WordPress' main Comments view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Wir haben die Hauptansicht f\u00fcr Kommentare von WordPress \u00fcbernommen, damit du und Millionen weitere WordPress-Benutzer auf der ganzen Welt davon profitieren k\u00f6nnen."
+			],
+			"We've adopted WordPress' main Testimonials view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Wir haben die Hauptansicht f\u00fcr Referenzen von WordPress \u00fcbernommen, damit du und Millionen weitere WordPress-Benutzer auf der ganzen Welt davon profitieren k\u00f6nnen."
+			],
+			"The Testimonials view just got an update": [ "" ],
+			"We've adopted WordPress' main Portfolio Projects view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Wir haben die Hauptansicht f\u00fcr Portfolio-Projekte von WordPress \u00fcbernommen, damit du und Millionen weitere WordPress-Benutzer auf der ganzen Welt davon profitieren k\u00f6nnen."
+			],
+			"The Portfolio Projects view just got an update": [ "" ],
+			"We've adopted WordPress' main Pages view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Wir haben die Hauptansicht f\u00fcr Seiten von WordPress \u00fcbernommen, damit du und Millionen weitere WordPress-Benutzer auf der ganzen Welt davon profitieren k\u00f6nnen."
+			],
+			"We've adopted WordPress' main Posts view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Wir haben die Hauptansicht f\u00fcr Beitr\u00e4ge von WordPress \u00fcbernommen, damit du und Millionen weitere WordPress-Benutzer auf der ganzen Welt davon profitieren k\u00f6nnen."
+			],
+			"We've adopted WordPress's main %s view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Wir haben die Hauptansicht der WordPress-Seite \u201e%s\u201c \u00fcbernommen, um dir und Millionen von WordPress-Benutzern weltweit Verbesserungen zu bieten."
+			],
+			"The %s view just got better": [ "Die Ansicht f\u00fcr %s wurde gerade verbessert" ],
+			"Got it": [ "Verstanden!" ]
+		}
+	}
+}

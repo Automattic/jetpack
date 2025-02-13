@@ -1,0 +1,14 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=1; plural=0;",
+				"language": "zh_CN",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Base Font": [ "\u57fa\u672c\u5b57\u4f53" ],
+			"Heading Font": [ "\u6807\u9898\u5b57\u4f53" ],
+			"custom font selection": [ "\u81ea\u5b9a\u4e49\u5b57\u4f53\u9009\u62e9" ]
+		}
+	}
+}

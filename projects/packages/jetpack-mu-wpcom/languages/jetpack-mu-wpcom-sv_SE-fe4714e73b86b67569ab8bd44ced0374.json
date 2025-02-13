@@ -1,0 +1,15 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "sv_SE",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Background Color": [ "Bakgrundsf\u00e4rg" ],
+			"Color Settings": [ "F\u00e4rginst\u00e4llningar" ],
+			"Right": [ "H\u00f6ger" ],
+			"Left": [ "V\u00e4nster" ]
+		}
+	}
+}

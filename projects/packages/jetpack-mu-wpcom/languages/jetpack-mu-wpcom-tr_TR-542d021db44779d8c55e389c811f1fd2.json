@@ -1,0 +1,15 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=(n > 1);",
+				"language": "tr",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Scheduled": [ "Zamanland\u0131" ],
+			"Draft": [ "Taslak" ],
+			"post author\u0004 and ": [ " ve " ],
+			"post author\u0004by": [ "yazan:" ]
+		}
+	}
+}

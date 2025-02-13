@@ -1,0 +1,25 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "es",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"You can visit the plugin directory to get started with installing new plugins.": [
+				"Visita el directorio de plugins para empezar a instalar nuevos plugins."
+			],
+			"You can visit the <a>plugin directory</a> to get started with installing new plugins.": [
+				"Visita el <a>directorio de plugins</a> para empezar a instalar nuevos plugins."
+			],
+			"plugin": [ "plugin" ],
+			"You can visit the theme directory to select a different design for your site.": [
+				"Visita el directorio de temas para seleccionar un dise\u00f1o diferente para tu sitio."
+			],
+			"You can visit the <a>theme directory</a> to select a different design for your site.": [
+				"Visita el <a>directorio de temas</a> para seleccionar un dise\u00f1o diferente para tu sitio."
+			],
+			"theme": [ "tema" ]
+		}
+	}
+}

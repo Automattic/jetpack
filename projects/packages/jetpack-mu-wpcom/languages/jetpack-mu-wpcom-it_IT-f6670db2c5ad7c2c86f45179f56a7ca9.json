@@ -1,0 +1,22 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "it",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Reach a larger audience boosting the content to the WordPress.com community of blogs and sites.": [
+				"Raggiungi un pubblico pi\u00f9 vasto ottimizzando la diffusione dei contenuti nella community di blog e siti di WordPress.com."
+			],
+			"Blaze this product": [ "Diffondi questo prodotto" ],
+			"Blaze this post": [ "Diffondi questo articolo" ],
+			"Blaze this page": [ "Diffondi questa pagina" ],
+			"Promote with Blaze": [ "Promuovi con Blaze" ],
+			"Upgrade your plan to upload audio": [ "Aggiorna il piano per caricare audio" ],
+			"Upgrade your plan to use video covers": [
+				"Aggiorna il piano per utilizzare copertine video"
+			]
+		}
+	}
+}

@@ -1,0 +1,21 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "sv_SE",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Your site includes premium styles that are only visible to visitors after upgrading to the %s plan or higher.": [
+				"Din webbplats inkluderar premiumstilar som endast \u00e4r synliga f\u00f6r bes\u00f6kare efter uppgradering till %s-paketet eller h\u00f6gre."
+			],
+			"Learn more": [ "L\u00e4r dig mer" ],
+			"Preview without premium styles": [ "F\u00f6rhandsgranska utan premiumstilar" ],
+			"Your site includes premium styles that are only visible to visitors after <a>upgrading to the %s plan or higher</a>.": [
+				"Din webbplats inkluderar premiumstilar som endast \u00e4r synliga f\u00f6r bes\u00f6kare efter <a>uppgradering till %s-paketet eller h\u00f6gre</a>."
+			],
+			"Remove premium styles": [ "Ta bort premiumstilar" ],
+			"Upgrade now": [ "Uppgradera nu" ]
+		}
+	}
+}

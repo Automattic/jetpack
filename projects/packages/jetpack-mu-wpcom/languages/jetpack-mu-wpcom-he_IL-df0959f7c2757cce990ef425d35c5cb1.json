@@ -1,0 +1,15 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "he_IL",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Winter": [ "\u05d7\u05d5\u05e8\u05e3" ],
+			"Fall": [ "\u05e1\u05ea\u05d9\u05d5" ],
+			"Summer": [ "\u05e7\u05d9\u05e5" ],
+			"Spring": [ "\u05d0\u05d1\u05d9\u05d1" ]
+		}
+	}
+}

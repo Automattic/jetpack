@@ -1,0 +1,73 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "de",
+				"project_id_version": "WordPress.com - plugins - jetpack-mu-wpcom"
+			},
+			"Safe mode": [ "Abgesicherter Modus" ],
+			"Or decide later and stay in <button>Safe mode</button>": [
+				"Oder entscheide sp\u00e4ter und bleibe vorerst im <button>abgesicherten Modus</button>"
+			],
+			"Finishing setting up Safe mode\u2026": [
+				"Einrichtung des abgesicherten Modus wird abgeschlossen\u00a0\u2026"
+			],
+			"<p><strong>Recommended for</strong></p><list><item>short-lived test sites</item><item>sites that will be cloned back to production after testing</item></list><p><strong>Please note</strong> that staying in Safe mode will disable some Jetpack features, including security features such as SSO, firewall, and site monitor. <safeModeLink>Learn more</safeModeLink>.</p>": [
+				"<p><strong>Empfohlen f\u00fcr</strong></p><list><item>kurzlebige Test-Websites</item><item>Websites, die nach dem Testen zur\u00fcck in die Produktion geklont werden</item></list><p><strong>Bitte beachte,</strong> dass einige Jetpack-Funktionen, darunter Sicherheitsfunktionen wie SSO, Firewall und Website-Monitor, deaktiviert werden, wenn deine Website im abgesicherten Modus bleibt. <safeModeLink>Weitere Informationen</safeModeLink>.</p>"
+			],
+			"Stay in Safe Mode": [ "Im abgesicherten Modus bleiben" ],
+			"Stay in Safe mode": [ "Im abgesicherten Modus bleiben" ],
+			"Could not stay in safe mode. Retry or find out more <a>here</a>.": [
+				"Abgesicherter Modus musste beendet werden. Versuche es erneut oder erfahre <a>hier</a> mehr."
+			],
+			"Safe Mode": [ "Abgesicherter Modus" ],
+			"An administrator of this site can take Jetpack out of Safe Mode.": [
+				"Ein Administrator dieser Website kann den abgesicherten Modus f\u00fcr Jetpack aufheben."
+			],
+			"This site is in Safe Mode because there are 2 Jetpack-powered sites that appear to be duplicates. 2 sites that are telling Jetpack they\u2019re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>": [
+				"Die Website befindet sich im abgesicherten Modus, da es zwei von Jetpack unterst\u00fctzte Websites gibt, die anscheinend Duplikate sind. Zwei Websites, die Jetpack mitteilen, dass sie dieselbe Website sind. <safeModeLink>Weitere Informationen \u00fcber den abgesicherten Modus.</safeModeLink>"
+			],
+			"Safe Mode has been switched off for <hostname>%1$s</hostname> website and Jetpack is fully functional.": [
+				"Der abgesicherte Modus wurde f\u00fcr die Website <hostname>%1$s</hostname> deaktiviert und Jetpack funktioniert reibungslos."
+			],
+			"Your Jetpack settings have migrated successfully": [
+				"Deine Jetpack-Einstellungen wurden erfolgreich migriert"
+			],
+			"Got it, thanks": [ "Verstanden, danke" ],
+			"Please select an option": [ "Bitte w\u00e4hle eine Option aus" ],
+			"<strong>Notice:</strong> It appears that your 'wp-config.php' file might be using dynamic site URL values. Dynamic site URLs could cause Jetpack to enter Safe Mode. <dynamicSiteUrlSupportLink>Learn how to set a static site URL.</dynamicSiteUrlSupportLink>": [
+				"<strong>Hinweis:</strong> Deine Datei \u201ewp-config.php\u201c verwendet m\u00f6glicherweise dynamische Website-URL-Werte. Dynamische Website-URLs k\u00f6nnen dazu f\u00fchren, dass Jetpack in den abgesicherten Modus wechselt. <dynamicSiteUrlSupportLink>Erfahre, wie du eine statische Website-URL festlegst.</dynamicSiteUrlSupportLink>"
+			],
+			"Your site is in Safe Mode because you have 2 Jetpack-powered sites that appear to be duplicates. Two sites that are telling Jetpack they\u2019re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>": [
+				"Deine Website befindet sich im abgesicherten Modus, weil du zwei von Jetpack unterst\u00fctzte Websites hast, die anscheinend Duplikate sind. Zwei Websites, die Jetpack mitteilen, dass sie dieselbe Website sind. <safeModeLink>Weitere Informationen \u00fcber den abgesicherten Modus.</safeModeLink>"
+			],
+			"<span>Your site is in Safe Mode because <hostname>%1$s</hostname> appears to be a staging or development copy of <hostname>%2$s</hostname>.</span>2 sites that are telling Jetpack they\u2019re the same site. <safeModeLink>Learn more or troubleshoot common Safe mode issues</safeModeLink>.": [
+				"<span>Deine Website befindet sich im abgesicherten Modus, weil <hostname>%1$s</hostname> anscheinend eine Staging- oder Entwicklungskopie von <hostname>%2$s</hostname> ist.</span>Zwei Websites, die Jetpack mitteilen, dass sie dieselbe Website sind. <safeModeLink>Weitere Informationen oder g\u00e4ngige Probleme mit dem abgesicherten Modus behandeln</safeModeLink>."
+			],
+			"Safe Mode has been activated": [ "Abgesicherter Modus wurde aktiviert" ],
+			"Could not move your settings. Retry or find out more <a>here</a>.": [
+				"Deine Einstellungen konnten nicht verschoben werden. Versuche es erneut oder erfahre <a>hier</a> mehr."
+			],
+			"Move all your settings, stats and subscribers to your other URL, <hostname>%1$s</hostname>. <hostname>%2$s</hostname> will be disconnected from Jetpack.": [
+				"Verschiebe deine Einstellungen, Statistiken und Abonnenten zu deiner anderen URL, <hostname>%1$s</hostname>. <hostname>%2$s</hostname> wird von Jetpack getrennt."
+			],
+			"Move Jetpack data": [ "Jetpack-Daten verschieben" ],
+			"Move your settings": [ "Deine Einstellungen verschieben" ],
+			"Could not create the connection. Retry or find out more <a>here</a>.": [
+				"Verbindung konnte nicht erstellt werden. Versuche es erneut oder erfahre <a>hier</a> mehr."
+			],
+			"<hostname>%1$s</hostname> settings, stats, and subscribers will start fresh. <hostname>%2$s</hostname> will keep its data as is.": [
+				"Einstellungen, Statistiken und Abonnenten von <hostname>%1$s</hostname> starten neu. Die Daten von <hostname>%2$s</hostname> bleiben unver\u00e4ndert."
+			],
+			"<p><strong>Recommended for</strong></p><list><item>development sites</item><item>sites that need access to all Jetpack features</item></list><p><strong>Please note</strong> that creating a fresh connection for <hostname>%1$s</hostname> would require restoring the connection on <hostname>%2$s</hostname> if that site is cloned back to production. <safeModeLink>Learn more</safeModeLink>.</p>": [
+				"<p><strong>Empfohlen f\u00fcr</strong></p><list><item>Entwicklungswebsites</item><item>Websites, die Zugriff auf alle Jetpack-Funktionen ben\u00f6tigen</item></list><p><strong>Bitte beachte,</strong> dass das Herstellen einer neuen Verbindung f\u00fcr <hostname>%1$s</hostname> erfordert, dass die Verbindung auf <hostname>%2$s</hostname> wiederhergestellt wird, falls diese Website zur\u00fcck in die Produktion geklont wird. <safeModeLink>Weitere Informationen</safeModeLink>.</p>"
+			],
+			"Treat each site as independent sites": [
+				"Jede Website als unabh\u00e4ngige Website behandeln"
+			],
+			"Create a fresh connection": [ "Neue Verbindung erstellen" ],
+			"Jetpack Logo": [ "Jetpack-Logo" ]
+		}
+	}
+}
