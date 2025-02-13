@@ -936,7 +936,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		return $field;
 	}
 
-	/*
+	/**
 	 * Return the HTML for the file field.
 	 *
 	 * @param string $id - the ID.
@@ -1218,6 +1218,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				break;
 			case 'number':
 				$field .= $this->render_number_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				break;
 			case 'file':
 				$field .= $this->render_file_field( $id, $label, $field_class, $required, $required_field_text );
 				break;
