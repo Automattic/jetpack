@@ -115,7 +115,7 @@ while true; do
 		--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${ID}/comments?per_page=100&page=$PAGE" \
 		--header "authorization: Bearer $POST_MESSAGE_TOKEN"
 	)
-	CID=$( jq -r --arg CID "$CID" '[ { id: $CID }, ( .[] | select( .user.login == "github-actions[bot]" ) | select( .body | test( "^### Code Coverage Summary" ) ) ) ] | last | .id' <<<"$J" )
+	CID=$( jq -r --arg CID "$CID" '[ { id: $CID }, ( .[] | select( .user.login == "jp-launch-control[bot]" ) | select( .body | test( "^### Code Coverage Summary" ) ) ) ] | last | .id' <<<"$J" )
 	if jq -e 'length < 100' <<<"$J" &>/dev/null; then
 		break
 	fi
