@@ -95,7 +95,7 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 					return acc;
 				}, 0 ) / steps.filter( step => step.includeInResults ).length;
 
-			tracks.recordEvent( 'assistant_wizard_chat_close', {
+			tracks.recordEvent( 'jetpack_wizard_chat_close', {
 				completion,
 				step: steps[ currentStep ].id,
 				steps: steps.length - 1,
@@ -112,7 +112,7 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 	const jumpToStep = useCallback(
 		( stepNumber: number ) => {
 			if ( stepNumber < steps.length - 1 ) {
-				tracks.recordEvent( 'assistant_wizard_chat_step_jump', {
+				tracks.recordEvent( 'jetpack_wizard_chat_jump', {
 					step_from: steps[ currentStep ]?.id,
 					step_to: steps[ stepNumber ]?.id,
 					assistant_name: assistantName,
@@ -140,7 +140,7 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 			setIsBusy( true );
 			setAssistantFlowAction( 'backwards' );
 			debug( 'moving back to ' + ( currentStep - 1 ) );
-			tracks.recordEvent( 'assistant_wizard_chat_step_back', {
+			tracks.recordEvent( 'jetpack_wizard_chat_back', {
 				step_from: steps[ currentStep ]?.id,
 				step_to: steps[ currentStep - 1 ]?.id,
 				assistant_name: assistantName,
@@ -167,7 +167,7 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 				},
 			} ) );
 		}
-		tracks.recordEvent( 'assistant_wizard_chat_step_skip', {
+		tracks.recordEvent( 'jetpack_wizard_chat_skip', {
 			step_from: steps[ currentStep ]?.id,
 			step_to: steps[ currentStep + 1 ]?.id,
 			assistant_name: assistantName,
@@ -205,7 +205,7 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 			setResults( prev => ( { ...prev, ...newResults } ) );
 		}
 		setAssistantFlowAction( 'submit' );
-		tracks.recordEvent( 'assistant_wizard_chat_step_submit', {
+		tracks.recordEvent( 'jetpack_wizard_chat_submit', {
 			step_from: steps[ currentStep ].id,
 			step_to: steps[ currentStep + 1 ].id,
 			value_length: stepValue?.length || 0,
@@ -216,7 +216,7 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 	}, [ currentStep, handleDone, handleNext, steps, tracks, handleSkip, assistantName ] );
 
 	const handleRetry = useCallback( async () => {
-		tracks.recordEvent( 'assistant_wizard_chat_step_retry', {
+		tracks.recordEvent( 'jetpack_wizard_chat_retry', {
 			step: steps[ currentStep ]?.id,
 			assistant_name: assistantName,
 		} );
