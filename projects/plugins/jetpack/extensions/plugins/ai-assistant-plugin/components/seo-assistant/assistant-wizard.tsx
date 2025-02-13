@@ -8,7 +8,7 @@ import { OptionsInput, TextInput, CompletionInput } from './wizard-input';
 import WizardStep from './wizard-step';
 import type { Step, OptionMessage } from './types';
 
-const debug = debugFactory( 'assistant-wizard-chat' );
+const debug = debugFactory( 'jetpack-wizard-chat' );
 
 export default function AssistantWizard( { close, steps, assistantName } ) {
 	const [ currentStep, setCurrentStep ] = useState( 0 );
@@ -226,15 +226,15 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 	}, [ currentStep, steps, tracks, assistantName ] );
 
 	return (
-		<div className="assistant-wizard">
-			<div className="assistant-wizard__header">
-				<div className="assistant-wizard__header-actions">
+		<div className="jetpack-wizard-chat">
+			<div className="jetpack-wizard-chat__header">
+				<div className="jetpack-wizard-chat__header-actions">
 					<Button variant="link" disabled={ isBusy } onClick={ handleBack }>
 						<Icon icon={ chevronLeft } size={ 32 } />
 					</Button>
 				</div>
 				<h2>{ currentStepData?.title }</h2>
-				<div className="assistant-wizard__header-actions">
+				<div className="jetpack-wizard-chat__header-actions">
 					<Tooltip text={ __( 'Skip', 'jetpack' ) }>
 						<Button
 							variant="link"
@@ -250,7 +250,7 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 				</div>
 			</div>
 
-			<div className="assistant-wizard__content">
+			<div className="jetpack-wizard-chat__content">
 				{ steps.map( ( step, index ) => (
 					<WizardStep
 						key={ step.id }
@@ -270,7 +270,7 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 				<div ref={ stepsEndRef } />
 			</div>
 
-			<div className="assistant-wizard__input-container">
+			<div className="jetpack-wizard-chat__input-container">
 				{ steps[ currentStep ].type === 'input' && (
 					<TextInput
 						ref={ steps[ currentStep ].inputRef }

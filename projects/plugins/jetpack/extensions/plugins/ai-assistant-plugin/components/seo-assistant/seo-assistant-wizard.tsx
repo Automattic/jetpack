@@ -7,7 +7,7 @@ import { useMetaDescriptionStep } from './use-meta-description-step';
 import { useTitleStep } from './use-title-step';
 import { useWelcomeStep } from './use-welcome-step';
 
-const debug = debugFactory( 'jetpack-ai:seo-assistant-wizard' );
+const debug = debugFactory( 'jetpack-seo:wizard-chat' );
 
 export default function SeoAssistantWizard( { close }: { close?: () => void } ) {
 	const keywordsStepData = useKeywordsStep();
