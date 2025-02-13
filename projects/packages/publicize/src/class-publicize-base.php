@@ -873,8 +873,6 @@ abstract class Publicize_Base {
 			$post_id = null;
 		}
 
-		$all_done = $this->post_is_done_sharing( $post_id );
-
 		// We don't allow Publicizing to the same external id twice, to prevent spam.
 		$service_id_done = (array) get_post_meta( $post_id, $this->POST_SERVICE_DONE, true );
 
