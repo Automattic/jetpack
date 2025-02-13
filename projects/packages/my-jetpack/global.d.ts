@@ -111,6 +111,18 @@ type BackupStatus =
 	| 'Kill switch active'
 	| 'error'
 	| 'error-will-retry';
+
+type BackupNeedsAttentionData = {
+	source: 'rewind' | 'last_backup';
+	status: RewindStatus | BackupStatus;
+	last_updated: string;
+};
+type ProtectNeedsAttentionData = {
+	threat_count: number;
+	critical_threat_count: number;
+	fixable_threat_ids: number[];
+};
+
 interface Window {
 	myJetpackInitialState?: {
 		siteSuffix: string;
@@ -265,6 +277,12 @@ interface Window {
 					tiers: string[];
 					title: string;
 					wpcom_product_slug: string;
+					doesModuleNeedAttention:
+						| false
+						| {
+								type: 'warning' | 'error';
+								data: BackupNeedsAttentionData | ProtectNeedsAttentionData;
+						  };
 				};
 			};
 		};
@@ -410,11 +428,7 @@ interface Window {
 			};
 			backup_failure?: {
 				type: 'warning' | 'error';
-				data: {
-					source: 'rewind' | 'last_backup';
-					status: RewindStatus | BackupStatus;
-					last_updated: string;
-				};
+				data: BackupNeedsAttentionData;
 			};
 			[ key: `${ string }--plan_expired` ]: {
 				product_slug: string;
@@ -434,11 +448,7 @@ interface Window {
 			};
 			protect_has_threats?: {
 				type: 'warning' | 'error';
-				data: {
-					threat_count: number;
-					critical_threat_count: number;
-					fixable_threat_ids: number[];
-				};
+				data: ProtectNeedsAttentionData;
 			};
 			[ key: `${ string }--plugins_needing_installed_activated` ]: {
 				needs_installed?: string[];

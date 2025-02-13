@@ -12,7 +12,7 @@ type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
 
 const useProtectThreatsDetectedNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const { recordEvent } = useAnalytics();
-	const { setNotice } = useContext( NoticeContext );
+	const { setNotice, resetNotice } = useContext( NoticeContext );
 	const { detail } = useProduct( 'protect' );
 	const {
 		hasPaidPlanForProduct,
@@ -39,6 +39,13 @@ const useProtectThreatsDetectedNotice = ( redBubbleAlerts: RedBubbleAlerts ) => 
 		__( '%s found threats on your site', 'jetpack-my-jetpack' ),
 		hasPaidPlanForProduct && isStandaloneActive ? 'Protect' : 'Scan'
 	);
+
+	const onCloseClick = useCallback( () => {
+		// Session cookie. Expires at session end.
+		document.cookie = `protect_threats_detected_dismissed=1; SameSite=None; Secure`;
+		delete redBubbleAlerts.protect_has_threats;
+		resetNotice();
+	}, [ redBubbleAlerts.protect_has_threats, resetNotice ] );
 
 	const onPrimaryCtaClick = useCallback( () => {
 		window.open( protectDashboardUrl );
@@ -103,6 +110,8 @@ const useProtectThreatsDetectedNotice = ( redBubbleAlerts: RedBubbleAlerts ) => 
 					isExternalLink: true,
 				},
 			],
+			onClose: onCloseClick,
+			hideCloseButton: false,
 			priority: NOTICE_PRIORITY_MEDIUM,
 		};
 
@@ -115,6 +124,7 @@ const useProtectThreatsDetectedNotice = ( redBubbleAlerts: RedBubbleAlerts ) => 
 		hasPaidPlanForProduct,
 		isStandaloneActive,
 		noticeTitle,
+		onCloseClick,
 		onPrimaryCtaClick,
 		onSecondaryCtaClick,
 		redBubbleAlerts?.protect_has_threats,

@@ -154,6 +154,20 @@ class Test_Status extends BaseTestCase {
 	}
 
 	/**
+	 * Get a sample response with broken data.
+	 *
+	 * @return object
+	 */
+	public function get_broken_sample_api_response() {
+		$response                                       = $this->get_sample_api_response();
+		$response->themes['theme-1']->vulnerabilities   = new \WP_Error( 'broken', 'Broken' );
+		$response->plugins['plugin-1']->vulnerabilities = new \WP_Error( 'broken', 'Broken' );
+		$response->core->vulnerabilities                = new \WP_Error( 'broken', 'Broken' );
+
+		return $response;
+	}
+
+	/**
 	 * Get a sample result of Protect_Status::get_status().
 	 *
 	 * @phan-suppress PhanDeprecatedProperty -- Testing backwards compatibility.
@@ -310,6 +324,21 @@ class Test_Status extends BaseTestCase {
 	public function return_sample_response() {
 		return array(
 			'body'     => wp_json_encode( $this->get_sample_api_response() ),
+			'response' => array(
+				'code'    => 200,
+				'message' => '',
+			),
+		);
+	}
+
+	/**
+	 * Return a sample wpcom status response.
+	 *
+	 * @return array
+	 */
+	public function return_broken_sample_response() {
+		return array(
+			'body'     => wp_json_encode( $this->get_broken_sample_api_response() ),
 			'response' => array(
 				'code'    => 200,
 				'message' => '',
@@ -489,5 +518,24 @@ class Test_Status extends BaseTestCase {
 		if ( is_object( $status ) && 'full' === $check_type ) {
 			$this->assertSame( time() + Protect_Status::OPTION_EXPIRES_AFTER, $timestamp );
 		}
+	}
+
+	/**
+	 * Test graceful handling of invalid data from the API.
+	 *
+	 * @phan-suppress PhanDeprecatedProperty -- Testing backwards compatibility.
+	 */
+	public function test_invalid_extension_data() {
+		add_filter( 'pre_http_request', array( $this, 'return_broken_sample_response' ) );
+
+		$status = Protect_Status::get_status();
+
+		$this->assertIsArray( $status->threats );
+		$this->assertEmpty( $status->threats );
+
+		$this->assertIsObject( $status->core );
+		$this->assertFalse( isset( $status->core->vulnerabilities ) );
+
+		remove_filter( 'pre_http_request', array( $this, 'return_broken_sample_response' ) );
 	}
 }

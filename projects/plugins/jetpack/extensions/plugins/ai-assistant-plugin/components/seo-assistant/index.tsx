@@ -1,4 +1,4 @@
-import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
+import { useModuleStatus, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -12,13 +12,17 @@ import SeoAssistantWizard from './seo-assistant-wizard';
 
 const debug = debugFactory( 'jetpack-ai:seo-assistant' );
 
-export default function SeoAssistant( { disabled } ) {
+export default function SeoAssistant( { disabled, placement } ) {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const postIsEmpty = useSelect( select => select( editorStore ).isEditedPostEmpty(), [] );
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'seo-tools' );
+	const { tracks } = useAnalytics();
 
-	const handleOpen = useCallback( () => setIsOpen( true ), [] );
+	const handleOpen = useCallback( () => {
+		tracks.recordEvent( 'jetpack_seo_assistant_open', { placement } );
+		setIsOpen( true );
+	}, [ placement, tracks ] );
 	const handleClose = useCallback( () => setIsOpen( false ), [] );
 
 	debug( 'rendering seo-assistant entry point' );

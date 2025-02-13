@@ -1,3 +1,4 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Icon, ToggleControl } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -50,8 +51,15 @@ const CRMPluginIsInstalling = ( { isActivating } ) => {
 };
 
 const CRMPluginIsNotInstalled = ( { installAndActivateCRMPlugin, isInstalling } ) => {
+	const { tracks } = useAnalytics();
 	let button = (
-		<Button variant="secondary" onClick={ installAndActivateCRMPlugin }>
+		<Button
+			variant="secondary"
+			onClick={ () => {
+				tracks.recordEvent( 'jetpack_forms_plugin_install_crm_click' );
+				installAndActivateCRMPlugin();
+			} }
+		>
 			{ __( 'Install Jetpack CRM', 'jetpack-forms' ) }
 		</Button>
 	);
@@ -75,18 +83,25 @@ const CRMPluginIsNotInstalled = ( { installAndActivateCRMPlugin, isInstalling } 
 };
 
 const CRMPluginIsInstalled = ( { activateCRMPlugin, isInstalling } ) => {
+	const { tracks } = useAnalytics();
 	return (
 		<p className="jetpack-contact-form__crm_text jetpack-contact-form__integration-panel">
 			<em>
 				{ __(
-					'You already have the Jetpack CRM plugin installed, but it’s not activated.',
+					"You already have the Jetpack CRM plugin installed, but it's not activated.",
 					'jetpack-forms'
 				) }
 			</em>
 			<br />
 			{ isInstalling && <CRMPluginIsInstalling isActivating /> }
 			{ ! isInstalling && (
-				<Button variant="secondary" onClick={ activateCRMPlugin }>
+				<Button
+					variant="secondary"
+					onClick={ () => {
+						tracks.recordEvent( 'jetpack_forms_plugin_activate_crm_click' );
+						activateCRMPlugin();
+					} }
+				>
 					{ __( 'Activate the Jetpack CRM plugin', 'jetpack-forms' ) }
 				</Button>
 			) }
