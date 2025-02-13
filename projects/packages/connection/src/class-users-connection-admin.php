@@ -89,13 +89,15 @@ class Users_Connection_Admin {
 
 		Assets::register_script(
 			'jetpack-users-connection',
-			'js/jetpack-users-connection.js',
+			'../dist/jetpack-users-connection.js',
 			__FILE__,
 			array(
 				'strategy'  => 'defer',
 				'in_footer' => true,
 				'enqueue'   => true,
 				'version'   => Package_Version::PACKAGE_VERSION,
+				'deps'      => array( 'wp-i18n' ),
+
 			)
 		);
 
@@ -141,6 +143,9 @@ class Users_Connection_Admin {
 				font-family: sans-serif;
 				box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.1);
 				left: -170px;
+			}
+			.column-user_jetpack {
+				width: 140px;
 			}
 			/* Show tooltip on hover and focus */
 			.jetpack-connection-tooltip-icon:hover .jetpack-connection-tooltip,
