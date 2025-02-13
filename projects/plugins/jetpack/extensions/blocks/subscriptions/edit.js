@@ -19,6 +19,7 @@ import { getActiveStyleName } from '../../shared/block-styles';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import GetAddPaidPlanButton, { paidPlanButtonText } from '../../shared/memberships/utils';
 import './view.scss';
+import './editor.scss';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import metadata from './block.json';
 import {
@@ -84,6 +85,8 @@ export function SubscriptionEdit( props ) {
 		className,
 		includeSocialFollowers,
 		padding,
+		preselectNewsletterCategories,
+		selectedNewsletterCategoryIds,
 		spacing,
 		submitButtonText = DEFAULT_SUBMIT_BUTTON_LABEL,
 		subscribePlaceholder = DEFAULT_SUBSCRIBE_PLACEHOLDER,
@@ -109,6 +112,15 @@ export function SubscriptionEdit( props ) {
 				_n( 'Join %s other subscriber', 'Join %s other subscribers', count, 'jetpack' ),
 				numberFormat( count, { notation: 'compact', maximumFractionDigits: 1 } )
 			),
+		};
+	} );
+
+	const { availableNewsletterCategories, areNewsletterCategoriesEnabled } = useSelect( select => {
+		const store = select( membershipProductsStore );
+
+		return {
+			availableNewsletterCategories: store.getNewsletterCategories(),
+			areNewsletterCategoriesEnabled: store.getNewsletterCategoriesEnabled(),
 		};
 	} );
 
@@ -225,6 +237,8 @@ export function SubscriptionEdit( props ) {
 		>
 			<InspectorControls>
 				<SubscriptionControls
+					areNewsletterCategoriesEnabled={ areNewsletterCategoriesEnabled }
+					availableNewsletterCategories={ availableNewsletterCategories }
 					buttonBackgroundColor={ buttonBackgroundColor }
 					borderColor={ borderColor }
 					buttonGradient={ buttonGradient }
@@ -238,6 +252,7 @@ export function SubscriptionEdit( props ) {
 					includeSocialFollowers={ includeSocialFollowers }
 					isGradientAvailable={ isGradientAvailable }
 					padding={ padding }
+					preselectNewsletterCategories={ preselectNewsletterCategories }
 					setAttributes={ setAttributes }
 					setBorderColor={ setBorderColor }
 					setButtonBackgroundColor={ setButtonBackgroundColor }
@@ -247,6 +262,7 @@ export function SubscriptionEdit( props ) {
 					subscriberCount={ subscriberCount }
 					textColor={ textColor }
 					buttonWidth={ buttonWidth }
+					selectedNewsletterCategoryIds={ selectedNewsletterCategoryIds }
 					subscribePlaceholder={ subscribePlaceholder }
 					submitButtonText={ submitButtonText }
 					successMessage={ successMessage }

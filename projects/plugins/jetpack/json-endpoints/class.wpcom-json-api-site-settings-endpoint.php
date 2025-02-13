@@ -468,7 +468,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'jetpack_post_date_in_email'       => (bool) get_option( 'jetpack_post_date_in_email', true ),
 						'wpcom_newsletter_categories'      => $newsletter_category_ids,
 						'wpcom_newsletter_categories_enabled' => (bool) get_option( 'wpcom_newsletter_categories_enabled' ),
-						'wpcom_newsletter_categories_modal_hidden' => (bool) get_option( 'wpcom_newsletter_categories_modal_hidden', false ),
 						'sm_enabled'                       => (bool) get_option( 'sm_enabled' ),
 						'jetpack_subscribe_overlay_enabled' => (bool) get_option( 'jetpack_subscribe_overlay_enabled' ),
 						'jetpack_subscribe_floating_button_enabled' => (bool) get_option( 'jetpack_subscribe_floating_button_enabled' ),
@@ -1084,11 +1083,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case 'wpcom_newsletter_categories_enabled':
 					update_option( 'wpcom_newsletter_categories_enabled', (int) (bool) $value );
-					$updated[ $key ] = (int) (bool) $value;
-					break;
-
-				case 'wpcom_newsletter_categories_modal_hidden':
-					update_option( 'wpcom_newsletter_categories_modal_hidden', (int) (bool) $value );
 					$updated[ $key ] = (int) (bool) $value;
 					break;
 

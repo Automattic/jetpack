@@ -1,4 +1,4 @@
-import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
+import { getJetpackData, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink, Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { get } from 'lodash';
@@ -33,6 +33,7 @@ const CreativeMailPluginIsNotInstalled = ( {
 	installAndActivateCreativeMailPlugin,
 	isInstalling,
 } ) => {
+	const { tracks } = useAnalytics();
 	return (
 		<p className="jetpack-contact-form__integration-panel">
 			<em style={ { color: 'rgba(38, 46, 57, 0.7)' } }>
@@ -43,7 +44,13 @@ const CreativeMailPluginIsNotInstalled = ( {
 				<br />
 				{ isInstalling && <CreativeMailPluginIsInstalling /> }
 				{ ! isInstalling && (
-					<Button variant="secondary" onClick={ installAndActivateCreativeMailPlugin }>
+					<Button
+						variant="secondary"
+						onClick={ () => {
+							tracks.recordEvent( 'jetpack_forms_plugin_install_creativemail_click' );
+							installAndActivateCreativeMailPlugin();
+						} }
+					>
 						{ __( 'Install Creative Mail plugin', 'jetpack-forms' ) }
 					</Button>
 				) }
@@ -53,6 +60,7 @@ const CreativeMailPluginIsNotInstalled = ( {
 };
 
 const CreativeMailPluginIsInstalled = ( { activateCreativeMailPlugin, isInstalling } ) => {
+	const { tracks } = useAnalytics();
 	return (
 		<p className="jetpack-contact-form__integration-panel">
 			<em>
@@ -64,7 +72,13 @@ const CreativeMailPluginIsInstalled = ( { activateCreativeMailPlugin, isInstalli
 			<br />
 			{ isInstalling && <CreativeMailPluginIsInstalling isActivating /> }
 			{ ! isInstalling && (
-				<Button variant="secondary" onClick={ activateCreativeMailPlugin }>
+				<Button
+					variant="secondary"
+					onClick={ () => {
+						tracks.recordEvent( 'jetpack_forms_plugin_activate_creativemail_click' );
+						activateCreativeMailPlugin();
+					} }
+				>
 					{ __( 'Activate Creative Mail Plugin', 'jetpack-forms' ) }
 				</Button>
 			) }
@@ -81,7 +95,7 @@ const CreativeMailPluginIsActive = () => {
 	return (
 		<p>
 			<em>
-				{ __( 'You’re all setup for email marketing with Creative Mail.', 'jetpack-forms' ) }
+				{ __( "You're all setup for email marketing with Creative Mail.", 'jetpack-forms' ) }
 				<br />
 				<ExternalLink href={ getCreativeMailPluginUrl() }>
 					{ __( 'Open Creative Mail settings', 'jetpack-forms' ) }
