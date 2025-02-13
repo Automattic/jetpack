@@ -1,5 +1,13 @@
 <?php
 /**
+ * Jetpack Newsletter Dashboard Widget wrapper.
+ *
+ * @package jetpack
+ */
+
+use Automattic\Jetpack\Newsletter_Widget\Dashboard;
+
+/**
  * Adds the Jetpack Newsletter widget to the WordPress admin dashboard.
  *
  * @package jetpack
@@ -96,8 +104,6 @@ class Jetpack_Newsletter_Dashboard_Widget {
 	 */
 	public static function wp_dashboard_setup() {
 
-		// TODO: Check who can view the widget
-
 		if ( Jetpack::is_connection_ready() ) {
 			add_action( 'admin_head', array( static::class, 'admin_head' ) );
 
@@ -105,18 +111,13 @@ class Jetpack_Newsletter_Dashboard_Widget {
 				__( 'Newsletter', 'jetpack' )
 			);
 
+			$widget = new Dashboard();
+
 			wp_add_dashboard_widget(
 				self::$widget_id,
 				$widget_title,
-				array( static::class, 'render_widget' )
+				array( $widget, 'render' )
 			);
 		}
-	}
-
-	/**
-	 * Renders the widget.
-	 */
-	public static function render_widget() {
-		echo 'This is a test widget';
 	}
 }

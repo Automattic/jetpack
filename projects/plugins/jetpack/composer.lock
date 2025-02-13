@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "4ff7d971fbdbfab4e0db1e3b7b772645",
+	"content-hash": "0bff47323c36e86c7967824d6783107b",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -1884,6 +1884,64 @@
 				"GPL-2.0-or-later"
 			],
 			"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
+			"name": "automattic/jetpack-newsletter-widget",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/newsletter-widget",
+				"reference": "68fa159b41bfa100b7bcac2572a9e8f4eb74a57d"
+			},
+			"require": {
+				"php": ">=7.2"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"yoast/phpunit-polyfills": "^1.1.1"
+			},
+			"suggest": {
+				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+			},
+			"type": "jetpack-library",
+			"extra": {
+				"branch-alias": {
+					"dev-trunk": "0.1.x-dev"
+				},
+				"textdomain": "jetpack-newsletter-widget",
+				"version-constants": {
+					"::PACKAGE_VERSION": "src/class-newsletter-widget.php"
+				}
+			},
+			"autoload": {
+				"classmap": [
+					"src/"
+				]
+			},
+			"scripts": {
+				"build-development": [
+					"echo 'Add your build step to composer.json, please!'"
+				],
+				"build-production": [
+					"echo 'Add your build step to composer.json, please!'"
+				],
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "This package consumes the Calypso standalone app newsletter to render the Newsletter Widget in the wp-admin Dashboard. ",
 			"transport-options": {
 				"relative": true
 			}
@@ -6047,6 +6105,7 @@
 		"automattic/jetpack-logo": 20,
 		"automattic/jetpack-masterbar": 20,
 		"automattic/jetpack-my-jetpack": 20,
+		"automattic/jetpack-newsletter-widget": 20,
 		"automattic/jetpack-plugins-installer": 20,
 		"automattic/jetpack-post-list": 20,
 		"automattic/jetpack-publicize": 20,
