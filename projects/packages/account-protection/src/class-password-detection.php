@@ -211,6 +211,11 @@ class Password_Detection {
 				<div class="password-detection">
 					<?php require plugin_dir_path( __FILE__ ) . '/assets/jetpack-logo.svg'; ?>
 					<p class="password-detection-title"><?php esc_html_e( 'Verify your identity', 'jetpack-account-protection' ); ?></p>
+						<?php if ( $error_message ) : ?>
+							<div class="error notice-wrapper">
+								<p class="notice-message"><?php echo esc_html( $error_message ); ?></p>
+							</div>
+						<?php endif; ?>
 						<p><?php esc_html_e( 'We\'ve noticed that your current password may have been compromised in a public leak. To keep your account safe, we\'ve added an extra layer of security.', 'jetpack-account-protection' ); ?></p>
 						<p>
 							<?php
@@ -245,9 +250,6 @@ class Password_Detection {
 								<?php esc_html_e( 'Resend email', 'jetpack-account-protection' ); ?>
 							</a>
 						</p>
-						<?php if ( $error_message ) : ?>
-							<p class="error-message"><?php echo esc_html( $error_message ); ?></p>
-						<?php endif; ?>
 				</div>
 				<?php wp_footer(); ?>
 			</body>
