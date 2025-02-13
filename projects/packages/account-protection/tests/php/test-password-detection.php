@@ -79,6 +79,7 @@ class Password_Detection_Test extends BaseTestCase {
 		$auth_code = '123456';
 
 		$user            = new \WP_User();
+		$user->ID        = 1;
 		$user->user_pass = 'pw';
 		$user->add_cap( 'publish_posts' );
 
@@ -88,7 +89,7 @@ class Password_Detection_Test extends BaseTestCase {
 			->willReturn( $auth_code );
 		$email_service_mock->expects( $this->once() )
 			->method( 'api_send_auth_email' )
-			->with( $user, $auth_code )
+			->with( $user->ID, $auth_code )
 			->willReturn( true );
 
 		$sut = new Password_Detection( $email_service_mock, $validation_service_mock );
@@ -113,6 +114,7 @@ class Password_Detection_Test extends BaseTestCase {
 			->willReturn( true );
 
 		$user            = new \WP_User();
+		$user->ID        = 1;
 		$user->user_pass = 'pw';
 		$user->add_cap( 'publish_posts' );
 
@@ -122,18 +124,18 @@ class Password_Detection_Test extends BaseTestCase {
 			->willReturn( '123456' );
 		$email_service_mock->expects( $this->once() )
 			->method( 'api_send_auth_email' )
-			->with( $user, '123456' )
-			->willReturn( false );
+			->with( $user->ID, '123456' )
+			->willReturn( new \WP_Error( 'email_send_error', 'Failed to send authentication code. Please try again.' ) );
 
 		$sut = new Password_Detection( $email_service_mock, $validation_service_mock );
 
 		$sut->login_form_password_detection( $user, 'pw' );
 
-		$transient_data = get_transient( Config::TRANSIENT_PREFIX . "_error_{$user->ID}" );
+		$transient_data = get_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_error_{$user->ID}" );
 		$this->assertSame(
 			array(
 				'code'    => 'email_send_error',
-				'message' => 'Failed to send authentication email. Please try again.',
+				'message' => 'Failed to send authentication code. Please try again.',
 			),
 			$transient_data,
 			'Should have set the correct error message.'
@@ -352,7 +354,7 @@ class Password_Detection_Test extends BaseTestCase {
 		$email_service_mock->expects( $this->once() )
 			->method( 'resend_auth_email' )
 			->with(
-				$user,
+				$user->ID,
 				array(
 					'user_id'   => 123,
 					'auth_code' => '123456',
@@ -407,7 +409,7 @@ class Password_Detection_Test extends BaseTestCase {
 			'message' => 'This is a error message to test things with.',
 		);
 
-		set_transient( Config::TRANSIENT_PREFIX . '_error_123', $error );
+		set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . '_error_123', $error );
 
 		$user             = new \WP_User();
 		$user->ID         = 123;

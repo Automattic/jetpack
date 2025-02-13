@@ -52,13 +52,13 @@ class Password_Detection {
 		if ( $this->validation_service->is_weak_password( $password ) ) {
 			$transient = $this->generate_and_store_transient_data( $user->ID );
 
-			$email_sent = $this->email_service->api_send_auth_email( $user, $transient['auth_code'] );
-			if ( ! $email_sent ) {
+			$email_sent = $this->email_service->api_send_auth_email( $user->ID, $transient['auth_code'] );
+			if ( is_wp_error( $email_sent ) ) {
 				$this->set_transient_error(
 					$user->ID,
 					array(
-						'code'    => 'email_send_error',
-						'message' => __( 'Failed to send authentication email. Please try again.', 'jetpack-account-protection' ),
+						'code'    => $email_sent->get_error_code(),
+						'message' => $email_sent->get_error_message(),
 					)
 				);
 			}
@@ -151,8 +151,16 @@ class Password_Detection {
 			if ( isset( $_GET['_wpnonce'] )
 			&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'resend_email_nonce' )
 			) {
-				$email_resent = $this->email_service->resend_auth_email( $user, $transient_data, $token );
-				if ( $email_resent ) {
+				$email_resent = $this->email_service->resend_auth_email( $user->ID, $transient_data, $token );
+				if ( is_wp_error( $email_resent ) ) {
+					$this->set_transient_error(
+						$user->ID,
+						array(
+							'code'    => $email_resent->get_error_code(),
+							'message' => $email_resent->get_error_message(),
+						)
+					);
+				} else {
 					$this->set_transient_success(
 						$user->ID,
 						array(
@@ -160,20 +168,6 @@ class Password_Detection {
 							'message' => __( 'Authentication email resent successfully.', 'jetpack-account-protection' ),
 						)
 					);
-				} else {
-					$error = array(
-						'code'    => 'email_resend_error',
-						'message' => __( 'Failed to resend authentication email. Please try again.', 'jetpack-account-protection' ),
-					);
-
-					if ( $transient_data['resend_attempts'] >= Config::MAX_RESEND_ATTEMPTS ) {
-						$error = array(
-							'code'    => 'email_resend_limit_error',
-							'message' => __( 'Resend limit exceeded. Please try again later.', 'jetpack-account-protection' ),
-						);
-					}
-
-					$this->set_transient_error( $user->ID, $error );
 				}
 
 				$this->redirect_and_exit( $this->get_redirect_url( $token ) );
@@ -219,8 +213,8 @@ class Password_Detection {
 	 * @return void
 	 */
 	public function render_content( \WP_User $user, string $token ): void {
-		$error_transient_key   = Config::TRANSIENT_PREFIX . "_error_{$user->ID}";
-		$success_transient_key = Config::TRANSIENT_PREFIX . "_success_{$user->ID}";
+		$error_transient_key   = Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_error_{$user->ID}";
+		$success_transient_key = Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_success_{$user->ID}";
 
 		$error_data   = get_transient( $error_transient_key );
 		$success_data = get_transient( $success_transient_key );
@@ -324,7 +318,7 @@ class Password_Detection {
 								<button class="action action-verify" type="submit" name="verify"><?php esc_html_e( 'Verify', 'jetpack-account-protection' ); ?></button>
 							</form>
 						</div>
-						<?php if ( $error_code !== 'email_resend_limit_error' ) : ?>
+						<?php if ( ! in_array( $error_code, array( 'email_request_limit_exceeded', 'email_resend_limit_exceeded' ), true ) ) : ?>
 							<p class="email-status">
 								<span><?php esc_html_e( "Didn't get the code?", 'jetpack-account-protection' ); ?> </span>
 								<a class="resend-email-link" href="<?php echo esc_url( $this->get_redirect_url( $token ) . '&resend_email=1&_wpnonce=' . wp_create_nonce( 'resend_email_nonce' ) ); ?>">
@@ -454,7 +448,7 @@ class Password_Detection {
 	 * @return void
 	 */
 	private function set_transient_success( int $user_id, array $success, int $expiration = 60 ): void {
-		set_transient( Config::TRANSIENT_PREFIX . "_success_{$user_id}", $success, $expiration );
+		set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_success_{$user_id}", $success, $expiration );
 	}
 
 	/**
@@ -467,7 +461,7 @@ class Password_Detection {
 	 * @return void
 	 */
 	private function set_transient_error( int $user_id, array $error, int $expiration = 60 ): void {
-		set_transient( Config::TRANSIENT_PREFIX . "_error_{$user_id}", $error, $expiration );
+		set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_error_{$user_id}", $error, $expiration );
 	}
 
 	/**

@@ -36,34 +36,39 @@ class Email_Service {
 	/**
 	 * Send the email using the API.
 	 *
-	 * @param \WP_User $user The user.
-	 * @param string   $auth_code The authentication code.
+	 * @param int    $user_id The user ID.
+	 * @param string $auth_code The authentication code.
 	 *
-	 * @return bool True if the email was sent successfully, false otherwise.
+	 * @return true|\WP_Error True if the email was sent successfully, \WP_Error otherwise.
 	 */
-	public function api_send_auth_email( \WP_User $user, string $auth_code ): bool {
+	public function api_send_auth_email( int $user_id, string $auth_code ) {
 		$blog_id = Jetpack_Options::get_option( 'id' );
 
 		if ( ! $blog_id || ! $this->connection_manager->is_connected() ) {
-			return false;
+			return new \WP_Error( 'jetpack_connection_error', __( 'Jetpack is not connected. Please connect and try again.', 'jetpack-account-protection' ) );
 		}
 
 		$body = array(
-			'user_login' => $user->user_login,
-			'user_email' => $user->user_email,
-			'code'       => $auth_code,
+			'user_id' => $user_id,
+			'code'    => $auth_code,
 		);
 
 		$response = $this->send_email_request( (int) $blog_id, $body );
-
-		$response_code = wp_remote_retrieve_response_code( $response );
-		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response['body'] ) ) {
-			return false;
+		if ( is_wp_error( $response ) || empty( $response['body'] ) ) {
+			return new \WP_Error( 'email_send_error', __( 'Failed to send authentication code. Please try again.', 'jetpack-account-protection' ) );
 		}
 
-		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		$response_code = wp_remote_retrieve_response_code( $response );
+		$body          = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( 200 !== $response_code ) {
+			return new \WP_Error( $body['code'] ?? 'email_send_error', $body['message'] ?? __( 'Failed to send authentication code. Please try again.', 'jetpack-account-protection' ) );
+		}
 
-		return $body['email_sent'] ?? false;
+		if ( empty( $body['email_send_success'] ) ) {
+			return new \WP_Error( 'email_send_error', __( 'Failed to send authentication code. Please try again.', 'jetpack-account-protection' ) );
+		}
+
+		return true;
 	}
 
 	/**
@@ -88,28 +93,29 @@ class Email_Service {
 	/**
 	 * Resend email attempts.
 	 *
-	 * @param \WP_User $user The user.
-	 * @param array    $transient_data The transient data.
-	 * @param string   $token The token.
+	 * @param int    $user_id The user ID.
+	 * @param array  $transient_data The transient data.
+	 * @param string $token The token.
 	 *
-	 * @return bool True if the email was resent successfully, false otherwise.
+	 * @return true|\WP_Error True if the email was resent successfully, \WP_Error otherwise.
 	 */
-	public function resend_auth_email( \WP_User $user, array $transient_data, string $token ): bool {
+	public function resend_auth_email( int $user_id, array $transient_data, string $token ) {
 		if ( $transient_data['resend_attempts'] >= Config::PASSWORD_DETECTION_MAX_RESEND_ATTEMPTS ) {
-			return false;
+			return new \WP_Error( 'email_resend_limit_exceeded', __( 'Email resend limit exceeded. Please try again later.', 'jetpack-account-protection' ) );
 		}
 
 		$auth_code                   = $this->generate_auth_code();
 		$transient_data['auth_code'] = $auth_code;
 
-		if ( ! $this->api_send_auth_email( $user, $auth_code ) ) {
-			return false;
+		$resend = $this->api_send_auth_email( $user_id, $auth_code );
+		if ( is_wp_error( $resend ) ) {
+			return $resend;
 		}
 
 		++$transient_data['resend_attempts'];
 
 		if ( ! set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$token}", $transient_data, Config::PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION ) ) {
-			return false;
+			return new \WP_Error( 'transient_set_error', __( 'Failed to set transient data. Please try again.', 'jetpack-account-protection' ) );
 		}
 
 		return true;
