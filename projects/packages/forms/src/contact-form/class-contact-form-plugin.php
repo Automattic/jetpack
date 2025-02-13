@@ -319,7 +319,7 @@ class Contact_Form_Plugin {
 	/**
 	 * Build the CSS for the child layout.
 	 * This replicates part of the `wp_render_layout_support_flag` function from WordPress core.
-	 * That function doesn't work for form fields, as they're rendered as shortcodes,
+	 * That function doesn't work for form fields due to the way they're rendered as shortcodes,
 	 * while the core function will only generate and apply classnames for layout to html.
 	 *
 	 * @param array $layout - the block's `style.layout` attribute.
@@ -388,6 +388,7 @@ class Contact_Form_Plugin {
 
 		if ( isset( $atts['style']['layout'] ) ) {
 			$atts['css'] = self::build_child_layout_css( $atts['style']['layout'] );
+			unset( $atts['style'] );
 		}
 
 		return $atts;
