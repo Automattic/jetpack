@@ -404,10 +404,6 @@ export const childBlocks = [
 					type: 'string',
 					default: __( 'Number', 'jetpack-forms' ),
 				},
-				defaultValue: {
-					type: 'number',
-					default: '',
-				},
 			},
 		},
 	},

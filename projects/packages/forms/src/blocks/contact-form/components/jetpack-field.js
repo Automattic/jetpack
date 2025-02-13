@@ -52,8 +52,7 @@ const JetpackField = props => {
 					onChange={ e => setAttributes( { placeholder: e.target.value } ) }
 					style={ fieldStyle }
 					type={ type }
-					value=""
-					placeholder={ placeholder }
+					value={ placeholder }
 					onClick={ event => type === 'file' && event.preventDefault() }
 					onKeyDown={ event => {
 						if ( event.defaultPrevented || event.key !== 'Enter' ) {
@@ -71,6 +70,7 @@ const JetpackField = props => {
 				setAttributes={ setAttributes }
 				placeholder={ placeholder }
 				attributes={ attributes }
+				hidePlaceholder={ type === 'number' }
 			/>
 		</>
 	);
