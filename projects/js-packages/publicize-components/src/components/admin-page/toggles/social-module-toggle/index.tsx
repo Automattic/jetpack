@@ -8,7 +8,7 @@ import {
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React, { useCallback } from 'react';
 import { store as socialStore } from '../../../../social-store';
@@ -29,8 +29,8 @@ const SocialModuleToggle: React.FC = () => {
 		};
 	}, [] );
 
-	const blogID = getScriptData().site.wpcom.blog_id;
-	const siteSuffix = getScriptData().site.suffix;
+	const { wpcom, host, suffix: siteSuffix } = getScriptData().site;
+	const is_wpcom = host === 'wpcom';
 
 	const { urls, feature_flags } = getSocialScriptData();
 
@@ -79,6 +79,7 @@ const SocialModuleToggle: React.FC = () => {
 
 	return (
 		<ToggleSection
+			hideToggle={ is_wpcom }
 			title={ __(
 				'Automatically share your posts to social networks',
 				'jetpack-publicize-components'
@@ -88,22 +89,35 @@ const SocialModuleToggle: React.FC = () => {
 			onChange={ toggleModule }
 		>
 			<Text className={ styles.text }>
-				{ __(
-					'When enabled, you’ll be able to connect your social media accounts and send a post’s featured image and content to the selected channels with a single click when the post is published.',
-					'jetpack-publicize-components'
-				) }
+				{ ! is_wpcom
+					? _x(
+							'When enabled, you’ll be able to connect your social media accounts and send a post’s featured image and content to the selected channels with a single click when the post is published.',
+							'Description of the feature that the toggle enables',
+							'jetpack-publicize-components'
+					  )
+					: __(
+							'Connect your social media accounts and send a post’s featured image and content to the selected channels with a single click when the post is published.',
+							'jetpack-publicize-components'
+					  ) }
 				&nbsp;
-				<ExternalLink href="https://jetpack.com/redirect/?source=social-plugin-publicize-support-admin-page">
+				<ExternalLink
+					href={
+						is_wpcom
+							? getRedirectUrl( 'wpcom-social-plugin-publicize-support-admin-page' )
+							: getRedirectUrl( 'social-plugin-publicize-support-admin-page' )
+					}
+					className={ styles.learn }
+				>
 					{ __( 'Learn more', 'jetpack-publicize-components' ) }
 				</ExternalLink>
 			</Text>
-			{ ! hasSocialPaidFeatures() ? (
+			{ ! is_wpcom && ! hasSocialPaidFeatures() ? (
 				<ContextualUpgradeTrigger
 					className={ clsx( styles.cut, { [ styles.small ]: isSmall } ) }
 					description={ __( 'Unlock advanced sharing options', 'jetpack-publicize-components' ) }
 					cta={ __( 'Power up Jetpack Social', 'jetpack-publicize-components' ) }
 					href={ getRedirectUrl( 'jetpack-social-admin-page-upsell', {
-						site: `${ blogID ?? siteSuffix }`,
+						site: `${ wpcom.blog_id ?? siteSuffix }`,
 						query: 'redirect_to=admin.php?page=jetpack-social',
 					} ) }
 					tooltipText={ __(

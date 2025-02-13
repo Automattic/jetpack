@@ -280,10 +280,10 @@ for DS in $( git -c core.quotepath=off diff --name-only projects | sed -E -e 's!
 		debug "  $DS already has an uncommitted change entry file, skipping"
 	elif ! git diff --quiet -- . ":!./composer.lock"; then
 		debug "  $DS has non-lockfile changes"
-		changelogger_add 'Updated package dependencies.'
+		changelogger_add 'Update package dependencies.'
 	else
 		debug "  $DS has lockfile changes only"
-		changelogger_add '' 'Updated composer.lock.'
+		changelogger_add '' 'Update composer.lock.'
 	fi
 done
 cd "$BASE"

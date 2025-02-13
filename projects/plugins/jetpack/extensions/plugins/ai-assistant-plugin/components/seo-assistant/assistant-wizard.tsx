@@ -1,4 +1,5 @@
-import { Button, Icon, Tooltip } from '@wordpress/components';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { Button, Icon, Tooltip, Notice } from '@wordpress/components';
 import { useState, useEffect, useRef, useMemo, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { next, closeSmall, chevronLeft } from '@wordpress/icons';
@@ -22,8 +23,9 @@ export default function AssistantWizard( { close } ) {
 		stepsEndRef.current?.scrollIntoView( { behavior: 'smooth' } );
 	};
 	const keywordsInputRef = useRef( null );
+	const prevStepIdRef = useRef< string | undefined >();
 	const [ results, setResults ] = useState( {} );
-	const [ lastStepValue, setLastStepValue ] = useState( '' );
+	const { tracks } = useAnalytics();
 
 	useEffect( () => {
 		scrollToBottom();
@@ -44,6 +46,7 @@ export default function AssistantWizard( { close } ) {
 		[ welcomeStepData, keywordsStepData, titleStepData, metaStepData, completionStepData ]
 	);
 	const [ currentStepData, setCurrentStepData ] = useState< Step >( welcomeStepData );
+	const [ assistantFlowAction, setAssistantFlowAction ] = useState( '' );
 
 	const stepsCount = steps.length;
 
@@ -52,17 +55,22 @@ export default function AssistantWizard( { close } ) {
 		if ( ! currentStepData || ! currentStepData.onStart ) {
 			return;
 		}
-		await currentStepData?.onStart( {
-			fromSkip: ! lastStepValue,
-			stepValue: lastStepValue,
-			results,
-		} );
+		// If the step is backwards, we don't want to start the step again, unless it failed before and has no options
+		if ( assistantFlowAction !== 'backwards' || steps[ currentStep ]?.options?.length === 0 ) {
+			await currentStepData?.onStart( {
+				fromSkip: assistantFlowAction === 'skip',
+				results,
+			} );
+		}
 		setIsBusy( false );
-	}, [ currentStepData, lastStepValue, results ] );
+	}, [ currentStepData, assistantFlowAction, steps, currentStep, results ] );
 
 	const handleNext = useCallback( () => {
 		debug( 'handleNext, stepsCount', stepsCount );
-		let nextStep;
+		let nextStep: number;
+
+		steps[ currentStep ].resetState?.();
+
 		setCurrentStep( prev => {
 			if ( prev + 1 < stepsCount ) {
 				nextStep = prev + 1;
@@ -72,66 +80,68 @@ export default function AssistantWizard( { close } ) {
 			}
 			return prev;
 		} );
-	}, [ stepsCount, steps ] );
+	}, [ stepsCount, steps, currentStep ] );
 
 	useEffect( () => {
-		debug( 'currentStepData changed', currentStepData?.id );
-		handleStepStart();
+		const currentId = currentStepData?.id;
+
+		if ( prevStepIdRef.current !== currentId ) {
+			debug( 'currentStepData changed', currentId );
+			handleStepStart();
+		}
+
+		prevStepIdRef.current = currentId;
 	}, [ currentStepData, handleStepStart ] );
 
 	// Initialize current step data
 	useEffect( () => {
 		if ( currentStep === 0 && steps[ 0 ].autoAdvance ) {
 			debug( 'init assistant wizard' );
-			debug( 'auto advancing' );
 			setIsBusy( true );
+			setAssistantFlowAction( 'forwards' );
 			const timeout = setTimeout( handleNext, steps[ 0 ].autoAdvance );
 			return () => clearTimeout( timeout );
 		}
 	}, [ currentStep, handleNext, steps ] );
 
 	// Reset states and close the wizard
-	const handleDone = useCallback( () => {
-		close();
-		setCurrentStep( 0 );
-	}, [ close ] );
+	const handleDone = useCallback(
+		( isCloseButton = false ) => {
+			debug( isCloseButton );
+			const completion =
+				steps.reduce( ( acc, step ) => {
+					if ( step.includeInResults && results[ step.id ]?.value ) {
+						acc++;
+					}
+					return acc;
+				}, 0 ) / steps.filter( step => step.includeInResults ).length;
 
-	const handleStepSubmit = useCallback( async () => {
-		debug( 'step submitted' );
-		setIsBusy( true );
-		const stepValue = await steps[ currentStep ]?.onSubmit?.();
-		debug( 'stepValue', stepValue );
-		if ( steps[ currentStep ].includeInResults ) {
-			const newResults = {
-				[ steps[ currentStep ].id ]: {
-					value: stepValue?.trim?.(),
-					type: steps[ currentStep ].type,
-					label: steps[ currentStep ].label,
-				},
-			};
-			debug( 'newResults', newResults );
-			setResults( prev => ( { ...prev, ...newResults } ) );
-		}
-		debug( 'set last step value', stepValue );
-		setLastStepValue( stepValue?.trim?.() );
-
-		if ( steps[ currentStep ]?.type === 'completion' ) {
-			debug( 'completion step, closing wizard' );
-			handleDone();
-		} else {
-			debug( 'step type', steps[ currentStep ]?.type );
-			handleNext();
-		}
-	}, [ currentStep, handleDone, handleNext, steps ] );
+			tracks.recordEvent( 'jetpack_seo_assistant_close', {
+				completion,
+				step: steps[ currentStep ].id,
+				steps: steps.length - 1,
+				step_number: currentStep,
+				placement: isCloseButton ? 'close' : 'done',
+			} );
+			close();
+			setCurrentStep( 0 );
+		},
+		[ close, currentStep, steps, tracks, results ]
+	);
 
 	const jumpToStep = useCallback(
 		( stepNumber: number ) => {
 			if ( stepNumber < steps.length - 1 ) {
+				tracks.recordEvent( 'jetpack_seo_assistant_step_jump', {
+					step_from: steps[ currentStep ]?.id,
+					step_to: steps[ stepNumber ]?.id,
+				} );
+				setAssistantFlowAction( 'jump' );
 				setCurrentStep( stepNumber );
 				setCurrentStepData( steps[ stepNumber ] );
 			}
 		},
-		[ steps ]
+		[ steps, tracks, currentStep ]
 	);
 
 	const handleSelect = useCallback(
@@ -147,7 +157,13 @@ export default function AssistantWizard( { close } ) {
 	const handleBack = () => {
 		if ( currentStep > 1 ) {
 			setIsBusy( true );
+			setAssistantFlowAction( 'backwards' );
 			debug( 'moving back to ' + ( currentStep - 1 ) );
+			tracks.recordEvent( 'jetpack_seo_assistant_step_back', {
+				step_from: steps[ currentStep ]?.id,
+				step_to: steps[ currentStep - 1 ]?.id,
+			} );
+			steps[ currentStep ].resetState?.();
 			setCurrentStep( currentStep - 1 );
 			setCurrentStepData( steps[ currentStep - 1 ] );
 		}
@@ -155,6 +171,7 @@ export default function AssistantWizard( { close } ) {
 
 	const handleSkip = useCallback( async () => {
 		setIsBusy( true );
+		setAssistantFlowAction( 'skip' );
 		await steps[ currentStep ]?.onSkip?.();
 		const step = steps[ currentStep ];
 		if ( ! results[ step.id ] && step.includeInResults ) {
@@ -167,15 +184,64 @@ export default function AssistantWizard( { close } ) {
 				},
 			} ) );
 		}
+		tracks.recordEvent( 'jetpack_seo_assistant_step_skip', {
+			step_from: steps[ currentStep ]?.id,
+			step_to: steps[ currentStep + 1 ]?.id,
+		} );
+		if ( steps[ currentStep ]?.type === 'completion' ) {
+			debug( 'completion step, closing wizard' );
+			handleDone();
+		} else {
+			debug( 'step type', steps[ currentStep ]?.type );
+			handleNext();
+		}
+	}, [ currentStep, steps, handleNext, results, handleDone, tracks ] );
+
+	const handleStepSubmit = useCallback( async () => {
+		debug( 'step submitted' );
+		if ( steps[ currentStep ]?.type === 'completion' ) {
+			debug( 'completion step, closing wizard' );
+			handleDone();
+			return;
+		}
+
+		setIsBusy( true );
+		const stepValue = await steps[ currentStep ]?.onSubmit?.();
+		if ( ! stepValue?.trim?.() ) {
+			return handleSkip();
+		}
+		debug( 'stepValue', stepValue );
+		if ( steps[ currentStep ].includeInResults ) {
+			const newResults = {
+				[ steps[ currentStep ].id ]: {
+					value: stepValue?.trim?.(),
+					type: steps[ currentStep ].type,
+					label: steps[ currentStep ].label,
+				},
+			};
+			debug( 'newResults', newResults );
+			setResults( prev => ( { ...prev, ...newResults } ) );
+		}
+		setAssistantFlowAction( 'submit' );
+		tracks.recordEvent( 'jetpack_seo_assistant_step_submit', {
+			step_from: steps[ currentStep ].id,
+			step_to: steps[ currentStep + 1 ].id,
+			value_length: stepValue?.length || 0,
+		} );
+
+		debug( 'step type', steps[ currentStep ]?.type );
 		handleNext();
-	}, [ currentStep, steps, handleNext, results ] );
+	}, [ currentStep, handleDone, handleNext, steps, tracks, handleSkip ] );
 
 	const handleRetry = useCallback( async () => {
 		debug( 'handleRetry' );
+		tracks.recordEvent( 'jetpack_seo_assistant_step_retry', {
+			step: steps[ currentStep ]?.id,
+		} );
 		setIsBusy( true );
-		await steps[ currentStep ].onRetry?.();
+		await steps[ currentStep ].onRetry?.( {} );
 		setIsBusy( false );
-	}, [ currentStep, steps ] );
+	}, [ currentStep, steps, tracks ] );
 
 	return (
 		<div className="assistant-wizard">
@@ -188,11 +254,15 @@ export default function AssistantWizard( { close } ) {
 				<h2>{ currentStepData?.title }</h2>
 				<div className="assistant-wizard__header-actions">
 					<Tooltip text={ __( 'Skip', 'jetpack' ) }>
-						<Button variant="link" disabled={ isBusy } onClick={ handleSkip }>
+						<Button
+							variant="link"
+							disabled={ isBusy || currentStep >= steps.length - 1 }
+							onClick={ handleSkip }
+						>
 							<Icon icon={ next } size={ 32 } />
 						</Button>
 					</Tooltip>
-					<Button variant="link" onClick={ handleDone }>
+					<Button variant="link" onClick={ () => handleDone( true ) }>
 						<Icon icon={ closeSmall } size={ 32 } />
 					</Button>
 				</div>
@@ -209,6 +279,12 @@ export default function AssistantWizard( { close } ) {
 						isBusy={ isBusy }
 					/>
 				) ) }
+
+				{ steps[ currentStep ].hasFailed && (
+					<Notice status="error" isDismissible={ false }>
+						{ __( 'Something went wrong. Please try again or skip this step.', 'jetpack' ) }
+					</Notice>
+				) }
 				<div ref={ stepsEndRef } />
 			</div>
 
@@ -225,6 +301,7 @@ export default function AssistantWizard( { close } ) {
 				{ currentStep === 2 && steps[ currentStep ].type === 'options' && (
 					<OptionsInput
 						disabled={ ! steps[ currentStep ].hasSelection }
+						loading={ isBusy }
 						submitCtaLabel={ steps[ currentStep ].submitCtaLabel }
 						retryCtaLabel={ steps[ currentStep ].retryCtaLabel }
 						handleRetry={ handleRetry }
@@ -234,6 +311,7 @@ export default function AssistantWizard( { close } ) {
 				{ currentStep === 3 && steps[ currentStep ].type === 'options' && (
 					<OptionsInput
 						disabled={ ! steps[ currentStep ].hasSelection }
+						loading={ isBusy }
 						submitCtaLabel={ steps[ currentStep ].submitCtaLabel }
 						retryCtaLabel={ steps[ currentStep ].retryCtaLabel }
 						handleRetry={ handleRetry }

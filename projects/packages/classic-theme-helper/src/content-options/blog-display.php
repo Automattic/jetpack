@@ -47,30 +47,49 @@ if ( ! function_exists( 'jetpack_blog_display_custom_excerpt' ) ) {
 				'jetpack-9.7.0'
 			);
 		}
-		$had_content_to_the_excerpt_filter = false;
-		$had_content_customizer_filter     = false;
-		// Avoid infinite loop where the content depends on the excerpt and
-		// the excerpt depends on the content.
-		if ( has_filter( 'the_content', 'jetpack_the_content_to_the_excerpt' ) ) {
-			remove_filter( 'the_content', 'jetpack_the_content_to_the_excerpt' );
-			$had_content_to_the_excerpt_filter = true;
+
+		$post = get_post();
+		if ( empty( $post ) ) {
+			return '';
 		}
-		if ( has_filter( 'the_content', 'jetpack_the_content_customizer' ) ) {
-			remove_filter( 'the_content', 'jetpack_the_content_customizer' );
-			$had_content_customizer_filter = true;
-		}
-		$result = '';
-		try {
-			$result = apply_filters( 'the_excerpt', get_the_excerpt() );
-		} finally {
-			if ( $had_content_to_the_excerpt_filter ) {
-				add_filter( 'the_content', 'jetpack_the_content_to_the_excerpt' );
+
+		if ( empty( $post->post_excerpt ) ) {
+			$text = strip_shortcodes( $post->post_content );
+			$text = str_replace( ']]>', ']]&gt;', $text );
+			$text = wp_strip_all_tags( $text );
+			/** This filter is documented in wp-includes/formatting.php */
+			$excerpt_length = apply_filters( 'excerpt_length', 55 );
+			$excerpt_length = is_numeric( $excerpt_length ) ? (int) $excerpt_length : 55;
+
+			/** This filter is documented in wp-includes/formatting.php */
+			$excerpt_more = apply_filters( 'excerpt_more', ' [...]' );
+
+			/*
+			* translators: If your word count is based on single characters (e.g. East Asian characters),
+			* enter 'characters_excluding_spaces' or 'characters_including_spaces'. Otherwise, enter 'words'.
+			* Do not translate into your own language.
+			*/
+			if ( strpos( _x( 'words', 'Word count type. Do not translate!', 'jetpack-classic-theme-helper' ), 'characters' ) === 0 && preg_match( '/^utf\-?8$/i', get_option( 'blog_charset' ) ) ) {
+				$text = trim( preg_replace( "/[\n\r\t ]+/", ' ', $text ), ' ' );
+				preg_match_all( '/./u', $text, $words );
+				$words = array_slice( $words[0], 0, $excerpt_length + 1 );
+				$sep   = '';
+			} else {
+				$words = preg_split( "/[\n\r\t ]+/", $text, $excerpt_length + 1, PREG_SPLIT_NO_EMPTY );
+				$sep   = ' ';
 			}
-			if ( $had_content_customizer_filter ) {
-				add_filter( 'the_content', 'jetpack_the_content_customizer' );
+
+			if ( count( $words ) > $excerpt_length ) {
+				array_pop( $words );
+				$text  = implode( $sep, $words );
+				$text .= $excerpt_more;
+			} else {
+				$text = implode( $sep, $words );
 			}
+		} else {
+			$text = wp_kses_post( $post->post_excerpt );
 		}
-		return $result;
+		return sprintf( '<p>%s</p>', $text );
 	}
 
 }
@@ -84,7 +103,11 @@ if ( ! function_exists( 'jetpack_the_content_to_the_excerptt' ) ) {
 	 */
 	function jetpack_the_content_to_the_excerpt( $content ) {
 		if ( ( is_home() || is_archive() ) && ! is_post_type_archive( array( 'jetpack-testimonial', 'jetpack-portfolio', 'product' ) ) ) {
-			$excerpt = jetpack_blog_display_custom_excerpt();
+			if ( post_password_required() ) {
+				$excerpt = sprintf( '<p>%s</p>', esc_html__( 'There is no excerpt because this is a protected post.', 'jetpack-classic-theme-helper' ) );
+			} else {
+				$excerpt = jetpack_blog_display_custom_excerpt();
+			}
 		}
 		if ( empty( $excerpt ) ) {
 			return $content;

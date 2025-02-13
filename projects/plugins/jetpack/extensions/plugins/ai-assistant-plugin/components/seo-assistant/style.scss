@@ -50,7 +50,7 @@
 			padding: 8px;
 			color: #1e1e1e;
 
-			&:hover {
+			&:not( [disabled] ):hover {
 				color:#3858E9;
 			}
 		}
