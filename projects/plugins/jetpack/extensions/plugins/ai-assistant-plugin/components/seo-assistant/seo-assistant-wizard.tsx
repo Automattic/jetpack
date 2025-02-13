@@ -16,6 +16,12 @@ export default function SeoAssistantWizard( { close }: { close?: () => void } ) 
 		keywords: keywordsStepData.value,
 		mockRequests: false,
 	} );
+
+	// ALL Pre-process should be done here, before the wizard is rendered.
+	// TODO: scavenge the post and see if there are image blocks there, NOT gallery blocks, not COVER blocks, but image blocks
+	// if there are, add a step to the wizard for each image. Each image step should use a vision
+	// request to get an image description, and then use that description to generate alt text for the image.
+
 	const welcomeStepData = useWelcomeStep( {
 		stepLabels: [ titleStepData.label, metaStepData.label ],
 	} );
