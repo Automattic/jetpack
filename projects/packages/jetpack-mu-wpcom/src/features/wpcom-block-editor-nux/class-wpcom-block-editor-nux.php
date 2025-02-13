@@ -67,7 +67,7 @@ class WPCOM_Block_Editor_NUX {
 			'before'
 		);
 
-		$site_id    = Jetpack_Options::get_option( 'id' );
+		$site_id    = \Jetpack_Options::get_option( 'id' );
 		$is_p2_site = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( $site_id );
 
 		/**
