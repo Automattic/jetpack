@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Geo Location: remove support from default themes to prevent deprecation notice.

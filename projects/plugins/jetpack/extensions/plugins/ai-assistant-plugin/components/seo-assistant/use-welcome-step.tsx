@@ -2,7 +2,13 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import type { Step } from './types';
 
-export const useWelcomeStep = (): Step => {
+export const useWelcomeStep = ( { stepLabels }: { stepLabels: string[] } ): Step => {
+	const stepsWithOrdinal = stepLabels
+		.map( ( label, index ) => {
+			const ordinal = index + 1;
+			return `${ ordinal }. ${ label }`;
+		} )
+		.join( '<br />' );
 	return {
 		id: 'welcome',
 		title: __( 'Optimise for SEO', 'jetpack' ),
@@ -19,7 +25,7 @@ export const useWelcomeStep = (): Step => {
 			},
 			{
 				content: createInterpolateElement(
-					__( "Here's what we can improve:<br />1. Title<br />2. Meta description", 'jetpack' ),
+					__( "Here's what we can improve:", 'jetpack' ) + '<br />' + stepsWithOrdinal,
 					{ br: <br /> }
 				),
 				showIcon: false,
