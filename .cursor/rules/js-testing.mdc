@@ -8,7 +8,6 @@ globs:
 - Implement proper async testing
 - Use WordPress mocking patterns
 
+Check @projects/packages/my-jetpack/_inc/components/connection-status-card/test/component.tsx for an example.
 
-Check [component.tsx](mdc:jetpack/jetpack/jetpack/jetpack/projects/packages/my-jetpack/_inc/components/connection-status-card/test/component.tsx) for an example.
-
-Find out more about how to develop tests at [automated-testing.md](mdc:jetpack/jetpack/docs/automated-testing.md)
+Find out more about how to develop tests at @docs/automated-testing.md

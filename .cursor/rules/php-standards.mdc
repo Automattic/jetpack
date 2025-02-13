@@ -2,7 +2,7 @@
 description: PHP coding standards
 globs: *.php
 ---
-- Follow WordPress PHP Coding Standards
+- Follow WordPress PHP Coding Standards, superseded by @projects/packages/codesniffer/Jetpack/ruleset.xml
 - Use proper WordPress prefix for functions and classes
 - Implement WordPress nonce verification
 - Follow WordPress database operations best practices

@@ -2,7 +2,7 @@
 description: General guidelines on code style and structure
 globs: 
 ---
-General guidelines are defined in [coding-guidelines.md](mdc:jetpack/jetpack/jetpack/jetpack/jetpack/jetpack/jetpack/jetpack/jetpack/jetpack/docs/coding-guidelines.md).
+General guidelines are defined in @docs/coding-guidelines.md.
 
 ### Naming Conventions
 

@@ -19,7 +19,7 @@ Before responding to any request, follow these steps:
 
 - Determine if task involves plugin core (PHP) or frontend (JS/React)
 - Identify WordPress hooks and filters needed
-- Note compatibility requirements (WordPress version, PHP version), based on the different versions specified in [versions.sh](mdc:jetpack/jetpack/jetpack/jetpack/jetpack/.github/versions.sh)
+- Note compatibility requirements (WordPress version, PHP version), based on the different versions specified in @.github/versions.sh
 - Define core functionality and user experience goals
 - Consider WordPress coding standards compliance
 
