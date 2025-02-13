@@ -15,6 +15,7 @@ use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use WP_Error;
 use WP_Post;
 
@@ -66,6 +67,13 @@ abstract class Publicize_Base {
 	 * @var string
 	 */
 	const POST_JETPACK_SOCIAL_OPTIONS = '_wpas_options';
+
+	/**
+	 * Post meta key for source of the share request.
+	 *
+	 * @var string
+	 */
+	const POST_LAST_EDITOR_USED = '_last_editor_used_jetpack';
 
 	// Skip meta keys. We used to rely on _wpas_skip_ appended with the token_id to skip posts. But to support
 	// multiple connections for the same token, we are going to use the _wpas_skip_publicize_ which
@@ -1252,6 +1260,8 @@ abstract class Publicize_Base {
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
 
+		$is_wpcom_platform = ( new Host() )->is_wpcom_platform();
+
 		foreach ( get_post_types() as $post_type ) {
 			if ( ! $this->post_type_is_publicizeable( $post_type ) ) {
 				continue;
@@ -1266,7 +1276,33 @@ abstract class Publicize_Base {
 			register_meta( 'post', self::POST_PUBLICIZE_FEATURE_ENABLED, $publicize_feature_enable_args );
 			register_meta( 'post', $this->POST_DONE . 'all', $already_shared_flag_args );
 			register_meta( 'post', self::POST_JETPACK_SOCIAL_OPTIONS, $jetpack_social_options_args );
+
+			// On Simple and Atomic sites _last_editor_used_jetpack is already set.
+			if ( ! $is_wpcom_platform ) {
+				$this->register_last_used_editor_meta( $post_type );
+			}
 		}
+	}
+
+	/**
+	 * Register the last used editor meta for the given post type.
+	 *
+	 * @param string $post_type The post type to register the meta for.
+	 */
+	protected function register_last_used_editor_meta( $post_type ) {
+		$publicize_source_args = array(
+			'type'           => 'string',
+			'description'    => __( 'The source of the share request (block-editor or classic-editor).', 'jetpack-publicize-pkg' ),
+			'single'         => true,
+			'default'        => '',
+			'show_in_rest'   => array(
+				'name' => 'jetpack_last_editor_used',
+			),
+			'auth_callback'  => array( $this, 'message_meta_auth_callback' ),
+			'object_subtype' => $post_type,
+		);
+
+		register_meta( 'post', self::POST_LAST_EDITOR_USED, $publicize_source_args );
 	}
 
 	/**
@@ -1440,6 +1476,24 @@ abstract class Publicize_Base {
 
 		if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
 			wp_set_current_user( $cron_user );
+		}
+
+		// On Simple and Atomic sites _last_editor_used_jetpack is already set.
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			return;
+		}
+
+		// Determine if we're in the block editor or classic editor.
+		$post_type = get_post_type( $post );
+
+		if ( ! $post_type ) {
+			return;
+		}
+
+		if ( use_block_editor_for_post_type( $post_type ) ) {
+			update_post_meta( $post_id, self::POST_LAST_EDITOR_USED, 'block-editor' );
+		} elseif ( post_type_supports( $post_type, 'editor' ) ) {
+			update_post_meta( $post_id, self::POST_LAST_EDITOR_USED, 'classic-editor' );
 		}
 
 		// Next up will be ::publicize_post().
