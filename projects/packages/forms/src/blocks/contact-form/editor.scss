@@ -43,69 +43,100 @@
 
 	.jetpack-contact-form,
 	[class*="wp-block-jetpack-field-option"] {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: flex-start;
-		flex-direction: row;
-		gap: var(--wp--style--block-gap, 1.5rem);
-
-		> * {
-			flex: 0 0 100%;
-			margin-top: 0;
-			margin-bottom: 0;
-
-			&.wp-block-jetpack-button {
-				flex-basis: auto;
-				align-self: flex-end; // Ensure button is aligned with the bottom of the previous field when on a same row
-			}
-
-			&.jetpack-field__width-25,
-			&.jetpack-field__width-50,
-			&.jetpack-field__width-75 {
-				box-sizing: border-box;
-			}
-
+		&.is-layout-constrained > * {
 			&.jetpack-field__width-25 {
-				flex: 1 1 calc( 25% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
-				max-width: 25%;
-
-				.jetpack-option__input.jetpack-option__input.jetpack-option__input {
-					width: 70px;
-				}
+				max-width: calc(var(--wp--style--global--content-size) * 0.25);
 			}
 
 			&.jetpack-field__width-50 {
-				flex: 1 1 calc( 50% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+				max-width: calc(var(--wp--style--global--content-size) * 0.5);
+			}
+
+			&.jetpack-field__width-75 {
+				max-width: calc(var(--wp--style--global--content-size) * 0.75);
+			}
+		}
+
+		&.is-layout-flow > * {
+			&.jetpack-field__width-25 {
+				max-width: 25%;
+			}
+
+			&.jetpack-field__width-50 {
 				max-width: 50%;
 			}
 
 			&.jetpack-field__width-75 {
-				flex: 1 1 calc( 75% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
 				max-width: 75%;
 			}
+		}
 
-			@media (max-width: #{ ($break-mobile) }) {
-				&[class*=jetpack-field__width-] {
-					flex-basis: 100%;
-					max-width: none;
+		// Only apply the form's own layout rules when WordPress core's layout is not set on
+		// the parent block.
+		&:not(.is-layout-constrained, .is-layout-flex, .is-layout-grid, .is-layout-flow)  {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: flex-start;
+			flex-direction: row;
+			gap: var(--wp--style--block-gap, 1.5rem);
+
+			> * {
+				flex: 0 0 100%;
+				margin-top: 0;
+				margin-bottom: 0;
+
+				&.wp-block-jetpack-button {
+					flex-basis: auto;
+					align-self: flex-end; // Ensure button is aligned with the bottom of the previous field when on a same row
+				}
+
+				&.jetpack-field__width-25,
+				&.jetpack-field__width-50,
+				&.jetpack-field__width-75 {
+					box-sizing: border-box;
+				}
+
+				&.jetpack-field__width-25 {
+					flex: 1 1 calc( 25% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+					max-width: 25%;
+
+					.jetpack-option__input.jetpack-option__input.jetpack-option__input {
+						width: 70px;
+					}
+				}
+
+				&.jetpack-field__width-50 {
+					flex: 1 1 calc( 50% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+					max-width: 50%;
+				}
+
+				&.jetpack-field__width-75 {
+					flex: 1 1 calc( 75% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+					max-width: 75%;
+				}
+
+				@media (max-width: #{ ($break-mobile) }) {
+					&[class*=jetpack-field__width-] {
+						flex-basis: 100%;
+						max-width: none;
+					}
+				}
+
+				&[data-type='jetpack/field-checkbox'],
+				&[data-type='jetpack/field-consent'] {
+					align-self: center;
+				}
+
+				&:where( .wp-block-jetpack-contact-form .wp-block-separator ){
+					max-width: var( --wp--preset--spacing--80, 100px );
+					margin-left: auto;
+					margin-right: auto;
+				}
+				&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-wide ),
+				&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-dots ) {
+					max-width: inherit;
 				}
 			}
-
-			&[data-type='jetpack/field-checkbox'],
-			&[data-type='jetpack/field-consent'] {
-				align-self: center;
-			}
-
-			&:where( .wp-block-jetpack-contact-form .wp-block-separator ){
-				max-width: var( --wp--preset--spacing--80, 100px );
-				margin-left: auto;
-				margin-right: auto;
-			}
-			&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-wide ),
-			&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-dots ) {
-				max-width: inherit;
-			}
-
 		}
 	}
 
