@@ -948,7 +948,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	private function render_file_field( $id, $label, $class, $required, $required_field_text ) {
-
+		add_filter( 'jetpack_form_attributes', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'add_enctype_multipart_attribute' ) );
 		Assets::register_script(
 			'jetpack-form-file-field',
 			'../../dist/contact-form/js/file-field.js',
