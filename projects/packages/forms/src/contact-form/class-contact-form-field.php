@@ -948,8 +948,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			" . $class . '
 			' . ( $required ? "required aria-required='true'" : '' ) . "
 			accept='.pdf,.jpg'
+			data-upload-endpoint='" . esc_attr( rest_url( 'wpcom/v2/unauth-file-upload' ) ) . "'
+			data-file-id=''
+			data-file-url=''
 			style='" . $this->field_styles . "'
 		/>\n";
+		$field .= "<input type='hidden' name='" . esc_attr( $id ) . "_id' class='jetpack-form-file-field__id' value='' />\n";
+		$field .= "<input type='hidden' name='" . esc_attr( $id ) . "_url' class='jetpack-form-file-field__url' value='' />\n";
 		$field .= "<div class='jetpack-form-file-field__preview-wrap'></div>\n";
 		$field .= "</div>\n";
 
@@ -993,7 +998,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					'language'      => get_bloginfo( 'language' ),
 					'fileSizeUnits' => $file_size_units,
 					'removeFile'    => __( 'Remove', 'jetpack-forms' ),
+					'uploadError'   => __( 'Error uploading file', 'jetpack-forms' ),
 				),
+				'uploadEndpoint' => rest_url( 'wpcom/v2/unauth-file-upload' ),
+				'nonce'          => wp_create_nonce( 'wp_rest' ),
 			)
 		);
 	}
