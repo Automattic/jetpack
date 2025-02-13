@@ -16,10 +16,13 @@ export default function SeoAssistantWizard( { close }: { close?: () => void } ) 
 		keywords: keywordsStepData.value,
 		mockRequests: false,
 	} );
+	const welcomeStepData = useWelcomeStep( {
+		stepLabels: [ titleStepData.label, metaStepData.label ],
+	} );
 	const completionStepData = useCompletionStep();
-	const welcomeStepData = useWelcomeStep();
 
-	debug( 'render' );
+	debug( 'render seo assistant wizard' );
+
 	return (
 		<AssistantWizard
 			close={ close }
