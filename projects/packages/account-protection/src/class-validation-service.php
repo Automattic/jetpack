@@ -302,12 +302,7 @@ class Validation_Service {
 	 * @return bool True if the password was recently used, false otherwise.
 	 */
 	public function is_recent_password( $user, string $password ): bool {
-		// Skip on create-user validation - no user ID yet
-		if ( empty( $user->ID ) ) {
-			return false;
-		}
-
-		$user_data = $user instanceof \WP_User ? $user : $this->get_old_user_data( $user->ID );
+		$user_data = $user instanceof \WP_User ? $user : get_userdata( $user->ID );
 		if ( $this->is_current_password( $user_data->ID, $password ) ) {
 			return true;
 		}
@@ -324,16 +319,5 @@ class Validation_Service {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Get the old user data.
-	 *
-	 * @param int $user_id The user ID.
-	 *
-	 * @return \WP_User|false The old user data, or false if the user does not exist.
-	 */
-	public function get_old_user_data( $user_id ) {
-		return get_userdata( $user_id );
 	}
 }
