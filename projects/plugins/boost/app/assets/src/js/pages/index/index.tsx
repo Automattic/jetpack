@@ -18,7 +18,7 @@ import Upgraded from '$features/ui/upgraded/upgraded';
 import PageCacheModule from '$features/page-cache/page-cache';
 import Pill from '$features/ui/pill/pill';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { useStaticMinification } from '$lib/stores/static-minification';
+import { useStaticMinificationNotice } from '$lib/stores/static-minification';
 import React from 'react';
 
 const Index = () => {
@@ -32,7 +32,7 @@ const Index = () => {
 		data: isMinificationEnabled,
 		refetch: refetchStaticMinification,
 		isLoading: isStaticMinificationLoading,
-	} = useStaticMinification();
+	} = useStaticMinificationNotice();
 	const regenerateCssAction = useRegenerateCriticalCssAction();
 
 	const requestRegenerateCriticalCss = () => {

@@ -10,6 +10,7 @@ use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Meta_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Mergeable_Array_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
+use Automattic\Jetpack_Boost\Data_Sync\Minify_Notice_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Regenerate_CSS;
@@ -30,7 +31,6 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions\
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions\Run_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
-
 if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 	define( 'JETPACK_BOOST_DATASYNC_NAMESPACE', 'jetpack_boost_ds' );
 }
@@ -259,11 +259,10 @@ jetpack_boost_register_readonly_option(
 	}
 );
 
-jetpack_boost_register_readonly_option(
-	'static_minification',
-	function () {
-		return (bool) get_site_option( 'jetpack_boost_static_minification' );
-	}
+jetpack_boost_register_option(
+	'show_minify_notice',
+	Schema::as_boolean()->fallback( false ),
+	new Minify_Notice_Entry()
 );
 
 jetpack_boost_register_option(
