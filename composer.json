@@ -114,7 +114,6 @@
 		}
 	},
 	"require": {
-		"ext-json": "*",
-		"automattic/jetpack-newsletter-widget": "^0.1.0@dev"
+		"ext-json": "*"
 	}
 }
