@@ -402,7 +402,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			);
 
 			// Remove the form enctype attribute if it was applied.
-			remove_filter( 'jetpack_form_attributes', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'add_enctype_attribute' ) );
+			remove_filter( 'jetpack_form_attributes', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'add_enctype_multipart_attribute' ) );
 
 			$form_attributes = '';
 			foreach ( $attributes  as $key => $attributes ) {
