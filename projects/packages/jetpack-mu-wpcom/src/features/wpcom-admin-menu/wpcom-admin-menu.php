@@ -131,7 +131,7 @@ function wpcom_add_hosting_menu() {
 		esc_attr__( 'Site Settings', 'jetpack-mu-wpcom' ),
 		esc_attr__( 'Site Settings', 'jetpack-mu-wpcom' ),
 		'manage_options',
-		esc_url( "https://wordpress.com/settings/general/$domain" ),
+		esc_url( "https://wordpress.com/sites/settings/site/$domain" ),
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 	);
 
