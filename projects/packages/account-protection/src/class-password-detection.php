@@ -219,8 +219,8 @@ class Password_Detection {
 	 * @return void
 	 */
 	public function render_content( \WP_User $user, string $token ): void {
-		$error_transient_key   = Config::TRANSIENT_PREFIX . "_error_{$user->ID}";
-		$success_transient_key = Config::TRANSIENT_PREFIX . "_success_{$user->ID}";
+		$error_transient_key   = Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_error_{$user->ID}";
+		$success_transient_key = Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_success_{$user->ID}";
 
 		$error_data   = get_transient( $error_transient_key );
 		$success_data = get_transient( $success_transient_key );
@@ -454,7 +454,7 @@ class Password_Detection {
 	 * @return void
 	 */
 	private function set_transient_success( int $user_id, array $success, int $expiration = 60 ): void {
-		set_transient( Config::TRANSIENT_PREFIX . "_success_{$user_id}", $success, $expiration );
+		set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_success_{$user_id}", $success, $expiration );
 	}
 
 	/**
@@ -467,7 +467,7 @@ class Password_Detection {
 	 * @return void
 	 */
 	private function set_transient_error( int $user_id, array $error, int $expiration = 60 ): void {
-		set_transient( Config::TRANSIENT_PREFIX . "_error_{$user_id}", $error, $expiration );
+		set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_error_{$user_id}", $error, $expiration );
 	}
 
 	/**

@@ -129,7 +129,7 @@ class Password_Detection_Test extends BaseTestCase {
 
 		$sut->login_form_password_detection( $user, 'pw' );
 
-		$transient_data = get_transient( Config::TRANSIENT_PREFIX . "_error_{$user->ID}" );
+		$transient_data = get_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_error_{$user->ID}" );
 		$this->assertSame(
 			array(
 				'code'    => 'email_send_error',
@@ -407,7 +407,7 @@ class Password_Detection_Test extends BaseTestCase {
 			'message' => 'This is a error message to test things with.',
 		);
 
-		set_transient( Config::TRANSIENT_PREFIX . '_error_123', $error );
+		set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . '_error_123', $error );
 
 		$user             = new \WP_User();
 		$user->ID         = 123;
