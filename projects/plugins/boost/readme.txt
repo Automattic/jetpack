@@ -183,21 +183,19 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.8.0 - 2025-01-23
+### 3.9.0-beta - 2025-02-12
 #### Added
-- Critical CSS: Flag a site-health issue for Critical CSS when a page from the Cornerstone Pages list is modified.
-- Page Cache: Add extra PHP file the site owner can use to modify how the cache works.
-- Page Cache: Filter cookies and GET parameters so they do not cause a cache miss.
+- Cloud CSS: Handle prioritized cloud CSS regeneration for cornerstone pages updates.
+- Concatenate JS: Add compatibility with "Depay Payments for WooCommerce".
+- Speed Scores: Add tracking for speed score pop-out CTA.
 
 #### Changed
-- Critical CSS: Reduce unnecessary regenerations.
+- Concatenate JS/CSS: Update concatenated assets to be stored on the server as files.
+- Admin Panel: Cleanup CSS styles.
+- Updated package dependencies.
 
 #### Fixed
-- Page Cache: Clear Page Cache when Image CDN Auto Resize Lazy Images is toggled.
-- Page Cache: Fix issue where exceptions were incorrectly applied to the entire URL.
-- Concatenate JS: Improve compatibility with WooCommerce Shipping.
-- Concatenate CSS: Fix cases where minification might cause a file to load slower.
-- Image CDN: Ensure that double encoding doesn't happen.
+- UI: Fix UI discrepancy in Boost settings page upon toggling multiple Modules at same time.
 
 --------
 

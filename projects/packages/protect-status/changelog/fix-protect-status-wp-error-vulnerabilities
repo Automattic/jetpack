@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Protect Status: ensure vulnerabilities property is always an array.
