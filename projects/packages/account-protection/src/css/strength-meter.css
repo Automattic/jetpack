@@ -1,0 +1,101 @@
+.validation-checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 16px 0;
+}
+
+.validation-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0;
+
+    .validation-icon {
+        height: 24px;
+    }
+    
+    .validation-message {
+        margin-top: 0;
+    }
+}
+
+.info-popover {
+    position: relative;
+    display: inline-block;
+    height: 20px;
+}
+
+.info-icon {
+    height: 20px;
+    cursor: pointer;
+}
+
+.popover {
+    display: none;
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 4px;
+    white-space: normal;
+    width: 150px;
+    font-size: 12px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    text-align: center;
+}
+
+.popover-arrow {
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #333;
+}
+
+#your-profile .strength-meter,
+#createuser .strength-meter {
+    margin: 0 1px;
+}
+
+.strength-meter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 30px;
+    padding: 0 16px;
+    margin-bottom: 16px;
+    border-radius: 0 0 4px 4px;
+    background-color: #C3C4C7;
+}
+
+.strength-meter .strength {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: black;
+    margin: 0;
+}
+
+.branding {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.branding .powered-by {
+    font-size: 12px;
+    color: black;
+    margin: 0;
+}
+
+.branding img {
+    height: 18px;
+}

@@ -45,16 +45,25 @@ class Account_Protection {
 	private $password_manager;
 
 	/**
+	 * Password_Strength_Meter instance
+	 *
+	 * @var Password_Strength_Meter
+	 */
+	private $password_strength_meter;
+
+	/**
 	 * Account_Protection constructor.
 	 *
-	 * @param ?Modules            $modules            Modules instance.
-	 * @param ?Password_Detection $password_detection Password detection instance.
-	 * @param ?Password_Manager   $password_manager Validation service instance.
+	 * @param ?Modules                 $modules            Modules instance.
+	 * @param ?Password_Detection      $password_detection Password detection instance.
+	 * @param ?Password_Manager        $password_manager Password manager instance.
+	 * @param ?Password_Strength_Meter $password_strength_meter Password strength meter instance.
 	 */
-	public function __construct( ?Modules $modules = null, ?Password_Detection $password_detection = null, ?Password_Manager $password_manager = null ) {
-		$this->modules            = $modules ?? new Modules();
-		$this->password_detection = $password_detection ?? new Password_Detection();
-		$this->password_manager   = $password_manager ?? new Password_Manager();
+	public function __construct( ?Modules $modules = null, ?Password_Detection $password_detection = null, ?Password_Manager $password_manager = null, ?Password_Strength_Meter $password_strength_meter = null ) {
+		$this->modules                 = $modules ?? new Modules();
+		$this->password_detection      = $password_detection ?? new Password_Detection();
+		$this->password_manager        = $password_manager ?? new Password_Manager();
+		$this->password_strength_meter = $password_strength_meter ?? new Password_Strength_Meter();
 	}
 
 	/**
@@ -108,13 +117,20 @@ class Account_Protection {
 		add_action( 'wp_enqueue_scripts', array( $this->password_detection, 'enqueue_styles' ) );
 
 		// Add password validation
-
 		add_action( 'user_profile_update_errors', array( $this->password_manager, 'validate_profile_update' ), 10, 3 );
 		add_action( 'validate_password_reset', array( $this->password_manager, 'validate_password_reset' ), 10, 2 );
 
 		// Update recent passwords list
 		add_action( 'profile_update', array( $this->password_manager, 'on_profile_update' ), 10, 2 );
 		add_action( 'after_password_reset', array( $this->password_manager, 'on_password_reset' ), 10, 1 );
+
+		// Enqueue password strength meter scripts
+		add_action( 'admin_enqueue_scripts', array( $this->password_strength_meter, 'enqueue_jetpack_password_strength_meter_profile_script' ) );
+		add_action( 'login_enqueue_scripts', array( $this->password_strength_meter, 'enqueue_jetpack_password_strength_meter_reset_script' ) );
+
+		// AJAX endpoint for password validation
+		add_action( 'wp_ajax_validate_password_ajax', array( $this->password_strength_meter, 'validate_password_ajax' ) );
+		add_action( 'wp_ajax_nopriv_validate_password_ajax', array( $this->password_strength_meter, 'validate_password_ajax' ) );
 	}
 
 	/**
