@@ -948,17 +948,80 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	private function render_file_field( $id, $label, $class, $required, $required_field_text ) {
+
+		Assets::register_script(
+			'jetpack-form-file-field',
+			'../../dist/contact-form/js/file-field.js',
+			__FILE__,
+			array(
+				'enqueue'      => true,
+				'dependencies' => array(),
+				'version'      => \JETPACK__VERSION,
+			)
+		);
+
+		\wp_enqueue_style( 'jetpack-form-file-field', plugins_url( '../../dist/contact-form/css/file-field.css', __FILE__ ), array(), '1.0' );
+
 		$field  = $this->render_label( 'file', $id, $label, $required, $required_field_text );
-		$field .= "<input 
-			type='file' 
-			name='" . esc_attr( $id ) . "' 
-			id='" . esc_attr( $id ) . "' 
+		$field .= "<div class='jetpack-form-file-field__dropzone'>\n";
+		$field .= "<a href='#' class='wp-block-button__link wp-element-button'>" . esc_html__( 'Select a file', 'jetpack-forms' ) . "</a>\n";
+		$field .= "<span class='jetpack-form-file-field__filename'>" . esc_html__( '....or drag and drop a file.', 'jetpack-forms' ) . " </span>\n";
+		$field .= "<input
+			type='file'
+			class='jetpack-form-file-field'
+			name='" . esc_attr( $id ) . "'
+			id='" . esc_attr( $id ) . "'
 			" . $class . '
 			' . ( $required ? "required aria-required='true'" : '' ) . "
 			accept='.pdf,.jpg'
 			style='" . $this->field_styles . "'
 		/>\n";
+		$field .= "<div class='jetpack-form-file-field__preview-wrap'></div>\n";
+		$field .= "</div>\n";
+
+		$this->localize_file_field_script();
+
 		return $field;
+	}
+
+	/**
+	 * Helper functions that localizes the jetpack-form-file-field script once.
+	 */
+	private function localize_file_field_script() {
+		/**
+		 * Filter to disable the localization of the file field script.
+		 *
+		 * @since $$next-version$$
+		 */
+		if ( apply_filters( 'jetpack_form_localize_file_field', false ) ) {
+			return;
+		}
+		add_filter( 'jetpack_form_localize_file_field', '__return_true' );
+
+		// Order of this is important
+		$file_size_units = array(
+			_x( 'B', 'unit symbol', 'jetpack-forms' ),
+			_x( 'KB', 'unit symbol', 'jetpack-forms' ),
+			_x( 'MB', 'unit symbol', 'jetpack-forms' ),
+			_x( 'GB', 'unit symbol', 'jetpack-forms' ),
+			_x( 'TB', 'unit symbol', 'jetpack-forms' ),
+			_x( 'PB', 'unit symbol', 'jetpack-forms' ),
+			_x( 'EB', 'unit symbol', 'jetpack-forms' ),
+			_x( 'ZB', 'unit symbol', 'jetpack-forms' ),
+			_x( 'YB', 'unit symbol', 'jetpack-forms' ),
+		);
+
+		wp_localize_script(
+			'jetpack-form-file-field',
+			'jetpackFormFileField',
+			array(
+				'i18n' => array(
+					'language'      => get_bloginfo( 'language' ),
+					'fileSizeUnits' => $file_size_units,
+					'removeFile'    => __( 'Remove', 'jetpack-forms' ),
+				),
+			)
+		);
 	}
 
 	/**
