@@ -104,11 +104,11 @@ add_action( 'jetpack_boost_404_tester_cron', 'jetpack_boost_404_tester' );
  * haven't been toggled since this feature was released.
  * Only run this in wp-admin to avoid excessive updates to the option.
  */
-function jetpack_boost_404_setup() {
+function jetpack_boost_404_setup( $run_immediately = false ) {
 	if ( is_admin() && get_site_option( 'jetpack_boost_static_minification', 'na' ) === 'na' ) {
 		update_site_option( 'jetpack_boost_static_minification', 0 ); // Add a default value if not set to avoid an extra SQL query.
 	}
-	jetpack_boost_page_optimize_schedule_404_tester();
+	jetpack_boost_page_optimize_schedule_404_tester( $run_immediately );
 }
 
 /**

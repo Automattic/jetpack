@@ -6,11 +6,7 @@ import { z } from 'zod';
  * @return {boolean} Whether static minification is enabled
  */
 export const useStaticMinification = () => {
-	const [ { data: isEnabled = false } ] = useDataSync(
-		'jetpack_boost_ds',
-		'static_minification',
-		z.boolean()
-	);
+	const [ query ] = useDataSync( 'jetpack_boost_ds', 'static_minification', z.boolean() );
 
-	return isEnabled;
+	return query;
 };

@@ -51,7 +51,8 @@ class Minify_CSS implements Pluggable, Changes_Page_Output, Optimization, Has_Ac
 	}
 
 	public static function activate() {
-		jetpack_boost_minify_activation();
+		// Run the 404 tester immediately to ensure the UI has the correct state immediately.
+		jetpack_boost_minify_activation( true );
 	}
 
 	public static function deactivate() {

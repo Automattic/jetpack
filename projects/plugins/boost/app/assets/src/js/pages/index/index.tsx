@@ -28,8 +28,11 @@ const Index = () => {
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
 	const [ jsModule ] = useSingleModuleState( 'minify_js' );
-	const isStaticMinification = useStaticMinification();
-
+	const {
+		data: isMinificationEnabled,
+		refetch: refetchStaticMinification,
+		isLoading: isStaticMinificationLoading,
+	} = useStaticMinification();
 	const regenerateCssAction = useRegenerateCriticalCssAction();
 
 	const requestRegenerateCriticalCss = () => {
@@ -46,8 +49,8 @@ const Index = () => {
 		recordBoostEvent( 'critical_css_link_clicked', {} );
 	};
 
-	const shouldShowMinificationNotice = ( moduleActive: boolean ) => {
-		return ! moduleActive && ! isStaticMinification;
+	const shouldShowMinificationNotice = () => {
+		return ! isStaticMinificationLoading && ! jsModule?.active && ! isMinificationEnabled;
 	};
 
 	const minificationWarningMessage = __(
@@ -198,21 +201,24 @@ const Index = () => {
 						) }
 					</p>
 				}
+				onEnable={ refetchStaticMinification }
 			>
 				<MinifyMeta
 					datasyncKey="minify_js_excludes"
 					buttonText={ __( 'Exclude JS handles', 'jetpack-boost' ) }
 					placeholder={ __( 'Comma separated list of JS handles to exclude', 'jetpack-boost' ) }
 				/>
-				{ ! isStaticMinification && isMinificationNoticeVisible && (
-					<Notice
-						level="info"
-						hideCloseButton={ false }
-						onClose={ () => setMinificationNoticeVisible( false ) }
-					>
-						{ minificationWarningMessage }
-					</Notice>
-				) }
+				{ ! isStaticMinificationLoading &&
+					! isMinificationEnabled &&
+					isMinificationNoticeVisible && (
+						<Notice
+							level="info"
+							hideCloseButton={ false }
+							onClose={ () => setMinificationNoticeVisible( false ) }
+						>
+							{ minificationWarningMessage }
+						</Notice>
+					) }
 			</Module>
 			<Module
 				slug="minify_css"
@@ -225,22 +231,22 @@ const Index = () => {
 						) }
 					</p>
 				}
+				onEnable={ refetchStaticMinification }
 			>
 				<MinifyMeta
 					datasyncKey="minify_css_excludes"
 					buttonText={ __( 'Exclude CSS handles', 'jetpack-boost' ) }
 					placeholder={ __( 'Comma separated list of CSS handles to exclude', 'jetpack-boost' ) }
 				/>
-				{ isMinificationNoticeVisible &&
-					shouldShowMinificationNotice( jsModule?.active ?? true ) && (
-						<Notice
-							level="info"
-							hideCloseButton={ false }
-							onClose={ () => setMinificationNoticeVisible( false ) }
-						>
-							{ minificationWarningMessage }
-						</Notice>
-					) }
+				{ isMinificationNoticeVisible && shouldShowMinificationNotice() && (
+					<Notice
+						level="info"
+						hideCloseButton={ false }
+						onClose={ () => setMinificationNoticeVisible( false ) }
+					>
+						{ minificationWarningMessage }
+					</Notice>
+				) }
 			</Module>
 			<Module
 				slug="image_cdn"

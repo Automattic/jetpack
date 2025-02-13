@@ -188,9 +188,15 @@ function jetpack_boost_page_optimize_remove_concat_base_prefix( $original_fs_pat
 /**
  * Schedule a cronjob for the 404 tester, if one isn't already scheduled.
  */
-function jetpack_boost_page_optimize_schedule_404_tester() {
+function jetpack_boost_page_optimize_schedule_404_tester( $run_immediately = false ) {
 	if ( false === wp_next_scheduled( 'jetpack_boost_404_tester_cron' ) ) {
-		wp_schedule_event( time(), 'daily', 'jetpack_boost_404_tester_cron' );
+		$scheduled_time = time();
+		if ( $run_immediately ) {
+			jetpack_boost_404_tester();
+			// If we run immediately, no point in scheduling the cronjob immediately also, schedule it in a day.
+			$scheduled_time += DAY_IN_SECONDS;
+		}
+		wp_schedule_event( $scheduled_time, 'daily', 'jetpack_boost_404_tester_cron' );
 	}
 }
 
@@ -350,12 +356,12 @@ function jetpack_boost_minify_serve_concatenated() {
  *
  * @return void
  */
-function jetpack_boost_minify_activation() {
+function jetpack_boost_minify_activation( $run_tester_immediately = false ) {
 	// Schedule cache cleanup.
 	jetpack_boost_page_optimize_schedule_cache_cleanup();
 
 	// Setup the cronjob to periodically test for the 404 handler.
-	jetpack_boost_404_setup();
+	jetpack_boost_404_setup( $run_tester_immediately );
 }
 
 function jetpack_boost_minify_is_enabled() {
