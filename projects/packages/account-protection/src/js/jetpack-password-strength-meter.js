@@ -17,6 +17,7 @@ jQuery( document ).ready( function ( $ ) {
 	};
 
 	let currentAjaxRequest = null;
+	let isValidating = true;
 
 	initializeUI();
 	bindEvents();
@@ -117,7 +118,7 @@ jQuery( document ).ready( function ( $ ) {
 		const { passwordInput } = UIComponents.core;
 
 		passwordInput.on( 'input', validatePassword );
-		passwordInput.on( 'pwupdate', validatePassword );
+		// passwordInput.on( 'pwupdate', validatePassword );
 	}
 
 	/**
@@ -142,7 +143,9 @@ jQuery( document ).ready( function ( $ ) {
 		// Ensure core strength meter is hidden
 		passwordStrengthResults.hide();
 
-		renderLoadingState();
+		if ( ! isValidating ) {
+			renderLoadingState();
+		}
 
 		currentAjaxRequest = $.ajax( {
 			url: jetpackData.ajaxurl,
@@ -164,6 +167,7 @@ jQuery( document ).ready( function ( $ ) {
 	 */
 	function handleValidationResponse( response ) {
 		currentAjaxRequest = null;
+		isValidating = false;
 
 		if ( response.success ) {
 			const failedValidationConditions = updateValidationChecklist( response.data.state );
@@ -180,6 +184,8 @@ jQuery( document ).ready( function ( $ ) {
 	 */
 	function handleValidationError( jqXHR, textStatus ) {
 		if ( textStatus !== 'abort' ) {
+			isValidating = false;
+
 			restoreCoreStrengthMeter();
 		}
 	}
@@ -273,6 +279,8 @@ jQuery( document ).ready( function ( $ ) {
 	 * Render the empty input state
 	 */
 	function renderEmptyInputState() {
+		isValidating = false;
+
 		UIComponents.passwordValidationStatus.hide();
 		UIComponents.core.passwordInput.removeAttr( 'style' );
 	}
@@ -281,6 +289,8 @@ jQuery( document ).ready( function ( $ ) {
 	 * Render the loading state
 	 */
 	function renderLoadingState() {
+		isValidating = true;
+
 		const { passwordInput, weakPasswordConfirmation, submitButtons } = UIComponents.core;
 		submitButtons.prop( 'disabled', true );
 		weakPasswordConfirmation.hide();
