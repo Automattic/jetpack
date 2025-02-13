@@ -10,7 +10,7 @@ import type { Step, OptionMessage } from './types';
 
 const debug = debugFactory( 'jetpack-wizard-chat' );
 
-export default function AssistantWizard( { close, steps, assistantName } ) {
+export default function WizardChat( { close, steps, assistantName } ) {
 	const [ currentStep, setCurrentStep ] = useState( 0 );
 	const [ isBusy, setIsBusy ] = useState( false );
 	const stepsEndRef = useRef( null );

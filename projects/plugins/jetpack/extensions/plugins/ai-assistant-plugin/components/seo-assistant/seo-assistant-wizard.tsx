@@ -1,11 +1,11 @@
 import debugFactory from 'debug';
 import './style.scss';
-import AssistantWizard from './assistant-wizard';
 import { useCompletionStep } from './use-completion-step';
 import { useKeywordsStep } from './use-keywords-step';
 import { useMetaDescriptionStep } from './use-meta-description-step';
 import { useTitleStep } from './use-title-step';
 import { useWelcomeStep } from './use-welcome-step';
+import WizardChat from './wizard-chat';
 
 const debug = debugFactory( 'jetpack-seo:wizard-chat' );
 
@@ -30,7 +30,7 @@ export default function SeoAssistantWizard( { close }: { close?: () => void } ) 
 	debug( 'render seo assistant wizard' );
 
 	return (
-		<AssistantWizard
+		<WizardChat
 			close={ close }
 			steps={ [
 				welcomeStepData,
