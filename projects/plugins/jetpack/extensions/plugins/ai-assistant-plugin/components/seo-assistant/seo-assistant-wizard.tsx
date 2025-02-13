@@ -39,6 +39,7 @@ export default function SeoAssistantWizard( { close }: { close?: () => void } ) 
 				metaStepData,
 				completionStepData,
 			] }
+			assistantName={ 'seo-assistant' }
 		/>
 	);
 }

@@ -10,7 +10,7 @@ import type { Step, OptionMessage } from './types';
 
 const debug = debugFactory( 'jetpack-seo:assistant-wizard' );
 
-export default function AssistantWizard( { close, steps } ) {
+export default function AssistantWizard( { close, steps, assistantName } ) {
 	const [ currentStep, setCurrentStep ] = useState( 0 );
 	const [ isBusy, setIsBusy ] = useState( false );
 	const stepsEndRef = useRef( null );
@@ -97,32 +97,34 @@ export default function AssistantWizard( { close, steps } ) {
 					return acc;
 				}, 0 ) / steps.filter( step => step.includeInResults ).length;
 
-			tracks.recordEvent( 'jetpack_seo_assistant_close', {
+			tracks.recordEvent( 'assistant_wizard_chat_close', {
 				completion,
 				step: steps[ currentStep ].id,
 				steps: steps.length - 1,
 				step_number: currentStep,
 				placement: isCloseButton ? 'close' : 'done',
+				assistant_name: assistantName,
 			} );
 			close();
 			setCurrentStep( 0 );
 		},
-		[ close, currentStep, steps, tracks, results ]
+		[ close, currentStep, steps, tracks, results, assistantName ]
 	);
 
 	const jumpToStep = useCallback(
 		( stepNumber: number ) => {
 			if ( stepNumber < steps.length - 1 ) {
-				tracks.recordEvent( 'jetpack_seo_assistant_step_jump', {
+				tracks.recordEvent( 'assistant_wizard_chat_step_jump', {
 					step_from: steps[ currentStep ]?.id,
 					step_to: steps[ stepNumber ]?.id,
+					assistant_name: assistantName,
 				} );
 				setAssistantFlowAction( 'jump' );
 				setCurrentStep( stepNumber );
 				setCurrentStepData( steps[ stepNumber ] );
 			}
 		},
-		[ steps, tracks, currentStep ]
+		[ steps, tracks, currentStep, assistantName ]
 	);
 
 	const handleSelect = useCallback(
@@ -140,9 +142,10 @@ export default function AssistantWizard( { close, steps } ) {
 			setIsBusy( true );
 			setAssistantFlowAction( 'backwards' );
 			debug( 'moving back to ' + ( currentStep - 1 ) );
-			tracks.recordEvent( 'jetpack_seo_assistant_step_back', {
+			tracks.recordEvent( 'assistant_wizard_chat_step_back', {
 				step_from: steps[ currentStep ]?.id,
 				step_to: steps[ currentStep - 1 ]?.id,
+				assistant_name: assistantName,
 			} );
 			steps[ currentStep ].resetState?.();
 			setCurrentStep( currentStep - 1 );
@@ -165,9 +168,10 @@ export default function AssistantWizard( { close, steps } ) {
 				},
 			} ) );
 		}
-		tracks.recordEvent( 'jetpack_seo_assistant_step_skip', {
+		tracks.recordEvent( 'assistant_wizard_chat_step_skip', {
 			step_from: steps[ currentStep ]?.id,
 			step_to: steps[ currentStep + 1 ]?.id,
+			assistant_name: assistantName,
 		} );
 		if ( steps[ currentStep ]?.type === 'completion' ) {
 			debug( 'completion step, closing wizard' );
@@ -176,7 +180,7 @@ export default function AssistantWizard( { close, steps } ) {
 			debug( 'step type', steps[ currentStep ]?.type );
 			handleNext();
 		}
-	}, [ currentStep, steps, handleNext, results, handleDone, tracks ] );
+	}, [ currentStep, steps, handleNext, results, handleDone, tracks, assistantName ] );
 
 	const handleStepSubmit = useCallback( async () => {
 		debug( 'step submitted' );
@@ -204,25 +208,27 @@ export default function AssistantWizard( { close, steps } ) {
 			setResults( prev => ( { ...prev, ...newResults } ) );
 		}
 		setAssistantFlowAction( 'submit' );
-		tracks.recordEvent( 'jetpack_seo_assistant_step_submit', {
+		tracks.recordEvent( 'assistant_wizard_chat_step_submit', {
 			step_from: steps[ currentStep ].id,
 			step_to: steps[ currentStep + 1 ].id,
 			value_length: stepValue?.length || 0,
+			assistant_name: assistantName,
 		} );
 
 		debug( 'step type', steps[ currentStep ]?.type );
 		handleNext();
-	}, [ currentStep, handleDone, handleNext, steps, tracks, handleSkip ] );
+	}, [ currentStep, handleDone, handleNext, steps, tracks, handleSkip, assistantName ] );
 
 	const handleRetry = useCallback( async () => {
 		debug( 'handleRetry' );
-		tracks.recordEvent( 'jetpack_seo_assistant_step_retry', {
+		tracks.recordEvent( 'assistant_wizard_chat_step_retry', {
 			step: steps[ currentStep ]?.id,
+			assistant_name: assistantName,
 		} );
 		setIsBusy( true );
 		await steps[ currentStep ].onRetry?.( {} );
 		setIsBusy( false );
-	}, [ currentStep, steps, tracks ] );
+	}, [ currentStep, steps, tracks, assistantName ] );
 
 	return (
 		<div className="assistant-wizard">
