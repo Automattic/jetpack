@@ -1,0 +1,159 @@
+.jetpack-form-file-field__dropzone {
+    background-color: var(--jetpack--contact-form--input-background, white);
+    border: var(--jetpack--contact-form--border-size, 1px) var(--jetpack--contact-form--border-style, solid) var(--jetpack--contact-form--border-color);
+    border-radius: var(--jetpack--contact-form--border-radius, 0);
+    display: flex;
+    flex-direction: column;
+    gap: var(--jetpack--contact-form--input-padding, 16px);
+    padding: calc(var(--jetpack--contact-form--input-padding, 16px) * 2) var(--jetpack--contact-form--input-padding, 16px) var(--jetpack--contact-form--input-padding, 16px);
+    position: relative;
+    text-align: center;
+}
+
+.jetpack-form-file-field__dropzone.is_dropping {
+    border: 1px solid darkgray;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.jetpack-form-file-field__dropzone:hover {
+    outline: var(--b) solid var(--c);
+    outline-offset: var(--g);
+}
+
+.jetpack-form-file-field__dropzone.is_dropping::before {
+    border: 1px dotted gray;
+    border-radius: inherit; /* Match the border-radius of the parent */
+    bottom: 10px;
+    content: '';
+    left: 10px;
+    pointer-events: none; /* Ensure the pseudo-element does not interfere with interactions */
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+
+.jetpack-form-file-field__dropzone .jetpack-form-file-field {
+    display: none;
+}
+
+.jetpack-form-file-field__dropzone .wp-block-button__link {
+    cursor: pointer;
+    margin: 0 auto;
+    text-decoration: none;
+    width: fit-content;
+}
+
+.jetpack-form-file-field__preview-wrap {
+    padding: 0;
+    visibility: hidden;
+}
+
+.jetpack-form-file-field__preview-wrap.is-active {
+    visibility: visible;
+}
+
+.jetpack-form-file-field__preview {
+    align-items: center;
+    animation: jpShowFileField 300ms 100ms cubic-bezier(0.38, 0.97, 0.56, 0.76) forwards;
+    display: flex;
+    gap: 1em;
+    margin-top: 1em;
+    opacity: 0;
+	background-color: var( --jetpack--contact-form--button-primary--background-color, #0073AA );
+	color: var( --jetpack--contact-form--button-primary--text-color, #FFF );
+	padding: 10px;
+	border-radius: var(--jetpack--contact-form--border-radius, 0);
+	position: relative;
+	justify-content:start;
+}
+@media (prefers-reduced-motion) {
+	.jetpack-form-file-field__preview {
+		animation: none;
+	}
+}
+
+.jetpack-form-file-field__preview::before {
+	content: '';
+	opacity: 0.2;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: var( --jetpack--contact-form--button-primary--text-color, #FFF );
+	z-index: 1;
+}
+
+.jetpack-form-file-field__preview > * {
+	z-index: 2;
+	transition: height 0.3s ease;
+}
+
+.jetpack-form-file-field__preview:hover::before {
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+@media (prefers-reduced-motion) {
+	.jetpack-form-file-field__preview > *,
+	.jetpack-form-file-field__preview:hover::before {
+		transition: none;
+	}
+}
+
+.jetpack-form-file-field__image {
+    aspect-ratio: 1 / 1;
+    background-position: center;
+    background-size: cover;
+    border-radius: var(--jetpack--contact-form--border-radius, 0);
+    outline: 2px solid  var( --jetpack--contact-form--button-primary--text-color, #FFF );
+	border-radius: 50%;
+    outline-offset:0;
+    width: 40px;
+}
+
+.jetpack-form-file-field__preview.fade-out {
+    animation: jpFadeOutFileField 0.3s forwards;
+}
+@media (prefers-reduced-motion) {
+	.jetpack-form-file-field__preview.fade-out {
+		animation: none;
+	}
+}
+
+.jetpack-form-file-field__file-wrap {
+    align-items: baseline;
+    display: flex;
+    flex-direction: column;
+    font-size: 0.9em;
+	flex-grow: 2;
+}
+
+.jetpack-form-file-field__file-size {
+    font-weight: bold;
+    line-height: 1;
+}
+
+.jetpack-form-file-field__remove {
+	font-size: 0.9em;
+	color:  var( --jetpack--contact-form--button-primary--text-color, #FFF );
+	margin-right: 10px;
+}
+
+@keyframes jpShowFileField {
+    100% {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes jpFadeOutFileField {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+}
