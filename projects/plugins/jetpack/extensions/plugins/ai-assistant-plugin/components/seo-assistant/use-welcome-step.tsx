@@ -11,7 +11,7 @@ export const useWelcomeStep = ( { stepLabels }: { stepLabels: string[] } ): Step
 		.join( '<br />' );
 	return {
 		id: 'welcome',
-		title: __( 'Optimise for SEO', 'jetpack' ),
+		title: __( 'Improve SEO', 'jetpack' ),
 		label: 'welcome',
 		type: 'welcome',
 		messages: [
