@@ -48,7 +48,7 @@ class JITM {
 	 * @return Post_Connection_JITM|Pre_Connection_JITM JITM instance.
 	 */
 	public static function get_instance() {
-		if ( ( new Connection_Manager() )->is_connected() || defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		if ( ( new Connection_Manager() )->is_connected() ) {
 			$jitm = new Post_Connection_JITM();
 		} else {
 			$jitm = new Pre_Connection_JITM();
