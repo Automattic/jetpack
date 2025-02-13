@@ -242,7 +242,7 @@ class JITM {
 			return;
 		}
 
-		// Only add this to specifically whitelisted pages.
+		// Only add this to specifically allowed pages.
 		if ( ! $this->is_a8c_admin_page() ) {
 			return;
 		}
