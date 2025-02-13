@@ -89,7 +89,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'requiredtext'           => null,
 				'options'                => array(),
 				'id'                     => null,
-				'style'                  => null,
 				'fieldbackgroundcolor'   => null,
 				'buttonbackgroundcolor'  => null,
 				'buttonborderradius'     => null,
@@ -99,6 +98,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'values'                 => null,
 				'placeholder'            => null,
 				'class'                  => null,
+				'css'                    => null,
 				'width'                  => null,
 				'consenttype'            => null,
 				'dateformat'             => null,
@@ -299,6 +299,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field_placeholder   = $this->get_attribute( 'placeholder' );
 		$field_width         = $this->get_attribute( 'width' );
 		$class               = 'date' === $field_type ? 'jp-contact-form-date' : $this->get_attribute( 'class' );
+		$block_css           = $this->get_attribute( 'css' );
 
 		if ( is_numeric( $this->get_attribute( 'borderradius' ) ) ) {
 			$this->block_styles .= '--jetpack--contact-form--border-radius: ' . esc_attr( $this->get_attribute( 'borderradius' ) ) . 'px;';
@@ -351,6 +352,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 		if ( is_numeric( $this->get_attribute( 'labellineheight' ) ) ) {
 			$this->label_styles .= 'line-height: ' . (int) $this->get_attribute( 'labellineheight' ) . ';';
+		}
+
+		if ( ! empty( $block_css ) ) {
+			$this->block_styles .= $block_css;
 		}
 
 		if ( ! empty( $field_width ) && ! $this->has_inset_label() ) {

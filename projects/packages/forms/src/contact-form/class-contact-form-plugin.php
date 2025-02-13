@@ -17,7 +17,6 @@ use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 use WP_Error;
-
 /**
  * Sets up various actions, filters, post types, post statuses, shortcodes.
  */
@@ -318,6 +317,55 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Build the CSS for the child layout.
+	 * This replicates part of the `wp_render_layout_support_flag` function from WordPress core.
+	 * That function doesn't work for form fields, as they're rendered as shortcodes,
+	 * while the core function will only generate and apply classnames for layout to html.
+	 *
+	 * @param array $layout - the block's `style.layout` attribute.
+	 *
+	 * @return string CSS for the child layout.
+	 */
+	private static function build_child_layout_css( $layout ) {
+		$css = '';
+
+		if ( ! $layout ) {
+			return $css;
+		}
+
+		$self_stretch = isset( $layout['selfStretch'] ) ? $layout['selfStretch'] : null;
+
+		if ( 'fixed' === $self_stretch && isset( $layout['flexSize'] ) ) {
+			$css .= 'flex-basis: ' . $layout['flexSize'] . ';';
+			$css .= 'box-sizing: border-box;';
+		} elseif ( 'fill' === $self_stretch ) {
+			$css .= 'flex-grow: 1;';
+		}
+
+		$column_start = isset( $layout['columnStart'] ) ? $layout['columnStart'] : null;
+		$column_span  = isset( $layout['columnSpan'] ) ? $layout['columnSpan'] : null;
+		if ( $column_start && $column_span ) {
+			$css .= "grid-column: $column_start / span $column_span;";
+		} elseif ( $column_start ) {
+			$css .= "grid-column: $column_start;";
+		} elseif ( $column_span ) {
+			$css .= "grid-column: span $column_span;";
+		}
+
+		$row_start = isset( $layout['rowStart'] ) ? $layout['rowStart'] : null;
+		$row_span  = isset( $layout['rowSpan'] ) ? $layout['rowSpan'] : null;
+		if ( $row_start && $row_span ) {
+			$css .= "grid-row: $row_start / span $row_span;";
+		} elseif ( $row_start ) {
+			$css .= "grid-row: $row_start;";
+		} elseif ( $row_span ) {
+			$css .= "grid-row: span $row_span;";
+		}
+
+		return $css;
+	}
+
+	/**
 	 * Turn block attribute to shortcode attributes.
 	 *
 	 * @param array  $atts - the block attributes.
@@ -327,6 +375,7 @@ class Contact_Form_Plugin {
 	 */
 	public static function block_attributes_to_shortcode_attributes( $atts, $type ) {
 		$atts['type'] = $type;
+
 		if ( isset( $atts['className'] ) ) {
 			$atts['class'] = $atts['className'];
 			unset( $atts['className'] );
@@ -335,6 +384,10 @@ class Contact_Form_Plugin {
 		if ( isset( $atts['defaultValue'] ) ) {
 			$atts['default'] = $atts['defaultValue'];
 			unset( $atts['defaultValue'] );
+		}
+
+		if ( isset( $atts['style']['layout'] ) ) {
+			$atts['css'] = self::build_child_layout_css( $atts['style']['layout'] );
 		}
 
 		return $atts;
