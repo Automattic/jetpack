@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit fc55646392f8826e351c4d50f5cf491f82209a0f.
+ * Stubs automatically generated from WordPress.com commit 6b86a7a85b8bed5631567ba4750d32073fe7b487.
  */
 
 namespace {
@@ -1480,6 +1480,9 @@ namespace ExPlat {
      * @return string|null
      */
     function assign_given_user(string $experiment_name, \WP_User $user): ?string
+    {
+    }
+    function get_user_assignment(string $experiment_name, \WP_User $user): ?string
     {
     }
 }
