@@ -112,13 +112,28 @@ jQuery( document ).ready( function ( $ ) {
 	}
 
 	/**
+	 * Debounce function to limit the number of requests
+	 * @param {Function} func  - The function to debounce
+	 * @param {number}   delay - The delay in milliseconds
+	 *
+	 * @return {Function} - The debounced function
+	 */
+	function debounce( func, delay ) {
+		let timer;
+		return function () {
+			clearTimeout( timer );
+			timer = setTimeout( () => func.apply( this, arguments ), delay );
+		};
+	}
+
+	/**
 	 * Bind events to the UI components
 	 */
 	function bindEvents() {
 		const { passwordInput } = UIComponents.core;
 
-		passwordInput.on( 'input', validatePassword );
-		// passwordInput.on( 'pwupdate', validatePassword );
+		passwordInput.on( 'input', debounce( validatePassword, 250 ) );
+		passwordInput.on( 'pwupdate', validatePassword );
 	}
 
 	/**
