@@ -244,10 +244,6 @@ abstract class Publicize_Base {
 		// Alter the "Post Publish" admin notice to mention the Connections we Publicized to.
 		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 20, 1 );
 
-		// Connection test callback.
-		// TODO Get rid of this and the method after April 2025.
-		add_action( 'wp_ajax_test_publicize_conns', array( $this, 'test_publicize_conns' ) );
-
 		// Custom priority to ensure post type support is added prior to thumbnail support being added to the theme.
 		add_action( 'init', array( $this, 'add_post_type_support' ), 8 );
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
@@ -721,15 +717,6 @@ abstract class Publicize_Base {
 		$connection_meta = $this->get_connection_meta( $connection );
 		$connection_data = $connection_meta['connection_data'];
 		return isset( $connection_data['meta']['options_responses'] );
-	}
-
-	/**
-	 * AJAX Handler to run connection tests on all Connections
-	 *
-	 * @return void
-	 */
-	public function test_publicize_conns() {
-		wp_send_json_success( $this->get_publicize_conns_test_results() );
 	}
 
 	/**
