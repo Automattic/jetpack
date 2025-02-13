@@ -1207,7 +1207,7 @@ class User_Admin extends Base_Admin {
 	 * Creates error notices and redirects the user to the previous page.
 	 *
 	 * @param array $query_params - query parameters added to redirection URL.
-	 * @return string|void The redirect URL or void on failure.
+	 * @return void
 	 */
 	public function create_error_notice_and_redirect( $query_params ) {
 		$ref = wp_get_referer();
@@ -1219,7 +1219,8 @@ class User_Admin extends Base_Admin {
 			$query_params,
 			$ref
 		);
-		return wp_safe_redirect( $url );
+		wp_safe_redirect( $url );
+		exit;
 	}
 
 	/**

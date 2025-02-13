@@ -32,6 +32,13 @@ class Plugin {
 	private $slug;
 
 	/**
+	 * Users Connection Admin instance.
+	 *
+	 * @var Users_Connection_Admin
+	 */
+	private $users_connection_admin;
+
+	/**
 	 * Initialize the plugin manager.
 	 *
 	 * @param string $slug Plugin slug.
@@ -41,7 +48,7 @@ class Plugin {
 
 		// Always initialize Users_Connection_Admin - it will handle its own conditional loading
 		if ( is_admin() ) {
-			new Users_Connection_Admin();
+			$this->users_connection_admin = new Users_Connection_Admin();
 		}
 	}
 
