@@ -164,7 +164,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			}
 
 			if (
-				! empty( $instance['email'] )
+				$instance['email']
 				&& is_email( trim( $instance['email'] ) )
 			) {
 				printf(
