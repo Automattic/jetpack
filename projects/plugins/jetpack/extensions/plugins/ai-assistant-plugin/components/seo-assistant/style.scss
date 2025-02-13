@@ -12,6 +12,7 @@
 	display: flex;
 	flex-direction: column;
 	padding: 24px;
+	box-shadow: 0 0 1px rgba(0,0,0,0.25), 0 3px 8px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.1), inset 0 0 1px rgba( 232, 232, 237, 0.11);
 	// countering the Jetpack sidebar ai-feature styles:
 	button {
 		width: unset;
