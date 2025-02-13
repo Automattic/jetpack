@@ -1,8 +1,9 @@
 import { Alert } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { createInterpolateElement, useId } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useId, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { store } from '../../social-store';
 import { SupportedService } from '../services/use-supported-services';
 import styles from './style.module.scss';
@@ -19,8 +20,33 @@ type CustomInputsProps = {
  */
 export function CustomInputs( { service }: CustomInputsProps ) {
 	const id = useId();
+	const [ handleError, setHandleError ] = useState< string | null >( null );
 
 	const reconnectingAccount = useSelect( select => select( store ).getReconnectingAccount(), [] );
+
+	const validateBskyHandle = useCallback( ( value: string ) => {
+		if ( value.endsWith( '.bsky.social' ) ) {
+			const username = value.replace( '.bsky.social', '' );
+			if ( username.includes( '.' ) ) {
+				setHandleError(
+					__(
+						'Bluesky usernames cannot contain dots. If you are using a custom domain, enter it without .bsky.social',
+						'jetpack-publicize-components'
+					)
+				);
+				return false;
+			}
+		}
+		setHandleError( null );
+		return true;
+	}, [] );
+
+	const handleBskyHandleChange = useCallback(
+		( event: React.ChangeEvent< HTMLInputElement > ) => {
+			validateBskyHandle( event.target.value );
+		},
+		[ validateBskyHandle ]
+	);
 
 	if ( 'mastodon' === service.ID ) {
 		return (
@@ -83,12 +109,23 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 						aria-label={ __( 'Bluesky handle', 'jetpack-publicize-components' ) }
 						aria-describedby={ `${ id }-handle-description` }
 						placeholder={ 'username.bsky.social' }
+						onChange={ handleBskyHandleChange }
+						className={ handleError ? styles.error : undefined }
 					/>
-					<p className="description" id={ `${ id }-handle-description` }>
-						{ __(
-							'You can find the handle in your Bluesky profile.',
-							'jetpack-publicize-components'
-						) }
+					<p
+						className={ clsx( 'description', handleError && styles[ 'error-text' ] ) }
+						id={ `${ id }-handle-description` }
+					>
+						{ handleError ||
+							createInterpolateElement(
+								__(
+									'You can find the handle in your Bluesky profile. This will be either <strong>username.bsky.social</strong> or just the domain name if you are using a custom domain.',
+									'jetpack-publicize-components'
+								),
+								{
+									strong: <strong />,
+								}
+							) }
 					</p>
 				</div>
 				<div className={ styles[ 'fields-item' ] }>
