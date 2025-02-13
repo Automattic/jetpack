@@ -935,9 +935,6 @@ abstract class Publicize_Base {
 					)
 				);
 
-				// If this one has already been publicized to, don't let it happen again.
-				$toggleable = ! $done && ! $all_done;
-
 				// Determine the state of the checkbox (on/off) and allow filtering.
 				$enabled = $done || ! $skip;
 				/**
@@ -958,8 +955,6 @@ abstract class Publicize_Base {
 				 * those connections, don't let them change it.
 				 */
 				if ( ! $done && $connection['shared'] && ! current_user_can( $this->GLOBAL_CAP ) ) {
-					$toggleable = false;
-
 					/**
 					 * Filters the checkboxes for global connections with non-prilvedged users.
 					 *
