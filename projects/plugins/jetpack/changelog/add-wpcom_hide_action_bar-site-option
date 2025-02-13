@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Add a new site setting to hide the Action Bar in the REST API endpoint

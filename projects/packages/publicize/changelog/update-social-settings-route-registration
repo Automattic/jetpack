@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Only register social/settings endpoint if Jetpack version does not have it

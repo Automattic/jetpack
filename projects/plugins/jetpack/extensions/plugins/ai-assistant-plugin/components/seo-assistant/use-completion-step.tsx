@@ -1,5 +1,5 @@
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useMessages } from './wizard-messages';
 import type { Step, Results } from './types';
 
@@ -28,7 +28,10 @@ export const useCompletionStep = (): Step => {
 
 			addMessage( {
 				content: createInterpolateElement(
-					`Here's your updated checklist:<br />${ resultsString }<br /><br />`,
+					__( "Here's your updated checklist:", 'jetpack' ) +
+						'<br />' +
+						resultsString +
+						'<br /><br />',
 					{
 						br: <br />,
 					}
@@ -48,12 +51,21 @@ export const useCompletionStep = (): Step => {
 			const incompleteString =
 				incomplete.completed === incomplete.total
 					? ''
-					: `${ incomplete.completed } out of ${ incomplete.total }`;
+					: sprintf(
+							/* translators: %1$d is the number of completed items, %2$d is the total number of items */
+							__( "You've optimized %1$d out of %2$d items! 🎉", 'jetpack' ),
+							incomplete.completed,
+							incomplete.total
+					  );
 
 			if ( incompleteString ) {
+				const teaseCompletion = __(
+					'Your post is looking great! Come back anytime to complete the rest.',
+					'jetpack'
+				);
 				addMessage( {
 					content: createInterpolateElement(
-						`<strong>You've optimized ${ incompleteString } items! 🎉</strong><br />Your post is looking great! Come back anytime to complete the rest.`,
+						'<strong>' + incompleteString + '</strong><br />' + teaseCompletion,
 						{
 							strong: <strong />,
 							br: <br />,

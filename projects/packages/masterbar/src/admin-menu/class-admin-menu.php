@@ -479,6 +479,12 @@ class Admin_Menu extends Base_Admin_Menu {
 	public function wp_ajax_upsell_nudge_jitm() {
 		check_ajax_referer( 'upsell_nudge_jitm' );
 
+		// Filter to turn off all just in time messages
+		/** This action is already documented in \Automattic\Jetpack\JITMS\JITM */
+		if ( ! apply_filters( 'jetpack_just_in_time_msgs', true ) ) {
+			wp_die();
+		}
+
 		$nudge = $this->get_upsell_nudge();
 		if ( ! $nudge ) {
 			wp_die();
