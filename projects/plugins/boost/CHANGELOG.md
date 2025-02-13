@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.9.0-beta] - 2025-02-12
+### Added
+- Cloud CSS: Handle prioritized cloud CSS regeneration for cornerstone pages updates. [#41516]
+- Concatenate JS: Add compatibility with "Depay Payments for WooCommerce". [#41571]
+- Speed Scores: Add tracking for speed score pop-out CTA. [#41556]
+
+### Changed
+- Concatenate JS/CSS: Update concatenated assets to be stored on the server as files. [#41056]
+- Admin Panel: Cleanup CSS styles. [#41371]
+- Updated package dependencies. [#41286] [#41491] [#41577] [#41659]
+
+### Fixed
+- UI: Fix UI discrepancy in Boost settings page upon toggling multiple Modules at same time. [#41472]
+
 ## [3.8.0] - 2025-01-23
 ### Added
 - Critical CSS: Flag a site-health issue for Critical CSS when a page from the Cornerstone Pages list is modified. [#41006]
@@ -583,6 +597,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[3.9.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/3.8.0...3.9.0-beta
 [3.8.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.7.0...3.8.0
 [3.7.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.6.1...3.7.0
 [3.6.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.6.0...3.6.1
