@@ -174,32 +174,6 @@ register_activation_hook( __FILE__, array( 'Automattic\Jetpack_Boost\Jetpack_Boo
 // Redirect to plugin page when the plugin is activated.
 add_action( 'activated_plugin', __NAMESPACE__ . '\jetpack_boost_plugin_activation' );
 
-function jetpack_boost_upgrade_handler( $upgrader_object, $hook_extra ) {
-	if ( 'plugin' !== $hook_extra['type'] ) {
-		return;
-	}
-
-	if ( 'update' !== $hook_extra['action'] ) {
-		return;
-	}
-
-	if ( empty( $hook_extra['plugins'] ) ) {
-		return;
-	}
-
-	if ( ! in_array( JETPACK_BOOST_PLUGIN_BASE, $hook_extra['plugins'], true ) ) {
-		return;
-	}
-
-	if ( ! jetpack_boost_minify_is_enabled() ) {
-		return;
-	}
-
-	jetpack_boost_minify_activation();
-}
-
-add_action( 'upgrader_process_complete', __NAMESPACE__ . '\jetpack_boost_upgrade_handler', 10, 2 );
-
 /**
  * Redirects to plugin page when the plugin is activated
  *
