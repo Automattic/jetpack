@@ -8,7 +8,7 @@ import { OptionsInput, TextInput, CompletionInput } from './wizard-input';
 import WizardStep from './wizard-step';
 import type { Step, OptionMessage } from './types';
 
-const debug = debugFactory( 'jetpack-seo:assistant-wizard' );
+const debug = debugFactory( 'assistant-wizard-chat' );
 
 export default function AssistantWizard( { close, steps, assistantName } ) {
 	const [ currentStep, setCurrentStep ] = useState( 0 );
@@ -47,7 +47,6 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 	}, [ currentStepData, assistantFlowAction, steps, currentStep, results ] );
 
 	const handleNext = useCallback( () => {
-		debug( 'handleNext, stepsCount', stepsCount );
 		let nextStep: number;
 
 		steps[ currentStep ].resetState?.();
@@ -88,7 +87,6 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 	// Reset states and close the wizard
 	const handleDone = useCallback(
 		( isCloseButton = false ) => {
-			debug( isCloseButton );
 			const completion =
 				steps.reduce( ( acc, step ) => {
 					if ( step.includeInResults && results[ step.id ]?.value ) {
@@ -156,6 +154,7 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 	const handleSkip = useCallback( async () => {
 		setIsBusy( true );
 		setAssistantFlowAction( 'skip' );
+		debug( 'skipping step', currentStep );
 		await steps[ currentStep ]?.onSkip?.();
 		const step = steps[ currentStep ];
 		if ( ! results[ step.id ] && step.includeInResults ) {
@@ -174,10 +173,8 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 			assistant_name: assistantName,
 		} );
 		if ( steps[ currentStep ]?.type === 'completion' ) {
-			debug( 'completion step, closing wizard' );
 			handleDone();
 		} else {
-			debug( 'step type', steps[ currentStep ]?.type );
 			handleNext();
 		}
 	}, [ currentStep, steps, handleNext, results, handleDone, tracks, assistantName ] );
@@ -215,12 +212,10 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 			assistant_name: assistantName,
 		} );
 
-		debug( 'step type', steps[ currentStep ]?.type );
 		handleNext();
 	}, [ currentStep, handleDone, handleNext, steps, tracks, handleSkip, assistantName ] );
 
 	const handleRetry = useCallback( async () => {
-		debug( 'handleRetry' );
 		tracks.recordEvent( 'assistant_wizard_chat_step_retry', {
 			step: steps[ currentStep ]?.id,
 			assistant_name: assistantName,
