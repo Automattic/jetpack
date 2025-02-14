@@ -5,7 +5,12 @@ import {
 	BlockControls,
 	useBlockProps,
 } from '@wordpress/block-editor';
-import { PanelBody, ToggleControl } from '@wordpress/components';
+import {
+	PanelBody,
+	ToggleControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToolsPanelItem as ToolsPanelItem,
+} from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
@@ -69,6 +74,20 @@ function JetpackFieldCheckbox( props ) {
 						/>
 					</PanelBody>
 				</InspectorControls>
+				<InspectorControls group="dimensions">
+					<ToolsPanelItem
+						hasValue={ () => !! width }
+						label={ __( 'Width', 'jetpack-forms' ) }
+						onDeselect={ () =>
+							setAttributes( {
+								width: undefined,
+							} )
+						}
+						isShownByDefault
+					>
+						<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
+					</ToolsPanelItem>
+				</InspectorControls>
 				<InspectorControls>
 					<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
 						<JetpackManageResponsesSettings isChildBlock />
@@ -81,8 +100,6 @@ function JetpackFieldCheckbox( props ) {
 							help={ __( 'You can edit the "required" label in the editor', 'jetpack-forms' ) }
 							__nextHasNoMarginBottom={ true }
 						/>
-						<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
-
 						<ToggleControl
 							label={ __( 'Sync fields style', 'jetpack-forms' ) }
 							checked={ attributes.shareFieldAttributes }

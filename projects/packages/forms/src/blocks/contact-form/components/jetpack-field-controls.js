@@ -12,6 +12,8 @@ import {
 	TextControl,
 	ToggleControl,
 	RangeControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToolsPanelItem as ToolsPanelItem,
 } from '@wordpress/components';
 import { isValidElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -128,7 +130,6 @@ const JetpackFieldControls = ( {
 				__next40pxDefaultSize={ true }
 			/>
 		),
-		<JetpackFieldWidth key="width" setAttributes={ setAttributes } width={ width } />,
 		<ToggleControl
 			key="shareFieldAttributes"
 			label={ __( 'Sync fields style', 'jetpack-forms' ) }
@@ -163,7 +164,20 @@ const JetpackFieldControls = ( {
 					onClick={ () => setAttributes( { required: ! required } ) }
 				/>
 			</BlockControls>
-
+			<InspectorControls group="dimensions">
+				<ToolsPanelItem
+					hasValue={ () => !! width }
+					label={ __( 'Width', 'jetpack-forms' ) }
+					onDeselect={ () =>
+						setAttributes( {
+							width: undefined,
+						} )
+					}
+					isShownByDefault
+				>
+					<JetpackFieldWidth key="width" setAttributes={ setAttributes } width={ width } />
+				</ToolsPanelItem>
+			</InspectorControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
 					<JetpackManageResponsesSettings isChildBlock />
