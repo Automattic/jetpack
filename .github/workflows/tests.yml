@@ -309,6 +309,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Get token
+        id: get_token
+        if: github.event_name == 'pull_request'
+        uses: ./.github/actions/gh-app-token
+        with:
+          app_id: ${{ secrets.JP_LAUNCH_CONTROL_ID }}
+          private_key: ${{ secrets.JP_LAUNCH_CONTROL_KEY }}
+
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
@@ -324,7 +332,7 @@ jobs:
           SECRET: ${{ secrets.CODECOV_SECRET }}
           STATUS: ${{ needs.run-tests.outputs.coverage-status }}
           PR_HEAD: ${{ github.event.pull_request.head.sha }}
-          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+          POST_MESSAGE_TOKEN: ${{ steps.get_token.outputs.token }}
         run: .github/files/coverage-munger/upload-coverage.sh
 
   storybook-test:

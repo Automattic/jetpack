@@ -181,7 +181,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $message The error message to display on the form.
 	 */
 	public function add_error( $message ) {
-		$this->is_error = true;
+		$this->error = true;
 
 		if ( ! is_wp_error( $this->form->errors ) ) {
 			$this->form->errors = new \WP_Error();
@@ -247,6 +247,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				if ( empty( $field_value ) ) {
 					/* translators: %s is the name of a form field */
 					$this->add_error( sprintf( __( '%s requires at least one selection', 'jetpack-forms' ), $field_label ) );
+				}
+				break;
+			case 'number':
+				// Make sure the number address is valid
+				if ( ! is_numeric( $field_value ) ) {
+					/* translators: %s is the name of a form field */
+					$this->add_error( sprintf( __( '%s requires a number', 'jetpack-forms' ), $field_label ) );
 				}
 				break;
 			default:
@@ -911,6 +918,25 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Return the HTML for the number field.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 * @param string $placeholder - the field placeholder content.
+	 *
+	 * @return string HTML
+	 */
+	public function render_number_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+		$field  = $this->render_label( 'number', $id, $label, $required, $required_field_text );
+		$field .= $this->render_input_field( 'number', $id, $value, $class, $placeholder, $required );
+		return $field;
+	}
+
+	/**
 	 * Return the HTML for the file field.
 	 *
 	 * @param string $id - the ID.
@@ -922,7 +948,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	private function render_file_field( $id, $label, $class, $required, $required_field_text ) {
-
+		add_filter( 'jetpack_form_attributes', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'add_enctype_multipart_attribute' ) );
 		Assets::register_script(
 			'jetpack-form-file-field',
 			'../../dist/contact-form/js/file-field.js',
@@ -1194,6 +1220,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				break;
 			case 'consent':
 				$field .= $this->render_consent_field( $id, $field_class );
+				break;
+			case 'number':
+				$field .= $this->render_number_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
 				break;
 			case 'file':
 				$field .= $this->render_file_field( $id, $label, $field_class, $required, $required_field_text );

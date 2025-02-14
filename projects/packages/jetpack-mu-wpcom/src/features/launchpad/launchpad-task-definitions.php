@@ -26,6 +26,15 @@ function wpcom_launchpad_should_use_wp_admin_link() {
  * @return Task[]
  */
 function wpcom_launchpad_get_task_definitions() {
+	$experiment_name                   = 'calypso_signup_onboarding_goals_first_flow_holdout_v2_20250131';
+	$user                              = wp_get_current_user();
+	$is_user_in_goals_first_experiment = false;
+
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && $user && $user->exists() && function_exists( '\ExPlat\get_user_assignment' ) ) {
+		$assignment                        = \ExPlat\get_user_assignment( $experiment_name, $user );
+		$is_user_in_goals_first_experiment = 'treatment_cumulative' === $assignment;
+	}
+
 	$task_definitions = array(
 		// Core tasks.
 		'design_edited'                   => array(
@@ -50,13 +59,14 @@ function wpcom_launchpad_get_task_definitions() {
 				$flow = get_option( 'site_intent' );
 				return '/setup/update-design/designSetup?siteSlug=' . $data['site_slug_encoded'] . '&flow=' . $flow;
 			},
+			'is_disabled_callback' => $is_user_in_goals_first_experiment ? '__return_true' : '__return_false',
 		),
 		'design_selected'                 => array(
 			'get_title'            => function () {
 				return __( 'Select a design', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => '__return_true',
-			'is_disabled_callback' => 'wpcom_launchpad_is_design_step_enabled',
+			'is_disabled_callback' => $is_user_in_goals_first_experiment ? '__return_true' : 'wpcom_launchpad_is_design_step_enabled',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/setup/update-design/designSetup?siteSlug=' . $data['site_slug_encoded'];
 			},
@@ -618,7 +628,7 @@ function wpcom_launchpad_get_task_definitions() {
 				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
 					return admin_url( 'themes.php' );
 				}
-				return '/themes/' . $data['site_slug_encoded'];
+				return '/themes/' . $data['site_slug_encoded'] . '#theme-selected';
 			},
 		),
 		'install_custom_plugin'           => array(
@@ -630,7 +640,7 @@ function wpcom_launchpad_get_task_definitions() {
 				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
 					return admin_url( 'plugins.php' );
 				}
-				return '/plugins/' . $data['site_slug_encoded'];
+				return '/plugins/' . $data['site_slug_encoded'] . '#install-plugin';
 			},
 		),
 		'setup_ssh'                       => array(
@@ -648,7 +658,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/site-monitoring/' . $data['site_slug_encoded'];
+				return '/site-monitoring/' . $data['site_slug_encoded'] . '#site-monitoring';
 			},
 		),
 		'import_subscribers'              => array(

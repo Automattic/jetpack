@@ -1,5 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getJetpackAdminPageUrl } from '@automattic/jetpack-script-data';
+import { getSocialAdminPageUrl } from '@automattic/jetpack-publicize-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody, Button, ExternalLink } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
@@ -37,11 +37,7 @@ export const PublicizePlaceholder = () => {
 					'jetpack'
 				) }
 			</p>
-			<Button
-				onClick={ enablePublicizeModule }
-				variant="link"
-				href={ getJetpackAdminPageUrl( '#/settings?term=publicize' ) }
-			>
+			<Button onClick={ enablePublicizeModule } variant="link" href={ getSocialAdminPageUrl() }>
 				{ __( 'Activate Jetpack Social', 'jetpack' ) }
 			</Button>
 			<div className="components-placeholder__learn-more">
