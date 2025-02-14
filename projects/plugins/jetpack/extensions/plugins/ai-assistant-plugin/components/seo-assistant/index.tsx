@@ -20,7 +20,10 @@ export default function SeoAssistant( { disabled, placement } ) {
 	const { tracks } = useAnalytics();
 
 	const handleOpen = useCallback( () => {
-		tracks.recordEvent( 'jetpack_seo_assistant_open', { placement } );
+		tracks.recordEvent( 'jetpack_wizard_chat_open', {
+			placement,
+			assistant_name: 'seo-assistant',
+		} );
 		setIsOpen( true );
 	}, [ placement, tracks ] );
 	const handleClose = useCallback( () => setIsOpen( false ), [] );

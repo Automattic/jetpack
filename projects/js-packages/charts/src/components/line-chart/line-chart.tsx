@@ -8,8 +8,9 @@ import {
 	Tooltip,
 	buildChartTheme,
 } from '@visx/xychart';
+import { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import clsx from 'clsx';
-import { FC, useMemo } from 'react';
+import { FC, ReactNode, useMemo } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { withResponsive } from '../shared/with-responsive';
@@ -19,27 +20,23 @@ import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	withGradientFill: boolean;
 	smoothing?: boolean;
+	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 }
-
-type TooltipData = {
-	date: Date;
-	[ key: string ]: number | Date;
-};
 
 type TooltipDatum = {
 	key: string;
 	value: number;
 };
 
-const renderTooltip = ( {
+const renderDefaultTooltip = ( {
 	tooltipData,
 }: {
 	tooltipData?: {
 		nearestDatum?: {
-			datum: TooltipData;
+			datum: DataPointDate;
 			key: string;
 		};
-		datumByKey?: { [ key: string ]: { datum: TooltipData } };
+		datumByKey?: { [ key: string ]: { datum: DataPointDate } };
 	};
 } ) => {
 	const nearestDatum = tooltipData?.nearestDatum?.datum;
@@ -55,7 +52,7 @@ const renderTooltip = ( {
 	return (
 		<div className={ styles[ 'line-chart__tooltip' ] }>
 			<div className={ styles[ 'line-chart__tooltip-date' ] }>
-				{ nearestDatum.date.toLocaleDateString() }
+				{ nearestDatum.date?.toLocaleDateString() }
 			</div>
 			{ tooltipPoints.map( point => (
 				<div key={ point.key } className={ styles[ 'line-chart__tooltip-row' ] }>
@@ -103,6 +100,7 @@ const LineChart: FC< LineChartProps > = ( {
 	legendOrientation = 'horizontal',
 	withGradientFill = false,
 	smoothing = true,
+	renderTooltip = renderDefaultTooltip,
 	options = {},
 } ) => {
 	const providerTheme = useChartTheme();
@@ -143,8 +141,8 @@ const LineChart: FC< LineChartProps > = ( {
 	} ) );
 
 	const accessors = {
-		xAccessor: ( d: DataPointDate ) => d.date,
-		yAccessor: ( d: DataPointDate ) => d.value,
+		xAccessor: ( d: DataPointDate ) => d?.date,
+		yAccessor: ( d: DataPointDate ) => d?.value,
 	};
 
 	return (
