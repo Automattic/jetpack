@@ -49,6 +49,12 @@ class Password_Detection {
 			return $user;
 		}
 
+		// Skip if we're validating a Brute force protection recovery token
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['validate_jetpack_protect_recovery'] ) ) {
+			return $user;
+		}
+
 		if ( $this->validation_service->is_weak_password( $password ) ) {
 			$transient = $this->generate_and_store_transient_data( $user->ID );
 
@@ -205,6 +211,11 @@ class Password_Detection {
 				<div class="password-detection">
 					<?php require plugin_dir_path( __FILE__ ) . '/assets/jetpack-logo.svg'; ?>
 					<p class="password-detection-title"><?php esc_html_e( 'Verify your identity', 'jetpack-account-protection' ); ?></p>
+						<?php if ( $error_message ) : ?>
+							<div class="error notice-wrapper">
+								<p class="notice-message"><?php echo esc_html( $error_message ); ?></p>
+							</div>
+						<?php endif; ?>
 						<p><?php esc_html_e( 'We\'ve noticed that your current password may have been compromised in a public leak. To keep your account safe, we\'ve added an extra layer of security.', 'jetpack-account-protection' ); ?></p>
 						<p>
 							<?php
@@ -239,9 +250,6 @@ class Password_Detection {
 								<?php esc_html_e( 'Resend email', 'jetpack-account-protection' ); ?>
 							</a>
 						</p>
-						<?php if ( $error_message ) : ?>
-							<p class="error-message"><?php echo esc_html( $error_message ); ?></p>
-						<?php endif; ?>
 				</div>
 				<?php wp_footer(); ?>
 			</body>
