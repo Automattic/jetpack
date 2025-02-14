@@ -43,20 +43,30 @@
 
 	.jetpack-contact-form,
 	[class*="wp-block-jetpack-field-option"] {
+		// In a constrained layout, the blocks take up a 'content size' that's defined by the theme or user.
+		// Blocks are centered using `margin: auto;`.
+		// The percentage widths need to be multiplied by the content size and additional right margin is used to keep
+		// the blocks aligned to the left of the container.
+		// Field block currently don't support alignment, so only the default 'left' alignment is supported.
+		// TODO: consider RTL.
 		&.is-layout-constrained > * {
 			&.jetpack-field__width-25 {
 				max-width: calc(var(--wp--style--global--content-size) * 0.25);
+				margin-right: calc(50% + (var(--wp--style--global--content-size) * 0.25)) !important;
 			}
 
 			&.jetpack-field__width-50 {
 				max-width: calc(var(--wp--style--global--content-size) * 0.5);
+				margin-right: 50% !important;
 			}
 
 			&.jetpack-field__width-75 {
 				max-width: calc(var(--wp--style--global--content-size) * 0.75);
+				margin-right: calc(50% - (var(--wp--style--global--content-size) * 0.25)) !important;
 			}
 		}
 
+		// In a flow layout, the blocks take up the full size of the container, so simple percentage widths work.
 		&.is-layout-flow > * {
 			&.jetpack-field__width-25 {
 				max-width: 25%;
@@ -71,8 +81,9 @@
 			}
 		}
 
-		// Only apply the form's own layout rules when WordPress core's layout is not set on
-		// the parent block.
+		// When there's no layout set on the parent block, use the form's own layout rules.
+		// This is a flexbox 'row' layout where the fields are usually 100% width and wrap
+		// to the next line.
 		&:not(.is-layout-constrained, .is-layout-flex, .is-layout-grid, .is-layout-flow)  {
 			display: flex;
 			flex-wrap: wrap;

@@ -288,25 +288,86 @@
 	position: relative;
 }
 
-.wp-block-jetpack-contact-form .grunion-field-width-25-wrap {
-	flex: 1 1 calc( 25% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
-	max-width: 25%;
+/*
+ * In a constrained layout, the blocks take up a 'content size' that's defined by the theme or user.
+ * Blocks are centered using `margin: auto;`.
+ * The percentage widths need to be multiplied by the content size and additional right margin is used to keep
+ * the blocks aligned to the left of the container.
+ * Field block currently don't support alignment, so only the default 'left' alignment is supported.
+ * TODO: consider RTL.
+ */
+ .wp-block-jetpack-contact-form .is-layout-constrained {
+	.grunion-field-width-25-wrap {
+		max-width: calc(var(--wp--style--global--content-size) * 0.25);
+		margin-right: calc(50% + (var(--wp--style--global--content-size) * 0.25)) !important;
+	}
+
+	.grunion-field-width-50-wrap {
+		max-width: calc(var(--wp--style--global--content-size) * 0.5);
+		margin-right: 50% !important;
+	}
+
+	.grunion-field-width-75-wrap {
+		max-width: calc(var(--wp--style--global--content-size) * 0.75);
+		margin-right: calc(50% - (var(--wp--style--global--content-size) * 0.25)) !important;
+	}
+
+	@media only screen and ( max-width: 480px ) {
+		.grunion-field-wrap {
+			max-width: unset;
+		}
+	}
 }
 
-.wp-block-jetpack-contact-form .grunion-field-width-50-wrap {
-	flex: 1 1 calc( 50% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
-	max-width: 50%;
+/*
+ * In a flow layout, the blocks take up the full size of the container, so simple percentage widths work.
+ */
+.wp-block-jetpack-contact-form .is-layout-flow {
+	.grunion-field-width-25-wrap {
+		max-width: 25%;
+	}
+
+	.grunion-field-width-50-wrap {
+		max-width: 50%;
+	}
+
+	.grunion-field-width-75-wrap {
+		max-width: 75%;
+	}
+
+	@media only screen and ( max-width: 480px ) {
+		.grunion-field-wrap {
+			max-width: unset;
+		}
+	}
 }
 
-.wp-block-jetpack-contact-form .grunion-field-width-75-wrap {
-	flex: 1 1 calc( 75% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
-	max-width: 75%;
-}
+/*
+ * When there's no layout set on the parent block, use the form's own layout rules.
+ * This is a flexbox 'row' layout where the fields are usually 100% width and wrap
+ * to the next line.
+ */
+.wp-block-jetpack-contact-form  :not(.is-layout-constrained, .is-layout-flow, .is-layout-flex, .is-layout-grid) {
+	.grunion-field-width-25-wrap {
+		flex: 1 1 calc( 25% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+		max-width: 25%;
+	}
 
-@media only screen and ( max-width: 480px ) {
-	.wp-block-jetpack-contact-form .grunion-field-wrap {
-		flex-basis: 100%;
-		max-width: none;
+	.grunion-field-width-50-wrap {
+		flex: 1 1 calc( 50% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+		max-width: 50%;
+	}
+
+	.grunion-field-width-75-wrap {
+		flex: 1 1 calc( 75% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+		max-width: 75%;
+	}
+
+	@media only screen and ( max-width: 480px ) {
+		.grunion-field-wrap {
+			flex-basis: 100%;
+			max-width: none;
+		}
 	}
 }
 
