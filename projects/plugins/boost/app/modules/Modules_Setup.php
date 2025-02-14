@@ -81,10 +81,14 @@ class Modules_Setup implements Has_Setup {
 		REST_API::register( $feature->get_always_available_endpoints() );
 	}
 
-	public function setup_data_sync() {
-		$this->init_data_sync();
-		foreach ( $this->available_modules as $module ) {
+	public function setup_data_sync( $modules ) {
+		foreach ( $modules as $module ) {
 			$this->register_data_sync( $module->feature );
+
+			$submodules = $module->get_available_submodules();
+			if ( ! empty( $submodules ) ) {
+				$this->setup_data_sync( $submodules );
+			}
 		}
 	}
 
@@ -146,15 +150,9 @@ class Modules_Setup implements Has_Setup {
 
 			Setup::add( $module->feature );
 
-			$submodules = $module->get_submodules();
-			if ( $submodules ) {
-				$submodules_instances = array();
-				foreach ( $submodules as $sub_module ) {
-					if ( $sub_module::is_available() ) {
-						$submodules_instances[] = new Module( new $sub_module() );
-					}
-				}
-				$this->init_modules( $submodules_instances );
+			$submodules = $module->get_available_submodules();
+			if ( ! empty( $submodules ) ) {
+				$this->init_modules( $submodules );
 			}
 
 			$this->register_endpoints( $module->feature );
@@ -169,7 +167,8 @@ class Modules_Setup implements Has_Setup {
 	 */
 	public function setup() {
 		// We need to setup data sync outside of plugins_loaded to prevent side effects on other classes that are loaded from other actions earlier.
-		$this->setup_data_sync();
+		$this->init_data_sync();
+		$this->setup_data_sync( $this->available_modules );
 		add_action( 'plugins_loaded', array( $this, 'load_modules' ) );
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'on_module_status_update' ), 10, 2 );
 	}
