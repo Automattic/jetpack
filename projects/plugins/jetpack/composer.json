@@ -60,7 +60,7 @@
 		"automattic/patchwork-redefine-exit": "@dev",
 		"automattic/phpunit-select-config": "@dev",
 		"johnkary/phpunit-speedtrap": "^4.0.0",
-		"yoast/phpunit-polyfills": "^1.1.1"
+		"yoast/phpunit-polyfills": "^3.0.0"
 	},
 	"scripts": {
 		"build-production": [
