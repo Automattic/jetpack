@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -13,6 +14,7 @@ import { isWpcom } from '../util';
 
 const GoogleDriveExport = ( { onExport } ) => {
 	const [ isConnected, setIsConnected ] = useState( config( 'gdriveConnection' ) );
+	const { tracks } = useAnalytics();
 
 	const pollForConnection = useCallback( () => {
 		const interval = setInterval( async () => {
@@ -50,6 +52,13 @@ const GoogleDriveExport = ( { onExport } ) => {
 				window.open( data.sheet_link, '_blank' );
 			} );
 	}, [ onExport ] );
+
+	const handleConnectClick = useCallback( () => {
+		tracks.recordEvent( 'jetpack_forms_upsell_clicked_googledrive', {
+			screen: 'form-submissions-inbox',
+		} );
+		pollForConnection();
+	}, [ tracks, pollForConnection ] );
 
 	const buttonClasses = clsx( 'button', 'export-button', 'export-gdrive', {
 		'button-primary': ! isWpcom(),
@@ -107,7 +116,7 @@ const GoogleDriveExport = ( { onExport } ) => {
 							className={ buttonClasses }
 							rel="noopener noreferrer"
 							target="_blank"
-							onClick={ pollForConnection }
+							onClick={ handleConnectClick }
 						>
 							{ __( 'Connect to Google Drive', 'jetpack-forms' ) }
 						</a>
