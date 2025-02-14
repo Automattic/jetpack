@@ -1,8 +1,10 @@
-import { Button, IconTooltip } from '@automattic/jetpack-components';
+import { Button, IconTooltip, Text } from '@automattic/jetpack-components';
 import { Panel, PanelBody } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import { useReducer } from 'react';
+import { store as socialStore } from '../../social-store';
 import ConnectionIcon from '../connection-icon';
 import { ConnectionName } from './connection-name';
 import { ConnectionStatus, ConnectionStatusProps } from './connection-status';
@@ -23,6 +25,11 @@ type ConnectionInfoProps = ConnectionStatusProps & {
  */
 export function ConnectionInfo( { connection, service, canMarkAsShared }: ConnectionInfoProps ) {
 	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, false );
+
+	const canManageConnection = useSelect(
+		select => select( socialStore ).canUserManageConnection( connection ),
+		[ connection ]
+	);
 
 	return (
 		<>
@@ -65,7 +72,16 @@ export function ConnectionInfo( { connection, service, canMarkAsShared }: Connec
 							</IconTooltip>
 						</div>
 					) }
-					<Disconnect connection={ connection } />
+					{ canManageConnection ? (
+						<Disconnect connection={ connection } />
+					) : (
+						<Text className={ styles.description }>
+							{ __(
+								'This connection is added by a site administrator.',
+								'jetpack-publicize-components'
+							) }
+						</Text>
+					) }
 				</PanelBody>
 			</Panel>
 		</>
