@@ -1,11 +1,11 @@
-import LegacyMinifyNotice from '$features/minify-legacy-notice/legacy-minify-notice';
+import MinifyLegacyNotice from '$features/minify-legacy-notice/minify-legacy-notice';
 import MinifyMeta from '$features/minify-meta/minify-meta';
 import Module from '$features/module/module';
-import { useStaticMinificationNotice } from '$lib/stores/static-minification';
+import { useShowMinifyLegacy } from '$lib/stores/minify';
 import { __ } from '@wordpress/i18n';
 
 const MinifyJs = () => {
-	const isStaticMinificationEnabled = useStaticMinificationNotice();
+	const showMinifyLegacy = useShowMinifyLegacy();
 
 	return (
 		<Module
@@ -19,14 +19,14 @@ const MinifyJs = () => {
 					) }
 				</p>
 			}
-			onEnable={ isStaticMinificationEnabled.refetch }
+			onEnable={ showMinifyLegacy.refetch }
 		>
 			<MinifyMeta
 				datasyncKey="minify_js_excludes"
 				buttonText={ __( 'Exclude JS handles', 'jetpack-boost' ) }
 				placeholder={ __( 'Comma separated list of JS handles to exclude', 'jetpack-boost' ) }
 			/>
-			{ ! isStaticMinificationEnabled?.data && <LegacyMinifyNotice /> }
+			{ showMinifyLegacy?.data && <MinifyLegacyNotice /> }
 		</Module>
 	);
 };

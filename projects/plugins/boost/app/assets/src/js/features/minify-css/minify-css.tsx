@@ -1,12 +1,12 @@
-import LegacyMinifyNotice from '$features/minify-legacy-notice/legacy-minify-notice';
+import MinifyLegacyNotice from '$features/minify-legacy-notice/minify-legacy-notice';
 import MinifyMeta from '$features/minify-meta/minify-meta';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
-import { useStaticMinificationNotice } from '$lib/stores/static-minification';
+import { useShowMinifyLegacy } from '$lib/stores/minify';
 import { __ } from '@wordpress/i18n';
 
 const MinifyCss = () => {
-	const isStaticMinificationEnabled = useStaticMinificationNotice();
+	const showMinifyLegacy = useShowMinifyLegacy();
 	const [ jsModule ] = useSingleModuleState( 'minify_js' );
 
 	return (
@@ -21,7 +21,7 @@ const MinifyCss = () => {
 					) }
 				</p>
 			}
-			onEnable={ isStaticMinificationEnabled.refetch }
+			onEnable={ showMinifyLegacy.refetch }
 		>
 			<MinifyMeta
 				datasyncKey="minify_css_excludes"
@@ -30,7 +30,7 @@ const MinifyCss = () => {
 			/>
 			{
 				// If the JS module is not active, show the legacy notice under the CSS notice
-				! jsModule?.active && ! isStaticMinificationEnabled?.data && <LegacyMinifyNotice />
+				! jsModule?.active && showMinifyLegacy?.data && <MinifyLegacyNotice />
 			}
 		</Module>
 	);

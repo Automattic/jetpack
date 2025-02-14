@@ -259,9 +259,15 @@ jetpack_boost_register_readonly_option(
 );
 
 jetpack_boost_register_readonly_option(
-	'static_minification',
+	'minify_legacy_notice',
 	function () {
-		return (bool) get_site_option( 'jetpack_boost_static_minification' );
+		// If the JETPACK_BOOST_DISABLE_404_TESTER is set and true, we don't need to show the legacy notice.
+		if ( defined( 'JETPACK_BOOST_DISABLE_404_TESTER' ) && JETPACK_BOOST_DISABLE_404_TESTER ) {
+			return false;
+		}
+
+		// Otherwise show it if the 404 tester determined it can't be used.
+		return ! (bool) get_site_option( 'jetpack_boost_static_minification' );
 	}
 );
 
@@ -352,14 +358,14 @@ jetpack_boost_register_option(
 	'dismissed_alerts',
 	Schema::as_assoc_array(
 		array(
-			'static_minification_notice'      => Schema::as_boolean(),
+			'legacy_minify_notice'            => Schema::as_boolean(),
 			'performance_history_fresh_start' => Schema::as_boolean(),
 			'score_increase'                  => Schema::as_boolean(),
 			'score_decrease'                  => Schema::as_boolean(),
 		)
 	)->fallback(
 		array(
-			'static_minification_notice'      => false,
+			'legacy_minify_notice'            => false,
 			'performance_history_fresh_start' => false,
 			'score_increase'                  => false,
 			'score_decrease'                  => false,
