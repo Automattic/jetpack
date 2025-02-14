@@ -321,7 +321,6 @@ export const PluginDocumentSettingPanelAiExcerpt = () => {
 	};
 
 	return (
-		// @ts-expect-error - TS1003: TypeScript is unhappy with it returning ReactNode rather than ReactElement.
 		<PostTypeSupportCheck supportKeys="excerpt">
 			<SettingPanel
 				className={ isBetaExtension( 'ai-content-lens' ) ? 'is-beta-extension inset-shadow' : '' }
