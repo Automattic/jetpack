@@ -949,10 +949,9 @@ abstract class Publicize_Base {
 				$enabled = apply_filters( 'publicize_checkbox_default', $enabled, $post_id, $service_name, $connection );
 
 				/**
-				 * If this is a global connection and this user doesn't have enough permissions to modify
-				 * those connections, don't let them change it.
+				 * If this is a shared connection and this user doesn't have enough permissions to modify.
 				 */
-				if ( ! $done && $connection['shared'] && ! current_user_can( $this->GLOBAL_CAP ) ) {
+				if ( ! $done && Connections::is_shared( $connection ) && ! current_user_can( $this->GLOBAL_CAP ) ) {
 					/**
 					 * Filters the checkboxes for global connections with non-prilvedged users.
 					 *
