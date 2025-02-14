@@ -49,6 +49,12 @@ class Password_Detection {
 			return $user;
 		}
 
+		// Skip if we're validating a Brute force protection recovery token
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['validate_jetpack_protect_recovery'] ) ) {
+			return $user;
+		}
+
 		if ( $this->validation_service->is_weak_password( $password ) ) {
 			$transient = $this->generate_and_store_transient_data( $user->ID );
 
@@ -476,15 +482,19 @@ class Password_Detection {
 	 * @return void
 	 */
 	public function enqueue_styles(): void {
+		global $pagenow;
+		if ( ! isset( $pagenow ) || $pagenow !== 'wp-login.php' ) {
+			return;
+		}
 		// No nonce verification necessary - reading only
 		// phpcs:disable WordPress.Security.NonceVerification
-		if ( ( isset( $GLOBALS['pagenow'] ) && $GLOBALS['pagenow'] === 'wp-login.php' ) && ( isset( $_GET['action'] ) && $_GET['action'] === 'password-detection' ) ) {
-				wp_enqueue_style(
-					'password-detection-styles',
-					plugin_dir_url( __FILE__ ) . 'css/password-detection.css',
-					array(),
-					Account_Protection::PACKAGE_VERSION
-				);
+		if ( isset( $_GET['action'] ) && $_GET['action'] === 'password-detection' ) {
+			wp_enqueue_style(
+				'password-detection-styles',
+				plugin_dir_url( __FILE__ ) . 'css/password-detection.css',
+				array(),
+				Account_Protection::PACKAGE_VERSION
+			);
 		}
 	}
 }
