@@ -520,15 +520,19 @@ class Password_Detection {
 	 * @return void
 	 */
 	public function enqueue_styles(): void {
+		global $pagenow;
+		if ( ! isset( $pagenow ) || $pagenow !== 'wp-login.php' ) {
+			return;
+		}
 		// No nonce verification necessary - reading only
 		// phpcs:disable WordPress.Security.NonceVerification
-		if ( ( isset( $GLOBALS['pagenow'] ) && $GLOBALS['pagenow'] === 'wp-login.php' ) && ( isset( $_GET['action'] ) && $_GET['action'] === 'password-detection' ) ) {
-				wp_enqueue_style(
-					'password-detection-styles',
-					plugin_dir_url( __FILE__ ) . 'css/password-detection.css',
-					array(),
-					Account_Protection::PACKAGE_VERSION
-				);
+		if ( isset( $_GET['action'] ) && $_GET['action'] === 'password-detection' ) {
+			wp_enqueue_style(
+				'password-detection-styles',
+				plugin_dir_url( __FILE__ ) . 'css/password-detection.css',
+				array(),
+				Account_Protection::PACKAGE_VERSION
+			);
 		}
 	}
 }

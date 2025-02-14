@@ -3,10 +3,12 @@
     x="0px"
     y="0px"
     height="32px"
+    viewBox='0 0 118 32'
     aria-labelledby="jetpack-logo"
     role="img"
 >
     <title>"Jetpack Logo"</title>
+    <circle cx="16" cy="16" r="12" fill="white"/>
     <path
         fill="#069e08"
         d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z"

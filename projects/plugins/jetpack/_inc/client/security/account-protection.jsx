@@ -25,7 +25,7 @@ const AccountProtectionComponent = class extends Component {
 					module={ this.props.getModule( 'account-protection' ) }
 					support={ {
 						text: __(
-							'Jetpack recommends enabling this feature. Please be mindful of the risks',
+							'Jetpack recommends enabling this feature. Please be mindful of the risks.',
 							'jetpack'
 						),
 						link: '#', // TODO: Update link once doc is avaiable
