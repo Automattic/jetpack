@@ -498,7 +498,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 	/**
 	 * Function that adds the enctype attribute to the form element attributes.
-	 * This is useful for addin the myultipart/form-data to the form HTML element.
+	 * This is useful for adding the multipart/form-data to the form HTML element tag.
 	 *
 	 * @param array $attributes - the attributes.
 	 */
