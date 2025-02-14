@@ -81,7 +81,7 @@ const validateData = ( data: SeriesData[] ) => {
 				isNaN( point.value as number ) ||
 				point.value === null ||
 				point.value === undefined ||
-				( isNaN( point.date?.getTime() ) && ! point.label )
+				isNaN( point.date.getTime() )
 		)
 	);
 
