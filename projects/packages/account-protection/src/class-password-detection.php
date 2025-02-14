@@ -108,6 +108,10 @@ class Password_Detection {
 			$new_transient_token = $this->generate_and_store_transient_data( $user->ID, $auth_code );
 		}
 
+		// TODO: Add and handle API rate limiting hard limits, account recovery process...
+		// TODO: Consider implication of logging in and out without being able to reset
+		// TODO: Maybe a 10 limit per 10 minutes is reasonable?
+
 		return new \WP_Error(
 			Config::PASSWORD_DETECTION_ERROR_CODE,
 			__( 'Password validation failed.', 'jetpack-account-protection' ),
@@ -363,8 +367,8 @@ class Password_Detection {
 						<?php if ( $error_code === 'email_request_limit_exceeded' ) : ?>
 							<p class="account-recovery">
 								<!-- TODO: Add account recovery process, recovery token generation -->
-								<?php esc_html_e( 'If you are unable to recover your authentication code, and do not have access to your personal backup tokens. Please click here to proceed with account recovery.', 'jetpack-account-protection' ); ?>
-							</p>
+								<?php esc_html_e( 'If you did not receive your authentication code and do not have access to your recovery tokens, please contact support or click here to begin account recovery.', 'jetpack-account-protection' ); ?>
+								</p>
 						<?php else : ?>
 							<p class="email-status">
 								<span><?php esc_html_e( "Didn't get the code?", 'jetpack-account-protection' ); ?> </span>
