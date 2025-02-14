@@ -184,7 +184,6 @@ const LineChart: FC< LineChartProps > = ( {
 								/>
 							) }
 							<AnimatedAreaSeries
-								data-testid={ `line-series-${ index + 1 }` }
 								key={ seriesData?.label }
 								dataKey={ seriesData?.label }
 								data={ seriesData.data as DataPointDate[] }
