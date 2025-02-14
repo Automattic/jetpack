@@ -59,6 +59,11 @@
 		.jetpack-wizard-chat__header-actions {
 			width: 98px;
 			flex-shrink: 0;
+
+			&.header-actions--right {
+				display: flex;
+				justify-content: flex-end;
+			}
 		}
 	}
 

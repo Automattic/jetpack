@@ -112,7 +112,7 @@ export const useDescriptionStep = ( {
 	const handleDescriptionSubmit = useCallback( async () => {
 		setValue( selectedDescription );
 		await editPost( { meta: { advanced_seo_description: selectedDescription } } );
-		addMessage( { content: __( 'SEO description updated! ✅', 'jetpack' ) } );
+		addMessage( { content: __( 'Description updated! ✅', 'jetpack' ) } );
 		return selectedDescription;
 	}, [ selectedDescription, addMessage, editPost ] );
 
@@ -134,13 +134,13 @@ export const useDescriptionStep = ( {
 				const initialMessage = fromSkip
 					? {
 							content: createInterpolateElement(
-								__( "Skipped!<br />Now, let's optimize your SEO description.", 'jetpack' ),
+								__( "Skipped!<br />Now, let's optimize your description.", 'jetpack' ),
 								{ br: <br /> }
 							),
 							showIcon: true,
 					  }
 					: {
-							content: __( "Now, let's optimize your SEO description.", 'jetpack' ),
+							content: __( "Now, let's optimize your description.", 'jetpack' ),
 							showIcon: true,
 					  };
 
