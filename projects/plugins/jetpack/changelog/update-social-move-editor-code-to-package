@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Moved useUpgradeFlow hook to shared-extension-utils package

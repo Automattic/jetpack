@@ -1,7 +1,7 @@
+import { useUpgradeFlow } from '@automattic/jetpack-shared-extension-utils';
 import { Nudge } from '@automattic/jetpack-shared-extension-utils/components';
 import { useSelect } from '@wordpress/data';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import useUpgradeFlow from '../../shared/use-upgrade-flow/index';
 
 export const UPGRADE_NUDGE_TITLE = __( 'Premium Block', 'jetpack' );
 

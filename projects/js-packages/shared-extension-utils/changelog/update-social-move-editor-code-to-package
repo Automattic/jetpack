@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Moved useUpgradeFlow from Jetpack plugin to the package

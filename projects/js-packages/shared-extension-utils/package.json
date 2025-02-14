@@ -29,6 +29,7 @@
 		"@wordpress/compose": "7.17.0",
 		"@wordpress/data": "10.17.0",
 		"@wordpress/element": "6.17.0",
+		"@wordpress/hooks": "4.17.0",
 		"@wordpress/i18n": "5.17.0",
 		"@wordpress/plugins": "7.17.0",
 		"@wordpress/url": "4.17.0",

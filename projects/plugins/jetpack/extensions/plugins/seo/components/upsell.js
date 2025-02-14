@@ -1,10 +1,9 @@
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { useAnalytics, useUpgradeFlow } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
 import clsx from 'clsx';
-import useUpgradeFlow from '../../../shared/use-upgrade-flow';
 import './upsell.scss';
 
 const UpsellNotice = ( { requiredPlan } ) => {

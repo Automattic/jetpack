@@ -6,6 +6,7 @@ import {
 	isAtomicSite,
 	isSimpleSite,
 	getRequiredPlan,
+	useUpgradeFlow,
 } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -13,7 +14,6 @@ import { store as editorStore } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
 import clsx from 'clsx';
-import useUpgradeFlow from '../../../../shared/use-upgrade-flow';
 
 const getDescriptions = () => ( {
 	start: __( 'Start sharing your posts by connecting your social media accounts.', 'jetpack' ),

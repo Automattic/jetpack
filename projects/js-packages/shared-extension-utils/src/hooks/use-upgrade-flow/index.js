@@ -1,10 +1,19 @@
-import { getUpgradeUrl, useAutosaveAndRedirect } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
 import { doAction, hasAction } from '@wordpress/hooks';
-import { noop } from 'lodash';
+import { getUpgradeUrl } from '../../plan-utils';
+import useAutosaveAndRedirect from '../use-autosave-and-redirect';
+
+const noop = () => {};
 
 const HOOK_OPEN_CHECKOUT_MODAL = 'a8c.wpcom-block-editor.openCheckoutModal';
 
+/**
+ * Use this hook when you need to implement a component that leads the user to the checkout page.
+ * @param {string}   planSlug   - The plan slug to upgrade to.
+ * @param {Function} onRedirect - A callback function to be called when the user is redirected to the checkout page.
+ *
+ * @return {Array} - An array with the following elements:
+ */
 export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 	const { checkoutUrl, planData } = useSelect(
 		select => {

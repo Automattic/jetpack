@@ -8,7 +8,7 @@ Use this hook when you need to implement a component that leads the user to the 
 /**
  * Internal dependencies
  */
-import useUpgradeFlow from '../../shared/use-upgrade-flow/index';
+import { useUpgradeFlow } from '@automattic/jetpack-shared-extension-utils';
 
 const myUPgradeComponent = () => {
 	const [ checkoutUrl, goToCheckoutPage, isRedirecting ] = useUpgradeFlow( 'business-bundle' );
