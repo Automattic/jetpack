@@ -2,7 +2,7 @@ import { Alert } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement, useCallback, useId, useState } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { store } from '../../social-store';
 import { SupportedService } from '../services/use-supported-services';
@@ -29,9 +29,13 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 			const username = value.replace( '.bsky.social', '' );
 			if ( username.includes( '.' ) ) {
 				setHandleError(
-					__(
-						'Bluesky usernames cannot contain dots. If you are using a custom domain, enter it without .bsky.social',
-						'jetpack-publicize-components'
+					sprintf(
+						/* translators: %s is the handle suffix like .bsky.social */
+						__(
+							'Bluesky usernames cannot contain dots. If you are using a custom domain, enter it without "%s"',
+							'jetpack-publicize-components'
+						),
+						'.bsky.social'
 					)
 				);
 				return false;
@@ -116,16 +120,28 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 						className={ clsx( 'description', handleError && styles[ 'error-text' ] ) }
 						id={ `${ id }-handle-description` }
 					>
-						{ handleError ||
-							createInterpolateElement(
-								__(
-									'You can find the handle in your Bluesky profile. This will be either <strong>username.bsky.social</strong> or just the domain name if you are using a custom domain.',
+						{ handleError || (
+							<>
+								{ __(
+									'You can find the handle in your Bluesky profile.',
 									'jetpack-publicize-components'
-								),
-								{
-									strong: <strong />,
-								}
-							) }
+								) }
+								&nbsp;
+								{ createInterpolateElement(
+									sprintf(
+										/* translators: %s is the bluesky handle suffix like .bsky.social */
+										__(
+											'This can either be %s or just the domain name if you are using a custom domain.',
+											'jetpack-publicize-components'
+										),
+										'<strong>username.bsky.social</strong>'
+									),
+									{
+										strong: <strong />,
+									}
+								) }
+							</>
+						) }
 					</p>
 				</div>
 				<div className={ styles[ 'fields-item' ] }>
