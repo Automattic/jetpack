@@ -55,9 +55,6 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 	 * @return true|WP_Error True if the request has permission, WP_Error object otherwise.
 	 */
 	public function permissions_check() {
-		l('hola');
-		l($_REQUEST);
-		l($_FILES);
 		// For non-WPCOM sites, require Jetpack connection
 		if ( ! ( new Host() )->is_wpcom_simple() && ! ( new Manager() )->is_connected() ) {
 			return new WP_Error(
@@ -77,29 +74,17 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function handle_upload( $request ) {
-		error_log( 'DEBUG Jetpack Forms Upload - Request received' );
-		error_log( 'DEBUG Jetpack Forms Upload - Files: ' . print_r( $_FILES, true ) );
-		error_log( 'DEBUG Jetpack Forms Upload - POST: ' . print_r( $_POST, true ) );
-		error_log( 'DEBUG Jetpack Forms Upload - Request params: ' . print_r( $request->get_params(), true ) );
-		error_log( 'DEBUG Jetpack Forms Upload - Request files: ' . print_r( $request->get_file_params(), true ) );
-		error_log( 'DEBUG Jetpack Forms Upload - Raw data: ' . print_r( $request->get_body(), true ) );
-		error_log( 'DEBUG Jetpack Forms Upload - Content Type: ' . $_SERVER['CONTENT_TYPE'] );
 
 		// Get the uploaded file
 		$files = $request->get_file_params();
-		error_log( 'DEBUG Jetpack Forms Upload - Files from request: ' . print_r( $files, true ) );
 
 		if ( empty( $files ) || empty( $files['file'] ) ) {
-			error_log( 'DEBUG Jetpack Forms Upload - No file found in request' );
 			return new WP_Error(
 				'rest_missing_callback_param',
 				__( 'No file was uploaded.', 'jetpack' ),
 				array( 'status' => 400 )
 			);
 		}
-
-		$file = $files['file'];
-		error_log( 'DEBUG Jetpack Forms Upload - Processing file: ' . print_r( $file, true ) );
 
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			// Direct handling on WPCOM
@@ -116,7 +101,6 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	private function process_upload() {
-		error_log( 'DEBUG Jetpack Forms Upload - Processing upload on WPCOM' );
 		// This method will only be called on WPCOM
 		// Implementation will include:
 		// 1. File validation
