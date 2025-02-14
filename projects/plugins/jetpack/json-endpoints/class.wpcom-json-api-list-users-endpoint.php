@@ -42,8 +42,8 @@ new WPCOM_JSON_API_List_Users_Endpoint(
 		),
 
 		'response_format'      => array(
-			'found'   => '(int) The total number of authors found that match the request (ignoring limits and offsets).',
-			'authors' => '(array:author) Array of author objects.',
+			'found' => '(int) The total number of authors found that match the request (ignoring limits and offsets).',
+			'users' => '(array:user) Array of user objects.',
 		),
 
 		'example_response'     => '{
@@ -171,102 +171,108 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$query['capability'] = $args['capability'];
 		}
 
-		$user_query = new WP_User_Query( $query );
-
 		remove_filter( 'user_search_columns', array( $this, 'api_user_override_search_columns' ) );
 
+		$response        = array();
+		$users           = array();
+		$viewers         = array();
 		$is_wpcom        = defined( 'IS_WPCOM' ) && IS_WPCOM;
 		$include_viewers = (bool) isset( $args['include_viewers'] ) && $args['include_viewers'] && $is_wpcom;
+		$is_multisite    = is_multisite();
+		$user_query      = new WP_User_Query( $query );
 
-		$page    = ( (int) ( $args['offset'] / $args['number'] ) ) + 1;
-		$viewers = $include_viewers ? get_private_blog_users(
-			$blog_id,
-			array(
-				'page'     => $page,
-				'per_page' => $args['number'],
-			)
-		) : array();
-		$viewers = array_map( array( $this, 'get_author' ), $viewers );
-
-		// When include_viewers is true, search by username or email.
-		if ( $include_viewers && ! empty( $args['search'] ) ) {
-			$viewers = array_filter(
-				$viewers,
-				function ( $viewer ) use ( $args ) {
-					// Convert to WP_User so expected fields are available.
-					$wp_viewer = new WP_User( $viewer->ID );
-					// remove special database search characters from search term
-					$search_term = str_replace( '*', '', $args['search'] );
-					return ( str_contains( $wp_viewer->user_login, $search_term ) || str_contains( $wp_viewer->user_email, $search_term ) || str_contains( $wp_viewer->display_name, $search_term ) );
+		// Get users.
+		foreach ( $user_query->get_results() as $u ) {
+			$the_user = $this->get_author( $u, true );
+			if ( $the_user && ! is_wp_error( $the_user ) ) {
+				$userdata        = get_userdata( $u );
+				$the_user->roles = ! is_wp_error( $userdata ) ? array_values( $userdata->roles ) : array();
+				if ( $is_multisite ) {
+					$the_user->is_super_admin = user_can( $the_user->ID, 'manage_network' );
 				}
-			);
+				$users[] = $the_user;
+			}
 		}
 
-		$return = array();
+		// Get viewers.
+		if ( $include_viewers ) {
+			$page    = ( (int) ( $args['offset'] / $args['number'] ) ) + 1;
+			$viewers = get_private_blog_users(
+				$blog_id,
+				array(
+					'page'     => $page,
+					'per_page' => $args['number'],
+				)
+			);
+
+			// Returns author object. See `WPCOM_JSON_API_Endpoint::get_author` in `class.json-api-endpoints.php`.
+			$viewers = array_map( array( $this, 'get_author' ), $viewers );
+
+			// Search by username or email.
+			if ( ! empty( $args['search'] ) ) {
+				$viewers = array_filter(
+					$viewers,
+					function ( $viewer ) use ( $args ) {
+						// Convert to WP_User so expected fields are available.
+						$wp_viewer = new WP_User( $viewer->ID );
+						// remove special database search characters from search term
+						$search_term = str_replace( '*', '', $args['search'] );
+						return ( str_contains( $wp_viewer->user_login, $search_term ) || str_contains( $wp_viewer->user_email, $search_term ) || str_contains( $wp_viewer->display_name, $search_term ) );
+					}
+				);
+			}
+
+			$viewer_ids     = array();
+			$unique_viewers = array();
+			// Create a lookup array of viewer IDs.
+			foreach ( $viewers as $viewer ) {
+				$viewer_ids[ $viewer->ID ] = true;
+				$viewer->roles[]           = 'viewer';
+			}
+
+			// Add viewer role to users who are also viewers.
+			foreach ( $users as $user ) {
+				if ( isset( $viewer_ids[ $user->ID ] ) && ! in_array( 'viewer', $user->roles, true ) ) {
+					$user->roles[] = 'viewer';
+					// Mark this user so we don't add them again.
+					$viewer_ids[ $user->ID ] = false;
+				}
+			}
+
+			// Add viewer role to viewers and remove duplicates.
+			foreach ( $viewers as $viewer ) {
+				if ( isset( $viewer_ids[ $viewer->ID ] ) && true === $viewer_ids[ $viewer->ID ] ) {
+					$viewer->roles[]  = 'viewer';
+					$unique_viewers[] = $viewer;
+				}
+			}
+
+			// Reassign the viewers array to the unique viewers array.
+			$viewers = $unique_viewers;
+		}
+
 		foreach ( array_keys( $this->response_format ) as $key ) {
 			switch ( $key ) {
 				case 'found':
 					$user_count = (int) $user_query->get_total();
-
-					$viewer_count = 0;
 					if ( $include_viewers ) {
-						if ( empty( $args['search'] ) ) {
-							$viewer_count = (int) get_count_private_blog_users( $blog_id );
-						} else {
-							$viewer_count = count( $viewers );
-						}
+						$viewer_count     = count( $viewers );
+						$response[ $key ] = $user_count + $viewer_count;
+					} else {
+						$response[ $key ] = $user_count;
 					}
-
-					$return[ $key ] = $user_count + $viewer_count;
 					break;
 				case 'users':
-					$users        = array();
-					$is_multisite = is_multisite();
-					foreach ( $user_query->get_results() as $u ) {
-						$the_user = $this->get_author( $u, true );
-						if ( $the_user && ! is_wp_error( $the_user ) ) {
-							$userdata        = get_userdata( $u );
-							$the_user->roles = ! is_wp_error( $userdata ) ? array_values( $userdata->roles ) : array();
-							if ( $is_multisite ) {
-								$the_user->is_super_admin = user_can( $the_user->ID, 'manage_network' );
-							}
-							$users[] = $the_user;
-						}
-					}
-
-					$combined_users = array_merge( $users, $viewers );
-
-					// When viewers are included, we ignore the order & orderby parameters.
 					if ( $include_viewers ) {
-						$viewer_ids     = array_map(
-							function ( $viewer ) {
-								return $viewer->ID;
-							},
-							$viewers
-						);
-						$combined_users = array_map(
-							function ( $user ) use ( $viewer_ids ) {
-								if ( in_array( $user->ID, $viewer_ids, true ) ) {
-									$user->roles[] = 'viewer';
-								}
-								return $user;
-							},
-							$combined_users
-						);
-						usort(
-							$combined_users,
-							function ( $a, $b ) {
-								return strcmp( strtolower( $a->name ), strtolower( $b->name ) );
-							}
-						);
+						$response[ $key ] = array_merge( $users, $viewers );
+					} else {
+						$response[ $key ] = $users;
 					}
-
-					$return[ $key ] = $combined_users;
 					break;
 			}
 		}
 
-		return $return;
+		return $response;
 	}
 
 	/**
