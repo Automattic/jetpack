@@ -40,6 +40,10 @@ export default function SeoAssistantWizard() {
 		[]
 	);
 
+	// Now here's a problem I didn't see coming: hooks can be called inside a loop/callback.
+	// Meaning, we can imageBlocks.map( block => useAltTexteStep( blabla ) ), we have to do it
+	// manually for each image block. Kinda sucks as it defeats the purpose of having dynamic steps.
+	// TODO: find a better way to do this.
 	const altTextStep1 = useAltTextStep( {
 		clientId: imageBlocks[ 1 ].clientId,
 		mockRequests: true,
