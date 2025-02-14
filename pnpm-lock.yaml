@@ -4,11 +4,11 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: 4dabxzjqxv2glgjc2d7l77h7ii
+pnpmfileChecksum: sha256-YBucKNrqNrqyaEid8sm3n8RLb+lu6lTJ8pFdXxWxqlU=
 
 patchedDependencies:
   '@wordpress/dataviews':
-    hash: uzs6glhpt3sq2uqjvqzk6vk2ze
+    hash: 9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1
     path: .pnpm-patches/@wordpress__dataviews@4.12.0.patch
 
 importers:
@@ -547,7 +547,7 @@ importers:
         version: 10.17.0(react@18.3.1)
       '@wordpress/dataviews':
         specifier: 4.13.0
-        version: 4.13.0(patch_hash=uzs6glhpt3sq2uqjvqzk6vk2ze)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 4.13.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/date':
         specifier: 5.17.0
         version: 5.17.0
@@ -1229,7 +1229,7 @@ importers:
         version: 10.17.0(react@18.3.1)
       '@wordpress/dataviews':
         specifier: 4.13.0
-        version: 4.13.0(patch_hash=uzs6glhpt3sq2uqjvqzk6vk2ze)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 4.13.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/date':
         specifier: 5.17.0
         version: 5.17.0
@@ -2457,13 +2457,6 @@ importers:
       webpack-cli:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.94.0)
-    optionalDependencies:
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
     devDependencies:
       '@automattic/color-studio':
         specifier: 4.0.0
@@ -2531,6 +2524,13 @@ importers:
       typescript:
         specifier: 5.0.4
         version: 5.0.4
+    optionalDependencies:
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
 
   projects/packages/google-analytics: {}
 
@@ -2646,13 +2646,6 @@ importers:
       wpcom-proxy-request:
         specifier: ^7.0.3
         version: 7.0.6
-    optionalDependencies:
-      react:
-        specifier: ^18.2.0
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.3.1(react@18.3.1)
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -2702,6 +2695,13 @@ importers:
       webpack-cli:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.94.0)
+    optionalDependencies:
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
 
   projects/packages/jitm:
     devDependencies:
@@ -2825,7 +2825,7 @@ importers:
         version: 10.17.0(react@18.3.1)
       '@wordpress/dataviews':
         specifier: 4.12.0
-        version: 4.12.0(patch_hash=uzs6glhpt3sq2uqjvqzk6vk2ze)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 4.12.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/date':
         specifier: 5.17.0
         version: 5.17.0
@@ -4359,13 +4359,6 @@ importers:
       webpack-cli:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.94.0)
-    optionalDependencies:
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
     devDependencies:
       '@automattic/color-studio':
         specifier: 4.0.0
@@ -4496,6 +4489,13 @@ importers:
       typescript:
         specifier: 5.0.4
         version: 5.0.4
+    optionalDependencies:
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
 
   projects/plugins/jetpack/tests/e2e:
     devDependencies:
@@ -20686,7 +20686,7 @@ snapshots:
       rememo: 4.0.2
       use-memo-one: 1.1.3(react@18.3.1)
 
-  '@wordpress/dataviews@4.12.0(patch_hash=uzs6glhpt3sq2uqjvqzk6vk2ze)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@wordpress/dataviews@4.12.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@ariakit/react': 0.4.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@babel/runtime': 7.25.7
@@ -20708,7 +20708,7 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@wordpress/dataviews@4.13.0(patch_hash=uzs6glhpt3sq2uqjvqzk6vk2ze)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@wordpress/dataviews@4.13.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@ariakit/react': 0.4.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@babel/runtime': 7.25.7
@@ -20730,7 +20730,7 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@wordpress/dataviews@4.13.0(patch_hash=uzs6glhpt3sq2uqjvqzk6vk2ze)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@wordpress/dataviews@4.13.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@ariakit/react': 0.4.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@babel/runtime': 7.25.7
@@ -20957,7 +20957,7 @@ snapshots:
       '@wordpress/compose': 7.17.0(react@18.3.1)
       '@wordpress/core-data': 7.17.0(@babel/core@7.26.0)(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(webpack@5.94.0)
       '@wordpress/data': 10.17.0(react@18.3.1)
-      '@wordpress/dataviews': 4.13.0(patch_hash=uzs6glhpt3sq2uqjvqzk6vk2ze)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/dataviews': 4.13.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/date': 5.17.0
       '@wordpress/deprecated': 4.17.0
       '@wordpress/dom': 4.17.0
@@ -21019,7 +21019,7 @@ snapshots:
       '@wordpress/compose': 7.17.0(react@18.3.1)
       '@wordpress/core-data': 7.17.0(@babel/core@7.26.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data': 10.17.0(react@18.3.1)
-      '@wordpress/dataviews': 4.13.0(patch_hash=uzs6glhpt3sq2uqjvqzk6vk2ze)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/dataviews': 4.13.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/date': 5.17.0
       '@wordpress/deprecated': 4.17.0
       '@wordpress/dom': 4.17.0
@@ -21081,7 +21081,7 @@ snapshots:
       '@wordpress/compose': 7.17.0(react@18.3.1)
       '@wordpress/core-data': 7.17.0(@babel/core@7.26.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(webpack@5.94.0)
       '@wordpress/data': 10.17.0(react@18.3.1)
-      '@wordpress/dataviews': 4.13.0(patch_hash=uzs6glhpt3sq2uqjvqzk6vk2ze)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/dataviews': 4.13.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/date': 5.17.0
       '@wordpress/deprecated': 4.17.0
       '@wordpress/dom': 4.17.0
@@ -21143,7 +21143,7 @@ snapshots:
       '@wordpress/compose': 7.17.0(react@18.3.1)
       '@wordpress/core-data': 7.17.0(@babel/core@7.26.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(webpack@5.94.0)
       '@wordpress/data': 10.17.0(react@18.3.1)
-      '@wordpress/dataviews': 4.13.0(patch_hash=uzs6glhpt3sq2uqjvqzk6vk2ze)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/dataviews': 4.13.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/date': 5.17.0
       '@wordpress/deprecated': 4.17.0
       '@wordpress/dom': 4.17.0
@@ -21205,7 +21205,7 @@ snapshots:
       '@wordpress/compose': 7.17.0(react@18.3.1)
       '@wordpress/core-data': 7.17.0(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data': 10.17.0(react@18.3.1)
-      '@wordpress/dataviews': 4.13.0(patch_hash=uzs6glhpt3sq2uqjvqzk6vk2ze)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/dataviews': 4.13.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/date': 5.17.0
       '@wordpress/deprecated': 4.17.0
       '@wordpress/dom': 4.17.0
@@ -21320,7 +21320,7 @@ snapshots:
       '@wordpress/compose': 7.17.0(react@18.3.1)
       '@wordpress/core-data': 7.17.0(@babel/core@7.26.0)(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(webpack@5.94.0)
       '@wordpress/data': 10.17.0(react@18.3.1)
-      '@wordpress/dataviews': 4.13.0(patch_hash=uzs6glhpt3sq2uqjvqzk6vk2ze)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/dataviews': 4.13.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/date': 5.17.0
       '@wordpress/element': 6.17.0
       '@wordpress/hooks': 4.17.0
@@ -21363,7 +21363,7 @@ snapshots:
       '@wordpress/compose': 7.17.0(react@18.3.1)
       '@wordpress/core-data': 7.17.0(@babel/core@7.26.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data': 10.17.0(react@18.3.1)
-      '@wordpress/dataviews': 4.13.0(patch_hash=uzs6glhpt3sq2uqjvqzk6vk2ze)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/dataviews': 4.13.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/date': 5.17.0
       '@wordpress/element': 6.17.0
       '@wordpress/hooks': 4.17.0
@@ -21406,7 +21406,7 @@ snapshots:
       '@wordpress/compose': 7.17.0(react@18.3.1)
       '@wordpress/core-data': 7.17.0(@babel/core@7.26.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(webpack@5.94.0)
       '@wordpress/data': 10.17.0(react@18.3.1)
-      '@wordpress/dataviews': 4.13.0(patch_hash=uzs6glhpt3sq2uqjvqzk6vk2ze)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/dataviews': 4.13.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/date': 5.17.0
       '@wordpress/element': 6.17.0
       '@wordpress/hooks': 4.17.0
@@ -21449,7 +21449,7 @@ snapshots:
       '@wordpress/compose': 7.17.0(react@18.3.1)
       '@wordpress/core-data': 7.17.0(@babel/core@7.26.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(webpack@5.94.0)
       '@wordpress/data': 10.17.0(react@18.3.1)
-      '@wordpress/dataviews': 4.13.0(patch_hash=uzs6glhpt3sq2uqjvqzk6vk2ze)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/dataviews': 4.13.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/date': 5.17.0
       '@wordpress/element': 6.17.0
       '@wordpress/hooks': 4.17.0
@@ -21492,7 +21492,7 @@ snapshots:
       '@wordpress/compose': 7.17.0(react@18.3.1)
       '@wordpress/core-data': 7.17.0(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data': 10.17.0(react@18.3.1)
-      '@wordpress/dataviews': 4.13.0(patch_hash=uzs6glhpt3sq2uqjvqzk6vk2ze)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/dataviews': 4.13.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/date': 5.17.0
       '@wordpress/element': 6.17.0
       '@wordpress/hooks': 4.17.0
