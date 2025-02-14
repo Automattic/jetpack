@@ -208,8 +208,8 @@ export const useTitleStep = ( {
 
 	return {
 		id: stepId,
-		title: __( 'Optimize Title', 'jetpack' ),
-		label: __( 'Title', 'jetpack' ),
+		title: __( 'Optimize SEO Title', 'jetpack' ),
+		label: __( 'SEO Title', 'jetpack' ),
 		messages,
 		type: 'options',
 		options: valueOptions,
