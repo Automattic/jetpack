@@ -50,9 +50,24 @@ class Password_Detection {
 		}
 
 		if ( $this->validation_service->is_weak_password( $password ) ) {
-			$transient = $this->generate_and_store_transient_data( $user->ID );
+			$existing_transient = null;
+			$email_send_error   = false;
+			$auth_code          = $this->email_service->generate_auth_code();
 
-			$email_sent = $this->email_service->api_send_auth_email( $user->ID, $transient['auth_code'] );
+			$existing_transient_token = get_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_last_valid_token_{$user->ID}" );
+			if ( $existing_transient_token ) {
+				$existing_transient = get_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$existing_transient_token}" );
+			}
+
+			if ( $existing_transient['resend_attempts'] >= Config::PASSWORD_DETECTION_MAX_RESEND_ATTEMPTS ) {
+				// TODO: If we have an existing transient enforce the resend limit here...
+				// This would mean we allow for 4 attempt per token...
+				// IT SHOULD BE POSSIBLE TO USE THE LAST TOKEN AUTH CODE HERE until it expires, but we should offer some sort of recovery process...
+
+				// Update to requests and include the initial send, ensure we are only counting on successes...
+			}
+
+			$email_sent = $this->email_service->api_send_auth_email( $user->ID, $auth_code );
 			if ( is_wp_error( $email_sent ) ) {
 				$this->set_transient_error(
 					$user->ID,
@@ -63,10 +78,28 @@ class Password_Detection {
 				);
 			}
 
+			if ( $existing_transient ) {
+				if ( ! $email_send_error ) {
+					$existing_transient['auth_code'] = $auth_code;
+					$set_existing_transient          = set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$existing_transient_token}", $existing_transient, Config::PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION );
+					if ( ! $set_existing_transient ) {
+						$this->set_transient_error(
+							$user->ID,
+							array(
+								'code'    => 'transient_error',
+								'message' => __( 'Failed to set transient data. Please try again.', 'jetpack-account-protection' ),
+							)
+						);
+					}
+				}
+			} else {
+				$new_transient_token = $this->generate_and_store_transient_data( $user->ID, $auth_code );
+			}
+
 			return new \WP_Error(
 				Config::PASSWORD_DETECTION_ERROR_CODE,
 				__( 'Password validation failed.', 'jetpack-account-protection' ),
-				array( 'token' => $transient['token'] )
+				array( 'token' => $existing_transient ? $existing_transient_token : $new_transient_token )
 			);
 		}
 
@@ -318,7 +351,11 @@ class Password_Detection {
 								<button class="action action-verify" type="submit" name="verify"><?php esc_html_e( 'Verify', 'jetpack-account-protection' ); ?></button>
 							</form>
 						</div>
-						<?php if ( ! in_array( $error_code, array( 'email_request_limit_exceeded', 'email_resend_limit_exceeded' ), true ) ) : ?>
+						<?php if ( $error_code === 'email_request_limit_exceeded' ) : ?>
+							<p class="account-recovery">
+								<?php esc_html_e( 'If you are unable to recover your authentication code, and do not have access to your personal backup tokens. Please click here to proceed with account recovery.', 'jetpack-account-protection' ); ?>
+							</p>
+						<?php else : ?>
 							<p class="email-status">
 								<span><?php esc_html_e( "Didn't get the code?", 'jetpack-account-protection' ); ?> </span>
 								<a class="resend-email-link" href="<?php echo esc_url( $this->get_redirect_url( $token ) . '&resend_email=1&_wpnonce=' . wp_create_nonce( 'resend_email_nonce' ) ); ?>">
@@ -355,12 +392,12 @@ class Password_Detection {
 	 * Generate and store a consolidated transient for the user.
 	 *
 	 * @param int $user_id The user ID.
+	 * @param int $auth_code The auth code.
 	 *
-	 * @return array An array of the generated token and auth code.
+	 * @return string The generated token associated with the new transient data.
 	 */
-	private function generate_and_store_transient_data( int $user_id ): array {
-		$token     = wp_generate_password( 32, false, false );
-		$auth_code = $this->email_service->generate_auth_code();
+	private function generate_and_store_transient_data( int $user_id, int $auth_code ): string {
+		$token = wp_generate_password( 32, false, false );
 
 		$data = array(
 			'user_id'         => $user_id,
@@ -368,8 +405,9 @@ class Password_Detection {
 			'resend_attempts' => 0,
 		);
 
-		$transient_set = set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$token}", $data, Config::PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION );
-		if ( ! $transient_set ) {
+		$set_token_transient = set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$token}", $data, Config::PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION );
+		$set_user_transient  = set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_last_valid_token_{$user_id}", $token, Config::PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION );
+		if ( ! $set_token_transient || ! $set_user_transient ) {
 			$this->set_transient_error(
 				$user_id,
 				array(
@@ -379,10 +417,7 @@ class Password_Detection {
 			);
 		}
 
-		return array(
-			'token'     => $token,
-			'auth_code' => $auth_code,
-		);
+		return $token;
 	}
 
 	/**
@@ -426,6 +461,7 @@ class Password_Detection {
 			);
 			// TODO: Ensure all transient are also removed on module and/or plugin deactivation
 			delete_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$token}" );
+			delete_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_last_valid_token_{$user->ID}" );
 			wp_set_auth_cookie( $user->ID, true );
 		} else {
 			$this->set_transient_error(

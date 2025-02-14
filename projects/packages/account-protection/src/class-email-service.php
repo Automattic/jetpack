@@ -101,7 +101,7 @@ class Email_Service {
 	 */
 	public function resend_auth_email( int $user_id, array $transient_data, string $token ) {
 		if ( $transient_data['resend_attempts'] >= Config::PASSWORD_DETECTION_MAX_RESEND_ATTEMPTS ) {
-			return new \WP_Error( 'email_resend_limit_exceeded', __( 'Email resend limit exceeded. Please try again later.', 'jetpack-account-protection' ) );
+			return new \WP_Error( 'email_request_limit_exceeded', __( 'Email request limit exceeded. Please try again later.', 'jetpack-account-protection' ) );
 		}
 
 		$auth_code                   = $this->generate_auth_code();
