@@ -10,7 +10,6 @@ use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Meta_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Mergeable_Array_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
-use Automattic\Jetpack_Boost\Data_Sync\Minify_Notice_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Regenerate_CSS;
@@ -259,10 +258,11 @@ jetpack_boost_register_readonly_option(
 	}
 );
 
-jetpack_boost_register_option(
-	'show_minify_notice',
-	Schema::as_boolean()->fallback( false ),
-	new Minify_Notice_Entry()
+jetpack_boost_register_readonly_option(
+	'static_minification',
+	function () {
+		return (bool) get_site_option( 'jetpack_boost_static_minification' );
+	}
 );
 
 jetpack_boost_register_option(
@@ -352,12 +352,14 @@ jetpack_boost_register_option(
 	'dismissed_alerts',
 	Schema::as_assoc_array(
 		array(
+			'static_minification_notice'      => Schema::as_boolean(),
 			'performance_history_fresh_start' => Schema::as_boolean(),
 			'score_increase'                  => Schema::as_boolean(),
 			'score_decrease'                  => Schema::as_boolean(),
 		)
 	)->fallback(
 		array(
+			'static_minification_notice'      => false,
 			'performance_history_fresh_start' => false,
 			'score_increase'                  => false,
 			'score_decrease'                  => false,

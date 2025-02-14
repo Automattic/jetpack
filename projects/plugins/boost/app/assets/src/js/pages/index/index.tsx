@@ -1,25 +1,25 @@
+import CornerstonePages from '$features/cornerstone-pages/cornerstone-pages';
+import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
 import CriticalCssMeta from '$features/critical-css/critical-css-meta/critical-css-meta';
+import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
+import { ImageCdnLiar, QualitySettings } from '$features/image-cdn';
+import { RecommendationsMeta } from '$features/image-size-analysis';
+import MinifyCss from '$features/minify-css/minify-css';
+import MinifyJs from '$features/minify-js/minify-js';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
+import PageCacheModule from '$features/page-cache/page-cache';
+import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
+import Pill from '$features/ui/pill/pill';
+import Upgraded from '$features/ui/upgraded/upgraded';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
+import { usePremiumFeatures } from '$lib/stores/premium-features';
+import { recordBoostEvent } from '$lib/utils/analytics';
 import { Notice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { usePremiumFeatures } from '$lib/stores/premium-features';
-import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
-import MinifyMeta from '$features/minify-meta/minify-meta';
-import { QualitySettings, ImageCdnLiar } from '$features/image-cdn';
-import styles from './index.module.scss';
-import { RecommendationsMeta } from '$features/image-size-analysis';
-import CornerstonePages from '$features/cornerstone-pages/cornerstone-pages';
-import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
-import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
-import Upgraded from '$features/ui/upgraded/upgraded';
-import PageCacheModule from '$features/page-cache/page-cache';
-import Pill from '$features/ui/pill/pill';
-import { recordBoostEvent } from '$lib/utils/analytics';
-import { useStaticMinificationNotice } from '$lib/stores/static-minification';
 import React from 'react';
+import styles from './index.module.scss';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -27,12 +27,6 @@ const Index = () => {
 
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
-	const [ jsModule ] = useSingleModuleState( 'minify_js' );
-	const {
-		data: isMinificationEnabled,
-		refetch: refetchStaticMinification,
-		isLoading: isStaticMinificationLoading,
-	} = useStaticMinificationNotice();
 	const regenerateCssAction = useRegenerateCriticalCssAction();
 
 	const requestRegenerateCriticalCss = () => {
@@ -48,18 +42,6 @@ const Index = () => {
 	const handleCriticalCssLink = () => {
 		recordBoostEvent( 'critical_css_link_clicked', {} );
 	};
-
-	const shouldShowMinificationNotice = () => {
-		return ! isStaticMinificationLoading && ! jsModule?.active && ! isMinificationEnabled;
-	};
-
-	const minificationWarningMessage = __(
-		'You are using the legacy cache delivery method for concatenated files. Learn more.',
-		'jetpack-boost'
-	);
-
-	// Add state for notice visibility
-	const [ isMinificationNoticeVisible, setMinificationNoticeVisible ] = React.useState( true );
 
 	return (
 		<div className="jb-container--narrow">
@@ -190,64 +172,8 @@ const Index = () => {
 					</p>
 				}
 			></Module>
-			<Module
-				slug="minify_js"
-				title={ __( 'Concatenate JS', 'jetpack-boost' ) }
-				description={
-					<p>
-						{ __(
-							'Scripts are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
-							'jetpack-boost'
-						) }
-					</p>
-				}
-				onEnable={ refetchStaticMinification }
-			>
-				<MinifyMeta
-					datasyncKey="minify_js_excludes"
-					buttonText={ __( 'Exclude JS handles', 'jetpack-boost' ) }
-					placeholder={ __( 'Comma separated list of JS handles to exclude', 'jetpack-boost' ) }
-				/>
-				{ ! isStaticMinificationLoading &&
-					! isMinificationEnabled &&
-					isMinificationNoticeVisible && (
-						<Notice
-							level="info"
-							hideCloseButton={ false }
-							onClose={ () => setMinificationNoticeVisible( false ) }
-						>
-							{ minificationWarningMessage }
-						</Notice>
-					) }
-			</Module>
-			<Module
-				slug="minify_css"
-				title={ __( 'Concatenate CSS', 'jetpack-boost' ) }
-				description={
-					<p>
-						{ __(
-							'Styles are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
-							'jetpack-boost'
-						) }
-					</p>
-				}
-				onEnable={ refetchStaticMinification }
-			>
-				<MinifyMeta
-					datasyncKey="minify_css_excludes"
-					buttonText={ __( 'Exclude CSS handles', 'jetpack-boost' ) }
-					placeholder={ __( 'Comma separated list of CSS handles to exclude', 'jetpack-boost' ) }
-				/>
-				{ isMinificationNoticeVisible && shouldShowMinificationNotice() && (
-					<Notice
-						level="info"
-						hideCloseButton={ false }
-						onClose={ () => setMinificationNoticeVisible( false ) }
-					>
-						{ minificationWarningMessage }
-					</Notice>
-				) }
-			</Module>
+			<MinifyJs />
+			<MinifyCss />
 			<Module
 				slug="image_cdn"
 				title={

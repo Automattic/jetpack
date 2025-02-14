@@ -57,7 +57,11 @@ export const usePerformanceHistoryPanelQuery = () => {
 	return [ data, mutate ] as const;
 };
 
-type AlertIds = 'performance_history_fresh_start' | 'score_increase' | 'score_decrease';
+type AlertIds =
+	| 'performance_history_fresh_start'
+	| 'score_increase'
+	| 'score_decrease'
+	| 'static_minification_notice';
 
 /**
  * A hook that handles permanent dismissals of alerts.
