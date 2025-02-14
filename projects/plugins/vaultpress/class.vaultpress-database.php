@@ -7,6 +7,13 @@ class VaultPress_Database {
 	var $table = null;
 	var $pks = null;
 
+	/**
+	 * Table structure.
+	 *
+	 * @var ?object
+	 */
+	public $structure;
+
 	function __construct() {
 	}
 

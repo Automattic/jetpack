@@ -87,6 +87,27 @@ class VaultPress {
 	var $db_version           = 4;
 	var $plugin_version       = VAULTPRESS__VERSION;
 
+	/**
+	 * Server URL.
+	 *
+	 * @var ?string
+	 */
+	private $server_url;
+
+	/**
+	 * Options.
+	 *
+	 * @var array
+	 */
+	public $options;
+
+	/**
+	 * Blog ID.
+	 *
+	 * @var int
+	 */
+	public $options_blog_id;
+
 	function __construct() {
 		register_activation_hook( __FILE__, array( $this, 'activate' ) );
 		register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
@@ -433,12 +454,12 @@ class VaultPress {
 	}
 
 	function server_url() {
-		if ( !isset( $this->_server_url ) ) {
+		if ( ! isset( $this->server_url ) ) {
 			$scheme = is_ssl() ? 'https' : 'http';
-			$this->_server_url = sprintf( '%s://%s/', $scheme, $this->get_option( 'hostname' ) );
+			$this->server_url = sprintf( '%s://%s/', $scheme, $this->get_option( 'hostname' ) );
 		}
 
-		return $this->_server_url;
+		return $this->server_url;
 	}
 
 	/**
