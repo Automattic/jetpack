@@ -5,6 +5,7 @@ import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
+import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store } from '../../social-store';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { useService } from '../services/use-service';
@@ -39,6 +40,8 @@ const ConnectionManagement = ( { className = null, disabled = false } ) => {
 
 	const { openConnectionsModal } = useDispatch( store );
 
+	const canMarkAsShared = useUserCanShareConnection();
+
 	return (
 		<div
 			className={ clsx( styles.wrapper, className ) }
@@ -47,7 +50,7 @@ const ConnectionManagement = ( { className = null, disabled = false } ) => {
 		>
 			{ connections.length ? (
 				<>
-					<h3>{ __( 'Connected accounts', 'jetpack' ) }</h3>
+					<h3>{ __( 'Connected accounts', 'jetpack-publicize-components' ) }</h3>
 					<ul className={ styles[ 'connection-list' ] }>
 						{ connections.map( connection => {
 							const isUpdatingOrDeleting =
@@ -60,6 +63,7 @@ const ConnectionManagement = ( { className = null, disabled = false } ) => {
 										<ConnectionInfo
 											connection={ connection }
 											service={ getService( connection.service_name ) }
+											canMarkAsShared={ canMarkAsShared }
 										/>
 									</Disabled>
 								</li>
@@ -73,7 +77,7 @@ const ConnectionManagement = ( { className = null, disabled = false } ) => {
 				variant={ connections.length ? 'secondary' : 'primary' }
 				onClick={ openConnectionsModal }
 			>
-				{ __( 'Connect an account', 'jetpack' ) }
+				{ __( 'Connect an account', 'jetpack-publicize-components' ) }
 			</Button>
 		</div>
 	);

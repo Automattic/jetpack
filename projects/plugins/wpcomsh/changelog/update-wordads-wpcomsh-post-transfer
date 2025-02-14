@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+woa: Enable wordads module via WP_CLI post transfer

@@ -72,6 +72,7 @@ export function GoodreadsInspectorControls( { attributes, setAttributes } ) {
 			<PanelBody PanelBody title={ __( 'Block Settings', 'jetpack' ) } initialOpen>
 				<SelectControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					label={ __( 'Shelf', 'jetpack' ) }
 					value={ shelfOption }
 					onChange={ value => setAttributes( { shelfOption: value } ) }
@@ -80,6 +81,7 @@ export function GoodreadsInspectorControls( { attributes, setAttributes } ) {
 
 				<TextControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					label={ __( 'Title', 'jetpack' ) }
 					value={ customTitle || GOODREADS_DEFAULT_TITLE }
 					onChange={ value => setAttributes( { customTitle: value } ) }
@@ -87,6 +89,7 @@ export function GoodreadsInspectorControls( { attributes, setAttributes } ) {
 
 				<SelectControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					label={ __( 'Sort by', 'jetpack' ) }
 					value={ sortOption }
 					onChange={ value => setAttributes( { sortOption: value } ) }
@@ -95,6 +98,7 @@ export function GoodreadsInspectorControls( { attributes, setAttributes } ) {
 
 				<SelectControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					label={ __( 'Order', 'jetpack' ) }
 					value={ orderOption }
 					onChange={ value => setAttributes( { orderOption: value } ) }
@@ -103,6 +107,7 @@ export function GoodreadsInspectorControls( { attributes, setAttributes } ) {
 
 				<TextControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					label={ __( 'Number of books', 'jetpack' ) }
 					type="number"
 					inputMode="numeric"

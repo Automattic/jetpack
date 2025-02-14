@@ -1,6 +1,6 @@
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
-import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
-import { Sidebar, DashboardPage, JetpackPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
+import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { Sidebar, DashboardPage, JetpackPage } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
 import playwrightConfig from '../../playwright.config.mjs';
 
 test.beforeAll( async ( { browser } ) => {

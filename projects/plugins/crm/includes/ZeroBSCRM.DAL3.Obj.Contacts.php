@@ -9,13 +9,7 @@
  * Date: 14/01/19
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 use Automattic\Jetpack\CRM\Event_Manager\Events_Manager;
 
@@ -2308,7 +2302,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
      *
      * @return int line ID
      */
-     // Previously DAL->addUpdateContact
     public function addUpdateContact($args=array()){
 
         global $ZBSCRM_t,$wpdb,$zbs;
@@ -3540,12 +3533,13 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                 $qs = zeroBS_getQuotesForCustomer($id,false,1000000,0,false,false);
                 foreach ($qs as $q){
 
-                    // delete post
-                    if ($zbs->isDAL3()){
-                        $res = $zbs->DAL->quotes->deleteQuote(array('id'=>$q['id'],'saveOrphans'=>false));
-                    } else 
-                        // DAL2 < - not forced?
-                        $res = wp_delete_post($q['id'],false);
+									// delete post
+									$zbs->DAL->quotes->deleteQuote( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+										array(
+											'id'          => $q['id'],
+											'saveOrphans' => false,
+										)
+									);
 
                 } unset($qs);
 
@@ -3554,12 +3548,13 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                 $is = zeroBS_getInvoicesForCustomer($id,false,1000000,0,false);
                 foreach ($is as $i){
 
-                    // delete post
-                    if ($zbs->isDAL3()){
-                        $res = $zbs->DAL->invoices->deleteInvoice(array('id'=>$i['id'],'saveOrphans'=>false));
-                    } else 
-                        // DAL2 <  not forced?
-                        $res = wp_delete_post($i['id'],false);
+									// delete post
+									$zbs->DAL->invoices->deleteInvoice( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+										array(
+											'id'          => $i['id'],
+											'saveOrphans' => false,
+										)
+									);
 
                 } unset($qs);
 
@@ -3568,26 +3563,27 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                 $trans = zeroBS_getTransactionsForCustomer($id,false,1000000,0,false);
                 foreach ($trans as $tran){
 
-                    // delete post
-                    if ($zbs->isDAL3()){
-                        $res = $zbs->DAL->transactions->deleteTransaction(array('id'=>$tran['id'],'saveOrphans'=>false));
-                    } else 
-                        // DAL2 <  - not forced?
-                        $res = wp_delete_post($tran['id'],false);
+									// delete post
+									$zbs->DAL->transactions->deleteTransaction( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+										array(
+											'id'          => $tran['id'],
+											'saveOrphans' => false,
+										)
+									);
 
-                } unset($trans);
+					} unset( $trans );
 
-                // delete events
-                $events = zeroBS_getEventsByCustomerID($id,false,1000000,0,false);
-                foreach ($events as $event){
+					// delete events
+					$events = zeroBS_getEventsByCustomerID( $id, false, 1000000, 0 );
+					foreach ( $events as $event ) {
 
-                    // delete post
-                    if ($zbs->isDAL3()){
-                        $res = $zbs->DAL->events->deleteEvent(array('id'=>$event['id'],'saveOrphans'=>false));
-                    } else {
-                        // DAL2 <  - not forced?
-                        // this wasn't ever written.
-                    }
+									// delete post
+									$zbs->DAL->events->deleteEvent( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+										array(
+											'id'          => $event['id'],
+											'saveOrphans' => false,
+										)
+									);
 
                 } unset($events);
 
@@ -4817,13 +4813,14 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
 
 
-    /**
-     * Returns a count of contacts (owned)
-     * Replaces zeroBS_customerCount AND zeroBS_getCustomerCount AND zeroBS_customerCountByStatus
-     *
-     *
-     * @return int count
-     */
+		/**
+		 * Returns a count of contacts (owned)
+		 * Replaces zeroBS_customerCount
+		 *
+		 * @param object $args - DAL args.
+		 *
+		 * @return int count
+		 */
     public function getContactCount($args=array()){
 
         #} ============ LOAD ARGS =============
@@ -5048,7 +5045,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
             $resArr = $contact;
 
-            $resArr['avatar'] = zeroBS_customerAvatar($resArr['id']);
+				$resArr['avatar'] = $zbs->DAL->contacts->getContactAvatar( $resArr['id'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
             
             // use created original $resArr['created'] = zeroBSCRM_date_i18n(-1, $resArr['createduts']);
 

@@ -1,4 +1,3 @@
-/* eslint-disable react/react-in-jsx-scope */
 import { Button } from '@automattic/jetpack-components';
 import React from 'react';
 import ButtonGroup from '../index.jsx';

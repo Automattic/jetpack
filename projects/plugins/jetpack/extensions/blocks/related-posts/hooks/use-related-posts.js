@@ -16,7 +16,7 @@ async function fetchRelatedPosts( postId ) {
 			path: `/wpcom/v2/related-posts/${ postId }`,
 		} );
 		return result;
-	} catch ( error ) {
+	} catch {
 		return [];
 	}
 }

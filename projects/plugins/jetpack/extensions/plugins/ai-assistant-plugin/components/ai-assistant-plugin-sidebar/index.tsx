@@ -1,27 +1,32 @@
 /**
  * External dependencies
  */
-import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { PanelBody, PanelRow, BaseControl, ExternalLink } from '@wordpress/components';
+import {
+	useAICheckout,
+	useAiFeature,
+	FairUsageNotice,
+	FeaturedImage,
+} from '@automattic/jetpack-ai-client';
+import {
+	useAnalytics,
+	PLAN_TYPE_FREE,
+	PLAN_TYPE_UNLIMITED,
+	usePlanType,
+} from '@automattic/jetpack-shared-extension-utils';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
+import { PanelBody, PanelRow, BaseControl, ExternalLink, Notice } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { PluginPrePublishPanel, PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
-import React from 'react';
 /**
  * Internal dependencies
  */
-import { FairUsageNotice } from '../../../../blocks/ai-assistant/components/quota-exceeded-message';
-import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
-import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import useAiProductPage from '../../../../blocks/ai-assistant/hooks/use-ai-product-page';
 import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
-import { PLAN_TYPE_FREE, PLAN_TYPE_UNLIMITED, usePlanType } from '../../../../shared/use-plan-type';
-import { FeaturedImage } from '../ai-image';
 import { Breve, registerBreveHighlights, Highlight } from '../breve';
 import { getBreveAvailability, canWriteBriefBeEnabled } from '../breve/utils/get-availability';
 import Feedback from '../feedback';
@@ -38,7 +43,6 @@ import './style.scss';
  * Types
  */
 import type { CoreSelect, JetpackSettingsContentProps } from './types';
-import type * as EditorSelectors from '@wordpress/editor/store/selectors';
 
 const debug = debugFactory( 'jetpack-ai-assistant-plugin:sidebar' );
 /**
@@ -61,6 +65,8 @@ const isAITitleOptimizationKeywordsFeatureAvailable = getFeatureAvailability(
 	'ai-title-optimization-keywords-support'
 );
 
+// const isSeoAssistantEnabled = getFeatureAvailability( 'ai-seo-assistant' );
+
 const JetpackAndSettingsContent = ( {
 	placement,
 	requireUpgrade,
@@ -71,6 +77,7 @@ const JetpackAndSettingsContent = ( {
 	const { checkoutUrl } = useAICheckout();
 	const { productPageUrl } = useAiProductPage();
 	const isBreveAvailable = getBreveAvailability();
+	const isPostEmpty = useSelect( select => select( editorStore ).isEditedPostEmpty(), [] );
 
 	const currentTitleOptimizationSectionLabel = __( 'Optimize Publishing', 'jetpack' );
 	const SEOTitleOptimizationSectionLabel = __( 'Optimize Title', 'jetpack' );
@@ -88,23 +95,24 @@ const JetpackAndSettingsContent = ( {
 				</PanelRow>
 			) }
 
+			{ isPostEmpty && (
+				<PanelRow className="jetpack-ai-sidebar__warning-content">
+					<Notice isDismissible={ false } status="warning">
+						{ __( 'The following features require content to work.', 'jetpack' ) }
+					</Notice>
+				</PanelRow>
+			) }
+
 			{ canWriteBriefBeEnabled() && isBreveAvailable && (
 				<PanelRow>
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>
-							{ __( 'Write Brief with AI (BETA)', 'jetpack' ) }
+							{ __( 'Write Brief (Beta)', 'jetpack' ) }
 						</BaseControl.VisualLabel>
 						<Breve />
 					</BaseControl>
 				</PanelRow>
 			) }
-
-			<PanelRow className="jetpack-ai-sidebar__feature-section">
-				<BaseControl __nextHasNoMarginBottom={ true }>
-					<BaseControl.VisualLabel>{ __( 'AI Feedback', 'jetpack' ) }</BaseControl.VisualLabel>
-					<Feedback placement={ placement } busy={ false } disabled={ requireUpgrade } />
-				</BaseControl>
-			</PanelRow>
 
 			{ isAITitleOptimizationAvailable && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
@@ -114,16 +122,25 @@ const JetpackAndSettingsContent = ( {
 					</BaseControl>
 				</PanelRow>
 			) }
+
 			{ isAIFeaturedImageAvailable && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>
-							{ __( 'AI Featured Image', 'jetpack' ) }
+							{ __( 'Get Featured Image', 'jetpack' ) }
 						</BaseControl.VisualLabel>
 						<FeaturedImage busy={ false } disabled={ requireUpgrade } placement={ placement } />
 					</BaseControl>
 				</PanelRow>
 			) }
+
+			<PanelRow className="jetpack-ai-sidebar__feature-section">
+				<BaseControl __nextHasNoMarginBottom={ true }>
+					<BaseControl.VisualLabel>{ __( 'Get Feedback', 'jetpack' ) }</BaseControl.VisualLabel>
+					<Feedback placement={ placement } busy={ false } disabled={ requireUpgrade } />
+				</BaseControl>
+			</PanelRow>
+
 			{ requireUpgrade && ! isUsagePanelAvailable && (
 				<PanelRow>
 					<Upgrade placement={ placement } type={ upgradeType } upgradeUrl={ checkoutUrl } />
@@ -135,21 +152,21 @@ const JetpackAndSettingsContent = ( {
 				</PanelRow>
 			) }
 
-			<PanelRow>
-				<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-ai-feedback">
-					{ __( 'Provide feedback', 'jetpack' ) }
-				</ExternalLink>
-			</PanelRow>
-
-			<PanelRow>
+			<PanelRow className="jetpack-ai-sidebar__external-link">
 				<ExternalLink href={ productPageUrl }>
 					{ __( 'Learn more about Jetpack AI', 'jetpack' ) }
 				</ExternalLink>
 			</PanelRow>
 
-			<PanelRow>
-				<ExternalLink href="https://automattic.com/ai-guidelines">
-					{ __( 'AI Guidelines', 'jetpack' ) }
+			<PanelRow className="jetpack-ai-sidebar__external-link">
+				<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-ai-feedback">
+					{ __( 'Give us feedback', 'jetpack' ) }
+				</ExternalLink>
+			</PanelRow>
+
+			<PanelRow className="jetpack-ai-sidebar__external-link">
+				<ExternalLink href="https://jetpack.com/redirect/?source=ai-guidelines">
+					{ __( 'AI guidelines', 'jetpack' ) }
 				</ExternalLink>
 			</PanelRow>
 		</>
@@ -157,13 +174,11 @@ const JetpackAndSettingsContent = ( {
 };
 
 export default function AiAssistantPluginSidebar() {
-	const { requireUpgrade, upgradeType, currentTier, tierPlansEnabled, isOverLimit } =
-		useAiFeature();
-	const { checkoutUrl } = useAICheckout();
+	const { requireUpgrade, upgradeType, currentTier, isOverLimit } = useAiFeature();
 	const { tracks } = useAnalytics();
 
 	const isViewable = useSelect( select => {
-		const postTypeName = ( select( editorStore ) as typeof EditorSelectors ).getCurrentPostType();
+		const postTypeName = select( editorStore ).getCurrentPostType();
 		// The coreStore select type lacks the getPostType method, so we need to cast it to the correct type
 		const postTypeObject = ( select( coreStore ) as unknown as CoreSelect ).getPostType(
 			postTypeName
@@ -186,8 +201,7 @@ export default function AiAssistantPluginSidebar() {
 		tracks.recordEvent( 'jetpack_ai_panel_open', { placement } );
 	};
 
-	const showUsagePanel =
-		planType === PLAN_TYPE_FREE || ( tierPlansEnabled && planType !== PLAN_TYPE_UNLIMITED );
+	const showUsagePanel = planType === PLAN_TYPE_FREE;
 	const showFairUsageNotice = planType === PLAN_TYPE_UNLIMITED && isOverLimit;
 	const isBreveAvailable = getBreveAvailability();
 
@@ -245,14 +259,6 @@ export default function AiAssistantPluginSidebar() {
 						busy={ false }
 						disabled={ requireUpgrade }
 					/>
-					{ requireUpgrade && tierPlansEnabled && (
-						<Upgrade
-							placement={ PLACEMENT_PRE_PUBLISH }
-							type={ upgradeType }
-							currentTier={ currentTier }
-							upgradeUrl={ checkoutUrl }
-						/>
-					) }
 				</>
 			</PluginPrePublishPanel>
 		</>

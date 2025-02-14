@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-/* eslint-disable no-process-exit */
-
 import childProcess from 'child_process';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -16,7 +14,7 @@ const tunnelConfig = config.get( 'tunnel' );
 
 fs.mkdirSync( config.get( 'dirs.temp' ), { recursive: true } );
 
-// eslint-disable-next-line no-unused-expressions
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 yargs( hideBin( process.argv ) )
 	.usage( 'Usage: $0 <cmd>' )
 	.demandCommand( 1, 1 )

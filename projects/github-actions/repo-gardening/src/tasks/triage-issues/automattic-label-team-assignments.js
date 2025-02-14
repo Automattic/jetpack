@@ -50,6 +50,18 @@ export const automatticAssignments = {
 		slack_id: 'C048CUFRGFQ',
 		board_id: 'https://github.com/orgs/Automattic/projects/1106/',
 	},
+	ActivityPub: {
+		team: 'Fediverse',
+		labels: [
+			'[Feature] Federated comments',
+			'[Block] Federated reply',
+			'[Block] Follow Me',
+			'[Block] Followers',
+			'[Block] Post settings',
+			'[Block] Remote Reply',
+		],
+		board_id: 'https://github.com/orgs/Automattic/projects/1208/',
+	},
 	// Jetpack Division.
 	'AI Tools': {
 		team: 'Agora',
@@ -76,6 +88,8 @@ export const automatticAssignments = {
 			'[Plugin] Backup',
 			'[Plugin] VaultPress',
 			'[Feature] Backup & Scan',
+			'[Feature] Backups',
+			'[Feature] Scan',
 			'[Package] Backup',
 			'[Package] Transport Helper',
 		],
@@ -84,7 +98,12 @@ export const automatticAssignments = {
 	},
 	Boost: {
 		team: 'Heart of Gold',
-		labels: [ '[Plugin] Boost' ],
+		labels: [
+			'[Plugin] Boost',
+			'[Boost Feature] Lazy Images',
+			'[Boost Feature] Image Guide',
+			'[Boost Feature] Image Size Analysis',
+		],
 		slack_id: 'C016BBAFHHS',
 		board_id: 'https://github.com/orgs/Automattic/projects/548',
 	},
@@ -119,16 +138,27 @@ export const automatticAssignments = {
 		board_id: 'https://github.com/orgs/Automattic/projects/724',
 	},
 	Newsletter: {
-		team: 'Zap',
-		labels: [ '[Block] Subscriptions', '[Block] Paywall' ],
-		slack_id: 'C02NQ4HMJKV',
-		board_id: 'https://github.com/orgs/Automattic/projects/657',
+		team: 'Loop',
+		labels: [
+			'[Block] Subscriptions',
+			'[Block] Paywall',
+			'[Block] Subscriber Login',
+			'[Feature] Subscriptions',
+		],
+		slack_id: 'C083ZPVVDTK',
+		board_id: 'https://github.com/orgs/Automattic/projects/443/views/13',
+	},
+	Photon: {
+		team: 'Heart of Gold',
+		labels: [ '[Feature] Photon', '[Boost Feature] Image CDN', '[Package] Image CDN' ],
+		slack_id: 'C016BBAFHHS',
+		board_id: 'https://github.com/orgs/Automattic/projects/548',
 	},
 	Protect: {
 		team: 'Scan',
 		labels: [ '[Plugin] Protect', '[Feature] Protect', '[Package] WAF' ],
 		slack_id: 'C029WFNV69M',
-		board_id: 767,
+		board_id: 'https://github.com/orgs/Automattic/projects/767',
 	},
 	'React Dashboard': {
 		team: 'Vulcan',
@@ -180,9 +210,9 @@ export const automatticAssignments = {
 		board_id: 'https://github.com/orgs/Automattic/projects/908/views/1',
 	},
 	VideoPress: {
-		team: 'Agora',
+		team: 'Nexus',
 		labels: [ '[Package] VideoPress', '[Feature] VideoPress', '[Plugin] VideoPress' ],
-		slack_id: 'C02TQF5VAJD',
+		slack_id: 'C02LT75D3',
 		board_id: 'https://github.com/orgs/Automattic/projects/460',
 	},
 	// Let this be the last item. It will act as a catch-all for any issues that haven't been matched until now.

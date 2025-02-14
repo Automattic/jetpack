@@ -61,7 +61,7 @@ class Verbum_Comments {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 
 		// Do things before the comment is accepted.
-		add_action( 'pre_comment_on_post', array( $this, 'check_comment_allowed' ) );
+		add_action( 'pre_comment_on_post', array( $this, 'check_comment_allowed' ), 10, 1 );
 		add_action( 'pre_comment_on_post', array( $this, 'allow_logged_out_user_to_comment_as_external' ), 100 ); // Set priority high to run after check to make sure they are logged in to the external service.
 		add_filter( 'preprocess_comment', array( $this, 'verify_external_account' ), 0 );
 
@@ -96,7 +96,7 @@ class Verbum_Comments {
 			$color_scheme = 'transparent';
 		}
 
-		$verbum = '<div id="comment-form__verbum" class="' . $color_scheme . '"></div>' . $this->hidden_fields();
+		$verbum = '<div class="comment-form__verbum ' . $color_scheme . '"></div>' . $this->hidden_fields();
 
 		// If the blog requires login, Verbum need to be wrapped in a <form> to work.
 		// Verbum is given `mustLogIn` to handle the login flow.
@@ -124,6 +124,8 @@ class Verbum_Comments {
 
 		if ( strpos( $primary_redirect, '.wordpress.com' ) === false ) {
 			$connect_url = add_query_arg( 'domain', $primary_redirect, $connect_url );
+		} else {
+			$connect_url = add_query_arg( 'from_comments', 'yes', $connect_url );
 		}
 
 		// Enqueue styles and scripts
@@ -185,6 +187,7 @@ class Verbum_Comments {
 		$css_mtime        = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/block-editor.css' );
 		$js_mtime         = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/block-editor.min.js' );
 		$vbe_cache_buster = max( $js_mtime, $css_mtime );
+		$color_scheme     = get_blog_option( $this->blog_id, 'jetpack_comment_form_color_scheme' );
 
 		wp_add_inline_script(
 			'verbum-settings',
@@ -254,9 +257,10 @@ class Verbum_Comments {
 					'allowedBlocks'                      => \Verbum_Block_Utils::get_allowed_blocks(),
 					'embedNonce'                         => wp_create_nonce( 'embed_nonce' ),
 					'verbumBundleUrl'                    => plugins_url( 'dist/index.js', __FILE__ ),
-					'isRTL'                              => is_rtl( $locale ),
+					'isRTL'                              => is_rtl(),
 					'vbeCacheBuster'                     => $vbe_cache_buster,
 					'iframeUniqueId'                     => $iframe_unique_id,
+					'colorScheme'                        => $color_scheme,
 				)
 			),
 			'before'
@@ -448,9 +452,10 @@ HTML;
 	/**
 	 * Verify nonce before accepting comment.
 	 *
-	 * @return WP_Error|void
+	 * @param int $comment_id The comment ID.
+	 * @return void
 	 */
-	public function check_comment_allowed() {
+	public function check_comment_allowed( int $comment_id ) {
 		// Don't check if we're using Jetpack Comments.
 		if ( is_jetpack_comments() ) {
 			return;
@@ -459,12 +464,35 @@ HTML;
 		// Check for Highlander Nonce.
 		if (
 			isset( $_POST['highlander_comment_nonce'] ) &&
-			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['highlander_comment_nonce'] ), 'highlander_comment' ) )
+			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['highlander_comment_nonce'] ) ), 'highlander_comment' )
 		) {
 			return;
 		}
 
-		return new WP_Error( 'verbum', __( 'Error: please try commenting again.', 'jetpack-mu-wpcom' ) );
+		// Log the error to Log2Logstash.
+		// Related to https://github.com/Automattic/wp-calypso/issues/99436
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			require_once WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+
+			$data = array(
+				'post_nonce'         => sanitize_text_field( wp_unslash( $_POST['highlander_comment_nonce'] ?? '' ) ),
+				'hc_post_as'         => isset( $_POST['hc_post_as'] ) ? sanitize_text_field( wp_unslash( $_POST['hc_post_as'] ) ) : '',
+				'hc_foreign_user_id' => isset( $_POST['hc_foreign_user_id'] ) ? sanitize_text_field( wp_unslash( $_POST['hc_foreign_user_id'] ) ) : '',
+			);
+
+			log2logstash(
+				array(
+					'feature'    => 'verbum-comments',
+					'message'    => 'Pre-comment nonce failed',
+					'blog_id'    => get_current_blog_id(),
+					'user_id'    => get_current_user_id(),
+					'comment_id' => $comment_id,
+					'extra'      => wp_json_encode( $data ),
+				)
+			);
+		}
+
+		wp_die( esc_html__( 'Sorry, this comment could not be posted.', 'jetpack-mu-wpcom' ) );
 	}
 
 	/**
@@ -535,8 +563,12 @@ HTML;
 	 * Get the hidden fields for the comment form.
 	 */
 	public function hidden_fields() {
+		// Ironically, get_queried_post_id doesn't work inside query loop.
+		// See: https://github.com/Automattic/wp-calypso/issues/98136
+		$queried_post    = get_post();
+		$queried_post_id = $queried_post ? $queried_post->ID : 0;
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$post_id = isset( $_GET['postid'] ) ? intval( $_GET['postid'] ) : get_queried_object_id();
+		$post_id = isset( $_GET['postid'] ) ? intval( $_GET['postid'] ) : $queried_post_id;
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$is_current_user_subscribed = isset( $_GET['is_current_user_subscribed'] ) ? intval( $_GET['is_current_user_subscribed'] ) : 0;
 		$nonce                      = wp_create_nonce( 'highlander_comment' );
@@ -585,7 +617,9 @@ HTML;
 	 */
 	public function should_show_subscription_modal() {
 		$modal_enabled = boolval( get_blog_option( $this->blog_id, 'jetpack_verbum_subscription_modal', true ) );
-		return ! is_user_member_of_blog( '', $this->blog_id ) && $modal_enabled;
+
+		$is_jetpack_site = 522232 === get_current_blog_id(); // Disable if verbum is served via 'jetpack.wordpress.com'
+		return ! $is_jetpack_site && ! is_user_member_of_blog( '', $this->blog_id ) && $modal_enabled;
 	}
 
 	/**

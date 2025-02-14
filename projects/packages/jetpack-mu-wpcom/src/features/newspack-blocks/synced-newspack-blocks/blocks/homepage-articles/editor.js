@@ -1,15 +1,15 @@
 /**
  * WordPress dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
 import { registerBlockType } from '@wordpress/blocks';
+import apiFetch from '@wordpress/api-fetch';
 
 /**
  * Internal dependencies
  */
+import { settings, name } from '.';
 import { name as carouselBlockName } from '../carousel';
 import { registerQueryStore } from './store';
-import { settings, name } from '.';
 
 const BLOCK_NAME = `newspack-blocks/${ name }`;
 

@@ -165,6 +165,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'carousel_background_color'                    => 'pineapple',
 			'carousel_display_exif'                        => 'pineapple',
 			'carousel_display_comments'                    => 'pineapple',
+			'jetpack_holiday_snow_enabled'                 => false,
 			'jetpack_portfolio'                            => 'pineapple',
 			'jetpack_portfolio_posts_per_page'             => 'pineapple',
 			'jetpack_testimonial'                          => 'pineapple',

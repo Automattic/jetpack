@@ -56,6 +56,7 @@ To assist with this case, we provide additional rulesets that disable PHPCompati
 * `<rule ref="Jetpack-Compat-81" />` will disable rules detecting issues that only apply to PHP < 8.1.
 * `<rule ref="Jetpack-Compat-82" />` will disable rules detecting issues that only apply to PHP < 8.2.
 * `<rule ref="Jetpack-Compat-83" />` will disable rules detecting issues that only apply to PHP < 8.3.
+* `<rule ref="Jetpack-Compat-84" />` will disable rules detecting issues that only apply to PHP < 8.4.
 
 Note this isn't a perfect replacement for raising `testVersion`, as it cannot _add_ PHPCompatibility rules that do not trigger when `testVersion` indicates support for PHP 7.2.
 For example, `Jetpack-Compat-74` disables the `PHPCompatibility.Classes.NewTypedProperties.Found` rule ("Typed properties are not supported in PHP 7.3 or earlier") but cannot enable more specific rules like `PHPCompatibility.Classes.NewTypedProperties.UnionTypeFound` ("Union types are not present in PHP version 7.4 or earlier") that would be triggered if `testVersion` were set to `7.4-`.

@@ -24,7 +24,7 @@ use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
-use Automattic\Jetpack_Boost\Lib\Cornerstone_Pages;
+use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Pages;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
@@ -119,6 +119,8 @@ class Jetpack_Boost {
 		// Initiate jetpack sync.
 		$this->init_sync();
 
+		add_action( 'admin_init', array( $this, 'handle_version_change' ) );
+
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 
 		add_action( 'jetpack_boost_critical_css_environment_changed', array( $this, 'handle_environment_change' ), 10, 2 );
@@ -145,6 +147,22 @@ class Jetpack_Boost {
 	private function register_deactivation_hook() {
 		$plugin_file = trailingslashit( dirname( __DIR__ ) ) . 'jetpack-boost.php';
 		register_deactivation_hook( $plugin_file, array( $this, 'deactivate' ) );
+	}
+
+	public function handle_version_change() {
+		$version = get_option( 'jetpack_boost_version' );
+
+		if ( $version === JETPACK_BOOST_VERSION ) {
+			return;
+		}
+
+		update_option( 'jetpack_boost_version', JETPACK_BOOST_VERSION );
+
+		if ( jetpack_boost_minify_is_enabled() ) {
+			// We need to clear Minify scheduled events to ensure the latest scheduled jobs are only scheduled irrespective of scheduled arguments.
+			jetpack_boost_minify_clear_scheduled_events();
+			jetpack_boost_minify_activation();
+		}
 	}
 
 	/**
@@ -181,7 +199,6 @@ class Jetpack_Boost {
 		do_action( 'jetpack_boost_deactivate' );
 
 		// Tell Minify JS/CSS to clean up.
-		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-helpers.php';
 		jetpack_boost_page_optimize_deactivate();
 
 		Regenerate_Admin_Notice::dismiss();

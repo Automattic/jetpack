@@ -23,13 +23,13 @@ Default.args = {
 
 export const DeletePlugin = args => <ThreatFixerButton { ...args } />;
 DeletePlugin.args = {
-	threat: { fixable: { fixer: 'delete' }, extension: { type: 'plugin' } },
+	threat: { fixable: { fixer: 'delete' }, extension: { type: 'plugins' } },
 	onClick: () => alert( 'Delete fixer callback triggered' ), // eslint-disable-line no-alert
 };
 
 export const DeleteTheme = args => <ThreatFixerButton { ...args } />;
 DeleteTheme.args = {
-	threat: { fixable: { fixer: 'delete' }, extension: { type: 'theme' } },
+	threat: { fixable: { fixer: 'delete' }, extension: { type: 'themes' } },
 	onClick: () => alert( 'Delete fixer callback triggered' ), // eslint-disable-line no-alert
 };
 

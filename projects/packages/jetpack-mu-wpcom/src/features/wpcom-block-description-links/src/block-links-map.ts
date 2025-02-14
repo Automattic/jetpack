@@ -358,20 +358,6 @@ const blockInfoMapping: { [ key: string ]: { link: string; postId: number } } = 
 export const blockInfoWithVariations: {
 	[ key: string ]: { [ key: string ]: { link: string; postId: number } };
 } = {
-	'core/group': {
-		group: {
-			link: 'https://wordpress.com/support/wordpress-editor/blocks/group-block/',
-			postId: 161882,
-		},
-		'group-row': {
-			link: 'https://wordpress.com/support/wordpress-editor/blocks/row-block/',
-			postId: 190036,
-		},
-		'group-stack': {
-			link: 'https://wordpress.com/support/wordpress-editor/blocks/row-block/',
-			postId: 190036,
-		},
-	},
 	'core/embed': {
 		soundcloud: {
 			link: 'https://wordpress.com/support/soundcloud-audio-player/',
@@ -388,6 +374,12 @@ export const blockInfoWithVariations: {
 		youtube: {
 			link: 'https://wordpress.com/support/wordpress-editor/blocks/youtube-block/',
 			postId: 150414,
+		},
+	},
+	'core/group': {
+		'group-grid': {
+			link: 'https://wordpress.com/support/wordpress-editor/blocks/grid-block/',
+			postId: 339584,
 		},
 	},
 };

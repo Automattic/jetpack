@@ -1,3 +1,4 @@
+@import "../../shared/styles/align";
 // Hide the link if an iframe got appended to the container.
 .eventbrite__direct-link:not(:only-child) {
 	display: none;
@@ -64,4 +65,10 @@
 	width: 40px;
 	height: 40px;
 	/* @todo More styling could be copied from Eventbrite */
+}
+
+.wp-block-jetpack-eventbrite {
+	.wp-block-jetpack-button {
+		@include align-block;
+	}
 }

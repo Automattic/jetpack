@@ -9,13 +9,22 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 /**
+ * Whether the site is fully managed agency site.
+ *
+ * @return bool True if the site is fully managed agency site.
+ */
+function is_fully_managed_agency_site() {
+	return ! empty( get_option( 'is_fully_managed_agency_site' ) );
+}
+
+/**
  * Whether the current user is logged-in via WordPress.com account.
  *
  * @return bool True if the user has associated WordPress.com account.
  */
 function is_wpcom_user() {
 	// If the site is explicitly marked as agency-managed, treat the user as non-wpcom user.
-	if ( ! empty( get_option( 'is_fully_managed_agency_site' ) ) ) {
+	if ( is_fully_managed_agency_site() ) {
 		return false;
 	}
 

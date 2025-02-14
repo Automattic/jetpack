@@ -138,7 +138,7 @@
 	.tiled-gallery__item__inline-menu {
 		margin: $grid-unit-10;
 		display: inline-flex;
-		z-index: z-index(".block-library-gallery-item__inline-menu");
+		z-index: 20;
 
 		.components-button {
 			color: transparent;
@@ -200,4 +200,10 @@
 		color: $gray-900;
 		box-shadow: 0 0 0 $active-item-outline-width $gray-600 !important;
 	}
+}
+
+
+.block-editor-block-inspector .jetpack-tiled-gallery-url-notice {
+	color: #ff0000;
+	padding-bottom: $grid-unit-05;
 }

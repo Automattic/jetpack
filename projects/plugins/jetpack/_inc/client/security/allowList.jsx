@@ -1,14 +1,14 @@
 import { ToggleControl } from '@automattic/jetpack-components';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import { includes } from 'lodash';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import { FormFieldset } from 'components/forms';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { includes } from 'lodash';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 import Textarea from '../components/textarea';
 import { updateWafSettings } from '../state/waf/actions';

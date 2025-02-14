@@ -9,13 +9,7 @@
  * Date: 20/02/2019
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 /* ======================================================
@@ -346,7 +340,7 @@
 						}
 					}
 				} else {
-					$owner = (int) $zbs->DAL->getContactOwner( $contact_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$owner = (int) $zbs->DAL->contacts->getContactOwner( $contact_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				}
 			}
 
@@ -1771,8 +1765,10 @@ class zeroBS__Metabox_ContactSocial extends zeroBS__Metabox{
         // declare + load existing
         global $zbsSocialAccountTypes;
         $zbsSocials = false;
-        if (isset($contact['id'])) $zbsSocials = zeroBS_getCustomerSocialAccounts($contact['id']);
-		
+		if ( isset( $contact['id'] ) ) {
+			$zbsSocials = $zbs->DAL->contacts->getContactSocials( $contact['id'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		}
+
         if (count($zbsSocialAccountTypes) > 0) foreach ($zbsSocialAccountTypes as $socialKey => $socialAccType){
 
             ?><div class="zbs-social-acc <?php echo esc_attr( $socialAccType['slug'] ); ?>" title="<?php echo esc_attr( $socialAccType['name'] ); ?>">

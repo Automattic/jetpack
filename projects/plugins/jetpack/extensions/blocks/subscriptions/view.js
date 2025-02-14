@@ -70,7 +70,6 @@ domReady( function () {
 
 				// Fallback to provided email from the logged in user when set
 				if ( ! email && form.dataset.subscriber_email ) {
-					// eslint-disable-next-line no-console
 					email = form.dataset.subscriber_email;
 				}
 
@@ -82,6 +81,8 @@ domReady( function () {
 					const post_id = form.querySelector( 'input[name=post_id]' )?.value ?? '';
 					const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
 					const app_source = form.querySelector( 'input[name=app_source]' )?.value ?? '';
+					const selected_newsletter_categories =
+						form.querySelector( 'input[name=selected_newsletter_categories]' )?.value ?? '';
 
 					show_iframe( {
 						email,
@@ -93,6 +94,7 @@ domReady( function () {
 						app_source,
 						post_access_level: form.dataset.post_access_level,
 						display: 'alternate',
+						selected_newsletter_categories,
 					} ).then( () => {
 						// Allows hiding other modals when the subscription modal/iframe shows up, e.g. hiding the subscription overlay modal
 						form.dispatchEvent( new Event( 'subscription-modal-loaded' ) );

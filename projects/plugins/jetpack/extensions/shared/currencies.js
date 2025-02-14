@@ -8,7 +8,7 @@ function removeTrailingDots( string ) {
 /**
  * Currencies we support and Stripe's minimum amount for a transaction in that currency.
  *
- * @link https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
+ * @see https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
  *
  * List has to be in with `Jetpack_Memberships::SUPPORTED_CURRENCIES` in modules/memberships/class-jetpack-memberships.php.
  */

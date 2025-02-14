@@ -1,13 +1,18 @@
 import { numberFormat } from '@automattic/jetpack-components';
-import { usePublicizeConfig } from '@automattic/jetpack-publicize-components';
-import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isSimpleSite, useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import {
 	ContrastChecker,
 	PanelColorSettings,
 	FontSizePicker,
 	__experimentalPanelColorGradientSettings as PanelColorGradientSettings, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
-import { ToggleControl, PanelBody, RangeControl, TextareaControl } from '@wordpress/components';
+import {
+	ToggleControl,
+	PanelBody,
+	RangeControl,
+	TextareaControl,
+	CheckboxControl,
+} from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import InspectorNotice from '../../shared/components/inspector-notice';
@@ -31,6 +36,8 @@ import {
 } from './constants';
 
 export default function SubscriptionControls( {
+	availableNewsletterCategories,
+	areNewsletterCategoriesEnabled,
 	buttonBackgroundColor,
 	borderColor,
 	buttonGradient,
@@ -44,6 +51,8 @@ export default function SubscriptionControls( {
 	includeSocialFollowers,
 	isGradientAvailable,
 	padding,
+	preselectNewsletterCategories,
+	selectedNewsletterCategoryIds,
 	setAttributes,
 	setBorderColor,
 	setButtonBackgroundColor,
@@ -56,7 +65,7 @@ export default function SubscriptionControls( {
 	subscribePlaceholder = DEFAULT_SUBSCRIBE_PLACEHOLDER,
 	successMessage = DEFAULT_SUCCESS_MESSAGE,
 } ) {
-	const { isPublicizeEnabled } = usePublicizeConfig();
+	const { isModuleActive: isPublicizeEnabled } = useModuleStatus( 'publicize' );
 
 	return (
 		<>
@@ -167,6 +176,7 @@ export default function SubscriptionControls( {
 					} }
 					// This is changing in the future, and we need to do this to silence the deprecation warning.
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 				/>
 			</PanelBody>
 			<PanelBody
@@ -176,6 +186,7 @@ export default function SubscriptionControls( {
 			>
 				<RangeControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					value={ borderRadius }
 					label={ __( 'Border Radius', 'jetpack' ) }
 					min={ MIN_BORDER_RADIUS_VALUE }
@@ -187,6 +198,7 @@ export default function SubscriptionControls( {
 
 				<RangeControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					value={ borderWeight }
 					label={ __( 'Border Weight', 'jetpack' ) }
 					min={ MIN_BORDER_WEIGHT_VALUE }
@@ -203,6 +215,7 @@ export default function SubscriptionControls( {
 			>
 				<RangeControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					value={ padding }
 					label={ __( 'Space Inside', 'jetpack' ) }
 					min={ MIN_PADDING_VALUE }
@@ -213,6 +226,7 @@ export default function SubscriptionControls( {
 				/>
 				<RangeControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					value={ spacing }
 					label={ __( 'Space Between', 'jetpack' ) }
 					min={ MIN_SPACING_VALUE }
@@ -297,6 +311,52 @@ export default function SubscriptionControls( {
 						help={ __( 'Edit the message displayed when a user subscribes.', 'jetpack' ) }
 						onChange={ newSuccessMessage => setAttributes( { successMessage: newSuccessMessage } ) }
 					/>
+				) }
+				{ areNewsletterCategoriesEnabled && availableNewsletterCategories.length > 0 && (
+					<>
+						<ToggleControl
+							__nextHasNoMarginBottom={ true }
+							label={ __( 'Pre-select categories', 'jetpack' ) }
+							checked={ preselectNewsletterCategories }
+							onChange={ value => {
+								setAttributes( { preselectNewsletterCategories: value } );
+							} }
+							help={ __(
+								'When enabled, the user will be automatically subscribed to the selected categories below when they submit the form.',
+								'jetpack'
+							) }
+						/>
+						{ preselectNewsletterCategories && (
+							<fieldset>
+								<legend className="wp-block-jetpack-subscriptions__legend">
+									{ __( 'Categories', 'jetpack' ) }
+								</legend>
+								{ availableNewsletterCategories.map( category => (
+									<CheckboxControl
+										key={ category.id }
+										__nextHasNoMarginBottom={ true }
+										disabled={ ! preselectNewsletterCategories }
+										label={ category.name }
+										checked={ selectedNewsletterCategoryIds.includes( category.id ) }
+										onChange={ () => {
+											const selectedIds = selectedNewsletterCategoryIds.includes( category.id )
+												? selectedNewsletterCategoryIds.filter( id => id !== category.id )
+												: [ ...selectedNewsletterCategoryIds, category.id ];
+
+											const updates = { selectedNewsletterCategoryIds: selectedIds };
+
+											// If no categories are selected, disable the preselect option
+											if ( selectedIds.length === 0 ) {
+												updates.preselectNewsletterCategories = false;
+											}
+
+											setAttributes( updates );
+										} }
+									/>
+								) ) }
+							</fieldset>
+						) }
+					</>
 				) }
 			</PanelBody>
 		</>

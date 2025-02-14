@@ -2,6 +2,10 @@ import { render, screen } from '@testing-library/react';
 import { getManagementPageObject, setup } from '../../../../utils/test-factory';
 import { Disconnect } from '../../disconnect';
 
+jest.mock( '../../../../hooks/use-user-can-share-connection', () => ( {
+	useUserCanShareConnection: jest.fn( () => true ),
+} ) );
+
 describe( 'Disconnecting a connection', () => {
 	afterEach( () => {
 		jest.clearAllMocks();
@@ -38,7 +42,6 @@ describe( 'Disconnecting a connection', () => {
 					service_name: 'facebook',
 					connection_id: '2',
 					display_name: 'Facebook',
-					can_disconnect: true,
 				} }
 			/>
 		);

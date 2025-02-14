@@ -1,7 +1,7 @@
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import SimpleNotice from 'components/notice';
 import PropTypes from 'prop-types';
+import SimpleNotice from 'components/notice';
 
 const DeprecationNotice = ( { dismissNotice, message, link, linkText, title } ) => {
 	return (

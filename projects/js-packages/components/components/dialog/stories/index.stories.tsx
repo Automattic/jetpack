@@ -1,4 +1,3 @@
-/* eslint-disable react/react-in-jsx-scope */
 import React from 'react';
 import Dialog from '..';
 import ProductOffer from '../../product-offer';

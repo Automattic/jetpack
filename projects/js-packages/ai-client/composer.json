@@ -5,13 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev"
-	},
-	"autoload": {
-		"classmap": [
-			"src/"
-		]
 	},
 	"scripts": {
 		"build-development": [
@@ -44,6 +38,7 @@
 	"prefer-stable": true,
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-ai-client",
+		"textdomain": "jetpack-ai-client",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-ai-client/compare/v${old}...v${new}"
 		},

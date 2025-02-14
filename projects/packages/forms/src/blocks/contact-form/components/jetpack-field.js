@@ -1,4 +1,5 @@
 import { useBlockProps } from '@wordpress/block-editor';
+import { createBlock, getDefaultBlockName } from '@wordpress/blocks';
 import { createHigherOrderComponent, compose } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
 import clsx from 'clsx';
@@ -21,6 +22,8 @@ const JetpackField = props => {
 		setAttributes,
 		placeholder,
 		width,
+		insertBlocksAfter,
+		type,
 	} = props;
 
 	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
@@ -48,8 +51,15 @@ const JetpackField = props => {
 					className="jetpack-field__input"
 					onChange={ e => setAttributes( { placeholder: e.target.value } ) }
 					style={ fieldStyle }
-					type="text"
+					type={ type }
 					value={ placeholder }
+					onClick={ event => type === 'file' && event.preventDefault() }
+					onKeyDown={ event => {
+						if ( event.defaultPrevented || event.key !== 'Enter' ) {
+							return;
+						}
+						insertBlocksAfter( createBlock( getDefaultBlockName() ) );
+					} }
 				/>
 			</div>
 
@@ -60,6 +70,7 @@ const JetpackField = props => {
 				setAttributes={ setAttributes }
 				placeholder={ placeholder }
 				attributes={ attributes }
+				hidePlaceholder={ type === 'number' }
 			/>
 		</>
 	);

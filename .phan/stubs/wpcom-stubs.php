@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 18f60b6a23f80b9b8951920c646527604af34854.
+ * Stubs automatically generated from WordPress.com commit 6b86a7a85b8bed5631567ba4750d32073fe7b487.
  */
 
 namespace {
@@ -107,6 +107,9 @@ namespace {
          * @return array|false|WP_Error
          */
         public function republicize_post($post_id, $message, $skip_connections, $check_feature = \false, $sync = \true, $_user_id = \null)
+        {
+        }
+        public function get_all_connections_for_blog_id($_blog_id = \false, $format = 'complete')
         {
         }
     }
@@ -248,6 +251,23 @@ namespace {
     }
     function global_css()
     {
+    }
+    class WPCOM_External_Connections
+    {
+        /**
+         * @return WPCOM_External_Connections
+         */
+        static function init()
+        {
+        }
+        /**
+         * @param string $type
+         * @param int|false $blog_id
+         * @return array
+         */
+        public function get_external_services_list($type = \false, $blog_id = \false)
+        {
+        }
     }
     class WPCOM_Google_Sheets_Helper
     {
@@ -435,7 +455,7 @@ namespace {
         public function request_dalle_generation(string $prompt, string $model = 'dall-e-2', array $options = array())
         {
         }
-        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text', $tool_choice = \null, $store = \false)
+        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text', $tool_choice = \null, $store = \false, int $timeout = 120)
         {
         }
         /**
@@ -458,6 +478,24 @@ namespace {
         {
         }
         public static function filter_blog($blog_id, $filters)
+        {
+        }
+    }
+    class Social_Connections_Rest_Helper
+    {
+        /**
+         * @return Jetpack_Social_Connections
+         */
+        public static function init()
+        {
+        }
+        public function delete_publicize_connection($publicize_connection_id, $blog_id = \false)
+        {
+        }
+        public function create_publicize_connection($input)
+        {
+        }
+        public function update_connection($publicize_connection_id, $input, $blog_id = \false)
         {
         }
     }
@@ -726,7 +764,7 @@ namespace {
          * @param mixed $my_posts
          * @return void
          **/
-        public function send_post($my_posts, \Blog_Subscription $subscription = \null, $extra_text = '', $automattcher = \false)
+        public function send_post($my_posts, ?\Blog_Subscription $subscription = \null, $extra_text = '', $automattcher = \false)
         {
         }
     }
@@ -1032,7 +1070,7 @@ namespace {
     {
     }
     /**
-     * @return bool
+     * @return int|bool
      */
     function wpcom_subs_is_subscribed($args = array())
     {
@@ -1252,6 +1290,12 @@ namespace {
         }
     }
     /**
+     * @phan-return mixed
+     */
+    function is_graylisted($_blog_id = \NULL)
+    {
+    }
+    /**
      * @param string $new_path
      * @param string $path
      * @return string
@@ -1422,6 +1466,26 @@ namespace BloggingPrompts {
     {
     }
 }
+namespace ExPlat {
+    /**
+     * @param string $experiment_name
+     * @return string|null
+     */
+    function assign_current_user(string $experiment_name): ?string
+    {
+    }
+    /**
+     * @param string $experiment_name
+     * @param \WP_User $user
+     * @return string|null
+     */
+    function assign_given_user(string $experiment_name, \WP_User $user): ?string
+    {
+    }
+    function get_user_assignment(string $experiment_name, \WP_User $user): ?string
+    {
+    }
+}
 namespace JITM {
     class Engine
     {
@@ -1443,7 +1507,7 @@ namespace Newsletter_Categories {
      * @param int|null $blog_id
      * @return array
      */
-    function get_newsletter_categories(int $blog_id = null): array
+    function get_newsletter_categories(?int $blog_id = null): array
     {
     }
     /**
@@ -1451,7 +1515,7 @@ namespace Newsletter_Categories {
      * @param array    $term_ids
      * @return array
      */
-    function get_blog_subscription_counts_per_category(int $blog_id = null, array $term_ids = []): array
+    function get_blog_subscription_counts_per_category(?int $blog_id = null, array $term_ids = []): array
     {
     }
     /**
@@ -1459,7 +1523,17 @@ namespace Newsletter_Categories {
      * @param array|null $post_term_ids
      * @return int
      */
-    function get_blog_subscriptions_aggregate_count(int $blog_id = null, $post_term_ids = []): int
+    function get_blog_subscriptions_aggregate_count(?int $blog_id = null, $post_term_ids = []): int
+    {
+    }
+}
+namespace WPCOM\Experiments\Internal {
+    /**
+     * @param string $name
+     * @return \WPCOM\Experiments\Models\Experiment|null
+     * @throws File_Cache_Failure
+     */
+    function get_cached_experiment_by_name(string $name): ?\WPCOM\Experiments\Models\Experiment
     {
     }
 }

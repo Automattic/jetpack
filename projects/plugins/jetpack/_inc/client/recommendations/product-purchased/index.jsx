@@ -1,12 +1,12 @@
 import { ProgressBar } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
+import { isArray } from 'lodash';
+import React, { useEffect } from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import analytics from 'lib/analytics';
-import { isArray } from 'lodash';
-import React, { useEffect } from 'react';
-import { connect } from 'react-redux';
 import {
 	getProductSuggestions,
 	getNextRoute,

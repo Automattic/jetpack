@@ -41,7 +41,7 @@
 		}
 	}
 
-	.block-editor-inner-blocks > .block-editor-block-list__layout {
+	.block-editor-block-list__layout {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: flex-start;
@@ -50,7 +50,13 @@
 
 		.wp-block {
 			flex: 0 0 100%;
-			margin: 0;
+			margin-top: 0;
+			margin-bottom: 0;
+
+			&.wp-block-jetpack-button {
+				flex-basis: auto;
+				align-self: flex-end; // Ensure button is aligned with the bottom of the previous field when on a same row
+			}
 
 			&.jetpack-field__width-25,
 			&.jetpack-field__width-50,
@@ -88,6 +94,27 @@
 			&[data-type='jetpack/field-consent'] {
 				align-self: center;
 			}
+
+			&:where( .wp-block-jetpack-contact-form .wp-block-separator ){
+				max-width: var( --wp--preset--spacing--80, 100px );
+				margin-left: auto;
+				margin-right: auto;
+			}
+			&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-wide ),
+			&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-dots ) {
+				max-width: inherit;
+			}
+
+		}
+	}
+
+	.block-editor-block-list__layout.wp-block-jetpack-field-option-radio,
+	.block-editor-block-list__layout.wp-block-jetpack-field-option-checkbox  {
+		gap: 0;
+		align-items: center;
+
+		> .wp-block {
+			flex: initial;
 		}
 	}
 
@@ -240,12 +267,16 @@
 	width: 100%;
 }
 
+.jetpack-contact-form__thankyou-redirect-url {
+	min-width: auto;
+}
+
 .jetpack-contact-form__thankyou-redirect-url input[type='text'] {
 	width: 100%;
 }
 
 .jetpack-contact-form__thankyou-redirect-url__suggestions {
-	width: 260px;
+	width: 230px;
 }
 
 .jetpack-contact-form__integration-panel {
@@ -263,16 +294,6 @@
 	.components-base-control {
 		margin-top: -1px;
 		margin-bottom: -3px;
-
-		&.jetpack-field-label__required {
-			.components-form-toggle {
-				margin: 2px 8px 0 16px;
-			}
-
-			.components-toggle-control__label {
-				word-break: normal;
-			}
-		}
 	}
 
 	.rich-text.jetpack-field-label__input {
@@ -308,6 +329,7 @@
 }
 
 .jetpack-field__textarea {
+	display: block;
 	min-height: 200px;
 }
 
@@ -324,10 +346,10 @@
 	}
 
 	.jetpack-field__textarea {
-		border: var(--jetpack--contact-form--border);
-		border-color: var(--jetpack--contact-form--border-color);
-		border-style: var(--jetpack--contact-form--border-style);
-		border-width: var(--jetpack--contact-form--border-size);
+		border: var(--jetpack--contact-form--border, 1px solid #8c8f94);
+		border-color: var(--jetpack--contact-form--border-color, #8c8f94);
+		border-style: var(--jetpack--contact-form--border-style, solid );
+		border-width: var(--jetpack--contact-form--border-size, 1px );
 	}
 
 	.components-base-control__field {
@@ -348,14 +370,14 @@
 		color: var(--jetpack--contact-form--text-color);
 		display: flex;
 		border: none;
-		font-size: var(--jetpack--contact-form--font-size);
+		font-size: var(--jetpack--contact-form--font-size, 16px );
 		font-family: var(--jetpack--contact-form--font-family);
-		height: var(--jetpack--contact-form--font-size);
+		height: var(--jetpack--contact-form--font-size, 16px );
 		justify-content: center;
 		margin: 0 10px 0 0;
 		outline: none;
 		position: relative;
-		width: var(--jetpack--contact-form--font-size);
+		width: var(--jetpack--contact-form--font-size, 16px);
 		pointer-events: none;
 
 		&::after, &::before {
@@ -375,9 +397,9 @@
 			content: ' ';
 			display: flex;
 			font-weight: bold;
-			height: var(--jetpack--contact-form--font-size);
+			height: var(--jetpack--contact-form--font-size, 16px);
 			justify-content: center;
-			width: var(--jetpack--contact-form--font-size);
+			width: var(--jetpack--contact-form--font-size, 16px);
 		}
 
 		&[type="radio"]::before {
@@ -458,7 +480,7 @@
 			margin: 0 5px 0 0;
 		}
 	}
-	
+
 	.jetpack-field-option.field-option-checkbox,
 	.jetpack-field-option.field-option-radio,
 	.wp-block-jetpack-field-option-checkbox,
@@ -474,7 +496,7 @@
 	.jetpack-field-option.field-option-radio,
 	.wp-block-jetpack-field-option-radio {
 		.jetpack-option__type {
-			transform: translateY(15%); /* Small offset to compensate the slightly odd perceived alignment that's due to the circular shape */
+			transform: translateY(5%); /* Small offset to compensate the slightly odd perceived alignment that's due to the circular shape */
 		}
 	}
 }
@@ -483,16 +505,6 @@
 	.jetpack-field__input, .jetpack-field__textarea {
 		padding-left: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 		padding-right: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
-	}
-}
-
-.jetpack-field-label__width {
-	.components-button-group {
-		display: block;
-	}
-
-	.components-base-control__field {
-		margin-bottom: 12px;
 	}
 }
 
@@ -593,17 +605,6 @@
 	}
 }
 
-// Overrides to make the preview look good
-.block-editor-inserter__preview {
-	.jetpack-contact-form {
-		padding: 16px;
-
-		.block-editor-inner-blocks .block-editor-block-list__layout {
-			margin: 0;
-		}
-	}
-}
-
 // Make sure form settings dropdown looks good on older Gutenberg versions
 .jetpack-contact-form__popover .components-popover__content {
 	min-width: 260px;
@@ -661,7 +662,7 @@
 		border-radius: var(--jetpack--contact-form--border-radius);
 		background-color: var(--jetpack--contact-form--input-background);
 		color: var(--jetpack--contact-form--text-color);
-		font-size: var(--jetpack--contact-form--font-size);
+		font-size: var(--jetpack--contact-form--font-size, 16px);
 		line-height: var(--jetpack--contact-form--line-height);
 		padding: var(--jetpack--contact-form--input-padding);
 		display: flex;
@@ -702,7 +703,7 @@
 		border-radius: var(--jetpack--contact-form--border-radius);
 		background-color: var(--jetpack--contact-form--input-background);
 		color: var(--jetpack--contact-form--text-color);
-		font-size: var(--jetpack--contact-form--font-size);
+		font-size: var(--jetpack--contact-form--font-size, 16px);
 		max-height: 165px;
 		overflow: auto;
 		padding: 0;
@@ -723,13 +724,13 @@
 		}
 	}
 
-	&.is-style-outlined, &.is-style-animated {
+	.is-style-outlined &, .is-style-animated & {
 		.jetpack-field {
 			position: relative;
 		}
 	}
 
-	&.is-style-outlined {
+	.is-style-outlined & {
 		.block-editor-block-list__block:not([contenteditable]):focus:after {
 			top: -10px;
 			left: -10px;
@@ -740,7 +741,7 @@
 		.jetpack-field {
 			--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 			margin-top: 8px;
-			display: flex;
+			box-sizing: border-box;
 
 			.notched-label {
 				position: absolute;
@@ -881,7 +882,7 @@
 		}
 	}
 
-	&.is-style-animated {
+	.is-style-animated & {
 		.jetpack-field {
 			--left-offset: calc(var(--jetpack--contact-form--input-padding-left, 16px) + var(--jetpack--contact-form--border-size));
 			--label-left: max(var(--left-offset), var(--jetpack--contact-form--border-radius));

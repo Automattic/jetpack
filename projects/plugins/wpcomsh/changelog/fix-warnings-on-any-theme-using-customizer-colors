@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix: Undefined array key warnings on any customizer theme with colors.

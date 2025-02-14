@@ -1,13 +1,13 @@
-import { imagePath } from 'constants/urls';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { useCallback, useEffect } from 'react';
 import AppsBadge from 'components/apps-badge';
+import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 import detectMobileDevice from 'lib/device-detector';
-import { useCallback, useEffect } from 'react';
 import { SidebarCard } from '../sidebar-card';
 import type { FC } from 'react';
 

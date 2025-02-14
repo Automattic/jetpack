@@ -111,7 +111,7 @@ async function promptForGenerate( options ) {
 			// Some basic cleanup to avoid causing issues due to mixed caps or external whitespace.
 			options.name = options.name.trim().toLowerCase();
 			nameAnswer.name = checkNameValid( typeAnswer.type, options.name ) ? options.name : null;
-		} catch ( e ) {
+		} catch {
 			// Do nothing. Allow the script to continue on as if no value was passed.
 		}
 	}
@@ -713,12 +713,7 @@ async function createComposerJson( composerJson, answers ) {
 			"echo 'Add your build step to composer.json, please!'";
 	}
 	if ( answers.wordbless ) {
-		composerJson.scripts[ 'post-install-cmd' ] = 'WorDBless\\Composer\\InstallDropin::copy';
-		composerJson.scripts[ 'post-update-cmd' ] = 'WorDBless\\Composer\\InstallDropin::copy';
-		composerJson[ 'require-dev' ][ 'automattic/wordbless' ] = 'dev-master';
-		composerJson.config = composerJson.config || {};
-		composerJson.config[ 'allow-plugins' ] = composerJson.config[ 'allow-plugins' ] || {};
-		composerJson.config[ 'allow-plugins' ][ 'roots/wordpress-core-installer' ] = true;
+		composerJson[ 'require-dev' ][ 'automattic/jetpack-test-environment' ] = '@dev';
 	}
 
 	try {
@@ -726,7 +721,7 @@ async function createComposerJson( composerJson, answers ) {
 			// For testing, add a third arg here for the org.
 			await mirrorRepo( composerJson, name, answers.type );
 		}
-	} catch ( e ) {
+	} catch {
 		// This means we couldn't create the mirror repo or something else failed, GitHub API is down, etc.
 		// Add error handling for mirror repo couldn't be created or verified.
 		// Output to console instructions on how to add it.

@@ -73,6 +73,8 @@ You can connect to any of the following networks:
 * Instagram Business
 * Nextdoor
 * Mastodon
+* Threads
+* Bluesky
 
 After you add a new connection, you have the option to mark the connection as shared, meaning it can also be used by any other users on your site who have the ability to publish posts.
 
@@ -80,7 +82,7 @@ To make the connection available to all users, check the box labeled "Mark the c
 
 = To which social media platforms can I post using Jetpack Social? =
 
-You can post to Facebook, Instagram Business, Tumblr, Mastodon, Linkedin and Nextdoor. We are working hard to increase our social share integrations.
+You can post to Facebook, Bluesky, Threads, Instagram Business, Tumblr, Mastodon, Linkedin, and Nextdoor. We are working hard to increase our social share integrations.
 
 = How do I share a post on social media using Jetpack Social? =
 
@@ -102,10 +104,18 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 5.5.1 - 2024-10-29
+### 6.1.0 - 2025-01-27
 #### Changed
-- Components: Add __nextHasNoMarginBottom to BaseControl-based components, preventing deprecation notices.
+- Code: Use function-style exit() and die() with a default status code of 0.
+- License: Social admin page header hides license link on WoA sites.
+- Moved the Social admin page to the publicize-components package
+- Refactored Social Note settings to use core
 - Updated package dependencies.
+
+#### Fixed
+- Fixed profile links for LinkedIn connections
+- Fixed wordpress.com log in error when connecting Social accounts
+- Fix publicize error in the editor due to malformed connections data
 
 == Upgrade Notice ==
 

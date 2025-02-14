@@ -1,9 +1,9 @@
 import { useConnection } from '@automattic/jetpack-connection';
+import { type ScanStatus } from '@automattic/jetpack-scan';
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import camelize from 'camelize';
 import API from '../../api';
 import { QUERY_HISTORY_KEY } from '../../constants';
-import { ScanStatus } from '../../types/scans';
 
 /**
  * Use History Query

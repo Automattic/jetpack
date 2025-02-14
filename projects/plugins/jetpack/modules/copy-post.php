@@ -29,7 +29,7 @@ class Jetpack_Copy_Post {
 	 * @return void
 	 */
 	public function __construct() {
-		if ( 'edit.php' === $GLOBALS['pagenow'] ) {
+		if ( 'edit.php' === $GLOBALS['pagenow'] || ( 'admin-ajax.php' === $GLOBALS['pagenow'] && ! empty( $_POST['post_view'] ) && 'list' === $_POST['post_view'] && ! empty( $_POST['action'] ) && 'inline-save' === $_POST['action'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- update_post_data() handles access check.
 			add_action( 'admin_head', array( $this, 'print_inline_styles' ) );
 			add_filter( 'post_row_actions', array( $this, 'add_row_action' ), 10, 2 );
 			add_filter( 'page_row_actions', array( $this, 'add_row_action' ), 10, 2 );
@@ -344,8 +344,8 @@ class Jetpack_Copy_Post {
 			'jetpack-copy' => sprintf(
 				'<a href="%1$s" aria-label="%2$s">%3$s %4$s</a>',
 				esc_url( $edit_url ),
-				esc_attr__( 'Copy this post with Jetpack', 'jetpack' ),
-				esc_html__( 'Copy', 'jetpack' ),
+				esc_attr__( 'Duplicate this post with Jetpack.', 'jetpack' ),
+				esc_html__( 'Duplicate', 'jetpack' ),
 				$jetpack_logo->get_jp_emblem()
 			),
 		);

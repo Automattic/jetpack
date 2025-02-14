@@ -5,6 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.14.7 - 2025-02-11
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.6 - 2025-02-10
+### Changed
+- Updated package dependencies. [#41491] [#41577]
+
+## 0.14.5 - 2025-01-23
+### Changed
+- Internal updates.
+
+## 0.14.4 - 2025-01-20
+### Changed
+- Updated package dependencies. [#41099]
+
+## 0.14.3 - 2025-01-06
+### Changed
+- Updated package dependencies. [#40797] [#40813]
+
+## 0.14.2 - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564]
+
+## 0.14.1 - 2024-12-09
+### Changed
+- Internal updates.
+
+## 0.14.0 - 2024-12-04
+### Changed
+- Changed text domain from 'jetpack' to 'jetpack-licensing'. [#40368]
+- Updated package dependencies. [#40363]
+
+## 0.13.11 - 2024-11-26
+### Changed
+- Update dependencies. [#37982]
+
+## 0.13.10 - 2024-11-25
+### Changed
+- Updated package dependencies. [#40288]
+
+## 0.13.9 - 2024-11-18
+### Changed
+- Update dependencies. [#37982]
+
 ## 0.13.8 - 2024-11-14
 ### Changed
 - Update dependencies. [#37982]
@@ -230,8 +275,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.11.5 - 2023-09-04
 ### Changed
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
+- Updated package dependencies. [#32803] [#32804]
 
 ## 0.11.4 - 2023-08-23
 ### Changed

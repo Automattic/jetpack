@@ -59,6 +59,35 @@ const i18nFilterFunction = file => {
 	return i < 14 || file.startsWith( '@automattic/', i );
 };
 
+const getUniqueName = () => {
+	let dir = process.cwd(),
+		olddir;
+	do {
+		const file = path.join( dir, 'package.json' );
+		if ( fs.existsSync( file ) ) {
+			const cfg = JSON.parse( fs.readFileSync( file, { encoding: 'utf8' } ) );
+			if ( cfg.name ) {
+				return cfg.name;
+			}
+		}
+
+		const file2 = path.join( dir, 'composer.json' );
+		if ( fs.existsSync( file2 ) ) {
+			const cfg = JSON.parse( fs.readFileSync( file2, { encoding: 'utf8' } ) );
+			if ( cfg.name ) {
+				// Prepend an '@' to make it look more like a JS package name.
+				return '@' + cfg.name;
+			}
+			break;
+		}
+
+		olddir = dir;
+		dir = path.dirname( dir );
+	} while ( dir !== olddir );
+
+	throw new Error( 'Cannot determine unique name' );
+};
+
 /****** Options ******/
 
 // See README.md for explanations of all these settings.
@@ -70,6 +99,7 @@ const devtool = isProduction ? false : 'source-map';
 const output = {
 	filename: '[name].js',
 	chunkFilename: '[name].js?minify=false&ver=[contenthash]',
+	uniqueName: getUniqueName(),
 };
 const optimization = {
 	minimize: isProduction,

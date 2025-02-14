@@ -258,7 +258,6 @@ class Jetpack {
 	 *
 	 * - All in One SEO Pack, All in one SEO Pack Pro
 	 * - WordPress SEO by Yoast, WordPress SEO Premium by Yoast
-	 * - SEOPress, SEOPress Pro
 	 *
 	 * Plugin authors: If you'd like to prevent Jetpack's Open Graph tag generation in your plugin, you can do so via this filter:
 	 * add_filter( 'jetpack_enable_open_graph', '__return_false' );
@@ -303,6 +302,8 @@ class Jetpack {
 		'wp-facebook-like-send-open-graph-meta/wp-facebook-like-send-open-graph-meta.php', // WP Facebook Like Send & Open Graph Meta.
 		'wp-facebook-open-graph-protocol/wp-facebook-ogp.php',   // WP Facebook Open Graph protocol.
 		'wp-ogp/wp-ogp.php',                                     // WP-OGP.
+		'wp-seopress/seopress.php',                              // SEOPress.
+		'wp-seopress-pro/seopress-pro.php',                      // SEOPress Pro.
 		'zoltonorg-social-plugin/zosp.php',                      // Zolton.org Social Plugin.
 		'wp-fb-share-like-button/wp_fb_share-like_widget.php',   // WP Facebook Like Button.
 		'open-graph-metabox/open-graph-metabox.php',              // Open Graph Metabox.
@@ -624,23 +625,11 @@ class Jetpack {
 
 		/**
 		 * Prepare Gutenberg Editor functionality
+		 *
+		 * The hooks previously here have been moved to modules/blocks.php but leaving this here pending
+		 * a longer investigation to see if code is expecting the Gutenberg class to always be available.
 		 */
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-gutenberg.php';
-		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_independent_blocks' ) );
-		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_block_editor_extensions' ), 9 );
-		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'register_block_metadata_collection' ) );
-		/**
-		 * We've switched from enqueue_block_editor_assets to enqueue_block_assets in WP-Admin because the assets with the former are loaded on the main site-editor.php.
-		 *
-		 * With the latter, the assets are now loaded in the SE iframe; the implementation is now faster because Gutenberg doesn't need to inject the assets in the iframe on client-side.
-		 */
-		if ( is_admin() ) {
-			add_action( 'enqueue_block_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
-		} else {
-			add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
-		}
-		add_filter( 'render_block', array( 'Jetpack_Gutenberg', 'display_deprecated_block_message' ), 10, 2 );
-
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 
 		add_action( 'jetpack_event_log', array( 'Jetpack', 'log' ), 10, 2 );
@@ -2010,7 +1999,7 @@ class Jetpack {
 				$page = sanitize_text_field( wp_unslash( $_GET['page'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- we're not changing the site.
 			}
 			wp_safe_redirect( self::admin_url( 'page=' . rawurlencode( $page ) ) );
-			exit;
+			exit( 0 );
 		}
 	}
 
@@ -2401,7 +2390,7 @@ class Jetpack {
 					add_query_arg( compact( 'min_version', 'max_version', 'other_modules' ), self::admin_url( 'page=jetpack' ) )
 				);
 				wp_safe_redirect( $url );
-				exit;
+				exit( 0 );
 			}
 		}
 
@@ -2609,7 +2598,7 @@ p {
 				update_option( 'active_plugins', array_filter( $plugins ) );
 			}
 		}
-		exit;
+		exit( 0 );
 	}
 
 	/**
@@ -2921,8 +2910,15 @@ p {
 	 * @param mixed $data Data to log.
 	 */
 	public static function log( $code, $data = null ) {
+
+		$raw_log = Jetpack_Options::get_option( 'log', array() );
+		// This can be modified by the `jetpack_options` filter, so abort if we don't have an array.
+		if ( ! is_array( $raw_log ) ) {
+			return;
+		}
+
 		// only grab the latest 200 entries.
-		$log = array_slice( Jetpack_Options::get_option( 'log', array() ), -199, 199 );
+		$log = array_slice( $raw_log, -199, 199 );
 
 		// Append our event to the log.
 		$log_entry = array(
@@ -3324,7 +3320,7 @@ p {
 
 		status_header( 200 );
 		if ( true === $response ) {
-			exit;
+			exit( 0 );
 		}
 
 		die( wp_json_encode( (object) $response ) );
@@ -3488,16 +3484,6 @@ p {
 	}
 
 	/**
-	 * Doesn't do anything anymore.
-	 *
-	 * @deprecated 13.9 We no longer show the "Help" button.
-	 *
-	 * @since Jetpack (1.2.3)
-	 * @return void
-	 */
-	public function admin_help() {}
-
-	/**
 	 * Add action links for the Jetpack plugin.
 	 *
 	 * @param array $actions Plugin actions.
@@ -3596,7 +3582,7 @@ p {
 					self::get_calypso_host() . 'jetpack/connect'
 				)
 			);
-			exit;
+			exit( 0 );
 		}
 	}
 
@@ -3703,7 +3689,7 @@ p {
 
 					add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
 					wp_safe_redirect( $url );
-					exit;
+					exit( 0 );
 				case 'activate':
 					if ( ! current_user_can( 'jetpack_activate_modules' ) ) {
 						$error = 'cheatin';
@@ -3719,7 +3705,7 @@ p {
 					}
 					// The following two lines will rarely happen, as Jetpack::activate_module normally exits at the end.
 					wp_safe_redirect( self::admin_url( 'page=jetpack' ) );
-					exit;
+					exit( 0 );
 				case 'activate_default_modules':
 					check_admin_referer( 'activate_default_modules' );
 					self::log( 'activate_default_modules' );
@@ -3729,7 +3715,7 @@ p {
 					$other_modules = isset( $_GET['other_modules'] ) && is_array( $_GET['other_modules'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_GET['other_modules'] ) ) : array();
 					self::activate_default_modules( $min_version, $max_version, $other_modules );
 					wp_safe_redirect( self::admin_url( 'page=jetpack' ) );
-					exit;
+					exit( 0 );
 				case 'disconnect':
 					if ( ! current_user_can( 'jetpack_disconnect' ) ) {
 						$error = 'cheatin';
@@ -3740,7 +3726,7 @@ p {
 					self::log( 'disconnect' );
 					self::disconnect();
 					wp_safe_redirect( self::admin_url( 'disconnected=true' ) );
-					exit;
+					exit( 0 );
 				case 'reconnect':
 					if ( ! current_user_can( 'jetpack_reconnect' ) ) {
 						$error = 'cheatin';
@@ -3753,7 +3739,7 @@ p {
 
 					add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
 					wp_safe_redirect( $this->build_connect_url( true, false, 'reconnect' ) );
-					exit;
+					exit( 0 );
 				case 'deactivate':
 					if ( ! current_user_can( 'jetpack_deactivate_modules' ) ) {
 						$error = 'cheatin';
@@ -3769,7 +3755,7 @@ p {
 					}
 					self::state( 'module', $modules );
 					wp_safe_redirect( self::admin_url( 'page=jetpack' ) );
-					exit;
+					exit( 0 );
 				case 'unlink':
 					$redirect = isset( $_GET['redirect'] ) ? sanitize_text_field( wp_unslash( $_GET['redirect'] ) ) : '';
 					check_admin_referer( 'jetpack-unlink' );
@@ -3781,7 +3767,7 @@ p {
 					} else {
 						wp_safe_redirect( self::admin_url( array( 'page' => rawurlencode( $redirect ) ) ) );
 					}
-					exit;
+					exit( 0 );
 				default:
 					/**
 					 * Fires when a Jetpack admin page is loaded with an unrecognized parameter.
@@ -4512,6 +4498,7 @@ endif;
 				if ( is_a( $jp_user, 'WP_User' ) ) {
 					wp_set_current_user( $jp_user->ID );
 					$user_can = is_multisite()
+						// @phan-suppress-next-line PhanDeprecatedFunction -- @todo Switch to current_user_can_for_site when we drop support for WP 6.6.
 						? current_user_can_for_blog( get_current_blog_id(), 'manage_options' )
 						: current_user_can( 'manage_options' );
 					if ( $user_can ) {
@@ -5925,6 +5912,23 @@ endif;
 				_x( 'Earn more from your content', 'Creator Product Feature', 'jetpack' ),
 				_x( 'Accept payments with PayPal', 'Creator Product Feature', 'jetpack' ),
 				_x( 'Increase earnings with WordAds', 'Creator Product Feature', 'jetpack' ),
+			),
+		);
+
+		$products['growth'] = array(
+			'title'             => __( 'Jetpack Growth', 'jetpack' ),
+			'slug'              => 'jetpack_growth_yearly',
+			'description'       => __( 'Essential tools to help you grow your audience, track visitor engagement, and turn leads into loyal customers and advocates.', 'jetpack' ),
+			'show_promotion'    => true,
+			'discount_percent'  => 50,
+			'included_in_plans' => array( 'complete' ),
+			'features'          => array(
+				_x( 'Jetpack Social', 'Growth Product Feature', 'jetpack' ),
+				_x( 'Jetpack Stats (10K site views, upgradeable)', 'Growth Product Feature', 'jetpack' ),
+				_x( 'Unlimited subscriber imports', 'Growth Product Feature', 'jetpack' ),
+				_x( 'Earn more from your content', 'Growth Product Feature', 'jetpack' ),
+				_x( 'Accept payments with PayPal', 'Growth Product Feature', 'jetpack' ),
+				_x( 'Increase earnings with WordAds', 'Growth Product Feature', 'jetpack' ),
 			),
 		);
 

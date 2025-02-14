@@ -79,6 +79,7 @@ class Defaults {
 		'jetpack_comment_form_color_scheme',
 		'jetpack_comment_likes_enabled',
 		'jetpack_excluded_extensions',
+		'jetpack_holiday_snow_enabled',
 		'jetpack_mailchimp',
 		'jetpack_options',
 		'jetpack_portfolio',
@@ -460,8 +461,6 @@ class Defaults {
 		'wp_log', // WP Logging Plugin.
 		'wpephpcompat_jobs',
 		'wprss_feed_item',
-		'memberships_coupon',
-		'memberships_gift',
 		'tribe-ea-record', // The Events Calendar Plugin - Store Event Aggregator record information.
 		'wphb_minify_group', // Hummingbird Plugin - Used internally to keep data about assets minification.
 		'bigcommerce_task', // BigCommerce Plugin - Store import queue.

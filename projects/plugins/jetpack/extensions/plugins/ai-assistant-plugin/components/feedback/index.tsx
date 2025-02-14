@@ -1,23 +1,18 @@
 /**
  * External dependencies
  */
-import { useAiSuggestions } from '@automattic/jetpack-ai-client';
+import { useAiSuggestions, usePostContent, AiAssistantModal } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 /**
  * Internal dependencies
  */
-import usePostContent from '../../hooks/use-post-content';
-import AiAssistantModal from '../modal';
 import './style.scss';
-/**
- * Types
- */
-import type * as EditorSelectors from '@wordpress/editor/store/selectors';
 
 export default function Feedback( {
 	disabled = false,
@@ -32,10 +27,7 @@ export default function Feedback( {
 	const [ suggestion, setSuggestion ] = useState< Array< React.JSX.Element | null > >( [ null ] );
 	const { tracks } = useAnalytics();
 
-	const postId = useSelect(
-		select => ( select( 'core/editor' ) as typeof EditorSelectors ).getCurrentPostId(),
-		[]
-	);
+	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const postContent = usePostContent();
 
 	const toggleFeedbackModal = () => {
@@ -104,12 +96,15 @@ export default function Feedback( {
 					<div className="ai-assistant-post-feedback__suggestion">{ suggestion }</div>
 				</AiAssistantModal>
 			) }
-			<p>{ __( 'Get feedback on content structure.', 'jetpack' ) }</p>
+			<p className="jetpack-ai-assistant__help-text">
+				{ __( 'Get feedback on content structure.', 'jetpack' ) }
+			</p>
 			<Button
 				onClick={ handleRequest }
 				variant="secondary"
 				disabled={ ! postContent || disabled }
 				isBusy={ busy }
+				__next40pxDefaultSize
 			>
 				{ __( 'Generate feedback', 'jetpack' ) }
 			</Button>

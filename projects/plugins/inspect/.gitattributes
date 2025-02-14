@@ -21,7 +21,6 @@ vendor/jetpack-autoloader/**                    production-include
 /babel.config.js                                production-exclude
 /changelog/**                                   production-exclude
 /composer.lock                                  production-exclude
-/.eslintrc.cjs                                  production-exclude
 /.gitattributes                                 production-exclude
 /.gitignore                                     production-exclude
 /node_modules/**                                production-exclude

@@ -245,7 +245,7 @@ export class MapBoxComponent extends Component {
 			this.setState( { boundsSetProgrammatically: true } );
 			try {
 				map.removeControl( zoomControl );
-			} catch ( e ) {
+			} catch {
 				// Ok if control wasn't there to remove.
 			}
 			return;
@@ -362,7 +362,7 @@ export class MapBoxComponent extends Component {
 					// If there's an old map instance hanging around, try to
 					// clean it up.
 					prevMap?.remove();
-				} catch ( error ) {
+				} catch {
 					// Ok if there wasn't one to clean up.
 				}
 

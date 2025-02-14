@@ -12,6 +12,9 @@ declare module '@wordpress/core-data' {
 	export interface PerPackageEntityRecords {
 		'jetpack/v4': SocialPluginSettings;
 	}
+	export interface PerPackageEntityRecords {
+		root: SocialSettingsFields;
+	}
 
 	export namespace BaseEntityRecords {
 		export interface Settings extends SocialSettingsFields {}

@@ -57,7 +57,7 @@ class WP_Test_Jetpack_Shortcodes_Facebook extends WP_UnitTestCase {
 		$actual = ob_get_clean();
 		$this->assertStringContainsString(
 			sprintf(
-				'<div class="fb-video" data-allowfullscreen="true" data-href="%s"></div>',
+				'<div class="fb-video" data-allowfullscreen="true" data-href="%s" style="background-color: #fff; display: inline-block;"></div>',
 				$url
 			),
 			$actual
@@ -86,7 +86,7 @@ class WP_Test_Jetpack_Shortcodes_Facebook extends WP_UnitTestCase {
 		$actual = ob_get_clean();
 		$this->assertStringContainsString(
 			sprintf(
-				'<div class="fb-video" data-allowfullscreen="true" data-href="%s"></div>',
+				'<div class="fb-video" data-allowfullscreen="true" data-href="%s" style="background-color: #fff; display: inline-block;"></div>',
 				$url
 			),
 			$actual
@@ -115,7 +115,7 @@ class WP_Test_Jetpack_Shortcodes_Facebook extends WP_UnitTestCase {
 		$actual = ob_get_clean();
 		$this->assertStringContainsString(
 			sprintf(
-				'<div class="fb-video" data-allowfullscreen="true" data-href="%s"></div>',
+				'<div class="fb-video" data-allowfullscreen="true" data-href="%s" style="background-color: #fff; display: inline-block;"></div>',
 				$url
 			),
 			$actual

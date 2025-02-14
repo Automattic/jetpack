@@ -5,7 +5,10 @@ type RequestParams = string | { [ key: string ]: any };
 
 export default class AsyncAPI {
 	// eslint-disable-next-line
-	constructor( private baseUrl: string, private restNonce: string ) {}
+	constructor(
+		private baseUrl: string,
+		private restNonce: string
+	) {}
 
 	private async request< T >(
 		endpoint: string,
@@ -35,7 +38,7 @@ export default class AsyncAPI {
 		const text = await result.text();
 		try {
 			data = JSON.parse( text );
-		} catch ( e ) {
+		} catch {
 			// console.error( 'Failed to parse the response\n', { url, text, result, error: e } );
 		}
 

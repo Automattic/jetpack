@@ -195,7 +195,7 @@ class WPCOMSH_Support_Session_Detect {
 				static::DETECTION_URI
 			);
 			wp_redirect( $detection_uri ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
-			die;
+			die( 0 );
 		}
 	}
 
@@ -225,7 +225,7 @@ class WPCOMSH_Support_Session_Detect {
 			}
 
 			static::print_detection_ui();
-			die;
+			die( 0 );
 		}
 
 		if ( 'POST' === $_SERVER['REQUEST_METHOD'] ) {
@@ -251,7 +251,7 @@ class WPCOMSH_Support_Session_Detect {
 				$redirect = static::EMERGENCY_LOGIN_PATH;
 			}
 			wp_redirect( $redirect ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
-			die;
+			die( 0 );
 		}
 		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 	}

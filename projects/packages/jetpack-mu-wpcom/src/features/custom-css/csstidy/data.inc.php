@@ -549,6 +549,7 @@ $GLOBALS['csstidy']['all_properties']['marquee-loop']                = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['marquee-play-count']          = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['marquee-speed']               = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['marquee-style']               = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['mask']                        = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['mask-clip']                   = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['mask-composite']              = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['mask-image']                  = 'CSS3.0';

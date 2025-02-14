@@ -84,6 +84,7 @@ export default function WhatsAppButtonConfiguration( { attributes, setAttributes
 				<BaseControl.VisualLabel>{ __( 'Phone Number', 'jetpack' ) }</BaseControl.VisualLabel>
 				<SelectControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					label={ __( 'Country code', 'jetpack' ) }
 					value={ countryCode }
 					onChange={ value => setAttributes( { countryCode: value } ) }
@@ -93,6 +94,7 @@ export default function WhatsAppButtonConfiguration( { attributes, setAttributes
 
 				<TextControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					placeholder={ __( 'Your phone number…', 'jetpack' ) }
 					onChange={ newPhoneNumber => {
 						setAttributes( { phoneNumber: newPhoneNumber } );

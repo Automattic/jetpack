@@ -192,12 +192,16 @@ class Jetpack_Notifications {
 		$third_party_cookie_check_iframe = '<span style="display:none;"><iframe class="jetpack-notes-cookie-check" src="https://widgets.wp.com/3rd-party-cookie-check/index.html"></iframe></span>';
 
 		$title = self::get_notes_markup();
+
+		// The default fallback is `en_US`. Remove underscore if present, noting that lang codes can be more than three chars.
+		$user_locale = strtolower( explode( '_', $user_locale, 2 )[0] );
+
 		$wp_admin_bar->add_menu(
 			array(
 				'id'     => 'notes',
 				'title'  => $title,
 				'meta'   => array(
-					'html'  => '<div id="wpnt-notes-panel2" class="intrinsic-ignore" style="display:none" lang="' . esc_attr( strtolower( substr( $user_locale, 0, 2 ) ) ) . '" dir="' . ( is_rtl() ? 'rtl' : 'ltr' ) . '"><div class="wpnt-notes-panel-header"><span class="wpnt-notes-header">' . __( 'Notifications', 'jetpack' ) . '</span><span class="wpnt-notes-panel-link"></span></div></div>' . $third_party_cookie_check_iframe,
+					'html'  => '<div id="wpnt-notes-panel2" class="intrinsic-ignore" style="display:none" lang="' . esc_attr( $user_locale ) . '" dir="' . ( is_rtl() ? 'rtl' : 'ltr' ) . '"><div class="wpnt-notes-panel-header"><span class="wpnt-notes-header">' . __( 'Notifications', 'jetpack' ) . '</span><span class="wpnt-notes-panel-link"></span></div></div>' . $third_party_cookie_check_iframe,
 					'class' => 'menupop',
 				),
 				'parent' => 'top-secondary',

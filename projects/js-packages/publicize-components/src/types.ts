@@ -1,8 +1,8 @@
 import {
 	SocialImageGeneratorConfig,
-	SocialPluginSettings,
 	UtmSettingsConfig,
 	SocialStoreState,
+	SocialNotesSettings,
 } from './social-store/types';
 
 export interface SocialUrls {
@@ -13,6 +13,7 @@ export type SharesData = {
 	to_be_publicized_count: number;
 	publicized_count: number;
 	shared_posts_count: number;
+	is_share_limit_enabled: boolean;
 };
 
 export interface FeatureFlags {
@@ -34,15 +35,17 @@ export type ConnectionService = {
 export interface ApiPaths {
 	refreshConnections: string;
 	resharePost: string;
+	socialToggleBase: 'settings' | 'social/settings';
 }
 
 export type SocialSettings = {
 	socialImageGenerator: SocialImageGeneratorConfig;
 	utmSettings: UtmSettingsConfig;
-	socialPlugin: SocialPluginSettings;
+	socialNotes: SocialNotesSettings;
+	showPricingPage: boolean;
 };
 
-export type PluginInfo = Record< 'social' | 'jetpack', { version: string } >;
+export type PluginInfo = Record< 'social' | 'jetpack', { version: string | null } >;
 
 export interface SocialScriptData {
 	api_paths: ApiPaths;

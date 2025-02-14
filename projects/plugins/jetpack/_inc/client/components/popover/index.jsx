@@ -1,11 +1,11 @@
 import { createRef } from '@wordpress/element';
 import clsx from 'clsx';
 import uid from 'component-uid';
-import RootChild from 'components/root-child';
 import debugFactory from 'debug';
 import { assign } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import RootChild from 'components/root-child';
 import {
 	bindWindowListeners,
 	unbindWindowListeners,
@@ -90,7 +90,6 @@ class Popover extends Component {
 			if ( ! context || this.isDOMNode( context ) ) {
 				this.domContextRef.current = context;
 			} else {
-				// eslint-disable-next-line no-console
 				this.debug( 'Expected a DOM node for props.context', context );
 			}
 		}
@@ -203,7 +202,6 @@ class Popover extends Component {
 			if ( ! this.props.ignoreContext || this.isDOMNode( this.props.ignoreContext ) ) {
 				ignoreContext = this.props.ignoreContext;
 			} else {
-				// eslint-disable-next-line no-console
 				this.debug( 'Expected a DOM node for props.context', this.props.ignoreContext );
 			}
 			if ( ignoreContext && ignoreContext.contains ) {
@@ -255,7 +253,6 @@ class Popover extends Component {
 		if ( ! this.props.context || this.isDOMNode( this.props.context ) ) {
 			this.domContextRef.current = this.props.context;
 		} else {
-			// eslint-disable-next-line no-console
 			this.debug( 'Expected a DOM node for props.context', this.props.context );
 		}
 

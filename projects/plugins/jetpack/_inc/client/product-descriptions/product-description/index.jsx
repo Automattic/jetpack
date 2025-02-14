@@ -1,12 +1,12 @@
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import JetpackProductCard from 'components/jetpack-product-card';
-import { MoneyBackGuarantee } from 'components/money-back-guarantee';
-import analytics from 'lib/analytics';
 import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import { useEffect } from 'react';
 import { connect } from 'react-redux';
+import JetpackProductCard from 'components/jetpack-product-card';
+import { MoneyBackGuarantee } from 'components/money-back-guarantee';
+import analytics from 'lib/analytics';
 import { getProductsForPurchase } from 'state/initial-state';
 import { getIntroOffers } from 'state/intro-offers';
 import { productIllustrations } from '../constants';

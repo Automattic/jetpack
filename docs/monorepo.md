@@ -41,7 +41,7 @@ All GitHub Actions configuration for the monorepo, including CI, lives in `.gith
 
 ## Compatibility
 
-All projects should be compatible with PHP versions WordPress supports. That's currently PHP 7.2 to 8.3.
+All projects should be compatible with PHP versions WordPress supports. That's currently PHP 7.2 to 8.4.
 
 ## First Time
 
@@ -195,17 +195,7 @@ The following environment variables are available for all tests:
 
 We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply with the [coding standards](development-environment.md#coding-standards) enforced by these tools.
 
-* Projects may include `.eslintrc.js` to adjust eslint configuration as necessary, but try to keep to the spirit of it.
-
-  Note we're using something of a hack to get eslint to read ignore rules from `.gitignore` and per-directory `.eslintignore` files.
-  Any eslintrc that does `root: true` or an `extends` that extends from an eslintrc that includes the hack will have to do like
-  ```js
-  const loadIgnorePatterns = require( 'jetpack-js-tools/load-eslint-ignore.js' );
-  module.exports = {
-  	// Whatever stuff, including `root: true` or `extends`.
-  	ignorePatterns: loadIgnorePatterns( __dirname ),
-  };
-  ```
+* Projects may include `eslint.config.mjs` to adjust eslint configuration as necessary, but try to keep to the spirit of it. Configurations should generally start with `...makeBaseConfig( import.meta.url )` (imported from `jetpack-js-tools/eslintrc/base.mjs`) with any appropriate options, and override from there.
 * We're using a fork of phpcs and a custom filter that adds support for per-directory configuration (`.phpcs.dir.xml`) and use of `.gitignore` and `.phpcsignore` files. Again, try to keep to the spirit of things.
 
 ### Static Analysis
@@ -266,7 +256,7 @@ If a project contains PHP tests (typically PHPUnit), it must define `.scripts.te
 
 A MySQL database is available if needed; credentials may be found in `~/.my.cnf`. Note that the host must be specified as `127.0.0.1`, as when passed `localhost` PHP will try to connect via a Unix domain socket which is not available in the Actions environment.
 
-Tests are run with a variety of supported PHP versions from 7.2 to 8.3. If you have tests that only need to be run once, run them when `PHP_VERSION` matches that in `.github/versions.sh`.
+Tests are run with a variety of supported PHP versions from 7.2 to 8.4. If you have tests that only need to be run once, run them when `PHP_VERSION` matches that in `.github/versions.sh`.
 
 #### PHP tests for non-plugins
 
@@ -274,14 +264,16 @@ For all project types other than WordPress plugins, the necessary version of PHP
 
 We currently make use of the following packages in testing; it's encouraged to use these rather than introducing other tools that serve the same purpose.
 
-* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 8.5 to 9.6, to support PHP 7.2 to 8.3.
+* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 8.5 to 9.6, to support PHP 7.2 to 8.4.
   * Do not use `Yoast\PHPUnitPolyfills\TestCases\TestCase` or `Yoast\PHPUnitPolyfills\TestCases\XTestCase`. Just use the `@before`, `@after`, `@beforeClass`, and `@afterClass` annotations directly.
 * PHPUnit's built-in mocking is used for class mocks.
 * [brain/monkey](https://packagist.org/packages/brain/monkey) is used for mocking functions, and can also provide some functions for minimal WordPress compatibility.
-* [automattic/wordbless](https://packagist.org/packages/automattic/wordbless) is used to pull in WordPress for testing.
-  * If using both Brain Monkey and WorDBless, note the following requirements:
-    * You must `require_once __DIR__ . '/../../vendor/antecedent/patchwork/Patchwork.php';` in `bootstrap.php` before WorDBless's setup, so Brain Monkey can mock WordPress functions.
+* [automattic/jetpack-test-environment](../projects/packages/test-environment/README.md) is used to pull in WordPress for testing.
+  * If using both Brain Monkey and the Jetpack Test Environment, note the following requirements:
+    * You must `require_once __DIR__ . '/../../vendor/antecedent/patchwork/Patchwork.php';` in `bootstrap.php` before the Jetpack Test Environment's setup, so Brain Monkey can mock WordPress functions.
     * Follow Brain Monkey's [functions-setup.md](https://github.com/Brain-WP/BrainMonkey/blob/master/docs/functions-testing-tools/functions-setup.md) instead of [wordpress-setup.md](https://github.com/Brain-WP/BrainMonkey/blob/master/docs/wordpress-specific-tools/wordpress-setup.md); don't call `Monkey\setUp()` or try to use its WordPress-specific tools.
+	* To initiate the Jetpack Test Environment, call `\Automattic\Jetpack\Test_Environment\Bootstrap::init();` in `bootstrap.php`.
+	* See the [Jetpack Test Environment README](../projects/packages/test-environment/README.md) for more details.
 
 #### PHP tests for plugins
 

@@ -5,20 +5,23 @@
  * MailPoet Hub page JS
  */
 
-jQuery( function ( $ ) {
+/* eslint-disable eqeqeq */
+/* global jpcrm_sleep, ajaxurl */
+
+jQuery( function () {
 	// initiate
 	if ( window.jpcrm_mailpoet_initiate_ajax_sync ) {
 		jpcrm_mailpoet_initiate_sync();
 
 		// remove URL param to prevent refresh from restarting anew
-		var url = new URL( location );
+		const url = new URL( location );
 		url.searchParams.delete( 'definitely_restart_sync' );
 		history.replaceState( null, null, url );
 	}
 
 	// bind clickable stats
 	jQuery( '.jpcrm-clickable' ).on( 'click', function () {
-		var url = jQuery( this ).attr( 'data-href' );
+		const url = jQuery( this ).attr( 'data-href' );
 		if ( url ) {
 			window.open( url, '_blank' ).trigger( 'focus' );
 		}
@@ -27,9 +30,6 @@ jQuery( function ( $ ) {
 
 /*
  * Initiate MailPoet sync
- */
-/**
- *
  */
 function jpcrm_mailpoet_initiate_sync() {
 	// console.log( 'Initiating MailPoet Background sync...' );
@@ -61,8 +61,7 @@ function jpcrm_mailpoet_initiate_sync() {
 			'job_in_progress', 'sync_completed', or 'sync_part_complete'
 		*/
 
-			var sleep_time = 1000,
-				completed = false,
+			let sleep_time = 1000,
 				remaining_pages = -1,
 				percentage_completed = -1;
 
@@ -150,7 +149,7 @@ function jpcrm_mailpoet_initiate_sync() {
 				}
 
 				// append title where material to build one
-				var title = '';
+				let title = '';
 				if ( remaining_pages > 0 ) {
 					title = jpcrm_mailpoet_language_label( 'pages_remain', '{0} pages remain' ).format(
 						remaining_pages
@@ -174,8 +173,8 @@ function jpcrm_mailpoet_initiate_sync() {
 					} );
 				} else {
 					// effectively an error (10 times the AJAX has bounced back saying 'already running')
-					error_type = 'caught_mid_job';
-					error_string = jpcrm_mailpoet_language_label(
+					const error_type = 'caught_mid_job';
+					const error_string = jpcrm_mailpoet_language_label(
 						error_type,
 						'Import job is running in the back end. If this message is still shown after some time, please contact support.'
 					);
@@ -189,7 +188,8 @@ function jpcrm_mailpoet_initiate_sync() {
 		},
 		function ( response ) {
 			// failed to run sync job for some reason...
-			var error_string = '';
+			let error_type = '';
+			let error_string = '';
 
 			if ( response.statusText == 'timeout' ) {
 				// AJAX call timed out, but cron should catch it
@@ -213,7 +213,7 @@ function jpcrm_mailpoet_initiate_sync() {
 				document.getElementById( 'jpcrm-mailpoet-status-short-text' ).className = 'status red';
 
 				// leave it 20s then restart
-				sleep_time = 20000;
+				const sleep_time = 20000;
 				jpcrm_sleep( sleep_time ).then( () => {
 					jpcrm_mailpoet_initiate_sync();
 				} );
@@ -223,17 +223,14 @@ function jpcrm_mailpoet_initiate_sync() {
 			jQuery( '#jpcrm_firing_ajax' ).removeClass( 'active' );
 			document.getElementById( 'jpcrm-mailpoet-status-short-text' ).textContent = error_type;
 			document.getElementById( 'jpcrm-mailpoet-status-long-text' ).textContent = error_string;
-			return;
 		}
 	);
 }
 
-/*
- * AJAX MailPoet sync call
- */
 /**
- * @param success_callback
- * @param error_callback
+ * AJAX MailPoet sync call
+ * @param {Function} success_callback - Callback on success.
+ * @param {Function} error_callback   - Callback on failure.
  */
 function jpcrm_mailpoet_fire_sync( success_callback, error_callback ) {
 	if ( ! window.jpcrm_mailpoet_firing_sync ) {
@@ -241,7 +238,7 @@ function jpcrm_mailpoet_fire_sync( success_callback, error_callback ) {
 		window.jpcrm_mailpoet_firing_sync = true;
 
 		// postbag!
-		var data = {
+		const data = {
 			action: 'jpcrm_mailpoet_fire_sync_job',
 			sec: window.jpcrm_mailpoet_nonce,
 		};
@@ -275,12 +272,12 @@ function jpcrm_mailpoet_fire_sync( success_callback, error_callback ) {
 	} // / not blocked
 }
 
-/*
- * returns a language label as passed from php in output_language_labels()
- */
 /**
- * @param key
- * @param fallback
+ * Returns a language label as passed from php in output_language_labels()
+ *
+ * @param {string} key      - Key to look up language string.
+ * @param {string} fallback - Fallback string.
+ * @return {string} - Language-appropriate string.
  */
 function jpcrm_mailpoet_language_label( key, fallback ) {
 	if (
@@ -303,7 +300,7 @@ NOTE: shall we move this to Core (if we agree)... it'll mean we can use argument
 */
 if ( ! String.prototype.format ) {
 	String.prototype.format = function () {
-		var args = arguments;
+		const args = arguments;
 		return this.replace( /{(\d+)}/g, function ( match, number ) {
 			return typeof args[ number ] !== 'undefined' ? args[ number ] : match;
 		} );
@@ -311,6 +308,9 @@ if ( ! String.prototype.format ) {
 }
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { jpcrm_mailpoet_initiate_sync, jpcrm_mailpoet_fire_sync,
-		jpcrm_mailpoet_language_label };
+	module.exports = {
+		jpcrm_mailpoet_initiate_sync,
+		jpcrm_mailpoet_fire_sync,
+		jpcrm_mailpoet_language_label,
+	};
 }

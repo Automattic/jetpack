@@ -27,8 +27,7 @@ import './editor.scss';
 export const name = 'publicize';
 
 const PublicizeSettings = () => {
-	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
-		useModuleStatus( name );
+	const { isLoadingModules, isModuleActive } = useModuleStatus( name );
 	const postCanUseSig = usePostCanUseSig();
 
 	let children = null;
@@ -37,13 +36,7 @@ const PublicizeSettings = () => {
 	if ( isLoadingModules ) {
 		children = <PublicizeSkeletonLoader />;
 	} else if ( ! isModuleActive ) {
-		children = (
-			<PublicizePlaceholder
-				changeStatus={ changeStatus }
-				isModuleActive={ isModuleActive }
-				isLoading={ isChangingStatus }
-			/>
-		);
+		children = <PublicizePlaceholder />;
 	} else {
 		children = (
 			<>

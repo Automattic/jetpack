@@ -1,8 +1,8 @@
 import { ToggleControl } from '@automattic/jetpack-components';
-import { store as socialStore } from '@automattic/jetpack-publicize-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import React from 'react';
+import { store as socialStore } from '@automattic/jetpack-publicize-components';
 
 type ToggleProps = {
 	/**
@@ -25,7 +25,7 @@ type ToggleProps = {
 const UtmToggle: React.FC< ToggleProps > = ( { toggleClass, children } ) => {
 	const { isEnabled, isUpdating } = useSelect( select => {
 		return {
-			isEnabled: select( socialStore ).getUtmSettings().enabled,
+			isEnabled: select( socialStore ).getSocialSettings().utmSettings.enabled,
 			isUpdating: select( socialStore ).isSavingSiteSettings(),
 		};
 	}, [] );

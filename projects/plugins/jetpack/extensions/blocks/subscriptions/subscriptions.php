@@ -43,9 +43,16 @@ function register_block() {
 		return;
 	}
 
-	require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
-	if ( \Jetpack_Memberships::should_enable_monetize_blocks_in_editor() ) {
+	/**
+	 * Do not proceed if the newsletter feature (Subscriptions module) is not enabled
+	 */
+	if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
+		return;
+	}
 
+	require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
+
+	if ( \Jetpack_Memberships::should_enable_monetize_blocks_in_editor() ) {
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array(
@@ -59,22 +66,6 @@ function register_block() {
 				),
 			)
 		);
-	}
-
-	/*
-	 * If the Subscriptions module is not active,
-	 * do not make any further changes on the site.
-	 */
-	if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
-		return;
-	}
-
-	/**
-	 * Do not proceed if the newsletter feature is not enabled
-	 * or if the 'Jetpack_Memberships' class does not exists.
-	 */
-	if ( ! class_exists( '\Jetpack_Memberships' ) ) {
-		return;
 	}
 
 	register_post_meta(
@@ -492,8 +483,8 @@ function get_element_styles_from_attributes( $attributes ) {
 
 		// Account for custom margins on inline forms.
 		$submit_button_styles .= true === get_attribute( $attributes, 'buttonOnNewLine' )
-			? sprintf( 'width: calc(100%% - %dpx);', get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE ) )
-			: 'width: 100%;';
+			? 'width: 100%;'
+			: sprintf( 'width: calc(100%% - %dpx);', get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE ) );
 	}
 
 	$font_size = get_attribute( $attributes, 'customFontSize', DEFAULT_FONTSIZE_VALUE );
@@ -674,32 +665,34 @@ function render_block( $attributes ) {
 	$include_social_followers = isset( $attributes['includeSocialFollowers'] ) ? (bool) get_attribute( $attributes, 'includeSocialFollowers' ) : true;
 
 	$data = array(
-		'widget_id'                     => Jetpack_Subscriptions_Widget::$instance_count,
-		'subscribe_email'               => $subscribe_email,
-		'is_paid_subscriber'            => get_attribute( $attributes, 'isPaidSubscriber', false ),
-		'wrapper_attributes'            => get_block_wrapper_attributes(
+		'widget_id'                         => Jetpack_Subscriptions_Widget::$instance_count,
+		'subscribe_email'                   => $subscribe_email,
+		'is_paid_subscriber'                => get_attribute( $attributes, 'isPaidSubscriber', false ),
+		'wrapper_attributes'                => get_block_wrapper_attributes(
 			array(
 				'class' => $classes['block_wrapper'],
 			)
 		),
-		'subscribe_placeholder'         => get_attribute( $attributes, 'subscribePlaceholder', __( 'Type your email…', 'jetpack' ) ),
-		'submit_button_text'            => get_attribute( $attributes, 'submitButtonText', __( 'Subscribe', 'jetpack' ) ),
-		'submit_button_text_subscribed' => get_attribute( $attributes, 'submitButtonTextSubscribed', __( 'Subscribed', 'jetpack' ) ),
-		'submit_button_text_upgrade'    => get_attribute( $attributes, 'submitButtonTextUpgrade', __( 'Upgrade subscription', 'jetpack' ) ),
-		'success_message'               => get_attribute(
+		'subscribe_placeholder'             => get_attribute( $attributes, 'subscribePlaceholder', __( 'Type your email…', 'jetpack' ) ),
+		'submit_button_text'                => get_attribute( $attributes, 'submitButtonText', __( 'Subscribe', 'jetpack' ) ),
+		'submit_button_text_subscribed'     => get_attribute( $attributes, 'submitButtonTextSubscribed', __( 'Subscribed', 'jetpack' ) ),
+		'submit_button_text_upgrade'        => get_attribute( $attributes, 'submitButtonTextUpgrade', __( 'Upgrade subscription', 'jetpack' ) ),
+		'success_message'                   => get_attribute(
 			$attributes,
 			'successMessage',
 			esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm' to start subscribing.", 'jetpack' )
 		),
-		'show_subscribers_total'        => (bool) get_attribute( $attributes, 'showSubscribersTotal' ),
-		'subscribers_total'             => get_attribute( $attributes, 'showSubscribersTotal' ) ? get_subscriber_count( $include_social_followers ) : 0,
-		'referer'                       => esc_url_raw(
+		'show_subscribers_total'            => (bool) get_attribute( $attributes, 'showSubscribersTotal' ),
+		'subscribers_total'                 => get_attribute( $attributes, 'showSubscribersTotal' ) ? get_subscriber_count( $include_social_followers ) : 0,
+		'referer'                           => esc_url_raw(
 			( is_ssl() ? 'https' : 'http' ) . '://' . ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : '' ) .
 			( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' )
 		),
-		'source'                        => 'subscribe-block',
-		'app_source'                    => get_attribute( $attributes, 'appSource', null ),
-		'class_name'                    => get_attribute( $attributes, 'className' ),
+		'source'                            => 'subscribe-block',
+		'app_source'                        => get_attribute( $attributes, 'appSource', null ),
+		'class_name'                        => get_attribute( $attributes, 'className' ),
+		'selected_newsletter_categories'    => get_attribute( $attributes, 'selectedNewsletterCategoryIds', array() ),
+		'preselected_newsletter_categories' => get_attribute( $attributes, 'preselectNewsletterCategories', false ),
 	);
 
 	if ( ! jetpack_is_frontend() ) {
@@ -774,7 +767,7 @@ function render_for_website( $data, $classes, $styles ) {
 					<?php endif; ?>
 				>
 						<a
-							href="<?php echo esc_url( 'https://wordpress.com/read/site/subscription/' . $blog_id ); ?>"
+							href="<?php echo esc_url( 'https://wordpress.com/reader/site/subscription/' . $blog_id ); ?>"
 							<?php if ( ! empty( $classes['submit_button'] ) ) : ?>
 								class="<?php echo esc_attr( $classes['submit_button'] ); ?>"
 							<?php endif; ?>
@@ -858,6 +851,10 @@ function render_for_website( $data, $classes, $styles ) {
 
 							if ( ! empty( $tier_id ) ) {
 								echo '<input type="hidden" name="tier_id" value="' . esc_attr( $tier_id ) . '"/>';
+							}
+
+							if ( $data['preselected_newsletter_categories'] && ! empty( $data['selected_newsletter_categories'] ) ) {
+								echo '<input type="hidden" name="selected_newsletter_categories" value="' . esc_attr( implode( ',', $data['selected_newsletter_categories'] ) ) . '"/>';
 							}
 							?>
 							<button type="submit"

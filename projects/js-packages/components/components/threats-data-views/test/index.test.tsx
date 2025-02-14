@@ -39,7 +39,7 @@ const data = [
 			name: 'WooCommerce',
 			slug: 'woocommerce',
 			version: '3.2.3',
-			type: 'plugin' as const,
+			type: 'plugins' as const,
 		},
 		fixedIn: '3.2.4',
 	},

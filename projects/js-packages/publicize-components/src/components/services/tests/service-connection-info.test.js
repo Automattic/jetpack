@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { setup } from '../../../utils/test-factory';
 import { ServiceConnectionInfo } from '../service-connection-info';
 
 jest.mock( '../../connection-management/connection-name', () => ( {
@@ -13,18 +14,30 @@ jest.mock( '../../connection-management/disconnect', () => ( {
 jest.mock( '../../connection-management/mark-as-shared', () => ( {
 	MarkAsShared: () => <button>Mark as Shared</button>,
 } ) );
+jest.mock( '../../../hooks/use-user-can-share-connection', () => ( {
+	useUserCanShareConnection: jest.fn( () => true ),
+} ) );
 
 describe( 'ServiceConnectionInfo', () => {
 	const connection = {
 		profile_picture: 'https://example.com/profile.jpg',
 		display_name: 'Example User',
 		status: 'connected',
-		can_disconnect: true,
 	};
 
 	const service = {
 		icon: () => <svg aria-label="test-svg"></svg>,
 	};
+
+	beforeAll( () => {
+		global.JetpackScriptData = {
+			user: {
+				current_user: {
+					id: 123,
+				},
+			},
+		};
+	} );
 
 	const renderComponent = ( connOverrides = {}, serviceOverrides = {}, props = {} ) => {
 		render(
@@ -35,6 +48,10 @@ describe( 'ServiceConnectionInfo', () => {
 			/>
 		);
 	};
+
+	afterEach( () => {
+		jest.clearAllMocks();
+	} );
 
 	test( 'renders profile picture if available', () => {
 		renderComponent();
@@ -60,7 +77,7 @@ describe( 'ServiceConnectionInfo', () => {
 	} );
 
 	test( 'displays MarkAsShared button if connection can be disconnected', () => {
-		renderComponent( {}, {}, { isAdmin: true } );
+		renderComponent( {}, {}, { canMarkAsShared: true } );
 		expect( screen.getByText( 'Mark as Shared' ) ).toBeInTheDocument();
 	} );
 
@@ -70,7 +87,9 @@ describe( 'ServiceConnectionInfo', () => {
 	} );
 
 	test( 'displays description if connection cannot be disconnected', () => {
-		renderComponent( { can_disconnect: false } );
+		setup( { canUserManageConnection: false } );
+		renderComponent();
+
 		expect(
 			screen.getByText( 'This connection is added by a site administrator.' )
 		).toBeInTheDocument();

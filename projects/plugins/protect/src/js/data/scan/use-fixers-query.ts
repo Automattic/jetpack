@@ -1,4 +1,5 @@
 import { useConnection } from '@automattic/jetpack-connection';
+import { type FixersStatus, type ThreatFixStatus } from '@automattic/jetpack-scan';
 import { useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useEffect } from 'react';
@@ -6,7 +7,6 @@ import API from '../../api';
 import { QUERY_FIXERS_KEY, QUERY_HISTORY_KEY, QUERY_SCAN_STATUS_KEY } from '../../constants';
 import { fixerTimestampIsStale } from '../../hooks/use-fixers';
 import useNotices from '../../hooks/use-notices';
-import { FixersStatus, ThreatFixStatus } from '../../types/fixers';
 
 const initialData: FixersStatus = window.jetpackProtectInitialState?.fixerStatus || {
 	ok: true,
@@ -91,8 +91,8 @@ export default function useFixersQuery( {
 					if ( cachedThreat && cachedThreat.status === 'in_progress' ) {
 						if ( threat.status === 'in_progress' ) {
 							if (
-								! fixerTimestampIsStale( cachedThreat.last_updated ) &&
-								fixerTimestampIsStale( threat.last_updated )
+								! fixerTimestampIsStale( cachedThreat.lastUpdated ) &&
+								fixerTimestampIsStale( threat.lastUpdated )
 							) {
 								failures.push( threatId );
 							}
@@ -128,7 +128,7 @@ export default function useFixersQuery( {
 					( threat: ThreatFixStatus ) =>
 						'status' in threat &&
 						threat.status === 'in_progress' &&
-						! fixerTimestampIsStale( threat.last_updated )
+						! fixerTimestampIsStale( threat.lastUpdated )
 				);
 
 				// Refetch while any threats are still in progress and not stale.

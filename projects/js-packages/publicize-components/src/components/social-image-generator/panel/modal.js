@@ -17,7 +17,7 @@ import TemplatePicker from '../template-picker/picker';
 import styles from './styles.module.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'image/jpeg', 'image/png' ];
-const ADD_MEDIA_LABEL = __( 'Choose Image', 'jetpack' );
+const ADD_MEDIA_LABEL = __( 'Choose Image', 'jetpack-publicize-components' );
 
 const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 	const { customText, imageType, imageId, template, updateSettings } = useImageGeneratorConfig();
@@ -59,15 +59,15 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 					template={ localTemplate }
 				/>
 				<SelectControl
-					label={ __( 'Image Type', 'jetpack' ) }
+					label={ __( 'Image Type', 'jetpack-publicize-components' ) }
 					value={ localImageType || 'featured' }
 					options={ [
 						{
-							label: __( 'Featured Image', 'jetpack' ),
+							label: __( 'Featured Image', 'jetpack-publicize-components' ),
 							value: 'featured',
 						},
-						{ label: __( 'Custom Image', 'jetpack' ), value: 'custom' },
-						{ label: __( 'No Image', 'jetpack' ), value: 'none' },
+						{ label: __( 'Custom Image', 'jetpack-publicize-components' ), value: 'custom' },
+						{ label: __( 'No Image', 'jetpack-publicize-components' ), value: 'none' },
 					] }
 					onChange={ setEditedImageType }
 					__nextHasNoMarginBottom={ true }
@@ -76,7 +76,7 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 				{ localImageType === 'custom' && (
 					<MediaPicker
 						buttonLabel={ ADD_MEDIA_LABEL }
-						subTitle={ __( 'Add a custom image', 'jetpack' ) }
+						subTitle={ __( 'Add a custom image', 'jetpack-publicize-components' ) }
 						mediaId={ localImageId }
 						mediaDetails={ mediaDetails }
 						onChange={ onCustomImageChange }
@@ -88,22 +88,24 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 					className={ styles.customText }
 					value={ localCustomText || '' }
 					onChange={ setEditedCustomText }
-					label={ __( 'Custom Header', 'jetpack' ) }
+					label={ __( 'Custom Header', 'jetpack-publicize-components' ) }
 					help={ __(
 						'By default the post title is used for the image. You can use this field to set your own text.',
-						'jetpack'
+						'jetpack-publicize-components'
 					) }
 					__nextHasNoMarginBottom={ true }
 				/>
 				<BaseControl __nextHasNoMarginBottom={ true } className={ styles.templateControl }>
-					<BaseControl.VisualLabel>{ __( 'Templates', 'jetpack' ) }</BaseControl.VisualLabel>
+					<BaseControl.VisualLabel>
+						{ __( 'Templates', 'jetpack-publicize-components' ) }
+					</BaseControl.VisualLabel>
 					<TemplatePicker value={ localTemplate } onTemplateSelected={ setEditedTemplate } />
 				</BaseControl>
 				<Button onClick={ onClose } variant="tertiary">
-					{ __( 'Cancel', 'jetpack' ) }
+					{ __( 'Cancel', 'jetpack-publicize-components' ) }
 				</Button>
 				<Button onClick={ saveSettings } variant="primary">
-					{ __( 'Save', 'jetpack' ) }
+					{ __( 'Save', 'jetpack-publicize-components' ) }
 				</Button>
 			</Modal>
 		</ThemeProvider>

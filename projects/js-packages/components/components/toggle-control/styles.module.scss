@@ -4,6 +4,7 @@
 /// @link https://github.com/WordPress/gutenberg/tree/trunk/packages/components/src/form-toggle
 .toggle {
 	--base-width: 8px;
+	--track-width: calc( var(--base-width) * 6 );
 
 	&.is-small {
 		--base-width: 6px;
@@ -24,7 +25,7 @@
 			}
 
 			.components-form-toggle__track {
-				width: calc( var(--base-width) * 6 );
+				width: var( --track-width );
 				height: calc( var(--base-width) * 3 );
 				border-radius: 12px;
 				border-width: 2px;
@@ -40,6 +41,10 @@
 			&.is-checked .components-form-toggle__thumb {
 				transform: translateX( calc( var(--base-width) * 3 ) );
 			}
+		}
+		
+		.components-toggle-control__help {
+			margin-inline-start: calc( var( --track-width ) + var( --spacing-base ) );
 		}
 	}
 }

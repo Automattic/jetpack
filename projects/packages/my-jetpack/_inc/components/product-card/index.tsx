@@ -1,78 +1,70 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
+import useConnectSite from '../../hooks/use-connect-site';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import ActionButton from '../action-button';
+import SecondaryButton from '../action-button/secondary-button';
 import Card from '../card';
-import ActionButton from './action-button';
 import PriceComponent from './pricing-component';
 import RecommendationActions from './recommendation-actions';
-import SecondaryButton from './secondary-button';
 import Status from './status';
 import styles from './style.module.scss';
-import type { AdditionalAction, SecondaryAction } from './types';
-import type { MutateCallback } from '../../data/use-simple-mutation';
-import type { FC, MouseEventHandler, ReactNode } from 'react';
+import type { AdditionalAction, SecondaryAction } from '../action-button/types';
+import type { FC, MouseEventHandler, ReactNode, MouseEvent } from 'react';
 
 export type ProductCardProps = {
 	children?: ReactNode;
 	name: string;
-	Description: FC;
+	Description: FC | string;
 	admin: boolean;
 	recommendation?: boolean;
-	isFetching?: boolean;
 	isDataLoading?: boolean;
-	isInstallingStandalone?: boolean;
 	isManageDisabled?: boolean;
-	onActivate?: () => void;
 	slug: JetpackModule;
 	additionalActions?: AdditionalAction[];
 	upgradeInInterstitial?: boolean;
 	primaryActionOverride?: Record< string, AdditionalAction >;
 	secondaryAction?: SecondaryAction;
-	onInstallStandalone?: MutateCallback;
 	onActivateStandalone?: () => void;
 	status: ProductStatus;
 	onMouseEnter?: MouseEventHandler< HTMLButtonElement >;
 	onMouseLeave?: MouseEventHandler< HTMLButtonElement >;
 	customLoadTracks?: Record< Lowercase< string >, unknown >;
+	manageUrl?: string;
 };
 
 // ProductCard component
 const ProductCard: FC< ProductCardProps > = props => {
-	const ownProps = {
-		isFetching: false,
-		isInstallingStandalone: false,
-		onActivate: () => {},
-		...props,
-	};
 	const {
 		name,
 		Description,
 		status,
-		onActivate,
-		isFetching,
 		isDataLoading,
-		isInstallingStandalone,
 		slug,
 		additionalActions,
 		primaryActionOverride,
-		secondaryAction,
 		children,
-		onInstallStandalone,
 		onMouseEnter,
 		onMouseLeave,
 		recommendation,
 		customLoadTracks,
+		manageUrl,
 	} = props;
+
+	let { secondaryAction } = props;
 
 	const { ownedProducts } = getMyJetpackWindowInitialState( 'lifecycleStats' );
 	const isOwned = ownedProducts?.includes( slug );
 
 	const isError =
-		status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR ||
-		status === PRODUCT_STATUSES.USER_CONNECTION_ERROR;
+		status === PRODUCT_STATUSES.EXPIRED || status === PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR;
+	const isWarning =
+		status === PRODUCT_STATUSES.EXPIRING_SOON ||
+		status === PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING;
 	const isAbsent =
 		status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.ABSENT_WITH_PLAN;
 	const isPurchaseRequired = status === PRODUCT_STATUSES.NEEDS_PLAN;
@@ -82,65 +74,48 @@ const ProductCard: FC< ProductCardProps > = props => {
 		[ styles[ 'is-purchase-required' ] ]: isPurchaseRequired,
 		[ styles[ 'is-link' ] ]: isAbsent,
 		[ styles[ 'has-error' ] ]: isError,
+		[ styles[ 'has-warning' ] ]: isWarning,
 	} );
 
+	const [ isActionLoading, setIsActionLoading ] = useState( false );
 	const { recordEvent } = useAnalytics();
+	const { siteIsRegistering, isUserConnected } = useMyJetpackConnection();
+	const { connectSite } = useConnectSite( {
+		tracksInfo: {
+			event: `jetpack_myjetpack_product_card_fix_site_connection`,
+			properties: {},
+		},
+	} );
+	const isLoading =
+		isActionLoading || ( siteIsRegistering && status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR );
 
-	/**
-	 * Calls the passed function onActivate after firing Tracks event
-	 */
-	const activateHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_activate_click', {
-			product: slug,
-		} );
-		onActivate();
-	}, [ slug, onActivate, recordEvent ] );
-
-	/**
-	 * Calls the passed function onAdd after firing Tracks event
-	 */
-	const addHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_add_click', {
-			product: slug,
-		} );
-	}, [ slug, recordEvent ] );
-
-	/**
-	 * Calls the passed function onManage after firing Tracks event
-	 */
 	const manageHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_manage_click', {
 			product: slug,
 		} );
 	}, [ slug, recordEvent ] );
 
-	/**
-	 * Calls the passed function onFixConnection after firing Tracks event
-	 */
-	const fixConnectionHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_fixconnection_click', {
-			product: slug,
-		} );
-	}, [ slug, recordEvent ] );
+	if (
+		! secondaryAction &&
+		status === PRODUCT_STATUSES.CAN_UPGRADE &&
+		! ( slug === 'protect' && ! isUserConnected )
+	) {
+		secondaryAction = {
+			href: manageUrl,
+			label: __( 'View', 'jetpack-my-jetpack' ),
+			onClick: manageHandler,
+		};
+	}
 
 	/**
-	 * Calls when the "Learn more" button is clicked
+	 * Calls the passed function onFixSiteConnection after firing Tracks event
 	 */
-	const learnMoreHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_learnmore_click', {
-			product: slug,
-		} );
-	}, [ slug, recordEvent ] );
-
-	/**
-	 * Use a Tracks event to count a standalone plugin install request
-	 */
-	const installStandaloneHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_install_standalone_plugin_click', {
-			product: slug,
-		} );
-		onInstallStandalone();
-	}, [ slug, onInstallStandalone, recordEvent ] );
+	const fixSiteConnectionHandler = useCallback(
+		( { e }: { e: MouseEvent< HTMLButtonElement > } ) => {
+			connectSite( e );
+		},
+		[ connectSite ]
+	);
 
 	/**
 	 * Sends an event when the card loads
@@ -179,17 +154,12 @@ const ProductCard: FC< ProductCardProps > = props => {
 							<SecondaryButton { ...secondaryAction } />
 						) }
 						<ActionButton
-							{ ...ownProps }
-							onActivate={ activateHandler }
-							onFixConnection={ fixConnectionHandler }
-							onManage={ manageHandler }
-							onAdd={ addHandler }
-							onInstall={ installStandaloneHandler }
-							onLearnMore={ learnMoreHandler }
-							className={ styles.button }
+							slug={ slug }
 							additionalActions={ additionalActions }
 							primaryActionOverride={ primaryActionOverride }
-							isOwned={ isOwned }
+							fixSiteConnectionHandler={ fixSiteConnectionHandler }
+							setIsActionLoading={ setIsActionLoading }
+							tracksIdentifier="product_card"
 						/>
 						{ secondaryAction && ! secondaryAction?.positionFirst && (
 							<SecondaryButton { ...secondaryAction } />
@@ -197,9 +167,10 @@ const ProductCard: FC< ProductCardProps > = props => {
 					</div>
 					<Status
 						status={ status }
-						isFetching={ isFetching }
-						isInstallingStandalone={ isInstallingStandalone }
+						isFetching={ isLoading }
+						isInstallingStandalone={ false }
 						isOwned={ isOwned }
+						suppressNeedsAttention={ slug === 'protect' }
 					/>
 				</div>
 			) }

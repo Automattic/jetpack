@@ -33,9 +33,9 @@ export type PostPreviewProps = {
 export function PostPreview( { connection }: PostPreviewProps ) {
 	const user = useMemo(
 		() => ( {
-			displayName: connection.display_name || connection.external_display,
+			displayName: connection.display_name,
 			profileImage: connection.profile_picture,
-			externalName: connection.external_name,
+			externalName: connection.external_handle,
 		} ),
 		[ connection ]
 	);
@@ -55,10 +55,9 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 	);
 
 	const siteName = useSelect( select => {
-		// @ts-expect-error `getUnstableBase` exists in the store but is not typed
 		const { getUnstableBase } = select( coreStore );
 
-		return decodeEntities( getUnstableBase()?.name );
+		return decodeEntities( getUnstableBase( undefined )?.name );
 	}, [] );
 
 	const hasMedia = media?.some(
@@ -94,14 +93,20 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 					{ ...commonProps }
 					type="article"
 					customText={ message || excerpt || title }
-					user={ user }
+					user={ {
+						...user,
+						avatarUrl: user.profileImage,
+					} }
 				/>
 			) : (
 				<FacebookLinkPreview
 					{ ...commonProps }
 					type="article"
 					customText={ message || excerpt || title }
-					user={ user }
+					user={ {
+						...user,
+						avatarUrl: user.profileImage,
+					} }
 				/>
 			);
 
@@ -125,7 +130,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 			return (
 				<LinkedInPostPreview
 					{ ...commonProps }
-					jobTitle={ __( 'Job Title (Company Name)', 'jetpack' ) }
+					jobTitle={ __( 'Job Title (Company Name)', 'jetpack-publicize-components' ) }
 					name={ user.displayName }
 					profileImage={ user.profileImage }
 					description={ message || title || description }

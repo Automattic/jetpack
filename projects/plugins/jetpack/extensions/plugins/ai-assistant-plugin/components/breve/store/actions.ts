@@ -148,7 +148,7 @@ export function setSuggestions( {
 						suggestions,
 						blockId,
 					} );
-				} catch ( e ) {
+				} catch {
 					dispatch( {
 						type: 'SET_SUGGESTIONS_LOADING',
 						id,

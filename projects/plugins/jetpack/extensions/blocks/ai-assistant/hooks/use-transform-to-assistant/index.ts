@@ -96,6 +96,7 @@ const useTransformToAssistant = () => {
 			const extendedBlockAttributes = {
 				...( firstBlock?.attributes || {} ), // firstBlock.attributes should never be undefined, but still add a fallback
 				content,
+				preTransformAction: request?.promptType,
 			};
 
 			const newAIAssistantBlock = transformToAIAssistantBlock(

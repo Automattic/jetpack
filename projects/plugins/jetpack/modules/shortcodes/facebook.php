@@ -55,12 +55,20 @@ wp_embed_register_handler( 'facebook-alternate-video', JETPACK_FACEBOOK_VIDEO_AL
  * @return string Facebook embed markup.
  */
 function jetpack_facebook_embed_handler( $matches, $attr, $url ) {
+	// This is a stop-gap solution until Facebook hopefully resolves this ticket
+	// https://developers.facebook.com/community/threads/1675075423353415/?post_id=1675075426686748
+	$extra_styles = 'style="background-color: #fff; display: inline-block;"';
+
 	if (
 		str_contains( $url, 'video.php' )
 		|| str_contains( $url, '/videos/' )
 		|| str_contains( $url, '/watch' )
 	) {
-		$embed = sprintf( '<div class="fb-video" data-allowfullscreen="true" data-href="%s"></div>', esc_url( $url ) );
+		$embed = sprintf(
+			'<div class="fb-video" data-allowfullscreen="true" data-href="%1$s" %2$s></div>',
+			esc_url( $url ),
+			$extra_styles
+		);
 	} else {
 		$width = 552; // As of 01/2017, the default width of Facebook embeds when no width attribute provided.
 
@@ -69,7 +77,12 @@ function jetpack_facebook_embed_handler( $matches, $attr, $url ) {
 			$width = min( $width, $content_width );
 		}
 
-		$embed = sprintf( '<div class="fb-post" data-href="%s" data-width="%s"></div>', esc_url( $url ), esc_attr( $width ) );
+		$embed = sprintf(
+			'<div class="fb-post" data-href="%1$s" data-width="%2$s" %3$s></div>',
+			esc_url( $url ),
+			esc_attr( $width ),
+			$extra_styles
+		);
 	}
 
 	// Skip rendering scripts in an AMP context.

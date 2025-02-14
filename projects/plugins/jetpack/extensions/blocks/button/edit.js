@@ -8,21 +8,16 @@ import {
 import { compose } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import useWidth from '../../shared/use-width';
-import applyFallbackStyles from './apply-fallback-styles';
 import { IS_GRADIENT_AVAILABLE } from './constants';
 import ButtonControls from './controls';
 import usePassthroughAttributes from './use-passthrough-attributes';
 import './editor.scss';
 
 export function ButtonEdit( props ) {
-	const { attributes, backgroundColor, className, clientId, context, setAttributes, textColor } =
-		props;
+	const { attributes, backgroundColor, className, clientId, setAttributes, textColor } = props;
 	const { borderRadius, element, placeholder, text, width, fontSize } = attributes;
-	const isWidthSetOnParentBlock = 'jetpack/parentBlockWidth' in context;
 
 	usePassthroughAttributes( { attributes, clientId, setAttributes } );
-	useWidth( { attributes, disableEffects: isWidthSetOnParentBlock, setAttributes } );
 
 	/* eslint-disable react-hooks/rules-of-hooks */
 	const {
@@ -39,6 +34,7 @@ export function ButtonEdit( props ) {
 
 	const blockProps = useBlockProps( {
 		className: clsx( 'wp-block-button', className ),
+		style: { width },
 	} );
 
 	const buttonClasses = clsx( 'wp-block-button__link', {
@@ -48,7 +44,6 @@ export function ButtonEdit( props ) {
 		[ textColor.class ]: textColor.class,
 		[ gradientClass ]: gradientClass,
 		'no-border-radius': 0 === borderRadius,
-		'has-custom-width': !! width,
 		[ `has-${ fontSize }-font-size` ]: !! fontSize,
 		'has-custom-font-size': !! fontSize,
 	} );
@@ -60,7 +55,6 @@ export function ButtonEdit( props ) {
 		fontSize: attributes.style?.typography?.fontSize,
 		color: textColor.color,
 		borderRadius: borderRadius ? borderRadius + 'px' : undefined,
-		width,
 	};
 
 	return (
@@ -90,6 +84,5 @@ export function ButtonEdit( props ) {
 }
 
 export default compose(
-	withColors( { backgroundColor: 'background-color' }, { textColor: 'color' } ),
-	applyFallbackStyles
+	withColors( { backgroundColor: 'background-color' }, { textColor: 'color' } )
 )( ButtonEdit );

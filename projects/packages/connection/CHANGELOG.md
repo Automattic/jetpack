@@ -5,14 +5,74 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.4.1] - 2025-02-11
+### Changed
+- Update dependencies.
+
+## [6.4.0] - 2025-02-10
+### Changed
+- Tracks: Add site type to events [#41307]
+- Updated package dependencies. [#41491]
+
+## [6.3.2] - 2025-02-03
+### Changed
+- Updated package dependencies. [#41286]
+
+### Fixed
+- Code: Remove extra params on function calls. [#41263]
+
+## [6.3.1] - 2025-01-27
+### Changed
+- Internal updates.
+
+## [6.3.0] - 2025-01-20
+### Changed
+- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
+- Move WPCOM_REST_API_Proxy_Request trait to the connection package. [#41023]
+- Updated package dependencies. [#41099]
+
+### Fixed
+- Add heartbeat deactivation on site disconnection. [#41117]
+
+## [6.2.2] - 2025-01-06
+### Added
+- Added tests to increase code coverage. [#39963]
+
+### Changed
+- Updated package dependencies. [#40831]
+
+## [6.2.1] - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564]
+
+## [6.2.0] - 2024-12-09
+### Added
+- Added a mechanism to use callbacks for package options. [#40474]
+- REST user provisioning with an app password. [#40447]
+
+## [6.1.1] - 2024-12-04
+### Changed
+- Updated package dependencies. [#40363]
+
+## [6.1.0] - 2024-11-25
+### Added
+- Allow using application password for site registration. [#40233]
+
+### Changed
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#40258] [#40288]
+
+## [6.0.1] - 2024-11-18
+### Fixed
+- Work around a WP user caching bug (https://core.trac.wordpress.org/ticket/62003). [#40188]
+
 ## [6.0.0] - 2024-11-14
 ### Removed
 - General: Update minimum PHP version to 7.2. [#40147]
 
 ## [5.1.7] - 2024-11-11
 ### Changed
-- Updated package dependencies. [#39999]
-- Updated package dependencies. [#40060]
+- Updated package dependencies. [#39999] [#40060]
 
 ## [5.1.6] - 2024-11-04
 ### Added
@@ -1247,6 +1307,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[6.4.1]: https://github.com/Automattic/jetpack-connection/compare/v6.4.0...v6.4.1
+[6.4.0]: https://github.com/Automattic/jetpack-connection/compare/v6.3.2...v6.4.0
+[6.3.2]: https://github.com/Automattic/jetpack-connection/compare/v6.3.1...v6.3.2
+[6.3.1]: https://github.com/Automattic/jetpack-connection/compare/v6.3.0...v6.3.1
+[6.3.0]: https://github.com/Automattic/jetpack-connection/compare/v6.2.2...v6.3.0
+[6.2.2]: https://github.com/Automattic/jetpack-connection/compare/v6.2.1...v6.2.2
+[6.2.1]: https://github.com/Automattic/jetpack-connection/compare/v6.2.0...v6.2.1
+[6.2.0]: https://github.com/Automattic/jetpack-connection/compare/v6.1.1...v6.2.0
+[6.1.1]: https://github.com/Automattic/jetpack-connection/compare/v6.1.0...v6.1.1
+[6.1.0]: https://github.com/Automattic/jetpack-connection/compare/v6.0.1...v6.1.0
+[6.0.1]: https://github.com/Automattic/jetpack-connection/compare/v6.0.0...v6.0.1
 [6.0.0]: https://github.com/Automattic/jetpack-connection/compare/v5.1.7...v6.0.0
 [5.1.7]: https://github.com/Automattic/jetpack-connection/compare/v5.1.6...v5.1.7
 [5.1.6]: https://github.com/Automattic/jetpack-connection/compare/v5.1.5...v5.1.6

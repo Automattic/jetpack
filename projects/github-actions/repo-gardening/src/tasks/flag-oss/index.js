@@ -28,7 +28,7 @@ async function flagOss( payload, octokit ) {
 			org: owner.login,
 			username: head.user.login,
 		} );
-	} catch ( error ) {
+	} catch {
 		debug( `flag-oss: Adding OSS Citizen label to PR #${ number }` );
 		await octokit.rest.issues.addLabels( {
 			owner: owner.login,

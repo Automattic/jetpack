@@ -687,7 +687,7 @@ async function updateBoard( payload, octokit, issueType, priorityLabels ) {
 
 	// Check if the type needs to be updated for that issue.
 	// We do need info about the type column in the board to be able to do that.
-	if ( issueType && projectInfo.type ) {
+	if ( issueType && projectInfo.type && projectItemId ) {
 		debug(
 			`triage-issues > update-board: Issue #${ number } has a type label set, ${ issueType }. Let’s ensure the Type field of the project board matches that.`
 		);
@@ -700,7 +700,7 @@ async function updateBoard( payload, octokit, issueType, priorityLabels ) {
 
 	// Check if priority needs to be updated for that issue.
 	// We do need info about the priority column in the board to be able to do that.
-	if ( priorityLabels.length > 0 && projectInfo.priority ) {
+	if ( priorityLabels.length > 0 && projectInfo.priority && projectItemId ) {
 		debug(
 			`triage-issues > update-board: Issue #${ number } has the following priority labels: ${ priorityLabels.join(
 				', '
@@ -724,7 +724,7 @@ async function updateBoard( payload, octokit, issueType, priorityLabels ) {
 
 	const labels = await getLabels( octokit, ownerLogin, name, number );
 	// Check if the issue has a "Triaged" label.
-	if ( labels.includes( 'Triaged' ) ) {
+	if ( labels.includes( 'Triaged' ) && projectItemId ) {
 		// Check if the issue depends on a third-party,
 		// and thus cannot be fully triaged by us.
 		// In practice, we look for 2 different labels:
@@ -750,13 +750,15 @@ async function updateBoard( payload, octokit, issueType, priorityLabels ) {
 
 	// Try to assign the issue to a specific team, if we have a mapping of teams <> labels and a matching label on the issue.
 	// When assigning, we can also do more to warn the team about the issue, if we have additional info (Slack, project board).
-	projectItemId = await assignTeam(
-		projectOctokit,
-		payload,
-		projectInfo,
-		projectItemId,
-		isBug,
-		priorityLabels
-	);
+	if ( projectItemId ) {
+		projectItemId = await assignTeam(
+			projectOctokit,
+			payload,
+			projectInfo,
+			projectItemId,
+			isBug,
+			priorityLabels
+		);
+	}
 }
 module.exports = updateBoard;

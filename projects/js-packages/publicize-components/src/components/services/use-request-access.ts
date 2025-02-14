@@ -64,13 +64,15 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 					const instance = formData.get( 'instance' ).toString().trim();
 
 					if ( ! isValidMastodonUsername( instance ) ) {
-						createErrorNotice( __( 'Invalid Mastodon username', 'jetpack' ) );
+						createErrorNotice( __( 'Invalid Mastodon username', 'jetpack-publicize-components' ) );
 
 						return;
 					}
 
 					if ( isMastodonAlreadyConnected?.( instance ) ) {
-						createErrorNotice( __( 'This Mastodon account is already connected', 'jetpack' ) );
+						createErrorNotice(
+							__( 'This Mastodon account is already connected', 'jetpack-publicize-components' )
+						);
 
 						return;
 					}
@@ -84,13 +86,15 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 					const handle = ( formData.get( 'handle' )?.toString() || '' ).trim().replace( /^@/, '' );
 
 					if ( ! isValidBlueskyHandle( handle ) ) {
-						createErrorNotice( __( 'Invalid Bluesky handle', 'jetpack' ) );
+						createErrorNotice( __( 'Invalid Bluesky handle', 'jetpack-publicize-components' ) );
 
 						return;
 					}
 
 					if ( isBlueskyAccountAlreadyConnected?.( handle ) ) {
-						createErrorNotice( __( 'This Bluesky account is already connected', 'jetpack' ) );
+						createErrorNotice(
+							__( 'This Bluesky account is already connected', 'jetpack-publicize-components' )
+						);
 
 						return;
 					}

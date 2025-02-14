@@ -8,6 +8,8 @@ import {
 } from '@automattic/jetpack-ai-client';
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { store as blockEditorStore } from '@wordpress/block-editor';
+import { BlockInstance } from '@wordpress/blocks';
 import { Button, Modal, Icon } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
@@ -24,7 +26,6 @@ import useTranscriptionInserter from './hooks/use-transcription-inserter';
 /**
  * Types
  */
-import type { Block } from '@automattic/jetpack-ai-client';
 import type {
 	RecordingState,
 	TranscriptionState,
@@ -58,12 +59,11 @@ const transcriptionStateHelper = (
 export default function VoiceToContentEdit( { clientId } ) {
 	const [ audio, setAudio ] = useState< Blob >( null );
 
-	const { removeBlock } = useDispatch( 'core/block-editor' ) as {
-		removeBlock: ( id: string ) => void;
-	};
-
-	const { getBlocks } = useSelect( select => select( 'core/editor' ), [] ) as {
-		getBlocks: () => Block[];
+	const { removeBlock } = useDispatch( blockEditorStore );
+	// TODO: The second `deps` argument shouldn't be needed, but it's added to make the type checker happy.
+	// This can be removed when the core data types are updated to fix the issue.
+	const { getBlocks } = useSelect( blockEditorStore, [] ) as {
+		getBlocks: () => BlockInstance[];
 	};
 
 	const destroyBlock = useCallback( () => {

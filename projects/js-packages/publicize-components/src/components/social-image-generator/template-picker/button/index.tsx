@@ -11,7 +11,7 @@ const TemplatePickerButton: React.FC = () => {
 	const { isEnabled, isUpdating, defaultTemplate } = useSelect( select => {
 		const store = select( socialStore );
 
-		const config = store.getSocialImageGeneratorConfig();
+		const config = store.getSocialSettings().socialImageGenerator;
 		return {
 			isEnabled: config.enabled,
 			defaultTemplate: config.template,
@@ -39,7 +39,7 @@ const TemplatePickerButton: React.FC = () => {
 				disabled={ isUpdating || ! isEnabled }
 				onClick={ open }
 			>
-				{ __( 'Change default template', 'jetpack' ) }
+				{ __( 'Change default template', 'jetpack-publicize-components' ) }
 			</Button>
 		),
 		[ isEnabled, isSmall, isUpdating ]
