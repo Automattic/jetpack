@@ -172,7 +172,7 @@ class Password_Detection {
 						'message' => __( 'Failed to resend authentication email. Please try again.', 'jetpack-account-protection' ),
 					);
 
-					if ( $transient_data['resend_attempts'] >= Config::MAX_RESEND_ATTEMPTS ) {
+					if ( $transient_data['resend_attempts'] >= Config::PASSWORD_DETECTION_MAX_RESEND_ATTEMPTS ) {
 						$error = array(
 							'code'    => 'email_resend_limit_error',
 							'message' => __( 'Resend limit exceeded. Please try again later.', 'jetpack-account-protection' ),
