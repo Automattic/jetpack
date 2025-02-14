@@ -21,10 +21,17 @@ class Users_Connection_Admin {
 	const COLUMN_ID = 'user_jetpack';
 
 	/**
-	 * Initialize the Users Connection Admin functionality.
+	 * Constructor.
 	 */
 	public function __construct() {
-		// Only initialize if we're in admin and current user can manage options
+		// Only set up hooks if we're in the admin area and user has proper permissions
+		add_action( 'init', array( $this, 'init' ) );
+	}
+
+	/**
+	 * Initialize the admin functionality if conditions are met.
+	 */
+	public function init() {
 		if ( ! is_admin() || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}

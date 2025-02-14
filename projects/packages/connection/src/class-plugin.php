@@ -46,10 +46,8 @@ class Plugin {
 	public function __construct( $slug ) {
 		$this->slug = $slug;
 
-		// Always initialize Users_Connection_Admin - it will handle its own conditional loading
-		if ( is_admin() ) {
-			$this->users_connection_admin = new Users_Connection_Admin();
-		}
+		// Initialize Users_Connection_Admin
+		$this->users_connection_admin = new Users_Connection_Admin();
 	}
 
 	/**
