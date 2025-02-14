@@ -39,10 +39,16 @@ class Client {
 			$args['url'] = apply_filters( 'jetpack_remote_request_url', $args['url'] );
 		}
 
+		error_log( 'DEBUG Jetpack Forms Upload - Remote request args: ' . print_r( $args, true ) );
+		error_log( 'DEBUG Jetpack Forms Upload - Remote request body: ' . print_r( $body, true ) );
+
 		$result = self::build_signed_request( $args, $body );
 		if ( is_wp_error( $result ) ) {
+			error_log( 'DEBUG Jetpack Forms Upload - Error building signed request: ' . $result->get_error_message() );
 			return $result;
 		}
+
+		error_log( 'DEBUG Jetpack Forms Upload - Signed request result: ' . print_r( $result, true ) );
 
 		$response = self::_wp_remote_request( $result['url'], $result['request'] );
 
@@ -270,6 +276,9 @@ class Client {
 			$args['sslverify'] = false;
 		}
 
+		error_log( 'DEBUG Jetpack Forms Upload - AAAA SSL verify: ' . $args['sslverify'] );
+		error_log( 'DEBUG Jetpack Forms Upload - AAAA URL: ' . $url );
+		error_log( 'DEBUG Jetpack Forms Upload - AAAA Args: ' . print_r( $args, true ) );
 		$response = wp_remote_request( $url, $args );
 
 		if (
@@ -433,13 +442,22 @@ class Client {
 		$args            = self::validate_args_for_wpcom_json_api_request( $path, $version, $args, $base_api_path );
 		$args['user_id'] = get_current_user_id();
 
-		if ( isset( $body ) && ! isset( $args['headers'] ) && in_array( $args['method'], array( 'POST', 'PUT', 'PATCH' ), true ) ) {
-			$args['headers'] = array( 'Content-Type' => 'application/json' );
+		// Check if this is a multipart/form-data request
+		$is_multipart = isset( $args['headers']['Content-Type'] ) &&
+			strpos( $args['headers']['Content-Type'], 'multipart/form-data' ) !== false;
+
+		if ( isset( $body ) && ! $is_multipart ) {
+			if ( ! isset( $args['headers'] ) && in_array( $args['method'], array( 'POST', 'PUT', 'PATCH' ), true ) ) {
+				$args['headers'] = array( 'Content-Type' => 'application/json' );
+			}
+
+			if ( ! is_string( $body ) ) {
+				$body = wp_json_encode( $body );
+			}
 		}
 
-		if ( isset( $body ) && ! is_string( $body ) ) {
-			$body = wp_json_encode( $body );
-		}
+		error_log( 'DEBUG Jetpack Forms Upload - Request args in Client: ' . print_r( $args, true ) );
+		error_log( 'DEBUG Jetpack Forms Upload - Request body in Client: ' . print_r( $body, true ) );
 
 		return self::remote_request( $args, $body );
 	}

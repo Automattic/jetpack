@@ -2,6 +2,14 @@
  * Dropzone class to handle file drag-and-drop and file input interactions.
  */
 export default class JP_Dropzone {
+	element: HTMLElement;
+	previewContainer: HTMLElement;
+	uploadButton: HTMLElement;
+	fileField: HTMLInputElement;
+
+	options: object;
+	files: File[];
+
 	/**
 	 * @param {HTMLElement} element The dropzone element.
 	 * @param {object}      options Configuration options for the dropzone.
@@ -9,8 +17,17 @@ export default class JP_Dropzone {
 	constructor( element: HTMLElement, options: object ) {
 		// Option. Single or multiple files.
 		this.element = element;
-		this.options = options;
 		this.fileField = element.querySelector( '.jetpack-form-file-field' ) as HTMLInputElement;
+
+		this.fileField.addEventListener( 'invalid', event => {
+			const alert = document.createElement( 'div' );
+			alert.textContent = event.target.validationMessage;
+			alert.classList.add( 'contact-form__error' );
+			this.element.appendChild( alert );
+		} );
+
+		this.options = options;
+
 		this.previewContainer = this.element.querySelector(
 			'.jetpack-form-file-field__preview-wrap'
 		) as HTMLElement;
@@ -93,6 +110,7 @@ export default class JP_Dropzone {
 	handleNewFiles( files: FileList ) {
 		this.files = this.files.concat( Array.from( files ) );
 		this.renderPreviews( files );
+		this.uploadFiles( files );
 	}
 
 	/**
@@ -136,19 +154,125 @@ export default class JP_Dropzone {
 			const div = document.createElement( 'div' );
 			div.classList.add( 'jetpack-form-file-field__preview' );
 			div.innerHTML = `
+				<div class="jetpack-form-file-field__progress" style="--progress: 10%;" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
 				<div class="jetpack-form-file-field__image" style="background-image:url(${
 					( event.target as FileReader ).result
 				});"></div>
 				<div class="jetpack-form-file-field__file-wrap">
-					<span class="jetpack-form-file-field__file-name">${ file.name }</span>
-					<span class="jetpack-form-file-field__file-size">${ this.formatBytes( file.size ) }</span>
+					<span class="jetpack-form-file-field__file-name">${ this.esc_html( file.name ) }</span>
+					<span class="jetpack-form-file-field__file-size">${ this.esc_html(
+						this.formatBytes( file.size )
+					) }</span>
 				</div>
-				<a href="#" class="jetpack-form-file-field__remove" aria-label="Remove file">${ removeButtonText }</a>
+				<a href="#" class="jetpack-form-file-field__remove" aria-label="Remove file">${ this.esc_html(
+					removeButtonText
+				) }</a>
 			`;
 			this.previewContainer.appendChild( div );
+			this.element.addEventListener(
+				'jp-dropzone-progress',
+				this.updateProgress.bind( this, file, div ),
+				false
+			);
+			this.element.addEventListener(
+				'jp-dropzone-progress',
+				this.updateProgress.bind( this, file, div ),
+				false
+			);
 			const removeButton = div.querySelector( '.jetpack-form-file-field__remove' ) as HTMLElement;
 			removeButton.addEventListener( 'click', this.removeFile.bind( this, file, div ) );
 		} );
+	}
+
+	updateProgress( file, div, event ) {
+		if ( event.detail.file === file ) {
+			div
+				.querySelector( '.jetpack-form-file-field__progress' )
+				.style.setProperty( '--progress', `${ event.detail.progress }%` );
+			if ( event.detail.progress === 100 ) {
+				div.querySelector( '.jetpack-form-file-field__progress' ).classList.add( 'is-complete' );
+			}
+		}
+	}
+
+	uploadFiles( files: FileList ) {
+		Array.from( files ).forEach( ( file, index ) => {
+			this.uploadFile( file, index );
+		} );
+	}
+
+	uploadFile( file, index ) {
+		var url = this.options.endpoint;
+		var xhr = new XMLHttpRequest();
+		var formData = new FormData();
+
+		xhr.open( 'POST', url, true );
+		xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
+
+		// Update progress (can be used to show progress indicator)
+		xhr.upload.addEventListener( 'progress', this.onProgress.bind( this, file, index ) );
+
+		const onReadyStateChangeHandler = this.onReadyStateChange.bind( this, file, index, xhr );
+		xhr.addEventListener( 'readystatechange', onReadyStateChangeHandler );
+
+		formData.append( '_wpnonce', this.options.nonce );
+		formData.append( 'file', file );
+		xhr.send( formData );
+	}
+
+	onProgress( file, index, event ) {
+		const progressEvent = new CustomEvent( 'jp-dropzone-progress', {
+			detail: { file, index, event, progress: ( event.loaded / event.total ) * 100 },
+			bubbles: true,
+			cancelable: true,
+		} );
+		this.element.dispatchEvent( progressEvent );
+	}
+
+	onReadyStateChange( file, index, xhr, event ) {
+		if ( event.target.readyState === 4 ) {
+			if ( event.target.status === 200 ) {
+				const response = JSON.parse( event.target.responseText );
+				if ( response.success ) {
+					const successEvent = new CustomEvent( 'jp-dropzone-success', {
+						detail: { file, index, response },
+						bubbles: true,
+						cancelable: true,
+					} );
+					this.element.dispatchEvent( successEvent );
+					this.fileField.setCustomValidity( '' );
+					this.fileField.reportValidity();
+					return;
+				}
+			}
+
+			if ( event.target.responseText ) {
+				const response = JSON.parse( event.target.responseText );
+
+				const errorEvent = new CustomEvent( 'jp-dropzone-error', {
+					detail: { file, index, response },
+					bubbles: true,
+					cancelable: true,
+				} );
+				this.element.dispatchEvent( errorEvent );
+
+				if ( response.message ) {
+					this.fileField.setCustomValidity( response.message );
+					this.fileField.reportValidity();
+				}
+			}
+		}
+	}
+
+	/**
+	 * Sanitize a string to prevent XSS attacks.
+	 * @param {string} str The string to sanitize.
+	 * @returns {string} The sanitized string.
+	 */
+	esc_html( str: string ): string {
+		const tempDiv = document.createElement( 'div' );
+		tempDiv.textContent = str;
+		return tempDiv.innerHTML;
 	}
 
 	/**
