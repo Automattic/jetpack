@@ -136,7 +136,7 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_wpcom_newsletter_dashboard() {
 		// TODO: Add the newsletter dashboard widget feature checks.
-		require_once __DIR__ . '/features/wpcom-newsletter-widget.php/wpcom-newsletter-widget.php';
+		require_once __DIR__ . '/features/wpcom-newsletter-widget/wpcom-newsletter-widget.php';
 	}
 
 	/**
