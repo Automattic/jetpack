@@ -32,7 +32,12 @@ function load_wpcom_dashboard_widgets() {
 			// list.
 			foreach ( $layout['secondary'] as $item ) {
 				if ( is_array( $item ) ) {
-					$tasks = $item;
+					// Delete any tasks that don't have a corresponding PHP file.
+					foreach ( $item as $task ) {
+						if ( file_exists( __DIR__ . '/wpcom-general-tasks-widget/tasks/' . $task ) ) {
+							$tasks[] = $task;
+						}
+					}
 					break;
 				}
 			}
