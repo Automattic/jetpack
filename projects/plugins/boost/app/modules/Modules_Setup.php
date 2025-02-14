@@ -81,6 +81,13 @@ class Modules_Setup implements Has_Setup {
 		REST_API::register( $feature->get_always_available_endpoints() );
 	}
 
+	public function setup_data_sync() {
+		$this->init_data_sync();
+		foreach ( $this->available_modules as $module ) {
+			$this->register_data_sync( $module->feature );
+		}
+	}
+
 	/**
 	 * Used to register data sync for the module.
 	 *
@@ -107,7 +114,6 @@ class Modules_Setup implements Has_Setup {
 	}
 
 	public function load_modules() {
-		$this->init_data_sync();
 		$this->init_modules( $this->available_modules );
 	}
 
@@ -133,7 +139,6 @@ class Modules_Setup implements Has_Setup {
 		foreach ( $modules as $slug => $module ) {
 
 			$this->register_always_available_endpoints( $module->feature );
-			$this->register_data_sync( $module->feature );
 
 			if ( ! $module->is_enabled() ) {
 				continue;
@@ -163,6 +168,8 @@ class Modules_Setup implements Has_Setup {
 	 * @inheritDoc
 	 */
 	public function setup() {
+		// We need to setup data sync outside of plugins_loaded to prevent side effects on other classes that are loaded from other actions earlier.
+		$this->setup_data_sync();
 		add_action( 'plugins_loaded', array( $this, 'load_modules' ) );
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'on_module_status_update' ), 10, 2 );
 	}
