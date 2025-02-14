@@ -41,7 +41,7 @@ class Email_Service_Test extends BaseTestCase {
 		$result = $sut->resend_auth_email(
 			$user->ID,
 			array(
-				'resend_attempts' => 5,
+				'requests' => 5,
 			),
 			''
 		);
@@ -61,7 +61,7 @@ class Email_Service_Test extends BaseTestCase {
 			->willReturn( true );
 
 		$transient_data = array(
-			'resend_attempts' => 0,
+			'requests' => 0,
 		);
 
 		$my_token = 'my_token';
@@ -75,7 +75,7 @@ class Email_Service_Test extends BaseTestCase {
 
 		// Verify the transient has the expected data
 		$new_transient = get_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$my_token}" );
-		$this->assertSame( 1, $new_transient['resend_attempts'], 'Resend attempts should be 1.' );
+		$this->assertSame( 1, $new_transient['requests'], 'Resend attempts should be 1.' );
 		$this->assertMatchesRegularExpression( '/^[0-9]{6}$/', $new_transient['auth_code'], 'Auth code should be 6 digits.' );
 	}
 

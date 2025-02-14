@@ -100,7 +100,7 @@ class Email_Service {
 	 * @return true|\WP_Error True if the email was resent successfully, \WP_Error otherwise.
 	 */
 	public function resend_auth_email( int $user_id, array $transient_data, string $token ) {
-		if ( $transient_data['resend_attempts'] >= Config::PASSWORD_DETECTION_MAX_RESEND_ATTEMPTS ) {
+		if ( $transient_data['requests'] >= Config::PASSWORD_DETECTION_EMAIL_REQUEST_LIMIT ) {
 			return new \WP_Error( 'email_request_limit_exceeded', __( 'Email request limit exceeded. Please try again later.', 'jetpack-account-protection' ) );
 		}
 
@@ -112,7 +112,7 @@ class Email_Service {
 			return $resend;
 		}
 
-		++$transient_data['resend_attempts'];
+		++$transient_data['requests'];
 
 		if ( ! set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$token}", $transient_data, Config::PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION ) ) {
 			return new \WP_Error( 'transient_set_error', __( 'Failed to set transient data. Please try again.', 'jetpack-account-protection' ) );
