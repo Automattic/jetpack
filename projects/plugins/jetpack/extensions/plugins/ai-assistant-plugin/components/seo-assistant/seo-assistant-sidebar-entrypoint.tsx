@@ -13,7 +13,7 @@ import debugFactory from 'debug';
  */
 import { SeoPlaceholder } from '../../../../plugins/seo/components/placeholder';
 import bigSkyIcon from './big-sky-icon.svg';
-import { STORE_NAME } from './store';
+import { store as seoAssistantStore } from './store';
 /**
  * Types
  */
@@ -27,8 +27,11 @@ export default function SeoAssistant( { disabled, placement } ) {
 		useModuleStatus( 'seo-tools' );
 	const { tracks } = useAnalytics();
 
-	const isOpen = useSelect( select => ( select( STORE_NAME ) as SeoAssistantSelect ).isOpen(), [] );
-	const { open } = useDispatch( STORE_NAME ) as SeoAssistantDispatch;
+	const isOpen = useSelect(
+		select => ( select( seoAssistantStore ) as SeoAssistantSelect ).isOpen(),
+		[]
+	);
+	const { open } = useDispatch( seoAssistantStore ) as SeoAssistantDispatch;
 
 	const handleOpen = useCallback( () => {
 		tracks.recordEvent( 'jetpack_wizard_chat_open', {

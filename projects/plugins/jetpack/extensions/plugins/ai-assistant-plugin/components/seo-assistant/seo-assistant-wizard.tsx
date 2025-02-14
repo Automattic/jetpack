@@ -6,7 +6,7 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import { STORE_NAME } from './store';
+import { store as seoAssistantStore } from './store';
 import { useCompletionStep } from './use-completion-step';
 import { useKeywordsStep } from './use-keywords-step';
 import { useMetaDescriptionStep } from './use-meta-description-step';
@@ -28,7 +28,7 @@ export default function SeoAssistantWizard() {
 		keywords: keywordsStepData.value,
 		mockRequests: false,
 	} );
-	const { close } = useDispatch( STORE_NAME ) as SeoAssistantDispatch;
+	const { close } = useDispatch( seoAssistantStore ) as SeoAssistantDispatch;
 
 	// ALL Pre-process should be done here, before the wizard is rendered.
 	// TODO: scavenge the post and see if there are image blocks there, NOT gallery blocks, not COVER blocks, but image blocks
