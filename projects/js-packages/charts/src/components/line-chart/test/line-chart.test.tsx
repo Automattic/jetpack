@@ -55,10 +55,11 @@ describe( 'LineChart', () => {
 					{
 						label: 'Series A',
 						data: [
-							{ date: new Date( '2024-01-01' ), value: null as number | null },
+							{ date: new Date( '2024-01-01' ), value: null as number | null, label: 'Jan 1' },
 							{
 								date: new Date( '2024-01-02' ),
 								value: undefined as number | undefined,
+								label: 'Jan 2',
 							},
 						],
 					},
@@ -73,8 +74,8 @@ describe( 'LineChart', () => {
 					{
 						label: 'Series A',
 						data: [
-							{ date: new Date( 'invalid' ), value: 10 },
-							{ date: new Date( '2024-01-02' ), value: 20 },
+							{ date: new Date( 'invalid' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
 						],
 					},
 				],
@@ -108,7 +109,7 @@ describe( 'LineChart', () => {
 				data: [
 					{
 						label: 'Series A',
-						data: [ { value: 10, label: 'Jan 1' } ],
+						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
 					},
 				],
 			} );
