@@ -52,7 +52,7 @@ const renderDefaultTooltip = ( {
 	return (
 		<div className={ styles[ 'line-chart__tooltip' ] }>
 			<div className={ styles[ 'line-chart__tooltip-date' ] }>
-				{ nearestDatum.label ?? nearestDatum.date?.toLocaleDateString() }
+				{ nearestDatum.date?.toLocaleDateString() }
 			</div>
 			{ tooltipPoints.map( point => (
 				<div key={ point.key } className={ styles[ 'line-chart__tooltip-row' ] }>
@@ -141,7 +141,7 @@ const LineChart: FC< LineChartProps > = ( {
 	} ) );
 
 	const accessors = {
-		xAccessor: ( d: DataPointDate ) => d?.label ?? d?.date,
+		xAccessor: ( d: DataPointDate ) => d?.date,
 		yAccessor: ( d: DataPointDate ) => d?.value,
 	};
 
@@ -184,6 +184,7 @@ const LineChart: FC< LineChartProps > = ( {
 								/>
 							) }
 							<AnimatedAreaSeries
+								data-testid={ `line-series-${ index + 1 }` }
 								key={ seriesData?.label }
 								dataKey={ seriesData?.label }
 								data={ seriesData.data as DataPointDate[] }
