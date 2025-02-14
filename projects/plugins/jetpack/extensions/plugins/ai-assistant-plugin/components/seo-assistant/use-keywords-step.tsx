@@ -17,7 +17,7 @@ export const useKeywordsStep = (): Step => {
 	const onStart = useCallback( async () => {
 		addMessage( {
 			content: __(
-				'To start, please enter 1–3 focus keywords that describe your blog post.',
+				'First, enter 1–3 keywords that best describe your blog post—this helps search engines understand what it’s about',
 				'jetpack'
 			),
 			showIcon: true,
