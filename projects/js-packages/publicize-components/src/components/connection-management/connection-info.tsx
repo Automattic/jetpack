@@ -10,16 +10,18 @@ import { Disconnect } from './disconnect';
 import { MarkAsShared } from './mark-as-shared';
 import styles from './style.module.scss';
 
-type ConnectionInfoProps = ConnectionStatusProps;
+type ConnectionInfoProps = ConnectionStatusProps & {
+	canMarkAsShared: boolean;
+};
 
 /**
  * Connection info component
  *
  * @param {ConnectionInfoProps} props - component props
  *
- * @return {import('react').ReactNode} - React element
+ * @return React element
  */
-export function ConnectionInfo( { connection, service }: ConnectionInfoProps ) {
+export function ConnectionInfo( { connection, service, canMarkAsShared }: ConnectionInfoProps ) {
 	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, false );
 
 	return (
@@ -52,15 +54,17 @@ export function ConnectionInfo( { connection, service }: ConnectionInfoProps ) {
 			</div>
 			<Panel className={ styles[ 'connection-panel' ] }>
 				<PanelBody opened={ isPanelOpen } onToggle={ togglePanel }>
-					<div className={ styles[ 'mark-shared-wrap' ] }>
-						<MarkAsShared connection={ connection } />
-						<IconTooltip>
-							{ __(
-								'If enabled, the connection will be available to all administrators, editors, and authors.',
-								'jetpack-publicize-components'
-							) }
-						</IconTooltip>
-					</div>
+					{ canMarkAsShared && (
+						<div className={ styles[ 'mark-shared-wrap' ] }>
+							<MarkAsShared connection={ connection } />
+							<IconTooltip>
+								{ __(
+									'If enabled, the connection will be available to all administrators, editors, and authors.',
+									'jetpack-publicize-components'
+								) }
+							</IconTooltip>
+						</div>
+					) }
 					<Disconnect connection={ connection } />
 				</PanelBody>
 			</Panel>
