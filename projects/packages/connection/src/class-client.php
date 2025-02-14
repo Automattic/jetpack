@@ -433,18 +433,12 @@ class Client {
 		$args            = self::validate_args_for_wpcom_json_api_request( $path, $version, $args, $base_api_path );
 		$args['user_id'] = get_current_user_id();
 
-		// Check if this is a multipart/form-data request
-		$is_multipart = isset( $args['headers']['Content-Type'] ) &&
-			strpos( $args['headers']['Content-Type'], 'multipart/form-data' ) !== false;
+		if ( isset( $body ) && ! isset( $args['headers'] ) && in_array( $args['method'], array( 'POST', 'PUT', 'PATCH' ), true ) ) {
+			$args['headers'] = array( 'Content-Type' => 'application/json' );
+		}
 
-		if ( isset( $body ) && ! $is_multipart ) {
-			if ( ! isset( $args['headers'] ) && in_array( $args['method'], array( 'POST', 'PUT', 'PATCH' ), true ) ) {
-				$args['headers'] = array( 'Content-Type' => 'application/json' );
-			}
-
-			if ( ! is_string( $body ) ) {
-				$body = wp_json_encode( $body );
-			}
+		if ( isset( $body ) && ! is_string( $body ) ) {
+			$body = wp_json_encode( $body );
 		}
 
 		return self::remote_request( $args, $body );
