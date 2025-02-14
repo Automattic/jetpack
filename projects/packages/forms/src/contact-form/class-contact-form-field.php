@@ -948,9 +948,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			" . $class . '
 			' . ( $required ? "required aria-required='true'" : '' ) . "
 			accept='.pdf,.jpg'
-			data-upload-endpoint='" . esc_attr( rest_url( 'wpcom/v2/unauth-file-upload' ) ) . "'
-			data-file-id=''
-			data-file-url=''
 			style='" . $this->field_styles . "'
 		/>\n";
 		$field .= "<input type='hidden' name='" . esc_attr( $id ) . "_id' class='jetpack-form-file-field__id' value='' />\n";
@@ -994,7 +991,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'jetpack-form-file-field',
 			'jetpackFormFileField',
 			array(
-				'i18n' => array(
+				'i18n'           => array(
 					'language'      => get_bloginfo( 'language' ),
 					'fileSizeUnits' => $file_size_units,
 					'removeFile'    => __( 'Remove', 'jetpack-forms' ),

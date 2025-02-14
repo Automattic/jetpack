@@ -140,6 +140,93 @@
 	margin-right: 10px;
 }
 
+.jetpack-form-file-field__progress {
+	opacity: 0.5;
+    --hue: 220;
+    --holesize: 0;  /* 64 */
+    --track-bg: #333;
+    height: 44px;
+    width: 44px;
+    display: block;
+    align-items: center;
+    justify-items: center;
+    place-items: center;
+    position: absolute;
+	z-index: 3;
+	left: 8px;
+}
+
+.jetpack-form-file-field__progress.is-complete,
+.jetpack-form-file-field__progress.is-error {
+	opacity: 0.9;
+	transform: opacity 0.5s ease;
+}
+
+.jetpack-form-file-field__progress::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-radius: 50%;
+    z-index: -1;
+    background: conic-gradient(transparent var(--progress, 0%),
+            var(--track-bg) var(--progress, 0%) 100%);
+
+    -webkit-mask-image: radial-gradient(transparent var(--holesize),
+            black calc(var(--holesize) + 0.5px));
+
+    mask-image: radial-gradient(transparent var(--holesize),
+            black calc(var(--holesize) + 0.5px));
+}
+.jetpack-form-file-field__progress.is-complete::before {
+	position: absolute;
+	top: 9px;
+	bottom: 0;
+	left: 18px;
+	right: 0;
+	--borderWidth: 3px;
+	--height: 16px;
+	--width: 7px;
+	--borderColor: #FFF;
+	display: inline-block;
+	transform: rotate(45deg);
+	height: var(--height);
+	width: var(--width);
+	border-bottom: var(--borderWidth) solid var(--borderColor);
+	border-right: var(--borderWidth) solid var(--borderColor);
+	background: transparent;
+	-webkit-mask-image: none;
+	mask-image: none;
+	z-index: 4;
+	content: "";
+	border-radius: 0;
+}
+
+.jetpack-form-file-field__progress.is-error:before,
+.jetpack-form-file-field__progress.is-error:after {
+	position: absolute;
+	top: 12px;
+	left: 21px;
+	height: 20px;
+	width: 2px;
+	background-color: #FFF;
+	-webkit-mask-image: none;
+	mask-image: none;
+	z-index: 4;
+	content: "";
+	border-radius: 0;
+}
+
+.jetpack-form-file-field__progress.is-error:before {
+	transform: rotate(45deg);
+}
+
+.jetpack-form-file-field__progress.is-error:after {
+	transform: rotate(-45deg);
+}
+
 @keyframes jpShowFileField {
     100% {
         opacity: 1;
