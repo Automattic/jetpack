@@ -1,15 +1,21 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import { isModuleFound } from 'state/search';
+import Notice from '../components/notice';
+
+const MODULE_NAME = 'account-protection';
 
 const AccountProtectionComponent = class extends Component {
 	render() {
-		const isAccountProtectionActive = this.props.getOptionValue( 'account-protection' ),
-			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'account-protection' );
+		const isActive = isModuleFound( MODULE_NAME ) && this.props.getOptionValue( MODULE_NAME );
+		const isSupported = isModuleFound( MODULE_NAME ) && this.props.settings.isSupported;
+		const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( MODULE_NAME );
 
 		return (
 			<SettingsCard
@@ -22,7 +28,7 @@ const AccountProtectionComponent = class extends Component {
 					hasChild
 					disableInOfflineMode
 					disableInSiteConnectionMode
-					module={ this.props.getModule( 'account-protection' ) }
+					module={ this.props.getModule( MODULE_NAME ) }
 					support={ {
 						text: __(
 							'Jetpack recommends enabling this feature. Please be mindful of the risks.',
@@ -45,9 +51,9 @@ const AccountProtectionComponent = class extends Component {
 					<ModuleToggle
 						slug="account-protection"
 						compact
-						disabled={ unavailableInOfflineMode }
-						activated={ isAccountProtectionActive }
-						toggling={ this.props.isSavingAnyOption( 'account-protection' ) }
+						disabled={ ! isSupported || unavailableInOfflineMode }
+						activated={ isSupported && isActive }
+						toggling={ this.props.isSavingAnyOption( MODULE_NAME ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
 						<span className="jp-form-toggle-explanation">
@@ -57,10 +63,24 @@ const AccountProtectionComponent = class extends Component {
 							) }
 						</span>
 					</ModuleToggle>
+					{ ! isSupported && (
+						<Notice
+							status="warning"
+							showDismiss={ false }
+							text={ __(
+								"Jetpack's account protection feature has been intentionally disabled by your site administrator or hosting provider.",
+								'jetpack'
+							) }
+						/>
+					) }
 				</SettingsGroup>
 			</SettingsCard>
 		);
 	}
 };
 
-export const AccountProtection = withModuleSettingsFormHelpers( AccountProtectionComponent );
+export const AccountProtection = connect( state => {
+	return {
+		isModuleFound: module_name => isModuleFound( state, module_name ),
+	};
+} )( withModuleSettingsFormHelpers( AccountProtectionComponent ) );
