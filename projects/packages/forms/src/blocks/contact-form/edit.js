@@ -27,6 +27,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filter, isArray, map } from 'lodash';
 import { childBlocks } from './child-blocks';
+import AkismetIntegrationPanel from './components/akismet-integration/akismet-integration-panel';
 import InspectorHint from './components/inspector-hint';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
@@ -236,12 +237,18 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 					{ ! ( isSimpleSite() || isAtomicSite() ) && (
 						<>
 							{ canUserInstallPlugins && (
-								<PanelBody title={ __( 'CRM Connection', 'jetpack-forms' ) } initialOpen={ false }>
-									<CRMIntegrationSettings
-										jetpackCRM={ jetpackCRM }
-										setAttributes={ setAttributes }
-									/>
-								</PanelBody>
+								<>
+									<AkismetIntegrationPanel />
+									<PanelBody
+										title={ __( 'CRM Connection', 'jetpack-forms' ) }
+										initialOpen={ false }
+									>
+										<CRMIntegrationSettings
+											jetpackCRM={ jetpackCRM }
+											setAttributes={ setAttributes }
+										/>
+									</PanelBody>
+								</>
 							) }
 							<PanelBody title={ __( 'Creative Mail', 'jetpack-forms' ) } initialOpen={ false }>
 								<NewsletterIntegrationSettings />
