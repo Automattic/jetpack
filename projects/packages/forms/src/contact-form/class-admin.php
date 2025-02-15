@@ -1316,6 +1316,29 @@ class Admin {
 			)
 		);
 
+		// Add tracking scripts
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+
+		Assets::register_script(
+			'jptracks',
+			'../dist/tracks-ajax.js',
+			__FILE__,
+			array(
+				'dependencies' => array( 'jquery' ),
+				'enqueue'      => true,
+				'in_footer'    => true,
+			)
+		);
+
+		wp_localize_script(
+			'jptracks',
+			'jpTracksAJAX',
+			array(
+				'ajaxurl'            => admin_url( 'admin-ajax.php' ),
+				'jpTracksAJAX_nonce' => wp_create_nonce( 'jp-tracks-ajax-nonce' ),
+			)
+		);
+
 		wp_enqueue_style( 'grunion.css' );
 
 		// Only add to feedback, only to spam view.
