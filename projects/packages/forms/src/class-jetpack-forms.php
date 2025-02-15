@@ -37,6 +37,10 @@ class Jetpack_Forms {
 		add_action( 'init', '\Automattic\Jetpack\Forms\ContactForm\Util::register_pattern' );
 
 		add_action( 'rest_api_init', array( new WPCOM_REST_API_V2_Endpoint_Forms(), 'register_rest_routes' ) );
+
+		if ( isset( $_GET['jp-filename'] ) ) {
+			add_action( 'init', '\Automattic\Jetpack\Forms\ContactForm\Util::serve_file' );
+		}
 	}
 
 	/**

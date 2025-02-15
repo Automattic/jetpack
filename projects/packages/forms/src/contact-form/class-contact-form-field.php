@@ -948,7 +948,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	private function render_file_field( $id, $label, $class, $required, $required_field_text ) {
-		add_filter( 'jetpack_form_attributes', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'add_enctype_multipart_attribute' ) );
 		Assets::register_script(
 			'jetpack-form-file-field',
 			'../../dist/contact-form/js/file-field.js',
@@ -961,11 +960,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		);
 
 		\wp_enqueue_style( 'jetpack-form-file-field', plugins_url( '../../dist/contact-form/css/file-field.css', __FILE__ ), array(), '1.0' );
+		$form_id = $this->form && $this->form->get_attribute( 'id' ) ?? null;
+		$hash    = wp_hash( $id . $form_id );
+		$nonce   = wp_create_nonce( 'file_field' . $id );
 
 		$field  = $this->render_label( 'file', $id, $label, $required, $required_field_text );
-		$field .= "<div class='jetpack-form-file-field__dropzone'>\n";
+		$field .= "<div class='jetpack-form-file-field__dropzone' data-id='{$id}' data-form_id='{$form_id}' data-hash='{$hash}' data-nonce='{$nonce}'  >\n";
 		$field .= "<a href='#' class='wp-block-button__link wp-element-button'>" . esc_html__( 'Select a file', 'jetpack-forms' ) . "</a>\n";
-		$field .= "<span class='jetpack-form-file-field__filename'>" . esc_html__( '....or drag and drop a file.', 'jetpack-forms' ) . " </span>\n";
+		$field .= "<span class='jetpack-form-file-field__short'>" . esc_html__( '....or drag and drop a file.', 'jetpack-forms' ) . " </span>\n";
 		$field .= "<input
 			type='file'
 			class='jetpack-form-file-field'
@@ -976,8 +978,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			accept='.pdf,.jpg'
 			style='" . $this->field_styles . "'
 		/>\n";
-		$field .= "<input type='hidden' name='" . esc_attr( $id ) . "_id' class='jetpack-form-file-field__id' value='' />\n";
-		$field .= "<input type='hidden' name='" . esc_attr( $id ) . "_url' class='jetpack-form-file-field__url' value='' />\n";
+		$field .= "<input type='hidden' name='" . esc_attr( $id ) . "_hash' class='jetpack-form-file-field__hash' value='" . esc_attr( $hash ) . "' />\n";
+		$field .= "<input type='hidden' name='" . esc_attr( $id ) . "_filename' class='jetpack-form-file-field__filename' value='' />\n";
+		$field .= "<input type='hidden' name='" . esc_attr( $id ) . "_temp' class='jetpack-form-file-field__temp' value='' />\n";
 		$field .= "<div class='jetpack-form-file-field__preview-wrap'></div>\n";
 		$field .= "</div>\n";
 
@@ -1024,7 +1027,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					'uploadError'   => __( 'Error uploading file', 'jetpack-forms' ),
 				),
 				'uploadEndpoint' => rest_url( 'wpcom/v2/unauth-file-upload' ),
-				'nonce'          => wp_create_nonce( 'wp_rest' ),
 			)
 		);
 	}
