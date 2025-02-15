@@ -35,11 +35,11 @@ class Settings {
 	 * @return array
 	 */
 	public function get() {
-		$settings = array(
-			'isEnabled'   => ( new Account_Protection( $this->modules ) )->is_enabled(),
-			'isSupported' => ( new Account_Protection( $this->modules ) )->is_supported_environment(),
-		);
+		$account_protection = new Account_Protection( $this->modules );
 
-		return $settings;
+		return array(
+			'isEnabled'   => $account_protection->is_enabled(),
+			'isSupported' => $account_protection->is_supported_environment(),
+		);
 	}
 }
