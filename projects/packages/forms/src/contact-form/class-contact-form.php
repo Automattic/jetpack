@@ -401,9 +401,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$page
 			);
 
-			// Remove the form enctype attribute if it was applied.
-			remove_filter( 'jetpack_form_attributes', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'add_enctype_multipart_attribute' ) );
-
 			$form_attributes = '';
 			foreach ( $attributes  as $key => $attributes ) {
 				if ( empty( $attributes ) ) {
@@ -494,17 +491,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param string $r The contact form HTML.
 		 */
 		return apply_filters( 'jetpack_contact_form_html', $r );
-	}
-
-	/**
-	 * Function that adds the enctype attribute to the form element attributes.
-	 * This is useful for adding the multipart/form-data to the form HTML element tag.
-	 *
-	 * @param array $attributes - the attributes.
-	 */
-	public static function add_enctype_multipart_attribute( $attributes ) {
-		$attributes['enctype'] = 'multipart/form-data';
-		return $attributes;
 	}
 
 	/**
@@ -1102,65 +1088,70 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			$field_id = sanitize_key( $id );
 
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled by process_form_submission()
-			if ( ! isset( $_FILES[ $field_id ] ) || ! is_array( $_FILES[ $field_id ] ) ) {
-				continue;
-			}
+			$hash             = isset( $_POST[ $field_id . '_hash' ] ) ? sanitize_text_field( wp_unslash( $_POST[ $field_id . '_hash' ] ) ) : '';
+			$file_name        = isset( $_POST[ $field_id . '_filename' ] ) ? sanitize_text_field( wp_unslash( $_POST[ $field_id . '_filename' ] ) ) : '';
+			$temporary_secret = isset( $_POST[ $field_id . '_temp' ] ) ? sanitize_text_field( wp_unslash( $_POST[ $field_id . '_temp' ] ) ) : '';
+			l( array( 'process_file_uploads', $field_id, $hash, $file_name, $temporary_secret ) );
 
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled by process_form_submission()
-			$file = array_map( 'sanitize_text_field', $_FILES[ $field_id ] );
-
-			// Basic validation
-			if ( ! empty( $file['error'] ) ) {
-				if ( UPLOAD_ERR_NO_FILE !== $file['error'] ) {
-					$field->add_error( $this->get_upload_error_message( $file['error'] ) );
-				}
-				continue;
-			}
-
-			// Validate file type
-			$file_name = sanitize_file_name( wp_unslash( $file['name'] ) );
-			$file_type = wp_check_filetype( $file_name, $allowed_mime_types );
-
-			if ( ! $file_type['type'] ) {
-				$field->add_error( __( 'Invalid file type. Only PDF and JPG files are allowed.', 'jetpack-forms' ) );
-				continue;
-			}
-
-			// Get upload directory
-			$upload_dir = wp_upload_dir();
-			if ( ! empty( $upload_dir['error'] ) ) {
-				$field->add_error( __( 'Unable to process file upload.', 'jetpack-forms' ) );
-				continue;
-			}
-
-			$jetpack_forms_dir = $upload_dir['basedir'] . '/jetpack-forms';
-
-			// Create upload directory if it doesn't exist
-			if ( ! wp_mkdir_p( $jetpack_forms_dir ) ) {
-				$field->add_error( __( 'Unable to create upload directory.', 'jetpack-forms' ) );
-				continue;
-			}
-
-			// Generate unique filename
-			$filename        = wp_unique_filename( $jetpack_forms_dir, $file_name );
-			$secret_filename = wp_hash( $filename . microtime() ) . '-' . $filename;
-			$new_file        = $jetpack_forms_dir . '/' . $secret_filename;
-
-			// Move uploaded file
-			$move_result = move_uploaded_file( $file['tmp_name'], $new_file );
-			if ( ! $move_result ) {
+			if ( empty( $file_name ) || empty( $temporary_secret ) || empty( $hash ) ) {
 				$field->add_error( __( 'Failed to upload file.', 'jetpack-forms' ) );
 				continue;
 			}
 
+			$secret_dir = get_option( 'jetpack_forms_dir' );
+			// lets locate the file in the temp folder.
+			$uploads_folder          = wp_upload_dir();
+			$jetpack_forms_dir       = $uploads_folder['basedir'] . '/jetpack-forms/' . $secret_dir;
+			$jetpack_forms_temp_path = $jetpack_forms_dir . '/temp/';
+
+			$secret_file_name_hash = wp_hash( $temporary_secret . $hash );
+			$secret_file_name      = $secret_file_name_hash . '-' . $file_name;
+
+			$temp_file = $jetpack_forms_temp_path . $secret_file_name;
+			if ( ! file_exists( $temp_file ) ) {
+				l( 'not there:' . $temp_file );
+				$field->add_error( __( 'Failed to upload file.', 'jetpack-forms' ) );
+				continue;
+			}
+			$new_hash        = wp_hash( wp_rand( 100000, 999999 ) . microtime() );
+			$new_secret_name = wp_hash( $new_hash ) . '-' . $file_name;
+
+			$final_path_folder = $jetpack_forms_dir . '/' . date( 'Y' ) . '/' . date( 'm' ) . '/';
+			$create_dir        = wp_mkdir_p( $final_path_folder );
+
+			$final_path = $final_path_folder . $new_secret_name;
+
+			// Check if the destination directory is writable
+			if ( ! is_writable( $final_path_folder ) ) {
+				$field->add_error( __( 'Failed to upload file. Destination directory is not writable.', 'jetpack-forms' ) );
+				continue;
+			}
+
+			// Check if the source file is readable
+			if ( ! is_readable( $temp_file ) ) {
+				$field->add_error( __( 'Failed to upload file. Source file is not readable.', 'jetpack-forms' ) );
+				continue;
+			}
+
+			$move_result = rename( $temp_file, $final_path );
+			if ( ! $move_result ) {
+				$field->add_error( __( 'Failed to upload file.', 'jetpack-forms' ) );
+				continue;
+			}
 			$uploaded_files[ $field_id ] = array(
 				'field_type' => $field->get_attribute( 'type' ),
 				'name'       => $file_name,
-				'path'       => $new_file,
-				'url'        => esc_url_raw( $upload_dir['baseurl'] . '/jetpack-forms/' . $secret_filename ),
-				'type'       => $file_type['type'],
-				'size'       => wp_filesize( $new_file ),
+				'path'       => $final_path,
+				'url'        => add_query_arg(
+					array(
+						'jp-filename' => $file_name,
+						'jp-hash'     => $new_hash,
+						't'           => date( 'Y' ) . '-' . date( 'm' ),
+					),
+					get_site_url()
+				),
+				'hash'       => $new_hash,
+				'size'       => wp_filesize( $final_path ),
 			);
 		}
 

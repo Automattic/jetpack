@@ -215,7 +215,10 @@ export default class JP_Dropzone {
 		const onReadyStateChangeHandler = this.onReadyStateChange.bind( this, file, index, xhr );
 		xhr.addEventListener( 'readystatechange', onReadyStateChangeHandler );
 
-		formData.append( '_wpnonce', this.options.nonce );
+		formData.append( 'id', this.element.getAttribute( 'data-id' ) || '' );
+		formData.append( 'form_id', this.element.getAttribute( 'data-form_id' ) || '' );
+		formData.append( 'hash', this.element.getAttribute( 'data-hash' ) || '' );
+		formData.append( '_nonce', this.element.getAttribute( 'data-nonce' ) || '' );
 		formData.append( 'file', file );
 		xhr.send( formData );
 	}
@@ -229,10 +232,18 @@ export default class JP_Dropzone {
 		this.element.dispatchEvent( progressEvent );
 	}
 
+	updateHiddenFields( selector, value ) {
+		const hiddenField = this.element.querySelector( selector ) as HTMLInputElement;
+		if ( hiddenField ) {
+			hiddenField.value = value;
+		}
+	}
+
 	onReadyStateChange( file, index, xhr, event ) {
 		if ( event.target.readyState === 4 ) {
 			if ( event.target.status === 200 ) {
 				const response = JSON.parse( event.target.responseText );
+
 				if ( response.success ) {
 					const successEvent = new CustomEvent( 'jp-dropzone-success', {
 						detail: { file, index, response },
@@ -242,6 +253,10 @@ export default class JP_Dropzone {
 					this.element.dispatchEvent( successEvent );
 					this.fileField.setCustomValidity( '' );
 					this.fileField.reportValidity();
+					// update the hidden fields.
+					this.updateHiddenFields( '.jetpack-form-file-field__filename', response.data.filename );
+					this.updateHiddenFields( '.jetpack-form-file-field__temp', response.data.temp );
+
 					return;
 				}
 			}
