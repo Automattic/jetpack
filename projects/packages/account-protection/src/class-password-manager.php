@@ -110,7 +110,7 @@ class Password_Manager {
 	 *
 	 * @return void
 	 */
-	public function on_password_reset( $user ): void {
+	public function on_password_reset( \WP_User $user ): void {
 		$this->save_recent_password( $user->ID, $user->user_pass );
 	}
 
