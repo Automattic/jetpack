@@ -74,7 +74,7 @@ class Email_Service_Test extends BaseTestCase {
 		$this->assertTrue( $result, 'Resending auth mail should return true as success indicator.' );
 
 		// Verify the transient has the expected data
-		$new_transient = get_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$my_token}" );
+		$new_transient = get_transient( Config::TRANSIENT_PREFIX . "_{$my_token}" );
 		$this->assertSame( 1, $new_transient['requests'], 'Resend attempts should be 1.' );
 		$this->assertMatchesRegularExpression( '/^[0-9]{6}$/', $new_transient['auth_code'], 'Auth code should be 6 digits.' );
 	}

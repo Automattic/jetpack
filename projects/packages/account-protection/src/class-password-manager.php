@@ -123,7 +123,7 @@ class Password_Manager {
 	 * @return void
 	 */
 	public function save_recent_password( int $user_id, string $password_hash ): void {
-		$recent_passwords = get_user_meta( $user_id, Config::PASSWORD_MANAGER_RECENT_PASSWORD_HASHES_USER_META_KEY, true );
+		$recent_passwords = get_user_meta( $user_id, Config::RECENT_PASSWORD_HASHES_USER_META_KEY, true );
 
 		if ( ! is_array( $recent_passwords ) ) {
 			$recent_passwords = array();
@@ -137,6 +137,6 @@ class Password_Manager {
 		array_unshift( $recent_passwords, $password_hash );
 		$recent_passwords = array_slice( $recent_passwords, 0, Config::PASSWORD_MANAGER_RECENT_PASSWORDS_LIMIT );
 
-		update_user_meta( $user_id, Config::PASSWORD_MANAGER_RECENT_PASSWORD_HASHES_USER_META_KEY, $recent_passwords );
+		update_user_meta( $user_id, Config::RECENT_PASSWORD_HASHES_USER_META_KEY, $recent_passwords );
 	}
 }

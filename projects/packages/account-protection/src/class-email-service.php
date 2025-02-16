@@ -114,7 +114,7 @@ class Email_Service {
 
 		++$transient_data['requests'];
 
-		if ( ! set_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$token}", $transient_data, Config::PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION ) ) {
+		if ( ! set_transient( Config::TRANSIENT_PREFIX . "_{$token}", $transient_data, Config::PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION ) ) {
 			return new \WP_Error( 'transient_set_error', __( 'Failed to set transient data. Please try again.', 'jetpack-account-protection' ) );
 		}
 

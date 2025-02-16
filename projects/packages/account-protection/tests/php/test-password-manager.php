@@ -121,13 +121,13 @@ class Password_Manager_Test extends BaseTestCase {
 			'hash10',
 		);
 
-		update_user_meta( $user_id, Config::PASSWORD_MANAGER_RECENT_PASSWORD_HASHES_USER_META_KEY, $password_hashes );
+		update_user_meta( $user_id, Config::RECENT_PASSWORD_HASHES_USER_META_KEY, $password_hashes );
 
 		$validation_service_mock = $this->createMock( Validation_Service::class );
 		$password_manager_mock   = new Password_Manager( $validation_service_mock );
 		$password_manager_mock->save_recent_password( $user_id, 'new_hash' );
 
-		$stored_passwords = get_user_meta( $user_id, Config::PASSWORD_MANAGER_RECENT_PASSWORD_HASHES_USER_META_KEY, true );
+		$stored_passwords = get_user_meta( $user_id, Config::RECENT_PASSWORD_HASHES_USER_META_KEY, true );
 		$this->assertCount( 10, $stored_passwords );
 		$this->assertEquals( 'new_hash', $stored_passwords[0] );
 	}

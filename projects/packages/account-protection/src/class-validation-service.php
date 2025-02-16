@@ -307,7 +307,7 @@ class Validation_Service {
 			return true;
 		}
 
-		$recent_passwords = get_user_meta( $user->ID, Config::PASSWORD_MANAGER_RECENT_PASSWORD_HASHES_USER_META_KEY, true );
+		$recent_passwords = get_user_meta( $user->ID, Config::RECENT_PASSWORD_HASHES_USER_META_KEY, true );
 		if ( empty( $recent_passwords ) || ! is_array( $recent_passwords ) ) {
 			return false;
 		}
