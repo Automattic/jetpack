@@ -56,7 +56,7 @@ const CRMPluginIsNotInstalled = ( { installAndActivateCRMPlugin, isInstalling } 
 		<Button
 			variant="secondary"
 			onClick={ () => {
-				tracks.recordEvent( 'jetpack_forms_upsell_clicked_crm', {
+				tracks.recordEvent( 'jetpack_forms_upsell_crm_click', {
 					screen: 'block-editor',
 					intent: 'install-plugin',
 				} );
@@ -101,7 +101,7 @@ const CRMPluginIsInstalled = ( { activateCRMPlugin, isInstalling } ) => {
 				<Button
 					variant="secondary"
 					onClick={ () => {
-						tracks.recordEvent( 'jetpack_forms_upsell_clicked_crm', {
+						tracks.recordEvent( 'jetpack_forms_upsell_crm_click', {
 							screen: 'block-editor',
 							intent: 'activate-plugin',
 						} );

@@ -47,7 +47,7 @@ const CreativeMailPluginIsNotInstalled = ( {
 					<Button
 						variant="secondary"
 						onClick={ () => {
-							tracks.recordEvent( 'jetpack_forms_upsell_clicked_creativemail', {
+							tracks.recordEvent( 'jetpack_forms_upsell_creativemail_click', {
 								screen: 'block-editor',
 								intent: 'install-plugin',
 							} );
@@ -78,7 +78,7 @@ const CreativeMailPluginIsInstalled = ( { activateCreativeMailPlugin, isInstalli
 				<Button
 					variant="secondary"
 					onClick={ () => {
-						tracks.recordEvent( 'jetpack_forms_upsell_clicked_creativemail', {
+						tracks.recordEvent( 'jetpack_forms_upsell_creativemail_click', {
 							screen: 'block-editor',
 							intent: 'activate-plugin',
 						} );
