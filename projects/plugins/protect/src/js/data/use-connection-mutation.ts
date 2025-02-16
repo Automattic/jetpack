@@ -2,6 +2,7 @@ import { useConnection } from '@automattic/jetpack-connection';
 import { type ScanStatus } from '@automattic/jetpack-scan';
 import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
+import API from '../api';
 import {
 	QUERY_CREDENTIALS_KEY,
 	QUERY_HAS_PLAN_KEY,
@@ -46,7 +47,10 @@ export default function useConnectSiteMutation(): UseMutationResult {
 			queryClient.invalidateQueries( { queryKey: [ QUERY_HAS_PLAN_KEY ] } );
 			queryClient.invalidateQueries( { queryKey: [ QUERY_CREDENTIALS_KEY ] } );
 
-			queryClient.ensureQueryData( { queryKey: [ QUERY_ACCOUNT_PROTECTION_KEY ] } );
+			queryClient.ensureQueryData( {
+				queryKey: [ QUERY_ACCOUNT_PROTECTION_KEY ],
+				queryFn: API.getAccountProtection,
+			} );
 			queryClient.invalidateQueries( { queryKey: [ QUERY_ACCOUNT_PROTECTION_KEY ] } );
 		},
 		onError: () => {
