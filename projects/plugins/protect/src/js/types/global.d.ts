@@ -29,7 +29,10 @@ declare global {
 			jetpackScan: ProductData;
 			hasPlan: boolean;
 			onboardingProgress: string[];
-			accountProtection: boolean;
+			accountProtection: {
+				isEnabled: boolean;
+				isSupported: boolean;
+			};
 			waf: WafStatus;
 		};
 	}
