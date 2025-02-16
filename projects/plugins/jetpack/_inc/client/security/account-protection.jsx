@@ -1,4 +1,3 @@
-import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -39,6 +38,18 @@ const AccountProtectionComponent = class extends Component {
 						}
 					/>
 				) }
+				{ isSupported && ! isActive && (
+					<SimpleNotice
+						showDismiss={ false }
+						status={ 'is-info' }
+						text={ __( 'Jetpack recommends enabling this feature.', 'jetpack' ) }
+						children={
+							<NoticeAction external href={ '#' }>
+								{ __( 'Learn about the risks', 'jetpack' ) }
+							</NoticeAction>
+						}
+					/>
+				) }
 				<SettingsGroup
 					hasChild
 					disableInOfflineMode
@@ -46,23 +57,12 @@ const AccountProtectionComponent = class extends Component {
 					module={ this.props.getModule( MODULE_NAME ) }
 					support={ {
 						text: __(
-							'Jetpack recommends enabling this feature. Please be mindful of the risks.',
+							'Enabling this setting enhances account security by detecting compromised passwords and enforcing additional verification when needed.',
 							'jetpack'
 						),
 						link: '#', // TODO: Update link once doc is avaiable
 					} }
 				>
-					<p>
-						{ createInterpolateElement(
-							__(
-								'Enabling this setting enhances account security by detecting compromised passwords and enforcing additional verification when needed. Learn more about <link>how this protects your site</link>.',
-								'jetpack'
-							),
-							{
-								link: <a href="#"></a>, // TODO: Update link once doc is avaiable
-							}
-						) }
-					</p>
 					<ModuleToggle
 						slug="account-protection"
 						compact
