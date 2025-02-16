@@ -14,9 +14,7 @@ const MODULE_NAME = 'account-protection';
 
 const AccountProtectionComponent = class extends Component {
 	render() {
-		const isActive = isModuleFound( MODULE_NAME ) && this.props.getOptionValue( MODULE_NAME );
-		const isSupported = isModuleFound( MODULE_NAME ) && this.props.settings.isSupported;
-		const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( MODULE_NAME );
+		const { isSupported, isActive, unavailableInOfflineMode } = this.props;
 
 		return (
 			<SettingsCard
@@ -69,7 +67,7 @@ const AccountProtectionComponent = class extends Component {
 						slug="account-protection"
 						compact
 						disabled={ ! isSupported || unavailableInOfflineMode }
-						activated={ isSupported && isActive }
+						activated={ isActive }
 						toggling={ this.props.isSavingAnyOption( MODULE_NAME ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
@@ -86,8 +84,12 @@ const AccountProtectionComponent = class extends Component {
 	}
 };
 
-export const AccountProtection = connect( state => {
-	return {
-		isModuleFound: module_name => isModuleFound( state, module_name ),
-	};
-} )( withModuleSettingsFormHelpers( AccountProtectionComponent ) );
+export const AccountProtection = withModuleSettingsFormHelpers(
+	connect( ( state, props ) => {
+		return {
+			isSupported: isModuleFound( state, MODULE_NAME ),
+			isActive: isModuleFound( state, MODULE_NAME ) && props.getOptionValue( MODULE_NAME ),
+			unavailableInOfflineMode: props.isUnavailableInOfflineMode( state, MODULE_NAME ),
+		};
+	} )( AccountProtectionComponent )
+);
