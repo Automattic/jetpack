@@ -10,7 +10,6 @@ import {
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
-import clsx from 'clsx';
 import React, { useCallback } from 'react';
 import AdminPage from '../../components/admin-page';
 import useAccountProtectionQuery from '../../data/account-protection/use-account-protection-query';
@@ -42,11 +41,7 @@ const SettingsPage = () => {
 	} );
 
 	const accountProtectionSettings = (
-		<div
-			className={ clsx( styles[ 'toggle-section' ], {
-				[ styles[ 'toggle-section--disabled' ] ]: ! accountProtection.isSupported,
-			} ) }
-		>
+		<div className={ styles[ 'toggle-section' ] }>
 			<div className={ styles[ 'toggle-section__control' ] }>
 				<ToggleControl
 					checked={ accountProtection.isSupported && accountProtection.isEnabled }
