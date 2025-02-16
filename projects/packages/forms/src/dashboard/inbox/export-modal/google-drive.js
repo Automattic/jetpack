@@ -54,7 +54,7 @@ const GoogleDriveExport = ( { onExport } ) => {
 	}, [ onExport ] );
 
 	const handleConnectClick = useCallback( () => {
-		tracks.recordEvent( 'jetpack_forms_upsell_clicked_googledrive', {
+		tracks.recordEvent( 'jetpack_forms_upsell_googledrive_click', {
 			screen: 'form-submissions-inbox',
 		} );
 		pollForConnection();

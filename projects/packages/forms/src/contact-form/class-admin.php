@@ -288,7 +288,7 @@ class Admin {
 		} else {
 			$slug        = 'jetpack-form-responses-connect';
 			$button_html = sprintf(
-				'<a href="%1$s" id="%4$s" data-nonce-name="%5$s" class="button button-primary export-button export-gdrive jptracks" data-jptracks-name="jetpack-forms-upsell-clicked-googledrive" data-jptracks-prop="screen:form-submissions-classic" title="%2$s" rel="noopener noreferer" target="_blank">%3$s</a>',
+				'<a href="%1$s" id="%4$s" data-nonce-name="%5$s" class="button button-primary export-button export-gdrive jptracks" data-jptracks-name="jetpack_forms_upsell_googledrive_click" data-jptracks-prop="screen:form-submissions-classic" title="%2$s" rel="noopener noreferer" target="_blank">%3$s</a>',
 				esc_url( Redirect::get_url( $slug ) ),
 				esc_attr__( 'connect to Google Drive', 'jetpack-forms' ),
 				esc_html__( 'Connect Google Drive', 'jetpack-forms' ),
