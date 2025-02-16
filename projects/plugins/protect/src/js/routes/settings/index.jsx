@@ -4,6 +4,8 @@ import {
 	Text,
 	ToggleControl,
 	AdminSectionHero,
+	Notice,
+	Button,
 } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -18,7 +20,7 @@ import styles from './styles.module.scss';
 
 const SettingsPage = () => {
 	const { hasPlan } = usePlan();
-	const { data: accountProtectionIsEnabled } = useAccountProtectionQuery();
+	const { data: accountProtection } = useAccountProtectionQuery();
 	const toggleAccountProtectionMutation = useToggleAccountProtectionMutation();
 
 	/**
@@ -42,16 +44,39 @@ const SettingsPage = () => {
 		<div className={ styles[ 'toggle-section' ] }>
 			<div className={ styles[ 'toggle-section__control' ] }>
 				<ToggleControl
-					checked={ accountProtectionIsEnabled }
+					checked={ accountProtection.isSupported && accountProtection.isEnabled }
 					onChange={ toggleAccountProtection }
-					disabled={ toggleAccountProtectionMutation.isPending }
+					disabled={ ! accountProtection.isSupported || toggleAccountProtectionMutation.isPending }
 				/>
 			</div>
 			<div className={ styles[ 'toggle-section__content' ] }>
-				<Text variant="title-medium" mb={ 2 }>
-					{ __( 'Account protection', 'jetpack-protect' ) }
-				</Text>
-				<Text mb={ 2 } className={ styles[ 'toggle-section__description' ] }>
+				<Text variant="title-medium">{ __( 'Account protection', 'jetpack-protect' ) }</Text>
+				{ ! accountProtection.isSupported && (
+					<Notice
+						level="warning"
+						hideCloseButton={ true }
+						className={ styles[ 'toggle-section__alert' ] }
+						title={
+							<Text>
+								{ __(
+									'This feature has been disabled by your site administrator or hosting provider.',
+									'jetpack-protect'
+								) }
+							</Text>
+						}
+						actions={ [
+							<Button
+								variant="link"
+								isExternalLink
+								href={ '#' } // TODO: Update this redirect URL once document exists
+								key="learn-more"
+							>
+								{ __( 'Learn more', 'jetpack-protect' ) }
+							</Button>,
+						] }
+					/>
+				) }
+				<Text className={ styles[ 'toggle-section__description' ] }>
 					{ createInterpolateElement(
 						__(
 							'Enabling this setting enhances account security by detecting compromised passwords and enforcing additional verification when needed. Learn more about <link>how this protects your site</link>.',
@@ -62,18 +87,18 @@ const SettingsPage = () => {
 						}
 					) }
 				</Text>
-				<Text mb={ 2 }>
+				<Text>
 					{ __(
 						'Protect your site with advanced password detection and profile management protection.',
 						'jetpack-protect'
 					) }
 				</Text>
-				{ ! accountProtectionIsEnabled && (
+				{ ! accountProtection.isEnabled && accountProtection.isSupported && (
 					<Text className={ styles[ 'toggle-section__info' ] }>
 						<Icon icon={ info } />
 						{ createInterpolateElement(
 							__(
-								'Jetpack recommends activating this setting. Please be <link>mindful of the risks.</link>',
+								'Jetpack recommends enabling this feature. <link>Learn about the risks.</link>',
 								'jetpack-protect'
 							),
 							{
