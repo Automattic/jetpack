@@ -47,8 +47,8 @@ class Email_Service_Test extends BaseTestCase {
 		);
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertEquals( 'email_resend_limit_exceeded', $result->get_error_code() );
-		$this->assertEquals( 'Email resend limit exceeded. Please try again later.', $result->get_error_message() );
+		$this->assertEquals( 'email_request_limit_exceeded', $result->get_error_code() );
+		$this->assertEquals( 'Email request limit exceeded. Please try again later.', $result->get_error_message() );
 	}
 
 	public function test_resend_auth_mail_sends_mail_and_remembers_2fa_token_successfully(): void {
