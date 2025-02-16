@@ -5,8 +5,8 @@ import {
 	ToggleControl,
 	AdminSectionHero,
 	Notice,
+	Button,
 } from '@automattic/jetpack-components';
-// import { Notice } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
@@ -56,6 +56,31 @@ const SettingsPage = () => {
 			</div>
 			<div className={ styles[ 'toggle-section__content' ] }>
 				<Text variant="title-medium">{ __( 'Account protection', 'jetpack-protect' ) }</Text>
+				{ ! accountProtection.isSupported && (
+					<Notice
+						level="warning"
+						hideCloseButton={ true }
+						className={ styles[ 'toggle-section__alert' ] }
+						title={
+							<Text>
+								{ __(
+									'This feature is disabled by your site administrator or hosting provider.',
+									'jetpack-protect'
+								) }
+							</Text>
+						}
+						actions={ [
+							<Button
+								variant="link"
+								isExternalLink
+								href={ '#' } // TODO: Update this redirect URL once document exists
+								key="learn-more"
+							>
+								{ __( 'Learn more', 'jetpack-protect' ) }
+							</Button>,
+						] }
+					/>
+				) }
 				<Text className={ styles[ 'toggle-section__description' ] }>
 					{ createInterpolateElement(
 						__(
@@ -73,17 +98,6 @@ const SettingsPage = () => {
 						'jetpack-protect'
 					) }
 				</Text>
-				{ ! accountProtection.isSupported && (
-					<Notice
-						level="warning"
-						hideCloseButton={ true }
-						title={ __( 'This feature is not supported on your site.', 'jetpack-protect' ) }
-						children={ __(
-							"Jetpack's account protection feature has been intentionally disabled by your site administrator or hosting provider.",
-							'jetpack-protect'
-						) }
-					/>
-				) }
 				{ ! accountProtection.isEnabled && accountProtection.isSupported && (
 					<Text className={ styles[ 'toggle-section__info' ] }>
 						<Icon icon={ info } />
