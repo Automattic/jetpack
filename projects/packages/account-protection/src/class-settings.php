@@ -7,26 +7,24 @@
 
 namespace Automattic\Jetpack\Account_Protection;
 
-use Automattic\Jetpack\Modules;
-
 /**
  * Account Protection Settings
  */
 class Settings {
 	/**
-	 * Modules instance.
+	 * Account Protection instance.
 	 *
-	 * @var Modules|null
+	 * @var Account_Protection
 	 */
-	private $modules;
+	private $account_protection;
 
 	/**
-	 * Constructor.
+	 * Constructor for dependency injection.
 	 *
-	 * @param Modules|null $modules Modules instance.
+	 * @param ?Account_Protection|null $account_protection Account protection dependency.
 	 */
-	public function __construct( ?Modules $modules = null ) {
-		$this->modules = $modules ?? new Modules();
+	public function __construct( ?Account_Protection $account_protection = null ) {
+		$this->account_protection = $account_protection ?? new Account_Protection();
 	}
 
 	/**
@@ -35,11 +33,11 @@ class Settings {
 	 * @return array
 	 */
 	public function get() {
-		$account_protection = new Account_Protection( $this->modules );
-
-		return array(
-			'isEnabled'   => $account_protection->is_enabled(),
-			'isSupported' => $account_protection->is_supported_environment(),
+		$settings = array(
+			'isEnabled'   => $this->account_protection->is_enabled(),
+			'isSupported' => $this->account_protection->is_supported_environment(),
 		);
+
+		return $settings;
 	}
 }
