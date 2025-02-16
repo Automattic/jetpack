@@ -7,7 +7,8 @@ import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { isModuleFound } from 'state/search';
-import Notice from '../components/notice';
+import SimpleNotice from '../components/notice';
+import NoticeAction from '../components/notice/notice-action';
 
 const MODULE_NAME = 'account-protection';
 
@@ -24,6 +25,22 @@ const AccountProtectionComponent = class extends Component {
 				header={ _x( 'Account protection', 'Settings header', 'jetpack' ) }
 				hideButton={ true }
 			>
+				{ ! isSupported && (
+					<SimpleNotice
+						status={ 'is-info' }
+						showDismiss={ false }
+						text={ __(
+							'This feature has been disabled by your site administrator or hosting provider.',
+							'jetpack'
+						) }
+						children={
+							// TODO: Update link once doc is avaiable
+							<NoticeAction external href={ '#' }>
+								{ __( 'Learn more', 'jetpack' ) }
+							</NoticeAction>
+						}
+					/>
+				) }
 				<SettingsGroup
 					hasChild
 					disableInOfflineMode
@@ -63,16 +80,6 @@ const AccountProtectionComponent = class extends Component {
 							) }
 						</span>
 					</ModuleToggle>
-					{ ! isSupported && (
-						<Notice
-							status="warning"
-							showDismiss={ false }
-							text={ __(
-								"Jetpack's account protection feature has been intentionally disabled by your site administrator or hosting provider.",
-								'jetpack'
-							) }
-						/>
-					) }
 				</SettingsGroup>
 			</SettingsCard>
 		);
