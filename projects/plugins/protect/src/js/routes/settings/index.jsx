@@ -59,7 +59,7 @@ const SettingsPage = () => {
 						title={
 							<Text>
 								{ __(
-									'This feature is disabled by your site administrator or hosting provider.',
+									'This feature has been disabled by your site administrator or hosting provider.',
 									'jetpack-protect'
 								) }
 							</Text>
@@ -98,7 +98,7 @@ const SettingsPage = () => {
 						<Icon icon={ info } />
 						{ createInterpolateElement(
 							__(
-								'Jetpack recommends activating this setting. Please be <link>mindful of the risks.</link>',
+								'Jetpack recommends enabling this feature. <link>Learn about the risks.</link>',
 								'jetpack-protect'
 							),
 							{
