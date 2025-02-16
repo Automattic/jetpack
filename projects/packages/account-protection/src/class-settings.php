@@ -21,9 +21,9 @@ class Settings {
 	/**
 	 * Constructor for dependency injection.
 	 *
-	 * @param Account_Protection|null $account_protection Account protection dependency.
+	 * @param ?Account_Protection|null $account_protection Account protection dependency.
 	 */
-	public function __construct( Account_Protection $account_protection = null ) {
+	public function __construct( ?Account_Protection $account_protection = null ) {
 		$this->account_protection = $account_protection ?? new Account_Protection();
 	}
 
