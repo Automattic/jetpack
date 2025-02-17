@@ -137,7 +137,7 @@ add_filter( 'themes_api_result', 'wpcomsh_search_wpcom_themes_api_result', 0, 3 
 function wpcomsh_feature_filter_wpcom_themes_api_result( $res, string $action, $args ) {
 	// Pre-requisites checks.
 	$tags = $args->tag ?? array();
-	if ( 'query_themes' !== $action || ! $tags ) {
+	if ( 'query_themes' !== $action || ! $tags || 'full-site-editing' === $tags ) {
 		return $res;
 	}
 
