@@ -5,7 +5,7 @@ import {
 	getRedirectUrl,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
-import { getScriptData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { getScriptData, isWpcomPlatformSite, canUser } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
@@ -79,7 +79,7 @@ const SocialModuleToggle: React.FC = () => {
 
 	return (
 		<ToggleSection
-			hideToggle={ is_wpcom }
+			hideToggle={ is_wpcom || ! canUser( 'manage_modules' ) }
 			title={ __(
 				'Automatically share your posts to social networks',
 				'jetpack-publicize-components'
