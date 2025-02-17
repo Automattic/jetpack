@@ -42,7 +42,7 @@
 		"patchedDependencies": {
 			"@wordpress/dataviews": ".pnpm-patches/@wordpress__dataviews@4.12.0.patch"
 		},
-		"onlyBuiltDependencies": [
+		"ignoredBuiltDependencies": [
 			"@swc/core",
 			"core-js",
 			"esbuild",
