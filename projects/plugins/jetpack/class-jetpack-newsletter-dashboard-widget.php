@@ -52,7 +52,7 @@ class Jetpack_Newsletter_Dashboard_Widget {
 	 * Sets up the Jetpack Newsletter widget in the WordPress admin dashboard.
 	 */
 	public static function wp_dashboard_setup() {
-		static::load_admin_scripts( 'jp-newsletter-widget', 'app.min', array( 'config_variable_name' => 'jetpackNewsletterWidgetConfigData' ) );
+		static::load_admin_scripts( 'jp-newsletter-widget', 'newsletter.min', array( 'config_variable_name' => 'jetpackNewsletterWidgetConfigData' ) );
 		if ( Jetpack::is_connection_ready() ) {
 			$widget_title = sprintf(
 				__( 'Newsletter', 'jetpack' )
@@ -85,7 +85,7 @@ class Jetpack_Newsletter_Dashboard_Widget {
 	 * @return void
 	 */
 	public static function admin_init() {
-		static::load_admin_scripts( 'jp-newsletter-widget', 'app.min', array( 'config_variable_name' => 'jetpackNewsletterWidgetConfigData' ) );
+		static::load_admin_scripts( 'jp-newsletter-widget', 'newsletter.min', array( 'config_variable_name' => 'jetpackNewsletterWidgetConfigData' ) );
 	}
 
 	/**
