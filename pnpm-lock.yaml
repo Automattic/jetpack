@@ -40,8 +40,8 @@ importers:
   projects/github-actions/repo-gardening:
     dependencies:
       '@actions/core':
-        specifier: 1.10.1
-        version: 1.10.1
+        specifier: 1.11.1
+        version: 1.11.1
       '@actions/github':
         specifier: 6.0.0
         version: 6.0.0
@@ -68,8 +68,8 @@ importers:
   projects/github-actions/required-review:
     dependencies:
       '@actions/core':
-        specifier: 1.10.1
-        version: 1.10.1
+        specifier: 1.11.1
+        version: 1.11.1
       '@actions/github':
         specifier: 6.0.0
         version: 6.0.0
@@ -90,8 +90,8 @@ importers:
   projects/github-actions/test-results-to-slack:
     dependencies:
       '@actions/core':
-        specifier: 1.10.1
-        version: 1.10.1
+        specifier: 1.11.1
+        version: 1.11.1
       '@actions/github':
         specifier: 6.0.0
         version: 6.0.0
@@ -4999,8 +4999,8 @@ importers:
   tools/cli:
     dependencies:
       '@octokit/auth-token':
-        specifier: 5.1.1
-        version: 5.1.1
+        specifier: 5.1.2
+        version: 5.1.2
       '@octokit/rest':
         specifier: 20.1.1
         version: 20.1.1
@@ -5153,8 +5153,8 @@ importers:
         specifier: 9.16.0
         version: 9.16.0
       '@octokit/auth-token':
-        specifier: 5.1.1
-        version: 5.1.1
+        specifier: 5.1.2
+        version: 5.1.2
       '@octokit/rest':
         specifier: 20.1.1
         version: 20.1.1
@@ -5284,14 +5284,20 @@ importers:
 
 packages:
 
-  '@actions/core@1.10.1':
-    resolution: {integrity: sha512-3lBR9EDAY+iYIpTnTIXmWcNbX3T2kCkAEQGIQx4NVQ0575nk2k3GRZDTPQG+vVtS2izSLmINlxXf0uLtnrTP+g==}
+  '@actions/core@1.11.1':
+    resolution: {integrity: sha512-hXJCSrkwfA46Vd9Z3q4cpEpHB1rL5NG04+/rbqW9d3+CSvtB1tYe8UTpAlixa1vj0m/ULglfEK2UKxMGxCxv5A==}
+
+  '@actions/exec@1.1.1':
+    resolution: {integrity: sha512-+sCcHHbVdk93a0XT19ECtO/gIXoxvdsgQLzb2fE2/5sIZmWQuluYyjPQtrtTHdU1YzTZ7bAPN4sITq2xi1679w==}
 
   '@actions/github@6.0.0':
     resolution: {integrity: sha512-alScpSVnYmjNEXboZjarjukQEzgCRmjMv6Xj47fsdnqGS73bjJNDpiiXmp8jr0UZLdUB6d9jW63IcmddUP+l0g==}
 
   '@actions/http-client@2.2.3':
     resolution: {integrity: sha512-mx8hyJi/hjFvbPokCg4uRd4ZX78t+YyRPtnKWwIl+RzNaVuFpQHfmlGVfsKEJN8LwTCvL+DfVgAM04XaHkm6bA==}
+
+  '@actions/io@1.1.3':
+    resolution: {integrity: sha512-wi9JjgKLYS7U/z8PPbco+PvTb/nRWjeoFlJ1Qer83k/3C5PHQi28hiVdeE2kHXmIL99mQFawx8qt/JPjZilJ8Q==}
 
   '@adobe/css-tools@4.4.1':
     resolution: {integrity: sha512-12WGKBQzjUAI4ayyF4IAtfw2QR/IDoqk6jTddXDhtYTJF9ASmoE1zst7cVtP0aL/F1jUJL5r+JxKXKEgHNbEUQ==}
@@ -6778,8 +6784,8 @@ packages:
     resolution: {integrity: sha512-tY/msAuJo6ARbK6SPIxZrPBms3xPbfwBrulZe0Wtr/DIY9lje2HeV1uoebShn6mx7SjCHif6EjMvoREj+gZ+SA==}
     engines: {node: '>= 18'}
 
-  '@octokit/auth-token@5.1.1':
-    resolution: {integrity: sha512-rh3G3wDO8J9wSjfI436JUKzHIxq8NaiL0tVeB2aXmG6p/9859aUOAjA9pmSPNGGZxfwmaJ9ozOJImuNVJdpvbA==}
+  '@octokit/auth-token@5.1.2':
+    resolution: {integrity: sha512-JcQDsBdg49Yky2w2ld20IHAlwr8d/d8N6NiOXbtuoPCqzbsiJgF633mVUw3x4mo0H5ypataQIX7SFu3yy44Mpw==}
     engines: {node: '>= 18'}
 
   '@octokit/core@5.2.0':
@@ -15459,10 +15465,14 @@ packages:
 
 snapshots:
 
-  '@actions/core@1.10.1':
+  '@actions/core@1.11.1':
     dependencies:
+      '@actions/exec': 1.1.1
       '@actions/http-client': 2.2.3
-      uuid: 8.3.2
+
+  '@actions/exec@1.1.1':
+    dependencies:
+      '@actions/io': 1.1.3
 
   '@actions/github@6.0.0':
     dependencies:
@@ -15476,6 +15486,8 @@ snapshots:
     dependencies:
       tunnel: 0.0.6
       undici: 5.28.5
+
+  '@actions/io@1.1.3': {}
 
   '@adobe/css-tools@4.4.1': {}
 
@@ -17304,7 +17316,7 @@ snapshots:
 
   '@octokit/auth-token@4.0.0': {}
 
-  '@octokit/auth-token@5.1.1': {}
+  '@octokit/auth-token@5.1.2': {}
 
   '@octokit/core@5.2.0':
     dependencies:
