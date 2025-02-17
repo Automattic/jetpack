@@ -16,6 +16,14 @@ import styles from './style.module.scss';
 import type { AdditionalAction, SecondaryAction } from '../action-button/types';
 import type { FC, MouseEventHandler, ReactNode, MouseEvent } from 'react';
 
+/**
+ * Generate the product card title ID attribute from a product slug
+ *
+ * @param {string} slug - The product slug
+ * @return {string} The generated title ID attribute
+ */
+export const getProductCardTitleId = slug => `product-card-title-${ slug }`;
+
 export type ProductCardProps = {
 	children?: ReactNode;
 	name: string;
@@ -135,6 +143,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 			headerRightContent={ null }
 			onMouseEnter={ onMouseEnter }
 			onMouseLeave={ onMouseLeave }
+			titleId={ getProductCardTitleId( slug ) }
 		>
 			{ recommendation && <PriceComponent slug={ slug } /> }
 			<Description />
