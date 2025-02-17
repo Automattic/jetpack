@@ -105,7 +105,7 @@ class Jetpack_Social {
 		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Social_Note_Controller(), 'register_rest_routes' ) );
 
 		// Add block editor assets
-		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_editor_scripts' ) );
+		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_editor_scripts' ), 20 );
 		// Adds the review prompt initial state
 		add_action( 'enqueue_block_assets', array( $this, 'add_review_initial_state' ), 30 );
 
