@@ -1024,14 +1024,6 @@ class Jetpack {
 	 */
 	public function jetpack_custom_caps( $caps, $cap ) {
 		switch ( $cap ) {
-			case 'jetpack_manage_modules':
-			case 'jetpack_activate_modules':
-			case 'jetpack_deactivate_modules':
-				$caps = array( 'manage_options' );
-				break;
-			case 'jetpack_configure_modules':
-				$caps = array( 'manage_options' );
-				break;
 			case 'jetpack_manage_autoupdates':
 				$caps = array(
 					'manage_options',
