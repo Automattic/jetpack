@@ -9,7 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
@@ -221,18 +220,6 @@ class Jetpack_Social {
 		) {
 			return;
 		}
-
-		Assets::register_script(
-			'jetpack-social-editor',
-			'build/editor.js',
-			JETPACK_SOCIAL_PLUGIN_ROOT_FILE,
-			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-social',
-			)
-		);
-
-		Assets::enqueue_script( 'jetpack-social-editor' );
 
 		$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
 		$social_state            = $jetpack_social_settings->get_initial_state();
