@@ -167,6 +167,12 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 					this.iframe.onload = null;
 					clearTimeout( timeoutId );
 
+					// Check HTTP status code first.
+					const urlError = await this.diagnoseUrlError( fullUrl );
+					if ( urlError ) {
+						throw urlError;
+					}
+
 					// Verify the inner document is readable.
 					if ( ! this.iframe.contentDocument || ! this.iframe.contentWindow ) {
 						throw (
