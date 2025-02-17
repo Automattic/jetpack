@@ -128,7 +128,7 @@ jQuery( function ( $ ) {
 			} else if ( [ 'broken', 'must_reauth' ].includes( connection.status ) ) {
 				brokenConnections++;
 
-				isInvalid = true;
+				isInvalid = 'broken' === connection.status;
 			}
 
 			if ( isInvalid ) {
