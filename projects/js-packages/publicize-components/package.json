@@ -25,7 +25,7 @@
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/popup-monitor": "1.0.2",
-		"@automattic/social-previews": "2.1.0-beta.9",
+		"@automattic/social-previews": "2.1.0-beta.10",
 		"@wordpress/annotations": "3.17.0",
 		"@wordpress/api-fetch": "7.17.0",
 		"@wordpress/block-editor": "14.12.0",
