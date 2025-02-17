@@ -24,7 +24,11 @@ class WPCom_Themes_Merger {
 		// Create an associative array with theme slugs as keys for quick lookup
 		$wpcom_theme_slugs = array_flip(
 			array_map(
-				fn ( $theme ) => $theme->slug,
+				function ( $theme ) {
+					// Extract the real slug from the stylesheet name (e.g. "pub/twentytwenty", "premium/tsubaki").
+					$slug = substr( $theme->slug, strpos( $theme->slug, '/' ) + 1, strlen( $theme->slug ) );
+					return $slug;
+				},
 				$wpcom_themes
 			)
 		);
@@ -72,7 +76,9 @@ class WPCom_Themes_Merger {
 		// As a general rule, users will see themes once they're available on the WPCom theme repo which is before they're
 		// available on the WPOrg theme repo.
 		foreach ( $wpcom_themes as $theme ) {
-			$themes[ $theme->slug ] = $theme;
+			// Extract the real slug from the stylesheet name (e.g. "pub/twentytwenty", "premium/tsubaki").
+			$slug = substr( $theme->slug, strpos( $theme->slug, '/' ) + 1, strlen( $theme->slug ) );
+			$themes[ $slug ] = $theme;
 		}
 
 		$themes = array_filter(
