@@ -5,7 +5,7 @@ import {
 	getRedirectUrl,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
-import { getScriptData } from '@automattic/jetpack-script-data';
+import { getScriptData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
@@ -111,7 +111,7 @@ const SocialModuleToggle: React.FC = () => {
 					{ __( 'Learn more', 'jetpack-publicize-components' ) }
 				</ExternalLink>
 			</Text>
-			{ ! is_wpcom && ! hasSocialPaidFeatures() ? (
+			{ ! isWpcomPlatformSite() && ! hasSocialPaidFeatures() ? (
 				<ContextualUpgradeTrigger
 					className={ clsx( styles.cut, { [ styles.small ]: isSmall } ) }
 					description={ __( 'Unlock advanced sharing options', 'jetpack-publicize-components' ) }
