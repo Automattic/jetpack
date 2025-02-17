@@ -20,7 +20,8 @@
 		"clean": "rm -rf build/",
 		"clean:test": "rm -rf tests/build/",
 		"test": "pnpm build && pnpm build:test && NODE_ENV=test NODE_PATH=./node_modules jest --forceExit --config=tests/config/jest.config.js",
-		"test-coverage": "pnpm run test --coverage"
+		"test-coverage": "pnpm run test --coverage",
+		"watch": "tsc --watch"
 	},
 	"main": "./build/browser.js",
 	"devDependencies": {
