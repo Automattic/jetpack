@@ -213,7 +213,27 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 			)
 		);
 
-		$this->assertEquals( $synced_term, $retrieved_term );
+		$this->assertEquals( $retrieved_term->term_taxonomy_id, $synced_term->term_taxonomy_id );
+		$this->assertEquals( $retrieved_term->term_id, $synced_term->term_id );
+		$this->assertEquals( $retrieved_term->taxonomy, $synced_term->taxonomy );
+		$this->assertEquals( $retrieved_term->description, $synced_term->description );
+		$this->assertEquals( $retrieved_term->name, $synced_term->name );
+		$this->assertEquals( $retrieved_term->slug, $synced_term->slug );
+		$this->assertEquals( $retrieved_term->term_group, $synced_term->term_group );
+		$this->assertEquals( $retrieved_term->parent, $synced_term->parent );
+		$this->assertEquals( $retrieved_term->count, $synced_term->count );
+	}
+
+	public function test_will_not_return_term_object_by_id_with_blacklisted_taxonomy() {
+		$term_sync_module = Modules::get_module( 'terms' );
+
+		register_taxonomy( 'filter_me', 'post' );
+
+		Settings::update_settings( array( 'taxonomies_blacklist' => array( 'filter_me' ) ) );
+
+		$term_id = self::factory()->term->create( array( 'taxonomy' => 'filter_me' ) );
+
+		$this->assertFalse( $term_sync_module->get_object_by_id( 'term', $term_id ) );
 	}
 
 	public function test_returns_term_taxonomy_by_id() {
@@ -226,6 +246,96 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $term_taxonomy->term_taxonomy_id, $synced_term->term_taxonomy_id );
 		$this->assertEquals( $term_taxonomy->term_id, $synced_term->term_id );
 		$this->assertEquals( $term_taxonomy->taxonomy, $synced_term->taxonomy );
+	}
+
+	public function test_will_not_return_term_taxonomy_by_id_with_blacklisted_taxonomy() {
+		$term_sync_module = Modules::get_module( 'terms' );
+
+		register_taxonomy( 'filter_me', 'post' );
+
+		$term_id = self::factory()->term->create( array( 'taxonomy' => 'filter_me' ) );
+
+		Settings::update_settings( array( 'taxonomies_blacklist' => array( 'filter_me' ) ) );
+
+		$this->assertFalse( $term_sync_module->get_object_by_id( 'term_taxonomy', $term_id ) );
+	}
+
+	public function test_returns_term_relationships_by_post_id() {
+		$term_sync_module = Modules::get_module( 'terms' );
+
+		$anther_term = wp_insert_term( 'mouse', $this->taxonomy );
+
+		wp_set_post_terms( $this->post_id, array( $this->term_object['term_id'], $anther_term['term_id'] ), $this->taxonomy, false );
+
+		$post_categories       = get_the_category( $this->post_id );
+		$default_post_category = array_pop( $post_categories );
+
+		$term_object = (object) $this->term_object;
+
+		$expected = (object) array(
+			'object_id'     => $this->post_id,
+			'relationships' => array(
+				(object) array(
+					'object_id'        => $this->post_id,
+					'term_id'          => $default_post_category->term_id,
+					'taxonomy'         => $default_post_category->taxonomy,
+					'term_taxonomy_id' => $default_post_category->term_taxonomy_id,
+					'term_order'       => 0,
+					'parent'           => 0,
+					'count'            => 1,
+				),
+				(object) array(
+					'object_id'        => $this->post_id,
+					'term_id'          => $term_object->term_id,
+					'taxonomy'         => $this->taxonomy,
+					'term_taxonomy_id' => $term_object->term_taxonomy_id,
+					'term_order'       => 0,
+					'parent'           => 0,
+					'count'            => 1,
+				),
+				(object) array(
+					'object_id'        => $this->post_id,
+					'term_id'          => $anther_term['term_id'],
+					'taxonomy'         => $this->taxonomy,
+					'term_taxonomy_id' => $anther_term['term_id'],
+					'term_order'       => 0,
+					'parent'           => 0,
+					'count'            => 1,
+				),
+			),
+		);
+
+		$this->assertEquals( $expected, $term_sync_module->get_object_by_id( 'term_relationships', $this->post_id ) );
+	}
+
+	public function test_will_not_return_term_relationships_by_post_id_with_blacklisted_taxonomy() {
+		$term_sync_module = Modules::get_module( 'terms' );
+
+		$anther_term = wp_insert_term( 'mouse', $this->taxonomy );
+
+		wp_set_post_terms( $this->post_id, array( $this->term_object['term_id'], $anther_term['term_id'] ), $this->taxonomy, false );
+
+		$post_categories       = get_the_category( $this->post_id );
+		$default_post_category = array_pop( $post_categories );
+
+		Settings::update_settings( array( 'taxonomies_blacklist' => array( $this->taxonomy ) ) );
+
+		$expected = (object) array(
+			'object_id'     => $this->post_id,
+			'relationships' => array(
+				(object) array(
+					'object_id'        => $this->post_id,
+					'term_id'          => $default_post_category->term_id,
+					'taxonomy'         => $default_post_category->taxonomy,
+					'term_taxonomy_id' => $default_post_category->term_taxonomy_id,
+					'term_order'       => 0,
+					'parent'           => 0,
+					'count'            => 1,
+				),
+			),
+		);
+
+		$this->assertEquals( $expected, $term_sync_module->get_object_by_id( 'term_relationships', $this->post_id ) );
 	}
 
 	public function get_terms() {

@@ -7,18 +7,19 @@
 
 namespace Automattic\Jetpack;
 
-use WorDBless\BaseTestCase;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
  * Test the Test_Environment class
  */
-class Test_Environment_Test extends BaseTestCase {
+class Test_Environment_Test extends TestCase {
 	/**
-	 * Test that WordPress functions are available after init
+	 * Test that WordPress functions are available after init.
 	 */
 	public function test_wordpress_functions_available() {
-		$this->assertTrue( function_exists( 'add_action' ) );
-		$this->assertTrue( function_exists( 'do_action' ) );
-		$this->assertTrue( defined( 'ABSPATH' ) );
+		Test_Environment::init();
+		$this->assertTrue( \function_exists( 'add_action' ) );
+		$this->assertTrue( \function_exists( 'do_action' ) );
+		$this->assertTrue( \defined( 'ABSPATH' ) );
 	}
 }

@@ -77,6 +77,7 @@ module.exports = [
 				},
 			},
 			'identity-crisis': './src/identity-crisis/_inc/admin.jsx',
+			'jetpack-users-connection': './src/js/jetpack-users-connection.js',
 			...ssoEntries,
 		},
 		plugins: [

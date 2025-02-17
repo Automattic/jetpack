@@ -8,9 +8,9 @@ import { OptionsInput, TextInput, CompletionInput } from './wizard-input';
 import WizardStep from './wizard-step';
 import type { Step, OptionMessage } from './types';
 
-const debug = debugFactory( 'assistant-wizard-chat' );
+const debug = debugFactory( 'jetpack-wizard-chat' );
 
-export default function AssistantWizard( { close, steps, assistantName } ) {
+export default function WizardChat( { close, steps, assistantName } ) {
 	const [ currentStep, setCurrentStep ] = useState( 0 );
 	const [ isBusy, setIsBusy ] = useState( false );
 	const stepsEndRef = useRef( null );
@@ -95,7 +95,7 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 					return acc;
 				}, 0 ) / steps.filter( step => step.includeInResults ).length;
 
-			tracks.recordEvent( 'assistant_wizard_chat_close', {
+			tracks.recordEvent( 'jetpack_wizard_chat_close', {
 				completion,
 				step: steps[ currentStep ].id,
 				steps: steps.length - 1,
@@ -112,7 +112,7 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 	const jumpToStep = useCallback(
 		( stepNumber: number ) => {
 			if ( stepNumber < steps.length - 1 ) {
-				tracks.recordEvent( 'assistant_wizard_chat_step_jump', {
+				tracks.recordEvent( 'jetpack_wizard_chat_jump', {
 					step_from: steps[ currentStep ]?.id,
 					step_to: steps[ stepNumber ]?.id,
 					assistant_name: assistantName,
@@ -140,7 +140,7 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 			setIsBusy( true );
 			setAssistantFlowAction( 'backwards' );
 			debug( 'moving back to ' + ( currentStep - 1 ) );
-			tracks.recordEvent( 'assistant_wizard_chat_step_back', {
+			tracks.recordEvent( 'jetpack_wizard_chat_back', {
 				step_from: steps[ currentStep ]?.id,
 				step_to: steps[ currentStep - 1 ]?.id,
 				assistant_name: assistantName,
@@ -167,7 +167,7 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 				},
 			} ) );
 		}
-		tracks.recordEvent( 'assistant_wizard_chat_step_skip', {
+		tracks.recordEvent( 'jetpack_wizard_chat_skip', {
 			step_from: steps[ currentStep ]?.id,
 			step_to: steps[ currentStep + 1 ]?.id,
 			assistant_name: assistantName,
@@ -205,7 +205,7 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 			setResults( prev => ( { ...prev, ...newResults } ) );
 		}
 		setAssistantFlowAction( 'submit' );
-		tracks.recordEvent( 'assistant_wizard_chat_step_submit', {
+		tracks.recordEvent( 'jetpack_wizard_chat_submit', {
 			step_from: steps[ currentStep ].id,
 			step_to: steps[ currentStep + 1 ].id,
 			value_length: stepValue?.length || 0,
@@ -216,7 +216,7 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 	}, [ currentStep, handleDone, handleNext, steps, tracks, handleSkip, assistantName ] );
 
 	const handleRetry = useCallback( async () => {
-		tracks.recordEvent( 'assistant_wizard_chat_step_retry', {
+		tracks.recordEvent( 'jetpack_wizard_chat_retry', {
 			step: steps[ currentStep ]?.id,
 			assistant_name: assistantName,
 		} );
@@ -226,15 +226,15 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 	}, [ currentStep, steps, tracks, assistantName ] );
 
 	return (
-		<div className="assistant-wizard">
-			<div className="assistant-wizard__header">
-				<div className="assistant-wizard__header-actions">
+		<div className="jetpack-wizard-chat">
+			<div className="jetpack-wizard-chat__header">
+				<div className="jetpack-wizard-chat__header-actions">
 					<Button variant="link" disabled={ isBusy } onClick={ handleBack }>
 						<Icon icon={ chevronLeft } size={ 32 } />
 					</Button>
 				</div>
 				<h2>{ currentStepData?.title }</h2>
-				<div className="assistant-wizard__header-actions">
+				<div className="jetpack-wizard-chat__header-actions">
 					<Tooltip text={ __( 'Skip', 'jetpack' ) }>
 						<Button
 							variant="link"
@@ -250,7 +250,7 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 				</div>
 			</div>
 
-			<div className="assistant-wizard__content">
+			<div className="jetpack-wizard-chat__content">
 				{ steps.map( ( step, index ) => (
 					<WizardStep
 						key={ step.id }
@@ -270,7 +270,7 @@ export default function AssistantWizard( { close, steps, assistantName } ) {
 				<div ref={ stepsEndRef } />
 			</div>
 
-			<div className="assistant-wizard__input-container">
+			<div className="jetpack-wizard-chat__input-container">
 				{ steps[ currentStep ].type === 'input' && (
 					<TextInput
 						ref={ steps[ currentStep ].inputRef }

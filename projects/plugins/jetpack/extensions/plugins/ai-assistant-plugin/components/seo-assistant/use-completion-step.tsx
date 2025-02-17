@@ -77,7 +77,7 @@ export const useCompletionStep = (): Step => {
 				addMessage( {
 					content: createInterpolateElement(
 						__(
-							'<strong>SEO optimization complete! 🎉</strong><br/>Your blog post is now search-engine friendly.<br />Happy blogging! 😊',
+							'<strong>SEO improvements complete! 🎉</strong><br/>Your blog post is now search-engine friendly.<br />Happy blogging! 😊',
 							'jetpack'
 						),
 						{ br: <br />, strong: <strong /> }
@@ -94,7 +94,7 @@ export const useCompletionStep = (): Step => {
 
 	return {
 		id: 'completion',
-		title: __( 'Your post is SEO-ready', 'jetpack' ),
+		title: __( 'Your post is ready', 'jetpack' ),
 		label: 'completion',
 		messages,
 		type: 'completion',

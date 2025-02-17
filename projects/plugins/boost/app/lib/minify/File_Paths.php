@@ -34,6 +34,11 @@ final class File_Paths extends Cacheable {
 		);
 	}
 
+	/**
+	 * Get an array of file paths that belong to the same hash.
+	 *
+	 * @return array Array of file paths relative to the webroot.
+	 */
 	public function get_paths() {
 		return $this->paths;
 	}
