@@ -438,7 +438,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * Tests that Photon will only process images with supported extensions.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.7.5
 	 *
 	 * @dataProvider get_different_extensions
 	 *
@@ -491,7 +491,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * Data provider for test_photonizing_check_extensions
 	 *
-	 * @since $$next-version$$
+	 * @since 0.7.5
 	 *
 	 * @return array
 	 */

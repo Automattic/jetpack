@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Do not serve images using unsupported extensions with the cdn_url method.

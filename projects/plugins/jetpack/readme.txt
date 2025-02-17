@@ -326,9 +326,15 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.4-a.3 - 2025-02-11
+### 14.4-a.5 - 2025-02-17
 #### Enhancements
-- Media Page: Enable the "Untangle Calypso" feature.
+- Connection: Display connection status on Users page independent of the SSO module.
+- Forms block: Add number input.
+- Subscriptions: Pre-select newsletter categories.
+
+#### Bug fixes
+- Geo Location: Remove support from default themes to prevent deprecation notice.
+- Related Posts: Ensure images using the AVIF format are properly displayed.
 
 --------
 
