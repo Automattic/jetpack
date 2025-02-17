@@ -425,7 +425,7 @@ class Jetpack_Likes {
 		* If the same post appears more then once on a page the page goes crazy
 		* we need a slightly more unique id / name for the widget wrapper.
 		*/
-		$uniqid = uniqid();
+		$uniqid   = uniqid();
 		$src      = sprintf( 'https://widgets.wp.com/likes/?ver=%1$s#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%4$s&amp;obj_id=%2$d-%3$d-%5$s', rawurlencode( JETPACK__VERSION ), $blog_id, $post_id, $domain, $uniqid );
 		$name     = sprintf( 'like-post-frame-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );
 		$wrapper  = sprintf( 'like-post-wrapper-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );

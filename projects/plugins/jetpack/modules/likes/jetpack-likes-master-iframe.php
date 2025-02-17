@@ -24,7 +24,7 @@ function jetpack_likes_master_iframe() {
 
 	$likes_locale = ( '' === $_locale || 'en' === $_locale ) ? '' : '&amp;lang=' . strtolower( $_locale );
 
-	$src = sprintf( 'https://widgets.wp.com/likes/master.html?ver=%1$s#ver=%1$s%2$s',	$version, $likes_locale );
+	$src = sprintf( 'https://widgets.wp.com/likes/master.html?ver=%1$s#ver=%1$s%2$s', $version, $likes_locale );
 
 	/**
 	 * Filters the Likes iframe src, if any parameters need to be overridden or tracked.
