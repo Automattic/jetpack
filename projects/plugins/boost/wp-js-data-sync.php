@@ -267,8 +267,14 @@ jetpack_boost_register_readonly_option(
 			return false;
 		}
 
+		// If the static minfification has not ran yet, don't show the legacy notice.
+		$static_minification_enabled = get_site_option( 'jetpack_boost_static_minification', 'na' );
+		if ( $static_minification_enabled === 'na' ) {
+			return false;
+		}
+
 		// Otherwise show it if the 404 tester determined it can't be used.
-		return ! (bool) get_site_option( 'jetpack_boost_static_minification' );
+		return ! (bool) $static_minification_enabled;
 	}
 );
 

@@ -18,7 +18,7 @@ const MinifyLegacyNotice = () => {
 			>
 				<p>
 					{ __(
-						'You are using the legacy cache delivery method for concatenated files.',
+						'You can improve the speed of concatenated files, and reduce the load on WordPress.',
 						'jetpack-boost'
 					) }
 				</p>
