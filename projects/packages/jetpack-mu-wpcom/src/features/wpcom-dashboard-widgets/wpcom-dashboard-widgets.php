@@ -23,7 +23,7 @@ function load_wpcom_dashboard_widgets() {
 		'wpcom'
 	);
 
-	$tasks = null;
+	$tasks = array();
 
 	if ( ! is_wp_error( $layout_response ) ) {
 		$layout = json_decode( $layout_response['body'], true );
