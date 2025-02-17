@@ -32,7 +32,7 @@ class Users_Connection_Admin {
 	 * Initialize the admin functionality if conditions are met.
 	 */
 	public function init() {
-		if ( ! is_admin() || ! current_user_can( 'manage_options' ) ) {
+		if ( ! is_admin() || ! current_user_can( 'manage_options' ) || ( defined( 'IS_WPCOM' ) || IS_WPCOM ) ) {
 			return;
 		}
 
