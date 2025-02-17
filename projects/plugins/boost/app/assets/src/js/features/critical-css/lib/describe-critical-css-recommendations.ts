@@ -464,6 +464,25 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 			],
 		} ),
 	},
+
+	// @todo - implement this.
+	InvalidURLError: {
+		describeSet: set =>
+			_n(
+				"Jetpack Boost couldn't verify this page:",
+				"Jetpack Boost couldn't verify these pages:",
+				urlCount( set ),
+				'jetpack-boost'
+			),
+		suggestion: set => ( {
+			paragraph: _n(
+				'Please follow the troubleshooting steps below for the page.',
+				'Please follow the troubleshooting steps below for each of the pages.',
+				urlCount( set ),
+				'jetpack-boost'
+			),
+		} ),
+	},
 };
 
 function getErrorSpec( type: string ): ErrorTypeSpec {

@@ -12,6 +12,7 @@ const CriticalCssErrorType = z.enum( [
 	'UrlVerifyError',
 	'EmptyCSSError',
 	'XFrameDenyError',
+	'InvalidURLError',
 ] );
 
 export const CriticalCssErrorDetailsSchema = z.object( {

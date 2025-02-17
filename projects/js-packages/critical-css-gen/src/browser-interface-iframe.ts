@@ -7,6 +7,7 @@ import {
 	UrlVerifyError,
 	UnknownError,
 	XFrameDenyError,
+	InvalidURLError,
 	UrlError,
 } from './errors.js';
 import { Viewport, NullableViewport } from './types.js';
@@ -140,7 +141,15 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 			return;
 		}
 
-		const fullUrl = this.addGetParameters( rawUrl );
+		let fullUrl;
+		try {
+			fullUrl = this.addGetParameters( rawUrl );
+		} catch ( err ) {
+			return new Promise( ( resolve, reject ) => {
+				this.trackUrlError( rawUrl, err );
+				reject( new InvalidURLError( { url: rawUrl } ) );
+			} );
+		}
 
 		return new Promise( ( resolve, rawReject ) => {
 			// Track all URL errors.

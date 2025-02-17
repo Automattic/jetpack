@@ -16,9 +16,14 @@ import getCriticalCssErrorSetInterpolateVars from '$lib/utils/get-critical-css-e
  * @param url The URL to strip cache parameters from.
  */
 export function stripCacheParams( url: string ): string {
-	const urlObj = new URL( url );
-	urlObj.searchParams.delete( 'donotcachepage' );
-	return urlObj.toString();
+	// @todo - I don't like this.
+	try {
+		const urlObj = new URL( url );
+		urlObj.searchParams.delete( 'donotcachepage' );
+		return urlObj.toString();
+	} catch ( err ) {
+		return url;
+	}
 }
 
 const CriticalCssErrorDescription: React.FC< CriticalCssErrorDescriptionTypes > = ( {
