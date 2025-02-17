@@ -39,7 +39,7 @@ export default ( { siteDomain, siteIntent } ) => {
 			<div ref={ useSetHrefBase() }>
 				<Launchpad
 					siteSlug={ siteDomain }
-					checklistSlug={ siteIntent }
+					checklistSlug={ 'intent-' + siteIntent }
 					launchpadContext="customer-home"
 					onSiteLaunched={ () => {
 						const url = new URL( window.location.href );
