@@ -1,4 +1,4 @@
-/* global ajaxurl jetpack_empty_spam_button_parameters */
+/* global ajaxurl jetpack_empty_spam_button_parameters analytics jetpack_forms_tracking */
 jQuery( function ( $ ) {
 	if ( typeof jetpack_empty_spam_button_parameters !== 'undefined' ) {
 		// Create the "Empty Spam" button and add it above and below the list of spam feedbacks.
@@ -242,6 +242,18 @@ jQuery( function ( $ ) {
 			( window.exportParameters && window.exportParameters.waitingConnection ) ||
 				'Waiting for connection...'
 		);
+		if (
+			'undefined' !== typeof analytics &&
+			'undefined' !== typeof jetpack_forms_tracking &&
+			jetpack_forms_tracking?.tracksUserData
+		) {
+			const tracksUser = jetpack_forms_tracking.tracksUserData;
+			analytics.initialize( tracksUser.userid, tracksUser.username );
+			analytics.tracks.recordEvent( 'jetpack_forms_upsell_googledrive_click', {
+				screen: 'form-submissions-export',
+			} );
+		}
+
 		startPollingConnection( { name, value } );
 	} );
 

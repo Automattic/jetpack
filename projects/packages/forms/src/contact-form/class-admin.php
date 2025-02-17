@@ -12,6 +12,8 @@ use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Tracking;
+use Jetpack_Tracks_Client;
 
 /**
  * Class Admin
@@ -288,7 +290,7 @@ class Admin {
 		} else {
 			$slug        = 'jetpack-form-responses-connect';
 			$button_html = sprintf(
-				'<a href="%1$s" id="%4$s" data-nonce-name="%5$s" class="button button-primary export-button export-gdrive jptracks" data-jptracks-name="jetpack_forms_upsell_googledrive_click" data-jptracks-prop="screen:form-submissions-classic" title="%2$s" rel="noopener noreferer" target="_blank">%3$s</a>',
+				'<a href="%1$s" id="%4$s" data-nonce-name="%5$s" class="button button-primary export-button export-gdrive" title="%2$s" rel="noopener noreferer" target="_blank">%3$s</a>',
 				esc_url( Redirect::get_url( $slug ) ),
 				esc_attr__( 'connect to Google Drive', 'jetpack-forms' ),
 				esc_html__( 'Connect Google Drive', 'jetpack-forms' ),
@@ -1317,25 +1319,12 @@ class Admin {
 		);
 
 		// Add tracking scripts
-		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
-
-		Assets::register_script(
-			'jptracks',
-			'../dist/tracks-ajax.js',
-			__FILE__,
-			array(
-				'dependencies' => array( 'jquery' ),
-				'enqueue'      => true,
-				'in_footer'    => true,
-			)
-		);
-
+		Tracking::register_tracks_functions_scripts( true );
 		wp_localize_script(
-			'jptracks',
-			'jpTracksAJAX',
+			'grunion-admin',
+			'jetpack_forms_tracking',
 			array(
-				'ajaxurl'            => admin_url( 'admin-ajax.php' ),
-				'jpTracksAJAX_nonce' => wp_create_nonce( 'jp-tracks-ajax-nonce' ),
+				'tracksUserData' => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			)
 		);
 
