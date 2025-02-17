@@ -233,15 +233,22 @@ jQuery( function ( $ ) {
 		}, 5000 );
 	}
 
-	$( document ).on( 'click', '#jetpack-form-responses-connect', function () {
+	$( document ).on( 'click', '#jetpack-form-responses-connect', function ( e ) {
 		const $this = $( this );
 		const name = $this.data( 'nonce-name' );
 		const value = $( '#' + name ).attr( 'value' );
+		const redirectUrl = $this.attr( 'href' );
+
+		// Pause redirect for tracking.
+		e.preventDefault();
+
 		$this.attr( 'disabled', 'disabled' );
 		$this.text(
 			( window.exportParameters && window.exportParameters.waitingConnection ) ||
 				'Waiting for connection...'
 		);
+
+		// Do the tracking.
 		if (
 			'undefined' !== typeof analytics &&
 			'undefined' !== typeof jetpack_forms_tracking &&
@@ -254,7 +261,9 @@ jQuery( function ( $ ) {
 			} );
 		}
 
+		// Start polling and continue redirect.
 		startPollingConnection( { name, value } );
+		window.open( redirectUrl, '_blank' );
 	} );
 
 	// Handle export to Google Drive
