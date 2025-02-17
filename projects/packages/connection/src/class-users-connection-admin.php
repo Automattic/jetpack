@@ -76,7 +76,7 @@ class Users_Connection_Admin {
 		if ( ( new Manager() )->is_user_connected( $user_id ) ) {
 			return sprintf(
 				'<span title="%1$s" class="jetpack-connection-status">%2$s</span>',
-				esc_attr__( 'This user is connected and can log-in to this site.', 'jetpack-connection' ),
+				esc_attr__( 'This user has connected their WordPress.com account.', 'jetpack-connection' ),
 				esc_html__( 'Connected', 'jetpack-connection' )
 			);
 		}
@@ -112,7 +112,7 @@ class Users_Connection_Admin {
 			'jetpack-users-connection',
 			'jetpackConnectionTooltips',
 			array(
-				'columnTooltip' => esc_html__( 'Jetpack enables users to connect their WordPress.com accounts to log in securely and enable additional features.', 'jetpack-connection' ),
+				'columnTooltip' => esc_html__( 'Connecting a WordPress.com account unlocks Jetpack’s full suite of features including secure logins.', 'jetpack-connection' ),
 			)
 		);
 	}
