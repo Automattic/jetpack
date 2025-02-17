@@ -676,7 +676,7 @@ function wpcom_launchpad_get_task_definitions() {
 			// We do not want this mapped to the 'subscribers_added' task, since this task supports
 			// being marked as complete in situations where subscribers are not added.
 			'get_title'            => function () {
-				return __( 'Add your first subscribers', 'jetpack-mu-wpcom' );
+				return __( 'Add subscribers', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_add_first_subscribers_completed',
 			'is_visible_callback'  => '__return_true',

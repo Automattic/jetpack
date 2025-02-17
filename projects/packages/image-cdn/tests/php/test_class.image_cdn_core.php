@@ -436,6 +436,19 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that Photon will only process images with supported extensions.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @dataProvider get_different_extensions
+	 *
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
+	 */
+	public function test_photonizing_check_extensions( $image_url, $expected ) {
+		$this->assertEquals( $expected, Image_CDN_Core::cdn_url( $image_url, array( 'w' => 500 ) ) );
+	}
+
+	/**
 	 * Data provider for test_photon_banned_domains_banned
 	 */
 	public function get_photon_domains() {
@@ -471,6 +484,26 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 			'Banned Amazon domain'       => array(
 				true,
 				'http://m.media-amazon.com/images/I/41YeeCMUwTL._SL300_.jpg',
+			),
+		);
+	}
+
+	/**
+	 * Data provider for test_photonizing_check_extensions
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array
+	 */
+	public function get_different_extensions() {
+		return array(
+			'HEIC: supported'     => array(
+				'https://example.com/image.heic',
+				'https://i0.wp.com/example.com/image.heic?w=500&ssl=1',
+			),
+			'AVIF: not supported' => array(
+				'https://example.com/image.avif',
+				'https://example.com/image.avif',
 			),
 		);
 	}

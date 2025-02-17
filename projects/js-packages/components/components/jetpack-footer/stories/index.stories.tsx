@@ -1,4 +1,4 @@
-import JetpackFooter from '../index';
+import JetpackFooter from '../index.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
 export default {

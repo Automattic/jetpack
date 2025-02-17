@@ -11,13 +11,13 @@ export const useWelcomeStep = ( { stepLabels }: { stepLabels: string[] } ): Step
 		.join( '<br />' );
 	return {
 		id: 'welcome',
-		title: __( 'Optimise for SEO', 'jetpack' ),
+		title: __( 'Improve SEO', 'jetpack' ),
 		label: 'welcome',
 		type: 'welcome',
 		messages: [
 			{
 				content: createInterpolateElement(
-					__( "<b>Hi there! 👋 Let's optimise your blog post for SEO.</b>", 'jetpack' ),
+					__( "<b>Hi there! 👋 Let's make your blog post SEO-friendly.</b>", 'jetpack' ),
 					{ b: <b /> }
 				),
 				showIcon: true,

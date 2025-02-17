@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React, { useMemo } from 'react';
-import numberFormat from '../number-format';
+import numberFormat from '../number-format/index.js';
 
 import './style.scss';
 

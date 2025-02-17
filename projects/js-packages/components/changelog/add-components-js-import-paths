@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Use full import paths with JS extensions.

@@ -77,7 +77,7 @@ export const useKeywordsStep = (): Step => {
 
 	return {
 		id: 'keywords',
-		title: __( 'Optimise for SEO', 'jetpack' ),
+		title: __( 'Improve SEO', 'jetpack' ),
 		label: __( 'Keywords', 'jetpack' ),
 		messages,
 		type: 'input',

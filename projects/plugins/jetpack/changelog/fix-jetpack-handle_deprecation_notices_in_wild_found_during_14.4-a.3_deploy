@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Prevent deprecation notices on PHP 8.

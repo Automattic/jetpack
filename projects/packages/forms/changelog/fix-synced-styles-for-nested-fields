@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix syncing of shared styles for nested fields

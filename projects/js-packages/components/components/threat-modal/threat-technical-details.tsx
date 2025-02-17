@@ -2,10 +2,10 @@ import { __ } from '@wordpress/i18n';
 import { chevronDown, chevronUp, Icon } from '@wordpress/icons';
 import { useState, useCallback, useContext } from 'react';
 import { Text, Button } from '@automattic/jetpack-components';
-import DiffViewer from '../diff-viewer';
-import MarkedLines from '../marked-lines';
+import DiffViewer from '../diff-viewer/index.js';
+import MarkedLines from '../marked-lines/index.js';
 import styles from './styles.module.scss';
-import { ThreatModalContext } from '.';
+import { ThreatModalContext } from './index.js';
 
 /**
  * ThreatTechnicalDetails component
