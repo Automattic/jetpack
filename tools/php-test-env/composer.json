@@ -4,13 +4,9 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.0",
+		"php": ">=7.2",
 		"automattic/wordbless": "^0.5.0",
 		"yoast/phpunit-polyfills": "^1.1.3"
-	},
-	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev",
-		"automattic/jetpack-codesniffer": "@dev"
 	},
 	"scripts": {
 		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
@@ -21,9 +17,9 @@
 	"config": {
 		"sort-packages": true,
 		"allow-plugins": {
-			"dealerdirect/phpcodesniffer-composer-installer": true,
 			"roots/wordpress-core-installer": true
 		},
-		"prepend-autoloader": false
+		"prepend-autoloader": false,
+		"lock": false
 	}
 }

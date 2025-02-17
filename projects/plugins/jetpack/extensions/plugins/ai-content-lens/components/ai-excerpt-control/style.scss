@@ -1,15 +1,20 @@
 .jetpack-ai-generate-excerpt-control {
 	.jetpack-ai-generate-excerpt-control__header {
-		margin-top: 8px;
+		margin-top: 12px;
 
 		.components-base-control__field {
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
+			margin-bottom: 8px;
+
+			.components-base-control__label {
+				margin-bottom: 0;
+			}
 		}
 	}
 
 	.ai-assistant__tone-dropdown {
-		margin-bottom: 12px;
+		margin-bottom: 24px;
 	}
 }

@@ -1,32 +1,45 @@
+/**
+ * External dependencies
+ */
 import { useModuleStatus, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useState, useCallback } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
+/**
+ * Internal dependencies
+ */
 import { SeoPlaceholder } from '../../../../plugins/seo/components/placeholder';
-import './style.scss';
 import bigSkyIcon from './big-sky-icon.svg';
-import SeoAssistantWizard from './seo-assistant-wizard';
+import { store as seoAssistantStore } from './store';
+/**
+ * Types
+ */
+import type { SeoAssistantSelect, SeoAssistantDispatch } from './types';
 
 const debug = debugFactory( 'jetpack-ai:seo-assistant' );
 
 export default function SeoAssistant( { disabled, placement } ) {
-	const [ isOpen, setIsOpen ] = useState( false );
 	const postIsEmpty = useSelect( select => select( editorStore ).isEditedPostEmpty(), [] );
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'seo-tools' );
 	const { tracks } = useAnalytics();
+
+	const isOpen = useSelect(
+		select => ( select( seoAssistantStore ) as SeoAssistantSelect ).isOpen(),
+		[]
+	);
+	const { open } = useDispatch( seoAssistantStore ) as SeoAssistantDispatch;
 
 	const handleOpen = useCallback( () => {
 		tracks.recordEvent( 'jetpack_wizard_chat_open', {
 			placement,
 			assistant_name: 'seo-assistant',
 		} );
-		setIsOpen( true );
-	}, [ placement, tracks ] );
-	const handleClose = useCallback( () => setIsOpen( false ), [] );
+		open();
+	}, [ placement, tracks, open ] );
 
 	debug( 'rendering seo-assistant entry point' );
 	return (
@@ -50,7 +63,6 @@ export default function SeoAssistant( { disabled, placement } ) {
 					changeStatus={ changeStatus }
 				/>
 			) }
-			{ isOpen && <SeoAssistantWizard close={ handleClose } /> }
 		</div>
 	);
 }

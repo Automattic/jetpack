@@ -53,3 +53,20 @@ export interface Step {
 	hasFailed?: boolean;
 	resetState?: () => void;
 }
+
+export interface SeoAssistantState {
+	isOpen: boolean;
+}
+
+export type SeoAssistantAction = {
+	type: 'OPEN' | 'CLOSE';
+};
+
+export type SeoAssistantSelect = {
+	isOpen: () => boolean;
+};
+
+export type SeoAssistantDispatch = {
+	open: () => void;
+	close: () => void;
+};
