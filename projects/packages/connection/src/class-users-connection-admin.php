@@ -32,8 +32,7 @@ class Users_Connection_Admin {
 	 * Initialize the admin functionality if conditions are met.
 	 */
 	public function init() {
-		// @phan-suppress-next-line PhanUndeclaredConstant
-		if ( ! is_admin() || ! current_user_can( 'manage_options' ) || ( defined( 'IS_WPCOM' ) || IS_WPCOM ) ) {
+		if ( ! is_admin() || ! current_user_can( 'manage_options' ) || ( new Host() )->is_wpcom_simple() ) {
 			return;
 		}
 
@@ -113,7 +112,7 @@ class Users_Connection_Admin {
 			'jetpack-users-connection',
 			'jetpackConnectionTooltips',
 			array(
-				'columnTooltip' => esc_html__( 'Connecting a WordPress.com account unlocks Jetpack’s full suite of features including secure logins.', 'jetpack-connection' ),
+				'columnTooltip' => esc_html__( 'Connecting a WordPress.com account unlocks Jetpack\'s full suite of features including secure logins.', 'jetpack-connection' ),
 			)
 		);
 	}
