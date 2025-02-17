@@ -56,10 +56,6 @@ class Publicize_Utils {
 			return false;
 		}
 
-		if ( ! self::is_publicize_active() ) {
-			return false;
-		}
-
 		$post_type = get_post_type();
 
 		if ( empty( $post_type ) || ! post_type_supports( $post_type, 'publicize' ) ) {
