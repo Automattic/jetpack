@@ -113,7 +113,7 @@ class Users_Connection_Admin {
 			'jetpack-users-connection',
 			'jetpackConnectionTooltips',
 			array(
-				'columnTooltip' => esc_html__( 'Connecting a WordPress.com account unlocks Jetpack\'s full suite of features including secure logins.', 'jetpack-connection' ),
+				'columnTooltip' => esc_html__( 'Connecting a WordPress.com account unlocks Jetpack’s full suite of features including secure logins.', 'jetpack-connection' ),
 			)
 		);
 	}
