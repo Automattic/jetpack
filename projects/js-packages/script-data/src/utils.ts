@@ -1,3 +1,5 @@
+import { CurrentUserData } from './types';
+
 /**
  * Get the script data from the window object.
  *
@@ -114,4 +116,14 @@ export function isWpcomPlatformSite() {
  */
 export function isJetpackSelfHostedSite() {
 	return getScriptData()?.site?.host === 'unknown';
+}
+
+/**
+ * Check if the current user has a particular permission.
+ *
+ * @param permission - The feature to check.
+ * @return Whether the current user has that permission.
+ */
+export function canUser( permission: keyof CurrentUserData[ 'permissions' ] ): boolean {
+	return getScriptData().user.current_user.permissions[ permission ];
 }

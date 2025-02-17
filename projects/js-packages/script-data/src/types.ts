@@ -33,6 +33,10 @@ export interface SiteData extends PublicSiteData, Partial< AdminSiteData > {}
 export interface CurrentUserData {
 	id: number;
 	display_name: string;
+	permissions: {
+		manage_options: boolean;
+		manage_modules: boolean;
+	};
 	wpcom?: {
 		ID: number;
 		login: string;
