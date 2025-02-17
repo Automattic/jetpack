@@ -183,7 +183,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.9.0-beta - 2025-02-17
+### 3.9.0 - 2025-02-17
 #### Added
 - Cloud CSS: Handle prioritized cloud CSS regeneration for cornerstone pages updates.
 - Concatenate JS: Add compatibility with "Depay Payments for WooCommerce".
