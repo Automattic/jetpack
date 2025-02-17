@@ -39,7 +39,7 @@ const VideoList = ( {
 	const [ selected, setSelected ] = useState( [] );
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const allSelected = selected?.length === videos?.length;
-	const showCheckbox = false; // TODO: implement bulk actions
+	const showCheckbox = true; // TODO: implement bulk actions
 
 	const handleAll = checked => {
 		if ( checked ) {

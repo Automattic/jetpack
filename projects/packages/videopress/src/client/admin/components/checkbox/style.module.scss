@@ -1,35 +1,66 @@
-.checkbox {
-	&[type="checkbox"] {
-		all: unset;
-		border: 1px solid var( --jp-black );
-		position: relative;
-		display: flex;
-		align-items: center;
-		justify-content: center;
+.checkbox-container {
+	position: relative;
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	cursor: pointer;
+	height: 20px;
+	line-height: 20px;
+	margin-top: var( --spacing-base );
+
+	.checkbox {
+		&[type="checkbox"] {
+			all: unset;
+			border: 1px solid var( --jp-green-40 );
+			margin: 0 10px 0;
+			position: relative;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			box-sizing: border-box;
+			border-radius: 2px;
+
+			// Using checked here too, because WPAdmin applies styles for checked
+			&:checked::before, &::before {
+				content: "";
+				width: 18px;
+				height: 18px;
+				margin: 0; // This is to override the margin from WP default
+			}
+
+			&:checked::before {
+				background: var( --jp-green-40 );
+			}
+
+			&:not(:checked) + .checkbox-checkmark {
+				display: none;
+			}
+
+			&:disabled {
+				border: 1px solid var(--jp-gray-10);
+			}
+		
+			
+		}
+	}
+
+	.checkbox-checkmark {
+		position: absolute;
+		top: 0;
+		left: 17px;
+		height: 20px;
+		width: 20px;
 		box-sizing: border-box;
-		border-radius: 2px;
-		margin: 0;
-
-		// This is going out of normal, since it helps to center the checkmark
-		// Since it takes 18px from children + 2px from padding.
-		// Which makes it with 20px
-		// Using important because WPAdmin uses !important for padding too
-		padding: 2px !important;
-
-		// Using checked here too, because WPAdmin applies styles for checked
-		&:checked::before, &::before {
+		&::after {
+			position: absolute;
+			left: 0;
+			top: 2px;
+			width: 5px;
+			height: 11px;
+			border: solid var( --jp-white );
+			border-width: 0 1.5px 1.5px 0;
+			transform: rotate( 37deg );
 			content: "";
-			width: 18px;
-			height: 18px;
-			margin: 0; // This is to override the margin from WP default
-		}
-
-		&:checked::before {
-			background: var( --jp-black );
-		}
-
-		&:disabled {
-			border: 1px solid var(--jp-gray-10);
 		}
 	}
 }
