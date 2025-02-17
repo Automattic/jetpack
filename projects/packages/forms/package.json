@@ -66,6 +66,7 @@
 		"@babel/core": "7.26.0",
 		"@babel/runtime": "7.26.0",
 		"@testing-library/dom": "10.4.0",
+		"@testing-library/user-event": "^14.4.3",
 		"@wordpress/api-fetch": "7.17.0",
 		"@wordpress/babel-plugin-import-jsx-pragma": "5.17.0",
 		"@wordpress/browserslist-config": "6.17.0",
