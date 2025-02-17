@@ -7,7 +7,7 @@ import { PanelBody, ToggleControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useRefreshConnections from '../../hooks/use-refresh-connections';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
@@ -20,7 +20,12 @@ import { SharePostRow } from '../share-post';
 import styles from './styles.module.scss';
 import './global.scss';
 
-const PublicizePanel = ( { prePublish, children } ) => {
+type PublicizePanelProps = {
+	prePublish?: boolean;
+	children: React.ReactNode;
+};
+
+const PublicizePanel = ( { prePublish, children }: PublicizePanelProps ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	const { feature_flags } = getSocialScriptData();
@@ -59,10 +64,10 @@ const PublicizePanel = ( { prePublish, children } ) => {
 							label={
 								isPublicizeEnabled
 									? __( 'Share when publishing', 'jetpack-publicize-components' )
-									: __(
+									: _x(
 											'Sharing is disabled',
-											'jetpack-publicize-components',
-											/* dummy arg to avoid bad minification */ 0
+											'Label for publicize toggle',
+											'jetpack-publicize-components'
 									  )
 							}
 							onChange={ togglePublicizeFeature }
