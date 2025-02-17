@@ -22,6 +22,7 @@ class BinTest extends TestCase {
 		foreach ( array( 'exit', 'die', 'pcntl_exec', 'ini_get_all', 'fprintf' ) as $func ) {
 			\Patchwork\redefine(
 				$func,
+				/** @return never */
 				function () use ( $func ) {
 					throw new RuntimeException( "Unexpected call to $func" );
 				}
@@ -78,6 +79,7 @@ class BinTest extends TestCase {
 		);
 		\Patchwork\redefine(
 			'exit',
+			/** @return never */
 			function ( $arg = null ) {
 				throw new ExitException( 'exit', $arg );
 			}
@@ -113,6 +115,7 @@ class BinTest extends TestCase {
 		$GLOBALS['_composer_bin_dir']       = __DIR__ . '/../vendor/bin';
 		\Patchwork\redefine(
 			'pcntl_exec',
+			/** @return never */
 			function ( $func, $args ) use ( $expectArgs ) {
 				$this->assertSame( PHP_BINARY, $func );
 				$this->assertSame( $expectArgs, $args );
@@ -256,6 +259,7 @@ class BinTest extends TestCase {
 		);
 		\Patchwork\redefine(
 			'exit',
+			/** @return never */
 			function ( $arg = null ) {
 				throw new ExitException( 'exit', $arg );
 			}

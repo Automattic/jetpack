@@ -29,6 +29,7 @@ if ( count( $argv ) < 2 ) {
 require_once $GLOBALS['_composer_autoload_path'];
 
 if ( ! class_exists( '\\PHPUnit\\Runner\\Version' ) ) {
+	// @phan-suppress-next-line PhanUndeclaredClassMethod -- May as well support super-old phpunit since it's simple to.
 	list( $version ) = explode( '.', PHPUnit_Runner_Version::id() ); // @codeCoverageIgnore
 } else {
 	list( $version ) = explode( '.', \PHPUnit\Runner\Version::id() );
