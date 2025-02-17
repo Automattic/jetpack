@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Class Users_Connection_Admin
