@@ -151,15 +151,14 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 
 		/**
 		 * Check if a site should display portfolios - it should not if:
-		 * - the theme is a block theme without portfolios enabled or any published portfolios.
+		 * - the theme is a block theme without portfolios enabled.
 		 *
 		 * @return bool
 		 */
 		public static function site_should_display_portfolios() {
 			$should_display = true;
 			if ( Blocks::is_fse_theme() ) {
-				// The count is only useful as a possible safety net as it uses transients if the CPT is disabled.
-				if ( ! get_option( self::OPTION_NAME, '0' ) && empty( self::count_portfolios() ) ) {
+				if ( ! get_option( self::OPTION_NAME, '0' ) ) {
 					$should_display = false;
 				}
 			}
@@ -600,28 +599,6 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 			) {
 				wp_add_inline_style( 'wp-admin', '.manage-column.column-thumbnail { width: 50px; } @media screen and (max-width: 360px) { .column-thumbnail{ display:none; } }' );
 			}
-		}
-
-		/**
-		 * Count the number of published portfolios.
-		 *
-		 * @return int
-		 */
-		private static function count_portfolios() {
-			$portfolios = get_transient( 'jetpack-portfolio-count-cache' );
-			if ( false === $portfolios ) {
-				// If portfolios are not active, we'll rely on the transient for the count if it exists,
-				// see site_should_display_portfolios for usage.
-				$portfolios = post_type_exists( self::CUSTOM_POST_TYPE )
-				? (int) ( wp_count_posts( self::CUSTOM_POST_TYPE )->publish ?? 0 )
-				: 0;
-
-				if ( ! empty( $portfolios ) ) {
-					set_transient( 'jetpack-portfolio-count-cache', $portfolios, 60 * 60 * 12 );
-				}
-			}
-
-			return $portfolios;
 		}
 
 		/**

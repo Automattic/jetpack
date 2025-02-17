@@ -149,15 +149,14 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 
 		/**
 		 * Check if a site should display testimonials - it should not if:
-		 * - the theme is a block theme without testimonials enabled or any published testimonials.
+		 * - the theme is a block theme without testimonials enabled.
 		 *
 		 * @return bool
 		 */
 		public static function site_should_display_testimonials() {
 			$should_display = true;
 			if ( Blocks::is_fse_theme() ) {
-				// The count is only useful as a possible safety net as it uses transients if the CPT is disabled.
-				if ( ! get_option( self::OPTION_NAME, '0' ) && empty( self::count_testimonials() ) ) {
+				if ( ! get_option( self::OPTION_NAME, '0' ) ) {
 					$should_display = false;
 				}
 			}
@@ -549,12 +548,10 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 		 *
 		 * @return int
 		 */
-		private static function count_testimonials() {
-			$testimonials = get_transient( 'jetpack-testimonial-count-cache' );
+		private function count_testimonials() {
+			$testimonials = wp_cache_get( 'jetpack-testimonial-count-cache', 'jetpack' );
 
 			if ( false === $testimonials ) {
-				// If testimonials are not active, we'll rely on the transient for the count if it exists,
-				// see site_should_display_testimonials for usage.
 				$testimonials = post_type_exists( self::CUSTOM_POST_TYPE )
 				? (int) ( wp_count_posts( self::CUSTOM_POST_TYPE )->publish ?? 0 )
 				: 0;
