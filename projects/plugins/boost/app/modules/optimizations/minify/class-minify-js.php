@@ -51,7 +51,7 @@ class Minify_JS implements Pluggable, Changes_Page_Output, Optimization, Has_Act
 	}
 
 	public static function activate() {
-		jetpack_boost_minify_activation( true );
+		jetpack_boost_minify_activation();
 	}
 
 	public static function deactivate() {
