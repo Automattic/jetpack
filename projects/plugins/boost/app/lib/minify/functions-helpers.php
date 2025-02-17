@@ -378,23 +378,6 @@ function jetpack_boost_minify_deactivation() {
 }
 
 /**
- * Run during deactivation of any minify module.
- *
- * This handles removing the 404 tester if both css and js minification are disabled.
- *
- * @return void
- */
-function jetpack_boost_minify_deactivation() {
-	$minify_css = new Module( new Minify_CSS() );
-	$minify_js  = new Module( new Minify_JS() );
-
-	if ( ! $minify_css->is_enabled() && ! $minify_js->is_enabled() ) {
-		wp_clear_scheduled_hook( 'jetpack_boost_404_tester_cron' );
-		jetpack_boost_clear_cache_cleanup_hook();
-	}
-}
-
-/**
  * Run during initialization of any minify module.
  *
  * Run during every page load if any minify module is active.
