@@ -48,6 +48,13 @@ class VideoPress_Player {
 	public static $shown = array();
 
 	/**
+	 * Fallback video title.
+	 *
+	 * @var ?string
+	 */
+	protected $title;
+
+	/**
 	 * Initiate a player object based on shortcode values and possible blog-level option overrides
 	 *
 	 * @since 1.3

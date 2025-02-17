@@ -173,6 +173,13 @@ class VideoPress_Video {
 	public $captions;
 
 	/**
+	 * Error object.
+	 *
+	 * @var ?object
+	 */
+	public $error;
+
+	/**
 	 * Setup the object.
 	 * Request video information from VideoPress servers and process the response.
 	 *
