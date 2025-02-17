@@ -288,6 +288,9 @@ class Contact_Form_Plugin {
 		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_view_script_concat' ), 10, 3 );
 
 		self::register_contact_form_blocks();
+
+		require_once __DIR__ . '/class-contact-form-file-handler.php';
+		Contact_Form_File_Handler::init();
 	}
 
 	/**
