@@ -1,6 +1,6 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { PostTypeSupportCheck } from '@wordpress/editor';
-import { getSocialScriptData } from '../../../utils';
+import { getSocialScriptData } from '../../../utils/script-data';
 import { GlobalModals } from '../../global-modals';
 import PostPublishPanels from './post-publish-panels';
 import PrePublishPanels from './pre-publish-panels';
