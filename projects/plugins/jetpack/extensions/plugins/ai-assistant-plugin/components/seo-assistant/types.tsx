@@ -41,6 +41,8 @@ export interface Step {
 	placeholder?: string;
 	rawInput?: string;
 	setRawInput?: React.Dispatch< React.SetStateAction< string > >;
+	inputRef?: React.RefObject< HTMLInputElement >;
+
 	// Options step properties
 	options?: OptionMessage[];
 	onSelect?: ( option: OptionMessage ) => void;
@@ -51,3 +53,20 @@ export interface Step {
 	hasFailed?: boolean;
 	resetState?: () => void;
 }
+
+export interface SeoAssistantState {
+	isOpen: boolean;
+}
+
+export type SeoAssistantAction = {
+	type: 'OPEN' | 'CLOSE';
+};
+
+export type SeoAssistantSelect = {
+	isOpen: () => boolean;
+};
+
+export type SeoAssistantDispatch = {
+	open: () => void;
+	close: () => void;
+};

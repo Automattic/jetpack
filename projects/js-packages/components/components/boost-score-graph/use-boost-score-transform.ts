@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Period } from './index';
+import { Period } from './index.js';
 
 type ScoreGraphAlignedData = [
 	number[], // timestamps

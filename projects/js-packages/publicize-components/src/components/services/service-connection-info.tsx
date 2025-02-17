@@ -13,13 +13,13 @@ import { SupportedService } from './use-supported-services';
 export type ServiceConnectionInfoProps = {
 	connection: Connection;
 	service: SupportedService;
-	isAdmin?: boolean;
+	canMarkAsShared: boolean;
 };
 
 export const ServiceConnectionInfo = ( {
 	connection,
 	service,
-	isAdmin,
+	canMarkAsShared,
 }: ServiceConnectionInfoProps ) => {
 	const canManageConnection = useSelect(
 		select => select( socialStore ).canUserManageConnection( connection ),
@@ -54,8 +54,7 @@ export const ServiceConnectionInfo = ( {
 						return <ConnectionStatus connection={ conn } service={ service } />;
 					}
 
-					// Only admins can mark connections as shared
-					if ( isAdmin ) {
+					if ( canMarkAsShared ) {
 						return (
 							<div className={ styles[ 'mark-shared-wrap' ] }>
 								<MarkAsShared connection={ conn } />

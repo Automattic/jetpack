@@ -715,6 +715,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string
 	 */
 	public static function escape_and_sanitize_field_value( $value ) {
+		if ( $value === null ) {
+			return '';
+		}
+
 		$value = str_replace( array( '[', ']' ), array( '&#91;', '&#93;' ), $value );
 		return nl2br( wp_kses( $value, array() ) );
 	}
@@ -867,6 +871,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 				break;
 			case 'name':
 				$str = __( 'Name', 'jetpack-forms' );
+				break;
+			case 'number':
+				$str = __( 'Number', 'jetpack-forms' );
 				break;
 			case 'email':
 				$str = __( 'Email', 'jetpack-forms' );

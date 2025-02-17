@@ -1,6 +1,6 @@
-import Button from '../../button';
-import { CheckmarkIcon } from '../../icons';
-import Popover from '../index';
+import Button from '../../button/index.js';
+import { CheckmarkIcon } from '../../icons/index.js';
+import Popover from '../index.js';
 import type { Meta } from '@storybook/react';
 
 const meta: Meta< typeof Popover > = {

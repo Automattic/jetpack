@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import TermsOfService from '..';
+import TermsOfService from '../index.js';
 
 describe( 'TermsofService', () => {
 	it( "references only 'the buttons above' if multipleButtons is true", () => {

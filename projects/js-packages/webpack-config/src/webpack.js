@@ -113,7 +113,7 @@ const resolve = {
 	extensions: [ '.js', '.jsx', '.ts', '.tsx', '...' ],
 	// TypeScript's tsc needs to refer to files like "foo.js" even if they're named "foo.ts". We have to make webpack work with that convention too.
 	extensionAlias: {
-		'.js': [ '.js', '.ts', '.tsx' ],
+		'.js': [ '.js', '.jsx', '.ts', '.tsx' ],
 		'.cjs': [ '.cjs', '.cts' ],
 		'.mjs': [ '.mjs', '.mts' ],
 	},

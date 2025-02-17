@@ -30,11 +30,6 @@ function twentynineteen_jetpack_setup() {
 	add_theme_support( 'jetpack-responsive-videos' );
 
 	/**
-	 * Add theme support for geo-location.
-	 */
-	add_theme_support( 'jetpack-geo-location' );
-
-	/**
 	 * Add theme support for Content Options.
 	 */
 	add_theme_support(
