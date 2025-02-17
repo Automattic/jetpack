@@ -28,4 +28,12 @@
 			opacity: 0;
 		}
 	}
+
+	&.wp-block-jetpack-videopress--has-max-width {
+		margin: auto;
+	}
+}
+
+.is-layout-flex .wp-block-jetpack-videopress.wp-block-jetpack-videopress--has-max-width {
+	margin: 0;
 }
