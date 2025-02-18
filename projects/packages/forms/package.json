@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-forms",
-	"version": "0.37.1",
+	"version": "0.38.0",
 	"description": "Jetpack Forms",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/forms/#readme",
 	"bugs": {
@@ -66,6 +66,7 @@
 		"@babel/core": "7.26.0",
 		"@babel/runtime": "7.26.0",
 		"@testing-library/dom": "10.4.0",
+		"@testing-library/user-event": "^14.4.3",
 		"@wordpress/api-fetch": "7.17.0",
 		"@wordpress/babel-plugin-import-jsx-pragma": "5.17.0",
 		"@wordpress/browserslist-config": "6.17.0",

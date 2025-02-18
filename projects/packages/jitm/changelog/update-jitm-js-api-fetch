@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Update Ajax calls to utililse @wordpress/api-fetch in preparation for https://github.com/Automattic/jetpack/pull/41252.
