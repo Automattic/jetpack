@@ -6,6 +6,17 @@ import './style.scss';
 
 const queryClient = new QueryClient();
 
+const LAUNCHPAD_ENTREPRENEUR_SITE_SETUP = 'home-launchpad-entrepreneur-site-setup';
+const LAUNCHPAD_INTENT_BUILD = 'home-launchpad-intent-build';
+const LAUNCHPAD_INTENT_HOSTING = 'home-launchpad-intent-hosting';
+const LAUNCHPAD_INTENT_WRITE = 'home-launchpad-intent-write';
+const LAUNCHPAD_INTENT_FREE_NEWSLETTER = 'home-launchpad-intent-free-newsletter';
+const LAUNCHPAD_INTENT_PAID_NEWSLETTER = 'home-launchpad-intent-paid-newsletter';
+const LAUNCHPAD_INTENT_NEWSLETTER_GOAL = 'home-launchpad-intent-newsletter-goal';
+const LAUNCHPAD_PRE_LAUNCH = 'home-launchpad-pre-launch';
+const LAUNCHPAD_LEGACY_SITE_SETUP = 'home-launchpad-legacy-site-setup';
+const LAUNCHPAD_POST_MIGRATION = 'home-launchpad-post-migration';
+
 /**
  * Set the href base of all relative links to the wordpress.com.
  *
@@ -33,13 +44,25 @@ function useSetHrefBase() {
 	}, [] );
 }
 
-export default ( { siteDomain, siteIntent } ) => {
+export default ( { siteDomain, siteIntent, launchpadId } ) => {
+	const checklistSlugMap = {
+		[ LAUNCHPAD_ENTREPRENEUR_SITE_SETUP ]: 'entrepreneur-site-setup',
+		[ LAUNCHPAD_INTENT_BUILD ]: 'intent-build',
+		[ LAUNCHPAD_INTENT_HOSTING ]: 'host-site',
+		[ LAUNCHPAD_INTENT_WRITE ]: 'intent-write',
+		[ LAUNCHPAD_INTENT_FREE_NEWSLETTER ]: 'intent-free-newsletter',
+		[ LAUNCHPAD_INTENT_PAID_NEWSLETTER ]: 'intent-paid-newsletter',
+		[ LAUNCHPAD_INTENT_NEWSLETTER_GOAL ]: 'intent-newsletter-goal',
+		[ LAUNCHPAD_PRE_LAUNCH ]: siteIntent,
+		[ LAUNCHPAD_LEGACY_SITE_SETUP ]: 'legacy-site-setup',
+		[ LAUNCHPAD_POST_MIGRATION ]: 'post-migration',
+	};
 	return (
 		<QueryClientProvider client={ queryClient }>
 			<div ref={ useSetHrefBase() }>
 				<Launchpad
 					siteSlug={ siteDomain }
-					checklistSlug={ 'intent-' + siteIntent }
+					checklistSlug={ checklistSlugMap[ launchpadId ] }
 					launchpadContext="customer-home"
 					onSiteLaunched={ () => {
 						const url = new URL( window.location.href );
