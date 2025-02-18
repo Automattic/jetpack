@@ -48,7 +48,7 @@ class Modules_Index {
 	public function __construct() {
 		foreach ( self::FEATURES as $feature ) {
 			if ( $feature::is_available() ) {
-				$this->available_modules[ $feature::get_slug() ] = new Module( new $feature() );
+				$this->available_modules[ $feature::get_slug() ] = new ModuleWrapper( new $feature() );
 			}
 		}
 	}

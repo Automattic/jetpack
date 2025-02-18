@@ -4,7 +4,7 @@ namespace Automattic\Jetpack_Boost\Data_Sync;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Merge;
-use Automattic\Jetpack_Boost\Modules\Module;
+use Automattic\Jetpack_Boost\Modules\ModuleWrapper;
 
 class Modules_State_Entry implements Entry_Can_Get, Entry_Can_Merge {
 
@@ -12,7 +12,7 @@ class Modules_State_Entry implements Entry_Can_Get, Entry_Can_Merge {
 
 	public function __construct( $features ) {
 		foreach ( $features as $feature ) {
-			$instance                               = new Module( new $feature() );
+			$instance                               = new ModuleWrapper( new $feature() );
 			$this->modules[ $instance->get_slug() ] = $instance;
 		}
 	}

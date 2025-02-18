@@ -3,7 +3,7 @@
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
 use Automattic\Jetpack_Boost\Lib\Minify\File_Paths;
-use Automattic\Jetpack_Boost\Modules\Module;
+use Automattic\Jetpack_Boost\Modules\ModuleWrapper;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 
@@ -361,8 +361,8 @@ function jetpack_boost_minify_activation() {
 }
 
 function jetpack_boost_minify_is_enabled() {
-	$minify_css = new Module( new Minify_CSS() );
-	$minify_js  = new Module( new Minify_JS() );
+	$minify_css = new ModuleWrapper( new Minify_CSS() );
+	$minify_js  = new ModuleWrapper( new Minify_JS() );
 
 	return $minify_css->is_enabled() || $minify_js->is_enabled();
 }
