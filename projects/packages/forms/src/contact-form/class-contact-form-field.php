@@ -356,7 +356,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 
 		if ( ! empty( $block_css ) ) {
-			$this->block_styles .= $block_css;
+			$this->block_styles .= esc_attr( $block_css );
 		}
 
 		if ( ! empty( $field_width ) && ! $this->has_inset_label() ) {
