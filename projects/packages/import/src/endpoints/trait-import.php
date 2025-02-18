@@ -22,6 +22,20 @@ trait Import {
 	private static $rest_namespace = 'jetpack/v4/import';
 
 	/**
+	 * REST base path.
+	 *
+	 * @var ?string
+	 */
+	public $rest_base;
+
+	/**
+	 * Allow batching.
+	 *
+	 * @var array|false
+	 */
+	public $allow_batch;
+
+	/**
 	 * Registers the routes for the objects of the controller.
 	 *
 	 * @see WP_REST_Controller::register_rest_route()
