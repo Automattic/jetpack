@@ -39,9 +39,11 @@ class BinTest extends TestCase {
 	}
 
 	public function testBadSapi() {
+		$this->expectException( RuntimeException::class );
+		$this->expectExceptionMessage( 'This file must be run from the command line.' );
+
 		\Patchwork\redefine( 'php_sapi_name', \Patchwork\always( 'fpm-fcgi' ) );
-		$ret = require __DIR__ . '/../bin/phpunit-select-config.php';
-		$this->assertNull( $ret );
+		require __DIR__ . '/../bin/phpunit-select-config.php';
 	}
 
 	public function testNoArgvNoServer() {

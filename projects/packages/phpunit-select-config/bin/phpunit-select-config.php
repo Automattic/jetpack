@@ -7,7 +7,7 @@
 
 // Make sure this script is being run over the PHP CLI.
 if ( 'cli' !== php_sapi_name() && 'phpdbg' !== php_sapi_name() ) {
-	return;
+	throw new RuntimeException( 'This file must be run from the command line.' );
 }
 
 if ( ! isset( $argv ) || ! is_array( $argv ) ) {
