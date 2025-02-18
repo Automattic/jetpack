@@ -13,13 +13,17 @@ import styles from './style.module.scss';
 import { CheckboxProps } from './types';
 
 const Checkbox = forwardRef< HTMLInputElement, CheckboxProps >(
-	( { checked, onChange, className, children, htmlFor, ...inputProps }, ref ) => {
+	( { checked, onChange, className, children, htmlFor, dataTestId, ...inputProps }, ref ) => {
 		const handleCheckboxChange = e => {
 			onChange?.( e.target.checked );
 		};
 
 		return (
-			<label htmlFor={ htmlFor } className={ styles[ 'checkbox-container' ] }>
+			<label
+				htmlFor={ htmlFor }
+				className={ styles[ 'checkbox-container' ] }
+				data-testid={ dataTestId }
+			>
 				<input
 					{ ...inputProps }
 					ref={ ref }

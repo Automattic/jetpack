@@ -5,4 +5,5 @@ export interface CheckboxProps extends Omit< InputHTMLAttributes< HTMLInputEleme
 	htmlFor?: string;
 	children?: React.ReactNode;
 	onChange?: ( checked: boolean ) => void;
+	dataTestId?: string;
 }
