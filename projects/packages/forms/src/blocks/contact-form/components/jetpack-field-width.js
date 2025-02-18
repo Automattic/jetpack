@@ -20,7 +20,17 @@ export default function JetpackFieldWidth( { setAttributes, width } ) {
 		[ clientId ]
 	);
 
-	if ( parentLayoutType === 'flex' || parentLayoutType === 'grid' ) {
+	// The width attribute is not supported in flex, grid, and constrained layouts.
+	// Grid and Flex have their own sizing controls provided by WordPress core.
+	// Constrained layout is complex to implement, so unsupported.
+	//
+	// Flow layout does support the width control, the CSS to support this only
+	// requires simple percentage widths.
+	if (
+		parentLayoutType === 'flex' ||
+		parentLayoutType === 'grid' ||
+		parentLayoutType === 'constrained'
+	) {
 		return null;
 	}
 
