@@ -1,4 +1,10 @@
-import { createInterpolateElement, useCallback, useEffect, useState } from '@wordpress/element';
+import {
+	createInterpolateElement,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMessages } from './wizard-messages';
 import type { Step } from './types';
@@ -71,7 +77,7 @@ export const useKeywordsStep = (): Step => {
 
 	return {
 		id: 'keywords',
-		title: __( 'Optimise for SEO', 'jetpack' ),
+		title: __( 'Improve SEO', 'jetpack' ),
 		label: __( 'Keywords', 'jetpack' ),
 		messages,
 		type: 'input',
@@ -82,5 +88,6 @@ export const useKeywordsStep = (): Step => {
 		value,
 		setValue,
 		onStart,
+		inputRef: useRef( null ),
 	};
 };

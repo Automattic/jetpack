@@ -47,7 +47,7 @@
 	"extra": {
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.9.x-dev"
+			"dev-trunk": "0.10.x-dev"
 		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-classic-theme-helper/compare/v${old}...v${new}"

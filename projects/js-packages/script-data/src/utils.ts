@@ -1,3 +1,16 @@
+import { AdminSiteData } from './types';
+
+/**
+ * Values come from https://github.com/Automattic/jetpack/blob/128db0505a27dcdcdef5946d60f443173b2ef6cd/projects/packages/status/src/class-host.php#L240
+ */
+const NON_SELF_HOSTED_TYPES: Array< AdminSiteData[ 'host' ] > = [
+	'woa',
+	'atomic',
+	'newspack',
+	'vip',
+	'wpcom',
+];
+
 /**
  * Get the script data from the window object.
  *
@@ -67,4 +80,51 @@ export function getActiveFeatures() {
  */
 export function siteHasFeature( feature: string ) {
 	return getActiveFeatures().includes( feature );
+}
+
+/**
+ * Check if the site host is wpcom.
+ *
+ * @return {boolean} Whether the site host is wpcom.
+ */
+export function isSimpleSite() {
+	return getScriptData().site?.host === 'wpcom';
+}
+
+/**
+ * Check if the is an Atomic site.
+ *
+ * @return {boolean} Whether the site is an Atomic site.
+ */
+export function isAtomicSite() {
+	return getScriptData().site?.host === 'atomic';
+}
+
+/**
+ * Check if the site is a WoA site
+ *
+ * @return Whether the site is woa.
+ */
+export function isWoASite() {
+	return getScriptData().site?.host === 'woa';
+}
+
+/**
+ * Determine if this is a WordPress.com site.
+ *
+ * Includes both Simple and WoA platforms.
+ *
+ * @return Whether the site is a WordPress.com site.
+ */
+export function isWpcomPlatformSite() {
+	return isSimpleSite() || isWoASite();
+}
+
+/**
+ * Check if the site is self-hosted Jetpack site.
+ *
+ * @return {boolean} Whether the site is self-hosted Jetpack site.
+ */
+export function isJetpackSelfHostedSite() {
+	return ! NON_SELF_HOSTED_TYPES.includes( getSiteData()?.host );
 }

@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 57b033879305add761d5f6f4ae7858580a986d8e.
+ * Stubs automatically generated from WordPress.com commit 6b86a7a85b8bed5631567ba4750d32073fe7b487.
  */
 
 namespace {
@@ -764,7 +764,7 @@ namespace {
          * @param mixed $my_posts
          * @return void
          **/
-        public function send_post($my_posts, \Blog_Subscription $subscription = \null, $extra_text = '', $automattcher = \false)
+        public function send_post($my_posts, ?\Blog_Subscription $subscription = \null, $extra_text = '', $automattcher = \false)
         {
         }
     }
@@ -1482,6 +1482,9 @@ namespace ExPlat {
     function assign_given_user(string $experiment_name, \WP_User $user): ?string
     {
     }
+    function get_user_assignment(string $experiment_name, \WP_User $user): ?string
+    {
+    }
 }
 namespace JITM {
     class Engine
@@ -1504,7 +1507,7 @@ namespace Newsletter_Categories {
      * @param int|null $blog_id
      * @return array
      */
-    function get_newsletter_categories(int $blog_id = null): array
+    function get_newsletter_categories(?int $blog_id = null): array
     {
     }
     /**
@@ -1512,7 +1515,7 @@ namespace Newsletter_Categories {
      * @param array    $term_ids
      * @return array
      */
-    function get_blog_subscription_counts_per_category(int $blog_id = null, array $term_ids = []): array
+    function get_blog_subscription_counts_per_category(?int $blog_id = null, array $term_ids = []): array
     {
     }
     /**
@@ -1520,7 +1523,7 @@ namespace Newsletter_Categories {
      * @param array|null $post_term_ids
      * @return int
      */
-    function get_blog_subscriptions_aggregate_count(int $blog_id = null, $post_term_ids = []): int
+    function get_blog_subscriptions_aggregate_count(?int $blog_id = null, $post_term_ids = []): int
     {
     }
 }
