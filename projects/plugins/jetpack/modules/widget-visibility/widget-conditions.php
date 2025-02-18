@@ -1148,7 +1148,13 @@ class Jetpack_Widget_Conditions {
 					continue;
 				}
 
-				$opts      = $wp_registered_widgets[ $widget ];
+				$opts = $wp_registered_widgets[ $widget ];
+
+				// Sometimes callbacks can be stored as Closure objects, we can't retrieve an option name for that.
+				if ( ! isset( $opts['callback'] ) || ! is_array( $opts['callback'] ) ) {
+					continue;
+				}
+
 				$instances = get_option( $opts['callback'][0]->option_name );
 
 				if ( ! is_array( $instances ) || empty( $instances ) ) {
