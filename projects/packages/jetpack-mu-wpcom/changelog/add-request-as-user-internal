@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Connection Client: wpcom_json_api_request_as_user: add support for internal request
