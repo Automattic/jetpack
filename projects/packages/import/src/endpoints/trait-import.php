@@ -12,6 +12,11 @@ use WP_Error;
 /**
  * Import trait. Base class for all import endpoints.
  */
+/**
+ * Batching details.
+ *
+ * @property array|false $allow_batch
+ */
 trait Import {
 
 	/**
@@ -27,13 +32,6 @@ trait Import {
 	 * @var ?string
 	 */
 	protected $rest_base;
-
-	/**
-	 * Allow batching.
-	 *
-	 * @var array|false
-	 */
-	protected $allow_batch;
 
 	/**
 	 * Registers the routes for the objects of the controller.
