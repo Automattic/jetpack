@@ -5,7 +5,7 @@ import {
 	useCriticalCssState,
 	useSetProviderErrorDismissedAction,
 } from '$features/critical-css/lib/stores/critical-css-state';
-import { getPrimaryGroupedError } from '$features/critical-css/lib/critical-css-errors';
+import { ErrorSet, groupErrorsByFrequency } from '$features/critical-css/lib/critical-css-errors';
 import { BackButton, CloseButton } from '$features/ui';
 import CriticalCssErrorDescription from '$features/critical-css/error-description/error-description';
 import InfoIcon from '$svg/info';
@@ -141,20 +141,56 @@ const Recommendation = ( { provider, setDismissed }: RecommendationProps ) => {
 		return null;
 	}
 
-	const errorSet = getPrimaryGroupedError( provider.errors ? provider.errors : [] );
-	if ( ! errorSet ) {
+	const errorSets = groupErrorsByFrequency( provider.errors ? provider.errors : [] );
+	if ( errorSets.length === 0 ) {
 		return null;
 	}
 
-	const [ isDismissed, setIsDismissed ] = useState( provider.error_status === 'dismissed' );
+	return (
+		<>
+			{ errorSets.map( ( errorSet, index ) => (
+				<SingleRecommendation
+					key={ `${ provider.key }-error-${ index }` }
+					provider={ provider }
+					errorSet={ errorSet }
+					setDismissed={ setDismissed }
+				/>
+			) ) }
+		</>
+	);
+};
+
+type SingleRecommendationProps = {
+	provider: Provider;
+	errorSet: ErrorSet;
+	setDismissed: ( dismissedItems: { key: string; dismissed: boolean }[] ) => void;
+};
+
+const SingleRecommendation = ( {
+	provider,
+	errorSet,
+	setDismissed,
+}: SingleRecommendationProps ) => {
+	// const uniqueKey = `${ provider.key }-${ errorSet.type }`;
+
+	// Check if this specific error type is dismissed for this provider
+	const isErrorDismissed =
+		provider.error_status === 'dismissed' && provider.dismissed_errors?.includes( errorSet.type );
+
+	const [ isDismissed, setIsDismissed ] = useState( isErrorDismissed );
 
 	const [ ref, { height } ] = useMeasure();
 	const animationStyles = useSpring( {
 		height: isDismissed ? 0 : height,
 		onRest: isDismissed
 			? () => {
-					// Send a state update once animation has ended.
-					setDismissed( [ { key: provider.key, dismissed: true } ] );
+					setDismissed( [
+						{
+							key: provider.key,
+							dismissed: true,
+							errorType: errorSet.type,
+						},
+					] );
 			  }
 			: undefined,
 	} );
