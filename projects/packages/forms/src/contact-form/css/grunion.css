@@ -259,11 +259,6 @@
 	padding-left: 0;
 }
 
-.wp-block-jetpack-contact-form .wp-block-jetpack-button {
-	width: fit-content;
-	align-self: flex-end;
-}
-
 .wp-block-jetpack-contact-form .wp-block-jetpack-button.aligncenter {
 	display: block;
 
@@ -321,23 +316,27 @@
  * handled by flex-basis and max-width.
  */
 .wp-block-jetpack-contact-form  :not(.is-layout-constrained, .is-layout-flow, .is-layout-flex, .is-layout-grid) {
-	.grunion-field-width-25-wrap {
+	> .grunion-field-width-25-wrap {
 		flex: 1 1 calc( 25% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
 		max-width: 25%;
 	}
 
-	.grunion-field-width-50-wrap {
+	> .grunion-field-width-50-wrap {
 		flex: 1 1 calc( 50% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
 		max-width: 50%;
 	}
 
-	.grunion-field-width-75-wrap {
+	> .grunion-field-width-75-wrap {
 		flex: 1 1 calc( 75% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
 		max-width: 75%;
 	}
 
+	> .wp-block-jetpack-button {
+		align-self: flex-end;
+	}
+
 	@media only screen and ( max-width: 480px ) {
-		.grunion-field-wrap {
+		> .grunion-field-wrap {
 			flex-basis: 100%;
 			max-width: none;
 		}
