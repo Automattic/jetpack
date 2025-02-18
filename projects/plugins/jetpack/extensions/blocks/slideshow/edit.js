@@ -43,6 +43,7 @@ export const SlideshowEdit = ( {
 	unlockPostSaving,
 	imageSizes,
 	resizedImages,
+	clientId,
 } ) => {
 	const { align, autoplay, delay, effect, images, sizeSlug, ids } = attributes;
 	const [ selectedImageIndex, setSelectedImageIndex ] = useState( null );
@@ -179,6 +180,7 @@ export const SlideshowEdit = ( {
 			<>
 				{ noticeUI }
 				<Slideshow
+					key={ `${ clientId }-${ effect }` }
 					align={ align }
 					autoplay={ autoplay }
 					delay={ delay }
