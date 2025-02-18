@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Simple Payments Block: Fixed an issue where duplicated payment blocks would share the same product ID, causing changes in one block to affect the other. Each duplicated block now creates a new unique product. 
