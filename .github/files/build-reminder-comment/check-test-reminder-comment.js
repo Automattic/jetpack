@@ -24,11 +24,11 @@ async function touchedProjectsNeedingTesting( github, owner, repo, number, core 
 	if ( changed[ 'plugins/jetpack' ] ) {
 		core.info( 'Build: Jetpack is being built, testing needed' );
 		projects.push( 'jetpack' );
-		plugins.push( 'jetpack' );
+		plugins.push( 'Jetpack' );
 	}
 
-	if ( changed[ 'packages/jetpack-mu-wpcom' ] ) {
-		core.info( 'Build: jetpack-mu-wpcom is being built, testing needed' );
+	if ( changed[ 'plugins/mu-wpcom-plugin' ] ) {
+		core.info( 'Build: jetpack-mu-wpcom-plugin is being built, testing needed' );
 		projects.push( 'jetpack-mu-wpcom-plugin' );
 	}
 
