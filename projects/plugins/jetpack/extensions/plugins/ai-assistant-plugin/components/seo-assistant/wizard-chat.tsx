@@ -17,8 +17,8 @@ import type { Step, OptionMessage } from './types';
 
 const debug = debugFactory( 'jetpack-wizard-chat' );
 
-const disableSkip = true;
-const disableBack = true;
+const disableSkip = false;
+const disableBack = false;
 
 const errorMessageWithSkip = __(
 	'Something went wrong. Please try again or skip this step.',
