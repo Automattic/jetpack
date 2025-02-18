@@ -33,7 +33,7 @@ trait Import {
 	 *
 	 * @var array|false
 	 */
-	public $allow_batch;
+	protected $allow_batch;
 
 	/**
 	 * Registers the routes for the objects of the controller.

@@ -35,7 +35,7 @@ trait WPBrowserMethods {
 	 *
 	 * @var array
 	 */
-	public $config;
+	protected $config;
 
 	/**
 	 * Navigate to the default WordPress logout page and click the logout link.

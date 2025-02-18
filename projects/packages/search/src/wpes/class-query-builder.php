@@ -71,7 +71,7 @@ class Query_Builder {
 	 *
 	 * @var array
 	 */
-	public $langs;
+	private $langs;
 
 	public function get_langs() {
 		if ( isset( $this->langs ) ) {

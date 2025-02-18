@@ -56,14 +56,14 @@ class zbsDAL_ObjectLayer {
 	 *
 	 * @var string
 	 */
-	public $objectDBPrefix; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
+	protected $objectDBPrefix; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
 
 	/**
 	 * Whether object has addresses or not.
 	 *
 	 * @var boolean
 	 */
-	public $objectIncludesAddresses; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
+	protected $objectIncludesAddresses; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
 
     function __construct($args=array()) {
 
