@@ -247,7 +247,7 @@ function do_push_and_build {
 	yellow "Build ID found, waiting for build to complete and push to mirror repos."
 	if ! gh run watch "${BUILDID[0]}" --exit-status; then
 		send_tracks_event "jetpack_release_github_build" '{"result": "failure"}'
-		echo "Build failed! Check for build errors on GitHub for more information." && die
+		die "Build failed! Check for build errors on GitHub for more information."
 	fi
 
 	send_tracks_event "jetpack_release_github_build" '{"result": "success"}'
