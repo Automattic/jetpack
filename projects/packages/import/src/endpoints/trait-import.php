@@ -26,7 +26,7 @@ trait Import {
 	 *
 	 * @var ?string
 	 */
-	public $rest_base;
+	protected $rest_base;
 
 	/**
 	 * Allow batching.
