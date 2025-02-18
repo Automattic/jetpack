@@ -1,0 +1,12 @@
+#!/usr/bin/env php
+<?php
+/**
+ * We can't run ourself through Composer, sigh.
+ *
+ * @package automattic/phpunit-select-config
+ */
+
+$_composer_autoload_path = dirname( __DIR__ ) . '/vendor/autoload.php';
+$_composer_bin_dir = dirname( __DIR__ ) . '/vendor/bin';
+
+require __DIR__ . '/../bin/phpunit-select-config.php';
