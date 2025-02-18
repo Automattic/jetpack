@@ -16,7 +16,7 @@ export default function useToggleAccountProtectionMutation(): UseMutationResult 
 
 	return useMutation( {
 		mutationFn: API.toggleAccountProtection,
-		onMutate: async () => {
+		onMutate: () => {
 			showSavingNotice();
 
 			// Get the current cached data
@@ -37,7 +37,15 @@ export default function useToggleAccountProtectionMutation(): UseMutationResult 
 		onSuccess: () => {
 			showSuccessNotice( __( 'Changes saved.', 'jetpack-protect' ) );
 		},
-		onError: () => {
+		onError: ( error, variables, context ) => {
+			// If the request failed, revert the optimistic update.
+			if ( context?.previousData ) {
+				queryClient.setQueryData< AccountProtectionStatus >(
+					[ QUERY_ACCOUNT_PROTECTION_KEY ],
+					context.previousData
+				);
+			}
+
 			showErrorNotice( __( 'An error occurred.', 'jetpack-protect' ) );
 		},
 		onSettled: () => {
