@@ -17,6 +17,7 @@ use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 use WP_Error;
+
 /**
  * Sets up various actions, filters, post types, post statuses, shortcodes.
  */
