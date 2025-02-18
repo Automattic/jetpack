@@ -32,6 +32,7 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 		$this->wpcom_is_site_specific_endpoint = true;
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+		add_action( 'jetpack_cleanup_unauth_uploads', array( $this, 'cleanup_old_uploads' ) );
 	}
 
 	/**
@@ -52,6 +53,23 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 						'required'    => true,
 					),
 					// it also expects a file but there's no way to say this in the args
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/(?P<token>[a-zA-Z0-9]+)',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'get_file_by_token' ),
+				'permission_callback' => array( $this, 'permissions_check' ),
+				'args'                => array(
+					'token' => array(
+						'description' => __( 'File upload token', 'jetpack' ),
+						'type'        => 'string',
+						'required'    => true,
+					),
 				),
 			)
 		);
@@ -242,25 +260,114 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 
 		$new_secret__filename = wp_unique_filename( $temp_dir, $secret_file_name );
 
-		if ( $secret_file_name !== $new_secret__filename ) {
-			return new WP_Error( 'file_exists', __( 'Unable to process file upload.', 'jetpack' ) . ' [304] ', array( 'status' => 400 ) );
-		}
-
 		// Move uploaded file
 		$move_result = move_uploaded_file( $file['tmp_name'], $temp_dir . '/' . $new_secret__filename );
 		if ( ! $move_result ) {
 			return new WP_Error( 'file_move', __( 'Unable to process file upload.', 'jetpack' ) . ' [303] ', array( 'status' => 400 ) );
 		}
 
+		// Generate a secure token for file retrieval
+		$token = wp_hash( $new_secret__filename . wp_rand() . microtime() );
+
+		// Store file details permanently
+		$file_data = array(
+			'filename'      => $new_secret__filename,
+			'path'          => $temp_dir,
+			'original_name' => $file_name,
+			'created'       => time(),
+			'context'       => $request->get_param( 'context' ),
+		);
+
+		// Get existing uploads or initialize empty array
+		$uploads           = get_option( 'jetpack_unauth_uploads', array() );
+		$uploads[ $token ] = $file_data;
+		update_option( 'jetpack_unauth_uploads', $uploads );
+
+		// Schedule cleanup if not already scheduled
+		if ( ! wp_next_scheduled( 'jetpack_cleanup_unauth_uploads' ) ) {
+			wp_schedule_event( time(), 'daily', 'jetpack_cleanup_unauth_uploads' );
+		}
+
 		return rest_ensure_response(
 			array(
 				'success' => true,
 				'data'    => array(
-					'filename' => ltrim( $new_secret__filename, $temporary_secret . '-' ),
-					'temp'     => $temporary_secret,
+					'token' => $token,
 				),
 			)
 		);
+	}
+
+	/**
+	 * Retrieves file details using a token
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function get_file_by_token( $request ) {
+		$token   = $request->get_param( 'token' );
+		$uploads = get_option( 'jetpack_unauth_uploads', array() );
+
+		if ( ! isset( $uploads[ $token ] ) ) {
+			return new WP_Error(
+				'invalid_token',
+				__( 'Invalid file token.', 'jetpack' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$file_data = $uploads[ $token ];
+
+		// Verify the file still exists
+		$file_path = trailingslashit( $file_data['path'] ) . $file_data['filename'];
+		if ( ! file_exists( $file_path ) ) {
+			// Remove the entry if file doesn't exist
+			unset( $uploads[ $token ] );
+			update_option( 'jetpack_unauth_uploads', $uploads );
+
+			return new WP_Error(
+				'file_not_found',
+				__( 'The uploaded file no longer exists.', 'jetpack' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		wp_delete_file( $file_path ); // Use WordPress function instead of unlink()
+		unset( $uploads[ $token ] );
+
+		return rest_ensure_response(
+			array(
+				'success' => true,
+				'data'    => array(
+					'original_name' => $file_data['original_name'],
+					'created'       => $file_data['created'],
+					'context'       => $file_data['context'],
+				),
+			)
+		);
+	}
+
+	/**
+	 * Cleanup old uploads that are no longer needed
+	 * This runs daily via wp-cron
+	 */
+	public function cleanup_old_uploads() {
+		$uploads      = get_option( 'jetpack_unauth_uploads', array() );
+		$current_time = time();
+		$max_age      = 7 * DAY_IN_SECONDS; // Keep files for 7 days
+
+		foreach ( $uploads as $token => $file_data ) {
+			// Remove files older than max_age
+			if ( ( $current_time - $file_data['created'] ) > $max_age ) {
+				$file_path = trailingslashit( $file_data['path'] ) . $file_data['filename'];
+				if ( file_exists( $file_path ) ) {
+					wp_delete_file( $file_path ); // Delete the actual file
+				}
+				unset( $uploads[ $token ] ); // Remove from our records
+			}
+		}
+
+		update_option( 'jetpack_unauth_uploads', $uploads );
 	}
 }
 

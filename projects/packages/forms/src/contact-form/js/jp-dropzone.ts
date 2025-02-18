@@ -31,9 +31,12 @@ export default class JP_Dropzone {
 		this.element = element;
 		this.fileField = element.querySelector( '.jetpack-form-file-field' ) as HTMLInputElement;
 
-		this.fileField.addEventListener( 'invalid', event => {
+		this.fileField.addEventListener( 'invalid', ( event: Event ) => {
+			const target = event.target as HTMLInputElement;
+			if ( ! target ) return;
+
 			const alert = document.createElement( 'div' );
-			alert.textContent = event.target.validationMessage;
+			alert.textContent = target.validationMessage;
 			alert.classList.add( 'contact-form__error' );
 			this.element.appendChild( alert );
 		} );
@@ -269,9 +272,8 @@ export default class JP_Dropzone {
 					this.element.dispatchEvent( successEvent );
 					this.fileField.setCustomValidity( '' );
 					this.fileField.reportValidity();
-					// update the hidden fields.
-					this.updateHiddenFields( '.jetpack-form-file-field__filename', response.data.filename );
-					this.updateHiddenFields( '.jetpack-form-file-field__temp', response.data.temp );
+					// update the hidden field with the token
+					this.updateHiddenFields( '.jetpack-form-file-field__token', response.data.token );
 
 					return;
 				}
