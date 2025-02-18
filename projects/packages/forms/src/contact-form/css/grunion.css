@@ -333,6 +333,7 @@
 
 	> .wp-block-jetpack-button {
 		align-self: flex-end;
+		flex-basis: auto;
 	}
 
 	@media only screen and ( max-width: 480px ) {

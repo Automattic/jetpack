@@ -11,6 +11,12 @@
 		border: solid 1px currentColor;
 		color: currentColor;
 	}
+
+
+}
+
+.is-layout-grid > .wp-block-jetpack-button {
+	height: fit-content;
 }
 
 // Support align feature for older themes
