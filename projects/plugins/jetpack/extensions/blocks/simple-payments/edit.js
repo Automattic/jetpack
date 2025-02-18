@@ -47,6 +47,7 @@ export const SimplePaymentsEdit = ( {
 		price,
 		productId,
 		title,
+		uniqueId,
 	} = attributes;
 	/**
 	 * The only disabled state that concerns us is when we expect a product but don't have it in
@@ -81,6 +82,23 @@ export const SimplePaymentsEdit = ( {
 		 */
 
 		if ( ! shouldInjectPaymentAttributes.current || isEmpty( simplePayment ) ) {
+			return;
+		}
+
+		// If this is a duplicated block (has no uniqueId), create a new product
+		if ( ! uniqueId ) {
+			const newUniqueId = `payment-${ Date.now() }-${ Math.random()
+				.toString( 36 )
+				.substr( 2, 9 ) }`;
+			setAttributes( {
+				uniqueId: newUniqueId,
+				productId: undefined, // Clear the productId to force creation of a new product
+			} );
+
+			// Save the product to create a new one
+			if ( validateAttributes() ) {
+				saveProduct();
+			}
 			return;
 		}
 
@@ -186,7 +204,7 @@ export const SimplePaymentsEdit = ( {
 	const validatePrice = () => {
 		if ( ! price || parseFloat( price ) === 0 ) {
 			setFieldPriceError(
-				__( 'If you’re selling something, you need a price tag. Add yours here.', 'jetpack' )
+				__( "If you're selling something, you need a price tag. Add yours here.", 'jetpack' )
 			);
 			return false;
 		}
@@ -211,7 +229,7 @@ export const SimplePaymentsEdit = ( {
 			if ( precision === 0 ) {
 				setFieldPriceError(
 					__(
-						'We know every penny counts, but prices in this currency can’t contain decimal values.',
+						"We know every penny counts, but prices in this currency can't contain decimal values.",
 						'jetpack'
 					)
 				);
@@ -283,13 +301,9 @@ export const SimplePaymentsEdit = ( {
 	const validateTitle = () => {
 		if ( ! title ) {
 			setFieldTitleError(
-				__( 'Please add a brief title so that people know what they’re paying for.', 'jetpack' )
+				__( "Please add a brief title so that people know what they're paying for.", 'jetpack' )
 			);
 			return false;
-		}
-
-		if ( fieldTitleError ) {
-			setFieldTitleError( null );
 		}
 
 		return true;
@@ -522,7 +536,7 @@ export const SimplePaymentsEdit = ( {
 					</HelpMessage>
 					<HelpMessage id={ `${ instanceId }-email-help` }>
 						{ __(
-							'Enter the email address associated with your PayPal account. Don’t have an account?',
+							"Enter the email address associated with your PayPal account. Don't have an account?",
 							'jetpack'
 						) + ' ' }
 						<ExternalLink href="https://www.paypal.com/">

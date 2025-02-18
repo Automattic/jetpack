@@ -92,6 +92,10 @@
 			"source": "html",
 			"selector": ".jetpack-simple-payments-title p",
 			"default": ""
+		},
+		"uniqueId": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"example": {
