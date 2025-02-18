@@ -1,12 +1,14 @@
 /**
  * External dependencies
  */
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
 import { store as seoAssistantStore } from './store';
+import { useAltTextStep } from './use-alt-text-step';
 import { useCompletionStep } from './use-completion-step';
 import { useDescriptionStep } from './use-description-step';
 import { useKeywordsStep } from './use-keywords-step';
@@ -18,29 +20,38 @@ import './style.scss';
  * Types
  */
 import type { SeoAssistantDispatch } from './types';
+import type { Block } from '@automattic/jetpack-ai-client';
 
 const debug = debugFactory( 'jetpack-seo:wizard-chat' );
 
 export default function SeoAssistantWizard() {
+	const imageBlocks = useSelect(
+		select =>
+			select( editorStore )
+				.getBlocks()
+				.filter( ( block: Block ) => block.name === 'core/image' ),
+		[]
+	);
+
 	const keywordsStepData = useKeywordsStep();
 	const titleStepData = useTitleStep( { keywords: keywordsStepData.value, mockRequests: false } );
 	const descriptionStepData = useDescriptionStep( {
 		keywords: keywordsStepData.value,
 		mockRequests: false,
 	} );
+	const altTextSteps = useAltTextStep( {
+		keywords: keywordsStepData.value,
+		mockRequests: false,
+		imageBlocks,
+	} );
 	const { close } = useDispatch( seoAssistantStore ) as SeoAssistantDispatch;
 
-	// ALL Pre-process should be done here, before the wizard is rendered.
-	// TODO: scavenge the post and see if there are image blocks there, NOT gallery blocks, not COVER blocks, but image blocks
-	// if there are, add a step to the wizard for each image. Each image step should use a vision
-	// request to get an image description, and then use that description to generate alt text for the image.
-
 	const welcomeStepData = useWelcomeStep( {
-		stepLabels: [ titleStepData.label, descriptionStepData.label ],
+		stepLabels: [ titleStepData, descriptionStepData, ...altTextSteps ].map( step => step.label ),
 	} );
 	const completionStepData = useCompletionStep();
 
-	debug( 'render seo assistant wizard' );
+	debug( 'render seo assistant wizard', altTextSteps );
 
 	return (
 		<WizardChat
@@ -50,6 +61,7 @@ export default function SeoAssistantWizard() {
 				keywordsStepData,
 				titleStepData,
 				descriptionStepData,
+				...altTextSteps,
 				completionStepData,
 			] }
 			assistantName={ 'seo-assistant' }
