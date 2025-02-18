@@ -13,10 +13,6 @@ class Minify_JS implements Pluggable, Changes_Page_Output, Optimization, Has_Act
 
 	public static $default_excludes = array( 'jquery', 'jquery-core', 'underscore', 'backbone' );
 
-	public static function get_slug() {
-		return 'minify_js';
-	}
-
 	/**
 	 * Setup the module. This runs on every page load.
 	 */
@@ -30,6 +26,10 @@ class Minify_JS implements Pluggable, Changes_Page_Output, Optimization, Has_Act
 		}
 
 		add_action( 'init', array( $this, 'init_minify' ) );
+	}
+
+	public static function get_slug() {
+		return 'minify_js';
 	}
 
 	/**

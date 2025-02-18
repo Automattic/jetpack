@@ -13,10 +13,6 @@ class Minify_CSS implements Pluggable, Changes_Page_Output, Optimization, Has_Ac
 
 	public static $default_excludes = array( 'admin-bar', 'dashicons', 'elementor-app' );
 
-	public static function get_slug() {
-		return 'minify_css';
-	}
-
 	/**
 	 * Setup the module. This runs on every page load.
 	 */
@@ -30,6 +26,10 @@ class Minify_CSS implements Pluggable, Changes_Page_Output, Optimization, Has_Ac
 		}
 
 		add_action( 'init', array( $this, 'init_minify' ) );
+	}
+
+	public static function get_slug() {
+		return 'minify_css';
 	}
 
 	/**
