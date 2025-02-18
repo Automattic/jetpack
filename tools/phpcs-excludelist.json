@@ -10,7 +10,6 @@
 	"projects/packages/sync/src/modules/class-module.php",
 	"projects/packages/sync/src/modules/class-posts.php",
 	"projects/packages/sync/src/modules/class-term-relationships.php",
-	"projects/packages/sync/src/modules/class-terms.php",
 	"projects/packages/sync/src/modules/class-users.php",
 	"projects/packages/sync/src/modules/class-woocommerce.php",
 	"projects/packages/sync/src/replicastore/class-table-checksum-usermeta.php",

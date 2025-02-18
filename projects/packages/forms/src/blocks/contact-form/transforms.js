@@ -34,6 +34,7 @@ const getContactFieldBlockName = type => {
 		select: `${ prefix }/field-select`,
 		email: `${ prefix }/field-email`,
 		name: `${ prefix }/field-name`,
+		number: `${ prefix }/field-number`,
 		default: `${ prefix }/field-text`,
 	};
 	return fieldTypes[ type ] ? fieldTypes[ type ] : fieldTypes.default;

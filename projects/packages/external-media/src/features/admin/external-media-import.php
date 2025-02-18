@@ -27,10 +27,6 @@ function is_current_user_connected() {
  * Register the Jetpack external media page to Media > Import.
  */
 function add_jetpack_external_media_import_page() {
-	if ( empty( $_GET['jetpack_external_media_import_page'] ) && empty( $_GET['untangling-media'] ) ) { // phpcs:disable WordPress.Security.NonceVerification.Recommended
-		return;
-	}
-
 	/**
 	 * The feature is enabled only when the current user is connected to WordPress.com.
 	 */
@@ -47,9 +43,38 @@ function add_jetpack_external_media_import_page() {
 		__NAMESPACE__ . '\render_jetpack_external_media_import_page'
 	);
 
+	add_action( 'load-upload.php', __NAMESPACE__ . '\enqueue_jetpack_external_media_import_button' );
 	add_action( "load-$external_media_import_page_hook", __NAMESPACE__ . '\enqueue_jetpack_external_media_import_page' );
 }
 add_action( 'admin_menu', __NAMESPACE__ . '\add_jetpack_external_media_import_page' );
+
+/**
+ * Enqueue the assets of the Jetpack external media import button.
+ */
+function enqueue_jetpack_external_media_import_button() {
+	$assets_base_path = 'build/';
+	$asset_name       = 'jetpack-external-media-import-button';
+
+	Assets::register_script(
+		$asset_name,
+		$assets_base_path . "$asset_name/$asset_name.js",
+		External_Media::BASE_FILE,
+		array(
+			'in_footer'  => true,
+			'textdomain' => 'jetpack-external-media',
+			'css_path'   => $assets_base_path . "$asset_name/$asset_name.css",
+		)
+	);
+
+	Assets::enqueue_script( $asset_name );
+	wp_localize_script(
+		$asset_name,
+		'JETPACK_EXTERNAL_MEDIA_IMPORT_BUTTON',
+		array(
+			'href' => admin_url( 'upload.php?page=jetpack_external_media_import_page' ),
+		)
+	);
+}
 
 /**
  * Enqueue the assets of the Jetpack external media page.

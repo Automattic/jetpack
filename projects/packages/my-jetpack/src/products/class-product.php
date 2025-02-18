@@ -49,6 +49,13 @@ abstract class Product {
 	public static $plugin_slug = null;
 
 	/**
+	 * The category of the product in the Jetpack ecosystem. The options are performance, growth, security, management, and create
+	 *
+	 * @var string
+	 */
+	public static $category = null;
+
+	/**
 	 * The Jetpack plugin slug
 	 *
 	 * @var string
@@ -183,6 +190,7 @@ abstract class Product {
 			'plugin_slug'                     => static::get_plugin_slug(),
 			'name'                            => static::get_name(),
 			'title'                           => static::get_title(),
+			'category'                        => static::$category,
 			'description'                     => static::get_description(),
 			'long_description'                => static::get_long_description(),
 			'tiers'                           => static::get_tiers(),
@@ -213,6 +221,7 @@ abstract class Product {
 			'post_checkout_urls_by_feature'   => static::get_post_checkout_urls_by_feature(),
 			'manage_paid_plan_purchase_url'   => static::get_manage_paid_plan_purchase_url(),
 			'renew_paid_plan_purchase_url'    => static::get_renew_paid_plan_purchase_url(),
+			'does_module_need_attention'      => static::does_module_need_attention(),
 		);
 	}
 

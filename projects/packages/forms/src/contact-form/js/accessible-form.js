@@ -51,6 +51,13 @@ const initAllForms = () => {
 
 function isFormEmpty( form ) {
 	const clonedForm = form.cloneNode( true );
+	// `cloneNode` API doesn't clone the selected value of the select element unless we
+	// had specifc html markup (`selected`). So, after cloning we need to update the existing
+	// select values.
+	Array.from( clonedForm.querySelectorAll( 'select' ) ).forEach( select => {
+		select.value = form.querySelector( `select[id="${ select.id }"` )?.value;
+	} );
+	// Remove hidden fields from the cloned form.
 	Array.from( clonedForm.querySelectorAll( 'input[type="hidden"]' ) ).forEach( input =>
 		input.remove()
 	);

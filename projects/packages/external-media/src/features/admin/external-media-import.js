@@ -1,3 +1,4 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { sprintf, __ } from '@wordpress/i18n';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
@@ -22,6 +23,7 @@ const Notice = ( { message, onDismiss } ) => (
 const JetpackExternalMediaImport = () => {
 	const [ selectedSource, setSelectedSource ] = useState( null );
 	const [ noticeMessage, setNoticeMessage ] = useState( '' );
+	const { tracks } = useAnalytics();
 	const ExternalLibrary = getExternalLibrary( selectedSource );
 
 	const selectButtonText = ( selectedImages, isCopying ) => {
@@ -77,6 +79,9 @@ const JetpackExternalMediaImport = () => {
 			const slug = event.target.dataset.slug;
 			if ( slug ) {
 				setSelectedSource( slug );
+				tracks.recordEvent( 'jetpack_external_media_import_media_page_import_click', {
+					media_source: slug,
+				} );
 			}
 		};
 
@@ -89,7 +94,7 @@ const JetpackExternalMediaImport = () => {
 				element.removeEventListener( 'click', handleClick );
 			}
 		};
-	}, [] );
+	}, [ tracks ] );
 
 	return (
 		<>

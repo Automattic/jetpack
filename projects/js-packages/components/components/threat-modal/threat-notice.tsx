@@ -4,7 +4,7 @@ import { Icon, warning } from '@wordpress/icons';
 import { useContext } from 'react';
 import { Text, Button } from '@automattic/jetpack-components';
 import styles from './styles.module.scss';
-import { ThreatModalContext } from '.';
+import { ThreatModalContext } from './index.js';
 
 /**
  * ThreatNotice component

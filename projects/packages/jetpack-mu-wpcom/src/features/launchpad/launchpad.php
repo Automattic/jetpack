@@ -136,6 +136,8 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'setup_write',
 				'design_completed',
 				'plan_selected',
+				'verify_email',
+				'add_first_subscribers',
 				'first_post_published',
 				'site_launched',
 			),
@@ -302,6 +304,23 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
 		'legacy-site-setup'       => array(
+			'get_title'      => function () {
+				return __( 'Site setup', 'jetpack-mu-wpcom' );
+			},
+			'is_dismissible' => true,
+			'task_ids'       => array(
+				'woocommerce_setup',
+				'sensei_setup',
+				'site_title',
+				'front_page_updated',
+				'verify_domain_email',
+				'verify_email',
+				'mobile_app_installed',
+				'post_sharing_enabled',
+				'site_launched',
+			),
+		),
+		'sell'                    => array(
 			'get_title'      => function () {
 				return __( 'Site setup', 'jetpack-mu-wpcom' );
 			},
