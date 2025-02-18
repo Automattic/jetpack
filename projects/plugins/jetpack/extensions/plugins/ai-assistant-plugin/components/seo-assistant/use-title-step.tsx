@@ -40,7 +40,8 @@ export const useTitleStep = ( {
 	const [ selectedTitle, setSelectedTitle ] = useState< string >( '' );
 	const [ valueOptions, setValueOptions ] = useState< OptionMessage[] >( [] );
 	const { editPost } = useDispatch( 'core/editor' );
-	const { messages, setMessages, addMessage, editLastMessage, setSelectedMessage } = useMessages();
+	const { getMessages, setMessages, addMessage, editLastMessage, setSelectedMessage } =
+		useMessages();
 	const [ lastValue, setLastValue ] = useState< string >( '' );
 	const postContent = usePostContent();
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
@@ -48,6 +49,7 @@ export const useTitleStep = ( {
 	const [ hasFailed, setHasFailed ] = useState( false );
 	const [ failurePoint, setFailurePoint ] = useState< 'generate' | 'regenerate' | null >( null );
 	const { tracks } = useAnalytics();
+	const messages = getMessages();
 
 	const prevStepHasChanged = useMemo( () => keywords !== lastValue, [ keywords, lastValue ] );
 	const stepId = 'title';

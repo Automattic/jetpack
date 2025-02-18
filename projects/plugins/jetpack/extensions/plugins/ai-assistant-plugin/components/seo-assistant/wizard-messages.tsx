@@ -1,43 +1,70 @@
+/**
+ * External dependencies
+ */
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+/**
+ * Internal dependencies
+ */
 import bigSkyIcon from './big-sky-icon.svg';
 import TypingMessage from './typing-message';
+/**
+ * Types
+ */
 import type { Message } from './types';
 
 const randomId = () => Math.random().toString( 32 ).substring( 2, 8 );
 
-export const useMessages = () => {
-	const [ messages, setMessages ] = useState< Message[] >( [] );
-
-	const wrapMessagesWithId = useCallback(
-		rawMessages => {
-			setMessages(
-				rawMessages.map( rawMessage => ( { ...rawMessage, id: rawMessage.id || randomId() } ) )
-			);
-		},
-		[ setMessages ]
+/**
+ * Custom hook to manage messages in the wizard
+ * @param {number} count - The number of message arrays to initialize, for dynamic steps
+ * @return {object} An object containing methods to manage messages
+ */
+export const useMessages = ( count = 1 ) => {
+	const [ messagesArray, setMessagesArray ] = useState< Message[][] >(
+		Array.from( { length: count }, () => [] )
 	);
 
-	const addMessage = async ( message: Message ) => {
+	const wrapMessagesWithId = useCallback( ( rawMessages: Message[], id = 0 ) => {
+		setMessagesArray( prev => {
+			const next = [ ...prev ];
+			next[ id ] = rawMessages.map( rawMessage => ( {
+				...rawMessage,
+				id: rawMessage.id || randomId(),
+			} ) );
+			return next;
+		} );
+	}, [] );
+
+	const addMessage = async ( message: Message, id = 0 ) => {
 		const newMessage = {
 			...message,
 			showIcon: message.showIcon === false ? false : ! message.isUser,
 			id: message.id || randomId(),
 		} as Message;
 
-		setMessages( prev => [ ...prev, newMessage ] );
+		setMessagesArray( prev => {
+			const next = [ ...prev ];
+			next[ id ] = [ ...next[ id ], newMessage ];
+			return next;
+		} );
 	};
 
 	/* Removes last message */
-	const removeLastMessage = () => {
-		setMessages( prev => prev.slice( 0, -1 ) );
+	const removeLastMessage = ( id = 0 ) => {
+		setMessagesArray( prev => {
+			const next = [ ...prev ];
+			next[ id ] = next[ id ].slice( 0, -1 );
+			return next;
+		} );
 	};
 
 	/* Edits content of last message */
-	const editLastMessage = ( content: Message[ 'content' ], append = false ) => {
-		setMessages( prev => {
-			const prevMessages = [ ...prev ];
+	const editLastMessage = ( content: Message[ 'content' ], append = false, id = 0 ) => {
+		setMessagesArray( prev => {
+			const next = [ ...prev ];
+			const prevMessages = [ ...next[ id ] ];
 			if ( prevMessages.length > 0 ) {
 				const lastMessageContent = prevMessages[ prevMessages.length - 1 ].content;
 				let newContent = content;
@@ -58,19 +85,24 @@ export const useMessages = () => {
 					content: newContent,
 				};
 			}
-			return prevMessages;
+			return next;
 		} );
 	};
 
-	const setSelectedMessage = message => {
-		setMessages( prev =>
-			prev.map( prevMessage => ( { ...prevMessage, selected: message.id === prevMessage.id } ) )
-		);
+	const setSelectedMessage = ( message: Message, id = 0 ) => {
+		setMessagesArray( prev => {
+			const next = [ ...prev ];
+			next[ id ] = next[ id ].map( prevMessage => ( {
+				...prevMessage,
+				selected: message.id === prevMessage.id,
+			} ) );
+			return next;
+		} );
 	};
 
 	return {
-		messages,
-		setMessages: wrapMessagesWithId,
+		getMessages: ( id = 0 ) => messagesArray[ id ],
+		setMessages: ( messages: Message[], id = 0 ) => wrapMessagesWithId( messages, id ),
 		addMessage,
 		removeLastMessage,
 		editLastMessage,
@@ -114,7 +146,7 @@ export default function Messages( { onSelect, messages, isBusy } ) {
 	return (
 		<>
 			<div className="jetpack-wizard-chat__messages">
-				{ messages.map( message => (
+				{ messages.map( ( message: Message ) => (
 					<MessageBubble key={ message.id } onSelect={ onSelect } message={ message } />
 				) ) }
 				{ isBusy && <MessageBubble message={ { content: <TypingMessage />, showIcon: true } } /> }

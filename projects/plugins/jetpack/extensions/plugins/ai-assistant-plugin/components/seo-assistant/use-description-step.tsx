@@ -46,7 +46,8 @@ export const useDescriptionStep = ( {
 	const [ lastValue, setLastValue ] = useState< string >( '' );
 	const [ selectedDescription, setSelectedDescription ] = useState< string >();
 	const [ valueOptions, setValueOptions ] = useState< OptionMessage[] >( [] );
-	const { messages, setMessages, addMessage, editLastMessage, setSelectedMessage } = useMessages();
+	const { getMessages, setMessages, addMessage, editLastMessage, setSelectedMessage } =
+		useMessages();
 	const { editPost } = useDispatch( editorStore );
 	const postContent = usePostContent();
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
@@ -54,6 +55,8 @@ export const useDescriptionStep = ( {
 	const [ hasFailed, setHasFailed ] = useState( false );
 	const [ failurePoint, setFailurePoint ] = useState< 'generate' | 'regenerate' | null >( null );
 	const { tracks } = useAnalytics();
+	const messages = getMessages();
+
 	const prevStepHasChanged = useMemo( () => keywords !== lastValue, [ keywords, lastValue ] );
 	const stepId = 'description';
 

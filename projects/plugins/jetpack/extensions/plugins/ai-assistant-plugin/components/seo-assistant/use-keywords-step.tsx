@@ -12,7 +12,8 @@ import type { Step } from './types';
 export const useKeywordsStep = (): Step => {
 	const [ value, setValue ] = useState< string >( '' );
 	const [ rawInput, setRawInput ] = useState( '' );
-	const { messages, addMessage } = useMessages();
+	const { getMessages, addMessage } = useMessages();
+	const messages = getMessages();
 
 	const onStart = useCallback( async () => {
 		addMessage( {

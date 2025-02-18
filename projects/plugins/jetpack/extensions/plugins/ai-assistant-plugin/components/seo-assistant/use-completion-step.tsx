@@ -5,7 +5,8 @@ import type { Step, Results } from './types';
 
 export const useCompletionStep = (): Step => {
 	const [ value, setValue ] = useState( '' );
-	const { messages, setMessages, addMessage } = useMessages();
+	const { getMessages, setMessages, addMessage } = useMessages();
+	const messages = getMessages();
 
 	const startHandler = useCallback(
 		async ( { fromSkip, results } ) => {
