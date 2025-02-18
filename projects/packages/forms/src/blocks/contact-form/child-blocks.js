@@ -27,7 +27,10 @@ const FieldDefaults = {
 	supports: {
 		reusable: false,
 		html: false,
-		spacing: {},
+		// This doesn't opt in to support for any dimensions controls,
+		// but it's required to ensure the 'Styles' tab renders in the inspector.
+		// This is probably a bug in WordPress core.
+		dimensions: {},
 	},
 	attributes: {
 		label: {
