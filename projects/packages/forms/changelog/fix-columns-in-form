@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Forms: fix column block width when used in the form block.
+Forms: ensure field blocks respect the layout for blocks like Group, Grid, Row, Columns.
