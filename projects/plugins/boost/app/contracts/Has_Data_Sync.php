@@ -11,5 +11,5 @@ interface Has_Data_Sync {
 	 *
 	 * @return void
 	 */
-	public static function register_data_sync( Data_Sync $instance );
+	public function register_data_sync( Data_Sync $instance );
 }

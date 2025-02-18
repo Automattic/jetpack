@@ -3,21 +3,16 @@
 namespace Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync;
 
 use Automattic\Jetpack\Schema\Schema;
-use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
-use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
-use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Meta_Entry;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Regenerate_CSS;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_CSS;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_Error_Dismissed;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_Errors;
 
 /**
  * Registers data sync for both the Critical CSS module and the Cloud CSS module. Both of these modules cannot be available at the same time.
  */
-class Data_Sync_Setup implements Has_Data_Sync {
-	public static function register_data_sync( Data_Sync $instance ) {
-		// Represents a set of errors that can be stored for a single Provider Key in a Critical CSS state block.
-		$critical_css_provider_error_set_schema = Schema::as_array(
+class Data_Sync_Schema {
+	/**
+	 * Represents a set of errors that can be stored for a single Provider Key in a Critical CSS state block.
+	 */
+	public static function critical_css_provider_error() {
+		return Schema::as_array(
 			Schema::as_assoc_array(
 				array(
 					'url'     => Schema::as_string(),
@@ -33,8 +28,10 @@ class Data_Sync_Setup implements Has_Data_Sync {
 				)
 			)
 		);
+	}
 
-		$critical_css_state_schema = Schema::as_assoc_array(
+	public static function critical_css_state() {
+		return Schema::as_assoc_array(
 			array(
 				'providers'    => Schema::as_array(
 					Schema::as_assoc_array(
@@ -45,7 +42,7 @@ class Data_Sync_Setup implements Has_Data_Sync {
 							'success_ratio' => Schema::as_float(),
 							'status'        => Schema::enum( array( 'success', 'pending', 'error', 'validation-error' ) )->fallback( 'validation-error' ),
 							'error_status'  => Schema::enum( array( 'active', 'dismissed' ) )->nullable(),
-							'errors'        => $critical_css_provider_error_set_schema->nullable(),
+							'errors'        => self::critical_css_provider_error()->nullable(),
 						)
 					)
 				)->nullable(),
@@ -62,14 +59,18 @@ class Data_Sync_Setup implements Has_Data_Sync {
 				'updated'   => null,
 			)
 		);
+	}
 
-		$critical_css_meta_schema = Schema::as_assoc_array(
+	public static function critical_css_meta() {
+		return Schema::as_assoc_array(
 			array(
 				'proxy_nonce' => Schema::as_string()->nullable(),
 			)
 		);
+	}
 
-		$critical_css_suggest_regenerate_schema = Schema::enum(
+	public static function critical_css_suggest_regenerate() {
+		return Schema::enum(
 			array(
 				'1', // Old versions of Boost stored a boolean in the DB.
 				'page_saved',
@@ -80,51 +81,34 @@ class Data_Sync_Setup implements Has_Data_Sync {
 				'cornerstone_pages_list_updated',
 			)
 		)->nullable();
+	}
 
-		/**
-		 * Register Data Sync Stores
-		 */
-		$instance->register( 'critical_css_state', $critical_css_state_schema );
-		$instance->register( 'critical_css_meta', $critical_css_meta_schema, new Critical_CSS_Meta_Entry() );
-		$instance->register( 'critical_css_suggest_regenerate', $critical_css_suggest_regenerate_schema );
-		$instance->register_action( 'critical_css_state', 'request-regenerate', Schema::as_void(), new Regenerate_CSS() );
+	public static function critical_css_set_provider() {
+		return Schema::as_assoc_array(
+			array(
+				'key' => Schema::as_string(),
+				'css' => Schema::as_string(),
+			)
+		);
+	}
 
-		$instance->register_action(
-			'critical_css_state',
-			'set-provider-css',
+	public static function critical_css_set_provider_errors() {
+		return Schema::as_assoc_array(
+			array(
+				'key'    => Schema::as_string(),
+				'errors' => self::critical_css_provider_error(),
+			)
+		);
+	}
+
+	public static function critical_css_set_provider_errors_dismissed() {
+		return Schema::as_array(
 			Schema::as_assoc_array(
 				array(
-					'key' => Schema::as_string(),
-					'css' => Schema::as_string(),
+					'key'       => Schema::as_string(),
+					'dismissed' => Schema::as_boolean(),
 				)
-			),
-			new Set_Provider_CSS()
-		);
-
-		$instance->register_action(
-			'critical_css_state',
-			'set-provider-errors',
-			Schema::as_assoc_array(
-				array(
-					'key'    => Schema::as_string(),
-					'errors' => $critical_css_provider_error_set_schema,
-				)
-			),
-			new Set_Provider_Errors()
-		);
-
-		$instance->register_action(
-			'critical_css_state',
-			'set-provider-errors-dismissed',
-			Schema::as_array(
-				Schema::as_assoc_array(
-					array(
-						'key'       => Schema::as_string(),
-						'dismissed' => Schema::as_boolean(),
-					)
-				)
-			),
-			new Set_Provider_Error_Dismissed()
+			)
 		);
 	}
 }

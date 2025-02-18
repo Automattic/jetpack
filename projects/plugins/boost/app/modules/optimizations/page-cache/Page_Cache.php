@@ -59,34 +59,29 @@ class Page_Cache implements Pluggable, Has_Deactivate, Has_Data_Sync, Optimizati
 		add_action( 'update_option_jetpack_boost_status_' . Liar::get_slug(), array( $this, 'invalidate_cache' ) );
 	}
 
-	public static function register_data_sync( Data_Sync $instance ) {
+	public function register_data_sync( Data_Sync $instance ) {
+		$page_cache_schema       = Schema::as_assoc_array(
+			array(
+				'bypass_patterns' => Schema::as_array( Schema::as_string() ),
+				'logging'         => Schema::as_boolean(),
+			)
+		);
+		$page_cache_error_schema = Schema::as_assoc_array(
+			array(
+				'code'      => Schema::as_string(),
+				'message'   => Schema::as_string(),
+				'dismissed' => Schema::as_boolean()->fallback( false ),
+			)
+		)->nullable();
+
 		$instance->register_readonly( 'cache_debug_log', Schema::as_unsafe_any(), array( Logger::class, 'read' ) );
 		$instance->register_readonly( 'cache_engine_loading', Schema::as_unsafe_any(), array( Boost_Cache::class, 'is_loaded' ) );
 
+		$instance->register( 'page_cache', $page_cache_schema, new Page_Cache_Entry() );
 		// Page Cache error
-		$instance->register(
-			'page_cache_error',
-			Schema::as_assoc_array(
-				array(
-					'code'      => Schema::as_string(),
-					'message'   => Schema::as_string(),
-					'dismissed' => Schema::as_boolean()->fallback( false ),
-				)
-			)->nullable()
-		);
+		$instance->register( 'page_cache_error', $page_cache_error_schema );
 
 		$instance->register_action( 'page_cache', 'run-setup', Schema::as_void(), new Run_Setup() );
-
-		$instance->register(
-			'page_cache',
-			Schema::as_assoc_array(
-				array(
-					'bypass_patterns' => Schema::as_array( Schema::as_string() ),
-					'logging'         => Schema::as_boolean(),
-				)
-			),
-			new Page_Cache_Entry()
-		);
 
 		$instance->register_action( 'page_cache', 'clear-page-cache', Schema::as_void(), new Clear_Page_Cache() );
 		$instance->register_action( 'page_cache', 'deactivate-wpsc', Schema::as_void(), new Deactivate_WPSC() );

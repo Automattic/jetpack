@@ -17,47 +17,46 @@ class Image_CDN implements Pluggable, Changes_Page_Output, Optimization, Has_Sub
 		Image_CDN_Setup::load();
 	}
 
-	public static function register_data_sync( Data_Sync $instance ) {
-		$instance->register(
-			'image_cdn_quality',
-			Schema::as_assoc_array(
-				array(
-					'jpg'  => Schema::as_assoc_array(
-						array(
-							'quality'  => Schema::as_number(),
-							'lossless' => Schema::as_boolean(),
-						)
-					),
-					'png'  => Schema::as_assoc_array(
-						array(
-							'quality'  => Schema::as_number(),
-							'lossless' => Schema::as_boolean(),
-						)
-					),
-					'webp' => Schema::as_assoc_array(
-						array(
-							'quality'  => Schema::as_number(),
-							'lossless' => Schema::as_boolean(),
-						)
-					),
-				)
-			)->fallback(
-				array(
-					'jpg'  => array(
-						'quality'  => 89,
-						'lossless' => false,
-					),
-					'png'  => array(
-						'quality'  => 80,
-						'lossless' => false,
-					),
-					'webp' => array(
-						'quality'  => 80,
-						'lossless' => false,
-					),
-				)
+	public function register_data_sync( Data_Sync $instance ) {
+		$image_cdn_quality_schema = Schema::as_assoc_array(
+			array(
+				'jpg'  => Schema::as_assoc_array(
+					array(
+						'quality'  => Schema::as_number(),
+						'lossless' => Schema::as_boolean(),
+					)
+				),
+				'png'  => Schema::as_assoc_array(
+					array(
+						'quality'  => Schema::as_number(),
+						'lossless' => Schema::as_boolean(),
+					)
+				),
+				'webp' => Schema::as_assoc_array(
+					array(
+						'quality'  => Schema::as_number(),
+						'lossless' => Schema::as_boolean(),
+					)
+				),
+			)
+		)->fallback(
+			array(
+				'jpg'  => array(
+					'quality'  => 89,
+					'lossless' => false,
+				),
+				'png'  => array(
+					'quality'  => 80,
+					'lossless' => false,
+				),
+				'webp' => array(
+					'quality'  => 80,
+					'lossless' => false,
+				),
 			)
 		);
+
+		$instance->register( 'image_cdn_quality', $image_cdn_quality_schema );
 	}
 
 	public static function get_slug() {

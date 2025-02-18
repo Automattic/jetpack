@@ -29,11 +29,10 @@ class Minify_JS implements Pluggable, Changes_Page_Output, Optimization, Has_Act
 		add_action( 'init', array( $this, 'init_minify' ) );
 	}
 
-	public static function register_data_sync( Data_Sync $instance ) {
+	public function register_data_sync( Data_Sync $instance ) {
 		$parser = Schema::as_array( Schema::as_string() )->fallback( self::$default_excludes );
-		$entry  = new Minify_Excludes_State_Entry( 'minify_js_excludes' );
 
-		$instance->register( 'minify_js_excludes', $parser, $entry );
+		$instance->register( 'minify_js_excludes', $parser, new Minify_Excludes_State_Entry( 'minify_js_excludes' ) );
 
 		$instance->register_readonly(
 			'minify_js_excludes_default',

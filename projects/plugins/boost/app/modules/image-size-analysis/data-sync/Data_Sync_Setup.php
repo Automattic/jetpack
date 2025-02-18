@@ -3,15 +3,10 @@
 namespace Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Data_Sync;
 
 use Automattic\Jetpack\Schema\Schema;
-use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
-use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Image_Analysis_Action_Fix;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Image_Size_Analysis_Summary_Action_Paginate;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Image_Size_Analysis_Summary_Action_Start;
 
-class Data_Sync_Setup implements Has_Data_Sync {
-	public static function register_data_sync( Data_Sync $instance ) {
-		$image_data = Schema::as_assoc_array(
+class Data_Sync_Schema {
+	public static function image_data() {
+		return Schema::as_assoc_array(
 			array(
 				'id'           => Schema::as_string(),
 				'thumbnail'    => Schema::as_string(),
@@ -64,53 +59,52 @@ class Data_Sync_Setup implements Has_Data_Sync {
 
 			)
 		)->nullable();
+	}
 
-		$image_size_analysis = Schema::as_assoc_array(
+	public static function image_size_analysis() {
+		return Schema::as_assoc_array(
 			array(
 				'last_updated' => Schema::as_number(),
 				'total_pages'  => Schema::as_number(),
-				'images'       => Schema::as_array( $image_data ),
+				'images'       => Schema::as_array( self::image_data() ),
 			)
 		);
-		$instance->register( 'image_size_analysis', $image_size_analysis, new Image_Size_Analysis_Entry() );
+	}
 
-		$instance->register_action(
-			'image_size_analysis',
-			'paginate',
-			Schema::as_assoc_array(
-				array(
-					'page'  => Schema::as_number(),
-					'group' => Schema::as_string(),
-				)
-			),
-			new Image_Size_Analysis_Summary_Action_Paginate()
+	public static function image_size_analysis_paginate() {
+		return Schema::as_assoc_array(
+			array(
+				'page'  => Schema::as_number(),
+				'group' => Schema::as_string(),
+			)
 		);
+	}
 
-		$instance->register_action(
-			'image_size_analysis',
-			'fix',
-			Schema::as_assoc_array(
-				array(
-					'image_id'     => Schema::as_number(),
-					'image_url'    => Schema::as_string(),
-					'image_width'  => Schema::as_number(),
-					'image_height' => Schema::as_number(),
-					'post_id'      => Schema::as_number(),
-					'fix'          => Schema::as_boolean(),
-				)
-			),
-			new Image_Analysis_Action_Fix()
+	public static function image_size_analysis_fix() {
+		return Schema::as_assoc_array(
+			array(
+				'image_id'     => Schema::as_number(),
+				'image_url'    => Schema::as_string(),
+				'image_width'  => Schema::as_number(),
+				'image_height' => Schema::as_number(),
+				'post_id'      => Schema::as_number(),
+				'fix'          => Schema::as_boolean(),
+			)
 		);
+	}
 
-		$group_schema = Schema::as_assoc_array(
+	public static function group_schema() {
+		return Schema::as_assoc_array(
 			array(
 				'issue_count'   => Schema::as_number(),
 				'scanned_pages' => Schema::as_number(),
 				'total_pages'   => Schema::as_number(),
 			)
 		)->nullable();
+	}
 
-		$summary_schema = Schema::as_assoc_array(
+	public static function image_size_analysis_summary() {
+		return Schema::as_assoc_array(
 			array(
 				'status'    => Schema::enum(
 					array(
@@ -126,11 +120,11 @@ class Data_Sync_Setup implements Has_Data_Sync {
 				'report_id' => Schema::as_number()->nullable(),
 				'groups'    => Schema::as_assoc_array(
 					array(
-						'core_front_page' => $group_schema,
-						'singular_page'   => $group_schema,
-						'singular_post'   => $group_schema,
-						'other'           => $group_schema,
-						'fixed'           => $group_schema,
+						'core_front_page' => self::group_schema(),
+						'singular_page'   => self::group_schema(),
+						'singular_post'   => self::group_schema(),
+						'other'           => self::group_schema(),
+						'fixed'           => self::group_schema(),
 					)
 				)->nullable(),
 			)
@@ -139,19 +133,6 @@ class Data_Sync_Setup implements Has_Data_Sync {
 				'status' => 'not-found',
 				'groups' => null,
 			)
-		);
-
-		$instance->register(
-			'image_size_analysis_summary',
-			$summary_schema,
-			new Image_Size_Analysis_Summary()
-		);
-
-		$instance->register_action(
-			'image_size_analysis_summary',
-			'start',
-			Schema::as_void(),
-			new Image_Size_Analysis_Summary_Action_Start()
 		);
 	}
 }

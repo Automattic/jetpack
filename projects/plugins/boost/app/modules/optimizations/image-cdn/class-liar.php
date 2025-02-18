@@ -16,7 +16,7 @@ class Liar implements Pluggable, Changes_Page_Output, Has_Data_Sync {
 		add_action( 'wp_footer', array( $this, 'inject_image_cdn_liar_script' ) );
 	}
 
-	public static function register_data_sync( Data_Sync $instance ) {
+	public function register_data_sync( Data_Sync $instance ) {
 		$instance->register( 'image_cdn_liar', Schema::as_boolean()->fallback( false ), new Status( self::get_slug() ) );
 	}
 
