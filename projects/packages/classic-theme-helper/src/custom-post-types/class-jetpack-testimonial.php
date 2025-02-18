@@ -549,12 +549,10 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 		 * @return int
 		 */
 		private function count_testimonials() {
-			$testimonials = wp_cache_get( 'jetpack-testimonial-count-cache', 'jetpack' );
+			$testimonials = get_transient( 'jetpack-testimonial-count-cache' );
 
 			if ( false === $testimonials ) {
-				$testimonials = post_type_exists( self::CUSTOM_POST_TYPE )
-				? (int) ( wp_count_posts( self::CUSTOM_POST_TYPE )->publish ?? 0 )
-				: 0;
+				$testimonials = (int) wp_count_posts( self::CUSTOM_POST_TYPE )->publish;
 
 				if ( ! empty( $testimonials ) ) {
 					set_transient( 'jetpack-testimonial-count-cache', $testimonials, 60 * 60 * 12 );
