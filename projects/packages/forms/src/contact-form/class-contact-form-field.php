@@ -89,6 +89,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'requiredtext'           => null,
 				'options'                => array(),
 				'id'                     => null,
+				'style'                  => null,
 				'fieldbackgroundcolor'   => null,
 				'buttonbackgroundcolor'  => null,
 				'buttonborderradius'     => null,
