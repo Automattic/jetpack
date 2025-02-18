@@ -412,6 +412,24 @@ class Client {
 	}
 
 	/**
+	 * Makes a remote request, or a direct request if the site is a Simple site.
+	 *
+	 * @param array             $args the arguments for the remote request.
+	 * @param array|string|null $body the request body.
+	 * @return array|WP_Error WP HTTP response on success
+	 * @phan-return _WP_Remote_Response_Array|WP_Error
+	 */
+	private static function remote_or_direct_request( $args, $body ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			add_filter( 'is_jetpack_authorized_for_site', '__return_true' );
+			require_lib( 'wpcom-api-direct' );
+			return \WPCOM_API_Direct::do_request( $args, $body );
+		}
+
+		return self::remote_request( $args, $body );
+	}
+
+	/**
 	 * Queries the WordPress.com REST API with a user token.
 	 *
 	 * @param string            $path             REST API path.
@@ -441,7 +459,7 @@ class Client {
 			$body = wp_json_encode( $body );
 		}
 
-		return self::remote_request( $args, $body );
+		return self::remote_or_direct_request( $args, $body );
 	}
 
 	/**
@@ -465,14 +483,7 @@ class Client {
 		$validated_args            = self::validate_args_for_wpcom_json_api_request( $path, $version, $args, $base_api_path );
 		$validated_args['blog_id'] = (int) \Jetpack_Options::get_option( 'id' );
 
-		// For Simple sites get the response directly without any HTTP requests.
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			add_filter( 'is_jetpack_authorized_for_site', '__return_true' );
-			require_lib( 'wpcom-api-direct' );
-			return \WPCOM_API_Direct::do_request( $validated_args, $body );
-		}
-
-		return self::remote_request( $validated_args, $body );
+		return self::remote_or_direct_request( $validated_args, $body );
 	}
 
 	/**

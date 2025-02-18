@@ -15,10 +15,7 @@ function load_wpcom_dashboard_widgets() {
 		return;
 	}
 
-	// wpcom_json_api_request_as_user does not support internal requests.
-	$request = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'wpcom_json_api_request_as_blog' : 'wpcom_json_api_request_as_user';
-
-	$layout_response = Client::$request(
+	$layout_response = Client::wpcom_json_api_request_as_user(
 		'/sites/' . get_wpcom_blog_id() . '/home/layout',
 		'v2',
 		array(),
