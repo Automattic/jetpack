@@ -113,8 +113,8 @@ function debug( $fmt, ...$args ) {
 		}
 	}
 
-	$args[0] = "\e[{$color}m{$args[0]}\e[0m\n";
-	fprintf( STDERR, ...$args );
+	$fmt = "\e[{$color}m{$fmt}\e[0m\n";
+	fprintf( STDERR, $fmt, ...$args );
 }
 
 if ( $maybe_merge && $list ) {

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Classic_Theme_Helper;
 
+use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 use WP_Customize_Image_Control;
@@ -147,12 +148,41 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 		}
 
 		/**
+		 * Check if a site should display testimonials - it should not if:
+		 * - the theme is a block theme without testimonials enabled.
+		 *
+		 * @return bool
+		 */
+		public static function site_should_display_testimonials() {
+			$should_display = true;
+			if ( Blocks::is_fse_theme() ) {
+				if ( ! get_option( self::OPTION_NAME, '0' ) ) {
+					$should_display = false;
+				}
+			}
+
+			/**
+			 * Filter whether the site should display testimonials.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param bool $should_display Whether testimonials should be displayed.
+			 */
+			return apply_filters( 'classic_theme_helper_should_display_testimonials', $should_display );
+		}
+
+		/**
 		 * Add a checkbox field in 'Settings' > 'Writing'
 		 * for enabling CPT functionality.
 		 *
 		 * @return void
 		 */
 		public function settings_api_init() {
+
+			if ( ! self::site_should_display_testimonials() ) {
+				return;
+			}
+
 			add_settings_field(
 				self::OPTION_NAME,
 				'<span class="cpt-options">' . __( 'Testimonials', 'jetpack-classic-theme-helper' ) . '</span>',
@@ -336,6 +366,9 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 		 */
 		public function register_post_types() {
 			if ( post_type_exists( self::CUSTOM_POST_TYPE ) ) {
+				return;
+			}
+			if ( ! self::site_should_display_testimonials() ) {
 				return;
 			}
 

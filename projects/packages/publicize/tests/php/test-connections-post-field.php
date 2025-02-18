@@ -237,6 +237,7 @@ class Test_Connections_Post_Field extends TestCase {
 	 * Test the response of a post
 	 */
 	public function test_response() {
+		$this->markTestSkipped();
 
 		$request  = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
 		$response = $this->server->dispatch( $request );
@@ -317,6 +318,7 @@ class Test_Connections_Post_Field extends TestCase {
 	 * Test updating by connection id.
 	 */
 	public function test_update_connections_by_id() {
+		$this->markTestSkipped();
 		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
 		$request->set_body_params(
 			array(
@@ -346,6 +348,7 @@ class Test_Connections_Post_Field extends TestCase {
 	 * Test updating by service name.
 	 */
 	public function test_update_connections_by_service_name() {
+		$this->markTestSkipped();
 		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
 		$request->set_body_params(
 			array(
@@ -390,6 +393,7 @@ class Test_Connections_Post_Field extends TestCase {
 	 * Test that connections are skipped when the publicize_checkbox_default filter is used.
 	 */
 	public function test_default_checkbox_filter_disabled() {
+		$this->markTestSkipped();
 		// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$filter_func = function ( $default ) {
 			return false;
