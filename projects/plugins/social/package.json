@@ -22,5 +22,8 @@
 		"test-coverage": "echo 'Not implemented'",
 		"validate": "echo 'Not implemented'",
 		"watch": "echo 'Not implemented'"
+	},
+	"devDependencies": {
+		"concurrently": "7.6.0"
 	}
 }

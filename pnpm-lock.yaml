@@ -4646,7 +4646,11 @@ importers:
         specifier: 3.3.12
         version: 3.3.12
 
-  projects/plugins/social: {}
+  projects/plugins/social:
+    devDependencies:
+      concurrently:
+        specifier: 7.6.0
+        version: 7.6.0
 
   projects/plugins/social/tests/e2e:
     devDependencies:
