@@ -12,7 +12,6 @@ import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import useOutsideAlerter from '../../hooks/use-outside-alerter';
-import { getProductCardTitleId } from '../product-card';
 import styles from './style.module.scss';
 import type { SecondaryButtonProps } from './secondary-button';
 import type { AdditionalAction } from './types';
@@ -28,6 +27,7 @@ type ActionButtonProps = {
 	setIsActionLoading?: ( value: SetStateAction< boolean > ) => void;
 	className?: string;
 	tracksIdentifier?: `${ string }_${ string }`;
+	labelSuffixId?: string;
 };
 
 const ActionButton: FC< ActionButtonProps > = ( {
@@ -38,6 +38,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	setIsActionLoading,
 	className,
 	tracksIdentifier,
+	labelSuffixId,
 } ) => {
 	const { userIsAdmin, lifecycleStats } = getMyJetpackWindowInitialState();
 	const { ownedProducts } = lifecycleStats;
@@ -74,7 +75,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	const admin = !! userIsAdmin;
 	const troubleshootBackupsUrl =
 		'https://jetpack.com/support/backup/troubleshooting-jetpack-backup/';
-	const labelledBy = `${ getActionButtonId( slug ) } ${ getProductCardTitleId( slug ) }`;
+	const labelledBy = `${ getActionButtonId( slug ) } ${ labelSuffixId || '' }`.trim();
 
 	const buttonState = useMemo< Partial< SecondaryButtonProps > >( () => {
 		return {

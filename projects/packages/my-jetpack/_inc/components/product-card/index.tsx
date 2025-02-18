@@ -169,6 +169,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 							fixSiteConnectionHandler={ fixSiteConnectionHandler }
 							setIsActionLoading={ setIsActionLoading }
 							tracksIdentifier="product_card"
+							labelSuffixId={ getProductCardTitleId( slug ) }
 						/>
 						{ secondaryAction && ! secondaryAction?.positionFirst && (
 							<SecondaryButton { ...secondaryAction } />
