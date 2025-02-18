@@ -28,7 +28,7 @@ class Jetpack_Mu_Wpcom {
 			return;
 		}
 		// Apply temporary fix for translation path MD5 mismatch due to vendor -> jetpack_vendor change in https://github.com/Automattic/jetpack/pull/41185
-		add_filter( 'load_script_textdomain_relative_path', array( __CLASS__, 'fix_translation_relative_path_mismatch_wpcom_jetpack' ), 10, 2 );
+		add_filter( 'load_script_textdomain_relative_path', array( __CLASS__, 'fix_translation_relative_path_mismatch_wpcom_jetpack' ), 20, 2 );
 
 		// Shared code for src/features.
 		require_once self::PKG_DIR . 'src/common/index.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
