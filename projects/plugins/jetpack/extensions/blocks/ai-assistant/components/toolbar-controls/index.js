@@ -83,6 +83,7 @@ const ToolbarControls = ( {
 										type: 'suggestion',
 										suggestion: PROMPT_TYPE_CHANGE_LANGUAGE,
 									} );
+
 									getSuggestionFromOpenAI( PROMPT_TYPE_CHANGE_LANGUAGE, {
 										language,
 										contentType: contentIsLoaded ? 'generated' : null,

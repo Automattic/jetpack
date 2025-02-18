@@ -56,9 +56,10 @@ export const useTitleStep = ( {
 		if ( mockRequests ) {
 			return mockTitleRequest( keywords );
 		}
-		tracks.recordEvent( 'jetpack_seo_assistant_request', {
+		tracks.recordEvent( 'jetpack_wizard_chat_request', {
 			step: stepId,
-			keywords,
+			context: keywords,
+			assistant_name: 'seo-assistant',
 		} );
 		return askQuestionSync(
 			[

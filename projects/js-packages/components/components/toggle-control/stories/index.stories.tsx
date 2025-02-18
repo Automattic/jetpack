@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import ToggleControl from '..';
+import ToggleControl from '../index.js';
 
 export default {
 	title: 'JS Packages/Components/Toggle Control',

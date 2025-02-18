@@ -1,8 +1,8 @@
 import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { Disabled } from '@wordpress/components';
-import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import clsx from 'clsx';
+import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
 import { ServiceConnectionInfo } from './service-connection-info';
@@ -33,7 +33,7 @@ export function ServiceItemDetails( { service, serviceConnections }: ServicesIte
 		};
 	}, [] );
 
-	const isAdmin = useSelect( select => select( coreStore ).canUser( 'update', 'settings' ), [] );
+	const canMarkAsShared = useUserCanShareConnection();
 
 	if ( serviceConnections.length ) {
 		return (
@@ -49,7 +49,7 @@ export function ServiceItemDetails( { service, serviceConnections }: ServicesIte
 								<ServiceConnectionInfo
 									connection={ connection }
 									service={ service }
-									isAdmin={ isAdmin }
+									canMarkAsShared={ canMarkAsShared }
 								/>
 							</Disabled>
 						</li>

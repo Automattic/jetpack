@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from 'react';
-import { chatKey } from './constants';
-import type { ZendeskChatType } from './types';
+import { chatKey } from './constants.js';
+import type { ZendeskChatType } from './types.js';
 
 export const ZendeskChat: ZendeskChatType = ( { jwt_token } ) => {
 	const authenticateUser = useCallback( () => {

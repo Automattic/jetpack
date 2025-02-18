@@ -70,6 +70,7 @@ const JetpackField = props => {
 				setAttributes={ setAttributes }
 				placeholder={ placeholder }
 				attributes={ attributes }
+				hidePlaceholder={ type === 'number' }
 			/>
 		</>
 	);

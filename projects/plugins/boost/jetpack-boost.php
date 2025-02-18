@@ -9,7 +9,7 @@
  * Plugin Name:       Jetpack Boost
  * Plugin URI:        https://jetpack.com/boost
  * Description:       Boost your WordPress site's performance, from the creators of Jetpack
- * Version: 3.9.0-beta
+ * Version: 3.9.0
  * Author:            Automattic - Jetpack Site Speed team
  * Author URI:        https://jetpack.com/boost/
  * License:           GPL-2.0+
@@ -29,7 +29,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die( 0 );
 }
 
-define( 'JETPACK_BOOST_VERSION', '3.9.0-beta' );
+define( 'JETPACK_BOOST_VERSION', '3.9.0' );
 define( 'JETPACK_BOOST_SLUG', 'jetpack-boost' );
 
 if ( ! defined( 'JETPACK_BOOST_CLIENT_NAME' ) ) {
@@ -173,32 +173,6 @@ register_activation_hook( __FILE__, array( 'Automattic\Jetpack_Boost\Jetpack_Boo
 
 // Redirect to plugin page when the plugin is activated.
 add_action( 'activated_plugin', __NAMESPACE__ . '\jetpack_boost_plugin_activation' );
-
-function jetpack_boost_upgrade_handler( $upgrader_object, $hook_extra ) {
-	if ( 'plugin' !== $hook_extra['type'] ) {
-		return;
-	}
-
-	if ( 'update' !== $hook_extra['action'] ) {
-		return;
-	}
-
-	if ( empty( $hook_extra['plugins'] ) ) {
-		return;
-	}
-
-	if ( ! in_array( JETPACK_BOOST_PLUGIN_BASE, $hook_extra['plugins'], true ) ) {
-		return;
-	}
-
-	if ( ! jetpack_boost_minify_is_enabled() ) {
-		return;
-	}
-
-	jetpack_boost_minify_activation();
-}
-
-add_action( 'upgrader_process_complete', __NAMESPACE__ . '\jetpack_boost_upgrade_handler', 10, 2 );
 
 /**
  * Redirects to plugin page when the plugin is activated
