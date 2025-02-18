@@ -5,11 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.78.0] - 2025-02-17
+### Added
+- Added a utiltiy to get the link to Social admin page. [#41741]
+- Added more clarity on how the Bsky handle is set up. [#41782]
+
+### Changed
+- Social | Hide mark as shared UI if the user cannot share connection. [#41806]
+
+## [0.77.2] - 2025-02-11
+### Changed
+- Hide Social Notes if Social plugin is not active. [#41393]
+
+## [0.77.1] - 2025-02-10
+### Changed
+- External Media: Move the external-media to the new @automattic/jetpack-external-media package [#41078]
+- Updated package dependencies. [#41486] [#41491] [#41577]
+
+## [0.77.0] - 2025-02-03
+### Added
+- Social Connections: Handle LinkedIn connections requiring reauthentication. [#41494]
+- Social: Enable Social Post UI for WordPress.com. [#41219]
+
+### Changed
+- Moved Social admin page code and assets logic to publicize package [#41239]
+- Move initial state from Social plugin to publicize package [#41381]
+- Replace getSite selector with getEntityRecord to avoid redundant API calls [#41386]
+- Social post character limits are now dynamic based on selected connections [#41429]
+- Social: Move settings endpoint to publicize package [#41456]
+- Update the settings endppoint to use existing endpoints [#41461]
+
+### Removed
+- Social Previews: Remove "Your post" section in favour of Social Post UI [#41329]
+
 ## [0.76.0] - 2025-01-27
 ### Changed
 - Moved the Social admin page to the publicize-components package [#41181]
 - Refactored Social Note settings to use core [#41153]
-- Social | Unify connections management API schema [#40679]
+- Social: Unify connections management API schema [#40679]
 
 ## [0.75.4] - 2025-01-20
 ### Changed
@@ -1060,6 +1093,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.78.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.77.2...v0.78.0
+[0.77.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.77.1...v0.77.2
+[0.77.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.77.0...v0.77.1
+[0.77.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.76.0...v0.77.0
 [0.76.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.75.4...v0.76.0
 [0.75.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.75.3...v0.75.4
 [0.75.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.75.2...v0.75.3

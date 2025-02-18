@@ -1,9 +1,5 @@
 #wpcom_site_preview_widget {
 	color: #1e1e1e;
-
-	.postbox-title-action {
-		display: none;
-	}
 }
 
 #wpcom_site_preview_widget_main {
@@ -11,6 +7,7 @@
 		background: #f0f0f1;
 		margin-bottom: 12px;
 		padding: 12px 12px 0;
+		border-radius: 4px;
 	}
 
 	.wpcom_site_preview {

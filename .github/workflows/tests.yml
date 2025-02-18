@@ -86,14 +86,6 @@ jobs:
           pnpm install
           echo "::endgroup::"
 
-          # If we're going to be making WorDBless use WP "nightlies", remove the relevant package from Composer's cache to get the latest version.
-          if [[ "$WP_BRANCH" == 'trunk' && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) ]]; then
-            echo "::group::Clear composer cache for roots/wordpress"
-            DIR=$(composer config cache-files-dir)
-            rm -rf "$DIR/roots/wordpress" "$DIR/roots/wordpress-no-content"
-            echo "::endgroup::"
-          fi
-
       - name: Detect changed projects
         id: changed
         run: |
@@ -110,8 +102,34 @@ jobs:
           echo "any-plugins=${ANY_PLUGINS}" >> "$GITHUB_OUTPUT"
 
       - name: Select WordPress version
-        if: steps.changed.outputs.any-plugins != 'true' && matrix.wp != 'none'
+        if: matrix.wp != 'none'
         run: .github/files/select-wordpress-tag.sh
+
+      - name: Composer Install
+        run: |
+          # If we're going to be making WorDBless use WP "nightlies", remove the relevant package from Composer's cache to get the latest version.
+          if [[ "$WP_BRANCH" == 'trunk' && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) ]]; then
+            echo "::group::Clear composer cache for roots/wordpress"
+            DIR=$(composer config cache-files-dir)
+            rm -rf "$DIR/roots/wordpress" "$DIR/roots/wordpress-no-content"
+            echo "::endgroup::"
+          fi
+
+          echo "::group::Composer"
+          composer install --working-dir=tools/php-test-env
+
+          if [[ ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) && ( "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ) ]]; then
+            VER=$(composer --format=json --working-dir="tools/php-test-env" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
+            if [[ -n "$VER" ]]; then
+              INSVER=$WORDPRESS_TAG
+              [[ "$WORDPRESS_TAG" == 'trunk' ]] && INSVER="dev-main as $VER"
+              echo "Supposed to run tests against WordPress $WORDPRESS_TAG, so setting roots/wordpress and roots/wordpress-no-content to \"$INSVER\""
+              # Composer seems to sometimes have issues with deleting the wordpress dir on its own, so do it manually first.
+              rm -rf "tools/php-test-env/wordpress"
+              composer --working-dir="tools/php-test-env" require --dev "roots/wordpress:$INSVER" "roots/wordpress-no-content:$INSVER"
+            fi
+          fi
+          echo "::endgroup::"
 
       - name: Setup WordPress environment for plugin tests
         env:
@@ -195,18 +213,6 @@ jobs:
                     else
                       echo 'Platform reqs failed, running `composer update`'
                       composer --working-dir="$DIR" update
-                    fi
-
-                    if [[ "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ]]; then
-                      VER=$(composer --format=json --working-dir="$DIR" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
-                      if [[ -n "$VER" ]]; then
-                        INSVER=$WORDPRESS_TAG
-                        [[ "$WORDPRESS_TAG" == 'trunk' ]] && INSVER="dev-main as $VER"
-                        echo "Supposed to run tests against WordPress $WORDPRESS_TAG, so setting roots/wordpress and roots/wordpress-no-content to \"$INSVER\""
-                        # Composer seems to sometimes have issues with deleting the wordpress dir on its own, so do it manually first.
-                        rm -rf "$DIR/wordpress"
-                        composer --working-dir="$DIR" require --dev roots/wordpress="$INSVER" roots/wordpress-no-content="$INSVER"
-                      fi
                     fi
                   fi
                 fi
@@ -293,6 +299,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Get token
+        id: get_token
+        if: github.event_name == 'pull_request'
+        uses: ./.github/actions/gh-app-token
+        with:
+          app_id: ${{ secrets.JP_LAUNCH_CONTROL_ID }}
+          private_key: ${{ secrets.JP_LAUNCH_CONTROL_KEY }}
+
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
@@ -308,7 +322,7 @@ jobs:
           SECRET: ${{ secrets.CODECOV_SECRET }}
           STATUS: ${{ needs.run-tests.outputs.coverage-status }}
           PR_HEAD: ${{ github.event.pull_request.head.sha }}
-          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+          POST_MESSAGE_TOKEN: ${{ steps.get_token.outputs.token }}
         run: .github/files/coverage-munger/upload-coverage.sh
 
   storybook-test:

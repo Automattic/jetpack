@@ -326,16 +326,15 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.3-a.5 - 2025-01-27
+### 14.4-a.5 - 2025-02-17
 #### Enhancements
-- Forms: Add Checkbox and Consent field enter action to create a new block.
+- Connection: Display connection status on Users page independent of the SSO module.
+- Forms block: Add number input.
+- Subscriptions: Pre-select newsletter categories.
 
 #### Bug fixes
-- Forms: Make the icons show up as expected in the style editor.
-- Sitemaps: Ensure a valid news sitemap is present even if no posts are eligible.
-- Social: Fix profile links for LinkedIn connections.
-- Social: Fix Publicize error in the editor due to malformed connections data.
-- VideoPress: Fix issue with VideoPress block with zero height and width.
+- Geo Location: Remove support from default themes to prevent deprecation notice.
+- Related Posts: Ensure images using the AVIF format are properly displayed.
 
 --------
 

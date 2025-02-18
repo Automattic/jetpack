@@ -9,7 +9,7 @@
  * Plugin Name:       Jetpack Boost
  * Plugin URI:        https://jetpack.com/boost
  * Description:       Boost your WordPress site's performance, from the creators of Jetpack
- * Version: 3.8.0
+ * Version: 3.9.0
  * Author:            Automattic - Jetpack Site Speed team
  * Author URI:        https://jetpack.com/boost/
  * License:           GPL-2.0+
@@ -29,7 +29,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die( 0 );
 }
 
-define( 'JETPACK_BOOST_VERSION', '3.8.0' );
+define( 'JETPACK_BOOST_VERSION', '3.9.0' );
 define( 'JETPACK_BOOST_SLUG', 'jetpack-boost' );
 
 if ( ! defined( 'JETPACK_BOOST_CLIENT_NAME' ) ) {
@@ -138,6 +138,8 @@ if ( is_readable( $boost_packages_path ) ) {
 /**
  * Setup Minify service.
  */
+require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/loader.php';
+
 // Potential improvement: Make concat URL dir configurable
 // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 if ( isset( $_SERVER['REQUEST_URI'] ) ) {

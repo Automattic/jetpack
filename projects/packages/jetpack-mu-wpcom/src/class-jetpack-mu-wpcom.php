@@ -58,6 +58,7 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_newsletter_dashboard' ) );
 		}
 
 		// These features run only on atomic sites.
@@ -131,6 +132,15 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Load Newsletter Dashboard in Simple sites.
+	 */
+	public static function load_wpcom_newsletter_dashboard() {
+		if ( defined( 'JETPACK_NEWSLETTER_WIDGET' ) && JETPACK_NEWSLETTER_WIDGET ) {
+			require_once __DIR__ . '/features/wpcom-newsletter-widget/wpcom-newsletter-widget.php';
+		}
+	}
+
+	/**
 	 * Load features that only apply to WordPress.com users.
 	 */
 	public static function load_wpcom_user_features() {
@@ -152,7 +162,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
 		require_once __DIR__ . '/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php';
 		require_once __DIR__ . '/features/wpcom-locale/sync-locale-from-calypso-to-atomic.php';
-		require_once __DIR__ . '/features/wpcom-media/wpcom-external-media-import.php';
+		require_once __DIR__ . '/features/wpcom-media/wpcom-media-url-upload.php';
 		require_once __DIR__ . '/features/wpcom-options-general/options-general.php';
 		require_once __DIR__ . '/features/wpcom-plugins/wpcom-plugins.php';
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php';

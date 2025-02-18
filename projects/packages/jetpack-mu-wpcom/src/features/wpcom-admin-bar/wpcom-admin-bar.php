@@ -224,7 +224,7 @@ function wpcom_add_reader_menu( $wp_admin_bar ) {
 						/* translators: Hidden accessibility text. */
 						__( 'Reader', 'jetpack-mu-wpcom' ) .
 						'</span>',
-			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/read' ),
+			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/reader' ),
 			'meta'   => array(
 				'class' => 'wp-admin-bar-reader',
 			),

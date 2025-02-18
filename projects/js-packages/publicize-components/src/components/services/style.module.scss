@@ -241,10 +241,20 @@
 			padding: 0 8px;
 			font-size: 14px;
 		}
+
+		&.error {
+			border-color: var(--jp-red);
+			box-shadow: 0 0 0 1px var(--jp-red);
+		}
 	}
 }
 
 .mark-shared-wrap {
 	display: flex;
 	gap: 0.5rem;
+}
+
+.error-text.error-text {
+	color: var(--jp-red);
+	font-style: italic;
 }

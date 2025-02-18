@@ -1,4 +1,4 @@
-import { curveNatural } from '@visx/curve';
+import { curveCatmullRom, curveLinear } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
 import {
 	XYChart,
@@ -8,8 +8,9 @@ import {
 	Tooltip,
 	buildChartTheme,
 } from '@visx/xychart';
+import { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import clsx from 'clsx';
-import { FC, useMemo } from 'react';
+import { FC, ReactNode, useMemo } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { withResponsive } from '../shared/with-responsive';
@@ -17,29 +18,25 @@ import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 
 interface LineChartProps extends BaseChartProps< SeriesData[] > {
-	margin?: { top: number; right: number; bottom: number; left: number };
 	withGradientFill: boolean;
+	smoothing?: boolean;
+	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 }
-
-type TooltipData = {
-	date: Date;
-	[ key: string ]: number | Date;
-};
 
 type TooltipDatum = {
 	key: string;
 	value: number;
 };
 
-const renderTooltip = ( {
+const renderDefaultTooltip = ( {
 	tooltipData,
 }: {
 	tooltipData?: {
 		nearestDatum?: {
-			datum: TooltipData;
+			datum: DataPointDate;
 			key: string;
 		};
-		datumByKey?: { [ key: string ]: { datum: TooltipData } };
+		datumByKey?: { [ key: string ]: { datum: DataPointDate } };
 	};
 } ) => {
 	const nearestDatum = tooltipData?.nearestDatum?.datum;
@@ -55,7 +52,7 @@ const renderTooltip = ( {
 	return (
 		<div className={ styles[ 'line-chart__tooltip' ] }>
 			<div className={ styles[ 'line-chart__tooltip-date' ] }>
-				{ nearestDatum.date.toLocaleDateString() }
+				{ nearestDatum.date?.toLocaleDateString() }
 			</div>
 			{ tooltipPoints.map( point => (
 				<div key={ point.key } className={ styles[ 'line-chart__tooltip-row' ] }>
@@ -102,6 +99,8 @@ const LineChart: FC< LineChartProps > = ( {
 	showLegend = false,
 	legendOrientation = 'horizontal',
 	withGradientFill = false,
+	smoothing = true,
+	renderTooltip = renderDefaultTooltip,
 	options = {},
 } ) => {
 	const providerTheme = useChartTheme();
@@ -118,7 +117,7 @@ const LineChart: FC< LineChartProps > = ( {
 	margin = useMemo( () => {
 		// Auto-margin unless specified to make room for axis labels.
 		// Default margin is for bottom and left axis labels.
-		let defaultMargin = { top: 0, right: 0, bottom: 40, left: 40 };
+		let defaultMargin = {};
 		if ( options.axis?.y?.orientation === 'right' ) {
 			defaultMargin = { ...defaultMargin, right: 40, left: 0 };
 		}
@@ -142,8 +141,8 @@ const LineChart: FC< LineChartProps > = ( {
 	} ) );
 
 	const accessors = {
-		xAccessor: ( d: DataPointDate ) => d.date,
-		yAccessor: ( d: DataPointDate ) => d.value,
+		xAccessor: ( d: DataPointDate ) => d?.date,
+		yAccessor: ( d: DataPointDate ) => d?.value,
 	};
 
 	return (
@@ -157,7 +156,7 @@ const LineChart: FC< LineChartProps > = ( {
 				theme={ theme }
 				width={ width }
 				height={ height }
-				margin={ margin }
+				margin={ { top: 0, right: 0, bottom: 0, left: 0, ...margin } }
 				xScale={ { type: 'time', ...options?.xScale } }
 				yScale={ { type: 'linear', nice: true, zero: false, ...options?.yScale } }
 			>
@@ -191,7 +190,7 @@ const LineChart: FC< LineChartProps > = ( {
 								{ ...accessors }
 								fill={ withGradientFill ? `url(#area-gradient-${ index + 1 })` : undefined }
 								renderLine={ true }
-								curve={ curveNatural }
+								curve={ smoothing ? curveCatmullRom : curveLinear }
 							/>
 						</g>
 					);

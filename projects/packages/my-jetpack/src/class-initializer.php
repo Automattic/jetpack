@@ -41,7 +41,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.4.0';
+	const PACKAGE_VERSION = '5.4.5';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -234,11 +234,15 @@ class Initializer {
 			$previous_score = $speed_score_history->latest( 1 );
 		}
 		$latest_score['previousScores'] = $previous_score['scores'] ?? array();
-		$scan_data                      = Products\Protect::get_protect_data();
+
+		Products\Protect::initialize();
+		$scan_data = Products\Protect::get_protect_data();
+
 		self::update_historically_active_jetpack_modules();
 
-		$waf_config    = array();
-		$waf_supported = false;
+		$waf_config     = array();
+		$waf_supported  = false;
+		$is_waf_enabled = false;
 
 		$sandboxed_domain = '';
 		$is_dev_version   = false;
@@ -248,8 +252,9 @@ class Initializer {
 		}
 
 		if ( class_exists( 'Automattic\Jetpack\Waf\Waf_Runner' ) ) {
-			$waf_config    = Waf_Runner::get_config();
-			$waf_supported = Waf_Runner::is_supported_environment();
+			$waf_config     = Waf_Runner::get_config();
+			$is_waf_enabled = Waf_Runner::is_enabled();
+			$waf_supported  = Waf_Runner::is_supported_environment();
 		}
 
 		wp_localize_script(
@@ -313,6 +318,7 @@ class Initializer {
 						$waf_config,
 						array(
 							'waf_supported' => $waf_supported,
+							'waf_enabled'   => $is_waf_enabled,
 						),
 						array( 'blocked_logins' => (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) )
 					),
@@ -865,7 +871,7 @@ class Initializer {
 		$red_bubble_alerts = array_filter(
 			self::get_red_bubble_alerts(),
 			function ( $alert ) {
-				// We don't want to show silent alerts
+				// We don't want to show the red bubble for silent alerts
 				return empty( $alert['is_silent'] );
 			}
 		);
@@ -1065,13 +1071,13 @@ class Initializer {
 						'manage_url'     => $product::get_manage_paid_plan_purchase_url(),
 					);
 
-					if ( $product::is_paid_plan_expired() ) {
+					if ( $product::is_paid_plan_expired() && empty( $_COOKIE[ "$purchase->product_slug--plan_expired_dismissed" ] ) ) {
 						$red_bubble_slugs[ "$purchase->product_slug--plan_expired" ] = $redbubble_notice_data;
 						if ( ! $product::is_bundle_product() ) {
 							$products_included_in_expiring_plan[ "$purchase->product_slug--plan_expired" ][] = $product::get_name();
 						}
 					}
-					if ( $product::is_paid_plan_expiring() ) {
+					if ( $product::is_paid_plan_expiring() && empty( $_COOKIE[ "$purchase->product_slug--plan_expiring_soon_dismissed" ] ) ) {
 						$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ]               = $redbubble_notice_data;
 						$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ]['manage_url'] = $product::get_renew_paid_plan_purchase_url();
 						if ( ! $product::is_bundle_product() ) {
@@ -1096,6 +1102,10 @@ class Initializer {
 	 * @return array
 	 */
 	public static function alert_if_last_backup_failed( array $red_bubble_slugs ) {
+		// Make sure the Notice wasn't previously dismissed.
+		if ( ! empty( $_COOKIE['backup_failure_dismissed'] ) ) {
+			return $red_bubble_slugs;
+		}
 		// Make sure there's a Backup paid plan
 		if ( ! Products\Backup::is_plugin_active() || ! Products\Backup::has_paid_plan_for_product() ) {
 			return $red_bubble_slugs;
@@ -1125,6 +1135,10 @@ class Initializer {
 	 * @return array
 	 */
 	public static function alert_if_protect_has_threats( array $red_bubble_slugs ) {
+		// Make sure the Notice hasn't been dismissed.
+		if ( ! empty( $_COOKIE['protect_threats_detected_dismissed'] ) ) {
+			return $red_bubble_slugs;
+		}
 		// Make sure we're dealing with the Protect product only
 		if ( ! Products\Protect::has_paid_plan_for_product() ) {
 			return $red_bubble_slugs;
@@ -1157,7 +1171,9 @@ class Initializer {
 		}
 
 		foreach ( $plugins_needing_installed_activated as $plan_slug => $plugins_requirements ) {
-			$red_bubble_slugs[ "$plan_slug--plugins_needing_installed_activated" ] = $plugins_requirements;
+			if ( empty( $_COOKIE[ "$plan_slug--plugins_needing_installed_dismissed" ] ) ) {
+				$red_bubble_slugs[ "$plan_slug--plugins_needing_installed_activated" ] = $plugins_requirements;
+			}
 		}
 
 		return $red_bubble_slugs;

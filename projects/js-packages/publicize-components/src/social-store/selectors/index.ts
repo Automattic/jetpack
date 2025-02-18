@@ -1,12 +1,12 @@
 import * as connectionDataSelectors from './connection-data';
 import * as shareStatusSelectors from './share-status';
-import * as socialPluginSelectors from './social-plugin-settings';
+import * as socialModuleSelectors from './social-module-settings';
 import * as socialSettingsSelectors from './social-settings';
 
 const selectors = {
 	...connectionDataSelectors,
 	...shareStatusSelectors,
-	...socialPluginSelectors,
+	...socialModuleSelectors,
 	...socialSettingsSelectors,
 };
 

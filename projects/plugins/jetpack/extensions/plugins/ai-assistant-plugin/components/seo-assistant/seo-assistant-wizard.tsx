@@ -1,82 +1,58 @@
-import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+/**
+ * External dependencies
+ */
+import { useDispatch } from '@wordpress/data';
 import debugFactory from 'debug';
+/**
+ * Internal dependencies
+ */
+import { store as seoAssistantStore } from './store';
+import { useCompletionStep } from './use-completion-step';
+import { useKeywordsStep } from './use-keywords-step';
+import { useMetaDescriptionStep } from './use-meta-description-step';
+import { useTitleStep } from './use-title-step';
+import { useWelcomeStep } from './use-welcome-step';
+import WizardChat from './wizard-chat';
 import './style.scss';
-import AssistantWizard from './assistant-wizard';
+/**
+ * Types
+ */
+import type { SeoAssistantDispatch } from './types';
 
-const debug = debugFactory( 'jetpack-ai:seo-assistant-wizard' );
+const debug = debugFactory( 'jetpack-seo:wizard-chat' );
 
-export default function SeoAssistantWizard( { close }: { close?: () => void } ) {
-	debug( 'render' );
+export default function SeoAssistantWizard() {
+	const keywordsStepData = useKeywordsStep();
+	const titleStepData = useTitleStep( { keywords: keywordsStepData.value, mockRequests: false } );
+	const metaStepData = useMetaDescriptionStep( {
+		keywords: keywordsStepData.value,
+		mockRequests: false,
+	} );
+	const { close } = useDispatch( seoAssistantStore ) as SeoAssistantDispatch;
+
+	// ALL Pre-process should be done here, before the wizard is rendered.
+	// TODO: scavenge the post and see if there are image blocks there, NOT gallery blocks, not COVER blocks, but image blocks
+	// if there are, add a step to the wizard for each image. Each image step should use a vision
+	// request to get an image description, and then use that description to generate alt text for the image.
+
+	const welcomeStepData = useWelcomeStep( {
+		stepLabels: [ titleStepData.label, metaStepData.label ],
+	} );
+	const completionStepData = useCompletionStep();
+
+	debug( 'render seo assistant wizard' );
+
 	return (
-		<AssistantWizard
+		<WizardChat
 			close={ close }
-			tasks={ [
-				{
-					id: 'welcome',
-					title: __( 'Optimise for SEO', 'jetpack' ),
-					label: 'welcome',
-					type: 'welcome',
-					autoAdvance: 1,
-					messages: [
-						{
-							content: createInterpolateElement(
-								__( "<b>Hi there! 👋 Let's optimise your blog post for SEO.</b>", 'jetpack' ),
-								{ b: <b /> }
-							),
-							showIcon: true,
-							id: '1',
-						},
-						{
-							content: createInterpolateElement(
-								__(
-									"Here's what we can improve:<br />1. Keywords<br />2. Title<br />3. Meta description",
-									'jetpack'
-								),
-								{ br: <br /> }
-							),
-							showIcon: false,
-							id: '2',
-						},
-					],
-				},
-				{
-					id: 'completion',
-					title: __( 'Your post is SEO-ready', 'jetpack' ),
-					label: 'completion',
-					type: 'completion',
-					submitCtaLabel: __( 'Done!', 'jetpack' ),
-					onSubmit: () => close(),
-					messages: [
-						{
-							content: __( "Here's your updated checklist:", 'jetpack' ),
-							showIcon: true,
-							id: '1',
-						},
-						{
-							content: 'some summary here!',
-							showIcon: false,
-							id: '2',
-						},
-						{
-							content: createInterpolateElement(
-								__(
-									'SEO optimization complete! 🎉<br/>Your blog post is now search-engine friendly.',
-									'jetpack'
-								),
-								{ br: <br /> }
-							),
-							showIcon: true,
-							id: '3',
-						},
-						{
-							content: __( 'Happy blogging! 😊', 'jetpack' ),
-							showIcon: false,
-							id: '4',
-						},
-					],
-				},
+			steps={ [
+				welcomeStepData,
+				keywordsStepData,
+				titleStepData,
+				metaStepData,
+				completionStepData,
 			] }
+			assistantName={ 'seo-assistant' }
 		/>
 	);
 }

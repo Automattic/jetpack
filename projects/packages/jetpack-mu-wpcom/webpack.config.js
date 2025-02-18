@@ -45,8 +45,7 @@ module.exports = [
 				'./src/features/wpcom-global-styles/wpcom-global-styles-view.js',
 			'wpcom-documentation-links':
 				'./src/features/wpcom-documentation-links/wpcom-documentation-links.ts',
-			'wpcom-external-media-import-page':
-				'./src/features/wpcom-media/wpcom-external-media-import.js',
+			'wpcom-media-url-upload': './src/features/wpcom-media/wpcom-media-url-upload.js',
 			'wpcom-options-general': [
 				'./src/features/wpcom-options-general/options-general.js',
 				'./src/features/wpcom-options-general/options-general.scss',
@@ -79,6 +78,10 @@ module.exports = [
 				/** Replace the classnames used by @automattic/newspack-blocks with clsx because we changed to use clsx */
 				classnames: findPackage( 'clsx' ),
 			},
+			fallback: {
+				...jetpackWebpackConfig.resolve.fallback,
+				events: require.resolve( 'events/' ),
+			},
 		},
 		node: false,
 		plugins: [
@@ -99,9 +102,9 @@ module.exports = [
 					exclude: /node_modules\//,
 				} ),
 
-				// Transpile @automattic/jetpack-* in node_modules too.
+				// Transpile @automattic/* in node_modules too.
 				jetpackWebpackConfig.TranspileRule( {
-					includeNodeModules: [ '@automattic/jetpack-' ],
+					includeNodeModules: [ '@automattic/' ],
 				} ),
 
 				// Handle CSS.

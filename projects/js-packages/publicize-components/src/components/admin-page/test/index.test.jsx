@@ -12,7 +12,11 @@ describe( 'load the app', () => {
 
 	beforeEach( () => {
 		window.JetpackScriptData = {
+			site: {
+				host: 'unknown',
+			},
 			social: {
+				api_paths: {},
 				plugin_info: {
 					social: {
 						version,
