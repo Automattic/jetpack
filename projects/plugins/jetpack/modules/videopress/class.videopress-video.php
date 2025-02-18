@@ -173,9 +173,9 @@ class VideoPress_Video {
 	public $captions;
 
 	/**
-	 * Error object.
+	 * Error data.
 	 *
-	 * @var ?object
+	 * @var mixed
 	 */
 	public $error;
 
