@@ -258,7 +258,7 @@ class JPCRM_Acceptance extends WPBrowser {
 
 	public function pdo() {
 		$db_module = $this->getModule( 'Db' );
-		'@phan-var \Codeception\Db $db_module';
+		'@phan-var \Codeception\Module\Db $db_module';
 		return $db_module->dbh;
 	}
 

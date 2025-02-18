@@ -25,7 +25,7 @@ abstract class REST_Base_Objects_Controller extends REST_Base_Controller {
 	 *
 	 * @since 6.1.0
 	 *
-	 * @return zbsDAL
+	 * @return \zbsDAL
 	 */
 	public function get_dal_service() {
 		return $GLOBALS['zbs']->DAL;
