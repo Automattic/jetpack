@@ -35,7 +35,9 @@
 		],
 		"test-php": [
 			"@composer phpunit"
-		]
+		],
+		"post-install-cmd": "rm -f vendor/bin/jetpack-stub-generator && ln -s ../../tests/jetpack-stub-generator vendor/bin/jetpack-stub-generator",
+		"post-update-cmd": "rm -f vendor/bin/jetpack-stub-generator && ln -s ../../tests/jetpack-stub-generator vendor/bin/jetpack-stub-generator"
 	},
 	"bin": [
 		"bin/jetpack-stub-generator"
