@@ -57,15 +57,14 @@ class Minify_JS implements Pluggable, Changes_Page_Output, Optimization, Has_Act
 	 * This is called only when the module is activated.
 	 */
 	public static function activate() {
-		Minify::register_active_module();
+		Minify::activate();
 	}
 
 	/**
 	 * This is called only when the module is deactivated.
 	 */
 	public static function deactivate() {
-		Minify::unregister_active_module();
+		Minify::deactivate();
 		jetpack_boost_page_optimize_cleanup_cache( 'js' );
-		jetpack_boost_minify_deactivation();
 	}
 }

@@ -365,19 +365,6 @@ function jetpack_boost_minify_is_enabled() {
 }
 
 /**
- * Run during deactivation of any minify module.
- *
- * This handles removing the 404 tester if both css and js minification are disabled.
- *
- * @return void
- */
-function jetpack_boost_minify_deactivation() {
-	if ( ! jetpack_boost_minify_is_enabled() ) {
-		jetpack_boost_minify_clear_scheduled_events();
-	}
-}
-
-/**
  * Run during initialization of any minify module.
  *
  * Run during every page load if any minify module is active.

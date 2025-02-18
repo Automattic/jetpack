@@ -22,7 +22,7 @@ class Minify implements Pluggable, Optimization, Has_Activate, Has_Deactivate {
 	 * The module is ready when at least one child module is active
 	 */
 	public function is_ready() {
-		return get_option( 'jetpack_boost_minify_active_modules', 0 ) > 0;
+		return jetpack_boost_minify_is_enabled();
 	}
 
 	public static function is_available() {
@@ -30,32 +30,7 @@ class Minify implements Pluggable, Optimization, Has_Activate, Has_Deactivate {
 	}
 
 	/**
-	 * Called by child modules (Minify_JS, Minify_CSS) when they are activated
-	 */
-	public static function register_active_module() {
-		$active_modules = get_option( 'jetpack_boost_minify_active_modules', 0 );
-		++$active_modules;
-		update_option( 'jetpack_boost_minify_active_modules', $active_modules );
-		if ( $active_modules === 1 ) {
-			self::activate();
-		}
-	}
-
-	/**
-	 * Called by child modules when they are deactivated
-	 */
-	public static function unregister_active_module() {
-		$active_modules = get_option( 'jetpack_boost_minify_active_modules', 1 );
-		--$active_modules;
-		update_option( 'jetpack_boost_minify_active_modules', $active_modules < 0 ? 0 : $active_modules );
-		if ( $active_modules === 0 ) {
-			delete_option( 'jetpack_boost_minify_active_modules' );
-			self::deactivate();
-		}
-	}
-
-	/**
-	 * This is called only when the module is activated.
+	 * This is called when either minify module is activated
 	 */
 	public static function activate() {
 		jetpack_boost_minify_activation();
@@ -63,9 +38,11 @@ class Minify implements Pluggable, Optimization, Has_Activate, Has_Deactivate {
 	}
 
 	/**
-	 * This is called only when the module is deactivated.
+	 * This is called when either minify module is deactivated.
 	 */
 	public static function deactivate() {
-		jetpack_boost_minify_deactivation();
+		if ( ! jetpack_boost_minify_is_enabled() ) {
+			jetpack_boost_minify_clear_scheduled_events();
+		}
 	}
 }
