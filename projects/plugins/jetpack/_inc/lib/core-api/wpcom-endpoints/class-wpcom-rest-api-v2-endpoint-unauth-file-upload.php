@@ -46,16 +46,12 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 				'callback'            => array( $this, 'handle_upload' ),
 				'permission_callback' => array( $this, 'permissions_check' ),
 				'args'                => array(
-					'nonce'   => array(
-						'description' => __( 'Nonce', 'jetpack' ),
-						'type'        => 'string',
-						'required'    => true,
-					),
 					'context' => array(
 						'description' => __( 'Context identifier for the upload', 'jetpack' ),
 						'type'        => 'string',
 						'required'    => true,
 					),
+					// it also expects a file but there's no way to say this in the args
 				),
 			)
 		);
@@ -68,23 +64,21 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 	 * @return bool|WP_Error True if the request has permission, WP_Error object otherwise.
 	 */
 	public function permissions_check( $request ) {
+		// Check if the nonce is valid
+		$nonce = $request->get_header( 'X-WP-Nonce' );
+		if ( ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'Invalid upload token.', 'jetpack' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
 		// For non-WPCOM sites, require Jetpack connection
 		if ( ! ( new Host() )->is_wpcom_simple() && ! ( new Manager() )->is_connected() ) {
 			return new WP_Error(
 				'rest_forbidden',
 				__( 'Site must be connected to WordPress.com', 'jetpack' ),
-				array( 'status' => rest_authorization_required_code() )
-			);
-		}
-
-		$context = $request->get_param( 'context' );
-		$nonce   = $request->get_param( 'nonce' );
-
-		// Verify the form upload nonce
-		if ( ! wp_verify_nonce( $nonce, 'jetpack_upload_' . $context ) ) {
-			return new WP_Error(
-				'rest_forbidden',
-				__( 'Invalid upload token.', 'jetpack' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}

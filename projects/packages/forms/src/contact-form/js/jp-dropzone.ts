@@ -234,11 +234,7 @@ export default class JP_Dropzone {
 		const onReadyStateChangeHandler = this.onReadyStateChange.bind( this, file, index, xhr );
 		xhr.addEventListener( 'readystatechange', onReadyStateChangeHandler );
 
-		formData.append( 'id', this.element.getAttribute( 'data-id' ) || '' );
-		formData.append( 'form_id', this.element.getAttribute( 'data-form_id' ) || '' );
-		formData.append( 'hash', this.element.getAttribute( 'data-hash' ) || '' );
-		formData.append( 'nonce', this.element.getAttribute( 'data-nonce' ) || '' );
-		formData.append( 'context', 'contact-form' );
+		formData.append( 'context', 'jetpack-form' );
 		formData.append( 'file', file );
 		xhr.send( formData );
 	}
