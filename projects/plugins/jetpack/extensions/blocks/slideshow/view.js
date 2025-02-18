@@ -16,6 +16,18 @@ if ( typeof window !== 'undefined' ) {
 
 		const slideshowBlocks = document.getElementsByClassName( 'wp-block-jetpack-slideshow' );
 
+		// Helper function to update the pointer-events and visibility of the custom links
+		function updateFadeLinks( swiper ) {
+			swiper.slides.forEach( ( slide, index ) => {
+				const isActive = index === swiper.activeIndex;
+				const link = slide.querySelector( 'a[data-is-custom-link="true"]' );
+				if ( link ) {
+					link.style.pointerEvents = isActive ? 'auto' : 'none';
+					link.style.visibility = isActive ? 'visible' : 'hidden';
+				}
+			} );
+		}
+
 		Array.from( slideshowBlocks ).forEach( slideshowBlock => {
 			if ( slideshowBlock.getAttribute( 'data-jetpack-block-initialized' ) === 'true' ) {
 				return;
@@ -49,7 +61,20 @@ if ( typeof window !== 'undefined' ) {
 						type: 'custom',
 						renderCustom: paginationCustomRender,
 					},
+					touchStartPreventDefault: true,
+					resistance: true,
+					resistanceRatio: 0.85,
 					on: {
+						init: function ( swiper ) {
+							if ( effect === 'fade' ) {
+								updateFadeLinks( swiper );
+							}
+						},
+						slideChange: function ( swiper ) {
+							if ( effect === 'fade' ) {
+								updateFadeLinks( swiper );
+							}
+						},
 						touchStart: function ( swiper ) {
 							swiper.allowClick = true;
 							const links = swiper.el.querySelectorAll( 'a[data-is-custom-link="true"]' );

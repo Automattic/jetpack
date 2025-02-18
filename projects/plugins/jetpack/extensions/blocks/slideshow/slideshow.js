@@ -120,17 +120,7 @@ class Slideshow extends Component {
 			return null;
 		}
 
-		const {
-			autoplay,
-			className,
-			delay,
-			effect,
-			images,
-			onSelectImage,
-			selectedImageIndex,
-			isSelected,
-			isSave,
-		} = this.props;
+		const { autoplay, className, delay, effect, images, selectedImageIndex, isSave } = this.props;
 		// Note: React omits the data attribute if the value is null, but NOT if it is false.
 		// This is the reason for the unusual logic related to autoplay below.
 		return (
@@ -146,7 +136,6 @@ class Slideshow extends Component {
 				>
 					<ul className="wp-block-jetpack-slideshow_swiper-wrapper swiper-wrapper">
 						{ images.map( ( { alt, caption, id, url, link, hasCustomLink }, index ) => (
-							/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */
 							<li
 								className={ clsx(
 									'wp-block-jetpack-slideshow_slide',
@@ -156,9 +145,6 @@ class Slideshow extends Component {
 										'is-selected'
 								) }
 								key={ id ? `${ id }-${ index }` : `${ url }-${ index }` }
-								onClick={ () =>
-									isSelected && onSelectImage( this.swiperInstance?.realIndex || index )
-								}
 								data-custom-link={ hasCustomLink ? link : undefined }
 								data-has-custom-link={ hasCustomLink || undefined }
 							>
@@ -250,7 +236,7 @@ class Slideshow extends Component {
 					type: 'custom',
 					renderCustom: paginationCustomRender,
 				},
-				followFinger: false, // Disable follow finger
+				followFinger: false,
 				on: {
 					slideChange: swiper => {
 						if ( this.props.isSelected ) {
@@ -258,6 +244,10 @@ class Slideshow extends Component {
 							const realIndex = swiper.realIndex;
 							this.props.onSelectImage( realIndex );
 						}
+						requestAnimationFrame( () => {
+							swiper.update();
+							swiper.updateSlides();
+						} );
 					},
 				},
 			},
