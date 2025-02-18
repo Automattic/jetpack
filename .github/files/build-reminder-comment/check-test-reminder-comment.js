@@ -183,7 +183,10 @@ async function checkTestReminderComment( github, context, core ) {
 
 	- In your local development environment, use the \`jetpack rsync\` command to sync your changes to a WoA dev blog.
 	- Read more about our development workflow here: PCYsg-eg0-p2
-	- Figure out **when your changes will be shipped to customers** here: PCYsg-eg5-p2`;
+	- Figure out **when your changes will be shipped to customers** here: PCYsg-eg5-p2`.replace(
+		/^\t/gm,
+		''
+	);
 
 	await github.rest.issues.updateComment( {
 		owner: context.repo.owner,
