@@ -98,7 +98,7 @@ const SettingsPage = () => {
 						<Icon icon={ info } />
 						{ createInterpolateElement(
 							__(
-								'Jetpack recommends enabling this feature. <link>Learn about the risks.</link>',
+								'Jetpack recommends enabling this feature. <link>Learn about the risks</link>.',
 								'jetpack-protect'
 							),
 							{
