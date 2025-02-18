@@ -14,5 +14,6 @@ export default function useAccountProtectionQuery(): UseQueryResult< AccountProt
 		queryKey: [ QUERY_ACCOUNT_PROTECTION_KEY ],
 		queryFn: API.getAccountProtection,
 		initialData: camelize( window?.jetpackProtectInitialState?.accountProtection ),
+		initialDataUpdatedAt: 0,
 	} );
 }
