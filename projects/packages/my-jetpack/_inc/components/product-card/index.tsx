@@ -149,6 +149,13 @@ const ProductCard: FC< ProductCardProps > = props => {
 				<RecommendationActions slug={ slug } />
 			) : (
 				<div className={ styles.actions }>
+					<Status
+						status={ status }
+						isFetching={ isLoading }
+						isInstallingStandalone={ false }
+						isOwned={ isOwned }
+						suppressNeedsAttention={ slug === 'protect' }
+					/>
 					<div className={ styles.buttons }>
 						{ secondaryAction && secondaryAction?.positionFirst && (
 							<SecondaryButton { ...secondaryAction } />
@@ -165,13 +172,6 @@ const ProductCard: FC< ProductCardProps > = props => {
 							<SecondaryButton { ...secondaryAction } />
 						) }
 					</div>
-					<Status
-						status={ status }
-						isFetching={ isLoading }
-						isInstallingStandalone={ false }
-						isOwned={ isOwned }
-						suppressNeedsAttention={ slug === 'protect' }
-					/>
 				</div>
 			) }
 		</Card>
