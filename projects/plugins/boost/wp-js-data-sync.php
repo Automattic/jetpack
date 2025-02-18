@@ -96,6 +96,25 @@ function jetpack_boost_initialize_datasync() {
 
 add_action( 'admin_init', 'jetpack_boost_initialize_datasync' );
 
+jetpack_boost_register_readonly_option(
+	'minify_legacy_notice',
+	function () {
+		// If the JETPACK_BOOST_DISABLE_404_TESTER is set and true, we don't need to show the legacy notice.
+		if ( defined( 'JETPACK_BOOST_DISABLE_404_TESTER' ) && JETPACK_BOOST_DISABLE_404_TESTER ) {
+			return false;
+		}
+
+		// If the static minfification has not ran yet, don't show the legacy notice.
+		$static_minification_enabled = get_site_option( 'jetpack_boost_static_minification', 'na' );
+		if ( $static_minification_enabled === 'na' ) {
+			return false;
+		}
+
+		// Otherwise show it if the 404 tester determined it can't be used.
+		return ! (bool) $static_minification_enabled;
+	}
+);
+
 /**
  * Entry to store alerts that shouldn't be shown again.
  */
@@ -103,12 +122,14 @@ jetpack_boost_register_option(
 	'dismissed_alerts',
 	Schema::as_assoc_array(
 		array(
+			'legacy_minify_notice'            => Schema::as_boolean(),
 			'performance_history_fresh_start' => Schema::as_boolean(),
 			'score_increase'                  => Schema::as_boolean(),
 			'score_decrease'                  => Schema::as_boolean(),
 		)
 	)->fallback(
 		array(
+			'legacy_minify_notice'            => false,
 			'performance_history_fresh_start' => false,
 			'score_increase'                  => false,
 			'score_decrease'                  => false,

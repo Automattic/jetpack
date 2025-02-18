@@ -1,21 +1,34 @@
+/**
+ * External dependencies
+ */
+import { useDispatch } from '@wordpress/data';
 import debugFactory from 'debug';
-import './style.scss';
+/**
+ * Internal dependencies
+ */
+import { store as seoAssistantStore } from './store';
 import { useCompletionStep } from './use-completion-step';
 import { useKeywordsStep } from './use-keywords-step';
 import { useMetaDescriptionStep } from './use-meta-description-step';
 import { useTitleStep } from './use-title-step';
 import { useWelcomeStep } from './use-welcome-step';
 import WizardChat from './wizard-chat';
+import './style.scss';
+/**
+ * Types
+ */
+import type { SeoAssistantDispatch } from './types';
 
 const debug = debugFactory( 'jetpack-seo:wizard-chat' );
 
-export default function SeoAssistantWizard( { close }: { close?: () => void } ) {
+export default function SeoAssistantWizard() {
 	const keywordsStepData = useKeywordsStep();
 	const titleStepData = useTitleStep( { keywords: keywordsStepData.value, mockRequests: false } );
 	const metaStepData = useMetaDescriptionStep( {
 		keywords: keywordsStepData.value,
 		mockRequests: false,
 	} );
+	const { close } = useDispatch( seoAssistantStore ) as SeoAssistantDispatch;
 
 	// ALL Pre-process should be done here, before the wizard is rendered.
 	// TODO: scavenge the post and see if there are image blocks there, NOT gallery blocks, not COVER blocks, but image blocks

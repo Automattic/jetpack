@@ -165,11 +165,8 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_disabled_callback' => '__return_true',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'options-general.php' );
-				}
-				return '/settings/general/' . $data['site_slug_encoded'];
+			'get_calypso_path'     => function () {
+				return admin_url( 'options-general.php' );
 			},
 		),
 		'site_launched'                   => array(
@@ -676,7 +673,7 @@ function wpcom_launchpad_get_task_definitions() {
 			// We do not want this mapped to the 'subscribers_added' task, since this task supports
 			// being marked as complete in situations where subscribers are not added.
 			'get_title'            => function () {
-				return __( 'Add your first subscribers', 'jetpack-mu-wpcom' );
+				return __( 'Add subscribers', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_add_first_subscribers_completed',
 			'is_visible_callback'  => '__return_true',

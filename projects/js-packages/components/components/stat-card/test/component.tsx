@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import StatCard from '../index';
+import StatCard from '../index.js';
 
 describe( 'StatCard', () => {
 	const testProps = {
