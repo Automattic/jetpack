@@ -962,7 +962,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		\wp_enqueue_style( 'jetpack-form-file-field', plugins_url( '../../dist/contact-form/css/file-field.css', __FILE__ ), array(), '1.0' );
 		$form_id = $this->form && $this->form->get_attribute( 'id' ) ?? null;
 		$hash    = wp_hash( $id . $form_id );
-		$nonce   = wp_create_nonce( 'file_field' . $id );
+		$nonce   = wp_create_nonce( 'jetpack_upload_contact-form' );
 
 		$field  = $this->render_label( 'file', $id, $label, $required, $required_field_text );
 		$field .= "<div class='jetpack-form-file-field__dropzone' data-id='{$id}' data-form_id='{$form_id}' data-hash='{$hash}' data-nonce='{$nonce}'  >\n";
