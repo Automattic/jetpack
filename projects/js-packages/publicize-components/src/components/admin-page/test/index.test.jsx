@@ -23,6 +23,11 @@ describe( 'load the app', () => {
 					},
 				},
 			},
+			user: {
+				current_user: {
+					capabilities: {},
+				},
+			},
 		};
 	} );
 

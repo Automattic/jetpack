@@ -11,7 +11,7 @@ import {
 	isJetpackSelfHostedSite,
 	isSimpleSite,
 	siteHasFeature,
-	canUser,
+	currentUserCan,
 } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
@@ -59,7 +59,7 @@ export const SocialAdminPage = () => {
 		? `Jetpack Social ${ social.version }`
 		: `Jetpack ${ jetpack.version }`;
 
-	const canManageOptions = canUser( 'manage_options' );
+	const canManageOptions = currentUserCan( 'manage_options' );
 
 	if ( showConnectionCard ) {
 		return (

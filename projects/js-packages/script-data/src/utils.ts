@@ -119,11 +119,11 @@ export function isJetpackSelfHostedSite() {
 }
 
 /**
- * Check if the current user has a particular permission.
+ * Check if the current user has a particular capability.
  *
- * @param permission - The feature to check.
- * @return Whether the current user has that permission.
+ * @param capability - The capability to check.
+ * @return Whether the current user has that capability.
  */
-export function canUser( permission: keyof CurrentUserData[ 'permissions' ] ): boolean {
-	return getScriptData().user.current_user.permissions[ permission ];
+export function currentUserCan( capability: keyof CurrentUserData[ 'capabilities' ] ): boolean {
+	return getScriptData().user.current_user.capabilities[ capability ];
 }
