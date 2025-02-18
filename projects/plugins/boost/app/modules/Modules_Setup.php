@@ -167,7 +167,7 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 	public function setup() {
 		// We need to setup data sync outside of plugins_loaded to prevent side effects on other classes that are loaded from other actions earlier.
 		self::register_data_sync( Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE ) );
-		$this->setup_modules_data_sync( $this->available_modules );
+		$this->setup_modules_data_sync( $this->modules_index->get_modules() );
 		add_action( 'plugins_loaded', array( $this, 'load_modules' ) );
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'on_module_status_update' ), 10, 2 );
 	}
