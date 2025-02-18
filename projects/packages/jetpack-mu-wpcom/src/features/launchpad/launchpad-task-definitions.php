@@ -165,11 +165,8 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_disabled_callback' => '__return_true',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'options-general.php' );
-				}
-				return '/settings/general/' . $data['site_slug_encoded'];
+			'get_calypso_path'     => function () {
+				return admin_url( 'options-general.php' );
 			},
 		),
 		'site_launched'                   => array(

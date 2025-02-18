@@ -980,10 +980,10 @@ class User_Admin extends Base_Admin {
 	 *
 	 * @param array $columns User list table columns.
 	 * @return array
-	 * @deprecated $$next-version$$
+	 * @deprecated 6.5.0
 	 */
 	public function jetpack_user_connected_th( $columns ) {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-6.5.0' );
 		return $columns;
 	}
 

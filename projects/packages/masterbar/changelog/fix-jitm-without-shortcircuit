@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-JITMs: ensure we offer the same shortcircuit as in other elements where JITMs can be injected.

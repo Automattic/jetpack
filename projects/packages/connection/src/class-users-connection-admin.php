@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Class Users_Connection_Admin
@@ -32,7 +33,7 @@ class Users_Connection_Admin {
 	 * Initialize the admin functionality if conditions are met.
 	 */
 	public function init() {
-		if ( ! is_admin() || ! current_user_can( 'manage_options' ) ) {
+		if ( ! is_admin() || ! current_user_can( 'manage_options' ) || ( new Host() )->is_wpcom_simple() ) {
 			return;
 		}
 

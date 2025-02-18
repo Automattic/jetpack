@@ -35,12 +35,19 @@
 	},
 	"engines": {
 		"node": "^22.9.0",
-		"pnpm": "^9.15.0"
+		"pnpm": "^10.4.0"
 	},
-	"packageManager": "pnpm@9.15.0",
+	"packageManager": "pnpm@10.4.0",
 	"pnpm": {
 		"patchedDependencies": {
 			"@wordpress/dataviews": ".pnpm-patches/@wordpress__dataviews@4.12.0.patch"
-		}
+		},
+		"ignoredBuiltDependencies": [
+			"@swc/core",
+			"core-js",
+			"esbuild",
+			"svelte-preprocess",
+			"swiper"
+		]
 	}
 }
