@@ -44,8 +44,8 @@
 		"test-php": [
 			"@composer phpunit"
 		],
-		"post-install-cmd": "rm -f vendor/bin/changelogger && ln -s ../../tests/changelogger vendor/bin/changelogger",
-		"post-update-cmd": "rm -f vendor/bin/changelogger && ln -s ../../tests/changelogger vendor/bin/changelogger"
+		"post-install-cmd": "rm -f vendor/bin/changelogger && ln -s ../../bin/local-changelogger vendor/bin/changelogger",
+		"post-update-cmd": "rm -f vendor/bin/changelogger && ln -s ../../bin/local-changelogger vendor/bin/changelogger"
 	},
 	"repositories": [
 		{
