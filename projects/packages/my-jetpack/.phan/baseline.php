@@ -13,15 +13,15 @@ return [
     // PhanTypeMismatchPropertyDefault : 15+ occurrences
     // PhanAbstractStaticMethodCallInStatic : 8 occurrences
     // PhanTypeMismatchReturnProbablyReal : 8 occurrences
-    // PhanNoopNew : 7 occurrences
+    // PhanNoopNew : 6 occurrences
     // PhanTypeMismatchReturn : 5 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
     // PhanTypeMismatchReturnNullable : 3 occurrences
+    // PhanUndeclaredClassMethod : 3 occurrences
     // PhanImpossibleCondition : 2 occurrences
     // PhanNonClassMethodCall : 2 occurrences
     // PhanRedundantCondition : 2 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
-    // PhanUndeclaredClassMethod : 2 occurrences
     // PhanPluginMixedKeyNoKey : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanTypeSuspiciousNonTraversableForeach : 1 occurrence
