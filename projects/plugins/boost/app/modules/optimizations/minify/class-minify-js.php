@@ -17,14 +17,6 @@ class Minify_JS implements Pluggable, Changes_Page_Output, Optimization, Has_Act
 		return 'minify_js';
 	}
 
-	public function init_minify() {
-		global $wp_scripts;
-
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wp_scripts                         = new Concatenate_JS( $wp_scripts );
-		$wp_scripts->allow_gzip_compression = true; // @todo - used constant ALLOW_GZIP_COMPRESSION = true if not defined.
-	}
-
 	/**
 	 * Setup the module. This runs on every page load.
 	 */
@@ -51,6 +43,14 @@ class Minify_JS implements Pluggable, Changes_Page_Output, Optimization, Has_Act
 
 	public static function is_available() {
 		return true;
+	}
+
+	public function init_minify() {
+		global $wp_scripts;
+
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_scripts                         = new Concatenate_JS( $wp_scripts );
+		$wp_scripts->allow_gzip_compression = true; // @todo - used constant ALLOW_GZIP_COMPRESSION = true if not defined.
 	}
 
 	/**

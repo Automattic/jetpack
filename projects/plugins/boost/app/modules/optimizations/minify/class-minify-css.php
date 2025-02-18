@@ -17,14 +17,6 @@ class Minify_CSS implements Pluggable, Changes_Page_Output, Optimization, Has_Ac
 		return 'minify_css';
 	}
 
-	public function init_minify() {
-		global $wp_styles;
-
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wp_styles                         = new Concatenate_CSS( $wp_styles );
-		$wp_styles->allow_gzip_compression = true; // @todo - used constant ALLOW_GZIP_COMPRESSION = true if not defined.
-	}
-
 	/**
 	 * Setup the module. This runs on every page load.
 	 */
@@ -51,6 +43,14 @@ class Minify_CSS implements Pluggable, Changes_Page_Output, Optimization, Has_Ac
 
 	public static function is_available() {
 		return true;
+	}
+
+	public function init_minify() {
+		global $wp_styles;
+
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_styles                         = new Concatenate_CSS( $wp_styles );
+		$wp_styles->allow_gzip_compression = true; // @todo - used constant ALLOW_GZIP_COMPRESSION = true if not defined.
 	}
 
 	/**
