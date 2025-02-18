@@ -1,20 +1,32 @@
 /**
  * Dropzone class to handle file drag-and-drop and file input interactions.
  */
+
+interface DropzoneOptions {
+	endpoint: string;
+	nonce: string;
+	i18n?: {
+		language?: string;
+		fileSizeUnits?: string[];
+		removeFile?: string;
+		uploadError?: string;
+	};
+}
+
 export default class JP_Dropzone {
 	element: HTMLElement;
 	previewContainer: HTMLElement;
 	uploadButton: HTMLElement;
 	fileField: HTMLInputElement;
 
-	options: object;
+	options: DropzoneOptions;
 	files: File[];
 
 	/**
 	 * @param {HTMLElement} element The dropzone element.
 	 * @param {object}      options Configuration options for the dropzone.
 	 */
-	constructor( element: HTMLElement, options: object ) {
+	constructor( element: HTMLElement, options: DropzoneOptions ) {
 		// Option. Single or multiple files.
 		this.element = element;
 		this.fileField = element.querySelector( '.jetpack-form-file-field' ) as HTMLInputElement;
@@ -207,7 +219,14 @@ export default class JP_Dropzone {
 		var formData = new FormData();
 
 		xhr.open( 'POST', url, true );
+		xhr.withCredentials = true;
 		xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
+
+		// Add REST API nonce if available
+		const restNonce = this.element.getAttribute( 'data-rest-nonce' );
+		if ( restNonce ) {
+			xhr.setRequestHeader( 'X-WP-Nonce', restNonce );
+		}
 
 		// Update progress (can be used to show progress indicator)
 		xhr.upload.addEventListener( 'progress', this.onProgress.bind( this, file, index ) );
