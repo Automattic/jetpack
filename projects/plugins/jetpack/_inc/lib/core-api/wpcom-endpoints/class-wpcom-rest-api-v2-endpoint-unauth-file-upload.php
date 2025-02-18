@@ -45,14 +45,13 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'handle_upload' ),
 				'permission_callback' => array( $this, 'permissions_check' ),
-				'authentication'      => array(),  // Disable all authentication methods
 				'args'                => array(
-					'_wpnonce' => array(
+					'nonce'   => array(
 						'description' => __( 'Nonce', 'jetpack' ),
 						'type'        => 'string',
 						'required'    => true,
 					),
-					'context'  => array(
+					'context' => array(
 						'description' => __( 'Context identifier for the upload', 'jetpack' ),
 						'type'        => 'string',
 						'required'    => true,
@@ -79,7 +78,7 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 		}
 
 		$context = $request->get_param( 'context' );
-		$nonce   = $request->get_param( '_wpnonce' );
+		$nonce   = $request->get_param( 'nonce' );
 
 		// Verify the form upload nonce
 		if ( ! wp_verify_nonce( $nonce, 'jetpack_upload_' . $context ) ) {
