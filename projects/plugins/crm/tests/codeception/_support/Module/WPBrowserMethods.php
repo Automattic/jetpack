@@ -7,6 +7,11 @@ use Facebook\WebDriver\Cookie as FacebookWebdriverCookie;
 use Symfony\Component\BrowserKit\Cookie;
 use function GuzzleHttp\Psr7\build_query;
 
+/**
+ * Config details
+ *
+ * @property array $config
+ */
 trait WPBrowserMethods {
 
 	/**
@@ -29,13 +34,6 @@ trait WPBrowserMethods {
 	 * @var string
 	 */
 	protected $loginUrl;
-
-	/**
-	 * Config details
-	 *
-	 * @var array
-	 */
-	protected array $config;
 
 	/**
 	 * Navigate to the default WordPress logout page and click the logout link.
