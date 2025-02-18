@@ -2,9 +2,16 @@
  * External dependencies
  */
 import { askQuestionSync, usePostContent } from '@automattic/jetpack-ai-client';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useCallback, useState, createInterpolateElement, useMemo } from '@wordpress/element';
+import {
+	useCallback,
+	useState,
+	createInterpolateElement,
+	useMemo,
+	useEffect,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /*
  * Internal dependencies
@@ -38,19 +45,27 @@ export const useMetaDescriptionStep = ( {
 	const [ value, setValue ] = useState< string >();
 	const [ lastValue, setLastValue ] = useState< string >( '' );
 	const [ selectedMetaDescription, setSelectedMetaDescription ] = useState< string >();
-	const [ metaDescriptionOptions, setMetaDescriptionOptions ] = useState< OptionMessage[] >( [] );
+	const [ valueOptions, setValueOptions ] = useState< OptionMessage[] >( [] );
 	const { messages, setMessages, addMessage, editLastMessage, setSelectedMessage } = useMessages();
 	const { editPost } = useDispatch( editorStore );
 	const postContent = usePostContent();
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const [ generatedCount, setGeneratedCount ] = useState( 0 );
-
+	const [ hasFailed, setHasFailed ] = useState( false );
+	const [ failurePoint, setFailurePoint ] = useState< 'generate' | 'regenerate' | null >( null );
+	const { tracks } = useAnalytics();
 	const prevStepHasChanged = useMemo( () => keywords !== lastValue, [ keywords, lastValue ] );
+	const stepId = 'meta';
 
 	const request = useCallback( async () => {
 		if ( mockRequests ) {
 			return mockMetaDescriptionRequest( keywords );
 		}
+		tracks.recordEvent( 'jetpack_wizard_chat_request', {
+			step: stepId,
+			context: keywords,
+			assistant_name: 'seo-assistant',
+		} );
 		return askQuestionSync(
 			[
 				{
@@ -65,18 +80,16 @@ export const useMetaDescriptionStep = ( {
 			],
 			{
 				postId,
-				feature: 'seo-meta-description',
+				feature: 'jetpack-seo-assistant',
 			}
 		);
-	}, [ keywords, postContent, postId, mockRequests ] );
+	}, [ keywords, postContent, postId, mockRequests, tracks ] );
 
 	const handleMetaDescriptionSelect = useCallback(
 		( option: OptionMessage ) => {
 			setSelectedMetaDescription( option.content as string );
 			setSelectedMessage( option );
-			setMetaDescriptionOptions( prev =>
-				prev.map( o => ( { ...o, selected: o.id === option.id } ) )
-			);
+			setValueOptions( prev => prev.map( o => ( { ...o, selected: o.id === option.id } ) ) );
 		},
 		[ setSelectedMessage ]
 	);
@@ -103,74 +116,119 @@ export const useMetaDescriptionStep = ( {
 		return selectedMetaDescription;
 	}, [ selectedMetaDescription, addMessage, editPost ] );
 
+	useEffect( () => {
+		if ( ! hasFailed ) {
+			// Reset the failure point when the request is successful
+			setFailurePoint( null );
+		}
+	}, [ hasFailed ] );
+
 	const handleMetaDescriptionGenerate = useCallback(
 		async ( { fromSkip } ) => {
-			let newMetaDescriptions = [ ...metaDescriptionOptions ];
+			let newMetaDescriptions = [ ...valueOptions ];
+			const previousLastValue = lastValue;
 
 			setLastValue( keywords );
-			const initialMessage = fromSkip
-				? {
-						content: createInterpolateElement(
-							__( "Skipped!<br />Now, let's optimize your meta description.", 'jetpack' ),
-							{ br: <br /> }
-						),
-						showIcon: true,
-				  }
-				: {
-						content: __( "Now, let's optimize your meta description.", 'jetpack' ),
-						showIcon: true,
-				  };
 
-			setMessages( [ initialMessage ] );
+			if ( ! hasFailed ) {
+				const initialMessage = fromSkip
+					? {
+							content: createInterpolateElement(
+								__( "Skipped!<br />Now, let's optimize your meta description.", 'jetpack' ),
+								{ br: <br /> }
+							),
+							showIcon: true,
+					  }
+					: {
+							content: __( "Now, let's optimize your meta description.", 'jetpack' ),
+							showIcon: true,
+					  };
+
+				setMessages( [ initialMessage ] );
+			}
+
 			// we only generate if options are empty
 			if ( newMetaDescriptions.length === 0 || prevStepHasChanged ) {
-				setSelectedMetaDescription( '' );
-				newMetaDescriptions = await getMetaDescriptions();
+				try {
+					setSelectedMetaDescription( '' );
+					setHasFailed( false );
+					newMetaDescriptions = await getMetaDescriptions();
+				} catch {
+					setFailurePoint( 'generate' );
+					setHasFailed( true );
+					// reset the last value to the previous value on failure to avoid a wrong value for prevStepHasChanged
+					setLastValue( previousLastValue );
+					return;
+				}
 			}
-			setMetaDescriptionOptions( newMetaDescriptions );
+
+			setValueOptions( newMetaDescriptions );
+
 			const readyMessageSuffix = createInterpolateElement(
 				__( "<br />Here's a suggestion:", 'jetpack' ),
 				{ br: <br /> }
 			);
+
 			editLastMessage( readyMessageSuffix, true );
+
 			newMetaDescriptions.forEach( meta =>
 				addMessage( { ...meta, type: 'option', isUser: true } )
 			);
 		},
 		[
-			metaDescriptionOptions,
-			setMessages,
+			valueOptions,
+			lastValue,
+			keywords,
+			hasFailed,
+			prevStepHasChanged,
 			editLastMessage,
+			setMessages,
 			getMetaDescriptions,
 			addMessage,
-			keywords,
-			prevStepHasChanged,
 		]
 	);
 
 	const handleMetaDescriptionRegenerate = useCallback( async () => {
-		const newMetaDescription = await getMetaDescriptions();
+		try {
+			setHasFailed( false );
+			const newMetaDescription = await getMetaDescriptions();
 
-		setMetaDescriptionOptions( prev => [ ...prev, ...newMetaDescription ] );
-		newMetaDescription.forEach( meta => addMessage( { ...meta, type: 'option', isUser: true } ) );
+			setValueOptions( prev => [ ...prev, ...newMetaDescription ] );
+			newMetaDescription.forEach( meta => addMessage( { ...meta, type: 'option', isUser: true } ) );
+		} catch {
+			setFailurePoint( 'regenerate' );
+			setHasFailed( true );
+		}
 	}, [ addMessage, getMetaDescriptions ] );
 
+	const resetState = useCallback( () => {
+		setHasFailed( false );
+		setFailurePoint( null );
+	}, [] );
+
+	// The build fails if we use i18n strings directly in a ternary operator.
+	const tryAgainLabel = __( 'Try again', 'jetpack' );
+	const regenerateLabel = __( 'Regenerate', 'jetpack' );
+
 	return {
-		id: 'meta',
+		id: stepId,
 		title: __( 'Add meta description', 'jetpack' ),
 		label: __( 'Meta description', 'jetpack' ),
 		messages: messages,
 		type: 'options',
-		options: metaDescriptionOptions,
+		options: valueOptions,
 		onSelect: handleMetaDescriptionSelect,
 		onSubmit: handleMetaDescriptionSubmit,
 		submitCtaLabel: __( 'Insert', 'jetpack' ),
-		onRetry: handleMetaDescriptionRegenerate,
-		retryCtaLabel: __( 'Regenerate', 'jetpack' ),
+		onRetry:
+			failurePoint === 'generate' ? handleMetaDescriptionGenerate : handleMetaDescriptionRegenerate,
+		retryCtaLabel: failurePoint === 'generate' ? tryAgainLabel : regenerateLabel,
 		onStart: handleMetaDescriptionGenerate,
 		value,
 		setValue,
 		includeInResults: true,
 		hasSelection: !! selectedMetaDescription,
+		hasFailed,
+		resetState,
 	};
 };

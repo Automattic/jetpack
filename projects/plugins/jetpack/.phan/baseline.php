@@ -35,15 +35,16 @@ return [
     // PhanTypeArraySuspicious : 20+ occurrences
     // PhanTypeMismatchDimFetch : 20+ occurrences
     // PhanPluginMixedKeyNoKey : 15+ occurrences
+    // PhanPluginUnreachableCode : 15+ occurrences
     // PhanSuspiciousMagicConstant : 15+ occurrences
     // PhanTypeExpectedObjectPropAccessButGotNull : 15+ occurrences
-    // PhanTypeMismatchArgumentNullableInternal : 15+ occurrences
     // PhanTypeMismatchPropertyDefault : 15+ occurrences
     // PhanTypeSuspiciousNonTraversableForeach : 15+ occurrences
     // PhanPluginDuplicateExpressionAssignmentOperation : 10+ occurrences
     // PhanRedefineClass : 10+ occurrences
     // PhanRedundantConditionInLoop : 10+ occurrences
     // PhanTypeInvalidDimOffset : 10+ occurrences
+    // PhanTypeMismatchArgumentNullableInternal : 10+ occurrences
     // PhanTypeMismatchProperty : 10+ occurrences
     // PhanTypeMismatchReturnNullable : 10+ occurrences
     // PhanUndeclaredFunction : 10+ occurrences
@@ -67,7 +68,6 @@ return [
     // PhanDeprecatedFunctionInternal : 3 occurrences
     // PhanDeprecatedTrait : 3 occurrences
     // PhanImpossibleTypeComparison : 3 occurrences
-    // PhanPluginUnreachableCode : 3 occurrences
     // PhanStaticPropIsStaticType : 3 occurrences
     // PhanTypeMismatchArgumentReal : 3 occurrences
     // PhanTypeObjectUnsetDeclaredProperty : 3 occurrences
@@ -484,7 +484,7 @@ return [
         'tests/php/core-api/wpcom-endpoints/test-class-wpcom-rest-api-v2-endpoint-external-media.php' => ['PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument'],
         'tests/php/core-api/wpcom-endpoints/test-class-wpcom-rest-api-v2-endpoint-publicize-share-post.php' => ['PhanTypeMismatchArgument'],
         'tests/php/core-api/wpcom-fields/test-attachment-fields-videopress.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'tests/php/core-api/wpcom-fields/test-post-fields-publicize-connections.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeComparisonToArray', 'PhanTypeMismatchPropertyProbablyReal'],
+        'tests/php/core-api/wpcom-fields/test-post-fields-publicize-connections.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginUnreachableCode', 'PhanTypeComparisonToArray', 'PhanTypeMismatchPropertyProbablyReal'],
         'tests/php/extensions/blocks/premium-content/test_class.jetpack-premium-content.php' => ['PhanDeprecatedProperty', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMissingReturn', 'PhanUndeclaredMethod'],
         'tests/php/general/test-class.jetpack-gutenberg.php' => ['PhanPluginDuplicateAdjacentStatement'],
         'tests/php/general/test_class.jetpack-client-server.php' => ['PhanTypeMismatchArgumentProbablyReal'],
@@ -499,7 +499,7 @@ return [
         'tests/php/media/test-class.jetpack-media-extractor.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/media/test-class.jetpack-post-images.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/modules/photon/test_class.jetpack-photon-static-asset-cdn.php' => ['PhanTypeMismatchProperty'],
-        'tests/php/modules/publicize/test_class.publicize.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
+        'tests/php/modules/publicize/test_class.publicize.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginUnreachableCode'],
         'tests/php/modules/sharedaddy/test-class.recaptcha.php' => ['PhanDeprecatedClass'],
         'tests/php/modules/shortcodes/test-class.archives.php' => ['PhanPluginDuplicateAdjacentStatement'],
         'tests/php/modules/shortcodes/test-class.getty.php' => ['PhanPluginInvalidPregRegex'],

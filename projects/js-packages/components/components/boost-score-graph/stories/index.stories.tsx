@@ -1,4 +1,4 @@
-import { BoostScoreGraph } from '..';
+import { BoostScoreGraph } from '../index.js';
 import type { Meta } from '@storybook/react';
 
 const exampleRawResponse = {

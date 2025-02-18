@@ -1,8 +1,8 @@
 import * as allIcons from '@wordpress/icons';
-import Col from '../../layout/col';
-import Container from '../../layout/container';
-import Text, { H3 } from '../../text';
-import Button from '../index';
+import Col from '../../layout/col/index.js';
+import Container from '../../layout/container/index.js';
+import Text, { H3 } from '../../text/index.js';
+import Button from '../index.js';
 import styles from './style.module.scss';
 
 const { Icon: WPIcon, ...icons } = allIcons;

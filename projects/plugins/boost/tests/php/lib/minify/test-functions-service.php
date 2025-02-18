@@ -34,12 +34,12 @@ class Test_Functions_Service extends Base_Test_Case {
 
 		Functions\expect( 'home_url' )
 			->once()
-			->with( '/wp-content/boost-cache/static/testing_404' )
-			->andReturn( 'http://example.com/wp-content/boost-cache/static/testing_404' );
+			->with( '/wp-content/boost-cache/static/testing_404.js' )
+			->andReturn( 'http://example.com/wp-content/boost-cache/static/testing_404.js' );
 
 		Functions\expect( 'wp_remote_get' )
 			->once()
-			->with( 'http://example.com/wp-content/boost-cache/static/testing_404' );
+			->with( 'http://example.com/wp-content/boost-cache/static/testing_404.js' );
 
 		Functions\expect( 'wp_delete_file' )
 			->once()
@@ -55,12 +55,12 @@ class Test_Functions_Service extends Base_Test_Case {
 	public function test_404_tester_when_404_file_does_not_exist() {
 		Functions\expect( 'home_url' )
 			->once()
-			->with( '/wp-content/boost-cache/static/testing_404' )
-			->andReturn( 'http://example.com/wp-content/boost-cache/static/testing_404' );
+			->with( '/wp-content/boost-cache/static/testing_404.js' )
+			->andReturn( 'http://example.com/wp-content/boost-cache/static/testing_404.js' );
 
 		Functions\expect( 'wp_remote_get' )
 			->once()
-			->with( 'http://example.com/wp-content/boost-cache/static/testing_404' );
+			->with( 'http://example.com/wp-content/boost-cache/static/testing_404.js' );
 
 		Functions\expect( 'update_site_option' )
 			->once()

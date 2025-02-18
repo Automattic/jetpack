@@ -190,7 +190,9 @@ function jetpack_boost_page_optimize_remove_concat_base_prefix( $original_fs_pat
  */
 function jetpack_boost_page_optimize_schedule_404_tester() {
 	if ( false === wp_next_scheduled( 'jetpack_boost_404_tester_cron' ) ) {
-		wp_schedule_event( time(), 'daily', 'jetpack_boost_404_tester_cron' );
+		// Run the test immediately, and schedule the cronjob to run daily.
+		jetpack_boost_404_tester();
+		wp_schedule_event( time() + DAY_IN_SECONDS, 'daily', 'jetpack_boost_404_tester_cron' );
 	}
 }
 

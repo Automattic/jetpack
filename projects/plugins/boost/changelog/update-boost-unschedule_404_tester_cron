@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Concatenation: unschedule the 404 tester if neither module is active
-
-

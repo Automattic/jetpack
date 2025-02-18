@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Publicize\REST_API;
 
-use Automattic\Jetpack\Publicize\Connections;
 use WP_Error;
 use WP_Post;
 use WP_REST_Request;
@@ -180,16 +179,6 @@ class Connections_Post_Field {
 		$properties  = array_keys( $schema['properties'] );
 		$connections = $publicize->get_filtered_connection_data( $post_id );
 
-		$connections_id_map = array_reduce(
-			Connections::get_all(),
-			function ( $map, $connection ) {
-				$map[ $connection['connection_id'] ] = $connection;
-
-				return $map;
-			},
-			array()
-		);
-
 		$output_connections = array();
 		foreach ( $connections as $connection ) {
 			$output_connection = array();
@@ -198,10 +187,6 @@ class Connections_Post_Field {
 					$output_connection[ $property ] = $connection[ $property ];
 				}
 			}
-
-			$output_connection['id']             = (string) $connection['unique_id'];
-			$output_connection['can_disconnect'] = current_user_can( 'edit_others_posts' ) || get_current_user_id() === (int) $connection['user_id'];
-			$output_connection['wpcom_user_id']  = $connections_id_map[ $connection['connection_id'] ]['wpcom_user_id'] ?? 0;
 
 			$output_connections[] = $output_connection;
 		}
