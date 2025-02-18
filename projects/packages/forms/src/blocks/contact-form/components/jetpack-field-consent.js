@@ -1,17 +1,10 @@
 import { InspectorControls, PanelColorSettings, useBlockProps } from '@wordpress/block-editor';
-import {
-	BaseControl,
-	PanelBody,
-	SelectControl,
-	ToggleControl,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalToolsPanelItem as ToolsPanelItem,
-} from '@wordpress/components';
+import { BaseControl, PanelBody, SelectControl, ToggleControl } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
+import JetpackFieldDimensionControls from './jetpack-field-dimension-controls';
 import JetpackFieldLabel from './jetpack-field-label';
-import JetpackFieldWidth from './jetpack-field-width';
 import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 
 const JetpackFieldConsent = ( {
@@ -52,20 +45,7 @@ const JetpackFieldConsent = ( {
 				) }
 				insertBlocksAfter={ insertBlocksAfter }
 			/>
-			<InspectorControls group="dimensions">
-				<ToolsPanelItem
-					hasValue={ () => !! width }
-					label={ __( 'Width', 'jetpack-forms' ) }
-					onDeselect={ () =>
-						setAttributes( {
-							width: undefined,
-						} )
-					}
-					isShownByDefault
-				>
-					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
-				</ToolsPanelItem>
-			</InspectorControls>
+			<JetpackFieldDimensionControls setAttributes={ setAttributes } width={ width } />
 			<InspectorControls>
 				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
 					<JetpackManageResponsesSettings isChildBlock />

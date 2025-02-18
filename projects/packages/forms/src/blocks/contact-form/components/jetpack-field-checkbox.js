@@ -5,18 +5,13 @@ import {
 	BlockControls,
 	useBlockProps,
 } from '@wordpress/block-editor';
-import {
-	PanelBody,
-	ToggleControl,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalToolsPanelItem as ToolsPanelItem,
-} from '@wordpress/components';
+import { PanelBody, ToggleControl } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
 import ToolbarRequiredGroup from './block-controls/toolbar-required-group';
+import JetpackFieldDimensionControls from './jetpack-field-dimension-controls';
 import JetpackFieldLabel from './jetpack-field-label';
-import JetpackFieldWidth from './jetpack-field-width';
 import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
@@ -74,20 +69,7 @@ function JetpackFieldCheckbox( props ) {
 						/>
 					</PanelBody>
 				</InspectorControls>
-				<InspectorControls group="dimensions">
-					<ToolsPanelItem
-						hasValue={ () => !! width }
-						label={ __( 'Width', 'jetpack-forms' ) }
-						onDeselect={ () =>
-							setAttributes( {
-								width: undefined,
-							} )
-						}
-						isShownByDefault
-					>
-						<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
-					</ToolsPanelItem>
-				</InspectorControls>
+				<JetpackFieldDimensionControls setAttributes={ setAttributes } width={ width } />
 				<InspectorControls>
 					<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
 						<JetpackManageResponsesSettings isChildBlock />

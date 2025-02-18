@@ -12,14 +12,12 @@ import {
 	TextControl,
 	ToggleControl,
 	RangeControl,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalToolsPanelItem as ToolsPanelItem,
 } from '@wordpress/components';
 import { isValidElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useFormStyle, FORM_STYLE, getBlockStyle } from '../util/form';
 import ToolbarRequiredGroup from './block-controls/toolbar-required-group';
-import JetpackFieldWidth from './jetpack-field-width';
+import JetpackFieldDimensionControls from './jetpack-field-dimension-controls';
 import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 
 const JetpackFieldControls = ( {
@@ -164,20 +162,7 @@ const JetpackFieldControls = ( {
 					onClick={ () => setAttributes( { required: ! required } ) }
 				/>
 			</BlockControls>
-			<InspectorControls group="dimensions">
-				<ToolsPanelItem
-					hasValue={ () => !! width }
-					label={ __( 'Width', 'jetpack-forms' ) }
-					onDeselect={ () =>
-						setAttributes( {
-							width: undefined,
-						} )
-					}
-					isShownByDefault
-				>
-					<JetpackFieldWidth key="width" setAttributes={ setAttributes } width={ width } />
-				</ToolsPanelItem>
-			</InspectorControls>
+			<JetpackFieldDimensionControls key="width" setAttributes={ setAttributes } width={ width } />
 			<InspectorControls>
 				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
 					<JetpackManageResponsesSettings isChildBlock />
