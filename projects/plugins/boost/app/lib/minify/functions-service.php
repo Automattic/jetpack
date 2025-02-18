@@ -130,14 +130,14 @@ function jetpack_boost_page_optimize_cleanup_cache( $file_extension ) {
  * A file is considered stale if it's older than the files it depends on.
  */
 function jetpack_boost_minify_remove_stale_static_files() {
-	$files = glob( Config::get_static_cache_dir_path() . '/*.min.*' );
-	foreach ( $files as $file ) {
-		if ( ! file_exists( $file ) ) {
+	$concat_files = glob( Config::get_static_cache_dir_path() . '/*.min.*' );
+	foreach ( $concat_files as $concat_file ) {
+		if ( ! file_exists( $concat_file ) ) {
 			continue;
 		}
 
-		$file_mtime = filemtime( $file );
-		$file_parts = pathinfo( $file );
+		$file_mtime = filemtime( $concat_file );
+		$file_parts = pathinfo( $concat_file );
 		$hash       = substr( $file_parts['basename'], 0, strpos( $file_parts['basename'], '.' ) );
 		$paths      = File_Paths::get( $hash );
 		if ( $paths ) {
@@ -146,9 +146,18 @@ function jetpack_boost_minify_remove_stale_static_files() {
 				continue;
 			}
 
-			foreach ( $args as $filename ) {
-				if ( ! file_exists( ABSPATH . $filename ) || filemtime( ABSPATH . $filename ) > $file_mtime ) {
-					wp_delete_file( $file ); // remove the file from the cache because it's stale.
+			// Get the site path relative to the webroot.
+			$site_url_path = wp_parse_url( site_url(), PHP_URL_PATH );
+			if ( ! $site_url_path ) {
+				$site_url_path = '';
+			}
+
+			// Get the webroot path by removing the site path from the ABSPATH. In case it's a subdirectory install, webroot is different from ABSPATH.
+			$webroot = substr( ABSPATH, 0, - strlen( $site_url_path ) - 1 );
+
+			foreach ( $args as $dependency_filename ) {
+				if ( ! file_exists( $webroot . $dependency_filename ) || filemtime( $webroot . $dependency_filename ) > $file_mtime ) {
+					wp_delete_file( $concat_file ); // remove the file from the cache because it's stale.
 				}
 			}
 		}

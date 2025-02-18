@@ -26,7 +26,6 @@ class Image_CDN_Attachment_Test_Case extends BaseTestCase {
 
 		// Set permissions recursively
 		$this->recursive_chmod( $upload_dir['basedir'] );
-		$this->recursive_chmod( DIR_TESTDATA );
 
 		// Force an absolute URL for attachment URLs during testing
 		add_filter(

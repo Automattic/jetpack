@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import NumberSlider from '../index';
+import NumberSlider from '../index.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
 export default {

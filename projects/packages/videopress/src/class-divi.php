@@ -26,6 +26,13 @@ class Divi {
 	private $running = false;
 
 	/**
+	 * VideoPress Divi Extension object.
+	 *
+	 * @var ?\VideoPress_Divi_Extension
+	 **/
+	private $vidi_extension;
+
+	/**
 	 * Initializes VideoPress/Divi integration.
 	 *
 	 * Called only once by the Initializer class

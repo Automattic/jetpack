@@ -1,10 +1,11 @@
 import { type Threat } from '@automattic/jetpack-scan';
 import { Modal } from '@wordpress/components';
 import { createContext } from 'react';
-import Text from '../text';
-import ThreatSeverityBadge from '../threat-severity-badge';
+import Text from '../text/index.js';
+import ThreatSeverityBadge from '../threat-severity-badge/index.js';
 import styles from './styles.module.scss';
-import ThreatFixConfirmation from './threat-fix-confirmation';
+import ThreatFixConfirmation from './threat-fix-confirmation.js';
+
 interface ThreatModalContextType {
 	closeModal: () => void;
 	threat: Threat;

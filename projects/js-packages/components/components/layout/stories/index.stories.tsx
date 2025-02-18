@@ -1,7 +1,7 @@
-import Text from '../../text';
-import Col from '../col';
-import Container from '../container';
-import useBreakpointMatch from '../use-breakpoint-match';
+import Text from '../../text/index.js';
+import Col from '../col/index.js';
+import Container from '../container/index.js';
+import useBreakpointMatch from '../use-breakpoint-match/index.js';
 import styles from './styles.module.scss';
 
 const Layout = ( { items, fluid, horizontalGap, horizontalSpacing } ) => {

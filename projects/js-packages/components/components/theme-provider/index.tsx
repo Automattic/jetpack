@@ -1,6 +1,6 @@
 import React, { useLayoutEffect, useRef } from 'react';
 import styles from './globals.module.scss';
-import { ThemeInstance, ThemeProviderProps } from './types';
+import { ThemeInstance, ThemeProviderProps } from './types.js';
 
 export const typography = {
 	// Headline

@@ -2,6 +2,10 @@ import { render, screen } from '@testing-library/react';
 import { getManagementPageObject, setup } from '../../../../utils/test-factory';
 import { MarkAsShared } from '../../mark-as-shared';
 
+jest.mock( '../../../../hooks/use-user-can-share-connection', () => ( {
+	useUserCanShareConnection: jest.fn( () => true ),
+} ) );
+
 describe( 'Marking a connection as shared', () => {
 	afterEach( () => {
 		jest.clearAllMocks();
