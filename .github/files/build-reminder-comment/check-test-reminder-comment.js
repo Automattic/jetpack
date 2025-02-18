@@ -14,15 +14,17 @@ const getCheckComments = require( './get-check-comments.js' );
  * @param {string} repo   - Repository name.
  * @param {string} number - PR number.
  * @param {Core}   core   - A reference to the @actions/core package
- * @return {Promise} Promise resolving to an array of project strings needing testing.
+ * @return {Promise} Promise resolving to an object with keys `projects` and `plugins`, each being an array of strings needing testing.
  */
 async function touchedProjectsNeedingTesting( github, owner, repo, number, core ) {
 	const changed = JSON.parse( process.env.CHANGED );
 	const projects = [];
+	const plugins = [];
 
 	if ( changed[ 'plugins/jetpack' ] ) {
 		core.info( 'Build: Jetpack is being built, testing needed' );
 		projects.push( 'jetpack' );
+		plugins.push( 'jetpack' );
 	}
 
 	if ( changed[ 'packages/jetpack-mu-wpcom' ] ) {
@@ -30,16 +32,21 @@ async function touchedProjectsNeedingTesting( github, owner, repo, number, core 
 		projects.push( 'jetpack-mu-wpcom-plugin' );
 	}
 
-	if ( projects.length ) {
-		return projects;
+	if ( changed[ 'plugins/wpcomsh' ] ) {
+		core.info( 'Build: wpcomsh is being built, testing needed' );
+		plugins.push( 'WordPress.com Site Helper' );
+	}
+
+	if ( projects.length || plugins.length ) {
+		return { projects, plugins };
 	}
 
 	core.info( 'Build: Nothing that needs testing was found' );
-	return projects;
+	return { projects, plugins };
 }
 
 /**
- * Check if there is already a test reminder comment on the PR.
+ * Check if there is already a test pending comment on the PR.
  * If there is, delete it if it is not needed anymore.
  * If there isn't, create one if it is needed.
  *
@@ -50,24 +57,17 @@ async function touchedProjectsNeedingTesting( github, owner, repo, number, core 
  * - {commentId} - a comment ID, or 0 if no comment is found.
  * - {projects} - an array of project strings needing testing.
  */
-async function checkTestReminderComment( github, context, core ) {
+async function checkTestPendingComment( github, context, core ) {
 	const { repo, issue } = context;
 	const { owner, repo: repoName } = repo;
 	const { TEST_COMMENT_INDICATOR } = process.env;
-	const data = {};
 
 	// Check if one of the files modified in this PR need testing on WordPress.com.
-	data.projects = await touchedProjectsNeedingTesting(
-		github,
-		owner,
-		repoName,
-		issue.number,
-		core
-	);
+	const data = await touchedProjectsNeedingTesting( github, owner, repoName, issue.number, core );
 
 	core.info(
 		`Build: This PR ${
-			data.projects.length ? 'touches' : 'does not touch'
+			data.projects.length || data.plugins.length ? 'touches' : 'does not touch'
 		} something that needs testing on WordPress.com.`
 	);
 
@@ -82,7 +82,7 @@ async function checkTestReminderComment( github, context, core ) {
 	);
 
 	// This PR does not touch files needing testing.
-	if ( ! data.projects.length ) {
+	if ( ! data.projects.length && ! data.plugins.length ) {
 		if ( testCommentIDs.length > 0 ) {
 			core.info(
 				`Build: this PR previously touched something that needs testing, but does not anymore. Deleting previous test reminder comments.`
@@ -141,4 +141,59 @@ async function checkTestReminderComment( github, context, core ) {
 	return data;
 }
 
-module.exports = checkTestReminderComment;
+/**
+ * Update the test pending comment to a test reminder comment.
+ *
+ * @param {github} github  - Pre-authenticated octokit/rest.js client with pagination plugins
+ * @param {object} context - Context of the workflow run
+ * @param {core}   core    - A reference to the @actions/core package
+ * @return {Promise} Promise resolving to an object with the following properties:
+ * - {commentId} - a comment ID, or 0 if no comment is found.
+ * - {projects} - an array of project strings needing testing.
+ */
+async function checkTestReminderComment( github, context, core ) {
+	const { BRANCH_NAME, TEST_COMMENT_INDICATOR } = process.env;
+	const data = JSON.parse( process.env.DATA );
+
+	core.debug( `Data from earlier step: ${ data }` );
+
+	let woaLine = '';
+	let simpleLine = '';
+
+	if ( data.projects.length ) {
+		simpleLine =
+			`- To test on Simple, run the following command on your sandbox:` +
+			data.projects.reduce( ( acc, cur ) => {
+				return ( acc += `\n\`\`\`\nbin/jetpack-downloader test ${ cur } ${ BRANCH_NAME }\n\`\`\`` );
+			}, '' );
+	}
+	if ( data.plugins.length ) {
+		woaLine = `- To test on WoA, go to the Plugins menu on a WoA dev site. Click on the "Upload" button and follow the upgrade flow to be able to upload, install, and activate [the Jetpack Beta plugin](https://jetpack.com/download-jetpack-beta/). Once the plugin is active, go to Jetpack > Jetpack Beta, select your plugin (${ data.plugins.join(
+			' or '
+		) }), and enable the \`${ BRANCH_NAME }\` branch.`;
+	}
+
+	const commentBody = `${ TEST_COMMENT_INDICATOR }
+	Are you an Automattician? Please test your changes on all WordPress.com environments to help mitigate accidental explosions.
+
+	${ woaLine }
+	${ simpleLine }
+
+	*Interested in more tips and information?*
+
+	- In your local development environment, use the \`jetpack rsync\` command to sync your changes to a WoA dev blog.
+	- Read more about our development workflow here: PCYsg-eg0-p2
+	- Figure out **when your changes will be shipped to customers** here: PCYsg-eg5-p2`;
+
+	await github.rest.issues.updateComment( {
+		owner: context.repo.owner,
+		repo: context.repo.repo,
+		body: commentBody,
+		comment_id: +data.commentId,
+	} );
+}
+
+module.exports = {
+	checkTestPendingComment,
+	checkTestReminderComment,
+};
