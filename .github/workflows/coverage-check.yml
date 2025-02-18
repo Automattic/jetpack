@@ -27,9 +27,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Get token
+        id: get_token
+        uses: ./.github/actions/gh-app-token
+        with:
+          app_id: ${{ secrets.JP_LAUNCH_CONTROL_ID }}
+          private_key: ${{ secrets.JP_LAUNCH_CONTROL_KEY }}
+
       - name: Post message
         env:
           PR_ID: ${{ github.event_name == 'pull_request' && github.event.pull_request.number || inputs.pr }}
           PR_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
-          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+          POST_MESSAGE_TOKEN: ${{ steps.get_token.outputs.token }}
         run: .github/files/coverage-munger/post-message.sh

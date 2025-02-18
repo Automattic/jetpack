@@ -119,6 +119,8 @@ class Jetpack_Boost {
 		// Initiate jetpack sync.
 		$this->init_sync();
 
+		add_action( 'admin_init', array( $this, 'handle_version_change' ) );
+
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 
 		add_action( 'jetpack_boost_critical_css_environment_changed', array( $this, 'handle_environment_change' ), 10, 2 );
@@ -145,6 +147,22 @@ class Jetpack_Boost {
 	private function register_deactivation_hook() {
 		$plugin_file = trailingslashit( dirname( __DIR__ ) ) . 'jetpack-boost.php';
 		register_deactivation_hook( $plugin_file, array( $this, 'deactivate' ) );
+	}
+
+	public function handle_version_change() {
+		$version = get_option( 'jetpack_boost_version' );
+
+		if ( $version === JETPACK_BOOST_VERSION ) {
+			return;
+		}
+
+		update_option( 'jetpack_boost_version', JETPACK_BOOST_VERSION );
+
+		if ( jetpack_boost_minify_is_enabled() ) {
+			// We need to clear Minify scheduled events to ensure the latest scheduled jobs are only scheduled irrespective of scheduled arguments.
+			jetpack_boost_minify_clear_scheduled_events();
+			jetpack_boost_minify_activation();
+		}
 	}
 
 	/**

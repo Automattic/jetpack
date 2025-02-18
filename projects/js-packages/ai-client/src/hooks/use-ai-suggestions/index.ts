@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import askQuestion from '../../ask-question/index.js';
+import ChromeAIFactory from '../../chrome-ai/factory.js';
 import {
 	ERROR_CONTEXT_TOO_LARGE,
 	ERROR_MODERATION,
@@ -314,7 +315,14 @@ export default function useAiSuggestions( {
 			// Set the request status.
 			setRequestingState( 'requesting' );
 
-			eventSourceRef.current = await askQuestion( promptArg, options );
+			// check if we can (or should) use Chrome AI
+			const chromeAI = await ChromeAIFactory( promptArg );
+
+			if ( chromeAI !== false ) {
+				eventSourceRef.current = chromeAI;
+			} else {
+				eventSourceRef.current = await askQuestion( promptArg, options );
+			}
 
 			if ( ! eventSourceRef?.current ) {
 				return;

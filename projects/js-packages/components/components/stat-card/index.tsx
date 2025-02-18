@@ -6,10 +6,10 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import numberFormat from '../number-format';
-import Text from '../text';
+import numberFormat from '../number-format/index.js';
+import Text from '../text/index.js';
 import styles from './style.module.scss';
-import { StatCardProps } from './types';
+import { StatCardProps } from './types.js';
 import type React from 'react';
 
 /**
