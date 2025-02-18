@@ -102,7 +102,6 @@ class Jetpack_Mu_Wpcom {
 	 * @return string|false Updated relative path that keeps WordPress's MD5 hash consistent.
 	 */
 	public static function fix_translation_relative_path_mismatch_wpcom_jetpack( $relative, $src ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Ensure $relative is valid and begins with "jetpack_vendor/"
 		if ( $relative && str_contains( $relative, 'jetpack_vendor/automattic/jetpack-mu-wpcom/src/build/' ) ) {
 			// Rewrite "jetpack_vendor/" back to the original "vendor/" to maintain MD5 compatibility
 			$relative = str_replace( 'jetpack_vendor/', 'vendor/', $relative );
