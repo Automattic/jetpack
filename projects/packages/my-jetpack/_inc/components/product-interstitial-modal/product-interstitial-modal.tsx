@@ -55,9 +55,9 @@ interface BaseProductInterstitialModalProps {
 	 */
 	onClose?: () => void;
 	/**
-	 * On click callback of the modal
+	 * On click callback of the main modal button
 	 */
-	onClick?: () => void;
+	onModalMainButtonClick?: () => void;
 	/**
 	 * Is CTA button disabled
 	 */
@@ -127,7 +127,7 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 		modalTriggerButtonVariant = 'primary',
 		onOpen,
 		onClose,
-		onClick,
+		onModalMainButtonClick,
 		modalMainButton,
 		isButtonDisabled,
 		buttonHasExternalLink = false,
@@ -208,7 +208,7 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 											variant="primary"
 											className={ styles[ 'action-button' ] }
 											disabled={ isButtonDisabled }
-											onClick={ onClick }
+											onClick={ onModalMainButtonClick }
 											isExternalLink={ buttonHasExternalLink }
 											href={ buttonHref }
 										>
