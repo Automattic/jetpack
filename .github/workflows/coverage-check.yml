@@ -22,7 +22,7 @@ jobs:
   code-coverage-label:
     name: "Update code coverage check"
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'I don''t care about code coverage for this PR'
+    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'I don''t care about code coverage for this PR' || github.event.label.name == 'Covered by non-unit tests' || github.event.label.name == 'Coverage tests to be added later'
     timeout-minutes: 5  # 2025-02-06: Should be pretty quick.
     steps:
       - name: Checkout
