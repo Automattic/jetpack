@@ -355,6 +355,7 @@ function jetpack_boost_minify_serve_concatenated() {
 function jetpack_boost_minify_activation() {
 	// Schedule cache cleanup.
 	jetpack_boost_page_optimize_schedule_cache_cleanup();
+
 	// Setup the cronjob to periodically test for the 404 handler.
 	jetpack_boost_404_setup();
 }
