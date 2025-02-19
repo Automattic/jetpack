@@ -360,7 +360,7 @@ class Password_Detection {
 								<button class="action action-verify" type="submit" name="verify"><?php esc_html_e( 'Verify', 'jetpack-account-protection' ); ?></button>
 							</form>
 						</div>
-						<?php if ( $error_code === 'email_request_limit_exceeded' ) : ?>
+						<?php if ( in_array( $error_code, array( 'email_request_limit_exceeded', 'email_send_error' ), true ) ) : ?>
 							<p class="account-recovery">
 								<?php
 									printf(
