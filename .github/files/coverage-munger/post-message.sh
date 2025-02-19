@@ -15,7 +15,11 @@
 
 set -eo pipefail
 
-SKIPLABEL="I don't care about code coverage for this PR"
+SKIPLABELS=(
+	"Covered by non-unit tests"
+	"Coverage tests to be added later"
+	"I don't care about code coverage for this PR"
+)
 
 ID=$( jq --arg V "$PR_ID" -nr '$V | @uri' )
 COMMIT=$( jq --arg V "$PR_HEAD" -nr '$V | @uri' )
@@ -86,13 +90,16 @@ fi
 if [[ "$STATUS" == 'in_progress' ]]; then
 	COVINFO=$( jq '.state |= "pending" | .description |= "Waiting for tests to pass" | .msg |= ""' <<<"$COVINFO" )
 fi
-# If the "I don't care" label is set, override the status.
-if jq -e --arg LABEL "$SKIPLABEL" '.[] | select( .name == $LABEL )' <<<"$LABELS" &>/dev/null; then
-	COVINFO=$( jq --arg REPO "$GITHUB_REPOSITORY" --arg LABEL "$SKIPLABEL" '.state |= "success" | .description |= "Overridden by label" | .footer += "\n\n<sub>Coverage check overridden by https://github.com/\( $REPO | @uri | gsub("%2F"; "/") )/labels/\( $LABEL | @uri ).</sub>"' <<<"$COVINFO" )
-fi
-# If the check will be error or failing, add a note to the footer about the "I don't care" label.
+# If an override label is set, override the status.
+for SKIPLABEL in "${SKIPLABELS[@]}"; do
+	if jq -e --arg LABEL "$SKIPLABEL" '.[] | select( .name == $LABEL )' <<<"$LABELS" &>/dev/null; then
+		COVINFO=$( jq --arg REPO "$GITHUB_REPOSITORY" --arg LABEL "$SKIPLABEL" '.state |= "success" | .description |= "Overridden by label" | .footer += "\n\n<sub>Coverage check overridden by https://github.com/\( $REPO | @uri | gsub("%2F"; "/") )/labels/\( $LABEL | @uri ).</sub>"' <<<"$COVINFO" )
+		break
+	fi
+done
+# If the check will be error or failing, add a note to the footer about the override labels.
 if jq -e '.state == "error" or .state == "failure"' <<<"$COVINFO" &>/dev/null; then
-	COVINFO=$( jq --arg REPO "$GITHUB_REPOSITORY" --arg LABEL "$SKIPLABEL" '.footer += "\n\n<sub>Add label https://github.com/\( $REPO | @uri | gsub("%2F"; "/") )/labels/\( $LABEL | @uri ) to override the failing coverage check.</sub>"' <<<"$COVINFO" )
+	COVINFO=$( jq --arg REPO "$GITHUB_REPOSITORY" --argjson LABELS "$( jq -nc '$ARGS.positional' --args "${SKIPLABELS[@]}" )" '.footer += "\n\n<sub>If appropriate, add one of these labels to override the failing coverage check: \( $LABELS | map( "https://github.com/\( $REPO | @uri | gsub("%2F"; "/") )/labels/\( . | @uri )" ) | join( " " ) )</sub>"' <<<"$COVINFO" )
 fi
 jq . <<<"$COVINFO"
 curl -v -L --fail \
