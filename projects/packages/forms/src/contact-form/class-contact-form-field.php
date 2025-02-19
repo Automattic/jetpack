@@ -976,8 +976,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			accept='.pdf,.jpg'
 			style='" . $this->field_styles . "'
 		/>\n";
-		$field .= "<input type='hidden' name='" . esc_attr( $id ) . "_filename' class='jetpack-form-file-field__filename' value='' />\n";
-		$field .= "<input type='hidden' name='" . esc_attr( $id ) . "_temp' class='jetpack-form-file-field__temp' value='' />\n";
+		$field .= "<input type='hidden' name='" . esc_attr( $id ) . "_token' class='jetpack-form-file-field__token' value='' />\n";
 		$field .= "<div class='jetpack-form-file-field__preview-wrap'></div>\n";
 		$field .= "</div>\n";
 

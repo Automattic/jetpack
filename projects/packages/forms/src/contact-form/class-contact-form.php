@@ -1070,15 +1070,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	private function process_file_uploads() {
 
+		global $wp_filesystem;
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		WP_Filesystem();
+
 		// Initialize an empty array for storing uploaded file paths
 		$uploaded_files = array();
-
-		// Define allowed mime types
-		$allowed_mime_types = array(
-			'pdf'  => 'application/pdf',
-			'jpeg' => 'image/jpeg',
-			'jpg'  => 'image/jpeg',
-		);
 
 		// Process file uploads first
 		foreach ( $this->fields as $id => $field ) {
@@ -1086,67 +1086,79 @@ class Contact_Form extends Contact_Form_Shortcode {
 				continue;
 			}
 
-			$field_id = sanitize_key( $id );
+			$field_id         = sanitize_key( $id );
+			$token_field_name = $field_id . '_token';
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$token = isset( $_POST[ $token_field_name ] ) ? sanitize_text_field( wp_unslash( $_POST[ $token_field_name ] ) ) : '';
 
-			$hash             = isset( $_POST[ $field_id . '_hash' ] ) ? sanitize_text_field( wp_unslash( $_POST[ $field_id . '_hash' ] ) ) : '';
-			$file_name        = isset( $_POST[ $field_id . '_filename' ] ) ? sanitize_text_field( wp_unslash( $_POST[ $field_id . '_filename' ] ) ) : '';
-			$temporary_secret = isset( $_POST[ $field_id . '_temp' ] ) ? sanitize_text_field( wp_unslash( $_POST[ $field_id . '_temp' ] ) ) : '';
-			l( array( 'process_file_uploads', $field_id, $hash, $file_name, $temporary_secret ) );
-
-			if ( empty( $file_name ) || empty( $temporary_secret ) || empty( $hash ) ) {
+			if ( empty( $token ) ) {
 				$field->add_error( __( 'Failed to upload file.', 'jetpack-forms' ) );
 				continue;
 			}
 
-			$secret_dir = get_option( 'jetpack_forms_dir' );
+			$secret_dir            = get_option( 'jetpack_upload_dir' );
+			$unauth_uploaded_files = get_option( 'jetpack_unauth_uploads', array() );
+			if ( ! isset( $unauth_uploaded_files[ $token ] ) ) {
+				$field->add_error( __( 'Failed to upload file.', 'jetpack-forms' ) );
+				continue;
+			}
+
+			$file_data = $unauth_uploaded_files[ $token ];
+
+			$original_file_name = $file_data['original_name'];
 			// lets locate the file in the temp folder.
 			$uploads_folder          = wp_upload_dir();
-			$jetpack_forms_dir       = $uploads_folder['basedir'] . '/jetpack-forms/' . $secret_dir;
+			$jetpack_forms_dir       = $uploads_folder['basedir'] . '/jetpack-upload/' . $secret_dir;
 			$jetpack_forms_temp_path = $jetpack_forms_dir . '/temp/';
 
-			$secret_file_name_hash = wp_hash( $temporary_secret . $hash );
-			$secret_file_name      = $secret_file_name_hash . '-' . $file_name;
-
-			$temp_file = $jetpack_forms_temp_path . $secret_file_name;
-			if ( ! file_exists( $temp_file ) ) {
-				l( 'not there:' . $temp_file );
+			$temp_file = $jetpack_forms_temp_path . $file_data['filename'];
+			if ( ! $wp_filesystem->exists( $temp_file ) ) {
 				$field->add_error( __( 'Failed to upload file.', 'jetpack-forms' ) );
 				continue;
 			}
-			$new_hash        = wp_hash( wp_rand( 100000, 999999 ) . microtime() );
-			$new_secret_name = wp_hash( $new_hash ) . '-' . $file_name;
 
-			$final_path_folder = $jetpack_forms_dir . '/' . date( 'Y' ) . '/' . date( 'm' ) . '/';
-			$create_dir        = wp_mkdir_p( $final_path_folder );
+			$new_hash          = wp_hash( wp_rand( 100000, 999999 ) . microtime() );
+			$new_secret_name   = wp_hash( $new_hash ) . '-' . $original_file_name;
+			$year              = gmdate( 'Y' );
+			$month             = gmdate( 'm' );
+			$final_path_folder = $jetpack_forms_dir . '/' . $year . '/' . $month . '/';
+			wp_mkdir_p( $final_path_folder );
 
 			$final_path = $final_path_folder . $new_secret_name;
 
 			// Check if the destination directory is writable
-			if ( ! is_writable( $final_path_folder ) ) {
+			if ( ! $wp_filesystem->is_writable( $final_path_folder ) ) {
 				$field->add_error( __( 'Failed to upload file. Destination directory is not writable.', 'jetpack-forms' ) );
 				continue;
 			}
 
 			// Check if the source file is readable
-			if ( ! is_readable( $temp_file ) ) {
+			if ( ! $wp_filesystem->is_readable( $temp_file ) ) {
 				$field->add_error( __( 'Failed to upload file. Source file is not readable.', 'jetpack-forms' ) );
 				continue;
 			}
 
-			$move_result = rename( $temp_file, $final_path );
+			$move_result = $wp_filesystem->move( $temp_file, $final_path );
 			if ( ! $move_result ) {
 				$field->add_error( __( 'Failed to upload file.', 'jetpack-forms' ) );
 				continue;
 			}
+			unset( $unauth_uploaded_files[ $token ] );
+			if ( empty( $unauth_uploaded_files ) ) {
+				delete_option( 'jetpack_unauth_uploads' );
+			} else {
+				update_option( 'jetpack_unauth_uploads', $unauth_uploaded_files, true );
+			}
+
 			$uploaded_files[ $field_id ] = array(
 				'field_type' => $field->get_attribute( 'type' ),
-				'name'       => $file_name,
+				'name'       => $original_file_name,
 				'path'       => $final_path,
 				'url'        => add_query_arg(
 					array(
-						'jp-filename' => $file_name,
+						'jp-filename' => $original_file_name,
 						'jp-hash'     => $new_hash,
-						't'           => date( 'Y' ) . '-' . date( 'm' ),
+						't'           => $year . '-' . $month,
 					),
 					get_site_url()
 				),
@@ -1154,7 +1166,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'size'       => wp_filesize( $final_path ),
 			);
 		}
-
 		return $uploaded_files;
 	}
 
@@ -1167,12 +1178,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$plugin = Contact_Form_Plugin::init();
 
-		$id                  = $this->get_attribute( 'id' );
-		$to                  = $this->get_attribute( 'to' );
-		$widget              = $this->get_attribute( 'widget' );
-		$block_template      = $this->get_attribute( 'block_template' );
-		$block_template_part = $this->get_attribute( 'block_template_part' );
-
+		$id                   = $this->get_attribute( 'id' );
+		$to                   = $this->get_attribute( 'to' );
+		$widget               = $this->get_attribute( 'widget' );
+		$block_template       = $this->get_attribute( 'block_template' );
+		$block_template_part  = $this->get_attribute( 'block_template_part' );
 		$contact_form_subject = $this->get_attribute( 'subject' );
 
 		$to     = str_replace( ' ', '', $to );

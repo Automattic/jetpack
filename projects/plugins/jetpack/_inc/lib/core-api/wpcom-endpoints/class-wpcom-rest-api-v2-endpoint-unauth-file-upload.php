@@ -20,6 +20,8 @@ use Automattic\Jetpack\Status\Host;
 class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 	use WPCOM_REST_API_Proxy_Request;
 
+	const UNAUTH_UPLOADS_OPTION = 'jetpack_unauth_uploads';
+
 	/**
 	 * Constructor.
 	 */
@@ -224,10 +226,10 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 	 * Gets a secure upload directory for temporary files
 	 */
 	private function get_secret_directory() {
-		$secret_dir = get_option( 'jetpack_upload_temp_dir', false );
+		$secret_dir = get_option( 'jetpack_upload_dir', false );
 		if ( ! $secret_dir ) {
 			$secret_dir = wp_generate_password( 64, false );
-			update_option( 'jetpack_upload_temp_dir', $secret_dir );
+			update_option( 'jetpack_upload_dir', $secret_dir, false ); // Don't autoload
 		}
 		return $secret_dir;
 	}
@@ -279,9 +281,9 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 		);
 
 		// Get existing uploads or initialize empty array
-		$uploads           = get_option( 'jetpack_unauth_uploads', array() );
+		$uploads           = get_option( self::UNAUTH_UPLOADS_OPTION, array() );
 		$uploads[ $token ] = $file_data;
-		update_option( 'jetpack_unauth_uploads', $uploads );
+		update_option( self::UNAUTH_UPLOADS_OPTION, $uploads, false );
 
 		// Schedule cleanup if not already scheduled
 		if ( ! wp_next_scheduled( 'jetpack_cleanup_unauth_uploads' ) ) {
@@ -306,7 +308,7 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 	 */
 	public function get_file_by_token( $request ) {
 		$token   = $request->get_param( 'token' );
-		$uploads = get_option( 'jetpack_unauth_uploads', array() );
+		$uploads = get_option( self::UNAUTH_UPLOADS_OPTION, array() );
 
 		if ( ! isset( $uploads[ $token ] ) ) {
 			return new WP_Error(
@@ -323,7 +325,7 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 		if ( ! file_exists( $file_path ) ) {
 			// Remove the entry if file doesn't exist
 			unset( $uploads[ $token ] );
-			update_option( 'jetpack_unauth_uploads', $uploads );
+			update_option( self::UNAUTH_UPLOADS_OPTION, $uploads, false );
 
 			return new WP_Error(
 				'file_not_found',
@@ -352,7 +354,7 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 	 * This runs daily via wp-cron
 	 */
 	public function cleanup_old_uploads() {
-		$uploads      = get_option( 'jetpack_unauth_uploads', array() );
+		$uploads      = get_option( self::UNAUTH_UPLOADS_OPTION, array() );
 		$current_time = time();
 		$max_age      = 7 * DAY_IN_SECONDS; // Keep files for 7 days
 
@@ -367,7 +369,7 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 			}
 		}
 
-		update_option( 'jetpack_unauth_uploads', $uploads );
+		update_option( self::UNAUTH_UPLOADS_OPTION, $uploads, false );
 	}
 }
 
