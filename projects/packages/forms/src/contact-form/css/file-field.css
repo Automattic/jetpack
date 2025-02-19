@@ -44,6 +44,10 @@
     width: fit-content;
 }
 
+.jetpack-form-file-field__file-name {
+	text-align: left;
+}
+
 .jetpack-form-file-field__preview-wrap {
     padding: 0;
     visibility: hidden;
@@ -110,6 +114,7 @@
 	border-radius: 50%;
     outline-offset:0;
     width: 40px;
+	min-width: 40px;
 }
 
 .jetpack-form-file-field__preview.fade-out {

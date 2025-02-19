@@ -339,17 +339,19 @@ class Util {
 			$content
 		);
 	}
-
+	/**
+	 * Serve a file from the jetpack-upload folder.
+	 */
 	public static function serve_file() {
-		if ( ! isset( $_GET['jp-filename'], $_GET['jp-hash'], $_GET['t'] ) ) {
-			l( 'missing parameters' );
+		// phpcs:disable WordPress.Security.NonceVerification
+		if ( ! isset( $_GET['jp-filename'] ) || ! isset( $_GET['jp-hash'] ) || ! isset( $_GET['t'] ) ) {
 			return;
 		}
 
 		$hash = sanitize_key( $_GET['jp-hash'] );
 		$time = sanitize_key( $_GET['t'] );
 
-		$filename = $_GET['jp-filename'];
+		$filename = wp_unslash( $_GET['jp-filename'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$filename = str_replace( '..', '', $filename );
 		$filename = str_replace( '/', '', $filename );
 		$filename = str_replace( '\\', '', $filename );
@@ -357,42 +359,49 @@ class Util {
 		$secret_filename = wp_hash( $hash ) . '-' . $filename;
 
 		$time = explode( '-', $time );
-		l( $time );
-		if ( $time[0] > date( 'Y' ) || ! is_numeric( $time[1] ) ) {
-			l( 'invalid year' );
+		if ( $time[0] > gmdate( 'Y' ) || ! is_numeric( $time[1] ) ) {
 			return;
 		}
 		if ( $time[1] > 12 || ! is_numeric( $time[1] ) ) {
-			l( 'invalid month' );
 			return;
 		}
-		// todo: check if the file is in the correct folder
+
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 
 		$uploads_folder = wp_upload_dir();
-		$secret_dir     = get_option( 'jetpack_forms_dir' );
+		$secret_dir     = get_option( 'jetpack_upload_dir' );
 
-		$jetpack_forms_dir = $uploads_folder['basedir'] . '/jetpack-forms/' . $secret_dir . '/' . $time[0] . '/' . $time[1] . '/';
+		$jetpack_forms_dir = $uploads_folder['basedir'] . '/jetpack-upload/' . $secret_dir . '/' . $time[0] . '/' . $time[1] . '/';
 
 		$file = $jetpack_forms_dir . $secret_filename;
 
-		if ( file_exists( $file ) ) {
-			$content_type        = wp_check_filetype( $file );
-			$content_disposition = rgget( 'dl' ) ? 'attachment' : 'inline';
-
-			nocache_headers();
-			header( 'X-Robots-Tag: noindex', true );
-			header( 'Content-Type: ' . $content_type['type'] );
-			header( 'Content-Description: File Transfer' );
-			header( 'Content-Disposition: attachment; filename="' . wp_basename( $file ) . '"' );
-			header( 'Content-Transfer-Encoding: binary' );
-
-			// header( 'Content-Type: ' . mime_content_type( $file ) );
-			header( 'Content-Length: ' . filesize( $file ) );
-			readfile( $file );
-			exit;
+		global $wp_filesystem;
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
 		}
+
+		WP_Filesystem();
+
+		if ( ! $wp_filesystem->exists( $file ) ) {
+			return;
+		}
+
+		$content_type = wp_check_filetype( $file );
+
+		// @todo: we should only allow certain file types to be served.
+
+		nocache_headers();
+		header( 'X-Robots-Tag: noindex', true );
+		header( 'Content-Type: ' . $content_type['type'] );
+		header( 'Content-Description: File Transfer' );
+		header( 'Content-Disposition: attachment; filename="' . wp_basename( $file ) . '"' );
+		header( 'Content-Transfer-Encoding: binary' );
+		header( 'Content-Length: ' . $wp_filesystem->size( $file ) );
+		header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
+
+		echo $wp_filesystem->get_contents( $file ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		exit;
 	}
 }

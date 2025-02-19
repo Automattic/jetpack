@@ -189,11 +189,6 @@ export default class JP_Dropzone {
 				this.updateProgress.bind( this, file, div ),
 				false
 			);
-			this.element.addEventListener(
-				'jp-dropzone-progress',
-				this.updateProgress.bind( this, file, div ),
-				false
-			);
 			const removeButton = div.querySelector( '.jetpack-form-file-field__remove' ) as HTMLElement;
 			removeButton.addEventListener( 'click', this.removeFile.bind( this, file, div ) );
 		} );
