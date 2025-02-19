@@ -1320,15 +1320,15 @@ class Admin {
 
 		if ( Contact_Form_Plugin::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
-		}
 
-		wp_localize_script(
-			'grunion-admin',
-			'jetpack_forms_tracking',
-			array(
-				'tracksUserData' => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
-			)
-		);
+			wp_localize_script(
+				'grunion-admin',
+				'jetpack_forms_tracking',
+				array(
+					'tracksUserData' => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+				)
+			);
+		}
 
 		wp_enqueue_style( 'grunion.css' );
 
