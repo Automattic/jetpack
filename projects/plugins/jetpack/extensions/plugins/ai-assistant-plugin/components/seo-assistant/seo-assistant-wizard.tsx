@@ -8,8 +8,8 @@ import debugFactory from 'debug';
  */
 import { store as seoAssistantStore } from './store';
 import { useCompletionStep } from './use-completion-step';
+import { useDescriptionStep } from './use-description-step';
 import { useKeywordsStep } from './use-keywords-step';
-import { useMetaDescriptionStep } from './use-meta-description-step';
 import { useTitleStep } from './use-title-step';
 import { useWelcomeStep } from './use-welcome-step';
 import WizardChat from './wizard-chat';
@@ -24,7 +24,7 @@ const debug = debugFactory( 'jetpack-seo:wizard-chat' );
 export default function SeoAssistantWizard() {
 	const keywordsStepData = useKeywordsStep();
 	const titleStepData = useTitleStep( { keywords: keywordsStepData.value, mockRequests: false } );
-	const metaStepData = useMetaDescriptionStep( {
+	const descriptionStepData = useDescriptionStep( {
 		keywords: keywordsStepData.value,
 		mockRequests: false,
 	} );
@@ -36,7 +36,7 @@ export default function SeoAssistantWizard() {
 	// request to get an image description, and then use that description to generate alt text for the image.
 
 	const welcomeStepData = useWelcomeStep( {
-		stepLabels: [ titleStepData.label, metaStepData.label ],
+		stepLabels: [ titleStepData.label, descriptionStepData.label ],
 	} );
 	const completionStepData = useCompletionStep();
 
@@ -49,7 +49,7 @@ export default function SeoAssistantWizard() {
 				welcomeStepData,
 				keywordsStepData,
 				titleStepData,
-				metaStepData,
+				descriptionStepData,
 				completionStepData,
 			] }
 			assistantName={ 'seo-assistant' }

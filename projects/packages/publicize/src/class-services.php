@@ -7,15 +7,15 @@
 
 namespace Automattic\Jetpack\Publicize;
 
-use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Publicize\REST_API\Proxy_Requests;
+use WP_REST_Request;
 
 /**
  * Publicize Services class.
  */
 class Services {
 
-	const SERVICES_TRANSIENT = 'jetpack_social_services_list';
+	const SERVICES_TRANSIENT = 'jetpack_social_available_services_list';
 
 	/**
 	 * Get all services.
@@ -37,11 +37,23 @@ class Services {
 
 		// Checking the cache.
 		$services = get_transient( self::SERVICES_TRANSIENT );
-		if ( false !== $services && ! $force_refresh ) {
-			return $services;
+		if ( false === $services || $force_refresh ) {
+			$services = self::fetch_and_cache_services();
 		}
 
-		return self::fetch_and_cache_services();
+		return array_map(
+			function ( $service ) {
+				global $publicize;
+
+				return array_merge(
+					$service,
+					array(
+						'connect_URL' => $publicize->connect_url( $service['ID'], 'connect' ),
+					)
+				);
+			},
+			$services
+		);
 	}
 
 	/**
@@ -50,33 +62,25 @@ class Services {
 	 * @return array
 	 */
 	public static function fetch_and_cache_services() {
-		// Fetch the services.
-		$site_id = Manager::get_site_id();
-		if ( is_wp_error( $site_id ) ) {
-			return array();
-		}
-		$path     = sprintf( '/sites/%d/external-services', $site_id );
-		$response = Client::wpcom_json_api_request_as_user( $path );
+		$proxy = new Proxy_Requests( 'external-services' );
+
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/external-services' );
+
+		$request->set_param( 'type', 'publicize' );
+
+		$response = $proxy->proxy_request_to_wpcom_as_user( $request );
+
 		if ( is_wp_error( $response ) ) {
+			// @todo log error.
 			return array();
 		}
-		$body = json_decode( wp_remote_retrieve_body( $response ) );
 
-		$services = $body->services ?? array();
+		$services = array_values( $response['services'] );
 
-		$formatted_services = array_values(
-			array_filter(
-				(array) $services,
-				function ( $service ) {
-					return isset( $service->type ) && 'publicize' === $service->type;
-				}
-			)
-		);
-
-		if ( ! empty( $formatted_services ) ) {
-			set_transient( self::SERVICES_TRANSIENT, $formatted_services, DAY_IN_SECONDS );
+		if ( ! empty( $services ) ) {
+			set_transient( self::SERVICES_TRANSIENT, $services, DAY_IN_SECONDS );
 		}
 
-		return $formatted_services;
+		return $services;
 	}
 }
