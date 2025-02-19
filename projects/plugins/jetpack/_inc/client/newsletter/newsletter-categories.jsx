@@ -142,7 +142,7 @@ function NewsletterCategories( props ) {
 				<p>
 					{ createInterpolateElement(
 						__(
-							'Newsletter categories let visitors subscribe to specific topics. When enabled, only posts in the selected categories will be emailed. By default, subscribers can choose from your selected categories, or you can pre-select categories in the <docsLink>subscribe block</docsLink>.',
+							"Newsletter categories let you select the content that's emailed to subscribers. When enabled, only posts in the selected categories will be sent as newsletters. By default, subscribers can choose from your selected categories, or you can pre-select categories using the <docsLink>subscribe block</docsLink>.",
 							'jetpack'
 						),
 						{
