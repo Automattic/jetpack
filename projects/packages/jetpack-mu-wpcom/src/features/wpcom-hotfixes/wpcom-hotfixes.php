@@ -66,7 +66,7 @@ function wpcom_fix_performance_issue_block_editor_v19_9_v20_0_v20_1( $scripts ) 
 		return;
 	}
 
-	if ( ! in_array( GUTENBERG_VERSION, array( '19.9.0', '20.0.0', '20.1.0' ), true ) ) {
+	if ( ! in_array( GUTENBERG_VERSION, array( '19.9.0', '20.0.0', '20.0.1', '20.1.0' ), true ) ) {
 		return;
 	}
 
