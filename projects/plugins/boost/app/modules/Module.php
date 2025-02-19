@@ -9,7 +9,7 @@ use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Status;
 
-class ModuleWrapper {
+class Module {
 	/**
 	 * @var Status
 	 */
@@ -18,28 +18,28 @@ class ModuleWrapper {
 	/**
 	 * @var Pluggable
 	 */
-	public $module;
+	public $feature;
 
-	public function __construct( Pluggable $module ) {
-		$this->module = $module;
-		$this->status = new Status( $module::get_slug() );
+	public function __construct( Pluggable $feature ) {
+		$this->feature = $feature;
+		$this->status  = new Status( $feature::get_slug() );
 	}
 
 	public function on_activate() {
-		return $this->module instanceof Has_Activate ? $this->module::activate() : true;
+		return $this->feature instanceof Has_Activate ? $this->feature::activate() : true;
 	}
 
 	public function on_deactivate() {
-		return $this->module instanceof Has_Deactivate ? $this->module::deactivate() : true;
+		return $this->feature instanceof Has_Deactivate ? $this->feature::deactivate() : true;
 	}
 
 	public function get_slug() {
-		return $this->module::get_slug();
+		return $this->feature::get_slug();
 	}
 
 	public function get_submodules() {
-		if ( $this->module instanceof Has_Submodules ) {
-			return $this->module->get_submodules();
+		if ( $this->feature instanceof Has_Submodules ) {
+			return $this->feature->get_submodules();
 		}
 
 		return false;
@@ -55,7 +55,7 @@ class ModuleWrapper {
 		$available_submodules = array();
 		foreach ( $submodules as $submodule ) {
 			if ( $submodule::is_available() ) {
-				$available_submodules[] = new ModuleWrapper( new $submodule() );
+				$available_submodules[] = new Module( new $submodule() );
 			}
 		}
 
@@ -67,7 +67,7 @@ class ModuleWrapper {
 	}
 
 	public function is_enabled() {
-		$always_on = is_subclass_of( $this->module, 'Automattic\Jetpack_Boost\Contracts\Is_Always_On' );
+		$always_on = is_subclass_of( $this->feature, 'Automattic\Jetpack_Boost\Contracts\Is_Always_On' );
 		if ( $always_on ) {
 			return true;
 		}
@@ -76,14 +76,14 @@ class ModuleWrapper {
 	}
 
 	public function is_available() {
-		return $this->module::is_available();
+		return $this->feature::is_available();
 	}
 
 	/**
 	 * Check if the module is active and ready to serve optimized output.
 	 */
 	public function is_optimizing() {
-		if ( $this->module instanceof Optimization && $this->is_enabled() && $this->module->is_ready() ) {
+		if ( $this->feature instanceof Optimization && $this->is_enabled() && $this->feature->is_ready() ) {
 			return true;
 		}
 	}

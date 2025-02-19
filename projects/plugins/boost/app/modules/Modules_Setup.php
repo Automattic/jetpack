@@ -83,7 +83,7 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 
 	public function setup_modules_data_sync( $modules ) {
 		foreach ( $modules as $module ) {
-			$this->register_module_data_sync( $module->module );
+			$this->register_feature_data_sync( $module->feature );
 
 			$submodules = $module->get_available_submodules();
 			if ( ! empty( $submodules ) ) {
@@ -97,7 +97,7 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 	 *
 	 * @return bool|void
 	 */
-	public function register_module_data_sync( $feature ) {
+	public function register_feature_data_sync( $feature ) {
 		if ( ! $feature instanceof Has_Data_Sync ) {
 			return false;
 		}
@@ -141,20 +141,20 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 	private function init_modules( $modules ) {
 		foreach ( $modules as $slug => $module ) {
 
-			$this->register_always_available_endpoints( $module->module );
+			$this->register_always_available_endpoints( $module->feature );
 
 			if ( ! $module->is_enabled() ) {
 				continue;
 			}
 
-			Setup::add( $module->module );
+			Setup::add( $module->feature );
 
 			$submodules = $module->get_available_submodules();
 			if ( ! empty( $submodules ) ) {
 				$this->init_modules( $submodules );
 			}
 
-			$this->register_endpoints( $module->module );
+			$this->register_endpoints( $module->feature );
 
 			do_action( "jetpack_boost_{$slug}_initialized", $this );
 
