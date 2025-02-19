@@ -13,15 +13,15 @@ return [
     // PhanTypeMismatchPropertyDefault : 15+ occurrences
     // PhanAbstractStaticMethodCallInStatic : 8 occurrences
     // PhanTypeMismatchReturnProbablyReal : 8 occurrences
-    // PhanNoopNew : 7 occurrences
-    // PhanTypeMismatchReturn : 5 occurrences
+    // PhanNoopNew : 6 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
+    // PhanTypeMismatchReturn : 4 occurrences
     // PhanTypeMismatchReturnNullable : 3 occurrences
+    // PhanUndeclaredClassMethod : 3 occurrences
     // PhanImpossibleCondition : 2 occurrences
     // PhanNonClassMethodCall : 2 occurrences
     // PhanRedundantCondition : 2 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
-    // PhanUndeclaredClassMethod : 2 occurrences
     // PhanPluginMixedKeyNoKey : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanTypeSuspiciousNonTraversableForeach : 1 occurrence
@@ -29,7 +29,7 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-activitylog.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'src/class-initializer.php' => ['PhanImpossibleCondition', 'PhanNoopNew', 'PhanRedundantCondition', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanUndeclaredClassMethod'],
+        'src/class-initializer.php' => ['PhanImpossibleCondition', 'PhanNoopNew', 'PhanRedundantCondition', 'PhanTypeMismatchReturnNullable', 'PhanUndeclaredClassMethod'],
         'src/class-jetpack-manage.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/class-products.php' => ['PhanNonClassMethodCall'],
         'src/class-rest-products.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchReturn'],
