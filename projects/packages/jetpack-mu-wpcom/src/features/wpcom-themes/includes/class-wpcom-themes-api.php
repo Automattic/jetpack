@@ -6,6 +6,10 @@
  * @package wpcom-themes
  */
 
+if ( class_exists( 'WPCom_Themes_Api' ) ) {
+	return;
+}
+
 /**
  * Fetches themes from the WordPress.com themes API.
  */

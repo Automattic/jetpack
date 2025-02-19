@@ -6,6 +6,10 @@
  * @package wpcom-themes
  */
 
+if ( class_exists( 'WPCom_Themes_Service' ) ) {
+	return;
+}
+
 /**
  * WordPress.com themes service.
  */

@@ -6,6 +6,10 @@
  * @package wpcom-themes
  */
 
+if ( class_exists( 'WPCom_Themes_Cache' ) ) {
+	return;
+}
+
 /**
  * Basic cache implementation for themes.
  */

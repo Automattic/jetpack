@@ -6,6 +6,10 @@
  * @package wpcom-themes
  */
 
+if ( class_exists( 'WPCom_Themes_Mapper' ) ) {
+	return;
+}
+
 /**
  * Maps theme objects between WPCom and WPOrg formats.
  */

@@ -6,6 +6,10 @@
  * @package wpcom-themes
  */
 
+if ( class_exists( 'WPCom_Themes_Merger' ) ) {
+	return;
+}
+
 /**
  * Merges theme objects between WPCom and WPOrg repositories.
  */
