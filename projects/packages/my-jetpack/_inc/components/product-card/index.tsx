@@ -155,6 +155,13 @@ const ProductCard: FC< ProductCardProps > = props => {
 						// Each product needs to specify this separately and provide a destination to link to for management by non-admins
 						// Until then, we don't show any action buttons or links on product cards for non-admins
 					 }
+					<Status
+						status={ status }
+						isFetching={ isLoading }
+						isInstallingStandalone={ false }
+						isOwned={ isOwned }
+						suppressNeedsAttention={ slug === 'protect' }
+					/>
 					{ admin && (
 						<div className={ styles.buttons }>
 							{ secondaryAction && secondaryAction?.positionFirst && (
@@ -173,13 +180,6 @@ const ProductCard: FC< ProductCardProps > = props => {
 							) }
 						</div>
 					) }
-					<Status
-						status={ status }
-						isFetching={ isLoading }
-						isInstallingStandalone={ false }
-						isOwned={ isOwned }
-						suppressNeedsAttention={ slug === 'protect' }
-					/>
 				</div>
 			) }
 		</Card>
