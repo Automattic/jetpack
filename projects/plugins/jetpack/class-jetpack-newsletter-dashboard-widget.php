@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Adds the Jetpack Newsletter widget to the WordPress admin dashboard.
@@ -73,7 +74,7 @@ class Jetpack_Newsletter_Dashboard_Widget {
 	 */
 	public static function render() {
 		?>
-		<div id="wpcom" style="min-height: calc(100vh - 100px);">
+		<div id="wpcom">
 			<div id="newsletter-widget-app"></div>
 		</div>
 		<?php
@@ -85,7 +86,18 @@ class Jetpack_Newsletter_Dashboard_Widget {
 	 * @return void
 	 */
 	public static function admin_init() {
-		static::load_admin_scripts( 'jp-newsletter-widget', 'newsletter.min', array( 'config_variable_name' => 'jetpackNewsletterWidgetConfigData' ) );
+		static::load_admin_scripts(
+			'jp-newsletter-widget',
+			'newsletter.min',
+			array(
+				'config_variable_name' => 'jetpackNewsletterWidgetConfigData',
+				'config_data'          => array(
+					'blog_id'         => Jetpack_Options::get_option( 'id' ),
+					'hostname'        => wp_parse_url( get_site_url(), PHP_URL_HOST ),
+					'is_jetpack_site' => ! ( new Host() )->is_wpcom_simple(),
+				),
+			)
+		);
 	}
 
 	/**
@@ -127,6 +139,10 @@ class Jetpack_Newsletter_Dashboard_Widget {
 			wp_enqueue_script( $asset_handle );
 		}
 
-		// TODO: Add config data.
+		wp_add_inline_script(
+			$asset_handle,
+			"window.{$options['config_variable_name']} = " . wp_json_encode( $options['config_data'] ) . ';',
+			'before'
+		);
 	}
 }
