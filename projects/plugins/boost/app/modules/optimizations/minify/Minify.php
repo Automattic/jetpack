@@ -34,7 +34,6 @@ class Minify implements Pluggable, Optimization, Has_Activate, Has_Deactivate {
 	 */
 	public static function activate() {
 		jetpack_boost_minify_activation();
-		jetpack_boost_404_tester();
 	}
 
 	/**
