@@ -8,9 +8,9 @@ use Symfony\Component\BrowserKit\Cookie;
 use function GuzzleHttp\Psr7\build_query;
 
 /**
- * Config details
+ * The WPBrowserMethods trait.
  *
- * @property array $config
+ * @property array $config Config details.
  */
 trait WPBrowserMethods {
 

@@ -11,14 +11,10 @@ use WP_Error;
 
 /**
  * Import trait. Base class for all import endpoints.
- */
-/**
- * Batching details.
  *
- * @property array|false $allow_batch
+ * @property array|false $allow_batch Batching details.
  */
 trait Import {
-
 	/**
 	 * REST API namespace.
 	 *
