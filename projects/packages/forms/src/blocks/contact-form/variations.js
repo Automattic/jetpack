@@ -3,9 +3,8 @@ import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { people } from '@wordpress/icons';
 import { compact } from 'lodash';
+import { MaterialIcon, getIconColor } from '../utils/block-icons';
 import { salesforceLeadFormVariation } from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
-import { getIconColor } from './util/block-icons';
-import renderMaterialIcon from './util/render-material-icon';
 
 const defaultBlockStyling = {
 	style: {
@@ -27,8 +26,8 @@ const variations = compact( [
 		description: __( 'Add a contact form to your page.', 'jetpack-forms' ),
 		icon: {
 			foreground: getIconColor(),
-			src: renderMaterialIcon(
-				<>
+			src: (
+				<MaterialIcon>
 					<Path
 						fillRule="evenodd"
 						clipRule="evenodd"
@@ -39,7 +38,7 @@ const variations = compact( [
 						clipRule="evenodd"
 						d="M4 18V9H5.5V18C5.5 18.4142 5.83579 18.75 6.25 18.75H17.75C18.1642 18.75 18.5 18.4142 18.5 18V9H20V18C20 19.2426 18.9926 20.25 17.75 20.25H6.25C5.00736 20.25 4 19.2426 4 18Z"
 					/>
-				</>
+				</MaterialIcon>
 			),
 		},
 		innerBlocks: [
@@ -65,8 +64,8 @@ const variations = compact( [
 		description: __( 'Add an RSVP form to your page', 'jetpack-forms' ),
 		icon: {
 			foreground: getIconColor(),
-			src: renderMaterialIcon(
-				<>
+			src: (
+				<MaterialIcon>
 					<Path
 						fillRule="evenodd"
 						clipRule="evenodd"
@@ -77,7 +76,7 @@ const variations = compact( [
 						clipRule="evenodd"
 						d="M15.6087 7.93847L11.4826 13.6692L8.45898 10.5196L9.54107 9.48084L11.3175 11.3313L14.3914 7.06201L15.6087 7.93847Z"
 					/>
-				</>
+				</MaterialIcon>
 			),
 		},
 		innerBlocks: [
@@ -112,8 +111,8 @@ const variations = compact( [
 		description: __( 'Add a Registration form to your page', 'jetpack-forms' ),
 		icon: {
 			foreground: getIconColor(),
-			src: renderMaterialIcon(
-				<>
+			src: (
+				<MaterialIcon>
 					<Path
 						fillRule="evenodd"
 						clipRule="evenodd"
@@ -125,7 +124,7 @@ const variations = compact( [
 						clipRule="evenodd"
 						d="M14.5 9C14.5 10.3807 13.3807 11.5 12 11.5C10.6193 11.5 9.5 10.3807 9.5 9C9.5 7.61929 10.6193 6.5 12 6.5C13.3807 6.5 14.5 7.61929 14.5 9ZM13 9C13 9.55228 12.5523 10 12 10C11.4477 10 11 9.55228 11 9C11 8.44772 11.4477 8 12 8C12.5523 8 13 8.44772 13 9Z"
 					/>
-				</>
+				</MaterialIcon>
 			),
 		},
 		innerBlocks: [
@@ -166,8 +165,8 @@ const variations = compact( [
 		description: __( 'Add an Appointment booking form to your page', 'jetpack-forms' ),
 		icon: {
 			foreground: getIconColor(),
-			src: renderMaterialIcon(
-				<>
+			src: (
+				<MaterialIcon>
 					<Path d="M4 6C4 4.89543 4.89543 4 6 4H18C19.1046 4 20 4.89543 20 6V8H4V6Z" />
 					<Path d="M7 9.25H11V13.25H7V9.25Z" />
 					<Path
@@ -181,7 +180,7 @@ const variations = compact( [
 						clipRule="evenodd"
 						d="M15 17.25L21 17.25L21 18.75L15 18.75L15 17.25Z"
 					/>
-				</>
+				</MaterialIcon>
 			),
 		},
 		innerBlocks: [
@@ -218,8 +217,8 @@ const variations = compact( [
 		description: __( 'Add a Feedback form to your page', 'jetpack-forms' ),
 		icon: {
 			foreground: getIconColor(),
-			src: renderMaterialIcon(
-				<>
+			src: (
+				<MaterialIcon>
 					<Path
 						fillRule="evenodd"
 						clipRule="evenodd"
@@ -241,7 +240,7 @@ const variations = compact( [
 						clipRule="evenodd"
 						d="M8.16492 14.6566L7.41431 13.7183L8.58561 12.7812L9.33622 13.7195C9.98358 14.5287 10.9637 14.9998 12 14.9998C13.0362 14.9998 14.0163 14.5287 14.6637 13.7195L15.4143 12.7812L16.5856 13.7183L15.835 14.6566C14.903 15.8216 13.4919 16.4998 12 16.4998C10.508 16.4998 9.09693 15.8216 8.16492 14.6566Z"
 					/>
-				</>
+				</MaterialIcon>
 			),
 		},
 		innerBlocks: [

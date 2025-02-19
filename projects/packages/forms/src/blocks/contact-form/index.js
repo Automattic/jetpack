@@ -2,18 +2,17 @@ import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import './editor.scss';
+import { getIconColor, MaterialIcon } from '../utils/block-icons';
 import defaultAttributes from './attributes';
 import deprecated from './deprecated';
 import edit from './edit';
 import transforms from './transforms';
-import { getIconColor } from './util/block-icons';
-import renderMaterialIcon from './util/render-material-icon';
 import variations from './variations';
 
 export const name = 'contact-form';
 
-const icon = renderMaterialIcon(
-	<>
+const icon = (
+	<MaterialIcon>
 		<Path fillRule="evenodd" clipRule="evenodd" d="M18 9H13V7.5H18V9Z" />
 		<Path fillRule="evenodd" clipRule="evenodd" d="M18 16.5H13V15H18V16.5Z" />
 		<Path
@@ -31,7 +30,7 @@ const icon = renderMaterialIcon(
 			clipRule="evenodd"
 			d="M19 4.5H5C4.72386 4.5 4.5 4.72386 4.5 5V19C4.5 19.2761 4.72386 19.5 5 19.5H19C19.2761 19.5 19.5 19.2761 19.5 19V5C19.5 4.72386 19.2761 4.5 19 4.5ZM5 3C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3H5Z"
 		/>
-	</>
+	</MaterialIcon>
 );
 
 export const settings = {

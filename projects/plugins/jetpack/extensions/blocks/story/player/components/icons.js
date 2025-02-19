@@ -1,7 +1,5 @@
 import { Path } from '@wordpress/primitives';
-import renderMaterialIcon from '../../../../shared/render-material-icon';
-
-const MaterialIcon = ( { children, size } ) => renderMaterialIcon( children, size, size );
+import MaterialIcon from '../../../../shared/material-icon';
 
 export const PlayIcon = ( { size } ) => (
 	<MaterialIcon size={ size }>
