@@ -10,9 +10,9 @@
 return [
     // # Issue statistics:
     // PhanPluginDuplicateConditionalNullCoalescing : 20+ occurrences
-    // PhanUndeclaredProperty : 8 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 7 occurrences
     // PhanTypeMismatchReturnProbablyReal : 7 occurrences
+    // PhanUndeclaredProperty : 7 occurrences
     // PhanTypeArraySuspicious : 6 occurrences
     // PhanTypeMismatchReturn : 6 occurrences
     // PhanUndeclaredClassMethod : 6 occurrences
@@ -42,7 +42,6 @@ return [
         'src/class-block-editor-content.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-block-editor-extensions.php' => ['PhanRedundantCondition', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-data.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeMismatchReturn'],
-        'src/class-divi.php' => ['PhanUndeclaredProperty'],
         'src/class-initializer.php' => ['PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-jwt-token-bridge.php' => ['PhanTypeMismatchReturn'],
         'src/class-plan.php' => ['PhanTypeMismatchReturnProbablyReal'],

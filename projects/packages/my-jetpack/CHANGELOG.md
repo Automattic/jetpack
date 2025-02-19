@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.4.5] - 2025-02-17
+### Changed
+- Social | Updated manage module link to point to the new Social admin page. [#41741]
+
+## [5.4.4] - 2025-02-12
+### Changed
+- Performance: Cache scan calls if no threats are found. [#41614]
+
+## [5.4.3] - 2025-02-11
+### Added
+- My Jetpack: Allow product notices to be closed with persistence. [#41617]
+
+### Changed
+- Make entire row of dataview clickable when on mobile [#41643]
+
+## [5.4.2] - 2025-02-10
+### Added
+- Add filter to unowned list of products. [#41312]
+- Add mobile CTA to DataViews table. [#41554]
+
+### Changed
+- Cache calls to backup API in My Jetpack. [#41608]
+- Updated package dependencies. [#41491] [#41577]
+- Update the unowned section from a product grid to a product list. [#41312]
+
+### Fixed
+- Fix bug where firewall was displayed as active if automatic rules were enabled but firewall was off. [#41560]
+
 ## [5.4.1] - 2025-02-03
 ### Added
 - My Jetpack: Add red bubble and notice when pain plan is missing plugin. [#41013]
@@ -1937,6 +1965,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.4.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.4.4...5.4.5
+[5.4.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.4.3...5.4.4
+[5.4.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.4.2...5.4.3
+[5.4.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.4.1...5.4.2
 [5.4.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.4.0...5.4.1
 [5.4.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.3.3...5.4.0
 [5.3.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.3.2...5.3.3

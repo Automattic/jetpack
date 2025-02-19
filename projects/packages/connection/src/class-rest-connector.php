@@ -167,6 +167,20 @@ class REST_Connector {
 			)
 		);
 
+		// Disconnect/unlink user from WordPress.com servers.
+		// this endpoint is set to override the older endpoint that was previously in the Jetpack plugin
+		// Override is here in case an older version of the Jetpack plugin is installed alongside an updated standalone
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/user',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::unlink_user',
+				'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
+			),
+			true // override other implementations
+		);
+
 		// We are only registering this route if Jetpack-the-plugin is not active or it's version is ge 10.0-alpha.
 		// The reason for doing so is to avoid conflicts between the Connection package and
 		// older versions of Jetpack, registering the same route twice.
@@ -576,6 +590,27 @@ class REST_Connector {
 	}
 
 	/**
+	 * Verify that a user can use the /connection/user endpoint. Has to be a registered user and be currently linked.
+	 *
+	 * @since 6.3.3
+	 *
+	 * @return bool|WP_Error True if user is able to unlink.
+	 */
+	public static function unlink_user_permission_callback() {
+		// This is a mapped capability
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown
+		if ( current_user_can( 'jetpack_unlink_user' ) && ( new Manager() )->is_user_connected( get_current_user_id() ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_unlink_user',
+			self::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
 	 * Get miscellaneous user data related to the connection. Similar data available in old "My Jetpack".
 	 * Information about the master/primary user.
 	 * Information about the current user.
@@ -625,9 +660,13 @@ class REST_Connector {
 			'wpcomUser'   => $wpcom_user_data,
 			'gravatar'    => get_avatar_url( $current_user->ID ),
 			'permissions' => array(
-				'connect'      => current_user_can( 'jetpack_connect' ),
-				'connect_user' => current_user_can( 'jetpack_connect_user' ),
-				'disconnect'   => current_user_can( 'jetpack_disconnect' ),
+				'connect'        => current_user_can( 'jetpack_connect' ),
+				'connect_user'   => current_user_can( 'jetpack_connect_user' ),
+				// This is a mapped capability
+				// phpcs:ignore WordPress.WP.Capabilities.Unknown
+				'unlink_user'    => current_user_can( 'jetpack_unlink_user' ),
+				'disconnect'     => current_user_can( 'jetpack_disconnect' ),
+				'manage_options' => current_user_can( 'manage_options' ),
 			),
 		);
 
@@ -945,6 +984,40 @@ class REST_Connector {
 			esc_html__( 'Failed to disconnect the site as it appears already disconnected.', 'jetpack-connection' ),
 			array( 'status' => 400 )
 		);
+	}
+
+	/**
+	 * Unlinks current user from the WordPress.com Servers.
+	 *
+	 * @since 6.3.3
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return bool|WP_Error True if user successfully unlinked.
+	 */
+	public static function unlink_user( $request ) {
+
+		if ( ! isset( $request['linked'] ) || false !== $request['linked'] ) {
+			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack-connection' ), array( 'status' => 404 ) );
+		}
+
+		// Allow admins to force a disconnect by passing the "force" parameter
+		// This allows an admin to disconnect themselves
+		if ( isset( $request['force'] ) && false !== $request['force'] && current_user_can( 'manage_options' ) && ( new Manager( 'jetpack' ) )->disconnect_user_force( get_current_user_id() ) ) {
+			return rest_ensure_response(
+				array(
+					'code' => 'success',
+				)
+			);
+		} elseif ( ( new Manager( 'jetpack' ) )->disconnect_user() ) {
+			return rest_ensure_response(
+				array(
+					'code' => 'success',
+				)
+			);
+		}
+
+		return new WP_Error( 'unlink_user_failed', esc_html__( 'Was not able to unlink the user. Please try again.', 'jetpack-connection' ), array( 'status' => 400 ) );
 	}
 
 	/**

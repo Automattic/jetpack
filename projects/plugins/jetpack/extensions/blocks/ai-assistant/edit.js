@@ -7,8 +7,18 @@ import {
 	renderHTMLFromMarkdown,
 	PROMPT_TYPE_GENERATE_TITLE,
 	mapActionToHumanText,
+	QuotaExceededMessage,
+	FairUsageNotice,
+	useAICheckout,
+	useAiFeature,
 } from '@automattic/jetpack-ai-client';
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import {
+	useAnalytics,
+	PLAN_TYPE_FREE,
+	PLAN_TYPE_UNLIMITED,
+	usePlanType,
+	isUserConnected,
+} from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { rawHandler } from '@wordpress/blocks';
 import {
@@ -29,16 +39,11 @@ import clsx from 'clsx';
 import UsagePanel from '../../plugins/ai-assistant-plugin/components/usage-panel';
 import { USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } from '../../plugins/ai-assistant-plugin/components/usage-panel/types';
 import ConnectBanner from '../../shared/components/connect-banner';
-import { PLAN_TYPE_FREE, PLAN_TYPE_UNLIMITED, usePlanType } from '../../shared/use-plan-type';
 import FeedbackControl from './components/feedback-control';
-import QuotaExceededMessage, { FairUsageNotice } from './components/quota-exceeded-message';
 import ToolbarControls from './components/toolbar-controls';
 import useAIAssistant from './hooks/use-ai-assistant';
-import useAICheckout from './hooks/use-ai-checkout';
-import useAiFeature from './hooks/use-ai-feature';
 import useAiProductPage from './hooks/use-ai-product-page';
 import { getStoreBlockId } from './hooks/use-transform-to-assistant';
-import { isUserConnected } from './lib/connection';
 import './editor.scss';
 
 const isInBlockEditor = window?.Jetpack_Editor_Initial_State?.screenBase === 'post';

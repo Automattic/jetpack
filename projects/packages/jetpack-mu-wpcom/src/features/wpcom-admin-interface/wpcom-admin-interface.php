@@ -27,7 +27,9 @@ function wpcomsh_wpcom_admin_interface_settings_field() {
  * Display the wpcom_admin_interface setting on the General settings page.
  */
 function wpcom_admin_interface_display() {
+	remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
 	$value = get_option( 'wpcom_admin_interface' );
+	add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
 
 	echo '<fieldset>';
 	echo '<label><input type="radio" name="wpcom_admin_interface" value="wp-admin" ' . checked( 'wp-admin', $value, false ) . '/> <span>' . esc_html__( 'Classic style', 'jetpack-mu-wpcom' ) . '</span></label><p>' . esc_html__( 'Use WP-Admin to manage your site.', 'jetpack-mu-wpcom' ) . '</p><br>';
@@ -103,7 +105,7 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 			 */
 			function ( $location ) {
 				$updated_settings_page = add_query_arg( 'settings-updated', 'true', wp_get_referer() );
-				if ( $location === $updated_settings_page ) {
+				if ( $location === $updated_settings_page && ! wpcom_is_duplicate_views_experiment_enabled() ) {
 					return 'https://wordpress.com/settings/general/' . wpcom_get_site_slug();
 				} else {
 					return $location;
@@ -125,6 +127,11 @@ const WPCOM_DUPLICATED_VIEW = array(
 	'edit-comments.php',
 	'edit-tags.php?taxonomy=category',
 	'edit-tags.php?taxonomy=post_tag',
+	'options-general.php',
+	'options-writing.php',
+	'options-reading.php',
+	'options-discussion.php',
+	'upload.php',
 );
 
 /**
@@ -387,6 +394,37 @@ function wpcom_show_admin_interface_notice() {
 add_action( 'admin_notices', 'wpcom_show_admin_interface_notice' );
 
 /**
+ * Force a cache purge.
+ *
+ * @return void
+ */
+function wpcom_rdv_reset_cache_if_needed() {
+	if ( ! get_user_option( 'rdv_force_cache_is_deleted', get_current_user_id() ) ) {
+		update_user_option( get_current_user_id(), 'rdv_force_cache_is_deleted', true, true );
+		delete_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, true );
+	}
+}
+
+/**
+ * Check if the might be an a11n on Atomic sites.
+ *
+ * @return bool
+ */
+function wpcom_atomic_rdv_maybe_is_a11n() {
+	$is_proxy_atomic    = defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST;
+	$is_support_session = WPCOMSH_Support_Session_Detect::is_probably_support_session();
+	$admin_menu_is_a11n = isset( $_GET['admin_menu_is_a11n'] ) && function_exists( 'wpcomsh_is_admin_menu_api_request' ) && wpcomsh_is_admin_menu_api_request();
+
+	/**
+	 * This handles two contexts: Calypso and WP-Admin.
+	 *
+	 * Calypso: WPCOM admin-menu API endpoint mapper sends a "admin_menu_is_a11n" param for a12s. If the param exists, then we'll switch to treatment.
+	 * WP-Admin: We check if the user is proxied and if it's not in a support session.
+	 */
+	return $admin_menu_is_a11n || ( $is_proxy_atomic && ! $is_support_session );
+}
+
+/**
  * Option to force and cache the Remove duplicate Views experiment assigned variation.
  */
 const RDV_EXPERIMENT_FORCE_ASSIGN_OPTION = 'remove_duplicate_views_experiment_assignment_160125';
@@ -406,10 +444,17 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 		return $is_enabled;
 	}
 
+	$host = new Host();
+
+	if ( $host->is_wpcom_simple() && is_automattician() || $host->is_atomic_platform() && wpcom_atomic_rdv_maybe_is_a11n() ) {
+		wpcom_rdv_reset_cache_if_needed();
+	}
+
 	$variation = get_user_option( RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, get_current_user_id() );
 
 	/**
 	 * We cache it for both AT and Simple because we want to give a12s to be able to switch between variations for their accounts - this can be useful during support.
+	 * Note that switching the variations can only be achieved through the escape hatch, not via ExPlat.
 	 *
 	 * If we don't cache it, the is_automattician conditions will force treatment every time.
 	 */
@@ -418,31 +463,22 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 		return $is_enabled;
 	}
 
-	if ( ( new Host() )->is_wpcom_simple() ) {
+	if ( $host->is_wpcom_simple() ) {
 		\ExPlat\assign_current_user( $aa_test_name );
 		$is_enabled = 'treatment' === \ExPlat\assign_current_user( $experiment_name );
 
 		if ( is_automattician() ) {
 			$is_enabled = true;
 			update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, 'treatment', true );
+			wpcom_set_rdv_calypso_preference( 'treatment' );
 		}
 
 		return $is_enabled;
 	}
 
-	$is_proxy_atomic    = defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST;
-	$is_support_session = WPCOMSH_Support_Session_Detect::is_probably_support_session();
-	$admin_menu_is_a11n = isset( $_GET['admin_menu_is_a11n'] ) && function_exists( 'wpcomsh_is_admin_menu_api_request' ) && wpcomsh_is_admin_menu_api_request();
-
-	/**
-	 * This handles two contexts: Calypso and WP-Admin.
-	 *
-	 * Calypso: WPCOM admin-menu API endpoint mapper sends a "admin_menu_is_a11n" param for a12s. If the param exists, then we'll switch to treatment.
-	 * WP-Admin: We check if the user is proxied and if it's not in a support session.
-	 */
-
-	if ( $admin_menu_is_a11n || ( $is_proxy_atomic && ! $is_support_session ) ) {
+	if ( wpcom_atomic_rdv_maybe_is_a11n() ) {
 		update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, 'treatment', true );
+		wpcom_set_rdv_calypso_preference( 'treatment' );
 		$is_enabled = true;
 
 		return true;
@@ -584,20 +620,37 @@ if ( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST || defined( 'AT_PRO
 }
 
 /**
+ * Retrieves the current blog ID in a WordPress.com or Jetpack environment.
+ *
+ * This function determines the blog ID based on the hosting environment:
+ * - On WordPress.com (`IS_WPCOM` defined), it returns the current blog ID.
+ * - In a Jetpack environment, it checks the Jetpack options for the associated blog ID.
+ * - If no valid ID is found in the Jetpack options, it falls back to the default current blog ID.
+ *
+ * @return int The current blog ID.
+ */
+function wpcom_get_current_blog_id() {
+	// Check if we’re in a WordPress.com environment
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		return get_current_blog_id();
+	}
+
+	// Attempt to retrieve the blog ID from Jetpack options
+	$jetpack_options = get_option( 'jetpack_options' );
+	if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
+		return (int) $jetpack_options['id'];
+	}
+
+	// Default fallback to the standard blog ID
+	return get_current_blog_id();
+}
+
+/**
  * Displays a notice when a user visits the enforced WP Admin view of a removed Calypso screen for
  * the first time.
  */
 function wpcom_show_removed_calypso_screen_notice() {
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		$blog_id = get_current_blog_id();
-	} else {
-		$jetpack_options = get_option( 'jetpack_options' );
-		if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
-			$blog_id = (int) $jetpack_options['id'];
-		} else {
-			$blog_id = get_current_blog_id();
-		}
-	}
+	$blog_id = wpcom_get_current_blog_id();
 
 	// Do not show notice on sites created after the experiment started (2025-01-16).
 	if ( $blog_id > 240790000 ) { // 240790000 is the ID of a site created on 2025-01-16.
@@ -733,15 +786,27 @@ function wpcom_dismiss_removed_calypso_screen_notice() {
 
 			// If $preferences is not array we log the contents so that we can further debug.
 			if ( ! is_array( $preferences ) && function_exists( 'log2logstash' ) ) {
-				log2logstash(
-					array(
-						'feature' => 'wpcom-dismiss-wp-admin-notice',
-						'message' => 'Retrieved a non-array value from Calypso preferences.',
-						'extra'   => wp_json_encode( $preferences ),
-					)
-				);
-				// Bail if we can't update the preferences array.
-				wp_die();
+				// The expected value when preferences aren't set is an empty string.
+				if ( $preferences !== '' ) {
+					$blog_id = wpcom_get_current_blog_id();
+					log2logstash(
+						array(
+							'feature' => 'wpcom-dismiss-wp-admin-notice',
+							'message' => 'Retrieved non-empty, non-array Calypso preferences.',
+							'extra'   => wp_json_encode(
+								array(
+									'preferences' => $preferences,
+									'user_id'     => get_current_user_id(),
+									'blog_id'     => $blog_id,
+								)
+							),
+						)
+					);
+					wp_die();
+				}
+
+				// If the preferences are empty, we set them to an empty array.
+				$preferences = array();
 			}
 
 			$preferences[ 'removed-calypso-screen-dismissed-notice-' . $screen ] = true;

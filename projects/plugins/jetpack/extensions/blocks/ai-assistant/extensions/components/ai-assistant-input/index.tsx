@@ -1,7 +1,7 @@
 /*
  * External dependencies
  */
-import { ExtensionAIControl } from '@automattic/jetpack-ai-client';
+import { ExtensionAIControl, useAICheckout, useAiFeature } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -10,8 +10,6 @@ import React from 'react';
 /*
  * Internal dependencies
  */
-import useAICheckout from '../../../hooks/use-ai-checkout';
-import useAiFeature from '../../../hooks/use-ai-feature';
 import './style.scss';
 /*
  * Types
@@ -117,10 +115,11 @@ export default function AiAssistantInput( {
 	const handleUndo = useCallback( () => {
 		tracks.recordEvent( 'jetpack_ai_assistant_undo', {
 			block_type: blockType,
+			prompt: lastAction || null,
 		} );
 
 		undo?.();
-	}, [ blockType, tracks, undo ] );
+	}, [ blockType, lastAction, tracks, undo ] );
 
 	const handleUpgrade = useCallback( () => {
 		tracks.recordEvent( 'jetpack_ai_upgrade_button', {

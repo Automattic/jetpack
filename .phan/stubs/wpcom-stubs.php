@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 58daa278d1c6807cf18400dee1d9f45815e24fae.
+ * Stubs automatically generated from WordPress.com commit f1226e4348ae3a210537dd29de4ff42c8eadb05f.
  */
 
 namespace {
@@ -215,6 +215,8 @@ namespace {
     {
         public $product_id;
         public string $product_name;
+        public string $product_slug;
+        public string $product_type;
     }
     /**
      * @property Store_Transaction $transaction
@@ -764,7 +766,7 @@ namespace {
          * @param mixed $my_posts
          * @return void
          **/
-        public function send_post($my_posts, \Blog_Subscription $subscription = \null, $extra_text = '', $automattcher = \false)
+        public function send_post($my_posts, ?\Blog_Subscription $subscription = \null, $extra_text = '', $automattcher = \false)
         {
         }
     }
@@ -1070,7 +1072,7 @@ namespace {
     {
     }
     /**
-     * @return bool
+     * @return int|bool
      */
     function wpcom_subs_is_subscribed($args = array())
     {
@@ -1457,6 +1459,15 @@ namespace A8C\TOS_Acceptance_Tracking {
     {
     }
 }
+namespace Automattic\Jetpack\Dashboard_Customizations {
+    /**
+     * @param int $user_id
+     * @return bool
+     */
+    function show_unified_nav($user_id = null)
+    {
+    }
+}
 namespace BloggingPrompts {
     /**
      * @param string $prompt_html
@@ -1482,6 +1493,9 @@ namespace ExPlat {
     function assign_given_user(string $experiment_name, \WP_User $user): ?string
     {
     }
+    function get_user_assignment(string $experiment_name, \WP_User $user): ?string
+    {
+    }
 }
 namespace JITM {
     class Engine
@@ -1504,7 +1518,7 @@ namespace Newsletter_Categories {
      * @param int|null $blog_id
      * @return array
      */
-    function get_newsletter_categories(int $blog_id = null): array
+    function get_newsletter_categories(?int $blog_id = null): array
     {
     }
     /**
@@ -1512,7 +1526,7 @@ namespace Newsletter_Categories {
      * @param array    $term_ids
      * @return array
      */
-    function get_blog_subscription_counts_per_category(int $blog_id = null, array $term_ids = []): array
+    function get_blog_subscription_counts_per_category(?int $blog_id = null, array $term_ids = []): array
     {
     }
     /**
@@ -1520,7 +1534,7 @@ namespace Newsletter_Categories {
      * @param array|null $post_term_ids
      * @return int
      */
-    function get_blog_subscriptions_aggregate_count(int $blog_id = null, $post_term_ids = []): int
+    function get_blog_subscriptions_aggregate_count(?int $blog_id = null, $post_term_ids = []): int
     {
     }
 }

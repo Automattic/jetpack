@@ -114,3 +114,8 @@ export const WRITE_POST_FROM_LIST_LABEL = __( 'Write a post from this list', 'je
 export const GENERATE_TITLE_LABEL = __( 'Generate a post title', 'jetpack-ai-client' );
 export const SUMMARY_BASED_ON_TITLE_LABEL = __( 'Summary based on title', 'jetpack-ai-client' );
 export const CONTINUE_LABEL = __( 'Continue writing', 'jetpack-ai-client' );
+
+// Jetpack Sidebar
+export const PLACEMENT_JETPACK_SIDEBAR = 'jetpack-sidebar' as const;
+export const PLACEMENT_DOCUMENT_SETTINGS = 'document-settings' as const;
+export const PLACEMENT_PRE_PUBLISH = 'pre-publish' as const;

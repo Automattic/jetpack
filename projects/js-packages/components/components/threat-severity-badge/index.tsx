@@ -1,5 +1,5 @@
 import { _x } from '@wordpress/i18n';
-import Badge from '../badge';
+import Badge from '../badge/index.js';
 
 const ThreatSeverityBadge = ( { severity } ) => {
 	if ( severity >= 5 ) {

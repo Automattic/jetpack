@@ -50,6 +50,18 @@ type JetpackModule =
 	| 'related-posts'
 	| 'brute-force';
 
+type JetpackModuleWithCard =
+	| 'anti-spam'
+	| 'backup'
+	| 'boost'
+	| 'crm'
+	| 'jetpack-ai'
+	| 'protect'
+	| 'search'
+	| 'social'
+	| 'stats'
+	| 'videopress';
+
 type ThreatItem = {
 	// Protect API properties (free plan)
 	id: string;
@@ -99,6 +111,18 @@ type BackupStatus =
 	| 'Kill switch active'
 	| 'error'
 	| 'error-will-retry';
+
+type BackupNeedsAttentionData = {
+	source: 'rewind' | 'last_backup';
+	status: RewindStatus | BackupStatus;
+	last_updated: string;
+};
+type ProtectNeedsAttentionData = {
+	threat_count: number;
+	critical_threat_count: number;
+	fixable_threat_ids: number[];
+};
+
 interface Window {
 	myJetpackInitialState?: {
 		siteSuffix: string;
@@ -120,6 +144,7 @@ interface Window {
 		blogID: string;
 		fileSystemWriteAccess: 'yes' | 'no';
 		isStatsModuleActive: string;
+		canUserViewStats: boolean;
 		isUserFromKnownHost: string;
 		jetpackManage: {
 			isAgencyAccount: boolean;
@@ -172,6 +197,7 @@ interface Window {
 				[ key: string ]: {
 					class: string;
 					description: string;
+					category: 'security' | 'performance' | 'growth' | 'create' | 'management';
 					disclaimers: Array< string[] >;
 					features: string[];
 					has_free_offering: boolean;
@@ -241,7 +267,7 @@ interface Window {
 					};
 					purchase_url?: string;
 					requires_user_connection: boolean;
-					slug: string;
+					slug: JetpackModule;
 					standalone_plugin_info: {
 						has_standalone_plugin: boolean;
 						is_standalone_installed: boolean;
@@ -252,6 +278,12 @@ interface Window {
 					tiers: string[];
 					title: string;
 					wpcom_product_slug: string;
+					doesModuleNeedAttention:
+						| false
+						| {
+								type: 'warning' | 'error';
+								data: BackupNeedsAttentionData | ProtectNeedsAttentionData;
+						  };
 				};
 			};
 		};
@@ -288,6 +320,7 @@ interface Window {
 				jetpack_waf_share_debug_data: boolean;
 				standalone_mode: boolean;
 				waf_supported: boolean;
+				waf_enabled: boolean;
 			};
 		};
 		videopress: {
@@ -396,11 +429,7 @@ interface Window {
 			};
 			backup_failure?: {
 				type: 'warning' | 'error';
-				data: {
-					source: 'rewind' | 'last_backup';
-					status: RewindStatus | BackupStatus;
-					last_updated: string;
-				};
+				data: BackupNeedsAttentionData;
 			};
 			[ key: `${ string }--plan_expired` ]: {
 				product_slug: string;
@@ -420,11 +449,7 @@ interface Window {
 			};
 			protect_has_threats?: {
 				type: 'warning' | 'error';
-				data: {
-					threat_count: number;
-					critical_threat_count: number;
-					fixable_threat_ids: number[];
-				};
+				data: ProtectNeedsAttentionData;
 			};
 			[ key: `${ string }--plugins_needing_installed_activated` ]: {
 				needs_installed?: string[];
@@ -486,6 +511,8 @@ interface Window {
 				blogId: number;
 				wpcomUser: {
 					avatar: boolean;
+					display_name: string;
+					email: string;
 				};
 				gravatar: string;
 				permissions: {

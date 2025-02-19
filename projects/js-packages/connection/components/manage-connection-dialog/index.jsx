@@ -1,6 +1,8 @@
 /**
  * External dependencies
  */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
+import restApi from '@automattic/jetpack-api';
 import { Button, getRedirectUrl, Text } from '@automattic/jetpack-components';
 import { ExternalLink, Modal } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
@@ -8,10 +10,11 @@ import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight, external } from '@wordpress/icons';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import ConnectionErrorNotice from '../connection-error-notice/index.jsx';
 import DisconnectDialog from '../disconnect-dialog';
 import './style.scss';
 
@@ -28,6 +31,7 @@ const ManageConnectionDialog = props => {
 		apiNonce,
 		connectedPlugins,
 		onDisconnected,
+		onUnlinked,
 		context = 'jetpack-dashboard',
 		connectedUser = {}, // Pass empty object to avoid undefined errors.
 		connectedSiteId,
@@ -36,6 +40,16 @@ const ManageConnectionDialog = props => {
 	} = props;
 
 	const [ isDisconnectDialogOpen, setIsDisconnectDialogOpen ] = useState( false );
+	const [ isDisconnectingUser, setIsDisconnectingUser ] = useState( false );
+	const [ unlinkError, setUnlinkError ] = useState( '' );
+
+	/**
+	 * Initialize the REST API.
+	 */
+	useEffect( () => {
+		restApi.setApiRoot( apiRoot );
+		restApi.setApiNonce( apiNonce );
+	}, [ apiRoot, apiNonce ] );
 
 	/**
 	 * Open the Disconnect Dialog.
@@ -58,6 +72,70 @@ const ManageConnectionDialog = props => {
 		},
 		[ setIsDisconnectDialogOpen ]
 	);
+
+	const isCurrentUserAdmin = useMemo( () => {
+		return !! connectedUser.currentUser?.permissions?.manage_options;
+	}, [ connectedUser.currentUser ] );
+
+	const _disconnectUser = useCallback( () => {
+		// Not connected to WPCOM? bail.
+		if ( ! connectedUser.currentUser?.isConnected ) {
+			return;
+		}
+
+		setIsDisconnectingUser( true );
+		setUnlinkError( '' );
+
+		restApi
+			// Passing true to unlink will force the user disconnection
+			// This is needed for an admin to disconnect themselves
+			.unlinkUser( isCurrentUserAdmin )
+			.then( () => {
+				setIsDisconnectingUser( false );
+				onClose();
+				onUnlinked();
+			} )
+			.catch( () => {
+				let errorMessage = __(
+					'There was some trouble disconnecting your user account, your Jetpack plugin(s) may be outdated. Please visit your plugins page and make sure all Jetpack plugins are updated.',
+					'jetpack-connection-js'
+				);
+				if ( ! isCurrentUserAdmin ) {
+					errorMessage = __(
+						'There was some trouble disconnecting your user account, your Jetpack plugin(s) may be outdated. Please ask a site admin to update Jetpack',
+						'jetpack-connection-js'
+					);
+				}
+				setUnlinkError( errorMessage );
+				setIsDisconnectingUser( false );
+			} );
+	}, [
+		setIsDisconnectingUser,
+		setUnlinkError,
+		isCurrentUserAdmin,
+		onUnlinked,
+		onClose,
+		connectedUser,
+	] );
+
+	const handleDisconnectUser = useCallback(
+		e => {
+			e && e.preventDefault();
+			jetpackAnalytics.tracks.recordEvent(
+				'jetpack_manage_connection_dialog_disconnect_user_click',
+				{ context: context }
+			);
+			_disconnectUser();
+		},
+		[ _disconnectUser, context ]
+	);
+
+	const isControlsDisabled = useMemo( () => {
+		return isDisconnectingUser;
+	}, [ isDisconnectingUser ] );
+
+	// This is silly, but it's an optimizer workaround
+	const disconnectingText = __( 'Disconnecting…', 'jetpack-connection-js' );
 
 	return (
 		<>
@@ -82,22 +160,47 @@ const ManageConnectionDialog = props => {
 									'jetpack-connection-js'
 								) }
 							</Text>
-							<ManageConnectionActionCard
-								title={ __( 'Transfer ownership to another admin', 'jetpack-connection-js' ) }
-								link={ getRedirectUrl( 'calypso-settings-manage-connection', {
-									site: window?.myJetpackInitialState?.siteSuffix,
-								} ) }
-								key="transfer"
-								action="transfer"
-							/>
-							<ManageConnectionActionCard
-								title={ __( 'Disconnect Jetpack', 'jetpack-connection-js' ) }
-								onClick={ openDisconnectDialog }
-								key="disconnect"
-								action="disconnect"
-							/>
+							{ isCurrentUserAdmin &&
+								connectedUser.currentUser?.isConnected &&
+								connectedUser.currentUser?.isMaster && (
+									<ManageConnectionActionCard
+										title={ __( 'Transfer ownership to another admin', 'jetpack-connection-js' ) }
+										link={ getRedirectUrl( 'calypso-settings-manage-connection', {
+											site: window?.myJetpackInitialState?.siteSuffix,
+										} ) }
+										isExternal={ true }
+										key="transfer"
+										action="transfer"
+										disabled={ isControlsDisabled }
+									/>
+								) }
+							{ connectedUser.currentUser?.isConnected && (
+								<>
+									{ '' !== unlinkError && <ConnectionErrorNotice message={ unlinkError } /> }
+									<ManageConnectionActionCard
+										title={
+											isDisconnectingUser
+												? disconnectingText
+												: __( 'Disconnect my user account', 'jetpack-connection-js' )
+										}
+										onClick={ handleDisconnectUser }
+										key="unlink"
+										action="unlink"
+										disabled={ isControlsDisabled }
+									/>
+								</>
+							) }
+							{ isCurrentUserAdmin && (
+								<ManageConnectionActionCard
+									title={ __( 'Disconnect Jetpack', 'jetpack-connection-js' ) }
+									onClick={ openDisconnectDialog }
+									key="disconnect"
+									action="disconnect"
+									disabled={ isControlsDisabled }
+								/>
+							) }
 						</div>
-						<HelpFooter onClose={ onClose } />
+						<HelpFooter onClose={ onClose } disabled={ isControlsDisabled } />
 					</Modal>
 
 					<DisconnectDialog
@@ -117,18 +220,33 @@ const ManageConnectionDialog = props => {
 	);
 };
 
-const ManageConnectionActionCard = ( { title, onClick = () => null, link = '#', action } ) => {
+const ManageConnectionActionCard = ( {
+	title,
+	onClick = () => null,
+	isExternal = false,
+	link = '#',
+	action,
+	disabled = false,
+} ) => {
+	const disabledCallback = useCallback( e => e.preventDefault(), [] );
+
 	return (
-		<div className="jp-connection__manage-dialog__action-card card">
+		<div
+			className={
+				'jp-connection__manage-dialog__action-card card' + ( disabled ? ' disabled' : '' )
+			}
+		>
 			<div className="jp-connection__manage-dialog__action-card__card-content">
 				<a
 					href={ link }
 					className={ clsx( 'jp-connection__manage-dialog__action-card__card-headline', action ) }
-					onClick={ onClick }
+					onClick={ ! disabled ? onClick : disabledCallback }
+					target={ isExternal ? '_blank' : '_self' }
+					rel={ 'noopener noreferrer' }
 				>
 					{ title }
 					<Icon
-						icon={ action === 'disconnect' ? chevronRight : external }
+						icon={ isExternal ? external : chevronRight }
 						className="jp-connection__manage-dialog__action-card__icon"
 					/>
 				</a>
@@ -137,7 +255,7 @@ const ManageConnectionActionCard = ( { title, onClick = () => null, link = '#', 
 	);
 };
 
-const HelpFooter = ( { onClose } ) => {
+const HelpFooter = ( { onClose, disabled } ) => {
 	return (
 		<div className="jp-row jp-connection__manage-dialog__actions">
 			<div className="jp-connection__manage-dialog__text-wrap lg-col-span-9 md-col-span-7 sm-col-span-3">
@@ -175,6 +293,7 @@ const HelpFooter = ( { onClose } ) => {
 					variant="secondary"
 					onClick={ onClose }
 					className="jp-connection__manage-dialog__btn-dismiss"
+					disabled={ disabled }
 				>
 					{ __( 'Cancel', 'jetpack-connection-js' ) }
 				</Button>
@@ -194,6 +313,8 @@ ManageConnectionDialog.propTypes = {
 	connectedPlugins: PropTypes.oneOfType( [ PropTypes.array, PropTypes.object ] ),
 	/** The callback to be called upon disconnection success. */
 	onDisconnected: PropTypes.func,
+	/** The callback to be called upon user unlink success. */
+	onUnlinked: PropTypes.func,
 	/** The context in which this component is being used. */
 	context: PropTypes.string,
 	/** An object representing the connected user. */

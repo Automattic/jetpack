@@ -1,76 +1,103 @@
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import TypingMessage from './typing-message';
+import { __, sprintf } from '@wordpress/i18n';
 import { useMessages } from './wizard-messages';
-import type { CompletionStep } from './types';
+import type { Step, Results } from './types';
 
-export const useCompletionStep = (): CompletionStep => {
-	const [ keywords, setKeywords ] = useState( '' );
-	const [ completed, setCompleted ] = useState( false );
-	const { messages, setMessages, addMessage, removeLastMessage } = useMessages();
+export const useCompletionStep = (): Step => {
+	const [ value, setValue ] = useState( '' );
+	const { messages, setMessages, addMessage } = useMessages();
 
 	const startHandler = useCallback(
-		async ( { fromSkip } ) => {
-			const firstMessages = [
-				{
-					content: <TypingMessage />,
-					showIcon: true,
-					id: '2',
-				},
-			];
+		async ( { fromSkip, results } ) => {
+			const firstMessages = [];
+
 			if ( fromSkip ) {
-				firstMessages.unshift( {
-					// @ts-expect-error - type is properly defined, unsure why it's erroring
+				firstMessages.push( {
 					content: __( 'Skipped!', 'jetpack' ),
 					showIcon: true,
 					id: 'a',
 				} );
 			}
 			setMessages( firstMessages );
-			await new Promise( resolve => setTimeout( resolve, 2000 ) );
-			removeLastMessage();
-			// await new Promise( resolve => setTimeout( resolve, 1000 ) );
+
+			await new Promise( resolve => setTimeout( resolve, 1000 ) );
+
+			const resultsString = Object.values( results )
+				.map( ( result: Results[ string ] ) => `${ result.value ? '✅' : '❌' } ${ result.label }` )
+				.join( '<br />' );
+
 			addMessage( {
 				content: createInterpolateElement(
-					"Here's your updated checklist:<br />✅ Title<br />✅ Meta description<br /><br />",
+					__( "Here's your updated checklist:", 'jetpack' ) + '<br />' + resultsString + '<br />',
 					{
 						br: <br />,
 					}
 				),
 				id: '1',
 			} );
-			addMessage( {
-				content: createInterpolateElement(
-					__(
-						'<strong>SEO optimization complete! 🎉</strong><br/>Your blog post is now search-engine friendly.',
-						'jetpack'
+
+			const incomplete: { total: number; completed: number } = Object.values( results ).reduce(
+				( acc: { total: number; completed: number }, result: Results[ string ] ) => {
+					const total = acc.total + 1;
+					const completed = acc.completed + ( result.value ? 1 : 0 );
+					return { total, completed };
+				},
+				{ total: 0, completed: 0 }
+			) as { total: number; completed: number };
+
+			const incompleteString =
+				incomplete.completed === incomplete.total
+					? ''
+					: sprintf(
+							/* translators: %1$d is the number of completed items, %2$d is the total number of items */
+							__( "You've optimized %1$d out of %2$d items! 🎉", 'jetpack' ),
+							incomplete.completed,
+							incomplete.total
+					  );
+
+			if ( incompleteString ) {
+				const teaseCompletion = __(
+					'Your post is looking great! Come back anytime to complete the rest.',
+					'jetpack'
+				);
+				addMessage( {
+					content: createInterpolateElement(
+						'<strong>' + incompleteString + '</strong><br />' + teaseCompletion,
+						{
+							strong: <strong />,
+							br: <br />,
+						}
 					),
-					{ br: <br />, strong: <strong /> }
-				),
-				showIcon: false,
-				id: '3',
-			} );
-			addMessage( {
-				content: __( 'Happy blogging! 😊', 'jetpack' ),
-				showIcon: false,
-				id: '4',
-			} );
+					id: '2',
+				} );
+			} else {
+				addMessage( {
+					content: createInterpolateElement(
+						__(
+							'<strong>SEO improvements complete! 🎉</strong><br/>Your blog post is now search-engine friendly.<br />Happy blogging! 😊',
+							'jetpack'
+						),
+						{ br: <br />, strong: <strong /> }
+					),
+					showIcon: false,
+					id: '3',
+				} );
+			}
+
 			return 'completion';
 		},
-		[ setMessages, addMessage, removeLastMessage ]
+		[ setMessages, addMessage ]
 	);
 
 	return {
 		id: 'completion',
-		title: __( 'Your post is SEO-ready', 'jetpack' ),
+		title: __( 'Your post is ready', 'jetpack' ),
 		label: 'completion',
 		messages,
 		type: 'completion',
 		onStart: startHandler,
 		submitCtaLabel: __( 'Done!', 'jetpack' ),
-		completed,
-		setCompleted,
-		value: keywords,
-		setValue: setKeywords,
+		value,
+		setValue,
 	};
 };

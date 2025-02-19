@@ -2,7 +2,7 @@ import { InnerBlocks } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { Path, Icon } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
-import { globe, envelope, mobile } from '@wordpress/icons';
+import { globe, envelope, mobile, upload } from '@wordpress/icons';
 import { filter, isEmpty, map, startsWith, trim } from 'lodash';
 import JetpackField from './components/jetpack-field';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
@@ -114,6 +114,11 @@ const FieldDefaults = {
 	},
 	transforms: {
 		to: [
+			{
+				type: 'block',
+				blocks: [ 'jetpack/field-number' ],
+				transform: attributes => createBlock( 'jetpack/field-number', attributes ),
+			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-text' ],
@@ -238,12 +243,16 @@ const FieldDefaults = {
 	example: {},
 };
 
+// Storing in variables to avoid JS mangling breaking translation calls
+const severalOptionsDefault = __( 'Choose several options', 'jetpack-forms' );
+const oneOptionDefault = __( 'Choose one option', 'jetpack-forms' );
+
 const multiFieldV1 = fieldType => ( {
 	attributes: {
 		...FieldDefaults.attributes,
 		label: {
 			type: 'string',
-			default: fieldType === 'checkbox' ? 'Choose several options' : 'Choose one option',
+			default: fieldType === 'checkbox' ? severalOptionsDefault : oneOptionDefault,
 		},
 	},
 	migrate: attributes => {
@@ -370,8 +379,30 @@ export const childBlocks = [
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
-					default: 'Text',
+					default: __( 'Text', 'jetpack-forms' ),
 					role: 'content',
+				},
+			},
+		},
+	},
+	{
+		name: 'field-number',
+		settings: {
+			...FieldDefaults,
+			title: __( 'Number Input Field', 'jetpack-forms' ),
+			description: __( 'Collect numbers from site visitors.', 'jetpack-forms' ),
+			icon: renderMaterialIcon(
+				<Path
+					fill={ getIconColor() }
+					d="M12 7H4V8.5H12V7ZM19.75 17.25V10.75H4.25V17.25H19.75ZM5.75 15.75V12.25H18.25V15.75H5.75Z"
+				/>
+			),
+			edit: editField( 'number' ),
+			attributes: {
+				...FieldDefaults.attributes,
+				label: {
+					type: 'string',
+					default: __( 'Number', 'jetpack-forms' ),
 				},
 			},
 		},
@@ -381,7 +412,7 @@ export const childBlocks = [
 		settings: {
 			...FieldDefaults,
 			title: __( 'Name Field', 'jetpack-forms' ),
-			description: __( 'Collect the site visitor’s name.', 'jetpack-forms' ),
+			description: __( "Collect the site visitor's name.", 'jetpack-forms' ),
 			icon: {
 				foreground: getIconColor(),
 				src: renderMaterialIcon(
@@ -393,7 +424,7 @@ export const childBlocks = [
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
-					default: 'Name',
+					default: __( 'Name', 'jetpack-forms' ),
 					role: 'content',
 				},
 			},
@@ -415,7 +446,7 @@ export const childBlocks = [
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
-					default: 'Email',
+					default: __( 'Email', 'jetpack-forms' ),
 					role: 'content',
 				},
 			},
@@ -472,7 +503,7 @@ export const childBlocks = [
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
-					default: 'Date',
+					default: __( 'Date', 'jetpack-forms' ),
 					role: 'content',
 				},
 				dateFormat: {
@@ -506,6 +537,37 @@ export const childBlocks = [
 					role: 'content',
 				},
 			},
+		},
+	},
+	{
+		name: 'field-file',
+		settings: {
+			...FieldDefaults,
+			title: __( 'File Upload Field', 'jetpack-forms' ),
+			keywords: [
+				__( 'File', 'jetpack-forms' ),
+				__( 'Upload', 'jetpack-forms' ),
+				__( 'Attachment', 'jetpack-forms' ),
+			],
+			description: __( 'Allow visitors to upload files through your form.', 'jetpack-forms' ),
+			icon: {
+				foreground: getIconColor(),
+				src: <Icon icon={ upload } />,
+			},
+			edit: editField( 'file' ),
+			attributes: {
+				...FieldDefaults.attributes,
+				label: {
+					type: 'string',
+					default: __( 'Upload a file', 'jetpack-forms' ),
+					role: 'content',
+				},
+				filetype: {
+					type: 'string',
+					default: '',
+				},
+			},
+			isBeta: true,
 		},
 	},
 	{

@@ -11,7 +11,7 @@ import {
 	GlobalModals,
 	usePostCanUseSig,
 } from '@automattic/jetpack-publicize-components';
-import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { PanelBody } from '@wordpress/components';
 import { dispatch, useSelect } from '@wordpress/data';
 import domReady from '@wordpress/dom-ready';
