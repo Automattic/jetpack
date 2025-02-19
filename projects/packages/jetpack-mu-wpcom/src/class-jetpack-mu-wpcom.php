@@ -257,7 +257,6 @@ class Jetpack_Mu_Wpcom {
 
 		require_once __DIR__ . '/features/jetpack-global-styles/class-global-styles.php';
 		require_once __DIR__ . '/features/mailerlite/subscriber-popup.php';
-		require_once __DIR__ . '/features/wpcom-fse/wpcom-fse.php';
 
 		/**
 		 * Load features for the editor and the frontend pages.
