@@ -50,11 +50,6 @@ function twentytwenty_jetpack_setup() {
 			),
 		)
 	);
-
-	/**
-	 * Add theme support for geo-location.
-	 */
-	add_theme_support( 'jetpack-geo-location' );
 }
 add_action( 'after_setup_theme', 'twentytwenty_jetpack_setup' );
 

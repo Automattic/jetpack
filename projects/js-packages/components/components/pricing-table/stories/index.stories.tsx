@@ -1,6 +1,10 @@
-import Button from '../../button';
-import ProductPrice from '../../product-price';
-import PricingTable, { PricingTableColumn, PricingTableHeader, PricingTableItem } from '../index';
+import Button from '../../button/index.js';
+import ProductPrice from '../../product-price/index.js';
+import PricingTable, {
+	PricingTableColumn,
+	PricingTableHeader,
+	PricingTableItem,
+} from '../index.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
 export default {

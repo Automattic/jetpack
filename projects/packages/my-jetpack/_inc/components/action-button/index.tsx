@@ -1,5 +1,5 @@
 import { Button } from '@automattic/jetpack-components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Icon, chevronDown, external, check } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
@@ -36,7 +36,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	className,
 	tracksIdentifier,
 } ) => {
-	const { userIsAdmin, lifecycleStats } = getMyJetpackWindowInitialState();
+	const { lifecycleStats } = getMyJetpackWindowInitialState();
 	const { ownedProducts } = lifecycleStats;
 
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
@@ -49,7 +49,6 @@ const ActionButton: FC< ActionButtonProps > = ( {
 		managePaidPlanPurchaseUrl,
 		renewPaidPlanPurchaseUrl,
 		status,
-		name,
 		requiresUserConnection,
 	} = detail;
 	const { siteIsRegistering, isRegistered, isUserConnected } = useMyJetpackConnection();
@@ -68,7 +67,6 @@ const ActionButton: FC< ActionButtonProps > = ( {
 		( siteIsRegistering && status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR );
 	const hasAdditionalActions = additionalActions?.length > 0;
 	const isOwned = ownedProducts?.includes( slug );
-	const admin = !! userIsAdmin;
 	const troubleshootBackupsUrl =
 		'https://jetpack.com/support/backup/troubleshooting-jetpack-backup/';
 
@@ -358,17 +356,6 @@ const ActionButton: FC< ActionButtonProps > = ( {
 			recordDropdownStateChange();
 		}
 	} );
-
-	if ( ! admin ) {
-		return (
-			<Button { ...buttonState } size="small" variant="link" weight="regular">
-				{
-					/* translators: placeholder is product name. */
-					sprintf( __( 'Learn about %s', 'jetpack-my-jetpack' ), name )
-				}
-			</Button>
-		);
-	}
 
 	const dropdown = hasAdditionalActions && (
 		<div ref={ dropdownRef } className={ styles[ 'action-button-dropdown' ] }>

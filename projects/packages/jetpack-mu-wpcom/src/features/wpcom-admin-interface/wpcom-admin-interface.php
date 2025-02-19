@@ -394,6 +394,37 @@ function wpcom_show_admin_interface_notice() {
 add_action( 'admin_notices', 'wpcom_show_admin_interface_notice' );
 
 /**
+ * Force a cache purge.
+ *
+ * @return void
+ */
+function wpcom_rdv_reset_cache_if_needed() {
+	if ( ! get_user_option( 'rdv_force_cache_is_deleted', get_current_user_id() ) ) {
+		update_user_option( get_current_user_id(), 'rdv_force_cache_is_deleted', true, true );
+		delete_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, true );
+	}
+}
+
+/**
+ * Check if the might be an a11n on Atomic sites.
+ *
+ * @return bool
+ */
+function wpcom_atomic_rdv_maybe_is_a11n() {
+	$is_proxy_atomic    = defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST;
+	$is_support_session = WPCOMSH_Support_Session_Detect::is_probably_support_session();
+	$admin_menu_is_a11n = isset( $_GET['admin_menu_is_a11n'] ) && function_exists( 'wpcomsh_is_admin_menu_api_request' ) && wpcomsh_is_admin_menu_api_request();
+
+	/**
+	 * This handles two contexts: Calypso and WP-Admin.
+	 *
+	 * Calypso: WPCOM admin-menu API endpoint mapper sends a "admin_menu_is_a11n" param for a12s. If the param exists, then we'll switch to treatment.
+	 * WP-Admin: We check if the user is proxied and if it's not in a support session.
+	 */
+	return $admin_menu_is_a11n || ( $is_proxy_atomic && ! $is_support_session );
+}
+
+/**
  * Option to force and cache the Remove duplicate Views experiment assigned variation.
  */
 const RDV_EXPERIMENT_FORCE_ASSIGN_OPTION = 'remove_duplicate_views_experiment_assignment_160125';
@@ -413,10 +444,17 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 		return $is_enabled;
 	}
 
+	$host = new Host();
+
+	if ( $host->is_wpcom_simple() && is_automattician() || $host->is_atomic_platform() && wpcom_atomic_rdv_maybe_is_a11n() ) {
+		wpcom_rdv_reset_cache_if_needed();
+	}
+
 	$variation = get_user_option( RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, get_current_user_id() );
 
 	/**
 	 * We cache it for both AT and Simple because we want to give a12s to be able to switch between variations for their accounts - this can be useful during support.
+	 * Note that switching the variations can only be achieved through the escape hatch, not via ExPlat.
 	 *
 	 * If we don't cache it, the is_automattician conditions will force treatment every time.
 	 */
@@ -425,31 +463,22 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 		return $is_enabled;
 	}
 
-	if ( ( new Host() )->is_wpcom_simple() ) {
+	if ( $host->is_wpcom_simple() ) {
 		\ExPlat\assign_current_user( $aa_test_name );
 		$is_enabled = 'treatment' === \ExPlat\assign_current_user( $experiment_name );
 
 		if ( is_automattician() ) {
 			$is_enabled = true;
 			update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, 'treatment', true );
+			wpcom_set_rdv_calypso_preference( 'treatment' );
 		}
 
 		return $is_enabled;
 	}
 
-	$is_proxy_atomic    = defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST;
-	$is_support_session = WPCOMSH_Support_Session_Detect::is_probably_support_session();
-	$admin_menu_is_a11n = isset( $_GET['admin_menu_is_a11n'] ) && function_exists( 'wpcomsh_is_admin_menu_api_request' ) && wpcomsh_is_admin_menu_api_request();
-
-	/**
-	 * This handles two contexts: Calypso and WP-Admin.
-	 *
-	 * Calypso: WPCOM admin-menu API endpoint mapper sends a "admin_menu_is_a11n" param for a12s. If the param exists, then we'll switch to treatment.
-	 * WP-Admin: We check if the user is proxied and if it's not in a support session.
-	 */
-
-	if ( $admin_menu_is_a11n || ( $is_proxy_atomic && ! $is_support_session ) ) {
+	if ( wpcom_atomic_rdv_maybe_is_a11n() ) {
 		update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, 'treatment', true );
+		wpcom_set_rdv_calypso_preference( 'treatment' );
 		$is_enabled = true;
 
 		return true;

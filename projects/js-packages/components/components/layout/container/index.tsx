@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { createElement, forwardRef, useMemo } from 'react';
-import { ContainerProps } from '../types';
+import { ContainerProps } from '../types.js';
 import styles from './style.module.scss';
 import type React from 'react';
 

@@ -19,7 +19,7 @@ class Keyring_Helper {
 	/**
 	 * Class instance
 	 *
-	 * @var \Automattic\Jetpack\Publicize\Keyring_Helper
+	 * @var Keyring_Helper
 	 */
 	private static $instance = null;
 
@@ -34,7 +34,7 @@ class Keyring_Helper {
 	 * Initialize instance.
 	 */
 	public static function init() {
-		if ( self::$instance === null ) {
+		if ( null === self::$instance ) {
 			self::$instance = new Keyring_Helper();
 		}
 
@@ -69,32 +69,7 @@ class Keyring_Helper {
 	 * Constructor
 	 */
 	private function __construct() {
-		add_action( 'admin_menu', array( __CLASS__, 'register_sharing_page' ) );
-
-		add_action( 'load-settings_page_sharing', array( __CLASS__, 'admin_page_load' ), 9 );
-	}
-
-	/**
-	 * We need a `sharing` page to be able to connect and disconnect services.
-	 */
-	public static function register_sharing_page() {
-		if ( self::$is_sharing_page_registered ) {
-			return;
-		}
-
-		self::$is_sharing_page_registered = true;
-
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
-
-		global $_registered_pages;
-
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-
-		$hookname = get_plugin_page_hookname( 'sharing', 'options-general.php' );
-		add_action( $hookname, array( __CLASS__, 'admin_page_load' ) );
-		$_registered_pages[ $hookname ] = true; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		add_action( 'admin_init', array( __CLASS__, 'intercept_request' ) );
 	}
 
 	/**
@@ -137,13 +112,14 @@ class Keyring_Helper {
 	public static function connect_url( $service_name, $for ) {
 		return add_query_arg(
 			array(
-				'action'   => 'request',
-				'service'  => $service_name,
-				'kr_nonce' => wp_create_nonce( 'keyring-request' ),
-				'nonce'    => wp_create_nonce( "keyring-request-$service_name" ),
-				'for'      => $for,
+				'action'           => 'request',
+				'service'          => $service_name,
+				'kr_nonce'         => wp_create_nonce( 'keyring-request' ),
+				'nonce'            => wp_create_nonce( "keyring-request-$service_name" ),
+				'for'              => $for,
+				'publicize_action' => 1,
 			),
-			admin_url( 'options-general.php?page=sharing' )
+			admin_url()
 		);
 	}
 
@@ -157,14 +133,15 @@ class Keyring_Helper {
 	public static function refresh_url( $service_name, $for ) {
 		return add_query_arg(
 			array(
-				'action'   => 'request',
-				'service'  => $service_name,
-				'kr_nonce' => wp_create_nonce( 'keyring-request' ),
-				'refresh'  => 1,
-				'for'      => $for,
-				'nonce'    => wp_create_nonce( "keyring-request-$service_name" ),
+				'action'           => 'request',
+				'service'          => $service_name,
+				'kr_nonce'         => wp_create_nonce( 'keyring-request' ),
+				'refresh'          => 1,
+				'for'              => $for,
+				'nonce'            => wp_create_nonce( "keyring-request-$service_name" ),
+				'publicize_action' => 1,
 			),
-			admin_url( 'options-general.php?page=sharing' )
+			admin_url()
 		);
 	}
 
@@ -177,21 +154,22 @@ class Keyring_Helper {
 	public static function disconnect_url( $service_name, $id ) {
 		return add_query_arg(
 			array(
-				'action'   => 'delete',
-				'service'  => $service_name,
-				'id'       => $id,
-				'kr_nonce' => wp_create_nonce( 'keyring-request' ),
-				'nonce'    => wp_create_nonce( "keyring-request-$service_name" ),
+				'action'           => 'delete',
+				'service'          => $service_name,
+				'id'               => $id,
+				'kr_nonce'         => wp_create_nonce( 'keyring-request' ),
+				'nonce'            => wp_create_nonce( "keyring-request-$service_name" ),
+				'publicize_action' => 1,
 			),
-			admin_url( 'options-general.php?page=sharing' )
+			admin_url()
 		);
 	}
 
 	/**
 	 * Build contents handling Keyring connection management into Sharing settings screen.
 	 */
-	public static function admin_page_load() {
-		if ( isset( $_GET['action'] ) ) {
+	public static function intercept_request() {
+		if ( ! empty( $_GET['publicize_action'] ) && isset( $_GET['action'] ) ) {
 			$service_name = null;
 
 			if ( isset( $_GET['service'] ) ) {
@@ -227,14 +205,31 @@ class Keyring_Helper {
 					$wpcom_blog_id = Jetpack_Options::get_option( 'id' );
 					$wpcom_blog_id = ! empty( $wpcom_blog_id ) ? $wpcom_blog_id : $stats_options['blog_id'];
 
+					$for = isset( $_GET['for'] ) ? sanitize_text_field( wp_unslash( $_GET['for'] ) ) : 'publicize';
+
+					$custom_inputs = array();
+
+					// For Bluesky.
+					if ( isset( $_GET['handle'] ) && isset( $_GET['app_password'] ) ) {
+						$custom_inputs['handle'] = sanitize_text_field( wp_unslash( $_GET['handle'] ) );
+
+						$custom_inputs['app_password'] = sanitize_text_field( wp_unslash( $_GET['app_password'] ) );
+					}
+
+					// For Mastodon.
+					if ( isset( $_GET['instance'] ) ) {
+						$custom_inputs['instance'] = sanitize_text_field( wp_unslash( $_GET['instance'] ) );
+					}
+
 					$user     = wp_get_current_user();
 					$redirect = self::api_url(
 						$service_name,
 						urlencode_deep(
+							$custom_inputs +
 							array(
 								'action'       => 'request',
 								'redirect_uri' => add_query_arg( array( 'action' => 'done' ), menu_page_url( 'sharing', false ) ),
-								'for'          => 'publicize',
+								'for'          => $for,
 								// required flag that says this connection is intended for publicize.
 								'siteurl'      => site_url(),
 								'state'        => $user->ID,

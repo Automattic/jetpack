@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { askQuestionSync, usePostContent } from '@automattic/jetpack-ai-client';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import {
@@ -37,7 +38,7 @@ export const useTitleStep = ( {
 } ): Step => {
 	const [ value, setValue ] = useState< string >( '' );
 	const [ selectedTitle, setSelectedTitle ] = useState< string >( '' );
-	const [ titleOptions, setTitleOptions ] = useState< OptionMessage[] >( [] );
+	const [ valueOptions, setValueOptions ] = useState< OptionMessage[] >( [] );
 	const { editPost } = useDispatch( 'core/editor' );
 	const { messages, setMessages, addMessage, editLastMessage, setSelectedMessage } = useMessages();
 	const [ lastValue, setLastValue ] = useState< string >( '' );
@@ -46,13 +47,20 @@ export const useTitleStep = ( {
 	const [ generatedCount, setGeneratedCount ] = useState( 0 );
 	const [ hasFailed, setHasFailed ] = useState( false );
 	const [ failurePoint, setFailurePoint ] = useState< 'generate' | 'regenerate' | null >( null );
+	const { tracks } = useAnalytics();
 
 	const prevStepHasChanged = useMemo( () => keywords !== lastValue, [ keywords, lastValue ] );
+	const stepId = 'title';
 
 	const request = useCallback( async () => {
 		if ( mockRequests ) {
 			return mockTitleRequest( keywords );
 		}
+		tracks.recordEvent( 'jetpack_wizard_chat_request', {
+			step: stepId,
+			context: keywords,
+			assistant_name: 'seo-assistant',
+		} );
 		return askQuestionSync(
 			[
 				{
@@ -66,16 +74,16 @@ export const useTitleStep = ( {
 			],
 			{
 				postId,
-				feature: 'seo-title',
+				feature: 'jetpack-seo-assistant',
 			}
 		);
-	}, [ keywords, postContent, postId, mockRequests ] );
+	}, [ keywords, postContent, postId, mockRequests, tracks ] );
 
 	const handleTitleSelect = useCallback(
 		( option: OptionMessage ) => {
 			setSelectedTitle( option.content as string );
 			setSelectedMessage( option );
-			setTitleOptions( prev => prev.map( o => ( { ...o, selected: o.id === option.id } ) ) );
+			setValueOptions( prev => prev.map( o => ( { ...o, selected: o.id === option.id } ) ) );
 		},
 		[ setSelectedMessage ]
 	);
@@ -104,7 +112,7 @@ export const useTitleStep = ( {
 
 	const handleTitleGenerate = useCallback(
 		async ( { fromSkip } ) => {
-			let newTitles = [ ...titleOptions ];
+			let newTitles = [ ...valueOptions ];
 			const previousLastValue = lastValue;
 
 			setLastValue( keywords );
@@ -113,13 +121,13 @@ export const useTitleStep = ( {
 				const initialMessage = fromSkip
 					? {
 							content: createInterpolateElement(
-								__( "Skipped!<br />Let's optimise your title first.", 'jetpack' ),
+								__( "Skipped!<br />Let's optimize your title first.", 'jetpack' ),
 								{ br: <br /> }
 							),
 							showIcon: true,
 					  }
 					: {
-							content: __( "Let's optimise your title first.", 'jetpack' ),
+							content: __( "Let's optimize your title first.", 'jetpack' ),
 							showIcon: true,
 					  };
 				setMessages( [ initialMessage ] );
@@ -149,14 +157,14 @@ export const useTitleStep = ( {
 
 			if ( newTitles.length ) {
 				// this sets the title options for internal state
-				setTitleOptions( newTitles );
+				setValueOptions( newTitles );
 				// this adds title options as message-buttons
 				newTitles.forEach( title => addMessage( { ...title, type: 'option', isUser: true } ) );
 			}
 			return value;
 		},
 		[
-			titleOptions,
+			valueOptions,
 			lastValue,
 			keywords,
 			hasFailed,
@@ -174,13 +182,13 @@ export const useTitleStep = ( {
 			setHasFailed( false );
 			const newTitles = await getTitles();
 
-			setTitleOptions( [ ...titleOptions, ...newTitles ] );
+			setValueOptions( [ ...valueOptions, ...newTitles ] );
 			newTitles.forEach( title => addMessage( { ...title, type: 'option', isUser: true } ) );
 		} catch {
 			setFailurePoint( 'regenerate' );
 			setHasFailed( true );
 		}
-	}, [ getTitles, titleOptions, addMessage ] );
+	}, [ getTitles, valueOptions, addMessage ] );
 
 	const handleTitleSubmit = useCallback( async () => {
 		setValue( selectedTitle );
@@ -199,12 +207,12 @@ export const useTitleStep = ( {
 	const regenerateLabel = __( 'Regenerate', 'jetpack' );
 
 	return {
-		id: 'title',
-		title: __( 'Optimise Title', 'jetpack' ),
-		label: __( 'Title', 'jetpack' ),
+		id: stepId,
+		title: __( 'Optimize SEO Title', 'jetpack' ),
+		label: __( 'SEO Title', 'jetpack' ),
 		messages,
 		type: 'options',
-		options: titleOptions,
+		options: valueOptions,
 		onSelect: handleTitleSelect,
 		onSubmit: handleTitleSubmit,
 		submitCtaLabel: __( 'Insert', 'jetpack' ),
