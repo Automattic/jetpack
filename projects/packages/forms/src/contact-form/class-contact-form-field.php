@@ -741,7 +741,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $id field id.
 	 * @param string $class html classes (can be set by the admin).
 	 */
-	private function render_consent_field( $id, $class ) {
+	public function render_consent_field( $id, $class ) {
 		$consent_type    = 'explicit' === $this->get_attribute( 'consenttype' ) ? 'explicit' : 'implicit';
 		$consent_message = 'explicit' === $consent_type ? $this->get_attribute( 'explicitconsentmessage' ) : $this->get_attribute( 'implicitconsentmessage' );
 
