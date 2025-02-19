@@ -1,12 +1,14 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React, { useCallback, useMemo } from 'react';
-import { connect } from 'react-redux';
 import { createNotice } from 'components/global-notices/state/notices/actions';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
+import { createInterpolateElement } from 'node_modules/@wordpress/element/build-types';
+import React, { useCallback, useMemo } from 'react';
+import { connect } from 'react-redux';
 import {
 	isUnavailableInOfflineMode,
 	requiresConnection,
@@ -138,9 +140,16 @@ function NewsletterCategories( props ) {
 				} }
 			>
 				<p>
-					{ __(
-						'Newsletter categories allow visitors to subscribe only to specific topics. When enabled, only posts published under the categories selected below will be emailed to your subscribers.',
-						'jetpack'
+					{ createInterpolateElement(
+						__(
+							'Newsletter categories let visitors subscribe to specific topics. When enabled, only posts in the selected categories will be emailed. By default, subscribers can choose from your selected categories, or you can pre-select categories in the <link>subscribe block</link>.',
+							'jetpack'
+						),
+						{
+							link: (
+								<ExternalLink href="https://jetpack.com/support/jetpack-blocks/subscription-form-block/" />
+							),
+						}
 					) }
 				</p>
 				<div className="newsletter-categories-toggle-wrapper">
