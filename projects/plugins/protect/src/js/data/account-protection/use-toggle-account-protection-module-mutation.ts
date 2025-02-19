@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import API from '../../api';
 import { QUERY_ACCOUNT_PROTECTION_KEY } from '../../constants';
 import useNotices from '../../hooks/use-notices';
+import { AccountProtectionStatus } from '../../types/account-protection';
 
 /**
  * Toggle Account Protection Mutatation
@@ -18,16 +19,33 @@ export default function useToggleAccountProtectionMutation(): UseMutationResult 
 		onMutate: () => {
 			showSavingNotice();
 
-			const initialValue = queryClient.getQueryData( [ QUERY_ACCOUNT_PROTECTION_KEY ] );
+			// Get the current cached data
+			const previousData = queryClient.getQueryData< AccountProtectionStatus >( [
+				QUERY_ACCOUNT_PROTECTION_KEY,
+			] );
 
-			queryClient.setQueryData( [ QUERY_ACCOUNT_PROTECTION_KEY ], ! initialValue );
+			// Optimistically update the `isEnabled` property
+			if ( previousData ) {
+				queryClient.setQueryData< AccountProtectionStatus >( [ QUERY_ACCOUNT_PROTECTION_KEY ], {
+					...previousData,
+					isEnabled: ! previousData.isEnabled,
+				} );
+			}
 
-			return { initialValue };
+			return { previousData };
 		},
 		onSuccess: () => {
 			showSuccessNotice( __( 'Changes saved.', 'jetpack-protect' ) );
 		},
-		onError: () => {
+		onError: ( error, variables, context ) => {
+			// If the request failed, revert the optimistic update.
+			if ( context?.previousData ) {
+				queryClient.setQueryData< AccountProtectionStatus >(
+					[ QUERY_ACCOUNT_PROTECTION_KEY ],
+					context.previousData
+				);
+			}
+
 			showErrorNotice( __( 'An error occurred.', 'jetpack-protect' ) );
 		},
 		onSettled: () => {
