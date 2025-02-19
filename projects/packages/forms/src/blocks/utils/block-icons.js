@@ -1,5 +1,6 @@
 import colorStudio from '@automattic/color-studio';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { SVG } from '@wordpress/components';
 
 /**
  * Constants
@@ -22,4 +23,12 @@ export function getIconColor() {
 
 	// Jetpack Green
 	return COLOR_JETPACK;
+}
+
+export function MaterialIcon( { children, width = 24, height = 24, viewbox = '0 0 24 24' } ) {
+	return (
+		<SVG xmlns="http://www.w3.org/2000/svg" width={ width } height={ height } viewBox={ viewbox }>
+			{ children }
+		</SVG>
+	);
 }
