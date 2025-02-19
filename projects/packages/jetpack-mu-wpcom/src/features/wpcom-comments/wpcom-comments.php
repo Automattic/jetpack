@@ -6,43 +6,50 @@
  */
 
 /**
- * Adds a "Like" action link to comment rows.
+ * Adds a "Like" action to comment rows.
  *
- * @param array      $actions The existing comment row actions.
- * @param WP_Comment $comment The comment object for the current row.
- * @return array Modified array of comment row actions.
+ * @param array      $actions Array of actions for the comment.
+ * @param WP_Comment $comment The comment object.
+ * @return array Modified actions array.
  */
-function wpcom_add_comment_like_action( $actions, $comment ) {
-	$comment_id = $comment->comment_ID;
-	$blog_id    = esc_attr( get_current_blog_id() );
-	$nonce      = wp_create_nonce( 'like_comment_' . $comment_id . '_' . $blog_id );
-
-	$feedback = esc_html( comment_like_get_feedback_esc( $comment_id ) );
+function wpcom_comments_enable_likes( $actions, $comment ) {
+	$comment_id = (int) $comment->comment_ID;
 
 	$actions['like'] = sprintf(
-		'<a data-nonce="%s" data-comment="%s" data-blog="%s" href="#" class="comment-like-link"><span>%s</span></a>',
-		esc_attr( $nonce ),
-		$comment_id,
-		$blog_id,
-		$feedback
+		'<span data-comment-id="%s" class="wpcom-comment-like"></span>',
+		esc_attr( $comment_id )
 	);
 
 	return $actions;
 }
-if ( function_exists( 'comment_like_get_feedback_esc' ) ) {
-	add_filter( 'comment_row_actions', 'wpcom_add_comment_like_action', 10, 2 );
-}
+add_filter( 'comment_row_actions', 'wpcom_comments_enable_likes', 10, 2 );
 
 /**
  * Enqueues the comment like JavaScript in the admin area.
  *
  * The script is only enqueued on the "Edit Comments" screen.
+ *
+ * @param string $hook The current admin page.
  */
-function wpcom_enqueue_comment_like_script() {
-	$screen = get_current_screen();
-	if ( $screen && 'edit-comments' === $screen->id ) {
-		$script_path = plugin_dir_url( __FILE__ ) . 'wpcom-comments.js';
-		wp_enqueue_script( 'wpcom-comments', $script_path, array(), '1.0.0', true );
+function wpcom_enqueue_comment_like_script( $hook ) {
+	// Only run on the edit-comments screen.
+	if ( 'edit-comments.php' !== $hook ) {
+		return;
 	}
+
+	// Enqueue the script.
+	jetpack_mu_wpcom_enqueue_assets( 'wpcom-comment-like', array( 'js' ) );
+
+	// Localize the script with necessary data.
+	wp_localize_script(
+		'jetpack-mu-wpcom-wpcom-comment-like',
+		'wpcomCommentLikesData',
+		array(
+			'likeFeedback'    => esc_html__( 'Like', 'jetpack-mu-wpcom' ),
+			'likedFeedback'   => esc_html__( 'Liked by you', 'jetpack-mu-wpcom' ),
+			'loadingFeedback' => esc_html__( 'Loading...', 'jetpack-mu-wpcom' ),
+			'siteId'          => wpcom_get_current_blog_id(),
+		)
+	);
 }
-add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_comment_like_script' );
+add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_comment_like_script', 10, 2 );
