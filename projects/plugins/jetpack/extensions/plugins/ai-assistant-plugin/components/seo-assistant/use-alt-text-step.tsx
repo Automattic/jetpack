@@ -13,9 +13,11 @@ import {
 	useEffect,
 } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import debugFactory from 'debug';
 /*
  * Internal dependencies
  */
+import { useArrayState } from './use-array-state';
 import { useMessages } from './wizard-messages';
 /**
  * Types
@@ -23,10 +25,12 @@ import { useMessages } from './wizard-messages';
 import type { Step, OptionMessage } from './types';
 import type { Block } from '@automattic/jetpack-ai-client';
 
+const debug = debugFactory( 'jetpack-seo:alt-text' );
+
 const mockAltTextRequest = ( keywords: string ) => {
 	return new Promise< string >( resolve => {
 		setTimeout( () => {
-			resolve( JSON.stringify( { titles: [ 'Image of ' + keywords ] } ) );
+			resolve( JSON.stringify( { texts: [ 'Image of ' + keywords ] } ) );
 		}, 1000 );
 	} );
 };
@@ -41,21 +45,23 @@ export const useAltTextStep = ( {
 	imageBlocks: Block[];
 } ): Step[] => {
 	// Create arrays of state for each image block
-	const [ values, setValues ] = useState< string[] >( imageBlocks.map( () => '' ) );
-	const [ selectedValues, setSelectedValues ] = useState< string[] >( imageBlocks.map( () => '' ) );
-	const [ optionsArray, setOptionsArray ] = useState< OptionMessage[][] >(
+	const [ valuesArray, setValues ] = useArrayState< string >( imageBlocks.map( () => '' ) );
+	const [ selectedValuesArray, setSelectedValues ] = useArrayState< string >(
+		imageBlocks.map( () => '' )
+	);
+	const [ optionsArray, setOptions ] = useArrayState< OptionMessage[] >(
 		imageBlocks.map( () => [] )
 	);
-	const [ lastValue, setLastValue ] = useState< string >( '' );
-	const [ generatedCounts, setGeneratedCounts ] = useState< number[] >(
+	const [ generatedCountsArray, setGeneratedCounts ] = useArrayState< number >(
 		imageBlocks.map( () => 0 )
 	);
-	const [ hasFailedArray, setHasFailedArray ] = useState< boolean[] >(
+	const [ hasFailedArray, setHasFailed ] = useArrayState< boolean >(
 		imageBlocks.map( () => false )
 	);
-	const [ failurePoints, setFailurePoints ] = useState< Array< 'generate' | 'regenerate' | null > >(
-		imageBlocks.map( () => null )
-	);
+	const [ failurePointsArray, setFailurePoints ] = useArrayState<
+		'generate' | 'regenerate' | null
+	>( imageBlocks.map( () => null ) );
+	const [ lastValue, setLastValue ] = useState< string >( '' );
 
 	const { selectBlock, updateBlockAttributes } = useDispatch( 'core/editor' );
 	const { getMessages, setMessages, addMessage, editLastMessage, setSelectedMessage } = useMessages(
@@ -105,19 +111,11 @@ export const useAltTextStep = ( {
 
 	const handleAltTextSelect = useCallback(
 		( option: OptionMessage, index: number ) => {
-			setSelectedValues( prev => {
-				const next = [ ...prev ];
-				next[ index ] = option.content as string;
-				return next;
-			} );
+			setSelectedValues( option.content as string, index );
 			setSelectedMessage( option, index );
-			setOptionsArray( prev => {
-				const next = [ ...prev ];
-				next[ index ] = prev[ index ].map( o => ( { ...o, selected: o.id === option.id } ) );
-				return next;
-			} );
+			setOptions( prev => prev.map( o => ( { ...o, selected: o.id === option.id } ) ), index );
 		},
-		[ setSelectedMessage ]
+		[ setOptions, setSelectedMessage, setSelectedValues ]
 	);
 
 	const getAltTexts = useCallback(
@@ -127,27 +125,25 @@ export const useAltTextStep = ( {
 			const parsedResponse: { texts: string[] } = JSON.parse( response );
 			const count = parsedResponse.texts?.length;
 			const newAltTexts = parsedResponse.texts.map( ( altText, altIndex ) => ( {
-				id: `alt-text-${ generatedCounts[ index ] + count + altIndex }`,
+				id: `alt-text-${ generatedCountsArray[ index ] + count + altIndex }`,
 				content: altText,
 			} ) );
 
-			setGeneratedCounts( prev => {
-				const next = [ ...prev ];
-				next[ index ] = prev[ index ] + count;
-				return next;
-			} );
+			setGeneratedCounts( prev => prev + count, index );
 
 			return newAltTexts;
 		},
-		[ generatedCounts, imageBlocks, request ]
+		[ generatedCountsArray, imageBlocks, request, setGeneratedCounts ]
 	);
 
 	useEffect( () => {
 		if ( ! hasFailedArray.some( hasFailed => hasFailed ) ) {
 			// Reset the failure point when the request is successful
-			setFailurePoints( Array( hasFailedArray.length ).fill( null ) );
+			imageBlocks.forEach( ( _, index ) => {
+				setFailurePoints( null, index );
+			} );
 		}
-	}, [ hasFailedArray ] );
+	}, [ hasFailedArray, imageBlocks, setFailurePoints ] );
 
 	const handleAltTextGenerate = useCallback(
 		async ( index: number, { fromSkip }: { fromSkip: boolean } ) => {
@@ -186,28 +182,13 @@ export const useAltTextStep = ( {
 			// we only generate if options are empty
 			if ( newOptions.length === 0 || prevStepHasChanged ) {
 				try {
-					setSelectedValues( prev => {
-						const next = [ ...prev ];
-						next[ index ] = '';
-						return next;
-					} );
-					setHasFailedArray( prev => {
-						const next = [ ...prev ];
-						next[ index ] = false;
-						return next;
-					} );
+					setSelectedValues( '', index );
+					setHasFailed( false, index );
 					newOptions = await getAltTexts( index );
-				} catch {
-					setFailurePoints( prev => {
-						const next = [ ...prev ];
-						next[ index ] = 'generate';
-						return next;
-					} );
-					setHasFailedArray( prev => {
-						const next = [ ...prev ];
-						next[ index ] = true;
-						return next;
-					} );
+				} catch ( error ) {
+					debug( 'Error generating alt text', error );
+					setFailurePoints( 'generate', index );
+					setHasFailed( true, index );
 					// reset the last value to the previous value on failure to avoid a wrong value for prevStepHasChanged
 					if ( index === 0 ) {
 						setLastValue( previousLastValue );
@@ -225,17 +206,13 @@ export const useAltTextStep = ( {
 
 			if ( newOptions.length ) {
 				// this sets the title options for internal state
-				setOptionsArray( prev => {
-					const next = [ ...prev ];
-					next[ index ] = newOptions;
-					return next;
-				} );
+				setOptions( newOptions, index );
 				// this adds title options as message-buttons
 				newOptions.forEach( title =>
 					addMessage( { ...title, type: 'option', isUser: true }, index )
 				);
 			}
-			return values[ index ];
+			return valuesArray[ index ];
 		},
 		[
 			optionsArray,
@@ -245,10 +222,14 @@ export const useAltTextStep = ( {
 			hasFailedArray,
 			prevStepHasChanged,
 			editLastMessage,
-			values,
+			valuesArray,
 			keywords,
 			setMessages,
+			setSelectedValues,
+			setHasFailed,
 			getAltTexts,
+			setFailurePoints,
+			setOptions,
 			addMessage,
 		]
 	);
@@ -256,65 +237,40 @@ export const useAltTextStep = ( {
 	const handleAltTextRegenerate = useCallback(
 		async ( index: number ) => {
 			try {
-				setHasFailedArray( prev => {
-					const next = [ ...prev ];
-					next[ index ] = false;
-					return next;
-				} );
+				setHasFailed( false, index );
 				const newAltTexts = await getAltTexts( index );
 
-				setOptionsArray( prev => {
-					const next = [ ...prev ];
-					next[ index ] = [ ...optionsArray[ index ], ...newAltTexts ];
-					return next;
-				} );
+				setOptions( [ ...optionsArray[ index ], ...newAltTexts ], index );
 				newAltTexts.forEach( title =>
 					addMessage( { ...title, type: 'option', isUser: true }, index )
 				);
 			} catch {
-				setFailurePoints( prev => {
-					const next = [ ...prev ];
-					next[ index ] = 'regenerate';
-					return next;
-				} );
-				setHasFailedArray( prev => {
-					const next = [ ...prev ];
-					next[ index ] = true;
-					return next;
-				} );
+				setFailurePoints( 'regenerate', index );
+				setHasFailed( true, index );
 			}
 		},
-		[ getAltTexts, optionsArray, addMessage ]
+		[ setHasFailed, getAltTexts, setOptions, optionsArray, addMessage, setFailurePoints ]
 	);
 
 	const handleAltTextSubmit = useCallback(
 		async ( index: number ) => {
 			const imageBlock = imageBlocks[ index ];
 
-			setValues( prev => {
-				const next = [ ...prev ];
-				next[ index ] = selectedValues[ index ];
-				return next;
-			} );
-			await updateBlockAttributes( imageBlock.clientId, { alt: selectedValues[ index ] } );
+			setValues( selectedValuesArray[ index ], index );
+			await updateBlockAttributes( imageBlock.clientId, { alt: selectedValuesArray[ index ] } );
 			addMessage( { content: __( 'Alt text updated! ✅', 'jetpack' ) }, index );
-			return selectedValues[ index ];
+			return selectedValuesArray[ index ];
 		},
-		[ selectedValues, addMessage, imageBlocks, updateBlockAttributes ]
+		[ imageBlocks, setValues, selectedValuesArray, updateBlockAttributes, addMessage ]
 	);
 
-	const resetState = useCallback( ( index: number ) => {
-		setHasFailedArray( prev => {
-			const next = [ ...prev ];
-			next[ index ] = false;
-			return next;
-		} );
-		setFailurePoints( prev => {
-			const next = [ ...prev ];
-			next[ index ] = null;
-			return next;
-		} );
-	}, [] );
+	const resetState = useCallback(
+		( index: number ) => {
+			setHasFailed( false, index );
+			setFailurePoints( null, index );
+		},
+		[ setHasFailed, setFailurePoints ]
+	);
 
 	// The build fails if we use i18n strings directly in a ternary operator.
 	const tryAgainLabel = __( 'Try again', 'jetpack' );
@@ -325,8 +281,8 @@ export const useAltTextStep = ( {
 		() =>
 			imageBlocks.map( ( imageBlock, index ) => ( {
 				id: `${ stepId }-${ index }`,
-				title: __( 'Add image alt text', 'jetpack' ),
-				label: __( 'Review image alt text', 'jetpack' ),
+				title: __( 'Add Image Alt Text', 'jetpack' ),
+				label: __( 'Review Image Alt Text', 'jetpack' ),
 				messages: getMessages( index ),
 				type: 'options',
 				options: optionsArray[ index ],
@@ -334,21 +290,17 @@ export const useAltTextStep = ( {
 				onSubmit: () => handleAltTextSubmit( index ),
 				submitCtaLabel: __( 'Insert', 'jetpack' ),
 				onRetry:
-					failurePoints[ index ] === 'generate'
+					failurePointsArray[ index ] === 'generate'
 						? () => handleAltTextGenerate( index, { fromSkip: false } )
 						: () => handleAltTextRegenerate( index ),
-				retryCtaLabel: failurePoints[ index ] === 'generate' ? tryAgainLabel : regenerateLabel,
+				retryCtaLabel: failurePointsArray[ index ] === 'generate' ? tryAgainLabel : regenerateLabel,
 				onStart: () => handleAltTextGenerate( index, { fromSkip: false } ),
-				value: values[ index ],
+				value: valuesArray[ index ],
 				setValue: ( newValue: string ) => {
-					setValues( prev => {
-						const next = [ ...prev ];
-						next[ index ] = newValue;
-						return next;
-					} );
+					setValues( newValue, index );
 				},
 				includeInResults: true,
-				hasSelection: !! selectedValues[ index ],
+				hasSelection: !! selectedValuesArray[ index ],
 				hasFailed: hasFailedArray[ index ],
 				resetState: () => resetState( index ),
 			} ) ),
@@ -356,16 +308,17 @@ export const useAltTextStep = ( {
 			imageBlocks,
 			getMessages,
 			optionsArray,
-			failurePoints,
+			failurePointsArray,
 			tryAgainLabel,
 			regenerateLabel,
-			values,
-			selectedValues,
+			valuesArray,
+			selectedValuesArray,
 			hasFailedArray,
 			handleAltTextSelect,
 			handleAltTextSubmit,
 			handleAltTextGenerate,
 			handleAltTextRegenerate,
+			setValues,
 			resetState,
 		]
 	);
