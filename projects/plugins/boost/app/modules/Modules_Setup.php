@@ -155,7 +155,7 @@ class Modules_Setup implements Has_Setup {
 			if ( $minify_module ) {
 				if ( ! jetpack_boost_minify_is_enabled() ) {
 					$minify_module->on_deactivate();
-				} else {
+				} elseif ( $is_activated ) {
 					$minify_module->on_activate();
 				}
 			}
