@@ -9,6 +9,5 @@ interface Window {
 		likeFeedback: string;
 		likedFeedback: string;
 		loadingFeedback: string;
-		siteId: string;
 	};
 }

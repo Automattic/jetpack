@@ -24,7 +24,7 @@ type WpcomCommentLikesProps = {
  */
 const WpcomCommentLike = ( { commentId }: WpcomCommentLikesProps ): React.JSX.Element | null => {
 	// These values come from wp_localize_script in PHP.
-	const { siteId, likeFeedback, likedFeedback, loadingFeedback } = window.wpcomCommentLikesData;
+	const { likeFeedback, likedFeedback, loadingFeedback } = window.wpcomCommentLikesData;
 	const [ feedback, setFeedback ] = useState< string | null >( loadingFeedback );
 	const [ loading, setLoading ] = useState( false );
 
@@ -50,9 +50,9 @@ const WpcomCommentLike = ( { commentId }: WpcomCommentLikesProps ): React.JSX.El
 
 		// Build the endpoint URL based on the current action.
 		const options = {
-			url: isLiked
-				? `https://public-api.wordpress.com/rest/v1.1/sites/${ siteId }/comments/${ commentId }/likes/new`
-				: `https://public-api.wordpress.com/rest/v1.1/sites/${ siteId }/comments/${ commentId }/likes/mine/delete`,
+			path: isLiked
+				? `/rest/v1.1/comments/${ commentId }/likes/new`
+				: `/rest/v1.1/comments/${ commentId }/likes/mine/delete`,
 			method: 'POST',
 		};
 

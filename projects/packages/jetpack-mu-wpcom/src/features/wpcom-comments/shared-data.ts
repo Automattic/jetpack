@@ -19,13 +19,12 @@ let sharedCommentsPromise: Promise< CommentData[] > | null = null;
 /**
  * Fetch shared comments data from the API only once and cache the result.
  *
- * @param {string} siteId - The WordPress site ID.
  * @return {Promise<CommentData[]>} A promise that resolves to an array of comment data.
  */
-export function loadSharedComments( siteId: string ): Promise< CommentData[] > {
+export function loadSharedComments(): Promise< CommentData[] > {
 	if ( ! sharedCommentsPromise ) {
 		sharedCommentsPromise = apiFetch< { comments: CommentData[] } >( {
-			url: `https://public-api.wordpress.com/rest/v1/sites/${ siteId }/comments/?fields=ID,i_like`,
+			path: '/rest/v1/comments/?fields=ID,i_like',
 			method: 'GET',
 		} ).then( response => response.comments );
 	}
@@ -53,6 +52,4 @@ export async function getCommentLikeStatus( commentId: string | number ): Promis
 }
 
 // Preload wpcom comments data using the global siteId, if available.
-if ( window.wpcomCommentLikesData && window.wpcomCommentLikesData.siteId ) {
-	loadSharedComments( window.wpcomCommentLikesData.siteId );
-}
+loadSharedComments();
