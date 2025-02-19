@@ -257,7 +257,7 @@ jQuery( function ( $ ) {
 			const tracksUser = jetpack_forms_tracking.tracksUserData;
 			analytics.initialize( tracksUser.userid, tracksUser.username );
 			analytics.tracks.recordEvent( 'jetpack_forms_upsell_googledrive_click', {
-				screen: 'form-submissions-export',
+				screen: 'form-responses-classic',
 			} );
 		}
 
