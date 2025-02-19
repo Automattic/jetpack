@@ -22,13 +22,6 @@ use Automattic\Jetpack\Unauth_File_Upload_Handler;
  */
 class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 
-	/**
-	 * The file upload handler instance.
-	 *
-	 * @var Unauth_File_Upload_Handler
-	 */
-	private $upload_handler;
-
 	// Maximum number of uploads per IP per hour
 	const MAX_UPLOADS_PER_HOUR = 10;
 	// Option name for storing IP upload counts
@@ -39,20 +32,13 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 	 */
 	public function __construct() {
 
-		if ( ! class_exists( 'Unauth_File_Upload_Handler' ) ) {
-			// Load the Jetpack class if it's not already loaded
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-unauth-file-upload-handler.php';
-		}
 		$this->base_api_path                   = 'wpcom';
 		$this->version                         = 'v2';
 		$this->namespace                       = $this->base_api_path . '/' . $this->version;
 		$this->rest_base                       = '/unauth-file-upload';
-		$this->wpcom_is_wpcom_only_endpoint    = true;
 		$this->wpcom_is_site_specific_endpoint = true;
-		$this->upload_handler                  = new Unauth_File_Upload_Handler();
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
-		add_action( 'jetpack_cleanup_unauth_uploads', array( $this->upload_handler, 'cleanup_old_uploads' ) );
 	}
 
 	/**
@@ -64,8 +50,8 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 			$this->rest_base,
 			array(
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'handle_upload' ),
 				'permission_callback' => array( $this, 'permissions_check' ),
+				'callback'            => array( $this, 'handle_upload' ),
 				'args'                => array(
 					'context' => array(
 						'description' => __( 'Context identifier for the upload', 'jetpack' ),
@@ -74,49 +60,6 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 					),
 					// it also expects a file but there's no way to say this in the args
 				),
-			)
-		);
-	}
-
-	/**
-	 * Handles the file upload request
-	 *
-	 * @param WP_REST_Request $request Full data about the request.
-	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
-	 */
-	public function handle_upload( $request ) {
-		$files   = $request->get_file_params();
-		$file    = $files['file'];
-		$context = $request->get_param( 'context' );
-
-		$result = $this->upload_handler->handle_local_file_upload( $file, $context );
-		if ( is_wp_error( $result ) ) {
-			// Add proper HTTP status codes based on error type
-			$status = 400; // Default to 400 Bad Request
-			switch ( $result->get_error_code() ) {
-				case 'upload_error':
-				case 'invalid_file_type':
-				case 'file_size_limit':
-					$status = 400; // Bad Request
-					break;
-				case 'max_files_limit':
-				case 'total_size_limit':
-					$status = 507; // Insufficient Storage
-					break;
-				case 'dir_error':
-				case 'dir_create':
-				case 'file_move':
-					$status = 500; // Internal Server Error
-					break;
-			}
-			$result->add_data( array( 'status' => $status ) );
-			return $result;
-		}
-
-		return rest_ensure_response(
-			array(
-				'success' => true,
-				'data'    => $result,
 			)
 		);
 	}
@@ -182,6 +125,56 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Handles the file upload request
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function handle_upload( $request ) {
+		$files   = $request->get_file_params();
+		$file    = $files['file'];
+		$context = $request->get_param( 'context' );
+
+		if ( ! class_exists( 'Unauth_File_Upload_Handler' ) ) {
+			// Load the Jetpack class if it's not already loaded
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-unauth-file-upload-handler.php';
+		}
+
+		$upload_handler = new Unauth_File_Upload_Handler();
+
+		$result = $upload_handler->handle_local_file_upload( $file, $context );
+		if ( is_wp_error( $result ) ) {
+			// Add proper HTTP status codes based on error type
+			$status = 400; // Default to 400 Bad Request
+			switch ( $result->get_error_code() ) {
+				case 'upload_error':
+				case 'invalid_file_type':
+				case 'file_size_limit':
+					$status = 400; // Bad Request
+					break;
+				case 'max_files_limit':
+				case 'total_size_limit':
+					$status = 507; // Insufficient Storage
+					break;
+				case 'dir_error':
+				case 'dir_create':
+				case 'file_move':
+					$status = 500; // Internal Server Error
+					break;
+			}
+			$result->add_data( array( 'status' => $status ) );
+			return $result;
+		}
+
+		return rest_ensure_response(
+			array(
+				'success' => true,
+				'data'    => $result,
+			)
+		);
 	}
 }
 
