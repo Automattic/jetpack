@@ -265,7 +265,7 @@ describe( 'Inspector controls', () => {
 			} );
 		} );
 
-		describe( 'Newsletter categories', () => {
+		describe( 'Pre-select newsletter categories', () => {
 			test( 'displays newsletter category controls when enabled', async () => {
 				const user = userEvent.setup();
 				render( <SubscriptionsInspectorControls { ...defaultProps } /> );
@@ -352,6 +352,41 @@ describe( 'Inspector controls', () => {
 
 				await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
 				await user.click( screen.getByLabelText( 'Category 1' ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith( {
+					selectedNewsletterCategoryIds: [],
+					preselectNewsletterCategories: false,
+				} );
+			} );
+
+			test( 'filters out invalid selected IDs', () => {
+				render(
+					<SubscriptionsInspectorControls
+						{ ...defaultProps }
+						selectedNewsletterCategoryIds={ [
+							defaultProps.availableNewsletterCategories[ 0 ].id,
+							defaultProps.availableNewsletterCategories[ 1 ].id,
+							3,
+						] }
+					/>
+				);
+
+				expect( setAttributes ).toHaveBeenCalledWith( {
+					selectedNewsletterCategoryIds: [
+						defaultProps.availableNewsletterCategories[ 0 ].id,
+						defaultProps.availableNewsletterCategories[ 1 ].id,
+					],
+				} );
+			} );
+
+			test( 'disables pre-select option if no valid categories remain selected', () => {
+				render(
+					<SubscriptionsInspectorControls
+						{ ...defaultProps }
+						selectedNewsletterCategoryIds={ [ 3 ] }
+						preselectNewsletterCategories
+					/>
+				);
 
 				expect( setAttributes ).toHaveBeenCalledWith( {
 					selectedNewsletterCategoryIds: [],

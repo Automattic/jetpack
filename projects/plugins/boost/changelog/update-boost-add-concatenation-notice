@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Concatenation: show a notice if the legacy concatenation cache files are used.
+
+
