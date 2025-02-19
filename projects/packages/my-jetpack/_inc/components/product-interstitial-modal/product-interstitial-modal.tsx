@@ -128,7 +128,6 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 		onOpen,
 		onClose,
 		onModalMainButtonClick,
-		modalMainButton,
 		isButtonDisabled,
 		buttonHasExternalLink = false,
 		buttonHref,
@@ -203,7 +202,7 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 									) }
 								</div>
 								<div className={ styles[ 'primary-footer' ] }>
-									{ modalMainButton ?? (
+									{ buttonLabel ?? (
 										<Button
 											variant="primary"
 											className={ styles[ 'action-button' ] }

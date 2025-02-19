@@ -242,7 +242,7 @@ export default function () {
 									<ProductInterstitialMyJetpack
 										slug="jetpack-ai"
 										onOpen={ upgradeClickHandlerModal }
-										triggerButton={ __( 'Get more requests', 'jetpack-my-jetpack' ) }
+										modalTriggerButtonLabel={ __( 'Get more requests', 'jetpack-my-jetpack' ) }
 										buttonLabel={ __( 'Upgrade', 'jetpack-my-jetpack' ) }
 										isWithVideo
 										secondaryColumn={
