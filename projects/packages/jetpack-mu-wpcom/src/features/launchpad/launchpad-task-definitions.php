@@ -1928,11 +1928,12 @@ add_action( 'wpcom_email_verification_complete', 'wpcom_launchpad_mark_verify_em
  * verify their email at the time the site was created. That way we're not showing
  * the completed task to users who were verified before creating this site.
  *
+ * @param Task  $task The task object.
  * @param bool  $is_visible Whether the task should be visible.
  * @param array $data Additional data.
  * @return bool True when the email verification task should be visible.
  */
-function wpcom_launchpad_is_email_task_visible( $is_visible, $data ) {
+function wpcom_launchpad_is_email_task_visible( $task, $is_visible, $data ) {
 	if ( ! isset( $data ) || ! isset( $data['launchpad_context'] ) || $data['launchpad_context'] !== 'customer-home-treatment-cumulative' ) {
 		return $is_visible;
 	}
