@@ -52,7 +52,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	 */
 	public static function set_up_before_class() {
 		parent::set_up_before_class();
-
+		define( 'IS_ATOMIC', true );
 		// Copy themes from tests/php/files/ to wp-content/themes.
 		foreach ( static::$themes as $theme ) {
 			$source_dir = __DIR__ . '/../files/' . $theme;
