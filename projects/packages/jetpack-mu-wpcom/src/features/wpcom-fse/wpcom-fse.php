@@ -12,6 +12,10 @@
  * @return array<string> The filtered active plugins.
  */
 function remove_fse_plugin( $plugins ) {
+	if ( ! is_array( $plugins ) ) {
+		return $plugins;
+	}
+
 	$fse_plugin      = 'full-site-editing/full-site-editing-plugin.php';
 	$fse_plugin_path = WP_PLUGIN_DIR . '/' . $fse_plugin;
 
