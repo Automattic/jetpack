@@ -38,6 +38,11 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 	 * Constructor.
 	 */
 	public function __construct() {
+
+		if ( ! class_exists( 'Unauth_File_Upload_Handler' ) ) {
+			// Load the Jetpack class if it's not already loaded
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-unauth-file-upload-handler.php';
+		}
 		$this->base_api_path                   = 'wpcom';
 		$this->version                         = 'v2';
 		$this->namespace                       = $this->base_api_path . '/' . $this->version;
