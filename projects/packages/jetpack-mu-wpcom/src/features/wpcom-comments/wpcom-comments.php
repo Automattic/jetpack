@@ -17,7 +17,7 @@ function wpcom_comments_enable_likes( $actions, $comment ) {
 
 	$actions['like'] = sprintf(
 		'<span data-comment-id="%s" class="wpcom-comment-like"></span>',
-		esc_attr( $comment_id )
+		esc_attr( (string) $comment_id )
 	);
 
 	return $actions;
@@ -48,7 +48,7 @@ function wpcom_enqueue_comment_like_script( $hook ) {
 			'likeFeedback'    => esc_html__( 'Like', 'jetpack-mu-wpcom' ),
 			'likedFeedback'   => esc_html__( 'Liked by you', 'jetpack-mu-wpcom' ),
 			'loadingFeedback' => esc_html__( 'Loading...', 'jetpack-mu-wpcom' ),
-			'siteId'          => wpcom_get_current_blog_id(),
+			'siteId'          => esc_html( wpcom_get_current_blog_id() ),
 		)
 	);
 }
