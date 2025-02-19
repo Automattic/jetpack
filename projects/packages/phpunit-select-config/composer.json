@@ -1,0 +1,56 @@
+{
+	"name": "automattic/phpunit-select-config",
+	"description": "Run PHPUnit, choosing a configuration file by version.",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"phpunit",
+		"config",
+		"dev"
+	],
+	"require": {
+		"php": ">=5.4",
+		"composer-runtime-api": "^2.2.2",
+		"phpunit/phpunit": "*"
+	},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "@dev",
+		"yoast/phpunit-polyfills": "^1.1.1",
+		"antecedent/patchwork": "^2.2"
+	},
+	"bin": [
+		"bin/phpunit-select-config"
+	],
+	"scripts": {
+		"phpunit": [
+			"./tests/phpunit-select-config phpunit.#.xml.dist --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./tests/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+		],
+		"test-php": [
+			"@composer phpunit"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"branch-alias": {
+			"dev-trunk": "1.0.x-dev"
+		},
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/phpunit-select-config/compare/v${old}...v${new}"
+		},
+		"mirror-repo": "Automattic/phpunit-select-config"
+	}
+}

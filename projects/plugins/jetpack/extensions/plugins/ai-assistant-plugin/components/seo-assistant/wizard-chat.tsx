@@ -1,14 +1,31 @@
+/**
+ * External dependencies
+ */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Icon, Tooltip, Notice } from '@wordpress/components';
 import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { next, closeSmall, chevronLeft } from '@wordpress/icons';
+import clsx from 'clsx';
 import debugFactory from 'debug';
+/**
+ * Internal dependencies
+ */
 import { OptionsInput, TextInput, CompletionInput } from './wizard-input';
 import WizardStep from './wizard-step';
 import type { Step, OptionMessage } from './types';
 
 const debug = debugFactory( 'jetpack-wizard-chat' );
+
+const disableSkip = true;
+const disableBack = true;
+
+const errorMessageWithSkip = __(
+	'Something went wrong. Please try again or skip this step.',
+	'jetpack'
+);
+const errorMessageWithoutSkip = __( 'Something went wrong. Please try again.', 'jetpack' );
+const errorMessage = disableSkip ? errorMessageWithoutSkip : errorMessageWithSkip;
 
 export default function WizardChat( { close, steps, assistantName } ) {
 	const [ currentStep, setCurrentStep ] = useState( 0 );
@@ -229,21 +246,25 @@ export default function WizardChat( { close, steps, assistantName } ) {
 		<div className="jetpack-wizard-chat">
 			<div className="jetpack-wizard-chat__header">
 				<div className="jetpack-wizard-chat__header-actions">
-					<Button variant="link" disabled={ isBusy } onClick={ handleBack }>
-						<Icon icon={ chevronLeft } size={ 32 } />
-					</Button>
+					{ ! disableBack && (
+						<Button variant="link" disabled={ isBusy } onClick={ handleBack }>
+							<Icon icon={ chevronLeft } size={ 32 } />
+						</Button>
+					) }
 				</div>
 				<h2>{ currentStepData?.title }</h2>
-				<div className="jetpack-wizard-chat__header-actions">
-					<Tooltip text={ __( 'Skip', 'jetpack' ) }>
-						<Button
-							variant="link"
-							disabled={ isBusy || currentStep >= steps.length - 1 }
-							onClick={ handleSkip }
-						>
-							<Icon icon={ next } size={ 32 } />
-						</Button>
-					</Tooltip>
+				<div className={ clsx( 'jetpack-wizard-chat__header-actions', 'header-actions--right' ) }>
+					{ ! disableSkip && (
+						<Tooltip text={ __( 'Skip', 'jetpack' ) }>
+							<Button
+								variant="link"
+								disabled={ isBusy || currentStep >= steps.length - 1 }
+								onClick={ handleSkip }
+							>
+								<Icon icon={ next } size={ 32 } />
+							</Button>
+						</Tooltip>
+					) }
 					<Button variant="link" onClick={ () => handleDone( true ) }>
 						<Icon icon={ closeSmall } size={ 32 } />
 					</Button>
@@ -264,7 +285,7 @@ export default function WizardChat( { close, steps, assistantName } ) {
 
 				{ steps[ currentStep ].hasFailed && (
 					<Notice status="error" isDismissible={ false }>
-						{ __( 'Something went wrong. Please try again or skip this step.', 'jetpack' ) }
+						{ errorMessage }
 					</Notice>
 				) }
 				<div ref={ stepsEndRef } />

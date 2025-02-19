@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update Keyring_Helper class and enable publicize services caching

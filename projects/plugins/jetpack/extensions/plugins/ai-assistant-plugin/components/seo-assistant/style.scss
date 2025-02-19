@@ -59,6 +59,11 @@
 		.jetpack-wizard-chat__header-actions {
 			width: 98px;
 			flex-shrink: 0;
+
+			&.header-actions--right {
+				display: flex;
+				justify-content: flex-end;
+			}
 		}
 	}
 
@@ -77,8 +82,8 @@
 	}
 
 	&__messages {
-		flex: 1 1 auto;
 		display: flex;
+		flex: 1 1 auto;
 		flex-direction: column;
 		gap: 8px;
 		padding: 0 8px;
@@ -107,7 +112,6 @@
 		line-height: 1.5;
 		display: flex;
 		align-items: center;
-		max-width: 281px;
 
 		&:not( .is-option ) {
 			margin-top: 8px;
@@ -117,8 +121,8 @@
 		.jetpack-wizard-chat__message-icon {
 			flex-shrink: 0;
 			align-self: baseline;
-			flex-basis: 26px;
 			line-height: 2;
+			width: 26px;
 
 			img {
 				vertical-align: middle;
@@ -133,6 +137,7 @@
 			background: #f3f4f6;
 			align-self: flex-end;
 			min-width: 15%;
+			max-width: 281px;
 			
 			.jetpack-wizard-chat__message-text {
 				padding: 16px 20px;
