@@ -88,6 +88,8 @@ class Password_Detection {
 			);
 		}
 
+		$new_transient_token = null;
+
 		// Update or create a transient token
 		if ( $existing_transient ) {
 			if ( ! is_wp_error( $email_sent ) ) {
@@ -111,7 +113,7 @@ class Password_Detection {
 		return new \WP_Error(
 			Config::PASSWORD_DETECTION_ERROR_CODE,
 			__( 'Password validation failed.', 'jetpack-account-protection' ),
-			array( 'token' => $existing_transient ? $existing_transient_token : $new_transient_token )
+			array( 'token' => $new_transient_token ? $new_transient_token : $existing_transient_token )
 		);
 	}
 
@@ -406,12 +408,12 @@ class Password_Detection {
 	/**
 	 * Generate and store a consolidated transient for the user.
 	 *
-	 * @param int $user_id The user ID.
-	 * @param int $auth_code The auth code.
+	 * @param int    $user_id The user ID.
+	 * @param string $auth_code The auth code.
 	 *
 	 * @return string The generated token associated with the new transient data.
 	 */
-	private function generate_and_store_transient_data( int $user_id, int $auth_code ): string {
+	private function generate_and_store_transient_data( int $user_id, string $auth_code ): string {
 		$token = wp_generate_password( 32, false, false );
 
 		$data = array(
