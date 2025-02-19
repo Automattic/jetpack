@@ -128,7 +128,6 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 		onOpen,
 		onClose,
 		onModalMainButtonClick,
-		modalMainButton,
 		isButtonDisabled,
 		buttonHasExternalLink = false,
 		buttonHref,
