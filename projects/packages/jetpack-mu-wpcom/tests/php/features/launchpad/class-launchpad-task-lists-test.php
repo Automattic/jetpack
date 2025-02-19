@@ -5,10 +5,6 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-// Comment to make phpcs happy.
-
-require_once __DIR__ . '/../../../lib/class-email-verification.php';
-
 /**
  * Test class for Launchpad_Task_Lists.
  *
@@ -16,20 +12,19 @@ require_once __DIR__ . '/../../../lib/class-email-verification.php';
  */
 class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 	/**
-	 * Mock value returned by get_blog_count_for_user() function.
-	 *
-	 * @var int|null
-	 */
-	public static $mock_blog_count_for_user = null;
-
-	/**
 	 * Set up.
 	 */
 	public function set_up() {
 		parent::set_up();
 		wpcom_register_default_launchpad_checklists();
-		Email_Verification::mock_reset();
-		self::$mock_blog_count_for_user = null;
+		\Brain\Monkey\setUp();
+	}
+
+	/**
+	 * Reverting the testing environment to its original state.
+	 */
+	public function tear_down() {
+		\Brain\Monkey\tearDown();
 	}
 
 	/**
@@ -656,8 +651,8 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 	 * @param string $should_be_visible 'should-be-visible' or something else (like 'should-NOT-be-visible').
 	 */
 	public function test_verify_email_task_visibility( $launchpad_context, $user_verification_status, $blog_count_for_user, $should_be_visible ) {
-		Email_Verification::mock_is_unverified( $user_verification_status === 'unverified' );
-		self::$mock_blog_count_for_user = $blog_count_for_user;
+		\Brain\Monkey\Functions\when( 'get_blog_count_for_user' )->justReturn( $blog_count_for_user );
+		\Mockery::mock( 'alias:Email_Verification' )->shouldReceive( 'is_email_unverified' )->andReturn( $user_verification_status === 'unverified' );
 
 		wpcom_register_launchpad_task(
 			array(
@@ -686,14 +681,4 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 			$this->assertEmpty( $result );
 		}
 	}
-}
-
-/**
- * Mocked global function for email verification tests.
- */
-function get_blog_count_for_user() { // phpcs:ignore Universal.Files.SeparateFunctionsFromOO.Mixed
-	if ( Launchpad_Task_Lists_Test::$mock_blog_count_for_user === null ) {
-		die( 'get_blog_count_for_user() was not mocked before call' );
-	}
-	return Launchpad_Task_Lists_Test::$mock_blog_count_for_user;
 }
