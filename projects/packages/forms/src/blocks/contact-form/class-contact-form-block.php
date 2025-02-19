@@ -28,6 +28,9 @@ class Contact_Form_Block {
 			'jetpack/contact-form',
 			array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
+				'providesContext' => array(
+					'jetpack/contact-form/id' => 'id',
+				),
 			)
 		);
 
@@ -75,13 +78,9 @@ class Contact_Form_Block {
 	 * We are registering child blocks only when Contact Form plugin is Active
 	 */
 	public static function register_child_blocks() {
+		Field_Text_Block::register_block();
+
 		// Field render methods.
-		Blocks::jetpack_register_block(
-			'jetpack/field-text',
-			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_text' ),
-			)
-		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-name',
 			array(

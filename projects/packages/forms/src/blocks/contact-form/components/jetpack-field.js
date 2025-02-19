@@ -10,20 +10,8 @@ import JetpackFieldLabel from './jetpack-field-label';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
 const JetpackField = props => {
-	const {
-		attributes,
-		clientId,
-		id,
-		isSelected,
-		required,
-		requiredText,
-		label,
-		setAttributes,
-		placeholder = '',
-		width,
-		insertBlocksAfter,
-		type,
-	} = props;
+	const { attributes, clientId, isSelected, label, setAttributes, insertBlocksAfter, type } = props;
+	const { id, placeholder, required, requiredText, width } = attributes;
 
 	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
 	const formStyle = useFormStyle( clientId );
