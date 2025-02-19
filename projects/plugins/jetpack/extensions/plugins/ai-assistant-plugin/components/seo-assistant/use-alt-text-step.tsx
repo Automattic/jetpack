@@ -17,6 +17,7 @@ import debugFactory from 'debug';
 /*
  * Internal dependencies
  */
+import openBlockSidebar from './open-block-sidebar';
 import { useArrayState } from './use-array-state';
 import { useMessages } from './wizard-messages';
 /**
@@ -63,7 +64,7 @@ export const useAltTextStep = ( {
 	>( imageBlocks.map( () => null ) );
 	const [ lastValue, setLastValue ] = useState< string >( '' );
 
-	const { selectBlock, updateBlockAttributes } = useDispatch( 'core/editor' );
+	const { updateBlockAttributes } = useDispatch( 'core/editor' );
 	const { getMessages, setMessages, addMessage, editLastMessage, setSelectedMessage } = useMessages(
 		imageBlocks.length
 	);
@@ -155,7 +156,7 @@ export const useAltTextStep = ( {
 			}
 
 			const imageBlock = imageBlocks[ index ];
-			selectBlock( imageBlock.clientId );
+			openBlockSidebar( imageBlock.clientId );
 
 			if ( ! hasFailedArray[ index ] ) {
 				const initialMessage = fromSkip
@@ -218,7 +219,6 @@ export const useAltTextStep = ( {
 			optionsArray,
 			lastValue,
 			imageBlocks,
-			selectBlock,
 			hasFailedArray,
 			prevStepHasChanged,
 			editLastMessage,
@@ -259,6 +259,10 @@ export const useAltTextStep = ( {
 			setValues( selectedValuesArray[ index ], index );
 			await updateBlockAttributes( imageBlock.clientId, { alt: selectedValuesArray[ index ] } );
 			addMessage( { content: __( 'Alt text updated! ✅', 'jetpack' ) }, index );
+			// Time for the user to see the updated alt text
+			if ( index < imageBlocks.length - 1 ) {
+				await new Promise( resolve => setTimeout( resolve, 1000 ) );
+			}
 			return selectedValuesArray[ index ];
 		},
 		[ imageBlocks, setValues, selectedValuesArray, updateBlockAttributes, addMessage ]
