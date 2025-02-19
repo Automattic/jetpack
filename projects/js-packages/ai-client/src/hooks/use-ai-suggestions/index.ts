@@ -70,7 +70,7 @@ type useAiSuggestionsOptions = {
 	/*
 	 * onDone callback.
 	 */
-	onDone?: ( content: string ) => void;
+	onDone?: ( content: string, skipRequestCount?: boolean ) => void;
 
 	/*
 	 * onStop callback.
