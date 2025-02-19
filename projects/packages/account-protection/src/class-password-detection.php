@@ -108,10 +108,6 @@ class Password_Detection {
 			$new_transient_token = $this->generate_and_store_transient_data( $user->ID, $auth_code );
 		}
 
-		// TODO: Add and handle API rate limiting hard limits, account recovery process...
-		// TODO: Consider implication of logging in and out without being able to reset
-		// TODO: Maybe a 10 limit per 10 minutes is reasonable?
-
 		return new \WP_Error(
 			Config::PASSWORD_DETECTION_ERROR_CODE,
 			__( 'Password validation failed.', 'jetpack-account-protection' ),
