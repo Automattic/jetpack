@@ -47,6 +47,7 @@
 		"automattic/jetpack-stats-admin": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-sync": "@dev",
+		"automattic/jetpack-subscribers": "@dev",
 		"automattic/jetpack-videopress": "@dev",
 		"automattic/jetpack-waf": "@dev",
 		"automattic/jetpack-wordads": "@dev",

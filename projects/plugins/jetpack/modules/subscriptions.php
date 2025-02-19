@@ -21,6 +21,7 @@ use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Subscribers\Dashboard as Subscribers_Dashboard;
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
 
@@ -147,6 +148,8 @@ class Jetpack_Subscriptions {
 
 		// Track categories created through the category editor page
 		add_action( 'wp_ajax_add-tag', array( $this, 'track_newsletter_category_creation' ), 1 );
+		$subscribers_dashboard = new Subscribers_Dashboard();
+		$subscribers_dashboard::init();
 	}
 
 	/**

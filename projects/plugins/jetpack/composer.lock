@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "4ff7d971fbdbfab4e0db1e3b7b772645",
+	"content-hash": "0587727b95c23cdb0da3a894359a30aa",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -2716,6 +2716,73 @@
 				"GPL-2.0-or-later"
 			],
 			"description": "Used to retrieve information about the current status of Jetpack and the site overall.",
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
+			"name": "automattic/jetpack-subscribers",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/subscribers",
+				"reference": "b49b7896a96e14401d3d8aecbbae62e5e8760530"
+			},
+			"require": {
+				"automattic/jetpack-connection": "@dev",
+				"automattic/jetpack-constants": "@dev",
+				"automattic/jetpack-jitm": "@dev",
+				"automattic/jetpack-plans": "@dev",
+				"automattic/jetpack-stats": "@dev",
+				"automattic/jetpack-status": "@dev",
+				"php": ">=7.2"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"automattic/jetpack-test-environment": "@dev",
+				"yoast/phpunit-polyfills": "^1.1.1"
+			},
+			"suggest": {
+				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+			},
+			"type": "jetpack-library",
+			"extra": {
+				"autotagger": true,
+				"mirror-repo": "Automattic/jetpack-subscribers",
+				"branch-alias": {
+					"dev-trunk": "0.0.x-dev"
+				},
+				"textdomain": "jetpack-subscribers",
+				"version-constants": {
+					"::VERSION": "src/class-dashboard.php"
+				}
+			},
+			"autoload": {
+				"classmap": [
+					"src/"
+				]
+			},
+			"scripts": {
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+				],
+				"test-php": [
+					"@composer phpunit"
+				],
+				"build-production": [
+					"echo 'Add your build step to composer.json, please!'"
+				],
+				"build-development": [
+					"echo 'Add your build step to composer.json, please!'"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "Subscribers dashboard",
 			"transport-options": {
 				"relative": true
 			}
@@ -6056,6 +6123,7 @@
 		"automattic/jetpack-stats": 20,
 		"automattic/jetpack-stats-admin": 20,
 		"automattic/jetpack-status": 20,
+		"automattic/jetpack-subscribers": 20,
 		"automattic/jetpack-sync": 20,
 		"automattic/jetpack-videopress": 20,
 		"automattic/jetpack-waf": 20,

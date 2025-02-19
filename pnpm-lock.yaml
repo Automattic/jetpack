@@ -3220,6 +3220,157 @@ importers:
 
   projects/packages/stats-admin: {}
 
+  projects/packages/subscribers:
+    dependencies:
+      '@automattic/babel-plugin-replace-textdomain':
+        specifier: workspace:*
+        version: link:../../js-packages/babel-plugin-replace-textdomain
+      '@automattic/format-currency':
+        specifier: 1.0.1
+        version: 1.0.1
+      '@automattic/jetpack-analytics':
+        specifier: workspace:*
+        version: link:../../js-packages/analytics
+      '@automattic/jetpack-api':
+        specifier: workspace:*
+        version: link:../../js-packages/api
+      '@automattic/jetpack-base-styles':
+        specifier: workspace:*
+        version: link:../../js-packages/base-styles
+      '@automattic/jetpack-boost-score-api':
+        specifier: workspace:*
+        version: link:../../js-packages/boost-score-api
+      '@automattic/jetpack-components':
+        specifier: workspace:*
+        version: link:../../js-packages/components
+      '@automattic/jetpack-connection':
+        specifier: workspace:*
+        version: link:../../js-packages/connection
+      '@automattic/jetpack-explat':
+        specifier: workspace:*
+        version: link:../explat
+      '@automattic/jetpack-licensing':
+        specifier: workspace:*
+        version: link:../../js-packages/licensing
+      '@tanstack/react-query':
+        specifier: 5.20.5
+        version: 5.20.5(react@18.3.1)
+      '@wordpress/api-fetch':
+        specifier: 7.17.0
+        version: 7.17.0
+      '@wordpress/components':
+        specifier: 29.3.0
+        version: 29.3.0(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/compose':
+        specifier: 7.17.0
+        version: 7.17.0(react@18.3.1)
+      '@wordpress/data':
+        specifier: 10.17.0
+        version: 10.17.0(react@18.3.1)
+      '@wordpress/dataviews':
+        specifier: 4.12.0
+        version: 4.12.0(patch_hash=uzs6glhpt3sq2uqjvqzk6vk2ze)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/date':
+        specifier: 5.17.0
+        version: 5.17.0
+      '@wordpress/element':
+        specifier: 6.17.0
+        version: 6.17.0
+      '@wordpress/i18n':
+        specifier: 5.17.0
+        version: 5.17.0
+      '@wordpress/icons':
+        specifier: 10.17.0
+        version: 10.17.0(react@18.3.1)
+      '@wordpress/url':
+        specifier: 4.17.0
+        version: 4.17.0
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
+      debug:
+        specifier: 4.4.0
+        version: 4.4.0
+      gridicons:
+        specifier: 3.4.1
+        version: 3.4.1(react@18.3.1)
+      prop-types:
+        specifier: 15.8.1
+        version: 15.8.1
+      react-router-dom:
+        specifier: 6.28.1
+        version: 6.28.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
+      '@babel/core':
+        specifier: 7.26.0
+        version: 7.26.0
+      '@babel/preset-env':
+        specifier: 7.26.0
+        version: 7.26.0(@babel/core@7.26.0)
+      '@jest/globals':
+        specifier: 29.7.0
+        version: 29.7.0
+      '@storybook/react':
+        specifier: 8.4.7
+        version: 8.4.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.4.7)(typescript@5.0.4)
+      '@testing-library/dom':
+        specifier: 10.4.0
+        version: 10.4.0
+      '@testing-library/jest-dom':
+        specifier: 6.6.3
+        version: 6.6.3
+      '@testing-library/react':
+        specifier: 16.2.0
+        version: 16.2.0(@testing-library/dom@10.4.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@testing-library/user-event':
+        specifier: 14.6.1
+        version: 14.6.1(@testing-library/dom@10.4.0)
+      '@types/jest':
+        specifier: 29.5.14
+        version: 29.5.14
+      '@types/react':
+        specifier: 18.3.18
+        version: 18.3.18
+      concurrently:
+        specifier: 7.6.0
+        version: 7.6.0
+      jest:
+        specifier: 29.7.0
+        version: 29.7.0
+      jest-environment-jsdom:
+        specifier: 29.7.0
+        version: 29.7.0
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      require-from-string:
+        specifier: 2.0.2
+        version: 2.0.2
+      sass:
+        specifier: 1.64.1
+        version: 1.64.1
+      sass-loader:
+        specifier: 12.4.0
+        version: 12.4.0(sass@1.64.1)(webpack@5.94.0)
+      storybook:
+        specifier: 8.4.7
+        version: 8.4.7
+      typescript:
+        specifier: 5.0.4
+        version: 5.0.4
+      webpack:
+        specifier: 5.94.0
+        version: 5.94.0(webpack-cli@6.0.1)
+      webpack-cli:
+        specifier: 6.0.1
+        version: 6.0.1(webpack@5.94.0)
+
   projects/packages/transport-helper: {}
 
   projects/packages/videopress:
@@ -4188,6 +4339,9 @@ importers:
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
+      '@automattic/jetpack-subscribers':
+        specifier: workspace:*
+        version: link:../../packages/subscribers
       '@automattic/popup-monitor':
         specifier: 1.0.2
         version: 1.0.2
