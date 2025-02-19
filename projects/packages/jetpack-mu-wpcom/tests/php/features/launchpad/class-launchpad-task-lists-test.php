@@ -647,7 +647,7 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 	 * @dataProvider provide_verify_email_task_visibility_test_cases()
 	 * @param string $launchpad_context 'customer-home-treatment-cumulative' or 'customer-home'.
 	 * @param string $user_verification_status 'unverified' or something else (like 'verified').
-	 * @param number $blog_count_for_user Number of blogs for the user.
+	 * @param int    $blog_count_for_user Number of blogs for the user.
 	 * @param string $should_be_visible 'should-be-visible' or something else (like 'should-NOT-be-visible').
 	 */
 	public function test_verify_email_task_visibility( $launchpad_context, $user_verification_status, $blog_count_for_user, $should_be_visible ) {
