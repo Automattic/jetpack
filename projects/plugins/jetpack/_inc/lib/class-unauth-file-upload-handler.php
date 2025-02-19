@@ -78,8 +78,8 @@ class Unauth_File_Upload_Handler {
 		}
 
 		// Validate file type.
-		$file_name  = \sanitize_file_name( \wp_unslash( $file['name'] ) );
-		$type_check = $this->check_file_type( $file_name );
+		$file['name'] = \sanitize_file_name( \wp_unslash( $file['name'] ) );
+		$type_check   = $this->check_file_type( $file['name'] );
 		if ( is_wp_error( $type_check ) ) {
 			return $type_check;
 		}
@@ -89,19 +89,20 @@ class Unauth_File_Upload_Handler {
 			return new WP_Error(
 				'file_size_limit',
 				sprintf(
-					/* translators: %s is the maximum file size in MB */
-					\__( 'File size exceeds the maximum limit of %s MB.', 'jetpack' ),
-					self::MAX_FILE_SIZE / 1024 / 1024
+					/* translators: %s is the maximum file size in human readable format. */
+					\__( 'File size exceeds the maximum limit of %s.', 'jetpack' ),
+					size_format( self::MAX_FILE_SIZE )
 				)
 			);
 		}
+
+		$this->cleanup_old_uploads();
 
 		$uploads = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
 
 		// Check number of files limit.
 		if ( count( $uploads ) >= self::MAX_FILES ) {
 			// Try to remove old files.
-			$this->cleanup_old_uploads();
 			$uploads = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
 			if ( count( $uploads ) >= self::MAX_FILES ) {
 				return new WP_Error(
@@ -122,12 +123,8 @@ class Unauth_File_Upload_Handler {
 			}
 		}
 
-		// Generate a secure filename for the upload.
-		$secure_filename = $this->generate_secure_filename( $file_name );
-		$file['name']    = $secure_filename;
-
 		// All validation passed, now handle the actual file upload.
-		$result = $this->store_uploaded_file( $file, $secure_filename, $context );
+		$result = $this->store_uploaded_file( $file, $context );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
@@ -141,11 +138,11 @@ class Unauth_File_Upload_Handler {
 	 * Stores an uploaded file in the temporary directory.
 	 *
 	 * @param array  $file      The uploaded file data.
-	 * @param string $file_name The sanitized file name.
 	 * @param string $context   The context of the upload.
 	 * @return string|WP_Error Token on success, WP_Error on failure.
 	 */
-	private function store_uploaded_file( $file, $file_name, $context ) {
+	private function store_uploaded_file( $file, $context ) {
+
 		$upload_dir = \wp_upload_dir();
 		if ( ! empty( $upload_dir['error'] ) ) {
 			return new WP_Error( 'dir_error', \__( 'Unable to process file upload.', 'jetpack' ) );
@@ -159,9 +156,7 @@ class Unauth_File_Upload_Handler {
 			}
 		}
 
-		// This is a temporary secret that will be used to move the file to the final location.
-		$temporary_secret    = \wp_hash( \wp_rand( 100000, 999999 ) . microtime() );
-		$secret_file_name    = $temporary_secret . '-' . $file_name;
+		$secret_file_name    = $this->generate_secure_filename( $file['name'] );
 		$new_secret_filename = \wp_unique_filename( $temp_dir, $secret_file_name );
 
 		// Move uploaded file.
@@ -177,21 +172,30 @@ class Unauth_File_Upload_Handler {
 		$file_data = array(
 			'filename'      => $new_secret_filename,
 			'path'          => $temp_dir,
-			'original_name' => $file_name,
+			'original_name' => $file['name'],
 			'created'       => time(),
 			'context'       => $context,
 		);
 
-		$uploads           = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
-		$uploads[ $token ] = $file_data;
-		\update_option( self::UNAUTH_UPLOADS_OPTION, $uploads, false );
-
-		// Schedule cleanup if not already scheduled.
-		if ( ! \wp_next_scheduled( 'jetpack_cleanup_unauth_uploads' ) ) {
-			\wp_schedule_event( time(), 'daily', 'jetpack_cleanup_unauth_uploads' );
-		}
+		$this->update_file_info( $token, $file_data );
 
 		return $token;
+	}
+
+	/**
+	 * Store the information about the temporary uploaded file.
+	 * This information is used to retrieve the file later.
+	 * As well as helps us figure out what needs to be deleted.
+	 *
+	 * @param string $token The token for the file.
+	 * @param array  $file_data The data about the file.
+	 *
+	 * @return bool True if the file info was updated, false otherwise.
+	 */
+	private function update_file_info( $token, $file_data ) {
+		$uploads           = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
+		$uploads[ $token ] = $file_data;
+		return update_option( self::UNAUTH_UPLOADS_OPTION, $uploads, false );
 	}
 
 	/*
