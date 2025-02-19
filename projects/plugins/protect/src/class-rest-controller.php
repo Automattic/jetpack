@@ -360,7 +360,6 @@ class REST_Controller {
 			array(
 				'wafSupported'        => Waf_Runner::is_supported_environment(),
 				'currentIp'           => IP_Utils::get_ip(),
-				'isSeen'              => Jetpack_Protect::get_waf_seen_status(),
 				'upgradeIsSeen'       => Jetpack_Protect::get_waf_upgrade_seen_status(),
 				'displayUpgradeBadge' => Jetpack_Protect::get_waf_upgrade_badge_display_status(),
 				'isEnabled'           => Waf_Runner::is_enabled(),
