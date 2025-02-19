@@ -10,12 +10,12 @@ namespace Automattic\Jetpack\Forms\Dashboard;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 
 /**
@@ -85,14 +85,7 @@ class Dashboard {
 			)
 		);
 
-		// Enqueue the tracking script if appropriate.
-		$is_wpcom               = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$status                 = new Status();
-		$connection             = new Connection_Manager();
-		$tracking               = new Tracking( 'jetpack', $connection );
-		$should_enable_tracking = $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
-
-		if ( $is_wpcom || $should_enable_tracking ) {
+		if ( Contact_Form_Plugin::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
 

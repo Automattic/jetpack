@@ -1318,8 +1318,10 @@ class Admin {
 			)
 		);
 
-		// Add tracking scripts
-		Tracking::register_tracks_functions_scripts( true );
+		if ( Contact_Form_Plugin::can_use_analytics() ) {
+			Tracking::register_tracks_functions_scripts( true );
+		}
+
 		wp_localize_script(
 			'grunion-admin',
 			'jetpack_forms_tracking',
