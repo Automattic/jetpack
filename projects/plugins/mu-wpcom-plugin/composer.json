@@ -4,6 +4,7 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"php": ">=8.1",
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-mu-wpcom": "@dev"
 	},
