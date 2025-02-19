@@ -48,7 +48,7 @@ function wpcom_enqueue_comment_like_script( $hook ) {
 			'likeFeedback'    => esc_html__( 'Like', 'jetpack-mu-wpcom' ),
 			'likedFeedback'   => esc_html__( 'Liked by you', 'jetpack-mu-wpcom' ),
 			'loadingFeedback' => esc_html__( 'Loading...', 'jetpack-mu-wpcom' ),
-			'siteId'          => esc_html( wpcom_get_current_blog_id() ),
+			'siteId'          => esc_html( (string) wpcom_get_current_blog_id() ),
 		)
 	);
 }
