@@ -45,7 +45,7 @@ export const useAltTextStep = ( {
 	mockRequests?: boolean;
 	imageBlocks: Block[];
 } ): Step[] => {
-	// Create arrays of state for each image block
+	// Each image block has its own step, hence the array of states
 	const [ valuesArray, setValues ] = useArrayState< string >( imageBlocks.map( () => '' ) );
 	const [ selectedValuesArray, setSelectedValues ] = useArrayState< string >(
 		imageBlocks.map( () => '' )
@@ -63,7 +63,6 @@ export const useAltTextStep = ( {
 		'generate' | 'regenerate' | null
 	>( imageBlocks.map( () => null ) );
 	const [ lastValue, setLastValue ] = useState< string >( '' );
-
 	const { updateBlockAttributes } = useDispatch( 'core/editor' );
 	const { getMessages, setMessages, addMessage, editLastMessage, setSelectedMessage } = useMessages(
 		imageBlocks.length
@@ -71,7 +70,6 @@ export const useAltTextStep = ( {
 	const postContent = usePostContent();
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const { tracks } = useAnalytics();
-
 	const prevStepHasChanged = useMemo( () => keywords !== lastValue, [ keywords, lastValue ] );
 	const stepId = 'alt-text';
 
@@ -80,11 +78,13 @@ export const useAltTextStep = ( {
 			if ( mockRequests ) {
 				return mockAltTextRequest( keywords );
 			}
+
 			tracks.recordEvent( 'jetpack_wizard_chat_request', {
 				step: stepId,
 				context: keywords,
 				assistant_name: 'seo-assistant',
 			} );
+
 			return askQuestionSync(
 				[
 					{
@@ -146,6 +146,13 @@ export const useAltTextStep = ( {
 		}
 	}, [ hasFailedArray, imageBlocks, setFailurePoints ] );
 
+	const selectBlock = useCallback(
+		( index: number ) => {
+			openBlockSidebar( imageBlocks[ index ].clientId );
+		},
+		[ imageBlocks ]
+	);
+
 	const handleAltTextGenerate = useCallback(
 		async ( index: number, { fromSkip }: { fromSkip: boolean } ) => {
 			let newOptions = [ ...optionsArray[ index ] ];
@@ -155,8 +162,7 @@ export const useAltTextStep = ( {
 				setLastValue( keywords );
 			}
 
-			const imageBlock = imageBlocks[ index ];
-			openBlockSidebar( imageBlock.clientId );
+			selectBlock( index );
 
 			if ( ! hasFailedArray[ index ] ) {
 				const initialMessage = fromSkip
@@ -190,10 +196,12 @@ export const useAltTextStep = ( {
 					debug( 'Error generating alt text', error );
 					setFailurePoints( 'generate', index );
 					setHasFailed( true, index );
+
 					// reset the last value to the previous value on failure to avoid a wrong value for prevStepHasChanged
 					if ( index === 0 ) {
 						setLastValue( previousLastValue );
 					}
+
 					return;
 				}
 			}
@@ -218,7 +226,7 @@ export const useAltTextStep = ( {
 		[
 			optionsArray,
 			lastValue,
-			imageBlocks,
+			selectBlock,
 			hasFailedArray,
 			prevStepHasChanged,
 			editLastMessage,
@@ -239,8 +247,8 @@ export const useAltTextStep = ( {
 			try {
 				setHasFailed( false, index );
 				const newAltTexts = await getAltTexts( index );
-
 				setOptions( [ ...optionsArray[ index ], ...newAltTexts ], index );
+
 				newAltTexts.forEach( title =>
 					addMessage( { ...title, type: 'option', isUser: true }, index )
 				);
@@ -259,10 +267,12 @@ export const useAltTextStep = ( {
 			setValues( selectedValuesArray[ index ], index );
 			await updateBlockAttributes( imageBlock.clientId, { alt: selectedValuesArray[ index ] } );
 			addMessage( { content: __( 'Alt text updated! ✅', 'jetpack' ) }, index );
+
 			// Time for the user to see the updated alt text
 			if ( index < imageBlocks.length - 1 ) {
 				await new Promise( resolve => setTimeout( resolve, 1000 ) );
 			}
+
 			return selectedValuesArray[ index ];
 		},
 		[ imageBlocks, setValues, selectedValuesArray, updateBlockAttributes, addMessage ]
@@ -307,6 +317,7 @@ export const useAltTextStep = ( {
 				hasSelection: !! selectedValuesArray[ index ],
 				hasFailed: hasFailedArray[ index ],
 				resetState: () => resetState( index ),
+				selectBlock: () => selectBlock( index ),
 			} ) ),
 		[
 			imageBlocks,
@@ -324,6 +335,7 @@ export const useAltTextStep = ( {
 			handleAltTextRegenerate,
 			setValues,
 			resetState,
+			selectBlock,
 		]
 	);
 

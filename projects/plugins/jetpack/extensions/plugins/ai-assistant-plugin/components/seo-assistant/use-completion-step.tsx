@@ -1,6 +1,15 @@
+/*
+ * External dependencies
+ */
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+/*
+ * Internal dependencies
+ */
 import { useMessages } from './wizard-messages';
+/**
+ * Types
+ */
 import type { Step, Results } from './types';
 
 export const useCompletionStep = (): Step => {
@@ -19,8 +28,8 @@ export const useCompletionStep = (): Step => {
 					id: 'a',
 				} );
 			}
-			setMessages( firstMessages );
 
+			setMessages( firstMessages );
 			await new Promise( resolve => setTimeout( resolve, 1000 ) );
 
 			const resultsString = Object.values( results )
@@ -41,6 +50,7 @@ export const useCompletionStep = (): Step => {
 				( acc: { total: number; completed: number }, result: Results[ string ] ) => {
 					const total = acc.total + 1;
 					const completed = acc.completed + ( result.value ? 1 : 0 );
+
 					return { total, completed };
 				},
 				{ total: 0, completed: 0 }
@@ -61,6 +71,7 @@ export const useCompletionStep = (): Step => {
 					'Your post is looking great! Come back anytime to complete the rest.',
 					'jetpack'
 				);
+
 				addMessage( {
 					content: createInterpolateElement(
 						'<strong>' + incompleteString + '</strong><br />' + teaseCompletion,

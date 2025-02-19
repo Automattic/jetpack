@@ -3,7 +3,6 @@
  */
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
@@ -22,8 +21,6 @@ import './style.scss';
 import type { SeoAssistantDispatch } from './types';
 import type { Block } from '@automattic/jetpack-ai-client';
 
-const debug = debugFactory( 'jetpack-seo:wizard-chat' );
-
 export default function SeoAssistantWizard() {
 	const imageBlocks = useSelect(
 		select =>
@@ -33,25 +30,20 @@ export default function SeoAssistantWizard() {
 		[]
 	);
 
+	const { close } = useDispatch( seoAssistantStore ) as SeoAssistantDispatch;
 	const keywordsStepData = useKeywordsStep();
 	const titleStepData = useTitleStep( { keywords: keywordsStepData.value, mockRequests: false } );
 	const descriptionStepData = useDescriptionStep( {
 		keywords: keywordsStepData.value,
-		mockRequests: false,
 	} );
 	const altTextSteps = useAltTextStep( {
 		keywords: keywordsStepData.value,
-		mockRequests: false,
 		imageBlocks,
 	} );
-	const { close } = useDispatch( seoAssistantStore ) as SeoAssistantDispatch;
-
 	const welcomeStepData = useWelcomeStep( {
 		stepLabels: [ titleStepData, descriptionStepData, ...altTextSteps ].map( step => step.label ),
 	} );
 	const completionStepData = useCompletionStep();
-
-	debug( 'render seo assistant wizard', altTextSteps );
 
 	return (
 		<WizardChat

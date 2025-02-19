@@ -52,6 +52,7 @@ export interface Step {
 	hasSelection?: boolean;
 	hasFailed?: boolean;
 	resetState?: () => void;
+	selectBlock?: () => void;
 }
 
 export interface SeoAssistantState {
