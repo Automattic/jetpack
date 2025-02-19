@@ -134,6 +134,11 @@ class Contact_Form_Plugin {
 		$data_without_tags = array();
 		if ( is_array( $data_with_tags ) ) {
 			foreach ( $data_with_tags as $index => $value ) {
+				if ( is_array( $value ) ) {
+					$data_without_tags[ $index ] = self::strip_tags( $value );
+					continue;
+				}
+
 				$index = sanitize_text_field( (string) $index );
 				$value = wp_kses_post( (string) $value );
 				$value = str_replace( '&amp;', '&', $value ); // undo damage done by wp_kses_normalize_entities()
@@ -522,7 +527,16 @@ class Contact_Form_Plugin {
 	 */
 	public static function gutenblock_render_field_file( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'file' );
-		return Contact_Form::parse_contact_field( $atts, $content );
+
+		// Create wrapper div for the file field
+		$output = '<div class="jetpack-form-file-field">';
+
+		// Render the file field
+		$output .= Contact_Form::parse_contact_field( $atts, $content );
+
+		$output .= '</div>';
+
+		return $output;
 	}
 
 	/**
@@ -531,7 +545,7 @@ class Contact_Form_Plugin {
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
-	 * @return string HTML for the file upload field.
+	 * @return string HTML for the number field.
 	 */
 	public static function gutenblock_render_field_number( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'number' );
@@ -1224,7 +1238,11 @@ class Contact_Form_Plugin {
 		$result = array();
 		foreach ( $md as $key => $value ) {
 			if ( is_array( $value ) ) {
-				$value = implode( ', ', $value );
+				if ( Contact_Form::is_file_upload_field( $value ) ) {
+					$value = $value['name'];
+				} else {
+					$value = implode( ', ', $value );
+				}
 			}
 			$result[ $key ] = html_entity_decode( $value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 		}
@@ -2113,7 +2131,13 @@ class Contact_Form_Plugin {
 			} else {
 				$fields_array = preg_replace( '/.*Array\s\( (.*)\)/msx', '$1', $content );
 
-				// TODO: some explanation on this regex could help
+				// This line of code is used to parse a string containing key-value pairs formatted as [Key] => Value and extract the keys and values into an array.
+				// The regular expression ensures that each key-value pair is correctly identified and captured.
+				// Given an input string
+				// [Key1] => Value1
+				// [Key2] => Value2
+				// it  $matches[1]: The keys (e.g., Key1, Key2 ).
+				// and $matches[2]: The values (e.g., Value1, Value2 ).
 				preg_match_all( '/^\s*\[([^\]]+)\] =\&gt\; (.*)(?=^\s*(\[[^\]]+\] =\&gt\;)|\z)/msU', $fields_array, $matches );
 
 				if ( count( $matches ) > 1 ) {
