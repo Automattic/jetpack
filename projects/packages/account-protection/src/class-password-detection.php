@@ -326,7 +326,7 @@ class Password_Detection {
 							<?php
 								printf(
 									/* translators: %s: Risks of using weak passwords link */
-									esc_html__( 'Learn more about the %1$s and how to protect your account.', 'jetpack-account-protection' ),
+									esc_html__( 'Learn more about the %s and how to protect your account.', 'jetpack-account-protection' ),
 									'<a class="risks-link" href="#" target="_blank" rel="noopener noreferrer">' . esc_html__( 'risks of using weak passwords', 'jetpack-account-protection' ) . '</a>' // TODO: Update this redirect URL once document exists
 								);
 							?>
@@ -362,9 +362,14 @@ class Password_Detection {
 						</div>
 						<?php if ( $error_code === 'email_request_limit_exceeded' ) : ?>
 							<p class="account-recovery">
-								<!-- TODO: Add account recovery process, recovery token generation -->
-								<?php esc_html_e( 'If you did not receive your authentication code and do not have access to your recovery tokens, please contact support or click here to begin account recovery.', 'jetpack-account-protection' ); ?>
-								</p>
+								<?php
+									printf(
+										/* translators: %s: Jetpack support link */
+										esc_html__( 'If you did not receive your authentication code, please try again later or contact %s to assist with account recovery.', 'jetpack-account-protection' ),
+										'<a class="risks-link" href="https://jetpack.com/contact-support/?rel=support" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Jetpack support', 'jetpack-account-protection' ) . '</a>' // TODO: Update this redirect URL once document exists
+									);
+								?>
+							</p>
 						<?php else : ?>
 							<p class="email-status">
 								<span><?php esc_html_e( "Didn't get the code?", 'jetpack-account-protection' ); ?> </span>
