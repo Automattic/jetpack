@@ -97,8 +97,8 @@ class Account_Protection {
 		add_action( 'jetpack_deactivate_module_' . self::ACCOUNT_PROTECTION_MODULE_NAME, array( $this, 'on_account_protection_deactivation' ) );
 
 		// Do not run in unsupported environments
-		add_filter( 'jetpack_get_available_modules', array( $this, 'remove_module_on_unsupported_environments' ) );
-		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'remove_standalone_module_on_unsupported_environments' ) );
+		add_filter( 'jetpack_get_available_modules', array( $this, 'filter_available_modules' ) );
+		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'filter_available_standalone_modules' ) );
 	}
 
 	/**
@@ -158,7 +158,7 @@ class Account_Protection {
 	 * @return bool
 	 */
 	public function is_enabled(): bool {
-		return $this->modules->is_active( self::ACCOUNT_PROTECTION_MODULE_NAME );
+		return $this->modules->is_active( self::ACCOUNT_PROTECTION_MODULE_NAME, false );
 	}
 
 	/**
@@ -227,38 +227,41 @@ class Account_Protection {
 	/**
 	 * Disables the Account Protection module when on an unsupported platform in Jetpack.
 	 *
-	 * @param array $modules Filterable value for `jetpack_get_available_modules`.
+	 * @param array $modules Key-value pairs of module slugs and the version of Jetpack that introduced them.
 	 *
-	 * @return array Array of module slugs.
+	 * @return array Filtered key-value pairs of module slugs and the version of Jetpack that introduced them.
 	 */
-	public function remove_module_on_unsupported_environments( array $modules ): array {
+	public function filter_available_modules( array $modules ): array {
+		// Remove the module - account protection should never be available on unsupported platforms.
 		if ( ! $this->is_supported_environment() ) {
-			// Account protection should never be available on unsupported platforms.
 			unset( $modules[ self::ACCOUNT_PROTECTION_MODULE_NAME ] );
+			return $modules;
 		}
 
 		return $modules;
 	}
 
 	/**
-	 * Disables the Account Protection module when on an unsupported platform in a standalone plugin.
+	 * Controls the availability of the Account Protection module in relation to standalone plugins.
 	 *
-	 * @param array $modules Filterable value for `jetpack_get_available_standalone_modules`.
+	 * @param string[] $modules List of module slugs.
 	 *
-	 * @return array Array of module slugs.
+	 * @return string[] List of filtered module slugs.
 	 */
-	public function remove_standalone_module_on_unsupported_environments( array $modules ): array {
+	public function filter_available_standalone_modules( array $modules ): array {
+		// Remove the module if the environment is unsupported.
 		if ( ! $this->is_supported_environment() ) {
-			// Account Protection should never be available on unsupported platforms.
-			$modules = array_filter(
+			return array_filter(
 				$modules,
 				function ( $module ) {
 					return $module !== self::ACCOUNT_PROTECTION_MODULE_NAME;
 				}
 			);
-
 		}
 
-		return $modules;
+		// Add the module - account protection is available whenever the package is installed.
+		$modules[] = self::ACCOUNT_PROTECTION_MODULE_NAME;
+
+		return array_unique( $modules );
 	}
 }
