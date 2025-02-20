@@ -370,7 +370,7 @@ class REST_Controller {
 
 		Publicize_Utils::endpoint_deprecated_warning(
 			__METHOD__,
-			'jetpack-$$next-version$$',
+			'jetpack-14.4, jetpack-social-6.2.0',
 			'jetpack/v4/publicize/connection-test-results',
 			'wpcom/v2/publicize/connections?test_connections=1'
 		);
@@ -397,7 +397,7 @@ class REST_Controller {
 
 		Publicize_Utils::endpoint_deprecated_warning(
 			__METHOD__,
-			'jetpack-$$next-version$$',
+			'jetpack-14.4, jetpack-social-6.2.0',
 			'jetpack/v4/publicize/connections',
 			'wpcom/v2/publicize/connections?test_connections=1'
 		);
@@ -424,7 +424,7 @@ class REST_Controller {
 
 		Publicize_Utils::endpoint_deprecated_warning(
 			__METHOD__,
-			'jetpack-$$next-version$$',
+			'jetpack-14.4, jetpack-social-6.2.0',
 			'jetpack/v4/social/connections',
 			'wpcom/v2/publicize/connections'
 		);
@@ -449,7 +449,7 @@ class REST_Controller {
 
 		Publicize_Utils::endpoint_deprecated_warning(
 			__METHOD__,
-			'jetpack-$$next-version$$',
+			'jetpack-14.4, jetpack-social-6.2.0',
 			'jetpack/v4/social/connections/:connection_id',
 			'wpcom/v2/publicize/connections/:connection_id'
 		);
@@ -476,7 +476,7 @@ class REST_Controller {
 
 		Publicize_Utils::endpoint_deprecated_warning(
 			__METHOD__,
-			'jetpack-$$next-version$$',
+			'jetpack-14.4, jetpack-social-6.2.0',
 			'jetpack/v4/social/connections/:connection_id',
 			'wpcom/v2/publicize/connections/:connection_id'
 		);
