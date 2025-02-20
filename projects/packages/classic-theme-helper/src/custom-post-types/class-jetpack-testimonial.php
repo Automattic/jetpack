@@ -155,7 +155,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 		 */
 		public static function site_should_display_testimonials() {
 			$should_display = true;
-			if ( Blocks::is_fse_theme() ) {
+			if ( ( ! ( new Host() )->is_wpcom_simple() ) && Blocks::is_fse_theme() ) {
 				if ( ! get_option( self::OPTION_NAME, '0' ) ) {
 					$should_display = false;
 				}

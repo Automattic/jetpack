@@ -1218,7 +1218,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "fcc9cd873504537d8cfe19c848f4f4d78e42c906"
+                "reference": "e4e03c9f4809bb92c53a3ae8c413568e11d8ad13"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1239,6 +1239,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
+                "brain/monkey": "^2.6.2",
                 "yoast/phpunit-polyfills": "^1.1.1"
             },
             "suggest": {

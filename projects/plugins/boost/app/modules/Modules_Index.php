@@ -16,10 +16,16 @@ use Automattic\Jetpack_Boost\Modules\Performance_History\Performance_History;
 
 class Modules_Index {
 	const DISABLE_MODULE_QUERY_VAR = 'jb-disable-modules';
+
 	/**
 	 * @var Module[] - Associative array of all Jetpack Boost modules.
 	 *
 	 * Example: [ 'critical_css' => Module, 'image_cdn' => Module ]
+	 */
+	protected $modules = array();
+
+	/**
+	 * @var Module[] - Associative array of available Jetpack Boost modules.
 	 */
 	protected $available_modules = array();
 
@@ -47,8 +53,9 @@ class Modules_Index {
 	 */
 	public function __construct() {
 		foreach ( self::FEATURES as $feature ) {
+			$this->modules[ $feature::get_slug() ] = new Module( new $feature() );
 			if ( $feature::is_available() ) {
-				$this->available_modules[ $feature::get_slug() ] = new Module( new $feature() );
+				$this->available_modules[ $feature::get_slug() ] = $this->modules[ $feature::get_slug() ];
 			}
 		}
 	}
@@ -69,6 +76,15 @@ class Modules_Index {
 		}
 
 		return $matching_features;
+	}
+
+	/**
+	 * Fetches all modules.
+	 *
+	 * @return Module[]
+	 */
+	public function get_modules() {
+		return $this->modules;
 	}
 
 	/**

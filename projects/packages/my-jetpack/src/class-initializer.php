@@ -302,7 +302,7 @@ class Initializer {
 					'dismissed'  => \Jetpack_Options::get_option( 'dismissed_recommendations', false ),
 				),
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
-				'isUserFromKnownHost'    => self::is_user_from_known_host(),
+				'canUserViewStats'       => current_user_can( 'manage_options' ) || current_user_can( 'view_stats' ),
 				'isCommercial'           => self::is_commercial_site(),
 				'sandboxedDomain'        => $sandboxed_domain,
 				'isDevVersion'           => $is_dev_version,
@@ -512,16 +512,6 @@ class Initializer {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Determines whether the user has come from a host we can recognize.
-	 *
-	 * @return string
-	 */
-	public static function is_user_from_known_host() {
-		// Known (external) host is the one that has been determined and is not dotcom.
-		return ! in_array( ( new Status_Host() )->get_known_host_guess(), array( 'unknown', 'wpcom' ), true );
 	}
 
 	/**
@@ -867,6 +857,13 @@ class Initializer {
 	 */
 	public static function maybe_show_red_bubble() {
 		global $menu;
+
+		// Don't show red bubble alerts for non-admin users
+		// These alerts are generally only actionable for admins
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 		// filters for the items in this file
 		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( __CLASS__, 'add_red_bubble_alerts' ) );
 		$red_bubble_alerts = array_filter(

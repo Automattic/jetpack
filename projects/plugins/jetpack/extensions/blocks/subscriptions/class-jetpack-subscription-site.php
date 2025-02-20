@@ -118,6 +118,13 @@ class Jetpack_Subscription_Site {
 	 * @return bool
 	 */
 	protected function is_single_post_context( $context ) {
+		/**
+		 * Some themes are not returning a WP_Block_Template. In that case, we need to check with is_singular function.
+		 */
+		if ( is_array( $context ) ) {
+			return is_singular( 'post' );
+		}
+
 		return $context instanceof WP_Block_Template && $context->slug === 'single';
 	}
 
