@@ -139,6 +139,13 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-logout/wpcom-logout.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
 
+		// We include WPCom Themes results and installation on WoA sites only and non-WP_CLI context.
+		// This is so that these features don't apply to Simple sites. We anticpate changing this in future
+		// because these features will be needed for Simple sites too.
+		if ( ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() && ( ! defined( 'WP_CLI' ) || ! WP_CLI ) ) {
+			require_once __DIR__ . '/features/wpcom-themes/wpcomsh-themes.php';
+		}
+
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
 		\Automattic\Jetpack\Classic_Theme_Helper\Main::init();
@@ -190,11 +197,6 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
-
-		// We include WPCom Themes results and installation on WoA sites only and non-WP_CLI context.
-		if ( ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) && ( ! defined( 'WP_CLI' ) || ! WP_CLI ) ) {
-			require_once __DIR__ . '/features/wpcom-themes/wpcomsh-themes.php';
-		}
 
 		// Only load the Calypsoify and Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
