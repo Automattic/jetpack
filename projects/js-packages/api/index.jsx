@@ -157,9 +157,9 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		unlinkUser: () =>
+		unlinkUser: force =>
 			postRequest( `${ apiRoot }jetpack/v4/connection/user`, postParams, {
-				body: JSON.stringify( { linked: false } ),
+				body: JSON.stringify( { linked: false, force: !! force } ),
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),

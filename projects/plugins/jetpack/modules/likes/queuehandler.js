@@ -213,22 +213,14 @@ function JetpackLikesMessageListener( event ) {
 				break;
 			}
 
-			const newLayout = container.classList.contains( 'wpl-new-layout' );
-
 			const list = container.querySelector( 'ul' );
 
 			container.style.display = 'none';
 			list.innerHTML = '';
 
-			if ( newLayout ) {
-				container
-					.querySelectorAll( '.likes-text span' )
-					.forEach( item => ( item.textContent = data.totalLikesLabel ) );
-			} else {
-				container
-					.querySelectorAll( '.likes-text span' )
-					.forEach( item => ( item.textContent = data.total ) );
-			}
+			container
+				.querySelectorAll( '.likes-text span' )
+				.forEach( item => ( item.textContent = data.totalLikesLabel ) );
 
 			( data.likers || [] ).forEach( async ( liker, index ) => {
 				if ( liker.profile_URL.substr( 0, 4 ) !== 'http' ) {
@@ -239,32 +231,19 @@ function JetpackLikesMessageListener( event ) {
 				const element = document.createElement( 'li' );
 				list.append( element );
 
-				if ( newLayout ) {
-					element.innerHTML = `
-					<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
-						<img src="${ encodeURI( liker.avatar_URL ) }"
+				const profileLink = encodeURI( liker.profile_URL );
+				const avatarLink = encodeURI( liker.avatar_URL );
+				element.innerHTML = `<a href="${ profileLink }" rel="nofollow" target="_parent" class="wpl-liker">
+						<img src="${ avatarLink }"
 							alt=""
 							style="width: 28px; height: 28px;" />
 						<span></span>
-					</a>
-				`;
-				} else {
-					element.innerHTML = `
-					<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
-						<img src="${ encodeURI( liker.avatar_URL ) }"
-							alt=""
-							style="width: 30px; height: 30px; padding-right: 3px;" />
-					</a>
-				`;
-				}
+					</a>`;
 
 				// Add some extra attributes through native methods, to ensure strings are sanitized.
 				element.classList.add( liker.css_class );
 				element.querySelector( 'img' ).alt = data.avatarAltTitle.replace( '%s', liker.name );
-
-				if ( newLayout ) {
-					element.querySelector( 'span' ).innerText = liker.name;
-				}
+				element.querySelector( 'span' ).innerText = liker.name;
 
 				if ( index === data.likers.length - 1 ) {
 					element.addEventListener( 'keydown', e => {
@@ -294,22 +273,17 @@ function JetpackLikesMessageListener( event ) {
 				};
 
 				let containerLeft = 0;
-				if ( newLayout ) {
-					container.style.top = offset.top + data.position.top - 1 + 'px';
+				container.style.top = offset.top + data.position.top - 1 + 'px';
 
-					if ( isRtl ) {
-						const visibleAvatarsCount = data && data.likers ? Math.min( data.likers.length, 5 ) : 0;
-						// 24px is the width of the avatar + 4px is the padding between avatars
-						containerLeft = offset.left + data.position.left + 24 * visibleAvatarsCount + 4;
-						container.style.transform = 'translateX(-100%)';
-					} else {
-						containerLeft = offset.left + data.position.left;
-					}
-					container.style.left = containerLeft + 'px';
+				if ( isRtl ) {
+					const visibleAvatarsCount = data && data.likers ? Math.min( data.likers.length, 5 ) : 0;
+					// 24px is the width of the avatar + 4px is the padding between avatars
+					containerLeft = offset.left + data.position.left + 24 * visibleAvatarsCount + 4;
+					container.style.transform = 'translateX(-100%)';
 				} else {
-					container.style.left = offset.left + data.position.left - 10 + 'px';
-					container.style.top = offset.top + data.position.top - 33 + 'px';
+					containerLeft = offset.left + data.position.left;
 				}
+				container.style.left = containerLeft + 'px';
 
 				// Container width - padding
 				const initContainerWidth = data.width - 20;
@@ -320,35 +294,21 @@ function JetpackLikesMessageListener( event ) {
 					height = 204;
 				}
 
-				if ( ! newLayout ) {
-					// Avatars + padding
-					const containerWidth = rowLength * 37 + 13;
-					container.style.height = height + 'px';
-					container.style.width = containerWidth + 'px';
+				// If the popup overflows viewport width, we should show it on the next line.
+				// Push it offscreen to calculated rendered width.
+				container.style.left = '-9999px';
+				container.style.display = 'block';
 
-					const listWidth = rowLength * 37;
-					list.style.width = listWidth + 'px';
+				// If the popup exceeds the viewport width,
+				// flip the position of the popup.
+				const containerWidth = container.offsetWidth;
+				const containerRight = containerLeft + containerWidth;
+				if ( containerRight > win.innerWidth ) {
+					containerLeft = rect.right - containerWidth;
 				}
 
-				// If the popup is overflows viewport width, we should show it on the next line
-				if ( newLayout ) {
-					// Push it offscreen to calculated rendered width
-					container.style.left = '-9999px';
-					container.style.display = 'block';
-
-					// If the popup exceeds the viewport width,
-					// flip the position of the popup.
-					const containerWidth = container.offsetWidth;
-					const containerRight = containerLeft + containerWidth;
-					if ( containerRight > win.innerWidth ) {
-						containerLeft = rect.right - containerWidth;
-					}
-
-					// Set the container left
-					container.style.left = containerLeft + 'px';
-				} else {
-					container.style.display = 'block';
-				}
+				// Set the container left
+				container.style.left = containerLeft + 'px';
 				container.setAttribute( 'aria-hidden', 'false' );
 			};
 

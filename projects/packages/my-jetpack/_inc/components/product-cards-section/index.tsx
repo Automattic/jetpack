@@ -98,33 +98,41 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 		data: { ownedProducts, unownedProducts },
 	} = useProductsByOwnership();
 
+	const { canUserViewStats, userIsAdmin } = getMyJetpackWindowInitialState();
+
 	const unownedSectionTitle = useMemo( () => {
 		return ownedProducts.length > 0
 			? __( 'Discover more', 'jetpack-my-jetpack' )
 			: __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' );
 	}, [ ownedProducts.length ] );
 
-	const filterProducts = useCallback( ( products: JetpackModule[] ) => {
-		const productsWithNoCard = [
-			'extras',
-			'scan',
-			'security',
-			'ai',
-			'creator',
-			'growth',
-			'complete',
-			'site-accelerator',
-			'newsletter',
-			'related-posts',
-			'brute-force',
-		];
-		return products.filter( product => {
-			if ( productsWithNoCard.includes( product ) ) {
-				return false;
+	const filterProducts = useCallback(
+		( products: JetpackModule[] ) => {
+			const productsWithNoCard = [
+				'extras',
+				'scan',
+				'security',
+				'ai',
+				'creator',
+				'growth',
+				'complete',
+				'site-accelerator',
+				'newsletter',
+				'related-posts',
+				'brute-force',
+			];
+
+			// If the user cannot view stats, filter out the stats card
+			if ( ! canUserViewStats ) {
+				productsWithNoCard.push( 'stats' );
 			}
-			return true;
-		} );
-	}, [] );
+
+			return products.filter( product => {
+				return ! productsWithNoCard.includes( product );
+			} );
+		},
+		[ canUserViewStats ]
+	);
 
 	const filteredOwnedProducts = filterProducts( ownedProducts );
 	const filteredUnownedProducts = filterProducts( unownedProducts );
@@ -145,7 +153,7 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 				</AdminSectionHero>
 			) }
 
-			{ filteredUnownedProducts.length > 0 && (
+			{ userIsAdmin && filteredUnownedProducts.length > 0 && (
 				<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
 					<Col>
 						<Col sm={ 4 } md={ 8 } lg={ 12 } className={ styles.cardListTitle }>

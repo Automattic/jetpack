@@ -1,8 +1,8 @@
 import clsx from 'clsx';
 import React, { forwardRef, useMemo } from 'react';
-import { BOX_MODEL_VALUES, VARIANTS_MAPPING } from './constants';
+import { BOX_MODEL_VALUES, VARIANTS_MAPPING } from './constants.js';
 import styles from './style.module.scss';
-import type { H3Props, TextProps, TitleProps } from './types';
+import type { H3Props, TextProps, TitleProps } from './types.js';
 
 /**
  * Text component.
@@ -87,4 +87,4 @@ export const Title: React.FC< TitleProps > = ( {
 	</Text>
 );
 
-export * from './constants';
+export * from './constants.js';

@@ -28,3 +28,9 @@ export const useMetaQuery = ( key: MinifyMetaKeys, onSuccess?: ( newState: strin
 
 	return [ data || [], updateValues ] as const;
 };
+
+export const useShowMinifyLegacy = () => {
+	const [ query ] = useDataSync( 'jetpack_boost_ds', 'minify_legacy_notice', z.boolean() );
+
+	return query;
+};

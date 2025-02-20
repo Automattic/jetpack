@@ -667,7 +667,7 @@ jQuery( function() {
 		 * @param string $text Content to be run through Markdown
 		 * @param array $args Array of Markdown options.
 		 */
-		$text = apply_filters( 'wpcom_markdown_transform_pre', $text, $args );
+		$text = apply_filters( 'wpcom_markdown_transform_pre', $text, $args ) ?? '';
 		// ensure our paragraphs are separated.
 		$text = str_replace( array( '</p><p>', "</p>\n<p>" ), "</p>\n\n<p>", $text );
 		// visual editor likes to add <p>s. Buh-bye.

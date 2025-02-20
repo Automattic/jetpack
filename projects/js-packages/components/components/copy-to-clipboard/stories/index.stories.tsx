@@ -1,4 +1,4 @@
-import CopyToClipboard from '../index';
+import CopyToClipboard from '../index.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
 export default {

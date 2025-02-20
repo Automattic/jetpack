@@ -22,7 +22,6 @@ return [
     // PhanUndeclaredClassMethod : 3 occurrences
     // PhanNoopNew : 2 occurrences
     // PhanTypeVoidArgument : 2 occurrences
-    // PhanUndeclaredProperty : 2 occurrences
     // PhanContextNotObject : 1 occurrence
     // PhanDeprecatedFunction : 1 occurrence
     // PhanDeprecatedProperty : 1 occurrence
@@ -70,7 +69,7 @@ return [
         'widgets/class-pd-top-rated.php' => ['PhanRedundantCondition'],
         'widgets/class-widget-top-clicks.php' => ['PhanDeprecatedFunction'],
         'wpcom-features/class-wpcom-features.php' => ['PhanPluginMixedKeyNoKey'],
-        'wpcom-features/functions-wpcom-features.php' => ['PhanImpossibleCondition', 'PhanTypeMismatchArgument', 'PhanUndeclaredMethod', 'PhanUndeclaredProperty'],
+        'wpcom-features/functions-wpcom-features.php' => ['PhanImpossibleCondition', 'PhanTypeMismatchArgument', 'PhanUndeclaredMethod'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

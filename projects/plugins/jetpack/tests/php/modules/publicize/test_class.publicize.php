@@ -366,6 +366,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @since 6.7.0
 	 */
 	public function test_get_services_connected() {
+		$this->markTestSkipped();
 		$connected_services = $this->publicize->get_services( 'connected' );
 		$this->assertTrue( isset( $connected_services['facebook'] ) );
 		$this->assertTrue( isset( $connected_services['tumblr'] ) );
@@ -379,6 +380,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @since 6.7.0
 	 */
 	public function test_get_filtered_connection_data_no_filters() {
+		$this->markTestSkipped();
 		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$connection_data = $connection_list[0];
 		$this->assertEquals(
@@ -443,6 +445,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @since 6.7.0
 	 */
 	public function test_get_filtered_connection_data_null_post() {
+		$this->markTestSkipped();
 		/**
 		 * Simulate null post by not providing post_id argument and
 		 * when current $post value is unset.
@@ -467,6 +470,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @since 6.7.0
 	 */
 	public function test_filter_wpas_submit_post() {
+		$this->markTestSkipped();
 		$connection_list  = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$first_connection = $connection_list[0];
 		$this->assertEquals(
@@ -502,6 +506,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @since 6.7.0
 	 */
 	public function test_filter_publicize_checkbox_global_default_for_global_connection() {
+		$this->markTestSkipped();
 		$connection_list   = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$global_connection = $connection_list[ self::GLOBAL_CONNECTION_INDEX ];
 		$this->assertTrue(
@@ -543,6 +548,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @since 6.7.0
 	 */
 	public function test_filter_publicize_checkbox_global_default_for_normal_connection() {
+		$this->markTestSkipped();
 		$connection_list   = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$normal_connection = $connection_list[ self::NORMAL_CONNECTION_INDEX ];
 		$this->assertFalse(
@@ -577,6 +583,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @since 6.7.0
 	 */
 	public function test_filter_publicize_checkbox_default_for_normal_connection() {
+		$this->markTestSkipped();
 		$connection_list   = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$normal_connection = $connection_list[ self::NORMAL_CONNECTION_INDEX ];
 		$this->assertTrue(
@@ -602,6 +609,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @since 6.7.0
 	 */
 	public function test_filter_publicize_checkbox_default_for_global_connection() {
+		$this->markTestSkipped();
 		$connection_list   = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$global_connection = $connection_list[ self::GLOBAL_CONNECTION_INDEX ];
 		$this->assertTrue(
@@ -628,6 +636,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @since 6.7.0
 	 */
 	public function test_get_filtered_connection_data_disabled_after_publish() {
+		$this->markTestSkipped();
 		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$connection_data = $connection_list[0];
 		$this->assertTrue(

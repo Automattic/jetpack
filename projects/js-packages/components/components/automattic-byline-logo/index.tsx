@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React from 'react';
-import { AutomatticBylineLogoProps } from './types';
+import { AutomatticBylineLogoProps } from './types.js';
 
 /**
  * Automattic "By line" Logo component.
