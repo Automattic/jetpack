@@ -27,6 +27,10 @@ class Field_Text_Block {
 						'type'    => 'boolean',
 						'default' => false,
 					),
+					'requiredText' => array(
+						'type'    => 'string',
+						'default' => __( '(required)', 'jetpack-forms' ),
+					),
 					'label'    => array(
 						'type'    => 'string',
 						'default' => __( 'Text', 'jetpack-forms' ),
@@ -126,10 +130,14 @@ class Field_Text_Block {
 	 * @param array $attributes The block attributes.
 	 * @return string The rendered text field HTML.
 	 */
-	public static function render( $attributes ) {
-		$should_validate   = $attributes['required'] && self::requires_validation();
+	public static function render( $attributes, $content, $block ) {
+		$form_id = $block->context['jetpack/contact-form/id'];
+		$form_hash = $block->context['jetpack/contact-form/hash'];
+
+		$should_validate   = $attributes['required'] && self::requires_validation( $form_id, $form_hash );
 		$validation_errors = null;
 		$value             = self::get_value( $attributes['id'] );
+
 
 		if ( $should_validate ) {
 			$validation_errors = self::get_validation_errors( $attributes, $value );
@@ -137,7 +145,7 @@ class Field_Text_Block {
 
 		$is_required           = ! empty( $attributes['required'] );
 		$required_label_markup = '';
-		if ( ! $is_required ) {
+		if ( $is_required ) {
 			$required_label_text   =
 				wp_kses_post( apply_filters( 'jetpack_required_field_text', $attributes['requiredText'] ) );
 			$required_label_markup =
