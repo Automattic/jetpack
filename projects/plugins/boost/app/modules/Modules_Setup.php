@@ -192,14 +192,13 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 		}
 
 		if ( $module ) {
-			$submodules = $module->get_submodules();
+			$submodules = $module->get_available_submodules();
 			if ( is_array( $submodules ) && ! empty( $submodules ) ) {
 				foreach ( $submodules as $sub_module ) {
-					$instance = new Module( new $sub_module() );
 					if ( $is_activated ) {
-						$instance->on_activate();
+						$sub_module->on_activate();
 					} else {
-						$instance->on_deactivate();
+						$sub_module->on_deactivate();
 					}
 				}
 			}
