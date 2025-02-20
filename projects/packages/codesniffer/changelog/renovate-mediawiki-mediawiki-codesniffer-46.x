@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: changed
 
 Update package dependencies.
