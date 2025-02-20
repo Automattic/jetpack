@@ -16,21 +16,21 @@ class Products {
 	 *
 	 * @var string
 	 */
-	const STATUS_SITE_CONNECTION_ERROR       = 'site_connection_error';
-	const STATUS_USER_CONNECTION_ERROR       = 'user_connection_error';
-	const STATUS_ACTIVE                      = 'active';
-	const STATUS_CAN_UPGRADE                 = 'can_upgrade';
-	const STATUS_EXPIRING_SOON               = 'expiring';
-	const STATUS_EXPIRED                     = 'expired';
-	const STATUS_INACTIVE                    = 'inactive';
-	const STATUS_MODULE_DISABLED             = 'module_disabled';
-	const STATUS_PLUGIN_ABSENT               = 'plugin_absent';
-	const STATUS_PLUGIN_ABSENT_WITH_PLAN     = 'plugin_absent_with_plan';
-	const STATUS_NEEDS_PLAN                  = 'needs_plan';
-	const STATUS_NEEDS_ACTIVATION            = 'needs_activation';
-	const STATUS_NEEDS_FIRST_SITE_CONNECTION = 'needs_first_site_connection';
-	const STATUS_NEEDS_ATTENTION__WARNING    = 'needs_attention_warning';
-	const STATUS_NEEDS_ATTENTION__ERROR      = 'needs_attention_error';
+	public const STATUS_SITE_CONNECTION_ERROR       = 'site_connection_error';
+	public const STATUS_USER_CONNECTION_ERROR       = 'user_connection_error';
+	public const STATUS_ACTIVE                      = 'active';
+	public const STATUS_CAN_UPGRADE                 = 'can_upgrade';
+	public const STATUS_EXPIRING_SOON               = 'expiring';
+	public const STATUS_EXPIRED                     = 'expired';
+	public const STATUS_INACTIVE                    = 'inactive';
+	public const STATUS_MODULE_DISABLED             = 'module_disabled';
+	public const STATUS_PLUGIN_ABSENT               = 'plugin_absent';
+	public const STATUS_PLUGIN_ABSENT_WITH_PLAN     = 'plugin_absent_with_plan';
+	public const STATUS_NEEDS_PLAN                  = 'needs_plan';
+	public const STATUS_NEEDS_ACTIVATION            = 'needs_activation';
+	public const STATUS_NEEDS_FIRST_SITE_CONNECTION = 'needs_first_site_connection';
+	public const STATUS_NEEDS_ATTENTION__WARNING    = 'needs_attention_warning';
+	public const STATUS_NEEDS_ATTENTION__ERROR      = 'needs_attention_error';
 
 	/**
 	 * List of statuses that display the module as disabled
@@ -174,6 +174,32 @@ class Products {
 		}
 
 		return $final_classes;
+	}
+
+	/**
+	 * Inititializes all products with an initialize method.
+	 *
+	 * @return void
+	 */
+	public static function initialize_products() {
+		$classes = self::get_products_classes();
+
+		foreach ( $classes as $class ) {
+			$class::initialize();
+		}
+	}
+
+	/**
+	 * Register endpoints related to product classes
+	 *
+	 * @return void
+	 */
+	public static function register_product_endpoints() {
+		$classes = self::get_products_classes();
+
+		foreach ( $classes as $class ) {
+			$class::register_endpoints();
+		}
 	}
 
 	/**

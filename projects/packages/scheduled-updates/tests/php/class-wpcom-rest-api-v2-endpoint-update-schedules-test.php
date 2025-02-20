@@ -756,6 +756,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	 * @covers ::delete_item
 	 */
 	public function test_updating_autoupdate_plugins_on_delete() {
+		wp_set_current_user( $this->admin_id );
 		$auto_update = array( 'hello-dolly/hello-dolly.php' );
 		$plugins_1   = array( 'custom-plugin/custom-plugin.php' );
 		$plugins_2   = array(
@@ -778,9 +779,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 2, self::get_sync_counter() );
 
 		$request = new WP_REST_Request( 'DELETE', '/wpcom/v2/update-schedules/' . $schedule_id );
-		wp_set_current_user( $this->admin_id );
-		rest_do_request( $request );
+		$result  = rest_do_request( $request );
 
+		$this->assertTrue( $result->get_data() );
 		$this->assertSame( $expected_result, get_option( 'auto_update_plugins' ) );
 		$this->assertSame( 3, self::get_sync_counter() );
 		$this->assertSame( 2, self::$scheduled_counter );

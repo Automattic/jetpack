@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Host detection: only look for specific external hosting provider when required.

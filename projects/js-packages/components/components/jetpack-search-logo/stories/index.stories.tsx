@@ -1,4 +1,4 @@
-import JetpackSearchLogo from '../index';
+import JetpackSearchLogo from '../index.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
 export default {

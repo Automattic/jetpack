@@ -320,6 +320,23 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'site_launched',
 			),
 		),
+		'sell'                    => array(
+			'get_title'      => function () {
+				return __( 'Site setup', 'jetpack-mu-wpcom' );
+			},
+			'is_dismissible' => true,
+			'task_ids'       => array(
+				'woocommerce_setup',
+				'sensei_setup',
+				'site_title',
+				'front_page_updated',
+				'verify_domain_email',
+				'verify_email',
+				'mobile_app_installed',
+				'post_sharing_enabled',
+				'site_launched',
+			),
+		),
 		'entrepreneur-site-setup' => array(
 			'task_ids' => array(
 				'woo_customize_store',

@@ -41,14 +41,14 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.4.2';
+	const PACKAGE_VERSION = '5.4.5';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
 	 */
-	const IDC_CONTAINER_ID = 'my-jetpack-identity-crisis-container';
+	private const IDC_CONTAINER_ID = 'my-jetpack-identity-crisis-container';
 
-	const JETPACK_PLUGIN_SLUGS = array(
+	private const JETPACK_PLUGIN_SLUGS = array(
 		'jetpack-backup',
 		'jetpack-boost',
 		'zerobscrm',
@@ -59,12 +59,12 @@ class Initializer {
 		'jetpack-search',
 	);
 
-	const MY_JETPACK_SITE_INFO_TRANSIENT_KEY             = 'my-jetpack-site-info';
-	const UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY = 'update-historically-active-jetpack-modules';
-	const MISSING_CONNECTION_NOTIFICATION_KEY            = 'missing-connection';
-	const VIDEOPRESS_STATS_KEY                           = 'my-jetpack-videopress-stats';
-	const VIDEOPRESS_PERIOD_KEY                          = 'my-jetpack-videopress-period';
-	const MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY            = 'my-jetpack-red-bubble-transient';
+	private const MY_JETPACK_SITE_INFO_TRANSIENT_KEY             = 'my-jetpack-site-info';
+	private const UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY = 'update-historically-active-jetpack-modules';
+	private const MISSING_CONNECTION_NOTIFICATION_KEY            = 'missing-connection';
+	private const VIDEOPRESS_STATS_KEY                           = 'my-jetpack-videopress-stats';
+	private const VIDEOPRESS_PERIOD_KEY                          = 'my-jetpack-videopress-period';
+	private const MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY            = 'my-jetpack-red-bubble-transient';
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
@@ -234,7 +234,10 @@ class Initializer {
 			$previous_score = $speed_score_history->latest( 1 );
 		}
 		$latest_score['previousScores'] = $previous_score['scores'] ?? array();
-		$scan_data                      = Products\Protect::get_protect_data();
+
+		Products::initialize_products();
+		$scan_data = Products\Protect::get_protect_data();
+
 		self::update_historically_active_jetpack_modules();
 
 		$waf_config     = array();
@@ -299,7 +302,7 @@ class Initializer {
 					'dismissed'  => \Jetpack_Options::get_option( 'dismissed_recommendations', false ),
 				),
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
-				'isUserFromKnownHost'    => self::is_user_from_known_host(),
+				'canUserViewStats'       => current_user_can( 'manage_options' ) || current_user_can( 'view_stats' ),
 				'isCommercial'           => self::is_commercial_site(),
 				'sandboxedDomain'        => $sandboxed_domain,
 				'isDevVersion'           => $is_dev_version,
@@ -512,16 +515,6 @@ class Initializer {
 	}
 
 	/**
-	 * Determines whether the user has come from a host we can recognize.
-	 *
-	 * @return string
-	 */
-	public static function is_user_from_known_host() {
-		// Known (external) host is the one that has been determined and is not dotcom.
-		return ! in_array( ( new Status_Host() )->get_known_host_guess(), array( 'unknown', 'wpcom' ), true );
-	}
-
-	/**
 	 *  Build flags for My Jetpack UI
 	 *
 	 *  @return array
@@ -553,9 +546,10 @@ class Initializer {
 		new REST_Products();
 		new REST_Purchases();
 		new REST_Zendesk_Chat();
-		new REST_Product_Data();
 		new REST_AI();
 		new REST_Recommendations_Evaluation();
+
+		Products::register_product_endpoints();
 
 		register_rest_route(
 			'my-jetpack/v1',
@@ -863,12 +857,19 @@ class Initializer {
 	 */
 	public static function maybe_show_red_bubble() {
 		global $menu;
+
+		// Don't show red bubble alerts for non-admin users
+		// These alerts are generally only actionable for admins
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 		// filters for the items in this file
 		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( __CLASS__, 'add_red_bubble_alerts' ) );
 		$red_bubble_alerts = array_filter(
 			self::get_red_bubble_alerts(),
 			function ( $alert ) {
-				// We don't want to show silent alerts
+				// We don't want to show the red bubble for silent alerts
 				return empty( $alert['is_silent'] );
 			}
 		);
@@ -1068,13 +1069,13 @@ class Initializer {
 						'manage_url'     => $product::get_manage_paid_plan_purchase_url(),
 					);
 
-					if ( $product::is_paid_plan_expired() ) {
+					if ( $product::is_paid_plan_expired() && empty( $_COOKIE[ "$purchase->product_slug--plan_expired_dismissed" ] ) ) {
 						$red_bubble_slugs[ "$purchase->product_slug--plan_expired" ] = $redbubble_notice_data;
 						if ( ! $product::is_bundle_product() ) {
 							$products_included_in_expiring_plan[ "$purchase->product_slug--plan_expired" ][] = $product::get_name();
 						}
 					}
-					if ( $product::is_paid_plan_expiring() ) {
+					if ( $product::is_paid_plan_expiring() && empty( $_COOKIE[ "$purchase->product_slug--plan_expiring_soon_dismissed" ] ) ) {
 						$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ]               = $redbubble_notice_data;
 						$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ]['manage_url'] = $product::get_renew_paid_plan_purchase_url();
 						if ( ! $product::is_bundle_product() ) {
@@ -1099,6 +1100,10 @@ class Initializer {
 	 * @return array
 	 */
 	public static function alert_if_last_backup_failed( array $red_bubble_slugs ) {
+		// Make sure the Notice wasn't previously dismissed.
+		if ( ! empty( $_COOKIE['backup_failure_dismissed'] ) ) {
+			return $red_bubble_slugs;
+		}
 		// Make sure there's a Backup paid plan
 		if ( ! Products\Backup::is_plugin_active() || ! Products\Backup::has_paid_plan_for_product() ) {
 			return $red_bubble_slugs;
@@ -1128,6 +1133,10 @@ class Initializer {
 	 * @return array
 	 */
 	public static function alert_if_protect_has_threats( array $red_bubble_slugs ) {
+		// Make sure the Notice hasn't been dismissed.
+		if ( ! empty( $_COOKIE['protect_threats_detected_dismissed'] ) ) {
+			return $red_bubble_slugs;
+		}
 		// Make sure we're dealing with the Protect product only
 		if ( ! Products\Protect::has_paid_plan_for_product() ) {
 			return $red_bubble_slugs;

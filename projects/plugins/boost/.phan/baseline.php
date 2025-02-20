@@ -25,13 +25,11 @@ return [
     // PhanTypeMismatchArgumentNullableInternal : 2 occurrences
     // PhanCoalescingNeverNull : 1 occurrence
     // PhanImpossibleTypeComparisonInGlobalScope : 1 occurrence
-    // PhanParamTooMany : 1 occurrence
     // PhanRedefineFunction : 1 occurrence
     // PhanRedundantCondition : 1 occurrence
     // PhanTypeComparisonToArray : 1 occurrence
     // PhanTypeInvalidUnaryOperandIncOrDec : 1 occurrence
     // PhanTypeMismatchArgumentInternal : 1 occurrence
-    // PhanTypeMismatchDefault : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
     // PhanTypeMissingReturn : 1 occurrence
     // PhanUndeclaredClassMethod : 1 occurrence
@@ -50,7 +48,7 @@ return [
         'app/lib/minify/Concatenate_CSS.php' => ['PhanPluginUseReturnValueInternalKnown', 'PhanTypeMismatchArgument'],
         'app/lib/minify/Concatenate_JS.php' => ['PhanPluginUseReturnValueInternalKnown', 'PhanPossiblyUndeclaredVariable', 'PhanTypeInvalidUnaryOperandIncOrDec', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypePossiblyInvalidDimOffset'],
         'app/lib/minify/Dependency_Path_Mapping.php' => ['PhanUndeclaredConstant'],
-        'app/lib/minify/functions-helpers.php' => ['PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDefault', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant'],
+        'app/lib/minify/functions-helpers.php' => ['PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant'],
         'app/modules/Modules_Setup.php' => ['PhanTypeMismatchPropertyDefault'],
         'app/modules/image-guide/Image_Guide_Proxy.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'app/modules/image-size-analysis/data-sync/Image_Size_Analysis_Action_Fix.php' => ['PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition'],
@@ -68,7 +66,6 @@ return [
         'compatibility/woocommerce.php' => ['PhanTypeArraySuspicious'],
         'jetpack-boost.php' => ['PhanNoopNew'],
         'tests/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],
-        'wp-js-data-sync.php' => ['PhanParamTooMany'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

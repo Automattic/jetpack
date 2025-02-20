@@ -468,7 +468,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'jetpack_post_date_in_email'       => (bool) get_option( 'jetpack_post_date_in_email', true ),
 						'wpcom_newsletter_categories'      => $newsletter_category_ids,
 						'wpcom_newsletter_categories_enabled' => (bool) get_option( 'wpcom_newsletter_categories_enabled' ),
-						'wpcom_newsletter_categories_modal_hidden' => (bool) get_option( 'wpcom_newsletter_categories_modal_hidden', false ),
 						'sm_enabled'                       => (bool) get_option( 'sm_enabled' ),
 						'jetpack_subscribe_overlay_enabled' => (bool) get_option( 'jetpack_subscribe_overlay_enabled' ),
 						'jetpack_subscribe_floating_button_enabled' => (bool) get_option( 'jetpack_subscribe_floating_button_enabled' ),
@@ -500,6 +499,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'jetpack_waf_share_debug_data'     => (bool) get_option( 'jetpack_waf_share_debug_data' ),
 						'jetpack_waf_automatic_rules_last_updated_timestamp' => (int) get_option( 'jetpack_waf_automatic_rules_last_updated_timestamp' ),
 						'is_fully_managed_agency_site'     => (bool) get_option( 'is_fully_managed_agency_site' ),
+						'wpcom_hide_action_bar'            => (bool) get_option( 'wpcom_hide_action_bar' ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -1087,11 +1087,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$updated[ $key ] = (int) (bool) $value;
 					break;
 
-				case 'wpcom_newsletter_categories_modal_hidden':
-					update_option( 'wpcom_newsletter_categories_modal_hidden', (int) (bool) $value );
-					$updated[ $key ] = (int) (bool) $value;
-					break;
-
 				case 'sm_enabled':
 					update_option( 'sm_enabled', (int) (bool) $value );
 					$updated[ $key ] = (int) (bool) $value;
@@ -1191,6 +1186,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'is_fully_managed_agency_site':
+				case 'wpcom_hide_action_bar':
 					$coerce_value = (int) (bool) $value;
 					if ( update_option( $key, $coerce_value ) ) {
 						$updated[ $key ] = (bool) $coerce_value;

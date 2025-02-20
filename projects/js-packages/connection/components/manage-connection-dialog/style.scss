@@ -23,7 +23,8 @@
 		}
 	}
 
-	&__large-text {
+	// shorthand intentionally not used here for overriding the .reset class
+	.jp-connection__manage-dialog__large-text {
 		margin-top: calc( var( --spacing-base ) * 3 );
 		margin-bottom: calc( var( --spacing-base ) * 4 );
 		max-width: 60%;
@@ -70,6 +71,7 @@
 		margin: var( --spacing-base ) auto;
 		text-align: left;
 		border: none;
+		position: relative;
 
 		&__card-headline {
 			font-size: var( --font-body );
@@ -82,7 +84,20 @@
 			float:right;
 		}
 
-		.transfer {
+		&.disabled:before {
+			content: '';
+			display: block;
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			opacity: 25%;
+			border-radius: 3px;
+			background: var( --jp-black );
+		}
+
+		.transfer, .unlink {
 			color:var( --jp-black );
 			fill: var( --jp-black );
 		}
@@ -91,6 +106,14 @@
 			color: var( --jp-red );
 			fill: var( --jp-red );
 		}
+
+	}
+
+	.components-notice {
+		width: 750px;
+		max-width: 100%;
+		margin: var( --spacing-base ) auto;
+		text-align: left;
 	}
 
 	.components-modal {

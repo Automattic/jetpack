@@ -1,8 +1,8 @@
 /* eslint-disable testing-library/no-container */
 /* eslint-disable testing-library/no-node-access */
 import { render, screen } from '@testing-library/react';
-import BoostScoreBar from '..';
-import type { BoostScoreBarProps } from '../types';
+import BoostScoreBar from '../index.js';
+import type { BoostScoreBarProps } from '../types.js';
 
 describe( 'BoostScrollBar', () => {
 	const defaultProps: BoostScoreBarProps = {
