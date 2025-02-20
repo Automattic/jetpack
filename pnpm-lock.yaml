@@ -3363,18 +3363,12 @@ importers:
       '@types/react-dom':
         specifier: 18.3.5
         version: 18.3.5(@types/react@18.3.18)
-      '@types/testing-library__jest-dom':
-        specifier: ^6.0.0
-        version: 6.0.0
       '@wordpress/browserslist-config':
         specifier: 6.17.0
         version: 6.17.0
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.4.47)
-      babel-jest:
-        specifier: ^29.7.0
-        version: 29.7.0(@babel/core@7.26.0)
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
@@ -8081,10 +8075,6 @@ packages:
 
   '@types/stack-utils@2.0.3':
     resolution: {integrity: sha512-9aEbYZ3TbYMznPdcdr3SmIrLXwC/AKZXQeCf9Pgao5CKb8CyHuEX5jzWPTkvregvhRJHcpRO6BFoGW9ycaOkYw==}
-
-  '@types/testing-library__jest-dom@6.0.0':
-    resolution: {integrity: sha512-bnreXCgus6IIadyHNlN/oI5FfX4dWgvGhOPvpr7zzCYDGAPIfvyIoAozMBINmhmsVuqV0cncejF2y5KC7ScqOg==}
-    deprecated: This is a stub types definition. @testing-library/jest-dom provides its own type definitions, so you do not need this installed.
 
   '@types/tough-cookie@4.0.5':
     resolution: {integrity: sha512-/Ad8+nIOV7Rl++6f1BdKxFSMgmoqEoYbHRpPcx3JEfv8VRsQe9Z4mCXeJBzxs7mbHY/XOZZuXlRNfhpVPbs6ZA==}
@@ -19043,10 +19033,6 @@ snapshots:
   '@types/sizzle@2.3.9': {}
 
   '@types/stack-utils@2.0.3': {}
-
-  '@types/testing-library__jest-dom@6.0.0':
-    dependencies:
-      '@testing-library/jest-dom': 6.6.3
 
   '@types/tough-cookie@4.0.5': {}
 
