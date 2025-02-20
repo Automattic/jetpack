@@ -148,11 +148,7 @@ class Publicize_Utils {
 
 		$messages[] = esc_html__( 'Please update all the Jetpack plugins to the latest version.', 'jetpack-publicize-pkg' );
 
-		_doing_it_wrong(
-			esc_html( $function_name ),
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- We have done it above.
-			implode( ' ', $messages ),
-			'$$next-version$$'
-		);
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- We have done it above.
+		_doing_it_wrong( esc_html( $function_name ), implode( ' ', $messages ), 'package-$$next-version$$' );
 	}
 }
