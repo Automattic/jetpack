@@ -519,9 +519,8 @@ class Modules {
 	 * @param string $slug Module slug.
 	 */
 	public function get_path( $slug ) {
-		if ( ! Constants::is_defined( 'JETPACK__PLUGIN_DIR' ) ) {
-			return '';
-		}
+		$module_path = Constants::is_defined( 'JETPACK__PLUGIN_DIR' ) ? JETPACK__PLUGIN_DIR . "modules/$slug.php" : '';
+
 		/**
 		 * Filters the path of a modules.
 		 *
@@ -530,7 +529,7 @@ class Modules {
 		 * @param array $return The absolute path to a module's root php file
 		 * @param string $slug The module slug
 		 */
-		return apply_filters( 'jetpack_get_module_path', JETPACK__PLUGIN_DIR . "modules/$slug.php", $slug );
+		return apply_filters( 'jetpack_get_module_path', $module_path, $slug );
 	}
 
 	/**

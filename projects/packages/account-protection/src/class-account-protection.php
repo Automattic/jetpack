@@ -96,6 +96,8 @@ class Account_Protection {
 		add_action( 'jetpack_activate_module_' . self::ACCOUNT_PROTECTION_MODULE_NAME, array( $this, 'on_account_protection_activation' ) );
 		add_action( 'jetpack_deactivate_module_' . self::ACCOUNT_PROTECTION_MODULE_NAME, array( $this, 'on_account_protection_deactivation' ) );
 
+		add_filter( 'jetpack_get_module_path', array( $this, 'get_module_path' ), 10, 2 );
+
 		// Do not run in unsupported environments
 		add_filter( 'jetpack_get_available_modules', array( $this, 'remove_module_on_unsupported_environments' ) );
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'remove_standalone_module_on_unsupported_environments' ) );
@@ -132,6 +134,14 @@ class Account_Protection {
 		// AJAX endpoint for password validation
 		add_action( 'wp_ajax_validate_password_ajax', array( $this->password_strength_meter, 'validate_password_ajax' ) );
 		add_action( 'wp_ajax_nopriv_validate_password_ajax', array( $this->password_strength_meter, 'validate_password_ajax' ) );
+	}
+
+	public function get_module_path( $path, $module_name ) {
+		if ( self::ACCOUNT_PROTECTION_MODULE_NAME === $module_name ) {
+			return __DIR__ . '/modules/account-protection.php';
+		}
+
+		return $path;
 	}
 
 	/**
