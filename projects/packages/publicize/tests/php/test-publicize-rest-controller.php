@@ -87,17 +87,17 @@ class Test_REST_Controller extends TestCase {
 	 * Testing the `POST /jetpack/v4/publicize/connections` endpoint without proper permissions.
 	 */
 	public function test_get_publicize_connections_without_proper_permission() {
-		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/publicize/connections' );
+		$request  = new WP_REST_Request( 'GET', '/wpcom/v2/publicize/connections' );
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
 		$this->assertEquals( 401, $response->get_status() );
-		$this->assertEquals( 'Sorry, you are not allowed to do that.', $response->get_data()['message'] );
+		$this->assertEquals( 'Sorry, you are not allowed to access Jetpack Social data on this site.', $response->get_data()['message'] );
 	}
 
 	/**
 	 * Testing the `POST /jetpack/v4/publicize/connections` endpoint with proper permissions.
 	 */
 	public function test_get_publicize_connections_with_proper_permission() {
-		$request = new WP_REST_Request( 'GET', '/jetpack/v4/publicize/connections' );
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/publicize/connections' );
 		wp_set_current_user( $this->admin_id );
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
 		$this->assertCount( 3, $response->data );
