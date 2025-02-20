@@ -286,6 +286,9 @@ function wpcomsh_woa_post_process_store_woocommerce_connection_details( $args, $
 	$woocommerce_connection_details_decoded = json_decode( $woocommerce_connection_details, true );
 	if ( ! is_array( $woocommerce_connection_details_decoded ) ) {
 		WP_CLI::warning( 'Invalid WooCommerce connection details provided: ' . $woocommerce_connection_details );
+
+		WPCOMSH_Log::unsafe_direct_log( 'wp wpcomsh: Invalid WooCommerce connection details provided', array( 'woocommerce_connection_details' => $woocommerce_connection_details ) );
+
 		return;
 	}
 
@@ -307,6 +310,11 @@ function wpcomsh_woa_post_process_store_woocommerce_connection_details( $args, $
 	foreach ( $required_root_keys as $required_root_key ) {
 		if ( ! isset( $woocommerce_connection_details_decoded[ $required_root_key ] ) ) {
 			WP_CLI::warning( 'Invalid WooCommerce connection details provided. Missing ' . $required_root_key );
+
+			WPCOMSH_Log::unsafe_direct_log(
+				'wp wpcomsh: Invalid WooCommerce connection details provided. Missing ' . $required_root_key,
+				array( 'woocommerce_connection_details' => $woocommerce_connection_details_decoded )
+			);
 			return;
 		}
 	}
@@ -314,7 +322,14 @@ function wpcomsh_woa_post_process_store_woocommerce_connection_details( $args, $
 	$unexpected_root_keys = array_diff( array_keys( $woocommerce_connection_details_decoded ), array_keys( $valid_keys ) );
 	if ( ! empty( $unexpected_root_keys ) ) {
 		WP_CLI::warning( 'Unexpected WooCommerce connection details provided. Ignoring the following root key(s): ' . implode( ', ', $unexpected_root_keys ) );
-		// Keep processing the valid data, so keep processing.
+		WPCOMSH_Log::unsafe_direct_log(
+			'wp wpcomsh: Unexpected additional WooCommerce connection details',
+			array(
+				'extra_keys'                     => $unexpected_root_keys,
+				'woocommerce_connection_details' => $woocommerce_connection_details_decoded,
+			)
+		);
+		// Keep processing the valid data, so avoid returning early..
 	}
 
 	$option_data = array();
@@ -327,6 +342,10 @@ function wpcomsh_woa_post_process_store_woocommerce_connection_details( $args, $
 
 		if ( ! is_array( $woocommerce_connection_details_decoded[ $valid_key ] ) ) {
 			WP_CLI::warning( 'Invalid WooCommerce connection details provided. Missing ' . $valid_key );
+			WPCOMSH_Log::unsafe_direct_log(
+				'wp wpcomsh: Invalid WooCommerce connection details provided. Missing ' . $valid_key,
+				array( 'woocommerce_connection_details' => $woocommerce_connection_details_decoded )
+			);
 			return;
 		}
 
@@ -338,6 +357,13 @@ function wpcomsh_woa_post_process_store_woocommerce_connection_details( $args, $
 		foreach ( $required_key_fields as $required_key_field ) {
 			if ( ! isset( $woocommerce_connection_details_decoded[ $valid_key ][ $required_key_field ] ) ) {
 				WP_CLI::warning( 'Invalid WooCommerce connection details provided. Missing ' . $valid_key . ' => ' . $required_key_field );
+				WPCOMSH_Log::unsafe_direct_log(
+					'wp wpcomsh: Invalid WooCommerce connection details provided. Missing required field',
+					array(
+						'missing_path'                   => "$valid_key => $required_key_field",
+						'woocommerce_connection_details' => $woocommerce_connection_details_decoded,
+					)
+				);
 				return;
 			}
 
@@ -347,6 +373,10 @@ function wpcomsh_woa_post_process_store_woocommerce_connection_details( $args, $
 
 	if ( empty( $option_data ) ) {
 		WP_CLI::warning( 'No WooCommerce connection details to update' );
+		WPCOMSH_Log::unsafe_direct_log(
+			'wp wpcomsh: No WooCommerce connection details to update',
+			array( 'woocommerce_connection_details' => $woocommerce_connection_details_decoded )
+		);
 		return;
 	}
 
