@@ -5,11 +5,12 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Minify;
 use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
+use Automattic\Jetpack_Boost\Contracts\Has_Submodules;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Minify\Concatenate_JS;
 
-class Minify_JS implements Pluggable, Changes_Page_Output, Optimization, Has_Activate, Has_Deactivate {
+class Minify_JS implements Pluggable, Changes_Page_Output, Optimization, Has_Activate, Has_Deactivate, Has_Submodules {
 
 	public static $default_excludes = array( 'jquery', 'jquery-core', 'underscore', 'backbone' );
 
@@ -64,5 +65,11 @@ class Minify_JS implements Pluggable, Changes_Page_Output, Optimization, Has_Act
 	 */
 	public static function deactivate() {
 		jetpack_boost_page_optimize_cleanup_cache( 'js' );
+	}
+
+	public function get_submodules() {
+		return array(
+			Minify::class,
+		);
 	}
 }

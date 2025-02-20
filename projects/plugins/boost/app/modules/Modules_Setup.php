@@ -149,14 +149,16 @@ class Modules_Setup implements Has_Setup {
 			$module->on_deactivate();
 		}
 
-		// The Minify module handles de/activation of the CSS and JS modules.
-		if ( in_array( $module_slug, array( 'minify_css', 'minify_js' ), true ) ) {
-			$minify_module = $this->modules_index->get_module_instance_by_slug( 'minify' );
-			if ( $minify_module ) {
-				if ( ! jetpack_boost_minify_is_enabled() ) {
-					$minify_module->on_deactivate();
-				} elseif ( $is_activated ) {
-					$minify_module->on_activate();
+		if ( $module ) {
+			$submodules = $module->get_submodules();
+			foreach ( $submodules as $sub_module ) {
+				if ( $sub_module::is_available() ) {
+					$instance = new Module( new $sub_module() );
+					if ( $is_activated ) {
+						$instance->on_activate();
+					} else {
+						$instance->on_deactivate();
+					}
 				}
 			}
 		}
