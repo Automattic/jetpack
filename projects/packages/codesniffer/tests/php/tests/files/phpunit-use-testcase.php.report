@@ -1,0 +1,4 @@
+ 12 | WARNING | Alias 'TC' for likely PHPUnit TestCase class name 'PHPUnit\Fixtures\TestCase' should end in 'TestCase'. (Jetpack.PHPUnit.UseTestCase.DoesNotEndWithTestCase)
+ 13 | WARNING | Alias 'Test_Case' for likely PHPUnit TestCase class name 'PHPUnit\Fixtures\TestCase' should end in 'TestCase'. (Jetpack.PHPUnit.UseTestCase.DoesNotEndWithTestCase)
+ 14 | WARNING | Alias 'Base' for likely PHPUnit TestCase class name 'MyTestBase' should end in 'TestBase'. (Jetpack.PHPUnit.UseTestCase.DoesNotEndWithTestBase)
+ 16 | WARNING | Alias 'TestCase' for likely PHPUnit TestCase class name 'MyTestBase' should end in 'TestBase'. (Jetpack.PHPUnit.UseTestCase.DoesNotEndWithTestBase)
