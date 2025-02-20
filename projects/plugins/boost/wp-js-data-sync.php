@@ -267,6 +267,11 @@ jetpack_boost_register_readonly_option(
 			return false;
 		}
 
+		// If this is a multisite, and the user is not a super admin, don't show the legacy notice, as they won't be able to do anything about it.
+		if ( is_multisite() && ! current_user_can( 'manage_network_options' ) ) {
+			return false;
+		}
+
 		// If the static minfification has not ran yet, don't show the legacy notice.
 		$static_minification_enabled = get_site_option( 'jetpack_boost_static_minification', 'na' );
 		if ( $static_minification_enabled === 'na' ) {

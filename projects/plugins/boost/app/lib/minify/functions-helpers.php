@@ -201,6 +201,7 @@ function jetpack_boost_execute_network_cron( string $action, string $recurrence,
 	$current_time        = time();
 
 	$tester_ran = (int) get_site_option( "{$action}_network_cron_ran", 0 );
+	// If the cronjob has already run within the last $interval seconds, bail.
 	if ( $tester_ran + $interval > $current_time ) {
 		return;
 	}
@@ -232,18 +233,7 @@ function jetpack_boost_page_optimize_schedule_404_tester() {
 	if ( false === wp_next_scheduled( 'jetpack_boost_404_tester_cron' ) ) {
 		// Run the test immediately, and schedule the cronjob to run daily.
 		jetpack_boost_404_tester();
-	}
-
-	jetpack_boost_schedule_singleton_network_cron( time() + DAY_IN_SECONDS, 'daily', 'jetpack_boost_404_tester_cron' );
-}
-
-/**
- * Schedule a cronjob for cache cleanup, if one isn't already scheduled.
- */
-function jetpack_boost_page_optimize_schedule_cache_cleanup() {
-	// If caching is on, and job isn't queued for current cache folder
-	if ( false === wp_next_scheduled( 'jetpack_boost_minify_cron_cache_cleanup' ) ) {
-		wp_schedule_event( time(), 'daily', 'jetpack_boost_minify_cron_cache_cleanup' );
+		jetpack_boost_schedule_singleton_network_cron( time() + DAY_IN_SECONDS, 'daily', 'jetpack_boost_404_tester_cron' );
 	}
 }
 
@@ -394,8 +384,8 @@ function jetpack_boost_minify_serve_concatenated() {
  * @return void
  */
 function jetpack_boost_minify_activation() {
-	// Schedule cache cleanup.
-	jetpack_boost_page_optimize_schedule_cache_cleanup();
+	// Schedule a cronjob for cache cleanup, if one isn't already scheduled.
+	jetpack_boost_schedule_singleton_network_cron( time(), 'daily', 'jetpack_boost_minify_cron_cache_cleanup' );
 
 	// Setup the cronjob to periodically test for the 404 handler.
 	jetpack_boost_404_setup();
