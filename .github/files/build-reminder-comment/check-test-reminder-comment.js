@@ -6,43 +6,42 @@ const getCheckComments = require( './get-check-comments.js' );
  * Does the PR touch anything that needs testing on WordPress.com.
  *
  * Currently we look whether process.env.CHANGED contains `plugins/jetpack`,
- * meaning that Jetpack is being built. Or `packages/jetpack-mu-wpcom`,
- * for the jetpack-mu-wpcom-plugin used on WordPress.com is being built.
+ * meaning that Jetpack is being built, `plugins/mu-wpcom-plugin` for
+ * Jetpack-mu-wpcom-plugin, or `plugins/wpcomsh` for wpcomsh.
  *
  * @param {GitHub} github - Initialized Octokit REST client.
  * @param {string} owner  - Repository owner.
  * @param {string} repo   - Repository name.
  * @param {string} number - PR number.
  * @param {Core}   core   - A reference to the @actions/core package
- * @return {Promise} Promise resolving to an object with keys `projects` and `plugins`, each being an array of strings needing testing.
+ * @return {Promise} Promise resolving to an object with keys `simple` and `woa`, each being an array of strings identifying what needs testing.
  */
 async function touchedProjectsNeedingTesting( github, owner, repo, number, core ) {
 	const changed = JSON.parse( process.env.CHANGED );
-	const projects = [];
-	const plugins = [];
+	const simple = [];
+	const woa = [];
 
 	if ( changed[ 'plugins/jetpack' ] ) {
 		core.info( 'Build: Jetpack is being built, testing needed' );
-		projects.push( 'jetpack' );
-		plugins.push( 'Jetpack' );
+		simple.push( 'jetpack' );
+		woa.push( 'Jetpack' );
 	}
 
 	if ( changed[ 'plugins/mu-wpcom-plugin' ] ) {
 		core.info( 'Build: jetpack-mu-wpcom-plugin is being built, testing needed' );
-		projects.push( 'jetpack-mu-wpcom-plugin' );
+		simple.push( 'jetpack-mu-wpcom-plugin' );
 	}
 
 	if ( changed[ 'plugins/wpcomsh' ] ) {
 		core.info( 'Build: wpcomsh is being built, testing needed' );
-		plugins.push( 'WordPress.com Site Helper' );
+		woa.push( 'WordPress.com Site Helper' );
 	}
 
-	if ( projects.length || plugins.length ) {
-		return { projects, plugins };
+	if ( ! simple.length && ! woa.length ) {
+		core.info( 'Build: Nothing that needs testing was found' );
 	}
 
-	core.info( 'Build: Nothing that needs testing was found' );
-	return { projects, plugins };
+	return { simple, woa };
 }
 
 /**
@@ -55,7 +54,8 @@ async function touchedProjectsNeedingTesting( github, owner, repo, number, core 
  * @param {core}   core    - A reference to the @actions/core package
  * @return {Promise} Promise resolving to an object with the following properties:
  * - {commentId} - a comment ID, or 0 if no comment is found.
- * - {projects} - an array of project strings needing testing.
+ * - {simple} - an array of strings identifying what needs testing on Simple.
+ * - {woa} - an array of strings identifying what needs testing on WoA.
  */
 async function checkTestPendingComment( github, context, core ) {
 	const { repo, issue } = context;
@@ -67,7 +67,7 @@ async function checkTestPendingComment( github, context, core ) {
 
 	core.info(
 		`Build: This PR ${
-			data.projects.length || data.plugins.length ? 'touches' : 'does not touch'
+			data.simple.length || data.woa.length ? 'touches' : 'does not touch'
 		} something that needs testing on WordPress.com.`
 	);
 
@@ -82,7 +82,7 @@ async function checkTestPendingComment( github, context, core ) {
 	);
 
 	// This PR does not touch files needing testing.
-	if ( ! data.projects.length && ! data.plugins.length ) {
+	if ( ! data.simple.length && ! data.woa.length ) {
 		if ( testCommentIDs.length > 0 ) {
 			core.info(
 				`Build: this PR previously touched something that needs testing, but does not anymore. Deleting previous test reminder comments.`
@@ -149,7 +149,8 @@ async function checkTestPendingComment( github, context, core ) {
  * @param {core}   core    - A reference to the @actions/core package
  * @return {Promise} Promise resolving to an object with the following properties:
  * - {commentId} - a comment ID, or 0 if no comment is found.
- * - {projects} - an array of project strings needing testing.
+ * - {simple} - an array of strings identifying what needs testing on Simple.
+ * - {woa} - an array of strings identifying what needs testing on WoA.
  */
 async function checkTestReminderComment( github, context, core ) {
 	const { BRANCH_NAME, TEST_COMMENT_INDICATOR } = process.env;
@@ -160,15 +161,15 @@ async function checkTestReminderComment( github, context, core ) {
 	let woaLine = '';
 	let simpleLine = '';
 
-	if ( data.projects.length ) {
+	if ( data.simple.length ) {
 		simpleLine =
 			`- To test on Simple, run the following command on your sandbox:` +
-			data.projects.reduce( ( acc, cur ) => {
+			data.simple.reduce( ( acc, cur ) => {
 				return ( acc += `\n\`\`\`\nbin/jetpack-downloader test ${ cur } ${ BRANCH_NAME }\n\`\`\`` );
 			}, '' );
 	}
-	if ( data.plugins.length ) {
-		woaLine = `- To test on WoA, go to the Plugins menu on a WoA dev site. Click on the "Upload" button and follow the upgrade flow to be able to upload, install, and activate [the Jetpack Beta plugin](https://jetpack.com/download-jetpack-beta/). Once the plugin is active, go to Jetpack > Jetpack Beta, select your plugin (${ data.plugins.join(
+	if ( data.woa.length ) {
+		woaLine = `- To test on WoA, go to the Plugins menu on a WoA dev site. Click on the "Upload" button and follow the upgrade flow to be able to upload, install, and activate [the Jetpack Beta plugin](https://jetpack.com/download-jetpack-beta/). Once the plugin is active, go to Jetpack > Jetpack Beta, select your plugin (${ data.woa.join(
 			' or '
 		) }), and enable the \`${ BRANCH_NAME }\` branch.`;
 	}
