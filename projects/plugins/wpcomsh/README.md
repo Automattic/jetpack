@@ -15,10 +15,10 @@ With the help of this mu-plugin, an Atomic site is transformed into a WP.com sit
 $ git clone git@github.com:Automattic/jetpack.git
 $ cd jetpack
 $ pnpm install
-$ pnpm jetpack build --deps projects/wpcomsh
+$ pnpm jetpack build --deps plugins/wpcomsh
 
-# Specify your development server and path to sync the code to your wp.org install 
-$ pnpm jetpack rsync projects/wpcomsh USER@HOST:/path/to/wordpress/wp-content/mu-plugins 
+# Specify your development server and path to sync the code to your wp.org install
+$ pnpm jetpack rsync wpcomsh USER@HOST:/path/to/wordpress/wp-content/mu-plugins
 
 # From the root of the wp.org install you rsynced to (assuming it didn't already have wpcomsh installed)
 $ cd wp-content/mu-plugins
@@ -124,7 +124,7 @@ branch and run:
 
 - Use the `__( 'My string to be translated', 'wpcomsh' );` code to consume translations.
 - Create a new branch and run the command `make i18n` to convert these new strings into the [wpcomsh.pot](./languages/wpcomsh.pot) file. It will also download previous translations and update .mo and .po files of the [languages folder](./languages/) and will commit them automatically.
-- After merging everything on the trunk branch strings on [wpcomsh.pot](./languages/wpcomsh.pot) file will be automatically inserted into our translation system by this script:  fbhepr%2Skers%2Sjcpbz%2Sova%2Sv18a%2Svzcbeg%2Qtvguho%2Qbevtvanyf.cuc%3Se%3Q1oq4q3oo%26zb%3Q12%26sv%3Q2%235-og.
+- After merging everything on the trunk branch strings on [wpcomsh.pot](./languages/wpcomsh.pot) file will be automatically inserted into our translation system by this script: fbhepr%2Skers%2Sjcpbz%2Sova%2Sv18a%2Svzcbeg%2Qtvguho%2Qbevtvanyf.cuc%3Se%3Q1oq4q3oo%26zb%3Q12%26sv%3Q2%235-og.
 - After they get translated we need to run again `make i18n` and it will download all translations done by our translation vendor and the community.
 - Deploy and release the translations file.
 - You'll now have your strings translated into production!
@@ -325,4 +325,3 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 ## License
 
 wpcomsh is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
-

@@ -78,7 +78,7 @@ describe( 'ConfirmationForm', () => {
 	} );
 
 	test( 'marks connection as shared', async () => {
-		renderComponent( { isAdmin: true } );
+		renderComponent( { canMarkAsShared: true } );
 
 		await userEvent.click( screen.getByLabelText( 'Mark the connection as shared' ) );
 		await userEvent.click( screen.getByText( 'Confirm' ) );

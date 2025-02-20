@@ -17,7 +17,7 @@ import styles from './style.module.scss';
 type ConfirmationFormProps = {
 	keyringResult: KeyringResult;
 	onComplete: VoidFunction;
-	isAdmin?: boolean;
+	canMarkAsShared?: boolean;
 };
 
 type AccountOption = { label: string; value: string; profile_picture?: string };
@@ -50,9 +50,13 @@ function AccountInfo( { label, profile_picture }: AccountInfoProps ) {
  *
  * @param {ConfirmationFormProps} props - Component props
  *
- * @return {import('react').ReactNode} Connection confirmation component
+ * @return Connection confirmation component
  */
-export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: ConfirmationFormProps ) {
+export function ConfirmationForm( {
+	keyringResult,
+	onComplete,
+	canMarkAsShared,
+}: ConfirmationFormProps ) {
 	const supportedServices = useSupportedServices();
 	const { existingConnections, reconnectingAccount } = useSelect( select => {
 		const store = select( socialStore );
@@ -265,7 +269,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 							} ) }
 						</div>
 
-						{ isAdmin ? (
+						{ canMarkAsShared ? (
 							<BaseControl
 								__nextHasNoMarginBottom={ true }
 								id="mark-connection-as-shared"

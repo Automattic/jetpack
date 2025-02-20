@@ -1,5 +1,4 @@
 import { getBlockIconProp } from '@automattic/jetpack-shared-extension-utils';
-import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import metadata from '../block.json';
 import attributes from './attributes';
@@ -12,11 +11,7 @@ export const name = 'recipe-details';
 
 export const settings = {
 	title: __( 'Recipe Details', 'jetpack' ),
-	description: (
-		<Fragment>
-			<p>{ __( 'Recipe Details', 'jetpack' ) }</p>
-		</Fragment>
-	),
+	description: __( 'Recipe Details', 'jetpack' ),
 	keywords: [],
 	supports: {
 		align: [ 'left', 'right', 'center' ],

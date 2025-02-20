@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix `empty form` check for select elements

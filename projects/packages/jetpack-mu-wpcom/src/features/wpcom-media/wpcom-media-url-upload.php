@@ -88,7 +88,7 @@ function wpcom_handle_media_url_upload() {
  * Load the wpcom media URL upload form.
  */
 function load_wpcom_media_url_upload_form() {
-	if ( ! current_user_can( 'upload_files' ) ) {
+	if ( ! is_admin() || ! current_user_can( 'upload_files' ) ) {
 		return;
 	}
 

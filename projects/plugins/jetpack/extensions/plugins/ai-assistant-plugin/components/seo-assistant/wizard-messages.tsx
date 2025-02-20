@@ -81,12 +81,12 @@ export const useMessages = () => {
 export const MessageBubble = ( { message, onSelect = ( m: Message ) => m } ) => {
 	return (
 		<div
-			className={ clsx( 'assistant-wizard__message', {
+			className={ clsx( 'jetpack-wizard-chat__message', {
 				'is-user': message.isUser,
 				'is-option': message.type === 'option',
 			} ) }
 		>
-			<div className="assistant-wizard__message-icon">
+			<div className="jetpack-wizard-chat__message-icon">
 				{ message.showIcon && (
 					<img src={ bigSkyIcon } alt={ __( 'SEO Assistant avatar', 'jetpack' ) } />
 				) }
@@ -94,7 +94,7 @@ export const MessageBubble = ( { message, onSelect = ( m: Message ) => m } ) => 
 
 			{ message.type === 'option' && (
 				<button
-					className={ clsx( 'assistant-wizard__option', {
+					className={ clsx( 'jetpack-wizard-chat__option', {
 						'is-selected': message.selected,
 					} ) }
 					onClick={ () => onSelect( message ) }
@@ -104,7 +104,7 @@ export const MessageBubble = ( { message, onSelect = ( m: Message ) => m } ) => 
 			) }
 
 			{ ( ! message.type || message.type === 'chat' ) && (
-				<div className="assistant-wizard__message-text">{ message.content }</div>
+				<div className="jetpack-wizard-chat__message-text">{ message.content }</div>
 			) }
 		</div>
 	);
@@ -113,7 +113,7 @@ export const MessageBubble = ( { message, onSelect = ( m: Message ) => m } ) => 
 export default function Messages( { onSelect, messages, isBusy } ) {
 	return (
 		<>
-			<div className="assistant-wizard__messages">
+			<div className="jetpack-wizard-chat__messages">
 				{ messages.map( message => (
 					<MessageBubble key={ message.id } onSelect={ onSelect } message={ message } />
 				) ) }

@@ -5,6 +5,10 @@ use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\File_Paths;
 use Automattic\Jetpack_Boost\Lib\Minify\Utils;
 
+if ( ! defined( 'JETPACK_BOOST_STATIC_CACHE_404_TESTER_PATH' ) ) {
+	define( 'JETPACK_BOOST_STATIC_CACHE_404_TESTER_PATH', '/wp-content/boost-cache/static/testing_404.js' );
+}
+
 function jetpack_boost_handle_minify_request( $request_uri ) {
 	// We handle the cache here, tell other caches not to.
 	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
@@ -46,9 +50,10 @@ function jetpack_boost_handle_minify_request( $request_uri ) {
 
 /**
  * Using a crafted request, we can check if is_404() is working in wp-content/
+ * The constant JETPACK_BOOST_STATIC_CACHE_404_TESTER_PATH is the path to the file that will be requested.
  */
 function jetpack_boost_check_404_handler( $request_uri ) {
-	if ( ! str_contains( strtolower( $request_uri ), 'wp-content/boost-cache/static/testing_404' ) ) {
+	if ( ! str_contains( strtolower( $request_uri ), JETPACK_BOOST_STATIC_CACHE_404_TESTER_PATH ) ) {
 		return;
 	}
 
@@ -69,6 +74,7 @@ function jetpack_boost_check_404_handler( $request_uri ) {
  * It sends a request to a non-existent URL, that will execute the 404 handler
  * in jetpack_boost_check_404_handler().
  * Define the constant JETPACK_BOOST_DISABLE_404_TESTER to disable this.
+ * The constant JETPACK_BOOST_STATIC_CACHE_404_TESTER_PATH is the path to the file that will be requested.
  *
  * This function is called when the Minify_CSS or Minify_JS module is activated, and once per day.
  */
@@ -78,7 +84,7 @@ function jetpack_boost_404_tester() {
 	}
 
 	$minification_enabled = '';
-	wp_remote_get( home_url( '/wp-content/boost-cache/static/testing_404' ) );
+	wp_remote_get( home_url( JETPACK_BOOST_STATIC_CACHE_404_TESTER_PATH ) );
 	if ( file_exists( Config::get_static_cache_dir_path() . '/404' ) ) {
 		wp_delete_file( Config::get_static_cache_dir_path() . '/404' );
 		$minification_enabled = 1;
@@ -124,14 +130,14 @@ function jetpack_boost_page_optimize_cleanup_cache( $file_extension ) {
  * A file is considered stale if it's older than the files it depends on.
  */
 function jetpack_boost_minify_remove_stale_static_files() {
-	$files = glob( Config::get_static_cache_dir_path() . '/*.min.*' );
-	foreach ( $files as $file ) {
-		if ( ! file_exists( $file ) ) {
+	$concat_files = glob( Config::get_static_cache_dir_path() . '/*.min.*' );
+	foreach ( $concat_files as $concat_file ) {
+		if ( ! file_exists( $concat_file ) ) {
 			continue;
 		}
 
-		$file_mtime = filemtime( $file );
-		$file_parts = pathinfo( $file );
+		$file_mtime = filemtime( $concat_file );
+		$file_parts = pathinfo( $concat_file );
 		$hash       = substr( $file_parts['basename'], 0, strpos( $file_parts['basename'], '.' ) );
 		$paths      = File_Paths::get( $hash );
 		if ( $paths ) {
@@ -140,9 +146,18 @@ function jetpack_boost_minify_remove_stale_static_files() {
 				continue;
 			}
 
-			foreach ( $args as $filename ) {
-				if ( ! file_exists( ABSPATH . $filename ) || filemtime( ABSPATH . $filename ) > $file_mtime ) {
-					wp_delete_file( $file ); // remove the file from the cache because it's stale.
+			// Get the site path relative to the webroot.
+			$site_url_path = wp_parse_url( site_url(), PHP_URL_PATH );
+			if ( ! $site_url_path ) {
+				$site_url_path = '';
+			}
+
+			// Get the webroot path by removing the site path from the ABSPATH. In case it's a subdirectory install, webroot is different from ABSPATH.
+			$webroot = substr( ABSPATH, 0, - strlen( $site_url_path ) - 1 );
+
+			foreach ( $args as $dependency_filename ) {
+				if ( ! file_exists( $webroot . $dependency_filename ) || filemtime( $webroot . $dependency_filename ) > $file_mtime ) {
+					wp_delete_file( $concat_file ); // remove the file from the cache because it's stale.
 				}
 			}
 		}
@@ -320,12 +335,9 @@ function jetpack_boost_minify_get_file_parts( $request_uri ) {
 	}
 
 	$file_info = pathinfo( $file_path );
-	$real_path = realpath( ABSPATH . $file_info['dirname'] );
-	$cache_dir = realpath( WP_CONTENT_DIR . '/boost-cache/static' );
 
-	// Security check: Ensure requested file is strictly within the designated cache directory
-	// by comparing the resolved absolute paths.
-	if ( $real_path === false || $cache_dir === false || stripos( $real_path, $cache_dir ) !== 0 ) {
+	$minify_path = $utils->parse_url( jetpack_boost_get_minify_url(), PHP_URL_PATH );
+	if ( trailingslashit( $file_info['dirname'] ) !== $minify_path ) {
 		return false;
 	}
 

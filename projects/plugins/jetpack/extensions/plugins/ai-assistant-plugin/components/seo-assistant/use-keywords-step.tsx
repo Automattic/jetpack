@@ -1,4 +1,10 @@
-import { createInterpolateElement, useCallback, useEffect, useState } from '@wordpress/element';
+import {
+	createInterpolateElement,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMessages } from './wizard-messages';
 import type { Step } from './types';
@@ -11,7 +17,7 @@ export const useKeywordsStep = (): Step => {
 	const onStart = useCallback( async () => {
 		addMessage( {
 			content: __(
-				'To start, please enter 1–3 focus keywords that describe your blog post.',
+				'First, enter 1–3 keywords that best describe your blog post—this helps search engines understand what it’s about',
 				'jetpack'
 			),
 			showIcon: true,
@@ -71,7 +77,7 @@ export const useKeywordsStep = (): Step => {
 
 	return {
 		id: 'keywords',
-		title: __( 'Optimise for SEO', 'jetpack' ),
+		title: __( 'Improve SEO', 'jetpack' ),
 		label: __( 'Keywords', 'jetpack' ),
 		messages,
 		type: 'input',
@@ -82,5 +88,6 @@ export const useKeywordsStep = (): Step => {
 		value,
 		setValue,
 		onStart,
+		inputRef: useRef( null ),
 	};
 };

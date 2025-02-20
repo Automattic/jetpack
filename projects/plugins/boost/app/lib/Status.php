@@ -7,6 +7,9 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 
 class Status implements Entry_Can_Get, Entry_Can_Set {
 
@@ -35,8 +38,14 @@ class Status implements Entry_Can_Get, Entry_Can_Set {
 		$this->option_name = 'jetpack_boost_status_' . $module_slug;
 
 		$this->status_sync_map = array(
-			Cloud_CSS::get_slug() => array(
+			Cloud_CSS::get_slug()  => array(
 				Critical_CSS::get_slug(),
+			),
+			Minify_CSS::get_slug() => array(
+				Minify::get_slug(),
+			),
+			Minify_JS::get_slug()  => array(
+				Minify::get_slug(),
 			),
 		);
 	}
@@ -81,8 +90,12 @@ class Status implements Entry_Can_Get, Entry_Can_Set {
 		}
 
 		foreach ( $this->status_sync_map[ $this->slug ] as $mapped_module_slug ) {
-			$status = new Status( $mapped_module_slug );
-			$status->set( $new_status );
+			$mapped_status = new Status( $mapped_module_slug );
+			if ( $mapped_module_slug === 'minify' ) {
+				$mapped_status->set( jetpack_boost_minify_is_enabled() );
+			} else {
+				$mapped_status->set( $new_status );
+			}
 		}
 
 		// The moduleInstance will be there. But check just in case.
