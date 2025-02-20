@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Move local copy of the bin to `bin/local-phpunit-select-config`, and install a symlink in `vendor/`.
+
+

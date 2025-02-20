@@ -1,4 +1,5 @@
 <?php
+namespace Automattic\Jetpack_Boost\Data_Sync;
 
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_Graph_History_Request;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;

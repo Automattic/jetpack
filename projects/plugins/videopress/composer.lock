@@ -1751,9 +1751,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "60af893cdd71ba76d13b5b93427d3c042745e7bb"
+                "reference": "c4eef7baeda708c6b260b9658cc9c57e942692b3"
             },
             "require": {
+                "composer-runtime-api": "^2.2.0",
                 "php": ">=7.2.5",
                 "symfony/console": "^5.4 || ^6.4 || ^7.1",
                 "symfony/process": "^5.4 || ^6.4 || ^7.1"
@@ -1802,10 +1803,10 @@
                     "@composer phpunit"
                 ],
                 "post-install-cmd": [
-                    "[ -e vendor/bin/changelogger ] || { cd vendor/bin && ln -s ../../bin/changelogger; }"
+                    "rm -f vendor/bin/changelogger && ln -s ../../bin/local-changelogger vendor/bin/changelogger"
                 ],
                 "post-update-cmd": [
-                    "[ -e vendor/bin/changelogger ] || { cd vendor/bin && ln -s ../../bin/changelogger; }"
+                    "rm -f vendor/bin/changelogger && ln -s ../../bin/local-changelogger vendor/bin/changelogger"
                 ]
             },
             "license": [
