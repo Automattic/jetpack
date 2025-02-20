@@ -125,10 +125,11 @@ class Publicize_Utils {
 	 * Log a warning that a deprecated endpoint was called.
 	 *
 	 * @param string $function_name        The function name.
+	 * @param string $version              The version in which the endpoint was deprecated.
 	 * @param string $deprecated_endpoint  The deprecated endpoint.
 	 * @param string $alternative_endpoint The alternative endpoint.
 	 */
-	public static function endpoint_deprecated_warning( $function_name, $deprecated_endpoint, $alternative_endpoint = '' ) {
+	public static function endpoint_deprecated_warning( $function_name, $version, $deprecated_endpoint, $alternative_endpoint = '' ) {
 
 		$messages = array(
 			sprintf(
@@ -149,6 +150,6 @@ class Publicize_Utils {
 		$messages[] = esc_html__( 'Please update all the Jetpack plugins to the latest version.', 'jetpack-publicize-pkg' );
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- We have done it above.
-		_doing_it_wrong( esc_html( $function_name ), implode( ' ', $messages ), 'package-$$next-version$$' );
+		_doing_it_wrong( esc_html( $function_name ), implode( ' ', $messages ), $version );
 	}
 }
