@@ -128,47 +128,45 @@ class Validation_Service {
 	}
 
 	/**
-	 * Return first validation error - server-side.
+	 * Return all validation errors - server-side.
 	 *
 	 * @param string         $password The password to check.
 	 * @param bool           $user_specific Whether or not to run user specific checks.
 	 * @param \stdClass|null $user The user data or null.
 	 *
-	 * @return string The first validation errors (if any).
+	 * @return array The validation errors (if any).
 	 */
-	public function get_first_validation_error( string $password, $user_specific = false, $user = null ): string {
-		// Update and create-user forms include backlash validation
-		if ( ! $user_specific ) {
-			if ( $this->contains_backslash( $password ) ) {
-				return __( '<strong>Error:</strong> The password cannot contain a backslash (\\) character.', 'jetpack-account-protection' );
-			}
+	public function get_validation_errors( string $password, $user_specific = false, $user = null ): array {
+		$errors = array();
+
+		if ( empty( $password ) ) {
+			$errors[] = __( '<strong>Error:</strong> The password cannot be a space or all spaces.', 'jetpack-account-protection' );
+		}
+
+		if ( $this->contains_backslash( $password ) ) {
+			$errors[] = __( '<strong>Error:</strong> Passwords may not contain the character "\\".', 'jetpack-account-protection' );
 		}
 
 		if ( $this->is_invalid_length( $password ) ) {
-			return __( '<strong>Error:</strong> The password must be between 6 and 150 characters.', 'jetpack-account-protection' );
+			$errors[] = __( '<strong>Error:</strong> The password must be between 6 and 150 characters.', 'jetpack-account-protection' );
 		}
 
 		if ( $this->is_weak_password( $password ) ) {
-			return __( '<strong>Error:</strong> The password was found in a public leak.', 'jetpack-account-protection' );
+			$errors[] = __( '<strong>Error:</strong> The password was found in a public leak.', 'jetpack-account-protection' );
 		}
 
 		// Skip user-specific checks during password reset
 		if ( $user_specific ) {
-			// Reset form includes empty validation
-			if ( empty( $password ) ) {
-				return __( '<strong>Error:</strong> The password cannot be a space or all spaces.', 'jetpack-account-protection' );
-			}
-
 			// Run checks on new user data
 			if ( $this->matches_user_data( $user, $password ) ) {
-				return __( '<strong>Error:</strong> The password matches new user data.', 'jetpack-account-protection' );
+				$errors[] = __( '<strong>Error:</strong> The password matches new user data.', 'jetpack-account-protection' );
 			}
 			if ( $this->is_recent_password( $user, $password ) ) {
-				return __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' );
+				$errors[] = __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' );
 			}
 		}
 
-		return '';
+		return $errors;
 	}
 
 	/**
@@ -302,6 +300,11 @@ class Validation_Service {
 	 * @return bool True if the password was recently used, false otherwise.
 	 */
 	public function is_recent_password( $user, string $password ): bool {
+		// Skip on user creation
+		if ( empty( $user->ID ) ) {
+			return false;
+		}
+
 		$user_data = $user instanceof \WP_User ? $user : get_userdata( $user->ID );
 		if ( $this->is_current_password( $user_data->ID, $password ) ) {
 			return true;

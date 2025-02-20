@@ -47,11 +47,12 @@ class Password_Manager {
 			return;
 		}
 
-		$error = $this->validation_service->get_first_validation_error( $user->user_pass, true, $user );
+		$core_validation_errors    = $errors->get_error_messages( 'pass' );
+		$jetpack_validation_errors = $this->validation_service->get_validation_errors( $user->user_pass, true, $user );
+		$validation_errors         = array_diff( $jetpack_validation_errors, $core_validation_errors );
 
-		if ( ! empty( $error ) ) {
-			$errors->add( 'password_error', $error );
-			return;
+		foreach ( $validation_errors as $validation_error ) {
+			$errors->add( 'pass', $validation_error, array( 'form-field' => 'pass1' ) );
 		}
 	}
 
@@ -81,10 +82,13 @@ class Password_Manager {
 
 		// phpcs:ignore WordPress.Security.NonceVerification
 		$password = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );
-		$error    = $this->validation_service->get_first_validation_error( $password );
-		if ( ! empty( $error ) ) {
-			$errors->add( 'password_error', $error );
-			return;
+
+		$core_validation_errors    = $errors->get_error_messages( 'pass' );
+		$jetpack_validation_errors = $this->validation_service->get_validation_errors( $password );
+		$validation_errors         = array_diff( $jetpack_validation_errors, $core_validation_errors );
+
+		foreach ( $validation_errors as $validation_error ) {
+			$errors->add( 'pass', $validation_error, array( 'form-field' => 'pass1' ) );
 		}
 	}
 
