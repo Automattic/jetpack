@@ -217,6 +217,22 @@ class Password_Detection {
 	}
 
 	/**
+	 * Extract transient data safely and delete the transient.
+	 *
+	 * @param string $transient_key The transient key.
+	 * @return array An array containing 'message' and 'code'.
+	 */
+	private function extract_and_clear_transient_data( string $transient_key ): array {
+		$data = get_transient( $transient_key );
+		delete_transient( $transient_key );
+
+		return array(
+			'message' => $data['message'] ?? null,
+			'code'    => $data['code'] ?? null,
+		);
+	}
+
+	/**
 	 * Render content for password detection page.
 	 *
 	 * @param \WP_User $user The user.
@@ -228,35 +244,14 @@ class Password_Detection {
 		$error_transient_key   = Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_error_{$user->ID}";
 		$success_transient_key = Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_success_{$user->ID}";
 
-		$error_data   = get_transient( $error_transient_key );
-		$success_data = get_transient( $success_transient_key );
+		$error_data   = $this->extract_and_clear_transient_data( $error_transient_key );
+		$success_data = $this->extract_and_clear_transient_data( $success_transient_key );
 
-		delete_transient( $error_transient_key );
-		delete_transient( $success_transient_key );
-
-		$error_message = null;
-		$error_code    = null;
-		if ( is_array( $error_data ) ) {
-			if ( isset( $error_data['message'] ) ) {
-				$error_message = $error_data['message'];
-			}
-			if ( isset( $error_data['code'] ) ) {
-				$error_code = $error_data['code'];
-			}
+		$body_classes = 'password-detection-wrapper';
+		if ( 'auth_code_success' === $success_data['code'] ) {
+			$body_classes .= ' interim-login-success';
 		}
 
-		$success_message = null;
-		$success_code    = null;
-		if ( is_array( $success_data ) ) {
-			if ( isset( $success_data['message'] ) ) {
-				$success_message = $success_data['message'];
-			}
-			if ( isset( $success_data['code'] ) ) {
-				$success_code = $success_data['code'];
-			}
-		}
-
-		defined( 'ABSPATH' ) || exit;
 		?>
 		<!DOCTYPE html>
 		<html>
@@ -266,21 +261,21 @@ class Password_Detection {
 				<title><?php esc_html_e( 'Jetpack - Secure Your Account', 'jetpack-account-protection' ); ?></title>
 				<?php wp_head(); ?>
 			</head>
-			<body class="password-detection-wrapper">
-				<div class="password-detection">
+			<body class="<?php echo esc_attr( $body_classes ); ?>">
+				<div class="password-detection-content">
 					<?php require plugin_dir_path( __FILE__ ) . '/assets/jetpack-logo.svg'; ?>
-					<p class="password-detection-title"><?php echo $success_code === 'auth_code_success' ? esc_html__( 'Take action to stay secure', 'jetpack-account-protection' ) : esc_html__( 'Verify your identity', 'jetpack-account-protection' ); ?></p>
-					<?php if ( $error_message ) : ?>
+					<p class="password-detection-title"><?php echo $success_data['code'] === 'auth_code_success' ? esc_html__( 'Take action to stay secure', 'jetpack-account-protection' ) : esc_html__( 'Verify your identity', 'jetpack-account-protection' ); ?></p>
+					<?php if ( $error_data['message'] ) : ?>
 						<div class="error notice">
-							<p class="notice-message"><?php echo esc_html( $error_message ); ?></p>
+							<p class="notice-message"><?php echo esc_html( $error_data['message'] ); ?></p>
 						</div>
 					<?php endif; ?>
-					<?php if ( $success_message ) : ?>
+					<?php if ( $success_data['message'] ) : ?>
 						<div class="success notice">
-							<p class="notice-message"><?php echo esc_html( $success_message ); ?></p>
+							<p class="notice-message"><?php echo esc_html( $success_data['message'] ); ?></p>
 						</div>
 					<?php endif; ?>
-					<?php if ( $success_code === 'auth_code_success' ) : ?>
+					<?php if ( $success_data['code'] === 'auth_code_success' ) : ?>
 						<p><?php esc_html_e( "You're all set! You can now access your account.", 'jetpack-account-protection' ); ?></p>
 						<p><?php esc_html_e( 'Please keep in mind that your current password was found in a public leak, which means your account might be at risk. It is highly recommended that you update your password.', 'jetpack-account-protection' ); ?></p>
 						<div class="actions">
@@ -330,7 +325,7 @@ class Password_Detection {
 								<button class="action action-verify" type="submit" name="verify"><?php esc_html_e( 'Verify', 'jetpack-account-protection' ); ?></button>
 							</form>
 						</div>
-						<?php if ( $error_code !== 'email_resend_limit_error' ) : ?>
+						<?php if ( $error_data['code'] !== 'email_resend_limit_error' ) : ?>
 							<p class="email-status">
 								<span><?php esc_html_e( "Didn't get the code?", 'jetpack-account-protection' ); ?> </span>
 								<a class="resend-email-link" href="<?php echo esc_url( $this->get_redirect_url( $token ) . '&resend_email=1&_wpnonce=' . wp_create_nonce( 'resend_email_nonce' ) ); ?>">
@@ -439,6 +434,7 @@ class Password_Detection {
 			// TODO: Ensure all transient are also removed on module and/or plugin deactivation
 			delete_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$token}" );
 			wp_set_auth_cookie( $user->ID, true );
+			wp_set_current_user( $user->ID );
 		} else {
 			$this->set_transient_error(
 				$user->ID,
