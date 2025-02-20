@@ -97,5 +97,6 @@ class Dashboard {
 			)
 		);
 		Assets::enqueue_script( 'jetpack-subscribers' );
+		Assets::enqueue_script( 'jetpack-script-data' );
 	}
 }
