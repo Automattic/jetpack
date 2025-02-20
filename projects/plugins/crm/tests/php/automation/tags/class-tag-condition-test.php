@@ -4,7 +4,7 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 
 use Automattic\Jetpack\CRM\Automation\Conditions\Entity_Tag;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Tag_List_Data;
-use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_TestCase;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -13,7 +13,7 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  *
  * @covers Automattic\Jetpack\CRM\Automation\Conditions\Entity_Tag
  */
-class Tag_Condition_Test extends JPCRM_Base_Test_Case {
+class Tag_Condition_Test extends JPCRM_Base_TestCase {
 
 	private $automation_faker;
 

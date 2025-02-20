@@ -7,7 +7,7 @@ use Automattic\Jetpack\Sync\Modules;
  *
  * @group jetpack-sync
  */
-class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_TestBase {
 
 	protected $comment;
 	protected $post_id;

@@ -5,7 +5,7 @@ use WorDBless\BaseTestCase;
 /**
  * Class with methods common to tests involving attachments.
  */
-class Image_CDN_Attachment_Test_Case extends BaseTestCase {
+abstract class Image_CDN_Attachment_TestCase extends BaseTestCase {
 
 	public function set_up() {
 		parent::set_up();

@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 
 namespace Automattic\Jetpack\CRM\Tests;
 
@@ -8,7 +8,7 @@ use Automattic\Jetpack\CRM\Entities\Factories\Contact_Factory;
 /**
  * Test case that ensures we have a clean and functioning Jetpack CRM instance.
  */
-class JPCRM_Base_Integration_Test_Case extends JPCRM_Base_Test_Case {
+abstract class JPCRM_Base_Integration_TestCase extends JPCRM_Base_TestCase {
 
 	/**
 	 * Clean up the database after each test.

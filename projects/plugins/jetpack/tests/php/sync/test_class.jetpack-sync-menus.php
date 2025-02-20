@@ -3,7 +3,7 @@
 /**
  * Testing CRUD on Options
  */
-class WP_Test_Jetpack_Sync_Menus extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Menus extends WP_Test_Jetpack_Sync_TestBase {
 
 	public function test_sync_creating_a_menu() {
 		$menu_id = wp_create_nav_menu( 'FUN' );

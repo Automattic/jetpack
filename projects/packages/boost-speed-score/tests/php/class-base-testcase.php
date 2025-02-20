@@ -1,4 +1,4 @@
-<?php //phpcs:ignoreFile
+<?php
 
 namespace Automattic\Jetpack\Boost_Speed_Score\Tests;
 
@@ -12,11 +12,11 @@ if ( ! defined( 'JETPACK_BOOST_SPEED_SCORE_DIR_PATH' ) ) {
 }
 
 /**
- * Class Base_Test_Case
+ * Class Base_TestCase
  *
  * @package Automattic\Jetpack\Boost_Speed_Score\Tests
  */
-abstract class Base_Test_Case extends TestCase {
+abstract class Base_TestCase extends TestCase {
 	/**
 	 * @before
 	 */

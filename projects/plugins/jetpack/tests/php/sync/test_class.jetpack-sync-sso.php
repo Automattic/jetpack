@@ -3,7 +3,7 @@
 /**
  * Testing sync of values for SSO.
  */
-class WP_Test_Jetpack_Sync_SSO extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_SSO extends WP_Test_Jetpack_Sync_TestBase {
 	/**
 	 * Set up.
 	 */

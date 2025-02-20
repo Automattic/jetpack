@@ -4,7 +4,7 @@
  *
  * @since 3.9.2
  */
-class Jetpack_Attachment_Test_Case extends WP_UnitTestCase {
+abstract class Jetpack_Attachment_TestCase extends WP_UnitTestCase {
 
 	/**
 	 * A helper to create an upload object. This method was copied verbatim from WP Core's

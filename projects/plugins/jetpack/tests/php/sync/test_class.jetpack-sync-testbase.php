@@ -23,7 +23,7 @@ require_once $sync_server_dir . 'class.jetpack-sync-test-helper.php';
  * and registers a Replicastore and Eventstore implementation to
  * process events.
  */
-class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
+abstract class WP_Test_Jetpack_Sync_TestBase extends WP_UnitTestCase {
 	protected $listener;
 	protected $sender;
 
@@ -121,11 +121,6 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	protected function resetCallableAndConstantTimeouts() {
 		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
 		delete_transient( Constants::CONSTANTS_AWAIT_TRANSIENT_NAME );
-	}
-
-	public function test_pass() {
-		// so that we don't have a failing test
-		$this->assertTrue( true );
 	}
 
 	protected function assertDataIsSynced() {

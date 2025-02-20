@@ -11,7 +11,7 @@ use Automattic\Jetpack\VideoPress\WPCOM_REST_API_V2_Attachment_VideoPress_Field;
  * @group videopress
  * @group rest-api
  */
-class Test_WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WP_Test_Jetpack_REST_Testcase {
+class Test_WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WP_Test_Jetpack_REST_TestCase {
 	/**
 	 * Checks that the jetpack_videopress_guid field is included in the schema
 	 */

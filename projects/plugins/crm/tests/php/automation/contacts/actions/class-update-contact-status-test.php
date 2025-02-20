@@ -8,14 +8,14 @@ use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created;
-use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_Test_Case;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_TestCase;
 
 /**
  * Test Automation Workflow functionalities
  *
  * @covers Automattic\Jetpack\CRM\Automation\Actions\Update_Contact_Status
  */
-class Update_Contact_Status_Test extends JPCRM_Base_Integration_Test_Case {
+class Update_Contact_Status_Test extends JPCRM_Base_Integration_TestCase {
 
 	/**
 	 * A helper class to generate data for the automation tests.

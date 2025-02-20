@@ -5,7 +5,7 @@ use Automattic\Jetpack\Heartbeat;
 /**
  * Test the sync stats module.
  */
-class WP_Test_Jetpack_Sync_Module_Stats extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Module_Stats extends WP_Test_Jetpack_Sync_TestBase {
 
 	const TEST_STAT_NAME = 'test_stat';
 

@@ -14,7 +14,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * Base test case for the changelogger tool commands.
  */
-class CommandTestCase extends TestCase {
+abstract class CommandTestCase extends TestCase {
 
 	/**
 	 * Get the command.

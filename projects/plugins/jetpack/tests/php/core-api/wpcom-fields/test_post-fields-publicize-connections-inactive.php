@@ -20,7 +20,7 @@ require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-spy-rest-server
  * @group publicize
  * @group rest-api
  */
-class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field_Inactive extends WP_Test_Jetpack_REST_Testcase {
+class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field_Inactive extends WP_Test_Jetpack_REST_TestCase {
 	/**
 	 * User ID.
 	 *

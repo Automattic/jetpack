@@ -2,14 +2,14 @@
 namespace Automattic\Jetpack_Boost\Tests\Lib;
 
 use Automattic\Jetpack_Boost\Lib\Minify;
-use Automattic\Jetpack_Boost\Tests\Base_Test_Case;
+use Automattic\Jetpack_Boost\Tests\Base_TestCase;
 
 /**
  * Class WP_Test_Minify
  *
  * @package Automattic\Jetpack_Boost\Tests\Lib
  */
-class WP_Test_Minify extends Base_Test_Case {
+class WP_Test_Minify extends Base_TestCase {
 	public function test_js() {
 		$expanded_js = 'var one = "one";
 var two = "two";

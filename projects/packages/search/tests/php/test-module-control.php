@@ -3,14 +3,14 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Search\Test_Case as Search_Test_Case;
+use Automattic\Jetpack\Search\TestCase as Search_TestCase;
 use Automattic\Jetpack\Status\Cache;
 /**
  * Unit tests for the REST_Controller class.
  *
  * @package automattic/jetpack-search
  */
-class Test_Module_Control extends Search_Test_Case {
+class Test_Module_Control extends Search_TestCase {
 	/**
 	 * Module_Control object
 	 *

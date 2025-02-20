@@ -13,7 +13,7 @@ use Automattic\Jetpack\Sync\Settings;
  *
  * @group jetpack-sync
  */
-class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
+class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_TestBase {
 
 	/**
 	 * Identifying number for post under test.

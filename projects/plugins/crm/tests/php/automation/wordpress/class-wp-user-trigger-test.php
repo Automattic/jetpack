@@ -4,7 +4,7 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Triggers\WP_User_Created;
-use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_Test_Case;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_TestCase;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -13,7 +13,7 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  *
  * @covers Automattic\Jetpack\CRM\Automation\Triggers\WP_User_Created
  */
-class WP_User_Trigger_Test extends JPCRM_Base_Integration_Test_Case {
+class WP_User_Trigger_Test extends JPCRM_Base_Integration_TestCase {
 
 	/** @var Automation_Faker */
 	private $automation_faker;

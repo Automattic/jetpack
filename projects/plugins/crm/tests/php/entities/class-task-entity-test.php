@@ -4,14 +4,14 @@ namespace Automattic\Jetpack\CRM\Entities\Tests;
 
 use Automattic\Jetpack\CRM\Entities\Factories\Task_Factory;
 use Automattic\Jetpack\CRM\Entities\Task;
-use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_Test_Case;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_TestCase;
 
 /**
  * Test Event Manager system.
  *
  * @covers Automattic\Jetpack\CRM\Entities\Task
  */
-class Task_Entity_Test extends JPCRM_Base_Integration_Test_Case {
+class Task_Entity_Test extends JPCRM_Base_Integration_TestCase {
 
 	/**
 	 * @testdox Test that task entity is created from input data.

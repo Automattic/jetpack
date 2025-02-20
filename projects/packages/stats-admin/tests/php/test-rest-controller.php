@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
-use Automattic\Jetpack\Stats_Admin\Test_Case as Stats_Test_Case;
+use Automattic\Jetpack\Stats_Admin\TestCase as Stats_TestCase;
 use WP_REST_Request;
 use WP_REST_Server;
 
@@ -11,7 +11,7 @@ use WP_REST_Server;
  *
  * @package automattic/jetpack-stats-admin
  */
-class Test_REST_Controller extends Stats_Test_Case {
+class Test_REST_Controller extends Stats_TestCase {
 	const SUPPORTED_GET_ROUTES = array(
 		'/jetpack/v4/stats-app/sites/999/stats/visits',
 		'/jetpack/v4/stats-app/sites/999/stats/highlights',
@@ -243,7 +243,7 @@ class Test_REST_Controller extends Stats_Test_Case {
 				)
 			)
 		);
-		$this->assertEquals(
+		$this->assertSame(
 			'',
 			$filter_and_build_query_string->invoke(
 				$this->rest_controller,

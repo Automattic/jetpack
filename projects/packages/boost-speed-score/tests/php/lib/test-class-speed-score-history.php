@@ -3,7 +3,7 @@
 namespace Automattic\Jetpack\Boost_Speed_Score\Tests\Lib;
 
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
-use Automattic\Jetpack\Boost_Speed_Score\Tests\Base_Test_Case;
+use Automattic\Jetpack\Boost_Speed_Score\Tests\Base_TestCase;
 use Brain\Monkey\Functions;
 
 /**
@@ -11,7 +11,7 @@ use Brain\Monkey\Functions;
  *
  * @package Automattic\Jetpack\Boost_Speed_Score\Tests\Lib
  */
-class WP_Test_Speed_Score_History extends Base_Test_Case {
+class WP_Test_Speed_Score_History extends Base_TestCase {
 	/**
 	 * @var Speed_Score_History
 	 */

@@ -6,7 +6,7 @@ use Automattic\Jetpack\Sync\Modules;
  * Testing CRUD on Network Options
  * use phpunit --testsuite sync --filter WP_Test_Jetpack_Sync_Network_Options
  */
-class WP_Test_Jetpack_Sync_Network_Options extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Network_Options extends WP_Test_Jetpack_Sync_TestBase {
 	protected $post;
 
 	/** @var \Automattic\Jetpack\Sync\Modules\Network_Options */

@@ -9,7 +9,7 @@ use Automattic\Jetpack\Sync\Modules\Callables;
 use Automattic\Jetpack\Sync\Settings;
 use Automattic\RedefineExit\ExitException;
 
-class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_TestBase {
 	protected $action_ran;
 	protected $action_codec;
 	protected $action_timestamp;

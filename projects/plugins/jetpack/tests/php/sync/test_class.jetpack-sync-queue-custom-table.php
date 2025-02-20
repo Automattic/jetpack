@@ -4,14 +4,14 @@ use Automattic\Jetpack\Sync\Queue;
 use Automattic\Jetpack\Sync\Queue\Queue_Storage_Table;
 use Automattic\Jetpack\Sync\Settings;
 
-require_once __DIR__ . '/class-wp-test-jetpack-sync-queue-base-tests.php';
+require_once __DIR__ . '/class-wp-test-jetpack-sync-queue-testbase.php';
 
 /**
  * @group jetpack-sync
  * @group jetpack-sync-queue
  * @group jetpack-sync-queue-custom-table
  */
-class WP_Test_Jetpack_Sync_Queue_Dedicated_Table extends WP_Test_Jetpack_Sync_Queue_Base_Tests {
+class WP_Test_Jetpack_Sync_Queue_Dedicated_Table extends WP_Test_Jetpack_Sync_Queue_TestBase {
 
 	/**
 	 * @var Queue
@@ -126,7 +126,7 @@ class WP_Test_Jetpack_Sync_Queue_Dedicated_Table extends WP_Test_Jetpack_Sync_Qu
 		$options_storage = new Queue\Queue_Storage_Options( $test_queue_id );
 		$options_counts  = $options_storage->get_item_count();
 
-		$this->assertEquals( $options_counts, 0 );
+		$this->assertSame( 0, $options_counts );
 	}
 
 	public function test_migration_to_options_table() {
@@ -168,6 +168,6 @@ class WP_Test_Jetpack_Sync_Queue_Dedicated_Table extends WP_Test_Jetpack_Sync_Qu
 		$custom_table_storage = new Queue\Queue_Storage_Table( $test_queue_id );
 		$options_counts       = $custom_table_storage->get_item_count();
 
-		$this->assertEquals( 0, $options_counts );
+		$this->assertSame( 0, $options_counts );
 	}
 }

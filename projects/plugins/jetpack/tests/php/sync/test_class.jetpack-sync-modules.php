@@ -3,7 +3,7 @@
 /**
  * Testing Activation and Deactivation of Modules
  */
-class WP_Test_Jetpack_Sync_Modules extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Modules extends WP_Test_Jetpack_Sync_TestBase {
 
 	public function test_sync_activate_module_event() {
 		// Calling the activate_module in tests is difficult.

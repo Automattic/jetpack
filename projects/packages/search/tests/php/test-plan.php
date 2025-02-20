@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack\Search;
 
-use Automattic\Jetpack\Search\Test_Case as Search_Test_Case;
+use Automattic\Jetpack\Search\TestCase as Search_TestCase;
 use WP_Error;
 
 /**
@@ -10,7 +10,7 @@ use WP_Error;
  *
  * @package automattic/jetpack-search
  */
-class Test_Plan extends Search_Test_Case {
+class Test_Plan extends Search_TestCase {
 	/**
 	 * Plan object.
 	 *

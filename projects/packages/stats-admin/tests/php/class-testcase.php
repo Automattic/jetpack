@@ -1,21 +1,21 @@
 <?php
 /**
- * Test_Case class
+ * TestCase class
  *
  * @package automattic/jetpack-stats-admin
  */
 
 namespace Automattic\Jetpack\Stats_Admin;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\TestCase as PHPUnit_TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
 use WorDBless\Users as WorDBless_Users;
 
 /**
- * Base Test_Case class which intercepts API calls and basic options.
+ * Base TestCase class which intercepts API calls and basic options.
  */
-class Test_Case extends TestCase {
+abstract class TestCase extends PHPUnit_TestCase {
 	/**
 	 * An Admin user id
 	 *

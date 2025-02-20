@@ -4,14 +4,14 @@ namespace Automattic\Jetpack\CRM\Entities\Tests;
 
 use Automattic\Jetpack\CRM\Entities\Factories\Quote_Factory;
 use Automattic\Jetpack\CRM\Entities\Quote;
-use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_Test_Case;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_TestCase;
 
 /**
  * Test Event Manager system.
  *
  * @covers Automattic\Jetpack\CRM\Entities\Quote
  */
-class Quote_Entity_Test extends JPCRM_Base_Integration_Test_Case {
+class Quote_Entity_Test extends JPCRM_Base_Integration_TestCase {
 
 	/**
 	 * @testdox Test that quote entity is created from input data.

@@ -14,7 +14,7 @@ use Wikimedia\TestingAccessWrapper;
 /**
  * Base test case for the changelogger tool.
  */
-class TestCase extends PHPUnit_TestCase {
+abstract class TestCase extends PHPUnit_TestCase {
 
 	/**
 	 * Value of COMPOSER environment variable to restore in tear_down.

@@ -10,7 +10,7 @@ use Automattic\Jetpack\Sync\Lock;
 /**
  * WP_Test_Jetpack_Sync_Lock class
  */
-class WP_Test_Jetpack_Sync_Lock extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Lock extends WP_Test_Jetpack_Sync_TestBase {
 
 	/**
 	 * Test request lock twice

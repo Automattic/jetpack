@@ -6,7 +6,7 @@ use Automattic\Jetpack\Sync\Settings;
 /**
  * Testing CRUD on Options
  */
-class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_TestBase {
 	protected $post;
 
 	/** @var \Automattic\Jetpack\Sync\Modules\Options */

@@ -11,7 +11,7 @@ if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && defined( 'JETPACK__PLUGIN_DIR'
  * @group publicize
  * @group rest-api
  */
-class Test_WPCOM_REST_API_V2_Subscribers_Endpoint extends WP_Test_Jetpack_REST_Testcase {
+class Test_WPCOM_REST_API_V2_Subscribers_Endpoint extends WP_Test_Jetpack_REST_TestCase {
 
 	public static $editor_user_id;
 	public static $subscriber_user_id;

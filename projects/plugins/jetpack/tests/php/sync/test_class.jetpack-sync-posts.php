@@ -12,7 +12,7 @@ use Automattic\Jetpack\Sync\Settings;
  *
  * @group jetpack-sync
  */
-class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_TestBase {
 
 	protected $post;
 	protected $post_id;

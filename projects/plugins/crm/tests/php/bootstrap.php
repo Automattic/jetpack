@@ -103,8 +103,8 @@ require $test_root . '/includes/bootstrap.php';
 /**
  * Make Jetpack CRM test case available for all tests.
  */
-require_once JETPACK_CRM_TESTS_ROOT . '/class-jpcrm-base-test-case.php';
-require_once JETPACK_CRM_TESTS_ROOT . '/class-jpcrm-base-integration-test-case.php';
+require_once JETPACK_CRM_TESTS_ROOT . '/class-jpcrm-base-testcase.php';
+require_once JETPACK_CRM_TESTS_ROOT . '/class-jpcrm-base-integration-testcase.php';
 
 /**
  * Load all feature flags, so they will be testable.

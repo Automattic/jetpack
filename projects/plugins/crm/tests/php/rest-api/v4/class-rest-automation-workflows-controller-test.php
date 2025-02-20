@@ -19,7 +19,7 @@ require_once JETPACK_CRM_TESTS_ROOT . '/automation/tools/class-automation-faker.
  *
  * @covers \Automattic\Jetpack\CRM\REST_API\V4\REST_Automation_Workflows_Controller
  */
-class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
+class REST_Automation_Workflows_Controller_Test extends REST_Base_TestCase {
 
 	/**
 	 * @var Automation_Faker Automation Faker instance.

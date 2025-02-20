@@ -6,14 +6,14 @@ use Automattic\Jetpack\CRM\Automation\Actions\Set_Transaction_Status;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Created;
-use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_Test_Case;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_TestCase;
 
 /**
  * Test Automation Workflow functionalities
  *
  * @covers Automattic\Jetpack\CRM\Automation\Actions\Set_Transaction_Status
  */
-class Set_Transaction_Status_Test extends JPCRM_Base_Integration_Test_Case {
+class Set_Transaction_Status_Test extends JPCRM_Base_Integration_TestCase {
 
 	/**
 	 * A helper class to generate data for the automation tests.

@@ -5,7 +5,7 @@ use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
 
-class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_TestBase {
 
 	public function test_sending_empties_queue() {
 		self::factory()->post->create();

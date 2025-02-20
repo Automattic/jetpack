@@ -3,7 +3,7 @@
 use Automattic\Jetpack\Sync\Health;
 use Automattic\Jetpack\Sync\Settings;
 
-class WP_Test_Jetpack_Sync_Health extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Health extends WP_Test_Jetpack_Sync_TestBase {
 	public function test_update_status_should_default_to_unknown() {
 		// When an invalid status is used, we should default to an unknown status.
 		Health::update_status( 'some-status' );

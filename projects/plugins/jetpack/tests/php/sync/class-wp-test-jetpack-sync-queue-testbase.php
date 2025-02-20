@@ -11,7 +11,7 @@ use Automattic\Jetpack\Sync\Queue_Buffer;
 /**
  * This is abstract class to cover common test cases between testing the Options Table and Dedicated Table
  */
-abstract class WP_Test_Jetpack_Sync_Queue_Base_Tests extends WP_Test_Jetpack_Sync_Base {
+abstract class WP_Test_Jetpack_Sync_Queue_TestBase extends WP_Test_Jetpack_Sync_TestBase {
 	/**
 	 * @var Queue
 	 */

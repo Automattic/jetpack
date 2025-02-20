@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 
 namespace Automattic\Jetpack\CRM\Tests;
 
@@ -8,7 +8,7 @@ use ZeroBSCRM;
 /**
  * Test case that ensures we never have global changes to ZBS that bleeds into other tests.
  */
-class JPCRM_Base_Test_Case extends WP_UnitTestCase {
+abstract class JPCRM_Base_TestCase extends WP_UnitTestCase {
 
 	/**
 	 * The original/initial ZBS instance.

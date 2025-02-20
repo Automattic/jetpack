@@ -10,9 +10,9 @@ use Automattic\Jetpack\Autoloader\jpCurrent\Plugins_Handler;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class Acceptance_Test_Case.
+ * Class Acceptance_TestCase.
  */
-abstract class Acceptance_Test_Case extends TestCase {
+abstract class Acceptance_TestCase extends TestCase {
 
 	/**
 	 * A constant for identifying the current plugin installed as an mu-plugin in the tests.

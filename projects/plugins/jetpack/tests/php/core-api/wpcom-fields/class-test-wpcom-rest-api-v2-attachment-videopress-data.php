@@ -20,7 +20,7 @@ use Automattic\Jetpack\VideoPress\WPCOM_REST_API_V2_Attachment_VideoPress_Field;
 /**
  * VideoPress Data field tests.
  */
-class Test_WPCOM_REST_API_V2_Attachment_VideoPress_Data extends WP_Test_Jetpack_REST_Testcase {
+class Test_WPCOM_REST_API_V2_Attachment_VideoPress_Data extends WP_Test_Jetpack_REST_TestCase {
 	/**
 	 * Checks that the jetpack_videopress field is included in the schema
 	 */

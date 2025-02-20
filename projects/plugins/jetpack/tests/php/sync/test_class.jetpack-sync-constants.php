@@ -7,7 +7,7 @@ use Automattic\Jetpack\Sync\Modules\Constants;
 /**
  * Testing CRUD on Constants
  */
-class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_TestBase {
 	protected $post_id;
 	protected $constant_module;
 

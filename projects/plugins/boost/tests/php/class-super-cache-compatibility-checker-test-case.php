@@ -5,7 +5,7 @@ namespace Automattic\Jetpack_Boost\Tests;
 use Automattic\Jetpack_Boost\Lib\Super_Cache_Config_Compatibility;
 use ReflectionClass;
 
-class Super_Cache_Compatibility_Checker_Test_Case extends Base_Test_Case {
+abstract class Super_Cache_Compatibility_Checker_TestCase extends Base_TestCase {
 	protected function set_up() {
 		parent::set_up();
 		// Initialize global variables to avoid undefined variable errors
