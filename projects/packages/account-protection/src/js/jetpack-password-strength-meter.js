@@ -315,7 +315,7 @@ jQuery( document ).ready( function ( $ ) {
 
 			icon.attr( 'src', jetpackData.loadingIcon );
 			icon.attr( 'alt', 'Validating...' );
-			text.css( { color: '#3C434A', transition: 'color 0.2s ease-in-out' } );
+			text.css( { color: '#3C434A' } );
 
 			// Re-hide the core and contains_backslash items
 			if ( [ 'core', 'contains_backslash' ].includes( key ) ) {
