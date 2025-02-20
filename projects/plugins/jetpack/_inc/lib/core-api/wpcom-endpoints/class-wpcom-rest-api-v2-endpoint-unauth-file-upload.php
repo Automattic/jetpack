@@ -22,16 +22,10 @@ use Automattic\Jetpack\Unauth_File_Upload_Handler;
  */
 class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 
-	// Maximum number of uploads per IP per hour
-	const MAX_UPLOADS_PER_HOUR = 10;
-	// Option name for storing IP upload counts
-	const IP_UPLOAD_COUNTS = 'jetpack_unauth_ip_upload_counts';
-
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
-
 		$this->base_api_path                   = 'wpcom';
 		$this->version                         = 'v2';
 		$this->namespace                       = $this->base_api_path . '/' . $this->version;
