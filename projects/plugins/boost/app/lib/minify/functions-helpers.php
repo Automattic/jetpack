@@ -186,14 +186,55 @@ function jetpack_boost_page_optimize_remove_concat_base_prefix( $original_fs_pat
 }
 
 /**
+ * Schedules a network-wide cronjob that is only ran once per network instead of per site.
+ * Also is compatible with non multisite installs.
+ * jetpack_boost_schedule_singleton_network_cron should be used to call this.
+ *
+ * @param string $action The action to schedule.
+ * @param string $recurrence The recurrence of the cronjob.
+ * @param array  $args The arguments to pass to the action.
+ */
+function jetpack_boost_execute_network_cron( string $action, string $recurrence, array $args = array() ) {
+	$schedule            = wp_get_schedules();
+	$schedule_recurrence = $schedule[ $recurrence ] ?? array( 'interval' => 0 );
+	$interval            = $schedule_recurrence['interval'];
+	$current_time        = time();
+
+	$tester_ran = (int) get_site_option( "{$action}_network_cron_ran", 0 );
+	if ( $tester_ran + $interval > $current_time ) {
+		return;
+	}
+
+	update_site_option( "{$action}_network_cron_ran", $current_time );
+
+	do_action( $action, ...$args );
+}
+add_action( 'jetpack_boost_network_cron', 'jetpack_boost_execute_network_cron', 10, 3 );
+
+/**
+ * Schedule a cronjob if not already scheduled.
+ *
+ * @param int    $timestamp The timestamp to schedule the cronjob at.
+ * @param string $recurrence The recurrence of the cronjob.
+ * @param string $hook The hook to schedule the cronjob for.
+ * @param array  $args The arguments to pass to the action.
+ */
+function jetpack_boost_schedule_singleton_network_cron( int $timestamp, string $recurrence, string $hook, array $args = array() ) {
+	if ( false === wp_next_scheduled( $hook, $args ) ) {
+		wp_schedule_event( $timestamp, $recurrence, 'jetpack_boost_network_cron', array( $hook, $recurrence, $args ) );
+	}
+}
+
+/**
  * Schedule a cronjob for the 404 tester, if one isn't already scheduled.
  */
 function jetpack_boost_page_optimize_schedule_404_tester() {
 	if ( false === wp_next_scheduled( 'jetpack_boost_404_tester_cron' ) ) {
 		// Run the test immediately, and schedule the cronjob to run daily.
 		jetpack_boost_404_tester();
-		wp_schedule_event( time() + DAY_IN_SECONDS, 'daily', 'jetpack_boost_404_tester_cron' );
 	}
+
+	jetpack_boost_schedule_singleton_network_cron( time() + DAY_IN_SECONDS, 'daily', 'jetpack_boost_404_tester_cron' );
 }
 
 /**
