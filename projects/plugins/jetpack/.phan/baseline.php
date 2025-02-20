@@ -156,7 +156,7 @@ return [
         'class-jetpack-xmlrpc-methods.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition'],
         'class.jetpack-admin.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgumentProbablyReal'],
         'class.jetpack-autoupdate.php' => ['PhanTypeMismatchArgument'],
-        'class.jetpack-cli.php' => ['PhanAccessMethodInternal', 'PhanParamTooManyCallable', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn'],
+        'class.jetpack-cli.php' => ['PhanAccessMethodInternal', 'PhanParamTooManyCallable', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn'],
         'class.jetpack-gutenberg.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeSuspiciousStringExpression'],
         'class.jetpack-heartbeat.php' => ['PhanTypeMismatchPropertyDefault'],
         'class.jetpack-modules-list-table.php' => ['PhanCommentAbstractOnInheritedMethod'],
