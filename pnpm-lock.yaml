@@ -3225,9 +3225,15 @@ importers:
       '@automattic/babel-plugin-replace-textdomain':
         specifier: workspace:*
         version: link:../../js-packages/babel-plugin-replace-textdomain
+      '@automattic/components':
+        specifier: 2.2.0
+        version: 2.2.0(@babel/runtime@7.26.0)(@types/react@18.3.18)(@wordpress/data@10.17.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
+      '@automattic/i18n-utils':
+        specifier: 1.2.3
+        version: 1.2.3
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -3252,6 +3258,9 @@ importers:
       '@automattic/jetpack-licensing':
         specifier: workspace:*
         version: link:../../js-packages/licensing
+      '@automattic/viewport-react':
+        specifier: 1.0.1
+        version: 1.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-query':
         specifier: 5.20.5
         version: 5.20.5(react@18.3.1)
@@ -3310,6 +3319,9 @@ importers:
       '@babel/preset-env':
         specifier: 7.26.0
         version: 7.26.0(@babel/core@7.26.0)
+      '@babel/runtime':
+        specifier: 7.26.0
+        version: 7.26.0
       '@jest/globals':
         specifier: 29.7.0
         version: 29.7.0
@@ -15662,7 +15674,7 @@ snapshots:
       cookie: 0.7.2
       debug: 4.4.0
       hash.js: 1.1.7
-      tslib: 2.5.0
+      tslib: 2.8.1
       uuid: 9.0.1
     transitivePeerDependencies:
       - supports-color
@@ -15742,6 +15754,48 @@ snapshots:
       - '@types/react'
       - supports-color
 
+  '@automattic/components@2.2.0(@babel/runtime@7.26.0)(@types/react@18.3.18)(@wordpress/data@10.17.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@automattic/calypso-analytics': 1.1.3
+      '@automattic/calypso-color-schemes': 3.1.3
+      '@automattic/calypso-url': 1.1.0
+      '@automattic/color-studio': 3.0.3
+      '@automattic/format-currency': 2.0.0
+      '@automattic/i18n-utils': 1.2.3
+      '@automattic/load-script': 1.0.0
+      '@automattic/material-design-icons': 1.0.0
+      '@automattic/typography': 1.0.0
+      '@automattic/viewport-react': 1.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@emotion/css': 11.13.5
+      '@emotion/react': 11.14.0(@types/react@18.3.18)(react@18.3.1)
+      '@emotion/styled': 11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
+      '@wordpress/base-styles': 5.17.0
+      '@wordpress/components': 28.13.0(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/data': 10.17.0(react@18.3.1)
+      '@wordpress/icons': 10.17.0(react@18.3.1)
+      '@wordpress/react-i18n': 4.17.0
+      canvas-confetti: 1.9.3
+      clsx: 2.1.1
+      colord: 2.9.3
+      debug: 4.4.0
+      gridicons: 3.4.2(react@18.3.1)
+      i18n-calypso: 7.0.0(@types/react@18.3.18)(react@18.3.1)
+      lodash: 4.17.21
+      prop-types: 15.8.1
+      qrcode.react: 3.2.0(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-modal: 3.16.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-router-dom: 6.28.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-slider: 2.0.5(@babel/runtime@7.26.0)(react@18.3.1)
+      utility-types: 3.11.0
+      uuid: 9.0.1
+    transitivePeerDependencies:
+      - '@babel/runtime'
+      - '@emotion/is-prop-valid'
+      - '@types/react'
+      - supports-color
+
   '@automattic/data-stores@3.1.0(@babel/runtime@7.24.7)(@types/react@18.3.18)(@wordpress/data@10.17.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@automattic/calypso-analytics': 1.1.3
@@ -15796,7 +15850,7 @@ snapshots:
 
   '@automattic/format-currency@2.0.0':
     dependencies:
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   '@automattic/i18n-utils@1.2.3':
     dependencies:
@@ -15806,7 +15860,7 @@ snapshots:
       '@wordpress/compose': 7.17.0(react@18.3.1)
       '@wordpress/i18n': 5.17.0
       react: 18.3.1
-      tslib: 2.5.0
+      tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
 
@@ -15820,7 +15874,7 @@ snapshots:
 
   '@automattic/languages@1.0.0':
     dependencies:
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   '@automattic/launchpad@1.1.0(@babel/runtime@7.24.7)(@types/react@18.3.18)(@wordpress/data@10.17.0(react@18.3.1))(@wordpress/element@6.17.0)(@wordpress/i18n@5.17.0)(debug@4.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1)':
     dependencies:
@@ -21725,7 +21779,7 @@ snapshots:
       '@wordpress/hooks': 3.58.0
       gettext-parser: 1.4.0
       memize: 2.1.0
-      sprintf-js: 1.1.2
+      sprintf-js: 1.1.3
       tannin: 1.2.0
 
   '@wordpress/i18n@5.17.0':
@@ -27631,7 +27685,7 @@ snapshots:
       crc32: 0.2.2
       debug: 4.4.0
       seed-random: 2.2.0
-      tslib: 2.5.0
+      tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
 
