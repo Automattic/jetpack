@@ -3,6 +3,8 @@
 /**
  * A tool for generating stubs.
  *
+ * Unfortunately we can't use `bin/jetpack-stub-generator` directly within the package itself.
+ *
  * @package automattic/jetpack-stub-generator
  */
 
@@ -13,7 +15,7 @@ if ( 'cli' !== php_sapi_name() ) {
 	throw new RuntimeException( 'This file must be run from the command line.' );
 }
 
-require_once $GLOBALS['_composer_autoload_path'];
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $xdebug = new XdebugHandler( 'JETPACK_STUB_GENERATOR' );
 $xdebug->check();

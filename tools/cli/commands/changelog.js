@@ -623,7 +623,7 @@ async function removeArgs( argv, removeArg ) {
  */
 export async function changeloggerCli( argv ) {
 	if ( ! changeloggerPath ) {
-		changeloggerPath = path.resolve( 'projects/packages/changelogger/bin/changelogger' );
+		changeloggerPath = path.resolve( 'projects/packages/changelogger/vendor/bin/changelogger' );
 		let data = child_process.spawnSync( changeloggerPath, [], {
 			stdio: 'ignore',
 		} );
