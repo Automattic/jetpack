@@ -2,7 +2,11 @@
 
 namespace Automattic\Jetpack_Boost\Modules;
 
+use Automattic\Jetpack\Schema\Schema;
+use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
+use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
+use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Regenerate;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Status;
@@ -11,7 +15,7 @@ use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
-class Modules_Setup implements Has_Setup {
+class Modules_Setup implements Has_Setup, Has_Data_Sync {
 	/**
 	 * @var Modules_Index
 	 */
@@ -77,6 +81,30 @@ class Modules_Setup implements Has_Setup {
 		REST_API::register( $feature->get_always_available_endpoints() );
 	}
 
+	public function setup_modules_data_sync( $modules ) {
+		foreach ( $modules as $module ) {
+			$this->register_feature_data_sync( $module->feature );
+
+			$submodules = $module->get_available_submodules();
+			if ( ! empty( $submodules ) ) {
+				$this->setup_modules_data_sync( $submodules );
+			}
+		}
+	}
+
+	/**
+	 * Used to register data sync for the module.
+	 *
+	 * @return bool|void
+	 */
+	public function register_feature_data_sync( $feature ) {
+		if ( ! $feature instanceof Has_Data_Sync ) {
+			return false;
+		}
+
+		$feature->register_data_sync( Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE ) );
+	}
+
 	public function register_endpoints( $feature ) {
 		if ( ! $feature instanceof Has_Endpoints ) {
 			return false;
@@ -93,6 +121,23 @@ class Modules_Setup implements Has_Setup {
 		$this->init_modules( $this->available_modules );
 	}
 
+	/**
+	 * Registers general data sync for the modules.
+	 */
+	public function register_data_sync( $instance ) {
+		$modules_state_schema = Schema::as_array(
+			Schema::as_assoc_array(
+				array(
+					'active'    => Schema::as_boolean()->fallback( false ),
+					'available' => Schema::as_boolean()->nullable(),
+				)
+			)
+		)->fallback( array() );
+
+		$entry = new Modules_State_Entry( Modules_Index::FEATURES );
+		$instance->register( 'modules_state', $modules_state_schema, $entry );
+	}
+
 	private function init_modules( $modules ) {
 		foreach ( $modules as $slug => $module ) {
 
@@ -104,15 +149,9 @@ class Modules_Setup implements Has_Setup {
 
 			Setup::add( $module->feature );
 
-			$submodules = $module->get_submodules();
-			if ( $submodules ) {
-				$submodules_instances = array();
-				foreach ( $submodules as $sub_module ) {
-					if ( $sub_module::is_available() ) {
-						$submodules_instances[] = new Module( new $sub_module() );
-					}
-				}
-				$this->init_modules( $submodules_instances );
+			$submodules = $module->get_available_submodules();
+			if ( ! empty( $submodules ) ) {
+				$this->init_modules( $submodules );
 			}
 
 			$this->register_endpoints( $module->feature );
@@ -126,6 +165,9 @@ class Modules_Setup implements Has_Setup {
 	 * @inheritDoc
 	 */
 	public function setup() {
+		// We need to setup data sync outside of plugins_loaded to prevent side effects on other classes that are loaded from other actions earlier.
+		self::register_data_sync( Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE ) );
+		$this->setup_modules_data_sync( $this->modules_index->get_modules() );
 		add_action( 'plugins_loaded', array( $this, 'load_modules' ) );
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'on_module_status_update' ), 10, 2 );
 	}

@@ -17,7 +17,16 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 	public function set_up() {
 		parent::set_up();
 		wpcom_register_default_launchpad_checklists();
+		\Brain\Monkey\setUp();
 	}
+
+	/**
+	 * Reverting the testing environment to its original state.
+	 */
+	public function tear_down() {
+		\Brain\Monkey\tearDown();
+	}
+
 	/**
 	 * Make sure that ::build() doesn't create a PHP warning when it doesn't get a valid ID.
 	 *
@@ -571,5 +580,105 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 
 		wpcom_launchpad_set_task_list_dismissed( 'test-task-list-with-temporary-dismiss-removed', null, $past_date );
 		$this->assertFalse( wpcom_launchpad_is_task_list_dismissed( 'test-task-list-with-temporary-dismiss-removed' ) );
+	}
+
+	/**
+	 * Data provider for {@see test_verify_email_task_visibility()}.
+	 *
+	 * @return array
+	 */
+	public function provide_verify_email_task_visibility_test_cases() {
+		return array(
+			'unverified single-site user in cumulative cohort'    => array(
+				'customer-home-treatment-cumulative',
+				'unverified',
+				1,
+				'should-be-visible',
+			),
+			'unverified single-site user in non-cumulative cohort' => array(
+				'customer-home',
+				'unverified',
+				1,
+				'should-be-visible',
+			),
+			'unverified multi-site user in cumulative cohort' => array(
+				'customer-home-treatment-cumulative',
+				'unverified',
+				2,
+				'should-be-visible',
+			),
+			'unverified multi-site user in non-cumulative cohort' => array(
+				'customer-home',
+				'unverified',
+				2,
+				'should-be-visible',
+			),
+			'verified single-site user in cumulative cohort'    => array(
+				'customer-home-treatment-cumulative',
+				'verified',
+				1,
+				'should-be-visible',
+			),
+			'verified single-site user in non-cumulative cohort' => array(
+				'customer-home',
+				'verified',
+				1,
+				'should-be-visible',
+			),
+			'verified multi-site user in cumulative cohort' => array(
+				'customer-home-treatment-cumulative',
+				'verified',
+				2,
+				'should-NOT-be-visible',
+			),
+			'verified multi-site user in non-cumulative cohort' => array(
+				'customer-home',
+				'verified',
+				2,
+				'should-be-visible',
+			),
+		);
+	}
+
+	/**
+	 * Test the visibility of the verify email task based on whether the user is likely to be new
+	 * and if they're in the cumulative cohort (see calypso_signup_onboarding_goals_first_flow_holdout_v2_20250131 experiment).
+	 *
+	 * @dataProvider provide_verify_email_task_visibility_test_cases()
+	 * @param string $launchpad_context 'customer-home-treatment-cumulative' or 'customer-home'.
+	 * @param string $user_verification_status 'unverified' or something else (like 'verified').
+	 * @param int    $blog_count_for_user Number of blogs for the user.
+	 * @param string $should_be_visible 'should-be-visible' or something else (like 'should-NOT-be-visible').
+	 */
+	public function test_verify_email_task_visibility( $launchpad_context, $user_verification_status, $blog_count_for_user, $should_be_visible ) {
+		\Brain\Monkey\Functions\when( 'get_blog_count_for_user' )->justReturn( $blog_count_for_user );
+		\Mockery::mock( 'alias:Email_Verification' )->shouldReceive( 'is_email_unverified' )->andReturn( $user_verification_status === 'unverified' );
+
+		wpcom_register_launchpad_task(
+			array(
+				'id'                  => 'verify_email',
+				'title'               => 'Verify Email',
+				'is_visible_callback' => 'wpcom_launchpad_is_email_task_visible',
+			)
+		);
+
+		wpcom_register_launchpad_task_list(
+			array(
+				'id'       => 'tasklist-with-verify-email-task',
+				'title'    => 'Tasklist with verify email task',
+				'task_ids' => array(
+					'verify_email',
+				),
+			)
+		);
+
+		$result = Launchpad_Task_Lists::get_instance()->build( 'tasklist-with-verify-email-task', $launchpad_context );
+
+		if ( $should_be_visible === 'should-be-visible' ) {
+			$this->assertCount( 1, $result );
+			$this->assertEquals( 'verify_email', $result[0]['id'] );
+		} else {
+			$this->assertEmpty( $result );
+		}
 	}
 }

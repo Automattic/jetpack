@@ -28,10 +28,7 @@ export const useCompletionStep = (): Step => {
 
 			addMessage( {
 				content: createInterpolateElement(
-					__( "Here's your updated checklist:", 'jetpack' ) +
-						'<br />' +
-						resultsString +
-						'<br /><br />',
+					__( "Here's your updated checklist:", 'jetpack' ) + '<br />' + resultsString + '<br />',
 					{
 						br: <br />,
 					}

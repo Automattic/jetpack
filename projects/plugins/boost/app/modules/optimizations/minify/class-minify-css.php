@@ -2,15 +2,19 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Minify;
 
+use Automattic\Jetpack\Schema\Schema;
+use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
+use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Has_Submodules;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
+use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 use Automattic\Jetpack_Boost\Lib\Minify\Concatenate_CSS;
 
-class Minify_CSS implements Pluggable, Changes_Page_Output, Optimization, Has_Activate, Has_Deactivate, Has_Submodules {
+class Minify_CSS implements Pluggable, Changes_Page_Output, Optimization, Has_Activate, Has_Deactivate, Has_Submodules, Has_Data_Sync {
 
 	public static $default_excludes = array( 'admin-bar', 'dashicons', 'elementor-app' );
 
@@ -27,6 +31,20 @@ class Minify_CSS implements Pluggable, Changes_Page_Output, Optimization, Has_Ac
 		}
 
 		add_action( 'init', array( $this, 'init_minify' ) );
+	}
+
+	public function register_data_sync( Data_Sync $instance ) {
+		$parser = Schema::as_array( Schema::as_string() )->fallback( self::$default_excludes );
+
+		$instance->register( 'minify_css_excludes', $parser, new Minify_Excludes_State_Entry( 'minify_css_excludes' ) );
+
+		$instance->register_readonly(
+			'minify_css_excludes_default',
+			Schema::as_unsafe_any(),
+			function () {
+				return Minify_CSS::$default_excludes;
+			}
+		);
 	}
 
 	public static function get_slug() {

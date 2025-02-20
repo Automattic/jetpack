@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Remove feature flag for new like widget layout and code for old layout avatars popup.

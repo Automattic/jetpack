@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix flex position for videos inside row blocks.

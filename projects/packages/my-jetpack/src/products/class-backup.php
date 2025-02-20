@@ -17,6 +17,7 @@ use WP_Error;
  * Class responsible for handling the Backup product
  */
 class Backup extends Hybrid_Product {
+	public const BACKUP_STATUS_TRANSIENT_KEY = 'my-jetpack-backup-status';
 
 	/**
 	 * The product slug
@@ -78,7 +79,23 @@ class Backup extends Hybrid_Product {
 	 */
 	public static $feature_identifying_paid_plan = 'backups';
 
-	public const BACKUP_STATUS_TRANSIENT_KEY = 'my-jetpack-backup-status';
+	/**
+	 * Backup initialization
+	 *
+	 * @return void
+	 */
+	public static function register_endpoints(): void {
+		// Get backup undo event
+		register_rest_route(
+			'my-jetpack/v1',
+			'/site/backup/undo-event',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_backup_undo_event',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+			)
+		);
+	}
 
 	/**
 	 * Get the product name
@@ -181,11 +198,81 @@ class Backup extends Hybrid_Product {
 	}
 
 	/**
+	 * Checks if the user has the correct permissions
+	 */
+	public static function permissions_callback() {
+		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * This will fetch the last rewindable event from the Activity Log and
+	 * the last rewind_id prior to that.
+	 *
+	 * @return array|WP_Error|null
+	 */
+	public static function get_site_backup_undo_event() {
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+
+		$response = Client::wpcom_json_api_request_as_user(
+			'/sites/' . $blog_id . '/activity/rewindable?force=wpcom',
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return null;
+		}
+
+		$body = json_decode( $response['body'], true );
+
+		if ( ! isset( $body['current'] ) ) {
+			return null;
+		}
+
+		// Preparing the response structure
+		$undo_event = array(
+			'last_rewindable_event' => null,
+			'undo_backup_id'        => null,
+		);
+
+		// List of events that will not be considered to be undo.
+		// Basically we should not `undo` a full backup event, but we could
+		// use them to undo any other action like plugin updates.
+		$last_event_exceptions = array(
+			'rewind__backup_only_complete_full',
+			'rewind__backup_only_complete_initial',
+			'rewind__backup_only_complete',
+			'rewind__backup_complete_full',
+			'rewind__backup_complete_initial',
+			'rewind__backup_complete',
+		);
+
+		// Looping through the events to find the last rewindable event and the last backup_id.
+		// The idea is to find the last rewindable event and then the last rewind_id before that.
+		$found_last_event = false;
+		foreach ( $body['current']['orderedItems'] as $event ) {
+			if ( $event['is_rewindable'] ) {
+				if ( ! $found_last_event && ! in_array( $event['name'], $last_event_exceptions, true ) ) {
+					$undo_event['last_rewindable_event'] = $event;
+					$found_last_event                    = true;
+				} elseif ( $found_last_event ) {
+					$undo_event['undo_backup_id'] = $event['rewind_id'];
+					break;
+				}
+			}
+		}
+
+		return rest_ensure_response( $undo_event );
+	}
+
+	/**
 	 * Hits the wpcom api to check rewind status.
 	 *
 	 * @todo Maybe add caching.
 	 *
-	 * @return Object|WP_Error
+	 * @return object|WP_Error
 	 */
 	private static function get_state_from_wpcom() {
 		static $status = null;
@@ -217,7 +304,7 @@ class Backup extends Hybrid_Product {
 	/**
 	 * Hits the wpcom api to retrieve the last 10 backup records.
 	 *
-	 * @return Object|WP_Error
+	 * @return object|WP_Error
 	 */
 	public static function get_latest_backups() {
 		static $backups = null;

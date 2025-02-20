@@ -121,13 +121,13 @@ export const useTitleStep = ( {
 				const initialMessage = fromSkip
 					? {
 							content: createInterpolateElement(
-								__( "Skipped!<br />Let's optimise your title first.", 'jetpack' ),
+								__( "Skipped!<br />Let's optimize your title first.", 'jetpack' ),
 								{ br: <br /> }
 							),
 							showIcon: true,
 					  }
 					: {
-							content: __( "Let's optimise your title first.", 'jetpack' ),
+							content: __( "Let's optimize your title first.", 'jetpack' ),
 							showIcon: true,
 					  };
 				setMessages( [ initialMessage ] );
@@ -208,8 +208,8 @@ export const useTitleStep = ( {
 
 	return {
 		id: stepId,
-		title: __( 'Optimise Title', 'jetpack' ),
-		label: __( 'Title', 'jetpack' ),
+		title: __( 'Optimize SEO Title', 'jetpack' ),
+		label: __( 'SEO Title', 'jetpack' ),
 		messages,
 		type: 'options',
 		options: valueOptions,

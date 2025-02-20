@@ -13,7 +13,7 @@ import {
 	TextareaControl,
 	CheckboxControl,
 } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import InspectorNotice from '../../shared/components/inspector-notice';
 import { WidthControl } from '../../shared/width-panel';
@@ -66,6 +66,27 @@ export default function SubscriptionControls( {
 	successMessage = DEFAULT_SUCCESS_MESSAGE,
 } ) {
 	const { isModuleActive: isPublicizeEnabled } = useModuleStatus( 'publicize' );
+
+	// Unset any selected categories that are no longer available
+	useEffect( () => {
+		if ( availableNewsletterCategories?.length > 0 && selectedNewsletterCategoryIds?.length > 0 ) {
+			const availableIds = availableNewsletterCategories.map( cat => cat.id );
+			const validSelectedIds = selectedNewsletterCategoryIds.filter( id =>
+				availableIds.includes( id )
+			);
+
+			if ( validSelectedIds.length !== selectedNewsletterCategoryIds.length ) {
+				const updates = { selectedNewsletterCategoryIds: validSelectedIds };
+
+				// If no valid categories remain selected, disable preselection
+				if ( validSelectedIds.length === 0 ) {
+					updates.preselectNewsletterCategories = false;
+				}
+
+				setAttributes( updates );
+			}
+		}
+	}, [ availableNewsletterCategories, setAttributes, selectedNewsletterCategoryIds ] );
 
 	return (
 		<>

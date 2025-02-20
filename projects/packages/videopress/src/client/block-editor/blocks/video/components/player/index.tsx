@@ -57,7 +57,7 @@ export default function Player( {
 	const mainWrapperRef = useRef< HTMLDivElement >();
 	const videoWrapperRef = useRef< HTMLDivElement >();
 
-	const { maxWidth, caption, videoRatio } = attributes;
+	const { maxWidth, caption, videoRatio, align } = attributes;
 
 	/*
 	 * Temporary height is used to set the height of the video
@@ -228,6 +228,18 @@ export default function Player( {
 			: 0;
 	}
 
+	let style: Record< string, string > = { marginRight: 'auto' };
+
+	if ( align === 'center' ) {
+		style = { ...style, marginLeft: 'auto' };
+	}
+
+	const innerContainerStyle = `
+		body {
+			line-height: 0;
+		}
+	`;
+
 	return (
 		<figure ref={ mainWrapperRef } className="jetpack-videopress-player">
 			<ResizableBox
@@ -239,7 +251,7 @@ export default function Player( {
 				} }
 				maxWidth="100%"
 				size={ { width: maxWidth, height: 'auto' } }
-				style={ { marginRight: 'auto' } }
+				style={ style }
 				onResizeStop={ onBlockResize }
 				onResizeStart={ () => setVideoPlayerTemporaryHeightState( 'auto' ) }
 			>
@@ -251,7 +263,13 @@ export default function Player( {
 					style={ wrapperElementStyle }
 				>
 					<>
-						{ ! isRequestingEmbedPreview && <SandBox html={ html } scripts={ sandboxScripts } /> }
+						{ ! isRequestingEmbedPreview && (
+							<SandBox
+								html={ html }
+								scripts={ sandboxScripts }
+								styles={ [ innerContainerStyle ] }
+							/>
+						) }
 
 						{ ! isVideoPlayerLoaded && (
 							<div className="jetpack-videopress-player__loading">
