@@ -5,6 +5,16 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+function wpcom_comments_add_like_class( $classes, $css_class, $comment_id ) {
+	$blog_id = get_current_blog_id();
+	if ( Likes::comment_like_current_user_likes( $blog_id, $comment_id ) ) {
+		$classes[] = 'liked';
+	}
+
+	return $classes;
+}
+add_filter( 'comment_class', 'wpcom_comments_add_like_class', 10, 3 );
+
 /**
  * Adds a "Like" action to comment rows.
  *
@@ -13,11 +23,18 @@
  * @return array Modified actions array.
  */
 function wpcom_comments_enable_likes( $actions, $comment ) {
-	$comment_id = (int) $comment->comment_ID;
-
 	$actions['like'] = sprintf(
-		'<span data-comment-id="%s" class="wpcom-comment-like"></span>',
-		esc_attr( (string) $comment_id )
+		'<button class="button-link" data-comment-id="%d" aria-label="%s">%s</button>',
+		$comment->comment_ID,
+		esc_attr__( 'Like this comment' ),
+		esc_html__( 'Like' )
+	);
+
+	$actions['unlike'] = sprintf(
+		'<button class="button-link" data-comment-id="%d" aria-label="%s">%s</button>',
+		$comment->comment_ID,
+		esc_attr__( 'Unlike this comment liked by you' ),
+		esc_html__( 'Liked by you' )
 	);
 
 	return $actions;
@@ -38,16 +55,15 @@ function wpcom_enqueue_comment_like_script( $hook ) {
 	}
 
 	// Enqueue the script.
-	jetpack_mu_wpcom_enqueue_assets( 'wpcom-comment-like', array( 'js' ) );
+	jetpack_mu_wpcom_enqueue_assets( 'wpcom-comment-like', array( 'js', 'css' ) );
 
 	// Localize the script with necessary data.
 	wp_localize_script(
 		'jetpack-mu-wpcom-wpcom-comment-like',
 		'wpcomCommentLikesData',
 		array(
-			'likeFeedback'    => esc_html__( 'Like', 'jetpack-mu-wpcom' ),
-			'likedFeedback'   => esc_html__( 'Liked by you', 'jetpack-mu-wpcom' ),
-			'loadingFeedback' => esc_html__( 'Loading...', 'jetpack-mu-wpcom' ),
+			'post_like_error' => __( 'Something went wrong when attempting to like that comment. Please try again.' ),
+			'post_unlike_error' => __( 'Something went wrong when attempting to unlike that comment. Please try again.' ),
 		)
 	);
 }
