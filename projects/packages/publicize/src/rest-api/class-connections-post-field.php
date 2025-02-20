@@ -284,7 +284,7 @@ class Connections_Post_Field {
 		$available_connections_by_connection_id = array();
 		$available_connections_by_service_name  = array();
 		foreach ( $available_connections as $available_connection ) {
-			$available_connections_by_connection_id[ $available_connection['id'] ] = $available_connection;
+			$available_connections_by_connection_id[ $available_connection['connection_id'] ] = $available_connection;
 
 			if ( ! isset( $available_connections_by_service_name[ $available_connection['service_name'] ] ) ) {
 				$available_connections_by_service_name[ $available_connection['service_name'] ] = array();
@@ -304,8 +304,8 @@ class Connections_Post_Field {
 			}
 
 			foreach ( $available_connections_by_service_name[ $requested_connection['service_name'] ] as $available_connection ) {
-				if ( $requested_connection['connection_id'] === $available_connection['id'] ) {
-					$changed_connections[ $available_connection['id'] ] = $requested_connection['enabled'];
+				if ( $requested_connection['connection_id'] === $available_connection['connection_id'] ) {
+					$changed_connections[ $available_connection['connection_id'] ] = $requested_connection['enabled'];
 					break;
 				}
 			}
@@ -329,7 +329,7 @@ class Connections_Post_Field {
 		foreach ( $changed_connections as $id => $enabled ) {
 			$connection = $available_connections_by_connection_id[ $id ];
 
-			if ( $connection['done'] || ! $connection['toggleable'] ) {
+			if ( $connection['done'] ) {
 				continue;
 			}
 
