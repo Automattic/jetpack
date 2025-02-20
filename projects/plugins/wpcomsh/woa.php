@@ -317,11 +317,6 @@ function wpcomsh_woa_post_process_store_woocommerce_connection_details( $args, $
 		return;
 	}
 
-	foreach ( $unexpected_root_keys as $unexpected_root_key ) {
-		WP_CLI::warning( 'Invalid WooCommerce connection details provided. Unexpected root key: ' . $unexpected_root_key );
-		return;
-	}
-
 	$option_data = array();
 
 	foreach ( $valid_keys as $valid_key => $required_key_fields ) {
