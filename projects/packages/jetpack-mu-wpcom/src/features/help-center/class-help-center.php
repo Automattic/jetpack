@@ -169,16 +169,17 @@ class Help_Center {
 				'help-center',
 				'const helpCenterData = ' . wp_json_encode(
 					array(
-						'isProxied'   => boolval( self::is_proxied() ),
-						'currentUser' => array(
+						'isProxied'        => boolval( self::is_proxied() ),
+						'isSupportSession' => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
+						'currentUser'      => array(
 							'ID'           => $user_id,
 							'username'     => $username,
 							'display_name' => $display_name,
 							'avatar_URL'   => $avatar_url,
 							'email'        => $user_email,
 						),
-						'site'        => $this->get_current_site(),
-						'locale'      => Common\determine_iso_639_locale(),
+						'site'             => $this->get_current_site(),
+						'locale'           => Common\determine_iso_639_locale(),
 					)
 				),
 				'before'
