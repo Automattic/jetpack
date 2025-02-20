@@ -12,8 +12,7 @@ const PluginIntegrationPanel = ( {
 	installText,
 	activateText,
 	description,
-	installEventName,
-	activateEventName,
+	tracksEventName,
 	children,
 	title,
 	initialOpen = false,
@@ -119,15 +118,14 @@ const PluginIntegrationPanel = ( {
 									<Button
 										variant="secondary"
 										onClick={ () => {
-											const eventName = pluginStatus.isInstalled
-												? activateEventName
-												: installEventName;
 											const func = pluginStatus.isInstalled
 												? activatePlugin
 												: installAndActivatePlugin;
 											const arg = pluginStatus.isInstalled ? pluginPath : pluginSlug;
 
-											tracks.recordEvent( eventName );
+											if ( tracksEventName ) {
+												tracks.recordEvent( tracksEventName );
+											}
 											onPluginClick( func, arg );
 										} }
 									>
