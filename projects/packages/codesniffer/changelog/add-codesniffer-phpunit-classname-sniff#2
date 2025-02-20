@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Drop support for PHP <8.0.
