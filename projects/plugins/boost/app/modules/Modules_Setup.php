@@ -151,8 +151,8 @@ class Modules_Setup implements Has_Setup {
 
 		if ( $module ) {
 			$submodules = $module->get_submodules();
-			foreach ( $submodules as $sub_module ) {
-				if ( $sub_module::is_available() ) {
+			if ( is_array( $submodules ) && ! empty( $submodules ) ) {
+				foreach ( $submodules as $sub_module ) {
 					$instance = new Module( new $sub_module() );
 					if ( $is_activated ) {
 						$instance->on_activate();
