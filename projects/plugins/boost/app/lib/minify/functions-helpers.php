@@ -87,8 +87,8 @@ function jetpack_boost_delete_expired_files( $files, $file_age ) {
  * Removes the cache cleanup cron job and the 404 tester cron job.
  */
 function jetpack_boost_minify_clear_scheduled_events() {
-	wp_unschedule_hook( 'jetpack_boost_minify_cron_cache_cleanup' );
-	wp_unschedule_hook( 'jetpack_boost_404_tester_cron' );
+	jetpack_boost_unschedule_singleton_network_cron( 'jetpack_boost_minify_cron_cache_cleanup' );
+	jetpack_boost_unschedule_singleton_network_cron( 'jetpack_boost_404_tester_cron' );
 }
 
 /**
@@ -194,7 +194,8 @@ function jetpack_boost_page_optimize_remove_concat_base_prefix( $original_fs_pat
  * @param string $recurrence The recurrence of the cronjob.
  * @param array  $args The arguments to pass to the action.
  */
-function jetpack_boost_execute_network_cron( string $action, string $recurrence, array $args = array() ) {
+function jetpack_boost_execute_network_cron( string $action, array $args = array() ) {
+	$recurrence          = get_site_option( "{$action}_network_cron_recurrence", 'daily' );
 	$schedule            = wp_get_schedules();
 	$schedule_recurrence = $schedule[ $recurrence ] ?? array( 'interval' => 0 );
 	$interval            = $schedule_recurrence['interval'];
@@ -210,7 +211,8 @@ function jetpack_boost_execute_network_cron( string $action, string $recurrence,
 
 	do_action( $action, ...$args );
 }
-add_action( 'jetpack_boost_network_cron', 'jetpack_boost_execute_network_cron', 10, 3 );
+
+add_action( 'jetpack_boost_network_cron', 'jetpack_boost_execute_network_cron', 10, 2 );
 
 /**
  * Schedule a cronjob if not already scheduled.
@@ -222,8 +224,27 @@ add_action( 'jetpack_boost_network_cron', 'jetpack_boost_execute_network_cron', 
  */
 function jetpack_boost_schedule_singleton_network_cron( int $timestamp, string $recurrence, string $hook, array $args = array() ) {
 	if ( false === wp_next_scheduled( $hook, $args ) ) {
-		wp_schedule_event( $timestamp, $recurrence, 'jetpack_boost_network_cron', array( $hook, $recurrence, $args ) );
+		// We save the recurrence to the site option so we don't need it when unscheduling the specific cron event.
+		update_site_option( "{$hook}_network_cron_recurrence", $recurrence );
+
+		wp_schedule_event( $timestamp, $recurrence, 'jetpack_boost_network_cron', array( $hook, $args ) );
 	}
+}
+
+// TODO: Move these out of minify function helpers.
+/**
+ * Unschedule a singleton network cronjob.
+ *
+ * @param string $hook The hook to unschedule the cronjob for.
+ * @param array  $args The arguments to pass to the action.
+ */
+function jetpack_boost_unschedule_singleton_network_cron( string $hook, array $args = array() ) {
+	// Remove the site options used to track the last run time and recurrence.
+	delete_site_option( "{$hook}_network_cron_ran" );
+	delete_site_option( "{$hook}_network_cron_recurrence" );
+
+	// Unschedule the network cron event
+	wp_clear_scheduled_hook( 'jetpack_boost_network_cron', array( $hook, $args ) );
 }
 
 /**
