@@ -256,18 +256,9 @@ export default function useAiSuggestions( {
 		( event: CustomEvent ) => {
 			closeEventSource();
 
-			let message = event?.detail;
-			let skipRequestCount = false;
-			if ( event?.detail?.message ) {
-				message = event?.detail?.message;
-				if ( event.detail.source && event.detail.source === 'chromeAI' ) {
-					skipRequestCount = true;
-				}
-			}
+			const fullSuggestion = removeLlamaArtifact( event?.detail?.message ?? event?.detail );
 
-			const fullSuggestion = removeLlamaArtifact( message );
-
-			onDone?.( fullSuggestion, skipRequestCount );
+			onDone?.( fullSuggestion, event?.detail?.source === 'chromeAI' );
 			setRequestingState( 'done' );
 		},
 		[ onDone ]
