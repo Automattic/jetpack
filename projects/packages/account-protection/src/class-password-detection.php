@@ -227,8 +227,8 @@ class Password_Detection {
 		delete_transient( $transient_key );
 
 		return array(
-			'message' => isset( $data['message'] ) ? $data['message'] : null,
-			'code'    => isset( $data['code'] ) ? $data['code'] : null,
+			'message' => $data['message'] ?? null,
+			'code'    => $data['code'] ?? null,
 		);
 	}
 
