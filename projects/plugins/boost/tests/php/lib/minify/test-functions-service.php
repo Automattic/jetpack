@@ -77,7 +77,7 @@ class Test_Functions_Service extends Base_TestCase {
 		Functions\expect( 'wp_remote_get' )->never();
 		Functions\expect( 'update_site_option' )->never();
 
-		$this->assertSame( '', jetpack_boost_404_tester() );
+		$this->assertNull( jetpack_boost_404_tester() );
 	}
 
 	protected function tear_down() {
