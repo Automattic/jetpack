@@ -142,7 +142,7 @@ class Jetpack_Mu_Wpcom {
 		// We include WPCom Themes results and installation on WoA sites only and non-WP_CLI context.
 		// This is so that these features don't apply to Simple sites. We anticpate changing this in future
 		// because these features will be needed for Simple sites too.
-		if ( ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() && ( ! defined( 'WP_CLI' ) || ! WP_CLI ) ) {
+		if ( ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) && ( ! defined( 'WP_CLI' ) || ! WP_CLI ) ) {
 			require_once __DIR__ . '/features/wpcom-themes/wpcomsh-themes.php';
 		}
 
