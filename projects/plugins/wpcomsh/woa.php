@@ -313,8 +313,8 @@ function wpcomsh_woa_post_process_store_woocommerce_connection_details( $args, $
 
 	$unexpected_root_keys = array_diff( array_keys( $woocommerce_connection_details_decoded ), array_keys( $valid_keys ) );
 	if ( ! empty( $unexpected_root_keys ) ) {
-		WP_CLI::warning( 'Invalid WooCommerce connection details provided. Unexpected root key(s): ' . implode( ', ', $unexpected_root_keys ) );
-		return;
+		WP_CLI::warning( 'Unexpected WooCommerce connection details provided. Ignoring the following root key(s): ' . implode( ', ', $unexpected_root_keys ) );
+		// Keep processing the valid data, so keep processing.
 	}
 
 	$option_data = array();
@@ -331,8 +331,8 @@ function wpcomsh_woa_post_process_store_woocommerce_connection_details( $args, $
 		}
 
 		if ( count( $required_key_fields ) !== count( $woocommerce_connection_details_decoded[ $valid_key ] ) ) {
-			WP_CLI::warning( 'Invalid WooCommerce connection details provided. Missing or extra fields in ' . $valid_key );
-			return;
+			WP_CLI::warning( 'Missing or extra WooCommerce connection details provided. Mismatch in ' . $valid_key );
+			// Keep processing the valid data - we may have new fields that the code isn't ready for.
 		}
 
 		foreach ( $required_key_fields as $required_key_field ) {
