@@ -46,18 +46,19 @@ const GoogleDriveExport = ( { onExport } ) => {
 	}, [ isConnected ] );
 
 	const exportToGoogleDrive = useCallback( () => {
+		tracks.recordEvent( 'jetpack_forms_export_google_click' );
 		onExport( 'grunion_export_to_gdrive', 'feedback_export_nonce_gdrive' )
 			.then( response => response.json() )
 			.then( ( { data } ) => {
 				window.open( data.sheet_link, '_blank' );
 			} );
-	}, [ onExport ] );
+	}, [ tracks, onExport ] );
 
 	const handleConnectClick = useCallback( () => {
+		pollForConnection();
 		tracks.recordEvent( 'jetpack_forms_upsell_googledrive_click', {
 			screen: 'form-responses-inbox',
 		} );
-		pollForConnection();
 	}, [ tracks, pollForConnection ] );
 
 	const buttonClasses = clsx( 'button', 'export-button', 'export-gdrive', {
