@@ -79,7 +79,6 @@ class Critical_CSS implements Pluggable, Changes_Page_Output, Optimization, Has_
 	}
 
 	public function register_data_sync( Data_Sync $instance ) {
-		// TODO: Refactor to remove repition with Cloud CSS.
 		$instance->register( 'critical_css_state', Data_Sync_Schema::critical_css_state() );
 		$instance->register( 'critical_css_meta', Data_Sync_Schema::critical_css_meta(), new Critical_CSS_Meta_Entry() );
 		$instance->register( 'critical_css_suggest_regenerate', Data_Sync_Schema::critical_css_suggest_regenerate() );
