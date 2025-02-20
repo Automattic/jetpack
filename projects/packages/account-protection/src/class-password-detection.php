@@ -69,10 +69,17 @@ class Password_Detection {
 				);
 			}
 
+			// If the user is in the interim login context
+			// phpcs:disable WordPress.Security.NonceVerification
+			$interim_login = isset( $_REQUEST['interim-login'] ) && (int) $_REQUEST['interim-login'] === 1;
+
 			return new \WP_Error(
 				Config::PASSWORD_DETECTION_ERROR_CODE,
 				__( 'Password validation failed.', 'jetpack-account-protection' ),
-				array( 'token' => $transient['token'] )
+				array(
+					'token'         => $transient['token'],
+					'interim_login' => $interim_login,
+				)
 			);
 		}
 
@@ -110,8 +117,9 @@ class Password_Detection {
 	 */
 	public function handle_password_detection_validation_error( string $username, \WP_Error $error ): void {
 		if ( isset( $error->errors['password_detection_validation_error'] ) ) {
-			$token = $error->get_error_data()['token'];
-			$this->redirect_and_exit( $this->get_redirect_url( $token ) );
+			$token         = $error->get_error_data()['token'];
+			$interim_login = $error->get_error_data()['interim_login'];
+			$this->redirect_and_exit( $this->get_redirect_url( $token, $interim_login ) );
 		}
 	}
 
@@ -256,6 +264,20 @@ class Password_Detection {
 			}
 		}
 
+		// No nonce verification necessary - reading only
+		// phpcs:disable WordPress.Security.NonceVerification
+		$interim_login         = isset( $_GET['interim-login'] ) && (int) $_GET['interim-login'] === 1;
+		$interim_login_success = '';
+		if ( $interim_login && $success_code === 'auth_code_success' ) {
+			$interim_login_success = 'interim-login-success';
+		}
+
+		$body_classes = array( 'password-detection-wrapper', $interim_login_success );
+		$body_classes = implode( ' ', $body_classes );
+
+		$content_classes = array( 'password-detection-content', $interim_login ? 'interim-login' : '' );
+		$content_classes = implode( ' ', $content_classes );
+
 		defined( 'ABSPATH' ) || exit;
 		?>
 		<!DOCTYPE html>
@@ -266,8 +288,8 @@ class Password_Detection {
 				<title><?php esc_html_e( 'Jetpack - Secure Your Account', 'jetpack-account-protection' ); ?></title>
 				<?php wp_head(); ?>
 			</head>
-			<body class="password-detection-wrapper">
-				<div class="password-detection">
+			<body class="<?php echo esc_attr( $body_classes ); ?>">
+				<div class="<?php echo esc_attr( $content_classes ); ?>">
 					<?php require plugin_dir_path( __FILE__ ) . '/assets/jetpack-logo.svg'; ?>
 					<p class="password-detection-title"><?php echo $success_code === 'auth_code_success' ? esc_html__( 'Take action to stay secure', 'jetpack-account-protection' ) : esc_html__( 'Verify your identity', 'jetpack-account-protection' ); ?></p>
 					<?php if ( $error_message ) : ?>
@@ -410,11 +432,18 @@ class Password_Detection {
 	 * Get redirect URL.
 	 *
 	 * @param string $token The token.
+	 * @param bool   $interim_login Whether the login is an interim login.
 	 *
 	 * @return string The redirect URL.
 	 */
-	private function get_redirect_url( string $token ): string {
-		return home_url( '/wp-login.php?action=password-detection&token=' . $token );
+	private function get_redirect_url( string $token, bool $interim_login = false ): string {
+		$url = home_url( '/wp-login.php?action=password-detection&token=' . $token );
+
+		if ( $interim_login ) {
+			$url = add_query_arg( 'interim-login', 1, $url );
+		}
+
+		return $url;
 	}
 
 	/**
@@ -439,6 +468,7 @@ class Password_Detection {
 			// TODO: Ensure all transient are also removed on module and/or plugin deactivation
 			delete_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$token}" );
 			wp_set_auth_cookie( $user->ID, true );
+			wp_set_current_user( $user->ID );
 		} else {
 			$this->set_transient_error(
 				$user->ID,
