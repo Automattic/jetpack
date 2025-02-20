@@ -37,6 +37,10 @@ const OwnerDisconnectDialog = ( {
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
 	const [ disconnectError, setDisconnectError ] = useState( '' );
 
+	// Add these string constants
+	const disconnectingText = __( 'Disconnecting…', 'jetpack-connection-js' );
+	const disconnectText = __( 'Disconnect', 'jetpack-connection-js' );
+
 	// Initialize the REST API
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
@@ -164,9 +168,7 @@ const OwnerDisconnectDialog = ( {
 								isDestructive
 								disabled={ isDisconnecting }
 							>
-								{ isDisconnecting
-									? __( 'Disconnecting…', 'jetpack-connection-js' )
-									: __( 'Disconnect', 'jetpack-connection-js' ) }
+								{ isDisconnecting ? disconnectingText : disconnectText }
 							</Button>
 						</div>
 					</div>
