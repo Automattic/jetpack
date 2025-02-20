@@ -63,7 +63,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "894b00b7f9d3df9b0bd19ac786bc41b3f8f27b12"
+                "reference": "28844eaa6e05b103fcf223c2e5376ddae4598d6a"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
@@ -71,6 +71,7 @@
                 "mediawiki/mediawiki-codesniffer": "^46.0",
                 "php": ">=8.0",
                 "phpcompatibility/phpcompatibility-wp": "^2.1",
+                "phpcsstandards/phpcsutils": "^1.0",
                 "sirbrillig/phpcs-variable-analysis": "^2.10",
                 "wp-coding-standards/wpcs": "^3.0"
             },
