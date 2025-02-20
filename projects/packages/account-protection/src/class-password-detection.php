@@ -367,8 +367,8 @@ class Password_Detection {
 								<?php
 									printf(
 										/* translators: %s: Jetpack support link */
-										esc_html__( 'If you did not receive your authentication code, please try again later or contact %s to assist with account recovery.', 'jetpack-account-protection' ),
-										'<a class="risks-link" href="https://jetpack.com/contact-support/?rel=support" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Jetpack support', 'jetpack-account-protection' ) . '</a>' // TODO: Update this redirect URL once document exists
+										esc_html__( 'If you did not receive your authentication code, please try again later or %s now.', 'jetpack-account-protection' ),
+										'<a class="risks-link" href="' . esc_url( wp_lostpassword_url() ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'reset your password', 'jetpack-account-protection' ) . '</a>'
 									);
 								?>
 							</p>
