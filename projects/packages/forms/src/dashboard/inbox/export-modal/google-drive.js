@@ -46,7 +46,9 @@ const GoogleDriveExport = ( { onExport } ) => {
 	}, [ isConnected ] );
 
 	const exportToGoogleDrive = useCallback( () => {
-		tracks.recordEvent( 'jetpack_forms_export_google_click' );
+		tracks.recordEvent( 'jetpack_forms_export_click', {
+			destination: 'google-drive',
+		} );
 		onExport( 'grunion_export_to_gdrive', 'feedback_export_nonce_gdrive' )
 			.then( response => response.json() )
 			.then( ( { data } ) => {
