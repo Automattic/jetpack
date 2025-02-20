@@ -72,7 +72,7 @@ function wpcom_themes_add_theme_showcase_menu() {
 add_action( 'admin_menu', 'wpcom_themes_add_theme_showcase_menu' );
 
 /**
- * Automatically opens the "Upload Theme" dialog on the theme installation page based on a 'wpcom-upload' query parameter.
+ * Test Automatically opens the "Upload Theme" dialog on the theme installation page based on a 'wpcom-upload' query parameter.
  */
 function wpcom_auto_open_upload_theme() {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
