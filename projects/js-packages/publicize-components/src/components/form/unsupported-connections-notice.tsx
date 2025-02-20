@@ -31,5 +31,3 @@ export const UnsupportedConnectionsNotice: React.FC = () => {
 		</Notice>
 	);
 };
-
-export default UnsupportedConnectionsNotice;
