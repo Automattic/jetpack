@@ -148,6 +148,18 @@ const Index = () => {
 			</Module>
 			<PageCacheModule />
 			<Module
+				slug="speculation_rules"
+				title={ __( 'Speculation Rules', 'jetpack-boost' ) }
+				description={
+					<p>
+						{ __(
+							'Prefetch pages that are likely to be visited next, so they load faster when the user clicks on them.',
+							'jetpack-boost'
+						) }
+					</p>
+				}
+			></Module>
+			<Module
 				slug="render_blocking_js"
 				title={ __( 'Defer Non-Essential JavaScript', 'jetpack-boost' ) }
 				description={
