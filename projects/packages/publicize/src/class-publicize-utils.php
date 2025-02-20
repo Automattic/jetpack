@@ -120,4 +120,39 @@ class Publicize_Utils {
 	public static function should_use_jetpack_module_endpoint() {
 		return class_exists( 'Jetpack' ) && defined( 'JETPACK__VERSION' ) && ( version_compare( (string) JETPACK__VERSION, '14.3', '>=' ) );
 	}
+
+	/**
+	 * Log a warning that a deprecated endpoint was called.
+	 *
+	 * @param string $function_name        The function name.
+	 * @param string $deprecated_endpoint  The deprecated endpoint.
+	 * @param string $alternative_endpoint The alternative endpoint.
+	 */
+	public static function endpoint_deprecated_warning( $function_name, $deprecated_endpoint, $alternative_endpoint = '' ) {
+
+		$messages = array(
+			sprintf(
+				/* translators: %s: REST API endpoint. */
+				esc_html__( '%1$s endpoint has been deprecated.', 'jetpack-publicize-pkg' ),
+				'"' . $deprecated_endpoint . '"'
+			),
+		);
+
+		if ( ! empty( $alternative_endpoint ) ) {
+			$messages[] = sprintf(
+				/* translators: %s: alternative endpoint. */
+				esc_html__( 'Please use %s endpoint instead.', 'jetpack-publicize-pkg' ),
+				'"' . $alternative_endpoint . '"'
+			);
+		}
+
+		$messages[] = esc_html__( 'Please update all the Jetpack plugins to the latest version.', 'jetpack-publicize-pkg' );
+
+		_doing_it_wrong(
+			esc_html( $function_name ),
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- We have done it above.
+			implode( ' ', $messages ),
+			'$$next-version$$'
+		);
+	}
 }
