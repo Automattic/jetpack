@@ -792,4 +792,61 @@ class ManagerTest extends TestCase {
 		$this->assertNotNull( $error );
 		$this->assertEquals( $error_code, $error->get_error_code() );
 	}
+
+	/**
+	 * Test disconnecting a user from WordPress.com with force parameter.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_user_force
+	 * @dataProvider get_disconnect_user_force_scenarios
+	 *
+	 * @param bool $remote   Was the remote disconnection successful.
+	 * @param bool $local    Was the local disconnection successful.
+	 * @param bool $expected Expected outcome.
+	 */
+	public function test_disconnect_user_force( $remote, $local, $expected ) {
+		$owner_id = wp_insert_user(
+			array(
+				'user_login' => 'owner',
+				'user_pass'  => 'pass',
+				'user_email' => 'owner@owner.com',
+				'role'       => 'administrator',
+			)
+		);
+		( new Tokens() )->update_user_token( $owner_id, sprintf( '%s.%s.%d', 'key', 'private', $owner_id ), false );
+
+		$this->manager->method( 'unlink_user_from_wpcom' )
+			->willReturn( $remote );
+
+		$this->tokens->method( 'disconnect_user' )
+			->willReturn( $local );
+
+		$result = $this->manager->disconnect_user( $owner_id, true );
+
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Test data for test_disconnect_user_force
+	 *
+	 * @return array
+	 */
+	public function get_disconnect_user_force_scenarios() {
+		return array(
+			'Successful remote and local disconnection' => array(
+				true,
+				true,
+				true,
+			),
+			'Failed remote and successful local disconnection' => array(
+				false,
+				true,
+				false,
+			),
+			'Successful remote and failed local disconnection' => array(
+				true,
+				false,
+				false,
+			),
+		);
+	}
 }
