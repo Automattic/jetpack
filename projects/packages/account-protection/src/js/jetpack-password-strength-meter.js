@@ -310,10 +310,17 @@ jQuery( document ).ready( function ( $ ) {
 		submitButtons.prop( 'disabled', true );
 		weakPasswordConfirmation.hide();
 
-		Object.values( UIComponents.validationChecklistItems ).forEach( ( { icon, text } ) => {
+		Object.entries( UIComponents.validationChecklistItems ).forEach( ( [ key, itemData ] ) => {
+			const { icon, text, item } = itemData;
+
 			icon.attr( 'src', jetpackData.loadingIcon );
 			icon.attr( 'alt', 'Validating...' );
 			text.css( { color: '#3C434A', transition: 'color 0.2s ease-in-out' } );
+
+			// Re-hide the core and contains_backslash items
+			if ( [ 'core', 'contains_backslash' ].includes( key ) ) {
+				item.hide();
+			}
 		} );
 
 		UIComponents.strengthMeter.text.text( 'Validating...' );
