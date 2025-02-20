@@ -313,7 +313,7 @@ function wpcomsh_woa_post_process_store_woocommerce_connection_details( $args, $
 
 	$unexpected_root_keys = array_diff( array_keys( $woocommerce_connection_details_decoded ), array_keys( $valid_keys ) );
 	if ( ! empty( $unexpected_root_keys ) ) {
-		WP_CLI::warning( 'Invalid WooCommerce connection details provided. Unexpected root keys: ' . implode( ', ', $unexpected_root_keys ) );
+		WP_CLI::warning( 'Invalid WooCommerce connection details provided. Unexpected root key(s): ' . implode( ', ', $unexpected_root_keys ) );
 		return;
 	}
 
