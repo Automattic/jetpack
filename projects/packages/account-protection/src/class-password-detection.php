@@ -241,16 +241,16 @@ class Password_Detection {
 	 * @return void
 	 */
 	public function render_content( \WP_User $user, string $token ): void {
-		defined( 'ABSPATH' ) || exit;
-
 		$error_transient_key   = Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_error_{$user->ID}";
 		$success_transient_key = Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_success_{$user->ID}";
 
 		$error_data   = $this->extract_and_clear_transient_data( $error_transient_key );
 		$success_data = $this->extract_and_clear_transient_data( $success_transient_key );
 
-		$interim_login_success = $success_data['code'] === 'auth_code_success' ? 'interim-login-success' : '';
-		$body_classes          = implode( ' ', array_filter( array( 'password-detection-wrapper', $interim_login_success ) ) );
+		$body_classes = 'password-detection-wrapper';
+		if ( 'auth_code_success' === $success_data['code'] ) {
+			$body_classes .= ' interim-login-success';
+		}
 
 		?>
 		<!DOCTYPE html>
