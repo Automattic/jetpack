@@ -57,7 +57,7 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 			'id'     => 'menu-id',
 			'parent' => null,
 			'group'  => null,
-			'title'  => $icon . '<span>' . __( 'Launch site', 'jetpack-mu-wpcom' ) . '</span>',
+			'title'  => '<span class="ab-icon">' . $icon . '</span><span class="ab-label">' . __( 'Launch site', 'jetpack-mu-wpcom' ) . '</span>',
 			'href'   => 'https://wordpress.com/start/launch-site?siteSlug=' . $blog_domain,
 			'meta'   => array(
 				'class' => 'launch-site',

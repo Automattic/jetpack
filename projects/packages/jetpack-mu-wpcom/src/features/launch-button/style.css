@@ -4,8 +4,6 @@
 
 #wpadminbar .launch-site .ab-item {
 	display: flex;
-	gap: 6px;
-	align-items: center;
 	padding-inline: 8px;
 }
 
