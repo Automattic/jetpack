@@ -36,13 +36,14 @@ class Status implements Entry_Can_Get, Entry_Can_Set {
 
 		$this->status_sync_map = array(
 			Cloud_CSS::get_slug() => array(
+			Cloud_CSS::get_slug()  => array(
 				Critical_CSS::get_slug(),
 			),
-			'minify_css'          => array(
-				'minify',
+			Minify_CSS::get_slug() => array(
+				Minify::get_slug(),
 			),
-			'minify_js'           => array(
-				'minify',
+			Minify_JS::get_slug()  => array(
+				Minify::get_slug(),
 			),
 		);
 	}
