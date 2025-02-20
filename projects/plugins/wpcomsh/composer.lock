@@ -1212,7 +1212,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "e4e03c9f4809bb92c53a3ae8c413568e11d8ad13"
+                "reference": "0489d4b8d175eee562e811b8eb72632204bd76ff"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
