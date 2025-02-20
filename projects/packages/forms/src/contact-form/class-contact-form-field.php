@@ -148,7 +148,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$form_id = $form->get_attribute( 'id' );
 			$id      = isset( $attributes['id'] ) ? $attributes['id'] : false;
 
-			$unescaped_label = $this->unesc_attr( $attributes['label'] );
+			$unescaped_label = self::unesc_attr( $attributes['label'] );
 			$unescaped_label = str_replace( '%', '-', $unescaped_label ); // jQuery doesn't like % in IDs?
 			$unescaped_label = preg_replace( '/[^a-zA-Z0-9.-_:]/', '', $unescaped_label );
 

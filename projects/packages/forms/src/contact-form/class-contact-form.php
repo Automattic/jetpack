@@ -101,32 +101,42 @@ class Contact_Form extends Contact_Form_Shortcode {
 			);
 		}
 
-		if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
-			$default_to      .= get_option( 'admin_email' );
-			$attributes['id'] = 'widget-' . $attributes['widget'];
-			// translators: the blog name (and post name, if applicable).
-			$default_subject = sprintf( _x( '%1$s Sidebar', '%1$s = blog name', 'jetpack-forms' ), $default_subject );
-		} elseif ( ! empty( $attributes['block_template'] ) && $attributes['block_template'] ) {
-			$default_to      .= get_option( 'admin_email' );
-			$attributes['id'] = 'block-template-' . $attributes['block_template'];
-		} elseif ( ! empty( $attributes['block_template_part'] ) && $attributes['block_template_part'] ) {
-			$default_to      .= get_option( 'admin_email' );
-			$attributes['id'] = 'block-template-part-' . $attributes['block_template_part'];
-		} elseif ( $post ) {
-			$attributes['id'] = $post->ID;
-			$post_author      = get_userdata( $post->post_author );
-			$default_to      .= $post_author->user_email;
-		}
-
-		if ( ! empty( self::$forms ) ) {
-			// Ensure 'id' exists in $attributes before trying to modify it
-			if ( ! isset( $attributes['id'] ) ) {
-				$attributes['id'] = '';
+		// If the contact form is rendered using a block, the id and hash are already
+		// set by the block, avoid generating the id and hash again.
+		if (
+			! isset( $attributes['id'] ) &&
+			! isset( $attributes['hash'] )
+		) {
+			if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
+				$default_to      .= get_option( 'admin_email' );
+				$attributes['id'] = 'widget-' . $attributes['widget'];
+				// translators: the blog name (and post name, if applicable).
+				$default_subject = sprintf( _x( '%1$s Sidebar', '%1$s = blog name', 'jetpack-forms' ), $default_subject );
+			} elseif ( ! empty( $attributes['block_template'] ) && $attributes['block_template'] ) {
+				$default_to      .= get_option( 'admin_email' );
+				$attributes['id'] = 'block-template-' . $attributes['block_template'];
+			} elseif ( ! empty( $attributes['block_template_part'] ) && $attributes['block_template_part'] ) {
+				$default_to      .= get_option( 'admin_email' );
+				$attributes['id'] = 'block-template-part-' . $attributes['block_template_part'];
+			} elseif ( $post ) {
+				$attributes['id'] = $post->ID;
+				$post_author      = get_userdata( $post->post_author );
+				$default_to      .= $post_author->user_email;
 			}
-			$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 ) . '-' . $page;
+
+			if ( ! empty( self::$forms ) ) {
+				// Ensure 'id' exists in $attributes before trying to modify it
+				if ( ! isset( $attributes['id'] ) ) {
+					$attributes['id'] = '';
+				}
+				$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 ) . '-' . $page;
+			}
+
+			$this->hash = sha1( wp_json_encode( $attributes ) );
+		} else {
+			$this->hash = $attributes['hash'];
 		}
 
-		$this->hash                 = sha1( wp_json_encode( $attributes ) );
 		self::$forms[ $this->hash ] = $this;
 
 		// Keep reference to $this for parsing form fields.

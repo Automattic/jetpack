@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Extensions\Contact_Form;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 
 /**
  * Field Text Block.
@@ -22,8 +23,9 @@ class Field_Text_Block {
 			'jetpack/field-text',
 			array(
 				'render_callback' => array( __CLASS__, 'render' ),
+				'uses_context'    => array( 'jetpack/contact-form/id', 'jetpack/contact-form/hash' ),
 				'attributes'      => array(
-					'required' => array(
+					'required'     => array(
 						'type'    => 'boolean',
 						'default' => false,
 					),
@@ -31,7 +33,7 @@ class Field_Text_Block {
 						'type'    => 'string',
 						'default' => __( '(required)', 'jetpack-forms' ),
 					),
-					'label'    => array(
+					'label'        => array(
 						'type'    => 'string',
 						'default' => __( 'Text', 'jetpack-forms' ),
 					),
@@ -77,17 +79,12 @@ class Field_Text_Block {
 	 * - The form ID matches
 	 * - The form hash matches to prevent tampering
 	 *
-	 * @todo Add form hash and ID, possibly via block context
+	 * @param string $form_id The form id.
+	 * @param string $form_hash The form hash.
+	 *
 	 * @return bool Whether validation is required
 	 */
-	private static function requires_validation() {
-		// TODO - we don't have the form hash or id.
-		// The id can be provided via block context.
-		// The form hash looks to be a sha1 of all the form attributes.
-		// Maybe this can be processed via a filter and provided by block context from the form block.
-		$form_hash = 'TODO';
-		$form_id   = 'TODO';
-
+	private static function requires_validation( $form_id, $form_hash ) {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
 		return (
 			isset( $_POST['action'] ) &&
@@ -106,6 +103,7 @@ class Field_Text_Block {
 	 *
 	 * @param array  $attributes The block attributes.
 	 * @param string $value The field value.
+	 *
 	 * @return string|null The validation error message if validation fails, null otherwise.
 	 */
 	private static function get_validation_errors( $attributes, $value ) {
@@ -125,19 +123,53 @@ class Field_Text_Block {
 	}
 
 	/**
+	 * Create a unique field ID based on the label, with an incrementing number if needed to avoid clashes.
+	 *
+	 * @param array  $attributes The block attributes.
+	 * @param string $form_id The form id.
+	 * @param string $form_hash The form hash.
+	 *
+	 * @return string The unique field id.
+	 */
+	private static function create_field_id( $attributes, $form_id, $form_hash ) {
+		$form = Contact_Form::$forms[ $form_hash ];
+
+		$unescaped_label = Contact_Form::unesc_attr( $attributes['label'] );
+		$unescaped_label = str_replace( '%', '-', $unescaped_label ); // jQuery doesn't like % in IDs?
+		$unescaped_label = preg_replace( '/[^a-zA-Z0-9.-_:]/', '', $unescaped_label );
+
+		$id        = sanitize_title_with_dashes( 'g' . $form_id . '-' . $unescaped_label );
+		$i         = 0;
+		$max_tries = 99;
+		while ( isset( $form->fields[ $id ] ) ) {
+			++$i;
+			$id = sanitize_title_with_dashes( 'g' . $form_id . '-' . $unescaped_label . '-' . $i );
+
+			if ( $i > $max_tries ) {
+				break;
+			}
+		}
+
+		return $id;
+	}
+
+	/**
 	 * Render a text field block.
 	 *
-	 * @param array $attributes The block attributes.
+	 * @param array    $attributes The block attributes.
+	 * @param string   $content The block content.
+	 * @param WP_Block $block The block object.
+	 *
 	 * @return string The rendered text field HTML.
 	 */
 	public static function render( $attributes, $content, $block ) {
-		$form_id = $block->context['jetpack/contact-form/id'];
+		$form_id   = $block->context['jetpack/contact-form/id'];
 		$form_hash = $block->context['jetpack/contact-form/hash'];
 
 		$should_validate   = $attributes['required'] && self::requires_validation( $form_id, $form_hash );
+		$field_id          = self::create_field_id( $attributes, $form_id, $form_hash );
+		$value             = self::get_value( $field_id );
 		$validation_errors = null;
-		$value             = self::get_value( $attributes['id'] );
-
 
 		if ( $should_validate ) {
 			$validation_errors = self::get_validation_errors( $attributes, $value );

@@ -27,10 +27,12 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/contact-form',
 			array(
-				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
-				'providesContext' => array(
-					'jetpack/contact-form/id' => 'id',
+				'render_callback'  => array( __CLASS__, 'gutenblock_render_form' ),
+				'provides_context' => array(
+					'jetpack/contact-form/id'   => 'id',
+					'jetpack/contact-form/hash' => 'hash',
 				),
+				'uses_context'     => array( 'postType', 'postId', 'queryId' ),
 			)
 		);
 
@@ -188,12 +190,14 @@ class Contact_Form_Block {
 	/**
 	 * Render the gutenblock form.
 	 *
-	 * @param array  $atts - the block attributes.
-	 * @param string $content - html content.
-	 *
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block The block object.
 	 * @return string
 	 */
-	public static function gutenblock_render_form( $atts, $content ) {
+	public static function gutenblock_render_form( $atts, $content, $block ) {
+		global $page;
+
 		// We should not render block is module is disabled
 		if ( ! Jetpack::is_module_active( 'contact-form' ) ) {
 			return '';
@@ -210,7 +214,81 @@ class Contact_Form_Block {
 
 		self::load_view_scripts();
 
-		return Contact_Form::parse( $atts, do_blocks( $content ) );
+		$extended_attributes     = array_merge( $atts, array() );
+		$can_compute_id_and_hash = isset( $block->context['postId'] ) && isset( $block->context['postType'] );
+		if ( $can_compute_id_and_hash ) {
+			$post_type = $block->context['postType'];
+			$post_id   = $block->context['postId'];
+			$form_id   = $post_type . '_' . $post_id;
+
+			// TODO - Ideally the block should not depend on the Contact_Form (shortcode) class.
+			// A solution might be to create an intermediate `Contact_Form_Registry` class that
+			// is responsible for keeping track of the form instances. Both the shortcode and the
+			// block could use the same registry.
+			// Or find a completely different approach.
+			if ( ! empty( Contact_Form::$forms ) ) {
+				$extended_attributes['id'] .= '-' . ( count( Contact_Form::$forms ) + 1 ) . '-' . $page;
+			}
+
+			$extended_attributes['id']   = $form_id;
+			$form_hash                   = sha1( wp_json_encode( $extended_attributes ) );
+			$extended_attributes['hash'] = $form_hash;
+
+			/*
+			 * `id` and `hash` attributes are computed at render time, add them to the block context for fields
+			 * via the `render_block_context` filter.
+			 */
+			$add_id_and_hash_to_context = function ( $context ) use ( $extended_attributes ) {
+				return array_merge(
+					$context,
+					array(
+						'jetpack/contact-form/id'   => $extended_attributes['id'],
+						'jetpack/contact-form/hash' => $extended_attributes['hash'],
+					)
+				);
+			};
+
+			add_filter(
+				'render_block_context',
+				$add_id_and_hash_to_context,
+				10,
+				1
+			);
+		}
+
+		$content = Contact_Form::parse( $extended_attributes, do_blocks( $content ) );
+
+		if ( $can_compute_id_and_hash ) {
+			remove_filter( 'render_block_context', $add_id_and_hash_to_context, 1 );
+		}
+
+		return $content;
+	}
+
+	/**
+	 * Get the form id.
+	 *
+	 * @param WP_Block $block The block object.
+	 *
+	 * @return string The form id.
+	 */
+	private static function get_form_id( $block ) {
+		$id = null;
+
+		$post_id   = $block->context['postId'];
+		$post_type = $block->context['postType'];
+
+		// TODO: Consider if the 'widget' case needs to be handled for blocks.
+		// See Contact_Form_Shortcode::__construct for the logic that this is derived from.
+		if ( $post_type === 'wp_template' ) {
+			$id = 'block-template-' . $post_id;
+		} elseif ( $post_type === 'wp_template_part' ) {
+			$id = 'block-template-part-' . $post_id;
+		} elseif ( $post_id ) {
+			$id = $post_id;
+		}
+
+		return $id;
 	}
 
 	/**

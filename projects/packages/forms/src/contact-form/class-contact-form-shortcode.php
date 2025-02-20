@@ -65,7 +65,7 @@ class Contact_Form_Shortcode {
 	 * @param null|string $content Null for selfclosing shortcodes.  The inner content otherwise.
 	 */
 	public function __construct( $attributes, $content = null ) {
-		$this->attributes = $this->unesc_attr( $attributes );
+		$this->attributes = self::unesc_attr( $attributes );
 		if ( is_array( $content ) ) {
 			$string_content = '';
 			foreach ( $content as $field ) {
@@ -111,9 +111,9 @@ class Contact_Form_Shortcode {
 	 *
 	 * @return array
 	 */
-	public function esc_attr( $value ) {
+	public static function esc_attr( $value ) {
 		if ( is_array( $value ) ) {
-			return array_map( array( $this, 'esc_attr' ), $value );
+			return array_map( array( self::class, 'esc_attr' ), $value );
 		}
 
 		$value = Contact_Form_Plugin::strip_tags( $value );
@@ -142,9 +142,9 @@ class Contact_Form_Shortcode {
 	 *
 	 * @return array
 	 */
-	public function unesc_attr( $value ) {
+	public static function unesc_attr( $value ) {
 		if ( is_array( $value ) ) {
-			return array_map( array( $this, 'unesc_attr' ), $value );
+			return array_map( array( self::class, 'unesc_attr' ), $value );
 		}
 
 		// For back-compat with old Grunion encoding
@@ -182,7 +182,7 @@ class Contact_Form_Shortcode {
 				continue;
 			}
 
-			$value = $this->esc_attr( $value );
+			$value = self::esc_attr( $value );
 
 			if ( is_array( $value ) ) {
 				$value = implode( ',', $value );
