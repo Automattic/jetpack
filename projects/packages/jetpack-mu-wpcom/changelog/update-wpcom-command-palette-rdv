@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add the RDV enabled boolean to the command palette configuration - used by a calypso wp-admin app.
