@@ -98,12 +98,8 @@ const VideoList = ( {
 							setSelected( current => {
 								if ( check ) {
 									return [ ...current, index ];
-								} else if ( ! check && indexOf > -1 ) {
-									const indexOf = current.indexOf( index );
-									return [ ...current.slice( 0, indexOf ), ...current.slice( indexOf + 1 ) ];
 								}
-
-								return current;
+								return current.filter( idx => idx !== index );
 							} )
 						}
 					/>
