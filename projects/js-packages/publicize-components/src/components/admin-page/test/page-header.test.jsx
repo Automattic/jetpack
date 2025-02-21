@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/order -- This is a test file and we need to import the mocks first
-import { mockStore } from './mocks';
+import { mockStore } from '../../../utils/test-mocks.js';
 import { isJetpackSelfHostedSite } from '@automattic/jetpack-script-data';
 import { render, screen } from '@testing-library/react';
 import { hasSocialPaidFeatures } from '../../../utils';

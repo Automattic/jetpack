@@ -55,8 +55,8 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 	useBreakpointMatch: jest.fn().mockReturnValue( [ false ] ),
 } ) );
 
-jest.mock( '../../../utils', () => ( {
-	...jest.requireActual( '../../../utils' ),
+jest.mock( './', () => ( {
+	...jest.requireActual( './' ),
 	getSocialScriptData: jest.fn( () => ( {
 		plugin_info: {
 			social: { version: '1.0.0' },
