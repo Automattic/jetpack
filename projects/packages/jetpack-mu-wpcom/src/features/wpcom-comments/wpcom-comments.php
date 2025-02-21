@@ -72,8 +72,9 @@ function wpcom_enqueue_comment_like_script( $hook ) {
 		'jetpack-mu-wpcom-wpcom-comment-like',
 		'wpcomCommentLikesData',
 		array(
-			'post_like_error'   => __( 'Something went wrong when attempting to like that comment. Please try again.', 'jetpack-mu-wpcom' ),
-			'post_unlike_error' => __( 'Something went wrong when attempting to unlike that comment. Please try again.', 'jetpack-mu-wpcom' ),
+			'post_like_error'     => __( 'Something went wrong when attempting to like that comment. Please try again.', 'jetpack-mu-wpcom' ),
+			'post_unlike_error'   => __( 'Something went wrong when attempting to unlike that comment. Please try again.', 'jetpack-mu-wpcom' ),
+			'dismiss_notice_text' => __( 'Dismiss this notice', 'jetpack-mu-wpcom' ),
 		)
 	);
 }

@@ -18,8 +18,10 @@ const displayNotice = message => {
 	const button = document.createElement( 'button' );
 	button.setAttribute( 'type', 'button' );
 	button.className = 'notice-dismiss';
-	button.setAttribute( 'aria-label', 'Dismiss this notice' );
-	button.innerHTML = `<span class="screen-reader-text">Dismiss this notice</span>`;
+
+	const dismissText = window.wpcomCommentLikesData?.dismiss_notice_text ?? 'Dismiss this notice';
+	button.setAttribute( 'aria-label', dismissText );
+	button.innerHTML = `<span class="screen-reader-text">${ dismissText }</span>`;
 
 	// Hook up the dismiss functionality.
 	button.addEventListener( 'click', () => {
