@@ -18,6 +18,7 @@ export default class JP_Dropzone {
 	previewContainer: HTMLElement;
 	uploadButton: HTMLElement;
 	fileField: HTMLInputElement;
+	isProcessing: boolean;
 
 	options: DropzoneOptions;
 	files: File[];
@@ -50,6 +51,7 @@ export default class JP_Dropzone {
 		this.uploadButton = this.element.querySelector( '.wp-block-button__link' ) as HTMLElement;
 		this.files = [];
 		this.xhr = [];
+		this.isProcessing = false;
 
 		this.init();
 	}
@@ -105,6 +107,11 @@ export default class JP_Dropzone {
 	 * @param {DragEvent} event The drop event.
 	 */
 	handleDrop( event: DragEvent ) {
+		if ( this.isProcessing ) {
+			this.preventDefaults( event );
+			return;
+		}
+
 		const dataTransfer = event.dataTransfer;
 		if ( dataTransfer ) {
 			this.handleNewFiles( dataTransfer.files );
@@ -116,6 +123,11 @@ export default class JP_Dropzone {
 	 * @param {Event} event The click event.
 	 */
 	handleClick( event: Event ) {
+		if ( this.isProcessing ) {
+			this.preventDefaults( event );
+			return;
+		}
+
 		this.preventDefaults( event );
 		this.fileField.click();
 		this.fileField.addEventListener( 'change', this.handleFiles.bind( this ) );
@@ -126,9 +138,18 @@ export default class JP_Dropzone {
 	 * @param {FileList} files The list of files to handle.
 	 */
 	handleNewFiles( files: FileList ) {
-		this.files = this.files.concat( Array.from( files ) );
-		this.renderPreviews( files );
-		this.uploadFiles( files );
+		if ( this.isProcessing ) {
+			return;
+		}
+
+		// Only take the first file
+		if ( files.length > 0 ) {
+			this.isProcessing = true;
+			const file = files[ 0 ];
+			this.files = [ file ];
+			this.renderPreviews( [ file ] );
+			this.uploadFiles( [ file ] );
+		}
 	}
 
 	/**
@@ -147,11 +168,12 @@ export default class JP_Dropzone {
 	 * Render the previews of the selected files.
 	 * @param {FileList} files The list of files to handle.
 	 */
-	renderPreviews( files: FileList ) {
+	renderPreviews( files: FileList | File[] ) {
 		this.previewContainer.classList.add( 'is-active' );
-		Array.from( files ).forEach( file => {
-			this.showImage( file );
-		} );
+		// Only show the first file
+		if ( files.length > 0 ) {
+			this.showImage( files[ 0 ] );
+		}
 	}
 
 	/**
@@ -208,10 +230,15 @@ export default class JP_Dropzone {
 		}
 	}
 
-	uploadFiles( files: FileList ) {
-		Array.from( files ).forEach( ( file, index ) => {
-			this.uploadFile( file, index );
-		} );
+	/**
+	 * Upload files to the server.
+	 * @param {FileList} files The list of files to upload.
+	 */
+	uploadFiles( files: FileList | File[] ) {
+		// Only upload the first file
+		if ( files.length > 0 ) {
+			this.uploadFile( files[ 0 ], 0 );
+		}
 	}
 
 	setHeader( dateAttribute: string, header: string, index: number ) {
@@ -284,7 +311,6 @@ export default class JP_Dropzone {
 					this.fileField.reportValidity();
 					// update the hidden field with the token
 					this.updateHiddenFields( '.jetpack-form-file-field__token', response.data.token );
-
 					return;
 				}
 			}
@@ -304,6 +330,9 @@ export default class JP_Dropzone {
 					this.fileField.reportValidity();
 				}
 			}
+
+			// Reset processing state after upload completes (success or error)
+			this.isProcessing = false;
 		}
 	}
 
@@ -330,6 +359,7 @@ export default class JP_Dropzone {
 			div.remove();
 			if ( this.files.length === 0 ) {
 				this.previewContainer.classList.remove( 'is-active' );
+				this.isProcessing = false;
 			}
 		} );
 	}
