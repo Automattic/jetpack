@@ -8,6 +8,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			lang: window.jpDatePicker.lang,
 			dayOffset: Number( window.jpDatePicker.offset ),
 			dateFormat: node.dataset.format,
+			hasFooter: false,
 		} );
 	} );
 } );

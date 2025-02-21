@@ -93,6 +93,13 @@ function render( dp: IDatePicker ) {
 			);
 		} ) +
 		'</div>' +
+		( opts.hasFooter ? renderFooter( lang ) : '' ) +
+		'</div>'
+	);
+}
+
+function renderFooter( lang ) {
+	return (
 		'<footer class="dp-cal-footer">' +
 		'<button tabindex="-1" type="button" class="dp-focusable dp-today" aria-label="' +
 		lang.ariaLabel.todayButton +
@@ -109,8 +116,7 @@ function render( dp: IDatePicker ) {
 		'">' +
 		lang.close +
 		'</button>' +
-		'</footer>' +
-		'</div>'
+		'</footer>'
 	);
 }
 

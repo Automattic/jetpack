@@ -14,6 +14,7 @@ export interface IDatePickerOptions {
 	shouldFocusOnBlur?: boolean;
 	shouldFocusOnRender?: boolean;
 	dayOffset?: number;
+	hasFooter?: boolean;
 }
 
 export interface IDateRangePickerOptions extends IDatePickerOptions {
