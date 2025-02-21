@@ -75,11 +75,11 @@ class Password_Manager_Test extends BaseTestCase {
 		$validation_service_mock = $this->createMock( Validation_Service::class );
 		$password_manager_mock   = $this->getMockBuilder( Password_Manager::class )
 			->setConstructorArgs( array( $validation_service_mock ) )
-			->onlyMethods( array( 'save_recent_password' ) )
+			->onlyMethods( array( 'save_recent_password_hash' ) )
 			->getMock();
 
 		$password_manager_mock->expects( $this->once() )
-			->method( 'save_recent_password' )
+			->method( 'save_recent_password_hash' )
 			->with( $user_id, 'oldhashedpassword' );
 
 		$password_manager_mock->on_profile_update(
@@ -96,17 +96,17 @@ class Password_Manager_Test extends BaseTestCase {
 		$validation_service_mock = $this->createMock( Validation_Service::class );
 		$password_manager_mock   = $this->getMockBuilder( Password_Manager::class )
 			->setConstructorArgs( array( $validation_service_mock ) )
-			->onlyMethods( array( 'save_recent_password' ) )
+			->onlyMethods( array( 'save_recent_password_hash' ) )
 			->getMock();
 
 		$password_manager_mock->expects( $this->once() )
-			->method( 'save_recent_password' )
+			->method( 'save_recent_password_hash' )
 			->with( $user->ID, 'hashedpassword' );
 
 		$password_manager_mock->on_password_reset( $user );
 	}
 
-	public function test_save_recent_password_stores_last_10_passwords() {
+	public function test_save_recent_password_hash_stores_last_10_passwords() {
 		$user_id         = 1;
 		$password_hashes = array(
 			'hash1',
@@ -125,7 +125,7 @@ class Password_Manager_Test extends BaseTestCase {
 
 		$validation_service_mock = $this->createMock( Validation_Service::class );
 		$password_manager_mock   = new Password_Manager( $validation_service_mock );
-		$password_manager_mock->save_recent_password( $user_id, 'new_hash' );
+		$password_manager_mock->save_recent_password_hash( $user_id, 'new_hash' );
 
 		$stored_passwords = get_user_meta( $user_id, Config::RECENT_PASSWORD_HASHES_USER_META_KEY, true );
 		$this->assertCount( 10, $stored_passwords );

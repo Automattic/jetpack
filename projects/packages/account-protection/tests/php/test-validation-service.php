@@ -19,7 +19,7 @@ class Validation_Service_Test extends BaseTestCase {
 			->willReturn( false );
 
 		$validation_service = new Validation_Service( $connection );
-		$this->assertFalse( $validation_service->is_weak_password( 'somepassword' ) );
+		$this->assertFalse( $validation_service->is_leaked_password( 'somepassword' ) );
 	}
 
 	private function get_connection_manager() {
@@ -51,7 +51,7 @@ class Validation_Service_Test extends BaseTestCase {
 			->method( 'request_suffixes' )
 			->willReturn( new \WP_Error( 'something went wrong' ) );
 
-		$this->assertFalse( $validation_service->is_weak_password( 'somepassword' ) );
+		$this->assertFalse( $validation_service->is_leaked_password( 'somepassword' ) );
 	}
 
 	public function test_returns_false_if_response_code_is_not_200() {
@@ -71,7 +71,7 @@ class Validation_Service_Test extends BaseTestCase {
 				)
 			);
 
-		$this->assertFalse( $validation_service->is_weak_password( 'somepassword' ) );
+		$this->assertFalse( $validation_service->is_leaked_password( 'somepassword' ) );
 	}
 
 	public function test_returns_false_if_response_code_is_empty_body() {
@@ -91,7 +91,7 @@ class Validation_Service_Test extends BaseTestCase {
 				)
 			);
 
-		$this->assertFalse( $validation_service->is_weak_password( 'somepassword' ) );
+		$this->assertFalse( $validation_service->is_leaked_password( 'somepassword' ) );
 	}
 
 	public function test_returns_true_if_password_is_compromised() {
@@ -115,7 +115,7 @@ class Validation_Service_Test extends BaseTestCase {
 				)
 			);
 
-		$this->assertTrue( $validation_service->is_weak_password( 'somepassword' ) );
+		$this->assertTrue( $validation_service->is_leaked_password( 'somepassword' ) );
 	}
 
 	public function test_returns_true_if_password_is_common() {
@@ -139,10 +139,10 @@ class Validation_Service_Test extends BaseTestCase {
 				)
 			);
 
-		$this->assertTrue( $validation_service->is_weak_password( 'somepassword' ) );
+		$this->assertTrue( $validation_service->is_leaked_password( 'somepassword' ) );
 	}
 
-	public function test_returns_false_if_password_is_not_weak() {
+	public function test_returns_false_if_password_is_not_leaked() {
 		$validation_service = $this->getMockBuilder( Validation_Service::class )
 			->setConstructorArgs( array( $this->get_connected_connection_manager() ) )
 			->onlyMethods( array( 'request_suffixes' ) )
@@ -164,7 +164,7 @@ class Validation_Service_Test extends BaseTestCase {
 				)
 			);
 
-		$this->assertFalse( $validation_service->is_weak_password( 'somepassword' ) );
+		$this->assertFalse( $validation_service->is_leaked_password( 'somepassword' ) );
 	}
 
 	public function test_returns_true_if_password_is_current_password() {
@@ -203,7 +203,7 @@ class Validation_Service_Test extends BaseTestCase {
 		update_user_meta( $user->ID, Config::RECENT_PASSWORD_HASHES_USER_META_KEY, array( $user->user_pass ) );
 
 		$validation_service = new Validation_Service( $this->get_connection_manager() );
-		$this->assertTrue( $validation_service->is_recent_password( $user, 'somepassword' ) );
+		$this->assertTrue( $validation_service->is_recent_password_hash( $user, 'somepassword' ) );
 	}
 
 	public function test_returns_false_if_password_was_not_recently_used() {
@@ -214,7 +214,7 @@ class Validation_Service_Test extends BaseTestCase {
 		update_user_meta( $user->ID, Config::RECENT_PASSWORD_HASHES_USER_META_KEY, array( $user->user_pass ) );
 
 		$validation_service = new Validation_Service( $this->get_connection_manager() );
-		$this->assertFalse( $validation_service->is_recent_password( $user, 'anotherpassword' ) );
+		$this->assertFalse( $validation_service->is_recent_password_hash( $user, 'anotherpassword' ) );
 	}
 
 	public function test_returns_true_if_password_matches_user_data() {
