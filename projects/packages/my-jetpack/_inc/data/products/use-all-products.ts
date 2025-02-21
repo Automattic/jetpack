@@ -25,9 +25,11 @@ export const useAllProducts = (): UseAllProductsReturnType => {
 		options: { enabled: true },
 	} );
 
-	for ( const [ key, product ] of Object.entries( products ) ) {
-		if ( fetchedProducts && fetchedProducts[ key ] ) {
-			products[ key ] = { ...product, ...fetchedProducts[ key ] };
+	if ( ! isLoading && ! isError ) {
+		for ( const [ key, product ] of Object.entries( products ) ) {
+			if ( fetchedProducts && fetchedProducts[ key ] ) {
+				products[ key ] = { ...product, ...fetchedProducts[ key ] };
+			}
 		}
 	}
 
