@@ -28,6 +28,7 @@ use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Pages;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
+use Automattic\Jetpack_Boost\Lib\Scheduled_Event;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Site_Health;
 use Automattic\Jetpack_Boost\Lib\Status;
@@ -113,6 +114,8 @@ class Jetpack_Boost {
 		$cornerstone_pages = new Cornerstone_Pages();
 		Setup::add( $cornerstone_pages );
 
+		Setup::add( new Scheduled_Event() );
+
 		// Initialize the Admin experience.
 		$this->init_admin( $modules_setup );
 
@@ -162,6 +165,9 @@ class Jetpack_Boost {
 			// We need to clear Minify scheduled events to ensure the latest scheduled jobs are only scheduled irrespective of scheduled arguments.
 			jetpack_boost_minify_clear_scheduled_events();
 			jetpack_boost_minify_activation();
+			// Unschedule the legacy cronjob names.
+			wp_unschedule_hook( 'jetpack_boost_minify_cron_cache_cleanup' );
+			wp_unschedule_hook( 'jetpack_boost_404_tester_cron' );
 		}
 	}
 
