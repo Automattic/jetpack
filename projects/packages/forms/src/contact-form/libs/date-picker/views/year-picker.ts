@@ -35,7 +35,7 @@ function render( dp: IDatePicker ) {
 
 	return (
 		'<div class="dp-years" aria-label="' +
-		dp.opts.lang.ariaLabel.monthPicker +
+		dp.opts.lang.ariaLabel.yearPicker +
 		'">' +
 		mapYears( dp, function ( year: number ) {
 			let className = 'dp-year';
