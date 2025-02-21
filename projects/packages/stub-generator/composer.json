@@ -11,6 +11,7 @@
 	],
 	"require": {
 		"php": ">=7.4",
+		"composer-runtime-api": "^2.2.0",
 		"composer/xdebug-handler": "^3.0.4",
 		"nikic/php-parser": "^5.3",
 		"phpstan/phpdoc-parser": "^2.0",
@@ -34,7 +35,9 @@
 		],
 		"test-php": [
 			"@composer phpunit"
-		]
+		],
+		"post-install-cmd": "rm -f vendor/bin/jetpack-stub-generator && ln -s ../../bin/local-jetpack-stub-generator vendor/bin/jetpack-stub-generator",
+		"post-update-cmd": "rm -f vendor/bin/jetpack-stub-generator && ln -s ../../bin/local-jetpack-stub-generator vendor/bin/jetpack-stub-generator"
 	},
 	"bin": [
 		"bin/jetpack-stub-generator"

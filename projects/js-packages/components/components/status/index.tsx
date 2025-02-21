@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import Text from '../text';
+import Text from '../text/index.js';
 import styles from './style.module.scss';
 
 interface StatusProps {

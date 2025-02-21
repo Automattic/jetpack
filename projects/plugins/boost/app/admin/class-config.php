@@ -29,7 +29,7 @@ class Config {
 				'url'    => get_home_url(),
 				'domain' => ( new Status() )->get_site_suffix(),
 				'online' => ! ( new Status() )->is_offline_mode() && ! ( new Status() )->is_private_site(),
-				'host'   => ( new Host() )->get_known_host_guess(),
+				'host'   => $this->get_hosting_provider(),
 			),
 			'api'                 => array(
 				'namespace' => JETPACK_BOOST_REST_NAMESPACE,
@@ -68,5 +68,27 @@ class Config {
 		$post_types = array_filter( $post_types, 'is_post_type_viewable' );
 
 		return wp_list_pluck( $post_types, 'label', 'name' );
+	}
+
+	/**
+	 * Retrieves the hosting provider.
+	 * We're only interested in 'atomic' or 'woa' for now.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string The hosting provider.
+	 */
+	private static function get_hosting_provider() {
+		$host = new Host();
+
+		if ( $host->is_woa_site() ) {
+			return 'woa';
+		}
+
+		if ( $host->is_atomic_platform() ) {
+			return 'atomic';
+		}
+
+		return 'other';
 	}
 }

@@ -8,6 +8,7 @@
 - `jetpack/field-date`
 - `jetpack/field-email`
 - `jetpack/field-name`
+- `jetpack/field-number`
 - `jetpack/field-option-checkbox`
 - `jetpack/field-option-radio`
 - `jetpack/field-radio`

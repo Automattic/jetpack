@@ -51,9 +51,11 @@ export const SocialAdminPage = () => {
 		};
 	}, [] );
 
-	const socialPluginVersion = getSocialScriptData().plugin_info.social.version;
+	const { social, jetpack } = getSocialScriptData().plugin_info;
 
-	const moduleName = `Jetpack Social ${ socialPluginVersion }`;
+	const moduleName = social.version
+		? `Jetpack Social ${ social.version }`
+		: `Jetpack ${ jetpack.version }`;
 
 	if ( showConnectionCard ) {
 		return (
@@ -93,7 +95,7 @@ export const SocialAdminPage = () => {
 						{ isModuleEnabled && <UtmToggle /> }
 						{
 							// Only show the Social Notes toggle if Social plugin is active
-							socialPluginVersion && isModuleEnabled && (
+							social.version && isModuleEnabled && (
 								<SocialNotesToggle disabled={ isUpdatingJetpackSettings } />
 							)
 						}

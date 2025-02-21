@@ -1,5 +1,5 @@
 import uPlot from 'uplot';
-import { Annotation } from '.';
+import { Annotation } from './index.js';
 
 import './style-annotation.scss';
 
