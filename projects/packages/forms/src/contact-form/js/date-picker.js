@@ -1,9 +1,8 @@
-import domReady from '@wordpress/dom-ready';
 import { DatePicker } from './../libs/date-picker/date-picker';
 
 import './../libs/date-picker/date-picker.css';
 
-domReady( () => {
+document.addEventListener( 'DOMContentLoaded', () => {
 	document.querySelectorAll( '.jp-contact-form-date' ).forEach( function ( node ) {
 		DatePicker( node, {
 			lang: window.jpDatePicker.lang,
