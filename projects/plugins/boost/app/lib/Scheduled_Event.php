@@ -71,6 +71,12 @@ class Scheduled_Event implements Has_Setup {
 
 		update_site_option( "{$action}_network_cron_ran", $current_time );
 
-		do_action( $action, ...$args );
+		// This is required as WordPress converts empty arrays to strings for actions during spreading.
+		// This is a workaround to ensure the action is called with no arguments, so default arguments can be used within the action.
+		if ( empty( $args ) ) {
+			do_action( $action );
+		} else {
+			do_action( $action, ...$args );
+		}
 	}
 }
