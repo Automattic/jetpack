@@ -891,15 +891,18 @@ class ManagerTest extends TestCase {
 		$tokens->update_user_token( $secondary_admin_id, sprintf( '%s.%s.%d', 'key', 'private', $secondary_admin_id ), false );
 
 		// Mock get_connection_owner_id to return the owner
-		$this->manager->method( 'get_connection_owner_id' )
+		$this->manager->expects( $this->any() )
+			->method( 'get_connection_owner_id' )
 			->willReturn( $owner_id );
 
 		// Mock unlink_user_from_wpcom to succeed for non-owner users
-		$this->manager->method( 'unlink_user_from_wpcom' )
+		$this->manager->expects( $this->exactly( 2 ) )
+			->method( 'unlink_user_from_wpcom' )
 			->willReturn( true );
 
 		// Mock disconnect_user to succeed for non-owner users
-		$this->tokens->method( 'disconnect_user' )
+		$this->tokens->expects( $this->exactly( 2 ) )
+			->method( 'disconnect_user' )
 			->willReturn( true );
 
 		// Run the disconnect
