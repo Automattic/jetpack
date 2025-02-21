@@ -184,7 +184,7 @@ add_action(
 		) {
 			\Jetpack_Gutenberg::set_extension_available( 'ai-use-chrome-ai-sometimes' );
 
-			add_chrome_ai_token_header();
+			add_chrome_ai_token_headers();
 		}
 	}
 );
