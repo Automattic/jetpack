@@ -40,8 +40,8 @@ class Test_Scheduled_Event extends Base_Test_Case {
 			->with( $timestamp, $recurrence, 'jetpack_boost_network_cron', array( $hook, $args ) )
 			->andReturn( true );
 
-		$result = Scheduled_Event::schedule_singleton_network_cron( $timestamp, $recurrence, $hook, $args );
-		$this->assertTrue( $result );
+		Scheduled_Event::schedule_singleton_network_cron( $timestamp, $recurrence, $hook, $args );
+		$this->expectNotToPerformAssertions();
 	}
 
 	public function test_schedule_singleton_network_cron_already_scheduled() {
@@ -55,8 +55,8 @@ class Test_Scheduled_Event extends Base_Test_Case {
 			->with( 'jetpack_boost_network_cron', array( $hook, $args ) )
 			->andReturn( $timestamp );
 
-		$result = Scheduled_Event::schedule_singleton_network_cron( $timestamp, $recurrence, $hook, $args );
-		$this->assertFalse( $result );
+		Scheduled_Event::schedule_singleton_network_cron( $timestamp, $recurrence, $hook, $args );
+		$this->expectNotToPerformAssertions();
 	}
 
 	public function test_unschedule_singleton_network_cron() {
@@ -78,8 +78,8 @@ class Test_Scheduled_Event extends Base_Test_Case {
 			->with( 'jetpack_boost_network_cron', array( $hook, $args ) )
 			->andReturn( true );
 
-		$result = Scheduled_Event::unschedule_singleton_network_cron( $hook, $args );
-		$this->assertNull( $result );
+		Scheduled_Event::unschedule_singleton_network_cron( $hook, $args );
+		$this->expectNotToPerformAssertions();
 	}
 
 	public function test_execute_network_cron_when_not_due() {
@@ -106,8 +106,8 @@ class Test_Scheduled_Event extends Base_Test_Case {
 			->with( "{$action}_network_cron_ran", 0 )
 			->andReturn( $current_time - 100 );
 
-		$result = Scheduled_Event::execute_network_cron( $action, $args );
-		$this->assertNull( $result );
+		Scheduled_Event::execute_network_cron( $action, $args );
+		$this->expectNotToPerformAssertions();
 	}
 
 	public function test_execute_network_cron_when_due() {
@@ -143,7 +143,7 @@ class Test_Scheduled_Event extends Base_Test_Case {
 			->once()
 			->with( $action, 'test_value' );
 
-		$result = Scheduled_Event::execute_network_cron( $action, $args );
-		$this->assertNull( $result );
+		Scheduled_Event::execute_network_cron( $action, $args );
+		$this->expectNotToPerformAssertions();
 	}
 }
