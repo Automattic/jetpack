@@ -9,19 +9,30 @@ const displayNotice = message => {
 		return;
 	}
 
+	const dismissText = window.wpcomCommentLikesData.dismiss_notice_text;
+
 	// Create notice container.
 	const notice = document.createElement( 'div' );
 	notice.className = 'notice notice-error is-dismissible';
-	notice.innerHTML = `<p>${ message }</p>`;
+	// Add role="alert" so that screen readers announce the notice.
+	notice.setAttribute( 'role', 'alert' );
+
+	// Create paragraph element for the message.
+	const p = document.createElement( 'p' );
+	p.innerText = message;
+	notice.appendChild( p );
 
 	// Create dismiss (close) button.
 	const button = document.createElement( 'button' );
 	button.setAttribute( 'type', 'button' );
 	button.className = 'notice-dismiss';
-
-	const dismissText = window.wpcomCommentLikesData?.dismiss_notice_text ?? 'Dismiss this notice';
 	button.setAttribute( 'aria-label', dismissText );
-	button.innerHTML = `<span class="screen-reader-text">${ dismissText }</span>`;
+
+	// Create a span element for screen readers.
+	const span = document.createElement( 'span' );
+	span.className = 'screen-reader-text';
+	span.innerText = dismissText;
+	button.appendChild( span );
 
 	// Hook up the dismiss functionality.
 	button.addEventListener( 'click', () => {
