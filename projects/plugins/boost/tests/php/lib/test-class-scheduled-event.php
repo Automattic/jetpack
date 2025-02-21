@@ -35,6 +35,20 @@ class Test_Scheduled_Event extends Base_Test_Case {
 			->with( "{$hook}_network_cron_recurrence", $recurrence )
 			->andReturn( true );
 
+		Functions\expect( 'get_site_option' )
+			->once()
+			->with( "{$hook}_network_cron_blogs_subscribed", array() )
+			->andReturn( array() );
+
+		Functions\expect( 'get_current_blog_id' )
+			->once()
+			->andReturn( 1 );
+
+		Functions\expect( 'update_site_option' )
+			->once()
+			->with( "{$hook}_network_cron_blogs_subscribed", array( 1 => true ) )
+			->andReturn( true );
+
 		Functions\expect( 'wp_schedule_event' )
 			->once()
 			->with( $timestamp, $recurrence, 'jetpack_boost_network_cron', array( $hook, $args ) )
@@ -63,6 +77,20 @@ class Test_Scheduled_Event extends Base_Test_Case {
 		$hook = 'test_hook';
 		$args = array( 'test_arg' => 'value' );
 
+		Functions\expect( 'get_site_option' )
+			->once()
+			->with( "{$hook}_network_cron_blogs_subscribed", array() )
+			->andReturn( array( 1 => true ) );
+
+		Functions\expect( 'get_current_blog_id' )
+			->once()
+			->andReturn( 1 );
+
+		Functions\expect( 'update_site_option' )
+			->once()
+			->with( "{$hook}_network_cron_blogs_subscribed", array() )
+			->andReturn( true );
+
 		Functions\expect( 'delete_site_option' )
 			->once()
 			->with( "{$hook}_network_cron_ran" )
@@ -71,6 +99,11 @@ class Test_Scheduled_Event extends Base_Test_Case {
 		Functions\expect( 'delete_site_option' )
 			->once()
 			->with( "{$hook}_network_cron_recurrence" )
+			->andReturn( true );
+
+			Functions\expect( 'delete_site_option' )
+			->once()
+			->with( "{$hook}_network_cron_blogs_subscribed" )
 			->andReturn( true );
 
 		Functions\expect( 'wp_clear_scheduled_hook' )
