@@ -57,7 +57,8 @@ class Jetpack_Newsletter_Dashboard_Widget {
 			'newsletter',
 			array(
 				'config_data' => array(
-					'hostname' => wp_parse_url( get_site_url(), PHP_URL_HOST ),
+					'hostname'  => wp_parse_url( get_site_url(), PHP_URL_HOST ),
+					'admin_url' => admin_url(),
 				),
 			)
 		);
@@ -98,7 +99,8 @@ class Jetpack_Newsletter_Dashboard_Widget {
 			'newsletter',
 			array(
 				'config_data' => array(
-					'hostname' => wp_parse_url( get_site_url(), PHP_URL_HOST ),
+					'hostname'  => wp_parse_url( get_site_url(), PHP_URL_HOST ),
+					'admin_url' => admin_url(),
 				),
 			)
 		);
