@@ -38,7 +38,11 @@ module.exports = {
 	},
 	testPathIgnorePatterns: [ '/node_modules/', '<rootDir>/vendor/', '<rootDir>/jetpack_vendor/' ],
 	setupFiles: [ path.join( __dirname, 'setup-globals.js' ) ],
-	setupFilesAfterEnv: [ path.join( __dirname, 'setup-after-env.js' ) ],
+	setupFilesAfterEnv: [
+		path.join( __dirname, 'setup-jest-dom.js' ),
+		path.join( __dirname, 'setup-console.js' ),
+		path.join( __dirname, 'setup-client-zip.js' ),
+	],
 	extensionsToTreatAsEsm: [ '.jsx', '.ts', '.tsx' ],
 	resolver: require.resolve( 'jetpack-js-tools/jest/jest-resolver.js' ),
 

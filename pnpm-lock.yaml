@@ -86,6 +86,9 @@ importers:
       '@vercel/ncc':
         specifier: 0.36.1
         version: 0.36.1
+      jest:
+        specifier: 29.7.0
+        version: 29.7.0
 
   projects/github-actions/test-results-to-slack:
     dependencies:

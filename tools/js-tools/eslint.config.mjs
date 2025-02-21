@@ -10,7 +10,7 @@ export default [
 		},
 	},
 	...config( {
-		files: [ 'jest/setup-after-env.js' ],
+		files: [ 'jest/setup-*.js' ],
 		extends: [ jestConfig ],
 	} ),
 ];
