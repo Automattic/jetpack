@@ -6,6 +6,8 @@
  * @since 1.1.0
  */
 
+use Automattic\Jetpack\Launchpad;
+
 /**
  * Fetches Launchpad-related data for the site.
  *
@@ -36,14 +38,27 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 					'callback'            => array( $this, 'get_data' ),
 					'permission_callback' => array( $this, 'can_access' ),
 					'args'                => array(
-						'checklist_slug'    => array(
+						'checklist_slug'            => array(
 							'description' => 'Checklist slug',
 							'type'        => 'string',
 							'enum'        => $this->get_checklist_slug_enums(),
 						),
-						'launchpad_context' => array(
+						'launchpad_context'         => array(
 							'description' => 'Screen where Launchpand instance is loaded.',
 							'type'        => 'string',
+						),
+						'use_goals'                 => array(
+							'description' => 'Should the launchpad data use site goals or intent.',
+							'type'        => 'boolean',
+							'required'    => false,
+							'default'     => false,
+						),
+						'enable_features_for_goals' => array(
+							'description' => 'Used by the client to signal to Jetpack which launchpad goals have been enabled (e.g. via feature flags)',
+							'type'        => 'array',
+							'items'       => array( 'type' => 'string' ),
+							'required'    => false,
+							'default'     => array(),
 						),
 					),
 				),
@@ -157,10 +172,23 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 		}
 
 		$checklist_slug = isset( $request['checklist_slug'] ) ? $request['checklist_slug'] : get_option( 'site_intent' );
+		$use_goals      = isset( $request['use_goals'] ) ? $request['use_goals'] : false;
 
 		$launchpad_context = isset( $request['launchpad_context'] )
 			? $request['launchpad_context']
 			: null;
+
+		if ( $use_goals ) {
+			// The user must be part of a cohort which should deterine which checklist to show soley on
+			// goal selection, not the "intent".
+			$site_goals = get_option( 'site_goals' );
+			if ( $site_goals === false || empty( $site_goals ) ) {
+				$checklist_slug = Launchpad\get_default_checklist_slug();
+			} else {
+				$enable_features_for_goals = isset( $request['enable_features_for_goals'] ) ? $request['enable_features_for_goals'] : false;
+				$checklist_slug            = Launchpad\get_checklist_slug_by_goals( $site_goals, $enable_features_for_goals );
+			}
+		}
 
 		$response = array(
 			'site_intent'        => get_option( 'site_intent' ),
