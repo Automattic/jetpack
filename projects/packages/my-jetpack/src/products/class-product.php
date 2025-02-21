@@ -84,7 +84,7 @@ abstract class Product {
 	 *
 	 * @var string;
 	 */
-	public const MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY = 'my-jetpack-site-features';
+	const MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY = 'my-jetpack-site-features';
 
 	/**
 	 * Whether this module is a Jetpack feature
@@ -170,28 +170,6 @@ abstract class Product {
 	 */
 	public static function register_endpoints(): void {
 		// This method should be implemented in the child class.
-	}
-
-	/**
-	 * Check if the user is permitted to view the product and product features
-	 *
-	 * @return bool|WP_Error
-	 */
-	public static function permissions_callback() {
-		$connection        = new Connection_Manager();
-		$is_site_connected = $connection->is_connected();
-
-		if ( ! $is_site_connected ) {
-			return new WP_Error(
-				'not_connected',
-				__( 'Your site is not connected to Jetpack.', 'jetpack-my-jetpack' ),
-				array(
-					'status' => 400,
-				)
-			);
-		}
-
-		return current_user_can( 'edit_posts' );
 	}
 
 	/**
