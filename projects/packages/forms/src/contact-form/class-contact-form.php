@@ -249,7 +249,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string HTML for the concat form.
 	 */
 	public static function parse( $attributes, $content ) {
-		global $post, $page; // $page is used in the contact-form submission redirect
+		global $post, $page, $multipage; // $page is used in the contact-form submission redirect
 		if ( Settings::is_syncing() ) {
 			return '';
 		}
@@ -346,7 +346,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			} else {
 				// Submit form to the post permalink
 				$url = get_permalink();
-				if ( $page ) {
+				if ( $multipage && $page ) {
 					$url = add_query_arg( 'page', $page, $url );
 				}
 			}
