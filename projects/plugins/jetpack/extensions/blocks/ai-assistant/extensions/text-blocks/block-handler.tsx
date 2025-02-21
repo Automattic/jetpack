@@ -7,7 +7,8 @@ import { select, dispatch } from '@wordpress/data';
 /**
  * Types
  */
-import type { BlockBehavior, BlockEditorDispatch, BlockEditorSelect } from './types';
+import type { BlockEditorDispatch, BlockEditorSelect } from './types';
+import type { BlockBehavior } from '../types';
 import type { Block, RenderHTMLRules } from '@automattic/jetpack-ai-client';
 
 export function getMarkdown( html: string ) {
