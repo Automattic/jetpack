@@ -562,7 +562,7 @@ function wpcomsh_stats_timezone_string() {
 		// matching "<Area>/<City>" timezone.
 		if ( $minutes > 0 ) {
 			$offset  = $sign * ( $hours * 3600 + $minutes * 60 );
-			$city_tz = timezone_name_from_abbr( '', $offset, false );
+			$city_tz = timezone_name_from_abbr( '', $offset, 0 );
 
 			if ( ! empty( $city_tz ) ) {
 				return $city_tz;
