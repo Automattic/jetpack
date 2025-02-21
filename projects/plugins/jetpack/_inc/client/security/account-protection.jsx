@@ -32,7 +32,7 @@ const AccountProtectionComponent = class extends Component {
 							'jetpack'
 						) }
 						children={
-							<NoticeAction external href={ SUPPORT_LINK + '#unsuported-environment' }>
+							<NoticeAction external href={ SUPPORT_LINK + '#unsupported-environments' }>
 								{ __( 'Learn more', 'jetpack' ) }
 							</NoticeAction>
 						}

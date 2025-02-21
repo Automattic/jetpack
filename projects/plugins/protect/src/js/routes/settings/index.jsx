@@ -70,7 +70,7 @@ const SettingsPage = () => {
 							<Button
 								variant="link"
 								isExternalLink
-								href={ SUPPORT_LINK + '#unsuported-environment' }
+								href={ SUPPORT_LINK + '#unsupported-environments' }
 								key="learn-more"
 							>
 								{ __( 'Learn more', 'jetpack-protect' ) }
