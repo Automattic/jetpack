@@ -3,6 +3,40 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 
+const displayNotice = message => {
+	const headerEnd = document.querySelector( '.wp-header-end' );
+	if ( ! headerEnd ) {
+		return;
+	}
+
+	// Create notice container.
+	const notice = document.createElement( 'div' );
+	notice.className = 'notice notice-error is-dismissible';
+	notice.innerHTML = `<p>${ message }</p>`;
+
+	// Create dismiss (close) button.
+	const button = document.createElement( 'button' );
+	button.setAttribute( 'type', 'button' );
+	button.className = 'notice-dismiss';
+	button.setAttribute( 'aria-label', 'Dismiss this notice' );
+	button.innerHTML = `<span class="screen-reader-text">Dismiss this notice</span>`;
+
+	// Hook up the dismiss functionality.
+	button.addEventListener( 'click', () => {
+		notice.parentNode.removeChild( notice );
+	} );
+
+	// Append the button to the notice.
+	notice.appendChild( button );
+
+	// Insert the notice after the headerEnd element.
+	if ( headerEnd.nextSibling ) {
+		headerEnd.parentNode.insertBefore( notice, headerEnd.nextSibling );
+	} else {
+		headerEnd.parentNode.appendChild( notice );
+	}
+};
+
 document.addEventListener( 'DOMContentLoaded', async () => {
 	document
 		.querySelectorAll( '#the-comment-list .row-actions > :is(.like, .unlike)' )
@@ -43,9 +77,8 @@ document.addEventListener( 'DOMContentLoaded', async () => {
 				throw new Error();
 			}
 		} catch {
-			// FIXME: Find a better way to surface issues to the user
 			const label = isUnlike ? 'post_unlike_error' : 'post_like_error';
-			alert( window.wpcomCommentLikesData?.[ label ] );
+			displayNotice( window.wpcomCommentLikesData?.[ label ] );
 			return;
 		} finally {
 			button.disabled = false;
