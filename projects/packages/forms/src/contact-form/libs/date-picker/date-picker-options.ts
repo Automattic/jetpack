@@ -6,7 +6,7 @@ import { now, shiftYear, dateOrParse } from './lib/date';
 import { cp } from './lib/fns';
 
 const english = {
-	days: [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ],
+	days: [ 'Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa' ],
 	months: [
 		'January',
 		'February',

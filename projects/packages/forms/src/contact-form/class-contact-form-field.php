@@ -936,7 +936,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				array(
 					'offset' => intval( get_option( 'start_of_week', 1 ) ),
 					'lang'   => array(
-						'days'      => array( __( 'Sun', 'jetpack-forms' ), __( 'Mon', 'jetpack-forms' ), __( 'Tue', 'jetpack-forms' ), __( 'Wed', 'jetpack-forms' ), __( 'Thu', 'jetpack-forms' ), __( 'Fri', 'jetpack-forms' ), __( 'Sat', 'jetpack-forms' ) ),
+						'days'      => array( __( 'Su', 'jetpack-forms' ), __( 'Mo', 'jetpack-forms' ), __( 'Tu', 'jetpack-forms' ), __( 'We', 'jetpack-forms' ), __( 'Th', 'jetpack-forms' ), __( 'Fr', 'jetpack-forms' ), __( 'Sa', 'jetpack-forms' ) ),
 						'months'    => array(
 							__( 'January', 'jetpack-forms' ),
 							__( 'February', 'jetpack-forms' ),
