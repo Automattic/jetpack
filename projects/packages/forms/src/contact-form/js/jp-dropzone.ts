@@ -21,6 +21,7 @@ export default class JP_Dropzone {
 
 	options: DropzoneOptions;
 	files: File[];
+	xhr: XMLHttpRequest[];
 
 	/**
 	 * @param {HTMLElement} element The dropzone element.
@@ -48,6 +49,8 @@ export default class JP_Dropzone {
 		) as HTMLElement;
 		this.uploadButton = this.element.querySelector( '.wp-block-button__link' ) as HTMLElement;
 		this.files = [];
+		this.xhr = [];
+
 		this.init();
 	}
 
@@ -211,30 +214,42 @@ export default class JP_Dropzone {
 		} );
 	}
 
+	setHeader( dateAttribute: string, header: string, index: number ) {
+		const nonce = this.element.getAttribute( dateAttribute );
+		if ( nonce ) {
+			this.xhr[ index ].setRequestHeader( header, nonce );
+		}
+	}
+
 	uploadFile( file, index ) {
 		var url = this.options.endpoint;
-		var xhr = new XMLHttpRequest();
+		this.xhr[ index ] = new XMLHttpRequest();
 		var formData = new FormData();
 
-		xhr.open( 'POST', url, true );
-		xhr.withCredentials = true;
-		xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
-
+		this.xhr[ index ].open( 'POST', url, true );
+		this.xhr[ index ].withCredentials = true;
+		this.xhr[ index ].setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
 		// Add REST API nonce if available
-		const restNonce = this.element.getAttribute( 'data-rest-nonce' );
-		if ( restNonce ) {
-			xhr.setRequestHeader( 'X-WP-Nonce', restNonce );
-		}
+		this.setHeader( 'data-rest-nonce', 'X-WP-Nonce', index );
+		this.setHeader( 'data-jp-rest-nonce', 'X-Jetpack-Upload-Nonce', index );
 
 		// Update progress (can be used to show progress indicator)
-		xhr.upload.addEventListener( 'progress', this.onProgress.bind( this, file, index ) );
+		this.xhr[ index ].upload.addEventListener(
+			'progress',
+			this.onProgress.bind( this, file, index )
+		);
 
-		const onReadyStateChangeHandler = this.onReadyStateChange.bind( this, file, index, xhr );
-		xhr.addEventListener( 'readystatechange', onReadyStateChangeHandler );
+		const onReadyStateChangeHandler = this.onReadyStateChange.bind(
+			this,
+			file,
+			index,
+			this.xhr[ index ]
+		);
+		this.xhr[ index ].addEventListener( 'readystatechange', onReadyStateChangeHandler );
 
 		formData.append( 'context', 'jetpack-form' );
 		formData.append( 'file', file );
-		xhr.send( formData );
+		this.xhr[ index ].send( formData );
 	}
 
 	onProgress( file, index, event ) {

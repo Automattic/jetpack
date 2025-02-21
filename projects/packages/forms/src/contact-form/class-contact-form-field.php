@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Unauth_File_Upload_Handler;
 
 /**
  * Class for the contact-field shortcode.
@@ -960,10 +961,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		);
 
 		\wp_enqueue_style( 'jetpack-form-file-field', plugins_url( '../../dist/contact-form/css/file-field.css', __FILE__ ), array(), '1.0' );
-		$rest_nonce = wp_create_nonce( 'wp_rest' );
+		$context = 'jetpack-form';
+
+		$jetpack_rest_nonce = wp_create_nonce( 'jetpack_file_upload_' . $context );
+		$rest_nonce         = wp_create_nonce( 'wp_rest' );
+
+		if ( ! class_exists( 'Unauth_File_Upload_Handler' ) ) {
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-unauth-file-upload-handler.php';
+		}
+		$accepted_file_types = Unauth_File_Upload_Handler::get_allowed_mime_types();
 
 		$field  = $this->render_label( 'file', $id, $label, $required, $required_field_text );
-		$field .= "<div class='jetpack-form-file-field__dropzone' data-id='{$id}' data-rest-nonce='{$rest_nonce}'  >\n";
+		$field .= "<div class='jetpack-form-file-field__dropzone' data-id='{$id}' data-rest-nonce='{$rest_nonce}' data-jp-rest-nonce='{$jetpack_rest_nonce}' >\n";
 		$field .= "<a href='#' class='wp-block-button__link wp-element-button'>" . esc_html__( 'Select a file', 'jetpack-forms' ) . "</a>\n";
 		$field .= "<span class='jetpack-form-file-field__short'>" . esc_html__( '....or drag and drop a file.', 'jetpack-forms' ) . " </span>\n";
 		$field .= "<input
@@ -973,7 +982,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			id='" . esc_attr( $id ) . "'
 			" . $class . '
 			' . ( $required ? "required aria-required='true'" : '' ) . "
-			accept='.pdf,.jpg'
+			accept='" . implode( ',', $accepted_file_types ) . "'
 			style='" . $this->field_styles . "'
 		/>\n";
 		$field .= "<input type='hidden' name='" . esc_attr( $id ) . "_token' class='jetpack-form-file-field__token' value='' />\n";
