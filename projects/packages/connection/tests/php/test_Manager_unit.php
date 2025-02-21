@@ -849,4 +849,119 @@ class ManagerTest extends TestCase {
 			),
 		);
 	}
+
+	/**
+	 * Test disconnecting all users except the primary (owner) user.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_all_users_except_primary
+	 */
+	public function test_disconnect_all_users_except_primary() {
+		// Create owner and connected users
+		$owner_id = wp_insert_user(
+			array(
+				'user_login' => 'owner',
+				'user_pass'  => 'pass',
+				'user_email' => 'owner@owner.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'editor',
+				'user_pass'  => 'pass',
+				'user_email' => 'editor@editor.com',
+				'role'       => 'editor',
+			)
+		);
+
+		$secondary_admin_id = wp_insert_user(
+			array(
+				'user_login' => 'secondary_admin',
+				'user_pass'  => 'pass',
+				'user_email' => 'secondary_admin@secondary_admin.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		// Set up tokens for all users
+		$tokens = new Tokens();
+		$tokens->update_user_token( $owner_id, sprintf( '%s.%s.%d', 'key', 'private', $owner_id ), false );
+		$tokens->update_user_token( $editor_id, sprintf( '%s.%s.%d', 'key', 'private', $editor_id ), false );
+		$tokens->update_user_token( $secondary_admin_id, sprintf( '%s.%s.%d', 'key', 'private', $secondary_admin_id ), false );
+
+		// Mock get_connection_owner_id to return the owner
+		$this->manager->method( 'get_connection_owner_id' )
+			->willReturn( $owner_id );
+
+		// Mock unlink_user_from_wpcom to succeed for non-owner users
+		$this->manager->method( 'unlink_user_from_wpcom' )
+			->willReturn( true );
+
+		// Mock disconnect_user to succeed for non-owner users
+		$this->tokens->method( 'disconnect_user' )
+			->willReturn( true );
+
+		// Run the disconnect
+		$result = $this->manager->disconnect_all_users_except_primary();
+
+		// Verify the result
+		$this->assertTrue( $result );
+
+		// Verify owner is still connected
+		$this->assertTrue( $this->manager->is_user_connected( $owner_id ) );
+
+		// Verify other users are disconnected
+		$this->assertFalse( $this->manager->is_user_connected( $editor_id ) );
+		$this->assertFalse( $this->manager->is_user_connected( $secondary_admin_id ) );
+	}
+
+	/**
+	 * Test disconnecting all users except primary when there's a failure.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_all_users_except_primary
+	 */
+	public function test_disconnect_all_users_except_primary_failure() {
+		// Create owner and one other user
+		$owner_id = wp_insert_user(
+			array(
+				'user_login' => 'owner',
+				'user_pass'  => 'pass',
+				'user_email' => 'owner@owner.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'editor',
+				'user_pass'  => 'pass',
+				'user_email' => 'editor@editor.com',
+				'role'       => 'editor',
+			)
+		);
+
+		// Set up tokens
+		$tokens = new Tokens();
+		$tokens->update_user_token( $owner_id, sprintf( '%s.%s.%d', 'key', 'private', $owner_id ), false );
+		$tokens->update_user_token( $editor_id, sprintf( '%s.%s.%d', 'key', 'private', $editor_id ), false );
+
+		// Mock get_connection_owner_id to return the owner
+		$this->manager->method( 'get_connection_owner_id' )
+			->willReturn( $owner_id );
+
+		// Mock unlink_user_from_wpcom to fail
+		$this->manager->method( 'unlink_user_from_wpcom' )
+			->willReturn( false );
+
+		// Run the disconnect
+		$result = $this->manager->disconnect_all_users_except_primary();
+
+		// Verify the result indicates failure
+		$this->assertFalse( $result );
+
+		// Verify both users are still connected
+		$this->assertTrue( $this->manager->is_user_connected( $owner_id ) );
+		$this->assertTrue( $this->manager->is_user_connected( $editor_id ) );
+	}
 }

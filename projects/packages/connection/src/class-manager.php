@@ -954,23 +954,36 @@ class Manager {
 			// Missing user ID.
 			return false;
 		}
-		// If we are disconnecting the primary user we need to disconnect all other users first
-		if ( $disconnect_all_users ) {
-			$all_connected_users = $this->get_connected_users();
-			foreach ( $all_connected_users as $user ) {
-				// Skip the primary user for now.
-				if ( $user->ID === $this->get_connection_owner_id() ) {
-					continue;
-				}
-				$disconnected = $this->disconnect_user( $user->ID, false, true );
-				// If we fail to disconnect any user, we should not proceed with disconnecting the primary user.
-				if ( ! $disconnected ) {
-					return false;
-				}
-			}
+		// If we are disconnecting the primary user we may need to disconnect all other users first
+		if ( $user_id === $this->get_connection_owner_id() && $disconnect_all_users && ! $this->disconnect_all_users_except_primary() ) {
+			return false;
 		}
 
 		return $this->disconnect_user( $user_id, true, true );
+	}
+
+	/**
+	 * Disconnects all users except the primary user.
+	 *
+	 * @return bool
+	 */
+	public function disconnect_all_users_except_primary() {
+
+		$all_connected_users = $this->get_connected_users();
+
+		foreach ( $all_connected_users as $user ) {
+			// Skip the primary.
+			if ( $user->ID === $this->get_connection_owner_id() ) {
+				continue;
+			}
+			$disconnected = $this->disconnect_user( $user->ID, false, true );
+			// If we fail to disconnect any user, we should not proceed with disconnecting the primary user.
+			if ( ! $disconnected ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
