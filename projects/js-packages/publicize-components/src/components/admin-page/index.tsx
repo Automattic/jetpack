@@ -28,7 +28,6 @@ import SocialImageGeneratorToggle from './toggles/social-image-generator-toggle'
 import SocialModuleToggle from './toggles/social-module-toggle';
 import SocialNotesToggle from './toggles/social-notes-toggle';
 import UtmToggle from './toggles/utm-toggle';
-import { version } from 'react';
 
 export const SocialAdminPage = () => {
 	const isSimple = isSimpleSite();
