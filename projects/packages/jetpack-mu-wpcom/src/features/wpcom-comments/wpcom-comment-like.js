@@ -48,6 +48,11 @@ const displayNotice = message => {
 	} else {
 		headerEnd.parentNode.appendChild( notice );
 	}
+
+	// Use wp.a11y.speak, if available, to immediately announce the notice.
+	if ( window.wp && window.wp.a11y && typeof window.wp.a11y.speak === 'function' ) {
+		window.wp.a11y.speak( message );
+	}
 };
 
 document.addEventListener( 'DOMContentLoaded', async () => {
