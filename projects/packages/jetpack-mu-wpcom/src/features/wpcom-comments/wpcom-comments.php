@@ -6,6 +6,10 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+	return;
+}
+
 /**
  * Adds a "liked" class to comments that the current user has liked.
  *
