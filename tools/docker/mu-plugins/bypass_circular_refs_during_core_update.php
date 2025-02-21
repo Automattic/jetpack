@@ -15,8 +15,11 @@
  * recursively searches all directories for genericons files, which results in a circular reference loop for some
  * of our projects.
  *
+ * Unfortunately there's no direct filter in the upgrade routine, but it happens to call `wp_opcache_invalidate()` just
+ * before requiring the file, which has a filter we're able to hijack.
+ *
  * @param boolean $will_invalidate Whether to invalidate the file.
- * @param string $filepath
+ * @param string  $filepath Path to file to invalidate.
  *
  * @return true
  */
