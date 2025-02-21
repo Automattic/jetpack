@@ -85,7 +85,7 @@ const SettingsPage = () => {
 							'jetpack-protect'
 						),
 						{
-							link: <a href={ SUPPORT_LINK } />,
+							link: <a href={ SUPPORT_LINK } target="_blank" rel="noopener noreferrer" />,
 						}
 					) }
 				</Text>
@@ -104,7 +104,13 @@ const SettingsPage = () => {
 								'jetpack-protect'
 							),
 							{
-								link: <a href={ SUPPORT_LINK + '#risks-of-using-a-weak-password' } />,
+								link: (
+									<a
+										href={ SUPPORT_LINK + '#risks-of-using-a-weak-password' }
+										target="_blank"
+										rel="noopener noreferrer"
+									/>
+								),
 							}
 						) }
 					</Text>
