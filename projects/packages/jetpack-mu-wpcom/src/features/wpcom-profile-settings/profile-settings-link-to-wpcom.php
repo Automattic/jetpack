@@ -41,27 +41,27 @@ function wpcom_profile_settings_add_links_to_wpcom() {
 		array(
 			'language'             => array(
 				'link' => esc_url( 'https://wordpress.com/me/account' ),
-				'text' => __( 'Manage your WordPress.com account language ↗', 'jetpack-mu-wpcom' ),
+				'text' => __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
 			),
 			'name'                 => array(
 				'link' => esc_url( 'https://wordpress.com/me' ),
-				'text' => __( 'Manage your WordPress.com profile ↗', 'jetpack-mu-wpcom' ),
+				'text' => __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
 			),
 			'website'              => array(
 				'link' => esc_url( 'https://wordpress.com/me' ),
-				'text' => __( 'Manage your WordPress.com profile website ↗', 'jetpack-mu-wpcom' ),
+				'text' => __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
 			),
 			'bio'                  => array(
 				'link' => esc_url( 'https://wordpress.com/me' ),
-				'text' => __( 'Manage your WordPress.com profile bio ↗', 'jetpack-mu-wpcom' ),
+				'text' => __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
 			),
 			'email'                => array(
 				'link' => esc_url( 'https://wordpress.com/me/account' ),
-				'text' => __( 'Manage your WordPress.com account email ↗', 'jetpack-mu-wpcom' ),
+				'text' => __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
 			),
 			'password'             => array(
 				'link' => esc_url( 'https://wordpress.com/me/security' ),
-				'text' => __( 'Manage your WordPress.com password ↗', 'jetpack-mu-wpcom' ),
+				'text' => __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
 			),
 			'isWpcomAtomicClassic' => $is_wpcom_atomic_classic,
 		)

@@ -14,6 +14,14 @@ use Automattic\Jetpack\Status;
  * Shared logic between Jetpack admin pages.
  */
 abstract class Jetpack_Admin_Page {
+
+	/**
+	 * Determines whether or not to hide if not active.
+	 *
+	 * @var bool
+	 */
+	protected $dont_show_if_not_active;
+
 	/**
 	 * Add page specific actions given the page hook.
 	 *

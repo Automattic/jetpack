@@ -70,7 +70,7 @@ type useAiSuggestionsOptions = {
 	/*
 	 * onDone callback.
 	 */
-	onDone?: ( content: string ) => void;
+	onDone?: ( content: string, skipRequestCount?: boolean ) => void;
 
 	/*
 	 * onStop callback.
@@ -256,9 +256,9 @@ export default function useAiSuggestions( {
 		( event: CustomEvent ) => {
 			closeEventSource();
 
-			const fullSuggestion = removeLlamaArtifact( event?.detail );
+			const fullSuggestion = removeLlamaArtifact( event?.detail?.message ?? event?.detail );
 
-			onDone?.( fullSuggestion );
+			onDone?.( fullSuggestion, event?.detail?.source === 'chromeAI' );
 			setRequestingState( 'done' );
 		},
 		[ onDone ]

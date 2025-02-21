@@ -69,7 +69,7 @@ const useAIAssistant = ( {
 		snapToBottom();
 	};
 
-	const onDone = detail => {
+	const onDone = ( detail, skipRequestCount ) => {
 		// Remove the delimiter from the suggestion.
 		const assistantResponse = detail.replaceAll( delimiter, '' );
 
@@ -96,7 +96,7 @@ const useAIAssistant = ( {
 
 		snapToBottom();
 		disableAutoScroll();
-		onSuggestionDone?.();
+		onSuggestionDone?.( skipRequestCount );
 	};
 
 	const onStop = () => {
