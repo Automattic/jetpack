@@ -16,13 +16,8 @@ export const REST_API_SITE_EVALUATION_RESULT = `${ REST_API_NAMESPACE }/site/rec
 export const getStatsHighlightsEndpoint = ( blogId: string ) =>
 	`${ ODYSSEY_STATS_API_NAMESPACE }/sites/${ blogId }/stats/highlights`;
 
-export const getProductApiDataEndpoint = ( productSlug: string ) => {
-	return `${ REST_API_NAMESPACE }/products/${ productSlug }/api-data`;
-};
-
 // Query names
 export const QUERY_PRODUCT_KEY = 'product';
-export const QUERY_PRODUCT_API_DATA_KEY = 'product api data';
 export const QUERY_PRODUCT_BY_OWNERSHIP_KEY = 'product ownership';
 export const QUERY_ACTIVATE_PRODUCT_KEY = 'activate product';
 export const QUERY_INSTALL_PRODUCT_KEY = 'install product';
