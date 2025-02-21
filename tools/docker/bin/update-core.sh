@@ -32,7 +32,7 @@ if [[ "$TARGET_VERSION" != "$INIT_CORE_VERSION" ]]; then
 	# "Error: Another update is currently in progress."
 	wp --allow-root option get core_updater.lock &>/dev/null && wp --allow-root option delete core_updater.lock
 
-	wp --allow-root core update --version="$TARGET_VERSION"
+	wp --allow-root core update --version="$TARGET_VERSION" --force
 
 	# If these don't match now, it means something went wrong with the update.
 	if [[ "$TARGET_VERSION" != "$(wp --allow-root core version)" ]]; then
