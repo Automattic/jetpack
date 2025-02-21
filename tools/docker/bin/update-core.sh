@@ -5,10 +5,10 @@ if [[ -z "$1" ]]; then
 fi
 
 TARGET_VERSION="$1"
-INIT_CORE_VERSION=$(wp --allow-root core version)
+INIT_CORE_VERSION=$(wp core version)
 
 if [[ "$TARGET_VERSION" == 'latest' ]]; then
-	TARGET_VERSION=$(wp --allow-root core check-update --field=version|tail -n1)
+	TARGET_VERSION=$(wp core check-update --field=version|tail -n1)
 	# We're already on the latest version.
 	if [[ "$TARGET_VERSION" == Success:* ]]; then
 		TARGET_VERSION=$INIT_CORE_VERSION
@@ -30,19 +30,19 @@ if [[ "$TARGET_VERSION" != "$INIT_CORE_VERSION" ]]; then
 
 	# Clean up old option if a previous update didn't complete. Otherwise one would get this:
 	# "Error: Another update is currently in progress."
-	wp --allow-root option get core_updater.lock &>/dev/null && wp --allow-root option delete core_updater.lock
+	wp option get core_updater.lock &>/dev/null && wp option delete core_updater.lock
 
-	wp --allow-root core update --version="$TARGET_VERSION" --force
+	wp core update --version="$TARGET_VERSION" --force
 
 	# If these don't match now, it means something went wrong with the update.
-	if [[ "$TARGET_VERSION" != "$(wp --allow-root core version)" ]]; then
+	if [[ "$TARGET_VERSION" != "$(wp core version)" ]]; then
 		echo "WordPress update to $TARGET_VERSION failed!"
 		exit 1
 	fi
 
 	# Update database.
 	echo 'Updating core database.'
-	wp --allow-root core update-db
+	wp core update-db
 fi
 
 # Update core unit tests.
