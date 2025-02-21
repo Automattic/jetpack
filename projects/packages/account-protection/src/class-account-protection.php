@@ -201,6 +201,20 @@ class Account_Protection {
 	}
 
 	/**
+	 * Determines if the current Jetpack version is supported.
+	 *
+	 * @return bool
+	 */
+	public function has_unsupported_jetpack_version(): bool {
+		// Do not run when Jetpack version is less than 14.4
+		if ( defined( 'JETPACK__VERSION' ) && version_compare( JETPACK__VERSION, '14.4', '<' ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Disables the Account Protection module when on an unsupported platform in Jetpack.
 	 *
 	 * @param array $modules Filterable value for `jetpack_get_available_modules`.

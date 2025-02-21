@@ -34,8 +34,9 @@ class Settings {
 	 */
 	public function get() {
 		$settings = array(
-			'isEnabled'   => $this->account_protection->is_enabled(),
-			'isSupported' => $this->account_protection->is_supported_environment(),
+			'isEnabled'                    => $this->account_protection->is_enabled(),
+			'isSupported'                  => $this->account_protection->is_supported_environment(),
+			'hasUnsupportedJetpackVersion' => $this->account_protection->has_unsupported_jetpack_version(),
 		);
 
 		return $settings;
