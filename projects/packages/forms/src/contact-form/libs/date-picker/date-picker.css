@@ -10,7 +10,9 @@
 .dp {
 	position: relative;
 	background: #FFF;
-	box-shadow: 2px 2px 16px rgba(0, 0, 0, 0.25);
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.1);
+
 	line-height: 1.4;
 	border-radius: 4px;
 	max-height: 400px;
