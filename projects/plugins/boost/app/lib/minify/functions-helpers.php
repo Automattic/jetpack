@@ -190,7 +190,7 @@ function jetpack_boost_page_optimize_remove_concat_base_prefix( $original_fs_pat
  * Schedule a cronjob for the 404 tester, if one isn't already scheduled.
  */
 function jetpack_boost_page_optimize_schedule_404_tester() {
-	if ( Scheduled_Event::schedule_singleton_network_cjetpack_boost_404_tester_cronron( time() + DAY_IN_SECONDS, 'daily', 'jetpack_boost_404_tester_cron' ) ) {
+	if ( Scheduled_Event::schedule_singleton_network_cron( time() + DAY_IN_SECONDS, 'daily', 'jetpack_boost_404_tester_cron' ) ) {
 		// Run the test immediately, if it wasn't already scheduled.
 		jetpack_boost_404_tester();
 	}
