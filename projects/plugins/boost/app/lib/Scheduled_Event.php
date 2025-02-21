@@ -21,7 +21,7 @@ class Scheduled_Event implements Has_Setup {
 	 * @param array  $args The arguments to pass to the action.
 	 */
 	public static function schedule_singleton_network_cron( int $timestamp, string $recurrence, string $hook, array $args = array() ) {
-		if ( false === wp_next_scheduled( $hook, $args ) ) {
+		if ( false === wp_next_scheduled( 'jetpack_boost_network_cron', array( $hook, $args ) ) ) {
 			// We save the recurrence to the site option so we don't need it when unscheduling the specific cron event.
 			update_site_option( "{$hook}_network_cron_recurrence", $recurrence );
 
