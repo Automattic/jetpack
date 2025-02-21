@@ -269,7 +269,7 @@ function mapDays( currentDate: Date, dayOffset: number, fn: ( iter: Date ) => st
 
 	// We are going to have 6 weeks always displayed to keep a consistent
 	// calendar size
-	for ( let day = 0; day < 6 * 7; ++day ) {
+	for ( let day = 0; day < 5 * 7; ++day ) {
 		result += fn( iter );
 		iter.setDate( iter.getDate() + 1 );
 	}
