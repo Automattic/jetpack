@@ -131,6 +131,15 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 		}
 	}
 
+	async hasValidHttpStatus( url: string ): Promise< UrlError | null > {
+		const response = await this.fetch( url, { redirect: 'manual' }, 'html' );
+		if ( response.status === 200 ) {
+			return null;
+		}
+
+		return new HttpError( { url, code: response.status } );
+	}
+
 	sameOrigin( url: string ): boolean {
 		return new URL( url ).origin === window.location.origin;
 	}
@@ -179,8 +188,8 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 					clearTimeout( timeoutId );
 
 					// Check HTTP status code first.
-					const urlError = await this.diagnoseUrlError( fullUrl );
-					if ( urlError ) {
+					const urlError = await this.hasValidHttpStatus( fullUrl );
+					if ( urlError instanceof UrlError ) {
 						throw urlError;
 					}
 
