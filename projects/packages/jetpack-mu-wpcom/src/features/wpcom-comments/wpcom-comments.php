@@ -45,7 +45,7 @@ function wpcom_comments_enable_likes( $actions, $comment ) {
 	$actions['unlike'] = sprintf(
 		'<button class="button-link comment-unlike-button" data-comment-id="%d" aria-label="%s">%s</button>',
 		$comment->comment_ID,
-		esc_attr__( 'Unlike this comment liked by you', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Unlike this comment', 'jetpack-mu-wpcom' ),
 		esc_html__( 'Liked by you', 'jetpack-mu-wpcom' )
 	);
 
