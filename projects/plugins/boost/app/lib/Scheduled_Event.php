@@ -27,6 +27,8 @@ class Scheduled_Event implements Has_Setup {
 			// We save the recurrence to the site option so we don't need it when unscheduling the specific cron event.
 			update_site_option( "{$hook}_network_cron_recurrence", $recurrence );
 
+			self::subscribe_to_network_cron( $hook );
+
 			wp_schedule_event( $timestamp, $recurrence, 'jetpack_boost_network_cron', array( $hook, $args ) );
 			return true;
 		}
@@ -40,12 +42,15 @@ class Scheduled_Event implements Has_Setup {
 	 * @param array  $args The arguments to pass to the action.
 	 */
 	public static function unschedule_singleton_network_cron( string $hook, array $args = array() ) {
-		// Remove the site options used to track the last run time and recurrence.
-		delete_site_option( "{$hook}_network_cron_ran" );
-		delete_site_option( "{$hook}_network_cron_recurrence" );
-
 		// Unschedule the network cron event
 		wp_clear_scheduled_hook( 'jetpack_boost_network_cron', array( $hook, $args ) );
+
+		if ( empty( self::unsubscribe_from_network_cron( $hook ) ) ) {
+			// Remove the site options used to track the last run time and recurrence if this was the last blog subscribed to the network cron.
+			delete_site_option( "{$hook}_network_cron_ran" );
+			delete_site_option( "{$hook}_network_cron_recurrence" );
+			delete_site_option( "{$hook}_network_cron_blogs_subscribed" );
+		}
 	}
 
 	/**
@@ -78,5 +83,31 @@ class Scheduled_Event implements Has_Setup {
 		} else {
 			do_action( $action, ...$args );
 		}
+	}
+
+	/**
+	 * Subscribes the current blog to the network cron.
+	 *
+	 * @param string $hook The hook to subscribe to.
+	 */
+	private static function subscribe_to_network_cron( string $hook ) {
+		$blogs_subscribed                          = get_site_option( "{$hook}_network_cron_blogs_subscribed", array() );
+		$blogs_subscribed[ get_current_blog_id() ] = true;
+		update_site_option( "{$hook}_network_cron_blogs_subscribed", $blogs_subscribed );
+	}
+
+	/**
+	 * Unsubscribes the current blog from the network cron.
+	 *
+	 * @param string $hook The hook to unsubscribe from.
+	 *
+	 * @return array The list of blogs that are *still* subscribed to the network cron after unsubscribing the current blog.
+	 */
+	private static function unsubscribe_from_network_cron( string $hook ) {
+		$blogs_subscribed = get_site_option( "{$hook}_network_cron_blogs_subscribed", array() );
+		unset( $blogs_subscribed[ get_current_blog_id() ] );
+		update_site_option( "{$hook}_network_cron_blogs_subscribed", $blogs_subscribed );
+
+		return array_keys( $blogs_subscribed );
 	}
 }
