@@ -59,9 +59,4 @@ class WpcomshTest extends WP_UnitTestCase {
 
 		$this->assertEquals( $expected_output, wpcomsh_make_content_clickable( $original_content ) );
 	}
-	public function test_wpcomsh_stats_timezone_string() {
-		$actual_output   = wpcomsh_stats_timezone_string();
-		$expected_output = 'Etc/GMT-0';
-		$this->assertEquals( $expected_output, $actual_output );
-	}
 }
