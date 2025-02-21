@@ -74,7 +74,7 @@ function render( dp: IDatePicker ) {
 			let className = 'dp-day';
 			className += isNotInMonth ? ' dp-edge-day' : '';
 			className += datesEq( date, highlightedDate ) ? ' dp-current' : '';
-			className += datesEq( date, selectedDate ) ? ' dp-selected' : '';
+			className += datesEq( date, selectedDate ) ? ' dp-selected dp-focusable' : '';
 			className += isDisabled ? ' dp-day-disabled' : '';
 			className += isToday ? ' dp-day-today' : '';
 			className += ' ' + opts.dateClass( date );
