@@ -118,7 +118,7 @@ const OwnerDisconnectDialog = ( {
 						action="transfer"
 					/>
 					<ManageConnectionActionCard
-						title={ __( 'Check other connected accounts', 'jetpack-connection-js' ) }
+						title={ __( 'View other connected accounts', 'jetpack-connection-js' ) }
 						link="users.php"
 						action="check-users"
 					/>
