@@ -905,6 +905,15 @@ class ManagerTest extends TestCase {
 			->method( 'disconnect_user' )
 			->willReturn( true );
 
+		// Mock access tokens for all users
+		$access_token = (object) array(
+			'secret'           => 'abcd1234',
+			'external_user_id' => 1,
+		);
+		$this->tokens->expects( $this->any() )
+			->method( 'get_access_token' )
+			->willReturn( $access_token );
+
 		// Run the disconnect
 		$result = $this->manager->disconnect_all_users_except_primary();
 
@@ -956,6 +965,15 @@ class ManagerTest extends TestCase {
 		// Mock unlink_user_from_wpcom to fail
 		$this->manager->method( 'unlink_user_from_wpcom' )
 			->willReturn( false );
+
+		// Mock access tokens for all users
+		$access_token = (object) array(
+			'secret'           => 'abcd1234',
+			'external_user_id' => 1,
+		);
+		$this->tokens->expects( $this->any() )
+			->method( 'get_access_token' )
+			->willReturn( $access_token );
 
 		// Run the disconnect
 		$result = $this->manager->disconnect_all_users_except_primary();
