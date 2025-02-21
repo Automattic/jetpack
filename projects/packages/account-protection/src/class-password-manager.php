@@ -80,8 +80,8 @@ class Password_Manager {
 			return;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification
-		$password = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );
+		// phpcs:ignore WordPress.Security.NonceVerification, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$password = wp_unslash( $_POST['pass1'] );
 
 		$core_validation_errors    = $errors->get_error_messages( 'pass' );
 		$jetpack_validation_errors = $this->validation_service->get_validation_errors( $password );
