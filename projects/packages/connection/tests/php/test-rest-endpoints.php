@@ -714,6 +714,9 @@ class Test_REST_Endpoints extends TestCase {
 	 * Tests that the endpoint succeeds for a connected admin disconnecting themselves
 	 */
 	public function test_unlink_user_success() {
+		// Set current user to secondary admin
+		wp_set_current_user( self::$secondary_user_id );
+
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/user' );
 		$request->set_header( 'Content-Type', 'application/json' );
 		$request->set_body(
