@@ -22,6 +22,9 @@ function jetpack_boost_minify_cache_buster() {
  * @param int $file_age The age of files to purge, in seconds.
  */
 function jetpack_boost_legacy_minify_cache_cleanup( $file_age = DAY_IN_SECONDS ) {
+	// Explicitly cast to int as do_action() can pass a non-int value. https://core.trac.wordpress.org/ticket/14881
+	$file_age = is_int( $file_age ) ? $file_age : DAY_IN_SECONDS;
+
 	$cache_folder = Config::get_legacy_cache_dir_path();
 
 	if ( ! is_dir( $cache_folder ) ) {
@@ -39,6 +42,9 @@ function jetpack_boost_legacy_minify_cache_cleanup( $file_age = DAY_IN_SECONDS )
  * @param int $file_age The age of files to purge, in seconds.
  */
 function jetpack_boost_minify_cache_cleanup( $file_age = DAY_IN_SECONDS ) {
+	// Explicitly cast to int as do_action() can pass a non-int value. https://core.trac.wordpress.org/ticket/14881
+	$file_age = is_int( $file_age ) ? $file_age : DAY_IN_SECONDS;
+
 	/*
 	 * Cleanup obsolete files in static cache folder.
 	 * If $file_age is 0, we can skip this as we will delete all files anyway.
