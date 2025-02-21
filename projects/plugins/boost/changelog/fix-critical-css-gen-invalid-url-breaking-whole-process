@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS: Prevent invalid URLs from breaking the whole process.
