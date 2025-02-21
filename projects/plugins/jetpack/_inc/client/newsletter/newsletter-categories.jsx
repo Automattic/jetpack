@@ -147,7 +147,7 @@ function NewsletterCategories( props ) {
 						),
 						{
 							docsLink: (
-								<ExternalLink href="https://jetpack.com/support/jetpack-blocks/subscription-form-block/" />
+								<ExternalLink href={ getRedirectUrl( 'jetpack-support-subscribe-block' ) } />
 							),
 						}
 					) }
