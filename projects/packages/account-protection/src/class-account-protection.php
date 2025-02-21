@@ -107,7 +107,7 @@ class Account_Protection {
 	 */
 	protected function register_runtime_hooks(): void {
 		// Validate password after successful login
-		add_action( 'wp_authenticate_user', array( $this->password_detection, 'login_form_password_detection' ), 10, 2 );
+		add_filter( 'wp_authenticate_user', array( $this->password_detection, 'login_form_password_detection' ), 10, 2 );
 
 		// Handle password detection login failure
 		add_action( 'wp_login_failed', array( $this->password_detection, 'handle_password_detection_validation_error' ), 10, 2 );
@@ -117,7 +117,7 @@ class Account_Protection {
 		add_action( 'wp_enqueue_scripts', array( $this->password_detection, 'enqueue_styles' ) );
 
 		// Add password validation
-		add_action( 'user_profile_update_errors', array( $this->password_manager, 'validate_profile_update' ), 10, 3 );
+		add_filter( 'user_profile_update_errors', array( $this->password_manager, 'filter_user_profile_update_errors' ), 10, 3 );
 		add_action( 'validate_password_reset', array( $this->password_manager, 'validate_password_reset' ), 10, 2 );
 
 		// Update recent passwords list

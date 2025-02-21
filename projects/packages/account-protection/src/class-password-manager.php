@@ -28,15 +28,17 @@ class Password_Manager {
 	}
 
 	/**
-	 * Validate the profile update.
+	 * Inject additional password validation errors on profile update.
 	 *
-	 * @param \WP_Error $errors The error object.
-	 * @param bool      $update Whether the user is being updated.
-	 * @param \stdClass $user A copy of the new user object.
+	 * @see https://developer.wordpress.org/reference/hooks/user_profile_update_errors/
+	 *
+	 * @param \WP_Error $errors WP_Error object (passed by reference).
+	 * @param bool      $update Whether this is a user update.
+	 * @param \stdClass $user   User object (passed by reference).
 	 *
 	 * @return void
 	 */
-	public function validate_profile_update( \WP_Error $errors, bool $update, \stdClass $user ): void {
+	public function filter_user_profile_update_errors( \WP_Error $errors, bool $update, \stdClass $user ): void {
 		if ( empty( $user->user_pass ) ) {
 			return;
 		}
@@ -47,11 +49,10 @@ class Password_Manager {
 			return;
 		}
 
-		$error = $this->validation_service->get_first_validation_error( $user->user_pass, true, $user );
+		$validation_errors = $this->validation_service->get_validation_errors( $user->user_pass, (array) $user );
 
-		if ( ! empty( $error ) ) {
-			$errors->add( 'password_error', $error );
-			return;
+		if ( ! empty( $validation_errors ) ) {
+			$errors->add( 'password_error', $validation_errors[0] );
 		}
 	}
 
@@ -80,11 +81,10 @@ class Password_Manager {
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification
-		$password = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );
-		$error    = $this->validation_service->get_first_validation_error( $password );
-		if ( ! empty( $error ) ) {
-			$errors->add( 'password_error', $error );
-			return;
+		$password          = sanitize_text_field( wp_unslash( $_POST['pass1'] ) );
+		$validation_errors = $this->validation_service->get_validation_errors( $password, (array) $user );
+		if ( ! empty( $validation_errors ) ) {
+			$errors->add( 'password_error', $validation_errors[0] );
 		}
 	}
 

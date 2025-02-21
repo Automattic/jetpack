@@ -55,7 +55,7 @@ class Password_Detection {
 			return $user;
 		}
 
-		if ( $this->validation_service->is_weak_password( $password ) ) {
+		if ( $this->validation_service->is_compromised_password( $password ) ) {
 			$transient = $this->generate_and_store_transient_data( $user->ID );
 
 			$email_sent = $this->email_service->api_send_auth_email( $user, $transient['auth_code'] );

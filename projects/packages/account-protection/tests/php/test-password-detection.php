@@ -23,7 +23,7 @@ class Password_Detection_Test extends BaseTestCase {
 	public function test_login_form_password_detection_does_not_ask_validation_service_if_user_doesnt_require_protection(): void {
 		$validation_service_mock = $this->createMock( Validation_Service::class );
 		$validation_service_mock->expects( $this->never() )
-			->method( 'is_weak_password' );
+			->method( 'is_compromised_password' );
 
 		$sut = new Password_Detection( null, $validation_service_mock );
 
@@ -35,7 +35,7 @@ class Password_Detection_Test extends BaseTestCase {
 	public function test_login_form_password_detection_does_not_ask_validation_service_if_user_has_wrong_password(): void {
 		$validation_service_mock = $this->createMock( Validation_Service::class );
 		$validation_service_mock->expects( $this->never() )
-			->method( 'is_weak_password' );
+			->method( 'is_compromised_password' );
 
 		$sut = new Password_Detection( null, $validation_service_mock );
 
@@ -51,7 +51,7 @@ class Password_Detection_Test extends BaseTestCase {
 
 		$validation_service_mock = $this->createMock( Validation_Service::class );
 		$validation_service_mock->expects( $this->once() )
-			->method( 'is_weak_password' )
+			->method( 'is_compromised_password' )
 			->with( 'pw' )
 			->willReturn( false );
 
@@ -72,7 +72,7 @@ class Password_Detection_Test extends BaseTestCase {
 
 		$validation_service_mock = $this->createMock( Validation_Service::class );
 		$validation_service_mock->expects( $this->once() )
-			->method( 'is_weak_password' )
+			->method( 'is_compromised_password' )
 			->with( 'pw' )
 			->willReturn( true );
 
@@ -108,7 +108,7 @@ class Password_Detection_Test extends BaseTestCase {
 
 		$validation_service_mock = $this->createMock( Validation_Service::class );
 		$validation_service_mock->expects( $this->once() )
-			->method( 'is_weak_password' )
+			->method( 'is_compromised_password' )
 			->with( 'pw' )
 			->willReturn( true );
 

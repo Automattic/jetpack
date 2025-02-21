@@ -41,15 +41,12 @@ class Password_Strength_Meter {
 			wp_send_json_error( array( 'message' => __( 'Invalid nonce.', 'jetpack-account-protection' ) ) );
 		}
 
-		$user_specific = false;
-		if ( isset( $_POST['user_specific'] ) ) {
-			$user_specific = filter_var( sanitize_text_field( wp_unslash( $_POST['user_specific'] ) ), FILTER_VALIDATE_BOOLEAN );
-		}
+		$user = isset( $_POST['user_specific'] ) ? get_userdata( get_current_user_id() ) : null;
 
-		$password = sanitize_text_field( wp_unslash( $_POST['password'] ) );
-		$state    = $this->validation_service->get_validation_state( $password, $user_specific );
+		$password          = sanitize_text_field( wp_unslash( $_POST['password'] ) );
+		$validation_errors = $this->validation_service->get_validation_errors( $password, $user ? $user->to_array() : null );
 
-		wp_send_json_success( array( 'state' => $state ) );
+		wp_send_json_success( array( 'errors' => $validation_errors ) );
 	}
 
 	/**
@@ -98,15 +95,14 @@ class Password_Strength_Meter {
 			'jetpack-password-strength-meter',
 			'jetpackData',
 			array(
-				'ajaxurl'                => admin_url( 'admin-ajax.php' ),
-				'nonce'                  => wp_create_nonce( 'validate_password_nonce' ),
-				'userSpecific'           => $user_specific,
-				'logo'                   => plugin_dir_url( __FILE__ ) . 'assets/jetpack-logo.svg',
-				'infoIcon'               => plugin_dir_url( __FILE__ ) . 'assets/info.svg',
-				'checkIcon'              => plugin_dir_url( __FILE__ ) . 'assets/check.svg',
-				'crossIcon'              => plugin_dir_url( __FILE__ ) . 'assets/cross.svg',
-				'loadingIcon'            => plugin_dir_url( __FILE__ ) . 'assets/loading.svg',
-				'validationInitialState' => $this->validation_service->get_validation_initial_state( $user_specific ),
+				'ajaxurl'      => admin_url( 'admin-ajax.php' ),
+				'nonce'        => wp_create_nonce( 'validate_password_nonce' ),
+				'userSpecific' => $user_specific,
+				'logo'         => plugin_dir_url( __FILE__ ) . 'assets/jetpack-logo.svg',
+				'infoIcon'     => plugin_dir_url( __FILE__ ) . 'assets/info.svg',
+				'checkIcon'    => plugin_dir_url( __FILE__ ) . 'assets/check.svg',
+				'crossIcon'    => plugin_dir_url( __FILE__ ) . 'assets/cross.svg',
+				'loadingIcon'  => plugin_dir_url( __FILE__ ) . 'assets/loading.svg',
 			)
 		);
 	}

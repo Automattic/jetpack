@@ -19,7 +19,7 @@ class Validation_Service_Test extends BaseTestCase {
 			->willReturn( false );
 
 		$validation_service = new Validation_Service( $connection );
-		$this->assertFalse( $validation_service->is_weak_password( 'somepassword' ) );
+		$this->assertFalse( $validation_service->is_compromised_password( 'somepassword' ) );
 	}
 
 	private function get_connection_manager() {
@@ -51,7 +51,7 @@ class Validation_Service_Test extends BaseTestCase {
 			->method( 'request_suffixes' )
 			->willReturn( new \WP_Error( 'something went wrong' ) );
 
-		$this->assertFalse( $validation_service->is_weak_password( 'somepassword' ) );
+		$this->assertFalse( $validation_service->is_compromised_password( 'somepassword' ) );
 	}
 
 	public function test_returns_false_if_response_code_is_not_200() {
@@ -71,7 +71,7 @@ class Validation_Service_Test extends BaseTestCase {
 				)
 			);
 
-		$this->assertFalse( $validation_service->is_weak_password( 'somepassword' ) );
+		$this->assertFalse( $validation_service->is_compromised_password( 'somepassword' ) );
 	}
 
 	public function test_returns_false_if_response_code_is_empty_body() {
@@ -91,7 +91,7 @@ class Validation_Service_Test extends BaseTestCase {
 				)
 			);
 
-		$this->assertFalse( $validation_service->is_weak_password( 'somepassword' ) );
+		$this->assertFalse( $validation_service->is_compromised_password( 'somepassword' ) );
 	}
 
 	public function test_returns_true_if_password_is_compromised() {
@@ -115,7 +115,7 @@ class Validation_Service_Test extends BaseTestCase {
 				)
 			);
 
-		$this->assertTrue( $validation_service->is_weak_password( 'somepassword' ) );
+		$this->assertTrue( $validation_service->is_compromised_password( 'somepassword' ) );
 	}
 
 	public function test_returns_true_if_password_is_common() {
@@ -139,7 +139,7 @@ class Validation_Service_Test extends BaseTestCase {
 				)
 			);
 
-		$this->assertTrue( $validation_service->is_weak_password( 'somepassword' ) );
+		$this->assertTrue( $validation_service->is_compromised_password( 'somepassword' ) );
 	}
 
 	public function test_returns_false_if_password_is_not_weak() {
@@ -164,7 +164,7 @@ class Validation_Service_Test extends BaseTestCase {
 				)
 			);
 
-		$this->assertFalse( $validation_service->is_weak_password( 'somepassword' ) );
+		$this->assertFalse( $validation_service->is_compromised_password( 'somepassword' ) );
 	}
 
 	public function test_returns_true_if_password_is_current_password() {
