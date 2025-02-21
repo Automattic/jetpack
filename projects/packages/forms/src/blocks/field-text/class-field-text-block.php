@@ -180,10 +180,10 @@ class Field_Text_Block {
 		if ( $is_required ) {
 			$required_label_text   =
 				wp_kses_post( apply_filters( 'jetpack_required_field_text', $attributes['requiredText'] ) );
-			$required_label_markup =
-				'<span class="grunion-label-required" aria-hidden="true">'
-				. $required_label_text
-				. '</span>';
+			$required_label_markup = sprintf(
+				'<span class="grunion-label-required" aria-hidden="true">%s</span>',
+				$required_label_text
+			);
 		}
 
 		$label_classes = array( 'grunion-field-label', 'text' );
