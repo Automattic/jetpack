@@ -13,14 +13,28 @@ const MoreList: React.FC< MoreListTypes > = ( { entries = [], showLimit = 2 } ) 
 	const listItems = expanded ? entries : entries.slice( 0, showLimit );
 	const showExpandButton = ! expanded && entries.length > showLimit;
 
+	const isValidUrl = ( url: string ) => {
+		try {
+			const urlObj = new URL( url );
+			// Check that it's a web URL (http or https protocol)
+			return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+		} catch ( err ) {
+			return false;
+		}
+	};
+
 	return (
 		<>
 			<ul className={ styles[ 'more-list' ] }>
 				{ listItems.map( ( { href, label }, index ) => (
 					<li key={ index }>
-						<a href={ href } target="_blank" rel="noreferrer">
-							{ label }
-						</a>
+						{ isValidUrl( href ) ? (
+							<a href={ href } target="_blank" rel="noreferrer">
+								{ label }
+							</a>
+						) : (
+							<code>{ label }</code>
+						) }
 					</li>
 				) ) }
 

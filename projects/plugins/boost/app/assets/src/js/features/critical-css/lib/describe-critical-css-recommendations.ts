@@ -465,20 +465,40 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 		} ),
 	},
 
-	// @todo - implement this.
 	InvalidURLError: {
 		describeSet: set =>
 			_n(
-				"Jetpack Boost couldn't verify this page:",
-				"Jetpack Boost couldn't verify these pages:",
+				'Jetpack Boost found an invalid URL:',
+				'Jetpack Boost found invalid URLs:',
 				urlCount( set ),
 				'jetpack-boost'
 			),
-		suggestion: set => ( {
-			paragraph: _n(
-				'Please follow the troubleshooting steps below for the page.',
-				'Please follow the troubleshooting steps below for each of the pages.',
-				urlCount( set ),
+		suggestion: _set => ( {
+			paragraph: __(
+				'Jetpack Boost needs valid URLs from the current site in order to generate Critical CSS. It seems that one or more of the URLs you provided are invalid.',
+				'jetpack-boost'
+			),
+			list: [
+				__(
+					'Check if you have any plugins that modify your permalinks or URL structure.',
+					'jetpack-boost'
+				),
+				__(
+					'Verify your WordPress permalink settings are configured correctly in Settings → Permalinks.',
+					'jetpack-boost'
+				),
+				__(
+					'If you use custom post types, ensure they are properly registered and their permalinks are working.',
+					'jetpack-boost'
+				),
+				__(
+					'Try visiting the problematic URLs directly in your browser to confirm they work.',
+					'jetpack-boost'
+				),
+				__( '<retry>Try again</retry> to generate the Critical CSS.', 'jetpack-boost' ),
+			],
+			closingParagraph: __(
+				'If the issue persists, you may want to check your theme and plugins for any custom code that modifies URLs or permalinks.',
 				'jetpack-boost'
 			),
 		} ),
