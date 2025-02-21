@@ -34,7 +34,7 @@ describe( 'Iframe interface', () => {
 		page.on( 'console', msg => process.stderr.write( msg.text() + '\n\n' ) );
 		await page.goto( testServer.getUrl() );
 
-		const innerUrl = path.join( testServer.getUrl(), 'page-a' );
+		const innerUrl = path.join( testServer.getUrl(), 'page-a/' );
 
 		const [ css, warnings ] = await page.evaluate( url => {
 			return CriticalCSSGenerator.generateCriticalCSS( {
@@ -59,7 +59,7 @@ describe( 'Iframe interface', () => {
 		const page = await browser.newPage();
 		await page.goto( testServer.getUrl() );
 
-		const innerUrl = path.join( testServer.getUrl(), 'page-a' );
+		const innerUrl = path.join( testServer.getUrl(), 'page-a/' );
 
 		// Will throw an error if the inner page does not contain
 		// 'script-created-content'; a string appended to page-a by a script.
@@ -81,7 +81,7 @@ describe( 'Iframe interface', () => {
 		const page = await browser.newPage();
 		await page.goto( testServer.getUrl() );
 
-		const innerUrl = path.join( testServer.getUrl(), 'page-a' );
+		const innerUrl = path.join( testServer.getUrl(), 'page-a/' );
 
 		// Will throw an error if the inner page contains
 		// 'script-created-content'; a string appended to page-a by a script.
@@ -103,7 +103,7 @@ describe( 'Iframe interface', () => {
 		const page = await browser.newPage();
 		await page.goto( testServer.getUrl() );
 
-		const innerUrl = path.join( testServer.getUrl(), 'page-a' );
+		const innerUrl = path.join( testServer.getUrl(), 'page-a/' );
 
 		const [ css, warnings ] = await page.evaluate( url => {
 			return CriticalCSSGenerator.generateCriticalCSS( {
@@ -148,7 +148,7 @@ describe( 'Iframe interface', () => {
 		const page = await browser.newPage();
 		await page.goto( testServer.getUrl() );
 
-		const innerUrl = path.join( testServer.getUrl(), 'page-a' );
+		const innerUrl = path.join( testServer.getUrl(), 'page-a/' );
 
 		const [ css, warnings ] = await page.evaluate( url => {
 			return CriticalCSSGenerator.generateCriticalCSS( {
@@ -173,8 +173,8 @@ describe( 'Iframe interface', () => {
 		const page = await browser.newPage();
 		await page.goto( testServer.getUrl() );
 
-		const pageA = path.join( testServer.getUrl(), 'page-a' );
-		const pageB = path.join( testServer.getUrl(), 'page-b' );
+		const pageA = path.join( testServer.getUrl(), 'page-a/' );
+		const pageB = path.join( testServer.getUrl(), 'page-b/' );
 
 		const result = await page.evaluate(
 			async ( { pA, pB } ) => {
