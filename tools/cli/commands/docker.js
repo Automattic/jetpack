@@ -398,6 +398,18 @@ const buildExecCmd = argv => {
 			configFile: 'tests/php.multisite.xml',
 		};
 		opts = buildPhpUnitTestCmd( argv, opts, unitTestArgs );
+	} else if ( cmd === 'phpunit-wpcomsh' ) {
+		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack plugin.' ) );
+		console.warn(
+			chalk.yellow(
+				'Other projects do not require a working database, so you can run them locally or directly within jetpack docker sh'
+			)
+		);
+		const unitTestArgs = {
+			plugin: 'jetpack',
+			envVars: [ 'JETPACK_TEST_WPCOMSH=1' ],
+		};
+		opts = buildPhpUnitTestCmd( argv, opts, unitTestArgs );
 	} else if ( cmd === 'phpunit-woocommerce' ) {
 		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack plugin.' ) );
 		console.warn(
@@ -723,6 +735,17 @@ export function dockerDefine( yargs ) {
 					command: 'phpunit-multisite',
 					alias: 'phpunit:multisite',
 					description: 'Run multisite Jetpack PHPUnit tests inside container',
+					builder: yargCmd =>
+						defaultOpts( yargCmd ).option( 'php', {
+							describe: 'Use the specified version of PHP.',
+							type: 'string',
+						} ),
+					handler: argv => execDockerCmdHandler( argv ),
+				} )
+				.command( {
+					command: 'phpunit-wpcomsh',
+					alias: 'phpunit:wpcomsh',
+					description: 'Run Jetpack PHPUnit tests with wpcomsh inside container',
 					builder: yargCmd =>
 						defaultOpts( yargCmd ).option( 'php', {
 							describe: 'Use the specified version of PHP.',
