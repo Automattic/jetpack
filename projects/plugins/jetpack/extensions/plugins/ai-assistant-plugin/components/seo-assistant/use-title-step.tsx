@@ -40,7 +40,8 @@ export const useTitleStep = ( {
 	const [ selectedTitle, setSelectedTitle ] = useState< string >( '' );
 	const [ valueOptions, setValueOptions ] = useState< OptionMessage[] >( [] );
 	const { editPost } = useDispatch( 'core/editor' );
-	const { messages, setMessages, addMessage, editLastMessage, setSelectedMessage } = useMessages();
+	const { getMessages, setMessages, addMessage, editLastMessage, setSelectedMessage } =
+		useMessages();
 	const [ lastValue, setLastValue ] = useState< string >( '' );
 	const postContent = usePostContent();
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
@@ -48,7 +49,7 @@ export const useTitleStep = ( {
 	const [ hasFailed, setHasFailed ] = useState( false );
 	const [ failurePoint, setFailurePoint ] = useState< 'generate' | 'regenerate' | null >( null );
 	const { tracks } = useAnalytics();
-
+	const messages = getMessages();
 	const prevStepHasChanged = useMemo( () => keywords !== lastValue, [ keywords, lastValue ] );
 	const stepId = 'title';
 
@@ -56,11 +57,13 @@ export const useTitleStep = ( {
 		if ( mockRequests ) {
 			return mockTitleRequest( keywords );
 		}
+
 		tracks.recordEvent( 'jetpack_wizard_chat_request', {
 			step: stepId,
 			context: keywords,
 			assistant_name: 'seo-assistant',
 		} );
+
 		return askQuestionSync(
 			[
 				{
@@ -90,7 +93,6 @@ export const useTitleStep = ( {
 
 	const getTitles = useCallback( async () => {
 		const response = await request();
-		// TODO: handle errors
 		const parsedResponse: { titles: string[] } = JSON.parse( response );
 		const count = parsedResponse.titles?.length;
 		const newTitles = parsedResponse.titles.map( ( title, index ) => ( {
@@ -144,6 +146,7 @@ export const useTitleStep = ( {
 					setHasFailed( true );
 					// reset the last value to the previous value on failure to avoid a wrong value for prevStepHasChanged
 					setLastValue( previousLastValue );
+
 					return;
 				}
 			}
@@ -194,6 +197,7 @@ export const useTitleStep = ( {
 		setValue( selectedTitle );
 		await editPost( { title: selectedTitle, meta: { jetpack_seo_html_title: selectedTitle } } );
 		addMessage( { content: __( 'Title updated! ✅', 'jetpack' ) } );
+
 		return selectedTitle;
 	}, [ selectedTitle, addMessage, editPost ] );
 

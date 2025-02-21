@@ -46,6 +46,7 @@ function UnforwardedKeywordsInput( { placeholder, value, setValue, handleSubmit 
 					placeholder={ placeholder }
 				/>
 			</KeyboardShortcuts>
+
 			<Button
 				variant="primary"
 				className="jetpack-wizard-chat__submit"

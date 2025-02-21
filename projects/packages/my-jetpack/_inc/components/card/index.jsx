@@ -22,7 +22,8 @@ export const CardWrapper = props => {
 };
 
 const Card = props => {
-	const { title, headerRightContent, className, children, onMouseEnter, onMouseLeave } = props;
+	const { title, headerRightContent, className, children, onMouseEnter, onMouseLeave, titleId } =
+		props;
 
 	return (
 		<CardWrapper
@@ -32,7 +33,9 @@ const Card = props => {
 		>
 			<div className={ styles.title }>
 				<div className={ styles.name }>
-					<Text variant="title-medium">{ title }</Text>
+					<Text variant="title-medium" id={ titleId || null }>
+						{ title }
+					</Text>
 				</div>
 				{ headerRightContent }
 			</div>
@@ -48,6 +51,7 @@ Card.propTypes = {
 	headerRightContent: PropTypes.node,
 	onMouseEnter: PropTypes.func,
 	onMouseLeave: PropTypes.func,
+	titleId: PropTypes.string,
 };
 
 export default Card;

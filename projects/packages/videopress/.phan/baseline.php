@@ -12,7 +12,6 @@ return [
     // PhanPluginDuplicateConditionalNullCoalescing : 20+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 7 occurrences
     // PhanTypeMismatchReturnProbablyReal : 7 occurrences
-    // PhanUndeclaredProperty : 7 occurrences
     // PhanTypeArraySuspicious : 6 occurrences
     // PhanTypeMismatchReturn : 6 occurrences
     // PhanUndeclaredClassMethod : 6 occurrences
@@ -56,8 +55,8 @@ return [
         'src/tus/class-tus-client.php' => ['PhanNonClassMethodCall', 'PhanTypeMismatchArgument'],
         'src/tus/class-tus-file.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspiciousNullable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeThrowsType'],
         'src/utility-functions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginUnreachableCode', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/videopress-divi/class-videopress-divi-extension.php' => ['PhanCommentOverrideOnNonOverrideMethod', 'PhanUndeclaredClass', 'PhanUndeclaredClassMethod', 'PhanUndeclaredExtendedClass', 'PhanUndeclaredMethod', 'PhanUndeclaredMethodInCallable', 'PhanUndeclaredProperty'],
-        'src/videopress-divi/class-videopress-divi-module.php' => ['PhanUndeclaredExtendedClass', 'PhanUndeclaredProperty'],
+        'src/videopress-divi/class-videopress-divi-extension.php' => ['PhanCommentOverrideOnNonOverrideMethod', 'PhanUndeclaredClass', 'PhanUndeclaredClassMethod', 'PhanUndeclaredExtendedClass', 'PhanUndeclaredMethod', 'PhanUndeclaredMethodInCallable'],
+        'src/videopress-divi/class-videopress-divi-module.php' => ['PhanUndeclaredExtendedClass'],
         'tests/php/test-class-initializer.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/test-uploader.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument'],
     ],
