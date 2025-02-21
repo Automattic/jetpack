@@ -10,6 +10,7 @@ import SimpleNotice from '../components/notice';
 import NoticeAction from '../components/notice/notice-action';
 
 const MODULE_NAME = 'account-protection';
+const SUPPORT_LINK = 'https://jetpack.com/?post_type=jetpack_support&p=324199';
 
 const AccountProtectionComponent = class extends Component {
 	render() {
@@ -31,8 +32,7 @@ const AccountProtectionComponent = class extends Component {
 							'jetpack'
 						) }
 						children={
-							// TODO: Update link once doc is avaiable
-							<NoticeAction external href={ '#' }>
+							<NoticeAction external href={ SUPPORT_LINK + '#unsuported-environment' }>
 								{ __( 'Learn more', 'jetpack' ) }
 							</NoticeAction>
 						}
@@ -44,7 +44,7 @@ const AccountProtectionComponent = class extends Component {
 						status={ 'is-info' }
 						text={ __( 'Jetpack recommends enabling this feature.', 'jetpack' ) }
 						children={
-							<NoticeAction external href={ '#' }>
+							<NoticeAction external href={ SUPPORT_LINK + '#risks-of-using-a-weak-password' }>
 								{ __( 'Learn about the risks', 'jetpack' ) }
 							</NoticeAction>
 						}
@@ -60,7 +60,7 @@ const AccountProtectionComponent = class extends Component {
 							'Enabling this setting enhances account security by detecting compromised passwords and enforcing additional verification when needed.',
 							'jetpack'
 						),
-						link: '#', // TODO: Update link once doc is avaiable
+						link: SUPPORT_LINK,
 					} }
 				>
 					<ModuleToggle

@@ -19,6 +19,8 @@ import usePlan from '../../hooks/use-plan';
 import styles from './styles.module.scss';
 
 const SettingsPage = () => {
+	const SUPPORT_LINK = 'https://jetpack.com/?post_type=jetpack_support&p=324199';
+
 	const { hasPlan } = usePlan();
 	const { data: accountProtection } = useAccountProtectionQuery();
 	const toggleAccountProtectionMutation = useToggleAccountProtectionMutation();
@@ -68,7 +70,7 @@ const SettingsPage = () => {
 							<Button
 								variant="link"
 								isExternalLink
-								href={ '#' } // TODO: Update this redirect URL once document exists
+								href={ SUPPORT_LINK + '#unsuported-environment' }
 								key="learn-more"
 							>
 								{ __( 'Learn more', 'jetpack-protect' ) }
@@ -83,7 +85,7 @@ const SettingsPage = () => {
 							'jetpack-protect'
 						),
 						{
-							link: <a href={ '#' } />, // TODO: Update this redirect URL once document exists
+							link: <a href={ SUPPORT_LINK } />,
 						}
 					) }
 				</Text>
@@ -102,7 +104,7 @@ const SettingsPage = () => {
 								'jetpack-protect'
 							),
 							{
-								link: <a href={ '#' } />, // TODO: Update this redirect URL once document exists
+								link: <a href={ SUPPORT_LINK + '#risks-of-using-a-weak-password' } />,
 							}
 						) }
 					</Text>
