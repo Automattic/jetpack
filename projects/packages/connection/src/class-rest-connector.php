@@ -1001,11 +1001,15 @@ class REST_Connector {
 			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack-connection' ), array( 'status' => 404 ) );
 		}
 
-		// If the admin is also connection owner, we need to disconnect all users
+		// If the user is also connection owner, we need to disconnect all users. Since disconnecting all users is a destructive action, we need to pass a parameter to confirm the action.
 		$disconnect_all_users = false;
 
 		if ( ( new Manager() )->get_connection_owner_id() === get_current_user_id() ) {
-			$disconnect_all_users = true;
+			if ( isset( $request['disconnect-all-users'] ) && false !== $request['disconnect-all-users'] ) {
+				$disconnect_all_users = true;
+			} else {
+				return new WP_Error( 'unlink_user_failed', esc_html__( 'Unable to unlink the connection owner.', 'jetpack-connection' ), array( 'status' => 400 ) );
+			}
 		}
 
 		// Allow admins to force a disconnect by passing the "force" parameter

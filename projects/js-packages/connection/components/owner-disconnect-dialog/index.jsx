@@ -60,9 +60,9 @@ const OwnerDisconnectDialog = ( {
 		setIsDisconnecting( true );
 		setDisconnectError( '' );
 
-		// Force parameter is needed for owner account
+		// Disconnect owner with force and disconnect-all-users parameters
 		restApi
-			.unlinkUser( true )
+			.unlinkUser( true, { disconnectAllUsers: true } )
 			.then( () => {
 				// Track successful disconnect
 				jetpackAnalytics.tracks.recordEvent(
