@@ -97,13 +97,12 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 		return method( { innerWindow: this.iframe.contentWindow, args } );
 	}
 
-	addGetParameters( rawUrl: string ): string {
-		const urlObject = new URL( rawUrl );
+	addGetParameters( url: URL ): string {
 		for ( const key of Object.keys( this.requestGetParameters ) ) {
-			urlObject.searchParams.append( key, this.requestGetParameters[ key ] );
+			url.searchParams.append( key, this.requestGetParameters[ key ] );
 		}
 
-		return urlObject.toString();
+		return url.toString();
 	}
 
 	async diagnoseUrlError( url: string ): Promise< UrlError | null > {
@@ -141,15 +140,18 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 			return;
 		}
 
-		let fullUrl;
+		// Make sure URL is valid.
+		let url;
 		try {
-			fullUrl = this.addGetParameters( rawUrl );
+			url = new URL( rawUrl );
 		} catch ( err ) {
 			return new Promise( ( resolve, reject ) => {
 				this.trackUrlError( rawUrl, err );
 				reject( new InvalidURLError( { url: rawUrl } ) );
 			} );
 		}
+
+		const fullUrl = this.addGetParameters( url );
 
 		return new Promise( ( resolve, rawReject ) => {
 			// Track all URL errors.
