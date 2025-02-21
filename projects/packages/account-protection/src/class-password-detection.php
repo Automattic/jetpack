@@ -292,7 +292,7 @@ class Password_Detection {
 								printf(
 									/* translators: %s: Risks of using weak passwords link */
 									esc_html__( 'Learn more about the %1$s and how to protect your account.', 'jetpack-account-protection' ),
-									'<a class="risks-link" href="' . esc_url( Config::SUPPORT_LINK ) . '#risks-of-using-a-weak-password" target="_blank" rel="noopener noreferrer">' . esc_html__( 'risks of using weak passwords', 'jetpack-account-protection' ) . '</a>'
+									'<a class="risks-link" href="' . esc_url( Config::SUPPORT_LINK . '#risks-of-using-a-weak-password' ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'risks of using weak passwords', 'jetpack-account-protection' ) . '</a>'
 								);
 							?>
 						</p>
