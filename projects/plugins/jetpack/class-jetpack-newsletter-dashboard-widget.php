@@ -6,7 +6,6 @@
  */
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Status\Host;
 
 /**
  * Adds the Jetpack Newsletter widget to the WordPress admin dashboard.
@@ -53,7 +52,15 @@ class Jetpack_Newsletter_Dashboard_Widget {
 	 * Sets up the Jetpack Newsletter widget in the WordPress admin dashboard.
 	 */
 	public static function wp_dashboard_setup() {
-		static::load_admin_scripts( 'jp-newsletter-widget', 'newsletter.min', array( 'config_variable_name' => 'jetpackNewsletterWidgetConfigData' ) );
+		static::load_admin_scripts(
+			'jp-newsletter-widget',
+			'newsletter',
+			array(
+				'config_data' => array(
+					'hostname' => wp_parse_url( get_site_url(), PHP_URL_HOST ),
+				),
+			)
+		);
 		if ( Jetpack::is_connection_ready() ) {
 			$widget_title = sprintf(
 				__( 'Newsletter', 'jetpack' )
@@ -88,13 +95,10 @@ class Jetpack_Newsletter_Dashboard_Widget {
 	public static function admin_init() {
 		static::load_admin_scripts(
 			'jp-newsletter-widget',
-			'newsletter.min',
+			'newsletter',
 			array(
-				'config_variable_name' => 'jetpackNewsletterWidgetConfigData',
-				'config_data'          => array(
-					'blog_id'         => Jetpack_Options::get_option( 'id' ),
-					'hostname'        => wp_parse_url( get_site_url(), PHP_URL_HOST ),
-					'is_jetpack_site' => ! ( new Host() )->is_wpcom_simple(),
+				'config_data' => array(
+					'hostname' => wp_parse_url( get_site_url(), PHP_URL_HOST ),
 				),
 			)
 		);
@@ -112,18 +116,18 @@ class Jetpack_Newsletter_Dashboard_Widget {
 		$default_options = array(
 			'config_data'          => array(),
 			'config_variable_name' => 'configData',
-			'enqueue_css'          => true,
 		);
 		$options         = wp_parse_args( $options, $default_options );
-		if ( file_exists( __DIR__ . "/../dist/{$asset_name}.js" ) ) {
+		if ( file_exists( __DIR__ . "/../dist/{$asset_name}.min.js" ) ) {
 			// Load local assets for the convinience of development.
 			Assets::register_script(
 				$asset_handle,
-				"../dist/{$asset_name}.js",
+				"../dist/{$asset_name}.min.js",
 				__FILE__,
 				array(
 					'in_footer'  => true,
 					'textdomain' => 'jetpack',
+					'css_path'   => "../dist/{$asset_name}.css",
 				)
 			);
 			Assets::enqueue_script( $asset_handle );
@@ -131,13 +135,23 @@ class Jetpack_Newsletter_Dashboard_Widget {
 			// In production, we load the assets from our CDN.
 			wp_register_script(
 				$asset_handle,
-				sprintf( self::NEWSLETTER_WIDGET_CDN_URL, "{$asset_name}.js" ),
+				sprintf( self::NEWSLETTER_WIDGET_CDN_URL, "{$asset_name}.min.js" ),
 				self::JS_DEPENDENCIES,
 				self::NEWSLETTER_WIDGET_VERSION,
 				true
 			);
 			wp_enqueue_script( $asset_handle );
 		}
+
+		$css_url    = $asset_name . ( is_rtl() ? '.rtl' : '' ) . '.css';
+		$css_handle = $asset_handle . '-style';
+		wp_register_style(
+			$css_handle,
+			sprintf( self::NEWSLETTER_WIDGET_CDN_URL, $css_url ),
+			array(),
+			self::NEWSLETTER_WIDGET_VERSION
+		);
+		wp_enqueue_style( $css_handle );
 
 		wp_add_inline_script(
 			$asset_handle,
