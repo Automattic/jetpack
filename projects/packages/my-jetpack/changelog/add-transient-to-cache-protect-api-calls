@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Cache scan calls if no threats are found to improve performance

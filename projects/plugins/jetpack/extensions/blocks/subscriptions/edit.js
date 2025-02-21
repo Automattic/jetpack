@@ -8,17 +8,23 @@ import {
 	useBlockProps,
 	__experimentalUseGradient as useGradient, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
-import { TextControl, Toolbar, withFallbackStyles } from '@wordpress/components';
+import {
+	TextControl,
+	withFallbackStyles,
+	ToolbarGroup,
+	ToolbarButton,
+} from '@wordpress/components';
 import { compose, usePrevious } from '@wordpress/compose';
-import { useSelect, withSelect } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
-import { _n, sprintf } from '@wordpress/i18n';
+import { _n, sprintf, _x, __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { isEqual } from 'lodash';
 import { getActiveStyleName } from '../../shared/block-styles';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
-import GetAddPaidPlanButton, { paidPlanButtonText } from '../../shared/memberships/utils';
+import { getPaidPlanLink } from '../../shared/memberships/utils';
 import './view.scss';
+import './editor.scss';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import metadata from './block.json';
 import {
@@ -68,9 +74,11 @@ export function SubscriptionEdit( props ) {
 		borderColor,
 		setBorderColor,
 		fontSize,
-		hasTierPlans,
 	} = props;
-
+	const hasTierPlans = useSelect(
+		select => !! select( 'jetpack/membership-products' )?.getNewsletterTierProducts()?.length,
+		[]
+	);
 	const blockProps = useBlockProps();
 	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 	if ( ! isEqual( validatedAttributes, attributes ) ) {
@@ -84,6 +92,8 @@ export function SubscriptionEdit( props ) {
 		className,
 		includeSocialFollowers,
 		padding,
+		preselectNewsletterCategories,
+		selectedNewsletterCategoryIds,
 		spacing,
 		submitButtonText = DEFAULT_SUBMIT_BUTTON_LABEL,
 		subscribePlaceholder = DEFAULT_SUBSCRIBE_PLACEHOLDER,
@@ -109,6 +119,15 @@ export function SubscriptionEdit( props ) {
 				_n( 'Join %s other subscriber', 'Join %s other subscribers', count, 'jetpack' ),
 				numberFormat( count, { notation: 'compact', maximumFractionDigits: 1 } )
 			),
+		};
+	} );
+
+	const { availableNewsletterCategories, areNewsletterCategoriesEnabled } = useSelect( select => {
+		const store = select( membershipProductsStore );
+
+		return {
+			availableNewsletterCategories: store.getNewsletterCategories(),
+			areNewsletterCategoriesEnabled: store.getNewsletterCategoriesEnabled(),
 		};
 	} );
 
@@ -225,6 +244,8 @@ export function SubscriptionEdit( props ) {
 		>
 			<InspectorControls>
 				<SubscriptionControls
+					areNewsletterCategoriesEnabled={ areNewsletterCategoriesEnabled }
+					availableNewsletterCategories={ availableNewsletterCategories }
 					buttonBackgroundColor={ buttonBackgroundColor }
 					borderColor={ borderColor }
 					buttonGradient={ buttonGradient }
@@ -238,6 +259,7 @@ export function SubscriptionEdit( props ) {
 					includeSocialFollowers={ includeSocialFollowers }
 					isGradientAvailable={ isGradientAvailable }
 					padding={ padding }
+					preselectNewsletterCategories={ preselectNewsletterCategories }
 					setAttributes={ setAttributes }
 					setBorderColor={ setBorderColor }
 					setButtonBackgroundColor={ setButtonBackgroundColor }
@@ -247,15 +269,20 @@ export function SubscriptionEdit( props ) {
 					subscriberCount={ subscriberCount }
 					textColor={ textColor }
 					buttonWidth={ buttonWidth }
+					selectedNewsletterCategoryIds={ selectedNewsletterCategoryIds }
 					subscribePlaceholder={ subscribePlaceholder }
 					submitButtonText={ submitButtonText }
 					successMessage={ successMessage }
 				/>
 			</InspectorControls>
 			<BlockControls>
-				<Toolbar label={ paidPlanButtonText( hasTierPlans ) }>
-					<GetAddPaidPlanButton context={ 'toolbar' } hasTierPlans={ hasTierPlans } />
-				</Toolbar>
+				<ToolbarGroup>
+					<ToolbarButton href={ getPaidPlanLink( hasTierPlans ) } target="_blank">
+						{ hasTierPlans
+							? _x( 'Manage plans', 'unused context to distinguish translations', 'jetpack' )
+							: __( 'Set up a paid plan', 'jetpack' ) }
+					</ToolbarButton>
+				</ToolbarGroup>
 			</BlockControls>
 			<div style={ cssVars }>
 				<div className="wp-block-jetpack-subscriptions__container is-not-subscriber">
@@ -304,12 +331,6 @@ const withThemeProvider = WrappedComponent => props => (
 );
 
 export default compose( [
-	withSelect( select => {
-		const newsletterPlans = select( 'jetpack/membership-products' )?.getNewsletterTierProducts();
-		return {
-			hasTierPlans: newsletterPlans?.length !== 0,
-		};
-	} ),
 	withColors(
 		{ emailFieldBackgroundColor: 'backgroundColor' },
 		{ buttonBackgroundColor: 'backgroundColor' },

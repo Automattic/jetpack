@@ -184,9 +184,19 @@ export const RESTRICTIONS = {
 		charLimit: 10000,
 	},
 	bluesky: {
-		allowedMediaTypes: allowedImageTypes,
+		allowedMediaTypes: allowedImageTypes.concat( [
+			MP4,
+			VIDEOPRESS,
+			MOV,
+			'video/webm',
+			'video/mpeg',
+		] ),
 		image: {
 			maxSize: 1,
+		},
+		video: {
+			maxSize: 10000,
+			maxLength: 60,
 		},
 		charLimit: 300,
 	},

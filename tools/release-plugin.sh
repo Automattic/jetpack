@@ -48,6 +48,17 @@ function usage {
 	exit 1
 }
 
+handle_exit() {
+	local exit_code=$?
+	local PAYLOAD="$(
+		jq -n \
+			--arg exit_code "$exit_code" \
+			--arg step "$CUR_STEP" \
+			'{"exit_code": $exit_code, "step": $step }'
+	)"
+	send_tracks_event "jetpack_release_exit" "$PAYLOAD"
+}
+
 # Preliminary environment checks.
 function preflight_checks {
 	# Make sure the GitHub CLI is installed.
@@ -157,7 +168,6 @@ function do_trunk_and_prelease_branch_prep() {
 		send_tracks_event "jetpack_release_prerelease_push" '{"result": "failure"}'
 		die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
 	fi
-	GITBASE=$( git rev-parse --verify HEAD )
 	send_tracks_event "jetpack_release_prerelease_push" '{"result": "success"}'
 }
 
@@ -248,7 +258,7 @@ function do_push_and_build {
 	yellow "Build ID found, waiting for build to complete and push to mirror repos."
 	if ! gh run watch "${BUILDID[0]}" --exit-status; then
 		send_tracks_event "jetpack_release_github_build" '{"result": "failure"}'
-		echo "Build failed! Check for build errors on GitHub for more information." && die
+		die "Build failed! Check for build errors on GitHub for more information."
 	fi
 
 	send_tracks_event "jetpack_release_github_build" '{"result": "success"}'
@@ -261,6 +271,7 @@ function do_packagist_check {
 	# We expect a new version when (1) the package is touched in this release and (2) it has no change entry files remaining.
 	POLL_ARGS=()
 	cd "$BASE"
+	GITBASE=$(git merge-base origin/trunk HEAD)
 	for PKGDIR in $(git -c core.quotepath=off diff --name-only "$GITBASE..HEAD" projects/packages/ | sed 's!^\(projects/packages/[^/]*\)/.*!\1!' | sort -u); do
 		cd "$BASE/$PKGDIR"
 		CHANGES_DIR=$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)
@@ -409,6 +420,10 @@ function do_final_instructions {
 	fi
 }
 
+trap 'exit 130' SIGINT
+trap 'exit 143' SIGTERM
+trap 'handle_exit' EXIT
+
 preflight_checks
 
 # No args, help flag, or invalid flag, so show usage.
@@ -458,7 +473,7 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 	CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$PLUGIN")
 	# shellcheck disable=SC2310
 	if version_compare "$CUR_VERSION" "$NORMALIZED_VERSION"; then
-		proceed_p "$PLUGIN: Version $NORMALIZED_VERSION is lower than $CUR_VERSION." || die "User aborted script."
+		proceed_p "$PLUGIN: Version $NORMALIZED_VERSION is not higher than $CUR_VERSION." || die "User aborted script."
 	fi
 	echo "$PLUGIN: $CUR_VERSION -> ${PROJECTS[$PLUGIN]}"
 done
@@ -524,5 +539,3 @@ for ((i = CUR_STEP; i < ${#RELEASE_STEPS[@]}; i++)); do
 	"${RELEASE_STEPS[$i]}"
 	((CUR_STEP+=1))
 done
-
-send_tracks_event "jetpack_release_done"

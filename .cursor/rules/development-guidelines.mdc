@@ -39,4 +39,63 @@ Before responding to any request, follow these steps:
 - Ensure WordPress coding standards compliance
 - Verify accessibility requirements
 
+## API and Package Reuse
+
+Before implementing new functionality or introducing new dependencies:
+
+1. Package Assessment
+- Survey existing packages within the monorepo for similar functionality
+- Check for reusable components, utilities, or hooks in shared packages
+- Review existing WordPress core and Jetpack APIs that might serve the need
+
+2. Reuse Strategy
+- Prioritize internal packages and APIs over external dependencies
+- Consider extending existing functionality rather than duplicating
+- Document usage of shared components and APIs for future reference
+- Maintain consistency with existing patterns when reusing code
+
+3. Integration Guidelines
+- Use established patterns when integrating with existing packages
+- Follow versioning guidelines when depending on internal packages
+- Consider backwards compatibility when modifying shared code
+- Contribute improvements back to shared packages when applicable
+
+4. Performance Considerations
+- Evaluate the impact of reusing packages on bundle size
+- Consider code splitting and lazy loading for optimal performance
+- Monitor dependencies for potential duplications across packages
+- Balance code reuse with performance optimization goals
+
+Always document dependencies and shared code usage to maintain a clear understanding of package relationships and promote efficient code reuse across the project.
+
+## Code Patterns and Readability
+
+When implementing new features or modifying existing code:
+
+1. Pattern Consistency
+- Survey similar features in the codebase for established patterns
+- Follow existing naming conventions and code organization
+- Maintain consistent file structure and component architecture
+- Mirror successful implementation patterns from similar features
+
+2. Pull Request Clarity
+- Structure changes to follow logical, reviewable chunks
+- Group related changes together in meaningful commits
+- Follow existing patterns for commit messages and PR descriptions
+- Include before/after examples for complex changes
+
+3. Code Organization
+- Match existing directory structures and file naming
+- Follow established patterns for hooks, filters, and event handling
+- Maintain consistent import ordering and file structure
+- Use similar patterns for error handling and data validation
+
+4. Documentation Alignment
+- Follow existing documentation patterns in similar features
+- Maintain consistent JSDoc/PHPDoc comment styles
+- Include examples that mirror documentation in similar components
+- Update relevant documentation following established formats
+
+Remember that following familiar patterns makes code more predictable and easier to maintain for the entire team.
+
 Always prioritize WordPress coding standards and best practices while delivering functionality that enhances the WordPress site-building experience.

@@ -6,7 +6,7 @@ source "$CLBASE/tools/includes/chalk-lite.sh"
 
 # Set up changelogger if necessary.
 function init_changelogger {
-	local CL="$CLBASE/projects/packages/changelogger/bin/changelogger"
+	local CL="$CLBASE/projects/packages/changelogger/vendor/bin/changelogger"
 	if ! "$CL" &>/dev/null; then
 		debug "Preparing changelogger"
 		(cd "$CLBASE/projects/packages/changelogger" && composer update --quiet)
@@ -26,7 +26,7 @@ function init_changelogger {
 # - $@: args to changelogger
 function changelogger {
 	init_changelogger > /dev/null
-	"$CLBASE/projects/packages/changelogger/bin/changelogger" "$@"
+	"$CLBASE/projects/packages/changelogger/vendor/bin/changelogger" "$@"
 }
 
 # Fetch the default changelogger type.

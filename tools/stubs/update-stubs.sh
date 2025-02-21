@@ -83,7 +83,7 @@ fetch_plugin akismet
 
 echo
 info 'Extracting Akismet stubs'
-"$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/akismet-stubs.php" "$BASE/tools/stubs/akismet-stub-defs.php"
+"$BASE/projects/packages/stub-generator/vendor/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/akismet-stubs.php" "$BASE/tools/stubs/akismet-stub-defs.php"
 
 # Apparently there are two different AMP plugins we have to deal with.
 echo
@@ -96,7 +96,7 @@ fetch_plugin accelerated-mobile-pages
 
 echo
 info 'Extracting AMP stubs'
-"$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/amp-stubs.php" "$BASE/tools/stubs/amp-stub-defs.php"
+"$BASE/projects/packages/stub-generator/vendor/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/amp-stubs.php" "$BASE/tools/stubs/amp-stub-defs.php"
 
 echo
 info 'Downloading WordPress.com Editing Toolkit'
@@ -104,7 +104,7 @@ fetch_plugin full-site-editing
 
 echo
 info 'Extracting WordPress.com Editing Toolkit stubs'
-"$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/full-site-editing-stubs.php" "$BASE/tools/stubs/full-site-editing-stub-defs.php"
+"$BASE/projects/packages/stub-generator/vendor/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/full-site-editing-stubs.php" "$BASE/tools/stubs/full-site-editing-stub-defs.php"
 
 echo
 info 'Downloading WooPayments'
@@ -112,7 +112,7 @@ fetch_plugin woocommerce-payments
 
 echo
 info 'Extracting WooPayments stubs'
-"$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/woocommerce-payments-stubs.php" "$BASE/tools/stubs/woocommerce-payments-stub-defs.php"
+"$BASE/projects/packages/stub-generator/vendor/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/woocommerce-payments-stubs.php" "$BASE/tools/stubs/woocommerce-payments-stub-defs.php"
 
 echo
 info 'Downloading WooCommerce'
@@ -120,7 +120,7 @@ fetch_repo woocommerce/woocommerce
 
 echo
 info 'Extracting WooCommerce internal stubs'
-"$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/woocommerce-internal-stubs.php" "$BASE/tools/stubs/woocommerce-internal-stub-defs.php"
+"$BASE/projects/packages/stub-generator/vendor/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/woocommerce-internal-stubs.php" "$BASE/tools/stubs/woocommerce-internal-stub-defs.php"
 
 echo
 info 'Downloading PHPUnit'
@@ -130,7 +130,7 @@ composer --working-dir="$WORK_DIR/phpunit" update
 
 echo
 info 'Extracting PHPUnit stubs'
-"$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/phpunit-stubs.php" "$BASE/tools/stubs/phpunit-stub-defs.php"
+"$BASE/projects/packages/stub-generator/vendor/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/phpunit-stubs.php" "$BASE/tools/stubs/phpunit-stub-defs.php"
 php "$BASE/tools/stubs/munge-phpunit-stubs.php" "$BASE/.phan/stubs/phpunit-stubs.php"
 for f in "$WORK_DIR"/phpunit/vendor/{phpunit,sebastian}/*; do
 	echo "${f#$WORK_DIR/phpunit/}"
@@ -142,5 +142,5 @@ fetch_plugin gutenberg
 
 echo
 info 'Extracting Gutenberg stubs'
-"$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/gutenberg-stubs.php" "$BASE/tools/stubs/gutenberg-stub-defs.php"
+"$BASE/projects/packages/stub-generator/vendor/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/gutenberg-stubs.php" "$BASE/tools/stubs/gutenberg-stub-defs.php"
 

@@ -137,7 +137,9 @@ class Manager {
 			add_filter( 'shutdown', array( new Package_Version_Tracker(), 'maybe_update_package_versions' ) );
 		}
 
-		add_action( 'rest_api_init', array( $manager, 'initialize_rest_api_registration_connector' ) );
+		// This runs on priority 11 - at least one api method in the connection package is set to override a previously
+		// existing method from the Jetpack plugin. Running later than Jetpack's api init ensures the override is successful.
+		add_action( 'rest_api_init', array( $manager, 'initialize_rest_api_registration_connector' ), 11 );
 
 		( new Nonce_Handler() )->init_schedule();
 
@@ -1565,6 +1567,16 @@ class Manager {
 				}
 				// With site connections in mind, non-admin users can connect their account only if a connection owner exists.
 				$caps = $this->has_connected_owner() ? array( 'read' ) : array( 'manage_options' );
+				break;
+			case 'jetpack_unlink_user':
+				$is_offline_mode = ( new Status() )->is_offline_mode();
+				if ( $is_offline_mode ) {
+					$caps = array( 'do_not_allow' );
+					break;
+				}
+
+				// Non-admins can always disconnect
+				$caps = array( 'read' );
 				break;
 		}
 		return $caps;

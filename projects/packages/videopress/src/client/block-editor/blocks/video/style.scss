@@ -3,6 +3,11 @@
 .wp-block-jetpack-videopress {
 	position: relative;
 
+	&.jetpack-videopress-player.alignright ~ &.jetpack-videopress-player,
+	&.jetpack-videopress-player.alignleft ~ &.jetpack-videopress-player {
+		clear: both;
+	}
+
 	figcaption {
 		margin-bottom: 1em;
     	margin-top: 0.5em;
@@ -28,4 +33,12 @@
 			opacity: 0;
 		}
 	}
+
+	&.wp-block-jetpack-videopress--has-max-width {
+		margin: auto;
+	}
+}
+
+.is-layout-flex .wp-block-jetpack-videopress.wp-block-jetpack-videopress--has-max-width {
+	margin: 0;
 }

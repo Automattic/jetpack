@@ -2,12 +2,12 @@ import restApi from '@automattic/jetpack-api';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useEffect, useCallback } from 'react';
-import JetpackFooter from '../jetpack-footer';
-import JetpackLogo from '../jetpack-logo';
-import Col from '../layout/col';
-import Container from '../layout/container';
+import JetpackFooter from '../jetpack-footer/index.js';
+import JetpackLogo from '../jetpack-logo/index.js';
+import Col from '../layout/col/index.js';
+import Container from '../layout/container/index.js';
 import styles from './style.module.scss';
-import type { AdminPageProps } from './types';
+import type { AdminPageProps } from './types.js';
 import type React from 'react';
 
 /**

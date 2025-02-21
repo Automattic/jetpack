@@ -8,6 +8,7 @@ import {
 	archive,
 	category,
 	commentContent,
+	gallery,
 	pages,
 	postComments,
 	tag,
@@ -198,6 +199,20 @@ const Notice = () => {
 			)
 				? __(
 						"We've adopted WordPress' main Discussion Settings view to bring improvements to you and millions of WordPress users worldwide.",
+						'jetpack-mu-wpcom'
+				  )
+				: descriptionFallback,
+		},
+		'upload.php': {
+			icon: gallery,
+			title: hasTranslation( 'The Media Library just got an update' )
+				? __( 'The Media Library just got an update', 'jetpack-mu-wpcom' )
+				: titleFallback,
+			description: hasTranslation(
+				"We've adopted WordPress' main Media Library to bring improvements to you and millions of WordPress users worldwide."
+			)
+				? __(
+						"We've adopted WordPress' main Media Library to bring improvements to you and millions of WordPress users worldwide.",
 						'jetpack-mu-wpcom'
 				  )
 				: descriptionFallback,
