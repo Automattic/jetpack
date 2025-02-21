@@ -47,7 +47,7 @@ class Critical_CSS_State {
 		return $this;
 	}
 
-	public function set_provider_error_dismissed( $provider_key, $dismissed ) {
+	public function set_provider_error_dismissed( $provider_key, $error_type, $dismissed ) {
 		if ( empty( $this->state['providers'] ) ) {
 			return new WP_Error( 'invalid_provider_key', 'No providers exist' );
 		}
@@ -57,7 +57,21 @@ class Critical_CSS_State {
 			return new WP_Error( 'invalid_provider_key', 'Invalid provider key' );
 		}
 
-		$this->state['providers'][ $provider_index ]['error_status'] = $dismissed ? 'dismissed' : 'active';
+		if ( ! isset( $this->state['providers'][ $provider_index ]['dismissed_errors'] ) ) {
+			$this->state['providers'][ $provider_index ]['dismissed_errors'] = array();
+		}
+
+		if ( $dismissed ) {
+			if ( ! in_array( $error_type, $this->state['providers'][ $provider_index ]['dismissed_errors'], true ) ) {
+				$this->state['providers'][ $provider_index ]['dismissed_errors'][] = $error_type;
+			}
+		} else {
+			$key = array_search( $error_type, $this->state['providers'][ $provider_index ]['dismissed_errors'], true );
+			if ( $key !== false ) {
+				unset( $this->state['providers'][ $provider_index ]['dismissed_errors'][ $key ] );
+				$this->state['providers'][ $provider_index ]['dismissed_errors'] = array_values( $this->state['providers'][ $provider_index ]['dismissed_errors'] );
+			}
+		}
 
 		return true;
 	}

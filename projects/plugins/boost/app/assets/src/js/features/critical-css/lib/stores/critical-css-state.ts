@@ -141,7 +141,8 @@ export function useSetProviderErrorDismissedAction() {
 		'set-provider-errors-dismissed',
 		z.array(
 			z.object( {
-				key: z.string(),
+				provider: z.string(),
+				error_type: z.string(),
 				dismissed: z.boolean(),
 			} )
 		)
