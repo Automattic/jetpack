@@ -23,7 +23,7 @@ class REST_Products {
 			array(
 				array(
 					'methods'             => \WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_products',
+					'callback'            => __CLASS__ . '::get_products_api_data',
 					'permission_callback' => __CLASS__ . '::view_products_permissions_callback',
 					'args'                => array(
 						'products' => array(
@@ -207,7 +207,7 @@ class REST_Products {
 	 * Site products endpoint.
 	 *
 	 * @param \WP_REST_Request $request The request object.
-	 * @return array of site products list.
+	 * @return WP_Error|\WP_REST_Response
 	 */
 	public static function get_products( $request ) {
 		$slugs         = $request->get_param( 'products' );
@@ -218,9 +218,24 @@ class REST_Products {
 	}
 
 	/**
+	 * Site API product data endpoint
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return WP_Error|\WP_REST_Response
+	 */
+	public static function get_products_api_data( $request ) {
+		$slugs         = $request->get_param( 'products' );
+		$product_slugs = ! empty( $slugs ) ? array_map( 'trim', explode( ',', $slugs ) ) : array();
+
+		$response = Products::get_products_api_data( $product_slugs );
+		return rest_ensure_response( $response );
+	}
+
+	/**
 	 * Site products endpoint.
 	 *
-	 * @return array of site products list.
+	 * @return \WP_REST_Response of site products list.
 	 */
 	public static function get_products_by_ownership() {
 		$response = array(

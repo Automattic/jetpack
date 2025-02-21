@@ -110,7 +110,7 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 	const onChangeView = useCallback( ( newView: View ) => {
 		setView( newView );
 	}, [] );
-	const allProductData = useAllProducts();
+	const { data: allProductData, isLoading, isError } = useAllProducts();
 	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
 	const navigate = useNavigate();
 	const { recordEvent } = useAnalytics();
@@ -136,10 +136,12 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 		},
 	};
 
-	const categories = useMemo(
-		() => getCategories( products, allProductData ),
-		[ products, allProductData ]
-	);
+	const categories = useMemo( () => {
+		if ( isLoading || isError ) {
+			return null;
+		}
+		getCategories( products, allProductData );
+	}, [ products, allProductData, isLoading, isError ] );
 
 	const navigateToInterstitial = useCallback(
 		( slug: string ) => {

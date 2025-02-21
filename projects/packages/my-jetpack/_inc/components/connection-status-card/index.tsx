@@ -248,9 +248,13 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
 	const isCurrentUserAdmin = userConnectionData.currentUser?.permissions?.manage_options;
 	const { brokenModules } = lifecycleStats || {};
-	const products = useAllProducts();
-	const hasProductsThatRequireUserConnection =
-		getProductSlugsThatRequireUserConnection( products ).length > 0;
+	const { data: products, isLoading, isError } = useAllProducts();
+	const hasProductsThatRequireUserConnection = useMemo( () => {
+		if ( isLoading || isError ) {
+			return false;
+		}
+		return getProductSlugsThatRequireUserConnection( products ).length > 0;
+	}, [ isLoading, isError, products ] );
 	const hasUserConnectionBrokenModules = brokenModules?.needs_user_connection.length > 0;
 	const hasSiteConnectionBrokenModules = brokenModules?.needs_site_connection.length > 0;
 	const tracksEventData = useMemo( () => {

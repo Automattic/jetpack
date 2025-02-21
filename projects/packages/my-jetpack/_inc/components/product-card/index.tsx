@@ -139,7 +139,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 
 	return (
 		<Card
-			title={ name }
+			title={ name || slug }
 			className={ clsx( styles.container, containerClassName ) }
 			headerRightContent={ null }
 			onMouseEnter={ onMouseEnter }
