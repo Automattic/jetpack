@@ -1,16 +1,15 @@
 /*
  * External dependencies
  */
-import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { ToolbarButton, Dropdown } from '@wordpress/components';
-import React, { useCallback, useContext } from '@wordpress/element';
+import { useCallback, useContext } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /*
  * Internal dependencies
  */
 import AiAssistantToolbarDropdownContent from '../../../../components/ai-assistant-toolbar-dropdown/dropdown-content';
 import useTransformToAssistant from '../../../../hooks/use-transform-to-assistant';
+import AiAssistantToolbarDropdown from '../../../components/ai-assistant-toolbar-dropdown';
 import { InlineExtensionsContext } from '../../get-block-handler';
 /*
  * Types
@@ -20,8 +19,8 @@ import type {
 	OnRequestSuggestion,
 } from '../../../../components/ai-assistant-toolbar-dropdown/dropdown-content';
 import type { PromptTypeProp } from '../../../../lib/prompt';
+import type { BlockBehavior } from '../../../types';
 import type { ExtendedBlockProp } from '../../constants';
-import type { BlockBehavior } from '../../types';
 import type { ReactElement } from 'react';
 
 type AiAssistantExtensionToolbarDropdownContentProps = {
@@ -153,48 +152,20 @@ export default function AiAssistantExtensionToolbarDropdown( {
 	);
 
 	return (
-		<Dropdown
-			popoverProps={ {
-				variant: 'toolbar',
-			} }
-			renderToggle={ ( { isOpen, onToggle } ) => {
-				const handleClick = () => {
-					if ( typeof behavior === 'function' ) {
-						behavior( { onToggle, onAskAiAssistant, context: inlineExtensionsContext } );
-						return;
-					}
-
-					switch ( behavior ) {
-						case 'action':
-							handleAskAiAssistant();
-							break;
-						case 'dropdown':
-							onToggle();
-							break;
-					}
-				};
-
-				return (
-					<ToolbarButton
-						className="jetpack-ai-assistant__button"
-						showTooltip
-						onClick={ handleClick }
-						aria-haspopup="true"
-						aria-expanded={ isOpen }
-						label={ label }
-						icon={ aiAssistantIcon }
-					/>
-				);
-			} }
-			onToggle={ toggleHandler }
-			renderContent={ ( { onClose: onClose } ) => (
+		<AiAssistantToolbarDropdown
+			label={ label }
+			behavior={ behavior }
+			onAction={ handleAskAiAssistant }
+			onDropdownToggle={ toggleHandler }
+			renderContent={ ( { onClose } ) => (
 				<AiAssistantExtensionToolbarDropdownContent
-					onClose={ onClose }
 					blockType={ blockType }
+					onClose={ onClose }
 					onAskAiAssistant={ handleAskAiAssistant }
 					onRequestSuggestion={ handleRequestSuggestion }
 				/>
 			) }
+			behaviorContext={ inlineExtensionsContext }
 		/>
 	);
 }

@@ -68,7 +68,7 @@ type RequestOptions = {
 type CoreEditorDispatch = { undo: () => Promise< void > };
 type CoreEditorSelect = { getCurrentPostId: () => number };
 
-// HOC to populate the block's edit component with the AI Assistant control inpuit and toolbar button.
+// HOC to populate the block's edit component with the AI Assistant control input and toolbar button.
 const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 	function ExtendedBlock( props ) {
 		// Block props. isSelectionEnabled is used to determine if the block is in the editor or in the preview.
