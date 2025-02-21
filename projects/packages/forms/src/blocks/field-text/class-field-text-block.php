@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Extensions\Contact_Form;
 
 use Automattic\Jetpack\Blocks;
-use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 
 /**
  * Field Text Block.
@@ -123,37 +122,6 @@ class Field_Text_Block {
 	}
 
 	/**
-	 * Create a unique field ID based on the label, with an incrementing number if needed to avoid clashes.
-	 *
-	 * @param array  $attributes The block attributes.
-	 * @param string $form_id The form id.
-	 * @param string $form_hash The form hash.
-	 *
-	 * @return string The unique field id.
-	 */
-	private static function create_field_id( $attributes, $form_id, $form_hash ) {
-		$form = Contact_Form::$forms[ $form_hash ];
-
-		$unescaped_label = Contact_Form::unesc_attr( $attributes['label'] );
-		$unescaped_label = str_replace( '%', '-', $unescaped_label ); // jQuery doesn't like % in IDs?
-		$unescaped_label = preg_replace( '/[^a-zA-Z0-9.-_:]/', '', $unescaped_label );
-
-		$id        = sanitize_title_with_dashes( 'g' . $form_id . '-' . $unescaped_label );
-		$i         = 0;
-		$max_tries = 99;
-		while ( isset( $form->fields[ $id ] ) ) {
-			++$i;
-			$id = sanitize_title_with_dashes( 'g' . $form_id . '-' . $unescaped_label . '-' . $i );
-
-			if ( $i > $max_tries ) {
-				break;
-			}
-		}
-
-		return $id;
-	}
-
-	/**
 	 * Render a text field block.
 	 *
 	 * @param array    $attributes The block attributes.
@@ -167,8 +135,7 @@ class Field_Text_Block {
 		$form_hash = $block->context['jetpack/contact-form/hash'];
 
 		$should_validate   = $attributes['required'] && self::requires_validation( $form_id, $form_hash );
-		$field_id          = self::create_field_id( $attributes, $form_id, $form_hash );
-		$value             = self::get_value( $field_id );
+		$value             = self::get_value( $attributes['id'] );
 		$validation_errors = null;
 
 		if ( $should_validate ) {
@@ -202,19 +169,20 @@ class Field_Text_Block {
 		$id               = esc_attr( $attributes['id'] );
 		$input_attributes = array(
 			'type="text"',
-			'name="' . $id . '"',
-			'id="' . $id . '"',
+			'name="' . esc_attr( $id ) . '"',
+			'id="' . esc_attr( $id ) . '"',
 		);
 		if ( ! empty( $attributes['defaultValue'] ) ) {
 			$defaulted_value    = esc_attr( $attributes['defaultValue'] );
-			$input_attributes[] = 'value="' . $defaulted_value . '"';
+			$input_attributes[] = 'value="' . esc_attr( $defaulted_value ) . '"';
 		}
 		if ( ! empty( $attributes['placeholder'] ) ) {
 			$placeholder_value  = esc_attr( $attributes['placeholder'] );
-			$input_attributes[] = "placeholder=\"$placeholder_value\"";
+			$input_attributes[] = 'placeholder="' . esc_attr( $placeholder_value ) . '"';
 		}
 		if ( $is_required ) {
 			$input_attributes[] = 'aria-required="true"';
+			$input_attributes[] = 'required';
 		}
 		$input_classes = array( 'grunion-field', 'text' );
 		$input         = sprintf(
@@ -229,7 +197,7 @@ class Field_Text_Block {
 		}
 		if ( ! empty( $attributes['width'] ) ) {
 			$width           = $attributes['width'];
-			$field_classes[] = "grunion-field-width-$width-wrap";
+			$field_classes[] = 'grunion-field-width-' . $width . '-wrap';
 		}
 
 		return sprintf(
