@@ -86,8 +86,5 @@ class Test_WPCOMSH_Stats_Timezone_String extends WP_UnitTestCase {
 		$expected_output = 'Etc/GMT-0';
 		$this->assertEquals( $expected_output, $actual_output );
 	}
-	public function test_wpcomsh_stats_timezone_broken() {
-		$this->assertEquals( 'foo', 'bar' );
-	}
 }
 // phpcs:enable Squiz.Commenting.FunctionComment.WrongStyle
