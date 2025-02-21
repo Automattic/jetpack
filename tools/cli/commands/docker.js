@@ -255,6 +255,17 @@ const launchNgrok = argv => {
 	}
 };
 
+/**
+ * Builds the command options for running PHPUnit tests inside a Docker container.
+ *
+ * @param {object}        argv                      - Command line args.
+ * @param {Array}         opts                      - Options for the Docker command.
+ * @param {object}        unitTestArgs              - Unit test args.
+ * @param {string}        unitTestArgs.plugin       - The name of the plugin we're running tests against.
+ * @param {string}        [unitTestArgs.configFile] - The PHPUnit configuration file to use. Defaults to 'phpunit.xml.dist'.
+ * @param {Array<string>} [unitTestArgs.envVars]    - Environment variables to set in the Docker container.
+ * @return {Array} Modified opts array.
+ */
 const buildPhpUnitTestCmd = ( argv, opts, unitTestArgs ) => {
 	const passthruArgs = argv._.slice( 2 );
 	const configFile = unitTestArgs.configFile ?? 'phpunit.xml.dist';
