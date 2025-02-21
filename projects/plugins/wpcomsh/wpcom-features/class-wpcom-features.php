@@ -524,7 +524,7 @@ class WPCOM_Features {
 		),
 		self::ATOMIC                            => array(
 			self::WPCOM_PRO_PLANS,
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::WPCOM_STAGING_PRODUCT,
 			array( 'product_type' => array( 'marketplace_plugin', 'saas_plugin' ) ),
 		),
@@ -682,6 +682,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 		),
 		// EDIT_THEMES - Provides the edit_themes capability on atomic sites, does nothing on simple sites.
 		self::EDIT_THEMES                       => array(
@@ -752,6 +753,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 		),
 		self::INSTALL_PURCHASED_PLUGINS         => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -760,6 +762,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 		),
 		self::INSTALL_THEMES                    => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -793,6 +796,7 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_STARTER_PLANS,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 		),
 		// LIVE_SUPPORT - Monthly plans do not get live support. p7DVsv-a9N-p2.
 		self::LIVE_SUPPORT                      => array(
@@ -832,6 +836,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 		),
 
 		// MONITOR_1_MINUTE_CHECK_INTERVAL - Jetpack Monitor checks site uptime once per minute
@@ -1021,6 +1026,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 		),
 
 		self::SSH                               => array(
@@ -1028,6 +1034,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 		),
 		self::SIMPLE_PAYMENTS                   => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
