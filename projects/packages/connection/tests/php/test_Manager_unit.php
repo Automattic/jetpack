@@ -905,14 +905,19 @@ class ManagerTest extends TestCase {
 			->method( 'disconnect_user' )
 			->willReturn( true );
 
-		// Mock access tokens for all users
-		$access_token = (object) array(
+		// Mock access tokens to return different values based on user
+		$owner_token = (object) array(
 			'secret'           => 'abcd1234',
 			'external_user_id' => 1,
 		);
+
 		$this->tokens->expects( $this->any() )
 			->method( 'get_access_token' )
-			->willReturn( $access_token );
+			->willReturnCallback(
+				function ( $user_id ) use ( $owner_id, $owner_token ) {
+					return $user_id === $owner_id ? $owner_token : false;
+				}
+			);
 
 		// Run the disconnect
 		$result = $this->manager->disconnect_all_users_except_primary();
