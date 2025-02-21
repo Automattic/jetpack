@@ -19,6 +19,8 @@ class Scheduled_Event implements Has_Setup {
 	 * @param string $recurrence The recurrence of the cronjob.
 	 * @param string $hook The hook to schedule the cronjob for.
 	 * @param array  $args The arguments to pass to the action.
+	 *
+	 * @return bool True if the cronjob was scheduled, false if it was already scheduled.
 	 */
 	public static function schedule_singleton_network_cron( int $timestamp, string $recurrence, string $hook, array $args = array() ) {
 		if ( false === wp_next_scheduled( 'jetpack_boost_network_cron', array( $hook, $args ) ) ) {
@@ -26,7 +28,9 @@ class Scheduled_Event implements Has_Setup {
 			update_site_option( "{$hook}_network_cron_recurrence", $recurrence );
 
 			wp_schedule_event( $timestamp, $recurrence, 'jetpack_boost_network_cron', array( $hook, $args ) );
+			return true;
 		}
+		return false;
 	}
 
 	/**
