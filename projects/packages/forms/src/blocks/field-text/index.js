@@ -23,6 +23,10 @@ export const settings = {
 	save: () => null,
 	example: {},
 	attributes: {
+		id: {
+			type: 'string',
+			default: '',
+		},
 		label: {
 			type: 'string',
 			default: __( 'Text', 'jetpack-forms' ),
@@ -50,10 +54,6 @@ export const settings = {
 			type: 'string',
 			default: '',
 			role: 'content',
-		},
-		id: {
-			type: 'string',
-			default: '',
 		},
 		width: {
 			type: 'number',

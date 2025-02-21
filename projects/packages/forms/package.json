@@ -48,6 +48,7 @@
 		"email-validator": "2.0.4",
 		"gridicons": "3.4.1",
 		"lodash": "4.17.21",
+		"nanoid": "5.1.0",
 		"react-redux": "7.2.8",
 		"react-router-dom": "6.28.1",
 		"react-transition-group": "^4.4.5",
