@@ -9,8 +9,8 @@ import { __ } from '@wordpress/i18n';
 /*
  * Internal dependencies
  */
-import AiAssistantToolbarDropdownContent from '../../../components/ai-assistant-toolbar-dropdown/dropdown-content';
-import useTransformToAssistant from '../../../hooks/use-transform-to-assistant';
+import AiAssistantToolbarDropdownContent from '../../../../components/ai-assistant-toolbar-dropdown/dropdown-content';
+import useTransformToAssistant from '../../../../hooks/use-transform-to-assistant';
 import { InlineExtensionsContext } from '../../get-block-handler';
 /*
  * Types
@@ -18,8 +18,8 @@ import { InlineExtensionsContext } from '../../get-block-handler';
 import type {
 	AiAssistantDropdownOnChangeOptionsArgProps,
 	OnRequestSuggestion,
-} from '../../../components/ai-assistant-toolbar-dropdown/dropdown-content';
-import type { PromptTypeProp } from '../../../lib/prompt';
+} from '../../../../components/ai-assistant-toolbar-dropdown/dropdown-content';
+import type { PromptTypeProp } from '../../../../lib/prompt';
 import type { ExtendedBlockProp } from '../../constants';
 import type { BlockBehavior } from '../../types';
 import type { ReactElement } from 'react';

@@ -8,7 +8,7 @@ import './editor.scss';
 /**
  * Extensions
  */
-import './extensions/with-ai-extension';
+import './extensions/text-blocks/with-ai-text-extension';
 
 registerJetpackBlockFromMetadata( metadata, {
 	edit,
