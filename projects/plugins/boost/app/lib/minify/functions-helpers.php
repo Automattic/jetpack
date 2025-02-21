@@ -345,7 +345,7 @@ function jetpack_boost_minify_serve_concatenated() {
  */
 function jetpack_boost_minify_activation() {
 	// Schedule a cronjob for cache cleanup, if one isn't already scheduled.
-	jetpack_boost_schedule_singleton_network_cron( time(), 'daily', 'jetpack_boost_minify_cron_cache_cleanup' );
+	Scheduled_Event::schedule_singleton_network_cron( time(), 'daily', 'jetpack_boost_minify_cron_cache_cleanup' );
 
 	// Setup the cronjob to periodically test for the 404 handler.
 	jetpack_boost_404_setup();

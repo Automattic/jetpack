@@ -95,6 +95,7 @@ function jetpack_boost_404_tester() {
 
 	return $minification_enabled;
 }
+add_action( 'jetpack_boost_404_tester_cron', 'jetpack_boost_404_tester' );
 
 /**
  * Setup the 404 tester.

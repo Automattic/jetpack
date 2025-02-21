@@ -47,7 +47,7 @@ class Scheduled_Event implements Has_Setup {
 	/**
 	 * Schedules a network-wide cronjob that is only ran once per network instead of per site.
 	 * Also is compatible with non multisite installs.
-	 * jetpack_boost_schedule_singleton_network_cron should be used to call this.
+	 * Schedule_Event::schedule_singleton_network_cron should be used to call this.
 	 *
 	 * @param string $action The action to schedule.
 	 * @param array  $args The arguments to pass to the action.
