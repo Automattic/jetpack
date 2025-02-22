@@ -1858,6 +1858,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 						// @phan-suppress-next-line PhanUndeclaredClassMethod - Class is missing from php-stubs/wp-cli-stubs 🤷
 						$progress->finish();
 
+						// Populate the cache with the new data.
+						Connections::get_all( array( 'ignore_cache' => true ) );
+
 						if ( 'all' === $service ) {
 							WP_CLI::success( __( 'All Jetpack Social connections were successfully disconnected.', 'jetpack' ) );
 						} else {
