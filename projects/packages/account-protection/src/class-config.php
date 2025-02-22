@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\Account_Protection;
  * Class Config
  */
 class Config {
-	public const TRANSIENT_PREFIX                     = 'jetpcak_account_protection';
+	public const TRANSIENT_PREFIX                     = 'jetpack_account_protection';
 	public const RECENT_PASSWORD_HASHES_USER_META_KEY = 'jetpack_account_protection_recent_password_hashes';
 
 	// Password Detection Constants
