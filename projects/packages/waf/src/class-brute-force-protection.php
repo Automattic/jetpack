@@ -515,8 +515,8 @@ class Brute_Force_Protection {
 	 *
 	 * Fires custom, plugable action jpp_log_failed_attempt with the IP
 	 *
-	 * @param string    $username - the user attempting to log in.
-	 * @param \WP_Error $error - the error object.
+	 * @param string    $username - The username or email address attempting to log in.
+	 * @param \WP_Error $error    - A WP_Error object with the authentication failure details.
 	 *
 	 * @return void
 	 */
