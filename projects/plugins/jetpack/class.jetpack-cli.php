@@ -1670,6 +1670,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * [<identifier>]
 	 * : The connection ID or service to perform an action on.
 	 *
+	 * [--ignore-cache]
+	 * : Whether to ignore connections cache.
+	 *
 	 * [--format=<format>]
 	 * : Allows overriding the output of the command when listing connections.
 	 * ---
@@ -1687,6 +1690,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 *     # List all publicize connections.
 	 *     $ wp jetpack publicize list
+	 *
+	 *     # List all publicize connections, ignoring the cache.
+	 *     $ wp jetpack publicize list --ignore-cache
 	 *
 	 *     # List publicize connections for a given service.
 	 *     $ wp jetpack publicize list linkedin
@@ -1746,11 +1752,14 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		switch ( $action ) {
 			case 'list':
+				$_args = array(
+					'ignore_cache' => $named_args['ignore-cache'] ?? false,
+				);
 				// For the CLI command, let's return all connections when a user isn't specified. This
 				// differs from the logic in the Publicize class.
 				$connections_to_return = is_user_logged_in()
-					? Connections::get_all_for_user()
-					: Connections::get_all();
+					? Connections::get_all_for_user( $_args )
+					: Connections::get_all( $_args );
 
 				if ( $id_is_service && ! empty( $identifier ) && ! empty( $connections_to_return ) ) {
 					$temp_connections      = $connections_to_return;
