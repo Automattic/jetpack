@@ -46,10 +46,8 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 	const [ isMd ] = useBreakpointMatch( 'md', '<=' );
 	const [ isLg ] = useBreakpointMatch( 'lg', '>' );
 
-	const {
-		connectedPlugins,
-		connectionStatus: { isActive },
-	} = window?.JP_CONNECTION_INITIAL_STATE || {};
+	const { connectedPlugins, connectionStatus: { isActive } = { isActive: false } } =
+		window?.JP_CONNECTION_INITIAL_STATE || {};
 
 	const siteAdminUrl = getSiteAdminUrl();
 	const areAdminLinksEnabled =
