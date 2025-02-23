@@ -69,7 +69,7 @@ interface Window {
 			};
 			connectionOwner: null;
 		};
-		connectedPlugins: object[];
+		connectedPlugins: Record< string, unknown >[];
 		wpVersion: string;
 		siteSuffix: string;
 		connectionErrors: Array;
