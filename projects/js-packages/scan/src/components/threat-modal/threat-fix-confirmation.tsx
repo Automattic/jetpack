@@ -24,25 +24,25 @@ const ThreatFixConfirmation = () => {
 					title={ 'Additional connections needed' }
 					content={ __(
 						'A user connection and server credentials provide Jetpack the access necessary to ignore and auto-fix threats on your site.',
-						'jetpack-components'
+						'jetpack-scan'
 					) }
 				/>
 			) }
 			{ ! siteCredentialsNeeded && userConnectionNeeded && (
 				<ThreatNotice
-					title={ __( 'User connection needed', 'jetpack-components' ) }
+					title={ __( 'User connection needed', 'jetpack-scan' ) }
 					content={ __(
 						'A user connection provides Jetpack the access necessary to ignore and auto-fix threats on your site.',
-						'jetpack-components'
+						'jetpack-scan'
 					) }
 				/>
 			) }
 			{ siteCredentialsNeeded && ! userConnectionNeeded && (
 				<ThreatNotice
-					title={ __( 'Site credentials needed', 'jetpack-components' ) }
+					title={ __( 'Site credentials needed', 'jetpack-scan' ) }
 					content={ __(
 						'Your server credentials allow Jetpack to access the server that’s powering your website. This information is securely saved and only used to ignore and auto-fix threats detected on your site.',
-						'jetpack-components'
+						'jetpack-scan'
 					) }
 				/>
 			) }

@@ -1,4 +1,4 @@
-import { getThreatType, type Threat } from '@automattic/jetpack-scan';
+import { Badge } from '@automattic/jetpack-components';
 import {
 	type Action,
 	type ActionButton,
@@ -15,9 +15,8 @@ import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
-import Badge from '../badge/index.js';
+import { ThreatSeverityBadge, getThreatType, type Threat } from '@automattic/jetpack-scan';
 import ThreatFixerButton from '../threat-fixer-button/index.js';
-import ThreatSeverityBadge from '../threat-severity-badge/index.js';
 import {
 	THREAT_ACTION_FIX,
 	THREAT_ACTION_IGNORE,
@@ -207,7 +206,7 @@ export default function ThreatsDataViews( {
 		const result: Field< Threat >[] = [
 			{
 				id: THREAT_FIELD_TITLE,
-				label: __( 'Threat', 'jetpack-components' ),
+				label: __( 'Threat', 'jetpack-scan' ),
 				enableGlobalSearch: true,
 				enableHiding: false,
 				render: ( { item }: { item: Threat } ) => (
@@ -216,7 +215,7 @@ export default function ThreatsDataViews( {
 			},
 			{
 				id: THREAT_FIELD_DESCRIPTION,
-				label: __( 'Description', 'jetpack-components' ),
+				label: __( 'Description', 'jetpack-scan' ),
 				enableGlobalSearch: true,
 				enableHiding: false,
 				render: ( { item }: { item: Threat } ) => (
@@ -225,7 +224,7 @@ export default function ThreatsDataViews( {
 			},
 			{
 				id: THREAT_FIELD_ICON,
-				label: __( 'Icon', 'jetpack-components' ),
+				label: __( 'Icon', 'jetpack-scan' ),
 				enableHiding: false,
 				getValue( { item }: { item: Threat } ) {
 					return getThreatType( item );
@@ -240,7 +239,7 @@ export default function ThreatsDataViews( {
 			},
 			{
 				id: THREAT_FIELD_STATUS,
-				label: __( 'Status', 'jetpack-components' ),
+				label: __( 'Status', 'jetpack-scan' ),
 				elements: THREAT_STATUSES,
 				getValue( { item }: { item: Threat } ) {
 					if ( ! item.status ) {
@@ -257,31 +256,31 @@ export default function ThreatsDataViews( {
 							return <Badge variant={ status?.variant }>{ status.label }</Badge>;
 						}
 					}
-					return <Badge variant="warning">{ __( 'Active', 'jetpack-components' ) }</Badge>;
+					return <Badge variant="warning">{ __( 'Active', 'jetpack-scan' ) }</Badge>;
 				},
 			},
 			{
 				id: THREAT_FIELD_TYPE,
-				label: __( 'Type', 'jetpack-components' ),
+				label: __( 'Type', 'jetpack-scan' ),
 				elements: THREAT_TYPES,
 				getValue( { item }: { item: Threat } ) {
 					switch ( getThreatType( item ) ) {
 						case 'core':
-							return __( 'WordPress', 'jetpack-components' );
+							return __( 'WordPress', 'jetpack-scan' );
 						case 'plugins':
-							return __( 'Plugin', 'jetpack-components' );
+							return __( 'Plugin', 'jetpack-scan' );
 						case 'themes':
-							return __( 'Theme', 'jetpack-components' );
+							return __( 'Theme', 'jetpack-scan' );
 						case 'file':
-							return __( 'File', 'jetpack-components' );
+							return __( 'File', 'jetpack-scan' );
 						default:
-							return __( 'Unknown', 'jetpack-components' );
+							return __( 'Unknown', 'jetpack-scan' );
 					}
 				},
 			},
 			{
 				id: THREAT_FIELD_EXTENSION,
-				label: __( 'Extension', 'jetpack-components' ),
+				label: __( 'Extension', 'jetpack-scan' ),
 				enableGlobalSearch: true,
 				enableHiding: true,
 				getValue( { item }: { item: Threat } ) {
@@ -293,7 +292,7 @@ export default function ThreatsDataViews( {
 			},
 			{
 				id: THREAT_FIELD_PLUGIN,
-				label: __( 'Plugin', 'jetpack-components' ),
+				label: __( 'Plugin', 'jetpack-scan' ),
 				enableGlobalSearch: true,
 				enableHiding: false,
 				elements: plugins,
@@ -303,7 +302,7 @@ export default function ThreatsDataViews( {
 			},
 			{
 				id: THREAT_FIELD_THEME,
-				label: __( 'Theme', 'jetpack-components' ),
+				label: __( 'Theme', 'jetpack-scan' ),
 				enableGlobalSearch: true,
 				enableHiding: false,
 				elements: themes,
@@ -315,7 +314,7 @@ export default function ThreatsDataViews( {
 				? [
 						{
 							id: THREAT_FIELD_SEVERITY,
-							label: __( 'Severity', 'jetpack-components' ),
+							label: __( 'Severity', 'jetpack-scan' ),
 							type: 'integer' as FieldType,
 							getValue( { item }: { item: Threat } ) {
 								return item.severity ?? 0;
@@ -330,7 +329,7 @@ export default function ThreatsDataViews( {
 				? [
 						{
 							id: THREAT_FIELD_SIGNATURE,
-							label: __( 'Signature', 'jetpack-components' ),
+							label: __( 'Signature', 'jetpack-scan' ),
 							elements: signatures,
 							enableGlobalSearch: true,
 							getValue( { item }: { item: Threat } ) {
@@ -343,7 +342,7 @@ export default function ThreatsDataViews( {
 				? [
 						{
 							id: THREAT_FIELD_FIRST_DETECTED,
-							label: __( 'First Detected', 'jetpack-components' ),
+							label: __( 'First Detected', 'jetpack-scan' ),
 							type: 'datetime' as FieldType,
 							getValue( { item }: { item: Threat } ) {
 								return item.firstDetected ? new Date( item.firstDetected ) : null;
@@ -362,7 +361,7 @@ export default function ThreatsDataViews( {
 				? [
 						{
 							id: THREAT_FIELD_FIXED_ON,
-							label: __( 'Fixed On', 'jetpack-components' ),
+							label: __( 'Fixed On', 'jetpack-scan' ),
 							type: 'datetime' as FieldType,
 							getValue( { item }: { item: Threat } ) {
 								return item.fixedOn ? new Date( item.fixedOn ) : null;
@@ -381,16 +380,16 @@ export default function ThreatsDataViews( {
 				? [
 						{
 							id: THREAT_FIELD_AUTO_FIX,
-							label: __( 'Auto-fix', 'jetpack-components' ),
+							label: __( 'Auto-fix', 'jetpack-scan' ),
 							enableHiding: false,
 							elements: [
 								{
 									value: 'yes',
-									label: __( 'Yes', 'jetpack-components' ),
+									label: __( 'Yes', 'jetpack-scan' ),
 								},
 								{
 									value: 'no',
-									label: __( 'No', 'jetpack-components' ),
+									label: __( 'No', 'jetpack-scan' ),
 								},
 							],
 							getValue( { item }: { item: Threat } ) {
@@ -422,7 +421,7 @@ export default function ThreatsDataViews( {
 		if ( dataFields.includes( 'fixable' ) ) {
 			result.push( {
 				id: THREAT_ACTION_FIX,
-				label: __( 'Auto-fix', 'jetpack-components' ),
+				label: __( 'Auto-fix', 'jetpack-scan' ),
 				isPrimary: true,
 				callback: onFixThreats,
 				isEligible( item ) {
@@ -440,7 +439,7 @@ export default function ThreatsDataViews( {
 		if ( dataFields.includes( 'status' ) ) {
 			result.push( {
 				id: THREAT_ACTION_IGNORE,
-				label: __( 'Ignore', 'jetpack-components' ),
+				label: __( 'Ignore', 'jetpack-scan' ),
 				isPrimary: true,
 				isDestructive: true,
 				callback: onIgnoreThreats,
@@ -459,7 +458,7 @@ export default function ThreatsDataViews( {
 		if ( dataFields.includes( 'status' ) ) {
 			result.push( {
 				id: THREAT_ACTION_UNIGNORE,
-				label: __( 'Unignore', 'jetpack-components' ),
+				label: __( 'Unignore', 'jetpack-scan' ),
 				isPrimary: true,
 				isDestructive: true,
 				callback: onUnignoreThreats,

@@ -52,6 +52,11 @@
 		"@wordpress/element": "6.19.0",
 		"@wordpress/i18n": "5.19.0",
 		"@wordpress/url": "4.19.0",
+		"@automattic/jetpack-components": "workspace:*",
+		"@wordpress/components": "29.3.0",
+		"@wordpress/dataviews": "4.13.0",
+		"@wordpress/date": "5.17.0",
+		"@wordpress/icons": "10.17.0",
 		"debug": "4.4.0",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0"

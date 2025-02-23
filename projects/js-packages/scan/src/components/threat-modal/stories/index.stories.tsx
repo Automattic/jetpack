@@ -1,5 +1,5 @@
+import { Button } from '@automattic/jetpack-components';
 import { useCallback, useState } from 'react';
-import Button from '../../button/index.js';
 import ThreatModal from '../index.js';
 
 export default {
